@@ -1,0 +1,54 @@
+@charset "utf-8";
+body  {
+	
+	margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+	padding: 0;
+	color: #000000;
+	text-align: left;
+}
+#container { 
+	width: 1080px;  /* using 20px less than a full 800px width allows for browser chrome and avoids a horizontal scroll bar */
+	margin: 0 ; /* the auto margins (in conjunction with a width) center the page */
+	border: px solid #000000;
+	text-align: left; /* this overrides the text-align: center on the body element. */
+} 
+
+#sidebar1 {
+	float: left; /* since this element is floated, a width must be given */
+	width: 245px; /* the actual width of this div, in standards-compliant browsers, or standards mode in Internet Explorer will include the padding and border in addition to the width */
+	 /* the background color will be displayed for the length of the content in the column, but no further */
+	padding: opx 0px 0px 0px; /* padding keeps the content of the div away from the edges */
+}
+#sidebar2 {
+	float: right; /* since this element is floated, a width must be given */
+	width: 300px; /* the actual width of this div, in standards-compliant browsers, or standards mode in Internet Explorer will include the padding and border in addition to the width */
+	/* the background color will be displayed for the length of the content in the column, but no further */
+	padding: 205px 0px; /* padding keeps the content of the div away from the edges */
+}
+#mainContent { 
+	margin: 0 290px; /* the right and left margins on this div element creates the two outer columns on the sides of the page. No matter how much content the sidebar divs contain, the column space will remain. You can remove this margin if you want the #mainContent div's text to fill the sidebar spaces when the content in each sidebar ends. */
+	width: 490px;
+	padding: 205px 0px; /* remember that padding is the space inside the div box and margin is the space outside the div box */
+} 
+.thrColFixHdr #footer { 
+	padding: 0 10px 0 20px; /* this padding matches the left alignment of the elements in the divs that appear above it. */
+	background:#DDDDDD;
+} 
+.thrColFixHdr #footer p {
+	margin: 0; /* zeroing the margins of the first element in the footer will avoid the possibility of margin collapse - a space between divs */
+	padding: 10px 0; /* padding on this element will create space, just as the the margin would have, without the margin collapse issue */
+}
+.fltrt { /* this class can be used to float an element right in your page. The floated element must precede the element it should be next to on the page. */
+	float: right;
+	margin-left: 8px;
+}
+.fltlft { /* this class can be used to float an element left in your page */
+	float: left;
+	margin-right: 8px;
+}
+.clearfloat { /* this class should be placed on a div or break element and should be the final element before the close of a container that should fully contain a float */
+	clear:both;
+    height:0;
+    font-size: 1px;
+    line-height: 0px;
+}

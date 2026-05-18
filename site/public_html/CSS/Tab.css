@@ -1,0 +1,245 @@
+@charset "utf-8";
+body {
+	font: 100% Verdana, Arial, sans-serif;
+	background: #000000 url(../back.png) repeat scroll 0 0;
+	margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+	padding: 0;
+	text-align: center; /* this centers the container in IE 5* browsers. The text is then set to the left aligned default in the #container selector */
+	color: #000000;
+}
+#container {
+	width: 1000px;
+	height: 1400px;
+	margin: 0 auto; /* the auto margins (in conjunction with a width) center the page */
+	padding-left: 7px;
+	padding-right: 7px;
+	/*-moz-border-radius-topleft: 8px;
+	-webkit-border-top-left-radius: 8px;
+	-moz-border-radius-topright: 8px;
+	-webkit-border-top-right-radius: 8px; */
+	/*-webkit-box-shadow: 6px 9px 7px #333; */
+	text-align: left; /* this overrides the text-align: center on the body element. */
+	background: url("../main.jpg") repeat-y scroll 0 0 #FFFFFF;
+	background-color: #FFF;
+	font-size: 12px;	
+}
+#header {
+	padding: 0;
+	margin: 0;
+	
+	height: 215px;
+	
+	/*-moz-border-radius-topleft: 8px;
+	-webkit-border-top-left-radius: 8px;
+	-moz-border-radius-topright: 8px;
+	-webkit-border-top-right-radius: 8px; */	
+	background-image: url(../HeaderBackground3.jpg);
+}
+
+#header .h1 {
+	background-color: #06F;
+	margin: 0;
+}
+
+.ColorOne {
+	background-color: #06F;}
+
+.HeightTwo{
+	height: 40px;
+}
+
+.HeightThree{
+	height: 193px;
+}
+
+.TopMarginOne {
+	margin-top: 10px;	
+}
+
+.TabbedMenuContainer{
+	height: 22px;
+}
+
+.TabbedMenuOne{
+	padding-left:15px;
+	margin:0px;
+	list-style-type:none;
+}
+
+.TabbedMenuOne li{
+	float:left;
+	margin: 0px;
+}
+
+.TabbedMenuOne li a{
+	float:left;
+	text-decoration:none;
+	text-align: center;
+	
+	-moz-border-radius-topleft: 7px;
+	-webkit-border-top-left-radius: 7px;
+	-moz-border-radius-topright: 7px;
+	-webkit-border-top-right-radius: 7px;
+}
+
+.TabbedMenuOne li a.Current {
+	padding-top: 4px;
+	padding-right: 0px;
+	padding-bottom: 4px;
+	padding-left: 0px;
+	
+	
+	width: 106px;
+	
+	margin-top: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	
+	color: #000;
+	font-weight: 600;
+	font-size: 12px;
+	
+	border: solid 1px;
+	border-bottom-width: 0px;
+	border-color: #000;
+	
+	background-color: #FFF;
+}
+
+.TabbedMenuOne li a.NonCurrent {
+	padding-top: 3px;
+	padding-right: 0px;
+	padding-bottom: 3px;
+	padding-left: 0px;
+	
+	width: 104px;
+	
+	margin-top: 1px;
+	margin-left: 1px;
+	margin-right: 1px;
+	color: #444488;
+	font-size: 12px;
+	font-weight: 600;
+	border: solid 1px;
+	border-bottom-width: 0px;
+	border-color: #000;
+	background-color: #ddddee; /* fallback color */
+	background-image: -moz-linear-gradient(100% 100% 90deg, #2F2727, #1a82f7);
+	/* background-image: -webkit-gradient(linear, 0% 90%, 0% 100%, from(#96ED6A), to(#6BA84B)); */
+	/* background-image: -webkit-gradient(linear, 0% 90%, 0% 100%, from(#ACF2F0), to(#99D4D2)) */
+	/* background-image: -webkit-gradient(linear, 0% 90%, 0% 100%, from(#1A82F7), to(#1463BD)); */
+	/* background-image: -webkit-gradient(linear, 0% 90%, 0% 100%, from(#CAFFB0), to(#9DBA90)); */
+}
+
+.TabbedMenuOne li a.NonCurrent:hover {
+	background: #AAAAEE;
+	color: #000;
+	
+	padding-top: 4px;
+	padding-right: 0px;
+	padding-bottom: 3px;
+	padding-left: 0px;
+	
+	
+	width: 106px;
+	
+	margin-top: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.TabbedMenuTwo{
+	padding-left:15px;
+	margin:0px;
+	list-style-type:none;
+}
+
+.TabbedMenuTwo li{
+	float:left;
+	margin: 0px;
+}
+
+.TabbedMenuTwo li a{
+	float:left;
+	
+	text-decoration:none;
+	text-align: center;
+	
+	-moz-border-radius-topleft: 3px;
+	-webkit-border-top-left-radius: 3px;
+	-moz-border-radius-topright: 3px;
+	-webkit-border-top-right-radius: 3px;
+}
+
+.TabbedMenuTwo li a.Current {
+	padding-top: 4px;
+	padding-right: 8px;
+	padding-bottom: 1px;
+	padding-left: 8px;
+	
+	
+	
+	margin-top: 0px;
+	margin-left: 1px;
+	margin-right: 1px;
+	
+	color: #000;
+	font-weight: 600;
+	font-size: 12px;
+	border: solid 1px;
+	border-bottom-width: 0px;
+	border-color: #000;
+	background-color: #FFF;
+}
+
+.TabbedMenuTwo li a.NonCurrent {
+	padding-top: 4px;
+	padding-right: 7px;
+	padding-bottom: 1px;
+	padding-left: 7px;
+	
+	margin-top: 1px;
+	margin-left: 2px;
+	margin-right: 2px;
+	color: #000;
+	font-weight: 600;
+	font-size: 12px;
+	border: solid 1px;
+	border-bottom-width: 0px;
+	border-color: #000;
+	background-color: #FFF;
+	background-image: -moz-linear-gradient(88% 100% 90deg, #C0FF8A, #A6DB77);
+	/* background-image: -webkit-gradient(linear, 0% 85%, 0% 100%, from(#55E6E1), to(#4CCFCA)); */
+	background-image: -webkit-gradient(linear, 0% 90%, 0% 100%, from(#CAFFB0), to(#9DBA90));
+}
+
+.TabbedMenuTwo li a:hover {
+	color: #999;
+	
+    padding-right: 8px;
+	padding-left: 8px;
+	
+	margin-top: 0px;
+	margin-left: 1px;
+	margin-right: 1px;
+}
+
+.TabTwoBackground {
+	background-color: #FFF;
+	height: 24px;
+	background-image: -webkit-gradient(linear, 0% 94%, 0% 100%, from(#FFFFFF), to(#D6D6D6));
+	border-top: solid white 1px;	
+	
+}
+
+.ActiveContent {
+	border-top: solid 1px;
+	border-color: #333;
+	
+	padding-top: 15px;
+	padding-right: 15px;
+	padding-left: 15px;
+	padding-bottom: 15px;
+
+}
+

@@ -1,0 +1,95 @@
+table.example {
+	table-layout:fixed;
+	border:0px solid black;
+	border-collapse:collapse;
+	font-size: 11px;
+}
+table.example th {
+	background-color:#1a350c;
+	padding: 2px 6px 0px 6px;
+	color: white;
+	font-size: 12px;
+	white-space:nowrap;
+}
+
+table.example thead .goalcounter, table.example thead .goalcounter:hover {
+	font-size: 11px;
+	font-weight: normal;
+	color: #333;	
+	background-color:#1a350c;
+}
+
+table.example tbody td {
+	padding: 2px 6px 0px 6px;
+	white-space:nowrap;
+}
+
+.blue {
+	color: #03F;
+}
+
+.red {
+	color: #C30;
+}
+
+table.example thead th:hover {
+	background-color:#659142;
+	color: white;
+}
+
+table.example thead .nohovercell:hover{
+	background-color:#1a350c;	
+}
+
+table.example thead .filtercell, table.example thead .filtercell:hover {
+	background-color: #fdfdfd;
+	border:0px solid;
+	padding-bottom: 2px;
+}
+
+table.example tfoot td{
+	background-color:#1a350c;
+	padding: 2px 6px 1px 6px;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	white-space:nowrap;
+}
+
+table.example tr.tbody_header {
+	font-weight:bold;
+
+	background-color:#dddddd;
+}
+
+table.example a.pagelink {
+	padding-left:5px;
+	padding-right:5px;
+	border:1px solid #666666;
+	margin:0px 5px 0px 5px;
+}
+table.example a.currentpage {
+	background-color:yellow;
+}
+
+tr {
+	background-color: #edf5ed;	
+}
+/* Striping */
+tr.alternate {
+	background-color: #d9e9d9;
+}
+
+/* Sorting */
+th.table-sortable {
+	cursor:pointer;
+}
+th.table-sorted-asc {
+}
+th.table-sorted-desc {
+}
+th.table-filtered {
+}
+select.table-autofilter {
+		font-size: 11px;
+}
