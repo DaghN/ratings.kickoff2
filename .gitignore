@@ -7,3 +7,8 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# Server / editor noise under mirrored site
+site/public_html/.cache/
+site/public_html/.usermin/
+**/dwsync.xml
