@@ -8,7 +8,12 @@
  * 
  * Please do not link to the .js files on javascripttoolbox.com from
  * your site. Copy the files locally to your server instead.
- * 
+ *
+ * KOOL fork additions:
+ * - Tables with class "table-autorank" get column 0 renumbered after sort,
+ *   filter, or paging so ranks match visible order and page offset (e.g. 31–60
+ *   on page 2 when pagesize is 30).
+ *
  */
 /**
  * Table.js
@@ -241,7 +246,9 @@ var Table = (function(){
 		AutoPageSizePrefix:"table-autopage:",
 		AutoPageJumpPrefix:"table-page:",
 		PageNumberPrefix:"table-page-number:",
-		PageCountPrefix:"table-page-count:"
+		PageCountPrefix:"table-page-count:",
+
+		AutoRankClassName:"table-autorank"
 	};
 
 	/**
@@ -573,6 +580,7 @@ var Table = (function(){
 			if (tdata.stripeclass) {
 				this.stripe(t,tdata.stripeclass,!!tdata.ignorehiddenrows);
 			}
+			this.refreshRankColumn(t);
 		}
 	};
 
@@ -675,6 +683,41 @@ var Table = (function(){
 	 */	
 	table.pagePrevious = function(t,args) {
 		return this.pageJump(t,-1,args);
+	};
+
+	/**
+	 * Renumber first data column for tables marked table-autorank (KOOL).
+	 * Visible tbody rows get sequential ranks; paging applies an offset
+	 * (page * pagesize + 1, …) within the current filtered + sorted list.
+	 */
+	table.refreshRankColumn = function(t) {
+		t = this.resolve(t);
+		if (t==null || !hasClass(t,this.AutoRankClassName)) {
+			return;
+		}
+		var tdata = this.tabledata[t.id];
+		var startRank = 1;
+		if (def(tdata.page) && def(tdata.pagesize) && tdata.pagesize > 0) {
+			startRank = tdata.page * tdata.pagesize + 1;
+		}
+		var bodies = t.tBodies;
+		if (bodies==null || bodies.length==0) {
+			return;
+		}
+		var rank = startRank;
+		for (var bi=0,Lb=bodies.length; bi<Lb; bi++) {
+			var tb = bodies[bi];
+			for (var rj=0,Lr=tb.rows.length; rj<Lr; rj++) {
+				var row = tb.rows[rj];
+				if (!row.cells || row.cells.length<1) {
+					continue;
+				}
+				if (isHidden(row)) {
+					continue;
+				}
+				row.cells[0].textContent = String(rank++);
+			}
+		}
 	};
 
 	/**
@@ -795,6 +838,7 @@ var Table = (function(){
 		if (tdata.container_all_count) {
 			tdata.container_all_count.innerHTML = totalrows;
 		}
+		this.refreshRankColumn(t);
 		return { 'data':tdata, 'unfilteredcount':unfilteredrowcount, 'total':totalrows, 'pagecount':pagecount, 'page':page, 'pagesize':pagesize };
 	};
 

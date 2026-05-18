@@ -25,6 +25,8 @@
 
 | When (approx.) | What |
 |----------------|------|
+| 2026-05 | **`index.php`** — **302** redirect to **`ranked1.php`** (root opens ladder Results instead of menu-only page). |
+| 2026-05 | **`scripts/throwaway_playertable_schema.php`** — copy **into staging `public_html`** temporarily; **`?once=playertable-schema-one-shot`**; **delete after**. Not under **`site/public_html`** (won’t sync with normal **`public_html`** deploy). |
 | 2026-05 | Git on **`main`** → [ratings.kickoff2](https://github.com/DaghN/ratings.kickoff2). Workflow: solo dev, shallow branches acceptable. Branch protection deferred. |
 | 2026-05 | **`scripts/sftp_mirror.py`** (**Paramiko**) — env-based SFTP **download** of staging home into **`site/public_html/`**; **`ko2unitydb_config.php`** absent from mirrored tree (expected under **`public_html/../config/`** on server). |
 | 2026-05 | **Laragon** (`C:\laragon`), junction **`C:\laragon\www\ratingskickoff`** → **`site/public_html`** — **`http://ratingskickoff.test/`** after **Start All** ( **`index.php`** works without DB; ladder pages need config+DB locally). |
@@ -42,6 +44,7 @@
 
 - GitHub branch protection / enforced PRs — when collaborators land.
 - **Schema changes + bulk imports + Amiga/offline datasets** until writable dev plumbing agreed with Steve.
+- **Pretty / realm URLs** (e.g. **`/online/{id}`** instead of **`individual1.php?id=`**): deferred until worth brief coordination with **Steve** — needs Apache **`.htaccess`** (**`AllowOverride`**) or nginx vhost rules; mostly cosmetic/readability; functional links unchanged until then.
 
 ---
 

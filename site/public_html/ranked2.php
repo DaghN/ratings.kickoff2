@@ -48,13 +48,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, NumberGames, GoalsFor, GoalsAgainst, AverageGoalsFor, AverageGoalsAgainst, GoalRatio, MostGoalsScored, MostGoalsConceded, LeastGoalsScored, LeastGoalsConceded, BiggestWinDifference, BiggestLossDifference, BiggestDrawSum, BiggestSumOfGoals, SmallestSumOfGoals, NumberDraws FROM playertable WHERE display=1 AND PlayerRank<>9999 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, GoalsFor, GoalsAgainst, AverageGoalsFor, AverageGoalsAgainst, GoalRatio, MostGoalsScored, MostGoalsConceded, LeastGoalsScored, LeastGoalsConceded, BiggestWinDifference, BiggestLossDifference, BiggestDrawSum, BiggestSumOfGoals, SmallestSumOfGoals, NumberDraws FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
 ?>
 
-<table class="example table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="example table-autosort table-autofilter table-autorank table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
 <thead>
     <tr style="text-align:right;">
