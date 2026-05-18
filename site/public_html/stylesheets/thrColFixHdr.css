@@ -3,7 +3,8 @@ body  {
 	
 	margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
 	padding: 0;
-	color: #000000;
+	background-color: transparent;
+	color: var(--color-text-primary, #e3e3e3);
 	text-align: left;
 }
 #container { 
@@ -32,7 +33,9 @@ body  {
 } 
 .thrColFixHdr #footer { 
 	padding: 0 10px 0 20px; /* this padding matches the left alignment of the elements in the divs that appear above it. */
-	background:#DDDDDD;
+	background: var(--color-footer-bg, #1a1a1a);
+	color: var(--color-text-primary, #e3e3e3);
+	border-top: 1px solid var(--color-border-subtle, #3d3d3d);
 } 
 .thrColFixHdr #footer p {
 	margin: 0; /* zeroing the margins of the first element in the footer will avoid the possibility of margin collapse - a space between divs */

@@ -7,6 +7,7 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/elolist.js" ></script>
+<script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
 
@@ -17,7 +18,7 @@
 <ul id="aboutmenu">
         <li><a href="#" title="" class="current">Server Stats</a></li>
         <li><a href="ranked1.php" title="" class="noncurrent">Player Ranks</a></li>
-        <li><a href="individualA.php" title="" class="noncurrent">Individual Pages</a></li>
+        <?php $playerSearchAsNavItem = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
 </ul>
 
 <br />

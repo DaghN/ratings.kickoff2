@@ -3,6 +3,7 @@ table.example {
 	border:0px solid black;
 	border-collapse:collapse;
 	font-size: 11px;
+	color: #333;
 }
 table.example th {
 	background-color:#1a350c;
@@ -22,6 +23,23 @@ table.example thead .goalcounter, table.example thead .goalcounter:hover {
 table.example tbody td {
 	padding: 2px 6px 0px 6px;
 	white-space:nowrap;
+	color: #333;
+}
+
+table.example tbody td a {
+	color: #38790e;
+	font-weight: bold;
+}
+
+/* ranked1.php–ranked6.php: keep Player column from shrinking when page composition changes after sort */
+table.example.ranked-pages-table thead th:nth-child(2),
+table.example.ranked-pages-table tbody td:nth-child(2) {
+	min-width: 9.1em;
+}
+
+/* ranked1–6: hide until elolist Table.auto runs (html.ranked-js + .ranked-table-pending; see ranked_table_cloak_head.php) */
+html.ranked-js table.example.ranked-pages-table.ranked-table-pending {
+	visibility: hidden;
 }
 
 .blue {
@@ -45,6 +63,7 @@ table.example thead .filtercell, table.example thead .filtercell:hover {
 	background-color: #fdfdfd;
 	border:0px solid;
 	padding-bottom: 2px;
+	color: #333;
 }
 
 table.example tfoot td{
@@ -56,10 +75,16 @@ table.example tfoot td{
 	white-space:nowrap;
 }
 
+table.example tfoot td a,
+table.example tfoot td a:visited {
+	color: #ffffff;
+	font-weight: bold;
+}
+
 table.example tr.tbody_header {
 	font-weight:bold;
-
 	background-color:#dddddd;
+	color: #333;
 }
 
 table.example a.pagelink {
@@ -67,9 +92,13 @@ table.example a.pagelink {
 	padding-right:5px;
 	border:1px solid #666666;
 	margin:0px 5px 0px 5px;
+	color: #ffffff;
+	font-weight: bold;
 }
 table.example a.currentpage {
 	background-color:yellow;
+	color: #333;
+	font-weight: bold;
 }
 
 tr {
@@ -91,5 +120,7 @@ th.table-sorted-desc {
 th.table-filtered {
 }
 select.table-autofilter {
-		font-size: 11px;
+	font-size: 11px;
+	color: #333;
+	background-color: #fff;
 }

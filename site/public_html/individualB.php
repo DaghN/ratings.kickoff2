@@ -7,6 +7,7 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/elolist.js" ></script>
+<script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
 
@@ -17,7 +18,7 @@
 <ul id="aboutmenu">
         <li><a href="server1.php" title="" class="noncurrent">Server Stats</a></li>
         <li><a href="ranked1.php" title="" class="noncurrent">Player Ranks</a></li>
-        <li><a href="#" title="" class="current">Individual Pages</a></li>
+        <?php $playerSearchAsNavItem = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
 </ul>
 
 <br />
@@ -31,44 +32,6 @@
 
 <br />
 <br />
-
-<?php 
-include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
-
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
-
-$query = "SELECT id, name FROM playertable ORDER BY name";
-$result = mysqli_query($con,$query);
-?>
-
-<script type="text/javascript">
-function functionblack_dress(el,selected){ 
-var to=el.value; 
-el.selectedIndex=selected; 
-window.location=to; 
-}
-</script>
-
-<form name="example1" action="xfer.php" method="POST">
-<select name="xfer" size="1" onChange="location = '' + this.options[this.selectedIndex ].value;">
-<option selected="selected" value="individual.php">--Select Player--</option>
-<?php
-while ($line = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-?>
-<option value="individual2a.php?id=<?php echo $line['id'];?>"> <?php echo $line['name'];?> </option>
-<?php
-}
-?>
-</select>
-<noscript><input type="submit" value="Go!" />
-</noscript>
-</form>
 
 </body>
 </html>

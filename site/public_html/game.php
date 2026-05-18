@@ -12,8 +12,6 @@
 
 <body>
 
-
-
 <?php $id=$_GET['id']; ?>
 
 

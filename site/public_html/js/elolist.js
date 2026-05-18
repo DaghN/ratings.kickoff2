@@ -13,6 +13,9 @@
  * - Tables with class "table-autorank" get column 0 renumbered after sort,
  *   filter, or paging so ranks match visible order and page offset (e.g. 31–60
  *   on page 2 when pagesize is 30).
+ * - First click on a column header sorts descending by default (see SortDefaultDescendingOnNewColumn).
+ * - Ranked tables use class ranked-table-pending + html.ranked-js to avoid flashing full HTML before paging;
+ *   revealRankedTablesPending runs after Table.auto (try/finally).
  *
  */
 /**
@@ -230,6 +233,8 @@ var Table = (function(){
 		AutoSortClassName:"table-autosort",
 		AutoSortColumnPrefix:"table-autosort:",
 		AutoSortTitle:"Click to sort",
+		/** When sorting a column for the first time (not toggling same column), start descending if args.desc is omitted */
+		SortDefaultDescendingOnNewColumn:true,
 		SortedAscendingClassName:"table-sorted-asc",
 		SortedDescendingClassName:"table-sorted-desc",
 		SortableClassName:"table-sortable",
@@ -495,8 +500,11 @@ var Table = (function(){
 		if (def(tdata.lastcol) && tdata.lastcol==tdata.col && def(tdata.lastdesc)) {
 			tdata.desc = !tdata.lastdesc;
 		}
+		// New column: use args.desc if provided; otherwise default to descending first (typical for numeric leaderboards).
 		else {
-			tdata.desc = !!args.desc;
+			tdata.desc = def(args.desc)
+				? !!args.desc
+				: !!this.SortDefaultDescendingOnNewColumn;
 		}
 
 		// Store the last sorted column so clicking again will reverse the sort order
@@ -901,36 +909,54 @@ var Table = (function(){
 	};
 
 	/**
+	 * Remove ranked-table-pending from ranked leaderboards after enhancements are applied.
+	 */
+	table.revealRankedTablesPending = function() {
+		var tables = document.getElementsByTagName("TABLE"), i, el;
+		for (i = 0; i < tables.length; i++) {
+			el = tables[i];
+			if (hasClass(el, "ranked-table-pending")) {
+				removeClass(el, "ranked-table-pending");
+			}
+		}
+	};
+
+	/**
 	 * Scan the document on load and add sorting, filtering, paging etc ability automatically
 	 * based on existence of class names on the table and cells.
 	 */
 	table.auto = function(args) {
-		var cells = [], tables = document.getElementsByTagName("TABLE");
-		var val,tdata;
-		if (tables!=null) {
-			for (var i=0,L=tables.length; i<L; i++) {
-				var t = table.resolve(tables[i]);
-				tdata = table.tabledata[t.id];
-				if (val=classValue(t,table.StripeClassNamePrefix)) {
-					tdata.stripeclass=val;
-				}
-				// Do auto-filter if necessary
-				if (hasClass(t,table.AutoFilterClassName)) {
-					table.autofilter(t);
-				}
-				// Do auto-page if necessary
-				if (val = classValue(t,table.AutoPageSizePrefix)) {
-					table.autopage(t,{'pagesize':+val});
-				}
-				// Do auto-sort if necessary
-				if ((val = classValue(t,table.AutoSortColumnPrefix)) || (hasClass(t,table.AutoSortClassName))) {
-					table.autosort(t,{'col':(val==null)?null:+val});
-				}
-				// Do auto-stripe if necessary
-				if (tdata.stripeclass && hasClass(t,table.AutoStripeClassName)) {
-					table.stripe(t);
+		try {
+			var cells = [], tables = document.getElementsByTagName("TABLE");
+			var val,tdata;
+			if (tables!=null) {
+				for (var i=0,L=tables.length; i<L; i++) {
+					var t = table.resolve(tables[i]);
+					tdata = table.tabledata[t.id];
+					if (val=classValue(t,table.StripeClassNamePrefix)) {
+						tdata.stripeclass=val;
+					}
+					// Do auto-filter if necessary
+					if (hasClass(t,table.AutoFilterClassName)) {
+						table.autofilter(t);
+					}
+					// Do auto-page if necessary
+					if (val = classValue(t,table.AutoPageSizePrefix)) {
+						table.autopage(t,{'pagesize':+val});
+					}
+					// Do auto-sort if necessary
+					if ((val = classValue(t,table.AutoSortColumnPrefix)) || (hasClass(t,table.AutoSortClassName))) {
+						table.autosort(t,{'col':(val==null)?null:+val});
+					}
+					// Do auto-stripe if necessary
+					if (tdata.stripeclass && hasClass(t,table.AutoStripeClassName)) {
+						table.stripe(t);
+					}
 				}
 			}
+		}
+		finally {
+			table.revealRankedTablesPending();
 		}
 	};
 

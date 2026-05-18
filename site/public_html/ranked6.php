@@ -6,7 +6,9 @@
 
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/ranked_table_cloak_head.php"; ?>
 <script type="text/javascript" src="js/elolist.js" ></script>
+<script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
 
@@ -17,7 +19,7 @@
 <ul id="aboutmenu">
         <li><a href="server1.php" title="" class="noncurrent">Server Stats</a></li>
         <li><a href="#" title="" class="current">Player Ranks</a></li>
-        <li><a href="individualA.php" title="" class="noncurrent">Individual Pages</a></li>
+        <?php $playerSearchAsNavItem = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
 </ul>
 
 <br />
@@ -36,7 +38,6 @@
 <br />
 <br />
 
-
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
@@ -48,19 +49,20 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, NumberGames, AverageOpponentRating, HighestRatedVictim, LowestRatedCulprit, CurrentRatingAscent, CurrentRatingDescent, BiggestRatingAscent, BiggestRatingDescent, RecentAverageRating, LowestRating, PeakRating FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, PeakRating, NumberGames, AverageOpponentRating, HighestRatedVictim, LowestRatedCulprit, CurrentRatingAscent, CurrentRatingDescent, BiggestRatingAscent, BiggestRatingDescent, RecentAverageRating, LowestRating FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
 ?>
 
-<table class="example table-autosort table-autofilter table-autorank table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="example ranked-pages-table ranked-table-pending table-autosort table-autofilter table-autorank table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
 <thead>
     <tr style="text-align:right;">
         <th class="table-sortable:numeric">Rank</th>
         <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
-        <th class="table-sortable:numeric">Rating</th>
+        <th class="table-sortable:numeric">ELO rating</th>
+        <th class="table-sortable:numeric">Peak</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
         <th class="table-sortable:numeric">Opponent Avg.</th>
         <th class="table-sortable:numeric">Highest Victim</th>
@@ -71,7 +73,6 @@ mysqli_close($con);
         <th class="table-sortable:numeric">Longest Descent</th>
         <th class="table-sortable:numeric">Recent Avg.</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;Nadir</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;Peak</th>
     </tr>
 </thead>
 
@@ -100,17 +101,17 @@ mysqli_close($con);
         <td><?php echo $rank ?></td>
         <td style="text-align:left;"><a href="individual1.php?id=<?php echo $row[0] ?>"><?php echo $row[1] ?></a></td>
         <td><?php echo round($row[2]) ?></td>
-        <td><?php echo $row[3] ?></td>
-        <td><?php echo round($row[4]) ?></td>
-        <td><?php if ($row[5] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[5]);} ?></td>
-        <td><?php if ($row[6] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[6]);} ?></td>
-        <td><?php if ($row[7] == 0) {echo "-";} else {echo "<span class='blue'>"; echo "+"; echo number_format($row[7], 1, '.', '');} ?></td>
-        <td><?php if ($row[9] == 0) {echo "-";} else {echo "<span class='blue'>"; echo "+"; echo number_format($row[9], 1, '.', '');} ?></td>
-        <td><?php if ($row[8] == 0) {echo "-";} else {echo "<span class='red'>"; echo "-"; echo number_format($row[8], 1, '.', '');} ?></td>
-        <td><?php if ($row[10] == 0) {echo "-";} else {echo "<span class='red'>"; echo "-"; echo number_format($row[10], 1, '.', '');} ?></td>
-        <td><?php echo number_format($row[11], 1, '.', '') ?></td>
-        <td><?php if ($row[12] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[12]);} ?></td>
-        <td><?php if ($row[13] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[13]);} ?></td>
+        <td><?php if ($row[3] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[3]); echo "</span>";} ?></td>
+        <td><?php echo $row[4] ?></td>
+        <td><?php echo round($row[5]) ?></td>
+        <td><?php if ($row[6] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[6]); echo "</span>";} ?></td>
+        <td><?php if ($row[7] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[7]); echo "</span>";} ?></td>
+        <td><?php if ($row[8] == 0) {echo "-";} else {echo "<span class='blue'>"; echo "+"; echo number_format($row[8], 1, '.', ''); echo "</span>";} ?></td>
+        <td><?php if ($row[10] == 0) {echo "-";} else {echo "<span class='blue'>"; echo "+"; echo number_format($row[10], 1, '.', ''); echo "</span>";} ?></td>
+        <td><?php if ($row[9] == 0) {echo "-";} else {echo "<span class='red'>"; echo "-"; echo number_format($row[9], 1, '.', ''); echo "</span>";} ?></td>
+        <td><?php if ($row[11] == 0) {echo "-";} else {echo "<span class='red'>"; echo "-"; echo number_format($row[11], 1, '.', ''); echo "</span>";} ?></td>
+        <td><?php echo number_format($row[12], 1, '.', '') ?></td>
+        <td><?php if ($row[13] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[13]); echo "</span>";} ?></td>
     </tr> 
     
     <?php
