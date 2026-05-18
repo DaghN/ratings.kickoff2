@@ -69,7 +69,7 @@ img {
 	background-color: #18330a;
 	height: 97px;
 	width: 100%;
-	background-image: url(../Images/headerb3.jpg);
+	background-image: url(../images/headerb3.jpg);
 	background-repeat: repeat-x;
 } 
 
@@ -83,7 +83,7 @@ img {
 	margin: 0 auto; /* the auto margins (in conjunction with a width) center the page */
 	width: 780px;
 	height: 97px;
-	background-image: url(../Images/logonew5.jpg);
+	background-image: url(../images/logonew5.jpg);
 	background-repeat: no-repeat;
 }
 
@@ -99,7 +99,7 @@ img {
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
 	border-bottom-color: #C5C5C5;
-	background-image: url(../Images/exp9.jpg);
+	background-image: url(../images/exp9.jpg);
 	background-repeat: repeat-x;
 	width: 100%;
 }
@@ -128,7 +128,7 @@ img {
 	width: 92px;
 	font-size: 15px;
 	text-align: center;
-	background-image: url(../Images/corner17.jpg);
+	background-image: url(../images/corner17.jpg);
 }
 
 #elomenu li a.current, #elomenu li a.noncurrent:hover {
@@ -136,7 +136,7 @@ img {
 }
 
 #elomenu li a.current {
-	background-image: url(../Images/corner14.jpg);
+	background-image: url(../images/corner14.jpg);
 	padding-top: 5px;
 	padding-right: 0px;
 	padding-bottom: 3px;
@@ -144,7 +144,7 @@ img {
 	width: 92px;
 }
 #elomenu li a.noncurrent:hover {
-	background-image: url(../Images/corner14.jpg);
+	background-image: url(../images/corner14.jpg);
 	padding-top: 5px;
 	padding-right: 0px;
 	padding-bottom: 2px;
@@ -234,7 +234,7 @@ img {
 }
 
 #aboutmenu li a.current, #aboutmenu li a.noncurrent:hover{
-	background-image: url(../Images/highlight.gif);
+	background-image: url(../images/highlight.gif);
 	background-repeat: repeat-x;
 	padding:3px 10px 3px 10px;
 	border: 1px solid #C5C5C5;
