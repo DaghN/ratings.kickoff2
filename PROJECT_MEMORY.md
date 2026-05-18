@@ -17,7 +17,6 @@
 ## Next (intended, not committed)
 
 - From Steve: **`config/`** visibility or template; **writable dev DB** (duplicate of KOOL) vs dump — align laptop + staging **`config`** shapes without committing secrets (`gitignored` locals only).
-- Optional: **`git add` remaining mirror files** under `site/public_html/` so repo matches SFTP snapshot (audit for credentials first).
 - When DB path exists: skim data pages end-to-end, propose next **vertical slice** with clear acceptance checks.
 
 ---
@@ -33,6 +32,7 @@
 | 2026-05 | **`/javascript/elolist.js`** returned **404** on staging though file existed — likely **blocked URL segment** `/javascript/`; moved script to **`/js/elolist.js`**, updated **`<script src>`** references sitewide. |
 | 2026-05 | **`table-autopage:30`** substituted for **`:20`** on **ranked1–6**, **individual2/2a/2b/2c**, **individual3**, **server3**. (Other pages still use their original paging sizes where different.) |
 | 2026-05 | **WinSCP** (installed). **Staging deploy** routine: synchronize local **`site/public_html`** to server **`public_html`**. Verified sorting + paging on **ratings.kickoff2.com**. |
+| 2026-05 | **`PROJECT_MEMORY`**: added **Rules of engagement (agents)** — authority stack, memory vs reality, secrets, deploy vs GitHub, change style. |
 
 *(Append concise rows; prune old noise.)*
 
@@ -57,6 +57,16 @@
 | Local mirrored web root | **`site/public_html/`** |
 | Server DB config location | **`../config/ko2unitydb_config.php`** vs `DOCUMENT_ROOT`, **not mirrored by default** |
 | Local preview | **Laragon** junction → **`ratingskickoff.test`** |
+
+---
+
+## Rules of engagement (agents)
+
+- **Authority:** **`PROJECT_BRIEF.md`** carries product intent and taste. **Dagh’s latest message** wins on scope and direction. **This file** is logistics hand-off only — if it clashes with Brief or Dagh, follow Brief + Dagh and **offer to update MEMORY** afterward.
+- **Memory vs reality:** Treat **staging, SFTP-visible files, and repo/`git`** as ground truth when debugging. **If MEMORY lags** (deploy path, URLs, hosting), trust **facts + what Dagh says**, then propose a concise **MEMORY patch** instead of inventing lore.
+- **Secrets:** Never commit **`ko2unitydb_config.php`**, `.env`, or live credentials. **Do not** paste SFTP/MySQL passwords into chat or this doc; redact logs and screenshots.
+- **Deploy vs GitHub:** **`git push`** does **not** update the public site unless a future automation says so. **Today:** staging updates only via **WinSCP sync** of **`site/public_html/`** → server **`public_html/`**.
+- **Change style:** **Small, reversible** diffs aligned with Brief — no drive-by mega-refactors unless Dagh expands scope.
 
 ---
 
