@@ -1,0 +1,260 @@
+@charset "utf-8";
+body  {
+	margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+	padding: 0;
+	background-color: #FDFDFD;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 150%;
+	color: #333;
+}
+
+a, .aa {
+	color: #38790e;
+	font-weight: bold;
+	text-decoration: none ;
+}
+
+alternative a {
+	color: #6BB639;
+}
+
+alternative a {
+	color: #42143D;
+}
+
+alternative a {
+	color: #0033CC;
+}
+
+alternative a {
+	color: #211D4E;
+	
+}
+
+alternative a {
+	color: #dc7c00;
+}
+
+alternative a {
+	color: SlateBlue;
+}
+
+a:hover, .aa:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+a:visited, a:active, aa:visited {
+	color: #38790e;
+	548F2D
+	38790e
+	792d8f
+	38790e
+	0e7959
+	
+}
+
+h1 {
+	color: #44602d;
+	font-size: 22px;
+	margin: 0px;
+}
+
+img {
+	border:medium none;
+}
+
+#header {
+	background-color: #18330a;
+	height: 97px;
+	width: 100%;
+	background-image: url(../Images/headerb3.jpg);
+	background-repeat: repeat-x;
+} 
+
+#logo {
+	float: left;
+	height: 75px;
+	width: 300px;	
+}
+
+#header #headercenter {
+	margin: 0 auto; /* the auto margins (in conjunction with a width) center the page */
+	width: 780px;
+	height: 97px;
+	background-image: url(../Images/logonew5.jpg);
+	background-repeat: no-repeat;
+}
+
+#searcher {
+	float: right;
+	width: 300px;
+	margin-top: 74px;
+	text-align: right;
+}
+
+#menubar{
+	height:29px;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C5C5C5;
+	background-image: url(../Images/exp9.jpg);
+	background-repeat: repeat-x;
+	width: 100%;
+}
+
+#menubarcenter{
+	margin: 0 auto;
+	width: 786px;
+}
+
+#elomenu{
+	padding-left:0px;
+	margin:0px;
+	list-style-type:none;
+
+}
+#elomenu li{
+	float:left;
+	margin: 0px;
+}
+
+#elomenu li a{	
+	float:left;
+	text-decoration:none;
+	padding:6px 0px 1px 0px;
+	height:22px;
+	width: 92px;
+	font-size: 15px;
+	text-align: center;
+	background-image: url(../Images/corner17.jpg);
+}
+
+#elomenu li a.current, #elomenu li a.noncurrent:hover {
+	background-color:#FDFDFD;
+}
+
+#elomenu li a.current {
+	background-image: url(../Images/corner14.jpg);
+	padding-top: 5px;
+	padding-right: 0px;
+	padding-bottom: 3px;
+	padding-left: 0px;
+	width: 92px;
+}
+#elomenu li a.noncurrent:hover {
+	background-image: url(../Images/corner14.jpg);
+	padding-top: 5px;
+	padding-right: 0px;
+	padding-bottom: 2px;
+	padding-left: 0px;
+}
+
+
+#main {
+	margin: 0 auto; /* the auto margins (in conjunction with a width) center the page */
+	width: 780px; 
+	min-height: 1300px;
+}
+
+.maincontent {
+	padding-top: 80px;
+	padding-right: 230px;
+	padding-button: 15px;
+	padding-left: 0px;
+	margin: 0px;
+} 
+
+.indent {
+	padding-left: 0px;
+}
+
+#introtext {
+	margin-top: 0px;
+	margin-right: 0;
+	margin-bottom: 40px;
+	margin-left: 0;
+}
+
+
+.sectionmin {
+	min-height: 200px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	height: 200px;
+}
+
+.sectionmin .sectionmintext a {
+	font-size: 15px;
+}
+
+.miniscreen {
+	float:left;
+	margin: 0px;
+}
+
+.sectionmintext {
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 225px;
+}
+
+
+#bottoming {
+	margin:0px;
+	min-height: 60px;
+}
+
+#aboutheight {
+	height: 30px;
+}
+
+#aboutmenu{
+	padding-left:0px;
+	margin:0px;
+	list-style-type:none;
+}
+#aboutmenu li{
+	float:left;
+	margin-right:10px;
+	margin-left:0px;
+	margin-top:0px;
+	margin-bottom:0px;	
+}
+#aboutmenu li a{
+	float:left;
+	text-decoration:none;
+	padding:4px 10px 2px 10px;
+	height:22px;
+	border: 1px solid #C5C5C5;
+}
+
+#aboutmenu li a.current, #aboutmenu li a.noncurrent:hover{
+	background-image: url(../Images/highlight.gif);
+	background-repeat: repeat-x;
+	padding:3px 10px 3px 10px;
+	border: 1px solid #C5C5C5;
+}
+
+
+
+#footer {
+	padding: 0 10px 0 20px;
+	background-color: #e6e6e6;
+	border: 1px medium #F69;
+} 
+
+#footer p {
+	margin: 0; /* zeroing the margins of the first element in the footer will avoid the possibility of margin collapse - a space between divs */
+	padding: 10px 0; /* padding on this element will create space, just as the the margin would have, without the margin collapse issue */
+}
+
+
+#videodiv {
+	min-height: 505px;
+	border: 0px solid #FDFDFD;
+}
