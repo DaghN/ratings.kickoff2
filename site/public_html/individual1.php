@@ -7,8 +7,12 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/thrColFixHdr.css" rel="stylesheet" type="text/css" />
+<script src="js/chart.umd.min.js"></script>
+<script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-rating-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-games-month-chart.js" defer="defer"></script>
 
 </head>
 
@@ -164,6 +168,17 @@ $row = mysqli_fetch_row($result);
 
 $rank = $row[0];
 ?>
+
+<div class="player-rating-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+    <p class="player-rating-chart-status" style="margin: 0 0 8px 0;">Loading rating history…</p>
+    <canvas width="780" height="280" aria-label="ELO rating over time"></canvas>
+</div>
+
+<div class="player-games-month-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Games per month</p>
+    <p class="player-games-month-chart-status" style="margin: 0 0 8px 0;">Loading games per month…</p>
+    <canvas width="780" height="220" aria-label="Games per calendar month"></canvas>
+</div>
 
 
 

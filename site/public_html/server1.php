@@ -6,8 +6,13 @@
 
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
+<script src="js/chart.umd.min.js"></script>
+<script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-games-month-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-active-players-month-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-established-players-year-chart.js" defer="defer"></script>
 
 </head>
 
@@ -66,6 +71,25 @@ $CleanSheetsRatio = $row[14];
 
 mysqli_close($con);
 ?>
+
+<div class="server-games-month-chart" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Server games per month</p>
+    <p class="server-games-month-chart-status" style="margin: 0 0 8px 0;">Loading server games per month…</p>
+    <canvas width="780" height="220" aria-label="Server rated games per calendar month"></canvas>
+</div>
+
+<div class="server-active-players-month-chart" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Active players per month</p>
+    <p class="server-active-players-month-chart-status" style="margin: 0 0 8px 0;">Loading active players per month…</p>
+    <canvas width="780" height="220" aria-label="Server active players per calendar month"></canvas>
+</div>
+
+<div class="server-established-players-year-chart" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">New established players per year</p>
+    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Players whose 20th rated game fell in that calendar year.</p>
+    <p class="server-established-players-year-chart-status" style="margin: 0 0 8px 0;">Loading newly established players per year…</p>
+    <canvas width="780" height="220" aria-label="Server newly established players per calendar year"></canvas>
+</div>
 
 <table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 

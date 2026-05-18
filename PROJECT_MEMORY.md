@@ -25,6 +25,8 @@
 
 | When (approx.) | What |
 |----------------|------|
+| 2026-05 | **Staging DB version confirmed:** **MariaDB 10.11.7** on Ubuntu 24.04 (`throwaway_mysql_version.php` probe; file removed from repo + server after read). |
+| 2026-05 | **`server1.php`** server stats charts (Chart.js): games/month, active players/month, **established players/year** (20th game in year; `api/server_established_players_by_year.php`, window SQL on MariaDB 10.11). |
 | 2026-05 | **`index.php`** — **302** redirect to **`ranked1.php`** (root opens ladder Results instead of menu-only page). |
 | 2026-05 | **`scripts/throwaway_playertable_schema.php`** — copy **into staging `public_html`** temporarily; **`?once=playertable-schema-one-shot`**; **delete after**. Not under **`site/public_html`** (won’t sync with normal **`public_html`** deploy). |
 | 2026-05 | Git on **`main`** → [ratings.kickoff2](https://github.com/DaghN/ratings.kickoff2). Workflow: solo dev, shallow branches acceptable. Branch protection deferred. |
@@ -59,6 +61,7 @@
 | Legacy public reference | https://joshua.kickoff2.net/ratings/ |
 | Local mirrored web root | **`site/public_html/`** |
 | Server DB config location | **`../config/ko2unitydb_config.php`** vs `DOCUMENT_ROOT`, **not mirrored by default** |
+| **Staging database** | **MariaDB 10.11.7** (`10.11.7-MariaDB-2ubuntu2`, Ubuntu 24.04). MySQL-compatible; PHP **`mysqli`**. **Window functions** (`ROW_NUMBER()`, etc.) available — use for per-player ordering / milestone analytics (e.g. “20th game year”) without new columns. |
 | Local preview | **Laragon** junction → **`ratingskickoff.test`** |
 
 ---

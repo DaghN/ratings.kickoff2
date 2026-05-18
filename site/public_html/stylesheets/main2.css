@@ -321,11 +321,12 @@ img {
 	list-style: none;
 	max-height: 14em;
 	overflow-y: auto;
-	border: 1px solid #C5C5C5;
-	background: #fff;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+	border: 1px solid var(--color-border-subtle);
+	background: var(--color-bg-elevated);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 	font-size: 11px;
 	line-height: 1.35;
+	color: var(--color-text-primary);
 }
 
 .player-search-results li {
@@ -343,9 +344,9 @@ img {
 	min-height: 1.35em;
 	text-decoration: none;
 	font-weight: normal;
-	color: inherit;
-	border-bottom: 1px solid #eee;
-	background-color: #fff;
+	color: var(--color-link);
+	border-bottom: 1px solid var(--color-border-subtle);
+	background-color: var(--color-bg-elevated);
 }
 
 .player-search-results .player-search-name {
@@ -353,21 +354,33 @@ img {
 	min-width: 0;
 	overflow-wrap: anywhere;
 	word-break: break-word;
+	color: var(--color-text-primary);
 }
 
 .player-search-results .player-search-rating {
 	flex: 0 0 auto;
 	white-space: nowrap;
 	font-variant-numeric: tabular-nums;
-	color: #444;
+	color: #a8a8a8;
 }
 
 .player-search-results li:last-child a {
 	border-bottom: none;
 }
 
-.player-search-results a:hover {
-	background-color: #e8f2fa;
+.player-search-results a:hover,
+.player-search-results a:focus-visible {
+	background-color: #2a3a2a;
+}
+
+.player-search-results a:hover .player-search-name,
+.player-search-results a:focus-visible .player-search-name {
+	color: var(--color-text-primary);
+}
+
+.player-search-results a:hover .player-search-rating,
+.player-search-results a:focus-visible .player-search-rating {
+	color: #c5c5c5;
 }
 
 .player-search-results a:focus {
@@ -375,13 +388,20 @@ img {
 }
 
 .player-search-results a:focus-visible {
-	outline: 2px solid #268bd2;
+	outline: 2px solid #9ccc65;
 	outline-offset: -2px;
-	background-color: #e8f2fa;
 }
 
 .player-search-results .player-search-active a {
-	background-color: #d4e8f7;
+	background-color: #354a35;
+}
+
+.player-search-results .player-search-active .player-search-name {
+	color: var(--color-text-primary);
+}
+
+.player-search-results .player-search-active .player-search-rating {
+	color: #c5c5c5;
 }
 
 .visually-hidden {

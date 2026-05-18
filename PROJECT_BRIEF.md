@@ -58,6 +58,8 @@
 
 - Production **code vs data:** Repository holds **website code** and any **schema snippets** Dagh agrees should live in Git — **database contents and secrets do not.**
 
+- **Staging database (confirmed May 2026):** **MariaDB 10.11.7** on the ratings host (MySQL-compatible). PHP talks to it via **`mysqli`**. Modern analytics SQL (e.g. **window functions** for “Nth game per player” milestones) is viable on staging without schema changes; local dev still needs **`ko2unitydb_config.php`** + a reachable DB copy.
+
 ---
 
 ## If this conflicts with Dagh
