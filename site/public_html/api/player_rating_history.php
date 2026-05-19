@@ -3,7 +3,8 @@
  * JSON ELO rating after each game (chronological) for one player.
  *
  * GET: id (required), realm (default online)
- * Rating after game = pre-game Rating + Adjustment (POC assumption).
+ * Rating after each game = NewRatingA / NewRatingB on the row.
+ * gameNumber = 1-based index in chronological order (Date ASC, id ASC).
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -72,7 +73,7 @@ if ($nameRow === null) {
 
 $playerName = $nameRow['Name'];
 
-$sql = 'SELECT id, Date, idA, idB, RatingA, RatingB, AdjustmentA, AdjustmentB '
+$sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
     . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
 
 $stmt = $con->prepare($sql);
@@ -88,15 +89,14 @@ $stmt->execute();
 $res = $stmt->get_result();
 
 $points = [];
+$gameNumber = 0;
 while ($row = $res->fetch_assoc()) {
+    $gameNumber++;
     $isA = ((int) $row['idA'] === $playerId);
-    if ($isA) {
-        $ratingAfter = (float) $row['RatingA'] + (float) $row['AdjustmentA'];
-    } else {
-        $ratingAfter = (float) $row['RatingB'] + (float) $row['AdjustmentB'];
-    }
+    $ratingAfter = $isA ? (float) $row['NewRatingA'] : (float) $row['NewRatingB'];
     $points[] = [
         'gameId' => (int) $row['id'],
+        'gameNumber' => $gameNumber,
         'date' => $row['Date'],
         'rating' => (int) round($ratingAfter),
     ];

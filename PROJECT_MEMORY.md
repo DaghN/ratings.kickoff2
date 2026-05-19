@@ -86,6 +86,8 @@
 
 | Games per month | `player_games_by_month.php` | `player-games-month-chart.js` |
 
+| Rating by game number (same data, linear X; `NewRating*`) | `player_rating_history.php` | `player-rating-game-chart.js` |
+
 | Win rate vs opponent pre-game rating (50-pt buckets) | `player_winrate_vs_opponent_rating.php` | `player-winrate-opponent-chart.js` |
 
 | Top 20 opponents (click → H2H below) | `player_top_opponents.php` | `player-top-opponents-chart.js` |
@@ -178,6 +180,8 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 |----------------|------|
 
+| 2026-05 | **Profile:** rating-by-game-number chart (`player-rating-game-chart.js`); `player_rating_history.php` uses `NewRatingA`/`NewRatingB` + `gameNumber`. |
+| 2026-05 | **Dev DB:** dropped unused `KungFu*` columns on `playertable` (staging); `docs/playertable-schema.md` trimmed; `scripts/throwaway_drop_playertable_kungfu_columns.php`. |
 | 2026-05 | **`docs/ladder-engine-plan.md`** — agreed plan: Python replay engine, dev sandbox + offline tracks, Steve runs scripts, schema vocabulary, defer website realm wiring. |
 | 2026-05 | **`docs/ratings_cpp.txt`** — Steve supplied C++ post-game excerpt (`RatingProcedureUnity`); reference for live / formula. |
 | 2026-05 | **`docs/ratedresults-schema.md`** — curated snapshot of per-game table `ratedresults` (from `throwaway_ratedresults_schema.php` on dev `kooldb`). |

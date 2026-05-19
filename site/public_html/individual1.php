@@ -13,6 +13,7 @@
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/player-rating-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/player-games-month-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-rating-game-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/player-winrate-opponent-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/player-top-opponents-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/player-head-to-head-chart.js" defer="defer"></script>
@@ -184,6 +185,14 @@ $rank = $row[0];
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Games per month</p>
     <p class="player-games-month-chart-status" style="margin: 0 0 8px 0;">Loading games per month…</p>
     <canvas width="780" height="220" aria-label="Games per calendar month"></canvas>
+</div>
+
+<div class="player-rating-game-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Rating by game number</p>
+    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">ELO after each rated game (1st, 2nd, 3rd, …) — equal spacing, not calendar time.</p>
+    <p class="player-rating-game-chart-status" style="margin: 0 0 8px 0;">Loading rating by game number…</p>
+    <p class="player-rating-game-peak-current-summary" style="display: none; margin: 0 0 8px 0; color: var(--color-text-primary, #e3e3e3); font-size: 1.05em;"></p>
+    <canvas width="780" height="280" aria-label="ELO rating after each game by game number"></canvas>
 </div>
 
 <div class="player-winrate-opponent-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">

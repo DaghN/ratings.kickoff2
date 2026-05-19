@@ -36,7 +36,7 @@
 
 **Legacy flags** (still on the row, used by older opponent pages): `HomeWin`, `Draw`, `AwayWin`, `DDPlayerA` / `DDPlayerB` (double digit), `CSPlayerA` / `CSPlayerB` (clean sheet). Prefer `ActualScore`, `GoalsA` / `GoalsB`, and `WinnerID` for new code unless you intentionally match legacy reports.
 
-**Ratings on the row:** `RatingA` / `RatingB` = pre-game; `AdjustmentA` / `AdjustmentB` = delta; `NewRatingA` / `NewRatingB` = post-game. New chart code often uses **pre-game rating + adjustment** (see `api/player_rating_history.php`).
+**Ratings on the row:** `RatingA` / `RatingB` = pre-game; `AdjustmentA` / `AdjustmentB` = delta; `NewRatingA` / `NewRatingB` = post-game. `api/player_rating_history.php` uses **post-game** `NewRatingA` / `NewRatingB` for player rating charts.
 
 ---
 

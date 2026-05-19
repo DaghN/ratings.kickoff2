@@ -3,6 +3,8 @@
 Reference captured from **staging** via `scripts/throwaway_playertable_schema.php` (May 2026).  
 **Treat as a snapshot:** production schema may drift; re-run the script if columns change.
 
+**May 2026 (dev/staging):** nine unused **`KungFu*`** columns were dropped from `playertable` (`KungFuLevel`, `KungFuWinBank`, `KungFuLoseBank`, `KungFuLastGameID`, `KungFuLastGameDate`, `KungFuNumberOfGames`, `KungFuPeakLevel`, `KungFuPeakLevelDate`, `KungFuDisplay`). They are **not** listed below. Production may still have them until the same migration is applied there.
+
 **Engine / charset (from `SHOW CREATE TABLE`):** `MyISAM`, `utf8mb4_general_ci`.
 
 ---
@@ -138,15 +140,6 @@ Types and nullability from **`SHOW FULL COLUMNS`**.
 | BiggestLossCulpritID | mediumint(9) | YES | | |
 | HighestRatedVictimGameID | int(11) | YES | | |
 | LowestRatedCulpritGameID | int(11) | YES | | |
-| KungFuLevel | tinyint(4) | YES | | |
-| KungFuWinBank | smallint(6) | YES | | |
-| KungFuLoseBank | smallint(6) | YES | | |
-| KungFuLastGameID | int(11) | YES | | |
-| KungFuLastGameDate | datetime | NO | | current_timestamp() |
-| KungFuNumberOfGames | int(11) | YES | | |
-| KungFuPeakLevel | tinyint(4) | YES | | |
-| KungFuPeakLevelDate | datetime | NO | | current_timestamp() |
-| KungFuDisplay | tinyint(4) | YES | | |
 | Feedback_UPnP | longtext | YES | | |
 | Feedback_DXInput | longtext | YES | | |
 | Feedback_StopwatchFrequency | bigint(20) | YES | | |
