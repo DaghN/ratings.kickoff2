@@ -404,6 +404,30 @@ img {
 	color: #c5c5c5;
 }
 
+.player-h2h-opponent-search .player-h2h-search-option {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	background: transparent;
+	color: var(--color-text-primary);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.player-h2h-opponent-search .player-h2h-search-results li {
+	list-style: none;
+}
+
+.player-h2h-opponent-search .player-h2h-search-option:hover,
+.player-h2h-opponent-search .player-h2h-search-option:focus-visible {
+	background: var(--color-bg-elevated, #2a2a2a);
+	outline: none;
+}
+
 .visually-hidden {
 	position: absolute !important;
 	width: 1px !important;

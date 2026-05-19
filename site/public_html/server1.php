@@ -11,8 +11,11 @@
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-month-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-goals-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-active-players-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-established-players-year-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-cumulative-established-month-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-established-rating-distribution-chart.js" defer="defer"></script>
 
 </head>
 
@@ -78,6 +81,12 @@ mysqli_close($con);
     <canvas width="780" height="220" aria-label="Server rated games per calendar month"></canvas>
 </div>
 
+<div class="server-goals-month-chart" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Server goals per month</p>
+    <p class="server-goals-month-chart-status" style="margin: 0 0 8px 0;">Loading server goals per month…</p>
+    <canvas width="780" height="220" aria-label="Server goals per calendar month"></canvas>
+</div>
+
 <div class="server-active-players-month-chart" style="max-width: 780px; margin-bottom: 16px;">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Active players per month</p>
     <p class="server-active-players-month-chart-status" style="margin: 0 0 8px 0;">Loading active players per month…</p>
@@ -89,6 +98,20 @@ mysqli_close($con);
     <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Players whose 20th rated game fell in that calendar year.</p>
     <p class="server-established-players-year-chart-status" style="margin: 0 0 8px 0;">Loading newly established players per year…</p>
     <canvas width="780" height="220" aria-label="Server newly established players per calendar year"></canvas>
+</div>
+
+<div class="server-cumulative-established-month-chart" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Cumulative established players</p>
+    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Steps up by one whenever a player plays their 20th rated game.</p>
+    <p class="server-cumulative-established-month-chart-status" style="margin: 0 0 8px 0;">Loading cumulative established players…</p>
+    <canvas width="780" height="220" aria-label="Cumulative established players over time by month"></canvas>
+</div>
+
+<div class="server-established-rating-distribution-chart" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Established player rating distribution</p>
+    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Players with 20+ games, by current ELO (100-point buckets).</p>
+    <p class="server-established-rating-distribution-chart-status" style="margin: 0 0 8px 0;">Loading rating distribution…</p>
+    <canvas width="780" height="220" aria-label="Distribution of established player ratings"></canvas>
 </div>
 
 <table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 

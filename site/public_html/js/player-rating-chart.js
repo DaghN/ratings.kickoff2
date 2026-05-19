@@ -1,6 +1,6 @@
 /**
- * ELO rating over time (Chart.js time scale). Expects api/player_rating_history.php
- * and chartjs-adapter-date-fns loaded after Chart.js.
+ * ELO rating over time (Chart.js). Peak/current as reference lines on the same chart.
+ * Expects api/player_rating_history.php and chartjs-adapter-date-fns.
  */
 (function () {
     'use strict';
@@ -16,6 +16,42 @@
         return isNaN(d.getTime()) ? null : d;
     }
 
+    function buildChartData(points) {
+        var chartData = [];
+        for (var i = 0; i < points.length; i++) {
+            var x = parseGameDate(points[i].date);
+            if (x === null) {
+                continue;
+            }
+            chartData.push({ x: x, y: points[i].rating });
+        }
+        return chartData;
+    }
+
+    function peakAndCurrent(chartData) {
+        var current = chartData[chartData.length - 1].y;
+        var peak = chartData[0].y;
+        var peakIndex = 0;
+        for (var i = 1; i < chartData.length; i++) {
+            if (chartData[i].y > peak) {
+                peak = chartData[i].y;
+                peakIndex = i;
+            }
+        }
+        return {
+            current: current,
+            peak: peak,
+            peakDate: chartData[peakIndex].x
+        };
+    }
+
+    function horizontalLine(chartData, yVal) {
+        return [
+            { x: chartData[0].x, y: yVal },
+            { x: chartData[chartData.length - 1].x, y: yVal }
+        ];
+    }
+
     function initRoot(root) {
         var playerId = root.getAttribute('data-player-id');
         if (!playerId) {
@@ -24,6 +60,8 @@
 
         var canvas = root.querySelector('canvas');
         var status = root.querySelector('.player-rating-chart-status');
+        var summary = root.querySelector('.player-rating-peak-current-summary');
+
         if (!canvas || typeof Chart === 'undefined') {
             if (status) {
                 status.textContent = 'Chart library failed to load.';
@@ -53,20 +91,33 @@
                     return;
                 }
 
-                var chartData = [];
-                for (var i = 0; i < points.length; i++) {
-                    var x = parseGameDate(points[i].date);
-                    if (x === null) {
-                        continue;
-                    }
-                    chartData.push({ x: x, y: points[i].rating });
-                }
-
+                var chartData = buildChartData(points);
                 if (!chartData.length) {
                     if (status) {
                         status.textContent = 'No chartable dates in game history.';
                     }
                     return;
+                }
+
+                var stats = peakAndCurrent(chartData);
+                var peakLine = horizontalLine(chartData, stats.peak);
+                var currentLine = horizontalLine(chartData, stats.current);
+
+                if (summary) {
+                    var peakWhen = stats.peakDate.toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    var gap = stats.peak - stats.current;
+                    var gapText = gap === 0
+                        ? ' (at peak now)'
+                        : ' (' + gap + ' below peak)';
+                    summary.innerHTML = 'Current: <strong>' + stats.current + '</strong>'
+                        + ' &nbsp;&middot;&nbsp; Peak: <strong>' + stats.peak + '</strong>'
+                        + ' <span style="color: var(--color-text-muted, #b0b0b0); font-size: 0.92em;">'
+                        + 'on ' + peakWhen + gapText + '</span>';
+                    summary.style.display = 'block';
                 }
 
                 if (status) {
@@ -76,33 +127,59 @@
                 new Chart(canvas, {
                     type: 'line',
                     data: {
-                        datasets: [{
-                            label: 'ELO rating (after game)',
-                            data: chartData,
-                            borderColor: '#9ccc65',
-                            backgroundColor: 'rgba(156, 204, 101, 0.15)',
-                            borderWidth: 2,
-                            pointRadius: chartData.length > 80 ? 0 : 2,
+                        datasets: [
+                            {
+                                label: 'Peak (' + stats.peak + ')',
+                                data: peakLine,
+                                borderColor: '#ffb74d',
+                                borderWidth: 1.5,
+                                borderDash: [6, 4],
+                                pointRadius: 0,
+                                fill: false,
+                                order: 0
+                            },
+                            {
+                                label: 'Current (' + stats.current + ')',
+                                data: currentLine,
+                                borderColor: '#64b5f6',
+                                borderWidth: 1.5,
+                                borderDash: [6, 4],
+                                pointRadius: 0,
+                                fill: false,
+                                order: 1
+                            },
+                            {
+                                label: 'ELO rating (after game)',
+                                data: chartData,
+                                borderColor: '#9ccc65',
+                                backgroundColor: 'rgba(156, 204, 101, 0.15)',
+                                borderWidth: 2,
+                            pointRadius: 0,
                             pointHoverRadius: 4,
-                            fill: true,
-                            tension: 0.1
-                        }]
+                                fill: true,
+                                tension: 0.1,
+                                order: 2
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
+                        interaction: { mode: 'nearest', axis: 'x', intersect: false },
                         plugins: {
                             legend: {
                                 labels: { color: '#e3e3e3' }
                             },
                             tooltip: {
+                                filter: function (item) {
+                                    return item.datasetIndex === 2;
+                                },
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
                                             return '';
                                         }
-                                        var raw = items[0].parsed.x;
-                                        var d = new Date(raw);
+                                        var d = new Date(items[0].parsed.x);
                                         if (isNaN(d.getTime())) {
                                             return '';
                                         }

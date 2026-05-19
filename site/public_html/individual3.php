@@ -143,11 +143,11 @@ mysqli_close($con);
     <tr style="text-align:right;">
         
         <td><a href="game.php?id=<?php echo $gameid ?>"><?php echo $gameid ?></a></td>
-        <td>&nbsp;<?php echo date('M d, H:i', strtotime($Date)) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><a href="individual3.php?id=<?php echo $idA ?>"><?php echo $NameA ?></a></td>
+        <td>&nbsp;<?php echo date('M d Y, H:i', strtotime($Date)) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        <td><a href="individual1.php?id=<?php echo $idA ?>"><?php echo $NameA ?></a></td>
         <td><?php echo $GoalsA ?></td>
         <td style="text-align:left;"><?php echo $GoalsB ?></td>
-        <td style="text-align:left;"><a href="individual3.php?id=<?php echo $idB ?>"><?php echo $NameB ?></a></td>
+        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $idB ?>"><?php echo $NameB ?></a></td>
         
         <td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php 	
 			if ($WinnerID == $id) 
@@ -160,9 +160,9 @@ mysqli_close($con);
         
         <td style="text-align:left;"><?php 	
 			if ($idA == $id) 
-				{echo ("<a href=\"individual3.php?id=" .$idB. "\">" .$NameB. "</a>");} 
-			else
-				{echo ("<a href=\"individual3.php?id=" .$idA. "\">" .$NameA. "</a>");} 
+				{echo ("<a href=\"individual1.php?id=" .$idB. "\">" .$NameB. "</a>");} 
+			else 
+				{echo ("<a href=\"individual1.php?id=" .$idA. "\">" .$NameA. "</a>");}
 		?></td>
         
         <td><?php if ($idA == $id) {echo $GoalsA;} else {echo $GoalsB;} ?></td>

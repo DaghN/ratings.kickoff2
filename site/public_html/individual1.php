@@ -13,6 +13,11 @@
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/player-rating-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/player-games-month-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-winrate-opponent-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-top-opponents-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-head-to-head-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-compare-rating-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/player-h2h-opponent-search.js" defer="defer"></script>
 
 </head>
 
@@ -171,13 +176,49 @@ $rank = $row[0];
 
 <div class="player-rating-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
     <p class="player-rating-chart-status" style="margin: 0 0 8px 0;">Loading rating history…</p>
-    <canvas width="780" height="280" aria-label="ELO rating over time"></canvas>
+    <p class="player-rating-peak-current-summary" style="display: none; margin: 0 0 8px 0; color: var(--color-text-primary, #e3e3e3); font-size: 1.05em;"></p>
+    <canvas width="780" height="280" aria-label="ELO rating over time with peak and current"></canvas>
 </div>
 
 <div class="player-games-month-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Games per month</p>
     <p class="player-games-month-chart-status" style="margin: 0 0 8px 0;">Loading games per month…</p>
     <canvas width="780" height="220" aria-label="Games per calendar month"></canvas>
+</div>
+
+<div class="player-winrate-opponent-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Win rate vs opponent rating</p>
+    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Win % by opponent pre-game rating (50-point buckets).</p>
+    <p class="player-winrate-opponent-chart-status" style="margin: 0 0 8px 0;">Loading win rate vs opponent rating…</p>
+    <canvas width="780" height="240" aria-label="Win rate versus opponent rating buckets"></canvas>
+</div>
+
+<div class="player-top-opponents-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Most played opponents</p>
+    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Top 20 by rated games — click a bar for head-to-head below.</p>
+    <p class="player-top-opponents-chart-status" style="margin: 0 0 8px 0;">Loading top opponents…</p>
+    <canvas width="780" height="480" aria-label="Most played opponents"></canvas>
+</div>
+
+<div class="player-head-to-head-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Head-to-head vs <span class="player-head-to-head-opponent-name">…</span></p>
+    <p class="player-head-to-head-meta" style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;"></p>
+    <p class="player-head-to-head-chart-status" style="margin: 0 0 8px 0;">Waiting for opponent selection…</p>
+    <canvas width="780" height="280" aria-label="Head-to-head cumulative wins"></canvas>
+</div>
+
+<div class="player-compare-rating-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Rating comparison vs <span class="player-compare-rating-opponent-name">…</span></p>
+    <p class="player-compare-rating-meta" style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;"></p>
+    <p class="player-compare-rating-chart-status" style="margin: 0 0 8px 0;">Waiting for opponent selection…</p>
+    <canvas width="780" height="280" aria-label="Rating over time compared to opponent"></canvas>
+</div>
+
+<div class="player-h2h-opponent-search player-search" data-player-id="<?php echo (int) $ID; ?>" data-realm="online" style="max-width: 780px; margin-bottom: 16px;" role="search">
+    <label class="player-search-label" for="player-h2h-search-q">Compare rating history with another player</label>
+    <input id="player-h2h-search-q" class="player-search-input player-h2h-search-input" type="search" maxlength="32" autocomplete="off" spellcheck="false"
+        placeholder="Search player name…" aria-autocomplete="list" aria-expanded="false" aria-controls="player-h2h-search-listbox" />
+    <ul id="player-h2h-search-listbox" class="player-search-results player-h2h-search-results" role="listbox" hidden="hidden"></ul>
 </div>
 
 
