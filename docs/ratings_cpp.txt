@@ -1,0 +1,2085 @@
+//Calculations when both players are rated
+void BothRated(double OldRatingA, double OldRatingB, double &NewRatingA, double &NewRatingB, double ActualScore, double &ExpectedScore, double &RatingAdjustment)
+{
+	//Calculate expected score using Elo based on the logistic curve
+	ExpectedScore = 1/(1+pow(10,(OldRatingB-OldRatingA)/400)); 
+
+	//Calculate rating adjustment of team A based on K-factor, expected score, and actual score
+	RatingAdjustment = Kfactor*(ActualScore-ExpectedScore); 
+
+	//Adjust ratings
+	NewRatingA = OldRatingA + RatingAdjustment;
+	NewRatingB = OldRatingB - RatingAdjustment;
+}
+
+
+bool RatingProcedureUnity(std::unique_ptr<sql::Connection>& con, int IdenA, int IdenB, int goalsA, int goalsB, int &gameID)
+{
+	if (IdenA != -1 && IdenB != -1 && IdenA!=IdenB) //checking for validity of data before updating
+	{
+		AddLogLine("processing RatingProcedure");
+
+		//DECLARE VARIABLES
+
+		//Variables related to the ratedresults table
+		string NameA = "", NameB = "", GameDate = "";
+
+		int HomeWin=0, Draw=0, AwayWin=0, WinnerID=0, SumOfGoals=0, GoalDifference=0; 
+
+		double ActualScore=0, ExpectedScore=0, RatingAdjustment=0;
+
+		int DDPlayerA=0, CSPlayerA=0, DDConcededPlayerA=0, CSConcededPlayerA;
+		int DDPlayerB=0, CSPlayerB=0, DDConcededPlayerB=0, CSConcededPlayerB;
+
+		double OldRatingA=0, NewRatingA=0;
+		double OldRatingB=0, NewRatingB=0;
+
+
+		//Variables related to the playertable table
+		int DisplayA=0, NumberGamesA=0, NumberWinsA=0, NumberDrawsA=0, NumberLossesA=0, GoalsForA=0, GoalsAgainstA=0, MostGoalsScoredA=0, LeastGoalsScoredA=0, MostGoalsConcededA=0, LeastGoalsConcededA=0, BiggestWinDifferenceA=0, BiggestDrawSumA=0, BiggestLossDifferenceA=0, SmallestSumOfGoalsA=0, BiggestSumOfGoalsA=0, DoubleDigitsA=0, CleanSheetsA=0, DoubleDigitsConcededA=0, CleanSheetsConcededA=0, DifferentOpponentsA=0, DifferentVictimsA=0, DoubleDigitsVictimsA=0, CleanSheetsVictimsA=0, MostGoalsConcededVictimsA=0, LeastGoalsScoredVictimsA=0, BiggestLossVictimsA=0, DifferentCulpritsA=0, DoubleDigitsCulpritsA=0, CleanSheetsCulpritsA=0, MostGoalsScoredCulpritsA=0, LeastGoalsConcededCulpritsA=0, BiggestWinCulpritsA=0, WinningStreakA=0, DrawingStreakA=0, LosingStreakA=0, NonWinStreakA=0, NonDrawStreakA=0, NonLossStreakA=0, LongestWinningStreakA=0, LongestDrawingStreakA=0, LongestLosingStreakA=0, LongestNonWinStreakA=0, LongestNonDrawStreakA=0, LongestNonLossStreakA=0;
+		int DisplayB=0, NumberGamesB=0, NumberWinsB=0, NumberDrawsB=0, NumberLossesB=0, GoalsForB=0, GoalsAgainstB=0, MostGoalsScoredB=0, LeastGoalsScoredB=0, MostGoalsConcededB=0, LeastGoalsConcededB=0, BiggestWinDifferenceB=0, BiggestDrawSumB=0, BiggestLossDifferenceB=0, SmallestSumOfGoalsB=0, BiggestSumOfGoalsB=0, DoubleDigitsB=0, CleanSheetsB=0, DoubleDigitsConcededB=0, CleanSheetsConcededB=0, DifferentOpponentsB=0, DifferentVictimsB=0, DoubleDigitsVictimsB=0, CleanSheetsVictimsB=0, MostGoalsConcededVictimsB=0, LeastGoalsScoredVictimsB=0, BiggestLossVictimsB=0, DifferentCulpritsB=0, DoubleDigitsCulpritsB=0, CleanSheetsCulpritsB=0, MostGoalsScoredCulpritsB=0, LeastGoalsConcededCulpritsB=0, BiggestWinCulpritsB=0, WinningStreakB=0, DrawingStreakB=0, LosingStreakB=0, NonWinStreakB=0, NonDrawStreakB=0, NonLossStreakB=0, LongestWinningStreakB=0, LongestDrawingStreakB=0, LongestLosingStreakB=0, LongestNonWinStreakB=0, LongestNonDrawStreakB=0, LongestNonLossStreakB=0;
+
+		double WinRatioA=0, DrawRatioA=0, LossRatioA=0, AverageGoalsForA=0, AverageGoalsAgainstA=0, GoalRatioA=0, DoubleDigitsRatioA=0, CleanSheetsRatioA=0, DoubleDigitsConcededRatioA=0, CleanSheetsConcededRatioA=0, SumOfOpponentsRatingA=0, AverageOpponentRatingA=0, HighestRatedVictimA=0, LowestRatedCulpritA=0, CurrentRatingAscentA=0, BiggestRatingAscentA=0, CurrentRatingDescentA=0, BiggestRatingDescentA=0, LowestRatingA=0, PeakRatingA=0, RecentAverageRatingA=0; 
+		double WinRatioB=0, DrawRatioB=0, LossRatioB=0, AverageGoalsForB=0, AverageGoalsAgainstB=0, GoalRatioB=0, DoubleDigitsRatioB=0, CleanSheetsRatioB=0, DoubleDigitsConcededRatioB=0, CleanSheetsConcededRatioB=0, SumOfOpponentsRatingB=0, AverageOpponentRatingB=0, HighestRatedVictimB=0, LowestRatedCulpritB=0, CurrentRatingAscentB=0, BiggestRatingAscentB=0, CurrentRatingDescentB=0, BiggestRatingDescentB=0, LowestRatingB=0, PeakRatingB=0, RecentAverageRatingB=0;
+
+		int LastGameGameIDA=0, LastWinGameIDA=0, LastDrawGameIDA=0, LastLossGameIDA=0, LowestRatingGameIDA=0, PeakRatingGameIDA=0, MostGoalsScoredGameIDA=0, LeastGoalsScoredGameIDA=0, MostGoalsConcededGameIDA=0, LeastGoalsConcededGameIDA=0, BiggestWinGameIDA=0, BiggestDrawGameIDA=0, BiggestLossGameIDA=0, SmallestSumOfGoalsGameIDA=0, BiggestSumOfGoalsGameIDA=0, HighestRatedVictimGameIDA=0, LowestRatedCulpritGameIDA=0; 
+		int LastGameGameIDB=0, LastWinGameIDB=0, LastDrawGameIDB=0, LastLossGameIDB=0, LowestRatingGameIDB=0, PeakRatingGameIDB=0, MostGoalsScoredGameIDB=0, LeastGoalsScoredGameIDB=0, MostGoalsConcededGameIDB=0, LeastGoalsConcededGameIDB=0, BiggestWinGameIDB=0, BiggestDrawGameIDB=0, BiggestLossGameIDB=0, SmallestSumOfGoalsGameIDB=0, BiggestSumOfGoalsGameIDB=0, HighestRatedVictimGameIDB=0, LowestRatedCulpritGameIDB=0;
+
+		int MostGoalsScoredVictimIDA=0, LeastGoalsConcededVictimIDA=0, BiggestWinVictimIDA=0, MostGoalsConcededCulpritIDA=0, LeastGoalsScoredCulpritIDA=0, BiggestLossCulpritIDA=0;
+		int MostGoalsScoredVictimIDB=0, LeastGoalsConcededVictimIDB=0, BiggestWinVictimIDB=0, MostGoalsConcededCulpritIDB=0, LeastGoalsScoredCulpritIDB=0, BiggestLossCulpritIDB=0;
+
+		int DifferentOpponentsTemp=0, DifferentVictimsTemp=0, DoubleDigitsVictimsTemp=0, CleanSheetsVictimsTemp=0, MostDifferentOpponentsBooleanA=0, MostDifferentVictimsBooleanA=0, MostDoubleDigitsVictimsBooleanA=0, MostCleanSheetsVictimsBooleanA=0, MostDifferentOpponentsBooleanB=0, MostDifferentVictimsBooleanB=0, MostDoubleDigitsVictimsBooleanB=0, MostCleanSheetsVictimsBooleanB=0;
+
+
+		//Variables related to the generalstatstable table
+		int InsertRowBoolean=0;
+
+		int NumberOfPlayersS=0, GamesPlayedS=0, NumberOfDecidedGamesS=0, NumberOfDrawsS=0, GoalsScoredS=0, DoubleDigitsS=0, CleanSheetsS=0;
+
+		int MostGamesPlayedS=0, MostWinsS=0, MostGoalsScoredS=0, MostGoalsScoredInOneGameS=0, BiggestWinDifferenceS=0, BiggestDrawSumS=0, BiggestSumOfGoalsS=0, MostDoubleDigitsS=0, MostCleanSheetsS=0, MostDifferentOpponentsS=0, MostDifferentVictimsS=0, MostDoubleDigitsVictimsS=0, MostCleanSheetsVictimsS=0, LongestWinningStreakS=0, LongestDrawingStreakS=0, LongestNonLossStreakS=0;
+		int MostGamesPlayedIDS=0, MostWinsIDS=0, BiggestWinRatioIDS=0, MostGoalsScoredIDS=0, BiggestGoalsForAverageIDS=0, SmallestGoalsAgainstAverageIDS=0, BiggestGoalRatioIDS=0, MostGoalsScoredInOneGameIDS=0, BiggestWinDifferenceIDS=0, BiggestDrawSumIDAS=0, BiggestDrawSumIDBS=0, BiggestSumOfGoalsIDAS=0, BiggestSumOfGoalsIDBS=0, MostDoubleDigitsIDS=0, MostCleanSheetsIDS=0, BiggestDoubleDigitsRatioIDS=0, BiggestCleanSheetsRatioIDS=0, MostDifferentOpponentsIDS=0, MostDifferentVictimsIDS=0, MostDoubleDigitsVictimsIDS=0, MostCleanSheetsVictimsIDS=0, BiggestAverageOpponentRatingIDS=0, BiggestRatingAscentIDS=0, BiggestPeakRatingIDS=0, LongestWinningStreakIDS=0, LongestDrawingStreakIDS=0, LongestNonLossStreakIDS=0;
+		string MostGamesPlayedNameS = "", MostWinsNameS = "", BiggestWinRatioNameS = "", MostGoalsScoredNameS = "", BiggestGoalsForAverageNameS = "", SmallestGoalsAgainstAverageNameS = "", BiggestGoalRatioNameS = "", MostGoalsScoredInOneGameNameS = "", BiggestWinDifferenceNameS = "", BiggestDrawSumNameAS = "", BiggestDrawSumNameBS = "", BiggestSumOfGoalsNameAS = "", BiggestSumOfGoalsNameBS = "", MostDoubleDigitsNameS = "", MostCleanSheetsNameS = "", BiggestDoubleDigitsRatioNameS = "", BiggestCleanSheetsRatioNameS = "", MostDifferentOpponentsNameS = "", MostDifferentVictimsNameS = "", MostDoubleDigitsVictimsNameS = "", MostCleanSheetsVictimsNameS = "", BiggestAverageOpponentRatingNameS = "", BiggestRatingAscentNameS = "", BiggestPeakRatingNameS = "", LongestWinningStreakNameS = "", LongestDrawingStreakNameS = "", LongestNonLossStreakNameS = "";
+		string MostGamesPlayedDateS = "", MostWinsDateS = "", BiggestWinRatioDateS = "", MostGoalsScoredDateS = "", BiggestGoalsForAverageDateS = "", SmallestGoalsAgainstAverageDateS = "", BiggestGoalRatioDateS = "", MostGoalsScoredInOneGameDateS = "", BiggestWinDifferenceDateS = "", BiggestDrawSumDateS = "", BiggestSumOfGoalsDateS = "", MostDoubleDigitsDateS = "", MostCleanSheetsDateS = "", BiggestDoubleDigitsRatioDateS = "", BiggestCleanSheetsRatioDateS = "", MostDifferentOpponentsDateS = "", MostDifferentVictimsDateS = "", MostDoubleDigitsVictimsDateS = "", MostCleanSheetsVictimsDateS = "", BiggestAverageOpponentRatingDateS = "", BiggestRatingAscentDateS = "", BiggestPeakRatingDateS = "", LongestWinningStreakDateS = "", LongestDrawingStreakDateS = "", LongestNonLossStreakDateS = "";
+		int MostGoalsScoredInOneGameGameIDS=0, BiggestWinDifferenceGameIDS=0, BiggestDrawSumGameIDS=0, BiggestSumOfGoalsGameIDS=0;
+
+		double DifferentOpponentsAverageS=0, GamesPlayedAverageS=0, DecidedGamesRatioS=0, DrawsRatioS=0, GoalsPerGameAverageS=0, DoubleDigitsRatioS=0, CleanSheetsRatioS=0;
+		double BiggestWinRatioS=0, BiggestGoalsForAverageS=0, SmallestGoalsAgainstAverageS=0, BiggestGoalRatioS=0, BiggestDoubleDigitsRatioS=0, BiggestCleanSheetsRatioS=0, BiggestAverageOpponentRatingS=0, BiggestRatingAscentS=0, BiggestPeakRatingS=0;
+
+
+		//STEVE'S MySQL MAGIC
+		sql::ResultSet *res;
+		std::unique_ptr<sql::PreparedStatement> pstmt;
+
+		//FETCH PLAYER DATA
+		g_KOOLDB.SafeCreatePrepare(con, pstmt,"SELECT * FROM playertable WHERE id=?");
+
+		pstmt->setInt(1,IdenA);
+
+
+		///##### Microsoft C++ exception: sql::MethodNotImplementedException
+#if 0
+		{
+			sql::ParameterMetaData* pMetaData = pstmt->getParameterMetaData();
+			if (pMetaData)
+			{
+				for (int m = 1; m <= pMetaData->getParameterCount(); m++)
+				{
+					int iType=pMetaData->getParameterType(m);
+					AddLogLine(to_string(m) + ": Type " + to_string(iType));
+				}
+			}
+		}
+#endif
+
+		res=g_KOOLDB.SafePreparedExecuteQuery(con,pstmt);
+		if (res == nullptr)
+		{
+			AddLogLine("###############################################################");
+			AddLogLine("######### res is null in RatingProcedureUnity 1 ###############");
+			AddLogLine("###############################################################");
+			return false;
+		}
+		while (res && res->next()) { 
+			NameA = res->getString("Name");
+			OldRatingA = res->getDouble("Rating"); 
+			NumberGamesA = res->getInt("NumberGames");
+			NumberWinsA = res->getInt("NumberWins");
+			NumberDrawsA = res->getInt("NumberDraws");
+			NumberLossesA = res->getInt("NumberLosses");
+			GoalsForA = res->getInt("GoalsFor");
+			GoalsAgainstA = res->getInt("GoalsAgainst");
+			MostGoalsScoredA = res->getInt("MostGoalsScored");
+			LeastGoalsScoredA = res->getInt("LeastGoalsScored");
+			MostGoalsConcededA = res->getInt("MostGoalsConceded");
+			LeastGoalsConcededA = res->getInt("LeastGoalsConceded");
+			BiggestWinDifferenceA = res->getInt("BiggestWinDifference");
+			BiggestDrawSumA = res->getInt("BiggestDrawSum");
+			BiggestLossDifferenceA = res->getInt("BiggestLossDifference");
+			SmallestSumOfGoalsA = res->getInt("SmallestSumOfGoals");
+			BiggestSumOfGoalsA = res->getInt("BiggestSumOfGoals");
+			DoubleDigitsA = res->getInt("DoubleDigits");
+			CleanSheetsA = res->getInt("CleanSheets");
+			DoubleDigitsConcededA = res->getInt("DoubleDigitsConceded");
+			CleanSheetsConcededA = res->getInt("CleanSheetsConceded");
+			DifferentOpponentsA = res->getInt("DifferentOpponents");
+			DifferentVictimsA = res->getInt("DifferentVictims");
+			DoubleDigitsVictimsA = res->getInt("DoubleDigitsVictims");
+			CleanSheetsVictimsA = res->getInt("CleanSheetsVictims");
+			MostGoalsConcededVictimsA = res->getInt("MostGoalsConcededVictims");
+			LeastGoalsScoredVictimsA = res->getInt("LeastGoalsScoredVictims");
+			BiggestLossVictimsA = res->getInt("BiggestLossVictims");
+			DifferentCulpritsA = res->getInt("DifferentCulprits");
+			DoubleDigitsCulpritsA = res->getInt("DoubleDigitsCulprits");
+			CleanSheetsCulpritsA = res->getInt("CleanSheetsCulprits");
+			MostGoalsScoredCulpritsA = res->getInt("MostGoalsScoredCulprits");
+			LeastGoalsConcededCulpritsA = res->getInt("LeastGoalsConcededCulprits");
+			BiggestWinCulpritsA = res->getInt("BiggestWinCulprits");
+			SumOfOpponentsRatingA = res->getDouble("SumOfOpponentsRating");
+			HighestRatedVictimA = res->getDouble("HighestRatedVictim");
+			LowestRatedCulpritA = res->getDouble("LowestRatedCulprit");
+			CurrentRatingAscentA = res->getDouble("CurrentRatingAscent");
+			BiggestRatingAscentA = res->getDouble("BiggestRatingAscent");
+			CurrentRatingDescentA = res->getDouble("CurrentRatingDescent");
+			BiggestRatingDescentA = res->getDouble("BiggestRatingDescent");
+			LowestRatingA = res->getDouble("LowestRating");
+			PeakRatingA = res->getDouble("PeakRating");
+			WinningStreakA = res->getInt("WinningStreak");
+			DrawingStreakA = res->getInt("DrawingStreak");
+			LosingStreakA = res->getInt("LosingStreak");
+			NonWinStreakA = res->getInt("NonWinStreak");
+			NonDrawStreakA = res->getInt("NonDrawStreak");
+			NonLossStreakA = res->getInt("NonLossStreak");
+			LongestWinningStreakA = res->getInt("LongestWinningStreak");
+			LongestDrawingStreakA = res->getInt("LongestDrawingStreak");
+			LongestLosingStreakA = res->getInt("LongestLosingStreak");
+			LongestNonWinStreakA = res->getInt("LongestNonWinStreak");
+			LongestNonDrawStreakA = res->getInt("LongestNonDrawStreak");
+			LongestNonLossStreakA = res->getInt("LongestNonLossStreak");
+			LastWinGameIDA = res->getInt("LastWinGameID");
+			LastDrawGameIDA = res->getInt("LastDrawGameID");
+			LastLossGameIDA = res->getInt("LastLossGameID");
+			LowestRatingGameIDA = res->getInt("LowestRatingGameID");
+			PeakRatingGameIDA = res->getInt("PeakRatingGameID");
+			MostGoalsScoredGameIDA = res->getInt("MostGoalsScoredGameID");
+			LeastGoalsScoredGameIDA = res->getInt("LeastGoalsScoredGameID");
+			MostGoalsConcededGameIDA = res->getInt("MostGoalsConcededGameID");
+			LeastGoalsConcededGameIDA = res->getInt("LeastGoalsConcededGameID");
+			BiggestWinGameIDA = res->getInt("BiggestWinGameID");
+			BiggestDrawGameIDA = res->getInt("BiggestDrawGameID");
+			BiggestLossGameIDA = res->getInt("BiggestLossGameID");
+			SmallestSumOfGoalsGameIDA = res->getInt("SmallestSumOfGoalsGameID");
+			BiggestSumOfGoalsGameIDA = res->getInt("BiggestSumOfGoalsGameID");
+			MostGoalsScoredVictimIDA = res->getInt("MostGoalsScoredVictimID");
+			LeastGoalsConcededVictimIDA = res->getInt("LeastGoalsConcededVictimID");
+			BiggestWinVictimIDA = res->getInt("BiggestWinVictimID");
+			MostGoalsConcededCulpritIDA = res->getInt("MostGoalsConcededCulpritID");
+			LeastGoalsScoredCulpritIDA = res->getInt("LeastGoalsScoredCulpritID");
+			BiggestLossCulpritIDA = res->getInt("BiggestLossCulpritID");
+			HighestRatedVictimGameIDA = res->getInt("HighestRatedVictimGameID");
+			LowestRatedCulpritGameIDA = res->getInt("LowestRatedCulpritGameID");
+		}
+		delete res; res = NULL;
+
+		pstmt->setInt(1,IdenB);
+		res = g_KOOLDB.SafePreparedExecuteQuery(con,pstmt);
+		if (res == nullptr)
+		{
+			AddLogLine("###############################################################");
+			AddLogLine("######### res is null in RatingProcedureUnity 2 ###############");
+			AddLogLine("###############################################################");
+			return false;
+		}
+		while (res && res->next()) { 
+			NameB = res->getString("Name");
+			OldRatingB = res->getDouble("Rating"); 
+			NumberGamesB = res->getInt("NumberGames");
+			NumberWinsB = res->getInt("NumberWins");
+			NumberDrawsB = res->getInt("NumberDraws");
+			NumberLossesB = res->getInt("NumberLosses");
+			GoalsForB = res->getInt("GoalsFor");
+			GoalsAgainstB = res->getInt("GoalsAgainst");
+			MostGoalsScoredB = res->getInt("MostGoalsScored");
+			LeastGoalsScoredB = res->getInt("LeastGoalsScored");
+			MostGoalsConcededB = res->getInt("MostGoalsConceded");
+			LeastGoalsConcededB = res->getInt("LeastGoalsConceded");
+			BiggestWinDifferenceB = res->getInt("BiggestWinDifference");
+			BiggestDrawSumB = res->getInt("BiggestDrawSum");
+			BiggestLossDifferenceB = res->getInt("BiggestLossDifference");
+			SmallestSumOfGoalsB = res->getInt("SmallestSumOfGoals");
+			BiggestSumOfGoalsB = res->getInt("BiggestSumOfGoals");
+			DoubleDigitsB = res->getInt("DoubleDigits");
+			CleanSheetsB = res->getInt("CleanSheets");
+			DoubleDigitsConcededB = res->getInt("DoubleDigitsConceded");
+			CleanSheetsConcededB = res->getInt("CleanSheetsConceded");
+			DifferentOpponentsB = res->getInt("DifferentOpponents");
+			DifferentVictimsB = res->getInt("DifferentVictims");
+			DoubleDigitsVictimsB = res->getInt("DoubleDigitsVictims");
+			CleanSheetsVictimsB = res->getInt("CleanSheetsVictims");
+			MostGoalsConcededVictimsB = res->getInt("MostGoalsConcededVictims");
+			LeastGoalsScoredVictimsB = res->getInt("LeastGoalsScoredVictims");
+			BiggestLossVictimsB = res->getInt("BiggestLossVictims");
+			DifferentCulpritsB = res->getInt("DifferentCulprits");
+			DoubleDigitsCulpritsB = res->getInt("DoubleDigitsCulprits");
+			CleanSheetsCulpritsB = res->getInt("CleanSheetsCulprits");
+			MostGoalsScoredCulpritsB = res->getInt("MostGoalsScoredCulprits");
+			LeastGoalsConcededCulpritsB = res->getInt("LeastGoalsConcededCulprits");
+			BiggestWinCulpritsB = res->getInt("BiggestWinCulprits");
+			SumOfOpponentsRatingB = res->getDouble("SumOfOpponentsRating");
+			HighestRatedVictimB = res->getDouble("HighestRatedVictim");
+			LowestRatedCulpritB = res->getDouble("LowestRatedCulprit");
+			CurrentRatingAscentB = res->getDouble("CurrentRatingAscent");
+			BiggestRatingAscentB = res->getDouble("BiggestRatingAscent");
+			CurrentRatingDescentB = res->getDouble("CurrentRatingDescent");
+			BiggestRatingDescentB = res->getDouble("BiggestRatingDescent");
+			LowestRatingB = res->getDouble("LowestRating");
+			PeakRatingB = res->getDouble("PeakRating");
+			WinningStreakB = res->getInt("WinningStreak");
+			DrawingStreakB = res->getInt("DrawingStreak");
+			LosingStreakB = res->getInt("LosingStreak");
+			NonWinStreakB = res->getInt("NonWinStreak");
+			NonDrawStreakB = res->getInt("NonDrawStreak");
+			NonLossStreakB = res->getInt("NonLossStreak");
+			LongestWinningStreakB = res->getInt("LongestWinningStreak");
+			LongestDrawingStreakB = res->getInt("LongestDrawingStreak");
+			LongestLosingStreakB = res->getInt("LongestLosingStreak");
+			LongestNonWinStreakB = res->getInt("LongestNonWinStreak");
+			LongestNonDrawStreakB = res->getInt("LongestNonDrawStreak");
+			LongestNonLossStreakB = res->getInt("LongestNonLossStreak");
+			LastWinGameIDB = res->getInt("LastWinGameID");
+			LastDrawGameIDB = res->getInt("LastDrawGameID");
+			LastLossGameIDB = res->getInt("LastLossGameID");
+			LowestRatingGameIDB = res->getInt("LowestRatingGameID");
+			PeakRatingGameIDB = res->getInt("PeakRatingGameID");
+			MostGoalsScoredGameIDB = res->getInt("MostGoalsScoredGameID");
+			LeastGoalsScoredGameIDB = res->getInt("LeastGoalsScoredGameID");
+			MostGoalsConcededGameIDB = res->getInt("MostGoalsConcededGameID");
+			LeastGoalsConcededGameIDB = res->getInt("LeastGoalsConcededGameID");
+			BiggestWinGameIDB = res->getInt("BiggestWinGameID");
+			BiggestDrawGameIDB = res->getInt("BiggestDrawGameID");
+			BiggestLossGameIDB = res->getInt("BiggestLossGameID");
+			SmallestSumOfGoalsGameIDB = res->getInt("SmallestSumOfGoalsGameID");
+			BiggestSumOfGoalsGameIDB = res->getInt("BiggestSumOfGoalsGameID");
+			MostGoalsScoredVictimIDB = res->getInt("MostGoalsScoredVictimID");
+			LeastGoalsConcededVictimIDB = res->getInt("LeastGoalsConcededVictimID");
+			BiggestWinVictimIDB = res->getInt("BiggestWinVictimID");
+			MostGoalsConcededCulpritIDB = res->getInt("MostGoalsConcededCulpritID");
+			LeastGoalsScoredCulpritIDB = res->getInt("LeastGoalsScoredCulpritID");
+			BiggestLossCulpritIDB = res->getInt("BiggestLossCulpritID");
+			HighestRatedVictimGameIDB = res->getInt("HighestRatedVictimGameID");
+			LowestRatedCulpritGameIDB = res->getInt("LowestRatedCulpritGameID");
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+
+		//CALCULATIONS BEFORE INSERTION OF RESULT ROW IN RATEDRESULTS TABLE
+
+		//Calculate actual score
+		if(goalsA>goalsB) ActualScore=1;
+		else if(goalsA==goalsB) ActualScore=0.5;
+		else ActualScore=0;
+
+		//Calculate goal difference
+		if(goalsA>goalsB) GoalDifference=goalsA-goalsB;
+		else GoalDifference=goalsB-goalsA;
+
+		//Calculate sum of goals
+		SumOfGoals = goalsA + goalsB;
+
+		//Calculate boolean values for result
+		if(goalsA>goalsB) HomeWin=1;
+		else if(goalsA==goalsB) Draw=1;
+		else AwayWin=1;
+
+		//Determine Winner ID
+		if(goalsA>goalsB) WinnerID = IdenA;
+		else if(goalsA<goalsB) WinnerID = IdenB;
+		else WinnerID = -1;
+
+		//Check for double digits and clean sheets and put boolean values
+		if(goalsA>=10) 
+		{
+			DDPlayerA=1;
+			DDConcededPlayerB=1;
+		}
+		if(goalsB>=10) 
+		{
+			DDPlayerB=1;
+			DDConcededPlayerA=1;
+		}
+		if(goalsA==0) 
+		{
+			CSPlayerB=1;
+			CSConcededPlayerA=1;
+		}
+		if(goalsB==0) 
+		{
+			CSPlayerA=1;
+			CSConcededPlayerB=1;
+		}
+
+
+		//CALL RATING CALCULATIONS
+		BothRated(OldRatingA, OldRatingB, NewRatingA, NewRatingB, ActualScore, ExpectedScore, RatingAdjustment); 
+
+		AddLogLine("Rating change for A: " + to_string(OldRatingA) + std::string(" -> ") + to_string(NewRatingA));
+		AddLogLine("Rating change for B: " + to_string(OldRatingB) + std::string(" -> ") + to_string(NewRatingB));
+
+		//INSERT RESULT ROW IN RESULT TABLE
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "INSERT INTO ratedresults(idA, idB, goalsA, goalsB, nameA, nameB, ratingA, ratingB, ExpectedScoreA, ExpectedScoreB, ActualScore, AdjustmentA, AdjustmentB, NewRatingA, NewRatingB, SumOfGoals, GoalDifference, RatingDifference, HomeWin, Draw, AwayWin, DDPlayerA, DDPlayerB, CSPlayerA, CSPlayerB, WinnerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+		pstmt->setInt(1, IdenA);
+		pstmt->setInt(2, IdenB);
+		pstmt->setInt(3, goalsA);
+		pstmt->setInt(4, goalsB);
+		pstmt->setString(5, NameA);
+		pstmt->setString(6, NameB);
+		pstmt->setDouble(7, OldRatingA);
+		pstmt->setDouble(8, OldRatingB);
+		pstmt->setDouble(9, ExpectedScore);
+		pstmt->setDouble(10, 1-ExpectedScore);
+		pstmt->setDouble(11, ActualScore);
+		pstmt->setDouble(12, RatingAdjustment);
+		pstmt->setDouble(13, -RatingAdjustment);
+		pstmt->setDouble(14, NewRatingA);
+		pstmt->setDouble(15, NewRatingB);
+		pstmt->setInt(16, SumOfGoals);
+		pstmt->setInt(17, GoalDifference);
+		pstmt->setDouble(18, OldRatingA - OldRatingB);
+		pstmt->setInt(19, HomeWin);
+		pstmt->setInt(20, Draw);
+		pstmt->setInt(21, AwayWin);
+		pstmt->setInt(22, DDPlayerA);
+		pstmt->setInt(23, DDPlayerB);
+		pstmt->setInt(24, CSPlayerA);
+		pstmt->setInt(25, CSPlayerB);
+		pstmt->setInt(26, WinnerID);
+		g_KOOLDB.SafePreparedExecute(con, pstmt);
+		//delete pstmt; 
+		pstmt=NULL;
+
+
+		//Retrieve game ID
+		//res = g_KOOLDB.ExecuteQuerySafely(con, "SELECT LAST_INSERT_ID() AS id");
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT LAST_INSERT_ID() AS id");
+		res = g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		res->next(); 
+		gameID = res->getInt("id");
+		delete res; res=NULL;
+
+		//Retrieve game date
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT Date FROM ratedresults WHERE id=?");
+		pstmt->setInt(1,gameID);
+		res = g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()){
+			GameDate=res->getString("Date");
+		}
+		//		{
+		//			SYSTEMTIME st;
+		//
+		//			GetSystemTime(&st);
+		//			char timestr[128];
+		//			sprintf(timestr,"%4i-%02i-%02i %02i:%02i:%02i",st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
+		//			//"2010-03-02 02:01:00"
+		//			GameDate=timestr;
+		//		}
+
+
+		//UPDATE PLAYER DATA (LOCAL VARIABLES)
+
+		//Update number of rated games
+		NumberGamesA += 1;
+		NumberGamesB += 1;
+
+		//Update display status
+		if (NumberGamesA >= 1) DisplayA=1;
+		if (NumberGamesB >= 1) DisplayB=1;
+
+		//Update number of wins, draws, and losses
+		if (ActualScore == 1) 
+		{
+			NumberWinsA += 1; 
+			NumberLossesB += 1;
+		}
+		if (ActualScore == 0.5) 
+		{
+			NumberDrawsA += 1;
+			NumberDrawsB += 1;
+		}		
+		if (ActualScore == 0) 
+		{
+			NumberLossesA += 1;
+			NumberWinsB += 1;
+		}		
+
+		//Update win, draw, and loss ratios
+		WinRatioA = double(NumberWinsA) / NumberGamesA;
+		DrawRatioA = double(NumberDrawsA) / NumberGamesA;
+		LossRatioA = double(NumberLossesA) / NumberGamesA;
+
+		WinRatioB = double(NumberWinsB) / NumberGamesB;
+		DrawRatioB = double(NumberDrawsB) / NumberGamesB;
+		LossRatioB = double(NumberLossesB) / NumberGamesB;
+
+		//Update goals for and against
+		GoalsForA += goalsA;
+		GoalsForB += goalsB;
+		GoalsAgainstA += goalsB;
+		GoalsAgainstB += goalsA;
+
+		//Calculate average goals for and against and goal ratios
+		AverageGoalsForA = double(GoalsForA) / NumberGamesA;
+		AverageGoalsForB = double(GoalsForB) / NumberGamesB;
+		AverageGoalsAgainstA = double(GoalsAgainstA) / NumberGamesA;
+		AverageGoalsAgainstB = double(GoalsAgainstB) / NumberGamesB;
+		GoalRatioA = double(GoalsForA) / GoalsAgainstA;
+		GoalRatioB = double(GoalsForB) / GoalsAgainstB;
+
+		//Check for new most/least goals scored or most/least goals conceded records.
+		//Before updating a culprit's victim ID, we make sure to adjust the database culprits count of the previous victim by -1.
+
+		//Check for most goals scored
+		if (goalsA >= MostGoalsScoredA && goalsA >= 1) 
+		{
+			MostGoalsScoredA = goalsA;
+			MostGoalsScoredGameIDA = gameID;
+
+			if (MostGoalsScoredVictimIDA != IdenB)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET MostGoalsScoredCulprits = MostGoalsScoredCulprits - 1 WHERE id=?");
+				pstmt->setInt(1, MostGoalsScoredVictimIDA);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				MostGoalsScoredVictimIDA = IdenB;
+				MostGoalsScoredCulpritsB += 1;
+			}
+		}
+
+		if (goalsB >= MostGoalsScoredB && goalsB >= 1) 
+		{
+			MostGoalsScoredB = goalsB;
+			MostGoalsScoredGameIDB = gameID;
+
+			if (MostGoalsScoredVictimIDB != IdenA)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET MostGoalsScoredCulprits = MostGoalsScoredCulprits - 1 WHERE id=?");
+				pstmt->setInt(1, MostGoalsScoredVictimIDB);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				MostGoalsScoredVictimIDB = IdenA;
+				MostGoalsScoredCulpritsA += 1;
+			}
+		}
+
+		//Check for least goals scored
+		if	(goalsA <= LeastGoalsScoredA)
+		{
+			LeastGoalsScoredA = goalsA;
+			LeastGoalsScoredGameIDA = gameID;
+
+			if (LeastGoalsScoredCulpritIDA != IdenB)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET LeastGoalsScoredVictims = LeastGoalsScoredVictims - 1 WHERE id=?");
+				pstmt->setInt(1, LeastGoalsScoredCulpritIDA);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				LeastGoalsScoredCulpritIDA = IdenB;
+				LeastGoalsScoredVictimsB += 1;
+			}
+		}
+
+		if (goalsB <= LeastGoalsScoredB)
+		{
+			LeastGoalsScoredB = goalsB;
+			LeastGoalsScoredGameIDB = gameID;
+			if (LeastGoalsScoredCulpritIDB != IdenA)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET LeastGoalsScoredVictims = LeastGoalsScoredVictims - 1 WHERE id=?");
+				pstmt->setInt(1, LeastGoalsScoredCulpritIDB);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				LeastGoalsScoredCulpritIDB = IdenA;
+				LeastGoalsScoredVictimsA += 1;
+			}
+		}
+
+		//Check for most goals conceded
+		if (goalsB >= MostGoalsConcededA)
+		{
+			MostGoalsConcededA = goalsB;
+			MostGoalsConcededGameIDA = gameID;
+
+			if (MostGoalsConcededCulpritIDA != IdenB)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET MostGoalsConcededVictims = MostGoalsConcededVictims - 1 WHERE id=?");
+				pstmt->setInt(1, MostGoalsConcededCulpritIDA);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				MostGoalsConcededCulpritIDA = IdenB;
+				MostGoalsConcededVictimsB += 1;
+			}
+		}
+
+		if (goalsA >= MostGoalsConcededB)
+		{
+			MostGoalsConcededB = goalsA;
+			MostGoalsConcededGameIDB = gameID;
+
+			if (MostGoalsConcededCulpritIDB != IdenA)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET MostGoalsConcededVictims = MostGoalsConcededVictims - 1 WHERE id=?");
+				pstmt->setInt(1, MostGoalsConcededCulpritIDB);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				MostGoalsConcededCulpritIDB = IdenA;
+				MostGoalsConcededVictimsA += 1;
+			}
+		}	
+
+		//Check for least goals conceded
+		if (goalsB <= LeastGoalsConcededA)
+		{
+			LeastGoalsConcededA = goalsB;
+			LeastGoalsConcededGameIDA = gameID;
+
+			if (LeastGoalsConcededVictimIDA != IdenB)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET LeastGoalsConcededCulprits = LeastGoalsConcededCulprits - 1 WHERE id=?");
+				pstmt->setInt(1, LeastGoalsConcededVictimIDA);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				LeastGoalsConcededVictimIDA = IdenB;
+				LeastGoalsConcededCulpritsB += 1;
+			}
+		}
+
+		if (goalsA <= LeastGoalsConcededB)
+		{
+			LeastGoalsConcededB = goalsA;
+			LeastGoalsConcededGameIDB = gameID;
+			if (LeastGoalsConcededVictimIDB != IdenA)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET LeastGoalsConcededCulprits = LeastGoalsConcededCulprits - 1 WHERE id=?");
+				pstmt->setInt(1, LeastGoalsConcededVictimIDB);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				LeastGoalsConcededVictimIDB = IdenA;
+				LeastGoalsConcededCulpritsA += 1;
+			}
+		}
+
+		//Check if winner has new biggest win
+		if (ActualScore == 1 && GoalDifference >= BiggestWinDifferenceA)
+		{
+			BiggestWinDifferenceA = GoalDifference;
+			BiggestWinGameIDA = gameID;
+
+			if (BiggestWinVictimIDA != IdenB)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET BiggestWinCulprits = BiggestWinCulprits - 1 WHERE id=?");
+				pstmt->setInt(1, BiggestWinVictimIDA);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				BiggestWinVictimIDA = IdenB;
+				BiggestWinCulpritsB += 1;
+			}
+		}
+		if (ActualScore == 0 && GoalDifference >= BiggestWinDifferenceB)
+		{
+			BiggestWinDifferenceB = GoalDifference;
+			BiggestWinGameIDB = gameID;
+
+			if (BiggestWinVictimIDB != IdenA)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET BiggestWinCulprits = BiggestWinCulprits - 1 WHERE id=?");
+				pstmt->setInt(1, BiggestWinVictimIDB);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				BiggestWinVictimIDB = IdenA;
+				BiggestWinCulpritsA += 1;
+			}
+		}
+
+		//Check if either player has new biggest draw
+		if (ActualScore == 0.5)
+		{
+			if (SumOfGoals >= BiggestDrawSumA)
+			{
+				BiggestDrawSumA = SumOfGoals;
+				BiggestDrawGameIDA = gameID;
+			}
+			if (SumOfGoals >= BiggestDrawSumB)
+			{
+				BiggestDrawSumB = SumOfGoals;
+				BiggestDrawGameIDB = gameID;
+			}
+		}
+
+		//Check if loser has new biggest loss
+		if (ActualScore == 1 && GoalDifference >= BiggestLossDifferenceB)
+		{
+			BiggestLossDifferenceB = GoalDifference;
+			BiggestLossGameIDB = gameID;
+
+			if (BiggestLossCulpritIDB != IdenA)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET BiggestLossVictims = BiggestLossVictims - 1 WHERE id=?");
+				pstmt->setInt(1, BiggestLossCulpritIDB);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt; 
+				pstmt=NULL;
+
+				BiggestLossCulpritIDB = IdenA;
+				BiggestLossVictimsA += 1;
+			}
+		}
+
+		if (ActualScore == 0 && GoalDifference >= BiggestLossDifferenceA)
+		{
+			BiggestLossDifferenceA = GoalDifference;
+			BiggestLossGameIDA = gameID;
+
+			if (BiggestLossCulpritIDA != IdenB)
+			{
+				g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET BiggestLossVictims = BiggestLossVictims - 1 WHERE id=?");
+				pstmt->setInt(1, BiggestLossCulpritIDA);
+				g_KOOLDB.SafePreparedExecute(con, pstmt);
+				//delete pstmt;
+				pstmt=NULL;
+
+				BiggestLossCulpritIDA = IdenB;
+				BiggestLossVictimsB += 1;
+			}
+		}
+
+		//Check for smallest and biggest sums of goals
+		if (SumOfGoals <= SmallestSumOfGoalsA)
+		{
+			SmallestSumOfGoalsA = SumOfGoals;
+			SmallestSumOfGoalsGameIDA = gameID;
+		}
+		if (SumOfGoals <= SmallestSumOfGoalsB)
+		{
+			SmallestSumOfGoalsB = SumOfGoals;
+			SmallestSumOfGoalsGameIDB = gameID;
+		}		
+		if (SumOfGoals >= BiggestSumOfGoalsA)
+		{
+			BiggestSumOfGoalsA = SumOfGoals;
+			BiggestSumOfGoalsGameIDA = gameID;
+		}
+		if (SumOfGoals >= BiggestSumOfGoalsB)
+		{
+			BiggestSumOfGoalsB = SumOfGoals;
+			BiggestSumOfGoalsGameIDB = gameID;
+		}
+
+		//Update double digits and clean sheets counts, counting anew also the number of double digit/clean sheet victims and culprits.
+		//We check if number of victims is new high, and set boolean to 1 if yes. 
+		//This boolean is later used when checking for server record. 
+		//This way, we will not get false server record alarms after each DD or CS game by the player holding (or equalizing) the record.  
+		if (goalsA >= 10) 
+		{
+			DoubleDigitsA += 1;
+			DoubleDigitsConcededB += 1;
+
+			//Count number of double digit victims
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND DDPlayerA = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND DDPlayerB = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenA);
+			pstmt->setInt(2, IdenA);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DoubleDigitsVictimsTemp = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+
+			if (DoubleDigitsVictimsTemp > DoubleDigitsVictimsA)
+			{
+				MostDoubleDigitsVictimsBooleanA = 1;
+				DoubleDigitsVictimsA = DoubleDigitsVictimsTemp;
+			}
+
+			//Count number of double digit culprits
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND DDPlayerB = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND DDPlayerA = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenB);
+			pstmt->setInt(2, IdenB);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DoubleDigitsCulpritsB = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+		}
+
+		if (goalsB >= 10) 
+		{
+			DoubleDigitsB += 1;
+			DoubleDigitsConcededA += 1;
+
+			//Count number of double digit victims
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND DDPlayerA = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND DDPlayerB = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenB);
+			pstmt->setInt(2, IdenB);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DoubleDigitsVictimsTemp = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+
+			if (DoubleDigitsVictimsTemp > DoubleDigitsVictimsB)
+			{
+				MostDoubleDigitsVictimsBooleanB = 1;
+				DoubleDigitsVictimsB = DoubleDigitsVictimsTemp;
+			}
+
+			//Count number of double digit culprits
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND DDPlayerB = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND DDPlayerA = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenA);
+			pstmt->setInt(2, IdenA);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DoubleDigitsCulpritsA = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+		}
+
+		if (goalsA == 0) 
+		{
+			CleanSheetsB += 1;
+			CleanSheetsConcededA += 1;
+
+			//Count number of clean sheet victims
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND CSPlayerA = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND CSPlayerB = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenB);
+			pstmt->setInt(2, IdenB);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				CleanSheetsVictimsTemp = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+
+			if (CleanSheetsVictimsTemp > CleanSheetsVictimsB)
+			{
+				MostCleanSheetsVictimsBooleanB = 1;
+				CleanSheetsVictimsB = CleanSheetsVictimsTemp;
+			}
+
+			//Count number of clean sheet culprits
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND CSPlayerB = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND CSPlayerA = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenA);
+			pstmt->setInt(2, IdenA);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				CleanSheetsCulpritsA = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+		}
+
+		if (goalsB == 0) 
+		{
+			CleanSheetsA += 1;
+			CleanSheetsConcededB += 1;
+
+			//Count number of clean sheet victims
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND CSPlayerA = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND CSPlayerB = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenA);
+			pstmt->setInt(2, IdenA);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				CleanSheetsVictimsTemp = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+
+			if (CleanSheetsVictimsTemp > CleanSheetsVictimsA)
+			{
+				MostCleanSheetsVictimsBooleanA = 1;
+				CleanSheetsVictimsA = CleanSheetsVictimsTemp;
+			}
+
+			//Count number of clean sheet culprits
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND CSPlayerB = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND CSPlayerA = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenB);
+			pstmt->setInt(2, IdenB);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				CleanSheetsCulpritsB = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+		}
+
+		//Update double digit and clean sheet ratios
+		DoubleDigitsRatioA = double(DoubleDigitsA) / NumberGamesA;
+		DoubleDigitsRatioB = double(DoubleDigitsB) / NumberGamesB;
+		CleanSheetsRatioA = double(CleanSheetsA) / NumberGamesA;
+		CleanSheetsRatioB = double(CleanSheetsB) / NumberGamesB;
+		DoubleDigitsConcededRatioA = double(DoubleDigitsConcededA) / NumberGamesA;
+		DoubleDigitsConcededRatioB = double(DoubleDigitsConcededB) / NumberGamesB;
+		CleanSheetsConcededRatioA = double(CleanSheetsConcededA) / NumberGamesA;
+		CleanSheetsConcededRatioB = double(CleanSheetsConcededB) / NumberGamesB;
+
+		//Calculate average opponent rating
+		SumOfOpponentsRatingB += OldRatingA;
+		SumOfOpponentsRatingA += OldRatingB;
+
+		AverageOpponentRatingA = SumOfOpponentsRatingA / NumberGamesA;
+		AverageOpponentRatingB = SumOfOpponentsRatingB / NumberGamesB;
+
+		//Check if winner has new highest rated victim 
+		if (ActualScore == 1 && OldRatingB >= HighestRatedVictimA) 
+		{
+			HighestRatedVictimA = OldRatingB;
+			HighestRatedVictimGameIDA = gameID;
+		}
+		if (ActualScore == 0 && OldRatingA >= HighestRatedVictimB) 
+		{
+			HighestRatedVictimB = OldRatingA;
+			HighestRatedVictimGameIDB = gameID;			
+		}
+
+		//Check if loser has new lowest rated culprit
+		if (ActualScore == 1 && OldRatingA <= LowestRatedCulpritB)
+		{
+			LowestRatedCulpritB = OldRatingA;
+			LowestRatedCulpritGameIDB = gameID;
+		}
+		if (ActualScore == 0 && OldRatingB <= LowestRatedCulpritA)
+		{
+			LowestRatedCulpritA = OldRatingB;
+			LowestRatedCulpritGameIDA = gameID;
+		}
+
+		//Calculate current rating ascents and descents
+		if (NewRatingA > OldRatingA) 
+		{
+			CurrentRatingAscentA += fabs(RatingAdjustment);
+			CurrentRatingAscentB = 0;
+			CurrentRatingDescentA = 0;
+			CurrentRatingDescentB += fabs(RatingAdjustment);
+		}
+		if (NewRatingB > OldRatingB) 
+		{
+			CurrentRatingAscentB += fabs(RatingAdjustment);
+			CurrentRatingAscentA = 0;
+			CurrentRatingDescentB = 0;
+			CurrentRatingDescentA += fabs(RatingAdjustment);
+		}
+
+		//Check for new biggest rating ascents and descents
+		if (CurrentRatingAscentA > BiggestRatingAscentA)
+		{
+			BiggestRatingAscentA = CurrentRatingAscentA;
+		}
+		if (CurrentRatingAscentB > BiggestRatingAscentB)
+		{
+			BiggestRatingAscentB = CurrentRatingAscentB;
+		}
+		if (CurrentRatingDescentA > BiggestRatingDescentA)
+		{
+			BiggestRatingDescentA = CurrentRatingDescentA;
+		}
+		if (CurrentRatingDescentB > BiggestRatingDescentB)
+		{
+			BiggestRatingDescentB = CurrentRatingDescentB;
+		}
+
+		int iRatingHistoryLookBack = 300;
+		//Calculate recent average rating (over last 30 games).
+		//We first union home and away games, then we order the derived table and put 30 limit, then we finally average the resulting table.
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT AVG(rating) FROM (SELECT rating AS rating FROM ( (SELECT NewRatingA AS rating, id AS gamenumber FROM ratedresults WHERE idA = ?) UNION ALL (SELECT NewRatingB AS rating, id AS gamenumber FROM ratedresults WHERE idB = ?) ) AS derivedtable ORDER BY gamenumber DESC LIMIT ?) AS derivedtabletwo");
+
+		pstmt->setInt(3, iRatingHistoryLookBack);
+
+		pstmt->setInt(1, IdenA);
+		pstmt->setInt(2, IdenA);
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			RecentAverageRatingA = res->getDouble("AVG(rating)");
+		}
+
+		pstmt->setInt(1, IdenB);
+		pstmt->setInt(2, IdenB);
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			RecentAverageRatingB = res->getDouble("AVG(rating)");
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Check if either player has new peak rating. 
+		//We put as additional condition that a player must have won rating points in the last game.
+		//So that players starting with 1600 and losing their first games only achieve a peak rating once they finally win some rating points.
+		if (NewRatingA > PeakRatingA && NewRatingA > OldRatingA)
+		{
+			PeakRatingA = NewRatingA;
+			PeakRatingGameIDA = gameID;
+		}
+		if (NewRatingB > PeakRatingB && NewRatingB > OldRatingB) {
+			PeakRatingB = NewRatingB;
+			PeakRatingGameIDB = gameID;
+		}
+
+		//Check if either player has new lowest rating.
+		if (NewRatingA < LowestRatingA && NewRatingA < OldRatingA)
+		{
+			LowestRatingA = NewRatingA;
+			LowestRatingGameIDA = gameID;
+		}
+
+		if (NewRatingB < LowestRatingB && NewRatingB < OldRatingB) {
+			LowestRatingB = NewRatingB;
+			LowestRatingGameIDB = gameID;
+		}	
+
+		//Update streak counts
+		if (ActualScore == 1) 
+		{
+			WinningStreakA += 1;
+			WinningStreakB = 0;
+			DrawingStreakA = 0;
+			DrawingStreakB = 0;
+			LosingStreakA = 0;
+			LosingStreakB += 1;
+			NonWinStreakA = 0;
+			NonWinStreakB += 1;
+			NonDrawStreakA += 1;
+			NonDrawStreakB += 1;
+			NonLossStreakA += 1;
+			NonLossStreakB = 0;
+		}
+
+		if (ActualScore == 0.5)
+		{
+			WinningStreakA = 0;
+			WinningStreakB = 0;
+			DrawingStreakA += 1;
+			DrawingStreakB += 1;
+			LosingStreakA = 0;
+			LosingStreakB = 0;
+			NonWinStreakA += 1;
+			NonWinStreakB += 1;
+			NonDrawStreakA = 0;
+			NonDrawStreakB = 0;
+			NonLossStreakA += 1;
+			NonLossStreakB += 1;
+		}
+
+		if (ActualScore == 0) 
+		{
+			WinningStreakA = 0;
+			WinningStreakB += 1;
+			DrawingStreakA = 0;
+			DrawingStreakB = 0;
+			LosingStreakA += 1;
+			LosingStreakB = 0;
+			NonWinStreakA += 1;
+			NonWinStreakB = 0;
+			NonDrawStreakA += 1;
+			NonDrawStreakB += 1;
+			NonLossStreakA = 0;
+			NonLossStreakB += 1;
+		}
+
+		//Update longest streak counts
+		if (WinningStreakA > LongestWinningStreakA) {
+			LongestWinningStreakA = WinningStreakA;
+		}
+		if (WinningStreakB > LongestWinningStreakB) {
+			LongestWinningStreakB = WinningStreakB;
+		}
+		if (DrawingStreakA > LongestDrawingStreakA) {
+			LongestDrawingStreakA = DrawingStreakA;
+		}
+		if (DrawingStreakB > LongestDrawingStreakB) {
+			LongestDrawingStreakB = DrawingStreakB;
+		}
+		if (LosingStreakA > LongestLosingStreakA) {
+			LongestLosingStreakA = LosingStreakA;
+		}
+		if (LosingStreakB > LongestLosingStreakB) {
+			LongestLosingStreakB = LosingStreakB;
+		}
+		if (NonWinStreakA > LongestNonWinStreakA) {
+			LongestNonWinStreakA = NonWinStreakA;
+		}
+		if (NonWinStreakB > LongestNonWinStreakB) {
+			LongestNonWinStreakB = NonWinStreakB;
+		}
+		if (NonDrawStreakA > LongestNonDrawStreakA) {
+			LongestNonDrawStreakA = NonDrawStreakA;
+		}
+		if (NonDrawStreakB > LongestNonDrawStreakB) {
+			LongestNonDrawStreakB = NonDrawStreakB;
+		}
+		if (NonLossStreakA > LongestNonLossStreakA) {
+			LongestNonLossStreakA = NonLossStreakA;
+		}
+		if (NonLossStreakB > LongestNonLossStreakB) {
+			LongestNonLossStreakB = NonLossStreakB;
+		}
+
+		//Count number of opponents
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ?) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ?)	) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+
+		pstmt->setInt(1, IdenA);
+		pstmt->setInt(2, IdenA);
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			DifferentOpponentsTemp = res->getInt("COUNT(*)");
+		}
+
+		if (DifferentOpponentsTemp > DifferentOpponentsA)
+		{
+			MostDifferentOpponentsBooleanA = 1;
+			DifferentOpponentsA = DifferentOpponentsTemp;
+		}
+
+		pstmt->setInt(1, IdenB);
+		pstmt->setInt(2, IdenB);
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			DifferentOpponentsTemp = res->getInt("COUNT(*)");
+		}
+
+		if (DifferentOpponentsTemp > DifferentOpponentsB)
+		{
+			MostDifferentOpponentsBooleanB = 1;
+			DifferentOpponentsB = DifferentOpponentsTemp;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Count number of victims and culprits
+		if (ActualScore == 1)
+		{		
+			//Count number of victims
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND actualscore = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND actualscore = 0) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenA);
+			pstmt->setInt(2, IdenA);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DifferentVictimsTemp = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+
+			if (DifferentVictimsTemp > DifferentVictimsA)
+			{
+				MostDifferentVictimsBooleanA = 1;
+				DifferentVictimsA = DifferentVictimsTemp;
+			}
+
+			//Count number of culprits
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND actualscore = 0) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND actualscore = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenB);
+			pstmt->setInt(2, IdenB);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DifferentCulpritsB = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+		}
+
+		if (ActualScore == 0)
+		{		
+			//Count number of victims
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND actualscore = 1) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND actualscore = 0) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenB);
+			pstmt->setInt(2, IdenB);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DifferentVictimsTemp = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+
+			if (DifferentVictimsTemp > DifferentVictimsB)
+			{
+				MostDifferentVictimsBooleanB = 1;
+				DifferentVictimsB = DifferentVictimsTemp;
+			}
+
+			//Count number of culprits
+			g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT COUNT(*) FROM	(SELECT opponentID AS OpponentID FROM ( (SELECT idB AS opponentID FROM ratedresults WHERE idA = ? AND actualscore = 0) UNION ALL (SELECT idA AS opponentID FROM ratedresults WHERE idB = ? AND actualscore = 1) ) AS derivedtable GROUP BY opponentID) AS derivedtabletwo");
+			pstmt->setInt(1, IdenA);
+			pstmt->setInt(2, IdenA);
+			res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+			while (res->next()) { 
+				DifferentCulpritsA = res->getInt("COUNT(*)");
+			}
+			delete res; res=NULL;
+			//delete pstmt; 
+			pstmt=NULL;
+		}
+
+		//Update last game, last win, last draw, and last loss game IDs
+		LastGameGameIDA = gameID;
+		LastGameGameIDB = gameID;
+
+		if (ActualScore == 1)
+		{
+			LastWinGameIDA = gameID;
+			LastLossGameIDB = gameID;
+		}
+		if (ActualScore == 0.5)
+		{
+			LastDrawGameIDA = gameID;
+			LastDrawGameIDB = gameID;
+		}
+		if (ActualScore == 0)
+		{	
+			LastLossGameIDA = gameID;
+			LastWinGameIDB = gameID;
+		}
+
+
+		//UPDATE PLAYER DATA (DATABASE)
+
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE playertable SET Display=?, NumberGames=?, NumberWins=?, NumberDraws=?, NumberLosses=?, WinRatio=?, DrawRatio=?, LossRatio=?, GoalsFor=?, GoalsAgainst=?, AverageGoalsFor=?, AverageGoalsAgainst=?, GoalRatio=?, MostGoalsScored=?, LeastGoalsScored=?, MostGoalsConceded=?, LeastGoalsConceded=?, BiggestWinDifference=?, BiggestDrawSum=?, BiggestLossDifference=?, SmallestSumOfGoals=?, BiggestSumOfGoals=?, DoubleDigits=?, CleanSheets=?, DoubleDigitsConceded=?, CleanSheetsConceded=?, DoubleDigitsRatio=?, CleanSheetsRatio=?, DoubleDigitsConcededRatio=?, CleanSheetsConcededRatio=?, DifferentOpponents=?, DifferentVictims=?, DoubleDigitsVictims=?, CleanSheetsVictims=?, MostGoalsConcededVictims=?, LeastGoalsScoredVictims=?, BiggestLossVictims=?, DifferentCulprits=?, DoubleDigitsCulprits=?, CleanSheetsCulprits=?, MostGoalsScoredCulprits=?, LeastGoalsConcededCulprits=?, BiggestWinCulprits=?, SumOfOpponentsRating=?, AverageOpponentRating=?, HighestRatedVictim=?, LowestRatedCulprit=?, CurrentRatingAscent=?, BiggestRatingAscent=?, CurrentRatingDescent=?, BiggestRatingDescent=?, LowestRating=?, PeakRating=?, RecentAverageRating=?, Rating=?, WinningStreak=?, DrawingStreak=?, LosingStreak=?, NonWinStreak=?, NonDrawStreak=?, NonLossStreak=?, LongestWinningStreak=?, LongestDrawingStreak=?, LongestLosingStreak=?, LongestNonWinStreak=?, LongestNonDrawStreak=?, LongestNonLossStreak=?, LastGameGameID=?, LastWinGameID=?, LastDrawGameID=?, LastLossGameID=?, LowestRatingGameID=?, PeakRatingGameID=?, MostGoalsScoredGameID=?, LeastGoalsScoredGameID=?, MostGoalsConcededGameID=?, LeastGoalsConcededGameID=?, BiggestWinGameID=?, BiggestDrawGameID=?, BiggestLossGameID=?, SmallestSumOfGoalsGameID=?, BiggestSumOfGoalsGameID=?, MostGoalsScoredVictimID=?, LeastGoalsConcededVictimID=?, BiggestWinVictimID=?, MostGoalsConcededCulpritID=?, LeastGoalsScoredCulpritID=?, BiggestLossCulpritID=?, HighestRatedVictimGameID=?, LowestRatedCulpritGameID=? WHERE id=?");
+
+		pstmt->setInt(1, DisplayA);
+
+		pstmt->setInt(2, NumberGamesA);
+		pstmt->setInt(3, NumberWinsA);
+		pstmt->setInt(4, NumberDrawsA);
+		pstmt->setInt(5, NumberLossesA);
+		pstmt->setDouble(6, WinRatioA);
+		pstmt->setDouble(7, DrawRatioA);
+		pstmt->setDouble(8, LossRatioA);
+
+		pstmt->setInt(9, GoalsForA);
+		pstmt->setInt(10, GoalsAgainstA);
+		pstmt->setDouble(11, AverageGoalsForA);
+		pstmt->setDouble(12, AverageGoalsAgainstA);
+		pstmt->setDouble(13, GoalRatioA);
+		pstmt->setInt(14, MostGoalsScoredA);
+		pstmt->setInt(15, LeastGoalsScoredA);
+		pstmt->setInt(16, MostGoalsConcededA);
+		pstmt->setInt(17, LeastGoalsConcededA);
+		pstmt->setInt(18, BiggestWinDifferenceA);
+		pstmt->setInt(19, BiggestDrawSumA);
+		pstmt->setInt(20, BiggestLossDifferenceA);
+		pstmt->setInt(21, SmallestSumOfGoalsA);
+		pstmt->setInt(22, BiggestSumOfGoalsA);
+
+		pstmt->setInt(23, DoubleDigitsA);
+		pstmt->setInt(24, CleanSheetsA);
+		pstmt->setInt(25, DoubleDigitsConcededA);
+		pstmt->setInt(26, CleanSheetsConcededA);
+		pstmt->setDouble(27, DoubleDigitsRatioA);
+		pstmt->setDouble(28, CleanSheetsRatioA);
+		pstmt->setDouble(29, DoubleDigitsConcededRatioA);
+		pstmt->setDouble(30, CleanSheetsConcededRatioA);
+
+		pstmt->setInt(31, DifferentOpponentsA);
+		pstmt->setInt(32, DifferentVictimsA);
+		pstmt->setInt(33, DoubleDigitsVictimsA);
+		pstmt->setInt(34, CleanSheetsVictimsA);
+		pstmt->setInt(35, MostGoalsConcededVictimsA);
+		pstmt->setInt(36, LeastGoalsScoredVictimsA);
+		pstmt->setInt(37, BiggestLossVictimsA);
+		pstmt->setInt(38, DifferentCulpritsA);
+		pstmt->setInt(39, DoubleDigitsCulpritsA);
+		pstmt->setInt(40, CleanSheetsCulpritsA);
+		pstmt->setInt(41, MostGoalsScoredCulpritsA);
+		pstmt->setInt(42, LeastGoalsConcededCulpritsA);
+		pstmt->setInt(43, BiggestWinCulpritsA);
+
+		pstmt->setDouble(44, SumOfOpponentsRatingA);
+		pstmt->setDouble(45, AverageOpponentRatingA);
+		pstmt->setDouble(46, HighestRatedVictimA);
+		pstmt->setDouble(47, LowestRatedCulpritA);
+		pstmt->setDouble(48, CurrentRatingAscentA);
+		pstmt->setDouble(49, BiggestRatingAscentA);
+		pstmt->setDouble(50, CurrentRatingDescentA);
+		pstmt->setDouble(51, BiggestRatingDescentA);
+		pstmt->setDouble(52, LowestRatingA);
+		pstmt->setDouble(53, PeakRatingA);
+		pstmt->setDouble(54, RecentAverageRatingA);
+		pstmt->setDouble(55, NewRatingA);
+
+		pstmt->setInt(56, WinningStreakA);
+		pstmt->setInt(57, DrawingStreakA);
+		pstmt->setInt(58, LosingStreakA);
+		pstmt->setInt(59, NonWinStreakA);
+		pstmt->setInt(60, NonDrawStreakA);
+		pstmt->setInt(61, NonLossStreakA);
+		pstmt->setInt(62, LongestWinningStreakA);
+		pstmt->setInt(63, LongestDrawingStreakA);
+		pstmt->setInt(64, LongestLosingStreakA);
+		pstmt->setInt(65, LongestNonWinStreakA);
+		pstmt->setInt(66, LongestNonDrawStreakA);
+		pstmt->setInt(67, LongestNonLossStreakA);
+
+		pstmt->setInt(68, LastGameGameIDA);
+		pstmt->setInt(69, LastWinGameIDA);
+		pstmt->setInt(70, LastDrawGameIDA);
+		pstmt->setInt(71, LastLossGameIDA);
+		pstmt->setInt(72, LowestRatingGameIDA);
+		pstmt->setInt(73, PeakRatingGameIDA);
+
+		pstmt->setInt(74, MostGoalsScoredGameIDA);
+		pstmt->setInt(75, LeastGoalsScoredGameIDA);
+		pstmt->setInt(76, MostGoalsConcededGameIDA);
+		pstmt->setInt(77, LeastGoalsConcededGameIDA);
+		pstmt->setInt(78, BiggestWinGameIDA);
+		pstmt->setInt(79, BiggestDrawGameIDA);
+		pstmt->setInt(80, BiggestLossGameIDA);
+		pstmt->setInt(81, SmallestSumOfGoalsGameIDA);
+		pstmt->setInt(82, BiggestSumOfGoalsGameIDA);
+
+		pstmt->setInt(83, MostGoalsScoredVictimIDA);
+		pstmt->setInt(84, LeastGoalsConcededVictimIDA);
+		pstmt->setInt(85, BiggestWinVictimIDA);
+		pstmt->setInt(86, MostGoalsConcededCulpritIDA);
+		pstmt->setInt(87, LeastGoalsScoredCulpritIDA);
+		pstmt->setInt(88, BiggestLossCulpritIDA);
+
+		pstmt->setInt(89, HighestRatedVictimGameIDA);
+		pstmt->setInt(90, LowestRatedCulpritGameIDA);
+
+		pstmt->setInt(91, IdenA);
+		g_KOOLDB.SafePreparedExecute(con, pstmt);
+
+
+		pstmt->setInt(1, DisplayB);
+
+		pstmt->setInt(2, NumberGamesB);
+		pstmt->setInt(3, NumberWinsB);
+		pstmt->setInt(4, NumberDrawsB);
+		pstmt->setInt(5, NumberLossesB);
+		pstmt->setDouble(6, WinRatioB);
+		pstmt->setDouble(7, DrawRatioB);
+		pstmt->setDouble(8, LossRatioB);
+
+		pstmt->setInt(9, GoalsForB);
+		pstmt->setInt(10, GoalsAgainstB);
+		pstmt->setDouble(11, AverageGoalsForB);
+		pstmt->setDouble(12, AverageGoalsAgainstB);
+		pstmt->setDouble(13, GoalRatioB);
+		pstmt->setInt(14, MostGoalsScoredB);
+		pstmt->setInt(15, LeastGoalsScoredB);
+		pstmt->setInt(16, MostGoalsConcededB);
+		pstmt->setInt(17, LeastGoalsConcededB);
+		pstmt->setInt(18, BiggestWinDifferenceB);
+		pstmt->setInt(19, BiggestDrawSumB);
+		pstmt->setInt(20, BiggestLossDifferenceB);
+		pstmt->setInt(21, SmallestSumOfGoalsB);
+		pstmt->setInt(22, BiggestSumOfGoalsB);
+
+		pstmt->setInt(23, DoubleDigitsB);
+		pstmt->setInt(24, CleanSheetsB);
+		pstmt->setInt(25, DoubleDigitsConcededB);
+		pstmt->setInt(26, CleanSheetsConcededB);
+		pstmt->setDouble(27, DoubleDigitsRatioB);
+		pstmt->setDouble(28, CleanSheetsRatioB);
+		pstmt->setDouble(29, DoubleDigitsConcededRatioB);
+		pstmt->setDouble(30, CleanSheetsConcededRatioB);
+
+		pstmt->setInt(31, DifferentOpponentsB);
+		pstmt->setInt(32, DifferentVictimsB);
+		pstmt->setInt(33, DoubleDigitsVictimsB);
+		pstmt->setInt(34, CleanSheetsVictimsB);
+		pstmt->setInt(35, MostGoalsConcededVictimsB);
+		pstmt->setInt(36, LeastGoalsScoredVictimsB);
+		pstmt->setInt(37, BiggestLossVictimsB);
+		pstmt->setInt(38, DifferentCulpritsB);
+		pstmt->setInt(39, DoubleDigitsCulpritsB);
+		pstmt->setInt(40, CleanSheetsCulpritsB);
+		pstmt->setInt(41, MostGoalsScoredCulpritsB);
+		pstmt->setInt(42, LeastGoalsConcededCulpritsB);
+		pstmt->setInt(43, BiggestWinCulpritsB);
+
+		pstmt->setDouble(44, SumOfOpponentsRatingB);
+		pstmt->setDouble(45, AverageOpponentRatingB);
+		pstmt->setDouble(46, HighestRatedVictimB);
+		pstmt->setDouble(47, LowestRatedCulpritB);
+		pstmt->setDouble(48, CurrentRatingAscentB);
+		pstmt->setDouble(49, BiggestRatingAscentB);
+		pstmt->setDouble(50, CurrentRatingDescentB);
+		pstmt->setDouble(51, BiggestRatingDescentB);
+		pstmt->setDouble(52, LowestRatingB);
+		pstmt->setDouble(53, PeakRatingB);
+		pstmt->setDouble(54, RecentAverageRatingB);
+		pstmt->setDouble(55, NewRatingB);
+
+		pstmt->setInt(56, WinningStreakB);
+		pstmt->setInt(57, DrawingStreakB);
+		pstmt->setInt(58, LosingStreakB);
+		pstmt->setInt(59, NonWinStreakB);
+		pstmt->setInt(60, NonDrawStreakB);
+		pstmt->setInt(61, NonLossStreakB);
+		pstmt->setInt(62, LongestWinningStreakB);
+		pstmt->setInt(63, LongestDrawingStreakB);
+		pstmt->setInt(64, LongestLosingStreakB);
+		pstmt->setInt(65, LongestNonWinStreakB);
+		pstmt->setInt(66, LongestNonDrawStreakB);
+		pstmt->setInt(67, LongestNonLossStreakB);
+
+		pstmt->setInt(68, LastGameGameIDB);
+		pstmt->setInt(69, LastWinGameIDB);
+		pstmt->setInt(70, LastDrawGameIDB);
+		pstmt->setInt(71, LastLossGameIDB);
+		pstmt->setInt(72, LowestRatingGameIDB);
+		pstmt->setInt(73, PeakRatingGameIDB);
+
+		pstmt->setInt(74, MostGoalsScoredGameIDB);
+		pstmt->setInt(75, LeastGoalsScoredGameIDB);
+		pstmt->setInt(76, MostGoalsConcededGameIDB);
+		pstmt->setInt(77, LeastGoalsConcededGameIDB);
+		pstmt->setInt(78, BiggestWinGameIDB);
+		pstmt->setInt(79, BiggestDrawGameIDB);
+		pstmt->setInt(80, BiggestLossGameIDB);
+		pstmt->setInt(81, SmallestSumOfGoalsGameIDB);
+		pstmt->setInt(82, BiggestSumOfGoalsGameIDB);
+
+		pstmt->setInt(83, MostGoalsScoredVictimIDB);
+		pstmt->setInt(84, LeastGoalsConcededVictimIDB);
+		pstmt->setInt(85, BiggestWinVictimIDB);
+		pstmt->setInt(86, MostGoalsConcededCulpritIDB);
+		pstmt->setInt(87, LeastGoalsScoredCulpritIDB);
+		pstmt->setInt(88, BiggestLossCulpritIDB);
+
+		pstmt->setInt(89, HighestRatedVictimGameIDB);
+		pstmt->setInt(90, LowestRatedCulpritGameIDB);
+
+		pstmt->setInt(91, IdenB);
+		g_KOOLDB.SafePreparedExecute(con, pstmt);
+		//delete pstmt; 
+		pstmt=NULL;
+
+
+		//FETCH SERVER DATA
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT * FROM generalstatstable WHERE id=1");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			NumberOfPlayersS = res->getInt("NumberOfPlayers");
+			DifferentOpponentsAverageS = res->getDouble("DifferentOpponentsAverage"); 
+			GamesPlayedS = res->getInt("GamesPlayed");
+			GamesPlayedAverageS = res->getDouble("GamesPlayedAverage");
+			NumberOfDecidedGamesS = res->getInt("NumberOfDecidedGames");
+			NumberOfDrawsS = res->getInt("NumberOfDraws");
+			DecidedGamesRatioS = res->getDouble("DecidedGamesRatio");
+			DrawsRatioS = res->getDouble("DrawsRatio");
+			GoalsScoredS = res->getInt("GoalsScored");
+			GoalsPerGameAverageS = res->getDouble("GoalsPerGameAverage");
+			DoubleDigitsS = res->getInt("DoubleDigits");
+			CleanSheetsS = res->getInt("CleanSheets");
+			DoubleDigitsRatioS = res->getDouble("DoubleDigitsRatio");
+			CleanSheetsRatioS = res->getDouble("CleanSheetsRatio");
+			MostGamesPlayedS = res->getInt("MostGamesPlayed");
+			MostWinsS = res->getInt("MostWins");
+			BiggestWinRatioS = res->getDouble("BiggestWinRatio");
+			MostGoalsScoredS = res->getInt("MostGoalsScored");
+			BiggestGoalsForAverageS = res->getDouble("BiggestGoalsForAverage");
+			SmallestGoalsAgainstAverageS = res->getDouble("SmallestGoalsAgainstAverage");
+			BiggestGoalRatioS = res->getDouble("BiggestGoalRatio");
+			MostGoalsScoredInOneGameS = res->getInt("MostGoalsScoredInOneGame");
+			BiggestWinDifferenceS = res->getInt("BiggestWinDifference");
+			BiggestDrawSumS = res->getInt("BiggestDrawSum");
+			BiggestSumOfGoalsS = res->getInt("BiggestSumOfGoals");
+			MostDoubleDigitsS = res->getInt("MostDoubleDigits");
+			MostCleanSheetsS = res->getInt("MostCleanSheets");
+			BiggestDoubleDigitsRatioS = res->getDouble("BiggestDoubleDigitsRatio");
+			BiggestCleanSheetsRatioS = res->getDouble("BiggestCleanSheetsRatio");
+			MostDifferentOpponentsS = res->getInt("MostDifferentOpponents");
+			MostDifferentVictimsS = res->getInt("MostDifferentVictims");
+			MostDoubleDigitsVictimsS = res->getInt("MostDoubleDigitsVictims");
+			MostCleanSheetsVictimsS = res->getInt("MostCleanSheetsVictims");
+			BiggestAverageOpponentRatingS = res->getDouble("BiggestAverageOpponentRating");
+			BiggestRatingAscentS = res->getDouble("BiggestRatingAscent");
+			BiggestPeakRatingS = res->getDouble("BiggestPeakRating");
+			LongestWinningStreakS = res->getInt("LongestWinningStreak");
+			LongestDrawingStreakS = res->getInt("LongestDrawingStreak");
+			LongestNonLossStreakS = res->getInt("LongestNonLossStreak");
+			MostGamesPlayedIDS = res->getInt("MostGamesPlayedID");
+			MostWinsIDS = res->getInt("MostWinsID");
+			BiggestWinRatioIDS = res->getInt("BiggestWinRatioID");
+			MostGoalsScoredIDS = res->getInt("MostGoalsScoredID");
+			BiggestGoalsForAverageIDS = res->getInt("BiggestGoalsForAverageID");
+			SmallestGoalsAgainstAverageIDS = res->getInt("SmallestGoalsAgainstAverageID");
+			BiggestGoalRatioIDS = res->getInt("BiggestGoalRatioID");
+			MostGoalsScoredInOneGameIDS = res->getInt("MostGoalsScoredInOneGameID");
+			BiggestWinDifferenceIDS = res->getInt("BiggestWinDifferenceID");
+			BiggestDrawSumIDAS = res->getInt("BiggestDrawSumIDA");
+			BiggestDrawSumIDBS = res->getInt("BiggestDrawSumIDB");
+			BiggestSumOfGoalsIDAS = res->getInt("BiggestSumOfGoalsIDA");
+			BiggestSumOfGoalsIDBS = res->getInt("BiggestSumOfGoalsIDB");
+			MostDoubleDigitsIDS = res->getInt("MostDoubleDigitsID");
+			MostCleanSheetsIDS = res->getInt("MostCleanSheetsID");
+			BiggestDoubleDigitsRatioIDS = res->getInt("BiggestDoubleDigitsRatioID");
+			BiggestCleanSheetsRatioIDS = res->getInt("BiggestCleanSheetsRatioID");
+			MostDifferentOpponentsIDS = res->getInt("MostDifferentOpponentsID");
+			MostDifferentVictimsIDS = res->getInt("MostDifferentVictimsID");
+			MostDoubleDigitsVictimsIDS = res->getInt("MostDoubleDigitsVictimsID");
+			MostCleanSheetsVictimsIDS = res->getInt("MostCleanSheetsVictimsID");
+			BiggestAverageOpponentRatingIDS = res->getInt("BiggestAverageOpponentRatingID");
+			BiggestRatingAscentIDS = res->getInt("BiggestRatingAscentID");
+			BiggestPeakRatingIDS = res->getInt("BiggestPeakRatingID");
+			LongestWinningStreakIDS = res->getInt("LongestWinningStreakID");
+			LongestDrawingStreakIDS = res->getInt("LongestDrawingStreakID");
+			LongestNonLossStreakIDS = res->getInt("LongestNonLossStreakID");
+			MostGamesPlayedNameS = res->getString("MostGamesPlayedName");
+			MostWinsNameS = res->getString("MostWinsName");
+			BiggestWinRatioNameS = res->getString("BiggestWinRatioName");
+			MostGoalsScoredNameS = res->getString("MostGoalsScoredName");
+			BiggestGoalsForAverageNameS = res->getString("BiggestGoalsForAverageName");
+			SmallestGoalsAgainstAverageNameS = res->getString("SmallestGoalsAgainstAverageName");
+			BiggestGoalRatioNameS = res->getString("BiggestGoalRatioName");
+			MostGoalsScoredInOneGameNameS = res->getString("MostGoalsScoredInOneGameName");
+			BiggestWinDifferenceNameS = res->getString("BiggestWinDifferenceName");
+			BiggestDrawSumNameAS = res->getString("BiggestDrawSumNameA");
+			BiggestDrawSumNameBS = res->getString("BiggestDrawSumNameB");
+			BiggestSumOfGoalsNameAS = res->getString("BiggestSumOfGoalsNameA");
+			BiggestSumOfGoalsNameBS = res->getString("BiggestSumOfGoalsNameB");
+			MostDoubleDigitsNameS = res->getString("MostDoubleDigitsName");
+			MostCleanSheetsNameS = res->getString("MostCleanSheetsName");
+			BiggestDoubleDigitsRatioNameS = res->getString("BiggestDoubleDigitsRatioName");
+			BiggestCleanSheetsRatioNameS = res->getString("BiggestCleanSheetsRatioName");
+			MostDifferentOpponentsNameS = res->getString("MostDifferentOpponentsName");
+			MostDifferentVictimsNameS = res->getString("MostDifferentVictimsName");
+			MostDoubleDigitsVictimsNameS = res->getString("MostDoubleDigitsVictimsName");
+			MostCleanSheetsVictimsNameS = res->getString("MostCleanSheetsVictimsName");
+			BiggestAverageOpponentRatingNameS = res->getString("BiggestAverageOpponentRatingName");
+			BiggestRatingAscentNameS = res->getString("BiggestRatingAscentName");
+			BiggestPeakRatingNameS = res->getString("BiggestPeakRatingName");
+			LongestWinningStreakNameS = res->getString("LongestWinningStreakName");
+			LongestDrawingStreakNameS = res->getString("LongestDrawingStreakName");
+			LongestNonLossStreakNameS = res->getString("LongestNonLossStreakName");
+			MostGamesPlayedDateS = res->getString("MostGamesPlayedDate");
+			MostWinsDateS = res->getString("MostWinsDate");
+			BiggestWinRatioDateS = res->getString("BiggestWinRatioDate");
+			MostGoalsScoredDateS = res->getString("MostGoalsScoredDate");
+			BiggestGoalsForAverageDateS = res->getString("BiggestGoalsForAverageDate");
+			SmallestGoalsAgainstAverageDateS = res->getString("SmallestGoalsAgainstAverageDate");
+			BiggestGoalRatioDateS = res->getString("BiggestGoalRatioDate");
+			MostGoalsScoredInOneGameDateS = res->getString("MostGoalsScoredInOneGameDate");
+			BiggestWinDifferenceDateS = res->getString("BiggestWinDifferenceDate");
+			BiggestDrawSumDateS = res->getString("BiggestDrawSumDate");
+			BiggestSumOfGoalsDateS = res->getString("BiggestSumOfGoalsDate");
+			MostDoubleDigitsDateS = res->getString("MostDoubleDigitsDate");
+			MostCleanSheetsDateS = res->getString("MostCleanSheetsDate");
+			BiggestDoubleDigitsRatioDateS = res->getString("BiggestDoubleDigitsRatioDate");
+			BiggestCleanSheetsRatioDateS = res->getString("BiggestCleanSheetsRatioDate");
+			MostDifferentOpponentsDateS = res->getString("MostDifferentOpponentsDate");
+			MostDifferentVictimsDateS = res->getString("MostDifferentVictimsDate");
+			MostDoubleDigitsVictimsDateS = res->getString("MostDoubleDigitsVictimsDate");
+			MostCleanSheetsVictimsDateS = res->getString("MostCleanSheetsVictimsDate");
+			BiggestAverageOpponentRatingDateS = res->getString("BiggestAverageOpponentRatingDate");
+			BiggestRatingAscentDateS = res->getString("BiggestRatingAscentDate");
+			BiggestPeakRatingDateS = res->getString("BiggestPeakRatingDate");
+			LongestWinningStreakDateS = res->getString("LongestWinningStreakDate");
+			LongestDrawingStreakDateS = res->getString("LongestDrawingStreakDate");
+			LongestNonLossStreakDateS = res->getString("LongestNonLossStreakDate");
+			MostGoalsScoredInOneGameGameIDS = res->getInt("MostGoalsScoredInOneGameGameID");
+			BiggestWinDifferenceGameIDS = res->getInt("BiggestWinDifferenceGameID");
+			BiggestDrawSumGameIDS = res->getInt("BiggestDrawSumGameID");
+			BiggestSumOfGoalsGameIDS = res->getInt("BiggestSumOfGoalsGameID");
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+
+		//UPDATE SERVER DATA (LOCAL VARIABLES)
+
+		//Update number of players
+		if (NumberGamesA == 1)
+		{
+			NumberOfPlayersS += 1;
+		}
+		if (NumberGamesB == 1)
+		{
+			NumberOfPlayersS += 1;
+		}
+
+		//Update average of number of different opponents
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT AVG(DifferentOpponents) FROM playertable WHERE DifferentOpponents >= 1");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			DifferentOpponentsAverageS = res->getDouble("AVG(DifferentOpponents)");
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Update number of games played and the average number of games played per player
+		GamesPlayedS += 1;
+		GamesPlayedAverageS = 2*double(GamesPlayedS) / NumberOfPlayersS;
+
+		//Update number of decided games and draws, and their ratios
+		if (ActualScore == 0.5)
+		{	
+			NumberOfDrawsS += 1;
+		}
+		else 
+		{
+			NumberOfDecidedGamesS += 1;
+		}
+		DecidedGamesRatioS = double(NumberOfDecidedGamesS) / GamesPlayedS;
+		DrawsRatioS = double(NumberOfDrawsS) / GamesPlayedS;
+
+		//Update number of goals scored and goals per game average:
+		GoalsScoredS += SumOfGoals;
+		GoalsPerGameAverageS = double(GoalsScoredS) / GamesPlayedS;
+
+		//Update double digit and clean sheet counts and ratios;
+		DoubleDigitsS += DDPlayerA + DDPlayerB;
+		CleanSheetsS += CSPlayerA + CSPlayerB;
+		DoubleDigitsRatioS = double(DoubleDigitsS) / GamesPlayedS;
+		CleanSheetsRatioS = double(CleanSheetsS) / GamesPlayedS;
+
+		//Update most games played
+		if (NumberGamesA >= MostGamesPlayedS)
+		{
+			MostGamesPlayedS = NumberGamesA;
+			MostGamesPlayedIDS = IdenA;
+			MostGamesPlayedNameS = NameA;
+			MostGamesPlayedDateS = GameDate;
+		}
+		if (NumberGamesB >= MostGamesPlayedS)
+		{
+			MostGamesPlayedS = NumberGamesB;
+			MostGamesPlayedIDS = IdenB;
+			MostGamesPlayedNameS = NameB;
+			MostGamesPlayedDateS = GameDate;
+		}
+
+		//Update most wins
+		if (NumberWinsA >= MostWinsS)
+		{
+			MostWinsS = NumberWinsA;
+			MostWinsIDS = IdenA;
+			MostWinsNameS = NameA;
+			MostWinsDateS = GameDate;
+		}
+		if (NumberWinsB >= MostWinsS)
+		{
+			MostWinsS = NumberWinsB;
+			MostWinsIDS = IdenB;
+			MostWinsNameS = NameB;
+			MostWinsDateS = GameDate;
+		}
+
+		//Update biggest win ratio
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT WinRatio, ID, Name FROM playertable WHERE WinRatio = (SELECT MAX(WinRatio) FROM playertable WHERE NumberGames >= 30)");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			BiggestWinRatioS = res->getDouble("WinRatio");
+			BiggestWinRatioIDS = res->getInt("ID");
+			BiggestWinRatioNameS = res->getString("Name");
+			BiggestWinRatioDateS = GameDate;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Update most goals scored
+		if (GoalsForA >= MostGoalsScoredS)
+		{
+			MostGoalsScoredS = GoalsForA;
+			MostGoalsScoredIDS = IdenA;
+			MostGoalsScoredNameS = NameA;
+			MostGoalsScoredDateS = GameDate;
+		}
+		if (GoalsForB >= MostGoalsScoredS)
+		{
+			MostGoalsScoredS = GoalsForB;
+			MostGoalsScoredIDS = IdenB;
+			MostGoalsScoredNameS = NameB;
+			MostGoalsScoredDateS = GameDate;
+		}
+
+		//Update biggest average of goals for
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT AverageGoalsFor, ID, Name FROM playertable WHERE AverageGoalsFor = (SELECT MAX(AverageGoalsFor) FROM playertable WHERE NumberGames >= 30)");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			BiggestGoalsForAverageS = res->getDouble("AverageGoalsFor");
+			BiggestGoalsForAverageIDS = res->getInt("ID");
+			BiggestGoalsForAverageNameS = res->getString("Name");
+			BiggestGoalsForAverageDateS = GameDate;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Update smallest average of goals against
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT AverageGoalsAgainst, ID, Name FROM playertable WHERE AverageGoalsAgainst = (SELECT MIN(AverageGoalsAgainst) FROM playertable WHERE NumberGames >= 30)");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			SmallestGoalsAgainstAverageS = res->getDouble("AverageGoalsAgainst");
+			SmallestGoalsAgainstAverageIDS = res->getInt("ID");
+			SmallestGoalsAgainstAverageNameS = res->getString("Name");
+			SmallestGoalsAgainstAverageDateS = GameDate;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Update biggest goal ratio
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT GoalRatio, ID, Name FROM playertable WHERE GoalRatio = (SELECT MAX(GoalRatio) FROM playertable WHERE NumberGames >= 30)");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			BiggestGoalRatioS = res->getDouble("GoalRatio");
+			BiggestGoalRatioIDS = res->getInt("ID");
+			BiggestGoalRatioNameS = res->getString("Name");
+			BiggestGoalRatioDateS = GameDate;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Update most goals scored in one game
+		if (goalsA >= MostGoalsScoredInOneGameS)
+		{
+			MostGoalsScoredInOneGameS = goalsA;
+			MostGoalsScoredInOneGameIDS = IdenA;
+			MostGoalsScoredInOneGameNameS = NameA;
+			MostGoalsScoredInOneGameDateS = GameDate;
+			MostGoalsScoredInOneGameGameIDS = gameID;
+		}
+		if (goalsB >= MostGoalsScoredInOneGameS)
+		{
+			MostGoalsScoredInOneGameS = goalsB;
+			MostGoalsScoredInOneGameIDS = IdenB;
+			MostGoalsScoredInOneGameNameS = NameB;
+			MostGoalsScoredInOneGameDateS = GameDate;
+			MostGoalsScoredInOneGameGameIDS = gameID;
+		}
+
+		//Update biggest win difference
+		if (GoalDifference >= BiggestWinDifferenceS && ActualScore == 1)
+		{
+			BiggestWinDifferenceS = GoalDifference;
+			BiggestWinDifferenceIDS = IdenA;
+			BiggestWinDifferenceNameS = NameA;
+			BiggestWinDifferenceDateS = GameDate;
+			BiggestWinDifferenceGameIDS = gameID;
+		}
+		if (GoalDifference >= BiggestWinDifferenceS && ActualScore == 0)
+		{
+			BiggestWinDifferenceS = GoalDifference;
+			BiggestWinDifferenceIDS = IdenB;
+			BiggestWinDifferenceNameS = NameB;
+			BiggestWinDifferenceDateS = GameDate;
+			BiggestWinDifferenceGameIDS = gameID;
+		}
+
+		//Update biggest draw sum
+		if (SumOfGoals >= BiggestDrawSumS && ActualScore == 0.5)
+		{
+			BiggestDrawSumS = SumOfGoals;
+			BiggestDrawSumIDAS = IdenA;
+			BiggestDrawSumIDBS = IdenB;
+			BiggestDrawSumNameAS = NameA;
+			BiggestDrawSumNameBS = NameB;
+			BiggestDrawSumDateS = GameDate;
+			BiggestDrawSumGameIDS = gameID;
+		}
+
+		//Update biggest sum of goals
+		if (SumOfGoals >= BiggestSumOfGoalsS)
+		{
+			BiggestSumOfGoalsS = SumOfGoals;
+			BiggestSumOfGoalsIDAS = IdenA;
+			BiggestSumOfGoalsIDBS = IdenB;
+			BiggestSumOfGoalsNameAS = NameA;
+			BiggestSumOfGoalsNameBS = NameB;
+			BiggestSumOfGoalsDateS = GameDate;
+			BiggestSumOfGoalsGameIDS = gameID;
+		}
+
+		//Update most double digits
+		if (DDPlayerA == 1 && DoubleDigitsA >= MostDoubleDigitsS)
+		{
+			MostDoubleDigitsS = DoubleDigitsA;
+			MostDoubleDigitsIDS = IdenA;
+			MostDoubleDigitsNameS = NameA;
+			MostDoubleDigitsDateS = GameDate;
+		}
+		if (DDPlayerB == 1 && DoubleDigitsB >= MostDoubleDigitsS)
+		{
+			MostDoubleDigitsS = DoubleDigitsB;
+			MostDoubleDigitsIDS = IdenB;
+			MostDoubleDigitsNameS = NameB;
+			MostDoubleDigitsDateS = GameDate;
+		}
+
+		//Update most clean sheets
+		if (CSPlayerA == 1 && CleanSheetsA >= MostCleanSheetsS)
+		{
+			MostCleanSheetsS = CleanSheetsA;
+			MostCleanSheetsIDS = IdenA;
+			MostCleanSheetsNameS = NameA;
+			MostCleanSheetsDateS = GameDate;
+		}
+		if (CSPlayerB == 1 && CleanSheetsB >= MostCleanSheetsS)
+		{
+			MostCleanSheetsS = CleanSheetsB;
+			MostCleanSheetsIDS = IdenB;
+			MostCleanSheetsNameS = NameB;
+			MostCleanSheetsDateS = GameDate;
+		}
+
+		//Update biggest double digit ratio and biggest clean sheets ratios
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT DoubleDigitsRatio, ID, Name FROM playertable WHERE DoubleDigitsRatio = (SELECT MAX(DoubleDigitsRatio) FROM playertable WHERE NumberGames >= 30)");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			BiggestDoubleDigitsRatioS = res->getDouble("DoubleDigitsRatio");
+			BiggestDoubleDigitsRatioIDS = res->getInt("ID");
+			BiggestDoubleDigitsRatioNameS = res->getString("Name");
+			BiggestDoubleDigitsRatioDateS = GameDate;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT CleanSheetsRatio, ID, Name FROM playertable WHERE CleanSheetsRatio = (SELECT MAX(CleanSheetsRatio) FROM playertable WHERE NumberGames >= 30)");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			BiggestCleanSheetsRatioS = res->getDouble("CleanSheetsRatio");
+			BiggestCleanSheetsRatioIDS = res->getInt("ID");
+			BiggestCleanSheetsRatioNameS = res->getString("Name");
+			BiggestCleanSheetsRatioDateS = GameDate;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Update most different opponents
+		if (DifferentOpponentsA >= MostDifferentOpponentsS && MostDifferentOpponentsBooleanA == 1)
+		{
+			MostDifferentOpponentsS = DifferentOpponentsA;
+			MostDifferentOpponentsIDS = IdenA;
+			MostDifferentOpponentsNameS = NameA;
+			MostDifferentOpponentsDateS = GameDate;
+		}
+		if (DifferentOpponentsB >= MostDifferentOpponentsS && MostDifferentOpponentsBooleanB == 1)
+		{
+			MostDifferentOpponentsS = DifferentOpponentsB;
+			MostDifferentOpponentsIDS = IdenB;
+			MostDifferentOpponentsNameS = NameB;
+			MostDifferentOpponentsDateS = GameDate;
+		}
+
+		//Update most different victims
+		if (DifferentVictimsA >= MostDifferentVictimsS && MostDifferentVictimsBooleanA == 1)
+		{
+			MostDifferentVictimsS = DifferentVictimsA;
+			MostDifferentVictimsIDS = IdenA;
+			MostDifferentVictimsNameS = NameA;
+			MostDifferentVictimsDateS = GameDate;
+		}
+		if (DifferentVictimsB >= MostDifferentVictimsS && MostDifferentVictimsBooleanB == 1)
+		{
+			MostDifferentVictimsS = DifferentVictimsB;
+			MostDifferentVictimsIDS = IdenB;
+			MostDifferentVictimsNameS = NameB;
+			MostDifferentVictimsDateS = GameDate;
+		}
+
+		//Update most double digit victims
+		if (DoubleDigitsVictimsA >= MostDoubleDigitsVictimsS && MostDoubleDigitsVictimsBooleanA == 1)
+		{
+			MostDoubleDigitsVictimsS = DoubleDigitsVictimsA;
+			MostDoubleDigitsVictimsIDS = IdenA;
+			MostDoubleDigitsVictimsNameS = NameA;
+			MostDoubleDigitsVictimsDateS = GameDate;
+		}
+		if (DoubleDigitsVictimsB >= MostDoubleDigitsVictimsS && MostDoubleDigitsVictimsBooleanB == 1)
+		{
+			MostDoubleDigitsVictimsS = DoubleDigitsVictimsB;
+			MostDoubleDigitsVictimsIDS = IdenB;
+			MostDoubleDigitsVictimsNameS = NameB;
+			MostDoubleDigitsVictimsDateS = GameDate;
+		}
+
+		//Update most clean sheet victims
+		if (CleanSheetsVictimsA >= MostCleanSheetsVictimsS && MostCleanSheetsVictimsBooleanA == 1)
+		{
+			MostCleanSheetsVictimsS = CleanSheetsVictimsA;
+			MostCleanSheetsVictimsIDS = IdenA;
+			MostCleanSheetsVictimsNameS = NameA;
+			MostCleanSheetsVictimsDateS = GameDate;
+		}
+		if (CleanSheetsVictimsB >= MostCleanSheetsVictimsS && MostCleanSheetsVictimsBooleanB == 1)
+		{
+			MostCleanSheetsVictimsS = CleanSheetsVictimsB;
+			MostCleanSheetsVictimsIDS = IdenB;
+			MostCleanSheetsVictimsNameS = NameB;
+			MostCleanSheetsVictimsDateS = GameDate;
+		}
+
+		//Update biggest average opponent rating
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "SELECT AverageOpponentRating, ID, Name FROM playertable WHERE AverageOpponentRating = (SELECT MAX(AverageOpponentRating) FROM playertable WHERE NumberGames >= 30)");
+		res=g_KOOLDB.SafePreparedExecuteQuery(con, pstmt);
+		while (res->next()) { 
+			BiggestAverageOpponentRatingS = res->getDouble("AverageOpponentRating");
+			BiggestAverageOpponentRatingIDS = res->getInt("ID");
+			BiggestAverageOpponentRatingNameS = res->getString("Name");
+			BiggestAverageOpponentRatingDateS = GameDate;
+		}
+		delete res; res=NULL;
+		//delete pstmt; 
+		pstmt=NULL;
+
+		//Update biggest rating ascent
+		if (CurrentRatingAscentA >= BiggestRatingAscentS)
+		{
+			BiggestRatingAscentS = CurrentRatingAscentA;
+			BiggestRatingAscentIDS = IdenA;
+			BiggestRatingAscentNameS = NameA;
+			BiggestRatingAscentDateS = GameDate;
+		}
+		if (CurrentRatingAscentB >= BiggestRatingAscentS)
+		{
+			BiggestRatingAscentS = CurrentRatingAscentB;
+			BiggestRatingAscentIDS = IdenB;
+			BiggestRatingAscentNameS = NameB;
+			BiggestRatingAscentDateS = GameDate;
+		}
+
+		//Update biggest peak rating
+		if (NewRatingA >= BiggestPeakRatingS)
+		{
+			BiggestPeakRatingS = NewRatingA;
+			BiggestPeakRatingIDS = IdenA;
+			BiggestPeakRatingNameS = NameA;
+			BiggestPeakRatingDateS = GameDate;
+		}
+		if (NewRatingB >= BiggestPeakRatingS)
+		{
+			BiggestPeakRatingS = NewRatingB;
+			BiggestPeakRatingIDS = IdenB;
+			BiggestPeakRatingNameS = NameB;
+			BiggestPeakRatingDateS = GameDate;
+		}
+
+		//Update longest winning streak
+		if (WinningStreakA >= LongestWinningStreakS)
+		{
+			LongestWinningStreakS = WinningStreakA;
+			LongestWinningStreakIDS = IdenA;
+			LongestWinningStreakNameS = NameA;
+			LongestWinningStreakDateS = GameDate;
+		}
+		if (WinningStreakB >= LongestWinningStreakS)
+		{
+			LongestWinningStreakS = WinningStreakB;
+			LongestWinningStreakIDS = IdenB;
+			LongestWinningStreakNameS = NameB;
+			LongestWinningStreakDateS = GameDate;
+		}
+
+		//Update longest draw streak
+		if (DrawingStreakA >= LongestDrawingStreakS && ActualScore == 0.5)
+		{
+			LongestDrawingStreakS = DrawingStreakA;
+			LongestDrawingStreakIDS = IdenA;
+			LongestDrawingStreakNameS = NameA;
+			LongestDrawingStreakDateS = GameDate;
+		}
+		if (DrawingStreakB >= LongestDrawingStreakS && ActualScore == 0.5)
+		{
+			LongestDrawingStreakS = DrawingStreakB;
+			LongestDrawingStreakIDS = IdenB;
+			LongestDrawingStreakNameS = NameB;
+			LongestDrawingStreakDateS = GameDate;
+		}
+
+		//Update longest non loss streak
+		if (NonLossStreakA >= LongestNonLossStreakS)
+		{
+			LongestNonLossStreakS = NonLossStreakA;
+			LongestNonLossStreakIDS = IdenA;
+			LongestNonLossStreakNameS = NameA;
+			LongestNonLossStreakDateS = GameDate;
+		}
+		if (NonLossStreakB >= LongestNonLossStreakS)
+		{
+			LongestNonLossStreakS = NonLossStreakB;
+			LongestNonLossStreakIDS = IdenB;
+			LongestNonLossStreakNameS = NameB;
+			LongestNonLossStreakDateS = GameDate;
+		}
+
+
+		//UPDATE SERVER DATA (DATABASE)
+		g_KOOLDB.SafeCreatePrepare(con, pstmt, "UPDATE generalstatstable SET NumberOfPlayers=?, DifferentOpponentsAverage=?, GamesPlayed=?, GamesPlayedAverage=?, NumberOfDecidedGames=?, NumberOfDraws=?, DecidedGamesRatio=?, DrawsRatio=?, GoalsScored=?, GoalsPerGameAverage=?, DoubleDigits=?, CleanSheets=?, DoubleDigitsRatio=?, CleanSheetsRatio=?, MostGamesPlayed=?, MostWins=?, BiggestWinRatio=?, MostGoalsScored=?, BiggestGoalsForAverage=?, SmallestGoalsAgainstAverage=?, BiggestGoalRatio=?, MostGoalsScoredInOneGame=?, BiggestWinDifference=?, BiggestDrawSum=?, BiggestSumOfGoals=?, MostDoubleDigits=?, MostCleanSheets=?, BiggestDoubleDigitsRatio=?, BiggestCleanSheetsRatio=?, MostDifferentOpponents=?, MostDifferentVictims=?, MostDoubleDigitsVictims=?, MostCleanSheetsVictims=?, BiggestAverageOpponentRating=?, BiggestRatingAscent=?, BiggestPeakRating=?, LongestWinningStreak=?, LongestDrawingStreak=?, LongestNonLossStreak=?, MostGamesPlayedID=?, MostWinsID=?, BiggestWinRatioID=?, MostGoalsScoredID=?, BiggestGoalsForAverageID=?, SmallestGoalsAgainstAverageID=?, BiggestGoalRatioID=?, MostGoalsScoredInOneGameID=?, BiggestWinDifferenceID=?, BiggestDrawSumIDA=?, BiggestDrawSumIDB=?, BiggestSumOfGoalsIDA=?, BiggestSumOfGoalsIDB=?, MostDoubleDigitsID=?, MostCleanSheetsID=?, BiggestDoubleDigitsRatioID=?, BiggestCleanSheetsRatioID=?, MostDifferentOpponentsID=?, MostDifferentVictimsID=?, MostDoubleDigitsVictimsID=?, MostCleanSheetsVictimsID=?, BiggestAverageOpponentRatingID=?, BiggestRatingAscentID=?, BiggestPeakRatingID=?, LongestWinningStreakID=?, LongestDrawingStreakID=?, LongestNonLossStreakID=?, MostGamesPlayedName=?, MostWinsName=?, BiggestWinRatioName=?, MostGoalsScoredName=?, BiggestGoalsForAverageName=?, SmallestGoalsAgainstAverageName=?, BiggestGoalRatioName=?, MostGoalsScoredInOneGameName=?, BiggestWinDifferenceName=?, BiggestDrawSumNameA=?, BiggestDrawSumNameB=?, BiggestSumOfGoalsNameA=?, BiggestSumOfGoalsNameB=?, MostDoubleDigitsName=?, MostCleanSheetsName=?, BiggestDoubleDigitsRatioName=?, BiggestCleanSheetsRatioName=?, MostDifferentOpponentsName=?, MostDifferentVictimsName=?, MostDoubleDigitsVictimsName=?, MostCleanSheetsVictimsName=?, BiggestAverageOpponentRatingName=?, BiggestRatingAscentName=?, BiggestPeakRatingName=?, LongestWinningStreakName=?, LongestDrawingStreakName=?, LongestNonLossStreakName=?, MostGamesPlayedDate=?, MostWinsDate=?, BiggestWinRatioDate=?, MostGoalsScoredDate=?, BiggestGoalsForAverageDate=?, SmallestGoalsAgainstAverageDate=?, BiggestGoalRatioDate=?, MostGoalsScoredInOneGameDate=?, BiggestWinDifferenceDate=?, BiggestDrawSumDate=?, BiggestSumOfGoalsDate=?, MostDoubleDigitsDate=?, MostCleanSheetsDate=?, BiggestDoubleDigitsRatioDate=?, BiggestCleanSheetsRatioDate=?, MostDifferentOpponentsDate=?, MostDifferentVictimsDate=?, MostDoubleDigitsVictimsDate=?, MostCleanSheetsVictimsDate=?, BiggestAverageOpponentRatingDate=?, BiggestRatingAscentDate=?, BiggestPeakRatingDate=?, LongestWinningStreakDate=?, LongestDrawingStreakDate=?, LongestNonLossStreakDate=?, MostGoalsScoredInOneGameGameID=?, BiggestWinDifferenceGameID=?, BiggestDrawSumGameID=?, BiggestSumOfGoalsGameID=? WHERE id=1");
+
+		pstmt->setInt(1, NumberOfPlayersS);
+		pstmt->setDouble(2, DifferentOpponentsAverageS);
+		pstmt->setInt(3, GamesPlayedS);
+		pstmt->setDouble(4, GamesPlayedAverageS);
+		pstmt->setInt(5, NumberOfDecidedGamesS);
+		pstmt->setInt(6, NumberOfDrawsS);
+		pstmt->setDouble(7, DecidedGamesRatioS);
+		pstmt->setDouble(8, DrawsRatioS);
+		pstmt->setInt(9, GoalsScoredS);
+		pstmt->setDouble(10, GoalsPerGameAverageS);
+		pstmt->setInt(11, DoubleDigitsS);
+		pstmt->setInt(12, CleanSheetsS);
+		pstmt->setDouble(13, DoubleDigitsRatioS);
+		pstmt->setDouble(14, CleanSheetsRatioS);
+		pstmt->setInt(15, MostGamesPlayedS);
+		pstmt->setInt(16, MostWinsS);
+		pstmt->setDouble(17, BiggestWinRatioS);
+		pstmt->setInt(18, MostGoalsScoredS);
+		pstmt->setDouble(19, BiggestGoalsForAverageS);
+		pstmt->setDouble(20, SmallestGoalsAgainstAverageS);
+		pstmt->setDouble(21, BiggestGoalRatioS);
+		pstmt->setDouble(22, MostGoalsScoredInOneGameS);
+		pstmt->setDouble(23, BiggestWinDifferenceS);
+		pstmt->setDouble(24, BiggestDrawSumS);
+		pstmt->setDouble(25, BiggestSumOfGoalsS);
+		pstmt->setDouble(26, MostDoubleDigitsS);
+		pstmt->setDouble(27, MostCleanSheetsS);
+		pstmt->setDouble(28, BiggestDoubleDigitsRatioS);
+		pstmt->setDouble(29, BiggestCleanSheetsRatioS);
+		pstmt->setDouble(30, MostDifferentOpponentsS);
+		pstmt->setDouble(31, MostDifferentVictimsS);
+		pstmt->setDouble(32, MostDoubleDigitsVictimsS);
+		pstmt->setDouble(33, MostCleanSheetsVictimsS);
+		pstmt->setDouble(34, BiggestAverageOpponentRatingS);
+		pstmt->setDouble(35, BiggestRatingAscentS);
+		pstmt->setDouble(36, BiggestPeakRatingS);
+		pstmt->setDouble(37, LongestWinningStreakS);
+		pstmt->setDouble(38, LongestDrawingStreakS);
+		pstmt->setDouble(39, LongestNonLossStreakS);
+		pstmt->setInt(40, MostGamesPlayedIDS);
+		pstmt->setInt(41, MostWinsIDS);
+		pstmt->setInt(42, BiggestWinRatioIDS);
+		pstmt->setInt(43, MostGoalsScoredIDS);
+		pstmt->setInt(44, BiggestGoalsForAverageIDS);
+		pstmt->setInt(45, SmallestGoalsAgainstAverageIDS);
+		pstmt->setInt(46, BiggestGoalRatioIDS);
+		pstmt->setInt(47, MostGoalsScoredInOneGameIDS);
+		pstmt->setInt(48, BiggestWinDifferenceIDS);
+		pstmt->setInt(49, BiggestDrawSumIDAS);
+		pstmt->setInt(50, BiggestDrawSumIDBS);
+		pstmt->setInt(51, BiggestSumOfGoalsIDAS);
+		pstmt->setInt(52, BiggestSumOfGoalsIDBS);
+		pstmt->setInt(53, MostDoubleDigitsIDS);
+		pstmt->setInt(54, MostCleanSheetsIDS);
+		pstmt->setInt(55, BiggestDoubleDigitsRatioIDS);
+		pstmt->setInt(56, BiggestCleanSheetsRatioIDS);
+		pstmt->setInt(57, MostDifferentOpponentsIDS);
+		pstmt->setInt(58, MostDifferentVictimsIDS);
+		pstmt->setInt(59, MostDoubleDigitsVictimsIDS);
+		pstmt->setInt(60, MostCleanSheetsVictimsIDS);
+		pstmt->setInt(61, BiggestAverageOpponentRatingIDS);
+		pstmt->setInt(62, BiggestRatingAscentIDS);
+		pstmt->setInt(63, BiggestPeakRatingIDS);
+		pstmt->setInt(64, LongestWinningStreakIDS);
+		pstmt->setInt(65, LongestDrawingStreakIDS);
+		pstmt->setInt(66, LongestNonLossStreakIDS);
+		pstmt->setString(67, MostGamesPlayedNameS);
+		pstmt->setString(68, MostWinsNameS);
+		pstmt->setString(69, BiggestWinRatioNameS);
+		pstmt->setString(70, MostGoalsScoredNameS);
+		pstmt->setString(71, BiggestGoalsForAverageNameS);
+		pstmt->setString(72, SmallestGoalsAgainstAverageNameS);
+		pstmt->setString(73, BiggestGoalRatioNameS);
+		pstmt->setString(74, MostGoalsScoredInOneGameNameS);
+		pstmt->setString(75, BiggestWinDifferenceNameS);
+		pstmt->setString(76, BiggestDrawSumNameAS);
+		pstmt->setString(77, BiggestDrawSumNameBS);
+		pstmt->setString(78, BiggestSumOfGoalsNameAS);
+		pstmt->setString(79, BiggestSumOfGoalsNameBS);
+		pstmt->setString(80, MostDoubleDigitsNameS);
+		pstmt->setString(81, MostCleanSheetsNameS);
+		pstmt->setString(82, BiggestDoubleDigitsRatioNameS);
+		pstmt->setString(83, BiggestCleanSheetsRatioNameS);
+		pstmt->setString(84, MostDifferentOpponentsNameS);
+		pstmt->setString(85, MostDifferentVictimsNameS);
+		pstmt->setString(86, MostDoubleDigitsVictimsNameS);
+		pstmt->setString(87, MostCleanSheetsVictimsNameS);
+		pstmt->setString(88, BiggestAverageOpponentRatingNameS);
+		pstmt->setString(89, BiggestRatingAscentNameS);
+		pstmt->setString(90, BiggestPeakRatingNameS);
+		pstmt->setString(91, LongestWinningStreakNameS);
+		pstmt->setString(92, LongestDrawingStreakNameS);
+		pstmt->setString(93, LongestNonLossStreakNameS);
+		pstmt->setString(94, MostGamesPlayedDateS);
+		pstmt->setString(95, MostWinsDateS);
+		pstmt->setString(96, BiggestWinRatioDateS);
+		pstmt->setString(97, MostGoalsScoredDateS);
+		pstmt->setString(98, BiggestGoalsForAverageDateS);
+		pstmt->setString(99, SmallestGoalsAgainstAverageDateS);
+		pstmt->setString(100, BiggestGoalRatioDateS);
+		pstmt->setString(101, MostGoalsScoredInOneGameDateS);
+		pstmt->setString(102, BiggestWinDifferenceDateS);
+		pstmt->setString(103, BiggestDrawSumDateS);
+		pstmt->setString(104, BiggestSumOfGoalsDateS);
+		pstmt->setString(105, MostDoubleDigitsDateS);
+		pstmt->setString(106, MostCleanSheetsDateS);
+		pstmt->setString(107, BiggestDoubleDigitsRatioDateS);
+		pstmt->setString(108, BiggestCleanSheetsRatioDateS);
+		pstmt->setString(109, MostDifferentOpponentsDateS);
+		pstmt->setString(110, MostDifferentVictimsDateS);
+		pstmt->setString(111, MostDoubleDigitsVictimsDateS);
+		pstmt->setString(112, MostCleanSheetsVictimsDateS);
+		pstmt->setString(113, BiggestAverageOpponentRatingDateS);
+		pstmt->setString(114, BiggestRatingAscentDateS);
+		pstmt->setString(115, BiggestPeakRatingDateS);
+		pstmt->setString(116, LongestWinningStreakDateS);
+		pstmt->setString(117, LongestDrawingStreakDateS);
+		pstmt->setString(118, LongestNonLossStreakDateS);
+		pstmt->setInt(119, MostGoalsScoredInOneGameGameIDS);
+		pstmt->setInt(120, BiggestWinDifferenceGameIDS);
+		pstmt->setInt(121, BiggestDrawSumGameIDS);
+		pstmt->setInt(122, BiggestSumOfGoalsGameIDS);
+
+		g_KOOLDB.SafePreparedExecute(con, pstmt);
+		//delete pstmt; 
+		pstmt=NULL;
+
+		return true;
+	} //end of validity check
+	else
+	{
+		return false;
+	}
+	
+}
