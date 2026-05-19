@@ -28,7 +28,7 @@
 
 - **Ladder engine / replay (planned):** intent in **`docs/ladder-engine-plan.md`** — Python engine for **dev sandbox** recalc (no decay), later **Amiga/offline** track; legacy `docs/ratings_cpp.txt` as reference only; Steve runs server scripts; schema vocabulary shared, website realm routing TBD. **Not implemented yet.**
 
-- **Dev database:** Steve provided a **writable dev DB**; staging **`ko2unitydb_config.php`** updated (May 2026). Confirm `DATABASE()` on staging before any write test. Schema/SQL changes: **dev first**, scripts in repo, Steve for production. **`scripts/throwaway_db_write_probe.php`** — one-shot CREATE/INSERT/UPDATE/DELETE/DROP on `_kool_dev_write_probe`; copy to `public_html`, `?once=db-write-probe-one-shot`, **delete after**.
+- **Dev database:** Steve provided a **writable dev DB**; staging **`ko2unitydb_config.php`** updated (May 2026). **Write probe done** (one-shot `scripts/throwaway_db_write_probe.php` → `?once=db-write-probe-one-shot`; probe table dropped; script removed from `public_html`). Still **confirm `DATABASE()`** before substantive DDL/DML. Schema/SQL changes: **dev first**, scripts in repo, Steve for production.
 
 - **Local PHP+DB:** still needs gitignored **`site/config/ko2unitydb_config.php`** (or equivalent) + reachable MySQL if Dagh wants Laragon against dev.
 
@@ -162,7 +162,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 3. **Tone pass:** chart titles/helper copy — context, sample size, “rematch story” not report-card (see chat on inclusive analytics).
 
-4. **Dev DB workflow:** run write probe if not done; document migration habit (`schema/` SQL files, dev → staging test → Steve prod).
+4. **Dev DB workflow:** document migration habit (`schema/` SQL files, dev → staging test → Steve prod); ladder-engine sandbox work on dev.
 
 5. **Optional:** local `ko2unitydb_config.php` template from Steve; align laptop + staging config shapes (gitignored only).
 
@@ -185,7 +185,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 | 2026-05 | **`docs/ladder-engine-plan.md`** — agreed plan: Python replay engine, dev sandbox + offline tracks, Steve runs scripts, schema vocabulary, defer website realm wiring. |
 | 2026-05 | **`docs/ratings_cpp.txt`** — Steve supplied C++ post-game excerpt (`RatingProcedureUnity`); reference for live / formula. |
 | 2026-05 | **`docs/ratedresults-schema.md`** — curated snapshot of per-game table `ratedresults` (from `throwaway_ratedresults_schema.php` on dev `kooldb`). |
-| 2026-05 | **Writable dev DB** + updated server config (Steve). **`scripts/throwaway_db_write_probe.php`** for staging write check. |
+| 2026-05 | **Writable dev DB** + updated server config (Steve). **Write probe passed** (`throwaway_db_write_probe.php`; removed from server after). |
 
 | 2026-05 | **Inclusive / fun profile direction** — brainstorm: welcoming copy, progressive disclosure, **fun stats** block; profile “front page” should feel active/fun, not judgment-first. |
 
@@ -249,7 +249,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 | Server DB config | **`public_html/../config/ko2unitydb_config.php`** — **not mirrored**; never commit |
 
-| **Database** | **MariaDB 10.11.7** on staging; **`mysqli`**; window functions OK. **Dev copy writable** (May 2026) — confirm which DB name staging uses before DDL/DML |
+| **Database** | **MariaDB 10.11.7** on staging; **`mysqli`**; window functions OK. **Dev copy writable** (May 2026); write access verified via probe — still confirm `DATABASE()` before DDL/DML |
 
 | Local preview | **Laragon** → **`ratingskickoff.test`** (junction to **`site/public_html`**) |
 
