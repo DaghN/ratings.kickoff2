@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/player_head_to_head.php';
     var EVENT_NAME = 'kool-opponent-selected';
 
@@ -103,7 +105,7 @@
                                 {
                                     label: data.playerName + ' wins',
                                     data: playerData,
-                                    borderColor: '#9ccc65',
+                                    borderColor: T.green(),
                                     backgroundColor: 'rgba(156, 204, 101, 0.12)',
                                     borderWidth: 2,
                                     pointRadius: 0,
@@ -113,7 +115,7 @@
                                 {
                                     label: data.opponentName + ' wins',
                                     data: opponentData,
-                                    borderColor: '#64b5f6',
+                                    borderColor: T.blue(),
                                     backgroundColor: 'rgba(100, 181, 246, 0.12)',
                                     borderWidth: 2,
                                     pointRadius: 0,
@@ -128,7 +130,7 @@
                             interaction: { mode: 'index', intersect: false },
                             plugins: {
                                 legend: {
-                                    labels: { color: '#e3e3e3' }
+                                    labels: { color: T.textPrimary() }
                                 },
                                 tooltip: {
                                     callbacks: {
@@ -148,27 +150,27 @@
                                     title: {
                                         display: true,
                                         text: 'Head-to-head game #',
-                                        color: '#b0b0b0'
+                                        color: T.tickColor()
                                     },
                                     ticks: {
-                                        color: '#b0b0b0',
+                                        color: T.tickColor(),
                                         precision: 0,
                                         maxTicksLimit: 16
                                     },
-                                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                    grid: { color: T.grid() }
                                 },
                                 y: {
                                     beginAtZero: true,
                                     title: {
                                         display: true,
                                         text: 'Cumulative wins',
-                                        color: '#b0b0b0'
+                                        color: T.tickColor()
                                     },
                                     ticks: {
-                                        color: '#b0b0b0',
+                                        color: T.tickColor(),
                                         precision: 0
                                     },
-                                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                    grid: { color: T.grid() }
                                 }
                             }
                         }

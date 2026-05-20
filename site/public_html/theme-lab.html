@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" data-realm="online" data-neon="a" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Theme lab — Kick Off 2 ratings</title>
+<link href="stylesheets/theme-lab.css" rel="stylesheet" type="text/css" />
+<script src="js/chart.umd.min.js"></script>
+<script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body class="k2-theme-lab">
+
+<div class="k2-lab-shell">
+
+	<aside class="k2-lab-controls" aria-label="Theme lab controls">
+		<p class="k2-lab-controls__title">Theme lab — not production</p>
+		<div class="k2-lab-controls__groups">
+			<div class="k2-lab-control-group">
+				<span class="k2-lab-control-group__label">Neon intensity</span>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn is-active" data-set-neon="a">A · Subtle</button>
+					<button type="button" class="k2-lab-btn" data-set-neon="b">B · Moderate</button>
+					<button type="button" class="k2-lab-btn" data-set-neon="c">C · Bold</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group">
+				<span class="k2-lab-control-group__label">Realm</span>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn is-active" data-set-realm="online">Online</button>
+					<button type="button" class="k2-lab-btn" data-set-realm="amiga">Amiga</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group" id="lab-online-accent-group">
+				<span class="k2-lab-control-group__label">Online accent</span>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn" data-set-online-accent="blue">Blue</button>
+					<button type="button" class="k2-lab-btn is-active" data-set-online-accent="green">Green</button>
+					<button type="button" class="k2-lab-btn" data-set-online-accent="lime">Lime</button>
+					<button type="button" class="k2-lab-btn" data-set-online-accent="teal">Teal</button>
+					<button type="button" class="k2-lab-btn" data-set-online-accent="cyan">Cyan</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group" id="lab-amiga-accent-group" hidden>
+				<span class="k2-lab-control-group__label">Amiga accent</span>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn is-active" data-set-amiga-accent="amber">Amber</button>
+					<button type="button" class="k2-lab-btn" data-set-amiga-accent="coral">Coral</button>
+					<button type="button" class="k2-lab-btn" data-set-amiga-accent="magenta">Magenta</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group" id="lab-amiga-links-group" hidden>
+				<span class="k2-lab-control-group__label">Amiga player links</span>
+				<p class="k2-lab-control-group__hint">Site-wide <code>&lt;a&gt;</code> color on Amiga pages — compare green (today) vs realm amber.</p>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn" data-set-amiga-links="green">Green (legacy)</button>
+					<button type="button" class="k2-lab-btn is-active" data-set-amiga-links="realm">Realm accent</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group">
+				<span class="k2-lab-control-group__label">Display font</span>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn" data-set-display-font="rajdhani">Rajdhani</button>
+					<button type="button" class="k2-lab-btn is-active" data-set-display-font="exo">Exo 2</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group">
+				<span class="k2-lab-control-group__label">Table highlights</span>
+				<p class="k2-lab-control-group__hint">Positive / negative cell colors vs player link color.</p>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn" data-set-table-highlight="current">Current</button>
+					<button type="button" class="k2-lab-btn is-active" data-set-table-highlight="cyan-magenta">Cyan · Magenta</button>
+					<button type="button" class="k2-lab-btn" data-set-table-highlight="sky-rose">Sky · Rose</button>
+					<button type="button" class="k2-lab-btn" data-set-table-highlight="blue-pink">Blue · Pink</button>
+					<button type="button" class="k2-lab-btn" data-set-table-highlight="ice-magenta">Ice · Magenta</button>
+					<button type="button" class="k2-lab-btn" data-set-table-highlight="blue-crimson">Blue · Crimson</button>
+				</div>
+				<div class="k2-lab-highlight-preview" aria-label="Highlight preview">
+					<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--link">Player link</span>
+					<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--positive">Wins 911</span>
+					<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--negative">Losses 601</span>
+				</div>
+			</div>
+		</div>
+		<p class="k2-lab-note">Toggle options above, then scroll. Promote winning tokens to <code>theme.css</code> after approval. See <code>docs/design-direction.md</code>.</p>
+	</aside>
+
+	<header class="k2-site-header">
+		<h1 class="k2-wordmark">
+			<span class="k2-wordmark__main">Kick Off 2</span>
+			<span class="k2-wordmark__sub"> ratings</span>
+		</h1>
+		<div class="k2-site-header__links">
+			<nav class="k2-realm-switch" aria-label="Realm">
+				<button type="button" class="k2-realm-switch__btn is-active" data-set-realm="online">Online</button>
+				<button type="button" class="k2-realm-switch__btn" data-set-realm="amiga">Amiga</button>
+			</nav>
+			<a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a>
+		</div>
+	</header>
+
+	<div class="k2-pulse-strip" aria-label="Community pulse">
+		<div class="k2-stat-pill">
+			<span class="k2-stat-pill__value">847</span>
+			<span class="k2-stat-pill__label">Games this month</span>
+		</div>
+		<div class="k2-stat-pill">
+			<span class="k2-stat-pill__value">23</span>
+			<span class="k2-stat-pill__label">Active players (7d)</span>
+		</div>
+		<div class="k2-stat-pill">
+			<span class="k2-stat-pill__value">259</span>
+			<span class="k2-stat-pill__label">Rated players</span>
+		</div>
+		<div class="k2-stat-pill">
+			<span class="k2-stat-pill__value" style="font-size: 14px; padding-top: 4px;">Today</span>
+			<span class="k2-stat-pill__label" id="pulse-realm-label">Online realm</span>
+		</div>
+	</div>
+
+	<p class="k2-section-label">Navigation chrome</p>
+	<ul class="k2-tabs">
+		<li><a href="#" class="k2-tabs__link is-current">Server Stats</a></li>
+		<li><a href="#" class="k2-tabs__link">Player Ranks</a></li>
+	</ul>
+	<ul class="k2-tabs k2-tabs--secondary">
+		<li><a href="#" class="k2-tabs__link is-current">Results</a></li>
+		<li><a href="#" class="k2-tabs__link">Goals</a></li>
+		<li><a href="#" class="k2-tabs__link">Streaks</a></li>
+		<li><a href="#" class="k2-tabs__link">Rating Records</a></li>
+	</ul>
+
+	<p class="k2-section-label">Player hero (identity showcase)</p>
+	<article class="k2-player-hero">
+		<div class="k2-player-hero__inner">
+			<div class="k2-player-hero__media">
+				<div class="k2-player-hero__avatar" aria-hidden="true">D</div>
+				<div class="k2-player-hero__photo-placeholder">Player photo<br />(Amiga realm)</div>
+			</div>
+			<div class="k2-player-hero__body">
+				<span class="k2-realm-badge" id="hero-realm-badge">online · rated play</span>
+				<h2 class="k2-player-hero__name">Dagh</h2>
+				<p class="k2-player-hero__bio" id="hero-bio">
+					Online ladder regular since 2007. Peak rating 2354 — known for high-tempo matches and long rivalries with Logos and Blazej.
+				</p>
+				<div class="k2-player-hero__stats">
+					<div class="k2-player-hero__stat">
+						<span class="k2-player-hero__stat-label">Rank</span>
+						<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent">#1</span>
+					</div>
+					<div class="k2-player-hero__stat">
+						<span class="k2-player-hero__stat-label">Rating</span>
+						<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent">2327</span>
+					</div>
+					<div class="k2-player-hero__stat">
+						<span class="k2-player-hero__stat-label">Peak</span>
+						<span class="k2-player-hero__stat-value">2354</span>
+					</div>
+					<div class="k2-player-hero__stat">
+						<span class="k2-player-hero__stat-label">Games</span>
+						<span class="k2-player-hero__stat-value">1702</span>
+					</div>
+					<div class="k2-player-hero__stat">
+						<span class="k2-player-hero__stat-label">Win ratio</span>
+						<span class="k2-player-hero__stat-value">53.5%</span>
+					</div>
+				</div>
+				<div class="k2-player-hero__video">
+					<p class="k2-player-hero__video-label">Featured highlight</p>
+					<div class="k2-video-placeholder" role="button" tabindex="0" aria-label="Play highlight video placeholder">
+						<span class="k2-video-placeholder__play" aria-hidden="true">▶</span>
+						<span class="k2-video-placeholder__caption" id="hero-video-caption">Featured clip (placeholder — online realm)</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</article>
+
+	<p class="k2-section-label">Chart block</p>
+	<section class="k2-card">
+		<h3 class="k2-card__title">Server games per month</h3>
+		<p class="k2-card__hint">Bar colour follows the active realm accent (try Online green vs blue).</p>
+		<p class="k2-chart-status" id="lab-chart-status">Loading chart…</p>
+		<div class="k2-chart-wrap">
+			<canvas id="lab-chart" width="780" height="240" aria-label="Games per month chart"></canvas>
+		</div>
+	</section>
+
+	<p class="k2-section-label">Table snippet <span class="k2-section-label__hint">— scroll here after picking Table highlights</span></p>
+	<div class="k2-table-wrap">
+		<table class="k2-table">
+			<thead>
+				<tr>
+					<th>Rank</th>
+					<th>Player</th>
+					<th>ELO rating</th>
+					<th>Peak</th>
+					<th>Games</th>
+					<th>Wins</th>
+					<th>Losses</th>
+					<th>Win ratio</th>
+					<th>Loss ratio</th>
+					<th>Victims</th>
+					<th>Culprits</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="k2-table__rank-1">
+					<td>1</td>
+					<td><a href="#">Dagh</a></td>
+					<td>2327</td>
+					<td class="k2-num-positive">2354</td>
+					<td>1702</td>
+					<td class="k2-num-positive">911</td>
+					<td class="k2-num-warn">601</td>
+					<td class="k2-num-positive">53.5%</td>
+					<td class="k2-num-warn">35.3%</td>
+					<td class="k2-num-positive">142</td>
+					<td class="k2-num-warn">98</td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td><a href="#">Blazej</a></td>
+					<td>2092</td>
+					<td class="k2-num-positive">2229</td>
+					<td>4238</td>
+					<td class="k2-num-positive">2565</td>
+					<td class="k2-num-warn">1241</td>
+					<td class="k2-num-positive">60.5%</td>
+					<td class="k2-num-warn">29.3%</td>
+					<td class="k2-num-positive">187</td>
+					<td class="k2-num-warn">112</td>
+				</tr>
+				<tr>
+					<td>3</td>
+					<td><a href="#">FieryPhoenix</a></td>
+					<td>1969</td>
+					<td class="k2-num-positive">2019</td>
+					<td>5998</td>
+					<td class="k2-num-positive">4553</td>
+					<td class="k2-num-warn">874</td>
+					<td class="k2-num-positive">75.9%</td>
+					<td class="k2-num-warn">14.6%</td>
+					<td class="k2-num-positive">203</td>
+					<td>76</td>
+				</tr>
+				<tr>
+					<td>4</td>
+					<td><a href="#">LORENZOL</a></td>
+					<td>1965</td>
+					<td class="k2-num-positive">2051</td>
+					<td>7340</td>
+					<td>3246</td>
+					<td class="k2-num-warn">3243</td>
+					<td>44.2%</td>
+					<td class="k2-num-warn">44.2%</td>
+					<td>156</td>
+					<td class="k2-num-warn">155</td>
+				</tr>
+				<tr>
+					<td>5</td>
+					<td><a href="#">Giuliano</a></td>
+					<td>1947</td>
+					<td class="k2-num-positive">1957</td>
+					<td>2978</td>
+					<td class="k2-num-positive">1879</td>
+					<td class="k2-num-warn">735</td>
+					<td class="k2-num-positive">63.1%</td>
+					<td class="k2-num-warn">24.7%</td>
+					<td class="k2-num-positive">121</td>
+					<td class="k2-num-warn">89</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<p class="k2-section-label">Site-wide links <span class="k2-section-label__hint">— table, body copy, hero (portal link stays muted)</span></p>
+	<div class="k2-links-snippet">
+		<p class="k2-links-snippet__line">Last game: <a href="#">Win 3–1</a> vs <a href="#">Blazej</a> · <a href="#">All games</a></p>
+		<p class="k2-links-snippet__line k2-links-snippet__line--muted">Profile: see <a href="#">individual stats</a> and <a href="#">head-to-head vs Logos</a>.</p>
+		<p class="k2-links-snippet__line">External: <a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a></p>
+	</div>
+
+</div>
+
+<script src="js/theme-lab.js" defer></script>
+</body>
+</html>

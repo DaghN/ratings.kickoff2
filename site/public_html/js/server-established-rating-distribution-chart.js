@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/server_established_rating_distribution.php';
 
     function initRoot(root) {
@@ -61,8 +63,8 @@
                         datasets: [{
                             label: 'Established players (' + minGames + '+ games)',
                             data: counts,
-                            backgroundColor: 'rgba(77, 182, 172, 0.7)',
-                            borderColor: '#4db6ac',
+                            backgroundColor: T.fill(T.teal(), 0.7),
+                            borderColor: T.teal(),
                             borderWidth: 1
                         }]
                     },
@@ -71,7 +73,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -101,23 +103,23 @@
                                 title: {
                                     display: true,
                                     text: 'ELO rating (' + bucketSize + '-point buckets)',
-                                    color: '#b0b0b0'
+                                    color: T.tickColor()
                                 },
-                                ticks: { color: '#b0b0b0', maxRotation: 45 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                ticks: { color: T.tickColor(), maxRotation: 45 },
+                                grid: { color: T.grid() }
                             },
                             y: {
                                 beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'Players',
-                                    color: '#b0b0b0'
+                                    color: T.tickColor()
                                 },
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             }
                         }
                     }

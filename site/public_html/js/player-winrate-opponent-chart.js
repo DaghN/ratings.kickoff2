@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/player_winrate_vs_opponent_rating.php';
 
     function initRoot(root) {
@@ -66,8 +68,8 @@
                         datasets: [{
                             label: 'Win %',
                             data: chartData,
-                            backgroundColor: 'rgba(156, 204, 101, 0.7)',
-                            borderColor: '#9ccc65',
+                            backgroundColor: T.fill(T.green(), 0.7),
+                            borderColor: T.green(),
                             borderWidth: 1
                         }]
                     },
@@ -76,7 +78,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -102,10 +104,10 @@
                                 title: {
                                     display: true,
                                     text: 'Opponent rating (' + bucketSize + '-point buckets)',
-                                    color: '#b0b0b0'
+                                    color: T.tickColor()
                                 },
-                                ticks: { color: '#b0b0b0', maxRotation: 45 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                ticks: { color: T.tickColor(), maxRotation: 45 },
+                                grid: { color: T.grid() }
                             },
                             y: {
                                 min: 0,
@@ -113,15 +115,15 @@
                                 title: {
                                     display: true,
                                     text: 'Win %',
-                                    color: '#b0b0b0'
+                                    color: T.tickColor()
                                 },
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     callback: function (v) {
                                         return v + '%';
                                     }
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             }
                         }
                     }

@@ -4,6 +4,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/player_top_opponents.php';
     var EVENT_NAME = 'kool-opponent-selected';
     var MAX_LABEL_LEN = 22;
@@ -106,7 +108,7 @@
                             label: 'Games played',
                             data: games,
                             backgroundColor: barColors(opponentIds, selectedId),
-                            borderColor: '#64b5f6',
+                            borderColor: T.blue(),
                             borderWidth: 1
                         }]
                     },
@@ -116,7 +118,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -139,13 +141,13 @@
                             x: {
                                 beginAtZero: true,
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             },
                             y: {
-                                ticks: { color: '#b0b0b0' },
+                                ticks: { color: T.tickColor() },
                                 grid: { display: false }
                             }
                         },

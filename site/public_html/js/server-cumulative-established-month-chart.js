@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/server_cumulative_established_by_month.php';
 
     function parseGameDate(dateStr) {
@@ -76,7 +78,7 @@
                         datasets: [{
                             label: 'Cumulative established (' + gamesRequired + '+ games)',
                             data: chartData,
-                            borderColor: '#ba68c8',
+                            borderColor: T.purple(),
                             backgroundColor: 'rgba(186, 104, 200, 0.12)',
                             borderWidth: 2,
                             fill: true,
@@ -90,7 +92,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -128,20 +130,20 @@
                                     }
                                 },
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     maxRotation: 45,
                                     autoSkip: true,
                                     maxTicksLimit: 18
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             },
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             }
                         }
                     }

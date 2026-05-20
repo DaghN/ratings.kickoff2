@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/player_rating_history.php';
 
     function parseGameDate(dateStr) {
@@ -133,7 +135,7 @@
                             {
                                 label: 'Peak (' + stats.peak + ')',
                                 data: peakLine,
-                                borderColor: '#ffb74d',
+                                borderColor: T.amber(),
                                 borderWidth: 1.5,
                                 borderDash: [6, 4],
                                 pointRadius: 0,
@@ -143,7 +145,7 @@
                             {
                                 label: 'Current (' + stats.current + ')',
                                 data: currentLine,
-                                borderColor: '#64b5f6',
+                                borderColor: T.blue(),
                                 borderWidth: 1.5,
                                 borderDash: [6, 4],
                                 pointRadius: 0,
@@ -171,7 +173,7 @@
                         interaction: { mode: 'nearest', axis: 'x', intersect: false },
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 filter: function (item) {
@@ -215,19 +217,19 @@
                                 title: {
                                     display: true,
                                     text: 'Rated game number',
-                                    color: '#b0b0b0'
+                                    color: T.tickColor()
                                 },
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     maxRotation: 0,
                                     autoSkip: true,
                                     maxTicksLimit: 14
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             },
                             y: {
-                                ticks: { color: '#b0b0b0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                ticks: { color: T.tickColor() },
+                                grid: { color: T.grid() }
                             }
                         }
                     }

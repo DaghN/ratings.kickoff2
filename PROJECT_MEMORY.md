@@ -6,7 +6,7 @@
 
 
 
-**Authority (when documents disagree):** `PROJECT_BRIEF.md` defines purpose and taste. **Dagh’s latest message in chat wins** on scope and direction. This file records **logistics, recent work, and near-term intent** — not a second brief.
+**Authority (when documents disagree):** `PROJECT_BRIEF.md` defines purpose and taste. **`docs/design-direction.md`** governs visual identity and cosmetics-track work. **Dagh’s latest message in chat wins** on scope and direction. This file records **logistics, recent work, and near-term intent** — not a second brief.
 
 
 
@@ -17,6 +17,8 @@
 ## Current focus
 
 
+
+- **Design / cosmetics track:** Phase 1 **done locally** — `theme.css`, `chart-theme.js`, `site_header.php` on `ranked1.php`, `server1.php`, `individual1.php`. **Next:** deploy staging + phase 2 roll-out.
 
 - **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
 
@@ -156,15 +158,18 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 
 
-1. **Profile first screen:** welcoming layout — fun stats / activity / rating story up front; tuck comparative charts.
+1. **Deploy phase 1 theme** — WinSCP sync → hard refresh `ranked1.php`, `server1.php`, `individual1.php` on staging.
+2. **Phase 2:** roll `theme.css` + `site_header.php` to remaining PHP pages.
 
-2. **Fun stats block (v1 brainstorm):** biggest win, biggest draw, busiest month, goal-rich month, longest win streak, goal-festival game; pull from existing `playertable` + monthly SQL on `ratedresults`; playful section title (e.g. trophy cabinet). **Exclude** longest game; keep harsh rows (biggest loss) in full table only.
+2. **Profile first screen:** welcoming layout — fun stats / activity / rating story up front; tuck comparative charts.
 
-3. **Tone pass:** chart titles/helper copy — context, sample size, “rematch story” not report-card (see chat on inclusive analytics).
+3. **Fun stats block (v1 brainstorm):** biggest win, biggest draw, busiest month, goal-rich month, longest win streak, goal-festival game; pull from existing `playertable` + monthly SQL on `ratedresults`; playful section title (e.g. trophy cabinet). **Exclude** longest game; keep harsh rows (biggest loss) in full table only.
 
-4. **Dev DB workflow:** document migration habit (`schema/` SQL files, dev → staging test → Steve prod); ladder-engine sandbox work on dev.
+4. **Tone pass:** chart titles/helper copy — context, sample size, “rematch story” not report-card (see chat on inclusive analytics).
 
-5. **Optional:** local `ko2unitydb_config.php` template from Steve; align laptop + staging config shapes (gitignored only).
+5. **Dev DB workflow:** document migration habit (`schema/` SQL files, dev → staging test → Steve prod); ladder-engine sandbox work on dev.
+
+6. **Optional:** local `ko2unitydb_config.php` template from Steve; align laptop + staging config shapes (gitignored only).
 
 
 
@@ -180,6 +185,8 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 |----------------|------|
 
+| 2026-05 | **Theme lab:** `theme-lab.html`, `stylesheets/theme-lab.css`, `js/theme-lab.js` — interactive neon/realm/amiga-accent/display-font preview. |
+| 2026-05 | **`docs/design-direction.md`** — cosmetics track: neon noir theme, realm colors, Tailwind mock-only, theme lab plan, player media notes (photos, YouTube). |
 | 2026-05 | **Profile:** rating-by-game-number chart (`player-rating-game-chart.js`); `player_rating_history.php` uses `NewRatingA`/`NewRatingB` + `gameNumber`. |
 | 2026-05 | **Dev DB:** dropped unused `KungFu*` columns on `playertable` (staging); `docs/playertable-schema.md` trimmed; `scripts/throwaway_drop_playertable_kungfu_columns.php`. |
 | 2026-05 | **`docs/ladder-engine-plan.md`** — agreed plan: Python replay engine, dev sandbox + offline tracks, Steve runs scripts, schema vocabulary, defer website realm wiring. |
@@ -265,7 +272,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 
 
-- **Authority:** **`PROJECT_BRIEF.md`** carries product intent and taste. **Dagh’s latest message** wins on scope and direction. **This file** is logistics hand-off only — if it clashes with Brief or Dagh, follow Brief + Dagh and **offer to update MEMORY** afterward.
+- **Authority:** **`PROJECT_BRIEF.md`** carries product intent and taste. **`docs/design-direction.md`** carries visual identity and cosmetics-track decisions. **Dagh’s latest message** wins on scope and direction. **This file** is logistics hand-off only — if it clashes with Brief, design doc, or Dagh, follow Brief + design doc + Dagh and **offer to update MEMORY** afterward.
 
 - **Memory vs reality:** Treat **staging, SFTP-visible files, and repo/`git`** as ground truth when debugging. **If MEMORY lags** (deploy path, URLs, hosting), trust **facts + what Dagh says**, then propose a concise **MEMORY patch** instead of inventing lore.
 

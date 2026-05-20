@@ -13,6 +13,7 @@
 | `docs/ratings_cpp.txt` | Legacy **live** post-game logic (reference only) |
 | `docs/ratedresults-schema.md` | Online per-game row shape (snapshot) |
 | `docs/playertable-schema.md` | Online per-player aggregates (snapshot) |
+| `docs/generalstatstable-schema.md` | Server-wide single row `id=1` (snapshot) |
 
 ---
 

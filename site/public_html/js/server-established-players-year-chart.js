@@ -6,6 +6,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/server_established_players_by_year.php';
 
     function yearToDate(year) {
@@ -77,7 +79,7 @@
                             label: 'New established players (' + gamesRequired + '+ games)',
                             data: chartData,
                             backgroundColor: 'rgba(255, 183, 77, 0.65)',
-                            borderColor: '#ffb74d',
+                            borderColor: T.amber(),
                             borderWidth: 1
                         }]
                     },
@@ -86,7 +88,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -117,19 +119,19 @@
                                     }
                                 },
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     maxRotation: 45,
                                     autoSkip: true
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             },
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             }
                         }
                     }

@@ -1,20 +1,21 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="online">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>KOOL Rating</title>
+<title>Kick Off 2 ratings</title>
 
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
+<link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/ranked_table_cloak_head.php"; ?>
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
 
-<body>
+<body class="k2-site">
 
-<br />
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
 <ul id="aboutmenu">
         <li><a href="server1.php" title="" class="noncurrent">Server Stats</a></li>
@@ -54,6 +55,8 @@ $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con));
 
 mysqli_close($con);
 ?>
+
+<div class="k2-table-wrap">
 
 <table class="example ranked-pages-table ranked-table-pending table-autosort table-autofilter table-autorank table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
@@ -135,7 +138,10 @@ mysqli_close($con);
     ?> 
 </tbody>
 
-</table> 
+</table>
+
+</div><!-- .k2-table-wrap -->
+
 <br />
 Most S = Most Scored, ie. most goals scored by the player in one game<br />
 Most C = Most Conceded<br />
@@ -151,5 +157,7 @@ SGS = Smallest Goal Sum
 
 
 
+
+</div><!-- .k2-page-nav -->
 </body>
 </html>

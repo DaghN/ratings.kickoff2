@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/player_compare_rating_history.php';
     var EVENT_NAME = 'kool-opponent-selected';
 
@@ -119,8 +121,8 @@
                                 {
                                     label: (player.playerName || 'Player') + ' rating',
                                     data: playerData,
-                                    borderColor: '#9ccc65',
-                                    backgroundColor: 'rgba(156, 204, 101, 0.1)',
+                                    borderColor: T.green(),
+                                    backgroundColor: T.fill(T.green(), 0.1),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     pointHoverRadius: 4,
@@ -130,8 +132,8 @@
                                 {
                                     label: (opponent.playerName || opponentName || 'Opponent') + ' rating',
                                     data: opponentData,
-                                    borderColor: '#64b5f6',
-                                    backgroundColor: 'rgba(100, 181, 246, 0.1)',
+                                    borderColor: T.blue(),
+                                    backgroundColor: T.fill(T.blue(), 0.1),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     pointHoverRadius: 4,
@@ -146,7 +148,7 @@
                             interaction: { mode: 'index', intersect: false },
                             plugins: {
                                 legend: {
-                                    labels: { color: '#e3e3e3' }
+                                    labels: { color: T.textPrimary() }
                                 },
                                 tooltip: {
                                     callbacks: {
@@ -178,16 +180,16 @@
                                         }
                                     },
                                     ticks: {
-                                        color: '#b0b0b0',
+                                        color: T.tickColor(),
                                         maxRotation: 45,
                                         autoSkip: true,
                                         maxTicksLimit: 14
                                     },
-                                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                    grid: { color: T.grid() }
                                 },
                                 y: {
-                                    ticks: { color: '#b0b0b0' },
-                                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                    ticks: { color: T.tickColor() },
+                                    grid: { color: T.grid() }
                                 }
                             }
                         }

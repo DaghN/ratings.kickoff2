@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/server_goals_by_month.php';
 
     function monthToDate(monthStr) {
@@ -73,8 +75,8 @@
                         datasets: [{
                             label: 'Goals (server)',
                             data: chartData,
-                            backgroundColor: 'rgba(255, 138, 101, 0.65)',
-                            borderColor: '#ff8a65',
+                            backgroundColor: T.fill(T.coral(), 0.65),
+                            borderColor: T.coral(),
                             borderWidth: 1
                         }]
                     },
@@ -83,7 +85,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -115,20 +117,20 @@
                                     }
                                 },
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     maxRotation: 45,
                                     autoSkip: true,
                                     maxTicksLimit: 24
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             },
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             }
                         }
                     }

@@ -6,6 +6,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/server_active_players_by_month.php';
 
     function monthToDate(monthStr) {
@@ -75,7 +77,7 @@
                             label: 'Active players (server)',
                             data: chartData,
                             backgroundColor: 'rgba(100, 181, 246, 0.65)',
-                            borderColor: '#64b5f6',
+                            borderColor: T.blue(),
                             borderWidth: 1
                         }]
                     },
@@ -84,7 +86,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -116,20 +118,20 @@
                                     }
                                 },
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     maxRotation: 45,
                                     autoSkip: true,
                                     maxTicksLimit: 24
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             },
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             }
                         }
                     }

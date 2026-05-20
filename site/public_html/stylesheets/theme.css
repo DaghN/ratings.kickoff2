@@ -1,0 +1,402 @@
+@charset "utf-8";
+
+/**
+ * Kick Off 2 ratings — production theme.
+ * Locked: subtle neon, Exo 2, online green, Amiga amber links, cyan/magenta table highlights.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Exo+2:wght@500;600;700&display=swap");
+
+:root {
+	--k2-bg-page: #0b0f14;
+	--k2-bg-surface: #131922;
+	--k2-bg-elevated: #1a2230;
+	--k2-bg-hover: #222c3d;
+	--k2-text-primary: #e6edf3;
+	--k2-text-muted: #8b949e;
+	--k2-border-subtle: rgba(255, 255, 255, 0.07);
+	--k2-border-strong: rgba(255, 255, 255, 0.1);
+
+	--k2-chart-green: #9ccc65;
+	--k2-chart-blue: #64b5f6;
+	--k2-chart-amber: #ffb74d;
+	--k2-chart-coral: #ff8a65;
+	--k2-chart-teal: #4db6ac;
+	--k2-chart-purple: #ba68c8;
+
+	--k2-link: #9ccc65;
+	--k2-link-hover: #aed581;
+
+	--k2-table-positive: #4fc3f7;
+	--k2-table-negative: #f06292;
+
+	--k2-font-body: "IBM Plex Sans", Verdana, Arial, sans-serif;
+	--k2-font-display: "Exo 2", "IBM Plex Sans", sans-serif;
+	--k2-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+	--k2-radius-sm: 4px;
+	--k2-radius-md: 8px;
+	--k2-glow-strength: 0.35;
+	--k2-accent-glow-blur: 12px;
+}
+
+html[data-realm="online"] {
+	--k2-realm-accent: #9ccc65;
+	--k2-realm-accent-muted: rgba(156, 204, 101, 0.14);
+	--k2-realm-glow: rgba(156, 204, 101, 0.35);
+	--k2-table-head-hover: rgba(156, 204, 101, 0.32);
+	--k2-link: #9ccc65;
+	--k2-link-hover: #aed581;
+}
+
+html[data-realm="amiga"] {
+	--k2-realm-accent: #ffb74d;
+	--k2-realm-accent-muted: rgba(255, 183, 77, 0.14);
+	--k2-realm-glow: rgba(255, 183, 77, 0.35);
+	--k2-table-head-hover: rgba(255, 183, 77, 0.32);
+	--k2-link: #ffb74d;
+	--k2-link-hover: #ffcc80;
+}
+
+html {
+	background-color: var(--k2-bg-page);
+}
+
+body.k2-site {
+	margin: 0;
+	padding: 0 20px 48px;
+	font-family: var(--k2-font-body);
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--k2-text-primary);
+	background-color: var(--k2-bg-page);
+}
+
+body.k2-site a {
+	color: var(--k2-link);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.k2-site a:hover {
+	color: var(--k2-link-hover);
+	text-decoration: underline;
+}
+
+body.k2-site h1 {
+	color: var(--k2-text-primary);
+}
+
+/* ── Site header ── */
+.k2-site-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 18px 0 14px;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.k2-wordmark {
+	margin: 0;
+	font-family: var(--k2-font-display);
+	font-size: 26px;
+	font-weight: 600;
+	line-height: 1.1;
+	letter-spacing: 0.03em;
+}
+
+.k2-wordmark__main {
+	color: var(--k2-text-primary);
+}
+
+.k2-wordmark__sub {
+	font-size: 0.72em;
+	font-weight: 500;
+	color: var(--k2-text-muted);
+}
+
+.k2-site-header__links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	font-size: 13px;
+}
+
+.k2-portal-link {
+	color: var(--k2-text-muted);
+	font-weight: 500;
+}
+
+.k2-portal-link:hover {
+	color: var(--k2-realm-accent);
+	text-decoration: none;
+}
+
+.k2-realm-switch {
+	display: inline-flex;
+	padding: 3px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+.k2-realm-switch__btn {
+	margin: 0;
+	padding: 6px 14px;
+	border: none;
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	background: transparent;
+	color: var(--k2-text-muted);
+	font-family: var(--k2-font-display);
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.k2-realm-switch__btn:hover {
+	color: var(--k2-text-primary);
+	background: var(--k2-bg-hover);
+}
+
+.k2-realm-switch__btn.is-active {
+	color: var(--k2-bg-page);
+	background: var(--k2-realm-accent);
+	box-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+}
+
+.k2-realm-switch__btn.is-active:hover {
+	color: var(--k2-bg-page);
+	background: var(--k2-realm-accent);
+}
+
+.k2-page-nav {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+/* ── Primary / secondary tabs (#aboutmenu) ── */
+body.k2-site #aboutmenu {
+	padding-left: 0;
+	margin: 16px 0 0;
+	list-style-type: none;
+}
+
+body.k2-site #aboutmenu > li {
+	float: left;
+	margin: 0 8px 8px 0;
+}
+
+body.k2-site #aboutmenu::after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+body.k2-site #aboutmenu > li > a {
+	float: left;
+	text-decoration: none;
+	padding: 6px 12px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background-color: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+	font-family: var(--k2-font-display);
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+}
+
+body.k2-site #aboutmenu > li > a.noncurrent:hover {
+	background-color: var(--k2-bg-hover);
+	border-color: var(--k2-realm-accent);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site #aboutmenu > li > a.current {
+	border-color: var(--k2-realm-accent);
+	background-color: var(--k2-realm-accent-muted);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .player-search--nav label {
+	color: var(--k2-text-muted);
+	font-size: 11px;
+}
+
+/* ── Chart blocks on server / profile pages ── */
+body.k2-site .server-games-month-chart,
+body.k2-site .server-games-year-chart,
+body.k2-site .server-goals-month-chart,
+body.k2-site .server-active-players-month-chart,
+body.k2-site .server-established-players-year-chart,
+body.k2-site .server-cumulative-established-month-chart,
+body.k2-site .server-established-rating-distribution-chart,
+body.k2-site .player-rating-chart,
+body.k2-site .player-games-month-chart,
+body.k2-site .player-rating-game-chart,
+body.k2-site .player-winrate-opponent-chart,
+body.k2-site .player-top-opponents-chart,
+body.k2-site .player-head-to-head-chart,
+body.k2-site .player-compare-rating-chart {
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 16px;
+	padding: 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site .server-games-month-chart p,
+body.k2-site .server-games-year-chart p,
+body.k2-site .server-goals-month-chart p,
+body.k2-site .server-active-players-month-chart p,
+body.k2-site .server-established-players-year-chart p,
+body.k2-site .server-cumulative-established-month-chart p,
+body.k2-site .server-established-rating-distribution-chart p,
+body.k2-site .player-rating-chart p,
+body.k2-site .player-games-month-chart p,
+body.k2-site .player-rating-game-chart p,
+body.k2-site .player-winrate-opponent-chart p,
+body.k2-site .player-top-opponents-chart p,
+body.k2-site .player-head-to-head-chart p,
+body.k2-site .player-compare-rating-chart p,
+body.k2-site .player-h2h-opponent-search label {
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .player-rating-chart-status,
+body.k2-site .player-games-month-chart-status,
+body.k2-site .player-rating-game-chart-status,
+body.k2-site .player-winrate-opponent-chart-status,
+body.k2-site .player-top-opponents-chart-status,
+body.k2-site .player-head-to-head-chart-status,
+body.k2-site .player-compare-rating-chart-status,
+body.k2-site .server-games-month-chart-status,
+body.k2-site .server-games-year-chart-status,
+body.k2-site .server-goals-month-chart-status,
+body.k2-site .server-active-players-month-chart-status,
+body.k2-site .server-established-players-year-chart-status,
+body.k2-site .server-cumulative-established-month-chart-status,
+body.k2-site .server-established-rating-distribution-chart-status {
+	color: var(--k2-text-muted);
+}
+
+/* ── Dark data tables (scoped to themed pages) ── */
+body.k2-site table.example {
+	color: var(--k2-text-primary);
+	border-collapse: collapse;
+}
+
+body.k2-site table.example th {
+	background-color: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site table.example thead tr:last-child th {
+	border-bottom: 2px solid var(--k2-realm-accent);
+}
+
+body.k2-site table.example thead tr:first-child:not(:last-child) th {
+	background-color: transparent;
+	border-bottom: none;
+}
+
+body.k2-site table.example thead tr:first-child:not(:last-child) th.filtercell,
+body.k2-site table.example thead tr:first-child:not(:last-child) th.filtercell:hover {
+	background-color: transparent;
+	box-shadow: none;
+}
+
+body.k2-site table.example thead th.table-sortable:hover,
+body.k2-site table.example thead th:hover:not(.nohovercell):not(.filtercell) {
+	background-color: var(--k2-table-head-hover);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site table.example thead .nohovercell:hover {
+	background-color: var(--k2-bg-elevated);
+}
+
+body.k2-site table.example thead .goalcounter,
+body.k2-site table.example thead .goalcounter:hover {
+	background-color: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site table.example tbody td {
+	color: var(--k2-text-primary);
+}
+
+body.k2-site table.example tbody td a {
+	color: var(--k2-link);
+}
+
+body.k2-site table.example tfoot td {
+	background-color: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+	border-top: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site table.example tfoot td a,
+body.k2-site table.example tfoot td a:visited {
+	color: var(--k2-link);
+}
+
+body.k2-site table.example tr.tbody_header {
+	background-color: var(--k2-bg-hover);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site table.example a.pagelink {
+	border-color: var(--k2-border-strong);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site table.example a.currentpage {
+	background-color: var(--k2-realm-accent-muted);
+	color: var(--k2-realm-accent);
+}
+
+body.k2-site table.example tr {
+	background-color: var(--k2-bg-surface);
+}
+
+body.k2-site table.example tr.alternate {
+	background-color: rgba(255, 255, 255, 0.025);
+}
+
+body.k2-site table.example tbody tr:hover {
+	background-color: var(--k2-realm-accent-muted);
+}
+
+body.k2-site .blue {
+	color: var(--k2-table-positive);
+}
+
+body.k2-site .red {
+	color: var(--k2-table-negative);
+}
+
+body.k2-site select.table-autofilter {
+	font-size: 11px;
+	color: var(--k2-text-primary);
+	background-color: var(--k2-bg-elevated);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .k2-table-wrap {
+	max-width: 1200px;
+	margin: 0 auto;
+	overflow-x: auto;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+}

@@ -6,6 +6,8 @@
 (function () {
     'use strict';
 
+    var T = window.K2ChartTheme;
+
     var API_PATH = 'api/server_games_by_year.php';
 
     function initRoot(root) {
@@ -71,16 +73,16 @@
                             {
                                 label: 'Games',
                                 data: actualData,
-                                backgroundColor: 'rgba(156, 204, 101, 0.75)',
-                                borderColor: '#9ccc65',
+                                backgroundColor: T.fill(T.green(), 0.75),
+                                borderColor: T.green(),
                                 borderWidth: 1,
                                 stack: 'games'
                             },
                             {
                                 label: 'Projected remainder (current year)',
                                 data: projectedData,
-                                backgroundColor: 'rgba(100, 181, 246, 0.55)',
-                                borderColor: '#64b5f6',
+                                backgroundColor: T.fill(T.blue(), 0.55),
+                                borderColor: T.blue(),
                                 borderWidth: 1,
                                 stack: 'games'
                             }
@@ -91,7 +93,7 @@
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: '#e3e3e3' }
+                                labels: { color: T.textPrimary() }
                             },
                             tooltip: {
                                 callbacks: {
@@ -142,20 +144,20 @@
                             x: {
                                 stacked: true,
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     maxRotation: 45,
                                     autoSkip: true
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             },
                             y: {
                                 stacked: true,
                                 beginAtZero: true,
                                 ticks: {
-                                    color: '#b0b0b0',
+                                    color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                                grid: { color: T.grid() }
                             }
                         }
                     }
