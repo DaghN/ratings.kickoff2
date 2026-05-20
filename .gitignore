@@ -2,6 +2,17 @@
 .env
 .env.*
 !.env.example
+site/config/ko2unitydb_config.php
+site/config/ladder.ini
+
+# Local database dumps (large; may contain account data)
+/data/dumps/
+/KO2PC_DB/
+*.sql
+!schema/**/*.sql
+
+# Laragon Apache shim build artifacts
+laragon/*.exe
 
 # OS / editor noise
 .DS_Store

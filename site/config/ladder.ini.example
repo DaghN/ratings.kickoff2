@@ -1,0 +1,9 @@
+; Copy to ladder.ini (gitignored) for Python ladder scripts.
+; Same database as site/config/ko2unitydb_config.php
+
+[database]
+host = 127.0.0.1
+port = 3306
+user = root
+password =
+database = ko2unity_db

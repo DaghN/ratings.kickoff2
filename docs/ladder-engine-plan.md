@@ -14,6 +14,9 @@
 | `docs/ratedresults-schema.md` | Online per-game row shape (snapshot) |
 | `docs/playertable-schema.md` | Online per-player aggregates (snapshot) |
 | `docs/generalstatstable-schema.md` | Server-wide single row `id=1` (snapshot) |
+| `data/README.md` | Local SQL dump import (not in Git) |
+| `docs/LOCAL_DEV.md` | Laragon, `ratingskickoff.test`, local DB name |
+| `docs/replay-v1-scope-and-reset.md` | **P0** — v1 scope + reset/`apply_game` column manifest |
 
 ---
 
@@ -136,6 +139,7 @@ From `docs/ratings_cpp.txt` / live behaviour (reference):
 | Elo expected score | Logistic: `1 / (1 + 10^((Rb-Ra)/400))` |
 | Adjustment | `K * (ActualScore - Expected)`; zero-sum between A and B |
 | `ActualScore` from goals | A win `1`, draw `0.5`, B win `0` |
+| `WinnerID` from goals | A win → `idA`; B win → `idB`; draw → **`-1`** (non-NULL sentinel; matches live dump) |
 | Per-game row | Pre-ratings, expected, adjustments, new ratings, goals, flags |
 | `playertable.Rating` after game | New rating after game |
 
@@ -148,7 +152,7 @@ From `docs/ratings_cpp.txt` / live behaviour (reference):
 
 **Decay:** Dagh wants it **removed** from desired behaviour. Not present in the supplied C++ excerpt; may exist elsewhere in Steve’s tree. New engine: **no decay**. Steve to remove from live when agreed.
 
-**Not in excerpt (confirm with Steve before prod parity):** `Kfactor` numeric value, starting rating for new players, draw `WinnerID` (-1 in C++ vs always set in DB dump), unrated-player paths.
+**Not in excerpt (confirm with Steve before prod parity):** `Kfactor` numeric value for live (sandbox v1 uses **K=32**), starting rating for new players (sandbox **1600**), unrated-player paths.
 
 ---
 
@@ -194,7 +198,7 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 
 | Phase | Deliverable |
 |-------|-------------|
-| **P0 — Spec v1** | List columns `reset` clears and `apply_game` updates for online dev (minimal set for charts: Elo on row, `playertable.Rating`, W/D/L optional). |
+| **P0 — Spec v1** | **`docs/replay-v1-scope-and-reset.md`** — locked scope, reset manifest, minimal `apply_game` write set. |
 | **P1 — Online dev replay** | Python `reset` + `replay_all` on sandbox; no decay; agreed K and start rating. |
 | **P2 — Validate** | Staging charts, ranked order, spot-check players; note deltas vs old prod numbers. |
 | **P3 — Offline schema + import** | How Amiga raw data maps to vocabulary; player-from-results. |
@@ -220,12 +224,11 @@ Chart backlog and “fun stats” on profiles can proceed in PHP against **sandb
 
 ## 12. Open questions (to resolve during implementation)
 
-1. Starting **Rating** for new/replayed players (1600? value from Steve?).
-2. **`Kfactor`** numeric value for sandbox v1.
+1. Starting **Rating** for new/replayed players on **live** (sandbox replay locked to **1600** in `docs/replay-v1-scope-and-reset.md`).
+2. **`Kfactor`** on **live** (sandbox v1 locked to **32**).
 3. Where **decay** lives in Steve’s full tree and removal plan for live.
 4. Whether v1 must update **`generalstatstable`** for `server1.php` headline stats.
 5. Amiga: physical **separate database** vs tables on same server.
-6. Draw handling for **`WinnerID`** in engine vs website H2H (use `ActualScore == 0.5`).
 
 ---
 

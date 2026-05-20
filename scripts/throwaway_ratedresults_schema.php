@@ -91,6 +91,26 @@ append_section(
     . 'COUNT(*) AS n FROM ratedresults GROUP BY winner_id_state'
 );
 
+append_section(
+    $con,
+    $lines,
+    'WinnerID on draws (expect -1)',
+    'SELECT WinnerID, COUNT(*) AS n FROM ratedresults WHERE ActualScore = 0.5 '
+    . 'GROUP BY WinnerID ORDER BY n DESC'
+);
+
+append_section(
+    $con,
+    $lines,
+    'WinnerID consistency on wins',
+    'SELECT '
+    . 'SUM(ActualScore = 1 AND WinnerID = idA) AS a_wins_ok, '
+    . 'SUM(ActualScore = 1 AND WinnerID <> idA) AS a_wins_bad, '
+    . 'SUM(ActualScore = 0 AND WinnerID = idB) AS b_wins_ok, '
+    . 'SUM(ActualScore = 0 AND WinnerID <> idB) AS b_wins_bad '
+    . 'FROM ratedresults'
+);
+
 append_section($con, $lines, 'SHOW FULL COLUMNS FROM ratedresults', 'SHOW FULL COLUMNS FROM ratedresults');
 
 append_section($con, $lines, 'SHOW CREATE TABLE ratedresults', 'SHOW CREATE TABLE ratedresults');

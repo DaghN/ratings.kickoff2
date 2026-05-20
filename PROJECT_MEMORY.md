@@ -28,11 +28,11 @@
 
 - **Operational loop:** mirror → edit locally/Git → deploy to **staging** with **WinSCP** (**Synchronize** `site/public_html/` → remote `public_html/`). Hard refresh after CSS/JS/PHP. **SSH shell for Dagh:** still **permission denied** (May 2026); Steve will **run one-off scripts** when sent — plan batch recalc for that path unless SSH is fixed.
 
-- **Ladder engine / replay (planned):** intent in **`docs/ladder-engine-plan.md`** — Python engine for **dev sandbox** recalc (no decay), later **Amiga/offline** track; legacy `docs/ratings_cpp.txt` as reference only; Steve runs server scripts; schema vocabulary shared, website realm routing TBD. **Not implemented yet.**
+- **Ladder engine / replay:** Architecture in **`docs/ladder-engine-plan.md`**. **P0 done (May 2026):** **`docs/replay-v1-scope-and-reset.md`** — locked v1 scope + reset/`apply_game` manifest. **P1 next:** Python `reset` + `replay_all` on local **`ko2unity_db`** (not in repo yet). Later: Amiga/offline track; Steve runs server scripts; legacy **`docs/ratings_cpp.txt`** as reference only.
 
 - **Dev database:** Steve provided a **writable dev DB**; staging **`ko2unitydb_config.php`** updated (May 2026). **Write probe done** (one-shot `scripts/throwaway_db_write_probe.php` → `?once=db-write-probe-one-shot`; probe table dropped; script removed from `public_html`). Still **confirm `DATABASE()`** before substantive DDL/DML. Schema/SQL changes: **dev first**, scripts in repo, Steve for production.
 
-- **Local PHP+DB:** still needs gitignored **`site/config/ko2unitydb_config.php`** (or equivalent) + reachable MySQL if Dagh wants Laragon against dev.
+- **Local dev (Dagh PC):** **`docs/LOCAL_DEV.md`** — Laragon at **`C:\laragon`**, site **`http://ratingskickoff.test`** (Apache **port 80**), DB **`ko2unity_db`**. **Workflow verified (May 2026):** desktop shortcut → **Start All** → site loads; **Stop All** → site stops (Apache watchdog + Avast **`SSLKEYLOGFILE`** shim — one-time **`scripts/setup_laragon_apache_fix.ps1`**, sources in **`laragon/`**). Dump in **`data/dumps/`** (no **`generalstatstable`** in that SQL file). Optional diagnostic: **`scripts/check_local_dev.ps1`**. **`127.0.0.1:8765`** = theme-lab only, not the ladder site.
 
 - **Change style:** small, reversible slices (brief).
 
@@ -128,7 +128,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 1. **Load** both rows from `playertable` (`SELECT *`).
 
-2. **Derive** from goals: `ActualScore` (1 / 0.5 / 0), `HomeWin`/`Draw`/`AwayWin`, `WinnerID` (loser id or **-1** on draw), `SumOfGoals`, `GoalDifference`, double-digit (≥10 goals), clean sheets (0 conceded).
+2. **Derive** from goals: `ActualScore` (1 / 0.5 / 0), `HomeWin`/`Draw`/`AwayWin`, `WinnerID` (winner’s `idA`/`idB`; **-1** on draw), `SumOfGoals`, `GoalDifference`, double-digit (≥10 goals), clean sheets (0 conceded).
 
 3. **Elo** via `BothRated`: logistic expected score for A, `RatingAdjustment = Kfactor * (ActualScore - ExpectedScore)`, `NewRatingA/B` (zero-sum). Uses global **`Kfactor`** (value not in this excerpt).
 
@@ -263,7 +263,8 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 | **Database** | **MariaDB 10.11.7** on staging; **`mysqli`**; window functions OK. **Dev copy writable** (May 2026); write access verified via probe — still confirm `DATABASE()` before DDL/DML |
 
-| Local preview | **Laragon** → **`ratingskickoff.test`** (junction to **`site/public_html`**) |
+| Local preview | **`docs/LOCAL_DEV.md`** — **`http://ratingskickoff.test`** (needs **Apache on :80**); junction **`C:\laragon\www\ratingskickoff`** |
+| Local DB dump | **`data/dumps/ko2unity_db-2026-05-20.sql`** → **`ko2unity_db`**; **no `generalstatstable` in dump** |
 
 | Throwaway probes | Under **`scripts/`** — manual copy to **`public_html`**, gated `?once=…`, **delete after** |
 

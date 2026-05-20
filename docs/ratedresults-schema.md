@@ -24,7 +24,9 @@
 
 ## Result encoding (`ActualScore` / `WinnerID`)
 
-**`ActualScore`** (decimal) is what new APIs use for win/draw/loss:
+Both columns are **derived from goals** at insert time (legacy C++ in `docs/ratings_cpp.txt`). **Raw facts** for outcome are `GoalsA`, `GoalsB`, `idA`, `idB`.
+
+**`ActualScore`** (decimal) — canonical for Elo and new APIs:
 
 | `ActualScore` | Meaning (from `game.php`) | Rows (snapshot) |
 |---------------|---------------------------|----------------:|
@@ -32,9 +34,19 @@
 | `0` | **Player B** (`idB`) won | 31,484 |
 | `0.5` | Draw | 9,053 |
 
-**`WinnerID`** — player id of the winner; **always populated** in this snapshot (74,870 / 74,870). Use with `ActualScore` for H2H logic (`api/player_head_to_head.php`).
+**`WinnerID`** — denormalized winner pointer; **never NULL** in this snapshot (74,870 / 74,870). **“Populated” means non-NULL**, not “always a real player id”:
 
-**Legacy flags** (still on the row, used by older opponent pages): `HomeWin`, `Draw`, `AwayWin`, `DDPlayerA` / `DDPlayerB` (double digit), `CSPlayerA` / `CSPlayerB` (clean sheet). Prefer `ActualScore`, `GoalsA` / `GoalsB`, and `WinnerID` for new code unless you intentionally match legacy reports.
+| Outcome | `WinnerID` value | Rows (snapshot) |
+|---------|------------------|----------------:|
+| A won (`ActualScore = 1`) | `idA` | 34,333 |
+| B won (`ActualScore = 0`) | `idB` | 31,484 |
+| Draw (`ActualScore = 0.5`) | **`-1`** (legacy sentinel) | 9,053 |
+
+Verified on local import **`ko2unity_db`** (May 2026): 0 rows where draw `WinnerID` is `idA`/`idB`; 0 win rows with mismatched `WinnerID`. PHP in this repo **does not write** `WinnerID` — only reads it.
+
+**H2H / charts:** Prefer **`ActualScore`** for draws (`api/player_head_to_head.php` checks `0.5` before `WinnerID`). Older pages (e.g. `individual3.php`) also use `ActualScore == 0.5` for draw display.
+
+**Legacy flags** (still on the row, used by older opponent pages): `HomeWin`, `Draw`, `AwayWin`, `DDPlayerA` / `DDPlayerB` (double digit), `CSPlayerA` / `CSPlayerB` (clean sheet). Prefer `ActualScore` and goals for new code; flags are rebuilt on replay like `WinnerID`.
 
 **Ratings on the row:** `RatingA` / `RatingB` = pre-game; `AdjustmentA` / `AdjustmentB` = delta; `NewRatingA` / `NewRatingB` = post-game. `api/player_rating_history.php` uses **post-game** `NewRatingA` / `NewRatingB` for player rating charts.
 
@@ -87,7 +99,7 @@ From **`SHOW FULL COLUMNS`** (snapshot).
 | NewRatingB | decimal(10,6) | YES | | post-game rating B |
 | SumOfGoals | int(11) | YES | | `GoalsA + GoalsB` |
 | GoalDifference | int(11) | YES | | |
-| WinnerID | int(11) | YES | | winner’s player id |
+| WinnerID | int(11) | YES | | winner’s `playertable.ID`; **`-1`** on draw |
 
 ---
 
