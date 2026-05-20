@@ -38,6 +38,8 @@
 	--k2-radius-md: 8px;
 	--k2-radius-lg: 12px;
 	--k2-shadow-surface: 0 8px 32px rgba(0, 0, 0, 0.35);
+	--k2-max-width: 1200px;
+	--k2-chart-max-width: 960px;
 	/* Neon C · bold — stronger accent glow, no background grid */
 	--k2-glow-strength: 0.55;
 	--k2-accent-glow-blur: 18px;
@@ -63,6 +65,7 @@ html[data-realm="amiga"] {
 
 html {
 	background-color: var(--k2-bg-page);
+	scrollbar-gutter: stable;
 }
 
 body.k2-site {
@@ -274,21 +277,27 @@ body.k2-site .server-active-players-month-chart,
 body.k2-site .server-established-players-year-chart,
 body.k2-site .server-cumulative-established-month-chart,
 body.k2-site .server-established-rating-distribution-chart,
+body.k2-site .server-peak-month-leaderboard,
 body.k2-site .player-rating-chart,
 body.k2-site .player-games-month-chart,
 body.k2-site .player-rating-game-chart,
 body.k2-site .player-winrate-opponent-chart,
 body.k2-site .player-top-opponents-chart,
 body.k2-site .player-head-to-head-chart,
-body.k2-site .player-compare-rating-chart {
-	max-width: 1200px;
-	margin-left: auto;
-	margin-right: auto;
+body.k2-site .player-compare-rating-chart,
+body.k2-site .player-h2h-opponent-search {
+	max-width: var(--k2-chart-max-width);
 	margin-bottom: 16px;
 	padding: 14px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+}
+
+/* Profile stat tables — vertical stack in shared page column */
+body.k2-site .k2-page-nav table.example {
+	max-width: 1200px;
+	margin-bottom: 16px;
 }
 
 body.k2-site .server-games-month-chart p,
@@ -298,6 +307,7 @@ body.k2-site .server-active-players-month-chart p,
 body.k2-site .server-established-players-year-chart p,
 body.k2-site .server-cumulative-established-month-chart p,
 body.k2-site .server-established-rating-distribution-chart p,
+body.k2-site .server-peak-month-leaderboard p,
 body.k2-site .player-rating-chart p,
 body.k2-site .player-games-month-chart p,
 body.k2-site .player-rating-game-chart p,
@@ -322,7 +332,8 @@ body.k2-site .server-goals-month-chart-status,
 body.k2-site .server-active-players-month-chart-status,
 body.k2-site .server-established-players-year-chart-status,
 body.k2-site .server-cumulative-established-month-chart-status,
-body.k2-site .server-established-rating-distribution-chart-status {
+body.k2-site .server-established-rating-distribution-chart-status,
+body.k2-site .server-peak-month-leaderboard-status {
 	color: var(--k2-text-muted);
 }
 
@@ -431,7 +442,7 @@ body.k2-site select.table-autofilter {
 
 body.k2-site .k2-table-wrap {
 	max-width: 1200px;
-	margin: 0 auto;
+	margin-bottom: 16px;
 	overflow-x: auto;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
@@ -567,7 +578,6 @@ a.k2-player-nav__btn.is-active {
 /* ── Status bridge + cards ── */
 .k2-status-bridge {
 	max-width: 1200px;
-	margin: 0 auto;
 }
 
 .k2-status-tagline {
@@ -654,7 +664,6 @@ a.k2-hub-tabs__btn.is-active:hover {
 /* ── Leaderboard wing tabs (Chrome-style) ── */
 .k2-chrome-tabs {
 	max-width: 1200px;
-	margin: 0 auto;
 }
 
 .k2-chrome-tabs__bar {

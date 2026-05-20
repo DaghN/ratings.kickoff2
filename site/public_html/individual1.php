@@ -6,7 +6,6 @@
 
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
-<link href="stylesheets/thrColFixHdr.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -25,8 +24,6 @@
 </head>
 
 <body class="k2-site">
-
-<div id="container">
 
 <?php $id=$_GET['id']; ?>
 
@@ -165,68 +162,62 @@ $k2PlayerTabActive = 'profile';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 ?>
 
-<div class="player-rating-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+<div class="player-rating-chart" data-player-id="<?php echo (int) $ID; ?>">
     <p class="player-rating-chart-status" style="margin: 0 0 8px 0;">Loading rating history…</p>
     <p class="player-rating-peak-current-summary" style="display: none; margin: 0 0 8px 0; color: var(--color-text-primary, #e3e3e3); font-size: 1.05em;"></p>
-    <canvas width="780" height="280" aria-label="ELO rating over time with peak and current"></canvas>
+    <canvas width="960" height="345" aria-label="ELO rating over time with peak and current"></canvas>
 </div>
 
-<div class="player-games-month-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+<div class="player-games-month-chart" data-player-id="<?php echo (int) $ID; ?>">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Games per month</p>
     <p class="player-games-month-chart-status" style="margin: 0 0 8px 0;">Loading games per month…</p>
-    <canvas width="780" height="220" aria-label="Games per calendar month"></canvas>
+    <canvas width="960" height="271" aria-label="Games per calendar month"></canvas>
 </div>
 
-<div class="player-rating-game-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+<div class="player-rating-game-chart" data-player-id="<?php echo (int) $ID; ?>">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Rating by game number</p>
     <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">ELO after each rated game (1st, 2nd, 3rd, …) — equal spacing, not calendar time.</p>
     <p class="player-rating-game-chart-status" style="margin: 0 0 8px 0;">Loading rating by game number…</p>
     <p class="player-rating-game-peak-current-summary" style="display: none; margin: 0 0 8px 0; color: var(--color-text-primary, #e3e3e3); font-size: 1.05em;"></p>
-    <canvas width="780" height="280" aria-label="ELO rating after each game by game number"></canvas>
+    <canvas width="960" height="345" aria-label="ELO rating after each game by game number"></canvas>
 </div>
 
-<div class="player-winrate-opponent-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+<div class="player-winrate-opponent-chart" data-player-id="<?php echo (int) $ID; ?>">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Win rate vs opponent rating</p>
     <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Win % by opponent pre-game rating (50-point buckets).</p>
     <p class="player-winrate-opponent-chart-status" style="margin: 0 0 8px 0;">Loading win rate vs opponent rating…</p>
-    <canvas width="780" height="240" aria-label="Win rate versus opponent rating buckets"></canvas>
+    <canvas width="960" height="295" aria-label="Win rate versus opponent rating buckets"></canvas>
 </div>
 
-<div class="player-top-opponents-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+<div class="player-top-opponents-chart" data-player-id="<?php echo (int) $ID; ?>">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Most played opponents</p>
     <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Top 20 by rated games — click a bar for head-to-head below.</p>
     <p class="player-top-opponents-chart-status" style="margin: 0 0 8px 0;">Loading top opponents…</p>
-    <canvas width="780" height="480" aria-label="Most played opponents"></canvas>
+    <canvas width="960" height="591" aria-label="Most played opponents"></canvas>
 </div>
 
-<div class="player-head-to-head-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+<div class="player-head-to-head-chart" data-player-id="<?php echo (int) $ID; ?>">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Head-to-head vs <span class="player-head-to-head-opponent-name">…</span></p>
     <p class="player-head-to-head-meta" style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;"></p>
     <p class="player-head-to-head-chart-status" style="margin: 0 0 8px 0;">Waiting for opponent selection…</p>
-    <canvas width="780" height="280" aria-label="Head-to-head cumulative wins"></canvas>
+    <canvas width="960" height="345" aria-label="Head-to-head cumulative wins"></canvas>
 </div>
 
-<div class="player-compare-rating-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">
+<div class="player-compare-rating-chart" data-player-id="<?php echo (int) $ID; ?>">
     <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Rating comparison vs <span class="player-compare-rating-opponent-name">…</span></p>
     <p class="player-compare-rating-meta" style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;"></p>
     <p class="player-compare-rating-chart-status" style="margin: 0 0 8px 0;">Waiting for opponent selection…</p>
-    <canvas width="780" height="280" aria-label="Rating over time compared to opponent"></canvas>
+    <canvas width="960" height="345" aria-label="Rating over time compared to opponent"></canvas>
 </div>
 
-<div class="player-h2h-opponent-search player-search" data-player-id="<?php echo (int) $ID; ?>" data-realm="online" style="max-width: 780px; margin-bottom: 16px;" role="search">
+<div class="player-h2h-opponent-search player-search" data-player-id="<?php echo (int) $ID; ?>" data-realm="online" role="search">
     <label class="player-search-label" for="player-h2h-search-q">Compare rating history with another player</label>
     <input id="player-h2h-search-q" class="player-search-input player-h2h-search-input" type="search" maxlength="32" autocomplete="off" spellcheck="false"
         placeholder="Search player name…" aria-autocomplete="list" aria-expanded="false" aria-controls="player-h2h-search-listbox" />
     <ul id="player-h2h-search-listbox" class="player-search-results player-h2h-search-results" role="listbox" hidden="hidden"></ul>
 </div>
 
-
-
-  
- 
-  <div id="sidebar1">
-  
-    <table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
+<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
 
 
 <thead>
@@ -569,11 +560,6 @@ $row = mysqli_fetch_row($result);
 
  
     
-  <!-- end #sidebar1 --></div>
-  <div id="sidebar2">
-
-
-
 
 <table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 <thead>
@@ -885,10 +871,6 @@ $row = mysqli_fetch_row($result);
     </table>  
  
     
-  <!-- end #sidebar2 --></div>
-  <div id="mainContent">
-  
-
 <table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 <thead>
     <tr >
@@ -1222,17 +1204,7 @@ $row = mysqli_fetch_row($result);
 
 </table>
 
-
-    
-    &nbsp;
-    
-  <!-- end #mainContent --></div>
-	<!-- This clearing element should immediately follow the #mainContent div in order to force the #container div to contain all child floats --><br class="clearfloat" />
-
 </div><!-- .k2-page-nav -->
-
-<!-- end #container --></div>
-  
 
 </body>
 </html>
