@@ -35,6 +35,7 @@
         var displayFont = root.getAttribute('data-display-font') || 'exo';
         var tableHighlight = root.getAttribute('data-table-highlight') || 'cyan-magenta';
         var amigaLinks = root.getAttribute('data-amiga-links') || 'realm';
+        var labView = root.getAttribute('data-lab-view') || 'hub';
 
         document.querySelectorAll('[data-set-neon]').forEach(function (btn) {
             btn.classList.toggle('is-active', btn.getAttribute('data-set-neon') === neon);
@@ -43,6 +44,9 @@
             var on = btn.getAttribute('data-set-realm') === realm;
             btn.classList.toggle('is-active', on);
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-set-lab-view]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-set-lab-view') === labView);
         });
         document.querySelectorAll('[data-set-online-accent]').forEach(function (btn) {
             var show = realm === 'online';
@@ -78,6 +82,85 @@
         if (amigaLinksGroup) {
             amigaLinksGroup.hidden = realm !== 'amiga';
         }
+
+        document.querySelectorAll('.k2-lab-control-group--tokens-only').forEach(function (group) {
+            group.hidden = labView !== 'tokens';
+        });
+    }
+
+    function setLabView(view) {
+        root.setAttribute('data-lab-view', view);
+        ['hub', 'player', 'tokens'].forEach(function (id) {
+            var el = document.getElementById('lab-view-' + id);
+            if (el) {
+                el.hidden = view !== id;
+            }
+        });
+        syncControlButtons();
+        if (view === 'hub' && !chartInstance) {
+            initChart();
+        }
+    }
+
+    function activateTab(buttons, attr, value) {
+        buttons.forEach(function (btn) {
+            var on = btn.getAttribute(attr) === value;
+            btn.classList.toggle('is-active', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
+
+    function initNavMock() {
+        document.querySelectorAll('[data-set-lab-view]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                setLabView(btn.getAttribute('data-set-lab-view'));
+            });
+        });
+
+        document.querySelectorAll('[data-hub-tab]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var tab = btn.getAttribute('data-hub-tab');
+                activateTab(document.querySelectorAll('[data-hub-tab]'), 'data-hub-tab', tab);
+                document.querySelectorAll('[data-hub-panel]').forEach(function (panel) {
+                    panel.hidden = panel.getAttribute('data-hub-panel') !== tab;
+                });
+            });
+        });
+
+        document.querySelectorAll('[data-lb-tab]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                activateTab(document.querySelectorAll('[data-lb-tab]'), 'data-lb-tab', btn.getAttribute('data-lb-tab'));
+            });
+        });
+
+        document.querySelectorAll('[data-player-tab]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var tab = btn.getAttribute('data-player-tab');
+                activateTab(document.querySelectorAll('[data-player-tab]'), 'data-player-tab', tab);
+                document.querySelectorAll('[data-player-panel]').forEach(function (panel) {
+                    panel.hidden = panel.getAttribute('data-player-panel') !== tab;
+                });
+            });
+        });
+
+        document.querySelectorAll('[data-goto-player]').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                setLabView('player');
+            });
+        });
+
+        document.querySelectorAll('[data-goto-hub]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                setLabView('hub');
+                var leaderboards = document.querySelector('[data-hub-tab="leaderboards"]');
+                if (leaderboards) {
+                    leaderboards.click();
+                }
+            });
+        });
+
+        setLabView(root.getAttribute('data-lab-view') || 'hub');
     }
 
     function updateHeroCopy() {
@@ -93,7 +176,7 @@
         if (bio) {
             bio.textContent = realm === 'amiga'
                 ? 'Regular on the European offline circuit. Three-time World Cup participant — photo and match highlights from real Amiga 500 sessions.'
-                : 'Online ladder regular since 2007. Peak rating 2354 — known for high-tempo matches and long rivalries with Logos and Blazej.';
+                : 'Online ladder regular since 2007. Peak 2354 — feast landing: charts, highlights, personality.';
         }
         if (videoCaption) {
             videoCaption.textContent = realm === 'amiga'
@@ -290,10 +373,12 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initControls();
+            initNavMock();
             initChart();
         });
     } else {
         initControls();
+        initNavMock();
         initChart();
     }
 })();

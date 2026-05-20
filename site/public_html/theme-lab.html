@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-realm="online" data-neon="a" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta">
+<html lang="en" data-realm="online" data-neon="a" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta" data-lab-view="hub">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -15,6 +15,14 @@
 	<aside class="k2-lab-controls" aria-label="Theme lab controls">
 		<p class="k2-lab-controls__title">Theme lab — not production</p>
 		<div class="k2-lab-controls__groups">
+			<div class="k2-lab-control-group">
+				<span class="k2-lab-control-group__label">IA mock view</span>
+				<div class="k2-lab-btn-row">
+					<button type="button" class="k2-lab-btn is-active" data-set-lab-view="hub">Ladder hub</button>
+					<button type="button" class="k2-lab-btn" data-set-lab-view="player">Player feast</button>
+					<button type="button" class="k2-lab-btn" data-set-lab-view="tokens">Design tokens</button>
+				</div>
+			</div>
 			<div class="k2-lab-control-group">
 				<span class="k2-lab-control-group__label">Neon intensity</span>
 				<div class="k2-lab-btn-row">
@@ -50,7 +58,6 @@
 			</div>
 			<div class="k2-lab-control-group" id="lab-amiga-links-group" hidden>
 				<span class="k2-lab-control-group__label">Amiga player links</span>
-				<p class="k2-lab-control-group__hint">Site-wide <code>&lt;a&gt;</code> color on Amiga pages — compare green (today) vs realm amber.</p>
 				<div class="k2-lab-btn-row">
 					<button type="button" class="k2-lab-btn" data-set-amiga-links="green">Green (legacy)</button>
 					<button type="button" class="k2-lab-btn is-active" data-set-amiga-links="realm">Realm accent</button>
@@ -63,221 +70,386 @@
 					<button type="button" class="k2-lab-btn is-active" data-set-display-font="exo">Exo 2</button>
 				</div>
 			</div>
-			<div class="k2-lab-control-group">
+			<div class="k2-lab-control-group k2-lab-control-group--tokens-only">
 				<span class="k2-lab-control-group__label">Table highlights</span>
-				<p class="k2-lab-control-group__hint">Positive / negative cell colors vs player link color.</p>
 				<div class="k2-lab-btn-row">
 					<button type="button" class="k2-lab-btn" data-set-table-highlight="current">Current</button>
 					<button type="button" class="k2-lab-btn is-active" data-set-table-highlight="cyan-magenta">Cyan · Magenta</button>
 					<button type="button" class="k2-lab-btn" data-set-table-highlight="sky-rose">Sky · Rose</button>
-					<button type="button" class="k2-lab-btn" data-set-table-highlight="blue-pink">Blue · Pink</button>
-					<button type="button" class="k2-lab-btn" data-set-table-highlight="ice-magenta">Ice · Magenta</button>
-					<button type="button" class="k2-lab-btn" data-set-table-highlight="blue-crimson">Blue · Crimson</button>
-				</div>
-				<div class="k2-lab-highlight-preview" aria-label="Highlight preview">
-					<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--link">Player link</span>
-					<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--positive">Wins 911</span>
-					<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--negative">Losses 601</span>
 				</div>
 			</div>
 		</div>
-		<p class="k2-lab-note">Toggle options above, then scroll. Promote winning tokens to <code>theme.css</code> after approval. See <code>docs/design-direction.md</code>.</p>
+		<p class="k2-lab-note">IA mock: try <strong>Ladder hub</strong> and <strong>Player feast</strong>. Tokens view keeps colour/font experiments.</p>
 	</aside>
 
-	<header class="k2-site-header">
-		<h1 class="k2-wordmark">
-			<span class="k2-wordmark__main">Kick Off 2</span>
-			<span class="k2-wordmark__sub"> ratings</span>
-		</h1>
-		<div class="k2-site-header__links">
-			<nav class="k2-realm-switch" aria-label="Realm">
-				<button type="button" class="k2-realm-switch__btn is-active" data-set-realm="online">Online</button>
-				<button type="button" class="k2-realm-switch__btn" data-set-realm="amiga">Amiga</button>
+	<!-- ── Ladder hub (merged home) ── -->
+	<div id="lab-view-hub" class="k2-lab-view">
+
+		<header class="k2-site-header">
+			<h1 class="k2-wordmark">
+				<span class="k2-wordmark__main">Kick Off 2</span>
+				<span class="k2-wordmark__sub"> ratings</span>
+			</h1>
+			<div class="k2-site-header__links">
+				<div class="k2-header-search player-search player-search--header" role="search">
+					<label class="visually-hidden" for="hub-player-search">Find player</label>
+					<input id="hub-player-search" class="player-search-input k2-header-search__input" type="search" placeholder="Find player" maxlength="32" autocomplete="off" />
+				</div>
+				<nav class="k2-realm-switch" aria-label="Realm">
+					<button type="button" class="k2-realm-switch__btn is-active" data-set-realm="online">Online</button>
+					<button type="button" class="k2-realm-switch__btn" data-set-realm="amiga">Amiga</button>
+				</nav>
+				<a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a>
+			</div>
+		</header>
+
+		<nav class="k2-hub-tabs" aria-label="Ladder home">
+			<button type="button" class="k2-hub-tabs__btn is-active" data-hub-tab="leaderboards">Leaderboards</button>
+			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="activity">Activity</button>
+			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="records">Records</button>
+			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="games">Games</button>
+		</nav>
+
+		<div class="k2-hub-panel" data-hub-panel="leaderboards">
+			<nav class="k2-table-tabs" aria-label="Leaderboard view">
+				<button type="button" class="k2-table-tabs__btn is-active" data-lb-tab="results">Results</button>
+				<button type="button" class="k2-table-tabs__btn" data-lb-tab="goals">Goals</button>
+				<button type="button" class="k2-table-tabs__btn" data-lb-tab="dds">DDs &amp; CSs</button>
+				<button type="button" class="k2-table-tabs__btn" data-lb-tab="streaks">Streaks</button>
+				<button type="button" class="k2-table-tabs__btn" data-lb-tab="victims">Victims &amp; Culprits</button>
+				<button type="button" class="k2-table-tabs__btn" data-lb-tab="rating">Rating records</button>
 			</nav>
-			<a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a>
-		</div>
-	</header>
-
-	<div class="k2-pulse-strip" aria-label="Community pulse">
-		<div class="k2-stat-pill">
-			<span class="k2-stat-pill__value">847</span>
-			<span class="k2-stat-pill__label">Games this month</span>
-		</div>
-		<div class="k2-stat-pill">
-			<span class="k2-stat-pill__value">23</span>
-			<span class="k2-stat-pill__label">Active players (7d)</span>
-		</div>
-		<div class="k2-stat-pill">
-			<span class="k2-stat-pill__value">259</span>
-			<span class="k2-stat-pill__label">Rated players</span>
-		</div>
-		<div class="k2-stat-pill">
-			<span class="k2-stat-pill__value" style="font-size: 14px; padding-top: 4px;">Today</span>
-			<span class="k2-stat-pill__label" id="pulse-realm-label">Online realm</span>
-		</div>
-	</div>
-
-	<p class="k2-section-label">Navigation chrome</p>
-	<ul class="k2-tabs">
-		<li><a href="#" class="k2-tabs__link is-current">Server Stats</a></li>
-		<li><a href="#" class="k2-tabs__link">Player Ranks</a></li>
-	</ul>
-	<ul class="k2-tabs k2-tabs--secondary">
-		<li><a href="#" class="k2-tabs__link is-current">Results</a></li>
-		<li><a href="#" class="k2-tabs__link">Goals</a></li>
-		<li><a href="#" class="k2-tabs__link">Streaks</a></li>
-		<li><a href="#" class="k2-tabs__link">Rating Records</a></li>
-	</ul>
-
-	<p class="k2-section-label">Player hero (identity showcase)</p>
-	<article class="k2-player-hero">
-		<div class="k2-player-hero__inner">
-			<div class="k2-player-hero__media">
-				<div class="k2-player-hero__avatar" aria-hidden="true">D</div>
-				<div class="k2-player-hero__photo-placeholder">Player photo<br />(Amiga realm)</div>
+			<div class="k2-table-wrap">
+				<table class="k2-table">
+					<thead>
+						<tr>
+							<th>Rank</th>
+							<th>Player</th>
+							<th>ELO</th>
+							<th>Peak</th>
+							<th>Games</th>
+							<th>Wins</th>
+							<th>Losses</th>
+							<th>Win ratio</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="k2-table__rank-1">
+							<td>1</td>
+							<td><a href="#" data-goto-player>Dagh</a></td>
+							<td>2327</td>
+							<td class="k2-num-positive">2354</td>
+							<td>1702</td>
+							<td class="k2-num-positive">911</td>
+							<td class="k2-num-warn">601</td>
+							<td class="k2-num-positive">53.5%</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td><a href="#" data-goto-player>Blazej</a></td>
+							<td>2092</td>
+							<td class="k2-num-positive">2229</td>
+							<td>4238</td>
+							<td class="k2-num-positive">2565</td>
+							<td class="k2-num-warn">1241</td>
+							<td class="k2-num-positive">60.5%</td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td><a href="#" data-goto-player>FieryPhoenix</a></td>
+							<td>1969</td>
+							<td class="k2-num-positive">2019</td>
+							<td>5998</td>
+							<td class="k2-num-positive">4553</td>
+							<td class="k2-num-warn">874</td>
+							<td class="k2-num-positive">75.9%</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-			<div class="k2-player-hero__body">
-				<span class="k2-realm-badge" id="hero-realm-badge">online · rated play</span>
-				<h2 class="k2-player-hero__name">Dagh</h2>
-				<p class="k2-player-hero__bio" id="hero-bio">
-					Online ladder regular since 2007. Peak rating 2354 — known for high-tempo matches and long rivalries with Logos and Blazej.
-				</p>
-				<div class="k2-player-hero__stats">
-					<div class="k2-player-hero__stat">
-						<span class="k2-player-hero__stat-label">Rank</span>
-						<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent">#1</span>
-					</div>
-					<div class="k2-player-hero__stat">
-						<span class="k2-player-hero__stat-label">Rating</span>
-						<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent">2327</span>
-					</div>
-					<div class="k2-player-hero__stat">
-						<span class="k2-player-hero__stat-label">Peak</span>
-						<span class="k2-player-hero__stat-value">2354</span>
-					</div>
-					<div class="k2-player-hero__stat">
-						<span class="k2-player-hero__stat-label">Games</span>
-						<span class="k2-player-hero__stat-value">1702</span>
-					</div>
-					<div class="k2-player-hero__stat">
-						<span class="k2-player-hero__stat-label">Win ratio</span>
-						<span class="k2-player-hero__stat-value">53.5%</span>
-					</div>
+			<p class="k2-hub-panel__hint">Sub-tabs sit directly above the table — six leaderboard views, one home row.</p>
+		</div>
+
+		<div class="k2-hub-panel" data-hub-panel="activity" hidden>
+			<section class="k2-card">
+				<h2 class="k2-card__title">Server activity</h2>
+				<p class="k2-card__hint">Charts and headline numbers — “is it alive?” for newcomers.</p>
+				<p class="k2-chart-status" id="lab-chart-status">Loading chart…</p>
+				<div class="k2-chart-wrap">
+					<canvas id="lab-chart" width="780" height="240" aria-label="Games per month chart"></canvas>
 				</div>
-				<div class="k2-player-hero__video">
-					<p class="k2-player-hero__video-label">Featured highlight</p>
-					<div class="k2-video-placeholder" role="button" tabindex="0" aria-label="Play highlight video placeholder">
-						<span class="k2-video-placeholder__play" aria-hidden="true">▶</span>
-						<span class="k2-video-placeholder__caption" id="hero-video-caption">Featured clip (placeholder — online realm)</span>
-					</div>
+			</section>
+			<div class="k2-pulse-strip k2-pulse-strip--compact">
+				<div class="k2-stat-pill">
+					<span class="k2-stat-pill__value">847</span>
+					<span class="k2-stat-pill__label">Games this month</span>
+				</div>
+				<div class="k2-stat-pill">
+					<span class="k2-stat-pill__value">23</span>
+					<span class="k2-stat-pill__label">Active (7d)</span>
+				</div>
+				<div class="k2-stat-pill">
+					<span class="k2-stat-pill__value">259</span>
+					<span class="k2-stat-pill__label">Rated players</span>
 				</div>
 			</div>
 		</div>
-	</article>
 
-	<p class="k2-section-label">Chart block</p>
-	<section class="k2-card">
-		<h3 class="k2-card__title">Server games per month</h3>
-		<p class="k2-card__hint">Bar colour follows the active realm accent (try Online green vs blue).</p>
-		<p class="k2-chart-status" id="lab-chart-status">Loading chart…</p>
-		<div class="k2-chart-wrap">
-			<canvas id="lab-chart" width="780" height="240" aria-label="Games per month chart"></canvas>
+		<div class="k2-hub-panel" data-hub-panel="records" hidden>
+			<section class="k2-card">
+				<h2 class="k2-card__title">Server records</h2>
+				<p class="k2-card__hint">Hall-of-fame extremes — cream on top after Activity says “alive”.</p>
+				<p class="k2-placeholder-copy">Most games in a month · Biggest win · Longest streak · … (server2.php content)</p>
+			</section>
 		</div>
-	</section>
 
-	<p class="k2-section-label">Table snippet <span class="k2-section-label__hint">— scroll here after picking Table highlights</span></p>
-	<div class="k2-table-wrap">
-		<table class="k2-table">
-			<thead>
-				<tr>
-					<th>Rank</th>
-					<th>Player</th>
-					<th>ELO rating</th>
-					<th>Peak</th>
-					<th>Games</th>
-					<th>Wins</th>
-					<th>Losses</th>
-					<th>Win ratio</th>
-					<th>Loss ratio</th>
-					<th>Victims</th>
-					<th>Culprits</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr class="k2-table__rank-1">
-					<td>1</td>
-					<td><a href="#">Dagh</a></td>
-					<td>2327</td>
-					<td class="k2-num-positive">2354</td>
-					<td>1702</td>
-					<td class="k2-num-positive">911</td>
-					<td class="k2-num-warn">601</td>
-					<td class="k2-num-positive">53.5%</td>
-					<td class="k2-num-warn">35.3%</td>
-					<td class="k2-num-positive">142</td>
-					<td class="k2-num-warn">98</td>
-				</tr>
-				<tr>
-					<td>2</td>
-					<td><a href="#">Blazej</a></td>
-					<td>2092</td>
-					<td class="k2-num-positive">2229</td>
-					<td>4238</td>
-					<td class="k2-num-positive">2565</td>
-					<td class="k2-num-warn">1241</td>
-					<td class="k2-num-positive">60.5%</td>
-					<td class="k2-num-warn">29.3%</td>
-					<td class="k2-num-positive">187</td>
-					<td class="k2-num-warn">112</td>
-				</tr>
-				<tr>
-					<td>3</td>
-					<td><a href="#">FieryPhoenix</a></td>
-					<td>1969</td>
-					<td class="k2-num-positive">2019</td>
-					<td>5998</td>
-					<td class="k2-num-positive">4553</td>
-					<td class="k2-num-warn">874</td>
-					<td class="k2-num-positive">75.9%</td>
-					<td class="k2-num-warn">14.6%</td>
-					<td class="k2-num-positive">203</td>
-					<td>76</td>
-				</tr>
-				<tr>
-					<td>4</td>
-					<td><a href="#">LORENZOL</a></td>
-					<td>1965</td>
-					<td class="k2-num-positive">2051</td>
-					<td>7340</td>
-					<td>3246</td>
-					<td class="k2-num-warn">3243</td>
-					<td>44.2%</td>
-					<td class="k2-num-warn">44.2%</td>
-					<td>156</td>
-					<td class="k2-num-warn">155</td>
-				</tr>
-				<tr>
-					<td>5</td>
-					<td><a href="#">Giuliano</a></td>
-					<td>1947</td>
-					<td class="k2-num-positive">1957</td>
-					<td>2978</td>
-					<td class="k2-num-positive">1879</td>
-					<td class="k2-num-warn">735</td>
-					<td class="k2-num-positive">63.1%</td>
-					<td class="k2-num-warn">24.7%</td>
-					<td class="k2-num-positive">121</td>
-					<td class="k2-num-warn">89</td>
-				</tr>
-			</tbody>
-		</table>
+		<div class="k2-hub-panel" data-hub-panel="games" hidden>
+			<section class="k2-card">
+				<h2 class="k2-card__title">Recent rated games</h2>
+				<p class="k2-card__hint">Proof of life — named players, scores, timestamps. Full table today; compact feed later for kickoff2.com.</p>
+			</section>
+			<div class="k2-table-wrap">
+				<table class="k2-table k2-table--compact">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Date</th>
+							<th>Team A</th>
+							<th></th>
+							<th>Team B</th>
+							<th>Score</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>48291</td>
+							<td>May 19 18:42</td>
+							<td><a href="#">Dagh</a></td>
+							<td>3–1</td>
+							<td><a href="#">Blazej</a></td>
+							<td class="k2-num-positive">Win Dagh</td>
+						</tr>
+						<tr>
+							<td>48290</td>
+							<td>May 19 17:05</td>
+							<td><a href="#">Logos</a></td>
+							<td>2–2</td>
+							<td><a href="#">Giuliano</a></td>
+							<td>Draw</td>
+						</tr>
+						<tr>
+							<td>48289</td>
+							<td>May 19 16:11</td>
+							<td><a href="#">FieryPhoenix</a></td>
+							<td>4–0</td>
+							<td><a href="#">LORENZOL</a></td>
+							<td class="k2-num-positive">Win FieryPhoenix</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 
-	<p class="k2-section-label">Site-wide links <span class="k2-section-label__hint">— table, body copy, hero (portal link stays muted)</span></p>
-	<div class="k2-links-snippet">
-		<p class="k2-links-snippet__line">Last game: <a href="#">Win 3–1</a> vs <a href="#">Blazej</a> · <a href="#">All games</a></p>
-		<p class="k2-links-snippet__line k2-links-snippet__line--muted">Profile: see <a href="#">individual stats</a> and <a href="#">head-to-head vs Logos</a>.</p>
-		<p class="k2-links-snippet__line">External: <a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a></p>
+	<!-- ── Player feast (context override) ── -->
+	<div id="lab-view-player" class="k2-lab-view" hidden>
+
+		<header class="k2-site-header k2-site-header--player">
+			<h1 class="k2-wordmark">
+				<span class="k2-wordmark__main">Kick Off 2</span>
+				<span class="k2-wordmark__sub"> ratings</span>
+			</h1>
+			<div class="k2-site-header__links">
+				<div class="k2-header-search player-search player-search--header" role="search">
+					<label class="visually-hidden" for="player-player-search">Find player</label>
+					<input id="player-player-search" class="player-search-input k2-header-search__input" type="search" placeholder="Find player" maxlength="32" autocomplete="off" />
+				</div>
+				<nav class="k2-realm-switch" aria-label="Realm">
+					<button type="button" class="k2-realm-switch__btn is-active" data-set-realm="online">Online</button>
+					<button type="button" class="k2-realm-switch__btn" data-set-realm="amiga">Amiga</button>
+				</nav>
+				<a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a>
+			</div>
+		</header>
+
+		<p class="k2-player-back">
+			<button type="button" class="k2-player-back__btn" data-goto-hub>← Back to Results</button>
+		</p>
+
+		<article class="k2-player-hero k2-player-hero--feast">
+			<div class="k2-player-hero__inner">
+				<div class="k2-player-hero__media">
+					<div class="k2-player-hero__avatar" aria-hidden="true">D</div>
+				</div>
+				<div class="k2-player-hero__body">
+					<span class="k2-realm-badge" id="hero-realm-badge">online · rated play</span>
+					<h2 class="k2-player-hero__name">Dagh</h2>
+					<p class="k2-player-hero__bio" id="hero-bio">
+						Online ladder regular since 2007. Peak 2354 — feast landing: charts, highlights, personality.
+					</p>
+					<div class="k2-player-hero__stats">
+						<div class="k2-player-hero__stat">
+							<span class="k2-player-hero__stat-label">Rank</span>
+							<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent">#1</span>
+						</div>
+						<div class="k2-player-hero__stat">
+							<span class="k2-player-hero__stat-label">Rating</span>
+							<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent">2327</span>
+						</div>
+						<div class="k2-player-hero__stat">
+							<span class="k2-player-hero__stat-label">Peak</span>
+							<span class="k2-player-hero__stat-value">2354</span>
+						</div>
+						<div class="k2-player-hero__stat">
+							<span class="k2-player-hero__stat-label">Games</span>
+							<span class="k2-player-hero__stat-value">1702</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</article>
+
+		<nav class="k2-player-nav" aria-label="Player sections">
+			<button type="button" class="k2-player-nav__btn is-active" data-player-tab="profile">Profile</button>
+			<button type="button" class="k2-player-nav__btn" data-player-tab="games">Games</button>
+			<button type="button" class="k2-player-nav__btn" data-player-tab="wins">Wins</button>
+			<button type="button" class="k2-player-nav__btn" data-player-tab="goals">Goals</button>
+			<button type="button" class="k2-player-nav__btn" data-player-tab="dds">DDs</button>
+		</nav>
+
+		<div class="k2-player-panel" data-player-panel="profile">
+			<section class="k2-card">
+				<h3 class="k2-card__title">Profile feast</h3>
+				<p class="k2-card__hint">Warm landing — rating chart, games per month, fun stats. Detailed tables may split to a future tab.</p>
+				<div class="k2-player-feast-placeholder">
+					<div class="k2-player-feast-placeholder__block">Rating over time chart</div>
+					<div class="k2-player-feast-placeholder__block">Games per month chart</div>
+				</div>
+			</section>
+		</div>
+
+		<div class="k2-player-panel" data-player-panel="games" hidden>
+			<section class="k2-card">
+				<h3 class="k2-card__title">Recent games</h3>
+				<p class="k2-card__hint">This player’s rated matches — activity signal in slot #2.</p>
+			</section>
+			<div class="k2-table-wrap">
+				<table class="k2-table k2-table--compact">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Date</th>
+							<th>Opponent</th>
+							<th>Result</th>
+							<th>Score</th>
+							<th>Rating ±</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><a href="#">48291</a></td>
+							<td>May 19</td>
+							<td><a href="#">Blazej</a></td>
+							<td class="k2-num-positive">Win</td>
+							<td>3–1</td>
+							<td class="k2-num-positive">+4.2</td>
+						</tr>
+						<tr>
+							<td><a href="#">48201</a></td>
+							<td>May 18</td>
+							<td><a href="#">Logos</a></td>
+							<td class="k2-num-warn">Loss</td>
+							<td>1–2</td>
+							<td class="k2-num-warn">−5.1</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="k2-player-panel" data-player-panel="wins" hidden>
+			<p class="k2-hub-panel__hint">Opponent breakdown (formerly “Results” under Opponents) — wins, losses, ratios vs each opponent.</p>
+			<div class="k2-table-wrap">
+				<table class="k2-table">
+					<thead>
+						<tr>
+							<th>Opponent</th>
+							<th>Games</th>
+							<th>Wins</th>
+							<th>Losses</th>
+							<th>Win ratio</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><a href="#">Blazej</a></td>
+							<td>142</td>
+							<td class="k2-num-positive">78</td>
+							<td class="k2-num-warn">64</td>
+							<td>54.9%</td>
+						</tr>
+						<tr>
+							<td><a href="#">Logos</a></td>
+							<td>98</td>
+							<td class="k2-num-positive">52</td>
+							<td class="k2-num-warn">46</td>
+							<td>53.1%</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="k2-player-panel" data-player-panel="goals" hidden>
+			<p class="k2-hub-panel__hint">Goals-focused opponent table (individual2b.php content).</p>
+		</div>
+
+		<div class="k2-player-panel" data-player-panel="dds" hidden>
+			<p class="k2-hub-panel__hint">Double digits &amp; clean sheets vs opponents (individual2c.php content).</p>
+		</div>
+	</div>
+
+	<!-- ── Design tokens (legacy lab sections) ── -->
+	<div id="lab-view-tokens" class="k2-lab-view" hidden>
+
+		<p class="k2-section-label">Legacy two-row nav (before IA merge)</p>
+		<ul class="k2-tabs">
+			<li><a href="#" class="k2-tabs__link">Server Stats</a></li>
+			<li><a href="#" class="k2-tabs__link is-current">Player Ranks</a></li>
+		</ul>
+		<ul class="k2-tabs k2-tabs--secondary">
+			<li><a href="#" class="k2-tabs__link is-current">Results</a></li>
+			<li><a href="#" class="k2-tabs__link">Goals</a></li>
+			<li><a href="#" class="k2-tabs__link">Streaks</a></li>
+		</ul>
+
+		<p class="k2-section-label">Table highlight preview</p>
+		<div class="k2-lab-highlight-preview" aria-label="Highlight preview">
+			<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--link">Player link</span>
+			<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--positive">Wins 911</span>
+			<span class="k2-lab-highlight-preview__item k2-lab-highlight-preview__item--negative">Losses 601</span>
+		</div>
+
+		<div class="k2-table-wrap">
+			<table class="k2-table">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Player</th>
+						<th>Wins</th>
+						<th>Losses</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td><a href="#">Dagh</a></td>
+						<td class="k2-num-positive">911</td>
+						<td class="k2-num-warn">601</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 
 </div>
