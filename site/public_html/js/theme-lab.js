@@ -36,6 +36,7 @@
         var tableHighlight = root.getAttribute('data-table-highlight') || 'cyan-magenta';
         var amigaLinks = root.getAttribute('data-amiga-links') || 'realm';
         var labView = root.getAttribute('data-lab-view') || 'hub';
+        var navStyle = root.getAttribute('data-nav-style') || 'boxed';
 
         document.querySelectorAll('[data-set-neon]').forEach(function (btn) {
             btn.classList.toggle('is-active', btn.getAttribute('data-set-neon') === neon);
@@ -47,6 +48,9 @@
         });
         document.querySelectorAll('[data-set-lab-view]').forEach(function (btn) {
             btn.classList.toggle('is-active', btn.getAttribute('data-set-lab-view') === labView);
+        });
+        document.querySelectorAll('[data-set-nav-style]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-set-nav-style') === navStyle);
         });
         document.querySelectorAll('[data-set-online-accent]').forEach(function (btn) {
             var show = realm === 'online';
@@ -97,7 +101,18 @@
             }
         });
         syncControlButtons();
-        if (view === 'hub' && !chartInstance) {
+        if (view === 'hub') {
+            ensureHubTab(root.getAttribute('data-hub-tab') || 'status');
+        }
+    }
+
+    function ensureHubTab(tab) {
+        root.setAttribute('data-hub-tab', tab);
+        activateTab(document.querySelectorAll('[data-hub-tab]'), 'data-hub-tab', tab);
+        document.querySelectorAll('[data-hub-panel]').forEach(function (panel) {
+            panel.hidden = panel.getAttribute('data-hub-panel') !== tab;
+        });
+        if (tab === 'trends') {
             initChart();
         }
     }
@@ -119,11 +134,7 @@
 
         document.querySelectorAll('[data-hub-tab]').forEach(function (btn) {
             btn.addEventListener('click', function () {
-                var tab = btn.getAttribute('data-hub-tab');
-                activateTab(document.querySelectorAll('[data-hub-tab]'), 'data-hub-tab', tab);
-                document.querySelectorAll('[data-hub-panel]').forEach(function (panel) {
-                    panel.hidden = panel.getAttribute('data-hub-panel') !== tab;
-                });
+                ensureHubTab(btn.getAttribute('data-hub-tab'));
             });
         });
 
@@ -150,17 +161,10 @@
             });
         });
 
-        document.querySelectorAll('[data-goto-hub]').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                setLabView('hub');
-                var leaderboards = document.querySelector('[data-hub-tab="leaderboards"]');
-                if (leaderboards) {
-                    leaderboards.click();
-                }
-            });
-        });
-
         setLabView(root.getAttribute('data-lab-view') || 'hub');
+        if ((root.getAttribute('data-lab-view') || 'hub') === 'hub') {
+            ensureHubTab('status');
+        }
     }
 
     function updateHeroCopy() {
@@ -267,7 +271,9 @@
             }
             return;
         }
-
+        if (chartInstance) {
+            return;
+        }
         fetchOrSampleChartData(function (chartData, statusText) {
             if (status) {
                 status.textContent = statusText;
@@ -366,6 +372,12 @@
                 syncControlButtons();
             });
         });
+        document.querySelectorAll('[data-set-nav-style]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                root.setAttribute('data-nav-style', btn.getAttribute('data-set-nav-style'));
+                syncControlButtons();
+            });
+        });
         syncControlButtons();
         updateHeroCopy();
     }
@@ -374,11 +386,9 @@
         document.addEventListener('DOMContentLoaded', function () {
             initControls();
             initNavMock();
-            initChart();
         });
     } else {
         initControls();
         initNavMock();
-        initChart();
     }
 })();

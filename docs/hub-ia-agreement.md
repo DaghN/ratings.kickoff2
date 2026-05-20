@@ -1,0 +1,264 @@
+# Hub IA & staging agreement ledger
+
+Record of decisions from the theme-lab / navigation IA conversation (May 2026).
+Consult before staging production changes. Mock reference: `site/public_html/theme-lab.html`.
+
+**Status:** agreed direction — **Phase A not yet implemented** on production PHP pages.
+Structural design is locked; details iterate in theme lab. Mock reference: `site/public_html/theme-lab.html`.
+
+---
+
+## Phased implementation (staging strategy)
+
+Broad IA is solved; integration and polish are sequenced. **Do not block Phase A on Steve / live data.**
+
+### Phase A — Safe staging (repo + WinSCP; no new DB dependencies)
+
+Shell first, live data never, existing PHP pages as backends. Legacy URLs keep working.
+
+| # | Item | Phase A scope |
+|---|------|----------------|
+| 1 | Hub nav shell | Five **flat-solid** tabs, correct order/labels; shared include (e.g. `includes/hub_nav.php`). **Status tab default** on hub entry. |
+| 2 | Status content | **Bridge only** — honest copy, link to [status.php](https://joshua.kickoff2.net/status.php); **no fake live feed**. Themed placeholder matching lab layout OK. |
+| 3 | Trends tab | **Nav label + route only** → existing `server1.php`. **Do not move or merge** chart content. |
+| 4 | Leaderboards | Wing-tab **chrome** on ranked pages; first sub-tab **Rating**; same tables underneath. |
+| 5 | Games / Records | **Nav reorder only** → `server3.php` / `server2.php`; no content migration. |
+| 6 | Header | **Kick Off 2** wordmark only; mock-style search; realm switcher; **no** kickoff2.com link. |
+| 7 | Player backbone | Shared hero + five pills (Profile · Games · Wins · Goals · DDs) on individual pages; **scaffold** — content depth later via lab. No back link. |
+| 8 | CSS promotion | Flat nav, wing tabs, header search, **neon C without grid** → production `theme.css`. |
+| 9 | kickoff2 embed / status redirect | **Out of scope** for Phase A. |
+
+**Phase A routing map (target):**
+
+| Tab | Backend (existing) |
+|-----|-------------------|
+| Status | New bridge page (placeholder) |
+| Leaderboards | `ranked1` … `ranked6` (+ wing sub-nav) |
+| Games | `server3.php` |
+| Trends | `server1.php` |
+| Records | `server2.php` |
+
+**Safety rules for Phase A:**
+
+1. No prod database or status.php API without Steve.
+2. No breaking bookmarks — direct links to ranked/server/individual URLs unchanged.
+3. No pretending live data exists on Status.
+4. One shared nav include — label/order changes in one place.
+5. Staging deploy first; compare old vs new nav side by side.
+
+**Suggested first implementation commit after this doc:** shared hub nav + header tweak + CSS from lab + Status bridge page only.
+
+### Phase B — After Steve / API agreement
+
+- Real Status feed on hub default (logins, live games, counts).
+- Polling / refresh behaviour.
+- Optional kickoff2.com embed (pulse + few logins → full Status).
+- `joshua.kickoff2.net/status.php` redirect or thin wrapper.
+- Single JSON feed for hub + embed.
+
+### Phase C — Polish (lab-driven, anytime)
+
+- Player feast content depth; hero iterations.
+- Wing tab / Rating vs Rating records wording.
+- Logo in header; URL rebrand (`online.kickoff2.com` etc.).
+- Full `#aboutmenu` removal once all entry points use shared nav.
+- Amiga realm production wiring; nav spacing clearfix.
+
+---
+
+## Already on main (before / during this thread)
+
+Committed and pushed earlier; not re-opened unless noted below.
+
+- Site-wide dark theme on main PHP pages (`theme.css`, `site_header.php`, ranked/server/individual pages, etc.).
+- Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, online green accent, Amiga amber links when `data-realm="amiga"`, Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
+- Realm switcher: full-opacity active pill + glow (no disabled washout).
+- Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
+- Theme lab exists for experiments (`theme-lab.html`, `theme-lab.css`, `theme-lab.js`).
+- Nav IA refactor on production: explicitly **not done** — legacy `#aboutmenu` rows remain on staged pages.
+
+Mock-only: navigation IA evolved in `theme-lab.*`; production pages unchanged for hub/status/nav.
+
+---
+
+## Product identity & header (agreed)
+
+| Item | Decision |
+|------|----------|
+| Site title / wordmark | **Kick Off 2** only — drop tacked-on "ratings". |
+| URL | Keep **ratings.kickoff2.com** for now; rename later if desired. |
+| Logo | Maybe later — KO2 logo as optional mark beside text; bare text wordmark for now. |
+| Header contents | Wordmark · Find player search (mock styling is target) · Online / Amiga realm switcher. |
+| kickoff2.com header link | **No** — agreed waste of space. |
+| Back to Results on player pages | **No** — browser back + wordmark/hub enough. |
+
+---
+
+## Hub information architecture — Option B (agreed)
+
+**Five home tabs, this order:**
+
+1. **Status** (default landing)
+2. **Leaderboards**
+3. **Games**
+4. **Trends**
+5. **Records**
+
+### Tab naming
+
+- **Status** (not Live) — honors status.php habit; covers logins + live games + counts.
+- Micro-copy uses live language ("3 online · 2 live games · last login 12 min ago").
+- **Activity** as single tab — superseded by **Status + Trends**.
+
+### Default landing
+
+- Hub opens on **Status** (phone check: anyone on tonight?).
+- **Leaderboards** is tab 2.
+
+### Status tab (right now — absorbs status.php)
+
+**Purpose:** presence / tonight / FOMO to launch KOOL.
+
+**Include:**
+
+- Pulse strip: server up/uptime, online now, live games, recency.
+- Recent logins (names → player profiles).
+- Live games (score, period, opponents).
+- Meaningful when 0 online — recent logins still prove life.
+- kickoff2.com embed: compact pulse + few logins + "Full status →" linking here.
+
+**Exclude from player-facing Status:**
+
+- Duplicate Top 10 snippets (unify on Leaderboards).
+- CPU / disk / mem ops metrics (admin-only if anywhere).
+- Historical charts (→ Trends).
+
+**Eventually:** joshua.kickoff2.net/status.php redirect or thin wrapper; one data feed for hub + kickoff2 embed.
+
+### Leaderboards tab
+
+- Six wing tabs above the table (not a second site nav row).
+- First sub-tab: **Rating** (was "Results").
+- Others: Goals · DDs & CSs · Streaks · Victims & Culprits · Rating records.
+- Chrome-style wing tabs: active tab same brightness as table header row (`bg-elevated`), curved feet on dark page — not green-filled bar; no green inset topline on active wing tab.
+
+### Games tab
+
+- Rated match ledger — proof over days/weeks.
+- Distinct from Status live/recent; Games is authoritative rated archive (server3-class).
+
+### Trends tab (historical)
+
+- Games per month/year charts, established-player growth, lifetime totals (server1-class).
+- Lazy-load charts when tab opened.
+- Room later: new arrivals, AWOL, more charts.
+
+### Records tab
+
+- Still last — extremes after life (Status/Games) and rank (Leaderboards).
+
+---
+
+## Player context ("feast") — agreed
+
+Global hub nav replaced by player context:
+
+- Same header (Kick Off 2, search, realm) — no back link, no kickoff2.com link.
+- Hero block (rank, rating, peak, games, bio; Amiga photo path later).
+- Five pills, order: **Profile · Games · Wins · Goals · DDs**
+  - Player "Results" → **Wins**.
+  - Games in slot #2.
+  - Profile = warm landing (charts, highlights).
+- Player names from Status / ladder link to feast.
+
+---
+
+## Navigation chrome — agreed for production
+
+| Item | Decision |
+|------|----------|
+| Home + player pills | **Solid flat** — full realm fill, dark label, no glow halo. |
+| Neon intensity | **C · Bold** — stronger accent glow. |
+| Bold neon grid | **Remove background grid** on C (lab done; promote to theme.css when staging). |
+| Neon rail, boxed default, solid glow, etc. | Lab comparisons only — production = **flat solid**. |
+
+---
+
+## Visual / theme (still agreed)
+
+- Table highlights: Cyan · Magenta.
+- Links weight 600; online green; Amiga amber site-wide in Amiga realm.
+- Sort header hover: brighter realm accent, no underline.
+- individual3 filter row: 16 cells, transparent filter row, single green line on last header row only.
+
+---
+
+## kickoff2.com relationship (agreed strategy)
+
+- Not the full status dashboard.
+- Embed: pulse + ~3 recent logins + link to full Status on this hub.
+- Single JSON/API eventually powers embed + hub + replaces legacy fragmentation.
+
+---
+
+## Explicitly deferred (beyond Phase A)
+
+- Live Status data pipeline (→ Phase B).
+- kickoff2.com embed; status.php redirect (→ Phase B).
+- Moving or merging server1/server2/server3 page bodies (Trends/Games/Records = nav only in Phase A).
+- `docs/design-direction.md` update (this file is the record).
+- Sidebar layout.
+- Logo; URL rebrand.
+- Throwaway files not part of scope.
+
+**Removed from deferred (now Phase A):** shared hub nav include, header cleanup, player visual backbone scaffold, CSS promotion — see table above.
+
+---
+
+## Legacy: original 9-point list (superseded by phased table)
+
+The list below was the first "all at once" staging target. Use **Phase A / B / C** above instead.
+
+1. Hub nav — Phase A  
+2. Status feed — **Phase B** (Phase A = bridge)  
+3. Trends — Phase A (nav only; was "move charts")  
+4. Leaderboards wings — Phase A  
+5. Games/Records order — Phase A  
+6. Header — Phase A  
+7. Player feast — Phase A (scaffold)  
+8. CSS — Phase A  
+9. Embed/redirect — Phase B  
+
+---
+
+## Changed our mind (exclude from staging spec)
+
+| Earlier idea | Final position |
+|--------------|----------------|
+| Leaderboards as default | **Status** default |
+| 4 tabs with Activity | **5 tabs:** Status · Leaderboards · Games · Trends · Records |
+| Single Activity tab | **Status + Trends** split |
+| Records before Games | **Games before Records** |
+| Live as tab name | **Status** |
+| "Kick Off 2 ratings" wordmark | **Kick Off 2** only |
+| kickoff2.com header link | Removed |
+| Back to Results | Removed |
+| Wing tab green underline / green bar | Chrome wings, header-row brightness |
+| Green inset topline on wings | Removed |
+| Neon rail as nav choice | Not chosen |
+| Solid glow as nav choice | Too loud → **solid flat** |
+| Ladder sub-tab Results | **Rating** |
+| Table width 100% force | Reverted |
+
+---
+
+## Open items to re-confirm at implementation
+
+- Rating vs Rating records at opposite ends of wing strip (wording OK for now).
+- status.php API ownership and refresh cadence (Phase B).
+- Neon C without grid: apply to full `theme.css` in Phase A.
+- Status bridge copy and prominence of legacy status.php link until Phase B.
+
+---
+
+*Last updated: May 2026 — IA conversation + phased staging split.*

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-realm="online" data-neon="a" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta" data-lab-view="hub">
+<html lang="en" data-realm="online" data-neon="c" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta" data-lab-view="hub" data-nav-style="solid-flat">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Theme lab — Kick Off 2 ratings</title>
+<title>Theme lab — Kick Off 2</title>
 <link href="stylesheets/theme-lab.css" rel="stylesheet" type="text/css" />
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -23,12 +23,27 @@
 					<button type="button" class="k2-lab-btn" data-set-lab-view="tokens">Design tokens</button>
 				</div>
 			</div>
+			<div class="k2-lab-control-group k2-lab-control-group--nav-styles">
+				<span class="k2-lab-control-group__label">Nav pill style</span>
+				<div class="k2-lab-btn-grid">
+					<button type="button" class="k2-lab-btn" data-set-nav-style="boxed" title="Bordered tiles, muted active fill">1 · Boxed</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="neon-rail" title="Ghost inactive, rail line, soft capsule">2 · Rail</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="solid-glow" title="Full fill + strong outer glow">3 · Glow</button>
+					<button type="button" class="k2-lab-btn is-active" data-set-nav-style="solid-flat" title="Full fill, no glow — clear and quiet">4 · Flat</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="solid-soft" title="Blended fill, whisper glow">5 · Soft</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="tint-fill" title="Tinted fill, accent text, thin border">6 · Tint</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="segment" title="Tabs inside one shared track">7 · Segment</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="underline" title="Text only, glowing underline bar">8 · Underline</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="outline" title="Hollow ring, no fill">9 · Outline</button>
+					<button type="button" class="k2-lab-btn" data-set-nav-style="slab" title="Flat slabs, thick bottom accent edge">10 · Slab</button>
+				</div>
+			</div>
 			<div class="k2-lab-control-group">
 				<span class="k2-lab-control-group__label">Neon intensity</span>
 				<div class="k2-lab-btn-row">
-					<button type="button" class="k2-lab-btn is-active" data-set-neon="a">A · Subtle</button>
+					<button type="button" class="k2-lab-btn" data-set-neon="a">A · Subtle</button>
 					<button type="button" class="k2-lab-btn" data-set-neon="b">B · Moderate</button>
-					<button type="button" class="k2-lab-btn" data-set-neon="c">C · Bold</button>
+					<button type="button" class="k2-lab-btn is-active" data-set-neon="c">C · Bold</button>
 				</div>
 			</div>
 			<div class="k2-lab-control-group">
@@ -79,7 +94,7 @@
 				</div>
 			</div>
 		</div>
-		<p class="k2-lab-note">IA mock: try <strong>Ladder hub</strong> and <strong>Player feast</strong>. Tokens view keeps colour/font experiments.</p>
+		<p class="k2-lab-note">Hub defaults: <strong>Status</strong> landing · 5 tabs · Flat pills · neon C. Wordmark = Kick Off 2 only (URL stays ratings.*).</p>
 	</aside>
 
 	<!-- ── Ladder hub (merged home) ── -->
@@ -88,7 +103,6 @@
 		<header class="k2-site-header">
 			<h1 class="k2-wordmark">
 				<span class="k2-wordmark__main">Kick Off 2</span>
-				<span class="k2-wordmark__sub"> ratings</span>
 			</h1>
 			<div class="k2-site-header__links">
 				<div class="k2-header-search player-search player-search--header" role="search">
@@ -99,27 +113,104 @@
 					<button type="button" class="k2-realm-switch__btn is-active" data-set-realm="online">Online</button>
 					<button type="button" class="k2-realm-switch__btn" data-set-realm="amiga">Amiga</button>
 				</nav>
-				<a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a>
 			</div>
 		</header>
 
-		<nav class="k2-hub-tabs" aria-label="Ladder home">
-			<button type="button" class="k2-hub-tabs__btn is-active" data-hub-tab="leaderboards">Leaderboards</button>
-			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="activity">Activity</button>
-			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="records">Records</button>
+		<nav class="k2-hub-tabs k2-nav-pills" aria-label="Online hub">
+			<button type="button" class="k2-hub-tabs__btn is-active" data-hub-tab="status">Status</button>
+			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="leaderboards">Leaderboards</button>
 			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="games">Games</button>
+			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="trends">Trends</button>
+			<button type="button" class="k2-hub-tabs__btn" data-hub-tab="records">Records</button>
 		</nav>
 
-		<div class="k2-hub-panel" data-hub-panel="leaderboards">
-			<nav class="k2-table-tabs" aria-label="Leaderboard view">
-				<button type="button" class="k2-table-tabs__btn is-active" data-lb-tab="results">Results</button>
-				<button type="button" class="k2-table-tabs__btn" data-lb-tab="goals">Goals</button>
-				<button type="button" class="k2-table-tabs__btn" data-lb-tab="dds">DDs &amp; CSs</button>
-				<button type="button" class="k2-table-tabs__btn" data-lb-tab="streaks">Streaks</button>
-				<button type="button" class="k2-table-tabs__btn" data-lb-tab="victims">Victims &amp; Culprits</button>
-				<button type="button" class="k2-table-tabs__btn" data-lb-tab="rating">Rating records</button>
-			</nav>
-			<div class="k2-table-wrap">
+		<div class="k2-hub-panel" data-hub-panel="status">
+			<p class="k2-status-tagline">Who’s on tonight · live games · recent logins</p>
+
+			<div class="k2-server-pulse">
+				<span class="k2-server-pulse__item"><span class="k2-live-dot" aria-hidden="true"></span> Server up · 11d 17h</span>
+				<span class="k2-server-pulse__item"><strong>3</strong> online now</span>
+				<span class="k2-server-pulse__item"><strong>2</strong> live games</span>
+				<span class="k2-server-pulse__item">Last login <strong>12 min</strong> ago</span>
+			</div>
+
+			<div class="k2-live-grid">
+				<section class="k2-card k2-live-card">
+					<h2 class="k2-card__title">Recent logins</h2>
+					<p class="k2-card__hint">Replaces status.php column — names link to player profiles.</p>
+					<ol class="k2-live-list">
+						<li><time>Tue 22:50</time> <a href="#" data-goto-player>Steve</a></li>
+						<li><time>Tue 22:16</time> <a href="#">Steve</a></li>
+						<li><time>Tue 21:12</time> <a href="#">CANVAROL</a></li>
+						<li><time>Tue 20:56</time> <a href="#">geo4444</a></li>
+						<li><time>Tue 20:36</time> <a href="#">matthias</a></li>
+						<li><time>Tue 20:25</time> <a href="#">matthias</a></li>
+						<li><time>Tue 20:19</time> <a href="#">LORENZOL</a></li>
+					</ol>
+				</section>
+
+				<section class="k2-card k2-live-card">
+					<h2 class="k2-card__title">Live games</h2>
+					<p class="k2-card__hint">In progress right now — score, period, opponents.</p>
+					<div class="k2-table-wrap">
+						<table class="k2-table k2-table--compact">
+							<thead>
+								<tr>
+									<th>Player</th>
+									<th>Score</th>
+									<th>Period</th>
+									<th>vs</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><a href="#">Canvarol</a></td>
+									<td>9 – 1</td>
+									<td>1st</td>
+									<td><a href="#">PaoloA</a></td>
+								</tr>
+								<tr>
+									<td><a href="#">Matthias</a></td>
+									<td>0 – 8</td>
+									<td>2nd</td>
+									<td><a href="#">geo4444</a></td>
+								</tr>
+								<tr>
+									<td><a href="#">LORENZOL</a></td>
+									<td>9 – 3</td>
+									<td>2nd</td>
+									<td><a href="#">Matthias</a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</div>
+
+			<section class="k2-card k2-embed-note">
+				<h3 class="k2-card__title">kickoff2.com embed (mock)</h3>
+				<p class="k2-card__hint">Museum front page gets a compact widget — same pulse + 3 logins — linking here for the full room.</p>
+				<div class="k2-embed-preview">
+					<span class="k2-live-dot" aria-hidden="true"></span>
+					<span>3 online · 2 live · Steve logged in 22:50</span>
+					<a href="#">Full status →</a>
+				</div>
+			</section>
+
+			<p class="k2-hub-panel__hint">Default landing — absorbs <a href="https://joshua.kickoff2.net/status.php" target="_blank" rel="noopener">status.php</a>. Quiet hours still show recent logins. Charts live under <strong>Trends</strong>.</p>
+		</div>
+
+		<div class="k2-hub-panel" data-hub-panel="leaderboards" hidden>
+			<div class="k2-chrome-tabs">
+				<nav class="k2-chrome-tabs__bar" aria-label="Leaderboard view">
+					<button type="button" class="k2-chrome-tabs__tab is-active" data-lb-tab="rating">Rating</button>
+					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="goals">Goals</button>
+					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="dds">DDs &amp; CSs</button>
+					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="streaks">Streaks</button>
+					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="victims">Victims &amp; Culprits</button>
+					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="rating-records">Rating records</button>
+				</nav>
+				<div class="k2-table-wrap k2-chrome-tabs__panel">
 				<table class="k2-table">
 					<thead>
 						<tr>
@@ -166,47 +257,15 @@
 						</tr>
 					</tbody>
 				</table>
-			</div>
-			<p class="k2-hub-panel__hint">Sub-tabs sit directly above the table — six leaderboard views, one home row.</p>
-		</div>
-
-		<div class="k2-hub-panel" data-hub-panel="activity" hidden>
-			<section class="k2-card">
-				<h2 class="k2-card__title">Server activity</h2>
-				<p class="k2-card__hint">Charts and headline numbers — “is it alive?” for newcomers.</p>
-				<p class="k2-chart-status" id="lab-chart-status">Loading chart…</p>
-				<div class="k2-chart-wrap">
-					<canvas id="lab-chart" width="780" height="240" aria-label="Games per month chart"></canvas>
-				</div>
-			</section>
-			<div class="k2-pulse-strip k2-pulse-strip--compact">
-				<div class="k2-stat-pill">
-					<span class="k2-stat-pill__value">847</span>
-					<span class="k2-stat-pill__label">Games this month</span>
-				</div>
-				<div class="k2-stat-pill">
-					<span class="k2-stat-pill__value">23</span>
-					<span class="k2-stat-pill__label">Active (7d)</span>
-				</div>
-				<div class="k2-stat-pill">
-					<span class="k2-stat-pill__value">259</span>
-					<span class="k2-stat-pill__label">Rated players</span>
 				</div>
 			</div>
-		</div>
-
-		<div class="k2-hub-panel" data-hub-panel="records" hidden>
-			<section class="k2-card">
-				<h2 class="k2-card__title">Server records</h2>
-				<p class="k2-card__hint">Hall-of-fame extremes — cream on top after Activity says “alive”.</p>
-				<p class="k2-placeholder-copy">Most games in a month · Biggest win · Longest streak · … (server2.php content)</p>
-			</section>
+			<p class="k2-hub-panel__hint">Wing tabs match the table header row brightness and merge into the panel below.</p>
 		</div>
 
 		<div class="k2-hub-panel" data-hub-panel="games" hidden>
 			<section class="k2-card">
 				<h2 class="k2-card__title">Recent rated games</h2>
-				<p class="k2-card__hint">Proof of life — named players, scores, timestamps. Full table today; compact feed later for kickoff2.com.</p>
+				<p class="k2-card__hint">Proof of life — named players, scores, timestamps. The ladder lives; here is undeniable evidence.</p>
 			</section>
 			<div class="k2-table-wrap">
 				<table class="k2-table k2-table--compact">
@@ -249,6 +308,44 @@
 				</table>
 			</div>
 		</div>
+
+		<div class="k2-hub-panel" data-hub-panel="trends" hidden>
+			<section class="k2-card">
+				<h2 class="k2-card__title">Server trends</h2>
+				<p class="k2-card__hint">Historical arc — games per month, established players, community scale (server1.php).</p>
+				<p class="k2-chart-status" id="lab-chart-status">Open this tab to load chart…</p>
+				<div class="k2-chart-wrap">
+					<canvas id="lab-chart" width="780" height="240" aria-label="Games per month chart"></canvas>
+				</div>
+			</section>
+			<div class="k2-pulse-strip k2-pulse-strip--compact">
+				<div class="k2-stat-pill">
+					<span class="k2-stat-pill__value">81,832</span>
+					<span class="k2-stat-pill__label">Rated games</span>
+				</div>
+				<div class="k2-stat-pill">
+					<span class="k2-stat-pill__value">475</span>
+					<span class="k2-stat-pill__label">Total players</span>
+				</div>
+				<div class="k2-stat-pill">
+					<span class="k2-stat-pill__value">847</span>
+					<span class="k2-stat-pill__label">Games this month</span>
+				</div>
+				<div class="k2-stat-pill">
+					<span class="k2-stat-pill__value">23</span>
+					<span class="k2-stat-pill__label">Active (7d)</span>
+				</div>
+			</div>
+			<p class="k2-hub-panel__hint">Split from Status — right now vs over the years. New arrivals, AWOL, year charts land here later.</p>
+		</div>
+
+		<div class="k2-hub-panel" data-hub-panel="records" hidden>
+			<section class="k2-card">
+				<h2 class="k2-card__title">Server records</h2>
+				<p class="k2-card__hint">Extremes and milestones — cream on top after you have seen the life. Consequence, not premise.</p>
+				<p class="k2-placeholder-copy">Most games in a month · Biggest win · Longest streak · … (server2.php content)</p>
+			</section>
+		</div>
 	</div>
 
 	<!-- ── Player feast (context override) ── -->
@@ -257,7 +354,6 @@
 		<header class="k2-site-header k2-site-header--player">
 			<h1 class="k2-wordmark">
 				<span class="k2-wordmark__main">Kick Off 2</span>
-				<span class="k2-wordmark__sub"> ratings</span>
 			</h1>
 			<div class="k2-site-header__links">
 				<div class="k2-header-search player-search player-search--header" role="search">
@@ -268,13 +364,8 @@
 					<button type="button" class="k2-realm-switch__btn is-active" data-set-realm="online">Online</button>
 					<button type="button" class="k2-realm-switch__btn" data-set-realm="amiga">Amiga</button>
 				</nav>
-				<a class="k2-portal-link" href="https://kickoff2.com/" target="_blank" rel="noopener">kickoff2.com ↗</a>
 			</div>
 		</header>
-
-		<p class="k2-player-back">
-			<button type="button" class="k2-player-back__btn" data-goto-hub>← Back to Results</button>
-		</p>
 
 		<article class="k2-player-hero k2-player-hero--feast">
 			<div class="k2-player-hero__inner">
@@ -309,7 +400,7 @@
 			</div>
 		</article>
 
-		<nav class="k2-player-nav" aria-label="Player sections">
+		<nav class="k2-player-nav k2-nav-pills" aria-label="Player sections">
 			<button type="button" class="k2-player-nav__btn is-active" data-player-tab="profile">Profile</button>
 			<button type="button" class="k2-player-nav__btn" data-player-tab="games">Games</button>
 			<button type="button" class="k2-player-nav__btn" data-player-tab="wins">Wins</button>
