@@ -7,7 +7,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/theme_boot_head.php";
 ?>
 <header class="k2-site-header">
 	<h1 class="k2-wordmark">
-		<a href="status.php" style="color: inherit; text-decoration: none; font-weight: inherit;">
+		<a href="status.php" class="k2-wordmark__link">
 			<span class="k2-wordmark__main">Kick Off 2</span>
 		</a>
 	</h1>

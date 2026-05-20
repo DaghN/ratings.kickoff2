@@ -1570,8 +1570,30 @@ a:hover {
 	background: var(--k2-bg-surface);
 }
 
-.k2-table tbody tr:nth-child(even) {
-	background: rgba(255, 255, 255, 0.02);
+/* Alternate rows — production uses elolist tr.alternate; token tunable via data-table-stripe */
+:root,
+[data-table-stripe="current"] {
+	--k2-table-stripe: rgba(255, 255, 255, 0.025);
+}
+
+[data-table-stripe="whisper"] {
+	--k2-table-stripe: rgba(255, 255, 255, 0.035);
+}
+
+[data-table-stripe="light"] {
+	--k2-table-stripe: rgba(255, 255, 255, 0.05);
+}
+
+[data-table-stripe="medium"] {
+	--k2-table-stripe: rgba(255, 255, 255, 0.07);
+}
+
+[data-table-stripe="clear"] {
+	--k2-table-stripe: rgba(255, 255, 255, 0.1);
+}
+
+.k2-table tbody tr.alternate {
+	background: var(--k2-table-stripe);
 }
 
 .k2-table tbody tr:hover {
@@ -1591,6 +1613,50 @@ a:hover {
 /* ── Table header hover variants (theme lab) ── */
 .k2-table thead th.table-sortable {
 	cursor: pointer;
+}
+
+/* ── Table stripe comparison grid (theme lab) ── */
+.k2-lab-stripe-grid {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 12px;
+	max-width: 1200px;
+	margin: 0 0 28px;
+}
+
+.k2-lab-stripe-preview {
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	padding: 10px;
+	background: var(--k2-bg-surface);
+}
+
+.k2-lab-stripe-preview__label {
+	margin: 0 0 8px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--k2-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.k2-lab-stripe-preview .k2-table {
+	max-width: none;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+}
+
+@media (max-width: 1100px) {
+	.k2-lab-stripe-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 640px) {
+	.k2-lab-stripe-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 .k2-lab-head-hover-grid {

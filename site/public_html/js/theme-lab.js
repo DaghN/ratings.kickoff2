@@ -86,6 +86,7 @@
         var displayFont = root.getAttribute('data-display-font') || 'exo';
         var tableHighlight = root.getAttribute('data-table-highlight') || 'cyan-magenta';
         var tableHeadHover = root.getAttribute('data-table-head-hover') || 'none';
+        var tableStripe = root.getAttribute('data-table-stripe') || 'current';
         var amigaLinks = root.getAttribute('data-amiga-links') || 'realm';
         var labView = root.getAttribute('data-lab-view') || 'hub';
         var navStyle = root.getAttribute('data-nav-style') || 'boxed';
@@ -130,6 +131,9 @@
         });
         document.querySelectorAll('[data-set-table-head-hover]').forEach(function (btn) {
             btn.classList.toggle('is-active', btn.getAttribute('data-set-table-head-hover') === tableHeadHover);
+        });
+        document.querySelectorAll('[data-set-table-stripe]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-set-table-stripe') === tableStripe);
         });
         document.querySelectorAll('[data-set-amiga-links]').forEach(function (btn) {
             var show = realm === 'amiga';
@@ -455,6 +459,14 @@
             btn.addEventListener('click', function () {
                 root.setAttribute('data-table-head-hover', btn.getAttribute('data-set-table-head-hover'));
                 syncControlButtons();
+            });
+        });
+        document.querySelectorAll('[data-set-table-stripe]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                root.setAttribute('data-table-stripe', btn.getAttribute('data-set-table-stripe'));
+                syncControlButtons();
+                setLabView('hub');
+                ensureHubTab('leaderboards');
             });
         });
         document.querySelectorAll('[data-set-amiga-links]').forEach(function (btn) {

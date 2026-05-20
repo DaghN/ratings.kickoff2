@@ -119,10 +119,10 @@
                         data: {
                             datasets: [
                                 {
-                                    label: (player.playerName || 'Player') + ' rating',
-                                    data: playerData,
-                                    borderColor: T.green(),
-                                    backgroundColor: T.fill(T.green(), 0.1),
+                                    label: (opponent.playerName || opponentName || 'Opponent') + ' rating',
+                                    data: opponentData,
+                                    borderColor: T.opponentFocusBorder(),
+                                    backgroundColor: T.opponentFocusFill(0.1),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     pointHoverRadius: 4,
@@ -130,10 +130,10 @@
                                     tension: 0.1
                                 },
                                 {
-                                    label: (opponent.playerName || opponentName || 'Opponent') + ' rating',
-                                    data: opponentData,
-                                    borderColor: T.blue(),
-                                    backgroundColor: T.fill(T.blue(), 0.1),
+                                    label: (player.playerName || 'Player') + ' rating',
+                                    data: playerData,
+                                    borderColor: T.profileCompareBorder(),
+                                    backgroundColor: T.profileCompareFill(0.1),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     pointHoverRadius: 4,

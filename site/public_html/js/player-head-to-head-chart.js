@@ -103,20 +103,20 @@
                         data: {
                             datasets: [
                                 {
-                                    label: data.playerName + ' wins',
-                                    data: playerData,
-                                    borderColor: T.green(),
-                                    backgroundColor: 'rgba(156, 204, 101, 0.12)',
+                                    label: data.opponentName + ' wins',
+                                    data: opponentData,
+                                    borderColor: T.opponentFocusBorder(),
+                                    backgroundColor: T.opponentFocusFill(0.12),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     fill: false,
                                     tension: 0.05
                                 },
                                 {
-                                    label: data.opponentName + ' wins',
-                                    data: opponentData,
-                                    borderColor: T.blue(),
-                                    backgroundColor: 'rgba(100, 181, 246, 0.12)',
+                                    label: data.playerName + ' wins',
+                                    data: playerData,
+                                    borderColor: T.profileCompareBorder(),
+                                    backgroundColor: T.profileCompareFill(0.12),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     fill: false,

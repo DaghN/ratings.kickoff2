@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-realm="online" data-neon="c" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta" data-table-head-hover="none" data-lab-view="hub" data-nav-style="solid-flat" data-wing-nav-style="chrome-current" data-wing-segment-variant="muted-wash">
+<html lang="en" data-realm="online" data-neon="c" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta" data-table-head-hover="none" data-table-stripe="current" data-lab-view="hub" data-nav-style="solid-flat" data-wing-nav-style="chrome-current" data-wing-segment-variant="muted-wash">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -106,6 +106,17 @@
 					<button type="button" class="k2-lab-btn" data-set-wing-segment-variant="outline-accent" title="Transparent cell with accent outline ring">C · Outline</button>
 					<button type="button" class="k2-lab-btn" data-set-wing-segment-variant="dark-lift" title="Elevated dark cell + left accent bar">D · Dark</button>
 					<button type="button" class="k2-lab-btn" data-set-wing-segment-variant="glow-solid" title="Solid accent with realm glow shadow">E · Glow</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group">
+				<span class="k2-lab-control-group__label">Table row stripes</span>
+				<p class="k2-lab-control-group__hint">Alternate-row wash on <strong>Leaderboards</strong>. Full comparison grid is under <strong>Design tokens</strong>.</p>
+				<div class="k2-lab-btn-grid k2-lab-btn-grid--stripes">
+					<button type="button" class="k2-lab-btn is-active" data-set-table-stripe="current" title="Production — rgba white 2.5%">1 · Current</button>
+					<button type="button" class="k2-lab-btn" data-set-table-stripe="whisper" title="Slightly lighter — 3.5%">2 · Whisper</button>
+					<button type="button" class="k2-lab-btn" data-set-table-stripe="light" title="Noticeably lighter — 5%">3 · Light</button>
+					<button type="button" class="k2-lab-btn" data-set-table-stripe="medium" title="Clear banding — 7%">4 · Medium</button>
+					<button type="button" class="k2-lab-btn" data-set-table-stripe="clear" title="Strong scan lines — 10%">5 · Clear</button>
 				</div>
 			</div>
 			<div class="k2-lab-control-group">
@@ -292,7 +303,7 @@
 							<td class="k2-num-warn">601</td>
 							<td class="k2-num-positive">53.5%</td>
 						</tr>
-						<tr>
+						<tr class="alternate">
 							<td>2</td>
 							<td><a href="#" data-goto-player>Blazej</a></td>
 							<td>2092</td>
@@ -311,6 +322,36 @@
 							<td class="k2-num-positive">4553</td>
 							<td class="k2-num-warn">874</td>
 							<td class="k2-num-positive">75.9%</td>
+						</tr>
+						<tr class="alternate">
+							<td>4</td>
+							<td><a href="#" data-goto-player>LORENZOL</a></td>
+							<td>1965</td>
+							<td class="k2-num-positive">2051</td>
+							<td>7340</td>
+							<td class="k2-num-positive">3246</td>
+							<td class="k2-num-warn">3243</td>
+							<td>44.2%</td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td><a href="#" data-goto-player>Giuliano</a></td>
+							<td>1947</td>
+							<td class="k2-num-positive">1957</td>
+							<td>2978</td>
+							<td class="k2-num-positive">1879</td>
+							<td class="k2-num-warn">735</td>
+							<td class="k2-num-positive">63.1%</td>
+						</tr>
+						<tr class="alternate">
+							<td>6</td>
+							<td><a href="#" data-goto-player>Logos</a></td>
+							<td>1902</td>
+							<td class="k2-num-positive">2189</td>
+							<td>9106</td>
+							<td class="k2-num-positive">6613</td>
+							<td class="k2-num-warn">1604</td>
+							<td class="k2-num-positive">72.6%</td>
 						</tr>
 					</tbody>
 				</table>
@@ -560,6 +601,81 @@
 
 	<!-- ── Design tokens (legacy lab sections) ── -->
 	<div id="lab-view-tokens" class="k2-lab-view" hidden>
+
+		<p class="k2-section-label">Table row stripes — alternate row wash</p>
+		<p class="k2-lab-note">Five levels of white overlay on <code>tr.alternate</code> rows (same mechanism as production elolist). Pick one in the sidebar to try it on the full Leaderboards table.</p>
+		<div class="k2-lab-stripe-grid">
+			<div class="k2-lab-stripe-preview" data-table-stripe="current">
+				<p class="k2-lab-stripe-preview__label">1 · Current (2.5%)</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th>Rank</th><th>Player</th><th>ELO</th><th>Games</th></tr></thead>
+					<tbody>
+						<tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td><td>1702</td></tr>
+						<tr class="alternate"><td>2</td><td><a href="#">Blazej</a></td><td>2092</td><td>4238</td></tr>
+						<tr><td>3</td><td><a href="#">FieryPhoenix</a></td><td>1969</td><td>5998</td></tr>
+						<tr class="alternate"><td>4</td><td><a href="#">LORENZOL</a></td><td>1965</td><td>7340</td></tr>
+						<tr><td>5</td><td><a href="#">Giuliano</a></td><td>1947</td><td>2978</td></tr>
+						<tr class="alternate"><td>6</td><td><a href="#">Logos</a></td><td>1902</td><td>9106</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="k2-lab-stripe-preview" data-table-stripe="whisper">
+				<p class="k2-lab-stripe-preview__label">2 · Whisper (3.5%)</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th>Rank</th><th>Player</th><th>ELO</th><th>Games</th></tr></thead>
+					<tbody>
+						<tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td><td>1702</td></tr>
+						<tr class="alternate"><td>2</td><td><a href="#">Blazej</a></td><td>2092</td><td>4238</td></tr>
+						<tr><td>3</td><td><a href="#">FieryPhoenix</a></td><td>1969</td><td>5998</td></tr>
+						<tr class="alternate"><td>4</td><td><a href="#">LORENZOL</a></td><td>1965</td><td>7340</td></tr>
+						<tr><td>5</td><td><a href="#">Giuliano</a></td><td>1947</td><td>2978</td></tr>
+						<tr class="alternate"><td>6</td><td><a href="#">Logos</a></td><td>1902</td><td>9106</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="k2-lab-stripe-preview" data-table-stripe="light">
+				<p class="k2-lab-stripe-preview__label">3 · Light (5%)</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th>Rank</th><th>Player</th><th>ELO</th><th>Games</th></tr></thead>
+					<tbody>
+						<tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td><td>1702</td></tr>
+						<tr class="alternate"><td>2</td><td><a href="#">Blazej</a></td><td>2092</td><td>4238</td></tr>
+						<tr><td>3</td><td><a href="#">FieryPhoenix</a></td><td>1969</td><td>5998</td></tr>
+						<tr class="alternate"><td>4</td><td><a href="#">LORENZOL</a></td><td>1965</td><td>7340</td></tr>
+						<tr><td>5</td><td><a href="#">Giuliano</a></td><td>1947</td><td>2978</td></tr>
+						<tr class="alternate"><td>6</td><td><a href="#">Logos</a></td><td>1902</td><td>9106</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="k2-lab-stripe-preview" data-table-stripe="medium">
+				<p class="k2-lab-stripe-preview__label">4 · Medium (7%)</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th>Rank</th><th>Player</th><th>ELO</th><th>Games</th></tr></thead>
+					<tbody>
+						<tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td><td>1702</td></tr>
+						<tr class="alternate"><td>2</td><td><a href="#">Blazej</a></td><td>2092</td><td>4238</td></tr>
+						<tr><td>3</td><td><a href="#">FieryPhoenix</a></td><td>1969</td><td>5998</td></tr>
+						<tr class="alternate"><td>4</td><td><a href="#">LORENZOL</a></td><td>1965</td><td>7340</td></tr>
+						<tr><td>5</td><td><a href="#">Giuliano</a></td><td>1947</td><td>2978</td></tr>
+						<tr class="alternate"><td>6</td><td><a href="#">Logos</a></td><td>1902</td><td>9106</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="k2-lab-stripe-preview" data-table-stripe="clear">
+				<p class="k2-lab-stripe-preview__label">5 · Clear (10%)</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th>Rank</th><th>Player</th><th>ELO</th><th>Games</th></tr></thead>
+					<tbody>
+						<tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td><td>1702</td></tr>
+						<tr class="alternate"><td>2</td><td><a href="#">Blazej</a></td><td>2092</td><td>4238</td></tr>
+						<tr><td>3</td><td><a href="#">FieryPhoenix</a></td><td>1969</td><td>5998</td></tr>
+						<tr class="alternate"><td>4</td><td><a href="#">LORENZOL</a></td><td>1965</td><td>7340</td></tr>
+						<tr><td>5</td><td><a href="#">Giuliano</a></td><td>1947</td><td>2978</td></tr>
+						<tr class="alternate"><td>6</td><td><a href="#">Logos</a></td><td>1902</td><td>9106</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 
 		<p class="k2-section-label">Table header hover — hover each sample</p>
 		<p class="k2-lab-note">Six options side by side. Pick one in the sidebar to try it on the full Leaderboards table.</p>
