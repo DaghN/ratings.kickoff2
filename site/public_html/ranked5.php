@@ -17,27 +17,10 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
-<ul id="aboutmenu">
-        <li><a href="server1.php" title="" class="noncurrent">Server Stats</a></li>
-        <li><a href="#" title="" class="current">Player Ranks</a></li>
-        <?php $playerSearchAsNavItem = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
-</ul>
-
-<br />
-<br />
-
-<ul id="aboutmenu">
-        <li><a href="ranked1.php" title="" class="noncurrent">Results</a></li>
-        <li><a href="ranked2.php" title="" class="noncurrent">Goals</a></li>
-        <li><a href="ranked3.php" title="" class="noncurrent">DDs and CSs</a></li>
-        <li><a href="ranked4.php" title="" class="noncurrent">Streaks</a></li>
-        <li><a href="ranked5.php" title="" class="current">Victims and Culprits</a></li>
-        <li><a href="ranked6.php" title="" class="noncurrent">Rating Records</a></li>
-</ul>
-
-<br />
-<br />
-<br />
+<?php
+$k2HubTabActive = 'leaderboards';
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
+?>
 
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
@@ -54,6 +37,11 @@ $query = "SELECT id, Name, Rating, PeakRating, NumberGames, DifferentOpponents, 
 $result = mysqli_query($con, $query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
+?>
+
+<?php
+$k2LbWingActive = 'victims';
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 ?>
 
 <div class="k2-table-wrap">
@@ -124,6 +112,8 @@ mysqli_close($con);
 </table>
 
 </div><!-- .k2-table-wrap -->
+
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
 
 <br />
 

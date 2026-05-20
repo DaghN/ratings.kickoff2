@@ -36,8 +36,11 @@
 
 	--k2-radius-sm: 4px;
 	--k2-radius-md: 8px;
-	--k2-glow-strength: 0.35;
-	--k2-accent-glow-blur: 12px;
+	--k2-radius-lg: 12px;
+	--k2-shadow-surface: 0 8px 32px rgba(0, 0, 0, 0.35);
+	/* Neon C · bold — stronger accent glow, no background grid */
+	--k2-glow-strength: 0.55;
+	--k2-accent-glow-blur: 18px;
 }
 
 html[data-realm="online"] {
@@ -135,6 +138,39 @@ body.k2-site h1 {
 .k2-portal-link:hover {
 	color: var(--k2-realm-accent);
 	text-decoration: none;
+}
+
+.k2-header-search__input {
+	width: 140px;
+	padding: 6px 10px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+	font: inherit;
+	font-size: 13px;
+}
+
+.k2-header-search__input::placeholder {
+	color: var(--k2-text-muted);
+}
+
+.k2-header-search__input:focus {
+	outline: none;
+	border-color: var(--k2-realm-accent);
+	box-shadow: 0 0 0 2px var(--k2-realm-accent-muted);
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
 }
 
 .k2-realm-switch {
@@ -399,4 +435,299 @@ body.k2-site .k2-table-wrap {
 	overflow-x: auto;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
+}
+
+.k2-chrome-tabs__bar + .k2-table-wrap {
+	margin-top: 0;
+	border-top: none;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+/* ── Player feast pills (solid flat, same as hub) ── */
+.k2-player-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 20px;
+	padding: 0;
+}
+
+.k2-player-nav__btn,
+a.k2-player-nav__btn {
+	display: inline-block;
+	margin: 0;
+	padding: 8px 16px;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--k2-text-muted);
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+}
+
+.k2-player-nav__btn:hover,
+a.k2-player-nav__btn:hover {
+	color: var(--k2-text-primary);
+	background: rgba(255, 255, 255, 0.05);
+	text-decoration: none;
+}
+
+.k2-player-nav__btn.is-active,
+a.k2-player-nav__btn.is-active {
+	color: var(--k2-bg-page);
+	background: var(--k2-realm-accent);
+	box-shadow: none;
+}
+
+/* ── Player hero scaffold ── */
+.k2-player-hero {
+	position: relative;
+	overflow: hidden;
+	margin-bottom: 16px;
+	padding: 0;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+.k2-player-hero::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(90deg, var(--k2-realm-accent), transparent 70%);
+	opacity: 0.65;
+}
+
+.k2-player-hero__inner {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 20px;
+	padding: 20px;
+}
+
+.k2-player-hero__avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 80px;
+	height: 80px;
+	border: 2px solid var(--k2-realm-accent);
+	border-radius: 50%;
+	background: linear-gradient(145deg, var(--k2-bg-elevated), var(--k2-bg-hover));
+	color: var(--k2-realm-accent);
+	font-family: var(--k2-font-display);
+	font-size: 28px;
+	font-weight: 700;
+	box-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+}
+
+.k2-player-hero__name {
+	margin: 0 0 12px;
+	font-family: var(--k2-font-display);
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-player-hero__stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px 24px;
+}
+
+.k2-player-hero__stat-label {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+.k2-player-hero__stat-value {
+	font-family: var(--k2-font-display);
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-player-hero__stat-value--accent {
+	color: var(--k2-realm-accent);
+}
+
+/* ── Status bridge + cards ── */
+.k2-status-bridge {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.k2-status-tagline {
+	margin: 0 0 14px;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+.k2-card {
+	margin-bottom: 16px;
+	padding: 16px 18px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+.k2-card__title {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-display);
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-card__hint,
+.k2-hub-panel__hint,
+.k2-status-bridge__link {
+	margin: 0;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+	line-height: 1.45;
+}
+
+.k2-hub-panel__hint {
+	margin-top: 12px;
+	font-size: 12px;
+}
+.k2-hub-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 16px 0 12px;
+	padding: 0;
+}
+
+.k2-hub-tabs__btn,
+a.k2-hub-tabs__btn {
+	display: inline-block;
+	margin: 0;
+	padding: 8px 16px;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--k2-text-muted);
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+}
+
+.k2-hub-tabs__btn:hover,
+a.k2-hub-tabs__btn:hover {
+	color: var(--k2-text-primary);
+	background: rgba(255, 255, 255, 0.05);
+	text-decoration: none;
+}
+
+.k2-hub-tabs__btn.is-active,
+a.k2-hub-tabs__btn.is-active {
+	color: var(--k2-bg-page);
+	background: var(--k2-realm-accent);
+	box-shadow: none;
+}
+
+.k2-hub-tabs__btn.is-active:hover,
+a.k2-hub-tabs__btn.is-active:hover {
+	color: var(--k2-bg-page);
+	background: var(--k2-realm-accent);
+	text-decoration: none;
+}
+
+/* ── Leaderboard wing tabs (Chrome-style) ── */
+.k2-chrome-tabs {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.k2-chrome-tabs__bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 0;
+	padding: 0 4px;
+	background: transparent;
+	border: none;
+}
+
+.k2-chrome-tabs__tab,
+a.k2-chrome-tabs__tab {
+	--k2-chrome-tab-bg: transparent;
+	--k2-chrome-tab-cutout: var(--k2-bg-page);
+	position: relative;
+	display: inline-block;
+	margin: 0 2px;
+	padding: 9px 16px 11px;
+	border: none;
+	border-radius: 10px 10px 0 0;
+	background: var(--k2-chrome-tab-bg);
+	color: var(--k2-text-muted);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: color 0.15s, background 0.15s;
+}
+
+.k2-chrome-tabs__tab:hover:not(.is-active),
+a.k2-chrome-tabs__tab:hover:not(.is-active) {
+	color: var(--k2-text-primary);
+	text-decoration: none;
+}
+
+.k2-chrome-tabs__tab.is-active,
+a.k2-chrome-tabs__tab.is-active {
+	--k2-chrome-tab-bg: var(--k2-bg-elevated);
+	z-index: 2;
+	color: var(--k2-text-primary);
+	background: var(--k2-chrome-tab-bg);
+}
+
+.k2-chrome-tabs__tab.is-active::before,
+.k2-chrome-tabs__tab.is-active::after,
+a.k2-chrome-tabs__tab.is-active::before,
+a.k2-chrome-tabs__tab.is-active::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	width: 14px;
+	height: 14px;
+	pointer-events: none;
+}
+
+.k2-chrome-tabs__tab.is-active::before,
+a.k2-chrome-tabs__tab.is-active::before {
+	left: -14px;
+	background: radial-gradient(circle at 0 0, transparent 14px, var(--k2-chrome-tab-bg) 14px);
+}
+
+.k2-chrome-tabs__tab.is-active::after,
+a.k2-chrome-tabs__tab.is-active::after {
+	right: -14px;
+	background: radial-gradient(circle at 100% 0, transparent 14px, var(--k2-chrome-tab-bg) 14px);
+}
+
+.k2-chrome-tabs__bar + .k2-table-wrap {
+	margin-top: 0;
+	border-top: none;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }

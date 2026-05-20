@@ -32,24 +32,6 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
-<ul id="aboutmenu">
-        <li><a href="server1.php" title="" class="noncurrent">Server Stats</a></li>
-        <li><a href="ranked1.php" title="" class="noncurrent">Player Ranks</a></li>
-        <?php $playerSearchAsNavItem = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
-</ul>
-
-<br />
-<br />
-
-<ul id="aboutmenu">
-        <li><a href="individual1.php?id=<?php echo $id ?>" title="" class="current">Profile</a></li>
-        <li><a href="individual2a.php?id=<?php echo $id ?>" title="" class="noncurrent">Opponents</a></li>
-        <li><a href="individual3.php?id=<?php echo $id ?>" title="" class="noncurrent">Games</a></li>
-</ul>
-
-<br />
-<br />
-
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
@@ -175,6 +157,12 @@ $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con));
 $row = mysqli_fetch_row($result);
 
 $rank = $row[0];
+?>
+
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero.php"; ?>
+<?php
+$k2PlayerTabActive = 'profile';
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 ?>
 
 <div class="player-rating-chart" data-player-id="<?php echo (int) $ID; ?>" style="max-width: 780px; margin-bottom: 16px;">

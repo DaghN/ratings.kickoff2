@@ -19,42 +19,6 @@
 
 <?php $id=$_GET['id']; ?>
 
-<br />
-
-<ul id="aboutmenu">
-        <li><a href="server1.php" title="" class="noncurrent">Server Stats</a></li>
-        <li><a href="ranked1.php" title="" class="noncurrent">Player Ranks</a></li>
-        <?php $playerSearchAsNavItem = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
-</ul>
-
-<br />
-<br />
-
-<ul id="aboutmenu">
-        <li><a href="individual1.php?id=<?php echo $id ?>" title="" class="noncurrent">Profile</a></li>
-        <li><a href="#" title="" class="current">Opponents</a></li>
-        <li><a href="individual3.php?id=<?php echo $id ?>" title="" class="noncurrent">Games</a></li>
-</ul>
-
-<br />
-<br />
-
-<br />
-
-<ul id="aboutmenu">
-        <li><a href="individual2a.php?id=<?php echo $id ?>" title="" class="noncurrent">Results</a></li>
-        <li><a href="individual2b.php?id=<?php echo $id ?>" title="" class="noncurrent">Goals</a></li>
-        <li><a href="individual2c.php?id=<?php echo $id ?>" title="" class="current">DDs and CSs</a></li>
-<!--
-        <li><a href="individual2d.php?id=<?php echo $id ?>" title="" class="noncurrent">Streaks</a></li>
-        <li><a href="individual2e.php?id=<?php echo $id ?>" title="" class="noncurrent">Victims and Culprits</a></li>
--->
-</ul>
-
-<br />
-<br />
-<br />
-
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 //mysql_connect(localhost,$username,$password);
@@ -65,11 +29,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT name FROM playertable WHERE id='$id'";
-$result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
-
-$row = mysqli_fetch_row($result);
-$name = $row[0];
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
+$name = $Name;
 
 $query = "SELECT opponentID, opponentname, COUNT(*), SUM(DD), SUM(DDC), SUM(CS), SUM(CSC), AVG(DD), AVG(DDC), AVG(CS), AVG(CSC)
 FROM(
@@ -89,6 +50,12 @@ ORDER BY COUNT(*) DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
+?>
+
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero.php"; ?>
+<?php
+$k2PlayerTabActive = 'dds';
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 ?>
 
 <table class="example table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 

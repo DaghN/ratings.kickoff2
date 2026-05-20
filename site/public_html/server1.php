@@ -27,24 +27,10 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
-<ul id="aboutmenu">
-        <li><a href="#" title="" class="current">Server Stats</a></li>
-        <li><a href="ranked1.php" title="" class="noncurrent">Player Ranks</a></li>
-        <?php $playerSearchAsNavItem = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
-</ul>
-
-<br />
-<br />
-
-<ul id="aboutmenu">
-        <li><a href="server1.php" title="" class="current">Overall</a></li>
-        <li><a href="server2.php" title="" class="noncurrent">Records</a></li>
-        <li><a href="server3.php" title="" class="noncurrent">Activity</a></li>
-</ul>
-
-<br />
-<br />
-<br />
+<?php
+$k2HubTabActive = 'trends';
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
+?>
 
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
