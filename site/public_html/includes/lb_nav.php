@@ -1,6 +1,6 @@
 <?php
 /**
- * Leaderboard wing tabs — opens .k2-chrome-tabs wrapper.
+ * Leaderboard wing tabs — segment track with outline active cell.
  * Set $k2LbWingActive before include: rating | goals | dds | streaks | victims | rating-records
  */
 $k2LbWingActive = $k2LbWingActive ?? 'rating';

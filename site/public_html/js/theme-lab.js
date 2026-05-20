@@ -7,6 +7,57 @@
     var root = document.documentElement;
     var chartInstance = null;
 
+    var lbTabLabels = {
+        rating: 'Rating',
+        goals: 'Goals',
+        dds: 'DDs & CSs',
+        streaks: 'Streaks',
+        victims: 'Victims & Culprits',
+        'rating-records': 'Rating records'
+    };
+
+    var wingNavHints = {
+        'chrome-current': 'Production Chrome wing tabs — active tab merges into table header (current staging).',
+        'segment-track': 'Six wing views inside one segment track; table is a separate card with a gap.',
+        'stacked-card': 'Hub + wing in one nav card (demo row); table sits in a separate zone below.',
+        'title-switcher': 'Context line + view dropdown — fewest visible words; table separate.',
+        'quiet-type': 'Smaller muted wing tabs with underline active state; column headers recede.',
+        'vertical-rail': 'Wing views in a left column; table is the only horizontal label row above data.'
+    };
+
+    var segmentVariantHints = {
+        'muted-wash': 'Segment track · active cell A — subtle realm tint wash (14% opacity). Quiet; keeps table headers as the main label row.',
+        'solid-fill': 'Segment track · active cell B — solid realm accent fill (same language as hub Segment nav, style 7). Strongest “picked one” signal.',
+        'outline-accent': 'Segment track · active cell C — transparent fill with accent outline ring. Color without filling the cell.',
+        'dark-lift': 'Segment track · active cell D — elevated dark surface + left accent bar. Minimal color; good if accent feels loud.',
+        'glow-solid': 'Segment track · active cell E — solid accent plus realm glow. Pairs well with neon C on night backgrounds.'
+    };
+
+    function updateWingNavHint() {
+        var hint = document.getElementById('lab-wing-nav-hint');
+        var style = root.getAttribute('data-wing-nav-style') || 'chrome-current';
+        var variant = root.getAttribute('data-wing-segment-variant') || 'muted-wash';
+        if (hint) {
+            if (style === 'segment-track') {
+                hint.textContent = segmentVariantHints[variant] || segmentVariantHints['muted-wash'];
+            } else {
+                hint.textContent = wingNavHints[style] || wingNavHints['chrome-current'];
+            }
+        }
+    }
+
+    function syncLbViewLabel(tab) {
+        var label = document.getElementById('lab-lb-view-label');
+        var select = document.getElementById('lab-lb-view-select');
+        var text = lbTabLabels[tab] || tab;
+        if (label) {
+            label.textContent = text;
+        }
+        if (select && select.value !== tab) {
+            select.value = tab;
+        }
+    }
+
     function cssVar(name) {
         return getComputedStyle(root).getPropertyValue(name).trim();
     }
@@ -34,9 +85,12 @@
         var amigaAccent = root.getAttribute('data-amiga-accent') || 'amber';
         var displayFont = root.getAttribute('data-display-font') || 'exo';
         var tableHighlight = root.getAttribute('data-table-highlight') || 'cyan-magenta';
+        var tableHeadHover = root.getAttribute('data-table-head-hover') || 'none';
         var amigaLinks = root.getAttribute('data-amiga-links') || 'realm';
         var labView = root.getAttribute('data-lab-view') || 'hub';
         var navStyle = root.getAttribute('data-nav-style') || 'boxed';
+        var wingNavStyle = root.getAttribute('data-wing-nav-style') || 'chrome-current';
+        var wingSegmentVariant = root.getAttribute('data-wing-segment-variant') || 'muted-wash';
 
         document.querySelectorAll('[data-set-neon]').forEach(function (btn) {
             btn.classList.toggle('is-active', btn.getAttribute('data-set-neon') === neon);
@@ -51,6 +105,12 @@
         });
         document.querySelectorAll('[data-set-nav-style]').forEach(function (btn) {
             btn.classList.toggle('is-active', btn.getAttribute('data-set-nav-style') === navStyle);
+        });
+        document.querySelectorAll('[data-set-wing-nav-style]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-set-wing-nav-style') === wingNavStyle);
+        });
+        document.querySelectorAll('[data-set-wing-segment-variant]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-set-wing-segment-variant') === wingSegmentVariant);
         });
         document.querySelectorAll('[data-set-online-accent]').forEach(function (btn) {
             var show = realm === 'online';
@@ -67,6 +127,9 @@
         });
         document.querySelectorAll('[data-set-table-highlight]').forEach(function (btn) {
             btn.classList.toggle('is-active', btn.getAttribute('data-set-table-highlight') === tableHighlight);
+        });
+        document.querySelectorAll('[data-set-table-head-hover]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-set-table-head-hover') === tableHeadHover);
         });
         document.querySelectorAll('[data-set-amiga-links]').forEach(function (btn) {
             var show = realm === 'amiga';
@@ -90,6 +153,13 @@
         document.querySelectorAll('.k2-lab-control-group--tokens-only').forEach(function (group) {
             group.hidden = labView !== 'tokens';
         });
+        document.querySelectorAll('.k2-lab-control-group--leaderboards-only').forEach(function (group) {
+            group.hidden = labView !== 'hub';
+        });
+        document.querySelectorAll('.k2-lab-control-group--segment-only').forEach(function (group) {
+            group.hidden = labView !== 'hub' || wingNavStyle !== 'segment-track';
+        });
+        updateWingNavHint();
     }
 
     function setLabView(view) {
@@ -114,6 +184,10 @@
         });
         if (tab === 'trends') {
             initChart();
+        }
+        if (tab === 'leaderboards') {
+            var activeLb = document.querySelector('[data-lb-tab].is-active');
+            syncLbViewLabel(activeLb ? activeLb.getAttribute('data-lb-tab') : 'rating');
         }
     }
 
@@ -140,9 +214,20 @@
 
         document.querySelectorAll('[data-lb-tab]').forEach(function (btn) {
             btn.addEventListener('click', function () {
-                activateTab(document.querySelectorAll('[data-lb-tab]'), 'data-lb-tab', btn.getAttribute('data-lb-tab'));
+                var tab = btn.getAttribute('data-lb-tab');
+                activateTab(document.querySelectorAll('[data-lb-tab]'), 'data-lb-tab', tab);
+                syncLbViewLabel(tab);
             });
         });
+
+        var lbSelect = document.getElementById('lab-lb-view-select');
+        if (lbSelect) {
+            lbSelect.addEventListener('change', function () {
+                var tab = lbSelect.value;
+                activateTab(document.querySelectorAll('[data-lb-tab]'), 'data-lb-tab', tab);
+                syncLbViewLabel(tab);
+            });
+        }
 
         document.querySelectorAll('[data-player-tab]').forEach(function (btn) {
             btn.addEventListener('click', function () {
@@ -366,6 +451,12 @@
                 syncControlButtons();
             });
         });
+        document.querySelectorAll('[data-set-table-head-hover]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                root.setAttribute('data-table-head-hover', btn.getAttribute('data-set-table-head-hover'));
+                syncControlButtons();
+            });
+        });
         document.querySelectorAll('[data-set-amiga-links]').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 root.setAttribute('data-amiga-links', btn.getAttribute('data-set-amiga-links'));
@@ -378,7 +469,27 @@
                 syncControlButtons();
             });
         });
+        document.querySelectorAll('[data-set-wing-nav-style]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                root.setAttribute('data-wing-nav-style', btn.getAttribute('data-set-wing-nav-style'));
+                syncControlButtons();
+                setLabView('hub');
+                ensureHubTab('leaderboards');
+            });
+        });
+        document.querySelectorAll('[data-set-wing-segment-variant]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                root.setAttribute('data-wing-segment-variant', btn.getAttribute('data-set-wing-segment-variant'));
+                if (root.getAttribute('data-wing-nav-style') !== 'segment-track') {
+                    root.setAttribute('data-wing-nav-style', 'segment-track');
+                }
+                syncControlButtons();
+                setLabView('hub');
+                ensureHubTab('leaderboards');
+            });
+        });
         syncControlButtons();
+        updateWingNavHint();
         updateHeroCopy();
     }
 

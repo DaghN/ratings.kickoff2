@@ -217,7 +217,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
     <ul id="player-h2h-search-listbox" class="player-search-results player-h2h-search-results" role="listbox" hidden="hidden"></ul>
 </div>
 
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
 
 
 <thead>
@@ -275,7 +275,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <br />
 
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
 
 <thead>
@@ -423,7 +423,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <br />
 
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
 <thead>
     <tr >
     	<th class="nohovercell" style="text-align:left;" WIDTH="172">&nbsp;</th>
@@ -561,7 +561,7 @@ $row = mysqli_fetch_row($result);
  
     
 
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 <thead>
     <tr >
     	<th class="nohovercell" style="text-align:left;" WIDTH="150">&nbsp;</th>
@@ -715,7 +715,7 @@ $row = mysqli_fetch_row($result);
 
 
   
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount" > 
 <thead>
     <tr >
     	<th class="nohovercell" style="text-align:left;" WIDTH="176">&nbsp;</th>
@@ -871,7 +871,7 @@ $row = mysqli_fetch_row($result);
     </table>  
  
     
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 <thead>
     <tr >
     	<th class="nohovercell" style="text-align:left;" WIDTH="120">&nbsp;</th>

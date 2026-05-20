@@ -32,13 +32,13 @@ table.example tbody td a {
 }
 
 /* ranked1.php–ranked6.php: keep Player column from shrinking when page composition changes after sort */
-table.example.ranked-pages-table thead th:nth-child(2),
-table.example.ranked-pages-table tbody td:nth-child(2) {
+table.k2-table.ranked-pages-table thead th:nth-child(2),
+table.k2-table.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
 }
 
-/* ranked1–6: hide until elolist Table.auto runs (html.ranked-js + .ranked-table-pending; see ranked_table_cloak_head.php) */
-html.ranked-js table.example.ranked-pages-table.ranked-table-pending {
+/* ranked1–6: hide until elolist Table.auto runs (html.ranked-js + .ranked-table-pending on .k2-table; see ranked_table_cloak_head.php) */
+html.ranked-js table.k2-table.ranked-pages-table.ranked-table-pending {
 	visibility: hidden;
 }
 

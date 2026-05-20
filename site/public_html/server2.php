@@ -7,6 +7,7 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/theme_boot_head.php"; ?>
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
@@ -200,7 +201,9 @@ mysqli_close($con);
 ?>
 
 
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<div class="k2-table-wrap">
+
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
 <thead>
     <tr >
@@ -483,7 +486,9 @@ mysqli_close($con);
     
 </tbody>
 
-</table> 
+</table>
+
+</div><!-- .k2-table-wrap -->
 
 <br />
 A player must play 30 games for ratios and averages to take effect.

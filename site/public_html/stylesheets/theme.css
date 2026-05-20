@@ -2,7 +2,8 @@
 
 /**
  * Kick Off 2 ratings — production theme.
- * Locked: subtle neon, Exo 2, online green, Amiga amber links, cyan/magenta table highlights.
+ * Locked: subtle neon, Exo 2, cyan/magenta table highlights.
+ * TEST: realm accent swap — online uses amber, amiga uses green.
  */
 
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Exo+2:wght@500;600;700&display=swap");
@@ -46,21 +47,76 @@
 }
 
 html[data-realm="online"] {
+	--k2-realm-accent: #ffb74d;
+	--k2-realm-accent-muted: rgba(255, 183, 77, 0.14);
+	--k2-realm-glow: rgba(255, 183, 77, 0.35);
+	--k2-link: #ffb74d;
+	--k2-link-hover: #ffcc80;
+}
+
+html[data-realm="amiga"] {
 	--k2-realm-accent: #9ccc65;
 	--k2-realm-accent-muted: rgba(156, 204, 101, 0.14);
 	--k2-realm-glow: rgba(156, 204, 101, 0.35);
-	--k2-table-head-hover: rgba(156, 204, 101, 0.32);
 	--k2-link: #9ccc65;
 	--k2-link-hover: #aed581;
 }
 
-html[data-realm="amiga"] {
-	--k2-realm-accent: #ffb74d;
-	--k2-realm-accent-muted: rgba(255, 183, 77, 0.14);
-	--k2-realm-glow: rgba(255, 183, 77, 0.35);
-	--k2-table-head-hover: rgba(255, 183, 77, 0.32);
-	--k2-link: #ffb74d;
-	--k2-link-hover: #ffcc80;
+/* Optional accent tune (hub preview pills) — overrides realm default until realm is re-selected */
+html[data-k2-accent="chrome"] {
+	--k2-realm-accent: #64b5f6;
+	--k2-realm-accent-muted: rgba(100, 181, 246, 0.14);
+	--k2-realm-glow: rgba(100, 181, 246, 0.38);
+	--k2-link: #64b5f6;
+	--k2-link-hover: #90caf9;
+}
+
+html[data-k2-accent="signal"] {
+	--k2-realm-accent: #4dd0e1;
+	--k2-realm-accent-muted: rgba(77, 208, 225, 0.14);
+	--k2-realm-glow: rgba(77, 208, 225, 0.42);
+	--k2-link: #4dd0e1;
+	--k2-link-hover: #80deea;
+}
+
+html[data-k2-accent="lagoon"] {
+	--k2-realm-accent: #4db6ac;
+	--k2-realm-accent-muted: rgba(77, 182, 172, 0.14);
+	--k2-realm-glow: rgba(77, 182, 172, 0.42);
+	--k2-link: #4db6ac;
+	--k2-link-hover: #80cbc4;
+}
+
+html[data-k2-accent="phosphor"] {
+	--k2-realm-accent: #aed581;
+	--k2-realm-accent-muted: rgba(174, 213, 129, 0.14);
+	--k2-realm-glow: rgba(174, 213, 129, 0.38);
+	--k2-link: #aed581;
+	--k2-link-hover: #c5e1a5;
+}
+
+html[data-k2-accent="pulse"] {
+	--k2-realm-accent: #f06292;
+	--k2-realm-accent-muted: rgba(240, 98, 146, 0.14);
+	--k2-realm-glow: rgba(240, 98, 146, 0.45);
+	--k2-link: #f06292;
+	--k2-link-hover: #f48fb1;
+}
+
+html[data-k2-accent="holo"] {
+	--k2-realm-accent: #b388ff;
+	--k2-realm-accent-muted: rgba(179, 136, 255, 0.14);
+	--k2-realm-glow: rgba(179, 136, 255, 0.45);
+	--k2-link: #b388ff;
+	--k2-link-hover: #d1b3ff;
+}
+
+html[data-k2-accent="ember"] {
+	--k2-realm-accent: #ff8a65;
+	--k2-realm-accent-muted: rgba(255, 138, 101, 0.14);
+	--k2-realm-glow: rgba(255, 138, 101, 0.45);
+	--k2-link: #ff8a65;
+	--k2-link-hover: #ffab91;
 }
 
 html {
@@ -143,8 +199,29 @@ body.k2-site h1 {
 	text-decoration: none;
 }
 
-.k2-header-search__input {
-	width: 140px;
+/* ── Player search (theme-only; not in main2.css) ── */
+body.k2-site .player-search {
+	position: relative;
+	margin: 0;
+}
+
+body.k2-site .player-search--header,
+body.k2-site .player-search--nav {
+	max-width: none;
+}
+
+body.k2-site .player-search-label {
+	display: block;
+	margin: 0 0 6px;
+	color: var(--k2-text-primary);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+body.k2-site .player-search-input,
+body.k2-site .k2-header-search__input {
+	box-sizing: border-box;
+	width: 100%;
 	padding: 6px 10px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-sm);
@@ -154,14 +231,143 @@ body.k2-site h1 {
 	font-size: 13px;
 }
 
-.k2-header-search__input::placeholder {
+body.k2-site .player-search--header .player-search-input,
+body.k2-site .player-search--header .k2-header-search__input {
+	width: 180px;
+}
+
+body.k2-site .player-search--nav .player-search-input {
+	width: 20em;
+}
+
+body.k2-site .player-search-input::placeholder,
+body.k2-site .k2-header-search__input::placeholder {
 	color: var(--k2-text-muted);
 }
 
-.k2-header-search__input:focus {
+body.k2-site .player-search-input:focus,
+body.k2-site .k2-header-search__input:focus {
 	outline: none;
 	border-color: var(--k2-realm-accent);
 	box-shadow: 0 0 0 2px var(--k2-realm-accent-muted);
+}
+
+body.k2-site .player-search-results {
+	position: absolute;
+	left: 0;
+	right: auto;
+	z-index: 50;
+	min-width: 100%;
+	width: max-content;
+	max-width: 22em;
+	margin: 2px 0 0;
+	padding: 0;
+	list-style: none;
+	max-height: 14em;
+	overflow-x: auto;
+	overflow-y: auto;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+	box-shadow: var(--k2-shadow-surface);
+	font-size: 12px;
+	line-height: 1.35;
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .player-h2h-opponent-search .player-search-results {
+	width: 100%;
+	max-width: none;
+}
+
+body.k2-site .player-search-results li {
+	margin: 0;
+	padding: 0;
+}
+
+body.k2-site .player-search-results a {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.65em;
+	padding: 5px 8px;
+	min-height: 1.35em;
+	text-decoration: none;
+	font-weight: normal;
+	color: var(--k2-link);
+	border-bottom: 1px solid var(--k2-border-subtle);
+	background-color: var(--k2-bg-elevated);
+}
+
+body.k2-site .player-search-results .player-search-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .player-search-results .player-search-rating {
+	flex: 0 0 auto;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .player-search-results li:last-child a {
+	border-bottom: none;
+}
+
+body.k2-site .player-search-results a:hover,
+body.k2-site .player-search-results a:focus-visible {
+	background-color: var(--k2-realm-accent-muted);
+}
+
+body.k2-site .player-search-results a:hover .player-search-name,
+body.k2-site .player-search-results a:focus-visible .player-search-name {
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .player-search-results a:hover .player-search-rating,
+body.k2-site .player-search-results a:focus-visible .player-search-rating {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .player-search-results a:focus {
+	outline: none;
+}
+
+body.k2-site .player-search-results a:focus-visible {
+	outline: 2px solid var(--k2-realm-accent);
+	outline-offset: -2px;
+}
+
+body.k2-site .player-search-results .player-search-active a {
+	background-color: var(--k2-realm-accent-muted);
+}
+
+body.k2-site .player-h2h-opponent-search .player-h2h-search-option {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	background: transparent;
+	color: var(--k2-text-primary);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+body.k2-site .player-h2h-opponent-search .player-h2h-search-results li {
+	list-style: none;
+}
+
+body.k2-site .player-h2h-opponent-search .player-h2h-search-option:hover,
+body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible {
+	background: var(--k2-bg-hover);
+	outline: none;
 }
 
 .visually-hidden {
@@ -264,11 +470,6 @@ body.k2-site #aboutmenu > li > a.current {
 	color: var(--k2-text-primary);
 }
 
-body.k2-site .player-search--nav label {
-	color: var(--k2-text-muted);
-	font-size: 11px;
-}
-
 /* ── Chart blocks on server / profile pages ── */
 body.k2-site .server-games-month-chart,
 body.k2-site .server-games-year-chart,
@@ -295,7 +496,7 @@ body.k2-site .player-h2h-opponent-search {
 }
 
 /* Profile stat tables — vertical stack in shared page column */
-body.k2-site .k2-page-nav table.example {
+body.k2-site .k2-page-nav .k2-table {
 	max-width: 1200px;
 	margin-bottom: 16px;
 }
@@ -337,92 +538,116 @@ body.k2-site .server-peak-month-leaderboard-status {
 	color: var(--k2-text-muted);
 }
 
-/* ── Dark data tables (scoped to themed pages) ── */
-body.k2-site table.example {
-	color: var(--k2-text-primary);
+/* ── Leaderboard / data tables (k2-table — mock-aligned) ── */
+body.k2-site .k2-table {
 	border-collapse: collapse;
-}
-
-body.k2-site table.example th {
-	background-color: var(--k2-bg-elevated);
+	font-size: 12px;
 	color: var(--k2-text-primary);
 }
 
-body.k2-site table.example thead tr:last-child th {
+body.k2-site .k2-table thead th {
+	padding: 8px 10px;
+	background: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+	font-size: 11px;
+	font-weight: 600;
+	text-align: right;
+	white-space: nowrap;
+}
+
+body.k2-site .k2-table thead tr:last-child th {
 	border-bottom: 2px solid var(--k2-realm-accent);
 }
 
-body.k2-site table.example thead tr:first-child:not(:last-child) th {
-	background-color: transparent;
+body.k2-site .k2-table.ranked-pages-table thead th:nth-child(2),
+body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(2) {
+	min-width: 9.1em;
+}
+
+body.k2-site .k2-table thead tr:first-child:not(:last-child) th {
+	background-color: var(--k2-bg-page);
 	border-bottom: none;
 }
 
-body.k2-site table.example thead tr:first-child:not(:last-child) th.filtercell,
-body.k2-site table.example thead tr:first-child:not(:last-child) th.filtercell:hover {
-	background-color: transparent;
+body.k2-site .k2-table thead tr:first-child:not(:last-child) th.filtercell,
+body.k2-site .k2-table thead tr:first-child:not(:last-child) th.filtercell:hover {
+	background-color: var(--k2-bg-page);
 	box-shadow: none;
 }
 
-body.k2-site table.example thead th.table-sortable:hover,
-body.k2-site table.example thead th:hover:not(.nohovercell):not(.filtercell) {
-	background-color: var(--k2-table-head-hover);
+body.k2-site .k2-table thead th.table-sortable:hover,
+body.k2-site .k2-table thead th:hover:not(.nohovercell):not(.filtercell) {
+	background-color: var(--k2-bg-elevated);
 	color: var(--k2-text-primary);
+	box-shadow: inset 0 -3px 0 var(--k2-realm-accent);
 }
 
-body.k2-site table.example thead .nohovercell:hover {
+body.k2-site .k2-table thead .nohovercell:hover {
 	background-color: var(--k2-bg-elevated);
 }
 
-body.k2-site table.example thead .goalcounter,
-body.k2-site table.example thead .goalcounter:hover {
-	background-color: var(--k2-bg-elevated);
+body.k2-site .k2-table tbody td {
+	padding: 7px 10px;
+	border-bottom: 1px solid var(--k2-border-subtle);
 	color: var(--k2-text-primary);
+	white-space: nowrap;
 }
 
-body.k2-site table.example tbody td {
-	color: var(--k2-text-primary);
-}
-
-body.k2-site table.example tbody td a {
+body.k2-site .k2-table tbody td a {
 	color: var(--k2-link);
 }
 
-body.k2-site table.example tfoot td {
+body.k2-site .k2-table tbody tr {
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site .k2-table tbody tr.alternate {
+	background-color: rgba(255, 255, 255, 0.025);
+}
+
+body.k2-site .k2-table tbody tr:hover {
+	background: var(--k2-realm-accent-muted);
+}
+
+body.k2-site .k2-table tbody tr.k2-table__rank-1 td:first-child {
+	font-weight: 700;
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+}
+
+body.k2-site .k2-table thead .goalcounter,
+body.k2-site .k2-table thead .goalcounter:hover {
+	background-color: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .k2-table tfoot td {
 	background-color: var(--k2-bg-elevated);
 	color: var(--k2-text-primary);
 	border-top: 1px solid var(--k2-border-subtle);
+	padding: 8px 10px;
+	font-size: 11px;
+	font-weight: 600;
 }
 
-body.k2-site table.example tfoot td a,
-body.k2-site table.example tfoot td a:visited {
+body.k2-site .k2-table tfoot td a,
+body.k2-site .k2-table tfoot td a:visited {
 	color: var(--k2-link);
 }
 
-body.k2-site table.example tr.tbody_header {
+body.k2-site .k2-table tr.tbody_header {
 	background-color: var(--k2-bg-hover);
 	color: var(--k2-text-primary);
 }
 
-body.k2-site table.example a.pagelink {
+body.k2-site .k2-table a.pagelink {
 	border-color: var(--k2-border-strong);
 	color: var(--k2-text-primary);
 }
 
-body.k2-site table.example a.currentpage {
+body.k2-site .k2-table a.currentpage {
 	background-color: var(--k2-realm-accent-muted);
 	color: var(--k2-realm-accent);
-}
-
-body.k2-site table.example tr {
-	background-color: var(--k2-bg-surface);
-}
-
-body.k2-site table.example tr.alternate {
-	background-color: rgba(255, 255, 255, 0.025);
-}
-
-body.k2-site table.example tbody tr:hover {
-	background-color: var(--k2-realm-accent-muted);
 }
 
 body.k2-site .blue {
@@ -435,24 +660,32 @@ body.k2-site .red {
 
 body.k2-site select.table-autofilter {
 	font-size: 11px;
+	font-weight: 400;
 	color: var(--k2-text-primary);
 	background-color: var(--k2-bg-elevated);
-	border: 1px solid var(--k2-border-subtle);
+	border: 1px solid var(--k2-border-strong);
+	border-radius: var(--k2-radius-sm);
+}
+
+body.k2-site .k2-table thead .filtercell select.table-autofilter {
+	max-width: 100%;
+	box-shadow: var(--k2-shadow-surface);
 }
 
 body.k2-site .k2-table-wrap {
-	max-width: 1200px;
+	width: fit-content;
+	max-width: 100%;
 	margin-bottom: 16px;
-	overflow-x: auto;
+	overflow: auto;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 }
 
 .k2-chrome-tabs__bar + .k2-table-wrap {
-	margin-top: 0;
-	border-top: none;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
+	margin-top: 12px;
+	border-top: 1px solid var(--k2-border-subtle);
+	border-top-left-radius: var(--k2-radius-md);
+	border-top-right-radius: var(--k2-radius-md);
 }
 
 /* ── Player feast pills (solid flat, same as hub) ── */
@@ -464,8 +697,7 @@ body.k2-site .k2-table-wrap {
 	padding: 0;
 }
 
-.k2-player-nav__btn,
-a.k2-player-nav__btn {
+body.k2-site a.k2-player-nav__btn {
 	display: inline-block;
 	margin: 0;
 	padding: 8px 16px;
@@ -481,18 +713,27 @@ a.k2-player-nav__btn {
 	transition: background 0.15s, color 0.15s;
 }
 
-.k2-player-nav__btn:hover,
-a.k2-player-nav__btn:hover {
+body.k2-site a.k2-player-nav__btn:visited {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site a.k2-player-nav__btn:hover {
 	color: var(--k2-text-primary);
 	background: rgba(255, 255, 255, 0.05);
 	text-decoration: none;
 }
 
-.k2-player-nav__btn.is-active,
-a.k2-player-nav__btn.is-active {
+body.k2-site a.k2-player-nav__btn.is-active,
+body.k2-site a.k2-player-nav__btn.is-active:visited {
 	color: var(--k2-bg-page);
 	background: var(--k2-realm-accent);
 	box-shadow: none;
+}
+
+body.k2-site a.k2-player-nav__btn.is-active:hover {
+	color: var(--k2-bg-page);
+	background: var(--k2-realm-accent);
+	text-decoration: none;
 }
 
 /* ── Player hero scaffold ── */
@@ -615,6 +856,80 @@ a.k2-player-nav__btn.is-active {
 	margin-top: 12px;
 	font-size: 12px;
 }
+
+.k2-hub-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px 16px;
+	max-width: var(--k2-max-width);
+	margin: 16px 0 12px;
+}
+
+.k2-hub-bar .k2-hub-tabs {
+	margin: 0;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.k2-accent-pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 6px;
+	margin: 0 0 0 auto;
+	padding: 0;
+}
+
+.k2-accent-pills__btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	padding: 5px 10px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--k2-text-muted);
+	font: inherit;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+	transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.k2-accent-pills__btn::before {
+	content: "";
+	flex-shrink: 0;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--k2-accent-swatch, var(--k2-text-muted));
+	box-shadow: 0 0 6px var(--k2-accent-swatch, transparent);
+}
+
+.k2-accent-pills__btn[data-k2-accent="chrome"] { --k2-accent-swatch: #64b5f6; }
+.k2-accent-pills__btn[data-k2-accent="signal"] { --k2-accent-swatch: #4dd0e1; }
+.k2-accent-pills__btn[data-k2-accent="lagoon"] { --k2-accent-swatch: #4db6ac; }
+.k2-accent-pills__btn[data-k2-accent="phosphor"] { --k2-accent-swatch: #aed581; }
+.k2-accent-pills__btn[data-k2-accent="pulse"] { --k2-accent-swatch: #f06292; }
+.k2-accent-pills__btn[data-k2-accent="holo"] { --k2-accent-swatch: #b388ff; }
+.k2-accent-pills__btn[data-k2-accent="ember"] { --k2-accent-swatch: #ff8a65; }
+
+.k2-accent-pills__btn:hover {
+	color: var(--k2-text-primary);
+	border-color: var(--k2-border-strong);
+}
+
+.k2-accent-pills__btn.is-active {
+	color: var(--k2-realm-accent);
+	border-color: var(--k2-realm-accent);
+	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
+}
+
 .k2-hub-tabs {
 	display: flex;
 	flex-wrap: wrap;
@@ -623,8 +938,7 @@ a.k2-player-nav__btn.is-active {
 	padding: 0;
 }
 
-.k2-hub-tabs__btn,
-a.k2-hub-tabs__btn {
+body.k2-site a.k2-hub-tabs__btn {
 	display: inline-block;
 	margin: 0;
 	padding: 8px 16px;
@@ -640,103 +954,81 @@ a.k2-hub-tabs__btn {
 	transition: background 0.15s, color 0.15s;
 }
 
-.k2-hub-tabs__btn:hover,
-a.k2-hub-tabs__btn:hover {
+body.k2-site a.k2-hub-tabs__btn:visited {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site a.k2-hub-tabs__btn:hover {
 	color: var(--k2-text-primary);
 	background: rgba(255, 255, 255, 0.05);
 	text-decoration: none;
 }
 
-.k2-hub-tabs__btn.is-active,
-a.k2-hub-tabs__btn.is-active {
+body.k2-site a.k2-hub-tabs__btn.is-active,
+body.k2-site a.k2-hub-tabs__btn.is-active:visited {
 	color: var(--k2-bg-page);
 	background: var(--k2-realm-accent);
 	box-shadow: none;
 }
 
-.k2-hub-tabs__btn.is-active:hover,
-a.k2-hub-tabs__btn.is-active:hover {
+body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	color: var(--k2-bg-page);
 	background: var(--k2-realm-accent);
 	text-decoration: none;
 }
 
-/* ── Leaderboard wing tabs (Chrome-style) ── */
+/* ── Leaderboard wing tabs (segment track + outline active) ── */
 .k2-chrome-tabs {
 	max-width: 1200px;
+	margin-bottom: 4px;
 }
 
 .k2-chrome-tabs__bar {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: flex-end;
-	gap: 0;
-	padding: 0 4px;
-	background: transparent;
-	border: none;
+	align-items: stretch;
+	gap: 2px;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
 }
 
-.k2-chrome-tabs__tab,
-a.k2-chrome-tabs__tab {
-	--k2-chrome-tab-bg: transparent;
-	--k2-chrome-tab-cutout: var(--k2-bg-page);
+body.k2-site a.k2-chrome-tabs__tab {
 	position: relative;
 	display: inline-block;
-	margin: 0 2px;
-	padding: 9px 16px 11px;
-	border: none;
-	border-radius: 10px 10px 0 0;
-	background: var(--k2-chrome-tab-bg);
+	margin: 0;
+	padding: 8px 14px;
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	background: transparent;
 	color: var(--k2-text-muted);
 	font: inherit;
 	font-size: 13px;
 	font-weight: 600;
 	text-decoration: none;
 	cursor: pointer;
-	transition: color 0.15s, background 0.15s;
+	transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
-.k2-chrome-tabs__tab:hover:not(.is-active),
-a.k2-chrome-tabs__tab:hover:not(.is-active) {
+body.k2-site a.k2-chrome-tabs__tab:visited {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site a.k2-chrome-tabs__tab:hover:not(.is-active) {
 	color: var(--k2-text-primary);
 	text-decoration: none;
 }
 
-.k2-chrome-tabs__tab.is-active,
-a.k2-chrome-tabs__tab.is-active {
-	--k2-chrome-tab-bg: var(--k2-bg-elevated);
-	z-index: 2;
-	color: var(--k2-text-primary);
-	background: var(--k2-chrome-tab-bg);
+body.k2-site a.k2-chrome-tabs__tab.is-active,
+body.k2-site a.k2-chrome-tabs__tab.is-active:visited {
+	color: var(--k2-realm-accent);
+	background: transparent;
+	border-color: var(--k2-realm-accent);
+	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
 }
 
-.k2-chrome-tabs__tab.is-active::before,
-.k2-chrome-tabs__tab.is-active::after,
-a.k2-chrome-tabs__tab.is-active::before,
-a.k2-chrome-tabs__tab.is-active::after {
-	content: "";
-	position: absolute;
-	bottom: 0;
-	width: 14px;
-	height: 14px;
-	pointer-events: none;
-}
-
-.k2-chrome-tabs__tab.is-active::before,
-a.k2-chrome-tabs__tab.is-active::before {
-	left: -14px;
-	background: radial-gradient(circle at 0 0, transparent 14px, var(--k2-chrome-tab-bg) 14px);
-}
-
-.k2-chrome-tabs__tab.is-active::after,
-a.k2-chrome-tabs__tab.is-active::after {
-	right: -14px;
-	background: radial-gradient(circle at 100% 0, transparent 14px, var(--k2-chrome-tab-bg) 14px);
-}
-
-.k2-chrome-tabs__bar + .k2-table-wrap {
-	margin-top: 0;
-	border-top: none;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
+body.k2-site a.k2-chrome-tabs__tab.is-active:hover {
+	color: var(--k2-realm-accent);
+	text-decoration: none;
 }

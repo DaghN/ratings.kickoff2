@@ -58,7 +58,9 @@ $k2PlayerTabActive = 'goals';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 ?>
 
-<table class="example table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<div class="k2-table-wrap">
+
+<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
 <thead>
 	
@@ -157,7 +159,9 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
     ?> 
 </tbody>
 
-</table> 
+</table>
+
+</div><!-- .k2-table-wrap -->
 
 
 </div><!-- .k2-page-nav -->

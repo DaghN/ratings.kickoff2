@@ -7,6 +7,7 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/theme_boot_head.php"; ?>
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="js/chart-theme.js"></script>
@@ -19,7 +20,6 @@
 <script type="text/javascript" src="js/server-established-players-year-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-cumulative-established-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-established-rating-distribution-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-peak-month-leaderboard.js" defer="defer"></script>
 
 </head>
 
@@ -62,7 +62,15 @@ $CleanSheets = $row[12];
 $DoubleDigitsRatio = $row[13];
 $CleanSheetsRatio = $row[14];
 
+if (!function_exists('k2_peak_month_leaderboard_entries')) {
+    include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_month_leaderboard_query.php";
+}
+$k2PeakMonthLimit = 50;
+$k2PeakMonthQueryError = null;
+$k2PeakMonthEntries = k2_peak_month_leaderboard_entries($con, $k2PeakMonthLimit, $k2PeakMonthQueryError);
+
 mysqli_close($con);
+unset($con);
 ?>
 
 <div class="server-games-month-chart">
@@ -111,14 +119,9 @@ mysqli_close($con);
     <canvas width="960" height="271" aria-label="Distribution of established player ratings"></canvas>
 </div>
 
-<div class="server-peak-month-leaderboard">
-    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Busiest month hall of fame</p>
-    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Top 50 players by most rated games in a single calendar month (each player’s personal best only). Ties: earlier month wins.</p>
-    <p class="server-peak-month-leaderboard-status" style="margin: 0 0 8px 0;">Loading peak month leaderboard…</p>
-    <div class="server-peak-month-leaderboard-table-wrap"></div>
-</div>
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_month_leaderboard_table.php"; ?>
 
-<table class="example table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
 
 <thead>

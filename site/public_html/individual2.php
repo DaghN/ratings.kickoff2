@@ -76,7 +76,9 @@ $result = mysqli_query($con, $query) or die("SELECT Error: ".mysqli_error($con))
 mysqli_close($con);
 ?>
 
-<table class="example table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<div class="k2-table-wrap">
+
+<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 
 <thead>
 	
@@ -157,7 +159,9 @@ mysqli_close($con);
     ?> 
 </tbody>
 
-</table> 
+</table>
+
+</div><!-- .k2-table-wrap -->
 
 
 </div><!-- .k2-page-nav -->

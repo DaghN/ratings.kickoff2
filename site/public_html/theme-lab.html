@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-realm="online" data-neon="c" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta" data-lab-view="hub" data-nav-style="solid-flat">
+<html lang="en" data-realm="online" data-neon="c" data-online-accent="green" data-amiga-accent="amber" data-amiga-links="realm" data-display-font="exo" data-table-highlight="cyan-magenta" data-table-head-hover="none" data-lab-view="hub" data-nav-style="solid-flat" data-wing-nav-style="chrome-current" data-wing-segment-variant="muted-wash">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -83,6 +83,41 @@
 				<div class="k2-lab-btn-row">
 					<button type="button" class="k2-lab-btn" data-set-display-font="rajdhani">Rajdhani</button>
 					<button type="button" class="k2-lab-btn is-active" data-set-display-font="exo">Exo 2</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group k2-lab-control-group--leaderboards-only">
+				<span class="k2-lab-control-group__label">Leaderboard wing nav</span>
+				<p class="k2-lab-control-group__hint">Opens <strong>Leaderboards</strong> tab. Hub pills unchanged — compares secondary nav + table header noise.</p>
+				<div class="k2-lab-btn-grid k2-lab-btn-grid--wing-nav">
+					<button type="button" class="k2-lab-btn is-active" data-set-wing-nav-style="chrome-current" title="Production Chrome tabs merged into table header">0 · Current</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-nav-style="segment-track" title="Six views inside one bordered track; gap before table">1 · Segment</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-nav-style="stacked-card" title="Hub + wing in one nav card; table separate below">2 · Stack</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-nav-style="title-switcher" title="Leaderboards — Rating + view dropdown; fewest words">3 · Switcher</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-nav-style="quiet-type" title="Underline active wing; muted column headers">4 · Quiet</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-nav-style="vertical-rail" title="Wing views in left column; table on right">5 · Rail</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group k2-lab-control-group--segment-only" hidden>
+				<span class="k2-lab-control-group__label">Segment active cell</span>
+				<p class="k2-lab-control-group__hint">Works with <strong>1 · Segment</strong> above — how the chosen wing view is highlighted inside the track.</p>
+				<div class="k2-lab-btn-grid k2-lab-btn-grid--segment">
+					<button type="button" class="k2-lab-btn is-active" data-set-wing-segment-variant="muted-wash" title="14% realm tint — current segment default">A · Muted</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-segment-variant="solid-fill" title="Solid realm accent fill — matches hub Segment nav">B · Solid</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-segment-variant="outline-accent" title="Transparent cell with accent outline ring">C · Outline</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-segment-variant="dark-lift" title="Elevated dark cell + left accent bar">D · Dark</button>
+					<button type="button" class="k2-lab-btn" data-set-wing-segment-variant="glow-solid" title="Solid accent with realm glow shadow">E · Glow</button>
+				</div>
+			</div>
+			<div class="k2-lab-control-group">
+				<span class="k2-lab-control-group__label">Table header hover</span>
+				<p class="k2-lab-control-group__hint">Apply globally, then hover headers on <strong>Leaderboards</strong>. Full comparison grid is under <strong>Design tokens</strong>.</p>
+				<div class="k2-lab-btn-grid">
+					<button type="button" class="k2-lab-btn is-active" data-set-table-head-hover="none" title="No hover — current mock default">1 · None</button>
+					<button type="button" class="k2-lab-btn" data-set-table-head-hover="lift" title="Solid dark lift — same family as --k2-bg-hover">2 · Lift</button>
+					<button type="button" class="k2-lab-btn" data-set-table-head-hover="row-match" title="14% realm tint — matches row hover">3 · Row match</button>
+					<button type="button" class="k2-lab-btn" data-set-table-head-hover="bright" title="32% realm wash — current production">4 · Bright</button>
+					<button type="button" class="k2-lab-btn" data-set-table-head-hover="text" title="Background unchanged, accent label text">5 · Text</button>
+					<button type="button" class="k2-lab-btn" data-set-table-head-hover="underline" title="Background unchanged, accent underline">6 · Underline</button>
 				</div>
 			</div>
 			<div class="k2-lab-control-group k2-lab-control-group--tokens-only">
@@ -201,27 +236,49 @@
 		</div>
 
 		<div class="k2-hub-panel" data-hub-panel="leaderboards" hidden>
-			<div class="k2-chrome-tabs">
-				<nav class="k2-chrome-tabs__bar" aria-label="Leaderboard view">
-					<button type="button" class="k2-chrome-tabs__tab is-active" data-lb-tab="rating">Rating</button>
-					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="goals">Goals</button>
-					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="dds">DDs &amp; CSs</button>
-					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="streaks">Streaks</button>
-					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="victims">Victims &amp; Culprits</button>
-					<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="rating-records">Rating records</button>
-				</nav>
-				<div class="k2-table-wrap k2-chrome-tabs__panel">
-				<table class="k2-table">
+			<div class="k2-lb-wing-shell">
+				<div class="k2-lb-wing-context" aria-label="Leaderboard view switcher">
+					<p class="k2-lb-wing-context__title">Leaderboards — <span id="lab-lb-view-label">Rating</span></p>
+					<label class="k2-lb-wing-switcher">
+						<span class="k2-lb-wing-switcher__label">View</span>
+						<select id="lab-lb-view-select" class="k2-lb-wing-switcher__select">
+							<option value="rating" selected>Rating</option>
+							<option value="goals">Goals</option>
+							<option value="dds">DDs &amp; CSs</option>
+							<option value="streaks">Streaks</option>
+							<option value="victims">Victims &amp; Culprits</option>
+							<option value="rating-records">Rating records</option>
+						</select>
+					</label>
+				</div>
+				<div class="k2-lb-nav-stack__hub" aria-hidden="true">
+					<span class="k2-lb-nav-stack__hub-pill">Status</span>
+					<span class="k2-lb-nav-stack__hub-pill is-active">Leaderboards</span>
+					<span class="k2-lb-nav-stack__hub-pill">Games</span>
+					<span class="k2-lb-nav-stack__hub-pill">Trends</span>
+					<span class="k2-lb-nav-stack__hub-pill">Records</span>
+				</div>
+				<div class="k2-chrome-tabs">
+					<nav class="k2-chrome-tabs__bar" aria-label="Leaderboard view">
+						<button type="button" class="k2-chrome-tabs__tab is-active" data-lb-tab="rating">Rating</button>
+						<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="goals">Goals</button>
+						<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="dds">DDs &amp; CSs</button>
+						<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="streaks">Streaks</button>
+						<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="victims">Victims &amp; Culprits</button>
+						<button type="button" class="k2-chrome-tabs__tab" data-lb-tab="rating-records">Rating records</button>
+					</nav>
+					<div class="k2-table-wrap k2-chrome-tabs__panel">
+					<table class="k2-table k2-table--lb-preview">
 					<thead>
 						<tr>
-							<th>Rank</th>
-							<th>Player</th>
-							<th>ELO</th>
-							<th>Peak</th>
-							<th>Games</th>
-							<th>Wins</th>
-							<th>Losses</th>
-							<th>Win ratio</th>
+							<th class="table-sortable">Rank</th>
+							<th class="table-sortable">Player</th>
+							<th class="table-sortable">ELO</th>
+							<th class="table-sortable">Peak</th>
+							<th class="table-sortable">Games</th>
+							<th class="table-sortable">Wins</th>
+							<th class="table-sortable">Losses</th>
+							<th class="table-sortable">Win ratio</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -257,9 +314,10 @@
 						</tr>
 					</tbody>
 				</table>
+					</div>
 				</div>
 			</div>
-			<p class="k2-hub-panel__hint">Wing tabs match the table header row brightness and merge into the panel below.</p>
+			<p class="k2-hub-panel__hint" id="lab-wing-nav-hint">Production Chrome wing tabs — active tab merges into table header (current staging).</p>
 		</div>
 
 		<div class="k2-hub-panel" data-hub-panel="games" hidden>
@@ -502,6 +560,53 @@
 
 	<!-- ── Design tokens (legacy lab sections) ── -->
 	<div id="lab-view-tokens" class="k2-lab-view" hidden>
+
+		<p class="k2-section-label">Table header hover — hover each sample</p>
+		<p class="k2-lab-note">Six options side by side. Pick one in the sidebar to try it on the full Leaderboards table.</p>
+		<div class="k2-lab-head-hover-grid">
+			<div class="k2-lab-head-hover-preview" data-head-hover="none">
+				<p class="k2-lab-head-hover-preview__label">1 · None</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th class="table-sortable">Rank</th><th class="table-sortable">Player</th><th class="table-sortable">ELO</th></tr></thead>
+					<tbody><tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td></tr></tbody>
+				</table>
+			</div>
+			<div class="k2-lab-head-hover-preview" data-head-hover="lift">
+				<p class="k2-lab-head-hover-preview__label">2 · Lift</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th class="table-sortable">Rank</th><th class="table-sortable">Player</th><th class="table-sortable">ELO</th></tr></thead>
+					<tbody><tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td></tr></tbody>
+				</table>
+			</div>
+			<div class="k2-lab-head-hover-preview" data-head-hover="row-match">
+				<p class="k2-lab-head-hover-preview__label">3 · Row match</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th class="table-sortable">Rank</th><th class="table-sortable">Player</th><th class="table-sortable">ELO</th></tr></thead>
+					<tbody><tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td></tr></tbody>
+				</table>
+			</div>
+			<div class="k2-lab-head-hover-preview" data-head-hover="bright">
+				<p class="k2-lab-head-hover-preview__label">4 · Bright (production)</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th class="table-sortable">Rank</th><th class="table-sortable">Player</th><th class="table-sortable">ELO</th></tr></thead>
+					<tbody><tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td></tr></tbody>
+				</table>
+			</div>
+			<div class="k2-lab-head-hover-preview" data-head-hover="text">
+				<p class="k2-lab-head-hover-preview__label">5 · Text</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th class="table-sortable">Rank</th><th class="table-sortable">Player</th><th class="table-sortable">ELO</th></tr></thead>
+					<tbody><tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td></tr></tbody>
+				</table>
+			</div>
+			<div class="k2-lab-head-hover-preview" data-head-hover="underline">
+				<p class="k2-lab-head-hover-preview__label">6 · Underline</p>
+				<table class="k2-table k2-table--compact">
+					<thead><tr><th class="table-sortable">Rank</th><th class="table-sortable">Player</th><th class="table-sortable">ELO</th></tr></thead>
+					<tbody><tr><td>1</td><td><a href="#">Dagh</a></td><td>2327</td></tr></tbody>
+				</table>
+			</div>
+		</div>
 
 		<p class="k2-section-label">Legacy two-row nav (before IA merge)</p>
 		<ul class="k2-tabs">

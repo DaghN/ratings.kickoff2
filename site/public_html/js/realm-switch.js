@@ -1,0 +1,123 @@
+/**
+ * Realm switcher + optional accent tune (hub preview pills).
+ * Re-clicking the active realm clears accent tune back to realm default.
+ */
+(function () {
+    'use strict';
+
+    var root = document.documentElement;
+    var REALM_KEY = 'k2-realm';
+    var ACCENT_KEY = 'k2-accent-tune';
+    var VALID_ACCENTS = ['chrome', 'signal', 'lagoon', 'phosphor', 'pulse', 'holo', 'ember'];
+
+    function dispatchChange() {
+        document.dispatchEvent(new CustomEvent('k2-realm-change', {
+            detail: {
+                realm: root.getAttribute('data-realm') || 'online',
+                accent: root.getAttribute('data-k2-accent') || null
+            }
+        }));
+    }
+
+    function syncRealmButtons() {
+        var realm = root.getAttribute('data-realm') || 'online';
+        document.querySelectorAll('.k2-realm-switch__btn').forEach(function (btn) {
+            var on = btn.getAttribute('data-realm') === realm;
+            btn.classList.toggle('is-active', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
+
+    function syncAccentButtons() {
+        var accent = root.getAttribute('data-k2-accent') || '';
+        document.querySelectorAll('.k2-accent-pills__btn').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-k2-accent') === accent);
+            btn.setAttribute('aria-pressed', btn.getAttribute('data-k2-accent') === accent ? 'true' : 'false');
+        });
+    }
+
+    function clearAccentTune() {
+        root.removeAttribute('data-k2-accent');
+        try {
+            sessionStorage.removeItem(ACCENT_KEY);
+        } catch (e) {
+            /* ignore */
+        }
+        syncAccentButtons();
+    }
+
+    function setAccentTune(accent) {
+        if (VALID_ACCENTS.indexOf(accent) === -1) {
+            return;
+        }
+        root.setAttribute('data-k2-accent', accent);
+        try {
+            sessionStorage.setItem(ACCENT_KEY, accent);
+        } catch (e) {
+            /* ignore */
+        }
+        syncAccentButtons();
+        dispatchChange();
+    }
+
+    function setRealm(realm) {
+        if (realm !== 'online' && realm !== 'amiga') {
+            realm = 'online';
+        }
+        root.setAttribute('data-realm', realm);
+        try {
+            localStorage.setItem(REALM_KEY, realm);
+        } catch (e) {
+            /* ignore */
+        }
+        syncRealmButtons();
+        dispatchChange();
+    }
+
+    function init() {
+        var savedRealm = null;
+        var savedAccent = null;
+        try {
+            savedRealm = localStorage.getItem(REALM_KEY);
+            savedAccent = sessionStorage.getItem(ACCENT_KEY);
+        } catch (e) {
+            /* ignore */
+        }
+
+        if (savedRealm === 'online' || savedRealm === 'amiga') {
+            root.setAttribute('data-realm', savedRealm);
+        }
+        syncRealmButtons();
+
+        if (savedAccent && VALID_ACCENTS.indexOf(savedAccent) !== -1) {
+            root.setAttribute('data-k2-accent', savedAccent);
+        }
+        syncAccentButtons();
+
+        document.querySelectorAll('.k2-realm-switch__btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var realm = btn.getAttribute('data-realm') || 'online';
+                var current = root.getAttribute('data-realm') || 'online';
+                clearAccentTune();
+                if (realm !== current) {
+                    setRealm(realm);
+                } else {
+                    dispatchChange();
+                }
+            });
+        });
+
+        document.querySelectorAll('.k2-accent-pills__btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                setAccentTune(btn.getAttribute('data-k2-accent') || '');
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+

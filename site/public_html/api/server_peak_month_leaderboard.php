@@ -3,8 +3,6 @@
  * JSON top players by personal peak calendar month (most games in one month).
  *
  * GET: realm (default online), limit (default 20, max 100)
- * One row per player (their best month). Ties on game count: earlier month wins.
- * Leaderboard ties: higher games first, then earlier peak month.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -36,6 +34,7 @@ if ($realm !== 'online') {
 }
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/peak_month_leaderboard_query.php';
 
 $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if ($con->connect_errno) {
@@ -45,43 +44,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
-
-$limitSql = (int) $limit;
-
-$sql = 'SELECT player_id, player_name, ym, games FROM ('
-    . 'SELECT pm.player_id, p.Name AS player_name, pm.ym, pm.games, '
-    . 'ROW_NUMBER() OVER (PARTITION BY pm.player_id ORDER BY pm.games DESC, pm.ym ASC) AS rn '
-    . 'FROM ('
-    . 'SELECT player_id, ym, COUNT(*) AS games FROM ('
-    . 'SELECT idA AS player_id, DATE_FORMAT(`Date`, \'%Y-%m\') AS ym FROM ratedresults '
-    . 'UNION ALL '
-    . 'SELECT idB AS player_id, DATE_FORMAT(`Date`, \'%Y-%m\') AS ym FROM ratedresults'
-    . ') AS appearances GROUP BY player_id, ym'
-    . ') AS pm INNER JOIN playertable p ON p.ID = pm.player_id'
-    . ') AS best_month WHERE rn = 1 '
-    . 'ORDER BY games DESC, ym ASC LIMIT ' . $limitSql;
-
-$res = mysqli_query($con, $sql);
-if ($res === false) {
-    http_response_code(500);
-    echo json_encode(['error' => 'query_failed']);
-    mysqli_close($con);
-    exit;
-}
-
-$entries = [];
-$rank = 0;
-while ($row = mysqli_fetch_assoc($res)) {
-    $rank++;
-    $entries[] = [
-        'rank' => $rank,
-        'player_id' => (int) $row['player_id'],
-        'player_name' => $row['player_name'],
-        'month' => $row['ym'],
-        'games' => (int) $row['games'],
-    ];
-}
-
+$entries = k2_peak_month_leaderboard_entries($con, $limit);
 mysqli_close($con);
 
 echo json_encode([

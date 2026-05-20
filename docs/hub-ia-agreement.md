@@ -3,8 +3,7 @@
 Record of decisions from the theme-lab / navigation IA conversation (May 2026).
 Consult before staging production changes. Mock reference: `site/public_html/theme-lab.html`.
 
-**Status:** agreed direction — **Phase A not yet implemented** on production PHP pages.
-Structural design is locked; details iterate in theme lab. Mock reference: `site/public_html/theme-lab.html`.
+**Status:** agreed direction — **Phase A implemented in repo** (May 2026). Structural design locked; Status live feed remains **Phase B**. Mock reference: `site/public_html/theme-lab.html`.
 
 ---
 
@@ -71,13 +70,12 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 Committed and pushed earlier; not re-opened unless noted below.
 
 - Site-wide dark theme on main PHP pages (`theme.css`, `site_header.php`, ranked/server/individual pages, etc.).
-- Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, online green accent, Amiga amber links when `data-realm="amiga"`, Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
+- Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, realm accents (see `theme.css` — **TEST swap** may differ from locked lab defaults), Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
 - Realm switcher: full-opacity active pill + glow (no disabled washout).
 - Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
 - Theme lab exists for experiments (`theme-lab.html`, `theme-lab.css`, `theme-lab.js`).
-- Nav IA refactor on production: explicitly **not done** — legacy `#aboutmenu` rows remain on staged pages.
-
-Mock-only: navigation IA evolved in `theme-lab.*`; production pages unchanged for hub/status/nav.
+- **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + staging accent preview pills), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
+- Legacy `#aboutmenu` rows may still exist on some pages — remove when all entry points use shared nav.
 
 ---
 
@@ -178,6 +176,8 @@ Global hub nav replaced by player context:
 | Item | Decision |
 |------|----------|
 | Home + player pills | **Solid flat** — full realm fill, dark label, no glow halo. |
+| Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — promoted from theme-lab; not the earlier chrome-wing mock. |
+| Hub accent preview pills | **Staging lab** — seven named tints; sessionStorage tune; re-click realm clears. Launch TBD. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
 | Bold neon grid | **Remove background grid** on C (lab done; promote to theme.css when staging). |
 | Neon rail, boxed default, solid glow, etc. | Lab comparisons only — production = **flat solid**. |
@@ -261,4 +261,4 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 
 ---
 
-*Last updated: May 2026 — IA conversation + phased staging split.*
+*Last updated: May 2026 — Phase A shipped in repo; accent pills + segment wing nav documented.*

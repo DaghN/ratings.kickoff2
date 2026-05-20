@@ -18,9 +18,9 @@
 
 
 
-- **Design / cosmetics track:** Phase 1 **done locally** — `theme.css`, `chart-theme.js`, `site_header.php` on `ranked1.php`, `server1.php`, `individual1.php`. **Next:** deploy staging + phase 2 roll-out.
+- **Design / cosmetics track:** **Phase A hub shell shipped in repo** (May 2026) — shared `hub_nav.php`, `lb_nav.php`, segment-track wing tabs, `theme_boot_head.php` (FOUC fix), staging **accent preview pills** (`realm-switch.js`), expanded `theme.css`. **TEST swap** in CSS: online → amber, amiga → green (revert or lock before launch). **Next:** WinSCP sync to staging; decide accent pills (keep / collapse / remove for launch); Status **Phase B** live feed.
 
-- **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
+- **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. **Peak month hall of fame** on `server1.php` now **server-rendered** (`peak_month_leaderboard_query.php` + table include; JS fetch removed). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
 
 - **Product tone (Dagh direction):** keep the ladder **truthful and data-rich** for regulars, but make the site feel **inclusive, playful, and inviting** — not discouraging. **Player profile (`individual1.php`) “above the fold”** should feel **active, fun, and welcoming** (stories and participation first); deeper / comparative analytics (win rate vs rating, H2H compare, etc.) **lower or grouped** (“matchup lab”), not the first impression.
 
@@ -158,18 +158,21 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 
 
-1. **Deploy phase 1 theme** — WinSCP sync → hard refresh `ranked1.php`, `server1.php`, `individual1.php` on staging.
-2. **Phase 2:** roll `theme.css` + `site_header.php` to remaining PHP pages.
+1. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub + ranked + server pages.
 
-2. **Profile first screen:** welcoming layout — fun stats / activity / rating story up front; tuck comparative charts.
+2. **Launch polish:** revert or confirm **TEST realm accent swap**; decide fate of **seven accent preview pills** on hub row (staging lab vs prod).
 
-3. **Fun stats block (v1 brainstorm):** biggest win, biggest draw, busiest month, goal-rich month, longest win streak, goal-festival game; pull from existing `playertable` + monthly SQL on `ratedresults`; playful section title (e.g. trophy cabinet). **Exclude** longest game; keep harsh rows (biggest loss) in full table only.
+3. **Profile first screen:** welcoming layout — fun stats / activity / rating story up front; tuck comparative charts.
 
-4. **Tone pass:** chart titles/helper copy — context, sample size, “rematch story” not report-card (see chat on inclusive analytics).
+4. **Fun stats block (v1 brainstorm):** biggest win, biggest draw, busiest month, goal-rich month, longest win streak, goal-festival game; pull from existing `playertable` + monthly SQL on `ratedresults`; playful section title (e.g. trophy cabinet). **Exclude** longest game; keep harsh rows (biggest loss) in full table only.
 
-5. **Dev DB workflow:** document migration habit (`schema/` SQL files, dev → staging test → Steve prod); ladder-engine sandbox work on dev.
+5. **Tone pass:** chart titles/helper copy — context, sample size, “rematch story” not report-card (see chat on inclusive analytics).
 
-6. **Optional:** local `ko2unitydb_config.php` template from Steve; align laptop + staging config shapes (gitignored only).
+6. **Dev DB workflow:** document migration habit (`schema/` SQL files, dev → staging test → Steve prod); ladder-engine sandbox work on dev.
+
+7. **Optional:** local `ko2unitydb_config.php` template from Steve; align laptop + staging config shapes (gitignored only).
+
+8. **Status Phase B** — real live feed on hub default (Steve / API); bridge page until then.
 
 
 
@@ -185,6 +188,8 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 |----------------|------|
 
+| 2026-05 | **Cosmetics wrap-up:** segment-track + outline wing nav on ranked pages; hub accent preview pills + `realm-switch.js`; `theme_boot_head.php` sync realm/accent before paint; Games hub 7-day window (min 50 fallback), no table pager; `individual3` 100 games/page; peak-month leaderboard SSR on Trends. |
+| 2026-05 | **Phase A hub nav** on production PHP — `hub_nav.php`, `status.php` bridge, wing tabs via `lb_nav.php`; theme-lab wing/segment experiments promoted to `theme.css`. |
 | 2026-05 | **Theme lab:** `theme-lab.html`, `stylesheets/theme-lab.css`, `js/theme-lab.js` — interactive neon/realm/amiga-accent/display-font preview. |
 | 2026-05 | **`docs/design-direction.md`** — cosmetics track: neon noir theme, realm colors, Tailwind mock-only, theme lab plan, player media notes (photos, YouTube). |
 | 2026-05 | **Profile:** rating-by-game-number chart (`player-rating-game-chart.js`); `player_rating_history.php` uses `NewRatingA`/`NewRatingB` + `gameNumber`. |

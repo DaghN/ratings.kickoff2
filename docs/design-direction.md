@@ -1,6 +1,6 @@
 # Kick Off 2 ratings — design direction & cosmetics plan
 
-**Status:** Agreed direction (May 2026). **Theme lab built** — open `theme-lab.html` locally (Laragon: `https://ratingskickoff.test/theme-lab.html`) or on staging after deploy. Production CSS rollout **not yet started**.
+**Status:** Agreed direction (May 2026). **Theme lab** + **Phase A hub shell** shipped in repo. Staging URL: `https://ratings.kickoff2.com` (WinSCP deploy; not auto from `git push`). Open before launch: **TEST realm accent swap**, **accent preview pills** on hub row.
 
 **Audience:** Dagh and Cursor agents. Captures **design decisions from discussion** so we do not re-derive them from chat history.
 
@@ -301,13 +301,19 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 | Phase | Work | Risk |
 |-------|------|------|
 | **0** | This doc + theme lab | None |
-| **1** | **Production theme (phase 1 — shipped locally):** `theme.css`, `chart-theme.js`, `includes/site_header.php`, dark tables + chrome on `ranked1.php`, `server1.php`, `individual1.php`. **Next:** WinSCP to staging; roll chrome to remaining pages (phase 2). |
-| **2** | `elolist.css` dark table pass | Low — high visual impact |
-| **3** | PHP include: header + realm switcher; wire 2–3 pages | Low |
-| **4** | Roll chrome to remaining pages | Medium — many files, mechanical |
-| **5** | Player hero styling on `individual1.php` (containers only) | Low if no content reorder |
-| **6** | Live with staging; tune glow/contrast | — |
+| **1** | Site-wide dark theme + shared header | **Done** |
+| **2** | `elolist.css` dark table pass | **Done** |
+| **3–4** | Hub nav (`hub_nav.php`), wing tabs (`lb_nav.php`), Status bridge, theme on ranked/server/individual pages | **Done in repo** — deploy via WinSCP |
+| **5** | Player hero styling on `individual1.php` (containers only) | Partial — layout simplified; full feast later |
+| **6** | Live staging tune; launch decisions (accent pills, realm defaults, `<title>` rename) | **In progress** |
 | **Later** | Content track: profile reorder, fun stats, dashboard, media embeds | Separate slices |
+
+**Cosmetics additions (May 2026, staging-oriented):**
+
+- **Leaderboard wing nav:** segment track + outline active cell (promoted from theme-lab); table detached from wing bar (~12px gap); `.k2-chrome-tabs` max-width 1200px.
+- **Hub accent preview pills:** seven neon-named tints (`data-k2-accent` on `<html>`); `js/realm-switch.js`; re-click active realm clears tune. **Staging lab only** — collapse or remove for public launch unless Dagh keeps a subtle “cockpit tint” control.
+- **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).
+- **TEST swap (temporary):** `theme.css` comment — online realm uses amber, amiga uses green (inverse of locked lab choice); revert or confirm before launch.
 
 **Change style:** small, reversible slices — same as `PROJECT_BRIEF.md`.
 
@@ -335,6 +341,8 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 ### Still open (minor — decide during production pass, not more mock rounds)
 
+- [ ] **Accent preview pills** on hub row — keep for launch, collapse to 3–4, or remove (currently staging lab)
+- [ ] **TEST realm accent swap** in `theme.css` (online amber / amiga green) — revert to locked lab defaults or adopt
 - [ ] **Link colour** when online accent is also green — keep `#9ccc65` links or shift links to `#aed581` / teal for hover distinction?
 - [ ] Exact surface hex fine-tune (`--k2-bg-page`, `--k2-bg-surface`) — current values OK unless staging feels too dark/light
 - [ ] When to rename `<title>` from “KOOL Rating” to “Kick Off 2 ratings”
@@ -364,4 +372,4 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 ---
 
-*Last updated: May 2026 — from design discussion between Dagh and Cursor agents.*
+*Last updated: May 2026 — Phase A hub shell + wing nav shipped; accent pills + TEST swap on staging.*

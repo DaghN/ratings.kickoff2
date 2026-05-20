@@ -4,6 +4,7 @@
  * finishes (class ranked-table-pending on the table). Without JS, html never gets ranked-js and
  * tables stay visible. Fallback timer clears pending if init never runs (e.g. script error).
  */
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/theme_boot_head.php";
 ?>
 <script type="text/javascript">
 (function () {
