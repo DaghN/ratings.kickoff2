@@ -185,6 +185,37 @@ body.k2-site h1 {
 	color: var(--k2-text-primary);
 }
 
+/* EXPERIMENT: kickoff2.com-style banner wordmark — revert via k2_experiments.php */
+.k2-site-header--banner-experiment {
+	align-items: center;
+}
+
+.k2-wordmark--banner {
+	flex: 1 1 280px;
+	min-width: 0;
+	max-width: 520px;
+}
+
+.k2-wordmark--banner .k2-wordmark__link {
+	display: block;
+	line-height: 0;
+}
+
+.k2-wordmark__banner {
+	display: block;
+	width: 100%;
+	max-width: 420px;
+	height: auto;
+	max-height: 64px;
+	object-fit: contain;
+	object-position: left center;
+}
+
+.k2-site-header--banner-experiment .k2-site-header__links {
+	flex: 1 1 260px;
+	justify-content: flex-end;
+}
+
 .k2-wordmark__sub {
 	font-size: 0.72em;
 	font-weight: 500;
