@@ -4,10 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Kick Off 2 ratings</title>
 
-<link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
-<link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
-<link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/favicon_head.php"; ?>
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 

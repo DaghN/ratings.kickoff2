@@ -1600,12 +1600,6 @@ a:hover {
 	background: var(--k2-realm-accent-muted);
 }
 
-.k2-table tbody tr.k2-table__rank-1 td:first-child {
-	font-weight: 700;
-	color: var(--k2-realm-accent);
-	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
-}
-
 .k2-table a {
 	color: var(--k2-link);
 }

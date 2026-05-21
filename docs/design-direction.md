@@ -111,11 +111,11 @@ These Material-inspired accents on dark UI were chosen during the chart wave and
 | Chart coral | `#ff8a65` | Goals |
 | Chart teal | `#4db6ac` | Distributions |
 | Chart purple | `#ba68c8` | Cumulative growth |
-| Text primary | `#e3e3e3` | Body on dark |
-| Text muted | `#b0b0b0` | Helper copy, axis labels |
+| Text primary | `#e6edf3` | Body on dark (`--k2-text-primary` in `theme.css`) |
+| Text muted | `#8b949e` | Helper copy, chart subtitles, axis labels (`--k2-text-muted`) |
 | Grid subtle | `rgba(255, 255, 255, 0.08)` | Chart grids |
 
-Chart files currently hardcode these — later consolidate in `js/chart-theme.js` (read CSS variables or single constant object).
+Chart.js reads these via `js/chart-theme.js` from CSS variables. Chart block subtitles in PHP use inline `var(--k2-text-muted)` (replaced legacy `main2` `#b0b0b0`).
 
 ### Global surface tokens (production target)
 
@@ -148,26 +148,25 @@ Mechanism:
 [data-realm="amiga"]   { --k2-realm-accent: #ffb74d; /* TBD */ }
 ```
 
-Shared chart multi-color series stay **realm-neutral**; realm accent used for chrome (active tab underline, hero strip, switcher, rank badge).
+Shared chart multi-color series stay **realm-neutral**; realm accent used for chrome (active tab underline, hero strip, switcher).
 
-### Neon intensity (TBD — compare in theme lab)
+### Neon intensity (locked for production — May 2026)
 
-Same components, three token presets:
+**Production (`theme.css`):** **C · Bold** — `--k2-glow-strength: 0.55`, `--k2-accent-glow-blur: 18px`. Used on **active realm switcher** and **player hero avatar ring** only (not site-wide glow).
+
+**Theme lab** still exposes A/B/C toggles for comparison. Lab mock does not use a special rank-#1 row style.
 
 | Level | Name | Character |
 |-------|------|-----------|
-| **A** | Subtle | Dark surfaces; accents only on interactive + charts; minimal glow |
-| **B** | Moderate | Thin neon borders on active tabs; soft glow on rank #1; realm underline |
-| **C** | Bold | Visible grid texture; stronger glow; realm-colored hero strip |
-
-**Dagh has no fixed preference yet** — test A/B/C on mock and choose by feel.
+| **A** | Subtle | No accent glow (`strength: 0`) |
+| **B** | Moderate | Light halo (`0.25` / `12px`) |
+| **C** | Bold ✓ production | Stronger halo on realm + hero (`0.55` / `18px`) |
 
 ### Known visual debt (fix during theme rollout)
 
-- `main2.css` — dark `:root` variables and tab chrome.
-- ~~`elolist.css` — legacy light-green table stripes~~ **Pruned (medium refactor, May 2026);** theme.css owns `.k2-table` look.
-- ~~Legacy header/logo CSS in `main2.css` unused by current pages.~~ **Pruned (medium refactor, May 2026).**
-- ~18 PHP files duplicate nav HTML — only `includes/player_search_bar.php` and `ranked_table_cloak_head.php` exist today.
+- ~~`main2.css`~~ **Removed (May 2026);** all tokens in `theme.css` (`--k2-*`). Themed pages load `includes/k2_head.php`.
+- ~~`elolist.css` — legacy light-green table stripes~~ **Pruned (medium refactor, May 2026);** theme.css owns `.k2-table` look. `elolist.css` kept as companion to `elolist.js` (sort/cloak hooks).
+- ~~~18 PHP files duplicate CSS `<head>` blocks~~ **Replaced with `includes/k2_head.php` (May 2026).**
 
 ---
 
@@ -263,7 +262,7 @@ Supports multiple clips (WC finals, highlights), realm-specific curation, orderi
 ### Production stack (default path)
 
 - **No build step required** — matches WinSCP deploy (`site/public_html/` → server).
-- **CSS custom properties** in `stylesheets/theme.css` (new) or expanded `main2.css`.
+- **CSS custom properties** in `stylesheets/theme.css`; shared load via `includes/k2_head.php`.
 - **Plain CSS component classes** — e.g. `.k2-site-header`, `.k2-realm-switch`, `.k2-tabs`, `.k2-card`, `.k2-player-hero`, `.k2-table`.
 - **`js/chart-theme.js`** — single source for Chart.js colors aligned with CSS tokens.
 - **PHP includes** for shared header/chrome (start with 2–3 pages, expand).
@@ -278,7 +277,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 | Tailwind CDN | **Theme lab mock only** (fast iteration) | No |
 | Tailwind CLI → committed CSS | Optional later if utility workflow sticks | Yes |
 
-**Why not site-wide Tailwind yet:** no `package.json`; 18 legacy PHP pages; `elolist.css` table system; WinSCP sync loop; chart colors still need shared tokens anyway.
+**Why not site-wide Tailwind yet:** no `package.json`; many legacy PHP pages; `elolist.css` + `elolist.js` table system; WinSCP sync loop; chart colors use shared `--k2-*` tokens via `chart-theme.js`.
 
 **Workflow:** prototype in theme lab with Tailwind CDN if helpful → **extract winning tokens** to plain CSS → mock stays throwaway or Laragon-only until approved.
 
@@ -343,7 +342,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 ### Locked (Dagh, May 2026 — theme lab approved)
 
-- [x] **Neon intensity:** **A · Subtle**
+- [x] **Neon intensity:** **C · Bold** (production `theme.css`; realm switcher + player hero avatar)
 - [x] **Display font:** **Exo 2**
 - [x] **Amiga realm accent:** **Amber** (`#ffb74d`)
 - [x] **Online realm accent:** **Green** (`#9ccc65`) — warmer than blue; cohesive with chart palette
@@ -375,10 +374,11 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 - **Do not** commit secrets or DB credentials.
 - **Do not** adopt site-wide Tailwind without explicit Dagh approval and a documented build/deploy step.
 - **Do** read this doc before cosmetics/CSS work.
-- **Do** preserve dense table functionality (`elolist.js` behavior untouched during styling).
+- **Do** add themed page assets via `includes/k2_head.php` (not duplicated `<link>` blocks).
+- **Do** preserve dense table functionality (`elolist.js` behavior untouched during styling); keep `elolist.css` as the JS companion sheet.
 - **Do** use realm-neutral naming in new chrome.
 - After completing a cosmetics slice: one line in `PROJECT_MEMORY.md` Recent log; update open decisions above if resolved.
 
 ---
 
-*Last updated: May 2026 — Phase A hub shell + wing nav shipped; accent pills + TEST swap on staging.*
+*Last updated: May 2026 — `k2_head.php`, `main2.css` removed, production neon C, `--k2-text-muted` for chart helpers.*

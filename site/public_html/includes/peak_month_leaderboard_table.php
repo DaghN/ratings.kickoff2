@@ -33,8 +33,8 @@ if (!isset($k2PeakMonthEntries)) {
 }
 ?>
 <div class="server-peak-month-leaderboard">
-    <p style="margin: 0 0 4px 0; color: var(--color-text-primary, #e3e3e3);">Busiest month hall of fame</p>
-    <p style="margin: 0 0 4px 0; color: var(--color-text-muted, #b0b0b0); font-size: 0.9em;">Top <?php echo (int) $k2PeakMonthLimit; ?> players by most rated games in a single calendar month (each player’s personal best only). Ties: earlier month wins.</p>
+    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">Busiest month hall of fame</p>
+    <p style="margin: 0 0 4px 0; color: var(--k2-text-muted, #8b949e); font-size: 0.9em;">Top <?php echo (int) $k2PeakMonthLimit; ?> players by most rated games in a single calendar month (each player’s personal best only). Ties: earlier month wins.</p>
 <?php if (!empty($k2PeakMonthQueryError)) { ?>
     <p class="server-peak-month-leaderboard-status" style="margin: 0 0 8px 0;">Could not load peak month leaderboard.</p>
 <?php } elseif (!$k2PeakMonthEntries) { ?>

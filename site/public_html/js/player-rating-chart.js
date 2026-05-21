@@ -127,7 +127,7 @@
                         : ' (' + gap + ' below peak)';
                     summary.innerHTML = 'Current: <strong>' + stats.current + '</strong>'
                         + ' &nbsp;&middot;&nbsp; Peak: <strong>' + stats.peak + '</strong>'
-                        + ' <span style="color: var(--color-text-muted, #b0b0b0); font-size: 0.92em;">'
+                        + ' <span style="color: var(--k2-text-muted, #8b949e); font-size: 0.92em;">'
                         + 'on ' + peakWhen + gapText + '</span>';
                     summary.style.display = 'block';
                 }

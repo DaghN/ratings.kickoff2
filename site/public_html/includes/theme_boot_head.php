@@ -1,7 +1,7 @@
 <?php
 /**
  * Apply saved realm / accent tune before first paint (prevents amber flash on navigation).
- * Include in <head> after theme.css, or at top of site_header (body) as fallback.
+ * Loaded from includes/k2_head.php in <head> (after theme.css).
  */
 ?>
 <script type="text/javascript">

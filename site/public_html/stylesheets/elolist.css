@@ -1,6 +1,6 @@
 /**
- * elolist.js table behavior hooks + ranked leaderboard helpers.
- * Table look-and-feel: theme.css (.k2-table). Legacy table.example rules removed May 2026.
+ * Companion to js/elolist.js — table behavior hooks (sort, ranked FOUC cloak, column min-width).
+ * Visual styling: theme.css (.k2-table).
  */
 
 /* ranked1.php–ranked6.php: keep Player column from shrinking when page composition changes after sort */

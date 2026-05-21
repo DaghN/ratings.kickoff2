@@ -2,7 +2,7 @@
 
 /**
  * Kick Off 2 ratings — production theme.
- * Locked: subtle neon, Exo 2, cyan/magenta table highlights.
+ * Bold neon (C): glow on active realm switcher + player hero avatar. Exo 2, cyan/magenta table highlights.
  * TEST: realm accent swap — online uses amber, amiga uses green.
  */
 
@@ -211,7 +211,7 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 	text-decoration: none;
 }
 
-/* ── Player search (theme-only; not in main2.css) ── */
+/* ── Player search ── */
 body.k2-site .player-search {
 	position: relative;
 	margin: 0;
@@ -567,12 +567,6 @@ body.k2-site .k2-table tbody tr.alternate {
 
 body.k2-site .k2-table tbody tr:hover {
 	background: var(--k2-realm-accent-muted);
-}
-
-body.k2-site .k2-table tbody tr.k2-table__rank-1 td:first-child {
-	font-weight: 700;
-	color: var(--k2-realm-accent);
-	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
 }
 
 body.k2-site .k2-table thead .goalcounter,

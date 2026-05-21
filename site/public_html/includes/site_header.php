@@ -2,8 +2,8 @@
 /**
  * Shared site chrome — wordmark, header search, realm switcher.
  * Requires <html data-realm="online"> and body.k2-site on themed pages.
+ * Realm/accent boot runs from includes/k2_head.php in <head>.
  */
-include $_SERVER["DOCUMENT_ROOT"] . "/includes/theme_boot_head.php";
 ?>
 <header class="k2-site-header">
 	<h1 class="k2-wordmark">

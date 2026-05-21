@@ -18,7 +18,7 @@
 
 
 
-- **Design / cosmetics track:** **Phase A hub shell shipped in repo** (May 2026) — shared `hub_nav.php`, `lb_nav.php`, segment-track wing tabs, `theme_boot_head.php` (FOUC fix), staging **accent preview pills** (`realm-switch.js`), expanded `theme.css`. **TEST swap** in CSS: online → amber, amiga → green (revert or lock before launch). **Next:** WinSCP sync to staging; decide accent pills (keep / collapse / remove for launch); Status **Phase B** live feed.
+- **Design / cosmetics track:** **Phase A hub shell shipped** — `includes/k2_head.php` (shared CSS + `theme_boot_head` in `<head>`), **`main2.css` removed** (all `--k2-*` in `theme.css`), production **neon C**, chart helpers use `--k2-text-muted` (`#8b949e`). Staging **accent preview pills** kept for now; **TEST realm accent swap** in CSS (revert or lock before launch). **Next:** WinSCP sync refactor to staging; Status **Phase B** live feed; realm switcher behavior when Amiga data exists.
 
 - **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. **Peak month hall of fame** on `server1.php` now **server-rendered** (`peak_month_leaderboard_query.php` + table include; JS fetch removed). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
 
@@ -190,6 +190,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 |----------------|------|
 
+| 2026-05 | **CSS hygiene:** `k2_head.php`; deleted `main2.css`; `--k2-*` tokens for chart subtitles; neon C documented; removed unused rank-#1 table glow; `theme_boot` only in `<head>`. |
 | 2026-05 | **Cosmetics wrap-up:** segment-track + outline wing nav on ranked pages; hub accent preview pills + `realm-switch.js`; `theme_boot_head.php` sync realm/accent before paint; Games hub 7-day window (min 50 fallback), no table pager; `individual3` 100 games/page; peak-month leaderboard SSR on Trends. |
 | 2026-05 | **Phase A hub nav** on production PHP — `hub_nav.php`, `status.php` bridge, wing tabs via `lb_nav.php`; theme-lab wing/segment experiments promoted to `theme.css`. |
 | 2026-05 | **Theme lab:** `theme-lab.html`, `stylesheets/theme-lab.css`, `js/theme-lab.js` — interactive neon/realm/amiga-accent/display-font preview. |
