@@ -14,6 +14,10 @@ site/config/ladder.ini
 # Laragon Apache shim build artifacts
 laragon/*.exe
 
+# Python
+__pycache__/
+*.py[cod]
+
 # OS / editor noise
 .DS_Store
 Thumbs.db

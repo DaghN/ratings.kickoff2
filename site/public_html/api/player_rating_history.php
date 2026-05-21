@@ -46,7 +46,7 @@ if ($con->connect_errno) {
 
 $con->set_charset('utf8mb4');
 
-$nameStmt = $con->prepare('SELECT Name FROM playertable WHERE ID = ? LIMIT 1');
+$nameStmt = $con->prepare('SELECT Name, Rating FROM playertable WHERE ID = ? LIMIT 1');
 if (!$nameStmt) {
     http_response_code(500);
     echo json_encode(['error' => 'prepare_failed']);
@@ -72,6 +72,7 @@ if ($nameRow === null) {
 }
 
 $playerName = $nameRow['Name'];
+$currentRating = (int) round((float) $nameRow['Rating']);
 
 $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
     . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
@@ -109,5 +110,6 @@ echo json_encode([
     'realm' => $realm,
     'playerId' => $playerId,
     'playerName' => $playerName,
+    'currentRating' => $currentRating,
     'points' => $points,
 ]);

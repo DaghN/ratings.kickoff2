@@ -6,6 +6,7 @@
     'use strict';
 
     var T = window.K2ChartTheme;
+    var DR = window.K2ChartDateRange;
 
     var API_PATH = 'api/player_rating_history.php';
 
@@ -30,8 +31,10 @@
         return chartData;
     }
 
-    function peakAndCurrent(chartData) {
-        var current = chartData[chartData.length - 1].y;
+    function peakAndCurrent(chartData, currentRating) {
+        var current = typeof currentRating === 'number' && !isNaN(currentRating)
+            ? currentRating
+            : chartData[chartData.length - 1].y;
         var peak = chartData[0].y;
         var peakIndex = 0;
         for (var i = 1; i < chartData.length; i++) {
@@ -101,7 +104,14 @@
                     return;
                 }
 
-                var stats = peakAndCurrent(chartData);
+                var currentRating = typeof data.currentRating === 'number'
+                    ? data.currentRating
+                    : chartData[chartData.length - 1].y;
+                if (DR && DR.appendRatingThroughToday) {
+                    chartData = DR.appendRatingThroughToday(chartData, currentRating);
+                }
+
+                var stats = peakAndCurrent(chartData, currentRating);
                 var peakLine = horizontalLine(chartData, stats.peak);
                 var currentLine = horizontalLine(chartData, stats.current);
 
@@ -197,6 +207,7 @@
                         scales: {
                             x: {
                                 type: 'time',
+                                max: DR ? DR.endOfToday() : undefined,
                                 time: {
                                     displayFormats: {
                                         year: 'yyyy',

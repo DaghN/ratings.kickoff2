@@ -199,7 +199,7 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 | Phase | Deliverable |
 |-------|-------------|
 | **P0 — Spec v1** | **`docs/replay-v1-scope-and-reset.md`** — locked scope, reset manifest, minimal `apply_game` write set. |
-| **P1 — Online dev replay** | Python `reset` + `replay_all` on sandbox; no decay; agreed K and start rating. |
+| **P1 — Online dev replay** | **`scripts/ladder/`** — `reset` + `replay_all` on sandbox (done locally May 2026). |
 | **P2 — Validate** | Staging charts, ranked order, spot-check players; note deltas vs old prod numbers. |
 | **P3 — Offline schema + import** | How Amiga raw data maps to vocabulary; player-from-results. |
 | **P4 — Offline replay** | Second track scripts; separate DB connection. |

@@ -49,7 +49,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
  */
 function rating_history_for_player(mysqli $con, int $targetId): ?array
 {
-    $nameStmt = $con->prepare('SELECT Name FROM playertable WHERE ID = ? LIMIT 1');
+    $nameStmt = $con->prepare('SELECT Name, Rating FROM playertable WHERE ID = ? LIMIT 1');
     if (!$nameStmt) {
         return null;
     }
@@ -95,6 +95,7 @@ function rating_history_for_player(mysqli $con, int $targetId): ?array
     return [
         'playerId' => $targetId,
         'playerName' => $nameRow['Name'],
+        'currentRating' => (int) round((float) $nameRow['Rating']),
         'points' => $points,
     ];
 }

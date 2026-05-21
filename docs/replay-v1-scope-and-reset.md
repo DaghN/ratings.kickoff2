@@ -1,6 +1,6 @@
 # Replay v1 — locked scope & reset manifest (P0)
 
-**Status:** Locked for local sandbox (**May 2026**). **No Python in repo yet** — this doc is what `reset_universe` and `apply_game` must implement in P1.
+**Status:** **P1 implemented** (`scripts/ladder/`, May 2026). Verified on local **`ko2unity_db`**: 74,870 games replayed; 0 NULL `NewRating*`; draws `WinnerID = -1` (9,053).
 
 **Authority:** Product intent in `docs/ladder-engine-plan.md`. If this doc and that plan disagree on v1 scope, **this doc wins** until Dagh says otherwise.
 
@@ -164,16 +164,16 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 
 ---
 
-## 9. Next step (P1)
+## 9. P1 implementation
 
-Implement in Python (layout TBD, e.g. `scripts/ladder/`):
+| Piece | Location |
+|-------|----------|
+| CLI | `python -m scripts.ladder` — `reset`, `replay`, `run` |
+| Code | `scripts/ladder/` (`engine.py`, `outcome.py`, `elo.py`) |
+| Config | `site/config/ladder.ini` (from `ladder.ini.example`) |
+| Usage | `scripts/ladder/README.md` |
 
-1. `reset_universe()` per §4–§5  
-2. `apply_game(game_id)` per §6  
-3. `replay_all()` + CLI  
-4. Config: `site/config/ladder.ini` from `ladder.ini.example`
-
-When P1 is done, update this doc’s **Status** line and add a short “verified on” note with date and row counts.
+**Verified (2026-05-21, local):** `run` ~198s; top rating spot-check (e.g. game `id=10` → 1616 / 1584). **P2:** spot-check site charts / `ranked1.php`.
 
 ---
 

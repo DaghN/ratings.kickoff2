@@ -6,6 +6,7 @@
     'use strict';
 
     var T = window.K2ChartTheme;
+    var DR = window.K2ChartDateRange;
 
     var API_PATH = 'api/player_compare_rating_history.php';
     var EVENT_NAME = 'kool-opponent-selected';
@@ -84,6 +85,21 @@
                     var opponent = data.opponent || {};
                     var playerData = pointsToChartData(player.points || []);
                     var opponentData = pointsToChartData(opponent.points || []);
+
+                    if (DR && DR.appendRatingThroughToday) {
+                        var playerRating = typeof player.currentRating === 'number'
+                            ? player.currentRating
+                            : (playerData.length ? playerData[playerData.length - 1].y : null);
+                        var opponentRating = typeof opponent.currentRating === 'number'
+                            ? opponent.currentRating
+                            : (opponentData.length ? opponentData[opponentData.length - 1].y : null);
+                        if (playerData.length) {
+                            playerData = DR.appendRatingThroughToday(playerData, playerRating);
+                        }
+                        if (opponentData.length) {
+                            opponentData = DR.appendRatingThroughToday(opponentData, opponentRating);
+                        }
+                    }
 
                     if (!playerData.length && !opponentData.length) {
                         if (chartInstance) {
@@ -172,6 +188,7 @@
                             scales: {
                                 x: {
                                     type: 'time',
+                                    max: DR ? DR.endOfToday() : undefined,
                                     time: {
                                         displayFormats: {
                                             year: 'yyyy',

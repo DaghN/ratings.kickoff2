@@ -177,8 +177,8 @@ body.k2-site h1 {
 	font-weight: inherit;
 }
 
-.k2-wordmark__link:hover,
-.k2-wordmark__link:hover .k2-wordmark__main {
+body.k2-site a.k2-wordmark__link:hover,
+body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 	text-decoration: none;
 	color: var(--k2-text-primary);
 }

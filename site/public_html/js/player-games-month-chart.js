@@ -6,16 +6,9 @@
     'use strict';
 
     var T = window.K2ChartTheme;
+    var DR = window.K2ChartDateRange;
 
     var API_PATH = 'api/player_games_by_month.php';
-
-    function monthToDate(monthStr) {
-        if (!monthStr || monthStr.length < 7) {
-            return null;
-        }
-        var d = new Date(monthStr + '-01T00:00:00');
-        return isNaN(d.getTime()) ? null : d;
-    }
 
     function initRoot(root) {
         var playerId = root.getAttribute('data-player-id');
@@ -54,14 +47,22 @@
                     return;
                 }
 
-                var chartData = [];
-                for (var i = 0; i < months.length; i++) {
-                    var x = monthToDate(months[i].month);
-                    if (x === null) {
-                        continue;
+                var padded;
+                if (DR && DR.padGamesPerMonth) {
+                    padded = DR.padGamesPerMonth(months);
+                } else {
+                    var fallbackData = [];
+                    for (var fi = 0; fi < months.length; fi++) {
+                        var fx = DR && DR.monthToDate
+                            ? DR.monthToDate(months[fi].month)
+                            : new Date(months[fi].month + '-01T00:00:00');
+                        if (!isNaN(fx.getTime())) {
+                            fallbackData.push({ x: fx, y: months[fi].games });
+                        }
                     }
-                    chartData.push({ x: x, y: months[i].games });
+                    padded = { chartData: fallbackData, xMin: null, xMax: null };
                 }
+                var chartData = padded.chartData;
 
                 if (!chartData.length) {
                     if (status) {
@@ -80,9 +81,17 @@
                         datasets: [{
                             label: 'Games',
                             data: chartData,
-                            backgroundColor: T.fill(T.green(), 0.65),
-                            borderColor: T.green(),
-                            borderWidth: 1
+                            backgroundColor: function (ctx) {
+                                return ctx.parsed.y === 0
+                                    ? 'transparent'
+                                    : T.fill(T.green(), 0.65);
+                            },
+                            borderColor: function (ctx) {
+                                return ctx.parsed.y === 0 ? 'transparent' : T.green();
+                            },
+                            borderWidth: function (ctx) {
+                                return ctx.parsed.y === 0 ? 0 : 1;
+                            }
                         }]
                     },
                     options: {
@@ -93,6 +102,9 @@
                                 labels: { color: T.textPrimary() }
                             },
                             tooltip: {
+                                filter: function (item) {
+                                    return item.parsed.y > 0;
+                                },
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -113,6 +125,8 @@
                         scales: {
                             x: {
                                 type: 'time',
+                                min: padded.xMin || undefined,
+                                max: padded.xMax || (DR ? DR.endOfCurrentMonth() : undefined),
                                 time: {
                                     unit: 'month',
                                     round: 'month',
