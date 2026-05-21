@@ -60,7 +60,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 - Player feast content depth; hero iterations.
 - Wing tab / Rating vs Rating records wording.
 - Logo in header; URL rebrand (`online.kickoff2.com` etc.).
-- Full `#aboutmenu` removal once all entry points use shared nav.
+- ~~Full `#aboutmenu` removal once all entry points use shared nav.~~ **Done (medium refactor, May 2026).**
 - Amiga realm production wiring; nav spacing clearfix.
 
 ---
@@ -75,7 +75,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 - Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
 - Theme lab exists for experiments (`theme-lab.html`, `theme-lab.css`, `theme-lab.js`).
 - **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + staging accent preview pills), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
-- Legacy `#aboutmenu` rows may still exist on some pages — remove when all entry points use shared nav.
+- ~~Legacy `#aboutmenu` rows may still exist on some pages~~ — removed with shared hub/player nav (May 2026).
 
 ---
 

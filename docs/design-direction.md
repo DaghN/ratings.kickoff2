@@ -166,7 +166,7 @@ Same components, three token presets:
 
 - `main2.css` — dark `:root` variables and tab chrome.
 - `elolist.css` — **legacy light-green table stripes** clash with dark page chrome. **High-impact fix** when theme lands.
-- Legacy header/logo CSS in `main2.css` unused by current pages.
+- ~~Legacy header/logo CSS in `main2.css` unused by current pages.~~ **Pruned (medium refactor, May 2026).**
 - ~18 PHP files duplicate nav HTML — only `includes/player_search_bar.php` and `ranked_table_cloak_head.php` exist today.
 
 ---

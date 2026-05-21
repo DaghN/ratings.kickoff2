@@ -217,8 +217,7 @@ body.k2-site .player-search {
 	margin: 0;
 }
 
-body.k2-site .player-search--header,
-body.k2-site .player-search--nav {
+body.k2-site .player-search--header {
 	max-width: none;
 }
 
@@ -246,10 +245,6 @@ body.k2-site .k2-header-search__input {
 body.k2-site .player-search--header .player-search-input,
 body.k2-site .player-search--header .k2-header-search__input {
 	width: 180px;
-}
-
-body.k2-site .player-search--nav .player-search-input {
-	width: 20em;
 }
 
 body.k2-site .player-search-input::placeholder,
@@ -436,50 +431,6 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 .k2-page-nav {
 	max-width: 1200px;
 	margin: 0 auto;
-}
-
-/* ── Primary / secondary tabs (#aboutmenu) ── */
-body.k2-site #aboutmenu {
-	padding-left: 0;
-	margin: 16px 0 0;
-	list-style-type: none;
-}
-
-body.k2-site #aboutmenu > li {
-	float: left;
-	margin: 0 8px 8px 0;
-}
-
-body.k2-site #aboutmenu::after {
-	content: "";
-	display: table;
-	clear: both;
-}
-
-body.k2-site #aboutmenu > li > a {
-	float: left;
-	text-decoration: none;
-	padding: 6px 12px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	background-color: var(--k2-bg-elevated);
-	color: var(--k2-text-primary);
-	font-family: var(--k2-font-display);
-	font-size: 13px;
-	font-weight: 600;
-	letter-spacing: 0.03em;
-}
-
-body.k2-site #aboutmenu > li > a.noncurrent:hover {
-	background-color: var(--k2-bg-hover);
-	border-color: var(--k2-realm-accent);
-	color: var(--k2-text-primary);
-}
-
-body.k2-site #aboutmenu > li > a.current {
-	border-color: var(--k2-realm-accent);
-	background-color: var(--k2-realm-accent-muted);
-	color: var(--k2-text-primary);
 }
 
 /* ── Chart blocks on server / profile pages ── */
