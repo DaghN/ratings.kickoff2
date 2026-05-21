@@ -41,7 +41,7 @@ def main() -> None:
         "--ini",
         type=Path,
         default=None,
-        help="Path to ladder.ini (default: site/config/ladder.ini)",
+        help="Optional ladder.ini override (default: ko2unitydb_config.php)",
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()

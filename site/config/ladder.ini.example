@@ -1,5 +1,5 @@
-; Copy to ladder.ini (gitignored) for Python ladder scripts.
-; Same database as site/config/ko2unitydb_config.php
+; Optional override for Python ladder scripts (gitignored).
+; Normally not needed: python reads site/config/ko2unitydb_config.php automatically.
 
 [database]
 host = 127.0.0.1

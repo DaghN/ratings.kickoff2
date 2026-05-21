@@ -20,7 +20,7 @@
 | Local DB name | **`ko2unity_db`** (from SQL dump; not `kooldb`) |
 | SQL dump (gitignored) | `data/dumps/ko2unity_db-2026-05-20.sql` |
 | PHP DB config (gitignored) | `site/config/ko2unitydb_config.php` |
-| Python DB config (gitignored) | `site/config/ladder.ini` |
+| Python DB config | Same as PHP: `site/config/ko2unitydb_config.php` (optional `ladder.ini` override) |
 | Examples (committed) | `site/config/*.example` |
 
 **Agents:** If Laragon is “not found”, check **`C:\laragon` first** — earlier sessions may have searched before MySQL was started or paths were wrong.
@@ -141,7 +141,7 @@ With the junction, that resolves to **`site/config/`** in the repo. Copy from **
 1. Assume **Start Menu Laragon → Start All** is enough if `setup_laragon_apache_fix.ps1` was run; use **`check_local_dev.ps1`** only when diagnosing failures.
 2. DB work: confirm `DATABASE()` = `ko2unity_db`.
 3. Destructive scripts: **dry-run first**; keep pristine SQL dump for re-import.
-4. Do **not** commit `data/dumps/*.sql`, `site/config/ko2unitydb_config.php`, or `ladder.ini`.
+4. Do **not** commit `data/dumps/*.sql` or `site/config/ko2unitydb_config.php`. Staging replay: **`docs/STAGING_REPLAY.md`**.
 
 ---
 

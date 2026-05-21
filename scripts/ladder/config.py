@@ -1,14 +1,27 @@
-"""Load site/config/ladder.ini (copy from ladder.ini.example)."""
+"""Database config: same source as PHP (ko2unitydb_config.php), optional ladder.ini override."""
 
 from __future__ import annotations
 
 import configparser
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INI = REPO_ROOT / "site" / "config" / "ladder.ini"
 EXAMPLE_INI = REPO_ROOT / "site" / "config" / "ladder.ini.example"
+
+# Repo layout (site/config) and staging server layout (config beside public_html).
+PHP_CONFIG_CANDIDATES = (
+    REPO_ROOT / "site" / "config" / "ko2unitydb_config.php",
+    REPO_ROOT / "config" / "ko2unitydb_config.php",
+)
+
+_PHP_ASSIGN = re.compile(
+    r"\$(?P<name>dbhost|username|password|database|dbportnum)\s*=\s*"
+    r"(?:['\"](?P<quoted>[^'\"]*)['\"]|(?P<number>\d+))\s*;",
+    re.MULTILINE,
+)
 
 
 @dataclass(frozen=True)
@@ -20,16 +33,30 @@ class DbConfig:
     database: str
 
 
-def load_db_config(ini_path: Path | None = None) -> DbConfig:
-    path = ini_path or DEFAULT_INI
-    if not path.is_file():
-        if path == DEFAULT_INI and EXAMPLE_INI.is_file():
-            raise SystemExit(
-                f"Missing {path}\n"
-                f"Copy {EXAMPLE_INI} to {DEFAULT_INI} and adjust credentials."
-            )
-        raise SystemExit(f"Config not found: {path}")
+def _parse_php_config(path: Path) -> DbConfig:
+    text = path.read_text(encoding="utf-8", errors="replace")
+    values: dict[str, str] = {}
+    for match in _PHP_ASSIGN.finditer(text):
+        name = match.group("name")
+        values[name] = match.group("quoted") if match.group("quoted") is not None else match.group("number")
 
+    missing = [n for n in ("dbhost", "username", "password", "database", "dbportnum") if n not in values]
+    if missing:
+        raise SystemExit(
+            f"Could not read ${', '.join(missing)} from {path}\n"
+            "Expected simple assignments like $database = 'kooldb';"
+        )
+
+    return DbConfig(
+        host=values["dbhost"],
+        port=int(values["dbportnum"]),
+        user=values["username"],
+        password=values["password"],
+        database=values["database"],
+    )
+
+
+def _load_from_ini(path: Path) -> DbConfig:
     parser = configparser.ConfigParser()
     parser.read(path, encoding="utf-8")
     section = parser["database"]
@@ -39,4 +66,34 @@ def load_db_config(ini_path: Path | None = None) -> DbConfig:
         user=section.get("user", "root"),
         password=section.get("password", ""),
         database=section.get("database", "ko2unity_db"),
+    )
+
+
+def _find_php_config() -> Path | None:
+    for path in PHP_CONFIG_CANDIDATES:
+        if path.is_file():
+            return path
+    return None
+
+
+def load_db_config(ini_path: Path | None = None) -> DbConfig:
+    """Load DB settings. Default: ko2unitydb_config.php (same as the PHP site)."""
+    if ini_path is not None:
+        if not ini_path.is_file():
+            raise SystemExit(f"Config not found: {ini_path}")
+        return _load_from_ini(ini_path)
+
+    php_path = _find_php_config()
+    if php_path is not None:
+        return _parse_php_config(php_path)
+
+    if DEFAULT_INI.is_file():
+        return _load_from_ini(DEFAULT_INI)
+
+    candidates = "\n  ".join(str(p) for p in PHP_CONFIG_CANDIDATES)
+    raise SystemExit(
+        "No database config found.\n"
+        f"  PHP (preferred): {candidates}\n"
+        f"  INI (optional): {DEFAULT_INI}\n"
+        f"Copy {EXAMPLE_INI} to ladder.ini only if you cannot use the PHP config file."
     )

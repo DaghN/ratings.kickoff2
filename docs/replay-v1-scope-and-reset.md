@@ -170,7 +170,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 |-------|----------|
 | CLI | `python -m scripts.ladder` — `reset`, `replay`, `run` |
 | Code | `scripts/ladder/` (`engine.py`, `outcome.py`, `elo.py`) |
-| Config | `site/config/ladder.ini` (from `ladder.ini.example`) |
+| Config | `site/config/ko2unitydb_config.php` (same as PHP); optional `ladder.ini`; staging handover **`docs/STAGING_REPLAY.md`** |
 | Usage | `scripts/ladder/README.md` |
 
 **Verified (2026-05-21, local):** `run` ~198s; top rating spot-check (e.g. game `id=10` → 1616 / 1584). **P2:** spot-check site charts / `ranked1.php`.

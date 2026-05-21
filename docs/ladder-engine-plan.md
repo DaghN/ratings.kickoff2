@@ -101,7 +101,7 @@ Core operations (same *ideas* for both tracks; offline track not built yet):
 - Target: dev DB with familiar tables (`ratedresults`, `playertable`, `generalstatstable`).
 - Assumption: players often **already exist** in `playertable` before games (like online join/manual insert).
 - **Done locally:** `reset` + `replay_all` on **`ko2unity_db`**; Laragon site validated (profiles, leaderboards, server stats).
-- **Next:** same `python -m scripts.ladder run` on staging **`kooldb`** (Steve); note intentional deltas vs current live prod (no decay, full replay).
+- **Next:** same `python -m scripts.ladder run` on staging **`kooldb`** (Steve); handover **`docs/STAGING_REPLAY.md`**; note intentional deltas vs current live prod (no decay, full replay).
 - Reference: `docs/ratings_cpp.txt` for formula and which columns matter.
 
 ### Track B — **Offline / Amiga 500** (second)
@@ -188,8 +188,8 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 | Item | Plan |
 |------|------|
 | **Development** | **`scripts/ladder/`** (online track); future **`scripts/offline/`** or similar for Amiga. |
-| **Config** | Gitignored **`site/config/ladder.ini`** (from `ladder.ini.example`); DB allowlist `ko2unity_db`, `kooldb`. |
-| **Running** | Steve runs on staging host against **dev DB**; Dagh sends command + expected duration + “paste last lines of output.” |
+| **Config** | **`ko2unitydb_config.php`** (same as PHP); optional gitignored **`ladder.ini`**; allowlist `ko2unity_db`, `kooldb`. Staging steps: **`docs/STAGING_REPLAY.md`**. |
+| **Running** | Steve runs on staging host against **dev DB** (`kooldb`); one shell command; Dagh validates UI after. |
 | **SSH** | Not available for Dagh (May 2026); do not block on it. |
 | **Safety** | Full replay only on **dev** until explicit prod plan + backup. |
 | **PHP throwaways** | Schema probes (`scripts/throwaway_*.php`) remain valid for introspection; delete from `public_html` after use. |

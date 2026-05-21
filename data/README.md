@@ -55,7 +55,7 @@ Copy `site/config/ko2unitydb_config.php.example` to `site/config/ko2unitydb_conf
 
 ## Python ladder scripts (later)
 
-Use the same host/database as PHP via gitignored `site/config/ladder.ini` or environment variables — see `scripts/ladder/` when added.
+Python ladder uses the same DB as PHP (`site/config/ko2unitydb_config.php`). Staging: **`docs/STAGING_REPLAY.md`**.
 
 ## Restore after a bad reset/replay
 
