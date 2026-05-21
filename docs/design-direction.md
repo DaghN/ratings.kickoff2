@@ -86,6 +86,15 @@ Soonish, a **second universe** duplicates the ladder for **real Amiga 500 games 
 
 Think **Blade Runner control room**, not **Cyberpunk 2077 menu screen**.
 
+### Chrome vs imagery (agreed May 2026)
+
+**Principle:** Chrome carries the brand; data carries the prestige; imagery earns its place page by page.
+
+- **Global chrome:** minimal functional bar (wordmark, search, realm) — no full-width decorative header band on every page.
+- **Data views:** tables and charts are the hero; do not push them down with repeating portal banners.
+- **Imagery:** only where it helps orientation or heritage (e.g. Status landing), not on dense ladder/profile tables.
+- **Legacy (removed from repo May 2026):** old portal mock (`rankings.php`, `Tab.css`, header JPEGs) — not the current ratings identity.
+
 ---
 
 ## 3. Color system

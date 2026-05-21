@@ -89,6 +89,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 | Header contents | Wordmark · Find player search (mock styling is target) · Online / Amiga realm switcher. |
 | kickoff2.com header link | **No** — agreed waste of space. |
 | Back to Results on player pages | **No** — browser back + wordmark/hub enough. |
+| Decorative header band (site-wide) | **No** — minimal chrome only; imagery page-by-page. See `docs/design-direction.md` §2 *Chrome vs imagery*. |
 
 ---
 

@@ -8,7 +8,6 @@
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/favicon_head.php"; ?>
-<link href="stylesheets/thrColFixHdr.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
@@ -62,7 +61,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:30 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate"> 
 
 <thead>
 	
@@ -77,23 +76,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
         <th class="table-sortable:numeric">Loss Ratio</th>
     </tr>
 </thead>
-
-<tfoot>
-	<tr> 
-        <td colspan="2" class="table-page:previous" style="cursor:pointer;">&lt;&lt; Previous</td> 
-		<td colspan="4" style="text-align:center;">Page <span id="tablepage"></span>&nbsp;of <span id="tablepages"></span></td> 
-		<td colspan="2" class="table-page:next" style="cursor:pointer; text-align:right;">Next &gt;&gt;</td> 
-        
-	</tr>
-<!--
-	<tr>
-        <td colspan="8" style="text-align:center;"><span id="tablefiltercount"></span>&nbsp;out of <span id="tableallcount"></span>&nbsp;goals in filter</td> 	
-    </tr>
--->    
-</tfoot>
-
-
-
 
 <tbody class="black">
 	<?php

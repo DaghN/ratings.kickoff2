@@ -21,15 +21,11 @@ PAGES = [
     ("ranked6.php", True, False, True),
     ("server2.php", False, False, False),
     ("server3.php", False, False, False),
-    ("individual2.php", False, True, False),
     ("individual2a.php", False, True, False),
     ("individual2b.php", False, True, False),
     ("individual2c.php", False, True, False),
     ("individual3.php", False, False, False),
     ("game.php", False, False, False),
-    ("individualA.php", False, False, False),
-    ("individualB.php", False, False, False),
-    ("individualC.php", False, False, False),
 ]
 
 
