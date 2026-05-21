@@ -11,11 +11,22 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INI = REPO_ROOT / "site" / "config" / "ladder.ini"
 EXAMPLE_INI = REPO_ROOT / "site" / "config" / "ladder.ini.example"
 
-# Repo layout (site/config) and staging server layout (config beside public_html).
-PHP_CONFIG_CANDIDATES = (
-    REPO_ROOT / "site" / "config" / "ko2unitydb_config.php",
-    REPO_ROOT / "config" / "ko2unitydb_config.php",
-)
+def _php_config_candidates() -> tuple[Path, ...]:
+    """Paths to ko2unitydb_config.php (same order PHP uses on each layout)."""
+    ladder_dir = Path(__file__).resolve().parent
+    root = ladder_dir.parent.parent  # repo root, or public_html if deployed there
+    bases = [root]
+    if root.name == "public_html":
+        bases.append(root.parent)
+    seen: set[Path] = set()
+    out: list[Path] = []
+    for base in bases:
+        for sub in ("site/config", "config"):
+            p = (base / sub / "ko2unitydb_config.php").resolve()
+            if p not in seen:
+                seen.add(p)
+                out.append(p)
+    return tuple(out)
 
 _PHP_ASSIGN = re.compile(
     r"\$(?P<name>dbhost|username|password|database|dbportnum)\s*=\s*"
@@ -70,7 +81,7 @@ def _load_from_ini(path: Path) -> DbConfig:
 
 
 def _find_php_config() -> Path | None:
-    for path in PHP_CONFIG_CANDIDATES:
+    for path in _php_config_candidates():
         if path.is_file():
             return path
     return None
@@ -90,7 +101,7 @@ def load_db_config(ini_path: Path | None = None) -> DbConfig:
     if DEFAULT_INI.is_file():
         return _load_from_ini(DEFAULT_INI)
 
-    candidates = "\n  ".join(str(p) for p in PHP_CONFIG_CANDIDATES)
+    candidates = "\n  ".join(str(p) for p in _php_config_candidates())
     raise SystemExit(
         "No database config found.\n"
         f"  PHP (preferred): {candidates}\n"

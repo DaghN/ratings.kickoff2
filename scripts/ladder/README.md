@@ -8,7 +8,7 @@ Recalculates Elo on local **`ko2unity_db`** per **`docs/replay-v1-scope-and-rese
 pip install -r scripts/ladder/requirements.txt
 ```
 
-**Database:** reads **`site/config/ko2unitydb_config.php`** (same file as PHP). On the staging host, **`config/ko2unitydb_config.php`** next to `public_html` is also checked. Optional **`site/config/ladder.ini`** only if you need a separate override (`--ini`).
+**Database:** **`ko2unitydb_config.php`** (local: `site/config/`; server: `config/` beside `public_html`, or `../config/` when run from `public_html/scripts/ladder/`). Optional **`ladder.ini`** via `--ini`. **Staging one-shot:** **`docs/STAGING_REPLAY.md`**.
 
 ## Commands (from repo root)
 

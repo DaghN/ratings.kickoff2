@@ -1,237 +1,90 @@
 # Staging ladder replay (one-shot)
 
-**Audience:** Dagh, Steve, Cursor agents.  
-**Goal:** Run the Python replay **once** on staging **`kooldb`** so ratings, `playertable`, and `generalstatstable` match replay v1 rules (K=32, start 1600, no decay).  
-**Handover:** WinSCP + **one shell command** — no Git for Steve, no manual DB credentials.
+**Goal:** Run Python replay **once** on staging **`kooldb`** (K=32, start 1600, no decay) — reset derived columns, replay ~74k **`ratedresults`**, rebuild **`playertable`** and **`generalstatstable`** row `id=1`.
 
-**Status (May 2026):** Local replay validated on **`ko2unity_db`**. Staging pending. Production stays on C++ after staging recalc.
+**Status (May 2026):** Local **`ko2unity_db`** validated. **Files uploaded** to staging **`public_html/`**; **Steve** to run `bash run_staging_ladder_replay.sh`. Production stays on C++ after this.
+
+**Other docs:** CLI details → **`scripts/ladder/README.md`** · column scope → **`docs/replay-v1-scope-and-reset.md`** · phases → **`docs/ladder-engine-plan.md`**
 
 ---
 
-## What we already know
+## Prerequisites (already done)
 
-| Item | Status |
+| Item | Notes |
 |------|--------|
-| Database | **`kooldb`** (`DATABASE()` from write probe) |
-| Writable | Yes — Steve helped enable access |
-| Not production | Steve confirmed |
-| Live games during run | None on staging |
-| Replay logic | ~74k games, ~3 min locally |
-| DB config for Python | **Automatic** — same file as PHP (see below) |
-
-No need to re-confirm DB name, dry-run, `--limit`, Git pull, or **`ladder.ini`**.
+| DB | **`kooldb`** (write probe `DATABASE()`) |
+| Writable | Write probe passed |
+| Not prod | Steve confirmed |
+| DB config | Python reads same **`ko2unitydb_config.php`** as PHP (via `public_html/../config/`) |
+| No **`ladder.ini`** | Not used on staging |
 
 ---
 
-## Database connection (no manual step)
+## Dagh — WinSCP upload
 
-Python reads the **same** config as the PHP site:
+SFTP usually shows only **`public_html/`** (no sibling **`config/`** — that is normal; PHP still reads it outside the jail).
 
-1. **`config/ko2unitydb_config.php`** — staging layout (sibling of `public_html`)
-2. **`site/config/ko2unitydb_config.php`** — repo / Laragon layout
-3. **`site/config/ladder.ini`** — only if neither PHP file exists (not needed on staging)
+**Connect:** `ratings.kickoff2.com:5322`, user `dagh@ratings.kickoff2.com`
 
-Implementation: `scripts/ladder/config.py`. Whatever **`$database`** is in PHP config is used. Allowlist: **`ko2unity_db`**, **`kooldb`**. Script verifies **`DATABASE()`** after connect.
+**Remote:** inside **`public_html/`**
 
-**If PHP pages and the write probe work, Python connects the same way.** Dagh does not copy host/user/password/database into a second file.
+**From PC** `...\Online and Amiga 500 ELO\`:
 
----
+1. Create remote folder **`scripts`** if missing (right-click → New → Directory).
+2. Upload **`scripts\ladder\`** → **`public_html/scripts/ladder/`**
+3. Upload **`run_staging_ladder_replay.sh`** → **`public_html/run_staging_ladder_replay.sh`** (not inside `scripts/`)
 
-## Server layout
+**Verify:** remote **`public_html/scripts/ladder/requirements.txt`** exists.
 
-Typical staging host:
-
-```text
-<project-root>/
-  config/
-    ko2unitydb_config.php    ← already on server; Python reads this
-  public_html/
-    …                        ← unchanged for this task
-  scripts/
-    ladder/                  ← upload entire folder (WinSCP)
-  run_staging_ladder_replay.sh   ← optional wrapper at project root
-```
-
-**Project root** = parent of **`public_html`** (contains **`config/`** and **`scripts/`**).
-
-PHP uses `DOCUMENT_ROOT/../config/ko2unitydb_config.php` — that path is what Python resolves on the server.
+**Do not upload:** `config/`, `ladder.ini`, whole repo, throwaways (unless running paths probe once).
 
 ---
 
-## Roles
-
-| Who | Responsibility |
-|-----|----------------|
-| **Dagh** | WinSCP upload `scripts/ladder/` (+ optional wrapper); optional WhatsApp to Steve |
-| **Steve** | Run **one** command from `<project-root>` (~3 min) |
-| **Dagh (after)** | Browser spot-check on staging |
-
-Steve does not need Git, Python edits, INI files, or DB troubleshooting.
-
----
-
-## WinSCP upload
-
-### Why you only see `public_html` today
-
-Normal deploy is **Synchronize** `site/public_html/` → remote **`public_html/`**. That session often opens **inside** `public_html`, so you never see siblings.
-
-On the server, **`config/`** and **`scripts/`** sit **next to** `public_html/`, not inside it:
-
-```text
-<project-root>/          ← open WinSCP here (one level above public_html)
-  config/                ← ko2unitydb_config.php (already there; hidden from web)
-  public_html/           ← what you usually sync
-  scripts/ladder/        ← you upload this
-  run_staging_ladder_replay.sh
-```
-
-**`config/` is not missing** — it is one directory up from `public_html`. In WinSCP: go to **`public_html`**, then **Up** (or `..`) once. You should see **`config`**, **`public_html`**, and (after upload) **`scripts`**.
-
-Host: **`ratings.kickoff2.com`**, port **`5322`**, user **`dagh@ratings.kickoff2.com`** (see **`PROJECT_MEMORY.md`**).
-
-### Local → remote mapping
-
-| Upload from your PC (repo) | To on server (`<project-root>/`) |
-|----------------------------|----------------------------------|
-| **`scripts\ladder\`** (entire folder) | **`scripts/ladder/`** |
-| **`run_staging_ladder_replay.sh`** (repo root) | **`run_staging_ladder_replay.sh`** |
-
-**Do not** put these under `public_html/`. PHP does not need them in the web tree.
-
-| Do not upload | Why |
-|---------------|-----|
-| **`config/ko2unitydb_config.php`** | Already on server |
-| **`site/config/`** | Local Laragon layout only; server uses **`config/`** beside `public_html` |
-| **`ladder.ini`** | Not used |
-| **`site/public_html/`** | Only for normal site deploy; unrelated to replay upload |
-
-**Cannot use “Synchronize public_html only”** for the ladder package — drag **`scripts/ladder`** and the **`.sh`** file to **`<project-root>`** manually (or a second WinSCP bookmark opened at project root).
-
-After upload, remote should look like:
-
-```text
-scripts/ladder/__main__.py
-scripts/ladder/engine.py
-scripts/ladder/requirements.txt
-… (full package)
-run_staging_ladder_replay.sh
-config/ko2unitydb_config.php   ← already present
-public_html/…
-```
-
-Do not send credentials or script archives via WhatsApp.
-
----
-
-## One-time dependency install
-
-If Python packages are missing on the host:
+## Steve — run once
 
 ```bash
-python3 -m pip install -r scripts/ladder/requirements.txt
-```
-
-Optional wrapper script can run this before each replay (idempotent).
-
----
-
-## The one command
-
-Run from **`<project-root>`** (parent of `public_html`).
-
-**Option A — wrapper (if uploaded):**
-
-```bash
+cd /path/to/public_html
 bash run_staging_ladder_replay.sh
 ```
 
-**Option B — direct:**
+(~3 min; installs `pymysql` if needed; uses PHP DB config → **`kooldb`**.)
 
-```bash
-python3 -m pip install -r scripts/ladder/requirements.txt
-python3 -m scripts.ladder run
+### What it does
+
+1. Resets derived data on existing rows (does **not** delete players or games).
+2. Replays all **`ratedresults`** in date order (Elo K=32, start 1600, no decay).
+3. Rebuilds **`playertable`** career stats and **`generalstatstable`** row `id=1`.
+
+On success, changes are **saved to the database**. Staging site numbers **will differ** from before — expected.
+
+### Expected log (success)
+
+```text
+INFO reset_universe: ratedresults rows=…
+INFO ratedresults cleared: … rows affected
+INFO replay_all: … games, … players in memory
+INFO ratedresults: 5000 / … games
+…
+INFO ratedresults replay done; finalizing playertable counts
+INFO playertable updated: … players with at least one game
+INFO generalstatstable id=1 updated (… fields)
+INFO replay_all complete: … games
 ```
 
-Do **not** use `--dry-run`, `--limit`, or `--ini` for the production handover run.
-
-**Duration:** ~3 minutes.
-
-### Success log lines
-
-- `ratedresults replay done`
-- `playertable updated: … players with at least one game`
-- `generalstatstable id=1 updated (… fields)` (or table created on first run)
-- `replay_all complete: … games`
-
-Non-zero exit = failure; capture last error lines.
+Exit code **0**. On failure: paste last ~30 lines (no passwords).
 
 ---
 
-## What the run does
+## After run (Dagh)
 
-1. **Reset** derived columns on **`ratedresults`** and career stats on **`playertable`** (players and game rows kept).
-2. **Replay** all **`ratedresults`** in `Date ASC, id ASC` order.
-3. **Rebuild** **`playertable`** (v2 career stats).
-4. **Ensure / fill** **`generalstatstable`** row `id=1` (creates table if missing).
+Spot-check staging: ranked list, one profile, **`server1.php`** / **`server2.php`**. Then update **`docs/ladder-engine-plan.md`** P2 and **`PROJECT_MEMORY.md`**.
 
-Staging numbers **will differ** from pre-replay (no decay, full replay, etc.). That is expected.
+**Rollback:** DB restore from backup only if needed.
 
 ---
 
-## WhatsApp to Steve (template)
+## Note — why `config/` is invisible in WinSCP
 
-> Ladder replay is uploaded under [path]. From that folder (same level as `config/` and `public_html`), run once: `bash run_staging_ladder_replay.sh` — about 3 minutes. It uses the same DB config as the PHP site (`kooldb`, not prod). Tell me when it finishes or if you get a Python error.
+PHP uses `DOCUMENT_ROOT/../config/ko2unitydb_config.php`. The file exists on disk next to **`public_html`**; your SFTP account is often chrooted to the web tree only. Python resolves the same path when scripts live under **`public_html/scripts/ladder/`**.
 
-No passwords, no multi-step checklist, no Git.
-
----
-
-## After the run (Dagh)
-
-Browser checks on staging:
-
-- Ranked list / known player profile
-- **`server1.php`** / **`server2.php`** (require **`generalstatstable`**)
-- One game list or stat you already validated locally
-
-When satisfied, mark staging replay done in **`docs/ladder-engine-plan.md`** (P2).
-
----
-
-## Rollback
-
-Restore from a DB dump/backup only if old derived numbers are needed. Not part of the default path.
-
----
-
-## Dagh checklist
-
-1. WinSCP: open **`<project-root>`** (parent of `public_html`; see above)
-2. Upload `scripts/ladder/` → `scripts/ladder/`
-3. Upload `run_staging_ladder_replay.sh` → project root (same folder as `config/`)
-3. Confirm staging PHP still loads (proves PHP config exists)
-4. Steve runs one command (or Dagh if shell access)
-5. Validate staging UI
-6. Update ladder plan / memory when done
-
----
-
-## Out of scope
-
-- Git / GitHub for Steve
-- Manual **`ladder.ini`** or copying `$dbhost` / passwords
-- Per-game **`generalstatstable`** updates (batch at end only)
-- Production C++ changes
-- Amiga / offline replay (later phases)
-
----
-
-## Related docs
-
-| Doc | Purpose |
-|-----|---------|
-| **`scripts/ladder/README.md`** | CLI usage, defaults |
-| **`docs/replay-v1-scope-and-reset.md`** | Column reset scope |
-| **`docs/ladder-engine-plan.md`** | Phases P0–P5 |
-| **`docs/LOCAL_DEV.md`** | Laragon / local only |
+Optional one-shot: **`scripts/throwaway_server_paths_probe.php`** → `public_html/`, open `?once=server-paths-probe-one-shot`, delete file.

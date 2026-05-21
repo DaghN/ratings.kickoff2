@@ -141,7 +141,7 @@ With the junction, that resolves to **`site/config/`** in the repo. Copy from **
 1. Assume **Start Menu Laragon → Start All** is enough if `setup_laragon_apache_fix.ps1` was run; use **`check_local_dev.ps1`** only when diagnosing failures.
 2. DB work: confirm `DATABASE()` = `ko2unity_db`.
 3. Destructive scripts: **dry-run first**; keep pristine SQL dump for re-import.
-4. Do **not** commit `data/dumps/*.sql` or `site/config/ko2unitydb_config.php`. Staging replay: **`docs/STAGING_REPLAY.md`**.
+4. Do **not** commit `data/dumps/*.sql` or `site/config/ko2unitydb_config.php`. **Staging ladder recalc:** see **`docs/STAGING_REPLAY.md`** (not Laragon).
 
 ---
 
