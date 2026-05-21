@@ -7,6 +7,7 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/favicon_head.php"; ?>
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/ranked_table_cloak_head.php"; ?>
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
@@ -91,10 +92,10 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php if ($row[7]!=0) {echo "<span class='blue'>";} echo number_format($row[7], 2) ?></td>
         <td><?php if ($row[8]!=0) {echo "<span class='red'>";} echo number_format($row[8], 2) ?></td>
         <td><?php
-        	if ($row[9] == -1) 
+        	if ($row[9] === null || $row[9] == -1) 
 				{echo "-";}
 			else 
-				{if ($row[9]>=1) {echo "<span class='blue'>";} else {echo "<span class='red'>";} echo number_format($row[9], 2);}
+				{if ($row[9]>=1) {echo "<span class='blue'>";} else {echo "<span class='red'>";} echo number_format($row[9], 2); echo "</span>";}
 		?></td>
         <td><?php if ($row[10]!=0) {echo "<span class='blue'>"; echo $row[10]; echo "</span>"; } else {echo "-";} ?></td>
        	<td><?php if ($row[11]!=0) {echo "<span class='red'>"; echo $row[11]; echo "</span>"; } else {echo "-";} ?></td>

@@ -7,6 +7,7 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/favicon_head.php"; ?>
 <link href="stylesheets/thrColFixHdr.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>

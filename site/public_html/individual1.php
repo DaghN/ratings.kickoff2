@@ -7,6 +7,7 @@
 <link href="stylesheets/main2.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/favicon_head.php"; ?>
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="js/chart-theme.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-theme.js'); ?>"></script>
@@ -364,7 +365,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
         <td style="text-align:left;">
         <?php
 		if ($Display==1) 
-			{echo number_format($GoalRatio, 2);}
+			{if ($GoalRatio === null || $GoalRatio == -1) {echo "-";} else {echo number_format($GoalRatio, 2);}}
 		else
 			{echo "-";}
 		?></td>
@@ -413,7 +414,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
         <td style="text-align:left;">
         <?php
 		if ($Display==1) 
-			{echo $CleanSheetsConceded; echo " ("; echo number_format(100*$CleanSheetsConceded, 1); echo "%)";}
+			{echo $CleanSheetsConceded; echo " ("; echo number_format(100*$CleanSheetsConcededRatio, 1); echo "%)";}
 		else
 			{echo "-";}
 		?></td>

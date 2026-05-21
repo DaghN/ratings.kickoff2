@@ -1,10 +1,8 @@
-"""Reset and chronological replay for online ladder v1."""
+"""Reset and chronological replay for online ladder (v1 Elo + v2 full playertable)."""
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any
 
 import pymysql
@@ -20,7 +18,10 @@ from .constants import (
     START_RATING,
 )
 from .elo import compute_elo
+from .finalize_counts import finalize_network_counts_from_rows
+from .generalstats import rebuild_generalstats_if_present
 from .outcome import outcome_from_goals
+from .player_state import PlayerState
 
 log = logging.getLogger(__name__)
 
@@ -30,18 +31,40 @@ GAME_SELECT = """
     ORDER BY Date ASC, id ASC
 """
 
+RATEDRESULTS_UPDATE = """
+    UPDATE ratedresults SET
+        RatingA = %(RatingA)s,
+        RatingB = %(RatingB)s,
+        ExpectedScoreA = %(ExpectedScoreA)s,
+        ExpectedScoreB = %(ExpectedScoreB)s,
+        AdjustmentA = %(AdjustmentA)s,
+        AdjustmentB = %(AdjustmentB)s,
+        NewRatingA = %(NewRatingA)s,
+        NewRatingB = %(NewRatingB)s,
+        RatingDifference = %(RatingDifference)s,
+        ActualScore = %(ActualScore)s,
+        WinnerID = %(WinnerID)s,
+        SumOfGoals = %(SumOfGoals)s,
+        GoalDifference = %(GoalDifference)s,
+        HomeWin = %(HomeWin)s,
+        Draw = %(Draw)s,
+        AwayWin = %(AwayWin)s,
+        DDPlayerA = %(DDPlayerA)s,
+        DDPlayerB = %(DDPlayerB)s,
+        CSPlayerA = %(CSPlayerA)s,
+        CSPlayerB = %(CSPlayerB)s
+    WHERE id = %(id)s
+"""
 
-@dataclass
-class PlayerState:
-    rating: float = START_RATING
-    games: int = 0
-    wins: int = 0
-    draws: int = 0
-    losses: int = 0
-    goals_for: int = 0
-    goals_against: int = 0
-    last_game: datetime | None = None
-    last_game_id: int | None = None
+
+def _playertable_update_sql() -> str:
+    sample = PlayerState().to_db_row(1)
+    cols = [k for k in sample if k != "ID"]
+    sets = ", ".join(f"`{c}` = %({c})s" for c in cols)
+    return f"UPDATE playertable SET {sets} WHERE ID = %(ID)s"
+
+
+PLAYERTABLE_UPDATE = _playertable_update_sql()
 
 
 def connect(cfg: DbConfig, *, dry_run: bool) -> pymysql.connections.Connection:
@@ -92,8 +115,6 @@ def reset_universe(conn: pymysql.connections.Connection, *, dry_run: bool) -> No
         players = cur.fetchone()["n"]
 
     log.info("reset_universe: ratedresults rows=%s, playertable rows=%s", games, players)
-    log.info("SQL ratedresults: %s", sql_rated)
-    log.info("SQL playertable: %s ... (%s derived columns)", sql_player[:120], len(PLAYERTABLE_NULL_ON_RESET))
 
     if dry_run:
         return
@@ -106,46 +127,16 @@ def reset_universe(conn: pymysql.connections.Connection, *, dry_run: bool) -> No
     conn.commit()
 
 
-def _ratio(numerator: int, denominator: int) -> float | None:
-    if denominator <= 0:
-        return None
-    return round(numerator / denominator, 4)
-
-
-def _apply_to_player(
-    state: PlayerState,
-    *,
-    won: bool,
-    drew: bool,
-    goals_for: int,
-    goals_against: int,
-    new_rating: float,
-    game_date: datetime,
-    game_id: int,
-) -> None:
-    state.games += 1
-    if won:
-        state.wins += 1
-    elif drew:
-        state.draws += 1
-    else:
-        state.losses += 1
-    state.goals_for += goals_for
-    state.goals_against += goals_against
-    state.rating = new_rating
-    state.last_game = game_date
-    state.last_game_id = game_id
-
-
 def apply_game_row(
     game: dict[str, Any],
     players: dict[int, PlayerState],
 ) -> dict[str, Any]:
-    """Compute v1 row + player deltas from in-memory state (does not hit DB)."""
     id_a = int(game["idA"])
     id_b = int(game["idB"])
     goals_a = int(game["GoalsA"])
     goals_b = int(game["GoalsB"])
+    game_id = int(game["id"])
+    game_date = game["Date"]
 
     pa = players.setdefault(id_a, PlayerState())
     pb = players.setdefault(id_b, PlayerState())
@@ -153,29 +144,45 @@ def apply_game_row(
     outcome = outcome_from_goals(goals_a, goals_b, id_a, id_b)
     elo = compute_elo(pa.rating, pb.rating, outcome.actual_score)
 
-    _apply_to_player(
-        pa,
-        won=outcome.actual_score == 1.0,
-        drew=outcome.actual_score == 0.5,
+    pa.apply_match(
+        players=players,
+        opponent_id=id_b,
+        opponent_rating_before=elo.rating_b,
         goals_for=goals_a,
         goals_against=goals_b,
+        actual_score=outcome.actual_score,
+        goal_difference=outcome.goal_difference,
+        sum_of_goals=outcome.sum_of_goals,
+        dd_for=bool(outcome.dd_player_a),
+        cs_for=goals_b == 0,
+        old_rating=elo.rating_a,
         new_rating=elo.new_rating_a,
-        game_date=game["Date"],
-        game_id=int(game["id"]),
+        adjustment=elo.adjustment_a,
+        game_id=game_id,
+        game_date=game_date,
     )
-    _apply_to_player(
-        pb,
-        won=outcome.actual_score == 0.0,
-        drew=outcome.actual_score == 0.5,
+    pb.apply_match(
+        players=players,
+        opponent_id=id_a,
+        opponent_rating_before=elo.rating_a,
         goals_for=goals_b,
         goals_against=goals_a,
+        actual_score=1.0 - outcome.actual_score if outcome.actual_score != 0.5 else 0.5,
+        goal_difference=outcome.goal_difference,
+        sum_of_goals=outcome.sum_of_goals,
+        dd_for=bool(outcome.dd_player_b),
+        cs_for=goals_a == 0,
+        old_rating=elo.rating_b,
         new_rating=elo.new_rating_b,
-        game_date=game["Date"],
-        game_id=int(game["id"]),
+        adjustment=elo.adjustment_b,
+        game_id=game_id,
+        game_date=game_date,
     )
 
     return {
-        "id": int(game["id"]),
+        "id": game_id,
+        "idA": id_a,
+        "idB": id_b,
         "RatingA": elo.rating_a,
         "RatingB": elo.rating_b,
         "ExpectedScoreA": elo.expected_a,
@@ -196,67 +203,6 @@ def apply_game_row(
         "DDPlayerB": outcome.dd_player_b,
         "CSPlayerA": outcome.cs_player_a,
         "CSPlayerB": outcome.cs_player_b,
-    }
-
-
-RATEDRESULTS_UPDATE = """
-    UPDATE ratedresults SET
-        RatingA = %(RatingA)s,
-        RatingB = %(RatingB)s,
-        ExpectedScoreA = %(ExpectedScoreA)s,
-        ExpectedScoreB = %(ExpectedScoreB)s,
-        AdjustmentA = %(AdjustmentA)s,
-        AdjustmentB = %(AdjustmentB)s,
-        NewRatingA = %(NewRatingA)s,
-        NewRatingB = %(NewRatingB)s,
-        RatingDifference = %(RatingDifference)s,
-        ActualScore = %(ActualScore)s,
-        WinnerID = %(WinnerID)s,
-        SumOfGoals = %(SumOfGoals)s,
-        GoalDifference = %(GoalDifference)s,
-        HomeWin = %(HomeWin)s,
-        Draw = %(Draw)s,
-        AwayWin = %(AwayWin)s,
-        DDPlayerA = %(DDPlayerA)s,
-        DDPlayerB = %(DDPlayerB)s,
-        CSPlayerA = %(CSPlayerA)s,
-        CSPlayerB = %(CSPlayerB)s
-    WHERE id = %(id)s
-"""
-
-PLAYERTABLE_UPDATE = """
-    UPDATE playertable SET
-        Rating = %(Rating)s,
-        NumberGames = %(NumberGames)s,
-        NumberWins = %(NumberWins)s,
-        NumberDraws = %(NumberDraws)s,
-        NumberLosses = %(NumberLosses)s,
-        WinRatio = %(WinRatio)s,
-        DrawRatio = %(DrawRatio)s,
-        LossRatio = %(LossRatio)s,
-        GoalsFor = %(GoalsFor)s,
-        GoalsAgainst = %(GoalsAgainst)s,
-        LastGame = %(LastGame)s,
-        LastGameGameID = %(LastGameGameID)s
-    WHERE ID = %(ID)s
-"""
-
-
-def _player_row(player_id: int, state: PlayerState) -> dict[str, Any]:
-    return {
-        "ID": player_id,
-        "Rating": state.rating,
-        "NumberGames": state.games,
-        "NumberWins": state.wins,
-        "NumberDraws": state.draws,
-        "NumberLosses": state.losses,
-        "WinRatio": _ratio(state.wins, state.games),
-        "DrawRatio": _ratio(state.draws, state.games),
-        "LossRatio": _ratio(state.losses, state.games),
-        "GoalsFor": state.goals_for,
-        "GoalsAgainst": state.goals_against,
-        "LastGame": state.last_game,
-        "LastGameGameID": state.last_game_id,
     }
 
 
@@ -286,22 +232,23 @@ def replay_all(
     if dry_run:
         if games:
             sample = apply_game_row(games[0], players)
-            log.info("Dry-run sample game id=%s NewRatingA=%.3f NewRatingB=%.3f", sample["id"], sample["NewRatingA"], sample["NewRatingB"])
-        if len(games) > 1:
-            last_players = {pid: PlayerState() for pid in players}
-            for g in games:
-                apply_game_row(g, last_players)
-            top = sorted(last_players.items(), key=lambda x: x[1].rating, reverse=True)[:5]
-            log.info("Dry-run after full pass, top ratings: %s", [(i, round(s.rating, 2)) for i, s in top])
+            log.info(
+                "Dry-run sample game id=%s NewRatingA=%.3f NewRatingB=%.3f",
+                sample["id"],
+                sample["NewRatingA"],
+                sample["NewRatingB"],
+            )
         return
 
     rated_batch: list[dict[str, Any]] = []
+    all_rows: list[dict[str, Any]] = []
     processed = 0
 
     with conn.cursor() as cur:
         for game in games:
             row = apply_game_row(game, players)
             rated_batch.append(row)
+            all_rows.append(row)
             processed += 1
 
             if len(rated_batch) >= batch_size:
@@ -313,11 +260,16 @@ def replay_all(
         if rated_batch:
             cur.executemany(RATEDRESULTS_UPDATE, rated_batch)
 
-        player_rows = [_player_row(pid, st) for pid, st in players.items() if st.games > 0]
+    log.info("ratedresults replay done; finalizing playertable counts")
+    finalize_network_counts_from_rows(players, all_rows)
+
+    player_rows = [st.to_db_row(pid) for pid, st in players.items() if st.games > 0]
+    with conn.cursor() as cur:
         if player_rows:
             cur.executemany(PLAYERTABLE_UPDATE, player_rows)
         log.info("playertable updated: %s players with at least one game", len(player_rows))
 
+    rebuild_generalstats_if_present(conn, players)
     conn.commit()
     log.info("replay_all complete: %s games", processed)
 

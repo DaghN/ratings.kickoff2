@@ -28,7 +28,7 @@
 
 - **Operational loop:** mirror → edit locally/Git → deploy to **staging** with **WinSCP** (**Synchronize** `site/public_html/` → remote `public_html/`). Hard refresh after CSS/JS/PHP. **SSH shell for Dagh:** still **permission denied** (May 2026); Steve will **run one-off scripts** when sent — plan batch recalc for that path unless SSH is fixed.
 
-- **Ladder engine / replay:** **`docs/ladder-engine-plan.md`**. **P0–P1 done (May 2026):** manifest in **`docs/replay-v1-scope-and-reset.md`**; Python **`scripts/ladder/`** (`python -m scripts.ladder run`) on local **`ko2unity_db`**. **P2 next:** validate charts / ranked on local site. Later: Amiga/offline; Steve on staging; **`docs/ratings_cpp.txt`** reference only.
+- **Ladder engine / replay:** **`docs/ladder-engine-plan.md`**. **P0–P2 done (May 2026):** manifest **`docs/replay-v1-scope-and-reset.md`**; Python **`scripts/ladder/`** — v1 Elo + **v2 full `playertable` rebuild** (`python -m scripts.ladder run` on **`ko2unity_db`**). **`generalstatstable`** rebuild when table present (not in local dump). Next: Amiga/offline import; Steve/staging; **`docs/ratings_cpp.txt`** reference only.
 
 - **`resulttable` vs `ratedresults` (May 2026):** Local DB has both — **`resulttable`** is the wide match log (rated + unrated, aborted 0–0, never-linked rows); **`ratedresults`** is the rated ladder only (~74.9k rows). A one-off Steve-era JSON export matched **`resulttable` by `GameID`**, not **`ratedresults`**, and included extra non-ladder games — so Elo from an external replay on that list will differ slightly from ours; that is expected, not a bug. **Canonical source for this project: `ratedresults` only** (replay v1 already does this). Do not commit ad-hoc JSON dumps.
 

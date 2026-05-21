@@ -140,7 +140,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 | `LastGame` | This game’s `Date` |
 | `LastGameGameID` | This game’s `id` |
 
-**Explicitly deferred in v1** (left NULL/stale until a later pass): victim/culprit counters, streaks, peak/lowest rating tracking, `*GameID` record columns (except `LastGameGameID`), `RecentAverageRating`, `generalstatstable`.
+**v2 replay (`scripts/ladder/` May 2026)** also rebuilds: extremes, streaks, opponent/victim/culprit counts, rating career fields, all `*GameID` / `*VictimID` / `*CulpritID` pointers, `RecentAverageRating`, and `Display=1` when `NumberGames >= 1`. **`generalstatstable`** is updated when the table exists (skipped on local dump without it).
 
 ---
 

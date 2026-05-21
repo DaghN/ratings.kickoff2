@@ -4,6 +4,7 @@ from __future__ import annotations
 
 K_FACTOR = 32
 START_RATING = 1600.0
+RECENT_RATING_LOOKBACK = 300
 ALLOWED_DATABASES = frozenset({"ko2unity_db"})
 
 # ratedresults — cleared on reset, rewritten on replay

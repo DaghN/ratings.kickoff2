@@ -16,7 +16,7 @@ Copy **`site/config/ladder.ini.example`** → **`site/config/ladder.ini`** (giti
 # Safe first check — logs SQL and sample math, no writes
 python -m scripts.ladder run --dry-run
 
-# Reset derived columns + full replay (~74k games)
+# Reset derived columns + full replay (~74k games, full playertable rebuild)
 python -m scripts.ladder run
 
 # Steps separately
@@ -34,3 +34,5 @@ python -m scripts.ladder run --limit 100
 - K = 32, starting rating = 1600, no decay
 - Order: `Date ASC`, `id ASC`
 - Database allowlist: `ko2unity_db` only
+
+**v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and updates `generalstatstable` when that table exists (not in the local SQL dump).
