@@ -28,13 +28,13 @@
 
 - **Operational loop:** mirror → edit locally/Git → deploy to **staging** with **WinSCP** (**Synchronize** `site/public_html/` → remote `public_html/`). Hard refresh after CSS/JS/PHP. **SSH shell for Dagh:** still **permission denied** (May 2026); Steve will **run one-off scripts** when sent — plan batch recalc for that path unless SSH is fixed.
 
-- **Ladder engine / replay:** **`docs/ladder-engine-plan.md`**. **P0–P2 done (May 2026):** manifest **`docs/replay-v1-scope-and-reset.md`**; Python **`scripts/ladder/`** — v1 Elo + **v2 full `playertable` rebuild** (`python -m scripts.ladder run` on **`ko2unity_db`**). **`generalstatstable`** rebuild when table present (not in local dump). Next: Amiga/offline import; Steve/staging; **`docs/ratings_cpp.txt`** reference only.
+- **Ladder replay (Python):** **P0–P2 + local `generalstatstable` done (May 2026).** Full docs: **`scripts/ladder/README.md`**, scope **`docs/replay-v1-scope-and-reset.md`**, plan **`docs/ladder-engine-plan.md`**. **Usage (repo root):** `pip install -r scripts/ladder/requirements.txt`; copy **`site/config/ladder.ini.example`** → **`site/config/ladder.ini`** (gitignored; DB **`ko2unity_db`** local, **`kooldb`** staging when configured). **`python -m scripts.ladder run`** = reset derived columns + replay ~74k **`ratedresults`** in `Date ASC, id ASC` order + rebuild **`playertable`** + batch-rebuild **`generalstatstable`** row `id=1`. Also: **`reset`** / **`replay`** separately; **`--dry-run`**, **`--limit N`**. **`generalstatstable`:** DDL **`scripts/ladder/sql/generalstatstable.sql`** (staging-shaped); table + seed row auto-created on reset/run if missing (dump had no this table). **Prod/staging live path stays C++** — Python is for one-shot recalc and local/offline batches, not per-game updates. Next: Amiga/offline import; one-shot staging recalc.
 
 - **`resulttable` vs `ratedresults` (May 2026):** Local DB has both — **`resulttable`** is the wide match log (rated + unrated, aborted 0–0, never-linked rows); **`ratedresults`** is the rated ladder only (~74.9k rows). A one-off Steve-era JSON export matched **`resulttable` by `GameID`**, not **`ratedresults`**, and included extra non-ladder games — so Elo from an external replay on that list will differ slightly from ours; that is expected, not a bug. **Canonical source for this project: `ratedresults` only** (replay v1 already does this). Do not commit ad-hoc JSON dumps.
 
 - **Dev database:** Steve provided a **writable dev DB**; staging **`ko2unitydb_config.php`** updated (May 2026). **Write probe done** (one-shot `scripts/throwaway_db_write_probe.php` → `?once=db-write-probe-one-shot`; probe table dropped; script removed from `public_html`). Still **confirm `DATABASE()`** before substantive DDL/DML. Schema/SQL changes: **dev first**, scripts in repo, Steve for production.
 
-- **Local dev (Dagh PC):** **`docs/LOCAL_DEV.md`** — Laragon at **`C:\laragon`**, site **`http://ratingskickoff.test`** (Apache **port 80**), DB **`ko2unity_db`**. **Workflow verified (May 2026):** desktop shortcut → **Start All** → site loads; **Stop All** → site stops (Apache watchdog + Avast **`SSLKEYLOGFILE`** shim — one-time **`scripts/setup_laragon_apache_fix.ps1`**, sources in **`laragon/`**). Dump in **`data/dumps/`** (no **`generalstatstable`** in that SQL file). Optional diagnostic: **`scripts/check_local_dev.ps1`**. **`127.0.0.1:8765`** = theme-lab only, not the ladder site.
+- **Local dev (Dagh PC):** **`docs/LOCAL_DEV.md`** — Laragon at **`C:\laragon`**, site **`http://ratingskickoff.test`** (Apache **port 80**), DB **`ko2unity_db`**. **Workflow verified (May 2026):** desktop shortcut → **Start All** → site loads; **Stop All** → site stops (Apache watchdog + Avast **`SSLKEYLOGFILE`** shim — one-time **`scripts/setup_laragon_apache_fix.ps1`**, sources in **`laragon/`**). Dump in **`data/dumps/`** — import then **`python -m scripts.ladder run`** for Elo + stats; **`generalstatstable`** created by replay if absent. Optional diagnostic: **`scripts/check_local_dev.ps1`**. **`127.0.0.1:8765`** = theme-lab only, not the ladder site.
 
 - **Change style:** small, reversible slices (brief).
 
@@ -148,7 +148,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 
 
-**Batch recalc implication:** replaying history must mirror this pipeline (or a agreed subset): each game updates **`ratedresults` + both `playertable` rows + `generalstatstable`**, in **date/id order**, reading current `playertable.Rating` before each game like live play.
+**Batch recalc implication:** replay **`ratedresults` + both `playertable` rows** in **date/id order** (ratings depend on prior state). **`generalstatstable`** is a **leaf** table — rebuild **once at end** from final `ratedresults` + `playertable` (see **`scripts/ladder/generalstats.py`**); live prod keeps C++ per-game updates after any one-shot recalc.
 
 
 
@@ -200,6 +200,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 | 2026-05 | **`docs/ratings_cpp.txt`** — Steve supplied C++ post-game excerpt (`RatingProcedureUnity`); reference for live / formula. |
 | 2026-05 | **`docs/ratedresults-schema.md`** — curated snapshot of per-game table `ratedresults` (from `throwaway_ratedresults_schema.php` on dev `kooldb`). |
 | 2026-05 | **Writable dev DB** + updated server config (Steve). **Write probe passed** (`throwaway_db_write_probe.php`; removed from server after). |
+| 2026-05 | **Ladder replay v2 + `generalstatstable`:** local migration + batch server-stats rebuild; profile/leaderboard parity verified; usage documented in **`scripts/ladder/README.md`** + MEMORY. |
 
 | 2026-05 | **Inclusive / fun profile direction** — brainstorm: welcoming copy, progressive disclosure, **fun stats** block; profile “front page” should feel active/fun, not judgment-first. |
 
@@ -266,7 +267,8 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 | **Database** | **MariaDB 10.11.7** on staging; **`mysqli`**; window functions OK. **Dev copy writable** (May 2026); write access verified via probe — still confirm `DATABASE()` before DDL/DML |
 
 | Local preview | **`docs/LOCAL_DEV.md`** — **`http://ratingskickoff.test`** (needs **Apache on :80**); junction **`C:\laragon\www\ratingskickoff`** |
-| Local DB dump | **`data/dumps/ko2unity_db-2026-05-20.sql`** → **`ko2unity_db`**; **no `generalstatstable` in dump** |
+| Local DB dump | **`data/dumps/ko2unity_db-2026-05-20.sql`** → **`ko2unity_db`**; dump omits **`generalstatstable`** — replay creates it |
+| Ladder replay CLI | **`python -m scripts.ladder run`** (see **`scripts/ladder/README.md`**) — **`ko2unity_db`** / **`kooldb`** via **`site/config/ladder.ini`** |
 
 | Throwaway probes | Under **`scripts/`** — manual copy to **`public_html`**, gated `?once=…`, **delete after** |
 

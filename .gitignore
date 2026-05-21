@@ -10,6 +10,7 @@ site/config/ladder.ini
 /KO2PC_DB/
 *.sql
 !schema/**/*.sql
+!scripts/ladder/sql/**/*.sql
 
 # Laragon Apache shim build artifacts
 laragon/*.exe

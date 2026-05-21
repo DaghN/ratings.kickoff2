@@ -33,6 +33,8 @@ python -m scripts.ladder run --limit 100
 
 - K = 32, starting rating = 1600, no decay
 - Order: `Date ASC`, `id ASC`
-- Database allowlist: `ko2unity_db` only
+- Database allowlist: `ko2unity_db` (local), `kooldb` (staging/dev when configured)
 
-**v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and updates `generalstatstable` when that table exists (not in the local SQL dump).
+**v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and rebuilds `generalstatstable` row `id=1` at the end.
+
+**`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Staging DB name `kooldb` is allowlisted when configured in `ladder.ini`.

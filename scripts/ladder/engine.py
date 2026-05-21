@@ -22,6 +22,7 @@ from .finalize_counts import finalize_network_counts_from_rows
 from .generalstats import rebuild_generalstats_if_present
 from .outcome import outcome_from_goals
 from .player_state import PlayerState
+from .schema import ensure_generalstatstable, reset_generalstatstable_row
 
 log = logging.getLogger(__name__)
 
@@ -119,11 +120,13 @@ def reset_universe(conn: pymysql.connections.Connection, *, dry_run: bool) -> No
     if dry_run:
         return
 
+    ensure_generalstatstable(conn)
     with conn.cursor() as cur:
         cur.execute(sql_rated)
         log.info("ratedresults cleared: %s rows affected", cur.rowcount)
         cur.execute(sql_player)
         log.info("playertable reset: %s rows affected", cur.rowcount)
+    reset_generalstatstable_row(conn)
     conn.commit()
 
 

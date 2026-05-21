@@ -25,7 +25,7 @@ Recalculate **Elo and core per-game rating columns** from fixed game facts in ch
 | **`ActualScore` from goals** | A win `1`, draw `0.5`, B win `0` | If `GoalsA > GoalsB` → 1; equal → 0.5; else 0. |
 | **`WinnerID` from goals** | A win → `idA`; B win → `idB`; draw → **`-1`** (matches C++ and current DB — see `docs/ratedresults-schema.md`). Recompute on replay; do not read pre-reset values as input. |
 | **Replay order** | `ORDER BY Date ASC, id ASC` | Same as charts / `docs/ladder-engine-plan.md`. |
-| **`generalstatstable`** | **Out of scope** | Not in local dump; rebuild later if needed. |
+| **`generalstatstable`** | **Batch rebuild** | DDL `scripts/ladder/sql/generalstatstable.sql`; reset NULLs row `id=1`; filled at end of replay (not per-game). |
 | **`resulttable`** | **Untouched** | Legacy / unrated rows; not part of online replay v1. |
 
 ---
@@ -140,7 +140,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 | `LastGame` | This game’s `Date` |
 | `LastGameGameID` | This game’s `id` |
 
-**v2 replay (`scripts/ladder/` May 2026)** also rebuilds: extremes, streaks, opponent/victim/culprit counts, rating career fields, all `*GameID` / `*VictimID` / `*CulpritID` pointers, `RecentAverageRating`, and `Display=1` when `NumberGames >= 1`. **`generalstatstable`** is updated when the table exists (skipped on local dump without it).
+**v2 replay (`scripts/ladder/` May 2026)** also rebuilds: extremes, streaks, opponent/victim/culprit counts, rating career fields, all `*GameID` / `*VictimID` / `*CulpritID` pointers, `RecentAverageRating`, and `Display=1` when `NumberGames >= 1`. **`generalstatstable`** row `id=1` is ensured (CREATE + seed if missing), cleared on reset, and rebuilt from final `ratedresults` + `playertable`.
 
 ---
 
