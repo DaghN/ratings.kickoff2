@@ -1,6 +1,6 @@
 # Ladder engine & replay — plan and intent
 
-**Status:** Agreed direction (May 2026). **Not yet implemented** — no Python replay code in repo until a separate “go” on implementation.
+**Status:** **P0–P2 implemented** in repo (`scripts/ladder/`, May 2026). **Local `ko2unity_db` validated** — full replay of `ratedresults`, `playertable` (v2 career stats), and **batch** rebuild of `generalstatstable` row `id=1`. **Staging one-shot recalc** on dev `kooldb` (Steve runs CLI) still pending. **Commands:** `scripts/ladder/README.md`; day-to-day logistics: `PROJECT_MEMORY.md`.
 
 **Audience:** Dagh, Steve, and Cursor agents. This doc captures **decisions from design discussion** so we do not re-derive them from chat history.
 
@@ -9,14 +9,15 @@
 | Doc | Role |
 |-----|------|
 | `PROJECT_BRIEF.md` | Product taste and north star |
-| `PROJECT_MEMORY.md` | Logistics, shipped charts, deploy |
+| `PROJECT_MEMORY.md` | Logistics, shipped charts, deploy, CLI quick reference |
+| `scripts/ladder/README.md` | **How to run** `reset` / `replay` / `run` (authoritative for commands) |
 | `docs/ratings_cpp.txt` | Legacy **live** post-game logic (reference only) |
 | `docs/ratedresults-schema.md` | Online per-game row shape (snapshot) |
 | `docs/playertable-schema.md` | Online per-player aggregates (snapshot) |
 | `docs/generalstatstable-schema.md` | Server-wide single row `id=1` (snapshot) |
 | `data/README.md` | Local SQL dump import (not in Git) |
 | `docs/LOCAL_DEV.md` | Laragon, `ratingskickoff.test`, local DB name |
-| `docs/replay-v1-scope-and-reset.md` | **P0** — v1 scope + reset/`apply_game` column manifest |
+| `docs/replay-v1-scope-and-reset.md` | **P0** — scope + reset manifest (expanded in v2 replay) |
 
 ---
 
@@ -61,7 +62,7 @@ We **are** building:
 
 - A **small, explicit engine** with clear operations (§4).
 - A **nod** to `docs/ratings_cpp.txt` for Elo shape, column names we choose to support, and “what prod roughly does today.”
-- **Freedom** to omit or simplify legacy baggage (e.g. huge `generalstatstable` record churn per game) until a feature needs it.
+- **Freedom** to omit per-game legacy baggage where a **batch** rebuild at end of replay is enough (e.g. `generalstatstable` — see `scripts/ladder/generalstats.py`).
 
 **Why:** Sandbox has **no obligation** to match prod’s decay or every aggregate. Offline will differ in **how rows enter** the system. A greenfield Python design is easier to reason about than a fork of ~2000 lines of C++.
 
@@ -73,17 +74,19 @@ We **are** building:
 
 ---
 
-## 4. Engine API (intended shape)
+## 4. Engine API (implemented in `scripts/ladder/`)
 
 Language: **Python 3** (Dagh’s choice — clean headspace, readable, testable; separate from PHP site code).
 
-Core operations (same *ideas* for both tracks; different adapters):
+CLI: **`python -m scripts.ladder`** with `reset`, `replay`, or `run` (see README).
+
+Core operations (same *ideas* for both tracks; offline track not built yet):
 
 | Function | Purpose |
 |----------|---------|
-| **`reset_universe(...)`** | Prepare for a full replay: derived state back to agreed baselines. **Immutable game facts** (scores, players on row, dates) usually **kept**; Elo snapshots on game rows, career aggregates, server stats **cleared or zeroed**. Opponent/victim/culprit style fields **must** be rebuilt by replay, not carried over. |
-| **`apply_game(...)`** | One rated game: read current player ratings → compute result + Elo → write per-game row → update both players’ aggregates (and server stats only if v1 needs them). |
-| **`replay_all(...)`** | `reset_universe` then every game in **`Date`, `id` ascending** order calling `apply_game`. |
+| **`reset_universe(...)`** | Prepare for a full replay: derived state back to agreed baselines. **Immutable game facts** (scores, players on row, dates) usually **kept**; Elo snapshots on game rows, career aggregates, server stats **cleared or zeroed**. Ensures **`generalstatstable`** exists (DDL from `scripts/ladder/sql/`) and NULLs row `id=1`. |
+| **`apply_game_row(...)`** | One rated game in memory + DB row dict: read current ratings → result + Elo → update both **`PlayerState`** aggregates (v2: extremes, streaks, cross-player record pointers). |
+| **`replay_all(...)`** | Chronological replay of all `ratedresults`, batch-write games and `playertable`, then **`finalize_network_counts`** and **`rebuild_generalstats_if_present`** (server row **once at end**, not per game). |
 
 **Replay order:** Chronological — same as APIs and rating history charts (`ORDER BY Date ASC, id ASC`).
 
@@ -95,10 +98,11 @@ Core operations (same *ideas* for both tracks; different adapters):
 
 ### Track A — Online-shaped **dev** (first)
 
-- Target: dev DB with familiar tables (`ratedresults`, `playertable`, optionally `generalstatstable`).
+- Target: dev DB with familiar tables (`ratedresults`, `playertable`, `generalstatstable`).
 - Assumption: players often **already exist** in `playertable` before games (like online join/manual insert).
-- Deliverable: `reset` + `replay_all` for sandbox; validate site charts and ranked sort on staging.
-- Reference: `docs/ratings_cpp.txt` for formula and which columns matter **first**.
+- **Done locally:** `reset` + `replay_all` on **`ko2unity_db`**; Laragon site validated (profiles, leaderboards, server stats).
+- **Next:** same `python -m scripts.ladder run` on staging **`kooldb`** (Steve); note intentional deltas vs current live prod (no decay, full replay).
+- Reference: `docs/ratings_cpp.txt` for formula and which columns matter.
 
 ### Track B — **Offline / Amiga 500** (second)
 
@@ -143,11 +147,11 @@ From `docs/ratings_cpp.txt` / live behaviour (reference):
 | Per-game row | Pre-ratings, expected, adjustments, new ratings, goals, flags |
 | `playertable.Rating` after game | New rating after game |
 
-**Simplify or postpone until needed:**
+**Simplify vs live C++ (sandbox replay):**
 
-- Full `generalstatstable` server-records update every game (can recompute or slim subset later).
-- Victim/culprit decrement SQL mid-game — on replay, recompute counts from history or defer.
-- Every extreme and streak field on day one — add as fun-stats / profile needs them.
+- **`generalstatstable`:** **batch rebuild** of row `id=1` after full replay (not 74k incremental UPDATEs). Prod keeps C++ per-game updates after any one-shot recalc.
+- **Victim/culprit pointer counts:** cross-player ±1 semantics ported in v2 `player_state`; network counts (`DifferentVictims`, etc.) from `finalize_counts`.
+- **Career extremes / streaks:** v2 `playertable` rebuild covers profile and ranked needs; fun-stats PHP can follow.
 - **`Display = 1` at 1 game** in C++ vs **established = 20 games** on website — keep website rules in PHP; engine can use its own display rules for sandbox.
 
 **Decay:** Dagh wants it **removed** from desired behaviour. Not present in the supplied C++ excerpt; may exist elsewhere in Steve’s tree. New engine: **no decay**. Steve to remove from live when agreed.
@@ -183,8 +187,8 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 
 | Item | Plan |
 |------|------|
-| **Development** | Python in repo under `scripts/` (layout TBD: e.g. `scripts/ladder/`, `scripts/online/`, `scripts/offline/`). |
-| **Config** | Gitignored server/local ini or environment variables; document variables in README section when code exists. |
+| **Development** | **`scripts/ladder/`** (online track); future **`scripts/offline/`** or similar for Amiga. |
+| **Config** | Gitignored **`site/config/ladder.ini`** (from `ladder.ini.example`); DB allowlist `ko2unity_db`, `kooldb`. |
 | **Running** | Steve runs on staging host against **dev DB**; Dagh sends command + expected duration + “paste last lines of output.” |
 | **SSH** | Not available for Dagh (May 2026); do not block on it. |
 | **Safety** | Full replay only on **dev** until explicit prod plan + backup. |
@@ -196,16 +200,16 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 
 ## 10. Phased roadmap
 
-| Phase | Deliverable |
-|-------|-------------|
-| **P0 — Spec v1** | **`docs/replay-v1-scope-and-reset.md`** — locked scope, reset manifest, minimal `apply_game` write set. |
-| **P1 — Online dev replay** | **`scripts/ladder/`** — `reset` + `replay_all` on sandbox (done locally May 2026). |
-| **P2 — Validate** | Staging charts, ranked order, spot-check players; note deltas vs old prod numbers. |
-| **P3 — Offline schema + import** | How Amiga raw data maps to vocabulary; player-from-results. |
-| **P4 — Offline replay** | Second track scripts; separate DB connection. |
-| **P5 — Live alignment** | Meeting with Steve: C++ changes or future shared engine; prod cutover + backup. |
+| Phase | Status | Deliverable |
+|-------|--------|-------------|
+| **P0 — Spec v1** | **Done** | **`docs/replay-v1-scope-and-reset.md`** — scope, reset manifest, column contract. |
+| **P1 — Online dev replay** | **Done (local)** | **`scripts/ladder/`** — `reset` + `replay_all` + v2 `playertable` + batch `generalstatstable`. |
+| **P2 — Validate** | **Done local / open staging** | Laragon: charts, ranked, profiles, server stats OK. **Pending:** Steve runs same on **`kooldb`**; document deltas vs old prod. |
+| **P3 — Offline schema + import** | Not started | Amiga raw data → vocabulary; player-from-results. |
+| **P4 — Offline replay** | Not started | Second track scripts; separate DB connection. |
+| **P5 — Live alignment** | Not started | Steve: C++ decay removal / formula alignment; prod cutover + backup. |
 
-Chart backlog and “fun stats” on profiles can proceed in PHP against **sandbox** once P2 is trustworthy.
+Chart backlog and “fun stats” on profiles can proceed in PHP against **local sandbox** now; staging PHP benefits after P2 on `kooldb`.
 
 ---
 
@@ -227,7 +231,7 @@ Chart backlog and “fun stats” on profiles can proceed in PHP against **sandb
 1. Starting **Rating** for new/replayed players on **live** (sandbox replay locked to **1600** in `docs/replay-v1-scope-and-reset.md`).
 2. **`Kfactor`** on **live** (sandbox v1 locked to **32**).
 3. Where **decay** lives in Steve’s full tree and removal plan for live.
-4. Whether v1 must update **`generalstatstable`** for `server1.php` headline stats.
+4. ~~Whether v1 must update **`generalstatstable`**~~ — **yes:** batch rebuild at end of `run` (`generalstats.py`); table auto-created if missing.
 5. Amiga: physical **separate database** vs tables on same server.
 
 ---
@@ -238,4 +242,4 @@ Chart backlog and “fun stats” on profiles can proceed in PHP against **sandb
 - **This doc:** Intent and architecture for ladder engine / replay until superseded by Dagh.
 - **Schema snapshots:** `docs/*-schema.md` are DB truth at capture time; re-run throwaways if columns change.
 
-When this doc and `PROJECT_MEMORY.md` disagree on engine intent, **this doc wins** for replay/offline work.
+When this doc and `PROJECT_MEMORY.md` disagree on **engine architecture / phases**, **this doc wins**. For **CLI usage and current logistics**, prefer **`scripts/ladder/README.md`** and **`PROJECT_MEMORY.md`**.
