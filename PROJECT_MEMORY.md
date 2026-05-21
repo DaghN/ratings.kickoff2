@@ -28,7 +28,7 @@
 
 - **Operational loop:** mirror → edit locally/Git → deploy to **staging** with **WinSCP** (**Synchronize** `site/public_html/` → remote `public_html/`). Hard refresh after CSS/JS/PHP. **SSH shell for Dagh:** still **permission denied** (May 2026); Steve will **run one-off scripts** when sent — plan batch recalc for that path unless SSH is fixed.
 
-- **Ladder replay (Python):** **P0–P2 local done (May 2026).** **`python -m scripts.ladder run`** on **`ko2unity_db`**; DB config from **`ko2unitydb_config.php`**. **Staging one-shot:** **`docs/STAGING_REPLAY.md`** — replay package + **`run_staging_ladder_replay.sh`** uploaded under **`public_html/`**; **Steve** runs wrapper (~3 min, **`kooldb`**). After: validate staging UI; then Amiga/offline. CLI: **`scripts/ladder/README.md`**. **Prod live ratings stay C++.**
+- **Ladder replay (Python):** **P0–P2 done (May 2026)** — local **`ko2unity_db`** + staging **`kooldb`** (Steve ran **`run_staging_ladder_replay.sh`**; success). Record: **`docs/STAGING_REPLAY.md`**. CLI: **`scripts/ladder/README.md`**. **Deferred:** Amiga/offline (P3–P4), prod C++ alignment (P5) — see **`docs/ladder-engine-plan.md`**. **Prod live ratings stay C++.**
 
 - **`resulttable` vs `ratedresults` (May 2026):** Local DB has both — **`resulttable`** is the wide match log (rated + unrated, aborted 0–0, never-linked rows); **`ratedresults`** is the rated ladder only (~74.9k rows). A one-off Steve-era JSON export matched **`resulttable` by `GameID`**, not **`ratedresults`**, and included extra non-ladder games — so Elo from an external replay on that list will differ slightly from ours; that is expected, not a bug. **Canonical source for this project: `ratedresults` only** (replay v1 already does this). Do not commit ad-hoc JSON dumps.
 
@@ -202,6 +202,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 | 2026-05 | **`docs/ratedresults-schema.md`** — curated snapshot of per-game table `ratedresults` (from `throwaway_ratedresults_schema.php` on dev `kooldb`). |
 | 2026-05 | **Writable dev DB** + updated server config (Steve). **Write probe passed** (`throwaway_db_write_probe.php`; removed from server after). |
 | 2026-05 | **Ladder replay v2 + `generalstatstable`:** local migration + batch server-stats rebuild; profile/leaderboard parity verified; usage documented in **`scripts/ladder/README.md`** + MEMORY. |
+| 2026-05 | **Staging one-shot replay on `kooldb`:** Steve ran `run_staging_ladder_replay.sh` — success; **`docs/STAGING_REPLAY.md`**. P3–P5 deferred. |
 
 | 2026-05 | **Inclusive / fun profile direction** — brainstorm: welcoming copy, progressive disclosure, **fun stats** block; profile “front page” should feel active/fun, not judgment-first. |
 
@@ -269,7 +270,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 | Local preview | **`docs/LOCAL_DEV.md`** — **`http://ratingskickoff.test`** (needs **Apache on :80**); junction **`C:\laragon\www\ratingskickoff`** |
 | Local DB dump | **`data/dumps/ko2unity_db-2026-05-20.sql`** → **`ko2unity_db`**; dump omits **`generalstatstable`** — replay creates it |
-| Ladder replay CLI | **`python -m scripts.ladder run`** — DB via **`ko2unitydb_config.php`**; staging steps **`docs/STAGING_REPLAY.md`** |
+| Ladder replay CLI | **`python -m scripts.ladder run`** — local/staging recalc done; record **`docs/STAGING_REPLAY.md`** |
 
 | Throwaway probes | Under **`scripts/`** — manual copy to **`public_html`**, gated `?once=…`, **delete after** |
 

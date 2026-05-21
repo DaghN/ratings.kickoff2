@@ -1,6 +1,6 @@
 # Ladder engine & replay — plan and intent
 
-**Status:** **P0–P2 implemented** in repo (`scripts/ladder/`, May 2026). **Local `ko2unity_db` validated.** **Staging:** files on server; Steve runs one-shot recalc per **`docs/STAGING_REPLAY.md`**. **Commands:** `scripts/ladder/README.md`; logistics: `PROJECT_MEMORY.md`.
+**Status:** **P0–P2 done** (May 2026) — local **`ko2unity_db`** + staging **`kooldb`** one-shot replay. **Deferred:** P3–P5 (Amiga/offline, prod C++ alignment). **Commands:** `scripts/ladder/README.md`; staging record: **`docs/STAGING_REPLAY.md`**; logistics: `PROJECT_MEMORY.md`.
 
 **Audience:** Dagh, Steve, and Cursor agents. This doc captures **decisions from design discussion** so we do not re-derive them from chat history.
 
@@ -101,7 +101,7 @@ Core operations (same *ideas* for both tracks; offline track not built yet):
 - Target: dev DB with familiar tables (`ratedresults`, `playertable`, `generalstatstable`).
 - Assumption: players often **already exist** in `playertable` before games (like online join/manual insert).
 - **Done locally:** `reset` + `replay_all` on **`ko2unity_db`**; Laragon site validated (profiles, leaderboards, server stats).
-- **Staging:** **`docs/STAGING_REPLAY.md`** — await Steve `bash run_staging_ladder_replay.sh` on **`kooldb`**; then validate UI.
+- **Staging:** **done** — see **`docs/STAGING_REPLAY.md`** (Steve, May 2026).
 - Reference: `docs/ratings_cpp.txt` for formula and which columns matter.
 
 ### Track B — **Offline / Amiga 500** (second)
@@ -204,12 +204,12 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 |-------|--------|-------------|
 | **P0 — Spec v1** | **Done** | **`docs/replay-v1-scope-and-reset.md`** — scope, reset manifest, column contract. |
 | **P1 — Online dev replay** | **Done (local)** | **`scripts/ladder/`** — `reset` + `replay_all` + v2 `playertable` + batch `generalstatstable`. |
-| **P2 — Validate** | **Local done** | Laragon OK. **Staging:** Steve replay on **`kooldb`** in progress (May 2026); Dagh validates site after. |
-| **P3 — Offline schema + import** | Not started | Amiga raw data → vocabulary; player-from-results. |
-| **P4 — Offline replay** | Not started | Second track scripts; separate DB connection. |
-| **P5 — Live alignment** | Not started | Steve: C++ decay removal / formula alignment; prod cutover + backup. |
+| **P2 — Validate** | **Done** | Local Laragon + staging **`kooldb`** one-shot replay (May 2026). |
+| **P3 — Offline schema + import** | **Deferred** | Amiga raw data → vocabulary; player-from-results. |
+| **P4 — Offline replay** | **Deferred** | Second track scripts; separate DB connection. |
+| **P5 — Live alignment** | **Deferred** | Steve: C++ decay removal / formula alignment; prod cutover + backup. |
 
-Chart backlog and “fun stats” on profiles can proceed in PHP against **local sandbox** now; staging PHP benefits after P2 on `kooldb`.
+PHP/charts work can continue on **local `ko2unity_db`** and **staging `kooldb`**; prod cutover waits for P5.
 
 ---
 
