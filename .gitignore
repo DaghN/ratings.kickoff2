@@ -24,7 +24,13 @@ __pycache__/
 Thumbs.db
 *.log
 
+# TLS debug key logs (openssl/curl SSLKEYLOGFILE) — sensitive; never commit
+/bad
+sslkey.log
+keylog.txt
+
 # Server / editor noise under mirrored site
 site/public_html/.cache/
 site/public_html/.usermin/
 **/dwsync.xml
+**/_notes/
