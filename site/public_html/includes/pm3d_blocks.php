@@ -59,23 +59,129 @@ function pm3d_render_core(array $pm): void
     <?php
 }
 
-function pm3d_render_best_friend(array $pm): void
+/**
+ * @return array{rival: array, h2h: array, you: string}|null
+ */
+function pm3d_featured_rival_bundle(array $pm): ?array
 {
     $r = $pm['featured_rival'] ?? null;
     if ($r === null) {
+        return null;
+    }
+
+    return [
+        'rival' => $r,
+        'h2h' => $pm['rival_h2h'],
+        'you' => (string) $pm['name'],
+    ];
+}
+
+/**
+ * Featured rivalry / #1 opponent. Variants: duel (3G default), h cards, i spotlight, j chart bridge.
+ *
+ * @param 'duel'|'h'|'i'|'j' $variant
+ */
+function pm3d_render_best_friend(array $pm, string $variant = 'duel'): void
+{
+    $bundle = pm3d_featured_rival_bundle($pm);
+    if ($bundle === null) {
         return;
     }
-    $h = $pm['rival_h2h'];
+
+    $variant = strtolower($variant);
+    $r = $bundle['rival'];
+    $h = $bundle['h2h'];
+    $rid = (int) $r['id'];
+    $rname = pm_h($r['name']);
+    $games = number_format((int) $r['games']);
+
+    if ($variant === 'j') {
+        pm3d_section_open('', 'Head-to-head charts below default to this opponent.');
+        ?>
+<div class="pm3hij-rival pm3hij-rival--bridge" aria-label="Featured rivalry">
+	<span class="pm3hij-rival__bridge-label">Primary opponent</span>
+	<a class="pm3hij-rival__bridge-name" href="individual1.php?id=<?php echo $rid; ?>"><?php echo $rname; ?></a>
+	<span class="pm3hij-rival__bridge-meta"><?php echo $games; ?> rated games ·</span>
+	<span class="pm3hij-rival__bridge-wdl">
+		<span class="pm-outcome--win"><?php echo (int) $h['wins']; ?>W</span>
+		<span class="pm-outcome--draw"><?php echo (int) $h['draws']; ?>D</span>
+		<span class="pm-outcome--loss"><?php echo (int) $h['losses']; ?>L</span>
+	</span>
+</div>
+        <?php
+        pm3d_section_close();
+
+        return;
+    }
+
+    if ($variant === 'h') {
+        pm3d_section_open('Most played opponent', 'All-time #1 by rated games — your head-to-head record.');
+        ?>
+<div class="pm3hij-rival pm3hij-rival--cards" aria-label="Featured rivalry">
+	<div class="pm3hij-rival__card">
+		<span class="pm3hij-rival__card-label">Rated games</span>
+		<strong class="pm3hij-rival__card-value"><?php echo $games; ?></strong>
+	</div>
+	<div class="pm3hij-rival__card">
+		<span class="pm3hij-rival__card-label">Your record</span>
+		<p class="pm3hij-rival__card-wdl">
+			<span class="pm-outcome--win"><?php echo (int) $h['wins']; ?>W</span>
+			<span class="pm-outcome--draw"><?php echo (int) $h['draws']; ?>D</span>
+			<span class="pm-outcome--loss"><?php echo (int) $h['losses']; ?>L</span>
+		</p>
+	</div>
+	<div class="pm3hij-rival__card">
+		<span class="pm3hij-rival__card-label">Opponent</span>
+		<a class="pm3hij-rival__card-name" href="individual1.php?id=<?php echo $rid; ?>"><?php echo $rname; ?></a>
+	</div>
+</div>
+        <?php
+        pm3d_section_close();
+
+        return;
+    }
+
+    if ($variant === 'i') {
+        pm3d_section_open('Most played opponent', 'The opponent you have faced the most in rated matches.');
+        ?>
+<div class="pm3hij-rival pm3hij-rival--spotlight" aria-label="Featured rivalry">
+	<article class="pm3hij-rival__hero">
+		<p class="pm3hij-rival__hero-label">All-time #1 opponent</p>
+		<p class="pm3hij-rival__hero-name"><a href="individual1.php?id=<?php echo $rid; ?>"><?php echo $rname; ?></a></p>
+		<p class="pm3hij-rival__hero-count"><?php echo $games; ?></p>
+		<p class="pm3hij-rival__hero-unit">rated games together</p>
+	</article>
+	<div class="pm3hij-rival__aside">
+		<div class="pm3hij-rival__mini">
+			<span class="pm3hij-rival__mini-label">Your record</span>
+			<p class="pm3hij-rival__mini-wdl">
+				<span class="pm-outcome--win"><?php echo (int) $h['wins']; ?>W</span>
+				<span class="pm-outcome--draw"><?php echo (int) $h['draws']; ?>D</span>
+				<span class="pm-outcome--loss"><?php echo (int) $h['losses']; ?>L</span>
+			</p>
+		</div>
+		<div class="pm3hij-rival__mini">
+			<span class="pm3hij-rival__mini-label">Charts below</span>
+			<p class="pm3hij-rival__mini-note">H2H and compare default to this player.</p>
+		</div>
+	</div>
+</div>
+        <?php
+        pm3d_section_close();
+
+        return;
+    }
+
     pm3d_section_open('Best friend');
     ?>
 <div class="pm3-duel" aria-label="Featured rivalry">
 	<div class="pm3-duel__corner pm3-duel__corner--you">
 		<span class="pm3-duel__role">You</span>
-		<span class="pm3-duel__name"><?php echo pm_h($pm['name']); ?></span>
+		<span class="pm3-duel__name"><?php echo pm_h($bundle['you']); ?></span>
 	</div>
 	<div class="pm3-duel__center">
 		<p class="pm3-duel__vs">vs</p>
-		<p class="pm3-duel__count"><strong><?php echo number_format((int) $r['games']); ?></strong> rated games</p>
+		<p class="pm3-duel__count"><strong><?php echo $games; ?></strong> rated games</p>
 		<p class="pm3-duel__record">
 			<span class="pm-outcome--win"><?php echo (int) $h['wins']; ?>W</span>
 			<span class="pm-outcome--draw"><?php echo (int) $h['draws']; ?>D</span>
@@ -85,7 +191,7 @@ function pm3d_render_best_friend(array $pm): void
 	</div>
 	<div class="pm3-duel__corner pm3-duel__corner--rival">
 		<span class="pm3-duel__role">Rival</span>
-		<a class="pm3-duel__name" href="individual1.php?id=<?php echo (int) $r['id']; ?>"><?php echo pm_h($r['name']); ?></a>
+		<a class="pm3-duel__name" href="individual1.php?id=<?php echo $rid; ?>"><?php echo $rname; ?></a>
 	</div>
 </div>
     <?php
@@ -105,11 +211,92 @@ function pm3d_render_played_days(int $playerId, int $year): void
     pm3d_section_close();
 }
 
-function pm3d_render_peak_activity(array $pm): void
+/**
+ * @return array{day: ?array, month: ?array, year: ?array}
+ */
+function pm3d_peak_busiest(array $pm): array
 {
-    $bm = $pm['busiest']['month'] ?? null;
-    $bd = $pm['busiest']['day'] ?? null;
-    $by = $pm['busiest']['year'] ?? null;
+    return [
+        'day' => $pm['busiest']['day'] ?? null,
+        'month' => $pm['busiest']['month'] ?? null,
+        'year' => $pm['busiest']['year'] ?? null,
+    ];
+}
+
+/**
+ * Peak / busiest periods (N11). Variants: stack (3G default), h cards, i spotlight, j = use rhythm band.
+ *
+ * @param 'stack'|'h'|'i' $variant
+ */
+function pm3d_render_peak_activity(array $pm, string $variant = 'stack'): void
+{
+    $variant = strtolower($variant);
+    if ($variant === 'j') {
+        return;
+    }
+
+    $b = pm3d_peak_busiest($pm);
+    $bd = $b['day'];
+    $bm = $b['month'];
+    $by = $b['year'];
+
+    if ($variant === 'h') {
+        pm3d_section_open('Personal bests', 'Most rated games in a single day, month, and calendar year.');
+        ?>
+<div class="pm3-busiest pm3-busiest--inline pm3hij-peak pm3hij-peak--cards">
+	<ol class="pm3-busiest__list">
+		<li>
+			<span class="pm3-busiest__kind">Best day</span>
+			<strong><?php echo $bd ? (int) $bd['count'] : '—'; ?></strong>
+			<em><?php echo $bd ? pm_h(pm2_format_busiest_day((string) $bd['key'])) : ''; ?></em>
+		</li>
+		<li>
+			<span class="pm3-busiest__kind">Best month</span>
+			<strong><?php echo $bm ? (int) $bm['count'] : '—'; ?></strong>
+			<em><?php echo $bm ? pm_h(pm2_format_busiest_month((string) $bm['key'])) : ''; ?></em>
+		</li>
+		<li>
+			<span class="pm3-busiest__kind">Best year</span>
+			<strong><?php echo $by ? (int) $by['count'] : '—'; ?></strong>
+			<em><?php echo $by ? pm_h((string) $by['key']) : ''; ?></em>
+		</li>
+	</ol>
+</div>
+        <?php
+        pm3d_section_close();
+
+        return;
+    }
+
+    if ($variant === 'i') {
+        pm3d_section_open('Peak burst', 'The day with the most rated games — month and year for context.');
+        ?>
+<div class="pm3hij-peak pm3hij-peak--spotlight">
+	<article class="pm3hij-peak__hero" aria-label="Busiest day">
+		<p class="pm3hij-peak__hero-label">Busiest day</p>
+		<p class="pm3hij-peak__hero-count"><?php echo $bd ? (int) $bd['count'] : '—'; ?></p>
+		<p class="pm3hij-peak__hero-unit">rated games</p>
+		<p class="pm3hij-peak__hero-when"><?php echo $bd ? pm_h(pm2_format_busiest_day((string) $bd['key'])) : '—'; ?></p>
+	</article>
+	<div class="pm3hij-peak__aside">
+		<div class="pm3hij-peak__mini">
+			<span class="pm3hij-peak__mini-label">Busiest month</span>
+			<strong><?php echo $bm ? (int) $bm['count'] . ' games' : '—'; ?></strong>
+			<span class="pm3hij-peak__mini-when"><?php echo $bm ? pm_h(pm2_format_busiest_month((string) $bm['key'])) : ''; ?></span>
+		</div>
+		<div class="pm3hij-peak__mini">
+			<span class="pm3hij-peak__mini-label">Busiest year</span>
+			<strong><?php echo $by ? (int) $by['count'] . ' games' : '—'; ?></strong>
+			<span class="pm3hij-peak__mini-when"><?php echo $by ? pm_h((string) $by['key']) : ''; ?></span>
+		</div>
+	</div>
+</div>
+        <?php
+        pm3d_section_close();
+
+        return;
+    }
+
     pm3d_section_open('Peak activity');
     ?>
 <div class="pm3-busiest pm3-busiest--stack">
@@ -130,6 +317,44 @@ function pm3d_render_peak_activity(array $pm): void
 			<em><?php echo $by ? pm_h((string) $by['key']) : ''; ?></em>
 		</li>
 	</ol>
+</div>
+    <?php
+    pm3d_section_close();
+}
+
+/** 3J — calendar + busiest chips in one “rhythm” section. */
+function pm3d_render_played_days_rhythm(int $playerId, int $year, array $pm): void
+{
+    $b = pm3d_peak_busiest($pm);
+    $bd = $b['day'];
+    $bm = $b['month'];
+    $by = $b['year'];
+
+    pm3d_section_open('Played days', 'Calendar shows when you played; chips are your busiest day, month, and year.');
+    ?>
+<div class="pm3j-rhythm">
+	<div class="pm3-cal pm3-cal--hero pm3j-rhythm__cal" data-player-id="<?php echo $playerId; ?>" data-year="<?php echo $year; ?>" aria-label="Calendar activity">
+		<p class="pm3-cal__status pm3-muted">Loading calendar…</p>
+		<div class="pm3-cal__year"></div>
+		<p class="pm3-cal__legend"><span class="pm3-cal__cell pm3-cal__cell--play"></span> played · empty = no rated game</p>
+	</div>
+	<div class="pm3j-rhythm__peaks" aria-label="Busiest periods">
+		<div class="pm3j-rhythm__chip">
+			<span class="pm3j-rhythm__chip-label">Best day</span>
+			<strong class="pm3j-rhythm__chip-value"><?php echo $bd ? (int) $bd['count'] : '—'; ?></strong>
+			<span class="pm3j-rhythm__chip-meta"><?php echo $bd ? pm_h(pm2_format_busiest_day((string) $bd['key'])) : '—'; ?></span>
+		</div>
+		<div class="pm3j-rhythm__chip">
+			<span class="pm3j-rhythm__chip-label">Best month</span>
+			<strong class="pm3j-rhythm__chip-value"><?php echo $bm ? (int) $bm['count'] : '—'; ?></strong>
+			<span class="pm3j-rhythm__chip-meta"><?php echo $bm ? pm_h(pm2_format_busiest_month((string) $bm['key'])) : '—'; ?></span>
+		</div>
+		<div class="pm3j-rhythm__chip">
+			<span class="pm3j-rhythm__chip-label">Best year</span>
+			<strong class="pm3j-rhythm__chip-value"><?php echo $by ? (int) $by['count'] : '—'; ?></strong>
+			<span class="pm3j-rhythm__chip-meta"><?php echo $by ? pm_h((string) $by['key']) : '—'; ?></span>
+		</div>
+	</div>
 </div>
     <?php
     pm3d_section_close();

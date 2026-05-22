@@ -9,7 +9,7 @@ $playerId = (int) $pm['id'];
 <head>
 <meta charset="utf-8" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Pass 3 · Composite 3G — <?php echo pm_h($pm['name']); ?></title>
+<title>Pass 3 · Composite 3I — <?php echo pm_h($pm['name']); ?></title>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="stylesheets/profile-mock-v3.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/profile-mock-v3d.css" rel="stylesheet" type="text/css" />
@@ -17,7 +17,7 @@ $playerId = (int) $pm['id'];
 <link href="stylesheets/profile-mock-v3hij.css" rel="stylesheet" type="text/css" />
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/pm3_scripts.php'; ?>
 </head>
-<body class="k2-site pm3d-body pm3efg-body pm3efg-body--g">
+<body class="k2-site pm3d-body pm3efg-body pm3hij-body pm3hij-body--i">
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
@@ -34,6 +34,7 @@ pm3d_render_presence_career_duo($pm);
 pm3d_render_played_days($playerId, $calYear);
 pm3d_render_peak_activity($pm, 'h');
 pm3d_render_moments($pm);
+pm3d_render_best_friend($pm, 'i');
 pm3d_render_charts($playerId);
 ?>
 

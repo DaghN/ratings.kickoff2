@@ -118,9 +118,11 @@
 	justify-content: flex-start;
 }
 
-.pm3d-core__stat-value--rank {
+/* Rank + rating glow — same feel as mock 3C sigil rating */
+.pm3d-core__stat-value--rank,
+.pm3d-core .k2-player-hero__stat-value--accent {
 	color: var(--k2-realm-accent);
-	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+	text-shadow: 0 0 28px var(--k2-realm-glow);
 }
 
 .pm3d-body .k2-player-nav {

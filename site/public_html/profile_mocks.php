@@ -48,7 +48,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 		<article class="pm-mock-card" style="border-color:var(--k2-realm-accent);">
 			<p class="pm-mock-card__label">Pass 3 · G</p>
 			<h2 class="pm-mock-card__name">Composite feast</h2>
-			<p class="pm-mock-card__thesis">Iterate here — at-a-glance band, Presence | Career tables with ranks, then played days, peak, moments, best friend, charts.</p>
+			<p class="pm-mock-card__thesis">Iterate here — at-a-glance band, Presence | Career ranks, played days, personal-bests peak cards (3H), moments, charts (rivalry via top-opponents default).</p>
 			<a class="pm-mock-card__cta" href="profile_mock3_g.php?id=<?php echo $portalId; ?>">Open mock 3G</a>
 		</article>
 
@@ -57,6 +57,30 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 			<h2 class="pm-mock-card__name">Vertical sections</h2>
 			<p class="pm-mock-card__thesis">Same feast — stacked Presence then Career (no duo band).</p>
 			<a class="pm-mock-card__cta" href="profile_mock3_d.php?id=<?php echo $portalId; ?>">Open mock 3D</a>
+		</article>
+	</div>
+
+	<h2 class="pm2-portal-v1__title" style="margin:16px 0 12px;font-family:var(--k2-font-display);font-size:18px;color:var(--k2-text-primary);">3H / 3I / 3J — rivalry experiment (3G feast + personal-bests peak)</h2>
+	<div class="pm-mock-grid pm3-portal-grid">
+		<article class="pm-mock-card">
+			<p class="pm-mock-card__label">Pass 3 · H</p>
+			<h2 class="pm-mock-card__name">Rival cards</h2>
+			<p class="pm-mock-card__thesis">3G feast + personal-bests peak — three cards: games · your W–D–L · opponent name.</p>
+			<a class="pm-mock-card__cta" href="profile_mock3_h.php?id=<?php echo $portalId; ?>">Open mock 3H</a>
+		</article>
+
+		<article class="pm-mock-card">
+			<p class="pm-mock-card__label">Pass 3 · I</p>
+			<h2 class="pm-mock-card__name">Rival spotlight</h2>
+			<p class="pm-mock-card__thesis">3G feast + personal-bests peak — big opponent name + game count; record and chart note beside.</p>
+			<a class="pm-mock-card__cta" href="profile_mock3_i.php?id=<?php echo $portalId; ?>">Open mock 3I</a>
+		</article>
+
+		<article class="pm-mock-card">
+			<p class="pm-mock-card__label">Pass 3 · J</p>
+			<h2 class="pm-mock-card__name">Chart bridge</h2>
+			<p class="pm-mock-card__thesis">3G feast + rhythm band (calendar + peak chips) — slim rival strip right before charts, no duel box.</p>
+			<a class="pm-mock-card__cta" href="profile_mock3_j.php?id=<?php echo $portalId; ?>">Open mock 3J</a>
 		</article>
 	</div>
 
