@@ -29,7 +29,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, PeakRating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, PeakRating, LowestRating, AverageOpponentRating, HighestRatedVictim, LowestRatedCulprit FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -49,14 +49,12 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">Rank</th>
         <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
         <th class="table-sortable:numeric">ELO rating</th>
-        <th class="table-sortable:numeric">Peak</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;Wins</th>
-        <th class="table-sortable:numeric">Draws</th>
-        <th class="table-sortable:numeric">Losses</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
-        <th class="table-sortable:numeric">Draw Ratio</th>
-        <th class="table-sortable:numeric">Loss Ratio</th>
+        <th class="table-sortable:numeric">Peak</th>
+        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;Nadir</th>
+        <th class="table-sortable:numeric">Opponent Avg.</th>
+        <th class="table-sortable:numeric">Highest Victim</th>
+        <th class="table-sortable:numeric">Lowest Culprit</th>
     </tr>
 </thead>
 
@@ -72,14 +70,12 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo $rank ?></td>
         <td style="text-align:left;"><a href="individual1.php?id=<?php echo $row[0] ?>"><?php echo $row[1] ?></a></td>
         <td><?php echo round($row[2]) ?></td>
-        <td><?php if ($row[3] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[3]); echo "</span>";} ?></td>
-        <td><?php echo $row[4] ?></td>
-        <td><?php if ($row[5]!=0) {echo "<span class='blue'>"; echo $row[5]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php echo $row[6] ?></td>
-        <td><?php if ($row[7]!=0) {echo "<span class='red'>"; echo $row[7]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[8]!=0) {echo "<span class='blue'>";} echo number_format(100*$row[8], 1); echo "%"; ?></td>
-        <td><?php echo number_format(100*$row[9], 1); echo "%"; ?></td>
-        <td><?php if ($row[10]!=0) {echo "<span class='red'>";} echo number_format(100*$row[10], 1); echo "%"; ?></td>
+        <td><?php echo $row[3] ?></td>
+        <td><?php if ($row[4] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[4]); echo "</span>";} ?></td>
+        <td><?php if ($row[5] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[5]); echo "</span>";} ?></td>
+        <td><?php echo round($row[6]) ?></td>
+        <td><?php if ($row[7] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[7]); echo "</span>";} ?></td>
+        <td><?php if ($row[8] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[8]); echo "</span>";} ?></td>
     </tr> 
     
     <?php
