@@ -1,0 +1,141 @@
+/**
+ * Profile mock 3G — Presence + Career at-a-glance band (extends 3D)
+ */
+
+/* ── Duo layout ── */
+
+.pm3efg-duo {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px 20px;
+	align-items: start;
+}
+
+@media (max-width: 720px) {
+	.pm3efg-duo {
+		grid-template-columns: 1fr;
+	}
+}
+
+.pm3efg-duo__panel {
+	min-width: 0;
+	padding: 16px 18px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+}
+
+.pm3efg-duo__panel-title {
+	margin: 0 0 14px;
+	font-family: var(--k2-font-display);
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	color: var(--k2-text-primary);
+}
+
+/* At-a-glance band: one shell, asymmetric columns, no inner panel boxes */
+.pm3efg-duo--g {
+	grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+	padding: 18px 20px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	background: linear-gradient(145deg, var(--k2-bg-elevated) 0%, var(--k2-bg-surface) 55%, var(--k2-bg-page) 100%);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+.pm3efg-duo--g .pm3efg-duo__panel {
+	padding: 0;
+	border: none;
+	border-radius: 0;
+	background: none;
+}
+
+.pm3efg-duo--g .pm3efg-duo__panel--career {
+	padding-left: 20px;
+	border-left: 1px solid var(--k2-border-subtle);
+}
+
+@media (max-width: 720px) {
+	.pm3efg-duo--g .pm3efg-duo__panel--career {
+		padding-left: 0;
+		padding-top: 18px;
+		border-left: none;
+		border-top: 1px solid var(--k2-border-subtle);
+	}
+}
+
+/* ── Stat tables (Presence + Career) ── */
+
+.pm3efg-stat-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.pm3efg-stat-table__row th {
+	padding: 8px 12px 8px 0;
+	width: 48%;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-align: left;
+	vertical-align: top;
+	color: var(--k2-text-muted);
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.pm3efg-stat-table__row td {
+	padding: 8px 0;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+	border-bottom: 1px solid var(--k2-border-subtle);
+	vertical-align: top;
+	line-height: 1.35;
+}
+
+.pm3efg-stat-table__row:last-child th,
+.pm3efg-stat-table__row:last-child td {
+	border-bottom: none;
+}
+
+.pm3efg-stat-table__row--headline td {
+	font-family: var(--k2-font-display);
+	font-size: 17px;
+	font-weight: 700;
+	color: var(--k2-realm-accent);
+}
+
+/* Career: numbers sit left; (#rank) in a narrow column, stacked / right-aligned */
+.pm3efg-stat-table--career .pm3efg-stat-table__row th[scope='row'] {
+	width: 46%;
+}
+
+.pm3efg-stat-table--career .pm3efg-career-stats__num {
+	padding: 8px 10px 8px 0;
+	text-align: left;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+	border-bottom: 1px solid var(--k2-border-subtle);
+	white-space: nowrap;
+	vertical-align: top;
+}
+
+.pm3efg-stat-table--career .pm3efg-career-stats__rank {
+	width: 3.1rem;
+	padding: 8px 0;
+	text-align: right;
+	font-weight: 600;
+	color: var(--k2-realm-accent);
+	border-bottom: 1px solid var(--k2-border-subtle);
+	white-space: nowrap;
+	vertical-align: top;
+}
+
+.pm3efg-stat-table--career .pm3efg-stat-table__row:last-child th,
+.pm3efg-stat-table--career .pm3efg-stat-table__row:last-child .pm3efg-career-stats__num,
+.pm3efg-stat-table--career .pm3efg-stat-table__row:last-child .pm3efg-career-stats__rank {
+	border-bottom: none;
+}
+

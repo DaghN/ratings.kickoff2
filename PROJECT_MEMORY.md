@@ -164,7 +164,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 2. **Launch polish:** revert or confirm **TEST realm accent swap**; decide fate of **seven accent preview pills** on hub row (staging lab vs prod).
 
-3. **Profile first screen:** welcoming layout — fun stats / activity / rating story up front; tuck comparative charts.
+3. **Profile pass 2 mocks:** `docs/profile-data-audit.md` Part C — feast contract (CORE + zones + content parity); mocks A/B/C differ by visual emphasis (Chronicle / Arena / Atlas).
 
 4. **Fun stats block (v1 brainstorm):** biggest win, biggest draw, busiest month, goal-rich month, longest win streak, goal-festival game; pull from existing `playertable` + monthly SQL on `ratedresults`; playful section title (e.g. trophy cabinet). **Exclude** longest game; keep harsh rows (biggest loss) in full table only.
 
@@ -191,6 +191,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 |----------------|------|
 
 | 2026-05 | **CSS hygiene:** `k2_head.php`; deleted `main2.css`; `--k2-*` tokens for chart subtitles; neon C documented; removed unused rank-#1 table glow; `theme_boot` only in `<head>`. |
+| 2026-05 | **Profile pass 2 mocks:** `profile_mock_a/b/c.php` (Chronicle/Arena/Atlas) per `docs/profile-data-audit.md` Part C; `profile-mock-v2.css`, `pm2_blocks.php`, `api/profile_mock/player_activity_heatmap.php`. Pass 1 archived as `profile_mock_v1_*.php`. |
 | 2026-05 | **Cosmetics wrap-up:** segment-track + outline wing nav on ranked pages; hub accent preview pills + `realm-switch.js`; `theme_boot_head.php` sync realm/accent before paint; Games hub 7-day window (min 50 fallback), no table pager; `individual3` 100 games/page; peak-month leaderboard SSR on Trends. |
 | 2026-05 | **Phase A hub nav** on production PHP — `hub_nav.php`, `status.php` bridge, wing tabs via `lb_nav.php`; theme-lab wing/segment experiments promoted to `theme.css`. |
 | 2026-05 | **Theme lab:** `theme-lab.html`, `stylesheets/theme-lab.css`, `js/theme-lab.js` — interactive neon/realm/amiga-accent/display-font preview. |

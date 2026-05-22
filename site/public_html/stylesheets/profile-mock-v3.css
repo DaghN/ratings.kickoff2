@@ -1,0 +1,1004 @@
+/**
+ * Profile pass 3 — Ember Monument (A) · Glass Ledger (B) · Pulse Sigil (C)
+ */
+
+.pm3-body {
+	--pm3-ember: var(--k2-chart-amber, #ffb74d);
+	--pm3-ember-glow: rgba(255, 183, 77, 0.42);
+	--pm3-green: #3fb950;
+	--pm3-green-glow: rgba(63, 185, 80, 0.35);
+	max-width: 1040px;
+	margin: 0 auto;
+	padding-bottom: 48px;
+}
+
+/* ── Nav (above CORE — not content boxes) ── */
+
+.pm3-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 20px;
+	margin: 0 0 22px;
+	padding: 0 0 12px;
+	border-bottom: 1px solid var(--k2-border-subtle);
+	background: transparent;
+}
+
+.pm3-nav__link {
+	padding: 6px 2px;
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: var(--k2-text-muted);
+	text-decoration: none;
+	border: none;
+	background: none;
+	box-shadow: none;
+}
+
+.pm3-nav__link:hover {
+	color: var(--k2-text-primary);
+}
+
+.pm3-nav__link.is-active {
+	color: var(--k2-realm-accent);
+}
+
+/* A · underline glow */
+.pm3-nav--ember .pm3-nav__link.is-active {
+	text-shadow: 0 0 16px var(--k2-realm-glow);
+	box-shadow: inset 0 -3px 0 var(--k2-realm-accent);
+}
+
+/* B · segmented track */
+.pm3-nav--ledger {
+	gap: 0;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: 999px;
+	background: rgba(0, 0, 0, 0.25);
+	border-bottom: none;
+}
+
+.pm3-nav--ledger .pm3-nav__link {
+	padding: 8px 16px;
+	border-radius: 999px;
+}
+
+.pm3-nav--ledger .pm3-nav__link.is-active {
+	color: var(--k2-bg-page);
+	background: var(--k2-realm-accent);
+	box-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+}
+
+/* C · dot-separated text */
+.pm3-nav--sigil {
+	gap: 0;
+	justify-content: center;
+	border: none;
+	padding-bottom: 0;
+}
+
+.pm3-nav--sigil .pm3-nav__link + .pm3-nav__link::before {
+	content: "·";
+	margin: 0 14px;
+	color: var(--k2-border-subtle);
+	font-weight: 400;
+}
+
+.pm3-nav--sigil .pm3-nav__link.is-active {
+	font-size: 15px;
+	text-shadow: 0 0 12px var(--k2-realm-glow);
+}
+
+/* ── CORE A · Monument ── */
+
+.pm3-core--monument {
+	margin-bottom: 24px;
+	text-align: center;
+}
+
+.pm3-monument__name {
+	margin: 0 0 16px;
+	font-family: var(--k2-font-display);
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0.28em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+.pm3-monument__plate {
+	position: relative;
+	margin: 0 auto 20px;
+	padding: 36px 28px 32px;
+	max-width: 520px;
+	border-radius: var(--k2-radius-lg);
+	background:
+		radial-gradient(ellipse 90% 70% at 50% 100%, var(--pm3-ember-glow), transparent 65%),
+		linear-gradient(165deg, #1c1810 0%, var(--k2-bg-surface) 55%);
+	border: 1px solid rgba(255, 183, 77, 0.25);
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 0 32px var(--pm3-ember-glow);
+	overflow: hidden;
+}
+
+.pm3-monument__plate-glow {
+	position: absolute;
+	inset: -40% -20%;
+	background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%);
+	animation: pm3-shine 7s linear infinite;
+	pointer-events: none;
+}
+
+@keyframes pm3-shine {
+	0% { transform: translateX(-80%) rotate(8deg); }
+	100% { transform: translateX(80%) rotate(8deg); }
+}
+
+.pm3-monument__plate-label {
+	display: block;
+	position: relative;
+	margin-bottom: 6px;
+	font-size: 12px;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+.pm3-monument__plate-value {
+	position: relative;
+	display: block;
+	font-family: var(--k2-font-display);
+	font-size: clamp(56px, 12vw, 88px);
+	font-weight: 700;
+	line-height: 1;
+	color: var(--pm3-ember);
+	text-shadow: 0 0 48px var(--pm3-ember-glow), 0 0 12px rgba(255, 183, 77, 0.5);
+}
+
+.pm3-monument__trio {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 14px;
+}
+
+@media (max-width: 640px) {
+	.pm3-monument__trio { grid-template-columns: 1fr; }
+}
+
+.pm3-monument__tile {
+	padding: 20px 14px;
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+.pm3-monument__tile--peak {
+	border-color: rgba(255, 183, 77, 0.35);
+	box-shadow: inset 0 0 24px rgba(255, 183, 77, 0.08);
+}
+
+.pm3-monument__tile-value {
+	display: block;
+	font-family: var(--k2-font-display);
+	font-size: clamp(28px, 5vw, 40px);
+	font-weight: 700;
+	color: var(--pm3-ember);
+	text-shadow: 0 0 20px var(--pm3-ember-glow);
+}
+
+.pm3-monument__tile-label {
+	display: block;
+	margin-top: 6px;
+	font-size: 11px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+/* ── CORE B · Ledger ── */
+
+.pm3-core--ledger {
+	display: grid;
+	grid-template-columns: 1fr minmax(200px, 280px);
+	gap: 24px 32px;
+	align-items: stretch;
+	margin-bottom: 24px;
+	padding: 28px 32px;
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+	border: 1px solid var(--k2-border-subtle);
+	box-shadow: 0 0 28px var(--k2-realm-glow), 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 720px) {
+	.pm3-core--ledger { grid-template-columns: 1fr; }
+}
+
+.pm3-ledger__name {
+	margin: 0;
+	font-family: var(--k2-font-display);
+	font-size: clamp(28px, 5vw, 38px);
+	font-weight: 700;
+	line-height: 1.15;
+	color: var(--k2-text-primary);
+}
+
+.pm3-ledger__rank {
+	font-size: 0.55em;
+	font-weight: 600;
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 14px var(--k2-realm-glow);
+}
+
+.pm3-ledger__since {
+	margin: 10px 0 0;
+	font-size: 14px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-ledger__focus {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	border-radius: var(--k2-radius-md);
+	border: 1px solid var(--k2-realm-accent);
+	background: radial-gradient(circle at 50% 0%, var(--k2-realm-glow), transparent 70%);
+	text-align: center;
+}
+
+.pm3-ledger__rating-label {
+	margin: 0;
+	font-size: 11px;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+.pm3-ledger__rating-value {
+	margin: 4px 0 12px;
+	font-family: var(--k2-font-display);
+	font-size: clamp(48px, 10vw, 64px);
+	font-weight: 700;
+	line-height: 1;
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 32px var(--k2-realm-glow);
+}
+
+.pm3-ledger__side {
+	display: flex;
+	gap: 24px;
+	margin: 0;
+}
+
+.pm3-ledger__side div { text-align: center; }
+
+.pm3-ledger__side dt {
+	margin: 0;
+	font-size: 10px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+.pm3-ledger__side dd {
+	margin: 2px 0 0;
+	font-family: var(--k2-font-display);
+	font-size: 22px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+/* ── CORE C · Sigil bar ── */
+
+.pm3-core--sigil {
+	display: flex;
+	align-items: center;
+	gap: 20px 28px;
+	margin-bottom: 20px;
+	padding: 22px 28px;
+	border-radius: var(--k2-radius-lg);
+	background: linear-gradient(90deg, rgba(0, 0, 0, 0.35), transparent 40%, rgba(0, 0, 0, 0.2));
+	border: 1px solid var(--k2-border-subtle);
+}
+
+@media (max-width: 640px) {
+	.pm3-core--sigil { flex-wrap: wrap; }
+}
+
+.pm3-sigil__ring {
+	flex-shrink: 0;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	border: 2px solid var(--k2-realm-accent);
+	box-shadow: 0 0 24px var(--k2-realm-glow), inset 0 0 16px var(--k2-realm-glow);
+	display: grid;
+	place-items: center;
+}
+
+.pm3-sigil__ring span {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--k2-realm-accent);
+	box-shadow: 0 0 12px var(--k2-realm-accent);
+}
+
+.pm3-sigil__body { flex: 1; min-width: 0; }
+
+.pm3-sigil__name {
+	margin: 0;
+	font-family: var(--k2-font-display);
+	font-size: clamp(22px, 4vw, 32px);
+	font-weight: 700;
+}
+
+.pm3-sigil__rank {
+	margin-left: 8px;
+	font-size: 0.65em;
+	font-weight: 600;
+	color: var(--k2-realm-accent);
+}
+
+.pm3-sigil__meta {
+	margin: 6px 0 0;
+	font-size: 14px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-sigil__rating {
+	flex-shrink: 0;
+	text-align: right;
+}
+
+.pm3-sigil__rating-num {
+	display: block;
+	font-family: var(--k2-font-display);
+	font-size: clamp(40px, 8vw, 56px);
+	font-weight: 700;
+	line-height: 1;
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 28px var(--k2-realm-glow);
+}
+
+.pm3-sigil__rating-lbl {
+	font-size: 11px;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+/* ── Facts chips ── */
+
+.pm3-facts { margin-bottom: 22px; }
+
+.pm3-facts__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pm3-facts__chip {
+	padding: 8px 14px;
+	border-radius: 999px;
+	border: 1px solid var(--k2-border-subtle);
+	background: rgba(255, 255, 255, 0.03);
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-facts__chip span {
+	font-weight: 700;
+	color: var(--k2-text-primary);
+}
+
+.pm3-facts__chip--tenure {
+	border-color: var(--k2-realm-accent);
+	box-shadow: 0 0 14px var(--k2-realm-glow);
+}
+
+.pm3-facts__chip--muted {
+	border-style: dashed;
+	opacity: 0.8;
+}
+
+.pm3-body--b .pm3-facts__chip {
+	border-radius: var(--k2-radius-md);
+	padding: 10px 16px;
+	box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Activity ── */
+
+.pm3-activity {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 16px 24px;
+	align-items: center;
+	margin-bottom: 28px;
+	padding: 18px 22px;
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+@media (max-width: 700px) {
+	.pm3-activity { grid-template-columns: 1fr; }
+}
+
+.pm3-activity__label {
+	display: block;
+	font-size: 10px;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+	margin-bottom: 6px;
+}
+
+.pm3-activity__line {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.pm3-activity__dot {
+	margin: 0 8px;
+	opacity: 0.4;
+}
+
+.pm3-activity__pace {
+	display: flex;
+	gap: 20px;
+}
+
+.pm3-activity__pace-num {
+	display: block;
+	font-family: var(--k2-font-display);
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 16px var(--k2-realm-glow);
+}
+
+.pm3-activity__pace-lbl {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--k2-text-muted);
+}
+
+/* ── Sections ── */
+
+.pm3-section { margin-bottom: 36px; }
+
+.pm3-section__title {
+	margin: 0 0 6px;
+	font-family: var(--k2-font-display);
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.pm3-section__hint {
+	margin: 0 0 16px;
+	font-size: 14px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-muted { color: var(--k2-text-muted); font-size: 13px; }
+
+/* ── Moments ── */
+
+.pm3-moments__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 16px;
+}
+
+.pm3-moment {
+	padding: 18px 16px;
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	border: 1px solid var(--k2-border-subtle);
+	transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.pm3-moment:hover {
+	border-color: var(--k2-realm-accent);
+	box-shadow: 0 0 24px var(--k2-realm-glow);
+}
+
+.pm3-moment--streak {
+	border-color: rgba(255, 183, 77, 0.35);
+	background: linear-gradient(145deg, rgba(255, 183, 77, 0.08), var(--k2-bg-surface));
+}
+
+.pm3-moment__glyph { font-size: 22px; }
+
+.pm3-moment__tag {
+	display: inline-block;
+	margin: 8px 0 4px;
+	font-size: 10px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--k2-realm-accent);
+}
+
+.pm3-moment__label {
+	margin: 0 0 8px;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.pm3-moment__score {
+	margin: 0;
+	font-family: var(--k2-font-display);
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.pm3-moment__meta {
+	margin: 8px 0 0;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+/* A · editorial stagger */
+.pm3-moments--editorial .pm3-moments__grid {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 900px) {
+	.pm3-moments--editorial .pm3-moments__grid { grid-template-columns: 1fr 1fr; }
+}
+
+.pm3-moments--editorial .pm3-moment:first-child {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 8px 20px;
+	padding: 22px 24px;
+}
+
+.pm3-moments--editorial .pm3-moment:first-child .pm3-moment__score {
+	font-size: 32px;
+	color: var(--pm3-ember);
+	text-shadow: 0 0 20px var(--pm3-ember-glow);
+}
+
+/* B · mosaic borders */
+.pm3-moments--mosaic .pm3-moment {
+	border-width: 2px;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.pm3-moments--mosaic .pm3-moment:nth-child(odd) {
+	transform: rotate(-0.4deg);
+}
+
+.pm3-moments--mosaic .pm3-moment:nth-child(even) {
+	transform: rotate(0.35deg);
+}
+
+/* C · horizontal reel */
+.pm3-moments--reel .pm3-moments__grid {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	gap: 14px;
+	padding-bottom: 8px;
+	scroll-snap-type: x mandatory;
+}
+
+.pm3-moments--reel .pm3-moment {
+	flex: 0 0 min(280px, 78vw);
+	scroll-snap-align: start;
+	border-color: var(--k2-realm-accent);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 16px var(--k2-realm-glow);
+}
+
+/* ── Busiest ── */
+
+.pm3-busiest__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pm3-busiest--stack .pm3-busiest__list li {
+	display: grid;
+	grid-template-columns: 140px 1fr auto;
+	gap: 8px 16px;
+	align-items: baseline;
+	padding: 14px 0;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.pm3-busiest--stack .pm3-busiest__list li:last-child { border-bottom: none; }
+
+.pm3-busiest__kind {
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--k2-text-muted);
+}
+
+.pm3-busiest__list strong {
+	font-family: var(--k2-font-display);
+	font-size: 20px;
+	color: var(--pm3-ember);
+}
+
+.pm3-busiest__list em {
+	font-style: normal;
+	font-size: 14px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-busiest--rail .pm3-busiest__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.pm3-busiest--rail .pm3-busiest__list li {
+	flex: 1 1 180px;
+	padding: 14px 16px;
+	border-radius: var(--k2-radius-md);
+	border: 1px solid var(--k2-border-subtle);
+	background: var(--k2-bg-surface);
+}
+
+.pm3-busiest--rail .pm3-busiest__kind { display: block; margin-bottom: 6px; }
+
+.pm3-busiest--inline .pm3-busiest__list {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+}
+
+@media (max-width: 700px) {
+	.pm3-busiest--inline .pm3-busiest__list { grid-template-columns: 1fr; }
+}
+
+.pm3-busiest--inline .pm3-busiest__list li {
+	padding: 16px;
+	text-align: center;
+	border-radius: var(--k2-radius-md);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+.pm3-busiest--inline .pm3-busiest__kind { display: block; margin-bottom: 8px; }
+
+.pm3-busiest--inline strong {
+	display: block;
+	font-size: 26px;
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 12px var(--k2-realm-glow);
+}
+
+/* ── Rivalry A · duel ── */
+
+.pm3-duel {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	gap: 12px;
+	align-items: stretch;
+	margin-bottom: 32px;
+	padding: 0;
+	border-radius: var(--k2-radius-lg);
+	overflow: hidden;
+	border: 1px solid var(--k2-border-subtle);
+	background: linear-gradient(90deg, rgba(0, 0, 0, 0.4), transparent 50%, rgba(0, 0, 0, 0.4));
+}
+
+@media (max-width: 640px) {
+	.pm3-duel { grid-template-columns: 1fr; text-align: center; }
+}
+
+.pm3-duel__corner {
+	padding: 28px 20px;
+	background: var(--k2-bg-surface);
+}
+
+.pm3-duel__corner--you {
+	border-right: 1px solid var(--k2-border-subtle);
+	text-align: right;
+}
+
+.pm3-duel__corner--rival {
+	border-left: 1px solid var(--k2-border-subtle);
+}
+
+.pm3-duel__role {
+	display: block;
+	font-size: 10px;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+	margin-bottom: 8px;
+}
+
+.pm3-duel__name {
+	font-family: var(--k2-font-display);
+	font-size: clamp(18px, 3vw, 26px);
+	font-weight: 700;
+	color: var(--k2-text-primary);
+	text-decoration: none;
+}
+
+.pm3-duel__center {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 24px 28px;
+	min-width: 200px;
+	background: radial-gradient(circle, var(--pm3-ember-glow), transparent 70%);
+}
+
+.pm3-duel__vs {
+	margin: 0;
+	font-size: 12px;
+	letter-spacing: 0.3em;
+	text-transform: uppercase;
+	color: var(--pm3-ember);
+}
+
+.pm3-duel__count {
+	margin: 8px 0;
+	font-size: 14px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-duel__count strong {
+	display: block;
+	font-family: var(--k2-font-display);
+	font-size: 36px;
+	color: var(--pm3-ember);
+	text-shadow: 0 0 24px var(--pm3-ember-glow);
+}
+
+.pm3-duel__record { margin: 0; font-size: 15px; }
+
+.pm3-duel__tag {
+	margin: 10px 0 0;
+	font-size: 11px;
+	color: var(--k2-text-muted);
+}
+
+/* ── Rivalry B · scoreboard ── */
+
+.pm3-scoreboard {
+	margin-bottom: 32px;
+	padding: 24px 28px;
+	border-radius: var(--k2-radius-lg);
+	border: 2px solid var(--k2-realm-accent);
+	box-shadow: 0 0 40px var(--k2-realm-glow), inset 0 0 60px rgba(0, 0, 0, 0.2);
+	background: var(--k2-bg-surface);
+}
+
+.pm3-scoreboard__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.pm3-scoreboard__head a {
+	font-family: var(--k2-font-display);
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 20px var(--k2-realm-glow);
+}
+
+.pm3-scoreboard__body {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 24px 40px;
+}
+
+.pm3-scoreboard__num {
+	display: block;
+	font-family: var(--k2-font-display);
+	font-size: 48px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.pm3-scoreboard__lbl {
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-scoreboard__wdl { font-size: 18px; }
+
+.pm3-scoreboard__note {
+	margin: 0;
+	flex: 1 1 200px;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+/* ── Rivalry C · pin ── */
+
+.pm3-rival-pin {
+	margin: 0 0 20px;
+	padding: 12px 16px;
+	border-left: 3px solid var(--k2-realm-accent);
+	font-size: 15px;
+	background: rgba(255, 255, 255, 0.02);
+}
+
+.pm3-rival-pin__label {
+	margin-right: 10px;
+	font-size: 11px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+/* ── Calendar ── */
+
+.pm3-cal__year { margin-top: 12px; }
+
+.pm3-cal__weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 10px);
+	gap: 3px;
+	margin-bottom: 8px;
+	padding-left: 28px;
+	font-size: 9px;
+	color: var(--k2-text-muted);
+	text-align: center;
+}
+
+.pm3-cal__months {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 16px 12px;
+}
+
+@media (max-width: 900px) {
+	.pm3-cal__months { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+	.pm3-cal__months { grid-template-columns: repeat(2, 1fr); }
+}
+
+.pm3-cal__month-label {
+	margin: 0 0 6px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--k2-text-muted);
+}
+
+.pm3-cal__grid {
+	display: grid;
+	grid-template-columns: repeat(7, 10px);
+	gap: 3px;
+}
+
+.pm3-cal__cell {
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.pm3-cal__cell--pad {
+	background: transparent;
+}
+
+.pm3-cal__cell--play {
+	background: var(--pm3-green);
+	box-shadow: 0 0 6px var(--pm3-green-glow);
+}
+
+.pm3-cal--hero {
+	padding: 28px 24px;
+	border-radius: var(--k2-radius-lg);
+	border: 1px solid rgba(63, 185, 80, 0.25);
+	background: radial-gradient(ellipse at 50% 0%, var(--pm3-green-glow), transparent 55%);
+}
+
+.pm3-cal--hero .pm3-cal__cell {
+	width: 12px;
+	height: 12px;
+}
+
+.pm3-cal--hero .pm3-cal__grid {
+	grid-template-columns: repeat(7, 12px);
+	gap: 4px;
+}
+
+.pm3-cal--hero .pm3-cal__weekdays {
+	grid-template-columns: repeat(7, 12px);
+	gap: 4px;
+}
+
+.pm3-cal__legend {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 16px;
+	font-size: 12px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-cal__legend .pm3-cal__cell--play {
+	width: 14px;
+	height: 14px;
+}
+
+/* ── Prod charts ── */
+
+.pm3-charts-prod > div {
+	margin-bottom: 32px;
+}
+
+.pm3-charts-prod canvas {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+/* ── Stats ── */
+
+.pm3-stats__grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+}
+
+@media (max-width: 560px) {
+	.pm3-stats__grid { grid-template-columns: 1fr; }
+}
+
+.pm3-stats__cell {
+	padding: 14px 16px;
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+.pm3-stats__label {
+	display: block;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--k2-text-muted);
+}
+
+.pm3-stats__value {
+	display: block;
+	margin-top: 4px;
+	font-weight: 600;
+}
+
+.pm3-stats__sub {
+	display: block;
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-stats__foot {
+	margin-top: 14px;
+	font-size: 14px;
+}
+
+/* Portal pass 3 cards */
+.pm3-portal-grid .pm-mock-card__label {
+	color: var(--k2-realm-accent);
+}

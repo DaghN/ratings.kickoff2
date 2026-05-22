@@ -1,0 +1,266 @@
+/**
+ * Profile mock 3D — flat sections (header → content), no wrapper padding
+ */
+
+.pm3d-body {
+	/* Mock 3A monument plate + peak activity counts */
+	--pm3-ember: var(--k2-chart-amber, #ffb74d);
+	--pm3-ember-glow: rgba(255, 183, 77, 0.42);
+}
+
+/* Content column matches production (theme.css .k2-page-nav) */
+.pm3d-body .k2-page-nav {
+	max-width: var(--k2-max-width, 1200px);
+	margin-left: auto;
+	margin-right: auto;
+	padding-bottom: 48px;
+}
+
+/* ── Section: title/hint at column edge, content below ── */
+
+.pm3d-section {
+	margin-bottom: 28px;
+	padding: 0;
+	border: none;
+	background: none;
+}
+
+.pm3d-section__title {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-display);
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--k2-text-primary, #e6edf3);
+}
+
+.pm3d-section__hint {
+	margin: 0 0 14px;
+	font-size: 14px;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+}
+
+.pm3d-section__content {
+	min-width: 0;
+}
+
+/* Played days — realm-colored played cells, no glow */
+.pm3d-section__content > .pm3-cal--hero {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 20px 0 24px;
+	border: none;
+	border-radius: var(--k2-radius-lg);
+	background: none;
+}
+
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__cell--play {
+	background: var(--k2-realm-accent);
+	box-shadow: none;
+}
+
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__status {
+	margin: 0 0 12px;
+}
+
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__year {
+	margin-top: 0;
+	width: 100%;
+}
+
+/* Weekday header row misaligns when months auto-fill — hide on 3D */
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__weekdays {
+	display: none;
+}
+
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__months {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 20px 24px;
+	width: 100%;
+}
+
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__legend {
+	margin-top: 16px;
+}
+
+/* Legend swatch only — not a full-width cell */
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__legend .pm3-cal__cell--play {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+	background: var(--k2-realm-accent);
+	box-shadow: none;
+}
+
+/* ── CORE hero + rank (no section wrapper) ── */
+
+/* CORE shell — profile_mock_a.php (pm2-core) border/background only */
+.pm3d-core {
+	margin-bottom: 24px;
+	padding: 20px 24px 22px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	background: linear-gradient(145deg, var(--k2-bg-elevated) 0%, var(--k2-bg-surface) 55%, var(--k2-bg-page) 100%);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+.pm3d-core__inner {
+	display: block;
+}
+
+.pm3d-core .k2-player-hero__name {
+	text-align: left;
+}
+
+.pm3d-core .k2-player-hero__stats {
+	justify-content: flex-start;
+}
+
+.pm3d-core__stat-value--rank {
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+}
+
+.pm3d-body .k2-player-nav {
+	margin: 0 0 28px;
+}
+
+/* ── Presence + career tile grids ── */
+
+.pm3d-career__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 10px;
+}
+
+.pm3d-career__tile {
+	padding: 12px 14px;
+	border-radius: var(--k2-radius-md);
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+.pm3d-career__label {
+	display: block;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+	margin-bottom: 6px;
+}
+
+.pm3d-career__value {
+	display: block;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+	line-height: 1.3;
+}
+
+
+/* Peak activity — realm accent on game counts (not fixed amber) */
+.pm3d-section .pm3-busiest__list strong {
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * 0.5) var(--k2-realm-glow);
+}
+
+/* ── Best friend duel (realm-colored center glow) ── */
+
+.pm3d-section__content > .pm3-duel {
+	margin: 0;
+	border-radius: var(--k2-radius-md);
+	overflow: hidden;
+}
+
+.pm3d-section__content > .pm3-duel .pm3-duel__center {
+	background: radial-gradient(circle, var(--k2-realm-glow), transparent 70%);
+}
+
+.pm3d-body .pm3-duel__vs {
+	color: var(--k2-realm-accent);
+}
+
+.pm3d-body .pm3-duel__count strong {
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * 1.3) var(--k2-realm-glow);
+}
+
+/* ── Moments mosaic ── */
+
+.pm3d-section .pm3-moments__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 16px;
+}
+
+.pm3d-section .pm3-moment {
+	padding: 18px 16px;
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	border: 2px solid var(--k2-border-subtle);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.pm3d-section .pm3-moment--streak {
+	border-color: var(--k2-border-subtle);
+	background: var(--k2-bg-surface);
+}
+
+.pm3d-section .pm3-moment--streak .pm3-moment__score {
+	color: var(--k2-realm-accent);
+	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+}
+
+.pm3d-section .pm3-moment:hover {
+	border-color: var(--k2-realm-accent);
+	box-shadow: 0 0 20px var(--k2-realm-glow);
+}
+
+.pm3d-section .pm3-moments--mosaic .pm3-moment:nth-child(odd) {
+	transform: rotate(-0.35deg);
+}
+
+.pm3d-section .pm3-moments--mosaic .pm3-moment:nth-child(even) {
+	transform: rotate(0.3deg);
+}
+
+/* ── Charts: title outside; prod chart card only on content child ── */
+
+.pm3d-chart__status,
+.pm3d-chart__meta,
+.pm3d-chart__opponent {
+	margin: 0 0 8px;
+	font-size: 14px;
+	color: var(--k2-text-muted);
+}
+
+.pm3d-chart__summary {
+	margin: 0 0 8px;
+	color: var(--k2-text-primary);
+	font-size: 1.05em;
+}
+
+.pm3d-section__content > .player-rating-chart,
+.pm3d-section__content > .player-games-month-chart,
+.pm3d-section__content > .player-rating-game-chart,
+.pm3d-section__content > .player-top-opponents-chart,
+.pm3d-section__content > .player-head-to-head-chart,
+.pm3d-section__content > .player-compare-rating-chart,
+.pm3d-section__content > .player-h2h-opponent-search {
+	margin: 0;
+	max-width: var(--k2-chart-max-width, 960px);
+}
+
+.pm3d-section__content canvas {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+.pm3d-h2h-search {
+	margin: 0;
+}
