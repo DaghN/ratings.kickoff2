@@ -1,7 +1,7 @@
 <?php
 /**
  * Profile feast data — build $pm from playertable + aggregates.
- * Used by profile_feast.php and individual1.php (Profile tab).
+ * Used by individual1.php (Profile tab).
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_profile.php';
@@ -253,29 +253,3 @@ function player_feast_expose_hero_vars(array $pm): void
     $PeakRating = $Display === 1 ? (float) $pm['peak_raw'] : 0;
 }
 
-// ── Bootstrap for profile_feast.php only ──
-if (isset($_SERVER['SCRIPT_FILENAME'])
-    && realpath((string) $_SERVER['SCRIPT_FILENAME']) === realpath(__DIR__ . '/../profile_feast.php')) {
-    $PLAYER_FEAST_DEFAULT_ID = 237;
-
-    $id = isset($_GET['id']) ? (int) $_GET['id'] : $PLAYER_FEAST_DEFAULT_ID;
-    if ($id < 1) {
-        $id = $PLAYER_FEAST_DEFAULT_ID;
-    }
-
-    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
-
-    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-    if ($con->connect_errno) {
-        die('Failed to connect to MySQL: ' . $con->connect_error);
-    }
-    $con->set_charset('utf8mb4');
-
-    try {
-        $pm = player_feast_load_pm($con, $id);
-    } catch (RuntimeException $e) {
-        die($e->getMessage());
-    }
-
-    player_feast_expose_hero_vars($pm);
-}

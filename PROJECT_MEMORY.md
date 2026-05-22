@@ -24,6 +24,8 @@
 
 - **DB performance (May 2026):** Local **profile load diagnostics** (`individual1_profile_diag.php`) showed **~8s blank wait** was almost entirely **many `ratedresults` scans per player** (`idA OR idB`) with no player indexes. **Phase A shipped:** `idx_ratedresults_idA`, `idx_ratedresults_idB` — applied **local** (PowerShell script) and **staging** (browser throwaway); **production still pending** — may ask **Steve** to run same when ready (no terminal for Dagh). **Result on profile:** heavy players ~**8s → ~1s** locally; light players ~**100ms**. **Trends (`server1_trends_diag.php`):** still slow locally (~**7s** blocking PHP = 3× hall-of-fame full-table rollups; ~**9s** more for seven chart APIs). A **`Date` index is not the right fix for server1** — cost is `GROUP BY DATE_FORMAT(…)` and window SQL over **all** games, not date-range filters. Future server1 wins: fewer/heavier queries cached or precomputed, not another single-column index.
 
+- **Profile feast (shipped):** production **`individual1.php`** only — layout contract in **`docs/player-profile-feast.md`**. Pass-2 audit/framing archived; legacy preview URLs redirect. Further work = gradual copy/UX, not mock lab.
+
 - **Product tone (Dagh direction):** keep the ladder **truthful and data-rich** for regulars, but make the site feel **inclusive, playful, and inviting** — not discouraging. **Player profile (`individual1.php`) “above the fold”** should feel **active, fun, and welcoming** (stories and participation first); deeper / comparative analytics (win rate vs rating, H2H compare, etc.) **lower or grouped** (“matchup lab”), not the first impression.
 
 - **Fun stats block (planned, not built):** curated **trophy-cabinet** highlights — re-use existing `playertable` extremes (biggest win/draw, streaks, goal festivals) plus **new monthly aggregates** (busiest month, most goals in a month). Brainstorm logged under **Next**; **no longest-game** stat. Discussed only — **no implementation yet**.
@@ -166,7 +168,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 2. **Launch polish:** revert or confirm **TEST realm accent swap**; decide fate of **seven accent preview pills** on hub row (staging lab vs prod).
 
-3. **Profile pass 2 mocks:** `docs/profile-data-audit.md` Part C — feast contract (CORE + zones + content parity); mocks A/B/C differ by visual emphasis (Chronicle / Arena / Atlas).
+3. **Profile gradual improvements:** see `docs/player-profile-feast.md` (shipped layout); archived planning in `docs/archive/`.
 
 4. **Fun stats block (v1 brainstorm):** biggest win, biggest draw, busiest month, goal-rich month, longest win streak, goal-festival game; pull from existing `playertable` + monthly SQL on `ratedresults`; playful section title (e.g. trophy cabinet). **Exclude** longest game; keep harsh rows (biggest loss) in full table only.
 
@@ -193,7 +195,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 |----------------|------|
 
 | 2026-05 | **CSS hygiene:** `k2_head.php`; deleted `main2.css`; `--k2-*` tokens for chart subtitles; neon C documented; removed unused rank-#1 table glow; `theme_boot` only in `<head>`. |
-| 2026-05 | **Profile feast:** `individual1.php` uses feast layout; `profile_feast.php` noindex preview (redirect `profile_mock3_g.php`). Shared hero (`player_hero.php` + rank in `theme.css`), `player_feast_load_pm()`, blocks/CSS/API as before. Legacy profile tables removed from individual1. |
+| 2026-05 | **Profile feast shipped:** `individual1.php` only; `profile_feast.php` / `profile_mock3_g.php` → 301 redirect. Maintainer doc `docs/player-profile-feast.md`; audit/framing → `docs/archive/`. Mock lab PHP/CSS removed from tree (history: `b8c5a98`). |
 | 2026-05 | **Cosmetics wrap-up:** segment-track + outline wing nav on ranked pages; hub accent preview pills + `realm-switch.js`; `theme_boot_head.php` sync realm/accent before paint; Games hub 7-day window (min 50 fallback), no table pager; `individual3` 100 games/page; peak-month leaderboard SSR on Trends. |
 | 2026-05 | **Phase A hub nav** on production PHP — `hub_nav.php`, `status.php` bridge, wing tabs via `lb_nav.php`; theme-lab wing/segment experiments promoted to `theme.css`. |
 | 2026-05 | **Theme lab:** `theme-lab.html`, `stylesheets/theme-lab.css`, `js/theme-lab.js` — interactive neon/realm/amiga-accent/display-font preview. |
@@ -217,6 +219,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 | 2026-05 | **Profile/server load diagnostics:** `individual1_profile_diag.php`, `server1_trends_diag.php`; Phase A indexes on `ratedresults` (`idA`/`idB`) — big **individual1** win; **server1** slowness separate (hall of fame + chart APIs; Date index not the answer). Indexes on **staging**; prod left for Steve. |
 | 2026-05 | **Profile feast polish:** career rank fix for NULL `DoubleDigits`; presence/moment dates `M j, Y`; “Last rated game”; played-days inactive cells brighter; `k2_player_feast_query` profiler (opt-in). |
+| 2026-05 | **Profile mock lab cleanup:** archive redesign docs; drop preview duplicate + dead `player_feast_render_core`; legacy URLs redirect to `individual1.php`. |
 | 2026-05 | **Trends hall of fame:** busiest **day / month / year** trio on `server1.php`; full-width layout. |
 | 2026-05 | **`bd9730a`** — first Chart.js batch (server games/active/established year, player rating + games/month). |
 

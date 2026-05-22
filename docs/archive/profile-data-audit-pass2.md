@@ -1,4 +1,6 @@
-# Profile data audit
+# Profile data audit (archived)
+
+> **Superseded May 2026** by shipped `individual1.php` feast layout. Maintainer reference: **`docs/player-profile-feast.md`**. Part A2 below describes the **old** table-heavy profile, not production today.
 
 Working document for Profile redesign (pass 2 mocks).  
 **Part A** = sources & map. **Part B** = value & story ranking (B1 + B2). **Part C** = feast contract + pass 2 mock briefs (not a locked wireframe).

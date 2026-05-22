@@ -1,6 +1,6 @@
 <?php
 /**
- * Player profile feast blocks (profile_feast.php preview).
+ * Player profile feast blocks (individual1.php Profile tab).
  */
 
 function player_feast_section_open(string $title, ?string $hint = null): void
@@ -22,46 +22,6 @@ function player_feast_section_close(): void
     ?>
 	</div>
 </section>
-    <?php
-}
-
-function player_feast_render_core(array $pm): void
-{
-    $display = (int) $pm['display'] === 1;
-    $heroRating = $display && $pm['rating'] !== null ? (int) $pm['rating'] : '—';
-    $heroPeak = $display && $pm['peak'] !== null ? (int) $pm['peak'] : '—';
-    $heroGames = (int) $pm['games'];
-    $heroRank = $display ? '#' . (int) $pm['rank'] : '—';
-    $heroInitial = strtoupper(substr((string) $pm['name'], 0, 1));
-    ?>
-<article class="k2-player-hero k2-player-hero--feast player-feast-hero" aria-label="Player identity">
-	<div class="k2-player-hero__inner">
-		<div class="k2-player-hero__media">
-			<div class="k2-player-hero__avatar" aria-hidden="true"><?php echo pm_h($heroInitial); ?></div>
-		</div>
-		<div class="k2-player-hero__body">
-			<h2 class="k2-player-hero__name"><?php echo pm_h($pm['name']); ?></h2>
-			<div class="k2-player-hero__stats">
-				<div class="k2-player-hero__stat">
-					<span class="k2-player-hero__stat-label">Rank</span>
-					<span class="k2-player-hero__stat-value player-feast-hero__stat-value--rank"><?php echo pm_h((string) $heroRank); ?></span>
-				</div>
-				<div class="k2-player-hero__stat">
-					<span class="k2-player-hero__stat-label">Rating</span>
-					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php echo $heroRating; ?></span>
-				</div>
-				<div class="k2-player-hero__stat">
-					<span class="k2-player-hero__stat-label">Peak</span>
-					<span class="k2-player-hero__stat-value"><?php echo $heroPeak; ?></span>
-				</div>
-				<div class="k2-player-hero__stat">
-					<span class="k2-player-hero__stat-label">Games</span>
-					<span class="k2-player-hero__stat-value"><?php echo number_format($heroGames); ?></span>
-				</div>
-			</div>
-		</div>
-	</div>
-</article>
     <?php
 }
 

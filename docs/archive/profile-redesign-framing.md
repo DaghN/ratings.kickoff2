@@ -1,8 +1,10 @@
-# Profile redesign — Phase 0 framing
+# Profile redesign — Phase 0 framing (archived)
 
-**Status:** May 2026. Framing doc for profile feast direction. **Working preview:** `profile_feast.php` (Steve `id=237`). Lab mocks and portal removed — see git history / `b8c5a98` checkpoint.
+> **Superseded May 2026.** Feast is live on **`individual1.php`**. See **`docs/player-profile-feast.md`**.
 
-**Authority:** `PROJECT_BRIEF.md` for north star. `docs/profile-data-audit.md` for data contract. Preview is pre-production until integrated into `individual1.php` and feast tabs.
+**Status:** May 2026. Framing doc for profile feast direction. Lab mocks and portal removed — see git history / `b8c5a98` checkpoint.
+
+**Authority:** `PROJECT_BRIEF.md` for north star. Data audit: `docs/archive/profile-data-audit-pass2.md`.
 
 ---
 
