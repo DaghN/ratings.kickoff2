@@ -48,7 +48,7 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 | Moments | `playertable` extreme game IDs + `ratedresults` row lookups |
 | Charts | JSON APIs under `api/player_*.php` (see audit archive API table) |
 
-**Indexes (May 2026):** `ratedresults.idx_ratedresults_idA`, `idx_ratedresults_idB` — profile load and player APIs. See `PROJECT_MEMORY.md` and `individual1_profile_diag.php` (localhost).
+**Indexes (May 2026):** `ratedresults.idx_ratedresults_idA`, `idx_ratedresults_idB` — profile load and player APIs. Local apply: `scripts/apply_ratedresults_player_indexes.ps1` (see `PROJECT_MEMORY.md`).
 
 ---
 

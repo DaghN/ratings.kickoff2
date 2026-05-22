@@ -279,28 +279,15 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 **Why not site-wide Tailwind yet:** no `package.json`; many legacy PHP pages; `elolist.css` + `elolist.js` table system; WinSCP sync loop; chart colors use shared `--k2-*` tokens via `chart-theme.js`.
 
-**Workflow:** prototype in theme lab with Tailwind CDN if helpful → **extract winning tokens** to plain CSS → mock stays throwaway or Laragon-only until approved.
+**Workflow (historical):** experiments ran in a static theme lab (May 2026) → winning tokens landed in **`theme.css`** on production pages. Lab files removed; tune on staging via real PHP pages.
 
 ---
 
-## 8. Theme lab mock (next implementation step)
+## 8. Theme lab mock (retired May 2026)
 
-**Goal:** Compare look and feel before touching live pages.
+**Was:** `theme-lab.html` + `theme-lab.css` + `theme-lab.js` — static IA/CSS sandbox (port 8765 or Laragon). **Removed from repo** after Phase A–3 promotion to `theme.css`, `hub_nav.php`, ranked/server/individual pages.
 
-**Location:** `site/public_html/theme-lab.html` + `stylesheets/theme-lab.css` + `js/theme-lab.js` — **local/Laragon first** (`/theme-lab.html`); deploy to staging when Dagh wants feedback from a real URL.
-
-**Sections on one page:**
-
-1. Site header — wordmark, realm switcher (Online active / Amiga “coming soon”), link to kickoff2.com
-2. Pulse strip — sample stats (games this month, active players, last updated)
-3. One chart block — Chart.js with theme tokens applied
-4. Table snippet — ~5 ranked rows, dark table styling
-5. **Player hero card** — name, rank, rating, avatar/photo placeholder, video placeholder, realm badge
-6. Tab row — Server Stats / Player Ranks + sub-tabs
-
-**Controls:** toggle neon intensity A / B / C; toggle realm online / amiga accent.
-
-**First-pass options:** Dagh has no fixed preference — mock should show **variations** (typography, Amiga accent candidates, photo vs avatar layout).
+**Locked choices** from that pass are in §11 below and in production CSS — not re-opened via a separate mock page.
 
 ---
 
@@ -308,7 +295,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 | Phase | Work | Risk |
 |-------|------|------|
-| **0** | This doc + theme lab | None |
+| **0** | This doc + theme lab (retired) | None |
 | **1** | Site-wide dark theme + shared header | **Done** |
 | **2** | `elolist.css` dark table pass | **Done** |
 | **3–4** | Hub nav (`hub_nav.php`), wing tabs (`lb_nav.php`), Status bridge, theme on ranked/server/individual pages | **Done in repo** — deploy via WinSCP |
@@ -338,9 +325,9 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 ---
 
-## 11. Open decisions (resolve in theme lab or later chat)
+## 11. Open decisions (resolve on staging / in chat)
 
-### Locked (Dagh, May 2026 — theme lab approved)
+### Locked (Dagh, May 2026 — approved in theme lab, now in production CSS)
 
 - [x] **Neon intensity:** **C · Bold** (production `theme.css`; realm switcher + player hero avatar)
 - [x] **Display font:** **Exo 2**

@@ -22,7 +22,7 @@
 
 - **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. **Busiest day / month / year hall of fame** on `server1.php` — three SSR tables (`peak_period_leaderboard_query.php`). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
 
-- **DB performance (May 2026):** Local **profile load diagnostics** (`individual1_profile_diag.php`) showed **~8s blank wait** was almost entirely **many `ratedresults` scans per player** (`idA OR idB`) with no player indexes. **Phase A shipped:** `idx_ratedresults_idA`, `idx_ratedresults_idB` — applied **local** (PowerShell script) and **staging** (browser throwaway); **production still pending** — may ask **Steve** to run same when ready (no terminal for Dagh). **Result on profile:** heavy players ~**8s → ~1s** locally; light players ~**100ms**. **Trends (`server1_trends_diag.php`):** still slow locally (~**7s** blocking PHP = 3× hall-of-fame full-table rollups; ~**9s** more for seven chart APIs). A **`Date` index is not the right fix for server1** — cost is `GROUP BY DATE_FORMAT(…)` and window SQL over **all** games, not date-range filters. Future server1 wins: fewer/heavier queries cached or precomputed, not another single-column index.
+- **DB performance (May 2026):** Profile blank wait was almost entirely **many `ratedresults` scans per player** (`idA OR idB`) with no player indexes. **Phase A shipped:** `idx_ratedresults_idA`, `idx_ratedresults_idB` — applied **local** (PowerShell) and **staging** (browser throwaway from `scripts/`); **production still pending** — may ask **Steve** when ready. **Result on profile:** heavy players ~**8s → ~1s** locally; light players ~**100ms**. **Trends (`server1.php`):** still slow locally (~**7s** blocking PHP = 3× hall-of-fame full-table rollups; ~**9s** more for seven chart APIs). A **`Date` index is not the right fix for server1** — cost is `GROUP BY DATE_FORMAT(…)` and window SQL over **all** games. Future server1 wins: fewer/heavier queries cached or precomputed.
 
 - **Profile feast (shipped):** production **`individual1.php`** only — layout contract in **`docs/player-profile-feast.md`**. Pass-2 audit/framing archived; dev preview URLs removed (no redirects). Load trimmed (dropped unused rival/recent SQL). Further work = gradual copy/UX, not mock lab.
 
@@ -38,7 +38,7 @@
 
 - **Dev database:** Writable staging/dev copy (**`kooldb`** per PHP config). **Write probe done** (May 2026). Schema/SQL: **dev first**, scripts in repo, Steve for production.
 
-- **Local dev (Dagh PC):** **`docs/LOCAL_DEV.md`** — Laragon at **`C:\laragon`**, site **`http://ratingskickoff.test`** (Apache **port 80**), DB **`ko2unity_db`**. **Workflow verified (May 2026):** desktop shortcut → **Start All** → site loads; **Stop All** → site stops (Apache watchdog + Avast **`SSLKEYLOGFILE`** shim — one-time **`scripts/setup_laragon_apache_fix.ps1`**, sources in **`laragon/`**). Dump in **`data/dumps/`** — import then **`python -m scripts.ladder run`** for Elo + stats; **`generalstatstable`** created by replay if absent. Optional diagnostic: **`scripts/check_local_dev.ps1`**. **`127.0.0.1:8765`** = theme-lab only, not the ladder site.
+- **Local dev (Dagh PC):** **`docs/LOCAL_DEV.md`** — Laragon at **`C:\laragon`**, site **`http://ratingskickoff.test`** (Apache **port 80**), DB **`ko2unity_db`**. **Workflow verified (May 2026):** desktop shortcut → **Start All** → site loads; **Stop All** → site stops (Apache watchdog + Avast **`SSLKEYLOGFILE`** shim — one-time **`scripts/setup_laragon_apache_fix.ps1`**, sources in **`laragon/`**). Dump in **`data/dumps/`** — import then **`python -m scripts.ladder run`** for Elo + stats; **`generalstatstable`** created by replay if absent. Optional diagnostic: **`scripts/check_local_dev.ps1`**.
 
 - **Change style:** small, reversible slices (brief).
 
@@ -194,6 +194,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 |----------------|------|
 
+| 2026-05 | **Ops cleanup:** removed localhost diags (`individual1_profile_diag.php`, `server1_trends_diag.php`), theme lab (`theme-lab.html` + CSS/JS); `throwaway_ratedresults_player_indexes.php` only under **`scripts/`** (copy to `public_html` when needed, not WinSCP-synced). |
 | 2026-05 | **Profile hygiene:** removed unused rival/recent/H2H SQL from `player_feast_load.php`; dropped winrate chart script from `individual1.php`; deleted orphan `peak_month_leaderboard_table.php` + `api/server_peak_month_leaderboard.php`. |
 | 2026-05 | **CSS hygiene:** `k2_head.php`; deleted `main2.css`; `--k2-*` tokens for chart subtitles; neon C documented; removed unused rank-#1 table glow; `theme_boot` only in `<head>`. |
 | 2026-05 | **Profile feast shipped:** `individual1.php` only; dev preview URLs (`profile_feast.php`, mock lab) deleted — not deployed for players. Maintainer doc `docs/player-profile-feast.md`; audit/framing → `docs/archive/`. Mock lab history: `b8c5a98`. |
@@ -282,8 +283,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 | Local DB dump | **`data/dumps/ko2unity_db-2026-05-20.sql`** → **`ko2unity_db`**; dump omits **`generalstatstable`** — replay creates it |
 | Ladder replay CLI | **`python -m scripts.ladder run`** — local/staging recalc done; record **`docs/STAGING_REPLAY.md`** |
 
-| Throwaway probes | Under **`scripts/`** — manual copy to **`public_html`**, gated `?once=…`, **delete after** |
-| Load diagnostics (localhost) | **`individual1_profile_diag.php`**, **`server1_trends_diag.php`** — query timings; not for production |
+| Throwaway probes | Under **`scripts/`** only — manual WinSCP copy to **`public_html`**, gated `?once=…`, **delete from server after** |
 | `ratedresults` indexes (Phase A) | **`idx_ratedresults_idA`**, **`idx_ratedresults_idB`** — local + staging; prod via Steve when agreed |
 
 

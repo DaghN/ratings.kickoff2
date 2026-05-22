@@ -52,4 +52,4 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host '[OK] idx_ratedresults_idA and idx_ratedresults_idB created.' -ForegroundColor Green
-Write-Host 'Verify: http://ratingskickoff.test/individual1_profile_diag.php?id=237' -ForegroundColor Cyan
+Write-Host 'Verify: http://ratingskickoff.test/individual1.php?id=237' -ForegroundColor Cyan

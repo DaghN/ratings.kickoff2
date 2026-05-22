@@ -32,7 +32,6 @@
 | URL | What it is |
 |-----|------------|
 | **`http://ratingskickoff.test/`** | Full PHP ladder site via **Laragon Apache** (port **80**). Requires Apache running. |
-| **`http://127.0.0.1:8765/theme-lab.html`** | **Not Laragon.** Static/theme mock (Cursor simple server or similar). Good for CSS/IA only — **no PHP, no MySQL**. |
 
 ---
 
@@ -113,9 +112,9 @@ SELECT COUNT(*) FROM ratedresults;   -- expect ~74870
 powershell -ExecutionPolicy Bypass -File scripts\apply_ratedresults_player_indexes.ps1
 ```
 
-Then check `http://ratingskickoff.test/individual1_profile_diag.php?id=237` — `player_feast_load_pm` should drop from multi-second to ~1s (heavy players) or ~100ms (light).
+Then spot-check `http://ratingskickoff.test/individual1.php?id=237` — profile should load in ~1s for heavy players or ~100ms for light ones (was multi-second before indexes).
 
-**Staging / production (no terminal):** WinSCP `scripts/throwaway_ratedresults_player_indexes.php` → server `public_html/`, browser preview/apply per file header, then delete from server.
+**Staging / production (no terminal):** WinSCP copy **`scripts/throwaway_ratedresults_player_indexes.php`** → server **`public_html/`** only when needed; browser preview/apply per file header; **delete from server immediately after**. This file is **not** in `site/public_html/` (avoids accidental sync).
 
 ---
 

@@ -1,7 +1,7 @@
 <?php
 /**
- * Opt-in query profiler for player_feast_load_pm (individual1_profile_diag.php only).
- * When $GLOBALS['k2_player_feast_profile'] is an array, each query is timed and logged.
+ * Query wrapper for player_feast_load_pm. When $GLOBALS['k2_player_feast_profile'] is an array,
+ * each query is timed and logged (opt-in debugging; no overhead when unset).
  */
 
 /**

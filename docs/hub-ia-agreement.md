@@ -1,9 +1,9 @@
 # Hub IA & staging agreement ledger
 
 Record of decisions from the theme-lab / navigation IA conversation (May 2026).
-Consult before staging production changes. Mock reference: `site/public_html/theme-lab.html`.
+Consult before staging production changes. **Theme lab HTML removed** (May 2026); production reference is live pages + `theme.css`.
 
-**Status:** agreed direction — **Phase A implemented in repo** (May 2026). Structural design locked; Status live feed remains **Phase B**. Mock reference: `site/public_html/theme-lab.html`.
+**Status:** agreed direction — **Phase A implemented in repo** (May 2026). Structural design locked; Status live feed remains **Phase B**.
 
 ---
 
@@ -73,7 +73,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 - Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, realm accents (see `theme.css` — **TEST swap** may differ from locked lab defaults), Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
 - Realm switcher: full-opacity active pill + glow (no disabled washout).
 - Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
-- Theme lab exists for experiments (`theme-lab.html`, `theme-lab.css`, `theme-lab.js`).
+- Theme lab (May 2026) promoted to production; static lab files later removed from repo.
 - **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + staging accent preview pills), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
 - ~~Legacy `#aboutmenu` rows may still exist on some pages~~ — removed with shared hub/player nav (May 2026).
 
