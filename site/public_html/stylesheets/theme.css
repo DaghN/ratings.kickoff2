@@ -441,7 +441,6 @@ body.k2-site .server-active-players-month-chart,
 body.k2-site .server-established-players-year-chart,
 body.k2-site .server-cumulative-established-month-chart,
 body.k2-site .server-established-rating-distribution-chart,
-body.k2-site .server-peak-month-leaderboard,
 body.k2-site .player-rating-chart,
 body.k2-site .player-games-month-chart,
 body.k2-site .player-rating-game-chart,
@@ -471,7 +470,6 @@ body.k2-site .server-active-players-month-chart p,
 body.k2-site .server-established-players-year-chart p,
 body.k2-site .server-cumulative-established-month-chart p,
 body.k2-site .server-established-rating-distribution-chart p,
-body.k2-site .server-peak-month-leaderboard p,
 body.k2-site .player-rating-chart p,
 body.k2-site .player-games-month-chart p,
 body.k2-site .player-rating-game-chart p,
@@ -496,9 +494,66 @@ body.k2-site .server-goals-month-chart-status,
 body.k2-site .server-active-players-month-chart-status,
 body.k2-site .server-established-players-year-chart-status,
 body.k2-site .server-cumulative-established-month-chart-status,
-body.k2-site .server-established-rating-distribution-chart-status,
-body.k2-site .server-peak-month-leaderboard-status {
+body.k2-site .server-established-rating-distribution-chart-status {
 	color: var(--k2-text-muted);
+}
+
+/* Busiest day / month / year hall of fame — full page width, three columns */
+body.k2-site .server-peak-period-leaderboards {
+	max-width: var(--k2-max-width);
+	margin-bottom: 16px;
+	padding: 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site .server-peak-period-leaderboards > p {
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .server-peak-period-leaderboards-status,
+body.k2-site .server-peak-period-leaderboard-status {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .server-peak-period-leaderboards__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	align-items: start;
+}
+
+@media (max-width: 1024px) {
+	body.k2-site .server-peak-period-leaderboards__grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+body.k2-site .server-peak-period-leaderboard {
+	min-width: 0;
+	padding: 12px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-elevated);
+}
+
+body.k2-site .server-peak-period-leaderboard__title {
+	margin: 0 0 4px;
+	color: var(--k2-text-primary);
+	font-size: 0.95em;
+	font-weight: 600;
+}
+
+body.k2-site .server-peak-period-leaderboard__hint {
+	margin: 0 0 10px;
+	color: var(--k2-text-muted);
+	font-size: 0.85em;
+	line-height: 1.35;
+}
+
+body.k2-site .server-peak-period-leaderboard .k2-table-wrap {
+	overflow-x: auto;
 }
 
 /* ── Leaderboard / data tables (k2-table — mock-aligned) ── */

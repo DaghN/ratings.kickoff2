@@ -72,7 +72,7 @@ function player_feast_render_played_days(int $playerId, int $year): void
 <div class="pm3-cal pm3-cal--hero" data-player-id="<?php echo $playerId; ?>" data-year="<?php echo $year; ?>" aria-label="Calendar activity">
 	<p class="pm3-cal__status pm3-muted">Loading calendar…</p>
 	<div class="pm3-cal__year"></div>
-	<p class="pm3-cal__legend"><span class="pm3-cal__cell pm3-cal__cell--play"></span> played · empty = no rated game</p>
+	<p class="pm3-cal__legend"><span class="pm3-cal__cell" aria-hidden="true"></span> no rated game · <span class="pm3-cal__cell pm3-cal__cell--play" aria-hidden="true"></span> played</p>
 </div>
     <?php
     player_feast_section_close();
@@ -146,7 +146,7 @@ function player_feast_render_moments(array $pm): void
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
 				· vs <a href="individual1.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
-				· <?php echo pm_h($t['year']); ?>
+				· <?php echo pm_h($t['date']); ?>
 			</p>
 		</article>
 		<?php } ?>
@@ -168,7 +168,7 @@ function player_feast_presence_stat_rows(array $pm): array
 {
     return [
         ['label' => 'Last seen online', 'value' => (string) $pm['last_login'], 'rank' => null],
-        ['label' => 'Last rated match', 'value' => (string) $pm['last_game'], 'rank' => null],
+        ['label' => 'Last rated game', 'value' => (string) $pm['last_game'], 'rank' => null],
         ['label' => 'Games this month', 'value' => (string) (int) $pm['games_this_month'], 'rank' => null],
         ['label' => 'Games this year', 'value' => (string) (int) $pm['games_this_year'], 'rank' => null],
         ['label' => 'First rated game', 'value' => (string) $pm['first_game_date'], 'rank' => null],

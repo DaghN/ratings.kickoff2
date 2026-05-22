@@ -4,6 +4,7 @@
  * Used by profile_feast.php and individual1.php (Profile tab).
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_profile.php';
 
 /**
  * @return array<string, mixed>
@@ -11,14 +12,15 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 function player_feast_load_pm(mysqli $con, int $id): array
 {
     $escId = (string) (int) $id;
-    $result = mysqli_query($con, "SELECT * FROM playertable WHERE id = '$escId' LIMIT 1");
+    $result = k2_player_feast_query($con, 'playertable_row', "SELECT * FROM playertable WHERE id = '$escId' LIMIT 1");
     $row = $result ? mysqli_fetch_assoc($result) : null;
     if ($row === null) {
         throw new RuntimeException('Player not found.');
     }
 
-    $rankResult = mysqli_query(
+    $rankResult = k2_player_feast_query(
         $con,
+        'ladder_rank',
         "SELECT COUNT(*)+1 AS plrank FROM playertable WHERE display = 1 AND rating > (SELECT rating FROM playertable WHERE id='$escId')"
     );
     $rankRow = mysqli_fetch_row($rankResult);
@@ -33,15 +35,17 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $losses = (int) $row['NumberLosses'];
     $winPct = $games > 0 ? round(100 * (float) $row['WinRatio'], 1) : 0;
 
-    $monthResult = mysqli_query(
+    $monthResult = k2_player_feast_query(
         $con,
+        'games_this_month',
         "SELECT COUNT(*) AS c FROM ratedresults WHERE (idA='$escId' OR idB='$escId') AND Date >= DATE_FORMAT(NOW(), '%Y-%m-01')"
     );
     $monthRow = mysqli_fetch_row($monthResult);
     $gamesThisMonth = (int) $monthRow[0];
 
-    $yearResult = mysqli_query(
+    $yearResult = k2_player_feast_query(
         $con,
+        'games_this_year',
         "SELECT COUNT(*) AS c FROM ratedresults WHERE (idA='$escId' OR idB='$escId') AND YEAR(Date) = YEAR(CURDATE())"
     );
     $yearRow = mysqli_fetch_row($yearResult);
@@ -50,7 +54,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $recent = [];
     $recentSql = "SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB "
         . "FROM ratedresults WHERE idA='$escId' OR idB='$escId' ORDER BY Date DESC, id DESC LIMIT 10";
-    $recentResult = mysqli_query($con, $recentSql);
+    $recentResult = k2_player_feast_query($con, 'recent_games', $recentSql);
     while ($recentResult && ($g = mysqli_fetch_assoc($recentResult))) {
         $recent[] = pm_parse_game_row($g, $id);
     }
@@ -63,7 +67,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         FROM ratedresults WHERE idA='$escId' OR idB='$escId'
         GROUP BY opp_id, opp_name
     ) t ORDER BY games DESC LIMIT 6";
-    $rivalResult = mysqli_query($con, $rivalSql);
+    $rivalResult = k2_player_feast_query($con, 'top_rivals_grouped', $rivalSql);
     while ($rivalResult && ($r = mysqli_fetch_assoc($rivalResult))) {
         $rivals[] = [
             'id' => (int) $r['opp_id'],
@@ -109,7 +113,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
             continue;
         }
         $gid = (int) $def['game_id'];
-        $gRes = mysqli_query($con, "SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB FROM ratedresults WHERE id = $gid LIMIT 1");
+        $gRes = k2_player_feast_query($con, 'trophy_game_' . $def['key'], "SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB FROM ratedresults WHERE id = $gid LIMIT 1");
         $gRow = $gRes ? mysqli_fetch_assoc($gRes) : null;
         if ($gRow === null) {
             continue;
@@ -125,8 +129,9 @@ function player_feast_load_pm(mysqli $con, int $id): array
 
     $peakGap = ($peak !== null && $rating !== null) ? $peak - $rating : 0;
 
-    $firstGameResult = mysqli_query(
+    $firstGameResult = k2_player_feast_query(
         $con,
+        'first_rated_game',
         "SELECT Date FROM ratedresults WHERE idA='$escId' OR idB='$escId' ORDER BY Date ASC, id ASC LIMIT 1"
     );
     $firstGameRow = $firstGameResult ? mysqli_fetch_assoc($firstGameResult) : null;
@@ -146,7 +151,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
             . "SUM(CASE WHEN ActualScore = 0.5 THEN 1 ELSE 0 END) AS draws, "
             . "SUM(CASE WHEN (idA='$escId' AND ActualScore <= 0.01) OR (idB='$escId' AND ActualScore >= 0.99) THEN 1 ELSE 0 END) AS losses "
             . "FROM ratedresults WHERE (idA='$escId' AND idB='$oid') OR (idA='$oid' AND idB='$escId')";
-        $h2hRes = mysqli_query($con, $h2hSql);
+        $h2hRes = k2_player_feast_query($con, 'featured_rival_h2h', $h2hSql);
         if ($h2hRes && ($h2hRow = mysqli_fetch_assoc($h2hRes))) {
             $rivalH2h['wins'] = (int) $h2hRow['wins'];
             $rivalH2h['draws'] = (int) $h2hRow['draws'];
@@ -164,7 +169,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
             . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
     ];
     foreach ($busiestSql as $key => $sql) {
-        $br = mysqli_query($con, $sql);
+        $br = k2_player_feast_query($con, 'busiest_' . $key, $sql);
         if ($br && ($brow = mysqli_fetch_assoc($br))) {
             $busiest[$key] = ['key' => $brow['k'], 'count' => (int) $brow['c']];
         }
@@ -207,7 +212,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'most_goals_scored' => (int) $row['MostGoalsScored'],
         'years_on_ladder' => $tenureYears,
         'tenure_label' => $tenureLabel,
-        'first_game_date' => date('M Y', $firstGameTs ?: time()),
+        'first_game_date' => date('M j, Y', $firstGameTs ?: time()),
         'different_opponents' => $differentOpponents,
         'different_victims' => (int) $row['DifferentVictims'],
         'featured_rival' => $featuredRival,

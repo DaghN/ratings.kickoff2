@@ -52,11 +52,18 @@
 	border: none;
 	border-radius: var(--k2-radius-lg);
 	background: none;
+	/* Brighter empty-day grid on page background (not inside a surface card) */
+	--pm3-cal-cell-empty: var(--k2-bg-hover);
 }
 
 .pm3d-section__content > .pm3-cal--hero .pm3-cal__cell--play {
 	background: var(--k2-realm-accent);
 	box-shadow: none;
+}
+
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__legend .pm3-cal__cell:not(.pm3-cal__cell--play) {
+	background: var(--pm3-cal-cell-empty);
+	box-shadow: inset 0 0 0 1px var(--k2-border-subtle);
 }
 
 .pm3d-section__content > .pm3-cal--hero .pm3-cal__status {

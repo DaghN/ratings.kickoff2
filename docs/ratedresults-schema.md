@@ -54,7 +54,23 @@ Verified on local import **`ko2unity_db`** (May 2026): 0 rows where draw `Winner
 
 ## Indexes
 
-Only **`PRIMARY KEY (`id`)`** — no index on `Date`, `idA`, or `idB`. Player-scoped and monthly aggregates scan by player or full table; fine at current scale but worth knowing for heavy new queries.
+| Index | Columns | Purpose |
+|-------|---------|---------|
+| **PRIMARY** | `id` | Game link `game.php?id=` |
+| **idx_ratedresults_idA** | `idA` | Player-as-side-A lookups (`WHERE idA = ?`, feast/charts) |
+| **idx_ratedresults_idB** | `idB` | Player-as-side-B lookups (`WHERE idB = ?`) |
+
+Apply on each environment:
+
+| Where | How |
+|-------|-----|
+| **Local (Laragon)** | `scripts/apply_ratedresults_player_indexes.ps1` |
+| **Staging / prod (no SSH)** | Copy `scripts/throwaway_ratedresults_player_indexes.php` to `public_html/`, open in browser (preview then `&apply=1`), delete file after — see script header |
+| **With terminal** | `scripts/sql/ratedresults_player_indexes.sql` |
+
+`Date` is still unindexed — add only if date-first queries (server-wide month charts) need it.
+
+Queries using `idA = ? OR idB = ?` use both indexes (index merge). Much faster than full table scan for profile load.
 
 ---
 

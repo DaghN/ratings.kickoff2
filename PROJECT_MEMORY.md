@@ -20,7 +20,9 @@
 
 - **Design / cosmetics track:** **Phase A hub shell shipped** — `includes/k2_head.php` (shared CSS + `theme_boot_head` in `<head>`), **`main2.css` removed** (all `--k2-*` in `theme.css`), production **neon C**, chart helpers use `--k2-text-muted` (`#8b949e`). Staging **accent preview pills** kept for now; **TEST realm accent swap** in CSS (revert or lock before launch). **Next:** WinSCP sync refactor to staging; Status **Phase B** live feed; realm switcher behavior when Amiga data exists.
 
-- **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. **Peak month hall of fame** on `server1.php` now **server-rendered** (`peak_month_leaderboard_query.php` + table include; JS fetch removed). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
+- **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. **Busiest day / month / year hall of fame** on `server1.php` — three SSR tables (`peak_period_leaderboard_query.php`). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
+
+- **DB performance (May 2026):** Local **profile load diagnostics** (`individual1_profile_diag.php`) showed **~8s blank wait** was almost entirely **many `ratedresults` scans per player** (`idA OR idB`) with no player indexes. **Phase A shipped:** `idx_ratedresults_idA`, `idx_ratedresults_idB` — applied **local** (PowerShell script) and **staging** (browser throwaway); **production still pending** — may ask **Steve** to run same when ready (no terminal for Dagh). **Result on profile:** heavy players ~**8s → ~1s** locally; light players ~**100ms**. **Trends (`server1_trends_diag.php`):** still slow locally (~**7s** blocking PHP = 3× hall-of-fame full-table rollups; ~**9s** more for seven chart APIs). A **`Date` index is not the right fix for server1** — cost is `GROUP BY DATE_FORMAT(…)` and window SQL over **all** games, not date-range filters. Future server1 wins: fewer/heavier queries cached or precomputed, not another single-column index.
 
 - **Product tone (Dagh direction):** keep the ladder **truthful and data-rich** for regulars, but make the site feel **inclusive, playful, and inviting** — not discouraging. **Player profile (`individual1.php`) “above the fold”** should feel **active, fun, and welcoming** (stories and participation first); deeper / comparative analytics (win rate vs rating, H2H compare, etc.) **lower or grouped** (“matchup lab”), not the first impression.
 
@@ -213,6 +215,9 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 | 2026-05 | **Staging DB:** MariaDB **10.11.7** confirmed (`throwaway_mysql_version.php`; removed after). |
 
+| 2026-05 | **Profile/server load diagnostics:** `individual1_profile_diag.php`, `server1_trends_diag.php`; Phase A indexes on `ratedresults` (`idA`/`idB`) — big **individual1** win; **server1** slowness separate (hall of fame + chart APIs; Date index not the answer). Indexes on **staging**; prod left for Steve. |
+| 2026-05 | **Profile feast polish:** career rank fix for NULL `DoubleDigits`; presence/moment dates `M j, Y`; “Last rated game”; played-days inactive cells brighter; `k2_player_feast_query` profiler (opt-in). |
+| 2026-05 | **Trends hall of fame:** busiest **day / month / year** trio on `server1.php`; full-width layout. |
 | 2026-05 | **`bd9730a`** — first Chart.js batch (server games/active/established year, player rating + games/month). |
 
 | 2026-05 | **`index.php`** → **302** to **`ranked1.php`**. WinSCP deploy loop; Git **`main`** → [ratings.kickoff2](https://github.com/DaghN/ratings.kickoff2). |
@@ -274,6 +279,8 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 | Ladder replay CLI | **`python -m scripts.ladder run`** — local/staging recalc done; record **`docs/STAGING_REPLAY.md`** |
 
 | Throwaway probes | Under **`scripts/`** — manual copy to **`public_html`**, gated `?once=…`, **delete after** |
+| Load diagnostics (localhost) | **`individual1_profile_diag.php`**, **`server1_trends_diag.php`** — query timings; not for production |
+| `ratedresults` indexes (Phase A) | **`idx_ratedresults_idA`**, **`idx_ratedresults_idB`** — local + staging; prod via Steve when agreed |
 
 
 

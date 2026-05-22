@@ -107,6 +107,16 @@ USE ko2unity_db;
 SELECT COUNT(*) FROM ratedresults;   -- expect ~74870
 ```
 
+**Profile load indexes (Phase A):** after import, run once:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\apply_ratedresults_player_indexes.ps1
+```
+
+Then check `http://ratingskickoff.test/individual1_profile_diag.php?id=237` — `player_feast_load_pm` should drop from multi-second to ~1s (heavy players) or ~100ms (light).
+
+**Staging / production (no terminal):** WinSCP `scripts/throwaway_ratedresults_player_indexes.php` → server `public_html/`, browser preview/apply per file header, then delete from server.
+
 ---
 
 ## What’s in the local dump (important)

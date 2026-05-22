@@ -107,9 +107,7 @@ function pm_parse_game_row(array $row, int $playerId): array
  */
 function pm_parse_highlight_row(array $row, int $playerId): array
 {
-    $parsed = pm_parse_game_row($row, $playerId);
-    $parsed['year'] = date('Y', strtotime((string) pm_row_col($row, 'Date')));
-    return $parsed;
+    return pm_parse_game_row($row, $playerId);
 }
 
 function pm_adj_text(float $adj): string
@@ -172,22 +170,28 @@ function pm_tenure_plus_label(int $yearsOnLadder): string
 }
 
 /**
- * Ladder rank for a career total among Display = 1 players (same rule as rating rank).
+ * Ladder rank for a career total among Display = 1 players (higher stat = better rank).
+ * NULL stats are treated as 0 — avoids false #1 when SQL comparisons against NULL match no rows.
  */
-function pm_playertable_career_stat_rank(mysqli $con, int $playerId, string $column): int
+function pm_playertable_career_stat_rank(mysqli $con, int $playerId, string $column): ?int
 {
     static $allowed = ['NumberGames', 'NumberWins', 'GoalsFor', 'DoubleDigits', 'DifferentOpponents'];
     if (!in_array($column, $allowed, true)) {
-        return 0;
+        return null;
     }
 
     $playerId = (int) $playerId;
-    $sql = 'SELECT COUNT(*) + 1 AS r FROM playertable WHERE Display = 1 AND `'
-        . $column . '` > (SELECT `' . $column . '` FROM playertable WHERE id = ' . $playerId . ')';
-    $result = mysqli_query($con, $sql);
+    $sql = 'SELECT COUNT(*) + 1 AS r FROM playertable WHERE Display = 1 AND COALESCE(`'
+        . $column . '`, 0) > COALESCE((SELECT `' . $column . '` FROM playertable WHERE id = ' . $playerId . '), 0)';
+    $label = 'career_rank_' . $column;
+    $result = function_exists('k2_player_feast_query')
+        ? k2_player_feast_query($con, $label, $sql)
+        : mysqli_query($con, $sql);
     if (!$result || !($row = mysqli_fetch_assoc($result))) {
-        return 0;
+        return null;
     }
 
-    return max(1, (int) $row['r']);
+    $rank = (int) $row['r'];
+
+    return $rank > 0 ? $rank : null;
 }

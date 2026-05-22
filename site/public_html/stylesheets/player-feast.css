@@ -889,15 +889,22 @@
 	gap: 3px;
 }
 
+.pm3-cal {
+	/* Empty days: visible grid on dark page; feast section can bump via --pm3-cal-cell-empty */
+	--pm3-cal-cell-empty: var(--k2-bg-elevated);
+}
+
 .pm3-cal__cell {
 	width: 10px;
 	height: 10px;
 	border-radius: 2px;
-	background: rgba(255, 255, 255, 0.06);
+	background: var(--pm3-cal-cell-empty);
+	box-shadow: inset 0 0 0 1px var(--k2-border-subtle);
 }
 
 .pm3-cal__cell--pad {
 	background: transparent;
+	box-shadow: none;
 }
 
 .pm3-cal__cell--play {
