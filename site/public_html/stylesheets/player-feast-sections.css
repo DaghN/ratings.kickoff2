@@ -102,9 +102,11 @@
 	background: var(--k2-bg-surface);
 }
 
-/* Rank + rating glow */
-.player-feast-hero__stat-value--rank,
-.player-feast-hero .k2-player-hero__stat-value--accent {
+/* Rank + rating — realm accent + glow (matches feast preview) */
+.k2-player-hero__stat-value--rank,
+.k2-player-hero__stat-value--accent,
+.player-feast-body .k2-player-hero__stat-value--rank,
+.player-feast-body .k2-player-hero__stat-value--accent {
 	color: var(--k2-realm-accent);
 	text-shadow: 0 0 28px var(--k2-realm-glow);
 }

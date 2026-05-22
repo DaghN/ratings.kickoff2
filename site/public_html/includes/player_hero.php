@@ -1,13 +1,15 @@
 <?php
 /**
- * Player hero scaffold — expects $Name, optional $Rating, $PeakRating, $NumberGames, $Display
+ * Player hero scaffold — expects $Name, optional $Rating, $PeakRating, $NumberGames, $Display, $rank
  */
 if (empty($Name)) {
 	return;
 }
 $heroInitial = strtoupper(substr((string) $Name, 0, 1));
-$heroRating = (isset($Display) && (int) $Display === 1 && isset($Rating)) ? round($Rating) : '—';
-$heroPeak = (isset($Display) && (int) $Display === 1 && isset($PeakRating) && (float) $PeakRating != 0) ? round($PeakRating) : '—';
+$heroDisplay = isset($Display) && (int) $Display === 1;
+$heroRank = $heroDisplay && isset($rank) ? '#' . (int) $rank : '—';
+$heroRating = $heroDisplay && isset($Rating) ? round($Rating) : '—';
+$heroPeak = $heroDisplay && isset($PeakRating) && (float) $PeakRating != 0 ? round($PeakRating) : '—';
 $heroGames = isset($NumberGames) ? (int) $NumberGames : 0;
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 ?>
@@ -19,6 +21,10 @@ $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 		<div class="k2-player-hero__body">
 			<h2 class="k2-player-hero__name"><?php echo $nameEsc; ?></h2>
 			<div class="k2-player-hero__stats">
+				<div class="k2-player-hero__stat">
+					<span class="k2-player-hero__stat-label">Rank</span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--rank"><?php echo $heroRank; ?></span>
+				</div>
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Rating</span>
 					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php echo $heroRating; ?></span>

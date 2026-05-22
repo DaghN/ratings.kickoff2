@@ -1,6 +1,6 @@
 <?php
 /**
- * Helpers for profile feast preview (profile_feast.php).
+ * Helpers for profile feast (profile_feast.php, individual1.php).
  */
 
 function pm_h(string $s): string

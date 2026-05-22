@@ -771,6 +771,8 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	color: var(--k2-realm-accent);
 }
 
+/* Rank + rating glow: stylesheets/player-hero-rank.css (via k2_head.php) */
+
 /* ── Status bridge + cards ── */
 .k2-status-bridge {
 	max-width: 1200px;

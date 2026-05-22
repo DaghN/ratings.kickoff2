@@ -5,7 +5,8 @@
 if (!isset($con) || !isset($id)) {
 	return;
 }
-$heroQuery = "SELECT Name, Rating, PeakRating, NumberGames, Display FROM playertable WHERE id='" . mysqli_real_escape_string($con, (string) $id) . "'";
+$escHeroId = mysqli_real_escape_string($con, (string) $id);
+$heroQuery = "SELECT Name, Rating, PeakRating, NumberGames, Display FROM playertable WHERE id='" . $escHeroId . "'";
 $heroResult = mysqli_query($con, $heroQuery);
 if ($heroResult && ($heroRow = mysqli_fetch_assoc($heroResult))) {
 	$Name = $heroRow['Name'];
@@ -15,5 +16,12 @@ if ($heroResult && ($heroRow = mysqli_fetch_assoc($heroResult))) {
 	$Display = $heroRow['Display'];
 	if (!isset($name)) {
 		$name = $Name;
+	}
+	$rankResult = mysqli_query(
+		$con,
+		"SELECT COUNT(*)+1 AS plrank FROM playertable WHERE display = 1 AND rating > (SELECT rating FROM playertable WHERE id='" . $escHeroId . "')"
+	);
+	if ($rankResult && ($rankRow = mysqli_fetch_row($rankResult))) {
+		$rank = (int) $rankRow[0];
 	}
 }

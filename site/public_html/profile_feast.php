@@ -1,5 +1,5 @@
 <?php
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_blocks.php';
 $calYear = (int) date('Y');
 $playerId = (int) $pm['id'];
@@ -23,9 +23,9 @@ $playerId = (int) $pm['id'];
 
 <div class="k2-page-nav">
 
-<?php
-player_feast_render_core($pm);
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero.php'; ?>
 
+<?php
 $k2PlayerTabActive = 'profile';
 $id = $playerId;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
