@@ -18,8 +18,6 @@
 | CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-personal-bests.css` |
 | Calendar | `api/player_feast/player_calendar_days.php`, `js/player-feast/player-calendar.js` |
 
-**Legacy URLs** (301 to `individual1.php`): `profile_feast.php`, `profile_mock3_g.php`.
-
 ---
 
 ## Scroll order (as shipped)

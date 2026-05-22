@@ -195,7 +195,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 |----------------|------|
 
 | 2026-05 | **CSS hygiene:** `k2_head.php`; deleted `main2.css`; `--k2-*` tokens for chart subtitles; neon C documented; removed unused rank-#1 table glow; `theme_boot` only in `<head>`. |
-| 2026-05 | **Profile feast shipped:** `individual1.php` only; `profile_feast.php` / `profile_mock3_g.php` → 301 redirect. Maintainer doc `docs/player-profile-feast.md`; audit/framing → `docs/archive/`. Mock lab PHP/CSS removed from tree (history: `b8c5a98`). |
+| 2026-05 | **Profile feast shipped:** `individual1.php` only; dev preview URLs (`profile_feast.php`, mock lab) deleted — not deployed for players. Maintainer doc `docs/player-profile-feast.md`; audit/framing → `docs/archive/`. Mock lab history: `b8c5a98`. |
 | 2026-05 | **Cosmetics wrap-up:** segment-track + outline wing nav on ranked pages; hub accent preview pills + `realm-switch.js`; `theme_boot_head.php` sync realm/accent before paint; Games hub 7-day window (min 50 fallback), no table pager; `individual3` 100 games/page; peak-month leaderboard SSR on Trends. |
 | 2026-05 | **Phase A hub nav** on production PHP — `hub_nav.php`, `status.php` bridge, wing tabs via `lb_nav.php`; theme-lab wing/segment experiments promoted to `theme.css`. |
 | 2026-05 | **Theme lab:** `theme-lab.html`, `stylesheets/theme-lab.css`, `js/theme-lab.js` — interactive neon/realm/amiga-accent/display-font preview. |
