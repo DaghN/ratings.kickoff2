@@ -11,7 +11,6 @@
 </head>
 
 <body class="k2-site">
-
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
 <?php
@@ -22,28 +21,26 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
 	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 	if (mysqli_connect_errno())
   	{
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, NumberGames, LongestWinningStreak, LongestDrawingStreak, LongestLosingStreak, LongestNonLossStreak, LongestNonDrawStreak, LongestNonWinStreak FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
 ?>
 
 <?php
-$k2LbWingActive = 'streaks';
+$k2LbWingActive = 'results';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 ?>
 
 <div class="k2-table-wrap">
 
-<table class="k2-table ranked-pages-table ranked-table-pending table-autosort table-autofilter table-autorank table-stripeclass:alternate table-autostripe table-rowshade-alternate table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table ranked-pages-table ranked-table-pending table-autosort table-autofilter table-autorank table-stripeclass:alternate table-autostripe table-rowshade-alternate table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount">
 
 <thead>
     <tr style="text-align:right;">
@@ -51,12 +48,12 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
         <th class="table-sortable:numeric">ELO rating</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
-        <th class="table-sortable:numeric">LWS</th>
-        <th class="table-sortable:numeric">LDS</th>
-        <th class="table-sortable:numeric">LLS</th>
-        <th class="table-sortable:numeric">LNLS</th>
-        <th class="table-sortable:numeric">LNDS</th>
-        <th class="table-sortable:numeric">LNWS</th>
+        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;Wins</th>
+        <th class="table-sortable:numeric">Draws</th>
+        <th class="table-sortable:numeric">Losses</th>
+        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
+        <th class="table-sortable:numeric">Draw Ratio</th>
+        <th class="table-sortable:numeric">Loss Ratio</th>
     </tr>
 </thead>
 
@@ -65,20 +62,20 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 	<?php
     $rank = "1";
     while ($row = mysqli_fetch_row($result))
-    {  
-    ?>
+    { 
+	?>
     
     <tr style="text-align:right;">
         <td><?php echo $rank ?></td>
         <td style="text-align:left;"><a href="individual1.php?id=<?php echo $row[0] ?>"><?php echo $row[1] ?></a></td>
         <td><?php echo round($row[2]) ?></td>
         <td><?php echo $row[3] ?></td>
-        <td><?php if ($row[4] == 0) {echo "-";} else {echo "<span class='blue'>"; echo $row[4]; echo "</span>";} ?></td>
-        <td><?php if ($row[5] == 0) {echo "-";} else {echo $row[5];} ?></td>
-        <td><?php if ($row[6] == 0) {echo "-";} else {echo "<span class='red'>"; echo $row[6]; echo "</span>";} ?></td>
-        <td><?php if ($row[7] == 0) {echo "-";} else {echo "<span class='blue'>"; echo $row[7]; echo "</span>";} ?></td>
-        <td><?php if ($row[8] == 0) {echo "-";} else {echo $row[8];} ?></td>
-        <td><?php if ($row[9] == 0) {echo "-";} else {echo "<span class='red'>"; echo $row[9]; echo "</span>";} ?></td>
+        <td><?php if ($row[4]!=0) {echo "<span class='blue'>"; echo $row[4]; echo "</span>"; } else {echo "0";} ?></td>
+        <td><?php echo $row[5] ?></td>
+        <td><?php if ($row[6]!=0) {echo "<span class='red'>"; echo $row[6]; echo "</span>"; } else {echo "0";} ?></td>
+        <td><?php if ($row[7]!=0) {echo "<span class='blue'>";} echo number_format(100*$row[7], 1); echo "%"; ?></td>
+        <td><?php echo number_format(100*$row[8], 1); echo "%"; ?></td>
+        <td><?php if ($row[9]!=0) {echo "<span class='red'>";} echo number_format(100*$row[9], 1); echo "%"; ?></td>
     </tr> 
     
     <?php
@@ -87,23 +84,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     ?> 
 </tbody>
 
-</table>
+</table> 
 
 </div><!-- .k2-table-wrap -->
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
 
-<br />
-LWS = Longest Winning Streak ever<br />
-LDS = Longest Drawing Streak ever<br />
-LLS = Longest Losing Streak ever<br />
-LNLS = Longest No Losses Streak ever<br />
-LNDS = Longest No Draws Streak ever<br />
-LNWS = Longest No Wins Streak ever
-
-
-
-
 </div><!-- .k2-page-nav -->
+
 </body>
 </html>

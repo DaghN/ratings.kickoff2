@@ -30,7 +30,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, PeakRating, NumberGames, DoubleDigits, DoubleDigitsConceded, CleanSheets, CleanSheetsConceded, DoubleDigitsRatio, DoubleDigitsConcededRatio, CleanSheetsRatio, CleanSheetsConcededRatio, DifferentOpponents, DoubleDigitsVictims, DoubleDigitsCulprits, CleanSheetsVictims, CleanSheetsCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, DoubleDigits, DoubleDigitsConceded, CleanSheets, CleanSheetsConceded, DoubleDigitsRatio, DoubleDigitsConcededRatio, CleanSheetsRatio, CleanSheetsConcededRatio, DifferentOpponents, DoubleDigitsVictims, DoubleDigitsCulprits, CleanSheetsVictims, CleanSheetsCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -50,7 +50,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">Rank</th>
         <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
         <th class="table-sortable:numeric">ELO rating</th>
-        <th class="table-sortable:numeric">Peak</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
         <th class="table-sortable:numeric">&nbsp;DD C</th>
@@ -81,21 +80,20 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo $rank ?></td>
         <td style="text-align:left;"><a href="individual1.php?id=<?php echo $row[0] ?>"><?php echo $row[1] ?></a></td>
         <td><?php echo round($row[2]) ?></td>
-        <td><?php if ($row[3] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[3]); echo "</span>";} ?></td>
-        <td><?php echo $row[4] ?></td>
-       	<td><?php if ($row[5] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[5];?></span><?php } ?></td>
-        <td><?php if ($row[6] == 0) {echo "0";} else {?><span class="red"><?php echo $row[6];?></span><?php } ?></td>
-        <td><?php if ($row[7] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[7];?></span><?php } ?></td>
-        <td><?php if ($row[8] == 0) {echo "0";} else {?><span class="red"><?php echo $row[8];?></span><?php } ?></td>
-        <td><?php if ($row[9] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[9], 1); echo "%";} ?></td>
-        <td><?php if ($row[10] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[10], 1); echo "%";} ?></td>
-        <td><?php if ($row[11] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[11], 1); echo "%";} ?></td>
-        <td><?php if ($row[12] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[12], 1); echo "%";} ?></td>
-        <td><?php echo $row[13] ?></td>
-       	<td><?php if ($row[14] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[14];?></span><?php } ?></td>
-        <td><?php if ($row[15] == 0) {echo "0";} else {?><span class="red"><?php echo $row[15];?></span><?php } ?></td>
-        <td><?php if ($row[16] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[16];?></span><?php } ?></td>
-        <td><?php if ($row[17] == 0) {echo "0";} else {?><span class="red"><?php echo $row[17];?></span><?php } ?></td>
+        <td><?php echo $row[3] ?></td>
+       	<td><?php if ($row[4] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[4];?></span><?php } ?></td>
+        <td><?php if ($row[5] == 0) {echo "0";} else {?><span class="red"><?php echo $row[5];?></span><?php } ?></td>
+        <td><?php if ($row[6] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[6];?></span><?php } ?></td>
+        <td><?php if ($row[7] == 0) {echo "0";} else {?><span class="red"><?php echo $row[7];?></span><?php } ?></td>
+        <td><?php if ($row[8] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[8], 1); echo "%";} ?></td>
+        <td><?php if ($row[9] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[9], 1); echo "%";} ?></td>
+        <td><?php if ($row[10] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[10], 1); echo "%";} ?></td>
+        <td><?php if ($row[11] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[11], 1); echo "%";} ?></td>
+        <td><?php echo $row[12] ?></td>
+       	<td><?php if ($row[13] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[13];?></span><?php } ?></td>
+        <td><?php if ($row[14] == 0) {echo "0";} else {?><span class="red"><?php echo $row[14];?></span><?php } ?></td>
+        <td><?php if ($row[15] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[15];?></span><?php } ?></td>
+        <td><?php if ($row[16] == 0) {echo "0";} else {?><span class="red"><?php echo $row[16];?></span><?php } ?></td>
     </tr> 
     
     <?php

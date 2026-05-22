@@ -29,7 +29,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, PeakRating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio, DifferentOpponents, DifferentVictims, DifferentCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, PeakRating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -57,9 +57,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
         <th class="table-sortable:numeric">Draw Ratio</th>
         <th class="table-sortable:numeric">Loss Ratio</th>
-        <th class="table-sortable:numeric">&nbsp;Opponents</th>
-        <th class="table-sortable:numeric">&nbsp;Victims</th>
-        <th class="table-sortable:numeric">Culprits</th>
     </tr>
 </thead>
 
@@ -83,9 +80,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php if ($row[8]!=0) {echo "<span class='blue'>";} echo number_format(100*$row[8], 1); echo "%"; ?></td>
         <td><?php echo number_format(100*$row[9], 1); echo "%"; ?></td>
         <td><?php if ($row[10]!=0) {echo "<span class='red'>";} echo number_format(100*$row[10], 1); echo "%"; ?></td>
-        <td><?php echo $row[11] ?></td>
-        <td><?php if ($row[12]!=0) {echo "<span class='blue'>"; echo $row[12]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[13]!=0) {echo "<span class='red'>"; echo $row[13]; echo "</span>"; } else {echo "0";} ?></td>
     </tr> 
     
     <?php

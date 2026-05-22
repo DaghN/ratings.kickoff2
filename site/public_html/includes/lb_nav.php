@@ -1,11 +1,12 @@
 <?php
 /**
  * Leaderboard wing tabs — segment track with outline active cell.
- * Set $k2LbWingActive before include: rating | goals | dds | streaks | victims | rating-records
+ * Set $k2LbWingActive before include: rating | results | goals | dds | streaks | victims | rating-records
  */
 $k2LbWingActive = $k2LbWingActive ?? 'rating';
 $k2LbWingTabs = [
 	'rating' => ['href' => 'ranked1.php', 'label' => 'Rating'],
+	'results' => ['href' => 'ranked7.php', 'label' => 'Results'],
 	'goals' => ['href' => 'ranked2.php', 'label' => 'Goals'],
 	'dds' => ['href' => 'ranked3.php', 'label' => 'DDs &amp; CSs'],
 	'streaks' => ['href' => 'ranked4.php', 'label' => 'Streaks'],

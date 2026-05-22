@@ -30,7 +30,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, PeakRating, NumberGames, GoalsFor, GoalsAgainst, AverageGoalsFor, AverageGoalsAgainst, GoalRatio, MostGoalsScored, MostGoalsConceded, LeastGoalsScored, LeastGoalsConceded, BiggestWinDifference, BiggestLossDifference, BiggestDrawSum, BiggestSumOfGoals, SmallestSumOfGoals, NumberDraws FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, GoalsFor, GoalsAgainst, AverageGoalsFor, AverageGoalsAgainst, GoalRatio, MostGoalsScored, MostGoalsConceded, BiggestWinDifference, BiggestLossDifference, BiggestDrawSum, BiggestSumOfGoals, NumberDraws FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -50,7 +50,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">Rank</th>
         <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
         <th class="table-sortable:numeric">ELO rating</th>
-        <th class="table-sortable:numeric">Peak</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GF</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;GA</th>
@@ -59,13 +58,10 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ratio</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;Most S</th>
         <th class="table-sortable:numeric">Most C</th>
-        <th class="table-sortable:numeric">&nbsp;Least S</th>
-        <th class="table-sortable:numeric">Least C</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;BW Diff</th>
         <th class="table-sortable:numeric">&nbsp;BL Diff</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BD</th>
         <th class="table-sortable:numeric">BG Sum</th>
-        <th class="table-sortable:numeric">SG Sum</th>
     </tr>
 </thead>
 
@@ -81,27 +77,23 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo $rank ?></td>
         <td style="text-align:left;"><a href="individual1.php?id=<?php echo $row[0] ?>"><?php echo $row[1] ?></a></td>
         <td><?php echo round($row[2]) ?></td>
-        <td><?php if ($row[3] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[3]); echo "</span>";} ?></td>
-        <td><?php echo $row[4] ?></td>
-        <td><?php if ($row[5]!=0) {echo "<span class='blue'>"; echo $row[5]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[6]!=0) {echo "<span class='red'>"; echo $row[6]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[7]!=0) {echo "<span class='blue'>";} echo number_format($row[7], 2) ?></td>
-        <td><?php if ($row[8]!=0) {echo "<span class='red'>";} echo number_format($row[8], 2) ?></td>
+        <td><?php echo $row[3] ?></td>
+        <td><?php if ($row[4]!=0) {echo "<span class='blue'>"; echo $row[4]; echo "</span>"; } else {echo "0";} ?></td>
+        <td><?php if ($row[5]!=0) {echo "<span class='red'>"; echo $row[5]; echo "</span>"; } else {echo "0";} ?></td>
+        <td><?php if ($row[6]!=0) {echo "<span class='blue'>";} echo number_format($row[6], 2) ?></td>
+        <td><?php if ($row[7]!=0) {echo "<span class='red'>";} echo number_format($row[7], 2) ?></td>
         <td><?php
-        	if ($row[9] === null || $row[9] == -1) 
+        	if ($row[8] === null || $row[8] == -1) 
 				{echo "-";}
 			else 
-				{if ($row[9]>=1) {echo "<span class='blue'>";} else {echo "<span class='red'>";} echo number_format($row[9], 2); echo "</span>";}
+				{if ($row[8]>=1) {echo "<span class='blue'>";} else {echo "<span class='red'>";} echo number_format($row[8], 2); echo "</span>";}
 		?></td>
-        <td><?php if ($row[10]!=0) {echo "<span class='blue'>"; echo $row[10]; echo "</span>"; } else {echo "-";} ?></td>
-       	<td><?php if ($row[11]!=0) {echo "<span class='red'>"; echo $row[11]; echo "</span>"; } else {echo "-";} ?></td>
-        <td><?php echo "<span class='blue'>"; echo $row[12]; echo "</span>"; ?></td>
-       	<td><?php echo "<span class='red'>"; echo $row[13]; echo "</span>"; ?></td>
-        <td><?php if ($row[14]!=0) {echo "<span class='blue'>"; echo $row[14]; echo "</span>"; } else {echo "-";} ?></td>
-       	<td><?php if ($row[15]!=0) {echo "<span class='red'>"; echo $row[15]; echo "</span>"; } else {echo "-";} ?></td>
-        <td><?php if ($row[19]!=0) {echo $row[16]/2; echo "-"; echo $row[16]/2;} else {echo "-";} ?></td>
-        <td><?php echo $row[17] ?></td>
-        <td><?php echo $row[18] ?></td>
+        <td><?php if ($row[9]!=0) {echo "<span class='blue'>"; echo $row[9]; echo "</span>"; } else {echo "-";} ?></td>
+       	<td><?php if ($row[10]!=0) {echo "<span class='red'>"; echo $row[10]; echo "</span>"; } else {echo "-";} ?></td>
+        <td><?php if ($row[11]!=0) {echo "<span class='blue'>"; echo $row[11]; echo "</span>"; } else {echo "-";} ?></td>
+       	<td><?php if ($row[12]!=0) {echo "<span class='red'>"; echo $row[12]; echo "</span>"; } else {echo "-";} ?></td>
+        <td><?php if ($row[15]!=0) {echo $row[13]/2; echo "-"; echo $row[13]/2;} else {echo "-";} ?></td>
+        <td><?php echo $row[14] ?></td>
     </tr> 
     
     <?php
@@ -119,15 +111,12 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 <br />
 Most S = Most Scored, ie. most goals scored by the player in one game<br />
 Most C = Most Conceded<br />
-Least S = Least Scored<br />
-Least S = Least Conceded<br />
 <br />
 BW Diff = Biggest Win Difference, ie. the player's highest winning margin ever<br />
 BL Diff = Biggest Loss Difference<br />
 <br />
 BD = Biggest Draw<br />
-BGS = Biggest Goal Sum, ie. the most goal rich game the player has participated in<br />
-SGS = Smallest Goal Sum
+BG Sum = Biggest Goal Sum, ie. the most goal rich game the player has participated in<br />
 
 
 
