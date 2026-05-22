@@ -1,15 +1,15 @@
 /**
- * Profile mock 3D — flat sections (header → content), no wrapper padding
+ * Player feast preview — sections, charts, hero overrides.
  */
 
-.pm3d-body {
+.player-feast-body {
 	/* Mock 3A monument plate + peak activity counts */
 	--pm3-ember: var(--k2-chart-amber, #ffb74d);
 	--pm3-ember-glow: rgba(255, 183, 77, 0.42);
 }
 
 /* Content column matches production (theme.css .k2-page-nav) */
-.pm3d-body .k2-page-nav {
+.player-feast-body .k2-page-nav {
 	max-width: var(--k2-max-width, 1200px);
 	margin-left: auto;
 	margin-right: auto;
@@ -94,38 +94,22 @@
 	box-shadow: none;
 }
 
-/* ── CORE hero + rank (no section wrapper) ── */
+/* ── CORE hero (prod k2-player-hero plate + rank) ── */
 
-/* CORE shell — profile_mock_a.php (pm2-core) border/background only */
-.pm3d-core {
+/* Solid surface plate — matches individual1; theme.css owns layout + avatar */
+.player-feast-hero.k2-player-hero {
 	margin-bottom: 24px;
-	padding: 20px 24px 22px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-lg);
-	background: linear-gradient(145deg, var(--k2-bg-elevated) 0%, var(--k2-bg-surface) 55%, var(--k2-bg-page) 100%);
-	box-shadow: var(--k2-shadow-surface);
+	background: var(--k2-bg-surface);
 }
 
-.pm3d-core__inner {
-	display: block;
-}
-
-.pm3d-core .k2-player-hero__name {
-	text-align: left;
-}
-
-.pm3d-core .k2-player-hero__stats {
-	justify-content: flex-start;
-}
-
-/* Rank + rating glow — same feel as mock 3C sigil rating */
-.pm3d-core__stat-value--rank,
-.pm3d-core .k2-player-hero__stat-value--accent {
+/* Rank + rating glow */
+.player-feast-hero__stat-value--rank,
+.player-feast-hero .k2-player-hero__stat-value--accent {
 	color: var(--k2-realm-accent);
 	text-shadow: 0 0 28px var(--k2-realm-glow);
 }
 
-.pm3d-body .k2-player-nav {
+.player-feast-body .k2-player-nav {
 	margin: 0 0 28px;
 }
 
@@ -181,11 +165,11 @@
 	background: radial-gradient(circle, var(--k2-realm-glow), transparent 70%);
 }
 
-.pm3d-body .pm3-duel__vs {
+.player-feast-body .pm3-duel__vs {
 	color: var(--k2-realm-accent);
 }
 
-.pm3d-body .pm3-duel__count strong {
+.player-feast-body .pm3-duel__count strong {
 	color: var(--k2-realm-accent);
 	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * 1.3) var(--k2-realm-glow);
 }

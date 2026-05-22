@@ -1,8 +1,8 @@
 # Profile redesign — Phase 0 framing
 
-**Status:** May 2026. Governs the three Profile lab mocks (`profile_mock_a/b/c.php`) for player **Steve (`id=237`)**.
+**Status:** May 2026. Framing doc for profile feast direction. **Working preview:** `profile_feast.php` (Steve `id=237`). Lab mocks and portal removed — see git history / `b8c5a98` checkpoint.
 
-**Authority:** `PROJECT_BRIEF.md` for north star. This doc + mocks are exploratory — not a production spec until Dagh picks a direction.
+**Authority:** `PROJECT_BRIEF.md` for north star. `docs/profile-data-audit.md` for data contract. Preview is pre-production until integrated into `individual1.php` and feast tabs.
 
 ---
 
@@ -87,7 +87,7 @@ Metrics stay **true**; the **order and framing** are what we're fixing.
 | **B** | **The Wire** | Live pulse — recency, form, rivals; charts support rhythm | Steve feels *present on the ladder tonight* |
 | **C** | **The Vault** | Hall of fame — peak, volume, exhibits as monuments | Steve feels *legendary*; depth is museum placards |
 
-Shared across mocks: real `id=237` data, global `theme.css` tokens, site header, feast pills for context, link to production profile.
+Preview (`profile_feast.php`): real `id=237` data, global `theme.css` tokens, site header, feast pills, charts + calendar APIs.
 
 **Only global site theming is fixed** — layout, components, and Profile IA are free in mocks.
 

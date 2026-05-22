@@ -1,15 +1,15 @@
 <?php
 /**
- * Load playertable + related rows for profile lab mocks.
+ * Load playertable + related rows for profile feast preview (profile_feast.php).
  * Sets $pm (array), $id (int), $con (mysqli). Includes helpers.
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/profile_mock_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 
-$PROFILE_MOCK_DEFAULT_ID = 237;
+$PLAYER_FEAST_DEFAULT_ID = 237;
 
-$id = isset($_GET['id']) ? (int) $_GET['id'] : $PROFILE_MOCK_DEFAULT_ID;
+$id = isset($_GET['id']) ? (int) $_GET['id'] : $PLAYER_FEAST_DEFAULT_ID;
 if ($id < 1) {
-    $id = $PROFILE_MOCK_DEFAULT_ID;
+    $id = $PLAYER_FEAST_DEFAULT_ID;
 }
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';

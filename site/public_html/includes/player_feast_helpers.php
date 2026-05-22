@@ -1,6 +1,6 @@
 <?php
 /**
- * Helpers for profile lab mocks (profile_mock_*.php).
+ * Helpers for profile feast preview (profile_feast.php).
  */
 
 function pm_h(string $s): string

@@ -732,7 +732,7 @@ Worth pass 2 **without** new queries:
 
 **Presentation:** Section labels, chart grid, moment cards, rivalry chrome — explorative pass 2.
 
-**Mock infra:** e.g. `site/public_html/profile-mock-charts/` (or `api/profile_mock/`) — APIs + JS for heatmap, busiest-period stats, etc., wired in mocks.
+**Preview infra:** `api/player_feast/` + `js/player-feast/` for calendar; production chart JS reused on `profile_feast.php`.
 
 ---
 
@@ -787,7 +787,7 @@ Fixed strip — **one focal rating** (realm accent), companions labeled, no comp
 
 - Site header (wordmark, search, realm) — unchanged.  
 - **Hero + feast pills:** hero (CORE) then **Profile · Games · Wins · Goals · DDs** — same as prod IA (player context on every feast tab).  
-- **No** profile-lab banner on mock pages (portal only at `profile_mocks.php`).
+- **No** profile-lab banner on preview pages (lab portal removed May 2026; single preview at `profile_feast.php`).
 
 #### C1.3 Content parity (every mock includes)
 
@@ -825,8 +825,8 @@ Fixed strip — **one focal rating** (realm accent), companions labeled, no comp
 #### C1.6 Mock technical requirements
 
 - Anchor player: **`id=237`** (overridable `?id=`).  
-- **Real** chart endpoints + JS under a dedicated mock path (e.g. `api/profile_mock/` + `js/profile-mock/` or `profile-mock-charts/`) — **no grey placeholders** for heatmap / busiest-period / charts under test.  
-- Reuse production `theme.css` tokens; mock-only CSS for layout (`profile-mock.css` or successor).
+- **Real** chart endpoints + JS (production chart JS on preview; calendar via `api/player_feast/`).
+- Reuse production `theme.css` tokens; preview layout CSS (`player-feast*.css`).
 
 ---
 
@@ -892,7 +892,7 @@ Suggested **starting** stack for mocks; permute within zones for pass 2 explorat
 
 ### C4. Pass 2 mock briefs (same checklist, different emphasis)
 
-Files: `profile_mock_a.php`, `profile_mock_b.php`, `profile_mock_c.php` (+ portal).  
+**May 2026:** Lab mocks A/B/C and portal removed. Working preview: `profile_feast.php` (integrate → `individual1.php` + feast tabs). Archived mocks in git before cleanup (`b8c5a98`).  
 **Content parity** per C1.3; **visual emphasis** differs:
 
 #### Mock A — **The Chronicle** (celebration-forward)

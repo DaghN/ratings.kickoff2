@@ -1,6 +1,6 @@
 <?php
 /**
- * Distinct calendar dates with at least one rated game (profile mock calendar heatmap).
+ * Distinct calendar dates with at least one rated game (profile feast played-days calendar).
  * GET: id (required), year (default current calendar year)
  */
 

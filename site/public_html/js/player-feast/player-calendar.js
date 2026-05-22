@@ -67,7 +67,7 @@
 			return;
 		}
 
-		fetch('/api/profile_mock/player_calendar_days.php?id=' + playerId + '&year=' + year)
+		fetch('/api/player_feast/player_calendar_days.php?id=' + playerId + '&year=' + year)
 			.then(function (r) {
 				if (!r.ok) {
 					throw new Error('fetch_failed');
