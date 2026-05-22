@@ -7,6 +7,7 @@
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <script type="text/javascript" src="js/elolist.js"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="js/status-period-activity.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/status-period-activity.js'); ?>" defer="defer"></script>
 
 </head>
 
@@ -39,6 +40,18 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 	</div>
 
 	<p class="k2-hub-panel__hint">Default hub landing. Leaderboards, games archive, trends charts, and records stay on their existing pages via the tabs above.</p>
+
+<?php
+include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+if (!mysqli_connect_errno()) {
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboards_section.php';
+    mysqli_close($con);
+    unset($con);
+} else {
+    echo '<div class="server-period-activity-leaderboards"><p class="server-period-activity-leaderboards-status">Could not load games-by-period tables.</p></div>';
+}
+?>
 </section>
 
 </div><!-- .k2-page-nav -->

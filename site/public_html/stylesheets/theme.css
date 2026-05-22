@@ -499,7 +499,8 @@ body.k2-site .server-established-rating-distribution-chart-status {
 }
 
 /* Busiest day / month / year hall of fame — full page width, three columns */
-body.k2-site .server-peak-period-leaderboards {
+body.k2-site .server-peak-period-leaderboards,
+body.k2-site .server-period-activity-leaderboards {
 	max-width: var(--k2-max-width);
 	margin-bottom: 16px;
 	padding: 14px;
@@ -508,16 +509,32 @@ body.k2-site .server-peak-period-leaderboards {
 	background: var(--k2-bg-surface);
 }
 
-body.k2-site .server-peak-period-leaderboards > p {
+body.k2-site .server-peak-period-leaderboards > p,
+body.k2-site .server-period-activity-leaderboards__heading {
 	color: var(--k2-text-primary);
 }
 
+body.k2-site .server-period-activity-leaderboards__heading {
+	margin: 0 0 4px;
+	font-weight: 600;
+}
+
+body.k2-site .server-period-activity-leaderboards__intro {
+	margin: 0 0 12px;
+	color: var(--k2-text-muted);
+	font-size: 0.9em;
+	line-height: 1.4;
+}
+
 body.k2-site .server-peak-period-leaderboards-status,
-body.k2-site .server-peak-period-leaderboard-status {
+body.k2-site .server-peak-period-leaderboard-status,
+body.k2-site .server-period-activity-leaderboards-status,
+body.k2-site .server-period-activity-leaderboard-status {
 	color: var(--k2-text-muted);
 }
 
-body.k2-site .server-peak-period-leaderboards__grid {
+body.k2-site .server-peak-period-leaderboards__grid,
+body.k2-site .server-period-activity-leaderboards__grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 16px;
@@ -525,12 +542,14 @@ body.k2-site .server-peak-period-leaderboards__grid {
 }
 
 @media (max-width: 1024px) {
-	body.k2-site .server-peak-period-leaderboards__grid {
+	body.k2-site .server-peak-period-leaderboards__grid,
+	body.k2-site .server-period-activity-leaderboards__grid {
 		grid-template-columns: 1fr;
 	}
 }
 
-body.k2-site .server-peak-period-leaderboard {
+body.k2-site .server-peak-period-leaderboard,
+body.k2-site .server-period-activity-leaderboard {
 	min-width: 0;
 	padding: 12px;
 	border: 1px solid var(--k2-border-subtle);
@@ -538,22 +557,70 @@ body.k2-site .server-peak-period-leaderboard {
 	background: var(--k2-bg-elevated);
 }
 
-body.k2-site .server-peak-period-leaderboard__title {
+body.k2-site .server-peak-period-leaderboard__title,
+body.k2-site .server-period-activity-leaderboard__title {
 	margin: 0 0 4px;
 	color: var(--k2-text-primary);
 	font-size: 0.95em;
 	font-weight: 600;
 }
 
-body.k2-site .server-peak-period-leaderboard__hint {
+body.k2-site .server-peak-period-leaderboard__hint,
+body.k2-site .server-period-activity-leaderboard__hint {
 	margin: 0 0 10px;
 	color: var(--k2-text-muted);
 	font-size: 0.85em;
 	line-height: 1.35;
 }
 
-body.k2-site .server-peak-period-leaderboard .k2-table-wrap {
+body.k2-site .server-peak-period-leaderboard .k2-table-wrap,
+body.k2-site .server-period-activity-leaderboard .k2-table-wrap {
 	overflow-x: auto;
+}
+
+body.k2-site .server-period-activity-leaderboard__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px 12px;
+	margin-bottom: 4px;
+}
+
+body.k2-site .server-period-activity-leaderboard__picker {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	font-size: 0.85em;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .server-period-activity-leaderboard__picker-label {
+	font-weight: 500;
+}
+
+body.k2-site .server-period-activity-leaderboard__input {
+	padding: 4px 8px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-surface);
+	color: var(--k2-text-primary);
+	font-size: 0.9em;
+}
+
+body.k2-site .server-period-activity-leaderboard__summary {
+	margin: 0 0 10px;
+	font-size: 0.9em;
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .server-period-activity-leaderboard__summary-period {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .server-period-activity-leaderboard--loading {
+	opacity: 0.72;
 }
 
 /* ── Leaderboard / data tables (k2-table — mock-aligned) ── */
