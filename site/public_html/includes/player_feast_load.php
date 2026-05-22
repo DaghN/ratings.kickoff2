@@ -51,31 +51,6 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $yearRow = mysqli_fetch_row($yearResult);
     $gamesThisYear = (int) $yearRow[0];
 
-    $recent = [];
-    $recentSql = "SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB "
-        . "FROM ratedresults WHERE idA='$escId' OR idB='$escId' ORDER BY Date DESC, id DESC LIMIT 10";
-    $recentResult = k2_player_feast_query($con, 'recent_games', $recentSql);
-    while ($recentResult && ($g = mysqli_fetch_assoc($recentResult))) {
-        $recent[] = pm_parse_game_row($g, $id);
-    }
-
-    $rivals = [];
-    $rivalSql = "SELECT opp_id, opp_name, games FROM (
-        SELECT CASE WHEN idA='$escId' THEN idB ELSE idA END AS opp_id,
-               CASE WHEN idA='$escId' THEN NameB ELSE NameA END AS opp_name,
-               COUNT(*) AS games
-        FROM ratedresults WHERE idA='$escId' OR idB='$escId'
-        GROUP BY opp_id, opp_name
-    ) t ORDER BY games DESC LIMIT 6";
-    $rivalResult = k2_player_feast_query($con, 'top_rivals_grouped', $rivalSql);
-    while ($rivalResult && ($r = mysqli_fetch_assoc($rivalResult))) {
-        $rivals[] = [
-            'id' => (int) $r['opp_id'],
-            'name' => (string) $r['opp_name'],
-            'games' => (int) $r['games'],
-        ];
-    }
-
     $trophyDefs = [
         [
             'key' => 'biggest_win',
@@ -122,11 +97,6 @@ function player_feast_load_pm(mysqli $con, int $id): array
         $trophies[] = array_merge($def, $parsed);
     }
 
-    $form = [];
-    foreach (array_slice($recent, 0, 10) as $g) {
-        $form[] = $g['outcome'][0];
-    }
-
     $peakGap = ($peak !== null && $rating !== null) ? $peak - $rating : 0;
 
     $firstGameResult = k2_player_feast_query(
@@ -141,23 +111,6 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $tenureLabel = pm_tenure_plus_label($tenureYears);
 
     $differentOpponents = (int) $row['DifferentOpponents'];
-
-    $featuredRival = $rivals[0] ?? null;
-    $rivalH2h = ['wins' => 0, 'draws' => 0, 'losses' => 0];
-    if ($featuredRival !== null) {
-        $oid = (int) $featuredRival['id'];
-        $h2hSql = "SELECT "
-            . "SUM(CASE WHEN (idA='$escId' AND ActualScore >= 0.99) OR (idB='$escId' AND ActualScore <= 0.01) THEN 1 ELSE 0 END) AS wins, "
-            . "SUM(CASE WHEN ActualScore = 0.5 THEN 1 ELSE 0 END) AS draws, "
-            . "SUM(CASE WHEN (idA='$escId' AND ActualScore <= 0.01) OR (idB='$escId' AND ActualScore >= 0.99) THEN 1 ELSE 0 END) AS losses "
-            . "FROM ratedresults WHERE (idA='$escId' AND idB='$oid') OR (idA='$oid' AND idB='$escId')";
-        $h2hRes = k2_player_feast_query($con, 'featured_rival_h2h', $h2hSql);
-        if ($h2hRes && ($h2hRow = mysqli_fetch_assoc($h2hRes))) {
-            $rivalH2h['wins'] = (int) $h2hRow['wins'];
-            $rivalH2h['draws'] = (int) $h2hRow['draws'];
-            $rivalH2h['losses'] = (int) $h2hRow['losses'];
-        }
-    }
 
     $busiest = ['month' => null, 'day' => null, 'year' => null];
     $busiestSql = [
@@ -215,8 +168,6 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'first_game_date' => date('M j, Y', $firstGameTs ?: time()),
         'different_opponents' => $differentOpponents,
         'different_victims' => (int) $row['DifferentVictims'],
-        'featured_rival' => $featuredRival,
-        'rival_h2h' => $rivalH2h,
         'busiest' => $busiest,
         'average_opponent_rating' => $display ? (int) round((float) $row['AverageOpponentRating']) : null,
         'goal_ratio' => $display ? round((float) $row['GoalRatio'], 2) : null,
@@ -230,10 +181,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'career_rank_opponents' => $careerRankOpponents,
         'clean_sheets' => (int) $row['CleanSheets'],
         'winning_streak' => (int) $row['WinningStreak'],
-        'recent' => $recent,
-        'rivals' => $rivals,
         'trophies' => $trophies,
-        'form' => $form,
         'initial' => strtoupper(substr((string) $row['Name'], 0, 1)),
         'rating_raw' => (float) $row['Rating'],
         'peak_raw' => (float) $row['PeakRating'],

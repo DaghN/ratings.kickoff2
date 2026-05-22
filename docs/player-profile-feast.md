@@ -28,7 +28,9 @@
 4. **Played days** (calendar year, played-day cells)
 5. **Personal bests** (busiest day / month / year for this player)
 6. **Moments** (longest win streak + trophy games with links)
-7. **Charts** — rating over time, games per month, rating by game #, win rate vs opponent rating, top opponents (feeds H2H), head-to-head, rating comparison, opponent search
+7. **Charts** — rating over time, games per month, rating by game #, top opponents (feeds H2H), head-to-head, rating comparison, opponent search
+
+(Win rate vs opponent rating chart was removed from the shipped page; `js/player-winrate-opponent-chart.js` remains in the tree if reintroduced in a lower “matchup lab” block.)
 
 Standalone **rivalry section** was removed; top-opponents chart auto-selects the #1 opponent for H2H/compare.
 
@@ -70,3 +72,5 @@ Profile does **not** duplicate those tables.
 - Further SQL consolidation on profile load (diag-driven)
 
 Do not revive the mock lab; iterate on `individual1.php` and this doc.
+
+**CSS hygiene (May 2026):** `player-feast.css` pruned to shipped blocks only (calendar, moments mosaic, busiest inline); mock nav/CORE/rivalry variants removed.

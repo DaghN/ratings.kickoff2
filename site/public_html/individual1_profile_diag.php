@@ -46,7 +46,6 @@ $filemtimePaths = [
     '/js/player-rating-chart.js',
     '/js/player-games-month-chart.js',
     '/js/player-rating-game-chart.js',
-    '/js/player-winrate-opponent-chart.js',
     '/js/player-top-opponents-chart.js',
     '/js/player-head-to-head-chart.js',
     '/js/player-compare-rating-chart.js',
@@ -139,13 +138,6 @@ $explains = [];
 if ($withExplain && $pm !== null) {
     $escId = (string) $id;
     $explainSql = [
-        'top_rivals_grouped' => "SELECT opp_id, opp_name, games FROM (
-            SELECT CASE WHEN idA='$escId' THEN idB ELSE idA END AS opp_id,
-                   CASE WHEN idA='$escId' THEN NameB ELSE NameA END AS opp_name,
-                   COUNT(*) AS games
-            FROM ratedresults WHERE idA='$escId' OR idB='$escId'
-            GROUP BY opp_id, opp_name
-        ) t ORDER BY games DESC LIMIT 6",
         'busiest_month' => "SELECT DATE_FORMAT(Date, '%Y-%m') AS k, COUNT(*) AS c FROM ratedresults "
             . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
         'first_rated_game' => "SELECT Date FROM ratedresults WHERE idA='$escId' OR idB='$escId' ORDER BY Date ASC, id ASC LIMIT 1",

@@ -1,5 +1,5 @@
 /**
- * Player feast preview — sections, charts, hero overrides.
+ * Player profile feast — section plates, chart wrappers, calendar-in-section overrides.
  */
 
 .player-feast-body {
@@ -102,21 +102,6 @@
 }
 
 /* ── CORE hero (prod k2-player-hero plate + rank) ── */
-
-/* Solid surface plate — matches individual1; theme.css owns layout + avatar */
-.player-feast-hero.k2-player-hero {
-	margin-bottom: 24px;
-	background: var(--k2-bg-surface);
-}
-
-/* Rank + rating — realm accent + glow (matches feast preview) */
-.k2-player-hero__stat-value--rank,
-.k2-player-hero__stat-value--accent,
-.player-feast-body .k2-player-hero__stat-value--rank,
-.player-feast-body .k2-player-hero__stat-value--accent {
-	color: var(--k2-realm-accent);
-	text-shadow: 0 0 28px var(--k2-realm-glow);
-}
 
 .player-feast-body .k2-player-nav {
 	margin: 0 0 28px;

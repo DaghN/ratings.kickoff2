@@ -24,7 +24,7 @@
 
 - **DB performance (May 2026):** Local **profile load diagnostics** (`individual1_profile_diag.php`) showed **~8s blank wait** was almost entirely **many `ratedresults` scans per player** (`idA OR idB`) with no player indexes. **Phase A shipped:** `idx_ratedresults_idA`, `idx_ratedresults_idB` — applied **local** (PowerShell script) and **staging** (browser throwaway); **production still pending** — may ask **Steve** to run same when ready (no terminal for Dagh). **Result on profile:** heavy players ~**8s → ~1s** locally; light players ~**100ms**. **Trends (`server1_trends_diag.php`):** still slow locally (~**7s** blocking PHP = 3× hall-of-fame full-table rollups; ~**9s** more for seven chart APIs). A **`Date` index is not the right fix for server1** — cost is `GROUP BY DATE_FORMAT(…)` and window SQL over **all** games, not date-range filters. Future server1 wins: fewer/heavier queries cached or precomputed, not another single-column index.
 
-- **Profile feast (shipped):** production **`individual1.php`** only — layout contract in **`docs/player-profile-feast.md`**. Pass-2 audit/framing archived; legacy preview URLs redirect. Further work = gradual copy/UX, not mock lab.
+- **Profile feast (shipped):** production **`individual1.php`** only — layout contract in **`docs/player-profile-feast.md`**. Pass-2 audit/framing archived; dev preview URLs removed (no redirects). Load trimmed (dropped unused rival/recent SQL). Further work = gradual copy/UX, not mock lab.
 
 - **Product tone (Dagh direction):** keep the ladder **truthful and data-rich** for regulars, but make the site feel **inclusive, playful, and inviting** — not discouraging. **Player profile (`individual1.php`) “above the fold”** should feel **active, fun, and welcoming** (stories and participation first); deeper / comparative analytics (win rate vs rating, H2H compare, etc.) **lower or grouped** (“matchup lab”), not the first impression.
 
@@ -194,6 +194,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 |----------------|------|
 
+| 2026-05 | **Profile hygiene:** removed unused rival/recent/H2H SQL from `player_feast_load.php`; dropped winrate chart script from `individual1.php`; deleted orphan `peak_month_leaderboard_table.php` + `api/server_peak_month_leaderboard.php`. |
 | 2026-05 | **CSS hygiene:** `k2_head.php`; deleted `main2.css`; `--k2-*` tokens for chart subtitles; neon C documented; removed unused rank-#1 table glow; `theme_boot` only in `<head>`. |
 | 2026-05 | **Profile feast shipped:** `individual1.php` only; dev preview URLs (`profile_feast.php`, mock lab) deleted — not deployed for players. Maintainer doc `docs/player-profile-feast.md`; audit/framing → `docs/archive/`. Mock lab history: `b8c5a98`. |
 | 2026-05 | **Cosmetics wrap-up:** segment-track + outline wing nav on ranked pages; hub accent preview pills + `realm-switch.js`; `theme_boot_head.php` sync realm/accent before paint; Games hub 7-day window (min 50 fallback), no table pager; `individual3` 100 games/page; peak-month leaderboard SSR on Trends. |
@@ -219,11 +220,11 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 | 2026-05 | **Profile/server load diagnostics:** `individual1_profile_diag.php`, `server1_trends_diag.php`; Phase A indexes on `ratedresults` (`idA`/`idB`) — big **individual1** win; **server1** slowness separate (hall of fame + chart APIs; Date index not the answer). Indexes on **staging**; prod left for Steve. |
 | 2026-05 | **Profile feast polish:** career rank fix for NULL `DoubleDigits`; presence/moment dates `M j, Y`; “Last rated game”; played-days inactive cells brighter; `k2_player_feast_query` profiler (opt-in). |
-| 2026-05 | **Profile mock lab cleanup:** archive redesign docs; drop preview duplicate + dead `player_feast_render_core`; legacy URLs redirect to `individual1.php`. |
+| 2026-05 | **Profile mock lab cleanup:** archive redesign docs; drop preview duplicate + dead `player_feast_render_core`; delete dev preview URLs (`profile_feast.php`, mock lab). |
 | 2026-05 | **Trends hall of fame:** busiest **day / month / year** trio on `server1.php`; full-width layout. |
 | 2026-05 | **`bd9730a`** — first Chart.js batch (server games/active/established year, player rating + games/month). |
 
-| 2026-05 | **`index.php`** → **302** to **`ranked1.php`**. WinSCP deploy loop; Git **`main`** → [ratings.kickoff2](https://github.com/DaghN/ratings.kickoff2). |
+| 2026-05 | **`index.php`** → **302** to **`status.php`** (hub landing). WinSCP deploy loop; Git **`main`** → [ratings.kickoff2](https://github.com/DaghN/ratings.kickoff2). |
 
 | 2026-05 | **`scripts/throwaway_playertable_schema.php`** — staging one-shot schema dump; delete after. **`/javascript/`** → **`/js/`** for `elolist.js` (URL segment issue). |
 
