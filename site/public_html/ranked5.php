@@ -30,7 +30,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, PeakRating, NumberGames, DifferentOpponents, DifferentVictims, MostGoalsConcededVictims, LeastGoalsScoredVictims, BiggestLossVictims, MostGoalsScoredCulprits, LeastGoalsConcededCulprits, BiggestWinCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, PeakRating, NumberGames, DifferentOpponents, DifferentVictims, DifferentCulprits, MostGoalsConcededVictims, LeastGoalsScoredVictims, BiggestLossVictims, MostGoalsScoredCulprits, LeastGoalsConcededCulprits, BiggestWinCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con, $query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -54,6 +54,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
         <th class="table-sortable:numeric">Opponents</th>
         <th class="table-sortable:numeric">&nbsp;Victims</th>
+        <th class="table-sortable:numeric">Culprits</th>
         <th class="table-sortable:numeric">MGC Victims</th>
         <th class="table-sortable:numeric">LGS Victims</th>
         <th class="table-sortable:numeric">BL Victims</th>
@@ -79,12 +80,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo $row[4] ?></td>
         <td><?php echo $row[5] ?></td>
         <td><?php if ($row[6]!=0) {echo "<span class='blue'>"; echo $row[6]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[7] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[7];?></span><?php } ?></td>
+        <td><?php if ($row[7]!=0) {echo "<span class='red'>"; echo $row[7]; echo "</span>"; } else {echo "0";} ?></td>
         <td><?php if ($row[8] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[8];?></span><?php } ?></td>
         <td><?php if ($row[9] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[9];?></span><?php } ?></td>
-        <td><?php if ($row[10] == 0) {echo "0";} else {?><span class="red"><?php echo $row[10];?></span><?php } ?></td>
+        <td><?php if ($row[10] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[10];?></span><?php } ?></td>
         <td><?php if ($row[11] == 0) {echo "0";} else {?><span class="red"><?php echo $row[11];?></span><?php } ?></td>
         <td><?php if ($row[12] == 0) {echo "0";} else {?><span class="red"><?php echo $row[12];?></span><?php } ?></td>
+        <td><?php if ($row[13] == 0) {echo "0";} else {?><span class="red"><?php echo $row[13];?></span><?php } ?></td>
     </tr> 
     
     <?php
