@@ -23,6 +23,14 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 
 ---
 
+## Hub Status v1.1 (layout — May 2026)
+
+**Order (top → bottom):** masthead pulse + dim heritage → **Right now** (online + live games) → recent logins + recent games → new players → active top 20 + monthly league (toggle **This month** / **Previous month** via `?league=prev`).
+
+**Tweaks:** Elo column uses `.blue`; “Active in the last 12 months”; live game names link to profiles; tighter panel padding; footer notes joshua ops/AWOL not planned here.
+
+---
+
 ## Hub Status v1 (agreed — implementation target)
 
 **Story:** Lobby for *right now* (presence) + *current meta* (active Elo + this month’s league) + *community life* (logins, new players, recent games).

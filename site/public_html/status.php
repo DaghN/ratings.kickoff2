@@ -19,18 +19,11 @@ $k2HubTabActive = 'status';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 ?>
 
-<section class="k2-status-bridge">
-	<div class="k2-status-bridge__intro k2-status-bridge__intro--heritage-only">
-		<aside class="k2-heritage-box" aria-label="Original Amiga box art">
-			<img class="k2-heritage-box__art" src="images/KO2BoxFront.jpg" width="132" alt="Kick Off 2 — original Amiga box art, 1990" loading="lazy" decoding="async" />
-			<p class="k2-heritage-box__caption">Original Amiga box &middot; 1990</p>
-		</aside>
-	</div>
-
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 
+$k2StatusLeagueMonth = (isset($_GET['league']) && $_GET['league'] === 'prev') ? 'prev' : 'current';
 $k2StatusRoom = null;
 $k2StatusRoomError = null;
 
@@ -38,14 +31,13 @@ $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if (mysqli_connect_errno()) {
     $k2StatusRoomError = mysqli_connect_error();
 } else {
-    $k2StatusRoom = k2_status_load_room($con, $k2StatusRoomError);
+    $k2StatusRoom = k2_status_load_room($con, $k2StatusLeagueMonth, $k2StatusRoomError);
     mysqli_close($con);
     unset($con);
 }
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/status_room_section.php';
 ?>
-</section>
 
 </div><!-- .k2-page-nav -->
 

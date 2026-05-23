@@ -145,14 +145,23 @@ function k2_status_active_top_rated(mysqli $con, int $limit = 20, ?string &$erro
     return $out;
 }
 
-/** @return array{label: string, start: string, end: string, rows: list<array>, total_games: int}|null */
-function k2_status_monthly_league(mysqli $con, int $limit = 20, ?string &$error = null): ?array
+/**
+ * @param int $monthOffset 0 = current calendar month, -1 = previous month (server TZ)
+ *
+ * @return array{label: string, start: string, end: string, rows: list<array>, total_games: int, month_offset: int}|null
+ */
+function k2_status_monthly_league(mysqli $con, int $limit = 20, int $monthOffset = 0, ?string &$error = null): ?array
 {
     $error = null;
     $limit = max(1, min(50, $limit));
-    $start = date('Y-m-01 00:00:00');
-    $end = date('Y-m-01 00:00:00', strtotime('first day of next month'));
-    $label = date('F Y');
+    $monthOffset = max(-24, min(0, $monthOffset));
+    $base = strtotime('first day of this month');
+    if ($monthOffset !== 0) {
+        $base = strtotime((string) $monthOffset . ' month', $base);
+    }
+    $start = date('Y-m-01 00:00:00', $base);
+    $end = date('Y-m-01 00:00:00', strtotime('+1 month', $base));
+    $label = date('F Y', $base);
 
     $sql = <<<'SQL'
 SELECT
@@ -251,6 +260,7 @@ SQL;
         'end' => $end,
         'rows' => $rows,
         'total_games' => $totalGames,
+        'month_offset' => $monthOffset,
     ];
 }
 
@@ -276,12 +286,12 @@ function k2_status_online_players(mysqli $con, ?string &$error = null): ?array
     return $out;
 }
 
-/** @return list<array{game_id: int, name_a: string, name_b: string, score_a: int, score_b: int, period: int, start: string}>|null */
+/** @return list<array{game_id: int, id_a: int, id_b: int, name_a: string, name_b: string, score_a: int, score_b: int, period: int, start: string}>|null */
 function k2_status_live_games(mysqli $con, int $limit = 10, ?string &$error = null): ?array
 {
     $error = null;
     $limit = max(1, min(30, $limit));
-    $sql = 'SELECT GameID, NameA, NameB, ScoreA, ScoreB, GamePeriod, StartTime FROM resulttable '
+    $sql = 'SELECT GameID, HostID, SlaveID, NameA, NameB, ScoreA, ScoreB, GamePeriod, StartTime FROM resulttable '
         . 'WHERE HasStarted = 1 AND HasFinished = 0 AND Shelved = 0 '
         . 'ORDER BY StartTime DESC LIMIT ' . $limit;
     $r = mysqli_query($con, $sql);
@@ -294,6 +304,8 @@ function k2_status_live_games(mysqli $con, int $limit = 10, ?string &$error = nu
     while ($row = mysqli_fetch_assoc($r)) {
         $out[] = [
             'game_id' => (int) $row['GameID'],
+            'id_a' => (int) $row['HostID'],
+            'id_b' => (int) $row['SlaveID'],
             'name_a' => (string) $row['NameA'],
             'name_b' => (string) $row['NameB'],
             'score_a' => (int) $row['ScoreA'],
@@ -390,11 +402,13 @@ function k2_status_recent_rated_games(mysqli $con, int $limit = 10, ?string &$er
     return $out;
 }
 
-/** @return array<string, mixed>|null */
-function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
+/** @param string $leagueMonth `current` or `prev` */
+function k2_status_load_room(mysqli $con, string $leagueMonth = 'current', ?string &$error = null): ?array
 {
     $error = null;
     $err = null;
+    $leagueMonth = ($leagueMonth === 'prev') ? 'prev' : 'current';
+    $monthOffset = $leagueMonth === 'prev' ? -1 : 0;
 
     $pulse = k2_status_pulse($con, $err);
     if ($pulse === null) {
@@ -408,7 +422,7 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
     $activeTopError = $panelErr;
 
     $panelErr = null;
-    $monthly = k2_status_monthly_league($con, 20, $panelErr);
+    $monthly = k2_status_monthly_league($con, 20, $monthOffset, $panelErr);
     $monthlyError = $panelErr;
 
     $panelErr = null;
@@ -428,6 +442,7 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
 
     return [
         'pulse' => $pulse,
+        'league_month' => $leagueMonth,
         'active_top' => $activeTop ?? [],
         'active_top_error' => $activeTopError,
         'monthly' => $monthly,

@@ -1050,83 +1050,171 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	font-size: 12px;
 }
 
-/* ── Status room (hub v1) ── */
+/* ── Status room (hub v1.1) ── */
 .k2-status-room {
 	max-width: 1200px;
-	margin-top: 8px;
+	margin: 0 auto;
+}
+
+.k2-status-room__masthead {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 10px 16px;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.k2-status-room__masthead-main {
+	flex: 1 1 240px;
+	min-width: 0;
+}
+
+.k2-status-room__eyebrow {
+	margin: 0 0 4px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--k2-realm-accent);
 }
 
 .k2-status-room__pulse {
-	margin: 0 0 18px;
-	font-size: 15px;
-	font-weight: 600;
-	color: var(--k2-text-primary);
-	line-height: 1.4;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--k2-text-secondary);
+	line-height: 1.45;
 }
 
 .k2-status-room__pulse-sep {
-	font-weight: 400;
 	color: var(--k2-text-muted);
+}
+
+.k2-heritage-box--status {
+	width: 108px;
+	padding: 6px 8px 5px;
+	opacity: 0.72;
+	filter: saturate(0.85);
+}
+
+.k2-heritage-box--status .k2-heritage-box__art {
+	max-width: 88px;
+	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+.k2-heritage-box--status .k2-heritage-box__caption {
+	margin-top: 4px;
+	font-size: 9px;
+}
+
+.k2-status-room__now {
+	margin-bottom: 10px;
+}
+
+.k2-status-room__now-cols {
+	display: grid;
+	grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
+	gap: 12px 20px;
+}
+
+.k2-status-room__recency {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.k2-status-room__registrations {
+	margin-bottom: 10px;
 }
 
 .k2-status-room__competition {
 	display: grid;
 	grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
-	gap: 16px 20px;
-	margin-bottom: 20px;
-}
-
-.k2-status-room__live {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-	gap: 16px 20px;
-}
-
-.k2-status-room__recency {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
+	gap: 10px 14px;
+	margin-bottom: 8px;
 }
 
 .k2-status-panel {
-	padding: 14px 16px;
+	padding: 10px 12px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
 }
 
-.k2-status-panel--compact .k2-status-table {
-	font-size: 12px;
+.k2-status-panel--tight {
+	padding: 8px 10px;
 }
 
-.k2-status-panel--mini {
-	padding: 12px 14px;
+.k2-status-panel--compact .k2-status-table {
+	font-size: 11px;
 }
 
 .k2-status-panel--mini .k2-status-panel__title {
 	font-size: 14px;
-	margin-bottom: 8px;
+	margin-bottom: 6px;
 }
 
 .k2-status-panel__head {
-	margin-bottom: 10px;
+	margin-bottom: 6px;
+}
+
+.k2-status-panel__head--league {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 8px 12px;
 }
 
 .k2-status-panel__title {
-	margin: 0 0 6px;
+	margin: 0 0 4px;
 	font-family: var(--k2-font-display);
-	font-size: 16px;
+	font-size: 15px;
 	font-weight: 600;
 	color: var(--k2-text-primary);
 }
 
 .k2-status-panel__subtitle {
-	margin: 14px 0 8px;
-	font-size: 12px;
+	margin: 0 0 6px;
+	font-size: 11px;
 	font-weight: 600;
 	color: var(--k2-text-secondary);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
+}
+
+.k2-status-league-toggle {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	padding: 2px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: rgba(0, 0, 0, 0.2);
+}
+
+.k2-status-league-toggle__link {
+	display: inline-block;
+	padding: 4px 10px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--k2-text-muted);
+	text-decoration: none;
+	border-radius: calc(var(--k2-radius-sm) - 1px);
+	line-height: 1.3;
+}
+
+.k2-status-league-toggle__link:hover {
+	color: var(--k2-text-secondary);
+}
+
+.k2-status-league-toggle__link.is-active {
+	color: var(--k2-realm-accent);
+	box-shadow: inset 0 0 0 1px var(--k2-segment-active-ring, rgba(156, 204, 101, 0.45));
 }
 
 .k2-status-panel__meta {
@@ -1153,12 +1241,17 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 
 .k2-status-table--dense th,
 .k2-status-table--dense td {
-	padding: 4px 8px;
+	padding: 2px 6px;
 }
 
 .k2-status-table__num {
 	text-align: right;
 	white-space: nowrap;
+}
+
+.k2-status-table__player,
+.k2-status-table th.k2-status-table__player {
+	text-align: left;
 }
 
 .k2-status-name-list {
@@ -1182,10 +1275,21 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
-	gap: 6px 10px;
-	padding: 5px 0;
+	gap: 4px 8px;
+	padding: 3px 0;
 	border-bottom: 1px solid var(--k2-border-subtle);
-	font-size: 13px;
+	font-size: 12px;
+}
+
+.k2-status-name-list--registrations li {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 6px;
+}
+
+.k2-status-name-list__when {
+	font-size: 10px;
+	color: var(--k2-text-muted);
 }
 
 .k2-status-live-list li:last-child,
@@ -1214,7 +1318,8 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 
 @media (max-width: 900px) {
 	.k2-status-room__competition,
-	.k2-status-room__live {
+	.k2-status-room__recency,
+	.k2-status-room__now-cols {
 		grid-template-columns: 1fr;
 	}
 }
