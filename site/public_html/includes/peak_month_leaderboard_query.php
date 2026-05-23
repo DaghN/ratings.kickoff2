@@ -124,19 +124,19 @@ function k2_peak_period_leaderboard_meta(string $period): array
     switch ($period) {
         case 'day':
             return [
-                'title' => 'Busiest day hall of fame',
+                'title' => 'Busiest day',
                 'period_label' => 'Peak day',
                 'hint' => 'Top players by most rated games in a single calendar day (each player’s personal best only). Ties: earlier day wins.',
             ];
         case 'year':
             return [
-                'title' => 'Busiest year hall of fame',
+                'title' => 'Busiest year',
                 'period_label' => 'Peak year',
                 'hint' => 'Top players by most rated games in a single calendar year (each player’s personal best only). Ties: earlier year wins.',
             ];
         default:
             return [
-                'title' => 'Busiest month hall of fame',
+                'title' => 'Busiest month',
                 'period_label' => 'Peak month',
                 'hint' => 'Top players by most rated games in a single calendar month (each player’s personal best only). Ties: earlier month wins.',
             ];

@@ -306,7 +306,8 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 **Cosmetics additions (May 2026, staging-oriented):**
 
 - **Leaderboard wing nav:** segment track + outline active cell (promoted from theme-lab); table detached from wing bar (~12px gap); `.k2-chrome-tabs` max-width 1200px.
-- **Hub accent preview pills:** seven neon-named tints (`data-k2-accent` on `<html>`); `js/realm-switch.js`; re-click active realm clears tune. **Staging lab only** — collapse or remove for public launch unless Dagh keeps a subtle “cockpit tint” control.
+- **Hub / player nav (production):** **segment** track + outline active (`data-k2-hub-nav="segment"` default); overrides via `?k2_hub_nav=`.
+- **Hub accent preview pills:** Chrome · Pulse · Holo; **hidden by default**; **Show tint** on hub bar. Staging — remove at launch unless kept.
 - **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).
 - **TEST swap (temporary):** `theme.css` comment — online realm uses amber, amiga uses green (inverse of locked lab choice); revert or confirm before launch.
 

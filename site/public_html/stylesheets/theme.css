@@ -498,8 +498,7 @@ body.k2-site .server-established-rating-distribution-chart-status {
 	color: var(--k2-text-muted);
 }
 
-/* Busiest day / month / year hall of fame — full page width, three columns */
-body.k2-site .server-peak-period-leaderboards,
+/* Games-by-period leaderboards (Status) — outer panel */
 body.k2-site .server-period-activity-leaderboards {
 	max-width: var(--k2-max-width);
 	margin-bottom: 16px;
@@ -509,7 +508,6 @@ body.k2-site .server-period-activity-leaderboards {
 	background: var(--k2-bg-surface);
 }
 
-body.k2-site .server-peak-period-leaderboards > p,
 body.k2-site .server-period-activity-leaderboards__heading {
 	color: var(--k2-text-primary);
 }
@@ -533,7 +531,36 @@ body.k2-site .server-period-activity-leaderboard-status {
 	color: var(--k2-text-muted);
 }
 
-body.k2-site .server-peak-period-leaderboards__grid,
+/* Busiest day / month / year hall of fame (ranked8) — three columns, title + table only */
+body.k2-site .server-peak-period-leaderboards__grid {
+	max-width: var(--k2-max-width);
+	margin-bottom: 16px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	align-items: start;
+}
+
+body.k2-site .server-peak-period-leaderboard-block {
+	min-width: 0;
+}
+
+body.k2-site .server-peak-period-leaderboard-block__title {
+	margin: 0 0 8px;
+	color: var(--k2-text-muted);
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+body.k2-site .server-peak-period-leaderboard-block .k2-table-wrap {
+	overflow-x: auto;
+}
+
+.k2-chrome-tabs__bar + .server-peak-period-leaderboards__grid {
+	margin-top: 12px;
+}
+
 body.k2-site .server-period-activity-leaderboards__grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -548,7 +575,6 @@ body.k2-site .server-period-activity-leaderboards__grid {
 	}
 }
 
-body.k2-site .server-peak-period-leaderboard,
 body.k2-site .server-period-activity-leaderboard {
 	min-width: 0;
 	padding: 12px;
@@ -557,7 +583,6 @@ body.k2-site .server-period-activity-leaderboard {
 	background: var(--k2-bg-elevated);
 }
 
-body.k2-site .server-peak-period-leaderboard__title,
 body.k2-site .server-period-activity-leaderboard__title {
 	margin: 0 0 4px;
 	color: var(--k2-text-primary);
@@ -565,7 +590,6 @@ body.k2-site .server-period-activity-leaderboard__title {
 	font-weight: 600;
 }
 
-body.k2-site .server-peak-period-leaderboard__hint,
 body.k2-site .server-period-activity-leaderboard__hint {
 	margin: 0 0 10px;
 	color: var(--k2-text-muted);
@@ -573,7 +597,6 @@ body.k2-site .server-period-activity-leaderboard__hint {
 	line-height: 1.35;
 }
 
-body.k2-site .server-peak-period-leaderboard .k2-table-wrap,
 body.k2-site .server-period-activity-leaderboard .k2-table-wrap {
 	overflow-x: auto;
 }
@@ -800,16 +823,59 @@ body.k2-site a.k2-player-nav__btn:hover {
 	text-decoration: none;
 }
 
-body.k2-site a.k2-player-nav__btn.is-active,
-body.k2-site a.k2-player-nav__btn.is-active:visited {
+/* Player nav — solid */
+html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active,
+html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active:visited {
 	color: var(--k2-bg-page);
 	background: var(--k2-realm-accent);
 	box-shadow: none;
 }
 
-body.k2-site a.k2-player-nav__btn.is-active:hover {
+html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	color: var(--k2-bg-page);
 	background: var(--k2-realm-accent);
+	text-decoration: none;
+}
+
+/* Player nav — segment */
+html[data-k2-hub-nav="segment"] .k2-player-nav {
+	gap: 2px;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn {
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md) - 2px);
+}
+
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active,
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active:visited {
+	color: var(--k2-realm-accent);
+	background: transparent;
+	border-color: var(--k2-realm-accent);
+	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
+}
+
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active:hover {
+	color: var(--k2-realm-accent);
+	background: transparent;
+	text-decoration: none;
+}
+
+/* Player nav — soft */
+html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active,
+html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:visited {
+	color: var(--k2-realm-accent);
+	background: color-mix(in srgb, var(--k2-realm-accent) 22%, transparent);
+	box-shadow: none;
+}
+
+html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
+	color: var(--k2-realm-accent);
+	background: color-mix(in srgb, var(--k2-realm-accent) 28%, transparent);
 	text-decoration: none;
 }
 
@@ -1001,13 +1067,25 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	min-width: 0;
 }
 
-.k2-accent-pills {
+.k2-hub-bar__tune {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 6px;
+	gap: 8px;
 	margin: 0 0 0 auto;
+}
+
+html[data-k2-accent-pills-hidden="1"] .k2-hub-bar__tune .k2-accent-pills {
+	display: none;
+}
+
+.k2-accent-pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
 	padding: 0;
 }
 
@@ -1040,12 +1118,29 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 .k2-accent-pills__btn[data-k2-accent="chrome"] { --k2-accent-swatch: #64b5f6; }
-.k2-accent-pills__btn[data-k2-accent="signal"] { --k2-accent-swatch: #4dd0e1; }
-.k2-accent-pills__btn[data-k2-accent="lagoon"] { --k2-accent-swatch: #4db6ac; }
-.k2-accent-pills__btn[data-k2-accent="phosphor"] { --k2-accent-swatch: #aed581; }
 .k2-accent-pills__btn[data-k2-accent="pulse"] { --k2-accent-swatch: #f06292; }
 .k2-accent-pills__btn[data-k2-accent="holo"] { --k2-accent-swatch: #b388ff; }
-.k2-accent-pills__btn[data-k2-accent="ember"] { --k2-accent-swatch: #ff8a65; }
+
+.k2-accent-pills-toggle {
+	margin: 0;
+	padding: 4px 8px;
+	border: none;
+	border-radius: var(--k2-radius-sm);
+	background: transparent;
+	color: var(--k2-text-muted);
+	font: inherit;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.2;
+	cursor: pointer;
+	opacity: 0.72;
+	transition: color 0.15s, opacity 0.15s;
+}
+
+.k2-accent-pills-toggle:hover {
+	color: var(--k2-text-primary);
+	opacity: 1;
+}
 
 .k2-accent-pills__btn:hover {
 	color: var(--k2-text-primary);
@@ -1092,16 +1187,59 @@ body.k2-site a.k2-hub-tabs__btn:hover {
 	text-decoration: none;
 }
 
-body.k2-site a.k2-hub-tabs__btn.is-active,
-body.k2-site a.k2-hub-tabs__btn.is-active:visited {
+/* Hub nav — solid (production default) */
+html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active,
+html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
 	color: var(--k2-bg-page);
 	background: var(--k2-realm-accent);
 	box-shadow: none;
 }
 
-body.k2-site a.k2-hub-tabs__btn.is-active:hover {
+html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	color: var(--k2-bg-page);
 	background: var(--k2-realm-accent);
+	text-decoration: none;
+}
+
+/* Hub nav — segment track + outline (leaderboard wing parity) */
+html[data-k2-hub-nav="segment"] .k2-hub-tabs {
+	gap: 2px;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn {
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md) - 2px);
+}
+
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active,
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
+	color: var(--k2-realm-accent);
+	background: transparent;
+	border-color: var(--k2-realm-accent);
+	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
+}
+
+html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
+	color: var(--k2-realm-accent);
+	background: transparent;
+	text-decoration: none;
+}
+
+/* Hub nav — soft tint fill */
+html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active,
+html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
+	color: var(--k2-realm-accent);
+	background: color-mix(in srgb, var(--k2-realm-accent) 22%, transparent);
+	box-shadow: none;
+}
+
+html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
+	color: var(--k2-realm-accent);
+	background: color-mix(in srgb, var(--k2-realm-accent) 28%, transparent);
 	text-decoration: none;
 }
 

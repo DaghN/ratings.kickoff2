@@ -59,17 +59,6 @@ $CleanSheets = $row[12];
 $DoubleDigitsRatio = $row[13];
 $CleanSheetsRatio = $row[14];
 
-if (!function_exists('k2_peak_period_leaderboard_entries')) {
-    include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_month_leaderboard_query.php";
-}
-$k2PeakPeriodLimit = 50;
-$k2PeakDayQueryError = null;
-$k2PeakMonthQueryError = null;
-$k2PeakYearQueryError = null;
-$k2PeakDayEntries = k2_peak_period_leaderboard_entries($con, 'day', $k2PeakPeriodLimit, $k2PeakDayQueryError);
-$k2PeakMonthEntries = k2_peak_period_leaderboard_entries($con, 'month', $k2PeakPeriodLimit, $k2PeakMonthQueryError);
-$k2PeakYearEntries = k2_peak_period_leaderboard_entries($con, 'year', $k2PeakPeriodLimit, $k2PeakYearQueryError);
-
 mysqli_close($con);
 unset($con);
 ?>
@@ -119,8 +108,6 @@ unset($con);
     <p class="server-established-rating-distribution-chart-status" style="margin: 0 0 8px 0;">Loading rating distribution…</p>
     <canvas width="960" height="271" aria-label="Distribution of established player ratings"></canvas>
 </div>
-
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_period_leaderboards_section.php"; ?>
 
 <table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
 

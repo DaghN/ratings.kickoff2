@@ -17,7 +17,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 
 | # | Item | Phase A scope |
 |---|------|----------------|
-| 1 | Hub nav shell | Five **flat-solid** tabs, correct order/labels; shared include (e.g. `includes/hub_nav.php`). **Status tab default** on hub entry. |
+| 1 | Hub nav shell | Five **segment-track** hub tabs (outline active); shared `includes/hub_nav.php`. **Status tab default** on hub entry. |
 | 2 | Status content | **Bridge only** — honest copy, link to [status.php](https://joshua.kickoff2.net/status.php); **no fake live feed**. Themed placeholder matching lab layout OK. |
 | 3 | Trends tab | **Nav label + route only** → existing `server1.php`. **Do not move or merge** chart content. |
 | 4 | Leaderboards | Wing-tab **chrome** on ranked pages; first sub-tab **Rating**; same tables underneath. |
@@ -137,7 +137,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 ### Leaderboards tab
 
 - Six wing tabs above the table (not a second site nav row).
-- Order: **Results** · Goals · DDs & CSs · Streaks · Victims & Culprits · **Rating records** (`ranked7`, `ranked2`–`ranked5`, `ranked1`).
+- Order: **Results** · Goals · DDs & CSs · Streaks · Victims & Culprits · **Rating records** · **Hall of Fame** (`ranked7`, `ranked2`–`ranked5`, `ranked1`, `ranked8`). Hall of Fame = busiest day/month/year tables (moved from Trends).
 - Legacy **`ranked6`** (old Rating records page) removed; `ranked1.php` is now the Rating records wing tab.
 - Chrome-style wing tabs: active tab same brightness as table header row (`bg-elevated`), curved feet on dark page — not green-filled bar; no green inset topline on active wing tab.
 
@@ -176,9 +176,10 @@ Global hub nav replaced by player context:
 
 | Item | Decision |
 |------|----------|
-| Home + player pills | **Solid flat** — full realm fill, dark label, no glow halo. |
-| Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — promoted from theme-lab; not the earlier chrome-wing mock. |
-| Hub accent preview pills | **Staging lab** — seven named tints; sessionStorage tune; re-click realm clears. Launch TBD. |
+| Home + player pills | **Segment track + outline active** (production; parity with wing tabs). Override via `?k2_hub_nav=` — see Hub nav style staging. |
+| Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
+| Hub accent preview pills | **Staging** — Chrome · Pulse · Holo; **hidden by default**; **Show tint** / **Hide tint** (`k2-hub-nav-tune.js`). Remove row at launch unless kept. |
+| Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
 | Bold neon grid | **Remove background grid** on C (lab done; promote to theme.css when staging). |
 | Neon rail, boxed default, solid glow, etc. | Lab comparisons only — production = **flat solid**. |
@@ -247,7 +248,8 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 | Wing tab green underline / green bar | Chrome wings, header-row brightness |
 | Green inset topline on wings | Removed |
 | Neon rail as nav choice | Not chosen |
-| Solid glow as nav choice | Too loud → **solid flat** |
+| Solid glow as nav choice | Too loud → rejected |
+| Solid flat hub pills | Too imposing (“light bulb”) → **segment** (May 2026) |
 | Ladder sub-tab Results | **Rating** |
 | Table width 100% force | Reverted |
 
@@ -262,4 +264,20 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 
 ---
 
-*Last updated: May 2026 — Phase A shipped; Rating records tab removed; Results (`ranked7`) added.*
+*Last updated: May 2026 — Production hub/player nav = **segment**; accent preview hidden by default.*
+
+---
+
+## Hub nav style staging (May 2026)
+
+Production default: **segment** (`theme_boot_head.php`). Compare alternatives without theme-lab:
+
+| Variant | `?k2_hub_nav=` | Active pill |
+|---------|----------------|-------------|
+| **Segment (production)** | `segment` | Track + outline (parity with `.k2-chrome-tabs` wings) |
+| Solid | `solid` | Full realm accent fill, dark text |
+| Soft | `soft` | ~22% accent tint, accent text |
+
+- Set on `<html data-k2-hub-nav="…">` in `theme_boot_head.php` (URL wins, then `sessionStorage` key `k2-hub-nav-tune`).
+- Link index: `nav-preview.php` → Status / Leaderboards / Trends per variant.
+- Accent preview: Chrome · Pulse · Holo; **hidden by default**; `sessionStorage` `0` = shown; **Show tint** / **Hide tint** on hub bar.
