@@ -169,7 +169,7 @@ Agreed balance after nav/header/link passes: **data and player names lead**; acc
 | Nav hover | `--k2-text-secondary` | No white flash |
 | Nav active (segment) | `--k2-segment-active-text` (72% + secondary) + `--k2-segment-active-ring` | Outline chrome, not fill |
 | Column headers | `--k2-text-muted`, weight 500 | Sort hover → secondary + inset accent bar |
-| Stat positive / negative | `.blue` / `.red` | Cyan / magenta — not link tokens |
+| Stat positive / negative | `.blue` / `.red` → `--k2-table-positive` / `--k2-table-negative` | 78% cyan/magenta mix to primary; chart bases stay full in `chart-theme.js` |
 | Structure | `--k2-realm-accent` at 100% | Rings, borders, avatar, decorative glows only |
 | Table row hover | `--k2-bg-hover` | Neutral lift only — not `realm-accent-muted` (avoids muddy tint on link-star names) |
 
@@ -177,7 +177,9 @@ All link/star tokens are **derived on `html`** from `--k2-realm-accent` (set per
 
 **Profile feast CSS** (`player-feast*.css`, `player-hero-rank.css`): typographic highlights use `--k2-link-star` (no text-shadow glow on busiest/duel counts — avatar ring keeps glow).
 
-**Staging tune:** production uses **85%** for `--k2-link-star` (May 2026). If too loud, try 75–80%; if weak, try 88%. Keep table weight at 600 unless explicitly changing emphasis.
+**Staging tune:** `--k2-link-star` **85%**; table stat colours **78%** (`--k2-stat-positive-base` / `--k2-stat-negative-base`). Nudge stat mix 75–82% on staging if needed.
+
+**Charts:** keep full `#4fc3f7` / `#f06292` (and series palette) in `chart-theme.js` — only table `.blue`/`.red` use the softened tokens.
 
 ### Neon intensity (locked for production — May 2026)
 

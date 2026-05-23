@@ -26,8 +26,8 @@
 	--k2-chart-teal: #4db6ac;
 	--k2-chart-purple: #ba68c8;
 
-	--k2-table-positive: #4fc3f7;
-	--k2-table-negative: #f06292;
+	--k2-stat-positive-base: #4fc3f7;
+	--k2-stat-negative-base: #f06292;
 
 	--k2-font-body: "IBM Plex Sans", Verdana, Arial, sans-serif;
 	--k2-font-display: "Exo 2", "IBM Plex Sans", sans-serif;
@@ -53,6 +53,8 @@ html {
 	/* Player names, IDs, profile stat highlights — accent-forward, not full chrome */
 	--k2-link-star: color-mix(in srgb, var(--k2-realm-accent) 85%, var(--k2-text-primary));
 	--k2-link-star-hover: color-mix(in srgb, var(--k2-realm-accent) 94%, var(--k2-text-primary));
+	--k2-table-positive: color-mix(in srgb, var(--k2-stat-positive-base) 78%, var(--k2-text-primary));
+	--k2-table-negative: color-mix(in srgb, var(--k2-stat-negative-base) 78%, var(--k2-text-primary));
 }
 
 html[data-realm="online"] {
