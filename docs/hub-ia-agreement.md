@@ -51,11 +51,16 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 
 **Data:** SQL against existing KOOL tables — **not** a new Steve API. Mapping: `docs/STATUS_PAGE_DATA.md`. Build on **local `ko2unity_db`** / **staging `kooldb`** first.
 
-**In scope now:**
+**In scope now (v1 — agreed May 2026, see `docs/STATUS_PAGE_DATA.md` § Hub Status v1):**
 
-- Hub `status.php`: online now, recent logins, live/shelved games (`resulttable`), recent rated games, headline counts (`generalstatstable`), AWOL / new arrivals as IA allows.
-- Polling / refresh behaviour (when on live DB).
-- Keep legacy joshua link until redirect agreed.
+- **Pulse** — online now, live games, recency; optional headline totals (`generalstatstable`).
+- **Active top rated (20)** — `playertable.Rating` (Elo, **0 decimals**), `LastGame` within **12 months**; not legacy `PlayerRank`. Link to full Leaderboards (all players).
+- **Monthly league** — current **calendar month** (server TZ); 3 / 1 / 0 points; W-D-L, goals, GD, pts from `ratedresults`; top ~20; only players with ≥1 rated game that month (implicit from aggregation).
+- **Room** — online list, live games (`resulttable`), recent logins, recent rated games.
+- **Recent registrations** — `JoinDate` DESC (~10); community “new blood” signal (legacy page parity).
+- Polling / refresh (when on live DB). Legacy joshua link until redirect agreed.
+
+**Out of v1 on Status:** games-played-by-period triple tables (brainstorm only; not required); AWOL wall (→ Trends later if wanted); period-activity leaderboards section unless revived deliberately later.
 
 **Still needs Steve / prod agreement (can follow UI work):**
 
@@ -125,23 +130,27 @@ Committed and pushed earlier; not re-opened unless noted below.
 
 ### Status tab (absorbs status.php)
 
-**Purpose:** presence / tonight / FOMO to launch KOOL.
+**Purpose:** presence / tonight / FOMO to launch KOOL — plus **current competition** (active Elo + monthly league), not only “who’s in the room.”
 
-**Data source:** `docs/STATUS_PAGE_DATA.md` (MySQL tables we already have on dev/staging).
+**Data source:** `docs/STATUS_PAGE_DATA.md` (MySQL; full v1 panel list in § Hub Status v1).
 
-**Include:**
+**Include (v1):**
 
-- Pulse strip: online now, live games, recency (**not** CPU/disk/mem — those stay on legacy ops page only).
-- Recent logins (names → player profiles).
-- Live games (score, period, opponents).
-- Meaningful when 0 online — recent logins still prove life.
-- kickoff2.com embed: compact pulse + few logins + "Full status →" linking here.
+- Pulse strip: online now, live games, recency (**not** CPU/disk/mem — legacy ops page only).
+- **Active top rated (20):** Elo (`Rating`), last rated game within **12 months**; smaller type if needed; 0 decimal places. Distinct from Leaderboards tab (comprehensive, all players — default there stays “everyone”).
+- **Monthly league (current month):** calendar month in **server timezone**; 3 pts win / 1 draw / 0 loss; W, D, L, GF, GA, GD, Pts from `ratedresults`; ~20 rows; tie-break GD then GF. New community hook — games “count” for the month as well as for Elo.
+- Recent logins; **recent registrations** (`JoinDate`); live games; recent finished rated games — all names → player profiles.
+- Meaningful when 0 online — logins, registrations, recent games, monthly table still show life.
+- kickoff2.com embed (later): compact pulse + few logins + "Full status →" here.
 
 **Exclude from player-facing Status:**
 
-- Duplicate Top 10 snippets (unify on Leaderboards).
+- Legacy **dual** Top 10 blocks (Steve `PlayerRank` + old ratings snippet) — replaced by **active Elo top 20** + monthly league, not a duplicate of full Leaderboards.
 - CPU / disk / mem ops metrics (admin-only if anywhere).
-- Historical charts (→ Trends).
+- Historical charts and long-horizon analytics (→ Trends).
+- AWOL wall on v1 (may live on Trends later).
+
+**Leaderboards tab (unchanged intent):** full ladder, all players by default; **active-only filter** (e.g. last game &lt; 12 months) added later — Status uses that filter from day one.
 
 **Eventually:** joshua.kickoff2.net/status.php redirect or thin wrapper; one data feed for hub + kickoff2 embed.
 
@@ -161,7 +170,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 
 - Games per month/year charts, established-player growth, lifetime totals (server1-class).
 - Lazy-load charts when tab opened.
-- Room later: new arrivals, AWOL, more charts.
+- Room later: AWOL, more charts. (**Recent registrations** are on **Status**, not deferred here.)
 
 ### Records tab
 
@@ -278,7 +287,7 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 
 ---
 
-*Last updated: May 2026 — Status Phase B unblocked (same DB as legacy status; `docs/STATUS_PAGE_DATA.md`); work started on hub `status.php`. Realm colours locked (online amber / amiga green); profile feast stat glow removed; hub nav geometry aligned with wings.*
+*Last updated: May 2026 — Status v1 scope: active Elo top 20, monthly league, recent registrations, room panels (`docs/STATUS_PAGE_DATA.md`). Phase B unblocked (same DB as legacy status). Realm colours locked (online amber / amiga green); profile feast stat glow removed; hub nav geometry aligned with wings.*
 
 ---
 

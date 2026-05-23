@@ -1,7 +1,7 @@
-# Status page — data sources (May 2026)
+# Status page — data sources & v1 scope (May 2026)
 
 Reference for replacing [joshua.kickoff2.net/status.php](https://joshua.kickoff2.net/status.php) on hub **`status.php`**.  
-**IA / scope:** `docs/hub-ia-agreement.md` (player-facing panels, no duplicate Top 10, no CPU/disk ops strip).
+**IA:** `docs/hub-ia-agreement.md` (Status tab role, exclusions).
 
 ---
 
@@ -15,50 +15,61 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 |-------------|---------------|--------|
 | **Production / joshua** | `kooldb` (typical PHP config name) | Live writes from C++ (`docs/ratings_cpp.txt`) |
 | **Staging** | `kooldb` | Same schema; fresher than a laptop dump |
-| **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, `data/dumps/ko2unity_db-2026-05-20.sql` |
+| **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, May 2026 |
 
-**No separate “status.php API”** is implied by the legacy page — it is almost certainly **PHP + SQL** against these tables (same pattern as `server1.php`, ranked pages).
+**No separate “status.php API”** — PHP + SQL against these tables (same pattern as `server1.php`, ranked pages).
 
-**What still needs Steve / prod agreement (later, not blocking dev):**
-
-- Deploying hub Status on **ratings.kickoff2.com** against **live** `kooldb` (read credentials / host).
-- **`joshua.kickoff2.net/status.php`** redirect or thin wrapper.
-- Optional **kickoff2.com** embed.
-- **Write** access or migrations on prod (out of scope for Status read UI).
+**Still needs Steve / prod agreement (later, not blocking dev):** live read on prod, joshua redirect, kickoff2 embed.
 
 ---
 
-## Table → status panel map
+## Hub Status v1 (agreed — implementation target)
 
-| Status panel (legacy page) | Table / source | Notes |
-|----------------------------|----------------|--------|
-| Online players | `playertable` · `IsOnline = 1` | Stale in SQL dumps |
-| Recent logins | `playertable` · `ORDER BY LastLogin DESC` | |
-| Live / in-progress games | `resulttable` · `HasStarted = 1` AND `HasFinished = 0` (and filters Steve uses for shelved vs active) | Scores: `ScoreA`/`ScoreB`; period: `GamePeriod`; shelved: `Shelved`; start: `StartTime`; clock likely `HalfCountdown` or `Duration` |
-| Shelved count | `COUNT(*)` on `resulttable` WHERE `Shelved = 1` | Local snapshot ~3989 vs prod ~4011 (May 2026) — confirms same metric |
-| Recent finished games | `ratedresults` · `ORDER BY Date DESC` | Ladder archive only |
-| Top 10 (legacy “Steve rank”) | `playertable` · `PlayerRank <> 9999` · `ORDER BY PlayerRank` | **Exclude** on hub per IA — use Leaderboards |
-| Top 10 (ratings) | `playertable` · `ORDER BY Rating DESC` | **Exclude** on hub per IA |
-| New arrivals | `playertable` · `ORDER BY JoinDate DESC` | Optional / Trends later |
-| AWOL (days offline) | `playertable` · `DATEDIFF` on `LastLogin` (displayed players) | Verified: DelCa 43, KONEY 47, etc. match legacy page |
-| Games played / players / goals (headline) | `generalstatstable` · `id = 1` | `GamesPlayed`, `NumberOfPlayers`, `GoalsScored` |
-| Games-by-period leaderboards | `ratedresults` | **Already on hub** — `includes/period_activity_leaderboards_section.php` |
-| Uptime, disk, CPU, RAM, swap | **OS / PHP** | **Not in MySQL** — omit on player hub Status |
-| DB threads | MySQL server status | Ops-only — omit on player hub |
+**Story:** Lobby for *right now* (presence) + *current meta* (active Elo + this month’s league) + *community life* (logins, new players, recent games).
 
-**`resulttable` vs `ratedresults`:** Use **`ratedresults`** for finished rated games (canonical ladder). Use **`resulttable`** for live/shelved/aborted rows. Ladder Python replay does **not** touch `resulttable` — Status queries are independent.
+| Panel | Source | Rules |
+|-------|--------|--------|
+| **Pulse** | `playertable`, `resulttable`, optional `generalstatstable` | Online count, live game count, last login recency; no CPU/disk/mem |
+| **Active top rated (20)** | `playertable` | `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; rating shown **0 decimals**; public display rule (e.g. `Display = 1` if used elsewhere); names → profiles; link “Full ladder →” Leaderboards (all players) |
+| **Monthly league (~20)** | `ratedresults` | **Calendar month**, **server timezone**; each rated row in month counts; **3 / 1 / 0** pts from `ActualScore` (or W/D/L flags); aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **only players with ≥1 game in month** (natural from `GROUP BY` — no extra “min games” filter) |
+| **Online now** | `playertable` · `IsOnline = 1` | |
+| **Live games** | `resulttable` | Started, not finished, not shelved (match legacy filter when verified) |
+| **Recent logins** | `playertable` · `LastLogin DESC` | ~10 |
+| **Recent registrations** | `playertable` · `JoinDate DESC` | ~10; important community signal |
+| **Recent rated games** | `ratedresults` · `Date DESC` | ~10 |
+| **Heritage box** | static image | Keep from Phase A bridge layout |
+
+**Not in v1:** games-played-by-period triple tables (`period_activity_leaderboards_section.php` — brainstorm artifact, remove from `status.php` when v1 ships); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics; polling (v1.5).
+
+**Display:** Active top 20 may use slightly smaller type if needed for density.
+
+---
+
+## Table → panel map (legacy + hub)
+
+| Panel | Table / source | Hub v1 |
+|-------|----------------|--------|
+| Online players | `playertable` · `IsOnline` | Yes |
+| Recent logins | `playertable` · `LastLogin` | Yes |
+| Recent registrations | `playertable` · `JoinDate` | **Yes** |
+| Live games | `resulttable` | Yes |
+| Recent finished games | `ratedresults` | Yes |
+| Active top rated (Elo) | `playertable` · `Rating`, `LastGame` | **Yes (20, 12 mo)** |
+| Monthly league | `ratedresults` (month aggregate) | **Yes (new)** |
+| Top 10 Steve `PlayerRank` | `playertable` | **No** |
+| Legacy ratings Top 10 only | `playertable` | **No** (replaced by active Elo strip) |
+| AWOL | `playertable` · `LastLogin` | No (v1) |
+| Headline totals | `generalstatstable` | Optional in pulse |
+| Games-by-period (played count) | `ratedresults` | **No** (v1) |
+| Uptime, CPU, disk, mem | OS | No |
+
+**`resulttable` vs `ratedresults`:** finished rated games → `ratedresults`; live/shelved → `resulttable`.
 
 ---
 
 ## Snapshot vs live
 
-| Concern | Detail |
-|---------|--------|
-| **Local dump** | Point-in-time (~May 2026). `IsOnline`, in-progress scores, and counts lag prod by days and thousands of games. |
-| **Staging `kooldb`** | Same schema; use for integration tests closer to live. |
-| **Production** | Truth for “who’s on tonight”; requires read access to live DB, not a new API shape. |
-
-**Rule for hub copy:** Do not present **stale dump data** as live prod. Label staging/snapshot when needed, or only ship panels that are honest about refresh time once wired to live DB.
+Local dump / staging snapshot: `IsOnline` and in-progress rows go stale. Do not label snapshot as live prod. Production read = truth for “tonight.”
 
 ---
 
@@ -66,15 +77,15 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 
 | When | What |
 |------|------|
-| Phase A (shipped) | Hub shell, bridge copy, link to legacy status.php, **period-activity** tables from DB |
-| **Phase B (in progress, May 2026)** | Replace bridge with SQL-driven panels above on **`status.php`**; start on **local `ko2unity_db`**, then staging; prod read + joshua redirect when agreed |
-
-**Work started:** May 2026 — build against existing `ko2unitydb_config.php` connection (same as period-activity block).
+| Phase A | Hub shell, bridge, heritage box |
+| **Phase B v1** | Panels in § Hub Status v1 — **ready to implement** on `ko2unity_db` / staging `kooldb` |
+| v1.5+ | Polling, active filter on Leaderboards tab, prior months for league, kickoff2 embed, joshua redirect |
 
 ---
 
 ## Related docs
 
-- `docs/LOCAL_DEV.md` — import `ko2unity_db`, table list in dump
-- `docs/playertable-schema.md`, `docs/ratedresults-schema.md`, `docs/generalstatstable-schema.md`
-- `PROJECT_MEMORY.md` — current focus / recent log
+- `docs/hub-ia-agreement.md`
+- `docs/LOCAL_DEV.md`
+- `docs/playertable-schema.md`, `docs/ratedresults-schema.md`
+- `PROJECT_MEMORY.md`
