@@ -152,7 +152,7 @@ Shared chart multi-color series stay **realm-neutral**; realm accent used for ch
 
 ### Neon intensity (locked for production — May 2026)
 
-**Production (`theme.css`):** **C · Bold** — `--k2-glow-strength: 0.55`, `--k2-accent-glow-blur: 18px`. Used on **active realm switcher** and **player hero avatar ring** only (not site-wide glow).
+**Production (`theme.css`):** **C · Bold** — `--k2-glow-strength: 0.55`, `--k2-accent-glow-blur: 18px`. Used on **player hero avatar ring** only (realm switcher uses segment outline, no glow).
 
 **Theme lab** still exposes A/B/C toggles for comparison. Lab mock does not use a special rank-#1 row style.
 

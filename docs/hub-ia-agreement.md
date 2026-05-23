@@ -71,7 +71,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 
 - Site-wide dark theme on main PHP pages (`theme.css`, `site_header.php`, ranked/server/individual pages, etc.).
 - Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, realm accents (see `theme.css` — **TEST swap** may differ from locked lab defaults), Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
-- Realm switcher: full-opacity active pill + glow (no disabled washout).
+- Realm switcher: **segment** outline active (amber Online / green Amiga; not accent-tune colours).
 - Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
 - Theme lab (May 2026) promoted to production; static lab files later removed from repo.
 - **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + staging accent preview pills), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
@@ -139,7 +139,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 - Six wing tabs above the table (not a second site nav row).
 - Order: **Results** · Goals · DDs & CSs · Streaks · Victims & Culprits · **Rating records** · **Hall of Fame** (`ranked7`, `ranked2`–`ranked5`, `ranked1`, `ranked8`). Hall of Fame = busiest day/month/year tables (moved from Trends).
 - Legacy **`ranked6`** (old Rating records page) removed; `ranked1.php` is now the Rating records wing tab.
-- Chrome-style wing tabs: active tab same brightness as table header row (`bg-elevated`), curved feet on dark page — not green-filled bar; no green inset topline on active wing tab.
+- Wing tabs: segment track + outline active (not tied to header row brightness).
 
 ### Games tab
 
@@ -190,7 +190,8 @@ Global hub nav replaced by player context:
 
 - Table highlights: Cyan · Magenta.
 - Links weight 600; online green; Amiga amber site-wide in Amiga realm.
-- Sort header hover: brighter realm accent, no underline.
+- Table column headers: muted labels on `bg-surface`, weight 500; thin mixed-accent rule under last header row; sort hover → primary text + 2px inset accent.
+- Sort header hover: primary text + inset realm accent bar (no full-row bright band).
 - individual3 filter row: 16 cells, transparent filter row, single green line on last header row only.
 
 ---
