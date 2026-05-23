@@ -180,6 +180,7 @@ Global hub nav replaced by player context:
 | Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
 | Hub accent preview pills | **Staging** — Chrome · Pulse · Holo; **hidden by default**; **Show tint** / **Hide tint** (`k2-hub-nav-tune.js`). Remove row at launch unless kept. |
 | Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
+| Nav hover (inactive) | **`--k2-text-secondary`** — between muted and primary; not full white flash. Sort/table data stay primary. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
 | Bold neon grid | **Remove background grid** on C (lab done; promote to theme.css when staging). |
 | Neon rail, boxed default, solid glow, etc. | Lab comparisons only — production = **flat solid**. |
@@ -190,8 +191,8 @@ Global hub nav replaced by player context:
 
 - Table highlights: Cyan · Magenta.
 - Links weight 600; online green; Amiga amber site-wide in Amiga realm.
-- Table column headers: muted labels on `bg-surface`, weight 500; thin mixed-accent rule under last header row; sort hover → primary text + 2px inset accent.
-- Sort header hover: primary text + inset realm accent bar (no full-row bright band).
+- Table column headers: muted labels on `bg-surface`, weight 500; thin mixed-accent rule under last header row; sort hover → `text-secondary` + 2px inset accent.
+- Sort header hover: secondary text + inset realm accent bar (same hover step as nav).
 - individual3 filter row: 16 cells, transparent filter row, single green line on last header row only.
 
 ---
