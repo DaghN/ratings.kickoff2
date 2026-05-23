@@ -703,7 +703,7 @@ body.k2-site .k2-table tbody tr.alternate {
 }
 
 body.k2-site .k2-table tbody tr:hover {
-	background: var(--k2-realm-accent-muted);
+	background: var(--k2-bg-hover);
 }
 
 body.k2-site .k2-table thead .goalcounter,

@@ -171,6 +171,7 @@ Agreed balance after nav/header/link passes: **data and player names lead**; acc
 | Column headers | `--k2-text-muted`, weight 500 | Sort hover → secondary + inset accent bar |
 | Stat positive / negative | `.blue` / `.red` | Cyan / magenta — not link tokens |
 | Structure | `--k2-realm-accent` at 100% | Rings, borders, avatar, decorative glows only |
+| Table row hover | `--k2-bg-hover` | Neutral lift only — not `realm-accent-muted` (avoids muddy tint on link-star names) |
 
 All link/star tokens are **derived on `html`** from `--k2-realm-accent` (set per `data-realm` / optional `data-k2-accent` tune). Do not duplicate hex link colours in realm blocks.
 
