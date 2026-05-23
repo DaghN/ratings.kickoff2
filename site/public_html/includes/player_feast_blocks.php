@@ -152,15 +152,13 @@ function player_feast_career_stat_rows(array $pm): array
 /**
  * @param array<int, array{label: string, value: string, rank?: ?int}> $rows
  */
-function player_feast_render_stat_table_rows(array $rows, bool $headlineFirst = false): void
+function player_feast_render_stat_table_rows(array $rows): void
 {
     ?>
 <table class="pm3efg-stat-table">
 	<tbody>
-	<?php foreach ($rows as $i => $row) {
-	    $rowClass = $headlineFirst && $i === 1 ? ' pm3efg-stat-table__row--headline' : '';
-	    ?>
-		<tr class="pm3efg-stat-table__row<?php echo $rowClass; ?>">
+	<?php foreach ($rows as $row) { ?>
+		<tr class="pm3efg-stat-table__row">
 			<th scope="row"><?php echo pm_h($row['label']); ?></th>
 			<td><?php player_feast_render_stat_value($row['value']); ?></td>
 		</tr>
@@ -206,7 +204,7 @@ function player_feast_render_presence_career_duo(array $pm): void
 <div class="pm3efg-duo pm3efg-duo--g">
 	<div class="pm3efg-duo__panel pm3efg-duo__panel--presence">
 		<h3 class="pm3efg-duo__panel-title">Presence</h3>
-		<?php player_feast_render_stat_table_rows(player_feast_presence_stat_rows($pm), true); ?>
+		<?php player_feast_render_stat_table_rows(player_feast_presence_stat_rows($pm)); ?>
 	</div>
 	<div class="pm3efg-duo__panel pm3efg-duo__panel--career">
 		<h3 class="pm3efg-duo__panel-title">Career</h3>

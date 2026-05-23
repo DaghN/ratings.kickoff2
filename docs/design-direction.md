@@ -159,8 +159,8 @@ Agreed balance after nav/header/link passes: **data and player names lead**; acc
 | Layer | Token / rule | Role |
 |-------|----------------|------|
 | Table & body data | `--k2-text-primary`, weight 400 | Hero numbers and plain text |
-| **Player names, game IDs, profile highlight text** | `--k2-link-star` (80% accent + primary) | Stars of the show; weight **600** in `.k2-table tbody td a` |
-| Name/link hover | `--k2-link-star-hover` (92% accent + primary) | Clear affordance; no underline in tables |
+| **Player names, game IDs, profile highlight text** | `--k2-link-star` (85% accent + primary) | Stars of the show; weight **600** in `.k2-table tbody td a` |
+| Name/link hover | `--k2-link-star-hover` (94% accent + primary) | Clear affordance; no underline in tables |
 | Prose / footer links | `--k2-link` (72% + secondary), weight 500 | Inline links outside dense grids |
 | Prose hover | `--k2-link-hover` (85% + primary) | |
 | Nav inactive | `--k2-text-muted` | |
@@ -174,7 +174,7 @@ All link/star tokens are **derived on `html`** from `--k2-realm-accent` (set per
 
 **Profile feast CSS** (`player-feast*.css`, `player-hero-rank.css`): typographic highlights use `--k2-link-star` so profile and ladder names match.
 
-**Staging tune:** if names feel weak, raise `--k2-link-star` toward 85%; if too loud, try 75%. Keep table weight at 600 unless explicitly changing emphasis.
+**Staging tune:** production uses **85%** for `--k2-link-star` (May 2026). If too loud, try 75–80%; if weak, try 88%. Keep table weight at 600 unless explicitly changing emphasis.
 
 ### Neon intensity (locked for production — May 2026)
 

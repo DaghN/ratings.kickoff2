@@ -51,8 +51,8 @@ html {
 	--k2-link: color-mix(in srgb, var(--k2-realm-accent) 72%, var(--k2-text-secondary));
 	--k2-link-hover: color-mix(in srgb, var(--k2-realm-accent) 85%, var(--k2-text-primary));
 	/* Player names, IDs, profile stat highlights — accent-forward, not full chrome */
-	--k2-link-star: color-mix(in srgb, var(--k2-realm-accent) 80%, var(--k2-text-primary));
-	--k2-link-star-hover: color-mix(in srgb, var(--k2-realm-accent) 92%, var(--k2-text-primary));
+	--k2-link-star: color-mix(in srgb, var(--k2-realm-accent) 85%, var(--k2-text-primary));
+	--k2-link-star-hover: color-mix(in srgb, var(--k2-realm-accent) 94%, var(--k2-text-primary));
 }
 
 html[data-realm="online"] {

@@ -100,13 +100,6 @@
 	border-bottom: none;
 }
 
-.pm3efg-stat-table__row--headline td {
-	font-family: var(--k2-font-display);
-	font-size: 17px;
-	font-weight: 700;
-	color: var(--k2-link-star);
-}
-
 /* Career: numbers sit left; (#rank) in a narrow column, stacked / right-aligned */
 .pm3efg-stat-table--career .pm3efg-stat-table__row th[scope='row'] {
 	width: 46%;
