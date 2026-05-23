@@ -1,6 +1,6 @@
 # Kick Off 2 ratings — design direction & cosmetics plan
 
-**Status:** Agreed direction (May 2026). **Theme lab** + **Phase A hub shell** shipped in repo. Staging URL: `https://ratings.kickoff2.com` (WinSCP deploy; not auto from `git push`). Open before launch: **TEST realm accent swap**, **accent preview pills** on hub row.
+**Status:** Agreed direction (May 2026). **Phase A hub shell** + **Status Phase B v1.2** shipped in repo. Staging URL: `https://ratings.kickoff2.com` (WinSCP deploy; not auto from `git push`). Open before launch: **TEST realm accent swap**, **accent preview pills** on hub row.
 
 **Audience:** Dagh and Cursor agents. Captures **design decisions from discussion** so we do not re-derive them from chat history.
 
@@ -111,7 +111,7 @@ These Material-inspired accents on dark UI were chosen during the chart wave and
 | Chart coral | `#ff8a65` | Goals |
 | Chart teal | `#4db6ac` | Distributions |
 | Chart purple | `#ba68c8` | Cumulative growth |
-| Text primary | `#e6edf3` | Body on dark (`--k2-text-primary` in `theme.css`) |
+| Text primary | `#d0d7de` | Body on dark (`--k2-text-primary`; May 2026 — softened from `#e6edf3`) |
 | Text muted | `#8b949e` | Helper copy, chart subtitles, axis labels (`--k2-text-muted`) |
 | Grid subtle | `rgba(255, 255, 255, 0.08)` | Chart grids |
 
@@ -203,11 +203,13 @@ All link/star tokens are **derived on `html`** from `--k2-realm-accent` (set per
 
 ## 4. Typography
 
-**Body:** clean sans — **IBM Plex Sans**, **Inter**, or **DM Sans** (free, professional).
+**Body:** **IBM Plex Sans** (`--k2-font-body`) — clean sans for tables, lists, chart blocks, status panels.
 
 **Stats / numbers:** **IBM Plex Mono** or `font-variant-numeric: tabular-nums` on sans — precision feel for ladder tables.
 
-**Wordmark / display (header only):** geometric optional — **Rajdhani**, **Orbitron**, or **Exo** — one line, **not** pixel font.
+**Display / chrome:** **Exo 2** (`--k2-font-display`) — wordmark, player hero name, hero stat values, realm switcher labels, avatar initial. **Not** for routine panel or chart section titles.
+
+**Data-surface headings:** class **`.k2-panel-heading`** — same face as hub tabs (IBM Plex Sans), weight **600**, `--k2-text-muted`, **14px**. Softer than table body (`--k2-text-primary`). Smaller sub-blocks (period/peak leaderboards) may override to 13px. Chart hints: **`.k2-chart-block__hint`** (muted, 12px).
 
 **Never:** pixel/bitmap fonts for body, tables, or chart labels.
 
@@ -329,7 +331,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 | **0** | This doc + theme lab (retired) | None |
 | **1** | Site-wide dark theme + shared header | **Done** |
 | **2** | `elolist.css` dark table pass | **Done** |
-| **3–4** | Hub nav (`hub_nav.php`), wing tabs (`lb_nav.php`), Status bridge, theme on ranked/server/individual pages | **Done in repo** — deploy via WinSCP |
+| **3–4** | Hub nav (`hub_nav.php`), wing tabs (`lb_nav.php`), **Status room v1.2**, theme on ranked/server/individual pages | **Done in repo** — deploy via WinSCP |
 | **5** | Player hero styling on `individual1.php` (containers only) | Partial — layout simplified; full feast later |
 | **6** | Live staging tune; launch decisions (accent pills, realm defaults, `<title>` rename) | **In progress** |
 | **Later** | Content track: profile reorder, fun stats, dashboard, media embeds | Separate slices |
@@ -341,6 +343,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 - **Hub accent preview pills:** Chrome · Pulse · Holo; **hidden by default**; **Show tint** on hub bar. Staging — remove at launch unless kept.
 - **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).
 - **Realm accents:** online amber / amiga green (see § Realm accent tokens).
+- **Status room:** 4-column grid, asymmetric cols (wider games + leaderboard); `.k2-panel-heading` on panel/chart titles; body text `--k2-text-primary` `#d0d7de` (May 2026 tune).
 
 **Change style:** small, reversible slices — same as `PROJECT_BRIEF.md`.
 

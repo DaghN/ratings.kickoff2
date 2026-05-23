@@ -8,7 +8,7 @@ function player_feast_section_open(string $title, ?string $hint = null): void
     ?>
 <section class="pm3d-section">
 	<?php if ($title !== '') { ?>
-	<h2 class="pm3d-section__title"><?php echo pm_h($title); ?></h2>
+	<h2 class="k2-panel-heading pm3d-section__title"><?php echo pm_h($title); ?></h2>
 	<?php } ?>
 	<?php if ($hint !== null && $hint !== '') { ?>
 	<p class="pm3d-section__hint"><?php echo pm_h($hint); ?></p>

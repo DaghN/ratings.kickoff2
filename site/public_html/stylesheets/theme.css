@@ -13,7 +13,7 @@
 	--k2-bg-surface: #131922;
 	--k2-bg-elevated: #1a2230;
 	--k2-bg-hover: #222c3d;
-	--k2-text-primary: #e6edf3;
+	--k2-text-primary: #d0d7de;
 	--k2-text-secondary: color-mix(in srgb, var(--k2-text-muted) 40%, var(--k2-text-primary));
 	--k2-text-muted: #8b949e;
 	--k2-border-subtle: rgba(255, 255, 255, 0.07);
@@ -449,21 +449,31 @@ body.k2-site .k2-page-nav .k2-table {
 	margin-bottom: 16px;
 }
 
-body.k2-site .server-games-month-chart p,
-body.k2-site .server-games-year-chart p,
-body.k2-site .server-goals-month-chart p,
-body.k2-site .server-active-players-month-chart p,
-body.k2-site .server-established-players-year-chart p,
-body.k2-site .server-cumulative-established-month-chart p,
-body.k2-site .server-established-rating-distribution-chart p,
-body.k2-site .player-rating-chart p,
-body.k2-site .player-games-month-chart p,
-body.k2-site .player-winrate-opponent-chart p,
-body.k2-site .player-top-opponents-chart p,
-body.k2-site .player-head-to-head-chart p,
-body.k2-site .player-compare-rating-chart p,
 body.k2-site .player-h2h-opponent-search label {
 	color: var(--k2-text-primary);
+}
+
+/* Data-surface headings — hub nav parity: Plex 600, muted, slightly larger than tabs */
+.k2-panel-heading {
+	margin: 0 0 4px;
+	font-family: var(--k2-font-body);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.35;
+	letter-spacing: 0.01em;
+	color: var(--k2-text-muted);
+}
+
+.k2-panel-heading__sep {
+	font-weight: 400;
+	opacity: 0.55;
+}
+
+.k2-chart-block__hint {
+	margin: 0 0 4px;
+	font-size: 12px;
+	line-height: 1.4;
+	color: var(--k2-text-muted);
 }
 
 body.k2-site .player-rating-chart-status,
@@ -492,13 +502,8 @@ body.k2-site .server-period-activity-leaderboards {
 	background: var(--k2-bg-surface);
 }
 
-body.k2-site .server-period-activity-leaderboards__heading {
-	color: var(--k2-text-primary);
-}
-
-body.k2-site .server-period-activity-leaderboards__heading {
-	margin: 0 0 4px;
-	font-weight: 600;
+body.k2-site .server-period-activity-leaderboards__heading.k2-panel-heading {
+	margin-bottom: 4px;
 }
 
 body.k2-site .server-period-activity-leaderboards__intro {
@@ -529,12 +534,9 @@ body.k2-site .server-peak-period-leaderboard-block {
 	min-width: 0;
 }
 
-body.k2-site .server-peak-period-leaderboard-block__title {
-	margin: 0 0 8px;
-	color: var(--k2-text-muted);
+body.k2-site .server-peak-period-leaderboard-block__title.k2-panel-heading {
+	margin-bottom: 8px;
 	font-size: 13px;
-	font-weight: 600;
-	line-height: 1.3;
 }
 
 body.k2-site .server-peak-period-leaderboard-block .k2-table-wrap {
@@ -567,11 +569,9 @@ body.k2-site .server-period-activity-leaderboard {
 	background: var(--k2-bg-elevated);
 }
 
-body.k2-site .server-period-activity-leaderboard__title {
-	margin: 0 0 4px;
-	color: var(--k2-text-primary);
-	font-size: 0.95em;
-	font-weight: 600;
+body.k2-site .server-period-activity-leaderboard__title.k2-panel-heading {
+	margin-bottom: 4px;
+	font-size: 13px;
 }
 
 body.k2-site .server-period-activity-leaderboard__hint {
@@ -1028,12 +1028,8 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	background: var(--k2-bg-surface);
 }
 
-.k2-card__title {
-	margin: 0 0 8px;
-	font-family: var(--k2-font-display);
-	font-size: 16px;
-	font-weight: 600;
-	color: var(--k2-text-primary);
+.k2-card__title.k2-panel-heading {
+	margin-bottom: 8px;
 }
 
 .k2-card__hint,
@@ -1056,86 +1052,144 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	margin: 0 auto;
 }
 
-.k2-status-room__masthead {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 10px 16px;
-	margin-bottom: 10px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid var(--k2-border-subtle);
+.k2-status-room__layout {
+	--k2-status-col-edge: 0.88fr;
+	--k2-status-col-center: 1.14fr;
+	--k2-status-col-leaderboard: 1.22fr;
+	display: grid;
+	grid-template-columns:
+		minmax(0, var(--k2-status-col-edge))
+		minmax(0, var(--k2-status-col-center))
+		minmax(0, var(--k2-status-col-edge))
+		minmax(0, var(--k2-status-col-leaderboard));
+	grid-template-rows: auto auto;
+	grid-template-areas:
+		"online live arc heritage"
+		"west west west leaderboard";
+	gap: 8px 10px;
+	align-items: start;
+	margin-bottom: 8px;
 }
 
-.k2-status-room__masthead-main {
-	flex: 1 1 240px;
+.k2-status-room__panel-online,
+.k2-status-room__panel-live,
+.k2-status-room__panel-heritage,
+.k2-status-room__panel-arc {
+	align-self: stretch;
 	min-width: 0;
 }
 
-.k2-status-room__eyebrow {
-	margin: 0 0 4px;
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: var(--k2-realm-accent);
+.k2-status-room__panel-online {
+	grid-area: online;
 }
 
-.k2-status-room__pulse {
+.k2-status-room__panel-live {
+	grid-area: live;
+}
+
+.k2-status-room__panel-heritage {
+	grid-area: heritage;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.k2-status-room__panel-arc {
+	grid-area: arc;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+}
+
+.k2-status-room__panel-arc .k2-status-room__arc {
 	margin: 0;
 	font-size: 14px;
-	font-weight: 500;
-	color: var(--k2-text-secondary);
-	line-height: 1.45;
-}
-
-.k2-status-room__pulse-sep {
 	color: var(--k2-text-muted);
+	line-height: 1.45;
+	text-align: left;
 }
 
-.k2-heritage-box--status {
-	width: 108px;
-	padding: 6px 8px 5px;
-	opacity: 0.72;
-	filter: saturate(0.85);
+.k2-heritage-box--status-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	margin: 0 auto;
+	padding: 4px 0;
+	opacity: 0.65;
+	filter: saturate(0.8);
 }
 
-.k2-heritage-box--status .k2-heritage-box__art {
-	max-width: 88px;
+.k2-heritage-box--status-panel .k2-heritage-box__art {
+	max-width: 80px;
 	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
 
-.k2-heritage-box--status .k2-heritage-box__caption {
-	margin-top: 4px;
+.k2-heritage-box--status-panel .k2-heritage-box__caption {
+	margin: 4px 0 0;
 	font-size: 9px;
+	text-align: center;
 }
 
-.k2-status-room__now {
-	margin-bottom: 10px;
+.k2-status-room__panel-online,
+.k2-status-room__panel-live {
+	font-size: 12px;
+	line-height: 1.45;
 }
 
-.k2-status-room__now-cols {
+.k2-status-room__panel-online .k2-status-panel__empty {
+	font-size: 12px;
+}
+
+/* west: logins | games | new, then league — subgrid aligns with parent cols 1–3 */
+.k2-status-room__west {
+	grid-area: west;
 	display: grid;
-	grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
-	gap: 12px 20px;
+	grid-template-columns: subgrid;
+	grid-template-rows: max-content auto;
+	grid-template-areas:
+		"logins games new"
+		"league league league";
+	row-gap: 8px;
+	align-content: start;
+	min-width: 0;
 }
 
-.k2-status-room__recency {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 10px;
-	margin-bottom: 10px;
+@supports not (grid-template-columns: subgrid) {
+	.k2-status-room__west {
+		grid-template-columns:
+			minmax(0, var(--k2-status-col-edge, 0.88fr))
+			minmax(0, var(--k2-status-col-center, 1.14fr))
+			minmax(0, var(--k2-status-col-edge, 0.88fr));
+	}
 }
 
-.k2-status-room__registrations {
-	margin-bottom: 10px;
+.k2-status-room__west .k2-status-room__panel-logins {
+	grid-area: logins;
+	min-width: 0;
 }
 
-.k2-status-room__competition {
-	display: grid;
-	grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
-	gap: 10px 14px;
-	margin-bottom: 8px;
+.k2-status-room__west .k2-status-room__panel-games {
+	grid-area: games;
+	min-width: 0;
+}
+
+.k2-status-room__west .k2-status-room__panel-new {
+	grid-area: new;
+	min-width: 0;
+}
+
+.k2-status-room__west .k2-status-room__panel-league {
+	grid-area: league;
+	min-width: 0;
+}
+
+.k2-status-room__panel-leaderboard {
+	grid-area: leaderboard;
+	min-width: 0;
 }
 
 .k2-status-panel {
@@ -1153,29 +1207,24 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	font-size: 11px;
 }
 
-.k2-status-panel--mini .k2-status-panel__title {
-	font-size: 14px;
-	margin-bottom: 6px;
-}
-
 .k2-status-panel__head {
 	margin-bottom: 6px;
 }
 
 .k2-status-panel__head--league {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 8px 12px;
+	margin-bottom: 6px;
 }
 
-.k2-status-panel__title {
-	margin: 0 0 4px;
-	font-family: var(--k2-font-display);
-	font-size: 15px;
-	font-weight: 600;
-	color: var(--k2-text-primary);
+.k2-status-league-head__title-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	margin-bottom: 4px;
+}
+
+.k2-status-league-head__title-row .k2-panel-heading {
+	margin: 0;
 }
 
 .k2-status-panel__subtitle {
@@ -1197,24 +1246,81 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	background: rgba(0, 0, 0, 0.2);
 }
 
-.k2-status-league-toggle__link {
+.k2-status-league-toggle__btn {
 	display: inline-block;
 	padding: 4px 10px;
-	font-size: 11px;
+	font-size: 12px;
 	font-weight: 600;
+	font-family: inherit;
 	color: var(--k2-text-muted);
-	text-decoration: none;
+	background: transparent;
+	border: 1px solid transparent;
 	border-radius: calc(var(--k2-radius-sm) - 1px);
 	line-height: 1.3;
+	cursor: pointer;
+	transition: color 0.15s, border-color 0.15s;
 }
 
-.k2-status-league-toggle__link:hover {
+.k2-status-league-toggle__btn:hover:not(.is-active) {
 	color: var(--k2-text-secondary);
 }
 
-.k2-status-league-toggle__link.is-active {
-	color: var(--k2-realm-accent);
-	box-shadow: inset 0 0 0 1px var(--k2-segment-active-ring, rgba(156, 204, 101, 0.45));
+.k2-status-league-toggle__btn.is-active {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: none;
+}
+
+.k2-status-league-panel[hidden] {
+	display: none;
+}
+
+.k2-status-table--podium .k2-status-table__medal {
+	width: 22px;
+	padding-left: 2px;
+	padding-right: 0;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.k2-status-table--podium thead .k2-status-table__medal {
+	text-align: center;
+}
+
+.k2-status-medal {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 0;
+	vertical-align: middle;
+}
+
+.k2-status-medal__svg {
+	display: block;
+	width: 18px;
+	height: auto;
+	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+.k2-status-medal__glint {
+	animation: k2-status-medal-glint 2.6s ease-in-out infinite;
+}
+
+@keyframes k2-status-medal-glint {
+	0%,
+	100% {
+		opacity: 0.45;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.k2-status-medal__glint {
+		animation: none;
+		opacity: 0.75;
+	}
 }
 
 .k2-status-panel__meta {
@@ -1251,7 +1357,24 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 
 .k2-status-table__player,
 .k2-status-table th.k2-status-table__player {
-	text-align: left;
+	text-align: left !important;
+}
+
+.k2-status-table thead th {
+	text-align: right;
+}
+
+.k2-status-table thead th.k2-status-table__player {
+	text-align: left !important;
+}
+
+.k2-status-room__now-col {
+	font-size: 12px;
+	line-height: 1.45;
+}
+
+.k2-status-room__now-col .k2-status-panel__empty {
+	font-size: 12px;
 }
 
 .k2-status-name-list {
@@ -1260,7 +1383,8 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	list-style: none;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px 14px;
+	gap: 6px 12px;
+	font-size: inherit;
 }
 
 .k2-status-live-list,
@@ -1281,17 +1405,6 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	font-size: 12px;
 }
 
-.k2-status-name-list--registrations li {
-	display: inline-flex;
-	align-items: baseline;
-	gap: 6px;
-}
-
-.k2-status-name-list__when {
-	font-size: 10px;
-	color: var(--k2-text-muted);
-}
-
 .k2-status-live-list li:last-child,
 .k2-status-recency-list li:last-child {
 	border-bottom: none;
@@ -1306,6 +1419,12 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	font-variant-numeric: tabular-nums;
 }
 
+.k2-status-score {
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+	font-variant-numeric: tabular-nums;
+}
+
 .k2-status-live-list__meta {
 	font-size: 11px;
 	color: var(--k2-text-muted);
@@ -1317,10 +1436,28 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 @media (max-width: 900px) {
-	.k2-status-room__competition,
-	.k2-status-room__recency,
-	.k2-status-room__now-cols {
-		grid-template-columns: 1fr;
+	.k2-status-room__layout {
+		--k2-status-col-edge: 0.9fr;
+		--k2-status-col-center: 1.1fr;
+		grid-template-columns:
+			minmax(0, var(--k2-status-col-edge))
+			minmax(0, var(--k2-status-col-center));
+		grid-template-areas:
+			"online live"
+			"arc heritage"
+			"west west"
+			"leaderboard leaderboard";
+	}
+
+	.k2-status-room__west {
+		grid-column: auto;
+		grid-template-columns:
+			minmax(0, 0.86fr)
+			minmax(0, 1.14fr);
+		grid-template-areas:
+			"logins games"
+			"new new"
+			"league league";
 	}
 }
 
@@ -1335,21 +1472,36 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 .k2-hub-bar .k2-hub-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px 12px;
 	margin: 0;
 	flex: 1 1 auto;
 	min-width: 0;
+	max-width: var(--k2-max-width);
 }
 
-.k2-hub-bar__tune {
+.k2-hub-tabs__links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.k2-hub-tabs__tune {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: flex-end;
 	gap: 8px;
-	margin: 0 0 0 auto;
+	margin-left: auto;
+	flex-shrink: 0;
 }
 
-html[data-k2-accent-pills-hidden="1"] .k2-hub-bar__tune .k2-accent-pills {
+html[data-k2-accent-pills-hidden="1"] .k2-hub-tabs__tune .k2-accent-pills {
 	display: none;
 }
 
@@ -1476,11 +1628,15 @@ html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 
 /* Hub nav — segment track + outline (leaderboard wing parity) */
 html[data-k2-hub-nav="segment"] .k2-hub-tabs {
-	gap: 2px;
+	gap: 8px 12px;
 	padding: 4px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+}
+
+html[data-k2-hub-nav="segment"] .k2-hub-tabs__links {
+	gap: 2px;
 }
 
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn {

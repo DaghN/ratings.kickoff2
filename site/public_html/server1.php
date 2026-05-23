@@ -64,47 +64,47 @@ unset($con);
 ?>
 
 <div class="server-games-month-chart">
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">Server games per month</p>
+    <h2 class="k2-panel-heading">Server games per month</h2>
     <p class="server-games-month-chart-status" style="margin: 0 0 8px 0;">Loading server games per month…</p>
     <canvas width="960" height="271" aria-label="Server rated games per calendar month"></canvas>
 </div>
 
 <div class="server-games-year-chart">
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">Server games per year</p>
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-muted, #8b949e); font-size: 0.9em;">Current year: games so far (green) plus projected rest of year if pace continues (blue).</p>
+    <h2 class="k2-panel-heading">Server games per year</h2>
+    <p class="k2-chart-block__hint">Current year: games so far (green) plus projected rest of year if pace continues (blue).</p>
     <p class="server-games-year-chart-status" style="margin: 0 0 8px 0;">Loading server games per year…</p>
     <canvas width="960" height="271" aria-label="Server rated games per calendar year with projection"></canvas>
 </div>
 
 <div class="server-goals-month-chart">
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">Server goals per month</p>
+    <h2 class="k2-panel-heading">Server goals per month</h2>
     <p class="server-goals-month-chart-status" style="margin: 0 0 8px 0;">Loading server goals per month…</p>
     <canvas width="960" height="271" aria-label="Server goals per calendar month"></canvas>
 </div>
 
 <div class="server-active-players-month-chart">
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">Active players per month</p>
+    <h2 class="k2-panel-heading">Active players per month</h2>
     <p class="server-active-players-month-chart-status" style="margin: 0 0 8px 0;">Loading active players per month…</p>
     <canvas width="960" height="271" aria-label="Server active players per calendar month"></canvas>
 </div>
 
 <div class="server-established-players-year-chart">
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">New established players per year</p>
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-muted, #8b949e); font-size: 0.9em;">Players whose 20th rated game fell in that calendar year.</p>
+    <h2 class="k2-panel-heading">New established players per year</h2>
+    <p class="k2-chart-block__hint">Players whose 20th rated game fell in that calendar year.</p>
     <p class="server-established-players-year-chart-status" style="margin: 0 0 8px 0;">Loading newly established players per year…</p>
     <canvas width="960" height="271" aria-label="Server newly established players per calendar year"></canvas>
 </div>
 
 <div class="server-cumulative-established-month-chart">
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">Cumulative established players</p>
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-muted, #8b949e); font-size: 0.9em;">Steps up by one whenever a player plays their 20th rated game.</p>
+    <h2 class="k2-panel-heading">Cumulative established players</h2>
+    <p class="k2-chart-block__hint">Steps up by one whenever a player plays their 20th rated game.</p>
     <p class="server-cumulative-established-month-chart-status" style="margin: 0 0 8px 0;">Loading cumulative established players…</p>
     <canvas width="960" height="271" aria-label="Cumulative established players over time by month"></canvas>
 </div>
 
 <div class="server-established-rating-distribution-chart">
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-primary, #e6edf3);">Established player rating distribution</p>
-    <p style="margin: 0 0 4px 0; color: var(--k2-text-muted, #8b949e); font-size: 0.9em;">Players with 20+ games, by current ELO (100-point buckets).</p>
+    <h2 class="k2-panel-heading">Established player rating distribution</h2>
+    <p class="k2-chart-block__hint">Players with 20+ games, by current ELO (100-point buckets).</p>
     <p class="server-established-rating-distribution-chart-status" style="margin: 0 0 8px 0;">Loading rating distribution…</p>
     <canvas width="960" height="271" aria-label="Distribution of established player ratings"></canvas>
 </div>

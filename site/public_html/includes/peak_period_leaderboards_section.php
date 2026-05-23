@@ -60,7 +60,7 @@ if ($k2PeakPeriodOwnConnection) {
     $queryError = $k2PeakPanels[$period]['error'];
     ?>
 	<section class="server-peak-period-leaderboard-block server-peak-period-leaderboard-block--<?php echo htmlspecialchars($period, ENT_QUOTES, 'UTF-8'); ?>">
-		<h3 class="server-peak-period-leaderboard-block__title"><?php echo htmlspecialchars($meta['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+		<h3 class="k2-panel-heading server-peak-period-leaderboard-block__title"><?php echo htmlspecialchars($meta['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
 <?php if (!empty($queryError)) { ?>
 		<p class="server-peak-period-leaderboard-status">Could not load this leaderboard.</p>
 <?php } elseif (!$entries) { ?>

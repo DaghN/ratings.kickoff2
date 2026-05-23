@@ -11,6 +11,36 @@ function k2_status_h(mixed $value): string
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+/** Days left in calendar month (server TZ), including today. Past months return 0. */
+function k2_status_month_days_left(int $monthOffset = 0): int
+{
+    $monthOffset = max(-24, min(0, $monthOffset));
+    $base = strtotime('first day of this month');
+    if ($monthOffset !== 0) {
+        $base = strtotime((string) $monthOffset . ' month', $base);
+    }
+    $today = strtotime('today');
+    $monthEnd = strtotime(date('Y-m-t', $base));
+    if ($today > $monthEnd) {
+        return 0;
+    }
+    $monthStart = strtotime(date('Y-m-01', $base));
+    if ($today < $monthStart) {
+        return (int) date('t', $base);
+    }
+
+    return (int) floor(($monthEnd - $today) / 86400) + 1;
+}
+
+/** @param array{label: string, total_games: int, month_offset: int} $monthly */
+function k2_status_league_meta_line(array $monthly): string
+{
+    $days = k2_status_month_days_left((int) ($monthly['month_offset'] ?? 0));
+    $daysLabel = $days === 1 ? '1 day left' : $days . ' days left';
+
+    return $monthly['label'] . ' · ' . (int) $monthly['total_games'] . ' rated games · ' . $daysLabel;
+}
+
 function k2_status_human_ago(?string $datetime): string
 {
     if ($datetime === null || $datetime === '') {
@@ -51,6 +81,65 @@ function k2_status_short_time(?string $datetime): string
     $ts = strtotime($datetime);
 
     return $ts === false ? '—' : date('D H:i', $ts);
+}
+
+/** @return array{players: int, games: int, since_label: string}|null */
+function k2_status_arc_ticker(mysqli $con, ?string &$error = null): ?array
+{
+    $error = null;
+    $players = null;
+    $games = null;
+    $r = mysqli_query($con, 'SELECT GamesPlayed FROM generalstatstable WHERE id = 1 LIMIT 1');
+    if ($r !== false) {
+        $row = mysqli_fetch_assoc($r);
+        mysqli_free_result($r);
+        if ($row && $row['GamesPlayed'] !== null) {
+            $games = (int) $row['GamesPlayed'];
+        }
+    }
+    if ($games === null) {
+        $r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM ratedresults');
+        if ($r === false) {
+            $error = mysqli_error($con);
+
+            return null;
+        }
+        $row = mysqli_fetch_assoc($r);
+        mysqli_free_result($r);
+        $games = (int) ($row['c'] ?? 0);
+    }
+
+    $r = mysqli_query($con, 'SELECT MIN(`Date`) AS first_game FROM ratedresults');
+    if ($r === false) {
+        $error = mysqli_error($con);
+
+        return null;
+    }
+    $row = mysqli_fetch_assoc($r);
+    mysqli_free_result($r);
+    $first = $row['first_game'] ?? null;
+    if ($first === null || $first === '') {
+        $error = 'no rated games';
+
+        return null;
+    }
+    $ts = strtotime((string) $first);
+
+    $r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM playertable WHERE Display = 1 AND NumberGames >= 1');
+    if ($r === false) {
+        $error = mysqli_error($con);
+
+        return null;
+    }
+    $row = mysqli_fetch_assoc($r);
+    mysqli_free_result($r);
+    $players = (int) ($row['c'] ?? 0);
+
+    return [
+        'players' => $players,
+        'games' => $games,
+        'since_label' => $ts === false ? (string) $first : date('F j, Y', $ts),
+    ];
 }
 
 /** @return array{online: int, live_games: int, last_login: ?string, last_login_ago: string, games_played: ?int, goals_scored: ?int}|null */
@@ -117,13 +206,12 @@ function k2_status_pulse(mysqli $con, ?string &$error = null): ?array
 }
 
 /** @return list<array{id: int, name: string, rating: int, last_game: string, games: int}>|null */
-function k2_status_active_top_rated(mysqli $con, int $limit = 20, ?string &$error = null): ?array
+function k2_status_active_top_rated(mysqli $con, ?string &$error = null): ?array
 {
     $error = null;
-    $limit = max(1, min(50, $limit));
     $sql = 'SELECT ID, Name, Rating, LastGame, NumberGames FROM playertable '
         . 'WHERE Display = 1 AND LastGame >= DATE_SUB(NOW(), INTERVAL 12 MONTH) '
-        . 'ORDER BY Rating DESC LIMIT ' . $limit;
+        . 'ORDER BY Rating DESC';
     $r = mysqli_query($con, $sql);
     if ($r === false) {
         $error = mysqli_error($con);
@@ -402,28 +490,29 @@ function k2_status_recent_rated_games(mysqli $con, int $limit = 10, ?string &$er
     return $out;
 }
 
-/** @param string $leagueMonth `current` or `prev` */
-function k2_status_load_room(mysqli $con, string $leagueMonth = 'current', ?string &$error = null): ?array
+function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
 {
     $error = null;
     $err = null;
-    $leagueMonth = ($leagueMonth === 'prev') ? 'prev' : 'current';
-    $monthOffset = $leagueMonth === 'prev' ? -1 : 0;
 
-    $pulse = k2_status_pulse($con, $err);
-    if ($pulse === null) {
+    $arc = k2_status_arc_ticker($con, $err);
+    if ($arc === null) {
         $error = $err;
 
         return null;
     }
 
     $panelErr = null;
-    $activeTop = k2_status_active_top_rated($con, 20, $panelErr);
+    $activeTop = k2_status_active_top_rated($con, $panelErr);
     $activeTopError = $panelErr;
 
     $panelErr = null;
-    $monthly = k2_status_monthly_league($con, 20, $monthOffset, $panelErr);
-    $monthlyError = $panelErr;
+    $monthlyCurrent = k2_status_monthly_league($con, 20, 0, $panelErr);
+    $monthlyCurrentError = $panelErr;
+
+    $panelErr = null;
+    $monthlyPrev = k2_status_monthly_league($con, 20, -1, $panelErr);
+    $monthlyPrevError = $panelErr;
 
     $panelErr = null;
     $online = k2_status_online_players($con, $panelErr) ?? [];
@@ -441,12 +530,13 @@ function k2_status_load_room(mysqli $con, string $leagueMonth = 'current', ?stri
     $recentGames = k2_status_recent_rated_games($con, 10, $panelErr) ?? [];
 
     return [
-        'pulse' => $pulse,
-        'league_month' => $leagueMonth,
+        'arc' => $arc,
         'active_top' => $activeTop ?? [],
         'active_top_error' => $activeTopError,
-        'monthly' => $monthly,
-        'monthly_error' => $monthlyError,
+        'monthly_current' => $monthlyCurrent,
+        'monthly_current_error' => $monthlyCurrentError,
+        'monthly_prev' => $monthlyPrev,
+        'monthly_prev_error' => $monthlyPrevError,
         'online' => $online,
         'live_games' => $liveGames,
         'logins' => $logins,

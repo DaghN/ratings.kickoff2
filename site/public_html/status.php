@@ -7,6 +7,7 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <script type="text/javascript" src="js/elolist.js"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="js/status-league-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/status-league-toggle.js'); ?>" defer="defer"></script>
 
 </head>
 
@@ -23,7 +24,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 
-$k2StatusLeagueMonth = (isset($_GET['league']) && $_GET['league'] === 'prev') ? 'prev' : 'current';
 $k2StatusRoom = null;
 $k2StatusRoomError = null;
 
@@ -31,7 +31,7 @@ $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if (mysqli_connect_errno()) {
     $k2StatusRoomError = mysqli_connect_error();
 } else {
-    $k2StatusRoom = k2_status_load_room($con, $k2StatusLeagueMonth, $k2StatusRoomError);
+    $k2StatusRoom = k2_status_load_room($con, $k2StatusRoomError);
     mysqli_close($con);
     unset($con);
 }

@@ -18,7 +18,7 @@
 
 
 
-- **Design / cosmetics track:** **Phase A hub shell shipped** — `includes/k2_head.php`, **`theme.css`**, neon C, etc. **Status Phase B v1 (May 2026, spec locked):** hub `status.php` = pulse + **active Elo top 20** (12 mo, 0 dp) + **monthly league** (calendar month, server TZ, 3-1-0) + room (online, live games, logins, **recent registrations**, recent games); drop period-activity triple tables from Status when built. Data: same MySQL as joshua (`docs/STATUS_PAGE_DATA.md`). **Next:** implement v1 locally → staging; Steve for prod read + redirect. WinSCP sync; realm switcher when Amiga exists.
+- **Design / cosmetics track:** **Phase A hub shell + Status Phase B v1.2 shipped in repo** (May 2026) — `status.php` 4-col room grid, league month toggle, shared `.k2-panel-heading`, softer `--k2-text-primary` (`#d0d7de`). Spec: `docs/STATUS_PAGE_DATA.md`. **Next:** WinSCP to staging; Steve for prod `kooldb` read + joshua redirect; realm switcher when Amiga exists.
 
 - **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. **Busiest day / month / year hall of fame** on `server1.php` — three SSR tables (`peak_period_leaderboard_query.php`). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
 

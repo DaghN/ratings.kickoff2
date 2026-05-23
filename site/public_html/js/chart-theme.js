@@ -45,7 +45,7 @@
         /** Selected opponent on profile matchup charts */
         opponentFocusBorder: function () { return this.blue(); },
         opponentFocusFill: function (alpha) { return this.fill(this.blue(), alpha == null ? 0.12 : alpha); },
-        textPrimary: function () { return cssVar('--k2-text-primary', '#e6edf3'); },
+        textPrimary: function () { return cssVar('--k2-text-primary', '#d0d7de'); },
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },
         grid: function () { return 'rgba(255, 255, 255, 0.08)'; },
         fill: hexToRgba,

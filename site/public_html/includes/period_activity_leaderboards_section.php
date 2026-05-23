@@ -114,7 +114,7 @@ function k2_render_period_activity_tbody(string $period, array $entries): void
 }
 ?>
 <div class="server-period-activity-leaderboards" data-limit="<?php echo (int) $k2PeriodActivityLimit; ?>">
-	<p class="server-period-activity-leaderboards__heading">Games played — day, month &amp; year</p>
+	<h2 class="k2-panel-heading server-period-activity-leaderboards__heading">Games played — day, month &amp; year</h2>
 	<p class="server-period-activity-leaderboards__intro">Who played how many rated games in the selected calendar day, month, and year. Defaults to today, this month, and this year.</p>
 	<div class="server-period-activity-leaderboards__grid">
 <?php foreach (['day', 'month', 'year'] as $period) {
@@ -128,7 +128,7 @@ function k2_render_period_activity_tbody(string $period, array $entries): void
     ?>
 		<div class="server-period-activity-leaderboard server-period-activity-leaderboard--<?php echo htmlspecialchars($period, ENT_QUOTES, 'UTF-8'); ?>" data-period="<?php echo htmlspecialchars($period, ENT_QUOTES, 'UTF-8'); ?>">
 			<div class="server-period-activity-leaderboard__head">
-				<p class="server-period-activity-leaderboard__title"><?php echo htmlspecialchars($meta['title'], ENT_QUOTES, 'UTF-8'); ?></p>
+				<h3 class="k2-panel-heading server-period-activity-leaderboard__title"><?php echo htmlspecialchars($meta['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
 				<label class="server-period-activity-leaderboard__picker">
 					<span class="server-period-activity-leaderboard__picker-label"><?php echo htmlspecialchars($meta['picker_label'], ENT_QUOTES, 'UTF-8'); ?></span>
 <?php if ($period === 'day') { ?>

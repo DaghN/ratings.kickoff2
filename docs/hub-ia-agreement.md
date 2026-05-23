@@ -3,7 +3,7 @@
 Record of decisions from the theme-lab / navigation IA conversation (May 2026).
 Consult before staging production changes. **Theme lab HTML removed** (May 2026); production reference is live pages + `theme.css`.
 
-**Status:** agreed direction — **Phase A implemented in repo** (May 2026). Structural design locked; **Status Phase B in progress** (May 2026) — see `docs/STATUS_PAGE_DATA.md`.
+**Status:** agreed direction — **Phase A + Status Phase B v1.2 shipped in repo** (May 2026). See `docs/STATUS_PAGE_DATA.md`. Still needs Steve for **prod DB read**, joshua redirect, embed.
 
 ---
 
@@ -18,7 +18,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 | # | Item | Phase A scope |
 |---|------|----------------|
 | 1 | Hub nav shell | Five **segment-track** hub tabs (outline active); shared `includes/hub_nav.php`. **Status tab default** on hub entry. |
-| 2 | Status content | **Phase A:** bridge + link to [legacy status](https://joshua.kickoff2.net/status.php); **no fake live feed**. **Phase B:** real panels from DB (`playertable`, `resulttable`, `ratedresults`, `generalstatstable`) — see `docs/STATUS_PAGE_DATA.md`. Period-activity tables already on hub `status.php`. |
+| 2 | Status content | **Phase B shipped:** SQL panels on `status.php` — see `docs/STATUS_PAGE_DATA.md` § v1.2. Period-activity tables **not** on Status (Trends only). |
 | 3 | Trends tab | **Nav label + route only** → existing `server1.php`. **Do not move or merge** chart content. |
 | 4 | Leaderboards | Wing-tab **chrome** on ranked pages; first sub-tab **Rating**; same tables underneath. |
 | 5 | Games / Records | **Nav reorder only** → `server3.php` / `server2.php`; no content migration. |
@@ -31,7 +31,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 
 | Tab | Backend (existing) |
 |-----|-------------------|
-| Status | `status.php` — bridge → **Phase B** SQL panels (`docs/STATUS_PAGE_DATA.md`); period-activity block **shipped** |
+| Status | `status.php` — **Phase B v1.2** room grid (`docs/STATUS_PAGE_DATA.md`) |
 | Leaderboards | `ranked7.php` default (Results wing); `ranked1`–`ranked5`, `ranked7` (+ wing sub-nav; `ranked6` removed) |
 | Games | `server3.php` |
 | Trends | `server1.php` |
@@ -47,7 +47,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 
 **Suggested first implementation commit after this doc:** shared hub nav + header tweak + CSS from lab + Status bridge page only.
 
-### Phase B — Status page (in progress, May 2026)
+### Phase B — Status page (shipped v1.2, May 2026)
 
 **Data:** SQL against existing KOOL tables — **not** a new Steve API. Mapping: `docs/STATUS_PAGE_DATA.md`. Build on **local `ko2unity_db`** / **staging `kooldb`** first.
 

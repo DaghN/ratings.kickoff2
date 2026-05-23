@@ -4,41 +4,83 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Kick Off 2 ratings</title>
 
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/elolist.js" ></script>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<script type="text/javascript" src="js/elolist.js"></script>
 
 </head>
 
 <body class="k2-site">
 
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
-<?php $id=$_GET['id']; ?>
+<?php
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
+include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
+$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+if (mysqli_connect_errno()) {
+    die('Failed to connect to MySQL: ' . mysqli_connect_error());
+}
 
+$stmt = mysqli_prepare($con, 'SELECT * FROM ratedresults WHERE id = ? LIMIT 1');
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$row = $result ? mysqli_fetch_assoc($result) : null;
+mysqli_free_result($result);
+mysqli_stmt_close($stmt);
+mysqli_close($con);
 
-<?php 
-include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
+/**
+ * @param array<string, mixed> $game
+ */
+function k2_game_rating_adjustment_html(array $game): string
+{
+    $actual = (float) ($game['ActualScore'] ?? -1);
+    $adjA = (float) ($game['AdjustmentA'] ?? 0);
+    $adjB = (float) ($game['AdjustmentB'] ?? 0);
+    $idA = (int) ($game['idA'] ?? 0);
+    $idB = (int) ($game['idB'] ?? 0);
+    $nameA = (string) ($game['NameA'] ?? '');
+    $nameB = (string) ($game['NameB'] ?? '');
 
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
+    if (abs($actual - 1.0) < 0.001) {
+        $adj = $adjA;
+        $pid = $idA;
+        $pname = $nameA;
+    } elseif (abs($actual) < 0.001) {
+        $adj = $adjB;
+        $pid = $idB;
+        $pname = $nameB;
+    } else {
+        if ($adjA >= $adjB) {
+            $adj = $adjA;
+            $pid = $idA;
+            $pname = $nameA;
+        } else {
+            $adj = $adjB;
+            $pid = $idB;
+            $pname = $nameB;
+        }
+    }
 
-	$query = "SELECT * FROM ratedresults WHERE id='$id'";
-	//$result = mysql_query($query) or die("SELECT Error: ".mysql_error()); 
-	$result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
+    $sign = $adj >= 0 ? '+' : '-';
+    $adjText = $sign . number_format(abs($adj), 1);
+    $nameHtml = $pid > 0
+        ? '<a class="k2-link-star" href="individual1.php?id=' . $pid . '">' . htmlspecialchars($pname, ENT_QUOTES, 'UTF-8') . '</a>'
+        : htmlspecialchars($pname, ENT_QUOTES, 'UTF-8');
 
-	mysqli_close($con);
+    return $nameHtml . ' <span class="blue">' . $adjText . '</span>';
+}
 ?>
 
 <div class="k2-table-wrap">
 
-<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:50 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<?php if ($row === null) { ?>
+<p>Game not found.</p>
+<?php } else { ?>
+<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:50 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount">
 
 <thead>
 	<tr style="text-align:right;">
@@ -48,81 +90,64 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
         <th></th>
         <th></th>
         <th style="text-align:left;">Team B</th>
-        <th >&nbsp;&nbsp;&nbsp;Diff</th>
-        <th >Sum</th>
+        <th>&nbsp;&nbsp;&nbsp;Diff</th>
+        <th>Sum</th>
         <th style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;Winner</th>
         <th>Rating A</th>
         <th>Rating B</th>
         <th>Rating Diff</th>
-       	<th>ES Winner</th> 
-        <th>Adjustment</th>
+       	<th>ES Winner</th>
+        <th style="text-align:left;">Adjustment</th>
 	</tr>
 </thead>
 
 <tbody class="black">
-	<?php
-    $i = "1";
-    while ($row = mysqli_fetch_row($result))
-    {  
-    
-	$id = $row[0];
-	$Date = $row[1];
-	$idA = $row[2];
-	$NameA = $row[3];
-	$idB = $row[4];
-	$NameB = $row[5];
-	$RatingA = $row[6];
-	$RatingB = $row[7];
-	$RatingDifference = $row[8];
-	$GoalsA = $row[9];
-	$GoalsB = $row[10];
-	$ExpectedScoreA = $row[18];
-	$ExpectedScoreB = $row[19];
-	$ActualScore = $row[20];
-	$AdjustmentA = $row[21];
-	$SumOfGoals = $row[25];
-	$GoalDifference = $row[26];
-	?>
-    
-    <tr style="text-align:right;">
-        <td><?php echo $id ?></td>
-        <td>&nbsp;<?php echo $Date ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><a href="individual1.php?id=<?php echo $idA ?>"><?php echo $NameA ?></a></td>
-        <td><?php echo $GoalsA ?></td>
-        <td style="text-align:left;"><?php echo $GoalsB ?></td>
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $idB ?>"><?php echo $NameB ?></a></td>
-        <td><?php echo $GoalDifference ?></td>
-        <td><?php echo $SumOfGoals ?></td>
+	<tr style="text-align:right;">
+        <td><?php echo (int) $row['id']; ?></td>
+        <td>&nbsp;<?php echo htmlspecialchars((string) $row['Date'], ENT_QUOTES, 'UTF-8'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        <td><a href="individual1.php?id=<?php echo (int) $row['idA']; ?>"><?php echo htmlspecialchars((string) $row['NameA'], ENT_QUOTES, 'UTF-8'); ?></a></td>
+        <td><?php echo (int) $row['GoalsA']; ?></td>
+        <td style="text-align:left;"><?php echo (int) $row['GoalsB']; ?></td>
+        <td style="text-align:left;"><a href="individual1.php?id=<?php echo (int) $row['idB']; ?>"><?php echo htmlspecialchars((string) $row['NameB'], ENT_QUOTES, 'UTF-8'); ?></a></td>
+        <td><?php echo (int) $row['GoalDifference']; ?></td>
+        <td><?php echo (int) $row['SumOfGoals']; ?></td>
         <td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;
-			<?php	if 		($ActualScore == 1) {echo ("<a href=\"players1.php?id=" .$idA. "\">" .$NameA. "</a>");}
-			      	elseif 	($ActualScore == 0) {echo ("<a href=\"players1.php?id=" .$idB. "\">" .$NameB. "</a>");}
-					else 	{echo "Draw";}
-			?></td>
-        <td><?php echo round($RatingA) ?></td>
-        <td><?php echo round($RatingB) ?></td>
-        <td><?php echo number_format(abs($RatingDifference), 1) ?></td>
-        <td><?php	if 		($ActualScore == 1) {echo number_format(100*$ExpectedScoreA, 1); echo "%";}
-			      	elseif 	($ActualScore == 0) {echo number_format(100*$ExpectedScoreB, 1); echo "%";}
-					else 	{echo number_format(min(100*$ExpectedScoreA, 100*$ExpectedScoreB), 1); echo "%";}
-			?></td>       
-        <td><?php echo "&#177; "; echo number_format(abs($AdjustmentA), 1); ?></td>
-	</tr> 
-    
-    <?php
-	$i++; 
-    }  
-    ?> 
+<?php
+    $actual = (float) $row['ActualScore'];
+    if (abs($actual - 1.0) < 0.001) {
+        echo '<a href="individual1.php?id=' . (int) $row['idA'] . '">' . htmlspecialchars((string) $row['NameA'], ENT_QUOTES, 'UTF-8') . '</a>';
+    } elseif (abs($actual) < 0.001) {
+        echo '<a href="individual1.php?id=' . (int) $row['idB'] . '">' . htmlspecialchars((string) $row['NameB'], ENT_QUOTES, 'UTF-8') . '</a>';
+    } else {
+        echo 'Draw';
+    }
+?>
+			</td>
+        <td><?php echo (int) round((float) $row['RatingA']); ?></td>
+        <td><?php echo (int) round((float) $row['RatingB']); ?></td>
+        <td><?php echo number_format(abs((float) $row['RatingDifference']), 1); ?></td>
+        <td>
+<?php
+    $expectedA = (float) $row['ExpectedScoreA'];
+    $expectedB = (float) $row['ExpectedScoreB'];
+    if (abs($actual - 1.0) < 0.001) {
+        echo number_format(100 * $expectedA, 1) . '%';
+    } elseif (abs($actual) < 0.001) {
+        echo number_format(100 * $expectedB, 1) . '%';
+    } else {
+        echo number_format(min(100 * $expectedA, 100 * $expectedB), 1) . '%';
+    }
+?>
+		</td>
+        <td style="text-align:left;"><?php echo k2_game_rating_adjustment_html($row); ?></td>
+	</tr>
 </tbody>
 
 </table>
+<?php } ?>
 
 </div><!-- .k2-table-wrap -->
-
 
 </div><!-- .k2-page-nav -->
 </body>
 </html>
-
-
-
-

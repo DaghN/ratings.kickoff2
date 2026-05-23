@@ -23,11 +23,28 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 
 ---
 
-## Hub Status v1.1 (layout — May 2026)
+## Hub Status v1.2 (layout + polish — May 2026, shipped in repo)
 
-**Order (top → bottom):** masthead pulse + dim heritage → **Right now** (online + live games) → recent logins + recent games → new players → active top 20 + monthly league (toggle **This month** / **Previous month** via `?league=prev`).
+**4-column grid** (`k2-status-room__layout` in `theme.css`):
 
-**Tweaks:** Elo column uses `.blue`; “Active in the last 12 months”; live game names link to profiles; tighter panel padding; footer notes joshua ops/AWOL not planned here.
+| Col | Row 1 | Row 2 (west subgrid) |
+|-----|--------|----------------------|
+| 1 (narrower) | Online | Recent logins |
+| 2 (wider) | Live games | Recent games |
+| 3 (narrower) | Ticker (players/games counts, blue numbers) | New players |
+| 4 (wider) | Heritage box | Leaderboard (active Elo top 20) |
+
+Below west: **Monthly league** spans cols 1–3; **This month / Previous month** toggle (`js/status-league-toggle.js`, client-side; medals on previous month only).
+
+**Copy / UI:** Leaderboard title `Leaderboard · N active players` (blue count); meta **Active in last 12 months**; ticker 14px muted prose; panel titles `.k2-panel-heading` (Plex 600, muted, 14px). League toggle uses segment-nav colours (not full accent). Column widths tuned for mobile (more space for recent games + leaderboard).
+
+**Removed from `status.php`:** period-activity triple tables (→ Trends if revived).
+
+---
+
+## Hub Status v1.1 (superseded layout notes)
+
+Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 
 ---
 
@@ -86,8 +103,9 @@ Local dump / staging snapshot: `IsOnline` and in-progress rows go stale. Do not 
 | When | What |
 |------|------|
 | Phase A | Hub shell, bridge, heritage box |
-| **Phase B v1** | **Shipped in repo** — `status_queries.php`, `status_room_section.php`, `status.php` |
-| v1.5+ | Polling, active filter on Leaderboards tab, prior months for league, kickoff2 embed, joshua redirect |
+| **Phase B v1** | **Shipped** — `status_queries.php`, `status_room_section.php`, `status.php` |
+| **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
+| v1.5+ | Polling, active filter on Leaderboards tab, kickoff2 embed, joshua redirect |
 
 ---
 

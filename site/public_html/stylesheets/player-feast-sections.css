@@ -25,12 +25,8 @@
 	background: none;
 }
 
-.pm3d-section__title {
-	margin: 0 0 8px;
-	font-family: var(--k2-font-display);
-	font-size: 20px;
-	font-weight: 600;
-	color: var(--k2-text-primary, #e6edf3);
+.pm3d-section__title.k2-panel-heading {
+	margin-bottom: 8px;
 }
 
 .pm3d-section__hint {

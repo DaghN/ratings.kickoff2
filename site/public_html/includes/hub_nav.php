@@ -22,17 +22,19 @@ $k2AccentPills = [
 ?>
 <div class="k2-hub-bar">
 	<nav class="k2-hub-tabs k2-nav-pills" aria-label="Online hub">
+		<div class="k2-hub-tabs__links">
 <?php foreach ($k2HubTabs as $id => $tab) { ?>
-		<a href="<?php echo $tab['href']; ?>" class="k2-hub-tabs__btn<?php echo $k2HubTabActive === $id ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
+			<a href="<?php echo $tab['href']; ?>" class="k2-hub-tabs__btn<?php echo $k2HubTabActive === $id ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
 <?php } ?>
-	</nav>
-	<div class="k2-hub-bar__tune">
-		<nav class="k2-accent-pills" aria-label="Accent preview">
+		</div>
+		<div class="k2-hub-tabs__tune">
+			<nav class="k2-accent-pills" aria-label="Accent preview">
 <?php foreach ($k2AccentPills as $id => $pill) { ?>
-			<button type="button" class="k2-accent-pills__btn" data-k2-accent="<?php echo $id; ?>" title="<?php echo htmlspecialchars($pill['title'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pill['label']; ?></button>
+				<button type="button" class="k2-accent-pills__btn" data-k2-accent="<?php echo $id; ?>" title="<?php echo htmlspecialchars($pill['title'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pill['label']; ?></button>
 <?php } ?>
-		</nav>
-		<button type="button" class="k2-accent-pills-toggle" aria-pressed="false" title="Hide accent preview pills">Hide tint</button>
-	</div>
+			</nav>
+			<button type="button" class="k2-accent-pills-toggle" aria-pressed="false" title="Hide accent preview pills">Hide tint</button>
+		</div>
+	</nav>
 </div>
 <script type="text/javascript" src="js/k2-hub-nav-tune.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-hub-nav-tune.js'); ?>" defer="defer"></script>
