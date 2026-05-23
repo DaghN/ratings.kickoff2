@@ -27,8 +27,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 
 			<div class="k2-card">
 				<h2 class="k2-card__title">Live status</h2>
-				<p class="k2-card__hint">The full online room (server pulse, recent logins, games in progress) will land here in Phase B once the live feed is wired.</p>
-				<p class="k2-status-bridge__link">For now: <a href="https://joshua.kickoff2.net/status.php" target="_blank" rel="noopener">open the current status page ↗</a></p>
+				<p class="k2-card__hint">Who&rsquo;s on, recent logins, and live games are being added here now (same data as the legacy status page). Games-by-period leaderboards below already load from the database.</p>
+				<p class="k2-status-bridge__link">Until those panels ship: <a href="https://joshua.kickoff2.net/status.php" target="_blank" rel="noopener">open the current status page ↗</a></p>
 			</div>
 		</div>
 

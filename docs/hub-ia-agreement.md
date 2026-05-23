@@ -3,13 +3,13 @@
 Record of decisions from the theme-lab / navigation IA conversation (May 2026).
 Consult before staging production changes. **Theme lab HTML removed** (May 2026); production reference is live pages + `theme.css`.
 
-**Status:** agreed direction — **Phase A implemented in repo** (May 2026). Structural design locked; Status live feed remains **Phase B**.
+**Status:** agreed direction — **Phase A implemented in repo** (May 2026). Structural design locked; **Status Phase B in progress** (May 2026) — see `docs/STATUS_PAGE_DATA.md`.
 
 ---
 
 ## Phased implementation (staging strategy)
 
-Broad IA is solved; integration and polish are sequenced. **Do not block Phase A on Steve / live data.**
+Broad IA is solved; integration and polish are sequenced. **Do not block Phase A on Steve.** Phase B Status UI is **not** blocked on a separate API — it uses the **same MySQL tables** as the legacy page (`docs/STATUS_PAGE_DATA.md`); Steve is still needed for **prod read deploy**, joshua redirect, and embed.
 
 ### Phase A — Safe staging (repo + WinSCP; no new DB dependencies)
 
@@ -18,7 +18,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 | # | Item | Phase A scope |
 |---|------|----------------|
 | 1 | Hub nav shell | Five **segment-track** hub tabs (outline active); shared `includes/hub_nav.php`. **Status tab default** on hub entry. |
-| 2 | Status content | **Bridge only** — honest copy, link to [status.php](https://joshua.kickoff2.net/status.php); **no fake live feed**. Themed placeholder matching lab layout OK. |
+| 2 | Status content | **Phase A:** bridge + link to [legacy status](https://joshua.kickoff2.net/status.php); **no fake live feed**. **Phase B:** real panels from DB (`playertable`, `resulttable`, `ratedresults`, `generalstatstable`) — see `docs/STATUS_PAGE_DATA.md`. Period-activity tables already on hub `status.php`. |
 | 3 | Trends tab | **Nav label + route only** → existing `server1.php`. **Do not move or merge** chart content. |
 | 4 | Leaderboards | Wing-tab **chrome** on ranked pages; first sub-tab **Rating**; same tables underneath. |
 | 5 | Games / Records | **Nav reorder only** → `server3.php` / `server2.php`; no content migration. |
@@ -31,7 +31,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 
 | Tab | Backend (existing) |
 |-----|-------------------|
-| Status | New bridge page (placeholder) |
+| Status | `status.php` — bridge → **Phase B** SQL panels (`docs/STATUS_PAGE_DATA.md`); period-activity block **shipped** |
 | Leaderboards | `ranked7.php` default (Results wing); `ranked1`–`ranked5`, `ranked7` (+ wing sub-nav; `ranked6` removed) |
 | Games | `server3.php` |
 | Trends | `server1.php` |
@@ -39,21 +39,30 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 
 **Safety rules for Phase A:**
 
-1. No prod database or status.php API without Steve.
+1. No **production** DB credentials or destructive writes without Steve; **local/staging copies are OK** for building Status (same schema as joshua).
 2. No breaking bookmarks — direct links to ranked/server/individual URLs unchanged.
-3. No pretending live data exists on Status.
+3. No pretending **stale dump** data is live prod; honest labels or live `kooldb` when deployed.
 4. One shared nav include — label/order changes in one place.
 5. Staging deploy first; compare old vs new nav side by side.
 
 **Suggested first implementation commit after this doc:** shared hub nav + header tweak + CSS from lab + Status bridge page only.
 
-### Phase B — After Steve / API agreement
+### Phase B — Status page (in progress, May 2026)
 
-- Real Status feed on hub default (logins, live games, counts).
-- Polling / refresh behaviour.
-- Optional kickoff2.com embed (pulse + few logins → full Status).
+**Data:** SQL against existing KOOL tables — **not** a new Steve API. Mapping: `docs/STATUS_PAGE_DATA.md`. Build on **local `ko2unity_db`** / **staging `kooldb`** first.
+
+**In scope now:**
+
+- Hub `status.php`: online now, recent logins, live/shelved games (`resulttable`), recent rated games, headline counts (`generalstatstable`), AWOL / new arrivals as IA allows.
+- Polling / refresh behaviour (when on live DB).
+- Keep legacy joshua link until redirect agreed.
+
+**Still needs Steve / prod agreement (can follow UI work):**
+
+- Read access on live `kooldb` for ratings.kickoff2.com deploy.
 - `joshua.kickoff2.net/status.php` redirect or thin wrapper.
-- Single JSON feed for hub + embed.
+- Optional kickoff2.com embed (pulse + few logins → full Status).
+- Optional shared JSON layer for embed + hub (can start as PHP includes, extract later).
 
 ### Phase C — Polish (lab-driven, anytime)
 
@@ -114,13 +123,15 @@ Committed and pushed earlier; not re-opened unless noted below.
 - Hub opens on **Status** (phone check: anyone on tonight?).
 - **Leaderboards** is tab 2.
 
-### Status tab (right now — absorbs status.php)
+### Status tab (absorbs status.php)
 
 **Purpose:** presence / tonight / FOMO to launch KOOL.
 
+**Data source:** `docs/STATUS_PAGE_DATA.md` (MySQL tables we already have on dev/staging).
+
 **Include:**
 
-- Pulse strip: server up/uptime, online now, live games, recency.
+- Pulse strip: online now, live games, recency (**not** CPU/disk/mem — those stay on legacy ops page only).
 - Recent logins (names → player profiles).
 - Live games (score, period, opponents).
 - Meaningful when 0 online — recent logins still prove life.
@@ -207,8 +218,8 @@ Global hub nav replaced by player context:
 
 ## Explicitly deferred (beyond Phase A)
 
-- Live Status data pipeline (→ Phase B).
-- kickoff2.com embed; status.php redirect (→ Phase B).
+- Status SQL panels on hub (→ **Phase B in progress**; data doc above).
+- kickoff2.com embed; joshua status.php redirect (→ Phase B, after Steve).
 - Moving or merging server1/server2/server3 page bodies (Trends/Games/Records = nav only in Phase A).
 - `docs/design-direction.md` update (this file is the record).
 - Sidebar layout.
@@ -224,7 +235,7 @@ Global hub nav replaced by player context:
 The list below was the first "all at once" staging target. Use **Phase A / B / C** above instead.
 
 1. Hub nav — Phase A  
-2. Status feed — **Phase B** (Phase A = bridge)  
+2. Status feed — **Phase B in progress** (Phase A = bridge + period-activity DB block)  
 3. Trends — Phase A (nav only; was "move charts")  
 4. Leaderboards wings — Phase A  
 5. Games/Records order — Phase A  
@@ -261,13 +272,13 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 ## Open items to re-confirm at implementation
 
 - ~~Rating records wing tab~~ — removed (`ranked6.php` deleted).
-- status.php API ownership and refresh cadence (Phase B).
+- Prod **read** DB host/credentials and refresh cadence when live (Phase B deploy).
 - Neon C without grid: apply to full `theme.css` in Phase A.
-- Status bridge copy and prominence of legacy status.php link until Phase B.
+- Legacy [joshua status.php](https://joshua.kickoff2.net/status.php) link until redirect agreed.
 
 ---
 
-*Last updated: May 2026 — Realm colours locked (online amber / amiga green); profile feast stat glow removed; hub nav geometry aligned with wings.*
+*Last updated: May 2026 — Status Phase B unblocked (same DB as legacy status; `docs/STATUS_PAGE_DATA.md`); work started on hub `status.php`. Realm colours locked (online amber / amiga green); profile feast stat glow removed; hub nav geometry aligned with wings.*
 
 ---
 

@@ -126,8 +126,10 @@ Dump file: **`data/dumps/ko2unity_db-2026-05-20.sql`** (HeidiSQL export from **`
 |-------|----------|--------|
 | `ratedresults` | Yes | ~74,870 games |
 | `playertable` | Yes | 475 rows; still has **`KungFu*`** columns (pre–column-drop snapshot) |
-| `resulttable` | Yes | Legacy/unrated(?) rows — not used by current chart APIs |
-| **`generalstatstable`** | **No** | **Not omitted by import** — **not present in the `.sql` file Steve/archive provided**. Ask Steve for a fuller dump if `server1.php` server records matter locally. |
+| `resulttable` | Yes | Wide match log (~81k rows): **live/shelved games** for hub Status (`docs/STATUS_PAGE_DATA.md`). Not used by ladder chart APIs. |
+| **`generalstatstable`** | **Not in `.sql` file** | After import, **`python -m scripts.ladder run`** (or staging replay) can create row `id=1` for headline totals. Original dump note still applies if you skip replay. |
+
+**Hub Status page:** same DB as legacy [joshua status.php](https://joshua.kickoff2.net/status.php) — build locally without a separate API; see **`docs/STATUS_PAGE_DATA.md`**. Snapshot data is stale for `IsOnline` / in-progress games until you point at live `kooldb` or refresh the dump.
 
 Python replay v1 can defer server stats; rebuild `generalstatstable` later or re-import when a complete dump exists.
 
@@ -163,5 +165,6 @@ Send: exact command, `DATABASE()` name, row counts before/after, last log lines.
 ## Related docs
 
 - `data/README.md` — dump import
+- `docs/STATUS_PAGE_DATA.md` — legacy status → table map; Phase B hub work
 - `PROJECT_MEMORY.md` — deploy/staging logistics
 - `docs/ladder-engine-plan.md` — Python replay plan

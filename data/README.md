@@ -10,7 +10,7 @@ This folder holds **local-only** database artefacts for sandbox work on your PC.
 
 **Do not commit** files under `dumps/`. They may contain account-related data and are large (~600 MB).
 
-**Tables in this dump:** `ratedresults`, `playertable`, `resulttable` only. **`generalstatstable` is not in the `.sql` file** (not removed by import — ask Steve for a fuller export if you need local `server1.php` records).
+**Tables in this dump:** `ratedresults`, `playertable`, `resulttable`. **`generalstatstable` is not in the `.sql` file`** — ladder replay can create it locally. This dump is enough to build hub **Status** (online, logins, live games, recent games) per **`docs/STATUS_PAGE_DATA.md`** — same data family as joshua’s legacy status page, snapshot-stale until refreshed or wired to live DB.
 
 ## Import into Laragon (one-time)
 

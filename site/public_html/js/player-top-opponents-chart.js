@@ -22,9 +22,9 @@
         var sel = selectedId == null ? null : Number(selectedId);
         for (var i = 0; i < opponentIds.length; i++) {
             if (sel !== null && Number(opponentIds[i]) === sel) {
-                colors.push('rgba(156, 204, 101, 0.85)');
+                colors.push(T.fill(T.green(), 0.85));
             } else {
-                colors.push('rgba(100, 181, 246, 0.45)');
+                colors.push(T.fill(T.blue(), 0.45));
             }
         }
         return colors;
@@ -117,9 +117,7 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: {
-                                labels: { color: T.textPrimary() }
-                            },
+                            legend: { display: false },
                             tooltip: {
                                 callbacks: {
                                     title: function (items) {
@@ -132,7 +130,7 @@
                                         return item.parsed.x + ' games';
                                     },
                                     afterLabel: function () {
-                                        return 'Click to show head-to-head below';
+                                        return 'Click to update matchup charts';
                                     }
                                 }
                             }

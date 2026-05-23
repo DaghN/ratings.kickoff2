@@ -9,7 +9,30 @@
     var DR = window.K2ChartDateRange;
 
     var API_PATH = 'api/player_compare_rating_history.php';
+    var H2H_API_PATH = 'api/player_head_to_head.php';
     var EVENT_NAME = 'kool-opponent-selected';
+
+    function fetchJson(url) {
+        return fetch(url, { credentials: 'same-origin' }).then(function (r) {
+            if (!r.ok) {
+                throw new Error('bad_status');
+            }
+            return r.json();
+        });
+    }
+
+    function compareMetaLine(player, opponent, h2h) {
+        var playerGames = player.points ? player.points.length : 0;
+        var opponentGames = opponent.points ? opponent.points.length : 0;
+        var line = 'Full career rating paths';
+        if (h2h && typeof h2h.total_games === 'number' && h2h.total_games > 0) {
+            line += ' · ' + h2h.total_games + ' rated game'
+                + (h2h.total_games === 1 ? '' : 's') + ' between them';
+        }
+        line += ' · ' + playerGames + ' career games (this player) · '
+            + opponentGames + ' career games (opponent)';
+        return line;
+    }
 
     function parseGameDate(dateStr) {
         if (!dateStr) {
@@ -70,17 +93,20 @@
             }
             setMeta('');
 
-            var url = API_PATH + '?id=' + encodeURIComponent(playerId)
+            var compareUrl = API_PATH + '?id=' + encodeURIComponent(playerId)
+                + '&opponent=' + encodeURIComponent(opponentId) + '&realm=online';
+            var h2hUrl = H2H_API_PATH + '?id=' + encodeURIComponent(playerId)
                 + '&opponent=' + encodeURIComponent(opponentId) + '&realm=online';
 
-            fetch(url, { credentials: 'same-origin' })
-                .then(function (r) {
-                    if (!r.ok) {
-                        throw new Error('bad_status');
-                    }
-                    return r.json();
+            Promise.all([
+                fetchJson(compareUrl),
+                fetchJson(h2hUrl).catch(function () {
+                    return null;
                 })
-                .then(function (data) {
+            ])
+                .then(function (results) {
+                    var data = results[0];
+                    var h2h = results[1];
                     var player = data.player || {};
                     var opponent = data.opponent || {};
                     var playerData = pointsToChartData(player.points || []);
@@ -116,11 +142,7 @@
                         titleOpponent.textContent = opponent.playerName;
                     }
 
-                    setMeta(
-                        (player.points ? player.points.length : 0) + ' games vs '
-                        + (opponent.points ? opponent.points.length : 0)
-                        + ' games (full careers)'
-                    );
+                    setMeta(compareMetaLine(player, opponent, h2h));
 
                     if (status) {
                         status.textContent = '';
@@ -135,10 +157,10 @@
                         data: {
                             datasets: [
                                 {
-                                    label: (opponent.playerName || opponentName || 'Opponent') + ' rating',
-                                    data: opponentData,
-                                    borderColor: T.opponentFocusBorder(),
-                                    backgroundColor: T.opponentFocusFill(0.1),
+                                    label: (player.playerName || 'Player') + ' rating',
+                                    data: playerData,
+                                    borderColor: T.profileCompareBorder(),
+                                    backgroundColor: T.profileCompareFill(0.1),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     pointHoverRadius: 4,
@@ -146,10 +168,10 @@
                                     tension: 0.1
                                 },
                                 {
-                                    label: (player.playerName || 'Player') + ' rating',
-                                    data: playerData,
-                                    borderColor: T.profileCompareBorder(),
-                                    backgroundColor: T.profileCompareFill(0.1),
+                                    label: (opponent.playerName || opponentName || 'Opponent') + ' rating',
+                                    data: opponentData,
+                                    borderColor: T.opponentFocusBorder(),
+                                    backgroundColor: T.opponentFocusFill(0.1),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     pointHoverRadius: 4,

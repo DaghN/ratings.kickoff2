@@ -18,7 +18,7 @@
 
 
 
-- **Design / cosmetics track:** **Phase A hub shell shipped** — `includes/k2_head.php` (shared CSS + `theme_boot_head` in `<head>`), **`main2.css` removed** (all `--k2-*` in `theme.css`), production **neon C**, chart helpers use `--k2-text-muted` (`#8b949e`). Staging **accent preview pills** kept for now; **TEST realm accent swap** in CSS (revert or lock before launch). **Next:** WinSCP sync refactor to staging; Status **Phase B** live feed; realm switcher behavior when Amiga data exists.
+- **Design / cosmetics track:** **Phase A hub shell shipped** — `includes/k2_head.php` (shared CSS + `theme_boot_head` in `<head>`), **`main2.css` removed** (all `--k2-*` in `theme.css`), production **neon C**, chart helpers use `--k2-text-muted` (`#8b949e`). Staging **accent preview pills** kept for now; **TEST realm accent swap** in CSS (revert or lock before launch). **Status Phase B in progress (May 2026):** legacy joshua status uses the **same MySQL tables** we already have locally/staging — **not** a separate API (`docs/STATUS_PAGE_DATA.md`). Building hub `status.php` panels on `ko2unity_db` / `kooldb`; prod read + joshua redirect still for Steve later. **Also:** WinSCP sync refactor to staging; realm switcher when Amiga data exists.
 
 - **Charts (first wave):** largely **shipped** on staging — see **Shipped charts** below. **Busiest day / month / year hall of fame** on `server1.php` — three SSR tables (`peak_period_leaderboard_query.php`). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
 
@@ -178,7 +178,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 7. **Optional:** local `ko2unitydb_config.php` template from Steve; align laptop + staging config shapes (gitignored only).
 
-8. **Status Phase B** — real live feed on hub default (Steve / API); bridge page until then.
+8. **Status Phase B** — SQL-driven hub `status.php` (online, logins, live games, recent games, counts) per `docs/STATUS_PAGE_DATA.md`; **in progress** on dev DB; Steve for prod read + joshua redirect.
 
 
 
@@ -194,6 +194,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 |----------------|------|
 
+| 2026-05 | **Status data audit:** Steve’s [joshua status.php](https://joshua.kickoff2.net/status.php) maps to `playertable` / `resulttable` / `ratedresults` / `generalstatstable` (same DB family as `ts-joshua` dump). Corrects Phase B “wait for API” assumption. **`docs/STATUS_PAGE_DATA.md`**; hub Status build **started**. |
 | 2026-05 | **Ops cleanup:** removed localhost diags (`individual1_profile_diag.php`, `server1_trends_diag.php`), theme lab (`theme-lab.html` + CSS/JS); `throwaway_ratedresults_player_indexes.php` only under **`scripts/`** (copy to `public_html` when needed, not WinSCP-synced). |
 | 2026-05 | **Profile hygiene:** removed unused rival/recent/H2H SQL from `player_feast_load.php`; dropped winrate chart script from `individual1.php`; deleted orphan `peak_month_leaderboard_table.php` + `api/server_peak_month_leaderboard.php`. |
 | 2026-05 | **CSS hygiene:** `k2_head.php`; deleted `main2.css`; `--k2-*` tokens for chart subtitles; neon C documented; removed unused rank-#1 table glow; `theme_boot` only in `<head>`. |

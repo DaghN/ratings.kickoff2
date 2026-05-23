@@ -39,10 +39,12 @@
         teal: function () { return cssVar('--k2-chart-teal', '#4db6ac'); },
         purple: function () { return cssVar('--k2-chart-purple', '#ba68c8'); },
         realm: function () { return cssVar('--k2-realm-accent', '#9ccc65'); },
-        profileCompareBorder: function () { return this.blue(); },
-        profileCompareFill: function (alpha) { return this.fill(this.blue(), alpha == null ? 0.12 : alpha); },
-        opponentFocusBorder: function () { return this.green(); },
-        opponentFocusFill: function (alpha) { return this.fill(this.green(), alpha == null ? 0.12 : alpha); },
+        /** Profile subject (this player) on matchup charts */
+        profileCompareBorder: function () { return this.green(); },
+        profileCompareFill: function (alpha) { return this.fill(this.green(), alpha == null ? 0.12 : alpha); },
+        /** Selected opponent on profile matchup charts */
+        opponentFocusBorder: function () { return this.blue(); },
+        opponentFocusFill: function (alpha) { return this.fill(this.blue(), alpha == null ? 0.12 : alpha); },
         textPrimary: function () { return cssVar('--k2-text-primary', '#e6edf3'); },
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },
         grid: function () { return 'rgba(255, 255, 255, 0.08)'; },

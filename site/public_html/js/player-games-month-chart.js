@@ -98,9 +98,7 @@
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: {
-                                labels: { color: T.textPrimary() }
-                            },
+                            legend: { display: false },
                             tooltip: {
                                 filter: function (item) {
                                     return item.parsed.y > 0;

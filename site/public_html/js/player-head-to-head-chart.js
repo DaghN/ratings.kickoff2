@@ -79,11 +79,10 @@
                         opponentData.push({ x: n, y: points[i].opponent_wins });
                     }
 
-                    var drawNote = data.draws > 0
-                        ? data.draws + ' draw' + (data.draws === 1 ? '' : 's') + ' · '
-                        : '';
+                    var lastPoint = points[points.length - 1];
                     setMeta(
-                        drawNote + data.total_games + ' rated games between them'
+                        lastPoint.player_wins + '\u2013' + data.draws + '\u2013' + lastPoint.opponent_wins
+                        + ' (W\u2013D\u2013L) \u00b7 ' + data.total_games + ' rated games between them'
                     );
 
                     if (titleOpponent && data.opponentName) {
@@ -103,20 +102,20 @@
                         data: {
                             datasets: [
                                 {
-                                    label: data.opponentName + ' wins',
-                                    data: opponentData,
-                                    borderColor: T.opponentFocusBorder(),
-                                    backgroundColor: T.opponentFocusFill(0.12),
+                                    label: data.playerName + ' wins',
+                                    data: playerData,
+                                    borderColor: T.profileCompareBorder(),
+                                    backgroundColor: T.profileCompareFill(0.12),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     fill: false,
                                     tension: 0.05
                                 },
                                 {
-                                    label: data.playerName + ' wins',
-                                    data: playerData,
-                                    borderColor: T.profileCompareBorder(),
-                                    backgroundColor: T.profileCompareFill(0.12),
+                                    label: data.opponentName + ' wins',
+                                    data: opponentData,
+                                    borderColor: T.opponentFocusBorder(),
+                                    backgroundColor: T.opponentFocusFill(0.12),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     fill: false,

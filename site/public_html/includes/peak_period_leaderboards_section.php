@@ -82,7 +82,7 @@ if ($k2PeakPeriodOwnConnection) {
 						<td><?php echo (int) $entry['rank']; ?></td>
 						<td style="text-align:left;"><a href="individual1.php?id=<?php echo (int) $entry['player_id']; ?>"><?php echo htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8'); ?></a></td>
 						<td style="text-align:left;"><?php echo htmlspecialchars(k2_format_peak_period($period, $entry['period_key']), ENT_QUOTES, 'UTF-8'); ?></td>
-						<td><?php echo (int) $entry['games']; ?></td>
+						<td><?php if ((int) $entry['games'] === 0) { echo '0'; } else { echo "<span class='blue'>", (int) $entry['games'], '</span>'; } ?></td>
 					</tr>
 <?php } ?>
 				</tbody>

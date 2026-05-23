@@ -222,13 +222,88 @@
 	font-size: 1.05em;
 }
 
+.pm3d-chart__summary-note {
+	color: var(--k2-text-muted);
+	font-size: 0.92em;
+}
+
+.pm3d-career-charts {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+	max-width: var(--k2-chart-max-width, 960px);
+}
+
+@media (min-width: 900px) {
+	.pm3d-career-charts {
+		grid-template-columns: 1fr 1fr;
+		align-items: start;
+		max-width: min(100%, calc(var(--k2-chart-max-width, 960px) * 2 + 16px));
+	}
+}
+
+.pm3d-career-charts > .player-rating-chart,
+.pm3d-career-charts > .player-games-month-chart {
+	margin: 0;
+	min-width: 0;
+}
+
+.pm3d-rating-toggle {
+	display: inline-flex;
+	gap: 4px;
+	margin: 0 0 10px;
+	padding: 3px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md, 8px);
+	background: var(--k2-bg-elevated, #1a1f2e);
+}
+
+.pm3d-rating-toggle__btn {
+	margin: 0;
+	padding: 6px 12px;
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md, 8px) - 2px);
+	background: transparent;
+	color: var(--k2-text-muted);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.pm3d-rating-toggle__btn:hover {
+	color: var(--k2-text-secondary, var(--k2-text-primary));
+}
+
+.pm3d-rating-toggle__btn.is-active {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
+}
+
+.pm3d-matchups {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	max-width: var(--k2-chart-max-width, 960px);
+}
+
+.pm3d-matchups__subtitle {
+	margin: 4px 0 0;
+	font-size: 1rem;
+	font-weight: 500;
+	color: var(--k2-text-secondary, var(--k2-text-muted));
+}
+
 .pm3d-section__content > .player-rating-chart,
 .pm3d-section__content > .player-games-month-chart,
-.pm3d-section__content > .player-rating-game-chart,
-.pm3d-section__content > .player-top-opponents-chart,
-.pm3d-section__content > .player-head-to-head-chart,
-.pm3d-section__content > .player-compare-rating-chart,
-.pm3d-section__content > .player-h2h-opponent-search {
+.pm3d-section__content > .pm3d-career-charts,
+.pm3d-section__content > .pm3d-matchups,
+.pm3d-career-charts > .player-rating-chart,
+.pm3d-career-charts > .player-games-month-chart,
+.pm3d-matchups > .player-top-opponents-chart,
+.pm3d-matchups > .player-head-to-head-chart,
+.pm3d-matchups > .player-compare-rating-chart,
+.pm3d-matchups > .player-h2h-opponent-search {
 	margin: 0;
 	max-width: var(--k2-chart-max-width, 960px);
 }

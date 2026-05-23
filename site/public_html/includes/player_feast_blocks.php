@@ -219,71 +219,58 @@ function player_feast_render_charts(int $playerId): void
 {
     $uid = 'pm3d-' . $playerId;
 
-    player_feast_section_open('Rating over time');
+    player_feast_section_open('Career rating', 'Rating arc and monthly activity — toggle the left chart by calendar date or game number.');
     ?>
-<div class="player-rating-chart" data-player-id="<?php echo $playerId; ?>">
-	<p class="player-rating-chart-status pm3d-chart__status">Loading rating history…</p>
-	<p class="player-rating-peak-current-summary pm3d-chart__summary" style="display:none;"></p>
-	<canvas width="960" height="345" aria-label="ELO rating over time"></canvas>
+<div class="pm3d-career-charts">
+	<div class="player-rating-chart" data-player-id="<?php echo $playerId; ?>">
+		<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
+			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
+			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By game #</button>
+		</div>
+		<p class="player-rating-chart-status pm3d-chart__status">Loading rating history…</p>
+		<div class="player-rating-view player-rating-view--date">
+			<p class="player-rating-peak-current-summary pm3d-chart__summary" style="display:none;"></p>
+			<canvas class="player-rating-canvas--date" width="960" height="345" aria-label="ELO rating over time"></canvas>
+		</div>
+		<div class="player-rating-view player-rating-view--game" hidden>
+			<p class="player-rating-game-peak-current-summary pm3d-chart__summary" style="display:none;"></p>
+			<canvas class="player-rating-canvas--game" width="960" height="345" aria-label="Rating by game number"></canvas>
+		</div>
+	</div>
+	<div class="player-games-month-chart" data-player-id="<?php echo $playerId; ?>">
+		<p class="player-games-month-chart-status pm3d-chart__status">Loading games per month…</p>
+		<canvas width="960" height="271" aria-label="Games per calendar month"></canvas>
+	</div>
 </div>
     <?php
     player_feast_section_close();
 
-    player_feast_section_open('Games per month');
+    player_feast_section_open('Matchups', 'Search or pick a top opponent — head-to-head and rating comparison update together.');
     ?>
-<div class="player-games-month-chart" data-player-id="<?php echo $playerId; ?>">
-	<p class="player-games-month-chart-status pm3d-chart__status">Loading games per month…</p>
-	<canvas width="960" height="271" aria-label="Games per calendar month"></canvas>
-</div>
-    <?php
-    player_feast_section_close();
-
-    player_feast_section_open('Rating by game number', 'ELO after each rated game — equal spacing, not calendar time.');
-    ?>
-<div class="player-rating-game-chart" data-player-id="<?php echo $playerId; ?>">
-	<p class="player-rating-game-chart-status pm3d-chart__status">Loading…</p>
-	<canvas width="960" height="345" aria-label="Rating by game number"></canvas>
-</div>
-    <?php
-    player_feast_section_close();
-
-    player_feast_section_open('Most played opponents', 'Top 20 by rated games — click a bar for head-to-head below.');
-    ?>
-<div class="player-top-opponents-chart" data-player-id="<?php echo $playerId; ?>">
-	<p class="player-top-opponents-chart-status pm3d-chart__status">Loading…</p>
-	<canvas width="960" height="591" aria-label="Most played opponents"></canvas>
-</div>
-    <?php
-    player_feast_section_close();
-
-    player_feast_section_open('Head-to-head', 'Cumulative wins vs selected opponent.');
-    ?>
-<div class="player-head-to-head-chart" data-player-id="<?php echo $playerId; ?>">
-	<p class="pm3d-chart__opponent">vs <span class="player-head-to-head-opponent-name">…</span></p>
-	<p class="player-head-to-head-meta pm3d-chart__meta"></p>
-	<p class="player-head-to-head-chart-status pm3d-chart__status">Waiting for opponent…</p>
-	<canvas width="960" height="345" aria-label="Head-to-head cumulative wins"></canvas>
-</div>
-    <?php
-    player_feast_section_close();
-
-    player_feast_section_open('Rating comparison', 'Rating paths vs selected opponent.');
-    ?>
-<div class="player-compare-rating-chart" data-player-id="<?php echo $playerId; ?>">
-	<p class="pm3d-chart__opponent">vs <span class="player-compare-rating-opponent-name">…</span></p>
-	<p class="player-compare-rating-meta pm3d-chart__meta"></p>
-	<p class="player-compare-rating-chart-status pm3d-chart__status">Waiting for opponent…</p>
-	<canvas width="960" height="345" aria-label="Rating comparison"></canvas>
-</div>
-    <?php
-    player_feast_section_close();
-
-    player_feast_section_open('Compare with another player');
-    ?>
-<div class="player-h2h-opponent-search player-search pm3d-h2h-search" data-player-id="<?php echo $playerId; ?>" data-realm="online" role="search">
-	<label class="player-search-label" for="<?php echo pm_h($uid); ?>-h2h">Search player name</label>
-	<input id="<?php echo pm_h($uid); ?>-h2h" class="player-search-input player-h2h-search-input" type="search" maxlength="32" autocomplete="off" spellcheck="false" placeholder="Search player name…" />
-	<ul class="player-search-results player-h2h-search-results" role="listbox" hidden></ul>
+<div class="pm3d-matchups">
+	<div class="player-h2h-opponent-search player-search pm3d-h2h-search" data-player-id="<?php echo $playerId; ?>" data-realm="online" role="search">
+		<label class="player-search-label" for="<?php echo pm_h($uid); ?>-h2h">Find another opponent</label>
+		<input id="<?php echo pm_h($uid); ?>-h2h" class="player-search-input player-h2h-search-input" type="search" maxlength="32" autocomplete="off" spellcheck="false" placeholder="Search player name…" />
+		<ul class="player-search-results player-h2h-search-results" role="listbox" hidden></ul>
+	</div>
+	<div class="player-top-opponents-chart" data-player-id="<?php echo $playerId; ?>">
+		<p class="player-top-opponents-chart-status pm3d-chart__status">Loading top opponents…</p>
+		<canvas width="960" height="591" aria-label="Most played opponents"></canvas>
+	</div>
+	<h3 class="pm3d-matchups__subtitle">Head-to-head</h3>
+	<div class="player-head-to-head-chart" data-player-id="<?php echo $playerId; ?>">
+		<p class="pm3d-chart__opponent">vs <span class="player-head-to-head-opponent-name">…</span></p>
+		<p class="player-head-to-head-meta pm3d-chart__meta"></p>
+		<p class="player-head-to-head-chart-status pm3d-chart__status">Waiting for opponent…</p>
+		<canvas width="960" height="345" aria-label="Head-to-head cumulative wins"></canvas>
+	</div>
+	<h3 class="pm3d-matchups__subtitle">Rating comparison</h3>
+	<div class="player-compare-rating-chart" data-player-id="<?php echo $playerId; ?>">
+		<p class="pm3d-chart__opponent">vs <span class="player-compare-rating-opponent-name">…</span></p>
+		<p class="player-compare-rating-meta pm3d-chart__meta"></p>
+		<p class="player-compare-rating-chart-status pm3d-chart__status">Waiting for opponent…</p>
+		<canvas width="960" height="345" aria-label="Rating comparison"></canvas>
+	</div>
 </div>
     <?php
     player_feast_section_close();
