@@ -30,7 +30,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, NumberGames, DifferentOpponents, DifferentVictims, DifferentCulprits, MostGoalsConcededVictims, LeastGoalsScoredVictims, BiggestLossVictims, MostGoalsScoredCulprits, LeastGoalsConcededCulprits, BiggestWinCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, DifferentOpponents, DifferentVictims, DoubleDigitsVictims, CleanSheetsVictims, MostGoalsConcededVictims, BiggestLossVictims, DifferentCulprits, DoubleDigitsCulprits, CleanSheetsCulprits, MostGoalsScoredCulprits, BiggestWinCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con, $query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -53,12 +53,14 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
         <th class="table-sortable:numeric">Opponents</th>
         <th class="table-sortable:numeric">&nbsp;Victims</th>
-        <th class="table-sortable:numeric">Culprits</th>
+        <th class="table-sortable:numeric">DD Victims</th>
+        <th class="table-sortable:numeric">CS Victims</th>
         <th class="table-sortable:numeric">MGC Victims</th>
-        <th class="table-sortable:numeric">LGS Victims</th>
         <th class="table-sortable:numeric">BL Victims</th>
+        <th class="table-sortable:numeric">Culprits</th>
+        <th class="table-sortable:numeric">DD Culprits</th>
+        <th class="table-sortable:numeric">CS Culprits</th>
         <th class="table-sortable:numeric">MGS Culprits</th>
-        <th class="table-sortable:numeric">LGC Culprits</th>
         <th class="table-sortable:numeric">BW Culprits</th>
     </tr>
 </thead>
@@ -78,13 +80,15 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo $row[3] ?></td>
         <td><?php echo $row[4] ?></td>
         <td><?php if ($row[5]!=0) {echo "<span class='blue'>"; echo $row[5]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[6]!=0) {echo "<span class='red'>"; echo $row[6]; echo "</span>"; } else {echo "0";} ?></td>
+        <td><?php if ($row[6] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[6];?></span><?php } ?></td>
         <td><?php if ($row[7] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[7];?></span><?php } ?></td>
         <td><?php if ($row[8] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[8];?></span><?php } ?></td>
         <td><?php if ($row[9] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[9];?></span><?php } ?></td>
-        <td><?php if ($row[10] == 0) {echo "0";} else {?><span class="red"><?php echo $row[10];?></span><?php } ?></td>
+        <td><?php if ($row[10]!=0) {echo "<span class='red'>"; echo $row[10]; echo "</span>"; } else {echo "0";} ?></td>
         <td><?php if ($row[11] == 0) {echo "0";} else {?><span class="red"><?php echo $row[11];?></span><?php } ?></td>
         <td><?php if ($row[12] == 0) {echo "0";} else {?><span class="red"><?php echo $row[12];?></span><?php } ?></td>
+        <td><?php if ($row[13] == 0) {echo "0";} else {?><span class="red"><?php echo $row[13];?></span><?php } ?></td>
+        <td><?php if ($row[14] == 0) {echo "0";} else {?><span class="red"><?php echo $row[14];?></span><?php } ?></td>
     </tr> 
     
     <?php
@@ -102,11 +106,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 <br />
 
 Victims = same statistic as the Victims row on each player profile.<br />
+DD Victims = Double Digit Victims<br />
+CS Victims = Clean Sheet Victims<br />
 MGC Victims = Most Goals Conceded Victims<br />
-LGC Victims = Least Goals Conceded Victims<br />
 BL Victims = Biggest Loss Victims<br />
+DD Culprits = Double Digit Culprits<br />
+CS Culprits = Clean Sheet Culprits<br />
 MGS Culprits = Most Goals Scored Culprits<br />
-LGC Culprits = Least Goals Conceded Culprits<br />
 BW Culprits = Biggest Win Culprits<br />
 <br />
 Example: Joe has 3 BW Culprits. This means that 3 players set their Biggest Win record against Joe. <br />

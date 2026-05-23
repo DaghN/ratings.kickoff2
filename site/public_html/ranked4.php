@@ -30,7 +30,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, NumberGames, LongestWinningStreak, LongestDrawingStreak, LongestLosingStreak, LongestNonLossStreak, LongestNonDrawStreak, LongestNonWinStreak FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, LongestWinningStreak, LongestNonLossStreak, LongestDrawingStreak, LongestNonDrawStreak, LongestLosingStreak, LongestNonWinStreak FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -52,10 +52,10 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">ELO rating</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
         <th class="table-sortable:numeric">LWS</th>
-        <th class="table-sortable:numeric">LDS</th>
-        <th class="table-sortable:numeric">LLS</th>
         <th class="table-sortable:numeric">LNLS</th>
+        <th class="table-sortable:numeric">LDS</th>
         <th class="table-sortable:numeric">LNDS</th>
+        <th class="table-sortable:numeric">LLS</th>
         <th class="table-sortable:numeric">LNWS</th>
     </tr>
 </thead>
@@ -74,10 +74,10 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo round($row[2]) ?></td>
         <td><?php echo $row[3] ?></td>
         <td><?php if ($row[4] == 0) {echo "-";} else {echo "<span class='blue'>"; echo $row[4]; echo "</span>";} ?></td>
-        <td><?php if ($row[5] == 0) {echo "-";} else {echo $row[5];} ?></td>
-        <td><?php if ($row[6] == 0) {echo "-";} else {echo "<span class='red'>"; echo $row[6]; echo "</span>";} ?></td>
-        <td><?php if ($row[7] == 0) {echo "-";} else {echo "<span class='blue'>"; echo $row[7]; echo "</span>";} ?></td>
-        <td><?php if ($row[8] == 0) {echo "-";} else {echo $row[8];} ?></td>
+        <td><?php if ($row[5] == 0) {echo "-";} else {echo "<span class='blue'>"; echo $row[5]; echo "</span>";} ?></td>
+        <td><?php if ($row[6] == 0) {echo "-";} else {echo $row[6];} ?></td>
+        <td><?php if ($row[7] == 0) {echo "-";} else {echo $row[7];} ?></td>
+        <td><?php if ($row[8] == 0) {echo "-";} else {echo "<span class='red'>"; echo $row[8]; echo "</span>";} ?></td>
         <td><?php if ($row[9] == 0) {echo "-";} else {echo "<span class='red'>"; echo $row[9]; echo "</span>";} ?></td>
     </tr> 
     
@@ -95,10 +95,10 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <br />
 LWS = Longest Winning Streak ever<br />
-LDS = Longest Drawing Streak ever<br />
-LLS = Longest Losing Streak ever<br />
 LNLS = Longest No Losses Streak ever<br />
+LDS = Longest Drawing Streak ever<br />
 LNDS = Longest No Draws Streak ever<br />
+LLS = Longest Losing Streak ever<br />
 LNWS = Longest No Wins Streak ever
 
 

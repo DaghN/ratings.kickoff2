@@ -30,7 +30,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, NumberGames, DoubleDigits, DoubleDigitsConceded, CleanSheets, CleanSheetsConceded, DoubleDigitsRatio, DoubleDigitsConcededRatio, CleanSheetsRatio, CleanSheetsConcededRatio, DifferentOpponents, DoubleDigitsVictims, DoubleDigitsCulprits, CleanSheetsVictims, CleanSheetsCulprits FROM playertable WHERE display=1 ORDER BY rating DESC";
+$query = "SELECT id, Name, Rating, NumberGames, DoubleDigits, CleanSheets, DoubleDigitsRatio, CleanSheetsRatio, DoubleDigitsConceded, CleanSheetsConceded, DoubleDigitsConcededRatio, CleanSheetsConcededRatio FROM playertable WHERE display=1 ORDER BY rating DESC";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -52,19 +52,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th class="table-sortable:numeric">ELO rating</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
-        <th class="table-sortable:numeric">&nbsp;DD C</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
-        <th class="table-sortable:numeric">&nbsp;CS C</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;DD Ratio</th>
-        <th class="table-sortable:numeric">DD C Ratio</th>
         <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
+        <th class="table-sortable:numeric">&nbsp;DD C</th>
+        <th class="table-sortable:numeric">&nbsp;CS C</th>
+        <th class="table-sortable:numeric">DD C Ratio</th>
         <th class="table-sortable:numeric">CS C Ratio</th>
-        <th class="table-sortable:numeric">Opponents</th>
-        <th class="table-sortable:numeric">DD V</th>
-        <th class="table-sortable:numeric">DD C</th>
-        <th class="table-sortable:numeric">CS V</th>
-        <th class="table-sortable:numeric">CS C</th>
-        
     </tr>
 </thead>
 
@@ -82,18 +76,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo round($row[2]) ?></td>
         <td><?php echo $row[3] ?></td>
        	<td><?php if ($row[4] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[4];?></span><?php } ?></td>
-        <td><?php if ($row[5] == 0) {echo "0";} else {?><span class="red"><?php echo $row[5];?></span><?php } ?></td>
-        <td><?php if ($row[6] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[6];?></span><?php } ?></td>
-        <td><?php if ($row[7] == 0) {echo "0";} else {?><span class="red"><?php echo $row[7];?></span><?php } ?></td>
-        <td><?php if ($row[8] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[8], 1); echo "%";} ?></td>
-        <td><?php if ($row[9] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[9], 1); echo "%";} ?></td>
-        <td><?php if ($row[10] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[10], 1); echo "%";} ?></td>
+        <td><?php if ($row[5] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[5];?></span><?php } ?></td>
+        <td><?php if ($row[6] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[6], 1); echo "%";} ?></td>
+        <td><?php if ($row[7] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[7], 1); echo "%";} ?></td>
+        <td><?php if ($row[8] == 0) {echo "0";} else {?><span class="red"><?php echo $row[8];?></span><?php } ?></td>
+        <td><?php if ($row[9] == 0) {echo "0";} else {?><span class="red"><?php echo $row[9];?></span><?php } ?></td>
+        <td><?php if ($row[10] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[10], 1); echo "%";} ?></td>
         <td><?php if ($row[11] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[11], 1); echo "%";} ?></td>
-        <td><?php echo $row[12] ?></td>
-       	<td><?php if ($row[13] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[13];?></span><?php } ?></td>
-        <td><?php if ($row[14] == 0) {echo "0";} else {?><span class="red"><?php echo $row[14];?></span><?php } ?></td>
-        <td><?php if ($row[15] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[15];?></span><?php } ?></td>
-        <td><?php if ($row[16] == 0) {echo "0";} else {?><span class="red"><?php echo $row[16];?></span><?php } ?></td>
     </tr> 
     
     <?php
@@ -113,10 +102,6 @@ DD = Double Digits, ie. the number of games where the player scored 10 or more g
 DD C = Double Digits Conceded<br />
 CS = Clean Sheets, ie. the number of games where the player's opponent scored no goals<br />
 CS C = Clean Sheets Conceded, ie. the number of games where the player scored no goals<br />
-<br />
-DD V = Double Digit Victims, ie. the number of players the player has scored 10 or more goals against in one game<br />
-DD C = Double Digit Culprits, ie. the number of players that have scored 10 or more goals against the player in one game<br />
- 
 
 
 

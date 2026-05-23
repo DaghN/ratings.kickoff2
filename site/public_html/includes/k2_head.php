@@ -1,7 +1,7 @@
 <?php
 /**
  * Shared <head> assets for body.k2-site pages. Include inside <head> after <title>.
- * Optional before include: $k2RankedCloak = true on ranked1–6 (table FOUC cloak).
+ * Optional before include: $k2RankedCloak = true on ranked1–5 and ranked7 (table FOUC cloak).
  */
 $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 ?>

@@ -34,7 +34,7 @@ RANKED_WING = {
     "ranked3.php": "dds",
     "ranked4.php": "streaks",
     "ranked5.php": "victims",
-    "ranked6.php": "rating-records",
+    "ranked7.php": "results",
 }
 
 ABOUTMENU_BLOCK = re.compile(

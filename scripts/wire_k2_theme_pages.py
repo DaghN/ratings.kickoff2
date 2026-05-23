@@ -18,7 +18,7 @@ PAGES = [
     ("ranked3.php", True, False, True),
     ("ranked4.php", True, False, True),
     ("ranked5.php", True, False, True),
-    ("ranked6.php", True, False, True),
+    ("ranked7.php", True, False, True),
     ("server2.php", False, False, False),
     ("server3.php", False, False, False),
     ("individual2a.php", False, True, False),

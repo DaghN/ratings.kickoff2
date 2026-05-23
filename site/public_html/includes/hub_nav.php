@@ -6,7 +6,7 @@
 $k2HubTabActive = $k2HubTabActive ?? '';
 $k2HubTabs = [
 	'status' => ['href' => 'status.php', 'label' => 'Status'],
-	'leaderboards' => ['href' => 'ranked1.php', 'label' => 'Leaderboards'],
+	'leaderboards' => ['href' => 'ranked7.php', 'label' => 'Leaderboards'],
 	'games' => ['href' => 'server3.php', 'label' => 'Games'],
 	'trends' => ['href' => 'server1.php', 'label' => 'Trends'],
 	'records' => ['href' => 'server2.php', 'label' => 'Records'],

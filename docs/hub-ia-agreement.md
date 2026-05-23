@@ -32,7 +32,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 | Tab | Backend (existing) |
 |-----|-------------------|
 | Status | New bridge page (placeholder) |
-| Leaderboards | `ranked1` … `ranked6` (+ wing sub-nav) |
+| Leaderboards | `ranked7.php` default (Results wing); `ranked1`–`ranked5`, `ranked7` (+ wing sub-nav; `ranked6` removed) |
 | Games | `server3.php` |
 | Trends | `server1.php` |
 | Records | `server2.php` |
@@ -58,7 +58,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 ### Phase C — Polish (lab-driven, anytime)
 
 - Player feast content depth; hero iterations.
-- Wing tab / Rating vs Rating records wording.
+- Wing tab labels (Rating · Results · …); ~~Rating records~~ tab removed — columns merged into Rating/Results.
 - Logo in header; URL rebrand (`online.kickoff2.com` etc.).
 - ~~Full `#aboutmenu` removal once all entry points use shared nav.~~ **Done (medium refactor, May 2026).**
 - Amiga realm production wiring; nav spacing clearfix.
@@ -137,8 +137,8 @@ Committed and pushed earlier; not re-opened unless noted below.
 ### Leaderboards tab
 
 - Six wing tabs above the table (not a second site nav row).
-- First sub-tab: **Rating** (was "Results").
-- Others: Goals · DDs & CSs · Streaks · Victims & Culprits · Rating records.
+- Order: **Results** · Goals · DDs & CSs · Streaks · Victims & Culprits · **Rating records** (`ranked7`, `ranked2`–`ranked5`, `ranked1`).
+- Legacy **`ranked6`** (old Rating records page) removed; `ranked1.php` is now the Rating records wing tab.
 - Chrome-style wing tabs: active tab same brightness as table header row (`bg-elevated`), curved feet on dark page — not green-filled bar; no green inset topline on active wing tab.
 
 ### Games tab
@@ -255,11 +255,11 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 
 ## Open items to re-confirm at implementation
 
-- Rating vs Rating records at opposite ends of wing strip (wording OK for now).
+- ~~Rating records wing tab~~ — removed (`ranked6.php` deleted).
 - status.php API ownership and refresh cadence (Phase B).
 - Neon C without grid: apply to full `theme.css` in Phase A.
 - Status bridge copy and prominence of legacy status.php link until Phase B.
 
 ---
 
-*Last updated: May 2026 — Phase A shipped in repo; accent pills + segment wing nav documented.*
+*Last updated: May 2026 — Phase A shipped; Rating records tab removed; Results (`ranked7`) added.*
