@@ -130,12 +130,12 @@ Conceptual — exact values tuned in theme lab:
 --k2-border-subtle  /* rgba white ~6% */
 ```
 
-### Realm accent tokens
+### Realm accent tokens (production — locked May 2026)
 
-| Realm | Accent (first pass) | Character | Notes |
-|-------|---------------------|-----------|-------|
-| **Online** | `#64b5f6` (electric blue) | Digital, competitive, server | Aligns with existing chart blue |
-| **Amiga** | `#ffb74d` (amber) or `#ff8a65` (coral) | Warm, human, real-world | **TBD in theme lab** — also consider magenta `#f06292` |
+| Realm | `--k2-realm-accent` | Character |
+|-------|---------------------|-----------|
+| **Online** | `#ffb74d` (amber) | Warm competitive chrome for the online ladder |
+| **Amiga** | `#9ccc65` (green) | Pitch / chart-green identity for the Amiga realm |
 
 Mechanism:
 
@@ -144,13 +144,15 @@ Mechanism:
 ```
 
 ```css
-[data-realm="online"]  { --k2-realm-accent: #64b5f6; /* + muted/glow variants */ }
-[data-realm="amiga"]   { --k2-realm-accent: #ffb74d; /* TBD */ }
+html[data-realm="online"] { --k2-realm-accent: #ffb74d; /* + muted/glow in theme.css */ }
+html[data-realm="amiga"]  { --k2-realm-accent: #9ccc65; }
 ```
 
-Shared chart multi-color series stay **realm-neutral**; full `--k2-realm-accent` is for **chrome** (nav rings, hero avatar, borders, glows) — not for every `<a>` or stat label.
+**Charts** stay **realm-neutral** (multi-colour `chart-theme.js` palette). **Links / link-star** derive from `--k2-realm-accent` via `color-mix` on `html`. Full-strength accent is for **chrome** (nav rings, hero avatar border, glows) — not raw colour on every `<a>`.
 
-**Production TEST swap (`theme.css`):** online realm accent **amber** `#ffb74d`; amiga **green** `#9ccc65` (inverse of lab table above — confirm before launch).
+**Staging accent preview** (hub): Chrome · Pulse · Holo temporarily override `--k2-realm-accent` (and thus links) for curiosity; realm switcher stays fixed amber/green. Hidden by default — **Show tint** on hub bar.
+
+*Historical lab options (blue online, swapped green/amiga) are superseded unless deliberately revisited.*
 
 ### Text & link hierarchy (production — May 2026)
 
@@ -172,7 +174,7 @@ Agreed balance after nav/header/link passes: **data and player names lead**; acc
 
 All link/star tokens are **derived on `html`** from `--k2-realm-accent` (set per `data-realm` / optional `data-k2-accent` tune). Do not duplicate hex link colours in realm blocks.
 
-**Profile feast CSS** (`player-feast*.css`, `player-hero-rank.css`): typographic highlights use `--k2-link-star` so profile and ladder names match.
+**Profile feast CSS** (`player-feast*.css`, `player-hero-rank.css`): typographic highlights use `--k2-link-star` (no text-shadow glow on busiest/duel counts — avatar ring keeps glow).
 
 **Staging tune:** production uses **85%** for `--k2-link-star` (May 2026). If too loud, try 75–80%; if weak, try 88%. Keep table weight at 600 unless explicitly changing emphasis.
 
@@ -335,7 +337,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 - **Hub / player nav (production):** **segment** track + outline active (`data-k2-hub-nav="segment"` default); overrides via `?k2_hub_nav=`.
 - **Hub accent preview pills:** Chrome · Pulse · Holo; **hidden by default**; **Show tint** on hub bar. Staging — remove at launch unless kept.
 - **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).
-- **TEST swap (temporary):** `theme.css` comment — online realm uses amber, amiga uses green (inverse of locked lab choice); revert or confirm before launch.
+- **Realm accents:** online amber / amiga green (see § Realm accent tokens).
 
 **Change style:** small, reversible slices — same as `PROJECT_BRIEF.md`.
 
@@ -356,15 +358,14 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 ### Locked (Dagh, May 2026 — approved in theme lab, now in production CSS)
 
-- [x] **Neon intensity:** **C · Bold** (production `theme.css`; realm switcher + player hero avatar)
+- [x] **Neon intensity:** **C · Bold** — glow on **player hero avatar** only (not feast stat text)
 - [x] **Display font:** **Exo 2**
-- [x] **Amiga realm accent:** **Amber** (`#ffb74d`)
-- [x] **Online realm accent:** **Green** (`#9ccc65`) — warmer than blue; cohesive with chart palette
+- [x] **Realm accents (production):** **Online amber** `#ffb74d` · **Amiga green** `#9ccc65` (see § Realm accent tokens)
 
-### Still open (minor — decide during production pass, not more mock rounds)
+### Still open (minor — not blocking staging)
 
-- [ ] **Accent preview pills** on hub row — keep for launch, collapse to 3–4, or remove (currently staging lab)
-- [ ] **TEST realm accent swap** in `theme.css` (online amber / amiga green) — revert to locked lab defaults or adopt
+- [x] **Accent preview pills** — **Chrome · Pulse · Holo**, hidden by default + **Show tint**; keep while iterating (may change before public launch)
+- [ ] **Accent pills at public launch** — remove, keep hidden, or expose (decide later; not tomorrow)
 - [x] **Link / text ladder** — `--k2-link-star` (names + profile highlights), `--k2-link` (prose); see § Text & link hierarchy.
 - [ ] Exact surface hex fine-tune (`--k2-bg-page`, `--k2-bg-surface`) — current values OK unless staging feels too dark/light
 - [ ] When to rename `<title>` from “KOOL Rating” to “Kick Off 2 ratings”

@@ -3,7 +3,7 @@
 /**
  * Kick Off 2 ratings — production theme.
  * Bold neon (C): glow on player hero avatar only. Exo 2, cyan/magenta table highlights.
- * TEST: realm accent swap — online amber, amiga green. Links: --k2-link-star (names) / --k2-link (prose) — see design-direction.md.
+ * Realm chrome: online amber, amiga green. Links: --k2-link-star / --k2-link (design-direction.md).
  */
 
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Exo+2:wght@500;600;700&display=swap");
@@ -68,28 +68,11 @@ html[data-realm="amiga"] {
 }
 
 /* Optional accent tune (hub preview pills) — overrides realm default until realm is re-selected */
+/* Hub accent preview pills (Chrome · Pulse · Holo) — staging; overrides link/star derivation */
 html[data-k2-accent="chrome"] {
 	--k2-realm-accent: #64b5f6;
 	--k2-realm-accent-muted: rgba(100, 181, 246, 0.14);
 	--k2-realm-glow: rgba(100, 181, 246, 0.38);
-}
-
-html[data-k2-accent="signal"] {
-	--k2-realm-accent: #4dd0e1;
-	--k2-realm-accent-muted: rgba(77, 208, 225, 0.14);
-	--k2-realm-glow: rgba(77, 208, 225, 0.42);
-}
-
-html[data-k2-accent="lagoon"] {
-	--k2-realm-accent: #4db6ac;
-	--k2-realm-accent-muted: rgba(77, 182, 172, 0.14);
-	--k2-realm-glow: rgba(77, 182, 172, 0.42);
-}
-
-html[data-k2-accent="phosphor"] {
-	--k2-realm-accent: #aed581;
-	--k2-realm-accent-muted: rgba(174, 213, 129, 0.14);
-	--k2-realm-glow: rgba(174, 213, 129, 0.38);
 }
 
 html[data-k2-accent="pulse"] {
@@ -102,12 +85,6 @@ html[data-k2-accent="holo"] {
 	--k2-realm-accent: #b388ff;
 	--k2-realm-accent-muted: rgba(179, 136, 255, 0.14);
 	--k2-realm-glow: rgba(179, 136, 255, 0.45);
-}
-
-html[data-k2-accent="ember"] {
-	--k2-realm-accent: #ff8a65;
-	--k2-realm-accent-muted: rgba(255, 138, 101, 0.14);
-	--k2-realm-glow: rgba(255, 138, 101, 0.45);
 }
 
 html {
@@ -804,7 +781,7 @@ body.k2-site .k2-table-wrap {
 	border-top-right-radius: var(--k2-radius-md);
 }
 
-/* ── Player feast pills (solid flat, same as hub) ── */
+/* ── Player sub-nav (segment default via data-k2-hub-nav on html) ── */
 .k2-player-nav {
 	display: flex;
 	flex-wrap: wrap;
@@ -863,6 +840,8 @@ html[data-k2-hub-nav="segment"] .k2-player-nav {
 }
 
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn {
+	padding: 8px 14px;
+	font-size: 13px;
 	border: 1px solid transparent;
 	border-radius: calc(var(--k2-radius-md) - 2px);
 }
@@ -1203,7 +1182,7 @@ body.k2-site a.k2-hub-tabs__btn:hover:not(.is-active) {
 	text-decoration: none;
 }
 
-/* Hub nav — solid (production default) */
+/* Hub nav — solid (override: ?k2_hub_nav=solid) */
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active,
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
 	color: var(--k2-bg-page);
@@ -1227,6 +1206,8 @@ html[data-k2-hub-nav="segment"] .k2-hub-tabs {
 }
 
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn {
+	padding: 8px 14px;
+	font-size: 13px;
 	border: 1px solid transparent;
 	border-radius: calc(var(--k2-radius-md) - 2px);
 }

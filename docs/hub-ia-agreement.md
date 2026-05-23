@@ -178,7 +178,7 @@ Global hub nav replaced by player context:
 |------|----------|
 | Home + player pills | **Segment track** — active: softened accent text + single mixed ring (`--k2-segment-active-*`); no fill tint. Override via `?k2_hub_nav=`. |
 | Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
-| Hub accent preview pills | **Staging** — Chrome · Pulse · Holo; **hidden by default**; **Show tint** / **Hide tint** (`k2-hub-nav-tune.js`). Remove row at launch unless kept. |
+| Hub accent preview pills | **Staging (keep for now)** — Chrome · Pulse · Holo; **hidden by default** + **Show tint**. Overrides link colours; realm switch stays amber/green. Launch decision deferred. |
 | Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
 | Nav hover (inactive) | **`--k2-text-secondary`** — between muted and primary; not full white flash. Sort/table data stay primary. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
@@ -267,7 +267,7 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 
 ---
 
-*Last updated: May 2026 — Segment nav, quiet table headers, `--k2-link-star` for names/highlights (agreed balance).*
+*Last updated: May 2026 — Realm colours locked (online amber / amiga green); profile feast stat glow removed; hub nav geometry aligned with wings.*
 
 ---
 
