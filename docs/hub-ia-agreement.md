@@ -176,21 +176,21 @@ Global hub nav replaced by player context:
 
 | Item | Decision |
 |------|----------|
-| Home + player pills | **Segment track + outline active** (production; parity with wing tabs). Override via `?k2_hub_nav=` — see Hub nav style staging. |
+| Home + player pills | **Segment track** — active: softened accent text + single mixed ring (`--k2-segment-active-*`); no fill tint. Override via `?k2_hub_nav=`. |
 | Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
 | Hub accent preview pills | **Staging** — Chrome · Pulse · Holo; **hidden by default**; **Show tint** / **Hide tint** (`k2-hub-nav-tune.js`). Remove row at launch unless kept. |
 | Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
 | Nav hover (inactive) | **`--k2-text-secondary`** — between muted and primary; not full white flash. Sort/table data stay primary. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
 | Bold neon grid | **Remove background grid** on C (lab done; promote to theme.css when staging). |
-| Neon rail, boxed default, solid glow, etc. | Lab comparisons only — production = **flat solid**. |
+| Neon rail, boxed default, solid glow, etc. | Lab comparisons only — rejected for hub. |
 
 ---
 
 ## Visual / theme (still agreed)
 
 - Table highlights: Cyan · Magenta.
-- Links weight 600; online green; Amiga amber site-wide in Amiga realm.
+- **Text ladder:** full detail in `design-direction.md` (Text & link hierarchy). Summary: `--k2-link-star` for player names + profile highlight text; `--k2-link` for prose; `--k2-realm-accent` for chrome only.
 - Table column headers: muted labels on `bg-surface`, weight 500; thin mixed-accent rule under last header row; sort hover → `text-secondary` + 2px inset accent.
 - Sort header hover: secondary text + inset realm accent bar (same hover step as nav).
 - individual3 filter row: 16 cells, transparent filter row, single green line on last header row only.
@@ -252,6 +252,7 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 | Neon rail as nav choice | Not chosen |
 | Solid glow as nav choice | Too loud → rejected |
 | Solid flat hub pills | Too imposing (“light bulb”) → **segment** (May 2026) |
+| Full-accent links on every `<a>` | Too bright → **`--k2-link-star`** / `--k2-link` ladder; see `design-direction.md` |
 | Ladder sub-tab Results | **Rating** |
 | Table width 100% force | Reverted |
 
@@ -266,7 +267,7 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 
 ---
 
-*Last updated: May 2026 — Production hub/player nav = **segment**; accent preview hidden by default.*
+*Last updated: May 2026 — Segment nav, quiet table headers, `--k2-link-star` for names/highlights (agreed balance).*
 
 ---
 

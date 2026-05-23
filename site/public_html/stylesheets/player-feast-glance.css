@@ -104,7 +104,7 @@
 	font-family: var(--k2-font-display);
 	font-size: 17px;
 	font-weight: 700;
-	color: var(--k2-realm-accent);
+	color: var(--k2-link-star);
 }
 
 /* Career: numbers sit left; (#rank) in a narrow column, stacked / right-aligned */
@@ -127,7 +127,7 @@
 	padding: 8px 0;
 	text-align: right;
 	font-weight: 600;
-	color: var(--k2-realm-accent);
+	color: var(--k2-link-star);
 	border-bottom: 1px solid var(--k2-border-subtle);
 	white-space: nowrap;
 	vertical-align: top;

@@ -3,7 +3,7 @@
  */
 
 .pm3hij-peak--cards .pm3-busiest__list strong {
-	color: var(--k2-realm-accent);
+	color: var(--k2-link-star);
 	text-shadow: 0 0 20px var(--k2-realm-glow);
 }
 

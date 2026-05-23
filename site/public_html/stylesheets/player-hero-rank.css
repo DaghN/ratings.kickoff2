@@ -4,6 +4,6 @@
 
 .k2-player-hero__stat-value--rank,
 .k2-player-hero__stat-value--accent {
-	color: var(--k2-realm-accent);
+	color: var(--k2-link-star);
 	text-shadow: 0 0 28px var(--k2-realm-glow);
 }

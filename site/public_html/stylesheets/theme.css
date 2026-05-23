@@ -2,8 +2,8 @@
 
 /**
  * Kick Off 2 ratings — production theme.
- * Bold neon (C): glow on active realm switcher + player hero avatar. Exo 2, cyan/magenta table highlights.
- * TEST: realm accent swap — online uses amber, amiga uses green.
+ * Bold neon (C): glow on player hero avatar only. Exo 2, cyan/magenta table highlights.
+ * TEST: realm accent swap — online amber, amiga green. Links: --k2-link-star (names) / --k2-link (prose) — see design-direction.md.
  */
 
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Exo+2:wght@500;600;700&display=swap");
@@ -26,9 +26,6 @@
 	--k2-chart-teal: #4db6ac;
 	--k2-chart-purple: #ba68c8;
 
-	--k2-link: #9ccc65;
-	--k2-link-hover: #aed581;
-
 	--k2-table-positive: #4fc3f7;
 	--k2-table-negative: #f06292;
 
@@ -47,20 +44,27 @@
 	--k2-accent-glow-blur: 18px;
 }
 
+/* Derived from --k2-realm-accent (set on html[data-realm] / accent tune) */
+html {
+	--k2-segment-active-text: color-mix(in srgb, var(--k2-realm-accent) 72%, var(--k2-text-secondary));
+	--k2-segment-active-ring: color-mix(in srgb, var(--k2-realm-accent) 55%, transparent);
+	--k2-link: color-mix(in srgb, var(--k2-realm-accent) 72%, var(--k2-text-secondary));
+	--k2-link-hover: color-mix(in srgb, var(--k2-realm-accent) 85%, var(--k2-text-primary));
+	/* Player names, IDs, profile stat highlights — accent-forward, not full chrome */
+	--k2-link-star: color-mix(in srgb, var(--k2-realm-accent) 80%, var(--k2-text-primary));
+	--k2-link-star-hover: color-mix(in srgb, var(--k2-realm-accent) 92%, var(--k2-text-primary));
+}
+
 html[data-realm="online"] {
 	--k2-realm-accent: #ffb74d;
 	--k2-realm-accent-muted: rgba(255, 183, 77, 0.14);
 	--k2-realm-glow: rgba(255, 183, 77, 0.35);
-	--k2-link: #ffb74d;
-	--k2-link-hover: #ffcc80;
 }
 
 html[data-realm="amiga"] {
 	--k2-realm-accent: #9ccc65;
 	--k2-realm-accent-muted: rgba(156, 204, 101, 0.14);
 	--k2-realm-glow: rgba(156, 204, 101, 0.35);
-	--k2-link: #9ccc65;
-	--k2-link-hover: #aed581;
 }
 
 /* Optional accent tune (hub preview pills) — overrides realm default until realm is re-selected */
@@ -68,56 +72,42 @@ html[data-k2-accent="chrome"] {
 	--k2-realm-accent: #64b5f6;
 	--k2-realm-accent-muted: rgba(100, 181, 246, 0.14);
 	--k2-realm-glow: rgba(100, 181, 246, 0.38);
-	--k2-link: #64b5f6;
-	--k2-link-hover: #90caf9;
 }
 
 html[data-k2-accent="signal"] {
 	--k2-realm-accent: #4dd0e1;
 	--k2-realm-accent-muted: rgba(77, 208, 225, 0.14);
 	--k2-realm-glow: rgba(77, 208, 225, 0.42);
-	--k2-link: #4dd0e1;
-	--k2-link-hover: #80deea;
 }
 
 html[data-k2-accent="lagoon"] {
 	--k2-realm-accent: #4db6ac;
 	--k2-realm-accent-muted: rgba(77, 182, 172, 0.14);
 	--k2-realm-glow: rgba(77, 182, 172, 0.42);
-	--k2-link: #4db6ac;
-	--k2-link-hover: #80cbc4;
 }
 
 html[data-k2-accent="phosphor"] {
 	--k2-realm-accent: #aed581;
 	--k2-realm-accent-muted: rgba(174, 213, 129, 0.14);
 	--k2-realm-glow: rgba(174, 213, 129, 0.38);
-	--k2-link: #aed581;
-	--k2-link-hover: #c5e1a5;
 }
 
 html[data-k2-accent="pulse"] {
 	--k2-realm-accent: #f06292;
 	--k2-realm-accent-muted: rgba(240, 98, 146, 0.14);
 	--k2-realm-glow: rgba(240, 98, 146, 0.45);
-	--k2-link: #f06292;
-	--k2-link-hover: #f48fb1;
 }
 
 html[data-k2-accent="holo"] {
 	--k2-realm-accent: #b388ff;
 	--k2-realm-accent-muted: rgba(179, 136, 255, 0.14);
 	--k2-realm-glow: rgba(179, 136, 255, 0.45);
-	--k2-link: #b388ff;
-	--k2-link-hover: #d1b3ff;
 }
 
 html[data-k2-accent="ember"] {
 	--k2-realm-accent: #ff8a65;
 	--k2-realm-accent-muted: rgba(255, 138, 101, 0.14);
 	--k2-realm-glow: rgba(255, 138, 101, 0.45);
-	--k2-link: #ff8a65;
-	--k2-link-hover: #ffab91;
 }
 
 html {
@@ -137,7 +127,7 @@ body.k2-site {
 
 body.k2-site a {
 	color: var(--k2-link);
-	font-weight: 600;
+	font-weight: 500;
 	text-decoration: none;
 }
 
@@ -421,15 +411,17 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 }
 
 .k2-realm-switch__btn[data-realm="online"].is-active {
-	color: #ffb74d;
-	border-color: #ffb74d;
-	box-shadow: inset 0 0 0 1px #ffb74d;
+	color: color-mix(in srgb, #ffb74d 72%, var(--k2-text-secondary));
+	background: transparent;
+	border-color: color-mix(in srgb, #ffb74d 55%, transparent);
+	box-shadow: none;
 }
 
 .k2-realm-switch__btn[data-realm="amiga"].is-active {
-	color: #9ccc65;
-	border-color: #9ccc65;
-	box-shadow: inset 0 0 0 1px #9ccc65;
+	color: color-mix(in srgb, #9ccc65 72%, var(--k2-text-secondary));
+	background: transparent;
+	border-color: color-mix(in srgb, #9ccc65 55%, transparent);
+	box-shadow: none;
 }
 
 .k2-realm-switch__btn.is-active:hover {
@@ -437,11 +429,11 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 }
 
 .k2-realm-switch__btn[data-realm="online"].is-active:hover {
-	color: #ffb74d;
+	color: color-mix(in srgb, #ffb74d 72%, var(--k2-text-secondary));
 }
 
 .k2-realm-switch__btn[data-realm="amiga"].is-active:hover {
-	color: #9ccc65;
+	color: color-mix(in srgb, #9ccc65 72%, var(--k2-text-secondary));
 }
 
 .k2-page-nav {
@@ -719,7 +711,13 @@ body.k2-site .k2-table tbody td {
 }
 
 body.k2-site .k2-table tbody td a {
-	color: var(--k2-link);
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
+body.k2-site .k2-table tbody td a:hover {
+	color: var(--k2-link-star-hover);
+	text-decoration: none;
 }
 
 body.k2-site .k2-table tbody tr,
@@ -763,7 +761,8 @@ body.k2-site .k2-table a.pagelink {
 
 body.k2-site .k2-table a.currentpage {
 	background-color: var(--k2-realm-accent-muted);
-	color: var(--k2-realm-accent);
+	color: var(--k2-segment-active-text);
+	font-weight: 500;
 }
 
 body.k2-site .blue {
@@ -870,14 +869,14 @@ html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn {
 
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active,
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active:visited {
-	color: var(--k2-realm-accent);
+	color: var(--k2-segment-active-text);
 	background: transparent;
-	border-color: var(--k2-realm-accent);
-	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: none;
 }
 
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active:hover {
-	color: var(--k2-realm-accent);
+	color: var(--k2-segment-active-text);
 	background: transparent;
 	text-decoration: none;
 }
@@ -1234,14 +1233,14 @@ html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn {
 
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active,
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
-	color: var(--k2-realm-accent);
+	color: var(--k2-segment-active-text);
 	background: transparent;
-	border-color: var(--k2-realm-accent);
-	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: none;
 }
 
 html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
-	color: var(--k2-realm-accent);
+	color: var(--k2-segment-active-text);
 	background: transparent;
 	text-decoration: none;
 }
@@ -1305,13 +1304,14 @@ body.k2-site a.k2-chrome-tabs__tab:hover:not(.is-active) {
 
 body.k2-site a.k2-chrome-tabs__tab.is-active,
 body.k2-site a.k2-chrome-tabs__tab.is-active:visited {
-	color: var(--k2-realm-accent);
+	color: var(--k2-segment-active-text);
 	background: transparent;
-	border-color: var(--k2-realm-accent);
-	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: none;
 }
 
 body.k2-site a.k2-chrome-tabs__tab.is-active:hover {
-	color: var(--k2-realm-accent);
+	color: var(--k2-segment-active-text);
+	background: transparent;
 	text-decoration: none;
 }

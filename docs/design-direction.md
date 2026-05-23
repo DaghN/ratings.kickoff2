@@ -148,7 +148,33 @@ Mechanism:
 [data-realm="amiga"]   { --k2-realm-accent: #ffb74d; /* TBD */ }
 ```
 
-Shared chart multi-color series stay **realm-neutral**; realm accent used for chrome (active tab underline, hero strip, switcher).
+Shared chart multi-color series stay **realm-neutral**; full `--k2-realm-accent` is for **chrome** (nav rings, hero avatar, borders, glows) — not for every `<a>` or stat label.
+
+**Production TEST swap (`theme.css`):** online realm accent **amber** `#ffb74d`; amiga **green** `#9ccc65` (inverse of lab table above — confirm before launch).
+
+### Text & link hierarchy (production — May 2026)
+
+Agreed balance after nav/header/link passes: **data and player names lead**; accent is stepped down via `color-mix`, not removed.
+
+| Layer | Token / rule | Role |
+|-------|----------------|------|
+| Table & body data | `--k2-text-primary`, weight 400 | Hero numbers and plain text |
+| **Player names, game IDs, profile highlight text** | `--k2-link-star` (80% accent + primary) | Stars of the show; weight **600** in `.k2-table tbody td a` |
+| Name/link hover | `--k2-link-star-hover` (92% accent + primary) | Clear affordance; no underline in tables |
+| Prose / footer links | `--k2-link` (72% + secondary), weight 500 | Inline links outside dense grids |
+| Prose hover | `--k2-link-hover` (85% + primary) | |
+| Nav inactive | `--k2-text-muted` | |
+| Nav hover | `--k2-text-secondary` | No white flash |
+| Nav active (segment) | `--k2-segment-active-text` (72% + secondary) + `--k2-segment-active-ring` | Outline chrome, not fill |
+| Column headers | `--k2-text-muted`, weight 500 | Sort hover → secondary + inset accent bar |
+| Stat positive / negative | `.blue` / `.red` | Cyan / magenta — not link tokens |
+| Structure | `--k2-realm-accent` at 100% | Rings, borders, avatar, decorative glows only |
+
+All link/star tokens are **derived on `html`** from `--k2-realm-accent` (set per `data-realm` / optional `data-k2-accent` tune). Do not duplicate hex link colours in realm blocks.
+
+**Profile feast CSS** (`player-feast*.css`, `player-hero-rank.css`): typographic highlights use `--k2-link-star` so profile and ladder names match.
+
+**Staging tune:** if names feel weak, raise `--k2-link-star` toward 85%; if too loud, try 75%. Keep table weight at 600 unless explicitly changing emphasis.
 
 ### Neon intensity (locked for production — May 2026)
 
@@ -339,7 +365,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 - [ ] **Accent preview pills** on hub row — keep for launch, collapse to 3–4, or remove (currently staging lab)
 - [ ] **TEST realm accent swap** in `theme.css` (online amber / amiga green) — revert to locked lab defaults or adopt
-- [ ] **Link colour** when online accent is also green — keep `#9ccc65` links or shift links to `#aed581` / teal for hover distinction?
+- [x] **Link / text ladder** — `--k2-link-star` (names + profile highlights), `--k2-link` (prose); see § Text & link hierarchy.
 - [ ] Exact surface hex fine-tune (`--k2-bg-page`, `--k2-bg-surface`) — current values OK unless staging feels too dark/light
 - [ ] When to rename `<title>` from “KOOL Rating” to “Kick Off 2 ratings”
 - [ ] Physical realm routing on website (see `docs/ladder-engine-plan.md` §8)
