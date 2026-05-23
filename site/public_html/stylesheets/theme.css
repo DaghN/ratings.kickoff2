@@ -968,6 +968,11 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	margin-bottom: 4px;
 }
 
+.k2-status-bridge__intro--heritage-only {
+	justify-content: flex-end;
+	margin-bottom: 0;
+}
+
 .k2-status-bridge__copy {
 	flex: 1 1 280px;
 	min-width: 0;
@@ -1043,6 +1048,175 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 .k2-hub-panel__hint {
 	margin-top: 12px;
 	font-size: 12px;
+}
+
+/* ── Status room (hub v1) ── */
+.k2-status-room {
+	max-width: 1200px;
+	margin-top: 8px;
+}
+
+.k2-status-room__pulse {
+	margin: 0 0 18px;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+	line-height: 1.4;
+}
+
+.k2-status-room__pulse-sep {
+	font-weight: 400;
+	color: var(--k2-text-muted);
+}
+
+.k2-status-room__competition {
+	display: grid;
+	grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
+	gap: 16px 20px;
+	margin-bottom: 20px;
+}
+
+.k2-status-room__live {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+	gap: 16px 20px;
+}
+
+.k2-status-room__recency {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.k2-status-panel {
+	padding: 14px 16px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+.k2-status-panel--compact .k2-status-table {
+	font-size: 12px;
+}
+
+.k2-status-panel--mini {
+	padding: 12px 14px;
+}
+
+.k2-status-panel--mini .k2-status-panel__title {
+	font-size: 14px;
+	margin-bottom: 8px;
+}
+
+.k2-status-panel__head {
+	margin-bottom: 10px;
+}
+
+.k2-status-panel__title {
+	margin: 0 0 6px;
+	font-family: var(--k2-font-display);
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-status-panel__subtitle {
+	margin: 14px 0 8px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.k2-status-panel__meta {
+	margin: 0;
+	font-size: 12px;
+	color: var(--k2-text-muted);
+	line-height: 1.4;
+}
+
+.k2-status-panel__empty {
+	margin: 0;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+	line-height: 1.45;
+}
+
+.k2-status-room__error {
+	color: var(--k2-text-muted);
+}
+
+.k2-table-wrap--compact {
+	margin: 0;
+}
+
+.k2-status-table--dense th,
+.k2-status-table--dense td {
+	padding: 4px 8px;
+}
+
+.k2-status-table__num {
+	text-align: right;
+	white-space: nowrap;
+}
+
+.k2-status-name-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 14px;
+}
+
+.k2-status-live-list,
+.k2-status-recency-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.k2-status-live-list li,
+.k2-status-recency-list li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 6px 10px;
+	padding: 5px 0;
+	border-bottom: 1px solid var(--k2-border-subtle);
+	font-size: 13px;
+}
+
+.k2-status-live-list li:last-child,
+.k2-status-recency-list li:last-child {
+	border-bottom: none;
+}
+
+.k2-status-live-list__time,
+.k2-status-recency-list__when {
+	flex: 0 0 auto;
+	min-width: 4.5em;
+	font-size: 11px;
+	color: var(--k2-text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.k2-status-live-list__meta {
+	font-size: 11px;
+	color: var(--k2-text-muted);
+}
+
+.k2-status-recency-list__detail {
+	font-size: 11px;
+	margin-left: auto;
+}
+
+@media (max-width: 900px) {
+	.k2-status-room__competition,
+	.k2-status-room__live {
+		grid-template-columns: 1fr;
+	}
 }
 
 .k2-hub-bar {

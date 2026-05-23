@@ -78,7 +78,7 @@ Local dump / staging snapshot: `IsOnline` and in-progress rows go stale. Do not 
 | When | What |
 |------|------|
 | Phase A | Hub shell, bridge, heritage box |
-| **Phase B v1** | Panels in § Hub Status v1 — **ready to implement** on `ko2unity_db` / staging `kooldb` |
+| **Phase B v1** | **Shipped in repo** — `status_queries.php`, `status_room_section.php`, `status.php` |
 | v1.5+ | Polling, active filter on Leaderboards tab, prior months for league, kickoff2 embed, joshua redirect |
 
 ---
