@@ -122,6 +122,129 @@ Definition of done:
 - This document exists and is accepted as active guide.
 - Baseline findings captured in phase kickoff/close notes.
 
+### Phase 0 baseline (completed 2026-05-24)
+
+Investigation pass over `site/public_html` (code audit; no runtime timing benchmarks in this session).
+
+#### Assets and layering
+
+| Layer | File | Role |
+|-------|------|------|
+| Global CSS | `includes/k2_head.php` → `stylesheets/elolist.css` | Sortable cursor, ranked column min-width, ranked FOUC cloak |
+| Global CSS | `includes/k2_head.php` → `stylesheets/theme.css` | All visible `k2-table` design (hairlines, header rule, hover, wrap card) |
+| Behavior JS | `js/elolist.js` (~1,070 lines, Matt Kruse Table.js + KOOL fork) | Loaded per-page via `<script src="js/elolist.js">` — not global |
+
+`elolist.js` does **not** provide visual striping under current theme: `table-autostripe` toggles class `alternate`, but `theme.css` gives `tr` and `tr.alternate` the **same** background.
+
+#### Behavior profiles (target taxonomy vs today)
+
+| Profile | Intended use | elolist classes (today) |
+|---------|----------------|-------------------------|
+| **static** | No client table behavior | `k2-table` only |
+| **sortable** | Header click sort | `table-autosort` + `table-sortable:*` on `<th>` |
+| **sortable + autorank** | Leaderboards: renumber col 0 after sort | above + `table-autorank` |
+| **sortable + page** | Large lists, client page size | above + `table-autopage:N` + `<tfoot>` with `table-page:*` and `#tablepage` / `#tablepages` |
+| **sortable + filter** | Column dropdown filters | above + `table-autofilter` + `table-filterable` on specific `<th>` |
+
+Legacy bundle copied on many pages: `table-stripeclass:alternate table-autostripe table-rowshade-alternate` (striping ineffective; `table-rowshade-alternate` not referenced in `elolist.js`).
+
+#### Page inventory
+
+| Page / include | Loads `elolist.js` | `k2-table` | Effective elolist features | Notes |
+|----------------|-------------------|------------|----------------------------|-------|
+| `ranked1.php`–`ranked5.php`, `ranked7.php` | Yes | Yes | Sort, autorank, ranked cloak | PHP `ORDER BY rating DESC`; `$k2RankedCloak = true`; `table-autofilter` + rowcount classes are **no-op** (no `table-filterable`, no `#tablefiltercount` in DOM) |
+| `ranked8.php` (Hall of Fame) | Yes | Yes (via `peak_period_leaderboards_section.php` ×3) | Sort, stripe (invisible) | No cloak; smaller tables (~50 rows each) |
+| `server3.php` (Games tab) | Yes | Yes | Sort only (meaningful) | `table-autofilter` / rowcount **no-op**; query: 7-day window if ≥50 games else last 50 by id; adjustment cell shared via `k2_game_rating_adjustment.php` |
+| `game.php` | Yes | Yes | Sort/page classes present, **pointless** (one row) | Row differs from Games tab in several columns (see gaps below) |
+| `individual3.php` (player games) | Yes | Yes | Sort + page (100) + **column filters** | `SELECT *` for player — **no LIMIT**; primary **performance risk**; see **Preserve: player games column filters** below |
+| `individual2a.php`, `individual2b.php`, `individual2c.php` | Yes | Yes | Sort; autofilter no-op | Player sub-stats tables |
+| `server1.php` (Activity) | Yes | Yes | Mostly **no-op** | Small stats table; `table-autopage:100` + paging IDs but no sortable headers / no tfoot paging UI |
+| `server2.php` (Records) | Yes | Yes | Mostly **no-op** | No `table-autosort`; page/rowcount refs unused |
+| `status.php` | Yes | Yes (`k2-status-table` in include) | **None** — dead script | Static status tables; no elolist classes |
+| `individual1.php` | Yes | **No** | **None** — dead script | Charts/profile only |
+| `includes/peak_period_leaderboards_section.php` | Parent page | Yes | Sort if parent loads `elolist.js` | Used on `ranked8.php` |
+| `includes/period_activity_leaderboards_section.php` | — | Yes | Stripe only (no `elolist.js` on parent found) | Include exists; **not referenced** by any `site/public_html/*.php` page in repo audit — tables inert for stripe without JS |
+| `includes/status_room_section.php` | — | Yes | Static | Compact lobby/leaderboard snippets |
+
+#### Ranked-page cloak
+
+- Enabled: `ranked1`–`ranked5`, `ranked7` via `$k2RankedCloak` → `ranked_table_cloak_head.php` + `ranked-table-pending` + `html.ranked-js` CSS in `elolist.css`.
+- Purpose: hide table until `Table.auto()` finishes (avoids flash before JS enhancement).
+- Not used on Games, `game.php`, or `ranked8` peak tables.
+
+#### Active sort indication (UX baseline)
+
+- `elolist.js` adds `table-sorted-asc` / `table-sorted-desc` on active `<th>` after sort.
+- **`theme.css` has no rules** for those classes — only generic `th.table-sortable:hover` (accent underline).
+- No sort persistence (`localStorage` / URL / cookie) for table columns anywhere (site uses storage for realm/hub nav/accent only).
+
+#### Leaderboards (hybrid prep notes)
+
+- Server default: all wing pages `ORDER BY rating DESC`; rank column is PHP 1…n in that order.
+- Client: instant re-sort on header click; `table-autorank` rewrites column 0 to match visible order (and page offset when paged).
+- New `lb_player_filters.php` + wing toggles filter **player pool** via query string — separate from column sort state.
+
+#### Games tab + `game.php` row parity (Phase 2 input)
+
+Shared: `k2_game_rating_adjustment.php` for adjustment column.
+
+Still divergent (as of baseline):
+
+| Column / behavior | `game.php` | `server3.php` |
+|-------------------|------------|---------------|
+| ID | Plain int | Link to `game.php` |
+| Date | Raw DB string + escaped | `M d Y, H:i` |
+| Names | `htmlspecialchars` | Unescaped |
+| Draw in Winner col | `Draw` | `-` |
+| Win/loss test | Float tolerance | `== 1` / `== 0` |
+
+Games data rule (pre–Phase 3): last 7 calendar days if count ≥ 50, else newest 50 games overall.
+
+#### Performance notes (qualitative)
+
+| Context | Expected sort UX | Why |
+|---------|------------------|-----|
+| Leaderboards (~hundreds of rows, simple cells) | Fast / instant | DOM size moderate; acceptable for client sort |
+| `game.php` | N/A | Single row |
+| `individual3.php` | **Slow for prolific players** | All games in one tbody; sort scans DOM via `getCellValue()`; paging hides rows but does not remove them from sort work |
+| Peak / period tables | Fast | Small row counts |
+
+Phase 7 (`individual3` server paging/sort) remains the real fix for large histories; faster JS alone is insufficient at thousands of rows.
+
+#### Preserve: player games column filters (`individual3.php`)
+
+**Product requirement: keep the functionality.** Users must be able to narrow the player games list by **Result** and **Opponent** (today via per-column dropdowns in the filter header row).
+
+**Implementation: undecided.** We have not chosen whether filters should stay **client-side** (current elolist behavior: dropdowns built from visible cell values, rows hidden in DOM), move **server-side** (query params + `WHERE` / paginated API), or use a **hybrid**. Phase 7 kickoff should compare options against large-table performance goals; do not assume “keep elolist as-is” is the long-term answer.
+
+**Current behavior (baseline reference)** — the **only** table on the site using elolist column filters for real:
+
+- `table-autofilter` on the table.
+- `table-filterable` on **two** header cells in the extra filter row (columns **Result** and **Opponent** — 7th and 8th data columns).
+- `elolist.js` injects `<select class="table-autofilter">` per distinct cell values; choosing a value hides non-matching rows (client-side).
+
+Also on this page (lower priority / partially dormant):
+
+- **Paging** — `table-autopage:100`, tfoot Previous/Next, `#tablepage` / `#tablepages` (keep unless Phase 7 replaces with server paging).
+- **Filtered row count** — tfoot markup for `#tablefiltercount` / `#tableallcount` exists but is **HTML-commented out**; decide in Phase 7 whether to restore or drop.
+
+**Not the same as** leaderboard wing filters (`lb_player_filters.php`), which change the **SQL player pool**, not per-column values in an already-rendered games table.
+
+When trimming no-op `table-autofilter` elsewhere (Phase 1), **do not** remove filter wiring from `individual3.php` until a replacement exists. When designing `k2-table.js` (Phase 4+) and `individual3` (Phase 7), treat **filter UX as required** and **client vs server implementation as TBD** — not dropped by accident during cleanup or migration.
+
+#### Phase 0 → Phase 1 handoff (actionable)
+
+1. Remove striping classes site-wide (`table-autostripe`, `table-stripeclass:alternate`, `table-rowshade-alternate`).
+2. Remove dead `elolist.js` from `status.php`, `individual1.php`.
+3. Strip no-op `table-autofilter` / `table-filtered-rowcount:*` / `table-rowcount:*` where no `table-filterable` or count elements exist.
+4. Review `server1.php` / `server2.php` / `game.php` for pointless `table-autopage` / sort classes.
+5. Do **not** remove `elolist.js` from leaderboards, `individual3`, or `ranked8` until `k2-table.js` migration (Phase 4+).
+
+#### Phase 0 close
+
+- Baseline recorded; no code changes in this phase.
+- **Next recommended phase:** Phase 1 (cleanup pass), using handoff list above.
+
 ## Phase 1 - Cleanup Pass (Low-risk)
 
 Goal: remove dead weight without changing product behavior.
@@ -215,6 +338,7 @@ Goal: fix large-list responsiveness with a dedicated approach.
 
 - Investigate server-side paging/sorting approach.
 - Decide query + UX model for large player game history.
+- **Retain column filter capability** (Result / Opponent narrowing) — UX required; **client vs server implementation TBD** — see baseline **Preserve: player games column filters**.
 - Implement and validate performance improvements.
 
 Definition of done:
@@ -231,7 +355,8 @@ Definition of done:
   - hybrid combination.
 - Exact active sort visual design (icon, underline, color treatment).
 - Exact migration order for leaderboard pages after pilot.
-- Whether any filter/paging behavior remains JS-side or moves server-side per page.
+- **`individual3` column filters:** client-side (elolist-style) vs server-side (query/API) vs hybrid — functionality required, approach open.
+- Whether paging on `individual3` remains JS-side or moves server-side (likely server for performance).
 
 ## Testing Checklist (Reusable)
 
@@ -253,3 +378,5 @@ Definition of done:
 Use this section to track meaningful plan updates over time.
 
 - 2026-05-24: Initial plan drafted. Framework-first approach agreed; execution details to be finalized per phase kickoff.
+- 2026-05-24: Phase 0 baseline completed (page inventory, elolist vs CSS roles, row parity gaps, Phase 1 handoff).
+- 2026-05-24: Document preserve requirement for `individual3.php` Result/Opponent filters (functionality required; client vs server TBD).
