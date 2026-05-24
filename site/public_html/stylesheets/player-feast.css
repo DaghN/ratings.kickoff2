@@ -25,8 +25,8 @@
 }
 
 .pm3-moment:hover {
-	border-color: var(--k2-realm-accent);
-	box-shadow: 0 0 24px var(--k2-realm-glow);
+	border-color: var(--k2-accent);
+	box-shadow: 0 0 24px var(--k2-accent-glow);
 }
 
 .pm3-moment--streak {
@@ -121,7 +121,7 @@
 	display: block;
 	font-size: 26px;
 	color: var(--k2-link-star);
-	text-shadow: 0 0 12px var(--k2-realm-glow);
+	text-shadow: 0 0 12px var(--k2-accent-glow);
 }
 
 /* ── Calendar (played days — JS fills .pm3-cal__year) ── */
@@ -184,8 +184,8 @@
 }
 
 .pm3-cal__cell--play {
-	background: var(--k2-realm-accent, #3fb950);
-	box-shadow: 0 0 6px var(--k2-realm-glow);
+	background: var(--k2-accent, #ffb74d);
+	box-shadow: 0 0 6px var(--k2-accent-glow);
 }
 
 .pm3-cal__legend {

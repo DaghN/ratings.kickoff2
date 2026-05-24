@@ -130,29 +130,30 @@ Conceptual — exact values tuned in theme lab:
 --k2-border-subtle  /* rgba white ~6% */
 ```
 
-### Realm accent tokens (production — locked May 2026)
+### UI accent / tint tokens (production — May 2026)
 
-| Realm | `--k2-realm-accent` | Character |
-|-------|---------------------|-----------|
-| **Online** | `#ffb74d` (amber) | Warm competitive chrome for the online ladder |
-| **Amiga** | `#9ccc65` (green) | Pitch / chart-green identity for the Amiga realm |
+**Tint** (`--k2-accent` on `<html>`) drives links, nav rings, glows, and chrome. **Not** tied to Online/Amiga realm. See `docs/tint-vs-realm.md`.
 
-Mechanism:
+| Tint | Hex | Notes |
+|------|-----|--------|
+| **Amber** (default) | `#ffb74d` | CSS default on every load |
+| Chrome | `#64b5f6` | Hub tint pill |
+| Pulse | `#f06292` | Hub tint pill |
+| Holo | `#b388ff` | Hub tint pill |
 
 ```html
-<html data-realm="online">  <!-- or amiga -->
+<html data-realm="online" data-k2-accent="chrome">  <!-- realm = universe; accent optional -->
 ```
 
 ```css
-html[data-realm="online"] { --k2-realm-accent: #ffb74d; /* + muted/glow in theme.css */ }
-html[data-realm="amiga"]  { --k2-realm-accent: #9ccc65; }
+html { --k2-accent: #ffb74d; /* + muted/glow; hub data-k2-accent overrides */ }
 ```
 
-**Charts** stay **realm-neutral** (multi-colour `chart-theme.js` palette). **Links / link-star** derive from `--k2-realm-accent` via `color-mix` on `html`. Full-strength accent is for **chrome** (nav rings, hero avatar border, glows) — not raw colour on every `<a>`.
+**Realm** (`data-realm`) selects ladder/universe for data and copy later; it does **not** set site paint.
 
-**Staging accent preview** (hub): Chrome · Pulse · Holo temporarily override `--k2-realm-accent` (and thus links) for curiosity; realm switcher stays fixed amber/green. Hidden by default — **Show tint** on hub bar.
+**Charts** stay **realm-neutral** (multi-colour `chart-theme.js` palette). **Links / link-star** derive from `--k2-accent` via `color-mix` on `html`.
 
-*Historical lab options (blue online, swapped green/amiga) are superseded unless deliberately revisited.*
+**Hub tint picker:** Chrome · Pulse · Holo; hidden by default — **Show tint** on hub bar. Five tints + persistence deferred.
 
 ### Text & link hierarchy (production — May 2026)
 
@@ -170,10 +171,10 @@ Agreed balance after nav/header/link passes: **data and player names lead**; acc
 | Nav active (segment) | `--k2-segment-active-text` (72% + secondary) + `--k2-segment-active-ring` | Outline chrome, not fill |
 | Column headers | `--k2-text-muted`, weight 500 | Sort hover → secondary + inset accent bar |
 | Stat positive / negative | `.blue` / `.red` → `--k2-table-positive` / `--k2-table-negative` | 78% cyan/magenta mix to primary; chart bases stay full in `chart-theme.js` |
-| Structure | `--k2-realm-accent` at 100% | Rings, borders, avatar, decorative glows only |
-| Table row hover | `--k2-bg-hover` | Neutral lift only — not `realm-accent-muted` (avoids muddy tint on link-star names) |
+| Structure | `--k2-accent` at 100% | Rings, borders, avatar, decorative glows only |
+| Table row hover | `--k2-bg-hover` | Neutral lift only — not `accent-muted` (avoids muddy tint on link-star names) |
 
-All link/star tokens are **derived on `html`** from `--k2-realm-accent` (set per `data-realm` / optional `data-k2-accent` tune). Do not duplicate hex link colours in realm blocks.
+All link/star tokens are **derived on `html`** from `--k2-accent` (default amber; optional `data-k2-accent` on hub). Do not duplicate hex link colours in per-page CSS.
 
 **Profile feast CSS** (`player-feast*.css`, `player-hero-rank.css`): typographic highlights use `--k2-link-star` (no text-shadow glow on busiest/duel counts — avatar ring keeps glow).
 
@@ -342,7 +343,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 - **Hub / player nav (production):** **segment** track + outline active (`data-k2-hub-nav="segment"` default); overrides via `?k2_hub_nav=`.
 - **Hub accent preview pills:** Chrome · Pulse · Holo; **hidden by default**; **Show tint** on hub bar. Staging — remove at launch unless kept.
 - **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).
-- **Realm accents:** online amber / amiga green (see § Realm accent tokens).
+- **UI tint:** default amber; hub pills (see § UI accent / tint tokens, `docs/tint-vs-realm.md`).
 - **Status room:** 4-column grid, asymmetric cols (wider games + leaderboard); `.k2-panel-heading` on panel/chart titles; body text `--k2-text-primary` `#d0d7de` (May 2026 tune).
 
 **Change style:** small, reversible slices — same as `PROJECT_BRIEF.md`.
@@ -366,7 +367,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 - [x] **Neon intensity:** **C · Bold** — glow on **player hero avatar** only (not feast stat text)
 - [x] **Display font:** **Exo 2**
-- [x] **Realm accents (production):** **Online amber** `#ffb74d` · **Amiga green** `#9ccc65` (see § Realm accent tokens)
+- [x] **UI tint (production):** default **amber** `#ffb74d`; hub Chrome · Pulse · Holo (see § UI accent / tint tokens)
 
 ### Still open (minor — not blocking staging)
 

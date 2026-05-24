@@ -85,7 +85,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 
 - Site-wide dark theme on main PHP pages (`theme.css`, `site_header.php`, ranked/server/individual pages, etc.).
 - Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, realm accents (see `theme.css` — **TEST swap** may differ from locked lab defaults), Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
-- Realm switcher: **segment** outline active (amber Online / green Amiga; not accent-tune colours).
+- Realm switcher: **segment** outline active (uses site tint like hub nav; not realm-specific colours).
 - Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
 - Theme lab (May 2026) promoted to production; static lab files later removed from repo.
 - **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + staging accent preview pills), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
@@ -198,7 +198,7 @@ Global hub nav replaced by player context:
 |------|----------|
 | Home + player pills | **Segment track** — active: softened accent text + single mixed ring (`--k2-segment-active-*`); no fill tint. Override via `?k2_hub_nav=`. |
 | Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
-| Hub accent preview pills | **Staging (keep for now)** — Chrome · Pulse · Holo; **hidden by default** + **Show tint**. Overrides link colours; realm switch stays amber/green. Launch decision deferred. |
+| Hub tint picker | **Staging (keep for now)** — Chrome · Pulse · Holo; **hidden by default** + **Show tint**. Sets `--k2-accent`; default amber in CSS. Independent of realm switch. Launch decision deferred. |
 | Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
 | Nav hover (inactive) | **`--k2-text-secondary`** — between muted and primary; not full white flash. Sort/table data stay primary. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
@@ -210,7 +210,7 @@ Global hub nav replaced by player context:
 ## Visual / theme (still agreed)
 
 - Table highlights: Cyan · Magenta.
-- **Text ladder:** full detail in `design-direction.md` (Text & link hierarchy). Summary: `--k2-link-star` for player names + profile highlight text; `--k2-link` for prose; `--k2-realm-accent` for chrome only.
+- **Text ladder:** full detail in `design-direction.md` (Text & link hierarchy). Summary: `--k2-link-star` for player names + profile highlight text; `--k2-link` for prose; `--k2-accent` for chrome only.
 - Table column headers: muted labels on `bg-surface`, weight 500; thin mixed-accent rule under last header row; sort hover → `text-secondary` + 2px inset accent.
 - Sort header hover: secondary text + inset realm accent bar (same hover step as nav).
 - individual3 filter row: 16 cells, transparent filter row, single green line on last header row only.
@@ -287,7 +287,7 @@ The list below was the first "all at once" staging target. Use **Phase A / B / C
 
 ---
 
-*Last updated: May 2026 — Status v1 scope: active Elo top 20, monthly league, recent registrations, room panels (`docs/STATUS_PAGE_DATA.md`). Phase B unblocked (same DB as legacy status). Realm colours locked (online amber / amiga green); profile feast stat glow removed; hub nav geometry aligned with wings.*
+*Last updated: May 2026 — Status v1 scope: active Elo top 20, monthly league, recent registrations, room panels (`docs/STATUS_PAGE_DATA.md`). Phase B unblocked (same DB as legacy status). UI tint default amber (realm ≠ paint); profile feast stat glow removed; hub nav geometry aligned with wings.*
 
 ---
 

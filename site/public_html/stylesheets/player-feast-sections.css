@@ -53,7 +53,7 @@
 }
 
 .pm3d-section__content > .pm3-cal--hero .pm3-cal__cell--play {
-	background: var(--k2-realm-accent);
+	background: var(--k2-accent);
 	box-shadow: none;
 }
 
@@ -93,7 +93,7 @@
 	width: 14px;
 	height: 14px;
 	flex-shrink: 0;
-	background: var(--k2-realm-accent);
+	background: var(--k2-accent);
 	box-shadow: none;
 }
 
@@ -151,7 +151,7 @@
 }
 
 .pm3d-section__content > .pm3-duel .pm3-duel__center {
-	background: radial-gradient(circle, var(--k2-realm-glow), transparent 70%);
+	background: radial-gradient(circle, var(--k2-accent-glow), transparent 70%);
 }
 
 .player-feast-body .pm3-duel__vs {
@@ -186,12 +186,12 @@
 
 .pm3d-section .pm3-moment--streak .pm3-moment__score {
 	color: var(--k2-link-star);
-	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+	text-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-accent-glow);
 }
 
 .pm3d-section .pm3-moment:hover {
-	border-color: var(--k2-realm-accent);
-	box-shadow: 0 0 20px var(--k2-realm-glow);
+	border-color: var(--k2-accent);
+	box-shadow: 0 0 20px var(--k2-accent-glow);
 }
 
 .pm3d-section .pm3-moments--mosaic .pm3-moment:nth-child(odd) {

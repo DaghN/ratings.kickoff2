@@ -49,11 +49,6 @@ html {
 	--k2-accent: #ffb74d;
 	--k2-accent-muted: rgba(255, 183, 77, 0.14);
 	--k2-accent-glow: rgba(255, 183, 77, 0.35);
-	/* Legacy aliases — Phase 2 removes after stylesheet sweep */
-	--k2-realm-accent: var(--k2-accent);
-	--k2-realm-accent-muted: var(--k2-accent-muted);
-	--k2-realm-glow: var(--k2-accent-glow);
-
 	--k2-segment-active-text: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
 	--k2-segment-active-ring: color-mix(in srgb, var(--k2-accent) 55%, transparent);
 	--k2-link: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
@@ -171,7 +166,7 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 }
 
 .k2-portal-link:hover {
-	color: var(--k2-realm-accent);
+	color: var(--k2-accent);
 	text-decoration: none;
 }
 
@@ -219,8 +214,8 @@ body.k2-site .k2-header-search__input::placeholder {
 body.k2-site .player-search-input:focus,
 body.k2-site .k2-header-search__input:focus {
 	outline: none;
-	border-color: var(--k2-realm-accent);
-	box-shadow: 0 0 0 2px var(--k2-realm-accent-muted);
+	border-color: var(--k2-accent);
+	box-shadow: 0 0 0 2px var(--k2-accent-muted);
 }
 
 body.k2-site .player-search-results {
@@ -291,7 +286,7 @@ body.k2-site .player-search-results li:last-child a {
 
 body.k2-site .player-search-results a:hover,
 body.k2-site .player-search-results a:focus-visible {
-	background-color: var(--k2-realm-accent-muted);
+	background-color: var(--k2-accent-muted);
 }
 
 body.k2-site .player-search-results a:hover .player-search-name,
@@ -309,12 +304,12 @@ body.k2-site .player-search-results a:focus {
 }
 
 body.k2-site .player-search-results a:focus-visible {
-	outline: 2px solid var(--k2-realm-accent);
+	outline: 2px solid var(--k2-accent);
 	outline-offset: -2px;
 }
 
 body.k2-site .player-search-results .player-search-active a {
-	background-color: var(--k2-realm-accent-muted);
+	background-color: var(--k2-accent-muted);
 }
 
 body.k2-site .player-h2h-opponent-search .player-h2h-search-option {
@@ -353,7 +348,7 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 	border: 0;
 }
 
-/* Realm switch — segment track + outline (hub nav parity; fixed realm colours) */
+/* Realm switch — segment track; active uses site tint, not realm colour */
 .k2-realm-switch {
 	display: inline-flex;
 	gap: 2px;
@@ -383,30 +378,16 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 	background: var(--k2-bg-hover);
 }
 
-.k2-realm-switch__btn[data-realm="online"].is-active {
-	color: color-mix(in srgb, #ffb74d 72%, var(--k2-text-secondary));
+.k2-realm-switch__btn.is-active {
+	color: var(--k2-segment-active-text);
 	background: transparent;
-	border-color: color-mix(in srgb, #ffb74d 55%, transparent);
-	box-shadow: none;
-}
-
-.k2-realm-switch__btn[data-realm="amiga"].is-active {
-	color: color-mix(in srgb, #9ccc65 72%, var(--k2-text-secondary));
-	background: transparent;
-	border-color: color-mix(in srgb, #9ccc65 55%, transparent);
+	border-color: var(--k2-segment-active-ring);
 	box-shadow: none;
 }
 
 .k2-realm-switch__btn.is-active:hover {
+	color: var(--k2-segment-active-text);
 	background: transparent;
-}
-
-.k2-realm-switch__btn[data-realm="online"].is-active:hover {
-	color: color-mix(in srgb, #ffb74d 72%, var(--k2-text-secondary));
-}
-
-.k2-realm-switch__btn[data-realm="amiga"].is-active:hover {
-	color: color-mix(in srgb, #9ccc65 72%, var(--k2-text-secondary));
 }
 
 .k2-page-nav {
@@ -643,7 +624,7 @@ body.k2-site .k2-table thead th {
 }
 
 body.k2-site .k2-table thead tr:last-child th {
-	border-bottom: 1px solid color-mix(in srgb, var(--k2-realm-accent) 40%, transparent);
+	border-bottom: 1px solid color-mix(in srgb, var(--k2-accent) 40%, transparent);
 }
 
 body.k2-site .k2-table.ranked-pages-table thead th:nth-child(2),
@@ -666,7 +647,7 @@ body.k2-site .k2-table thead th.table-sortable:hover,
 body.k2-site .k2-table thead th:hover:not(.nohovercell):not(.filtercell) {
 	background-color: var(--k2-bg-surface);
 	color: var(--k2-text-secondary);
-	box-shadow: inset 0 -2px 0 var(--k2-realm-accent);
+	box-shadow: inset 0 -2px 0 var(--k2-accent);
 }
 
 body.k2-site .k2-table thead .nohovercell:hover {
@@ -730,7 +711,7 @@ body.k2-site .k2-table a.pagelink {
 }
 
 body.k2-site .k2-table a.currentpage {
-	background-color: var(--k2-realm-accent-muted);
+	background-color: var(--k2-accent-muted);
 	color: var(--k2-segment-active-text);
 	font-weight: 500;
 }
@@ -813,13 +794,13 @@ body.k2-site a.k2-player-nav__btn:hover:not(.is-active) {
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active,
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active:visited {
 	color: var(--k2-bg-page);
-	background: var(--k2-realm-accent);
+	background: var(--k2-accent);
 	box-shadow: none;
 }
 
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	color: var(--k2-bg-page);
-	background: var(--k2-realm-accent);
+	background: var(--k2-accent);
 	text-decoration: none;
 }
 
@@ -856,14 +837,14 @@ html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active:hove
 /* Player nav — soft */
 html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active,
 html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:visited {
-	color: var(--k2-realm-accent);
-	background: color-mix(in srgb, var(--k2-realm-accent) 22%, transparent);
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 22%, transparent);
 	box-shadow: none;
 }
 
 html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
-	color: var(--k2-realm-accent);
-	background: color-mix(in srgb, var(--k2-realm-accent) 28%, transparent);
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 28%, transparent);
 	text-decoration: none;
 }
 
@@ -886,7 +867,7 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	left: 0;
 	right: 0;
 	height: 4px;
-	background: linear-gradient(90deg, var(--k2-realm-accent), transparent 70%);
+	background: linear-gradient(90deg, var(--k2-accent), transparent 70%);
 	opacity: 0.65;
 }
 
@@ -903,14 +884,14 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	justify-content: center;
 	width: 80px;
 	height: 80px;
-	border: 2px solid var(--k2-realm-accent);
+	border: 2px solid var(--k2-accent);
 	border-radius: 50%;
 	background: linear-gradient(145deg, var(--k2-bg-elevated), var(--k2-bg-hover));
-	color: var(--k2-realm-accent);
+	color: var(--k2-accent);
 	font-family: var(--k2-font-display);
 	font-size: 28px;
 	font-weight: 700;
-	box-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-realm-glow);
+	box-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-accent-glow);
 }
 
 .k2-player-hero__name {
@@ -944,7 +925,7 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 .k2-player-hero__stat-value--accent {
-	color: var(--k2-realm-accent);
+	color: var(--k2-accent);
 }
 
 /* Rank + rating glow: stylesheets/player-hero-rank.css (via k2_head.php) */
@@ -1578,9 +1559,9 @@ html[data-k2-accent-pills-hidden="1"] .k2-hub-tabs__tune .k2-accent-pills {
 }
 
 .k2-accent-pills__btn.is-active {
-	color: var(--k2-realm-accent);
-	border-color: var(--k2-realm-accent);
-	box-shadow: inset 0 0 0 1px var(--k2-realm-accent);
+	color: var(--k2-accent);
+	border-color: var(--k2-accent);
+	box-shadow: inset 0 0 0 1px var(--k2-accent);
 }
 
 .k2-hub-tabs {
@@ -1621,13 +1602,13 @@ body.k2-site a.k2-hub-tabs__btn:hover:not(.is-active) {
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active,
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
 	color: var(--k2-bg-page);
-	background: var(--k2-realm-accent);
+	background: var(--k2-accent);
 	box-shadow: none;
 }
 
 html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	color: var(--k2-bg-page);
-	background: var(--k2-realm-accent);
+	background: var(--k2-accent);
 	text-decoration: none;
 }
 
@@ -1668,14 +1649,14 @@ html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active:hover 
 /* Hub nav — soft tint fill */
 html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active,
 html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
-	color: var(--k2-realm-accent);
-	background: color-mix(in srgb, var(--k2-realm-accent) 22%, transparent);
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 22%, transparent);
 	box-shadow: none;
 }
 
 html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
-	color: var(--k2-realm-accent);
-	background: color-mix(in srgb, var(--k2-realm-accent) 28%, transparent);
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 28%, transparent);
 	text-decoration: none;
 }
 
