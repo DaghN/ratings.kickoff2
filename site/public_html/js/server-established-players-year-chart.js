@@ -75,13 +75,10 @@
                 new Chart(canvas, {
                     type: 'bar',
                     data: {
-                        datasets: [{
+                        datasets: [Object.assign({
                             label: 'New established players (' + gamesRequired + '+ games)',
-                            data: chartData,
-                            backgroundColor: 'rgba(255, 183, 77, 0.65)',
-                            borderColor: T.amber(),
-                            borderWidth: 1
-                        }]
+                            data: chartData
+                        }, T.barStroke(T.magenta()))]
                     },
                     options: {
                         responsive: true,

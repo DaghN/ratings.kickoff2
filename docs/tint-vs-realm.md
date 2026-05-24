@@ -18,7 +18,9 @@
 | `chrome` | `#64b5f6` | |
 | `holo` | `#b388ff` | |
 
-**Table stat overrides (`.blue` / `.red`):** default cyan / magenta. Chrome & Holo → green positives. Charts unchanged.
+**Table stat overrides (`.blue` / `.red`):** default cyan / magenta. Chrome & Holo → green positives.
+
+**Charts:** fixed six-ink palette (pitch, chrome, holo, amber, teal, magenta) — see `docs/design-direction.md`. Hub tints match the first four; **teal** and **hot magenta** (`#ff4081`) are chart-only, not tint pills.
 
 ## Tokens
 

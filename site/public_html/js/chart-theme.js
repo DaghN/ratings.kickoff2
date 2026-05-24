@@ -1,6 +1,9 @@
 /**
  * Chart.js colours aligned with stylesheets/theme.css tokens.
  * Load before chart init scripts on themed pages.
+ *
+ * Canonical chart palette (six): pitch, chrome, holo, amber, teal, magenta.
+ * Aliases green/blue match hub pitch/chrome; profile compare still uses those.
  */
 (function (global) {
     'use strict';
@@ -15,6 +18,11 @@
         } catch (e) {
             return fallback;
         }
+    }
+
+    function cssFloat(name, fallback) {
+        var v = parseFloat(cssVar(name, String(fallback)));
+        return isNaN(v) ? fallback : v;
     }
 
     function hexToRgba(hex, alpha) {
@@ -32,21 +40,49 @@
     }
 
     global.K2ChartTheme = {
-        green: function () { return cssVar('--k2-chart-green', '#9ccc65'); },
-        blue: function () { return cssVar('--k2-chart-blue', '#64b5f6'); },
+        pitch: function () { return cssVar('--k2-chart-green', '#9ccc65'); },
+        chrome: function () { return cssVar('--k2-chart-blue', '#64b5f6'); },
+        holo: function () { return cssVar('--k2-chart-holo', '#b388ff'); },
         amber: function () { return cssVar('--k2-chart-amber', '#ffb74d'); },
-        coral: function () { return cssVar('--k2-chart-coral', '#ff8a65'); },
         teal: function () { return cssVar('--k2-chart-teal', '#4db6ac'); },
-        purple: function () { return cssVar('--k2-chart-purple', '#ba68c8'); },
+        magenta: function () { return cssVar('--k2-chart-magenta', '#ff4081'); },
+        /** @deprecated use pitch() */
+        green: function () { return this.pitch(); },
+        /** @deprecated use chrome() */
+        blue: function () { return this.chrome(); },
+        /** @deprecated use amber() — was coral on goals */
+        coral: function () { return this.amber(); },
+        /** @deprecated use holo() — was legacy purple cumulative */
+        purple: function () { return this.holo(); },
         accent: function () { return cssVar('--k2-accent', '#ffb74d'); },
-        /** @deprecated use accent() — alias for older call sites */
+        /** @deprecated use accent() */
         realm: function () { return this.accent(); },
-        /** Profile subject (this player) on matchup charts */
-        profileCompareBorder: function () { return this.green(); },
-        profileCompareFill: function (alpha) { return this.fill(this.green(), alpha == null ? 0.12 : alpha); },
-        /** Selected opponent on profile matchup charts */
-        opponentFocusBorder: function () { return this.blue(); },
-        opponentFocusFill: function (alpha) { return this.fill(this.blue(), alpha == null ? 0.12 : alpha); },
+        barFillAlpha: function () { return cssFloat('--k2-chart-bar-fill-alpha', 0.65); },
+        barBorderWidth: function () { return cssFloat('--k2-chart-bar-border-width', 1); },
+        lineAreaAlpha: function () { return cssFloat('--k2-chart-line-area-alpha', 0.12); },
+        lineBorderWidth: function () { return cssFloat('--k2-chart-line-border-width', 2); },
+        /** Bar charts (Activity staging style): thin edge + glass fill */
+        barStroke: function (color, fillAlpha) {
+            var a = fillAlpha == null ? this.barFillAlpha() : fillAlpha;
+            return {
+                backgroundColor: this.fill(color, a),
+                borderColor: color,
+                borderWidth: this.barBorderWidth()
+            };
+        },
+        /** Line / area charts */
+        lineStroke: function (color, fillAlpha) {
+            var a = fillAlpha == null ? this.lineAreaAlpha() : fillAlpha;
+            return {
+                borderColor: color,
+                backgroundColor: this.fill(color, a),
+                borderWidth: this.lineBorderWidth()
+            };
+        },
+        profileCompareBorder: function () { return this.pitch(); },
+        profileCompareFill: function (alpha) { return this.fill(this.pitch(), alpha == null ? 0.12 : alpha); },
+        opponentFocusBorder: function () { return this.chrome(); },
+        opponentFocusFill: function (alpha) { return this.fill(this.chrome(), alpha == null ? 0.12 : alpha); },
         textPrimary: function () { return cssVar('--k2-text-primary', '#d0d7de'); },
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },
         grid: function () { return 'rgba(255, 255, 255, 0.08)'; },

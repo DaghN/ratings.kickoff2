@@ -73,13 +73,10 @@
                 new Chart(canvas, {
                     type: 'bar',
                     data: {
-                        datasets: [{
+                        datasets: [Object.assign({
                             label: 'Active players (server)',
-                            data: chartData,
-                            backgroundColor: 'rgba(100, 181, 246, 0.65)',
-                            borderColor: T.blue(),
-                            borderWidth: 1
-                        }]
+                            data: chartData
+                        }, T.barStroke(T.chrome()))]
                     },
                     options: {
                         responsive: true,

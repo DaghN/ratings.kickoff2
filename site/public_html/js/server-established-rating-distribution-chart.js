@@ -60,13 +60,10 @@
                     type: 'bar',
                     data: {
                         labels: labels,
-                        datasets: [{
+                        datasets: [Object.assign({
                             label: 'Established players (' + minGames + '+ games)',
-                            data: counts,
-                            backgroundColor: T.fill(T.teal(), 0.7),
-                            borderColor: T.teal(),
-                            borderWidth: 1
-                        }]
+                            data: counts
+                        }, T.barStroke(T.magenta(), 0.7))]
                     },
                     options: {
                         responsive: true,

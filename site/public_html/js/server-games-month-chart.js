@@ -72,13 +72,10 @@
                 new Chart(canvas, {
                     type: 'bar',
                     data: {
-                        datasets: [{
+                        datasets: [Object.assign({
                             label: 'Games (server)',
-                            data: chartData,
-                            backgroundColor: T.fill(T.green(), 0.65),
-                            borderColor: T.green(),
-                            borderWidth: 1
-                        }]
+                            data: chartData
+                        }, T.barStroke(T.pitch()))]
                     },
                     options: {
                         responsive: true,

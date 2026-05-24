@@ -99,23 +99,40 @@ Think **Blade Runner control room**, not **Cyberpunk 2077 menu screen**.
 
 ## 3. Color system
 
-### Chart palette (already in production JS — keep as design-system seed)
+### Chart palette — six inks (May 2026, signed)
 
-These Material-inspired accents on dark UI were chosen during the chart wave and **work well**. Promote to shared tokens; do not reinvent.
+**Canonical colours** (CSS `--k2-chart-*` in `theme.css`, accessors in `js/chart-theme.js`):
 
-| Token role | Hex | Example use |
-|------------|-----|-------------|
-| Chart green | `#9ccc65` | Games, wins, primary rating line |
-| Chart blue | `#64b5f6` | Players, comparisons, projections |
-| Chart amber | `#ffb74d` | Peaks, milestones |
-| Chart coral | `#ff8a65` | Goals |
-| Chart teal | `#4db6ac` | Distributions |
-| Chart purple | `#ba68c8` | Cumulative growth |
-| Text primary | `#d0d7de` | Body on dark (`--k2-text-primary`; May 2026 — softened from `#e6edf3`) |
-| Text muted | `#8b949e` | Helper copy, chart subtitles, axis labels (`--k2-text-muted`) |
+| Token | Hex | Hub tint? | Role |
+|-------|-----|-----------|------|
+| **pitch** (`--k2-chart-green`) | `#9ccc65` | pitch pill | Games, profile subject, wins |
+| **chrome** (`--k2-chart-blue`) | `#64b5f6` | chrome pill | Active players, projections, opponent focus |
+| **holo** (`--k2-chart-holo`) | `#b388ff` | holo pill | Cumulative established (line) |
+| **amber** (`--k2-chart-amber`) | `#ffb74d` | default UI accent | Goals per month |
+| **teal** (`--k2-chart-teal`) | `#4db6ac` | chart-only | Reserved for future distribution / analyst ink |
+| **magenta** (`--k2-chart-magenta`) | `#ff4081` | chart-only | New established per year, rating distribution |
+
+**Activity (`server1.php`) semantics:**
+
+| Chart | Colour |
+|-------|--------|
+| Games month / year YTD | pitch |
+| Games year projection | chrome |
+| Goals month | amber |
+| Active month | chrome |
+| New established year | magenta |
+| Cumulative established | holo (line, light area fill) |
+| Rating distribution | magenta |
+
+**Render (Activity bars):** `K2ChartTheme.barStroke()` — border 1px, fill α from `--k2-chart-bar-fill-alpha` (0.65). Lines: `lineStroke()` + `--k2-chart-line-area-alpha` (0.12).
+
+Aliases `green()`/`blue()` = pitch/chrome; deprecated `coral()` → amber, `purple()` → holo.
+
+| Text primary | `#d0d7de` | Body on dark |
+| Text muted | `#8b949e` | Helpers, axis labels |
 | Grid subtle | `rgba(255, 255, 255, 0.08)` | Chart grids |
 
-Chart.js reads these via `js/chart-theme.js` from CSS variables. Chart block subtitles in PHP use inline `var(--k2-text-muted)` (replaced legacy `main2` `#b0b0b0`).
+Chart block hints use `.k2-chart-block__hint`.
 
 ### Global surface tokens (production target)
 

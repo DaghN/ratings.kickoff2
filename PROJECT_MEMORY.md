@@ -10,7 +10,7 @@
 
 - **Design / cosmetics track:** **Phase A hub shell + Status Phase B v1.2 shipped in repo** (May 2026) — `status.php` 4-col room grid, league month toggle, shared `.k2-panel-heading`, softer `--k2-text-primary` (`#d0d7de`). Spec: `docs/STATUS_PAGE_DATA.md`. **Next:** WinSCP to staging; Steve for prod `kooldb` read + joshua redirect; realm switcher when Amiga exists.
 
-- **Charts (first wave):** largely **shipped** on staging — Chart.js under `js/`, JSON `api/`; profile layout contract **`docs/player-profile-feast.md`**; server charts on `server1.php`. **Busiest day / month / year hall of fame** on `server1.php` (`peak_period_leaderboard_query.php`). Further chart ideas only **after** profile tone / layout pass unless Dagh prioritises otherwise.
+- **Charts (Activity):** **six-colour palette signed** (May 2026) — pitch/chrome/holo/amber/teal/magenta on `server1.php`; tokens in `theme.css` + `chart-theme.js` (`barStroke` / `lineStroke`). Chart lab removed. Profile charts still use pitch/chrome; further chart work after profile pass unless Dagh prioritises otherwise.
 
 - **DB performance (May 2026):** Profile load fixed mainly via **`idx_ratedresults_idA` / `idx_ratedresults_idB`** — local + staging; **production still pending** (Steve when agreed). Heavy profiles ~**8s → ~1s** locally. **`server1.php` trends** still slow (~7s SSR hall of fame + chart APIs) — not fixed by a `Date` index; needs fewer/heavier queries or precompute later.
 
@@ -64,6 +64,7 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Activity chart palette shipped** — six inks (B1 winner): amber goals, magenta established + dist, holo cumulative; lab deleted; `design-direction.md` + `chart-theme.js` refactor. |
 | 2026-05 | **Status leaderboard panel copy** — “Full ladder” → “Full leaderboard” link in `status_room_section.php`. |
 | 2026-05 | **Agent doc hygiene:** MEMORY trim, root **README**, **AGENTS** / **UPDATE_DOCS** cross-links; stale Status Phase B Next removed. |
 | 2026-05 | **Status Phase B v1.2 in repo** — 4-col rooms, league month toggle, panel headings; spec `docs/STATUS_PAGE_DATA.md`. Deploy + prod DB still open. |

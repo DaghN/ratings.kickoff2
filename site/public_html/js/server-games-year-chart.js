@@ -70,22 +70,16 @@
                     data: {
                         labels: labels,
                         datasets: [
-                            {
+                            Object.assign({
                                 label: 'Games',
                                 data: actualData,
-                                backgroundColor: T.fill(T.green(), 0.75),
-                                borderColor: T.green(),
-                                borderWidth: 1,
                                 stack: 'games'
-                            },
-                            {
+                            }, T.barStroke(T.pitch(), 0.75)),
+                            Object.assign({
                                 label: 'Projected remainder (current year)',
                                 data: projectedData,
-                                backgroundColor: T.fill(T.blue(), 0.55),
-                                borderColor: T.blue(),
-                                borderWidth: 1,
                                 stack: 'games'
-                            }
+                            }, T.barStroke(T.chrome(), 0.55))
                         ]
                     },
                     options: {

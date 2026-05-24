@@ -19,12 +19,17 @@
 	--k2-border-subtle: rgba(255, 255, 255, 0.07);
 	--k2-border-strong: rgba(255, 255, 255, 0.1);
 
-	--k2-chart-green: #9ccc65;
-	--k2-chart-blue: #64b5f6;
+	/* Chart palette — six inks (May 2026); hub tints = pitch/chrome/holo/amber + chart-only teal + magenta */
+	--k2-chart-green: #9ccc65;   /* pitch */
+	--k2-chart-blue: #64b5f6;    /* chrome */
 	--k2-chart-amber: #ffb74d;
-	--k2-chart-coral: #ff8a65;
+	--k2-chart-holo: #b388ff;
 	--k2-chart-teal: #4db6ac;
-	--k2-chart-purple: #ba68c8;
+	--k2-chart-magenta: #ff4081;
+	--k2-chart-bar-fill-alpha: 0.65;
+	--k2-chart-bar-border-width: 1;
+	--k2-chart-line-area-alpha: 0.12;
+	--k2-chart-line-border-width: 2;
 
 	--k2-stat-positive-base: #4fc3f7;
 	--k2-stat-negative-base: #f06292;

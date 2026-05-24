@@ -75,17 +75,14 @@
                 new Chart(canvas, {
                     type: 'line',
                     data: {
-                        datasets: [{
+                        datasets: [Object.assign({
                             label: 'Cumulative established (' + gamesRequired + '+ games)',
                             data: chartData,
-                            borderColor: T.purple(),
-                            backgroundColor: 'rgba(186, 104, 200, 0.12)',
-                            borderWidth: 2,
                             fill: true,
                             stepped: true,
                             pointRadius: 0,
                             pointHitRadius: 6
-                        }]
+                        }, T.lineStroke(T.holo()))]
                     },
                     options: {
                         responsive: true,
