@@ -19,6 +19,8 @@
 | `pulse` | `#f06292` | |
 | `holo` | `#b388ff` | |
 
+**Table stat overrides (`.blue` / `.red`):** default cyan / magenta. Chrome & Holo → green positives. Pulse → coral negatives (accent = default negative). Charts unchanged.
+
 ## Tokens
 
 | Token | Set by |
