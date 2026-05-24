@@ -1567,8 +1567,8 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 	width: 7px;
 	height: 7px;
 	border-radius: 50%;
-	background: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-text-muted)) 50%, var(--k2-text-muted));
-	box-shadow: none;
+	background: var(--k2-accent-swatch, var(--k2-text-muted));
+	box-shadow: 0 0 6px var(--k2-accent-swatch, transparent);
 }
 
 .k2-accent-pills__btn[data-k2-accent="amber"] { --k2-accent-swatch: #ffb74d; }
@@ -1612,7 +1612,7 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 }
 
 .k2-accent-pills__btn.is-active::before {
-	background: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-text-muted)) 72%, var(--k2-text-muted));
+	box-shadow: 0 0 8px var(--k2-accent-swatch, transparent);
 }
 
 .k2-hub-tabs {
