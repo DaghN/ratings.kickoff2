@@ -20,7 +20,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>
 
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
@@ -71,67 +71,9 @@ mysqli_close($con);
 </thead>
 
 <tbody class="black">
-	<?php
-    $i = "1";
-    while ($row = mysqli_fetch_row($result))
-    {  
-    
-	$id = $row[0];
-	$Date = $row[1];
-	$idA = $row[2];
-	$NameA = $row[3];
-	$idB = $row[4];
-	$NameB = $row[5];
-	$RatingA = $row[6];
-	$RatingB = $row[7];
-	$RatingDifference = $row[8];
-	$GoalsA = $row[9];
-	$GoalsB = $row[10];
-	$ExpectedScoreA = $row[18];
-	$ExpectedScoreB = $row[19];
-	$ActualScore = $row[20];
-	$AdjustmentA = $row[21];
-	$AdjustmentB = $row[22];
-	$SumOfGoals = $row[25];
-	$GoalDifference = $row[26];
-	?>
-    
-    <tr style="text-align:right;">
-        <td><a href="game.php?id=<?php echo $id ?>"><?php echo $id ?></a></td>
-        <td>&nbsp;<?php echo date('M d Y, H:i', strtotime($Date)) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><a href="individual1.php?id=<?php echo $idA ?>"><?php echo $NameA ?></a></td>
-        <td><?php echo $GoalsA ?></td>
-        <td style="text-align:left;"><?php echo $GoalsB ?></td>
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $idB ?>"><?php echo $NameB ?></a></td>
-        <td><?php echo $GoalDifference ?></td>
-        <td><?php echo $SumOfGoals ?></td>
-        <td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;
-			<?php	if 		($ActualScore == 1) {echo ("<a href=\"individual1.php?id=" .$idA. "\">" .$NameA. "</a>");}
-			      	elseif 	($ActualScore == 0) {echo ("<a href=\"individual1.php?id=" .$idB. "\">" .$NameB. "</a>");}
-					else 	{echo "-";}
-			?></td>
-        <td><?php echo round($RatingA) ?></td>
-        <td><?php echo round($RatingB) ?></td>
-        <td><?php echo number_format(abs($RatingDifference), 1) ?></td>
-        <td><?php	if 		($ActualScore == 1) {echo number_format(100*$ExpectedScoreA, 1); echo "%";}
-			      	elseif 	($ActualScore == 0) {echo number_format(100*$ExpectedScoreB, 1); echo "%";}
-					else 	{echo number_format(min(100*$ExpectedScoreA, 100*$ExpectedScoreB), 1); echo "%";}
-			?></td>       
-        <td style="text-align:left;"><?php echo k2_game_rating_adjustment_html([
-			'ActualScore' => $ActualScore,
-			'AdjustmentA' => $AdjustmentA,
-			'AdjustmentB' => $AdjustmentB,
-			'idA' => $idA,
-			'idB' => $idB,
-			'NameA' => $NameA,
-			'NameB' => $NameB,
-		]); ?></td>
-	</tr> 
-    
-    <?php
-	$i++; 
-    }  
-    ?> 
+<?php while ($row = mysqli_fetch_assoc($result)) { ?>
+	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'link']); ?>
+<?php } ?>
 </tbody>
 
 </table>

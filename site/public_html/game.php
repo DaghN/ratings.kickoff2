@@ -31,7 +31,7 @@ mysqli_free_result($result);
 mysqli_stmt_close($stmt);
 mysqli_close($con);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 ?>
 
 <div class="k2-table-wrap">
@@ -61,45 +61,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.ph
 </thead>
 
 <tbody class="black">
-	<tr style="text-align:right;">
-        <td><?php echo (int) $row['id']; ?></td>
-        <td>&nbsp;<?php echo htmlspecialchars((string) $row['Date'], ENT_QUOTES, 'UTF-8'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><a href="individual1.php?id=<?php echo (int) $row['idA']; ?>"><?php echo htmlspecialchars((string) $row['NameA'], ENT_QUOTES, 'UTF-8'); ?></a></td>
-        <td><?php echo (int) $row['GoalsA']; ?></td>
-        <td style="text-align:left;"><?php echo (int) $row['GoalsB']; ?></td>
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo (int) $row['idB']; ?>"><?php echo htmlspecialchars((string) $row['NameB'], ENT_QUOTES, 'UTF-8'); ?></a></td>
-        <td><?php echo (int) $row['GoalDifference']; ?></td>
-        <td><?php echo (int) $row['SumOfGoals']; ?></td>
-        <td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;
-<?php
-    $actual = (float) $row['ActualScore'];
-    if (abs($actual - 1.0) < 0.001) {
-        echo '<a href="individual1.php?id=' . (int) $row['idA'] . '">' . htmlspecialchars((string) $row['NameA'], ENT_QUOTES, 'UTF-8') . '</a>';
-    } elseif (abs($actual) < 0.001) {
-        echo '<a href="individual1.php?id=' . (int) $row['idB'] . '">' . htmlspecialchars((string) $row['NameB'], ENT_QUOTES, 'UTF-8') . '</a>';
-    } else {
-        echo 'Draw';
-    }
-?>
-			</td>
-        <td><?php echo (int) round((float) $row['RatingA']); ?></td>
-        <td><?php echo (int) round((float) $row['RatingB']); ?></td>
-        <td><?php echo number_format(abs((float) $row['RatingDifference']), 1); ?></td>
-        <td>
-<?php
-    $expectedA = (float) $row['ExpectedScoreA'];
-    $expectedB = (float) $row['ExpectedScoreB'];
-    if (abs($actual - 1.0) < 0.001) {
-        echo number_format(100 * $expectedA, 1) . '%';
-    } elseif (abs($actual) < 0.001) {
-        echo number_format(100 * $expectedB, 1) . '%';
-    } else {
-        echo number_format(min(100 * $expectedA, 100 * $expectedB), 1) . '%';
-    }
-?>
-		</td>
-        <td style="text-align:left;"><?php echo k2_game_rating_adjustment_html($row); ?></td>
-	</tr>
+	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'plain']); ?>
 </tbody>
 
 </table>

@@ -297,7 +297,7 @@ Use this table for day-to-day reference. The Phase 0 baseline inventory above is
 
 ## Phase 2 - Shared Rated-Game Row Rendering
 
-**Status: kickoff / decisions (2026-05-24) — implementation next**
+**Status: completed 2026-05-24**
 
 Goal: one source of truth for row content in `game.php` and Games tab.
 
@@ -372,11 +372,17 @@ These apply to **both** pages unless `id_mode` says otherwise. This **intentiona
 - Phase 3: reuse `k2_rated_game_row_html()` per day; drop client sort on Games tables.
 - Do not refactor `individual3` row markup in this phase.
 
-### Phase 2 — next implementation step
+### Phase 2 close (2026-05-24)
 
-1. Add `includes/k2_rated_game_row.php` per above.
-2. Replace row markup in `game.php` (`id_mode` → `plain`) and `server3.php` (`id_mode` → `link`).
-3. Quick visual check: one game detail + Games tab (win, loss, draw if available).
+**Shipped:**
+
+- `includes/k2_rated_game_row.php` — normalize, winner, ES %, date, id, full row; uses `k2_game_rating_adjustment.php`.
+- `game.php` — `k2_rated_game_row_html($row, ['id_mode' => 'plain'])`.
+- `server3.php` — `mysqli_fetch_assoc` loop + `['id_mode' => 'link']`.
+
+**Canonical rules now live on both pages** (formatted date, escaped names, `Draw`, float tolerance).
+
+**Next:** Phase 3 — seven day buckets on Games tab; reuse `k2_rated_game_row_html()` per table.
 
 ## Phase 3 - Games Tab 7-Day Split
 
@@ -489,3 +495,4 @@ Use this section to track meaningful plan updates over time.
 - 2026-05-24: Document preserve requirement for `individual3.php` Result/Opponent filters (functionality required; client vs server TBD).
 - 2026-05-24: Phase 1 cleanup completed (striping, dead scripts, no-op elolist classes).
 - 2026-05-24: Phase 2 kickoff — shared row API sketch + canonical column decisions (game.php + server3.php).
+- 2026-05-24: Phase 2 implemented — `k2_rated_game_row.php`, wired in `game.php` and `server3.php`.
