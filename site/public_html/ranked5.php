@@ -44,7 +44,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table ranked-pages-table ranked-table-pending table-autosort table-autofilter table-autorank table-stripeclass:alternate table-autostripe table-rowshade-alternate table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table ranked-pages-table ranked-table-pending table-autosort table-autorank"> 
 
 <thead>
     <tr style="text-align:right;">

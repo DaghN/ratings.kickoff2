@@ -5,7 +5,6 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
-<script type="text/javascript" src="js/elolist.js"></script>
 
 </head>
 
@@ -40,7 +39,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.ph
 <?php if ($row === null) { ?>
 <p>Game not found.</p>
 <?php } else { ?>
-<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:50 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount">
+<table class="k2-table">
 
 <thead>
 	<tr style="text-align:right;">

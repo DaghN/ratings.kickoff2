@@ -8,7 +8,6 @@
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="js/chart-theme.js"></script>
-<script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-year-chart.js" defer="defer"></script>
@@ -109,7 +108,7 @@ unset($con);
     <canvas width="960" height="271" aria-label="Distribution of established player ratings"></canvas>
 </div>
 
-<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table"> 
 
 
 <thead>

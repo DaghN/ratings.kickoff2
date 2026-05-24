@@ -5,7 +5,6 @@
 <title>Kick Off 2 — Status</title>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
-<script type="text/javascript" src="js/elolist.js"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/status-league-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/status-league-toggle.js'); ?>" defer="defer"></script>
 

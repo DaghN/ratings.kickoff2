@@ -247,6 +247,8 @@ When trimming no-op `table-autofilter` elsewhere (Phase 1), **do not** remove fi
 
 ## Phase 1 - Cleanup Pass (Low-risk)
 
+**Status: completed 2026-05-24**
+
 Goal: remove dead weight without changing product behavior.
 
 - Remove striping-related table classes where not needed.
@@ -259,6 +261,39 @@ Definition of done:
 - No page relies on striping classes.
 - No known no-op table behavior classes remain on targeted pages.
 - Sanity check passes on key pages (Games, game, ranked pages, status).
+
+### Phase 1 close (2026-05-24)
+
+**Shipped:**
+
+- Removed striping classes from all `k2-table` markup (`table-autostripe`, `table-stripeclass:alternate`, `table-rowshade-alternate`).
+- Removed dead `elolist.js` from `status.php`, `individual1.php`, `game.php`, `server1.php`, `server2.php`.
+- Stripped no-op `table-autofilter` and `table-filtered-rowcount` / `table-rowcount` from pages without wired filter UI.
+- Simplified static tables: `game.php`, `server1.php`, `server2.php` → `class="k2-table"` only.
+- `server3.php` → `k2-table table-autosort` (sort kept until Phase 3).
+- Leaderboards → `k2-table ranked-pages-table ranked-table-pending table-autosort table-autorank`.
+- `individual3.php` → kept `table-autofilter`, sort, paging; removed rowcount classes (filter count tfoot still commented out).
+
+**Unchanged on purpose:** `elolist.js` still loaded on leaderboards, `individual3`, `server3`, `individual2a/b/c`, `ranked8` (peak sort).
+
+**Next:** Phase 2 — shared rated-game row rendering.
+
+### Current state (post-Phase 1, 2026-05-24)
+
+Use this table for day-to-day reference. The Phase 0 baseline inventory above is a **historical snapshot** (pre-cleanup).
+
+| Page / include | Loads `elolist.js` | Typical `k2-table` classes |
+|----------------|-------------------|----------------------------|
+| `ranked1`–`ranked5`, `ranked7` | Yes | `ranked-pages-table ranked-table-pending table-autosort table-autorank` |
+| `ranked8` + peak include | Yes | `table-autosort` (per peak table) |
+| `server3.php` | Yes | `table-autosort` |
+| `individual3.php` | Yes | `table-autosort table-autofilter table-autopage:100` + paging tfoot |
+| `individual2a/b/c` | Yes | `table-autosort` |
+| `game.php`, `server1.php`, `server2.php` | **No** | `k2-table` only |
+| `status.php`, `individual1.php` | **No** | `k2-status-table` or no table |
+| `period_activity_leaderboards_section.php` | Only if parent adds script | `k2-table` only (include not wired to a page in repo) |
+
+**Site-wide:** no striping classes on tables. **`theme.css`** owns appearance; **`elolist.css`** + **`elolist.js`** own sort/cloak/filter behavior where loaded.
 
 ## Phase 2 - Shared Rated-Game Row Rendering
 
@@ -380,3 +415,4 @@ Use this section to track meaningful plan updates over time.
 - 2026-05-24: Initial plan drafted. Framework-first approach agreed; execution details to be finalized per phase kickoff.
 - 2026-05-24: Phase 0 baseline completed (page inventory, elolist vs CSS roles, row parity gaps, Phase 1 handoff).
 - 2026-05-24: Document preserve requirement for `individual3.php` Result/Opponent filters (functionality required; client vs server TBD).
+- 2026-05-24: Phase 1 cleanup completed (striping, dead scripts, no-op elolist classes).

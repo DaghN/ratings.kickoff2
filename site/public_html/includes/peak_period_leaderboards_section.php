@@ -67,7 +67,7 @@ if ($k2PeakPeriodOwnConnection) {
 		<p class="server-peak-period-leaderboard-status">No rated games to rank yet.</p>
 <?php } else { ?>
 		<div class="k2-table-wrap">
-			<table class="k2-table table-autosort table-stripeclass:alternate table-autostripe table-rowshade-alternate">
+			<table class="k2-table table-autosort">
 				<thead>
 					<tr style="text-align:right;">
 						<th class="table-sortable:numeric">Rank</th>

@@ -43,7 +43,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table table-autosort table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-autopage:100 table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount">
+<table class="k2-table table-autosort table-autofilter table-autopage:100 table-page-number:tablepage table-page-count:tablepages">
 
 <thead>
 	<tr style="text-align:right;">

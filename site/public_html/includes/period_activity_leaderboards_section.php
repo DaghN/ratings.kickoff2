@@ -161,7 +161,7 @@ function k2_render_period_activity_tbody(string $period, array $entries): void
 			<p class="server-period-activity-leaderboard-status">Could not load this table.</p>
 <?php } else { ?>
 			<div class="k2-table-wrap">
-				<table class="k2-table table-stripeclass:alternate table-autostripe table-rowshade-alternate server-period-activity-leaderboard__table">
+				<table class="k2-table server-period-activity-leaderboard__table">
 					<thead>
 						<tr style="text-align:right;">
 							<th style="width:3.5em;">Rank</th>

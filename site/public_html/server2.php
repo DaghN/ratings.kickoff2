@@ -5,7 +5,6 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -200,7 +199,7 @@ mysqli_close($con);
 
 <div class="k2-table-wrap">
 
-<table class="k2-table table-autofilter table-stripeclass:alternate table-autostripe table-rowshade-alternate table-page-number:tablepage table-page-count:tablepages table-filtered-rowcount:tablefiltercount table-rowcount:tableallcount"> 
+<table class="k2-table"> 
 
 <thead>
     <tr >
