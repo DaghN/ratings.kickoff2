@@ -22,9 +22,9 @@
         var sel = selectedId == null ? null : Number(selectedId);
         for (var i = 0; i < opponentIds.length; i++) {
             if (sel !== null && Number(opponentIds[i]) === sel) {
-                colors.push(T.fill(T.green(), 0.85));
+                colors.push(T.profileCompareFill(0.85));
             } else {
-                colors.push(T.fill(T.blue(), 0.45));
+                colors.push(T.opponentFocusFill(0.45));
             }
         }
         return colors;
@@ -108,7 +108,7 @@
                             label: 'Games played',
                             data: games,
                             backgroundColor: barColors(opponentIds, selectedId),
-                            borderColor: T.blue(),
+                            borderColor: T.chrome(),
                             borderWidth: 1
                         }]
                     },

@@ -100,17 +100,14 @@
         return new Chart(canvas, {
             type: 'line',
             data: {
-                datasets: [{
+                datasets: [Object.assign({
                     label: 'ELO rating (after game)',
                     data: chartData,
-                    borderColor: T.green(),
-                    backgroundColor: T.fill(T.green(), 0.15),
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
                     fill: true,
-                    tension: 0.1
-                }]
+                    tension: 0.1,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                }, T.lineStroke(T.pitch(), 0.15))]
             },
             options: {
                 responsive: true,

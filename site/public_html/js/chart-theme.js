@@ -3,7 +3,7 @@
  * Load before chart init scripts on themed pages.
  *
  * Canonical chart palette (six): pitch, chrome, holo, amber, teal, magenta.
- * Aliases green/blue match hub pitch/chrome; profile compare still uses those.
+ * Profile compare uses profileCompare* / opponentFocus* role helpers.
  */
 (function (global) {
     'use strict';
@@ -46,10 +46,6 @@
         amber: function () { return cssVar('--k2-chart-amber', '#ffb74d'); },
         teal: function () { return cssVar('--k2-chart-teal', '#4db6ac'); },
         magenta: function () { return cssVar('--k2-chart-magenta', '#ff4081'); },
-        /** @deprecated use pitch() */
-        green: function () { return this.pitch(); },
-        /** @deprecated use chrome() */
-        blue: function () { return this.chrome(); },
         accent: function () { return cssVar('--k2-accent', '#ffb74d'); },
         /** @deprecated use accent() */
         realm: function () { return this.accent(); },

@@ -84,10 +84,10 @@
                             backgroundColor: function (ctx) {
                                 return ctx.parsed.y === 0
                                     ? 'transparent'
-                                    : T.fill(T.green(), 0.65);
+                                    : T.fill(T.pitch(), 0.65);
                             },
                             borderColor: function (ctx) {
-                                return ctx.parsed.y === 0 ? 'transparent' : T.green();
+                                return ctx.parsed.y === 0 ? 'transparent' : T.pitch();
                             },
                             borderWidth: function (ctx) {
                                 return ctx.parsed.y === 0 ? 0 : 1;

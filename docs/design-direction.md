@@ -126,7 +126,7 @@ Think **Blade Runner control room**, not **Cyberpunk 2077 menu screen**.
 
 **Render (Activity bars):** `K2ChartTheme.barStroke()` — border 1px, fill α from `--k2-chart-bar-fill-alpha` (0.65). Lines: `lineStroke()` + `--k2-chart-line-area-alpha` (0.12).
 
-JS aliases `green()`/`blue()` = pitch/chrome until profile charts migrated.
+Use `pitch()` / `chrome()` or `profileCompare*` / `opponentFocus*` in chart JS — no legacy colour names.
 
 | Text primary | `#d0d7de` | Body on dark |
 | Text muted | `#8b949e` | Helpers, axis labels |

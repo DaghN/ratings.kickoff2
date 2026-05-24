@@ -68,8 +68,8 @@
                         datasets: [{
                             label: 'Win %',
                             data: chartData,
-                            backgroundColor: T.fill(T.green(), 0.7),
-                            borderColor: T.green(),
+                            backgroundColor: T.fill(T.pitch(), 0.7),
+                            borderColor: T.pitch(),
                             borderWidth: 1
                         }]
                     },
