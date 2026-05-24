@@ -14,8 +14,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>"""
 
 HUB_SERVER = {
-    "server1.php": ("trends", """<?php
-$k2HubTabActive = 'trends';
+    "server1.php": ("activity", """<?php
+$k2HubTabActive = 'activity';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>"""),
     "server2.php": ("records", """<?php

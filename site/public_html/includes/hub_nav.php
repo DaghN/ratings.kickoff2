@@ -1,7 +1,7 @@
 <?php
 /**
- * Hub primary tabs — Status · Leaderboards · Games · Trends · Records
- * Set $k2HubTabActive before include: status | leaderboards | games | trends | records
+ * Hub primary tabs — Status · Leaderboards · Activity · Games · Records
+ * Set $k2HubTabActive before include: status | leaderboards | activity | games | records
  *
  * Hub nav style: segment default; ?k2_hub_nav= override (theme_boot_head.php).
  * Accent preview: Chrome · Pulse · Holo — hidden by default; Show/Hide tint toggle.
@@ -10,8 +10,8 @@ $k2HubTabActive = $k2HubTabActive ?? '';
 $k2HubTabs = [
 	'status' => ['href' => 'status.php', 'label' => 'Status'],
 	'leaderboards' => ['href' => 'ranked7.php', 'label' => 'Leaderboards'],
+	'activity' => ['href' => 'server1.php', 'label' => 'Activity'],
 	'games' => ['href' => 'server3.php', 'label' => 'Games'],
-	'trends' => ['href' => 'server1.php', 'label' => 'Trends'],
 	'records' => ['href' => 'server2.php', 'label' => 'Records'],
 ];
 $k2AccentPills = [

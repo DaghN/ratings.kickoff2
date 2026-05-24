@@ -27,7 +27,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
 
-$query = "SELECT id, Name, Rating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio, AverageOpponentRating FROM playertable WHERE display=1 ORDER BY rating DESC";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
+$query = 'SELECT id, Name, Rating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio, AverageOpponentRating FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY rating DESC';
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);

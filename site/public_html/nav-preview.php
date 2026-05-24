@@ -20,7 +20,7 @@
 $pages = [
 	'Status' => 'status.php',
 	'Leaderboards' => 'ranked7.php',
-	'Trends' => 'server1.php',
+	'Activity' => 'server1.php',
 ];
 $variants = [
 	'segment' => 'Segment track + outline (production default)',

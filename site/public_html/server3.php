@@ -19,7 +19,9 @@ $k2HubTabActive = 'games';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>
 
-<?php 
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.php';
+
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
 //mysql_connect(localhost,$username,$password);
@@ -64,7 +66,7 @@ mysqli_close($con);
         <th class="table-sortable:numeric">Rating B</th>
         <th class="table-sortable:numeric">Rating Diff</th>
        	<th class="table-sortable:numeric">ES Winner</th> 
-        <th class="table-sortable:numeric">Adjustment</th>
+        <th class="table-sortable:ignorecase" style="text-align:left;">Adjustment</th>
 	</tr>
 </thead>
 
@@ -89,6 +91,7 @@ mysqli_close($con);
 	$ExpectedScoreB = $row[19];
 	$ActualScore = $row[20];
 	$AdjustmentA = $row[21];
+	$AdjustmentB = $row[22];
 	$SumOfGoals = $row[25];
 	$GoalDifference = $row[26];
 	?>
@@ -114,11 +117,15 @@ mysqli_close($con);
 			      	elseif 	($ActualScore == 0) {echo number_format(100*$ExpectedScoreB, 1); echo "%";}
 					else 	{echo number_format(min(100*$ExpectedScoreA, 100*$ExpectedScoreB), 1); echo "%";}
 			?></td>       
-        <td><?php 
-			if (abs($AdjustmentA) > 16 ) {echo "<span class='red'>";}
-		
-			echo "&#177; "; echo number_format(abs($AdjustmentA), 1);
-		?></td>
+        <td style="text-align:left;"><?php echo k2_game_rating_adjustment_html([
+			'ActualScore' => $ActualScore,
+			'AdjustmentA' => $AdjustmentA,
+			'AdjustmentB' => $AdjustmentB,
+			'idA' => $idA,
+			'idB' => $idB,
+			'NameA' => $NameA,
+			'NameB' => $NameB,
+		]); ?></td>
 	</tr> 
     
     <?php

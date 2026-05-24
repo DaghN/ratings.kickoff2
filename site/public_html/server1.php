@@ -25,7 +25,7 @@
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
 <?php
-$k2HubTabActive = 'trends';
+$k2HubTabActive = 'activity';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>
 
