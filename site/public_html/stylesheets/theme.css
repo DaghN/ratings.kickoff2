@@ -20,8 +20,8 @@
 	--k2-border-strong: rgba(255, 255, 255, 0.1);
 
 	/* Chart palette — six inks (May 2026); hub tints = pitch/chrome/holo/amber + chart-only teal + magenta */
-	--k2-chart-green: #9ccc65;   /* pitch */
-	--k2-chart-blue: #64b5f6;    /* chrome */
+	--k2-chart-pitch: #9ccc65;
+	--k2-chart-chrome: #64b5f6;
 	--k2-chart-amber: #ffb74d;
 	--k2-chart-holo: #b388ff;
 	--k2-chart-teal: #4db6ac;
@@ -81,16 +81,16 @@ html[data-k2-accent="chrome"] {
 	--k2-accent: #64b5f6;
 	--k2-accent-muted: rgba(100, 181, 246, 0.14);
 	--k2-accent-glow: rgba(100, 181, 246, 0.38);
-	/* Cyan positive stats clash with chrome links — use chart green instead */
-	--k2-stat-positive-base: var(--k2-chart-green);
+	/* Cyan positive stats clash with chrome links — use pitch hue instead */
+	--k2-stat-positive-base: var(--k2-chart-pitch);
 }
 
 html[data-k2-accent="holo"] {
 	--k2-accent: #b388ff;
 	--k2-accent-muted: rgba(179, 136, 255, 0.14);
 	--k2-accent-glow: rgba(179, 136, 255, 0.45);
-	/* Cyan positives clash with violet accent — use chart green (same rule as chrome) */
-	--k2-stat-positive-base: var(--k2-chart-green);
+	/* Cyan positives clash with violet accent — use pitch hue (same rule as chrome) */
+	--k2-stat-positive-base: var(--k2-chart-pitch);
 }
 
 html {
@@ -1823,9 +1823,9 @@ body.k2-site a.k2-lb-filter.is-on:visited {
 }
 
 .k2-lb-filter.is-on .k2-lb-filter__dot {
-	border-color: color-mix(in srgb, var(--k2-chart-green) 70%, transparent);
-	background: var(--k2-chart-green);
-	box-shadow: 0 0 4px color-mix(in srgb, var(--k2-chart-green) 40%, transparent);
+	border-color: color-mix(in srgb, var(--k2-chart-pitch) 70%, transparent);
+	background: var(--k2-chart-pitch);
+	box-shadow: 0 0 4px color-mix(in srgb, var(--k2-chart-pitch) 40%, transparent);
 }
 
 .k2-lb-filter__label {

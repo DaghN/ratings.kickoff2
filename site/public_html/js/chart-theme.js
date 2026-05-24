@@ -40,8 +40,8 @@
     }
 
     global.K2ChartTheme = {
-        pitch: function () { return cssVar('--k2-chart-green', '#9ccc65'); },
-        chrome: function () { return cssVar('--k2-chart-blue', '#64b5f6'); },
+        pitch: function () { return cssVar('--k2-chart-pitch', '#9ccc65'); },
+        chrome: function () { return cssVar('--k2-chart-chrome', '#64b5f6'); },
         holo: function () { return cssVar('--k2-chart-holo', '#b388ff'); },
         amber: function () { return cssVar('--k2-chart-amber', '#ffb74d'); },
         teal: function () { return cssVar('--k2-chart-teal', '#4db6ac'); },

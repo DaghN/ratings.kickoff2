@@ -105,8 +105,8 @@ Think **Blade Runner control room**, not **Cyberpunk 2077 menu screen**.
 
 | Token | Hex | Hub tint? | Role |
 |-------|-----|-----------|------|
-| **pitch** (`--k2-chart-green`) | `#9ccc65` | pitch pill | Games, profile subject, wins |
-| **chrome** (`--k2-chart-blue`) | `#64b5f6` | chrome pill | Active players, projections, opponent focus |
+| **pitch** (`--k2-chart-pitch`) | `#9ccc65` | pitch pill | Games, profile subject, wins |
+| **chrome** (`--k2-chart-chrome`) | `#64b5f6` | chrome pill | Active players, projections, opponent focus |
 | **holo** (`--k2-chart-holo`) | `#b388ff` | holo pill | Cumulative established (line) |
 | **amber** (`--k2-chart-amber`) | `#ffb74d` | default UI accent | Goals per month |
 | **teal** (`--k2-chart-teal`) | `#4db6ac` | chart-only | Reserved for future distribution / analyst ink |
