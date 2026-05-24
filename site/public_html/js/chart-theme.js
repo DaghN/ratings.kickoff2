@@ -50,10 +50,6 @@
         green: function () { return this.pitch(); },
         /** @deprecated use chrome() */
         blue: function () { return this.chrome(); },
-        /** @deprecated use amber() — was coral on goals */
-        coral: function () { return this.amber(); },
-        /** @deprecated use holo() — was legacy purple cumulative */
-        purple: function () { return this.holo(); },
         accent: function () { return cssVar('--k2-accent', '#ffb74d'); },
         /** @deprecated use accent() */
         realm: function () { return this.accent(); },
