@@ -2,9 +2,15 @@
 
 **Audience:** Dagh, Steve, Cursor agents.
 
-**Purpose:** One place for **WHAT** must happen on the live ladder database and server jobs before/after a feature is truly on prod. **HOW** Steve runs it (C++ vs Python, cron, maintenance window) is negotiated per cutover — documented in each register item and in the [cutover packet template](coordination/cutover-packet-template.md).
+**Purpose:** One place for **WHAT** must happen on the live ladder database and server jobs before/after a feature is truly on prod. **HOW** for most jobs is documented per register; **post-game C++** has a fixed handoff shape (see below). Replay, schema, cron, and maintenance window details live in registers and the [cutover packet template](coordination/cutover-packet-template.md).
 
 **Authority:** Product taste → `PROJECT_BRIEF.md`. Ladder/replay architecture → `docs/ladder-engine-plan.md`. **This hub** owns prod **coordination** registers until Dagh says otherwise.
+
+**Day-to-day commands:** **`docs/OPERATIONS_QUICK_START.md`**
+
+**Agents — “update docs”:** **`docs/UPDATE_DOCS.md`** — Part A every time; migration registers (Part B) only when relevant
+
+**Philosophy:** This hub is a **migration backlog**, not part of daily vibecoding. Touch registers when a feature changes **stored** ladder data (L1+). L0 PHP-only features get one line in [`coordination/feature-log.md`](coordination/feature-log.md).
 
 ---
 
@@ -25,12 +31,12 @@ Full detail: `docs/ladder-engine-plan.md` §2, `docs/STATUS_PAGE_DATA.md`, `docs
 | Register | File | Tracks |
 |----------|------|--------|
 | Schema | [coordination/schema-register.md](coordination/schema-register.md) | Tables, columns, indexes — SQL in `schema/migrations/` |
-| Post-game (C++) | [coordination/post-game-register.md](coordination/post-game-register.md) | Per-game deltas vs `docs/ratings_cpp.txt` |
+| Post-game (C++) | [coordination/post-game-register.md](coordination/post-game-register.md) | Per-game deltas + **snippet packs** in [coordination/cpp-snippets/](coordination/cpp-snippets/) |
 | Periodic | [coordination/periodic-register.md](coordination/periodic-register.md) | Hourly fade, future cron jobs |
 | Replay | [coordination/replay-register.md](coordination/replay-register.md) | Full-history rebuilds, parameters, run log |
 | One-off | [coordination/one-off-register.md](coordination/one-off-register.md) | Rare scripts; prefer replay when possible |
 
-**When starting a feature:** add at least one ledger row (or mark **L0 PHP-only** in the feature doc). See [prod-readiness levels](#prod-readiness-levels) below.
+**When a feature touches prod-bound data:** add/update register rows per [`UPDATE_DOCS.md`](UPDATE_DOCS.md) (usually at **“update docs”**, not at idea time). See [prod-readiness levels](#prod-readiness-levels) below.
 
 ---
 
@@ -42,7 +48,7 @@ Use for any release that changes **stored ladder truth** (not PHP-only cosmetics
 2. **Turn off rating fade** (hourly) — required before deploy that changes ratings/stats semantics.
 3. **Apply schema** — `schema/migrations/*.sql` in order on prod `kooldb` (Steve).
 4. **Replay history** (if register says so) — Python `scripts/ladder` per `docs/replay-v1-scope-and-reset.md`, tested on staging; or Steve’s C++ replay to the **same written spec**.
-5. **Deploy post-game C++** — so **future** games maintain new columns/aggregates.
+5. **Deploy post-game C++** — Steve inserts our [snippet packs](coordination/post-game-cpp-handoff.md); **future** games maintain new columns/aggregates.
 6. **Deploy periodic jobs** (if any new/changed).
 7. **Deploy PHP** (WinSCP or agreed path).
 8. **Smoke checks** — spot profiles, ranked sort, one chart API; log in replay register.
@@ -59,8 +65,8 @@ Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes
 | **L0** | PHP read-time only; no new stored truth | Monthly league table on `status.php` (aggregate in SQL) |
 | **L1** | Schema only; no replay/post-game yet | New nullable column, unfilled |
 | **L2** | Replay must backfill history | New derived column on `playertable` |
-| **L3** | Live writer on prod (C++ and/or periodic) | Per-game update to new column |
-| **L4** | Staging-tested; Steve packet ready | Schema + replay run on staging |
+| **L3** | Live writer on prod (C++ and/or periodic) | Per-game update; includes **C++ snippet pack** for Steve |
+| **L4** | Staging-tested; Steve packet ready | Schema + replay on staging; snippet pack **ready for Steve** |
 | **L5** | Prod done | Registers closed |
 
 ---
@@ -75,15 +81,23 @@ Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes
 | Staging replay (Steve) | `docs/STAGING_REPLAY.md`, `run_staging_ladder_replay.sh` |
 | One-off template | `scripts/oneoff/` |
 | Live C++ reference | `docs/ratings_cpp.txt` |
+| Post-game snippet handoff | [coordination/post-game-cpp-handoff.md](coordination/post-game-cpp-handoff.md) |
 | Steve email/checklist | `docs/coordination/cutover-packet-template.md` |
 
 ---
 
-## Steve coordination pattern (unchanged)
+## Steve coordination pattern
 
-- Dagh: spec + scripts/SQL in Git + staging proof where possible.
-- Steve: run on server (no SSH for Dagh, May 2026); C++ post-game updates; periodic scheduler.
-- Prod replay: Python tested on staging **or** Steve’s tool — **same spec** either way.
+| Area | Our deliverable | Steve |
+|------|-----------------|--------|
+| **Schema** | `schema/migrations/*.sql` | Runs on prod `kooldb` |
+| **Replay** | Tested Python + spec (`docs/replay-v1-scope-and-reset.md`) | Runs on server; or his C++ replay to same spec |
+| **Post-game C++** | **[Snippet packs](coordination/post-game-cpp-handoff.md)** in `docs/coordination/cpp-snippets/` (option 2, May 2026) | Inserts into his post-game code |
+| **Periodic** | Register row + ask in cutover packet | Implements scheduler / stops fade |
+| **PHP site** | WinSCP / agreed deploy | Host + DB read when needed |
+
+- Dagh reviews snippet packs before send; agents draft from `ratings_cpp.txt` + schema docs + matching `scripts/ladder` logic.
+- No SSH for Dagh on server (May 2026); Steve runs batch jobs when asked.
 
 ---
 

@@ -81,7 +81,7 @@ We **are** building:
 
 - Dagh develops scripts in **Git**; documents exact command and target DB.
 - Steve **runs** them on the server when needed (`python3 …`) — SSH shell for Dagh is **not** working (permission denied / connection closed on port 5322); Steve has no strong preference on language.
-- When live behaviour should change: **conversation + C++ update**, not surprise changes on prod.
+- When live per-game behaviour should change: **C++ snippet packs** for Steve to insert (option 2, May 2026) — see **`docs/coordination/post-game-cpp-handoff.md`** and **`docs/coordination/cpp-snippets/`**. Draft snippets alongside Python replay; Dagh reviews before send. Not surprise prod edits.
 
 ---
 

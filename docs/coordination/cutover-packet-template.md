@@ -70,11 +70,21 @@ bash run_staging_ladder_replay.sh   # or prod wrapper name TBD
 
 **Deploy needed?** [ Yes / No ]
 
-| Register ID | Change |
-|-------------|--------|
-| PG-… | [description] |
+**Handoff style:** Steve merges **insert snippets** from our repo (option 2, May 2026) — not prose-only.
 
-**Reference diff:** `docs/ratings_cpp.txt` + [link to register row]
+| Register ID | Snippet pack (attach or link) |
+|-------------|--------------------------------|
+| PG-… | `docs/coordination/cpp-snippets/PG-NNN-….md` |
+
+For each pack, Steve gets:
+
+- **Insert instruction** (where in `RatingProcedureUnity` flow)
+- **C++ code block(s)** to paste
+- **Data contract** (tables/columns)
+- **Replay parity** note (Python already does same for history)
+
+**Reference excerpt:** `docs/ratings_cpp.txt`  
+**How we write packs:** `docs/coordination/post-game-cpp-handoff.md`
 
 ---
 

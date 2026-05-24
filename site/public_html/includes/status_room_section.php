@@ -242,7 +242,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title">
 			<div class="k2-status-panel__head">
 				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active players</h2>
-				<p class="k2-status-panel__meta">Active in last 12 months · <a class="k2-link" href="ranked7.php">Full ladder</a></p>
+				<p class="k2-status-panel__meta">Active in last 12 months · <a class="k2-link" href="ranked7.php">Full leaderboard</a></p>
 			</div>
 <?php if (!empty($room['active_top_error'])) { ?>
 			<p class="k2-status-panel__empty">Could not load active ratings.</p>

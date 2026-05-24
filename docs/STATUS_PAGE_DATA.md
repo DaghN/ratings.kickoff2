@@ -55,7 +55,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | Panel | Source | Rules |
 |-------|--------|--------|
 | **Pulse** | `playertable`, `resulttable`, optional `generalstatstable` | Online count, live game count, last login recency; no CPU/disk/mem |
-| **Active top rated (20)** | `playertable` | `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; rating shown **0 decimals**; public display rule (e.g. `Display = 1` if used elsewhere); names → profiles; link “Full ladder →” Leaderboards (all players) |
+| **Active top rated (20)** | `playertable` | `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; rating shown **0 decimals**; public display rule (e.g. `Display = 1` if used elsewhere); names → profiles; link “Full leaderboard →” Leaderboards (all players) |
 | **Monthly league (~20)** | `ratedresults` | **Calendar month**, **server timezone**; each rated row in month counts; **3 / 1 / 0** pts from `ActualScore` (or W/D/L flags); aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **only players with ≥1 game in month** (natural from `GROUP BY` — no extra “min games” filter) |
 | **Online now** | `playertable` · `IsOnline = 1` | |
 | **Live games** | `resulttable` | Started, not finished, not shelved (match legacy filter when verified) |

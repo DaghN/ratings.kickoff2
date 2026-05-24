@@ -1,0 +1,66 @@
+---
+description: Autoload — read project docs at chat start; record docs when wrapping up (no phrase required)
+alwaysApply: true
+---
+
+# KOOL ratings workspace habits (automatic)
+
+**Dagh does not activate this.** With `alwaysApply: true`, Cursor injects this into every Agent chat in this repo. Dagh only needs to say what feature to work on.
+
+---
+
+## 1) Start of every chat — read before coding
+
+Unless the first user message already contains equivalent context:
+
+1. **Read** (tool, not memory): `PROJECT_MEMORY.md` → `AGENTS.md` → `docs/PROJECT_MAP.md`
+2. If the task names an area, read that spec (e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md`, `docs/design-direction.md` for UI)
+3. **Do not** read all of `docs/coordination/` unless the task is migration / Steve / schema / replay / C++
+
+Then implement what Dagh asked.
+
+---
+
+## 2) While working — migration awareness
+
+If the slice changes **stored ladder truth** (new DB column/table/index, `scripts/ladder/`, per-game or periodic writers): note that `docs/UPDATE_DOCS.md` Part B will apply at wrap-up. Do not block vibecoding to fill registers mid-flight unless Dagh asks.
+
+---
+
+## 3) When to run “finish” (UPDATE_DOCS) — same turn as “done”
+
+**Dagh may close the chat without saying goodbye.** There is no signal when a chat is archived. If you wait for “update docs” or “we’re done”, docs may never get updated.
+
+**Therefore — run finish in the same assistant turn where you deliver completed work**, not in a later turn Dagh might never trigger.
+
+### Run Part A (+ Part B if needed) when ANY of these is true:
+
+1. You just implemented what the user asked for in this thread (feature/fix slice complete).
+2. User says **update docs**, **done**, **ship it**, **that’s all**, or similar.
+3. User approves your plan and you execute it in one go — update docs **after** the code, same reply.
+
+### Do NOT wait for:
+
+- A follow-up message
+- User saying “finish”
+- User closing the chat (you will not see that)
+
+### In that same reply, order:
+
+1. Do the code/docs file edits for the feature.
+2. Run **`docs/UPDATE_DOCS.md`** Part A (MEMORY line, specs, feature-log).
+3. Part B only if migration triggers.
+4. Tell Dagh in one line what you recorded (e.g. “MEMORY + STATUS_PAGE_DATA updated”).
+
+### Skip or defer Part A only if:
+
+- User explicitly said **WIP**, **pause**, **don’t update docs yet**, or only asked a question (no implementation).
+- You are mid-plan and have not written shipping code yet.
+
+Cosmetics-only slice: Part A only; skip Part B registers.
+
+---
+
+## 4) Authority
+
+Dagh’s latest message → `PROJECT_BRIEF.md` → `docs/design-direction.md` → `PROJECT_MEMORY.md`
