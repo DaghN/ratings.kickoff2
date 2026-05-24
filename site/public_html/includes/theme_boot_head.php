@@ -1,7 +1,7 @@
 <?php
 /**
  * Apply saved realm / tint / hub-nav tune before first paint.
- * Tint default is amber in theme.css when data-k2-accent is absent.
+ * Tint default is amber; sets data-k2-accent="amber" when nothing saved (amber pill shows active).
  * Loaded from includes/k2_head.php in <head> (after theme.css).
  */
 ?>
@@ -19,6 +19,8 @@
 		var accent = sessionStorage.getItem('k2-accent-tune');
 		if (accent && validAccents.indexOf(accent) !== -1) {
 			root.setAttribute('data-k2-accent', accent);
+		} else {
+			root.setAttribute('data-k2-accent', 'amber');
 		}
 		if (typeof URLSearchParams !== 'undefined' && window.location && window.location.search) {
 			var params = new URLSearchParams(window.location.search);

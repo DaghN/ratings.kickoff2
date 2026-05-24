@@ -91,6 +91,8 @@
 
         if (savedAccent && VALID_ACCENTS.indexOf(savedAccent) !== -1) {
             root.setAttribute('data-k2-accent', savedAccent);
+        } else {
+            root.setAttribute('data-k2-accent', DEFAULT_ACCENT);
         }
         syncAccentButtons();
 
