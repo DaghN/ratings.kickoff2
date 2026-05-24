@@ -84,12 +84,16 @@ html[data-k2-accent="pulse"] {
 	--k2-accent: #f06292;
 	--k2-accent-muted: rgba(240, 98, 146, 0.14);
 	--k2-accent-glow: rgba(240, 98, 146, 0.45);
+	/* Default negative matches accent — use coral for .red stats; keep cyan positives */
+	--k2-stat-negative-base: var(--k2-chart-coral);
 }
 
 html[data-k2-accent="holo"] {
 	--k2-accent: #b388ff;
 	--k2-accent-muted: rgba(179, 136, 255, 0.14);
 	--k2-accent-glow: rgba(179, 136, 255, 0.45);
+	/* Cyan positives clash with violet accent — use chart green (same rule as chrome) */
+	--k2-stat-positive-base: var(--k2-chart-green);
 }
 
 html {
