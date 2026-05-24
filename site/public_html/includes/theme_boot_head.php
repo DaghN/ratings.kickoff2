@@ -1,6 +1,7 @@
 <?php
 /**
- * Apply saved realm / accent / hub-nav tune before first paint.
+ * Apply saved realm / tint / hub-nav tune before first paint.
+ * Tint default is amber in theme.css when data-k2-accent is absent.
  * Loaded from includes/k2_head.php in <head> (after theme.css).
  */
 ?>

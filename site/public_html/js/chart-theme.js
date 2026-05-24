@@ -38,7 +38,9 @@
         coral: function () { return cssVar('--k2-chart-coral', '#ff8a65'); },
         teal: function () { return cssVar('--k2-chart-teal', '#4db6ac'); },
         purple: function () { return cssVar('--k2-chart-purple', '#ba68c8'); },
-        realm: function () { return cssVar('--k2-realm-accent', '#9ccc65'); },
+        accent: function () { return cssVar('--k2-accent', '#ffb74d'); },
+        /** @deprecated use accent() — alias for older call sites */
+        realm: function () { return this.accent(); },
         /** Profile subject (this player) on matchup charts */
         profileCompareBorder: function () { return this.green(); },
         profileCompareFill: function (alpha) { return this.fill(this.green(), alpha == null ? 0.12 : alpha); },

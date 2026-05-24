@@ -3,7 +3,7 @@
 /**
  * Kick Off 2 ratings — production theme.
  * Bold neon (C): glow on player hero avatar only. Exo 2, cyan/magenta table highlights.
- * Realm chrome: online amber, amiga green. Links: --k2-link-star / --k2-link (design-direction.md).
+ * UI accent (tint): default amber; hub pills override. Realm switch does not set paint (see docs/tint-vs-realm.md).
  */
 
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Exo+2:wght@500;600;700&display=swap");
@@ -44,49 +44,43 @@
 	--k2-accent-glow-blur: 18px;
 }
 
-/* Derived from --k2-realm-accent (set on html[data-realm] / accent tune) */
+/* UI accent (tint) — default amber; hub pills override via data-k2-accent (docs/tint-vs-realm.md) */
 html {
-	--k2-segment-active-text: color-mix(in srgb, var(--k2-realm-accent) 72%, var(--k2-text-secondary));
-	--k2-segment-active-ring: color-mix(in srgb, var(--k2-realm-accent) 55%, transparent);
-	--k2-link: color-mix(in srgb, var(--k2-realm-accent) 72%, var(--k2-text-secondary));
-	--k2-link-hover: color-mix(in srgb, var(--k2-realm-accent) 85%, var(--k2-text-primary));
+	--k2-accent: #ffb74d;
+	--k2-accent-muted: rgba(255, 183, 77, 0.14);
+	--k2-accent-glow: rgba(255, 183, 77, 0.35);
+	/* Legacy aliases — Phase 2 removes after stylesheet sweep */
+	--k2-realm-accent: var(--k2-accent);
+	--k2-realm-accent-muted: var(--k2-accent-muted);
+	--k2-realm-glow: var(--k2-accent-glow);
+
+	--k2-segment-active-text: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
+	--k2-segment-active-ring: color-mix(in srgb, var(--k2-accent) 55%, transparent);
+	--k2-link: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
+	--k2-link-hover: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary));
 	/* Player names, IDs, profile stat highlights — accent-forward, not full chrome */
-	--k2-link-star: color-mix(in srgb, var(--k2-realm-accent) 85%, var(--k2-text-primary));
-	--k2-link-star-hover: color-mix(in srgb, var(--k2-realm-accent) 94%, var(--k2-text-primary));
+	--k2-link-star: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary));
+	--k2-link-star-hover: color-mix(in srgb, var(--k2-accent) 94%, var(--k2-text-primary));
 	--k2-table-positive: color-mix(in srgb, var(--k2-stat-positive-base) 78%, var(--k2-text-primary));
 	--k2-table-negative: color-mix(in srgb, var(--k2-stat-negative-base) 78%, var(--k2-text-primary));
 }
 
-html[data-realm="online"] {
-	--k2-realm-accent: #ffb74d;
-	--k2-realm-accent-muted: rgba(255, 183, 77, 0.14);
-	--k2-realm-glow: rgba(255, 183, 77, 0.35);
-}
-
-html[data-realm="amiga"] {
-	--k2-realm-accent: #9ccc65;
-	--k2-realm-accent-muted: rgba(156, 204, 101, 0.14);
-	--k2-realm-glow: rgba(156, 204, 101, 0.35);
-}
-
-/* Optional accent tune (hub preview pills) — overrides realm default until realm is re-selected */
-/* Hub accent preview pills (Chrome · Pulse · Holo) — staging; overrides link/star derivation */
 html[data-k2-accent="chrome"] {
-	--k2-realm-accent: #64b5f6;
-	--k2-realm-accent-muted: rgba(100, 181, 246, 0.14);
-	--k2-realm-glow: rgba(100, 181, 246, 0.38);
+	--k2-accent: #64b5f6;
+	--k2-accent-muted: rgba(100, 181, 246, 0.14);
+	--k2-accent-glow: rgba(100, 181, 246, 0.38);
 }
 
 html[data-k2-accent="pulse"] {
-	--k2-realm-accent: #f06292;
-	--k2-realm-accent-muted: rgba(240, 98, 146, 0.14);
-	--k2-realm-glow: rgba(240, 98, 146, 0.45);
+	--k2-accent: #f06292;
+	--k2-accent-muted: rgba(240, 98, 146, 0.14);
+	--k2-accent-glow: rgba(240, 98, 146, 0.45);
 }
 
 html[data-k2-accent="holo"] {
-	--k2-realm-accent: #b388ff;
-	--k2-realm-accent-muted: rgba(179, 136, 255, 0.14);
-	--k2-realm-glow: rgba(179, 136, 255, 0.45);
+	--k2-accent: #b388ff;
+	--k2-accent-muted: rgba(179, 136, 255, 0.14);
+	--k2-accent-glow: rgba(179, 136, 255, 0.45);
 }
 
 html {

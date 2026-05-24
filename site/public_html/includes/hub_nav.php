@@ -4,7 +4,7 @@
  * Set $k2HubTabActive before include: status | leaderboards | activity | games | records
  *
  * Hub nav style: segment default; ?k2_hub_nav= override (theme_boot_head.php).
- * Accent preview: Chrome · Pulse · Holo — hidden by default; Show/Hide tint toggle.
+ * Tint picker: Chrome · Pulse · Holo (default site accent amber in CSS) — hidden by default; Show/Hide tint.
  */
 $k2HubTabActive = $k2HubTabActive ?? '';
 $k2HubTabs = [
@@ -28,7 +28,7 @@ $k2AccentPills = [
 <?php } ?>
 		</div>
 		<div class="k2-hub-tabs__tune">
-			<nav class="k2-accent-pills" aria-label="Accent preview">
+			<nav class="k2-accent-pills" aria-label="Tint">
 <?php foreach ($k2AccentPills as $id => $pill) { ?>
 				<button type="button" class="k2-accent-pills__btn" data-k2-accent="<?php echo $id; ?>" title="<?php echo htmlspecialchars($pill['title'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pill['label']; ?></button>
 <?php } ?>

@@ -1,6 +1,6 @@
 /**
- * Realm switcher + optional accent tune (hub preview pills).
- * Re-clicking the active realm clears accent tune back to realm default.
+ * Realm switcher (data-realm) + tint picker (hub accent pills, data-k2-accent).
+ * Tint and realm are independent — realm click does not change or clear tint.
  */
 (function () {
     'use strict';
@@ -98,7 +98,6 @@
             btn.addEventListener('click', function () {
                 var realm = btn.getAttribute('data-realm') || 'online';
                 var current = root.getAttribute('data-realm') || 'online';
-                clearAccentTune();
                 if (realm !== current) {
                     setRealm(realm);
                 } else {
@@ -120,4 +119,4 @@
         init();
     }
 })();
-
+
