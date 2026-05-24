@@ -215,7 +215,10 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<span class="k2-status-score"><?php echo (int) $g['score_a']; ?>–<?php echo (int) $g['score_b']; ?></span>
 						<span class="k2-status-match__side"><?php echo k2_status_player_link_or_name($g['id_b'], $g['name_b']); ?></span>
 					</span>
-					<span class="k2-status-live-list__meta">P<?php echo (int) $g['period']; ?></span>
+					<span class="k2-status-live-list__meta">
+						<span class="k2-status-live-list__clock"><?php echo k2_status_h(k2_status_format_half_countdown((int) $g['half_countdown'])); ?></span>
+						<span class="k2-status-live-list__period"><?php echo k2_status_h(k2_status_format_game_period((int) $g['period'])); ?></span>
+					</span>
 				</li>
 <?php } ?>
 			</ul>

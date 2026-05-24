@@ -1435,8 +1435,15 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 .k2-status-live-list__meta {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 6px;
 	font-size: 11px;
 	color: var(--k2-text-muted);
+}
+
+.k2-status-live-list__clock {
+	font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 900px) {

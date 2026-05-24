@@ -83,6 +83,29 @@ function k2_status_short_time(?string $datetime): string
     return $ts === false ? '—' : date('D H:i', $ts);
 }
 
+/** Time remaining in the current half (HalfCountdown ticks; 50 ticks per second; 5:00 per half). */
+function k2_status_format_half_countdown(int $ticks): string
+{
+    if ($ticks <= 0) {
+        return '—';
+    }
+
+    $seconds = (int) round($ticks / 50);
+    $minutes = intdiv($seconds, 60);
+    $secs = $seconds % 60;
+
+    return $minutes . ':' . str_pad((string) $secs, 2, '0', STR_PAD_LEFT);
+}
+
+function k2_status_format_game_period(int $period): string
+{
+    return match ($period) {
+        1 => '1st half',
+        2 => '2nd half',
+        default => '—',
+    };
+}
+
 /** @return array{players: int, games: int, since_label: string}|null */
 function k2_status_arc_ticker(mysqli $con, ?string &$error = null): ?array
 {
@@ -374,12 +397,12 @@ function k2_status_online_players(mysqli $con, ?string &$error = null): ?array
     return $out;
 }
 
-/** @return list<array{game_id: int, id_a: int, id_b: int, name_a: string, name_b: string, score_a: int, score_b: int, period: int, start: string}>|null */
+/** @return list<array{game_id: int, id_a: int, id_b: int, name_a: string, name_b: string, score_a: int, score_b: int, period: int, half_countdown: int, start: string}>|null */
 function k2_status_live_games(mysqli $con, int $limit = 10, ?string &$error = null): ?array
 {
     $error = null;
     $limit = max(1, min(30, $limit));
-    $sql = 'SELECT GameID, HostID, SlaveID, NameA, NameB, ScoreA, ScoreB, GamePeriod, StartTime FROM resulttable '
+    $sql = 'SELECT GameID, HostID, SlaveID, NameA, NameB, ScoreA, ScoreB, GamePeriod, HalfCountdown, StartTime FROM resulttable '
         . 'WHERE HasStarted = 1 AND HasFinished = 0 AND Shelved = 0 '
         . 'ORDER BY StartTime DESC LIMIT ' . $limit;
     $r = mysqli_query($con, $sql);
@@ -399,6 +422,7 @@ function k2_status_live_games(mysqli $con, int $limit = 10, ?string &$error = nu
             'score_a' => (int) $row['ScoreA'],
             'score_b' => (int) $row['ScoreB'],
             'period' => (int) $row['GamePeriod'],
+            'half_countdown' => (int) $row['HalfCountdown'],
             'start' => (string) ($row['StartTime'] ?? ''),
         ];
     }
