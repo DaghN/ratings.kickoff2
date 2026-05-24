@@ -1569,6 +1569,10 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 	width: 7px;
 	height: 7px;
 	border-radius: 50%;
+	background: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-text-muted)) 50%, var(--k2-text-muted));
+}
+
+.k2-accent-pills__btn.is-active::before {
 	background: var(--k2-accent-swatch, var(--k2-text-muted));
 }
 
