@@ -4,7 +4,7 @@
  * Set $k2HubTabActive before include: status | leaderboards | activity | games | records
  *
  * Hub nav style: segment default; ?k2_hub_nav= override (theme_boot_head.php).
- * Tint picker: Chrome · Pulse · Holo (default site accent amber in CSS) — hidden by default; Show/Hide tint.
+ * Tint picker: Amber · Pitch · Chrome · Pulse · Holo — hidden by default; Show/Hide tint.
  */
 $k2HubTabActive = $k2HubTabActive ?? '';
 $k2HubTabs = [
@@ -15,6 +15,8 @@ $k2HubTabs = [
 	'records' => ['href' => 'server2.php', 'label' => 'Records'],
 ];
 $k2AccentPills = [
+	'amber' => ['label' => 'Amber', 'title' => 'Warm amber — default site tint'],
+	'pitch' => ['label' => 'Pitch', 'title' => 'Pitch green — chart / Amiga-era accent'],
 	'chrome' => ['label' => 'Chrome', 'title' => 'Rain-slick chrome blue — LA night reflections'],
 	'pulse' => ['label' => 'Pulse', 'title' => 'Neon magenta — club sign pulse'],
 	'holo' => ['label' => 'Holo', 'title' => 'Violet hologram — advert shimmer'],
@@ -33,7 +35,7 @@ $k2AccentPills = [
 				<button type="button" class="k2-accent-pills__btn" data-k2-accent="<?php echo $id; ?>" title="<?php echo htmlspecialchars($pill['title'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pill['label']; ?></button>
 <?php } ?>
 			</nav>
-			<button type="button" class="k2-accent-pills-toggle" aria-pressed="false" title="Hide accent preview pills">Hide tint</button>
+			<button type="button" class="k2-accent-pills-toggle" aria-pressed="false" title="Hide tint picker">Hide tint</button>
 		</div>
 	</nav>
 </div>

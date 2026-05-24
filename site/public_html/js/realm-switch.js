@@ -8,13 +8,22 @@
     var root = document.documentElement;
     var REALM_KEY = 'k2-realm';
     var ACCENT_KEY = 'k2-accent-tune';
-    var VALID_ACCENTS = ['chrome', 'pulse', 'holo'];
+    var VALID_ACCENTS = ['amber', 'pitch', 'chrome', 'pulse', 'holo'];
+    var DEFAULT_ACCENT = 'amber';
+
+    function currentAccent() {
+        var accent = root.getAttribute('data-k2-accent');
+        if (accent && VALID_ACCENTS.indexOf(accent) !== -1) {
+            return accent;
+        }
+        return DEFAULT_ACCENT;
+    }
 
     function dispatchChange() {
         document.dispatchEvent(new CustomEvent('k2-realm-change', {
             detail: {
                 realm: root.getAttribute('data-realm') || 'online',
-                accent: root.getAttribute('data-k2-accent') || null
+                accent: currentAccent()
             }
         }));
     }
@@ -29,21 +38,12 @@
     }
 
     function syncAccentButtons() {
-        var accent = root.getAttribute('data-k2-accent') || '';
+        var accent = currentAccent();
         document.querySelectorAll('.k2-accent-pills__btn').forEach(function (btn) {
-            btn.classList.toggle('is-active', btn.getAttribute('data-k2-accent') === accent);
-            btn.setAttribute('aria-pressed', btn.getAttribute('data-k2-accent') === accent ? 'true' : 'false');
+            var on = btn.getAttribute('data-k2-accent') === accent;
+            btn.classList.toggle('is-active', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
-    }
-
-    function clearAccentTune() {
-        root.removeAttribute('data-k2-accent');
-        try {
-            sessionStorage.removeItem(ACCENT_KEY);
-        } catch (e) {
-            /* ignore */
-        }
-        syncAccentButtons();
     }
 
     function setAccentTune(accent) {

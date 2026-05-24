@@ -84,11 +84,11 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 Committed and pushed earlier; not re-opened unless noted below.
 
 - Site-wide dark theme on main PHP pages (`theme.css`, `site_header.php`, ranked/server/individual pages, etc.).
-- Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, realm accents (see `theme.css` — **TEST swap** may differ from locked lab defaults), Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
+- Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, **UI tint** via `--k2-accent` (see `docs/tint-vs-realm.md`), Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
 - Realm switcher: **segment** outline active (uses site tint like hub nav; not realm-specific colours).
 - Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
 - Theme lab (May 2026) promoted to production; static lab files later removed from repo.
-- **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + staging accent preview pills), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
+- **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + tint picker), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
 - ~~Legacy `#aboutmenu` rows may still exist on some pages~~ — removed with shared hub/player nav (May 2026).
 
 ---
@@ -198,7 +198,7 @@ Global hub nav replaced by player context:
 |------|----------|
 | Home + player pills | **Segment track** — active: softened accent text + single mixed ring (`--k2-segment-active-*`); no fill tint. Override via `?k2_hub_nav=`. |
 | Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
-| Hub tint picker | **Staging (keep for now)** — Chrome · Pulse · Holo; **hidden by default** + **Show tint**. Sets `--k2-accent`; default amber in CSS. Independent of realm switch. Launch decision deferred. |
+| Hub tint picker | **Staging (keep for now)** — Amber · Pitch · Chrome · Pulse · Holo; **hidden by default** + **Show tint**. Sets `--k2-accent`; default amber in CSS. Independent of realm switch. Launch decision deferred. |
 | Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
 | Nav hover (inactive) | **`--k2-text-secondary`** — between muted and primary; not full white flash. Sort/table data stay primary. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
@@ -212,7 +212,7 @@ Global hub nav replaced by player context:
 - Table highlights: Cyan · Magenta.
 - **Text ladder:** full detail in `design-direction.md` (Text & link hierarchy). Summary: `--k2-link-star` for player names + profile highlight text; `--k2-link` for prose; `--k2-accent` for chrome only.
 - Table column headers: muted labels on `bg-surface`, weight 500; thin mixed-accent rule under last header row; sort hover → `text-secondary` + 2px inset accent.
-- Sort header hover: secondary text + inset realm accent bar (same hover step as nav).
+- Sort header hover: secondary text + inset tint accent bar (same hover step as nav).
 - individual3 filter row: 16 cells, transparent filter row, single green line on last header row only.
 
 ---
@@ -298,9 +298,9 @@ Production default: **segment** (`theme_boot_head.php`). Compare alternatives wi
 | Variant | `?k2_hub_nav=` | Active pill |
 |---------|----------------|-------------|
 | **Segment (production)** | `segment` | Track + outline (parity with `.k2-chrome-tabs` wings) |
-| Solid | `solid` | Full realm accent fill, dark text |
+| Solid | `solid` | Full tint accent fill, dark text |
 | Soft | `soft` | ~22% accent tint, accent text |
 
 - Set on `<html data-k2-hub-nav="…">` in `theme_boot_head.php` (URL wins, then `sessionStorage` key `k2-hub-nav-tune`).
 - Link index: `nav-preview.php` → Status / Leaderboards / Trends per variant.
-- Accent preview: Chrome · Pulse · Holo; **hidden by default**; `sessionStorage` `0` = shown; **Show tint** / **Hide tint** on hub bar.
+- Tint picker: Amber · Pitch · Chrome · Pulse · Holo; **hidden by default**; `sessionStorage` `0` = shown; **Show tint** / **Hide tint** on hub bar.

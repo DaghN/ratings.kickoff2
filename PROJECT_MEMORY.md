@@ -166,7 +166,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 1. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub + ranked + server pages.
 
-2. **Launch polish:** revert or confirm **TEST realm accent swap**; decide fate of **seven accent preview pills** on hub row (staging lab vs prod).
+2. **Launch polish:** tint picker (Amber · Pitch · Chrome · Pulse · Holo) — keep hidden vs expose at launch (`docs/tint-vs-realm.md`); realm switch is universe only, not UI colour.
 
 3. **Profile gradual improvements:** see `docs/player-profile-feast.md` (shipped layout); archived planning in `docs/archive/`.
 

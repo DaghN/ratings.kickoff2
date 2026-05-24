@@ -60,6 +60,18 @@ html {
 	--k2-table-negative: color-mix(in srgb, var(--k2-stat-negative-base) 78%, var(--k2-text-primary));
 }
 
+html[data-k2-accent="amber"] {
+	--k2-accent: #ffb74d;
+	--k2-accent-muted: rgba(255, 183, 77, 0.14);
+	--k2-accent-glow: rgba(255, 183, 77, 0.35);
+}
+
+html[data-k2-accent="pitch"] {
+	--k2-accent: #9ccc65;
+	--k2-accent-muted: rgba(156, 204, 101, 0.14);
+	--k2-accent-glow: rgba(156, 204, 101, 0.35);
+}
+
 html[data-k2-accent="chrome"] {
 	--k2-accent: #64b5f6;
 	--k2-accent-muted: rgba(100, 181, 246, 0.14);
@@ -1528,6 +1540,8 @@ html[data-k2-accent-pills-hidden="1"] .k2-hub-tabs__tune .k2-accent-pills {
 	box-shadow: 0 0 6px var(--k2-accent-swatch, transparent);
 }
 
+.k2-accent-pills__btn[data-k2-accent="amber"] { --k2-accent-swatch: #ffb74d; }
+.k2-accent-pills__btn[data-k2-accent="pitch"] { --k2-accent-swatch: #9ccc65; }
 .k2-accent-pills__btn[data-k2-accent="chrome"] { --k2-accent-swatch: #64b5f6; }
 .k2-accent-pills__btn[data-k2-accent="pulse"] { --k2-accent-swatch: #f06292; }
 .k2-accent-pills__btn[data-k2-accent="holo"] { --k2-accent-swatch: #b388ff; }

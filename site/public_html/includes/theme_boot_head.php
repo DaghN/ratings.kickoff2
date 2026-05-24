@@ -8,7 +8,7 @@
 <script type="text/javascript">
 (function () {
 	var root = document.documentElement;
-	var validAccents = ['chrome', 'pulse', 'holo'];
+	var validAccents = ['amber', 'pitch', 'chrome', 'pulse', 'holo'];
 	var validHubNav = ['solid', 'segment', 'soft'];
 	var hubNav = 'segment';
 	try {

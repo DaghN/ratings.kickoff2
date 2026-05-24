@@ -1,6 +1,6 @@
 # Kick Off 2 ratings — design direction & cosmetics plan
 
-**Status:** Agreed direction (May 2026). **Phase A hub shell** + **Status Phase B v1.2** shipped in repo. Staging URL: `https://ratings.kickoff2.com` (WinSCP deploy; not auto from `git push`). Open before launch: **TEST realm accent swap**, **accent preview pills** on hub row.
+**Status:** Agreed direction (May 2026). **Phase A hub shell** + **Status Phase B v1.2** shipped in repo. Staging URL: `https://ratings.kickoff2.com` (WinSCP deploy; not auto from `git push`). **Tint vs realm:** see `docs/tint-vs-realm.md` (UI paint = tint picker; realm = universe).
 
 **Audience:** Dagh and Cursor agents. Captures **design decisions from discussion** so we do not re-derive them from chat history.
 
@@ -43,7 +43,7 @@ The ratings site should **not** clone kickoff2.com’s pixel-art football pitch 
 Soonish, a **second universe** duplicates the ladder for **real Amiga 500 games played in real life** (not online). Implications for design:
 
 - Branding is **realm-neutral** at the shell level (“Kick Off 2 ratings”).
-- **One design system**, two **realm accent** identities (switcher on `<html data-realm="online|amiga">` or equivalent).
+- **One design system**, two **realms** (`data-realm="online|amiga"`) for data; **UI accent** from tint picker (`data-k2-accent`), not from realm.
 - Same UI patterns (tables, profiles, charts); APIs already accept `realm=` (online today; Amiga not wired yet — see `docs/ladder-engine-plan.md` §8).
 
 **Amiga-specific identity opportunity:** Many players can have **actual photographs** in the Amiga realm — strong “we exist and matter” signal beyond avatars and stats. Plan layout for photos in player hero from the start.
@@ -134,12 +134,13 @@ Conceptual — exact values tuned in theme lab:
 
 **Tint** (`--k2-accent` on `<html>`) drives links, nav rings, glows, and chrome. **Not** tied to Online/Amiga realm. See `docs/tint-vs-realm.md`.
 
-| Tint | Hex | Notes |
-|------|-----|--------|
-| **Amber** (default) | `#ffb74d` | CSS default on every load |
-| Chrome | `#64b5f6` | Hub tint pill |
-| Pulse | `#f06292` | Hub tint pill |
-| Holo | `#b388ff` | Hub tint pill |
+| Tint id | Hex | Notes |
+|---------|-----|--------|
+| **amber** (default) | `#ffb74d` | CSS default when attribute absent |
+| pitch | `#9ccc65` | Hub pill (legacy Amiga-era green) |
+| chrome | `#64b5f6` | Hub pill |
+| pulse | `#f06292` | Hub pill |
+| holo | `#b388ff` | Hub pill |
 
 ```html
 <html data-realm="online" data-k2-accent="chrome">  <!-- realm = universe; accent optional -->
@@ -153,7 +154,7 @@ html { --k2-accent: #ffb74d; /* + muted/glow; hub data-k2-accent overrides */ }
 
 **Charts** stay **realm-neutral** (multi-colour `chart-theme.js` palette). **Links / link-star** derive from `--k2-accent` via `color-mix` on `html`.
 
-**Hub tint picker:** Chrome · Pulse · Holo; hidden by default — **Show tint** on hub bar. Five tints + persistence deferred.
+**Hub tint picker:** Amber · Pitch · Chrome · Pulse · Holo; hidden by default — **Show tint** on hub bar. Long-lived persistence deferred (`docs/tint-vs-realm.md`).
 
 ### Text & link hierarchy (production — May 2026)
 
@@ -341,7 +342,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 - **Leaderboard wing nav:** segment track + outline active cell (promoted from theme-lab); table detached from wing bar (~12px gap); `.k2-chrome-tabs` max-width 1200px.
 - **Hub / player nav (production):** **segment** track + outline active (`data-k2-hub-nav="segment"` default); overrides via `?k2_hub_nav=`.
-- **Hub accent preview pills:** Chrome · Pulse · Holo; **hidden by default**; **Show tint** on hub bar. Staging — remove at launch unless kept.
+- **Hub tint picker:** Amber · Pitch · Chrome · Pulse · Holo; **hidden by default**; **Show tint** on hub bar. Launch: keep hidden vs expose (open).
 - **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).
 - **UI tint:** default amber; hub pills (see § UI accent / tint tokens, `docs/tint-vs-realm.md`).
 - **Status room:** 4-column grid, asymmetric cols (wider games + leaderboard); `.k2-panel-heading` on panel/chart titles; body text `--k2-text-primary` `#d0d7de` (May 2026 tune).
@@ -367,22 +368,22 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 - [x] **Neon intensity:** **C · Bold** — glow on **player hero avatar** only (not feast stat text)
 - [x] **Display font:** **Exo 2**
-- [x] **UI tint (production):** default **amber** `#ffb74d`; hub Chrome · Pulse · Holo (see § UI accent / tint tokens)
+- [x] **UI tint (production):** default **amber** `#ffb74d`; hub **Amber · Pitch · Chrome · Pulse · Holo** (see § UI accent / tint tokens)
 
 ### Still open (minor — not blocking staging)
 
-- [x] **Accent preview pills** — **Chrome · Pulse · Holo**, hidden by default + **Show tint**; keep while iterating (may change before public launch)
-- [ ] **Accent pills at public launch** — remove, keep hidden, or expose (decide later; not tomorrow)
+- [x] **Tint picker** — **Amber · Pitch · Chrome · Pulse · Holo**, hidden by default + **Show tint**
+- [ ] **Tint picker at public launch** — remove, keep hidden, or expose (decide later)
 - [x] **Link / text ladder** — `--k2-link-star` (names + profile highlights), `--k2-link` (prose); see § Text & link hierarchy.
 - [ ] Exact surface hex fine-tune (`--k2-bg-page`, `--k2-bg-surface`) — current values OK unless staging feels too dark/light
 - [ ] When to rename `<title>` from “KOOL Rating” to “Kick Off 2 ratings”
 - [ ] Physical realm routing on website (see `docs/ladder-engine-plan.md` §8)
 
-### Online accent options (theme lab — green chosen)
+### Pitch green (theme lab — now tint id `pitch`)
 
 | Key | Hex | Character |
 |-----|-----|-----------|
-| **green** ✓ | `#9ccc65` | **Chosen** — pitch / chart green |
+| **pitch** ✓ | `#9ccc65` | Hub tint pill — pitch / chart green (not realm paint) |
 | lime | `#aed581` | Softer green (not chosen) |
 | teal | `#4db6ac` | Cool, analytical |
 | cyan | `#4dd0e1` | Digital / cyber |

@@ -1,6 +1,6 @@
 # Tint vs realm
 
-**Status:** Phase 0–2 complete in repo (May 2026). Phase 3 (full doc pass) mostly done; header mock deferred.
+**Status:** Phases 0–3 complete in repo (May 2026). Header layout mock still deferred.
 
 ## Decision
 
@@ -9,7 +9,15 @@
 | **Tint** (`data-k2-accent` on `<html>`) | UI accent — links, nav rings, glows, chrome. **Not** tied to Online/Amiga. |
 | **Realm** (`data-realm`) | Which ladder/universe (data, copy, APIs later). **Does not** set site paint. |
 
-**Default tint on load:** amber `#ffb74d` (CSS on `html`). Hub pills: Chrome · Pulse · Holo override when chosen. Session restore via `sessionStorage` (`k2-accent-tune`) — long-lived persistence deferred.
+**Default tint on load:** amber (`#ffb74d`) when `data-k2-accent` is absent (CSS on `html`). Hub picker: **Amber · Pitch · Chrome · Pulse · Holo**. Session restore via `sessionStorage` (`k2-accent-tune`) — long-lived persistence deferred.
+
+| Tint id | Hex | Notes |
+|---------|-----|--------|
+| `amber` | `#ffb74d` | Default |
+| `pitch` | `#9ccc65` | Former “Amiga green” realm chrome — now a tint only |
+| `chrome` | `#64b5f6` | |
+| `pulse` | `#f06292` | |
+| `holo` | `#b388ff` | |
 
 ## Tokens
 
@@ -28,32 +36,30 @@
 
 - [x] `--k2-accent` default amber; derived link/segment tokens use tint
 - [x] `html[data-realm]` no longer sets accent colours
-- [x] Tint pills set `--k2-accent` only (via `data-k2-accent` blocks)
-- [x] Realm switch does **not** clear tint (`realm-switch.js`)
+- [x] Tint pills set `--k2-accent` only
+- [x] Realm switch does **not** clear tint
 
 ### Phase 2 — Rename sweep
 
-- [x] Replace `--k2-realm-accent` in stylesheets with `--k2-accent`
-- [x] Remove legacy alias variables on `html`
-- [x] Realm switcher uses segment active tokens (site tint), not amber/green per realm
-- [x] `design-direction.md` / `hub-ia-agreement.md` — tint vs realm summary
+- [x] `--k2-accent` everywhere (no `--k2-realm-accent`)
+- [x] Realm switcher uses site tint (segment tokens), not per-realm colours
 
-### Phase 3 — Remaining docs (optional)
+### Phase 3 — Docs
 
-- [ ] Sweep other docs for stale “online amber / amiga green UI” wording
-- [ ] `PROJECT_BRIEF.md` if it mentions realm colours
+- [x] `design-direction.md`, `hub-ia-agreement.md`, `PROJECT_MEMORY.md`
+- [x] Five tint pills in hub (`hub_nav.php`, `theme.css`, `realm-switch.js`)
 
 ### Deferred
 
 - Header layout mock (realm vs search placement)
-- Five tints + amber pill in hub
 - `localStorage` / long-lived tint preference
 - Search scoped to `data-realm`
+- **Accent pills at public launch** — hidden by default today; expose or remove later
 
 ## Smoke checklist (after deploy)
 
-1. **Cold load** — no session tint: links/nav rings **amber**; Online active on realm switch.
-2. **Show tint** → Chrome — links blue; reload same tab — still Chrome (session).
-3. **Online ↔ Amiga** — link colour **unchanged**; realm button uses current tint outline.
-4. **Re-click active Online** — tint **not** cleared.
-5. **status.php**, **ranked7.php**, **individual1.php** — player names use current tint.
+1. **Cold load** — amber links; **Amber** pill active (or none set + amber visually).
+2. **Pitch** — green accent; realm switch still independent.
+3. **Chrome / Pulse / Holo** — as before; session survives reload.
+4. **Online ↔ Amiga** — tint unchanged.
+5. **status.php**, **ranked7.php**, **individual1.php** — player names follow tint.
