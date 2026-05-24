@@ -1537,35 +1537,35 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 2px;
+	gap: 6px;
 	margin: 0;
 	padding: 0;
 }
 
-/* Tint pills — segment nav parity (muted swatch, outline active, no glow) */
+/* Tint pills — compact capsule; nav-like intensity (soft outline active, no glow) */
 .k2-accent-pills__btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
 	margin: 0;
-	padding: 8px 12px;
-	border: 1px solid transparent;
-	border-radius: calc(var(--k2-radius-md) - 2px);
+	padding: 5px 10px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: 999px;
 	background: transparent;
 	color: var(--k2-text-muted);
 	font: inherit;
-	font-size: 13px;
+	font-size: 11px;
 	font-weight: 600;
 	line-height: 1.2;
 	cursor: pointer;
-	transition: background 0.15s, color 0.15s, border-color 0.15s;
+	transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
 .k2-accent-pills__btn::before {
 	content: "";
 	flex-shrink: 0;
-	width: 6px;
-	height: 6px;
+	width: 7px;
+	height: 7px;
 	border-radius: 50%;
 	background: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-text-muted)) 50%, var(--k2-text-muted));
 	box-shadow: none;
@@ -1600,8 +1600,8 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 
 .k2-accent-pills__btn:hover:not(.is-active) {
 	color: var(--k2-text-secondary);
-	background: var(--k2-bg-hover);
-	border-color: transparent;
+	background: transparent;
+	border-color: var(--k2-border-strong);
 }
 
 .k2-accent-pills__btn.is-active {
