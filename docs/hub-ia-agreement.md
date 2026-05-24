@@ -198,7 +198,7 @@ Global hub nav replaced by player context:
 |------|----------|
 | Home + player pills | **Segment track** — active: softened accent text + single mixed ring (`--k2-segment-active-*`); no fill tint. Override via `?k2_hub_nav=`. |
 | Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
-| Hub tint picker | **Staging (keep for now)** — Amber · Pitch · Chrome · Pulse · Holo; **hidden by default** + **Show tint**. Sets `--k2-accent`; default amber in CSS. Independent of realm switch. Launch decision deferred. |
+| Hub tint picker | **Staging (keep for now)** — Amber · Pitch · Chrome · Holo; **hidden by default** + **Show tint**. Sets `--k2-accent`; default amber in CSS. Independent of realm switch. Launch decision deferred. |
 | Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
 | Nav hover (inactive) | **`--k2-text-secondary`** — between muted and primary; not full white flash. Sort/table data stay primary. |
 | Neon intensity | **C · Bold** — stronger accent glow. |
@@ -303,4 +303,4 @@ Production default: **segment** (`theme_boot_head.php`). Compare alternatives wi
 
 - Set on `<html data-k2-hub-nav="…">` in `theme_boot_head.php` (URL wins, then `sessionStorage` key `k2-hub-nav-tune`).
 - Link index: `nav-preview.php` → Status / Leaderboards / Trends per variant.
-- Tint picker: Amber · Pitch · Chrome · Pulse · Holo; **hidden by default**; `sessionStorage` `0` = shown; **Show tint** / **Hide tint** on hub bar.
+- Tint picker: Amber · Pitch · Chrome · Holo; **hidden by default**; `sessionStorage` `0` = shown; **Show tint** / **Hide tint** on hub bar.

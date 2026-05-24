@@ -9,17 +9,16 @@
 | **Tint** (`data-k2-accent` on `<html>`) | UI accent — links, nav rings, glows, chrome. **Not** tied to Online/Amiga. |
 | **Realm** (`data-realm`) | Which ladder/universe (data, copy, APIs later). **Does not** set site paint. |
 
-**Default tint on load:** amber (`#ffb74d`) when `data-k2-accent` is absent (CSS on `html`). Hub picker: **Amber · Pitch · Chrome · Pulse · Holo**. Session restore via `sessionStorage` (`k2-accent-tune`) — long-lived persistence deferred.
+**Default tint on load:** amber (`#ffb74d`) when `data-k2-accent` is absent (CSS on `html`). Hub picker: **Amber · Pitch · Chrome · Holo** (Pulse removed — clashed with stat colours). Session restore via `sessionStorage` (`k2-accent-tune`) — long-lived persistence deferred.
 
 | Tint id | Hex | Notes |
 |---------|-----|--------|
 | `amber` | `#ffb74d` | Default |
 | `pitch` | `#9ccc65` | Former “Amiga green” realm chrome — now a tint only |
 | `chrome` | `#64b5f6` | |
-| `pulse` | `#f06292` | |
 | `holo` | `#b388ff` | |
 
-**Table stat overrides (`.blue` / `.red`):** default cyan / magenta. Chrome & Holo → green positives. Pulse → coral negatives (accent = default negative). Charts unchanged.
+**Table stat overrides (`.blue` / `.red`):** default cyan / magenta. Chrome & Holo → green positives. Charts unchanged.
 
 ## Tokens
 
@@ -63,6 +62,6 @@
 
 1. **Cold load** — amber links; **Amber** pill active (or none set + amber visually).
 2. **Pitch** — green accent; realm switch still independent.
-3. **Chrome / Pulse / Holo** — as before; session survives reload.
+3. **Chrome / Holo** — session survives reload.
 4. **Online ↔ Amiga** — tint unchanged.
 5. **status.php**, **ranked7.php**, **individual1.php** — player names follow tint.

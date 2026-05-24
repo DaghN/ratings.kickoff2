@@ -139,7 +139,6 @@ Conceptual — exact values tuned in theme lab:
 | **amber** (default) | `#ffb74d` | CSS default when attribute absent |
 | pitch | `#9ccc65` | Hub pill (legacy Amiga-era green) |
 | chrome | `#64b5f6` | Hub pill |
-| pulse | `#f06292` | Hub pill |
 | holo | `#b388ff` | Hub pill |
 
 ```html
@@ -154,7 +153,7 @@ html { --k2-accent: #ffb74d; /* + muted/glow; hub data-k2-accent overrides */ }
 
 **Charts** stay **realm-neutral** (multi-colour `chart-theme.js` palette). **Links / link-star** derive from `--k2-accent` via `color-mix` on `html`.
 
-**Hub tint picker:** Amber · Pitch · Chrome · Pulse · Holo; hidden by default — **Show tint** on hub bar. Long-lived persistence deferred (`docs/tint-vs-realm.md`).
+**Hub tint picker:** Amber · Pitch · Chrome · Holo; hidden by default — **Show tint** on hub bar. Long-lived persistence deferred (`docs/tint-vs-realm.md`).
 
 ### Text & link hierarchy (production — May 2026)
 
@@ -368,11 +367,11 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 - [x] **Neon intensity:** **C · Bold** — glow on **player hero avatar** only (not feast stat text)
 - [x] **Display font:** **Exo 2**
-- [x] **UI tint (production):** default **amber** `#ffb74d`; hub **Amber · Pitch · Chrome · Pulse · Holo** (see § UI accent / tint tokens)
+- [x] **UI tint (production):** default **amber** `#ffb74d`; hub **Amber · Pitch · Chrome · Holo** (see § UI accent / tint tokens)
 
 ### Still open (minor — not blocking staging)
 
-- [x] **Tint picker** — **Amber · Pitch · Chrome · Pulse · Holo**, hidden by default + **Show tint**
+- [x] **Tint picker** — **Amber · Pitch · Chrome · Holo**, hidden by default + **Show tint**
 - [ ] **Tint picker at public launch** — remove, keep hidden, or expose (decide later)
 - [x] **Link / text ladder** — `--k2-link-star` (names + profile highlights), `--k2-link` (prose); see § Text & link hierarchy.
 - [ ] Exact surface hex fine-tune (`--k2-bg-page`, `--k2-bg-surface`) — current values OK unless staging feels too dark/light

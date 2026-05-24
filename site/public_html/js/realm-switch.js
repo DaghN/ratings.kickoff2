@@ -8,7 +8,7 @@
     var root = document.documentElement;
     var REALM_KEY = 'k2-realm';
     var ACCENT_KEY = 'k2-accent-tune';
-    var VALID_ACCENTS = ['amber', 'pitch', 'chrome', 'pulse', 'holo'];
+    var VALID_ACCENTS = ['amber', 'pitch', 'chrome', 'holo'];
     var DEFAULT_ACCENT = 'amber';
 
     function currentAccent() {

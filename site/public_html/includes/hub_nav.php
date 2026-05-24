@@ -4,7 +4,7 @@
  * Set $k2HubTabActive before include: status | leaderboards | activity | games | records
  *
  * Hub nav style: segment default; ?k2_hub_nav= override (theme_boot_head.php).
- * Tint picker: Amber · Pitch · Chrome · Pulse · Holo — hidden by default; Show/Hide tint.
+ * Tint picker: Amber · Pitch · Chrome · Holo — hidden by default; Show/Hide tint.
  */
 $k2HubTabActive = $k2HubTabActive ?? '';
 $k2HubTabs = [
