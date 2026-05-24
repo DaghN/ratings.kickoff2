@@ -297,6 +297,8 @@ Use this table for day-to-day reference. The Phase 0 baseline inventory above is
 
 ## Phase 2 - Shared Rated-Game Row Rendering
 
+**Status: kickoff / decisions (2026-05-24) — implementation next**
+
 Goal: one source of truth for row content in `game.php` and Games tab.
 
 - Introduce/extend shared include(s) for rated-game row rendering.
@@ -307,6 +309,76 @@ Definition of done:
 
 - `game.php` and `server3.php` use shared row rendering path.
 - Output parity verified visually.
+
+### Phase 2 kickoff — investigation (2026-05-24)
+
+**Scope**
+
+- **In:** `game.php` (single-game detail), `server3.php` (Games tab list).
+- **Out:** `individual3.php` (different columns: Result, Opponent, player-centric ratings) — not part of Phase 2.
+- **Future:** Phase 3 will call the same row renderer inside seven day buckets (plan for reuse now).
+
+**Existing shared piece**
+
+- `includes/k2_game_rating_adjustment.php` — adjustment column only; keep and call from the full-row renderer.
+
+**Proposed include**
+
+- `includes/k2_rated_game_row.php` with:
+  - `k2_rated_game_normalize_row(array $row): array` — accept `ratedresults` **assoc** row (from `mysqli_fetch_assoc`); callers stop using numeric `$row[21]` indices in templates.
+  - `k2_rated_game_winner_html(array $game): string` — winner cell (link or `Draw`).
+  - `k2_rated_game_es_winner_html(array $game): string` — expected-score % cell.
+  - `k2_rated_game_row_html(array $game, array $options = []): string` — full `<tr>…</tr>` (14 columns, same order as today).
+  - Optional later: `k2_rated_game_thead_html()` if thead duplication becomes annoying (not required for first implementation).
+
+**Options for `$options`**
+
+| Key | Values | Purpose |
+|-----|--------|---------|
+| `id_mode` | `'link'` (default), `'plain'` | Games list links ID → `game.php`; detail page shows plain id |
+| `date_format` | `'display'` (default), `'raw'` | Reserved; default applies `M d Y, H:i` |
+
+### Phase 2 — decisions (canonical behavior)
+
+These apply to **both** pages unless `id_mode` says otherwise. This **intentionally changes** some current `server3.php` output (called out below).
+
+| Column / rule | Canonical choice | Was on `game.php` | Was on `server3.php` |
+|---------------|------------------|-------------------|----------------------|
+| **ID** | Link if `id_mode=link`, else plain int | Plain | Link |
+| **Date** | `M d Y, H:i` via `strtotime`, escaped spacing as today | Raw DB string | Formatted |
+| **Team A / B** | Linked names, `htmlspecialchars` | Yes | Unescaped |
+| **Goals, diff, sum** | Integers as today | Same | Same |
+| **Winner** | Winner link or **`Draw`** (not `-`) | `Draw` + float tolerance | `-` + `== 1` / `== 0` |
+| **Win/loss/draw test** | Float tolerance on `ActualScore` | Yes | No |
+| **Ratings** | `round()` to int | Yes | Yes |
+| **Rating diff** | `number_format(abs(...), 1)` | Yes | Yes |
+| **ES Winner %** | Winner’s ES, or `min(A,B)` on draw | Yes | Same logic, int comparison |
+| **Adjustment** | `k2_game_rating_adjustment_html()` | Yes | Yes |
+
+**Rationale:** Games tab and game detail should match; `game.php` was already stricter on escaping and draws. List view keeps ID as link for navigation.
+
+**Data loading (implementation note)**
+
+- `server3.php`: switch loop to `mysqli_fetch_assoc` and pass row to normalize (or normalize accepts assoc only).
+- `game.php`: already assoc; pass `$row` through.
+
+**Sorting (unchanged in Phase 2)**
+
+- `server3.php` still uses `table-autosort` until Phase 3 removes it; formatted dates must remain parseable by elolist `table-sortable:date` (current `M d Y, H:i` pattern is OK).
+
+**Risks / follow-ups**
+
+- Visual diff on Games tab: draw rows show `Draw`, names escaped (no behavior change if names are safe ASCII).
+- Phase 3: reuse `k2_rated_game_row_html()` per day; drop client sort on Games tables.
+- Do not refactor `individual3` row markup in this phase.
+
+### Phase 2 — next implementation step
+
+1. Add `includes/k2_rated_game_row.php` per above.
+2. Replace row markup in `game.php` (`id_mode` → `plain`) and `server3.php` (`id_mode` → `link`).
+3. Quick visual check: one game detail + Games tab (win, loss, draw if available).
+
+## Phase 3 - Games Tab 7-Day Split
 
 ## Phase 3 - Games Tab 7-Day Split
 
@@ -416,3 +488,4 @@ Use this section to track meaningful plan updates over time.
 - 2026-05-24: Phase 0 baseline completed (page inventory, elolist vs CSS roles, row parity gaps, Phase 1 handoff).
 - 2026-05-24: Document preserve requirement for `individual3.php` Result/Opponent filters (functionality required; client vs server TBD).
 - 2026-05-24: Phase 1 cleanup completed (striping, dead scripts, no-op elolist classes).
+- 2026-05-24: Phase 2 kickoff — shared row API sketch + canonical column decisions (game.php + server3.php).
