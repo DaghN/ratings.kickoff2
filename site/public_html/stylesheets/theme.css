@@ -76,6 +76,8 @@ html[data-k2-accent="chrome"] {
 	--k2-accent: #64b5f6;
 	--k2-accent-muted: rgba(100, 181, 246, 0.14);
 	--k2-accent-glow: rgba(100, 181, 246, 0.38);
+	/* Cyan positive stats clash with chrome links — use chart green instead */
+	--k2-stat-positive-base: var(--k2-chart-green);
 }
 
 html[data-k2-accent="pulse"] {
