@@ -1,6 +1,6 @@
 # Ladder replay (Python v1)
 
-Recalculates Elo on local **`ko2unity_db`** per **`docs/replay-v1-scope-and-reset.md`**.
+Recalculates Elo on local **`ko2unity_db`** per **`docs/replay-v1-scope-and-reset.md`**. Prod/staging coordination: **`docs/prod-coordination.md`**.
 
 ## Setup
 

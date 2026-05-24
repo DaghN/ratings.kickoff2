@@ -9,6 +9,7 @@
 | Doc | Role |
 |-----|------|
 | `PROJECT_BRIEF.md` | Product taste and north star |
+| `docs/prod-coordination.md` | **Prod cutover hub** — registers, schema/replay/Steve packet |
 | `PROJECT_MEMORY.md` | Logistics, shipped charts, deploy, CLI quick reference |
 | `scripts/ladder/README.md` | **How to run** `reset` / `replay` / `run` (authoritative for commands) |
 | `docs/ratings_cpp.txt` | Legacy **live** post-game logic (reference only) |
@@ -51,6 +52,16 @@
 | **Amiga 500 / offline** | Import + **Python offline track** | Separate DB or separate tables (TBD physically) | `scripts/` Python — offline track |
 
 **Mental model:** Legacy C++ is **prod reference** and **coordination point** with Steve. Python is **our clean room** for dev and offline until we deliberately merge behaviour into live.
+
+### Databases: who gets live game writes? (confirmed May 2026)
+
+| Environment | Typical DB name | Live C++ post-game writes? | How data stays current |
+|-------------|-----------------|------------------------------|-------------------------|
+| **Production** (joshua / live ladder) | `kooldb` | **Yes** — each rated game + periodic jobs (e.g. hourly rating fade) | Continuous |
+| **Staging** (`ratings.kickoff2.com`) | `kooldb` | **No** — game server does **not** write here | PHP deploy via WinSCP; DB updated by **dump import**, **Steve-run scripts** (replay, schema SQL, one-offs), or manual refresh — not by live play |
+| **Local** (Laragon) | `ko2unity_db` | **No** | SQL dump import + local Python replay / migrations |
+
+**Implication:** Staging is for **code + agreed batch jobs** on a writable copy, not for testing “the next game landed in the DB.” Status panels that need `IsOnline` / live `resulttable` rows will look **stale** on staging unless you refresh the dump or point PHP at prod (read-only, Steve agreement). Prod cutover testing = schema SQL + replay packet + updated C++ spec, rehearsed on staging first.
 
 ---
 
@@ -192,6 +203,7 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 | **Staging run** | **`docs/STAGING_REPLAY.md`** only — WinSCP + Steve shell; not Git deploy. |
 | **SSH** | Not available for Dagh (May 2026); do not block on it. |
 | **Safety** | Full replay only on **dev** until explicit prod plan + backup. |
+| **Schema migrations** | `schema/migrations/` + register `docs/coordination/schema-register.md` |
 | **PHP throwaways** | Schema probes (`scripts/throwaway_*.php`) remain valid for introspection; delete from `public_html` after use. |
 
 **Confirm once with Steve:** `python3` available on staging and MySQL client library installable if needed.

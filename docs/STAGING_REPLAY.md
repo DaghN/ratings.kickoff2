@@ -2,6 +2,8 @@
 
 **Goal:** Run Python replay **once** on staging **`kooldb`** (K=32, start 1600, no decay) — reset derived columns, replay ~74k **`ratedresults`**, rebuild **`playertable`** and **`generalstatstable`** row `id=1`.
 
+**Staging DB note:** **`kooldb` on ratings.kickoff2.com does not receive live game writes** from the production game server (May 2026). Staging is updated by **scripts Steve runs** (replay, schema SQL, dumps), not by each new rated match. WinSCP deploys **PHP only**.
+
 **Status:** **Done (May 2026).** Local **`ko2unity_db`** validated earlier; **Steve** ran `bash run_staging_ladder_replay.sh` from staging **`public_html/`** on **`kooldb`** — success. **Production live ratings remain C++** (P5 deferred).
 
 **Other docs:** CLI → **`scripts/ladder/README.md`** · scope → **`docs/replay-v1-scope-and-reset.md`** · phases / deferred work → **`docs/ladder-engine-plan.md`**

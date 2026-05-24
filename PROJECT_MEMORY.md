@@ -174,7 +174,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 5. **Tone pass:** chart titles/helper copy — context, sample size, “rematch story” not report-card (see chat on inclusive analytics).
 
-6. **Dev DB workflow:** document migration habit (`schema/` SQL files, dev → staging test → Steve prod); ladder-engine sandbox work on dev.
+6. **Prod coordination:** use **`docs/prod-coordination.md`** + **`docs/coordination/*-register.md`** when a feature needs schema/replay/C++/periodic on prod; SQL in **`schema/migrations/`**.
 
 7. **Optional:** local `ko2unitydb_config.php` template from Steve; align laptop + staging config shapes (gitignored only).
 
@@ -212,6 +212,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 | 2026-05 | **Writable dev DB** + updated server config (Steve). **Write probe passed** (`throwaway_db_write_probe.php`; removed from server after). |
 | 2026-05 | **Ladder replay v2 + `generalstatstable`:** local migration + batch server-stats rebuild; profile/leaderboard parity verified; usage documented in **`scripts/ladder/README.md`** + MEMORY. |
 | 2026-05 | **Staging one-shot replay on `kooldb`:** Steve ran `run_staging_ladder_replay.sh` — success; **`docs/STAGING_REPLAY.md`**. P3–P5 deferred. |
+| 2026-05 | **Prod coordination track:** **`docs/prod-coordination.md`**, registers under **`docs/coordination/`**, **`schema/migrations/`**, **`scripts/oneoff/`** template; staging **no live game writes** documented. |
 
 | 2026-05 | **Inclusive / fun profile direction** — brainstorm: welcoming copy, progressive disclosure, **fun stats** block; profile “front page” should feel active/fun, not judgment-first. |
 
@@ -279,11 +280,12 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 
 | Server DB config | **`public_html/../config/ko2unitydb_config.php`** — **not mirrored**; never commit |
 
-| **Database** | **MariaDB 10.11** on staging; dev DB **`kooldb`** (writable; probe done May 2026) |
+| **Database** | **MariaDB 10.11** on staging; **`kooldb`** writable but **no live game writes** (probe done May 2026) — replay/SQL via Steve, PHP via WinSCP |
 
 | Local preview | **`docs/LOCAL_DEV.md`** — **`http://ratingskickoff.test`** (needs **Apache on :80**); junction **`C:\laragon\www\ratingskickoff`** |
 | Local DB dump | **`data/dumps/ko2unity_db-2026-05-20.sql`** → **`ko2unity_db`**; dump omits **`generalstatstable`** — replay creates it |
 | Ladder replay CLI | **`python -m scripts.ladder run`** — local/staging recalc done; record **`docs/STAGING_REPLAY.md`** |
+| Prod coordination | **`docs/prod-coordination.md`** · registers **`docs/coordination/`** · schema **`schema/migrations/`** |
 
 | Throwaway probes | Under **`scripts/`** only — manual WinSCP copy to **`public_html`**, gated `?once=…`, **delete from server after** |
 | `ratedresults` indexes (Phase A) | **`idx_ratedresults_idA`**, **`idx_ratedresults_idB`** — local + staging; prod via Steve when agreed |
@@ -307,6 +309,7 @@ Steve supplied an excerpt of the **Unity/C++** job that runs after each rated on
 - **Deploy vs GitHub:** **`git push`** does **not** update the public site unless a future automation says so. **Today:** staging updates only via **WinSCP sync** of **`site/public_html/`** → server **`public_html/`**.
 
 - **Change style:** **Small, reversible** diffs aligned with Brief — no drive-by mega-refactors unless Dagh expands scope.
+- **Prod-bound features:** If work changes stored ladder truth (schema, aggregates, ratings rules), add/update rows in **`docs/coordination/*-register.md`** and note prod-readiness level in **`docs/prod-coordination.md`**.
 
 
 

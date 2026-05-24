@@ -4,6 +4,17 @@
 
 **Staging/production** deploy is still WinSCP → `ratings.kickoff2.com`. This doc is **local only**.
 
+### Local vs staging vs prod (DB)
+
+| | Local | Staging | Production |
+|---|--------|---------|------------|
+| DB name | `ko2unity_db` | `kooldb` | `kooldb` |
+| Live game writes | No | **No** | **Yes** (C++ post-game) |
+| Site code updates | Edit in repo | WinSCP sync | Steve / agreed deploy |
+| Typical DB refresh | Re-import dump | Steve: replay / SQL / dump | Continuous |
+
+See **`docs/ladder-engine-plan.md`** (§2 databases table) and **`docs/STATUS_PAGE_DATA.md`** (snapshot vs live).
+
 ---
 
 ## Machine facts (verified May 2026)
@@ -106,11 +117,13 @@ USE ko2unity_db;
 SELECT COUNT(*) FROM ratedresults;   -- expect ~74870
 ```
 
-**Profile load indexes (Phase A):** after import, run once:
+**Schema migrations (indexes, etc.):** after import, run once:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\apply_ratedresults_player_indexes.ps1
+powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 ```
+
+(Wrapper: `scripts\apply_ratedresults_player_indexes.ps1` — same as `001_ratedresults_player_indexes.sql`.)
 
 Then spot-check `http://ratingskickoff.test/individual1.php?id=237` — profile should load in ~1s for heavy players or ~100ms for light ones (was multi-second before indexes).
 
@@ -129,7 +142,7 @@ Dump file: **`data/dumps/ko2unity_db-2026-05-20.sql`** (HeidiSQL export from **`
 | `resulttable` | Yes | Wide match log (~81k rows): **live/shelved games** for hub Status (`docs/STATUS_PAGE_DATA.md`). Not used by ladder chart APIs. |
 | **`generalstatstable`** | **Not in `.sql` file** | After import, **`python -m scripts.ladder run`** (or staging replay) can create row `id=1` for headline totals. Original dump note still applies if you skip replay. |
 
-**Hub Status page:** same DB as legacy [joshua status.php](https://joshua.kickoff2.net/status.php) — build locally without a separate API; see **`docs/STATUS_PAGE_DATA.md`**. Snapshot data is stale for `IsOnline` / in-progress games until you point at live `kooldb` or refresh the dump.
+**Hub Status page:** same DB as legacy [joshua status.php](https://joshua.kickoff2.net/status.php) — build locally without a separate API; see **`docs/STATUS_PAGE_DATA.md`**. `IsOnline` / in-progress games are stale on local and staging (no live writes); prod only for “tonight” truth.
 
 Python replay v1 can defer server stats; rebuild `generalstatstable` later or re-import when a complete dump exists.
 

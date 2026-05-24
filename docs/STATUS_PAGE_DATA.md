@@ -13,9 +13,9 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 
 | Environment | Database name | Notes |
 |-------------|---------------|--------|
-| **Production / joshua** | `kooldb` (typical PHP config name) | Live writes from C++ (`docs/ratings_cpp.txt`) |
-| **Staging** | `kooldb` | Same schema; fresher than a laptop dump |
-| **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, May 2026 |
+| **Production / joshua** | `kooldb` (typical PHP config name) | **Live writes** from C++ post-game (`docs/ratings_cpp.txt`) + periodic server jobs |
+| **Staging** | `kooldb` | **Same schema, no live game writes** — not fed by the game server; DB changes via dump, Steve-run replay/SQL, or one-offs. WinSCP only updates PHP. |
+| **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, May 2026; no live writes |
 
 **No separate “status.php API”** — PHP + SQL against these tables (same pattern as `server1.php`, ranked pages).
 
@@ -94,7 +94,9 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 
 ## Snapshot vs live
 
-Local dump / staging snapshot: `IsOnline` and in-progress rows go stale. Do not label snapshot as live prod. Production read = truth for “tonight.”
+**Staging has no live game feed** (confirmed May 2026) — same staleness pattern as a local dump: `IsOnline`, live `resulttable` rows, and “online now” counts reflect **last import or last manual update**, not tonight’s play.
+
+Local dump: same. Do not label staging or local as live prod. Production read = truth for “tonight.”
 
 ---
 

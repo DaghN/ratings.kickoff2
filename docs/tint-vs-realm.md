@@ -48,6 +48,7 @@
 
 - [x] `design-direction.md`, `hub-ia-agreement.md`, `PROJECT_MEMORY.md`
 - [x] Five tint pills in hub (`hub_nav.php`, `theme.css`, `realm-switch.js`)
+- [x] Same tint picker on player nav (`player_nav.php`, shared `k2_tint_picker.php`)
 
 ### Deferred
 

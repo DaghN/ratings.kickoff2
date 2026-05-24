@@ -14,13 +14,7 @@ $k2HubTabs = [
 	'games' => ['href' => 'server3.php', 'label' => 'Games'],
 	'records' => ['href' => 'server2.php', 'label' => 'Records'],
 ];
-$k2AccentPills = [
-	'amber' => ['label' => 'Amber', 'title' => 'Warm amber — default site tint'],
-	'pitch' => ['label' => 'Pitch', 'title' => 'Pitch green — chart / Amiga-era accent'],
-	'chrome' => ['label' => 'Chrome', 'title' => 'Rain-slick chrome blue — LA night reflections'],
-	'pulse' => ['label' => 'Pulse', 'title' => 'Neon magenta — club sign pulse'],
-	'holo' => ['label' => 'Holo', 'title' => 'Violet hologram — advert shimmer'],
-];
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';
 ?>
 <div class="k2-hub-bar">
 	<nav class="k2-hub-tabs k2-nav-pills" aria-label="Online hub">
@@ -29,13 +23,8 @@ $k2AccentPills = [
 			<a href="<?php echo $tab['href']; ?>" class="k2-hub-tabs__btn<?php echo $k2HubTabActive === $id ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
 <?php } ?>
 		</div>
-		<div class="k2-hub-tabs__tune">
-			<nav class="k2-accent-pills" aria-label="Tint">
-<?php foreach ($k2AccentPills as $id => $pill) { ?>
-				<button type="button" class="k2-accent-pills__btn" data-k2-accent="<?php echo $id; ?>" title="<?php echo htmlspecialchars($pill['title'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pill['label']; ?></button>
-<?php } ?>
-			</nav>
-			<button type="button" class="k2-accent-pills-toggle" aria-pressed="false" title="Hide tint picker">Hide tint</button>
+		<div class="k2-hub-tabs__tune k2-nav-tune">
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_tint_picker.php'; ?>
 		</div>
 	</nav>
 </div>
