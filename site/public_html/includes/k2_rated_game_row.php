@@ -145,6 +145,7 @@ function k2_rated_game_row_html(array $game, array $options = []): string
     $winnerCell = k2_rated_game_winner_html($game);
     $esCell = k2_rated_game_es_winner_html($game);
     $adjustmentCell = k2_game_rating_adjustment_html($game);
+    $adjustmentLoserCell = k2_game_rating_adjustment_loser_html($game);
 
     return '<tr style="text-align:right;">'
         . '<td>' . $idCell . '</td>'
@@ -161,5 +162,6 @@ function k2_rated_game_row_html(array $game, array $options = []): string
         . '<td>' . number_format(abs((float) $game['RatingDifference']), 1) . '</td>'
         . '<td>' . $esCell . '</td>'
         . '<td style="text-align:left;">' . $adjustmentCell . '</td>'
+        . '<td style="text-align:left;">' . $adjustmentLoserCell . '</td>'
         . '</tr>';
 }

@@ -1425,14 +1425,18 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	font-variant-numeric: tabular-nums;
 }
 
+.k2-status-match {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 8px;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
 .k2-status-live-list__meta {
 	font-size: 11px;
 	color: var(--k2-text-muted);
-}
-
-.k2-status-recency-list__detail {
-	font-size: 11px;
-	margin-left: auto;
 }
 
 @media (max-width: 900px) {

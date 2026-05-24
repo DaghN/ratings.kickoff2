@@ -67,6 +67,7 @@ mysqli_close($con);
         <th class="table-sortable:numeric">Rating Diff</th>
        	<th class="table-sortable:numeric">ES Winner</th> 
         <th class="table-sortable:ignorecase" style="text-align:left;">Adjustment</th>
+        <th class="table-sortable:ignorecase"></th>
 	</tr>
 </thead>
 

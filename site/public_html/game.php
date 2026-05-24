@@ -57,6 +57,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
         <th>Rating Diff</th>
        	<th>ES Winner</th>
         <th style="text-align:left;">Adjustment</th>
+        <th></th>
 	</tr>
 </thead>
 
