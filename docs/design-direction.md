@@ -341,7 +341,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 - **Leaderboard wing nav:** segment track + outline active cell (promoted from theme-lab); table detached from wing bar (~12px gap); `.k2-chrome-tabs` max-width 1200px.
 - **Hub / player nav (production):** **segment** track + outline active (`data-k2-hub-nav="segment"` default); overrides via `?k2_hub_nav=`.
-- **Hub tint picker:** Amber · Pitch · Chrome · Pulse · Holo; **hidden by default**; **Show tint** on hub bar. Launch: keep hidden vs expose (open).
+- **Hub tint picker:** Amber · Pitch · Chrome · Holo; **hidden by default**; **Show tint** on hub bar. Launch: keep hidden vs expose (open).
 - **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).
 - **UI tint:** default amber; hub pills (see § UI accent / tint tokens, `docs/tint-vs-realm.md`).
 - **Status room:** 4-column grid, asymmetric cols (wider games + leaderboard); `.k2-panel-heading` on panel/chart titles; body text `--k2-text-primary` `#d0d7de` (May 2026 tune).
