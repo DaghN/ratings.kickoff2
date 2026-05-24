@@ -769,8 +769,11 @@ body.k2-site .k2-table-wrap {
 
 /* ── Player sub-nav (segment default via data-k2-hub-nav on html) ── */
 .k2-player-nav-bar {
-	max-width: var(--k2-max-width);
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
 	margin: 0 0 20px;
+	box-sizing: border-box;
 }
 
 .k2-player-nav {
@@ -781,9 +784,9 @@ body.k2-site .k2-table-wrap {
 	gap: 8px 12px;
 	margin: 0;
 	padding: 0;
-	flex: 1 1 auto;
 	min-width: 0;
-	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
 }
 
 .k2-player-nav__links {
@@ -792,6 +795,7 @@ body.k2-site .k2-table-wrap {
 	align-items: center;
 	gap: 8px;
 	min-width: 0;
+	flex: 1 1 auto;
 }
 
 body.k2-site a.k2-player-nav__btn {
@@ -841,6 +845,7 @@ html[data-k2-hub-nav="segment"] .k2-player-nav {
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+	box-sizing: border-box;
 }
 
 html[data-k2-hub-nav="segment"] .k2-player-nav__links {
@@ -1500,7 +1505,8 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	margin: 0;
 	flex: 1 1 auto;
 	min-width: 0;
-	max-width: var(--k2-max-width);
+	max-width: 100%;
+	box-sizing: border-box;
 }
 
 .k2-hub-tabs__links {
@@ -1657,6 +1663,7 @@ html[data-k2-hub-nav="segment"] .k2-hub-tabs {
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+	box-sizing: border-box;
 }
 
 html[data-k2-hub-nav="segment"] .k2-hub-tabs__links {
