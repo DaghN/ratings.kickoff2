@@ -415,7 +415,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 - **Do not** adopt site-wide Tailwind without explicit Dagh approval and a documented build/deploy step.
 - **Do** read this doc before cosmetics/CSS work.
 - **Do** add themed page assets via `includes/k2_head.php` (not duplicated `<link>` blocks).
-- **Do** preserve dense table functionality where pages still load `elolist.js` (sort, filter, ranked cloak); keep `elolist.css` as the JS companion sheet. Static tables (`game.php`, Activity stats, Records) use `k2-table` + `theme.css` only — see `docs/k2-table-and-games-plan.md` Phase 1.
+- **Do** preserve dense table functionality where pages still load `elolist.js` (sort, filter, ranked cloak); keep `elolist.css` as the JS companion sheet. Static tables (`game.php`, Games tab day buckets, Activity stats, Records) use `k2-table` + `theme.css` only — see `docs/k2-table-and-games-plan.md` Phase 3.
 - **Do** use realm-neutral naming in new chrome.
 - After completing a cosmetics slice: one line in `PROJECT_MEMORY.md` Recent log; update open decisions above if resolved.
 

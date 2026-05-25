@@ -278,7 +278,7 @@ Definition of done:
 
 **Next:** Phase 2 — shared rated-game row rendering.
 
-### Current state (post-Phase 1, 2026-05-24)
+### Current state (post-Phase 3, 2026-05-25)
 
 Use this table for day-to-day reference. The Phase 0 baseline inventory above is a **historical snapshot** (pre-cleanup).
 
@@ -286,7 +286,7 @@ Use this table for day-to-day reference. The Phase 0 baseline inventory above is
 |----------------|-------------------|----------------------------|
 | `ranked1`–`ranked5`, `ranked7` | Yes | `ranked-pages-table ranked-table-pending table-autosort table-autorank` |
 | `ranked8` + peak include | Yes | `table-autosort` (per peak table) |
-| `server3.php` | Yes | `table-autosort` |
+| `server3.php` | **No** | `k2-table` per seven day buckets |
 | `individual3.php` | Yes | `table-autosort table-autofilter table-autopage:100` + paging tfoot |
 | `individual2a/b/c` | Yes | `table-autosort` |
 | `game.php`, `server1.php`, `server2.php` | **No** | `k2-table` only |
@@ -386,7 +386,7 @@ These apply to **both** pages unless `id_mode` says otherwise. This **intentiona
 
 ## Phase 3 - Games Tab 7-Day Split
 
-## Phase 3 - Games Tab 7-Day Split
+**Status: completed 2026-05-25**
 
 Goal: implement the agreed 7-table day-bucket design.
 
@@ -400,6 +400,19 @@ Definition of done:
 - Games tab shows seven day sections in correct order.
 - Empty day sections render correctly.
 - Existing row format remains aligned with `game.php`.
+
+### Phase 3 close (2026-05-25)
+
+**Shipped:**
+
+- `server3.php` now queries the current seven calendar days (`CURDATE()` through day-6), buckets rows by date, and renders Today / Yesterday / previous-day sections in newest-first order.
+- Empty days render their own header and static table with a muted empty row.
+- `server3.php` no longer loads `elolist.js`; Games tab day tables use `class="k2-table"` only.
+- `theme.css` adds small Games-day spacing and empty-state styling.
+
+**Unchanged on purpose:** row content still comes from `k2_rated_game_row_html()`, so `server3.php` remains aligned with `game.php`.
+
+**Next:** Phase 4 — `k2-table.js` pilot for a leaderboard-style table, leaving `individual3.php` filters/paging on legacy behavior until a dedicated Phase 7 replacement exists.
 
 ## Phase 4 - Tailored JS Foundation (`k2-table.js`) Pilot
 
@@ -496,3 +509,4 @@ Use this section to track meaningful plan updates over time.
 - 2026-05-24: Phase 1 cleanup completed (striping, dead scripts, no-op elolist classes).
 - 2026-05-24: Phase 2 kickoff — shared row API sketch + canonical column decisions (game.php + server3.php).
 - 2026-05-24: Phase 2 implemented — `k2_rated_game_row.php`, wired in `game.php` and `server3.php`.
+- 2026-05-25: Phase 3 implemented — Games tab seven day buckets; `server3.php` removed from `elolist.js`.

@@ -4,6 +4,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 
 | Feature | Level | Schema | Replay | Post-game (C++) | Periodic | Notes |
 |---------|-------|--------|--------|-----------------|----------|-------|
+| Games tab 7-day buckets | L0 | — | — | — | — | Read-time SQL on `ratedresults`; no stored truth change |
 | Hub / Status cosmetics | — | — | — | — | — | PHP only; no prod DB writers |
 | Status monthly league (table) | L0 | — | — | — | — | Read-time SQL on `ratedresults` |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | — | — | Prod index apply pending Steve |

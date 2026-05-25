@@ -410,6 +410,23 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 	margin: 0 auto;
 }
 
+body.k2-site .k2-games-list {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+body.k2-site .k2-games-day {
+	margin-bottom: 20px;
+}
+
+body.k2-site .k2-games-day__heading.k2-panel-heading {
+	margin-bottom: 8px;
+}
+
+body.k2-site .k2-games-day__empty {
+	color: var(--k2-text-muted);
+}
+
 /* ── Chart blocks on server / profile pages ── */
 body.k2-site .server-games-month-chart,
 body.k2-site .server-games-year-chart,
