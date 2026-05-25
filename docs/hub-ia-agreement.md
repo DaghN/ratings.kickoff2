@@ -1,306 +1,161 @@
-# Hub IA & staging agreement ledger
+﻿# Hub IA Agreement
 
-Record of decisions from the theme-lab / navigation IA conversation (May 2026).
-Consult before staging production changes. **Theme lab HTML removed** (May 2026); production reference is live pages + `theme.css`.
+**Status:** current hub/navigation contract, May 2026. Phase A hub shell and Status Phase B v1.2 are shipped in repo. This file is no longer a phase diary; use it to answer "what is the hub supposed to be?"
 
-**Status:** agreed direction — **Phase A + Status Phase B v1.2 shipped in repo** (May 2026). See `docs/STATUS_PAGE_DATA.md`. Still needs Steve for **prod DB read**, joshua redirect, embed.
-
----
-
-## Phased implementation (staging strategy)
-
-Broad IA is solved; integration and polish are sequenced. **Do not block Phase A on Steve.** Phase B Status UI is **not** blocked on a separate API — it uses the **same MySQL tables** as the legacy page (`docs/STATUS_PAGE_DATA.md`); Steve is still needed for **prod read deploy**, joshua redirect, and embed.
-
-### Phase A — Safe staging (repo + WinSCP; no new DB dependencies)
-
-Shell first, live data never, existing PHP pages as backends. Legacy URLs keep working.
-
-| # | Item | Phase A scope |
-|---|------|----------------|
-| 1 | Hub nav shell | Five **segment-track** hub tabs (outline active); shared `includes/hub_nav.php`. **Status tab default** on hub entry. |
-| 2 | Status content | **Phase B shipped:** SQL panels on `status.php` — see `docs/STATUS_PAGE_DATA.md` § v1.2. Period-activity tables **not** on Status (Trends only). |
-| 3 | Trends tab | **Nav label + route only** → existing `server1.php`. **Do not move or merge** chart content. |
-| 4 | Leaderboards | Wing-tab **chrome** on ranked pages; first sub-tab **Rating**; same tables underneath. |
-| 5 | Games / Records | **Nav reorder only** → `server3.php` / `server2.php`; no content migration. |
-| 6 | Header | **Kick Off 2** wordmark only; mock-style search; realm switcher; **no** kickoff2.com link. |
-| 7 | Player backbone | Shared hero + five pills (Profile · Games · W/D/L · Goals · DDs) on individual pages; **scaffold** — content depth later via lab. No back link. |
-| 8 | CSS promotion | Flat nav, wing tabs, header search, **neon C without grid** → production `theme.css`. |
-| 9 | kickoff2 embed / status redirect | **Out of scope** for Phase A. |
-
-**Phase A routing map (target):**
-
-| Tab | Backend (existing) |
-|-----|-------------------|
-| Status | `status.php` — **Phase B v1.2** room grid (`docs/STATUS_PAGE_DATA.md`) |
-| Leaderboards | `ranked7.php` default (Results wing); `ranked1`–`ranked5`, `ranked7` (+ wing sub-nav; `ranked6` removed) |
-| Games | `server3.php` |
-| Trends | `server1.php` |
-| Records | `server2.php` |
-
-**Safety rules for Phase A:**
-
-1. No **production** DB credentials or destructive writes without Steve; **local/staging copies are OK** for building Status (same schema as joshua).
-2. No breaking bookmarks — direct links to ranked/server/individual URLs unchanged.
-3. No pretending **stale dump** data is live prod; honest labels or live `kooldb` when deployed.
-4. One shared nav include — label/order changes in one place.
-5. Staging deploy first; compare old vs new nav side by side.
-
-**Suggested first implementation commit after this doc:** shared hub nav + header tweak + CSS from lab + Status bridge page only.
-
-### Phase B — Status page (shipped v1.2, May 2026)
-
-**Data:** SQL against existing KOOL tables — **not** a new Steve API. Mapping: `docs/STATUS_PAGE_DATA.md`. Build on **local `ko2unity_db`** / **staging `kooldb`** first.
-
-**In scope now (v1 — agreed May 2026, see `docs/STATUS_PAGE_DATA.md` § Hub Status v1):**
-
-- **Pulse** — online now, live games, recency; optional headline totals (`generalstatstable`).
-- **Active top rated (20)** — `playertable.Rating` (Elo, **0 decimals**), `LastGame` within **12 months**; not legacy `PlayerRank`. Link to full Leaderboards (all players).
-- **Monthly league** — current **calendar month** (server TZ); 3 / 1 / 0 points; W-D-L, goals, GD, pts from `ratedresults`; top ~20; only players with ≥1 rated game that month (implicit from aggregation).
-- **Room** — online list, live games (`resulttable`), recent logins, recent rated games.
-- **Recent registrations** — `JoinDate` DESC (~10); community “new blood” signal (legacy page parity).
-- Polling / refresh (when on live DB). Legacy joshua link until redirect agreed.
-
-**Out of v1 on Status:** games-played-by-period triple tables (brainstorm only; not required); AWOL wall (→ Trends later if wanted); period-activity leaderboards section unless revived deliberately later.
-
-**Still needs Steve / prod agreement (can follow UI work):**
-
-- Read access on live `kooldb` for ratings.kickoff2.com deploy.
-- `joshua.kickoff2.net/status.php` redirect or thin wrapper.
-- Optional kickoff2.com embed (pulse + few logins → full Status).
-- Optional shared JSON layer for embed + hub (can start as PHP includes, extract later).
-
-### Phase C — Polish (lab-driven, anytime)
-
-- Player feast content depth; hero iterations.
-- Wing tab labels (Rating · Results · …); ~~Rating records~~ tab removed — columns merged into Rating/Results.
-- Logo in header; URL rebrand (`online.kickoff2.com` etc.).
-- ~~Full `#aboutmenu` removal once all entry points use shared nav.~~ **Done (medium refactor, May 2026).**
-- Amiga realm production wiring; nav spacing clearfix.
+**Related:** `docs/design-direction.md` for visual rules, `docs/STATUS_PAGE_DATA.md` for Status panel data, `docs/tint-vs-realm.md` for tint/realm separation.
 
 ---
 
-## Already on main (before / during this thread)
+## Current Hub Shape
 
-Committed and pushed earlier; not re-opened unless noted below.
+Five top-level tabs, in this order:
 
-- Site-wide dark theme on main PHP pages (`theme.css`, `site_header.php`, ranked/server/individual pages, etc.).
-- Design tokens (production): subtle neon baseline, Exo 2 + IBM Plex, **UI tint** via `--k2-accent` (see `docs/tint-vs-realm.md`), Cyan · Magenta table positive/negative (`.blue` / `.red` semantics).
-- Realm switcher: **segment** outline active (uses site tint like hub nav; not realm-specific colours).
-- Tables: `.k2-table-wrap` ~1200px centered (forced full-width experiment reverted).
-- Theme lab (May 2026) promoted to production; static lab files later removed from repo.
-- **Phase A hub shell (May 2026):** `includes/hub_nav.php` (five tabs + tint picker), `includes/lb_nav.php` (segment-track wing tabs), `status.php` bridge, `theme_boot_head.php`, `js/realm-switch.js`. Hub tabs are **full page `<a href>`** navigation — not client-side SPA panels.
-- ~~Legacy `#aboutmenu` rows may still exist on some pages~~ — removed with shared hub/player nav (May 2026).
-
----
-
-## Product identity & header (agreed)
-
-| Item | Decision |
-|------|----------|
-| Site title / wordmark | **Kick Off 2** only — drop tacked-on "ratings". |
-| URL | Keep **ratings.kickoff2.com** for now; rename later if desired. |
-| Logo | Maybe later — KO2 logo as optional mark beside text; bare text wordmark for now. |
-| Header contents | Wordmark · Find player search (mock styling is target) · Online / Amiga realm switcher. |
-| kickoff2.com header link | **No** — agreed waste of space. |
-| Back to Results on player pages | **No** — browser back + wordmark/hub enough. |
-| Decorative header band (site-wide) | **No** — minimal chrome only; imagery page-by-page. See `docs/design-direction.md` §2 *Chrome vs imagery*. |
-
----
-
-## Hub information architecture — Option B (agreed)
-
-**Five home tabs, this order:**
-
-1. **Status** (default landing)
+1. **Status** — default landing.
 2. **Leaderboards**
 3. **Games**
 4. **Trends**
 5. **Records**
 
-### Tab naming
+Routing:
 
-- **Status** (not Live) — honors status.php habit; covers logins + live games + counts.
-- Micro-copy uses live language ("3 online · 2 live games · last login 12 min ago").
-- **Activity** as single tab — superseded by **Status + Trends**.
+| Tab | Page |
+|-----|------|
+| Status | `status.php` |
+| Leaderboards | `ranked7.php` default, with wing tabs to `ranked1`-`ranked5`, `ranked7`, `ranked8` |
+| Games | `server3.php` |
+| Trends | `server1.php` |
+| Records | `server2.php` |
 
-### Default landing
-
-- Hub opens on **Status** (phone check: anyone on tonight?).
-- **Leaderboards** is tab 2.
-
-### Status tab (absorbs status.php)
-
-**Purpose:** presence / tonight / FOMO to launch KOOL — plus **current competition** (active Elo + monthly league), not only “who’s in the room.”
-
-**Data source:** `docs/STATUS_PAGE_DATA.md` (MySQL; full v1 panel list in § Hub Status v1).
-
-**Include (v1):**
-
-- Pulse strip: online now, live games, recency (**not** CPU/disk/mem — legacy ops page only).
-- **Active top rated (20):** Elo (`Rating`), last rated game within **12 months**; smaller type if needed; 0 decimal places. Distinct from Leaderboards tab (comprehensive, all players — default there stays “everyone”).
-- **Monthly league (current month):** calendar month in **server timezone**; 3 pts win / 1 draw / 0 loss; W, D, L, GF, GA, GD, Pts from `ratedresults`; ~20 rows; tie-break GD then GF. New community hook — games “count” for the month as well as for Elo.
-- Recent logins; **recent registrations** (`JoinDate`); live games; recent finished rated games — all names → player profiles.
-- Meaningful when 0 online — logins, registrations, recent games, monthly table still show life.
-- kickoff2.com embed (later): compact pulse + few logins + "Full status →" here.
-
-**Exclude from player-facing Status:**
-
-- Legacy **dual** Top 10 blocks (Steve `PlayerRank` + old ratings snippet) — replaced by **active Elo top 20** + monthly league, not a duplicate of full Leaderboards.
-- CPU / disk / mem ops metrics (admin-only if anywhere).
-- Historical charts and long-horizon analytics (→ Trends).
-- AWOL wall on v1 (may live on Trends later).
-
-**Leaderboards tab (unchanged intent):** full ladder, all players by default; **active-only filter** (e.g. last game &lt; 12 months) added later — Status uses that filter from day one.
-
-**Eventually:** joshua.kickoff2.net/status.php redirect or thin wrapper; one data feed for hub + kickoff2 embed.
-
-### Leaderboards tab
-
-- Six wing tabs above the table (not a second site nav row).
-- Order: **Rating** · Goals · DDs & CSs · Streaks · Victims & Culprits · **Rating records** · **Hall of Fame** (`ranked7`, `ranked2`–`ranked5`, `ranked1`, `ranked8`). Hall of Fame = busiest day/month/year tables (moved from Trends).
-- Legacy **`ranked6`** (old Rating records page) removed; `ranked1.php` is now the Rating records wing tab.
-- Wing tabs: segment track + outline active (not tied to header row brightness).
-
-### Games tab
-
-- Rated match ledger — proof over days/weeks.
-- Distinct from Status live/recent; Games is authoritative rated archive (server3-class).
-
-### Trends tab (historical)
-
-- Games per month/year charts, established-player growth, lifetime totals (server1-class).
-- Lazy-load charts when tab opened.
-- Room later: AWOL, more charts. (**Recent registrations** are on **Status**, not deferred here.)
-
-### Records tab
-
-- Still last — extremes after life (Status/Games) and rank (Leaderboards).
+Direct legacy URLs remain valid. The hub is page navigation, not a client-side SPA.
 
 ---
 
-## Player context ("feast") — agreed
+## Status Tab Contract
 
-Global hub nav replaced by player context:
+Purpose: answer "is the scene alive tonight?" while also showing current competition.
 
-- Same header (Kick Off 2, search, realm) — no back link, no kickoff2.com link.
-- Hero block (rank, rating, peak, games, bio; Amiga photo path later).
-- Five pills, order: **Profile · Games · W/D/L · Goals · DDs**
-  - Player "Results" → **W/D/L**.
-  - Games in slot #2.
-  - Profile = warm landing (charts, highlights).
-- Player names from Status / ladder link to feast.
+Current Status v1.2 includes:
 
----
+- Online list.
+- Live games from `resulttable`.
+- Rated-games arc/count summary.
+- Active Elo leaderboard, top 20 active players.
+- Monthly league with current/previous toggle.
+- Recent logins.
+- Recent registrations.
+- Recent rated games.
+- Small heritage box.
 
-## Navigation chrome — agreed for production
+Data source and exact query rules live in `docs/STATUS_PAGE_DATA.md`.
 
-| Item | Decision |
-|------|----------|
-| Home + player pills | **Segment track** — active: softened accent text + single mixed ring (`--k2-segment-active-*`); no fill tint. Override via `?k2_hub_nav=`. |
-| Leaderboard wing tabs (shipped) | **Segment track + outline active cell** — same language as hub/player pills. |
-| Hub tint picker | **Staging (keep for now)** — Amber · Pitch · Chrome · Holo; **hidden by default** + **Show tint**. Sets `--k2-accent`; default amber in CSS. Independent of realm switch. Launch decision deferred. |
-| Hub nav style A/B | **`?k2_hub_nav=solid\|segment\|soft`** + `nav-preview.php` for community compare; `sessionStorage` sticky. Production default **segment**. Player sub-nav matches hub. |
-| Nav hover (inactive) | **`--k2-text-secondary`** — between muted and primary; not full white flash. Sort/table data stay primary. |
-| Neon intensity | **C · Bold** — stronger accent glow. |
-| Bold neon grid | **Remove background grid** on C (lab done; promote to theme.css when staging). |
-| Neon rail, boxed default, solid glow, etc. | Lab comparisons only — rejected for hub. |
+Not in current Status:
 
----
+- CPU/disk/memory ops metrics.
+- AWOL wall.
+- Long-history charts; those belong on Trends.
+- Period activity triple tables; those are prepared in DB/docs but not placed on Status.
+- Legacy dual top-10 `PlayerRank` snippets.
 
-## Visual / theme (still agreed)
+Still open with Steve / prod:
 
-- Table highlights: Cyan · Magenta.
-- **Text ladder:** full detail in `design-direction.md` (Text & link hierarchy). Summary: `--k2-link-star` for player names + profile highlight text; `--k2-link` for prose; `--k2-accent` for chrome only.
-- Table column headers: muted labels on `bg-surface`, weight 500; thin mixed-accent rule under last header row; sort hover → `text-secondary` + 2px inset accent.
-- Sort header hover: secondary text + inset tint accent bar (same hover step as nav).
-- individual3 filter row: 16 cells, transparent filter row, single green line on last header row only.
+- Live production DB read for Status.
+- `joshua.kickoff2.net/status.php` redirect or thin wrapper.
+- Optional compact kickoff2.com embed.
+- Optional shared JSON/data layer after PHP includes prove enough.
 
 ---
 
-## kickoff2.com relationship (agreed strategy)
+## Navigation Decisions
 
-- Not the full status dashboard.
-- Embed: pulse + ~3 recent logins + link to full Status on this hub.
-- Single JSON/API eventually powers embed + hub + replaces legacy fragmentation.
+| Area | Current decision |
+|------|------------------|
+| Header | Wordmark, player search, Online/Amiga realm switcher. No kickoff2.com header link. |
+| Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
+| Hub nav | Segment track + outline active cell. |
+| Leaderboard wings | Segment track; wing tabs sit above table. |
+| Player pages | Replace hub tabs with player context tabs: Profile, Games, W/D/L, Goals, DDs. |
+| Back links | No "Back to Results"; browser back + search/nav are enough. |
+| Tint picker | Hidden by default behind Show tint; launch exposure undecided. |
+| Realm switcher | UI for future Online/Amiga realm; tint and realm are separate. |
 
----
-
-## Explicitly deferred (beyond Phase A)
-
-- Status SQL panels on hub (→ **Phase B in progress**; data doc above).
-- kickoff2.com embed; joshua status.php redirect (→ Phase B, after Steve).
-- Moving or merging server1/server2/server3 page bodies (Trends/Games/Records = nav only in Phase A).
-- `docs/design-direction.md` update (this file is the record).
-- Sidebar layout.
-- Logo; URL rebrand.
-- Throwaway files not part of scope.
-
-**Removed from deferred (now Phase A):** shared hub nav include, header cleanup, player visual backbone scaffold, CSS promotion — see table above.
+The hub-nav A/B tuning path (`?k2_hub_nav=solid|segment|soft`, `nav-preview.php`) is staging scaffolding, not a product requirement.
 
 ---
 
-## Legacy: original 9-point list (superseded by phased table)
+## Leaderboards Contract
 
-The list below was the first "all at once" staging target. Use **Phase A / B / C** above instead.
+Leaderboards are comprehensive by default, not the same as Status' active-only top 20.
 
-1. Hub nav — Phase A  
-2. Status feed — **Phase B in progress** (Phase A = bridge + period-activity DB block)  
-3. Trends — Phase A (nav only; was "move charts")  
-4. Leaderboards wings — Phase A  
-5. Games/Records order — Phase A  
-6. Header — Phase A  
-7. Player feast — Phase A (scaffold)  
-8. CSS — Phase A  
-9. Embed/redirect — Phase B  
+Wing tabs:
 
----
+| Wing | Page |
+|------|------|
+| Results | `ranked7.php` |
+| Rating | `ranked1.php` |
+| Goals | `ranked2.php` |
+| DDs & CSs | `ranked3.php` |
+| Streaks | `ranked4.php` |
+| Victims & Culprits | `ranked5.php` |
+| Activity | `ranked8.php` |
 
-## Changed our mind (exclude from staging spec)
+Notes:
 
-| Earlier idea | Final position |
-|--------------|----------------|
-| Leaderboards as default | **Status** default |
-| 4 tabs with Activity | **5 tabs:** Status · Leaderboards · Games · Trends · Records |
-| Single Activity tab | **Status + Trends** split |
-| Records before Games | **Games before Records** |
-| Live as tab name | **Status** |
-| "Kick Off 2 ratings" wordmark | **Kick Off 2** only |
-| kickoff2.com header link | Removed |
-| Back to Results | Removed |
-| Wing tab green underline / green bar | Chrome wings, header-row brightness |
-| Green inset topline on wings | Removed |
-| Neon rail as nav choice | Not chosen |
-| Solid glow as nav choice | Too loud → rejected |
-| Solid flat hub pills | Too imposing (“light bulb”) → **segment** (May 2026) |
-| Full-accent links on every `<a>` | Too bright → **`--k2-link-star`** / `--k2-link` ladder; see `design-direction.md` |
-| Ladder sub-tab Results | **Rating** |
-| Table width 100% force | Reverted |
+- `ranked6.php` / old "Rating records" split is gone.
+- Activity is the leaderboard tab for day/month/year/all-time activity tables.
+- Status may use an active-player window; Leaderboards stay broad unless filters are explicitly selected.
 
 ---
 
-## Open items to re-confirm at implementation
+## Games, Trends, Records
 
-- ~~Rating records wing tab~~ — removed (`ranked6.php` deleted).
-- Prod **read** DB host/credentials and refresh cadence when live (Phase B deploy).
-- Neon C without grid: apply to full `theme.css` in Phase A.
-- Legacy [joshua status.php](https://joshua.kickoff2.net/status.php) link until redirect agreed.
+| Tab | Contract |
+|-----|----------|
+| Games | `server3.php` rated-game ledger. Current UI is seven day buckets. |
+| Trends | `server1.php` historical charts and long-horizon activity. |
+| Records | `server2.php` Hall of Fame / record extremes. |
+
+Do not merge these page bodies into Status unless Dagh explicitly changes the hub strategy.
 
 ---
 
-*Last updated: May 2026 — Status v1 scope: active Elo top 20, monthly league, recent registrations, room panels (`docs/STATUS_PAGE_DATA.md`). Phase B unblocked (same DB as legacy status). UI tint default amber (realm ≠ paint); profile feast stat glow removed; hub nav geometry aligned with wings.*
+## Player Context
+
+Player pages use the same global header, then player-specific context:
+
+- Hero block.
+- Player nav: Profile, Games, W/D/L, Goals, DDs.
+- `individual1.php` is the warm profile feast landing.
+- `individual3.php` is the Games history tab with server-side filters/sort/100-row slices.
+- `individual2a/b/c.php` are W/D/L, Goals, DDs matchup stat tabs.
+
+Future Amiga/photo/media work belongs on the profile/content track, not in hub IA.
 
 ---
 
-## Hub nav style staging (May 2026)
+## Deferred / Open
 
-Production default: **segment** (`theme_boot_head.php`). Compare alternatives without theme-lab:
+- Production Status DB read and joshua redirect.
+- kickoff2.com embed.
+- Public launch decision for tint picker and hub-nav tuning scaffolding.
+- Amiga realm routing once data exists.
+- Active-only filter on full Leaderboards, if desired.
+- Pretty URLs / rebrand decisions.
 
-| Variant | `?k2_hub_nav=` | Active pill |
-|---------|----------------|-------------|
-| **Segment (production)** | `segment` | Track + outline (parity with `.k2-chrome-tabs` wings) |
-| Solid | `solid` | Full tint accent fill, dark text |
-| Soft | `soft` | ~22% accent tint, accent text |
+---
 
-- Set on `<html data-k2-hub-nav="…">` in `theme_boot_head.php` (URL wins, then `sessionStorage` key `k2-hub-nav-tune`).
-- Link index: `nav-preview.php` → Status / Leaderboards / Trends per variant.
-- Tint picker: Amber · Pitch · Chrome · Holo; **hidden by default**; `sessionStorage` `0` = shown; **Show tint** / **Hide tint** on hub bar.
+## Changed Decisions Archive
+
+Keep this short; it prevents old chat ideas from reappearing as current plans.
+
+| Earlier idea | Current position |
+|--------------|------------------|
+| Leaderboards as default landing | Status is default. |
+| Single Activity tab | Split into Status + Trends; Activity is a leaderboard wing. |
+| Live as tab name | Status. |
+| Records before Games | Games before Records. |
+| Kickoff2.com header link | Removed from header. |
+| Back to Results on player pages | Removed. |
+| Full-accent links everywhere | Use `--k2-link-star` / `--k2-link` hierarchy. |
+| Moving server1/server2/server3 bodies into hub panels | Not current plan. |
+
+*Last pruned: May 2026 — stale Phase B "in progress" notes collapsed into current Status v1.2 contract.*

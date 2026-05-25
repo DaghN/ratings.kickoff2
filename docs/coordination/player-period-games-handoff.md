@@ -84,7 +84,7 @@ Production needs the same schema and rebuild, plus C++ live maintenance before t
 
 1. Backup / maintenance window: Steve decides.
 2. Apply schema `003`.
-3. Run rebuild SQL once on prod `kooldb`.
+3. Run rebuild SQL once on the production DB.
 4. Deploy C++ PG-005 so future games upsert A/B × day/month/year.
 5. Deploy PHP page/API that reads `player_period_games`.
 6. Smoke test API and a known recent period.

@@ -11,12 +11,10 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | `ranked1`–`ranked5`, `ranked7`, `ranked8` sort/autorank/tab-default indicators JS only; main leaderboard tabs keep a stable first-column width; sortable headers now use styled abbreviation/sort-help tooltips; no stored truth change |
 | Games tab 7-day buckets | L0 | — | — | — | — | Read-time SQL on `ratedresults`; no stored truth change |
 | Hub / Status cosmetics | — | — | — | — | — | PHP only; no prod DB writers |
-| Status monthly league (table) | L0 | — | — | — | — | Read-time SQL on `ratedresults` |
 | Period activity leaderboards | L3 | SCH-004 | REP-003 | PG-005 | — | Local + staging schema/backfill done; staging expectation test passed; prod method TBD |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | — | — | Prod index apply pending Steve |
 | Ladder replay sandbox (K32/1600/no decay) | L2 | SCH-002 | REP-001 | PG-002 (TBD) | PER-001 fade off | Staging replay done; prod not |
 | Records ratio leaders from playertable | L3 | SCH-003 | REP-001 note | PG-004 | — | Local 002 DROP 28 GST cols; Steve: same migration + C++ stop writes |
-| League medals on profile | — | — | — | — | — | *Not started* — future row when scoped |
 
 ### Column legend
 
@@ -25,4 +23,4 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 
 ### Adding a row
 
-One line per **user-facing capability** or **migration chunk**. Link register IDs, not essays.
+One line per **shipped/scoped user-facing capability** or **migration chunk**. Keep loose ideas in the owning feature/spec doc until they are scoped.

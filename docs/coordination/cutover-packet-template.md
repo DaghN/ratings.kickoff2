@@ -22,7 +22,7 @@ Copy this section into email/chat when a release needs **prod database + server 
 
 ---
 
-## 1. Schema (prod `kooldb`)
+## 1. Schema (production DB)
 
 Apply in order:
 

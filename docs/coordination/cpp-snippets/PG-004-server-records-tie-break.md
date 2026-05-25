@@ -12,7 +12,7 @@ Drop **28 columns** on `generalstatstable` that duplicated ratio/average **playe
 
 ---
 
-## Schema (Steve — staging + prod `kooldb`)
+## Schema (Steve — staging + production DB)
 
 Apply the same migration we use locally:
 

@@ -8,7 +8,7 @@
 
 ## Current focus
 
-- **Design / cosmetics track:** **Phase A hub shell + Status Phase B v1.2 shipped in repo** (May 2026) — `status.php` 4-col room grid, league month toggle, shared `.k2-panel-heading`, softer `--k2-text-primary` (`#d0d7de`). Spec: `docs/STATUS_PAGE_DATA.md`. **Next:** WinSCP to staging; Steve for prod `kooldb` read + joshua redirect; realm switcher when Amiga exists.
+- **Design / cosmetics track:** **Phase A hub shell + Status Phase B v1.2 shipped in repo** (May 2026) — `status.php` 4-col room grid, league month toggle, shared `.k2-panel-heading`, softer `--k2-text-primary` (`#d0d7de`). Spec: `docs/STATUS_PAGE_DATA.md`. **Next:** WinSCP to staging; Steve for prod DB read + joshua redirect; realm switcher when Amiga exists.
 
 - **Charts:** **six-colour palette signed** (May 2026) — canonical tokens `pitch` / `chrome` / `holo` / `amber` / `teal` / `magenta` in `theme.css` + `chart-theme.js`; Activity on `server1.php`; profile uses pitch/chrome or `profileCompare*` helpers. No legacy green/blue/coral/purple names.
 
@@ -48,7 +48,7 @@
 ## Next (prioritised intent)
 
 1. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub, ranked, server, **status** pages.
-2. **Status on prod data** — Steve: prod `kooldb` read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
+2. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
 3. **Launch polish** — tint picker expose vs hidden (`docs/tint-vs-realm.md`); realm switcher when Amiga exists.
 4. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
 5. **Fun stats block (v1)** — trophy cabinet from `playertable` + monthly SQL; exclude longest game.
@@ -60,66 +60,23 @@
 
 ## Recent log
 
-*(Newest first. Prune older rows when adding.)*
+*(Newest first. Keep this to the latest high-signal handoff rows; older phase detail lives in feature docs / git.)*
 
 | When | What |
 |------|------|
+| 2026-05 | **Current-truth docs prune** — MEMORY recent log trimmed; `design-direction.md`, `hub-ia-agreement.md`, and `k2-table-and-games-plan.md` now foreground current contracts/open work instead of phase diary history. |
 | 2026-05 | **Replay/ops safety gates** — ladder replay now has explicit `--target local|staging`, refuses staging `kooldb` unless target is explicit, logs DB identity preflight, staging wrapper passes `--target staging`; local schema/index/period rebuild wrappers refuse non-local DBs without `-AllowNonLocal`. |
 | 2026-05 | **Period activity staging DB done** — Steve ran `player_period_games` schema + rebuild on staging `kooldb`; expectation test passed; note MariaDB requires `COUNT(*)`, not `COUNT()`. |
 | 2026-05 | **Legacy PHP safety pass** — added `includes/k2_safety.php`; `individual2a/b/c.php` now validate player `id`, use safe DB connect/query errors, and escape opponent links; `ranked1`–`ranked5`/`ranked7` use the same helper for DB connect/query errors and escaped player links. |
-| 2026-05 | **Agent bootstrap order cleanup** — `README.md` and `AGENTS.md` now mirror the auto-attached Cursor rule order: MEMORY → AGENTS → PROJECT_MAP, reducing small cold-start wording drift. |
 | 2026-05 | **Sortable header help tooltips** — `k2-table.js` now uses a styled shared tooltip for sortable headers, combining abbreviation/activity/player-table explanations with the “Click to sort.” hint, including server-side Games history sort links. |
 | 2026-05 | **Realm switch flash fix** — header toggle initial paint now follows early `html[data-realm]` boot state, so Amiga no longer flashes Online during main-nav page loads. |
-| 2026-05 | **Leaderboard nav/table polish** — active `lb_nav.php` filter dots use the selected UI accent while labels stay neutral; `ranked-pages-table` first column now has a stable width across non-Activity leaderboard tabs. |
-| 2026-05 | **Activity Longevity table** — `ranked8.php` Period headings now read “Most games in one day/month/year”; All time shows Longevity beside “Most games of all time” with natural-width table spacing. |
-| 2026-05 | **Records two-panel split** — `server2.php` splits records into natural-width Peak activity and Peak performance panels; activity includes year/month/day games rows, opponent/victim totals, and New/Legendary age markers (`Legendary` in holo). |
-| 2026-05 | **`k2-table.js` reverse-sort tie fix** — same-column sort toggles now reverse current row order, so tied groups in `ranked8.php` flip correctly when Games changes from desc to asc. |
-| 2026-05 | **Activity Period/All time toggle** — `ranked8.php` now shows a realm-style in-place switch: Period defaults to the three day/month/year tables, All time reveals the preloaded all-time table. |
-| 2026-05 | **Nav wording swap** — leaderboard `ranked8.php` tab label renamed from Hall of Fame to Activity; main hub `server2.php` nav label renamed from Records to Hall of Fame. |
-| 2026-05 | **Hall of Fame all-time table** — `ranked8.php` now shows a fourth “Busiest of all time” table using `playertable.NumberGames` plus each player’s first rated-game date as “Since”. |
-| 2026-05 | **Player games adjustment sign** — positive `individual3.php` adjustment values now show an explicit `+` in the blue adjustment cell via `k2_player_game_row.php`. |
-| 2026-05 | **`individual3.php` Phase 7B shipped** — player-games row rendering extracted to `includes/k2_player_game_row.php`, preserving watched-player perspective and setting up optional AJAX reuse. |
-| 2026-05 | **`individual3.php` Phase 7A shipped** — Games history now uses auto-submit server-side Result/Opponent filters, URL sort links, 100-row slices, and lightweight Previous/Next links; `elolist.js` removed from the page. |
-| 2026-05 | **Hall of Fame aggregate read path** — `ranked8.php` busiest day/month/year now prefers `player_period_games` via `peak_month_leaderboard_query.php`, falling back to `ratedresults` until staging/prod aggregate rollout catches up. |
-| 2026-05 | **`individual3.php` Phase 7 plan** — agreed path: 7A server-side URL filters/sort/limit, 7B shared renderer, 7C optional AJAX enhancement; no hidden sort persistence. |
-| 2026-05 | **Player nav wording** — player pill label `Wins` renamed to `W/D/L`; route/key remains `wins` / `individual2a.php`. |
-| 2026-05 | **Period activity aggregate prep** — `player_period_games` schema/backfill/query switch done locally; `dev-period-activity.php` previews tables; staging/prod handoff + PG-005 docs ready for Steve review. |
-| 2026-05 | **Player stat table `k2-table.js` migration** — `individual2a/b/c.php` now use opt-in table sorting with Games highlighted by default. |
-| 2026-05 | **Simple leaderboard `k2-table.js` migration** — `ranked1`–`ranked5`, `ranked7`, and `ranked8` now use opt-in table sorting with tab-specific defaults (Peak/ELO/GF/DD/LWS/Victims/Games). |
-| 2026-05 | **Agent local CLI preload** — `.cursor/rules/kool-workspace.mdc` now tells agents Laragon PHP/MySQL may not be on PATH and gives explicit `php.exe` / `mysql.exe` paths. |
-| 2026-05 | **Profile Games tab perspective fix** — `individual3.php` now keeps a stable `$playerId`, uses prepared/named `ratedresults` columns, and renders W/L, F/A, ratings, ES, and adjustment from the watched player’s perspective; tint picker no longer clobbers caller `$id`. |
-| 2026-05 | **`k2-table.js` Phase 4 pilot** — `ranked7.php` now uses opt-in `data-k2-table` sorting + autorank instead of `elolist.js`; default SQL sort lights ELO rating on load; other ranked/player tables stay legacy. |
-| 2026-05 | **Agent git habit** — `.cursor/rules/kool-workspace.mdc` now tells agents to use PowerShell-safe git commit/push commands, not Bash heredocs/`&&`. |
-| 2026-05 | **Games tab 7-day buckets** — `server3.php` now renders Today/Yesterday/day-6 static tables from shared rated-game rows; `elolist.js` removed from Games tab. |
-| 2026-05 | **Records page refactor** — `server2.php` now uses page-local row/date helpers and explicit `generalstatstable` columns; no shared `h()`/`player_link()` added. |
-| 2026-05 | **Activity monthly chart grids** — graphs 1, 3, and 4 on `server1.php` use softer grid lines for narrow bar readability. |
-| 2026-05 | **Records label styling** — removed dummy links from `server2.php` left-column record labels; player links remain. |
-| 2026-05 | **Records opponent/victim labels** — shortened `server2.php` rows to “Most opponents” and “Most victims”. |
-| 2026-05 | **Records footnote spacing** — removed extra break between `server2.php` table and explanatory text. |
-| 2026-05 | **Records table order/copy** — `server2.php` rows reordered into Dagh’s groups, sentence-case labels, average-opponent-rating row removed. |
-| 2026-05 | **Records footnote accent** — `server2.php` footnote wraps `(New!)` in `.blue` to match table record markers. |
-| 2026-05 | **Server records (`server2.php`)** — removed **Biggest Rating Ascent** row (profile audit drop; peak covered by Highest Peak Rating). |
-| 2026-05 | **Cumulative established players chart** — line extends flat through today via `chart-date-range.js`. |
-| 2026-05 | **Established players per year chart** — API includes current calendar year with count 0 when no one established yet. |
-| 2026-05 | **Server chart hints trim** — removed hint under games-per-year and established rating distribution (graph 7). |
-| 2026-05 | **Server games per year chart copy** — removed block hint under heading; chrome legend label → “Projected”. |
-| 2026-05 | **Chart colour naming cleanup** — removed JS aliases green/blue/coral/purple; CSS `--k2-chart-pitch` / `--k2-chart-chrome`; three commits on `main`. |
-| 2026-05 | **Activity chart palette shipped** — six inks (B1 winner): amber goals, magenta established + dist, holo cumulative; lab deleted; `design-direction.md` + `chart-theme.js` refactor. |
-| 2026-05 | **Status leaderboard panel copy** — “Full ladder” → “Full leaderboard” link in `status_room_section.php`. |
-| 2026-05 | **Agent doc hygiene:** MEMORY trim, root **README**, **AGENTS** / **UPDATE_DOCS** cross-links; stale Status Phase B Next removed. |
-| 2026-05 | **SCH-003** — DROP 28 ratio leader cols on `generalstatstable` (local); Records from `playertable`; PG-004 Steve = migration 002 + drop C++ ratio writes. |
-| 2026-05 | **Records `(New!)` window** — `server2.php` uses calendar one month (`strtotime('-1 month')`), footnote updated (was 48 hours). |
-| 2026-05 | **Status Phase B v1.2 in repo** — 4-col rooms, league month toggle, panel headings; spec `docs/STATUS_PAGE_DATA.md`. Deploy + prod DB still open. |
-| 2026-05 | **Agent rituals** — `AGENTS.md`, `docs/PROJECT_MAP.md`, `docs/UPDATE_DOCS.md`, `feature-log`, `.cursor/rules/kool-workspace.mdc`. |
-| 2026-05 | **Steve post-game handoff** — C++ snippet packs: `docs/coordination/post-game-cpp-handoff.md`, `cpp-snippets/`. |
-| 2026-05 | **Prod coordination track** — `docs/prod-coordination.md`, registers, `schema/migrations/`, staging no live writes. |
-| 2026-05 | **Staging ladder replay** on `kooldb` — `docs/STAGING_REPLAY.md`; P3–P5 deferred. |
-| 2026-05 | **Profile feast shipped** — `individual1.php` only; `docs/player-profile-feast.md`; mock lab removed. |
-| 2026-05 | **`ratedresults` player indexes** — local + staging; prod pending Steve; big `individual1` win. |
-| 2026-05 | **Phase A hub + cosmetics** — `hub_nav.php`, wing tabs, theme tokens, `docs/design-direction.md`. |
-| 2026-05 | **Chart wave 2** — H2H, compare rating, top opponents, win rate vs opp rating, server distribution charts. |
-| 2026-05 | **`index.php` → `status.php`** hub landing; Git `main` on GitHub. |
-| 2026-05 | **Ladder replay v2 + `generalstatstable`** — `scripts/ladder/README.md`. |
+| 2026-05 | **Leaderboard/player table modernization** — `ranked1`–`ranked5`, `ranked7`, `ranked8`, and `individual2a/b/c` use opt-in `k2-table.js`; profile Games uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
+| 2026-05 | **Activity / Hall of Fame / Records polish** — `ranked8.php` period/all-time activity tables, `server2.php` two-panel Hall of Fame split, peak-period aggregate fallback, and natural-width table polish are in repo. |
+| 2026-05 | **Games tab 7-day buckets** — `server3.php` renders Today/Yesterday/day-6 static tables from shared rated-game rows; `game.php` and Games tab share `includes/k2_rated_game_row.php`. |
+| 2026-05 | **Status Phase B v1.2 in repo** — `status.php` has 4-col room grid, active leaderboard, monthly league toggle, recent logins/registrations/games; prod DB read + joshua redirect still open. |
+| 2026-05 | **Profile feast shipped** — production `individual1.php` feast layout only; mock lab removed; further profile work should be gradual copy/UX. |
+| 2026-05 | **Core migration/prod coordination set up** — `prod-coordination.md`, registers, schema migrations, staging replay docs, and C++ snippet handoff pattern exist; prod live ratings still C++. |
+| 2026-05 | **Chart/theme foundation shipped** — six-ink chart palette, dark theme tokens, shared header/nav/wing tabs, and `status.php` hub landing are in repo. |
 
 ---
 
