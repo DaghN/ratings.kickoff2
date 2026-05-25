@@ -359,6 +359,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 
 - **Leaderboard wing nav:** segment track + outline active cell (promoted from theme-lab); table detached from wing bar (~12px gap); `.k2-chrome-tabs` max-width 1200px.
 - **Leaderboard filters:** active include-inactive/provisional dots follow `--k2-accent` / active tint pill; label text remains neutral.
+- **Sortable table header help:** leaderboard, player stat, and player Games headers use one styled tooltip surface for abbreviation/context help plus click-to-sort guidance.
 - **Hub / player nav (production):** **segment** track + outline active (`data-k2-hub-nav="segment"` default); overrides via `?k2_hub_nav=`.
 - **Hub tint picker:** Amber · Pitch · Chrome · Holo; **hidden by default**; **Show tint** on hub bar. Launch: keep hidden vs expose (open).
 - **FOUC fix:** `includes/theme_boot_head.php` — sync `data-realm` / `data-k2-accent` from storage before first paint (included on hub + ranked cloak + key server pages).

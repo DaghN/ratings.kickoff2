@@ -49,13 +49,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr style="text-align:right;">
         <th data-k2-sort="number">#</th>
         <th style="text-align:left;" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">Peak</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;Nadir</th>
-        <th data-k2-sort="number">Opponent Avg.</th>
-        <th data-k2-sort="number">Highest Victim</th>
-        <th data-k2-sort="number">Lowest Culprit</th>
+        <th data-k2-sort="number" data-k2-help="Current Elo ladder rating.">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="Rated games played.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Highest Elo rating the player has reached.">Peak</th>
+        <th data-k2-sort="number" data-k2-help="Lowest Elo rating the player has reached.">&nbsp;&nbsp;&nbsp;Nadir</th>
+        <th data-k2-sort="number" data-k2-help="Average Elo rating of the player's opponents.">Opponent Avg.</th>
+        <th data-k2-sort="number" data-k2-help="Highest-rated opponent this player has beaten.">Highest Victim</th>
+        <th data-k2-sort="number" data-k2-help="Lowest-rated opponent this player has lost to.">Lowest Culprit</th>
     </tr>
 </thead>
 

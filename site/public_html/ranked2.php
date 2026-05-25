@@ -50,19 +50,19 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr style="text-align:right;">
         <th data-k2-sort="number">#</th>
         <th style="text-align:left;" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GF</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;GA</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Avg.</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Avg.</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ratio</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;Most S</th>
-        <th data-k2-sort="number">Most C</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;BW Diff</th>
-        <th data-k2-sort="number">&nbsp;BL Diff</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BD</th>
-        <th data-k2-sort="number">BG Sum</th>
+        <th data-k2-sort="number" data-k2-help="Current Elo ladder rating.">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="Rated games played.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Goals for: total goals scored by the player.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GF</th>
+        <th data-k2-sort="number" data-k2-help="Goals against: total goals conceded by the player.">&nbsp;&nbsp;&nbsp;GA</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Average GF" data-k2-help="Average goals scored per game.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Avg.</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Average GA" data-k2-help="Average goals conceded per game.">&nbsp;&nbsp;Avg.</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Goal ratio" data-k2-help="Goals for divided by goals against.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Most scored: the player's highest goals scored in one game.">&nbsp;&nbsp;&nbsp;&nbsp;Most S</th>
+        <th data-k2-sort="number" data-k2-help="Most conceded: the player's highest goals conceded in one game.">Most C</th>
+        <th data-k2-sort="number" data-k2-help="Biggest win difference: the player's highest winning margin.">&nbsp;&nbsp;BW Diff</th>
+        <th data-k2-sort="number" data-k2-help="Biggest loss difference: the player's heaviest losing margin.">&nbsp;BL Diff</th>
+        <th data-k2-sort="number" data-k2-help="Biggest draw: highest scoreline in a drawn game.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BD</th>
+        <th data-k2-sort="number" data-k2-help="Biggest goal sum: most total goals in a game the player participated in.">BG Sum</th>
     </tr>
 </thead>
 

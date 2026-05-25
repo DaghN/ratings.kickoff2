@@ -775,6 +775,42 @@ body.k2-site .k2-table thead th.k2-table-sortable {
 	cursor: pointer;
 }
 
+body.k2-site .k2-table-tooltip {
+	position: fixed;
+	z-index: 1000;
+	max-width: min(280px, calc(100vw - 24px));
+	padding: 8px 10px;
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 36%, var(--k2-border-strong));
+	border-radius: var(--k2-radius-sm);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 94%, #000);
+	box-shadow: var(--k2-shadow-surface);
+	color: var(--k2-text-primary);
+	font-size: 12px;
+	line-height: 1.35;
+	pointer-events: none;
+}
+
+body.k2-site .k2-table-tooltip[hidden] {
+	display: none;
+}
+
+body.k2-site .k2-table-tooltip__title {
+	margin-bottom: 3px;
+	color: var(--k2-text-secondary);
+	font-weight: 600;
+}
+
+body.k2-site .k2-table-tooltip__body {
+	margin-bottom: 6px;
+}
+
+body.k2-site .k2-table-tooltip__action {
+	padding-top: 6px;
+	border-top: 1px solid var(--k2-border-subtle);
+	color: var(--k2-text-muted);
+	font-size: 11px;
+}
+
 body.k2-site .k2-table thead th.k2-table-sortable a {
 	display: block;
 	color: inherit;

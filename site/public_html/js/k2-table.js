@@ -2,10 +2,14 @@
 	'use strict';
 
 	var TABLE_SELECTOR = 'table[data-k2-table~="sortable"]';
+	var HELP_HEADER_SELECTOR = 'th.k2-table-sortable[data-k2-help], th.k2-table-sortable[data-k2-tooltip-label]';
 	var SORTABLE_CLASS = 'k2-table-sortable';
 	var SORTED_ASC_CLASS = 'k2-table-sorted-asc';
 	var SORTED_DESC_CLASS = 'k2-table-sorted-desc';
 	var PENDING_CLASS = 'ranked-table-pending';
+	var TOOLTIP_BOUND_ATTR = 'data-k2-tooltip-bound';
+	var TOOLTIP_ID = 'k2-table-tooltip';
+	var activeTooltipHeader = null;
 
 	function addClass(el, className) {
 		if (el.classList) {
@@ -31,6 +35,114 @@
 			return;
 		}
 		fn();
+	}
+
+	function trimText(value) {
+		return String(value || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+	}
+
+	function getTooltip() {
+		var tooltip = document.getElementById(TOOLTIP_ID);
+
+		if (tooltip) {
+			return tooltip;
+		}
+
+		tooltip = document.createElement('div');
+		tooltip.id = TOOLTIP_ID;
+		tooltip.className = 'k2-table-tooltip';
+		tooltip.setAttribute('role', 'tooltip');
+		tooltip.setAttribute('aria-hidden', 'true');
+		tooltip.innerHTML = '<div class="k2-table-tooltip__title"></div><div class="k2-table-tooltip__body"></div><div class="k2-table-tooltip__action">Click to sort.</div>';
+		tooltip.hidden = true;
+		document.body.appendChild(tooltip);
+
+		return tooltip;
+	}
+
+	function setText(el, value) {
+		if (el) {
+			el.textContent = value;
+		}
+	}
+
+	function positionTooltip(header, tooltip) {
+		var headerRect = header.getBoundingClientRect();
+		var tooltipRect;
+		var left;
+		var top;
+		var margin = 8;
+
+		tooltip.style.left = '0px';
+		tooltip.style.top = '0px';
+		tooltip.hidden = false;
+		tooltipRect = tooltip.getBoundingClientRect();
+
+		left = headerRect.left + (headerRect.width / 2) - (tooltipRect.width / 2);
+		left = Math.max(margin, Math.min(left, window.innerWidth - tooltipRect.width - margin));
+		top = headerRect.top - tooltipRect.height - margin;
+
+		if (top < margin) {
+			top = headerRect.bottom + margin;
+		}
+
+		tooltip.style.left = Math.round(left) + 'px';
+		tooltip.style.top = Math.round(top) + 'px';
+	}
+
+	function showTooltip(header) {
+		var help = trimText(header.getAttribute('data-k2-help'));
+		var title = trimText(header.getAttribute('data-k2-tooltip-label') || header.textContent || header.innerText);
+		var tooltip;
+		var body;
+
+		if (!header.getAttribute('data-k2-sort') && !header.getAttribute('data-k2-help') && !header.getAttribute('data-k2-tooltip-label')) {
+			return;
+		}
+
+		tooltip = getTooltip();
+		body = tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__body') : null;
+
+		setText(tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__title') : null, title);
+		setText(body, help);
+		if (body) {
+			body.style.display = help ? '' : 'none';
+		}
+
+		activeTooltipHeader = header;
+		header.setAttribute('aria-describedby', TOOLTIP_ID);
+		tooltip.setAttribute('aria-hidden', 'false');
+		positionTooltip(header, tooltip);
+	}
+
+	function hideTooltip(header) {
+		var tooltip = document.getElementById(TOOLTIP_ID);
+
+		if (header && activeTooltipHeader !== header) {
+			return;
+		}
+
+		activeTooltipHeader = null;
+		if (header) {
+			header.removeAttribute('aria-describedby');
+		}
+		if (tooltip) {
+			tooltip.hidden = true;
+			tooltip.setAttribute('aria-hidden', 'true');
+		}
+	}
+
+	function repositionTooltip() {
+		var tooltip;
+
+		if (!activeTooltipHeader) {
+			return;
+		}
+
+		tooltip = document.getElementById(TOOLTIP_ID);
+		if (tooltip && !tooltip.hidden) {
+			positionTooltip(activeTooltipHeader, tooltip);
+		}
 	}
 
 	function getSortValue(row, columnIndex, sortType) {
@@ -182,6 +294,32 @@
 		refreshRankColumn(table);
 	}
 
+	function initHeaderTooltip(header) {
+		if (header.getAttribute(TOOLTIP_BOUND_ATTR) === 'true') {
+			return;
+		}
+
+		header.setAttribute(TOOLTIP_BOUND_ATTR, 'true');
+		header.removeAttribute('title');
+		header.addEventListener('mouseenter', function () {
+			showTooltip(this);
+		});
+		header.addEventListener('mouseleave', function () {
+			hideTooltip(this);
+		});
+		header.addEventListener('focusin', function () {
+			showTooltip(this);
+		});
+		header.addEventListener('focusout', function () {
+			hideTooltip(this);
+		});
+		header.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape') {
+				hideTooltip(this);
+			}
+		});
+	}
+
 	function initTable(table) {
 		var headers = table.tHead ? table.tHead.getElementsByTagName('th') : [];
 		var i;
@@ -194,7 +332,7 @@
 			addClass(headers[i], SORTABLE_CLASS);
 			headers[i].setAttribute('aria-sort', 'none');
 			headers[i].setAttribute('tabindex', '0');
-			headers[i].setAttribute('title', headers[i].getAttribute('title') || 'Click to sort');
+			initHeaderTooltip(headers[i]);
 			headers[i].addEventListener('click', function () {
 				sortTable(table, this);
 			});
@@ -213,10 +351,20 @@
 
 	function init() {
 		var tables = document.querySelectorAll ? document.querySelectorAll(TABLE_SELECTOR) : [];
+		var helpHeaders = document.querySelectorAll ? document.querySelectorAll(HELP_HEADER_SELECTOR) : [];
 		var i;
 
 		for (i = 0; i < tables.length; i++) {
 			initTable(tables[i]);
+		}
+
+		for (i = 0; i < helpHeaders.length; i++) {
+			initHeaderTooltip(helpHeaders[i]);
+		}
+
+		if (tables.length || helpHeaders.length) {
+			window.addEventListener('resize', repositionTooltip);
+			window.addEventListener('scroll', repositionTooltip, true);
 		}
 	}
 

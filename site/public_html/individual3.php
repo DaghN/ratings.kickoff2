@@ -5,6 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
+<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -102,7 +103,7 @@ function individual3_where_clause(int $playerId, string $resultFilter, int $oppo
     return implode(' AND ', $where);
 }
 
-function individual3_sort_header(string $key, string $label, string $align, array $state): string
+function individual3_sort_header(string $key, string $label, string $align, array $state, string $help, string $tooltipLabel = ''): string
 {
     $isActive = $state['sort'] === $key;
     $nextDir = $isActive && $state['dir'] === 'desc' ? 'asc' : 'desc';
@@ -124,8 +125,17 @@ function individual3_sort_header(string $key, string $label, string $align, arra
     }
 
     $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
+    $attrs = [
+        'class="' . implode(' ', $classes) . '"',
+        'aria-sort="' . $aria . '"',
+        'style="text-align:' . $align . ';"',
+        'data-k2-help="' . individual3_h($help) . '"',
+    ];
+    if ($tooltipLabel !== '') {
+        $attrs[] = 'data-k2-tooltip-label="' . individual3_h($tooltipLabel) . '"';
+    }
 
-    return '<th class="' . implode(' ', $classes) . '" aria-sort="' . $aria . '" style="text-align:' . $align . ';">'
+    return '<th ' . implode(' ', $attrs) . '>'
         . '<a href="' . individual3_h(individual3_build_url($params)) . '">' . $label . '</a>'
         . '</th>';
 }
@@ -298,22 +308,22 @@ if ($opponentFilter > 0) {
 
 <thead>
 <tr style="text-align:right;">
-    <?php echo individual3_sort_header('id', 'ID', 'left', $sortState); ?>
-    <?php echo individual3_sort_header('date', '&nbsp;Date', 'left', $sortState); ?>
-    <?php echo individual3_sort_header('team_a', 'Team A', 'right', $sortState); ?>
+    <?php echo individual3_sort_header('id', 'ID', 'left', $sortState, 'Rated game ID.'); ?>
+    <?php echo individual3_sort_header('date', '&nbsp;Date', 'left', $sortState, 'Date the rated game was played.', 'Date'); ?>
+    <?php echo individual3_sort_header('team_a', 'Team A', 'right', $sortState, 'Player listed as Team A in the original game record.'); ?>
     <th></th>
     <th></th>
-    <?php echo individual3_sort_header('team_b', 'Team B', 'left', $sortState); ?>
-    <?php echo individual3_sort_header('result', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Result', 'left', $sortState); ?>
-    <?php echo individual3_sort_header('opponent', 'Opponent', 'left', $sortState); ?>
-    <?php echo individual3_sort_header('for', '&nbsp;&nbsp;&nbsp;F', 'right', $sortState); ?>
-    <?php echo individual3_sort_header('against', 'A', 'right', $sortState); ?>
-    <?php echo individual3_sort_header('diff', 'Diff', 'right', $sortState); ?>
-    <?php echo individual3_sort_header('sum', 'Sum', 'right', $sortState); ?>
-    <?php echo individual3_sort_header('player_rating', '&nbsp;&nbsp;&nbsp;' . individual3_h($name), 'right', $sortState); ?>
-    <?php echo individual3_sort_header('opponent_rating', 'Opponent', 'right', $sortState); ?>
-    <?php echo individual3_sort_header('es', 'ES ' . individual3_h($name), 'right', $sortState); ?>
-    <?php echo individual3_sort_header('adjustment', 'Adjustment', 'right', $sortState); ?>
+    <?php echo individual3_sort_header('team_b', 'Team B', 'left', $sortState, 'Player listed as Team B in the original game record.'); ?>
+    <?php echo individual3_sort_header('result', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Result', 'left', $sortState, 'Result from this player\'s perspective: win, draw, or loss.', 'Result'); ?>
+    <?php echo individual3_sort_header('opponent', 'Opponent', 'left', $sortState, 'Opponent in this game.'); ?>
+    <?php echo individual3_sort_header('for', '&nbsp;&nbsp;&nbsp;F', 'right', $sortState, 'Goals scored by this player.', 'For'); ?>
+    <?php echo individual3_sort_header('against', 'A', 'right', $sortState, 'Goals conceded by this player.', 'Against'); ?>
+    <?php echo individual3_sort_header('diff', 'Diff', 'right', $sortState, 'Goal difference from this player\'s perspective.'); ?>
+    <?php echo individual3_sort_header('sum', 'Sum', 'right', $sortState, 'Total goals scored by both players in the game.'); ?>
+    <?php echo individual3_sort_header('player_rating', '&nbsp;&nbsp;&nbsp;' . individual3_h($name), 'right', $sortState, 'This player\'s Elo rating before the game.', $name . ' rating'); ?>
+    <?php echo individual3_sort_header('opponent_rating', 'Opponent', 'right', $sortState, 'Opponent Elo rating before the game.', 'Opponent rating'); ?>
+    <?php echo individual3_sort_header('es', 'ES ' . individual3_h($name), 'right', $sortState, 'Expected score for this player before the game, based on the rating difference.', 'Expected score'); ?>
+    <?php echo individual3_sort_header('adjustment', 'Adjustment', 'right', $sortState, 'Rating points gained or lost by this player after the game.'); ?>
     </tr>
 </thead>
 

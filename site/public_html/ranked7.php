@@ -47,15 +47,15 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr style="text-align:right;">
         <th data-k2-sort="number">Rank</th>
         <th style="text-align:left;" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;Wins</th>
-        <th data-k2-sort="number">Draws</th>
-        <th data-k2-sort="number">Losses</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
-        <th data-k2-sort="number">Draw Ratio</th>
-        <th data-k2-sort="number">Loss Ratio</th>
-        <th data-k2-sort="number">Opponent Avg.</th>
+        <th data-k2-sort="number" data-k2-help="Current Elo ladder rating.">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="Rated games played.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Rated games won.">&nbsp;&nbsp;&nbsp;&nbsp;Wins</th>
+        <th data-k2-sort="number" data-k2-help="Rated games drawn.">Draws</th>
+        <th data-k2-sort="number" data-k2-help="Rated games lost.">Losses</th>
+        <th data-k2-sort="number" data-k2-help="Share of rated games won.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of rated games drawn.">Draw Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of rated games lost.">Loss Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Average Elo rating of the player's opponents.">Opponent Avg.</th>
     </tr>
 </thead>
 

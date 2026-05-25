@@ -62,22 +62,22 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 <thead>
 	
     <tr style="text-align:right;">
-        <th colspan="1" data-k2-sort="text" style="text-align:left;" >Opponent</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GF</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;GA</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Avg.</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Avg.</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ratio</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;Most S</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Most C</th>
-        <th data-k2-sort="number">&nbsp;Least S</th>
-        <th data-k2-sort="number">&nbsp;Least C</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;BW Diff</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;BL Diff</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BD </th>
-        <th data-k2-sort="number">&nbsp;&nbsp;BG Sum</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;SG Sum</th>
+        <th colspan="1" data-k2-sort="text" style="text-align:left;" data-k2-help="Opponent name.">Opponent</th>
+        <th data-k2-sort="number" data-k2-help="Rated games against this opponent.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Goals for: total goals scored against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GF</th>
+        <th data-k2-sort="number" data-k2-help="Goals against: total goals conceded against this opponent.">&nbsp;&nbsp;&nbsp;GA</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Average GF" data-k2-help="Average goals scored per game against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Avg.</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Average GA" data-k2-help="Average goals conceded per game against this opponent.">&nbsp;&nbsp;Avg.</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Goal ratio" data-k2-help="Goals for divided by goals against, for this opponent matchup.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Most scored: highest goals scored in one game against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;Most S</th>
+        <th data-k2-sort="number" data-k2-help="Most conceded: highest goals conceded in one game against this opponent.">&nbsp;&nbsp;Most C</th>
+        <th data-k2-sort="number" data-k2-help="Least scored: fewest goals scored in one game against this opponent.">&nbsp;Least S</th>
+        <th data-k2-sort="number" data-k2-help="Least conceded: fewest goals conceded in one game against this opponent.">&nbsp;Least C</th>
+        <th data-k2-sort="number" data-k2-help="Biggest win difference: highest winning margin against this opponent.">&nbsp;&nbsp;BW Diff</th>
+        <th data-k2-sort="number" data-k2-help="Biggest loss difference: heaviest losing margin against this opponent.">&nbsp;&nbsp;&nbsp;BL Diff</th>
+        <th data-k2-sort="number" data-k2-help="Biggest draw: highest scoreline in a draw against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BD </th>
+        <th data-k2-sort="number" data-k2-help="Biggest goal sum: most total goals in one game against this opponent.">&nbsp;&nbsp;BG Sum</th>
+        <th data-k2-sort="number" data-k2-help="Smallest goal sum: fewest total goals in one game against this opponent.">&nbsp;&nbsp;SG Sum</th>
     </tr>
 </thead>
 

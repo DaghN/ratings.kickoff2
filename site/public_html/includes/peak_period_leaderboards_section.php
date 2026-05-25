@@ -75,6 +75,9 @@ function k2_render_peak_period_panel(string $period, array $panel): void
     $meta = k2_peak_period_leaderboard_meta($period);
     $entries = $panel['entries'];
     $queryError = $panel['error'];
+    $periodHelp = $period === 'all-time'
+        ? "Date of the player's first rated game."
+        : "The player's busiest " . $period . ' by rated games.';
     ?>
 	<section class="server-peak-period-leaderboard-block server-peak-period-leaderboard-block--<?php echo htmlspecialchars($period, ENT_QUOTES, 'UTF-8'); ?>">
 		<h3 class="k2-panel-heading server-peak-period-leaderboard-block__title"><?php echo htmlspecialchars($meta['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
@@ -87,10 +90,10 @@ function k2_render_peak_period_panel(string $period, array $panel): void
 			<table class="k2-table" data-k2-table="sortable" data-k2-default-sort="3" data-k2-default-direction="desc">
 				<thead>
 					<tr style="text-align:right;">
-						<th data-k2-sort="number">#</th>
-						<th data-k2-sort="text" style="text-align:left;">Player</th>
-						<th data-k2-sort="text" style="text-align:left;"><?php echo htmlspecialchars($meta['period_label'], ENT_QUOTES, 'UTF-8'); ?></th>
-						<th data-k2-sort="number">Games</th>
+						<th data-k2-sort="number" data-k2-help="Rank within this activity table.">#</th>
+						<th data-k2-sort="text" style="text-align:left;" data-k2-help="Player name.">Player</th>
+						<th data-k2-sort="text" style="text-align:left;" data-k2-help="<?php echo htmlspecialchars($periodHelp, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($meta['period_label'], ENT_QUOTES, 'UTF-8'); ?></th>
+						<th data-k2-sort="number" data-k2-help="<?php echo $period === 'all-time' ? 'Total rated games played.' : 'Rated games played in that peak period.'; ?>">Games</th>
 					</tr>
 				</thead>
 				<tbody class="black">
@@ -128,11 +131,11 @@ function k2_render_peak_longevity_panel(array $panel): void
 			<table class="k2-table" data-k2-table="sortable" data-k2-default-sort="4" data-k2-default-direction="desc">
 				<thead>
 					<tr style="text-align:right;">
-						<th data-k2-sort="number">#</th>
-						<th data-k2-sort="text" style="text-align:left;">Player</th>
-						<th data-k2-sort="text" style="text-align:left;">First game</th>
-						<th data-k2-sort="text" style="text-align:left;">Last game</th>
-						<th data-k2-sort="number">Days</th>
+						<th data-k2-sort="number" data-k2-help="Rank within this activity table.">#</th>
+						<th data-k2-sort="text" style="text-align:left;" data-k2-help="Player name.">Player</th>
+						<th data-k2-sort="text" style="text-align:left;" data-k2-help="Date of the player's first rated game.">First game</th>
+						<th data-k2-sort="text" style="text-align:left;" data-k2-help="Date of the player's latest rated game.">Last game</th>
+						<th data-k2-sort="number" data-k2-help="Days between the player's first and latest rated games.">Days</th>
 					</tr>
 				</thead>
 				<tbody class="black">

@@ -50,19 +50,19 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr style="text-align:right;">
         <th data-k2-sort="number">#</th>
         <th style="text-align:left;" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">Opponents</th>
-        <th data-k2-sort="number">&nbsp;Victims</th>
-        <th data-k2-sort="number">DD Victims</th>
-        <th data-k2-sort="number">CS Victims</th>
-        <th data-k2-sort="number">MGC Victims</th>
-        <th data-k2-sort="number">BL Victims</th>
-        <th data-k2-sort="number">Culprits</th>
-        <th data-k2-sort="number">DD Culprits</th>
-        <th data-k2-sort="number">CS Culprits</th>
-        <th data-k2-sort="number">MGS Culprits</th>
-        <th data-k2-sort="number">BW Culprits</th>
+        <th data-k2-sort="number" data-k2-help="Current Elo ladder rating.">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="Rated games played.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Different opponents faced.">Opponents</th>
+        <th data-k2-sort="number" data-k2-help="Different opponents this player has beaten.">&nbsp;Victims</th>
+        <th data-k2-sort="number" data-k2-help="Double-digit victims: different opponents this player has scored 10 or more against.">DD Victims</th>
+        <th data-k2-sort="number" data-k2-help="Clean-sheet victims: different opponents this player has held to zero goals.">CS Victims</th>
+        <th data-k2-sort="number" data-k2-help="Most-goals-conceded victims: players whose most-conceded record came against this player.">MGC Victims</th>
+        <th data-k2-sort="number" data-k2-help="Biggest-loss victims: players whose biggest-loss record came against this player.">BL Victims</th>
+        <th data-k2-sort="number" data-k2-help="Different opponents who have beaten this player.">Culprits</th>
+        <th data-k2-sort="number" data-k2-help="Double-digit culprits: different opponents who scored 10 or more against this player.">DD Culprits</th>
+        <th data-k2-sort="number" data-k2-help="Clean-sheet culprits: different opponents who held this player to zero goals.">CS Culprits</th>
+        <th data-k2-sort="number" data-k2-help="Most-goals-scored culprits: players whose most-scored record came against this player.">MGS Culprits</th>
+        <th data-k2-sort="number" data-k2-help="Biggest-win culprits: players whose biggest-win record came against this player.">BW Culprits</th>
     </tr>
 </thead>
 

@@ -61,16 +61,16 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <thead>
     <tr style="text-align:right;">
-        <th style="text-align:left;" data-k2-sort="text">Opponent</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
-        <th data-k2-sort="number">&nbsp;DD C</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
-        <th data-k2-sort="number">&nbsp;CS C</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;DD Ratio</th>
-        <th data-k2-sort="number">DD C Ratio</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
-        <th data-k2-sort="number">CS C Ratio</th>
+        <th style="text-align:left;" data-k2-sort="text" data-k2-help="Opponent name.">Opponent</th>
+        <th data-k2-sort="number" data-k2-help="Rated games against this opponent.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Double digits: games where this player scored 10 or more against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
+        <th data-k2-sort="number" data-k2-help="Double digits conceded: games where this player conceded 10 or more against this opponent.">&nbsp;DD C</th>
+        <th data-k2-sort="number" data-k2-help="Clean sheets: games where this player held this opponent to zero goals.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
+        <th data-k2-sort="number" data-k2-help="Clean sheets conceded: games where this player scored no goals against this opponent.">&nbsp;CS C</th>
+        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player scored 10 or more.">&nbsp;&nbsp;&nbsp;DD Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player conceded 10 or more.">DD C Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player kept a clean sheet.">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player was held to zero goals.">CS C Ratio</th>
     </tr>
 </thead>
 

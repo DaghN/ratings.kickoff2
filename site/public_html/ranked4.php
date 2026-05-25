@@ -50,14 +50,14 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr style="text-align:right;">
         <th data-k2-sort="number">#</th>
         <th style="text-align:left;" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">LWS</th>
-        <th data-k2-sort="number">LNLS</th>
-        <th data-k2-sort="number">LDS</th>
-        <th data-k2-sort="number">LNDS</th>
-        <th data-k2-sort="number">LLS</th>
-        <th data-k2-sort="number">LNWS</th>
+        <th data-k2-sort="number" data-k2-help="Current Elo ladder rating.">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="Rated games played.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Longest winning streak ever.">LWS</th>
+        <th data-k2-sort="number" data-k2-help="Longest no-loss streak ever.">LNLS</th>
+        <th data-k2-sort="number" data-k2-help="Longest drawing streak ever.">LDS</th>
+        <th data-k2-sort="number" data-k2-help="Longest no-draw streak ever.">LNDS</th>
+        <th data-k2-sort="number" data-k2-help="Longest losing streak ever.">LLS</th>
+        <th data-k2-sort="number" data-k2-help="Longest no-win streak ever.">LNWS</th>
     </tr>
 </thead>
 

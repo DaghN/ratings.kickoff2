@@ -50,16 +50,16 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr style="text-align:right;">
         <th data-k2-sort="number">#</th>
         <th style="text-align:left;" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;DD Ratio</th>
-        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
-        <th data-k2-sort="number">&nbsp;DD C</th>
-        <th data-k2-sort="number">&nbsp;CS C</th>
-        <th data-k2-sort="number">DD C Ratio</th>
-        <th data-k2-sort="number">CS C Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Current Elo ladder rating.">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="Rated games played.">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number" data-k2-help="Double digits: games where the player scored 10 or more goals.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
+        <th data-k2-sort="number" data-k2-help="Clean sheets: games where the opponent scored no goals.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
+        <th data-k2-sort="number" data-k2-help="Share of games where the player scored 10 or more goals.">&nbsp;&nbsp;&nbsp;DD Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of games where the opponent scored no goals.">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Double digits conceded: games where the player conceded 10 or more goals.">&nbsp;DD C</th>
+        <th data-k2-sort="number" data-k2-help="Clean sheets conceded: games where the player scored no goals.">&nbsp;CS C</th>
+        <th data-k2-sort="number" data-k2-help="Share of games where the player conceded 10 or more goals.">DD C Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of games where the player scored no goals.">CS C Ratio</th>
     </tr>
 </thead>
 
