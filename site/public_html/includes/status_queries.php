@@ -175,7 +175,7 @@ function k2_status_pulse(mysqli $con, ?string &$error = null): ?array
     $gamesPlayed = null;
     $goalsScored = null;
 
-    $r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM playertable WHERE Display = 1 AND IsOnline = 1');
+    $r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM playertable WHERE COALESCE(IsOnline, 0) <> 0');
     if ($r === false) {
         $error = mysqli_error($con);
 
@@ -521,7 +521,7 @@ function k2_status_online_players(mysqli $con, ?string &$error = null): ?array
     $error = null;
     $r = mysqli_query(
         $con,
-        'SELECT ID, Name FROM playertable WHERE Display = 1 AND IsOnline = 1 ORDER BY Name ASC'
+        'SELECT ID, Name FROM playertable WHERE COALESCE(IsOnline, 0) <> 0 ORDER BY Name ASC'
     );
     if ($r === false) {
         $error = mysqli_error($con);
@@ -623,12 +623,12 @@ function k2_status_recent_registrations(mysqli $con, int $limit = 10, ?string &$
     return $out;
 }
 
-/** @return list<array{id: int, name_a: string, name_b: string, goals_a: int, goals_b: int, at: string, id_a: int, id_b: int, adjustment_a: float, adjustment_b: float}>|null */
+/** @return list<array{id: int, name_a: string, name_b: string, goals_a: int, goals_b: int, at: string, id_a: int, id_b: int}>|null */
 function k2_status_recent_rated_games(mysqli $con, int $limit = 10, ?string &$error = null): ?array
 {
     $error = null;
     $limit = max(1, min(30, $limit));
-    $sql = 'SELECT id, idA, idB, NameA, NameB, GoalsA, GoalsB, AdjustmentA, AdjustmentB, `Date` FROM ratedresults '
+    $sql = 'SELECT id, idA, idB, NameA, NameB, GoalsA, GoalsB, `Date` FROM ratedresults '
         . 'ORDER BY `Date` DESC LIMIT ' . $limit;
     $r = mysqli_query($con, $sql);
     if ($r === false) {
@@ -646,8 +646,6 @@ function k2_status_recent_rated_games(mysqli $con, int $limit = 10, ?string &$er
             'name_b' => (string) $row['NameB'],
             'goals_a' => (int) $row['GoalsA'],
             'goals_b' => (int) $row['GoalsB'],
-            'adjustment_a' => (float) $row['AdjustmentA'],
-            'adjustment_b' => (float) $row['AdjustmentB'],
             'at' => (string) $row['Date'],
         ];
     }

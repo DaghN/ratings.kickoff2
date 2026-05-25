@@ -9,7 +9,6 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.php';
 
 if (!function_exists('k2_status_player_link')) {
     function k2_status_player_link(int $id, string $name): string
@@ -29,10 +28,6 @@ if (!function_exists('k2_status_player_link_or_name')) {
     }
 }
 
-function k2_status_player_with_adjustment(int $id, string $name, float $adj): string
-{
-    return k2_status_player_link($id, $name) . ' ' . k2_game_rating_adjustment_span_html($adj);
-}
 
 function k2_status_league_podium_medal(int $rank): string
 {
@@ -307,9 +302,9 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 				<li>
 					<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_short_time($g['at'])); ?></span>
 					<span class="k2-status-match">
-						<span class="k2-status-match__side"><?php echo k2_status_player_with_adjustment($g['id_a'], $g['name_a'], (float) $g['adjustment_a']); ?></span>
+						<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_a'], $g['name_a']); ?></span>
 						<span class="k2-status-score"><?php echo (int) $g['goals_a']; ?>–<?php echo (int) $g['goals_b']; ?></span>
-						<span class="k2-status-match__side"><?php echo k2_status_player_with_adjustment($g['id_b'], $g['name_b'], (float) $g['adjustment_b']); ?></span>
+						<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_b'], $g['name_b']); ?></span>
 					</span>
 				</li>
 <?php } ?>
