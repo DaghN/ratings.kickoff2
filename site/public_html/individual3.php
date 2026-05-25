@@ -12,7 +12,22 @@
 
 <body class="k2-site">
 
-<?php $id=$_GET['id']; ?>
+<?php
+$playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+if ($playerId < 1) {
+    exit();
+}
+
+function individual3_h(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function individual3_player_link(int $id, string $name): string
+{
+    return '<a href="individual1.php?id=' . $id . '">' . individual3_h($name) . '</a>';
+}
+?>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
@@ -25,12 +40,29 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   	{
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
+    $con->set_charset('utf8mb4');
 
+$id = $playerId;
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
-$name = $Name;
+$name = $Name ?? '';
 
-$query = "SELECT * FROM ratedresults WHERE idA='$id' OR idB='$id' ORDER BY id DESC";
-$result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
+$games = [];
+$query = 'SELECT id, Date, idA, NameA, idB, NameB, RatingA, RatingB, GoalsA, GoalsB, ExpectedScoreA, ExpectedScoreB, ActualScore, AdjustmentA, AdjustmentB, SumOfGoals, GoalDifference '
+    . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY id DESC';
+$stmt = mysqli_prepare($con, $query);
+if (!$stmt) {
+    die("SELECT Error: " . mysqli_error($con));
+}
+mysqli_stmt_bind_param($stmt, 'ii', $playerId, $playerId);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+if (!$result) {
+    die("SELECT Error: " . mysqli_error($con));
+}
+while ($row = mysqli_fetch_assoc($result)) {
+    $games[] = $row;
+}
+mysqli_stmt_close($stmt);
 
 mysqli_close($con);
 ?>
@@ -78,9 +110,9 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
         <th class="table-sortable:numeric">A</th>
       <th class="table-sortable:numeric">Diff</th>
         <th class="table-sortable:numeric">Sum</th>
-<th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;<?php echo $name ?></th>
+<th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;<?php echo individual3_h($name); ?></th>
         <th class="table-sortable:numeric">Opponent</th>
-       	<th class="table-sortable:numeric">ES <?php echo $name ?></th> 
+       	<th class="table-sortable:numeric">ES <?php echo individual3_h($name); ?></th> 
         <th class="table-sortable:numeric">Adjustment</th>   
     </tr>
 </thead>
@@ -100,92 +132,85 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <tbody class="black">
 	<?php
-    $i = "1";
-    while ($row = mysqli_fetch_row($result))
-    {  
-    
-	$gameid = $row[0];
-	$Date = $row[1];
-	$idA = $row[2];
-	$NameA = $row[3];
-	$idB = $row[4];
-	$NameB = $row[5];
-	$RatingA = $row[6];
-	$RatingB = $row[7];
-	$RatingDifference = $row[8];
-	$GoalsA = $row[9];
-	$GoalsB = $row[10];
-	$ExpectedScoreA = $row[18];
-	$ExpectedScoreB = $row[19];
-	$ActualScore = $row[20];
-	$AdjustmentA = $row[21];
-	$AdjustmentB = $row[22];
-	$SumOfGoals = $row[25];
-	$GoalDifference = $row[26];
-	$WinnerID = $row[27]
+    foreach ($games as $game)
+    {
+	$gameid = (int) $game['id'];
+	$Date = (string) $game['Date'];
+	$idA = (int) $game['idA'];
+	$NameA = (string) $game['NameA'];
+	$idB = (int) $game['idB'];
+	$NameB = (string) $game['NameB'];
+	$RatingA = (float) $game['RatingA'];
+	$RatingB = (float) $game['RatingB'];
+	$GoalsA = (int) $game['GoalsA'];
+	$GoalsB = (int) $game['GoalsB'];
+	$ExpectedScoreA = (float) $game['ExpectedScoreA'];
+	$ExpectedScoreB = (float) $game['ExpectedScoreB'];
+	$ActualScore = (float) $game['ActualScore'];
+	$AdjustmentA = (float) $game['AdjustmentA'];
+	$AdjustmentB = (float) $game['AdjustmentB'];
+	$SumOfGoals = (int) $game['SumOfGoals'];
+	$GoalDifference = (int) $game['GoalDifference'];
+    $isPlayerA = $idA === $playerId;
+    $opponentId = $isPlayerA ? $idB : $idA;
+    $opponentName = $isPlayerA ? $NameB : $NameA;
+    $goalsFor = $isPlayerA ? $GoalsA : $GoalsB;
+    $goalsAgainst = $isPlayerA ? $GoalsB : $GoalsA;
+    $playerRating = $isPlayerA ? $RatingA : $RatingB;
+    $opponentRating = $isPlayerA ? $RatingB : $RatingA;
+    $expectedScore = $isPlayerA ? $ExpectedScoreA : $ExpectedScoreB;
+    $adjustment = $isPlayerA ? $AdjustmentA : $AdjustmentB;
+    $isDraw = abs($ActualScore - 0.5) < 0.001;
+    $isWin = !$isDraw && (($isPlayerA && abs($ActualScore - 1.0) < 0.001) || (!$isPlayerA && abs($ActualScore) < 0.001));
 	?>
     
     <tr style="text-align:right;">
         
         <td><a href="game.php?id=<?php echo $gameid ?>"><?php echo $gameid ?></a></td>
         <td>&nbsp;<?php echo date('M d Y, H:i', strtotime($Date)) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><a href="individual1.php?id=<?php echo $idA ?>"><?php echo $NameA ?></a></td>
+        <td><?php echo individual3_player_link($idA, $NameA); ?></td>
         <td><?php echo $GoalsA ?></td>
         <td style="text-align:left;"><?php echo $GoalsB ?></td>
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $idB ?>"><?php echo $NameB ?></a></td>
+        <td style="text-align:left;"><?php echo individual3_player_link($idB, $NameB); ?></td>
         
         <td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php 	
-			if ($WinnerID == $id) 
+			if ($isWin)
 				{echo "<span class='blue'>Win</span>";} 
-			elseif ($ActualScore == 0.5) 
+			elseif ($isDraw) 
 				{echo "-";}
 			else 
 				{echo "<span class='red'>Loss</span>";}
 		?></td> 
         
-        <td style="text-align:left;"><?php 	
-			if ($idA == $id) 
-				{echo ("<a href=\"individual1.php?id=" .$idB. "\">" .$NameB. "</a>");} 
-			else 
-				{echo ("<a href=\"individual1.php?id=" .$idA. "\">" .$NameA. "</a>");}
-		?></td>
+        <td style="text-align:left;"><?php echo individual3_player_link($opponentId, $opponentName); ?></td>
         
-        <td><?php if ($idA == $id) {echo $GoalsA;} else {echo $GoalsB;} ?></td>
-        <td><?php if ($idA == $id) {echo $GoalsB;} else {echo $GoalsA;} ?></td>
+        <td><?php echo $goalsFor; ?></td>
+        <td><?php echo $goalsAgainst; ?></td>
         <td><?php 
-			if ($ActualScore == 0.5)
+			if ($isDraw)
 				{echo $GoalDifference;}
-			elseif ($WinnerID != $id) 
+			elseif (!$isWin)
 				{echo "<span class='red'>"; echo -$GoalDifference; echo "</span>";} 
 			else 
 				{echo "<span class='blue'>"; echo $GoalDifference; echo "</span>";}
         ?></td>
         <td><?php echo $SumOfGoals ?></td>
-      <td><?php if ($idA == $id) {echo round($RatingA);} else {echo round($RatingB);} ?></td>
-        <td><?php if ($idA == $id) {echo round($RatingB);} else {echo round($RatingA);} ?></td>
+      <td><?php echo round($playerRating); ?></td>
+        <td><?php echo round($opponentRating); ?></td>
     
         
-        <td><?php if ($idA == $id) {echo number_format(100*$ExpectedScoreA, 1); echo "%";} else {echo number_format(100*$ExpectedScoreB, 1); echo "%";} ?></td>
+        <td><?php echo number_format(100 * $expectedScore, 1); echo "%"; ?></td>
         <td><?php 
-			if ($idA == $id) {
-				if ($AdjustmentA >= 0) 
-					{echo "<span class='blue'>"; echo number_format($AdjustmentA, 1); echo "</span>";} 
-				else
-					{echo "<span class='red'>"; echo number_format($AdjustmentA, 1); echo "</span>";}
-			}
-			else {
-				if ($AdjustmentB >= 0) 
-					{echo "<span class='blue'>"; echo number_format($AdjustmentB, 1); echo "</span>";} 
-				else
-					{echo "<span class='red'>"; echo number_format($AdjustmentB, 1); echo "</span>";}
-			}
+			if ($adjustment >= 0)
+				{echo "<span class='blue'>"; echo number_format($adjustment, 1); echo "</span>";}
+			else
+				{echo "<span class='red'>"; echo number_format($adjustment, 1); echo "</span>";}
 		?></td>
     </tr> 
     
     
     
     <?php
-	$i++; 
     }  
     ?> 
 </tbody>
