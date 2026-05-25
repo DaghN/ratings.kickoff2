@@ -65,7 +65,6 @@ Profile does **not** duplicate those tables.
 
 ## Gradual improvements (backlog)
 
-- Tone/copy pass on chart helpers
 - Participation sentence (N21) if not yet in Presence
 - Achievement-style badges (P2 brainstorm)
 - Optional server1-style precompute if Trends hall-of-fame pattern is reused

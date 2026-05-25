@@ -52,9 +52,8 @@
 3. **Launch polish** — realm switcher when Amiga exists.
 4. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
 5. **Fun stats block (v1)** — trophy cabinet from `playertable` + monthly SQL; exclude longest game.
-6. **Tone pass** — chart/helper copy: context, sample size, rematch story not report-card.
-7. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`.
-8. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
+6. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`.
+7. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
 
 ---
 
@@ -66,6 +65,7 @@
 |------|------|
 | 2026-05 | **Tint picker docs settled** — hidden-by-default behavior remains current; stale launch-decision wording pruned. |
 | 2026-05 | **Current-truth docs prune** — MEMORY recent log trimmed; `design-direction.md`, `hub-ia-agreement.md`, and `k2-table-and-games-plan.md` now foreground current contracts/open work instead of phase diary history. |
+| 2026-05 | **Chart helper tone audit** — stale chart/helper tone backlog pruned; current chart contract/copy already covers canonical colours, context, sample-size, and matchup framing. |
 | 2026-05 | **Replay/ops safety gates** — ladder replay now has explicit `--target local|staging`, refuses staging `kooldb` unless target is explicit, logs DB identity preflight, staging wrapper passes `--target staging`; local schema/index/period rebuild wrappers refuse non-local DBs without `-AllowNonLocal`. |
 | 2026-05 | **Period activity staging DB done** — Steve ran `player_period_games` schema + rebuild on staging `kooldb`; expectation test passed; note MariaDB requires `COUNT(*)`, not `COUNT()`. |
 | 2026-05 | **Legacy PHP safety pass** — added `includes/k2_safety.php`; `individual2a/b/c.php` now validate player `id`, use safe DB connect/query errors, and escape opponent links; `ranked1`–`ranked5`/`ranked7` use the same helper for DB connect/query errors and escaped player links. |
