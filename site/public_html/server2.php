@@ -41,7 +41,25 @@ function records_percent_or_dash($value): string
 	return records_has_value($value) ? number_format(100 * (float) $value, 1) . '%' : '-';
 }
 
-function records_date_or_dash($dateValue, bool $showDate, int $newRecordCutoff): string
+function records_add_age_marker(string $text, $dateValue, int $newRecordCutoff, int $legendaryRecordCutoff): string
+{
+	$timestamp = strtotime((string) $dateValue);
+	if ($timestamp === false) {
+		return $text;
+	}
+
+	if ($timestamp >= $newRecordCutoff) {
+		return $text . "<span class='blue'> (New!)</span>";
+	}
+
+	if ($timestamp < $legendaryRecordCutoff) {
+		return $text . "<span class='holo'> (Legendary)</span>";
+	}
+
+	return $text;
+}
+
+function records_date_or_dash($dateValue, bool $showDate, int $newRecordCutoff, int $legendaryRecordCutoff): string
 {
 	if (!$showDate || $dateValue === null || $dateValue === '') {
 		return '-';
@@ -53,11 +71,8 @@ function records_date_or_dash($dateValue, bool $showDate, int $newRecordCutoff):
 	}
 
 	$text = date('M j, Y', $timestamp);
-	if ($timestamp >= $newRecordCutoff) {
-		$text .= "<span class='blue'> (New!)</span>";
-	}
 
-	return $text;
+	return records_add_age_marker($text, $dateValue, $newRecordCutoff, $legendaryRecordCutoff);
 }
 
 function records_render_row(string $label, string $valueHtml, string $holderHtml, string $dateHtml): void
@@ -80,7 +95,20 @@ function records_render_spacer_row(): void
 	echo "    </tr>\n";
 }
 
-function records_render_peak_period_row(string $label, string $period, ?array $entry, string $pad): void
+function records_peak_period_age_date(string $period, string $periodKey): string
+{
+	switch ($period) {
+		case 'year':
+			return $periodKey . '-12-31';
+		case 'month':
+			$monthStart = strtotime($periodKey . '-01');
+			return $monthStart ? date('Y-m-t', $monthStart) : $periodKey;
+		default:
+			return $periodKey;
+	}
+}
+
+function records_render_peak_period_row(string $label, string $period, ?array $entry, string $pad, int $newRecordCutoff, int $legendaryRecordCutoff): void
 {
 	if (!$entry) {
 		records_render_row($label, '-', '-', '-');
@@ -88,11 +116,14 @@ function records_render_peak_period_row(string $label, string $period, ?array $e
 		return;
 	}
 
+	$periodKey = (string) $entry['period_key'];
+	$periodText = k2_format_peak_period($period, $periodKey);
+
 	records_render_row(
 		$label,
 		records_value_or_dash($entry['games']),
 		$pad . '<a href="individual1.php?id=' . $entry['player_id'] . '">' . $entry['player_name'] . '</a>' . $pad,
-		k2_format_peak_period($period, (string) $entry['period_key'])
+		records_add_age_marker($periodText, records_peak_period_age_date($period, $periodKey), $newRecordCutoff, $legendaryRecordCutoff)
 	);
 }
 
@@ -190,6 +221,7 @@ if (!$records) {
 }
 
 $newRecordCutoff = strtotime('-1 month');
+$legendaryRecordCutoff = strtotime('-5 years');
 
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/records_ratio_leaders.php";
 records_load_ratio_leaders($con);
@@ -223,36 +255,36 @@ records_render_row(
 	'Most games',
 	(string) $records['MostGamesPlayed'],
 	$pad . '<a href="individual1.php?id=' . $records['MostGamesPlayedID'] . '">' . $records['MostGamesPlayedName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostGamesPlayedDate'], true, $newRecordCutoff)
+	records_date_or_dash($records['MostGamesPlayedDate'], true, $newRecordCutoff, $legendaryRecordCutoff)
 );
-records_render_peak_period_row('Most games in one year', 'year', $peakPeriodRecords['year'], $pad);
-records_render_peak_period_row('Most games in one month', 'month', $peakPeriodRecords['month'], $pad);
-records_render_peak_period_row('Most games in one day', 'day', $peakPeriodRecords['day'], $pad);
+records_render_peak_period_row('Most games in one year', 'year', $peakPeriodRecords['year'], $pad, $newRecordCutoff, $legendaryRecordCutoff);
+records_render_peak_period_row('Most games in one month', 'month', $peakPeriodRecords['month'], $pad, $newRecordCutoff, $legendaryRecordCutoff);
+records_render_peak_period_row('Most games in one day', 'day', $peakPeriodRecords['day'], $pad, $newRecordCutoff, $legendaryRecordCutoff);
 records_render_spacer_row();
 
 records_render_row(
 	'Most wins',
 	records_value_or_dash($records['MostWins']),
 	$pad . '<a href="individual1.php?id=' . $records['MostWinsID'] . '">' . $records['MostWinsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostWinsDate'], records_has_value($records['MostWins']), $newRecordCutoff)
+	records_date_or_dash($records['MostWinsDate'], records_has_value($records['MostWins']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Most goals',
 	records_value_or_dash($records['MostGoalsScored']),
 	$pad . '<a href="individual1.php?id=' . $records['MostGoalsScoredID'] . '">' . $records['MostGoalsScoredName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostGoalsScoredDate'], records_has_value($records['MostGoalsScored']), $newRecordCutoff)
+	records_date_or_dash($records['MostGoalsScoredDate'], records_has_value($records['MostGoalsScored']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Most double digits',
 	records_value_or_dash($records['MostDoubleDigits']),
 	$pad . '<a href="individual1.php?id=' . $records['MostDoubleDigitsID'] . '">' . $records['MostDoubleDigitsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostDoubleDigitsDate'], records_has_value($records['MostDoubleDigits']), $newRecordCutoff)
+	records_date_or_dash($records['MostDoubleDigitsDate'], records_has_value($records['MostDoubleDigits']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Most clean sheets',
 	records_value_or_dash($records['MostCleanSheets']),
 	$pad . '<a href="individual1.php?id=' . $records['MostCleanSheetsID'] . '">' . $records['MostCleanSheetsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostCleanSheetsDate'], records_has_value($records['MostCleanSheets']), $newRecordCutoff)
+	records_date_or_dash($records['MostCleanSheetsDate'], records_has_value($records['MostCleanSheets']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_spacer_row();
 
@@ -260,25 +292,25 @@ records_render_row(
 	'Most opponents',
 	(string) $records['MostDifferentOpponents'],
 	$pad . '<a href="individual1.php?id=' . $records['MostDifferentOpponentsID'] . '">' . $records['MostDifferentOpponentsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostDifferentOpponentsDate'], true, $newRecordCutoff)
+	records_date_or_dash($records['MostDifferentOpponentsDate'], true, $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Most victims',
 	records_value_or_dash($records['MostDifferentVictims']),
 	$pad . '<a href="individual1.php?id=' . $records['MostDifferentVictimsID'] . '">' . $records['MostDifferentVictimsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostDifferentVictimsDate'], records_has_value($records['MostDifferentVictims']), $newRecordCutoff)
+	records_date_or_dash($records['MostDifferentVictimsDate'], records_has_value($records['MostDifferentVictims']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Most double digit victims',
 	records_value_or_dash($records['MostDoubleDigitsVictims']),
 	$pad . '<a href="individual1.php?id=' . $records['MostDoubleDigitsVictimsID'] . '">' . $records['MostDoubleDigitsVictimsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostDoubleDigitsVictimsDate'], records_has_value($records['MostDoubleDigitsVictims']), $newRecordCutoff)
+	records_date_or_dash($records['MostDoubleDigitsVictimsDate'], records_has_value($records['MostDoubleDigitsVictims']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Most clean sheet victims',
 	records_value_or_dash($records['MostCleanSheetsVictims']),
 	$pad . '<a href="individual1.php?id=' . $records['MostCleanSheetsVictimsID'] . '">' . $records['MostCleanSheetsVictimsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostCleanSheetsVictimsDate'], records_has_value($records['MostCleanSheetsVictims']), $newRecordCutoff)
+	records_date_or_dash($records['MostCleanSheetsVictimsDate'], records_has_value($records['MostCleanSheetsVictims']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 ?>
 </tbody>
@@ -301,13 +333,13 @@ records_render_row(
 	'Most goals in one game',
 	records_value_or_dash($records['MostGoalsScoredInOneGame']),
 	$pad . '<a href="individual1.php?id=' . $records['MostGoalsScoredInOneGameID'] . '">' . $records['MostGoalsScoredInOneGameName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostGoalsScoredInOneGameDate'], records_has_value($records['MostGoalsScoredInOneGame']), $newRecordCutoff)
+	records_date_or_dash($records['MostGoalsScoredInOneGameDate'], records_has_value($records['MostGoalsScoredInOneGame']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Biggest winning margin',
 	records_value_or_dash($records['BiggestWinDifference']),
 	$pad . '<a href="individual1.php?id=' . $records['BiggestWinDifferenceID'] . '">' . $records['BiggestWinDifferenceName'] . '</a>' . $pad,
-	records_date_or_dash($records['BiggestWinDifferenceDate'], records_has_value($records['BiggestWinDifference']), $newRecordCutoff)
+	records_date_or_dash($records['BiggestWinDifferenceDate'], records_has_value($records['BiggestWinDifference']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 $biggestDrawScore = records_has_value($records['BiggestDrawSumGameID'])
 	? ((string) ($records['BiggestDrawSum'] / 2) . '-' . (string) ($records['BiggestDrawSum'] / 2))
@@ -316,13 +348,13 @@ records_render_row(
 	'Biggest draw',
 	$biggestDrawScore,
 	$pad . '<a href="individual1.php?id=' . $records['BiggestDrawSumIDA'] . '">' . $records['BiggestDrawSumNameA'] . '</a> / <a href="individual1.php?id=' . $records['BiggestDrawSumIDB'] . '">' . $records['BiggestDrawSumNameB'] . '</a>' . $pad,
-	records_date_or_dash($records['BiggestDrawSumDate'], records_has_value($records['BiggestDrawSumGameID']), $newRecordCutoff)
+	records_date_or_dash($records['BiggestDrawSumDate'], records_has_value($records['BiggestDrawSumGameID']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Biggest sum of goals',
 	(string) $records['BiggestSumOfGoals'],
 	$pad . '<a href="individual1.php?id=' . $records['BiggestSumOfGoalsIDA'] . '">' . $records['BiggestSumOfGoalsNameA'] . '</a> / <a href="individual1.php?id=' . $records['BiggestSumOfGoalsIDB'] . '">' . $records['BiggestSumOfGoalsNameB'] . '</a>' . $pad,
-	records_date_or_dash($records['BiggestSumOfGoalsDate'], true, $newRecordCutoff)
+	records_date_or_dash($records['BiggestSumOfGoalsDate'], true, $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_spacer_row();
 
@@ -330,25 +362,25 @@ records_render_row(
 	'Highest peak rating',
 	number_format((float) $records['BiggestPeakRating'], 0, '.', ''),
 	$pad . '<a href="individual1.php?id=' . $records['BiggestPeakRatingID'] . '">' . $records['BiggestPeakRatingName'] . '</a>' . $pad,
-	records_date_or_dash($records['BiggestPeakRatingDate'], true, $newRecordCutoff)
+	records_date_or_dash($records['BiggestPeakRatingDate'], true, $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Longest winning streak',
 	records_value_or_dash($records['LongestWinningStreak']),
 	$pad . '<a href="individual1.php?id=' . $records['LongestWinningStreakID'] . '">' . $records['LongestWinningStreakName'] . '</a>' . $pad,
-	records_date_or_dash($records['LongestWinningStreakDate'], records_has_value($records['LongestWinningStreak']), $newRecordCutoff)
+	records_date_or_dash($records['LongestWinningStreakDate'], records_has_value($records['LongestWinningStreak']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Longest undefeated streak',
 	(string) $records['LongestNonLossStreak'],
 	$pad . '<a href="individual1.php?id=' . $records['LongestNonLossStreakID'] . '">' . $records['LongestNonLossStreakName'] . '</a>' . $pad,
-	records_date_or_dash($records['LongestNonLossStreakDate'], true, $newRecordCutoff)
+	records_date_or_dash($records['LongestNonLossStreakDate'], true, $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_row(
 	'Longest drawing streak',
 	records_value_or_dash($records['LongestDrawingStreak']),
 	$pad . '<a href="individual1.php?id=' . $records['LongestDrawingStreakID'] . '">' . $records['LongestDrawingStreakName'] . '</a>' . $pad,
-	records_date_or_dash($records['LongestDrawingStreakDate'], records_has_value($records['LongestDrawingStreak']), $newRecordCutoff)
+	records_date_or_dash($records['LongestDrawingStreakDate'], records_has_value($records['LongestDrawingStreak']), $newRecordCutoff, $legendaryRecordCutoff)
 );
 records_render_spacer_row();
 
@@ -395,9 +427,11 @@ records_render_row(
 </section>
 </div><!-- .server-records-panels -->
 
-A player must play 30 games for ratios and averages to take effect.
-<br />
 Records that are less than one month old are displayed as "<span class="blue">(New!)</span>".
+<br />
+Records that are more than 5 years old are displayed as "<span class="holo">(Legendary)</span>".
+<br />
+A player must play 30 games for ratios and averages to take effect.
 
 
 

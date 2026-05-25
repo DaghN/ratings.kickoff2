@@ -400,25 +400,25 @@ function k2_peak_period_leaderboard_meta(string $period): array
     switch ($period) {
         case 'day':
             return [
-                'title' => 'Busiest day',
+                'title' => 'Most games in one day',
                 'period_label' => 'Peak day',
                 'hint' => 'Top players by most rated games in a single calendar day (each player’s personal best only). Ties: earlier day wins.',
             ];
         case 'year':
             return [
-                'title' => 'Busiest year',
+                'title' => 'Most games in one year',
                 'period_label' => 'Peak year',
                 'hint' => 'Top players by most rated games in a single calendar year (each player’s personal best only). Ties: earlier year wins.',
             ];
         case 'all-time':
             return [
-                'title' => 'Busiest of all time',
+                'title' => 'Most games of all time',
                 'period_label' => 'Since',
                 'hint' => 'Top players by total rated games. Since shows the player’s first rated game date.',
             ];
         default:
             return [
-                'title' => 'Busiest month',
+                'title' => 'Most games in one month',
                 'period_label' => 'Peak month',
                 'hint' => 'Top players by most rated games in a single calendar month (each player’s personal best only). Ties: earlier month wins.',
             ];

@@ -64,8 +64,9 @@
 
 | When | What |
 |------|------|
-| 2026-05 | **Activity Longevity table** — `ranked8.php` All time now shows Longevity beside Busiest of all time; aggregate query local ~39 ms, raw `ratedresults` fallback ~3.4 s. |
-| 2026-05 | **Records two-panel split** — `server2.php` now splits records into Peak activity and Peak performance panels; activity includes the year/month/day games rows and opponent/victim totals, reusing the aggregate/fallback query path. |
+| 2026-05 | **Leaderboard nav/table polish** — active `lb_nav.php` filter dots use the selected UI accent while labels stay neutral; `ranked-pages-table` first column now has a stable width across non-Activity leaderboard tabs. |
+| 2026-05 | **Activity Longevity table** — `ranked8.php` Period headings now read “Most games in one day/month/year”; All time shows Longevity beside “Most games of all time” with natural-width table spacing. |
+| 2026-05 | **Records two-panel split** — `server2.php` splits records into natural-width Peak activity and Peak performance panels; activity includes year/month/day games rows, opponent/victim totals, and New/Legendary age markers (`Legendary` in holo). |
 | 2026-05 | **`k2-table.js` reverse-sort tie fix** — same-column sort toggles now reverse current row order, so tied groups in `ranked8.php` flip correctly when Games changes from desc to asc. |
 | 2026-05 | **Activity Period/All time toggle** — `ranked8.php` now shows a realm-style in-place switch: Period defaults to the three day/month/year tables, All time reveals the preloaded all-time table. |
 | 2026-05 | **Nav wording swap** — leaderboard `ranked8.php` tab label renamed from Hall of Fame to Activity; main hub `server2.php` nav label renamed from Records to Hall of Fame. |

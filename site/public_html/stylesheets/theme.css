@@ -588,7 +588,9 @@ body.k2-site .server-peak-period-leaderboards__grid--single {
 }
 
 body.k2-site .server-peak-period-leaderboards__grid--all-time {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	width: fit-content;
+	grid-template-columns: repeat(2, max-content);
+	gap: 16px 100px;
 }
 
 body.k2-site .server-peak-period-leaderboard-block {
@@ -605,10 +607,11 @@ body.k2-site .server-peak-period-leaderboard-block .k2-table-wrap {
 }
 
 body.k2-site .server-records-panels {
+	width: fit-content;
 	max-width: var(--k2-max-width);
 	margin-bottom: 16px;
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(2, max-content);
 	gap: 16px;
 	align-items: start;
 }
@@ -618,13 +621,14 @@ body.k2-site .server-records-panel {
 }
 
 body.k2-site .server-records-panel .k2-table-wrap {
-	width: 100%;
+	width: fit-content;
+	max-width: 100%;
 	margin-bottom: 0;
 	box-sizing: border-box;
 }
 
 body.k2-site .server-records-table {
-	width: 100%;
+	width: auto;
 }
 
 .k2-chrome-tabs__bar + .server-peak-period-leaderboards {
@@ -737,6 +741,12 @@ body.k2-site .k2-table thead tr:last-child th {
 	border-bottom: 1px solid color-mix(in srgb, var(--k2-accent) 40%, transparent);
 }
 
+body.k2-site .k2-table.ranked-pages-table thead th:nth-child(1),
+body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(1) {
+	width: 2.7em;
+	min-width: 2.7em;
+}
+
 body.k2-site .k2-table.ranked-pages-table thead th:nth-child(2),
 body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
@@ -845,6 +855,10 @@ body.k2-site .k2-table a.currentpage {
 
 body.k2-site .blue {
 	color: var(--k2-table-positive);
+}
+
+body.k2-site .holo {
+	color: var(--k2-chart-holo);
 }
 
 body.k2-site .red {
@@ -1952,13 +1966,13 @@ body.k2-site a.k2-lb-filter:visited {
 }
 
 body.k2-site a.k2-lb-filter:hover {
-	color: var(--k2-text-secondary);
+	color: var(--k2-text-muted);
 	text-decoration: none;
 }
 
 body.k2-site a.k2-lb-filter.is-on,
 body.k2-site a.k2-lb-filter.is-on:visited {
-	color: var(--k2-text-secondary);
+	color: var(--k2-text-muted);
 }
 
 .k2-lb-filter__dot {
@@ -1973,9 +1987,9 @@ body.k2-site a.k2-lb-filter.is-on:visited {
 }
 
 .k2-lb-filter.is-on .k2-lb-filter__dot {
-	border-color: color-mix(in srgb, var(--k2-chart-pitch) 70%, transparent);
-	background: var(--k2-chart-pitch);
-	box-shadow: 0 0 4px color-mix(in srgb, var(--k2-chart-pitch) 40%, transparent);
+	border-color: color-mix(in srgb, var(--k2-accent) 70%, transparent);
+	background: var(--k2-accent);
+	box-shadow: 0 0 4px var(--k2-accent-glow);
 }
 
 .k2-lb-filter__label {
