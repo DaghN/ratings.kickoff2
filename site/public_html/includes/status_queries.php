@@ -256,6 +256,38 @@ function k2_status_active_top_rated(mysqli $con, ?string &$error = null): ?array
     return $out;
 }
 
+function k2_status_table_exists(mysqli $con, string $tableName): bool
+{
+    static $exists = [];
+    if (array_key_exists($tableName, $exists)) {
+        return $exists[$tableName];
+    }
+
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT COUNT(*) AS c FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?'
+    );
+    if ($stmt === false) {
+        $exists[$tableName] = false;
+
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, 's', $tableName);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        $exists[$tableName] = false;
+
+        return false;
+    }
+    $r = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($r);
+    mysqli_free_result($r);
+    mysqli_stmt_close($stmt);
+    $exists[$tableName] = (int) ($row['c'] ?? 0) > 0;
+
+    return $exists[$tableName];
+}
+
 /**
  * @param int $monthOffset 0 = current calendar month, -1 = previous month (server TZ)
  *
@@ -273,6 +305,114 @@ function k2_status_monthly_league(mysqli $con, int $limit = 20, int $monthOffset
     $start = date('Y-m-01 00:00:00', $base);
     $end = date('Y-m-01 00:00:00', strtotime('+1 month', $base));
     $label = date('F Y', $base);
+    $monthStart = date('Y-m-01', $base);
+
+    if (k2_status_table_exists($con, 'player_monthly_league')) {
+        return k2_status_monthly_league_from_aggregate($con, $monthStart, $start, $end, $label, $monthOffset, $limit, $error);
+    }
+
+    return k2_status_monthly_league_from_ratedresults($con, $start, $end, $label, $monthOffset, $limit, $error);
+}
+
+/**
+ * @return array{label: string, start: string, end: string, rows: list<array>, total_games: int, month_offset: int}|null
+ */
+function k2_status_monthly_league_from_aggregate(
+    mysqli $con,
+    string $monthStart,
+    string $start,
+    string $end,
+    string $label,
+    int $monthOffset,
+    int $limit,
+    ?string &$error = null
+): ?array {
+    $sql = <<<'SQL'
+SELECT
+  l.player_id AS pid,
+  COALESCE(p.Name, CONCAT('#', l.player_id)) AS pname,
+  l.played,
+  l.wins,
+  l.draws,
+  l.losses,
+  l.goals_for AS gf,
+  l.goals_against AS ga,
+  l.goal_difference AS gd,
+  l.points AS pts
+FROM player_monthly_league l
+LEFT JOIN playertable p ON p.ID = l.player_id
+WHERE l.month_start = ?
+ORDER BY l.points DESC, l.goal_difference DESC, l.goals_for DESC, pname ASC
+LIMIT ?
+SQL;
+
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        $error = mysqli_error($con);
+
+        return null;
+    }
+    mysqli_stmt_bind_param($stmt, 'si', $monthStart, $limit);
+    if (!mysqli_stmt_execute($stmt)) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        return null;
+    }
+    $r = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($r)) {
+        $rows[] = [
+            'id' => (int) $row['pid'],
+            'name' => (string) $row['pname'],
+            'played' => (int) $row['played'],
+            'wins' => (int) $row['wins'],
+            'draws' => (int) $row['draws'],
+            'losses' => (int) $row['losses'],
+            'gf' => (int) $row['gf'],
+            'ga' => (int) $row['ga'],
+            'gd' => (int) $row['gd'],
+            'pts' => (int) $row['pts'],
+        ];
+    }
+    mysqli_free_result($r);
+    mysqli_stmt_close($stmt);
+
+    $totalGames = 0;
+    $countStmt = mysqli_prepare($con, 'SELECT COALESCE(SUM(played), 0) AS appearances FROM player_monthly_league WHERE month_start = ?');
+    if ($countStmt !== false) {
+        mysqli_stmt_bind_param($countStmt, 's', $monthStart);
+        if (mysqli_stmt_execute($countStmt)) {
+            $cr = mysqli_stmt_get_result($countStmt);
+            $crow = mysqli_fetch_assoc($cr);
+            $totalGames = intdiv((int) ($crow['appearances'] ?? 0), 2);
+            mysqli_free_result($cr);
+        }
+        mysqli_stmt_close($countStmt);
+    }
+
+    return [
+        'label' => $label,
+        'start' => $start,
+        'end' => $end,
+        'rows' => $rows,
+        'total_games' => $totalGames,
+        'month_offset' => $monthOffset,
+    ];
+}
+
+/**
+ * @return array{label: string, start: string, end: string, rows: list<array>, total_games: int, month_offset: int}|null
+ */
+function k2_status_monthly_league_from_ratedresults(
+    mysqli $con,
+    string $start,
+    string $end,
+    string $label,
+    int $monthOffset,
+    int $limit,
+    ?string &$error = null
+): ?array {
 
     $sql = <<<'SQL'
 SELECT

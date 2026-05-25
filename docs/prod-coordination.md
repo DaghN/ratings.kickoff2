@@ -64,7 +64,7 @@ Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes
 
 | Level | Meaning | Example |
 |-------|---------|---------|
-| **L0** | PHP read-time only; no new stored truth | Monthly league table on `status.php` (aggregate in SQL) |
+| **L0** | PHP read-time only; no new stored truth | Status copy/layout change using existing columns |
 | **L1** | Schema only; no replay/post-game yet | New nullable column, unfilled |
 | **L2** | Replay must backfill history | New derived column on `playertable` |
 | **L3** | Live writer on prod (C++ and/or periodic) | Per-game update; includes **C++ snippet pack** for Steve |

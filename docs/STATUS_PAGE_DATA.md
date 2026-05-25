@@ -55,8 +55,8 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | Panel | Source | Rules |
 |-------|--------|--------|
 | **Pulse** | `playertable`, `resulttable`, optional `generalstatstable` | Online count, live game count, last login recency; no CPU/disk/mem |
-| **Active top rated (20)** | `playertable` | `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; rating shown **0 decimals**; public display rule (e.g. `Display = 1` if used elsewhere); names → profiles; link “Full leaderboard →” Leaderboards (all players) |
-| **Monthly league (~20)** | `ratedresults` | **Calendar month**, **server timezone**; each rated row in month counts; **3 / 1 / 0** pts from `ActualScore` (or W/D/L flags); aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **only players with ≥1 game in month** (natural from `GROUP BY` — no extra “min games” filter) |
+| **Active rated leaderboard** | `playertable` | Full active list, not capped: `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; rating shown **0 decimals**; public display rule (`Display = 1`); names → profiles; heading count is exact active row count; link “Full leaderboard →” Leaderboards (all players) |
+| **Monthly league (~20)** | `player_monthly_league` (fallback: `ratedresults`) | **Calendar month**, **server timezone**; each rated row in month counts; **3 / 1 / 0** pts from `ActualScore`; aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **only players with ≥1 game in month** |
 | **Online now** | `playertable` · `IsOnline = 1` | |
 | **Live games** | `resulttable` | Started, not finished, not shelved (match legacy filter when verified) |
 | **Recent logins** | `playertable` · `LastLogin DESC` | ~10 |
@@ -79,8 +79,8 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | Recent registrations | `playertable` · `JoinDate` | **Yes** |
 | Live games | `resulttable` | Yes |
 | Recent finished games | `ratedresults` | Yes |
-| Active top rated (Elo) | `playertable` · `Rating`, `LastGame` | **Yes (20, 12 mo)** |
-| Monthly league | `ratedresults` (month aggregate) | **Yes (new)** |
+| Active rated leaderboard (Elo) | `playertable` · `Rating`, `LastGame` | **Yes (full active list, 12 mo)** |
+| Monthly league | `player_monthly_league`; fallback `ratedresults` month aggregate | **Yes** |
 | Top 10 Steve `PlayerRank` | `playertable` | **No** |
 | Legacy ratings Top 10 only | `playertable` | **No** (replaced by active Elo strip) |
 | AWOL | `playertable` · `LastLogin` | No (v1) |
@@ -107,6 +107,7 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | Phase A | Hub shell, bridge, heritage box |
 | **Phase B v1** | **Shipped** — `status_queries.php`, `status_room_section.php`, `status.php` |
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
+| Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; Status loader ~6.6s → ~51ms locally; staging indexes/rebuild verified by Steve; prod schema + rebuild + PG-006 pending |
 | Period activity prep | **Local + staging DB done** — `player_period_games` schema/backfill + `dev-period-activity.php`; prod handoff/method pending Steve |
 | v1.5+ | Polling, active filter on Leaderboards tab, kickoff2 embed, joshua redirect |
 
