@@ -9,6 +9,7 @@ SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `s
 | SCH-001 | `001_ratedresults_player_indexes.sql` | Indexes `idx_ratedresults_idA`, `idx_ratedresults_idB` on `ratedresults` | Done | Done | **Pending** | No | Profile load ~8s→~1s for heavy players; see `PROJECT_MEMORY.md` |
 | SCH-002 | `scripts/ladder/sql/generalstatstable.sql` | Create `generalstatstable` + seed row `id=1` | Via replay | Via replay | Exists on prod | Yes (batch rebuild) | Slimmed May 2026 (PG-004): no ratio player leader cols |
 | SCH-003 | `002_generalstatstable_drop_ratio_leader_columns.sql` | DROP 28 ratio leader columns on `generalstatstable` | **Applied** (May 2026) | **Pending Steve** | **Pending** | No | With PG-004 PHP + C++; see `docs/RECORDS_PAGE_DATA.md` |
+| SCH-004 | `003_player_period_games.sql` | Create `player_period_games` day/month/year activity aggregate table | **Done** | **Pending Steve** | **Pending** | Yes (backfill/rebuild) | For fast games-by-period leaderboards; handoff `player-period-games-handoff.md`; post-game PG-005 |
 
 ### Adding a row
 

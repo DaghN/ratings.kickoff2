@@ -5,7 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/elolist.js" ></script>
+<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -57,20 +57,20 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table table-autosort"> 
+<table class="k2-table" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
 
 <thead>
     <tr style="text-align:right;">
-        <th style="text-align:left;" class="table-sortable:ignorecase">Opponent</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
-        <th class="table-sortable:numeric">&nbsp;DD C</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
-        <th class="table-sortable:numeric">&nbsp;CS C</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;DD Ratio</th>
-        <th class="table-sortable:numeric">DD C Ratio</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
-        <th class="table-sortable:numeric">CS C Ratio</th>
+        <th style="text-align:left;" data-k2-sort="text">Opponent</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
+        <th data-k2-sort="number">&nbsp;DD C</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
+        <th data-k2-sort="number">&nbsp;CS C</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;DD Ratio</th>
+        <th data-k2-sort="number">DD C Ratio</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
+        <th data-k2-sort="number">CS C Ratio</th>
     </tr>
 </thead>
 

@@ -5,7 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php $k2RankedCloak = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/elolist.js" ></script>
+<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -41,21 +41,21 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table ranked-pages-table ranked-table-pending table-autosort table-autorank">
+<table class="k2-table ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc">
 
 <thead>
     <tr style="text-align:right;">
-        <th class="table-sortable:numeric">Rank</th>
-        <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
-        <th class="table-sortable:numeric">ELO rating</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;Wins</th>
-        <th class="table-sortable:numeric">Draws</th>
-        <th class="table-sortable:numeric">Losses</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
-        <th class="table-sortable:numeric">Draw Ratio</th>
-        <th class="table-sortable:numeric">Loss Ratio</th>
-        <th class="table-sortable:numeric">Opponent Avg.</th>
+        <th data-k2-sort="number">Rank</th>
+        <th style="text-align:left;" data-k2-sort="text">Player</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;Wins</th>
+        <th data-k2-sort="number">Draws</th>
+        <th data-k2-sort="number">Losses</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
+        <th data-k2-sort="number">Draw Ratio</th>
+        <th data-k2-sort="number">Loss Ratio</th>
+        <th data-k2-sort="number">Opponent Avg.</th>
     </tr>
 </thead>
 

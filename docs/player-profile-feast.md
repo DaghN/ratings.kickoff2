@@ -14,7 +14,7 @@
 | Blocks | `includes/player_feast_blocks.php` |
 | Helpers | `includes/player_feast_helpers.php` |
 | Hero | `includes/player_hero.php` (rank, rating, peak, games) |
-| Nav pills | `includes/player_nav.php` — Profile · Games · Wins · Goals · DDs |
+| Nav pills | `includes/player_nav.php` — Profile · Games · W/D/L · Goals · DDs |
 | CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-personal-bests.css` |
 | Calendar | `api/player_feast/player_calendar_days.php`, `js/player-feast/player-calendar.js` |
 
@@ -57,7 +57,7 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 | Pill | File | Role |
 |------|------|------|
 | Games | `individual3.php` | Full match ledger |
-| Wins / Goals / DDs | `individual2a/b/c.php` | Per-opponent aggregates |
+| W/D/L / Goals / DDs | `individual2a/b/c.php` | Per-opponent aggregates |
 
 Profile does **not** duplicate those tables.
 

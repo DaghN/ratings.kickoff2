@@ -23,6 +23,9 @@ python -m scripts.ladder run
 python -m scripts.ladder reset
 python -m scripts.ladder replay
 
+# Rebuild player period activity aggregate (SQL wrapper for local)
+powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_local.ps1
+
 # Smoke test: reset + first 100 games only
 python -m scripts.ladder run --limit 100
 ```
@@ -40,3 +43,5 @@ python -m scripts.ladder run --limit 100
 **Server records:** non-ratio hall-of-fame rows via `server_records.py` (PG-004b: strict `>` on ties). **Ratio leaders** are **not** written to `generalstatstable` — Records page queries `playertable` (`site/public_html/includes/records_ratio_leaders.php`). Steve: `docs/coordination/cpp-snippets/PG-004-server-records-tie-break.md`.
 
 **`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Staging DB name `kooldb` is allowlisted when `$database` in PHP config is `kooldb`.
+
+**`player_period_games`:** Rebuilt from `ratedresults` by `scripts/ladder/sql/player_period_games_rebuild.sql` (local wrapper `scripts/rebuild_player_period_games_local.ps1`). Production parity requires post-game C++ PG-005 to upsert both players into day/month/year rows.

@@ -12,6 +12,7 @@
 | PG-002 | Align Elo K-factor / start rating with sandbox | *(TBD when scoped)* | L3 | Pending | Sandbox K=32, start 1600; snippets should match `scripts/ladder/elo.py` |
 | PG-003 | *(template)* New field / per-game aggregate | `cpp-snippets/PG-003-….md` | L1–L3 | — | Add row + snippet file when feature needs live writer |
 | PG-004 | Ratio leaders: DROP 28 GST cols (SCH-003), PHP `playertable` queries, C++ stop writes; non-ratio ties `>` | [cpp-snippets/PG-004-server-records-tie-break.md](cpp-snippets/PG-004-server-records-tie-break.md) | L3 | Pending | Local 002 applied; Steve: same migration + snippet |
+| PG-005 | Player period games: upsert A/B × day/month/year after each rated game | [cpp-snippets/PG-005-player-period-games.md](cpp-snippets/PG-005-player-period-games.md) | L3 | Pending | Requires SCH-004 + REP-003 backfill before PHP relies on prod truth |
 
 ### Adding a row (required for L3 features)
 

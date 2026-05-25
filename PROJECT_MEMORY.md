@@ -64,7 +64,18 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Player games adjustment sign** — positive `individual3.php` adjustment values now show an explicit `+` in the blue adjustment cell via `k2_player_game_row.php`. |
+| 2026-05 | **`individual3.php` Phase 7B shipped** — player-games row rendering extracted to `includes/k2_player_game_row.php`, preserving watched-player perspective and setting up optional AJAX reuse. |
+| 2026-05 | **`individual3.php` Phase 7A shipped** — Games history now uses auto-submit server-side Result/Opponent filters, URL sort links, 100-row slices, and lightweight Previous/Next links; `elolist.js` removed from the page. |
+| 2026-05 | **Hall of Fame aggregate read path** — `ranked8.php` busiest day/month/year now prefers `player_period_games` via `peak_month_leaderboard_query.php`, falling back to `ratedresults` until staging/prod aggregate rollout catches up. |
+| 2026-05 | **`individual3.php` Phase 7 plan** — agreed path: 7A server-side URL filters/sort/limit, 7B shared renderer, 7C optional AJAX enhancement; no hidden sort persistence. |
+| 2026-05 | **Player nav wording** — player pill label `Wins` renamed to `W/D/L`; route/key remains `wins` / `individual2a.php`. |
+| 2026-05 | **Period activity aggregate prep** — `player_period_games` schema/backfill/query switch done locally; `dev-period-activity.php` previews tables; staging/prod handoff + PG-005 docs ready for Steve review. |
+| 2026-05 | **Player stat table `k2-table.js` migration** — `individual2a/b/c.php` now use opt-in table sorting with Games highlighted by default. |
+| 2026-05 | **Simple leaderboard `k2-table.js` migration** — `ranked1`–`ranked5`, `ranked7`, and `ranked8` now use opt-in table sorting with tab-specific defaults (Peak/ELO/GF/DD/LWS/Victims/Games). |
 | 2026-05 | **Agent local CLI preload** — `.cursor/rules/kool-workspace.mdc` now tells agents Laragon PHP/MySQL may not be on PATH and gives explicit `php.exe` / `mysql.exe` paths. |
+| 2026-05 | **Profile Games tab perspective fix** — `individual3.php` now keeps a stable `$playerId`, uses prepared/named `ratedresults` columns, and renders W/L, F/A, ratings, ES, and adjustment from the watched player’s perspective; tint picker no longer clobbers caller `$id`. |
+| 2026-05 | **`k2-table.js` Phase 4 pilot** — `ranked7.php` now uses opt-in `data-k2-table` sorting + autorank instead of `elolist.js`; default SQL sort lights ELO rating on load; other ranked/player tables stay legacy. |
 | 2026-05 | **Agent git habit** — `.cursor/rules/kool-workspace.mdc` now tells agents to use PowerShell-safe git commit/push commands, not Bash heredocs/`&&`. |
 | 2026-05 | **Games tab 7-day buckets** — `server3.php` now renders Today/Yesterday/day-6 static tables from shared rated-game rows; `elolist.js` removed from Games tab. |
 | 2026-05 | **Records page refactor** — `server2.php` now uses page-local row/date helpers and explicit `generalstatstable` columns; no shared `h()`/`player_link()` added. |

@@ -1,6 +1,6 @@
 <?php
 /**
- * Ranked leaderboards (ranked1–5, ranked7): mark document so CSS can hide tables until elolist Table.auto()
+ * Ranked leaderboards (ranked1-5, ranked7): mark document so CSS can hide tables until table JS
  * finishes (class ranked-table-pending on the table). Without JS, html never gets ranked-js and
  * tables stay visible. Fallback timer clears pending if init never runs (e.g. script error).
  */

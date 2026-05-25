@@ -676,8 +676,25 @@ body.k2-site .k2-table thead tr:first-child:not(:last-child) th.filtercell:hover
 }
 
 body.k2-site .k2-table thead th.table-sortable:hover,
+body.k2-site .k2-table thead th.k2-table-sortable:hover,
 body.k2-site .k2-table thead th:hover:not(.nohovercell):not(.filtercell) {
 	background-color: var(--k2-bg-surface);
+	color: var(--k2-text-secondary);
+	box-shadow: inset 0 -2px 0 var(--k2-accent);
+}
+
+body.k2-site .k2-table thead th.k2-table-sortable {
+	cursor: pointer;
+}
+
+body.k2-site .k2-table thead th.k2-table-sortable a {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+}
+
+body.k2-site .k2-table thead th.k2-table-sorted-asc,
+body.k2-site .k2-table thead th.k2-table-sorted-desc {
 	color: var(--k2-text-secondary);
 	box-shadow: inset 0 -2px 0 var(--k2-accent);
 }
@@ -778,6 +795,44 @@ body.k2-site .k2-table-wrap {
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+}
+
+body.k2-site .k2-player-games-controls,
+body.k2-site .k2-player-games-status {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	margin-bottom: 12px;
+	color: var(--k2-text-muted);
+	font-size: 12px;
+}
+
+body.k2-site .k2-player-games-controls label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+body.k2-site .k2-player-games-controls select,
+body.k2-site .k2-player-games-controls button {
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-surface);
+	color: var(--k2-text-primary);
+	font: inherit;
+}
+
+body.k2-site .k2-player-games-controls button {
+	padding: 3px 8px;
+	cursor: pointer;
+}
+
+body.k2-site .k2-player-games-controls a,
+body.k2-site .k2-player-games-status a {
+	color: var(--k2-link-star);
+	font-weight: 600;
+	text-decoration: none;
 }
 
 .k2-chrome-tabs__bar + .k2-table-wrap {

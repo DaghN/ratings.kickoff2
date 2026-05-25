@@ -215,7 +215,7 @@ All link/star tokens are **derived on `html`** from `--k2-accent` (default amber
 ### Known visual debt (fix during theme rollout)
 
 - ~~`main2.css`~~ **Removed (May 2026);** all tokens in `theme.css` (`--k2-*`). Themed pages load `includes/k2_head.php`.
-- ~~`elolist.css` — legacy light-green table stripes~~ **Pruned (medium refactor, May 2026);** theme.css owns `.k2-table` look. `elolist.css` kept as companion to `elolist.js` (sort/cloak hooks).
+- ~~`elolist.css` — legacy light-green table stripes~~ **Pruned (medium refactor, May 2026);** theme.css owns `.k2-table` look. `elolist.css` remains a small compatibility stylesheet for old table hook names / ranked cloak, but pages no longer load `elolist.js`.
 - ~~~18 PHP files duplicate CSS `<head>` blocks~~ **Replaced with `includes/k2_head.php` (May 2026).**
 
 ---
@@ -329,7 +329,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 | Tailwind CDN | **Theme lab mock only** (fast iteration) | No |
 | Tailwind CLI → committed CSS | Optional later if utility workflow sticks | Yes |
 
-**Why not site-wide Tailwind yet:** no `package.json`; many legacy PHP pages; `elolist.css` + `elolist.js` table system; WinSCP sync loop; chart colors use shared `--k2-*` tokens via `chart-theme.js`.
+**Why not site-wide Tailwind yet:** no `package.json`; many legacy PHP pages; table styling/behavior is still being modernized incrementally; WinSCP sync loop; chart colors use shared `--k2-*` tokens via `chart-theme.js`.
 
 **Workflow (historical):** experiments ran in a static theme lab (May 2026) → winning tokens landed in **`theme.css`** on production pages. Lab files removed; tune on staging via real PHP pages.
 
@@ -415,7 +415,7 @@ Tailwind is **not rejected forever**; it is **not the whole-site strategy today*
 - **Do not** adopt site-wide Tailwind without explicit Dagh approval and a documented build/deploy step.
 - **Do** read this doc before cosmetics/CSS work.
 - **Do** add themed page assets via `includes/k2_head.php` (not duplicated `<link>` blocks).
-- **Do** preserve dense table functionality where pages still load `elolist.js` (sort, filter, ranked cloak); keep `elolist.css` as the JS companion sheet. Static tables (`game.php`, Games tab day buckets, Activity stats, Records) use `k2-table` + `theme.css` only — see `docs/k2-table-and-games-plan.md` Phase 3.
+- **Do** preserve dense table functionality while migrating behavior. Simple leaderboard pages (`ranked1`–`ranked5`, `ranked7`, `ranked8`) and player stat tables (`individual2a/b/c`) use `k2-table.js`; `individual3.php` uses server-side Result/Opponent filters and URL sort links; static tables (`game.php`, Games tab day buckets, Activity stats, Records) use `k2-table` + `theme.css` only — see `docs/k2-table-and-games-plan.md`.
 - **Do** use realm-neutral naming in new chrome.
 - After completing a cosmetics slice: one line in `PROJECT_MEMORY.md` Recent log; update open decisions above if resolved.
 

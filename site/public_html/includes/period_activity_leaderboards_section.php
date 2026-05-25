@@ -152,7 +152,6 @@ function k2_render_period_activity_tbody(string $period, array $entries): void
 <?php } ?>
 				</label>
 			</div>
-			<p class="server-period-activity-leaderboard__hint"><?php echo htmlspecialchars($meta['hint'], ENT_QUOTES, 'UTF-8'); ?></p>
 			<p class="server-period-activity-leaderboard__summary" data-summary>
 				<strong><?php echo (int) $totalGames; ?></strong> rated game<?php echo $totalGames === 1 ? '' : 's'; ?>
 				<span class="server-period-activity-leaderboard__summary-period">· <?php echo htmlspecialchars($periodLabel, ENT_QUOTES, 'UTF-8'); ?></span>

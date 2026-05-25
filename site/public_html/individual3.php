@@ -5,7 +5,6 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/elolist.js" ></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -18,14 +17,117 @@ if ($playerId < 1) {
     exit();
 }
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_game_row.php';
+
 function individual3_h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-function individual3_player_link(int $id, string $name): string
+function individual3_valid_result(string $value): string
 {
-    return '<a href="individual1.php?id=' . $id . '">' . individual3_h($name) . '</a>';
+    return in_array($value, ['all', 'win', 'draw', 'loss'], true) ? $value : 'all';
+}
+
+function individual3_valid_direction(string $value): string
+{
+    return strtolower($value) === 'asc' ? 'asc' : 'desc';
+}
+
+function individual3_build_url(array $params): string
+{
+    return 'individual3.php?' . http_build_query($params);
+}
+
+function individual3_query_all(mysqli $con, string $sql, string $types = '', array $params = []): array
+{
+    $stmt = mysqli_prepare($con, $sql);
+    if (!$stmt) {
+        die("SELECT Error: " . mysqli_error($con));
+    }
+
+    if ($types !== '') {
+        $refs = [];
+        foreach ($params as $key => $value) {
+            $refs[$key] = &$params[$key];
+        }
+        mysqli_stmt_bind_param($stmt, $types, ...$refs);
+    }
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if (!$result) {
+        die("SELECT Error: " . mysqli_error($con));
+    }
+
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rows[] = $row;
+    }
+
+    mysqli_stmt_close($stmt);
+
+    return $rows;
+}
+
+function individual3_where_clause(int $playerId, string $resultFilter, int $opponentId, string &$types, array &$params): string
+{
+    $where = ['(r.idA = ? OR r.idB = ?)'];
+    $types = 'ii';
+    $params = [$playerId, $playerId];
+
+    if ($resultFilter === 'win') {
+        $where[] = '((r.idA = ? AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = ? AND ABS(r.ActualScore) < 0.001))';
+        $types .= 'ii';
+        $params[] = $playerId;
+        $params[] = $playerId;
+    } elseif ($resultFilter === 'draw') {
+        $where[] = 'ABS(r.ActualScore - 0.5) < 0.001';
+    } elseif ($resultFilter === 'loss') {
+        $where[] = '((r.idA = ? AND ABS(r.ActualScore) < 0.001) OR (r.idB = ? AND ABS(r.ActualScore - 1.0) < 0.001))';
+        $types .= 'ii';
+        $params[] = $playerId;
+        $params[] = $playerId;
+    }
+
+    if ($opponentId > 0) {
+        $where[] = '((r.idA = ? AND r.idB = ?) OR (r.idB = ? AND r.idA = ?))';
+        $types .= 'iiii';
+        $params[] = $playerId;
+        $params[] = $opponentId;
+        $params[] = $playerId;
+        $params[] = $opponentId;
+    }
+
+    return implode(' AND ', $where);
+}
+
+function individual3_sort_header(string $key, string $label, string $align, array $state): string
+{
+    $isActive = $state['sort'] === $key;
+    $nextDir = $isActive && $state['dir'] === 'desc' ? 'asc' : 'desc';
+    $classes = ['k2-table-sortable'];
+    if ($isActive) {
+        $classes[] = $state['dir'] === 'desc' ? 'k2-table-sorted-desc' : 'k2-table-sorted-asc';
+    }
+
+    $params = [
+        'id' => $state['player_id'],
+        'sort' => $key,
+        'dir' => $nextDir,
+    ];
+    if ($state['result'] !== 'all') {
+        $params['result'] = $state['result'];
+    }
+    if ($state['opponent'] > 0) {
+        $params['opponent'] = $state['opponent'];
+    }
+
+    $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
+
+    return '<th class="' . implode(' ', $classes) . '" aria-sort="' . $aria . '" style="text-align:' . $align . ';">'
+        . '<a href="' . individual3_h(individual3_build_url($params)) . '">' . $label . '</a>'
+        . '</th>';
 }
 ?>
 
@@ -46,23 +148,76 @@ $id = $playerId;
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
 $name = $Name ?? '';
 
-$games = [];
-$query = 'SELECT id, Date, idA, NameA, idB, NameB, RatingA, RatingB, GoalsA, GoalsB, ExpectedScoreA, ExpectedScoreB, ActualScore, AdjustmentA, AdjustmentB, SumOfGoals, GoalDifference '
-    . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY id DESC';
-$stmt = mysqli_prepare($con, $query);
-if (!$stmt) {
-    die("SELECT Error: " . mysqli_error($con));
+$resultFilter = individual3_valid_result((string) ($_GET['result'] ?? 'all'));
+$opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
+$sortKey = (string) ($_GET['sort'] ?? 'date');
+$sortDirection = individual3_valid_direction((string) ($_GET['dir'] ?? 'desc'));
+$limit = 100;
+$offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
+$playerIdSql = (int) $playerId;
+
+$sortMap = [
+    'id' => 'r.id',
+    'date' => 'r.`Date`',
+    'team_a' => 'r.NameA',
+    'team_b' => 'r.NameB',
+    'result' => "CASE WHEN ((r.idA = $playerIdSql AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = $playerIdSql AND ABS(r.ActualScore) < 0.001)) THEN 2 WHEN ABS(r.ActualScore - 0.5) < 0.001 THEN 1 ELSE 0 END",
+    'opponent' => "CASE WHEN r.idA = $playerIdSql THEN r.NameB ELSE r.NameA END",
+    'for' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END",
+    'against' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END",
+    'diff' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END",
+    'sum' => 'r.SumOfGoals',
+    'player_rating' => "CASE WHEN r.idA = $playerIdSql THEN r.RatingA ELSE r.RatingB END",
+    'opponent_rating' => "CASE WHEN r.idA = $playerIdSql THEN r.RatingB ELSE r.RatingA END",
+    'es' => "CASE WHEN r.idA = $playerIdSql THEN r.ExpectedScoreA ELSE r.ExpectedScoreB END",
+    'adjustment' => "CASE WHEN r.idA = $playerIdSql THEN r.AdjustmentA ELSE r.AdjustmentB END",
+];
+if (!isset($sortMap[$sortKey])) {
+    $sortKey = 'date';
 }
-mysqli_stmt_bind_param($stmt, 'ii', $playerId, $playerId);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-if (!$result) {
-    die("SELECT Error: " . mysqli_error($con));
+
+$opponentRows = individual3_query_all(
+    $con,
+    'SELECT opponent_id, opponent_name, COUNT(*) AS games FROM ('
+        . 'SELECT idB AS opponent_id, NameB AS opponent_name FROM ratedresults WHERE idA = ? '
+        . 'UNION ALL '
+        . 'SELECT idA AS opponent_id, NameA AS opponent_name FROM ratedresults WHERE idB = ?'
+        . ') AS opponents GROUP BY opponent_id, opponent_name ORDER BY games DESC, opponent_name ASC',
+    'ii',
+    [$playerId, $playerId]
+);
+$validOpponentIds = [];
+foreach ($opponentRows as $opponentRow) {
+    $validOpponentIds[(int) $opponentRow['opponent_id']] = true;
 }
-while ($row = mysqli_fetch_assoc($result)) {
-    $games[] = $row;
+if ($opponentFilter > 0 && !isset($validOpponentIds[$opponentFilter])) {
+    $opponentFilter = 0;
 }
-mysqli_stmt_close($stmt);
+
+$whereTypes = '';
+$whereParams = [];
+$whereSql = individual3_where_clause($playerId, $resultFilter, $opponentFilter, $whereTypes, $whereParams);
+
+$countRows = individual3_query_all(
+    $con,
+    'SELECT COUNT(*) AS c FROM ratedresults r WHERE ' . $whereSql,
+    $whereTypes,
+    $whereParams
+);
+$totalMatches = (int) ($countRows[0]['c'] ?? 0);
+if ($offset >= $totalMatches) {
+    $offset = 0;
+}
+
+$games = individual3_query_all(
+    $con,
+    'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.GoalsA, r.GoalsB, r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference '
+        . 'FROM ratedresults r WHERE ' . $whereSql
+        . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC'
+        . ' LIMIT ' . $limit . ' OFFSET ' . $offset,
+    $whereTypes,
+    $whereParams
+);
 
 mysqli_close($con);
 ?>
@@ -73,146 +228,104 @@ $k2PlayerTabActive = 'games';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 ?>
 
+<?php
+$sortState = [
+    'player_id' => $playerId,
+    'sort' => $sortKey,
+    'dir' => $sortDirection,
+    'result' => $resultFilter,
+    'opponent' => $opponentFilter,
+];
+$shownCount = count($games);
+$firstShown = $totalMatches > 0 ? $offset + 1 : 0;
+$lastShown = $offset + $shownCount;
+$pagerParams = [
+    'id' => $playerId,
+    'sort' => $sortKey,
+    'dir' => $sortDirection,
+];
+if ($resultFilter !== 'all') {
+    $pagerParams['result'] = $resultFilter;
+}
+if ($opponentFilter > 0) {
+    $pagerParams['opponent'] = $opponentFilter;
+}
+?>
+
+<form class="k2-player-games-controls" method="get" action="individual3.php">
+    <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
+    <input type="hidden" name="sort" value="<?php echo individual3_h($sortKey); ?>" />
+    <input type="hidden" name="dir" value="<?php echo individual3_h($sortDirection); ?>" />
+    <label>
+        Result
+        <select name="result" onchange="this.form.submit();">
+            <option value="all"<?php echo $resultFilter === 'all' ? ' selected="selected"' : ''; ?>>All results</option>
+            <option value="win"<?php echo $resultFilter === 'win' ? ' selected="selected"' : ''; ?>>Wins</option>
+            <option value="draw"<?php echo $resultFilter === 'draw' ? ' selected="selected"' : ''; ?>>Draws</option>
+            <option value="loss"<?php echo $resultFilter === 'loss' ? ' selected="selected"' : ''; ?>>Losses</option>
+        </select>
+    </label>
+    <label>
+        Opponent
+        <select name="opponent" onchange="this.form.submit();">
+            <option value="0">All opponents</option>
+            <?php foreach ($opponentRows as $opponentRow) { ?>
+            <?php $currentOpponentId = (int) $opponentRow['opponent_id']; ?>
+            <option value="<?php echo $currentOpponentId; ?>"<?php echo $opponentFilter === $currentOpponentId ? ' selected="selected"' : ''; ?>>
+                <?php echo individual3_h((string) $opponentRow['opponent_name']); ?> (<?php echo (int) $opponentRow['games']; ?>)
+            </option>
+            <?php } ?>
+        </select>
+    </label>
+    <a href="individual3.php?id=<?php echo $playerId; ?>">Reset</a>
+</form>
+
+<div class="k2-player-games-status">
+    Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
+    <?php if ($offset > 0) { ?>
+    <?php $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)]; ?>
+    <a href="<?php echo individual3_h(individual3_build_url($prevParams)); ?>">Previous 100</a>
+    <?php } ?>
+    <?php if ($offset + $limit < $totalMatches) { ?>
+    <?php $nextParams = $pagerParams + ['offset' => $offset + $limit]; ?>
+    <a href="<?php echo individual3_h(individual3_build_url($nextParams)); ?>">Next 100</a>
+    <?php } ?>
+</div>
+
 <div class="k2-table-wrap">
 
-<table class="k2-table table-autosort table-autofilter table-autopage:100 table-page-number:tablepage table-page-count:tablepages">
+<table class="k2-table">
 
 <thead>
-	<tr style="text-align:right;">
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-      <th class="filtercell"></th>
-      <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="table-filterable filtercell"></th>
-        <th class="table-filterable filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-        <th class="filtercell"></th>
-    </tr>
-    
 <tr style="text-align:right;">
-    	<th class="table-sortable:numeric" style="text-align:left;">ID</th>
-        <th class="table-sortable:date" style="text-align:left;">&nbsp;Date</th>
-        <th class="table-sortable:ignorecase">Team A</th>
-        <th class="table-sortable:numeric"></th>
-        <th class="table-sortable:numeric"></th>
-<th class="table-sortable:ignorecase" style="text-align:left;">Team B</th>
-        <th class="table-sortable:ignorecase" style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Result</th>
-        <th class="table-sortable:ignorecase" style="text-align:left;">Opponent</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;F</th>
-        <th class="table-sortable:numeric">A</th>
-      <th class="table-sortable:numeric">Diff</th>
-        <th class="table-sortable:numeric">Sum</th>
-<th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;<?php echo individual3_h($name); ?></th>
-        <th class="table-sortable:numeric">Opponent</th>
-       	<th class="table-sortable:numeric">ES <?php echo individual3_h($name); ?></th> 
-        <th class="table-sortable:numeric">Adjustment</th>   
+    <?php echo individual3_sort_header('id', 'ID', 'left', $sortState); ?>
+    <?php echo individual3_sort_header('date', '&nbsp;Date', 'left', $sortState); ?>
+    <?php echo individual3_sort_header('team_a', 'Team A', 'right', $sortState); ?>
+    <th></th>
+    <th></th>
+    <?php echo individual3_sort_header('team_b', 'Team B', 'left', $sortState); ?>
+    <?php echo individual3_sort_header('result', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Result', 'left', $sortState); ?>
+    <?php echo individual3_sort_header('opponent', 'Opponent', 'left', $sortState); ?>
+    <?php echo individual3_sort_header('for', '&nbsp;&nbsp;&nbsp;F', 'right', $sortState); ?>
+    <?php echo individual3_sort_header('against', 'A', 'right', $sortState); ?>
+    <?php echo individual3_sort_header('diff', 'Diff', 'right', $sortState); ?>
+    <?php echo individual3_sort_header('sum', 'Sum', 'right', $sortState); ?>
+    <?php echo individual3_sort_header('player_rating', '&nbsp;&nbsp;&nbsp;' . individual3_h($name), 'right', $sortState); ?>
+    <?php echo individual3_sort_header('opponent_rating', 'Opponent', 'right', $sortState); ?>
+    <?php echo individual3_sort_header('es', 'ES ' . individual3_h($name), 'right', $sortState); ?>
+    <?php echo individual3_sort_header('adjustment', 'Adjustment', 'right', $sortState); ?>
     </tr>
 </thead>
 
-<tfoot>
-	<tr> 
-        <td colspan="2" class="table-page:previous" style="cursor:pointer;">&lt;&lt; Previous</td> 
-		<td colspan="12" style="text-align:center;">Page <span id="tablepage"></span>&nbsp;of <span id="tablepages"></span></td> 
-		<td colspan="2" class="table-page:next" style="cursor:pointer; text-align:right;">Next &gt;&gt;</td> 
-	</tr>
-<!--
-	<tr>
-        <td colspan="8" style="text-align:center;"><span id="tablefiltercount"></span>&nbsp;out of <span id="tableallcount"></span>&nbsp;goals in filter</td> 	
-    </tr>
--->    
-</tfoot>
-
 <tbody class="black">
-	<?php
-    foreach ($games as $game)
-    {
-	$gameid = (int) $game['id'];
-	$Date = (string) $game['Date'];
-	$idA = (int) $game['idA'];
-	$NameA = (string) $game['NameA'];
-	$idB = (int) $game['idB'];
-	$NameB = (string) $game['NameB'];
-	$RatingA = (float) $game['RatingA'];
-	$RatingB = (float) $game['RatingB'];
-	$GoalsA = (int) $game['GoalsA'];
-	$GoalsB = (int) $game['GoalsB'];
-	$ExpectedScoreA = (float) $game['ExpectedScoreA'];
-	$ExpectedScoreB = (float) $game['ExpectedScoreB'];
-	$ActualScore = (float) $game['ActualScore'];
-	$AdjustmentA = (float) $game['AdjustmentA'];
-	$AdjustmentB = (float) $game['AdjustmentB'];
-	$SumOfGoals = (int) $game['SumOfGoals'];
-	$GoalDifference = (int) $game['GoalDifference'];
-    $isPlayerA = $idA === $playerId;
-    $opponentId = $isPlayerA ? $idB : $idA;
-    $opponentName = $isPlayerA ? $NameB : $NameA;
-    $goalsFor = $isPlayerA ? $GoalsA : $GoalsB;
-    $goalsAgainst = $isPlayerA ? $GoalsB : $GoalsA;
-    $playerRating = $isPlayerA ? $RatingA : $RatingB;
-    $opponentRating = $isPlayerA ? $RatingB : $RatingA;
-    $expectedScore = $isPlayerA ? $ExpectedScoreA : $ExpectedScoreB;
-    $adjustment = $isPlayerA ? $AdjustmentA : $AdjustmentB;
-    $isDraw = abs($ActualScore - 0.5) < 0.001;
-    $isWin = !$isDraw && (($isPlayerA && abs($ActualScore - 1.0) < 0.001) || (!$isPlayerA && abs($ActualScore) < 0.001));
-	?>
-    
+    <?php if ($games === []) { ?>
     <tr style="text-align:right;">
-        
-        <td><a href="game.php?id=<?php echo $gameid ?>"><?php echo $gameid ?></a></td>
-        <td>&nbsp;<?php echo date('M d Y, H:i', strtotime($Date)) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><?php echo individual3_player_link($idA, $NameA); ?></td>
-        <td><?php echo $GoalsA ?></td>
-        <td style="text-align:left;"><?php echo $GoalsB ?></td>
-        <td style="text-align:left;"><?php echo individual3_player_link($idB, $NameB); ?></td>
-        
-        <td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php 	
-			if ($isWin)
-				{echo "<span class='blue'>Win</span>";} 
-			elseif ($isDraw) 
-				{echo "-";}
-			else 
-				{echo "<span class='red'>Loss</span>";}
-		?></td> 
-        
-        <td style="text-align:left;"><?php echo individual3_player_link($opponentId, $opponentName); ?></td>
-        
-        <td><?php echo $goalsFor; ?></td>
-        <td><?php echo $goalsAgainst; ?></td>
-        <td><?php 
-			if ($isDraw)
-				{echo $GoalDifference;}
-			elseif (!$isWin)
-				{echo "<span class='red'>"; echo -$GoalDifference; echo "</span>";} 
-			else 
-				{echo "<span class='blue'>"; echo $GoalDifference; echo "</span>";}
-        ?></td>
-        <td><?php echo $SumOfGoals ?></td>
-      <td><?php echo round($playerRating); ?></td>
-        <td><?php echo round($opponentRating); ?></td>
-    
-        
-        <td><?php echo number_format(100 * $expectedScore, 1); echo "%"; ?></td>
-        <td><?php 
-			if ($adjustment >= 0)
-				{echo "<span class='blue'>"; echo number_format($adjustment, 1); echo "</span>";}
-			else
-				{echo "<span class='red'>"; echo number_format($adjustment, 1); echo "</span>";}
-		?></td>
-    </tr> 
-    
-    
-    
-    <?php
-    }  
-    ?> 
+        <td colspan="16" style="text-align:left;">No games match these filters.</td>
+    </tr>
+    <?php } ?>
+    <?php foreach ($games as $game) { ?>
+    <?php echo k2_player_game_row_html($game, $playerId); ?>
+    <?php } ?>
 </tbody>
 
 </table>

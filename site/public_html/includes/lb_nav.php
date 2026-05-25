@@ -10,7 +10,7 @@ $k2LbShowFilters = $k2LbWingActive !== 'hall-of-fame';
 $k2LbFilterOpts = k2_lb_filter_opts();
 $k2LbFilterQs = k2_lb_filter_query_string($k2LbFilterOpts);
 $k2LbWingTabs = [
-	'results' => ['href' => 'ranked7.php', 'label' => 'Results'],
+	'results' => ['href' => 'ranked7.php', 'label' => 'Rating'],
 	'goals' => ['href' => 'ranked2.php', 'label' => 'Goals'],
 	'dds' => ['href' => 'ranked3.php', 'label' => 'DDs &amp; CSs'],
 	'streaks' => ['href' => 'ranked4.php', 'label' => 'Streaks'],

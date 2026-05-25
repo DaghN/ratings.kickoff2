@@ -1,5 +1,5 @@
 /**
- * Companion to js/elolist.js — table behavior hooks (sort, ranked FOUC cloak, column min-width).
+ * Table behavior hooks retained outside theme.css: old sortable class cursor, ranked FOUC cloak, column min-width.
  * Visual styling: theme.css (.k2-table).
  */
 
@@ -9,12 +9,12 @@ table.k2-table.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
 }
 
-/* ranked leaderboards: hide until elolist Table.auto runs (html.ranked-js + .ranked-table-pending on .k2-table; see ranked_table_cloak_head.php) */
+/* ranked leaderboards: hide until table JS initializes (html.ranked-js + .ranked-table-pending on .k2-table; see ranked_table_cloak_head.php) */
 html.ranked-js table.k2-table.ranked-pages-table.ranked-table-pending {
 	visibility: hidden;
 }
 
-/* Sorting / filter (elolist.js class names) */
+/* Sorting / filter (old table class names) */
 th.table-sortable {
 	cursor: pointer;
 }

@@ -23,7 +23,7 @@ Shell first, live data never, existing PHP pages as backends. Legacy URLs keep w
 | 4 | Leaderboards | Wing-tab **chrome** on ranked pages; first sub-tab **Rating**; same tables underneath. |
 | 5 | Games / Records | **Nav reorder only** → `server3.php` / `server2.php`; no content migration. |
 | 6 | Header | **Kick Off 2** wordmark only; mock-style search; realm switcher; **no** kickoff2.com link. |
-| 7 | Player backbone | Shared hero + five pills (Profile · Games · Wins · Goals · DDs) on individual pages; **scaffold** — content depth later via lab. No back link. |
+| 7 | Player backbone | Shared hero + five pills (Profile · Games · W/D/L · Goals · DDs) on individual pages; **scaffold** — content depth later via lab. No back link. |
 | 8 | CSS promotion | Flat nav, wing tabs, header search, **neon C without grid** → production `theme.css`. |
 | 9 | kickoff2 embed / status redirect | **Out of scope** for Phase A. |
 
@@ -157,7 +157,7 @@ Committed and pushed earlier; not re-opened unless noted below.
 ### Leaderboards tab
 
 - Six wing tabs above the table (not a second site nav row).
-- Order: **Results** · Goals · DDs & CSs · Streaks · Victims & Culprits · **Rating records** · **Hall of Fame** (`ranked7`, `ranked2`–`ranked5`, `ranked1`, `ranked8`). Hall of Fame = busiest day/month/year tables (moved from Trends).
+- Order: **Rating** · Goals · DDs & CSs · Streaks · Victims & Culprits · **Rating records** · **Hall of Fame** (`ranked7`, `ranked2`–`ranked5`, `ranked1`, `ranked8`). Hall of Fame = busiest day/month/year tables (moved from Trends).
 - Legacy **`ranked6`** (old Rating records page) removed; `ranked1.php` is now the Rating records wing tab.
 - Wing tabs: segment track + outline active (not tied to header row brightness).
 
@@ -184,8 +184,8 @@ Global hub nav replaced by player context:
 
 - Same header (Kick Off 2, search, realm) — no back link, no kickoff2.com link.
 - Hero block (rank, rating, peak, games, bio; Amiga photo path later).
-- Five pills, order: **Profile · Games · Wins · Goals · DDs**
-  - Player "Results" → **Wins**.
+- Five pills, order: **Profile · Games · W/D/L · Goals · DDs**
+  - Player "Results" → **W/D/L**.
   - Games in slot #2.
   - Profile = warm landing (charts, highlights).
 - Player names from Status / ladder link to feast.

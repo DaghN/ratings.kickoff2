@@ -5,7 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php $k2RankedCloak = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/elolist.js" ></script>
+<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -30,7 +30,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   	}
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
-$query = 'SELECT id, Name, Rating, NumberGames, PeakRating, LowestRating, AverageOpponentRating, HighestRatedVictim, LowestRatedCulprit FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY rating DESC';
+$query = 'SELECT id, Name, Rating, NumberGames, PeakRating, LowestRating, AverageOpponentRating, HighestRatedVictim, LowestRatedCulprit FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY PeakRating DESC, rating DESC';
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -43,19 +43,19 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table ranked-pages-table ranked-table-pending table-autosort table-autorank">
+<table class="k2-table ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="4" data-k2-default-direction="desc">
 
 <thead>
     <tr style="text-align:right;">
-        <th class="table-sortable:numeric">Rank</th>
-        <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
-        <th class="table-sortable:numeric">ELO rating</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
-        <th class="table-sortable:numeric">Peak</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;&nbsp;Nadir</th>
-        <th class="table-sortable:numeric">Opponent Avg.</th>
-        <th class="table-sortable:numeric">Highest Victim</th>
-        <th class="table-sortable:numeric">Lowest Culprit</th>
+        <th data-k2-sort="number">#</th>
+        <th style="text-align:left;" data-k2-sort="text">Player</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number">Peak</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;&nbsp;Nadir</th>
+        <th data-k2-sort="number">Opponent Avg.</th>
+        <th data-k2-sort="number">Highest Victim</th>
+        <th data-k2-sort="number">Lowest Culprit</th>
     </tr>
 </thead>
 

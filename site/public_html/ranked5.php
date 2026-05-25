@@ -5,7 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php $k2RankedCloak = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/elolist.js" ></script>
+<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -31,7 +31,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   	}
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
-$query = 'SELECT id, Name, Rating, NumberGames, DifferentOpponents, DifferentVictims, DoubleDigitsVictims, CleanSheetsVictims, MostGoalsConcededVictims, BiggestLossVictims, DifferentCulprits, DoubleDigitsCulprits, CleanSheetsCulprits, MostGoalsScoredCulprits, BiggestWinCulprits FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY rating DESC';
+$query = 'SELECT id, Name, Rating, NumberGames, DifferentOpponents, DifferentVictims, DoubleDigitsVictims, CleanSheetsVictims, MostGoalsConcededVictims, BiggestLossVictims, DifferentCulprits, DoubleDigitsCulprits, CleanSheetsCulprits, MostGoalsScoredCulprits, BiggestWinCulprits FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY DifferentVictims DESC, rating DESC';
 $result = mysqli_query($con, $query) or die("SELECT Error: ".mysqli_error($con)); 
 
 mysqli_close($con);
@@ -44,25 +44,25 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table ranked-pages-table ranked-table-pending table-autosort table-autorank"> 
+<table class="k2-table ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="5" data-k2-default-direction="desc">
 
 <thead>
     <tr style="text-align:right;">
-        <th class="table-sortable:numeric">Rank</th>
-        <th style="text-align:left;" class="table-sortable:ignorecase">Player</th>
-        <th class="table-sortable:numeric">ELO rating</th>
-        <th class="table-sortable:numeric">&nbsp;&nbsp;Games</th>
-        <th class="table-sortable:numeric">Opponents</th>
-        <th class="table-sortable:numeric">&nbsp;Victims</th>
-        <th class="table-sortable:numeric">DD Victims</th>
-        <th class="table-sortable:numeric">CS Victims</th>
-        <th class="table-sortable:numeric">MGC Victims</th>
-        <th class="table-sortable:numeric">BL Victims</th>
-        <th class="table-sortable:numeric">Culprits</th>
-        <th class="table-sortable:numeric">DD Culprits</th>
-        <th class="table-sortable:numeric">CS Culprits</th>
-        <th class="table-sortable:numeric">MGS Culprits</th>
-        <th class="table-sortable:numeric">BW Culprits</th>
+        <th data-k2-sort="number">#</th>
+        <th style="text-align:left;" data-k2-sort="text">Player</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number">&nbsp;&nbsp;Games</th>
+        <th data-k2-sort="number">Opponents</th>
+        <th data-k2-sort="number">&nbsp;Victims</th>
+        <th data-k2-sort="number">DD Victims</th>
+        <th data-k2-sort="number">CS Victims</th>
+        <th data-k2-sort="number">MGC Victims</th>
+        <th data-k2-sort="number">BL Victims</th>
+        <th data-k2-sort="number">Culprits</th>
+        <th data-k2-sort="number">DD Culprits</th>
+        <th data-k2-sort="number">CS Culprits</th>
+        <th data-k2-sort="number">MGS Culprits</th>
+        <th data-k2-sort="number">BW Culprits</th>
     </tr>
 </thead>
 

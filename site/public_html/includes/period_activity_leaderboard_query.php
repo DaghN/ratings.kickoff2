@@ -53,29 +53,19 @@ function k2_period_activity_normalize_key(string $period, string $key): ?string
 }
 
 /**
- * @return array{where: string, types: string, bind: array<int|string>}|null
+ * @return string|null player_period_games.period_start, or null if invalid.
  */
-function k2_period_activity_filter(string $period, string $key): ?array
+function k2_period_activity_period_start(string $period, string $key): ?string
 {
     switch ($period) {
         case 'day':
-            return [
-                'where' => 'DATE(`Date`) = ?',
-                'types' => 's',
-                'bind' => [$key],
-            ];
+            return k2_period_activity_normalize_key('day', $key);
         case 'month':
-            return [
-                'where' => "DATE_FORMAT(`Date`, '%Y-%m') = ?",
-                'types' => 's',
-                'bind' => [$key],
-            ];
+            $normalized = k2_period_activity_normalize_key('month', $key);
+            return $normalized === null ? null : $normalized . '-01';
         case 'year':
-            return [
-                'where' => 'YEAR(`Date`) = ?',
-                'types' => 'i',
-                'bind' => [(int) $key],
-            ];
+            $normalized = k2_period_activity_normalize_key('year', $key);
+            return $normalized === null ? null : $normalized . '-01-01';
         default:
             return null;
     }
@@ -84,14 +74,15 @@ function k2_period_activity_filter(string $period, string $key): ?array
 function k2_period_activity_total_games(mysqli $con, string $period, string $key, ?string &$error = null): int
 {
     $error = null;
-    $filter = k2_period_activity_filter($period, $key);
-    if ($filter === null) {
+    $periodStart = k2_period_activity_period_start($period, $key);
+    if ($periodStart === null) {
         $error = 'invalid_period';
 
         return 0;
     }
 
-    $sql = 'SELECT COUNT(*) AS c FROM ratedresults WHERE ' . $filter['where'];
+    $sql = 'SELECT COALESCE(SUM(games), 0) AS appearances '
+        . 'FROM player_period_games WHERE period_type = ? AND period_start = ?';
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
         $error = mysqli_error($con);
@@ -99,7 +90,7 @@ function k2_period_activity_total_games(mysqli $con, string $period, string $key
         return 0;
     }
 
-    mysqli_stmt_bind_param($stmt, $filter['types'], ...$filter['bind']);
+    mysqli_stmt_bind_param($stmt, 'ss', $period, $periodStart);
     if (!mysqli_stmt_execute($stmt)) {
         $error = mysqli_stmt_error($stmt);
         mysqli_stmt_close($stmt);
@@ -111,7 +102,9 @@ function k2_period_activity_total_games(mysqli $con, string $period, string $key
     $row = $res ? mysqli_fetch_assoc($res) : null;
     mysqli_stmt_close($stmt);
 
-    return $row ? (int) $row['c'] : 0;
+    $appearances = $row ? (int) $row['appearances'] : 0;
+
+    return (int) floor($appearances / 2);
 }
 
 /**
@@ -125,8 +118,8 @@ function k2_period_activity_leaderboard_entries(
     ?string &$error = null
 ): array {
     $error = null;
-    $filter = k2_period_activity_filter($period, $key);
-    if ($filter === null) {
+    $periodStart = k2_period_activity_period_start($period, $key);
+    if ($periodStart === null) {
         $error = 'invalid_period';
 
         return [];
@@ -134,17 +127,11 @@ function k2_period_activity_leaderboard_entries(
 
     $limit = max(1, min(100, $limit));
     $limitSql = (int) $limit;
-    $where = $filter['where'];
 
-    $sql = 'SELECT pm.player_id, p.Name AS player_name, pm.games '
-        . 'FROM ('
-        . 'SELECT player_id, COUNT(*) AS games FROM ('
-        . 'SELECT idA AS player_id FROM ratedresults WHERE ' . $where . ' '
-        . 'UNION ALL '
-        . 'SELECT idB AS player_id FROM ratedresults WHERE ' . $where
-        . ') AS appearances GROUP BY player_id'
-        . ') AS pm INNER JOIN playertable p ON p.ID = pm.player_id '
-        . 'ORDER BY pm.games DESC, p.Name ASC LIMIT ' . $limitSql;
+    $sql = 'SELECT g.player_id, p.Name AS player_name, g.games '
+        . 'FROM player_period_games g INNER JOIN playertable p ON p.ID = g.player_id '
+        . 'WHERE g.period_type = ? AND g.period_start = ? '
+        . 'ORDER BY g.games DESC, p.Name ASC LIMIT ' . $limitSql;
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -153,9 +140,7 @@ function k2_period_activity_leaderboard_entries(
         return [];
     }
 
-    $bindTypes = $filter['types'] . $filter['types'];
-    $bindValues = array_merge($filter['bind'], $filter['bind']);
-    mysqli_stmt_bind_param($stmt, $bindTypes, ...$bindValues);
+    mysqli_stmt_bind_param($stmt, 'ss', $period, $periodStart);
 
     if (!mysqli_stmt_execute($stmt)) {
         $error = mysqli_stmt_error($stmt);
@@ -189,7 +174,7 @@ function k2_period_activity_leaderboard_entries(
 function k2_period_activity_day_bounds(mysqli $con, ?string &$error = null): array
 {
     $error = null;
-    $sql = 'SELECT DATE(MIN(`Date`)) AS dmin, DATE(MAX(`Date`)) AS dmax FROM ratedresults';
+    $sql = "SELECT MIN(period_start) AS dmin, MAX(period_start) AS dmax FROM player_period_games WHERE period_type = 'day'";
     $res = mysqli_query($con, $sql);
     if ($res === false) {
         $error = mysqli_error($con);
@@ -215,13 +200,13 @@ function k2_period_activity_available_keys(mysqli $con, string $period, ?string 
     $error = null;
     switch ($period) {
         case 'day':
-            $sql = 'SELECT DISTINCT DATE(`Date`) AS k FROM ratedresults ORDER BY k DESC';
+            $sql = "SELECT DISTINCT DATE_FORMAT(period_start, '%Y-%m-%d') AS k FROM player_period_games WHERE period_type = 'day' ORDER BY k DESC";
             break;
         case 'month':
-            $sql = "SELECT DISTINCT DATE_FORMAT(`Date`, '%Y-%m') AS k FROM ratedresults ORDER BY k DESC";
+            $sql = "SELECT DISTINCT DATE_FORMAT(period_start, '%Y-%m') AS k FROM player_period_games WHERE period_type = 'month' ORDER BY k DESC";
             break;
         case 'year':
-            $sql = 'SELECT DISTINCT YEAR(`Date`) AS k FROM ratedresults ORDER BY k DESC';
+            $sql = "SELECT DISTINCT YEAR(period_start) AS k FROM player_period_games WHERE period_type = 'year' ORDER BY k DESC";
             break;
         default:
             $error = 'invalid_period';

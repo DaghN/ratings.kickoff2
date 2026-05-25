@@ -2,6 +2,9 @@
 /**
  * Top players by personal peak calendar day / month / year (most rated games in one period).
  * One row per player (their best period). Ties on game count: earlier period wins.
+ *
+ * Prefer the player_period_games aggregate when present; fall back to ratedresults while
+ * staging/prod are still catching up with the aggregate-table rollout.
  */
 
 /**
@@ -22,11 +25,87 @@ function k2_peak_period_key_sql(string $period): ?string
 }
 
 /**
- * @return array<int, array{rank: int, player_id: int, player_name: string, period_key: string, games: int}>
+ * @return string|null SQL expression for player_period_games.period_start.
  */
-function k2_peak_period_leaderboard_entries(mysqli $con, string $period, int $limit = 50, ?string &$error = null): array
+function k2_peak_period_aggregate_key_sql(string $period): ?string
+{
+    switch ($period) {
+        case 'day':
+            return "DATE_FORMAT(g.period_start, '%Y-%m-%d')";
+        case 'month':
+            return "DATE_FORMAT(g.period_start, '%Y-%m')";
+        case 'year':
+            return 'YEAR(g.period_start)';
+        default:
+            return null;
+    }
+}
+
+/**
+ * @return array<int, array{rank: int, player_id: int, player_name: string, period_key: string, games: int}>|null
+ */
+function k2_peak_period_leaderboard_entries_from_aggregate(mysqli $con, string $period, int $limit = 0, ?string &$error = null): ?array
 {
     $error = null;
+    $keySql = k2_peak_period_aggregate_key_sql($period);
+    if ($keySql === null) {
+        $error = 'invalid_period';
+
+        return [];
+    }
+
+    $limitSql = $limit > 0 ? ' LIMIT ' . (int) $limit : '';
+    $periodSql = "'" . mysqli_real_escape_string($con, $period) . "'";
+
+    $sql = 'SELECT player_id, player_name, period_key, games FROM ('
+        . 'SELECT g.player_id, p.Name AS player_name, ' . $keySql . ' AS period_key, g.games, '
+        . 'ROW_NUMBER() OVER (PARTITION BY g.player_id ORDER BY g.games DESC, g.period_start ASC) AS rn '
+        . 'FROM player_period_games g INNER JOIN playertable p ON p.ID = g.player_id '
+        . 'WHERE g.period_type = ' . $periodSql
+        . ') AS best_period WHERE rn = 1 '
+        . 'ORDER BY games DESC, period_key ASC' . $limitSql;
+
+    $res = mysqli_query($con, $sql);
+    if ($res === false) {
+        $error = mysqli_error($con);
+
+        if (mysqli_errno($con) === 1146) {
+            return null;
+        }
+
+        return [];
+    }
+
+    $entries = [];
+    $rank = 0;
+    while ($row = mysqli_fetch_assoc($res)) {
+        $rank++;
+        $entries[] = [
+            'rank' => $rank,
+            'player_id' => (int) $row['player_id'],
+            'player_name' => (string) $row['player_name'],
+            'period_key' => (string) $row['period_key'],
+            'games' => (int) $row['games'],
+        ];
+    }
+
+    return $entries ?: null;
+}
+
+/**
+ * @return array<int, array{rank: int, player_id: int, player_name: string, period_key: string, games: int}>
+ */
+function k2_peak_period_leaderboard_entries(mysqli $con, string $period, int $limit = 0, ?string &$error = null): array
+{
+    $error = null;
+    $aggregateError = null;
+    $aggregateEntries = k2_peak_period_leaderboard_entries_from_aggregate($con, $period, $limit, $aggregateError);
+    if ($aggregateEntries !== null) {
+        $error = $aggregateError;
+
+        return $aggregateEntries;
+    }
+
     $keySql = k2_peak_period_key_sql($period);
     if ($keySql === null) {
         $error = 'invalid_period';
@@ -34,8 +113,7 @@ function k2_peak_period_leaderboard_entries(mysqli $con, string $period, int $li
         return [];
     }
 
-    $limit = max(1, min(100, $limit));
-    $limitSql = (int) $limit;
+    $limitSql = $limit > 0 ? ' LIMIT ' . (int) $limit : '';
 
     $sql = 'SELECT player_id, player_name, period_key, games FROM ('
         . 'SELECT pm.player_id, p.Name AS player_name, pm.period_key, pm.games, '
@@ -48,7 +126,7 @@ function k2_peak_period_leaderboard_entries(mysqli $con, string $period, int $li
         . ') AS appearances GROUP BY player_id, period_key'
         . ') AS pm INNER JOIN playertable p ON p.ID = pm.player_id'
         . ') AS best_period WHERE rn = 1 '
-        . 'ORDER BY games DESC, period_key ASC LIMIT ' . $limitSql;
+        . 'ORDER BY games DESC, period_key ASC' . $limitSql;
 
     $res = mysqli_query($con, $sql);
     if ($res === false) {
@@ -75,7 +153,7 @@ function k2_peak_period_leaderboard_entries(mysqli $con, string $period, int $li
 /**
  * @return array<int, array{rank: int, player_id: int, player_name: string, month: string, games: int}>
  */
-function k2_peak_month_leaderboard_entries(mysqli $con, int $limit = 50, ?string &$error = null): array
+function k2_peak_month_leaderboard_entries(mysqli $con, int $limit = 0, ?string &$error = null): array
 {
     $entries = [];
     foreach (k2_peak_period_leaderboard_entries($con, 'month', $limit, $error) as $row) {

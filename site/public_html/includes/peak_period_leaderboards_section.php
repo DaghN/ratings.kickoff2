@@ -3,11 +3,11 @@
  * Busiest day / month / year hall of fame — three tables (ranked8.php Hall of Fame).
  *
  * Optional before include:
- *   $k2PeakPeriodLimit (default 50)
+ *   $k2PeakPeriodLimit (default 0 = all players)
  *   $k2PeakDayEntries, $k2PeakMonthEntries, $k2PeakYearEntries
  *   $k2PeakDayQueryError, $k2PeakMonthQueryError, $k2PeakYearQueryError
  */
-$k2PeakPeriodLimit = isset($k2PeakPeriodLimit) ? (int) $k2PeakPeriodLimit : 50;
+$k2PeakPeriodLimit = isset($k2PeakPeriodLimit) ? (int) $k2PeakPeriodLimit : 0;
 
 if (!function_exists('k2_peak_period_leaderboard_entries')) {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/peak_month_leaderboard_query.php';
@@ -67,13 +67,13 @@ if ($k2PeakPeriodOwnConnection) {
 		<p class="server-peak-period-leaderboard-status">No rated games to rank yet.</p>
 <?php } else { ?>
 		<div class="k2-table-wrap">
-			<table class="k2-table table-autosort">
+			<table class="k2-table" data-k2-table="sortable" data-k2-default-sort="3" data-k2-default-direction="desc">
 				<thead>
 					<tr style="text-align:right;">
-						<th class="table-sortable:numeric">Rank</th>
-						<th class="table-sortable:ignorecase" style="text-align:left;">Player</th>
-						<th class="table-sortable:ignorecase" style="text-align:left;"><?php echo htmlspecialchars($meta['period_label'], ENT_QUOTES, 'UTF-8'); ?></th>
-						<th class="table-sortable:numeric">Games</th>
+						<th data-k2-sort="number">#</th>
+						<th data-k2-sort="text" style="text-align:left;">Player</th>
+						<th data-k2-sort="text" style="text-align:left;"><?php echo htmlspecialchars($meta['period_label'], ENT_QUOTES, 'UTF-8'); ?></th>
+						<th data-k2-sort="number">Games</th>
 					</tr>
 				</thead>
 				<tbody class="black">

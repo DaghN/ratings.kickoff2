@@ -278,22 +278,22 @@ Definition of done:
 
 **Next:** Phase 2 — shared rated-game row rendering.
 
-### Current state (post-Phase 3, 2026-05-25)
+### Current state (post-player stat table migration, 2026-05-25)
 
 Use this table for day-to-day reference. The Phase 0 baseline inventory above is a **historical snapshot** (pre-cleanup).
 
 | Page / include | Loads `elolist.js` | Typical `k2-table` classes |
 |----------------|-------------------|----------------------------|
-| `ranked1`–`ranked5`, `ranked7` | Yes | `ranked-pages-table ranked-table-pending table-autosort table-autorank` |
-| `ranked8` + peak include | Yes | `table-autosort` (per peak table) |
+| `ranked1`–`ranked5`, `ranked7` | **No** (`js/k2-table.js`) | `ranked-pages-table ranked-table-pending` + `data-k2-table="sortable"` / `data-k2-autorank="true"` / ELO default sort marker |
+| `ranked8` + peak include | **No** (`js/k2-table.js`) | `data-k2-table="sortable"` per peak table; no autorank |
 | `server3.php` | **No** | `k2-table` per seven day buckets |
-| `individual3.php` | Yes | `table-autosort table-autofilter table-autopage:100` + paging tfoot |
-| `individual2a/b/c` | Yes | `table-autosort` |
+| `individual3.php` | **No** | Server-side Result/Opponent filters, URL sort links, 100-row slices; no table JS |
+| `individual2a/b/c` | **No** (`js/k2-table.js`) | `data-k2-table="sortable"` + Games default sort marker |
 | `game.php`, `server1.php`, `server2.php` | **No** | `k2-table` only |
 | `status.php`, `individual1.php` | **No** | `k2-status-table` or no table |
 | `period_activity_leaderboards_section.php` | Only if parent adds script | `k2-table` only (include not wired to a page in repo) |
 
-**Site-wide:** no striping classes on tables. **`theme.css`** owns appearance; **`elolist.css`** + **`elolist.js`** own sort/cloak/filter behavior where loaded.
+**Site-wide:** no striping classes on tables. **`theme.css`** owns appearance; **`k2-table.js`** owns simple leaderboard/player-stat sorting/autorank. **`elolist.js`** is no longer used by the migrated leaderboard/player games paths.
 
 ## Phase 2 - Shared Rated-Game Row Rendering
 
@@ -416,6 +416,8 @@ Definition of done:
 
 ## Phase 4 - Tailored JS Foundation (`k2-table.js`) Pilot
 
+**Status: completed 2026-05-25**
+
 Goal: establish a maintainable modern JS table layer.
 
 - Create minimal tailored script for required behavior.
@@ -428,6 +430,55 @@ Definition of done:
 - Pilot page works with tailored JS.
 - Behavior parity for pilot (sort + autorank if applicable).
 - Clear decision on migration viability.
+
+### Phase 4 kickoff — investigation (2026-05-25)
+
+**Pilot scope:** `ranked7.php` (default Leaderboards / Results wing). It is the safest leaderboard pilot because it needs only header sorting, rank renumbering, and ranked-table cloak reveal. It does **not** use column filters or paging.
+
+**Assumptions / risks:**
+
+- First-click sort remains descending for new columns, matching the KOOL fork default.
+- `ranked-table-pending` cloak can be shared by both `elolist.js` and `k2-table.js`.
+- `individual3.php` stays on `elolist.js`; its Result / Opponent filters and paging are not part of this pilot.
+- `ranked1`–`ranked5` and `ranked8` stay legacy until the pilot is reviewed.
+
+### Phase 4 close (2026-05-25)
+
+**Shipped:**
+
+- Added `js/k2-table.js`, a small opt-in table script for `data-k2-table="sortable"` tables.
+- Supports `data-k2-sort="number|text"`, stable sorting, first-click descending, `aria-sort`, keyboard Enter/Space sorting, and `data-k2-sort-value` for future fast/explicit values.
+- Supports `data-k2-default-sort` / `data-k2-default-direction` to light up a server-rendered default sort column without re-sorting the DOM on load.
+- Supports `data-k2-autorank="true"` by renumbering the first visible column after sort.
+- `ranked7.php` now loads `k2-table.js` instead of `elolist.js` and uses data attributes instead of legacy `table-sortable:*` classes.
+- `theme.css` adds active sorted-column styling for `k2-table.js`; ranked cloak comments now describe table JS generically.
+
+**Migration viability decision:** viable for simple leaderboard tables (`ranked1`–`ranked5`, likely `ranked8`) after browser review. Not yet a replacement for `individual3.php`, because filters/paging need a separate Phase 7 decision.
+
+**Next:** Phase 5 can layer server/default/persistence behavior onto the new leaderboard script, or Phase 6 can migrate the remaining eligible non-profile tables if any.
+
+### Phase 4 expansion — simple leaderboard migration (2026-05-25)
+
+After browser-checking `ranked7.php`, the same `k2-table.js` profile was applied to the remaining simple leaderboard pages:
+
+- `ranked1.php`–`ranked5.php`: sort + autorank + tab-specific default sort indicator.
+- `ranked8.php` / `peak_period_leaderboards_section.php`: sort only + Games default sort indicator; existing static rank behavior preserved (no autorank).
+
+**Default server-rendered sort by tab (agreed):**
+
+| Page | Default sort | Rank header |
+|------|--------------|-------------|
+| `ranked1.php` | Peak | `#` |
+| `ranked7.php` | Rating | `Rank` |
+| `ranked2.php` | GF | `#` |
+| `ranked3.php` | DD | `#` |
+| `ranked4.php` | LWS | `#` |
+| `ranked5.php` | Victims | `#` |
+| `ranked8.php` | Games | `#` |
+
+`ranked8.php` now renders all player rows for the day/month/year Hall of Fame tables (`$k2PeakPeriodLimit` default `0` = no LIMIT), instead of defaulting to 50.
+
+**Still legacy on purpose:** `individual3.php`. The profile games table still owns the real filter/paging problem and remains Phase 7.
 
 ## Phase 5 - Leaderboard Hybrid Default + Persistence
 
@@ -447,6 +498,8 @@ Definition of done:
 
 ## Phase 6 - Wider Migration + Legacy Reduction
 
+**Status: simple ranked pages and `individual2a/b/c` completed 2026-05-25; profile game history still legacy.**
+
 Goal: expand adoption and reduce dependence on legacy script.
 
 - Migrate additional eligible pages from `elolist.js` to tailored script profile.
@@ -458,19 +511,74 @@ Definition of done:
 - Documented list of migrated pages.
 - `elolist.js` usage reduced to intentional leftovers only.
 
-## Phase 7 - Large Table Performance Track (`individual3.php`) [Later]
+## Phase 7 - Large Table Performance Track (`individual3.php`)
 
 Goal: fix large-list responsiveness with a dedicated approach.
 
-- Investigate server-side paging/sorting approach.
-- Decide query + UX model for large player game history.
-- **Retain column filter capability** (Result / Opponent narrowing) — UX required; **client vs server implementation TBD** — see baseline **Preserve: player games column filters**.
-- Implement and validate performance improvements.
+**Product stance (agreed 2026-05-25):** keep the ability to narrow by **Result** and **Opponent**, but stop treating “all rows in the DOM plus client paging” as the long-term answer for prolific players.
+
+### Phase 7A - Server-side filter/sort/limit, normal page reloads
+
+**Status: completed 2026-05-25**
+
+Goal: get the performance win first with the simplest robust interaction model.
+
+- Render only the first matching slice (default: latest 100 games).
+- Replace `elolist.js` dropdown filters with normal form controls:
+  - Result: All / Wins / Draws / Losses.
+  - Opponent: All / opponent list for this player.
+- Express state in query params: `id`, `result`, `opponent`, `sort`, `dir`, optional `offset`.
+- Header sort links should sort the **filtered full result set** server-side, then render the first slice.
+- Do not add hidden persistence; URL state only.
+- Keep a short status line such as “Showing 100 of N matching games” if count is cheap enough.
+- Start without classic page 1/2/3 pagination; add “Next 100” only if missed.
+
+### Phase 7A close (2026-05-25)
+
+- `individual3.php` no longer loads `elolist.js`.
+- The table query now renders only a 100-row slice, defaulting to latest games (`Date` desc, `id` desc tie-break).
+- Result (`All/Wins/Draws/Losses`) and Opponent filters are normal GET form controls backed by SQL `WHERE` clauses; dropdown changes auto-submit, with Reset as the escape hatch.
+- Header sorting is server-side via whitelisted URL params (`sort` + `dir`), with the active sorted header using the shared k2 underline/colour state.
+- A compact status line reports the visible slice and total matches; `Previous 100` / `Next 100` links appear only when available.
+- `theme.css` adds small controls/status styling and makes k2 header sort links inherit table-header styling.
+
+**Deliberate trade-off:** this phase prioritizes first-paint/runtime performance and shareable URL state over in-place filtering polish. AJAX remains optional Phase 7C after browser review.
+
+### Phase 7B - Shared row/table renderer
+
+**Status: completed 2026-05-25**
+
+Goal: avoid two rendering paths before any richer interaction.
+
+- Extract `individual3` row rendering into a small include/helper.
+- The normal PHP page should use this renderer.
+- Any future endpoint should reuse the same renderer if it returns HTML.
+- Keep perspective rules from the current `individual3.php` (watched player’s W/L, F/A, ratings, ES, adjustment).
+
+### Phase 7B close (2026-05-25)
+
+- Added `includes/k2_player_game_row.php` with `k2_player_game_row_html()`.
+- `individual3.php` now delegates each game row to that helper instead of carrying the player-perspective row rendering inline.
+- The helper keeps the Phase 7A perspective rules: watched player's result, F/A, rating columns, ES, and adjustment; positive adjustments display with an explicit `+`.
+- This sets up any future AJAX endpoint to reuse the same HTML row renderer rather than duplicating table logic.
+
+### Phase 7C - Optional AJAX enhancement
+
+Goal: recover in-place filter/sort polish only after 7A proves the query model.
+
+- Add an endpoint with the same query params, e.g. `api/player_games.php?id=...&result=...&opponent=...&sort=...&dir=...&limit=100&offset=0`.
+- Update only the table body/status/paging controls in place.
+- Preserve bookmark/share behavior by updating the URL (`history.pushState`) if AJAX is used.
+- Provide loading/error states and keep the normal PHP page as fallback.
+
+**Decision:** AJAX is on the roadmap as progressive enhancement, not the first implementation step. The core fix is server-side filtering/sorting/limiting.
 
 Definition of done:
 
 - Sorting/paging is responsive on large histories.
-- Approach documented separately as needed.
+- Result and Opponent narrowing are preserved.
+- Default latest-games view does not ship thousands of rows to the browser.
+- If AJAX is added, normal URL reloads still work as fallback.
 
 ## Open Decisions (TBD)
 
@@ -479,10 +587,10 @@ Definition of done:
   - URL + local/session storage,
   - cookie-backed server default,
   - hybrid combination.
-- Exact active sort visual design (icon, underline, color treatment).
+- Exact active sort visual beyond the Phase 4 underline/colour pilot (icon vs no icon).
 - Exact migration order for leaderboard pages after pilot.
-- **`individual3` column filters:** client-side (elolist-style) vs server-side (query/API) vs hybrid — functionality required, approach open.
-- Whether paging on `individual3` remains JS-side or moves server-side (likely server for performance).
+- **`individual3` Phase 7A review:** browser-check filter/sort URLs on prolific players and decide whether the light Previous/Next 100 links are useful enough to keep.
+- **`individual3` Phase 7C detail:** whether AJAX is worth adding after normal server-side filtering is proven.
 
 ## Testing Checklist (Reusable)
 
@@ -510,3 +618,9 @@ Use this section to track meaningful plan updates over time.
 - 2026-05-24: Phase 2 kickoff — shared row API sketch + canonical column decisions (game.php + server3.php).
 - 2026-05-24: Phase 2 implemented — `k2_rated_game_row.php`, wired in `game.php` and `server3.php`.
 - 2026-05-25: Phase 3 implemented — Games tab seven day buckets; `server3.php` removed from `elolist.js`.
+- 2026-05-25: Phase 4 pilot implemented — `ranked7.php` moved from `elolist.js` to `k2-table.js` for sort + autorank.
+- 2026-05-25: Simple leaderboard migration completed — `ranked1`–`ranked5`, `ranked7`, and `ranked8` now use `k2-table.js`; profile stat/history tables remain legacy.
+- 2026-05-25: Player stat table migration completed — `individual2a/b/c` now use `k2-table.js`; `individual3.php` remains legacy for filters/paging.
+- 2026-05-25: Phase 7 plan framed — `individual3.php` performance path is 7A server-side URL filters/sort/limit, 7B shared renderer, 7C optional AJAX enhancement.
+- 2026-05-25: Phase 7A implemented — `individual3.php` uses server-side Result/Opponent filters, URL sort links, and 100-row slices; `elolist.js` removed from the page.
+- 2026-05-25: Phase 7B implemented — `individual3.php` row rendering moved to `includes/k2_player_game_row.php` for reuse by any future player-games endpoint.

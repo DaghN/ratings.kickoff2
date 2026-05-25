@@ -38,7 +38,7 @@ Below west: **Monthly league** spans cols 1–3; **This month / Previous month**
 
 **Copy / UI:** Leaderboard title `Leaderboard · N active players` (blue count); meta **Active in last 12 months**; ticker 14px muted prose; panel titles `.k2-panel-heading` (Plex 600, muted, 14px). League toggle uses segment-nav colours (not full accent). Column widths tuned for mobile (more space for recent games + leaderboard).
 
-**Removed from `status.php`:** period-activity triple tables (→ Trends if revived).
+**Removed from `status.php`:** period-activity triple tables (→ Trends/status if revived). May 2026 prep: `player_period_games` aggregate + local-only preview page exist; not yet placed on Status.
 
 ---
 
@@ -64,7 +64,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | **Recent rated games** | `ratedresults` · `Date DESC` | ~10 |
 | **Heritage box** | static image | Keep from Phase A bridge layout |
 
-**Not in v1:** games-played-by-period triple tables (`period_activity_leaderboards_section.php` — brainstorm artifact, remove from `status.php` when v1 ships); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics; polling (v1.5).
+**Not in v1:** games-played-by-period triple tables (`period_activity_leaderboards_section.php` — now backed by `player_period_games`, local preview only until deliberately placed); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics; polling (v1.5).
 
 **Display:** Active top 20 may use slightly smaller type if needed for density.
 
@@ -107,6 +107,7 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | Phase A | Hub shell, bridge, heritage box |
 | **Phase B v1** | **Shipped** — `status_queries.php`, `status_room_section.php`, `status.php` |
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
+| Period activity prep | **Local only** — `player_period_games` schema/backfill + `dev-period-activity.php`; staging/prod handoff pending Steve |
 | v1.5+ | Polling, active filter on Leaderboards tab, kickoff2 embed, joshua redirect |
 
 ---
