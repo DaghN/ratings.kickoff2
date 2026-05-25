@@ -100,7 +100,7 @@ Navigation pattern:
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
 - Default hub nav style is `segment`.
 - `?k2_hub_nav=solid|segment|soft` and `nav-preview.php` still exist as staging/tuning scaffolding; prune when no longer useful.
-- Tint picker is hidden by default behind **Show tint**; launch exposure is still open.
+- Tint picker remains hidden by default behind **Show tint**.
 
 Imagery:
 
@@ -149,7 +149,6 @@ Legacy cleanup:
 
 ## Open Decisions
 
-- Public launch treatment for tint picker: remove, keep hidden, or expose.
 - Exact `<title>` rename timing from old KOOL wording to Kick Off 2 ratings.
 - Realm routing once Amiga/offline data exists.
 - Whether to prune hub-nav A/B tuning (`nav-preview.php`, `k2-hub-nav-tune.js`, `?k2_hub_nav=`) after staging review.

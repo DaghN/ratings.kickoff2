@@ -9,7 +9,7 @@
 | **Tint** (`data-k2-accent` on `<html>`) | UI accent — links, nav rings, glows, chrome. **Not** tied to Online/Amiga. |
 | **Realm** (`data-realm`) | Which ladder/universe (data, copy, APIs later). **Does not** set site paint. |
 
-**Default tint on load:** amber (`#ffb74d`) when `data-k2-accent` is absent (CSS on `html`). Hub picker: **Amber · Pitch · Chrome · Holo** (Pulse removed — clashed with stat colours). Session restore via `sessionStorage` (`k2-accent-tune`) — long-lived persistence deferred.
+**Default tint on load:** amber (`#ffb74d`) when `data-k2-accent` is absent (CSS on `html`). Hub picker: **Amber · Pitch · Chrome · Holo** (Pulse removed — clashed with stat colours), hidden by default behind **Show tint**. Session restore via `sessionStorage` (`k2-accent-tune`) — long-lived persistence deferred.
 
 | Tint id | Hex | Notes |
 |---------|-----|--------|
@@ -58,7 +58,6 @@
 - Header layout mock (realm vs search placement)
 - `localStorage` / long-lived tint preference
 - Search scoped to `data-realm`
-- **Accent pills at public launch** — hidden by default today; expose or remove later
 
 ## Smoke checklist (after deploy)
 

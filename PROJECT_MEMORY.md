@@ -49,7 +49,7 @@
 
 1. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub, ranked, server, **status** pages.
 2. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
-3. **Launch polish** — tint picker expose vs hidden (`docs/tint-vs-realm.md`); realm switcher when Amiga exists.
+3. **Launch polish** — realm switcher when Amiga exists.
 4. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
 5. **Fun stats block (v1)** — trophy cabinet from `playertable` + monthly SQL; exclude longest game.
 6. **Tone pass** — chart/helper copy: context, sample size, rematch story not report-card.
@@ -64,6 +64,7 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Tint picker docs settled** — hidden-by-default behavior remains current; stale launch-decision wording pruned. |
 | 2026-05 | **Current-truth docs prune** — MEMORY recent log trimmed; `design-direction.md`, `hub-ia-agreement.md`, and `k2-table-and-games-plan.md` now foreground current contracts/open work instead of phase diary history. |
 | 2026-05 | **Replay/ops safety gates** — ladder replay now has explicit `--target local|staging`, refuses staging `kooldb` unless target is explicit, logs DB identity preflight, staging wrapper passes `--target staging`; local schema/index/period rebuild wrappers refuse non-local DBs without `-AllowNonLocal`. |
 | 2026-05 | **Period activity staging DB done** — Steve ran `player_period_games` schema + rebuild on staging `kooldb`; expectation test passed; note MariaDB requires `COUNT(*)`, not `COUNT()`. |

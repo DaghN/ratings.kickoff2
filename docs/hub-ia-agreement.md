@@ -75,7 +75,7 @@ Still open with Steve / prod:
 | Leaderboard wings | Segment track; wing tabs sit above table. |
 | Player pages | Replace hub tabs with player context tabs: Profile, Games, W/D/L, Goals, DDs. |
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
-| Tint picker | Hidden by default behind Show tint; launch exposure undecided. |
+| Tint picker | Hidden by default behind Show tint. |
 | Realm switcher | UI for future Online/Amiga realm; tint and realm are separate. |
 
 The hub-nav A/B tuning path (`?k2_hub_nav=solid|segment|soft`, `nav-preview.php`) is staging scaffolding, not a product requirement.
@@ -136,7 +136,7 @@ Future Amiga/photo/media work belongs on the profile/content track, not in hub I
 
 - Production Status DB read and joshua redirect.
 - kickoff2.com embed.
-- Public launch decision for tint picker and hub-nav tuning scaffolding.
+- Hub-nav tuning scaffolding.
 - Amiga realm routing once data exists.
 - Active-only filter on full Leaderboards, if desired.
 - Pretty URLs / rebrand decisions.
