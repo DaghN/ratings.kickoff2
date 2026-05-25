@@ -64,8 +64,9 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Agent bootstrap order cleanup** — `README.md` and `AGENTS.md` now mirror the auto-attached Cursor rule order: MEMORY → AGENTS → PROJECT_MAP, reducing small cold-start wording drift. |
+| 2026-05 | **Sortable header help tooltips** — `k2-table.js` now uses a styled shared tooltip for sortable headers, combining abbreviation/activity/player-table explanations with the “Click to sort.” hint, including server-side Games history sort links. |
 | 2026-05 | **Realm switch flash fix** — header toggle initial paint now follows early `html[data-realm]` boot state, so Amiga no longer flashes Online during main-nav page loads. |
-| 2026-05 | **Sortable header help tooltips** ? `k2-table.js` now uses a styled shared tooltip for sortable headers, combining abbreviation/activity/player-table explanations with the ?Click to sort.? hint, including server-side Games history sort links. |
 | 2026-05 | **Leaderboard nav/table polish** — active `lb_nav.php` filter dots use the selected UI accent while labels stay neutral; `ranked-pages-table` first column now has a stable width across non-Activity leaderboard tabs. |
 | 2026-05 | **Activity Longevity table** — `ranked8.php` Period headings now read “Most games in one day/month/year”; All time shows Longevity beside “Most games of all time” with natural-width table spacing. |
 | 2026-05 | **Records two-panel split** — `server2.php` splits records into natural-width Peak activity and Peak performance panels; activity includes year/month/day games rows, opponent/victim totals, and New/Legendary age markers (`Legendary` in holo). |

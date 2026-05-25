@@ -11,10 +11,11 @@ Cold start (do **before** coding unless Dagh pasted full context):
 | Order | File | Why |
 |-------|------|-----|
 | 1 | [`PROJECT_MEMORY.md`](PROJECT_MEMORY.md) | Current focus, deploy path, recent work |
-| 2 | [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) | What repo is; where code and docs live |
-| 3 | Dagh’s message | Today’s goal wins over stale MEMORY |
-| 4 | Feature spec **if** obvious | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md` |
-| 5 | [`docs/design-direction.md`](docs/design-direction.md) | If UI/theme work |
+| 2 | [`AGENTS.md`](AGENTS.md) | Agent rituals, authority, and finish rules |
+| 3 | [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) | What repo is; where code and docs live |
+| 4 | Dagh’s message | Today’s goal wins over stale docs |
+| 5 | Feature spec **if** obvious | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md` |
+| 6 | [`docs/design-direction.md`](docs/design-direction.md) | If UI/theme work |
 
 **Do not** read all of `docs/coordination/` up front. Open [`docs/prod-coordination.md`](docs/prod-coordination.md) only when the task touches **stored ladder truth** or Steve/migration.
 
