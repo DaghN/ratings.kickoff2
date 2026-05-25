@@ -75,7 +75,7 @@
                         datasets: [Object.assign({
                             label: 'Games (server)',
                             data: chartData
-                        }, T.barStroke(T.pitch()))]
+                        }, T.barStroke(T.teal()))]
                     },
                     options: {
                         responsive: true,

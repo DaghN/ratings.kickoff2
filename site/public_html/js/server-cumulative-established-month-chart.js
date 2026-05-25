@@ -6,6 +6,7 @@
     'use strict';
 
     var T = window.K2ChartTheme;
+    var DR = window.K2ChartDateRange;
 
     var API_PATH = 'api/server_cumulative_established_by_month.php';
 
@@ -68,6 +69,10 @@
                     return;
                 }
 
+                if (DR && DR.appendRatingThroughToday) {
+                    chartData = DR.appendRatingThroughToday(chartData);
+                }
+
                 if (status) {
                     status.textContent = '';
                 }
@@ -119,6 +124,7 @@
                         scales: {
                             x: {
                                 type: 'time',
+                                max: DR ? DR.endOfToday() : undefined,
                                 time: {
                                     displayFormats: {
                                         year: 'yyyy',

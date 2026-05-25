@@ -60,21 +60,34 @@ if ($res === false) {
     exit;
 }
 
-$years = [];
+$countsByYear = [];
 while ($row = mysqli_fetch_assoc($res)) {
     if ($row['yr'] === null) {
         continue;
     }
-    $years[] = [
-        'year' => (int) $row['yr'],
-        'established_players' => (int) $row['established_players'],
-    ];
+    $countsByYear[(int) $row['yr']] = (int) $row['established_players'];
 }
 
 mysqli_close($con);
 
+$currentYear = (int) date('Y');
+$yearKeys = array_keys($countsByYear);
+if (!in_array($currentYear, $yearKeys, true)) {
+    $yearKeys[] = $currentYear;
+    sort($yearKeys, SORT_NUMERIC);
+}
+
+$years = [];
+foreach ($yearKeys as $yr) {
+    $years[] = [
+        'year' => $yr,
+        'established_players' => $countsByYear[$yr] ?? 0,
+    ];
+}
+
 echo json_encode([
     'realm' => $realm,
     'games_required' => $gamesRequired,
+    'current_year' => $currentYear,
     'years' => $years,
 ]);

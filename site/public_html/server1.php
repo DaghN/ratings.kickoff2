@@ -8,6 +8,7 @@
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="js/chart-theme.js"></script>
+<script src="js/chart-date-range.js"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-year-chart.js" defer="defer"></script>
@@ -70,7 +71,6 @@ unset($con);
 
 <div class="server-games-year-chart">
     <h2 class="k2-panel-heading">Server games per year</h2>
-    <p class="k2-chart-block__hint">Current year: games so far (green) plus projected rest of year if pace continues (blue).</p>
     <p class="server-games-year-chart-status" style="margin: 0 0 8px 0;">Loading server games per year…</p>
     <canvas width="960" height="271" aria-label="Server rated games per calendar year with projection"></canvas>
 </div>
@@ -103,7 +103,6 @@ unset($con);
 
 <div class="server-established-rating-distribution-chart">
     <h2 class="k2-panel-heading">Established player rating distribution</h2>
-    <p class="k2-chart-block__hint">Players with 20+ games, by current ELO (100-point buckets).</p>
     <p class="server-established-rating-distribution-chart-status" style="margin: 0 0 8px 0;">Loading rating distribution…</p>
     <canvas width="960" height="271" aria-label="Distribution of established player ratings"></canvas>
 </div>

@@ -76,7 +76,7 @@
                                 stack: 'games'
                             }, T.barStroke(T.pitch(), 0.75)),
                             Object.assign({
-                                label: 'Projected remainder (current year)',
+                                label: 'Projected',
                                 data: projectedData,
                                 stack: 'games'
                             }, T.barStroke(T.chrome(), 0.55))
