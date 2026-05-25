@@ -13,7 +13,7 @@ $MigrationsDir = Join-Path $PSScriptRoot 'migrations'
 $MysqlExe = 'C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe'
 
 if (-not (Test-Path $MysqlExe)) {
-    Write-Error "mysql.exe not found at $MysqlExe (start Laragon — docs/LOCAL_DEV.md)."
+    Write-Error "mysql.exe not found at $MysqlExe (start Laragon - docs/LOCAL_DEV.md)."
 }
 
 $files = Get-ChildItem -Path $MigrationsDir -Filter '*.sql' | Sort-Object Name

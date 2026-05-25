@@ -64,10 +64,22 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Records label styling** — removed dummy links from `server2.php` left-column record labels; player links remain. |
+| 2026-05 | **Records opponent/victim labels** — shortened `server2.php` rows to “Most opponents” and “Most victims”. |
+| 2026-05 | **Records footnote spacing** — removed extra break between `server2.php` table and explanatory text. |
+| 2026-05 | **Records table order/copy** — `server2.php` rows reordered into Dagh’s groups, sentence-case labels, average-opponent-rating row removed. |
+| 2026-05 | **Records footnote accent** — `server2.php` footnote wraps `(New!)` in `.blue` to match table record markers. |
+| 2026-05 | **Server records (`server2.php`)** — removed **Biggest Rating Ascent** row (profile audit drop; peak covered by Highest Peak Rating). |
+| 2026-05 | **Cumulative established players chart** — line extends flat through today via `chart-date-range.js`. |
+| 2026-05 | **Established players per year chart** — API includes current calendar year with count 0 when no one established yet. |
+| 2026-05 | **Server chart hints trim** — removed hint under games-per-year and established rating distribution (graph 7). |
+| 2026-05 | **Server games per year chart copy** — removed block hint under heading; chrome legend label → “Projected”. |
 | 2026-05 | **Chart colour naming cleanup** — removed JS aliases green/blue/coral/purple; CSS `--k2-chart-pitch` / `--k2-chart-chrome`; three commits on `main`. |
 | 2026-05 | **Activity chart palette shipped** — six inks (B1 winner): amber goals, magenta established + dist, holo cumulative; lab deleted; `design-direction.md` + `chart-theme.js` refactor. |
 | 2026-05 | **Status leaderboard panel copy** — “Full ladder” → “Full leaderboard” link in `status_room_section.php`. |
 | 2026-05 | **Agent doc hygiene:** MEMORY trim, root **README**, **AGENTS** / **UPDATE_DOCS** cross-links; stale Status Phase B Next removed. |
+| 2026-05 | **SCH-003** — DROP 28 ratio leader cols on `generalstatstable` (local); Records from `playertable`; PG-004 Steve = migration 002 + drop C++ ratio writes. |
+| 2026-05 | **Records `(New!)` window** — `server2.php` uses calendar one month (`strtotime('-1 month')`), footnote updated (was 48 hours). |
 | 2026-05 | **Status Phase B v1.2 in repo** — 4-col rooms, league month toggle, panel headings; spec `docs/STATUS_PAGE_DATA.md`. Deploy + prod DB still open. |
 | 2026-05 | **Agent rituals** — `AGENTS.md`, `docs/PROJECT_MAP.md`, `docs/UPDATE_DOCS.md`, `feature-log`, `.cursor/rules/kool-workspace.mdc`. |
 | 2026-05 | **Steve post-game handoff** — C++ snippet packs: `docs/coordination/post-game-cpp-handoff.md`, `cpp-snippets/`. |

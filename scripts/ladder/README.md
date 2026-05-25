@@ -37,4 +37,6 @@ python -m scripts.ladder run --limit 100
 
 **v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and rebuilds `generalstatstable` row `id=1` at the end.
 
+**Server records:** non-ratio hall-of-fame rows via `server_records.py` (PG-004b: strict `>` on ties). **Ratio leaders** are **not** written to `generalstatstable` — Records page queries `playertable` (`site/public_html/includes/records_ratio_leaders.php`). Steve: `docs/coordination/cpp-snippets/PG-004-server-records-tie-break.md`.
+
 **`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Staging DB name `kooldb` is allowlisted when `$database` in PHP config is `kooldb`.

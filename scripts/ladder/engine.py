@@ -22,6 +22,7 @@ from .finalize_counts import finalize_network_counts_from_rows
 from .generalstats import rebuild_generalstats_if_present
 from .outcome import outcome_from_goals
 from .player_state import PlayerState
+from .server_records import ServerRecordState, update_server_records_after_game
 from .schema import ensure_generalstatstable, reset_generalstatstable_row
 
 log = logging.getLogger(__name__)
@@ -66,6 +67,12 @@ def _playertable_update_sql() -> str:
 
 
 PLAYERTABLE_UPDATE = _playertable_update_sql()
+
+
+def load_player_names(conn: pymysql.connections.Connection) -> dict[int, str]:
+    with conn.cursor() as cur:
+        cur.execute("SELECT ID, Name FROM playertable")
+        return {int(row["ID"]): str(row["Name"]) for row in cur.fetchall()}
 
 
 def connect(cfg: DbConfig, *, dry_run: bool) -> pymysql.connections.Connection:
@@ -133,6 +140,9 @@ def reset_universe(conn: pymysql.connections.Connection, *, dry_run: bool) -> No
 def apply_game_row(
     game: dict[str, Any],
     players: dict[int, PlayerState],
+    *,
+    names: dict[int, str],
+    server_records: ServerRecordState | None = None,
 ) -> dict[str, Any]:
     id_a = int(game["idA"])
     id_b = int(game["idB"])
@@ -182,6 +192,30 @@ def apply_game_row(
         game_date=game_date,
     )
 
+    if server_records is not None:
+        update_server_records_after_game(
+            server_records,
+            game_id=game_id,
+            game_date=game_date,
+            id_a=id_a,
+            id_b=id_b,
+            name_a=names.get(id_a, ""),
+            name_b=names.get(id_b, ""),
+            pa=pa,
+            pb=pb,
+            actual_score=outcome.actual_score,
+            goal_difference=outcome.goal_difference,
+            sum_of_goals=outcome.sum_of_goals,
+            goals_a=goals_a,
+            goals_b=goals_b,
+            dd_a=bool(outcome.dd_player_a),
+            dd_b=bool(outcome.dd_player_b),
+            cs_a=bool(outcome.cs_player_a),
+            cs_b=bool(outcome.cs_player_b),
+            players=players,
+            names=names,
+        )
+
     return {
         "id": game_id,
         "idA": id_a,
@@ -217,6 +251,8 @@ def replay_all(
     batch_size: int = 500,
 ) -> None:
     players: dict[int, PlayerState] = {}
+    names = load_player_names(conn)
+    server_records = ServerRecordState()
 
     with conn.cursor() as cur:
         cur.execute("SELECT ID FROM playertable")
@@ -234,7 +270,7 @@ def replay_all(
 
     if dry_run:
         if games:
-            sample = apply_game_row(games[0], players)
+            sample = apply_game_row(games[0], players, names=names)
             log.info(
                 "Dry-run sample game id=%s NewRatingA=%.3f NewRatingB=%.3f",
                 sample["id"],
@@ -249,7 +285,12 @@ def replay_all(
 
     with conn.cursor() as cur:
         for game in games:
-            row = apply_game_row(game, players)
+            row = apply_game_row(
+                game,
+                players,
+                names=names,
+                server_records=server_records,
+            )
             rated_batch.append(row)
             all_rows.append(row)
             processed += 1
@@ -272,7 +313,7 @@ def replay_all(
             cur.executemany(PLAYERTABLE_UPDATE, player_rows)
         log.info("playertable updated: %s players with at least one game", len(player_rows))
 
-    rebuild_generalstats_if_present(conn, players)
+    rebuild_generalstats_if_present(conn, server_records)
     conn.commit()
     log.info("replay_all complete: %s games", processed)
 

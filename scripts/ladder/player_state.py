@@ -12,6 +12,14 @@ SENTINEL_LOWEST_RATING = 5000.0
 SENTINEL_GOAL_RATIO = -1.0
 
 
+@dataclass
+class GameRecordFlags:
+    new_opponent: bool = False
+    new_victim: bool = False
+    new_dd_victim: bool = False
+    new_cs_victim: bool = False
+
+
 def _ratio(num: int, den: int) -> float | None:
     if den <= 0:
         return None
@@ -132,6 +140,23 @@ class PlayerState:
     highest_rated_victim_game_id: int | None = None
     lowest_rated_culprit_game_id: int | None = None
     rating_history: list[float] = field(default_factory=list)
+    game_flags: GameRecordFlags = field(default_factory=GameRecordFlags)
+    _network_opponents: set[int] = field(default_factory=set, repr=False)
+    _network_victims: set[int] = field(default_factory=set, repr=False)
+    _network_dd_victims: set[int] = field(default_factory=set, repr=False)
+    _network_cs_victims: set[int] = field(default_factory=set, repr=False)
+
+    def network_opponent_count(self) -> int:
+        return len(self._network_opponents)
+
+    def network_victim_count(self) -> int:
+        return len(self._network_victims)
+
+    def network_dd_victim_count(self) -> int:
+        return len(self._network_dd_victims)
+
+    def network_cs_victim_count(self) -> int:
+        return len(self._network_cs_victims)
 
     def recent_average_rating(self) -> float | None:
         if not self.rating_history:
@@ -158,6 +183,8 @@ class PlayerState:
         game_id: int,
         game_date: datetime,
     ) -> None:
+        self.game_flags = GameRecordFlags()
+
         self.games += 1
         if self.games >= 1:
             self.display = 1
@@ -178,6 +205,27 @@ class PlayerState:
         self.rating = new_rating
         self.last_game = game_date
         self.last_game_id = game_id
+
+        before_opp = len(self._network_opponents)
+        self._network_opponents.add(opponent_id)
+        self.game_flags.new_opponent = len(self._network_opponents) > before_opp
+        self.different_opponents = len(self._network_opponents)
+
+        if won:
+            before_vic = len(self._network_victims)
+            self._network_victims.add(opponent_id)
+            self.game_flags.new_victim = len(self._network_victims) > before_vic
+            self.different_victims = len(self._network_victims)
+        if dd_for:
+            before_dd = len(self._network_dd_victims)
+            self._network_dd_victims.add(opponent_id)
+            self.game_flags.new_dd_victim = len(self._network_dd_victims) > before_dd
+            self.double_digits_victims = len(self._network_dd_victims)
+        if cs_for:
+            before_cs = len(self._network_cs_victims)
+            self._network_cs_victims.add(opponent_id)
+            self.game_flags.new_cs_victim = len(self._network_cs_victims) > before_cs
+            self.clean_sheets_victims = len(self._network_cs_victims)
 
         self.sum_opponents_rating += opponent_rating_before
 
