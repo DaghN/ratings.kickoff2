@@ -98,8 +98,7 @@ Current shared chrome:
 Navigation pattern:
 
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
-- Default hub nav style is `segment`.
-- `?k2_hub_nav=solid|segment|soft` and `nav-preview.php` still exist as staging/tuning scaffolding; prune when no longer useful.
+- Hub and player nav no longer support A/B style overrides; the preview/tuning scaffolding has been pruned.
 - Tint picker remains hidden by default behind **Show tint**.
 
 Imagery:
@@ -143,7 +142,7 @@ Legacy cleanup:
 
 - `main2.css` is removed.
 - Visible table styling belongs to `theme.css`.
-- `elolist.css` remains only for compatibility hooks / ranked cloak. `elolist.js` is no longer used by the migrated leaderboard/player-games paths.
+- `elolist.css` is removed; ranked cloak and table compatibility styling live in `theme.css`. `elolist.js` is no longer used by the migrated leaderboard/player-games paths.
 
 ---
 
@@ -151,7 +150,6 @@ Legacy cleanup:
 
 - Exact `<title>` rename timing from old KOOL wording to Kick Off 2 ratings.
 - Realm routing once Amiga/offline data exists.
-- Whether to prune hub-nav A/B tuning (`nav-preview.php`, `k2-hub-nav-tune.js`, `?k2_hub_nav=`) after staging review.
 - Further profile copy/UX and fun stats block.
 
 ---

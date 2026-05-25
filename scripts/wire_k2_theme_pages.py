@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / "site" / "public_html"
 
+LEGACY_ELOLIST_LINK = '<link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />\n'
 THEME_LINK = '<link href="stylesheets/theme.css" rel="stylesheet" type="text/css" />\n'
 HEADER = '<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>\n\n'
 PAGE_NAV_CLOSE = '\n</div><!-- .k2-page-nav -->\n'
@@ -45,11 +46,7 @@ def patch(path: Path, ranked_cloak: bool, thr_col: bool, wrap_ranked: bool) -> s
     text = re.sub(r"<title>KO2PCrating</title>", "<title>Kick Off 2 ratings</title>", text)
 
     if "theme.css" not in text:
-        text = text.replace(
-            '<link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />\n',
-            '<link href="stylesheets/elolist.css" rel="stylesheet" type="text/css" />\n' + THEME_LINK,
-            1,
-        )
+        text = text.replace(LEGACY_ELOLIST_LINK, THEME_LINK, 1)
 
     if thr_col and "thrColFixHdr.css" not in text:
         text = text.replace(

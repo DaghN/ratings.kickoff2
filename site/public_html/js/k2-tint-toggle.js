@@ -1,6 +1,5 @@
 /**
  * Tint picker hide toggle (hub + player nav).
- * Hub nav style is set in theme_boot_head.php (?k2_hub_nav= + session).
  */
 (function () {
 	'use strict';

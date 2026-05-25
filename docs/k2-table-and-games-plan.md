@@ -21,7 +21,7 @@
 
 Site-wide table styling belongs to `stylesheets/theme.css`; simple sortable behavior belongs to `js/k2-table.js`.
 
-`elolist.js` is no longer part of the active migrated leaderboard/player-games paths. `elolist.css` may still provide compatibility hooks such as ranked cloak styling.
+`elolist.js` is no longer part of the active migrated leaderboard/player-games paths. `elolist.css` has been removed; the ranked FOUC cloak now lives in `theme.css`.
 
 ---
 
@@ -44,8 +44,6 @@ Tables opt in explicitly:
 | Sortable | `data-k2-table="sortable"` and `data-k2-sort` on headers |
 | Sortable + autorank | Above + `data-k2-autorank="true"` |
 | Server-filtered large table | URL/query-driven PHP, not all rows in DOM |
-
-Avoid hidden sort persistence unless a phase explicitly adds it. URL state is preferred for server-side pages.
 
 ---
 
@@ -77,7 +75,7 @@ Do not fork Games-tab row markup unless the shared renderer is updated too.
 - 100-row slices with Previous/Next links when available.
 - Shared row renderer: `includes/k2_player_game_row.php`.
 
-Product requirement: keep Result and Opponent narrowing. AJAX is optional later; the normal URL flow must remain the fallback.
+Product requirement: keep Result and Opponent narrowing; normal URL flow is the contract.
 
 ---
 
@@ -98,16 +96,7 @@ Do not grow this into a generic table framework unless a real repeated need appe
 
 ## Open Work
 
-1. **Leaderboard sort persistence**
-   Decide whether this is URL-only, local/session storage, cookie-backed server default, or not worth adding.
-
-2. **`individual3.php` AJAX enhancement**
-   Optional progressive enhancement after the server-side model has been reviewed in browser. Must preserve normal URLs.
-
-3. **Legacy asset cleanup**
-   Confirm whether any remaining `elolist.css` hooks are still required. Remove or scope only after checking ranked cloak and compatibility names.
-
-4. **Inline table layout cleanup**
+1. **Inline table layout cleanup**
    Replace remaining `style="text-align:..."` / `&nbsp;` spacing hacks with table utility classes during future table polish.
 
 ---
@@ -124,6 +113,7 @@ Do not grow this into a generic table framework unless a real repeated need appe
 | 2026-05-25 | `individual2a/b/c.php` migrated to `k2-table.js`. |
 | 2026-05-25 | `individual3.php` moved to server-side filters/sort/100-row slices and shared row rendering. |
 | 2026-05-25 | Sortable header help tooltip and same-column reverse-sort tie handling shipped. |
+| 2026-05-25 | `elolist.css` removed; ranked cloak moved into `theme.css`. |
 
 ---
 

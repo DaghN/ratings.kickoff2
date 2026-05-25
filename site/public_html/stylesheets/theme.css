@@ -756,6 +756,10 @@ body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
 }
 
+html.ranked-js body.k2-site .k2-table.ranked-pages-table.ranked-table-pending {
+	visibility: hidden;
+}
+
 body.k2-site .k2-table thead tr:first-child:not(:last-child) th {
 	background-color: var(--k2-bg-page);
 	border-bottom: none;
@@ -974,7 +978,7 @@ body.k2-site .k2-player-games-status a {
 	border-top-right-radius: var(--k2-radius-md);
 }
 
-/* ── Player sub-nav (segment default via data-k2-hub-nav on html) ── */
+/* ── Player sub-nav ── */
 .k2-player-nav-bar {
 	width: 100%;
 	max-width: 100%;
@@ -990,7 +994,10 @@ body.k2-site .k2-player-games-status a {
 	justify-content: space-between;
 	gap: 8px 12px;
 	margin: 0;
-	padding: 0;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
 	min-width: 0;
 	max-width: 100%;
 	box-sizing: border-box;
@@ -1000,7 +1007,7 @@ body.k2-site .k2-player-games-status a {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 8px;
+	gap: 2px;
 	min-width: 0;
 	flex: 1 1 auto;
 }
@@ -1008,13 +1015,13 @@ body.k2-site .k2-player-games-status a {
 body.k2-site a.k2-player-nav__btn {
 	display: inline-block;
 	margin: 0;
-	padding: 8px 16px;
-	border: none;
-	border-radius: 999px;
+	padding: 8px 14px;
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md) - 2px);
 	background: transparent;
 	color: var(--k2-text-muted);
 	font: inherit;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 600;
 	text-decoration: none;
 	cursor: pointer;
@@ -1031,66 +1038,17 @@ body.k2-site a.k2-player-nav__btn:hover:not(.is-active) {
 	text-decoration: none;
 }
 
-/* Player nav — solid */
-html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active,
-html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active:visited {
-	color: var(--k2-bg-page);
-	background: var(--k2-accent);
-	box-shadow: none;
-}
-
-html[data-k2-hub-nav="solid"] body.k2-site a.k2-player-nav__btn.is-active:hover {
-	color: var(--k2-bg-page);
-	background: var(--k2-accent);
-	text-decoration: none;
-}
-
-/* Player nav — segment */
-html[data-k2-hub-nav="segment"] .k2-player-nav {
-	gap: 8px 12px;
-	padding: 4px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
-	box-sizing: border-box;
-}
-
-html[data-k2-hub-nav="segment"] .k2-player-nav__links {
-	gap: 2px;
-}
-
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn {
-	padding: 8px 14px;
-	font-size: 13px;
-	border: 1px solid transparent;
-	border-radius: calc(var(--k2-radius-md) - 2px);
-}
-
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active,
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active:visited {
+body.k2-site a.k2-player-nav__btn.is-active,
+body.k2-site a.k2-player-nav__btn.is-active:visited {
 	color: var(--k2-segment-active-text);
 	background: transparent;
 	border-color: var(--k2-segment-active-ring);
 	box-shadow: none;
 }
 
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-player-nav__btn.is-active:hover {
+body.k2-site a.k2-player-nav__btn.is-active:hover {
 	color: var(--k2-segment-active-text);
 	background: transparent;
-	text-decoration: none;
-}
-
-/* Player nav — soft */
-html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active,
-html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:visited {
-	color: var(--k2-accent);
-	background: color-mix(in srgb, var(--k2-accent) 22%, transparent);
-	box-shadow: none;
-}
-
-html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
-	color: var(--k2-accent);
-	background: color-mix(in srgb, var(--k2-accent) 28%, transparent);
 	text-decoration: none;
 }
 
@@ -1720,7 +1678,7 @@ html[data-k2-hub-nav="soft"] body.k2-site a.k2-player-nav__btn.is-active:hover {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 8px;
+	gap: 2px;
 	min-width: 0;
 }
 
@@ -1823,21 +1781,25 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 .k2-hub-tabs {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	gap: 8px 12px;
 	margin: 16px 0 12px;
-	padding: 0;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	box-sizing: border-box;
 }
 
 body.k2-site a.k2-hub-tabs__btn {
 	display: inline-block;
 	margin: 0;
-	padding: 8px 16px;
-	border: none;
-	border-radius: 999px;
+	padding: 8px 14px;
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md) - 2px);
 	background: transparent;
 	color: var(--k2-text-muted);
 	font: inherit;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 600;
 	text-decoration: none;
 	cursor: pointer;
@@ -1854,66 +1816,17 @@ body.k2-site a.k2-hub-tabs__btn:hover:not(.is-active) {
 	text-decoration: none;
 }
 
-/* Hub nav — solid (override: ?k2_hub_nav=solid) */
-html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active,
-html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
-	color: var(--k2-bg-page);
-	background: var(--k2-accent);
-	box-shadow: none;
-}
-
-html[data-k2-hub-nav="solid"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
-	color: var(--k2-bg-page);
-	background: var(--k2-accent);
-	text-decoration: none;
-}
-
-/* Hub nav — segment track + outline (leaderboard wing parity) */
-html[data-k2-hub-nav="segment"] .k2-hub-tabs {
-	gap: 8px 12px;
-	padding: 4px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
-	box-sizing: border-box;
-}
-
-html[data-k2-hub-nav="segment"] .k2-hub-tabs__links {
-	gap: 2px;
-}
-
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn {
-	padding: 8px 14px;
-	font-size: 13px;
-	border: 1px solid transparent;
-	border-radius: calc(var(--k2-radius-md) - 2px);
-}
-
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active,
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
+body.k2-site a.k2-hub-tabs__btn.is-active,
+body.k2-site a.k2-hub-tabs__btn.is-active:visited {
 	color: var(--k2-segment-active-text);
 	background: transparent;
 	border-color: var(--k2-segment-active-ring);
 	box-shadow: none;
 }
 
-html[data-k2-hub-nav="segment"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
+body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	color: var(--k2-segment-active-text);
 	background: transparent;
-	text-decoration: none;
-}
-
-/* Hub nav — soft tint fill */
-html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active,
-html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active:visited {
-	color: var(--k2-accent);
-	background: color-mix(in srgb, var(--k2-accent) 22%, transparent);
-	box-shadow: none;
-}
-
-html[data-k2-hub-nav="soft"] body.k2-site a.k2-hub-tabs__btn.is-active:hover {
-	color: var(--k2-accent);
-	background: color-mix(in srgb, var(--k2-accent) 28%, transparent);
 	text-decoration: none;
 }
 

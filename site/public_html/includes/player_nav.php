@@ -26,4 +26,4 @@ $k2PlayerTabs = [
 		</div>
 	</nav>
 </div>
-<script type="text/javascript" src="js/k2-hub-nav-tune.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-hub-nav-tune.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/k2-tint-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-tint-toggle.js'); ?>" defer="defer"></script>

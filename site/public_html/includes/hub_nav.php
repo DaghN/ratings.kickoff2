@@ -3,7 +3,6 @@
  * Hub primary tabs — Status · Leaderboards · Activity · Games · Hall of Fame
  * Set $k2HubTabActive before include: status | leaderboards | activity | games | records
  *
- * Hub nav style: segment default; ?k2_hub_nav= override (theme_boot_head.php).
  * Tint picker: Amber · Pitch · Chrome · Holo — hidden by default; Show/Hide tint.
  */
 $k2HubTabActive = $k2HubTabActive ?? '';
@@ -28,4 +27,4 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';
 		</div>
 	</nav>
 </div>
-<script type="text/javascript" src="js/k2-hub-nav-tune.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-hub-nav-tune.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/k2-tint-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-tint-toggle.js'); ?>" defer="defer"></script>
