@@ -64,3 +64,19 @@ Cosmetics-only slice: Part A only; skip Part B registers.
 ## 4) Authority
 
 Dagh’s latest message → `PROJECT_BRIEF.md` → `docs/design-direction.md` → `PROJECT_MEMORY.md`
+
+---
+
+## 5) Git commands on this Windows workspace
+
+The user shell is PowerShell. When committing/pushing here, use PowerShell-safe git commands; do **not** use POSIX-only chaining or heredocs (`&&`, `cat <<'EOF'`, etc.).
+
+Prefer separate commands:
+
+```powershell
+git add -- "path/to/file"
+git commit -m "Short message."
+git push
+```
+
+If multiple commands must be in one shell call, use PowerShell syntax (`;` plus `$LASTEXITCODE` checks), not Bash syntax.
