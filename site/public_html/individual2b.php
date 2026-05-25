@@ -14,37 +14,31 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
-<?php $id=$_GET['id']; ?>
-
 <?php 
+require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_safety.php";
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
+$id = k2_positive_int_param('id', 'Invalid player id.');
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
-$name = $Name;
+$name = $Name ?? '';
 
 $query = "SELECT opponentID, opponentname, COUNT(*), SUM(goalsfor), SUM(goalsagainst), AVG(goalsfor), AVG(goalsagainst), MAX(goalsfor), MAX(goalsagainst), MIN(goalsfor), MIN(goalsagainst), MAX(goalsfor-goalsagainst), MAX(goalsagainst-goalsfor), MAX((goalsfor)*(goalsfor=goalsagainst)), SUM(draw), MAX(goalsfor+goalsagainst), MIN(goalsfor+goalsagainst)
 FROM(
     (
     SELECT idB AS opponentID, nameB AS opponentname, goalsA AS goalsfor, goalsB AS goalsagainst, draw AS draw FROM ratedresults 
-    WHERE idA = '$id'
+    WHERE idA = " . $id . "
 	)
     UNION ALL
     (
 	SELECT idA AS opponentID, nameA AS opponentname, goalsB AS goalsfor, goalsA AS goalsagainst, draw AS draw FROM ratedresults 
-    WHERE idB = '$id' 
+    WHERE idB = " . $id . "
     )
 	)AS derivedtable
 GROUP BY opponentID,opponentname
 ORDER BY COUNT(*) DESC";
 
-$result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
+$result = k2_query_or_public_error($con, $query, 'individual2b matchup table');
 
 mysqli_close($con);
 ?>
@@ -110,7 +104,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 	?>
     
     <tr style="text-align:right;">
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $opponentid ?>"><?php echo $opponentname ?></a></td>
+        <td style="text-align:left;"><?php echo k2_player_link($opponentid, $opponentname); ?></td>
         <td><?php echo $games ?></td>
         <td><?php if ($goalsfor!=0) {echo "<span class='blue'>"; echo $goalsfor; echo "</span>"; } else {echo "0";} ?></td>
         <td><?php if ($goalsagainst!=0) {echo "<span class='red'>"; echo $goalsagainst; echo "</span>"; } else {echo "0";} ?></td>

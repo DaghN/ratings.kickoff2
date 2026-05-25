@@ -14,37 +14,31 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
-<?php $id=$_GET['id']; ?>
-
 <?php 
+require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_safety.php";
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
+$id = k2_positive_int_param('id', 'Invalid player id.');
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
-$name = $Name;
+$name = $Name ?? '';
 
 $query = "SELECT opponentID, opponentname, COUNT(*), SUM(DD), SUM(DDC), SUM(CS), SUM(CSC), AVG(DD), AVG(DDC), AVG(CS), AVG(CSC)
 FROM(
     (
     SELECT idB AS opponentID, nameB AS opponentname, DDPlayerA AS DD, DDPlayerB AS DDC, CSPlayerA AS CS, CSPlayerB AS CSC FROM ratedresults 
-    WHERE idA = '$id'
+    WHERE idA = " . $id . "
 	)
     UNION ALL
     (
 	SELECT idA AS opponentID, nameA AS opponentname, DDPlayerB AS DD, DDPlayerA AS DDC, CSPlayerB AS CS, CSPlayerA AS CSC FROM ratedresults 
-    WHERE idB = '$id' 
+    WHERE idB = " . $id . "
     )
 	)AS derivedtable
 GROUP BY opponentID,opponentname
 ORDER BY COUNT(*) DESC";
 
-$result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
+$result = k2_query_or_public_error($con, $query, 'individual2c matchup table');
 
 mysqli_close($con);
 ?>
@@ -83,7 +77,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
     
     <tr style="text-align:right">
         
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $row[0] ?>"><?php echo $row[1] ?></a></td>
+        <td style="text-align:left;"><?php echo k2_player_link($row[0], $row[1]); ?></td>
         <td><?php echo $row[2] ?></td>
        	<td><?php if ($row[3] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[3];?></span><?php } ?></td>
         <td><?php if ($row[4] == 0) {echo "0";} else {?><span class="red"><?php echo $row[4];?></span><?php } ?></td>

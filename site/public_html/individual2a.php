@@ -14,38 +14,32 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
-<?php $id=$_GET['id']; ?>
-
 <?php 
+require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_safety.php";
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
+$id = k2_positive_int_param('id', 'Invalid player id.');
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
-$name = $Name;
+$name = $Name ?? '';
 
 $query = "SELECT opponentID, opponentname, COUNT(*), SUM(win), SUM(draw), SUM(defeat), AVG(win), AVG(draw), AVG(defeat)
 FROM(
     (
     SELECT idB AS opponentID, nameB AS opponentname, homewin AS win, draw AS draw, awaywin AS defeat FROM ratedresults 
-    WHERE idA = '$id'
+    WHERE idA = " . $id . "
 	)
     UNION ALL
     (
 	SELECT idA AS opponentID, nameA AS opponentname, awaywin AS win, draw AS draw, homewin AS defeat FROM ratedresults 
-    WHERE idB = '$id' 
+    WHERE idB = " . $id . "
     )
 	)AS derivedtable
 GROUP BY opponentID,opponentname
 ORDER BY COUNT(*) DESC";
 
-$result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
+$result = k2_query_or_public_error($con, $query, 'individual2a matchup table');
 
 mysqli_close($con);
 ?>
@@ -92,7 +86,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 	?>
     
     <tr style="text-align:right;">
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $opponentid ?>"><?php echo $opponentname ?></a></td>
+        <td style="text-align:left;"><?php echo k2_player_link($opponentid, $opponentname); ?></td>
         <td><?php echo $games ?></td>
         <td><?php if ($wins!=0) {echo "<span class='blue'>"; echo $wins; echo "</span>"; } else {echo "0";} ?></td>
         <td><?php echo $draws ?></td>

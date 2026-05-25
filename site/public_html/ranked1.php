@@ -19,19 +19,14 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>
 
 <?php 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
+	$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 $query = 'SELECT id, Name, Rating, NumberGames, PeakRating, LowestRating, AverageOpponentRating, HighestRatedVictim, LowestRatedCulprit FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY PeakRating DESC, rating DESC';
-$result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
+$result = k2_query_or_public_error($con, $query, 'ranked1 leaderboard'); 
 
 mysqli_close($con);
 ?>
@@ -69,7 +64,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     
     <tr style="text-align:right;">
         <td><?php echo $rank ?></td>
-        <td style="text-align:left;"><a href="individual1.php?id=<?php echo $row[0] ?>"><?php echo $row[1] ?></a></td>
+        <td style="text-align:left;"><?php echo k2_player_link($row[0], $row[1]); ?></td>
         <td><?php echo round($row[2]) ?></td>
         <td><?php echo $row[3] ?></td>
         <td><?php if ($row[4] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[4]); echo "</span>";} ?></td>
