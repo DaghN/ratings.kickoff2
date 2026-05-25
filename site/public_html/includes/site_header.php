@@ -3,6 +3,7 @@
  * Shared site chrome — wordmark, header search, realm switcher.
  * Requires <html data-realm="online"> and body.k2-site on themed pages.
  * Tint (UI accent) and realm boot from includes/theme_boot_head.php via k2_head.php.
+ * Initial realm button paint comes from html[data-realm]; JS syncs classes/ARIA.
  */
 ?>
 <header class="k2-site-header">
@@ -14,7 +15,7 @@
 	<div class="k2-site-header__links">
 		<?php $playerSearchInHeader = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_search_bar.php"; ?>
 		<nav class="k2-realm-switch" aria-label="Realm">
-			<button type="button" class="k2-realm-switch__btn is-active" data-realm="online" aria-pressed="true">Online</button>
+			<button type="button" class="k2-realm-switch__btn" data-realm="online" aria-pressed="true">Online</button>
 			<button type="button" class="k2-realm-switch__btn" data-realm="amiga" aria-pressed="false">Amiga</button>
 		</nav>
 	</div>

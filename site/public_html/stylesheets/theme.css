@@ -393,6 +393,8 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 	background: var(--k2-bg-hover);
 }
 
+html[data-realm="online"] .k2-realm-switch__btn[data-realm="online"],
+html[data-realm="amiga"] .k2-realm-switch__btn[data-realm="amiga"],
 .k2-realm-switch__btn.is-active {
 	color: var(--k2-segment-active-text);
 	background: transparent;
@@ -400,6 +402,8 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 	box-shadow: none;
 }
 
+html[data-realm="online"] .k2-realm-switch__btn[data-realm="online"]:hover,
+html[data-realm="amiga"] .k2-realm-switch__btn[data-realm="amiga"]:hover,
 .k2-realm-switch__btn.is-active:hover {
 	color: var(--k2-segment-active-text);
 	background: transparent;
