@@ -18,147 +18,162 @@ $k2HubTabActive = 'records';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>
 
-<?php 
+<?php
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
+function records_has_value($value): bool
+{
+	return (float) $value != 0.0;
+}
 
-$query = "SELECT * FROM generalstatstable WHERE id = 1 LIMIT 1";
+function records_value_or_dash($value): string
+{
+	return records_has_value($value) ? (string) $value : '-';
+}
+
+function records_fixed_or_dash($value, int $decimals): string
+{
+	return records_has_value($value) ? number_format((float) $value, $decimals) : '-';
+}
+
+function records_percent_or_dash($value): string
+{
+	return records_has_value($value) ? number_format(100 * (float) $value, 1) . '%' : '-';
+}
+
+function records_date_or_dash($dateValue, bool $showDate, int $newRecordCutoff): string
+{
+	if (!$showDate || $dateValue === null || $dateValue === '') {
+		return '-';
+	}
+
+	$timestamp = strtotime((string) $dateValue);
+	if ($timestamp === false) {
+		return '-';
+	}
+
+	$text = date('M j, Y', $timestamp);
+	if ($timestamp >= $newRecordCutoff) {
+		$text .= "<span class='blue'> (New!)</span>";
+	}
+
+	return $text;
+}
+
+function records_render_row(string $label, string $valueHtml, string $holderHtml, string $dateHtml): void
+{
+	echo "    <tr style=\"text-align:left;\">\n";
+	echo "        <td>" . $label . "</td>\n";
+	echo "        <td style=\"text-align:right;\">" . $valueHtml . "</td>\n";
+	echo "        <td>" . $holderHtml . "</td>\n";
+	echo "        <td style=\"text-align:right;\">" . $dateHtml . "</td>\n";
+	echo "    </tr>\n";
+}
+
+function records_render_spacer_row(): void
+{
+	echo "    <tr style=\"text-align:left;\">\n";
+	echo "        <td>&nbsp;</td>\n";
+	echo "        <td></td>\n";
+	echo "        <td></td>\n";
+	echo "        <td></td>\n";
+	echo "    </tr>\n";
+}
+
+$recordColumns = [
+	'MostGamesPlayed',
+	'MostWins',
+	'MostGoalsScored',
+	'MostDoubleDigits',
+	'MostCleanSheets',
+	'MostGoalsScoredInOneGame',
+	'BiggestWinDifference',
+	'BiggestDrawSum',
+	'BiggestSumOfGoals',
+	'BiggestPeakRating',
+	'LongestWinningStreak',
+	'LongestNonLossStreak',
+	'LongestDrawingStreak',
+	'MostDifferentOpponents',
+	'MostDifferentVictims',
+	'MostDoubleDigitsVictims',
+	'MostCleanSheetsVictims',
+	'MostGamesPlayedID',
+	'MostWinsID',
+	'MostGoalsScoredID',
+	'MostDoubleDigitsID',
+	'MostCleanSheetsID',
+	'MostGoalsScoredInOneGameID',
+	'BiggestWinDifferenceID',
+	'BiggestDrawSumIDA',
+	'BiggestDrawSumIDB',
+	'BiggestSumOfGoalsIDA',
+	'BiggestSumOfGoalsIDB',
+	'BiggestPeakRatingID',
+	'LongestWinningStreakID',
+	'LongestNonLossStreakID',
+	'LongestDrawingStreakID',
+	'MostDifferentOpponentsID',
+	'MostDifferentVictimsID',
+	'MostDoubleDigitsVictimsID',
+	'MostCleanSheetsVictimsID',
+	'MostGamesPlayedName',
+	'MostWinsName',
+	'MostGoalsScoredName',
+	'MostDoubleDigitsName',
+	'MostCleanSheetsName',
+	'MostGoalsScoredInOneGameName',
+	'BiggestWinDifferenceName',
+	'BiggestDrawSumNameA',
+	'BiggestDrawSumNameB',
+	'BiggestSumOfGoalsNameA',
+	'BiggestSumOfGoalsNameB',
+	'BiggestPeakRatingName',
+	'LongestWinningStreakName',
+	'LongestNonLossStreakName',
+	'LongestDrawingStreakName',
+	'MostDifferentOpponentsName',
+	'MostDifferentVictimsName',
+	'MostDoubleDigitsVictimsName',
+	'MostCleanSheetsVictimsName',
+	'MostGamesPlayedDate',
+	'MostWinsDate',
+	'MostGoalsScoredDate',
+	'MostDoubleDigitsDate',
+	'MostCleanSheetsDate',
+	'MostGoalsScoredInOneGameDate',
+	'BiggestWinDifferenceDate',
+	'BiggestDrawSumDate',
+	'BiggestSumOfGoalsDate',
+	'BiggestPeakRatingDate',
+	'LongestWinningStreakDate',
+	'LongestNonLossStreakDate',
+	'LongestDrawingStreakDate',
+	'MostDifferentOpponentsDate',
+	'MostDifferentVictimsDate',
+	'MostDoubleDigitsVictimsDate',
+	'MostCleanSheetsVictimsDate',
+	'MostGoalsScoredInOneGameGameID',
+	'BiggestWinDifferenceGameID',
+	'BiggestDrawSumGameID',
+	'BiggestSumOfGoalsGameID',
+];
+
+$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+if (mysqli_connect_errno()) {
+	die("Failed to connect to MySQL: " . mysqli_connect_error());
+}
+
+$selectColumns = '`' . implode('`, `', $recordColumns) . '`';
+$query = "SELECT " . $selectColumns . " FROM generalstatstable WHERE id = 1 LIMIT 1";
 $result = mysqli_query($con, $query) or die("SELECT Error: ".mysqli_error($con));
 
-$row = mysqli_fetch_assoc($result);
-if (!$row) {
+$records = mysqli_fetch_assoc($result);
+if (!$records) {
 	die("generalstatstable row id=1 missing");
 }
 
-$NumberOfPlayers = $row['NumberOfPlayers'];
-$DifferentOpponentsAverage = $row['DifferentOpponentsAverage'];
-$GamesPlayed = $row['GamesPlayed'];
-$GamesPlayedAverage = $row['GamesPlayedAverage'];
-$NumberOfDecidedGames = $row['NumberOfDecidedGames'];
-$NumberOfDraws = $row['NumberOfDraws'];
-$DecidedGamesRatio = $row['DecidedGamesRatio'];
-$DrawsRatio = $row['DrawsRatio'];
-$GoalsScored = $row['GoalsScored'];
-$GoalsPerGameAverage = $row['GoalsPerGameAverage'];
-$DoubleDigits = $row['DoubleDigits'];
-$CleanSheets = $row['CleanSheets'];
-$DoubleDigitsRatio = $row['DoubleDigitsRatio'];
-$CleanSheetsRatio = $row['CleanSheetsRatio'];
-
-$MostGamesPlayed = $row['MostGamesPlayed'];
-$MostWins = $row['MostWins'];
-$MostGoalsScored = $row['MostGoalsScored'];
-$MostGoalsScoredInOneGame = $row['MostGoalsScoredInOneGame'];
-$BiggestWinDifference = $row['BiggestWinDifference'];
-$BiggestDrawSum = $row['BiggestDrawSum'];
-$BiggestSumOfGoals = $row['BiggestSumOfGoals'];
-$MostDoubleDigits = $row['MostDoubleDigits'];
-$MostCleanSheets = $row['MostCleanSheets'];
-$MostDifferentOpponents = $row['MostDifferentOpponents'];
-$MostDifferentVictims = $row['MostDifferentVictims'];
-$MostDoubleDigitsVictims = $row['MostDoubleDigitsVictims'];
-$MostCleanSheetsVictims = $row['MostCleanSheetsVictims'];
-$BiggestRatingAscent = $row['BiggestRatingAscent'];
-$BiggestPeakRating = $row['BiggestPeakRating'];
-$LongestWinningStreak = $row['LongestWinningStreak'];
-$LongestDrawingStreak = $row['LongestDrawingStreak'];
-$LongestNonLossStreak = $row['LongestNonLossStreak'];
-
-$MostGamesPlayedID = $row['MostGamesPlayedID'];
-$MostWinsID = $row['MostWinsID'];
-$MostGoalsScoredID = $row['MostGoalsScoredID'];
-$MostGoalsScoredInOneGameID = $row['MostGoalsScoredInOneGameID'];
-$BiggestWinDifferenceID = $row['BiggestWinDifferenceID'];
-$BiggestDrawSumIDA = $row['BiggestDrawSumIDA'];
-$BiggestDrawSumIDB = $row['BiggestDrawSumIDB'];
-$BiggestSumOfGoalsIDA = $row['BiggestSumOfGoalsIDA'];
-$BiggestSumOfGoalsIDB = $row['BiggestSumOfGoalsIDB'];
-$MostDoubleDigitsID = $row['MostDoubleDigitsID'];
-$MostCleanSheetsID = $row['MostCleanSheetsID'];
-$MostDifferentOpponentsID = $row['MostDifferentOpponentsID'];
-$MostDifferentVictimsID = $row['MostDifferentVictimsID'];
-$MostDoubleDigitsVictimsID = $row['MostDoubleDigitsVictimsID'];
-$MostCleanSheetsVictimsID = $row['MostCleanSheetsVictimsID'];
-$BiggestRatingAscentID = $row['BiggestRatingAscentID'];
-$BiggestPeakRatingID = $row['BiggestPeakRatingID'];
-$LongestWinningStreakID = $row['LongestWinningStreakID'];
-$LongestDrawingStreakID = $row['LongestDrawingStreakID'];
-$LongestNonLossStreakID = $row['LongestNonLossStreakID'];
-
-$MostGamesPlayedName = $row['MostGamesPlayedName'];
-$MostWinsName = $row['MostWinsName'];
-$MostGoalsScoredName = $row['MostGoalsScoredName'];
-$MostGoalsScoredInOneGameName = $row['MostGoalsScoredInOneGameName'];
-$BiggestWinDifferenceName = $row['BiggestWinDifferenceName'];
-$BiggestDrawSumNameA = $row['BiggestDrawSumNameA'];
-$BiggestDrawSumNameB = $row['BiggestDrawSumNameB'];
-$BiggestSumOfGoalsNameA = $row['BiggestSumOfGoalsNameA'];
-$BiggestSumOfGoalsNameB = $row['BiggestSumOfGoalsNameB'];
-$MostDoubleDigitsName = $row['MostDoubleDigitsName'];
-$MostCleanSheetsName = $row['MostCleanSheetsName'];
-$MostDifferentOpponentsName = $row['MostDifferentOpponentsName'];
-$MostDifferentVictimsName = $row['MostDifferentVictimsName'];
-$MostDoubleDigitsVictimsName = $row['MostDoubleDigitsVictimsName'];
-$MostCleanSheetsVictimsName = $row['MostCleanSheetsVictimsName'];
-$BiggestRatingAscentName = $row['BiggestRatingAscentName'];
-$BiggestPeakRatingName = $row['BiggestPeakRatingName'];
-$LongestWinningStreakName = $row['LongestWinningStreakName'];
-$LongestDrawingStreakName = $row['LongestDrawingStreakName'];
-$LongestNonLossStreakName = $row['LongestNonLossStreakName'];
-
-$MostGamesPlayedDate = $row['MostGamesPlayedDate'];
-$MostWinsDate = $row['MostWinsDate'];
-$MostGoalsScoredDate = $row['MostGoalsScoredDate'];
-$MostGoalsScoredInOneGameDate = $row['MostGoalsScoredInOneGameDate'];
-$BiggestWinDifferenceDate = $row['BiggestWinDifferenceDate'];
-$BiggestDrawSumDate = $row['BiggestDrawSumDate'];
-$BiggestSumOfGoalsDate = $row['BiggestSumOfGoalsDate'];
-$MostDoubleDigitsDate = $row['MostDoubleDigitsDate'];
-$MostCleanSheetsDate = $row['MostCleanSheetsDate'];
-$MostDifferentOpponentsDate = $row['MostDifferentOpponentsDate'];
-$MostDifferentVictimsDate = $row['MostDifferentVictimsDate'];
-$MostDoubleDigitsVictimsDate = $row['MostDoubleDigitsVictimsDate'];
-$MostCleanSheetsVictimsDate = $row['MostCleanSheetsVictimsDate'];
-$BiggestRatingAscentDate = $row['BiggestRatingAscentDate'];
-$BiggestPeakRatingDate = $row['BiggestPeakRatingDate'];
-$LongestWinningStreakDate = $row['LongestWinningStreakDate'];
-$LongestDrawingStreakDate = $row['LongestDrawingStreakDate'];
-$LongestNonLossStreakDate = $row['LongestNonLossStreakDate'];
-
-$MostGoalsScoredInOneGameGameID = $row['MostGoalsScoredInOneGameGameID'];
-$BiggestWinDifferenceGameID = $row['BiggestWinDifferenceGameID'];
-$BiggestDrawSumGameID = $row['BiggestDrawSumGameID'];
-$BiggestSumOfGoalsGameID = $row['BiggestSumOfGoalsGameID'];
-
-
-$phpMostGamesPlayedDate = strtotime( $MostGamesPlayedDate );
-$phpMostWinsDate = strtotime( $MostWinsDate ); 
-$phpMostGoalsScoredDate = strtotime( $MostGoalsScoredDate );
-$phpMostGoalsScoredInOneGameDate = strtotime( $MostGoalsScoredInOneGameDate );
-$phpBiggestWinDifferenceDate = strtotime( $BiggestWinDifferenceDate ); 
-$phpBiggestDrawSumDate = strtotime( $BiggestDrawSumDate );
-$phpBiggestSumOfGoalsDate = strtotime( $BiggestSumOfGoalsDate );
-$phpMostDoubleDigitsDate = strtotime( $MostDoubleDigitsDate );
-$phpMostCleanSheetsDate = strtotime( $MostCleanSheetsDate );
-$phpMostDifferentOpponentsDate = strtotime( $MostDifferentOpponentsDate ); 
-$phpMostDifferentVictimsDate = strtotime( $MostDifferentVictimsDate );
-$phpMostDoubleDigitsVictimsDate = strtotime( $MostDoubleDigitsVictimsDate ); 
-$phpMostCleanSheetsVictimsDate = strtotime( $MostCleanSheetsVictimsDate ); 
-$phpBiggestRatingAscentDate = strtotime( $BiggestRatingAscentDate ); 
-$phpBiggestPeakRatingDate = strtotime( $BiggestPeakRatingDate );
-$phpLongestWinningStreakDate = strtotime( $LongestWinningStreakDate ); 
-$phpLongestDrawingStreakDate = strtotime( $LongestDrawingStreakDate ); 
-$phpLongestNonLossStreakDate = strtotime( $LongestNonLossStreakDate );
-
-$timeread = time();
-$newRecordCutoff = strtotime('-1 month', $timeread);
+$newRecordCutoff = strtotime('-1 month');
 
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/records_ratio_leaders.php";
 records_load_ratio_leaders($con);
@@ -178,247 +193,159 @@ mysqli_close($con);
 </thead>
 
 <tbody class="black">
-	
-    <tr style="text-align:left;">
-        <td>Most games</td>
-        <td style="text-align:right;"><?php echo $MostGamesPlayed ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostGamesPlayedID ?>"><?php echo $MostGamesPlayedName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		echo date('M j, Y', $phpMostGamesPlayedDate); 
-		if ($phpMostGamesPlayedDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr>    
-    
-    <tr style="text-align:left;">
-        <td>Most wins</td>
-        <td style="text-align:right;"><?php if ($MostWins != 0) {echo $MostWins;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostWinsID ?>"><?php echo $MostWinsName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($MostWins != 0) {echo date('M j, Y', $phpMostWinsDate);} 
-		if ($phpMostWinsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most goals</td>
-        <td style="text-align:right;"><?php if ($MostGoalsScored != 0) {echo $MostGoalsScored;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostGoalsScoredID ?>"><?php echo $MostGoalsScoredName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($MostGoalsScored != 0) {echo date('M j, Y', $phpMostGoalsScoredDate);} 
-		if ($phpMostGoalsScoredDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most double digits</td>
-        <td style="text-align:right;"><?php if ($MostDoubleDigits != 0) {echo $MostDoubleDigits;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostDoubleDigitsID ?>"><?php echo $MostDoubleDigitsName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php
-		if ($MostDoubleDigits != 0) {echo date('M j, Y', $phpMostDoubleDigitsDate);}
-		if ($phpMostDoubleDigitsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most clean sheets</td>
-        <td style="text-align:right;"><?php if ($MostCleanSheets != 0) {echo $MostCleanSheets;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostCleanSheetsID ?>"><?php echo $MostCleanSheetsName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php
-		if ($MostCleanSheets != 0) {echo date('M j, Y', $phpMostCleanSheetsDate);}
-		if ($phpMostCleanSheetsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-    	<td>&nbsp;</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most goals in one game</td>
-        <td style="text-align:right;"><?php if ($MostGoalsScoredInOneGame != 0) {echo $MostGoalsScoredInOneGame;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostGoalsScoredInOneGameID ?>"><?php echo $MostGoalsScoredInOneGameName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($MostGoalsScoredInOneGame != 0) {echo date('M j, Y', $phpMostGoalsScoredInOneGameDate);} 
-		if ($phpMostGoalsScoredInOneGameDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Biggest winning margin</td>
-        <td style="text-align:right;"><?php if ($BiggestWinDifference != 0) {echo $BiggestWinDifference;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestWinDifferenceID ?>"><?php echo $BiggestWinDifferenceName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($BiggestWinDifference != 0) {echo date('M j, Y', $phpBiggestWinDifferenceDate);} 
-		if ($phpBiggestWinDifferenceDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Biggest draw</td>
-        <td style="text-align:right;"><?php if ($BiggestDrawSumGameID != 0) {echo $BiggestDrawSum/2; echo "-"; echo $BiggestDrawSum/2;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestDrawSumIDA ?>"><?php echo $BiggestDrawSumNameA ?></a> / <a href="individual1.php?id=<?php echo $BiggestDrawSumIDB ?>"><?php echo $BiggestDrawSumNameB ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($BiggestDrawSumGameID != 0) {echo date('M j, Y', $phpBiggestDrawSumDate);} 
-		if ($phpBiggestDrawSumDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Biggest sum of goals</td>
-        <td style="text-align:right;"><?php echo $BiggestSumOfGoals ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestSumOfGoalsIDA ?>"><?php echo $BiggestSumOfGoalsNameA ?></a> / <a href="individual1.php?id=<?php echo $BiggestSumOfGoalsIDB ?>"><?php echo $BiggestSumOfGoalsNameB ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		echo date('M j, Y', $phpBiggestSumOfGoalsDate); 
-		if ($phpBiggestSumOfGoalsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-    	<td>&nbsp;</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Highest peak rating</td>
-        <td style="text-align:right;"><?php echo number_format($BiggestPeakRating, 0, '.', '') ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestPeakRatingID ?>"><?php echo $BiggestPeakRatingName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		echo date('M j, Y', $phpBiggestPeakRatingDate);
-		if ($phpBiggestPeakRatingDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Longest winning streak</td>
-        <td style="text-align:right;"><?php if ($LongestWinningStreak != 0) {echo $LongestWinningStreak;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $LongestWinningStreakID ?>"><?php echo $LongestWinningStreakName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($LongestWinningStreak != 0) {echo date('M j, Y', $phpLongestWinningStreakDate);}
-		if ($phpLongestWinningStreakDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Longest undefeated streak</td>
-        <td style="text-align:right;"><?php echo $LongestNonLossStreak ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $LongestNonLossStreakID ?>"><?php echo $LongestNonLossStreakName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php
-		echo date('M j, Y', $phpLongestNonLossStreakDate);
-		if ($phpLongestNonLossStreakDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Longest drawing streak</td>
-        <td style="text-align:right;"><?php if ($LongestDrawingStreak != 0) {echo $LongestDrawingStreak;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $LongestDrawingStreakID ?>"><?php echo $LongestDrawingStreakName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php
-		if ($LongestDrawingStreak != 0) {echo date('M j, Y', $phpLongestDrawingStreakDate);}
-		if ($phpLongestDrawingStreakDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-    	<td>&nbsp;</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most opponents</td>
-        <td style="text-align:right;"><?php echo $MostDifferentOpponents ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostDifferentOpponentsID ?>"><?php echo $MostDifferentOpponentsName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		echo date('M j, Y', $phpMostDifferentOpponentsDate); 
-		if ($phpMostDifferentOpponentsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most victims</td>
-        <td style="text-align:right;"><?php if ($MostDifferentVictims != 0) {echo $MostDifferentVictims;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostDifferentVictimsID ?>"><?php echo $MostDifferentVictimsName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($MostDifferentVictims != 0) {echo date('M j, Y', $phpMostDifferentVictimsDate);} 
-		if ($phpMostDifferentVictimsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most double digit victims</td>
-        <td style="text-align:right;"><?php if ($MostDoubleDigitsVictims != 0) {echo $MostDoubleDigitsVictims;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostDoubleDigitsVictimsID ?>"><?php echo $MostDoubleDigitsVictimsName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($MostDoubleDigitsVictims != 0) {echo date('M j, Y', $phpMostDoubleDigitsVictimsDate);} 
-		if ($phpMostDoubleDigitsVictimsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Most clean sheet victims</td>
-        <td style="text-align:right;"><?php if ($MostCleanSheetsVictims != 0) {echo $MostCleanSheetsVictims;} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $MostCleanSheetsVictimsID ?>"><?php echo $MostCleanSheetsVictimsName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;"><?php 
-		if ($MostCleanSheetsVictims != 0) {echo date('M j, Y', $phpMostCleanSheetsVictimsDate);} 
-		if ($phpMostCleanSheetsVictimsDate >= $newRecordCutoff) {echo "<span class='blue'>"; echo " (New!)";};
-		?></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-    	<td>&nbsp;</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Best attack average</td>
-        <td style="text-align:right;"><?php if ($BiggestGoalsForAverage != 0) {echo number_format($BiggestGoalsForAverage, 2);} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestGoalsForAverageID ?>"><?php echo $BiggestGoalsForAverageName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;">-</td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Best defense average</td>
-        <td style="text-align:right;"><?php if ($SmallestGoalsAgainstAverage != 0) {echo number_format($SmallestGoalsAgainstAverage, 2);} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $SmallestGoalsAgainstAverageID ?>"><?php echo $SmallestGoalsAgainstAverageName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;">-</td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Best goal ratio</td>
-        <td style="text-align:right;"><?php if ($BiggestGoalRatio != 0) {echo number_format($BiggestGoalRatio, 2);} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestGoalRatioID ?>"><?php echo $BiggestGoalRatioName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;">-</td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Highest winning frequency</td>
-        <td style="text-align:right;"><?php if ($BiggestWinRatio != 0) {echo number_format(100*$BiggestWinRatio, 1); echo "%";} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestWinRatioID ?>"><?php echo $BiggestWinRatioName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;">-</td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Highest double digit frequency</td>
-        <td style="text-align:right;"><?php if ($BiggestDoubleDigitsRatio != 0) {echo number_format(100*$BiggestDoubleDigitsRatio, 1); echo "%";} else {echo "-";} ?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestDoubleDigitsRatioID ?>"><?php echo $BiggestDoubleDigitsRatioName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;">-</td>
-    </tr> 
-    
-    <tr style="text-align:left;">
-        <td>Highest clean sheet frequency</td>
-        <td style="text-align:right;"><?php if ($BiggestCleanSheetsRatio != 0) {echo number_format(100*$BiggestCleanSheetsRatio, 1); echo "%";} else {echo "-";}?></td>
-        <td>&nbsp;&nbsp;&nbsp;<a href="individual1.php?id=<?php echo $BiggestCleanSheetsRatioID ?>"><?php echo $BiggestCleanSheetsRatioName ?></a>&nbsp;&nbsp;&nbsp;</td>
-        <td style="text-align:right;">-</td>
-    </tr>     
-    
+<?php
+$pad = '&nbsp;&nbsp;&nbsp;';
+
+records_render_row(
+	'Most games',
+	(string) $records['MostGamesPlayed'],
+	$pad . '<a href="individual1.php?id=' . $records['MostGamesPlayedID'] . '">' . $records['MostGamesPlayedName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostGamesPlayedDate'], true, $newRecordCutoff)
+);
+records_render_row(
+	'Most wins',
+	records_value_or_dash($records['MostWins']),
+	$pad . '<a href="individual1.php?id=' . $records['MostWinsID'] . '">' . $records['MostWinsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostWinsDate'], records_has_value($records['MostWins']), $newRecordCutoff)
+);
+records_render_row(
+	'Most goals',
+	records_value_or_dash($records['MostGoalsScored']),
+	$pad . '<a href="individual1.php?id=' . $records['MostGoalsScoredID'] . '">' . $records['MostGoalsScoredName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostGoalsScoredDate'], records_has_value($records['MostGoalsScored']), $newRecordCutoff)
+);
+records_render_row(
+	'Most double digits',
+	records_value_or_dash($records['MostDoubleDigits']),
+	$pad . '<a href="individual1.php?id=' . $records['MostDoubleDigitsID'] . '">' . $records['MostDoubleDigitsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostDoubleDigitsDate'], records_has_value($records['MostDoubleDigits']), $newRecordCutoff)
+);
+records_render_row(
+	'Most clean sheets',
+	records_value_or_dash($records['MostCleanSheets']),
+	$pad . '<a href="individual1.php?id=' . $records['MostCleanSheetsID'] . '">' . $records['MostCleanSheetsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostCleanSheetsDate'], records_has_value($records['MostCleanSheets']), $newRecordCutoff)
+);
+records_render_spacer_row();
+
+records_render_row(
+	'Most goals in one game',
+	records_value_or_dash($records['MostGoalsScoredInOneGame']),
+	$pad . '<a href="individual1.php?id=' . $records['MostGoalsScoredInOneGameID'] . '">' . $records['MostGoalsScoredInOneGameName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostGoalsScoredInOneGameDate'], records_has_value($records['MostGoalsScoredInOneGame']), $newRecordCutoff)
+);
+records_render_row(
+	'Biggest winning margin',
+	records_value_or_dash($records['BiggestWinDifference']),
+	$pad . '<a href="individual1.php?id=' . $records['BiggestWinDifferenceID'] . '">' . $records['BiggestWinDifferenceName'] . '</a>' . $pad,
+	records_date_or_dash($records['BiggestWinDifferenceDate'], records_has_value($records['BiggestWinDifference']), $newRecordCutoff)
+);
+$biggestDrawScore = records_has_value($records['BiggestDrawSumGameID'])
+	? ((string) ($records['BiggestDrawSum'] / 2) . '-' . (string) ($records['BiggestDrawSum'] / 2))
+	: '-';
+records_render_row(
+	'Biggest draw',
+	$biggestDrawScore,
+	$pad . '<a href="individual1.php?id=' . $records['BiggestDrawSumIDA'] . '">' . $records['BiggestDrawSumNameA'] . '</a> / <a href="individual1.php?id=' . $records['BiggestDrawSumIDB'] . '">' . $records['BiggestDrawSumNameB'] . '</a>' . $pad,
+	records_date_or_dash($records['BiggestDrawSumDate'], records_has_value($records['BiggestDrawSumGameID']), $newRecordCutoff)
+);
+records_render_row(
+	'Biggest sum of goals',
+	(string) $records['BiggestSumOfGoals'],
+	$pad . '<a href="individual1.php?id=' . $records['BiggestSumOfGoalsIDA'] . '">' . $records['BiggestSumOfGoalsNameA'] . '</a> / <a href="individual1.php?id=' . $records['BiggestSumOfGoalsIDB'] . '">' . $records['BiggestSumOfGoalsNameB'] . '</a>' . $pad,
+	records_date_or_dash($records['BiggestSumOfGoalsDate'], true, $newRecordCutoff)
+);
+records_render_spacer_row();
+
+records_render_row(
+	'Highest peak rating',
+	number_format((float) $records['BiggestPeakRating'], 0, '.', ''),
+	$pad . '<a href="individual1.php?id=' . $records['BiggestPeakRatingID'] . '">' . $records['BiggestPeakRatingName'] . '</a>' . $pad,
+	records_date_or_dash($records['BiggestPeakRatingDate'], true, $newRecordCutoff)
+);
+records_render_row(
+	'Longest winning streak',
+	records_value_or_dash($records['LongestWinningStreak']),
+	$pad . '<a href="individual1.php?id=' . $records['LongestWinningStreakID'] . '">' . $records['LongestWinningStreakName'] . '</a>' . $pad,
+	records_date_or_dash($records['LongestWinningStreakDate'], records_has_value($records['LongestWinningStreak']), $newRecordCutoff)
+);
+records_render_row(
+	'Longest undefeated streak',
+	(string) $records['LongestNonLossStreak'],
+	$pad . '<a href="individual1.php?id=' . $records['LongestNonLossStreakID'] . '">' . $records['LongestNonLossStreakName'] . '</a>' . $pad,
+	records_date_or_dash($records['LongestNonLossStreakDate'], true, $newRecordCutoff)
+);
+records_render_row(
+	'Longest drawing streak',
+	records_value_or_dash($records['LongestDrawingStreak']),
+	$pad . '<a href="individual1.php?id=' . $records['LongestDrawingStreakID'] . '">' . $records['LongestDrawingStreakName'] . '</a>' . $pad,
+	records_date_or_dash($records['LongestDrawingStreakDate'], records_has_value($records['LongestDrawingStreak']), $newRecordCutoff)
+);
+records_render_spacer_row();
+
+records_render_row(
+	'Most opponents',
+	(string) $records['MostDifferentOpponents'],
+	$pad . '<a href="individual1.php?id=' . $records['MostDifferentOpponentsID'] . '">' . $records['MostDifferentOpponentsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostDifferentOpponentsDate'], true, $newRecordCutoff)
+);
+records_render_row(
+	'Most victims',
+	records_value_or_dash($records['MostDifferentVictims']),
+	$pad . '<a href="individual1.php?id=' . $records['MostDifferentVictimsID'] . '">' . $records['MostDifferentVictimsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostDifferentVictimsDate'], records_has_value($records['MostDifferentVictims']), $newRecordCutoff)
+);
+records_render_row(
+	'Most double digit victims',
+	records_value_or_dash($records['MostDoubleDigitsVictims']),
+	$pad . '<a href="individual1.php?id=' . $records['MostDoubleDigitsVictimsID'] . '">' . $records['MostDoubleDigitsVictimsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostDoubleDigitsVictimsDate'], records_has_value($records['MostDoubleDigitsVictims']), $newRecordCutoff)
+);
+records_render_row(
+	'Most clean sheet victims',
+	records_value_or_dash($records['MostCleanSheetsVictims']),
+	$pad . '<a href="individual1.php?id=' . $records['MostCleanSheetsVictimsID'] . '">' . $records['MostCleanSheetsVictimsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostCleanSheetsVictimsDate'], records_has_value($records['MostCleanSheetsVictims']), $newRecordCutoff)
+);
+records_render_spacer_row();
+
+records_render_row(
+	'Best attack average',
+	records_fixed_or_dash($BiggestGoalsForAverage, 2),
+	$pad . '<a href="individual1.php?id=' . $BiggestGoalsForAverageID . '">' . $BiggestGoalsForAverageName . '</a>' . $pad,
+	'-'
+);
+records_render_row(
+	'Best defense average',
+	records_fixed_or_dash($SmallestGoalsAgainstAverage, 2),
+	$pad . '<a href="individual1.php?id=' . $SmallestGoalsAgainstAverageID . '">' . $SmallestGoalsAgainstAverageName . '</a>' . $pad,
+	'-'
+);
+records_render_row(
+	'Best goal ratio',
+	records_fixed_or_dash($BiggestGoalRatio, 2),
+	$pad . '<a href="individual1.php?id=' . $BiggestGoalRatioID . '">' . $BiggestGoalRatioName . '</a>' . $pad,
+	'-'
+);
+records_render_row(
+	'Highest winning frequency',
+	records_percent_or_dash($BiggestWinRatio),
+	$pad . '<a href="individual1.php?id=' . $BiggestWinRatioID . '">' . $BiggestWinRatioName . '</a>' . $pad,
+	'-'
+);
+records_render_row(
+	'Highest double digit frequency',
+	records_percent_or_dash($BiggestDoubleDigitsRatio),
+	$pad . '<a href="individual1.php?id=' . $BiggestDoubleDigitsRatioID . '">' . $BiggestDoubleDigitsRatioName . '</a>' . $pad,
+	'-'
+);
+records_render_row(
+	'Highest clean sheet frequency',
+	records_percent_or_dash($BiggestCleanSheetsRatio),
+	$pad . '<a href="individual1.php?id=' . $BiggestCleanSheetsRatioID . '">' . $BiggestCleanSheetsRatioName . '</a>' . $pad,
+	'-'
+);
+?>
 </tbody>
 
 </table>

@@ -119,7 +119,7 @@
                                     autoSkip: true,
                                     maxTicksLimit: 24
                                 },
-                                grid: { color: T.grid() }
+                                grid: { color: T.softGrid() }
                             },
                             y: {
                                 beginAtZero: true,
@@ -127,7 +127,7 @@
                                     color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: T.grid() }
+                                grid: { color: T.softGrid() }
                             }
                         }
                     }

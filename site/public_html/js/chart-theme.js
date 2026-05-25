@@ -78,6 +78,7 @@
         textPrimary: function () { return cssVar('--k2-text-primary', '#d0d7de'); },
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },
         grid: function () { return 'rgba(255, 255, 255, 0.08)'; },
+        softGrid: function () { return 'rgba(255, 255, 255, 0.045)'; },
         fill: hexToRgba,
         legendColor: function () { return this.textPrimary(); },
         tickColor: function () { return this.textMuted(); }

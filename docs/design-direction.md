@@ -124,13 +124,14 @@ Think **Blade Runner control room**, not **Cyberpunk 2077 menu screen**.
 | Cumulative established | holo (line, light area fill) |
 | Rating distribution | magenta |
 
-**Render (Activity bars):** `K2ChartTheme.barStroke()` — border 1px, fill α from `--k2-chart-bar-fill-alpha` (0.65). Lines: `lineStroke()` + `--k2-chart-line-area-alpha` (0.12).
+**Render (Activity bars):** `K2ChartTheme.barStroke()` — border 1px, fill alpha from `--k2-chart-bar-fill-alpha` (0.65). Dense monthly bars use `K2ChartTheme.softGrid()` so grid lines do not visually slice through narrow bars. Lines: `lineStroke()` + `--k2-chart-line-area-alpha` (0.12).
 
 Use `pitch()` / `chrome()` or `profileCompare*` / `opponentFocus*` in chart JS — no legacy colour names.
 
 | Text primary | `#d0d7de` | Body on dark |
 | Text muted | `#8b949e` | Helpers, axis labels |
 | Grid subtle | `rgba(255, 255, 255, 0.08)` | Chart grids |
+| Grid soft | `rgba(255, 255, 255, 0.045)` | Dense monthly Activity bar charts |
 
 Chart block hints use `.k2-chart-block__hint`.
 

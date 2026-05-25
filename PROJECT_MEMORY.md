@@ -64,6 +64,8 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Records page refactor** — `server2.php` now uses page-local row/date helpers and explicit `generalstatstable` columns; no shared `h()`/`player_link()` added. |
+| 2026-05 | **Activity monthly chart grids** — graphs 1, 3, and 4 on `server1.php` use softer grid lines for narrow bar readability. |
 | 2026-05 | **Records label styling** — removed dummy links from `server2.php` left-column record labels; player links remain. |
 | 2026-05 | **Records opponent/victim labels** — shortened `server2.php` rows to “Most opponents” and “Most victims”. |
 | 2026-05 | **Records footnote spacing** — removed extra break between `server2.php` table and explanatory text. |
