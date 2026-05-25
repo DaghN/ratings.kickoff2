@@ -4,6 +4,8 @@
 
 **Staging DB note:** **`kooldb` on ratings.kickoff2.com does not receive live game writes** from the production game server (May 2026). Staging is updated by **scripts Steve runs** (replay, schema SQL, dumps), not by each new rated match. WinSCP deploys **PHP only**.
 
+**Server separation:** Steve confirmed staging and production are on **entirely different physical servers**. The staging replay wrapper now passes `--target staging`; Python refuses `kooldb` unless that target is explicit. Production replay/cutover would need a separately named, reviewed wrapper.
+
 **Status:** **Done (May 2026).** Local **`ko2unity_db`** validated earlier; **Steve** ran `bash run_staging_ladder_replay.sh` from staging **`public_html/`** on **`kooldb`** — success. **Production live ratings remain C++** (P5 deferred).
 
 **Other docs:** CLI → **`scripts/ladder/README.md`** · scope → **`docs/replay-v1-scope-and-reset.md`** · phases / deferred work → **`docs/ladder-engine-plan.md`**
@@ -47,6 +49,8 @@ bash run_staging_ladder_replay.sh
 ```
 
 **Success:** exit 0; log ends with `replay_all complete: … games`, `playertable updated`, `generalstatstable id=1 updated`.
+
+**Preflight log:** replay now prints database identity (`DATABASE()`, `CURRENT_USER()`, `@@hostname`, `@@port`, `VERSION()`) before writes. MariaDB checks should use `COUNT(*)`, not bare `COUNT()`.
 
 **Effect:** recalculated ratings/stats saved to **`kooldb`**; staging site numbers differ from pre-replay — expected.
 

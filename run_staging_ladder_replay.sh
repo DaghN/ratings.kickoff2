@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot staging ladder replay (kooldb).
+# One-shot staging ladder replay (staging kooldb only).
 # Run on the server from either:
 #   - project root (scripts/ beside public_html/), or
 #   - public_html/ if SFTP only allows uploading under the web root.
@@ -16,4 +16,5 @@ else
 fi
 
 python3 -m pip install -q -r scripts/ladder/requirements.txt
-exec python3 -m scripts.ladder run
+echo "Running staging replay only. Production needs a separately named, explicitly reviewed wrapper."
+exec python3 -m scripts.ladder run --target staging

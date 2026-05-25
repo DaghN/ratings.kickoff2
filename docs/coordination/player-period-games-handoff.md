@@ -11,6 +11,8 @@
 
 Staging `kooldb` has no live game writes, so the goal is schema + one rebuild + PHP smoke test.
 
+**Status:** Done May 2026. Steve ran the schema + rebuild on staging and the appearance-count expectation test passed.
+
 ### Files Steve needs
 
 | Purpose | File |
@@ -48,6 +50,8 @@ FROM ratedresults;
 ```
 
 For each period type, `appearances` should equal `expected_appearances`.
+
+**MariaDB note from staging:** use `COUNT(*)`, not `COUNT()`. Steve had to adjust one copied SQL statement because MariaDB rejected bare `COUNT()`.
 
 4. Deploy PHP to staging `public_html/`.
 

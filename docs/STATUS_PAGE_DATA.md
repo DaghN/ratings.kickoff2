@@ -107,7 +107,7 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | Phase A | Hub shell, bridge, heritage box |
 | **Phase B v1** | **Shipped** — `status_queries.php`, `status_room_section.php`, `status.php` |
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
-| Period activity prep | **Local only** — `player_period_games` schema/backfill + `dev-period-activity.php`; staging/prod handoff pending Steve |
+| Period activity prep | **Local + staging DB done** — `player_period_games` schema/backfill + `dev-period-activity.php`; prod handoff/method pending Steve |
 | v1.5+ | Polling, active filter on Leaderboards tab, kickoff2 embed, joshua redirect |
 
 ---

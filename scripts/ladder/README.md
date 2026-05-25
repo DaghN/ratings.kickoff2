@@ -14,20 +14,20 @@ pip install -r scripts/ladder/requirements.txt
 
 ```bash
 # Safe first check — logs SQL and sample math, no writes
-python -m scripts.ladder run --dry-run
+python -m scripts.ladder run --target local --dry-run
 
 # Reset derived columns + full replay (~74k games, full playertable rebuild)
-python -m scripts.ladder run
+python -m scripts.ladder run --target local
 
 # Steps separately
-python -m scripts.ladder reset
-python -m scripts.ladder replay
+python -m scripts.ladder reset --target local
+python -m scripts.ladder replay --target local
 
 # Rebuild player period activity aggregate (SQL wrapper for local)
 powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_local.ps1
 
 # Smoke test: reset + first 100 games only
-python -m scripts.ladder run --limit 100
+python -m scripts.ladder run --target local --limit 100
 ```
 
 **Recovery:** re-import `data/dumps/ko2unity_db-2026-05-20.sql` if needed (`data/README.md`).
@@ -36,7 +36,7 @@ python -m scripts.ladder run --limit 100
 
 - K = 32, starting rating = 1600, no decay
 - Order: `Date ASC`, `id ASC`
-- Database allowlist: `ko2unity_db` (local), `kooldb` (staging/dev — whatever `$database` is in PHP config)
+- Database allowlist: `ko2unity_db` (local) and `kooldb` (staging). Local can be inferred for `ko2unity_db`; `kooldb` requires `--target staging`.
 
 **v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and rebuilds `generalstatstable` row `id=1` at the end.
 
@@ -44,4 +44,4 @@ python -m scripts.ladder run --limit 100
 
 **`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Staging DB name `kooldb` is allowlisted when `$database` in PHP config is `kooldb`.
 
-**`player_period_games`:** Rebuilt from `ratedresults` by `scripts/ladder/sql/player_period_games_rebuild.sql` (local wrapper `scripts/rebuild_player_period_games_local.ps1`). Production parity requires post-game C++ PG-005 to upsert both players into day/month/year rows.
+**`player_period_games`:** Rebuilt from `ratedresults` by `scripts/ladder/sql/player_period_games_rebuild.sql` (local wrapper `scripts/rebuild_player_period_games_local.ps1`). The SQL truncates/repopulates the aggregate and should only run through a reviewed wrapper/handoff. Production parity requires post-game C++ PG-005 to upsert both players into day/month/year rows.

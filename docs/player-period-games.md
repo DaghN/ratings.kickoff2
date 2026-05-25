@@ -84,7 +84,9 @@ limit=1..100
 | Environment | State |
 |-------------|-------|
 | Local `ko2unity_db` | Schema applied; backfill run |
-| Staging `kooldb` | Pending Steve: schema + rebuild SQL |
+| Staging `kooldb` | Schema + rebuild run by Steve; appearance-count expectation test passed |
 | Production `kooldb` | Pending method decision: schema + rebuild + post-game C++ |
 
 Staging has no live game writes, so backfill is enough to test PHP there. Production needs the C++ writer before this becomes live truth.
+
+MariaDB compatibility note from staging: write aggregate checks with `COUNT(*)`, not bare `COUNT()`.

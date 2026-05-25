@@ -8,7 +8,7 @@
 
 | Question | Answer |
 |----------|--------|
-| **Local replay — one command?** | **Yes** — `scripts\run_local_replay.ps1` (or `python -m scripts.ladder run`) |
+| **Local replay — one command?** | **Yes** — `scripts\run_local_replay.ps1` (or `python -m scripts.ladder run --target local`) |
 | **How to change replay logic?** | Edit **`scripts/ladder/`** — see [Updating replay](#updating-replay) |
 | **One-off template?** | **Yes** — `scripts/oneoff/_template.py` + README |
 | **Staging package for Steve?** | **Partial** — `run_staging_ladder_replay.sh` + upload `scripts/ladder/`; no single zip; schema SQL separate |
@@ -35,7 +35,7 @@ powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1 -DryRun
 
 **~3–5 min**, ~74k games. **Recovery:** re-import dump (`data/README.md`) if you need a clean slate.
 
-**Manual equivalent:** `python -m scripts.ladder run` — full options in `scripts/ladder/README.md`.
+**Manual equivalent:** `python -m scripts.ladder run --target local` — full options in `scripts/ladder/README.md`. Staging `kooldb` requires `--target staging`; production would need a separately reviewed wrapper.
 
 ---
 
@@ -60,7 +60,7 @@ After code changes: `run_local_replay.ps1` on local; then staging (below).
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 ```
 
-Adds indexes etc. from `schema/migrations/*.sql`. Register: `docs/coordination/schema-register.md`.
+Adds indexes etc. from `schema/migrations/*.sql` to local `ko2unity_db`. The script refuses non-local DB names unless `-AllowNonLocal` is explicitly passed for a reviewed one-off. Register: `docs/coordination/schema-register.md`.
 
 ---
 
@@ -89,7 +89,9 @@ Steve runs from `public_html/`:
 bash run_staging_ladder_replay.sh
 ```
 
-**Schema on staging:** send SQL file(s) from `schema/migrations/` — Steve runs on `kooldb` (same as prod name on staging).
+The wrapper passes `--target staging`, and the Python replay prints DB identity before writes.
+
+**Schema on staging:** send SQL file(s) from `schema/migrations/` — Steve runs on staging `kooldb`. Steve confirmed staging and production are on entirely different physical servers; production cutover still needs its own reviewed instructions.
 
 **Full checklist:** `docs/STAGING_REPLAY.md` · **Cutover email template:** `docs/coordination/cutover-packet-template.md`
 

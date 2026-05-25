@@ -4,7 +4,8 @@
 param(
     [string]$Database = 'ko2unity_db',
     [string]$User = 'root',
-    [string]$Password = ''
+    [string]$Password = '',
+    [switch]$AllowNonLocal
 )
 
 $ErrorActionPreference = 'Stop'
@@ -20,12 +21,22 @@ if (-not (Test-Path $SqlFile)) {
     Write-Error "SQL rebuild file not found at $SqlFile"
 }
 
+if ($Database -ne 'ko2unity_db' -and -not $AllowNonLocal) {
+    Write-Error "Refusing to rebuild player_period_games on '$Database'. Use -AllowNonLocal only for an explicitly reviewed one-off."
+}
+
 $mysqlArgs = @('-u', $User, $Database)
 if ($Password -ne '') {
     $mysqlArgs = @('-u', $User, "-p$Password", $Database)
 }
 
 Write-Host "Rebuilding player_period_games on $Database..." -ForegroundColor Cyan
+$identity = & $MysqlExe @mysqlArgs -N -e "SELECT DATABASE(), CURRENT_USER(), @@hostname, @@port, VERSION();"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error 'Could not verify database identity.'
+}
+Write-Host "DB identity: $identity" -ForegroundColor DarkCyan
+Write-Host 'This rebuild truncates and repopulates player_period_games.' -ForegroundColor Yellow
 Get-Content -Raw -LiteralPath $SqlFile | & $MysqlExe @mysqlArgs
 if ($LASTEXITCODE -ne 0) {
     Write-Error "player_period_games rebuild failed (exit $LASTEXITCODE)."

@@ -12,7 +12,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Games tab 7-day buckets | L0 | — | — | — | — | Read-time SQL on `ratedresults`; no stored truth change |
 | Hub / Status cosmetics | — | — | — | — | — | PHP only; no prod DB writers |
 | Status monthly league (table) | L0 | — | — | — | — | Read-time SQL on `ratedresults` |
-| Period activity leaderboards | L3 | SCH-004 | REP-003 | PG-005 | — | Local schema/backfill/PHP done; staging handoff ready; prod method TBD |
+| Period activity leaderboards | L3 | SCH-004 | REP-003 | PG-005 | — | Local + staging schema/backfill done; staging expectation test passed; prod method TBD |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | — | — | Prod index apply pending Steve |
 | Ladder replay sandbox (K32/1600/no decay) | L2 | SCH-002 | REP-001 | PG-002 (TBD) | PER-001 fade off | Staging replay done; prod not |
 | Records ratio leaders from playertable | L3 | SCH-003 | REP-001 note | PG-004 | — | Local 002 DROP 28 GST cols; Steve: same migration + C++ stop writes |

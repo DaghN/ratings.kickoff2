@@ -1,4 +1,4 @@
-"""CLI: python -m scripts.ladder [reset|replay|run] [--dry-run] [--limit N]"""
+"""CLI: python -m scripts.ladder [reset|replay|run] [--target local|staging] [--dry-run] [--limit N]"""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from scripts.ladder.engine import connect, replay_all, reset_universe, run_full
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="KO2 online ladder replay v1 (ko2unity_db only). See docs/replay-v1-scope-and-reset.md."
+        description="KO2 online ladder replay v1 (local/staging targets). See docs/replay-v1-scope-and-reset.md."
     )
     parser.add_argument(
         "command",
@@ -43,6 +43,12 @@ def main() -> None:
         default=None,
         help="Optional ladder.ini override (default: ko2unitydb_config.php)",
     )
+    parser.add_argument(
+        "--target",
+        choices=("local", "staging"),
+        default=None,
+        help="Expected environment. Local ko2unity_db can be inferred; staging kooldb must be explicit.",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
@@ -53,10 +59,10 @@ def main() -> None:
 
     cfg = load_db_config(args.ini)
     if args.command == "run":
-        run_full(cfg, dry_run=args.dry_run, limit=args.limit)
+        run_full(cfg, dry_run=args.dry_run, limit=args.limit, target=args.target)
         return
 
-    conn = connect(cfg, dry_run=args.dry_run)
+    conn = connect(cfg, dry_run=args.dry_run, target=args.target)
     try:
         if args.command == "reset":
             reset_universe(conn, dry_run=args.dry_run)

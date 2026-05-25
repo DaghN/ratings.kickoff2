@@ -1,5 +1,5 @@
 -- Rebuild player_period_games from ratedresults.
--- Safe for local/staging/prod when player_period_games exists and ratedresults is authoritative.
+-- Destructive: truncates and repopulates the aggregate. Run only through a reviewed wrapper/handoff.
 
 TRUNCATE TABLE `player_period_games`;
 

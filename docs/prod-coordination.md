@@ -18,9 +18,11 @@
 
 | Environment | DB name | Live game writes? | Site code | DB updates |
 |-------------|---------|-------------------|-----------|------------|
-| **Local** | `ko2unity_db` | No | Repo + Laragon | Dump import, `schema/`, `python -m scripts.ladder run` |
+| **Local** | `ko2unity_db` | No | Repo + Laragon | Dump import, `schema/`, `python -m scripts.ladder run --target local` |
 | **Staging** | `kooldb` | **No** | WinSCP → `public_html/` | Steve: SQL, replay, one-offs — **not** live play |
-| **Production** | `kooldb` | **Yes** (C++ post-game + periodic jobs) | Steve / agreed deploy | Continuous + cutover packets |
+| **Production** | Steve-managed live DB (not stored in repo) | **Yes** (C++ post-game + periodic jobs) | Steve / agreed deploy | Continuous + cutover packets |
+
+Steve confirmed staging and production are on entirely different physical servers; do not infer production access from the staging `kooldb` name.
 
 Full detail: `docs/ladder-engine-plan.md` §2, `docs/STATUS_PAGE_DATA.md`, `docs/LOCAL_DEV.md`.
 
@@ -46,7 +48,7 @@ Use for any release that changes **stored ladder truth** (not PHP-only cosmetics
 
 1. **Agree** cutover with Steve; send [cutover packet](coordination/cutover-packet-template.md).
 2. **Turn off rating fade** (hourly) — required before deploy that changes ratings/stats semantics.
-3. **Apply schema** — `schema/migrations/*.sql` in order on prod `kooldb` (Steve).
+3. **Apply schema** — `schema/migrations/*.sql` in order on the production DB (Steve).
 4. **Replay history** (if register says so) — Python `scripts/ladder` per `docs/replay-v1-scope-and-reset.md`, tested on staging; or Steve’s C++ replay to the **same written spec**.
 5. **Deploy post-game C++** — Steve inserts our [snippet packs](coordination/post-game-cpp-handoff.md); **future** games maintain new columns/aggregates.
 6. **Deploy periodic jobs** (if any new/changed).
@@ -77,7 +79,7 @@ Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes
 |------|----------|
 | Schema SQL | `schema/migrations/` + `schema/README.md` |
 | Apply schema locally | `schema/apply_local.ps1` |
-| Full replay | `python -m scripts.ladder run` — `scripts/ladder/README.md` |
+| Full replay | `python -m scripts.ladder run --target local` / staging wrapper uses `--target staging` — `scripts/ladder/README.md` |
 | Staging replay (Steve) | `docs/STAGING_REPLAY.md`, `run_staging_ladder_replay.sh` |
 | One-off template | `scripts/oneoff/` |
 | Live C++ reference | `docs/ratings_cpp.txt` |
@@ -90,7 +92,7 @@ Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes
 
 | Area | Our deliverable | Steve |
 |------|-----------------|--------|
-| **Schema** | `schema/migrations/*.sql` | Runs on prod `kooldb` |
+| **Schema** | `schema/migrations/*.sql` | Runs on the intended production DB |
 | **Replay** | Tested Python + spec (`docs/replay-v1-scope-and-reset.md`) | Runs on server; or his C++ replay to same spec |
 | **Post-game C++** | **[Snippet packs](coordination/post-game-cpp-handoff.md)** in `docs/coordination/cpp-snippets/` (option 2, May 2026) | Inserts into his post-game code |
 | **Periodic** | Register row + ask in cutover packet | Implements scheduler / stops fade |

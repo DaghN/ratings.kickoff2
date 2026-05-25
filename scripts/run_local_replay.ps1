@@ -19,7 +19,7 @@ try {
     Write-Host 'Checking pymysql...' -ForegroundColor Cyan
     python -m pip install -q -r $req
 
-    $args = @('-m', 'scripts.ladder', 'run')
+    $args = @('-m', 'scripts.ladder', 'run', '--target', 'local')
     if ($DryRun) {
         $args += '--dry-run'
         Write-Host 'DRY RUN — no database writes' -ForegroundColor Yellow

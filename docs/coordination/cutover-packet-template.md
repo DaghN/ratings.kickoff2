@@ -45,7 +45,7 @@ mysql -u … kooldb < schema/migrations/001_ratedresults_player_indexes.sql
 
 | Parameter | Value |
 |-----------|--------|
-| Tool | [ Python `run_staging_ladder_replay.sh` on prod / Steve C++ to spec ] |
+| Tool | [ reviewed production replay wrapper / Steve C++ to spec ] |
 | K-factor | 32 |
 | Start rating | 1600 |
 | Decay | Off |
@@ -57,7 +57,7 @@ mysql -u … kooldb < schema/migrations/001_ratedresults_player_indexes.sql
 
 ```bash
 cd /path/to/public_html
-bash run_staging_ladder_replay.sh   # or prod wrapper name TBD
+bash run_PROD_WRAPPER_TBD.sh
 ```
 
 **Expected:** exit 0; log ends with `replay_all complete`, `generalstatstable id=1 updated`.

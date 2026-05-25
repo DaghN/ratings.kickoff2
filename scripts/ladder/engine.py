@@ -27,6 +27,11 @@ from .schema import ensure_generalstatstable, reset_generalstatstable_row
 
 log = logging.getLogger(__name__)
 
+TARGET_DATABASES = {
+    "local": "ko2unity_db",
+    "staging": "kooldb",
+}
+
 GAME_SELECT = """
     SELECT id, Date, idA, idB, GoalsA, GoalsB
     FROM ratedresults
@@ -75,11 +80,73 @@ def load_player_names(conn: pymysql.connections.Connection) -> dict[int, str]:
         return {int(row["ID"]): str(row["Name"]) for row in cur.fetchall()}
 
 
-def connect(cfg: DbConfig, *, dry_run: bool) -> pymysql.connections.Connection:
+def _resolve_target(cfg: DbConfig, target: str | None) -> str:
     if cfg.database not in ALLOWED_DATABASES:
         raise SystemExit(
             f"Refusing to connect: database {cfg.database!r} not in {sorted(ALLOWED_DATABASES)}"
         )
+
+    if target is None:
+        if cfg.database == TARGET_DATABASES["local"]:
+            return "local"
+        raise SystemExit(
+            f"Refusing to use database {cfg.database!r} without an explicit target. "
+            "Pass --target staging for the staging replay wrapper."
+        )
+
+    if target not in TARGET_DATABASES:
+        raise SystemExit(f"Unknown target {target!r}; expected one of {sorted(TARGET_DATABASES)}")
+
+    expected = TARGET_DATABASES[target]
+    if cfg.database != expected:
+        raise SystemExit(
+            f"Refusing target {target!r}: config database is {cfg.database!r}, expected {expected!r}."
+        )
+
+    return target
+
+
+def _log_connection_identity(
+    conn: pymysql.connections.Connection,
+    *,
+    target: str,
+    configured_host: str,
+    configured_port: int,
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT
+                DATABASE() AS db,
+                CURRENT_USER() AS db_user,
+                @@hostname AS server_host,
+                @@port AS server_port,
+                VERSION() AS server_version
+            """
+        )
+        row = cur.fetchone()
+        assert row is not None
+
+    log.info(
+        "DB target=%s configured_host=%s configured_port=%s db=%s current_user=%s server_host=%s server_port=%s version=%s",
+        target,
+        configured_host,
+        configured_port,
+        row["db"],
+        row["db_user"],
+        row["server_host"],
+        row["server_port"],
+        row["server_version"],
+    )
+
+
+def connect(
+    cfg: DbConfig,
+    *,
+    dry_run: bool,
+    target: str | None = None,
+) -> pymysql.connections.Connection:
+    resolved_target = _resolve_target(cfg, target)
     conn = pymysql.connect(
         host=cfg.host,
         port=cfg.port,
@@ -89,6 +156,12 @@ def connect(cfg: DbConfig, *, dry_run: bool) -> pymysql.connections.Connection:
         charset="utf8mb4",
         autocommit=False,
         cursorclass=DictCursor,
+    )
+    _log_connection_identity(
+        conn,
+        target=resolved_target,
+        configured_host=cfg.host,
+        configured_port=cfg.port,
     )
     with conn.cursor() as cur:
         cur.execute("SELECT DATABASE() AS db")
@@ -318,8 +391,8 @@ def replay_all(
     log.info("replay_all complete: %s games", processed)
 
 
-def run_full(cfg: DbConfig, *, dry_run: bool, limit: int | None) -> None:
-    conn = connect(cfg, dry_run=dry_run)
+def run_full(cfg: DbConfig, *, dry_run: bool, limit: int | None, target: str | None = None) -> None:
+    conn = connect(cfg, dry_run=dry_run, target=target)
     try:
         reset_universe(conn, dry_run=dry_run)
         replay_all(conn, dry_run=dry_run, limit=limit)

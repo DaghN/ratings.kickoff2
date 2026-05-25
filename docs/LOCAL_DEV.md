@@ -123,7 +123,7 @@ SELECT COUNT(*) FROM ratedresults;   -- expect ~74870
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 ```
 
-(Wrapper: `scripts\apply_ratedresults_player_indexes.ps1` — same as `001_ratedresults_player_indexes.sql`.)
+(Wrapper: `scripts\apply_ratedresults_player_indexes.ps1` — local helper that applies only `001_ratedresults_player_indexes.sql`.)
 
 Then spot-check `http://ratingskickoff.test/individual1.php?id=237` — profile should load in ~1s for heavy players or ~100ms for light ones (was multi-second before indexes).
 
@@ -140,7 +140,7 @@ Dump file: **`data/dumps/ko2unity_db-2026-05-20.sql`** (HeidiSQL export from **`
 | `ratedresults` | Yes | ~74,870 games |
 | `playertable` | Yes | 475 rows; still has **`KungFu*`** columns (pre–column-drop snapshot) |
 | `resulttable` | Yes | Wide match log (~81k rows): **live/shelved games** for hub Status (`docs/STATUS_PAGE_DATA.md`). Not used by ladder chart APIs. |
-| **`generalstatstable`** | **Not in `.sql` file** | After import, **`python -m scripts.ladder run`** (or staging replay) can create row `id=1` for headline totals. Original dump note still applies if you skip replay. |
+| **`generalstatstable`** | **Not in `.sql` file** | After import, **`python -m scripts.ladder run --target local`** (or staging replay) can create row `id=1` for headline totals. Original dump note still applies if you skip replay. |
 
 **Hub Status page:** same DB as legacy [joshua status.php](https://joshua.kickoff2.net/status.php) — build locally without a separate API; see **`docs/STATUS_PAGE_DATA.md`**. `IsOnline` / in-progress games are stale on local and staging (no live writes); prod only for “tonight” truth.
 
