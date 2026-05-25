@@ -447,7 +447,7 @@ Definition of done:
 **Shipped:**
 
 - Added `js/k2-table.js`, a small opt-in table script for `data-k2-table="sortable"` tables.
-- Supports `data-k2-sort="number|text"`, stable sorting, first-click descending, `aria-sort`, keyboard Enter/Space sorting, and `data-k2-sort-value` for future fast/explicit values.
+- Supports `data-k2-sort="number|text"`, stable sorting for new columns, same-column reversal when toggling direction, first-click descending, `aria-sort`, keyboard Enter/Space sorting, and `data-k2-sort-value` for future fast/explicit values.
 - Supports `data-k2-default-sort` / `data-k2-default-direction` to light up a server-rendered default sort column without re-sorting the DOM on load.
 - Supports `data-k2-autorank="true"` by renumbering the first visible column after sort.
 - `ranked7.php` now loads `k2-table.js` instead of `elolist.js` and uses data attributes instead of legacy `table-sortable:*` classes.
@@ -477,6 +477,8 @@ After browser-checking `ranked7.php`, the same `k2-table.js` profile was applied
 | `ranked8.php` | Games | `#` |
 
 `ranked8.php` now renders all player rows for the day/month/year Hall of Fame tables (`$k2PeakPeriodLimit` default `0` = no LIMIT), instead of defaulting to 50.
+
+Follow-up fix: same-column toggles in `k2-table.js` reverse current row order instead of re-stable-sorting, so tied Games groups on `ranked8.php` invert correctly when switching between descending and ascending.
 
 **Still legacy on purpose:** `individual3.php`. The profile games table still owns the real filter/paging problem and remains Phase 7.
 
@@ -624,3 +626,4 @@ Use this section to track meaningful plan updates over time.
 - 2026-05-25: Phase 7 plan framed — `individual3.php` performance path is 7A server-side URL filters/sort/limit, 7B shared renderer, 7C optional AJAX enhancement.
 - 2026-05-25: Phase 7A implemented — `individual3.php` uses server-side Result/Opponent filters, URL sort links, and 100-row slices; `elolist.js` removed from the page.
 - 2026-05-25: Phase 7B implemented — `individual3.php` row rendering moved to `includes/k2_player_game_row.php` for reuse by any future player-games endpoint.
+- 2026-05-25: `k2-table.js` same-column reverse-sort tie handling fixed after `ranked8.php` Games ascending exposed tied rank groups staying in original order.

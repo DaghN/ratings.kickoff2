@@ -64,6 +64,12 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Activity Longevity table** — `ranked8.php` All time now shows Longevity beside Busiest of all time; aggregate query local ~39 ms, raw `ratedresults` fallback ~3.4 s. |
+| 2026-05 | **Records two-panel split** — `server2.php` now splits records into Peak activity and Peak performance panels; activity includes the year/month/day games rows and opponent/victim totals, reusing the aggregate/fallback query path. |
+| 2026-05 | **`k2-table.js` reverse-sort tie fix** — same-column sort toggles now reverse current row order, so tied groups in `ranked8.php` flip correctly when Games changes from desc to asc. |
+| 2026-05 | **Activity Period/All time toggle** — `ranked8.php` now shows a realm-style in-place switch: Period defaults to the three day/month/year tables, All time reveals the preloaded all-time table. |
+| 2026-05 | **Nav wording swap** — leaderboard `ranked8.php` tab label renamed from Hall of Fame to Activity; main hub `server2.php` nav label renamed from Records to Hall of Fame. |
+| 2026-05 | **Hall of Fame all-time table** — `ranked8.php` now shows a fourth “Busiest of all time” table using `playertable.NumberGames` plus each player’s first rated-game date as “Since”. |
 | 2026-05 | **Player games adjustment sign** — positive `individual3.php` adjustment values now show an explicit `+` in the blue adjustment cell via `k2_player_game_row.php`. |
 | 2026-05 | **`individual3.php` Phase 7B shipped** — player-games row rendering extracted to `includes/k2_player_game_row.php`, preserving watched-player perspective and setting up optional AJAX reuse. |
 | 2026-05 | **`individual3.php` Phase 7A shipped** — Games history now uses auto-submit server-side Result/Opponent filters, URL sort links, 100-row slices, and lightweight Previous/Next links; `elolist.js` removed from the page. |

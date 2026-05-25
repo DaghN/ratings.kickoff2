@@ -63,9 +63,11 @@ Steve handoff: `docs/coordination/cpp-snippets/PG-005-player-period-games.md`.
 The period activity query layer reads this table:
 
 - `site/public_html/includes/period_activity_leaderboard_query.php`
-- `site/public_html/includes/peak_month_leaderboard_query.php` (Hall of Fame busiest day/month/year; falls back to `ratedresults` if the aggregate is not ready)
+- `site/public_html/includes/peak_month_leaderboard_query.php` (Activity busiest day/month/year, all-time “Since” dates, and Longevity first/last/days from day rows; falls back to `ratedresults` if the aggregate is not ready)
 - API: `site/public_html/api/server_period_activity_leaderboard.php`
 - Preview page: `site/public_html/dev-period-activity.php` (local-only, unlinked)
+
+Local Longevity timing on the May 2026 dump: aggregate query ~39 ms; raw `ratedresults` fallback ~3.4 s. Treat the aggregate path as the production-speed path.
 
 The API contract remains:
 

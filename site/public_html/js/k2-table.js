@@ -56,7 +56,7 @@
 
 	function compareValues(a, b, sortType) {
 		if (a.value === b.value) {
-			return a.index - b.index;
+			return 0;
 		}
 
 		if (sortType === 'number') {
@@ -131,7 +131,8 @@
 	function sortTable(table, header) {
 		var columnIndex = header.cellIndex;
 		var sortType = header.getAttribute('data-k2-sort') || 'text';
-		var direction = table._k2SortIndex === columnIndex && table._k2SortDirection === 'desc' ? 'asc' : 'desc';
+		var isSameColumn = table._k2SortIndex === columnIndex;
+		var direction = isSameColumn && table._k2SortDirection === 'desc' ? 'asc' : 'desc';
 		var tbody = table.tBodies && table.tBodies[0];
 		var rows;
 		var mapped;
@@ -142,6 +143,18 @@
 		}
 
 		rows = Array.prototype.slice.call(tbody.rows);
+
+		if (isSameColumn) {
+			rows.reverse();
+			for (i = 0; i < rows.length; i++) {
+				tbody.appendChild(rows[i]);
+			}
+
+			setSortState(table, header, direction);
+			refreshRankColumn(table);
+			return;
+		}
+
 		mapped = rows.map(function (row, index) {
 			return {
 				row: row,
@@ -152,6 +165,9 @@
 
 		mapped.sort(function (a, b) {
 			var result = compareValues(a, b, sortType);
+			if (result === 0) {
+				return a.index - b.index;
+			}
 			return direction === 'desc' ? -result : result;
 		});
 

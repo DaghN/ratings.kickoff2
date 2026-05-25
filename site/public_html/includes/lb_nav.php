@@ -16,7 +16,7 @@ $k2LbWingTabs = [
 	'streaks' => ['href' => 'ranked4.php', 'label' => 'Streaks'],
 	'victims' => ['href' => 'ranked5.php', 'label' => 'Victims &amp; Culprits'],
 	'rating' => ['href' => 'ranked1.php', 'label' => 'Rating records'],
-	'hall-of-fame' => ['href' => 'ranked8.php', 'label' => 'Hall of Fame'],
+	'hall-of-fame' => ['href' => 'ranked8.php', 'label' => 'Activity'],
 ];
 ?>
 <div class="k2-chrome-tabs">

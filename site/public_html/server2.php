@@ -80,6 +80,22 @@ function records_render_spacer_row(): void
 	echo "    </tr>\n";
 }
 
+function records_render_peak_period_row(string $label, string $period, ?array $entry, string $pad): void
+{
+	if (!$entry) {
+		records_render_row($label, '-', '-', '-');
+
+		return;
+	}
+
+	records_render_row(
+		$label,
+		records_value_or_dash($entry['games']),
+		$pad . '<a href="individual1.php?id=' . $entry['player_id'] . '">' . $entry['player_name'] . '</a>' . $pad,
+		k2_format_peak_period($period, (string) $entry['period_key'])
+	);
+}
+
 $recordColumns = [
 	'MostGamesPlayed',
 	'MostWins',
@@ -178,20 +194,27 @@ $newRecordCutoff = strtotime('-1 month');
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/records_ratio_leaders.php";
 records_load_ratio_leaders($con);
 
+$peakPeriodRecords = [];
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_month_leaderboard_query.php";
+foreach (['year', 'month', 'day'] as $period) {
+	$peakPeriodError = null;
+	$peakPeriodEntries = k2_peak_period_leaderboard_entries($con, $period, 1, $peakPeriodError);
+	$peakPeriodRecords[$period] = $peakPeriodEntries[0] ?? null;
+}
+
 mysqli_close($con);
 ?>
 
 
+<div class="server-records-panels">
+<section class="server-records-panel server-records-panel--activity">
 <div class="k2-table-wrap">
-
-<table class="k2-table"> 
-
+<table class="k2-table server-records-table">
 <thead>
-    <tr >
-    	<th colspan="4"  class="nohovercell" style="text-align:left;">Server Records</th>
+    <tr>
+		<th colspan="4" class="nohovercell" style="text-align:left;">Peak activity</th>
     </tr>
 </thead>
-
 <tbody class="black">
 <?php
 $pad = '&nbsp;&nbsp;&nbsp;';
@@ -202,6 +225,11 @@ records_render_row(
 	$pad . '<a href="individual1.php?id=' . $records['MostGamesPlayedID'] . '">' . $records['MostGamesPlayedName'] . '</a>' . $pad,
 	records_date_or_dash($records['MostGamesPlayedDate'], true, $newRecordCutoff)
 );
+records_render_peak_period_row('Most games in one year', 'year', $peakPeriodRecords['year'], $pad);
+records_render_peak_period_row('Most games in one month', 'month', $peakPeriodRecords['month'], $pad);
+records_render_peak_period_row('Most games in one day', 'day', $peakPeriodRecords['day'], $pad);
+records_render_spacer_row();
+
 records_render_row(
 	'Most wins',
 	records_value_or_dash($records['MostWins']),
@@ -227,6 +255,47 @@ records_render_row(
 	records_date_or_dash($records['MostCleanSheetsDate'], records_has_value($records['MostCleanSheets']), $newRecordCutoff)
 );
 records_render_spacer_row();
+
+records_render_row(
+	'Most opponents',
+	(string) $records['MostDifferentOpponents'],
+	$pad . '<a href="individual1.php?id=' . $records['MostDifferentOpponentsID'] . '">' . $records['MostDifferentOpponentsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostDifferentOpponentsDate'], true, $newRecordCutoff)
+);
+records_render_row(
+	'Most victims',
+	records_value_or_dash($records['MostDifferentVictims']),
+	$pad . '<a href="individual1.php?id=' . $records['MostDifferentVictimsID'] . '">' . $records['MostDifferentVictimsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostDifferentVictimsDate'], records_has_value($records['MostDifferentVictims']), $newRecordCutoff)
+);
+records_render_row(
+	'Most double digit victims',
+	records_value_or_dash($records['MostDoubleDigitsVictims']),
+	$pad . '<a href="individual1.php?id=' . $records['MostDoubleDigitsVictimsID'] . '">' . $records['MostDoubleDigitsVictimsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostDoubleDigitsVictimsDate'], records_has_value($records['MostDoubleDigitsVictims']), $newRecordCutoff)
+);
+records_render_row(
+	'Most clean sheet victims',
+	records_value_or_dash($records['MostCleanSheetsVictims']),
+	$pad . '<a href="individual1.php?id=' . $records['MostCleanSheetsVictimsID'] . '">' . $records['MostCleanSheetsVictimsName'] . '</a>' . $pad,
+	records_date_or_dash($records['MostCleanSheetsVictimsDate'], records_has_value($records['MostCleanSheetsVictims']), $newRecordCutoff)
+);
+?>
+</tbody>
+</table>
+</div><!-- .k2-table-wrap -->
+</section>
+
+<section class="server-records-panel server-records-panel--performance">
+<div class="k2-table-wrap">
+<table class="k2-table server-records-table">
+<thead>
+    <tr>
+		<th colspan="4" class="nohovercell" style="text-align:left;">Peak performance</th>
+    </tr>
+</thead>
+<tbody class="black">
+<?php
 
 records_render_row(
 	'Most goals in one game',
@@ -284,32 +353,6 @@ records_render_row(
 records_render_spacer_row();
 
 records_render_row(
-	'Most opponents',
-	(string) $records['MostDifferentOpponents'],
-	$pad . '<a href="individual1.php?id=' . $records['MostDifferentOpponentsID'] . '">' . $records['MostDifferentOpponentsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostDifferentOpponentsDate'], true, $newRecordCutoff)
-);
-records_render_row(
-	'Most victims',
-	records_value_or_dash($records['MostDifferentVictims']),
-	$pad . '<a href="individual1.php?id=' . $records['MostDifferentVictimsID'] . '">' . $records['MostDifferentVictimsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostDifferentVictimsDate'], records_has_value($records['MostDifferentVictims']), $newRecordCutoff)
-);
-records_render_row(
-	'Most double digit victims',
-	records_value_or_dash($records['MostDoubleDigitsVictims']),
-	$pad . '<a href="individual1.php?id=' . $records['MostDoubleDigitsVictimsID'] . '">' . $records['MostDoubleDigitsVictimsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostDoubleDigitsVictimsDate'], records_has_value($records['MostDoubleDigitsVictims']), $newRecordCutoff)
-);
-records_render_row(
-	'Most clean sheet victims',
-	records_value_or_dash($records['MostCleanSheetsVictims']),
-	$pad . '<a href="individual1.php?id=' . $records['MostCleanSheetsVictimsID'] . '">' . $records['MostCleanSheetsVictimsName'] . '</a>' . $pad,
-	records_date_or_dash($records['MostCleanSheetsVictimsDate'], records_has_value($records['MostCleanSheetsVictims']), $newRecordCutoff)
-);
-records_render_spacer_row();
-
-records_render_row(
 	'Best attack average',
 	records_fixed_or_dash($BiggestGoalsForAverage, 2),
 	$pad . '<a href="individual1.php?id=' . $BiggestGoalsForAverageID . '">' . $BiggestGoalsForAverageName . '</a>' . $pad,
@@ -347,10 +390,10 @@ records_render_row(
 );
 ?>
 </tbody>
-
 </table>
-
 </div><!-- .k2-table-wrap -->
+</section>
+</div><!-- .server-records-panels -->
 
 A player must play 30 games for ratios and averages to take effect.
 <br />

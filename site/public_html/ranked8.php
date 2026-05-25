@@ -7,6 +7,7 @@
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="js/activity-mode-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/activity-mode-toggle.js'); ?>" defer="defer"></script>
 
 </head>
 

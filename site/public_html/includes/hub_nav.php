@@ -1,6 +1,6 @@
 <?php
 /**
- * Hub primary tabs — Status · Leaderboards · Activity · Games · Records
+ * Hub primary tabs — Status · Leaderboards · Activity · Games · Hall of Fame
  * Set $k2HubTabActive before include: status | leaderboards | activity | games | records
  *
  * Hub nav style: segment default; ?k2_hub_nav= override (theme_boot_head.php).
@@ -12,7 +12,7 @@ $k2HubTabs = [
 	'leaderboards' => ['href' => 'ranked7.php', 'label' => 'Leaderboards'],
 	'activity' => ['href' => 'server1.php', 'label' => 'Activity'],
 	'games' => ['href' => 'server3.php', 'label' => 'Games'],
-	'records' => ['href' => 'server2.php', 'label' => 'Records'],
+	'records' => ['href' => 'server2.php', 'label' => 'Hall of Fame'],
 ];
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';
 ?>

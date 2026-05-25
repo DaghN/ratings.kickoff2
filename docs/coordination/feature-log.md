@@ -4,8 +4,9 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 
 | Feature | Level | Schema | Replay | Post-game (C++) | Periodic | Notes |
 |---------|-------|--------|--------|-----------------|----------|-------|
+| Records two-panel split | L0 | — | — | — | — | `server2.php` reads the existing peak period aggregate/fallback query path for Peak activity, with remaining records in Peak performance; no new stored truth |
 | Player games server-side filters/sort | L0 | — | — | — | — | `individual3.php` reads existing `ratedresults`; auto-submit Result/Opponent filters, URL sort links, 100-row slices; no stored truth change |
-| Hall of Fame aggregate read path | L0 | — | — | — | — | `ranked8.php` busiest day/month/year prefers existing `player_period_games` when available, with `ratedresults` fallback until rollout |
+| Hall of Fame aggregate read path | L0 | — | — | — | — | `ranked8.php` Activity tab prefers existing `player_period_games` when available, with `ratedresults` fallback; Period/All time toggle swaps three period tables with preloaded all-time Busiest + Longevity tables |
 | Player stat `k2-table.js` migration | L0 | — | — | — | — | `individual2a/b/c.php` sort/default indicators JS only; player games are tracked separately |
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | `ranked1`–`ranked5`, `ranked7`, `ranked8` sort/autorank/tab-default indicators JS only; no stored truth change |
 | Games tab 7-day buckets | L0 | — | — | — | — | Read-time SQL on `ratedresults`; no stored truth change |

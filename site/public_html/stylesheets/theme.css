@@ -527,7 +527,53 @@ body.k2-site .server-period-activity-leaderboard-status {
 	color: var(--k2-text-muted);
 }
 
-/* Busiest day / month / year hall of fame (ranked8) — three columns, title + table only */
+/* Busiest day / month / year / all-time Activity tables (ranked8) */
+body.k2-site .server-peak-period-mode {
+	display: inline-flex;
+	gap: 2px;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	margin: 12px 0;
+}
+
+body.k2-site .server-peak-period-mode__btn {
+	margin: 0;
+	padding: 6px 14px;
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	background: transparent;
+	color: var(--k2-text-muted);
+	font-family: var(--k2-font-display);
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+body.k2-site .server-peak-period-mode__btn:hover:not(.is-active) {
+	color: var(--k2-text-secondary);
+	background: var(--k2-bg-hover);
+}
+
+body.k2-site .server-peak-period-mode__btn.is-active {
+	color: var(--k2-segment-active-text);
+	background: transparent;
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: none;
+}
+
+body.k2-site .server-peak-period-mode__btn.is-active:hover {
+	color: var(--k2-segment-active-text);
+	background: transparent;
+}
+
+body.k2-site .server-peak-period-leaderboards__panel[hidden] {
+	display: none;
+}
+
 body.k2-site .server-peak-period-leaderboards__grid {
 	max-width: var(--k2-max-width);
 	margin-bottom: 16px;
@@ -535,6 +581,14 @@ body.k2-site .server-peak-period-leaderboards__grid {
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 16px;
 	align-items: start;
+}
+
+body.k2-site .server-peak-period-leaderboards__grid--single {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+body.k2-site .server-peak-period-leaderboards__grid--all-time {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 body.k2-site .server-peak-period-leaderboard-block {
@@ -550,7 +604,30 @@ body.k2-site .server-peak-period-leaderboard-block .k2-table-wrap {
 	overflow-x: auto;
 }
 
-.k2-chrome-tabs__bar + .server-peak-period-leaderboards__grid {
+body.k2-site .server-records-panels {
+	max-width: var(--k2-max-width);
+	margin-bottom: 16px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+	align-items: start;
+}
+
+body.k2-site .server-records-panel {
+	min-width: 0;
+}
+
+body.k2-site .server-records-panel .k2-table-wrap {
+	width: 100%;
+	margin-bottom: 0;
+	box-sizing: border-box;
+}
+
+body.k2-site .server-records-table {
+	width: 100%;
+}
+
+.k2-chrome-tabs__bar + .server-peak-period-leaderboards {
 	margin-top: 12px;
 }
 
@@ -563,6 +640,7 @@ body.k2-site .server-period-activity-leaderboards__grid {
 
 @media (max-width: 1024px) {
 	body.k2-site .server-peak-period-leaderboards__grid,
+	body.k2-site .server-records-panels,
 	body.k2-site .server-period-activity-leaderboards__grid {
 		grid-template-columns: 1fr;
 	}
