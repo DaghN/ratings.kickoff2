@@ -29,7 +29,7 @@ Use **neon noir statistics** as the shorthand:
 
 **Realm** chooses the ladder universe and data: `online` now, `amiga` later.
 
-**Tint** chooses UI paint: `amber` default, plus `pitch`, `chrome`, `holo`. Tint is stored on `html[data-k2-accent]` and must not imply realm.
+**Tint** chooses UI paint: `amber` default, plus `pitch`, `chrome`, `holo`. Tint is stored on `html[data-k2-accent]`, persisted in `localStorage`, and must not imply realm.
 
 ```html
 <html data-realm="online" data-k2-accent="amber">

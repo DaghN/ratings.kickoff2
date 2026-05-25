@@ -4,6 +4,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 
 | Feature | Level | Schema | Replay | Post-game (C++) | Periodic | Notes |
 |---------|-------|--------|--------|-----------------|----------|-------|
+| Persistent tint preference | — | — | — | — | — | Client-only UI preference: `k2-accent-tune` now persists in `localStorage`, migrates old session-only choices, and syncs open tabs; no stored ladder truth change |
 | Records two-panel split | L0 | — | — | — | — | `server2.php` reads the existing peak period aggregate/fallback query path for natural-width Peak activity and Peak performance panels, with New/Legendary age markers (`Legendary` in holo); no new stored truth |
 | Player games server-side filters/sort | L0 | — | — | — | — | `individual3.php` reads existing `ratedresults`; auto-submit Result/Opponent filters, URL sort links with styled header help tooltips, 100-row slices; no stored truth change |
 | Hall of Fame aggregate read path | L0 | — | — | — | — | `ranked8.php` Activity tab prefers existing `player_period_games` when available, with `ratedresults` fallback; Period toggle headings use “Most games in one day/month/year” and All time shows natural-width “Most games of all time” + Longevity tables |

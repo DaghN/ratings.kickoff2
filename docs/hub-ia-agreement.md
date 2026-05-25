@@ -84,7 +84,7 @@ The old hub-nav A/B tuning path is removed; segment track + outline active cell 
 
 ## Leaderboards Contract
 
-Leaderboards are comprehensive by default, not the same as Status' active-only top 20.
+Leaderboards are comprehensive by default, not the same as Status' active top-20 slice.
 
 Wing tabs:
 
@@ -102,7 +102,7 @@ Notes:
 
 - `ranked6.php` / old "Rating records" split is gone.
 - Activity is the leaderboard tab for day/month/year/all-time activity tables.
-- Status may use an active-player window; Leaderboards stay broad unless filters are explicitly selected.
+- Status uses an active-player window; Leaderboards stay broad by default and expose filters for narrower views.
 
 ---
 
@@ -137,7 +137,6 @@ Future Amiga/photo/media work belongs on the profile/content track, not in hub I
 - Production Status DB read and joshua redirect.
 - kickoff2.com embed.
 - Amiga realm routing once data exists.
-- Active-only filter on full Leaderboards, if desired.
 - Pretty URLs / rebrand decisions.
 
 ---
@@ -157,4 +156,4 @@ Keep this short; it prevents old chat ideas from reappearing as current plans.
 | Full-accent links everywhere | Use `--k2-link-star` / `--k2-link` hierarchy. |
 | Moving server1/server2/server3 bodies into hub panels | Not current plan. |
 
-*Last pruned: May 2026 — stale Phase B "in progress" notes collapsed into current Status v1.2 contract.*
+*Last pruned: May 2026 — stale Phase B and roadmap notes collapsed into current contracts.*

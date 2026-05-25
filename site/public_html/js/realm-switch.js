@@ -11,12 +11,65 @@
     var VALID_ACCENTS = ['amber', 'pitch', 'chrome', 'holo'];
     var DEFAULT_ACCENT = 'amber';
 
+    function isValidAccent(accent) {
+        return accent && VALID_ACCENTS.indexOf(accent) !== -1;
+    }
+
+    function readLocal(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function writeLocal(key, value) {
+        try {
+            localStorage.setItem(key, value);
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
+    function readSession(key) {
+        try {
+            return sessionStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function removeSession(key) {
+        try {
+            sessionStorage.removeItem(key);
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
     function currentAccent() {
         var accent = root.getAttribute('data-k2-accent');
-        if (accent && VALID_ACCENTS.indexOf(accent) !== -1) {
+        if (isValidAccent(accent)) {
             return accent;
         }
         return DEFAULT_ACCENT;
+    }
+
+    function savedAccent() {
+        var accent = readLocal(ACCENT_KEY);
+        if (isValidAccent(accent)) {
+            return accent;
+        }
+
+        /* Upgrade pre-persistence sessions without losing the current tab. */
+        accent = readSession(ACCENT_KEY);
+        if (isValidAccent(accent)) {
+            writeLocal(ACCENT_KEY, accent);
+            removeSession(ACCENT_KEY);
+            return accent;
+        }
+
+        return null;
     }
 
     function dispatchChange() {
@@ -47,15 +100,12 @@
     }
 
     function setAccentTune(accent) {
-        if (VALID_ACCENTS.indexOf(accent) === -1) {
+        if (!isValidAccent(accent)) {
             return;
         }
         root.setAttribute('data-k2-accent', accent);
-        try {
-            sessionStorage.setItem(ACCENT_KEY, accent);
-        } catch (e) {
-            /* ignore */
-        }
+        writeLocal(ACCENT_KEY, accent);
+        removeSession(ACCENT_KEY);
         syncAccentButtons();
         dispatchChange();
     }
@@ -65,32 +115,22 @@
             realm = 'online';
         }
         root.setAttribute('data-realm', realm);
-        try {
-            localStorage.setItem(REALM_KEY, realm);
-        } catch (e) {
-            /* ignore */
-        }
+        writeLocal(REALM_KEY, realm);
         syncRealmButtons();
         dispatchChange();
     }
 
     function init() {
-        var savedRealm = null;
-        var savedAccent = null;
-        try {
-            savedRealm = localStorage.getItem(REALM_KEY);
-            savedAccent = sessionStorage.getItem(ACCENT_KEY);
-        } catch (e) {
-            /* ignore */
-        }
+        var savedRealm = readLocal(REALM_KEY);
 
         if (savedRealm === 'online' || savedRealm === 'amiga') {
             root.setAttribute('data-realm', savedRealm);
         }
         syncRealmButtons();
 
-        if (savedAccent && VALID_ACCENTS.indexOf(savedAccent) !== -1) {
-            root.setAttribute('data-k2-accent', savedAccent);
+        var accent = savedAccent();
+        if (accent) {
+            root.setAttribute('data-k2-accent', accent);
         } else {
             root.setAttribute('data-k2-accent', DEFAULT_ACCENT);
         }
@@ -114,6 +154,20 @@
             });
         });
     }
+
+    window.addEventListener('storage', function (ev) {
+        if (ev.key === ACCENT_KEY) {
+            var accent = isValidAccent(ev.newValue) ? ev.newValue : DEFAULT_ACCENT;
+            root.setAttribute('data-k2-accent', accent);
+            syncAccentButtons();
+            dispatchChange();
+        }
+        if (ev.key === REALM_KEY && (ev.newValue === 'online' || ev.newValue === 'amiga')) {
+            root.setAttribute('data-realm', ev.newValue);
+            syncRealmButtons();
+            dispatchChange();
+        }
+    });
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

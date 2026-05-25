@@ -175,6 +175,80 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 	font-size: 13px;
 }
 
+/* ── Realm header lab (status-realm-lab.php) ── */
+.k2-realm-lab-header {
+	align-items: center;
+}
+
+.k2-realm-lab-brand {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px 16px;
+	min-width: 0;
+}
+
+.k2-realm-lab-inline-realm {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding-left: 14px;
+	border-left: 1px solid var(--k2-border-subtle);
+}
+
+.k2-realm-lab-search {
+	margin-left: auto;
+}
+
+.k2-realm-lab-label {
+	color: var(--k2-text-muted);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.k2-realm-lab-strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px 16px;
+	margin: 0 0 -4px;
+	padding: 10px 12px;
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 24%, var(--k2-border-subtle));
+	border-radius: var(--k2-radius-md);
+	background:
+		linear-gradient(135deg, color-mix(in srgb, var(--k2-accent) 8%, transparent), transparent 62%),
+		var(--k2-bg-surface);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+.k2-realm-lab-strip__copy {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 8px 12px;
+	min-width: 0;
+}
+
+.k2-realm-lab-strip__hint {
+	color: var(--k2-text-muted);
+	font-size: 12px;
+}
+
+@media (max-width: 760px) {
+	.k2-realm-lab-inline-realm {
+		width: 100%;
+		padding-left: 0;
+		border-left: none;
+	}
+
+	.k2-realm-lab-search {
+		margin-left: 0;
+	}
+}
+
 .k2-portal-link {
 	color: var(--k2-text-muted);
 	font-weight: 500;

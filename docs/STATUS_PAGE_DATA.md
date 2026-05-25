@@ -109,7 +109,7 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
 | Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; Status loader ~6.6s → ~51ms locally; staging indexes/rebuild verified by Steve; prod schema + rebuild + PG-006 pending |
 | Period activity prep | **Local + staging DB done** — `player_period_games` schema/backfill + `dev-period-activity.php`; prod handoff/method pending Steve |
-| v1.5+ | Polling, active filter on Leaderboards tab, kickoff2 embed, joshua redirect |
+| v1.5+ | Polling, kickoff2 embed, joshua redirect |
 
 ---
 

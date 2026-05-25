@@ -9,23 +9,68 @@
 (function () {
 	var root = document.documentElement;
 	var validAccents = ['amber', 'pitch', 'chrome', 'holo'];
-	try {
-		var realm = localStorage.getItem('k2-realm');
-		if (realm === 'online' || realm === 'amiga') {
-			root.setAttribute('data-realm', realm);
+
+	function isValidAccent(accent) {
+		return accent && validAccents.indexOf(accent) !== -1;
+	}
+
+	function readLocal(key) {
+		try {
+			return localStorage.getItem(key);
+		} catch (e) {
+			return null;
 		}
-		var accent = sessionStorage.getItem('k2-accent-tune');
-		if (accent && validAccents.indexOf(accent) !== -1) {
-			root.setAttribute('data-k2-accent', accent);
-		} else {
-			root.setAttribute('data-k2-accent', 'amber');
+	}
+
+	function writeLocal(key, value) {
+		try {
+			localStorage.setItem(key, value);
+		} catch (e) {
+			/* ignore storage errors */
 		}
-		/* Default hidden; sessionStorage "0" = user chose Show tint */
-		if (sessionStorage.getItem('k2-accent-pills-hidden') !== '0') {
-			root.setAttribute('data-k2-accent-pills-hidden', '1');
+	}
+
+	function readSession(key) {
+		try {
+			return sessionStorage.getItem(key);
+		} catch (e) {
+			return null;
 		}
-	} catch (e) {
-		/* ignore storage errors */
+	}
+
+	function removeSession(key) {
+		try {
+			sessionStorage.removeItem(key);
+		} catch (e) {
+			/* ignore storage errors */
+		}
+	}
+
+	function savedAccent() {
+		var accent = readLocal('k2-accent-tune');
+		if (isValidAccent(accent)) {
+			return accent;
+		}
+
+		/* Migrate old session-only tint choices without losing the current tab. */
+		accent = readSession('k2-accent-tune');
+		if (isValidAccent(accent)) {
+			writeLocal('k2-accent-tune', accent);
+			removeSession('k2-accent-tune');
+			return accent;
+		}
+
+		return 'amber';
+	}
+
+	var realm = readLocal('k2-realm');
+	if (realm === 'online' || realm === 'amiga') {
+		root.setAttribute('data-realm', realm);
+	}
+	root.setAttribute('data-k2-accent', savedAccent());
+	/* Default hidden; sessionStorage "0" = user chose Show tint */
+	if (readSession('k2-accent-pills-hidden') !== '0') {
+		root.setAttribute('data-k2-accent-pills-hidden', '1');
 	}
 })();
 </script>
