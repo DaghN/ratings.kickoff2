@@ -67,7 +67,20 @@ Dagh’s latest message → `PROJECT_BRIEF.md` → `docs/design-direction.md` �
 
 ---
 
-## 5) Git commands on this Windows workspace
+## 5) Local PHP / MySQL CLI paths
+
+On Dagh’s Windows/Laragon setup, `php` and `mysql` may **not** be on PATH. This is normal and not a blocker.
+
+Use explicit paths when needed:
+
+- PHP CLI: `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe`
+- MySQL client: `C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe`
+
+For DB work, prefer repo scripts or direct MySQL/Python access with these paths. Only treat DB/PHP as blocked if Laragon/MySQL is not running, config is missing, credentials fail, or the executable path no longer exists. If Laragon PHP changes version, check `C:\laragon\bin\php\*\php.exe`.
+
+---
+
+## 6) Git commands on this Windows workspace
 
 The user shell is PowerShell. When committing/pushing here, use PowerShell-safe git commands; do **not** use POSIX-only chaining or heredocs (`&&`, `cat <<'EOF'`, etc.).
 

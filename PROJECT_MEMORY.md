@@ -64,6 +64,7 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Agent local CLI preload** — `.cursor/rules/kool-workspace.mdc` now tells agents Laragon PHP/MySQL may not be on PATH and gives explicit `php.exe` / `mysql.exe` paths. |
 | 2026-05 | **Agent git habit** — `.cursor/rules/kool-workspace.mdc` now tells agents to use PowerShell-safe git commit/push commands, not Bash heredocs/`&&`. |
 | 2026-05 | **Games tab 7-day buckets** — `server3.php` now renders Today/Yesterday/day-6 static tables from shared rated-game rows; `elolist.js` removed from Games tab. |
 | 2026-05 | **Records page refactor** — `server2.php` now uses page-local row/date helpers and explicit `generalstatstable` columns; no shared `h()`/`player_link()` added. |
