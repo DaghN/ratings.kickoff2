@@ -1,6 +1,8 @@
 -- Rebuild player_monthly_league from ratedresults.
 -- Destructive: truncates and repopulates the aggregate. Run only through a reviewed wrapper/handoff.
 
+SET time_zone = '+00:00';
+
 TRUNCATE TABLE `player_monthly_league`;
 
 INSERT INTO `player_monthly_league` (

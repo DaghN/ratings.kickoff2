@@ -1,6 +1,8 @@
 -- Rebuild player_peak_period_games from player_period_games.
 -- Destructive: truncates and repopulates the peak aggregate. Run after player_period_games is rebuilt.
 
+SET time_zone = '+00:00';
+
 TRUNCATE TABLE `player_peak_period_games`;
 
 INSERT INTO `player_peak_period_games` (`period_type`, `player_id`, `period_start`, `games`)

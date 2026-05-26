@@ -44,6 +44,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $queryError = null;
 $entries = k2_period_activity_leaderboard_entries($con, $period, $key, $limit, $queryError);

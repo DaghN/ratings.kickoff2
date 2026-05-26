@@ -70,21 +70,14 @@ bash run_PROD_WRAPPER_TBD.sh
 
 **Deploy needed?** [ Yes / No ]
 
-**Handoff style:** Steve merges **insert snippets** from our repo (option 2, May 2026) — not prose-only.
+**Handoff style:** Steve merges live writer from **[`website-data-contract.md`](../website-data-contract.md)** — § Post-game derived-data behavior and per-table **Post-game rule** sections. No per-table snippet packs in repo.
 
-| Register ID | Snippet pack (attach or link) |
-|-------------|--------------------------------|
-| PG-… | `docs/coordination/cpp-snippets/PG-NNN-….md` |
+| Area | Doc |
+|------|-----|
+| Aggregate tables | `website-data-contract.md` (infer upserts from post-game rules + `*_rebuild.sql` parity) |
+| Records / Hall of Fame | [`records-post-game-exception.md`](records-post-game-exception.md) + [`staging-post-game-record-defects.md`](../staging-post-game-record-defects.md) |
 
-For each pack, Steve gets:
-
-- **Insert instruction** (where in `RatingProcedureUnity` flow)
-- **C++ code block(s)** to paste
-- **Data contract** (tables/columns)
-- **Replay parity** note (Python already does same for history)
-
-**Reference excerpt:** `docs/ratings_cpp.txt`  
-**How we write packs:** `docs/coordination/post-game-cpp-handoff.md`
+**Reference excerpt:** `docs/ratings_cpp.txt`
 
 ---
 

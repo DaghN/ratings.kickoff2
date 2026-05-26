@@ -42,6 +42,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 // Check table exists
 $check = mysqli_query($con, "SHOW TABLES LIKE 'player_period_games'");

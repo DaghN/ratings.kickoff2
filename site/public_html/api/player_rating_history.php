@@ -45,6 +45,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $nameStmt = $con->prepare('SELECT Name, Rating FROM playertable WHERE ID = ? LIMIT 1');
 if (!$nameStmt) {

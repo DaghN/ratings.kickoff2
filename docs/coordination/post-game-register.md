@@ -1,30 +1,34 @@
-# Post-game (C++) register
+# Post-game (C++) — retired register
 
-**Reference:** `docs/ratings_cpp.txt` (`RatingProcedureUnity`) — snapshot of live per-game logic, not deployed from this repo.
+**Agents:** Do **not** treat “post-game pending” as incomplete website work. For local and staging, **schema + REP rebuilds** are enough. Live C++ is updated **once at prod cutover** from the contract, not maintained as snippet packs in this repo.
 
-**Steve handoff (May 2026):** **Option 2** — we provide **C++ snippets to insert**, based on the excerpt, not prose-only specs. Format and workflow: **[post-game-cpp-handoff.md](post-game-cpp-handoff.md)** · files in **[cpp-snippets/](cpp-snippets/)**.
+## Behavior authority
 
-**Goal:** List every change needed in **Steve’s post-game path** so **future** rated games write correct data. History backfill → [replay register](replay-register.md).
+[`docs/website-data-contract.md`](../website-data-contract.md) — per-table **Post-game rule** sections and § Post-game derived-data behavior.
 
-| ID | Feature / change | Snippet pack | Readiness | Prod | Notes |
-|----|------------------|--------------|-----------|------|-------|
-| PG-001 | Remove rating decay semantics | *(TBD when scoped)* | L3 | Pending | Fade is **hourly periodic** ([PER-001](periodic-register.md)); post-game must not reintroduce decay; snippet pack may be “delete/disable X” |
-| PG-002 | Align Elo K-factor / start rating with sandbox | *(TBD when scoped)* | L3 | Pending | Sandbox K=32, start 1600; snippets should match `scripts/ladder/elo.py` |
-| PG-003 | *(template)* New field / per-game aggregate | `cpp-snippets/PG-003-….md` | L1–L3 | — | Add row + snippet file when feature needs live writer |
-| PG-004 | Ratio leaders: DROP 28 GST cols (SCH-003), PHP `playertable` queries, C++ stop writes; non-ratio ties `>` | [cpp-snippets/PG-004-server-records-tie-break.md](cpp-snippets/PG-004-server-records-tie-break.md) | L3 | Pending | Local 002 applied; Steve: same migration + snippet |
-| PG-005 | Player period games: upsert A/B × day/week/month/year after each rated game | [cpp-snippets/PG-005-player-period-games.md](cpp-snippets/PG-005-player-period-games.md) | L3 | Pending | Requires SCH-004 + SCH-006 + REP-003 backfill before PHP relies on prod truth |
-| PG-006 | Player monthly league: upsert A/B monthly standings after each rated game | [cpp-snippets/PG-006-player-monthly-league.md](cpp-snippets/PG-006-player-monthly-league.md) | L3 | Pending | Requires SCH-005 + REP-004 backfill before prod Status relies on aggregate truth |
-| PG-007 | Player peak period games: conditionally update each player's peak day/week/month/year after PG-005 | [cpp-snippets/PG-007-player-peak-period-games.md](cpp-snippets/PG-007-player-peak-period-games.md) | L3 | Pending | Requires SCH-006 + REP-005 backfill; run immediately after PG-005 in C++ |
+**Reference for Steve’s code:** [`docs/ratings_cpp.txt`](../ratings_cpp.txt) (`RatingProcedureUnity` excerpt).
 
-### Adding a row (required for L3 features)
+## Exception (keep this file path in mind)
 
-1. Add line to the table above.
-2. Copy [cpp-snippets/_template.md](cpp-snippets/_template.md) → `cpp-snippets/PG-NNN-short-name.md` and draft C++ **before** cutover.
-3. Implement the same behaviour in **`scripts/ladder/`** if replay must backfill ([replay register](replay-register.md)).
-4. Link snippet path in [cutover packet](cutover-packet-template.md) §3.
-5. Dagh review → send Steve → mark **Prod Done** with date.
+| Topic | Doc |
+|--------|-----|
+| Records / `generalstatstable` tie-break, UTC, ratio leaders, staging defects | [`records-post-game-exception.md`](records-post-game-exception.md) |
 
-### Column legend
+## What we coordinate in repo now
 
-- **Snippet pack** — path under `docs/coordination/cpp-snippets/`; **ready for Steve** when reviewed.
-- **Readiness** — see [prod-readiness levels](../prod-coordination.md#prod-readiness-levels).
+| Environment | Deliverable |
+|-------------|-------------|
+| Local / staging | [`schema-register.md`](schema-register.md) + [`replay-register.md`](replay-register.md) (`*_rebuild.sql`) |
+| Prod cutover | Same SQL + merge C++ from contract (+ records exception doc) — date/note in [`feature-log.md`](feature-log.md) **Prod live** column when done |
+
+## Prod live writer (informal tracker)
+
+No PG-NNN IDs. When prod gets live games on new aggregates, note **table name** and **done date** in feature-log or MEMORY — not a standing snippet backlog.
+
+| Table / area | Prod live writer | Notes |
+|--------------|------------------|-------|
+| Aggregate tables in contract | Pending Steve | Infer incremental updates from contract § Post-game at cutover |
+| `generalstatstable` records | Pending Steve | Use [`records-post-game-exception.md`](records-post-game-exception.md) |
+| `playertable` / core ladder | Existing C++ | Replay sandbox: REP-001; Elo K/fade: periodic + future cutover |
+
+**Retired May 2026:** `docs/coordination/cpp-snippets/` (PG-005–013 deleted); per-table snippet register rows removed as agent workflow.

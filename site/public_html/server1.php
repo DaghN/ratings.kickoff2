@@ -15,6 +15,7 @@
 <script type="text/javascript" src="js/server-games-year-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-goals-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-active-players-month-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-daily-active-players-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-established-players-year-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-cumulative-established-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-established-rating-distribution-chart.js" defer="defer"></script>
@@ -48,6 +49,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   	{
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
+	$con->query("SET time_zone = '+00:00'");
 
 $query = "SELECT * FROM generalstatstable";
 $result = mysqli_query($con,$query) or die("SELECT Error: ".mysqli_error($con)); 
@@ -174,6 +176,12 @@ unset($con);
     <h2 class="k2-panel-heading">Active players per month</h2>
     <p class="server-active-players-month-chart-status" style="margin: 0 0 8px 0;">Loading active players per month…</p>
     <canvas width="960" height="271" aria-label="Active players per calendar month"></canvas>
+</div>
+
+<div class="server-daily-active-players-chart">
+    <h2 class="k2-panel-heading">Daily active players · 30-day average</h2>
+    <p class="server-daily-active-players-chart-status" style="margin: 0 0 8px 0;">Loading daily active players…</p>
+    <canvas width="960" height="271" aria-label="Daily active players smoothed over 30 days, all time"></canvas>
 </div>
 
 <div class="server-top-activity-eras-chart">

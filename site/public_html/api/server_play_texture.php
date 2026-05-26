@@ -35,6 +35,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $sql = <<<'SQL'
 SELECT DATE_FORMAT(`Date`, '%Y-%m') AS ym,

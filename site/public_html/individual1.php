@@ -38,6 +38,7 @@ if (mysqli_connect_errno()) {
     die('Failed to connect to MySQL: ' . mysqli_connect_error());
 }
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_blocks.php';

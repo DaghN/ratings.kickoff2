@@ -70,10 +70,11 @@ Ask: *Will production someday need schema, replay, C++ post-game, or a periodic 
 |-------|---------|-----------|
 | **L0** | Read-time SQL only; no new stored truth | feature-log only |
 | **L1** | Schema; no backfill yet | schema-register + `schema/migrations/` |
-| **L2** | Replay backfill | replay-register + ladder code |
-| **L3** | Live per-game writer | post-game-register + `cpp-snippets/` when draftable |
-| **L4** | Staging-tested; Steve-ready | feature-log note “packet ready” |
-| **L5** | Prod done | Close rows in registers |
+| **L2** | Schema + REP backfill | schema-register + replay-register + contract post-game § |
+| **L4** | Staging-tested; cutover ready | feature-log: schema + REP done on staging |
+| **L5** | Prod done | feature-log **Prod live** + registers closed |
+
+Do **not** add `cpp-snippets/` or PG-NNN rows. Post-game behavior → [`website-data-contract.md`](website-data-contract.md). Records exception only: [`records-post-game-exception.md`](coordination/records-post-game-exception.md).
 
 Details: [`prod-coordination.md`](prod-coordination.md#prod-readiness-levels).
 
@@ -83,20 +84,20 @@ Details: [`prod-coordination.md`](prod-coordination.md#prod-readiness-levels).
 |-----|--------|
 | SQL migration | `schema/migrations/NNN_….sql` + [`schema-register.md`](coordination/schema-register.md) |
 | Replay | `scripts/ladder/` + [`replay-register.md`](coordination/replay-register.md) |
-| Post-game C++ | [`post-game-register.md`](coordination/post-game-register.md) + [`cpp-snippets/`](coordination/cpp-snippets/_template.md) |
+| Post-game rules (contract) | Extend [`website-data-contract.md`](website-data-contract.md) § for the table; records only → [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |
 | Periodic job | [`periodic-register.md`](coordination/periodic-register.md) |
 | One-off script | [`one-off-register.md`](coordination/one-off-register.md) |
 
 Set **feature-log** level column when known.
 
-### B4. Migration note to Dagh (if L≥2 or new PG row)
+### B4. Migration note to Dagh (if L≥2)
 
-Short paragraph: level, registers touched, what Steve will eventually need, whether local replay was run.
+Short paragraph: level, registers touched, whether local REP was run. Prod C++ is contract-driven at cutover — not a standing snippet task.
 
 ### B5. Do not (unless Dagh asks)
 
-- Pre-fill PG-001 / PG-002 snippets without a cutover  
-- Edit all five registers “to be safe”  
+- Create `cpp-snippets/` or cite `PG-00x` as blocking website/staging work  
+- Edit all registers “to be safe”  
 - Run prod cutover or email Steve  
 
 ---
@@ -126,6 +127,6 @@ While coding, **notice** migration triggers (new column, ladder change). You may
 | Theme tint + hub CSS | MEMORY, maybe design-direction | Skip |
 | New chart API (existing columns) | MEMORY, maybe feature-log | Skip or L0 |
 | Status league copy tweak | MEMORY, STATUS_PAGE_DATA if rules changed | L0 if new panel rules |
-| New `playertable` field + profile UI | MEMORY, player-profile-feast, feature-log | L2+L3 registers + snippet draft |
+| New aggregate table + profile UI | MEMORY, website-data-contract, feature-log | L2: schema + REP + contract § |
 
 *Authority: `PROJECT_BRIEF.md`; Dagh’s latest message wins.*

@@ -35,11 +35,13 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $sql = <<<'SQL'
-SELECT DATE_FORMAT(`Date`, '%Y-%m') AS ym,
-       COUNT(DISTINCT CONCAT(LEAST(idA, idB), '-', GREATEST(idA, idB))) AS unique_pairs
-FROM ratedresults
+SELECT DATE_FORMAT(`period_start`, '%Y-%m') AS ym,
+       COUNT(*) AS unique_pairs
+FROM `server_period_matchups`
+WHERE `period_type` = 'month'
 GROUP BY ym
 ORDER BY ym ASC
 SQL;

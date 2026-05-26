@@ -20,6 +20,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `site/config/` | DB config (gitignored) — `ko2unitydb_config.php` |
 | `scripts/ladder/` | **Python replay** — recalc Elo/stats from all games |
 | `scripts/run_local_replay.ps1` | One-command local replay |
+| `scripts/rebuild_website_derived_data_local.ps1` | One-command local rebuild for website aggregate tables |
 | `schema/migrations/` | SQL for local + Steve (indexes, DDL) |
 | `run_staging_ladder_replay.sh` | Steve runs on staging server |
 | `docs/` | Specs, coordination, agent playbooks |
@@ -38,6 +39,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | **Now** | Every session | `PROJECT_MEMORY.md` |
 | **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md` |
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
+| **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
 | **Migration backlog** | Stored DB truth / Steve | `docs/prod-coordination.md`, `docs/coordination/` |
 
@@ -74,7 +76,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | PHP site | WinSCP staging | Prod deploy agreed |
 | Schema SQL | `schema/migrations/` | Runs on `kooldb` |
 | History replay | `scripts/ladder` | Runs shell on server |
-| After each game | Snippet packs `docs/coordination/cpp-snippets/` | Inserts into C++ |
+| After each game (prod) | [`website-data-contract.md`](website-data-contract.md) post-game § | Steve C++ at cutover |
 | Hourly fade | Document stop (PER-001) | Stops job |
 
 Post-game handoff: **code snippets to insert** (Steve option 2).
@@ -89,6 +91,9 @@ powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1
 
 # Local schema
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
+
+# Local website-derived aggregate rebuild
+powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
 ```
 
 ---

@@ -37,20 +37,12 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$rn = (int) $gamesRequired;
-
-$sql = 'SELECT YEAR(established_date) AS yr, COUNT(*) AS established_players FROM ('
-    . 'SELECT player_id, game_date AS established_date FROM ('
-    . 'SELECT player_id, game_date, game_id, '
-    . 'ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY game_date ASC, game_id ASC) AS rn '
-    . 'FROM ('
-    . 'SELECT idA AS player_id, `Date` AS game_date, id AS game_id FROM ratedresults '
-    . 'UNION ALL '
-    . 'SELECT idB AS player_id, `Date` AS game_date, id AS game_id FROM ratedresults'
-    . ') AS appearances WHERE game_date IS NOT NULL'
-    . ') AS numbered WHERE rn = ' . $rn
-    . ') AS established GROUP BY yr ORDER BY yr ASC';
+$sql = "SELECT YEAR(`achieved_at`) AS yr, COUNT(*) AS established_players "
+    . "FROM `player_milestones` "
+    . "WHERE `milestone_key` = 'established_20' "
+    . "GROUP BY yr ORDER BY yr ASC";
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {

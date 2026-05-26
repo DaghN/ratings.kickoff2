@@ -43,6 +43,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $nameStmt = $con->prepare('SELECT Name FROM playertable WHERE ID = ? LIMIT 1');
 if (!$nameStmt) {
@@ -71,9 +72,10 @@ if ($nameRow === null) {
 
 $playerName = $nameRow['Name'];
 
-$sql = 'SELECT DATE_FORMAT(`Date`, \'%Y-%m\') AS ym, COUNT(*) AS games '
-    . 'FROM ratedresults WHERE idA = ? OR idB = ? '
-    . 'GROUP BY ym ORDER BY ym ASC';
+$sql = 'SELECT DATE_FORMAT(`period_start`, \'%Y-%m\') AS ym, `games` '
+    . 'FROM `player_period_games` '
+    . 'WHERE `period_type` = \'month\' AND `player_id` = ? '
+    . 'ORDER BY `period_start` ASC';
 
 $stmt = $con->prepare($sql);
 if (!$stmt) {
@@ -83,7 +85,7 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param('ii', $playerId, $playerId);
+$stmt->bind_param('i', $playerId);
 $stmt->execute();
 $res = $stmt->get_result();
 

@@ -53,6 +53,7 @@ for ($offset = 0; $offset < 14; $offset++) {
   	{
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
+	$con->query("SET time_zone = '+00:00'");
 
 $query = "SELECT * FROM ratedresults WHERE `Date` >= DATE_SUB(CURDATE(), INTERVAL 13 DAY) AND `Date` < DATE_ADD(CURDATE(), INTERVAL 1 DAY) ORDER BY `Date` DESC, id DESC";
 $result = mysqli_query($con, $query) or die("SELECT Error: " . mysqli_error($con));

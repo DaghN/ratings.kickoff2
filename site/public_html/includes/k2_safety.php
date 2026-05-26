@@ -45,6 +45,10 @@ function k2_db_connect_or_public_error(
 		error_log('DB charset setup failed: ' . $con->error);
 		k2_public_error('Could not prepare ratings database connection.');
 	}
+	if (!$con->query("SET time_zone = '+00:00'")) {
+		error_log('DB timezone setup failed: ' . $con->error);
+		k2_public_error('Could not prepare ratings database connection.');
+	}
 
 	return $con;
 }

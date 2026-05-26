@@ -467,6 +467,95 @@ function k2_status_monthly_league(mysqli $con, int $limit = 20, int $monthOffset
 /**
  * @return array{label: string, start: string, end: string, rows: list<array>, total_games: int, month_offset: int}|null
  */
+function k2_status_league_from_period_league(
+    mysqli $con,
+    string $periodType,
+    string $periodStart,
+    string $start,
+    string $end,
+    string $label,
+    int $periodOffset,
+    ?int $limit,
+    ?string &$error = null
+): ?array {
+    $limitSql = $limit === null ? '' : ' LIMIT ' . max(1, (int) $limit);
+    $sql = <<<'SQL'
+SELECT
+  l.player_id AS pid,
+  COALESCE(p.Name, CONCAT('#', l.player_id)) AS pname,
+  l.played,
+  l.wins,
+  l.draws,
+  l.losses,
+  l.goals_for AS gf,
+  l.goals_against AS ga,
+  l.goal_difference AS gd,
+  l.points AS pts
+FROM player_period_league l
+LEFT JOIN playertable p ON p.ID = l.player_id
+WHERE l.period_type = ? AND l.period_start = ?
+ORDER BY l.points DESC, l.goal_difference DESC, l.goals_for DESC, pname ASC
+SQL;
+    $sql .= $limitSql;
+
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        $error = mysqli_error($con);
+
+        return null;
+    }
+    mysqli_stmt_bind_param($stmt, 'ss', $periodType, $periodStart);
+    if (!mysqli_stmt_execute($stmt)) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        return null;
+    }
+    $r = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($r)) {
+        $rows[] = [
+            'id' => (int) $row['pid'],
+            'name' => (string) $row['pname'],
+            'played' => (int) $row['played'],
+            'wins' => (int) $row['wins'],
+            'draws' => (int) $row['draws'],
+            'losses' => (int) $row['losses'],
+            'gf' => (int) $row['gf'],
+            'ga' => (int) $row['ga'],
+            'gd' => (int) $row['gd'],
+            'pts' => (int) $row['pts'],
+        ];
+    }
+    mysqli_free_result($r);
+    mysqli_stmt_close($stmt);
+
+    $totalGames = 0;
+    $countStmt = mysqli_prepare($con, 'SELECT COALESCE(SUM(played), 0) AS appearances FROM player_period_league WHERE period_type = ? AND period_start = ?');
+    if ($countStmt !== false) {
+        mysqli_stmt_bind_param($countStmt, 'ss', $periodType, $periodStart);
+        if (mysqli_stmt_execute($countStmt)) {
+            $cr = mysqli_stmt_get_result($countStmt);
+            $crow = mysqli_fetch_assoc($cr);
+            $totalGames = intdiv((int) ($crow['appearances'] ?? 0), 2);
+            mysqli_free_result($cr);
+        }
+        mysqli_stmt_close($countStmt);
+    }
+
+    return [
+        'label' => $label,
+        'start' => $start,
+        'end' => $end,
+        'rows' => $rows,
+        'total_games' => $totalGames,
+        'month_offset' => $periodOffset,
+    ];
+}
+
+/**
+ * @return array{label: string, start: string, end: string, rows: list<array>, total_games: int, month_offset: int}|null
+ */
 function k2_status_monthly_league_from_aggregate(
     mysqli $con,
     string $monthStart,
@@ -692,7 +781,20 @@ function k2_status_league(
         return null;
     }
 
-    if ($period === 'month' && k2_status_table_exists($con, 'player_monthly_league')) {
+    if (k2_status_table_exists($con, 'player_period_league')) {
+        $periodStart = substr($bounds['start'], 0, 10);
+        $league = k2_status_league_from_period_league(
+            $con,
+            $period,
+            $periodStart,
+            $bounds['start'],
+            $bounds['end'],
+            $bounds['label'],
+            $periodOffset,
+            $limit,
+            $error
+        );
+    } elseif ($period === 'month' && k2_status_table_exists($con, 'player_monthly_league')) {
         $monthStart = substr($bounds['start'], 0, 10);
         $league = k2_status_monthly_league_from_aggregate(
             $con,

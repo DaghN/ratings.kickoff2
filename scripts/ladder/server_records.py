@@ -214,16 +214,19 @@ def update_server_records_after_game(
         )
         _try_float_max(state.biggest_peak_rating, st.peak_rating, pid, pname, game_date)
 
+        # Use career longest (not current streak): matches intended C++ fix
+        # LongestWinningStreakA > LongestWinningStreakS — avoids date refresh on every
+        # game after the record is set (see PG-004c).
         _try_int_max(
             state.longest_win_streak,
-            st.winning_streak,
+            st.longest_winning_streak,
             pid,
             pname,
             game_date,
         )
         _try_int_max(
             state.longest_non_loss_streak,
-            st.non_loss_streak,
+            st.longest_non_loss_streak,
             pid,
             pname,
             game_date,
@@ -231,7 +234,7 @@ def update_server_records_after_game(
         if actual_score == 0.5:
             _try_int_max(
                 state.longest_draw_streak,
-                st.drawing_streak,
+                st.longest_drawing_streak,
                 pid,
                 pname,
                 game_date,

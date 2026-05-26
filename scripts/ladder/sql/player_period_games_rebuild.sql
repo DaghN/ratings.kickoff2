@@ -1,6 +1,8 @@
 -- Rebuild player_period_games from ratedresults.
 -- Destructive: truncates and repopulates the aggregate. Run only through a reviewed wrapper/handoff.
 
+SET time_zone = '+00:00';
+
 TRUNCATE TABLE `player_period_games`;
 
 INSERT INTO `player_period_games` (`period_type`, `period_start`, `player_id`, `games`)

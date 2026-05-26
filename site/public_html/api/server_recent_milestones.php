@@ -37,23 +37,17 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $milestones = [];
 
 /* --- Latest Double Digit Merchant (first 10+ goal game, most recent first) --- */
 $sql = <<<'SQL'
-SELECT firsts.player_id, firsts.first_dd_date, p.Name AS player_name
-FROM (
-    SELECT player_id, MIN(game_date) AS first_dd_date
-    FROM (
-        SELECT idA AS player_id, DATE(`Date`) AS game_date FROM ratedresults WHERE GoalsA >= 10
-        UNION ALL
-        SELECT idB AS player_id, DATE(`Date`) AS game_date FROM ratedresults WHERE GoalsB >= 10
-    ) dd
-    GROUP BY player_id
-) firsts
-JOIN playertable p ON p.id = firsts.player_id AND p.Display = 1
-ORDER BY firsts.first_dd_date DESC
+SELECT m.player_id, DATE(m.achieved_at) AS first_dd_date, p.Name AS player_name
+FROM player_milestones m
+JOIN playertable p ON p.ID = m.player_id AND p.Display = 1
+WHERE m.milestone_key = 'dd_merchant_10'
+ORDER BY m.achieved_at DESC
 LIMIT 1
 SQL;
 
@@ -73,10 +67,10 @@ if ($res !== false) {
 
 /* --- Busiest single day ever --- */
 $sql = <<<'SQL'
-SELECT DATE(`Date`) AS day, COUNT(*) AS games
-FROM ratedresults
-GROUP BY day
-ORDER BY games DESC, day DESC
+SELECT `period_start` AS day, `rated_games` AS games
+FROM server_period_game_totals
+WHERE period_type = 'day'
+ORDER BY rated_games DESC, period_start DESC
 LIMIT 1
 SQL;
 
@@ -96,10 +90,10 @@ if ($res !== false) {
 
 /* --- Busiest month ever --- */
 $sql = <<<'SQL'
-SELECT DATE_FORMAT(`Date`, '%Y-%m') AS ym, COUNT(*) AS games
-FROM ratedresults
-GROUP BY ym
-ORDER BY games DESC, ym DESC
+SELECT DATE_FORMAT(`period_start`, '%Y-%m') AS ym, `rated_games` AS games
+FROM server_period_game_totals
+WHERE period_type = 'month'
+ORDER BY rated_games DESC, period_start DESC
 LIMIT 1
 SQL;
 

@@ -37,18 +37,11 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$goalsSql = (int) $goalsRequired;
-
-$sql = 'SELECT game_date, game_id FROM ('
-    . 'SELECT player_id, game_date, game_id, '
-    . 'ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY game_date ASC, game_id ASC) AS rn '
-    . 'FROM ('
-    . 'SELECT idA AS player_id, `Date` AS game_date, id AS game_id FROM ratedresults WHERE GoalsA >= ' . $goalsSql . ' '
-    . 'UNION ALL '
-    . 'SELECT idB AS player_id, `Date` AS game_date, id AS game_id FROM ratedresults WHERE GoalsB >= ' . $goalsSql
-    . ') AS double_digits WHERE game_date IS NOT NULL'
-    . ') AS numbered WHERE rn = 1 ORDER BY game_date ASC, game_id ASC';
+$sql = "SELECT `achieved_at` AS game_date FROM `player_milestones` "
+    . "WHERE `milestone_key` = 'dd_merchant_10' "
+    . "ORDER BY `achieved_at` ASC";
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {

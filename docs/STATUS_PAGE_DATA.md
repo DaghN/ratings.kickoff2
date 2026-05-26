@@ -109,8 +109,8 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | **Phase B v1** | **Shipped** — `status_queries.php`, `status_room_section.php`, `status.php` |
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
 | **League stack** | **Shipped locally** — daily / weekly / monthly / yearly status league panels, current/previous toggles, Monday-start weeks, server-clock end boundaries/countdowns |
-| Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; Status loader ~6.6s → ~51ms locally; staging indexes/rebuild verified by Steve; prod schema + rebuild + PG-006 pending |
-| Period activity prep | **Local week + peak cache done** — `player_period_games` now supports day/week/month/year and `player_peak_period_games`; staging has the original day/month/year aggregate and needs SCH-006 + rebuild; prod handoff/method pending Steve |
+| Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; Status loader ~6.6s → ~51ms locally; staging indexes/rebuild verified by Steve; prod schema + REP + live C++ from contract pending |
+| Period activity prep | **Local + staging done (May 2026)** — SCH-006 + REP-003 week refresh + REP-005 on `kooldb`; prod handoff/method pending Steve |
 | v1.5+ | Polling, kickoff2 embed, joshua redirect |
 
 ---

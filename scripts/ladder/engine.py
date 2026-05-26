@@ -121,14 +121,15 @@ def _log_connection_identity(
                 CURRENT_USER() AS db_user,
                 @@hostname AS server_host,
                 @@port AS server_port,
-                VERSION() AS server_version
+                VERSION() AS server_version,
+                @@session.time_zone AS session_tz
             """
         )
         row = cur.fetchone()
         assert row is not None
 
     log.info(
-        "DB target=%s configured_host=%s configured_port=%s db=%s current_user=%s server_host=%s server_port=%s version=%s",
+        "DB target=%s configured_host=%s configured_port=%s db=%s current_user=%s server_host=%s server_port=%s version=%s session_tz=%s",
         target,
         configured_host,
         configured_port,
@@ -137,6 +138,7 @@ def _log_connection_identity(
         row["server_host"],
         row["server_port"],
         row["server_version"],
+        row["session_tz"],
     )
 
 
@@ -157,6 +159,8 @@ def connect(
         autocommit=False,
         cursorclass=DictCursor,
     )
+    with conn.cursor() as cur:
+        cur.execute("SET time_zone = '+00:00'")
     _log_connection_identity(
         conn,
         target=resolved_target,

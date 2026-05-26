@@ -218,6 +218,7 @@ $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if (mysqli_connect_errno()) {
 	die("Failed to connect to MySQL: " . mysqli_connect_error());
 }
+$con->query("SET time_zone = '+00:00'");
 
 $selectColumns = '`' . implode('`, `', $recordColumns) . '`';
 $query = "SELECT " . $selectColumns . " FROM generalstatstable WHERE id = 1 LIMIT 1";

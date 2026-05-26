@@ -54,6 +54,8 @@ bash run_staging_ladder_replay.sh
 
 **Effect:** recalculated ratings/stats saved to **`kooldb`**; staging site numbers differ from pre-replay — expected.
 
+**Hall of Fame record dates:** After replay with current `scripts/ladder/`, run `python -m scripts.ladder.golden_record_checks` — should pass. Known **wrong** dates from legacy C++ post-game are listed in [`docs/staging-post-game-record-defects.md`](staging-post-game-record-defects.md) for prod deploy regression.
+
 ---
 
 ## Note — SFTP vs PHP paths

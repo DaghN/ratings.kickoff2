@@ -35,12 +35,14 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$sql = 'SELECT DATE(`Date`) AS day, COUNT(*) AS games '
-     . 'FROM ratedresults '
-     . 'WHERE `Date` >= DATE_SUB(CURDATE(), INTERVAL 364 DAY) '
-     . 'AND `Date` < DATE_ADD(CURDATE(), INTERVAL 1 DAY) '
-     . 'GROUP BY day ORDER BY day ASC';
+$sql = 'SELECT `period_start` AS day, `rated_games` AS games '
+     . 'FROM `server_period_game_totals` '
+     . 'WHERE `period_type` = \'day\' '
+     . 'AND `period_start` >= DATE_SUB(CURDATE(), INTERVAL 364 DAY) '
+     . 'AND `period_start` <= CURDATE() '
+     . 'ORDER BY `period_start` ASC';
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {

@@ -108,6 +108,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $player = rating_history_for_player($con, $playerId);
 $opponent = rating_history_for_player($con, $opponentId);

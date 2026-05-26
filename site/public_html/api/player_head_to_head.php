@@ -50,6 +50,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $nameStmt = $con->prepare('SELECT ID, Name FROM playertable WHERE ID IN (?, ?)');
 if (!$nameStmt) {

@@ -88,6 +88,7 @@ $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if (mysqli_connect_errno()) {
 	$k2StatusRoomError = mysqli_connect_error();
 } else {
+	$con->query("SET time_zone = '+00:00'");
 	$k2StatusRoom = k2_status_load_room($con, $k2StatusRoomError);
 	mysqli_close($con);
 	unset($con);

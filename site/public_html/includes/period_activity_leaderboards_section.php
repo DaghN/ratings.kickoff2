@@ -25,6 +25,7 @@ if (!isset($con) || !($con instanceof mysqli) || !@$con->ping()) {
         echo '</div>';
         return;
     }
+    $con->query("SET time_zone = '+00:00'");
     $k2PeriodActivityOwnConnection = true;
 }
 

@@ -1,9 +1,9 @@
 # Player period games — staging and prod handoff
 
 **Feature:** Fast day/week/month/year games leaderboards plus peak-period cache
-**Spec:** [`../player-period-games.md`](../player-period-games.md)
+**Spec:** [`../website-data-contract.md`](../website-data-contract.md)
 **Schema:** SCH-004 · `schema/migrations/003_player_period_games.sql`; SCH-006 · `schema/migrations/005_period_activity_week_and_peaks.sql`
-**Post-game:** PG-005 · [`cpp-snippets/PG-005-player-period-games.md`](cpp-snippets/PG-005-player-period-games.md); PG-007 · [`cpp-snippets/PG-007-player-peak-period-games.md`](cpp-snippets/PG-007-player-peak-period-games.md)
+**Post-game (prod):** Contract § `player_period_games` and `player_peak_period_games` — no per-table C++ snippet packs in repo.
 
 ---
 
@@ -11,7 +11,7 @@
 
 Staging `kooldb` has no live game writes, so the goal is schema + one rebuild + PHP smoke test.
 
-**Status:** Original day/month/year aggregate done May 2026. Week rows and `player_peak_period_games` are pending the next Steve handoff.
+**Status:** Staging `kooldb` complete May 2026 — SCH-004/006, REP-003 (incl. week), REP-005. Prod pending Steve.
 
 ### Files Steve needs
 
@@ -82,7 +82,7 @@ Expected: API returns JSON with entries; ranked8 and Records render week alongsi
 
 ## Production handoff — method TBD
 
-Production needs the same schema and rebuild, plus C++ live maintenance before the feature relies on these tables as truth.
+Production needs the same schema and rebuild, plus C++ live maintenance from the contract before the feature relies on these tables as truth.
 
 ### Required pieces
 
@@ -92,8 +92,7 @@ Production needs the same schema and rebuild, plus C++ live maintenance before t
 | Schema `005_period_activity_week_and_peaks.sql` | Ready |
 | Backfill `player_period_games_rebuild.sql` | Ready |
 | Backfill `player_peak_period_games_rebuild.sql` | Ready |
-| C++ post-game upsert PG-005 | Draft for Steve review |
-| C++ peak cache upsert PG-007 | Draft for Steve review |
+| C++ post-game (contract) | At prod cutover — not maintained as snippet packs |
 | PHP reader | Ready in repo |
 | Final prod execution method | TBD with Steve |
 
@@ -104,10 +103,9 @@ Production needs the same schema and rebuild, plus C++ live maintenance before t
 3. Apply schema `005`.
 4. Run period rebuild SQL once on the production DB.
 5. Run peak-cache rebuild SQL once on the production DB.
-6. Deploy C++ PG-005 so future games upsert A/B × day/week/month/year.
-7. Deploy C++ PG-007 so future games conditionally update peak rows.
-8. Deploy PHP page/API that reads `player_period_games` and `player_peak_period_games`.
-9. Smoke test API and a known recent period.
+6. Deploy C++ from contract post-game rules (period games + peak cache).
+7. Deploy PHP page/API that reads `player_period_games` and `player_peak_period_games`.
+8. Smoke test API and a known recent period.
 
 If PHP is deployed before C++ on prod, the tables will be correct only until the next live rated game after rebuild. That is acceptable for staging but not for production launch.
 

@@ -27,6 +27,7 @@ if (!isset($con) || !($con instanceof mysqli) || !@$con->ping()) {
         echo '<p class="server-peak-period-leaderboards-status">Could not load busiest period leaderboards.</p>';
         return;
     }
+    $con->query("SET time_zone = '+00:00'");
     $k2PeakPeriodOwnConnection = true;
 }
 

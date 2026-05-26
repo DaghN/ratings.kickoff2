@@ -4,7 +4,7 @@ Jobs that run on a **schedule** on the server — **not** immediately after each
 
 | ID | Job | Schedule (prod today) | Action for our releases | Prod status | Notes |
 |----|-----|------------------------|-------------------------|-------------|-------|
-| PER-001 | **Rating fade** | **Hourly** (Steve, May 2026) | **Stop before** any prod deploy that changes rating/stat semantics | Running | Steve: can stop easily. Pair with [PG-001](post-game-register.md). Not in `ratings_cpp.txt` excerpt. |
+| PER-001 | **Rating fade** | **Hourly** (Steve, May 2026) | **Stop before** any prod deploy that changes rating/stat semantics | Running | Steve: can stop easily. Not in `ratings_cpp.txt` excerpt. |
 | PER-002 | *(example)* Monthly league medals on profiles | — | Proposed: end-of-month or daily batch writing medal flags | — | Status page league is **L0** read-time SQL today (`docs/STATUS_PAGE_DATA.md`); persistent medals = future L2/L3 + maybe periodic |
 
 ### Adding a row

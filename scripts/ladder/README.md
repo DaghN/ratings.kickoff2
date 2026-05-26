@@ -40,8 +40,8 @@ python -m scripts.ladder run --target local --limit 100
 
 **v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and rebuilds `generalstatstable` row `id=1` at the end.
 
-**Server records:** non-ratio hall-of-fame rows via `server_records.py` (PG-004b: strict `>` on ties). **Ratio leaders** are **not** written to `generalstatstable` — Records page queries `playertable` (`site/public_html/includes/records_ratio_leaders.php`). Steve: `docs/coordination/cpp-snippets/PG-004-server-records-tie-break.md`.
+**Server records:** non-ratio hall-of-fame rows via `server_records.py` (strict `>` on ties). **Ratio leaders** are **not** written to `generalstatstable` — Records page queries `playertable` (`site/public_html/includes/records_ratio_leaders.php`). Steve: `docs/coordination/records-post-game-exception.md`.
 
 **`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Staging DB name `kooldb` is allowlisted when `$database` in PHP config is `kooldb`.
 
-**`player_period_games`:** Rebuilt from `ratedresults` by `scripts/ladder/sql/player_period_games_rebuild.sql` (local wrapper `scripts/rebuild_player_period_games_local.ps1`). The SQL truncates/repopulates the aggregate and should only run through a reviewed wrapper/handoff. Production parity requires post-game C++ PG-005 to upsert both players into day/month/year rows.
+**`player_period_games`:** Rebuilt from `ratedresults` by `scripts/ladder/sql/player_period_games_rebuild.sql` (or `scripts/rebuild_website_derived_data_local.ps1`). Production live maintenance: contract post-game § — not per-table snippet packs in repo.

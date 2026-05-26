@@ -50,6 +50,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $nameStmt = $con->prepare('SELECT Name FROM playertable WHERE ID = ? LIMIT 1');
 if (!$nameStmt) {
@@ -78,11 +79,11 @@ if ($nameRow === null) {
 
 $playerName = $nameRow['Name'];
 
-$sql = 'SELECT opponent_id, MAX(opponent_name) AS opponent_name, COUNT(*) AS games FROM ('
-    . 'SELECT idB AS opponent_id, NameB AS opponent_name FROM ratedresults WHERE idA = ? '
-    . 'UNION ALL '
-    . 'SELECT idA AS opponent_id, NameA AS opponent_name FROM ratedresults WHERE idB = ?'
-    . ') AS appearances GROUP BY opponent_id ORDER BY games DESC, opponent_name ASC LIMIT ?';
+$sql = 'SELECT m.opponent_id, COALESCE(p.Name, CONCAT(\'#\', m.opponent_id)) AS opponent_name, m.games '
+    . 'FROM player_matchup_summary m '
+    . 'LEFT JOIN playertable p ON p.ID = m.opponent_id '
+    . 'WHERE m.player_id = ? '
+    . 'ORDER BY m.games DESC, opponent_name ASC LIMIT ?';
 
 $stmt = $con->prepare($sql);
 if (!$stmt) {
@@ -92,7 +93,7 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param('iii', $playerId, $playerId, $limit);
+$stmt->bind_param('ii', $playerId, $limit);
 $stmt->execute();
 $res = $stmt->get_result();
 

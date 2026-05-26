@@ -38,7 +38,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $monthResult = k2_player_feast_query(
         $con,
         'games_this_month',
-        "SELECT COUNT(*) AS c FROM ratedresults WHERE (idA='$escId' OR idB='$escId') AND Date >= DATE_FORMAT(NOW(), '%Y-%m-01')"
+        "SELECT COALESCE(SUM(games), 0) AS c FROM player_period_games WHERE period_type='month' AND player_id='$escId' AND period_start = DATE_FORMAT(NOW(), '%Y-%m-01')"
     );
     $monthRow = mysqli_fetch_row($monthResult);
     $gamesThisMonth = (int) $monthRow[0];
@@ -46,7 +46,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $yearResult = k2_player_feast_query(
         $con,
         'games_this_year',
-        "SELECT COUNT(*) AS c FROM ratedresults WHERE (idA='$escId' OR idB='$escId') AND YEAR(Date) = YEAR(CURDATE())"
+        "SELECT COALESCE(SUM(games), 0) AS c FROM player_period_games WHERE period_type='year' AND player_id='$escId' AND period_start = CONCAT(YEAR(CURDATE()), '-01-01')"
     );
     $yearRow = mysqli_fetch_row($yearResult);
     $gamesThisYear = (int) $yearRow[0];

@@ -33,18 +33,24 @@ if ($con->connect_errno) {
     exit;
 }
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$escId = (string) $playerId;
-$escYear = (string) $year;
-
-$sql = "SELECT DISTINCT DATE(Date) AS d FROM ratedresults "
-    . "WHERE (idA='$escId' OR idB='$escId') AND YEAR(Date) = '$escYear' ORDER BY d";
-
-$result = mysqli_query($con, $sql);
+$stmt = $con->prepare(
+    'SELECT `period_start` AS d FROM `player_period_games` '
+    . 'WHERE `period_type` = \'day\' AND `player_id` = ? '
+    . 'AND `period_start` >= ? AND `period_start` < ? '
+    . 'ORDER BY `period_start` ASC'
+);
+$yearStart = $year . '-01-01';
+$yearEnd = ($year + 1) . '-01-01';
+$stmt->bind_param('iss', $playerId, $yearStart, $yearEnd);
+$stmt->execute();
+$result = $stmt->get_result();
 $days = [];
-while ($result && ($row = mysqli_fetch_assoc($result))) {
+while ($row = $result->fetch_assoc()) {
     $days[] = (string) $row['d'];
 }
+$stmt->close();
 mysqli_close($con);
 
 echo json_encode([

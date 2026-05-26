@@ -1,5 +1,5 @@
-# Rebuild player_monthly_league on local ko2unity_db from ratedresults.
-# Usage: powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_monthly_league_local.ps1
+# Legacy wrapper. Prefer scripts\rebuild_website_derived_data_local.ps1.
+# Kept so old notes still lead to the one canonical website-derived-data rebuild.
 
 param(
     [string]$Database = 'ko2unity_db',
@@ -9,43 +9,19 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$SqlFile = Join-Path $RepoRoot 'scripts\ladder\sql\player_monthly_league_rebuild.sql'
-$MysqlExe = 'C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe'
+$Canonical = Join-Path $PSScriptRoot 'rebuild_website_derived_data_local.ps1'
 
-if (-not (Test-Path $MysqlExe)) {
-    Write-Error "mysql.exe not found at $MysqlExe (start Laragon - docs/LOCAL_DEV.md)."
-}
+Write-Host 'This wrapper is superseded by scripts\rebuild_website_derived_data_local.ps1.' -ForegroundColor Yellow
 
-if (-not (Test-Path $SqlFile)) {
-    Write-Error "SQL rebuild file not found at $SqlFile"
-}
-
-if ($Database -ne 'ko2unity_db' -and -not $AllowNonLocal) {
-    Write-Error "Refusing to rebuild player_monthly_league on '$Database'. Use -AllowNonLocal only for an explicitly reviewed one-off."
-}
-
-$mysqlArgs = @('-u', $User, $Database)
+$args = @('-ExecutionPolicy', 'Bypass', '-File', $Canonical, '-Database', $Database, '-User', $User)
 if ($Password -ne '') {
-    $mysqlArgs = @('-u', $User, "-p$Password", $Database)
+    $args += @('-Password', $Password)
+}
+if ($AllowNonLocal) {
+    $args += '-AllowNonLocal'
 }
 
-Write-Host "Rebuilding player_monthly_league on $Database..." -ForegroundColor Cyan
-$identity = & $MysqlExe @mysqlArgs -N -e "SELECT DATABASE(), CURRENT_USER(), @@hostname, @@port, VERSION();"
+powershell @args
 if ($LASTEXITCODE -ne 0) {
-    Write-Error 'Could not verify database identity.'
+    exit $LASTEXITCODE
 }
-Write-Host "DB identity: $identity" -ForegroundColor DarkCyan
-Write-Host 'This rebuild truncates and repopulates player_monthly_league.' -ForegroundColor Yellow
-Get-Content -Raw -LiteralPath $SqlFile | & $MysqlExe @mysqlArgs
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "player_monthly_league rebuild failed (exit $LASTEXITCODE)."
-}
-
-$counts = & $MysqlExe @mysqlArgs -N -e "SELECT COUNT(*) AS row_count, SUM(played) AS appearances, SUM(played) / 2 AS rated_games FROM player_monthly_league;"
-if ($LASTEXITCODE -ne 0) {
-    Write-Error 'Could not verify player_monthly_league counts.'
-}
-
-Write-Host $counts
-Write-Host '[OK] player_monthly_league rebuilt.' -ForegroundColor Green

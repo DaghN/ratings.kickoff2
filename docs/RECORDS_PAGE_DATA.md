@@ -21,4 +21,4 @@ Loaded at page render: `site/public_html/includes/records_ratio_leaders.php`
 
 Eligible: `NumberGames >= 30`. Ties: lowest `ID`.
 
-Steve: **PG-004** — remove C++ post-game writes for these on `generalstatstable`.
+Steve: [`records-post-game-exception.md`](coordination/records-post-game-exception.md) — remove C++ post-game writes for ratio leaders on `generalstatstable`.

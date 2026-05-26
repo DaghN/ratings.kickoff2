@@ -35,22 +35,16 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $sql = <<<'SQL'
-SELECT ym,
-       SUM(CASE WHEN g = 1           THEN 1 ELSE 0 END) AS band_1,
-       SUM(CASE WHEN g BETWEEN 2 AND 4 THEN 1 ELSE 0 END) AS band_2_4,
-       SUM(CASE WHEN g BETWEEN 5 AND 9 THEN 1 ELSE 0 END) AS band_5_9,
-       SUM(CASE WHEN g >= 10          THEN 1 ELSE 0 END) AS band_10plus
-FROM (
-    SELECT ym, player_id, COUNT(*) AS g
-    FROM (
-        SELECT DATE_FORMAT(`Date`, '%Y-%m') AS ym, idA AS player_id FROM ratedresults
-        UNION ALL
-        SELECT DATE_FORMAT(`Date`, '%Y-%m') AS ym, idB AS player_id FROM ratedresults
-    ) appearances
-    GROUP BY ym, player_id
-) player_months
+SELECT DATE_FORMAT(`period_start`, '%Y-%m') AS ym,
+       SUM(CASE WHEN `games` = 1             THEN 1 ELSE 0 END) AS band_1,
+       SUM(CASE WHEN `games` BETWEEN 2 AND 4 THEN 1 ELSE 0 END) AS band_2_4,
+       SUM(CASE WHEN `games` BETWEEN 5 AND 9 THEN 1 ELSE 0 END) AS band_5_9,
+       SUM(CASE WHEN `games` >= 10           THEN 1 ELSE 0 END) AS band_10plus
+FROM `player_period_games`
+WHERE `period_type` = 'month'
 GROUP BY ym
 ORDER BY ym ASC
 SQL;

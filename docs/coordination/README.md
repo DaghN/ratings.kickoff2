@@ -2,16 +2,18 @@
 
 Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md` Part B** applies (not on every “update docs”).
 
-| Start here | [`feature-log.md`](feature-log.md) — what features exist and their L-level |
+| Start here | [`feature-log.md`](feature-log.md) — what features exist and migration status |
+| Behavior | [`../website-data-contract.md`](../website-data-contract.md) — tables, rebuild, post-game rules |
 | Playbook | [`../UPDATE_DOCS.md`](../UPDATE_DOCS.md) |
 
 | File | Purpose |
 |------|---------|
 | [schema-register.md](schema-register.md) | Migrations in `schema/migrations/` |
-| [post-game-register.md](post-game-register.md) | C++ per-game deltas + snippet pack paths |
-| [post-game-cpp-handoff.md](post-game-cpp-handoff.md) | Steve option 2 — snippet format and workflow |
-| [cpp-snippets/](cpp-snippets/) | Insert packs per PG-… item |
+| [replay-register.md](replay-register.md) | `*_rebuild.sql` backfills + run log |
+| [post-game-register.md](post-game-register.md) | **Retired** — pointer; prod C++ from contract |
+| [records-post-game-exception.md](records-post-game-exception.md) | Hall of Fame / `generalstatstable` C++ exception only |
 | [periodic-register.md](periodic-register.md) | Scheduled server jobs |
-| [replay-register.md](replay-register.md) | Full-history rebuilds + run log |
 | [one-off-register.md](one-off-register.md) | Rare scripts (`scripts/oneoff/`) |
 | [cutover-packet-template.md](cutover-packet-template.md) | Copy for Steve per release |
+
+**Retired May 2026:** `cpp-snippets/` per-table packs — do not recreate.

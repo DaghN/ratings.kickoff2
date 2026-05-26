@@ -27,13 +27,21 @@ If the slice changes **stored ladder truth** (new DB column/table/index, `script
 
 ### Performance-first stored truth
 
-For DB-backed website features, especially profile, status, activity, leaderboards, achievements, and fun stats, actively consider whether the site should read from precomputed or indexed stored truth instead of live historical queries.
+For DB-backed website features, especially profile, status, activity, leaderboards, achievements, and fun stats, **the default path is stored/precomputed truth, not live historical aggregation.**
+
+**Empirical evidence (May 2026):** A daily-active-players chart reading a tiny precomputed table measured **73× faster** than computing the same value from `ratedresults` on the fly (~21 ms vs ~1,542 ms query time), even though `ratedresults` has only ~75k rows. Row count alone is a bad predictor of cost on this table because it is wide (27 columns, `mediumtext` fields), two-player games require `UNION ALL` doubling to ~150k row-reads, and `COUNT(DISTINCT)` per group is expensive. **Do not assume "the table is small, a live scan is fine."**
+
+**Default:** Any feature that aggregates across historical `ratedresults` rows — games per day, active players per period, milestone counts, cumulative stats, leaderboard snapshots — should store the result in an aggregate table, rebuild it once from history, and maintain it post-game. Raw aggregation from `ratedresults` is acceptable only for:
+
+- Throwaway/exploratory probes (`scripts/` one-offs)
+- Narrow single-player lookups that use `idA`/`idB` indexes
+- Genuinely temporary prototypes you plan to replace
 
 Do **not** reject schema, replay, index, aggregate-table, periodic-job, or post-game C++ updates merely because they require Steve coordination or register handoff. In this repo, that coordination is normal project machinery and is available within reason.
 
-Default question before implementing heavy stats: *Would this page become faster, simpler, or more reliable if the value were indexed, cached in a table, stored on `playertable`, rebuilt by replay, and maintained by post-game or periodic jobs?*
+Default question before implementing stats: *What stored table should this value live in, and what does `docs/website-data-contract.md` say for rebuild and post-game?* — not "can we compute it on the fly?" Do not create or cite `PG-00x` / `cpp-snippets/`; local/staging = schema + REP rebuild scripts.
 
-Use read-time SQL when it is clearly cheap, narrow, infrequent, or temporary. Prefer stored/indexed truth when a feature scans many historical games, appears on hot pages, feeds profile/achievement surfaces, or will be reused.
+Use read-time SQL only when it is clearly cheap (single-row lookup, indexed narrow fetch), infrequent (admin-only, one-off), or the value genuinely cannot be precomputed (depends on request-time parameters that are unbounded).
 
 ---
 

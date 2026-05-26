@@ -34,9 +34,11 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$sql = 'SELECT DATE_FORMAT(`Date`, \'%Y-%m\') AS ym, COUNT(*) AS games '
-    . 'FROM ratedresults GROUP BY ym ORDER BY ym ASC';
+$sql = 'SELECT DATE_FORMAT(`period_start`, \'%Y-%m\') AS ym, `rated_games` AS games '
+    . 'FROM `server_period_game_totals` '
+    . 'WHERE `period_type` = \'month\' ORDER BY `period_start` ASC';
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {

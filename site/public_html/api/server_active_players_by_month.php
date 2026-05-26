@@ -35,12 +35,12 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$sql = 'SELECT ym, COUNT(DISTINCT player_id) AS active_players FROM ('
-    . 'SELECT DATE_FORMAT(`Date`, \'%Y-%m\') AS ym, idA AS player_id FROM ratedresults '
-    . 'UNION ALL '
-    . 'SELECT DATE_FORMAT(`Date`, \'%Y-%m\') AS ym, idB AS player_id FROM ratedresults'
-    . ') AS appearances WHERE ym IS NOT NULL GROUP BY ym ORDER BY ym ASC';
+$sql = 'SELECT DATE_FORMAT(`period_start`, \'%Y-%m\') AS ym, COUNT(*) AS active_players '
+    . 'FROM `player_period_games` '
+    . 'WHERE `period_type` = \'month\' '
+    . 'GROUP BY ym ORDER BY ym ASC';
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {

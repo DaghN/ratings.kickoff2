@@ -46,9 +46,11 @@ Cold start (do **before** coding unless Dagh pasted full context):
 
 Prod ladder data is written by **Steve’s C++** (per game) + **periodic jobs** (e.g. hourly fade). We maintain a **migration backlog** in `docs/coordination/` for when stored truth changes — **not** on every cosmetics session.
 
-**Performance / stored truth habit:** When building DB-backed features, do not default to “just query it live.” First consider whether the value belongs in stored ladder truth: index, aggregate table, `playertable` column, replay output, post-game C++ update, or periodic job.
+**Performance / stored truth habit:** For any feature that aggregates across historical `ratedresults`, **the default is stored/precomputed truth** — not live SQL. Measured evidence (May 2026): even with only ~75k rows, raw aggregation from `ratedresults` is **~73x slower** than reading a precomputed aggregate table, because the table is wide (27 cols, mediumtext), two-player games require UNION ALL doubling, and DISTINCT counting per group is expensive. Do not assume "the table is small, a live scan is fine."
 
-Steve handoff and migration registers are normal workflow, not reasons to avoid the better data shape. Use live SQL for genuinely cheap or one-off reads; use stored/indexed/replayed truth for hot pages, profile stats, achievements, leaderboards, repeated historical scans, and anything likely to grow.
+**Default question:** *What stored table should this value live in, and what does [`website-data-contract.md`](docs/website-data-contract.md) say for rebuild + post-game?* Local/staging: **schema + REP** only. Do **not** treat missing C++ snippet packs as incomplete features.
+
+Steve handoff for **prod** is schema + REP on server, then C++ merged from the contract at cutover ([`records-post-game-exception.md`](docs/coordination/records-post-game-exception.md) for Hall of Fame records only).
 
 **Triggers to think about migration:** new DB columns/tables/indexes, `scripts/ladder/` edits, “store this on profile” vs compute in PHP, medals persistent on `playertable`, etc.
 

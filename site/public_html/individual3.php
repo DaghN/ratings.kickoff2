@@ -158,6 +158,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
   		die("Failed to connect to MySQL: " . mysqli_connect_error());
   	}
     $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+$con->query("SET time_zone = '+00:00'");
 
 $id = $playerId;
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";

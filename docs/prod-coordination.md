@@ -14,6 +14,8 @@
 
 **Performance policy:** For DB-backed website work, treat stored/indexed/replayed truth as a normal option, not an exceptional burden. Steve handoff, schema SQL, replay/backfill, and post-game C++ snippets are project machinery we already have; their existence should not make agents default to slow live historical queries.
 
+**Derived website data contract:** `docs/website-data-contract.md` is the behavior authority for project-owned aggregate tables, rebuild rules, parity checks, and post-game requirements. Coordination registers track deployment status.
+
 ---
 
 ## Three databases (quick reference)
@@ -35,7 +37,7 @@ Full detail: `docs/ladder-engine-plan.md` §2, `docs/STATUS_PAGE_DATA.md`, `docs
 | Register | File | Tracks |
 |----------|------|--------|
 | Schema | [coordination/schema-register.md](coordination/schema-register.md) | Tables, columns, indexes — SQL in `schema/migrations/` |
-| Post-game (C++) | [coordination/post-game-register.md](coordination/post-game-register.md) | Per-game deltas + **snippet packs** in [coordination/cpp-snippets/](coordination/cpp-snippets/) |
+| Post-game (C++) | [coordination/post-game-register.md](coordination/post-game-register.md) | **Retired snippet workflow** — prod C++ from [website-data-contract.md](website-data-contract.md); records: [records-post-game-exception.md](coordination/records-post-game-exception.md) |
 | Periodic | [coordination/periodic-register.md](coordination/periodic-register.md) | Hourly fade, future cron jobs |
 | Replay | [coordination/replay-register.md](coordination/replay-register.md) | Full-history rebuilds, parameters, run log |
 | One-off | [coordination/one-off-register.md](coordination/one-off-register.md) | Rare scripts; prefer replay when possible |
@@ -52,7 +54,7 @@ Use for any release that changes **stored ladder truth** (not PHP-only cosmetics
 2. **Turn off rating fade** (hourly) — required before deploy that changes ratings/stats semantics.
 3. **Apply schema** — `schema/migrations/*.sql` in order on the production DB (Steve).
 4. **Replay history** (if register says so) — Python `scripts/ladder` per `docs/replay-v1-scope-and-reset.md`, tested on staging; or Steve’s C++ replay to the **same written spec**.
-5. **Deploy post-game C++** — Steve inserts our [snippet packs](coordination/post-game-cpp-handoff.md); **future** games maintain new columns/aggregates.
+5. **Deploy post-game C++** — Steve merges live writer from [website-data-contract.md](website-data-contract.md) post-game rules (+ [records exception](coordination/records-post-game-exception.md) if applicable).
 6. **Deploy periodic jobs** (if any new/changed).
 7. **Deploy PHP** (WinSCP or agreed path).
 8. **Smoke checks** — spot profiles, ranked sort, one chart API; log in replay register.
@@ -69,9 +71,9 @@ Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes
 | **L0** | PHP read-time only; no new stored truth | Status copy/layout change using existing columns |
 | **L1** | Schema only; no replay/post-game yet | New nullable column, unfilled |
 | **L2** | Replay must backfill history | New derived column on `playertable` |
-| **L3** | Live writer on prod (C++ and/or periodic) | Per-game update; includes **C++ snippet pack** for Steve |
-| **L4** | Staging-tested; Steve packet ready | Schema + replay on staging; snippet pack **ready for Steve** |
-| **L5** | Prod done | Registers closed |
+| **L3** | *(retired for agents)* | Was “snippet pack required” — use **L2 + Prod live** in feature-log instead |
+| **L4** | Staging-tested; cutover packet ready | Schema + REP on staging; contract documents post-game |
+| **L5** | Prod done | Schema + REP + prod live writer; registers closed |
 
 ---
 
@@ -99,7 +101,7 @@ Prefer read-time SQL when:
 - The result is hard to define as durable ladder truth.
 - Stored state would add more complexity than the page-load cost justifies.
 
-When stored truth is the right shape, use the existing path: schema migration, replay/backfill if needed, post-game or periodic writer notes, and `docs/UPDATE_DOCS.md` Part B.
+When stored truth is the right shape, use: schema migration, REP rebuild scripts, document post-game rules in `website-data-contract.md`, and `docs/UPDATE_DOCS.md` Part B. Do **not** add per-table C++ snippet packs.
 
 ---
 
@@ -110,10 +112,11 @@ When stored truth is the right shape, use the existing path: schema migration, r
 | Schema SQL | `schema/migrations/` + `schema/README.md` |
 | Apply schema locally | `schema/apply_local.ps1` |
 | Full replay | `python -m scripts.ladder run --target local` / staging wrapper uses `--target staging` — `scripts/ladder/README.md` |
+| Website derived data rebuild | `scripts/rebuild_website_derived_data_local.ps1` — contract `docs/website-data-contract.md` |
 | Staging replay (Steve) | `docs/STAGING_REPLAY.md`, `run_staging_ladder_replay.sh` |
 | One-off template | `scripts/oneoff/` |
 | Live C++ reference | `docs/ratings_cpp.txt` |
-| Post-game snippet handoff | [coordination/post-game-cpp-handoff.md](coordination/post-game-cpp-handoff.md) |
+| Post-game (prod cutover) | [website-data-contract.md](website-data-contract.md); records: [records-post-game-exception.md](coordination/records-post-game-exception.md) |
 | Steve email/checklist | `docs/coordination/cutover-packet-template.md` |
 
 ---
@@ -124,11 +127,11 @@ When stored truth is the right shape, use the existing path: schema migration, r
 |------|-----------------|--------|
 | **Schema** | `schema/migrations/*.sql` | Runs on the intended production DB |
 | **Replay** | Tested Python + spec (`docs/replay-v1-scope-and-reset.md`) | Runs on server; or his C++ replay to same spec |
-| **Post-game C++** | **[Snippet packs](coordination/post-game-cpp-handoff.md)** in `docs/coordination/cpp-snippets/` (option 2, May 2026) | Inserts into his post-game code |
+| **Post-game C++** | [website-data-contract.md](website-data-contract.md) (+ records exception doc) | Merges into his post-game code at prod cutover |
 | **Periodic** | Register row + ask in cutover packet | Implements scheduler / stops fade |
 | **PHP site** | WinSCP / agreed deploy | Host + DB read when needed |
 
-- Dagh reviews snippet packs before send; agents draft from `ratings_cpp.txt` + schema docs + matching `scripts/ladder` logic.
+- At prod cutover, Steve implements from the contract + `ratings_cpp.txt`; records use the exception doc with staging defect matrix.
 - No SSH for Dagh on server (May 2026); Steve runs batch jobs when asked.
 
 ---

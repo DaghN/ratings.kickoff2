@@ -36,9 +36,11 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$sql = 'SELECT YEAR(`Date`) AS yr, COUNT(*) AS games '
-    . 'FROM ratedresults GROUP BY yr ORDER BY yr ASC';
+$sql = 'SELECT YEAR(`period_start`) AS yr, `rated_games` AS games '
+    . 'FROM `server_period_game_totals` '
+    . 'WHERE `period_type` = \'year\' ORDER BY `period_start` ASC';
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {

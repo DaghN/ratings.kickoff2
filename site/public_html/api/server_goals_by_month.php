@@ -35,10 +35,11 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
-$sql = 'SELECT DATE_FORMAT(`Date`, \'%Y-%m\') AS ym, '
-    . 'SUM(COALESCE(GoalsA, 0) + COALESCE(GoalsB, 0)) AS goals '
-    . 'FROM ratedresults GROUP BY ym HAVING ym IS NOT NULL ORDER BY ym ASC';
+$sql = 'SELECT DATE_FORMAT(`period_start`, \'%Y-%m\') AS ym, `total_goals` AS goals '
+    . 'FROM `server_period_game_totals` '
+    . 'WHERE `period_type` = \'month\' ORDER BY `period_start` ASC';
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {

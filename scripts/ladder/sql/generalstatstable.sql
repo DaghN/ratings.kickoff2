@@ -1,6 +1,8 @@
 -- Server-wide stats (single row id=1). Ratio player leaders: playertable + server2.php (PG-004).
 -- Safe to run on fresh DB: CREATE IF NOT EXISTS + seed row only.
 
+SET time_zone = '+00:00';
+
 CREATE TABLE IF NOT EXISTS `generalstatstable` (
   `id` tinyint(4) NOT NULL,
   `NumberOfPlayers` int(11) DEFAULT NULL,

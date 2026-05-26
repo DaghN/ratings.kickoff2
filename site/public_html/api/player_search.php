@@ -62,6 +62,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $sql = 'SELECT ID, Name, ROUND(Rating) AS ratingRounded FROM playertable '
     . 'WHERE Display = 1 AND Name IS NOT NULL AND Name <> \'\' '

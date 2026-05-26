@@ -1,6 +1,6 @@
 -- SCH-005: Status page performance indexes + monthly league aggregate.
 -- Register: docs/coordination/schema-register.md
--- Steve: apply on staging/prod before enabling PG-006 monthly league post-game writes.
+-- Steve: apply on staging/prod before PHP relies on player_monthly_league; prod live writer per website-data-contract.md.
 
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.statistics

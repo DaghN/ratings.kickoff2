@@ -34,6 +34,7 @@ if ($con->connect_errno) {
 }
 
 $con->set_charset('utf8mb4');
+$con->query("SET time_zone = '+00:00'");
 
 $rangeSql = "SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 29 DAY), '%Y-%m-%d') AS start_day, DATE_FORMAT(CURDATE(), '%Y-%m-%d') AS end_day";
 $rangeRes = mysqli_query($con, $rangeSql);
@@ -64,11 +65,12 @@ for ($day = $start; $day <= $end; $day = $day->modify('+1 day')) {
     $counts[$day->format('Y-m-d')] = 0;
 }
 
-$sql = 'SELECT DATE(`Date`) AS day, COUNT(*) AS games '
-    . 'FROM ratedresults '
-    . 'WHERE `Date` >= DATE_SUB(CURDATE(), INTERVAL 29 DAY) '
-    . 'AND `Date` < DATE_ADD(CURDATE(), INTERVAL 1 DAY) '
-    . 'GROUP BY day ORDER BY day ASC';
+$sql = 'SELECT `period_start` AS day, `rated_games` AS games '
+    . 'FROM `server_period_game_totals` '
+    . 'WHERE `period_type` = \'day\' '
+    . 'AND `period_start` >= DATE_SUB(CURDATE(), INTERVAL 29 DAY) '
+    . 'AND `period_start` <= CURDATE() '
+    . 'ORDER BY `period_start` ASC';
 
 $res = mysqli_query($con, $sql);
 if ($res === false) {
