@@ -63,6 +63,12 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Dev period activity date picker affordance** — the Daily panel date input now has a visible accent calendar button and a brightened native picker indicator, so users can open the calendar instead of typing a date. |
+| 2026-05 | **Top activity eras chart shipped locally** — `server1.php` now has a "Top activity eras" multi-player line chart: each month shows the top 10 players by rated games, lines appear/disappear as players enter/leave the top 10, hover highlights one player and dims others; powered by new `api/server_top_activity_eras.php` reading `player_period_games` (L0, no new stored truth). |
+| 2026-05 | **Realm header identity layout promoted** — shared `site_header.php` now uses the first lab direction: Online/Amiga beside the Kick Off 2 wordmark, with player search isolated on the right; strip variant remains lab-only for comparison. |
+| 2026-05 | **Stored truth performance policy added** — agent instructions now say DB-backed features should actively consider indexes, aggregate tables, replay outputs, `playertable` fields, periodic jobs, and post-game C++ updates as normal options for hot stats/profile/achievement work, not burdens to avoid. |
+| 2026-05 | **Ranked8 phone activity layout fix** — Calendar and All time activity tables now keep their intended two-column layout below tablet widths, with horizontal overflow only if a very narrow viewport needs it. |
+| 2026-05 | **Period activity staged preview unblocked** — `dev-period-activity.php` now permits the staging host (`ratings.kickoff2.com`) while remaining host-guarded elsewhere; page copy now says dev/staging preview. |
 | 2026-05 | **Status panel action-link alignment** — the active leaderboard `Leaderboards →` link now uses the same compact Status action styling as `Activity →` and `Games →`. |
 | 2026-05 | **Activity Graph Roadmap shipped** — five new Activity features: 12-month daily heatmap (GitHub-style), participation depth stacked bars (1/2-4/5-9/10+ bands), play-texture small-multiples (goals/game, draw %, DD/100, CS/100), unique matchups per month, and a recent milestone digest card; all L0 read-time from `ratedresults`+`playertable`. |
 | 2026-05 | **Double Digit Merchant charts** — Activity now has a read-time chart trio for first 10+ goal games: new merchants by year, cumulative merchants, and merchant rating distribution; data is derived from `ratedresults`, not stored on `playertable`. |

@@ -17,6 +17,19 @@ FROM (
 GROUP BY `period_start`, `player_id`;
 
 INSERT INTO `player_period_games` (`period_type`, `period_start`, `player_id`, `games`)
+SELECT 'week', `period_start`, `player_id`, COUNT(*) AS `games`
+FROM (
+  SELECT DATE_SUB(DATE(`Date`), INTERVAL WEEKDAY(`Date`) DAY) AS `period_start`, `idA` AS `player_id`
+  FROM `ratedresults`
+  WHERE `idA` IS NOT NULL
+  UNION ALL
+  SELECT DATE_SUB(DATE(`Date`), INTERVAL WEEKDAY(`Date`) DAY) AS `period_start`, `idB` AS `player_id`
+  FROM `ratedresults`
+  WHERE `idB` IS NOT NULL
+) AS appearances
+GROUP BY `period_start`, `player_id`;
+
+INSERT INTO `player_period_games` (`period_type`, `period_start`, `player_id`, `games`)
 SELECT 'month', `period_start`, `player_id`, COUNT(*) AS `games`
 FROM (
   SELECT CAST(DATE_FORMAT(`Date`, '%Y-%m-01') AS DATE) AS `period_start`, `idA` AS `player_id`

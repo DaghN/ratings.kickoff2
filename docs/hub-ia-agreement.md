@@ -71,7 +71,7 @@ Still open with Steve / prod:
 
 | Area | Current decision |
 |------|------------------|
-| Header | Wordmark, player search, Online/Amiga realm switcher. No kickoff2.com header link. |
+| Header | Wordmark + Online/Amiga realm switcher grouped as site identity; player search isolated on the right. No kickoff2.com header link. |
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |

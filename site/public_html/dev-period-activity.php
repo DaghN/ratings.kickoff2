@@ -1,7 +1,7 @@
 <?php
 $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
 $host = preg_replace('/:\d+$/', '', $host);
-$allowedHosts = ['ratingskickoff.test', 'localhost', '127.0.0.1'];
+$allowedHosts = ['ratingskickoff.test', 'localhost', '127.0.0.1', 'ratings.kickoff2.com'];
 
 if (!in_array($host, $allowedHosts, true)) {
     http_response_code(404);
@@ -32,7 +32,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 
 <div style="margin-bottom: 16px;">
 	<h1 class="k2-panel-heading">Dev preview - period activity</h1>
-	<p class="k2-chart-block__hint">Local-only preview of the day / month / year games leaderboards backed by <code>player_period_games</code>.</p>
+	<p class="k2-chart-block__hint">Dev/staging preview of the day / week / month / year games leaderboards backed by <code>player_period_games</code>.</p>
 </div>
 
 <?php

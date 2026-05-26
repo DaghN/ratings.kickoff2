@@ -25,6 +25,7 @@
 <script type="text/javascript" src="js/server-participation-depth-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-play-texture-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-matchup-breadth-chart.js" defer="defer"></script>
+<script type="text/javascript" src="js/server-top-activity-eras-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-milestone-digest.js" defer="defer"></script>
 
 </head>
@@ -173,6 +174,13 @@ unset($con);
     <h2 class="k2-panel-heading">Active players per month</h2>
     <p class="server-active-players-month-chart-status" style="margin: 0 0 8px 0;">Loading active players per month…</p>
     <canvas width="960" height="271" aria-label="Active players per calendar month"></canvas>
+</div>
+
+<div class="server-top-activity-eras-chart">
+    <h2 class="k2-panel-heading">Top activity eras</h2>
+    <p class="k2-chart-block__hint">Players appear while they are top 10 for rated games in a calendar month.</p>
+    <p class="server-top-activity-eras-chart-status" style="margin: 0 0 8px 0;">Loading top activity eras&#8230;</p>
+    <canvas width="960" height="360" aria-label="Top activity players over time by calendar month"></canvas>
 </div>
 
 <div class="server-participation-depth-chart">

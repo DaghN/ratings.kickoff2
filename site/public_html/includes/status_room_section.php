@@ -28,24 +28,28 @@ if (!function_exists('k2_status_player_link_or_name')) {
     }
 }
 
-
 function k2_status_league_podium_medal(int $rank): string
 {
-    static $svgByRank = null;
-    if ($svgByRank === null) {
-        $svgByRank = [
-            1 => k2_status_league_podium_medal_svg('gold', '1st place', '1'),
-            2 => k2_status_league_podium_medal_svg('silver', '2nd place', '2'),
-            3 => k2_status_league_podium_medal_svg('bronze', '3rd place', '3'),
-        ];
+    static $medalByRank = [
+        1 => ['gold', '1st place', '1'],
+        2 => ['silver', '2nd place', '2'],
+        3 => ['bronze', '3rd place', '3'],
+    ];
+    static $medalInstance = 0;
+
+    if (!isset($medalByRank[$rank])) {
+        return '';
     }
 
-    return $svgByRank[$rank] ?? '';
+    ++$medalInstance;
+    [$variant, $ariaLabel, $place] = $medalByRank[$rank];
+
+    return k2_status_league_podium_medal_svg($variant, $ariaLabel, $place, $medalInstance);
 }
 
-function k2_status_league_podium_medal_svg(string $variant, string $ariaLabel, string $place): string
+function k2_status_league_podium_medal_svg(string $variant, string $ariaLabel, string $place, int $instance): string
 {
-    $id = 'k2-medal-' . $variant;
+    $id = 'k2-medal-' . $variant . '-' . $instance;
     $palettes = [
         'gold' => [
             'disk' => ['#fff9e6', '#ffe566', '#d4af37', '#8b6914'],
@@ -101,7 +105,7 @@ function k2_status_league_podium_medal_svg(string $variant, string $ariaLabel, s
         . '</svg></span>';
 }
 
-function k2_status_render_monthly_table(?array $monthly, bool $showPodiumMedals = false): void
+function k2_status_render_league_table(?array $monthly, bool $showPodiumMedals = false): void
 {
     if ($monthly === null || $monthly['rows'] === []) {
         return;
@@ -113,7 +117,7 @@ function k2_status_render_monthly_table(?array $monthly, bool $showPodiumMedals 
 						<tr>
 							<th class="k2-status-table__num">#</th>
 							<th class="k2-status-table__player">Player</th>
-							<th class="k2-status-table__num" title="Played">Pld</th>
+							<th class="k2-status-table__num" data-k2-help="Played games.">Pld</th>
 							<th class="k2-status-table__num">W</th>
 							<th class="k2-status-table__num">D</th>
 							<th class="k2-status-table__num">L</th>
@@ -157,6 +161,40 @@ function k2_status_render_monthly_table(?array $monthly, bool $showPodiumMedals 
 <?php
 }
 
+function k2_status_render_league_period_panel(
+    string $period,
+    string $target,
+    ?array $league,
+    ?string $error,
+    int $serverNowEpoch
+): void {
+    $serverNow = (new DateTimeImmutable('@' . $serverNowEpoch));
+    $metaText = $league !== null ? k2_status_league_meta_line_for_clock($league, $serverNow) : '';
+    $endTs = $league !== null ? strtotime((string) ($league['end'] ?? '')) : false;
+    $periodLabel = $league !== null ? (string) ($league['label'] ?? '') : '';
+    $totalGames = $league !== null ? (int) ($league['total_games'] ?? 0) : 0;
+    $endLabel = $league !== null ? k2_status_league_end_label($league) : '';
+    ?>
+				<div
+					class="k2-status-league-panel"
+					data-league-panel="<?php echo k2_status_h($target); ?>"
+					data-league-period-label="<?php echo k2_status_h($periodLabel); ?>"
+					data-league-total-games="<?php echo (int) $totalGames; ?>"
+					data-league-end-label="<?php echo k2_status_h($endLabel); ?>"
+					data-league-end-epoch="<?php echo $endTs === false ? 0 : (int) $endTs; ?>"
+					data-league-meta-text="<?php echo k2_status_h($metaText); ?>"
+					<?php echo $target === 'prev' ? 'hidden="hidden"' : ''; ?>>
+<?php if (!empty($error) || $league === null) { ?>
+					<p class="k2-status-panel__empty">Could not load <?php echo k2_status_h(strtolower(k2_status_league_title($period))); ?>.</p>
+<?php } elseif ($league['rows'] === []) { ?>
+					<p class="k2-status-panel__empty">No rated games in <?php echo k2_status_h($league['label']); ?><?php echo $target === 'current' ? ' yet' : ''; ?>.</p>
+<?php } else {
+    k2_status_render_league_table($league, $target === 'prev');
+} ?>
+				</div>
+<?php
+}
+
 $room = $k2StatusRoom ?? null;
 $loadError = $k2StatusRoomError ?? null;
 
@@ -168,16 +206,15 @@ if ($loadError !== null || $room === null) {
 
 $arc = $room['arc'];
 $activeTop = $room['active_top'];
-$monthlyCurrent = $room['monthly_current'];
-$monthlyPrev = $room['monthly_prev'];
+$leagues = is_array($room['leagues'] ?? null) ? $room['leagues'] : [];
+$serverClock = is_array($room['server_clock'] ?? null) ? $room['server_clock'] : [];
+$serverNowEpoch = (int) ($serverClock['now_epoch'] ?? time());
 $online = $room['online'];
 $liveGames = $room['live_games'];
 $logins = $room['logins'];
 $registrations = $room['registrations'];
 $recentGames = $room['recent_games'];
 
-$leagueMetaCurrent = $monthlyCurrent !== null ? k2_status_league_meta_line($monthlyCurrent) : '';
-$leagueMetaPrev = $monthlyPrev !== null ? k2_status_league_meta_line($monthlyPrev) : '';
 $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 ?>
 <section class="k2-status-room" aria-label="Online status room">
@@ -225,6 +262,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 				<span class="blue"><?php echo number_format((int) ($arc['players'] ?? 0)); ?></span> players played
 				<span class="blue"><?php echo number_format((int) $arc['games']); ?></span> rated games since <?php echo k2_status_h($arc['since_label']); ?>
 			</p>
+			<a class="k2-status-room__arc-link" href="server1.php">Activity &rarr;</a>
 		</section>
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-heritage" aria-label="Original Amiga box art">
@@ -236,8 +274,8 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title">
 			<div class="k2-status-panel__head">
-				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active players</h2>
-				<p class="k2-status-panel__meta">Active in last 12 months · <a class="k2-status-panel__more" href="ranked7.php">Full leaderboard</a></p>
+				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active players in the past year</h2>
+				<p class="k2-status-panel__meta"><a class="k2-status-panel__more" href="ranked7.php">Leaderboards &rarr;</a></p>
 			</div>
 <?php if (!empty($room['active_top_error'])) { ?>
 			<p class="k2-status-panel__empty">Could not load active ratings.</p>
@@ -245,13 +283,13 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 			<p class="k2-status-panel__empty">No active rated players in this window yet.</p>
 <?php } else { ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">
-				<table class="k2-table k2-status-table k2-status-table--dense">
+				<table class="k2-table k2-status-table k2-status-table--dense" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc">
 					<thead>
 						<tr>
-							<th class="k2-status-table__num">#</th>
-							<th class="k2-status-table__player">Player</th>
-							<th class="k2-status-table__num">Elo</th>
-							<th class="k2-status-table__num">Games</th>
+							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Rank within this visible leaderboard. Rank updates when the table is sorted.">#</th>
+							<th class="k2-status-table__player" data-k2-sort="text">Player</th>
+							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Current Elo rating. This leaderboard includes all active players in the past year.">Elo</th>
+							<th class="k2-status-table__num" data-k2-sort="number">Games</th>
 						</tr>
 					</thead>
 					<tbody class="black">
@@ -293,7 +331,10 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		</section>
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-games" aria-labelledby="k2-status-games-title">
-			<h2 id="k2-status-games-title" class="k2-panel-heading">Recent games</h2>
+			<div class="k2-status-panel__heading-row">
+				<h2 id="k2-status-games-title" class="k2-panel-heading">Recent games</h2>
+				<a class="k2-status-panel__more" href="server3.php">Games &rarr;</a>
+			</div>
 <?php if ($recentGames === []) { ?>
 			<p class="k2-status-panel__empty">—</p>
 <?php } else { ?>
@@ -328,38 +369,35 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } ?>
 		</section>
 
-		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-league" aria-labelledby="k2-status-monthly-title" data-k2-status-league>
+		<div class="k2-status-room__leagues">
+<?php foreach (['day', 'week', 'month', 'year'] as $leaguePeriod) {
+    $leagueGroup = is_array($leagues[$leaguePeriod] ?? null) ? $leagues[$leaguePeriod] : [];
+    $currentLeague = is_array($leagueGroup['current'] ?? null) ? $leagueGroup['current'] : null;
+    $previousLeague = is_array($leagueGroup['prev'] ?? null) ? $leagueGroup['prev'] : null;
+    $currentMeta = $currentLeague !== null ? k2_status_league_meta_line_for_clock($currentLeague, new DateTimeImmutable('@' . $serverNowEpoch)) : '';
+    $leagueTitle = k2_status_league_title($leaguePeriod);
+    $leagueId = 'k2-status-' . $leaguePeriod . '-league-title';
+    ?>
+		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-league" aria-labelledby="<?php echo k2_status_h($leagueId); ?>" data-k2-status-league data-server-now-epoch="<?php echo (int) $serverNowEpoch; ?>">
 			<div class="k2-status-panel__head k2-status-panel__head--league">
 				<div class="k2-status-league-head__title-row">
-					<h2 id="k2-status-monthly-title" class="k2-panel-heading">Monthly league</h2>
-					<div class="k2-status-league-toggle" role="group" aria-label="League month">
-						<button type="button" class="k2-status-league-toggle__btn is-active" data-league-target="current" aria-pressed="true">This month</button>
-						<button type="button" class="k2-status-league-toggle__btn" data-league-target="prev" aria-pressed="false">Previous month</button>
+					<h2 id="<?php echo k2_status_h($leagueId); ?>" class="k2-panel-heading"><?php echo k2_status_h($leagueTitle); ?></h2>
+					<div class="k2-status-league-toggle" role="group" aria-label="<?php echo k2_status_h($leagueTitle); ?> period">
+						<button type="button" class="k2-status-league-toggle__btn is-active" data-league-target="current" aria-pressed="true"><?php echo k2_status_h(k2_status_league_toggle_label($leaguePeriod, 'current')); ?></button>
+						<button type="button" class="k2-status-league-toggle__btn" data-league-target="prev" aria-pressed="false"><?php echo k2_status_h(k2_status_league_toggle_label($leaguePeriod, 'prev')); ?></button>
 					</div>
 				</div>
-				<p class="k2-status-panel__meta" data-league-meta><?php echo k2_status_h($leagueMetaCurrent); ?></p>
+				<p class="k2-status-panel__meta" data-league-meta><?php echo k2_status_h($currentMeta); ?></p>
 			</div>
 			<div class="k2-status-league-panels">
-				<div class="k2-status-league-panel" data-league-panel="current" data-league-meta-text="<?php echo k2_status_h($leagueMetaCurrent); ?>">
-<?php if (!empty($room['monthly_current_error']) || $monthlyCurrent === null) { ?>
-					<p class="k2-status-panel__empty">Could not load this month&rsquo;s league.</p>
-<?php } elseif ($monthlyCurrent['rows'] === []) { ?>
-					<p class="k2-status-panel__empty">No rated games in <?php echo k2_status_h($monthlyCurrent['label']); ?> yet.</p>
-<?php } else {
-    k2_status_render_monthly_table($monthlyCurrent);
-} ?>
-				</div>
-				<div class="k2-status-league-panel" data-league-panel="prev" data-league-meta-text="<?php echo k2_status_h($leagueMetaPrev); ?>" hidden>
-<?php if (!empty($room['monthly_prev_error']) || $monthlyPrev === null) { ?>
-					<p class="k2-status-panel__empty">Could not load previous month.</p>
-<?php } elseif ($monthlyPrev['rows'] === []) { ?>
-					<p class="k2-status-panel__empty">No rated games in <?php echo k2_status_h($monthlyPrev['label']); ?>.</p>
-<?php } else {
-    k2_status_render_monthly_table($monthlyPrev, true);
-} ?>
-				</div>
+<?php
+    k2_status_render_league_period_panel($leaguePeriod, 'current', $currentLeague, $leagueGroup['current_error'] ?? null, $serverNowEpoch);
+    k2_status_render_league_period_panel($leaguePeriod, 'prev', $previousLeague, $leagueGroup['prev_error'] ?? null, $serverNowEpoch);
+?>
 			</div>
 		</section>
+<?php } ?>
+		</div>
 		</div>
 	</div>
 

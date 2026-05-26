@@ -4,6 +4,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 
 | Feature | Level | Schema | Replay | Post-game (C++) | Periodic | Notes |
 |---------|-------|--------|--------|-----------------|----------|-------|
+| Top activity eras chart | L0 | — | — | — | — | `server1.php` multi-player line chart: each month shows the top 10 players by rated games from `player_period_games`; lines appear/vanish as players enter/leave the monthly top 10; hover highlights one line; new `api/server_top_activity_eras.php`; no new stored truth |
 | Activity Graph Roadmap (heatmap, depth, texture, matchups, digest) | L0 | — | — | — | — | `server1.php` five new Activity page features: 12-month daily heatmap, participation depth stacked bars, play-texture multi-line (goals/game, draw %, DD/100, CS/100), unique matchups per month, and a milestone digest card; all read `ratedresults`/`playertable` via five new APIs; no stored truth change |
 | Activity Double Digit Merchant charts | L0 | — | — | — | — | `server1.php` reads existing `ratedresults`/`playertable` through three APIs for first 10+ goal milestones: new merchants per year, cumulative merchants, and merchant rating distribution; no stored truth change |
 | Activity recent daily chart | L0 | — | — | — | — | `server1.php` reads existing `ratedresults` through `api/server_games_by_day_recent.php` for a past-month games-per-day bar chart with zero-game days included and a `Games` legend chip; no stored truth change |

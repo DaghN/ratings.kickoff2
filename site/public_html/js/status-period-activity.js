@@ -1,5 +1,5 @@
 /**
- * Status tab — games-by-day / month / year tables (picker + API refresh).
+ * Status tab — games-by-day / week / month / year tables (picker + API refresh).
  */
 (function () {
     'use strict';
@@ -20,14 +20,14 @@
 
     function buildTbody(entries) {
         if (!entries || !entries.length) {
-            return '<tbody class="black"><tr><td colspan="3" style="text-align:left;">No rated games in this period.</td></tr></tbody>';
+            return '<tbody class="black"><tr><td colspan="3" class="k2-table-cell--left">No rated games in this period.</td></tr></tbody>';
         }
         var html = '<tbody class="black">';
         for (var i = 0; i < entries.length; i++) {
             var e = entries[i];
-            html += '<tr style="text-align:right;">';
+            html += '<tr>';
             html += '<td>' + e.rank + '</td>';
-            html += '<td style="text-align:left;"><a href="individual1.php?id=' + e.player_id + '">'
+            html += '<td class="k2-table-cell--left"><a href="individual1.php?id=' + e.player_id + '">'
                 + escapeHtml(e.player_name) + '</a></td>';
             html += '<td>' + e.games + '</td>';
             html += '</tr>';
@@ -58,6 +58,10 @@
         var input = panel.querySelector('.server-period-activity-leaderboard__input');
         if (input) {
             input.disabled = loading;
+        }
+        var calendarButton = panel.querySelector('.server-period-activity-leaderboard__calendar-button');
+        if (calendarButton) {
+            calendarButton.disabled = loading;
         }
     }
 
@@ -120,6 +124,24 @@
         input.addEventListener('change', function () {
             fetchPanel(root, panel);
         });
+        var calendarButton = panel.querySelector('.server-period-activity-leaderboard__calendar-button');
+        if (calendarButton) {
+            calendarButton.addEventListener('click', function () {
+                if (input.disabled) {
+                    return;
+                }
+                input.focus();
+                if (typeof input.showPicker === 'function') {
+                    try {
+                        input.showPicker();
+                    } catch (e) {
+                        input.click();
+                    }
+                } else {
+                    input.click();
+                }
+            });
+        }
     }
 
     function init() {

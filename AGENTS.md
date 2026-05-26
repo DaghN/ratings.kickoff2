@@ -46,6 +46,10 @@ Cold start (do **before** coding unless Dagh pasted full context):
 
 Prod ladder data is written by **Steve’s C++** (per game) + **periodic jobs** (e.g. hourly fade). We maintain a **migration backlog** in `docs/coordination/` for when stored truth changes — **not** on every cosmetics session.
 
+**Performance / stored truth habit:** When building DB-backed features, do not default to “just query it live.” First consider whether the value belongs in stored ladder truth: index, aggregate table, `playertable` column, replay output, post-game C++ update, or periodic job.
+
+Steve handoff and migration registers are normal workflow, not reasons to avoid the better data shape. Use live SQL for genuinely cheap or one-off reads; use stored/indexed/replayed truth for hot pages, profile stats, achievements, leaderboards, repeated historical scans, and anything likely to grow.
+
 **Triggers to think about migration:** new DB columns/tables/indexes, `scripts/ladder/` edits, “store this on profile” vs compute in PHP, medals persistent on `playertable`, etc.
 
 **Then:** Part B of UPDATE_DOCS + [`feature-log.md`](docs/coordination/feature-log.md).

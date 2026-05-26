@@ -8,8 +8,9 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 |----|---------|-------|-------|---------|------|------------------|
 | REP-001 | Ladder replay v1/v2 baseline | All `ratedresults`; rebuild `playertable` + `generalstatstable` | Done May 2026 | Done May 2026 | **Not run** | `docs/STAGING_REPLAY.md`; `bash run_staging_ladder_replay.sh` (`--target staging`) |
 | REP-002 | *(template)* New derived columns need backfill | Extend `scripts/ladder` then full `run` | — | — | — | After schema register items applied |
-| REP-003 | Player period games aggregate | Rebuild `player_period_games` day/month/year counts from all `ratedresults` | Done May 2026 | Done May 2026 | **Pending** | `scripts/ladder/sql/player_period_games_rebuild.sql`; local wrapper `scripts/rebuild_player_period_games_local.ps1` |
+| REP-003 | Player period games aggregate | Rebuild `player_period_games` day/week/month/year counts from all `ratedresults` | Done May 2026 | **Pending Steve** | **Pending** | `scripts/ladder/sql/player_period_games_rebuild.sql`; local wrapper `scripts/rebuild_player_period_games_local.ps1` |
 | REP-004 | Player monthly league aggregate | Rebuild `player_monthly_league` monthly standings from all `ratedresults` | Done May 2026 | Done May 2026 | **Pending** | `scripts/ladder/sql/player_monthly_league_rebuild.sql`; local wrapper `scripts/rebuild_player_monthly_league_local.ps1` |
+| REP-005 | Player peak period games cache | Rebuild `player_peak_period_games` from `player_period_games` | Done May 2026 | **Pending Steve** | **Pending** | `scripts/ladder/sql/player_peak_period_games_rebuild.sql`; local wrapper runs after REP-003 |
 
 ### Run log (append rows)
 
@@ -21,6 +22,7 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | 2026-05 | Staging | `kooldb` | Steve | staging current | 0 | REP-003: schema + rebuild ran; expectation test passed. Steve noted MariaDB requires `COUNT(*)`, not `COUNT()` |
 | 2026-05 | Local | `ko2unity_db` | Agent | 74870 | 0 | REP-004: `player_monthly_league` rebuilt; 2,679 rows; `SUM(played)` = 149,740 player appearances |
 | 2026-05 | Staging | `kooldb` | Steve | 74870 | 0 | REP-004: `player_monthly_league` rebuilt; 2,674 rows; `SUM(played)` = 149,740 player appearances; indexes verified |
+| 2026-05 | Local | `ko2unity_db` | Agent | 74870 | 0 | REP-003 + REP-005: week rows added; `player_period_games` rows day/week/month/year = 27,629 / 8,053 / 2,679 / 583, each summing to 149,740 appearances; peak cache rebuilt with 264 rows per period type |
 
 ### Prod cutover (when scheduled)
 

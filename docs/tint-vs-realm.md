@@ -64,11 +64,11 @@
 
 - [x] `status-realm-lab.php?variant=identity` — mock Status shell with realm beside the wordmark and search isolated on the right.
 - [x] `status-realm-lab.php?variant=strip` — mock Status shell with header search alone and a realm strip above hub nav.
-- [ ] Choose production direction and then update shared `site_header.php` / search behavior.
+- [x] Identity layout temporarily promoted to shared `site_header.php` as a visual discussion prompt.
+- [ ] Decide whether to keep identity layout for deploy and whether to update search behavior.
 
 ### Deferred
 
-- Production header layout change (realm vs search placement)
 - Search scoped to `data-realm`
 
 ## Smoke checklist (after deploy)

@@ -175,11 +175,12 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 	font-size: 13px;
 }
 
-/* ── Realm header lab (status-realm-lab.php) ── */
+/* Realm beside wordmark: current shared header + status-realm-lab.php identity variant */
 .k2-realm-lab-header {
 	align-items: center;
 }
 
+.k2-site-header__brand,
 .k2-realm-lab-brand {
 	display: flex;
 	flex-wrap: wrap;
@@ -188,6 +189,7 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 	min-width: 0;
 }
 
+.k2-site-header__realm,
 .k2-realm-lab-inline-realm {
 	display: inline-flex;
 	align-items: center;
@@ -196,10 +198,12 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 	border-left: 1px solid var(--k2-border-subtle);
 }
 
+.k2-site-header__search,
 .k2-realm-lab-search {
 	margin-left: auto;
 }
 
+.k2-site-header__realm-label,
 .k2-realm-lab-label {
 	color: var(--k2-text-muted);
 	font-size: 11px;
@@ -238,12 +242,14 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 }
 
 @media (max-width: 760px) {
+	.k2-site-header__realm,
 	.k2-realm-lab-inline-realm {
 		width: 100%;
 		padding-left: 0;
 		border-left: none;
 	}
 
+	.k2-site-header__search,
 	.k2-realm-lab-search {
 		margin-left: 0;
 	}
@@ -813,6 +819,12 @@ body.k2-site .server-peak-period-leaderboards__panel[hidden] {
 	display: none;
 }
 
+body.k2-site .server-peak-period-leaderboards {
+	max-width: 100%;
+	overflow-x: auto;
+	padding-bottom: 4px;
+}
+
 body.k2-site .server-peak-period-leaderboards__grid {
 	max-width: var(--k2-max-width);
 	margin-bottom: 16px;
@@ -890,7 +902,6 @@ body.k2-site .server-period-activity-leaderboards__grid {
 }
 
 @media (max-width: 1024px) {
-	body.k2-site .server-peak-period-leaderboards__grid,
 	body.k2-site .server-records-panels,
 	body.k2-site .server-period-activity-leaderboards__grid {
 		grid-template-columns: 1fr;
@@ -900,9 +911,7 @@ body.k2-site .server-period-activity-leaderboards__grid {
 @media (max-width: 760px) {
 	body.k2-site .server-peak-period-leaderboards__grid--period,
 	body.k2-site .server-peak-period-leaderboards__grid--all-time {
-		width: 100%;
-		grid-template-columns: minmax(0, 1fr);
-		gap: 16px;
+		column-gap: 24px;
 	}
 }
 
@@ -959,6 +968,81 @@ body.k2-site .server-period-activity-leaderboard__input {
 	background: var(--k2-bg-surface);
 	color: var(--k2-text-primary);
 	font-size: 0.9em;
+}
+
+body.k2-site .server-period-activity-leaderboard__date-control {
+	display: inline-flex;
+	align-items: stretch;
+	gap: 4px;
+}
+
+body.k2-site .server-period-activity-leaderboard__input--day {
+	color-scheme: dark;
+}
+
+body.k2-site .server-period-activity-leaderboard__input--day::-webkit-calendar-picker-indicator {
+	cursor: pointer;
+	opacity: 1;
+	filter: invert(1) brightness(1.15);
+}
+
+body.k2-site .server-period-activity-leaderboard__calendar-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	min-height: 28px;
+	padding: 0;
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 58%, transparent);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-accent-muted);
+	color: var(--k2-segment-active-text);
+	cursor: pointer;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.025) inset;
+	transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+body.k2-site .server-period-activity-leaderboard__calendar-button:hover,
+body.k2-site .server-period-activity-leaderboard__calendar-button:focus-visible {
+	border-color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 22%, transparent);
+	color: var(--k2-text-primary);
+	box-shadow: 0 0 0 2px var(--k2-accent-muted);
+	outline: none;
+}
+
+body.k2-site .server-period-activity-leaderboard__calendar-button:disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
+body.k2-site .server-period-activity-leaderboard__calendar-icon {
+	position: relative;
+	width: 15px;
+	height: 14px;
+	border: 1.5px solid currentColor;
+	border-radius: 3px;
+	box-sizing: border-box;
+}
+
+body.k2-site .server-period-activity-leaderboard__calendar-icon::before {
+	content: "";
+	position: absolute;
+	left: -1.5px;
+	right: -1.5px;
+	top: 3px;
+	border-top: 1.5px solid currentColor;
+}
+
+body.k2-site .server-period-activity-leaderboard__calendar-icon::after {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 7px;
+	width: 2px;
+	height: 2px;
+	background: currentColor;
+	box-shadow: 4px 0 0 currentColor, 8px 0 0 currentColor, 0 4px 0 currentColor, 4px 4px 0 currentColor;
 }
 
 body.k2-site .server-period-activity-leaderboard__summary {

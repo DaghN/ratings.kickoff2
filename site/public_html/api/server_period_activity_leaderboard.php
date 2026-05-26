@@ -1,8 +1,8 @@
 <?php
 /**
- * JSON leaderboard: players by rated games in one calendar day, month, or year.
+ * JSON leaderboard: players by rated games in one calendar day, week, month, or year.
  *
- * GET: period=day|month|year, key=(Y-m-d | Y-m | YYYY), limit (default 50, max 100)
+ * GET: period=day|week|month|year, key=(Y-m-d | Monday Y-m-d | Y-m | YYYY), limit (default 50, max 100)
  */
 
 header('Content-Type: application/json; charset=utf-8');

@@ -12,6 +12,8 @@
 
 **Philosophy:** This hub is a **migration backlog**, not part of daily vibecoding. Touch registers when a feature changes **stored** ladder data (L1+). L0 PHP-only features get one line in [`coordination/feature-log.md`](coordination/feature-log.md).
 
+**Performance policy:** For DB-backed website work, treat stored/indexed/replayed truth as a normal option, not an exceptional burden. Steve handoff, schema SQL, replay/backfill, and post-game C++ snippets are project machinery we already have; their existence should not make agents default to slow live historical queries.
+
 ---
 
 ## Three databases (quick reference)
@@ -70,6 +72,34 @@ Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes
 | **L3** | Live writer on prod (C++ and/or periodic) | Per-game update; includes **C++ snippet pack** for Steve |
 | **L4** | Staging-tested; Steve packet ready | Schema + replay on staging; snippet pack **ready for Steve** |
 | **L5** | Prod done | Registers closed |
+
+---
+
+## Stored truth decision habit
+
+Many website surfaces can be built two ways:
+
+- **Read-time SQL:** query historical tables directly when the page loads.
+- **Stored truth:** add an index, aggregate table, `playertable` field, replay output, post-game C++ writer, or periodic job so the page reads precomputed values.
+
+Agents should actively consider the stored-truth path for any stat-heavy or hot DB-backed feature. The coordination cost is real, but it is expected workflow here, not a reason to avoid the better data shape. A small schema/index change can be the difference between multi-second pages and sub-second pages.
+
+Prefer stored/indexed/replayed truth when:
+
+- A query scans many rows in `ratedresults` / `resulttable` or repeats per player.
+- The feature appears on hot pages such as profile, status, activity, leaderboards, Hall of Fame, achievements, or fun stats.
+- The stat will be reused across pages or sessions.
+- The result changes naturally after each game or on a predictable schedule.
+- An index or aggregate would simplify PHP and reduce page-load risk.
+
+Prefer read-time SQL when:
+
+- The query is demonstrably cheap on realistic data.
+- The feature is exploratory, temporary, admin-only, or rarely loaded.
+- The result is hard to define as durable ladder truth.
+- Stored state would add more complexity than the page-load cost justifies.
+
+When stored truth is the right shape, use the existing path: schema migration, replay/backfill if needed, post-game or periodic writer notes, and `docs/UPDATE_DOCS.md` Part B.
 
 ---
 

@@ -11,7 +11,7 @@
 | Page / include | Current behavior |
 |----------------|------------------|
 | `ranked1`-`ranked5`, `ranked7` | `k2-table.js` sort + autorank; server-rendered default sort indicator per tab. |
-| `ranked8` / `peak_period_leaderboards_section.php` | Activity tab has **Calendar** day/week/month/year tables capped at 20, 2×2 on desktop, non-sortable but with header help + static Games-desc indicator; All time / Longevity remain sortable with raw date sort values. |
+| `ranked8` / `peak_period_leaderboards_section.php` | Activity tab has **Calendar** day/week/month/year tables capped at 20, 2×2 whenever the viewport can fit it, non-sortable but with header help + static Games-desc indicator; All time / Longevity stay side by side and remain sortable with raw date sort values. |
 | `individual2a/b/c.php` | `k2-table.js` sort; Games default sort indicator. |
 | `server3.php` | 14 day buckets; each day table uses `k2-table.js` on all columns, default Date desc matching SQL order. |
 | `game.php` | Static single-game table with `k2-table.js` header help only; no sorting. |

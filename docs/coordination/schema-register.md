@@ -11,6 +11,7 @@ SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `s
 | SCH-003 | `002_generalstatstable_drop_ratio_leader_columns.sql` | DROP 28 ratio leader columns on `generalstatstable` | **Applied** (May 2026) | **Pending Steve** | **Pending** | No | With PG-004 PHP + C++; see `docs/RECORDS_PAGE_DATA.md` |
 | SCH-004 | `003_player_period_games.sql` | Create `player_period_games` day/month/year activity aggregate table | **Done** | **Done** | **Pending** | Yes (backfill/rebuild) | Staging applied by Steve May 2026; handoff `player-period-games-handoff.md`; post-game PG-005 |
 | SCH-005 | `004_status_performance_and_monthly_league.sql` | Add Status performance indexes (`ratedresults.Date`, live `resulttable`) + `player_monthly_league` aggregate table | **Done** | **Done** | **Pending** | Yes (monthly league rebuild) | Staging applied by Steve May 2026; requires REP-004 + PG-006 before prod PHP relies on aggregate truth |
+| SCH-006 | `005_period_activity_week_and_peaks.sql` | Add `week` rows to `player_period_games` and create `player_peak_period_games` cache | **Done** | **Pending Steve** | **Pending** | Yes (period + peak rebuild) | Requires updated REP-003 plus REP-005; post-game PG-005 + PG-007 |
 
 ### Adding a row
 

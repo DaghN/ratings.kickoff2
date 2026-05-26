@@ -25,6 +25,16 @@ Then implement what Dagh asked.
 
 If the slice changes **stored ladder truth** (new DB column/table/index, `scripts/ladder/`, per-game or periodic writers): note that `docs/UPDATE_DOCS.md` Part B will apply at wrap-up. Do not block vibecoding to fill registers mid-flight unless Dagh asks.
 
+### Performance-first stored truth
+
+For DB-backed website features, especially profile, status, activity, leaderboards, achievements, and fun stats, actively consider whether the site should read from precomputed or indexed stored truth instead of live historical queries.
+
+Do **not** reject schema, replay, index, aggregate-table, periodic-job, or post-game C++ updates merely because they require Steve coordination or register handoff. In this repo, that coordination is normal project machinery and is available within reason.
+
+Default question before implementing heavy stats: *Would this page become faster, simpler, or more reliable if the value were indexed, cached in a table, stored on `playertable`, rebuilt by replay, and maintained by post-game or periodic jobs?*
+
+Use read-time SQL when it is clearly cheap, narrow, infrequent, or temporary. Prefer stored/indexed truth when a feature scans many historical games, appears on hot pages, feeds profile/achievement surfaces, or will be reused.
+
 ---
 
 ## 3) When to run “finish” (UPDATE_DOCS) — same turn as “done”

@@ -41,6 +41,156 @@ function k2_status_league_meta_line(array $monthly): string
     return $monthly['label'] . ' · ' . (int) $monthly['total_games'] . ' rated games · ' . $daysLabel;
 }
 
+/** @return array{now: DateTimeImmutable, now_sql: string, source: string, timezone: string} */
+function k2_status_server_clock(mysqli $con): array
+{
+    $row = null;
+    $r = mysqli_query($con, 'SELECT NOW() AS server_now, @@session.time_zone AS session_tz, @@system_time_zone AS system_tz');
+    if ($r !== false) {
+        $row = mysqli_fetch_assoc($r);
+        mysqli_free_result($r);
+    }
+
+    $nowSql = $row && !empty($row['server_now'])
+        ? (string) $row['server_now']
+        : date('Y-m-d H:i:s');
+    $now = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $nowSql);
+    if (!$now instanceof DateTimeImmutable) {
+        $now = new DateTimeImmutable('now');
+        $nowSql = $now->format('Y-m-d H:i:s');
+    }
+
+    $sessionTz = $row && isset($row['session_tz']) ? (string) $row['session_tz'] : date_default_timezone_get();
+    $systemTz = $row && isset($row['system_tz']) ? (string) $row['system_tz'] : '';
+    $tzLabel = $sessionTz === 'SYSTEM' && $systemTz !== '' ? 'SYSTEM/' . $systemTz : $sessionTz;
+
+    return [
+        'now' => $now,
+        'now_sql' => $nowSql,
+        'source' => $row ? 'mysql' : 'php',
+        'timezone' => $tzLabel,
+    ];
+}
+
+/**
+ * @return array{start: string, end: string, label: string}|null
+ */
+function k2_status_league_period_bounds(string $period, int $periodOffset, ?DateTimeImmutable $serverNow = null): ?array
+{
+    $serverNow = $serverNow ?? new DateTimeImmutable('now');
+    $periodOffset = max(-24, min(0, $periodOffset));
+    $today = $serverNow->setTime(0, 0, 0);
+
+    switch ($period) {
+        case 'day':
+            $start = $today->modify((string) $periodOffset . ' days');
+            $end = $start->modify('+1 day');
+            $label = $start->format('F j, Y');
+            break;
+        case 'week':
+            $weekStart = $today->modify('-' . ((int) $today->format('N') - 1) . ' days');
+            $start = $weekStart->modify((string) $periodOffset . ' weeks');
+            $end = $start->modify('+1 week');
+            $label = 'Week of ' . $start->format('F j, Y');
+            break;
+        case 'month':
+            $monthStart = new DateTimeImmutable($serverNow->format('Y-m-01 00:00:00'));
+            $start = $monthStart->modify((string) $periodOffset . ' months');
+            $end = $start->modify('+1 month');
+            $label = $start->format('F Y');
+            break;
+        case 'year':
+            $yearStart = new DateTimeImmutable($serverNow->format('Y-01-01 00:00:00'));
+            $start = $yearStart->modify((string) $periodOffset . ' years');
+            $end = $start->modify('+1 year');
+            $label = $start->format('Y');
+            break;
+        default:
+            return null;
+    }
+
+    return [
+        'start' => $start->format('Y-m-d H:i:s'),
+        'end' => $end->format('Y-m-d H:i:s'),
+        'label' => $label,
+    ];
+}
+
+function k2_status_league_title(string $period): string
+{
+    return match ($period) {
+        'day' => 'Daily league',
+        'week' => 'Weekly league',
+        'year' => 'Yearly league',
+        default => 'Monthly league',
+    };
+}
+
+function k2_status_league_toggle_label(string $period, string $target): string
+{
+    if ($target === 'prev') {
+        return match ($period) {
+            'day' => 'Yesterday',
+            'week' => 'Previous week',
+            'year' => 'Previous year',
+            default => 'Previous month',
+        };
+    }
+
+    return match ($period) {
+        'day' => 'Today',
+        'week' => 'This week',
+        'year' => 'This year',
+        default => 'This month',
+    };
+}
+
+function k2_status_league_end_label(array $league): string
+{
+    $ts = strtotime((string) ($league['end'] ?? ''));
+
+    return $ts === false ? '' : date('M j, H:i', $ts);
+}
+
+function k2_status_format_league_time_left(int $seconds): string
+{
+    if ($seconds <= 0) {
+        return 'ended';
+    }
+
+    $days = intdiv($seconds, 86400);
+    $hours = intdiv($seconds % 86400, 3600);
+    $minutes = intdiv($seconds % 3600, 60);
+    if ($days > 0) {
+        return $days . 'd ' . $hours . 'h left';
+    }
+    if ($hours > 0) {
+        return $hours . 'h ' . $minutes . 'm left';
+    }
+
+    return max(1, $minutes) . 'm left';
+}
+
+function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $serverNow): string
+{
+    $endTs = strtotime((string) ($league['end'] ?? ''));
+    $nowTs = $serverNow->getTimestamp();
+    $totalGames = (int) ($league['total_games'] ?? 0);
+    $gamesLabel = $totalGames === 1 ? 'rated game' : 'rated games';
+    $endLabel = k2_status_league_end_label($league);
+    $isLive = $endTs !== false && $endTs > $nowTs;
+    $verb = $isLive ? 'ends' : 'ended';
+    $text = (string) ($league['label'] ?? '') . ' · ' . $totalGames . ' ' . $gamesLabel;
+    if ($endLabel !== '') {
+        $text .= ' · ' . $verb . ' ' . $endLabel . ' server time';
+    }
+    if ($isLive) {
+        $text .= ' · ' . k2_status_format_league_time_left($endTs - $nowTs);
+    }
+
+    return $text;
+}
+
 function k2_status_human_ago(?string $datetime): string
 {
     if ($datetime === null || $datetime === '') {
@@ -324,9 +474,10 @@ function k2_status_monthly_league_from_aggregate(
     string $end,
     string $label,
     int $monthOffset,
-    int $limit,
+    ?int $limit,
     ?string &$error = null
 ): ?array {
+    $limitSql = $limit === null ? '' : ' LIMIT ' . max(1, (int) $limit);
     $sql = <<<'SQL'
 SELECT
   l.player_id AS pid,
@@ -343,8 +494,8 @@ FROM player_monthly_league l
 LEFT JOIN playertable p ON p.ID = l.player_id
 WHERE l.month_start = ?
 ORDER BY l.points DESC, l.goal_difference DESC, l.goals_for DESC, pname ASC
-LIMIT ?
 SQL;
+    $sql .= $limitSql;
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -352,7 +503,7 @@ SQL;
 
         return null;
     }
-    mysqli_stmt_bind_param($stmt, 'si', $monthStart, $limit);
+    mysqli_stmt_bind_param($stmt, 's', $monthStart);
     if (!mysqli_stmt_execute($stmt)) {
         $error = mysqli_stmt_error($stmt);
         mysqli_stmt_close($stmt);
@@ -410,9 +561,10 @@ function k2_status_monthly_league_from_ratedresults(
     string $end,
     string $label,
     int $monthOffset,
-    int $limit,
+    ?int $limit,
     ?string &$error = null
 ): ?array {
+    $limitSql = $limit === null ? '' : ' LIMIT ' . max(1, (int) $limit);
 
     $sql = <<<'SQL'
 SELECT
@@ -452,8 +604,8 @@ FROM (
 ) AS sides
 GROUP BY pid
 ORDER BY pts DESC, (SUM(gf) - SUM(ga)) DESC, SUM(gf) DESC, pname ASC
-LIMIT ?
 SQL;
+    $sql .= $limitSql;
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -461,7 +613,7 @@ SQL;
 
         return null;
     }
-    mysqli_stmt_bind_param($stmt, 'ssssi', $start, $end, $start, $end, $limit);
+    mysqli_stmt_bind_param($stmt, 'ssss', $start, $end, $start, $end);
     if (!mysqli_stmt_execute($stmt)) {
         $error = mysqli_stmt_error($stmt);
         mysqli_stmt_close($stmt);
@@ -513,6 +665,65 @@ SQL;
         'total_games' => $totalGames,
         'month_offset' => $monthOffset,
     ];
+}
+
+/**
+ * @return array{label: string, start: string, end: string, rows: list<array>, total_games: int, month_offset: int, period: string, period_offset: int}|null
+ */
+function k2_status_league(
+    mysqli $con,
+    string $period,
+    ?int $limit = null,
+    int $periodOffset = 0,
+    ?DateTimeImmutable $serverNow = null,
+    ?string &$error = null
+): ?array {
+    $error = null;
+    if (!in_array($period, ['day', 'week', 'month', 'year'], true)) {
+        $error = 'invalid_period';
+
+        return null;
+    }
+
+    $bounds = k2_status_league_period_bounds($period, $periodOffset, $serverNow);
+    if ($bounds === null) {
+        $error = 'invalid_period';
+
+        return null;
+    }
+
+    if ($period === 'month' && k2_status_table_exists($con, 'player_monthly_league')) {
+        $monthStart = substr($bounds['start'], 0, 10);
+        $league = k2_status_monthly_league_from_aggregate(
+            $con,
+            $monthStart,
+            $bounds['start'],
+            $bounds['end'],
+            $bounds['label'],
+            $periodOffset,
+            $limit,
+            $error
+        );
+    } else {
+        $league = k2_status_monthly_league_from_ratedresults(
+            $con,
+            $bounds['start'],
+            $bounds['end'],
+            $bounds['label'],
+            $periodOffset,
+            $limit,
+            $error
+        );
+    }
+
+    if ($league === null) {
+        return null;
+    }
+
+    $league['period'] = $period;
+    $league['period_offset'] = $periodOffset;
+
+    return $league;
 }
 
 /** @return list<array{id: int, name: string}>|null */
@@ -659,6 +870,9 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
     $error = null;
     $err = null;
 
+    $serverClock = k2_status_server_clock($con);
+    $serverNow = $serverClock['now'];
+
     $arc = k2_status_arc_ticker($con, $err);
     if ($arc === null) {
         $error = $err;
@@ -670,13 +884,27 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
     $activeTop = k2_status_active_top_rated($con, $panelErr);
     $activeTopError = $panelErr;
 
-    $panelErr = null;
-    $monthlyCurrent = k2_status_monthly_league($con, 20, 0, $panelErr);
-    $monthlyCurrentError = $panelErr;
+    $leagues = [];
+    foreach (['day', 'week', 'month', 'year'] as $period) {
+        $panelErr = null;
+        $current = k2_status_league($con, $period, null, 0, $serverNow, $panelErr);
+        $currentError = $panelErr;
 
-    $panelErr = null;
-    $monthlyPrev = k2_status_monthly_league($con, 20, -1, $panelErr);
-    $monthlyPrevError = $panelErr;
+        $panelErr = null;
+        $prev = k2_status_league($con, $period, null, -1, $serverNow, $panelErr);
+        $prevError = $panelErr;
+
+        $leagues[$period] = [
+            'current' => $current,
+            'current_error' => $currentError,
+            'prev' => $prev,
+            'prev_error' => $prevError,
+        ];
+    }
+    $monthlyCurrent = $leagues['month']['current'] ?? null;
+    $monthlyPrev = $leagues['month']['prev'] ?? null;
+    $monthlyCurrentError = $leagues['month']['current_error'] ?? null;
+    $monthlyPrevError = $leagues['month']['prev_error'] ?? null;
 
     $panelErr = null;
     $online = k2_status_online_players($con, $panelErr) ?? [];
@@ -694,9 +922,16 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
     $recentGames = k2_status_recent_rated_games($con, 10, $panelErr) ?? [];
 
     return [
+        'server_clock' => [
+            'now_sql' => $serverClock['now_sql'],
+            'now_epoch' => $serverNow->getTimestamp(),
+            'source' => $serverClock['source'],
+            'timezone' => $serverClock['timezone'],
+        ],
         'arc' => $arc,
         'active_top' => $activeTop ?? [],
         'active_top_error' => $activeTopError,
+        'leagues' => $leagues,
         'monthly_current' => $monthlyCurrent,
         'monthly_current_error' => $monthlyCurrentError,
         'monthly_prev' => $monthlyPrev,

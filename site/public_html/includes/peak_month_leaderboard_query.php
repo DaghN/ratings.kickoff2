@@ -1,9 +1,9 @@
 <?php
 /**
- * Top players by personal peak calendar day / month / year (most rated games in one period).
+ * Top players by personal peak calendar day / week / month / year (most rated games in one period).
  * One row per player (their best period). Ties on game count: earlier period wins.
  *
- * Prefer the player_period_games aggregate when present; fall back to ratedresults while
+ * Prefer the player_peak_period_games cache, then player_period_games when present; fall back to ratedresults while
  * staging/prod are still catching up with the aggregate-table rollout.
  */
 
@@ -15,6 +15,8 @@ function k2_peak_period_key_sql(string $period): ?string
     switch ($period) {
         case 'day':
             return 'DATE(`Date`)';
+        case 'week':
+            return 'DATE_SUB(DATE(`Date`), INTERVAL WEEKDAY(`Date`) DAY)';
         case 'month':
             return "DATE_FORMAT(`Date`, '%Y-%m')";
         case 'year':
@@ -32,6 +34,8 @@ function k2_peak_period_aggregate_key_sql(string $period): ?string
     switch ($period) {
         case 'day':
             return "DATE_FORMAT(g.period_start, '%Y-%m-%d')";
+        case 'week':
+            return "DATE_FORMAT(g.period_start, '%Y-%m-%d')";
         case 'month':
             return "DATE_FORMAT(g.period_start, '%Y-%m')";
         case 'year':
@@ -39,6 +43,55 @@ function k2_peak_period_aggregate_key_sql(string $period): ?string
         default:
             return null;
     }
+}
+
+/**
+ * @return array<int, array{rank: int, player_id: int, player_name: string, period_key: string, games: int}>|null
+ */
+function k2_peak_period_leaderboard_entries_from_peak_table(mysqli $con, string $period, int $limit = 0, ?string &$error = null): ?array
+{
+    $error = null;
+    if (!in_array($period, ['day', 'week', 'month', 'year'], true)) {
+        $error = 'invalid_period';
+
+        return [];
+    }
+
+    $limitSql = $limit > 0 ? ' LIMIT ' . (int) $limit : '';
+    $periodSql = "'" . mysqli_real_escape_string($con, $period) . "'";
+
+    $sql = 'SELECT g.player_id, p.Name AS player_name, '
+        . "DATE_FORMAT(g.period_start, '%Y-%m-%d') AS period_key, "
+        . 'g.games '
+        . 'FROM player_peak_period_games g INNER JOIN playertable p ON p.ID = g.player_id '
+        . 'WHERE g.period_type = ' . $periodSql . ' '
+        . 'ORDER BY g.games DESC, g.period_start ASC, p.Name ASC' . $limitSql;
+
+    $res = mysqli_query($con, $sql);
+    if ($res === false) {
+        $error = mysqli_error($con);
+
+        if (mysqli_errno($con) === 1146) {
+            return null;
+        }
+
+        return [];
+    }
+
+    $entries = [];
+    $rank = 0;
+    while ($row = mysqli_fetch_assoc($res)) {
+        $rank++;
+        $entries[] = [
+            'rank' => $rank,
+            'player_id' => (int) $row['player_id'],
+            'player_name' => (string) $row['player_name'],
+            'period_key' => (string) $row['period_key'],
+            'games' => (int) $row['games'],
+        ];
+    }
+
+    return $entries ?: null;
 }
 
 /**
@@ -293,6 +346,14 @@ function k2_peak_period_leaderboard_entries(mysqli $con, string $period, int $li
         return k2_peak_all_time_leaderboard_entries($con, $limit, $error);
     }
 
+    $peakTableError = null;
+    $peakTableEntries = k2_peak_period_leaderboard_entries_from_peak_table($con, $period, $limit, $peakTableError);
+    if ($peakTableEntries !== null) {
+        $error = $peakTableError;
+
+        return $peakTableEntries;
+    }
+
     $aggregateError = null;
     $aggregateEntries = k2_peak_period_leaderboard_entries_from_aggregate($con, $period, $limit, $aggregateError);
     if ($aggregateEntries !== null) {
@@ -366,9 +427,13 @@ function k2_peak_month_leaderboard_entries(mysqli $con, int $limit = 0, ?string 
 
 function k2_format_peak_month(string $ym): string
 {
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $ym) === 1) {
+        $ym = substr($ym, 0, 7);
+    }
+
     $d = DateTime::createFromFormat('Y-m-d', $ym . '-01');
     if ($d instanceof DateTime) {
-        return $d->format('M Y');
+        return $d->format('F Y');
     }
 
     return $ym;
@@ -380,9 +445,20 @@ function k2_format_peak_period(string $period, string $periodKey): string
         case 'day':
             $ts = strtotime($periodKey);
             return $ts ? date('M j, Y', $ts) : $periodKey;
+        case 'week':
+            $ts = strtotime($periodKey);
+            if (!$ts) {
+                return $periodKey;
+            }
+
+            return date('M j', $ts) . '-' . date('M j, Y', strtotime('+6 days', $ts));
         case 'month':
             return k2_format_peak_month($periodKey);
         case 'year':
+            if (preg_match('/^\d{4}/', $periodKey, $matches) === 1) {
+                return $matches[0];
+            }
+
             return $periodKey;
         case 'all-time':
             $ts = strtotime($periodKey);
@@ -403,6 +479,12 @@ function k2_peak_period_leaderboard_meta(string $period): array
                 'title' => 'Most games in one day',
                 'period_label' => 'Peak day',
                 'hint' => 'Top players by most rated games in a single calendar day (each player’s personal best only). Ties: earlier day wins.',
+            ];
+        case 'week':
+            return [
+                'title' => 'Most games in one week',
+                'period_label' => 'Peak week',
+                'hint' => 'Top players by most rated games in a single Monday-starting calendar week (each player’s personal best only). Ties: earlier week wins.',
             ];
         case 'year':
             return [
