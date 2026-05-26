@@ -47,7 +47,7 @@ function k2_player_game_date_html(string $date): string
     $ts = strtotime($date);
     $text = $ts !== false ? date('M d Y, H:i', $ts) : $date;
 
-    return '&nbsp;' . k2_player_game_h($text) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    return k2_player_game_h($text);
 }
 
 function k2_player_game_signed_number_html(float $value): string
@@ -97,15 +97,15 @@ function k2_player_game_row_html(array $row, int $playerId): string
         $diffCell = '<span class="blue">' . $game['GoalDifference'] . '</span>';
     }
 
-    return '<tr style="text-align:right;">'
+    return '<tr>'
         . '<td><a href="game.php?id=' . $game['id'] . '">' . $game['id'] . '</a></td>'
-        . '<td>' . k2_player_game_date_html($game['Date']) . '</td>'
+        . '<td class="k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl">' . k2_player_game_date_html($game['Date']) . '</td>'
         . '<td>' . k2_player_game_player_link($game['idA'], $game['NameA']) . '</td>'
         . '<td>' . $game['GoalsA'] . '</td>'
-        . '<td style="text-align:left;">' . $game['GoalsB'] . '</td>'
-        . '<td style="text-align:left;">' . k2_player_game_player_link($game['idB'], $game['NameB']) . '</td>'
-        . '<td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $resultCell . '</td>'
-        . '<td style="text-align:left;">' . k2_player_game_player_link($opponentId, $opponentName) . '</td>'
+        . '<td class="k2-table-cell--left">' . $game['GoalsB'] . '</td>'
+        . '<td class="k2-table-cell--left">' . k2_player_game_player_link($game['idB'], $game['NameB']) . '</td>'
+        . '<td class="k2-table-cell--left k2-table-cell--pad-left-xl">' . $resultCell . '</td>'
+        . '<td class="k2-table-cell--left">' . k2_player_game_player_link($opponentId, $opponentName) . '</td>'
         . '<td>' . $goalsFor . '</td>'
         . '<td>' . $goalsAgainst . '</td>'
         . '<td>' . $diffCell . '</td>'

@@ -1,14 +1,14 @@
 /**
- * Newly established players per calendar year (Chart.js bar + time scale).
- * Established = player's 20th rated game occurred in that year.
- * Expects api/server_established_players_by_year.php and chartjs-adapter-date-fns.
+ * New Double Digit Merchants per calendar year (Chart.js bar + time scale).
+ * Merchant = player's first 10+ goal rated game occurred in that year.
+ * Expects api/server_double_digit_merchants_by_year.php and chartjs-adapter-date-fns.
  */
 (function () {
     'use strict';
 
     var T = window.K2ChartTheme;
 
-    var API_PATH = 'api/server_established_players_by_year.php';
+    var API_PATH = 'api/server_double_digit_merchants_by_year.php';
 
     function yearToDate(year) {
         var y = parseInt(year, 10);
@@ -21,7 +21,7 @@
 
     function initRoot(root) {
         var canvas = root.querySelector('canvas');
-        var status = root.querySelector('.server-established-players-year-chart-status');
+        var status = root.querySelector('.server-double-digit-merchants-year-chart-status');
         if (!canvas || typeof Chart === 'undefined') {
             if (status) {
                 status.textContent = 'Chart library failed to load.';
@@ -30,12 +30,10 @@
         }
 
         if (status) {
-            status.textContent = 'Loading newly established players per year…';
+            status.textContent = 'Loading new Double Digit Merchants per year...';
         }
 
-        var url = API_PATH + '?realm=online';
-
-        fetch(url, { credentials: 'same-origin' })
+        fetch(API_PATH + '?realm=online', { credentials: 'same-origin' })
             .then(function (r) {
                 if (!r.ok) {
                     throw new Error('bad_status');
@@ -44,26 +42,21 @@
             })
             .then(function (data) {
                 var years = data.years || [];
-                var gamesRequired = data.games_required || 20;
-                if (!years.length) {
-                    if (status) {
-                        status.textContent = 'No established-player data to chart.';
-                    }
-                    return;
-                }
-
+                var goalsRequired = data.goals_required || 10;
                 var chartData = [];
-                for (var i = 0; i < years.length; i++) {
+                var i;
+
+                for (i = 0; i < years.length; i++) {
                     var x = yearToDate(years[i].year);
                     if (x === null) {
                         continue;
                     }
-                    chartData.push({ x: x, y: years[i].established_players });
+                    chartData.push({ x: x, y: years[i].merchants });
                 }
 
                 if (!chartData.length) {
                     if (status) {
-                        status.textContent = 'No chartable years in server history.';
+                        status.textContent = 'No Double Digit Merchant data to chart.';
                     }
                     return;
                 }
@@ -76,7 +69,7 @@
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
-                            label: 'New established players (' + gamesRequired + '+ games)',
+                            label: 'New Double Digit Merchants',
                             data: chartData
                         }, T.barStroke(T.magenta()))]
                     },
@@ -99,8 +92,12 @@
                                         }
                                         return String(d.getFullYear());
                                     },
+                                    label: function (item) {
+                                        var merchants = item.parsed.y || 0;
+                                        return merchants + (merchants === 1 ? ' new merchant' : ' new merchants');
+                                    },
                                     afterLabel: function () {
-                                        return gamesRequired + 'th rated game in this year';
+                                        return 'First rated game scoring ' + goalsRequired + '+ goals in this year';
                                     }
                                 }
                             }
@@ -136,13 +133,13 @@
             })
             .catch(function () {
                 if (status) {
-                    status.textContent = 'Could not load established players per year.';
+                    status.textContent = 'Could not load new Double Digit Merchants per year.';
                 }
             });
     }
 
     function boot() {
-        var roots = document.querySelectorAll('.server-established-players-year-chart');
+        var roots = document.querySelectorAll('.server-double-digit-merchants-year-chart');
         for (var i = 0; i < roots.length; i++) {
             initRoot(roots[i]);
         }

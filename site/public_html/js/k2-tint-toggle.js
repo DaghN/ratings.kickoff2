@@ -12,7 +12,7 @@
 		btn.classList.toggle('is-active', hidden);
 		btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
 		btn.textContent = hidden ? 'Show tint' : 'Hide tint';
-		btn.title = hidden ? 'Show tint picker' : 'Hide tint picker';
+		btn.removeAttribute('title');
 	}
 
 	function setHidden(hidden) {

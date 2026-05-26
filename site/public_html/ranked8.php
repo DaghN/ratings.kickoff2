@@ -24,7 +24,10 @@ $k2LbWingActive = 'hall-of-fame';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 ?>
 
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_period_leaderboards_section.php"; ?>
+<?php
+$k2PeakPeriodLimit = 20;
+include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_period_leaderboards_section.php";
+?>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
 

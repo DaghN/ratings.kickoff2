@@ -51,27 +51,27 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
 
 <thead>
 	
-    <tr style="text-align:right;">
-        <th colspan="1" data-k2-sort="text" style="text-align:left;" data-k2-help="Opponent name.">Opponent</th>
-        <th data-k2-sort="number" data-k2-help="Rated games against this opponent.">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number" data-k2-help="Goals for: total goals scored against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GF</th>
-        <th data-k2-sort="number" data-k2-help="Goals against: total goals conceded against this opponent.">&nbsp;&nbsp;&nbsp;GA</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Average GF" data-k2-help="Average goals scored per game against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Avg.</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Average GA" data-k2-help="Average goals conceded per game against this opponent.">&nbsp;&nbsp;Avg.</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Goal ratio" data-k2-help="Goals for divided by goals against, for this opponent matchup.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Most scored: highest goals scored in one game against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;Most S</th>
-        <th data-k2-sort="number" data-k2-help="Most conceded: highest goals conceded in one game against this opponent.">&nbsp;&nbsp;Most C</th>
-        <th data-k2-sort="number" data-k2-help="Least scored: fewest goals scored in one game against this opponent.">&nbsp;Least S</th>
-        <th data-k2-sort="number" data-k2-help="Least conceded: fewest goals conceded in one game against this opponent.">&nbsp;Least C</th>
-        <th data-k2-sort="number" data-k2-help="Biggest win difference: highest winning margin against this opponent.">&nbsp;&nbsp;BW Diff</th>
-        <th data-k2-sort="number" data-k2-help="Biggest loss difference: heaviest losing margin against this opponent.">&nbsp;&nbsp;&nbsp;BL Diff</th>
-        <th data-k2-sort="number" data-k2-help="Biggest draw: highest scoreline in a draw against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BD </th>
-        <th data-k2-sort="number" data-k2-help="Biggest goal sum: most total goals in one game against this opponent.">&nbsp;&nbsp;BG Sum</th>
-        <th data-k2-sort="number" data-k2-help="Smallest goal sum: fewest total goals in one game against this opponent.">&nbsp;&nbsp;SG Sum</th>
+    <tr>
+        <th colspan="1" class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
+        <th class="k2-table-cell--pad-left-xxl" data-k2-sort="number" data-k2-help="Goals for: total goals scored against this opponent.">GF</th>
+        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Goals against: total goals conceded against this opponent.">GA</th>
+        <th class="k2-table-cell--pad-left-xl" data-k2-sort="number" data-k2-tooltip-label="Average GF" data-k2-help="Average goals scored per game against this opponent.">Avg.</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-tooltip-label="Average GA" data-k2-help="Average goals conceded per game against this opponent.">Avg.</th>
+        <th class="k2-table-cell--pad-left-xl" data-k2-sort="number" data-k2-tooltip-label="Goal ratio" data-k2-help="Goals for divided by goals against, for this opponent matchup.">Ratio</th>
+        <th class="k2-table-cell--pad-left-lg" data-k2-sort="number" data-k2-help="Most scored: highest goals scored in one game against this opponent.">Most S</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Most conceded: highest goals conceded in one game against this opponent.">Most C</th>
+        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Least scored: fewest goals scored in one game against this opponent.">Least S</th>
+        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Least conceded: fewest goals conceded in one game against this opponent.">Least C</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Biggest win difference: highest winning margin against this opponent.">BW Diff</th>
+        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Biggest loss difference: heaviest losing margin against this opponent.">BL Diff</th>
+        <th class="k2-table-cell--pad-left-xxxl" data-k2-sort="number" data-k2-help="Biggest draw: highest scoreline in a draw against this opponent.">BD</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Biggest goal sum: most total goals in one game against this opponent.">BG Sum</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Smallest goal sum: fewest total goals in one game against this opponent.">SG Sum</th>
     </tr>
 </thead>
 
@@ -103,8 +103,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 	
 	?>
     
-    <tr style="text-align:right;">
-        <td style="text-align:left;"><?php echo k2_player_link($opponentid, $opponentname); ?></td>
+    <tr>
+        <td class="k2-table-cell--left"><?php echo k2_player_link($opponentid, $opponentname); ?></td>
         <td><?php echo $games ?></td>
         <td><?php if ($goalsfor!=0) {echo "<span class='blue'>"; echo $goalsfor; echo "</span>"; } else {echo "0";} ?></td>
         <td><?php if ($goalsagainst!=0) {echo "<span class='red'>"; echo $goalsagainst; echo "</span>"; } else {echo "0";} ?></td>

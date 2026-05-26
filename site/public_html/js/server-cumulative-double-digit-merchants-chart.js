@@ -1,27 +1,30 @@
 /**
- * Newly established players per calendar year (Chart.js bar + time scale).
- * Established = player's 20th rated game occurred in that year.
- * Expects api/server_established_players_by_year.php and chartjs-adapter-date-fns.
+ * Cumulative Double Digit Merchants — steps up by 1 at each player's first 10+ goal game.
+ * Expects api/server_cumulative_double_digit_merchants.php and chartjs-adapter-date-fns.
  */
 (function () {
     'use strict';
 
     var T = window.K2ChartTheme;
+    var DR = window.K2ChartDateRange;
 
-    var API_PATH = 'api/server_established_players_by_year.php';
+    var API_PATH = 'api/server_cumulative_double_digit_merchants.php';
 
-    function yearToDate(year) {
-        var y = parseInt(year, 10);
-        if (!y || y < 1000) {
+    function parseGameDate(dateStr) {
+        if (!dateStr) {
             return null;
         }
-        var d = new Date(y + '-01-01T00:00:00');
+        var s = String(dateStr).trim();
+        var d = new Date(s.indexOf('T') === -1 ? s.replace(' ', 'T') : s);
+        if (isNaN(d.getTime()) && s.length >= 10) {
+            d = new Date(s.substring(0, 10) + 'T00:00:00');
+        }
         return isNaN(d.getTime()) ? null : d;
     }
 
     function initRoot(root) {
         var canvas = root.querySelector('canvas');
-        var status = root.querySelector('.server-established-players-year-chart-status');
+        var status = root.querySelector('.server-cumulative-double-digit-merchants-chart-status');
         if (!canvas || typeof Chart === 'undefined') {
             if (status) {
                 status.textContent = 'Chart library failed to load.';
@@ -30,12 +33,10 @@
         }
 
         if (status) {
-            status.textContent = 'Loading newly established players per year…';
+            status.textContent = 'Loading cumulative Double Digit Merchants...';
         }
 
-        var url = API_PATH + '?realm=online';
-
-        fetch(url, { credentials: 'same-origin' })
+        fetch(API_PATH + '?realm=online', { credentials: 'same-origin' })
             .then(function (r) {
                 if (!r.ok) {
                     throw new Error('bad_status');
@@ -43,29 +44,28 @@
                 return r.json();
             })
             .then(function (data) {
-                var years = data.years || [];
-                var gamesRequired = data.games_required || 20;
-                if (!years.length) {
-                    if (status) {
-                        status.textContent = 'No established-player data to chart.';
-                    }
-                    return;
-                }
-
+                var events = data.events || [];
+                var goalsRequired = data.goals_required || 10;
                 var chartData = [];
-                for (var i = 0; i < years.length; i++) {
-                    var x = yearToDate(years[i].year);
+                var i;
+
+                for (i = 0; i < events.length; i++) {
+                    var x = parseGameDate(events[i].date);
                     if (x === null) {
                         continue;
                     }
-                    chartData.push({ x: x, y: years[i].established_players });
+                    chartData.push({ x: x, y: events[i].cumulative_merchants });
                 }
 
                 if (!chartData.length) {
                     if (status) {
-                        status.textContent = 'No chartable years in server history.';
+                        status.textContent = 'No Double Digit Merchant milestones to chart.';
                     }
                     return;
+                }
+
+                if (DR && DR.appendRatingThroughToday) {
+                    chartData = DR.appendRatingThroughToday(chartData);
                 }
 
                 if (status) {
@@ -73,12 +73,16 @@
                 }
 
                 new Chart(canvas, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
                         datasets: [Object.assign({
-                            label: 'New established players (' + gamesRequired + '+ games)',
-                            data: chartData
-                        }, T.barStroke(T.magenta()))]
+                            label: 'Cumulative Double Digit Merchants',
+                            data: chartData,
+                            fill: true,
+                            stepped: true,
+                            pointRadius: 0,
+                            pointHitRadius: 6
+                        }, T.lineStroke(T.holo()))]
                     },
                     options: {
                         responsive: true,
@@ -97,10 +101,17 @@
                                         if (isNaN(d.getTime())) {
                                             return '';
                                         }
-                                        return String(d.getFullYear());
+                                        return d.toLocaleDateString(undefined, {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                        });
+                                    },
+                                    label: function (item) {
+                                        return 'Total merchants: ' + item.parsed.y;
                                     },
                                     afterLabel: function () {
-                                        return gamesRequired + 'th rated game in this year';
+                                        return 'A player scored ' + goalsRequired + '+ goals for the first time';
                                     }
                                 }
                             }
@@ -108,17 +119,19 @@
                         scales: {
                             x: {
                                 type: 'time',
+                                max: DR ? DR.endOfToday() : undefined,
                                 time: {
-                                    unit: 'year',
-                                    round: 'year',
                                     displayFormats: {
-                                        year: 'yyyy'
+                                        year: 'yyyy',
+                                        month: 'MMM yyyy',
+                                        day: 'd MMM yyyy'
                                     }
                                 },
                                 ticks: {
                                     color: T.tickColor(),
                                     maxRotation: 45,
-                                    autoSkip: true
+                                    autoSkip: true,
+                                    maxTicksLimit: 18
                                 },
                                 grid: { color: T.grid() }
                             },
@@ -136,13 +149,13 @@
             })
             .catch(function () {
                 if (status) {
-                    status.textContent = 'Could not load established players per year.';
+                    status.textContent = 'Could not load cumulative Double Digit Merchants.';
                 }
             });
     }
 
     function boot() {
-        var roots = document.querySelectorAll('.server-established-players-year-chart');
+        var roots = document.querySelectorAll('.server-cumulative-double-digit-merchants-chart');
         for (var i = 0; i < roots.length; i++) {
             initRoot(roots[i]);
         }

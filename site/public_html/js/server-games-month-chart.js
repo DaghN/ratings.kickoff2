@@ -1,5 +1,5 @@
 /**
- * Server-wide games per calendar month (Chart.js bar + time scale).
+ * Games per calendar month (Chart.js bar + time scale).
  * Expects api/server_games_by_month.php and chartjs-adapter-date-fns.
  */
 (function () {
@@ -28,7 +28,7 @@
         }
 
         if (status) {
-            status.textContent = 'Loading server games per month…';
+            status.textContent = 'Loading games per month…';
         }
 
         var url = API_PATH + '?realm=online';
@@ -73,9 +73,9 @@
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
-                            label: 'Games (server)',
+                            label: 'Games',
                             data: chartData
-                        }, T.barStroke(T.teal()))]
+                        }, T.barSolid(T.pitch()))]
                     },
                     options: {
                         responsive: true,
@@ -135,7 +135,7 @@
             })
             .catch(function () {
                 if (status) {
-                    status.textContent = 'Could not load server games per month.';
+                    status.textContent = 'Could not load games per month.';
                 }
             });
     }

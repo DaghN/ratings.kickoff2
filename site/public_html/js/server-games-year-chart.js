@@ -1,5 +1,5 @@
 /**
- * Server-wide games per calendar year (Chart.js stacked bar).
+ * Games per calendar year (Chart.js stacked bar).
  * Current year: YTD (solid) + projected remainder (stacked, different color).
  * Expects api/server_games_by_year.php
  */
@@ -21,7 +21,7 @@
         }
 
         if (status) {
-            status.textContent = 'Loading server games per year…';
+            status.textContent = 'Loading games per year…';
         }
 
         var url = API_PATH + '?realm=online';
@@ -159,7 +159,7 @@
             })
             .catch(function () {
                 if (status) {
-                    status.textContent = 'Could not load server games per year.';
+                    status.textContent = 'Could not load games per year.';
                 }
             });
     }

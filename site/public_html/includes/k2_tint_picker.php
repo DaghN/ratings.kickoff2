@@ -9,7 +9,7 @@ if (!isset($k2AccentPills)) {
 ?>
 			<nav class="k2-accent-pills" aria-label="Tint">
 <?php foreach ($k2AccentPills as $accentId => $pill) { ?>
-				<button type="button" class="k2-accent-pills__btn" data-k2-accent="<?php echo $accentId; ?>" title="<?php echo htmlspecialchars($pill['title'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pill['label']; ?></button>
+				<button type="button" class="k2-accent-pills__btn" data-k2-accent="<?php echo $accentId; ?>"><?php echo $pill['label']; ?></button>
 <?php } ?>
 			</nav>
-			<button type="button" class="k2-accent-pills-toggle" aria-pressed="false" title="Hide tint picker">Hide tint</button>
+			<button type="button" class="k2-accent-pills-toggle" aria-pressed="false">Hide tint</button>

@@ -84,14 +84,12 @@ function k2_rated_game_es_winner_html(array $game): string
     $expectedA = (float) ($game['ExpectedScoreA'] ?? 0);
     $expectedB = (float) ($game['ExpectedScoreB'] ?? 0);
 
-    if (k2_rated_game_is_a_win($game)) {
-        return number_format(100 * $expectedA, 1) . '%';
-    }
-    if (k2_rated_game_is_b_win($game)) {
-        return number_format(100 * $expectedB, 1) . '%';
-    }
+    return number_format(100 * max($expectedA, $expectedB), 1) . '%';
+}
 
-    return number_format(min(100 * $expectedA, 100 * $expectedB), 1) . '%';
+function k2_rated_game_favorite_expected_score(array $game): float
+{
+    return max((float) ($game['ExpectedScoreA'] ?? 0), (float) ($game['ExpectedScoreB'] ?? 0));
 }
 
 /**
@@ -101,13 +99,13 @@ function k2_rated_game_date_html(array $game, string $dateFormat = 'display'): s
 {
     $date = (string) ($game['Date'] ?? '');
     if ($dateFormat === 'raw') {
-        return '&nbsp;' . k2_rated_game_h($date) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        return k2_rated_game_h($date);
     }
 
     $ts = strtotime($date);
     $text = $ts !== false ? date('M d Y, H:i', $ts) : $date;
 
-    return '&nbsp;' . k2_rated_game_h($text) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    return k2_rated_game_h($text);
 }
 
 /**
@@ -140,28 +138,32 @@ function k2_rated_game_row_html(array $game, array $options = []): string
 
     $idCell = k2_rated_game_id_html($game, $idMode);
     $dateCell = k2_rated_game_date_html($game, $dateFormat);
+    $dateSortValue = strtotime($game['Date']) ?: 0;
     $teamA = '<a href="individual1.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
     $teamB = '<a href="individual1.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
     $winnerCell = k2_rated_game_winner_html($game);
     $esCell = k2_rated_game_es_winner_html($game);
+    $favoriteExpectedScore = k2_rated_game_favorite_expected_score($game);
+    $winnerAdjustment = k2_game_rating_adjustment_pick($game, 'winner');
+    $loserAdjustment = k2_game_rating_adjustment_pick($game, 'loser');
     $adjustmentCell = k2_game_rating_adjustment_html($game);
     $adjustmentLoserCell = k2_game_rating_adjustment_loser_html($game);
 
-    return '<tr style="text-align:right;">'
+    return '<tr>'
         . '<td>' . $idCell . '</td>'
-        . '<td>' . $dateCell . '</td>'
-        . '<td>' . $teamA . '</td>'
+        . '<td class="k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl" data-k2-sort-value="' . $dateSortValue . '">' . $dateCell . '</td>'
+        . '<td class="k2-table-cell--left">' . $teamA . '</td>'
         . '<td>' . (int) $game['GoalsA'] . '</td>'
-        . '<td style="text-align:left;">' . (int) $game['GoalsB'] . '</td>'
-        . '<td style="text-align:left;">' . $teamB . '</td>'
+        . '<td class="k2-table-cell--left">' . (int) $game['GoalsB'] . '</td>'
+        . '<td class="k2-table-cell--left">' . $teamB . '</td>'
         . '<td>' . (int) $game['GoalDifference'] . '</td>'
         . '<td>' . (int) $game['SumOfGoals'] . '</td>'
-        . '<td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;' . $winnerCell . '</td>'
+        . '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . $winnerCell . '</td>'
         . '<td>' . (int) round((float) $game['RatingA']) . '</td>'
         . '<td>' . (int) round((float) $game['RatingB']) . '</td>'
-        . '<td>' . number_format(abs((float) $game['RatingDifference']), 1) . '</td>'
-        . '<td>' . $esCell . '</td>'
-        . '<td style="text-align:left;">' . $adjustmentCell . '</td>'
-        . '<td style="text-align:left;">' . $adjustmentLoserCell . '</td>'
+        . '<td>' . number_format(abs((float) $game['RatingDifference']), 0) . '</td>'
+        . '<td class="k2-table-cell--pad-right-xs" data-k2-sort-value="' . $favoriteExpectedScore . '">' . $esCell . '</td>'
+        . '<td class="k2-table-cell--left" data-k2-sort-value="' . (float) $winnerAdjustment['adj'] . '">' . $adjustmentCell . '</td>'
+        . '<td class="k2-table-cell--left" data-k2-sort-value="' . (float) $loserAdjustment['adj'] . '">' . $adjustmentLoserCell . '</td>'
         . '</tr>';
 }

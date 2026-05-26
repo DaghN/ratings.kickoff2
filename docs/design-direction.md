@@ -54,8 +54,8 @@ Canonical chart tokens live in `stylesheets/theme.css` and are exposed through `
 | `chrome` | `#64b5f6` | Active players, projections, opponent focus |
 | `holo` | `#b388ff` | Cumulative established line |
 | `amber` | `#ffb74d` | Default UI accent, goals |
-| `teal` | `#4db6ac` | Reserved analyst/distribution ink |
-| `magenta` | `#ff4081` | New established, rating distribution |
+| `teal` | `#4db6ac` | Analyst / distribution ink |
+| `magenta` | `#ff4081` | Milestones, new established, rare events |
 
 Text/link hierarchy:
 
@@ -90,7 +90,7 @@ Never use pixel/bitmap fonts for readable data.
 Current shared chrome:
 
 - `includes/site_header.php` for wordmark, player search, realm switcher.
-- `includes/hub_nav.php` for Status / Leaderboards / Games / Trends / Records.
+- `includes/hub_nav.php` for Status / Activity / Games / Leaderboards / Hall of Fame.
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.
 - `includes/k2_head.php` for shared CSS and early theme boot.
@@ -115,11 +115,17 @@ Imagery:
 |------|---------------|
 | Status hub | `status.php` is the default landing; Phase B v1.2 room grid is shipped in repo. |
 | Leaderboards | `ranked1`-`ranked5`, `ranked7`, `ranked8` use `k2-table.js` for simple sort/autorank. |
-| Games | `server3.php` renders seven static day buckets using shared rated-game rows. |
+| Games | `server3.php` renders 14 sortable day buckets using shared rated-game rows. |
 | Player profile | `individual1.php` is the shipped feast layout; gradual copy/UX improvements only. |
 | Player games | `individual3.php` uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
 | Records/Hall of Fame | `server2.php` is the Hall of Fame page; `ranked8.php` is Activity. |
-| Charts | `server1.php` and profile charts use chart-theme helpers; avoid legacy green/blue/coral/purple names. |
+| Activity / charts | `server1.php` starts with a key activity sentence, four fact cards, a small games/opponents line, and a past-month games-per-day chart before longer-horizon charts; it also includes milestone trios for established players and Double Digit Merchants; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. |
+
+Microcopy:
+
+- Tooltips are supplemental: use them for abbreviations, formulas, unfamiliar rules, and hidden context.
+- Do not add tooltip text that only repeats a visible label; sortable headers can rely on the shared `Click to sort.` affordance when no extra explanation is useful.
+- Avoid native `title` attributes for visible-label help; use visible labels, `aria-label`, or the shared K2 tooltip behavior as appropriate.
 
 ---
 

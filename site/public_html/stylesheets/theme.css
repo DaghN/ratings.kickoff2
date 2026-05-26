@@ -506,6 +506,73 @@ body.k2-site .k2-games-day__empty {
 }
 
 /* ── Chart blocks on server / profile pages ── */
+body.k2-site .server-activity-summary {
+	max-width: var(--k2-chart-max-width);
+	margin-bottom: 16px;
+	padding: 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: linear-gradient(165deg, rgba(255, 255, 255, 0.035) 0%, var(--k2-bg-surface) 62%);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+body.k2-site .server-activity-summary__lede {
+	margin: 0 0 12px;
+	color: var(--k2-text-muted);
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+body.k2-site .server-activity-summary__stats {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 10px;
+}
+
+body.k2-site .server-activity-summary__stat {
+	padding: 10px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+}
+
+body.k2-site .server-activity-summary__label,
+body.k2-site .server-activity-summary__note {
+	display: block;
+	color: var(--k2-text-muted);
+	font-size: 11px;
+	line-height: 1.3;
+}
+
+body.k2-site .server-activity-summary__value {
+	display: block;
+	margin: 2px 0;
+	color: var(--k2-text-primary);
+	font-family: var(--k2-font-display);
+	font-size: 22px;
+	line-height: 1.1;
+}
+
+body.k2-site .server-activity-summary__texture {
+	margin: 11px 0 0;
+	color: var(--k2-text-muted);
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+@media (max-width: 720px) {
+	body.k2-site .server-activity-summary__stats {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 480px) {
+	body.k2-site .server-activity-summary__stats {
+		grid-template-columns: 1fr;
+	}
+}
+
+body.k2-site .server-games-day-chart,
 body.k2-site .server-games-month-chart,
 body.k2-site .server-games-year-chart,
 body.k2-site .server-goals-month-chart,
@@ -513,6 +580,14 @@ body.k2-site .server-active-players-month-chart,
 body.k2-site .server-established-players-year-chart,
 body.k2-site .server-cumulative-established-month-chart,
 body.k2-site .server-established-rating-distribution-chart,
+body.k2-site .server-double-digit-merchants-year-chart,
+body.k2-site .server-cumulative-double-digit-merchants-chart,
+body.k2-site .server-activity-heatmap,
+body.k2-site .server-participation-depth-chart,
+body.k2-site .server-play-texture-chart,
+body.k2-site .server-matchup-breadth-chart,
+body.k2-site .server-milestone-digest,
+body.k2-site .server-double-digit-merchant-rating-distribution-chart,
 body.k2-site .player-rating-chart,
 body.k2-site .player-games-month-chart,
 body.k2-site .player-winrate-opponent-chart,
@@ -567,13 +642,99 @@ body.k2-site .player-winrate-opponent-chart-status,
 body.k2-site .player-top-opponents-chart-status,
 body.k2-site .player-head-to-head-chart-status,
 body.k2-site .player-compare-rating-chart-status,
+body.k2-site .server-games-day-chart-status,
 body.k2-site .server-games-month-chart-status,
 body.k2-site .server-games-year-chart-status,
 body.k2-site .server-goals-month-chart-status,
 body.k2-site .server-active-players-month-chart-status,
 body.k2-site .server-established-players-year-chart-status,
 body.k2-site .server-cumulative-established-month-chart-status,
-body.k2-site .server-established-rating-distribution-chart-status {
+body.k2-site .server-established-rating-distribution-chart-status,
+body.k2-site .server-double-digit-merchants-year-chart-status,
+body.k2-site .server-cumulative-double-digit-merchants-chart-status,
+body.k2-site .server-double-digit-merchant-rating-distribution-chart-status,
+body.k2-site .server-activity-heatmap-status,
+body.k2-site .server-participation-depth-chart-status,
+body.k2-site .server-play-texture-chart-status,
+body.k2-site .server-matchup-breadth-chart-status,
+body.k2-site .server-milestone-digest-status {
+	color: var(--k2-text-muted);
+}
+
+/* ── Activity heatmap ── */
+.activity-heatmap {
+	overflow-x: auto;
+	padding-bottom: 4px;
+}
+
+.activity-heatmap__month-label {
+	font-size: 10px;
+	line-height: 11px;
+	color: var(--k2-text-muted);
+	white-space: nowrap;
+}
+
+.activity-heatmap__day-label {
+	font-size: 10px;
+	line-height: 11px;
+	color: var(--k2-text-muted);
+	display: flex;
+	align-items: center;
+}
+
+.activity-heatmap__cell {
+	width: 11px;
+	height: 11px;
+	border-radius: 2px;
+	cursor: default;
+}
+
+.activity-heatmap__cell[data-level="0"] { background: rgba(255, 255, 255, 0.04); }
+.activity-heatmap__cell[data-level="1"] { background: color-mix(in srgb, var(--k2-chart-pitch) 25%, transparent); }
+.activity-heatmap__cell[data-level="2"] { background: color-mix(in srgb, var(--k2-chart-pitch) 45%, transparent); }
+.activity-heatmap__cell[data-level="3"] { background: color-mix(in srgb, var(--k2-chart-pitch) 70%, transparent); }
+.activity-heatmap__cell[data-level="4"] { background: var(--k2-chart-pitch); }
+
+.activity-heatmap__legend {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 6px;
+	font-size: 11px;
+	color: var(--k2-text-muted);
+}
+
+/* ── Milestone digest ── */
+.milestone-digest-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 10px;
+}
+
+.milestone-digest-card {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 10px 12px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+}
+
+.milestone-digest-card__label {
+	font-size: 11px;
+	color: var(--k2-text-muted);
+	letter-spacing: 0.02em;
+}
+
+.milestone-digest-card__value {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.milestone-digest-card__date {
+	font-size: 11px;
 	color: var(--k2-text-muted);
 }
 
@@ -656,7 +817,7 @@ body.k2-site .server-peak-period-leaderboards__grid {
 	max-width: var(--k2-max-width);
 	margin-bottom: 16px;
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 16px;
 	align-items: start;
 }
@@ -665,10 +826,18 @@ body.k2-site .server-peak-period-leaderboards__grid--single {
 	grid-template-columns: minmax(0, 1fr);
 }
 
+body.k2-site .server-peak-period-leaderboards__grid--period {
+	width: fit-content;
+	grid-template-columns: repeat(2, max-content);
+	column-gap: 56px;
+	row-gap: 22px;
+}
+
 body.k2-site .server-peak-period-leaderboards__grid--all-time {
 	width: fit-content;
 	grid-template-columns: repeat(2, max-content);
-	gap: 16px 100px;
+	column-gap: clamp(40px, 6vw, 72px);
+	row-gap: 22px;
 }
 
 body.k2-site .server-peak-period-leaderboard-block {
@@ -715,7 +884,7 @@ body.k2-site .server-records-table {
 
 body.k2-site .server-period-activity-leaderboards__grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 16px;
 	align-items: start;
 }
@@ -725,6 +894,15 @@ body.k2-site .server-period-activity-leaderboards__grid {
 	body.k2-site .server-records-panels,
 	body.k2-site .server-period-activity-leaderboards__grid {
 		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 760px) {
+	body.k2-site .server-peak-period-leaderboards__grid--period,
+	body.k2-site .server-peak-period-leaderboards__grid--all-time {
+		width: 100%;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 16px;
 	}
 }
 
@@ -857,10 +1035,14 @@ body.k2-site .k2-table thead th.k2-table-sortable {
 	cursor: pointer;
 }
 
+body.k2-site .k2-table thead th.k2-table-helped:not(.k2-table-sortable) {
+	cursor: help;
+}
+
 body.k2-site .k2-table-tooltip {
 	position: fixed;
 	z-index: 1000;
-	max-width: min(280px, calc(100vw - 24px));
+	max-width: min(420px, calc(100vw - 24px));
 	padding: 8px 10px;
 	border: 1px solid color-mix(in srgb, var(--k2-accent) 36%, var(--k2-border-strong));
 	border-radius: var(--k2-radius-sm);
@@ -884,6 +1066,7 @@ body.k2-site .k2-table-tooltip__title {
 
 body.k2-site .k2-table-tooltip__body {
 	margin-bottom: 6px;
+	white-space: pre-line;
 }
 
 body.k2-site .k2-table-tooltip__action {
@@ -914,6 +1097,67 @@ body.k2-site .k2-table tbody td {
 	border-bottom: 1px solid var(--k2-border-subtle);
 	color: var(--k2-text-primary);
 	white-space: nowrap;
+}
+
+body.k2-site .k2-table--numeric-default tbody td {
+	text-align: right;
+}
+
+body.k2-site .k2-table .k2-table-cell--left {
+	text-align: left;
+}
+
+body.k2-site .k2-table .k2-table-cell--right {
+	text-align: right;
+}
+
+body.k2-site .k2-table tr.k2-table-row--spacer td {
+	padding: 5px 8px;
+}
+
+body.k2-site .k2-table tr.k2-table-row--spacer td:first-child::before {
+	content: "\00a0";
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-x-md {
+	padding-left: 16.5px;
+	padding-right: 16.5px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-left-xs {
+	padding-left: 10.5px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-left-sm {
+	padding-left: 13.5px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-left-md {
+	padding-left: 16.5px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-left-lg {
+	padding-left: 19.5px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-left-xl {
+	padding-left: 22.5px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-left-xxl {
+	padding-left: 28px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-left-xxxl {
+	padding-left: 31px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-right-xl {
+	padding-right: 22.5px;
+}
+
+body.k2-site .k2-table .k2-table-cell--pad-right-xs {
+	padding-right: 10.5px;
 }
 
 body.k2-site .k2-table tbody td a {
@@ -1365,6 +1609,21 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	text-align: left;
 }
 
+.k2-status-room__arc-link,
+.k2-status-room__arc-link:visited {
+	display: inline-block;
+	margin-top: 4px;
+	color: var(--k2-link-star);
+	font-size: 11px;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.k2-status-room__arc-link:hover {
+	color: var(--k2-link-star-hover);
+}
+
 .k2-heritage-box--status-panel {
 	display: flex;
 	flex-direction: column;
@@ -1436,8 +1695,14 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	min-width: 0;
 }
 
-.k2-status-room__west .k2-status-room__panel-league {
+.k2-status-room__west .k2-status-room__leagues {
 	grid-area: league;
+	display: grid;
+	gap: 8px;
+	min-width: 0;
+}
+
+.k2-status-room__panel-league {
 	min-width: 0;
 }
 
@@ -1459,6 +1724,32 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 
 .k2-status-panel--compact .k2-status-table {
 	font-size: 11px;
+}
+
+.k2-status-panel__heading-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 4px;
+}
+
+.k2-status-panel__heading-row .k2-panel-heading {
+	margin: 0;
+}
+
+.k2-status-panel__more,
+.k2-status-panel__more:visited {
+	flex: 0 0 auto;
+	color: var(--k2-link-star);
+	font-size: 11px;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.k2-status-panel__more:hover {
+	color: var(--k2-link-star-hover);
 }
 
 .k2-status-panel__head {

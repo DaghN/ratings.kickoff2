@@ -1,5 +1,5 @@
 /**
- * Server-wide active players per calendar month (Chart.js bar + time scale).
+ * Active players per calendar month (Chart.js bar + time scale).
  * Active = distinct players with at least one game that month.
  * Expects api/server_active_players_by_month.php and chartjs-adapter-date-fns.
  */
@@ -74,9 +74,9 @@
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
-                            label: 'Active players (server)',
+                            label: 'Active players',
                             data: chartData
-                        }, T.barStroke(T.chrome()))]
+                        }, T.barSolid(T.chrome()))]
                     },
                     options: {
                         responsive: true,

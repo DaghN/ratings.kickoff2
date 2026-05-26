@@ -1,6 +1,6 @@
 <?php
 /**
- * Hub primary tabs — Status · Leaderboards · Activity · Games · Hall of Fame
+ * Hub primary tabs — Status · Activity · Games · Leaderboards · Hall of Fame
  * Set $k2HubTabActive before include: status | leaderboards | activity | games | records
  *
  * Tint picker: Amber · Pitch · Chrome · Holo — hidden by default; Show/Hide tint.
@@ -8,9 +8,9 @@
 $k2HubTabActive = $k2HubTabActive ?? '';
 $k2HubTabs = [
 	'status' => ['href' => 'status.php', 'label' => 'Status'],
-	'leaderboards' => ['href' => 'ranked7.php', 'label' => 'Leaderboards'],
 	'activity' => ['href' => 'server1.php', 'label' => 'Activity'],
 	'games' => ['href' => 'server3.php', 'label' => 'Games'],
+	'leaderboards' => ['href' => 'ranked7.php', 'label' => 'Leaderboards'],
 	'records' => ['href' => 'server2.php', 'label' => 'Hall of Fame'],
 ];
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';

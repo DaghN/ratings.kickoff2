@@ -1,27 +1,25 @@
 /**
- * Newly established players per calendar year (Chart.js bar + time scale).
- * Established = player's 20th rated game occurred in that year.
- * Expects api/server_established_players_by_year.php and chartjs-adapter-date-fns.
+ * Games per day for the recent activity window (Chart.js bar).
+ * Expects api/server_games_by_day_recent.php and chartjs-adapter-date-fns.
  */
 (function () {
     'use strict';
 
     var T = window.K2ChartTheme;
+    var API_PATH = 'api/server_games_by_day_recent.php';
 
-    var API_PATH = 'api/server_established_players_by_year.php';
-
-    function yearToDate(year) {
-        var y = parseInt(year, 10);
-        if (!y || y < 1000) {
+    function dayToDate(dayStr) {
+        if (!dayStr || dayStr.length < 10) {
             return null;
         }
-        var d = new Date(y + '-01-01T00:00:00');
+
+        var d = new Date(dayStr + 'T00:00:00');
         return isNaN(d.getTime()) ? null : d;
     }
 
     function initRoot(root) {
         var canvas = root.querySelector('canvas');
-        var status = root.querySelector('.server-established-players-year-chart-status');
+        var status = root.querySelector('.server-games-day-chart-status');
         if (!canvas || typeof Chart === 'undefined') {
             if (status) {
                 status.textContent = 'Chart library failed to load.';
@@ -30,12 +28,10 @@
         }
 
         if (status) {
-            status.textContent = 'Loading newly established players per year…';
+            status.textContent = 'Loading games per day...';
         }
 
-        var url = API_PATH + '?realm=online';
-
-        fetch(url, { credentials: 'same-origin' })
+        fetch(API_PATH + '?realm=online', { credentials: 'same-origin' })
             .then(function (r) {
                 if (!r.ok) {
                     throw new Error('bad_status');
@@ -43,27 +39,21 @@
                 return r.json();
             })
             .then(function (data) {
-                var years = data.years || [];
-                var gamesRequired = data.games_required || 20;
-                if (!years.length) {
-                    if (status) {
-                        status.textContent = 'No established-player data to chart.';
-                    }
-                    return;
-                }
-
+                var days = data.days || [];
                 var chartData = [];
-                for (var i = 0; i < years.length; i++) {
-                    var x = yearToDate(years[i].year);
+                var i;
+
+                for (i = 0; i < days.length; i++) {
+                    var x = dayToDate(days[i].day);
                     if (x === null) {
                         continue;
                     }
-                    chartData.push({ x: x, y: years[i].established_players });
+                    chartData.push({ x: x, y: days[i].games });
                 }
 
                 if (!chartData.length) {
                     if (status) {
-                        status.textContent = 'No chartable years in server history.';
+                        status.textContent = 'No recent rated games to chart.';
                     }
                     return;
                 }
@@ -76,9 +66,9 @@
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
-                            label: 'New established players (' + gamesRequired + '+ games)',
+                            label: 'Games',
                             data: chartData
-                        }, T.barStroke(T.magenta()))]
+                        }, T.barStroke(T.pitch()))]
                     },
                     options: {
                         responsive: true,
@@ -97,10 +87,15 @@
                                         if (isNaN(d.getTime())) {
                                             return '';
                                         }
-                                        return String(d.getFullYear());
+                                        return d.toLocaleDateString(undefined, {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                        });
                                     },
-                                    afterLabel: function () {
-                                        return gamesRequired + 'th rated game in this year';
+                                    label: function (item) {
+                                        var games = item.parsed.y || 0;
+                                        return games + (games === 1 ? ' rated game' : ' rated games');
                                     }
                                 }
                             }
@@ -109,18 +104,19 @@
                             x: {
                                 type: 'time',
                                 time: {
-                                    unit: 'year',
-                                    round: 'year',
+                                    unit: 'day',
+                                    round: 'day',
                                     displayFormats: {
-                                        year: 'yyyy'
+                                        day: 'MMM d'
                                     }
                                 },
                                 ticks: {
                                     color: T.tickColor(),
                                     maxRotation: 45,
-                                    autoSkip: true
+                                    autoSkip: true,
+                                    maxTicksLimit: 10
                                 },
-                                grid: { color: T.grid() }
+                                grid: { color: T.softGrid() }
                             },
                             y: {
                                 beginAtZero: true,
@@ -128,7 +124,7 @@
                                     color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: T.grid() }
+                                grid: { color: T.softGrid() }
                             }
                         }
                     }
@@ -136,13 +132,13 @@
             })
             .catch(function () {
                 if (status) {
-                    status.textContent = 'Could not load established players per year.';
+                    status.textContent = 'Could not load games per day.';
                 }
             });
     }
 
     function boot() {
-        var roots = document.querySelectorAll('.server-established-players-year-chart');
+        var roots = document.querySelectorAll('.server-games-day-chart');
         for (var i = 0; i < roots.length; i++) {
             initRoot(roots[i]);
         }

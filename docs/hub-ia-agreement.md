@@ -11,22 +11,24 @@
 Five top-level tabs, in this order:
 
 1. **Status** — default landing.
-2. **Leaderboards**
+2. **Activity**
 3. **Games**
-4. **Trends**
-5. **Records**
+4. **Leaderboards**
+5. **Hall of Fame**
 
 Routing:
 
 | Tab | Page |
 |-----|------|
 | Status | `status.php` |
-| Leaderboards | `ranked7.php` default, with wing tabs to `ranked1`-`ranked5`, `ranked7`, `ranked8` |
+| Activity | `server1.php` |
 | Games | `server3.php` |
-| Trends | `server1.php` |
-| Records | `server2.php` |
+| Leaderboards | `ranked7.php` default, with wing tabs to `ranked1`-`ranked5`, `ranked7`, `ranked8` |
+| Hall of Fame | `server2.php` |
 
 Direct legacy URLs remain valid. The hub is page navigation, not a client-side SPA.
+
+Ordering principle: show life and evidence before hierarchy. Status answers whether the scene is alive, Activity expands recent/historical play, Games exposes the match ledger, Leaderboards answers who is better, and Hall of Fame preserves records and legends.
 
 ---
 
@@ -38,7 +40,7 @@ Current Status v1.2 includes:
 
 - Online list.
 - Live games from `resulttable`.
-- Rated-games arc/count summary.
+- Rated-games arc/count summary with link to Activity.
 - Active Elo leaderboard, top 20 active players.
 - Monthly league with current/previous toggle.
 - Recent logins.
@@ -106,13 +108,13 @@ Notes:
 
 ---
 
-## Games, Trends, Records
+## Activity, Games, Hall of Fame
 
 | Tab | Contract |
 |-----|----------|
-| Games | `server3.php` rated-game ledger. Current UI is seven day buckets. |
-| Trends | `server1.php` historical charts and long-horizon activity. |
-| Records | `server2.php` Hall of Fame / record extremes. |
+| Activity | `server1.php` key activity sentence, four fact cards, small games/opponents line, past-month games-per-day chart, and historical charts. |
+| Games | `server3.php` rated-game ledger. Current UI is 14 day buckets with all-column sorting. |
+| Hall of Fame | `server2.php` record extremes. |
 
 Do not merge these page bodies into Status unless Dagh explicitly changes the hub strategy.
 

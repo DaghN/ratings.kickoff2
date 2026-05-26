@@ -52,17 +52,17 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
 
 <thead>
 	
-    <tr style="text-align:right;">
-        <th colspan="1" data-k2-sort="text" style="text-align:left;" data-k2-help="Opponent name.">Opponent</th>
-        <th data-k2-sort="number" data-k2-help="Rated games against this opponent.">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number" data-k2-help="Wins against this opponent.">&nbsp;&nbsp;&nbsp;Wins</th>
+    <tr>
+        <th colspan="1" class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
+        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Wins against this opponent.">Wins</th>
         <th data-k2-sort="number" data-k2-help="Draws against this opponent.">Draws</th>
         <th data-k2-sort="number" data-k2-help="Losses against this opponent.">Losses</th>
-        <th data-k2-sort="number" data-k2-help="Share of games won against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win Ratio</th>
+        <th class="k2-table-cell--pad-left-xl" data-k2-sort="number" data-k2-help="Share of games won against this opponent.">Win Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games drawn against this opponent.">Draw Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games lost against this opponent.">Loss Ratio</th>
     </tr>
@@ -85,8 +85,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
     $lossratio = $row[8];
 	?>
     
-    <tr style="text-align:right;">
-        <td style="text-align:left;"><?php echo k2_player_link($opponentid, $opponentname); ?></td>
+    <tr>
+        <td class="k2-table-cell--left"><?php echo k2_player_link($opponentid, $opponentname); ?></td>
         <td><?php echo $games ?></td>
         <td><?php if ($wins!=0) {echo "<span class='blue'>"; echo $wins; echo "</span>"; } else {echo "0";} ?></td>
         <td><?php echo $draws ?></td>

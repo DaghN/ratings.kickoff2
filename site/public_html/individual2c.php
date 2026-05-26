@@ -51,19 +51,19 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
 
 <thead>
-    <tr style="text-align:right;">
-        <th style="text-align:left;" data-k2-sort="text" data-k2-help="Opponent name.">Opponent</th>
-        <th data-k2-sort="number" data-k2-help="Rated games against this opponent.">&nbsp;&nbsp;Games</th>
-        <th data-k2-sort="number" data-k2-help="Double digits: games where this player scored 10 or more against this opponent.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD</th>
-        <th data-k2-sort="number" data-k2-help="Double digits conceded: games where this player conceded 10 or more against this opponent.">&nbsp;DD C</th>
-        <th data-k2-sort="number" data-k2-help="Clean sheets: games where this player held this opponent to zero goals.">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CS</th>
-        <th data-k2-sort="number" data-k2-help="Clean sheets conceded: games where this player scored no goals against this opponent.">&nbsp;CS C</th>
-        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player scored 10 or more.">&nbsp;&nbsp;&nbsp;DD Ratio</th>
+    <tr>
+        <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
+        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
+        <th class="k2-table-cell--pad-left-xxl" data-k2-sort="number" data-k2-help="Double digits: games where this player scored 10 or more against this opponent.">DD</th>
+        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Double digits conceded: games where this player conceded 10 or more against this opponent.">DD C</th>
+        <th class="k2-table-cell--pad-left-xxl" data-k2-sort="number" data-k2-help="Clean sheets: games where this player held this opponent to zero goals.">CS</th>
+        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Clean sheets conceded: games where this player scored no goals against this opponent.">CS C</th>
+        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Share of games against this opponent where this player scored 10 or more.">DD Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player conceded 10 or more.">DD C Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player kept a clean sheet.">&nbsp;&nbsp;&nbsp;&nbsp;CS Ratio</th>
+        <th class="k2-table-cell--pad-left-lg" data-k2-sort="number" data-k2-help="Share of games against this opponent where this player kept a clean sheet.">CS Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player was held to zero goals.">CS C Ratio</th>
     </tr>
 </thead>
@@ -75,9 +75,9 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
     {  
     ?>
     
-    <tr style="text-align:right">
+    <tr>
         
-        <td style="text-align:left;"><?php echo k2_player_link($row[0], $row[1]); ?></td>
+        <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
         <td><?php echo $row[2] ?></td>
        	<td><?php if ($row[3] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[3];?></span><?php } ?></td>
         <td><?php if ($row[4] == 0) {echo "0";} else {?><span class="red"><?php echo $row[4];?></span><?php } ?></td>

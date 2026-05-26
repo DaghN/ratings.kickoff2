@@ -62,6 +62,15 @@
                 borderWidth: this.barBorderWidth()
             };
         },
+        /** Dense bar charts where 1px borders create noise on narrow screens */
+        barSolid: function (color, fillAlpha) {
+            var a = fillAlpha == null ? this.barFillAlpha() : fillAlpha;
+            return {
+                backgroundColor: this.fill(color, a),
+                borderColor: color,
+                borderWidth: 0
+            };
+        },
         /** Line / area charts */
         lineStroke: function (color, fillAlpha) {
             var a = fillAlpha == null ? this.lineAreaAlpha() : fillAlpha;

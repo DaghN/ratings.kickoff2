@@ -2,8 +2,9 @@
 	'use strict';
 
 	var TABLE_SELECTOR = 'table[data-k2-table~="sortable"]';
-	var HELP_HEADER_SELECTOR = 'th.k2-table-sortable[data-k2-help], th.k2-table-sortable[data-k2-tooltip-label]';
+	var HELP_HEADER_SELECTOR = 'th[data-k2-help], th[data-k2-tooltip-label]';
 	var SORTABLE_CLASS = 'k2-table-sortable';
+	var HELPED_CLASS = 'k2-table-helped';
 	var SORTED_ASC_CLASS = 'k2-table-sorted-asc';
 	var SORTED_DESC_CLASS = 'k2-table-sorted-desc';
 	var PENDING_CLASS = 'ranked-table-pending';
@@ -29,6 +30,10 @@
 		el.className = (' ' + el.className + ' ').replace(' ' + className + ' ', ' ').replace(/^\s+|\s+$/g, '');
 	}
 
+	function hasClass(el, className) {
+		return (' ' + (el.className || '') + ' ').indexOf(' ' + className + ' ') !== -1;
+	}
+
 	function onReady(fn) {
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', fn);
@@ -39,6 +44,17 @@
 
 	function trimText(value) {
 		return String(value || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+	}
+
+	function trimHelpText(value) {
+		return String(value || '')
+			.replace(/\r\n/g, '\n')
+			.replace(/\r/g, '\n')
+			.replace(/[ \t]+\n/g, '\n')
+			.replace(/\n[ \t]+/g, '\n')
+			.replace(/[ \t]+/g, ' ')
+			.replace(/\n{3,}/g, '\n\n')
+			.replace(/^\s+|\s+$/g, '');
 	}
 
 	function getTooltip() {
@@ -91,10 +107,12 @@
 	}
 
 	function showTooltip(header) {
-		var help = trimText(header.getAttribute('data-k2-help'));
+		var help = trimHelpText(header.getAttribute('data-k2-help'));
 		var title = trimText(header.getAttribute('data-k2-tooltip-label') || header.textContent || header.innerText);
+		var isSortable = !!header.getAttribute('data-k2-sort') || hasClass(header, SORTABLE_CLASS);
 		var tooltip;
 		var body;
+		var action;
 
 		if (!header.getAttribute('data-k2-sort') && !header.getAttribute('data-k2-help') && !header.getAttribute('data-k2-tooltip-label')) {
 			return;
@@ -102,11 +120,15 @@
 
 		tooltip = getTooltip();
 		body = tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__body') : null;
+		action = tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__action') : null;
 
 		setText(tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__title') : null, title);
 		setText(body, help);
 		if (body) {
 			body.style.display = help ? '' : 'none';
+		}
+		if (action) {
+			action.style.display = isSortable ? '' : 'none';
 		}
 
 		activeTooltipHeader = header;
@@ -300,6 +322,7 @@
 		}
 
 		header.setAttribute(TOOLTIP_BOUND_ATTR, 'true');
+		addClass(header, HELPED_CLASS);
 		header.removeAttribute('title');
 		header.addEventListener('mouseenter', function () {
 			showTooltip(this);

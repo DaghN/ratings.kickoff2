@@ -1,5 +1,5 @@
 /**
- * Server-wide goals per calendar month (Chart.js bar + time scale).
+ * Goals per calendar month (Chart.js bar + time scale).
  * Expects api/server_goals_by_month.php and chartjs-adapter-date-fns.
  */
 (function () {
@@ -28,7 +28,7 @@
         }
 
         if (status) {
-            status.textContent = 'Loading server goals per month…';
+            status.textContent = 'Loading goals per month…';
         }
 
         var url = API_PATH + '?realm=online';
@@ -73,9 +73,9 @@
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
-                            label: 'Goals (server)',
+                            label: 'Goals',
                             data: chartData
-                        }, T.barStroke(T.amber()))]
+                        }, T.barSolid(T.amber()))]
                     },
                     options: {
                         responsive: true,
@@ -135,7 +135,7 @@
             })
             .catch(function () {
                 if (status) {
-                    status.textContent = 'Could not load server goals per month.';
+                    status.textContent = 'Could not load goals per month.';
                 }
             });
     }

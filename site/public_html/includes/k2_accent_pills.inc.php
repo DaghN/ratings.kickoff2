@@ -4,8 +4,8 @@
  * Included by k2_tint_picker.php (hub + player nav).
  */
 $k2AccentPills = [
-	'amber' => ['label' => 'Amber', 'title' => 'Warm amber — default site tint'],
-	'pitch' => ['label' => 'Pitch', 'title' => 'Pitch green — chart / Amiga-era accent'],
-	'chrome' => ['label' => 'Chrome', 'title' => 'Rain-slick chrome blue — LA night reflections'],
-	'holo' => ['label' => 'Holo', 'title' => 'Violet hologram — advert shimmer'],
+	'amber' => ['label' => 'Amber'],
+	'pitch' => ['label' => 'Pitch'],
+	'chrome' => ['label' => 'Chrome'],
+	'holo' => ['label' => 'Holo'],
 ];
