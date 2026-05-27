@@ -8,6 +8,8 @@
 
 ## Current focus
 
+- **Milestones project:** **Phase 1 (idea creation) done** — discovery + pass 1 catalog (~115 want / 4 maybe); **list not finalized**. Hub: [`docs/milestones-project.md`](docs/milestones-project.md). **Next:** Phase 2 definition (Key-10, naming, tab IA, product spec). DB still only `established_20` + `dd_merchant_10`; no implementation slice yet.
+
 - **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Next product slice: Phase 1.5** — see checklist in [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (one-liner, Monday editorial, **day games list under tables**, etc.). Bootstrap prompt: [`docs/coordination/status-period-competitions-phase-1.5-handoff.md`](docs/coordination/status-period-competitions-phase-1.5-handoff.md).
 - **Design / cosmetics track:** Phase A hub shell + Status Phase B v1.2 room grid; `docs/STATUS_PAGE_DATA.md`. Steve for prod DB read + joshua redirect; realm switcher when Amiga exists.
 
@@ -61,6 +63,7 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Milestones Phase 1 closed** — idea creation done: [`docs/milestones-project.md`](docs/milestones-project.md), discussion paper, pass 1 catalog (draft, not final). Naming: Milestones + Key subset; own hub tab + profile count + meta-leaderboard planned. Monthly regular rule: game every day of a calendar month. Phase 2 = definition/spec. |
 | 2026-05 | **Staging SCH-008 + REP-007–011 done** — Steve applied stored-truth expansion on `kooldb`; milestones re-run after MariaDB fix; verify all 15 checks pass (74,870 games, `established_20_diff=0`). Registers updated. |
 | 2026-05 | **Removed dev period activity preview** — deleted `dev-period-activity.php` + `js/status-period-activity.js`; activity league lives on Status Leagues only. |
 | 2026-05 | **Leagues cleanup + docs** — removed dead legacy league panel PHP; docs: Phase 1 shipped / 1.5 next. |
