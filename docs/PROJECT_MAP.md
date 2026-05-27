@@ -37,7 +37,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 |-------|------|--------|
 | **Taste** | UI/copy/scope disputes | `PROJECT_BRIEF.md`, `docs/design-direction.md` |
 | **Now** | Every session | `PROJECT_MEMORY.md` |
-| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md` |
+| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/status-period-competitions-wip.md`, `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md` |
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
@@ -79,7 +79,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | After each game (prod) | [`website-data-contract.md`](website-data-contract.md) post-game § | Steve C++ at cutover |
 | Hourly fade | Document stop (PER-001) | Stops job |
 
-Post-game handoff: **code snippets to insert** (Steve option 2).
+Prod post-game: Steve merges C++ from [`website-data-contract.md`](website-data-contract.md) post-game § at cutover; records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md). Pointer: [`coordination/post-game-register.md`](coordination/post-game-register.md).
 
 ---
 

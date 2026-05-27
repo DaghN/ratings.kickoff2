@@ -42,7 +42,7 @@ Current Status v1.2 includes:
 - Live games from `resulttable`.
 - Rated-games arc/count summary with link to Activity.
 - Active Elo leaderboard, top 20 active players.
-- Monthly league with current/previous toggle.
+- **Leagues** (points + activity, day/week/month/year) — **Phase 1 shipped** on Status; **Phase 1.5** polish — [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md).
 - Recent logins.
 - Recent registrations.
 - Recent rated games.
@@ -55,7 +55,6 @@ Not in current Status:
 - CPU/disk/memory ops metrics.
 - AWOL wall.
 - Long-history charts; those belong on Trends.
-- Period activity triple tables; those are prepared in DB/docs but not placed on Status.
 - Legacy dual top-10 `PlayerRank` snippets.
 
 Still open with Steve / prod:

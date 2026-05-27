@@ -85,13 +85,13 @@ function k2_status_league_period_bounds(string $period, int $periodOffset, ?Date
         case 'day':
             $start = $today->modify((string) $periodOffset . ' days');
             $end = $start->modify('+1 day');
-            $label = $start->format('F j, Y');
+            $label = k2_format_calendar_day_label($start->format('Y-m-d'));
             break;
         case 'week':
             $weekStart = $today->modify('-' . ((int) $today->format('N') - 1) . ' days');
             $start = $weekStart->modify((string) $periodOffset . ' weeks');
             $end = $start->modify('+1 week');
-            $label = 'Week of ' . $start->format('F j, Y');
+            $label = k2_format_calendar_week_label($start->format('Y-m-d'));
             break;
         case 'month':
             $monthStart = new DateTimeImmutable($serverNow->format('Y-m-01 00:00:00'));
@@ -128,12 +128,16 @@ function k2_status_league_title(string $period): string
 
 function k2_status_league_toggle_label(string $period, string $target): string
 {
+    if ($target === 'earlier') {
+        return 'Earlier';
+    }
+
     if ($target === 'prev') {
         return match ($period) {
             'day' => 'Yesterday',
-            'week' => 'Previous week',
-            'year' => 'Previous year',
-            default => 'Previous month',
+            'week' => 'Last week',
+            'year' => 'Last year',
+            default => 'Last month',
         };
     }
 
@@ -145,11 +149,33 @@ function k2_status_league_toggle_label(string $period, string $target): string
     };
 }
 
+function k2_status_league_end_includes_year(array $league): bool
+{
+    return ($league['period'] ?? '') === 'year';
+}
+
 function k2_status_league_end_label(array $league): string
 {
     $ts = strtotime((string) ($league['end'] ?? ''));
+    if ($ts === false) {
+        return '';
+    }
 
-    return $ts === false ? '' : date('M j, H:i', $ts);
+    return date(k2_status_league_end_includes_year($league) ? 'M j, Y, H:i' : 'M j, H:i', $ts);
+}
+
+/** @return array{date: string, time: string} */
+function k2_status_league_end_label_parts(array $league): array
+{
+    $ts = strtotime((string) ($league['end'] ?? ''));
+    if ($ts === false) {
+        return ['date' => '', 'time' => ''];
+    }
+
+    return [
+        'date' => date(k2_status_league_end_includes_year($league) ? 'M j, Y' : 'M j', $ts),
+        'time' => date('H:i', $ts),
+    ];
 }
 
 function k2_status_format_league_time_left(int $seconds): string
@@ -162,13 +188,13 @@ function k2_status_format_league_time_left(int $seconds): string
     $hours = intdiv($seconds % 86400, 3600);
     $minutes = intdiv($seconds % 3600, 60);
     if ($days > 0) {
-        return $days . 'd ' . $hours . 'h left';
+        return $days . 'd ' . $hours . 'h';
     }
     if ($hours > 0) {
-        return $hours . 'h ' . $minutes . 'm left';
+        return $hours . 'h ' . $minutes . 'm';
     }
 
-    return max(1, $minutes) . 'm left';
+    return max(1, $minutes) . 'm';
 }
 
 function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $serverNow): string
@@ -182,10 +208,47 @@ function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $
     $verb = $isLive ? 'ends' : 'ended';
     $text = (string) ($league['label'] ?? '') . ' · ' . $totalGames . ' ' . $gamesLabel;
     if ($endLabel !== '') {
-        $text .= ' · ' . $verb . ' ' . $endLabel . ' server time';
+        $text .= ' · ' . $verb . ' ' . $endLabel . ' UTC';
     }
     if ($isLive) {
-        $text .= ' · ' . k2_status_format_league_time_left($endTs - $nowTs);
+        $remaining = k2_status_format_league_time_left($endTs - $nowTs);
+        $text .= $remaining === 'ended' ? ' · ' . $remaining : ' · ' . $remaining . ' left';
+    }
+
+    return $text;
+}
+
+/** Meta line for leagues block; period label + live countdown use {@see .blue}. */
+function k2_status_league_meta_html_for_clock(array $league, DateTimeImmutable $serverNow): string
+{
+    $endTs = strtotime((string) ($league['end'] ?? ''));
+    $nowTs = $serverNow->getTimestamp();
+    $totalGames = (int) ($league['total_games'] ?? 0);
+    $gamesLabel = $totalGames === 1 ? 'rated game' : 'rated games';
+    $endLabel = k2_status_league_end_label($league);
+    $isLive = $endTs !== false && $endTs > $nowTs;
+
+    $text = '<span class="blue">' . k2_status_h((string) ($league['label'] ?? '')) . '</span> · <span class="holo">'
+        . number_format($totalGames) . '</span> ' . $gamesLabel;
+    if ($endLabel !== '') {
+        if ($isLive) {
+            $text .= ' · ends ' . k2_status_h($endLabel) . ' UTC';
+        } else {
+            $endParts = k2_status_league_end_label_parts($league);
+            $text .= ' · ended <span class="blue">' . k2_status_h($endParts['date']) . '</span>';
+            if ($endParts['time'] !== '') {
+                $text .= ', ' . k2_status_h($endParts['time']);
+            }
+            $text .= ' UTC';
+        }
+    }
+    if ($isLive) {
+        $remaining = k2_status_format_league_time_left($endTs - $nowTs);
+        if ($remaining === 'ended') {
+            $text .= ' · ' . k2_status_h($remaining);
+        } else {
+            $text .= ' · <span class="blue">' . k2_status_h($remaining) . '</span> left';
+        }
     }
 
     return $text;
@@ -828,6 +891,251 @@ function k2_status_league(
     return $league;
 }
 
+/**
+ * Activity picker key aligned with league period bounds.
+ *
+ * @param array{start: string, end: string, label: string} $bounds
+ */
+function k2_status_period_activity_key_from_bounds(string $period, array $bounds): ?string
+{
+    $start = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $bounds['start']);
+    if (!$start) {
+        return null;
+    }
+
+    return match ($period) {
+        'day', 'week' => $start->format('Y-m-d'),
+        'month' => $start->format('Y-m'),
+        'year' => $start->format('Y'),
+        default => null,
+    };
+}
+
+/**
+ * @return array{start: string, end: string, label: string}|null
+ */
+function k2_status_bounds_from_period_key(string $period, string $key): ?array
+{
+    if (!function_exists('k2_period_activity_normalize_key')) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
+    }
+
+    $normalized = k2_period_activity_normalize_key($period, $key);
+    if ($normalized === null) {
+        return null;
+    }
+
+    switch ($period) {
+        case 'day':
+            $start = new DateTimeImmutable($normalized . ' 00:00:00');
+            $end = $start->modify('+1 day');
+            $label = k2_format_calendar_day_label($normalized);
+            break;
+        case 'week':
+            $start = new DateTimeImmutable($normalized . ' 00:00:00');
+            $end = $start->modify('+1 week');
+            $label = k2_format_calendar_week_label($start->format('Y-m-d'));
+            break;
+        case 'month':
+            $start = new DateTimeImmutable($normalized . '-01 00:00:00');
+            $end = $start->modify('+1 month');
+            $label = $start->format('F Y');
+            break;
+        case 'year':
+            $start = new DateTimeImmutable($normalized . '-01-01 00:00:00');
+            $end = $start->modify('+1 year');
+            $label = $normalized;
+            break;
+        default:
+            return null;
+    }
+
+    return [
+        'start' => $start->format('Y-m-d H:i:s'),
+        'end' => $end->format('Y-m-d H:i:s'),
+        'label' => $label,
+    ];
+}
+
+/**
+ * Points league for an explicit calendar key (archive / API).
+ *
+ * @return array{label: string, start: string, end: string, rows: list<array>, total_games: int, period: string}|null
+ */
+function k2_status_league_for_key(
+    mysqli $con,
+    string $period,
+    string $key,
+    ?int $limit = null,
+    ?string &$error = null
+): ?array {
+    $error = null;
+    if (!in_array($period, ['day', 'week', 'month', 'year'], true)) {
+        $error = 'invalid_period';
+
+        return null;
+    }
+
+    $bounds = k2_status_bounds_from_period_key($period, $key);
+    if ($bounds === null) {
+        $error = 'invalid_key';
+
+        return null;
+    }
+
+    $periodStart = substr($bounds['start'], 0, 10);
+
+    if (k2_status_table_exists($con, 'player_period_league')) {
+        $league = k2_status_league_from_period_league(
+            $con,
+            $period,
+            $periodStart,
+            $bounds['start'],
+            $bounds['end'],
+            $bounds['label'],
+            0,
+            $limit,
+            $error
+        );
+    } elseif ($period === 'month' && k2_status_table_exists($con, 'player_monthly_league')) {
+        $league = k2_status_monthly_league_from_aggregate(
+            $con,
+            $periodStart,
+            $bounds['start'],
+            $bounds['end'],
+            $bounds['label'],
+            0,
+            $limit,
+            $error
+        );
+    } else {
+        $league = k2_status_monthly_league_from_ratedresults(
+            $con,
+            $bounds['start'],
+            $bounds['end'],
+            $bounds['label'],
+            0,
+            $limit,
+            $error
+        );
+    }
+
+    if ($league === null) {
+        return null;
+    }
+
+    $league['period'] = $period;
+    $league['period_offset'] = 0;
+    $league['activity_key'] = k2_status_period_activity_key_from_bounds($period, $bounds);
+
+    return $league;
+}
+
+/**
+ * @return array{
+ *   default_period: string,
+ *   activity_limit: int,
+ *   periods: array<string, array<string, array<string, mixed>>>,
+ *   current_keys: array<string, string>,
+ *   day_min: string,
+ *   day_max: string,
+ *   first_rated_day: string,
+ *   week_choices: list<string>,
+ *   month_choices: list<string>,
+ *   year_choices: list<string>
+ * }
+ */
+function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $serverNow): array
+{
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
+
+    $activityLimit = 50;
+    $periods = [];
+    $currentKeys = [];
+    $choicesErr = null;
+
+    foreach (['day', 'week', 'month', 'year'] as $period) {
+        $pointsError = null;
+        $points = k2_status_league($con, $period, null, 0, $serverNow, $pointsError);
+
+        $bounds = k2_status_league_period_bounds($period, 0, $serverNow);
+        $key = $bounds !== null ? k2_status_period_activity_key_from_bounds($period, $bounds) : null;
+
+        $activityError = null;
+        $entries = $key !== null
+            ? k2_period_activity_leaderboard_entries($con, $period, $key, $activityLimit, $activityError)
+            : [];
+
+        $totalGames = $key !== null ? k2_period_activity_total_games($con, $period, $key) : 0;
+
+        $periods[$period] = [
+            'points' => $points,
+            'points_error' => $pointsError,
+            'activity' => [
+                'entries' => $entries,
+                'total_games' => $totalGames,
+                'key' => $key ?? '',
+                'label' => $key !== null ? k2_format_period_activity_label($period, $key) : '',
+                'error' => $activityError,
+            ],
+        ];
+
+        $currentKeys[$period] = $key ?? '';
+    }
+
+    $dayBounds = k2_period_activity_day_bounds($con, $choicesErr);
+    $today = $serverNow->format('Y-m-d');
+    $firstRatedDay = $today;
+    $rFirst = mysqli_query($con, 'SELECT MIN(DATE(`Date`)) AS d FROM ratedresults');
+    if ($rFirst !== false) {
+        $rowFirst = mysqli_fetch_assoc($rFirst);
+        mysqli_free_result($rFirst);
+        if (!empty($rowFirst['d'])) {
+            $firstRatedDay = (string) $rowFirst['d'];
+        }
+    }
+    $dayMin = $dayBounds['min'] ?? $today;
+    $dayMax = $dayBounds['max'] ?? $today;
+    if ($dayMin === $dayMax || $dayBounds['min'] === null) {
+        $dayMin = $firstRatedDay;
+    }
+    if ($dayMax < $today) {
+        $dayMax = $today;
+    }
+    if ($dayMin < $firstRatedDay) {
+        $dayMin = $firstRatedDay;
+    }
+    $weekChoices = k2_period_activity_available_keys($con, 'week', $choicesErr);
+    $monthChoices = k2_period_activity_available_keys($con, 'month', $choicesErr);
+    $yearChoices = k2_period_activity_available_keys($con, 'year', $choicesErr);
+
+    foreach (['week', 'month', 'year'] as $p) {
+        $ck = $currentKeys[$p];
+        if ($ck !== '' && $p === 'week' && !in_array($ck, $weekChoices, true)) {
+            array_unshift($weekChoices, $ck);
+        }
+        if ($ck !== '' && $p === 'month' && !in_array($ck, $monthChoices, true)) {
+            array_unshift($monthChoices, $ck);
+        }
+        if ($ck !== '' && $p === 'year' && !in_array($ck, $yearChoices, true)) {
+            array_unshift($yearChoices, $ck);
+        }
+    }
+
+    return [
+        'default_period' => 'week',
+        'activity_limit' => $activityLimit,
+        'periods' => $periods,
+        'current_keys' => $currentKeys,
+        'day_min' => $dayMin,
+        'day_max' => $dayMax,
+        'first_rated_day' => $firstRatedDay,
+        'week_choices' => $weekChoices,
+        'month_choices' => $monthChoices,
+        'year_choices' => $yearChoices,
+    ];
+}
+
 /** @return list<array{id: int, name: string}>|null */
 function k2_status_online_players(mysqli $con, ?string &$error = null): ?array
 {
@@ -986,27 +1294,22 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
     $activeTop = k2_status_active_top_rated($con, $panelErr);
     $activeTopError = $panelErr;
 
+    $periodCompetitions = k2_status_build_period_competitions($con, $serverNow);
+
     $leagues = [];
     foreach (['day', 'week', 'month', 'year'] as $period) {
-        $panelErr = null;
-        $current = k2_status_league($con, $period, null, 0, $serverNow, $panelErr);
-        $currentError = $panelErr;
-
-        $panelErr = null;
-        $prev = k2_status_league($con, $period, null, -1, $serverNow, $panelErr);
-        $prevError = $panelErr;
-
+        $bundle = is_array($periodCompetitions['periods'][$period] ?? null) ? $periodCompetitions['periods'][$period] : [];
         $leagues[$period] = [
-            'current' => $current,
-            'current_error' => $currentError,
-            'prev' => $prev,
-            'prev_error' => $prevError,
+            'current' => $bundle['points'] ?? null,
+            'current_error' => $bundle['points_error'] ?? null,
+            'prev' => null,
+            'prev_error' => null,
         ];
     }
     $monthlyCurrent = $leagues['month']['current'] ?? null;
-    $monthlyPrev = $leagues['month']['prev'] ?? null;
+    $monthlyPrev = null;
     $monthlyCurrentError = $leagues['month']['current_error'] ?? null;
-    $monthlyPrevError = $leagues['month']['prev_error'] ?? null;
+    $monthlyPrevError = null;
 
     $panelErr = null;
     $online = k2_status_online_players($con, $panelErr) ?? [];
@@ -1034,6 +1337,7 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
         'active_top' => $activeTop ?? [],
         'active_top_error' => $activeTopError,
         'leagues' => $leagues,
+        'period_competitions' => $periodCompetitions,
         'monthly_current' => $monthlyCurrent,
         'monthly_current_error' => $monthlyCurrentError,
         'monthly_prev' => $monthlyPrev,

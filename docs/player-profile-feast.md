@@ -42,13 +42,13 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 |-------|----------------|
 | Hero / career totals | `playertable` |
 | Rank | Computed: count of `display=1` players with higher `rating` |
-| Games this month / year | `ratedresults` counts for player |
-| Played days | `ratedresults` distinct dates per year |
-| Personal bests | Per-player max games in one day / month / year (`ratedresults`) |
-| Moments | `playertable` extreme game IDs + `ratedresults` row lookups |
-| Charts | JSON APIs under `api/player_*.php` (see audit archive API table) |
+| Calendar / games-by-month charts | `player_period_games` via APIs (`player_feast/player_calendar_days.php`, `player_games_by_month.php`) |
+| Top opponents / H2H charts | `player_matchup_summary` via `api/player_top_opponents.php` and related APIs |
+| Personal bests (busiest day/month/year) | **`player_feast_load.php`** still scans `ratedresults` (migration candidate — see contract `player_period_games`) |
+| Moments | `playertable` extreme game IDs + single-row `ratedresults` lookups |
+| Other charts | `api/player_*.php` — prefer stored tables when listed in [`website-data-contract.md`](website-data-contract.md) |
 
-**Indexes (May 2026):** `ratedresults.idx_ratedresults_idA`, `idx_ratedresults_idB` — profile load and player APIs. Local apply: `scripts/apply_ratedresults_player_indexes.ps1` (see `PROJECT_MEMORY.md`).
+**Indexes (May 2026):** `ratedresults.idx_ratedresults_idA`, `idx_ratedresults_idB` — profile load and narrow game-row fetches. Local apply: `scripts/apply_ratedresults_player_indexes.ps1` (see `PROJECT_MEMORY.md`).
 
 ---
 

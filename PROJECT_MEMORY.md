@@ -8,7 +8,8 @@
 
 ## Current focus
 
-- **Design / cosmetics track:** **Phase A hub shell + Status Phase B v1.2 shipped in repo** (May 2026) — `status.php` 4-col room grid, league month toggle, shared `.k2-panel-heading`, softer `--k2-text-primary` (`#d0d7de`). Spec: `docs/STATUS_PAGE_DATA.md`. **Next:** WinSCP to staging; Steve for prod DB read + joshua redirect; realm switcher when Amiga exists.
+- **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Next product slice: Phase 1.5** — see checklist in [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (one-liner, Monday editorial, **day games list under tables**, etc.). Bootstrap prompt: [`docs/coordination/status-period-competitions-phase-1.5-handoff.md`](docs/coordination/status-period-competitions-phase-1.5-handoff.md).
+- **Design / cosmetics track:** Phase A hub shell + Status Phase B v1.2 room grid; `docs/STATUS_PAGE_DATA.md`. Steve for prod DB read + joshua redirect; realm switcher when Amiga exists.
 
 - **Charts:** **six-colour palette signed** (May 2026) — canonical tokens `pitch` / `chrome` / `holo` / `amber` / `teal` / `magenta` in `theme.css` + `chart-theme.js`; Activity on `server1.php`; profile uses pitch/chrome or `profileCompare*` helpers. No legacy green/blue/coral/purple names.
 
@@ -17,8 +18,6 @@
 - **Profile feast (shipped):** production **`individual1.php`** only — **`docs/player-profile-feast.md`**. Further work = gradual copy/UX, not mock lab (`docs/archive/`).
 
 - **Product tone:** ladder stays **truthful and data-rich**; surface **inclusive, playful, welcoming**. Profile above-the-fold = participation first; deep analytics lower (“matchup lab”).
-
-- **Fun stats block (planned, not built):** trophy-cabinet highlights from `playertable` + monthly `ratedresults` SQL — **no longest-game** stat.
 
 - **Operational loop:** edit locally/Git → **WinSCP** sync `site/public_html/` → staging `public_html/`; hard refresh after assets. **SSH:** permission denied for Dagh (May 2026) — Steve runs one-offs when sent.
 
@@ -51,9 +50,8 @@
 2. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
 3. **Launch polish** — realm switcher when Amiga exists.
 4. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
-5. **Fun stats block (v1)** — trophy cabinet from `playertable` + monthly SQL; exclude longest game.
-6. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`.
-7. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
+5. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
+6. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
 
 ---
 
@@ -63,13 +61,29 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Staging SCH-008 + REP-007–011 done** — Steve applied stored-truth expansion on `kooldb`; milestones re-run after MariaDB fix; verify all 15 checks pass (74,870 games, `established_20_diff=0`). Registers updated. |
+| 2026-05 | **Removed dev period activity preview** — deleted `dev-period-activity.php` + `js/status-period-activity.js`; activity league lives on Status Leagues only. |
+| 2026-05 | **Leagues cleanup + docs** — removed dead legacy league panel PHP; docs: Phase 1 shipped / 1.5 next. |
+| 2026-05 | **Phase 1.5 backlog** — wip checklist + day games list; handoff [`docs/coordination/status-period-competitions-phase-1.5-handoff.md`](docs/coordination/status-period-competitions-phase-1.5-handoff.md). |
+| 2026-05 | **Status Leagues lock-step floor** — `first_rated_day` from `ratedresults`; clamp day/week/month after derive; picker labels `Jul 2017` for synthetic options. |
+| 2026-05 | **Status Leagues rapid ←/→** — abort stale foreground fetch; nav seq for errors; prewarm debounced + max 2 parallel; clear error on cache hit. |
+| 2026-05 | **Status Leagues day ← fix** — `day_min` falls back to `ratedresults` when `player_period_games` has one day; prewarm default on. |
+| 2026-05 | **Status Leagues day calendar** — icon toggle close fix; custom month dropdown (12 months, disable out-of-range vs Flatpickr hiding). |
+| 2026-05 | **Status Leagues nav fix** — JSON keys attrs (single-quoted); showView uses `hidden` attr; Flatpickr on separate anchor not day value field. |
+| 2026-05 | **Status Leagues nav** — ←/→ + picker; removed scope toggle; SSR current period per tab; medals when period ended. |
+| 2026-05 | **Status year leagues meta** — end date includes year (`ended Jan 1, 2026 UTC` for 2025 leagues). |
+| 2026-05 | **Status Leagues layout** — points centered in space after activity; wrap only when insufficient room (not scope-based gaps). |
+| 2026-05 | **Status Leagues meta** — ended periods: end **date** in blue (`ended May 25, 00:00 UTC`); live countdown duration only in blue. |
+| 2026-05 | **Status Leagues scope UX** — 3-way segment (Today / Last week / Earlier); period pickers visible only for Earlier; prev labels Last week/month/year. |
+| 2026-05 | **Status period competitions Phase 1** — replaced four stacked points-only league panels with paired Activity + Points block (`status_period_competitions_section.php`, `status-period-competitions.js`, `api/status_period_points_league.php`); WIP spec [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md). |
+| 2026-05 | **Policy doc sweep** — deleted `cpp-snippets/`; merged `post-game-cpp-handoff` into `post-game-register`; archived refactor plan + period-games handoff; fixed `PROJECT_MAP`, `STATUS_PAGE_DATA`, `player-profile-feast`, `UPDATE_DOCS` contract row; clarified SCH-008 staging vs local in feature-log/schema-register. |
 | 2026-05 | **Post-game snippet workflow retired** — behavior only in `docs/website-data-contract.md`; local/staging = SCH + REP; deleted `cpp-snippets/` PG-005–013; kept `docs/coordination/records-post-game-exception.md` (ex-HoF PG-004). Agents must not cite PG-NNN as blocking work. `feature-log` uses **Prod live** not Post-game column. |
 | 2026-05 | **Staging HoF record defects catalogued** — [`docs/staging-post-game-record-defects.md`](docs/staging-post-game-record-defects.md): Gianni streak dates, Fiery CS victims, Eternalstudent opp/vic, etc. (C++ post-game); golden checks extended; ops doc clarifies ladder replay vs website-derived rebuild. |
 | 2026-05 | **Post-game replay contract** — Python replay now pins `SET time_zone = '+00:00'` at connection, so `generalstatstable` record dates are UTC-correct. `docs/website-data-contract.md` expanded with full `generalstatstable` semantics (tie policy: strict `>`, ratio leaders excluded, UTC rule, victim-count gates). Golden record checks added (`scripts/ladder/golden_record_checks.py`). PG-004 rewritten as explicit behavior-change handoff (DELETE ratio blocks, CHANGE `>=` to `>`, ADD UTC pin). Replay architecture section documents event engine as behavior authority, SQL rebuilds as parity helpers. Local replay rerun: all golden checks pass. |
 | 2026-05 | **Derived-data contract refactor** — `docs/website-data-contract.md` is now the behavior authority for project-owned aggregate tables, rebuild rules, parity checks, and post-game requirements. `scripts/rebuild_website_derived_data_local.ps1` is the one-command local rebuild path; old period/monthly rebuild wrappers now point to it. `docs/stored-truth-expansion.md` and `docs/player-period-games.md` are redirects, while registers track status only. |
 | 2026-05 | **UTC period-boundary fix** — `ratedresults.Date` is `timestamp`, so local Estonia MySQL sessions were rebuilding day buckets three hours ahead of UK/staging. Added `SET time_zone = '+00:00'` to PHP DB connections and rebuild scripts, reran local aggregate rebuilds, and verified daily stored rows now match UTC buckets (e.g. 2026-05-17=26, 2026-05-18=31). `api/server_matchup_breadth.php` now also uses the UTC pin and `server_period_matchups`. |
-| 2026-05 | **Stored truth expansion** — Five new aggregate tables locally applied and rebuilt (SCH-008): `player_period_league` (38,944 rows), `player_milestones` (151 rows), `player_matchup_summary` (3,905 rows), `server_period_game_totals` (3,731 rows), `server_period_matchups` (63,283 rows). All parity-checked against `ratedresults` (74,870 games). Status league, Activity APIs, Profile opponent/calendar/feast APIs, and milestone charts now read stored truth. C++ snippets PG-009–013 drafted. Contract: `docs/website-data-contract.md`. |
-| 2026-05 | **Daily active players chart + stored truth experiment** — `server1.php` now has an all-time "Daily active players · 30-day average" line chart reading new `server_daily_activity` table (SCH-007); local perf test shows stored path **~73x faster** than raw `ratedresults` computation (~21ms vs ~1542ms query); API supports `source=stored|raw`; post-game snippet PG-008 drafted. |
+| 2026-05 | **Stored truth expansion** — Five aggregate tables locally (SCH-008 + REP-007–011): `player_period_league`, `player_milestones`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups`; parity-checked vs `ratedresults`. Status/Activity/Profile PHP reads stored truth when tables exist; staging SCH-008 + rebuilds still pending Steve. Contract: `docs/website-data-contract.md`. |
+| 2026-05 | **Daily active players chart** — `server_daily_activity` (SCH-007); stored path ~73× faster than raw `ratedresults` in local perf test; API `source=stored|raw`. |
 | 2026-05 | **Dev period activity date picker affordance** — the Daily panel date input now has a visible accent calendar button and a brightened native picker indicator, so users can open the calendar instead of typing a date. |
 | 2026-05 | **Top activity eras chart shipped locally** — `server1.php` now has a "Top activity eras" multi-player line chart: each month shows the top 10 players by rated games, lines appear/disappear as players enter/leave the top 10, hover highlights one player and dims others; powered by new `api/server_top_activity_eras.php` reading `player_period_games` (L0, no new stored truth). |
 | 2026-05 | **Realm header identity layout promoted** — shared `site_header.php` now uses the first lab direction: Online/Amiga beside the Kick Off 2 wordmark, with player search isolated on the right; strip variant remains lab-only for comparison. |
@@ -115,7 +129,7 @@
 | 2026-05 | **Games tab shared row renderer** — `game.php` and the Games tab share `includes/k2_rated_game_row.php`; current Games tab behavior is recorded in the newer table-spacing cleanup row above. |
 | 2026-05 | **Status Phase B v1.2 in repo** — `status.php` has 4-col room grid, active leaderboard, monthly league toggle, recent logins/registrations/games; prod DB read + joshua redirect still open. |
 | 2026-05 | **Profile feast shipped** — production `individual1.php` feast layout only; mock lab removed; further profile work should be gradual copy/UX. |
-| 2026-05 | **Core migration/prod coordination set up** — `prod-coordination.md`, registers, schema migrations, staging replay docs, and C++ snippet handoff pattern exist; prod live ratings still C++. |
+| 2026-05 | **Core migration/prod coordination set up** — `prod-coordination.md`, registers, schema migrations, staging replay docs; prod post-game from `website-data-contract.md`; prod live ratings still C++. |
 | 2026-05 | **Chart/theme foundation shipped** — six-ink chart palette, dark theme tokens, shared header/nav/wing tabs, and `status.php` hub landing are in repo. |
 
 ---

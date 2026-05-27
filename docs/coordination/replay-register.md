@@ -18,11 +18,11 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | REP-004 | Player monthly league aggregate | Rebuild legacy `player_monthly_league` monthly standings from all `ratedresults` | Done May 2026 | Done May 2026 | **Pending** | `scripts/ladder/sql/player_monthly_league_rebuild.sql`; local entrypoint `scripts/rebuild_website_derived_data_local.ps1` |
 | REP-005 | Player peak period games cache | Rebuild `player_peak_period_games` from `player_period_games` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/player_peak_period_games_rebuild.sql`; staging ran after SCH-006 + REP-003 week refresh |
 | REP-006 | Server daily activity aggregate | Rebuild `server_daily_activity` from `player_period_games` daily rows | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_daily_activity_rebuild.sql`; staging ran after SCH-007 |
-| REP-007 | Player period league | Rebuild `player_period_league` day/week/month/year standings from `ratedresults` | Done May 2026 | **Pending** | **Pending** | `scripts/ladder/sql/player_period_league_rebuild.sql` |
-| REP-008 | Player milestones | Rebuild `player_milestones` (established_20, dd_merchant_10) from `ratedresults` | Done May 2026 | **Pending** | **Pending** | `scripts/ladder/sql/player_milestones_rebuild.sql` |
-| REP-009 | Player matchup summary | Rebuild `player_matchup_summary` directed pair totals from `ratedresults` | Done May 2026 | **Pending** | **Pending** | `scripts/ladder/sql/player_matchup_summary_rebuild.sql` |
-| REP-010 | Server period game totals | Rebuild `server_period_game_totals` (games/goals/draws/DD/CS per period) from `ratedresults` | Done May 2026 | **Pending** | **Pending** | `scripts/ladder/sql/server_period_game_totals_rebuild.sql` |
-| REP-011 | Server period matchups | Rebuild `server_period_matchups` (canonical pair per period) from `ratedresults` | Done May 2026 | **Pending** | **Pending** | `scripts/ladder/sql/server_period_matchups_rebuild.sql` |
+| REP-007 | Player period league | Rebuild `player_period_league` day/week/month/year standings from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/player_period_league_rebuild.sql` |
+| REP-008 | Player milestones | Rebuild `player_milestones` (established_20, dd_merchant_10) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/player_milestones_rebuild.sql`; staging re-ran once after MariaDB fix (`ROW_NUMBER` not user variables) |
+| REP-009 | Player matchup summary | Rebuild `player_matchup_summary` directed pair totals from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/player_matchup_summary_rebuild.sql` |
+| REP-010 | Server period game totals | Rebuild `server_period_game_totals` (games/goals/draws/DD/CS per period) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_period_game_totals_rebuild.sql` |
+| REP-011 | Server period matchups | Rebuild `server_period_matchups` (canonical pair per period) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_period_matchups_rebuild.sql` |
 
 ### Run log (append rows)
 
@@ -43,6 +43,7 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | 2026-05 | Local | `ko2unity_db` | Agent | 74870 | 0 | REP-010: `server_period_game_totals` rebuilt; 3,731 rows; `SUM(rated_games)` for day = 74,870 |
 | 2026-05 | Local | `ko2unity_db` | Agent | 74870 | 0 | REP-011: `server_period_matchups` rebuilt; 63,283 rows; `SUM(games)` for day = 74,870 |
 | 2026-05 | Local | `ko2unity_db` | Agent | 74870 | 0 | UTC timezone pin added to all SQL rebuild scripts, then REP-003/004/005/006/007/008/009/010/011 rerun; daily rows now match `SET time_zone = '+00:00'` buckets (e.g. 2026-05-17=26, 2026-05-18=31) |
+| 2026-05 | Staging | `kooldb` | Steve | 74870 | 0 | SCH-008 + REP-007–011: first pass OK except `established_20` (MariaDB user-variable quirk); milestones re-run with fixed `player_milestones_rebuild.sql`; verify table all green (`distinct_game_totals=1`, `established_20_diff=0`, day league rows 27,201, milestones 151) |
 
 ### Prod cutover (when scheduled)
 

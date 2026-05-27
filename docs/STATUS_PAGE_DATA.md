@@ -34,7 +34,9 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | 3 (widest) | Live games | Recent games |
 | 4 (moderate) | Heritage box | Leaderboard (active Elo top 20) |
 
-Below west: **League stack** spans cols 1–3: **Daily**, **Weekly**, **Monthly**, **Yearly** panels, in that order. Each panel keeps the monthly-league table contract and has its own current/previous toggle (`js/status-league-toggle.js`, client-side; medals on previous period only). Weekly periods are **Monday–Sunday**.
+Below west: **Leagues** (Phase **1** shipped in repo) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **Phase 1.5 next** (one-liner, Monday editorial, day games list, etc.): [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) · handoff [`docs/coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md).
+
+**Legacy (pre–period competitions):** League stack was **Daily**, **Weekly**, **Monthly**, **Yearly** panels, each with current/previous toggle (`js/status-league-toggle.js`; medals on previous period only). Monday-start weeks.
 
 **Copy / UI:** Leaderboard title `Leaderboard · N active players in the past year` (blue count); meta link **Leaderboards →**; ticker 14px muted prose; panel titles `.k2-panel-heading` (Plex 600, muted, 14px). League toggle uses segment-nav colours (not full accent). League meta shows the selected period, rated-game count, server-time end boundary, and a JS-refreshed countdown seeded from MySQL `NOW()`. Column widths favor live/recent games; the heritage/leaderboard lane is secondary. Rated-games arc links to Activity (`server1.php`) with a discreet left-aligned action below the sentence; Activity’s first screen expands the story with a key sentence, fact cards, a small games/opponents line, and a past-month games-per-day chart before longer charts. Recent games stay compact/chatty (names + score only) and expose a small `Games →` link to the full Games list (`server3.php`) for sortable detail, rating diff, Fav ES, and adjustment columns. `status.php` sends no-cache headers so lobby/status panels do not linger stale in browsers.
 
@@ -57,7 +59,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | **Pulse** | `playertable`, `resulttable`, optional `generalstatstable` | Online count, live game count, last login recency; no CPU/disk/mem |
 | **Rated-games arc** | `generalstatstable` + `ratedresults` + `playertable` | Compact all-time sentence (`players`, `rated games`, first rated date) with `Activity →` link |
 | **Active rated leaderboard** | `playertable` | Full active list, not capped: `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; rating shown **0 decimals**; public display rule (`Display = 1`); names → profiles; heading count is exact active row count; sortable `#`/Player/Elo/Games headers with compact help; link `Leaderboards →` opens broad Leaderboards section |
-| **League stack** | `ratedresults`; monthly panel prefers `player_monthly_league` when present | **Calendar day**, **Monday-start calendar week**, **calendar month**, **calendar year**, using the database server clock (`NOW()`) for current/previous boundaries; each rated row in period counts; **3 / 1 / 0** pts from `ActualScore`; aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **all players with ≥1 game in period** |
+| **League stack** | **`player_period_league`** when present; else `player_monthly_league` (month only); else `ratedresults` scan | **Calendar day**, **Monday-start calendar week**, **calendar month**, **calendar year**; UI current/previous boundaries use server `NOW()`; **stored `period_start` keys are UTC** per [`website-data-contract.md`](website-data-contract.md); **3 / 1 / 0** pts from `ActualScore`; aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **all players with ≥1 game in period**; reader: `status_queries.php` |
 | **Online now** | `playertable` · nonzero `IsOnline` | Do not gate by `Display`; this is lobby presence, not ladder eligibility |
 | **Live games** | `resulttable` | Started, not finished, not shelved (match legacy filter when verified) |
 | **Recent logins** | `playertable` · `LastLogin DESC` | ~10 |
@@ -81,7 +83,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | Live games | `resulttable` | Yes |
 | Recent finished games | `ratedresults` | Yes |
 | Active rated leaderboard (Elo) | `playertable` · `Rating`, `LastGame` | **Yes (full active list, 12 mo)** |
-| Daily / Weekly / Monthly / Yearly league | `ratedresults`; monthly prefers `player_monthly_league`; all use same 3/1/0 league aggregate | **Yes** |
+| Daily / Weekly / Monthly / Yearly league | `player_period_league` (preferred); fallbacks as above | **Yes** |
 | Top 10 Steve `PlayerRank` | `playertable` | **No** |
 | Legacy ratings Top 10 only | `playertable` | **No** (replaced by active Elo strip) |
 | AWOL | `playertable` · `LastLogin` | No (v1) |
@@ -108,9 +110,11 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | Phase A | Hub shell, bridge, heritage box |
 | **Phase B v1** | **Shipped** — `status_queries.php`, `status_room_section.php`, `status.php` |
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
-| **League stack** | **Shipped locally** — daily / weekly / monthly / yearly status league panels, current/previous toggles, Monday-start weeks, server-clock end boundaries/countdowns |
-| Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; Status loader ~6.6s → ~51ms locally; staging indexes/rebuild verified by Steve; prod schema + REP + live C++ from contract pending |
+| **League stack (legacy)** | Replaced on Status by **Leagues** block (`status_period_competitions_section.php`); old four-panel + `status-league-toggle.js` removed from `status.php` |
+| **League stored truth (SCH-008)** | **Local + staging done** (May 2026) — `player_period_league` + REP-007–011 on `kooldb`; Steve verify all parity checks pass (74,870 rated games). Prod schema + post-game from contract pending |
+| Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; Status loader ~6.6s → ~51ms locally; prod schema + live C++ from contract pending |
 | Period activity prep | **Local + staging done (May 2026)** — SCH-006 + REP-003 week refresh + REP-005 on `kooldb`; prod handoff/method pending Steve |
+| **Leagues (period competitions)** | **Phase 1 shipped** — paired Activity + Points, tab nav, prewarm; **Phase 1.5** next — [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) |
 | v1.5+ | Polling, kickoff2 embed, joshua redirect |
 
 ---
@@ -120,4 +124,5 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 - `docs/hub-ia-agreement.md`
 - `docs/LOCAL_DEV.md`
 - `docs/playertable-schema.md`, `docs/ratedresults-schema.md`
+- `docs/website-data-contract.md` (league aggregates, UTC)
 - `PROJECT_MEMORY.md`

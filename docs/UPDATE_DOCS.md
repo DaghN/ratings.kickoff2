@@ -30,11 +30,13 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 
 | Area touched | Spec file |
 |--------------|-----------|
+| Stored / derived DB tables, rebuild, post-game rules | `docs/website-data-contract.md` |
 | Status hub panels / league | `docs/STATUS_PAGE_DATA.md` |
 | Player profile layout | `docs/player-profile-feast.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
 | Visual identity / theme | `docs/design-direction.md` |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |
+| Hall of Fame record C++ / staging defects | `docs/coordination/records-post-game-exception.md`, `docs/staging-post-game-record-defects.md` (when records behavior changes) |
 
 Skip specs with no change. **Do not** invent new spec files unless Dagh asks.
 

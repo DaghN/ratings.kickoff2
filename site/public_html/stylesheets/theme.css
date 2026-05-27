@@ -56,6 +56,8 @@ html {
 	--k2-accent-glow: rgba(255, 183, 77, 0.35);
 	--k2-segment-active-text: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
 	--k2-segment-active-ring: color-mix(in srgb, var(--k2-accent) 55%, transparent);
+	/* Text on solid accent fills (calendar selected day, etc.) — dark ink reads on all four tints */
+	--k2-accent-solid-text: #0b0f14;
 	--k2-link: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
 	--k2-link-hover: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary));
 	/* Player names, IDs, profile stat highlights — accent-forward, not full chrome */
@@ -1869,6 +1871,7 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	letter-spacing: 0.04em;
 }
 
+/* Legacy — pre–Leagues Phase 1; status-league-toggle.js not loaded on status.php */
 .k2-status-league-toggle {
 	display: inline-flex;
 	flex-wrap: wrap;
@@ -1906,6 +1909,550 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 
 .k2-status-league-panel[hidden] {
 	display: none;
+}
+
+/* Status — paired period competitions (Activity + Points) */
+.k2-status-period-competitions {
+	--k2-leagues-meta-gap: 20px;
+	--k2-leagues-points-min: 18rem;
+}
+
+.k2-status-period-competitions__intro {
+	margin-bottom: 8px;
+}
+
+.k2-status-period-competitions__controls {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 10px;
+	margin-bottom: 0;
+}
+
+.k2-status-period-competitions__period-tabs {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-self: flex-start;
+	flex-wrap: wrap;
+	width: max-content;
+	max-width: 100%;
+	gap: 4px;
+	padding: 2px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: rgba(0, 0, 0, 0.2);
+}
+
+.k2-status-period-competitions__period-btn {
+	display: inline-block;
+	padding: 4px 12px;
+	font-size: 12px;
+	font-weight: 600;
+	font-family: inherit;
+	color: var(--k2-text-muted);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-sm) - 1px);
+	line-height: 1.3;
+	cursor: pointer;
+	transition: color 0.15s, border-color 0.15s;
+}
+
+.k2-status-period-competitions__period-btn:hover:not(.is-active) {
+	color: var(--k2-text-secondary);
+}
+
+.k2-status-period-competitions__period-btn.is-active {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta.k2-status-room__arc {
+	margin-top: var(--k2-leagues-meta-gap);
+	margin-bottom: var(--k2-leagues-meta-gap);
+	font-size: 14px;
+	color: var(--k2-text-muted);
+	line-height: 1.45;
+	text-align: left;
+}
+
+.k2-status-period-competitions__period-nav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+}
+
+.k2-status-period-competitions__step-btn {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	font-family: inherit;
+	line-height: 1;
+	color: var(--k2-text-muted);
+	background: rgba(0, 0, 0, 0.28);
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+	cursor: pointer;
+	transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.k2-status-period-competitions__step-chevron {
+	display: block;
+	width: 8px;
+	height: 8px;
+	border-bottom: 2px solid currentColor;
+	border-left: 2px solid currentColor;
+	box-sizing: border-box;
+	opacity: 0.92;
+}
+
+.k2-status-period-competitions__step-btn--prev .k2-status-period-competitions__step-chevron {
+	transform: rotate(45deg);
+	margin-left: 2px;
+}
+
+.k2-status-period-competitions__step-btn--next .k2-status-period-competitions__step-chevron {
+	transform: rotate(-135deg);
+	margin-right: 2px;
+}
+
+.k2-status-period-competitions__step-btn:hover:not(:disabled) {
+	color: var(--k2-text-primary);
+	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
+	background: rgba(255, 255, 255, 0.05);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.k2-status-period-competitions__step-btn:focus-visible {
+	outline: none;
+	border-color: var(--k2-segment-active-ring);
+	color: var(--k2-segment-active-text);
+}
+
+.k2-status-period-competitions__step-btn:disabled {
+	opacity: 0.32;
+	cursor: not-allowed;
+}
+
+.k2-status-period-competitions__step-btn:disabled .k2-status-period-competitions__step-chevron {
+	opacity: 0.7;
+}
+
+.k2-status-period-competitions__picker-row {
+	flex: 0 1 auto;
+	display: flex;
+	justify-content: center;
+	min-width: 0;
+}
+
+.k2-status-period-competitions__archive-picker {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px 6px;
+}
+
+.k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__picker-label {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	color: var(--k2-text-secondary);
+	margin: 0;
+}
+
+.k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input {
+	max-width: min(100%, 220px);
+	font-size: 12px;
+	padding: 4px 8px;
+	color: var(--k2-text-primary);
+	background-color: var(--k2-bg-surface);
+}
+
+body.k2-site .k2-status-period-competitions__archive-picker select.server-period-activity-leaderboard__input {
+	appearance: none;
+	-webkit-appearance: none;
+	padding-right: 24px;
+	background-color: var(--k2-bg-surface);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23a0a8b0' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 10px 6px;
+}
+
+body.k2-site .k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+body.k2-site .k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input:focus:not(:focus-visible) {
+	border-color: var(--k2-border-subtle);
+}
+
+body.k2-site .k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input:focus-visible {
+	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
+	outline: none;
+	box-shadow: none;
+}
+
+body.k2-site .k2-status-period-competitions .server-period-activity-leaderboard__calendar-button.k2-status-period-competitions__calendar-btn {
+	width: 32px;
+	height: 32px;
+	min-height: 32px;
+	padding: 0;
+	border-color: var(--k2-border-subtle);
+	background: rgba(0, 0, 0, 0.28);
+	color: var(--k2-text-secondary);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:hover:not(:disabled) {
+	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--k2-text-primary);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:active:not(:disabled) {
+	background: rgba(0, 0, 0, 0.38);
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.22);
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus {
+	outline: none;
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus-visible {
+	border-color: var(--k2-segment-active-ring);
+	color: var(--k2-segment-active-text);
+	background: rgba(255, 255, 255, 0.05);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	outline: none;
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn.is-open {
+	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
+	color: var(--k2-text-primary);
+	background: rgba(255, 255, 255, 0.06);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus:not(:focus-visible) {
+	border-color: var(--k2-border-subtle);
+	color: var(--k2-text-secondary);
+	background: rgba(0, 0, 0, 0.28);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-svg {
+	display: block;
+	flex: 0 0 auto;
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-dots {
+	opacity: 0.42;
+}
+
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:hover .k2-status-period-competitions__calendar-dots,
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus-visible .k2-status-period-competitions__calendar-dots,
+body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn.is-open .k2-status-period-competitions__calendar-dots {
+	opacity: 0.58;
+}
+
+/* Flatpickr — Leagues day picker (vendored flatpickr.min.css + KOOL overrides) */
+body.k2-site .flatpickr-calendar {
+	margin-top: 6px;
+	font-family: inherit;
+	font-size: 13px;
+	line-height: 1.35;
+	color: var(--k2-text-primary);
+	background: var(--k2-bg-elevated);
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	box-shadow:
+		0 12px 32px rgba(0, 0, 0, 0.45),
+		inset 0 1px 0 rgba(255, 255, 255, 0.05);
+	color-scheme: dark;
+}
+
+body.k2-site .flatpickr-calendar:not(.open) {
+	pointer-events: none;
+}
+
+body.k2-site .flatpickr-calendar::before,
+body.k2-site .flatpickr-calendar::after {
+	display: none;
+}
+
+body.k2-site .flatpickr-months .flatpickr-month,
+body.k2-site .flatpickr-current-month {
+	color: var(--k2-text-primary);
+	fill: var(--k2-text-primary);
+}
+
+body.k2-site .flatpickr-current-month .numInputWrapper.k2-flatpickr-year-stepper--hidden {
+	display: none !important;
+}
+
+body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months.k2-flatpickr-month-native--hidden {
+	display: none !important;
+}
+
+body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months,
+body.k2-site .flatpickr-current-month .k2-flatpickr-month-select,
+body.k2-site .flatpickr-current-month .k2-flatpickr-year-select {
+	margin: 0 2px;
+	padding: 3px 24px 3px 8px;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.3;
+	color: var(--k2-text-primary);
+	background-color: var(--k2-bg-surface);
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	color-scheme: dark;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23a0a8b0' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 7px center;
+	background-size: 10px 6px;
+}
+
+body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+body.k2-site .flatpickr-current-month .k2-flatpickr-month-select:hover,
+body.k2-site .flatpickr-current-month .k2-flatpickr-year-select:hover {
+	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
+	background-color: var(--k2-bg-hover);
+}
+
+body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months:focus,
+body.k2-site .flatpickr-current-month .k2-flatpickr-month-select:focus,
+body.k2-site .flatpickr-current-month .k2-flatpickr-year-select:focus {
+	outline: none;
+	border-color: var(--k2-segment-active-ring);
+}
+
+body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months option,
+body.k2-site .flatpickr-current-month .k2-flatpickr-month-select option,
+body.k2-site .flatpickr-current-month .k2-flatpickr-year-select option {
+	background-color: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .flatpickr-weekdays {
+	background: transparent;
+}
+
+body.k2-site span.flatpickr-weekday {
+	color: var(--k2-text-muted);
+	font-weight: 600;
+	font-size: 11px;
+}
+
+body.k2-site .flatpickr-day {
+	color: var(--k2-text-primary);
+	border-color: transparent;
+}
+
+body.k2-site .flatpickr-day:hover,
+body.k2-site .flatpickr-day:focus {
+	background: var(--k2-bg-hover);
+	border-color: transparent;
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .flatpickr-day.today {
+	border-color: color-mix(in srgb, var(--k2-text-muted) 45%, transparent);
+}
+
+body.k2-site .flatpickr-day.today:hover,
+body.k2-site .flatpickr-day.today:focus {
+	background: var(--k2-bg-hover);
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .flatpickr-day.selected,
+body.k2-site .flatpickr-day.selected:hover,
+body.k2-site .flatpickr-day.selected:focus {
+	background: var(--k2-accent);
+	border-color: var(--k2-accent);
+	color: var(--k2-accent-solid-text);
+	font-weight: 600;
+}
+
+body.k2-site .flatpickr-day.selected.today {
+	border-color: var(--k2-accent);
+}
+
+body.k2-site .flatpickr-day.flatpickr-disabled,
+body.k2-site .flatpickr-day.flatpickr-disabled:hover,
+body.k2-site .flatpickr-day.prevMonthDay,
+body.k2-site .flatpickr-day.nextMonthDay {
+	color: var(--k2-text-muted);
+	opacity: 0.45;
+}
+
+body.k2-site .flatpickr-day.flatpickr-disabled,
+body.k2-site .flatpickr-day.flatpickr-disabled:hover {
+	cursor: not-allowed;
+	background: transparent;
+}
+
+body.k2-site .flatpickr-months .flatpickr-prev-month,
+body.k2-site .flatpickr-months .flatpickr-next-month {
+	color: var(--k2-text-secondary);
+	fill: var(--k2-text-secondary);
+}
+
+body.k2-site .flatpickr-months .flatpickr-prev-month:hover,
+body.k2-site .flatpickr-months .flatpickr-next-month:hover {
+	color: var(--k2-text-primary);
+	fill: var(--k2-text-primary);
+}
+
+body.k2-site .flatpickr-months .flatpickr-prev-month svg,
+body.k2-site .flatpickr-months .flatpickr-next-month svg {
+	fill: currentColor;
+}
+
+@media (max-width: 480px) {
+	body.k2-site .flatpickr-calendar {
+		width: min(100vw - 24px, 19.5rem);
+		max-width: calc(100vw - 24px);
+	}
+
+	body.k2-site .flatpickr-day {
+		max-width: none;
+		height: 38px;
+		line-height: 38px;
+	}
+}
+
+.k2-status-period-competitions__views {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.k2-status-day-picker {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+}
+
+.k2-status-day-picker__label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+	margin: 0;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+.k2-status-period-competitions .k2-status-day-picker__fp-anchor {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.k2-status-period-competitions .server-period-activity-leaderboard__date-control {
+	position: relative;
+}
+
+.k2-status-period-competitions__pair {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 14px;
+}
+
+.k2-status-period-competitions__col {
+	min-width: 0;
+}
+
+.k2-status-period-competitions__col-stack {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: stretch;
+	max-width: 100%;
+	min-width: 0;
+}
+
+.k2-status-period-competitions__col--activity {
+	flex: 0 0 auto;
+	max-width: 100%;
+	display: flex;
+	justify-content: flex-start;
+}
+
+.k2-status-period-competitions__col--activity .k2-table-wrap {
+	width: max-content;
+	max-width: 100%;
+}
+
+.k2-status-period-competitions__col--points {
+	flex: 1 1 var(--k2-leagues-points-min);
+	min-width: min(100%, var(--k2-leagues-points-min));
+	max-width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.k2-status-period-competitions__col--points .k2-table-wrap {
+	width: max-content;
+	max-width: 100%;
+	min-width: 0;
+	overflow-x: auto;
+}
+
+.k2-status-period-competitions__col--points .k2-status-table__player {
+	max-width: 11em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media (max-width: 400px) {
+	.k2-status-period-competitions__col--activity .k2-table-wrap {
+		width: 100%;
+	}
+}
+
+
+.k2-status-period-competitions__col-title {
+	margin: 0 0 7px;
+	font-size: 13px;
+	text-align: center;
+}
+
+.k2-status-period-competitions__col--activity .k2-status-table__player {
+	min-width: 0;
+}
+
+.k2-status-period-competitions__status {
+	margin-top: 8px;
+	font-size: 12px;
+	color: var(--k2-text-muted);
 }
 
 .k2-status-table--podium .k2-status-table__medal {

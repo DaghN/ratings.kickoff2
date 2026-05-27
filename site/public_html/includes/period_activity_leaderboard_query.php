@@ -241,15 +241,43 @@ function k2_period_activity_available_keys(mysqli $con, string $period, ?string 
     return $keys;
 }
 
+/**
+ * ISO-8601 calendar week (Monday start), e.g. "Week 22, 2026" — common in DK/EU.
+ *
+ * @param string $weekMondayYmd Monday of the week (Y-m-d)
+ */
+function k2_format_calendar_week_label(string $weekMondayYmd): string
+{
+    $d = DateTimeImmutable::createFromFormat('Y-m-d', $weekMondayYmd);
+    if (!$d) {
+        $ts = strtotime($weekMondayYmd);
+        if ($ts === false) {
+            return $weekMondayYmd;
+        }
+        $d = (new DateTimeImmutable())->setTimestamp($ts);
+    }
+
+    return 'Week ' . (int) $d->format('W') . ', ' . (int) $d->format('o');
+}
+
+/** Human label for one calendar day, e.g. Monday, May 27, 2026. */
+function k2_format_calendar_day_label(string $dayYmd): string
+{
+    $d = DateTimeImmutable::createFromFormat('Y-m-d', $dayYmd);
+    if (!$d instanceof DateTimeImmutable) {
+        return $dayYmd;
+    }
+
+    return $d->format('l, F j, Y');
+}
+
 function k2_format_period_activity_label(string $period, string $key): string
 {
     switch ($period) {
         case 'day':
-            $ts = strtotime($key);
-            return $ts ? date('M j, Y', $ts) : $key;
+            return k2_format_calendar_day_label($key);
         case 'week':
-            $ts = strtotime($key);
-            return $ts ? 'Week of ' . date('M j, Y', $ts) : $key;
+            return k2_format_calendar_week_label($key);
         case 'month':
             $d = DateTime::createFromFormat('Y-m-d', $key . '-01');
             if ($d instanceof DateTime) {

@@ -1,5 +1,6 @@
 /**
- * Status league period switch — in-place, no navigation (status.php).
+ * Legacy — four stacked league panels with current/previous toggle.
+ * Not loaded on status.php since Leagues Phase 1 (May 2026). Kept for reference; safe to delete after prod cutover.
  */
 (function () {
     'use strict';
@@ -50,7 +51,7 @@
         var now = serverNowEpoch(root);
         var isLive = endEpoch > now;
         var text = label + ' · ' + total + ' ' + pluralRatedGames(total)
-            + ' · ' + (isLive ? 'ends ' : 'ended ') + endLabel + ' server time';
+            + ' · ' + (isLive ? 'ends ' : 'ended ') + endLabel + ' UTC';
         if (isLive) {
             text += ' · ' + formatRemaining(endEpoch - now);
         }

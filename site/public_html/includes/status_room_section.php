@@ -161,40 +161,6 @@ function k2_status_render_league_table(?array $monthly, bool $showPodiumMedals =
 <?php
 }
 
-function k2_status_render_league_period_panel(
-    string $period,
-    string $target,
-    ?array $league,
-    ?string $error,
-    int $serverNowEpoch
-): void {
-    $serverNow = (new DateTimeImmutable('@' . $serverNowEpoch));
-    $metaText = $league !== null ? k2_status_league_meta_line_for_clock($league, $serverNow) : '';
-    $endTs = $league !== null ? strtotime((string) ($league['end'] ?? '')) : false;
-    $periodLabel = $league !== null ? (string) ($league['label'] ?? '') : '';
-    $totalGames = $league !== null ? (int) ($league['total_games'] ?? 0) : 0;
-    $endLabel = $league !== null ? k2_status_league_end_label($league) : '';
-    ?>
-				<div
-					class="k2-status-league-panel"
-					data-league-panel="<?php echo k2_status_h($target); ?>"
-					data-league-period-label="<?php echo k2_status_h($periodLabel); ?>"
-					data-league-total-games="<?php echo (int) $totalGames; ?>"
-					data-league-end-label="<?php echo k2_status_h($endLabel); ?>"
-					data-league-end-epoch="<?php echo $endTs === false ? 0 : (int) $endTs; ?>"
-					data-league-meta-text="<?php echo k2_status_h($metaText); ?>"
-					<?php echo $target === 'prev' ? 'hidden="hidden"' : ''; ?>>
-<?php if (!empty($error) || $league === null) { ?>
-					<p class="k2-status-panel__empty">Could not load <?php echo k2_status_h(strtolower(k2_status_league_title($period))); ?>.</p>
-<?php } elseif ($league['rows'] === []) { ?>
-					<p class="k2-status-panel__empty">No rated games in <?php echo k2_status_h($league['label']); ?><?php echo $target === 'current' ? ' yet' : ''; ?>.</p>
-<?php } else {
-    k2_status_render_league_table($league, $target === 'prev');
-} ?>
-				</div>
-<?php
-}
-
 $room = $k2StatusRoom ?? null;
 $loadError = $k2StatusRoomError ?? null;
 
@@ -370,33 +336,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		</section>
 
 		<div class="k2-status-room__leagues">
-<?php foreach (['day', 'week', 'month', 'year'] as $leaguePeriod) {
-    $leagueGroup = is_array($leagues[$leaguePeriod] ?? null) ? $leagues[$leaguePeriod] : [];
-    $currentLeague = is_array($leagueGroup['current'] ?? null) ? $leagueGroup['current'] : null;
-    $previousLeague = is_array($leagueGroup['prev'] ?? null) ? $leagueGroup['prev'] : null;
-    $currentMeta = $currentLeague !== null ? k2_status_league_meta_line_for_clock($currentLeague, new DateTimeImmutable('@' . $serverNowEpoch)) : '';
-    $leagueTitle = k2_status_league_title($leaguePeriod);
-    $leagueId = 'k2-status-' . $leaguePeriod . '-league-title';
-    ?>
-		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-league" aria-labelledby="<?php echo k2_status_h($leagueId); ?>" data-k2-status-league data-server-now-epoch="<?php echo (int) $serverNowEpoch; ?>">
-			<div class="k2-status-panel__head k2-status-panel__head--league">
-				<div class="k2-status-league-head__title-row">
-					<h2 id="<?php echo k2_status_h($leagueId); ?>" class="k2-panel-heading"><?php echo k2_status_h($leagueTitle); ?></h2>
-					<div class="k2-status-league-toggle" role="group" aria-label="<?php echo k2_status_h($leagueTitle); ?> period">
-						<button type="button" class="k2-status-league-toggle__btn is-active" data-league-target="current" aria-pressed="true"><?php echo k2_status_h(k2_status_league_toggle_label($leaguePeriod, 'current')); ?></button>
-						<button type="button" class="k2-status-league-toggle__btn" data-league-target="prev" aria-pressed="false"><?php echo k2_status_h(k2_status_league_toggle_label($leaguePeriod, 'prev')); ?></button>
-					</div>
-				</div>
-				<p class="k2-status-panel__meta" data-league-meta><?php echo k2_status_h($currentMeta); ?></p>
-			</div>
-			<div class="k2-status-league-panels">
-<?php
-    k2_status_render_league_period_panel($leaguePeriod, 'current', $currentLeague, $leagueGroup['current_error'] ?? null, $serverNowEpoch);
-    k2_status_render_league_period_panel($leaguePeriod, 'prev', $previousLeague, $leagueGroup['prev_error'] ?? null, $serverNowEpoch);
-?>
-			</div>
-		</section>
-<?php } ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/status_period_competitions_section.php'; ?>
 		</div>
 		</div>
 	</div>

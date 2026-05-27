@@ -6,23 +6,19 @@ SET time_zone = '+00:00';
 TRUNCATE TABLE `player_milestones`;
 
 -- established_20: first game where cumulative count reaches 20
+-- Uses ROW_NUMBER (not user variables) so MariaDB staging matches MySQL local.
 INSERT INTO `player_milestones` (`player_id`, `milestone_key`, `achieved_at`, `value`)
-SELECT pid, 'established_20', achieved_at, 20
+SELECT player_id, 'established_20', `Date`, 20
 FROM (
-  SELECT pid, MIN(`Date`) AS achieved_at
+  SELECT pid AS player_id, `Date`,
+         ROW_NUMBER() OVER (PARTITION BY pid ORDER BY `Date` ASC, game_id ASC) AS game_num
   FROM (
-    SELECT pid, `Date`, @rn := IF(@prev = pid, @rn + 1, 1) AS cumulative, @prev := pid
-    FROM (
-      SELECT idA AS pid, `Date` FROM ratedresults
-      UNION ALL
-      SELECT idB AS pid, `Date` FROM ratedresults
-    ) AS all_appearances
-    ORDER BY pid, `Date`
-  ) AS numbered
-  CROSS JOIN (SELECT @rn := 0, @prev := 0) AS vars_unused
-  WHERE cumulative >= 20
-  GROUP BY pid
-) AS milestone_20;
+    SELECT id AS game_id, idA AS pid, `Date` FROM ratedresults
+    UNION ALL
+    SELECT id, idB, `Date` FROM ratedresults
+  ) AS appearances
+) AS ranked
+WHERE game_num = 20;
 
 -- dd_merchant_10: first game where a player scored 10+ goals
 INSERT INTO `player_milestones` (`player_id`, `milestone_key`, `achieved_at`, `value`)
