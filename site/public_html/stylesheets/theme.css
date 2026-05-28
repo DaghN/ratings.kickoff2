@@ -1929,6 +1929,31 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	margin-bottom: 0;
 }
 
+/* Status leagues — segment left; date picker centered in remaining row space (full-width centered when wrapped) */
+.k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__period-tabs {
+	flex: 0 0 auto;
+	align-self: center;
+}
+
+.k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__period-nav {
+	flex: 1 1 0;
+	flex-wrap: nowrap;
+	min-width: max-content;
+	max-width: 100%;
+	justify-content: center;
+}
+
+.k2-status-period-competitions__controls.is-period-nav-stacked .k2-status-period-competitions__period-nav {
+	flex-basis: 100%;
+}
+
 .k2-status-period-competitions__period-tabs {
 	display: inline-flex;
 	flex: 0 0 auto;
@@ -2017,7 +2042,7 @@ body.k2-site a.k2-status-period-competitions__period-btn.is-active {
 }
 
 body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta.k2-status-room__arc {
-	margin-top: var(--k2-leagues-meta-gap);
+	margin-top: calc(var(--k2-leagues-meta-gap) * 1.5);
 	margin-bottom: var(--k2-leagues-meta-gap);
 	font-size: 14px;
 	color: var(--k2-text-muted);
@@ -2032,6 +2057,10 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	justify-content: center;
 	gap: 8px;
 	width: 100%;
+}
+
+.k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__period-nav {
+	width: auto;
 }
 
 .k2-status-period-competitions__step-btn {
@@ -2108,6 +2137,16 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	align-items: center;
 	justify-content: flex-end;
 	gap: 4px 6px;
+}
+
+.k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__archive-picker {
+	flex-wrap: nowrap;
+}
+
+.k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .server-period-activity-leaderboard__date-control {
+	display: inline-flex;
+	flex-wrap: nowrap;
+	align-items: center;
 }
 
 .k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__picker-label {

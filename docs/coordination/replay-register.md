@@ -23,8 +23,8 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | REP-009 | Player matchup summary | Rebuild `player_matchup_summary` directed pair totals from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/player_matchup_summary_rebuild.sql` |
 | REP-010 | Server period game totals | Rebuild `server_period_game_totals` (games/goals/draws/DD/CS per period) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_period_game_totals_rebuild.sql` |
 | REP-011 | Server period matchups | Rebuild `server_period_matchups` (canonical pair per period) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_period_matchups_rebuild.sql` |
-| REP-012 | League period awards | Rebuild `league_period`, `player_league_award`, `player_league_totals` for all closed periods using `docs/leagues-rules-spec.md` sort | **Done** (May 2026) | **Pending** | **Pending** | `php scripts/finalize_league_periods.php --full-rebuild`; wrapper `scripts/run_league_awards_rebuild.ps1`; SQL pointer `scripts/ladder/sql/league_period_awards_rebuild.sql` |
-| REP-013 | Player league slice totals | Rebuild `player_league_slice_totals` from `player_league_award` | **Done** (May 2026) | **Pending** | **Pending** | `php scripts/finalize_league_periods.php --rebuild-aggregates` (after SCH-010); included in full rebuild |
+| REP-012 | League period awards | Rebuild `league_period`, `player_league_award`, `player_league_totals` for all closed periods using `docs/leagues-rules-spec.md` sort | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Local: `scripts/run_league_awards_rebuild.ps1`; staging: `public_html/staging-scripts/run_league_awards_rebuild.php` |
+| REP-013 | Player league slice totals | Rebuild `player_league_slice_totals` from `player_league_award` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Runs at end of REP-012 full rebuild |
 
 ### Run log (append rows)
 
@@ -46,6 +46,7 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | 2026-05 | Local | `ko2unity_db` | Agent | 74870 | 0 | REP-011: `server_period_matchups` rebuilt; 63,283 rows; `SUM(games)` for day = 74,870 |
 | 2026-05 | Local | `ko2unity_db` | Agent | 74870 | 0 | UTC timezone pin added to all SQL rebuild scripts, then REP-003/004/005/006/007/008/009/010/011 rerun; daily rows now match `SET time_zone = '+00:00'` buckets (e.g. 2026-05-17=26, 2026-05-18=31) |
 | 2026-05 | Staging | `kooldb` | Steve | 74870 | 0 | SCH-008 + REP-007–011: first pass OK except `established_20` (MariaDB user-variable quirk); milestones re-run with fixed `player_milestones_rebuild.sql`; verify table all green (`distinct_game_totals=1`, `established_20_diff=0`, day league rows 27,201, milestones 151) |
+| 2026-05 | Staging | `kooldb` | Steve | 74870 | 0 | SCH-009/010 + REP-012/013: 7424 instances, 21873 awards, 122 players / 7424 wins, 398 slice rows; matches local; Dagh ranked9 + Status leagues UI parity |
 
 ### Prod cutover (when scheduled)
 

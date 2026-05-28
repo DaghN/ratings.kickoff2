@@ -24,7 +24,7 @@
 | **Activity leagues** | + Day · Week · Month · Year | Aggregate `player_league_award` read-time (`league_kind=activity`, `period_type`) |
 | **Points leagues** | + Day · Week · Month · Year | Same for `points` |
 
-**URL:** `ranked9.php?cup=overall` · `?cup=activity&grain=day` · `?cup=points&grain=week` (plus leaderboard filter params). Tab link defaults to **Overall**; Activity/Points default **Day**. Canonical redirect adds `grain=day` when missing.
+**URL:** `ranked9.php?cup=overall` · `?cup=activity&grain=day` · `?cup=points&grain=week` (plus leaderboard filter params). Tab link defaults to **Overall**; first visit to Activity/Points defaults **Day**. Switching Activity ↔ Points keeps the current `grain` (daily/weekly/monthly/year). Canonical redirect adds `grain=day` when missing.
 
 **Slice data:** `player_league_slice_totals` (SCH-010, REP-013) — read-time aggregation removed May 2026.
 

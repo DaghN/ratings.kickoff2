@@ -16,8 +16,8 @@ SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `s
 | SCH-006 | `005_period_activity_week_and_peaks.sql` | Add `week` rows to `player_period_games` and create `player_peak_period_games` cache | **Done** | **Done** (May 2026) | **Pending** | Yes (period + peak rebuild) | Staging SCH-006 + REP-003 week + REP-005 done May 2026 |
 | SCH-007 | `006_server_daily_activity.sql` | Create `server_daily_activity` daily aggregate (games + active players per day) | **Done** | **Done** (May 2026) | **Pending** | Yes (backfill from `player_period_games`) | Staging SCH-007 + REP-006 done May 2026 |
 | SCH-008 | `007_stored_truth_expansion.sql` | Create `player_period_league`, `player_milestones`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` | **Done** | **Done** (May 2026) | **Pending** | Yes (rebuild scripts per table) | Staging: Steve applied `007` + REP-007–011; verify all checks pass (`distinct_game_totals=1`, `established_20_diff=0`, 74,870 rated games). Contract `docs/website-data-contract.md` |
-| SCH-009 | `008_league_period_awards.sql` | Create `league_period`, `player_league_award`, `player_league_totals` | **Done** (May 2026) | **Pending** | **Pending** | Yes (REP-012) | Rules: `docs/leagues-rules-spec.md`; finalize PER-003 |
-| SCH-010 | `009_player_league_slice_totals.sql` | Create `player_league_slice_totals` (8-way career breakdown per player) | **Done** (May 2026) | **Pending** | **Pending** | Yes (REP-013) | Rebuilt with `k2_league_rebuild_slice_totals()` after awards |
+| SCH-009 | `008_league_period_awards.sql` | Create `league_period`, `player_league_award`, `player_league_totals` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Yes (REP-012) | Rules: `docs/leagues-rules-spec.md`; staging via `staging-sql/008` + `staging-scripts/run_league_awards_rebuild.php` |
+| SCH-010 | `009_player_league_slice_totals.sql` | Create `player_league_slice_totals` (8-way career breakdown per player) | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Yes (REP-013) | Included in staging full awards rebuild |
 
 ### Adding a row
 

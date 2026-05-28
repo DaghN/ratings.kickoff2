@@ -33,7 +33,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Stored / derived DB tables, rebuild, post-game rules | `docs/website-data-contract.md` |
 | Status hub panels / league | `docs/STATUS_PAGE_DATA.md` |
 | Player profile layout | `docs/player-profile-feast.md` |
-| Milestones feature (phases, catalog) | `docs/milestones-project.md`, `docs/milestones-ideas-catalog.md` |
+| Milestones feature (phases, catalog, tier plan) | `docs/milestones-project.md`, `docs/milestones-product-spec.md`, `docs/milestones-ideas-catalog.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
 | Visual identity / theme | `docs/design-direction.md` |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |

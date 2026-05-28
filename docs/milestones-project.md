@@ -11,7 +11,7 @@ Single place to see **where the milestone feature is** in the pipeline. Implemen
 | | |
 |--|--|
 | **Completed** | **Phase 1 — Idea creation** (discovery + brainstorm + pass 1 curation) |
-| **Next** | **Phase 2 — Definition** (naming, Key-10 selection, rules hardening, tab/profile IA, product spec) |
+| **In progress** | **Phase 2 — Definition** — tier-band plan locked as **plan** (see product spec); catalog + Key pick + rules still open |
 | **Not started** | Phase 3+ — schema/catalog, rebuild rules, UI, hub tab, leaderboard |
 
 **Important:** The milestone **list is not finalized**. [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) is the output of a first brainstorm and one curation pass (`want` / `maybe` / `discard`). Pass 2+ may add, cut, or rename freely.
@@ -24,19 +24,30 @@ Single place to see **where the milestone feature is** in the pipeline. Implemen
 |-------|------|--------|----------------|
 | 0 | **Discovery** | Done | [`milestones-system-discussion.md`](milestones-system-discussion.md) — DB reality, naming (Milestones vs achievements), tone, gaps |
 | 1 | **Idea creation** | **Done (May 2026)** | [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) — wide brainstorm + pass 1 curation |
-| 2 | **Definition** | **Next** | *(to create)* product spec: Key milestones (~10), display names, league rules, Milestones tab IA, profile rethink hooks |
+| 2 | **Definition** | **Next** | [`milestones-product-spec.md`](milestones-product-spec.md) — **plan**: four tier bands, garden UI, story, leaderboard tie-break; Key ~15–20; naming + league rules still TBD |
 | 3 | **Data contract** | Not started | Extend [`website-data-contract.md`](website-data-contract.md), `milestone_definitions`, rebuild + post-game |
 | 4 | **Build & ship** | Not started | APIs, hub tab, achiever lists, profile count, meta-leaderboard |
 
 ---
 
-## Decisions already on record (pass 1)
+## Decisions on record
 
-- User-facing term: **Milestones**; elevated subset: **Key milestones** (~10 TBD).
+### Pass 1 (unchanged unless superseded)
+
+- User-facing term: **Milestones**.
 - **Dedicated hub tab** (not Activity-only); **milestone count on profile**; **most-milestones leaderboard**.
 - **~115+ want** candidates in catalog; **4 maybe**; rest **discard** (kept for reference).
 - Profile **layout not locked** — integrate when profile is rethought.
 - Leagues: **2×8** medal/winner milestones + **10/50/100/500** career league-win totals; overlap OK until consolidated.
+
+### Tier bands & presentation (May 2026 — **plan**, [`milestones-product-spec.md`](milestones-product-spec.md))
+
+- **Four bands**, every milestone exactly one: **Aspirational** (`pitch`), **Veteran** (`chrome`), **Key** (`amber`), **Legendary** (`holo`).
+- **Key** = amber tier = **~15–20** “completeness palette” milestones (same set as achiever-list prominence); e.g. first Double Digit Merchant, Established — not a separate “featured vs key” split.
+- Hub: **tier-first sections**; cards **dim when locked**, **tier color + glow** when unlocked (“garden”).
+- **Milestone story:** chronological unlocks with tier colors.
+- **Leaderboard:** sort by total unlocks; tie-break pitch → chrome → amber → holo counts. Key completion % **TBD**.
+- No off-palette “obscure” lane — all milestones use the four colors.
 
 ---
 
@@ -56,6 +67,7 @@ Single place to see **where the milestone feature is** in the pipeline. Implemen
 | Doc | Role |
 |-----|------|
 | **This file** | Phase status — read first for “where are we?” |
+| [`milestones-product-spec.md`](milestones-product-spec.md) | **Plan** — tier bands, garden, story, leaderboard (not locked) |
 | [`milestones-system-discussion.md`](milestones-system-discussion.md) | Discussion paper (discovery, naming, shape) |
 | [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) | Pass 1 catalog — **draft**, not signed off |
 
@@ -63,12 +75,12 @@ Single place to see **where the milestone feature is** in the pipeline. Implemen
 
 ## Suggested Phase 2 entry tasks
 
-1. Naming pass (TBD display names in catalog §XVIII).
-2. Choose **Key milestones (~10)** for achiever-list prominence.
-3. Sketch **Milestones tab** IA (sections, not pixel design).
-4. Write **`docs/milestones-product-spec.md`** (or equivalent) when ready to implement.
-5. Second curation pass if desired before locking rules.
+1. Add **`tier_band`** to catalog rows (aspirational / veteran / key / legendary).
+2. **Select Key (~15–20)** from want pool (amber + achiever lists — one list).
+3. Naming pass (TBD display names in catalog §XVIII).
+4. League rules hardening (podium, win totals, overlap).
+5. Hub wireframe from product spec §4–5 (four sections, garden states, story).
 
 ---
 
-*Idea creation phase closed May 2026. Next chat: start from this file + catalog.*
+*Idea creation phase closed May 2026. Tier plan added May 2026. Next: catalog pass 2 + Key pick from product spec.*

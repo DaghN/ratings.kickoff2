@@ -97,13 +97,13 @@ Wing tabs:
 | DDs & CSs | `ranked3.php` |
 | Streaks | `ranked4.php` |
 | Victims & Culprits | `ranked5.php` |
-| Activity | `ranked8.php` |
+| Activity peaks | `ranked8.php` |
 | League honours | `ranked9.php` |
 
 Notes:
 
 - `ranked6.php` / old "Rating records" split is gone.
-- Activity is the leaderboard tab for day/month/year/all-time activity tables.
+- Activity peaks is the leaderboard tab for day/month/year/all-time activity tables.
 - Status uses an active-player window; Leaderboards stay broad by default and expose filters for narrower views.
 
 ---

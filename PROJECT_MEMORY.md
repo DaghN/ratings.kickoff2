@@ -8,9 +8,9 @@
 
 ## Current focus
 
-- **Milestones project:** **Phase 1 (idea creation) done** — discovery + pass 1 catalog (~115 want / 4 maybe); **list not finalized**. Hub: [`docs/milestones-project.md`](docs/milestones-project.md). **Next:** Phase 2 definition (Key-10, naming, tab IA, product spec). DB still only `established_20` + `dd_merchant_10`; no implementation slice yet.
+- **Milestones project:** **Phase 1 done**; **Phase 2 definition in progress** — tier-band **plan** in [`docs/milestones-product-spec.md`](docs/milestones-product-spec.md) (four bands: Aspirational/pitch, Veteran/chrome, Key/amber ~15–20, Legendary/holo; garden dim→glow; story; leaderboard total then pitch→chrome→amber→holo tie-break). Catalog/list not finalized. DB still only `established_20` + `dd_merchant_10`; no implementation slice yet.
 
-- **Leagues integration:** Awards DB + **League honours v1** (`ranked9.php`, `player_league_totals` read). **Next:** staging SCH-009/REP-012, profile league block, prod PER-003.
+- **Leagues integration:** Awards DB + **League honours v1** on **local + staging** (`ranked9.php`, SCH-009/010, REP-012/013 verified May 2026). **Next:** profile league block; prod schema/REP when cutover; daily finalize (PER-003) only if/when wanted.
 - **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (day games list deferred).
 - **Design / cosmetics track:** Phase A hub shell + Status Phase B v1.2 room grid; `docs/STATUS_PAGE_DATA.md`. Steve for prod DB read + joshua redirect; realm switcher when Amiga exists.
 
@@ -64,6 +64,11 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Leaderboards wing tab** — `ranked8` sub-nav label **Activity peaks** (was Activity). |
+| 2026-05 | **League honours grain persistence** — Activity ↔ Points tab links keep current day/week/month/year (`league_honours_panel.php`). |
+| 2026-05 | **Milestones tier plan** — [`docs/milestones-product-spec.md`](docs/milestones-product-spec.md): four color bands (garden + story + leaderboard tie-break); Key = amber ~15–20 completeness set (same as achiever lists); plan not locked. [`milestones-project.md`](docs/milestones-project.md) updated. |
+| 2026-05 | **Status Leagues toolbar** — period segment left, ←/picker/→ centered in remaining row width; nav nowrap; wraps to full-width centered row via `is-period-nav-stacked` + ResizeObserver (`theme.css`, `status-period-competitions.js`). |
+| 2026-05 | **League awards on staging** — Steve SCH-009/010 + REP-012/013 on `kooldb` (7424 instances, 21873 awards; matches local); Dagh confirmed League honours + Status leagues UI parity. |
 | 2026-05 | **League period pills** — segment labels Daily / Weekly / Monthly / Year (`k2_status_period_segment_label`); panel titles use “Year league” not Yearly. |
 | 2026-05 | **`player_league_slice_totals` (SCH-010)** — per-player gold/silver/bronze by league_kind × period_type; REP-013 rebuild; League honours + `k2_league_player_slice_totals()` for profile. |
 | 2026-05 | **League honours views** — `ranked9.php` pills Overall / Activity / Points + Day–Year; URL `cup` & `grain`. |

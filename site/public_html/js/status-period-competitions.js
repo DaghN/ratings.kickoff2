@@ -1185,6 +1185,7 @@
         updatePeriodTabs(root, period);
         setArchivePickersVisible(root, period);
         updateStepButtons(root, period);
+        syncCompetitionControlsLayout(root.querySelector('.k2-status-period-competitions__controls'));
 
         cancelPendingWarm(root);
         root._warmQueue = [];
@@ -1219,10 +1220,50 @@
         applyPeriodKeys(root, period, keys);
     }
 
+    function syncCompetitionControlsLayout(controls) {
+        if (!controls) {
+            return;
+        }
+        var tabs = controls.querySelector('.k2-status-period-competitions__period-tabs');
+        var nav = controls.querySelector('.k2-status-period-competitions__period-nav');
+        if (!tabs || !nav) {
+            controls.classList.remove('is-period-nav-stacked');
+            return;
+        }
+        var stacked = nav.offsetTop > tabs.offsetTop + 1;
+        controls.classList.toggle('is-period-nav-stacked', stacked);
+    }
+
+    function bindCompetitionControlsLayout(root) {
+        var controls = root.querySelector('.k2-status-period-competitions__controls');
+        if (!controls || controls._k2ControlsLayoutBound) {
+            return;
+        }
+        var tabsEl = controls.querySelector('.k2-status-period-competitions__period-tabs');
+        var navEl = controls.querySelector('.k2-status-period-competitions__period-nav');
+        if (!tabsEl || !navEl) {
+            return;
+        }
+        controls._k2ControlsLayoutBound = true;
+        var sync = function () {
+            syncCompetitionControlsLayout(controls);
+        };
+        if (typeof ResizeObserver !== 'undefined') {
+            var ro = new ResizeObserver(sync);
+            ro.observe(controls);
+            ro.observe(tabsEl);
+            ro.observe(navEl);
+            controls._k2ControlsLayoutRo = ro;
+        }
+        window.addEventListener('resize', sync);
+        sync();
+    }
+
     function initRoot(root) {
         if (!root.getAttribute('data-browser-loaded-epoch')) {
             root.setAttribute('data-browser-loaded-epoch', String(Math.floor(Date.now() / 1000)));
         }
+        bindCompetitionControlsLayout(root);
         seedInitialPeriodCache(root);
         root._periodKeys = clampKeysToFirstRated(root, currentKeys(root));
         root._syncingPickers = true;
@@ -1271,6 +1312,7 @@
             initDayFlatpickr(root, dayValueInputs[d]);
         }
         root._k2CompetitionsBootstrapping = false;
+        syncCompetitionControlsLayout(root.querySelector('.k2-status-period-competitions__controls'));
     }
 
     function refreshMeta() {

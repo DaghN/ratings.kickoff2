@@ -33,11 +33,13 @@ $grainTabs = [
 <div class="k2-status-period-competitions k2-lb-league-honours">
 	<div class="k2-status-period-competitions__controls">
 		<div class="k2-status-period-competitions__period-tabs" role="tablist" aria-label="League honours view">
-<?php foreach ($cupTabs as $cupId => $label) {
+<?php
+$sliceGrain = ($cup !== 'overall' && $grain !== null) ? (string) $grain : 'day';
+foreach ($cupTabs as $cupId => $label) {
     $active = $cup === $cupId;
     $href = k2_lb_league_honours_href(
         $cupId,
-        $cupId === 'overall' ? null : 'day',
+        $cupId === 'overall' ? null : $sliceGrain,
         $filterOpts
     );
     ?>

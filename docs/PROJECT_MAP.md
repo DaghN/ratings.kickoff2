@@ -37,7 +37,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 |-------|------|--------|
 | **Taste** | UI/copy/scope disputes | `PROJECT_BRIEF.md`, `docs/design-direction.md` |
 | **Now** | Every session | `PROJECT_MEMORY.md` |
-| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/status-period-competitions-wip.md`, **`docs/leagues-project.md`** / **`docs/leagues-rules-spec.md`** (league awards), `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md`, **`docs/milestones-project.md`** (milestone feature phases) |
+| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/status-period-competitions-wip.md`, **`docs/leagues-project.md`** / **`docs/leagues-rules-spec.md`** (league awards), `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md`, **`docs/milestones-project.md`** / **`docs/milestones-product-spec.md`** (milestone phases + tier plan) |
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |

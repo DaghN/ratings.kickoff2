@@ -6,7 +6,7 @@
 
 Brainstorm list with `want` / `maybe` / `discard` from pass 1. Items not mentioned in pass 1 are **discard** (kept in tables for reference, with notes where useful).
 
-**Related:** [`milestones-project.md`](milestones-project.md) · [`milestones-system-discussion.md`](milestones-system-discussion.md)
+**Related:** [`milestones-project.md`](milestones-project.md) · [`milestones-product-spec.md`](milestones-product-spec.md) (tier-band **plan**) · [`milestones-system-discussion.md`](milestones-system-discussion.md)
 
 ---
 
@@ -30,8 +30,8 @@ These sit alongside the item list — they shape how milestones integrate into t
 ### Naming & tiers
 
 - **Milestones** = the general system and long-tail unlocks.
-- **Key milestones** = a smaller elevated set (~**10** candidates TBD) with **ordered achiever lists** on site (latest first) for prominence.
-- Many pass-1 **want** items are milestones but not necessarily Key — Key set to be chosen later from the want pool.
+- **Tier bands (plan):** four bands — Aspirational / Veteran / Key / Legendary — see [`milestones-product-spec.md`](milestones-product-spec.md). Pass 2 should add `tier_band` per row.
+- **Key milestones** = amber band, **~15–20** (not 10) — completeness palette + achiever lists (same set). Chosen from want pool in Phase 2.
 
 ### Surfaces
 
@@ -430,7 +430,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | Topic | Direction |
 |-------|-----------|
 | **Hub tab** | Dedicated **Milestones** tab — scope TBD but treated as a major feature, not a small Activity widget |
-| **Key milestones (~10)** | Pick from **want** pool for **ordered achiever lists** (prominence lane) |
+| **Key milestones (~15–20)** | Amber band; pick from **want** pool — achiever lists + garden (see product spec) |
 | **Profile** | **Milestone count** prominent; layout open with profile rethink |
 | **Leaderboard** | **Most milestones** leaderboard — want |
 | **Overlap** | League milestones may duplicate until consolidated; OK for now |

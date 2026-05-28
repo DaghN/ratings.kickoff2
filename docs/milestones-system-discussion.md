@@ -23,7 +23,7 @@ A system that celebrates meaningful moments in a player’s ladder career:
 1. **Lists** — for key milestones (e.g. Double Digit Merchant), show who achieved them and when; newest achievers at the top.
 2. **Leaderboard** — who has unlocked the most milestones.
 3. **Profiles** — milestones visible on player pages, with prominence TBD.
-4. **Two tiers** — “key” milestones everyone recognises (first game, established player, first 10+ goal game) vs obscure fun ones later (e.g. three red cards in one game).
+4. **Tier bands (plan)** — four career bands with chart-token colors; Key (~15–20) = completeness palette on amber. See [`milestones-product-spec.md`](milestones-product-spec.md). Pass 1 also mentioned “key vs obscure” — superseded by four-band garden (all milestones on-palette).
 5. **Milestones hub** — dedicated tab (pass 1); Activity digest/charts remain partial surface today.
 
 The naming question is **resolved for now:** use **Milestones** (see [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) pass 1).

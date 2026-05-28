@@ -16,7 +16,7 @@ $k2LbWingTabs = [
 	'streaks' => ['href' => 'ranked4.php', 'label' => 'Streaks'],
 	'victims' => ['href' => 'ranked5.php', 'label' => 'Victims &amp; Culprits'],
 	'rating' => ['href' => 'ranked1.php', 'label' => 'Rating records'],
-	'hall-of-fame' => ['href' => 'ranked8.php', 'label' => 'Activity'],
+	'hall-of-fame' => ['href' => 'ranked8.php', 'label' => 'Activity peaks'],
 	'league-honours' => ['href' => 'ranked9.php', 'label' => 'League honours'],
 ];
 ?>
