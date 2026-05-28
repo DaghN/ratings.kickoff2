@@ -1967,6 +1967,55 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	border-color: var(--k2-segment-active-ring);
 }
 
+body.k2-site a.k2-status-period-competitions__period-btn {
+	color: var(--k2-text-muted);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.k2-site a.k2-status-period-competitions__period-btn:visited {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site a.k2-status-period-competitions__period-btn:hover:not(.is-active) {
+	color: var(--k2-text-secondary);
+	text-decoration: none;
+}
+
+body.k2-site a.k2-status-period-competitions__period-btn.is-active,
+body.k2-site a.k2-status-period-competitions__period-btn.is-active:visited {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
+}
+
+body.k2-site a.k2-status-period-competitions__period-btn.is-active:hover {
+	color: var(--k2-segment-active-text);
+	text-decoration: none;
+}
+
+body.k2-site a.k2-status-period-competitions__period-btn.is-active {
+	cursor: default;
+}
+
+.k2-chrome-tabs > .k2-lb-league-honours {
+	margin-top: 12px;
+}
+
+.k2-lb-league-honours.k2-status-period-competitions {
+	margin-bottom: 0;
+}
+
+.k2-lb-league-honours .k2-status-period-competitions__controls {
+	margin-bottom: 12px;
+}
+
+.k2-lb-league-honours > .k2-table-wrap {
+	margin-top: 0;
+	border-top: 1px solid var(--k2-border-subtle);
+	border-top-left-radius: var(--k2-radius-md);
+	border-top-right-radius: var(--k2-radius-md);
+}
+
 body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta.k2-status-room__arc {
 	margin-top: var(--k2-leagues-meta-gap);
 	margin-bottom: var(--k2-leagues-meta-gap);

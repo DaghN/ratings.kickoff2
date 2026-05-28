@@ -117,13 +117,14 @@ function k2_period_activity_total_games(mysqli $con, string $period, string $key
 }
 
 /**
+ * @param int $limit Max rows after sort; 0 = all players with ≥1 game in the period (Status leagues).
  * @return array<int, array{rank: int, player_id: int, player_name: string, games: int}>
  */
 function k2_period_activity_leaderboard_entries(
     mysqli $con,
     string $period,
     string $key,
-    int $limit = 50,
+    int $limit = 0,
     ?string &$error = null
 ): array {
     $error = null;
@@ -134,13 +135,9 @@ function k2_period_activity_leaderboard_entries(
         return [];
     }
 
-    $limit = max(1, min(100, $limit));
-    $limitSql = (int) $limit;
-
     $sql = 'SELECT g.player_id, p.Name AS player_name, g.games '
         . 'FROM player_period_games g INNER JOIN playertable p ON p.ID = g.player_id '
-        . 'WHERE g.period_type = ? AND g.period_start = ? '
-        . 'ORDER BY g.games DESC, p.Name ASC LIMIT ' . $limitSql;
+        . 'WHERE g.period_type = ? AND g.period_start = ?';
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -159,20 +156,46 @@ function k2_period_activity_leaderboard_entries(
     }
 
     $res = mysqli_stmt_get_result($stmt);
-    $entries = [];
-    $rank = 0;
+    $rows = [];
     if ($res) {
         while ($row = mysqli_fetch_assoc($res)) {
-            $rank++;
-            $entries[] = [
-                'rank' => $rank,
+            $rows[] = [
                 'player_id' => (int) $row['player_id'],
                 'player_name' => (string) $row['player_name'],
                 'games' => (int) $row['games'],
             ];
         }
+        mysqli_free_result($res);
     }
     mysqli_stmt_close($stmt);
+
+    if ($rows === []) {
+        return [];
+    }
+
+    if (!function_exists('k2_league_sort_rows')) {
+        require_once __DIR__ . '/league_standings.php';
+    }
+
+    $bounds = k2_league_bounds_for_start($period, $periodStart);
+    if ($bounds !== null) {
+        $firstGames = k2_league_load_first_games($con, $bounds['start'], $bounds['end']);
+        $rows = k2_league_attach_first_games($rows, $firstGames);
+    }
+    $rows = k2_league_apply_ranks(k2_league_sort_rows('activity', $rows));
+    if ($limit > 0) {
+        $rows = array_slice($rows, 0, max(1, min(500, $limit)));
+    }
+
+    $entries = [];
+    foreach ($rows as $row) {
+        $entries[] = [
+            'rank' => (int) $row['rank'],
+            'player_id' => (int) $row['player_id'],
+            'player_name' => (string) $row['player_name'],
+            'games' => (int) $row['games'],
+        ];
+    }
 
     return $entries;
 }

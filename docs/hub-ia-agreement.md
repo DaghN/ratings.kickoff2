@@ -98,6 +98,7 @@ Wing tabs:
 | Streaks | `ranked4.php` |
 | Victims & Culprits | `ranked5.php` |
 | Activity | `ranked8.php` |
+| League honours | `ranked9.php` |
 
 Notes:
 

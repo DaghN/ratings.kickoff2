@@ -2,7 +2,7 @@
 /**
  * JSON leaderboard: players by rated games in one calendar day, week, month, or year.
  *
- * GET: period=day|week|month|year, key=(Y-m-d | Monday Y-m-d | Y-m | YYYY), limit (default 50, max 100)
+ * GET: period=day|week|month|year, key=(Y-m-d | Monday Y-m-d | Y-m | YYYY), limit (optional; 0 or omit = all players, max 500)
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -31,8 +31,10 @@ if ($key === null) {
     exit;
 }
 
-$limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
-$limit = max(1, min(100, $limit));
+$limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 0;
+if ($limit > 0) {
+    $limit = max(1, min(500, $limit));
+}
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 

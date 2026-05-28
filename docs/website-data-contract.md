@@ -37,6 +37,10 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_peak_period_games` | SCH-006 | `player_peak_period_games_rebuild.sql` | After period games; update peak if beaten |
 | `server_daily_activity` | SCH-007 | `server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
 | `player_period_league` | SCH-008 | `player_period_league_rebuild.sql` | W/D/L/points per period |
+| `league_period` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only** — finalize closed periods |
+| `player_league_award` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only** |
+| `player_league_totals` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only**; re-aggregate from awards |
+| `player_league_slice_totals` | SCH-010 | `player_league_slice_totals_rebuild.sql` (REP-013) | **Periodic only**; with career totals after awards |
 | `player_milestones` | SCH-008 | `player_milestones_rebuild.sql` | Insert on threshold cross |
 | `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
 | `server_period_game_totals` | SCH-008 | `server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
@@ -245,6 +249,116 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 **Parity check:** `SUM(played) / 2` for each period type must equal `COUNT(*) FROM ratedresults`.
 
 **Implementation:** `scripts/ladder/sql/player_period_league_rebuild.sql`.
+
+---
+
+### `league_period`
+
+**Lifecycle:** Active (May 2026).
+
+**Purpose:** Metadata for one closed or open league instance — especially **`period_end`** (exclusive UTC boundary used as the canonical “when” for awards and league milestones).
+
+**Rules:** [`leagues-rules-spec.md`](leagues-rules-spec.md).
+
+**Grain:** one row per `(league_kind, period_type, period_start)`.
+
+**Primary key:** `(league_kind, period_type, period_start)`.
+
+| Column | Meaning |
+|--------|---------|
+| `league_kind` | `points` or `activity` |
+| `period_type` | `day`, `week`, `month`, `year` |
+| `period_start` | UTC anchor date (Monday for weeks) |
+| `period_end` | Exclusive end instant (`00:00:00` UTC first moment after the league) |
+| `rated_games` | Rated games in the period (server total) |
+| `finalized_at` | When the daily finalize job wrote awards (audit); product time = `period_end` |
+
+**Full rebuild:** For every instance with `period_end <= now`, compute podium from aggregates + `ratedresults` first-game tie-breaks; insert `player_league_award`; set `finalized_at`.
+
+**Post-game rule:** **None** — standings aggregates update per game; awards finalize in **PER-003** daily batch only.
+
+**Parity check:** For a sample of closed weeks, top 3 `player_league_award` rows match shared ranker output from `player_period_league` / `player_period_games`.
+
+**Implementation:** `scripts/ladder/sql/league_period_awards_rebuild.sql` (REP-012); sorter shared with PHP `includes/league_standings.php` (planned).
+
+---
+
+### `player_league_award`
+
+**Lifecycle:** Active (May 2026).
+
+**Purpose:** **Player-centric** persisted podium — all fields needed for profile/history without joining `league_period`. Source of truth for “this player’s league medals.”
+
+**Rules:** [`leagues-rules-spec.md`](leagues-rules-spec.md) — no shared medals; unique ranks 1–3.
+
+**Grain:** one row per `(player_id, league_kind, period_type, period_start)` for players who finished 1st–3rd.
+
+**Primary key:** `(player_id, league_kind, period_type, period_start)`.
+
+| Column | Meaning |
+|--------|---------|
+| `period_end` | Copied from `league_period` — achievement timestamp for milestones |
+| `finish_rank` | 1, 2, or 3 |
+| `medal` | `gold`, `silver`, `bronze` |
+| `is_winner` | 1 iff `finish_rank = 1` |
+| `points`, `goal_difference`, `goals_for`, `played` | Points league snapshot (NULL for activity) |
+| `games` | Activity snapshot (NULL for points) |
+| `first_game_id`, `first_game_side` | Tie-break audit (`ratedresults.id`; `A` or `B`) |
+
+**Full rebuild:** Truncate awards + totals; re-finalize all closed periods.
+
+**Post-game rule:** **None** (periodic finalize).
+
+**Implementation:** REP-012 + PER-003.
+
+---
+
+### `player_league_totals`
+
+**Lifecycle:** Active (May 2026).
+
+**Purpose:** Fast career counts — league-wins leaderboard, profile badges, `league_wins_*` milestone thresholds.
+
+**Grain:** one row per `player_id`.
+
+**Primary key:** `player_id`.
+
+| Column | Meaning |
+|--------|---------|
+| `wins` | Count of `finish_rank = 1` across **all 8** league kinds (any period × points or activity) — used for `league_wins_*` milestones |
+| `podiums` | Ranks 1–3 |
+| `gold` / `silver` / `bronze` | Medal counts |
+
+**Full rebuild:** `GROUP BY player_id` from `player_league_award`.
+
+**Post-game rule:** **None** — updated by finalize job after awards insert.
+
+---
+
+### `player_league_slice_totals`
+
+**Lifecycle:** Active (May 2026).
+
+**Purpose:** Per-player medal counts for each **league kind × time grain** (e.g. gold in monthly points, bronze in weekly activity). Fast profile reads and League honours slice tables without aggregating `player_league_award`.
+
+**Rules:** [`leagues-rules-spec.md`](leagues-rules-spec.md).
+
+**Grain:** one row per `(player_id, league_kind, period_type)` where the player has ≥1 podium in that slice.
+
+**Primary key:** `(player_id, league_kind, period_type)`.
+
+| Column | Meaning |
+|--------|---------|
+| `gold` / `silver` / `bronze` | Medal counts in that slice only |
+| `podiums` | Top-three finishes in that slice |
+
+**Full rebuild:** `GROUP BY player_id, league_kind, period_type` from `player_league_award` (REP-013). Run after REP-012 or via `k2_league_rebuild_player_aggregates()`.
+
+**Post-game rule:** **None** — rebuilt whenever career totals are rebuilt after finalize.
+
+**Parity check:** For a sample player, `SUM(gold)` across all slice rows equals `player_league_totals.gold`.
+
+**PHP:** `k2_league_player_slice_totals($con, $playerId)` in `includes/league_standings.php`.
 
 ---
 

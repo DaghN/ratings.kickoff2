@@ -174,4 +174,18 @@ if ($badMatchupsValue -ne 0) {
     Write-Error 'Matchup breadth parity check failed for recent months.'
 }
 
+Write-Host '-> league_period_awards (REP-012 via PHP)' -ForegroundColor Cyan
+$PhpExe = 'C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe'
+if (-not (Test-Path $PhpExe)) {
+    Get-ChildItem 'C:\laragon\bin\php\*\php.exe' | Select-Object -First 1 | ForEach-Object { $PhpExe = $_.FullName }
+}
+if (Test-Path $PhpExe) {
+    & $PhpExe (Join-Path $RepoRoot 'scripts\finalize_league_periods.php') '--full-rebuild'
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error 'League awards rebuild failed.'
+    }
+} else {
+    Write-Warning 'php.exe not found — skip REP-012; run scripts\run_league_awards_rebuild.ps1 later.'
+}
+
 Write-Host '[OK] website derived data rebuilt and verified.' -ForegroundColor Green

@@ -30,13 +30,13 @@ UI heading: **Leagues** (paired Activity + Points tables).
 | Navigation | **← / →** step by period type; **picker** for exact jump; lock-step keys across day/week/month/year |
 | Meta | Period label, total rated games, end boundary, time left (reuse league meta behaviour) |
 | SSR | **Default period** (week) tables in HTML; `current_keys` for all four; other periods load via API on navigate |
-| Medals | Podium when period has **ended** (`end ≤ now`), not scope-based |
+| Medals | Podium when period has **ended** (`end ≤ now`), not scope-based. **Persisted rules:** [`leagues-rules-spec.md`](leagues-rules-spec.md) (unique gold/silver/bronze; tie-breaks; `period_end` = achievement time). |
 | Archive behaviour | Picker or step → API refresh for **both** tables (activity + points JSON endpoints) |
 | Client fetch | **One table area** (no four hidden copies). Cache by `period:key`. Visible fetch on ←/→ / picker / tab; arrows keep prior table until new data arrives. |
 | Lock-step floor | `data-first-rated-day` (MIN `ratedresults`); after derive, day/week/month clamp up to first rated day (avoids phantom Jan when year starts mid-year). |
 | Prewarm | `data-competition-prewarm="1"` on Leagues `<section>` — after each load, quietly fetch up to **five** next clicks (←, →, three other period types). Set `0` to disable. |
 | Data | Points: `player_period_league` via `status_queries.php`; Activity: `player_period_games` |
-| Activity top N | 50 on Status |
+| Activity rows | **All players** with ≥1 game in period (no top-N cap; same as points league) |
 | Points rows | All players with ≥1 game in period (no cap), same as prior league stack |
 
 ### Phase 1 — not required

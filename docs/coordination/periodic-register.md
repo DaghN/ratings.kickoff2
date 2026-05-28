@@ -5,7 +5,8 @@ Jobs that run on a **schedule** on the server — **not** immediately after each
 | ID | Job | Schedule (prod today) | Action for our releases | Prod status | Notes |
 |----|-----|------------------------|-------------------------|-------------|-------|
 | PER-001 | **Rating fade** | **Hourly** (Steve, May 2026) | **Stop before** any prod deploy that changes rating/stat semantics | Running | Steve: can stop easily. Not in `ratings_cpp.txt` excerpt. |
-| PER-002 | *(example)* Monthly league medals on profiles | — | Proposed: end-of-month or daily batch writing medal flags | — | Status page league is **L0** read-time SQL today (`docs/STATUS_PAGE_DATA.md`); persistent medals = future L2/L3 + maybe periodic |
+| PER-002 | *(example)* Monthly league medals on profiles | — | Superseded by PER-003 | — | — |
+| PER-003 | **League finalize** | **Daily ~00:00:01 UTC** (proposed) | Finalize all leagues with `period_end <= now`; write `player_league_award`, `player_league_totals`, `league_period.finalized_at`; milestone threshold checks | **Pending** | Rules `docs/leagues-rules-spec.md`; not per-game. Local: script TBD (`scripts/finalize_league_periods.php` or server cron). Prod: Steve cron. |
 
 ### Adding a row
 

@@ -116,12 +116,24 @@ function k2_status_league_period_bounds(string $period, int $periodOffset, ?Date
     ];
 }
 
+/** Segment pill label for day/week/month/year (Status leagues + League honours). */
+function k2_status_period_segment_label(string $period): string
+{
+    return match ($period) {
+        'day' => 'Daily',
+        'week' => 'Weekly',
+        'month' => 'Monthly',
+        'year' => 'Year',
+        default => ucfirst($period),
+    };
+}
+
 function k2_status_league_title(string $period): string
 {
     return match ($period) {
         'day' => 'Daily league',
         'week' => 'Weekly league',
-        'year' => 'Yearly league',
+        'year' => 'Year league',
         default => 'Monthly league',
     };
 }
@@ -593,6 +605,19 @@ SQL;
     mysqli_free_result($r);
     mysqli_stmt_close($stmt);
 
+    if ($rows !== [] && !function_exists('k2_league_sort_rows')) {
+        require_once __DIR__ . '/league_standings.php';
+    }
+    if ($rows !== [] && function_exists('k2_league_load_first_games')) {
+        $firstGames = k2_league_load_first_games($con, $start, $end);
+        foreach ($rows as &$row) {
+            $row['player_id'] = (int) $row['id'];
+        }
+        unset($row);
+        $rows = k2_league_attach_first_games($rows, $firstGames);
+        $rows = k2_league_sort_rows('points', $rows);
+    }
+
     $totalGames = 0;
     $countStmt = mysqli_prepare($con, 'SELECT COALESCE(SUM(played), 0) AS appearances FROM player_period_league WHERE period_type = ? AND period_start = ?');
     if ($countStmt !== false) {
@@ -1049,7 +1074,6 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
 {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
 
-    $activityLimit = 50;
     $periods = [];
     $currentKeys = [];
     $choicesErr = null;
@@ -1063,7 +1087,7 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
 
         $activityError = null;
         $entries = $key !== null
-            ? k2_period_activity_leaderboard_entries($con, $period, $key, $activityLimit, $activityError)
+            ? k2_period_activity_leaderboard_entries($con, $period, $key, 0, $activityError)
             : [];
 
         $totalGames = $key !== null ? k2_period_activity_total_games($con, $period, $key) : 0;
@@ -1124,7 +1148,7 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
 
     return [
         'default_period' => 'week',
-        'activity_limit' => $activityLimit,
+        'activity_limit' => 0,
         'periods' => $periods,
         'current_keys' => $currentKeys,
         'day_min' => $dayMin,

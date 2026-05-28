@@ -11,7 +11,9 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Activity recent daily chart | L0 | — | — | — | — | Read-time |
 | Persistent tint preference | — | — | — | — | — | Client-only |
 | Records two-panel split | L0 | — | — | — | — | Peak cache read path |
-| Status Leagues (Activity + Points) | L0 | — | — | — | — | Phase 1 shipped; single-slot nav + cache + prewarm; Phase 1.5 [`status-period-competitions-wip.md`](../status-period-competitions-wip.md) |
+| League honours leaderboard (v1) | L0 | — | — | — | — | `ranked9.php`; reads `playertable` + `player_league_totals`; wing tab in `lb_nav.php` |
+| League period awards (medals DB) | L2 | SCH-009, SCH-010 | REP-012, REP-013 | Pending | PER-003 | Awards + career + slice totals; **local REP-012 + REP-013 done** May 2026 |
+| Status Leagues (Activity + Points) | L0 | — | — | — | — | Phase 1 shipped; sort/tie-break via `league_standings.php`; Phase 1.5 [`status-period-competitions-wip.md`](../status-period-competitions-wip.md) |
 | Status league stack | L4 | SCH-008 | REP-007 | Pending | — | PHP reads `player_period_league` when present; **staging done** May 2026 (Steve verify); prod schema + post-game at cutover |
 | Player games server-side filters/sort | L0 | — | — | — | — | Read-time |
 | Hall of Fame aggregate read path | L0 | — | — | — | — | Peak/period cache with fallbacks |

@@ -116,7 +116,7 @@ if (!function_exists('k2_status_period_competitions_calendar_icon_svg')) {
 $competitions = is_array($k2StatusRoom['period_competitions'] ?? null) ? $k2StatusRoom['period_competitions'] : [];
 $compPeriods = is_array($competitions['periods'] ?? null) ? $competitions['periods'] : [];
 $defaultPeriod = (string) ($competitions['default_period'] ?? 'week');
-$activityLimit = (int) ($competitions['activity_limit'] ?? 50);
+$activityLimit = (int) ($competitions['activity_limit'] ?? 0);
 $currentKeys = is_array($competitions['current_keys'] ?? null) ? $competitions['current_keys'] : [];
 $dayMin = (string) ($competitions['day_min'] ?? date('Y-m-d'));
 $dayMax = (string) ($competitions['day_max'] ?? date('Y-m-d'));
@@ -126,10 +126,10 @@ $monthChoices = is_array($competitions['month_choices'] ?? null) ? $competitions
 $yearChoices = is_array($competitions['year_choices'] ?? null) ? $competitions['year_choices'] : [];
 
 $periodTabLabels = [
-    'day' => 'Day',
-    'week' => 'Week',
-    'month' => 'Month',
-    'year' => 'Year',
+    'day' => k2_status_period_segment_label('day'),
+    'week' => k2_status_period_segment_label('week'),
+    'month' => k2_status_period_segment_label('month'),
+    'year' => k2_status_period_segment_label('year'),
 ];
 
 $navBounds = [

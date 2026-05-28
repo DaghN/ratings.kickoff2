@@ -100,6 +100,12 @@ function k2_lb_filter_toggle_href(string $param): string
     }
 
     $page = basename($_SERVER['SCRIPT_NAME'] ?? 'ranked7.php');
+    if ($page === 'ranked9.php') {
+        if (!function_exists('k2_lb_league_honours_merge_filter_params')) {
+            require_once __DIR__ . '/league_honours_leaderboard.php';
+        }
+        $params = k2_lb_league_honours_merge_filter_params($params);
+    }
     $qs = $params === [] ? '' : '?' . http_build_query($params);
 
     return $page . $qs;

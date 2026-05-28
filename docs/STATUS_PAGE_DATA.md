@@ -83,7 +83,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | Live games | `resulttable` | Yes |
 | Recent finished games | `ratedresults` | Yes |
 | Active rated leaderboard (Elo) | `playertable` · `Rating`, `LastGame` | **Yes (full active list, 12 mo)** |
-| Daily / Weekly / Monthly / Yearly league | `player_period_league` (preferred); fallbacks as above | **Yes** |
+| Daily / Weekly / Monthly / Year league | `player_period_league` (preferred); fallbacks as above | **Yes** |
 | Top 10 Steve `PlayerRank` | `playertable` | **No** |
 | Legacy ratings Top 10 only | `playertable` | **No** (replaced by active Elo strip) |
 | AWOL | `playertable` · `LastLogin` | No (v1) |

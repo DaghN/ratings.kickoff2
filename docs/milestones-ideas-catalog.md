@@ -178,10 +178,10 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 
 | Curate | Key (internal) | Display name | Rule | Data | Notes |
 |--------|----------------|--------------|------|------|-------|
-| **want** | `league_wins_10` | *(humorous name TBD)* | 10 career league wins (any type — rule TBD) | 🔶 | e.g. *Getting the hang of it* |
-| **want** | `league_wins_50` | *(humorous name TBD)* | 50 league wins | 🔶 | e.g. *Tasting blood* |
-| **want** | `league_wins_100` | *(humorous name TBD)* | 100 league wins | 🔶 | |
-| **want** | `league_wins_500` | *(humorous name TBD)* | 500 league wins | 🔶 | |
+| **want** | `league_wins_10` | *(humorous name TBD)* | 10 career league wins (#1 in any of 8 leagues) | 🔶 | Rule locked — [`leagues-rules-spec.md`](leagues-rules-spec.md) |
+| **want** | `league_wins_50` | *(humorous name TBD)* | 50 league wins (same) | 🔶 | |
+| **want** | `league_wins_100` | *(humorous name TBD)* | 100 league wins (same) | 🔶 | |
+| **want** | `league_wins_500` | *(humorous name TBD)* | 500 league wins (same) | 🔶 | |
 
 ---
 

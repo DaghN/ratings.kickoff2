@@ -1113,9 +1113,12 @@
             fetchOpts.signal = root._periodFetchAbort.signal;
         }
 
-        var limit = root.getAttribute('data-activity-limit') || '50';
+        var limit = root.getAttribute('data-activity-limit') || '0';
         var activityUrl = ACTIVITY_API + '?period=' + encodeURIComponent(period)
-            + '&key=' + encodeURIComponent(key) + '&limit=' + encodeURIComponent(limit);
+            + '&key=' + encodeURIComponent(key);
+        if (limit && limit !== '0') {
+            activityUrl += '&limit=' + encodeURIComponent(limit);
+        }
         var pointsUrl = POINTS_API + '?period=' + encodeURIComponent(period)
             + '&key=' + encodeURIComponent(key);
 

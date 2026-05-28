@@ -23,6 +23,8 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | REP-009 | Player matchup summary | Rebuild `player_matchup_summary` directed pair totals from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/player_matchup_summary_rebuild.sql` |
 | REP-010 | Server period game totals | Rebuild `server_period_game_totals` (games/goals/draws/DD/CS per period) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_period_game_totals_rebuild.sql` |
 | REP-011 | Server period matchups | Rebuild `server_period_matchups` (canonical pair per period) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_period_matchups_rebuild.sql` |
+| REP-012 | League period awards | Rebuild `league_period`, `player_league_award`, `player_league_totals` for all closed periods using `docs/leagues-rules-spec.md` sort | **Done** (May 2026) | **Pending** | **Pending** | `php scripts/finalize_league_periods.php --full-rebuild`; wrapper `scripts/run_league_awards_rebuild.ps1`; SQL pointer `scripts/ladder/sql/league_period_awards_rebuild.sql` |
+| REP-013 | Player league slice totals | Rebuild `player_league_slice_totals` from `player_league_award` | **Done** (May 2026) | **Pending** | **Pending** | `php scripts/finalize_league_periods.php --rebuild-aggregates` (after SCH-010); included in full rebuild |
 
 ### Run log (append rows)
 
