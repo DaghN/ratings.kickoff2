@@ -66,6 +66,9 @@
 |------|------|
 | 2026-05 | **Leaderboards wing tab** — `ranked8` sub-nav label **Activity peaks** (was Activity). |
 | 2026-05 | **League honours grain persistence** — Activity ↔ Points tab links keep current day/week/month/year (`league_honours_panel.php`). |
+| 2026-05 | **Milestones Phase 2 trim** — cut `period_champion`, `six_goal_draw`; `persistence` = 10 games; `milestones_definitions_seed.json` export (`--export-seed`). |
+| 2026-05 | **Milestones league names locked** — last 12 placeholders named in `milestones_curated_meta.json` (Burned the day, Honour board, Almost the headline, siege/ledger/monthly/yearly set, Cupboard filling up). |
+| 2026-05 | **Milestones naming pass** — display names + Name Q (1–5) in `data/milestones_curated_meta.json`; curated doc regen adds weak-name index; `clean_sheet_merchant` → `clean_sheet_artist`. |
 | 2026-05 | **`milestones-tier-curated.md`** — authoritative four-band snapshot (auto-regen from probe); cut nemesis, elite_customer, podium_month, still_here, monthly activity winner. |
 | 2026-05 | **Milestones want/maybe by theme** — [`docs/milestones-want-maybe-by-theme.md`](docs/milestones-want-maybe-by-theme.md): ~112 deduped items in 22 thematic groups (A–V) for manual tier assignment; no tiers assigned. |
 | 2026-05 | **Milestones tier plan** — [`docs/milestones-product-spec.md`](docs/milestones-product-spec.md): four color bands (garden + story + leaderboard tie-break); Key = amber ~15–20 completeness set (same as achiever lists); plan not locked. [`milestones-project.md`](docs/milestones-project.md) updated. |

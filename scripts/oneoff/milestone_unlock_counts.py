@@ -36,7 +36,16 @@ log = logging.getLogger("milestone_counts")
 
 THEME_DOC = _REPO / "docs" / "milestones-want-maybe-by-theme.md"
 CURATED_DOC = _REPO / "docs" / "milestones-tier-curated.md"
+CURATED_META = _REPO / "data" / "milestones_curated_meta.json"
+DEFINITIONS_SEED = _REPO / "data" / "milestones_definitions_seed.json"
 JSON_OUT = _REPO / "data" / "scratch" / "milestone_unlock_counts.json"
+
+TIER_CHART_TOKEN = {
+    "legendary": "holo",
+    "accomplished": "amber",
+    "dedicated": "chrome",
+    "aspirational": "pitch",
+}
 
 ELIGIBLE_WHERE = "NumberGames >= 1"
 VETERAN_WHERE = "NumberGames >= 20"
@@ -56,6 +65,8 @@ EXCLUDED_KEYS = frozenset(
         "podium_month",
         "still_here_years_later",
         "league_monthly_activity_winner",
+        "period_champion",
+        "six_goal_draw",
     }
 )
 
@@ -212,7 +223,7 @@ def playertable_counts(cur) -> dict[str, CountResult]:
     """Thresholds on playertable (proxy: career max / totals)."""
     specs: list[tuple[str, str, str]] = [
         ("debut", "NumberGames >= 1", "playertable"),
-        ("persistence", "NumberGames >= 5", "playertable proxy (catalog 5–10)"),
+        ("persistence", "NumberGames >= 10", "playertable"),
         ("established_20", "NumberGames >= 20", "playertable"),
         ("first_victory", "NumberWins >= 1", "playertable"),
         ("first_goal", "GoalsFor >= 1", "playertable"),
@@ -233,7 +244,7 @@ def playertable_counts(cur) -> dict[str, CountResult]:
         ("hundred_goals", "GoalsFor >= 100", "playertable"),
         ("thousand_goal_club", "GoalsFor >= 1000", "playertable"),
         ("fortress_builder", "CleanSheets >= 25", "playertable"),
-        ("clean_sheet_merchant", "CleanSheets >= 50", "playertable"),
+        ("clean_sheet_artist", "CleanSheets >= 50", "playertable"),
         ("ten_opponents", "DifferentOpponents >= 10", "playertable"),
         ("wide_net", "DifferentOpponents >= 25", "playertable"),
         ("fifty_faces", "DifferentOpponents >= 50", "playertable"),
@@ -799,6 +810,143 @@ def _parse_vet_pct(pct_vet: str) -> float:
     return float(pct_vet.replace("%+", "").replace("%", ""))
 
 
+def load_curated_meta() -> tuple[dict[str, dict[str, object]], dict[str, str]]:
+    """Display names, name scores (1–5), and optional key renames for curated doc."""
+    if not CURATED_META.is_file():
+        return {}, {}
+    raw = json.loads(CURATED_META.read_text(encoding="utf-8"))
+    renames = {str(k): str(v) for k, v in raw.pop("_key_renames", {}).items()}
+    meta: dict[str, dict[str, object]] = {}
+    for key, val in raw.items():
+        if key.startswith("_") or not isinstance(val, dict):
+            continue
+        meta[str(key)] = val
+    return meta, renames
+
+
+def apply_curated_key_renames(results: dict[str, CountResult], renames: dict[str, str]) -> None:
+    for old, new in renames.items():
+        if old in results and new not in results:
+            results[new] = results.pop(old)
+
+
+def merge_curated_row(row: dict[str, object], meta: dict[str, dict[str, object]]) -> dict[str, object]:
+    key = str(row["key"])
+    m = meta.get(key)
+    if m:
+        if "display" in m:
+            row["display"] = str(m["display"])
+        if "score" in m:
+            row["name_score"] = int(m["score"])
+        if "rule_short" in m:
+            row["rule"] = str(m["rule_short"])
+    return row
+
+
+def _display_plain(md: str) -> str:
+    return re.sub(r"\*\*([^*]+)\*\*", r"\1", md.strip())
+
+
+def tier_band_for_key(key: str, theme_band: str) -> str:
+    if key in TIER_LEGENDARY:
+        return "legendary"
+    if key in TIER_ACCOMPLISHED:
+        return "accomplished"
+    if theme_band == "pitch":
+        return "aspirational"
+    return "dedicated"
+
+
+def collect_curated_rows(
+    text: str,
+    results: dict[str, CountResult],
+    veterans: int,
+    name_meta: dict[str, dict[str, object]],
+) -> list[dict[str, object]]:
+    """All rows in the four-band curated set (post-EXCLUDED_KEYS)."""
+    by_key = {str(r["key"]): r for r in _collect_theme_rows(text)}
+    for row in by_key.values():
+        merge_curated_row(row, name_meta)
+    locked = TIER_LEGENDARY | TIER_ACCOMPLISHED
+
+    def rows_for(keys: frozenset[str]) -> list[dict[str, object]]:
+        out: list[dict[str, object]] = []
+        for key in sorted(keys):
+            if key in by_key:
+                out.append(by_key[key])
+            elif key in results:
+                out.append(_row_from_results(key, results, veterans))
+                merge_curated_row(out[-1], name_meta)
+        return out
+
+    pitch = sorted(
+        [
+            r
+            for r in by_key.values()
+            if r["band"] == "pitch" and str(r["key"]) not in locked
+        ],
+        key=lambda r: r["sort"],
+        reverse=False,
+    )
+    dedicated = sorted(
+        [
+            r
+            for r in by_key.values()
+            if r["band"] == "dedicated?" and str(r["key"]) not in locked
+        ],
+        key=lambda r: r["sort"],
+        reverse=True,
+    )
+    legendary = sorted(rows_for(TIER_LEGENDARY), key=lambda r: r["sort"])
+    accomplished = sorted(rows_for(TIER_ACCOMPLISHED), key=lambda r: r["sort"])
+    return legendary + accomplished + dedicated + pitch
+
+
+def export_definitions_seed(
+    text: str,
+    results: dict[str, CountResult],
+    veterans: int,
+    name_meta: dict[str, dict[str, object]],
+    meta: dict,
+) -> None:
+    """Phase 3 seed: curated keys + display/tier/rules for milestone_definitions."""
+    rows = collect_curated_rows(text, results, veterans, name_meta)
+    definitions: list[dict[str, object]] = []
+    for r in rows:
+        key = str(r["key"])
+        band = tier_band_for_key(key, str(r.get("band", "")))
+        r_probe = results.get(key)
+        definitions.append(
+            {
+                "milestone_key": key,
+                "display_name": _display_plain(str(r["display"])),
+                "tier_band": band,
+                "chart_token": TIER_CHART_TOKEN[band],
+                "name_score": r.get("name_score"),
+                "rule_short": str(r["rule"]),
+                "rule_probe": r_probe.method if r_probe else None,
+                "unlock_veterans": r["unlock"],
+                "pct_veterans": r["pct_vet"],
+            }
+        )
+    payload = {
+        "version": "2026-05-curated",
+        "milestone_count": len(definitions),
+        "notes": (
+            "Seed for milestone_definitions (Phase 3). Not loaded by site yet. "
+            "Medal/winner/league rules: docs/leagues-rules-spec.md. "
+            "Regenerate: python scripts/oneoff/milestone_unlock_counts.py "
+            "--doc-only --write-doc --export-seed"
+        ),
+        "definitions": definitions,
+    }
+    DEFINITIONS_SEED.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    log.info("Wrote %s (%d definitions)", DEFINITIONS_SEED, len(definitions))
+
+
 def _collect_theme_rows(text: str) -> list[dict[str, object]]:
     current_section = "?"
     rows: list[dict[str, object]] = []
@@ -955,54 +1103,51 @@ def build_curated_tier_doc(
     eligible: int,
     veterans: int,
     meta: dict,
+    name_meta: dict[str, dict[str, object]] | None = None,
 ) -> str:
     """Authoritative Phase 2 tier snapshot for Dagh (no probe caveats)."""
-    by_key = {str(r["key"]): r for r in _collect_theme_rows(text)}
+    name_meta = name_meta or {}
+    all_rows = collect_curated_rows(text, results, veterans, name_meta)
     locked = TIER_LEGENDARY | TIER_ACCOMPLISHED
-
-    def rows_for(keys: frozenset[str]) -> list[dict[str, object]]:
-        out: list[dict[str, object]] = []
-        for key in sorted(keys):
-            if key in by_key:
-                out.append(by_key[key])
-            elif key in results:
-                out.append(_row_from_results(key, results, veterans))
-        return out
-
-    pitch = sorted(
-        [
-            r
-            for r in by_key.values()
-            if r["band"] == "pitch" and str(r["key"]) not in locked
-        ],
-        key=lambda r: r["sort"],
-        reverse=False,
-    )
-    dedicated = sorted(
-        [
-            r
-            for r in by_key.values()
-            if r["band"] == "dedicated?" and str(r["key"]) not in locked
-        ],
-        key=lambda r: r["sort"],
-        reverse=True,
-    )
-    legendary = sorted(rows_for(TIER_LEGENDARY), key=lambda r: r["sort"])
-    accomplished = sorted(rows_for(TIER_ACCOMPLISHED), key=lambda r: r["sort"])
+    legendary = [r for r in all_rows if str(r["key"]) in TIER_LEGENDARY]
+    accomplished = [r for r in all_rows if str(r["key"]) in TIER_ACCOMPLISHED]
+    dedicated = [
+        r
+        for r in all_rows
+        if str(r["key"]) not in locked and r["band"] == "dedicated?"
+    ]
+    pitch = [
+        r for r in all_rows if str(r["key"]) not in locked and r["band"] == "pitch"
+    ]
 
     def tier_table(rows: list[dict[str, object]]) -> list[str]:
         out = [
-            "| Key | Display name | Rule (short) | Unlock | %vet |",
-            "|-----|--------------|--------------|-------:|-----:|",
+            "| Key | Display name | Name Q | Rule (short) | Unlock | %vet |",
+            "|-----|--------------|:------:|--------------|-------:|-----:|",
         ]
         for r in rows:
+            merge_curated_row(r, name_meta)
             rule = str(r["rule"])
             if len(rule) > 80:
                 rule = rule[:77] + "..."
+            score = r.get("name_score", "—")
             out.append(
-                f"| `{r['key']}` | {r['display']} | {rule} | {r['unlock']} | {r['pct_vet']} |"
+                f"| `{r['key']}` | {r['display']} | {score} | {rule} | {r['unlock']} | {r['pct_vet']} |"
             )
         return out
+
+    def collect_still_weak() -> list[tuple[str, str, int | str]]:
+        weak: list[tuple[str, str, int | str]] = []
+        all_rows = legendary + accomplished + dedicated + pitch
+        for r in all_rows:
+            merge_curated_row(r, name_meta)
+            disp = str(r["display"])
+            score = r.get("name_score")
+            if score is not None and int(score) <= 2:
+                weak.append((str(r["key"]), disp, int(score)))
+            elif "·" in disp and "TBD" not in disp:
+                weak.append((str(r["key"]), disp, score if score is not None else "—"))
+        return sorted(weak, key=lambda x: x[0])
 
     n_total = len(legendary) + len(accomplished) + len(dedicated) + len(pitch)
     computed = meta.get("computed_at", "")
@@ -1015,6 +1160,10 @@ def build_curated_tier_doc(
         "**Status:** **Decided for now** (May 2026). This is the working milestone set and "
         "tier assignment until a later pass changes it. Not an implementation spec — "
         "rules and display copy details live in [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md).",
+        "",
+        "**Display names & Name Q (1–5):** [`data/milestones_curated_meta.json`](../data/milestones_curated_meta.json). "
+        "**Phase 3 seed:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) "
+        "(`--export-seed`). **Name Q** = subjective garden-copy quality (5 = ship as-is).",
         "",
         "**Related:** [`milestones-product-spec.md`](milestones-product-spec.md) (presentation) · "
         "[`milestones-want-maybe-by-theme.md`](milestones-want-maybe-by-theme.md) (themed tables + probe) · "
@@ -1070,6 +1219,24 @@ def build_curated_tier_doc(
     lines.extend(tier_table(dedicated))
     lines.extend(["", "---", "", f"## Aspirational ({len(pitch)})", "", ""])
     lines.extend(tier_table(pitch))
+    weak = collect_still_weak()
+    if weak:
+        lines.extend(
+            [
+                "",
+                "---",
+                "",
+                f"## Still generic or placeholder ({len(weak)})",
+                "",
+                "Rows with **Name Q ≤ 2** or `Period · cup · role` display labels. "
+                "See [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) §XVIII.",
+                "",
+                "| Key | Display name | Name Q |",
+                "|-----|--------------|:------:|",
+            ]
+        )
+        for key, disp, score in weak:
+            lines.append(f"| `{key}` | {disp} | {score} |")
     lines.extend(
         [
             "",
@@ -1093,10 +1260,13 @@ def build_curated_tier_doc(
             "| `podium_month` | Cut |",
             "| `still_here_years_later` | Cut |",
             "| `league_monthly_activity_winner` | Cut (`activity_king` covers monthly activity win) |",
+            "| `period_champion` | Cut — redundant vs specific league milestones |",
+            "| `six_goal_draw` | Cut — dropped from curated set |",
             "",
             "---",
             "",
-            "*Auto-generated from locked tier sets + probe. Do not hand-edit unlock counts — re-run the script.*",
+            "*Unlock counts: auto from locked tier sets + probe (`milestone_unlock_counts.py --write-doc`). "
+            "Do not hand-edit Unlock / %vet. Names/scores: edit `data/milestones_curated_meta.json`.*",
             "",
         ]
     )
@@ -1109,11 +1279,18 @@ def write_curated_tier_doc(
     eligible: int,
     veterans: int,
     meta: dict,
+    name_meta: dict[str, dict[str, object]] | None = None,
+    export_seed: bool = False,
 ) -> None:
+    name_meta = name_meta or load_curated_meta()[0]
     CURATED_DOC.write_text(
-        build_curated_tier_doc(theme_body, results, eligible, veterans, meta),
+        build_curated_tier_doc(
+            theme_body, results, eligible, veterans, meta, name_meta=name_meta
+        ),
         encoding="utf-8",
     )
+    if export_seed:
+        export_definitions_seed(theme_body, results, veterans, name_meta, meta)
 
 
 def apply_doc_counts(
@@ -1122,6 +1299,7 @@ def apply_doc_counts(
     eligible: int,
     veterans: int,
     meta: dict,
+    export_seed: bool = False,
 ) -> None:
     text = path.read_text(encoding="utf-8")
     probe = (
@@ -1265,11 +1443,21 @@ def apply_doc_counts(
             1,
         )
     path.write_text(body, encoding="utf-8")
-    write_curated_tier_doc(body, results, eligible, veterans, meta)
+    name_meta, key_renames = load_curated_meta()
+    apply_curated_key_renames(results, key_renames)
+    write_curated_tier_doc(
+        body,
+        results,
+        eligible,
+        veterans,
+        meta,
+        name_meta=name_meta,
+        export_seed=export_seed,
+    )
     log.info("Wrote %s", CURATED_DOC)
 
 
-def main(write_doc: bool, doc_only: bool) -> None:
+def main(write_doc: bool, doc_only: bool, export_seed: bool) -> None:
     if doc_only:
         payload = json.loads(JSON_OUT.read_text(encoding="utf-8"))
         meta = payload["meta"]
@@ -1285,7 +1473,16 @@ def main(write_doc: bool, doc_only: bool) -> None:
             if k not in EXCLUDED_KEYS
         }
         if write_doc:
-            apply_doc_counts(THEME_DOC, results, eligible, veterans, meta)
+            name_meta, key_renames = load_curated_meta()
+            apply_curated_key_renames(results, key_renames)
+            apply_doc_counts(
+                THEME_DOC,
+                results,
+                eligible,
+                veterans,
+                meta,
+                export_seed=export_seed,
+            )
             log.info("Updated %s from %s", THEME_DOC, JSON_OUT)
             return
 
@@ -1320,6 +1517,8 @@ def main(write_doc: bool, doc_only: bool) -> None:
             )
 
             results = finalize_results(results, veterans)
+            name_meta, key_renames = load_curated_meta()
+            apply_curated_key_renames(results, key_renames)
 
             meta = {
                 "database": cfg.database,
@@ -1340,7 +1539,14 @@ def main(write_doc: bool, doc_only: bool) -> None:
             log.info("Wrote %s (%d keys)", JSON_OUT, len(results))
 
             if write_doc:
-                apply_doc_counts(THEME_DOC, results, eligible, veterans, meta)
+                apply_doc_counts(
+                    THEME_DOC,
+                    results,
+                    eligible,
+                    veterans,
+                    meta,
+                    export_seed=export_seed,
+                )
                 log.info("Updated %s", THEME_DOC)
 
             # stdout summary
@@ -1364,5 +1570,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Apply existing data/scratch/milestone_unlock_counts.json to doc (no DB)",
     )
+    parser.add_argument(
+        "--export-seed",
+        action="store_true",
+        help="Write data/milestones_definitions_seed.json from curated set + meta",
+    )
     args = parser.parse_args()
-    main(write_doc=args.write_doc, doc_only=args.doc_only)
+    main(
+        write_doc=args.write_doc,
+        doc_only=args.doc_only,
+        export_seed=args.export_seed,
+    )

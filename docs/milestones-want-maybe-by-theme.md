@@ -79,7 +79,7 @@
 | maybe | `marathoner_250` | **Marathoner** | 250 rated games | ✅ | 56 | 21.5% | 52.3% | dedicated? | playertable |
 | want | `club_500` | **500 club** | 500 rated games | ✅ | 44 | 16.9% | 41.1% | dedicated? | playertable |
 | want | `millennium_merchant_1000` | **Millennium merchant** | 1,000 rated games | ✅ | 37 | 14.2% | 34.6% | dedicated? | playertable |
-| want | `club_10000` | *(name TBD)* | 10,000 rated games | 🔶 | 1 | 0.4% | 0.9% | ultra-rare? | playertable |
+| want | `club_10000` | **10K** | 10,000 rated games | 🔶 | 1 | 0.4% | 0.9% | ultra-rare? | playertable |
 
 ---
 
@@ -142,7 +142,6 @@
 
 | Curate | Key | Display name | Rule (short) | Data | | **Unlock** | **%≥1g** | **%vet** | **Band** | Method |
 |--------|-----|--------------|--------------|------| |--------:|--------:|--------:|--------|--------|
-| want | `period_champion` | **Period champion** | Won a period league (points or activity) | 🔶 | 87 | 33.3% | 81.3% | pitch | player_league_award (any league win) |
 | want | `moment_of_glory` | **Moment of glory** | Won daily **points** league | 🔶 | 62 | 23.8% | 57.9% | dedicated? | player_league_award (daily points win) |
 | want | `activity_king` | **Activity king** | Won monthly **activity** league | 🔶 | 17 | 6.5% | 15.9% | accomplished? | player_league_award (monthly activity win) |
 
@@ -244,7 +243,7 @@
 | Curate | Key | Display name | Rule (short) | Data | | **Unlock** | **%≥1g** | **%vet** | **Band** | Method |
 |--------|-----|--------------|--------------|------| |--------:|--------:|--------:|--------|--------|
 | want | `fortress_builder` | **Fortress builder** | 25 career clean sheets | ✅ | 51 | 19.5% | 47.7% | dedicated? | playertable |
-| want | `clean_sheet_merchant` | **Clean sheet artist** | 50 career clean sheets | 🔶 | 36 | 13.8% | 33.6% | dedicated? | playertable |
+| want | `clean_sheet_artist` | **Clean sheet artist** | 50 career clean sheets | 🔶 | 36 | 13.8% | 33.6% | dedicated? | playertable |
 | want | `clean_sheet_spread` | **Clean sheet spread** | Clean sheet vs 10 different opponents | 🔶 | 47 | 18.0% | 43.9% | dedicated? | ratedresults distinct CS victims |
 | want | `minimalist` | **Minimalist** | Won 1–0 | ✅ | 79 | 30.3% | 73.8% | dedicated? | ratedresults any game |
 | want | `perfect_storm` | **Perfect storm** | Won 10–0 | ✅ | 23 | 8.8% | 21.5% | accomplished? | ratedresults any game |
@@ -259,7 +258,6 @@
 
 | Curate | Key | Display name | Rule (short) | Data | | **Unlock** | **%≥1g** | **%vet** | **Band** | Method |
 |--------|-----|--------------|--------------|------| |--------:|--------:|--------:|--------|--------|
-| want | `six_goal_draw` | **Six-goal draw** | Draw, 6+ total goals | ✅ | 96 | 36.8% | 89.7% | pitch | ratedresults any game |
 | want | `goal_fest_draw` | **Goal fest draw** | Draw, 14+ total goals | ✅ | 37 | 14.2% | 34.6% | dedicated? | ratedresults any game |
 | want | `peace_streak` | **Peace streak** | 3 draws in a row | 🔶 | 57 | 21.8% | 53.3% | dedicated? | chronological 3 draws row |
 | want | `united_nations` | **United Nations** | 5 draws in a row | 🔶 | 3 | 1.1% | 2.8% | ultra-rare? | chronological 5 draws row |
@@ -380,7 +378,7 @@ Target garden sizes (design): **pitch** + **dedicated** = bulk; **accomplished**
 
 | Band hint | Count | Target tier size (design) |
 |-----------|------:|---------------------------|
-| pitch | 24 | large (rarity floor; many at 80%+ vet) |
+| pitch | 22 | large (rarity floor; many at 80%+ vet) |
 | dedicated? | 51 | large (~35–50) |
 | accomplished? | 19 | ~15–20 keystones |
 | legendary? | 16 | ~10–15 |
@@ -406,20 +404,20 @@ Holo — flavor + long horizons. Sorted rarest first (%vet).
 
 | § | Key | Display | Unlock | %vet | Rule (short) |
 |---|-----|---------|-------:|-----:|--------------|
-| C | `club_10000` | *(name TBD)* | 1 | 0.9% | 10,000 rated games |
-| L | `merchant_streak` | **Merchant streak** | 2 | 1.9% | 5 consecutive games scoring 10+ |
+| C | `club_10000` | **10K** | 1 | 0.9% | 10,000 rated games |
 | S | `century_of_rivals` | **Century of rivals** | 2 | 1.9% | 100 unique opponents |
+| L | `merchant_streak` | **Merchant streak** | 2 | 1.9% | 5 consecutive games scoring 10+ |
 | N | `united_nations` | **United Nations** | 3 | 2.8% | 5 draws in a row |
 | L | `merchant_trade_fair` | **Merchant trade fair** | 4 | 3.7% | Draw **10–10** |
 | J | `league_wins_500` | 500 league wins | 4 | 3.7% | 500 league wins |
 | L | `minimalist_merchant` | **Minimalist merchant** | 4 | 3.7% | 3 consecutive games with exactly 10 goals scored |
-| G | `ultra_day_30` | *(name TBD)* | 5 | 4.7% | 30 rated games in one UTC day |
-| F | `monthly_regular` | **Monthly regular** | 5 | 4.7% | Rated game on every calendar day of at least one month |
 | I | `league_yearly_activity_winner` | Yearly · activity · winner | 5 | 4.7% | Yearly · activity · winner |
+| G | `ultra_day_30` | *(name TBD)* | 5 | 4.7% | 30 rated games in one UTC day |
 | I | `league_yearly_points_winner` | Yearly · points · winner | 5 | 4.7% | Yearly · points · winner |
+| F | `monthly_regular` | **Monthly regular** | 5 | 4.7% | Rated game on every calendar day of at least one month |
 | P | `club_2300` | *(name TBD)* | 6 | 5.6% | Peak rating ≥2300 |
-| V | `merchant_denied` | **Merchant denied** | 6 | 5.6% | Lost 10–9 |
 | U | `win_streak_30` | *(name TBD)* | 6 | 5.6% | 30 wins in a row |
+| V | `merchant_denied` | **Merchant denied** | 6 | 5.6% | Lost 10–9 |
 | O | `unlucky` | **Unlucky** | 7 | 6.5% | 5 consecutive 1-margin losses |
 | L | `leaky_merchant` | **Leaky merchant** | 7 | 6.5% | Won 10+ scored and 9 conceded |
 | O | `knife_edge` | **Knife-edge** | 8 | 7.5% | 5 consecutive 1-margin wins |
@@ -433,9 +431,9 @@ Amber — completeness palette. Sorted rarest first (%vet).
 |---|-----|---------|-------:|-----:|--------------|
 | I | `league_yearly_points_medal` | Yearly · points · medal | 12 | 11.2% | Yearly · points · medal |
 | I | `league_monthly_points_winner` | Monthly · points · winner | 13 | 12.1% | Monthly · points · winner |
-| J | `league_wins_100` | 100 league wins | 15 | 14.0% | 100 league wins |
-| O | `twenty_goal_chaos` | **Twenty-goal chaos** | 15 | 14.0% | 20+ total goals in game |
 | I | `league_yearly_activity_medal` | Yearly · activity · medal | 15 | 14.0% | Yearly · activity · medal |
+| O | `twenty_goal_chaos` | **Twenty-goal chaos** | 15 | 14.0% | 20+ total goals in game |
+| J | `league_wins_100` | 100 league wins | 15 | 14.0% | 100 league wins |
 | H | `activity_king` | **Activity king** | 17 | 15.9% | Won monthly **activity** league |
 | U | `rampage` | **Rampage** | 18 | 16.8% | 15 wins in a row |
 | L | `travelling_salesman` | **Travelling salesman** | 18 | 16.8% | DD vs 10 different opponents |
@@ -444,8 +442,8 @@ Amber — completeness palette. Sorted rarest first (%vet).
 | M | `perfect_storm` | **Perfect storm** | 23 | 21.5% | Won 10–0 |
 | I | `league_weekly_points_winner` | Weekly · points · winner | 24 | 22.4% | Weekly · points · winner |
 | S | `fifty_faces` | **Fifty faces** | 26 | 24.3% | 50 unique opponents |
-| G | `absurd_day` | **Absurd day** | 26 | 24.3% | 20 rated games in one UTC day |
 | P | `club_2000` | **2000 club** | 26 | 24.3% | ≥2000 |
+| G | `absurd_day` | **Absurd day** | 26 | 24.3% | 20 rated games in one UTC day |
 | I | `league_monthly_points_medal` | Monthly · points · medal | 27 | 25.2% | Monthly · points · medal |
 | K | `dozen_dash` | **Dozen dash** | 31 | 29.0% | 12+ in one game |
 | M | `survivor` | *(Survivor / Last man standing TBD)* | 32 | 29.9% | Won after opponent scored 7+ |
@@ -461,7 +459,7 @@ Chrome — mid ladder bulk. Sorted rarest first (promotion candidates at top).
 | I | `league_monthly_activity_medal` | Monthly · activity · medal | 35 | 32.7% | Monthly · activity · medal |
 | U | `ten_wins_straight` | **Ten wins straight** | 35 | 32.7% | 10 wins in a row |
 | G | `perfect_day` | **Perfect day** | 36 | 33.6% | Won all games in UTC day (min 5) |
-| M | `clean_sheet_merchant` | **Clean sheet artist** | 36 | 33.6% | 50 career clean sheets |
+| M | `clean_sheet_artist` | **Clean sheet artist** | 36 | 33.6% | 50 career clean sheets |
 | C | `millennium_merchant_1000` | **Millennium merchant** | 37 | 34.6% | 1,000 rated games |
 | N | `goal_fest_draw` | **Goal fest draw** | 37 | 34.6% | Draw, 14+ total goals |
 | P | `club_1800` | **1800 club** | 38 | 35.5% | ≥1800 |
@@ -509,7 +507,7 @@ Chrome — mid ladder bulk. Sorted rarest first (promotion candidates at top).
 | I | `league_daily_activity_winner` | Daily · activity · winner | 84 | 78.5% | Daily · activity · winner |
 | U | `win_hat_trick` | **Win hat-trick** | 85 | 79.4% | 3 wins in a row |
 
-### Aspirational (24)
+### Aspirational (22)
 
 Pitch — rarity floor. Sorted commonest first (%vet ↓).
 
@@ -532,13 +530,11 @@ Pitch — rarity floor. Sorted commonest first (%vet ↓).
 | A | `established_20` | **Established** | 107 | 100%+ | 20 rated games |
 | K | `five_goal_frenzy` | **Five-goal frenzy** | 102 | 95.3% | 5+ in one game |
 | U | `win_drought` | **Win drought** | 102 | 95.3% | 10 games without a win |
-| N | `six_goal_draw` | **Six-goal draw** | 96 | 89.7% | Draw, 6+ total goals |
 | O | `hard_lesson` | **Hard lesson** | 96 | 89.7% | Lost by 10+ margin |
 | I | `league_daily_points_medal` | Daily · points · medal | 94 | 87.9% | Daily · points · medal |
 | K | `on_the_scoresheet` | **On the scoresheet** | 94 | 87.9% | Scored in 10 consecutive games |
 | R | `ten_match_saga` | **Ten-match saga** | 94 | 87.9% | 10th rated game vs same opponent |
 | S | `ten_opponents` | **Ten opponents** | 91 | 85.0% | 10 unique opponents |
-| H | `period_champion` | **Period champion** | 87 | 81.3% | Won a period league (points or activity) |
 ---
 
 ## Quick index (group → section)

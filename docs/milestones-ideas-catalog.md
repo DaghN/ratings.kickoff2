@@ -98,7 +98,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | Curate | Key (internal) | Display name | Rule | Data | Notes |
 |--------|----------------|--------------|------|------|-------|
 | **want** | `debut` | **Debut** | (= first rated game) | ✅ | Same as §I |
-| maybe | `persistence` | **Persistence** *(name TBD)* | Early survival band — e.g. 5–10 rated games; celebrates sticking through rough start | ✅ | Was “Getting started / Regular”; rename open |
+| **want** | `persistence` | **Through the swamp** | **10** rated games; early survival | ✅ | Locked May 2026 |
 | **want** | `established_20` | **Established** | 20 rated games | ✅ | **In DB** |
 | discard | `statistically_relevant_30` | Statistically relevant | 30 games | ✅ | Pass 1: not mentioned |
 | **want** | `half_century_50` | **Half century** | 50 rated games | ✅ | |
@@ -139,7 +139,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | discard | `busy_month_30` | Busy month | 30 games in month | 🔶 | Pass 1: not mentioned |
 | **want** | `grind_month` | **Grind month** | 50 rated games in one calendar month | 🔶 | |
 | discard | `weekly_league_participant` | Weekly league participant | — | 🔶 | Pass 1: not mentioned |
-| **want** | `period_champion` | **Period champion** | Won a period league (generic — points or activity) | 🔶 | Overlaps 2×8 set; OK for now |
+| discard | `period_champion` | **Period champion** | Won a period league (generic — points or activity) | 🔶 | Pass 2: cut — redundant vs 2×8 league milestones |
 | **want** | `moment_of_glory` | **Moment of glory** | Won **daily points** league | 🔶 | Pass 1 addition |
 | discard | `podium_month` | **Podium month** | Top 3 in **monthly** league (points or activity — pick one or both TBD) | 🔶 | Pass 2: cut from curated set |
 | **want** | `activity_king` | **Activity king** | Won **monthly activity** league | 🔶 | Pass 1 addition |
@@ -216,7 +216,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | discard | `five_clean_sheets` | Five clean sheets | — | ✅ | Pass 1: not mentioned |
 | discard | `ten_clean_sheets` | Ten clean sheets | — | ✅ | Pass 1: not mentioned |
 | **want** | `fortress_builder` | **Fortress builder** | 25 career clean sheets | ✅ | |
-| **want** | `clean_sheet_merchant` | **Clean sheet artist** | 50 career clean sheets | 🔶 | Internal key unchanged |
+| **want** | `clean_sheet_artist` | **Clean sheet artist** | 50 career clean sheets | 🔶 | Renamed from `clean_sheet_merchant` |
 | **want** | `minimalist` | **Minimalist** | Won 1–0 | ✅ | Renamed from Minimalist win |
 | **want** | `perfect_storm` | **Perfect storm** | Won 10–0 | ✅ | |
 | **want** | `battle_hardened` | **Battle hardened** | Draw with score **≥5–5** | ✅ | Pass 1 addition |
@@ -248,7 +248,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 |--------|----------------|--------------|------|------|-------|
 | **want** | `first_handshake` | **First handshake** | First draw | ✅ | Duplicate label with first draw — one milestone |
 | **want** | `ten_draws` | **Ten draws** | 10 career draws | ✅ | |
-| **want** | `six_goal_draw` | **Six-goal draw** | Draw, 6+ total goals | ✅ | |
+| discard | `six_goal_draw` | **Six-goal draw** | Draw, 6+ total goals | ✅ | Pass 2: cut from curated set |
 | discard | `ten_goal_thriller_draw` | Ten-goal thriller draw | 10+ total | ✅ | Superseded by Goal fest threshold |
 | **want** | `goal_fest_draw` | **Goal fest draw** | Draw, **14+ total goals** (e.g. 7–7) | ✅ | Was 15+; pass 1 → **14+** |
 | **want** | `peace_streak` | **Peace streak** | 3 draws in a row | 🔶 | |

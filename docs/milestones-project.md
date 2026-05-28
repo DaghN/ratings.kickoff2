@@ -11,10 +11,10 @@ Single place to see **where the milestone feature is** in the pipeline. Implemen
 | | |
 |--|--|
 | **Completed** | **Phase 1 — Idea creation** (discovery + brainstorm + pass 1 curation) |
-| **In progress** | **Phase 2 — Definition** — **curated tier list** in [`milestones-tier-curated.md`](milestones-tier-curated.md); naming TBD on some keys; implementation not started |
+| **Wrapping** | **Phase 2 — Definition** — **110** milestones in [`milestones-tier-curated.md`](milestones-tier-curated.md); names in [`data/milestones_curated_meta.json`](../data/milestones_curated_meta.json); Phase 3 seed [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
 | **Not started** | Phase 3+ — schema/catalog, rebuild rules, UI, hub tab, leaderboard |
 
-**Working set:** [`milestones-tier-curated.md`](milestones-tier-curated.md) — **decided for now** (May 2026): four bands, ~108 milestones. The full [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) remains the rule reference plus discarded ideas.
+**Working set:** [`milestones-tier-curated.md`](milestones-tier-curated.md) — **decided for now** (May 2026): four bands, **110** milestones (cut `period_champion`, `six_goal_draw`). Seed export: [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json). Catalog = rule reference + discards.
 
 ---
 
