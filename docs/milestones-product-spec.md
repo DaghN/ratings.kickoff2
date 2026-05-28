@@ -33,9 +33,9 @@ Bands follow **career position and difficulty**, not loot rarity (contrast Diabl
 | Band | Working label | Chart token | Hex (canonical) | Meaning |
 |------|----------------|-------------|-----------------|--------|
 | 1 | **Aspirational** | `pitch` | `#9ccc65` | Early server life — unlocks as you **encounter** types of play and first-time events. Many land quickly once you are active; you are “on the way,” not yet a grinder. |
-| 2 | **Veteran** | `chrome` | `#64b5f6` | Post-beginner — milestones typical once you have moved past newbie rank into **mid-level grinding** (volume, variety, sustained play). |
-| 3 | **Key** | `amber` | `#ffb74d` | **Completeness palette** — not “hardest,” but **what makes you a fully accomplished player** on this server. Real achievements (e.g. first Double Digit Merchant) that are hard for beginners and normal for elites, but **matter the first time**. Target **~15–20** keys (exact count from catalog fit, not a hard 10). Realistic to **collect all** with effort and longevity; not lottery-tier. |
-| 4 | **Legendary** | `holo` | `#b388ff` | Genuinely very difficult or rare — e.g. winning a **yearly** league, **5000** rated games. Few players, long horizons. |
+| 2 | **Dedicated** *(was Veteran)* | `chrome` | `#64b5f6` | Post-beginner — milestones typical once you have moved past newbie rank into **mid-level grinding** (volume, variety, sustained play). |
+| 3 | **Accomplished** *(Keystones; was Key)* | `amber` | `#ffb74d` | **Completeness palette** — not “hardest,” but **what makes you a fully accomplished player** on this server. **~18 locked** (May 2026) in theme doc. Realistic to **collect all** with effort and longevity; not lottery-tier. |
+| 4 | **Legendary** | `holo` | `#b388ff` | Genuinely very difficult or rare — e.g. winning a **yearly** league, **10k** rated games, 10–10 draw. **~17 locked** (May 2026). Few players, long horizons. |
 
 ### Label note: Aspirational
 

@@ -11,10 +11,10 @@ Single place to see **where the milestone feature is** in the pipeline. Implemen
 | | |
 |--|--|
 | **Completed** | **Phase 1 — Idea creation** (discovery + brainstorm + pass 1 curation) |
-| **In progress** | **Phase 2 — Definition** — tier-band plan locked as **plan** (see product spec); catalog + Key pick + rules still open |
+| **In progress** | **Phase 2 — Definition** — **curated tier list** in [`milestones-tier-curated.md`](milestones-tier-curated.md); naming TBD on some keys; implementation not started |
 | **Not started** | Phase 3+ — schema/catalog, rebuild rules, UI, hub tab, leaderboard |
 
-**Important:** The milestone **list is not finalized**. [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) is the output of a first brainstorm and one curation pass (`want` / `maybe` / `discard`). Pass 2+ may add, cut, or rename freely.
+**Working set:** [`milestones-tier-curated.md`](milestones-tier-curated.md) — **decided for now** (May 2026): four bands, ~108 milestones. The full [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) remains the rule reference plus discarded ideas.
 
 ---
 
@@ -75,8 +75,8 @@ Single place to see **where the milestone feature is** in the pipeline. Implemen
 
 ## Suggested Phase 2 entry tasks
 
-1. Add **`tier_band`** to catalog rows (aspirational / veteran / key / legendary).
-2. **Select Key (~15–20)** from want pool (amber + achiever lists — one list).
+1. Add **`tier_band`** to catalog rows (aspirational / dedicated / accomplished / legendary) — use [`milestones-want-maybe-by-theme.md`](milestones-want-maybe-by-theme.md) for grouped review (**Unlock** / **%** columns = read-only probe, May 2026 local DB).
+2. **Select Keystones (~15–20)** from want pool (amber accomplished band + achiever lists — one list).
 3. Naming pass (TBD display names in catalog §XVIII).
 4. League rules hardening (podium, win totals, overlap).
 5. Hub wireframe from product spec §4–5 (four sections, garden states, story).

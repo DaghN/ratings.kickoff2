@@ -6,7 +6,7 @@
 
 Brainstorm list with `want` / `maybe` / `discard` from pass 1. Items not mentioned in pass 1 are **discard** (kept in tables for reference, with notes where useful).
 
-**Related:** [`milestones-project.md`](milestones-project.md) · [`milestones-product-spec.md`](milestones-product-spec.md) (tier-band **plan**) · [`milestones-system-discussion.md`](milestones-system-discussion.md)
+**Related:** [`milestones-project.md`](milestones-project.md) · [`milestones-product-spec.md`](milestones-product-spec.md) (tier-band **plan**) · [`milestones-want-maybe-by-theme.md`](milestones-want-maybe-by-theme.md) (**want/maybe grouped for Phase 2 tier pass**) · [`milestones-system-discussion.md`](milestones-system-discussion.md)
 
 ---
 
@@ -83,9 +83,9 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | **want** | `debut` | **Debut** | First rated game | ✅ | |
 | maybe | `entered_arena` | **Entered the arena** | First lobby presence | 🔴 | Needs presence logs |
 | discard | `signed_up` | Signed up | JoinDate | 🔶 | Pass 1: not mentioned |
-| **want** | `back_in_the_game` | **Back in the game** | Return after ≥1 year idle | 🔶 | |
-| **want** | `long_sleep_loud_wakeup` | **Long sleep, loud wake-up** | Return after ≥3 years idle | 🔶 | |
-| maybe | `still_here_years_later` | **Still here years later** | Played in year N and N+5 | 🔶 | |
+| discard | `back_in_the_game` | **Back in the game** | Return after ≥1 year idle | 🔶 | Pass 2: discard |
+| discard | `long_sleep_loud_wakeup` | **Long sleep, loud wake-up** | Return after ≥3 years idle | 🔶 | Pass 2: discard — legendary only via not playing is unfair |
+| discard | `still_here_years_later` | **Still here years later** | Played in year N and N+5 | 🔶 | Pass 2: cut from curated set |
 | discard | `early_adopter_opponent` | Early adopter opponent | — | 🔶 | Pass 1: not mentioned |
 | discard | `ten_years_on_ladder` | Ten years on the ladder | — | 🔶 | Pass 1: not mentioned |
 | discard | `founding_era` | Founding era | June 2017 window | ✅ | Pass 1: not mentioned |
@@ -108,7 +108,8 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | **want** | `club_500` | **500 club** | 500 rated games | ✅ | |
 | discard | `iron_calendar_750` | Iron calendar | 750 games | ✅ | Pass 1: not mentioned |
 | **want** | `millennium_merchant_1000` | **Millennium merchant** | 1,000 rated games | ✅ | |
-| **want** | `club_5000` | *(name TBD)* | 5,000 rated games | 🔶 | Pass 1 addition |
+| discard | `club_5000` | *(name TBD)* | 5,000 rated games | 🔶 | Pass 2: superseded by `club_10000` legendary |
+| **want** | `club_10000` | *(name TBD)* | 10,000 rated games | 🔶 | Pass 2: legendary volume target |
 | discard | `legend_volume_2000` | Legend volume | 2,000 games | 🔶 | Pass 1: not mentioned |
 | **want** | `first_victory` | **First victory** | First win | ✅ | |
 | **want** | `ten_wins` | **Ten wins** | 10 career wins | ✅ | |
@@ -134,12 +135,13 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | **want** | `hot_day` | **Hot day** | 5 rated games in one UTC day | 🔶 | |
 | **want** | `marathon_day` | **Marathon day** | 10 rated games in one UTC day | 🔶 | |
 | **want** | `absurd_day` | **Absurd day** | 20 rated games in one UTC day | 🔶 | |
+| **want** | `ultra_day_30` | *(name TBD)* | 30 rated games in one UTC day | 🔶 | Pass 2: legendary (name TBD) |
 | discard | `busy_month_30` | Busy month | 30 games in month | 🔶 | Pass 1: not mentioned |
 | **want** | `grind_month` | **Grind month** | 50 rated games in one calendar month | 🔶 | |
 | discard | `weekly_league_participant` | Weekly league participant | — | 🔶 | Pass 1: not mentioned |
 | **want** | `period_champion` | **Period champion** | Won a period league (generic — points or activity) | 🔶 | Overlaps 2×8 set; OK for now |
 | **want** | `moment_of_glory` | **Moment of glory** | Won **daily points** league | 🔶 | Pass 1 addition |
-| **want** | `podium_month` | **Podium month** | Top 3 in **monthly** league (points or activity — pick one or both TBD) | 🔶 | |
+| discard | `podium_month` | **Podium month** | Top 3 in **monthly** league (points or activity — pick one or both TBD) | 🔶 | Pass 2: cut from curated set |
 | **want** | `activity_king` | **Activity king** | Won **monthly activity** league | 🔶 | Pass 1 addition |
 | discard | `no_year_off` | No year off | 12 consecutive months | 🔶 | Overlaps **Year-round** |
 | discard | `two_year_presence` | Two-year presence | 24 months | 🔶 | Pass 1: not mentioned |
@@ -156,19 +158,19 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | Curate | Key (internal) | Display name | League context | Data |
 |--------|----------------|--------------|----------------|------|
 | **want** | `league_daily_points_medal` | *(unique name TBD)* | Daily · points · medal | 🔶 |
-| **want** | `league_daily_points_winner` | *(unique name TBD)* | Daily · points · winner | 🔶 |
+| discard | `league_daily_points_winner` | *(unique name TBD)* | Daily · points · winner | 🔶 | Pass 2: dup `moment_of_glory` |
 | **want** | `league_weekly_points_medal` | *(unique name TBD)* | Weekly · points · medal | 🔶 |
 | **want** | `league_weekly_points_winner` | *(unique name TBD)* | Weekly · points · winner | 🔶 |
 | **want** | `league_monthly_points_medal` | *(unique name TBD)* | Monthly · points · medal | 🔶 |
-| **want** | `league_monthly_points_winner` | *(unique name TBD)* | Monthly · points · winner | 🔶 |
-| **want** | `league_yearly_points_medal` | *(unique name TBD)* | Yearly · points · medal | 🔶 |
+| **want** | `league_monthly_points_winner` | *(unique name TBD)* | Monthly · points · winner | 🔶 | Pass 2: **accomplished** (demoted from legendary) |
+| **want** | `league_yearly_points_medal` | *(unique name TBD)* | Yearly · points · medal | 🔶 | Pass 2: accomplished |
 | **want** | `league_yearly_points_winner` | *(unique name TBD)* | Yearly · points · winner | 🔶 |
 | **want** | `league_daily_activity_medal` | *(unique name TBD)* | Daily · activity · medal | 🔶 |
 | **want** | `league_daily_activity_winner` | *(unique name TBD)* | Daily · activity · winner | 🔶 |
 | **want** | `league_weekly_activity_medal` | *(unique name TBD)* | Weekly · activity · medal | 🔶 |
 | **want** | `league_weekly_activity_winner` | *(unique name TBD)* | Weekly · activity · winner | 🔶 |
 | **want** | `league_monthly_activity_medal` | *(unique name TBD)* | Monthly · activity · medal | 🔶 |
-| **want** | `league_monthly_activity_winner` | *(unique name TBD)* | Monthly · activity · winner | 🔶 |
+| discard | `league_monthly_activity_winner` | *(unique name TBD)* | Monthly · activity · winner | 🔶 | Pass 2: cut (Activity king covers monthly activity win) |
 | **want** | `league_yearly_activity_medal` | *(unique name TBD)* | Yearly · activity · medal | 🔶 |
 | **want** | `league_yearly_activity_winner` | *(unique name TBD)* | Yearly · activity · winner | 🔶 |
 
@@ -214,7 +216,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | discard | `five_clean_sheets` | Five clean sheets | — | ✅ | Pass 1: not mentioned |
 | discard | `ten_clean_sheets` | Ten clean sheets | — | ✅ | Pass 1: not mentioned |
 | **want** | `fortress_builder` | **Fortress builder** | 25 career clean sheets | ✅ | |
-| **want** | `clean_sheet_merchant` | **Clean sheet merchant** | 50 career clean sheets | 🔶 | Listed pass 1 without “want” word — included |
+| **want** | `clean_sheet_merchant` | **Clean sheet artist** | 50 career clean sheets | 🔶 | Internal key unchanged |
 | **want** | `minimalist` | **Minimalist** | Won 1–0 | ✅ | Renamed from Minimalist win |
 | **want** | `perfect_storm` | **Perfect storm** | Won 10–0 | ✅ | |
 | **want** | `battle_hardened` | **Battle hardened** | Draw with score **≥5–5** | ✅ | Pass 1 addition |
@@ -231,12 +233,12 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 |--------|----------------|--------------|------|------|-------|
 | **want** | `dd_merchant_10` | **Double Digit Merchant** | (= 10+ scored) | ✅ | Merge **Merchant licence** into this name |
 | **want** | `victim_of_commerce` | **Victim of commerce** | First time conceded 10+ | ✅ | |
-| **want** | `merchant_trade_fair` | **Merchant trade fair** | Both players scored 10+ | ✅ | |
-| **want** | `double_digit_handshake` | **Double-digit handshake** | DD in a draw | ✅ | |
+| **want** | `merchant_trade_fair` | **Merchant trade fair** | Draw **10–10** (replaces separate DD-draw milestone) | ✅ | Pass 2: merged `double_digit_handshake` |
+| discard | `double_digit_handshake` | **Double-digit handshake** | DD in a draw | ✅ | Pass 2: merged into **Merchant trade fair** (10–10) |
 | **want** | `leaky_merchant` | **Leaky merchant** | Won with 10+ scored and 9 conceded | ✅ | |
 | discard | `three_customers` | Three customers | 3 DD victims | 🔶 | Pass 1: not mentioned |
 | **want** | `travelling_salesman` | **Travelling salesman** | DD’d 10 different opponents | 🔶 | |
-| **want** | `elite_customer` | **Elite customer** | DD vs **highest-rated active** opponent | 🔶 | Active = rated game within last year; **not** all-time highest |
+| discard | `elite_customer` | **Elite customer** | DD vs **highest-rated active** opponent | 🔶 | Pass 2: cut from curated set |
 
 ---
 
@@ -261,7 +263,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | Curate | Key (internal) | Display name | Rule | Data | Notes |
 |--------|----------------|--------------|------|------|-------|
 | **want** | `comfortable` | **Comfortable** | Won by 5+ goal margin | ✅ | |
-| **want** | `ruthless` | **Ruthless** | Won by 10+ goal margin | ✅ | Renamed from Statement win |
+| **want** | `ruthless` | **Ruthless** | Won by 10+ goal margin | ✅ | Pass 2: accomplished |
 | **want** | `hard_lesson` | **Hard lesson** | **Lost by 10+ margin** | ✅ | Pass 1: name kept; rule **not** −50 Elo |
 | discard | `shipped_ten` | Shipped ten | 10+ loss margin | ✅ | Merged into **Hard lesson** |
 | **want** | `twenty_goal_chaos` | **Twenty-goal chaos** | 20+ total goals in game | ✅ | |
@@ -279,9 +281,10 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 |--------|----------------|--------------|------|------|-------|
 | **want** | `club_1700` | **1700 club** | First time post-game rating ≥1700 | 🔶 | |
 | **want** | `club_1800` | **1800 club** | ≥1800 | 🔶 | |
-| **want** | `club_1900` | **1900 club** | ≥1900 | 🔶 | |
+| **want** | `club_1900` | **1900 club** | ≥1900 | 🔶 | Pass 2: not accomplished — dedicated? |
 | **want** | `club_2000` | **2000 club** | ≥2000 | 🔶 | |
-| **want** | `elite_altitude` | **Elite altitude** | ≥2100 | 🔶 | |
+| **want** | `elite_altitude` | **Elite altitude** | ≥2100 | 🔶 | Not in accomplished pick set (dedicated band) |
+| **want** | `club_2300` | *(name TBD)* | Peak rating ≥2300 | 🔶 | Pass 2: legendary (name TBD) |
 | discard | `new_peak` | New peak | — | 🔶 | Pass 1: not mentioned |
 | discard | `two_thousand_peak` | Two-thousand peak | — | 🔶 | Pass 1: not mentioned |
 | discard | `big_jump_50` | Big jump | +50 Elo one game | ✅ | Pass 1: not mentioned |
@@ -304,11 +307,11 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | discard | `breakthrough` | Breakthrough | — | 🔶 | Pass 1: not mentioned |
 | **want** | `regular_customer` | **Regular customer** | 10 wins vs same opponent | 🔶 | |
 | **want** | `bogeyman` | **Bogeyman** | 20 wins vs same opponent | 🔶 | |
-| **want** | `top_ten_sweep` | **Top-ten sweep** | Beat each of current top 10 (min 1 each) | 🔶 | |
+| discard | `top_ten_sweep` | **Top-ten sweep** | Beat each of current top 10 (min 1 each) | 🔶 | Pass 2: unstable snapshot (top 10 moves without you playing) |
 | **want** | `giant_slayer` | **Giant slayer** | Beat **#1 rated active** player | 🔶 | Active = game within last year |
 | discard | `best_scalp` | Best scalp | — | 🔶 | Pass 1: not mentioned |
 | discard | `embarrassment` | Embarrassment | — | 🔶 | Pass 1: not mentioned |
-| **want** | `nemesis` | **Nemesis** | Inflict **largest margin defeat ever** on an **Established** opponent | 🔶 | Pass 1 addition; margin-based |
+| discard | `nemesis` | **Nemesis** | Inflict **largest margin defeat ever** on an **Established** opponent | 🔶 | Pass 2: cut from curated set |
 
 ---
 
@@ -319,7 +322,8 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 | **want** | `win_hat_trick` | **Win hat-trick** | 3 wins in a row | 🔶 | |
 | discard | `five_alive` | Five alive | 5 wins | 🔶 | Pass 1: not mentioned |
 | **want** | `ten_wins_straight` | **Ten wins straight** | 10 wins in a row | 🔶 | |
-| **want** | `rampage` | **Rampage** | 15 wins in a row | 🔶 | |
+| **want** | `rampage` | **Rampage** | 15 wins in a row | 🔶 | Accomplished |
+| **want** | `win_streak_30` | *(name TBD)* | 30 wins in a row | 🔶 | Pass 2: legendary |
 | **want** | `cold_streak` | **Cold streak** | **5 losses** in a row | 🔶 | Was 3 losses |
 | discard | `peace_run` | Peace run | 5 draws row | 🔶 | Use **United Nations** |
 | discard | `unbeaten_ten` | Unbeaten ten | — | 🔶 | Pass 1: not mentioned |
@@ -382,13 +386,13 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 
 | Curate | Key (internal) | Display name | Rule | Data | Notes |
 |--------|----------------|--------------|------|------|-------|
-| **want** | `nine_eight_thriller` | **Nine-eight thriller** | Won 9–8 | ✅ | |
+| discard | `nine_eight_thriller` | **Nine-eight thriller** | Won 9–8 | ✅ | Pass 2: legendary cut |
 | **want** | `merchant_denied` | **Merchant denied** | Lost 10–9 | ✅ | |
 | discard | `eleven_nil` | Eleven-nil | — | ✅ | Pass 1: not mentioned |
 | discard | `eleven_nil_victim` | Eleven-nil victim | — | ✅ | Pass 1: not mentioned |
 | **want** | `perfect_day` | **Perfect day** | Won **all** games in UTC day, **min 5** games | 🔶 | Was min 3 |
 | **want** | `nightmare_day` | **Nightmare day** | Lost all games in UTC day, **min 5** | 🔶 | Was min 3 |
-| **want** | `merchant_streak` | **Merchant streak** | 3 consecutive games scoring 10+ | 🔶 | |
+| **want** | `merchant_streak` | **Merchant streak** | **5** consecutive games scoring 10+ | 🔶 | Pass 2: was 3 — harder legendary |
 | **want** | `minimalist_merchant` | **Minimalist merchant** | 3 consecutive games with **exactly** 10 goals scored | 🔶 | Pass 1 addition |
 | discard | `exact_ten_thrice` | Exact ten thrice | — | 🔶 | Overlaps Minimalist merchant |
 | discard | `goals_gt_games_month` | Goals > games month | — | 🔶 | Pass 1: not mentioned |

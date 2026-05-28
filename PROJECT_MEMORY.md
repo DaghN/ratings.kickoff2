@@ -8,7 +8,7 @@
 
 ## Current focus
 
-- **Milestones project:** **Phase 1 done**; **Phase 2 definition in progress** — tier-band **plan** in [`docs/milestones-product-spec.md`](docs/milestones-product-spec.md) (four bands: Aspirational/pitch, Veteran/chrome, Key/amber ~15–20, Legendary/holo; garden dim→glow; story; leaderboard total then pitch→chrome→amber→holo tie-break). Catalog/list not finalized. DB still only `established_20` + `dd_merchant_10`; no implementation slice yet.
+- **Milestones project:** **Phase 2 curated list** — [`docs/milestones-tier-curated.md`](docs/milestones-tier-curated.md) (112 milestones: 18 / 20 / 50 / 24 by band). Theme doc = probe only. DB still only `established_20` + `dd_merchant_10`.
 
 - **Leagues integration:** Awards DB + **League honours v1** on **local + staging** (`ranked9.php`, SCH-009/010, REP-012/013 verified May 2026). **Next:** profile league block; prod schema/REP when cutover; daily finalize (PER-003) only if/when wanted.
 - **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (day games list deferred).
@@ -66,6 +66,8 @@
 |------|------|
 | 2026-05 | **Leaderboards wing tab** — `ranked8` sub-nav label **Activity peaks** (was Activity). |
 | 2026-05 | **League honours grain persistence** — Activity ↔ Points tab links keep current day/week/month/year (`league_honours_panel.php`). |
+| 2026-05 | **`milestones-tier-curated.md`** — authoritative four-band snapshot (auto-regen from probe); cut nemesis, elite_customer, podium_month, still_here, monthly activity winner. |
+| 2026-05 | **Milestones want/maybe by theme** — [`docs/milestones-want-maybe-by-theme.md`](docs/milestones-want-maybe-by-theme.md): ~112 deduped items in 22 thematic groups (A–V) for manual tier assignment; no tiers assigned. |
 | 2026-05 | **Milestones tier plan** — [`docs/milestones-product-spec.md`](docs/milestones-product-spec.md): four color bands (garden + story + leaderboard tie-break); Key = amber ~15–20 completeness set (same as achiever lists); plan not locked. [`milestones-project.md`](docs/milestones-project.md) updated. |
 | 2026-05 | **Status Leagues toolbar** — period segment left, ←/picker/→ centered in remaining row width; nav nowrap; wraps to full-width centered row via `is-period-nav-stacked` + ResizeObserver (`theme.css`, `status-period-competitions.js`). |
 | 2026-05 | **League awards on staging** — Steve SCH-009/010 + REP-012/013 on `kooldb` (7424 instances, 21873 awards; matches local); Dagh confirmed League honours + Status leagues UI parity. |
