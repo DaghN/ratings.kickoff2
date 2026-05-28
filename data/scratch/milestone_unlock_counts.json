@@ -1,0 +1,581 @@
+{
+  "meta": {
+    "database": "ko2unity_db",
+    "eligible_players": 261,
+    "veteran_players": 107,
+    "ratedresults_games": 74870,
+    "computed_at": "2026-05-28 10:30 UTC"
+  },
+  "counts": {
+    "absurd_day": {
+      "unlock": 26,
+      "method": "player_period_games day max",
+      "band": "accomplished?"
+    },
+    "activity_king": {
+      "unlock": 17,
+      "method": "player_league_award (monthly activity win)",
+      "band": "accomplished?"
+    },
+    "battle_hardened": {
+      "unlock": 60,
+      "method": "ratedresults 5-5+ draw",
+      "band": "dedicated?"
+    },
+    "battle_scarred": {
+      "unlock": 65,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "bogeyman": {
+      "unlock": 63,
+      "method": "player_matchup_summary",
+      "band": "dedicated?"
+    },
+    "brace": {
+      "unlock": 183,
+      "method": "ratedresults any game",
+      "band": "pitch"
+    },
+    "centurion_100": {
+      "unlock": 72,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "century_of_rivals": {
+      "unlock": 2,
+      "method": "playertable",
+      "band": "ultra-rare?"
+    },
+    "century_of_wins": {
+      "unlock": 51,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "clean_sheet_merchant": {
+      "unlock": 36,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "clean_sheet_spread": {
+      "unlock": 47,
+      "method": "ratedresults distinct CS victims",
+      "band": "dedicated?"
+    },
+    "club_10000": {
+      "unlock": 1,
+      "method": "playertable",
+      "band": "ultra-rare?"
+    },
+    "club_1700": {
+      "unlock": 49,
+      "method": "playertable PeakRating",
+      "band": "dedicated?"
+    },
+    "club_1800": {
+      "unlock": 38,
+      "method": "playertable PeakRating",
+      "band": "dedicated?"
+    },
+    "club_1900": {
+      "unlock": 31,
+      "method": "playertable PeakRating",
+      "band": "accomplished?"
+    },
+    "club_2000": {
+      "unlock": 26,
+      "method": "playertable PeakRating",
+      "band": "accomplished?"
+    },
+    "club_2300": {
+      "unlock": 6,
+      "method": "playertable PeakRating",
+      "band": "legendary?"
+    },
+    "club_500": {
+      "unlock": 44,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "cold_streak": {
+      "unlock": 138,
+      "method": "playertable longest streak proxy",
+      "band": "pitch"
+    },
+    "comfortable": {
+      "unlock": 83,
+      "method": "ratedresults any game",
+      "band": "dedicated?"
+    },
+    "daily_habit": {
+      "unlock": 47,
+      "method": "chronological Mon-Sun week",
+      "band": "dedicated?"
+    },
+    "dd_merchant_10": {
+      "unlock": 44,
+      "method": "ratedresults any game",
+      "band": "dedicated?"
+    },
+    "debut": {
+      "unlock": 261,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "diversity_merchant": {
+      "unlock": 68,
+      "method": "matchup rows with 10+ goals vs 5+ opponents",
+      "band": "dedicated?"
+    },
+    "dozen_dash": {
+      "unlock": 31,
+      "method": "ratedresults any game",
+      "band": "accomplished?"
+    },
+    "eight_goal_storm": {
+      "unlock": 64,
+      "method": "ratedresults any game",
+      "band": "dedicated?"
+    },
+    "elite_altitude": {
+      "unlock": 18,
+      "method": "playertable PeakRating",
+      "band": "accomplished?"
+    },
+    "entered_arena": {
+      "unlock": 261,
+      "method": "assumed all eligible (register = lobby)",
+      "band": "pitch"
+    },
+    "established_20": {
+      "unlock": 107,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "fifty_faces": {
+      "unlock": 26,
+      "method": "playertable",
+      "band": "accomplished?"
+    },
+    "filthy_fifteen": {
+      "unlock": 13,
+      "method": "ratedresults any game",
+      "band": "legendary?"
+    },
+    "first_goal": {
+      "unlock": 226,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "first_handshake": {
+      "unlock": 146,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "first_shutout": {
+      "unlock": 127,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "first_victory": {
+      "unlock": 145,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "five_goal_frenzy": {
+      "unlock": 102,
+      "method": "ratedresults any game",
+      "band": "pitch"
+    },
+    "five_victims": {
+      "unlock": 71,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "fortress_builder": {
+      "unlock": 51,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "generous": {
+      "unlock": 43,
+      "method": "chronological debut opp, newbie scored 2+",
+      "band": "dedicated?"
+    },
+    "giant_slayer": {
+      "unlock": 22,
+      "method": "chronological beat top-rated at time",
+      "band": "accomplished?"
+    },
+    "goal_fest_draw": {
+      "unlock": 37,
+      "method": "ratedresults any game",
+      "band": "dedicated?"
+    },
+    "grind_month": {
+      "unlock": 67,
+      "method": "player_period_games month max",
+      "band": "dedicated?"
+    },
+    "half_century_50": {
+      "unlock": 83,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "hard_lesson": {
+      "unlock": 96,
+      "method": "ratedresults any game",
+      "band": "pitch"
+    },
+    "hat_trick": {
+      "unlock": 156,
+      "method": "ratedresults any game",
+      "band": "pitch"
+    },
+    "hot_day": {
+      "unlock": 134,
+      "method": "player_period_games day max",
+      "band": "pitch"
+    },
+    "hundred_goals": {
+      "unlock": 81,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "knife_edge": {
+      "unlock": 8,
+      "method": "chronological",
+      "band": "legendary?"
+    },
+    "league_daily_activity_medal": {
+      "unlock": 114,
+      "method": "player_league_award (league_kind='activity' AND period_type='day' AND finish_rank<=3)",
+      "band": "pitch"
+    },
+    "league_daily_activity_winner": {
+      "unlock": 84,
+      "method": "player_league_award (league_kind='activity' AND period_type='day' AND is_winner=1)",
+      "band": "dedicated?"
+    },
+    "league_daily_points_medal": {
+      "unlock": 94,
+      "method": "player_league_award (league_kind='points' AND period_type='day' AND finish_rank<=3)",
+      "band": "pitch"
+    },
+    "league_monthly_activity_medal": {
+      "unlock": 35,
+      "method": "player_league_award (league_kind='activity' AND period_type='month' AND finish_rank<=3)",
+      "band": "dedicated?"
+    },
+    "league_monthly_points_medal": {
+      "unlock": 27,
+      "method": "player_league_award (league_kind='points' AND period_type='month' AND finish_rank<=3)",
+      "band": "accomplished?"
+    },
+    "league_monthly_points_winner": {
+      "unlock": 13,
+      "method": "player_league_award (league_kind='points' AND period_type='month' AND is_winner=1)",
+      "band": "legendary?"
+    },
+    "league_weekly_activity_medal": {
+      "unlock": 54,
+      "method": "player_league_award (league_kind='activity' AND period_type='week' AND finish_rank<=3)",
+      "band": "dedicated?"
+    },
+    "league_weekly_activity_winner": {
+      "unlock": 33,
+      "method": "player_league_award (league_kind='activity' AND period_type='week' AND is_winner=1)",
+      "band": "accomplished?"
+    },
+    "league_weekly_points_medal": {
+      "unlock": 44,
+      "method": "player_league_award (league_kind='points' AND period_type='week' AND finish_rank<=3)",
+      "band": "dedicated?"
+    },
+    "league_weekly_points_winner": {
+      "unlock": 24,
+      "method": "player_league_award (league_kind='points' AND period_type='week' AND is_winner=1)",
+      "band": "accomplished?"
+    },
+    "league_wins_10": {
+      "unlock": 42,
+      "method": "player_league_totals.wins>=10",
+      "band": "dedicated?"
+    },
+    "league_wins_100": {
+      "unlock": 15,
+      "method": "player_league_totals.wins>=100",
+      "band": "accomplished?"
+    },
+    "league_wins_50": {
+      "unlock": 23,
+      "method": "player_league_totals.wins>=50",
+      "band": "accomplished?"
+    },
+    "league_wins_500": {
+      "unlock": 4,
+      "method": "player_league_totals.wins>=500",
+      "band": "legendary?"
+    },
+    "league_yearly_activity_medal": {
+      "unlock": 15,
+      "method": "player_league_award (league_kind='activity' AND period_type='year' AND finish_rank<=3)",
+      "band": "accomplished?"
+    },
+    "league_yearly_activity_winner": {
+      "unlock": 5,
+      "method": "player_league_award (league_kind='activity' AND period_type='year' AND is_winner=1)",
+      "band": "legendary?"
+    },
+    "league_yearly_points_medal": {
+      "unlock": 12,
+      "method": "player_league_award (league_kind='points' AND period_type='year' AND finish_rank<=3)",
+      "band": "legendary?"
+    },
+    "league_yearly_points_winner": {
+      "unlock": 5,
+      "method": "player_league_award (league_kind='points' AND period_type='year' AND is_winner=1)",
+      "band": "legendary?"
+    },
+    "leaky_merchant": {
+      "unlock": 7,
+      "method": "ratedresults any game",
+      "band": "legendary?"
+    },
+    "lifetime_rivalry": {
+      "unlock": 65,
+      "method": "player_matchup_summary",
+      "band": "dedicated?"
+    },
+    "marathon_day": {
+      "unlock": 79,
+      "method": "player_period_games day max",
+      "band": "dedicated?"
+    },
+    "marathoner_250": {
+      "unlock": 56,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "massive_upset": {
+      "unlock": 39,
+      "method": "ratedresults pre-game ratings",
+      "band": "dedicated?"
+    },
+    "merchant_denied": {
+      "unlock": 6,
+      "method": "ratedresults any game",
+      "band": "legendary?"
+    },
+    "merchant_streak": {
+      "unlock": 2,
+      "method": "chronological",
+      "band": "ultra-rare?"
+    },
+    "merchant_trade_fair": {
+      "unlock": 4,
+      "method": "ratedresults 10-10 draw",
+      "band": "legendary?"
+    },
+    "millennium_merchant_1000": {
+      "unlock": 37,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "minimalist": {
+      "unlock": 79,
+      "method": "ratedresults any game",
+      "band": "dedicated?"
+    },
+    "minimalist_merchant": {
+      "unlock": 4,
+      "method": "chronological",
+      "band": "legendary?"
+    },
+    "moment_of_glory": {
+      "unlock": 62,
+      "method": "player_league_award (daily points win)",
+      "band": "dedicated?"
+    },
+    "monthly_regular": {
+      "unlock": 5,
+      "method": "chronological full month days",
+      "band": "legendary?"
+    },
+    "newbie_welcomer": {
+      "unlock": 75,
+      "method": "chronological debut opponent",
+      "band": "dedicated?"
+    },
+    "nightmare_day": {
+      "unlock": 77,
+      "method": "chronological UTC day",
+      "band": "dedicated?"
+    },
+    "on_the_scoresheet": {
+      "unlock": 94,
+      "method": "chronological 10 scored in row",
+      "band": "pitch"
+    },
+    "peace_streak": {
+      "unlock": 57,
+      "method": "chronological 3 draws row",
+      "band": "dedicated?"
+    },
+    "perfect_day": {
+      "unlock": 36,
+      "method": "chronological UTC day",
+      "band": "dedicated?"
+    },
+    "perfect_storm": {
+      "unlock": 23,
+      "method": "ratedresults any game",
+      "band": "accomplished?"
+    },
+    "period_champion": {
+      "unlock": 87,
+      "method": "player_league_award (any league win)",
+      "band": "pitch"
+    },
+    "persistence": {
+      "unlock": 169,
+      "method": "playertable proxy (catalog 5\u201310)",
+      "band": "pitch"
+    },
+    "rampage": {
+      "unlock": 18,
+      "method": "playertable longest streak proxy",
+      "band": "accomplished?"
+    },
+    "rare_blank": {
+      "unlock": 80,
+      "method": "chronological",
+      "band": "dedicated?"
+    },
+    "regular_customer": {
+      "unlock": 71,
+      "method": "player_matchup_summary max vs one opponent",
+      "band": "dedicated?"
+    },
+    "ruthless": {
+      "unlock": 35,
+      "method": "ratedresults any game",
+      "band": "dedicated?"
+    },
+    "six_goal_draw": {
+      "unlock": 96,
+      "method": "ratedresults any game",
+      "band": "pitch"
+    },
+    "survivor": {
+      "unlock": 32,
+      "method": "ratedresults any game",
+      "band": "accomplished?"
+    },
+    "ten_culprits": {
+      "unlock": 82,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "ten_draws": {
+      "unlock": 71,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "ten_match_saga": {
+      "unlock": 94,
+      "method": "player_matchup_summary",
+      "band": "pitch"
+    },
+    "ten_opponents": {
+      "unlock": 91,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "ten_wins": {
+      "unlock": 78,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "ten_wins_straight": {
+      "unlock": 35,
+      "method": "playertable longest streak proxy",
+      "band": "dedicated?"
+    },
+    "thousand_goal_club": {
+      "unlock": 49,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "travelling_salesman": {
+      "unlock": 18,
+      "method": "ratedresults distinct DD opponents",
+      "band": "accomplished?"
+    },
+    "twenty_five_victims": {
+      "unlock": 43,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "twenty_goal_chaos": {
+      "unlock": 15,
+      "method": "ratedresults any game",
+      "band": "accomplished?"
+    },
+    "ultra_day_30": {
+      "unlock": 5,
+      "method": "player_period_games day max",
+      "band": "legendary?"
+    },
+    "united_nations": {
+      "unlock": 3,
+      "method": "chronological 5 draws row",
+      "band": "ultra-rare?"
+    },
+    "unlucky": {
+      "unlock": 7,
+      "method": "chronological",
+      "band": "legendary?"
+    },
+    "victim_of_commerce": {
+      "unlock": 121,
+      "method": "ratedresults any game",
+      "band": "pitch"
+    },
+    "weekly_regular": {
+      "unlock": 47,
+      "method": "chronological ~13 weeks",
+      "band": "dedicated?"
+    },
+    "welcome_to_the_ladder": {
+      "unlock": 252,
+      "method": "playertable",
+      "band": "pitch"
+    },
+    "wide_net": {
+      "unlock": 54,
+      "method": "playertable",
+      "band": "dedicated?"
+    },
+    "win_drought": {
+      "unlock": 102,
+      "method": "playertable longest streak proxy",
+      "band": "pitch"
+    },
+    "win_hat_trick": {
+      "unlock": 85,
+      "method": "playertable longest streak proxy",
+      "band": "dedicated?"
+    },
+    "win_streak_30": {
+      "unlock": 6,
+      "method": "playertable longest streak proxy",
+      "band": "legendary?"
+    },
+    "year_round": {
+      "unlock": 43,
+      "method": "chronological 12 consec months",
+      "band": "dedicated?"
+    }
+  }
+}
