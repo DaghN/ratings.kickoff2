@@ -1,48 +1,7 @@
 /**
- * Milestone garden, profile glance, meta leaderboard accents.
+ * Milestone garden, meta leaderboard accents.
+ * Hero milestone strip: theme.css (.k2-player-hero__milestones*).
  */
-
-.k2-ms-glance {
-	margin: 0 0 12px;
-	padding: 10px 14px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
-	font-size: 14px;
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 10px 14px;
-}
-
-.k2-ms-glance__link {
-	color: var(--k2-text-primary);
-	text-decoration: none;
-	font-weight: 500;
-}
-
-.k2-ms-glance__link strong {
-	color: var(--k2-link-star);
-	font-weight: 600;
-}
-
-.k2-ms-glance__tiers {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	font-variant-numeric: tabular-nums;
-	font-weight: 600;
-}
-
-.k2-ms-glance__sep {
-	color: var(--k2-text-muted);
-	font-weight: 400;
-}
-
-.k2-ms-glance__tier--pitch { color: var(--k2-chart-pitch); }
-.k2-ms-glance__tier--chrome { color: var(--k2-chart-chrome); }
-.k2-ms-glance__tier--amber { color: var(--k2-chart-amber); }
-.k2-ms-glance__tier--holo { color: var(--k2-chart-holo); }
 
 .k2-ms-garden__section {
 	margin-bottom: 28px;

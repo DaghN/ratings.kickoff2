@@ -4,7 +4,7 @@
     "eligible_players": 261,
     "veteran_players": 107,
     "ratedresults_games": 74870,
-    "computed_at": "2026-05-28 19:29 UTC"
+    "computed_at": "2026-05-29 07:07 UTC"
   },
   "counts": {
     "absurd_day": {
@@ -123,9 +123,9 @@
       "band": "pitch"
     },
     "diversity_merchant": {
-      "unlock": 68,
-      "method": "matchup rows with 10+ goals vs 5+ opponents",
-      "band": "dedicated?"
+      "unlock": 25,
+      "method": "ratedresults distinct per-game DD opponents (>=5)",
+      "band": "accomplished?"
     },
     "dozen_dash": {
       "unlock": 31,
@@ -203,8 +203,8 @@
       "band": "dedicated?"
     },
     "giant_slayer": {
-      "unlock": 22,
-      "method": "chronological beat top-rated at time",
+      "unlock": 31,
+      "method": "chrono beat #1 active (365d rolling UTC)",
       "band": "accomplished?"
     },
     "goal_fest_draw": {
@@ -499,7 +499,7 @@
     },
     "travelling_salesman": {
       "unlock": 18,
-      "method": "ratedresults distinct DD opponents",
+      "method": "ratedresults distinct per-game DD opponents (>=10)",
       "band": "accomplished?"
     },
     "twenty_five_victims": {

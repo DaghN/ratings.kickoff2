@@ -6,7 +6,7 @@
 
 **Source:** [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) (`want` + `maybe` only).
 
-**Unlock counts (read-only probe):** **261** players with ≥1 rated game; **107** veterans (≥20 games) = design population on `ko2unity_db`; rated games **74870**; **2026-05-28 10:30 UTC**. No DB writes. Regenerate: `python scripts/oneoff/milestone_unlock_counts.py --write-doc`. Scratch: `data/scratch/milestone_unlock_counts.json`.
+**Unlock counts (read-only probe):** **261** players with ≥1 rated game; **107** veterans (≥20 games) = design population on `ko2unity_db`; rated games **74870**; **2026-05-29 07:07 UTC**. No DB writes. Regenerate: `python scripts/oneoff/milestone_unlock_counts.py --write-doc`. Scratch: `data/scratch/milestone_unlock_counts.json`.
 
 **Tier targets:** Aspirational (pitch) — rarity floor; Dedicated (chrome) — bulk mid ladder; **Accomplished** (amber) ~**15–20** keystones (~15–25 veterans each); **Legendary** (holo) ~**10–15** (flavor + ~3–14% veterans). Thresholds and catalog can be nudged if band counts are off.
 
@@ -46,7 +46,7 @@
 | Curate | Key | Display name | Rule (short) | Data | | **Unlock** | **%≥1g** | **%vet** | **Band** | Method |
 |--------|-----|--------------|--------------|------| |--------:|--------:|--------:|--------|--------|
 | want | `debut` | **Debut** | First rated game | ✅ | 261 | 100.0% | 244%+ | pitch | playertable |
-| maybe | `persistence` | **Persistence** *(name TBD)* | ~5–10 rated games; early survival | ✅ | 169 | 64.8% | 158%+ | pitch | playertable proxy (catalog 5–10) |
+| maybe | `persistence` | **Persistence** *(name TBD)* | ~5–10 rated games; early survival | ✅ | 134 | 51.3% | 125%+ | pitch | playertable NumberGames>=10 |
 | want | `established_20` | **Established** | 20 rated games | ✅ **DB** | 107 | 41.0% | 100%+ | pitch | playertable |
 | want | `first_victory` | **First victory** | First win | ✅ | 145 | 55.6% | 136%+ | pitch | playertable |
 | want | `first_goal` | **First goal** | First career goal | ✅ | 226 | 86.6% | 211%+ | pitch | playertable |
@@ -55,7 +55,7 @@
 | want | `first_shutout` | **First shutout** | First clean sheet | ✅ | 127 | 48.7% | 119%+ | pitch | playertable |
 | want | `newbie_welcomer` | **Newbie welcomer** | You were first rated opponent in someone’s debut | 🔶 | 75 | 28.7% | 70.1% | dedicated? | chronological debut opponent |
 | want | `generous` | **Generous** | In a debut game, let newcomer score ≥2 | 🔶 | 43 | 16.5% | 40.2% | dedicated? | chronological debut opp, newbie scored 2+ |
-| maybe | `entered_arena` | **Entered the arena** | First lobby presence | 🔴 presence logs | 261 | 100.0% | 244%+ | pitch | assumed all eligible (register = lobby) |
+| maybe | `entered_arena` | **Entered the arena** | First lobby presence | 🔴 presence logs | 261 | 100.0% | 244%+ | pitch | playertable JoinDate (register = enter lobby) |
 
 ---
 
@@ -227,8 +227,8 @@
 | want | `victim_of_commerce` | **Victim of commerce** | First time conceded 10+ | ✅ | 121 | 46.4% | 113%+ | pitch | ratedresults any game |
 | want | `merchant_trade_fair` | **Merchant trade fair** | Draw **10–10** | ✅ | 4 | 1.5% | 3.7% | legendary? | ratedresults 10-10 draw |
 | want | `leaky_merchant` | **Leaky merchant** | Won 10+ scored and 9 conceded | ✅ | 7 | 2.7% | 6.5% | legendary? | ratedresults any game |
-| want | `travelling_salesman` | **Travelling salesman** | DD vs 10 different opponents | 🔶 | 18 | 6.9% | 16.8% | accomplished? | ratedresults distinct DD opponents |
-| want | `diversity_merchant` | **Diversity merchant** | DD vs 5 different opponents | 🔶 | 68 | 26.1% | 63.6% | dedicated? | matchup rows with 10+ goals vs 5+ opponents |
+| want | `travelling_salesman` | **Travelling salesman** | DD vs 10 different opponents | 🔶 | 18 | 6.9% | 16.8% | accomplished? | ratedresults distinct per-game DD opponents (>=10) |
+| want | `diversity_merchant` | **Diversity merchant** | DD vs 5 different opponents | 🔶 | 25 | 9.6% | 23.4% | accomplished? | ratedresults distinct per-game DD opponents (>=5) |
 | want | `merchant_streak` | **Merchant streak** | 5 consecutive games scoring 10+ | 🔶 | 2 | 0.8% | 1.9% | ultra-rare? | chronological |
 | want | `minimalist_merchant` | **Minimalist merchant** | 3 consecutive games with exactly 10 goals scored | 🔶 | 4 | 1.5% | 3.7% | legendary? | chronological |
 
@@ -303,7 +303,7 @@
 | Curate | Key | Display name | Rule (short) | Data | | **Unlock** | **%≥1g** | **%vet** | **Band** | Method |
 |--------|-----|--------------|--------------|------| |--------:|--------:|--------:|--------|--------|
 | want | `massive_upset` | **Massive upset** | Beat opponent 500+ higher (pre-game) | ✅ | 39 | 14.9% | 36.4% | dedicated? | ratedresults pre-game ratings |
-| want | `giant_slayer` | **Giant slayer** | Beat #1 rated **active** player | 🔶 | 31 | 11.8% | 29.0% | accomplished? | chrono beat #1 active (365d rolling UTC) |
+| want | `giant_slayer` | **Giant slayer** | Beat #1 rated **active** player | 🔶 | 31 | 11.9% | 29.0% | accomplished? | chrono beat #1 active (365d rolling UTC) |
 
 *(Elite customer DD vs top active is in §L.)*
 
@@ -379,8 +379,8 @@ Target garden sizes (design): **pitch** + **dedicated** = bulk; **accomplished**
 | Band hint | Count | Target tier size (design) |
 |-----------|------:|---------------------------|
 | pitch | 22 | large (rarity floor; many at 80%+ vet) |
-| dedicated? | 51 | large (~35–50) |
-| accomplished? | 19 | ~15–20 keystones |
+| dedicated? | 50 | large (~35–50) |
+| accomplished? | 20 | ~15–20 keystones |
 | legendary? | 16 | ~10–15 |
 | ultra-rare? | 4 | legendary or nudge threshold |
 | ? | 0 |  |
@@ -405,25 +405,25 @@ Holo — flavor + long horizons. Sorted rarest first (%vet).
 | § | Key | Display | Unlock | %vet | Rule (short) |
 |---|-----|---------|-------:|-----:|--------------|
 | C | `club_10000` | **10K** | 1 | 0.9% | 10,000 rated games |
-| S | `century_of_rivals` | **Century of rivals** | 2 | 1.9% | 100 unique opponents |
 | L | `merchant_streak` | **Merchant streak** | 2 | 1.9% | 5 consecutive games scoring 10+ |
+| S | `century_of_rivals` | **Century of rivals** | 2 | 1.9% | 100 unique opponents |
 | N | `united_nations` | **United Nations** | 3 | 2.8% | 5 draws in a row |
-| L | `merchant_trade_fair` | **Merchant trade fair** | 4 | 3.7% | Draw **10–10** |
-| J | `league_wins_500` | 500 league wins | 4 | 3.7% | 500 league wins |
 | L | `minimalist_merchant` | **Minimalist merchant** | 4 | 3.7% | 3 consecutive games with exactly 10 goals scored |
+| J | `league_wins_500` | 500 league wins | 4 | 3.7% | 500 league wins |
+| L | `merchant_trade_fair` | **Merchant trade fair** | 4 | 3.7% | Draw **10–10** |
 | I | `league_yearly_activity_winner` | Yearly · activity · winner | 5 | 4.7% | Yearly · activity · winner |
-| G | `ultra_day_30` | *(name TBD)* | 5 | 4.7% | 30 rated games in one UTC day |
 | I | `league_yearly_points_winner` | Yearly · points · winner | 5 | 4.7% | Yearly · points · winner |
+| G | `ultra_day_30` | *(name TBD)* | 5 | 4.7% | 30 rated games in one UTC day |
 | F | `monthly_regular` | **Monthly regular** | 5 | 4.7% | Rated game on every calendar day of at least one month |
+| V | `merchant_denied` | **Merchant denied** | 6 | 5.6% | Lost 10–9 |
 | P | `club_2300` | *(name TBD)* | 6 | 5.6% | Peak rating ≥2300 |
 | U | `win_streak_30` | *(name TBD)* | 6 | 5.6% | 30 wins in a row |
-| V | `merchant_denied` | **Merchant denied** | 6 | 5.6% | Lost 10–9 |
 | O | `unlucky` | **Unlucky** | 7 | 6.5% | 5 consecutive 1-margin losses |
 | L | `leaky_merchant` | **Leaky merchant** | 7 | 6.5% | Won 10+ scored and 9 conceded |
 | O | `knife_edge` | **Knife-edge** | 8 | 7.5% | 5 consecutive 1-margin wins |
 | K | `filthy_fifteen` | **Filthy fifteen** | 13 | 12.1% | 15+ in one game |
 
-### Accomplished / Keystones (20)
+### Accomplished / Keystones (21)
 
 Amber — completeness palette. Sorted rarest first (%vet).
 
@@ -437,20 +437,21 @@ Amber — completeness palette. Sorted rarest first (%vet).
 | H | `activity_king` | **Activity king** | 17 | 15.9% | Won monthly **activity** league |
 | U | `rampage` | **Rampage** | 18 | 16.8% | 15 wins in a row |
 | L | `travelling_salesman` | **Travelling salesman** | 18 | 16.8% | DD vs 10 different opponents |
-| Q | `giant_slayer` | **Giant slayer** | 31 | 29.0% | Beat #1 rated **active** player |
-| J | `league_wins_50` | 50 league wins | 23 | 21.5% | 50 league wins |
 | M | `perfect_storm` | **Perfect storm** | 23 | 21.5% | Won 10–0 |
+| J | `league_wins_50` | 50 league wins | 23 | 21.5% | 50 league wins |
 | I | `league_weekly_points_winner` | Weekly · points · winner | 24 | 22.4% | Weekly · points · winner |
-| S | `fifty_faces` | **Fifty faces** | 26 | 24.3% | 50 unique opponents |
-| P | `club_2000` | **2000 club** | 26 | 24.3% | ≥2000 |
+| L | `diversity_merchant` | **Diversity merchant** | 25 | 23.4% | DD vs 5 different opponents |
 | G | `absurd_day` | **Absurd day** | 26 | 24.3% | 20 rated games in one UTC day |
+| P | `club_2000` | **2000 club** | 26 | 24.3% | ≥2000 |
+| S | `fifty_faces` | **Fifty faces** | 26 | 24.3% | 50 unique opponents |
 | I | `league_monthly_points_medal` | Monthly · points · medal | 27 | 25.2% | Monthly · points · medal |
+| Q | `giant_slayer` | **Giant slayer** | 31 | 29.0% | Beat #1 rated **active** player |
 | K | `dozen_dash` | **Dozen dash** | 31 | 29.0% | 12+ in one game |
 | M | `survivor` | *(Survivor / Last man standing TBD)* | 32 | 29.9% | Won after opponent scored 7+ |
 | I | `league_weekly_activity_winner` | Weekly · activity · winner | 33 | 30.8% | Weekly · activity · winner |
 | O | `ruthless` | **Ruthless** | 35 | 32.7% | Won by 10+ goal margin |
 
-### Dedicated (50)
+### Dedicated (49)
 
 Chrome — mid ladder bulk. Sorted rarest first (promotion candidates at top).
 
@@ -489,7 +490,6 @@ Chrome — mid ladder bulk. Sorted rarest first (promotion candidates at top).
 | D | `battle_scarred` | **Battle-scarred** | 65 | 60.7% | 100 career losses |
 | R | `lifetime_rivalry` | **Lifetime rivalry** | 65 | 60.7% | 50th rated game vs same opponent |
 | G | `grind_month` | **Grind month** | 67 | 62.6% | 50 rated games in one calendar month |
-| L | `diversity_merchant` | **Diversity merchant** | 68 | 63.6% | DD vs 5 different opponents |
 | D | `ten_draws` | **Ten draws** | 71 | 66.4% | 10 career draws |
 | R | `regular_customer` | **Regular customer** | 71 | 66.4% | 10 wins vs same opponent |
 | T | `five_victims` | **Five victims** | 71 | 66.4% | 5 distinct victims (wins) |
@@ -518,11 +518,11 @@ Pitch — rarity floor. Sorted commonest first (%vet ↓).
 | A | `welcome_to_the_ladder` | **Welcome to the ladder** | 252 | 236%+ | First loss |
 | A | `first_goal` | **First goal** | 226 | 211%+ | First career goal |
 | K | `brace` | **Brace** | 183 | 171%+ | 2+ goals in one game |
-| A | `persistence` | **Persistence** *(name TBD)* | 169 | 158%+ | ~5–10 rated games; early survival |
 | K | `hat_trick` | **Hat-trick** | 156 | 146%+ | 3+ in one game |
 | A | `first_victory` | **First victory** | 145 | 136%+ | First win |
 | A | `first_handshake` | **First handshake** | 146 | 136%+ | First draw |
 | U | `cold_streak` | **Cold streak** | 138 | 129%+ | 5 losses in a row |
+| A | `persistence` | **Persistence** *(name TBD)* | 134 | 125%+ | ~5–10 rated games; early survival |
 | G | `hot_day` | **Hot day** | 134 | 125%+ | 5 rated games in one UTC day |
 | A | `first_shutout` | **First shutout** | 127 | 119%+ | First clean sheet |
 | L | `victim_of_commerce` | **Victim of commerce** | 121 | 113%+ | First time conceded 10+ |

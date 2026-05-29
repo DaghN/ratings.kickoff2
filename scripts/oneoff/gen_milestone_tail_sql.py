@@ -2,7 +2,11 @@
 """
 Generate player_milestones_rebuild_tail.sql — final curated keys (playertable + matchup).
 
-First chronological cross + source_game_id. Regenerate:
+Also writes player_milestones_rebuild_diversity_merchant.sql (surgical DELETE + INSERTs).
+
+diversity_merchant / travelling_salesman: distinct opponents in a game where player scored 10+.
+
+Regenerate:
   python scripts/oneoff/gen_milestone_tail_sql.py
 """
 from __future__ import annotations
@@ -21,6 +25,9 @@ from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
 
 OUT = _REPO / "scripts" / "ladder" / "sql" / "player_milestones_rebuild_tail.sql"
+OUT_DIVERSITY = (
+    _REPO / "scripts" / "ladder" / "sql" / "player_milestones_rebuild_diversity_merchant.sql"
+)
 
 GAME_N: list[tuple[str, int, int]] = [
     ("half_century_50", 50, 50),
@@ -72,10 +79,8 @@ class PlayerTail:
     culprits: set[int] = field(default_factory=set)
     dd_opponents: set[int] = field(default_factory=set)
     cs_opponents: set[int] = field(default_factory=set)
-    merchant_opponents: set[int] = field(default_factory=set)
     pair_games: dict[int, int] = field(default_factory=lambda: defaultdict(int))
     pair_wins: dict[int, int] = field(default_factory=lambda: defaultdict(int))
-    pair_goals: dict[int, int] = field(default_factory=lambda: defaultdict(int))
     done: set[str] = field(default_factory=set)
 
 
@@ -207,21 +212,7 @@ def main() -> None:
             if gf >= 10 and opp not in st.dd_opponents:
                 st.dd_opponents.add(opp)
                 _check_thresholds(
-                    rows, pid, st, dt, gid, SPECIAL_DD_OPP[1:], len(st.dd_opponents)
-                )
-
-            prev_pair_goals = st.pair_goals[opp]
-            st.pair_goals[opp] += gf
-            if prev_pair_goals < 10 <= st.pair_goals[opp] and opp not in st.merchant_opponents:
-                st.merchant_opponents.add(opp)
-                _check_thresholds(
-                    rows,
-                    pid,
-                    st,
-                    dt,
-                    gid,
-                    SPECIAL_DD_OPP[:1],
-                    len(st.merchant_opponents),
+                    rows, pid, st, dt, gid, SPECIAL_DD_OPP, len(st.dd_opponents)
                 )
 
             st.pair_games[opp] += 1
@@ -250,8 +241,28 @@ def main() -> None:
         )
     lines.append("")
     OUT.write_text("\n".join(lines), encoding="utf-8")
+
+    div_lines = [
+        "-- Surgical: diversity_merchant only (gen_milestone_tail_sql.py)",
+        "-- Per-game DD (10+ goals) vs 5 distinct opponents. Run after DELETE below.",
+        "DELETE FROM `player_milestones` WHERE `milestone_key` = 'diversity_merchant';",
+        "",
+    ]
+    div_rows = [r for r in rows if r[1] == "diversity_merchant"]
+    for pid, mk, dt, val, gid in div_rows:
+        ts = dt.strftime("%Y-%m-%d %H:%M:%S")
+        div_lines.append(
+            f"INSERT INTO `player_milestones` "
+            f"(`player_id`, `milestone_key`, `achieved_at`, `value`, "
+            f"`source_kind`, `source_game_id`, `source_league_kind`, `source_period_type`, `source_period_start`) "
+            f"VALUES ({pid}, '{mk}', '{ts}', {val}, 'game', {gid}, NULL, NULL, NULL);"
+        )
+    div_lines.append("")
+    OUT_DIVERSITY.write_text("\n".join(div_lines), encoding="utf-8")
+
     keys = {r[1] for r in rows}
     print(f"Wrote {OUT} ({len(rows)} rows, {len(keys)} keys)")
+    print(f"Wrote {OUT_DIVERSITY} ({len(div_rows)} diversity_merchant rows)")
 
 
 if __name__ == "__main__":

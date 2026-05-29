@@ -45,7 +45,9 @@ No PG-NNN IDs. When prod maintains an aggregate on each new game, note **table n
 | Table / area | Prod live writer | Notes |
 |--------------|------------------|-------|
 | Aggregate tables in contract | Pending Steve | Incremental rules: contract § per table |
+| `player_milestones` (110 keys) | Pending Steve | Full spec: contract § `player_milestones` post-game (M1–M7 phases); rebuild REP-008 on staging/prod first |
 | `generalstatstable` records | Pending Steve | [`records-post-game-exception.md`](records-post-game-exception.md) |
+| `player_play_streaks` + play-streak HoF cols | Pending Steve | Contract § `player_play_streaks`; PHP reference `includes/player_play_streaks.php`; after `player_period_games`; **staging REP-015 done** May 2026 — prod C++ still required for live games |
 | `playertable` / core ladder | Existing C++ | Replay sandbox: REP-001; Elo K/fade: periodic + future cutover |
 
 **Retired May 2026:** `docs/coordination/cpp-snippets/` (deleted); `post-game-cpp-handoff.md` merged into this file.

@@ -104,6 +104,7 @@ TIER_ACCOMPLISHED = frozenset(
         "league_wins_100",
         "twenty_goal_chaos",
         "activity_king",
+        "diversity_merchant",
         "travelling_salesman",
         "rampage",
         "ruthless",
@@ -346,20 +347,6 @@ def matchup_counts(cur) -> dict[str, CountResult]:
             """
         )
         out[key] = CountResult(int(cur.fetchone()["n"]), method)
-    cur.execute(
-        f"""
-        SELECT COUNT(*) AS n FROM (
-          SELECT player_id FROM player_matchup_summary
-          WHERE player_id IN (SELECT ID FROM playertable WHERE {ELIGIBLE_WHERE})
-            AND goals_for >= 10
-          GROUP BY player_id
-          HAVING COUNT(DISTINCT opponent_id) >= 5
-        ) t
-        """
-    )
-    out["diversity_merchant"] = CountResult(
-        int(cur.fetchone()["n"]), "matchup rows with 10+ goals vs 5+ opponents"
-    )
     return out
 
 
@@ -438,7 +425,7 @@ def clean_sheet_spread_count(cur) -> CountResult:
     return CountResult(int(cur.fetchone()["n"]), "ratedresults distinct CS victims")
 
 
-def travelling_salesman_count(cur) -> CountResult:
+def dd_distinct_opponents_count(cur, min_opponents: int) -> CountResult:
     cur.execute(
         f"""
         SELECT COUNT(*) AS n FROM (
@@ -449,11 +436,18 @@ def travelling_salesman_count(cur) -> CountResult:
           ) r
           WHERE pid IN (SELECT ID FROM playertable WHERE {ELIGIBLE_WHERE})
           GROUP BY pid
-          HAVING COUNT(DISTINCT oid) >= 10
+          HAVING COUNT(DISTINCT oid) >= {int(min_opponents)}
         ) t
         """
     )
-    return CountResult(int(cur.fetchone()["n"]), "ratedresults distinct DD opponents")
+    label = (
+        f"ratedresults distinct per-game DD opponents (>={min_opponents})"
+    )
+    return CountResult(int(cur.fetchone()["n"]), label)
+
+
+def travelling_salesman_count(cur) -> CountResult:
+    return dd_distinct_opponents_count(cur, 10)
 
 
 def period_burst_counts(cur) -> dict[str, CountResult]:
@@ -1521,6 +1515,7 @@ def main(write_doc: bool, doc_only: bool, export_seed: bool) -> None:
                 if k in ("travelling_salesman", "clean_sheet_spread"):
                     continue
                 results[k] = v
+            results["diversity_merchant"] = dd_distinct_opponents_count(cur, 5)
             results["travelling_salesman"] = travelling_salesman_count(cur)
             results["clean_sheet_spread"] = clean_sheet_spread_count(cur)
 

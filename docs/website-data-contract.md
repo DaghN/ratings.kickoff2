@@ -35,6 +35,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 |-------|--------|---------------|-------------------------|
 | `player_period_games` | SCH-004, SCH-006 | `player_period_games_rebuild.sql` | Both players × day/week/month/year +1 |
 | `player_peak_period_games` | SCH-006 | `player_peak_period_games_rebuild.sql` | After period games; update peak if beaten |
+| `player_play_streaks` | SCH-014 | `rebuild_player_play_streaks.php` (REP-015) | After period games; day/week streak + HoF if personal best rises |
 | `server_daily_activity` | SCH-007 | `server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
 | `player_period_league` | SCH-008 | `player_period_league_rebuild.sql` | W/D/L/points per period |
 | `league_period` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only** — finalize closed periods |
@@ -42,7 +43,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_league_totals` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only**; re-aggregate from awards |
 | `player_league_slice_totals` | SCH-010 | `player_league_slice_totals_rebuild.sql` (REP-013) | **Periodic only**; with career totals after awards |
 | `milestone_definitions` | SCH-011 | `scripts/oneoff/load_milestone_definitions.py` | Static catalog; reload when seed changes |
-| `player_milestones` | SCH-008 | `player_milestones_rebuild.sql` | Insert on threshold cross |
+| `player_milestones` | SCH-008, SCH-012–013 | `player_milestones_rebuild.sql` (+ spliced generators) | § `player_milestones` — game / league / lobby; M1–M7 phases |
 | `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
 | `server_period_game_totals` | SCH-008 | `server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
 | `server_period_matchups` | SCH-008 | `server_period_matchups_rebuild.sql` | Canonical pair ×4 period types |
@@ -186,6 +187,45 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 **Parity check:** Every cache row must match the best row in `player_period_games` for that `(period_type, player_id)`.
 
 **Implementation:** `scripts/ladder/sql/player_peak_period_games_rebuild.sql`.
+
+---
+
+### `player_play_streaks`
+
+**Lifecycle:** Active.
+
+**Purpose:** Per-player consecutive **rated play** streaks: UTC calendar days and UTC weeks (Monday–Sunday) with at least one rated game in each period. Powers future profile/HoF surfaces; server records on `generalstatstable` (`LongestDailyPlayStreak*`, `LongestWeeklyPlayStreak*`).
+
+**Source truth:** `player_period_games` (day/week `period_start` lists) + `ratedresults` (establishing game id/date).
+
+**Grain:** one row per `(player_id, streak_type)` where `streak_type` ∈ `day`, `week`.
+
+**Primary key:** `(player_id, streak_type)`.
+
+| Column | Meaning |
+|--------|---------|
+| `current_streak` | Length of the active run (may be stale if player has not played since the run ended — apply alive rule on read) |
+| `current_anchor` | UTC date of last day in the run, or Monday of last week in the run |
+| `current_last_game_id` | `ratedresults.id` — **first** game on `current_anchor` period (not updated by later games the same period) |
+| `best_streak` | Personal best consecutive periods |
+| `best_achieved_at` | `ratedresults.Date` of `best_last_game_id` |
+| `best_last_game_id` | **First** rated game on the **last** day/week of the best run |
+
+**Alive rule (read / display):** UTC “today”. **Day:** `current_anchor` is today or yesterday → show `current_streak`, else **0**. **Week:** `current_anchor` is this week’s Monday or last week’s Monday → show `current_streak`, else **0**.
+
+**Full rebuild:** Walk each player’s sorted `player_period_games` day/week `period_start` values; split into consecutive runs (next period = previous + 1 day or + 7 days). Best run = max length; tie on length → earlier `best_achieved_at`. Current run = last run in history (alive applied only at read). Establishing games = `MIN(ratedresults.id)` per `(player, period)`. Then set HoF columns from global best rows.
+
+**Post-game rule (per player, after `player_period_games` upsert):**
+
+1. **Current:** Same period as `current_anchor` → no length change, do not move `current_last_game_id`. Next period → `current_streak + 1`, new anchor, `current_last_game_id` = this game if first on that period. Gap → ended run; if ended length **>** `best_streak`, update personal best from establishing game on previous anchor; start new run at 1.
+2. **Personal best:** Update only when `best_streak` **strictly increases** (equal length with later date does not replace).
+3. **HoF** (`generalstatstable` id=1): Only if step 2 increased `best_streak`. Beat incumbent when: greater length; or same length and earlier `best_achieved_at`; or same length, same `best_last_game_id`, and this player is `ratedresults.idB` (mutual game).
+
+**Parity check:** Rebuild from `player_period_games` must match incremental simulation on a sample of players; HoF daily/weekly equals top `best_streak` from table with tie order above.
+
+**Implementation:** `site/public_html/includes/player_play_streaks.php`; `scripts/rebuild_player_play_streaks.php`; staging `staging-scripts/run_player_play_streaks_rebuild.php`. Handoff: [`coordination/play-streaks-staging-handoff.md`](coordination/play-streaks-staging-handoff.md).
+
+**UI (read stored truth):** Leaderboards → Streaks [`ranked4.php`](../site/public_html/ranked4.php) — **Days** / **Weeks** (`best_streak` from `player_play_streaks`). Hall of Fame [`server2.php`](../site/public_html/server2.php) — **Most days in a row** / **Most weeks in a row** (`generalstatstable` `LongestDailyPlayStreak*` / `LongestWeeklyPlayStreak*`). **Staging verified** May 2026 (Steve; max day 87, week 126).
 
 ---
 
@@ -436,26 +476,181 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 | Streaks | 8 keys | Chronological first cross (`gen_milestone_streak_sql.py` → `player_milestones_rebuild_streaks.sql`) |
 | Period bursts | 5 keys (`hot_day` … `grind_month`) | `player_period_games` first cross + last game that UTC day/month (`player_milestones_rebuild_period.sql`) |
 | Chronological | 16 keys | `gen_milestone_chrono_sql.py` → `player_milestones_rebuild_chrono.sql` (first cross; `peace_streak` in streaks batch) |
-| Tail playertable + matchup | 30 keys | `gen_milestone_tail_sql.py` → `player_milestones_rebuild_tail.sql` (first cross; `diversity_merchant` = 10+ cumulative goals vs opponent per matchup probe) |
+| Tail playertable + matchup | 30 keys | `gen_milestone_tail_sql.py` → `player_milestones_rebuild_tail.sql` (first cross; `diversity_merchant` = per-game DD vs 5 opponents) |
 
-**Full rebuild:** `scripts/ladder/sql/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Local parity: **110** distinct `milestone_key` values.
+**Full rebuild:** `scripts/ladder/sql/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **110** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL).
 
-**Post-game rule:** If updated player totals or the game score cross a milestone threshold, insert the milestone if it does not already exist, with `source_kind` + game or league columns set on that event. League keys: insert on league finalize when award row is written (copy league identity from the new `player_league_award` row). Game keys: set `source_game_id` to the rated game that caused the cross.
+**Schema:** SCH-011 (`milestone_definitions`), SCH-012 + SCH-013 (`player_milestones` + `source_kind` including `lobby`).
 
-**`giant_slayer` (game, chronological — active #1):** After applying this rated game’s Elo and `LastGame` for both players, compute **active #1** at game time `Date` (UTC):
+---
 
-- **Active player:** `LastGame` within **365 rolling days** before `Date`, **or** `idA` / `idB` of this game (they are playing now).
-- **Active #1:** player with highest current rating among active players; tie → highest `playertable.ID`.
-- **Unlock** for winner `idA` or `idB` (first time only): opponent is active #1, opponent ≠ self, pre-game `Rating_opponent >= Rating_self` from this row.
+#### Post-game rule (summary)
+
+**First unlock only** — one row per `(player_id, milestone_key)`. After history is backfilled (REP-008), the live writer **inserts on threshold cross** for new events only. Website v0 is **read-only** until this ships on prod.
+
+| Trigger | When | `source_kind` |
+|---------|------|----------------|
+| Rated game | After `ratedresults` insert + `playertable` update for both players | `game` |
+| League period close | When `player_league_award` row(s) written (PER-003 / finalize) | `league` |
+| Account register | When `playertable` row created | `lobby` (`entered_arena` only) |
+
+Steve implements from **`ratings_cpp.txt`** merge + this section. Spec parity: rebuild SQL / `scripts/oneoff/gen_milestone_*.py` (same rules, batch mode).
+
+---
+
+#### Post-game write contract (authoritative)
+
+**Connection:** `SET time_zone = '+00:00'` before reading `ratedresults.Date` or league `period_end`.
+
+**Idempotent insert (required pattern):**
+
+```sql
+-- Pseudocode: skip if row exists
+IF NOT EXISTS (
+  SELECT 1 FROM player_milestones
+  WHERE player_id = ? AND milestone_key = ?
+) THEN
+  INSERT INTO player_milestones (
+    player_id, milestone_key, achieved_at, value,
+    source_kind, source_game_id,
+    source_league_kind, source_period_type, source_period_start
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+END IF;
+```
+
+- **`achieved_at`:** UTC instant of the unlock event (`ratedresults.Date`, `player_league_award.period_end`, or `playertable.JoinDate`).
+- **`value`:** Threshold snapshot at cross (e.g. `20` for `established_20`, `3` for `brace`) — match rebuild SQL for that key.
+- **Never update** `achieved_at` on duplicate events (first cross is permanent).
+
+**Eligibility (game-backed keys):** Player must exist on `playertable`. Rebuild uses `NumberGames >= 1` for most keys; live writer may insert `debut` / `first_*` on the game that brings `NumberGames` from 0→1. Do not insert game milestones for players with no `playertable` row.
+
+**Order after one rated game (both `idA` and `idB`):**
+
+1. Insert `ratedresults` (existing).
+2. Update `playertable` totals, streaks, peaks, network counts (existing).
+3. Update derived tables per contract (`player_period_games`, `player_matchup_summary`, …).
+4. **Milestone checks** (this section) for each affected player — use **post-update** counters and **this game’s** score/ratings.
+
+Period-burst keys (`hot_day`, `marathon_day`, `absurd_day`, `ultra_day_30`, `grind_month`) run **after** `player_period_games` is incremented for the game’s UTC day/month.
+
+---
+
+#### Game-triggered families (`source_kind = game`)
+
+| Family | Keys (count) | Cross condition (first time) | `value` | Spec / rebuild |
+|--------|-------------:|----------------------------|---------|----------------|
+| Nth rated appearance | `debut`, `persistence`, `established_20`, `half_century_50`, `centurion_100`, `marathoner_250`, `club_500`, `millennium_merchant_1000`, `club_10000` | `NumberGames` equals N after this game | N | `player_milestones_rebuild.sql` |
+| First 10+ goal game | `dd_merchant_10` | First game with `goals_for >= 10` (player side) | 10 | same |
+| Peak rating | `club_1700`, `club_1800`, `club_2000`, `club_2300` | `PeakRating` (post-game) first reaches threshold | threshold | same (`NewRatingA/B` running peak in rebuild) |
+| Exists feats | 18 keys (`brace`, `hat_trick`, … `leaky_merchant`) | First game matching condition on **player side** | see generator | `gen_milestone_exists_sql.py` — conditions in file |
+| Streak / career | 8 keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`, `peace_streak`, `ten_wins`) | **Current** streak or career wins at end of this game reaches threshold (not `Longest*` alone) | threshold | `gen_milestone_streak_sql.py` |
+| Period burst | 5 keys | After period bucket update: day/month `games` count first reaches 5/10/20/30/50; `achieved_at` = **last game that UTC day/month** (same as rebuild LATERAL) | 5/10/20/30/50 | `player_milestones_rebuild_period.sql` |
+| Chronological | 16 keys (`newbie_welcomer`, `generous`, `merchant_streak`, `perfect_day`, …) | Per-game state machine; see below | varies | `gen_milestone_chrono_sql.py` |
+| Tail / playertable | 30 keys (`first_victory`, `century_of_wins`, `ten_opponents`, `travelling_salesman`, …) | Per-game counters / network sets; see below | varies | `gen_milestone_tail_sql.py` |
+
+**Exists feat conditions (player side, `ActualScore` as W/D/L):** Same as `gen_milestone_exists_sql.py` — e.g. `brace` → `goals_for >= 2`; `merchant_trade_fair` → draw 10–10; `massive_upset` → win and `(Rating_opponent - Rating_self) >= 500` pre-game.
+
+**Streak keys:** Use in-memory streak counters maintained during `RatingProcedureUnity` (same semantics as rebuild: win resets loss/draw streaks, etc.). Unlock when **current** streak crosses threshold on this game. `ten_wins` = career win count ≥ 10.
+
+**Tail highlights (post-update `playertable` or per-game):**
+
+| Key pattern | Cross when |
+|-------------|------------|
+| `first_victory`, `first_goal`, `first_handshake`, `welcome_to_the_ladder`, `first_shutout` | First win / first scoring game / first draw / first loss / first clean sheet (`goals_against = 0`) |
+| `century_of_wins`, `battle_scarred`, `ten_draws` | 100th win, 100th loss, 10th draw |
+| `hundred_goals`, `thousand_goal_club` | Cumulative `GoalsFor` crosses 100 / 1000 on this game |
+| `fortress_builder`, `clean_sheet_artist` | 25th / 50th clean sheet (`goals_against = 0` on a game) |
+| `ten_opponents` … `century_of_rivals` | `DifferentOpponents` crosses 10 / 25 / 50 / 100 |
+| `five_victims`, `twenty_five_victims`, `ten_culprits` | `DifferentVictims` / `DifferentCulprits` cross thresholds (victim = opponent beaten; culprit = opponent who beat you — same as `finalize_network_counts`) |
+| `diversity_merchant` | 5th **distinct** opponent in a game where player scored 10+ (per-game DD; same family as travelling salesman) |
+| `travelling_salesman` | 10th **distinct** opponent in a game where player scored 10+ |
+| `clean_sheet_spread` | 10th distinct opponent with a clean-sheet win (`goals_against = 0`, `goals_for > 0`) |
+| `ten_match_saga`, `lifetime_rivalry` | 10th / 50th rated game vs same opponent (per directed pair count) |
+| `regular_customer`, `bogeyman` | 10th / 20th win vs same opponent |
+
+**Chronological highlights:**
+
+| Key | Rule (first cross) |
+|-----|-------------------|
+| `newbie_welcomer` | Opponent was in someone’s **debut** rated game |
+| `generous` | Opponent conceded 2+ in someone’s debut game |
+| `perfect_day` / `nightmare_day` | End of UTC day: ≥5 games that day, all W / all L |
+| `merchant_streak` / `minimalist_merchant` | 5 consecutive games with 10+ goals / 3 consecutive exact 10-goal games |
+| `peace_streak` / `united_nations` | 3 / 5 consecutive draws |
+| `knife_edge` / `unlucky` | 5 consecutive 1-goal margin wins / losses |
+| `on_the_scoresheet` | 10 consecutive games with at least one goal scored |
+| `giant_slayer` | **Active #1** rule (below) |
+| `daily_habit`, `weekly_regular`, `monthly_regular`, `year_round` | Calendar habit rules — match `gen_milestone_chrono_sql.py` |
+| `play_streak_100` | First cross of **100** consecutive UTC days with ≥1 rated game; unlock game = `MIN(id)` on the 100th UTC day of the run — `gen_milestone_play_streak_100_sql.py`; live: `k2_play_streak_maybe_unlock_milestone_100()` after establishing game on that day |
+| `year_in_heaven` | First calendar year **Y** with a rated game in all **52** UTC week slots (Monday grid containing 1 Jan — profile Played weeks); unlock game = `MIN(id)` on the week Monday that completes 52/52 — `gen_milestone_year_in_heaven_sql.py`; live: `k2_milestone_maybe_unlock_year_in_heaven()` on first game of a new UTC week, after `player_period_games` week upsert — [`coordination/milestones-year-in-heaven-handoff.md`](coordination/milestones-year-in-heaven-handoff.md) |
+
+**`giant_slayer` (game — active #1):** After this game’s Elo and `LastGame` updates, for each winner:
+
+- **Active player:** `LastGame` within **365 rolling UTC days** before game `Date`, **or** is `idA`/`idB` of this game.
+- **Active #1:** highest `Rating` among active players; tie → highest `playertable.ID`.
+- **Unlock (first time):** won; opponent is active #1; opponent ≠ self; pre-game `Rating_opponent >= Rating_self`.
 - Insert: `source_kind = game`, `source_game_id = ratedresults.id`, `achieved_at = Date`, `value = 1`.
 
-Rebuild: `gen_milestone_chrono_sql.py` (same rule); surgical SQL `player_milestones_rebuild_giant_slayer.sql` (DELETE key + INSERTs). Shared probe: `scripts/oneoff/milestone_giant_slayer.py`.
+Rebuild: `gen_milestone_chrono_sql.py`; surgical `player_milestones_rebuild_giant_slayer.sql`. Probe: `scripts/oneoff/milestone_giant_slayer.py`.
 
-**Parity check (sources):** After rebuild, `COUNT(*)` where `source_kind` IS NULL must be 0 for populated keys.
+**`newbie_welcomer` / `generous`:** Award the **opponent** (`idB` when debut is `idA`, etc.), not the debutant.
 
-**Parity check:** `established_20` count must equal `COUNT(*) FROM playertable WHERE NumberGames >= 20`.
+---
 
-**Implementation:** `scripts/ladder/sql/player_milestones_rebuild.sql`.
+#### League-triggered families (`source_kind = league`)
+
+Run when **`player_league_award`** rows are written for a closed period (same job as `player_league_totals` — PER-003). For each new award row, check **first time** this player hits that slice or career count.
+
+| Key pattern | Cross when | `achieved_at` | League columns |
+|-------------|------------|---------------|----------------|
+| `league_*_medal` (8) | First top-3 (`finish_rank <= 3`) in that `league_kind` × `period_type` | `period_end` | From award row |
+| `league_*_winner` (8) | First `is_winner = 1` in that slice | `period_end` | From award row |
+| `moment_of_glory` | First daily **points** win | `period_end` | points + day |
+| `activity_king` | First monthly **activity** win | `period_end` | activity + month |
+| `league_wins_10/50/100/500` | Nth career win (`is_winner = 1`, any of 8 leagues) | `period_end` of Nth win | From that award row |
+
+`source_game_id` = NULL. Copy `league_kind`, `period_type`, `period_start` from the triggering `player_league_award` row.
+
+League rules: [`leagues-rules-spec.md`](leagues-rules-spec.md). Rebuild: league block in `player_milestones_rebuild.sql` (after REP-012).
+
+---
+
+#### Lobby (`source_kind = lobby`)
+
+| Key | When | `achieved_at` |
+|-----|------|---------------|
+| `entered_arena` | `playertable` row created (registration) | `playertable.JoinDate` |
+
+**Not** `LobbyTime`. **Not** on first rated game (`debut` is separate). No `source_game_id` / league columns.
+
+---
+
+#### Suggested Steve rollout (prod C++)
+
+| Phase | Scope | Unlocks live on new events |
+|-------|--------|----------------------------|
+| **M1** | `entered_arena` at register; `established_20`, `dd_merchant_10` with full `source_*` | Lobby + 2 headline game keys |
+| **M2** | All **exists** feats (18) | Single-game conditions |
+| **M3** | Nth-game + peak + `first_*` / career tail keys driven off updated `playertable` | Volume / firsts |
+| **M4** | Streak keys (8) using live streak counters | Streak crosses |
+| **M5** | `player_period_games` + period burst (5) | After bucket increment |
+| **M6** | League block (20) on finalize | PER-003 |
+| **M7** | Remaining chronological + matchup/network keys | Highest complexity |
+
+Staging/local: **full backfill** via rebuild is enough for UI until each phase ships on prod.
+
+---
+
+#### Parity checks
+
+| Check | Expected |
+|-------|----------|
+| `source_kind` NULL | 0 rows |
+| `established_20` | `COUNT(*)` = `playertable` with `NumberGames >= 20` |
+| Catalog | N rows in `milestone_definitions` (111 after `play_streak_100`); distinct keys in `player_milestones` ≤ N (may be N−1 if no holder yet) |
+| `dd_merchant_10` | Achiever list count = `COUNT(*) FROM player_milestones WHERE milestone_key = 'dd_merchant_10'` |
+
+**Implementation (rebuild):** `scripts/ladder/sql/player_milestones_rebuild.sql` + generated splice files.
 
 ---
 
@@ -643,9 +838,10 @@ Required updates:
 |----------------|-----------------|
 | `player_period_games` | Increment A and B for day/week/month/year |
 | `player_peak_period_games` | Recheck peaks for the touched player-period rows |
+| `player_play_streaks` | Update day/week current + personal best for A and B; HoF columns if personal best rose — see § `player_play_streaks` |
 | `server_daily_activity` | Increment `rated_games`; increment `active_players` only for players newly active that day |
 | `player_period_league` | Upsert A and B W/D/L/GF/GA/GD/points for day/week/month/year |
-| `player_milestones` | Insert newly achieved `established_20` and `dd_merchant_10` milestones |
+| `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — rated game (both players), league finalize (PER-003), register (`entered_arena`). Until prod ships: backfill-only; site reads rebuild. |
 | `player_matchup_summary` | Upsert directed A-to-B and B-to-A rows |
 | `server_period_game_totals` | Increment day/week/month/year server totals |
 | `server_period_matchups` | Increment canonical pair for day/week/month/year |
@@ -675,6 +871,7 @@ All six values must match.
 
 Additional checks:
 
-- `player_milestones.established_20` count equals `playertable.NumberGames >= 20`.
+- `player_milestones`: `COUNT(DISTINCT milestone_key) = 110`; `source_kind IS NULL` count = 0; `established_20` count = `playertable` with `NumberGames >= 20`; `giant_slayer` count = **31** (active #1 rule — see § `giant_slayer`).
+- `python scripts/oneoff/milestone_v0_sanity_check.py` — PHP read helpers match SQL (local).
 - Recent `server_period_matchups` month counts equal raw UTC `COUNT(DISTINCT pair)` by month.
 - Key APIs keep their JSON shape while reading stored truth.

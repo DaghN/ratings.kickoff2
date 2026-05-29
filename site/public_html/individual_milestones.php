@@ -28,12 +28,16 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.ph
 
 $numberGames = isset($NumberGames) ? (int) $NumberGames : 0;
 $gardenByTier = k2_milestone_garden_by_tier($con, $id);
-$counts = $numberGames >= 1 ? k2_milestone_player_counts($con, $id) : null;
-
-mysqli_close($con);
+$counts = $heroMilestoneCounts ?? null;
+if (!isset($heroMsCatalogTotal) || (int) $heroMsCatalogTotal < 1) {
+	$heroMsCatalogTotal = k2_milestone_catalog_total($con);
+}
+$milestoneCatalogTotal = (int) $heroMsCatalogTotal;
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero.php'; ?>
+
+<?php mysqli_close($con); ?>
 
 <?php
 $k2PlayerTabActive = 'milestones';
@@ -45,7 +49,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
 	<p class="k2-ms-meta-hint">This player has no rated games yet — milestones unlock once you join the ladder.</p>
 <?php } elseif ($counts !== null) { ?>
 	<p class="k2-ms-meta-hint">
-		<strong><?php echo (int) $counts['total']; ?></strong> of <?php echo K2_MILESTONE_CATALOG_TOTAL; ?> milestones unlocked.
+		<strong><?php echo (int) $counts['total']; ?></strong> of <?php echo (int) $milestoneCatalogTotal; ?> milestones unlocked.
 		Light up the garden over your career — locked cards still show what each feat takes.
 	</p>
 <?php } ?>

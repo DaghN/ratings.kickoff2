@@ -201,3 +201,47 @@
 	width: 14px;
 	height: 14px;
 }
+
+/* Played weeks — 52 UTC week tiles per calendar year */
+
+.pm3-cal--weeks .pm3-cal__years {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 12px;
+}
+
+.pm3-cal--weeks .pm3-cal__year-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.pm3-cal--weeks .pm3-cal__year-label {
+	flex: 0 0 40px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--k2-text-muted);
+	text-align: right;
+}
+
+.pm3-cal--weeks .pm3-cal__week-grid {
+	display: grid;
+	grid-template-columns: repeat(52, 10px);
+	gap: 3px;
+	min-width: 0;
+	overflow-x: auto;
+	padding-bottom: 2px;
+}
+
+.pm3-cal--weeks .pm3-cal__cell--before-join,
+.pm3-cal--weeks .pm3-cal__cell--future {
+	background: transparent;
+	box-shadow: none;
+	opacity: 0.35;
+}
+
+.pm3-cal--weeks .pm3-cal__cell--before-join {
+	visibility: hidden;
+}

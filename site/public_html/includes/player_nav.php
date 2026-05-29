@@ -16,7 +16,7 @@ $k2PlayerTabs = [
 ];
 ?>
 <div class="k2-player-nav-bar">
-	<nav class="k2-player-nav k2-nav-pills" aria-label="Player sections">
+	<nav class="k2-player-nav k2-nav-pills" data-k2-carry-scroll aria-label="Player sections">
 		<div class="k2-player-nav__links">
 <?php foreach ($k2PlayerTabs as $tabId => $tab) { ?>
 			<a href="<?php echo $tab['href']; ?>" class="k2-player-nav__btn<?php echo $k2PlayerTabActive === $tabId ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>

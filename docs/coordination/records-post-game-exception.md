@@ -106,6 +106,34 @@ Since `ratedresults.Date` is a `TIMESTAMP` column, MySQL stores it in UTC regard
 
 ---
 
+## 4. ADD: Rated play streak records (SCH-014)
+
+**Columns on `generalstatstable` id=1** (from `schema/migrations/014_player_play_streaks.sql`):
+
+- `LongestDailyPlayStreak`, `LongestDailyPlayStreakID`, `LongestDailyPlayStreakName`, `LongestDailyPlayStreakDate`, `LongestDailyPlayStreakGameID`
+- `LongestWeeklyPlayStreak`, `LongestWeeklyPlayStreakID`, `LongestWeeklyPlayStreakName`, `LongestWeeklyPlayStreakDate`, `LongestWeeklyPlayStreakGameID`
+
+**Per-game flow (after `player_period_games` + `player_play_streaks` row update):**
+
+1. Update each player’s `player_play_streaks` day/week row (PHP reference: `k2_play_streak_apply_game` in `includes/player_play_streaks.php`).
+2. Only if that player’s **`best_streak` strictly increased**, compare to the HoF column set for that `streak_type`.
+
+**HoF tie policy (differs from simple `>` on value):**
+
+| Compare | Winner |
+|---------|--------|
+| Longer `best_streak` | Challenger |
+| Same length, earlier `best_achieved_at` (`ratedresults.Date` of establishing game) | Earlier |
+| Same length, same `best_last_game_id` (typical mutual game) | Player where `player_id = ratedresults.idB` |
+
+Establishing game = **first** rated game (`MIN(id)`) on the last UTC day / last UTC week of the run — not the last game that day (avoids punishing extra games).
+
+**Not** the same as `LongestWinningStreak` on `playertable` — those are result streaks; these are “played at least one rated game” streaks.
+
+Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_play_streaks`. Staging: [`play-streaks-staging-handoff.md`](play-streaks-staging-handoff.md) — **SCH-014 + REP-015 verified** May 2026 (Steve); HoF rows live on staging `server2.php`; prod C++ post-game still pending.
+
+---
+
 ## Replay (Python — already implements correct behavior)
 
 - `scripts/ladder/server_records.py` — `_try_int_max`, `_try_float_max`, `_try_pair_max` all use strict `>`.

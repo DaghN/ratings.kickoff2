@@ -16,6 +16,7 @@ from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
 from scripts.oneoff.milestone_unlock_counts import (  # noqa: E402
     clean_sheet_spread_count,
+    dd_distinct_opponents_count,
     matchup_counts,
     playertable_counts,
     travelling_salesman_count,
@@ -64,6 +65,7 @@ def probe_tail(cur) -> dict[str, int]:
             out[k] = pt[k].unlock
         elif k in mu:
             out[k] = mu[k].unlock
+    out["diversity_merchant"] = dd_distinct_opponents_count(cur, 5).unlock
     out["travelling_salesman"] = travelling_salesman_count(cur).unlock
     out["clean_sheet_spread"] = clean_sheet_spread_count(cur).unlock
     return out

@@ -6,6 +6,7 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <link href="stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -76,10 +77,14 @@ function records_date_or_dash($dateValue, bool $showDate, int $newRecordCutoff, 
 	return records_add_age_marker($text, $dateValue, $newRecordCutoff, $legendaryRecordCutoff);
 }
 
-function records_render_row(string $label, string $valueHtml, string $holderHtml, string $dateHtml): void
+function records_render_row(string $label, string $valueHtml, string $holderHtml, string $dateHtml, ?string $labelHelp = null): void
 {
 	echo "    <tr>\n";
-	echo "        <td>" . $label . "</td>\n";
+	if ($labelHelp !== null && $labelHelp !== '') {
+		echo '        <td class="k2-table-helped" data-k2-help="' . htmlspecialchars($labelHelp, ENT_QUOTES, 'UTF-8') . '" data-k2-tooltip-label="' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" tabindex="0">' . $label . "</td>\n";
+	} else {
+		echo "        <td>" . $label . "</td>\n";
+	}
 	echo "        <td class=\"k2-table-cell--right\">" . $valueHtml . "</td>\n";
 	echo "        <td>" . $holderHtml . "</td>\n";
 	echo "        <td class=\"k2-table-cell--right\">" . $dateHtml . "</td>\n";
@@ -150,6 +155,8 @@ $recordColumns = [
 	'LongestWinningStreak',
 	'LongestNonLossStreak',
 	'LongestDrawingStreak',
+	'LongestDailyPlayStreak',
+	'LongestWeeklyPlayStreak',
 	'MostDifferentOpponents',
 	'MostDifferentVictims',
 	'MostDoubleDigitsVictims',
@@ -169,6 +176,8 @@ $recordColumns = [
 	'LongestWinningStreakID',
 	'LongestNonLossStreakID',
 	'LongestDrawingStreakID',
+	'LongestDailyPlayStreakID',
+	'LongestWeeklyPlayStreakID',
 	'MostDifferentOpponentsID',
 	'MostDifferentVictimsID',
 	'MostDoubleDigitsVictimsID',
@@ -188,6 +197,8 @@ $recordColumns = [
 	'LongestWinningStreakName',
 	'LongestNonLossStreakName',
 	'LongestDrawingStreakName',
+	'LongestDailyPlayStreakName',
+	'LongestWeeklyPlayStreakName',
 	'MostDifferentOpponentsName',
 	'MostDifferentVictimsName',
 	'MostDoubleDigitsVictimsName',
@@ -205,11 +216,15 @@ $recordColumns = [
 	'LongestWinningStreakDate',
 	'LongestNonLossStreakDate',
 	'LongestDrawingStreakDate',
+	'LongestDailyPlayStreakDate',
+	'LongestWeeklyPlayStreakDate',
 	'MostDifferentOpponentsDate',
 	'MostDifferentVictimsDate',
 	'MostDoubleDigitsVictimsDate',
 	'MostCleanSheetsVictimsDate',
 	'MostGoalsScoredInOneGameGameID',
+	'LongestDailyPlayStreakGameID',
+	'LongestWeeklyPlayStreakGameID',
 	'BiggestWinDifferenceGameID',
 	'BiggestDrawSumGameID',
 	'BiggestSumOfGoalsGameID',
@@ -245,6 +260,7 @@ foreach (['year', 'month', 'week', 'day'] as $period) {
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
 $k2DdMerchantAchievers = k2_milestone_dd_merchant_achievers($con);
 
 mysqli_close($con);
@@ -272,6 +288,28 @@ records_render_peak_period_row('Most games in one year', 'year', $peakPeriodReco
 records_render_peak_period_row('Most games in one month', 'month', $peakPeriodRecords['month'], $newRecordCutoff, $legendaryRecordCutoff);
 records_render_peak_period_row('Most games in one week', 'week', $peakPeriodRecords['week'], $newRecordCutoff, $legendaryRecordCutoff);
 records_render_peak_period_row('Most games in one day', 'day', $peakPeriodRecords['day'], $newRecordCutoff, $legendaryRecordCutoff);
+records_render_spacer_row();
+
+$hasDailyPlayStreak = records_has_value($records['LongestDailyPlayStreak'] ?? 0);
+records_render_row(
+	'Most days in a row',
+	records_value_or_dash($records['LongestDailyPlayStreak'] ?? null),
+	$hasDailyPlayStreak
+		? records_holder_html('<a href="individual1.php?id=' . (int) $records['LongestDailyPlayStreakID'] . '">' . $records['LongestDailyPlayStreakName'] . '</a>')
+		: '-',
+	records_date_or_dash($records['LongestDailyPlayStreakDate'] ?? null, $hasDailyPlayStreak, $newRecordCutoff, $legendaryRecordCutoff),
+	k2_play_streak_help_day()
+);
+$hasWeeklyPlayStreak = records_has_value($records['LongestWeeklyPlayStreak'] ?? 0);
+records_render_row(
+	'Most weeks in a row',
+	records_value_or_dash($records['LongestWeeklyPlayStreak'] ?? null),
+	$hasWeeklyPlayStreak
+		? records_holder_html('<a href="individual1.php?id=' . (int) $records['LongestWeeklyPlayStreakID'] . '">' . $records['LongestWeeklyPlayStreakName'] . '</a>')
+		: '-',
+	records_date_or_dash($records['LongestWeeklyPlayStreakDate'] ?? null, $hasWeeklyPlayStreak, $newRecordCutoff, $legendaryRecordCutoff),
+	k2_play_streak_help_week()
+);
 records_render_spacer_row();
 
 records_render_row(
@@ -414,6 +452,8 @@ records_render_row(
 	records_holder_html('<a href="individual1.php?id=' . $BiggestGoalRatioID . '">' . $BiggestGoalRatioName . '</a>'),
 	'-'
 );
+records_render_spacer_row();
+
 records_render_row(
 	'Highest winning frequency',
 	records_percent_or_dash($BiggestWinRatio),

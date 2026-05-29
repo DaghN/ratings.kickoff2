@@ -112,21 +112,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
 
     $differentOpponents = (int) $row['DifferentOpponents'];
 
-    $busiest = ['month' => null, 'day' => null, 'year' => null];
-    $busiestSql = [
-        'month' => "SELECT DATE_FORMAT(Date, '%Y-%m') AS k, COUNT(*) AS c FROM ratedresults "
-            . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
-        'day' => "SELECT DATE(Date) AS k, COUNT(*) AS c FROM ratedresults "
-            . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
-        'year' => "SELECT YEAR(Date) AS k, COUNT(*) AS c FROM ratedresults "
-            . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
-    ];
-    foreach ($busiestSql as $key => $sql) {
-        $br = k2_player_feast_query($con, 'busiest_' . $key, $sql);
-        if ($br && ($brow = mysqli_fetch_assoc($br))) {
-            $busiest[$key] = ['key' => $brow['k'], 'count' => (int) $brow['c']];
-        }
-    }
+    $busiest = player_feast_load_busiest($con, $id);
 
     $careerRankGames = null;
     $careerRankWins = null;
@@ -155,6 +141,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'win_pct' => $winPct,
         'display' => $display,
         'join_date' => date('M Y', strtotime((string) $row['JoinDate'])),
+        'join_date_ymd' => date('Y-m-d', strtotime((string) $row['JoinDate']) ?: time()),
         'last_game' => date('M j, Y', strtotime((string) $row['LastGame'])),
         'last_login' => date('M j, Y', strtotime((string) $row['LastLogin'])),
         'games_this_month' => $gamesThisMonth,
@@ -166,6 +153,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'years_on_ladder' => $tenureYears,
         'tenure_label' => $tenureLabel,
         'first_game_date' => date('M j, Y', $firstGameTs ?: time()),
+        'first_game_date_ymd' => date('Y-m-d', $firstGameTs ?: time()),
         'different_opponents' => $differentOpponents,
         'different_victims' => (int) $row['DifferentVictims'],
         'busiest' => $busiest,
@@ -186,6 +174,79 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'rating_raw' => (float) $row['Rating'],
         'peak_raw' => (float) $row['PeakRating'],
     ];
+}
+
+/**
+ * Personal bests (busiest day / month / year) — same source as ranked8 peak leaderboards.
+ *
+ * @return array{month: ?array{key: string, count: int}, day: ?array{key: string, count: int}, year: ?array{key: string, count: int}}
+ */
+function player_feast_load_busiest(mysqli $con, int $id): array
+{
+    $busiest = ['month' => null, 'day' => null, 'year' => null];
+    $escId = (string) (int) $id;
+
+    $peakResult = k2_player_feast_query(
+        $con,
+        'busiest_peak_period',
+        "SELECT period_type, period_start, games FROM player_peak_period_games "
+        . "WHERE player_id = '$escId' AND period_type IN ('day', 'month', 'year')"
+    );
+    if ($peakResult === false && mysqli_errno($con) === 1146) {
+        return player_feast_load_busiest_from_ratedresults($con, $id);
+    }
+    if ($peakResult) {
+        while ($prow = mysqli_fetch_assoc($peakResult)) {
+            $ptype = (string) $prow['period_type'];
+            if (!array_key_exists($ptype, $busiest)) {
+                continue;
+            }
+            $busiest[$ptype] = [
+                'key' => player_feast_busiest_period_key($ptype, (string) $prow['period_start']),
+                'count' => (int) $prow['games'],
+            ];
+        }
+    }
+
+    return $busiest;
+}
+
+function player_feast_busiest_period_key(string $periodType, string $periodStart): string
+{
+    switch ($periodType) {
+        case 'month':
+            return substr($periodStart, 0, 7);
+        case 'year':
+            return (string) (int) substr($periodStart, 0, 4);
+        case 'day':
+        default:
+            return $periodStart;
+    }
+}
+
+/**
+ * @return array{month: ?array{key: string, count: int}, day: ?array{key: string, count: int}, year: ?array{key: string, count: int}}
+ */
+function player_feast_load_busiest_from_ratedresults(mysqli $con, int $id): array
+{
+    $busiest = ['month' => null, 'day' => null, 'year' => null];
+    $escId = (string) (int) $id;
+    $busiestSql = [
+        'month' => "SELECT DATE_FORMAT(Date, '%Y-%m') AS k, COUNT(*) AS c FROM ratedresults "
+            . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
+        'day' => "SELECT DATE(Date) AS k, COUNT(*) AS c FROM ratedresults "
+            . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
+        'year' => "SELECT YEAR(Date) AS k, COUNT(*) AS c FROM ratedresults "
+            . "WHERE idA='$escId' OR idB='$escId' GROUP BY k ORDER BY c DESC LIMIT 1",
+    ];
+    foreach ($busiestSql as $key => $sql) {
+        $br = k2_player_feast_query($con, 'busiest_' . $key, $sql);
+        if ($br && ($brow = mysqli_fetch_assoc($br))) {
+            $busiest[$key] = ['key' => (string) $brow['k'], 'count' => (int) $brow['c']];
+        }
+    }
+
+    return $busiest;
 }
 
 /** @param array<string, mixed> $pm */

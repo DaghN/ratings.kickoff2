@@ -2,7 +2,7 @@
 	'use strict';
 
 	var TABLE_SELECTOR = 'table[data-k2-table~="sortable"]';
-	var HELP_HEADER_SELECTOR = 'th[data-k2-help], th[data-k2-tooltip-label]';
+	var HELP_HEADER_SELECTOR = 'th[data-k2-help], th[data-k2-tooltip-label], td[data-k2-help]';
 	var SORTABLE_CLASS = 'k2-table-sortable';
 	var HELPED_CLASS = 'k2-table-helped';
 	var SORTED_ASC_CLASS = 'k2-table-sorted-asc';

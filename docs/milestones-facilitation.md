@@ -29,12 +29,9 @@ Waves 2–6 writers must set these on insert (chronological first-cross for game
 | Wave | Family | Keys (approx.) | Rebuild source | Post-game |
 |------|--------|----------------:|----------------|-----------|
 | **0** | Catalog | 110 | `load_milestone_definitions.py` | N/A (metadata) |
-| **1** | League awards + career wins | 20 | `player_league_award`, `player_league_totals` | On league finalize (PER-003) |
-| **2** | `playertable` thresholds | ~34 | Chronological or column-at-cross (TBD per key) | Per rated game (C++ / engine) |
-| **3** | `ratedresults` exists | ~18 | First matching game `Date` | Per game |
-| **4** | Period peaks | 5 | `player_period_games` + last game LATERAL (`player_milestones_rebuild_period.sql`) | After period bucket update |
-| **5** | Matchup aggregates | ~4 | `player_matchup_summary` / ratedresults | Per game |
-| **6** | Chronological state | 16 | `gen_milestone_chrono_sql.py` (peace_streak in streaks SQL) | Per game |
+| **1** | League awards + career wins | 20 | `player_league_award`, `player_league_totals` | On league finalize (PER-003) — see contract § league |
+| **2** | Game count / peak / exists / streaks / period / chrono / tail | 90 | Rebuild SQL + generators | Per rated game — see [`website-data-contract.md`](website-data-contract.md) § `player_milestones` post-game |
+| **lobby** | `entered_arena` | 1 | `playertable.JoinDate` | At account register |
 
 Win/loss **streak** keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`): use **`playertable` longest-streak columns** at first cross — see [`milestones-tier-curated.md`](milestones-tier-curated.md) § Win-streak milestones.
 

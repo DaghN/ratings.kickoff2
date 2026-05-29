@@ -26,7 +26,18 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 	$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
-$query = 'SELECT id, Name, Rating, NumberGames, LongestWinningStreak, LongestNonLossStreak, LongestDrawingStreak, LongestNonDrawStreak, LongestLosingStreak, LongestNonWinStreak FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY LongestWinningStreak DESC, rating DESC';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
+$con->query("SET time_zone = '+00:00'");
+$query = 'SELECT p.`id`, p.`Name`, p.`Rating`, p.`NumberGames`, '
+    . 'p.`LongestWinningStreak`, p.`LongestNonLossStreak`, p.`LongestDrawingStreak`, '
+    . 'p.`LongestNonDrawStreak`, p.`LongestLosingStreak`, p.`LongestNonWinStreak`, '
+    . 'COALESCE(psd.`best_streak`, 0) AS `play_streak_days`, '
+    . 'COALESCE(psw.`best_streak`, 0) AS `play_streak_weeks` '
+    . 'FROM `playertable` p '
+    . 'LEFT JOIN `player_play_streaks` psd ON psd.`player_id` = p.`id` AND psd.`streak_type` = \'day\' '
+    . 'LEFT JOIN `player_play_streaks` psw ON psw.`player_id` = p.`id` AND psw.`streak_type` = \'week\' '
+    . 'WHERE ' . k2_lb_player_where_sql_for_alias('p') . ' '
+    . 'ORDER BY p.`LongestWinningStreak` DESC, p.`Rating` DESC';
 $result = k2_query_or_public_error($con, $query, 'ranked4 leaderboard'); 
 
 mysqli_close($con);
@@ -53,6 +64,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th data-k2-sort="number" data-k2-help="Longest no-draw streak ever.">LNDS</th>
         <th data-k2-sort="number" data-k2-help="Longest losing streak ever.">LLS</th>
         <th data-k2-sort="number" data-k2-help="Longest no-win streak ever.">LNWS</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_play_streak_help_day(), ENT_QUOTES, 'UTF-8'); ?>">Days</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_play_streak_help_week(), ENT_QUOTES, 'UTF-8'); ?>">Weeks</th>
     </tr>
 </thead>
 
@@ -75,6 +88,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php if ($row[7] == 0) {echo "-";} else {echo $row[7];} ?></td>
         <td><?php if ($row[8] == 0) {echo "-";} else {echo "<span class='red'>"; echo $row[8]; echo "</span>";} ?></td>
         <td><?php if ($row[9] == 0) {echo "-";} else {echo "<span class='red'>"; echo $row[9]; echo "</span>";} ?></td>
+        <td><?php if ($row[10] == 0) {echo "-";} else {echo "<span class='blue'>"; echo $row[10]; echo "</span>";} ?></td>
+        <td><?php if ($row[11] == 0) {echo "-";} else {echo "<span class='blue'>"; echo $row[11]; echo "</span>";} ?></td>
     </tr> 
     
     <?php
@@ -95,7 +110,9 @@ LNLS = Longest No Losses Streak ever<br />
 LDS = Longest Drawing Streak ever<br />
 LNDS = Longest No Draws Streak ever<br />
 LLS = Longest Losing Streak ever<br />
-LNWS = Longest No Wins Streak ever
+LNWS = Longest No Wins Streak ever<br />
+Days = longest run of consecutive UTC days with at least one rated game<br />
+Weeks = longest run of consecutive UTC weeks (Mon–Sun) with at least one rated game
 
 
 

@@ -38,6 +38,20 @@ function player_feast_render_played_days(int $playerId, int $year): void
     player_feast_section_close();
 }
 
+function player_feast_render_played_weeks(int $playerId, string $firstGameDateYmd): void
+{
+    $fromAttr = preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd) ? $firstGameDateYmd : date('Y-m-d');
+    player_feast_section_open('Played weeks', 'UTC weeks with at least one rated game since the first rated game.');
+    ?>
+<div class="pm3-cal pm3-cal--hero pm3-cal--weeks" data-player-id="<?php echo $playerId; ?>" data-first-game-date="<?php echo pm_h($fromAttr); ?>" aria-label="Weekly activity since first rated game">
+	<p class="pm3-cal__status pm3-muted">Loading weeks…</p>
+	<div class="pm3-cal__years"></div>
+	<p class="pm3-cal__legend"><span class="pm3-cal__cell" aria-hidden="true"></span> no rated game · <span class="pm3-cal__cell pm3-cal__cell--play" aria-hidden="true"></span> played</p>
+</div>
+    <?php
+    player_feast_section_close();
+}
+
 /**
  * @return array{day: ?array, month: ?array, year: ?array}
  */

@@ -20,14 +20,20 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Player stat `k2-table.js` migration | L0 | — | — | — | — | JS only |
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | JS only |
 | Games tab 14-day buckets | L0 | — | — | — | — | Read-time |
-| Hub / Status cosmetics | — | — | — | — | — | PHP only |
+| Hub / Status cosmetics | — | — | — | — | — | PHP only; May 2026 **peer pill carry-scroll** (`data-k2-carry-scroll`, `k2-carry-scroll.js`) on hub / `lb_nav` / `player_nav` |
 | Milestones hub tab (stub) | L0 | — | — | — | — | `milestones.php` + hub nav; full hub WIP [`milestones-hub-ia.md`](../milestones-hub-ia.md) |
 | Hub IA — Games off top nav | — | — | — | — | — | Match log `server3.php` via Status **Games →** only |
 | Status monthly league / performance | L2 | SCH-005 | REP-004 | Pending | — | Staging done; prod indexes + live writer at cutover |
 | Period activity leaderboards | L2 | SCH-004, SCH-006 | REP-003, REP-005 | Pending | — | Staging SCH+REP done May 2026 |
-| Milestones Phase 4 v0 UI | L0 | — | — | — | — | `individual_milestones.php`, profile glance, `ranked10.php`, HoF DD Merchant list; read `milestone_definitions` + `player_milestones` |
-| Milestones `giant_slayer` active #1 | L2 | — | — | — | — | Rule fix: beat #1 among 365d-active; regen chrono + `player_milestones_rebuild_giant_slayer.sql`; contract post-game; local REP applied |
-| Milestones Phase 3 (catalog + full rebuild) | L2 | SCH-011, SCH-012, SCH-013 | REP-008, REP-014 | Pending | — | 110/110 keys local; post-game + prod cutover pending Steve |
+| Profile hero milestones (no peak) | L0 | — | — | — | — | Hero: tier counts + `n/110` → garden; peak only on leaderboards/charts |
+| Milestones Phase 4 v0 UI | L0 | — | — | Pending | — | **Staging DB done** May 2026; WinSCP PHP for garden/ranked10/HoF if not already; prod pending |
+| Milestone `year_in_heaven` (52 weeks/year) | L2 | SCH-011 | REP-008 splice | **Staging done** May 2026 | — | Catalog **112**, **5** holders on `kooldb` (geo4444/2021); establishing game; add-one playbook local-verify; handoff [`milestones-year-in-heaven-handoff.md`](milestones-year-in-heaven-handoff.md) |
+| Milestone `play_streak_100` (100 days) | L2 | SCH-011 | REP-008 splice | Pending | — | **Catalog on staging** May 2026 (111 defs; `play_streak_100` verified); 0 unlock holders (max day streak 87); playbook [`milestones-add-one-playbook.md`](milestones-add-one-playbook.md) |
+| Milestones post-game contract | L2 | SCH-011–013 | REP-008 | Pending | — | `website-data-contract.md` § post-game (M1–M7); **staging REP-008 done**; prod C++ pending Steve |
+| Rated play streaks (day/week) | L4 | SCH-014 | REP-015 | Pending | — | **Staging DB+UI done** May 2026 (Steve): REP-015 verified; `ranked4.php` **Days**/**Weeks**; `server2.php` **Most days/weeks in a row**; prod C++ post-game pending |
+| Milestones `diversity_merchant` per-game DD | L4 | — | REP-008b | **Staging done** May 2026 | — | Rule fix: per-game DD × 5 opponents (was cumulative 68→**25**); tier accomplished (`key`/`amber`); staging **6615** rows verified; prod pending |
+| Milestones `giant_slayer` active #1 | L2 | — | — | — | — | Rule fix: beat #1 among 365d-active; **staging verify 31** May 2026; contract post-game |
+| Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011, SCH-012, SCH-013 | REP-008, REP-014 | Pending | — | **Staging done** May 2026 (110/110, counts match local); prod schema+REP+C++ pending |
 | Stored truth expansion | L4 | SCH-008 | REP-007–011 | Pending | — | Five tables: local + **staging `kooldb` done** May 2026 (Steve SCH-008 + REP-007–011, parity verify pass); prod cutover + contract post-game pending |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | Pending | — | Prod index apply pending Steve |
 | Ladder replay sandbox (K32/1600/no decay) | L2 | SCH-002 | REP-001 | Pending | PER-001 | Staging replay done |

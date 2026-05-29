@@ -25,3 +25,11 @@ if ($heroResult && ($heroRow = mysqli_fetch_assoc($heroResult))) {
 		$rank = (int) $rankRow[0];
 	}
 }
+
+$heroMilestoneCounts = null;
+$heroMsCatalogTotal = 0;
+if (isset($NumberGames) && (int) $NumberGames >= 1) {
+	require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+	$heroMsCatalogTotal = k2_milestone_catalog_total($con);
+	$heroMilestoneCounts = k2_milestone_player_counts($con, (int) $id);
+}

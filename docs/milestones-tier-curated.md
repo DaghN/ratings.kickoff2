@@ -6,7 +6,7 @@
 
 **Display names & Name Q (1–5):** [`data/milestones_curated_meta.json`](../data/milestones_curated_meta.json). **Phase 3 seed:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) (`--export-seed`). **Name Q** = subjective garden-copy quality (5 = ship as-is).
 
-**Related:** [`milestones-product-spec.md`](milestones-product-spec.md) (presentation) · [`milestones-facilitation.md`](milestones-facilitation.md) (Phase 3 implementation waves) · [`milestones-project.md`](milestones-project.md) (phases).
+**Related:** [`milestones-product-spec.md`](milestones-product-spec.md) (presentation) · [`milestones-want-maybe-by-theme.md`](milestones-want-maybe-by-theme.md) (themed tables + probe) · [`milestones-project.md`](milestones-project.md) (phases).
 
 ---
 
@@ -15,12 +15,12 @@
 | Band | Chart token | Count | Role |
 |------|-------------|------:|------|
 | **Legendary** | `holo` | 18 | Rare feats, long horizons, merchant lore peaks |
-| **Accomplished** | `amber` | 20 | Keystones — serious ladder citizenship |
-| **Dedicated** | `chrome` | 50 | Mid-ladder grind, variety, leagues volume |
+| **Accomplished** | `amber` | 21 | Keystones — serious ladder citizenship |
+| **Dedicated** | `chrome` | 49 | Mid-ladder grind, variety, leagues volume |
 | **Aspirational** | `pitch` | 22 | First steps and broad participation floor |
 | **Total in curated set** | — | **110** | — |
 
-**Probe context** (difficulty reference only): 261 players with ≥1 rated game; **107** veterans (≥20 games); 74870 rated games; 2026-05-28 10:30 UTC. Regenerate counts: `python scripts/oneoff/milestone_unlock_counts.py --write-doc`.
+**Probe context** (difficulty reference only): 261 players with ≥1 rated game; **107** veterans (≥20 games); 74870 rated games; 2026-05-29 07:07 UTC. Regenerate counts: `python scripts/oneoff/milestone_unlock_counts.py --write-doc`.
 
 ---
 
@@ -38,7 +38,7 @@ These keys use **`playertable.LongestWinningStreak`** (career maximum consecutiv
 
 `cold_streak` and `win_drought` use the corresponding **longest loss / non-win streak** columns on the same table.
 
-Unlock when the career-best run reaches the threshold. Rebuild/post-game should set `source_kind = game` and `source_game_id` to the rated game where that streak length was **first** achieved (chronological), not only read `playertable` max without a game pointer.
+Unlock when the stored career-best run reaches the threshold. Implementation should read the ladder-maintained column (same source as the profile streak display), not a separate replay pass, unless the data contract is extended later.
 
 ---
 
@@ -68,7 +68,7 @@ Unlock when the career-best run reaches the threshold. Rebuild/post-game should 
 
 ---
 
-## Accomplished (20)
+## Accomplished (21)
 
 
 | Key | Display name | Name Q | Rule (short) | Unlock | %vet |
@@ -81,22 +81,23 @@ Unlock when the career-best run reaches the threshold. Rebuild/post-game should 
 | `activity_king` | **Activity king** | 4 | Won monthly **activity** league | 17 | 15.9% |
 | `rampage` | **Rampage** | 4 | 15 wins in a row | 18 | 16.8% |
 | `travelling_salesman` | **Travelling salesman** | 5 | DD vs 10 different opponents | 18 | 16.8% |
-| `giant_slayer` | **Giant slayer** | 5 | Beat #1 rated **active** player (365d rolling) | 31 | 29.0% |
 | `league_wins_50` | **Cupboard filling up** | 4 | 50 league wins | 23 | 21.5% |
 | `perfect_storm` | **Perfect storm** | 4 | Won 10–0 | 23 | 21.5% |
 | `league_weekly_points_winner` | **Ledger lord of the week** | 5 | Weekly · points · winner | 24 | 22.4% |
+| `diversity_merchant` | **Diversity merchant** | 4 | DD vs 5 different opponents | 25 | 23.4% |
 | `absurd_day` | **Absurd day** | 5 | 20 rated games in one UTC day | 26 | 24.3% |
 | `club_2000` | **2000 club** | 4 | ≥2000 | 26 | 24.3% |
 | `fifty_faces` | **Fifty faces** | 4 | 50 unique opponents | 26 | 24.3% |
 | `league_monthly_points_medal` | **Runner-up reign** | 4 | Monthly · points · medal | 27 | 25.2% |
 | `dozen_dash` | **Dozen dash** | 4 | 12+ in one game | 31 | 29.0% |
+| `giant_slayer` | **Giant slayer** | 5 | Beat #1 rated **active** player | 31 | 29.0% |
 | `survivor` | **Last man standing** | 4 | Won after opponent scored 7+ | 32 | 29.9% |
 | `league_weekly_activity_winner` | **Seven-day siege** | 5 | Weekly · activity · winner | 33 | 30.8% |
 | `ruthless` | **Ruthless** | 4 | Won by 10+ goal margin | 35 | 32.7% |
 
 ---
 
-## Dedicated (50)
+## Dedicated (49)
 
 
 | Key | Display name | Name Q | Rule (short) | Unlock | %vet |
@@ -117,7 +118,6 @@ Unlock when the career-best run reaches the threshold. Rebuild/post-game should 
 | `ten_draws` | **Draw collector** | 4 | 10 career draws | 71 | 66.4% |
 | `regular_customer` | **Regular customer** | 5 | 10 wins vs same opponent | 71 | 66.4% |
 | `five_victims` | **Hit list** | 4 | 5 distinct victims (wins) | 71 | 66.4% |
-| `diversity_merchant` | **Diversity merchant** | 4 | DD vs 5 different opponents | 68 | 63.6% |
 | `grind_month` | **Grind month** | 4 | 50 rated games in one calendar month | 67 | 62.6% |
 | `battle_scarred` | **Battle-scarred** | 4 | 100 career losses | 65 | 60.7% |
 | `lifetime_rivalry` | **Lifetime rivalry** | 5 | 50th rated game vs same opponent | 65 | 60.7% |
@@ -170,17 +170,17 @@ Unlock when the career-best run reaches the threshold. Rebuild/post-game should 
 | `league_daily_activity_medal` | **Honour board** | 4 | Daily · activity · medal | 114 | 107%+ |
 | `victim_of_commerce` | **Victim of commerce** | 5 | First time conceded 10+ | 121 | 113%+ |
 | `first_shutout` | **Clean sheet** | 4 | First clean sheet | 127 | 119%+ |
+| `persistence` | **Through the swamp** | 5 | 10 rated games | 134 | 125%+ |
 | `hot_day` | **Hot day** | 4 | 5 rated games in one UTC day | 134 | 125%+ |
 | `cold_streak` | **Cold streak** | 4 | 5 losses in a row | 138 | 129%+ |
 | `first_victory` | **First victory** | 4 | First win | 145 | 136%+ |
 | `first_handshake` | **First handshake** | 5 | First draw | 146 | 136%+ |
 | `hat_trick` | **Hat-trick** | 4 | 3+ in one game | 156 | 146%+ |
-| `persistence` | **Through the swamp** | 5 | 10 rated games | 169 | 158%+ |
 | `brace` | **Brace** | 4 | 2+ goals in one game | 183 | 171%+ |
 | `first_goal` | **First goal** | 4 | First career goal | 226 | 211%+ |
 | `welcome_to_the_ladder` | **Welcome to the ladder** | 5 | First loss | 252 | 236%+ |
 | `debut` | **Debut** | 5 | First rated game | 261 | 244%+ |
-| `entered_arena` | **Entered the arena** | 4 | Registered / entered lobby (`JoinDate`) | *probe* | *probe* |
+| `entered_arena` | **Entered the arena** | 4 | Registered and entered the lobby | 261 | 244%+ |
 
 ---
 

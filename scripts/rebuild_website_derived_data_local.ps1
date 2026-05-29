@@ -173,13 +173,15 @@ $milestonesStreaks = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebu
 $milestonesChrono = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_chrono.sql')
 $milestonesTail = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_tail.sql')
 $milestonesPeriod = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_period.sql')
+$milestonesPlayStreak100 = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_play_streak_100.sql')
+$milestonesYearInHeaven = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_year_in_heaven.sql')
 $leagueMarker = '-- League wave: first matching award row'
 $leagueIdx = $milestonesCore.IndexOf($leagueMarker)
 if ($leagueIdx -lt 0) {
     Write-Error "player_milestones_rebuild.sql missing league marker."
 }
-$milestonesSql = $milestonesCore.Substring(0, $leagueIdx) + $milestonesExists + $milestonesStreaks + $milestonesChrono + $milestonesTail + $milestonesPeriod + $milestonesCore.Substring($leagueIdx)
-Write-Host '-> player_milestones (core + exists + streaks + chrono + tail + period + league)' -ForegroundColor Cyan
+$milestonesSql = $milestonesCore.Substring(0, $leagueIdx) + $milestonesExists + $milestonesStreaks + $milestonesChrono + $milestonesTail + $milestonesPeriod + $milestonesPlayStreak100 + $milestonesYearInHeaven + $milestonesCore.Substring($leagueIdx)
+Write-Host '-> player_milestones (core + exists + streaks + chrono + tail + period + play_streak_100 + year_in_heaven + league)' -ForegroundColor Cyan
 $milestonesSql | & $MysqlExe @mysqlArgs
 if ($LASTEXITCODE -ne 0) {
     Write-Error 'player_milestones rebuild failed.'
@@ -214,6 +216,19 @@ SELECT COUNT(*) FROM player_milestones WHERE source_kind IS NULL;
 $badMilestoneSourcesValue = [int](($badMilestoneSources | Select-Object -First 1).ToString().Trim())
 if ($badMilestoneSourcesValue -ne 0) {
     Write-Error 'Milestone source check failed: rows with NULL source_kind (rebuild must set game or league).'
+}
+
+if (Test-Path $PhpExe) {
+    $streakScript = Join-Path $RepoRoot 'scripts\rebuild_player_play_streaks.php'
+    if (Test-Path $streakScript) {
+        Write-Host '-> player_play_streaks (REP-015 via PHP)' -ForegroundColor Cyan
+        & $PhpExe $streakScript
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error 'player_play_streaks rebuild failed.'
+        }
+    }
+} else {
+    Write-Warning 'php.exe not found — skip REP-015; run scripts\rebuild_player_play_streaks.php after SCH-014.'
 }
 
 Write-Host '[OK] website derived data rebuilt and verified.' -ForegroundColor Green

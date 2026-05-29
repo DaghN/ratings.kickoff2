@@ -8,7 +8,9 @@
 
 ## Current focus
 
-- **Milestones project:** Phase 3 rebuild **110/110** local; **Phase 4 v0** UI + **hub stub** (`milestones.php`, tab before HoF). **Next:** hub Home per [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md); HoF achiever migration; staging/post-game for Steve.
+- **Milestones project:** **Staging DB done** May 2026. Catalog **112** — `play_streak_100` (0 holders) + **`year_in_heaven`** (**5** holders, verified on `kooldb`). **Next:** prod schema+REP+C++ M1–M7; hub Home [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). After add-one: local catalog reload + unlock SQL ([`milestones-add-one-playbook.md`](docs/coordination/milestones-add-one-playbook.md) § Local verify).
+
+- **Rated play streaks:** **Staging DB + UI done** May 2026 (SCH-014, REP-015; `ranked4` Days/Weeks, HoF `server2`). **Next:** prod schema + C++ post-game; profile surface TBD.
 
 - **Leagues integration:** Awards DB + **League honours v1** on **local + staging** (`ranked9.php`, SCH-009/010, REP-012/013 verified May 2026). **Next:** profile league block; prod schema/REP when cutover; daily finalize (PER-003) only if/when wanted.
 - **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (day games list deferred).
@@ -65,6 +67,25 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Milestones garden order** — Legendary: **`year_in_heaven`** after **`merchant_trade_fair`**; **`play_streak_100`** before **`club_10000`** (10K last). |
+| 2026-05 | **Peer pill carry-scroll** — hub / `lb_nav` / `player_nav` keep `window.scrollY` on pill navigation; same active pill click does not reload (`preventDefault`); short pages extend min-height; other links unchanged. |
+| 2026-05 | **Hall of Fame layout** — Peak performance panel: spacer row after Best goal ratio (before frequency rows). |
+| 2026-05 | **`year_in_heaven` staging verified** — catalog **112**, **5** unlock rows on `kooldb` (2018–2025; geo4444=344/2021); establishing game on completing week; profile Played weeks + add-one playbook local-verify note. |
+| 2026-05 | **Milestone `year_in_heaven` shipped** — 52 UTC weeks/calendar year; `gen_milestone_year_in_heaven_sql.py` + PHP post-game; handoff [`milestones-year-in-heaven-handoff.md`](docs/coordination/milestones-year-in-heaven-handoff.md). |
+| 2026-05 | **Profile Played weeks** — career map (52 UTC week tiles/year from **first rated game**); `player_calendar_weeks.php` + `player-calendar-weeks.js`; tooltips show range + `games` from `player_period_games`. |
+| 2026-05 | **Profile Personal bests** — busiest day/month/year read `player_peak_period_games` (one query) instead of three `ratedresults` GROUP BY scans; matches ranked8 peak cache. |
+| 2026-05 | **`play_streak_100` catalog on staging** — `milestone_definitions` **111** rows; key verified (**100 days**, UTC-day rule); 0 holders until someone hits 100-day streak. |
+| 2026-05 | **Milestones catalog total** — garden + hero read `k2_milestone_catalog_total()` from DB (111); `play_streak_100` after `merchant_trade_fair` in legendary garden order. |
+| 2026-05 | **Milestone `play_streak_100` (100 days)** — first post-v0 catalog add; `rule_short` in `milestone_definitions`; rebuild SQL + post-game on day streak 100; playbook [`docs/coordination/milestones-add-one-playbook.md`](docs/coordination/milestones-add-one-playbook.md); 0 holders on current import (max day streak 87). |
+| 2026-05 | **Rated play streaks — staging verified** — Steve SCH-014 + REP-015 on `kooldb` (max day **87**, week **126**; HoF 582/344); UI **ranked4** Days/Weeks + **server2** Most days/weeks in a row; registers + handoff updated; prod C++ post-game pending. |
+| 2026-05 | **Profile hero milestones typography** — milestone row matches 20px stat values; shared value min-height + baseline alignment so numbers rest on same floor as rank/rating/games. |
+| 2026-05 | **Profile hero — milestones, no peak** — `player_hero.php`: rank · rating · games · milestones (`{n}/110` + tier dots); peak removed from hero (still on `ranked1` + rating charts); glance strip removed; all player tabs via `player_hero_vars.php`. |
+| 2026-05 | **`diversity_merchant` staging verified** — REP-008b: **25** holders, **6615** total rows, tier `key`/`amber`; matches local; [`milestones-staging-diversity-merchant-fix.md`](docs/coordination/milestones-staging-diversity-merchant-fix.md). |
+| 2026-05 | **Milestones staging DB (wave 1)** — Steve REP-008/014: 110 keys, full rebuild + giant_slayer=31; superseded row count 6658 → **6615** after diversity fix. |
+| 2026-05 | **Milestones staging — MariaDB period SQL fix** — removed `LATERAL` from `player_milestones_rebuild_period.sql`; staging bootstrap runs statements individually; Steve re-upload + re-run REP-008. |
+| 2026-05 | **Milestones staging cutover packet** — [`docs/coordination/milestones-staging-cutover-packet.md`](docs/coordination/milestones-staging-cutover-packet.md): WinSCP manifest, Steve commands, expected counts (incl. **giant_slayer = 31**), staging PHP rebuild scripts. |
+| 2026-05 | **Milestones post-game contract** — `website-data-contract.md` § full write rules (game/league/lobby), M1–M7 Steve phases. |
+| 2026-05 | **Milestones v0 sanity** — `milestone_v0_sanity_check.py` passed (PHP helpers = SQL; browser spot-check). |
 | 2026-05 | **Hub IA — Milestones tab + Games off hub** — `hub_nav.php`: Status · Activity · Leaderboards · **Milestones** · HoF; `milestones.php` stub; `server3.php` via Status only; WIP [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). |
 | 2026-05 | **Leaderboards wing order (scenario A)** — `lb_nav.php`: classic block unchanged (Rating→Victims), then League honours · Milestones · Activity peaks, **Peak rating** last (`ranked1`); hub default still `ranked7.php`. |
 | 2026-05 | **Milestones LB polish** — `ranked10.php` + League honours: **ELO rating** header + `k2-table-cell--pad-left-sm` on Games (matches classic ranked tables). |

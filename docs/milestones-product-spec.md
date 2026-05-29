@@ -120,7 +120,7 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | Key completion % leaderboard | TBD |
 | Hub tab route | **`milestones.php`** stub (May 2026); full hub WIP — [`milestones-hub-ia.md`](milestones-hub-ia.md) |
 
-**Shipped v0 URLs (May 2026, local):** hub stub `milestones.php` · garden `individual_milestones.php?id={player}` · meta-leaderboard `ranked10.php` · profile glance on `individual1.php` · trial achiever list on `server2.php` (Double Digit Merchant only; migrates when hub ready).
+**Shipped v0 URLs (May 2026, local):** hub stub `milestones.php` · garden `individual_milestones.php?id={player}` · meta-leaderboard `ranked10.php` · profile hero milestones on all player tabs (`player_hero.php`) · trial achiever list on `server2.php` (Double Digit Merchant only; migrates when hub ready).
 
 ---
 

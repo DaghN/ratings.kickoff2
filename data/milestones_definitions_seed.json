@@ -1,8 +1,30 @@
 {
   "version": "2026-05-curated",
-  "milestone_count": 110,
+  "milestone_count": 112,
   "notes": "Seed for milestone_definitions (Phase 3). Not loaded by site yet. Medal/winner/league rules: docs/leagues-rules-spec.md. Regenerate: python scripts/oneoff/milestone_unlock_counts.py --doc-only --write-doc --export-seed",
   "definitions": [
+    {
+      "milestone_key": "play_streak_100",
+      "display_name": "100 days",
+      "tier_band": "legendary",
+      "chart_token": "holo",
+      "name_score": 4,
+      "rule_short": "100 consecutive UTC days with a rated game",
+      "rule_probe": "player_period_games day streak",
+      "unlock_veterans": 0,
+      "pct_veterans": "0%"
+    },
+    {
+      "milestone_key": "year_in_heaven",
+      "display_name": "Year in Heaven",
+      "tier_band": "legendary",
+      "chart_token": "holo",
+      "name_score": 4,
+      "rule_short": "Rated game in every UTC week of a calendar year",
+      "rule_probe": "player_period_games 52-week calendar year",
+      "unlock_veterans": 5,
+      "pct_veterans": "4.7%"
+    },
     {
       "milestone_key": "club_10000",
       "display_name": "10K",
@@ -108,7 +130,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 4,
-      "rule_short": "Rated game on every day of a calendar month",
+      "rule_short": "Rated game on every calendar day of at least one month",
       "rule_probe": "chronological full month days",
       "unlock_veterans": 5,
       "pct_veterans": "4.7%"
@@ -130,7 +152,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 5,
-      "rule_short": "Rating ≥2300",
+      "rule_short": "Peak rating ≥2300",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 6,
       "pct_veterans": "5.6%"
@@ -285,20 +307,9 @@
       "chart_token": "amber",
       "name_score": 5,
       "rule_short": "DD vs 10 different opponents",
-      "rule_probe": "ratedresults distinct DD opponents",
+      "rule_probe": "ratedresults distinct per-game DD opponents (>=10)",
       "unlock_veterans": 18,
       "pct_veterans": "16.8%"
-    },
-    {
-      "milestone_key": "giant_slayer",
-      "display_name": "Giant slayer",
-      "tier_band": "accomplished",
-      "chart_token": "amber",
-      "name_score": 5,
-      "rule_short": "Beat #1 rated **active** player",
-      "rule_probe": "chrono beat #1 active (365d rolling UTC)",
-      "unlock_veterans": 31,
-      "pct_veterans": "29.0%"
     },
     {
       "milestone_key": "league_wins_50",
@@ -334,6 +345,17 @@
       "pct_veterans": "22.4%"
     },
     {
+      "milestone_key": "diversity_merchant",
+      "display_name": "Diversity merchant",
+      "tier_band": "accomplished",
+      "chart_token": "amber",
+      "name_score": 4,
+      "rule_short": "DD vs 5 different opponents",
+      "rule_probe": "ratedresults distinct per-game DD opponents (>=5)",
+      "unlock_veterans": 25,
+      "pct_veterans": "23.4%"
+    },
+    {
       "milestone_key": "absurd_day",
       "display_name": "Absurd day",
       "tier_band": "accomplished",
@@ -350,7 +372,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 4,
-      "rule_short": "Rating ≥2000",
+      "rule_short": "≥2000",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 26,
       "pct_veterans": "24.3%"
@@ -385,6 +407,17 @@
       "name_score": 4,
       "rule_short": "12+ in one game",
       "rule_probe": "ratedresults any game",
+      "unlock_veterans": 31,
+      "pct_veterans": "29.0%"
+    },
+    {
+      "milestone_key": "giant_slayer",
+      "display_name": "Giant slayer",
+      "tier_band": "accomplished",
+      "chart_token": "amber",
+      "name_score": 5,
+      "rule_short": "Beat #1 rated **active** player",
+      "rule_probe": "chrono beat #1 active (365d rolling UTC)",
       "unlock_veterans": 31,
       "pct_veterans": "29.0%"
     },
@@ -598,17 +631,6 @@
       "pct_veterans": "66.4%"
     },
     {
-      "milestone_key": "diversity_merchant",
-      "display_name": "Diversity merchant",
-      "tier_band": "dedicated",
-      "chart_token": "chrome",
-      "name_score": 4,
-      "rule_short": "DD vs 5 different opponents",
-      "rule_probe": "matchup rows with 10+ goals vs 5+ opponents",
-      "unlock_veterans": 68,
-      "pct_veterans": "63.6%"
-    },
-    {
       "milestone_key": "grind_month",
       "display_name": "Grind month",
       "tier_band": "dedicated",
@@ -680,7 +702,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "5-5 or higher draw",
+      "rule_short": "Draw ≥5–5",
       "rule_probe": "ratedresults 5-5+ draw",
       "unlock_veterans": 60,
       "pct_veterans": "56.1%"
@@ -900,7 +922,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Rating ≥1800",
+      "rule_short": "≥1800",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 38,
       "pct_veterans": "35.5%"
@@ -922,7 +944,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "7-7 or higher draw",
+      "rule_short": "Draw, 14+ total goals",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 37,
       "pct_veterans": "34.6%"
@@ -1093,6 +1115,17 @@
       "pct_veterans": "119%+"
     },
     {
+      "milestone_key": "persistence",
+      "display_name": "Through the swamp",
+      "tier_band": "aspirational",
+      "chart_token": "pitch",
+      "name_score": 5,
+      "rule_short": "10 rated games",
+      "rule_probe": "playertable NumberGames>=10",
+      "unlock_veterans": 134,
+      "pct_veterans": "125%+"
+    },
+    {
       "milestone_key": "hot_day",
       "display_name": "Hot day",
       "tier_band": "aspirational",
@@ -1146,17 +1179,6 @@
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 156,
       "pct_veterans": "146%+"
-    },
-    {
-      "milestone_key": "persistence",
-      "display_name": "Through the swamp",
-      "tier_band": "aspirational",
-      "chart_token": "pitch",
-      "name_score": 5,
-      "rule_short": "10 rated games",
-      "rule_probe": "playertable proxy (catalog 5–10)",
-      "unlock_veterans": 169,
-      "pct_veterans": "158%+"
     },
     {
       "milestone_key": "brace",

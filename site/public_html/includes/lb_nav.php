@@ -22,7 +22,7 @@ $k2LbWingTabs = [
 ];
 ?>
 <div class="k2-chrome-tabs">
-	<nav class="k2-chrome-tabs__bar" aria-label="Leaderboard view">
+	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Leaderboard view">
 <?php foreach ($k2LbWingTabs as $id => $tab) {
 	$tabQs = ($id === 'hall-of-fame') ? '' : $k2LbFilterQs;
 ?>

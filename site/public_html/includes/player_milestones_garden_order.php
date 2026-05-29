@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 const K2_MILESTONE_GARDEN_KEY_ORDER = [
     'aspirational' => [
-        'debut',
         'entered_arena',
+        'debut',
         'welcome_to_the_ladder',
         'first_goal',
         'brace',
@@ -48,7 +48,6 @@ const K2_MILESTONE_GARDEN_KEY_ORDER = [
         'five_victims',
         'regular_customer',
         'ten_draws',
-        'diversity_merchant',
         'grind_month',
         'battle_scarred',
         'lifetime_rivalry',
@@ -93,6 +92,7 @@ const K2_MILESTONE_GARDEN_KEY_ORDER = [
         'club_2000',
         'fifty_faces',
         'league_weekly_points_winner',
+        'diversity_merchant',
         'league_wins_50',
         'perfect_storm',
         'giant_slayer',
@@ -119,10 +119,12 @@ const K2_MILESTONE_GARDEN_KEY_ORDER = [
         'ultra_day_30',
         'league_wins_500',
         'merchant_trade_fair',
+        'year_in_heaven',
         'minimalist_merchant',
         'united_nations',
         'century_of_rivals',
         'merchant_streak',
+        'play_streak_100',
         'club_10000',
     ],
 ];

@@ -80,6 +80,7 @@ Still open with Steve / prod:
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
 | Tint picker | Hidden by default behind Show tint. |
 | Realm switcher | UI for future Online/Amiga realm; tint and realm are separate. |
+| Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps `window.scrollY` on the next page (one-shot `sessionStorage`). Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
 
 The old hub-nav A/B tuning path is removed; segment track + outline active cell is now the fixed product contract.
 
@@ -96,7 +97,7 @@ Wing tabs (left → right):
 | Rating (current ladder) | `ranked7.php` |
 | Goals | `ranked2.php` |
 | DDs & CSs | `ranked3.php` |
-| Streaks | `ranked4.php` |
+| Streaks | `ranked4.php` — **Days** / **Weeks** from `player_play_streaks.best_streak` (SCH-014 + REP-015; staging verified May 2026) |
 | Victims & Culprits | `ranked5.php` |
 | League honours | `ranked9.php` |
 | Milestones | `ranked10.php` |

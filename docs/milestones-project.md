@@ -22,9 +22,9 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 |--|--|
 
-| **Completed** | **Phase 1–3** (catalog + full rebuild) · **Phase 4 v0** (May 2026) — read-only UI on local DB: garden tab, profile glance, meta-leaderboard, trial DD Merchant achiever list on Hall of Fame |
+| **Completed** | **Phase 1–3** (catalog + full rebuild) · **Phase 4 v0** UI · **staging `kooldb`** (May 2026): catalog **112** (`play_streak_100`, **`year_in_heaven`** — 5 holders verified); **rated play streaks** SCH-014 + REP-015 — LB `ranked4` + HoF `server2` · profile **Played weeks** |
 
-| **Next** | Milestones hub Home (picker + achievers) per [`milestones-hub-ia.md`](milestones-hub-ia.md) · story · HoF achiever migration · staging/post-game |
+| **Next** | Staging browser smoke (PHP/WinSCP) · prod schema+REP+C++ M1–M7 · hub Home [`milestones-hub-ia.md`](milestones-hub-ia.md) |
 
 
 

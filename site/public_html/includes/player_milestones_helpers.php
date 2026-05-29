@@ -1,6 +1,6 @@
 <?php
 /**
- * Milestones read helpers (garden, profile glance, meta leaderboard, achiever lists).
+ * Milestones read helpers (garden, profile hero counts, meta leaderboard, achiever lists).
  * Data: milestone_definitions + player_milestones only — no ratedresults aggregation.
  */
 declare(strict_types=1);
@@ -11,7 +11,35 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_garden_ord
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_period_page.php';
 
-const K2_MILESTONE_CATALOG_TOTAL = 110;
+/** Fallback when `milestone_definitions` is missing (dev before SCH-011). */
+const K2_MILESTONE_CATALOG_TOTAL_FALLBACK = 112;
+
+/**
+ * Live catalog size from milestone_definitions (not hard-coded).
+ */
+function k2_milestone_catalog_total(mysqli $con): int
+{
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+    if (!k2_status_table_exists($con, 'milestone_definitions')) {
+        $cached = K2_MILESTONE_CATALOG_TOTAL_FALLBACK;
+
+        return $cached;
+    }
+    $res = mysqli_query($con, 'SELECT COUNT(*) AS n FROM `milestone_definitions`');
+    if ($res === false) {
+        $cached = K2_MILESTONE_CATALOG_TOTAL_FALLBACK;
+
+        return $cached;
+    }
+    $row = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    $cached = max(1, (int) ($row['n'] ?? K2_MILESTONE_CATALOG_TOTAL_FALLBACK));
+
+    return $cached;
+}
 
 /** @var array<string, string> DB tier_band → garden section label */
 const K2_MILESTONE_TIER_LABELS = [
@@ -76,9 +104,32 @@ function k2_milestone_format_utc(?string $achievedAt): string
     return gmdate('M j, Y · H:i', $ts) . ' UTC';
 }
 
-/**
- * @return bool
- */
+/** Idempotent game unlock (post-game / live writer). */
+function k2_milestone_insert_game_unlock(
+    mysqli $con,
+    int $playerId,
+    string $milestoneKey,
+    int $gameId,
+    string $achievedAt,
+    int $value
+): void {
+    if (!k2_milestone_tables_ready($con) || $playerId < 1 || $gameId < 1) {
+        return;
+    }
+    $stmt = $con->prepare(
+        'INSERT IGNORE INTO `player_milestones` '
+        . '(`player_id`, `milestone_key`, `achieved_at`, `value`, '
+        . '`source_kind`, `source_game_id`, `source_league_kind`, `source_period_type`, `source_period_start`) '
+        . 'VALUES (?, ?, ?, ?, \'game\', ?, NULL, NULL, NULL)'
+    );
+    if ($stmt === false) {
+        return;
+    }
+    $stmt->bind_param('issii', $playerId, $milestoneKey, $achievedAt, $value, $gameId);
+    $stmt->execute();
+    $stmt->close();
+}
+
 function k2_milestone_tables_ready(mysqli $con): bool
 {
     return k2_status_table_exists($con, 'milestone_definitions')
@@ -354,35 +405,6 @@ function k2_milestone_dd_merchant_achievers(mysqli $con): array
     }
 
     return $rows;
-}
-
-function k2_milestone_render_glance(mysqli $con, int $playerId, int $numberGames): void
-{
-    if ($numberGames < 1 || !k2_milestone_tables_ready($con)) {
-        return;
-    }
-    $counts = k2_milestone_player_counts($con, $playerId);
-    if ($counts === null) {
-        return;
-    }
-    $gardenHref = 'individual_milestones.php?id=' . (int) $playerId;
-    $total = $counts['total'];
-    ?>
-<p class="k2-ms-glance">
-	<a class="k2-ms-glance__link" href="<?php echo k2_h($gardenHref); ?>">
-		<strong><?php echo (int) $total; ?></strong> / <?php echo K2_MILESTONE_CATALOG_TOTAL; ?> milestones
-	</a>
-	<span class="k2-ms-glance__tiers" aria-label="Unlocked per tier">
-		<span class="k2-ms-glance__tier k2-ms-glance__tier--pitch" title="Aspirational"><?php echo (int) $counts['aspirational']; ?></span>
-		<span class="k2-ms-glance__sep" aria-hidden="true">·</span>
-		<span class="k2-ms-glance__tier k2-ms-glance__tier--chrome" title="Dedicated"><?php echo (int) $counts['dedicated']; ?></span>
-		<span class="k2-ms-glance__sep" aria-hidden="true">·</span>
-		<span class="k2-ms-glance__tier k2-ms-glance__tier--amber" title="Accomplished"><?php echo (int) $counts['accomplished']; ?></span>
-		<span class="k2-ms-glance__sep" aria-hidden="true">·</span>
-		<span class="k2-ms-glance__tier k2-ms-glance__tier--holo" title="Legendary"><?php echo (int) $counts['legendary']; ?></span>
-	</span>
-</p>
-    <?php
 }
 
 /**
