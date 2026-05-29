@@ -26,7 +26,7 @@
 	--k2-chart-holo: #b388ff;
 	--k2-chart-teal: #4db6ac;
 	--k2-chart-magenta: #ff4081;
-	--k2-chart-bar-fill-alpha: 0.65;
+	--k2-chart-bar-fill-alpha: 0.75;
 	--k2-chart-bar-border-width: 1;
 	--k2-chart-line-area-alpha: 0.12;
 	--k2-chart-line-border-width: 2;
@@ -1251,14 +1251,27 @@ body.k2-site .k2-table .k2-table-cell--pad-right-xs {
 	padding-right: 10.5px;
 }
 
-body.k2-site .k2-table tbody td a {
+body.k2-site .k2-link-star,
+body.k2-site .k2-table tbody td a,
+body.k2-site a.k2-link-star:visited,
+body.k2-site .k2-table tbody td a:visited {
 	color: var(--k2-link-star);
 	font-weight: 600;
 }
 
-body.k2-site .k2-table tbody td a:hover {
-	color: var(--k2-link-star-hover);
+body.k2-site a.k2-link-star,
+body.k2-site a.k2-link-star:visited,
+body.k2-site .k2-table tbody td a,
+body.k2-site .k2-table tbody td a:visited {
 	text-decoration: none;
+}
+
+body.k2-site a.k2-link-star:hover,
+body.k2-site a.k2-link-star:focus-visible,
+body.k2-site .k2-table tbody td a:hover,
+body.k2-site .k2-table tbody td a:focus-visible {
+	color: var(--k2-link-star-hover);
+	text-decoration: underline;
 }
 
 body.k2-site .k2-table tbody tr,
@@ -1373,12 +1386,6 @@ body.k2-site .k2-player-games-controls button {
 	cursor: pointer;
 }
 
-body.k2-site .k2-player-games-controls a,
-body.k2-site .k2-player-games-status a {
-	color: var(--k2-link-star);
-	font-weight: 600;
-	text-decoration: none;
-}
 
 .k2-chrome-tabs__bar + .k2-table-wrap {
 	margin-top: 12px;
@@ -1760,19 +1767,11 @@ body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-sep 
 	text-align: left;
 }
 
-.k2-status-room__arc-link,
-.k2-status-room__arc-link:visited {
+.k2-status-room__arc-link {
 	display: inline-block;
 	margin-top: 4px;
-	color: var(--k2-link-star);
 	font-size: 11px;
-	font-weight: 600;
-	text-decoration: none;
 	white-space: nowrap;
-}
-
-.k2-status-room__arc-link:hover {
-	color: var(--k2-link-star-hover);
 }
 
 .k2-heritage-box--status-panel {
@@ -1889,18 +1888,10 @@ body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-sep 
 	margin: 0;
 }
 
-.k2-status-panel__more,
-.k2-status-panel__more:visited {
+.k2-status-panel__more {
 	flex: 0 0 auto;
-	color: var(--k2-link-star);
 	font-size: 11px;
-	font-weight: 600;
-	text-decoration: none;
 	white-space: nowrap;
-}
-
-.k2-status-panel__more:hover {
-	color: var(--k2-link-star-hover);
 }
 
 .k2-status-panel__head {

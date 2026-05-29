@@ -63,7 +63,7 @@
                         datasets: [Object.assign({
                             label: 'Established players (' + minGames + '+ games)',
                             data: counts
-                        }, T.barStroke(T.teal(), 0.7))]
+                        }, T.barStroke(T.teal()))]
                     },
                     options: {
                         responsive: true,

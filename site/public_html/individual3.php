@@ -294,7 +294,7 @@ if ($opponentFilter > 0) {
             <?php } ?>
         </select>
     </label>
-    <a href="individual3.php?id=<?php echo $playerId; ?>">Reset</a>
+    <a class="k2-link-star" href="individual3.php?id=<?php echo $playerId; ?>">Reset</a>
 </form>
 
 <div class="k2-player-games-status">
@@ -305,7 +305,7 @@ if ($opponentFilter > 0) {
     <?php } ?>
     <?php if ($offset + $limit < $totalMatches) { ?>
     <?php $nextParams = $pagerParams + ['offset' => $offset + $limit]; ?>
-    <a href="<?php echo individual3_h(individual3_build_url($nextParams)); ?>">Next 100</a>
+    <a class="k2-link-star" href="<?php echo individual3_h(individual3_build_url($nextParams)); ?>">Next 100</a>
     <?php } ?>
 </div>
 

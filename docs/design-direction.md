@@ -63,9 +63,10 @@ Text/link hierarchy:
 |-------|------|
 | Body/table data | `--k2-text-primary`, normal weight |
 | Muted helpers/headings | `--k2-text-muted` |
-| Player names/game IDs/profile highlights | `--k2-link-star`, weight 600 in dense tables |
+| Player names/game IDs/profile highlights | `a.k2-link-star` — `--k2-link-star`, weight 600; hover/focus underline + `--k2-link-star-hover` |
 | Prose/footer links | `--k2-link` |
 | Positive/negative table stats | `.blue` / `.red` mapped to softened table stat tokens |
+| Rating / paired numeric highlights | `.k2-link-star` (same token + weight 600 as player names in dense tables) |
 | Structure and rings | `--k2-accent` at full strength |
 
 Do not add one-off hex colors in page CSS when a token exists.

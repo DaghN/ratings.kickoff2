@@ -66,5 +66,5 @@ function k2_query_or_public_error(mysqli $con, string $query, string $context = 
 
 function k2_player_link(int|string $id, mixed $name): string
 {
-	return '<a href="individual1.php?id=' . (int) $id . '">' . k2_h($name) . '</a>';
+	return '<a class="k2-link-star" href="individual1.php?id=' . (int) $id . '">' . k2_h($name) . '</a>';
 }

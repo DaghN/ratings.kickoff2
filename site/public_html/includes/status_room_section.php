@@ -77,7 +77,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 				<span class="blue"><?php echo number_format((int) ($arc['players'] ?? 0)); ?></span> players played
 				<span class="blue"><?php echo number_format((int) $arc['games']); ?></span> rated games since <?php echo k2_status_h($arc['since_label']); ?>
 			</p>
-			<a class="k2-status-room__arc-link" href="server1.php">Activity &rarr;</a>
+			<a class="k2-link-star k2-status-room__arc-link" href="server1.php">Activity &rarr;</a>
 		</section>
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-heritage" aria-label="Original Amiga box art">
@@ -90,7 +90,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title">
 			<div class="k2-status-panel__head">
 				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active players in the past year</h2>
-				<p class="k2-status-panel__meta"><a class="k2-status-panel__more" href="ranked7.php">Leaderboards &rarr;</a></p>
+				<p class="k2-status-panel__meta"><a class="k2-link-star k2-status-panel__more" href="ranked7.php">Leaderboards &rarr;</a></p>
 			</div>
 <?php if (!empty($room['active_top_error'])) { ?>
 			<p class="k2-status-panel__empty">Could not load active ratings.</p>
@@ -115,7 +115,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<tr>
 							<td class="k2-status-table__num"><?php echo $rank; ?></td>
 							<td class="k2-status-table__player"><?php echo k2_status_player_link($row['id'], $row['name']); ?></td>
-							<td class="k2-status-table__num"><span class="blue"><?php echo (int) $row['rating']; ?></span></td>
+							<td class="k2-status-table__num"><span class="k2-link-star"><?php echo (int) $row['rating']; ?></span></td>
 							<td class="k2-status-table__num"><?php echo (int) $row['games']; ?></td>
 						</tr>
 <?php
@@ -148,7 +148,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-games" aria-labelledby="k2-status-games-title">
 			<div class="k2-status-panel__heading-row">
 				<h2 id="k2-status-games-title" class="k2-panel-heading">Recent games</h2>
-				<a class="k2-status-panel__more" href="server3.php">Games &rarr;</a>
+				<a class="k2-link-star k2-status-panel__more" href="server3.php">Games &rarr;</a>
 			</div>
 <?php if ($recentGames === []) { ?>
 			<p class="k2-status-panel__empty">—</p>

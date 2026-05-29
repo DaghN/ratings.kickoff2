@@ -74,7 +74,7 @@
                                 label: 'Games',
                                 data: actualData,
                                 stack: 'games'
-                            }, T.barStroke(T.pitch(), 0.75)),
+                            }, T.barStroke(T.pitch())),
                             Object.assign({
                                 label: 'Projected',
                                 data: projectedData,

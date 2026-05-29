@@ -67,6 +67,8 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **`k2-link-star` links** — default hover/focus underline site-wide; `k2_player_link()` emits class; Elo stays `<span class="k2-link-star">`. |
+| 2026-05 | **Chart bar fill** — `--k2-chart-bar-fill-alpha` **0.65 → 0.75** in `theme.css`; goals/month trial uses `linkStar()`. |
 | 2026-05 | **Milestones garden order** — Legendary: **`year_in_heaven`** after **`merchant_trade_fair`**; **`play_streak_100`** before **`club_10000`** (10K last). |
 | 2026-05 | **Peer pill carry-scroll** — hub / `lb_nav` / `player_nav` keep `window.scrollY` on pill navigation; same active pill click does not reload (`preventDefault`); short pages extend min-height; other links unchanged. |
 | 2026-05 | **Hall of Fame layout** — Peak performance panel: spacer row after Best goal ratio (before frequency rows). |

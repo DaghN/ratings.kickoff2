@@ -64,7 +64,7 @@
                         datasets: [Object.assign({
                             label: 'Double Digit Merchants',
                             data: counts
-                        }, T.barStroke(T.teal(), 0.7))]
+                        }, T.barStroke(T.teal()))]
                     },
                     options: {
                         responsive: true,
