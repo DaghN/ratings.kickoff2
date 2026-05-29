@@ -4,7 +4,7 @@
     "eligible_players": 261,
     "veteran_players": 107,
     "ratedresults_games": 74870,
-    "computed_at": "2026-05-28 10:30 UTC"
+    "computed_at": "2026-05-28 19:29 UTC"
   },
   "counts": {
     "absurd_day": {
@@ -52,7 +52,7 @@
       "method": "playertable",
       "band": "dedicated?"
     },
-    "clean_sheet_merchant": {
+    "clean_sheet_artist": {
       "unlock": 36,
       "method": "playertable",
       "band": "dedicated?"
@@ -144,7 +144,7 @@
     },
     "entered_arena": {
       "unlock": 261,
-      "method": "assumed all eligible (register = lobby)",
+      "method": "playertable JoinDate (register = enter lobby)",
       "band": "pitch"
     },
     "established_20": {
@@ -432,14 +432,9 @@
       "method": "ratedresults any game",
       "band": "accomplished?"
     },
-    "period_champion": {
-      "unlock": 87,
-      "method": "player_league_award (any league win)",
-      "band": "pitch"
-    },
     "persistence": {
-      "unlock": 169,
-      "method": "playertable proxy (catalog 5\u201310)",
+      "unlock": 134,
+      "method": "playertable NumberGames>=10",
       "band": "pitch"
     },
     "rampage": {
@@ -461,11 +456,6 @@
       "unlock": 35,
       "method": "ratedresults any game",
       "band": "dedicated?"
-    },
-    "six_goal_draw": {
-      "unlock": 96,
-      "method": "ratedresults any game",
-      "band": "pitch"
     },
     "survivor": {
       "unlock": 32,

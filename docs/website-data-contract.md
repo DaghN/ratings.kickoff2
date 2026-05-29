@@ -41,6 +41,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_league_award` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only** |
 | `player_league_totals` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only**; re-aggregate from awards |
 | `player_league_slice_totals` | SCH-010 | `player_league_slice_totals_rebuild.sql` (REP-013) | **Periodic only**; with career totals after awards |
+| `milestone_definitions` | SCH-011 | `scripts/oneoff/load_milestone_definitions.py` | Static catalog; reload when seed changes |
 | `player_milestones` | SCH-008 | `player_milestones_rebuild.sql` | Insert on threshold cross |
 | `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
 | `server_period_game_totals` | SCH-008 | `server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
@@ -362,13 +363,44 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 ---
 
+### `milestone_definitions`
+
+**Lifecycle:** Active (Phase 3).
+
+**Purpose:** Catalog metadata for all curated milestones (display, tier color, short rule). Unlock times live in `player_milestones`.
+
+**Source truth:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) (generated from curated list + probe).
+
+**Grain:** one row per `milestone_key`.
+
+**Primary key:** `milestone_key`.
+
+| Column | Meaning |
+|--------|---------|
+| `milestone_key` | Stable id (matches `player_milestones.milestone_key`) |
+| `display_name` | Garden / profile label |
+| `tier_band` | `aspirational` \| `veteran` \| `key` \| `legendary` |
+| `chart_token` | `pitch` \| `chrome` \| `amber` \| `holo` |
+| `rule_short` | One-line rule for cards |
+| `description` | Longer copy (optional; often NULL until copy pass) |
+| `sort_order` | Hub section order within tier |
+| `icon` | Asset id (TBD) |
+
+**Full rebuild:** `python scripts/oneoff/load_milestone_definitions.py` (truncates and reloads from seed).
+
+**Post-game rule:** None — update seed + reload when catalog changes.
+
+**Implementation:** `schema/migrations/010_milestone_definitions.sql` (SCH-011).
+
+---
+
 ### `player_milestones`
 
 **Lifecycle:** Active.
 
 **Purpose:** Reusable player milestone facts for Activity and achievement-style surfaces.
 
-**Source truth:** `ratedresults` and `playertable` parity.
+**Source truth:** `ratedresults` (game thresholds), `player_league_award` (league feats). Other families per [`milestones-facilitation.md`](milestones-facilitation.md).
 
 **Grain:** one row per `(player_id, milestone_key)`.
 
@@ -378,19 +410,48 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 |--------|---------|
 | `player_id` | `playertable.ID` |
 | `milestone_key` | Stable milestone identifier |
-| `achieved_at` | UTC game timestamp when milestone was first achieved |
-| `value` | Threshold value for the milestone |
+| `achieved_at` | UTC instant of first unlock (`ratedresults.Date` or `player_league_award.period_end`) |
+| `value` | Threshold or placement snapshot (e.g. 20 games, 3 = podium) |
+| `source_kind` | `game`, `league`, or `lobby` — which event type caused the unlock |
+| `source_game_id` | `ratedresults.id` when `source_kind = game`; otherwise NULL |
+| `source_league_kind` | `points` or `activity` when `source_kind = league` |
+| `source_period_type` | `day` / `week` / `month` / `year` when `source_kind = league` |
+| `source_period_start` | League period start date when `source_kind = league` |
 
-Current milestone keys:
+**Source invariants (rebuild + post-game):**
 
-| Key | Meaning |
-|-----|---------|
-| `established_20` | Player reached 20 rated games |
-| `dd_merchant_10` | Player first scored 10 or more goals in one rated game |
+- `source_kind = game` → `source_game_id` NOT NULL; league columns NULL.
+- `source_kind = league` → `source_league_kind`, `source_period_type`, `source_period_start` NOT NULL; `source_game_id` NULL.
+- `source_kind = lobby` → only for `entered_arena`: `achieved_at = playertable.JoinDate` (in this product, **registering = entering the lobby**). `source_game_id` and league columns NULL. Not rebuilt by ladder replay; set at account creation (live server).
+- UI deep links: game page by `source_game_id`; Status leagues by `source_league_*`; lobby milestone → profile / community copy (no game or league URL).
 
-**Full rebuild:** Scan all player appearances in chronological order and insert the first achievement row for each milestone.
+**Rebuild coverage (May 2026):**
 
-**Post-game rule:** If updated player totals or the game score cross a milestone threshold, insert the milestone if it does not already exist.
+| Family | Keys | Source |
+|--------|------|--------|
+| Game count / DD | `debut`, `persistence`, `established_20`, `club_500`, `dd_merchant_10` | `ratedresults` Nth appearance (+ `playertable` eligibility); first 10+ goal game for DD |
+| League | 16 `league_*` + `moment_of_glory` + `activity_king` + 4 `league_wins_*` | `player_league_award` (requires REP-012 first) |
+| Lobby | `entered_arena` | `playertable.JoinDate` (registration = lobby entry) |
+| Exists feats | 18 keys (e.g. `brace`, `merchant_trade_fair`) | `ratedresults` first matching game |
+| Streaks | 8 keys | Chronological first cross (`gen_milestone_streak_sql.py` → `player_milestones_rebuild_streaks.sql`) |
+| Period bursts | 5 keys (`hot_day` … `grind_month`) | `player_period_games` first cross + last game that UTC day/month (`player_milestones_rebuild_period.sql`) |
+| Chronological | 16 keys | `gen_milestone_chrono_sql.py` → `player_milestones_rebuild_chrono.sql` (first cross; `peace_streak` in streaks batch) |
+| Tail playertable + matchup | 30 keys | `gen_milestone_tail_sql.py` → `player_milestones_rebuild_tail.sql` (first cross; `diversity_merchant` = 10+ cumulative goals vs opponent per matchup probe) |
+
+**Full rebuild:** `scripts/ladder/sql/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Local parity: **110** distinct `milestone_key` values.
+
+**Post-game rule:** If updated player totals or the game score cross a milestone threshold, insert the milestone if it does not already exist, with `source_kind` + game or league columns set on that event. League keys: insert on league finalize when award row is written (copy league identity from the new `player_league_award` row). Game keys: set `source_game_id` to the rated game that caused the cross.
+
+**`giant_slayer` (game, chronological — active #1):** After applying this rated game’s Elo and `LastGame` for both players, compute **active #1** at game time `Date` (UTC):
+
+- **Active player:** `LastGame` within **365 rolling days** before `Date`, **or** `idA` / `idB` of this game (they are playing now).
+- **Active #1:** player with highest current rating among active players; tie → highest `playertable.ID`.
+- **Unlock** for winner `idA` or `idB` (first time only): opponent is active #1, opponent ≠ self, pre-game `Rating_opponent >= Rating_self` from this row.
+- Insert: `source_kind = game`, `source_game_id = ratedresults.id`, `achieved_at = Date`, `value = 1`.
+
+Rebuild: `gen_milestone_chrono_sql.py` (same rule); surgical SQL `player_milestones_rebuild_giant_slayer.sql` (DELETE key + INSERTs). Shared probe: `scripts/oneoff/milestone_giant_slayer.py`.
+
+**Parity check (sources):** After rebuild, `COUNT(*)` where `source_kind` IS NULL must be 0 for populated keys.
 
 **Parity check:** `established_20` count must equal `COUNT(*) FROM playertable WHERE NumberGames >= 20`.
 

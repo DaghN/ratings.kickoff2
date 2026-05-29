@@ -7,6 +7,7 @@ declare(strict_types=1);
 if (!function_exists('k2_lb_league_honours_parse_view')) {
     require_once __DIR__ . '/league_honours_leaderboard.php';
 }
+require_once __DIR__ . '/k2_league_table_render.php';
 
 $honoursView = $honoursView ?? k2_lb_league_honours_parse_view();
 $honoursRows = $honoursRows ?? [];
@@ -80,11 +81,11 @@ foreach ($cupTabs as $cupId => $label) {
 				<tr>
 					<th data-k2-sort="number">#</th>
 					<th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-					<th data-k2-sort="number" data-k2-help="Current Elo rating.">Rating</th>
-					<th data-k2-sort="number">Games</th>
-					<th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($goldHelp, ENT_QUOTES, 'UTF-8'); ?>">Gold</th>
-					<th data-k2-sort="number" data-k2-help="Second place in a league.">Silver</th>
-					<th data-k2-sort="number" data-k2-help="Third place in a league.">Bronze</th>
+					<th data-k2-sort="number" data-k2-help="Current Elo rating.">ELO rating</th>
+					<th class="k2-table-cell--pad-left-sm" data-k2-sort="number">Games</th>
+					<th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Gold" data-k2-help="<?php echo htmlspecialchars($goldHelp, ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(1); ?><span class="visually-hidden">Gold</span></th>
+					<th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Silver" data-k2-help="Second place in a league."><?php echo k2_status_league_podium_medal(2); ?><span class="visually-hidden">Silver</span></th>
+					<th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Bronze" data-k2-help="Third place in a league."><?php echo k2_status_league_podium_medal(3); ?><span class="visually-hidden">Bronze</span></th>
 					<th data-k2-sort="number" data-k2-help="Top-three finishes (gold + silver + bronze).">Podium</th>
 				</tr>
 			</thead>

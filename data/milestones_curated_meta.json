@@ -116,7 +116,11 @@
   "first_goal": { "display": "**First goal**", "score": 4 },
   "welcome_to_the_ladder": { "display": "**Welcome to the ladder**", "score": 5 },
   "debut": { "display": "**Debut**", "score": 5 },
-  "entered_arena": { "display": "**Entered the arena**", "score": 4 },
+  "entered_arena": {
+    "display": "**Entered the arena**",
+    "score": 4,
+    "rule_short": "Registered and entered the lobby"
+  },
 
   "_key_renames": {
     "clean_sheet_merchant": "clean_sheet_artist"

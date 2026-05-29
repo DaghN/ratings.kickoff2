@@ -1,86 +1,149 @@
 # Milestones project — status & phases
 
+
+
 **Kick Off 2 ratings site · May 2026**
 
-Single place to see **where the milestone feature is** in the pipeline. Implementation has **not** started beyond the existing two DB keys and Activity digest/charts.
+
+
+Single place to see **where the milestone feature is** in the pipeline.
+
+
 
 ---
+
+
 
 ## Current phase
 
-| | |
-|--|--|
-| **Completed** | **Phase 1 — Idea creation** (discovery + brainstorm + pass 1 curation) |
-| **Wrapping** | **Phase 2 — Definition** — **110** milestones in [`milestones-tier-curated.md`](milestones-tier-curated.md); names in [`data/milestones_curated_meta.json`](../data/milestones_curated_meta.json); Phase 3 seed [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
-| **Not started** | Phase 3+ — schema/catalog, rebuild rules, UI, hub tab, leaderboard |
 
-**Working set:** [`milestones-tier-curated.md`](milestones-tier-curated.md) — **decided for now** (May 2026): four bands, **110** milestones (cut `period_champion`, `six_goal_draw`). Seed export: [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json). Catalog = rule reference + discards.
+
+| | |
+
+|--|--|
+
+| **Completed** | **Phase 1–3** (catalog + full rebuild) · **Phase 4 v0** (May 2026) — read-only UI on local DB: garden tab, profile glance, meta-leaderboard, trial DD Merchant achiever list on Hall of Fame |
+
+| **Next** | Milestones hub Home (picker + achievers) per [`milestones-hub-ia.md`](milestones-hub-ia.md) · story · HoF achiever migration · staging/post-game |
+
+
+
+**Working set:** [`milestones-tier-curated.md`](milestones-tier-curated.md) (110 milestones). **Seed:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json). **Facilitation:** [`milestones-facilitation.md`](milestones-facilitation.md).
+
+
 
 ---
+
+
 
 ## Phase map
 
+
+
 | Phase | Name | Status | Primary docs |
+
 |-------|------|--------|----------------|
-| 0 | **Discovery** | Done | [`milestones-system-discussion.md`](milestones-system-discussion.md) — DB reality, naming (Milestones vs achievements), tone, gaps |
-| 1 | **Idea creation** | **Done (May 2026)** | [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) — wide brainstorm + pass 1 curation |
-| 2 | **Definition** | **Next** | [`milestones-product-spec.md`](milestones-product-spec.md) — **plan**: four tier bands, garden UI, story, leaderboard tie-break; Key ~15–20; naming + league rules still TBD |
-| 3 | **Data contract** | Not started | Extend [`website-data-contract.md`](website-data-contract.md), `milestone_definitions`, rebuild + post-game |
-| 4 | **Build & ship** | Not started | APIs, hub tab, achiever lists, profile count, meta-leaderboard |
+
+| 0 | **Discovery** | Done | [`milestones-system-discussion.md`](milestones-system-discussion.md) |
+
+| 1 | **Idea creation** | Done | [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) |
+
+| 2 | **Definition** | **Done (May 2026)** | [`milestones-product-spec.md`](milestones-product-spec.md), curated list, meta JSON, seed export |
+
+| 3 | **Data contract** | **Done (local)** | Rebuild 110/110 + parity scripts |
+
+| 4 | **Build & ship** | **v0 + hub stub (local)** | Profile garden, `ranked10.php`, hub tab [`milestones.php`](../site/public_html/milestones.php) stub; full hub WIP |
+
+
 
 ---
 
-## Decisions on record
 
-### Pass 1 (unchanged unless superseded)
 
-- User-facing term: **Milestones**.
-- **Dedicated hub tab** (not Activity-only); **milestone count on profile**; **most-milestones leaderboard**.
-- **~115+ want** candidates in catalog; **4 maybe**; rest **discard** (kept for reference).
-- Profile **layout not locked** — integrate when profile is rethought.
-- Leagues: **2×8** medal/winner milestones + **10/50/100/500** career league-win totals; overlap OK until consolidated.
+## Phase 3 checklist
 
-### Tier bands & presentation (May 2026 — **plan**, [`milestones-product-spec.md`](milestones-product-spec.md))
 
-- **Four bands**, every milestone exactly one: **Aspirational** (`pitch`), **Veteran** (`chrome`), **Key** (`amber`), **Legendary** (`holo`).
-- **Key** = amber tier = **~15–20** “completeness palette” milestones (same set as achiever-list prominence); e.g. first Double Digit Merchant, Established — not a separate “featured vs key” split.
-- Hub: **tier-first sections**; cards **dim when locked**, **tier color + glow** when unlocked (“garden”).
-- **Milestone story:** chronological unlocks with tier colors.
-- **Leaderboard:** sort by total unlocks; tie-break pitch → chrome → amber → holo counts. Key completion % **TBD**.
-- No off-palette “obscure” lane — all milestones use the four colors.
+
+| # | Task | Status |
+
+|---|------|--------|
+
+| 1 | `milestone_definitions` schema (SCH-011) + load from seed | **Done** (local) |
+
+| 2 | Facilitation matrix | **Done** — [`milestones-facilitation.md`](milestones-facilitation.md) |
+
+| 3 | Rebuild wave 1 — league + `entered_arena` lobby (23 unlock keys) | **Done** — `player_milestones_rebuild.sql` + source pointers (SCH-012/013) |
+
+| 4 | Rebuild waves 2–6 — remaining ~88 keys | Not started |
+
+| 5 | Post-game rules per wave + Steve/C++ at prod cutover | Not started |
+
+| 6 | Parity: probe counts vs `player_milestones` per key | Partial (league + established/dd) |
+
+
+
+**Rebuild order:** `scripts/rebuild_website_derived_data_local.ps1` runs `player_milestones_rebuild.sql` **after** league awards (REP-012).
+
+
+
+**Regenerate seed:** `python scripts/oneoff/milestone_unlock_counts.py --write-doc --export-seed`
+
+
+
+**Load catalog:** `python scripts/oneoff/load_milestone_definitions.py`
+
+
 
 ---
 
-## Technical baseline (unchanged)
+
+
+## Technical baseline
+
+
 
 | Item | State |
+
 |------|--------|
-| `player_milestones` table | Live local + staging |
-| Keys in DB today | `established_20`, `dd_merchant_10` only |
-| Activity UI | Recent milestones digest + Established / DD chart groups |
-| Profiles | Not wired to milestone table |
+
+| `milestone_definitions` | SCH-011 local; 110 rows from seed |
+
+| `player_milestones` | **110/110** keys in rebuild (all waves parity-checked on local `ko2unity_db`) |
+
+| Activity UI | Digest/charts for Established / DD only |
+
+| Profiles / leaderboards | **v0** — profile pill + garden, `ranked10.php` meta board, HoF trial achiever list; hub tab deferred |
+
+
 
 ---
+
+
 
 ## Doc index
 
+
+
 | Doc | Role |
+
 |-----|------|
-| **This file** | Phase status — read first for “where are we?” |
-| [`milestones-product-spec.md`](milestones-product-spec.md) | **Plan** — tier bands, garden, story, leaderboard (not locked) |
-| [`milestones-system-discussion.md`](milestones-system-discussion.md) | Discussion paper (discovery, naming, shape) |
-| [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) | Pass 1 catalog — **draft**, not signed off |
+
+| **This file** | Phase status |
+
+| [`milestones-facilitation.md`](milestones-facilitation.md) | Implementation families & waves |
+
+| [`milestones-product-spec.md`](milestones-product-spec.md) | Tier bands, garden UI, leaderboard |
+
+| [`milestones-tier-curated.md`](milestones-tier-curated.md) | Locked 110-key snapshot |
+
+| [`milestones-system-discussion.md`](milestones-system-discussion.md) | Discovery context |
+| [`milestones-hub-ia.md`](milestones-hub-ia.md) | **WIP** — server hub IA & build phases |
+
+
 
 ---
 
-## Suggested Phase 2 entry tasks
 
-1. Add **`tier_band`** to catalog rows (aspirational / dedicated / accomplished / legendary) — use [`milestones-want-maybe-by-theme.md`](milestones-want-maybe-by-theme.md) for grouped review (**Unlock** / **%** columns = read-only probe, May 2026 local DB).
-2. **Select Keystones (~15–20)** from want pool (amber accomplished band + achiever lists — one list).
-3. Naming pass (TBD display names in catalog §XVIII).
-4. League rules hardening (podium, win totals, overlap).
-5. Hub wireframe from product spec §4–5 (four sections, garden states, story).
 
----
+*Phase 2 closed May 2026. Phase 3 opened same month.*
 
-*Idea creation phase closed May 2026. Tier plan added May 2026. Next: catalog pass 2 + Key pick from product spec.*

@@ -9,6 +9,7 @@
 <link href="stylesheets/player-feast-sections.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/player-feast-glance.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/player-feast-personal-bests.css" rel="stylesheet" type="text/css" />
+<link href="stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="js/chart-theme.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-theme.js'); ?>"></script>
@@ -42,6 +43,7 @@ $con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_blocks.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
 
 try {
     $pm = player_feast_load_pm($con, $id);
@@ -60,6 +62,8 @@ $playerId = (int) $pm['id'];
 <div class="k2-page-nav">
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero.php'; ?>
+
+<?php k2_milestone_render_glance($con, $playerId, (int) $pm['games']); ?>
 
 <?php
 $k2PlayerTabActive = 'profile';

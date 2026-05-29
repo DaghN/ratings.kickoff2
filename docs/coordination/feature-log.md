@@ -21,8 +21,13 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | JS only |
 | Games tab 14-day buckets | L0 | — | — | — | — | Read-time |
 | Hub / Status cosmetics | — | — | — | — | — | PHP only |
+| Milestones hub tab (stub) | L0 | — | — | — | — | `milestones.php` + hub nav; full hub WIP [`milestones-hub-ia.md`](../milestones-hub-ia.md) |
+| Hub IA — Games off top nav | — | — | — | — | — | Match log `server3.php` via Status **Games →** only |
 | Status monthly league / performance | L2 | SCH-005 | REP-004 | Pending | — | Staging done; prod indexes + live writer at cutover |
 | Period activity leaderboards | L2 | SCH-004, SCH-006 | REP-003, REP-005 | Pending | — | Staging SCH+REP done May 2026 |
+| Milestones Phase 4 v0 UI | L0 | — | — | — | — | `individual_milestones.php`, profile glance, `ranked10.php`, HoF DD Merchant list; read `milestone_definitions` + `player_milestones` |
+| Milestones `giant_slayer` active #1 | L2 | — | — | — | — | Rule fix: beat #1 among 365d-active; regen chrono + `player_milestones_rebuild_giant_slayer.sql`; contract post-game; local REP applied |
+| Milestones Phase 3 (catalog + full rebuild) | L2 | SCH-011, SCH-012, SCH-013 | REP-008, REP-014 | Pending | — | 110/110 keys local; post-game + prod cutover pending Steve |
 | Stored truth expansion | L4 | SCH-008 | REP-007–011 | Pending | — | Five tables: local + **staging `kooldb` done** May 2026 (Steve SCH-008 + REP-007–011, parity verify pass); prod cutover + contract post-game pending |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | Pending | — | Prod index apply pending Steve |
 | Ladder replay sandbox (K32/1600/no decay) | L2 | SCH-002 | REP-001 | Pending | PER-001 | Staging replay done |

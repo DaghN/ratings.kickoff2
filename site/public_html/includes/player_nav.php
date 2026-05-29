@@ -12,6 +12,7 @@ $k2PlayerTabs = [
 	'wins' => ['href' => 'individual2a.php?id=' . $id, 'label' => 'W/D/L'],
 	'goals' => ['href' => 'individual2b.php?id=' . $id, 'label' => 'Goals'],
 	'dds' => ['href' => 'individual2c.php?id=' . $id, 'label' => 'DDs'],
+	'milestones' => ['href' => 'individual_milestones.php?id=' . $id, 'label' => 'Milestones'],
 ];
 ?>
 <div class="k2-player-nav-bar">

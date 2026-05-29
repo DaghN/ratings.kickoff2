@@ -8,7 +8,7 @@
 
 ## Current focus
 
-- **Milestones project:** **Phase 2 curated list** — [`docs/milestones-tier-curated.md`](docs/milestones-tier-curated.md) (112 milestones: 18 / 20 / 50 / 24 by band). Theme doc = probe only. DB still only `established_20` + `dd_merchant_10`.
+- **Milestones project:** Phase 3 rebuild **110/110** local; **Phase 4 v0** UI + **hub stub** (`milestones.php`, tab before HoF). **Next:** hub Home per [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md); HoF achiever migration; staging/post-game for Steve.
 
 - **Leagues integration:** Awards DB + **League honours v1** on **local + staging** (`ranked9.php`, SCH-009/010, REP-012/013 verified May 2026). **Next:** profile league block; prod schema/REP when cutover; daily finalize (PER-003) only if/when wanted.
 - **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (day games list deferred).
@@ -20,6 +20,7 @@
 
 - **Profile feast (shipped):** production **`individual1.php`** only — **`docs/player-profile-feast.md`**. Further work = gradual copy/UX, not mock lab (`docs/archive/`).
 
+- **Hub IA (May 2026):** Status · Activity · Leaderboards · **Milestones** · HoF — **Games** off hub (`server3.php` via Status). See [`docs/hub-ia-agreement.md`](docs/hub-ia-agreement.md).
 - **Product tone:** ladder stays **truthful and data-rich**; surface **inclusive, playful, welcoming**. Profile above-the-fold = participation first; deep analytics lower (“matchup lab”).
 
 - **Operational loop:** edit locally/Git → **WinSCP** sync `site/public_html/` → staging `public_html/`; hard refresh after assets. **SSH:** permission denied for Dagh (May 2026) — Steve runs one-offs when sent.
@@ -64,6 +65,21 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Hub IA — Milestones tab + Games off hub** — `hub_nav.php`: Status · Activity · Leaderboards · **Milestones** · HoF; `milestones.php` stub; `server3.php` via Status only; WIP [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). |
+| 2026-05 | **Leaderboards wing order (scenario A)** — `lb_nav.php`: classic block unchanged (Rating→Victims), then League honours · Milestones · Activity peaks, **Peak rating** last (`ranked1`); hub default still `ranked7.php`. |
+| 2026-05 | **Milestones LB polish** — `ranked10.php` + League honours: **ELO rating** header + `k2-table-cell--pad-left-sm` on Games (matches classic ranked tables). |
+| 2026-05 | **`giant_slayer` rule fix** — active #1 (365d rolling UTC); `milestone_giant_slayer.py` + chrono regen; surgical `player_milestones_rebuild_giant_slayer.sql`; contract post-game §; holders 22→31 (geo4444 unlocks). |
+| 2026-05 | **Milestones Phase 4 v0** — garden page, profile `{n}/110` glance + tier dots, `ranked10.php` meta-leaderboard, `server2.php` DD Merchant achiever trial; read-only on local DB. |
+| 2026-05 | **Games hub (`server3.php`)** — day headings for days older than yesterday show weekday + date (`Monday · May 26, 2026`); Today/Yesterday unchanged. |
+| 2026-05 | **Milestones rebuild complete** — `gen_milestone_tail_sql.py` (30 playertable/matchup keys); **110/110** in `player_milestones`, 0 null `source_kind`; tail parity 0 mismatches. |
+| 2026-05 | **Milestones chrono wave** — `gen_milestone_chrono_sql.py` → 16 keys; `milestone_chrono_parity.py` 0 mismatches. |
+| 2026-05 | **Milestones period wave** — `player_milestones_rebuild_period.sql` wired (5 keys); **64/110**; `milestone_period_parity.py` 0 mismatches. |
+| 2026-05 | **Milestones streaks wave** — `gen_milestone_streak_sql.py`; 8 streak keys; `milestone_streak_parity.py`. |
+| 2026-05 | **Milestones wave 2** — peak `club_*`, `club_10000`, 18 exists feats; exists parity script. |
+| 2026-05 | **Milestones wave 2a** — `debut`, `persistence`, `club_500` (Nth game + `source_game_id`). |
+| 2026-05 | **`entered_arena` locked** — register = lobby → `JoinDate`, `source_kind=lobby`; distinct from `debut`. SCH-013. |
+| 2026-05 | **Milestones source pointers** — SCH-012 on `player_milestones` (`source_kind`, game id or league period); wave 1 rebuild populates 22 league/game key types. |
+| 2026-05 | **Milestones Phase 3 kickoff** — SCH-011 `milestone_definitions`, seed loader, facilitation doc, league wave in `player_milestones_rebuild.sql`; rebuild order = milestones after REP-012. |
 | 2026-05 | **Leaderboards wing tab** — `ranked8` sub-nav label **Activity peaks** (was Activity). |
 | 2026-05 | **League honours grain persistence** — Activity ↔ Points tab links keep current day/week/month/year (`league_honours_panel.php`). |
 | 2026-05 | **Milestones Phase 2 trim** — cut `period_champion`, `six_goal_draw`; `persistence` = 10 games; `milestones_definitions_seed.json` export (`--export-seed`). |

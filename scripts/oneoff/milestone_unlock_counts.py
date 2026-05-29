@@ -31,6 +31,10 @@ if str(_REPO) not in sys.path:
 
 from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
+from scripts.oneoff.milestone_giant_slayer import (  # noqa: E402
+    giant_slayer_active_top_id,
+    giant_slayer_qualifies,
+)
 
 log = logging.getLogger("milestone_counts")
 
@@ -223,7 +227,7 @@ def playertable_counts(cur) -> dict[str, CountResult]:
     """Thresholds on playertable (proxy: career max / totals)."""
     specs: list[tuple[str, str, str]] = [
         ("debut", "NumberGames >= 1", "playertable"),
-        ("persistence", "NumberGames >= 10", "playertable"),
+        ("persistence", "NumberGames >= 10", "playertable NumberGames>=10"),
         ("established_20", "NumberGames >= 20", "playertable"),
         ("first_victory", "NumberWins >= 1", "playertable"),
         ("first_goal", "GoalsFor >= 1", "playertable"),
@@ -532,8 +536,8 @@ def run_chronological(cur) -> dict[str, CountResult]:
     monthly_regular: set[int] = set()
     year_round: set[int] = set()
 
-    # Global rating leaderboard for giant slayer (simple: max pre-game rating each step)
     ratings: dict[int, float] = defaultdict(lambda: 1600.0)
+    last_game: dict[int, datetime] = {}
 
     for g in games:
         gid = int(g["id"])
@@ -542,7 +546,11 @@ def run_chronological(cur) -> dict[str, CountResult]:
             d = dt.date()
         else:
             d = dt
+        if not isinstance(dt, datetime):
+            continue
         id_a, id_b = int(g["idA"]), int(g["idB"])
+        last_game[id_a] = dt
+        last_game[id_b] = dt
         ga, gb = int(g["GoalsA"] or 0), int(g["GoalsB"] or 0)
         sc = float(g["ActualScore"])
 
@@ -627,9 +635,12 @@ def run_chronological(cur) -> dict[str, CountResult]:
                 st.cs_opponents.add(opp)
 
             ratings[pid] = new_r if new_r > 0 else ratings[pid]
-            # giant slayer: beat current top-rated player (by pre-game ratings dict)
-            top_id = max(ratings.keys(), key=lambda k: ratings[k]) if ratings else 0
-            if won and opp == top_id and opp != pid and r_opp >= r_pre:
+            top_id = giant_slayer_active_top_id(
+                ratings, last_game, dt, in_game=(id_a, id_b)
+            )
+            if giant_slayer_qualifies(
+                won=won, pid=pid, opp=opp, top_id=top_id, r_pre=r_pre, r_opp=r_opp
+            ):
                 giant_slayer.add(pid)
 
         # month list for year_round - track after both sides
@@ -716,7 +727,9 @@ def run_chronological(cur) -> dict[str, CountResult]:
         "unlucky": CountResult(cnt(unlucky), "chronological"),
         "merchant_streak": CountResult(cnt(merchant_streak), "chronological"),
         "minimalist_merchant": CountResult(cnt(minimalist_merchant), "chronological"),
-        "giant_slayer": CountResult(cnt(giant_slayer), "chronological beat top-rated at time"),
+        "giant_slayer": CountResult(
+            cnt(giant_slayer), "chrono beat #1 active (365d rolling UTC)"
+        ),
         "perfect_day": CountResult(cnt(perfect_day), "chronological UTC day"),
         "nightmare_day": CountResult(cnt(nightmare_day), "chronological UTC day"),
         "daily_habit": CountResult(cnt(daily_habit), "chronological Mon-Sun week"),
@@ -1511,9 +1524,15 @@ def main(write_doc: bool, doc_only: bool, export_seed: bool) -> None:
             results["travelling_salesman"] = travelling_salesman_count(cur)
             results["clean_sheet_spread"] = clean_sheet_spread_count(cur)
 
-            # entered_arena: assumed all eligible (JoinDate = lobby on register)
+            cur.execute(
+                f"""
+                SELECT COUNT(*) AS n FROM playertable
+                WHERE {ELIGIBLE_WHERE}
+                """
+            )
             results["entered_arena"] = CountResult(
-                eligible, "assumed all eligible (register = lobby)"
+                int(cur.fetchone()["n"]),
+                "playertable JoinDate (register = enter lobby)",
             )
 
             results = finalize_results(results, veterans)

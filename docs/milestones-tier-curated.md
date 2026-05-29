@@ -6,7 +6,7 @@
 
 **Display names & Name Q (1–5):** [`data/milestones_curated_meta.json`](../data/milestones_curated_meta.json). **Phase 3 seed:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) (`--export-seed`). **Name Q** = subjective garden-copy quality (5 = ship as-is).
 
-**Related:** [`milestones-product-spec.md`](milestones-product-spec.md) (presentation) · [`milestones-want-maybe-by-theme.md`](milestones-want-maybe-by-theme.md) (themed tables + probe) · [`milestones-project.md`](milestones-project.md) (phases).
+**Related:** [`milestones-product-spec.md`](milestones-product-spec.md) (presentation) · [`milestones-facilitation.md`](milestones-facilitation.md) (Phase 3 implementation waves) · [`milestones-project.md`](milestones-project.md) (phases).
 
 ---
 
@@ -38,7 +38,7 @@ These keys use **`playertable.LongestWinningStreak`** (career maximum consecutiv
 
 `cold_streak` and `win_drought` use the corresponding **longest loss / non-win streak** columns on the same table.
 
-Unlock when the stored career-best run reaches the threshold. Implementation should read the ladder-maintained column (same source as the profile streak display), not a separate replay pass, unless the data contract is extended later.
+Unlock when the career-best run reaches the threshold. Rebuild/post-game should set `source_kind = game` and `source_game_id` to the rated game where that streak length was **first** achieved (chronological), not only read `playertable` max without a game pointer.
 
 ---
 
@@ -81,7 +81,7 @@ Unlock when the stored career-best run reaches the threshold. Implementation sho
 | `activity_king` | **Activity king** | 4 | Won monthly **activity** league | 17 | 15.9% |
 | `rampage` | **Rampage** | 4 | 15 wins in a row | 18 | 16.8% |
 | `travelling_salesman` | **Travelling salesman** | 5 | DD vs 10 different opponents | 18 | 16.8% |
-| `giant_slayer` | **Giant slayer** | 5 | Beat #1 rated **active** player | 22 | 20.6% |
+| `giant_slayer` | **Giant slayer** | 5 | Beat #1 rated **active** player (365d rolling) | 31 | 29.0% |
 | `league_wins_50` | **Cupboard filling up** | 4 | 50 league wins | 23 | 21.5% |
 | `perfect_storm` | **Perfect storm** | 4 | Won 10–0 | 23 | 21.5% |
 | `league_weekly_points_winner` | **Ledger lord of the week** | 5 | Weekly · points · winner | 24 | 22.4% |
@@ -180,7 +180,7 @@ Unlock when the stored career-best run reaches the threshold. Implementation sho
 | `first_goal` | **First goal** | 4 | First career goal | 226 | 211%+ |
 | `welcome_to_the_ladder` | **Welcome to the ladder** | 5 | First loss | 252 | 236%+ |
 | `debut` | **Debut** | 5 | First rated game | 261 | 244%+ |
-| `entered_arena` | **Entered the arena** | 4 | First lobby presence | 261 | 244%+ |
+| `entered_arena` | **Entered the arena** | 4 | Registered / entered lobby (`JoinDate`) | *probe* | *probe* |
 
 ---
 

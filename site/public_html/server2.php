@@ -5,6 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
+<link href="stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -243,6 +244,9 @@ foreach (['year', 'month', 'week', 'day'] as $period) {
 	$peakPeriodRecords[$period] = $peakPeriodEntries[0] ?? null;
 }
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+$k2DdMerchantAchievers = k2_milestone_dd_merchant_achievers($con);
+
 mysqli_close($con);
 ?>
 
@@ -434,6 +438,48 @@ records_render_row(
 </div><!-- .k2-table-wrap -->
 </section>
 </div><!-- .server-records-panels -->
+
+<section class="k2-ms-achievers" aria-labelledby="k2-ms-achievers-heading">
+	<h2 id="k2-ms-achievers-heading" class="k2-ms-achievers__title">Milestone achievers</h2>
+	<p class="k2-ms-achievers__hint">
+		Players who unlocked a curated milestone — many can hold the same feat (unlike single-holder server records above).
+		Trial list: <strong>Double Digit Merchant</strong> (first rated game with 10+ goals).
+	</p>
+<?php if ($k2DdMerchantAchievers === []) { ?>
+	<p class="k2-ms-meta-hint">No unlocks recorded yet.</p>
+<?php } else { ?>
+	<div class="k2-table-wrap">
+	<table class="k2-table k2-table--numeric-default">
+	<thead>
+		<tr>
+			<th data-k2-help="Order unlocked, newest at the top (highest number).">#</th>
+			<th class="k2-table-cell--left">Player</th>
+			<th class="k2-table-cell--left">Unlocked (UTC)</th>
+			<th class="k2-table-cell--left">Match</th>
+			<th data-k2-help="Rated game that unlocked this milestone.">Game</th>
+		</tr>
+	</thead>
+	<tbody class="black">
+<?php
+    $k2DdMemberNum = count($k2DdMerchantAchievers);
+    foreach ($k2DdMerchantAchievers as $ach) {
+        ?>
+		<tr>
+			<td><?php echo (int) $k2DdMemberNum; ?></td>
+			<td class="k2-table-cell--left"><?php echo k2_player_link($ach['player_id'], $ach['player_name']); ?></td>
+			<td><?php echo k2_h($ach['achieved_label']); ?></td>
+			<td class="k2-table-cell--left k2-ms-achiever-match-cell"><?php echo $ach['match_html']; ?></td>
+			<td><?php echo $ach['game_id_html']; ?></td>
+		</tr>
+<?php
+        --$k2DdMemberNum;
+    }
+    ?>
+	</tbody>
+	</table>
+	</div>
+<?php } ?>
+</section>
 
 Records that are less than one month old are displayed as "<span class="blue">(New!)</span>".
 <br />

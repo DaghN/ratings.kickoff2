@@ -104,8 +104,8 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | Item | Plan |
 |------|------|
 | `player_milestones` | One row per player per `milestone_key`; `achieved_at` UTC |
-| `milestone_definitions` (Phase 3) | Each key: display name, description, icon, **`tier_band`** (`aspirational` \| `veteran` \| `key` \| `legendary`), sort hints |
-| Keys in DB today | `established_20`, `dd_merchant_10` only |
+| `milestone_definitions` (Phase 3) | SCH-011; 110 rows from [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
+| `player_milestones` unlock rows | **22 key types** after rebuild wave 1 (2 game + 20 league); ~88 TODO — [`milestones-facilitation.md`](milestones-facilitation.md) |
 
 ---
 
@@ -113,23 +113,23 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 
 | Topic | State |
 |-------|--------|
-| Final milestone list | Pass 1 catalog draft; pass 2+ free to add/cut |
-| Exact Key (~15–20) keys | Pick in Phase 2 from want pool |
-| League rules (podium vs winner, win totals) | Rules spec still TBD — see catalog §XIV |
+| Final milestone list | **110 keys** — [`milestones-tier-curated.md`](milestones-tier-curated.md) |
+| Exact Key (~15–20) keys | **20 accomplished band** — locked in curated list |
+| League rules (podium vs winner, win totals) | **Locked** — [`leagues-rules-spec.md`](leagues-rules-spec.md) |
 | Profile layout for milestones | Integrate when profile rethought |
 | Key completion % leaderboard | TBD |
-| Pixel design, APIs, hub tab route | Phase 4 build |
+| Hub tab route | **`milestones.php`** stub (May 2026); full hub WIP — [`milestones-hub-ia.md`](milestones-hub-ia.md) |
+
+**Shipped v0 URLs (May 2026, local):** hub stub `milestones.php` · garden `individual_milestones.php?id={player}` · meta-leaderboard `ranked10.php` · profile glance on `individual1.php` · trial achiever list on `server2.php` (Double Digit Merchant only; migrates when hub ready).
 
 ---
 
-## 9. Phase 2 tasks (updated)
+## 9. Phase 3 entry (implementation)
 
-1. Assign **`tier_band`** to every `want` milestone in catalog (or in a pass-2 column).
-2. **Select Key (~15–20)** — amber band + achiever-list set (same list).
-3. Naming pass (display names; §XVIII in catalog).
-4. Confirm **leaderboard** tie-break matches §6 when implementing.
-5. Sketch hub tab wireframe (four sections + garden states + story placement).
+1. **`milestone_definitions`** — SCH-011 + seed load (done locally May 2026).
+2. **Rebuild waves** — see [`milestones-facilitation.md`](milestones-facilitation.md); league wave done.
+3. **Hub wireframe** — four tier sections + garden states (Phase 4).
 
 ---
 
-*Plan recorded May 2026. Revise this file when Dagh changes direction; do not treat as implementation contract until Phase 3+.*
+*Plan recorded May 2026. Phase 2 definition complete; Phase 3 data contract in progress.*

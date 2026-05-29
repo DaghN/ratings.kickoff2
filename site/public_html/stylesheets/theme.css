@@ -2041,6 +2041,17 @@ body.k2-site a.k2-status-period-competitions__period-btn.is-active {
 	border-top-right-radius: var(--k2-radius-md);
 }
 
+.k2-lb-league-honours .k2-lb-honours-medal-th {
+	text-align: center;
+	vertical-align: middle;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+
+.k2-lb-league-honours .k2-lb-honours-medal-th .k2-status-medal__svg {
+	width: 20px;
+}
+
 body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta.k2-status-room__arc {
 	margin-top: calc(var(--k2-leagues-meta-gap) * 1.5);
 	margin-bottom: var(--k2-leagues-meta-gap);

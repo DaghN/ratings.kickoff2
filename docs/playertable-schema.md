@@ -182,6 +182,12 @@ Types and nullability from **`SHOW FULL COLUMNS`**.
 
 ---
 
+## `JoinDate` and `entered_arena`
+
+In the app, **registering = entering the lobby**. Milestone **`entered_arena`**: `source_kind = lobby`, `achieved_at = JoinDate`. Distinct from **`debut`** (first rated game). Not ladder replay–derived. `LobbyTime` is a separate network/telemetry field — **do not** use it for this milestone. See [`milestones-facilitation.md`](milestones-facilitation.md).
+
+---
+
 ## Related site filters (historical context)
 
 - **`Display = 1`** — used on ranked pages to mean “show on ladder listings.”

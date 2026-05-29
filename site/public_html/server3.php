@@ -15,8 +15,7 @@
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
 <?php
-$k2HubTabActive = 'games';
-include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 ?>
 
 <?php
@@ -33,7 +32,7 @@ function k2_games_day_label(int $offset, int $timestamp): string
 		return 'Yesterday &middot; ' . date('M j, Y', $timestamp);
 	}
 
-	return date('M j, Y', $timestamp);
+	return date('l', $timestamp) . ' &middot; ' . date('M j, Y', $timestamp);
 }
 
 $gamesByDay = [];

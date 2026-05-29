@@ -18,6 +18,9 @@ SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `s
 | SCH-008 | `007_stored_truth_expansion.sql` | Create `player_period_league`, `player_milestones`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` | **Done** | **Done** (May 2026) | **Pending** | Yes (rebuild scripts per table) | Staging: Steve applied `007` + REP-007–011; verify all checks pass (`distinct_game_totals=1`, `established_20_diff=0`, 74,870 rated games). Contract `docs/website-data-contract.md` |
 | SCH-009 | `008_league_period_awards.sql` | Create `league_period`, `player_league_award`, `player_league_totals` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Yes (REP-012) | Rules: `docs/leagues-rules-spec.md`; staging via `staging-sql/008` + `staging-scripts/run_league_awards_rebuild.php` |
 | SCH-010 | `009_player_league_slice_totals.sql` | Create `player_league_slice_totals` (8-way career breakdown per player) | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Yes (REP-013) | Included in staging full awards rebuild |
+| SCH-011 | `010_milestone_definitions.sql` | Create `milestone_definitions` catalog (110 keys from seed) | **Done** (May 2026) | **Pending** | **Pending** | No | Load: `scripts/oneoff/load_milestone_definitions.py`; contract `website-data-contract.md` |
+| SCH-012 | `011_player_milestones_source.sql` | Add `source_kind` + game/league pointer columns on `player_milestones` | **Done** (May 2026) | **Pending** | **Pending** | Yes (REP-008) | Rebuild populates; post-game must set on new unlocks |
+| SCH-013 | `012_player_milestones_source_lobby.sql` | Extend `source_kind` with `lobby` for `entered_arena` (`playertable.JoinDate` = register/lobby) | **Done** (May 2026) | **Pending** | **Pending** | Yes (REP-008) | Not replay-derived; live writer at account register |
 
 ### Adding a row
 

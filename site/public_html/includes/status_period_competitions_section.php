@@ -11,48 +11,7 @@ if (!function_exists('k2_format_period_activity_label')) {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
 }
 
-if (!function_exists('k2_status_render_activity_competition_table')) {
-    /**
-     * @param array<int, array{rank: int, player_id: int, player_name: string, games: int}> $entries
-     */
-    function k2_status_render_activity_competition_table(array $entries, bool $showPodiumMedals = false): void
-    {
-        if ($entries === []) {
-            return;
-        }
-        ?>
-			<div class="k2-table-wrap k2-table-wrap--compact">
-				<table class="k2-table k2-status-table k2-status-table--dense k2-status-period-competitions__activity-table<?php echo $showPodiumMedals ? ' k2-status-table--podium' : ''; ?>">
-					<thead>
-						<tr>
-							<th class="k2-status-table__num">#</th>
-							<th class="k2-status-table__player">Player</th>
-							<th class="k2-status-table__num">Games</th>
-<?php if ($showPodiumMedals) { ?>
-							<th class="k2-status-table__medal" scope="col"><span class="visually-hidden">Award</span></th>
-<?php } ?>
-						</tr>
-					</thead>
-					<tbody class="black">
-<?php
-        foreach ($entries as $entry) {
-            $rank = (int) $entry['rank'];
-            echo '<tr>';
-            echo '<td class="k2-status-table__num">' . $rank . '</td>';
-            echo '<td class="k2-status-table__player">' . k2_status_player_link((int) $entry['player_id'], (string) $entry['player_name']) . '</td>';
-            echo '<td class="k2-status-table__num">' . (int) $entry['games'] . '</td>';
-            if ($showPodiumMedals) {
-                echo '<td class="k2-status-table__medal">' . ($rank <= 3 ? k2_status_league_podium_medal($rank) : '') . '</td>';
-            }
-            echo '</tr>';
-        }
-        ?>
-					</tbody>
-				</table>
-			</div>
-<?php
-    }
-}
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 
 if (!function_exists('k2_status_period_competition_points_panel_attrs')) {
     /**

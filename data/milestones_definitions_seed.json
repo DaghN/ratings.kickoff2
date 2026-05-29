@@ -108,7 +108,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 4,
-      "rule_short": "Rated game on every calendar day of at least one month",
+      "rule_short": "Rated game on every day of a calendar month",
       "rule_probe": "chronological full month days",
       "unlock_veterans": 5,
       "pct_veterans": "4.7%"
@@ -130,7 +130,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 5,
-      "rule_short": "Peak rating ≥2300",
+      "rule_short": "Rating ≥2300",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 6,
       "pct_veterans": "5.6%"
@@ -296,9 +296,9 @@
       "chart_token": "amber",
       "name_score": 5,
       "rule_short": "Beat #1 rated **active** player",
-      "rule_probe": "chronological beat top-rated at time",
-      "unlock_veterans": 22,
-      "pct_veterans": "20.6%"
+      "rule_probe": "chrono beat #1 active (365d rolling UTC)",
+      "unlock_veterans": 31,
+      "pct_veterans": "29.0%"
     },
     {
       "milestone_key": "league_wins_50",
@@ -350,7 +350,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 4,
-      "rule_short": "≥2000",
+      "rule_short": "Rating ≥2000",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 26,
       "pct_veterans": "24.3%"
@@ -680,7 +680,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Draw ≥5–5",
+      "rule_short": "5-5 or higher draw",
       "rule_probe": "ratedresults 5-5+ draw",
       "unlock_veterans": 60,
       "pct_veterans": "56.1%"
@@ -900,7 +900,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "≥1800",
+      "rule_short": "Rating ≥1800",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 38,
       "pct_veterans": "35.5%"
@@ -922,7 +922,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Draw, 14+ total goals",
+      "rule_short": "7-7 or higher draw",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 37,
       "pct_veterans": "34.6%"
@@ -1208,8 +1208,8 @@
       "tier_band": "aspirational",
       "chart_token": "pitch",
       "name_score": 4,
-      "rule_short": "First lobby presence",
-      "rule_probe": "assumed all eligible (register = lobby)",
+      "rule_short": "Registered and entered the lobby",
+      "rule_probe": "playertable JoinDate (register = enter lobby)",
       "unlock_veterans": 261,
       "pct_veterans": "244%+"
     }

@@ -90,7 +90,7 @@ Never use pixel/bitmap fonts for readable data.
 Current shared chrome:
 
 - `includes/site_header.php` for wordmark, player search, realm switcher.
-- `includes/hub_nav.php` for Status / Activity / Games / Leaderboards / Hall of Fame.
+- `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / Hall of Fame (`server3.php` match log off-hub).
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.
 - `includes/k2_head.php` for shared CSS and early theme boot.

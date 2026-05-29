@@ -64,7 +64,6 @@ $steps = @(
     @{ File = 'player_peak_period_games_rebuild.sql'; Label = 'player_peak_period_games' },
     @{ File = 'server_daily_activity_rebuild.sql'; Label = 'server_daily_activity' },
     @{ File = 'player_period_league_rebuild.sql'; Label = 'player_period_league' },
-    @{ File = 'player_milestones_rebuild.sql'; Label = 'player_milestones' },
     @{ File = 'player_matchup_summary_rebuild.sql'; Label = 'player_matchup_summary' },
     @{ File = 'server_period_game_totals_rebuild.sql'; Label = 'server_period_game_totals' },
     @{ File = 'server_period_matchups_rebuild.sql'; Label = 'server_period_matchups' }
@@ -90,13 +89,6 @@ UNION ALL SELECT 'server_period_game_totals day', SUM(rated_games) FROM server_p
 UNION ALL SELECT 'server_period_matchups day', SUM(games) FROM server_period_matchups WHERE period_type = 'day';
 "@ 'global parity checks'
 Write-Host $globalCounts
-
-$milestones = Invoke-MysqlQuery @"
-SET time_zone = '+00:00';
-SELECT 'player_milestones established_20', COUNT(*) FROM player_milestones WHERE milestone_key = 'established_20'
-UNION ALL SELECT 'playertable NumberGames >= 20', COUNT(*) FROM playertable WHERE NumberGames >= 20;
-"@ 'milestone parity check'
-Write-Host $milestones
 
 $matchups = Invoke-MysqlQuery @"
 SET time_zone = '+00:00';
@@ -133,19 +125,6 @@ SELECT COUNT(DISTINCT games) FROM (
 $badGlobalValue = [int](($badGlobal | Select-Object -First 1).ToString().Trim())
 if ($badGlobalValue -ne 1) {
     Write-Error 'Global parity check failed: derived totals do not all match ratedresults.'
-}
-
-$badMilestones = Invoke-MysqlQuery @"
-SET time_zone = '+00:00';
-SELECT (
-  SELECT COUNT(*) FROM player_milestones WHERE milestone_key = 'established_20'
-) - (
-  SELECT COUNT(*) FROM playertable WHERE NumberGames >= 20
-) AS diff;
-"@ 'milestone parity comparison'
-$badMilestonesValue = [int](($badMilestones | Select-Object -First 1).ToString().Trim())
-if ($badMilestonesValue -ne 0) {
-    Write-Error 'Milestone parity check failed: established_20 does not match playertable NumberGames >= 20.'
 }
 
 $badMatchups = Invoke-MysqlQuery @"
@@ -186,6 +165,55 @@ if (Test-Path $PhpExe) {
     }
 } else {
     Write-Warning 'php.exe not found — skip REP-012; run scripts\run_league_awards_rebuild.ps1 later.'
+}
+
+$milestonesCore = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild.sql')
+$milestonesExists = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_exists.sql')
+$milestonesStreaks = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_streaks.sql')
+$milestonesChrono = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_chrono.sql')
+$milestonesTail = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_tail.sql')
+$milestonesPeriod = Get-Content -Raw (Join-Path $SqlDir 'player_milestones_rebuild_period.sql')
+$leagueMarker = '-- League wave: first matching award row'
+$leagueIdx = $milestonesCore.IndexOf($leagueMarker)
+if ($leagueIdx -lt 0) {
+    Write-Error "player_milestones_rebuild.sql missing league marker."
+}
+$milestonesSql = $milestonesCore.Substring(0, $leagueIdx) + $milestonesExists + $milestonesStreaks + $milestonesChrono + $milestonesTail + $milestonesPeriod + $milestonesCore.Substring($leagueIdx)
+Write-Host '-> player_milestones (core + exists + streaks + chrono + tail + period + league)' -ForegroundColor Cyan
+$milestonesSql | & $MysqlExe @mysqlArgs
+if ($LASTEXITCODE -ne 0) {
+    Write-Error 'player_milestones rebuild failed.'
+}
+
+Write-Host 'Running milestone parity checks...' -ForegroundColor Cyan
+$milestones = Invoke-MysqlQuery @"
+SET time_zone = '+00:00';
+SELECT 'player_milestones established_20', COUNT(*) FROM player_milestones WHERE milestone_key = 'established_20'
+UNION ALL SELECT 'playertable NumberGames >= 20', COUNT(*) FROM playertable WHERE NumberGames >= 20
+UNION ALL SELECT 'player_milestones league keys', COUNT(DISTINCT milestone_key) FROM player_milestones WHERE milestone_key LIKE 'league_%' OR milestone_key IN ('moment_of_glory','activity_king');
+"@ 'milestone parity check'
+Write-Host $milestones
+
+$badMilestones = Invoke-MysqlQuery @"
+SET time_zone = '+00:00';
+SELECT (
+  SELECT COUNT(*) FROM player_milestones WHERE milestone_key = 'established_20'
+) - (
+  SELECT COUNT(*) FROM playertable WHERE NumberGames >= 20
+) AS diff;
+"@ 'milestone parity comparison'
+$badMilestonesValue = [int](($badMilestones | Select-Object -First 1).ToString().Trim())
+if ($badMilestonesValue -ne 0) {
+    Write-Error 'Milestone parity check failed: established_20 does not match playertable NumberGames >= 20.'
+}
+
+$badMilestoneSources = Invoke-MysqlQuery @"
+SET time_zone = '+00:00';
+SELECT COUNT(*) FROM player_milestones WHERE source_kind IS NULL;
+"@ 'milestone source null check'
+$badMilestoneSourcesValue = [int](($badMilestoneSources | Select-Object -First 1).ToString().Trim())
+if ($badMilestoneSourcesValue -ne 0) {
+    Write-Error 'Milestone source check failed: rows with NULL source_kind (rebuild must set game or league).'
 }
 
 Write-Host '[OK] website derived data rebuilt and verified.' -ForegroundColor Green

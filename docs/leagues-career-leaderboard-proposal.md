@@ -10,7 +10,7 @@
 
 | Item | Choice |
 |------|--------|
-| Placement | Leaderboards wing, **last tab** |
+| Placement | Leaderboards wing — after Victims & Culprits, before Milestones / Activity peaks / Peak rating ([`hub-ia-agreement.md`](hub-ia-agreement.md)) |
 | Page | `ranked9.php` |
 | Label | **League honours** |
 | Player pool | Same as other ranked wings (`lb_player_filters.php`) — **all eligible players**, including zero medals |
@@ -75,7 +75,7 @@ Do **not** aggregate from `player_league_award` on page load. Totals are maintai
 - Profile league section from `player_league_award`
 - Link from Status Leagues meta
 - Points vs activity breakdown columns
-- Milestones cross-link when hub tab exists
+- Cross-link to Milestones hub (`milestones.php`) when full hub ships
 
 ---
 

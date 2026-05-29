@@ -303,7 +303,7 @@
 | Curate | Key | Display name | Rule (short) | Data | | **Unlock** | **%≥1g** | **%vet** | **Band** | Method |
 |--------|-----|--------------|--------------|------| |--------:|--------:|--------:|--------|--------|
 | want | `massive_upset` | **Massive upset** | Beat opponent 500+ higher (pre-game) | ✅ | 39 | 14.9% | 36.4% | dedicated? | ratedresults pre-game ratings |
-| want | `giant_slayer` | **Giant slayer** | Beat #1 rated **active** player | 🔶 | 22 | 8.4% | 20.6% | accomplished? | chronological beat top-rated at time |
+| want | `giant_slayer` | **Giant slayer** | Beat #1 rated **active** player | 🔶 | 31 | 11.8% | 29.0% | accomplished? | chrono beat #1 active (365d rolling UTC) |
 
 *(Elite customer DD vs top active is in §L.)*
 
@@ -437,7 +437,7 @@ Amber — completeness palette. Sorted rarest first (%vet).
 | H | `activity_king` | **Activity king** | 17 | 15.9% | Won monthly **activity** league |
 | U | `rampage` | **Rampage** | 18 | 16.8% | 15 wins in a row |
 | L | `travelling_salesman` | **Travelling salesman** | 18 | 16.8% | DD vs 10 different opponents |
-| Q | `giant_slayer` | **Giant slayer** | 22 | 20.6% | Beat #1 rated **active** player |
+| Q | `giant_slayer` | **Giant slayer** | 31 | 29.0% | Beat #1 rated **active** player |
 | J | `league_wins_50` | 50 league wins | 23 | 21.5% | 50 league wins |
 | M | `perfect_storm` | **Perfect storm** | 23 | 21.5% | Won 10–0 |
 | I | `league_weekly_points_winner` | Weekly · points · winner | 24 | 22.4% | Weekly · points · winner |
