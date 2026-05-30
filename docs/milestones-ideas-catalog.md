@@ -279,7 +279,7 @@ For **Elite customer** and **Giant slayer:** **active** = rated at least one gam
 
 | Curate | Key (internal) | Display name | Rule | Data | Notes |
 |--------|----------------|--------------|------|------|-------|
-| **want** | `club_1700` | **1700 club** | First time post-game rating ≥1700 | 🔶 | |
+| **want** | `club_1700` | **1700 club** | First time post-game **`Rating`** ≥1700 (any game count; not `PeakRating`) | 🔶 | |
 | **want** | `club_1800` | **1800 club** | ≥1800 | 🔶 | |
 | **want** | `club_1900` | **1900 club** | ≥1900 | 🔶 | Pass 2: not accomplished — dedicated? |
 | **want** | `club_2000` | **2000 club** | ≥2000 | 🔶 | |

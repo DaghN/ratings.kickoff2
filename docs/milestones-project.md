@@ -92,6 +92,8 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 **Load catalog:** `python scripts/oneoff/load_milestone_definitions.py`
 
+**Catalog copy only (no TRUNCATE):** `data/milestone_catalog_copy_patches.json` + `python scripts/oneoff/apply_milestone_catalog_copy_patch.py` — staging: `patch_milestone_catalog_copy.php` ([`milestones-add-one-playbook.md`](coordination/milestones-add-one-playbook.md) § Staging copy patch).
+
 
 
 ---

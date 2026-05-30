@@ -36,7 +36,7 @@ $k2LbWingTabs = [
 			</a>
 			<a href="<?php echo htmlspecialchars(k2_lb_filter_toggle_href('provisional'), ENT_QUOTES, 'UTF-8'); ?>" class="k2-lb-filter<?php echo !empty($k2LbFilterOpts['include_provisional']) ? ' is-on' : ''; ?>" aria-pressed="<?php echo !empty($k2LbFilterOpts['include_provisional']) ? 'true' : 'false'; ?>">
 				<span class="k2-lb-filter__dot" aria-hidden="true"></span>
-				<span class="k2-lb-filter__label">Include provisional (&lt;20 games)</span>
+				<span class="k2-lb-filter__label">Include provisional (&lt;<?php echo (int) k2_established_min_games(); ?> games)</span>
 			</a>
 		</div>
 <?php } ?>

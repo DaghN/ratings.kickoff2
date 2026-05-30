@@ -4,7 +4,7 @@
 
 .player-feast-body {
 	/* Mock 3A monument plate + peak activity counts */
-	--pm3-ember: var(--k2-chart-amber, #ffb74d);
+	--pm3-ember: var(--k2-pure-amber, #ffb74d);
 	--pm3-ember-glow: rgba(255, 183, 77, 0.42);
 }
 

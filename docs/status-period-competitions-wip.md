@@ -116,6 +116,7 @@ Items 1–5 were deferred from Phase 1 (“not required” above). Item 6 is new
 | Markup | `includes/status_period_competitions_section.php` |
 | Room include | `includes/status_room_section.php` |
 | Tabs, scope, meta, archive, API | `js/status-period-competitions.js` |
+| Week/month/year listbox | `js/k2-archive-listbox.js` (hidden value + themed panel; replaces native `<select>`) |
 | Activity JSON | `api/server_period_activity_leaderboard.php` (existing) |
 | Points JSON (archive) | `api/status_period_points_league.php` |
 | Styles | `stylesheets/theme.css`, `stylesheets/flatpickr.min.css` (vendored) |
@@ -126,6 +127,12 @@ Items 1–5 were deferred from Phase 1 (“not required” above). Item 6 is new
 
 | Date | Note |
 |------|------|
+| 2026-05-30 | **Meta + months** — `League of` (ticker default) + blue label; full month names (`F` not `M`); listbox weight 500. |
+| 2026-05-30 | **Listbox type** — secondary + weight 500; subtle hover mix; background-only selection (`theme.css` + `design-direction.md`). |
+| 2026-05-30 | **Day picker chrome** — Daily trigger uses same listbox box + chevron as week/month/year (no calendar icon); click opens Flatpickr. |
+| 2026-05-30 | **Picker visibility** — toolbar shows one picker per tab (`data-active-period` CSS); month/year in Flatpickr header when calendar open. |
+| 2026-05-30 | **Flatpickr listbox click fix** — capture-phase `click` shield blocked `open()`; use mousedown capture only; `.flatpickr-innerContainer` pointer-events so header clicks reach month/year. |
+| 2026-05-30 | **KOOL listbox** — week/month/year archive + Flatpickr month/year headers use `k2-archive-listbox` (shared hover/scroll). |
 | 2026-05-27 | Doc created from design chat; Phase 1 implementation started (paired block on Status). |
 | 2026-05-27 | **Phase 1 shipped in repo** — `status_period_competitions_section.php`, `status-period-competitions.js`, `api/status_period_points_league.php`; replaces four stacked league panels on `status.php`. |
 | 2026-05-27 | Polish — removed tagline; archive picker right under scope toggle; activity podium medals; meta uses **UTC** not “server time”. |
@@ -136,7 +143,7 @@ Items 1–5 were deferred from Phase 1 (“not required” above). Item 6 is new
 | 2026-05-27 | Day picker — **Flatpickr** vendored under `site/public_html/js/` + `stylesheets/`; icon opens calendar (`clickOpens: false`); `Y-m-d` keys unchanged. |
 | 2026-05-27 | Day picker **calendar button** — inline SVG; neutral chrome (`k2-status-period-competitions__calendar-btn`). |
 | 2026-05-27 | **Single table + optional prewarm** — one DOM slot; memory cache; prewarm gated by `data-competition-prewarm` (`0` off, `1` on — default on). |
-| 2026-05-27 | Day picker **month dropdown** — KOOL `<select>` lists all 12 months; out-of-range months disabled (Flatpickr hid months after `maxDate` in the current year). |
+| 2026-05-27 | Day picker **month dropdown** — all 12 months listed; out-of-range months disabled (Flatpickr hid months after `maxDate` in the current year). **2026-05-30:** same UX via `k2-archive-listbox` inline (not native `<select>`). |
 | 2026-05-27 | Earlier pickers lock-step (one anchor date); This/Last always restore server views (picker cannot stick). |
 | 2026-05-27 | **Phase 1 nav complete** — single table, prewarm, first-rated lock-step floor, rapid-click fixes. **Phase 1.5 backlog** documented (incl. day games list under tables). |
 | 2026-05-27 | **Cleanup** — removed dead `k2_status_render_league_period_panel`; one `MIN(ratedresults)` in PHP; dead CSS `[hidden]` view rule; docs aligned Phase 1 shipped / 1.5 next. |

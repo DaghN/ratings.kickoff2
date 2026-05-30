@@ -1,18 +1,20 @@
 /**
  * Realm switcher (data-realm) + tint picker (hub accent pills, data-k2-accent).
- * Tint and realm are independent — realm click does not change or clear tint.
+ * Tint follows a six-hour schedule; a pill pick overrides only until the next boundary.
  */
 (function () {
     'use strict';
 
     var root = document.documentElement;
     var REALM_KEY = 'k2-realm';
-    var ACCENT_KEY = 'k2-accent-tune';
-    var VALID_ACCENTS = ['amber', 'pitch', 'chrome', 'holo'];
-    var DEFAULT_ACCENT = 'amber';
+    var S = window.K2TintSchedule;
+    var ACCENT_KEY = S ? S.ACCENT_KEY : 'k2-accent-tune';
+    var PERIOD_KEY = S ? S.PERIOD_KEY : 'k2-accent-manual-period';
+    var DEFAULT_ACCENT = S ? S.DEFAULT_ACCENT : 'amber';
+    var periodTimer = null;
 
     function isValidAccent(accent) {
-        return accent && VALID_ACCENTS.indexOf(accent) !== -1;
+        return S ? S.isValidAccent(accent) : false;
     }
 
     function readLocal(key) {
@@ -31,45 +33,12 @@
         }
     }
 
-    function readSession(key) {
-        try {
-            return sessionStorage.getItem(key);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function removeSession(key) {
-        try {
-            sessionStorage.removeItem(key);
-        } catch (e) {
-            /* ignore */
-        }
-    }
-
     function currentAccent() {
         var accent = root.getAttribute('data-k2-accent');
         if (isValidAccent(accent)) {
             return accent;
         }
         return DEFAULT_ACCENT;
-    }
-
-    function savedAccent() {
-        var accent = readLocal(ACCENT_KEY);
-        if (isValidAccent(accent)) {
-            return accent;
-        }
-
-        /* Upgrade pre-persistence sessions without losing the current tab. */
-        accent = readSession(ACCENT_KEY);
-        if (isValidAccent(accent)) {
-            writeLocal(ACCENT_KEY, accent);
-            removeSession(ACCENT_KEY);
-            return accent;
-        }
-
-        return null;
     }
 
     function dispatchChange() {
@@ -99,15 +68,51 @@
         });
     }
 
+    function applyResolvedAccent() {
+        var accent = S ? S.resolveAccent() : DEFAULT_ACCENT;
+        if (!isValidAccent(accent)) {
+            accent = DEFAULT_ACCENT;
+        }
+        root.setAttribute('data-k2-accent', accent);
+        syncAccentButtons();
+        dispatchChange();
+    }
+
+    function clearPeriodTimer() {
+        if (periodTimer) {
+            clearTimeout(periodTimer);
+            periodTimer = null;
+        }
+    }
+
+    function scheduleNextPeriodTick() {
+        clearPeriodTimer();
+        if (!S) {
+            return;
+        }
+        var delay = S.msUntilNextPeriod();
+        if (delay < 1) {
+            delay = 1;
+        }
+        periodTimer = setTimeout(function () {
+            applyResolvedAccent();
+            scheduleNextPeriodTick();
+        }, delay);
+    }
+
     function setAccentTune(accent) {
         if (!isValidAccent(accent)) {
             return;
         }
+        if (S) {
+            S.setManualAccent(accent);
+        } else {
+            writeLocal(ACCENT_KEY, accent);
+        }
         root.setAttribute('data-k2-accent', accent);
-        writeLocal(ACCENT_KEY, accent);
-        removeSession(ACCENT_KEY);
         syncAccentButtons();
         dispatchChange();
+        scheduleNextPeriodTick();
     }
 
     function setRealm(realm) {
@@ -120,6 +125,11 @@
         dispatchChange();
     }
 
+    function initAccent() {
+        applyResolvedAccent();
+        scheduleNextPeriodTick();
+    }
+
     function init() {
         var savedRealm = readLocal(REALM_KEY);
 
@@ -128,13 +138,7 @@
         }
         syncRealmButtons();
 
-        var accent = savedAccent();
-        if (accent) {
-            root.setAttribute('data-k2-accent', accent);
-        } else {
-            root.setAttribute('data-k2-accent', DEFAULT_ACCENT);
-        }
-        syncAccentButtons();
+        initAccent();
 
         document.querySelectorAll('.k2-realm-switch__btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
@@ -156,16 +160,18 @@
     }
 
     window.addEventListener('storage', function (ev) {
-        if (ev.key === ACCENT_KEY) {
-            var accent = isValidAccent(ev.newValue) ? ev.newValue : DEFAULT_ACCENT;
-            root.setAttribute('data-k2-accent', accent);
-            syncAccentButtons();
-            dispatchChange();
+        if (ev.key === ACCENT_KEY || ev.key === PERIOD_KEY) {
+            applyResolvedAccent();
+            scheduleNextPeriodTick();
         }
         if (ev.key === REALM_KEY && (ev.newValue === 'online' || ev.newValue === 'amiga')) {
             root.setAttribute('data-realm', ev.newValue);
             syncRealmButtons();
             dispatchChange();
+        }
+        if (S && ev.key === S.CLOCK_KEY) {
+            scheduleNextPeriodTick();
+            applyResolvedAccent();
         }
     });
 
@@ -175,4 +181,3 @@
         init();
     }
 })();
-

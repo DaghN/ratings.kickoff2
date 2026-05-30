@@ -111,7 +111,7 @@ if (!function_exists('k2_status_render_league_table')) {
         }
         ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">
-				<table class="k2-table k2-status-table k2-status-table--dense<?php echo $showPodiumMedals ? ' k2-status-table--podium' : ''; ?>">
+				<table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross<?php echo $showPodiumMedals ? ' k2-status-table--podium' : ''; ?>" data-k2-anchor-col="9">
 					<thead>
 						<tr>
 							<th class="k2-status-table__num">#</th>
@@ -145,7 +145,7 @@ if (!function_exists('k2_status_render_league_table')) {
 							<td class="k2-status-table__num"><?php echo (int) $row['gf']; ?></td>
 							<td class="k2-status-table__num"><?php echo (int) $row['ga']; ?></td>
 							<td class="k2-status-table__num"><?php echo $gd > 0 ? '+' . $gd : (string) $gd; ?></td>
-							<td class="k2-status-table__num"><span class="blue"><?php echo (int) $row['pts']; ?></span></td>
+							<td class="k2-status-table__num"><?php echo (int) $row['pts']; ?></td>
 <?php if ($showPodiumMedals) { ?>
 							<td class="k2-status-table__medal"><?php echo $rank <= 3 ? k2_status_league_podium_medal($rank) : ''; ?></td>
 <?php } ?>
@@ -172,7 +172,7 @@ if (!function_exists('k2_status_render_activity_competition_table')) {
         }
         ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">
-				<table class="k2-table k2-status-table k2-status-table--dense k2-status-period-competitions__activity-table<?php echo $showPodiumMedals ? ' k2-status-table--podium' : ''; ?>">
+				<table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross k2-status-period-competitions__activity-table<?php echo $showPodiumMedals ? ' k2-status-table--podium' : ''; ?>" data-k2-anchor-col="2">
 					<thead>
 						<tr>
 							<th class="k2-status-table__num">#</th>

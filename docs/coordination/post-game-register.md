@@ -11,6 +11,7 @@
 | All project-owned aggregate tables | [`website-data-contract.md`](../website-data-contract.md) | Per-table **Post-game rule**, full rebuild, parity; § **Post-game derived-data behavior** for shared rules (`SET time_zone = '+00:00'`, etc.) |
 | Hall of Fame / `generalstatstable` records | [`records-post-game-exception.md`](records-post-game-exception.md) | Tie policy (`>` not `>=`), UTC dates, ratio column removal, staging defect examples |
 | Steve’s existing code shape | [`ratings_cpp.txt`](../ratings_cpp.txt) | `RatingProcedureUnity` excerpt — merge point, not the spec |
+| Cutover index (peak, clubs, pointers, sequence) | [`post-game-cutover-checklist.md`](post-game-cutover-checklist.md) | Links only — rules stay in contract |
 
 **Contract index** (table → post-game §): see the **Derived data index** table at the top of `website-data-contract.md` (`player_period_games`, `player_period_league`, `server_daily_activity`, …). Each row’s **Post-game rule** is what Steve implements for **new** prod games at cutover.
 
@@ -31,7 +32,7 @@
 
 1. Apply pending [`schema/migrations/`](../schema/migrations/) on prod.
 2. Run matching `*_rebuild.sql` scripts (same set as staging — see [`replay-register.md`](replay-register.md)).
-3. Merge post-game C++ from **contract** post-game rules + [`ratings_cpp.txt`](../ratings_cpp.txt).
+3. Merge post-game C++ from **contract** post-game rules + [`ratings_cpp.txt`](../ratings_cpp.txt). Agent index: [`post-game-cutover-checklist.md`](post-game-cutover-checklist.md).
 4. **Records only:** [`records-post-game-exception.md`](records-post-game-exception.md) + [`staging-post-game-record-defects.md`](../staging-post-game-record-defects.md).
 
 Email template: [`cutover-packet-template.md`](cutover-packet-template.md).
@@ -49,5 +50,6 @@ No PG-NNN IDs. When prod maintains an aggregate on each new game, note **table n
 | `generalstatstable` records | Pending Steve | [`records-post-game-exception.md`](records-post-game-exception.md) |
 | `player_play_streaks` + play-streak HoF cols | Pending Steve | Contract § `player_play_streaks`; PHP reference `includes/player_play_streaks.php`; after `player_period_games`; **staging REP-015 done** May 2026 — prod C++ still required for live games |
 | `playertable` / core ladder | Existing C++ | Replay sandbox: REP-001; Elo K/fade: periodic + future cutover |
+| `playertable` career peak/nadir | Pending Steve | Contract § **Career peak and nadir** — establish at 20 games; full replay at cutover |
 
 **Retired May 2026:** `docs/coordination/cpp-snippets/` (deleted); `post-game-cpp-handoff.md` merged into this file.

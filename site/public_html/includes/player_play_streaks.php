@@ -14,12 +14,12 @@ $k2_play_streak_establishing_cache = null;
 /** Leaderboard / HoF tooltip copy (UTC rated-play streaks, not result streaks). */
 function k2_play_streak_help_day(): string
 {
-    return 'Personal best: consecutive UTC calendar days with at least one rated game (not result streaks).';
+    return 'Your best run of consecutive UTC calendar days with at least one rated game (not win/loss streaks).';
 }
 
 function k2_play_streak_help_week(): string
 {
-    return 'Personal best: consecutive UTC weeks (Monday–Sunday) with at least one rated game.';
+    return 'Your best run of consecutive UTC weeks (Monday–Sunday) with at least one rated game.';
 }
 
 function k2_play_streak_utc_today(mysqli $con): string

@@ -287,12 +287,12 @@
 
 | Curate | Key | Display name | Rule (short) | Data | | **Unlock** | **%≥1g** | **%vet** | **Band** | Method |
 |--------|-----|--------------|--------------|------| |--------:|--------:|--------:|--------|--------|
-| want | `club_1700` | **1700 club** | Rating ≥1700 | 🔶 | 49 | 18.8% | 45.8% | dedicated? | playertable PeakRating |
-| want | `club_1800` | **1800 club** | ≥1800 | 🔶 | 38 | 14.6% | 35.5% | dedicated? | playertable PeakRating |
-| want | `club_1900` | **1900 club** | ≥1900 | 🔶 | 31 | 11.9% | 29.0% | accomplished? | playertable PeakRating |
-| want | `club_2000` | **2000 club** | ≥2000 | 🔶 | 26 | 10.0% | 24.3% | accomplished? | playertable PeakRating |
-| want | `elite_altitude` | **Elite altitude** | ≥2100 | 🔶 | 18 | 6.9% | 16.8% | accomplished? | playertable PeakRating |
-| want | `club_2300` | *(name TBD)* | Peak rating ≥2300 | 🔶 | 6 | 2.3% | 5.6% | legendary? | playertable PeakRating |
+| want | `club_1700` | **1700 club** | Post-game **Rating** ≥1700 (any game #) | 🔶 | 49 | 18.8% | 45.8% | dedicated? | contract: `Rating`; rebuild still uses `PeakRating` filter — align |
+| want | `club_1800` | **1800 club** | ≥1800 | 🔶 | 38 | 14.6% | 35.5% | dedicated? | same |
+| want | `club_1900` | **1900 club** | ≥1900 | 🔶 | 31 | 11.9% | 29.0% | accomplished? | same |
+| want | `club_2000` | **2000 club** | ≥2000 | 🔶 | 26 | 10.0% | 24.3% | accomplished? | same |
+| want | `elite_altitude` | **Elite altitude** | ≥2100 | 🔶 | 18 | 6.9% | 16.8% | accomplished? | same |
+| want | `club_2300` | *(name TBD)* | **Rating** ≥2300 | 🔶 | 6 | 2.3% | 5.6% | legendary? | same |
 
 ---
 

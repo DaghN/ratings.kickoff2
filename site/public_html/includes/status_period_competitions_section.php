@@ -58,17 +58,44 @@ if (!function_exists('k2_status_period_competition_show_medals')) {
     }
 }
 
-if (!function_exists('k2_status_period_competitions_calendar_icon_svg')) {
-    function k2_status_period_competitions_calendar_icon_svg(): string
+if (!function_exists('k2_status_render_archive_listbox')) {
+    /**
+     * Themed week / month / year picker (replaces native &lt;select&gt; on Status Leagues).
+     *
+     * @param list<string> $choices
+     */
+    function k2_status_render_archive_listbox(string $period, string $pickerId, string $selectedKey, array $choices, string $ariaLabel): void
     {
-        return '<svg class="k2-status-period-competitions__calendar-svg" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
-            . '<rect x="2.5" y="4" width="13" height="11.5" rx="2" stroke="currentColor" stroke-width="1.3"/>'
-            . '<path d="M2.5 7.75h13" stroke="currentColor" stroke-width="1.3"/>'
-            . '<path d="M6 2.25V5.25M12 2.25V5.25" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>'
-            . '<g class="k2-status-period-competitions__calendar-dots" fill="currentColor">'
-            . '<circle cx="6" cy="10.35" r="0.8"/><circle cx="9" cy="10.35" r="0.8"/><circle cx="12" cy="10.35" r="0.8"/>'
-            . '<circle cx="6" cy="13.1" r="0.8"/><circle cx="9" cy="13.1" r="0.8"/><circle cx="12" cy="13.1" r="0.8"/>'
-            . '</g></svg>';
+        $selectedLabel = '';
+        foreach ($choices as $choice) {
+            $value = (string) $choice;
+            if ($value === $selectedKey) {
+                $selectedLabel = k2_format_period_activity_label($period, $value);
+                break;
+            }
+        }
+        if ($selectedLabel === '' && $selectedKey !== '') {
+            $selectedLabel = k2_format_period_activity_label($period, $selectedKey);
+        }
+        $listboxId = $pickerId . '-listbox';
+        ?>
+							<div class="k2-archive-listbox" data-k2-archive-listbox data-archive-period="<?php echo k2_status_h($period); ?>">
+								<input type="hidden" id="<?php echo k2_status_h($pickerId); ?>" class="k2-status-period-competitions__archive-input k2-archive-listbox__value" data-archive-period="<?php echo k2_status_h($period); ?>" value="<?php echo k2_status_h($selectedKey); ?>" />
+								<button type="button" class="k2-archive-listbox__trigger server-period-activity-leaderboard__input server-period-activity-leaderboard__input--<?php echo k2_status_h($period); ?>" aria-label="<?php echo k2_status_h($ariaLabel); ?>" aria-haspopup="listbox" aria-expanded="false" aria-controls="<?php echo k2_status_h($listboxId); ?>">
+									<span class="k2-archive-listbox__label"><?php echo k2_status_h($selectedLabel); ?></span>
+									<span class="k2-archive-listbox__chevron" aria-hidden="true"></span>
+								</button>
+								<ul id="<?php echo k2_status_h($listboxId); ?>" class="k2-archive-listbox__panel" role="listbox" tabindex="-1" hidden="hidden">
+<?php foreach ($choices as $choice) {
+    $value = (string) $choice;
+    $sel = $value === $selectedKey;
+    $optClass = 'k2-archive-listbox__option' . ($sel ? ' is-selected' : '');
+    ?>
+									<li class="<?php echo k2_status_h($optClass); ?>" role="option" data-value="<?php echo k2_status_h($value); ?>" aria-selected="<?php echo $sel ? 'true' : 'false'; ?>"><?php echo k2_status_h(k2_format_period_activity_label($period, $value)); ?></li>
+<?php } ?>
+								</ul>
+							</div>
+<?php
     }
 }
 
@@ -174,40 +201,29 @@ $podiumMedalHtml = [
     $pickerId = 'k2-status-competition-archive-' . $period;
     $selectedKey = (string) ($currentKeys[$period] ?? '');
     $pickerHidden = $period !== $defaultPeriod;
+    $pickerClass = 'k2-status-period-competitions__archive-picker' . ($pickerHidden ? '' : ' is-active');
     ?>
-						<div class="k2-status-period-competitions__archive-picker" data-archive-picker-period="<?php echo k2_status_h($period); ?>"<?php echo $pickerHidden ? ' hidden' : ''; ?>>
-<?php if ($period === 'day') { ?>
-							<span class="k2-status-day-picker">
+						<div class="<?php echo k2_status_h($pickerClass); ?>" data-archive-picker-period="<?php echo k2_status_h($period); ?>"<?php echo $pickerHidden ? ' hidden' : ''; ?>>
+<?php if ($period === 'day') {
+    $dayLabel = $selectedKey !== '' ? k2_format_calendar_day_picker_label($selectedKey) : '';
+    ?>
+							<span class="k2-status-day-picker k2-archive-listbox k2-archive-listbox--day">
 								<span class="server-period-activity-leaderboard__date-control">
 									<input type="hidden" id="<?php echo k2_status_h($pickerId); ?>" class="k2-status-period-competitions__archive-input k2-status-day-picker__value" data-archive-period="day" value="<?php echo k2_status_h($selectedKey); ?>" data-min="<?php echo k2_status_h($dayMin); ?>" data-max="<?php echo k2_status_h($dayMax); ?>" />
 									<input type="text" class="k2-status-day-picker__fp-anchor" value="<?php echo k2_status_h($selectedKey); ?>" aria-hidden="true" tabindex="-1" autocomplete="off" readonly="readonly" />
-									<button type="button" class="server-period-activity-leaderboard__calendar-button k2-status-period-competitions__calendar-btn" aria-label="Open calendar picker" aria-controls="<?php echo k2_status_h($pickerId); ?>">
-										<?php echo k2_status_period_competitions_calendar_icon_svg(); ?>
+									<button type="button" class="k2-archive-listbox__trigger k2-status-day-picker__trigger server-period-activity-leaderboard__input server-period-activity-leaderboard__input--day" aria-label="Select calendar day" aria-expanded="false" aria-controls="<?php echo k2_status_h($pickerId); ?>">
+										<span class="k2-archive-listbox__label" data-day-picker-label><?php echo k2_status_h($dayLabel); ?></span>
+										<span class="k2-archive-listbox__chevron" aria-hidden="true"></span>
 									</button>
 								</span>
 							</span>
-<?php } elseif ($period === 'week') { ?>
-							<select id="<?php echo k2_status_h($pickerId); ?>" class="server-period-activity-leaderboard__input server-period-activity-leaderboard__input--week k2-status-period-competitions__archive-input" data-archive-period="week" aria-label="Select calendar week">
-<?php foreach ($weekChoices as $weekStart) {
-    $sel = $weekStart === $selectedKey ? ' selected="selected"' : ''; ?>
-								<option value="<?php echo k2_status_h($weekStart); ?>"<?php echo $sel; ?>><?php echo k2_status_h(k2_format_period_activity_label('week', $weekStart)); ?></option>
-<?php } ?>
-							</select>
-<?php } elseif ($period === 'month') { ?>
-							<select id="<?php echo k2_status_h($pickerId); ?>" class="server-period-activity-leaderboard__input server-period-activity-leaderboard__input--month k2-status-period-competitions__archive-input" data-archive-period="month" aria-label="Select calendar month">
-<?php foreach ($monthChoices as $ym) {
-    $sel = $ym === $selectedKey ? ' selected="selected"' : ''; ?>
-								<option value="<?php echo k2_status_h($ym); ?>"<?php echo $sel; ?>><?php echo k2_status_h(k2_format_period_activity_label('month', $ym)); ?></option>
-<?php } ?>
-							</select>
-<?php } else { ?>
-							<select id="<?php echo k2_status_h($pickerId); ?>" class="server-period-activity-leaderboard__input server-period-activity-leaderboard__input--year k2-status-period-competitions__archive-input" data-archive-period="year" aria-label="Select calendar year">
-<?php foreach ($yearChoices as $y) {
-    $sel = $y === $selectedKey ? ' selected="selected"' : ''; ?>
-								<option value="<?php echo k2_status_h($y); ?>"<?php echo $sel; ?>><?php echo k2_status_h($y); ?></option>
-<?php } ?>
-							</select>
-<?php } ?>
+<?php } elseif ($period === 'week') {
+    k2_status_render_archive_listbox('week', $pickerId, $selectedKey, $weekChoices, 'Select calendar week');
+} elseif ($period === 'month') {
+    k2_status_render_archive_listbox('month', $pickerId, $selectedKey, $monthChoices, 'Select calendar month');
+} else {
+    k2_status_render_archive_listbox('year', $pickerId, $selectedKey, $yearChoices, 'Select calendar year');
+} ?>
 						</div>
 <?php } ?>
 					</div>

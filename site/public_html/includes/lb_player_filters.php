@@ -4,7 +4,18 @@
  *
  * Default: include inactive and provisional (Display = 1 only).
  * Query params inactive=0 / provisional=0 tighten the pool.
+ *
+ * Established player threshold (rated games): same as HoF ratio/average eligibility and
+ * `established_20` milestone — see docs/ratedresults-schema.md.
  */
+if (!defined('K2_ESTABLISHED_MIN_GAMES')) {
+    define('K2_ESTABLISHED_MIN_GAMES', 20);
+}
+
+function k2_established_min_games(): int
+{
+    return (int) K2_ESTABLISHED_MIN_GAMES;
+}
 
 /**
  * @return array{include_inactive: bool, include_provisional: bool}
@@ -39,10 +50,34 @@ function k2_lb_player_where_sql_for_alias(string $alias, ?array $opts = null): s
         $parts[] = $prefix . 'LastGame >= DATE_SUB(NOW(), INTERVAL 12 MONTH)';
     }
     if (empty($opts['include_provisional'])) {
-        $parts[] = $prefix . 'NumberGames >= 20';
+        $parts[] = $prefix . 'NumberGames >= ' . k2_established_min_games();
     }
 
     return implode(' AND ', $parts);
+}
+
+/**
+ * Optional table sort from the query string (ranked wings only; same page as toggle).
+ *
+ * @return array{k2_sort?: string, k2_dir?: string}
+ */
+function k2_lb_sort_query_params(): array
+{
+    if (!isset($_GET['k2_sort'])) {
+        return [];
+    }
+
+    $sort = filter_var($_GET['k2_sort'], FILTER_VALIDATE_INT);
+    if ($sort === false || $sort < 0) {
+        return [];
+    }
+
+    $dir = isset($_GET['k2_dir']) && $_GET['k2_dir'] === 'asc' ? 'asc' : 'desc';
+
+    return [
+        'k2_sort' => (string) $sort,
+        'k2_dir' => $dir,
+    ];
 }
 
 /**
@@ -98,6 +133,8 @@ function k2_lb_filter_toggle_href(string $param): string
             unset($params['provisional']);
         }
     }
+
+    $params = array_merge($params, k2_lb_sort_query_params());
 
     $page = basename($_SERVER['SCRIPT_NAME'] ?? 'ranked7.php');
     if ($page === 'ranked9.php') {

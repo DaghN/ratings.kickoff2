@@ -173,7 +173,7 @@ function k2_status_league_end_label(array $league): string
         return '';
     }
 
-    return date(k2_status_league_end_includes_year($league) ? 'M j, Y, H:i' : 'M j, H:i', $ts);
+    return date(k2_status_league_end_includes_year($league) ? 'F j, Y, H:i' : 'F j, H:i', $ts);
 }
 
 /** @return array{date: string, time: string} */
@@ -185,7 +185,7 @@ function k2_status_league_end_label_parts(array $league): array
     }
 
     return [
-        'date' => date(k2_status_league_end_includes_year($league) ? 'M j, Y' : 'M j', $ts),
+        'date' => date(k2_status_league_end_includes_year($league) ? 'F j, Y' : 'F j', $ts),
         'time' => date('H:i', $ts),
     ];
 }
@@ -218,7 +218,8 @@ function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $
     $endLabel = k2_status_league_end_label($league);
     $isLive = $endTs !== false && $endTs > $nowTs;
     $verb = $isLive ? 'ends' : 'ended';
-    $text = (string) ($league['label'] ?? '') . ' · ' . $totalGames . ' ' . $gamesLabel;
+    $periodLabel = trim((string) ($league['label'] ?? ''));
+    $text = ($periodLabel !== '' ? 'League ' . $periodLabel : '') . ' · ' . $totalGames . ' ' . $gamesLabel;
     if ($endLabel !== '') {
         $text .= ' · ' . $verb . ' ' . $endLabel . ' UTC';
     }
@@ -239,8 +240,13 @@ function k2_status_league_meta_html_for_clock(array $league, DateTimeImmutable $
     $gamesLabel = $totalGames === 1 ? 'rated game' : 'rated games';
     $endLabel = k2_status_league_end_label($league);
     $isLive = $endTs !== false && $endTs > $nowTs;
+    $periodLabel = trim((string) ($league['label'] ?? ''));
 
-    $text = '<span class="blue">' . k2_status_h((string) ($league['label'] ?? '')) . '</span> · <span class="holo">'
+    $text = '';
+    if ($periodLabel !== '') {
+        $text .= 'League <span class="blue">' . k2_status_h($periodLabel) . '</span>';
+    }
+    $text .= ' · <span class="holo">'
         . number_format($totalGames) . '</span> ' . $gamesLabel;
     if ($endLabel !== '') {
         if ($isLive) {

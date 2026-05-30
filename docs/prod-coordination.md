@@ -14,7 +14,7 @@
 
 **Performance policy:** For DB-backed website work, treat stored/indexed/replayed truth as a normal option, not an exceptional burden. Steve handoff, schema SQL, replay/backfill, and post-game C++ snippets are project machinery we already have; their existence should not make agents default to slow live historical queries.
 
-**Derived website data contract:** `docs/website-data-contract.md` is the behavior authority for project-owned aggregate tables, rebuild rules, parity checks, and post-game requirements. Coordination registers track deployment status.
+**Derived website data contract:** `docs/website-data-contract.md` is the behavior authority for project-owned aggregate tables, rebuild rules, parity checks, and post-game requirements. Coordination registers track deployment status. **Post-game cutover index (links only):** [`coordination/post-game-cutover-checklist.md`](coordination/post-game-cutover-checklist.md).
 
 ---
 

@@ -8,13 +8,13 @@
 
 ## Current focus
 
-- **Milestones project:** **Staging DB done** May 2026. Catalog **112** — `play_streak_100` (0 holders) + **`year_in_heaven`** (**5** holders, verified on `kooldb`). **Next:** prod schema+REP+C++ M1–M7; hub Home [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). After add-one: local catalog reload + unlock SQL ([`milestones-add-one-playbook.md`](docs/coordination/milestones-add-one-playbook.md) § Local verify).
+- **Milestones project:** **Staging DB done** May 2026. Catalog **112** — `play_streak_100` (0 holders) + **`year_in_heaven`** (**5** holders, verified on `kooldb`). **Next:** prod schema+REP+C++ M1–M7; hub Home [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). **`club_*`:** contract = **`Rating`** unlock; no prod C++ writer today; rebuild OK on legacy data — drop `PeakRating` join when career peak-at-20 replay ships ([`post-game-cutover-checklist.md`](docs/coordination/post-game-cutover-checklist.md)).
 
 - **Rated play streaks:** **Staging DB + UI done** May 2026 (SCH-014, REP-015; `ranked4` Days/Weeks, HoF `server2`). **Next:** prod schema + C++ post-game; profile surface TBD.
 
 - **Leagues integration:** Awards DB + **League honours v1** on **local + staging** (`ranked9.php`, SCH-009/010, REP-012/013 verified May 2026). **Next:** profile league block; prod schema/REP when cutover; daily finalize (PER-003) only if/when wanted.
 - **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (day games list deferred).
-- **Design / cosmetics track:** Phase A hub shell + Status Phase B v1.2 room grid; `docs/STATUS_PAGE_DATA.md`. Steve for prod DB read + joshua redirect; realm switcher when Amiga exists.
+- **Design / cosmetics track:** Phase A hub shell + Status Phase B v1.2 room grid; `docs/STATUS_PAGE_DATA.md`. Steve for prod DB read + joshua redirect. **Realm switcher** markup kept in header; **hidden in CSS** until Amiga ships.
 
 - **Charts:** **six-colour palette signed** (May 2026) — canonical tokens `pitch` / `chrome` / `holo` / `amber` / `teal` / `magenta` in `theme.css` + `chart-theme.js`; Activity on `server1.php`; profile uses pitch/chrome or `profileCompare*` helpers. No legacy green/blue/coral/purple names.
 
@@ -54,7 +54,7 @@
 
 1. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub, ranked, server, **status** pages.
 2. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
-3. **Launch polish** — realm switcher when Amiga exists.
+3. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
 4. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
 5. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
 6. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
@@ -67,8 +67,35 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **LB header tooltips** — `lb_column_help.php`; hub wings: no Elo label-echo; Games/abbrev/formulas; ranked5 inverse-record tie rule in tooltips; footer legend removed; Peak/Nadir 20-game copy. |
+| 2026-05 | **Post-game cutover index** — [`post-game-cutover-checklist.md`](docs/coordination/post-game-cutover-checklist.md): peak-at-20, `club_*` on `Rating`, pointers `>`, HoF, replay ritual; contract § Rating club implementation notes (investigation closed). |
+| 2026-05 | **Leagues picker slot** — fixed row width = max(day, week, month, year) pickers; tab switch stable. |
+| 2026-05 | **Day picker label** — `May 27, 2026` (no weekday); meta ticker unchanged. |
+| 2026-05 | **Listbox fixed width** — measure longest option label; lock trigger width (Leagues + Flatpickr + Daily). |
+| 2026-05 | **Leagues labels/meta** — full month names; meta `League` (plain) + blue label; listbox open state without accent ring on scroll. |
+| 2026-05 | **Listbox typography** — archive/Flatpickr pickers: secondary + weight 500; subtle hover mix (not full primary); design-direction row. |
+| 2026-05 | **Leagues day picker chrome** — Daily trigger matches archive listbox (date label + chevron, no calendar icon); opens Flatpickr on click. |
+| 2026-05 | **Leagues picker visibility** — one picker per tab via `data-active-period` CSS + formatted date on Daily; fixes week picker stuck between arrows. |
+| 2026-05 | **Flatpickr listbox fix** — month/year dead clicks: capture `stopPropagation` on `click` blocked trigger handler; shield uses mousedown capture only; day grid `pointer-events` layering. |
+| 2026-05 | **Flatpickr listbox** — re-init month/year on calendar open if DOM replaced; archive pickers close when switching to Day. |
+| 2026-05 | **KOOL listbox pickers** — Leagues week/month/year + Flatpickr month/year use `k2-archive-listbox` (accent hover); native `<select>` removed from those controls. |
+| 2026-05 | **Career peak/nadir contract** — `website-data-contract.md`: unset until 20 games; establish both from post-game `Rating` at game 20; max/min every game after; no gain/loss gate; full replay on cutover. `club_*` milestones = **`Rating`** (provisional OK); rebuild/C++ alignment **TBD**. |
+| 2026-05 | **Playertable tie policy in contract** — `website-data-contract.md`: personal pointers + inverse BL/BW/MGC/MGS need `>` (not `>=`); HoF handoff separate; `ranked5` tooltips/footer called out at cutover. |
+| 2026-05 | **Streaks LB headers** — `ranked4.php`: Wins, Undefeated, Draws, Decided, Losses, Win drought, Days, Weeks (no “streak” in labels). |
+| 2026-05 | **Hub LB padding reset** — all `ranked-pages-table` wings: uniform 8px in CSS; stripped `k2-table-cell--pad-left-*` from ranked1–7,10 + league honours (Goals/DD/CS already clean). |
+| 2026-05 | **LB column padding** — removed legacy `k2-table-cell--pad-left-*` on Goals + DD/CS wings (`ranked2`/`ranked3`); was widening cols after full-word headers. |
+| 2026-05 | **DD/CS LB headers** — `ranked3.php`: Double Digits, Clean Sheets, DD conceded, CS conceded; ratio cols still abbreviated; footer removed. |
+| 2026-05 | **k2-table sort toggle** — same-column click re-sorts asc/desc (was DOM reverse only); fixes second click not reaching true descending order. |
+| 2026-05 | **Goals LB headers** — `ranked2.php`: Scored/Conceded, Most Scored/Most Conceded, Draw/Goal sum, Win/Loss margin; footer trimmed. |
+| 2026-05 | **LB filter toggles keep sort** — `k2_sort`/`k2_dir` on inactive/provisional toggle hrefs; `k2-table.js` syncs URL + filter links on column sort (same wing only; wing tabs unchanged). |
+| 2026-05 | **Established = 20 games aligned** — `K2_ESTABLISHED_MIN_GAMES` in `lb_player_filters.php`; HoF ratio leaders + footer 20 (was 30); HoF LB links add `provisional=0`. C++ ratio blocks still documented as legacy 30. |
+| 2026-05 | **HoF context links** — values → LB wings + `k2_sort`; `provisional=0` only on ratio/average rows; activity peaks → `ranked8#…`. |
+| 2026-05 | **Milestone catalog copy pass** — 26 keys (`display_name`/`rule_short`); seed + `milestone_catalog_copy_patches.json` + `apply_milestone_catalog_copy_patch.py`; staging `patch_milestone_catalog_copy.php`; local DB applied. |
+| 2026-05 | **Six-hour tint schedule** — local slots; manual pill lasts **current period only** (`k2-accent-manual-period`); `k2-tint-schedule.js` + boot; optional UTC via `k2-accent-clock`. |
+| 2026-05 | **Realm switcher hidden** — Online/Amiga toggle not shown in production header; markup + `realm-switch.js` kept; `status-realm-lab.php` unchanged. |
+| 2026-05 | **Play & Setup hub tab** — `join.php` in `hub_nav.php` (2nd tab); header utility link removed; spec [`docs/join-play-setup.md`](docs/join-play-setup.md), [`hub-ia-agreement.md`](docs/hub-ia-agreement.md). |
 | 2026-05 | **`k2-link-star` links** — default hover/focus underline site-wide; `k2_player_link()` emits class; Elo stays `<span class="k2-link-star">`. |
-| 2026-05 | **Chart bar fill** — `--k2-chart-bar-fill-alpha` **0.65 → 0.75** in `theme.css`; goals/month trial uses `linkStar()`. |
+| 2026-05 | **Color primitives** — `--k2-pure-*` + pointer chain documented in `design-direction.md` § Color System; code in `theme.css` / `chart-theme.js`. |
 | 2026-05 | **Milestones garden order** — Legendary: **`year_in_heaven`** after **`merchant_trade_fair`**; **`play_streak_100`** before **`club_10000`** (10K last). |
 | 2026-05 | **Peer pill carry-scroll** — hub / `lb_nav` / `player_nav` keep `window.scrollY` on pill navigation; same active pill click does not reload (`preventDefault`); short pages extend min-height; other links unchanged. |
 | 2026-05 | **Hall of Fame layout** — Peak performance panel: spacer row after Best goal ratio (before frequency rows). |
@@ -118,6 +145,12 @@
 | 2026-05 | **League honours views** — `ranked9.php` pills Overall / Activity / Points + Day–Year; URL `cup` & `grain`. |
 | 2026-05 | **League honours v1** — `ranked9.php` wing; spec [`docs/leagues-career-leaderboard-proposal.md`](docs/leagues-career-leaderboard-proposal.md). |
 | 2026-05 | **Activity league uncapped on Status** — all players with ≥1 game shown; `limit=0` default in API/SSR. |
+| 2026-05 | **Rating wing anchor** — `ranked1.php`: Peak (col 4) is link-star anchor; current Elo is neutral like other columns. |
+| 2026-05 | **Status league cross-tint anchors** — `k2-table--league-anchor-cross`: Games/Pts use `--k2-league-anchor-ink` (chrome on amber/pitch tint, pitch on chrome/holo), not `--k2-link-star`. |
+| 2026-05 | **Status league calm-stats fix** — `status-period-competitions.js` rebuilds league HTML client-side; matched PHP calm-stats/anchors + `window.k2TableApplyAnchors` after inject/cache restore. |
+| 2026-05 | **Calm-stats site-wide (hub tables)** — `k2-table--calm-stats` + anchors on ranked8 activity peaks, Status league tables, `server2.php` record values; `initAnchorTables()` for non-sortable tables. Profile `individual2a/b/c` unchanged. |
+| 2026-05 | **Leaderboard calm-stats** — all hub sortable LBs + Status active board: neutral cells, anchor link-star; active sort = bold grey until tuned. |
+| 2026-05 | **Leaderboard anchor columns** — `data-k2-anchor-col` + `k2-table.js`: one permanent link-star column per wing (Elo on Rating/Results/Status only); lighter `k2-table-col-sorted` when sorting a non-anchor column. |
 | 2026-05 | **League awards Track 1 local** — `league_standings.php`, REP-012 backfill, finalize script; Status points/activity use tie-break sort; `player_league_totals` + win milestones synced. |
 | 2026-05 | **League career wins** — `league_wins_*` = #1 in any of 8 (period × points/activity); `player_league_totals.wins`. |
 | 2026-05 | **Leagues rules + SCH-009** — tie-breaks locked (points: Pts→GD→GF→Pld→first_game_id→idB; activity: games→first_game_id→idB); `period_end` = achievement time; player-centric `player_league_award`; deep-link `status.php?league_kind=&period=&start=`; PER-003 daily finalize. |

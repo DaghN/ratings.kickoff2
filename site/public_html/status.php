@@ -14,6 +14,7 @@ header('Expires: 0');
 <script type="text/javascript" src="js/flatpickr.min.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/flatpickr.min.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/status-period-competitions.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/status-period-competitions.js'); ?>" defer="defer"></script>
 
 </head>

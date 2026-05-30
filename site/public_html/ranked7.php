@@ -25,6 +25,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 	$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 $query = 'SELECT id, Name, Rating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio, AverageOpponentRating FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY rating DESC';
 $result = k2_query_or_public_error($con, $query, 'ranked7 leaderboard'); 
 
@@ -38,21 +39,21 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="2" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th data-k2-sort="number">Rank</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number" data-k2-help="Current Elo rating.">ELO rating</th>
-        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number">Games</th>
-        <th class="k2-table-cell--pad-left-lg" data-k2-sort="number">Wins</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th data-k2-sort="number">Wins</th>
         <th data-k2-sort="number">Draws</th>
         <th data-k2-sort="number">Losses</th>
-        <th class="k2-table-cell--pad-left-xl" data-k2-sort="number" data-k2-help="Share of rated games won.">Win Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Share of rated games drawn.">Draw Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Share of rated games lost.">Loss Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Average Elo rating of the player's opponents.">Opponent Avg.</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_win_ratio(), ENT_QUOTES, 'UTF-8'); ?>">Win Ratio</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_draw_ratio(), ENT_QUOTES, 'UTF-8'); ?>">Draw Ratio</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_loss_ratio(), ENT_QUOTES, 'UTF-8'); ?>">Loss Ratio</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opponent Avg.</th>
     </tr>
 </thead>
 
@@ -67,14 +68,14 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr>
         <td><?php echo $rank ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td><span class="k2-link-star"><?php echo round($row[2]); ?></span></td>
+        <td><?php echo round($row[2]); ?></td>
         <td><?php echo $row[3] ?></td>
-        <td><?php if ($row[4]!=0) {echo "<span class='blue'>"; echo $row[4]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php echo $row[5] ?></td>
-        <td><?php if ($row[6]!=0) {echo "<span class='red'>"; echo $row[6]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[7]!=0) {echo "<span class='blue'>";} echo number_format(100*$row[7], 1); echo "%"; ?></td>
-        <td><?php echo number_format(100*$row[8], 1); echo "%"; ?></td>
-        <td><?php if ($row[9]!=0) {echo "<span class='red'>";} echo number_format(100*$row[9], 1); echo "%"; ?></td>
+        <td><?php echo (int) $row[4]; ?></td>
+        <td><?php echo (int) $row[5]; ?></td>
+        <td><?php echo (int) $row[6]; ?></td>
+        <td><?php echo number_format(100 * $row[7], 1) . '%'; ?></td>
+        <td><?php echo number_format(100 * $row[8], 1) . '%'; ?></td>
+        <td><?php echo number_format(100 * $row[9], 1) . '%'; ?></td>
         <td><?php echo round($row[10]) ?></td>
     </tr> 
     

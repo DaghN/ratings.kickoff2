@@ -17,6 +17,8 @@ Three categories of change to the `generalstatstable` post-game update:
 2. **CHANGE** — non-ratio record tie policy from `>=` to `>` — first holder keeps the record until strictly beaten.
 3. **ADD** — UTC timezone requirement — record dates must be UTC.
 
+**Separate handoff (this file does not cover it):** `playertable` personal record pointers and inverse victim/culprit counts (`BiggestLossVictims`, `BiggestWinCulprits`, `MostGoalsConcededVictims`, etc.) must also move from legacy **`>=` to `>`** in the per-game C++ block. Required behaviour and checklist: [`website-data-contract.md`](../website-data-contract.md) § *Personal record pointers and record-holder victim/culprit counts*. Do not mark records post-game “done” without that pass.
+
 ---
 
 ## 1. DELETE: Ratio leader blocks
@@ -158,7 +160,7 @@ After replay or C++ deployment, verify with `python -m scripts.ladder.golden_rec
 | Step | Expected |
 |------|----------|
 | After 002 on staging | `SHOW COLUMNS FROM generalstatstable` has no `BiggestWinRatio` |
-| Records page | Win ratio = top `playertable.WinRatio` (>=30 games), not stale GST row |
+| Records page | Win ratio = top `playertable.WinRatio` (>=20 games / `K2_ESTABLISHED_MIN_GAMES`), not stale GST row |
 | C++ post-game | No compile/runtime reference to dropped column names |
 | After next game | Record dates are UTC; tied records are not overwritten |
 

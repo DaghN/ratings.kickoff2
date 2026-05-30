@@ -1,7 +1,7 @@
 <?php
 /**
- * Hub primary tabs — Status · Activity · Leaderboards · Milestones · Hall of Fame
- * Set $k2HubTabActive before include: status | activity | leaderboards | milestones | records
+ * Hub primary tabs — Status · Activity · Leaderboards · Milestones · Hall of Fame · Play & Setup
+ * Set $k2HubTabActive before include: status | activity | leaderboards | milestones | records | join
  *
  * Full match log: server3.php (linked from Status recent games — not a hub tab).
  * Tint picker: Amber · Pitch · Chrome · Holo — hidden by default; Show/Hide tint.
@@ -14,6 +14,7 @@ $k2HubTabs = [
 	'leaderboards' => ['href' => 'ranked7.php', 'label' => 'Leaderboards'],
 	'milestones' => ['href' => 'milestones.php', 'label' => 'Milestones'],
 	'records' => ['href' => 'server2.php', 'label' => 'Hall of Fame'],
+	'join' => ['href' => 'join.php', 'label' => 'Play & Setup'],
 ];
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';
 ?>

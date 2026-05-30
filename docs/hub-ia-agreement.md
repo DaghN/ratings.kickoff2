@@ -8,13 +8,14 @@
 
 ## Current Hub Shape
 
-Five top-level tabs, in this order:
+Six top-level tabs, in this order:
 
 1. **Status** — default landing.
 2. **Activity**
 3. **Leaderboards**
 4. **Milestones**
 5. **Hall of Fame**
+6. **Play & Setup** — join / onboarding (`join.php`), last tab.
 
 Routing:
 
@@ -25,12 +26,13 @@ Routing:
 | Leaderboards | `ranked7.php` default; wings `ranked1`–`ranked5`, `ranked7`–`ranked10` (see Leaderboards contract) |
 | Milestones | `milestones.php` (stub → full hub per WIP spec) |
 | Hall of Fame | `server2.php` |
+| Play & Setup | `join.php` |
 
 **Not a hub tab:** **Games** / full match log — `server3.php`. Primary entry: Status recent games panel → **Games →**. Direct URL and player **Games** pill unchanged.
 
 Direct legacy URLs remain valid. The hub is page navigation, not a client-side SPA.
 
-Ordering principle: **alive → pulse → rank → shared career → extremes.** Status answers whether the scene is alive; Activity shows server pulse and (for now) legacy milestone charts; Leaderboards answers who is better on the ladder; Milestones is the public milestone universe; Hall of Fame preserves single-holder records.
+Ordering principle: **alive → pulse → rank → shared career → extremes → join.** Status answers whether the scene is alive; Activity shows server pulse and (for now) legacy milestone charts; Leaderboards answers who is better on the ladder; Milestones is the public milestone universe; Hall of Fame preserves single-holder records; **Play & Setup** (last tab) is how to get online.
 
 ---
 
@@ -72,7 +74,7 @@ Still open with Steve / prod:
 
 | Area | Current decision |
 |------|------------------|
-| Header | Wordmark + Online/Amiga realm switcher grouped as site identity; player search isolated on the right. No kickoff2.com header link. |
+| Header | Wordmark + player search on the right. Online/Amiga realm switcher **hidden** (markup in `site_header.php`, `display: none` in `theme.css`) until Amiga ships. **Play & Setup** is a hub tab (`join.php`), not a header link. No kickoff2.com header link. |
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |

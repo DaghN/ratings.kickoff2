@@ -1,0 +1,110 @@
+{
+  "version": "2026-05-copy-pass-1",
+  "notes": "Catalog display_name / rule_short only. Apply: python scripts/oneoff/apply_milestone_catalog_copy_patch.py. Staging: php staging-scripts/patch_milestone_catalog_copy.php",
+  "patches": [
+    {
+      "milestone_key": "play_streak_100",
+      "display_name": "100 days of bliss"
+    },
+    {
+      "milestone_key": "league_yearly_activity_winner",
+      "rule_short": "Yearly activity winner"
+    },
+    {
+      "milestone_key": "league_yearly_points_winner",
+      "rule_short": "Yearly points winner"
+    },
+    {
+      "milestone_key": "monthly_regular",
+      "rule_short": "Rated game on every day of a calendar month"
+    },
+    {
+      "milestone_key": "club_2300",
+      "rule_short": "Rating ≥2300"
+    },
+    {
+      "milestone_key": "leaky_merchant",
+      "rule_short": "10+ scored and 9 conceded"
+    },
+    {
+      "milestone_key": "league_yearly_points_medal",
+      "rule_short": "Yearly points medal"
+    },
+    {
+      "milestone_key": "league_monthly_points_winner",
+      "rule_short": "Monthly points winner"
+    },
+    {
+      "milestone_key": "league_yearly_activity_medal",
+      "rule_short": "Yearly activity medal"
+    },
+    {
+      "milestone_key": "league_weekly_points_winner",
+      "rule_short": "Weekly points winner"
+    },
+    {
+      "milestone_key": "club_2000",
+      "rule_short": "Rating ≥2000"
+    },
+    {
+      "milestone_key": "league_monthly_points_medal",
+      "rule_short": "Monthly points medal"
+    },
+    {
+      "milestone_key": "dozen_dash",
+      "rule_short": "Scored 12+ in one game"
+    },
+    {
+      "milestone_key": "league_weekly_activity_winner",
+      "rule_short": "Weekly activity winner"
+    },
+    {
+      "milestone_key": "league_daily_activity_winner",
+      "rule_short": "Daily activity winner"
+    },
+    {
+      "milestone_key": "battle_hardened",
+      "rule_short": "5-5 or higher draw"
+    },
+    {
+      "milestone_key": "league_weekly_activity_medal",
+      "rule_short": "Weekly activity medal"
+    },
+    {
+      "milestone_key": "league_weekly_points_medal",
+      "rule_short": "Weekly points medal"
+    },
+    {
+      "milestone_key": "dd_merchant_10",
+      "rule_short": "Scored 10+ in one game"
+    },
+    {
+      "milestone_key": "club_1800",
+      "rule_short": "Rating ≥1800"
+    },
+    {
+      "milestone_key": "goal_fest_draw",
+      "rule_short": "7-7 or higher draw"
+    },
+    {
+      "milestone_key": "league_monthly_activity_medal",
+      "rule_short": "Monthly activity medal"
+    },
+    {
+      "milestone_key": "league_daily_points_medal",
+      "rule_short": "Daily points medal"
+    },
+    {
+      "milestone_key": "league_daily_activity_medal",
+      "rule_short": "Daily activity medal"
+    },
+    {
+      "milestone_key": "victim_of_commerce",
+      "rule_short": "Conceded 10+ goals"
+    },
+    {
+      "milestone_key": "hat_trick",
+      "rule_short": "3+ goals in one game"
+    }
+  ]
+}

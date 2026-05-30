@@ -23,6 +23,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 $leaderRows = k2_milestone_meta_leaderboard_rows($con);
 mysqli_close($con);
 
@@ -32,19 +33,19 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="8" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="8" data-k2-default-sort="8" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th data-k2-sort="number">#</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number" data-k2-help="Current Elo rating.">ELO rating</th>
-        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number">Games</th>
-        <th data-k2-sort="number" data-k2-help="Aspirational tier unlocks."><span class="k2-lb-ms-tier--pitch">Aspirational</span></th>
-        <th data-k2-sort="number" data-k2-help="Dedicated tier unlocks."><span class="k2-lb-ms-tier--chrome">Dedicated</span></th>
-        <th data-k2-sort="number" data-k2-help="Accomplished tier unlocks."><span class="k2-lb-ms-tier--amber">Accomplished</span></th>
-        <th data-k2-sort="number" data-k2-help="Legendary tier unlocks."><span class="k2-lb-ms-tier--holo">Legendary</span></th>
-        <th data-k2-sort="number" data-k2-help="Milestones unlocked (all tiers).">Milestones</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th data-k2-sort="number"><span class="k2-lb-ms-tier--pitch">Aspirational</span></th>
+        <th data-k2-sort="number"><span class="k2-lb-ms-tier--chrome">Dedicated</span></th>
+        <th data-k2-sort="number"><span class="k2-lb-ms-tier--amber">Accomplished</span></th>
+        <th data-k2-sort="number"><span class="k2-lb-ms-tier--holo">Legendary</span></th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_milestones_total(), ENT_QUOTES, 'UTF-8'); ?>">Milestones</th>
     </tr>
 </thead>
 
@@ -62,7 +63,7 @@ foreach ($leaderRows as $row) {
         <td><span class="k2-lb-ms-tier--chrome"><?php echo (int) $row['dedicated']; ?></span></td>
         <td><span class="k2-lb-ms-tier--amber"><?php echo (int) $row['accomplished']; ?></span></td>
         <td><span class="k2-lb-ms-tier--holo"><?php echo (int) $row['legendary']; ?></span></td>
-        <td><strong><?php echo (int) $row['total']; ?></strong></td>
+        <td><?php echo (int) $row['total']; ?></td>
     </tr>
     <?php
     $rank++;

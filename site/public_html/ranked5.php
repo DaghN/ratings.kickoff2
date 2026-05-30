@@ -26,6 +26,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 	$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 $query = 'SELECT id, Name, Rating, NumberGames, DifferentOpponents, DifferentVictims, DoubleDigitsVictims, CleanSheetsVictims, MostGoalsConcededVictims, BiggestLossVictims, DifferentCulprits, DoubleDigitsCulprits, CleanSheetsCulprits, MostGoalsScoredCulprits, BiggestWinCulprits FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY DifferentVictims DESC, rating DESC';
 $result = k2_query_or_public_error($con, $query, 'ranked5 leaderboard'); 
 
@@ -39,25 +40,25 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="5" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="5" data-k2-default-sort="5" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th data-k2-sort="number">#</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number" data-k2-help="Current Elo rating.">ELO rating</th>
-        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number">Games</th>
-        <th data-k2-sort="number" data-k2-help="Different opponents faced.">Opponents</th>
-        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Different opponents this player has beaten.">Victims</th>
-        <th data-k2-sort="number" data-k2-help="Double-digit victims: different opponents this player has scored 10 or more against.">DD Victims</th>
-        <th data-k2-sort="number" data-k2-help="Clean-sheet victims: different opponents this player has held to zero goals.">CS Victims</th>
-        <th data-k2-sort="number" data-k2-help="Most-goals-conceded victims: players whose most-conceded record came against this player.">MGC Victims</th>
-        <th data-k2-sort="number" data-k2-help="Biggest-loss victims: players whose biggest-loss record came against this player.">BL Victims</th>
-        <th data-k2-sort="number" data-k2-help="Different opponents who have beaten this player.">Culprits</th>
-        <th data-k2-sort="number" data-k2-help="Double-digit culprits: different opponents who scored 10 or more against this player.">DD Culprits</th>
-        <th data-k2-sort="number" data-k2-help="Clean-sheet culprits: different opponents who held this player to zero goals.">CS Culprits</th>
-        <th data-k2-sort="number" data-k2-help="Most-goals-scored culprits: players whose most-scored record came against this player.">MGS Culprits</th>
-        <th data-k2-sort="number" data-k2-help="Biggest-win culprits: players whose biggest-win record came against this player.">BW Culprits</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponents(), ENT_QUOTES, 'UTF-8'); ?>">Opponents</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_victims(), ENT_QUOTES, 'UTF-8'); ?>">Victims</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Double Digit victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_dd_victims(), ENT_QUOTES, 'UTF-8'); ?>">DD Victims</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Clean Sheet victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_cs_victims(), ENT_QUOTES, 'UTF-8'); ?>">CS Victims</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Most Goals Conceded victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_mgc_victims(), ENT_QUOTES, 'UTF-8'); ?>">MGC Victims</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Biggest Loss victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_bl_victims(), ENT_QUOTES, 'UTF-8'); ?>">BL Victims</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_culprits(), ENT_QUOTES, 'UTF-8'); ?>">Culprits</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Double Digit culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_dd_culprits(), ENT_QUOTES, 'UTF-8'); ?>">DD Culprits</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Clean Sheet culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_cs_culprits(), ENT_QUOTES, 'UTF-8'); ?>">CS Culprits</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Most Goals Scored culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_mgs_culprits(), ENT_QUOTES, 'UTF-8'); ?>">MGS Culprits</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Biggest Win culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_bw_culprits(), ENT_QUOTES, 'UTF-8'); ?>">BW Culprits</th>
     </tr>
 </thead>
 
@@ -75,16 +76,16 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo round($row[2]) ?></td>
         <td><?php echo $row[3] ?></td>
         <td><?php echo $row[4] ?></td>
-        <td><?php if ($row[5]!=0) {echo "<span class='blue'>"; echo $row[5]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[6] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[6];?></span><?php } ?></td>
-        <td><?php if ($row[7] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[7];?></span><?php } ?></td>
-        <td><?php if ($row[8] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[8];?></span><?php } ?></td>
-        <td><?php if ($row[9] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[9];?></span><?php } ?></td>
-        <td><?php if ($row[10]!=0) {echo "<span class='red'>"; echo $row[10]; echo "</span>"; } else {echo "0";} ?></td>
-        <td><?php if ($row[11] == 0) {echo "0";} else {?><span class="red"><?php echo $row[11];?></span><?php } ?></td>
-        <td><?php if ($row[12] == 0) {echo "0";} else {?><span class="red"><?php echo $row[12];?></span><?php } ?></td>
-        <td><?php if ($row[13] == 0) {echo "0";} else {?><span class="red"><?php echo $row[13];?></span><?php } ?></td>
-        <td><?php if ($row[14] == 0) {echo "0";} else {?><span class="red"><?php echo $row[14];?></span><?php } ?></td>
+        <td><?php echo (int) $row[5]; ?></td>
+        <td><?php echo (int) $row[6]; ?></td>
+        <td><?php echo (int) $row[7]; ?></td>
+        <td><?php echo (int) $row[8]; ?></td>
+        <td><?php echo (int) $row[9]; ?></td>
+        <td><?php echo (int) $row[10]; ?></td>
+        <td><?php echo (int) $row[11]; ?></td>
+        <td><?php echo (int) $row[12]; ?></td>
+        <td><?php echo (int) $row[13]; ?></td>
+        <td><?php echo (int) $row[14]; ?></td>
     </tr> 
     
     <?php
@@ -98,32 +99,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 </div><!-- .k2-table-wrap -->
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
-
-<br />
-
-Victims = same statistic as the Victims row on each player profile.<br />
-DD Victims = Double Digit Victims<br />
-CS Victims = Clean Sheet Victims<br />
-MGC Victims = Most Goals Conceded Victims<br />
-BL Victims = Biggest Loss Victims<br />
-DD Culprits = Double Digit Culprits<br />
-CS Culprits = Clean Sheet Culprits<br />
-MGS Culprits = Most Goals Scored Culprits<br />
-BW Culprits = Biggest Win Culprits<br />
-<br />
-Example: Joe has 3 BW Culprits. This means that 3 players set their Biggest Win record against Joe. <br />
-Example: Joe has 5 MGC Victims. This means that 5 players set their Most Goals Conceded record against Joe. <br />
-<br />
-A player can only have one Biggest Loss (etc.) record. Let's say that Joe's biggest loss record is by 7 goals against Bob, <br />
-but now Joe loses by 7 to George too. Then it is the LATEST game that takes precedence and is registered as Joe's biggest loss. <br />
-So, in this case, Bob would have one LESS BL Victim, while George would get one MORE. You could say that previously Joe was <br /> 
-"owned" by Bob, but now George owns him instead. The BL Victims number is then a count of how many players George owns in <br />
-this way. Conversely, the BW Culprits number is a count of how many players you "own" (in a bad way) by providing them their <br />
-unique biggest win.
-
-
-
-
 
 
 </div><!-- .k2-page-nav -->

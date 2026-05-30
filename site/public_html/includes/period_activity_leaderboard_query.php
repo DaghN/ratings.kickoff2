@@ -283,7 +283,7 @@ function k2_format_calendar_week_label(string $weekMondayYmd): string
     return 'Week ' . (int) $d->format('W') . ', ' . (int) $d->format('o');
 }
 
-/** Human label for one calendar day, e.g. Monday, May 27, 2026. */
+/** Human label for one calendar day (meta/ticker), e.g. Monday, May 27, 2026. */
 function k2_format_calendar_day_label(string $dayYmd): string
 {
     $d = DateTimeImmutable::createFromFormat('Y-m-d', $dayYmd);
@@ -292,6 +292,17 @@ function k2_format_calendar_day_label(string $dayYmd): string
     }
 
     return $d->format('l, F j, Y');
+}
+
+/** Day picker trigger only — no weekday, e.g. May 27, 2026. */
+function k2_format_calendar_day_picker_label(string $dayYmd): string
+{
+    $d = DateTimeImmutable::createFromFormat('Y-m-d', $dayYmd);
+    if (!$d instanceof DateTimeImmutable) {
+        return $dayYmd;
+    }
+
+    return $d->format('F j, Y');
 }
 
 function k2_format_period_activity_label(string $period, string $key): string
@@ -304,7 +315,7 @@ function k2_format_period_activity_label(string $period, string $key): string
         case 'month':
             $d = DateTime::createFromFormat('Y-m-d', $key . '-01');
             if ($d instanceof DateTime) {
-                return $d->format('M Y');
+                return $d->format('F Y');
             }
 
             return $key;

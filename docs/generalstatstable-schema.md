@@ -51,7 +51,7 @@ Draw / high-scoring games that involve **both** players store **two** ids and na
 
 ## Headline server counters (group 1)
 
-Updated incrementally in C++ each game; some “best player” fields are refreshed via **`SELECT … FROM playertable WHERE NumberGames >= 30`**.
+Updated incrementally in C++ each game; legacy C++ ratio-leader blocks used **`NumberGames >= 30`** (removed from `generalstatstable` May 2026 — PHP reads ratio leaders from `playertable` with **`>= 20`** / `K2_ESTABLISHED_MIN_GAMES`).
 
 | Field | Type | Role |
 |-------|------|------|
@@ -275,7 +275,7 @@ After each game the live path:
 1. `SELECT * FROM generalstatstable WHERE id=1`
 2. Bump counters from the game (`GamesPlayed`, draws/decided, goals, DD/CS, …)
 3. Compare per-game events to running server records (margin, draw sum, etc.)
-4. For several “best career” records, **re-query `playertable`** with **`NumberGames >= 30`**
+4. Legacy C++ re-queried `playertable` with **`NumberGames >= 30`** for ratio leaders (obsolete; site uses **>= 20** at PHP read time)
 5. One massive `UPDATE generalstatstable SET … WHERE id=1` (122 columns in the SET list)
 
 Column names in MySQL **match the C++ variable names** (e.g. `MostGamesPlayedIDS` → `MostGamesPlayedID`).

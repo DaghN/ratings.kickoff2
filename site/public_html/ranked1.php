@@ -25,6 +25,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 	$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 $query = 'SELECT id, Name, Rating, NumberGames, PeakRating, LowestRating, AverageOpponentRating, HighestRatedVictim, LowestRatedCulprit FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY PeakRating DESC, rating DESC';
 $result = k2_query_or_public_error($con, $query, 'ranked1 leaderboard'); 
 
@@ -38,19 +39,19 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="4" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="4" data-k2-default-sort="4" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th data-k2-sort="number">#</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number" data-k2-help="Current Elo rating.">ELO rating</th>
-        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number">Games</th>
-        <th data-k2-sort="number" data-k2-help="Highest Elo rating the player has reached.">Peak</th>
-        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Lowest Elo rating the player has reached.">Nadir</th>
-        <th data-k2-sort="number" data-k2-help="Average Elo rating of the player's opponents.">Opponent Avg.</th>
-        <th data-k2-sort="number" data-k2-help="Highest-rated opponent this player has beaten.">Highest Victim</th>
-        <th data-k2-sort="number" data-k2-help="Lowest-rated opponent this player has lost to.">Lowest Culprit</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_peak(), ENT_QUOTES, 'UTF-8'); ?>">Peak</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_nadir(), ENT_QUOTES, 'UTF-8'); ?>">Nadir</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opponent Avg.</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_highest_victim(), ENT_QUOTES, 'UTF-8'); ?>">Highest Victim</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_lowest_culprit(), ENT_QUOTES, 'UTF-8'); ?>">Lowest Culprit</th>
     </tr>
 </thead>
 
@@ -67,11 +68,11 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
         <td><?php echo round($row[2]) ?></td>
         <td><?php echo $row[3] ?></td>
-        <td><?php if ($row[4] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[4]); echo "</span>";} ?></td>
-        <td><?php if ($row[5] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[5]); echo "</span>";} ?></td>
-        <td><?php echo round($row[6]) ?></td>
-        <td><?php if ($row[7] == 0) {echo "-";} else {echo "<span class='blue'>"; echo round($row[7]); echo "</span>";} ?></td>
-        <td><?php if ($row[8] == 5000) {echo "-";} else {echo "<span class='red'>"; echo round($row[8]); echo "</span>";} ?></td>
+        <td><?php echo $row[4] == 0 ? '-' : (int) round($row[4]); ?></td>
+        <td><?php echo $row[5] == 5000 ? '-' : (int) round($row[5]); ?></td>
+        <td><?php echo (int) round($row[6]); ?></td>
+        <td><?php echo $row[7] == 0 ? '-' : (int) round($row[7]); ?></td>
+        <td><?php echo $row[8] == 5000 ? '-' : (int) round($row[8]); ?></td>
     </tr> 
     
     <?php

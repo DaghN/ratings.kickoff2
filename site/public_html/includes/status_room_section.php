@@ -98,7 +98,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 			<p class="k2-status-panel__empty">No active rated players in this window yet.</p>
 <?php } else { ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">
-				<table class="k2-table k2-status-table k2-status-table--dense" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc">
+				<table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="2" data-k2-default-direction="desc">
 					<thead>
 						<tr>
 							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Rank within this visible leaderboard. Rank updates when the table is sorted.">#</th>
@@ -115,7 +115,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<tr>
 							<td class="k2-status-table__num"><?php echo $rank; ?></td>
 							<td class="k2-status-table__player"><?php echo k2_status_player_link($row['id'], $row['name']); ?></td>
-							<td class="k2-status-table__num"><span class="k2-link-star"><?php echo (int) $row['rating']; ?></span></td>
+							<td class="k2-status-table__num"><?php echo (int) $row['rating']; ?></td>
 							<td class="k2-status-table__num"><?php echo (int) $row['games']; ?></td>
 						</tr>
 <?php

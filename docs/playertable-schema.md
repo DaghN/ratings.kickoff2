@@ -182,6 +182,23 @@ Types and nullability from **`SHOW FULL COLUMNS`**.
 
 ---
 
+## Career peak and nadir (`PeakRating`, `LowestRating`)
+
+**Behaviour authority:** [`website-data-contract.md`](website-data-contract.md) § **Career peak and nadir**.
+
+| Column | Unset sentinel | Meaning when set |
+|--------|----------------|------------------|
+| `PeakRating` | `0` | Career high Elo after establishment |
+| `LowestRating` | `5000.00` | Career low Elo after establishment |
+| `PeakRatingGameID` | NULL | Game id for current peak |
+| `LowestRatingGameID` | NULL | Game id for current nadir |
+
+**Target (future post-game):** unset until **20** rated games; at game 20 both initialize to post-game **`Rating`**; from game 21 onward max/min of `Rating` every game (no “must gain/lose this game” rule). **Legacy prod/replay today:** different rules — see contract § legacy vs required.
+
+**Related but separate:** `Rating` (current Elo); `generalstatstable.BiggestPeakRating` (server record).
+
+---
+
 ## `JoinDate` and `entered_arena`
 
 In the app, **registering = entering the lobby**. Milestone **`entered_arena`**: `source_kind = lobby`, `achieved_at = JoinDate`. Distinct from **`debut`** (first rated game). Not ladder replay–derived. `LobbyTime` is a separate network/telemetry field — **do not** use it for this milestone. See [`milestones-facilitation.md`](milestones-facilitation.md).

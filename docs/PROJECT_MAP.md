@@ -41,7 +41,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
-| **Migration backlog** | Stored DB truth / Steve | `docs/prod-coordination.md`, `docs/coordination/` |
+| **Migration backlog** | Stored DB truth / Steve | `docs/prod-coordination.md`, `docs/coordination/` — post-game day: [`post-game-cutover-checklist.md`](coordination/post-game-cutover-checklist.md) |
 
 **Migration is a side track** — not required for CSS-only days. See decision tree in `UPDATE_DOCS.md` § Migration pass.
 

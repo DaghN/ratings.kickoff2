@@ -35,6 +35,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Player profile layout | `docs/player-profile-feast.md` |
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-project.md`, `docs/milestones-product-spec.md`, `docs/milestones-ideas-catalog.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
+| Play & setup / join page | `docs/join-play-setup.md` |
 | Visual identity / theme | `docs/design-direction.md` |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |
 | Hall of Fame record C++ / staging defects | `docs/coordination/records-post-game-exception.md`, `docs/staging-post-game-record-defects.md` (when records behavior changes) |

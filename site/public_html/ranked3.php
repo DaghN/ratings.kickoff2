@@ -26,6 +26,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 	$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 $query = 'SELECT id, Name, Rating, NumberGames, DoubleDigits, CleanSheets, DoubleDigitsRatio, CleanSheetsRatio, DoubleDigitsConceded, CleanSheetsConceded, DoubleDigitsConcededRatio, CleanSheetsConcededRatio FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY DoubleDigits DESC, rating DESC';
 $result = k2_query_or_public_error($con, $query, 'ranked3 leaderboard'); 
 
@@ -39,22 +40,22 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="4" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="4" data-k2-default-sort="4" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th data-k2-sort="number">#</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number" data-k2-help="Current Elo rating.">ELO rating</th>
-        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number">Games</th>
-        <th class="k2-table-cell--pad-left-xxl" data-k2-sort="number" data-k2-help="Double digits: games where the player scored 10 or more goals.">DD</th>
-        <th class="k2-table-cell--pad-left-xxl" data-k2-sort="number" data-k2-help="Clean sheets: games where the opponent scored no goals.">CS</th>
-        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Share of games where the player scored 10 or more goals.">DD Ratio</th>
-        <th class="k2-table-cell--pad-left-lg" data-k2-sort="number" data-k2-help="Share of games where the opponent scored no goals.">CS Ratio</th>
-        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Double digits conceded: games where the player conceded 10 or more goals.">DD C</th>
-        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Clean sheets conceded: games where the player scored no goals.">CS C</th>
-        <th data-k2-sort="number" data-k2-help="Share of games where the player conceded 10 or more goals.">DD C Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Share of games where the player scored no goals.">CS C Ratio</th>
+        <th data-k2-sort="number">ELO rating</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits(), ENT_QUOTES, 'UTF-8'); ?>">Double Digits</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets(), ENT_QUOTES, 'UTF-8'); ?>">Clean Sheets</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Double Digits ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits_ratio(), ENT_QUOTES, 'UTF-8'); ?>">DD Ratio</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Clean Sheets ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets_ratio(), ENT_QUOTES, 'UTF-8'); ?>">CS Ratio</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits_conceded(), ENT_QUOTES, 'UTF-8'); ?>">DD conceded</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets_conceded(), ENT_QUOTES, 'UTF-8'); ?>">CS conceded</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="DD conceded ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits_conceded_ratio(), ENT_QUOTES, 'UTF-8'); ?>">DD C Ratio</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="CS conceded ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets_conceded_ratio(), ENT_QUOTES, 'UTF-8'); ?>">CS C Ratio</th>
     </tr>
 </thead>
 
@@ -71,14 +72,14 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
         <td><?php echo round($row[2]) ?></td>
         <td><?php echo $row[3] ?></td>
-       	<td><?php if ($row[4] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[4];?></span><?php } ?></td>
-        <td><?php if ($row[5] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[5];?></span><?php } ?></td>
-        <td><?php if ($row[6] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[6], 1); echo "%";} ?></td>
-        <td><?php if ($row[7] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[7], 1); echo "%";} ?></td>
-        <td><?php if ($row[8] == 0) {echo "0";} else {?><span class="red"><?php echo $row[8];?></span><?php } ?></td>
-        <td><?php if ($row[9] == 0) {echo "0";} else {?><span class="red"><?php echo $row[9];?></span><?php } ?></td>
-        <td><?php if ($row[10] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[10], 1); echo "%";} ?></td>
-        <td><?php if ($row[11] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[11], 1); echo "%";} ?></td>
+        <td><?php echo (int) $row[4]; ?></td>
+        <td><?php echo (int) $row[5]; ?></td>
+        <td><?php echo $row[6] == 0 ? '0%' : number_format(100 * $row[6], 1) . '%'; ?></td>
+        <td><?php echo $row[7] == 0 ? '0%' : number_format(100 * $row[7], 1) . '%'; ?></td>
+        <td><?php echo (int) $row[8]; ?></td>
+        <td><?php echo (int) $row[9]; ?></td>
+        <td><?php echo $row[10] == 0 ? '0%' : number_format(100 * $row[10], 1) . '%'; ?></td>
+        <td><?php echo $row[11] == 0 ? '0%' : number_format(100 * $row[11], 1) . '%'; ?></td>
     </tr> 
     
     <?php
@@ -92,12 +93,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 </div><!-- .k2-table-wrap -->
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
-
-<br />
-DD = Double Digits, ie. the number of games where the player scored 10 or more goals<br />
-DD C = Double Digits Conceded<br />
-CS = Clean Sheets, ie. the number of games where the player's opponent scored no goals<br />
-CS C = Clean Sheets Conceded, ie. the number of games where the player scored no goals<br />
 
 
 

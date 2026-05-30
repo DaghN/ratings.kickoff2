@@ -75,7 +75,7 @@
                         datasets: [Object.assign({
                             label: 'Goals',
                             data: chartData
-                        }, T.barSolid(T.linkStar()))]
+                        }, T.barSolid(T.amber()))]
                     },
                     options: {
                         responsive: true,

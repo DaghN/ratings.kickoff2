@@ -1,10 +1,10 @@
 <?php
 /**
  * Records page — ratio/average leaders from playertable (not generalstatstable).
- * Eligible: NumberGames >= 30. Ties: lowest player ID wins.
+ * Eligible: NumberGames >= K2_ESTABLISHED_MIN_GAMES (20). Ties: lowest player ID wins.
  */
 
-const RECORDS_RATIO_MIN_GAMES = 30;
+require_once __DIR__ . '/lb_player_filters.php';
 
 /**
  * @return array{value: float|int|null, id: int, name: string}
@@ -24,7 +24,7 @@ function records_fetch_ratio_leader(mysqli $con, string $column, string $directi
     }
 
     $dir = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
-    $where = 'NumberGames >= ' . (int) RECORDS_RATIO_MIN_GAMES . ' AND `' . $column . '` IS NOT NULL';
+    $where = 'NumberGames >= ' . k2_established_min_games() . ' AND `' . $column . '` IS NOT NULL';
     if ($extraWhere !== '') {
         $where .= ' AND (' . $extraWhere . ')';
     }

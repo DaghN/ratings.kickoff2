@@ -9,25 +9,35 @@
 | **Tint** (`data-k2-accent` on `<html>`) | UI accent — links, nav rings, glows, chrome. **Not** tied to Online/Amiga. |
 | **Realm** (`data-realm`) | Which ladder/universe (data, copy, APIs later). **Does not** set site paint. |
 
-**Default tint on load:** amber (`#ffb74d`) when `data-k2-accent` is absent (CSS on `html`). Hub picker: **Amber · Pitch · Chrome · Holo** (Pulse removed — clashed with stat colours), hidden by default behind **Show tint**. User tint choice persists in `localStorage` (`k2-accent-tune`), with a one-time fallback/migration from the old `sessionStorage` value for open pre-persistence sessions.
+**Default tint on load:** follows a **six-hour rotation** when the visitor has not chosen a pill manually (see schedule below). CSS still defaults to amber when `data-k2-accent` is absent. Hub picker: **Amber · Pitch · Chrome · Holo** (Pulse removed — clashed with stat colours), hidden by default behind **Show tint**.
 
-| Tint id | Hex | Notes |
-|---------|-----|--------|
-| `amber` | `#ffb74d` | Default |
-| `pitch` | `#9ccc65` | Former “Amiga green” realm chrome — now a tint only |
-| `chrome` | `#64b5f6` | |
-| `holo` | `#b388ff` | |
+**Six-hour schedule** (`js/k2-tint-schedule.js`, booted from `theme_boot_head.php`):
 
-**Table stat overrides (`.blue` / `.red`):** default cyan / magenta. Chrome & Holo → green positives.
+| Local hour (visitor) | Tint |
+|----------------------|------|
+| 00:00–05:59 | Amber |
+| 06:00–11:59 | Pitch |
+| 12:00–17:59 | Chrome |
+| 18:00–23:59 | Holo |
 
-**Charts:** fixed six-ink palette (pitch, chrome, holo, amber, teal, magenta) — see `docs/design-direction.md`. Hub tints match the first four; **teal** and **hot magenta** (`#ff4081`) are chart-only, not tint pills.
+Clock source defaults to **visitor local time**. Set `localStorage['k2-accent-clock']` to `'utc'` to use UTC boundaries instead (no UI yet). Open tabs re-apply at each boundary via `setTimeout`.
 
-## Tokens
+**Manual override (this period only):** first visit in a window uses the **scheduled** tint. Clicking a pill stores `k2-accent-tune` + `k2-accent-manual-period` (e.g. `2026-05-29-2` = that calendar day’s third six-hour slot). That choice lasts **until the next six-hour boundary**, then the site returns to the schedule for the new period (visitor may pick again). Stale keys are cleared on load when the period id no longer matches.
 
-| Token | Set by |
-|-------|--------|
-| `--k2-accent` | `html` default + `html[data-k2-accent="…"]` |
-| `--k2-accent-muted`, `--k2-accent-glow` | Same |
+| Tint id | Pure token | Hex |
+|---------|------------|-----|
+| `amber` | `--k2-pure-amber` | `#ffb74d` (default) |
+| `pitch` | `--k2-pure-pitch` | `#9ccc65` |
+| `chrome` | `--k2-pure-chrome` | `#64b5f6` |
+| `holo` | `--k2-pure-holo` | `#b388ff` |
+
+Each pill sets `--k2-accent: var(--k2-pure-*)`. That drives link-star and nav mixes; it does **not** recolour amber chart series (`--k2-amber-soft`) or milestone card glow (`--k2-pure-*` on the card).
+
+**Full pointer model, mixes, and “when to use what”:** [`design-direction.md` § Color System](design-direction.md#color-system).
+
+**Table stat overrides (`.blue` / `.red`):** default cyan / magenta. Chrome & Holo tint → green positives (separate from pure/chart tokens).
+
+**Charts:** six inks in CSS; hub four = pure tokens above; **teal** and **magenta** are chart-only.
 
 ## Phases
 
@@ -60,6 +70,13 @@
 - [x] Existing `sessionStorage` tint value migrates once to `localStorage`
 - [x] Open tabs sync tint changes through the browser `storage` event
 
+### Phase 5 — Six-hour schedule
+
+- [x] `k2-tint-schedule.js` shared by head boot + `realm-switch.js`
+- [x] Auto tint from local six-hour slots unless manual override
+- [x] Timer rolls scheduled tint at period boundaries in open tabs
+- [x] Optional UTC via `localStorage` `k2-accent-clock` = `utc`
+
 ### Header placement lab
 
 - [x] `status-realm-lab.php?variant=identity` — mock Status shell with realm beside the wordmark and search isolated on the right.
@@ -73,8 +90,9 @@
 
 ## Smoke checklist (after deploy)
 
-1. **Cold load** — amber links; **Amber** pill active (or none set + amber visually).
-2. **Pitch** — green accent; realm switch still independent.
-3. **Chrome / Holo** — preference survives reload and browser restart.
+1. **Cold load (schedule)** — tint matches current six-hour slot; correct pill active.
+2. **Manual Pitch** — green accent; survives reload within the same six-hour window; reverts to schedule after the boundary.
+3. **Chrome / Holo** — manual preference survives browser restart.
 4. **Online ↔ Amiga** — tint unchanged.
 5. **status.php**, **ranked7.php**, **individual1.php** — player names follow tint.
+6. **Long-open tab** — scheduled tint updates within ~1s of six-hour boundary (no reload).

@@ -1,32 +1,22 @@
 <?php
 /**
  * Apply saved realm / tint before first paint.
- * Tint default is amber; sets data-k2-accent="amber" when nothing saved (amber pill shows active).
+ * Tint: six-hour schedule (visitor local time) unless user picked a pill (manual).
  * Loaded from includes/k2_head.php in <head> (after theme.css).
  */
+$k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 ?>
+<script type="text/javascript" src="js/k2-tint-schedule.js?v=<?php echo (int) @filemtime($k2DocRoot . '/js/k2-tint-schedule.js'); ?>"></script>
 <script type="text/javascript">
 (function () {
 	var root = document.documentElement;
-	var validAccents = ['amber', 'pitch', 'chrome', 'holo'];
-
-	function isValidAccent(accent) {
-		return accent && validAccents.indexOf(accent) !== -1;
-	}
+	var S = window.K2TintSchedule;
 
 	function readLocal(key) {
 		try {
 			return localStorage.getItem(key);
 		} catch (e) {
 			return null;
-		}
-	}
-
-	function writeLocal(key, value) {
-		try {
-			localStorage.setItem(key, value);
-		} catch (e) {
-			/* ignore storage errors */
 		}
 	}
 
@@ -38,36 +28,17 @@
 		}
 	}
 
-	function removeSession(key) {
-		try {
-			sessionStorage.removeItem(key);
-		} catch (e) {
-			/* ignore storage errors */
-		}
-	}
-
-	function savedAccent() {
-		var accent = readLocal('k2-accent-tune');
-		if (isValidAccent(accent)) {
-			return accent;
-		}
-
-		/* Migrate old session-only tint choices without losing the current tab. */
-		accent = readSession('k2-accent-tune');
-		if (isValidAccent(accent)) {
-			writeLocal('k2-accent-tune', accent);
-			removeSession('k2-accent-tune');
-			return accent;
-		}
-
-		return 'amber';
-	}
-
 	var realm = readLocal('k2-realm');
 	if (realm === 'online' || realm === 'amiga') {
 		root.setAttribute('data-realm', realm);
 	}
-	root.setAttribute('data-k2-accent', savedAccent());
+
+	if (S) {
+		S.applyAccentToRoot(root, S.resolveAccent());
+	} else {
+		root.setAttribute('data-k2-accent', 'amber');
+	}
+
 	/* Default hidden; sessionStorage "0" = user chose Show tint */
 	if (readSession('k2-accent-pills-hidden') !== '0') {
 		root.setAttribute('data-k2-accent-pills-hidden', '1');

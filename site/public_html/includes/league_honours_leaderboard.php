@@ -82,7 +82,7 @@ function k2_lb_league_honours_merge_filter_params(array $params): array
 function k2_lb_league_honours_gold_help(array $view): string
 {
     if ($view['cup'] === 'overall') {
-        return 'First place in any league (daily, weekly, monthly, yearly · points or activity).';
+        return 'First-place league wins you earned (daily, weekly, monthly, yearly · points or activity).';
     }
 
     $grainWord = match ($view['grain']) {
@@ -93,7 +93,7 @@ function k2_lb_league_honours_gold_help(array $view): string
     };
     $kindWord = $view['cup'] === 'activity' ? 'activity' : 'points';
 
-    return 'First place in a ' . $grainWord . ' ' . $kindWord . ' league.';
+    return 'First-place finishes you earned in a ' . $grainWord . ' ' . $kindWord . ' league.';
 }
 
 /**

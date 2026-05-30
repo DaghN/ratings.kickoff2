@@ -10,6 +10,9 @@
     var POINTS_API = 'api/status_period_points_league.php';
     var PERIODS = ['day', 'week', 'month', 'year'];
 
+    /** Set false to restore per-period listbox trigger widths (see session chat for prior px). */
+    var UNIFY_COMPETITION_LISTBOX_TRIGGER_WIDTH = true;
+
     var PANEL_ATTRS = [
         'data-league-meta-text',
         'data-league-period-label',
@@ -101,7 +104,11 @@
         }
         var now = serverNowEpoch(root);
         var isLive = endEpoch > now;
-        var text = '<span class="blue">' + escapeHtml(label) + '</span> · <span class="holo">'
+        var text = '';
+        if (label) {
+            text += 'League <span class="blue">' + escapeHtml(label) + '</span>';
+        }
+        text += ' · <span class="holo">'
             + total.toLocaleString('en-US') + '</span> ' + pluralRatedGames(total);
         if (isLive) {
             text += ' · ends ' + escapeHtml(endLabel) + ' UTC';
@@ -216,6 +223,18 @@
         };
     }
 
+    function applyCompetitionTableAnchors(root) {
+        if (typeof window.k2TableApplyAnchors !== 'function') {
+            return;
+        }
+        var slots = competitionSlots(root);
+        if (!slots.activity || !slots.points) {
+            return;
+        }
+        window.k2TableApplyAnchors(slots.activity);
+        window.k2TableApplyAnchors(slots.points);
+    }
+
     function applyPeriodCacheToSlots(root, snap) {
         var slots = competitionSlots(root);
         if (!snap || !slots.activity || !slots.points) {
@@ -225,6 +244,7 @@
         slots.points.innerHTML = snap.points;
         restorePanelAttrs(slots.points, snap.pointsAttrs);
         slots.points.setAttribute('data-competition-points-panel', '');
+        applyCompetitionTableAnchors(root);
         updateMeta(root);
     }
 
@@ -280,11 +300,27 @@
         }
     }
 
+    function closeArchiveListboxes(root) {
+        if (typeof window.K2ArchiveListbox !== 'undefined') {
+            window.K2ArchiveListbox.closeAll(root);
+        }
+    }
+
     function setArchivePickersVisible(root, period) {
+        closeArchiveListboxes(root);
+        root.setAttribute('data-active-period', period);
         var pickers = root.querySelectorAll('[data-archive-picker-period]');
         for (var i = 0; i < pickers.length; i++) {
             var picker = pickers[i];
-            picker.hidden = picker.getAttribute('data-archive-picker-period') !== period;
+            var show = picker.getAttribute('data-archive-picker-period') === period;
+            if (!show && typeof window.K2ArchiveListbox !== 'undefined') {
+                var box = picker.querySelector('[data-k2-archive-listbox]');
+                if (box) {
+                    window.K2ArchiveListbox.close(box);
+                }
+            }
+            picker.hidden = !show;
+            picker.classList.toggle('is-active', show);
         }
         if (period !== 'day') {
             closeDayFlatpickr(root);
@@ -427,14 +463,36 @@
     }
 
     function formatPeriodPickerLabel(period, key) {
+        if (period === 'day') {
+            var dayDate = parseDayKey(key);
+            if (dayDate) {
+                try {
+                    return dayDate.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                        timeZone: 'UTC',
+                    });
+                } catch (e) {
+                    return key;
+                }
+            }
+        }
         if (period === 'month') {
-            var parts = String(key).split('-');
-            if (parts.length === 2) {
-                var y = parseInt(parts[0], 10);
-                var m = parseInt(parts[1], 10) - 1;
-                var names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                if (!isNaN(y) && m >= 0 && m < 12) {
-                    return names[m] + ' ' + y;
+            var monthParts = String(key).split('-');
+            if (monthParts.length === 2) {
+                var monthY = parseInt(monthParts[0], 10);
+                var monthM = parseInt(monthParts[1], 10) - 1;
+                if (!isNaN(monthY) && monthM >= 0 && monthM < 12) {
+                    try {
+                        return new Date(Date.UTC(monthY, monthM, 1)).toLocaleDateString('en-US', {
+                            month: 'long',
+                            year: 'numeric',
+                            timeZone: 'UTC',
+                        });
+                    } catch (e) {
+                        return key;
+                    }
                 }
             }
         }
@@ -507,26 +565,160 @@
         root._syncingPickers = false;
     }
 
+    function syncDayPickerLabel(root, key) {
+        var label = root.querySelector('[data-day-picker-label]');
+        if (!label || !key) {
+            return;
+        }
+        label.textContent = formatPeriodPickerLabel('day', key);
+    }
+
+    /** Lock Daily trigger width to longest plausible day label in range. */
+    function syncDayPickerTriggerWidth(root) {
+        if (!root || typeof window.K2ArchiveListbox === 'undefined') {
+            return;
+        }
+        var wrap = root.querySelector('[data-archive-picker-period="day"]');
+        var btn = wrap ? wrap.querySelector('.k2-status-day-picker__trigger') : null;
+        var input = wrap ? wrap.querySelector('.k2-status-day-picker__value') : null;
+        if (!btn || !window.K2ArchiveListbox.syncTriggerWidthForButton) {
+            return;
+        }
+        var texts = [];
+        var min = input ? input.getAttribute('data-min') : '';
+        var max = input ? input.getAttribute('data-max') : '';
+        var anchorYear = '';
+        if (max) {
+            anchorYear = max.slice(0, 4);
+        } else if (min) {
+            anchorYear = min.slice(0, 4);
+        }
+        if (anchorYear) {
+            for (var m = 1; m <= 12; m++) {
+                var mm = m < 10 ? '0' + m : String(m);
+                texts.push(formatPeriodPickerLabel('day', anchorYear + '-' + mm + '-28'));
+            }
+        }
+        if (min) {
+            texts.push(formatPeriodPickerLabel('day', min));
+        }
+        if (max) {
+            texts.push(formatPeriodPickerLabel('day', max));
+        }
+        window.K2ArchiveListbox.syncTriggerWidthForButton(btn, texts);
+    }
+
+    function pickerTriggerInWrap(wrap, period) {
+        if (!wrap) {
+            return null;
+        }
+        if (period === 'day') {
+            return wrap.querySelector('.k2-status-day-picker__trigger');
+        }
+        var box = wrap.querySelector('[data-k2-archive-listbox]');
+        return box ? box.querySelector('.k2-archive-listbox__trigger') : null;
+    }
+
+    function measuredListboxControlPx(wrap, period) {
+        if (!wrap) {
+            return 0;
+        }
+        var btn = pickerTriggerInWrap(wrap, period);
+        var box;
+        if (period === 'day') {
+            box = wrap.querySelector('.k2-status-day-picker');
+        } else {
+            box = wrap.querySelector('[data-k2-archive-listbox]');
+        }
+        var candidates = [btn, box];
+        for (var i = 0; i < candidates.length; i++) {
+            var el = candidates[i];
+            if (!el) {
+                continue;
+            }
+            var fromStyle = parseInt(el.style.width, 10);
+            if (!isNaN(fromStyle) && fromStyle > 0) {
+                return fromStyle;
+            }
+        }
+        return btn ? btn.offsetWidth || 0 : 0;
+    }
+
+    /** One picker-row width for all period tabs so prev/next + center do not shift on tab change. */
+    function syncCompetitionPickerSlotWidth(root) {
+        if (!root || typeof window.K2ArchiveListbox === 'undefined') {
+            return;
+        }
+        var row = root.querySelector('[data-competition-picker-row]');
+        if (!row) {
+            return;
+        }
+        root._k2UnifiedPickerWidthPx = 0;
+        syncDayPickerTriggerWidth(root);
+        var before = {};
+        var max = 0;
+        for (var i = 0; i < PERIODS.length; i++) {
+            var period = PERIODS[i];
+            var wrap = root.querySelector('[data-archive-picker-period="' + period + '"]');
+            if (!wrap) {
+                continue;
+            }
+            if (period !== 'day') {
+                var listbox = wrap.querySelector('[data-k2-archive-listbox]');
+                if (listbox && window.K2ArchiveListbox.syncTriggerWidth) {
+                    window.K2ArchiveListbox.syncTriggerWidth(listbox);
+                }
+            }
+            var w = measuredListboxControlPx(wrap, period);
+            if (w > 0) {
+                before[period] = w;
+            }
+            max = Math.max(max, w);
+        }
+        if (max <= 0) {
+            return;
+        }
+        root._k2PickerWidthsBeforeUnified = before;
+        row.style.width = max + 'px';
+        row.style.minWidth = max + 'px';
+        row.setAttribute('data-picker-slot-width', String(max));
+        for (var j = 0; j < PERIODS.length; j++) {
+            var slot = root.querySelector('[data-archive-picker-period="' + PERIODS[j] + '"]');
+            if (slot) {
+                slot.style.width = '100%';
+                slot.style.minWidth = '100%';
+            }
+        }
+        if (!UNIFY_COMPETITION_LISTBOX_TRIGGER_WIDTH) {
+            return;
+        }
+        root._k2UnifiedPickerWidthPx = max;
+        if (!window.K2ArchiveListbox.setTriggerWidthPx) {
+            return;
+        }
+        for (var u = 0; u < PERIODS.length; u++) {
+            var uPeriod = PERIODS[u];
+            var uWrap = root.querySelector('[data-archive-picker-period="' + uPeriod + '"]');
+            var uBtn = pickerTriggerInWrap(uWrap, uPeriod);
+            if (uBtn) {
+                window.K2ArchiveListbox.setTriggerWidthPx(uBtn, max);
+            }
+        }
+    }
+
     function setPickerValue(root, period, key) {
         var input = archiveInput(root, period);
         if (!input || !key) {
             return;
         }
-        if (input.tagName === 'SELECT') {
-            var has = false;
-            for (var i = 0; i < input.options.length; i++) {
-                if (input.options[i].value === key) {
-                    has = true;
-                    break;
-                }
-            }
-            if (!has) {
-                var opt = document.createElement('option');
-                opt.value = key;
-                opt.textContent = formatPeriodPickerLabel(period, key);
-                input.insertBefore(opt, input.firstChild);
-            }
-            input.value = key;
+        var listbox = input.closest('[data-k2-archive-listbox]');
+        if (listbox && typeof window.K2ArchiveListbox !== 'undefined') {
+            window.K2ArchiveListbox.setValue(
+                listbox,
+                key,
+                formatPeriodPickerLabel(period, key),
+                !!root._syncingPickers
+            );
             return;
         }
         input.value = key;
@@ -535,6 +727,8 @@
             if (anchor) {
                 anchor.value = key;
             }
+            syncDayPickerLabel(root, key);
+            syncCompetitionPickerSlotWidth(root);
         }
     }
 
@@ -579,69 +773,147 @@
         ];
     }
 
+    function k2FlatpickrMonthChoices(fp) {
+        var bounds = flatpickrMonthBoundsForYear(fp, fp.currentYear);
+        var labels = flatpickrMonthLabels(fp);
+        var choices = [];
+        for (var m = 0; m < 12; m++) {
+            choices.push({
+                value: String(m),
+                label: labels[m] || String(m + 1),
+                disabled: m < bounds.minM || m > bounds.maxM,
+            });
+        }
+        return choices;
+    }
+
     function rebuildK2FlatpickrMonthSelect(fp) {
-        if (!fp || !fp._k2MonthSelect) {
+        if (!fp || !fp._k2MonthListbox || typeof window.K2ArchiveListbox === 'undefined') {
             return;
         }
-        var bounds = flatpickrMonthBoundsForYear(fp, fp.currentYear);
-        var opts = fp._k2MonthSelect.options;
-        for (var i = 0; i < opts.length; i++) {
-            opts[i].disabled = i < bounds.minM || i > bounds.maxM;
-        }
+        window.K2ArchiveListbox.rebuild(
+            fp._k2MonthListbox,
+            k2FlatpickrMonthChoices(fp),
+            String(fp.currentMonth)
+        );
     }
 
     function syncK2FlatpickrMonthSelect(fp) {
-        if (!fp || !fp._k2MonthSelect) {
+        if (!fp || !fp._k2MonthListbox || typeof window.K2ArchiveListbox === 'undefined') {
             return;
         }
         rebuildK2FlatpickrMonthSelect(fp);
-        fp._k2MonthSelect.value = String(fp.currentMonth);
+        window.K2ArchiveListbox.setValue(fp._k2MonthListbox, String(fp.currentMonth), null, true);
+        window.K2ArchiveListbox.syncTriggerWidth(fp._k2MonthListbox);
+    }
+
+    function teardownK2FlatpickrListbox(ref) {
+        if (!ref || !ref.box) {
+            return;
+        }
+        if (ref.box.parentNode) {
+            ref.box.parentNode.removeChild(ref.box);
+        }
+        ref.box = null;
+    }
+
+    function ensureK2FlatpickrListboxes(fp) {
+        if (!fp || !fp.calendarContainer || typeof window.K2ArchiveListbox === 'undefined') {
+            return;
+        }
+        if (fp._k2MonthListbox && !fp._k2MonthListbox.isConnected) {
+            teardownK2FlatpickrListbox({ box: fp._k2MonthListbox });
+            fp._k2MonthListbox = null;
+        }
+        if (fp._k2YearListbox && !fp._k2YearListbox.isConnected) {
+            teardownK2FlatpickrListbox({ box: fp._k2YearListbox });
+            fp._k2YearListbox = null;
+        }
+        setupK2FlatpickrMonthSelect(fp);
+        setupK2FlatpickrYearSelect(fp);
+        syncK2FlatpickrMonthSelect(fp);
+        syncK2FlatpickrYearSelect(fp);
+        wireFlatpickrListboxShields(fp);
+    }
+
+    function wireFlatpickrListboxShields(fp) {
+        if (!fp || typeof window.K2ArchiveListbox === 'undefined') {
+            return;
+        }
+        if (fp._k2MonthListbox) {
+            window.K2ArchiveListbox.shieldFlatpickrListbox(fp._k2MonthListbox);
+            window.K2ArchiveListbox.syncTriggerWidth(fp._k2MonthListbox);
+        }
+        if (fp._k2YearListbox) {
+            window.K2ArchiveListbox.shieldFlatpickrListbox(fp._k2YearListbox);
+            window.K2ArchiveListbox.syncTriggerWidth(fp._k2YearListbox);
+        }
     }
 
     function setupK2FlatpickrMonthSelect(fp) {
-        if (!fp || !fp.calendarContainer || fp._k2MonthSelect) {
+        if (!fp || !fp.calendarContainer) {
             return;
         }
+        if (fp._k2MonthListbox && fp._k2MonthListbox.isConnected) {
+            return;
+        }
+        if (typeof window.K2ArchiveListbox === 'undefined') {
+            return;
+        }
+        fp._k2MonthListbox = null;
         var native = fp.calendarContainer.querySelector('.flatpickr-monthDropdown-months');
-        if (!native) {
+        if (!native || !native.parentNode) {
             return;
         }
-        var select = document.createElement('select');
-        select.className = 'k2-flatpickr-month-select';
-        select.setAttribute('aria-label', 'Month');
         native.classList.add('k2-flatpickr-month-native--hidden');
         native.setAttribute('aria-hidden', 'true');
         native.tabIndex = -1;
-        native.parentNode.insertBefore(select, native);
-        var labels = flatpickrMonthLabels(fp);
-        for (var m = 0; m < 12; m++) {
-            var opt = document.createElement('option');
-            opt.value = String(m);
-            opt.textContent = labels[m] || String(m + 1);
-            select.appendChild(opt);
-        }
-        select.addEventListener('change', function () {
-            var mo = parseInt(select.value, 10);
-            if (!isNaN(mo)) {
-                fp.changeMonth(mo, false);
-            }
+        fp._k2MonthListbox = window.K2ArchiveListbox.createInline({
+            compact: true,
+            ariaLabel: 'Month',
+            choices: k2FlatpickrMonthChoices(fp),
+            value: String(fp.currentMonth),
+            parent: native.parentNode,
+            insertBefore: native,
+            onSelect: function (value) {
+                var mo = parseInt(value, 10);
+                if (!isNaN(mo)) {
+                    fp.changeMonth(mo, false);
+                }
+            },
         });
-        fp._k2MonthSelect = select;
-        rebuildK2FlatpickrMonthSelect(fp);
-        syncK2FlatpickrMonthSelect(fp);
+    }
+
+    function k2FlatpickrYearChoices(fp) {
+        var bounds = flatpickrYearBounds(fp);
+        var choices = [];
+        if (bounds.minY > bounds.maxY) {
+            return choices;
+        }
+        for (var y = bounds.maxY; y >= bounds.minY; y--) {
+            choices.push({ value: String(y), label: String(y) });
+        }
+        return choices;
     }
 
     function syncK2FlatpickrYearSelect(fp) {
-        if (!fp || !fp._k2YearSelect) {
+        if (!fp || !fp._k2YearListbox || typeof window.K2ArchiveListbox === 'undefined') {
             return;
         }
-        fp._k2YearSelect.value = String(fp.currentYear);
+        window.K2ArchiveListbox.setValue(fp._k2YearListbox, String(fp.currentYear), null, true);
     }
 
     function setupK2FlatpickrYearSelect(fp) {
-        if (!fp || !fp.calendarContainer || fp._k2YearSelect) {
+        if (!fp || !fp.calendarContainer) {
             return;
         }
+        if (fp._k2YearListbox && fp._k2YearListbox.isConnected) {
+            return;
+        }
+        if (typeof window.K2ArchiveListbox === 'undefined') {
+            return;
+        }
+        fp._k2YearListbox = null;
         var yearInput = fp.calendarContainer.querySelector('input.cur-year');
         if (!yearInput) {
             return;
@@ -650,39 +922,37 @@
         if (bounds.minY > bounds.maxY) {
             return;
         }
-        var select = document.createElement('select');
-        select.className = 'k2-flatpickr-year-select';
-        select.setAttribute('aria-label', 'Year');
-        for (var y = bounds.maxY; y >= bounds.minY; y--) {
-            var opt = document.createElement('option');
-            opt.value = String(y);
-            opt.textContent = String(y);
-            select.appendChild(opt);
-        }
-        select.value = String(fp.currentYear);
-        select.addEventListener('change', function () {
-            var yr = parseInt(select.value, 10);
-            if (!isNaN(yr)) {
-                fp.changeYear(yr);
-            }
-        });
-        /* Hide Flatpickr's year stepper (input + up/down arrows); keep wrapper in DOM for internals. */
         var numWrap = yearInput.closest('.numInputWrapper');
         if (numWrap) {
             numWrap.classList.add('k2-flatpickr-year-stepper--hidden');
             numWrap.setAttribute('aria-hidden', 'true');
         }
         var monthRow = fp.calendarContainer.querySelector('.flatpickr-current-month');
-        var insertAfter = fp._k2MonthSelect;
-        if (!insertAfter && monthRow) {
-            insertAfter = monthRow.querySelector('.flatpickr-monthDropdown-months');
+        fp._k2YearListbox = window.K2ArchiveListbox.createInline({
+            compact: true,
+            ariaLabel: 'Year',
+            choices: k2FlatpickrYearChoices(fp),
+            value: String(fp.currentYear),
+            onSelect: function (value) {
+                var yr = parseInt(value, 10);
+                if (!isNaN(yr)) {
+                    fp.changeYear(yr);
+                }
+            },
+        });
+        var after = fp._k2MonthListbox;
+        if (!after && monthRow) {
+            after = monthRow.querySelector('.flatpickr-monthDropdown-months');
         }
-        if (insertAfter && insertAfter.parentNode) {
-            insertAfter.parentNode.insertBefore(select, insertAfter.nextSibling);
+        if (after && after.parentNode) {
+            if (after.nextSibling) {
+                after.parentNode.insertBefore(fp._k2YearListbox, after.nextSibling);
+            } else {
+                after.parentNode.appendChild(fp._k2YearListbox);
+            }
         } else if (monthRow) {
-            monthRow.appendChild(select);
+            monthRow.appendChild(fp._k2YearListbox);
         }
-        fp._k2YearSelect = select;
     }
 
     function initDayFlatpickr(root, valueInput) {
@@ -691,7 +961,7 @@
         }
         var control = valueInput.closest('.server-period-activity-leaderboard__date-control');
         var anchor = control ? control.querySelector('.k2-status-day-picker__fp-anchor') : null;
-        var btn = control ? control.querySelector('.k2-status-period-competitions__calendar-btn') : null;
+        var btn = control ? control.querySelector('.k2-status-day-picker__trigger') : null;
         if (!anchor) {
             return null;
         }
@@ -711,10 +981,7 @@
                 positionElement: btn || anchor,
                 appendTo: document.body,
                 onReady: function (selectedDates, dateStr, instance) {
-                    setupK2FlatpickrMonthSelect(instance);
-                    setupK2FlatpickrYearSelect(instance);
-                    syncK2FlatpickrMonthSelect(instance);
-                    syncK2FlatpickrYearSelect(instance);
+                    ensureK2FlatpickrListboxes(instance);
                 },
                 onYearChange: function (selectedDates, dateStr, instance) {
                     syncK2FlatpickrMonthSelect(instance);
@@ -736,17 +1003,26 @@
                     applyPeriodKeys(root, 'day', keys);
                 },
                 onOpen: function (selectedDates, dateStr, instance) {
+                    if (instance) {
+                        ensureK2FlatpickrListboxes(instance);
+                        if (instance.calendarContainer && typeof window.K2ArchiveListbox !== 'undefined') {
+                            window.K2ArchiveListbox.closeFlatpickrPanels(instance.calendarContainer);
+                        }
+                    }
                     syncDayFlatpickrFromValue(root);
-                    syncK2FlatpickrMonthSelect(instance);
-                    syncK2FlatpickrYearSelect(instance);
                     if (btn) {
                         btn.classList.add('is-open');
+                        btn.setAttribute('aria-expanded', 'true');
                     }
                 },
-                onClose: function () {
+                onClose: function (selectedDates, dateStr, instance) {
                     if (btn) {
                         btn.classList.remove('is-open');
+                        btn.setAttribute('aria-expanded', 'false');
                         btn.blur();
+                    }
+                    if (instance && instance.calendarContainer && typeof window.K2ArchiveListbox !== 'undefined') {
+                        window.K2ArchiveListbox.closeFlatpickrPanels(instance.calendarContainer);
                     }
                 },
             });
@@ -755,10 +1031,7 @@
         }
         valueInput._k2Flatpickr = fp;
         if (fp) {
-            setupK2FlatpickrMonthSelect(fp);
-            setupK2FlatpickrYearSelect(fp);
-            syncK2FlatpickrMonthSelect(fp);
-            syncK2FlatpickrYearSelect(fp);
+            ensureK2FlatpickrListboxes(fp);
         }
         if (btn) {
             var calendarOpenOnPointerDown = false;
@@ -780,6 +1053,8 @@
                 if (calendarOpenOnPointerDown || fp.isOpen) {
                     fp.close();
                 } else {
+                    var competitionsRoot = valueInput.closest('[data-k2-status-period-competitions]');
+                    closeArchiveListboxes(competitionsRoot);
                     fp.open();
                 }
             });
@@ -915,7 +1190,7 @@
             ? '<th class="k2-status-table__medal" scope="col"><span class="visually-hidden">Award</span></th>'
             : '';
         var podiumClass = showMedals ? ' k2-status-table--podium' : '';
-        return '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense k2-status-period-competitions__activity-table' + podiumClass + '">'
+        return '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross k2-status-period-competitions__activity-table' + podiumClass + '" data-k2-anchor-col="2">'
             + '<thead><tr><th class="k2-status-table__num">#</th><th class="k2-status-table__player">Player</th>'
             + '<th class="k2-status-table__num">Games</th>' + medalHead + '</tr></thead></table></div>';
     }
@@ -924,8 +1199,8 @@
         if (!rows || !rows.length) {
             return '';
         }
-        var html = '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense'
-            + (showMedals ? ' k2-status-table--podium' : '') + '"><thead><tr>'
+        var html = '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross'
+            + (showMedals ? ' k2-status-table--podium' : '') + '" data-k2-anchor-col="9"><thead><tr>'
             + '<th class="k2-status-table__num">#</th><th class="k2-status-table__player">Player</th>'
             + '<th class="k2-status-table__num">Pld</th><th class="k2-status-table__num">W</th><th class="k2-status-table__num">D</th>'
             + '<th class="k2-status-table__num">L</th><th class="k2-status-table__num">GF</th><th class="k2-status-table__num">GA</th>'
@@ -949,7 +1224,7 @@
             html += '<td class="k2-status-table__num">' + row.gf + '</td>';
             html += '<td class="k2-status-table__num">' + row.ga + '</td>';
             html += '<td class="k2-status-table__num">' + (gd > 0 ? '+' + gd : String(gd)) + '</td>';
-            html += '<td class="k2-status-table__num"><span class="blue">' + row.pts + '</span></td>';
+            html += '<td class="k2-status-table__num">' + row.pts + '</td>';
             if (showMedals) {
                 html += '<td class="k2-status-table__medal">' + medalHtml(root, rank) + '</td>';
             }
@@ -985,6 +1260,9 @@
             return;
         }
         table.insertAdjacentHTML('beforeend', buildActivityTbody(entries, showMedals, root));
+        if (typeof window.k2TableApplyAnchors === 'function') {
+            window.k2TableApplyAnchors(table);
+        }
     }
 
     function injectPoints(slot, data, showMedals, root) {
@@ -999,6 +1277,10 @@
         }
         slot.innerHTML = buildPointsTbody(data.rows, showMedals, root);
         slot.setAttribute('data-competition-points-panel', '');
+        var pointsTable = slot.querySelector('table[data-k2-anchor-col]');
+        if (pointsTable && typeof window.k2TableApplyAnchors === 'function') {
+            window.k2TableApplyAnchors(pointsTable);
+        }
     }
 
     function renderPeriodSnapshot(root, entries, pointsBody, showMedals) {
@@ -1203,6 +1485,7 @@
     }
 
     function navigatePeriod(root, period) {
+        closeArchiveListboxes(root);
         var keys = root._periodKeys;
         applyPeriodKeys(root, period, keys);
     }
@@ -1247,6 +1530,7 @@
         controls._k2ControlsLayoutBound = true;
         var sync = function () {
             syncCompetitionControlsLayout(controls);
+            syncCompetitionPickerSlotWidth(root);
         };
         if (typeof ResizeObserver !== 'undefined') {
             var ro = new ResizeObserver(sync);
@@ -1264,6 +1548,10 @@
             root.setAttribute('data-browser-loaded-epoch', String(Math.floor(Date.now() / 1000)));
         }
         bindCompetitionControlsLayout(root);
+        if (typeof window.K2ArchiveListbox !== 'undefined') {
+            window.K2ArchiveListbox.formatLabel = formatPeriodPickerLabel;
+            window.K2ArchiveListbox.init(root);
+        }
         seedInitialPeriodCache(root);
         root._periodKeys = clampKeysToFirstRated(root, currentKeys(root));
         root._syncingPickers = true;
@@ -1297,8 +1585,9 @@
                     return;
                 }
                 applyPeriodKeys(root, changedPeriod, keys);
-                if (this.tagName === 'SELECT') {
-                    this.blur();
+                var listbox = this.closest('[data-k2-archive-listbox]');
+                if (listbox && typeof window.K2ArchiveListbox !== 'undefined') {
+                    window.K2ArchiveListbox.close(listbox);
                 }
             });
         }
@@ -1312,6 +1601,7 @@
             initDayFlatpickr(root, dayValueInputs[d]);
         }
         root._k2CompetitionsBootstrapping = false;
+        syncCompetitionPickerSlotWidth(root);
         syncCompetitionControlsLayout(root.querySelector('.k2-status-period-competitions__controls'));
     }
 

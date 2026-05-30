@@ -13,6 +13,7 @@
 				<span class="k2-wordmark__main">Kick Off 2</span>
 			</a>
 		</h1>
+		<!-- Hidden via theme.css until Amiga realm ships; markup + realm-switch.js kept for later -->
 		<div class="k2-site-header__realm" aria-label="Site realm">
 			<span class="k2-site-header__realm-label">Realm</span>
 			<nav class="k2-realm-switch" aria-label="Realm">

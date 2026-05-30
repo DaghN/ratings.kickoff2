@@ -1,6 +1,6 @@
 # Add one milestone after v0 (playbook)
 
-**First use:** `play_streak_100` — **100 days** (May 2026). Use this checklist whenever the catalog grows after the 110-key rebuild shipped.
+**First use:** `play_streak_100` — **100 days of bliss** (May 2026). Use this checklist whenever the catalog grows after the 110-key rebuild shipped.
 
 ---
 
@@ -14,7 +14,31 @@ Garden intro and profile hero **`{n}/{catalog}`** use `k2_milestone_catalog_tota
 
 **Yes.** The milestone garden reads **`milestone_definitions.rule_short`** (and `display_name`, tier, token) via `k2_milestone_garden_by_tier()` → card `rule_short` in `player_milestones_helpers.php`. It is **not** hard-coded in PHP.
 
-Optional long copy: `description` column (usually NULL). Tweak `rule_short` in seed and reload catalog.
+Optional long copy: `description` column (usually NULL).
+
+**Bulk copy pass (display_name / rule_short only):** edit `data/milestone_catalog_copy_patches.json`, then:
+
+- Local: `python scripts/oneoff/apply_milestone_catalog_copy_patch.py` (updates seed + DB; no TRUNCATE)
+- Staging: WinSCP patch JSON + `patch_milestone_catalog_copy.php` — see § Staging copy patch below
+
+Full `load_milestone_definitions.py` still safe after seed edits (re-imports entire catalog from seed).
+
+---
+
+## Staging copy patch (no catalog reload)
+
+| WinSCP local | Remote |
+|--------------|--------|
+| `data/milestone_catalog_copy_patches.json` | `public_html/staging-data/milestone_catalog_copy_patches.json` |
+| `site/public_html/staging-scripts/patch_milestone_catalog_copy.php` | `public_html/staging-scripts/patch_milestone_catalog_copy.php` |
+
+Steve (from `public_html`):
+
+```bash
+php staging-scripts/patch_milestone_catalog_copy.php
+```
+
+Expect spot-check: `play_streak_100` → **100 days of bliss**.
 
 ---
 
@@ -78,7 +102,7 @@ SELECT display_name, rule_short FROM milestone_definitions WHERE milestone_key =
 | Check | Expected |
 |-------|----------|
 | `COUNT(*)` | **111** |
-| `play_streak_100` | `display_name` **100 days**; `rule_short` **100 consecutive UTC days with a rated game** |
+| `play_streak_100` | `display_name` **100 days of bliss**; `rule_short` **100 consecutive UTC days with a rated game** |
 
 Unlock rows for this key still **0** on May 2026 import (max personal day streak 87). Run `run_milestone_play_streak_100_unlock.php` when you want the splice applied without full REP-008.
 

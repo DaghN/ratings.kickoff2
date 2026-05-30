@@ -5,7 +5,7 @@
   "definitions": [
     {
       "milestone_key": "play_streak_100",
-      "display_name": "100 days",
+      "display_name": "100 days of bliss",
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 4,
@@ -108,7 +108,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 5,
-      "rule_short": "Yearly · activity · winner",
+      "rule_short": "Yearly activity winner",
       "rule_probe": "player_league_award (league_kind='activity' AND period_type='year' AND is_winner=1)",
       "unlock_veterans": 5,
       "pct_veterans": "4.7%"
@@ -119,7 +119,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 5,
-      "rule_short": "Yearly · points · winner",
+      "rule_short": "Yearly points winner",
       "rule_probe": "player_league_award (league_kind='points' AND period_type='year' AND is_winner=1)",
       "unlock_veterans": 5,
       "pct_veterans": "4.7%"
@@ -130,7 +130,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 4,
-      "rule_short": "Rated game on every calendar day of at least one month",
+      "rule_short": "Rated game on every day of a calendar month",
       "rule_probe": "chronological full month days",
       "unlock_veterans": 5,
       "pct_veterans": "4.7%"
@@ -152,7 +152,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 5,
-      "rule_short": "Peak rating ≥2300",
+      "rule_short": "Rating ≥2300",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 6,
       "pct_veterans": "5.6%"
@@ -185,7 +185,7 @@
       "tier_band": "legendary",
       "chart_token": "holo",
       "name_score": 5,
-      "rule_short": "Won 10+ scored and 9 conceded",
+      "rule_short": "10+ scored and 9 conceded",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 7,
       "pct_veterans": "6.5%"
@@ -229,7 +229,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 5,
-      "rule_short": "Yearly · points · medal",
+      "rule_short": "Yearly points medal",
       "rule_probe": "player_league_award (league_kind='points' AND period_type='year' AND finish_rank<=3)",
       "unlock_veterans": 12,
       "pct_veterans": "11.2%"
@@ -240,7 +240,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 5,
-      "rule_short": "Monthly · points · winner",
+      "rule_short": "Monthly points winner",
       "rule_probe": "player_league_award (league_kind='points' AND period_type='month' AND is_winner=1)",
       "unlock_veterans": 13,
       "pct_veterans": "12.1%"
@@ -262,7 +262,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 4,
-      "rule_short": "Yearly · activity · medal",
+      "rule_short": "Yearly activity medal",
       "rule_probe": "player_league_award (league_kind='activity' AND period_type='year' AND finish_rank<=3)",
       "unlock_veterans": 15,
       "pct_veterans": "14.0%"
@@ -339,7 +339,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 5,
-      "rule_short": "Weekly · points · winner",
+      "rule_short": "Weekly points winner",
       "rule_probe": "player_league_award (league_kind='points' AND period_type='week' AND is_winner=1)",
       "unlock_veterans": 24,
       "pct_veterans": "22.4%"
@@ -372,7 +372,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 4,
-      "rule_short": "≥2000",
+      "rule_short": "Rating ≥2000",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 26,
       "pct_veterans": "24.3%"
@@ -394,7 +394,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 4,
-      "rule_short": "Monthly · points · medal",
+      "rule_short": "Monthly points medal",
       "rule_probe": "player_league_award (league_kind='points' AND period_type='month' AND finish_rank<=3)",
       "unlock_veterans": 27,
       "pct_veterans": "25.2%"
@@ -405,7 +405,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 4,
-      "rule_short": "12+ in one game",
+      "rule_short": "Scored 12+ in one game",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 31,
       "pct_veterans": "29.0%"
@@ -438,7 +438,7 @@
       "tier_band": "accomplished",
       "chart_token": "amber",
       "name_score": 5,
-      "rule_short": "Weekly · activity · winner",
+      "rule_short": "Weekly activity winner",
       "rule_probe": "player_league_award (league_kind='activity' AND period_type='week' AND is_winner=1)",
       "unlock_veterans": 33,
       "pct_veterans": "30.8%"
@@ -471,7 +471,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Daily · activity · winner",
+      "rule_short": "Daily activity winner",
       "rule_probe": "player_league_award (league_kind='activity' AND period_type='day' AND is_winner=1)",
       "unlock_veterans": 84,
       "pct_veterans": "78.5%"
@@ -702,7 +702,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Draw ≥5–5",
+      "rule_short": "5-5 or higher draw",
       "rule_probe": "ratedresults 5-5+ draw",
       "unlock_veterans": 60,
       "pct_veterans": "56.1%"
@@ -735,7 +735,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Weekly · activity · medal",
+      "rule_short": "Weekly activity medal",
       "rule_probe": "player_league_award (league_kind='activity' AND period_type='week' AND finish_rank<=3)",
       "unlock_veterans": 54,
       "pct_veterans": "50.5%"
@@ -845,7 +845,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Weekly · points · medal",
+      "rule_short": "Weekly points medal",
       "rule_probe": "player_league_award (league_kind='points' AND period_type='week' AND finish_rank<=3)",
       "unlock_veterans": 44,
       "pct_veterans": "41.1%"
@@ -856,7 +856,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 5,
-      "rule_short": "10+ in one game",
+      "rule_short": "Scored 10+ in one game",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 44,
       "pct_veterans": "41.1%"
@@ -922,7 +922,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "≥1800",
+      "rule_short": "Rating ≥1800",
       "rule_probe": "playertable PeakRating",
       "unlock_veterans": 38,
       "pct_veterans": "35.5%"
@@ -944,7 +944,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Draw, 14+ total goals",
+      "rule_short": "7-7 or higher draw",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 37,
       "pct_veterans": "34.6%"
@@ -977,7 +977,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Monthly · activity · medal",
+      "rule_short": "Monthly activity medal",
       "rule_probe": "player_league_award (league_kind='activity' AND period_type='month' AND finish_rank<=3)",
       "unlock_veterans": 35,
       "pct_veterans": "32.7%"
@@ -1010,7 +1010,7 @@
       "tier_band": "aspirational",
       "chart_token": "pitch",
       "name_score": 5,
-      "rule_short": "Daily · points · medal",
+      "rule_short": "Daily points medal",
       "rule_probe": "player_league_award (league_kind='points' AND period_type='day' AND finish_rank<=3)",
       "unlock_veterans": 94,
       "pct_veterans": "87.9%"
@@ -1087,7 +1087,7 @@
       "tier_band": "aspirational",
       "chart_token": "pitch",
       "name_score": 4,
-      "rule_short": "Daily · activity · medal",
+      "rule_short": "Daily activity medal",
       "rule_probe": "player_league_award (league_kind='activity' AND period_type='day' AND finish_rank<=3)",
       "unlock_veterans": 114,
       "pct_veterans": "107%+"
@@ -1098,7 +1098,7 @@
       "tier_band": "aspirational",
       "chart_token": "pitch",
       "name_score": 5,
-      "rule_short": "First time conceded 10+",
+      "rule_short": "Conceded 10+ goals",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 121,
       "pct_veterans": "113%+"
@@ -1175,7 +1175,7 @@
       "tier_band": "aspirational",
       "chart_token": "pitch",
       "name_score": 4,
-      "rule_short": "3+ in one game",
+      "rule_short": "3+ goals in one game",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 156,
       "pct_veterans": "146%+"

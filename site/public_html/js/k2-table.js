@@ -7,6 +7,8 @@
 	var HELPED_CLASS = 'k2-table-helped';
 	var SORTED_ASC_CLASS = 'k2-table-sorted-asc';
 	var SORTED_DESC_CLASS = 'k2-table-sorted-desc';
+	var ANCHOR_CELL_CLASS = 'k2-table-anchor-cell';
+	var SORTED_COL_CLASS = 'k2-table-col-sorted';
 	var PENDING_CLASS = 'ranked-table-pending';
 	var TOOLTIP_BOUND_ATTR = 'data-k2-tooltip-bound';
 	var TOOLTIP_ID = 'k2-table-tooltip';
@@ -241,6 +243,90 @@
 		}
 	}
 
+	function getAnchorColIndex(table) {
+		var index = parseInt(table.getAttribute('data-k2-anchor-col'), 10);
+		return isNaN(index) ? -1 : index;
+	}
+
+	function clearColumnBodyClass(table, className) {
+		var bodies = table.tBodies || [];
+		var i;
+		var rows;
+		var j;
+		var row;
+		var k;
+
+		for (i = 0; i < bodies.length; i++) {
+			rows = bodies[i].rows;
+			for (j = 0; j < rows.length; j++) {
+				row = rows[j];
+				if (!row.cells) {
+					continue;
+				}
+				for (k = 0; k < row.cells.length; k++) {
+					removeClass(row.cells[k], className);
+				}
+			}
+		}
+	}
+
+	function applyAnchorColumn(table) {
+		var index = getAnchorColIndex(table);
+		var bodies;
+		var i;
+		var rows;
+		var j;
+		var row;
+		var k;
+
+		clearColumnBodyClass(table, ANCHOR_CELL_CLASS);
+		if (index < 0) {
+			return;
+		}
+
+		bodies = table.tBodies || [];
+		for (i = 0; i < bodies.length; i++) {
+			rows = bodies[i].rows;
+			for (j = 0; j < rows.length; j++) {
+				row = rows[j];
+				if (!row.cells || !row.cells[index]) {
+					continue;
+				}
+				addClass(row.cells[index], ANCHOR_CELL_CLASS);
+			}
+		}
+	}
+
+	function refreshSortedColumnEmphasis(table) {
+		var anchorIndex = getAnchorColIndex(table);
+		var sortIndex = table._k2SortIndex;
+		var bodies;
+		var i;
+		var rows;
+		var j;
+		var row;
+
+		clearColumnBodyClass(table, SORTED_COL_CLASS);
+		if (sortIndex === undefined || sortIndex === null || sortIndex < 0) {
+			return;
+		}
+		if (anchorIndex >= 0 && sortIndex === anchorIndex) {
+			return;
+		}
+
+		bodies = table.tBodies || [];
+		for (i = 0; i < bodies.length; i++) {
+			rows = bodies[i].rows;
+			for (j = 0; j < rows.length; j++) {
+				row = rows[j];
+				if (!row.cells || !row.cells[sortIndex]) {
+					continue;
+				}
+				addClass(row.cells[sortIndex], SORTED_COL_CLASS);
+			}
+		}
+	}
+
 	function setSortState(table, header, direction) {
 		table._k2SortIndex = header.cellIndex;
 		table._k2SortDirection = direction;
@@ -248,6 +334,7 @@
 		clearSortState(table);
 		addClass(header, direction === 'desc' ? SORTED_DESC_CLASS : SORTED_ASC_CLASS);
 		header.setAttribute('aria-sort', direction === 'desc' ? 'descending' : 'ascending');
+		refreshSortedColumnEmphasis(table);
 	}
 
 	function applyDefaultSortState(table) {
@@ -262,33 +349,101 @@
 		setSortState(table, headers[index], direction);
 	}
 
-	function sortTable(table, header) {
-		var columnIndex = header.cellIndex;
-		var sortType = header.getAttribute('data-k2-sort') || 'text';
-		var isSameColumn = table._k2SortIndex === columnIndex;
-		var direction = isSameColumn && table._k2SortDirection === 'desc' ? 'asc' : 'desc';
-		var tbody = table.tBodies && table.tBodies[0];
+	function syncSortToUrl(columnIndex, direction, table) {
+		var url;
+
+		if (!table || !hasClass(table, 'ranked-pages-table')) {
+			return;
+		}
+
+		if (!window.history || !window.history.replaceState || !window.URLSearchParams) {
+			refreshLbFilterToggleHrefs();
+			return;
+		}
+
+		url = new URL(window.location.href);
+		url.searchParams.set('k2_sort', String(columnIndex));
+		url.searchParams.set('k2_dir', direction === 'asc' ? 'asc' : 'desc');
+		window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+		refreshLbFilterToggleHrefs();
+	}
+
+	function refreshLbFilterToggleHrefs() {
+		var filters = document.querySelectorAll ? document.querySelectorAll('.k2-lb-filter') : [];
+		var current = new URL(window.location.href);
+		var i;
+		var link;
+		var target;
+
+		if (!window.URLSearchParams) {
+			return;
+		}
+
+		for (i = 0; i < filters.length; i++) {
+			link = filters[i];
+			if (!link.href) {
+				continue;
+			}
+			target = new URL(link.href, window.location.href);
+			if (current.searchParams.has('k2_sort')) {
+				target.searchParams.set('k2_sort', current.searchParams.get('k2_sort'));
+				target.searchParams.set('k2_dir', current.searchParams.get('k2_dir') || 'desc');
+			} else {
+				target.searchParams.delete('k2_sort');
+				target.searchParams.delete('k2_dir');
+			}
+			link.href = target.pathname + target.search;
+		}
+	}
+
+	function getUrlSortParams() {
+		var params;
+		var sortRaw;
+		var index;
+		var dirRaw;
+
+		if (!window.URLSearchParams) {
+			return null;
+		}
+
+		params = new URLSearchParams(window.location.search);
+		if (!params.has('k2_sort')) {
+			return null;
+		}
+
+		sortRaw = params.get('k2_sort');
+		index = parseInt(sortRaw, 10);
+		if (isNaN(index)) {
+			return null;
+		}
+
+		dirRaw = params.get('k2_dir');
+		return {
+			index: index,
+			direction: dirRaw === 'asc' ? 'asc' : 'desc'
+		};
+	}
+
+	function sortTableByIndex(table, columnIndex, direction) {
+		var headers = table.tHead ? table.tHead.getElementsByTagName('th') : [];
+		var header = headers[columnIndex];
+		var sortType;
+		var tbody;
 		var rows;
 		var mapped;
 		var i;
 
+		if (!header || !header.getAttribute('data-k2-sort')) {
+			return false;
+		}
+
+		sortType = header.getAttribute('data-k2-sort') || 'text';
+		tbody = table.tBodies && table.tBodies[0];
 		if (!tbody) {
-			return;
+			return false;
 		}
 
 		rows = Array.prototype.slice.call(tbody.rows);
-
-		if (isSameColumn) {
-			rows.reverse();
-			for (i = 0; i < rows.length; i++) {
-				tbody.appendChild(rows[i]);
-			}
-
-			setSortState(table, header, direction);
-			refreshRankColumn(table);
-			return;
-		}
-
 		mapped = rows.map(function (row, index) {
 			return {
 				row: row,
@@ -311,9 +466,35 @@
 
 		table._k2SortIndex = columnIndex;
 		table._k2SortDirection = direction;
-
 		setSortState(table, header, direction);
 		refreshRankColumn(table);
+		syncSortToUrl(columnIndex, direction, table);
+
+		return true;
+	}
+
+	function applyUrlSortState(table) {
+		var urlSort = getUrlSortParams();
+
+		if (!urlSort || !hasClass(table, 'ranked-pages-table')) {
+			return false;
+		}
+
+		return sortTableByIndex(table, urlSort.index, urlSort.direction);
+	}
+
+	function sortTable(table, header) {
+		var columnIndex = header.cellIndex;
+		var isSameColumn = table._k2SortIndex === columnIndex;
+		var direction;
+
+		if (isSameColumn) {
+			direction = table._k2SortDirection === 'desc' ? 'asc' : 'desc';
+		} else {
+			direction = 'desc';
+		}
+
+		sortTableByIndex(table, columnIndex, direction);
 	}
 
 	function initHeaderTooltip(header) {
@@ -367,15 +548,33 @@
 			});
 		}
 
-		applyDefaultSortState(table);
+		applyAnchorColumn(table);
+		if (!applyUrlSortState(table)) {
+			applyDefaultSortState(table);
+		}
+		refreshSortedColumnEmphasis(table);
 		refreshRankColumn(table);
+		if (hasClass(table, 'ranked-pages-table')) {
+			refreshLbFilterToggleHrefs();
+		}
 		removeClass(table, PENDING_CLASS);
+	}
+
+	function initAnchorTables() {
+		var tables = document.querySelectorAll ? document.querySelectorAll('table[data-k2-anchor-col]') : [];
+		var i;
+
+		for (i = 0; i < tables.length; i++) {
+			applyAnchorColumn(tables[i]);
+		}
 	}
 
 	function init() {
 		var tables = document.querySelectorAll ? document.querySelectorAll(TABLE_SELECTOR) : [];
 		var helpHeaders = document.querySelectorAll ? document.querySelectorAll(HELP_HEADER_SELECTOR) : [];
 		var i;
+
+		initAnchorTables();
 
 		for (i = 0; i < tables.length; i++) {
 			initTable(tables[i]);
@@ -390,6 +589,26 @@
 			window.addEventListener('scroll', repositionTooltip, true);
 		}
 	}
+
+	window.k2TableApplyAnchors = function (root) {
+		var tables;
+		var i;
+
+		if (!root) {
+			tables = document.querySelectorAll ? document.querySelectorAll('table[data-k2-anchor-col]') : [];
+		} else if (root.tagName === 'TABLE') {
+			applyAnchorColumn(root);
+			return;
+		} else if (root.querySelectorAll) {
+			tables = root.querySelectorAll('table[data-k2-anchor-col]');
+		} else {
+			return;
+		}
+
+		for (i = 0; i < tables.length; i++) {
+			applyAnchorColumn(tables[i]);
+		}
+	};
 
 	onReady(init);
 })();

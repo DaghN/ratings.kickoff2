@@ -18,6 +18,7 @@ $k2PeakAllPanels = ['all-time', 'longevity'];
 if (!function_exists('k2_peak_period_leaderboard_entries')) {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/peak_month_leaderboard_query.php';
 }
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 
 $k2PeakPeriodOwnConnection = false;
 if (!isset($con) || !($con instanceof mysqli) || !@$con->ping()) {
@@ -87,7 +88,7 @@ function k2_render_peak_period_panel(string $period, array $panel, bool $sortabl
         ? "Date of the player's first rated game."
         : "The player's busiest " . $period . ' by rated games.';
     ?>
-	<section class="server-peak-period-leaderboard-block server-peak-period-leaderboard-block--<?php echo htmlspecialchars($period, ENT_QUOTES, 'UTF-8'); ?>">
+	<section id="k2-peak-period-<?php echo htmlspecialchars($period, ENT_QUOTES, 'UTF-8'); ?>" class="server-peak-period-leaderboard-block server-peak-period-leaderboard-block--<?php echo htmlspecialchars($period, ENT_QUOTES, 'UTF-8'); ?>">
 		<h3 class="k2-panel-heading server-peak-period-leaderboard-block__title"><?php echo htmlspecialchars($meta['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
 <?php if (!empty($queryError)) { ?>
 		<p class="server-peak-period-leaderboard-status">Could not load this leaderboard.</p>
@@ -95,13 +96,13 @@ function k2_render_peak_period_panel(string $period, array $panel, bool $sortabl
 		<p class="server-peak-period-leaderboard-status">No rated games to rank yet.</p>
 <?php } else { ?>
 		<div class="k2-table-wrap">
-			<table class="k2-table k2-table--numeric-default"<?php echo $sortable ? ' data-k2-table="sortable" data-k2-default-sort="3" data-k2-default-direction="desc"' : ''; ?>>
+			<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-anchor-col="3"<?php echo $sortable ? ' data-k2-table="sortable" data-k2-default-sort="3" data-k2-default-direction="desc"' : ''; ?>>
 				<thead>
 					<tr>
-						<th<?php echo $sortable ? ' data-k2-sort="number"' : ''; ?> data-k2-help="Rank within this activity table.">#</th>
+						<th<?php echo $sortable ? ' data-k2-sort="number"' : ''; ?>>#</th>
 						<th class="k2-table-cell--left"<?php echo $sortable ? ' data-k2-sort="text"' : ''; ?>>Player</th>
 						<th class="k2-table-cell--left"<?php echo $sortable ? ' data-k2-sort="text"' : ''; ?> data-k2-help="<?php echo htmlspecialchars($periodHelp, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($meta['period_label'], ENT_QUOTES, 'UTF-8'); ?></th>
-						<th<?php echo $sortable ? ' data-k2-sort="number"' : ' class="k2-table-sorted-desc" aria-sort="descending"'; ?> data-k2-help="<?php echo $period === 'all-time' ? 'Total rated games played.' : 'Rated games played in that peak period.'; ?>">Games</th>
+						<th<?php echo $sortable ? ' data-k2-sort="number"' : ' class="k2-table-sorted-desc" aria-sort="descending"'; ?> data-k2-help="<?php echo $period === 'all-time' ? htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8') : 'Rated games you played in that peak period.'; ?>">Games</th>
 					</tr>
 				</thead>
 				<tbody class="black">
@@ -110,7 +111,7 @@ function k2_render_peak_period_panel(string $period, array $panel, bool $sortabl
 						<td><?php echo (int) $entry['rank']; ?></td>
 						<td class="k2-table-cell--left"><a href="individual1.php?id=<?php echo (int) $entry['player_id']; ?>"><?php echo htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8'); ?></a></td>
 						<td class="k2-table-cell--left" data-k2-sort-value="<?php echo htmlspecialchars((string) $entry['period_key'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(k2_format_peak_period($period, $entry['period_key']), ENT_QUOTES, 'UTF-8'); ?></td>
-						<td><?php if ((int) $entry['games'] === 0) { echo '0'; } else { echo "<span class='blue'>", (int) $entry['games'], '</span>'; } ?></td>
+						<td><?php echo (int) $entry['games']; ?></td>
 					</tr>
 <?php } ?>
 				</tbody>
@@ -128,7 +129,7 @@ function k2_render_peak_longevity_panel(array $panel): void
     $entries = $panel['entries'];
     $queryError = $panel['error'];
     ?>
-	<section class="server-peak-period-leaderboard-block server-peak-period-leaderboard-block--longevity">
+	<section id="k2-peak-period-longevity" class="server-peak-period-leaderboard-block server-peak-period-leaderboard-block--longevity">
 		<h3 class="k2-panel-heading server-peak-period-leaderboard-block__title">Longevity</h3>
 <?php if (!empty($queryError)) { ?>
 		<p class="server-peak-period-leaderboard-status">Could not load this leaderboard.</p>
@@ -136,14 +137,14 @@ function k2_render_peak_longevity_panel(array $panel): void
 		<p class="server-peak-period-leaderboard-status">No rated games to rank yet.</p>
 <?php } else { ?>
 		<div class="k2-table-wrap">
-			<table class="k2-table k2-table--numeric-default" data-k2-table="sortable" data-k2-default-sort="4" data-k2-default-direction="desc">
+			<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-anchor-col="4" data-k2-default-sort="4" data-k2-default-direction="desc">
 				<thead>
 					<tr>
-						<th data-k2-sort="number" data-k2-help="Rank within this activity table.">#</th>
+						<th data-k2-sort="number">#</th>
 						<th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-						<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Date of the player's first rated game.">First game</th>
-						<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Date of the player's latest rated game.">Last game</th>
-						<th data-k2-sort="number" data-k2-help="Days between the player's first and latest rated games.">Days</th>
+						<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_first_rated_game(), ENT_QUOTES, 'UTF-8'); ?>">First game</th>
+						<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_last_rated_game(), ENT_QUOTES, 'UTF-8'); ?>">Last game</th>
+						<th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_rated_span_days(), ENT_QUOTES, 'UTF-8'); ?>">Days</th>
 					</tr>
 				</thead>
 				<tbody class="black">
@@ -153,7 +154,7 @@ function k2_render_peak_longevity_panel(array $panel): void
 						<td class="k2-table-cell--left"><a href="individual1.php?id=<?php echo (int) $entry['player_id']; ?>"><?php echo htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8'); ?></a></td>
 						<td class="k2-table-cell--left" data-k2-sort-value="<?php echo htmlspecialchars((string) $entry['first_game'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(k2_format_peak_period('all-time', $entry['first_game']), ENT_QUOTES, 'UTF-8'); ?></td>
 						<td class="k2-table-cell--left" data-k2-sort-value="<?php echo htmlspecialchars((string) $entry['last_game'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(k2_format_peak_period('all-time', $entry['last_game']), ENT_QUOTES, 'UTF-8'); ?></td>
-						<td><span class="blue"><?php echo (int) $entry['days']; ?></span></td>
+						<td><?php echo (int) $entry['days']; ?></td>
 					</tr>
 <?php } ?>
 				</tbody>

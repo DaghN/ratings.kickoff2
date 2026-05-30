@@ -19,11 +19,20 @@
 	--k2-border-subtle: rgba(255, 255, 255, 0.07);
 	--k2-border-strong: rgba(255, 255, 255, 0.1);
 
-	/* Chart palette — six inks (May 2026); hub tints = pitch/chrome/holo/amber + chart-only teal + magenta */
-	--k2-chart-pitch: #9ccc65;
-	--k2-chart-chrome: #64b5f6;
-	--k2-chart-amber: #ffb74d;
-	--k2-chart-holo: #b388ff;
+	/* Foundational hues — single hex source (hub tint, milestone glow, chart aliases) */
+	--k2-pure-amber: #ffb74d;
+	--k2-pure-pitch: #9ccc65;
+	--k2-pure-chrome: #64b5f6;
+	--k2-pure-holo: #b388ff;
+
+	/* Amber chart ink only — soft mix (fixed hue; not tint-following) */
+	--k2-amber-soft: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
+
+	/* Chart role aliases (Chart.js / heatmaps); milestone cards use --k2-pure-* directly */
+	--k2-chart-pitch: var(--k2-pure-pitch);
+	--k2-chart-chrome: var(--k2-pure-chrome);
+	--k2-chart-holo: var(--k2-pure-holo);
+	--k2-chart-amber: var(--k2-amber-soft);
 	--k2-chart-teal: #4db6ac;
 	--k2-chart-magenta: #ff4081;
 	--k2-chart-bar-fill-alpha: 0.75;
@@ -51,7 +60,7 @@
 
 /* UI accent (tint) — default amber; hub pills override via data-k2-accent (docs/tint-vs-realm.md) */
 html {
-	--k2-accent: #ffb74d;
+	--k2-accent: var(--k2-pure-amber);
 	--k2-accent-muted: rgba(255, 183, 77, 0.14);
 	--k2-accent-glow: rgba(255, 183, 77, 0.35);
 	--k2-segment-active-text: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
@@ -63,36 +72,43 @@ html {
 	/* Player names, IDs, profile stat highlights — accent-forward, not full chrome */
 	--k2-link-star: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary));
 	--k2-link-star-hover: color-mix(in srgb, var(--k2-accent) 94%, var(--k2-text-primary));
+	/* Status league anchors: cross-tint ink (not --k2-accent); amber/pitch → chrome, chrome/holo → pitch */
+	--k2-league-anchor-pure: var(--k2-pure-chrome);
+	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
 	--k2-table-positive: color-mix(in srgb, var(--k2-stat-positive-base) 78%, var(--k2-text-primary));
 	--k2-table-negative: color-mix(in srgb, var(--k2-stat-negative-base) 78%, var(--k2-text-primary));
 }
 
 html[data-k2-accent="amber"] {
-	--k2-accent: #ffb74d;
+	--k2-accent: var(--k2-pure-amber);
 	--k2-accent-muted: rgba(255, 183, 77, 0.14);
 	--k2-accent-glow: rgba(255, 183, 77, 0.35);
 }
 
 html[data-k2-accent="pitch"] {
-	--k2-accent: #9ccc65;
+	--k2-accent: var(--k2-pure-pitch);
 	--k2-accent-muted: rgba(156, 204, 101, 0.14);
 	--k2-accent-glow: rgba(156, 204, 101, 0.35);
 }
 
 html[data-k2-accent="chrome"] {
-	--k2-accent: #64b5f6;
+	--k2-accent: var(--k2-pure-chrome);
 	--k2-accent-muted: rgba(100, 181, 246, 0.14);
 	--k2-accent-glow: rgba(100, 181, 246, 0.38);
 	/* Cyan positive stats clash with chrome links — use pitch hue instead */
-	--k2-stat-positive-base: var(--k2-chart-pitch);
+	--k2-stat-positive-base: var(--k2-pure-pitch);
+	--k2-league-anchor-pure: var(--k2-pure-pitch);
+	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
 }
 
 html[data-k2-accent="holo"] {
-	--k2-accent: #b388ff;
+	--k2-accent: var(--k2-pure-holo);
 	--k2-accent-muted: rgba(179, 136, 255, 0.14);
 	--k2-accent-glow: rgba(179, 136, 255, 0.45);
 	/* Cyan positives clash with violet accent — use pitch hue (same rule as chrome) */
-	--k2-stat-positive-base: var(--k2-chart-pitch);
+	--k2-stat-positive-base: var(--k2-pure-pitch);
+	--k2-league-anchor-pure: var(--k2-pure-pitch);
+	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
 }
 
 html {
@@ -200,6 +216,31 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 	border-left: 1px solid var(--k2-border-subtle);
 }
 
+/* Production header: realm switch kept in site_header.php until Amiga ships */
+.k2-site-header .k2-site-header__realm {
+	display: none;
+}
+
+.k2-site-header__utility-link {
+	flex: 0 0 auto;
+	padding: 6px 12px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	color: var(--k2-text-primary);
+	font-size: 13px;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site a.k2-site-header__utility-link:hover,
+body.k2-site a.k2-site-header__utility-link:focus-visible {
+	border-color: var(--k2-accent);
+	color: var(--k2-accent);
+	text-decoration: none;
+}
+
 .k2-site-header__search,
 .k2-realm-lab-search {
 	margin-left: auto;
@@ -244,7 +285,6 @@ body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
 }
 
 @media (max-width: 760px) {
-	.k2-site-header__realm,
 	.k2-realm-lab-inline-realm {
 		width: 100%;
 		padding-left: 0;
@@ -862,6 +902,10 @@ body.k2-site .server-peak-period-leaderboard-block {
 	min-width: 0;
 }
 
+body.k2-site .server-peak-period-leaderboard-block[id] {
+	scroll-margin-top: 140px;
+}
+
 body.k2-site .server-peak-period-leaderboard-block__title.k2-panel-heading {
 	margin-bottom: 8px;
 	font-size: 13px;
@@ -1098,6 +1142,24 @@ body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
 }
 
+/* Hub leaderboard wings: uniform padding (legacy per-th pad-left-* widened columns when labels changed). */
+body.k2-site .k2-table.ranked-pages-table thead th,
+body.k2-site .k2-table.ranked-pages-table tbody td {
+	padding-left: 8px;
+	padding-right: 8px;
+	width: auto;
+}
+
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xs,
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-sm,
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-md,
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-lg,
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xl,
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xxl,
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xxxl {
+	padding-left: 8px;
+}
+
 html.ranked-js body.k2-site .k2-table.ranked-pages-table.ranked-table-pending {
 	visibility: hidden;
 }
@@ -1190,6 +1252,34 @@ body.k2-site .k2-table tbody td {
 	white-space: nowrap;
 }
 
+/* Wing anchor column (data-k2-anchor-col) — permanent link-star emphasis */
+body.k2-site .k2-table tbody td.k2-table-anchor-cell,
+body.k2-site .k2-table tbody td.k2-table-anchor-cell .blue,
+body.k2-site .k2-table tbody td.k2-table-anchor-cell .red {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
+/* Active sort column when it is not the anchor */
+body.k2-site .k2-table tbody td.k2-table-col-sorted {
+	color: var(--k2-segment-active-text);
+	font-weight: 600;
+}
+
+/* Calm leaderboards: neutral body; active sort (non-anchor) = weight only, not accent */
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-table-col-sorted {
+	color: var(--k2-text-primary);
+	font-weight: 600;
+}
+
+/* Status league tables: anchor = cross-tint link-star weight, not current --k2-accent */
+body.k2-site .k2-table.k2-table--league-anchor-cross tbody td.k2-table-anchor-cell,
+body.k2-site .k2-table.k2-table--league-anchor-cross tbody td.k2-table-anchor-cell .blue,
+body.k2-site .k2-table.k2-table--league-anchor-cross tbody td.k2-table-anchor-cell .red {
+	color: var(--k2-league-anchor-ink);
+	font-weight: 600;
+}
+
 body.k2-site .k2-table--numeric-default tbody td {
 	text-align: right;
 }
@@ -1215,6 +1305,8 @@ body.k2-site .k2-table .k2-table-cell--pad-x-md {
 	padding-right: 16.5px;
 }
 
+/* Extra header padding for legacy short labels (e.g. GF, DD). Avoid on long leaderboard
+   headers — applies to th only in PHP, but still widens the whole column. */
 body.k2-site .k2-table .k2-table-cell--pad-left-xs {
 	padding-left: 10.5px;
 }
@@ -1603,10 +1695,10 @@ body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-sep 
 	color: var(--k2-text-primary);
 }
 
-.k2-player-hero__milestones-tier--pitch { color: var(--k2-chart-pitch); }
-.k2-player-hero__milestones-tier--chrome { color: var(--k2-chart-chrome); }
-.k2-player-hero__milestones-tier--amber { color: var(--k2-chart-amber); }
-.k2-player-hero__milestones-tier--holo { color: var(--k2-chart-holo); }
+.k2-player-hero__milestones-tier--pitch { color: var(--k2-pure-pitch); }
+.k2-player-hero__milestones-tier--chrome { color: var(--k2-pure-chrome); }
+.k2-player-hero__milestones-tier--amber { color: var(--k2-pure-amber); }
+.k2-player-hero__milestones-tier--holo { color: var(--k2-pure-holo); }
 
 /* Rank + rating glow: stylesheets/player-hero-rank.css (via k2_head.php) */
 
@@ -1699,6 +1791,244 @@ body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-sep 
 .k2-hub-panel__hint {
 	margin-top: 12px;
 	font-size: 12px;
+}
+
+/* ── Play & setup (join.php) ── */
+.k2-join-page {
+	--k2-join-read-width: 42rem;
+	max-width: var(--k2-max-width);
+	margin: 0 auto;
+	padding: 8px 0 32px;
+}
+
+.k2-join-page__hero,
+.k2-join-page__card,
+.k2-join-page__details,
+.k2-join-page__video-wrap {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: var(--k2-join-read-width);
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.k2-join-page__hero {
+	margin-bottom: 24px;
+}
+
+.k2-join-page__title {
+	margin: 0 0 12px;
+	font-family: var(--k2-font-display);
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.15;
+	color: var(--k2-text-primary);
+}
+
+.k2-join-page__lede {
+	margin: 0 0 18px;
+	font-size: 15px;
+	line-height: 1.55;
+	color: var(--k2-text-primary);
+}
+
+.k2-join-page__actions,
+.k2-join-page__footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 12px;
+}
+
+.k2-join-page__footer {
+	margin-top: 8px;
+	padding-top: 8px;
+}
+
+.k2-join-page__cta {
+	display: inline-flex;
+	align-items: center;
+	padding: 8px 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	font-size: 13px;
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--k2-text-primary);
+	background: var(--k2-bg-surface);
+}
+
+.k2-join-page__cta--primary {
+	border-color: var(--k2-accent);
+	color: var(--k2-accent);
+}
+
+body.k2-site a.k2-join-page__cta:hover,
+body.k2-site a.k2-join-page__cta:focus-visible {
+	border-color: var(--k2-accent);
+	color: var(--k2-accent);
+	text-decoration: none;
+}
+
+.k2-join-page__grid {
+	display: grid;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+	.k2-join-page__grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.k2-join-page__card {
+	margin-bottom: 16px;
+}
+
+.k2-join-page__prose {
+	margin: 0 0 12px;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--k2-text-primary);
+}
+
+.k2-join-page__prose:last-child {
+	margin-bottom: 0;
+}
+
+.k2-join-page__prose--muted {
+	color: var(--k2-text-muted);
+	font-size: 13px;
+}
+
+.k2-join-page__steps {
+	margin: 0;
+	padding-left: 1.25rem;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--k2-text-primary);
+}
+
+.k2-join-page__steps li {
+	margin-bottom: 12px;
+}
+
+.k2-join-page__steps li:last-child {
+	margin-bottom: 0;
+}
+
+.k2-join-page__link-list {
+	margin: 0;
+	padding-left: 1.25rem;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.k2-join-page__link-list li {
+	margin-bottom: 8px;
+}
+
+.k2-join-page__link-note {
+	color: var(--k2-text-muted);
+}
+
+.k2-join-page__details {
+	margin-bottom: 16px;
+}
+
+.k2-join-page__summary {
+	cursor: pointer;
+	list-style: none;
+}
+
+.k2-join-page__summary::-webkit-details-marker {
+	display: none;
+}
+
+.k2-join-page__summary::before {
+	content: "▸ ";
+	color: var(--k2-accent);
+}
+
+.k2-join-page__details[open] .k2-join-page__summary::before {
+	content: "▾ ";
+}
+
+.k2-join-page__details-body {
+	margin-top: 12px;
+	padding-top: 4px;
+	border-top: 1px solid var(--k2-border-subtle);
+}
+
+.k2-join-page__faq {
+	margin: 0;
+}
+
+.k2-join-page__faq-item {
+	margin-bottom: 14px;
+}
+
+.k2-join-page__faq-item:last-child {
+	margin-bottom: 0;
+}
+
+.k2-join-page__faq dt {
+	margin: 0 0 4px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-join-page__faq dd {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--k2-text-muted);
+}
+
+.k2-join-page__signoff {
+	margin-top: 16px;
+	font-weight: 600;
+}
+
+.k2-join-page__eval-banner {
+	max-width: 720px;
+	margin: 0 auto 12px;
+	padding: 8px 12px;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+	border: 1px dashed var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+.k2-join-page__steps .k2-join-page__link-list {
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.k2-join-page__video-wrap {
+	margin-bottom: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.k2-join-page__video {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	background: #000;
+}
+
+.k2-join-page__video-iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
 }
 
 /* ── Status room (hub v1.2) ── */
@@ -2191,15 +2521,42 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	flex: 0 1 auto;
 	display: flex;
 	justify-content: center;
+	align-items: center;
 	min-width: 0;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+/* JS sets data-picker-slot-width — same width for Daily/Weekly/Monthly/Year tabs */
+body.k2-site .k2-status-period-competitions__picker-row[data-picker-slot-width] {
+	flex: 0 0 auto;
+}
+
+body.k2-site .k2-status-period-competitions__picker-row[data-picker-slot-width] > .k2-status-period-competitions__archive-picker {
+	width: 100%;
+	min-width: 0;
+	justify-content: center;
+}
+
+body.k2-site .k2-status-period-competitions__picker-row[data-picker-slot-width] .k2-archive-listbox,
+body.k2-site .k2-status-period-competitions__picker-row[data-picker-slot-width] .k2-status-day-picker {
+	margin-inline: 0;
 }
 
 .k2-status-period-competitions__archive-picker {
-	display: flex;
-	flex-wrap: wrap;
+	display: none;
+	flex-wrap: nowrap;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: center;
 	gap: 4px 6px;
+}
+
+/* Show the picker for the active Leagues tab (works even if JS fails to toggle [hidden]) */
+body.k2-site [data-k2-status-period-competitions][data-active-period="day"] [data-archive-picker-period="day"],
+body.k2-site [data-k2-status-period-competitions][data-active-period="week"] [data-archive-picker-period="week"],
+body.k2-site [data-k2-status-period-competitions][data-active-period="month"] [data-archive-picker-period="month"],
+body.k2-site [data-k2-status-period-competitions][data-active-period="year"] [data-archive-picker-period="year"] {
+	display: flex !important;
 }
 
 .k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__archive-picker {
@@ -2221,23 +2578,203 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	margin: 0;
 }
 
-.k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input {
-	max-width: min(100%, 220px);
+.k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input,
+.k2-status-period-competitions__archive-picker .k2-archive-listbox__trigger {
 	font-size: 12px;
 	padding: 4px 8px;
-	color: var(--k2-text-primary);
 	background-color: var(--k2-bg-surface);
 }
 
-body.k2-site .k2-status-period-competitions__archive-picker select.server-period-activity-leaderboard__input {
-	appearance: none;
-	-webkit-appearance: none;
-	padding-right: 24px;
+/* KOOL listbox — shared (Leagues archive + Flatpickr month/year) */
+body.k2-site .k2-archive-listbox {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+body.k2-site .k2-archive-listbox__trigger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	box-sizing: border-box;
+	width: 100%;
+	padding: 4px 24px 4px 8px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.35;
+	text-align: left;
+	cursor: pointer;
+	color: var(--k2-text-secondary);
 	background-color: var(--k2-bg-surface);
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23a0a8b0' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: right 8px center;
 	background-size: 10px 6px;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+body.k2-site .k2-archive-listbox__measure-probe {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	visibility: hidden;
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+body.k2-site .k2-archive-listbox__label {
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+body.k2-site .k2-archive-listbox__chevron {
+	display: none;
+}
+
+body.k2-site .k2-archive-listbox__trigger:hover:not(:disabled) {
+	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
+	background-color: color-mix(in srgb, var(--k2-bg-surface) 88%, rgba(255, 255, 255, 0.06));
+	color: color-mix(in srgb, var(--k2-text-secondary) 82%, var(--k2-text-primary));
+}
+
+/* .is-open — no extra chrome; open panel carries state (prevents border flash on close). */
+
+body.k2-site .k2-archive-listbox__trigger:focus-visible {
+	border-color: var(--k2-segment-active-ring);
+	color: color-mix(in srgb, var(--k2-text-secondary) 45%, var(--k2-text-primary));
+	background-color: color-mix(in srgb, var(--k2-bg-surface) 82%, var(--k2-accent-muted));
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+	outline: none;
+}
+
+body.k2-site .k2-archive-listbox__trigger:focus {
+	outline: none;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+body.k2-site .k2-archive-listbox__trigger:focus:not(:focus-visible),
+body.k2-site .k2-archive-listbox__trigger:focus:hover:not(:focus-visible) {
+	border-color: var(--k2-border-subtle);
+	color: var(--k2-text-secondary);
+	background-color: var(--k2-bg-surface);
+}
+
+body.k2-site .k2-archive-listbox__panel {
+	position: absolute;
+	left: 0;
+	right: 0;
+	z-index: 80;
+	margin: 2px 0 0;
+	padding: 0;
+	list-style: none;
+	min-width: 100%;
+	width: max-content;
+	max-width: min(22em, 92vw);
+	max-height: 14em;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+	box-shadow: var(--k2-shadow-surface);
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.35;
+	color: var(--k2-text-secondary);
+	scrollbar-color: color-mix(in srgb, var(--k2-text-muted) 45%, transparent) var(--k2-bg-elevated);
+	scrollbar-width: thin;
+}
+
+body.k2-site .k2-archive-listbox__panel:focus {
+	outline: none;
+	border-color: var(--k2-border-subtle);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar {
+	width: 8px;
+}
+
+body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-track {
+	background: var(--k2-bg-elevated);
+}
+
+body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--k2-text-muted) 50%, var(--k2-bg-elevated));
+	border-radius: 4px;
+}
+
+body.k2-site .k2-archive-listbox__option {
+	margin: 0;
+	padding: 5px 10px;
+	cursor: pointer;
+	white-space: nowrap;
+	font-weight: 500;
+	color: var(--k2-text-secondary);
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .k2-archive-listbox__option:last-child {
+	border-bottom: none;
+}
+
+body.k2-site .k2-archive-listbox__option:hover {
+	outline: none;
+	background-color: var(--k2-accent-muted);
+	color: color-mix(in srgb, var(--k2-text-secondary) 70%, var(--k2-text-primary));
+}
+
+body.k2-site .k2-archive-listbox__option:focus {
+	outline: none;
+}
+
+body.k2-site .k2-archive-listbox__option:focus-visible {
+	background-color: var(--k2-accent-muted);
+	color: color-mix(in srgb, var(--k2-text-secondary) 70%, var(--k2-text-primary));
+}
+
+body.k2-site .k2-archive-listbox__option.is-selected,
+body.k2-site .k2-archive-listbox__option[aria-selected="true"] {
+	background-color: color-mix(in srgb, var(--k2-accent-muted) 65%, transparent);
+	color: color-mix(in srgb, var(--k2-text-secondary) 35%, var(--k2-text-primary));
+	font-weight: 500;
+}
+
+body.k2-site .k2-archive-listbox__option.is-selected:hover,
+body.k2-site .k2-archive-listbox__option[aria-selected="true"]:hover {
+	background-color: var(--k2-accent-muted);
+}
+
+body.k2-site .k2-archive-listbox__option.is-disabled,
+body.k2-site .k2-archive-listbox__option[aria-disabled="true"] {
+	opacity: 0.38;
+	cursor: not-allowed;
+}
+
+body.k2-site .k2-archive-listbox__option.is-disabled:hover,
+body.k2-site .k2-archive-listbox__option[aria-disabled="true"]:hover {
+	background-color: transparent;
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-status-period-competitions__archive-picker .k2-archive-listbox {
+	max-width: min(100%, 280px);
+}
+
+body.k2-site .k2-status-period-competitions__archive-picker[hidden]:not(.is-active) {
+	display: none !important;
+}
+
+body.k2-site .k2-status-period-competitions__archive-picker .k2-archive-listbox__trigger,
+body.k2-site .k2-status-period-competitions__archive-picker .k2-archive-listbox {
+	box-sizing: border-box;
 }
 
 body.k2-site .k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input:focus {
@@ -2255,68 +2792,14 @@ body.k2-site .k2-status-period-competitions__archive-picker .server-period-activ
 	box-shadow: none;
 }
 
-body.k2-site .k2-status-period-competitions .server-period-activity-leaderboard__calendar-button.k2-status-period-competitions__calendar-btn {
-	width: 32px;
-	height: 32px;
-	min-height: 32px;
-	padding: 0;
-	border-color: var(--k2-border-subtle);
-	background: rgba(0, 0, 0, 0.28);
-	color: var(--k2-text-secondary);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+body.k2-site .k2-status-period-competitions__archive-picker .k2-archive-listbox--day {
+	display: inline-block;
+	max-width: min(100%, 220px);
+	vertical-align: middle;
 }
 
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:hover:not(:disabled) {
-	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
-	background: rgba(255, 255, 255, 0.05);
-	color: var(--k2-text-primary);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:active:not(:disabled) {
-	background: rgba(0, 0, 0, 0.38);
-	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.22);
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus {
-	outline: none;
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus-visible {
-	border-color: var(--k2-segment-active-ring);
-	color: var(--k2-segment-active-text);
-	background: rgba(255, 255, 255, 0.05);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-	outline: none;
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn.is-open {
-	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
-	color: var(--k2-text-primary);
-	background: rgba(255, 255, 255, 0.06);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus:not(:focus-visible) {
-	border-color: var(--k2-border-subtle);
-	color: var(--k2-text-secondary);
-	background: rgba(0, 0, 0, 0.28);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-svg {
-	display: block;
-	flex: 0 0 auto;
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-dots {
-	opacity: 0.42;
-}
-
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:hover .k2-status-period-competitions__calendar-dots,
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn:focus-visible .k2-status-period-competitions__calendar-dots,
-body.k2-site .k2-status-period-competitions .k2-status-period-competitions__calendar-btn.is-open .k2-status-period-competitions__calendar-dots {
-	opacity: 0.58;
+body.k2-site .k2-status-period-competitions__archive-picker .k2-archive-listbox--day .k2-archive-listbox__trigger {
+	width: 100%;
 }
 
 /* Flatpickr — Leagues day picker (vendored flatpickr.min.css + KOOL overrides) */
@@ -2333,6 +2816,7 @@ body.k2-site .flatpickr-calendar {
 		0 12px 32px rgba(0, 0, 0, 0.45),
 		inset 0 1px 0 rgba(255, 255, 255, 0.05);
 	color-scheme: dark;
+	overflow: visible;
 }
 
 body.k2-site .flatpickr-calendar:not(.open) {
@@ -2342,6 +2826,38 @@ body.k2-site .flatpickr-calendar:not(.open) {
 body.k2-site .flatpickr-calendar::before,
 body.k2-site .flatpickr-calendar::after {
 	display: none;
+}
+
+body.k2-site .flatpickr-months {
+	position: relative;
+	z-index: 30;
+	overflow: visible;
+	pointer-events: auto;
+}
+
+body.k2-site .flatpickr-months .k2-archive-listbox--compact,
+body.k2-site .flatpickr-months .k2-archive-listbox--compact .k2-archive-listbox__trigger,
+body.k2-site .flatpickr-months .k2-archive-listbox--compact .k2-archive-listbox__panel {
+	pointer-events: auto;
+}
+
+/* Day grid can overlap the header in Flatpickr layout — do not let it steal header clicks */
+body.k2-site .flatpickr-innerContainer {
+	position: relative;
+	z-index: 1;
+	pointer-events: none;
+}
+
+body.k2-site .flatpickr-innerContainer .flatpickr-rContainer,
+body.k2-site .flatpickr-innerContainer .flatpickr-weekdays,
+body.k2-site .flatpickr-innerContainer .flatpickr-days,
+body.k2-site .flatpickr-innerContainer .flatpickr-day {
+	pointer-events: auto;
+}
+
+body.k2-site .flatpickr-months .flatpickr-month,
+body.k2-site .flatpickr-current-month {
+	overflow: visible;
 }
 
 body.k2-site .flatpickr-months .flatpickr-month,
@@ -2358,48 +2874,39 @@ body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months.k2-flatpic
 	display: none !important;
 }
 
-body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months,
-body.k2-site .flatpickr-current-month .k2-flatpickr-month-select,
-body.k2-site .flatpickr-current-month .k2-flatpickr-year-select {
+body.k2-site .flatpickr-current-month {
+	position: relative;
+	z-index: 31;
+}
+
+body.k2-site .flatpickr-current-month .k2-archive-listbox--compact {
+	position: relative;
+	z-index: 25;
 	margin: 0 2px;
+}
+
+body.k2-site .flatpickr-current-month .k2-archive-listbox--compact .k2-archive-listbox__trigger {
 	padding: 3px 24px 3px 8px;
-	font-family: inherit;
 	font-size: 13px;
-	font-weight: 600;
 	line-height: 1.3;
-	color: var(--k2-text-primary);
-	background-color: var(--k2-bg-surface);
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	color-scheme: dark;
-	cursor: pointer;
-	appearance: none;
-	-webkit-appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23a0a8b0' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
 	background-position: right 7px center;
-	background-size: 10px 6px;
+	box-sizing: border-box;
 }
 
-body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
-body.k2-site .flatpickr-current-month .k2-flatpickr-month-select:hover,
-body.k2-site .flatpickr-current-month .k2-flatpickr-year-select:hover {
-	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
-	background-color: var(--k2-bg-hover);
+body.k2-site .flatpickr-current-month .k2-archive-listbox--compact {
+	box-sizing: border-box;
 }
 
-body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months:focus,
-body.k2-site .flatpickr-current-month .k2-flatpickr-month-select:focus,
-body.k2-site .flatpickr-current-month .k2-flatpickr-year-select:focus {
-	outline: none;
-	border-color: var(--k2-segment-active-ring);
-}
-
-body.k2-site .flatpickr-current-month .flatpickr-monthDropdown-months option,
-body.k2-site .flatpickr-current-month .k2-flatpickr-month-select option,
-body.k2-site .flatpickr-current-month .k2-flatpickr-year-select option {
-	background-color: var(--k2-bg-elevated);
-	color: var(--k2-text-primary);
+body.k2-site .flatpickr-current-month .k2-archive-listbox--compact .k2-archive-listbox__panel {
+	left: 0;
+	right: auto;
+	min-width: 100%;
+	width: max-content;
+	max-width: min(16em, 92vw);
+	max-height: 11em;
+	font-size: 13px;
+	z-index: 30;
+	pointer-events: auto;
 }
 
 body.k2-site .flatpickr-weekdays {
@@ -2494,22 +3001,6 @@ body.k2-site .flatpickr-months .flatpickr-next-month svg {
 .k2-status-period-competitions__views {
 	margin-top: 0;
 	padding-top: 0;
-}
-
-.k2-status-day-picker {
-	display: inline-flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px;
-}
-
-.k2-status-day-picker__label {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--k2-text-secondary);
-	margin: 0;
-	text-transform: none;
-	letter-spacing: normal;
 }
 
 .k2-status-period-competitions .k2-status-day-picker__fp-anchor {
@@ -2891,10 +3382,10 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 	background: var(--k2-accent-swatch, var(--k2-text-muted));
 }
 
-.k2-accent-pills__btn[data-k2-accent="amber"] { --k2-accent-swatch: #ffb74d; }
-.k2-accent-pills__btn[data-k2-accent="pitch"] { --k2-accent-swatch: #9ccc65; }
-.k2-accent-pills__btn[data-k2-accent="chrome"] { --k2-accent-swatch: #64b5f6; }
-.k2-accent-pills__btn[data-k2-accent="holo"] { --k2-accent-swatch: #b388ff; }
+.k2-accent-pills__btn[data-k2-accent="amber"] { --k2-accent-swatch: var(--k2-pure-amber); }
+.k2-accent-pills__btn[data-k2-accent="pitch"] { --k2-accent-swatch: var(--k2-pure-pitch); }
+.k2-accent-pills__btn[data-k2-accent="chrome"] { --k2-accent-swatch: var(--k2-pure-chrome); }
+.k2-accent-pills__btn[data-k2-accent="holo"] { --k2-accent-swatch: var(--k2-pure-holo); }
 
 .k2-accent-pills-toggle {
 	margin: 0;

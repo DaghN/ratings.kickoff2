@@ -29,7 +29,7 @@ Use **neon noir statistics** as the shorthand:
 
 **Realm** chooses the ladder universe and data: `online` now, `amiga` later.
 
-**Tint** chooses UI paint: `amber` default, plus `pitch`, `chrome`, `holo`. Tint is stored on `html[data-k2-accent]`, persisted in `localStorage`, and must not imply realm.
+**Tint** chooses UI paint: `amber`, `pitch`, `chrome`, `holo`. Without a manual pill pick, tint follows a **six-hour rotation** in the visitor’s local time (amber → pitch → chrome → holo); see [`tint-vs-realm.md`](tint-vs-realm.md). A manual pill choice applies for the **current six-hour window only**, then the schedule resumes. Tint is stored on `html[data-k2-accent]` and must not imply realm.
 
 ```html
 <html data-realm="online" data-k2-accent="amber">
@@ -46,30 +46,124 @@ Rules:
 
 ## Color System
 
-Canonical chart tokens live in `stylesheets/theme.css` and are exposed through `js/chart-theme.js`.
+**Source of truth:** `site/public_html/stylesheets/theme.css` (`:root` + `html[data-k2-accent="…"]`). Chart.js reads the same variables via `js/chart-theme.js` (`K2ChartTheme.pitch()`, `.amber()`, `.pureAmber()`, etc.).
 
-| Token | Hex | Role |
-|-------|-----|------|
-| `pitch` | `#9ccc65` | Games, profile subject, wins |
-| `chrome` | `#64b5f6` | Active players, projections, opponent focus |
-| `holo` | `#b388ff` | Cumulative established line |
-| `amber` | `#ffb74d` | Default UI accent, goals |
-| `teal` | `#4db6ac` | Analyst / distribution ink |
-| `magenta` | `#ff4081` | Milestones, new established, rare events |
+**Tint vs chart:** The four hub tint pills share **hex** with `--k2-pure-*`, but **roles differ**. Tint (`--k2-accent`) follows the picker. Chart amber is **softened** and **does not** follow the picker. Milestone card glow always uses **pure** tier hues. See also [`docs/tint-vs-realm.md`](tint-vs-realm.md).
 
-Text/link hierarchy:
+### Layers (pointer chain)
+
+Only **`--k2-pure-*`** (and chart-only `teal` / `magenta`) hold literal hex. Everything else is `var(...)` or `color-mix(...)`.
+
+```text
+--k2-pure-amber | pitch | chrome | holo     ← only hex for these four
+        │
+        ├─► --k2-amber-soft (85% pure-amber + 15% text-primary)
+        │         └─► --k2-chart-amber ──► T.amber()  (goals, play-texture, …)
+        │
+        ├─► --k2-chart-pitch|chrome|holo ──► var(--k2-pure-*) ──► T.pitch() etc.
+        │
+        ├─► --k2-ms-accent on garden card ──► var(--k2-pure-*)  (per tier token)
+        │
+        └─► --k2-accent (active tint pill) ──► var(--k2-pure-*)
+                  │
+                  ├─► --k2-link-star (85% accent + 15% primary)  → links, player names
+                  ├─► --k2-segment-active-text (72% accent + 28% secondary) → hub/LB nav active tab
+                  └─► pure fill: avatar initial, LB filter dot when on, calendar selected day
+```
+
+```mermaid
+flowchart TD
+  pure["--k2-pure-* (hex)"]
+  soft["--k2-amber-soft"]
+  chartA["--k2-chart-amber"]
+  chartOther["--k2-chart-pitch|chrome|holo"]
+  accent["--k2-accent (active pill)"]
+  linkStar["--k2-link-star"]
+  segment["--k2-segment-active-text"]
+  garden["--k2-ms-accent (cards)"]
+
+  pure --> soft --> chartA
+  pure --> chartOther
+  pure --> garden
+  pure --> accent
+  accent --> linkStar
+  accent --> segment
+```
+
+### Foundational hues (`--k2-pure-*`)
+
+| Token | Hex |
+|-------|-----|
+| `--k2-pure-amber` | `#ffb74d` |
+| `--k2-pure-pitch` | `#9ccc65` |
+| `--k2-pure-chrome` | `#64b5f6` |
+| `--k2-pure-holo` | `#b388ff` |
+
+Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `--k2-chart-magenta` `#ff4081`.
+
+### Derived mixes
+
+| Token | Recipe | Follows tint picker? |
+|-------|--------|----------------------|
+| `--k2-amber-soft` | 85% `--k2-pure-amber` + 15% `--k2-text-primary` | **No** (always goals-orange family) |
+| `--k2-link-star` | 85% `--k2-accent` + 15% `--k2-text-primary` | **Yes** |
+| `--k2-link-star-hover` | 94% accent + 15% primary | **Yes** |
+| `--k2-link` | 72% accent + 28% `--k2-text-secondary` | **Yes** |
+| `--k2-segment-active-text` | 72% accent + 28% secondary | **Yes** |
+| `--k2-segment-active-ring` | 55% accent + transparent | **Yes** |
+
+**When tint is Amber:** `--k2-accent` = `--k2-pure-amber`, so **link-star and amber-soft are the same colour** (same 85/15 recipe and same base). They **diverge** when tint is Pitch, Chrome, or Holo (links follow tint; amber charts stay amber-soft).
+
+### When to use which token
+
+| Surface | Token / class | Why |
+|---------|----------------|-----|
+| Milestone garden unlocked title, border, glow | `--k2-ms-accent` → `--k2-pure-*` | Full saturation; must not use `--k2-chart-amber` (soft) |
+| Hero / ranked10 tier label (pitch/chrome/amber/holo) | `--k2-pure-*` | Tier identity, not chart ink |
+| Amber chart series (goals/month, play-texture amber, …) | `T.amber()` → `--k2-chart-amber` → `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
+| Pitch / chrome / holo chart series | `T.pitch()` etc. → `--k2-chart-*` → `--k2-pure-*` | Full palette ink (no extra softening yet) |
+| Player name, profile link, Elo highlight span | `a.k2-link-star` / `.k2-link-star` | Tint-following soft accent |
+| Active hub tab, LB wing tab, player sub-nav | `--k2-segment-active-text` | Softer than link-star (72% + secondary) |
+| Active tint pill **label** | same 72/28 as segment (via swatch in mix) | Matches nav |
+| Active tint pill **dot** | `--k2-accent-swatch` = pure | Colour chip shows true hue |
+| Include inactive / provisional filter **on** dot | `--k2-accent` (pure) | Small control; full accent + glow |
+| Avatar ring, calendar day fill | `--k2-accent` (pure) | Structure, not prose |
+| Win / league meta / ticker counts | `.blue` / `.holo` | **Stat palette**, not `--k2-pure-*` or tint |
+| Body copy, career stat value | `--k2-text-primary` | Neutral |
+
+### Chart role aliases (`--k2-chart-*`)
+
+| Alias | Points to |
+|-------|-----------|
+| `--k2-chart-pitch` | `var(--k2-pure-pitch)` |
+| `--k2-chart-chrome` | `var(--k2-pure-chrome)` |
+| `--k2-chart-holo` | `var(--k2-pure-holo)` |
+| `--k2-chart-amber` | `var(--k2-amber-soft)` |
+
+### Do not
+
+- Point milestone cards or tier glow at `--k2-chart-*` (chart amber is softened).
+- Use `T.linkStar()` for amber **chart** series if the chart must stay goals-orange when tint is Chrome (use `T.amber()`).
+- Duplicate hex for the four hub hues outside `:root` / `html[data-k2-accent]` swatch lines.
+- Assume “chart amber” and “tint amber” are one variable; they are related hues with different tokens and mixes.
+
+### Text/link hierarchy (unchanged classes)
 
 | Layer | Rule |
 |-------|------|
 | Body/table data | `--k2-text-primary`, normal weight |
 | Muted helpers/headings | `--k2-text-muted` |
-| Player names/game IDs/profile highlights | `a.k2-link-star` — `--k2-link-star`, weight 600; hover/focus underline + `--k2-link-star-hover` |
+| Player names / dense table links | `a.k2-link-star`, weight 600; hover/focus underline |
 | Prose/footer links | `--k2-link` |
-| Positive/negative table stats | `.blue` / `.red` mapped to softened table stat tokens |
-| Rating / paired numeric highlights | `.k2-link-star` (same token + weight 600 as player names in dense tables) |
-| Structure and rings | `--k2-accent` at full strength |
+| Positive/negative table stats | `.blue` / `.red` on profile/games rows, Status ticker/meta, record **dates** (`(New!)` / `(Legendary)` on `server2.php`); **not** on calm leaderboard/records value cells (`k2-table--calm-stats`) |
+| Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` → `--k2-link-star`, weight 600; permanent. Peak on Rating wing; Elo anchor on Results + Status active board only. |
+| Status **league** anchors (Pts / Games) | `k2-table--league-anchor-cross` → `--k2-league-anchor-ink` (85% pure + primary, same recipe as link-star): **chrome** when tint is amber or pitch; **pitch** when tint is chrome or holo — not `--k2-accent`. |
+| Calm LB active sort (not anchor) | `k2-table--calm-stats` + `k2-table-col-sorted` → `--k2-text-primary`, weight 600 (tunable; avoids faux link-star) |
+| Other sortable tables (non-calm) | `k2-table-col-sorted` → `--k2-segment-active-text`, weight 600 |
+| **Listbox / archive picker** (`.k2-archive-listbox`) | Closed: `--k2-text-secondary`, weight 500; hover/open/selected: subtle `color-mix` toward primary (not full primary); selection via background — **not** `--k2-segment-active-text`; trigger width locked to longest option label (JS measure probe); Leagues picker row uses max width across day/week/month/year so tab change does not shift step nav |
+| **Leagues meta ticker** | Plain **League** + `<span class="blue">` period label; end dates use full month names (`F j` UTC) |
 
-Do not add one-off hex colors in page CSS when a token exists.
+Do not add one-off hex in page CSS when a token exists.
 
 ---
 
@@ -90,8 +184,8 @@ Never use pixel/bitmap fonts for readable data.
 
 Current shared chrome:
 
-- `includes/site_header.php` for wordmark, player search, realm switcher.
-- `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / Hall of Fame (`server3.php` match log off-hub).
+- `includes/site_header.php` for wordmark, player search, realm switcher (**hidden** via `theme.css` until Amiga ships; markup retained).
+- `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / Hall of Fame / Play & Setup (`server3.php` match log off-hub).
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.
 - `includes/k2_head.php` for shared CSS and early theme boot.
@@ -126,6 +220,7 @@ Microcopy:
 
 - Tooltips are supplemental: use them for abbreviations, formulas, unfamiliar rules, and hidden context.
 - Do not add tooltip text that only repeats a visible label; sortable headers can rely on the shared `Click to sort.` affordance when no extra explanation is useful.
+- Leaderboard hub wings (`ranked1`–`5`, `7`, `10`, league honours, ranked8 longevity): shared strings in `site/public_html/includes/lb_column_help.php`. Column help uses **you** = the player in that row (not the site visitor); see `docs/k2-table-and-games-plan.md`.
 - Avoid native `title` attributes for visible-label help; use visible labels, `aria-label`, or the shared K2 tooltip behavior as appropriate.
 
 ---

@@ -2,8 +2,8 @@
  * Chart.js colours aligned with stylesheets/theme.css tokens.
  * Load before chart init scripts on themed pages.
  *
- * Canonical chart palette (six): pitch, chrome, holo, amber, teal, magenta.
- * Profile compare uses profileCompare* / opponentFocus* role helpers.
+ * Primitives: --k2-pure-* (hex). Chart roles: --k2-chart-* (amber → --k2-amber-soft).
+ * Links: linkStar() follows active --k2-accent (tint). Profile compare uses pitch/chrome helpers.
  */
 (function (global) {
     'use strict';
@@ -64,7 +64,7 @@
         return 'rgb(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ')';
     }
 
-    /** Mirrors theme.css: color-mix(in srgb, accent 85%, text-primary 15%). */
+    /** Mirrors theme.css: color-mix(in srgb, accent 85%, text-primary 15%). Tint-following. */
     function linkStarMixRgb() {
         var accent = parseColorToRgb(cssResolvedColorVar('--k2-accent', '#ffb74d'))
             || parseColorToRgb(cssVar('--k2-accent', '#ffb74d'));
@@ -78,6 +78,30 @@
             g: Math.round(accent.g * 0.85 + primary.g * 0.15),
             b: Math.round(accent.b * 0.85 + primary.b * 0.15)
         };
+    }
+
+    /** Mirrors theme.css: color-mix(in srgb, pure-amber 85%, text-primary 15%). Fixed hue. */
+    function amberSoftMixRgb() {
+        var amber = parseColorToRgb(cssResolvedColorVar('--k2-pure-amber', '#ffb74d'))
+            || parseColorToRgb(cssVar('--k2-pure-amber', '#ffb74d'));
+        var primary = parseColorToRgb(cssResolvedColorVar('--k2-text-primary', '#d0d7de'))
+            || parseColorToRgb(cssVar('--k2-text-primary', '#d0d7de'));
+        if (!amber || !primary) {
+            return null;
+        }
+        return {
+            r: Math.round(amber.r * 0.85 + primary.r * 0.15),
+            g: Math.round(amber.g * 0.85 + primary.g * 0.15),
+            b: Math.round(amber.b * 0.85 + primary.b * 0.15)
+        };
+    }
+
+    function chartColor(varName, fallbackHex) {
+        var resolved = cssResolvedColorVar(varName, '');
+        if (resolved && parseColorToRgb(resolved)) {
+            return resolved;
+        }
+        return cssVar(varName, fallbackHex);
     }
 
     /** Resolve a CSS color variable to computed rgb() (needed for color-mix tokens). */
@@ -106,7 +130,7 @@
     }
 
     function colorToRgba(color, alpha, fallbackColor) {
-        var parsed = parseColorToRgb(color) || parseColorToRgb(fallbackColor) || linkStarMixRgb();
+        var parsed = parseColorToRgb(color) || parseColorToRgb(fallbackColor) || amberSoftMixRgb();
         if (!parsed) {
             parsed = { r: 232, g: 201, b: 168 };
         }
@@ -114,17 +138,26 @@
     }
 
     global.K2ChartTheme = {
-        pitch: function () { return cssVar('--k2-chart-pitch', '#9ccc65'); },
-        chrome: function () { return cssVar('--k2-chart-chrome', '#64b5f6'); },
-        holo: function () { return cssVar('--k2-chart-holo', '#b388ff'); },
-        amber: function () { return cssVar('--k2-chart-amber', '#ffb74d'); },
-        teal: function () { return cssVar('--k2-chart-teal', '#4db6ac'); },
-        magenta: function () { return cssVar('--k2-chart-magenta', '#ff4081'); },
-        accent: function () { return cssVar('--k2-accent', '#ffb74d'); },
-        /**
-         * Player-name / star link ink (85% accent + 15% text-primary).
-         * DOM probe first; else same mix as theme.css (chart amber is pure --k2-chart-amber).
-         */
+        pureAmber: function () { return chartColor('--k2-pure-amber', '#ffb74d'); },
+        purePitch: function () { return chartColor('--k2-pure-pitch', '#9ccc65'); },
+        pureChrome: function () { return chartColor('--k2-pure-chrome', '#64b5f6'); },
+        pureHolo: function () { return chartColor('--k2-pure-holo', '#b388ff'); },
+        pitch: function () { return chartColor('--k2-chart-pitch', '#9ccc65'); },
+        chrome: function () { return chartColor('--k2-chart-chrome', '#64b5f6'); },
+        holo: function () { return chartColor('--k2-chart-holo', '#b388ff'); },
+        amber: function () { return chartColor('--k2-chart-amber', '#ffb74d'); },
+        amberSoft: function () {
+            var fromDom = parseColorToRgb(cssResolvedColorVar('--k2-amber-soft', ''));
+            if (fromDom) {
+                return rgbString(fromDom);
+            }
+            var mixed = amberSoftMixRgb();
+            return mixed ? rgbString(mixed) : 'rgb(232, 201, 168)';
+        },
+        teal: function () { return chartColor('--k2-chart-teal', '#4db6ac'); },
+        magenta: function () { return chartColor('--k2-chart-magenta', '#ff4081'); },
+        accent: function () { return chartColor('--k2-accent', '#ffb74d'); },
+        /** Link ink (85% active accent + 15% primary) — follows tint picker. */
         linkStar: function () {
             var fromDom = parseColorToRgb(cssResolvedColorVar('--k2-link-star', ''));
             if (fromDom) {
