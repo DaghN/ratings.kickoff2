@@ -46,6 +46,8 @@
 | Replay / Elo sandbox | `scripts/ladder/`, `docs/replay-v1-scope-and-reset.md` |
 | Profile layout / charts | `docs/player-profile-feast.md` |
 | Status hub spec | `docs/STATUS_PAGE_DATA.md` |
+| Staging schema / replay status | `docs/coordination/schema-register.md`, `docs/coordination/replay-register.md` |
+| `player_milestones` row-count timeline (151 → 6658 → **6615**) | `docs/coordination/replay-register.md` § Milestone unlock row counts |
 | Prod cutover | `docs/prod-coordination.md`, `docs/coordination/` |
 
 ---
@@ -67,6 +69,9 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Milestones Recent tab** — stripped intro/count copy; fixed **100**-row feed; tier filter only (`milestones.php`). |
+| 2026-05 | **Doc hygiene — SCH-008 / milestone counts** — removed stale MEMORY bullet (“staging SCH-008 pending”); canonical timeline in [`replay-register.md`](docs/coordination/replay-register.md) § Milestone unlock row counts (**6615** rows today, not 151). |
+| 2026-05 | **Status leaderboard tooltips** — Elo help: full tables in Leaderboards section; Games = career count. |
 | 2026-05 | **LB header tooltips** — `lb_column_help.php`; hub wings: no Elo label-echo; Games/abbrev/formulas; ranked5 inverse-record tie rule in tooltips; footer legend removed; Peak/Nadir 20-game copy. |
 | 2026-05 | **Post-game cutover index** — [`post-game-cutover-checklist.md`](docs/coordination/post-game-cutover-checklist.md): peak-at-20, `club_*` on `Rating`, pointers `>`, HoF, replay ritual; contract § Rating club implementation notes (investigation closed). |
 | 2026-05 | **Leagues picker slot** — fixed row width = max(day, week, month, year) pickers; tab switch stable. |
@@ -176,7 +181,6 @@
 | 2026-05 | **Post-game replay contract** — Python replay now pins `SET time_zone = '+00:00'` at connection, so `generalstatstable` record dates are UTC-correct. `docs/website-data-contract.md` expanded with full `generalstatstable` semantics (tie policy: strict `>`, ratio leaders excluded, UTC rule, victim-count gates). Golden record checks added (`scripts/ladder/golden_record_checks.py`). PG-004 rewritten as explicit behavior-change handoff (DELETE ratio blocks, CHANGE `>=` to `>`, ADD UTC pin). Replay architecture section documents event engine as behavior authority, SQL rebuilds as parity helpers. Local replay rerun: all golden checks pass. |
 | 2026-05 | **Derived-data contract refactor** — `docs/website-data-contract.md` is now the behavior authority for project-owned aggregate tables, rebuild rules, parity checks, and post-game requirements. `scripts/rebuild_website_derived_data_local.ps1` is the one-command local rebuild path; old period/monthly rebuild wrappers now point to it. `docs/stored-truth-expansion.md` and `docs/player-period-games.md` are redirects, while registers track status only. |
 | 2026-05 | **UTC period-boundary fix** — `ratedresults.Date` is `timestamp`, so local Estonia MySQL sessions were rebuilding day buckets three hours ahead of UK/staging. Added `SET time_zone = '+00:00'` to PHP DB connections and rebuild scripts, reran local aggregate rebuilds, and verified daily stored rows now match UTC buckets (e.g. 2026-05-17=26, 2026-05-18=31). `api/server_matchup_breadth.php` now also uses the UTC pin and `server_period_matchups`. |
-| 2026-05 | **Stored truth expansion** — Five aggregate tables locally (SCH-008 + REP-007–011): `player_period_league`, `player_milestones`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups`; parity-checked vs `ratedresults`. Status/Activity/Profile PHP reads stored truth when tables exist; staging SCH-008 + rebuilds still pending Steve. Contract: `docs/website-data-contract.md`. |
 | 2026-05 | **Daily active players chart** — `server_daily_activity` (SCH-007); stored path ~73× faster than raw `ratedresults` in local perf test; API `source=stored|raw`. |
 | 2026-05 | **Dev period activity date picker affordance** — the Daily panel date input now has a visible accent calendar button and a brightened native picker indicator, so users can open the calendar instead of typing a date. |
 | 2026-05 | **Top activity eras chart shipped locally** — `server1.php` now has a "Top activity eras" multi-player line chart: each month shows the top 10 players by rated games, lines appear/disappear as players enter/leave the top 10, hover highlights one player and dims others; powered by new `api/server_top_activity_eras.php` reading `player_period_games` (L0, no new stored truth). |

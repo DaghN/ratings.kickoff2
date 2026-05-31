@@ -78,6 +78,12 @@ def _unlock(
     rows.append((pid, key, dt, val, gid))
 
 
+def _day_close_achieved_at(day_key: str) -> datetime:
+    """UTC instant when the qualifying UTC day is closed (start of next calendar day)."""
+    d = date.fromisoformat(day_key)
+    return datetime.combine(d + timedelta(days=1), datetime.min.time())
+
+
 def _finalize_day(
     rows: list[tuple[int, str, datetime, int, int]],
     pid: int,
@@ -87,10 +93,14 @@ def _finalize_day(
     gid: int,
 ) -> None:
     outcomes = st.games_by_day.get(day_key, [])
-    if len(outcomes) >= 5 and all(o == "W" for o in outcomes):
-        _unlock(rows, pid, "perfect_day", st, dt, gid, 5)
-    if len(outcomes) >= 5 and all(o == "L" for o in outcomes):
-        _unlock(rows, pid, "nightmare_day", st, dt, gid, 5)
+    if len(outcomes) < 5:
+        return
+    # obtained_at = day close; source_game_id (gid) = last game that UTC day (evidence anchor)
+    close_at = _day_close_achieved_at(day_key)
+    if all(o == "W" for o in outcomes):
+        _unlock(rows, pid, "perfect_day", st, close_at, gid, 5)
+    if all(o == "L" for o in outcomes):
+        _unlock(rows, pid, "nightmare_day", st, close_at, gid, 5)
 
 
 def main() -> None:

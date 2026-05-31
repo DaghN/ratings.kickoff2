@@ -4,7 +4,7 @@
 
 **Status:** **Work in progress — subject to change.** This doc is the sandbox for the server-side Milestones universe. **Committed hub routing** (tab order, Games demotion) lives in [`hub-ia-agreement.md`](hub-ia-agreement.md). Tier bands and profile garden: [`milestones-product-spec.md`](milestones-product-spec.md).
 
-**Stub shipped:** `site/public_html/milestones.php` (hub tab + placeholder copy). Full hub not built yet.
+**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed) and **Catalog** (`milestones.php?view=catalog`) tier-colored cards sorted by holder count. Single-milestone package: **`milestone.php?key=`** (achievers + timeline chart + signature charts for DD / Established). Activity digest/charts still on `server1.php`.
 
 ---
 
@@ -31,22 +31,17 @@ Single **public home** for the milestone system:
 
 ---
 
-## Internal sub-nav (planned)
+## Internal sub-nav (shipped v2)
 
-Segment track (same chrome pattern as Leaderboards wings). **v1 stub:** sub-nav not wired; single landing section only.
+| Sub-tab | URL | Role |
+|---------|-----|------|
+| **Recent** | `milestones.php` | Tier filter (All / band) + vertical scannable feed (100 unlocks, no count UI) |
+| **Catalog** | `milestones.php?view=catalog` | All milestones as tier-colored cards, sorted by holder count |
 
-| Sub-tab | Role | v1 |
-|---------|------|-----|
-| **Home** | Intro · recent unlocks · 4-tier milestone picker · achievers pane for selected key | Target first build |
-| **Story** | Chronological server feed of unlocks (tier-colored) | After Home |
-| **Charts** | Server-wide milestone analytics (migrate from `server1.php`) | Deferred with Activity slim |
+Single milestone (no sub-nav tab):
 
-URL sketch (not final):
-
-- `milestones.php` — Home default
-- `milestones.php?key={milestone_key}` — Home with achievers (+ chart) for one key
-- `milestones.php?view=story` — Story (later)
-- `milestones.php?view=charts` — Charts (later)
+- `milestone.php?key={milestone_key}` — achievers, unlock timeline chart, signature charts when defined
+- `milestones.php?key=` → 302 to `milestone.php` (legacy)
 
 ---
 
@@ -98,8 +93,8 @@ Until then, Activity keeps legacy milestone surfaces ([`hub-ia-agreement.md`](hu
 
 | Phase | Deliverable |
 |-------|-------------|
-| **0 (done)** | Hub tab + `milestones.php` stub + this WIP doc |
-| **1** | Home: intro + recent unlocks + tier picker + one achiever list (e.g. `dd_merchant_10`) |
+| **0 (done)** | Hub tab + this WIP doc |
+| **1 (done)** | Home: intro + recent unlocks + tier catalog + achievers for any `?key=` |
 | **2** | All keys achievers; `?key=` routing; migrate HoF achievers block |
 | **3** | Per-key unlock chart (lazy) |
 | **4** | Story sub-tab |

@@ -540,7 +540,10 @@ records_render_row(
 	<h2 id="k2-ms-achievers-heading" class="k2-ms-achievers__title">Milestone achievers</h2>
 	<p class="k2-ms-achievers__hint">
 		Players who unlocked a curated milestone — many can hold the same feat (unlike single-holder server records above).
-		Trial list: <strong>Double Digit Merchant</strong> (first rated game with 10+ goals).
+		Full catalog and all achievers live on the
+		<a href="milestones.php">Milestones hub</a>
+		(<a href="milestone.php?key=dd_merchant_10">Double Digit Merchant</a>).
+		This block will move there in a later slice.
 	</p>
 <?php if ($k2DdMerchantAchievers === []) { ?>
 	<p class="k2-ms-meta-hint">No unlocks recorded yet.</p>

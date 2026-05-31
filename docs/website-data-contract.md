@@ -502,7 +502,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 - `source_kind = game` → `source_game_id` NOT NULL; league columns NULL.
 - `source_kind = league` → `source_league_kind`, `source_period_type`, `source_period_start` NOT NULL; `source_game_id` NULL.
 - `source_kind = lobby` → only for `entered_arena`: `achieved_at = playertable.JoinDate` (in this product, **registering = entering the lobby**). `source_game_id` and league columns NULL. Not rebuilt by ladder replay; set at account creation (live server).
-- UI deep links: game page by `source_game_id`; Status leagues by `source_league_*`; lobby milestone → profile / community copy (no game or league URL).
+- UI deep links: game page by `source_game_id`; Status leagues by `source_league_*`; lobby milestone → profile / community copy (no game or league URL). **Garden** link behavior per key is a separate UX register — [`milestones-garden-links.md`](milestones-garden-links.md) (not stored on `player_milestones`).
 
 **Rebuild coverage (May 2026):**
 
@@ -557,7 +557,7 @@ IF NOT EXISTS (
 END IF;
 ```
 
-- **`achieved_at`:** UTC instant of the unlock event (`ratedresults.Date`, `player_league_award.period_end`, or `playertable.JoinDate`).
+- **`achieved_at`:** UTC instant of the unlock event (`ratedresults.Date`, `player_league_award.period_end`, `playertable.JoinDate`, or **UTC day-close** for day-complete milestones — see below).
 - **`value`:** Threshold snapshot at cross (e.g. `20` for `established_20`, `3` for `brace`) — match rebuild SQL for that key.
 - **Never update** `achieved_at` on duplicate events (first cross is permanent).
 
@@ -625,7 +625,7 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 |-----|-------------------|
 | `newbie_welcomer` | Opponent was in someone’s **debut** rated game |
 | `generous` | Opponent conceded 2+ in someone’s debut game |
-| `perfect_day` / `nightmare_day` | End of UTC day: ≥5 games that day, all W / all L |
+| `perfect_day` / `nightmare_day` | End of UTC day: ≥5 games that day, all W / all L. **`achieved_at`** = `00:00:00` UTC on the **calendar day after** the qualifying day (day-close / end-of-day job). **`source_game_id`** = last rated game that qualifying day (evidence anchor only). Garden link: [`milestones-garden-links.md`](milestones-garden-links.md) `player_day_games`. |
 | `merchant_streak` / `minimalist_merchant` | 5 consecutive games with 10+ goals / 3 consecutive exact 10-goal games |
 | `peace_streak` / `united_nations` | 3 / 5 consecutive draws |
 | `knife_edge` / `unlucky` | 5 consecutive 1-goal margin wins / losses |

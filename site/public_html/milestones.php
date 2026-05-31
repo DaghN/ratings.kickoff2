@@ -1,3 +1,46 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+
+if (isset($_GET['key'])) {
+	$legacyKey = k2_milestone_key_param('key');
+	if ($legacyKey !== null) {
+		$params = ['key' => $legacyKey];
+		$sort = k2_milestone_achiever_sort_param();
+		if ($sort !== 'newest') {
+			$params['sort'] = $sort;
+		}
+		header('Location: milestone.php?' . http_build_query($params), true, 302);
+		exit;
+	}
+}
+
+include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+
+$hubView = isset($_GET['view']) ? strtolower(trim((string) $_GET['view'])) : 'recent';
+if ($hubView !== 'recent' && $hubView !== 'catalog') {
+	$hubView = 'recent';
+}
+
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+$tablesReady = k2_milestone_tables_ready($con);
+$catalogTotal = k2_milestone_catalog_total($con);
+$recentTier = null;
+$recentUnlocks = [];
+
+$k2MsHubView = $hubView;
+$k2HubTabActive = 'milestones';
+
+if ($tablesReady) {
+	if ($hubView === 'catalog') {
+		$catalogCards = k2_milestone_catalog_by_holders($con);
+	} else {
+		$recentTier = k2_milestone_recent_tier_param();
+		$recentUnlocks = k2_milestone_recent_unlocks($con, K2_MILESTONE_RECENT_FEED_LIMIT, $recentTier);
+	}
+}
+mysqli_close($con);
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="online">
 <head>
@@ -14,38 +57,33 @@
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
-<?php
-$k2HubTabActive = 'milestones';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
-?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php'; ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/milestones_hub_nav.php'; ?>
 
-<main class="k2-milestones-hub-stub" id="main">
-	<h1 class="k2-panel-heading k2-milestones-hub-stub__title">Milestones</h1>
-
-	<p class="k2-milestones-hub-stub__lede">
-		Shared landmarks on this ladder — many players can earn the same milestone.
-		That is different from the <a href="server2.php">Hall of Fame</a>, where each record has a single holder.
-	</p>
-
-	<p class="k2-ms-meta-hint">
-		This hub is under construction. Coming next: recent unlocks, a catalog of all milestones, and achiever lists with match links.
-	</p>
-
-	<h2 class="k2-panel-heading">Explore now</h2>
-	<ul class="k2-milestones-hub-stub__links">
-		<li><a href="ranked10.php">Leaderboards &rarr; Milestones</a> — who has unlocked the most</li>
-		<li>Open any <strong>player profile</strong> &rarr; <strong>Milestones</strong> pill for a personal garden (<span class="k2-lb-ms-tier--pitch">aspirational</span> &middot;
-			<span class="k2-lb-ms-tier--chrome">dedicated</span> &middot;
-			<span class="k2-lb-ms-tier--amber">accomplished</span> &middot;
-			<span class="k2-lb-ms-tier--holo">legendary</span>)</li>
-		<li><a href="server2.php#k2-ms-achievers-heading">Hall of Fame &rarr; Milestone achievers</a> — trial list (Double Digit Merchant) until this hub hosts achievers</li>
-		<li><a href="server1.php">Activity</a> — server charts and recent milestone digest (until charts move here)</li>
-	</ul>
-
-	<p class="k2-ms-meta-hint k2-milestones-hub-stub__planned">
-		Planned sub-navigation: <strong>Home</strong> &middot; <strong>Story</strong> &middot; <strong>Charts</strong> — not wired yet.
-	</p>
+<main class="k2-ms-hub" id="main">
+<?php if (!$tablesReady) { ?>
+	<section class="k2-ms-hub-placeholder">
+		<h1 class="k2-panel-heading">Milestones</h1>
+		<p class="k2-ms-meta-hint">Milestone catalog data is not available on this database yet.</p>
+	</section>
+<?php } elseif ($hubView === 'catalog') { ?>
+	<header class="k2-ms-hub-page-head">
+		<h1 class="k2-panel-heading">Milestone catalog</h1>
+		<p class="k2-ms-hub-page-head__lede">
+			Every feat on this ladder — sorted by how many players have unlocked it (most common first).
+			Colors are <strong>milestone tier</strong> bands, not the site tint.
+			Open any card for the full achiever list and charts.
+		</p>
+		<p class="k2-ms-meta-hint"><?php echo (int) $catalogTotal; ?> milestones in the catalog.</p>
+	</header>
+	<?php k2_milestone_render_catalog_grid($catalogCards); ?>
+<?php } else {
+		k2_milestone_render_recent_tier_filter($recentTier);
+		k2_milestone_render_recent_feed($recentUnlocks, $recentTier);
+} ?>
 </main>
+
+</div><!-- .k2-page-nav -->
 
 </body>
 </html>

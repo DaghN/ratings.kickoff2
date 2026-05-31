@@ -1,0 +1,19 @@
+<?php
+/**
+ * Milestones hub sub-navigation — Recent · Catalog.
+ * Set $k2MsHubView before include: recent | catalog
+ */
+$k2MsHubView = $k2MsHubView ?? 'recent';
+$k2MsHubTabs = [
+	'recent' => ['href' => 'milestones.php', 'label' => 'Recent'],
+	'catalog' => ['href' => 'milestones.php?view=catalog', 'label' => 'Catalog'],
+];
+?>
+<div class="k2-chrome-tabs k2-ms-hub-tabs">
+	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Milestones hub">
+<?php foreach ($k2MsHubTabs as $id => $tab) { ?>
+		<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>"
+			class="k2-chrome-tabs__tab<?php echo $k2MsHubView === $id ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
+<?php } ?>
+	</nav>
+</div>

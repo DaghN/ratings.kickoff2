@@ -7,8 +7,11 @@
 
 **Already done on staging (do not repeat unless broken):**
 
-- SCH-008 (`007_stored_truth`) — `player_milestones` table exists  
-- SCH-009/010 + **REP-012/013** — league awards (`staging-sql/008` + `009` + `php staging-scripts/run_league_awards_rebuild.php`)
+- SCH-008 (`007_stored_truth`) — five aggregate tables incl. `player_milestones`  
+- SCH-009/010 + **REP-012/013** — league awards (`staging-sql/008` + `009` + `php staging-scripts/run_league_awards_rebuild.php`)  
+- Full milestone rebuild waves + **REP-008b** — **canonical `player_milestones` total = 6615** (see [`replay-register.md`](replay-register.md) § Milestone unlock row counts; step tables below that say **6658** are wave-1 historical)
+
+**Authority for “is staging DB current?”** [`schema-register.md`](schema-register.md) + [`replay-register.md`](replay-register.md) run log — not contradictory bullets in `PROJECT_MEMORY.md`.
 
 ---
 
@@ -32,6 +35,8 @@ Create remote folder `staging-sql/milestones/` if missing.
 | `scripts/ladder/sql/player_milestones_rebuild_exists.sql` | `staging-sql/milestones/player_milestones_rebuild_exists.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_streaks.sql` | `staging-sql/milestones/player_milestones_rebuild_streaks.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_chrono.sql` | `staging-sql/milestones/player_milestones_rebuild_chrono.sql` |
+
+**Day-close fix (May 2026):** `perfect_day` / `nightmare_day` `achieved_at` = `00:00:00` UTC day after qualifying day. After uploading chrono SQL, run on staging DB: `python scripts/oneoff/apply_day_milestone_achieved_at_fix.py` (from repo root on dev) or delete those two keys and re-splice chrono wave from updated SQL.
 | `scripts/ladder/sql/player_milestones_rebuild_tail.sql` | `staging-sql/milestones/player_milestones_rebuild_tail.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_period.sql` | `staging-sql/milestones/player_milestones_rebuild_period.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_giant_slayer.sql` | `staging-sql/milestones/player_milestones_rebuild_giant_slayer.sql` |
@@ -44,6 +49,7 @@ Create remote folder `staging-sql/milestones/` if missing.
 | `site/public_html/staging-scripts/load_milestone_definitions.php` | `staging-scripts/load_milestone_definitions.php` |
 | `site/public_html/staging-scripts/run_player_milestones_rebuild.php` | `staging-scripts/run_player_milestones_rebuild.php` |
 | `data/milestones_definitions_seed.json` | `staging-data/milestones_definitions_seed.json` |
+| `data/milestone_garden_links.json` | `staging-data/milestone_garden_links.json` |
 
 Create remote folder `staging-data/` if missing.
 
@@ -53,6 +59,8 @@ Create remote folder `staging-data/` if missing.
 |------------|-------------|
 | `site/public_html/includes/player_milestones_helpers.php` | `includes/player_milestones_helpers.php` |
 | `site/public_html/includes/player_milestones_garden_order.php` | `includes/player_milestones_garden_order.php` |
+| `site/public_html/includes/milestone_garden_links.php` | `includes/milestone_garden_links.php` |
+| `site/public_html/individual3.php` | `individual3.php` |
 | `site/public_html/includes/player_nav.php` | `includes/player_nav.php` |
 | `site/public_html/includes/hub_nav.php` | `includes/hub_nav.php` |
 | `site/public_html/includes/lb_nav.php` | `includes/lb_nav.php` |

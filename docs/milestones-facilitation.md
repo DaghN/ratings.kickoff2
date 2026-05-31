@@ -8,6 +8,12 @@ Maps the **110 curated keys** to implementation families: what stored truth to r
 
 ---
 
+## Garden links (UX register)
+
+Per-key **garden** deep-link behavior (not DB columns): [`milestones-garden-links.md`](milestones-garden-links.md) · `data/milestone_garden_links.json` · regenerate with `python scripts/oneoff/build_milestone_garden_links.py`.
+
+---
+
 ## Source pointers (SCH-012)
 
 Every `player_milestones` row should identify the **unlock event**:

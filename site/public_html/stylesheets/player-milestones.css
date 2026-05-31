@@ -135,36 +135,390 @@
 .k2-lb-ms-tier--amber { color: var(--k2-pure-amber); }
 .k2-lb-ms-tier--holo { color: var(--k2-pure-holo); }
 
-/* Hub stub — milestones.php until full Home/Story/Charts */
-.k2-milestones-hub-stub {
-	max-width: 40rem;
-	margin: 0 auto;
+/* ── Milestones hub v2 (Recent · Catalog) + milestone.php detail ── */
+
+.k2-ms-hub,
+.k2-ms-detail-page {
+	max-width: none;
+	margin: 0;
+	padding: 4px 0 48px;
+}
+
+.k2-ms-hub-tabs {
+	margin-bottom: 16px;
+}
+
+.k2-ms-hub-page-head {
+	margin-bottom: 22px;
+}
+
+.k2-ms-hub-page-head__lede {
+	margin: 0 0 10px;
+	font-size: 15px;
+	line-height: 1.55;
+	color: var(--k2-text-primary);
+	max-width: 44rem;
+}
+
+.k2-ms-hub-page-head__links {
+	margin: 0;
+}
+
+.k2-ms-hub-placeholder {
 	padding: 8px 0 32px;
 }
 
-.k2-milestones-hub-stub__title {
-	margin: 0 0 12px;
-	font-size: 15px;
+/* Recent feed — tier filter + list */
+.k2-ms-recent-filter {
+	margin: 0 0 14px;
+	font-size: 14px;
+	line-height: 1.5;
 }
 
-.k2-milestones-hub-stub__lede {
-	margin: 0 0 14px;
+.k2-ms-recent-filter__link {
+	color: var(--k2-text-muted);
+	text-decoration: none;
+}
+
+.k2-ms-recent-filter__link:hover,
+.k2-ms-recent-filter__link:focus-visible {
+	text-decoration: underline;
+}
+
+.k2-ms-recent-filter__link.is-active {
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.k2-site .k2-ms-recent-filter__link--all,
+body.k2-site .k2-ms-recent-filter__link--all:visited {
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-ms-recent-filter__link--all.is-active,
+body.k2-site .k2-ms-recent-filter__link--all.is-active:visited {
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .k2-ms-recent-filter__link--all:hover,
+body.k2-site .k2-ms-recent-filter__link--all:focus-visible {
+	color: var(--k2-text-primary);
+	text-decoration: underline;
+}
+
+body.k2-site .k2-ms-recent-filter__link--pitch,
+body.k2-site .k2-ms-recent-filter__link--pitch:visited {
+	color: var(--k2-pure-pitch);
+}
+
+body.k2-site .k2-ms-recent-filter__link--chrome,
+body.k2-site .k2-ms-recent-filter__link--chrome:visited {
+	color: var(--k2-pure-chrome);
+}
+
+body.k2-site .k2-ms-recent-filter__link--amber,
+body.k2-site .k2-ms-recent-filter__link--amber:visited {
+	color: var(--k2-pure-amber);
+}
+
+body.k2-site .k2-ms-recent-filter__link--holo,
+body.k2-site .k2-ms-recent-filter__link--holo:visited {
+	color: var(--k2-pure-holo);
+}
+
+body.k2-site .k2-ms-recent-filter__link--pitch:hover,
+body.k2-site .k2-ms-recent-filter__link--pitch:focus-visible,
+body.k2-site .k2-ms-recent-filter__link--chrome:hover,
+body.k2-site .k2-ms-recent-filter__link--chrome:focus-visible,
+body.k2-site .k2-ms-recent-filter__link--amber:hover,
+body.k2-site .k2-ms-recent-filter__link--amber:focus-visible,
+body.k2-site .k2-ms-recent-filter__link--holo:hover,
+body.k2-site .k2-ms-recent-filter__link--holo:focus-visible {
+	text-decoration: underline;
+}
+
+.k2-ms-recent-filter__sep {
+	color: var(--k2-text-muted);
+}
+
+/* One grid: date + player columns sized to longest cell in each column */
+.k2-ms-recent-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: max-content max-content minmax(0, 1fr);
+	column-gap: 1.25rem;
+	align-items: baseline;
 	font-size: 15px;
 	line-height: 1.5;
 	color: var(--k2-text-primary);
 }
 
-.k2-milestones-hub-stub__links {
-	margin: 0 0 20px;
-	padding-left: 1.25rem;
+.k2-ms-recent-list__item {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	align-items: baseline;
+	margin: 0;
+	padding: 11px 2px;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.k2-ms-recent-list__item:first-child {
+	border-top: 1px solid var(--k2-border-subtle);
+}
+
+.k2-ms-recent-list__item:hover {
+	background: color-mix(in srgb, var(--k2-bg-elevated) 55%, transparent);
+}
+
+@supports not (grid-template-columns: subgrid) {
+	.k2-ms-recent-list {
+		grid-template-columns: 12.25rem max-content minmax(0, 1fr);
+	}
+
+	.k2-ms-recent-list__item {
+		grid-template-columns: 12.25rem max-content minmax(0, 1fr);
+		column-gap: 1.25rem;
+	}
+}
+
+@media (max-width: 640px) {
+	.k2-ms-recent-list {
+		display: block;
+	}
+
+	.k2-ms-recent-list__item {
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-column: auto;
+		row-gap: 4px;
+	}
+}
+
+.k2-ms-recent-line__when {
+	white-space: nowrap;
+	text-align: left;
+	color: var(--k2-text-muted);
 	font-size: 14px;
-	line-height: 1.55;
 }
 
-.k2-milestones-hub-stub__links li + li {
+.k2-ms-recent-line__player {
+	white-space: nowrap;
+}
+
+.k2-ms-recent-line__ms {
+	min-width: 0;
+}
+
+.k2-ms-recent-line__rule,
+.k2-ms-recent-list__item .k2-link-star,
+body.k2-site a.k2-ms-recent-line__feat {
+	display: inline;
+}
+
+body.k2-site a.k2-ms-recent-line__feat {
+	font-weight: 600;
+	text-decoration: none;
+}
+
+/* Beat body.k2-site a { color: var(--k2-link) } — milestone tier, not site tint */
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch:visited {
+	color: var(--k2-pure-pitch);
+}
+
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome:visited {
+	color: var(--k2-pure-chrome);
+}
+
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber:visited {
+	color: var(--k2-pure-amber);
+}
+
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo:visited {
+	color: var(--k2-pure-holo);
+}
+
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch:hover,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch:focus-visible {
+	color: var(--k2-pure-pitch);
+	text-decoration: underline;
+}
+
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome:hover,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome:focus-visible {
+	color: var(--k2-pure-chrome);
+	text-decoration: underline;
+}
+
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber:hover,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber:focus-visible {
+	color: var(--k2-pure-amber);
+	text-decoration: underline;
+}
+
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo:hover,
+body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo:focus-visible {
+	color: var(--k2-pure-holo);
+	text-decoration: underline;
+}
+
+.k2-ms-recent-list__item .k2-link-star {
+	font-weight: 600;
+}
+
+.k2-ms-recent-line__rule {
+	margin-left: 0.35em;
+	color: var(--k2-text-muted);
+}
+
+/* Catalog — tier-colored garden cards, sorted by holders */
+.k2-ms-catalog-grid {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 12px;
+}
+
+body.k2-site a.k2-ms-catalog-card {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	min-height: 120px;
+	position: relative;
+}
+
+.k2-ms-catalog-card__holders {
+	margin: 0 0 8px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+.k2-ms-catalog-card__tier {
+	margin: 10px 0 0;
+	font-size: 11px;
+}
+
+body.k2-site a.k2-ms-catalog-card:hover {
+	transform: translateY(-2px);
+}
+
+/* Milestone detail page */
+.k2-ms-detail-crumb {
+	margin: 0 0 14px;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+.k2-ms-detail-hero {
+	margin-bottom: 28px;
+	padding: 20px 22px;
+	border-radius: var(--k2-radius-lg);
+	border: 1px solid var(--k2-border-subtle);
+	background: var(--k2-bg-surface);
+}
+
+.k2-ms-detail-page--pitch .k2-ms-detail-hero {
+	border-top: 4px solid var(--k2-pure-pitch);
+	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-pure-pitch) 12%, transparent);
+}
+
+.k2-ms-detail-page--chrome .k2-ms-detail-hero {
+	border-top: 4px solid var(--k2-pure-chrome);
+	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-pure-chrome) 12%, transparent);
+}
+
+.k2-ms-detail-page--amber .k2-ms-detail-hero {
+	border-top: 4px solid var(--k2-pure-amber);
+	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-pure-amber) 12%, transparent);
+}
+
+.k2-ms-detail-page--holo .k2-ms-detail-hero {
+	border-top: 4px solid var(--k2-pure-holo);
+	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-pure-holo) 14%, transparent);
+}
+
+.k2-ms-detail-hero__tier {
+	margin: 0 0 8px;
+	font-size: 12px;
+	color: var(--k2-text-muted);
+}
+
+.k2-ms-detail-hero__title {
+	margin: 0 0 10px;
+	font-family: var(--k2-font-display);
+	font-size: 26px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.k2-ms-detail-hero__rule {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.5;
+}
+
+.k2-ms-detail-hero__desc {
+	margin: 12px 0 0;
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--k2-text-muted);
+	max-width: 44rem;
+}
+
+.k2-ms-detail-section {
+	margin-bottom: 32px;
+}
+
+.k2-ms-detail-section__sort {
+	margin: -6px 0 12px;
+	font-size: 13px;
+}
+
+.k2-ms-detail-section__sort-link {
+	color: var(--k2-link-star);
+	text-decoration: none;
+}
+
+body.k2-site a.k2-ms-detail-section__sort-link.is-active {
+	font-weight: 600;
+	text-decoration: underline;
+}
+
+.k2-ms-detail-charts {
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+}
+
+.k2-ms-detail-chart {
+	padding: 14px 0 0;
+	border-top: 1px solid var(--k2-border-subtle);
+}
+
+.k2-ms-detail-chart__title {
+	margin: 0 0 6px;
+	font-family: var(--k2-font-display);
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.k2-ms-detail-chart__status {
+	margin: 0 0 8px;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+.k2-ms-detail-footer {
 	margin-top: 8px;
-}
-
-.k2-milestones-hub-stub__planned {
-	margin-top: 24px;
 }

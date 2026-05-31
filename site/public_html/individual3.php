@@ -71,11 +71,33 @@ function individual3_query_all(mysqli $con, string $sql, string $types = '', arr
     return $rows;
 }
 
-function individual3_where_clause(int $playerId, string $resultFilter, int $opponentId, string &$types, array &$params): string
+function individual3_valid_day(string $value): string
 {
+    $value = trim($value);
+    if ($value !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1) {
+        return $value;
+    }
+
+    return '';
+}
+
+function individual3_where_clause(
+    int $playerId,
+    string $resultFilter,
+    int $opponentId,
+    string $utcDay,
+    string &$types,
+    array &$params
+): string {
     $where = ['(r.idA = ? OR r.idB = ?)'];
     $types = 'ii';
     $params = [$playerId, $playerId];
+
+    if ($utcDay !== '') {
+        $where[] = 'DATE(r.`Date`) = ?';
+        $types .= 's';
+        $params[] = $utcDay;
+    }
 
     if ($resultFilter === 'win') {
         $where[] = '((r.idA = ? AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = ? AND ABS(r.ActualScore) < 0.001))';
@@ -129,6 +151,9 @@ function individual3_sort_header(string $key, string $label, string $align, arra
     if ($state['opponent'] > 0) {
         $params['opponent'] = $state['opponent'];
     }
+    if (!empty($state['day'])) {
+        $params['day'] = $state['day'];
+    }
 
     $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
     $attrs = [
@@ -167,6 +192,7 @@ $name = $Name ?? '';
 
 $resultFilter = individual3_valid_result((string) ($_GET['result'] ?? 'all'));
 $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
+$utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
 $sortKey = (string) ($_GET['sort'] ?? 'date');
 $sortDirection = individual3_valid_direction((string) ($_GET['dir'] ?? 'desc'));
 $limit = 100;
@@ -213,7 +239,14 @@ if ($opponentFilter > 0 && !isset($validOpponentIds[$opponentFilter])) {
 
 $whereTypes = '';
 $whereParams = [];
-$whereSql = individual3_where_clause($playerId, $resultFilter, $opponentFilter, $whereTypes, $whereParams);
+$whereSql = individual3_where_clause(
+    $playerId,
+    $resultFilter,
+    $opponentFilter,
+    $utcDayFilter,
+    $whereTypes,
+    $whereParams
+);
 
 $countRows = individual3_query_all(
     $con,
@@ -252,6 +285,7 @@ $sortState = [
     'dir' => $sortDirection,
     'result' => $resultFilter,
     'opponent' => $opponentFilter,
+    'day' => $utcDayFilter,
 ];
 $shownCount = count($games);
 $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
@@ -267,12 +301,18 @@ if ($resultFilter !== 'all') {
 if ($opponentFilter > 0) {
     $pagerParams['opponent'] = $opponentFilter;
 }
+if ($utcDayFilter !== '') {
+    $pagerParams['day'] = $utcDayFilter;
+}
 ?>
 
 <form class="k2-player-games-controls" method="get" action="individual3.php">
     <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
     <input type="hidden" name="sort" value="<?php echo individual3_h($sortKey); ?>" />
     <input type="hidden" name="dir" value="<?php echo individual3_h($sortDirection); ?>" />
+    <?php if ($utcDayFilter !== '') { ?>
+    <input type="hidden" name="day" value="<?php echo individual3_h($utcDayFilter); ?>" />
+    <?php } ?>
     <label>
         Result
         <select name="result" onchange="this.form.submit();">
@@ -298,6 +338,10 @@ if ($opponentFilter > 0) {
 </form>
 
 <div class="k2-player-games-status">
+    <?php if ($utcDayFilter !== '') { ?>
+    Rated games on <strong><?php echo individual3_h($utcDayFilter); ?></strong> UTC
+    (<a href="<?php echo individual3_h(individual3_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []))); ?>">clear day filter</a>).
+    <?php } ?>
     Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
     <?php if ($offset > 0) { ?>
     <?php $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)]; ?>

@@ -104,6 +104,7 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | Item | Plan |
 |------|------|
 | `player_milestones` | One row per player per `milestone_key`; `achieved_at` UTC |
+| Garden deep links | Per-key register — [`milestones-garden-links.md`](milestones-garden-links.md) + `data/milestone_garden_links.json` (lockstep with `milestone_garden_links.php`) |
 | `milestone_definitions` (Phase 3) | SCH-011; 110 rows from [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
 | `player_milestones` unlock rows | **22 key types** after rebuild wave 1 (2 game + 20 league); ~88 TODO — [`milestones-facilitation.md`](milestones-facilitation.md) |
 

@@ -122,7 +122,7 @@ Notes:
 | Item | Contract |
 |------|----------|
 | Hub tab | `milestones.php` between Leaderboards and Hall of Fame |
-| WIP build plan | [`docs/milestones-hub-ia.md`](milestones-hub-ia.md) — subject to change |
+| Build plan | [`docs/milestones-hub-ia.md`](milestones-hub-ia.md) — Recent · Catalog · `milestone.php` detail |
 | Player garden | `individual_milestones.php` (per player) |
 | HoF achievers | Trial block on `server2.php` until hub hosts lists; then remove from HoF |
 | Activity | Milestone digest/charts stay on `server1.php` until hub Charts sub-nav; **no Activity slim scheduled in stub slice** |

@@ -30,6 +30,8 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 **Working set:** [`milestones-tier-curated.md`](milestones-tier-curated.md) (110 milestones). **Seed:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json). **Facilitation:** [`milestones-facilitation.md`](milestones-facilitation.md).
 
+**Unlock row counts (staging/local):** After a full rebuild, expect **6615** rows in `player_milestones` (not **151** from the early SCH-008 shell). Timeline: [`coordination/replay-register.md`](coordination/replay-register.md) § Milestone unlock row counts.
+
 
 
 ---

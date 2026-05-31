@@ -29,6 +29,18 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | REP-013 | Player league slice totals | Rebuild `player_league_slice_totals` from `player_league_award` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Runs at end of REP-012 full rebuild |
 | REP-015 | Player rated play streaks | Rebuild `player_play_streaks` + HoF `LongestDaily/WeeklyPlayStreak*` from `player_period_games` + `ratedresults` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | `php scripts/rebuild_player_play_streaks.php`; staging `staging-scripts/run_player_play_streaks_rebuild.php`; needs SCH-014 + REP-003 |
 
+### Milestone unlock row counts (timeline)
+
+**Do not treat older numbers as “wrong staging”.** Each row count matched a rebuild phase in May 2026:
+
+| Phase | Typical total rows | Notes |
+|-------|-------------------|--------|
+| SCH-008 + REP-007–011 first pass | **151** | Only `established_20` + `dd_merchant_10` in `player_milestones` (shell parity before full catalog) |
+| REP-014 + REP-008 wave 1 | **6658** | Full **110**-key catalog; before `diversity_merchant` per-game rule fix |
+| **Canonical today** | **6615** | After **REP-008b**; verify `diversity_merchant` = **25**, `giant_slayer` = **31** |
+
+**Staging / local sanity check (May 2026):** `SELECT COUNT(*) FROM player_milestones` → **6615** (grows when new catalog keys are added, e.g. catalog **112** with `year_in_heaven`). Run log rows below keep historical counts for audit; use this table for “what should it be now?”.
+
 ### Run log (append rows)
 
 | Date | Environment | DB | Who | Games | Exit | Notes |

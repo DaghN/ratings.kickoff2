@@ -103,8 +103,8 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<tr>
 							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Rank within this visible leaderboard. Rank updates when the table is sorted.">#</th>
 							<th class="k2-status-table__player" data-k2-sort="text">Player</th>
-							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Current Elo rating. This leaderboard includes all active players in the past year.">Elo</th>
-							<th class="k2-status-table__num" data-k2-sort="number">Games</th>
+							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Current Elo rating. This leaderboard includes all active players in the past year. The complete leaderboards are in the leaderboards section.">Elo</th>
+							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Games played (career).">Games</th>
 						</tr>
 					</thead>
 					<tbody class="black">
