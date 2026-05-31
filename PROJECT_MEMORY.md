@@ -69,6 +69,11 @@
 
 | When | What |
 |------|------|
+| 2026-05 | **Garden + HoF** — locked title links: dim until hover (underline + brighten on hover only); HoF milestone copy removed; register table [`milestones-garden-links.md`](docs/milestones-garden-links.md) = Link + Event columns. |
+| 2026-05 | **Milestone achievers table** — **Event** (what happened) + **Link** (Game/League/Games from register). |
+| 2026-05 | **Milestone unlock event UI** — one register (`event_link` + `event_context`); Recent feed + garden + achievers use `k2_milestone_unlock_event_*`; spec [`milestones-unlock-event-ui.md`](docs/milestones-unlock-event-ui.md). |
+| 2026-05 | **Milestones Recent typography** — feed inherits site body 14px (was 15px list); row padding unchanged. |
+| 2026-05 | **Milestone ms-holo only** — legendary `#bf80f8`; dedicated chrome + pitch/amber use `--k2-pure-*` on milestone surfaces. |
 | 2026-05 | **Milestones Recent tab** — stripped intro/count copy; fixed **100**-row feed; tier filter only (`milestones.php`). |
 | 2026-05 | **Doc hygiene — SCH-008 / milestone counts** — removed stale MEMORY bullet (“staging SCH-008 pending”); canonical timeline in [`replay-register.md`](docs/coordination/replay-register.md) § Milestone unlock row counts (**6615** rows today, not 151). |
 | 2026-05 | **Status leaderboard tooltips** — Elo help: full tables in Leaderboards section; Games = career count. |

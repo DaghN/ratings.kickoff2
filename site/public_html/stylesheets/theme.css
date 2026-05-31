@@ -24,6 +24,8 @@
 	--k2-pure-pitch: #9ccc65;
 	--k2-pure-chrome: #64b5f6;
 	--k2-pure-holo: #b388ff;
+	/* Milestone legendary band; pitch/chrome/amber use --k2-pure-* on milestone surfaces */
+	--k2-ms-holo: #bf80f8;
 
 	/* Amber chart ink only — soft mix (fixed hue; not tint-following) */
 	--k2-amber-soft: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
@@ -1698,7 +1700,7 @@ body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-sep 
 .k2-player-hero__milestones-tier--pitch { color: var(--k2-pure-pitch); }
 .k2-player-hero__milestones-tier--chrome { color: var(--k2-pure-chrome); }
 .k2-player-hero__milestones-tier--amber { color: var(--k2-pure-amber); }
-.k2-player-hero__milestones-tier--holo { color: var(--k2-pure-holo); }
+.k2-player-hero__milestones-tier--holo { color: var(--k2-ms-holo); }
 
 /* Rank + rating glow: stylesheets/player-hero-rank.css (via k2_head.php) */
 

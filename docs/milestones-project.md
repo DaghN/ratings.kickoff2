@@ -116,7 +116,7 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 | Activity UI | Digest/charts for Established / DD only |
 
-| Profiles / leaderboards | **v0** — profile pill + garden, `ranked10.php` meta board, HoF trial achiever list; hub tab deferred |
+| Profiles / leaderboards | **v0** — profile pill + garden, `ranked10.php` meta board, hub `milestones.php` / `milestone.php`; HoF DD trial list **removed** May 2026 |
 
 
 

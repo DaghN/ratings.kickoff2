@@ -1,13 +1,20 @@
 <?php
 /**
- * Garden deep-link profiles per milestone_key (UX register).
+ * Milestone unlock event UI register (link + context per milestone_key).
  *
- * Source: data/milestone_garden_links.json · docs/milestones-garden-links.md
- * Regenerate JSON + doc: python scripts/oneoff/build_milestone_garden_links.php
+ * Spec: docs/milestones-unlock-event-ui.md
+ * Data: data/milestone_garden_links.json · docs/milestones-garden-links.md
+ * Regenerate: python scripts/oneoff/build_milestone_garden_links.py
  */
 declare(strict_types=1);
 
-/** @var array<string, array{garden_link: string, notes: string}>|null */
+/** Server Recent + garden date line — link only, no context prose. */
+const K2_MILESTONE_EVENT_SURFACE_COMPACT = 'compact';
+
+/** milestone.php achievers table — full context rules. */
+const K2_MILESTONE_EVENT_SURFACE_DETAIL = 'detail';
+
+/** @var array<string, array<string, string>>|null */
 $GLOBALS['_k2_milestone_garden_links'] = null;
 
 function k2_milestone_garden_links_json_path(): ?string
@@ -28,9 +35,9 @@ function k2_milestone_garden_links_json_path(): ?string
 }
 
 /**
- * @return array{garden_link: string, notes: string}
+ * @return array{event_link: string, event_context: string, garden_link: string, notes: string, event_context_label: string}
  */
-function k2_milestone_garden_link_entry(string $milestoneKey): array
+function k2_milestone_unlock_event_entry(string $milestoneKey): array
 {
     if ($GLOBALS['_k2_milestone_garden_links'] === null) {
         $path = k2_milestone_garden_links_json_path();
@@ -43,13 +50,33 @@ function k2_milestone_garden_link_entry(string $milestoneKey): array
     }
     $map = $GLOBALS['_k2_milestone_garden_links'];
     if (isset($map[$milestoneKey]) && is_array($map[$milestoneKey])) {
+        $row = $map[$milestoneKey];
+        $eventLink = (string) ($row['event_link'] ?? $row['garden_link'] ?? 'game');
+
         return [
-            'garden_link' => (string) ($map[$milestoneKey]['garden_link'] ?? 'game'),
-            'notes' => (string) ($map[$milestoneKey]['notes'] ?? ''),
+            'event_link' => $eventLink,
+            'event_context' => (string) ($row['event_context'] ?? 'match_line'),
+            'garden_link' => $eventLink,
+            'notes' => (string) ($row['notes'] ?? ''),
+            'event_context_label' => (string) ($row['event_context_label'] ?? ''),
         ];
     }
 
-    return ['garden_link' => 'game', 'notes' => ''];
+    return [
+        'event_link' => 'game',
+        'event_context' => 'match_line',
+        'garden_link' => 'game',
+        'notes' => '',
+        'event_context_label' => '',
+    ];
+}
+
+/**
+ * @return array{garden_link: string, event_link: string, event_context: string, notes: string}
+ */
+function k2_milestone_garden_link_entry(string $milestoneKey): array
+{
+    return k2_milestone_unlock_event_entry($milestoneKey);
 }
 
 /**
@@ -64,19 +91,20 @@ function k2_milestone_qualifying_utc_day_from_close(?string $achievedAt): ?strin
     if ($ts === false) {
         return null;
     }
+
     return gmdate('Y-m-d', $ts - 86400);
 }
 
 /**
- * Garden card link HTML for one unlocked milestone (profile garden).
+ * Event link HTML for one unlock row (all surfaces).
  *
- * @param array<string, mixed> $row player_milestones + definition join row
+ * @param array<string, mixed> $row player_milestones fields + milestone_key
  */
-function k2_milestone_garden_link_html(int $playerId, array $row): ?string
+function k2_milestone_unlock_event_link_html(int $playerId, array $row): ?string
 {
     $mKey = (string) ($row['milestone_key'] ?? '');
-    $profile = k2_milestone_garden_link_entry($mKey);
-    $kind = $profile['garden_link'];
+    $profile = k2_milestone_unlock_event_entry($mKey);
+    $kind = $profile['event_link'];
 
     if ($kind === 'none') {
         return null;
@@ -98,6 +126,28 @@ function k2_milestone_garden_link_html(int $playerId, array $row): ?string
         return k2_milestone_source_link_html($row);
     }
 
-    // game (default) — same as legacy source_kind=game
     return k2_milestone_source_link_html($row);
+}
+
+/**
+ * Garden card — alias for unlock event link.
+ *
+ * @param array<string, mixed> $row
+ */
+function k2_milestone_garden_link_html(int $playerId, array $row): ?string
+{
+    return k2_milestone_unlock_event_link_html($playerId, $row);
+}
+
+/**
+ * One-line day context for player_day_games keys.
+ */
+function k2_milestone_day_games_context_label(string $milestoneKey): string
+{
+    $label = k2_milestone_unlock_event_entry($milestoneKey)['event_context_label'];
+    if ($label !== '') {
+        return $label;
+    }
+
+    return 'All rated games that UTC day';
 }

@@ -98,6 +98,7 @@ flowchart TD
 | `--k2-pure-pitch` | `#9ccc65` |
 | `--k2-pure-chrome` | `#64b5f6` |
 | `--k2-pure-holo` | `#b388ff` |
+| `--k2-ms-holo` | `#bf80f8` | Milestone **legendary** band only; site tint/charts use `--k2-pure-holo` |
 
 Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `--k2-chart-magenta` `#ff4081`.
 
@@ -119,7 +120,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Surface | Token / class | Why |
 |---------|----------------|-----|
 | Milestone garden unlocked title, border, glow | `--k2-ms-accent` → `--k2-pure-*` | Full saturation; must not use `--k2-chart-amber` (soft) |
-| Hero / ranked10 tier label (pitch/chrome/amber/holo) | `--k2-pure-*` | Tier identity, not chart ink |
+| Hero / ranked10 tier label (pitch/chrome/amber/holo) | `--k2-pure-*`; legendary → `--k2-ms-holo` on `.k2-lb-ms-tier--holo` | Tier identity, not chart ink |
 | Amber chart series (goals/month, play-texture amber, …) | `T.amber()` → `--k2-chart-amber` → `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
 | Pitch / chrome / holo chart series | `T.pitch()` etc. → `--k2-chart-*` → `--k2-pure-*` | Full palette ink (no extra softening yet) |
 | Player name, profile link, Elo highlight span | `a.k2-link-star` / `.k2-link-star` | Tint-following soft accent |

@@ -8,9 +8,9 @@ Maps the **110 curated keys** to implementation families: what stored truth to r
 
 ---
 
-## Garden links (UX register)
+## Unlock event UI (UX register)
 
-Per-key **garden** deep-link behavior (not DB columns): [`milestones-garden-links.md`](milestones-garden-links.md) · `data/milestone_garden_links.json` · regenerate with `python scripts/oneoff/build_milestone_garden_links.py`.
+Per-key **Link + Event** (not DB columns): master table [`milestones-garden-links.md`](milestones-garden-links.md) · spec [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) · `data/milestone_garden_links.json` · regenerate with `python scripts/oneoff/build_milestone_garden_links.py`.
 
 ---
 

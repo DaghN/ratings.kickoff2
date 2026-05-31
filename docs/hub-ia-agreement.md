@@ -124,7 +124,7 @@ Notes:
 | Hub tab | `milestones.php` between Leaderboards and Hall of Fame |
 | Build plan | [`docs/milestones-hub-ia.md`](milestones-hub-ia.md) — Recent · Catalog · `milestone.php` detail |
 | Player garden | `individual_milestones.php` (per player) |
-| HoF achievers | Trial block on `server2.php` until hub hosts lists; then remove from HoF |
+| HoF achievers | **Removed** May 2026 — DD list on `milestone.php`; HoF footer links to Milestones hub |
 | Activity | Milestone digest/charts stay on `server1.php` until hub Charts sub-nav; **no Activity slim scheduled in stub slice** |
 
 ---

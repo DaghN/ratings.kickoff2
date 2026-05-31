@@ -15,7 +15,7 @@
 | Helpers | `includes/player_feast_helpers.php` |
 | Hero | `includes/player_hero.php` (rank, rating, games, milestones when unlocked) |
 | Nav pills | `includes/player_nav.php` — Profile · Games · W/D/L · Goals · DDs · **Milestones** |
-| Milestones | `individual_milestones.php` — tier garden (catalog count from DB, **112** after `year_in_heaven`); helpers `includes/player_milestones_helpers.php` |
+| Milestones | `individual_milestones.php` — tier garden (catalog count from DB, **112** after `year_in_heaven`); all card titles link to `milestone.php?key=` (locked = underline + hover brighten); date line uses unlock-event register; helpers `includes/player_milestones_helpers.php` |
 | CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
 | Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_weeks.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
 

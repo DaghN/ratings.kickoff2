@@ -35,7 +35,7 @@ Bands follow **career position and difficulty**, not loot rarity (contrast Diabl
 | 1 | **Aspirational** | `pitch` | `#9ccc65` | Early server life — unlocks as you **encounter** types of play and first-time events. Many land quickly once you are active; you are “on the way,” not yet a grinder. |
 | 2 | **Dedicated** *(was Veteran)* | `chrome` | `#64b5f6` | Post-beginner — milestones typical once you have moved past newbie rank into **mid-level grinding** (volume, variety, sustained play). |
 | 3 | **Accomplished** *(Keystones; was Key)* | `amber` | `#ffb74d` | **Completeness palette** — not “hardest,” but **what makes you a fully accomplished player** on this server. **~18 locked** (May 2026) in theme doc. Realistic to **collect all** with effort and longevity; not lottery-tier. |
-| 4 | **Legendary** | `holo` | `#b388ff` | Genuinely very difficult or rare — e.g. winning a **yearly** league, **10k** rated games, 10–10 draw. **~17 locked** (May 2026). Few players, long horizons. |
+| 4 | **Legendary** | `holo` | `#bf80f8` (`--k2-ms-holo`; site holo `#b388ff`) | Genuinely very difficult or rare — e.g. winning a **yearly** league, **10k** rated games, 10–10 draw. **~17 locked** (May 2026). Few players, long horizons. |
 
 ### Label note: Aspirational
 
@@ -104,7 +104,7 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | Item | Plan |
 |------|------|
 | `player_milestones` | One row per player per `milestone_key`; `achieved_at` UTC |
-| Garden deep links | Per-key register — [`milestones-garden-links.md`](milestones-garden-links.md) + `data/milestone_garden_links.json` (lockstep with `milestone_garden_links.php`) |
+| Unlock event link + context | [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) · register [`milestones-garden-links.md`](milestones-garden-links.md) + `data/milestone_garden_links.json` · `milestone_garden_links.php` |
 | `milestone_definitions` (Phase 3) | SCH-011; 110 rows from [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
 | `player_milestones` unlock rows | **22 key types** after rebuild wave 1 (2 game + 20 league); ~88 TODO — [`milestones-facilitation.md`](milestones-facilitation.md) |
 

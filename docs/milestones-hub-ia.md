@@ -27,7 +27,7 @@ Single **public home** for the milestone system:
 |------|--------|
 | Top-level tab | **Milestones** — after Leaderboards, before Hall of Fame |
 | Page | `milestones.php` |
-| HoF achievers | Stay on `server2.php` until hub can host lists; then **remove** from HoF |
+| HoF achievers | **Removed** from `server2.php` — per-key lists on `milestone.php` |
 
 ---
 

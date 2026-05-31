@@ -30,6 +30,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Period activity leaderboards | L2 | SCH-004, SCH-006 | REP-003, REP-005 | Pending | — | Staging SCH+REP done May 2026 |
 | Profile hero milestones (no peak) | L0 | — | — | — | — | Hero: tier counts + `n/110` → garden; peak only on leaderboards/charts |
 | Milestones Phase 4 v0 UI | L0 | — | — | Pending | — | **Staging DB done** May 2026; WinSCP PHP for garden/ranked10/HoF if not already; prod pending |
+| Milestone unlock event UI | L0 | — | — | — | — | Register + Recent/garden/achievers; garden titles (locked+unlocked); HoF DD block removed; [`milestones-unlock-event-ui.md`](../milestones-unlock-event-ui.md) |
 | Milestone `year_in_heaven` (52 weeks/year) | L2 | SCH-011 | REP-008 splice | **Staging done** May 2026 | — | Catalog **112**, **5** holders on `kooldb` (geo4444/2021); establishing game; add-one playbook local-verify; handoff [`milestones-year-in-heaven-handoff.md`](milestones-year-in-heaven-handoff.md) |
 | Milestone `play_streak_100` (100 days of bliss) | L2 | SCH-011 | REP-008 splice | Pending | — | **Catalog on staging** May 2026; copy patch May 2026 (`patch_milestone_catalog_copy.php`); 0 unlock holders; playbook [`milestones-add-one-playbook.md`](milestones-add-one-playbook.md) |
 | Milestones post-game contract | L2 | SCH-011–013 | REP-008 | Pending | — | `website-data-contract.md` § post-game (M1–M7); **staging REP-008 done**; prod C++ pending Steve |

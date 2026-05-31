@@ -502,7 +502,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 - `source_kind = game` → `source_game_id` NOT NULL; league columns NULL.
 - `source_kind = league` → `source_league_kind`, `source_period_type`, `source_period_start` NOT NULL; `source_game_id` NULL.
 - `source_kind = lobby` → only for `entered_arena`: `achieved_at = playertable.JoinDate` (in this product, **registering = entering the lobby**). `source_game_id` and league columns NULL. Not rebuilt by ladder replay; set at account creation (live server).
-- UI deep links: game page by `source_game_id`; Status leagues by `source_league_*`; lobby milestone → profile / community copy (no game or league URL). **Garden** link behavior per key is a separate UX register — [`milestones-garden-links.md`](milestones-garden-links.md) (not stored on `player_milestones`).
+- UI deep links: game page by `source_game_id`; Status leagues by `source_league_*`; lobby milestone → profile / community copy (no game or league URL). **Link + list context** per key: [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) (not stored on `player_milestones`).
 
 **Rebuild coverage (May 2026):**
 
