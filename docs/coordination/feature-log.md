@@ -10,6 +10,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Activity recent milestones digest | — | — | — | — | — | **Removed Jun 2026**; busiest day moved to Activity summary (`server_period_game_totals`) |
 | Activity Double Digit Merchant charts | — | — | — | — | — | **Removed Jun 2026** (Activity + APIs/JS deleted; `milestone.php` Graphs = unlock year + cumulative only; rating histograms on `server1.php` for established only) |
 | Activity recent daily chart | L0 | — | — | — | — | Read-time |
+| Activity charts v2 (single module) | — | — | — | — | — | **Shipped** on `server1.php` — `activity-charts-v2.js`; legacy boot files removed Jun 2026; desktop bar grow-up Jun 2026; [`activity-charts.md`](../activity-charts.md) |
 | Persistent tint preference | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | Local 6h slots; manual override; `k2-tint-schedule.js` |
 | Records two-panel split | L0 | — | — | — | — | Peak cache read path |

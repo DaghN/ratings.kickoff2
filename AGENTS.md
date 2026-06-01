@@ -14,7 +14,7 @@ Cold start (do **before** coding unless Dagh pasted full context):
 | 2 | [`AGENTS.md`](AGENTS.md) | Agent rituals, authority, and finish rules |
 | 3 | [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) | What repo is; where code and docs live |
 | 4 | Dagh’s message | Today’s goal wins over stale docs |
-| 5 | Feature spec **if** obvious | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md` |
+| 5 | Feature spec **if** obvious | e.g. `docs/STATUS_PAGE_DATA.md`, `docs/activity-charts.md`, `docs/player-profile-feast.md` |
 | 6 | [`docs/design-direction.md`](docs/design-direction.md) | If UI/theme work |
 
 **Do not** read all of `docs/coordination/` up front. Open [`docs/prod-coordination.md`](docs/prod-coordination.md) only when the task touches **stored ladder truth** or Steve/migration.

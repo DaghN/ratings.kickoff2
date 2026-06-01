@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Chart.js colours aligned with stylesheets/theme.css tokens.
  * Load before chart init scripts on themed pages.
  *
- * Primitives: --k2-pure-* (hex). Chart roles: --k2-chart-* (amber → --k2-amber-soft).
+ * Primitives: --k2-pure-* (hex). Chart roles: --k2-chart-* (amber â†’ --k2-amber-soft).
  * Links: linkStar() follows active --k2-accent (tint). Profile compare uses pitch/chrome helpers.
  */
 (function (global) {
@@ -267,11 +267,6 @@
             tip[key] = themed[key];
         });
     }
-
-    var blockInitQueue = [];
-    var blockInitDraining = false;
-    var BLOCK_INIT_GAP_MS = 50;
-
     function isCoarsePointer() {
         try {
             return global.matchMedia('(pointer: coarse)').matches
@@ -283,284 +278,128 @@
 
     function prefersReducedMotion() {
         try {
-            return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            return global.matchMedia('(prefers-reduced-motion: reduce)').matches;
         } catch (e) {
             return false;
         }
     }
 
-    function drainBlockInitQueue() {
-        if (!blockInitQueue.length) {
-            blockInitDraining = false;
-            return;
-        }
-        blockInitDraining = true;
-        blockInitQueue.sort(function (a, b) {
-            return a.priority - b.priority;
-        });
-        var item = blockInitQueue.shift();
-        try {
-            item.run();
-        } catch (e) {
-            /* ignore */
-        }
-        if (blockInitQueue.length) {
-            setTimeout(drainBlockInitQueue, BLOCK_INIT_GAP_MS);
-        } else {
-            blockInitDraining = false;
-        }
+    /** Bar grow-up on all pointers; off when OS requests reduced motion. */
+    function activityBarMotionEnabled() {
+        return !prefersReducedMotion();
     }
 
-    function enqueueBlockInit(run, priority) {
-        blockInitQueue.push({
-            run: run,
-            priority: priority == null ? 50 : priority
-        });
-        if (!blockInitDraining) {
-            drainBlockInitQueue();
-        }
+    function activityBarGrowDurationMs() {
+        return isCoarsePointer() ? 420 : 520;
     }
 
-    /**
-     * Queue Activity chart fetch/build in priority order on page load.
-     * (Viewport deferral removed — fast scroll skipped IntersectionObserver and stalled charts.)
-     */
-    function whenBlockVisible(block, callback, priority) {
-        if (!block || typeof callback !== 'function') {
-            return;
-        }
-        if (block.getAttribute('data-k2-chart-init') === '1') {
-            return;
-        }
-        block.setAttribute('data-k2-chart-init', '1');
-        enqueueBlockInit(callback, priority);
-    }
-
-    function activateChartAtEvent(chart, evt, elements) {
-        if (!chart || !evt) {
-            return;
-        }
-        var pos = { x: evt.x, y: evt.y };
-        if (elements && elements.length) {
-            chart.setActiveElements(elements);
-            if (chart.tooltip) {
-                chart.tooltip.setActiveElements(elements, pos);
-            }
-        } else {
-            chart.setActiveElements([]);
-            if (chart.tooltip) {
-                chart.tooltip.setActiveElements([], pos);
-            }
-        }
-        chart.update();
-    }
-
-    function pickChartElements(chart, evt) {
-        var interaction = chart.options.interaction || {};
-        var mode = interaction.mode || 'nearest';
-        try {
-            return chart.getElementsAtEventForMode(evt, mode, {
-                intersect: interaction.intersect === true,
-                axis: interaction.axis
-            }, false);
-        } catch (err) {
-            return [];
-        }
-    }
-
-    /** Touch: tap shows tooltip; mouse: hover as usual. */
-    function chartPointerOptions() {
-        if (isCoarsePointer()) {
-            return {
-                events: ['touchstart', 'click', 'mousemove', 'mouseout'],
-                interaction: {
-                    mode: 'nearest',
-                    intersect: false,
-                    axis: 'x'
-                },
-                plugins: {
-                    tooltip: {
-                        enabled: true,
-                        events: ['touchstart', 'click']
-                    }
-                }
-            };
-        }
+    function activityBarGrowAnimation() {
         return {
-            events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
-            interaction: {
-                mode: 'index',
-                intersect: false
-            }
+            duration: activityBarGrowDurationMs(),
+            easing: 'easeOutQuart'
         };
     }
 
-    function cloneChartDataPoint(pt) {
-        if (pt === null || pt === undefined) {
-            return pt;
+    /** Pixel Y where the bar top starts (baseline or stack foot) — not 0 (top of canvas). */
+    function activityBarGrowYFrom(ctx) {
+        if (!ctx || ctx.type !== 'data') {
+            return undefined;
         }
-        if (typeof pt !== 'object') {
-            return pt;
+        var chart = ctx.chart;
+        var meta = chart.getDatasetMeta(ctx.datasetIndex);
+        var yAxisID = (meta && meta.yAxisID) ? meta.yAxisID : 'y';
+        var yScale = chart.scales[yAxisID];
+        if (!yScale || typeof yScale.getPixelForValue !== 'function') {
+            return undefined;
         }
-        var copy = {};
-        for (var key in pt) {
-            if (Object.prototype.hasOwnProperty.call(pt, key)) {
-                copy[key] = pt[key];
-            }
-        }
-        return copy;
-    }
-
-    function zeroDatasetValues(data) {
-        var zeroed = [];
-        for (var i = 0; i < data.length; i++) {
-            var pt = data[i];
-            if (pt !== null && typeof pt === 'object' && typeof pt.y === 'number') {
-                var z = cloneChartDataPoint(pt);
-                z.y = 0;
-                zeroed.push(z);
-            } else if (typeof pt === 'number') {
-                zeroed.push(0);
-            } else {
-                zeroed.push(pt);
-            }
-        }
-        return zeroed;
-    }
-
-    /**
-     * Bar grow: mount at y=0 then chart.update() to real values (works on desktop + mobile).
-     */
-    function createBarChart(canvas, config) {
-        if (typeof Chart === 'undefined') {
-            return null;
-        }
-        var animate = !prefersReducedMotion();
-        var datasets = config.data && config.data.datasets;
-        var saved = null;
-        config.options = config.options || {};
-        var wasResponsive = config.options.responsive !== false;
-        var priorAnimation = config.options.animation;
-
-        if (animate && datasets && datasets.length) {
-            saved = [];
-            for (var d = 0; d < datasets.length; d++) {
-                saved.push(datasets[d].data);
-                datasets[d].data = zeroDatasetValues(datasets[d].data || []);
-            }
-            config.options.responsive = false;
-            config.options.animation = false;
-        }
-
-        var chart = new Chart(canvas, config);
-
-        if (animate && saved) {
-            var animation = priorAnimation || {
-                duration: 700,
-                easing: 'easeOutCubic',
-                onComplete: function () {
-                    if (!this || !this.options) {
-                        return;
-                    }
-                    this.options.responsive = wasResponsive;
-                    if (this.options.transitions && this.options.transitions.resize
-                        && this.options.transitions.resize.animation) {
-                        this.options.transitions.resize.animation.duration = 0;
-                    }
-                    if (wasResponsive) {
-                        this.resize();
-                    }
-                }
-            };
-            config.options.animation = animation;
-            chart.options.animation = animation;
-            for (var d2 = 0; d2 < datasets.length; d2++) {
-                datasets[d2].data = saved[d2];
-                if (chart.data && chart.data.datasets && chart.data.datasets[d2]) {
-                    chart.data.datasets[d2].data = saved[d2];
+        var datasets = chart.data.datasets;
+        var dataset = datasets[ctx.datasetIndex];
+        var baseValue = 0;
+        if (dataset && dataset.stack) {
+            var stackId = dataset.stack;
+            var i;
+            for (i = 0; i < ctx.datasetIndex; i++) {
+                if (datasets[i].stack === stackId) {
+                    var raw = datasets[i].data[ctx.dataIndex];
+                    var n = typeof raw === 'object' && raw !== null ? raw.y : raw;
+                    baseValue += Number(n) || 0;
                 }
             }
-            chart.update();
         }
-        return chart;
+        return yScale.getPixelForValue(baseValue);
     }
 
-    function createChart(canvas, config) {
-        if (!config) {
-            return null;
-        }
-        if (config.type === 'bar') {
-            return createBarChart(canvas, config);
-        }
-        return new Chart(canvas, config);
-    }
-
-    function chartMotionOptions(chartKind) {
-        if (prefersReducedMotion()) {
-            return { animation: false };
-        }
-        var duration = chartKind === 'bar' ? 700 : 500;
-        var opts = {
-            animation: {
+    function activityBarGrowAnimations() {
+        var duration = activityBarGrowDurationMs();
+        return {
+            y: {
+                type: 'number',
+                from: activityBarGrowYFrom,
                 duration: duration,
                 easing: 'easeOutQuart'
             }
         };
-        return opts;
     }
 
-    function mergeChartOptions(userOptions, chartKind) {
-        var base = userOptions || {};
-        var motion = chartMotionOptions(chartKind);
-        var pointer = chartPointerOptions();
-        var merged = Object.assign({}, base, motion);
-        merged.events = pointer.events;
-        merged.interaction = Object.assign({}, pointer.interaction, base.interaction || {});
-        merged.plugins = Object.assign({}, base.plugins || {});
-        var pointerTip = pointer.plugins && pointer.plugins.tooltip;
-        merged.plugins.tooltip = Object.assign(
-            { enabled: true },
-            pointerTip || {},
-            merged.plugins.tooltip || {}
-        );
-        return merged;
-    }
-
-    function registerK2ChartPlugins() {
-        if (typeof Chart === 'undefined' || registerK2ChartPlugins.done) {
-            return;
-        }
-        registerK2ChartPlugins.done = true;
-
-        Chart.register({
-            id: 'k2TouchPointer',
-            afterEvent: function (chart, args) {
-                if (!isCoarsePointer() || !chart || !args || !args.event) {
-                    return;
+    function activityChartTransitions() {
+        return {
+            resize: {
+                animation: {
+                    duration: 0
                 }
-                var e = args.event;
-                if (e.type !== 'touchstart') {
-                    return;
-                }
-                var items = pickChartElements(chart, e);
-                activateChartAtEvent(chart, e, items);
             }
-        });
+        };
     }
 
-    function applyChartMotionDefaults() {
-        if (typeof Chart === 'undefined' || !Chart.defaults) {
-            return;
+    /**
+     * Per-chart options for Activity — does not mutate Chart.defaults.
+     * @param {object} userOptions Chart.js options
+     * @param {{ chartKind?: 'bar'|'line'|'none' }} meta chartKind 'bar' = grow-up (all devices; shorter on coarse)
+     */
+    function activityChartOptions(userOptions, meta) {
+        var coarse = isCoarsePointer();
+        var chartKind = (meta && meta.chartKind) || 'none';
+        var animateBars = chartKind === 'bar' && activityBarMotionEnabled();
+        var interaction = {
+            mode: coarse ? 'nearest' : 'index',
+            intersect: false
+        };
+        if (coarse) {
+            interaction.axis = 'x';
         }
-        var pointer = chartPointerOptions();
-        Chart.defaults.events = pointer.events;
-        Chart.defaults.interaction = Object.assign({}, Chart.defaults.interaction, pointer.interaction);
-        if (!prefersReducedMotion()) {
-            Chart.defaults.animation = {
-                duration: 600,
-                easing: 'easeOutQuart'
-            };
+        var base = {
+            responsive: true,
+            maintainAspectRatio: true,
+            animation: animateBars ? activityBarGrowAnimation() : false,
+            animations: animateBars ? activityBarGrowAnimations() : false,
+            transitions: activityChartTransitions(),
+            /* Phone: no touchstart — keeps vertical scroll; tooltips off (tap tooltips stuck scroll). */
+            events: coarse
+                ? ['mousemove', 'mouseout', 'click']
+                : ['mousemove', 'mouseout', 'click', 'touchstart'],
+            interaction: interaction,
+            plugins: {
+                legend: { labels: { color: cssVar('--k2-text-muted', '#8b949e') } },
+                tooltip: coarse ? { enabled: false } : {}
+            }
+        };
+        var u = userOptions || {};
+        var merged = Object.assign({}, base, u);
+        merged.interaction = Object.assign({}, interaction, u.interaction || {});
+        merged.plugins = Object.assign({}, base.plugins, u.plugins || {});
+        if (u.plugins && u.plugins.tooltip) {
+            merged.plugins.tooltip = Object.assign({}, merged.plugins.tooltip);
         }
+        if (coarse) {
+            merged.plugins.tooltip = Object.assign({}, merged.plugins.tooltip, { enabled: false });
+        }
+        merged.transitions = Object.assign({}, activityChartTransitions(), u.transitions || {});
+        if (animateBars && u.animation === undefined) {
+            merged.animation = activityBarGrowAnimation();
+            merged.animations = activityBarGrowAnimations();
+        }
+        merged.events = u.events || base.events;
+        return merged;
     }
 
     global.K2ChartTheme = {
@@ -571,7 +410,8 @@
         pitch: function () { return chartColor('--k2-chart-pitch', '#9ccc65'); },
         chrome: function () { return chartColor('--k2-chart-chrome', '#64b5f6'); },
         holo: function () { return chartColor('--k2-chart-holo', '#b388ff'); },
-        amber: function () { return chartColor('--k2-chart-amber', '#ffb74d'); },
+        /** Resolved rgb — Chart.js cannot parse var(--k2-chart-amber) / color-mix tokens. */
+        amber: function () { return this.amberSoft(); },
         amberSoft: function () {
             var fromDom = parseColorToRgb(cssResolvedColorVar('--k2-amber-soft', ''));
             if (fromDom) {
@@ -583,7 +423,7 @@
         teal: function () { return chartColor('--k2-chart-teal', '#4db6ac'); },
         magenta: function () { return chartColor('--k2-chart-magenta', '#ff4081'); },
         accent: function () { return chartColor('--k2-accent', '#ffb74d'); },
-        /** Link ink (85% active accent + 15% primary) — follows tint picker. */
+        /** Link ink (85% active accent + 15% primary) â€” follows tint picker. */
         linkStar: function () {
             var fromDom = parseColorToRgb(cssResolvedColorVar('--k2-link-star', ''));
             if (fromDom) {
@@ -643,14 +483,11 @@
         tooltipDefaults: tooltipThemeOptions,
         mergeTooltip: mergeTooltip,
         applyTooltipDefaults: applyChartTooltipDefaults,
-        whenBlockVisible: whenBlockVisible,
-        mergeChartOptions: mergeChartOptions,
-        createChart: createChart,
-        createBarChart: createBarChart,
-        applyMotionDefaults: applyChartMotionDefaults
+        activityChartOptions: activityChartOptions,
+        activityBarMotionEnabled: activityBarMotionEnabled,
+        isCoarsePointer: isCoarsePointer,
+        prefersReducedMotion: prefersReducedMotion
     };
 
     applyChartTooltipDefaults();
-    applyChartMotionDefaults();
-    registerK2ChartPlugins();
 })(typeof window !== 'undefined' ? window : this);

@@ -191,8 +191,8 @@ body.k2-site .k2-ms-card.is-unlocked a.k2-ms-card__title-link:hover {
 	align-items: flex-start;
 	width: 100%;
 	max-width: 100%;
-	font-size: 13px;
-	line-height: 1.45;
+	font-size: 12px;
+	line-height: 1.4;
 }
 
 /* Shrink-wrap table width; filter centred inside this box, cluster left on page */
@@ -328,7 +328,7 @@ body.k2-site a.k2-ms-recent-tier-filter__tab--holo:hover:not(.is-active) {
  * (max-content per filter subset was jumping). Tune --k2-ms-recent-col-* if clipping.
  */
 .k2-ms-recent-list {
-	--k2-ms-recent-col-when: 9.5rem; /* ~70% of 13.5rem — UTC datetime may ellipsis */
+	--k2-ms-recent-col-when: 8.4rem;
 	--k2-ms-recent-col-player: 6.65rem; /* 70% of 9.5rem */
 	--k2-ms-recent-col-feat: 10.35rem; /* 90% of 11.5rem */
 	--k2-ms-recent-col-rule: calc(18.4rem + 10px); /* +10px on prior 18.4rem */
@@ -355,7 +355,7 @@ body.k2-site a.k2-ms-recent-tier-filter__tab--holo:hover:not(.is-active) {
 	grid-template-columns: subgrid;
 	align-items: baseline;
 	margin: 0;
-	padding: 11px 2px;
+	padding: 7px 2px;
 	border-bottom: 1px solid var(--k2-border-subtle);
 }
 

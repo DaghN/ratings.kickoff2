@@ -19,6 +19,8 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 
 **No separate “status.php API”** — PHP + SQL against these tables (same pattern as `server1.php`, ranked pages).
 
+**Activity tab (`server1.php`) charts** are client-side Chart.js + `api/server_*.php` — plan and panel registry: [`activity-charts.md`](activity-charts.md) (out of Status hub scope).
+
 **Still needs Steve / prod agreement (later, not blocking dev):** live read on prod, joshua redirect, kickoff2 embed.
 
 ---

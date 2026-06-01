@@ -673,7 +673,11 @@ body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty {
 
 /* ── Chart blocks on server / profile pages ── */
 body.k2-site .server-activity-summary {
-	max-width: var(--k2-chart-max-width);
+	box-sizing: border-box;
+	width: 100%;
+	/* Hub column width — charts below stay --k2-chart-max-width (960px) in .k2-chart-frame */
+	max-width: min(var(--k2-max-width), 100%);
+	min-width: 0;
 	margin-bottom: 16px;
 	padding: 14px;
 	border: 1px solid var(--k2-border-subtle);
@@ -695,8 +699,9 @@ body.k2-site .server-activity-summary__lede {
 
 body.k2-site .server-activity-summary__stats {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(min(132px, 100%), 1fr));
 	gap: 10px;
+	min-width: 0;
 }
 
 body.k2-site .server-activity-summary__stat {
@@ -770,7 +775,10 @@ body.k2-site .player-top-opponents-chart,
 body.k2-site .player-head-to-head-chart,
 body.k2-site .player-compare-rating-chart,
 body.k2-site .player-h2h-opponent-search {
-	max-width: var(--k2-chart-max-width);
+	box-sizing: border-box;
+	width: 100%;
+	max-width: min(var(--k2-chart-max-width), 100%);
+	min-width: 0;
 	margin-bottom: 16px;
 	padding: 14px;
 	border: 1px solid var(--k2-border-subtle);
@@ -778,7 +786,31 @@ body.k2-site .player-h2h-opponent-search {
 	background: var(--k2-bg-surface);
 }
 
-/* Chart.js needs none so touchstart reaches the canvas (manipulation broke tap tooltips). */
+/* Activity hub charts — v2 frame (docs/activity-charts.md); scoped to Activity page body class. */
+body.k2-site.k2-activity-charts .k2-chart-frame {
+	position: relative;
+	width: 100%;
+	max-width: var(--k2-chart-max-width);
+	height: var(--k2-chart-frame-height, 271px);
+	margin: 0 auto;
+}
+
+body.k2-site.k2-activity-charts .k2-chart-frame--tall {
+	--k2-chart-frame-height: 360px;
+}
+
+body.k2-site.k2-activity-charts .activity-heatmap-wrap {
+	width: 100%;
+	max-width: var(--k2-chart-max-width);
+	margin-left: auto;
+	margin-right: auto;
+}
+
+body.k2-site.k2-activity-charts .k2-chart-panel__status {
+	margin: 0 0 8px 0;
+}
+
+/* Desktop: none so Chart.js touchstart can show tooltips. */
 body.k2-site .server-games-day-chart canvas,
 body.k2-site .server-games-month-chart canvas,
 body.k2-site .server-games-year-chart canvas,
@@ -796,8 +828,55 @@ body.k2-site .player-winrate-opponent-chart canvas,
 body.k2-site .player-top-opponents-chart canvas,
 body.k2-site .player-head-to-head-chart canvas,
 body.k2-site .player-compare-rating-chart canvas {
+	display: block;
+	max-width: 100%;
 	touch-action: none;
 	-webkit-tap-highlight-color: transparent;
+}
+
+/* Phone: vertical scroll + pinch-zoom over chart panels (pan-y alone blocks pinch). */
+@media (pointer: coarse), (hover: none) {
+	body.k2-site .server-games-day-chart,
+	body.k2-site .server-games-month-chart,
+	body.k2-site .server-games-year-chart,
+	body.k2-site .server-active-players-month-chart,
+	body.k2-site .server-daily-active-players-chart,
+	body.k2-site .server-top-activity-eras-chart,
+	body.k2-site .server-established-players-year-chart,
+	body.k2-site .server-cumulative-established-month-chart,
+	body.k2-site .server-established-rating-distribution-chart,
+	body.k2-site .server-play-texture-chart,
+	body.k2-site .server-matchup-breadth-chart,
+	body.k2-site .server-activity-heatmap,
+	body.k2-site .player-rating-chart,
+	body.k2-site .player-games-month-chart,
+	body.k2-site .player-winrate-opponent-chart,
+	body.k2-site .player-top-opponents-chart,
+	body.k2-site .player-head-to-head-chart,
+	body.k2-site .player-compare-rating-chart,
+	body.k2-site .server-games-day-chart canvas,
+	body.k2-site .server-games-month-chart canvas,
+	body.k2-site .server-games-year-chart canvas,
+	body.k2-site .server-active-players-month-chart canvas,
+	body.k2-site .server-daily-active-players-chart canvas,
+	body.k2-site .server-top-activity-eras-chart canvas,
+	body.k2-site .server-established-players-year-chart canvas,
+	body.k2-site .server-cumulative-established-month-chart canvas,
+	body.k2-site .server-established-rating-distribution-chart canvas,
+	body.k2-site .server-play-texture-chart canvas,
+	body.k2-site .server-matchup-breadth-chart canvas,
+	body.k2-site .player-rating-chart canvas,
+	body.k2-site .player-games-month-chart canvas,
+	body.k2-site .player-winrate-opponent-chart canvas,
+	body.k2-site .player-top-opponents-chart canvas,
+	body.k2-site .player-head-to-head-chart canvas,
+	body.k2-site .player-compare-rating-chart canvas,
+	body.k2-site.k2-activity-charts .k2-chart-panel,
+	body.k2-site.k2-activity-charts .k2-chart-frame,
+	body.k2-site.k2-activity-charts .k2-chart-frame canvas,
+	body.k2-site.k2-activity-charts .activity-heatmap-wrap {
+		touch-action: pan-y pinch-zoom;
+	}
 }
 
 /* Profile stat tables — vertical stack in shared page column */
@@ -854,30 +933,63 @@ body.k2-site .server-matchup-breadth-chart-status {
 	color: var(--k2-text-muted);
 }
 
-/* ── Activity heatmap ── */
+/* ── Activity heatmap (cell size from JS: --heatmap-cell, --heatmap-weeks) ── */
 .activity-heatmap {
-	overflow-x: auto;
+	--heatmap-cell: 11px;
+	--heatmap-weeks: 53;
+	--heatmap-label-col: 28px;
+	--heatmap-gap: 2px;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	overflow-x: hidden;
 	padding-bottom: 4px;
 }
 
+.activity-heatmap.activity-heatmap--scrolls {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.activity-heatmap__months,
+.activity-heatmap__grid {
+	display: grid;
+	gap: var(--heatmap-gap);
+	grid-template-columns: var(--heatmap-label-col) repeat(var(--heatmap-weeks), var(--heatmap-cell));
+}
+
+.activity-heatmap__grid > * {
+	min-width: 0;
+}
+
+.activity-heatmap__months {
+	margin-bottom: 2px;
+}
+
+.activity-heatmap__grid {
+	grid-template-rows: repeat(7, var(--heatmap-cell));
+}
+
 .activity-heatmap__month-label {
-	font-size: 10px;
-	line-height: 11px;
+	font-size: clamp(9px, calc(var(--heatmap-cell) * 0.82), 12px);
+	line-height: 1.1;
 	color: var(--k2-text-muted);
 	white-space: nowrap;
+	overflow: visible;
 }
 
 .activity-heatmap__day-label {
-	font-size: 10px;
-	line-height: 11px;
+	font-size: clamp(9px, calc(var(--heatmap-cell) * 0.82), 12px);
+	line-height: 1.1;
 	color: var(--k2-text-muted);
 	display: flex;
 	align-items: center;
 }
 
 .activity-heatmap__cell {
-	width: 11px;
-	height: 11px;
+	box-sizing: border-box;
+	width: var(--heatmap-cell);
+	height: var(--heatmap-cell);
 	border-radius: 2px;
 	cursor: default;
 }

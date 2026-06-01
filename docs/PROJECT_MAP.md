@@ -37,7 +37,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 |-------|------|--------|
 | **Taste** | UI/copy/scope disputes | `PROJECT_BRIEF.md`, `docs/design-direction.md` |
 | **Now** | Every session | `PROJECT_MEMORY.md` |
-| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, **`docs/milestones-README.md`** (milestones entry → `milestones-catalog.md`), `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md` |
+| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, **`docs/activity-charts.md`** (Activity `server1.php` charts), **`docs/milestones-README.md`** (milestones entry → `milestones-catalog.md`), `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md` |
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |

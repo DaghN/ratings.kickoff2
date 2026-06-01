@@ -16,7 +16,8 @@
 - **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (day games list deferred).
 - **Design / cosmetics track:** Phase A hub shell + Status Phase B v1.2 room grid; `docs/STATUS_PAGE_DATA.md`. Steve for prod DB read + joshua redirect. **Realm switcher** markup kept in header; **hidden in CSS** until Amiga ships.
 
-- **Charts:** **six-colour palette signed** (May 2026) — canonical tokens `pitch` / `chrome` / `holo` / `amber` / `teal` / `magenta` in `theme.css` + `chart-theme.js`; Activity on `server1.php`; profile uses pitch/chrome or `profileCompare*` helpers. No legacy green/blue/coral/purple names.
+- **Activity charts v2:** **shipped on `server1.php`** — [`activity-charts-v2.js`](site/public_html/js/activity-charts-v2.js) + [`server_activity_chart_panels.php`](site/public_html/includes/server_activity_chart_panels.php); legacy boot files removed. **Bar grow-up** on phone + desktop via `chart-theme.js` (Jun 2026). Plan: [`docs/activity-charts.md`](docs/activity-charts.md). **Next (optional L4):** lazy load, phone long-press tooltips.
+- **Charts:** **six-colour palette signed** (May 2026) — canonical tokens in `theme.css` + `chart-theme.js`. Profile uses pitch/chrome or `profileCompare*` helpers.
 
 - **DB performance (May 2026):** Profile load fixed mainly via **`idx_ratedresults_idA` / `idx_ratedresults_idB`** — local + staging; **production still pending** (Steve when agreed). Heavy profiles ~**8s → ~1s** locally. **Status page local + staging DB fixed** via `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; local HTTP ~8.5s → ~0.28s, staging SQL verified by Steve (2,674 monthly rows / 149,740 appearances). **`server1.php` shell is fast locally** (~40–120ms HTML); remaining Activity cost is async chart APIs (~2.8s concurrent / ~7s sequential), mainly established-player and active-player aggregates.
 
@@ -45,6 +46,7 @@
 | Per-game table | `docs/ratedresults-schema.md` |
 | Replay / Elo sandbox | `scripts/ladder/`, `docs/replay-v1-scope-and-reset.md` |
 | Profile layout / charts | `docs/player-profile-feast.md` |
+| Activity charts (plan + registry) | `docs/activity-charts.md` |
 | Status hub spec | `docs/STATUS_PAGE_DATA.md` |
 | Staging schema / replay status | `docs/coordination/schema-register.md`, `docs/coordination/replay-register.md` |
 | `player_milestones` row-count timeline (151 → 6658 → **6615**) | `docs/coordination/replay-register.md` § Milestone unlock row counts |
@@ -54,12 +56,13 @@
 
 ## Next (prioritised intent)
 
-1. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub, ranked, server, **status** pages.
-2. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
-3. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
-4. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
-5. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
-6. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
+1. **Deploy Activity v2** — WinSCP sync `server1.php`, `activity-charts-v2.js`, `server_activity_chart_panels.php`, `theme.css`, `chart-theme.js`; hard refresh.
+2. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub, ranked, server, **status** pages.
+3. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
+4. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
+5. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
+6. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
+7. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
 
 ---
 
@@ -69,9 +72,27 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Activity bar animation (desktop)** — defer `resizeChart` / `resizeAll` until sequential panel boot completes (`chartsBootComplete`). |
+| 2026-06 | **Activity heatmap months** — month row uses `grid-column: span N` per month (full “Jan”, not ellipsis in one week column). |
+| 2026-06 | **Activity heatmap layout** — cells scale to panel width (`ResizeObserver` + CSS vars); taller/wider on desktop; min 8px + horizontal scroll on narrow viewports. |
+| 2026-06 | **Activity bar animation on phone** — same grow-up as desktop (~420ms); scroll policy unchanged (no tooltips / no touchstart). |
+| 2026-06 | **Activity bar animation fix** — grow from y-axis baseline (`getPixelForValue`), not canvas top; stacked year chart uses stack foot. |
+| 2026-06 | **Activity charts L4 (partial)** — desktop bar grow-up (`chartKind: 'bar'` in v2); lines unchanged; phone still no animation. |
+| 2026-06 | **Activity busiest-day card** — summary stat order: Rated games (label) → count → Busiest day · date (note). |
+| 2026-06 | **Activity highlights panel width** — `.server-activity-summary` uses `--k2-max-width` (1200px), not chart 960px cap. |
+| 2026-06 | **Activity charts v2 L3** — `server1.php` ships v2 only; legacy 12 JS files deleted; `server1-charts-lab.php` → redirect; `body.k2-activity-charts` + `server_activity_chart_panels.php`. |
+| 2026-06 | **Activity charts phone touch** — coarse: panel + canvas `touch-action: pan-y pinch-zoom` (scroll + pinch; `pan-y` alone blocked zoom); Chart.js tooltips off on phone; heatmap tooltips desktop-only. |
+| 2026-06 | **Chart `T.amber()`** — returns resolved `amberSoft()` rgb so Chart.js never gets unresolved `color-mix` vars (fixed black line on top-10 chart for LORENZOL). |
+| 2026-06 | **Daily active players chart** — calendar 30-day rolling mean (gap days = 0); explicit smooth line in v2 + legacy `server-daily-active-players-chart.js`. |
+| 2026-06 | **Activity charts v2 L2** — all 12 panels in `activity-charts-v2.js`; `server_activity_chart_panels_lab.php`; lab loads `chart-date-range.js`; production unchanged (legacy). |
+| 2026-06 | **Milestones Recent density** — feed typography tuned to **12px / 1.4**, tighter **7px** row padding, and narrower date column (`player-milestones.css`). |
+| 2026-06 | **Revert site-wide mobile experiments** — removed viewport meta, hub scroll CSS, canvas stretch; lab CSS scoped to `body.k2-activity-charts-lab` only; `server1.php` canvases 960×271 restored. |
+| 2026-06 | **Activity charts lab UX** — tap link `server1.php` ↔ lab; no lab banner; lab summary full column width, charts still 960px frame. |
+| 2026-06 | **Activity charts v2 L1 lab** — `server1-charts-lab.php` + `activity-charts-v2.js` (games/day); `.k2-chart-frame` CSS; summary → `includes/server_activity_summary.php`; removed canvas `%` stretch rules. |
+| 2026-06 | **Activity charts v2 plan** — [`docs/activity-charts.md`](docs/activity-charts.md): single module, lab → promote, panel registry + parity checklist. |
+| 2026-06 | **Activity charts fix** — `activity-charts.js` boot only on `DOMContentLoaded` (first chart was skipped when boot ran before defer modules registered). Mobile: viewport meta in `k2_head.php`, chart `touch-action: pan-y`, fluid canvas width (removed 960px attrs), header/hub `min-width: 0`. |
+| 2026-06 | **Activity charts rewrite** — `chart-theme.js` slim (colours + tooltips + `activityChartOptions` only; no global `Chart.defaults` / touch plugin / `createBarChart`). `activity-charts.js` loads panels **sequentially** (~100ms gap). All Activity modules register with `K2ActivityCharts`; heatmap + play texture + busiest players **re-enabled** on `server1.php`. Mobile: `animation: false`; busiest chart skips hover highlight on coarse pointers. |
 | 2026-06 | **Fix** — restored missing `prefersReducedMotion()` in `chart-theme.js` (broke all Activity charts with “Could not load…”). |
-| 2026-06 | **Activity** — **Temp off:** 12-month daily heatmap + play texture + busiest-players charts on `server1.php` (mobile perf/touch test). |
-| 2026-06 | **Activity** — **Temp off:** “10 most active players ever” chart + JS on `server1.php` (mobile freeze/touch test). |
 | 2026-06 | **Activity chart interaction** — desktop bar grow restored even when browser reports reduced motion; mobile chart touch is tap-based (`touchstart`/`click`, no `touchmove`) + `touch-action: manipulation`. |
 | 2026-06 | **Cumulative established tooltip** — body line only: `Total established: N` (removed afterLabel explainer). |
 | 2026-06 | **Activity charts** — `createBarChart` (y=0 then update); `k2TouchPointer` plugin; no viewport IO. |
