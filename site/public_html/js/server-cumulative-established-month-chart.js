@@ -77,7 +77,7 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'line',
                     data: {
                         datasets: [Object.assign({
@@ -87,16 +87,16 @@
                             stepped: true,
                             pointRadius: 0,
                             pointHitRadius: 6
-                        }, T.lineStroke(T.holo()))]
+                        }, T.lineStroke(T.magenta()))]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: T.textPrimary() }
+                                labels: { color: T.textMuted() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -114,12 +114,9 @@
                                     },
                                     label: function (item) {
                                         return 'Total established: ' + item.parsed.y;
-                                    },
-                                    afterLabel: function () {
-                                        return 'A player reached ' + gamesRequired + ' rated games';
                                     }
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
@@ -149,7 +146,7 @@
                                 grid: { color: T.grid() }
                             }
                         }
-                    }
+                    }, 'line'),
                 });
             })
             .catch(function () {
@@ -162,7 +159,11 @@
     function boot() {
         var roots = document.querySelectorAll('.server-cumulative-established-month-chart');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 8);
+            })(roots[i]);
         }
     }
 

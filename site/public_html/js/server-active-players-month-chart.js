@@ -70,7 +70,7 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -78,14 +78,14 @@
                             data: chartData
                         }, T.barSolid(T.chrome()))]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: T.textPrimary() }
+                                labels: { color: T.textMuted() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -101,7 +101,7 @@
                                         });
                                     }
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
@@ -131,7 +131,7 @@
                                 grid: { color: T.softGrid() }
                             }
                         }
-                    }
+                    }, 'bar'),
                 });
             })
             .catch(function () {
@@ -144,7 +144,11 @@
     function boot() {
         var roots = document.querySelectorAll('.server-active-players-month-chart');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 4);
+            })(roots[i]);
         }
     }
 

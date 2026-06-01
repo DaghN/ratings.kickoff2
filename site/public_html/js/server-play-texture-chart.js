@@ -48,7 +48,7 @@
 
                 if (status) status.textContent = '';
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'line',
                     data: {
                         datasets: [
@@ -83,16 +83,16 @@
                                 tension: 0.3,
                                 pointRadius: 0,
                                 pointHitRadius: 6
-                            }, T.lineStroke(T.teal()))
+                            }, T.lineStroke(T.holo()))
                         ]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
-                            legend: { labels: { color: T.textPrimary() } },
-                            tooltip: {
+                            legend: { labels: { color: T.textMuted() } },
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) return '';
@@ -101,7 +101,7 @@
                                         return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
                                     }
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
@@ -125,7 +125,7 @@
                                 grid: { drawOnChartArea: false }
                             }
                         }
-                    }
+                    }, 'line'),
                 });
             })
             .catch(function () {
@@ -135,7 +135,13 @@
 
     function boot() {
         var roots = document.querySelectorAll('.server-play-texture-chart');
-        for (var i = 0; i < roots.length; i++) initRoot(roots[i]);
+        for (var i = 0; i < roots.length; i++) {
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 11);
+            })(roots[i]);
+        }
     }
 
     if (document.readyState === 'loading') {

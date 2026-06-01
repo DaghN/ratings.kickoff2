@@ -4,7 +4,7 @@
 
 **Status:** **Work in progress — subject to change.** This doc is the sandbox for the server-side Milestones universe. **Committed hub routing** (tab order, Games demotion) lives in [`hub-ia-agreement.md`](hub-ia-agreement.md). Tier bands and profile garden: [`milestones-product-spec.md`](milestones-product-spec.md).
 
-**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones.php?view=catalog`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span; optional rating chart for DD / Established). Activity digest unchanged on `server1.php`.
+**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones.php?view=catalog`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span). Established rating distribution lives on **Activity** (`server1.php`) only. Activity summary includes **busiest day** (from `server_period_game_totals`); milestone digest panel removed Jun 2026.
 
 ---
 
@@ -70,10 +70,9 @@ Chronological unlock feed — server-wide or curated slice. Tier dot/stripe per 
 
 Migrate from `server1.php` when hub exists:
 
-- Milestone digest cards (`server-milestone-digest.js` / `api/server_recent_milestones.php`)
-- Established / Double Digit Merchant chart groups
+- Established chart group (Activity still has these on `server1.php` until hub Charts exists)
 
-Until then, Activity keeps legacy milestone surfaces ([`hub-ia-agreement.md`](hub-ia-agreement.md)).
+Until then, Activity keeps established charts ([`hub-ia-agreement.md`](hub-ia-agreement.md)); busiest day lives in the summary fact row. DD merchant / participation-depth Activity APIs and chart JS **deleted** Jun 2026.
 
 ---
 

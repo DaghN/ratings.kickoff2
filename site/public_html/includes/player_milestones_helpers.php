@@ -681,15 +681,7 @@ function k2_milestone_recent_unlocks(mysqli $con, int $limit = K2_MILESTONE_RECE
  */
 function k2_milestone_detail_chart_ids(string $milestoneKey): array
 {
-    $charts = ['ms_year', 'ms_cumulative'];
-    if ($milestoneKey === 'dd_merchant_10') {
-        $charts[] = 'dd_rating';
-    }
-    if ($milestoneKey === 'established_20') {
-        $charts[] = 'est_rating';
-    }
-
-    return $charts;
+    return ['ms_year', 'ms_cumulative'];
 }
 
 /**

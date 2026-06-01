@@ -7,27 +7,24 @@
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <script src="js/chart.umd.min.js"></script>
 <script src="js/chartjs-adapter-date-fns.bundle.min.js"></script>
-<script src="js/chart-theme.js"></script>
+<script src="js/chart-theme.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-theme.js'); ?>"></script>
 <script src="js/chart-date-range.js"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-day-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-games-year-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-goals-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-active-players-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-daily-active-players-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-established-players-year-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-cumulative-established-month-chart.js" defer="defer"></script>
 <script type="text/javascript" src="js/server-established-rating-distribution-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-double-digit-merchants-year-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-cumulative-double-digit-merchants-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-double-digit-merchant-rating-distribution-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-activity-heatmap.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-participation-depth-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-play-texture-chart.js" defer="defer"></script>
+<?php /* TEMP: 12-month daily activity heatmap off — mobile perf/touch test. */ ?>
+<!-- <script type="text/javascript" src="js/server-activity-heatmap.js" defer="defer"></script> -->
+<?php /* TEMP: play texture off — 4-series line chart; mobile freeze/touch test. */ ?>
+<!-- <script type="text/javascript" src="js/server-play-texture-chart.js" defer="defer"></script> -->
 <script type="text/javascript" src="js/server-matchup-breadth-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-top-activity-eras-chart.js" defer="defer"></script>
-<script type="text/javascript" src="js/server-milestone-digest.js" defer="defer"></script>
+<?php /* TEMP: disabled for mobile perf/touch testing — re-enable with block below. */ ?>
+<!-- <script type="text/javascript" src="js/server-top-activity-eras-chart.js" defer="defer"></script> -->
 
 </head>
 
@@ -93,6 +90,28 @@ if ($r !== false) {
     }
 }
 
+$BusiestDayGames = null;
+$BusiestDayDateLabel = '';
+$busiestDayRes = mysqli_query(
+    $con,
+    'SELECT `period_start` AS day, `rated_games` AS games '
+    . 'FROM server_period_game_totals '
+    . "WHERE period_type = 'day' "
+    . 'ORDER BY rated_games DESC, period_start DESC '
+    . 'LIMIT 1'
+);
+if ($busiestDayRes !== false) {
+    $busiestDayRow = mysqli_fetch_assoc($busiestDayRes);
+    mysqli_free_result($busiestDayRes);
+    if ($busiestDayRow) {
+        $BusiestDayGames = (int) $busiestDayRow['games'];
+        $busiestDayTs = strtotime((string) $busiestDayRow['day']);
+        $BusiestDayDateLabel = $busiestDayTs !== false
+            ? date('F j, Y', $busiestDayTs)
+            : (string) $busiestDayRow['day'];
+    }
+}
+
 mysqli_close($con);
 unset($con);
 ?>
@@ -123,28 +142,23 @@ unset($con);
             <span class="server-activity-summary__value"><?php echo number_format((int) $CleanSheets); ?></span>
             <span class="server-activity-summary__note"><?php echo number_format(100 * (float) $CleanSheetsRatio, 1); ?> per 100 games</span>
         </div>
+        <?php if ($BusiestDayGames !== null) { ?>
+        <div class="server-activity-summary__stat">
+            <span class="server-activity-summary__label">Busiest day</span>
+            <span class="server-activity-summary__value"><?php echo number_format($BusiestDayGames); ?></span>
+            <span class="server-activity-summary__note"><?php echo (int) $BusiestDayGames === 1 ? 'rated game' : 'rated games'; ?> · <?php echo htmlspecialchars($BusiestDayDateLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+        </div>
+        <?php } ?>
     </div>
     <p class="server-activity-summary__texture">
-        Players average <?php echo number_format((float) $GamesPlayedAverage, 1); ?> rated games and <?php echo number_format((float) $DifferentOpponentsAverage, 1); ?> different opponents.
+        Players average <span class="blue"><?php echo number_format((float) $GamesPlayedAverage, 1); ?></span> rated games and <span class="blue"><?php echo number_format((float) $DifferentOpponentsAverage, 1); ?></span> different opponents.
     </p>
 </section>
-
-<div class="server-milestone-digest">
-    <h2 class="k2-panel-heading">Recent milestones</h2>
-    <p class="server-milestone-digest-status" style="margin: 0 0 8px 0;">Loading milestones…</p>
-    <div class="milestone-digest-wrap"></div>
-</div>
 
 <div class="server-games-day-chart">
     <h2 class="k2-panel-heading">Games per day · past month</h2>
     <p class="server-games-day-chart-status" style="margin: 0 0 8px 0;">Loading games per day...</p>
     <canvas width="960" height="271" aria-label="Rated games per day for the past month"></canvas>
-</div>
-
-<div class="server-activity-heatmap">
-    <h2 class="k2-panel-heading">Daily activity · past 12 months</h2>
-    <p class="server-activity-heatmap-status" style="margin: 0 0 8px 0;">Loading activity heatmap…</p>
-    <div class="activity-heatmap-wrap"></div>
 </div>
 
 <div class="server-games-month-chart">
@@ -159,18 +173,14 @@ unset($con);
     <canvas width="960" height="271" aria-label="Rated games per calendar year with projection"></canvas>
 </div>
 
-<div class="server-goals-month-chart">
-    <h2 class="k2-panel-heading">Goals per month</h2>
-    <p class="server-goals-month-chart-status" style="margin: 0 0 8px 0;">Loading goals per month…</p>
-    <canvas width="960" height="271" aria-label="Goals per calendar month"></canvas>
+<?php /* TEMP: daily activity heatmap panel off — see script comment in head. */ ?>
+<!--
+<div class="server-activity-heatmap">
+    <h2 class="k2-panel-heading">Daily activity · past 12 months</h2>
+    <p class="server-activity-heatmap-status" style="margin: 0 0 8px 0;">Loading activity heatmap…</p>
+    <div class="activity-heatmap-wrap"></div>
 </div>
-
-<div class="server-play-texture-chart">
-    <h2 class="k2-panel-heading">Play texture by month</h2>
-    <p class="k2-chart-block__hint">Normalized rates: goals per game, draw %, double-digit and clean-sheet rates per 100 games.</p>
-    <p class="server-play-texture-chart-status" style="margin: 0 0 8px 0;">Loading play texture…</p>
-    <canvas width="960" height="271" aria-label="Monthly play texture rates"></canvas>
-</div>
+-->
 
 <div class="server-active-players-month-chart">
     <h2 class="k2-panel-heading">Active players per month</h2>
@@ -184,23 +194,9 @@ unset($con);
     <canvas width="960" height="271" aria-label="Daily active players smoothed over 30 days, all time"></canvas>
 </div>
 
-<div class="server-top-activity-eras-chart">
-    <h2 class="k2-panel-heading">Top activity eras</h2>
-    <p class="k2-chart-block__hint">Players appear while they are top 10 for rated games in a calendar month.</p>
-    <p class="server-top-activity-eras-chart-status" style="margin: 0 0 8px 0;">Loading top activity eras&#8230;</p>
-    <canvas width="960" height="360" aria-label="Top activity players over time by calendar month"></canvas>
-</div>
-
-<div class="server-participation-depth-chart">
-    <h2 class="k2-panel-heading">Participation depth by month</h2>
-    <p class="k2-chart-block__hint">Monthly players split by games played: 1 · 2–4 · 5–9 · 10+.</p>
-    <p class="server-participation-depth-chart-status" style="margin: 0 0 8px 0;">Loading participation depth…</p>
-    <canvas width="960" height="271" aria-label="Participation depth by month"></canvas>
-</div>
-
 <div class="server-matchup-breadth-chart">
     <h2 class="k2-panel-heading">Unique matchups per month</h2>
-    <p class="k2-chart-block__hint">Distinct player pairings each month — social breadth of the scene.</p>
+    <p class="k2-chart-block__hint">Distinct player pairings each month — social breadth of the community.</p>
     <p class="server-matchup-breadth-chart-status" style="margin: 0 0 8px 0;">Loading matchup breadth…</p>
     <canvas width="960" height="271" aria-label="Unique matchups per month"></canvas>
 </div>
@@ -225,25 +221,25 @@ unset($con);
     <canvas width="960" height="271" aria-label="Distribution of established player ratings"></canvas>
 </div>
 
-<div class="server-double-digit-merchants-year-chart">
-    <h2 class="k2-panel-heading">New Double Digit Merchants per year</h2>
-    <p class="k2-chart-block__hint">Players whose first 10+ goal game fell in that calendar year.</p>
-    <p class="server-double-digit-merchants-year-chart-status" style="margin: 0 0 8px 0;">Loading new Double Digit Merchants per year...</p>
-    <canvas width="960" height="271" aria-label="New Double Digit Merchants per calendar year"></canvas>
+<?php /* TEMP: "10 most active players ever" chart off — heavy 10-line dataset; mobile freeze test. */ ?>
+<!--
+<div class="server-top-activity-eras-chart">
+    <h2 class="k2-panel-heading">10 most active players ever · 6-month rolling average</h2>
+    <p class="k2-chart-block__hint">Each line is a trailing 6-month average of games per month. Hover to highlight.</p>
+    <p class="server-top-activity-eras-chart-status" style="margin: 0 0 8px 0;">Loading&#8230;</p>
+    <canvas width="960" height="360" aria-label="Six-month rolling average of monthly games for the ten most active players ever"></canvas>
 </div>
+-->
 
-<div class="server-cumulative-double-digit-merchants-chart">
-    <h2 class="k2-panel-heading">Cumulative Double Digit Merchants</h2>
-    <p class="k2-chart-block__hint">Steps up by one whenever a player scores 10+ for the first time.</p>
-    <p class="server-cumulative-double-digit-merchants-chart-status" style="margin: 0 0 8px 0;">Loading cumulative Double Digit Merchants...</p>
-    <canvas width="960" height="271" aria-label="Cumulative Double Digit Merchants over time"></canvas>
+<?php /* TEMP: play texture panel off — see script comment in head. */ ?>
+<!--
+<div class="server-play-texture-chart">
+    <h2 class="k2-panel-heading">Play texture by month (click to hide graphs for more focus)</h2>
+    <p class="k2-chart-block__hint">Normalized rates: goals per game, draw %, double-digit and clean-sheet rates per 100 games.</p>
+    <p class="server-play-texture-chart-status" style="margin: 0 0 8px 0;">Loading play texture…</p>
+    <canvas width="960" height="271" aria-label="Monthly play texture rates"></canvas>
 </div>
-
-<div class="server-double-digit-merchant-rating-distribution-chart">
-    <h2 class="k2-panel-heading">Double Digit Merchant rating distribution</h2>
-    <p class="server-double-digit-merchant-rating-distribution-chart-status" style="margin: 0 0 8px 0;">Loading merchant rating distribution...</p>
-    <canvas width="960" height="271" aria-label="Distribution of Double Digit Merchant ratings"></canvas>
-</div>
+-->
 
 </div><!-- .k2-page-nav -->
 

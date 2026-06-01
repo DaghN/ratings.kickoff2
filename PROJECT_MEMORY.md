@@ -69,6 +69,25 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Fix** — restored missing `prefersReducedMotion()` in `chart-theme.js` (broke all Activity charts with “Could not load…”). |
+| 2026-06 | **Activity** — **Temp off:** 12-month daily heatmap + play texture + busiest-players charts on `server1.php` (mobile perf/touch test). |
+| 2026-06 | **Activity** — **Temp off:** “10 most active players ever” chart + JS on `server1.php` (mobile freeze/touch test). |
+| 2026-06 | **Activity chart interaction** — desktop bar grow restored even when browser reports reduced motion; mobile chart touch is tap-based (`touchstart`/`click`, no `touchmove`) + `touch-action: manipulation`. |
+| 2026-06 | **Cumulative established tooltip** — body line only: `Total established: N` (removed afterLabel explainer). |
+| 2026-06 | **Activity charts** — `createBarChart` (y=0 then update); `k2TouchPointer` plugin; no viewport IO. |
+| 2026-06 | **Chart tooltips** — `T.mergeTooltip()` + dark `--k2-tooltip-surface`; swatch boxes use `multiKeyBackground` + solid `labelColor` (no white inside); heatmap uses `.k2-table-tooltip` DOM. |
+| 2026-06 | **Activity summary** — **Busiest day** stat (PHP, `server_period_game_totals`); removed Recent milestones panel + digest API/JS. |
+| 2026-06 | **Most games played chart** — hover highlight fix (`dataset` mode + opacity dim; tooltip still index-by-month). |
+| 2026-06 | **Most games played chart** — trailing 6-month rolling average; fixed top 10 by `NumberGames` (tie → lowest ID). |
+| 2026-06 | **Activity layout** — All-time busiest players + Play texture are last on `server1.php` (after established rating distribution). |
+| 2026-06 | **Activity tab** — removed **Goals per month** chart + `server_goals_by_month.php` / `server-goals-month-chart.js`. |
+| 2026-06 | **Activity layout** — daily activity heatmap is chart **#4** on `server1.php` (after games day / month / year). |
+| 2026-06 | **`milestone.php` Graphs** — rating distribution charts removed for DD Merchant + Established (year + cumulative only); established rating distribution stays on `server1.php` Activity. |
+| 2026-06 | **Activity cleanup** — deleted APIs/JS for participation depth + all three DD merchant Activity charts. |
+| 2026-06 | **Activity tab** — dropped **Participation depth by month** chart from `server1.php` (redundant vs active players / games per month). |
+| 2026-06 | **Activity copy** — unique matchups chart hint: “social breadth of the community” (`server1.php`). |
+| 2026-06 | **Activity tab** — removed three Double Digit Merchant charts from `server1.php` (new/cumulative per year, rating distribution); established-player charts + milestone digest unchanged on Activity. |
+| 2026-06 | **Status rated-games arc** — removed **Activity →** link from arc panel (`status_room_section.php`); Activity remains hub tab on `server1.php`. |
 | 2026-06 | **Activity peaks sub-nav** — `ranked8.php` Calendar / All time uses **`k2-chrome-tabs`** segment track; removed duplicate top margin (was wing gap + mode bar margin). |
 | 2026-06 | **League honours sub-nav** — `ranked9.php` cup/grain filters use **`k2-chrome-tabs`** segment track (matches Activity peaks / milestones / games highlights), not Status leagues period pills. |
 | 2026-06 | **`milestone.php` achiever match lines** — Event scoreline uses official **team A · GoalsA–GoalsB · team B** (`ratedresults` order), not unlocker-first. |

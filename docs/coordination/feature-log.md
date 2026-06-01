@@ -5,9 +5,10 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Feature | Level | Schema | Replay | Prod live | Periodic | Notes |
 |---------|-------|--------|--------|-----------|----------|-------|
 | Daily active players chart | L2 | SCH-007 | REP-006 | Pending | — | `server_daily_activity`; staging done May 2026; post-game from contract at prod cutover |
-| Top activity eras chart | L0 | — | — | — | — | `player_period_games`; no new stored truth |
+| All-time busiest players chart (Activity) | L0 | — | — | — | — | Top 10 by `playertable.NumberGames` (tie → lowest ID); monthly series from `player_period_games`; was monthly top-10 eras |
 | Activity Graph Roadmap | L0 | — | — | — | — | Read-time `ratedresults`/`playertable` |
-| Activity Double Digit Merchant charts | L0 | — | — | — | — | Read-time |
+| Activity recent milestones digest | — | — | — | — | — | **Removed Jun 2026**; busiest day moved to Activity summary (`server_period_game_totals`) |
+| Activity Double Digit Merchant charts | — | — | — | — | — | **Removed Jun 2026** (Activity + APIs/JS deleted; `milestone.php` Graphs = unlock year + cumulative only; rating histograms on `server1.php` for established only) |
 | Activity recent daily chart | L0 | — | — | — | — | Read-time |
 | Persistent tint preference | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | Local 6h slots; manual override; `k2-tint-schedule.js` |

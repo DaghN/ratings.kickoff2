@@ -39,20 +39,4 @@ $k2MsDetailChartsHeading = $k2MsDetailChartsHeading ?? true;
 		<canvas width="960" height="271" aria-label="Cumulative unlocks for this milestone over time"></canvas>
 	</div>
 <?php } ?>
-
-<?php if (in_array('dd_rating', $chartIds, true)) { ?>
-	<div class="server-double-digit-merchant-rating-distribution-chart k2-ms-detail-chart">
-		<h2 class="k2-panel-heading">Double Digit Merchant rating distribution</h2>
-		<p class="server-double-digit-merchant-rating-distribution-chart-status" style="margin: 0 0 8px 0;">Loading…</p>
-		<canvas width="960" height="271" aria-label="Distribution of Double Digit Merchant ratings"></canvas>
-	</div>
-<?php } ?>
-
-<?php if (in_array('est_rating', $chartIds, true)) { ?>
-	<div class="server-established-rating-distribution-chart k2-ms-detail-chart">
-		<h2 class="k2-panel-heading">Established player rating distribution</h2>
-		<p class="server-established-rating-distribution-chart-status" style="margin: 0 0 8px 0;">Loading…</p>
-		<canvas width="960" height="271" aria-label="Distribution of established player ratings"></canvas>
-	</div>
-<?php } ?>
 </section>

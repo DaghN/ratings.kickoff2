@@ -72,7 +72,7 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -80,14 +80,14 @@
                             data: chartData
                         }, T.barStroke(T.magenta()))]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: T.textPrimary() }
+                                labels: { color: T.textMuted() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -103,7 +103,7 @@
                                         return gamesRequired + 'th rated game in this year';
                                     }
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
@@ -131,7 +131,7 @@
                                 grid: { color: T.grid() }
                             }
                         }
-                    }
+                    }, 'bar'),
                 });
             })
             .catch(function () {
@@ -144,7 +144,11 @@
     function boot() {
         var roots = document.querySelectorAll('.server-established-players-year-chart');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 7);
+            })(roots[i]);
         }
     }
 

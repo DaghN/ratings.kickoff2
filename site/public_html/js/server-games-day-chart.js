@@ -62,7 +62,7 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -70,14 +70,14 @@
                             data: chartData
                         }, T.barStroke(T.pitch()))]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: T.textPrimary() }
+                                labels: { color: T.textMuted() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -98,7 +98,7 @@
                                         return games + (games === 1 ? ' rated game' : ' rated games');
                                     }
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
@@ -127,12 +127,15 @@
                                 grid: { color: T.softGrid() }
                             }
                         }
-                    }
+                    }, 'bar'),
                 });
             })
-            .catch(function () {
+            .catch(function (err) {
                 if (status) {
                     status.textContent = 'Could not load games per day.';
+                }
+                if (typeof console !== 'undefined' && console.error) {
+                    console.error('server-games-day-chart', err);
                 }
             });
     }
@@ -140,7 +143,11 @@
     function boot() {
         var roots = document.querySelectorAll('.server-games-day-chart');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 0);
+            })(roots[i]);
         }
     }
 

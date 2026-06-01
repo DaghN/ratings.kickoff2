@@ -55,6 +55,12 @@
 	--k2-shadow-surface: 0 8px 32px rgba(0, 0, 0, 0.35);
 	--k2-max-width: 1200px;
 	--k2-chart-max-width: 960px;
+	/* Shared by .k2-table-tooltip and Chart.js (chart-theme.js) */
+	--k2-tooltip-surface: color-mix(in srgb, var(--k2-bg-elevated) 94%, #000);
+	--k2-tooltip-border: color-mix(in srgb, var(--k2-accent) 36%, var(--k2-border-strong));
+	--k2-tooltip-title: var(--k2-text-secondary);
+	--k2-tooltip-body: var(--k2-text-primary);
+	--k2-tooltip-footer: var(--k2-text-muted);
 	/* Neon C · bold — stronger accent glow, no background grid */
 	--k2-glow-strength: 0.55;
 	--k2-accent-glow-blur: 18px;
@@ -676,16 +682,20 @@ body.k2-site .server-activity-summary {
 	box-shadow: var(--k2-shadow-surface);
 }
 
-body.k2-site .server-activity-summary__lede {
-	margin: 0 0 12px;
+body.k2-site .server-activity-summary__lede,
+body.k2-site .server-activity-summary__texture {
 	color: var(--k2-text-muted);
 	font-size: 14px;
 	line-height: 1.45;
 }
 
+body.k2-site .server-activity-summary__lede {
+	margin: 0 0 12px;
+}
+
 body.k2-site .server-activity-summary__stats {
 	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
 	gap: 10px;
 }
 
@@ -693,13 +703,19 @@ body.k2-site .server-activity-summary__stat {
 	padding: 10px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-sm);
-	background: var(--k2-bg-elevated);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 72%, var(--k2-bg-surface));
 }
 
-body.k2-site .server-activity-summary__label,
-body.k2-site .server-activity-summary__note {
+body.k2-site .server-activity-summary__label {
 	display: block;
 	color: var(--k2-text-muted);
+	font-size: 11px;
+	line-height: 1.3;
+}
+
+body.k2-site .server-activity-summary__note {
+	display: block;
+	color: color-mix(in srgb, var(--k2-text-muted) 78%, transparent);
 	font-size: 11px;
 	line-height: 1.3;
 }
@@ -707,17 +723,20 @@ body.k2-site .server-activity-summary__note {
 body.k2-site .server-activity-summary__value {
 	display: block;
 	margin: 2px 0;
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 	font-family: var(--k2-font-display);
-	font-size: 22px;
-	line-height: 1.1;
+	font-size: 20px;
+	font-weight: 500;
+	line-height: 1.15;
+}
+
+/* Softer accent numbers in lede + averages line (vs global .blue on tables) */
+body.k2-site .server-activity-summary .blue {
+	color: color-mix(in srgb, var(--k2-table-positive) 62%, var(--k2-text-secondary));
 }
 
 body.k2-site .server-activity-summary__texture {
 	margin: 11px 0 0;
-	color: var(--k2-text-muted);
-	font-size: 12px;
-	line-height: 1.4;
 }
 
 @media (max-width: 720px) {
@@ -735,21 +754,15 @@ body.k2-site .server-activity-summary__texture {
 body.k2-site .server-games-day-chart,
 body.k2-site .server-games-month-chart,
 body.k2-site .server-games-year-chart,
-body.k2-site .server-goals-month-chart,
 body.k2-site .server-active-players-month-chart,
 body.k2-site .server-daily-active-players-chart,
 body.k2-site .server-top-activity-eras-chart,
 body.k2-site .server-established-players-year-chart,
 body.k2-site .server-cumulative-established-month-chart,
 body.k2-site .server-established-rating-distribution-chart,
-body.k2-site .server-double-digit-merchants-year-chart,
-body.k2-site .server-cumulative-double-digit-merchants-chart,
 body.k2-site .server-activity-heatmap,
-body.k2-site .server-participation-depth-chart,
 body.k2-site .server-play-texture-chart,
 body.k2-site .server-matchup-breadth-chart,
-body.k2-site .server-milestone-digest,
-body.k2-site .server-double-digit-merchant-rating-distribution-chart,
 body.k2-site .player-rating-chart,
 body.k2-site .player-games-month-chart,
 body.k2-site .player-winrate-opponent-chart,
@@ -763,6 +776,28 @@ body.k2-site .player-h2h-opponent-search {
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+}
+
+/* Chart.js needs none so touchstart reaches the canvas (manipulation broke tap tooltips). */
+body.k2-site .server-games-day-chart canvas,
+body.k2-site .server-games-month-chart canvas,
+body.k2-site .server-games-year-chart canvas,
+body.k2-site .server-active-players-month-chart canvas,
+body.k2-site .server-daily-active-players-chart canvas,
+body.k2-site .server-top-activity-eras-chart canvas,
+body.k2-site .server-established-players-year-chart canvas,
+body.k2-site .server-cumulative-established-month-chart canvas,
+body.k2-site .server-established-rating-distribution-chart canvas,
+body.k2-site .server-play-texture-chart canvas,
+body.k2-site .server-matchup-breadth-chart canvas,
+body.k2-site .player-rating-chart canvas,
+body.k2-site .player-games-month-chart canvas,
+body.k2-site .player-winrate-opponent-chart canvas,
+body.k2-site .player-top-opponents-chart canvas,
+body.k2-site .player-head-to-head-chart canvas,
+body.k2-site .player-compare-rating-chart canvas {
+	touch-action: none;
+	-webkit-tap-highlight-color: transparent;
 }
 
 /* Profile stat tables — vertical stack in shared page column */
@@ -807,21 +842,15 @@ body.k2-site .player-compare-rating-chart-status,
 body.k2-site .server-games-day-chart-status,
 body.k2-site .server-games-month-chart-status,
 body.k2-site .server-games-year-chart-status,
-body.k2-site .server-goals-month-chart-status,
 body.k2-site .server-active-players-month-chart-status,
 body.k2-site .server-daily-active-players-chart-status,
 body.k2-site .server-top-activity-eras-chart-status,
 body.k2-site .server-established-players-year-chart-status,
 body.k2-site .server-cumulative-established-month-chart-status,
 body.k2-site .server-established-rating-distribution-chart-status,
-body.k2-site .server-double-digit-merchants-year-chart-status,
-body.k2-site .server-cumulative-double-digit-merchants-chart-status,
-body.k2-site .server-double-digit-merchant-rating-distribution-chart-status,
 body.k2-site .server-activity-heatmap-status,
-body.k2-site .server-participation-depth-chart-status,
 body.k2-site .server-play-texture-chart-status,
-body.k2-site .server-matchup-breadth-chart-status,
-body.k2-site .server-milestone-digest-status {
+body.k2-site .server-matchup-breadth-chart-status {
 	color: var(--k2-text-muted);
 }
 
@@ -853,6 +882,15 @@ body.k2-site .server-milestone-digest-status {
 	cursor: default;
 }
 
+.activity-heatmap__grid .activity-heatmap__cell {
+	cursor: help;
+}
+
+.activity-heatmap__grid .activity-heatmap__cell:focus {
+	outline: 1px solid color-mix(in srgb, var(--k2-accent) 55%, transparent);
+	outline-offset: 1px;
+}
+
 .activity-heatmap__cell[data-level="0"] { background: rgba(255, 255, 255, 0.04); }
 .activity-heatmap__cell[data-level="1"] { background: color-mix(in srgb, var(--k2-chart-pitch) 25%, transparent); }
 .activity-heatmap__cell[data-level="2"] { background: color-mix(in srgb, var(--k2-chart-pitch) 45%, transparent); }
@@ -864,40 +902,6 @@ body.k2-site .server-milestone-digest-status {
 	align-items: center;
 	gap: 4px;
 	margin-top: 6px;
-	font-size: 11px;
-	color: var(--k2-text-muted);
-}
-
-/* ── Milestone digest ── */
-.milestone-digest-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: 10px;
-}
-
-.milestone-digest-card {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	padding: 10px 12px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	background: var(--k2-bg-elevated);
-}
-
-.milestone-digest-card__label {
-	font-size: 11px;
-	color: var(--k2-text-muted);
-	letter-spacing: 0.02em;
-}
-
-.milestone-digest-card__value {
-	font-size: 15px;
-	font-weight: 600;
-	color: var(--k2-text-primary);
-}
-
-.milestone-digest-card__date {
 	font-size: 11px;
 	color: var(--k2-text-muted);
 }
@@ -1293,11 +1297,11 @@ body.k2-site .k2-table-tooltip {
 	z-index: 1000;
 	max-width: min(420px, calc(100vw - 24px));
 	padding: 8px 10px;
-	border: 1px solid color-mix(in srgb, var(--k2-accent) 36%, var(--k2-border-strong));
+	border: 1px solid var(--k2-tooltip-border);
 	border-radius: var(--k2-radius-sm);
-	background: color-mix(in srgb, var(--k2-bg-elevated) 94%, #000);
+	background: var(--k2-tooltip-surface);
 	box-shadow: var(--k2-shadow-surface);
-	color: var(--k2-text-primary);
+	color: var(--k2-tooltip-body);
 	font-size: 12px;
 	line-height: 1.35;
 	pointer-events: none;
@@ -1309,7 +1313,7 @@ body.k2-site .k2-table-tooltip[hidden] {
 
 body.k2-site .k2-table-tooltip__title {
 	margin-bottom: 3px;
-	color: var(--k2-text-secondary);
+	color: var(--k2-tooltip-title);
 	font-weight: 600;
 }
 
@@ -1321,7 +1325,7 @@ body.k2-site .k2-table-tooltip__body {
 body.k2-site .k2-table-tooltip__action {
 	padding-top: 6px;
 	border-top: 1px solid var(--k2-border-subtle);
-	color: var(--k2-text-muted);
+	color: var(--k2-tooltip-footer);
 	font-size: 11px;
 }
 

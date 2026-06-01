@@ -121,7 +121,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 |---------|----------------|-----|
 | Milestone garden unlocked title, border, glow | `--k2-ms-accent` → `--k2-pure-*` | Full saturation; must not use `--k2-chart-amber` (soft) |
 | Hero / ranked10 tier label (pitch/chrome/amber/holo) | `--k2-pure-*`; legendary → `--k2-ms-holo` on `.k2-lb-ms-tier--holo` | Tier identity, not chart ink |
-| Amber chart series (goals/month, play-texture amber, …) | `T.amber()` → `--k2-chart-amber` → `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
+| Amber chart series (play-texture amber, …) | `T.amber()` → `--k2-chart-amber` → `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
 | Pitch / chrome / holo chart series | `T.pitch()` etc. → `--k2-chart-*` → `--k2-pure-*` | Full palette ink (no extra softening yet) |
 | Player name, profile link, Elo highlight span | `a.k2-link-star` / `.k2-link-star` | Tint-following soft accent |
 | Active hub tab, LB wing tab, player sub-nav | `--k2-segment-active-text` | Softer than link-star (72% + secondary) |
@@ -222,7 +222,7 @@ Imagery:
 | Player profile | `individual1.php` is the shipped feast layout; gradual copy/UX improvements only. |
 | Player games | `individual3.php` uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
 | Records/Hall of Fame | `server2.php` is the Hall of Fame page; `ranked8.php` is Activity. |
-| Activity / charts | `server1.php` starts with a key activity sentence, four fact cards, a small games/opponents line, and a past-month games-per-day chart before longer-horizon charts; it also includes milestone trios for established players and Double Digit Merchants; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. |
+| Activity / charts | `server1.php` starts with a key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` defaults; dataset colour swatches use the tooltip surface + solid stroke (Chart.js default `multiKeyBackground: #fff` showed through translucent line fills); coarse pointers use tap-to-hover (`touchstart`/`click`) and normal page scrolling over canvases. |
 
 Microcopy:
 

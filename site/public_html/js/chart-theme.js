@@ -137,6 +137,432 @@
         return 'rgba(' + parsed.r + ', ' + parsed.g + ', ' + parsed.b + ', ' + alpha + ')';
     }
 
+    function chartFontFamily() {
+        try {
+            if (typeof document !== 'undefined' && document.body) {
+                return getComputedStyle(document.body).fontFamily;
+            }
+        } catch (e) {
+            /* ignore */
+        }
+        return '"IBM Plex Sans", Verdana, Arial, sans-serif';
+    }
+
+    /** Resolve color-mix / var() tokens (color: probe misses background mixes). */
+    function cssResolvedStyleVar(varName, styleProp, fallback) {
+        try {
+            if (typeof document === 'undefined') {
+                return fallback;
+            }
+            var probe = document.createElement('span');
+            probe.setAttribute('aria-hidden', 'true');
+            probe.style.position = 'absolute';
+            probe.style.opacity = '0';
+            probe.style.pointerEvents = 'none';
+            probe.style.setProperty(styleProp, 'var(' + varName + ')');
+            document.documentElement.appendChild(probe);
+            var resolved = getComputedStyle(probe).backgroundColor;
+            document.documentElement.removeChild(probe);
+            if (resolved && resolved !== 'rgba(0, 0, 0, 0)' && resolved !== 'transparent') {
+                return resolved;
+            }
+        } catch (e) {
+            /* ignore */
+        }
+        return fallback;
+    }
+
+    /** Matches theme.css .k2-table-tooltip (--k2-tooltip-* tokens). */
+    function tooltipSurfaceColor() {
+        return cssResolvedStyleVar('--k2-tooltip-surface', 'background-color', 'rgb(26, 34, 48)');
+    }
+
+    function tooltipBorderColor() {
+        return cssResolvedStyleVar('--k2-tooltip-border', 'border-color', 'rgb(61, 68, 77)')
+            || chartColor('--k2-accent', '#ffb74d');
+    }
+
+    function resolveTooltipDatasetColor(value, context) {
+        if (value == null) {
+            return null;
+        }
+        var resolved = value;
+        if (typeof resolved === 'function') {
+            resolved = resolved(context);
+        }
+        if (Array.isArray(resolved)) {
+            var idx = context.dataIndex;
+            resolved = resolved[idx != null ? idx : 0] || resolved[0];
+        }
+        if (!resolved || resolved === 'transparent') {
+            return null;
+        }
+        return resolved;
+    }
+
+    /** Solid stroke for tooltip swatches (Chart.js default uses #fff multiKeyBackground + translucent fill). */
+    function tooltipLabelColor(context) {
+        var ds = context.dataset;
+        var stroke = resolveTooltipDatasetColor(ds.borderColor, context)
+            || resolveTooltipDatasetColor(ds.pointBorderColor, context)
+            || resolveTooltipDatasetColor(ds.pointBackgroundColor, context)
+            || resolveTooltipDatasetColor(ds.backgroundColor, context);
+        if (!stroke) {
+            stroke = cssVar('--k2-text-muted', '#8b949e');
+        }
+        return {
+            borderColor: stroke,
+            backgroundColor: stroke,
+            borderWidth: 2,
+            borderRadius: 2
+        };
+    }
+
+    function tooltipThemeOptions() {
+        var font = chartFontFamily();
+        return {
+            backgroundColor: tooltipSurfaceColor(),
+            borderColor: tooltipBorderColor(),
+            borderWidth: 1,
+            titleColor: cssResolvedColorVar('--k2-tooltip-title', '#a8b3bf')
+                || cssVar('--k2-text-secondary', '#a8b3bf'),
+            bodyColor: cssResolvedColorVar('--k2-tooltip-body', '#d0d7de')
+                || cssVar('--k2-text-primary', '#d0d7de'),
+            footerColor: cssResolvedColorVar('--k2-tooltip-footer', '#8b949e')
+                || cssVar('--k2-text-muted', '#8b949e'),
+            padding: { top: 8, right: 10, bottom: 8, left: 10 },
+            cornerRadius: cssFloat('--k2-radius-sm', 4),
+            titleFont: { family: font, size: 12, weight: '600' },
+            bodyFont: { family: font, size: 12, weight: 'normal' },
+            footerFont: { family: font, size: 11, weight: 'normal' },
+            boxPadding: 4,
+            boxWidth: 10,
+            boxHeight: 10,
+            multiKeyBackground: tooltipSurfaceColor(),
+            labelColor: tooltipLabelColor,
+            caretSize: 6,
+            caretPadding: 4
+        };
+    }
+
+    function mergeTooltip(overrides) {
+        var base = tooltipThemeOptions();
+        if (!overrides) {
+            return base;
+        }
+        var merged = Object.assign({}, base, overrides);
+        if (overrides.callbacks) {
+            merged.callbacks = Object.assign({}, overrides.callbacks);
+        }
+        return merged;
+    }
+
+    function applyChartTooltipDefaults() {
+        if (typeof Chart === 'undefined' || !Chart.defaults || !Chart.defaults.plugins) {
+            return;
+        }
+        var tip = Chart.defaults.plugins.tooltip;
+        var themed = tooltipThemeOptions();
+        Object.keys(themed).forEach(function (key) {
+            tip[key] = themed[key];
+        });
+    }
+
+    var blockInitQueue = [];
+    var blockInitDraining = false;
+    var BLOCK_INIT_GAP_MS = 50;
+
+    function isCoarsePointer() {
+        try {
+            return global.matchMedia('(pointer: coarse)').matches
+                || global.matchMedia('(hover: none)').matches;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function prefersReducedMotion() {
+        try {
+            return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function drainBlockInitQueue() {
+        if (!blockInitQueue.length) {
+            blockInitDraining = false;
+            return;
+        }
+        blockInitDraining = true;
+        blockInitQueue.sort(function (a, b) {
+            return a.priority - b.priority;
+        });
+        var item = blockInitQueue.shift();
+        try {
+            item.run();
+        } catch (e) {
+            /* ignore */
+        }
+        if (blockInitQueue.length) {
+            setTimeout(drainBlockInitQueue, BLOCK_INIT_GAP_MS);
+        } else {
+            blockInitDraining = false;
+        }
+    }
+
+    function enqueueBlockInit(run, priority) {
+        blockInitQueue.push({
+            run: run,
+            priority: priority == null ? 50 : priority
+        });
+        if (!blockInitDraining) {
+            drainBlockInitQueue();
+        }
+    }
+
+    /**
+     * Queue Activity chart fetch/build in priority order on page load.
+     * (Viewport deferral removed — fast scroll skipped IntersectionObserver and stalled charts.)
+     */
+    function whenBlockVisible(block, callback, priority) {
+        if (!block || typeof callback !== 'function') {
+            return;
+        }
+        if (block.getAttribute('data-k2-chart-init') === '1') {
+            return;
+        }
+        block.setAttribute('data-k2-chart-init', '1');
+        enqueueBlockInit(callback, priority);
+    }
+
+    function activateChartAtEvent(chart, evt, elements) {
+        if (!chart || !evt) {
+            return;
+        }
+        var pos = { x: evt.x, y: evt.y };
+        if (elements && elements.length) {
+            chart.setActiveElements(elements);
+            if (chart.tooltip) {
+                chart.tooltip.setActiveElements(elements, pos);
+            }
+        } else {
+            chart.setActiveElements([]);
+            if (chart.tooltip) {
+                chart.tooltip.setActiveElements([], pos);
+            }
+        }
+        chart.update();
+    }
+
+    function pickChartElements(chart, evt) {
+        var interaction = chart.options.interaction || {};
+        var mode = interaction.mode || 'nearest';
+        try {
+            return chart.getElementsAtEventForMode(evt, mode, {
+                intersect: interaction.intersect === true,
+                axis: interaction.axis
+            }, false);
+        } catch (err) {
+            return [];
+        }
+    }
+
+    /** Touch: tap shows tooltip; mouse: hover as usual. */
+    function chartPointerOptions() {
+        if (isCoarsePointer()) {
+            return {
+                events: ['touchstart', 'click', 'mousemove', 'mouseout'],
+                interaction: {
+                    mode: 'nearest',
+                    intersect: false,
+                    axis: 'x'
+                },
+                plugins: {
+                    tooltip: {
+                        enabled: true,
+                        events: ['touchstart', 'click']
+                    }
+                }
+            };
+        }
+        return {
+            events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
+            interaction: {
+                mode: 'index',
+                intersect: false
+            }
+        };
+    }
+
+    function cloneChartDataPoint(pt) {
+        if (pt === null || pt === undefined) {
+            return pt;
+        }
+        if (typeof pt !== 'object') {
+            return pt;
+        }
+        var copy = {};
+        for (var key in pt) {
+            if (Object.prototype.hasOwnProperty.call(pt, key)) {
+                copy[key] = pt[key];
+            }
+        }
+        return copy;
+    }
+
+    function zeroDatasetValues(data) {
+        var zeroed = [];
+        for (var i = 0; i < data.length; i++) {
+            var pt = data[i];
+            if (pt !== null && typeof pt === 'object' && typeof pt.y === 'number') {
+                var z = cloneChartDataPoint(pt);
+                z.y = 0;
+                zeroed.push(z);
+            } else if (typeof pt === 'number') {
+                zeroed.push(0);
+            } else {
+                zeroed.push(pt);
+            }
+        }
+        return zeroed;
+    }
+
+    /**
+     * Bar grow: mount at y=0 then chart.update() to real values (works on desktop + mobile).
+     */
+    function createBarChart(canvas, config) {
+        if (typeof Chart === 'undefined') {
+            return null;
+        }
+        var animate = !prefersReducedMotion();
+        var datasets = config.data && config.data.datasets;
+        var saved = null;
+        config.options = config.options || {};
+        var wasResponsive = config.options.responsive !== false;
+        var priorAnimation = config.options.animation;
+
+        if (animate && datasets && datasets.length) {
+            saved = [];
+            for (var d = 0; d < datasets.length; d++) {
+                saved.push(datasets[d].data);
+                datasets[d].data = zeroDatasetValues(datasets[d].data || []);
+            }
+            config.options.responsive = false;
+            config.options.animation = false;
+        }
+
+        var chart = new Chart(canvas, config);
+
+        if (animate && saved) {
+            var animation = priorAnimation || {
+                duration: 700,
+                easing: 'easeOutCubic',
+                onComplete: function () {
+                    if (!this || !this.options) {
+                        return;
+                    }
+                    this.options.responsive = wasResponsive;
+                    if (this.options.transitions && this.options.transitions.resize
+                        && this.options.transitions.resize.animation) {
+                        this.options.transitions.resize.animation.duration = 0;
+                    }
+                    if (wasResponsive) {
+                        this.resize();
+                    }
+                }
+            };
+            config.options.animation = animation;
+            chart.options.animation = animation;
+            for (var d2 = 0; d2 < datasets.length; d2++) {
+                datasets[d2].data = saved[d2];
+                if (chart.data && chart.data.datasets && chart.data.datasets[d2]) {
+                    chart.data.datasets[d2].data = saved[d2];
+                }
+            }
+            chart.update();
+        }
+        return chart;
+    }
+
+    function createChart(canvas, config) {
+        if (!config) {
+            return null;
+        }
+        if (config.type === 'bar') {
+            return createBarChart(canvas, config);
+        }
+        return new Chart(canvas, config);
+    }
+
+    function chartMotionOptions(chartKind) {
+        if (prefersReducedMotion()) {
+            return { animation: false };
+        }
+        var duration = chartKind === 'bar' ? 700 : 500;
+        var opts = {
+            animation: {
+                duration: duration,
+                easing: 'easeOutQuart'
+            }
+        };
+        return opts;
+    }
+
+    function mergeChartOptions(userOptions, chartKind) {
+        var base = userOptions || {};
+        var motion = chartMotionOptions(chartKind);
+        var pointer = chartPointerOptions();
+        var merged = Object.assign({}, base, motion);
+        merged.events = pointer.events;
+        merged.interaction = Object.assign({}, pointer.interaction, base.interaction || {});
+        merged.plugins = Object.assign({}, base.plugins || {});
+        var pointerTip = pointer.plugins && pointer.plugins.tooltip;
+        merged.plugins.tooltip = Object.assign(
+            { enabled: true },
+            pointerTip || {},
+            merged.plugins.tooltip || {}
+        );
+        return merged;
+    }
+
+    function registerK2ChartPlugins() {
+        if (typeof Chart === 'undefined' || registerK2ChartPlugins.done) {
+            return;
+        }
+        registerK2ChartPlugins.done = true;
+
+        Chart.register({
+            id: 'k2TouchPointer',
+            afterEvent: function (chart, args) {
+                if (!isCoarsePointer() || !chart || !args || !args.event) {
+                    return;
+                }
+                var e = args.event;
+                if (e.type !== 'touchstart') {
+                    return;
+                }
+                var items = pickChartElements(chart, e);
+                activateChartAtEvent(chart, e, items);
+            }
+        });
+    }
+
+    function applyChartMotionDefaults() {
+        if (typeof Chart === 'undefined' || !Chart.defaults) {
+            return;
+        }
+        var pointer = chartPointerOptions();
+        Chart.defaults.events = pointer.events;
+        Chart.defaults.interaction = Object.assign({}, Chart.defaults.interaction, pointer.interaction);
+        if (!prefersReducedMotion()) {
+            Chart.defaults.animation = {
+                duration: 600,
+                easing: 'easeOutQuart'
+            };
+        }
+    }
+
     global.K2ChartTheme = {
         pureAmber: function () { return chartColor('--k2-pure-amber', '#ffb74d'); },
         purePitch: function () { return chartColor('--k2-pure-pitch', '#9ccc65'); },
@@ -211,7 +637,20 @@
         fill: function (color, alpha) {
             return colorToRgba(color, alpha, color);
         },
-        legendColor: function () { return this.textPrimary(); },
-        tickColor: function () { return this.textMuted(); }
+        legendColor: function () { return this.textMuted(); },
+        tickColor: function () { return this.textMuted(); },
+        /** Chart.js plugin options aligned with .k2-table-tooltip */
+        tooltipDefaults: tooltipThemeOptions,
+        mergeTooltip: mergeTooltip,
+        applyTooltipDefaults: applyChartTooltipDefaults,
+        whenBlockVisible: whenBlockVisible,
+        mergeChartOptions: mergeChartOptions,
+        createChart: createChart,
+        createBarChart: createBarChart,
+        applyMotionDefaults: applyChartMotionDefaults
     };
+
+    applyChartTooltipDefaults();
+    applyChartMotionDefaults();
+    registerK2ChartPlugins();
 })(typeof window !== 'undefined' ? window : this);

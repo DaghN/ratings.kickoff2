@@ -65,7 +65,7 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'bar',
                     data: {
                         labels: labels,
@@ -82,14 +82,14 @@
                             }, T.barStroke(T.chrome(), 0.55))
                         ]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: T.textPrimary() }
+                                labels: { color: T.textMuted() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     footer: function (items) {
                                         if (!items.length) {
@@ -132,7 +132,7 @@
                                     }
                                     return true;
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
@@ -154,7 +154,7 @@
                                 grid: { color: T.grid() }
                             }
                         }
-                    }
+                    }, 'bar'),
                 });
             })
             .catch(function () {
@@ -167,7 +167,11 @@
     function boot() {
         var roots = document.querySelectorAll('.server-games-year-chart');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 2);
+            })(roots[i]);
         }
     }
 

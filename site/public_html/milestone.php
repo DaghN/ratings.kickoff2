@@ -56,12 +56,6 @@ $k2HubTabActive = 'milestones';
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/milestone-unlocks-year-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/milestone-unlocks-year-chart.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/milestone-cumulative-unlocks-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/milestone-cumulative-unlocks-chart.js'); ?>" defer="defer"></script>
-<?php if (in_array('dd_rating', $k2MilestoneChartIds, true)) { ?>
-<script type="text/javascript" src="js/server-double-digit-merchant-rating-distribution-chart.js" defer="defer"></script>
-<?php } ?>
-<?php if (in_array('est_rating', $k2MilestoneChartIds, true)) { ?>
-<script type="text/javascript" src="js/server-established-rating-distribution-chart.js" defer="defer"></script>
-<?php } ?>
 
 </head>
 

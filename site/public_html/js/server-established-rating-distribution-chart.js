@@ -56,23 +56,23 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [Object.assign({
                             label: 'Established players (' + minGames + '+ games)',
                             data: counts
-                        }, T.barStroke(T.teal()))]
+                        }, T.barStroke(T.magenta()))]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                labels: { color: T.textPrimary() }
+                                labels: { color: T.textMuted() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -93,14 +93,14 @@
                                         return pct + '% of established players';
                                     }
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
                                 title: {
                                     display: true,
                                     text: 'ELO rating (' + bucketSize + '-point buckets)',
-                                    color: T.tickColor()
+                                    color: T.textMuted()
                                 },
                                 ticks: { color: T.tickColor(), maxRotation: 45 },
                                 grid: { color: T.grid() }
@@ -110,7 +110,7 @@
                                 title: {
                                     display: true,
                                     text: 'Players',
-                                    color: T.tickColor()
+                                    color: T.textMuted()
                                 },
                                 ticks: {
                                     color: T.tickColor(),
@@ -119,7 +119,7 @@
                                 grid: { color: T.grid() }
                             }
                         }
-                    }
+                    }, 'bar'),
                 });
             })
             .catch(function () {
@@ -132,7 +132,11 @@
     function boot() {
         var roots = document.querySelectorAll('.server-established-rating-distribution-chart');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 9);
+            })(roots[i]);
         }
     }
 

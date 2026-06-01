@@ -74,9 +74,7 @@ Create remote folder `staging-data/` if missing.
 | `site/public_html/server2.php` | `server2.php` |
 | `site/public_html/stylesheets/player-milestones.css` | `stylesheets/player-milestones.css` |
 | `site/public_html/api/server_established_players_by_year.php` | `api/server_established_players_by_year.php` |
-| `site/public_html/api/server_double_digit_merchants_by_year.php` | `api/server_double_digit_merchants_by_year.php` |
 | `site/public_html/api/server_cumulative_established_by_month.php` | `api/server_cumulative_established_by_month.php` |
-| `site/public_html/api/server_cumulative_double_digit_merchants.php` | `api/server_cumulative_double_digit_merchants.php` |
 | `site/public_html/api/server_recent_milestones.php` | `api/server_recent_milestones.php` |
 
 **After upload:** hard refresh staging pages (Ctrl+F5).

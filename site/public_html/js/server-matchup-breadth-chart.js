@@ -44,7 +44,7 @@
 
                 if (status) status.textContent = '';
 
-                new Chart(canvas, {
+                T.createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -52,12 +52,12 @@
                             data: chartData
                         }, T.barSolid(T.holo()))]
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         plugins: {
-                            legend: { labels: { color: T.textPrimary() } },
-                            tooltip: {
+                            legend: { labels: { color: T.textMuted() } },
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) return '';
@@ -70,7 +70,7 @@
                                         return v + ' distinct ' + (v === 1 ? 'pairing' : 'pairings');
                                     }
                                 }
-                            }
+                            }),
                         },
                         scales: {
                             x: {
@@ -85,7 +85,7 @@
                                 grid: { color: T.softGrid() }
                             }
                         }
-                    }
+                    }, 'bar'),
                 });
             })
             .catch(function () {
@@ -95,7 +95,13 @@
 
     function boot() {
         var roots = document.querySelectorAll('.server-matchup-breadth-chart');
-        for (var i = 0; i < roots.length; i++) initRoot(roots[i]);
+        for (var i = 0; i < roots.length; i++) {
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 6);
+            })(roots[i]);
+        }
     }
 
     if (document.readyState === 'loading') {

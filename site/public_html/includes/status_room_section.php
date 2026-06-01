@@ -77,7 +77,6 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 				<span class="blue"><?php echo number_format((int) ($arc['players'] ?? 0)); ?></span> players played
 				<span class="blue"><?php echo number_format((int) $arc['games']); ?></span> rated games since <?php echo k2_status_h($arc['since_label']); ?>
 			</p>
-			<a class="k2-link-star k2-status-room__arc-link" href="server1.php">Activity &rarr;</a>
 		</section>
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-heritage" aria-label="Original Amiga box art">

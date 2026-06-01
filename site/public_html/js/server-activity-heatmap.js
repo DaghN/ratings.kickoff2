@@ -11,6 +11,68 @@
     var GAP  = 2;
     var MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var DAY_ABBR   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var HEATMAP_TIP_ID = 'k2-heatmap-tooltip';
+
+    function getHeatmapTooltip() {
+        var tip = document.getElementById(HEATMAP_TIP_ID);
+        if (tip) {
+            return tip;
+        }
+        tip = document.createElement('div');
+        tip.id = HEATMAP_TIP_ID;
+        tip.className = 'k2-table-tooltip';
+        tip.setAttribute('role', 'tooltip');
+        tip.setAttribute('aria-hidden', 'true');
+        tip.innerHTML = '<div class="k2-table-tooltip__title"></div><div class="k2-table-tooltip__body"></div>';
+        tip.hidden = true;
+        document.body.appendChild(tip);
+        return tip;
+    }
+
+    function positionHeatmapTooltip(anchor, tip) {
+        var rect = anchor.getBoundingClientRect();
+        var tipRect;
+        var margin = 8;
+        var left;
+        var top;
+
+        tip.style.left = '0px';
+        tip.style.top = '0px';
+        tip.hidden = false;
+        tipRect = tip.getBoundingClientRect();
+
+        left = rect.left + rect.width / 2 - tipRect.width / 2;
+        left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+        top = rect.top - tipRect.height - margin;
+        if (top < margin) {
+            top = rect.bottom + margin;
+        }
+        tip.style.left = Math.round(left) + 'px';
+        tip.style.top = Math.round(top) + 'px';
+    }
+
+    function showHeatmapTooltip(cell, title, body) {
+        var tip = getHeatmapTooltip();
+        var titleEl = tip.querySelector('.k2-table-tooltip__title');
+        var bodyEl = tip.querySelector('.k2-table-tooltip__body');
+        if (titleEl) {
+            titleEl.textContent = title;
+        }
+        if (bodyEl) {
+            bodyEl.textContent = body;
+            bodyEl.style.display = body ? '' : 'none';
+        }
+        tip.setAttribute('aria-hidden', 'false');
+        positionHeatmapTooltip(cell, tip);
+    }
+
+    function hideHeatmapTooltip() {
+        var tip = document.getElementById(HEATMAP_TIP_ID);
+        if (tip) {
+            tip.hidden = true;
+            tip.setAttribute('aria-hidden', 'true');
+        }
+    }
 
     function isoDay(d) {
         return (d.getDay() + 6) % 7;
@@ -134,10 +196,20 @@
                     var rowIdx = i % 7;
                     var cell = document.createElement('span');
                     cell.className = 'activity-heatmap__cell';
+                    cell.setAttribute('tabindex', '0');
                     cell.setAttribute('data-level', toLevel(allDays[i].games, thresholds));
                     cell.style.cssText = 'grid-column:' + col + ';grid-row:' + (rowIdx + 1) + ';';
-                    cell.title = friendlyDate(allDays[i].date) + ': ' +
-                        allDays[i].games + (allDays[i].games === 1 ? ' game' : ' games');
+                    (function (dayInfo, dayCell) {
+                        var gamesLabel = dayInfo.games + (dayInfo.games === 1 ? ' rated game' : ' rated games');
+                        dayCell.addEventListener('mouseenter', function () {
+                            showHeatmapTooltip(dayCell, friendlyDate(dayInfo.date), gamesLabel);
+                        });
+                        dayCell.addEventListener('mouseleave', hideHeatmapTooltip);
+                        dayCell.addEventListener('focus', function () {
+                            showHeatmapTooltip(dayCell, friendlyDate(dayInfo.date), gamesLabel);
+                        });
+                        dayCell.addEventListener('blur', hideHeatmapTooltip);
+                    })(allDays[i], cell);
                     grid.appendChild(cell);
                 }
 
@@ -161,6 +233,7 @@
                 container.appendChild(legend);
 
                 wrap.appendChild(container);
+                wrap.addEventListener('mouseleave', hideHeatmapTooltip);
 
                 if (status) status.textContent = '';
             })
@@ -170,9 +243,18 @@
     }
 
     function boot() {
+        var T = window.K2ChartTheme;
         var roots = document.querySelectorAll('.server-activity-heatmap');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                if (T && T.whenBlockVisible) {
+                    T.whenBlockVisible(root, function () {
+                        initRoot(root);
+                    }, 3);
+                } else {
+                    initRoot(root);
+                }
+            })(roots[i]);
         }
     }
 

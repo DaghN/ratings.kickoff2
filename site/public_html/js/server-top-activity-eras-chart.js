@@ -1,6 +1,6 @@
 /**
- * Top activity eras: monthly line chart showing players while they are
- * in the top N for rated games in a calendar month.
+ * All-time busiest players: monthly games for the current top N by total
+ * rated games (playertable.NumberGames), full server month range.
  * Expects api/server_top_activity_eras.php and chartjs-adapter-date-fns.
  */
 (function () {
@@ -51,15 +51,63 @@
         return idx;
     }
 
+    /** Trailing mean; uses fewer months at the start of the series (expanding window). */
+    function rollingMeanTrailing(values, windowSize) {
+        var n = values.length;
+        var out = new Array(n);
+        for (var i = 0; i < n; i++) {
+            var start = Math.max(0, i - windowSize + 1);
+            var sum = 0;
+            for (var k = start; k <= i; k++) {
+                sum += values[k];
+            }
+            out[i] = sum / (i - start + 1);
+        }
+        return out;
+    }
+
+    var ROLLING_MONTHS = 6;
+
+    function formatMonthLabel(rawX) {
+        if (rawX == null) { return ''; }
+        var dt = new Date(rawX);
+        if (isNaN(dt.getTime())) { return ''; }
+        return dt.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'long'
+        });
+    }
+
+    function applyDatasetHighlight(chart, activeIdx) {
+        if (chart._k2HighlightIdx === activeIdx) {
+            return;
+        }
+        chart._k2HighlightIdx = activeIdx;
+        var dsList = chart.data.datasets;
+        for (var d = 0; d < dsList.length; d++) {
+            var ds = dsList[d];
+            var base = ds._k2BaseColor;
+            if (activeIdx === -1 || d === activeIdx) {
+                ds.borderColor = base;
+                ds.borderWidth = activeIdx === -1 ? 2 : 3;
+                ds.backgroundColor = T.fill(base, activeIdx === -1 ? 0.08 : 0.12);
+            } else {
+                ds.borderColor = T.fill(base, 0.2);
+                ds.borderWidth = 2;
+                ds.backgroundColor = 'transparent';
+            }
+        }
+        chart.update('none');
+    }
+
     function initRoot(root) {
         var canvas = root.querySelector('canvas');
         var status = root.querySelector('.server-top-activity-eras-chart-status');
-        var hint = root.querySelector('.k2-chart-block__hint');
         if (!canvas || typeof Chart === 'undefined') {
             if (status) { status.textContent = 'Chart library failed to load.'; }
             return;
         }
-        if (status) { status.textContent = 'Loading top activity eras\u2026'; }
+        if (status) { status.textContent = 'Loading\u2026'; }
 
         fetch(API_PATH + '?realm=online', { credentials: 'same-origin' })
             .then(function (r) {
@@ -74,14 +122,9 @@
                         var note = (data.meta && data.meta.note) || '';
                         status.textContent = note
                             ? 'No data available (' + note + ').'
-                            : 'No top activity data to chart.';
+                            : 'No busiest-player data to chart.';
                     }
                     return;
-                }
-
-                if (hint) {
-                    hint.textContent = players.length + ' players have appeared in the monthly top '
-                        + (data.limit || 10) + ' across ' + months.length + ' months. Hover for names and ranks.';
                 }
 
                 var monthIndex = buildMonthIndex(months);
@@ -97,33 +140,35 @@
                     if (!points.length) { continue; }
 
                     var dataArr = new Array(months.length);
-                    for (var i = 0; i < months.length; i++) { dataArr[i] = null; }
-
-                    var rankMap = {};
                     for (var j = 0; j < points.length; j++) {
                         var mi = monthIndex[points[j].month];
                         if (mi !== undefined) {
                             dataArr[mi] = points[j].games;
-                            rankMap[points[j].month] = points[j].rank;
                         }
                     }
+                    for (var i = 0; i < months.length; i++) {
+                        if (dataArr[i] === undefined) {
+                            dataArr[i] = 0;
+                        }
+                    }
+                    dataArr = rollingMeanTrailing(dataArr, ROLLING_MONTHS);
 
                     var color = playerColor(p);
                     datasets.push({
                         label: player.name,
                         data: dataArr,
+                        _k2BaseColor: color,
                         borderColor: color,
                         backgroundColor: T.fill(color, 0.08),
                         borderWidth: 2,
                         pointRadius: 0,
-                        pointHitRadius: 8,
-                        pointHoverRadius: 4,
-                        pointHoverBorderWidth: 2,
+                        pointHoverRadius: 0,
+                        pointHitRadius: 12,
                         fill: false,
                         spanGaps: false,
                         tension: 0.25,
-                        _k2RankMap: rankMap,
-                        _k2PlayerId: player.id
+                        _k2PlayerId: player.id,
+                        _k2TotalGames: player.total_games
                     });
                 }
 
@@ -134,66 +179,65 @@
 
                 if (status) { status.textContent = ''; }
 
-                var chartInstance = new Chart(canvas, {
+                var chartInstance = T.createChart(canvas, {
                     type: 'line',
                     data: {
                         labels: monthDates,
                         datasets: datasets
                     },
-                    options: {
+                    options: T.mergeChartOptions({
                         responsive: true,
                         maintainAspectRatio: true,
                         interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
+                            mode: 'dataset',
                             intersect: false
+                        },
+                        elements: {
+                            point: {
+                                radius: 0,
+                                hoverRadius: 0,
+                                hitRadius: 12
+                            }
                         },
                         plugins: {
                             legend: { display: false },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
+                                /* dataset mode lists every month on the line; nearest = one point */
+                                mode: 'nearest',
+                                intersect: false,
+                                displayColors: false,
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) { return ''; }
-                                        var raw = items[0].parsed && items[0].parsed.x;
-                                        if (raw != null) {
-                                            var dt = new Date(raw);
-                                            if (!isNaN(dt.getTime())) {
-                                                return dt.toLocaleDateString(undefined, {
-                                                    year: 'numeric', month: 'long'
-                                                });
-                                            }
+                                        var item = items[0];
+                                        var name = (item.dataset && item.dataset.label)
+                                            ? item.dataset.label
+                                            : '';
+                                        var month = formatMonthLabel(
+                                            item.parsed && item.parsed.x
+                                        );
+                                        if (name && month) {
+                                            return [name, month];
                                         }
-                                        return items[0].label || '';
+                                        return name || month || '';
                                     },
-                                    label: function (ctx) {
-                                        var ds = ctx.dataset;
-                                        var name = ds.label || '';
-                                        var games = ctx.parsed.y;
-                                        if (games == null) { return ''; }
-                                        var monthStr = months[ctx.dataIndex];
-                                        var rank = ds._k2RankMap && ds._k2RankMap[monthStr];
-                                        var parts = name + ': ' + games + ' games';
-                                        if (rank) { parts += ' (#' + rank + ')'; }
-                                        return parts;
+                                    /* undefined = Chart.js default "Name: 12.3" body line */
+                                    label: function () {
+                                        return '';
+                                    },
+                                    footer: function () {
+                                        return '';
                                     }
                                 }
-                            }
+                            }),
                         },
                         onHover: function (event, elements) {
-                            var activeIdx = -1;
-                            if (elements.length) {
-                                activeIdx = elements[0].datasetIndex;
+                            var activeIdx = elements.length ? elements[0].datasetIndex : -1;
+                            applyDatasetHighlight(chartInstance, activeIdx);
+                            var target = event && event.native ? event.native.target : canvas;
+                            if (target) {
+                                target.style.cursor = activeIdx === -1 ? 'default' : 'pointer';
                             }
-                            var changed = false;
-                            for (var d = 0; d < chartInstance.data.datasets.length; d++) {
-                                var ds = chartInstance.data.datasets[d];
-                                var target = (activeIdx === -1) ? 2 : (d === activeIdx ? 3 : 1);
-                                if (ds.borderWidth !== target) {
-                                    ds.borderWidth = target;
-                                    changed = true;
-                                }
-                            }
-                            if (changed) { chartInstance.update('none'); }
                         },
                         scales: {
                             x: {
@@ -218,23 +262,29 @@
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Games',
+                                    text: 'Games / month (' + ROLLING_MONTHS + '-mo avg)',
                                     color: T.textMuted(),
                                     font: { size: 11 }
                                 },
                                 ticks: {
                                     color: T.tickColor(),
-                                    precision: 0
+                                    precision: 1
                                 },
                                 grid: { color: T.softGrid() }
                             }
                         }
-                    }
+                    }, 'line'),
+                });
+
+                chartInstance._k2HighlightIdx = -1;
+                canvas.addEventListener('mouseleave', function () {
+                    applyDatasetHighlight(chartInstance, -1);
+                    canvas.style.cursor = 'default';
                 });
             })
             .catch(function () {
                 if (status) {
-                    status.textContent = 'Could not load top activity eras.';
+                    status.textContent = 'Could not load busiest players chart.';
                 }
             });
     }
@@ -242,7 +292,11 @@
     function boot() {
         var roots = document.querySelectorAll('.server-top-activity-eras-chart');
         for (var i = 0; i < roots.length; i++) {
-            initRoot(roots[i]);
+            (function (root) {
+                T.whenBlockVisible(root, function () {
+                    initRoot(root);
+                }, 10);
+            })(roots[i]);
         }
     }
 
