@@ -31,6 +31,12 @@
         }));
     }
 
+    function bindOption(btn, selectFn, opponentId, opponentName) {
+        btn.addEventListener('click', function () {
+            selectFn(opponentId, opponentName);
+        });
+    }
+
     function initRoot(root) {
         var playerId = root.getAttribute('data-player-id');
         var input = root.querySelector('.player-h2h-search-input');
@@ -84,9 +90,7 @@
 
                 btn.appendChild(nameSpan);
                 btn.appendChild(ratingSpan);
-                btn.addEventListener('click', function () {
-                    selectOpponent(p.id, p.name);
-                });
+                bindOption(btn, selectOpponent, p.id, p.name);
 
                 li.appendChild(btn);
                 list.appendChild(li);

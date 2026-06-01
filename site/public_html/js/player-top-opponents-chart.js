@@ -9,6 +9,7 @@
     var API_PATH = 'api/player_top_opponents.php';
     var EVENT_NAME = 'kool-opponent-selected';
     var MAX_LABEL_LEN = 22;
+    var CHART_ASPECT = 960 / 591;
 
     function truncateLabel(name) {
         if (!name || name.length <= MAX_LABEL_LEN) {
@@ -25,6 +26,19 @@
                 colors.push(T.profileCompareFill(0.85));
             } else {
                 colors.push(T.opponentFocusFill(0.45));
+            }
+        }
+        return colors;
+    }
+
+    function barBorderColors(opponentIds, selectedId) {
+        var colors = [];
+        var sel = selectedId == null ? null : Number(selectedId);
+        for (var i = 0; i < opponentIds.length; i++) {
+            if (sel !== null && Number(opponentIds[i]) === sel) {
+                colors.push(T.profileCompareBorder());
+            } else {
+                colors.push(T.chrome());
             }
         }
         return colors;
@@ -108,7 +122,7 @@
                             label: 'Games played',
                             data: games,
                             backgroundColor: barColors(opponentIds, selectedId),
-                            borderColor: T.chrome(),
+                            borderColor: barBorderColors(opponentIds, selectedId),
                             borderWidth: 1
                         }]
                     },
@@ -116,9 +130,31 @@
                         indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: true,
+                        aspectRatio: CHART_ASPECT,
+                        animation: false,
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'y',
+                            intersect: true
+                        },
                         plugins: {
                             legend: { display: false },
-                            tooltip: {
+                            tooltip: T && T.mergeTooltip ? T.mergeTooltip({
+                                callbacks: {
+                                    title: function (items) {
+                                        if (!items.length) {
+                                            return '';
+                                        }
+                                        return fullNames[items[0].dataIndex];
+                                    },
+                                    label: function (item) {
+                                        return item.parsed.x + ' games';
+                                    },
+                                    afterLabel: function () {
+                                        return 'Click to update matchup charts';
+                                    }
+                                }
+                            }) : {
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -142,10 +178,13 @@
                                     color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: T.grid() }
+                                grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                             },
                             y: {
-                                ticks: { color: T.tickColor() },
+                                ticks: {
+                                    color: T.tickColor(),
+                                    autoSkip: false
+                                },
                                 grid: { display: false }
                             }
                         },
@@ -159,7 +198,11 @@
                                 opponentIds,
                                 selectedId
                             );
-                            chart.update();
+                            chart.data.datasets[0].borderColor = barBorderColors(
+                                opponentIds,
+                                selectedId
+                            );
+                            chart.update('none');
                             dispatchSelection(
                                 playerId,
                                 selectedId,
@@ -181,6 +224,10 @@
                         ? opponentId
                         : null;
                     chart.data.datasets[0].backgroundColor = barColors(
+                        opponentIds,
+                        highlightId
+                    );
+                    chart.data.datasets[0].borderColor = barBorderColors(
                         opponentIds,
                         highlightId
                     );

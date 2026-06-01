@@ -35,6 +35,12 @@ $stmt = $con->prepare(
     . 'WHERE `period_type` = \'week\' AND `player_id` = ? '
     . 'ORDER BY `period_start` ASC'
 );
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode(['error' => 'prepare_failed']);
+    mysqli_close($con);
+    exit;
+}
 $stmt->bind_param('i', $playerId);
 $stmt->execute();
 $result = $stmt->get_result();

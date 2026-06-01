@@ -53,7 +53,6 @@ try {
 
 player_feast_expose_hero_vars($pm);
 
-$calYear = (int) date('Y');
 $playerId = (int) $pm['id'];
 $heroMilestoneCounts = null;
 $heroMsCatalogTotal = 0;
@@ -75,7 +74,7 @@ $id = $playerId;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
 
 player_feast_render_presence_career_duo($pm);
-player_feast_render_played_days($playerId, $calYear);
+player_feast_render_played_days($playerId, (string) $pm['first_game_date_ymd']);
 player_feast_render_played_weeks($playerId, (string) $pm['first_game_date_ymd']);
 player_feast_render_peak_activity($pm);
 player_feast_render_moments($pm);

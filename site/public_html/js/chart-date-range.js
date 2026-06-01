@@ -4,6 +4,8 @@
 (function (global) {
     'use strict';
 
+    var SERVER_START = new Date(2017, 5, 9, 0, 0, 0, 0);
+
     function monthToDate(monthStr) {
         if (!monthStr || monthStr.length < 7) {
             return null;
@@ -30,6 +32,14 @@
     function startOfToday() {
         var now = new Date();
         return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    }
+
+    function serverStartDate() {
+        return new Date(SERVER_START.getTime());
+    }
+
+    function serverStartMonth() {
+        return new Date(SERVER_START.getFullYear(), SERVER_START.getMonth(), 1);
     }
 
     function sameLocalDay(a, b) {
@@ -60,25 +70,17 @@
     }
 
     /**
-     * Full month series from first API month through end of current month (y=0 where no games).
+     * Full month series from server start through end of current month (y=0 where no games).
      */
     function padGamesPerMonth(months) {
-        if (!months.length) {
-            return { chartData: [], xMin: null, xMax: endOfCurrentMonth() };
-        }
-
         var byMonth = {};
         for (var i = 0; i < months.length; i++) {
             byMonth[months[i].month] = months[i].games;
         }
 
-        var first = monthToDate(months[0].month);
-        if (first === null) {
-            return { chartData: [], xMin: null, xMax: endOfCurrentMonth() };
-        }
-
         var xMax = endOfCurrentMonth();
         var chartData = [];
+        var first = serverStartMonth();
         var cursor = new Date(first.getFullYear(), first.getMonth(), 1);
 
         while (cursor.getTime() <= xMax.getTime()) {
@@ -97,6 +99,8 @@
 
     global.K2ChartDateRange = {
         monthToDate: monthToDate,
+        serverStartDate: serverStartDate,
+        serverStartMonth: serverStartMonth,
         endOfCurrentMonth: endOfCurrentMonth,
         endOfToday: endOfToday,
         appendRatingThroughToday: appendRatingThroughToday,

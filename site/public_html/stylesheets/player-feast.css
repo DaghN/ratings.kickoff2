@@ -128,6 +128,19 @@
 
 .pm3-cal__year { margin-top: 12px; }
 
+.pm3-cal__years {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.pm3-cal__year-heading {
+	margin: 0 0 8px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--k2-text-muted);
+}
+
 .pm3-cal__weekdays {
 	display: grid;
 	grid-template-columns: repeat(7, 10px);
@@ -197,9 +210,14 @@
 	color: var(--k2-text-muted);
 }
 
-.pm3-cal__legend .pm3-cal__cell--play {
+.pm3-cal__legend .pm3-cal__cell {
 	width: 14px;
 	height: 14px;
+	flex-shrink: 0;
+}
+
+.pm3-cal__legend .pm3-cal__cell--play {
+	box-shadow: none;
 }
 
 /* Played weeks — 52 UTC week tiles per calendar year */

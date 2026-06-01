@@ -72,6 +72,10 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Games Highlights table ink** — `k2-games-highlights-table` now gets the same `k2-table--calm-stats` secondary body text as leaderboards/Recent (`theme.css`). |
+| 2026-06 | **Profile narrative confirmation** — Jun re-audit in `player-profile-feast.md`: same story-first plan; zones A/B/C; milestone + league snippets backlog; heatmap-before-moments drift noted. |
+| 2026-06 | **Profile graph polish (2)** — played-days year picker ascending; peak label flips below line when near chart top; selected opponent bar gets green border; heatmap legend swatches matched size. |
+| 2026-06 | **Profile graph restoration** — `individual1.php` charts use Activity-style full-width `k2-chart-frame`s; rating peak dashed line restored; graph time axes start at server origin (2017-06-09); rating comparison gets date/games-played toggle; top opponents remains the matchup gateway; career played-days heatmap; winrate-vs-Elo API/JS removed. |
 | 2026-06 | **Rating LB Elo tooltip** — `ranked1.php` + `ranked7.php` ELO rating headers now explain standard Elo, fixed K=32, and point users to game-page expected-score/adjustment tooltips. |
 | 2026-06 | **Activity section intros** — `server1.php` chart stack grouped into five question-led sections with tightened one-line copy; original header styling kept. |
 | 2026-06 | **Secondary control polish** — Player Games Reset/Previous/Next are quiet action pills; Status Leagues period stepper gets a grouped surface while keeping period tabs separate. |

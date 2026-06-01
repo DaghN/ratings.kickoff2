@@ -10,6 +10,22 @@
     var API_PATH = 'api/player_head_to_head.php';
     var EVENT_NAME = 'kool-opponent-selected';
 
+    function chartOptions(extra) {
+        if (T && T.activityChartOptions) {
+            return T.activityChartOptions(Object.assign({ maintainAspectRatio: false }, extra || {}), {
+                chartKind: 'line'
+            });
+        }
+        return Object.assign({ responsive: true, maintainAspectRatio: false }, extra || {});
+    }
+
+    function createChart(canvas, config) {
+        if (T && T.createActivityChart) {
+            return T.createActivityChart(canvas, config, 'line');
+        }
+        return new Chart(canvas, config);
+    }
+
     function initRoot(root) {
         var playerId = root.getAttribute('data-player-id');
         if (!playerId) {
@@ -97,7 +113,7 @@
                         chartInstance.destroy();
                     }
 
-                    chartInstance = new Chart(canvas, {
+                    chartInstance = createChart(canvas, {
                         type: 'line',
                         data: {
                             datasets: [
@@ -123,15 +139,13 @@
                                 }
                             ]
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
+                        options: chartOptions({
                             interaction: { mode: 'index', intersect: false },
                             plugins: {
                                 legend: {
                                     labels: { color: T.textPrimary() }
                                 },
-                                tooltip: {
+                                tooltip: T.mergeTooltip({
                                     callbacks: {
                                         title: function (items) {
                                             if (!items.length) {
@@ -140,7 +154,7 @@
                                             return 'After game ' + items[0].parsed.x;
                                         }
                                     }
-                                }
+                                })
                             },
                             scales: {
                                 x: {
@@ -156,7 +170,7 @@
                                         precision: 0,
                                         maxTicksLimit: 16
                                     },
-                                    grid: { color: T.grid() }
+                                    grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                                 },
                                 y: {
                                     beginAtZero: true,
@@ -169,10 +183,10 @@
                                         color: T.tickColor(),
                                         precision: 0
                                     },
-                                    grid: { color: T.grid() }
+                                    grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                                 }
                             }
-                        }
+                        })
                     });
                 })
                 .catch(function () {

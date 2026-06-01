@@ -4,6 +4,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 
 | Feature | Level | Schema | Replay | Prod live | Periodic | Notes |
 |---------|-------|--------|--------|-----------|----------|-------|
+| Profile graph restoration | L0 | — | — | — | — | `individual1.php` profile visuals restored to Activity-style chart frames; server-origin time axes; peak dashed line; comparison date/games toggle; played-days year picker; top-opponents tall chart; winrate-vs-Elo graph removed |
 | Daily active players chart | L2 | SCH-007 | REP-006 | Pending | — | `server_daily_activity`; staging done May 2026; post-game from contract at prod cutover |
 | All-time busiest players chart (Activity) | L0 | — | — | — | — | Top 10 by `playertable.NumberGames` (tie → lowest ID); monthly series from `player_period_games`; was monthly top-10 eras |
 | Activity Graph Roadmap | L0 | — | — | — | — | Read-time `ratedresults`/`playertable` |

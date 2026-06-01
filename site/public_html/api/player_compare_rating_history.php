@@ -3,7 +3,7 @@
  * JSON full career rating history for two players (for comparison chart).
  *
  * GET: id (profile player), opponent, realm (default online)
- * Rating after each game = pre-game Rating + Adjustment (same as player_rating_history.php).
+ * Rating after each game = NewRatingA / NewRatingB (same as player_rating_history.php).
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -63,7 +63,7 @@ function rating_history_for_player(mysqli $con, int $targetId): ?array
         return null;
     }
 
-    $sql = 'SELECT id, Date, idA, idB, RatingA, RatingB, AdjustmentA, AdjustmentB '
+    $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
         . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
 
     $stmt = $con->prepare($sql);
@@ -78,13 +78,10 @@ function rating_history_for_player(mysqli $con, int $targetId): ?array
     $points = [];
     while ($row = $res->fetch_assoc()) {
         $isA = ((int) $row['idA'] === $targetId);
-        if ($isA) {
-            $ratingAfter = (float) $row['RatingA'] + (float) $row['AdjustmentA'];
-        } else {
-            $ratingAfter = (float) $row['RatingB'] + (float) $row['AdjustmentB'];
-        }
+        $ratingAfter = $isA ? (float) $row['NewRatingA'] : (float) $row['NewRatingB'];
         $points[] = [
             'gameId' => (int) $row['id'],
+            'gameNumber' => count($points) + 1,
             'date' => $row['Date'],
             'rating' => (int) round($ratingAfter),
         ];

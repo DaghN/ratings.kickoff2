@@ -10,6 +10,22 @@
 
     var API_PATH = 'api/player_games_by_month.php';
 
+    function chartOptions(extra) {
+        if (T && T.activityChartOptions) {
+            return T.activityChartOptions(Object.assign({ maintainAspectRatio: false }, extra || {}), {
+                chartKind: 'bar'
+            });
+        }
+        return Object.assign({ responsive: true, maintainAspectRatio: false }, extra || {});
+    }
+
+    function createChart(canvas, config) {
+        if (T && T.createActivityChart) {
+            return T.createActivityChart(canvas, config, 'bar');
+        }
+        return new Chart(canvas, config);
+    }
+
     function initRoot(root) {
         var playerId = root.getAttribute('data-player-id');
         if (!playerId) {
@@ -75,7 +91,7 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [{
@@ -94,12 +110,10 @@
                             }
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
+                    options: chartOptions({
                         plugins: {
                             legend: { display: false },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 filter: function (item) {
                                     return item.parsed.y > 0;
                                 },
@@ -118,12 +132,12 @@
                                         });
                                     }
                                 }
-                            }
+                            })
                         },
                         scales: {
                             x: {
                                 type: 'time',
-                                min: padded.xMin || undefined,
+                                min: DR && DR.serverStartMonth ? DR.serverStartMonth() : (padded.xMin || undefined),
                                 max: padded.xMax || (DR ? DR.endOfCurrentMonth() : undefined),
                                 time: {
                                     unit: 'month',
@@ -139,7 +153,7 @@
                                     autoSkip: true,
                                     maxTicksLimit: 24
                                 },
-                                grid: { color: T.grid() }
+                                grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                             },
                             y: {
                                 beginAtZero: true,
@@ -147,10 +161,10 @@
                                     color: T.tickColor(),
                                     precision: 0
                                 },
-                                grid: { color: T.grid() }
+                                grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                             }
                         }
-                    }
+                    })
                 });
             })
             .catch(function () {

@@ -215,6 +215,8 @@ Imagery:
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 
+**Surface rhythm (mixed containment):** Not every data block needs the same bordered panel. Use **open page background** when the visual is the content (profile heatmaps: played days/weeks on `--k2-bg-hover` cells). Use **chart panels** (`k2-chart-panel`, `k2-chart-frame`) when Chart.js, toggles, and fixed frames need a reading device — Activity and profile charts share this. Use **light tiles/mosaics** for small stat or story clusters. Alternating open and contained blocks creates scroll rhythm; uniform panel stacks feel generic. Profile contract: [`player-profile-feast.md`](player-profile-feast.md) — Surface rhythm. Do not panel everything for “consistency” unless the module type warrants it.
+
 ---
 
 ## Current Page Contracts
@@ -224,7 +226,7 @@ Imagery:
 | Status hub | `status.php` is the default landing; Phase B v1.2 room grid is shipped in repo. |
 | Leaderboards | `ranked1`-`ranked5`, `ranked7`, `ranked8` use `k2-table.js` for simple sort/autorank. |
 | Games | `server3.php` renders 14 sortable day buckets using shared rated-game rows. |
-| Player profile | `individual1.php` is the shipped feast layout; gradual copy/UX improvements only. |
+| Player profile | `individual1.php` is the shipped feast layout; **mixed surface rhythm** (open heatmaps + chart panels + light tiles) — see [`player-profile-feast.md`](player-profile-feast.md); gradual copy/UX improvements only. |
 | Player games | `individual3.php` uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
 | Records/Hall of Fame | `server2.php` is the Hall of Fame page; `ranked8.php` is Activity. |
 | Activity / charts | `server1.php` starts with a key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts grouped into question-led sections with short intros; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` (`mergeTooltip` / `applyTooltipDefaults`); dataset colour swatches use the tooltip surface + solid stroke. **Implementation plan:** [`activity-charts.md`](activity-charts.md) — single module, lab-only `.k2-chart-frame`, lab → promote (no global phone layout changes during lab). |

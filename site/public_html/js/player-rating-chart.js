@@ -8,6 +8,7 @@
     var T = window.K2ChartTheme;
     var DR = window.K2ChartDateRange;
     var History = window.K2PlayerRatingHistory;
+    var PEAK_LINE_ID = 'k2PlayerPeakLine';
 
     function parseGameDate(dateStr) {
         if (!dateStr) {
@@ -47,6 +48,22 @@
         return chartData;
     }
 
+    function chartOptions(extra, chartKind) {
+        if (T && T.activityChartOptions) {
+            return T.activityChartOptions(Object.assign({ maintainAspectRatio: false }, extra || {}), {
+                chartKind: chartKind || 'line'
+            });
+        }
+        return Object.assign({ responsive: true, maintainAspectRatio: false }, extra || {});
+    }
+
+    function createChart(canvas, config, chartKind) {
+        if (T && T.createActivityChart) {
+            return T.createActivityChart(canvas, config, chartKind || 'line');
+        }
+        return new Chart(canvas, config);
+    }
+
     function peakStatsFromValues(values, peakIndexField, latestField) {
         var peak = values[0].y;
         var peakIndex = 0;
@@ -79,7 +96,7 @@
             : ' (' + gap + ' below peak now)';
         summary.innerHTML = 'Peak: <strong>' + stats.peak + '</strong>'
             + ' <span class="pm3d-chart__summary-note">on ' + peakWhen + gapText + '</span>';
-        summary.style.display = 'block';
+        summary.hidden = false;
     }
 
     function renderGameSummary(summary, stats, totalGames) {
@@ -93,11 +110,52 @@
         summary.innerHTML = 'Peak: <strong>' + stats.peak + '</strong>'
             + ' <span class="pm3d-chart__summary-note">at game #' + stats.peakGame + gapText
             + ' &nbsp;&middot;&nbsp; ' + totalGames + ' rated games</span>';
-        summary.style.display = 'block';
+        summary.hidden = false;
     }
 
-    function createDateChart(canvas, chartData) {
-        return new Chart(canvas, {
+    function peakLinePlugin(peakValue) {
+        return {
+            id: PEAK_LINE_ID,
+            afterDatasetsDraw: function (chart) {
+                var yScale = chart.scales && chart.scales.y;
+                var area = chart.chartArea;
+                var ctx = chart.ctx;
+                if (!yScale || !area || typeof yScale.getPixelForValue !== 'function') {
+                    return;
+                }
+                var y = yScale.getPixelForValue(peakValue);
+                if (!isFinite(y) || y < area.top || y > area.bottom) {
+                    return;
+                }
+                ctx.save();
+                ctx.setLineDash([6, 5]);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = T ? T.amber() : '#ffb74d';
+                ctx.globalAlpha = 0.85;
+                ctx.beginPath();
+                ctx.moveTo(area.left, y);
+                ctx.lineTo(area.right, y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = T ? T.amber() : '#ffb74d';
+                ctx.font = '600 11px IBM Plex Sans, Verdana, Arial, sans-serif';
+                ctx.textAlign = 'right';
+                var label = 'Peak ' + peakValue;
+                var pad = 4;
+                if (y - 14 < area.top) {
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(label, area.right - 4, y + pad);
+                } else {
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(label, area.right - 4, y - pad);
+                }
+                ctx.restore();
+            }
+        };
+    }
+
+    function createDateChart(canvas, chartData, peakValue) {
+        return createChart(canvas, {
             type: 'line',
             data: {
                 datasets: [Object.assign({
@@ -109,13 +167,12 @@
                     pointHoverRadius: 4
                 }, T.lineStroke(T.pitch(), 0.15))]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
+            plugins: [peakLinePlugin(peakValue)],
+            options: chartOptions({
                 interaction: { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
                     legend: { display: false },
-                    tooltip: {
+                    tooltip: T.mergeTooltip({
                         callbacks: {
                             title: function (items) {
                                 if (!items.length) {
@@ -132,11 +189,12 @@
                                 });
                             }
                         }
-                    }
+                    })
                 },
                 scales: {
                     x: {
                         type: 'time',
+                        min: DR && DR.serverStartDate ? DR.serverStartDate() : undefined,
                         max: DR ? DR.endOfToday() : undefined,
                         time: {
                             displayFormats: {
@@ -152,19 +210,19 @@
                             autoSkip: true,
                             maxTicksLimit: 12
                         },
-                        grid: { color: T.grid() }
+                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     },
                     y: {
                         ticks: { color: T.tickColor() },
-                        grid: { color: T.grid() }
+                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     }
                 }
-            }
-        });
+            }, 'line')
+        }, 'line');
     }
 
-    function createGameChart(canvas, chartData) {
-        return new Chart(canvas, {
+    function createGameChart(canvas, chartData, peakValue) {
+        return createChart(canvas, {
             type: 'line',
             data: {
                 datasets: [Object.assign({
@@ -176,14 +234,13 @@
                     pointHoverRadius: 4
                 }, T.lineStroke(T.pitch(), 0.15))]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
+            plugins: [peakLinePlugin(peakValue)],
+            options: chartOptions({
                 parsing: false,
                 interaction: { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
                     legend: { display: false },
-                    tooltip: {
+                    tooltip: T.mergeTooltip({
                         callbacks: {
                             title: function (items) {
                                 if (!items.length) {
@@ -214,7 +271,7 @@
                                 return '';
                             }
                         }
-                    }
+                    })
                 },
                 scales: {
                     x: {
@@ -230,15 +287,15 @@
                             autoSkip: true,
                             maxTicksLimit: 14
                         },
-                        grid: { color: T.grid() }
+                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     },
                     y: {
                         ticks: { color: T.tickColor() },
-                        grid: { color: T.grid() }
+                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     }
                 }
-            }
-        });
+            }, 'line')
+        }, 'line');
     }
 
     function setActiveView(root, view, state) {
@@ -263,7 +320,7 @@
         if (view === 'game' && !state.gameChart && state.gameChartData.length) {
             var gameCanvas = root.querySelector('.player-rating-canvas--game');
             if (gameCanvas) {
-                state.gameChart = createGameChart(gameCanvas, state.gameChartData);
+                state.gameChart = createGameChart(gameCanvas, state.gameChartData, state.peakValue);
             }
         }
 
@@ -307,6 +364,7 @@
             dateChart: null,
             gameChart: null,
             gameChartData: [],
+            peakValue: null,
             activeView: 'date'
         };
 
@@ -356,6 +414,7 @@
                 state.gameChartData = buildGameChartData(points);
 
                 var dateStats = peakStatsFromValues(dateChartData, 'peakDate', 'latest');
+                state.peakValue = dateStats.peak;
                 renderDateSummary(dateSummary, dateStats);
 
                 if (state.gameChartData.length) {
@@ -371,7 +430,7 @@
                     status.textContent = '';
                 }
 
-                state.dateChart = createDateChart(dateCanvas, dateChartData);
+                state.dateChart = createDateChart(dateCanvas, dateChartData, state.peakValue);
                 setActiveView(root, 'date', state);
             })
             .catch(function () {

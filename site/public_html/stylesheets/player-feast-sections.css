@@ -84,15 +84,64 @@
 	width: 100%;
 }
 
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__toolbar {
+	margin: 0 0 12px;
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__months {
+	display: grid;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	flex-wrap: nowrap;
+	gap: 8px 4px;
+	width: 100%;
+	max-width: var(--k2-chart-max-width, 960px);
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick {
+	--pm3-cal-cell-size: 8px;
+	--pm3-cal-cell-gap: 2px;
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__grid {
+	grid-template-columns: repeat(7, var(--pm3-cal-cell-size, 8px));
+	gap: var(--pm3-cal-cell-gap, 2px);
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__cell {
+	width: var(--pm3-cal-cell-size, 8px);
+	height: var(--pm3-cal-cell-size, 8px);
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__month-label {
+	font-size: 9px;
+	margin-bottom: 4px;
+	text-align: center;
+}
+
+@media (max-width: 900px) {
+	.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__months {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 600px) {
+	.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__months {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+
 .pm3d-section__content > .pm3-cal--hero .pm3-cal__legend {
 	margin-top: 16px;
 }
 
-/* Legend swatch only — not a full-width cell */
-.pm3d-section__content > .pm3-cal--hero .pm3-cal__legend .pm3-cal__cell--play {
+/* Legend swatches — matched size */
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__legend .pm3-cal__cell {
 	width: 14px;
 	height: 14px;
 	flex-shrink: 0;
+}
+
+.pm3d-section__content > .pm3-cal--hero .pm3-cal__legend .pm3-cal__cell--play {
 	background: var(--k2-accent);
 	box-shadow: none;
 }
@@ -230,14 +279,6 @@
 	max-width: var(--k2-chart-max-width, 960px);
 }
 
-@media (min-width: 900px) {
-	.pm3d-career-charts {
-		grid-template-columns: 1fr 1fr;
-		align-items: start;
-		max-width: min(100%, calc(var(--k2-chart-max-width, 960px) * 2 + 16px));
-	}
-}
-
 .pm3d-career-charts > .player-rating-chart,
 .pm3d-career-charts > .player-games-month-chart {
 	margin: 0;
@@ -276,6 +317,22 @@
 	border-color: var(--k2-segment-active-ring);
 }
 
+.pm3d-chart-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 16px;
+	margin: 0 0 10px;
+}
+
+.pm3d-chart-toolbar .pm3d-rating-toggle {
+	margin: 0;
+}
+
+.pm3d-chart-toolbar .pm3d-chart__opponent {
+	margin: 0;
+}
+
 .pm3d-matchups {
 	display: flex;
 	flex-direction: column;
@@ -304,7 +361,27 @@
 	max-width: var(--k2-chart-max-width, 960px);
 }
 
-.pm3d-section__content canvas {
+.player-feast-body .k2-chart-frame {
+	position: relative;
+	width: 100%;
+	max-width: var(--k2-chart-max-width);
+	height: var(--k2-chart-frame-height, 271px);
+	margin: 0 auto;
+}
+
+.player-feast-body .k2-chart-frame--tall {
+	--k2-chart-frame-height: 360px;
+}
+
+.player-top-opponents-chart .player-top-opponents-canvas {
+	display: block;
+	width: 100%;
+	max-width: var(--k2-chart-max-width, 960px);
+	height: auto;
+	margin: 0 auto;
+}
+
+.pm3d-section__content canvas:not(.player-top-opponents-canvas) {
 	display: block;
 	max-width: 100%;
 	height: auto;

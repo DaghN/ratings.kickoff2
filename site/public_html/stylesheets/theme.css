@@ -646,7 +646,7 @@ body.k2-site .k2-games-highlights .k2-panel-heading {
 	margin-bottom: 8px;
 }
 
-/* Highlights table — not ranked-pages-table (col 2 there is min 9.1em for player names). */
+/* Highlights table — not ranked-pages-table (col 2 there is min 9.1em for player names); calm-stats ink via .k2-games-highlights-table in calm-stats block below. */
 body.k2-site .k2-games-highlights .k2-table.k2-games-highlights-table {
 	width: auto;
 	max-width: 100%;
@@ -800,7 +800,6 @@ body.k2-site .server-play-texture-chart,
 body.k2-site .server-matchup-breadth-chart,
 body.k2-site .player-rating-chart,
 body.k2-site .player-games-month-chart,
-body.k2-site .player-winrate-opponent-chart,
 body.k2-site .player-top-opponents-chart,
 body.k2-site .player-head-to-head-chart,
 body.k2-site .player-compare-rating-chart,
@@ -882,7 +881,6 @@ body.k2-site .server-play-texture-chart canvas,
 body.k2-site .server-matchup-breadth-chart canvas,
 body.k2-site .player-rating-chart canvas,
 body.k2-site .player-games-month-chart canvas,
-body.k2-site .player-winrate-opponent-chart canvas,
 body.k2-site .player-top-opponents-chart canvas,
 body.k2-site .player-head-to-head-chart canvas,
 body.k2-site .player-compare-rating-chart canvas {
@@ -908,7 +906,6 @@ body.k2-site .player-compare-rating-chart canvas {
 	body.k2-site .server-activity-heatmap,
 	body.k2-site .player-rating-chart,
 	body.k2-site .player-games-month-chart,
-	body.k2-site .player-winrate-opponent-chart,
 	body.k2-site .player-top-opponents-chart,
 	body.k2-site .player-head-to-head-chart,
 	body.k2-site .player-compare-rating-chart,
@@ -925,7 +922,6 @@ body.k2-site .player-compare-rating-chart canvas {
 	body.k2-site .server-matchup-breadth-chart canvas,
 	body.k2-site .player-rating-chart canvas,
 	body.k2-site .player-games-month-chart canvas,
-	body.k2-site .player-winrate-opponent-chart canvas,
 	body.k2-site .player-top-opponents-chart canvas,
 	body.k2-site .player-head-to-head-chart canvas,
 	body.k2-site .player-compare-rating-chart canvas,
@@ -972,7 +968,6 @@ body.k2-site .player-h2h-opponent-search label {
 
 body.k2-site .player-rating-chart-status,
 body.k2-site .player-games-month-chart-status,
-body.k2-site .player-winrate-opponent-chart-status,
 body.k2-site .player-top-opponents-chart-status,
 body.k2-site .player-head-to-head-chart-status,
 body.k2-site .player-compare-rating-chart-status,
@@ -1549,8 +1544,9 @@ body.k2-site .k2-table tbody td.k2-table-col-sorted {
 	font-weight: 600;
 }
 
-/* Hub leaderboards + Activity peaks (ranked8): secondary body cells; anchor + active sort pop */
+/* Hub leaderboards + Games Highlights + Activity peaks (ranked8): secondary body cells; anchor + active sort pop */
 body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td,
+body.k2-site .k2-table.k2-table--calm-stats.k2-games-highlights-table tbody td,
 body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td,
 body.k2-site .k2-table.k2-status-table.k2-table--calm-stats tbody td:not(.k2-table-anchor-cell):not(.k2-table-col-sorted) {
 	color: var(--k2-text-secondary);

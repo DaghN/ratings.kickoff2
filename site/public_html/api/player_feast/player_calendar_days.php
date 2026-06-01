@@ -1,7 +1,7 @@
 <?php
 /**
  * Distinct calendar dates with at least one rated game (profile feast played-days calendar).
- * GET: id (required), year (default current calendar year)
+ * GET: id (required), from/to optional YYYY-MM-DD bounds
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -13,15 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-$year = isset($_GET['year']) ? (int) $_GET['year'] : (int) date('Y');
+$from = isset($_GET['from']) ? trim((string) $_GET['from']) : '2017-06-09';
+$to = isset($_GET['to']) ? trim((string) $_GET['to']) : gmdate('Y-m-d', strtotime('+1 day'));
 
 if ($playerId < 1) {
     http_response_code(400);
     echo json_encode(['error' => 'invalid_id']);
     exit;
 }
-if ($year < 2000 || $year > 2100) {
-    $year = (int) date('Y');
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $from)) {
+    $from = '2017-06-09';
+}
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $to)) {
+    $to = gmdate('Y-m-d', strtotime('+1 day'));
 }
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
@@ -41,9 +45,13 @@ $stmt = $con->prepare(
     . 'AND `period_start` >= ? AND `period_start` < ? '
     . 'ORDER BY `period_start` ASC'
 );
-$yearStart = $year . '-01-01';
-$yearEnd = ($year + 1) . '-01-01';
-$stmt->bind_param('iss', $playerId, $yearStart, $yearEnd);
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode(['error' => 'prepare_failed']);
+    mysqli_close($con);
+    exit;
+}
+$stmt->bind_param('iss', $playerId, $from, $to);
 $stmt->execute();
 $result = $stmt->get_result();
 $days = [];
@@ -55,6 +63,7 @@ mysqli_close($con);
 
 echo json_encode([
     'player_id' => $playerId,
-    'year' => $year,
+    'from' => $from,
+    'to' => $to,
     'days' => $days,
 ]);

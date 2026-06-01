@@ -25,13 +25,17 @@ function player_feast_section_close(): void
     <?php
 }
 
-function player_feast_render_played_days(int $playerId, int $year): void
+function player_feast_render_played_days(int $playerId, string $firstGameDateYmd): void
 {
-    player_feast_section_open('Played days');
+    $fromAttr = preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd) ? $firstGameDateYmd : date('Y-m-d');
+    player_feast_section_open('Played days', 'UTC calendar days with at least one rated game, from the first rated game through today.');
     ?>
-<div class="pm3-cal pm3-cal--hero" data-player-id="<?php echo $playerId; ?>" data-year="<?php echo $year; ?>" aria-label="Calendar activity">
+<div class="pm3-cal pm3-cal--hero pm3-cal--days pm3-cal--year-pick" data-player-id="<?php echo $playerId; ?>" data-first-game-date="<?php echo pm_h($fromAttr); ?>" aria-label="Calendar activity">
 	<p class="pm3-cal__status pm3-muted">Loading calendar…</p>
-	<div class="pm3-cal__year"></div>
+	<div class="pm3-cal__toolbar" hidden>
+		<div class="pm3-cal__year-picker pm3d-rating-toggle" role="tablist" aria-label="Calendar year"></div>
+	</div>
+	<div class="pm3-cal__year-view"></div>
 	<p class="pm3-cal__legend"><span class="pm3-cal__cell" aria-hidden="true"></span> no rated game · <span class="pm3-cal__cell pm3-cal__cell--play" aria-hidden="true"></span> played</p>
 </div>
     <?php
@@ -236,54 +240,84 @@ function player_feast_render_charts(int $playerId): void
     player_feast_section_open('Career rating', 'Rating arc and monthly activity — toggle the left chart by calendar date or game number.');
     ?>
 <div class="pm3d-career-charts">
-	<div class="player-rating-chart" data-player-id="<?php echo $playerId; ?>">
+	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+		<h3 class="k2-panel-heading">ELO rating</h3>
+		<p class="k2-chart-block__hint">Calendar view uses the shared server timeline from June 9, 2017; game-number view shows career progress without calendar gaps.</p>
 		<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
 			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
 			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By game #</button>
 		</div>
-		<p class="player-rating-chart-status pm3d-chart__status">Loading rating history…</p>
+		<p class="player-rating-chart-status pm3d-chart__status k2-chart-panel__status">Loading rating history…</p>
 		<div class="player-rating-view player-rating-view--date">
-			<p class="player-rating-peak-current-summary pm3d-chart__summary" style="display:none;"></p>
-			<canvas class="player-rating-canvas--date" width="960" height="345" aria-label="ELO rating over time"></canvas>
+			<p class="player-rating-peak-current-summary pm3d-chart__summary" hidden></p>
+			<div class="k2-chart-frame">
+				<canvas class="player-rating-canvas--date" aria-label="ELO rating over time"></canvas>
+			</div>
 		</div>
 		<div class="player-rating-view player-rating-view--game" hidden>
-			<p class="player-rating-game-peak-current-summary pm3d-chart__summary" style="display:none;"></p>
-			<canvas class="player-rating-canvas--game" width="960" height="345" aria-label="Rating by game number"></canvas>
+			<p class="player-rating-game-peak-current-summary pm3d-chart__summary" hidden></p>
+			<div class="k2-chart-frame">
+				<canvas class="player-rating-canvas--game" aria-label="Rating by game number"></canvas>
+			</div>
 		</div>
 	</div>
-	<div class="player-games-month-chart" data-player-id="<?php echo $playerId; ?>">
-		<p class="player-games-month-chart-status pm3d-chart__status">Loading games per month…</p>
-		<canvas width="960" height="271" aria-label="Games per calendar month"></canvas>
+	<div class="player-games-month-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+		<h3 class="k2-panel-heading">Games per month</h3>
+		<p class="k2-chart-block__hint">Monthly activity on the same server timeline, including quiet months.</p>
+		<p class="player-games-month-chart-status pm3d-chart__status k2-chart-panel__status">Loading games per month…</p>
+		<div class="k2-chart-frame">
+			<canvas aria-label="Games per calendar month"></canvas>
+		</div>
 	</div>
 </div>
     <?php
     player_feast_section_close();
 
-    player_feast_section_open('Matchups', 'Search or pick a top opponent — head-to-head and rating comparison update together.');
+    player_feast_section_open('Matchups', 'Pick a frequent opponent to update the head-to-head and rating comparison graphs.');
     ?>
 <div class="pm3d-matchups">
-	<div class="player-h2h-opponent-search player-search pm3d-h2h-search" data-player-id="<?php echo $playerId; ?>" data-realm="online" role="search">
-		<label class="player-search-label" for="<?php echo pm_h($uid); ?>-h2h">Find another opponent</label>
-		<input id="<?php echo pm_h($uid); ?>-h2h" class="player-search-input player-h2h-search-input" type="search" maxlength="32" autocomplete="off" spellcheck="false" placeholder="Search player name…" />
-		<ul class="player-search-results player-h2h-search-results" role="listbox" hidden></ul>
-	</div>
-	<div class="player-top-opponents-chart" data-player-id="<?php echo $playerId; ?>">
-		<p class="player-top-opponents-chart-status pm3d-chart__status">Loading top opponents…</p>
-		<canvas width="960" height="591" aria-label="Most played opponents"></canvas>
+	<div class="player-top-opponents-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+		<h3 class="k2-panel-heading">Most frequent opponents</h3>
+		<p class="k2-chart-block__hint">Click a bar to compare against that opponent below.</p>
+		<p class="player-top-opponents-chart-status pm3d-chart__status k2-chart-panel__status">Loading top opponents…</p>
+		<canvas class="player-top-opponents-canvas" aria-label="Most played opponents"></canvas>
 	</div>
 	<h3 class="pm3d-matchups__subtitle">Head-to-head</h3>
-	<div class="player-head-to-head-chart" data-player-id="<?php echo $playerId; ?>">
+	<div class="player-head-to-head-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
 		<p class="pm3d-chart__opponent">vs <span class="player-head-to-head-opponent-name">…</span></p>
 		<p class="player-head-to-head-meta pm3d-chart__meta"></p>
-		<p class="player-head-to-head-chart-status pm3d-chart__status">Waiting for opponent…</p>
-		<canvas width="960" height="345" aria-label="Head-to-head cumulative wins"></canvas>
+		<p class="player-head-to-head-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
+		<div class="k2-chart-frame">
+			<canvas aria-label="Head-to-head cumulative wins"></canvas>
+		</div>
 	</div>
 	<h3 class="pm3d-matchups__subtitle">Rating comparison</h3>
-	<div class="player-compare-rating-chart" data-player-id="<?php echo $playerId; ?>">
-		<p class="pm3d-chart__opponent">vs <span class="player-compare-rating-opponent-name">…</span></p>
+	<div class="player-compare-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+		<div class="pm3d-chart-toolbar">
+			<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating comparison chart view">
+				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By games played</button>
+			</div>
+			<p class="pm3d-chart__opponent">vs <span class="player-compare-rating-opponent-name">…</span></p>
+		</div>
 		<p class="player-compare-rating-meta pm3d-chart__meta"></p>
-		<p class="player-compare-rating-chart-status pm3d-chart__status">Waiting for opponent…</p>
-		<canvas width="960" height="345" aria-label="Rating comparison"></canvas>
+		<p class="player-compare-rating-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
+		<div class="player-compare-rating-view player-compare-rating-view--date">
+			<div class="k2-chart-frame">
+				<canvas class="player-compare-rating-canvas--date" aria-label="Rating comparison by calendar date"></canvas>
+			</div>
+		</div>
+		<div class="player-compare-rating-view player-compare-rating-view--game" hidden>
+			<div class="k2-chart-frame">
+				<canvas class="player-compare-rating-canvas--game" aria-label="Rating comparison by games played"></canvas>
+			</div>
+		</div>
+	</div>
+	<div class="player-h2h-opponent-search player-search pm3d-h2h-search" data-player-id="<?php echo $playerId; ?>" data-realm="online" role="search">
+		<label class="player-search-label" for="<?php echo pm_h($uid); ?>-h2h">Compare someone else</label>
+		<p class="k2-chart-block__hint">Search is here for rare matchups outside the top-opponent graph.</p>
+		<input id="<?php echo pm_h($uid); ?>-h2h" class="player-search-input player-h2h-search-input" type="search" maxlength="32" autocomplete="off" spellcheck="false" placeholder="Search player name…" />
+		<ul class="player-search-results player-h2h-search-results" role="listbox" hidden></ul>
 	</div>
 </div>
     <?php

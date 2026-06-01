@@ -55,19 +55,197 @@
         return chartData;
     }
 
+    function pointsToGameData(points) {
+        var chartData = [];
+        for (var i = 0; i < points.length; i++) {
+            var n = points[i].gameNumber;
+            if (n == null || n < 1) {
+                n = i + 1;
+            }
+            chartData.push({
+                x: n,
+                y: points[i].rating,
+                date: points[i].date,
+                gameId: points[i].gameId
+            });
+        }
+        return chartData;
+    }
+
+    function chartOptions(extra) {
+        if (T && T.activityChartOptions) {
+            return T.activityChartOptions(Object.assign({ maintainAspectRatio: false }, extra || {}), {
+                chartKind: 'line'
+            });
+        }
+        return Object.assign({ responsive: true, maintainAspectRatio: false }, extra || {});
+    }
+
+    function createChart(canvas, config) {
+        if (T && T.createActivityChart) {
+            return T.createActivityChart(canvas, config, 'line');
+        }
+        return new Chart(canvas, config);
+    }
+
+    function setActiveView(root, view, state) {
+        var dateView = root.querySelector('.player-compare-rating-view--date');
+        var gameView = root.querySelector('.player-compare-rating-view--game');
+        var buttons = root.querySelectorAll('.pm3d-rating-toggle__btn');
+        var activeChart;
+        for (var i = 0; i < buttons.length; i++) {
+            var btn = buttons[i];
+            var active = btn.getAttribute('data-view') === view;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+        if (dateView) {
+            dateView.hidden = view !== 'date';
+        }
+        if (gameView) {
+            gameView.hidden = view !== 'game';
+        }
+        if (view === 'game' && !state.gameChart && state.latestConfig) {
+            state.gameChart = renderChart(state.gameCanvas, state.latestConfig, 'game');
+        }
+        activeChart = view === 'game' ? state.gameChart : state.dateChart;
+        if (activeChart && typeof activeChart.resize === 'function') {
+            activeChart.resize();
+        }
+    }
+
+    function renderChart(canvas, cfg, view) {
+        var isGame = view === 'game';
+        var playerData = isGame ? cfg.playerGameData : cfg.playerDateData;
+        var opponentData = isGame ? cfg.opponentGameData : cfg.opponentDateData;
+        var xScale = isGame
+            ? {
+                type: 'linear',
+                title: {
+                    display: true,
+                    text: 'Rated games played',
+                    color: T.tickColor()
+                },
+                ticks: {
+                    color: T.tickColor(),
+                    maxRotation: 0,
+                    autoSkip: true,
+                    maxTicksLimit: 14
+                },
+                grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+            }
+            : {
+                type: 'time',
+                min: DR && DR.serverStartDate ? DR.serverStartDate() : undefined,
+                max: DR ? DR.endOfToday() : undefined,
+                time: {
+                    displayFormats: {
+                        year: 'yyyy',
+                        month: 'MMM yyyy',
+                        day: 'MMM d, yyyy'
+                    }
+                },
+                ticks: {
+                    color: T.tickColor(),
+                    maxRotation: 45,
+                    autoSkip: true,
+                    maxTicksLimit: 14
+                },
+                grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+            };
+
+        return createChart(canvas, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: (cfg.player.playerName || 'Player') + ' rating',
+                        data: playerData,
+                        borderColor: T.profileCompareBorder(),
+                        backgroundColor: T.profileCompareFill(0.1),
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        fill: false,
+                        tension: 0.1
+                    },
+                    {
+                        label: (cfg.opponent.playerName || cfg.opponentName || 'Opponent') + ' rating',
+                        data: opponentData,
+                        borderColor: T.opponentFocusBorder(),
+                        backgroundColor: T.opponentFocusFill(0.1),
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        fill: false,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: chartOptions({
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        labels: { color: T.textPrimary() }
+                    },
+                    tooltip: T.mergeTooltip({
+                        callbacks: {
+                            title: function (items) {
+                                var d;
+                                var pt;
+                                if (!items.length) {
+                                    return '';
+                                }
+                                if (isGame) {
+                                    pt = items[0].raw || {};
+                                    return 'Game #' + items[0].parsed.x + (pt.date ? ' · ' + pt.date.substring(0, 10) : '');
+                                }
+                                d = new Date(items[0].parsed.x);
+                                if (isNaN(d.getTime())) {
+                                    return '';
+                                }
+                                return d.toLocaleDateString(undefined, {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                            }
+                        }
+                    })
+                },
+                scales: {
+                    x: xScale,
+                    y: {
+                        ticks: { color: T.tickColor() },
+                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+                    }
+                }
+            }, 'line')
+        }, 'line');
+    }
+
     function initRoot(root) {
         var playerId = root.getAttribute('data-player-id');
         if (!playerId) {
             return;
         }
 
-        var canvas = root.querySelector('canvas');
+        var dateCanvas = root.querySelector('.player-compare-rating-canvas--date');
+        var gameCanvas = root.querySelector('.player-compare-rating-canvas--game');
         var status = root.querySelector('.player-compare-rating-chart-status');
         var titleOpponent = root.querySelector('.player-compare-rating-opponent-name');
         var meta = root.querySelector('.player-compare-rating-meta');
-        var chartInstance = null;
+        var toggle = root.querySelector('.pm3d-rating-toggle');
+        var state = {
+            dateChart: null,
+            gameChart: null,
+            dateCanvas: dateCanvas,
+            gameCanvas: gameCanvas,
+            latestConfig: null,
+            activeView: 'date'
+        };
 
-        if (!canvas || typeof Chart === 'undefined') {
+        if (!dateCanvas || !gameCanvas || typeof Chart === 'undefined') {
             if (status) {
                 status.textContent = 'Chart library failed to load.';
             }
@@ -109,28 +287,34 @@
                     var h2h = results[1];
                     var player = data.player || {};
                     var opponent = data.opponent || {};
-                    var playerData = pointsToChartData(player.points || []);
-                    var opponentData = pointsToChartData(opponent.points || []);
+                    var playerDateData = pointsToChartData(player.points || []);
+                    var opponentDateData = pointsToChartData(opponent.points || []);
+                    var playerGameData = pointsToGameData(player.points || []);
+                    var opponentGameData = pointsToGameData(opponent.points || []);
 
                     if (DR && DR.appendRatingThroughToday) {
                         var playerRating = typeof player.currentRating === 'number'
                             ? player.currentRating
-                            : (playerData.length ? playerData[playerData.length - 1].y : null);
+                            : (playerDateData.length ? playerDateData[playerDateData.length - 1].y : null);
                         var opponentRating = typeof opponent.currentRating === 'number'
                             ? opponent.currentRating
-                            : (opponentData.length ? opponentData[opponentData.length - 1].y : null);
-                        if (playerData.length) {
-                            playerData = DR.appendRatingThroughToday(playerData, playerRating);
+                            : (opponentDateData.length ? opponentDateData[opponentDateData.length - 1].y : null);
+                        if (playerDateData.length) {
+                            playerDateData = DR.appendRatingThroughToday(playerDateData, playerRating);
                         }
-                        if (opponentData.length) {
-                            opponentData = DR.appendRatingThroughToday(opponentData, opponentRating);
+                        if (opponentDateData.length) {
+                            opponentDateData = DR.appendRatingThroughToday(opponentDateData, opponentRating);
                         }
                     }
 
-                    if (!playerData.length && !opponentData.length) {
-                        if (chartInstance) {
-                            chartInstance.destroy();
-                            chartInstance = null;
+                    if (!playerDateData.length && !opponentDateData.length) {
+                        if (state.dateChart) {
+                            state.dateChart.destroy();
+                            state.dateChart = null;
+                        }
+                        if (state.gameChart) {
+                            state.gameChart.destroy();
+                            state.gameChart = null;
                         }
                         if (status) {
                             status.textContent = 'No rated games to chart.';
@@ -148,91 +332,26 @@
                         status.textContent = '';
                     }
 
-                    if (chartInstance) {
-                        chartInstance.destroy();
+                    if (state.dateChart) {
+                        state.dateChart.destroy();
+                        state.dateChart = null;
+                    }
+                    if (state.gameChart) {
+                        state.gameChart.destroy();
+                        state.gameChart = null;
                     }
 
-                    chartInstance = new Chart(canvas, {
-                        type: 'line',
-                        data: {
-                            datasets: [
-                                {
-                                    label: (player.playerName || 'Player') + ' rating',
-                                    data: playerData,
-                                    borderColor: T.profileCompareBorder(),
-                                    backgroundColor: T.profileCompareFill(0.1),
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    pointHoverRadius: 4,
-                                    fill: false,
-                                    tension: 0.1
-                                },
-                                {
-                                    label: (opponent.playerName || opponentName || 'Opponent') + ' rating',
-                                    data: opponentData,
-                                    borderColor: T.opponentFocusBorder(),
-                                    backgroundColor: T.opponentFocusFill(0.1),
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    pointHoverRadius: 4,
-                                    fill: false,
-                                    tension: 0.1
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            interaction: { mode: 'index', intersect: false },
-                            plugins: {
-                                legend: {
-                                    labels: { color: T.textPrimary() }
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        title: function (items) {
-                                            if (!items.length) {
-                                                return '';
-                                            }
-                                            var d = new Date(items[0].parsed.x);
-                                            if (isNaN(d.getTime())) {
-                                                return '';
-                                            }
-                                            return d.toLocaleDateString(undefined, {
-                                                year: 'numeric',
-                                                month: 'short',
-                                                day: 'numeric'
-                                            });
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    type: 'time',
-                                    max: DR ? DR.endOfToday() : undefined,
-                                    time: {
-                                        displayFormats: {
-                                            year: 'yyyy',
-                                            month: 'MMM yyyy',
-                                            day: 'MMM d, yyyy'
-                                        }
-                                    },
-                                    ticks: {
-                                        color: T.tickColor(),
-                                        maxRotation: 45,
-                                        autoSkip: true,
-                                        maxTicksLimit: 14
-                                    },
-                                    grid: { color: T.grid() }
-                                },
-                                y: {
-                                    ticks: { color: T.tickColor() },
-                                    grid: { color: T.grid() }
-                                }
-                            }
-                        }
-                    });
+                    state.latestConfig = {
+                        player: player,
+                        opponent: opponent,
+                        opponentName: opponentName,
+                        playerDateData: playerDateData,
+                        opponentDateData: opponentDateData,
+                        playerGameData: playerGameData,
+                        opponentGameData: opponentGameData
+                    };
+                    state.dateChart = renderChart(dateCanvas, state.latestConfig, 'date');
+                    setActiveView(root, state.activeView, state);
                 })
                 .catch(function () {
                     if (status) {
@@ -247,6 +366,22 @@
             }
             loadOpponent(e.detail.opponentId, e.detail.opponentName);
         });
+
+        if (toggle) {
+            toggle.addEventListener('click', function (evt) {
+                var btn = evt.target.closest('.pm3d-rating-toggle__btn');
+                var view;
+                if (!btn || !root.contains(btn)) {
+                    return;
+                }
+                view = btn.getAttribute('data-view');
+                if (!view || view === state.activeView) {
+                    return;
+                }
+                state.activeView = view;
+                setActiveView(root, view, state);
+            });
+        }
     }
 
     function boot() {
