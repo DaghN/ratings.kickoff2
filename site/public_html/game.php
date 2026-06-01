@@ -73,6 +73,31 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 
 </div><!-- .k2-table-wrap -->
 
+<?php if ($row !== null) { ?>
+<?php
+$k2GameVideoUrl = 'https://www.youtube-nocookie.com/embed/fILBf_fVNzY';
+$k2GameVideoTitle = '2024 Online World Championship final — Blazej vs EternalStudent';
+?>
+<section class="k2-game-page__aside" aria-labelledby="k2-game-page-while-we-wait">
+	<h2 id="k2-game-page-while-we-wait" class="visually-hidden">While we wait for browser replay</h2>
+	<p class="k2-game-page__prose">
+		Implementing replay of archived games in the browser is proving a tiny wee bit difficult, so while we are waiting for that&hellip; Let&rsquo;s sit down and enjoy this fantastic final from the 2024 Online WC between Blazej and EternalStudent. Bon appetit!
+	</p>
+	<div class="k2-game-page__video-wrap">
+		<div class="k2-game-page__video">
+			<iframe
+				class="k2-game-page__video-iframe"
+				src="<?php echo htmlspecialchars($k2GameVideoUrl, ENT_QUOTES, 'UTF-8'); ?>"
+				title="<?php echo htmlspecialchars($k2GameVideoTitle, ENT_QUOTES, 'UTF-8'); ?>"
+				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+				referrerpolicy="strict-origin-when-cross-origin"
+				allowfullscreen
+			></iframe>
+		</div>
+	</div>
+</section>
+<?php } ?>
+
 </div><!-- .k2-page-nav -->
 </body>
 </html>

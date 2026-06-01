@@ -9,7 +9,7 @@
 | **Tint** (`data-k2-accent` on `<html>`) | UI accent — links, nav rings, glows, chrome. **Not** tied to Online/Amiga. |
 | **Realm** (`data-realm`) | Which ladder/universe (data, copy, APIs later). **Does not** set site paint. |
 
-**Default tint on load:** follows a **six-hour rotation** when the visitor has not chosen a pill manually (see schedule below). CSS still defaults to amber when `data-k2-accent` is absent. Hub picker: **Amber · Pitch · Chrome · Holo** (Pulse removed — clashed with stat colours), hidden by default behind **Show tint**.
+**Default tint on load:** follows a **six-hour rotation** when the visitor has not chosen a pill manually (see schedule below). CSS still defaults to amber when `data-k2-accent` is absent. Hub/player nav: **Tint** disclosure (closed by default) reveals **Amber · Pitch · Chrome · Holo** swatch pills to the left of the fixed right-side Tint anchor (Pulse removed — clashed with stat colours). Inactive choices stay subdued when open; palette stays open after a pick until the visitor closes it.
 
 **Six-hour schedule** (`js/k2-tint-schedule.js`, booted from `theme_boot_head.php`):
 

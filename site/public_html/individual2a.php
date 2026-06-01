@@ -52,23 +52,22 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-matchup ranked-pages-table k2-table--opponent-matchup" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
 
 <thead>
-	
     <tr>
-        <th colspan="1" class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
-        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
-        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Wins against this opponent.">Wins</th>
+        <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
+        <th data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
+        <th data-k2-sort="number" data-k2-help="Wins against this opponent.">Wins</th>
         <th data-k2-sort="number" data-k2-help="Draws against this opponent.">Draws</th>
         <th data-k2-sort="number" data-k2-help="Losses against this opponent.">Losses</th>
-        <th class="k2-table-cell--pad-left-xl" data-k2-sort="number" data-k2-help="Share of games won against this opponent.">Win Ratio</th>
+        <th data-k2-sort="number" data-k2-help="Share of games won against this opponent.">Win Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games drawn against this opponent.">Draw Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games lost against this opponent.">Loss Ratio</th>
     </tr>
 </thead>
 
-<tbody class="black">
+<tbody>
 	<?php
     $i = "1";
     while ($row = mysqli_fetch_row($result))

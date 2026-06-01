@@ -4,7 +4,7 @@
  * Set $k2HubTabActive before include: status | activity | leaderboards | milestones | records | join
  *
  * Full match log: server3.php (linked from Status recent games — not a hub tab).
- * Tint picker: Amber · Pitch · Chrome · Holo — hidden by default; Show/Hide tint.
+ * Tint picker: Tint disclosure — Amber · Pitch · Chrome · Holo (closed by default).
  * Peer pill clicks: data-k2-carry-scroll + js/k2-carry-scroll.js (keep window scrollY).
  */
 $k2HubTabActive = $k2HubTabActive ?? '';

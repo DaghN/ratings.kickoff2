@@ -80,7 +80,7 @@ Still open with Steve / prod:
 | Leaderboard wings | Segment track; wing tabs sit above table. |
 | Player pages | Replace hub tabs with player context tabs: Profile, Games, W/D/L, Goals, DDs, Milestones. |
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
-| Tint picker | Hidden by default behind Show tint. |
+| Tint picker | Closed by default behind **Tint** disclosure (hub + player nav). |
 | Realm switcher | UI for future Online/Amiga realm; tint and realm are separate. |
 | Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps `window.scrollY` on the next page (one-shot `sessionStorage`). Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
 

@@ -23,7 +23,7 @@
 
 ## Scroll order (as shipped)
 
-1. Site header + **hero** (name, rank, rating, games; **milestones** column with `{n}/{catalog}` only when `NumberGames >= 1` — links to garden tab; catalog via `k2_milestone_catalog_total()`)
+1. Site header + **hero** (name → Profile tab; rank + rating → `ranked7.php` Rating LB; games → `ranked8.php#k2-peak-period-all-time`; **milestones** `{n}/{catalog}` when `NumberGames >= 1` → garden tab; stat links = pointer only, no hover ink)
 2. Feast **pills**
 4. **Presence** + **Career** (at-a-glance; career ranks when `Display = 1`)
 5. **Played days** (current calendar year, played-day cells)

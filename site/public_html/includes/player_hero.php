@@ -14,7 +14,12 @@ $heroGames = isset($NumberGames) ? (int) $NumberGames : 0;
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroMs = isset($heroMilestoneCounts) && is_array($heroMilestoneCounts) ? $heroMilestoneCounts : null;
 $heroMsPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
+$heroProfileHref = $heroMsPlayerId > 0 ? 'individual1.php?id=' . $heroMsPlayerId : '';
+$heroLbRatingHref = 'ranked7.php';
+$heroLbGamesPeakHref = 'ranked8.php#k2-peak-period-all-time';
 $heroMsCatalogTotal = isset($heroMsCatalogTotal) ? (int) $heroMsCatalogTotal : 0;
+$heroRankLinked = $heroDisplay && isset($rank);
+$heroRatingLinked = $heroDisplay && isset($Rating);
 ?>
 <article class="k2-player-hero k2-player-hero--feast">
 	<div class="k2-player-hero__inner">
@@ -22,19 +27,37 @@ $heroMsCatalogTotal = isset($heroMsCatalogTotal) ? (int) $heroMsCatalogTotal : 0
 			<div class="k2-player-hero__avatar" aria-hidden="true"><?php echo htmlspecialchars($heroInitial, ENT_QUOTES, 'UTF-8'); ?></div>
 		</div>
 		<div class="k2-player-hero__body">
-			<h2 class="k2-player-hero__name"><?php echo $nameEsc; ?></h2>
+			<h2 class="k2-player-hero__name"><?php
+				if ($heroProfileHref !== '') {
+					?><a class="k2-player-hero__name-link" href="<?php echo htmlspecialchars($heroProfileHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $nameEsc; ?></a><?php
+				} else {
+					echo $nameEsc;
+				}
+			?></h2>
 			<div class="k2-player-hero__stats">
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Rank</span>
-					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--rank"><?php echo $heroRank; ?></span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--rank"><?php
+						if ($heroRankLinked) {
+							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbRatingHref, ENT_QUOTES, 'UTF-8'); ?>">#<?php echo (int) $rank; ?></a><?php
+						} else {
+							echo $heroRank;
+						}
+					?></span>
 				</div>
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Rating</span>
-					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php echo $heroRating; ?></span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php
+						if ($heroRatingLinked) {
+							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbRatingHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo (int) round($Rating); ?></a><?php
+						} else {
+							echo $heroRating;
+						}
+					?></span>
 				</div>
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Games</span>
-					<span class="k2-player-hero__stat-value"><?php echo $heroGames; ?></span>
+					<span class="k2-player-hero__stat-value"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbGamesPeakHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
 				</div>
 				<?php if ($heroMs !== null && $heroMsPlayerId > 0) {
 					$gardenHref = 'individual_milestones.php?id=' . $heroMsPlayerId;

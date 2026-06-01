@@ -6,6 +6,8 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -19,6 +21,7 @@ if ($playerId < 1) {
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_game_row.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
 
 function individual3_h(string $value): string
 {
@@ -193,7 +196,7 @@ $name = $Name ?? '';
 $resultFilter = individual3_valid_result((string) ($_GET['result'] ?? 'all'));
 $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
 $utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
-$sortKey = (string) ($_GET['sort'] ?? 'date');
+$sortKey = (string) ($_GET['sort'] ?? 'id');
 $sortDirection = individual3_valid_direction((string) ($_GET['dir'] ?? 'desc'));
 $limit = 100;
 $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
@@ -216,7 +219,7 @@ $sortMap = [
     'adjustment' => "CASE WHEN r.idA = $playerIdSql THEN r.AdjustmentA ELSE r.AdjustmentB END",
 ];
 if (!isset($sortMap[$sortKey])) {
-    $sortKey = 'date';
+    $sortKey = 'id';
 }
 
 $opponentRows = individual3_query_all(
@@ -304,6 +307,21 @@ if ($opponentFilter > 0) {
 if ($utcDayFilter !== '') {
     $pagerParams['day'] = $utcDayFilter;
 }
+$sortedColIndex = k2_player_game_sort_col_index($sortKey);
+
+$resultChoices = [
+    ['value' => 'all', 'label' => 'All results'],
+    ['value' => 'win', 'label' => 'Wins'],
+    ['value' => 'draw', 'label' => 'Draws'],
+    ['value' => 'loss', 'label' => 'Losses'],
+];
+$opponentChoices = [['value' => '0', 'label' => 'All opponents']];
+foreach ($opponentRows as $opponentRow) {
+    $opponentChoices[] = [
+        'value' => (string) (int) $opponentRow['opponent_id'],
+        'label' => (string) $opponentRow['opponent_name'] . ' (' . (int) $opponentRow['games'] . ')',
+    ];
+}
 ?>
 
 <form class="k2-player-games-controls" method="get" action="individual3.php">
@@ -313,28 +331,15 @@ if ($utcDayFilter !== '') {
     <?php if ($utcDayFilter !== '') { ?>
     <input type="hidden" name="day" value="<?php echo individual3_h($utcDayFilter); ?>" />
     <?php } ?>
-    <label>
-        Result
-        <select name="result" onchange="this.form.submit();">
-            <option value="all"<?php echo $resultFilter === 'all' ? ' selected="selected"' : ''; ?>>All results</option>
-            <option value="win"<?php echo $resultFilter === 'win' ? ' selected="selected"' : ''; ?>>Wins</option>
-            <option value="draw"<?php echo $resultFilter === 'draw' ? ' selected="selected"' : ''; ?>>Draws</option>
-            <option value="loss"<?php echo $resultFilter === 'loss' ? ' selected="selected"' : ''; ?>>Losses</option>
-        </select>
-    </label>
-    <label>
-        Opponent
-        <select name="opponent" onchange="this.form.submit();">
-            <option value="0">All opponents</option>
-            <?php foreach ($opponentRows as $opponentRow) { ?>
-            <?php $currentOpponentId = (int) $opponentRow['opponent_id']; ?>
-            <option value="<?php echo $currentOpponentId; ?>"<?php echo $opponentFilter === $currentOpponentId ? ' selected="selected"' : ''; ?>>
-                <?php echo individual3_h((string) $opponentRow['opponent_name']); ?> (<?php echo (int) $opponentRow['games']; ?>)
-            </option>
-            <?php } ?>
-        </select>
-    </label>
-    <a class="k2-link-star" href="individual3.php?id=<?php echo $playerId; ?>">Reset</a>
+    <div class="k2-player-games-controls__field">
+        <span class="server-period-activity-leaderboard__picker-label">Result</span>
+        <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result'); ?>
+    </div>
+    <div class="k2-player-games-controls__field">
+        <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
+        <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
+    </div>
+    <a class="k2-player-games-action" href="individual3.php?id=<?php echo $playerId; ?>">Reset</a>
 </form>
 
 <div class="k2-player-games-status">
@@ -345,17 +350,17 @@ if ($utcDayFilter !== '') {
     Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
     <?php if ($offset > 0) { ?>
     <?php $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)]; ?>
-    <a href="<?php echo individual3_h(individual3_build_url($prevParams)); ?>">Previous 100</a>
+    <a class="k2-player-games-action" href="<?php echo individual3_h(individual3_build_url($prevParams)); ?>">Previous 100</a>
     <?php } ?>
     <?php if ($offset + $limit < $totalMatches) { ?>
     <?php $nextParams = $pagerParams + ['offset' => $offset + $limit]; ?>
-    <a class="k2-link-star" href="<?php echo individual3_h(individual3_build_url($nextParams)); ?>">Next 100</a>
+    <a class="k2-player-games-action" href="<?php echo individual3_h(individual3_build_url($nextParams)); ?>">Next 100</a>
     <?php } ?>
 </div>
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-games">
 
 <thead>
 <tr>
@@ -378,14 +383,14 @@ if ($utcDayFilter !== '') {
     </tr>
 </thead>
 
-<tbody class="black">
+<tbody>
     <?php if ($games === []) { ?>
     <tr>
-        <td colspan="16" class="k2-table-cell--left">No games match these filters.</td>
+        <td colspan="16" class="k2-table-cell--left k2-games-day__empty">No games match these filters.</td>
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>
-    <?php echo k2_player_game_row_html($game, $playerId); ?>
+    <?php echo k2_player_game_row_html($game, $playerId, $sortedColIndex); ?>
     <?php } ?>
 </tbody>
 

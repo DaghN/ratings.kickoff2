@@ -61,7 +61,7 @@
 
     function syncAccentButtons() {
         var accent = currentAccent();
-        document.querySelectorAll('.k2-accent-pills__btn').forEach(function (btn) {
+        document.querySelectorAll('.k2-tint-menu__choice').forEach(function (btn) {
             var on = btn.getAttribute('data-k2-accent') === accent;
             btn.classList.toggle('is-active', on);
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -152,7 +152,7 @@
             });
         });
 
-        document.querySelectorAll('.k2-accent-pills__btn').forEach(function (btn) {
+        document.querySelectorAll('.k2-tint-menu__choice').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 setAccentTune(btn.getAttribute('data-k2-accent') || '');
             });

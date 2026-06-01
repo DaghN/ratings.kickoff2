@@ -14,7 +14,7 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
-<?php 
+<?php
 require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_safety.php";
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 $id = k2_positive_int_param('id', 'Invalid player id.');
@@ -22,6 +22,8 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
 $name = $Name ?? '';
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 
 $query = "SELECT opponentID, opponentname, COUNT(*), SUM(DD), SUM(DDC), SUM(CS), SUM(CSC), AVG(DD), AVG(DDC), AVG(CS), AVG(CSC)
 FROM(
@@ -41,6 +43,11 @@ ORDER BY COUNT(*) DESC";
 $result = k2_query_or_public_error($con, $query, 'individual2c matchup table');
 
 mysqli_close($con);
+
+function individual2c_ratio_cell(float $ratio): string
+{
+    return $ratio == 0.0 ? '0%' : number_format(100 * $ratio, 1) . '%';
+}
 ?>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero.php"; ?>
@@ -51,54 +58,58 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table k2-table--opponent-matchup" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
-        <th class="k2-table-cell--pad-left-sm" data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
-        <th class="k2-table-cell--pad-left-xxl" data-k2-sort="number" data-k2-help="Double digits: games where this player scored 10 or more against this opponent.">DD</th>
-        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Double digits conceded: games where this player conceded 10 or more against this opponent.">DD C</th>
-        <th class="k2-table-cell--pad-left-xxl" data-k2-sort="number" data-k2-help="Clean sheets: games where this player held this opponent to zero goals.">CS</th>
-        <th class="k2-table-cell--pad-left-xs" data-k2-sort="number" data-k2-help="Clean sheets conceded: games where this player scored no goals against this opponent.">CS C</th>
-        <th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-help="Share of games against this opponent where this player scored 10 or more.">DD Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player conceded 10 or more.">DD C Ratio</th>
-        <th class="k2-table-cell--pad-left-lg" data-k2-sort="number" data-k2-help="Share of games against this opponent where this player kept a clean sheet.">CS Ratio</th>
-        <th data-k2-sort="number" data-k2-help="Share of games against this opponent where this player was held to zero goals.">CS C Ratio</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits(), ENT_QUOTES, 'UTF-8'); ?>">Double Digits</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets(), ENT_QUOTES, 'UTF-8'); ?>">Clean Sheets</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Double Digits ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits_ratio(), ENT_QUOTES, 'UTF-8'); ?>">DD Ratio</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Clean Sheets ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets_ratio(), ENT_QUOTES, 'UTF-8'); ?>">CS Ratio</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits_conceded(), ENT_QUOTES, 'UTF-8'); ?>">DD conceded</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets_conceded(), ENT_QUOTES, 'UTF-8'); ?>">CS conceded</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="DD conceded ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits_conceded_ratio(), ENT_QUOTES, 'UTF-8'); ?>">DD C Ratio</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="CS conceded ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets_conceded_ratio(), ENT_QUOTES, 'UTF-8'); ?>">CS C Ratio</th>
     </tr>
 </thead>
 
-<tbody class="black">
+<tbody>
 	<?php
-    $rank = "1";
-    while ($row = mysqli_fetch_row($result))
-    {  
+    while ($row = mysqli_fetch_row($result)) {
+        $opponentid = (int) $row[0];
+        $opponentname = (string) $row[1];
+        $games = (int) $row[2];
+        $doubleDigits = (int) $row[3];
+        $doubleDigitsConceded = (int) $row[4];
+        $cleanSheets = (int) $row[5];
+        $cleanSheetsConceded = (int) $row[6];
+        $ddRatio = (float) $row[7];
+        $ddConcededRatio = (float) $row[8];
+        $csRatio = (float) $row[9];
+        $csConcededRatio = (float) $row[10];
     ?>
-    
+
     <tr>
-        
-        <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td><?php echo $row[2] ?></td>
-       	<td><?php if ($row[3] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[3];?></span><?php } ?></td>
-        <td><?php if ($row[4] == 0) {echo "0";} else {?><span class="red"><?php echo $row[4];?></span><?php } ?></td>
-        <td><?php if ($row[5] == 0) {echo "0";} else {?><span class="blue"><?php echo $row[5];?></span><?php } ?></td>
-        <td><?php if ($row[6] == 0) {echo "0";} else {?><span class="red"><?php echo $row[6];?></span><?php } ?></td>
-        <td><?php if ($row[7] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[7], 1); echo "%";} ?></td>
-        <td><?php if ($row[8] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[8], 1); echo "%";} ?></td>
-        <td><?php if ($row[9] == 0) {echo "0%";} else {echo "<span class='blue'>"; echo number_format(100*$row[9], 1); echo "%";} ?></td>
-        <td><?php if ($row[10] == 0) {echo "0%";} else {echo "<span class='red'>"; echo number_format(100*$row[10], 1); echo "%";} ?></td>
-    </tr> 
-    
-    <?php
-	$rank++; 
-    }  
-    ?> 
+        <td class="k2-table-cell--left"><?php echo k2_player_link($opponentid, $opponentname); ?></td>
+        <td><?php echo $games; ?></td>
+        <td><?php echo $doubleDigits; ?></td>
+        <td><?php echo $cleanSheets; ?></td>
+        <td><?php echo individual2c_ratio_cell($ddRatio); ?></td>
+        <td><?php echo individual2c_ratio_cell($csRatio); ?></td>
+        <td><?php echo $doubleDigitsConceded; ?></td>
+        <td><?php echo $cleanSheetsConceded; ?></td>
+        <td><?php echo individual2c_ratio_cell($ddConcededRatio); ?></td>
+        <td><?php echo individual2c_ratio_cell($csConcededRatio); ?></td>
+    </tr>
+
+    <?php } ?>
 </tbody>
 
 </table>
 
 </div><!-- .k2-table-wrap -->
-
 
 </div><!-- .k2-page-nav -->
 </body>

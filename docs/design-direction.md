@@ -162,11 +162,14 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Positive/negative table stats | `.blue` / `.red` on profile/games rows, Status ticker/meta, record **date markers** (`(New!)` / `(Legendary)` on `server2.php`); **not** on calm leaderboard value cells |
 | HoF record row label + date column | `server-records-table` col 1 + 4 → `--k2-text-muted`; value (anchor) + holder unchanged |
 | Hub `ranked-pages-table`, Activity peaks, Status `k2-status-table` calm body cells | default `--k2-text-secondary`; anchor → link-star or league-anchor-ink; `k2-table-col-sorted` → primary 600 |
+| Player games (`individual3.php`, `k2-table--player-games`) | Calm secondary body; **keep** `.blue`/`.red` on Result/Diff/Adjustment; active sort column → primary 600 (PHP `k2-table-col-sorted`); sorted editorial cells → weight 700 on `.blue`/`.red` (trial) |
+| Player matchup W/D/L (`individual2a`, `k2-table--player-matchup`) | Calm-stats; **Games** anchor; `.blue`/`.red` editorial; bolder when sort column (700) |
+| Player Goals + DDs matchup (`individual2b/c`) | Hub LB parity (`ranked2` / `ranked3`); calm-stats, no editorial blue/red; **Games** anchor; `lb_column_help` headers/tooltips |
 | Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` → `--k2-link-star`, weight 600; permanent. Peak on Rating wing; Elo anchor on Results + Status active board only. |
 | Status **league** anchors (Pts / Games) | `k2-table--league-anchor-cross` → `--k2-league-anchor-ink` (85% pure + primary, same recipe as link-star): **chrome** when tint is amber or pitch; **pitch** when tint is chrome or holo — not `--k2-accent`. |
 | Calm LB active sort (not anchor) | `k2-table--calm-stats` + `k2-table-col-sorted` → `--k2-text-primary`, weight 600 (tunable; avoids faux link-star) |
 | Other sortable tables (non-calm) | `k2-table-col-sorted` → `--k2-segment-active-text`, weight 600 |
-| **Listbox / archive picker** (`.k2-archive-listbox`) | Closed: `--k2-text-secondary`, weight 500; hover/open/selected: subtle `color-mix` toward primary (not full primary); selection via background — **not** `--k2-segment-active-text`; trigger width locked to longest option label (JS measure probe); Leagues picker row uses max width across day/week/month/year so tab change does not shift step nav |
+| **Listbox / archive picker** (`.k2-archive-listbox`) | Closed: `--k2-text-secondary`, weight 500; hover/open/selected: subtle `color-mix` toward primary (not full primary); selection via background — **not** `--k2-segment-active-text`; trigger width locked to longest option label (JS measure probe); Leagues picker row uses max width across day/week/month/year so tab change does not shift step nav; **Player Games** Result/Opponent filters use the same component (`includes/k2_archive_listbox.php`) |
 | **Flatpickr (Leagues day)** | Day cells + month chrome: `--k2-text-secondary`; weekdays/disabled: muted; selected day: accent fill |
 | **Leagues meta ticker** | Plain **League** + `<span class="blue">` period label; end dates use full month names (`F j` UTC) |
 
@@ -178,9 +181,9 @@ Do not add one-off hex in page CSS when a token exists.
 
 | Use | Typeface / rule |
 |-----|-----------------|
-| Body, tables, chart labels | IBM Plex Sans |
+| Body, tables, chart labels | IBM Plex Sans (self-hosted `fonts/`, `k2-fonts.css`) |
 | Numbers | tabular numbers or IBM Plex Mono where useful |
-| Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial |
+| Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial (self-hosted; preloaded in `k2_fonts_head.php`) |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
 | Text selection (drag highlight) | `::selection` on `body.k2-site` — `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
 
@@ -192,22 +195,24 @@ Never use pixel/bitmap fonts for readable data.
 
 Current shared chrome:
 
-- `includes/site_header.php` for wordmark, player search, realm switcher (**hidden** via `theme.css` until Amiga ships; markup retained).
+- `includes/site_header.php` for wordmark, player search, realm switcher (**hidden** via `theme.css` until Amiga ships; markup retained). Wordmark **always** street-sign neon (`text-shadow` layers on `.k2-wordmark__main`, px-capped and pleasant rather than foggy — avoid huge `calc()` blurs); **hover** adds a controlled wider shadow (no unbounded bloom).
 - `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / Hall of Fame / Play & Setup (`server3.php` match log off-hub).
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.
-- `includes/k2_head.php` for shared CSS and early theme boot.
+- `includes/k2_head.php` for shared CSS and early theme boot (`k2-fonts.css` before `theme.css`; no Google Fonts).
 
 Navigation pattern:
 
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
 - Hub and player nav no longer support A/B style overrides; the preview/tuning scaffolding has been pruned.
-- Tint picker remains hidden by default behind **Show tint**.
+- Tint picker: compact right-anchored **Tint** disclosure pill (current swatch dot when closed); four swatch choices open to its left; closed by default; segment-outline active choice; inactive swatches dimmed (`k2_tint_picker.php`, `k2-tint-toggle.js`).
+- Secondary actions can use quiet rounded pills when they act like controls rather than content links (e.g. Player Games `Reset` / pager actions); Status Leagues keeps period tabs separate from its spacious prev/picker/next stepper.
 
 Imagery:
 
 - No repeating site-wide decorative banner.
 - Use imagery where it earns its place, e.g. Status heritage box or future Amiga photos.
+- Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 
 ---
@@ -222,7 +227,7 @@ Imagery:
 | Player profile | `individual1.php` is the shipped feast layout; gradual copy/UX improvements only. |
 | Player games | `individual3.php` uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
 | Records/Hall of Fame | `server2.php` is the Hall of Fame page; `ranked8.php` is Activity. |
-| Activity / charts | `server1.php` starts with a key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` (`mergeTooltip` / `applyTooltipDefaults`); dataset colour swatches use the tooltip surface + solid stroke. **Implementation plan:** [`activity-charts.md`](activity-charts.md) — single module, lab-only `.k2-chart-frame`, lab → promote (no global phone layout changes during lab). |
+| Activity / charts | `server1.php` starts with a key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts grouped into question-led sections with short intros; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` (`mergeTooltip` / `applyTooltipDefaults`); dataset colour swatches use the tooltip surface + solid stroke. **Implementation plan:** [`activity-charts.md`](activity-charts.md) — single module, lab-only `.k2-chart-frame`, lab → promote (no global phone layout changes during lab). |
 
 Microcopy:
 

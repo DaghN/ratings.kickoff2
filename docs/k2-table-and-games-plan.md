@@ -12,10 +12,12 @@
 |----------------|------------------|
 | `ranked1`-`ranked5`, `ranked7`, `ranked10`, league honours | `k2-table.js` sort + autorank; `data-k2-anchor-col` for one permanent link-star column per wing; lighter `k2-table-col-sorted` on the active sort column when it differs from the anchor. Optional deep link: `?k2_sort={col}&k2_dir=desc|asc` (Hall of Fame values via `records_hof_links.php`) — applies one client-side sort on init for `ranked-pages-table` only; does not change anchor column. |
 | `ranked8` / `peak_period_leaderboards_section.php` | **Calendar** day/week/month/year: calm-stats, Games anchor (col 3), not sortable; **All time / Longevity**: calm-stats + sort + anchor (Games / Days). |
-| `individual2a/b/c.php` | `k2-table.js` sort; Games default sort indicator. |
+| `individual2a.php` (W/D/L) | `k2-table.js` sort; default **Games** desc; `k2-table--calm-stats` + `ranked-pages-table`; **Games** anchor (col 1, link-star); blue/red on W/L/ratios; other columns `k2-table-col-sorted` when active (Jun 2026). |
+| `individual2b.php` (Goals) | Hub Goals LB parity: calm-stats (no blue/red), **Games** anchor (col 1), `lb_column_help` headers/tooltips; Win/Loss margin = `MAX` only on winning/losing games (not signed diffs on all games); Draw sort via `data-k2-sort-value`. |
+| `individual2c.php` (DDs) | Hub DD LB parity (`ranked3`): headers/tooltips from `lb_column_help`, calm-stats (no blue/red), **Games** anchor (col 1); column order matches ranked3. |
 | `server3.php` | Sub-nav **Recent** \| **Highlights** (`games_hub_nav.php`). **Recent:** 14 day buckets; `k2-table--calm-stats` body ink; each day table uses `k2-table.js` on all columns, default **ID** desc (SQL still Date desc, id desc for fetch). **Highlights:** server-side top 100 per board (`games_highlights_helpers.php`); calm-stats; compact rows via `k2_rated_game_row` `variant=compact`; board segment + `k2-table.js` autorank on bounded table. |
-| `game.php` | Static single-game table with `k2-table.js` header help only; no sorting. |
-| `individual3.php` | Server-side Result/Opponent filters, URL sort links, 100-row slices, shared row renderer; no table JS. |
+| `game.php` | Static single-game table with `k2-table.js` header help only; no sorting. Below the table when a game exists: short “while we wait for browser replay” copy + 16:9 YouTube embed (2024 Online WC final placeholder). |
+| `individual3.php` | Server-side Result/Opponent filters, URL sort links, 100-row slices, shared row renderer; `k2-table--calm-stats` + `k2-table--player-games` (secondary body, win/loss `.blue`/`.red` kept); PHP marks `k2-table-col-sorted` on active sort column; Result/Opponent filters use shared `k2-archive-listbox` + `k2-archive-listbox.js` (same as Status Leagues pickers, Jun 2026); Reset / Previous 100 / Next 100 use quiet action pills. |
 | `status.php` | Active LB: sort + Elo anchor; league tables: calm-stats + Pts/Games anchors — **PHP** (`k2_league_table_render.php`) and **JS** (`status-period-competitions.js` inject + `k2TableApplyAnchors`). |
 | `server2.php` | HoF record panels: calm-stats; Value column anchor; all values → leaderboard wings + `provisional=0` + `k2_sort`; dates keep `(New!)` / `(Legendary)` markers. |
 | `server1.php`, `server2.php` | Activity summary cards plus static themed tables; no general table JS. |
@@ -76,7 +78,7 @@ Do not fork Games-tab row markup unless the shared renderer is updated too.
 
 - Result filter: All / Wins / Draws / Losses.
 - Opponent filter: All / opponent list for this player.
-- Sort state in `sort` + `dir` query params.
+- Sort state in `sort` + `dir` query params; default **`id` desc** (newest games first; avoids highlighting Date on first paint).
 - 100-row slices with Previous/Next links when available.
 - Shared row renderer: `includes/k2_player_game_row.php`.
 

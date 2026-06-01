@@ -5,6 +5,8 @@
  */
 $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 ?>
+<?php include $k2DocRoot . '/includes/k2_fonts_head.php'; ?>
+<link href="stylesheets/k2-fonts.css?v=<?php echo (int) @filemtime($k2DocRoot . '/stylesheets/k2-fonts.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="stylesheets/theme.css?v=<?php echo (int) @filemtime($k2DocRoot . '/stylesheets/theme.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="stylesheets/player-hero-rank.css?v=<?php echo (int) @filemtime($k2DocRoot . '/stylesheets/player-hero-rank.css'); ?>" rel="stylesheet" type="text/css" />
 <?php include $k2DocRoot . '/includes/theme_boot_head.php'; ?>

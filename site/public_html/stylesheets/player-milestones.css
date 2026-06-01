@@ -108,6 +108,11 @@ body.k2-site .k2-ms-card.is-unlocked a.k2-ms-card__title-link:hover {
 	max-width: 52rem;
 }
 
+body.k2-site .k2-ms-meta-hint .k2-ms-meta-hint__unlocked {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
 .k2-ms-achievers {
 	margin-top: 28px;
 	padding-top: 8px;
@@ -227,15 +232,17 @@ body.k2-site a.k2-ms-recent-tier-filter__tab.is-active {
 	font-weight: 600;
 }
 
-/* All — muted always; active = neutral segment chrome only */
-body.k2-site a.k2-ms-recent-tier-filter__tab--all,
-body.k2-site a.k2-ms-recent-tier-filter__tab--all:visited {
+/* Inactive pills (All + tier labels) — muted like All; tier ink only when selected */
+body.k2-site a.k2-ms-recent-tier-filter__tab:not(.is-active),
+body.k2-site a.k2-ms-recent-tier-filter__tab:not(.is-active):visited {
 	color: var(--k2-text-muted);
 }
 
-body.k2-site a.k2-ms-recent-tier-filter__tab--all:hover:not(.is-active),
-body.k2-site a.k2-ms-recent-tier-filter__tab--all:focus-visible:not(.is-active) {
+body.k2-site a.k2-ms-recent-tier-filter__tab:not(.is-active):hover,
+body.k2-site a.k2-ms-recent-tier-filter__tab:not(.is-active):focus-visible {
 	color: var(--k2-text-secondary);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 80%, transparent);
+	text-decoration: none;
 }
 
 body.k2-site a.k2-ms-recent-tier-filter__tab--all.is-active,
@@ -246,27 +253,7 @@ body.k2-site a.k2-ms-recent-tier-filter__tab--all.is-active:visited {
 	box-shadow: none;
 }
 
-/* Tier labels — milestone hues; active = subtle tier fill + ring */
-body.k2-site a.k2-ms-recent-tier-filter__tab--pitch,
-body.k2-site a.k2-ms-recent-tier-filter__tab--pitch:visited {
-	color: var(--k2-pure-pitch);
-}
-
-body.k2-site a.k2-ms-recent-tier-filter__tab--chrome,
-body.k2-site a.k2-ms-recent-tier-filter__tab--chrome:visited {
-	color: var(--k2-pure-chrome);
-}
-
-body.k2-site a.k2-ms-recent-tier-filter__tab--amber,
-body.k2-site a.k2-ms-recent-tier-filter__tab--amber:visited {
-	color: var(--k2-pure-amber);
-}
-
-body.k2-site a.k2-ms-recent-tier-filter__tab--holo,
-body.k2-site a.k2-ms-recent-tier-filter__tab--holo:visited {
-	color: var(--k2-ms-holo);
-}
-
+/* Tier labels — milestone hues when active only */
 body.k2-site a.k2-ms-recent-tier-filter__tab--pitch.is-active,
 body.k2-site a.k2-ms-recent-tier-filter__tab--pitch.is-active:visited,
 body.k2-site a.k2-ms-recent-tier-filter__tab--pitch.is-active:hover {
@@ -297,14 +284,6 @@ body.k2-site a.k2-ms-recent-tier-filter__tab--holo.is-active:hover {
 	color: var(--k2-ms-holo);
 	background: color-mix(in srgb, var(--k2-ms-holo) 14%, var(--k2-bg-elevated));
 	border-color: color-mix(in srgb, var(--k2-ms-holo) 42%, transparent);
-}
-
-body.k2-site a.k2-ms-recent-tier-filter__tab--pitch:hover:not(.is-active),
-body.k2-site a.k2-ms-recent-tier-filter__tab--chrome:hover:not(.is-active),
-body.k2-site a.k2-ms-recent-tier-filter__tab--amber:hover:not(.is-active),
-body.k2-site a.k2-ms-recent-tier-filter__tab--holo:hover:not(.is-active) {
-	background: color-mix(in srgb, var(--k2-bg-elevated) 80%, transparent);
-	text-decoration: none;
 }
 
 .k2-ms-recent-list-block {

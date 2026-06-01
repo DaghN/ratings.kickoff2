@@ -3,7 +3,7 @@
 **Page:** `site/public_html/server1.php` (hub tab **Activity**).  
 **Authority:** Product taste → [`design-direction.md`](design-direction.md). Hub data patterns → [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) (summary PHP only; charts are client-side). **This doc** owns chart JS/CSS structure, panel registry, lab → promote.
 
-**Status (Jun 2026):** **L3 shipped** — [`server1.php`](../site/public_html/server1.php) loads only [`js/activity-charts-v2.js`](../site/public_html/js/activity-charts-v2.js); panels in [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php); `body.k2-activity-charts`. Legacy `activity-charts.js` + eleven `server-*-chart.js` boot files **removed**. [`server1-charts-lab.php`](../site/public_html/server1-charts-lab.php) redirects to `server1.php`.
+**Status (Jun 2026):** **L3 shipped** — [`server1.php`](../site/public_html/server1.php) loads only [`js/activity-charts-v2.js`](../site/public_html/js/activity-charts-v2.js); panels in [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php); `body.k2-activity-charts`. Legacy `activity-charts.js` + eleven `server-*-chart.js` boot files **removed**. [`server1-charts-lab.php`](../site/public_html/server1-charts-lab.php) redirects to `server1.php`. Chart panels are now grouped into five question-led Activity sections (`k2-activity-section`) with short intro copy above the factual chart headings.
 
 ---
 
@@ -50,13 +50,13 @@ Chart.js 4.4.7 + date-fns adapter
 
 - Colour helpers (`pitch`, `chrome`, `barStroke`, `lineStroke`, …).
 - `mergeTooltip()` / `applyTooltipDefaults()` — dark tooltips aligned with `.k2-table-tooltip`; `multiKeyBackground` + solid `labelColor` (no white inside swatches).
-- `activityChartOptions(userOptions, { chartKind })` — per-chart interaction/events; **`chartKind: 'bar'`** → grow-up entrance on phone + desktop (`prefers-reduced-motion` off); ~420ms on coarse pointer, ~520ms otherwise; bar top from `yScale.getPixelForValue(0)` (or stack foot); **`'line'`** / **`'none'`** → `animation: false`; phone still no tooltips / no `touchstart` (scroll-safe); resize transition duration 0; **must not** mutate `Chart.defaults`.
+- `activityChartOptions(userOptions, { chartKind })` — interaction/events; bar grow-up via **`createActivityChart()`** when `ACTIVITY_BAR_ENTRANCE_ENABLED` is true in `chart-theme.js` (**false** Jun 2026); otherwise plain `new Chart`. Chart.js **`responsive: true`**; phone: no tooltips / no `touchstart`; **must not** mutate `Chart.defaults`.
 
 ### Activity module (to build)
 
 - **`registerPanel({ id, selector, run })`** — `run(root)` returns a `Promise`; clears/sets `.…-status` inside panel.
 - **`boot()`** — only on **`DOMContentLoaded`** (defer scripts must register before boot).
-- **v1 loader:** one panel at a time, ~100ms gap (current orchestrator behaviour). **`chart.resize()` / `resizeAll` deferred** until all panels mount so desktop `window` `resize` (e.g. page scrollbar) does not snap bar entrance animations.
+- **v1 loader:** one panel at a time, ~100ms gap. No `resizeChart` during mount; no post-boot `resizeAll`. `window` `resize` listener attached only after load + 600ms buffer. Bar charts: `resizeDelay: 600`, `maintainAspectRatio: false`, `chartKind: 'bar'` for grow-up.
 - **Heatmap:** DOM grid in `run()`, not Chart.js — same API as today.
 
 ### CSS (target)
@@ -165,7 +165,7 @@ Use when porting each row in §5.
 ## 8. Current implementation
 
 - [`js/activity-charts-v2.js`](../site/public_html/js/activity-charts-v2.js) — panel registry, sequential `drain()` on `DOMContentLoaded`, gated by `body.k2-activity-charts`.
-- [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php) — `.k2-chart-frame` markup.
+- [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php) — five question-led `k2-activity-section` groups plus `.k2-chart-frame` markup.
 
 **Do not** add new per-chart boot files. **Do not** reintroduce `whenBlockVisible`, `createChart`, `mergeChartOptions`, global `Chart.defaults` mutation, or canvas `%` sizing.
 

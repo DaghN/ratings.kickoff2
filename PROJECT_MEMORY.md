@@ -13,7 +13,7 @@
 - **Rated play streaks:** **Staging DB + UI done** May 2026 (SCH-014, REP-015; `ranked4` Days/Weeks, HoF `server2`). **Next:** prod schema + C++ post-game; profile surface TBD.
 
 - **Leagues integration:** Awards DB + **League honours v1** on **local + staging** (`ranked9.php`, SCH-009/010, REP-012/013 verified May 2026). **Next:** profile league block; prod schema/REP when cutover; daily finalize (PER-003) only if/when wanted.
-- **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (day games list deferred).
+- **Status Leagues Phase 1:** shipped in repo (nav, single table, prewarm, lock-step floor). **Daily tab:** games-this-day list under league tables (Jun 2026). **Phase 1.5** optional polish — [`docs/status-period-competitions-wip.md`](docs/status-period-competitions-wip.md).
 - **Design / cosmetics track:** Phase A hub shell + Status Phase B v1.2 room grid; `docs/STATUS_PAGE_DATA.md`. Steve for prod DB read + joshua redirect. **Realm switcher** markup kept in header; **hidden in CSS** until Amiga ships.
 
 - **Activity charts v2:** **shipped on `server1.php`** — [`activity-charts-v2.js`](site/public_html/js/activity-charts-v2.js) + [`server_activity_chart_panels.php`](site/public_html/includes/server_activity_chart_panels.php); legacy boot files removed. **Bar grow-up** on phone + desktop via `chart-theme.js` (Jun 2026). Plan: [`docs/activity-charts.md`](docs/activity-charts.md). **Next (optional L4):** lazy load, phone long-press tooltips.
@@ -72,7 +72,21 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Activity bar animation (desktop)** — defer `resizeChart` / `resizeAll` until sequential panel boot completes (`chartsBootComplete`). |
+| 2026-06 | **Rating LB Elo tooltip** — `ranked1.php` + `ranked7.php` ELO rating headers now explain standard Elo, fixed K=32, and point users to game-page expected-score/adjustment tooltips. |
+| 2026-06 | **Activity section intros** — `server1.php` chart stack grouped into five question-led sections with tightened one-line copy; original header styling kept. |
+| 2026-06 | **Secondary control polish** — Player Games Reset/Previous/Next are quiet action pills; Status Leagues period stepper gets a grouped surface while keeping period tabs separate. |
+| 2026-06 | **`game.php` interim video** — below rated-game table when found: replay-waiting copy + 16:9 YouTube embed (2024 Online WC final) until browser replay ships. |
+| 2026-06 | **Status leagues period menu** — Day/Week/Month/Year selector now uses the shared `k2-chrome-tabs` segment track with compact milestone-style density. |
+| 2026-06 | **Wordmark bloom softened** — Kick Off 2 neon keeps its street-sign feel with reduced outer haze and hover flare. |
+| 2026-06 | **Status heritage glow** — right-side KO2 box art gets a clipped warm tint halo/rays inside the inset, balancing the wordmark glow. |
+| 2026-06 | **Status heritage inset** — dark well + muted art; tint backlight removed for fresh pass. |
+| 2026-06 | **Self-hosted fonts** — Google Fonts removed; `fonts/*.woff2` + `k2-fonts.css` + preload in `k2_fonts_head.php`; audit `docs/self-hosted-assets.md`; regen `scripts/sync_self_hosted_fonts.ps1`. |
+| 2026-06 | **Player hero links** — name → Profile; rank/rating → `ranked7.php`; games → Activity peaks all-time (`ranked8.php#k2-peak-period-all-time`); neutral pointer-only stat/name links. |
+| 2026-06 | **Player DDs tab (`individual2c`)** — hub `ranked3` headers/tooltips + column order; calm-stats; Games anchor. |
+| 2026-06 | **Player Goals tab (`individual2b`)** — Win/Loss margin SQL fixed (CASE on outcome, not MAX of signed diffs); hub LB headers; Games anchor; Draw/Least display fixes. |
+| 2026-06 | **Player Games polish (`individual3.php`)** — calm-stats table ink, shared `k2-archive-listbox` filters (Status Leagues parity), default sort id desc, server-side `k2-table-col-sorted`; win/loss blue/red kept. |
+| 2026-06 | **Status Leagues — Daily games list** — under Activity + Points when **Daily** tab active; recent-games layout + `game.php` id link; `k2_status_rated_games_for_calendar_day` + `api/status_period_day_games.php`. |
+| 2026-06 | **Activity bar animation** — **off** (`ACTIVITY_BAR_ENTRANCE_ENABLED` in `chart-theme.js`); grow-up WIP (stutter). |
 | 2026-06 | **Activity heatmap months** — month row uses `grid-column: span N` per month (full “Jan”, not ellipsis in one week column). |
 | 2026-06 | **Activity heatmap layout** — cells scale to panel width (`ResizeObserver` + CSS vars); taller/wider on desktop; min 8px + horizontal scroll on narrow viewports. |
 | 2026-06 | **Activity bar animation on phone** — same grow-up as desktop (~420ms); scroll policy unchanged (no tooltips / no touchstart). |
@@ -178,6 +192,7 @@
 | 2026-05 | **Established = 20 games aligned** — `K2_ESTABLISHED_MIN_GAMES` in `lb_player_filters.php`; HoF ratio leaders + footer 20 (was 30); HoF LB links add `provisional=0`. C++ ratio blocks still documented as legacy 30. |
 | 2026-05 | **HoF context links** — values → LB wings + `k2_sort`; `provisional=0` only on ratio/average rows; activity peaks → `ranked8#…`. |
 | 2026-05 | **Milestone catalog copy pass** — 26 keys (`display_name`/`rule_short`); seed + `milestone_catalog_copy_patches.json` + `apply_milestone_catalog_copy_patch.py`; staging `patch_milestone_catalog_copy.php`; local DB applied. |
+| 2026-06 | **Tint menu polish** — hub/player nav right-anchored **Tint** disclosure + dim swatch pills (`k2_tint_picker.php`, `k2-tint-toggle.js`, `theme.css`); schedule/manual override unchanged. |
 | 2026-05 | **Six-hour tint schedule** — local slots; manual pill lasts **current period only** (`k2-accent-manual-period`); `k2-tint-schedule.js` + boot; optional UTC via `k2-accent-clock`. |
 | 2026-05 | **Realm switcher hidden** — Online/Amiga toggle not shown in production header; markup + `realm-switch.js` kept; `status-realm-lab.php` unchanged. |
 | 2026-05 | **Play & Setup hub tab** — `join.php` in `hub_nav.php` (2nd tab); header utility link removed; spec [`docs/join-play-setup.md`](docs/join-play-setup.md), [`hub-ia-agreement.md`](docs/hub-ia-agreement.md). |

@@ -6,8 +6,6 @@
  * UI accent (tint): default amber; hub pills override. Realm switch does not set paint (see docs/tint-vs-realm.md).
  */
 
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Exo+2:wght@500;600;700&display=swap");
-
 :root {
 	--k2-bg-page: #0b0f14;
 	--k2-bg-surface: #131922;
@@ -88,6 +86,11 @@ html {
 	/* Drag-select highlight — overrides OS/browser default (e.g. Windows blue) */
 	--k2-text-selection-bg: color-mix(in srgb, var(--k2-accent) 42%, var(--k2-bg-elevated));
 	--k2-text-selection-color: var(--k2-text-primary);
+	/* Stacked drop-shadow bloom (wordmark, heritage lamp); follows tint picker */
+	--k2-accent-bloom-filter:
+		drop-shadow(0 0 18px color-mix(in srgb, var(--k2-accent-glow) 82%, transparent))
+		drop-shadow(0 0 44px color-mix(in srgb, var(--k2-accent) 42%, transparent))
+		drop-shadow(0 0 58px color-mix(in srgb, var(--k2-accent-glow) 58%, transparent));
 }
 
 html[data-k2-accent="amber"] {
@@ -205,14 +208,41 @@ body.k2-site .k2-hub-page-intro {
 	font-weight: inherit;
 }
 
+body.k2-site a.k2-wordmark__link,
+body.k2-site a.k2-wordmark__link:visited,
 body.k2-site a.k2-wordmark__link:hover,
-body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main {
+body.k2-site a.k2-wordmark__link:focus-visible {
 	text-decoration: none;
-	color: var(--k2-text-primary);
 }
 
+/* Wordmark neon — fixed px shadows (calc() stacks >~120px were dropped by browsers) */
 .k2-wordmark__main {
-	color: var(--k2-text-primary);
+	color: var(--k2-accent);
+	text-shadow:
+		0 0 10px color-mix(in srgb, var(--k2-accent) 88%, transparent),
+		0 0 26px color-mix(in srgb, var(--k2-accent-glow) 82%, transparent),
+		0 0 46px color-mix(in srgb, var(--k2-accent-glow) 70%, transparent),
+		0 0 68px color-mix(in srgb, var(--k2-accent) 44%, transparent),
+		0 0 82px color-mix(in srgb, var(--k2-accent-glow) 58%, transparent);
+	filter: var(--k2-accent-bloom-filter);
+}
+
+/* Hover — same core + extra bloom (filter must repeat base drop-shadows) */
+body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main,
+body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
+	color: var(--k2-accent);
+	text-shadow:
+		0 0 10px color-mix(in srgb, var(--k2-accent) 92%, transparent),
+		0 0 28px color-mix(in srgb, var(--k2-accent-glow) 88%, transparent),
+		0 0 50px color-mix(in srgb, var(--k2-accent-glow) 74%, transparent),
+		0 0 72px color-mix(in srgb, var(--k2-accent) 48%, transparent),
+		0 0 88px color-mix(in srgb, var(--k2-accent-glow) 64%, transparent),
+		0 0 96px color-mix(in srgb, var(--k2-accent-glow) 48%, transparent),
+		0 0 88px color-mix(in srgb, var(--k2-accent) 32%, transparent);
+	filter:
+		var(--k2-accent-bloom-filter)
+		drop-shadow(0 0 68px color-mix(in srgb, var(--k2-accent-glow) 46%, transparent))
+		drop-shadow(0 0 82px color-mix(in srgb, var(--k2-accent) 28%, transparent));
 }
 
 .k2-wordmark__sub {
@@ -795,6 +825,34 @@ body.k2-site.k2-activity-charts .k2-chart-frame {
 	margin: 0 auto;
 }
 
+body.k2-site.k2-activity-charts .k2-activity-section {
+	margin-bottom: 30px;
+}
+
+body.k2-site.k2-activity-charts .k2-activity-section__head {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: min(var(--k2-chart-max-width), 100%);
+	margin: 38px 0 14px;
+	padding: 0 2px;
+}
+
+body.k2-site.k2-activity-charts .server-activity-summary + .k2-activity-section .k2-activity-section__head {
+	margin-top: 20px;
+}
+
+body.k2-site.k2-activity-charts .k2-activity-section__intro {
+	margin: 2px 0 0;
+	color: var(--k2-text-muted);
+	font-size: 13px;
+	line-height: 1.45;
+	max-width: 44rem;
+}
+
+body.k2-site.k2-activity-charts .k2-activity-section .k2-chart-panel:last-child {
+	margin-bottom: 0;
+}
+
 body.k2-site.k2-activity-charts .k2-chart-frame--tall {
 	--k2-chart-frame-height: 360px;
 }
@@ -1354,6 +1412,19 @@ body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
 }
 
+/* Player matchup tables (Opponent col 1, Games col 2): not hub Rank/Player — normal Games width */
+body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table thead th:nth-child(1),
+body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table tbody td:nth-child(1) {
+	width: auto;
+	min-width: 9.1em;
+}
+
+body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table thead th:nth-child(2),
+body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table tbody td:nth-child(2) {
+	width: auto;
+	min-width: 0;
+}
+
 /* Hub leaderboard wings: uniform padding (legacy per-th pad-left-* widened columns when labels changed). */
 body.k2-site .k2-table.ranked-pages-table thead th,
 body.k2-site .k2-table.ranked-pages-table tbody td {
@@ -1673,6 +1744,46 @@ body.k2-site .k2-table thead .filtercell select.table-autofilter {
 	box-shadow: var(--k2-shadow-surface);
 }
 
+/* game.php — interim while browser replay ships */
+body.k2-site .k2-game-page__aside {
+	max-width: 42rem;
+	margin: 24px 0 32px;
+	box-sizing: border-box;
+}
+
+body.k2-site .k2-game-page__prose {
+	margin: 0 0 16px;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-game-page__video-wrap {
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	overflow: hidden;
+	background:
+		radial-gradient(circle at 24% 18%, color-mix(in srgb, var(--k2-accent) 16%, transparent), transparent 32%),
+		linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.32)),
+		#05080b;
+	box-shadow: var(--k2-shadow-surface);
+}
+
+body.k2-site .k2-game-page__video {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+}
+
+body.k2-site .k2-game-page__video-iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: transparent;
+}
+
 body.k2-site .k2-table-wrap {
 	width: fit-content;
 	max-width: 100%;
@@ -1694,24 +1805,70 @@ body.k2-site .k2-player-games-status {
 	font-size: 12px;
 }
 
-body.k2-site .k2-player-games-controls label {
+body.k2-site .k2-player-games-controls__field {
+	display: inline-flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 4px 6px;
+}
+
+body.k2-site .k2-player-games-controls .server-period-activity-leaderboard__picker-label {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	color: var(--k2-text-secondary);
+	margin: 0;
+}
+
+body.k2-site .k2-player-games-controls .k2-archive-listbox {
+	min-width: 10em;
+	max-width: min(22em, 92vw);
+}
+
+body.k2-site .k2-player-games-action,
+body.k2-site .k2-player-games-action:visited {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
-}
-
-body.k2-site .k2-player-games-controls select,
-body.k2-site .k2-player-games-controls button {
+	justify-content: center;
+	min-height: 26px;
+	padding: 4px 10px;
 	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	background: var(--k2-bg-surface);
-	color: var(--k2-text-primary);
-	font: inherit;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--k2-text-muted);
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	box-sizing: border-box;
+	transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-body.k2-site .k2-player-games-controls button {
-	padding: 3px 8px;
-	cursor: pointer;
+body.k2-site .k2-player-games-action:hover,
+body.k2-site .k2-player-games-action:focus-visible {
+	color: var(--k2-text-secondary);
+	border-color: var(--k2-border-strong);
+	background: rgba(255, 255, 255, 0.035);
+	text-decoration: none;
+	outline: none;
+}
+
+/* Player games (`individual3.php`): calm secondary body; keep win/loss blue/red; sort column pops */
+body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td:not(.k2-table-col-sorted) {
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted {
+	color: var(--k2-text-primary);
+	font-weight: 600;
+}
+
+body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted .blue,
+body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted .red,
+body.k2-site .k2-table.k2-table--player-matchup.k2-table--calm-stats tbody td.k2-table-col-sorted .blue,
+body.k2-site .k2-table.k2-table--player-matchup.k2-table--calm-stats tbody td.k2-table-col-sorted .red {
+	font-weight: 700;
 }
 
 
@@ -1842,6 +1999,24 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	color: var(--k2-text-primary);
 }
 
+body.k2-site a.k2-player-hero__name-link,
+body.k2-site a.k2-player-hero__name-link:visited,
+body.k2-site a.k2-player-hero__name-link:hover,
+body.k2-site a.k2-player-hero__name-link:active,
+body.k2-site a.k2-player-hero__name-link:focus,
+body.k2-site a.k2-player-hero__stat-link,
+body.k2-site a.k2-player-hero__stat-link:visited,
+body.k2-site a.k2-player-hero__stat-link:hover,
+body.k2-site a.k2-player-hero__stat-link:active,
+body.k2-site a.k2-player-hero__stat-link:focus {
+	font: inherit;
+	font-weight: inherit;
+	color: inherit;
+	text-decoration: none;
+	text-shadow: inherit;
+	cursor: pointer;
+}
+
 .k2-player-hero__stats {
 	display: flex;
 	flex-wrap: wrap;
@@ -1894,20 +2069,22 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 body.k2-site a.k2-player-hero__milestones,
-body.k2-site a.k2-player-hero__milestones:visited {
+body.k2-site a.k2-player-hero__milestones:visited,
+body.k2-site a.k2-player-hero__milestones:hover,
+body.k2-site a.k2-player-hero__milestones:active,
+body.k2-site a.k2-player-hero__milestones:focus {
 	display: block;
 	font: inherit;
 	font-weight: 600;
 	color: inherit;
 	text-decoration: none;
+	cursor: pointer;
 }
 
-body.k2-site a.k2-player-hero__milestones:hover {
-	text-decoration: none;
-}
-
-body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-total {
-	color: var(--k2-link);
+body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-total,
+body.k2-site a.k2-player-hero__milestones:active .k2-player-hero__milestones-total,
+body.k2-site a.k2-player-hero__milestones:focus .k2-player-hero__milestones-total {
+	color: var(--k2-text-primary);
 }
 
 .k2-player-hero__milestones-total {
@@ -2292,8 +2469,12 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	grid-area: heritage;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: center;
+	align-items: stretch;
+	justify-content: stretch;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+	--k2-heritage-inset-fill: color-mix(in srgb, var(--k2-bg-page) 38%, var(--k2-bg-surface));
 }
 
 .k2-status-room__panel-arc {
@@ -2319,27 +2500,109 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	white-space: nowrap;
 }
 
-.k2-heritage-box--status-panel {
+/* Heritage inset — clipped tint lamp balancing the wordmark glow. */
+.k2-status-heritage-inset {
+	box-sizing: border-box;
 	display: flex;
+	flex: 1 1 auto;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	width: 100%;
+	min-width: 0;
+	min-height: max(4.75rem, min-content);
+	margin: 0;
+	padding: 8px 8px 6px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+	background:
+		radial-gradient(ellipse at 50% 40%,
+			color-mix(in srgb, var(--k2-accent) 18%, transparent) 0%,
+			transparent 58%),
+		var(--k2-heritage-inset-fill);
+	box-shadow:
+		inset 0 0 0 1px color-mix(in srgb, var(--k2-accent) 10%, transparent),
+		inset 0 18px 44px rgba(255, 255, 255, 0.025),
+		inset 0 -26px 50px rgba(0, 0, 0, 0.3);
+	--k2-heritage-lamp: color-mix(in srgb, var(--k2-accent) 70%, var(--k2-pure-amber) 30%);
+	--k2-heritage-lamp-soft: color-mix(in srgb, var(--k2-heritage-lamp) 52%, transparent);
+}
+
+.k2-status-heritage-inset::before,
+.k2-status-heritage-inset::after {
+	content: "";
+	position: absolute;
+	pointer-events: none;
+	z-index: 0;
+}
+
+.k2-status-heritage-inset::before {
+	left: 50%;
+	top: 45%;
+	width: min(150px, 112%);
+	height: min(128px, 132%);
+	transform: translate(-50%, -50%);
+	background:
+		radial-gradient(ellipse at 50% 50%,
+			color-mix(in srgb, #fff8dc 78%, var(--k2-heritage-lamp)) 0%,
+			color-mix(in srgb, var(--k2-heritage-lamp) 86%, transparent) 18%,
+			var(--k2-heritage-lamp-soft) 42%,
+			transparent 72%);
+	filter: blur(14px) saturate(1.32);
+	opacity: 0.98;
+}
+
+.k2-status-heritage-inset::after {
+	inset: -18% -22% -10%;
+	background:
+		conic-gradient(from 205deg at 50% 45%,
+			transparent 0deg,
+			color-mix(in srgb, var(--k2-heritage-lamp) 34%, transparent) 11deg,
+			transparent 24deg,
+			transparent 46deg,
+			color-mix(in srgb, #fff8dc 28%, transparent) 55deg,
+			transparent 69deg,
+			transparent 292deg,
+			color-mix(in srgb, var(--k2-heritage-lamp) 28%, transparent) 304deg,
+			transparent 320deg,
+			transparent 360deg),
+		radial-gradient(ellipse at 50% 42%,
+			color-mix(in srgb, var(--k2-heritage-lamp) 28%, transparent) 0%,
+			transparent 64%);
+	filter: blur(12px);
+	opacity: 0.9;
+	mix-blend-mode: screen;
+}
+
+.k2-status-heritage-inset .k2-heritage-box__art {
+	display: block;
+	width: auto;
+	max-width: min(80px, 100%);
+	height: auto;
 	margin: 0 auto;
-	padding: 4px 0;
-	opacity: 0.65;
-	filter: saturate(0.8);
+	border-radius: 2px;
+	position: relative;
+	z-index: 1;
+	box-shadow:
+		0 0 18px color-mix(in srgb, var(--k2-heritage-lamp) 62%, transparent),
+		0 7px 20px rgba(0, 0, 0, 0.58);
+	opacity: 0.9;
+	filter: saturate(1.08) contrast(1.03);
 }
 
-.k2-heritage-box--status-panel .k2-heritage-box__art {
-	max-width: 80px;
-	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
-}
-
-.k2-heritage-box--status-panel .k2-heritage-box__caption {
+.k2-status-heritage-inset .k2-heritage-box__caption {
 	margin: 4px 0 0;
 	font-size: 9px;
+	font-weight: 600;
 	text-align: center;
+	color: var(--k2-text-muted);
+	line-height: 1.35;
+	position: relative;
+	z-index: 1;
+	text-shadow: 0 0 12px color-mix(in srgb, var(--k2-heritage-lamp) 42%, transparent);
 }
 
 .k2-status-room__panel-online,
@@ -2556,67 +2819,34 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	flex: 0 0 auto;
 	align-self: flex-start;
 	flex-wrap: wrap;
-	width: max-content;
+	width: fit-content;
 	max-width: 100%;
-	gap: 4px;
-	padding: 2px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	background: rgba(0, 0, 0, 0.2);
+	justify-content: center;
 }
 
-.k2-status-period-competitions__period-btn {
-	display: inline-block;
-	padding: 4px 12px;
+.k2-status-period-competitions__period-tabs.k2-chrome-tabs__bar {
+	width: fit-content;
+	padding: 3px;
+	gap: 3px;
+}
+
+body.k2-site button.k2-status-period-competitions__period-btn {
+	padding: 6px 11px;
 	font-size: 12px;
-	font-weight: 600;
-	font-family: inherit;
-	color: var(--k2-text-muted);
-	background: transparent;
-	border: 1px solid transparent;
-	border-radius: calc(var(--k2-radius-sm) - 1px);
-	line-height: 1.3;
-	cursor: pointer;
-	transition: color 0.15s, border-color 0.15s;
+	font-weight: 500;
 }
 
-.k2-status-period-competitions__period-btn:hover:not(.is-active) {
+body.k2-site button.k2-status-period-competitions__period-btn:hover:not(.is-active),
+body.k2-site button.k2-status-period-competitions__period-btn:focus-visible:not(.is-active) {
 	color: var(--k2-text-secondary);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 80%, transparent);
+	text-decoration: none;
 }
 
-.k2-status-period-competitions__period-btn.is-active {
+body.k2-site button.k2-status-period-competitions__period-btn.is-active {
 	color: var(--k2-segment-active-text);
 	border-color: var(--k2-segment-active-ring);
-}
-
-body.k2-site a.k2-status-period-competitions__period-btn {
-	color: var(--k2-text-muted);
 	font-weight: 600;
-	text-decoration: none;
-}
-
-body.k2-site a.k2-status-period-competitions__period-btn:visited {
-	color: var(--k2-text-muted);
-}
-
-body.k2-site a.k2-status-period-competitions__period-btn:hover:not(.is-active) {
-	color: var(--k2-text-secondary);
-	text-decoration: none;
-}
-
-body.k2-site a.k2-status-period-competitions__period-btn.is-active,
-body.k2-site a.k2-status-period-competitions__period-btn.is-active:visited {
-	color: var(--k2-segment-active-text);
-	border-color: var(--k2-segment-active-ring);
-}
-
-body.k2-site a.k2-status-period-competitions__period-btn.is-active:hover {
-	color: var(--k2-segment-active-text);
-	text-decoration: none;
-}
-
-body.k2-site a.k2-status-period-competitions__period-btn.is-active {
-	cursor: default;
 }
 
 .k2-chrome-tabs > .k2-lb-league-honours {
@@ -2675,12 +2905,25 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
+	gap: 6px;
 	width: 100%;
+	max-width: 100%;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	box-sizing: border-box;
 }
 
 .k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__period-nav {
-	width: auto;
+	flex: 0 1 auto;
+	width: fit-content;
+	margin-left: 10px;
+}
+
+.k2-status-period-competitions__controls.is-period-nav-stacked .k2-status-period-competitions__period-nav {
+	margin-left: 0;
+	margin-top: 2px;
 }
 
 .k2-status-period-competitions__step-btn {
@@ -2688,16 +2931,16 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 34px;
-	height: 34px;
+	width: 36px;
+	height: 36px;
 	padding: 0;
 	font-family: inherit;
 	line-height: 1;
-	color: var(--k2-text-muted);
-	background: rgba(0, 0, 0, 0.28);
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+	color: color-mix(in srgb, var(--k2-accent) 62%, var(--k2-text-secondary));
+	background: color-mix(in srgb, var(--k2-accent) 7%, transparent);
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 32%, var(--k2-border-subtle));
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	box-shadow: none;
 	cursor: pointer;
 	transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
@@ -2723,10 +2966,10 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 }
 
 .k2-status-period-competitions__step-btn:hover:not(:disabled) {
-	color: var(--k2-text-primary);
-	border-color: color-mix(in srgb, var(--k2-text-muted) 55%, var(--k2-border-subtle));
-	background: rgba(255, 255, 255, 0.05);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	color: color-mix(in srgb, var(--k2-accent) 74%, var(--k2-text-primary));
+	border-color: color-mix(in srgb, var(--k2-accent) 52%, var(--k2-border-subtle));
+	background: color-mix(in srgb, var(--k2-accent) 11%, transparent);
+	box-shadow: none;
 }
 
 .k2-status-period-competitions__step-btn:focus-visible {
@@ -2737,6 +2980,9 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 
 .k2-status-period-competitions__step-btn:disabled {
 	opacity: 0.32;
+	color: var(--k2-text-muted);
+	border-color: var(--k2-border-subtle);
+	background: rgba(0, 0, 0, 0.18);
 	cursor: not-allowed;
 }
 
@@ -2808,8 +3054,12 @@ body.k2-site [data-k2-status-period-competitions][data-active-period="year"] [da
 .k2-status-period-competitions__archive-picker .server-period-activity-leaderboard__input,
 .k2-status-period-competitions__archive-picker .k2-archive-listbox__trigger {
 	font-size: 12px;
-	padding: 4px 8px;
-	background-color: var(--k2-bg-surface);
+	min-height: 36px;
+	padding: 6px 28px 6px 10px;
+	border-color: var(--k2-border-subtle);
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	background-color: rgba(0, 0, 0, 0.18);
+	box-shadow: none;
 }
 
 /* KOOL listbox — shared (Leagues archive + Flatpickr month/year) */
@@ -3324,6 +3574,16 @@ body.k2-site .flatpickr-months .flatpickr-next-month svg {
 	color: var(--k2-text-muted);
 }
 
+.k2-status-period-competitions__day-games {
+	margin-top: 20px;
+	width: fit-content;
+	max-width: 100%;
+}
+
+.k2-status-period-competitions__day-games-title {
+	margin: 0 0 8px;
+}
+
 .k2-status-table--podium .k2-status-table__medal {
 	width: 22px;
 	padding-left: 2px;
@@ -3444,7 +3704,7 @@ body.k2-site .flatpickr-months .flatpickr-next-month svg {
 }
 
 .k2-status-live-list li,
-.k2-status-recency-list li {
+.k2-status-recency-list:not(.k2-status-day-games-list) li {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
@@ -3455,7 +3715,7 @@ body.k2-site .flatpickr-months .flatpickr-next-month svg {
 }
 
 .k2-status-live-list li:last-child,
-.k2-status-recency-list li:last-child {
+.k2-status-recency-list:not(.k2-status-day-games-list) li:last-child {
 	border-bottom: none;
 }
 
@@ -3481,6 +3741,87 @@ body.k2-site .flatpickr-months .flatpickr-next-month svg {
 	gap: 4px 8px;
 	flex: 1 1 auto;
 	min-width: 0;
+}
+
+/* Daily tab games list: shared column tracks; game ids right-aligned in col 3. */
+.k2-status-recency-list.k2-status-day-games-list {
+	display: grid;
+	grid-template-columns: 5.25em max-content max-content;
+	column-gap: 12px;
+	width: fit-content;
+	max-width: 100%;
+	align-items: baseline;
+	font-size: 12px;
+}
+
+.k2-status-recency-list.k2-status-day-games-list li {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	align-items: baseline;
+	padding: 3px 0;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.k2-status-recency-list.k2-status-day-games-list > li:last-child {
+	border-bottom: none;
+}
+
+@supports not (grid-template-columns: subgrid) {
+	.k2-status-recency-list.k2-status-day-games-list li {
+		display: contents;
+		padding: 0;
+		border-bottom: none;
+	}
+
+	.k2-status-recency-list.k2-status-day-games-list > li > .k2-status-recency-list__when,
+	.k2-status-recency-list.k2-status-day-games-list > li > .k2-status-match,
+	.k2-status-recency-list.k2-status-day-games-list > li > .k2-status-day-games-list__game {
+		padding: 3px 0;
+		border-bottom: 1px solid var(--k2-border-subtle);
+	}
+
+	.k2-status-recency-list.k2-status-day-games-list > li:last-child > .k2-status-recency-list__when,
+	.k2-status-recency-list.k2-status-day-games-list > li:last-child > .k2-status-match,
+	.k2-status-recency-list.k2-status-day-games-list > li:last-child > .k2-status-day-games-list__game {
+		border-bottom: none;
+	}
+}
+
+.k2-status-recency-list.k2-status-day-games-list .k2-status-recency-list__when {
+	grid-column: 1;
+	flex: none;
+	min-width: 0;
+	justify-self: start;
+	text-align: left;
+	font-size: 11px;
+}
+
+.k2-status-recency-list.k2-status-day-games-list .k2-status-match {
+	grid-column: 2;
+	display: inline-flex;
+	flex: none;
+	min-width: 0;
+	flex-wrap: nowrap;
+	justify-self: start;
+	justify-content: flex-start;
+	text-align: left;
+	padding-right: 6ch;
+	box-sizing: border-box;
+}
+
+.k2-status-recency-list.k2-status-day-games-list .k2-status-match__side,
+.k2-status-recency-list.k2-status-day-games-list .k2-status-score {
+	text-align: left;
+}
+
+.k2-status-day-games-list__game {
+	grid-column: 3;
+	display: inline-block;
+	justify-self: end;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
 }
 
 .k2-status-live-list__meta {
@@ -3564,21 +3905,19 @@ body.k2-site .flatpickr-months .flatpickr-next-month svg {
 	flex-shrink: 0;
 }
 
-html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
-	display: none;
-}
-
-.k2-accent-pills {
+/* Tint menu — disclosure pill + subdued swatch choices (segment grammar) */
+.k2-tint-menu {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	justify-content: flex-end;
 	gap: 6px;
 	margin: 0;
 	padding: 0;
 }
 
-/* Tint pills — compact capsule; nav-like intensity (soft outline active, no glow) */
-.k2-accent-pills__btn {
+.k2-tint-menu__toggle,
+.k2-tint-menu__choice {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -3593,59 +3932,80 @@ html[data-k2-accent-pills-hidden="1"] .k2-nav-tune .k2-accent-pills {
 	font-weight: 600;
 	line-height: 1.2;
 	cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
 	transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.k2-accent-pills__btn::before {
+.k2-tint-menu__toggle {
+	order: 2;
+}
+
+.k2-tint-menu__choices {
+	order: 1;
+}
+
+.k2-tint-menu__toggle::before,
+.k2-tint-menu__choice::before {
 	content: "";
 	flex-shrink: 0;
 	width: 7px;
 	height: 7px;
 	border-radius: 50%;
-	background: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-text-muted)) 50%, var(--k2-text-muted));
+	background: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-text-muted)) 40%, var(--k2-text-muted));
 }
 
-.k2-accent-pills__btn.is-active::before {
-	background: var(--k2-accent-swatch, var(--k2-text-muted));
+html[data-k2-accent="amber"] .k2-tint-menu__toggle::before { background: var(--k2-pure-amber); }
+html[data-k2-accent="pitch"] .k2-tint-menu__toggle::before { background: var(--k2-pure-pitch); }
+html[data-k2-accent="chrome"] .k2-tint-menu__toggle::before { background: var(--k2-pure-chrome); }
+html[data-k2-accent="holo"] .k2-tint-menu__toggle::before { background: var(--k2-pure-holo); }
+
+html[data-k2-accent-palette-open="1"] .k2-tint-menu__toggle {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
 }
 
-.k2-accent-pills__btn[data-k2-accent="amber"] { --k2-accent-swatch: var(--k2-pure-amber); }
-.k2-accent-pills__btn[data-k2-accent="pitch"] { --k2-accent-swatch: var(--k2-pure-pitch); }
-.k2-accent-pills__btn[data-k2-accent="chrome"] { --k2-accent-swatch: var(--k2-pure-chrome); }
-.k2-accent-pills__btn[data-k2-accent="holo"] { --k2-accent-swatch: var(--k2-pure-holo); }
-
-.k2-accent-pills-toggle {
-	margin: 0;
-	padding: 4px 8px;
-	border: none;
-	border-radius: var(--k2-radius-sm);
-	background: transparent;
-	color: var(--k2-text-muted);
-	font: inherit;
-	font-size: 11px;
-	font-weight: 500;
-	line-height: 1.2;
-	cursor: pointer;
-	opacity: 0.72;
-	transition: color 0.15s, opacity 0.15s;
-}
-
-.k2-accent-pills-toggle:hover {
+.k2-tint-menu__toggle:hover {
 	color: var(--k2-text-secondary);
-	opacity: 1;
-}
-
-.k2-accent-pills__btn:hover:not(.is-active) {
-	color: var(--k2-text-secondary);
-	background: transparent;
 	border-color: var(--k2-border-strong);
 }
 
-.k2-accent-pills__btn.is-active {
-	color: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-accent)) 72%, var(--k2-text-secondary));
-	background: transparent;
-	border-color: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-accent)) 55%, transparent);
+.k2-tint-menu__choices {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+}
+
+html[data-k2-accent-palette-hidden="1"] .k2-tint-menu__choices,
+.k2-tint-menu__choices[hidden] {
+	display: none;
+}
+
+.k2-tint-menu__choice[data-k2-accent="amber"] { --k2-accent-swatch: var(--k2-pure-amber); }
+.k2-tint-menu__choice[data-k2-accent="pitch"] { --k2-accent-swatch: var(--k2-pure-pitch); }
+.k2-tint-menu__choice[data-k2-accent="chrome"] { --k2-accent-swatch: var(--k2-pure-chrome); }
+.k2-tint-menu__choice[data-k2-accent="holo"] { --k2-accent-swatch: var(--k2-pure-holo); }
+
+.k2-tint-menu__choice:hover:not(.is-active) {
+	color: var(--k2-text-secondary);
+	border-color: var(--k2-border-strong);
+}
+
+.k2-tint-menu__choice.is-active {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
 	box-shadow: none;
+}
+
+.k2-tint-menu__choice.is-active::before {
+	background: var(--k2-accent-swatch, var(--k2-text-muted));
+}
+
+.k2-tint-menu__choice:not(.is-active)::before {
+	background: color-mix(in srgb, var(--k2-accent-swatch, var(--k2-text-muted)) 38%, var(--k2-text-muted));
 }
 
 .k2-hub-tabs {

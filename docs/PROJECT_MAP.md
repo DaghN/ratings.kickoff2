@@ -16,7 +16,8 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 
 | Path | What |
 |------|------|
-| `site/public_html/` | **The website** — PHP pages, `api/`, `stylesheets/`, `js/` |
+| `site/public_html/` | **The website** — PHP pages, `api/`, `stylesheets/`, `js/`, `fonts/` |
+| `docs/self-hosted-assets.md` | **CDN audit** — what is self-hosted vs external (fonts, JS, YouTube embed) |
 | `site/config/` | DB config (gitignored) — `ko2unitydb_config.php` |
 | `scripts/ladder/` | **Python replay** — recalc Elo/stats from all games |
 | `scripts/run_local_replay.ps1` | One-command local replay |

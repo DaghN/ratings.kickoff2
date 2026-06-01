@@ -10,13 +10,13 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Activity recent milestones digest | — | — | — | — | — | **Removed Jun 2026**; busiest day moved to Activity summary (`server_period_game_totals`) |
 | Activity Double Digit Merchant charts | — | — | — | — | — | **Removed Jun 2026** (Activity + APIs/JS deleted; `milestone.php` Graphs = unlock year + cumulative only; rating histograms on `server1.php` for established only) |
 | Activity recent daily chart | L0 | — | — | — | — | Read-time |
-| Activity charts v2 (single module) | — | — | — | — | — | **Shipped** on `server1.php` — `activity-charts-v2.js`; legacy boot files removed Jun 2026; desktop bar grow-up Jun 2026; [`activity-charts.md`](../activity-charts.md) |
+| Activity charts v2 (single module) | — | — | — | — | — | **Shipped** on `server1.php` — `activity-charts-v2.js`; legacy boot files removed Jun 2026; bar grow-up via `createActivityChart` (`responsive` held off until entrance completes); [`activity-charts.md`](../activity-charts.md) |
 | Persistent tint preference | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | Local 6h slots; manual override; `k2-tint-schedule.js` |
 | Records two-panel split | L0 | — | — | — | — | Peak cache read path |
 | League honours leaderboard (v1) | L0 | — | — | — | — | `ranked9.php`; reads `playertable` + `player_league_totals`; wing tab in `lb_nav.php` |
 | League period awards (medals DB) | L4 | SCH-009, SCH-010 | REP-012, REP-013 | Pending | — | **Staging done** May 2026 (Steve; counts match local); League honours + slice totals live on `kooldb`; prod schema + REP pending; no cron/PER-003 yet |
-| Status Leagues (Activity + Points) | L0 | — | — | — | — | Phase 1 shipped; sort/tie-break via `league_standings.php`; Phase 1.5 [`status-period-competitions-wip.md`](../status-period-competitions-wip.md) |
+| Status Leagues (Activity + Points) | L0 | — | — | — | — | Phase 1 shipped; **Daily tab** games list (Jun 2026); sort/tie-break via `league_standings.php`; Phase 1.5 [`status-period-competitions-wip.md`](../status-period-competitions-wip.md) |
 | Status league stack | L4 | SCH-008 | REP-007 | Pending | — | PHP reads `player_period_league` when present; **staging done** May 2026 (Steve verify); prod schema + post-game at cutover |
 | Player games server-side filters/sort | L0 | — | — | — | — | Read-time |
 | Hall of Fame aggregate read path | L0 | — | — | — | — | Peak/period cache with fallbacks |

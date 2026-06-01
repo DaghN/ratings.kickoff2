@@ -1,51 +1,94 @@
 /**
- * Tint picker hide toggle (hub + player nav).
+ * Tint palette disclosure (hub + player nav).
+ * Closed by default; open state persisted in sessionStorage.
  */
 (function () {
 	'use strict';
 
 	var root = document.documentElement;
-	var HIDE_KEY = 'k2-accent-pills-hidden';
+	var OPEN_KEY = 'k2-accent-palette-open';
+	var LEGACY_HIDE_KEY = 'k2-accent-pills-hidden';
 
-	function syncHideButton(btn) {
-		var hidden = root.getAttribute('data-k2-accent-pills-hidden') === '1';
-		btn.classList.toggle('is-active', hidden);
-		btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
-		btn.textContent = hidden ? 'Show tint' : 'Hide tint';
-		btn.removeAttribute('title');
+	function isOpen() {
+		return root.getAttribute('data-k2-accent-palette-open') === '1';
 	}
 
-	function setHidden(hidden) {
-		if (hidden) {
-			root.setAttribute('data-k2-accent-pills-hidden', '1');
-		} else {
-			root.removeAttribute('data-k2-accent-pills-hidden');
-		}
+	function readSession(key) {
 		try {
-			sessionStorage.setItem(HIDE_KEY, hidden ? '1' : '0');
+			return sessionStorage.getItem(key);
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function writeSession(key, value) {
+		try {
+			sessionStorage.setItem(key, value);
 		} catch (e) {
 			/* ignore */
 		}
 	}
 
-	function init() {
-		var buttons = document.querySelectorAll('.k2-accent-pills-toggle');
-		if (!buttons.length) {
+	function migrateLegacyHidden() {
+		if (readSession(OPEN_KEY) !== null) {
 			return;
 		}
-		for (var i = 0; i < buttons.length; i++) {
-			syncHideButton(buttons[i]);
+		if (readSession(LEGACY_HIDE_KEY) === '0') {
+			writeSession(OPEN_KEY, '1');
+		} else if (readSession(LEGACY_HIDE_KEY) === '1') {
+			writeSession(OPEN_KEY, '0');
 		}
+	}
+
+	function setOpen(open) {
+		if (open) {
+			root.setAttribute('data-k2-accent-palette-open', '1');
+			root.removeAttribute('data-k2-accent-palette-hidden');
+		} else {
+			root.removeAttribute('data-k2-accent-palette-open');
+			root.setAttribute('data-k2-accent-palette-hidden', '1');
+		}
+		try {
+			writeSession(OPEN_KEY, open ? '1' : '0');
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	function syncToggleButtons() {
+		var open = isOpen();
+		document.querySelectorAll('.k2-tint-menu__toggle').forEach(function (btn) {
+			btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+			var choices = btn.getAttribute('aria-controls');
+			if (choices) {
+				var panel = document.getElementById(choices);
+				if (panel) {
+					if (open) {
+						panel.removeAttribute('hidden');
+					} else {
+						panel.setAttribute('hidden', 'hidden');
+					}
+				}
+			}
+		});
+	}
+
+	function init() {
+		migrateLegacyHidden();
+		if (readSession(OPEN_KEY) === '1') {
+			setOpen(true);
+		} else {
+			setOpen(false);
+		}
+		syncToggleButtons();
+
 		document.addEventListener('click', function (ev) {
-			var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-accent-pills-toggle') : null;
+			var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-tint-menu__toggle') : null;
 			if (!btn) {
 				return;
 			}
-			var hidden = root.getAttribute('data-k2-accent-pills-hidden') !== '1';
-			setHidden(hidden);
-			for (var j = 0; j < buttons.length; j++) {
-				syncHideButton(buttons[j]);
-			}
+			setOpen(!isOpen());
+			syncToggleButtons();
 		});
 	}
 

@@ -7,6 +7,11 @@
  */
 declare(strict_types=1);
 
+function k2_lb_help_elo_rating(): string
+{
+    return 'Current Elo rating. KOOL uses standard Elo with a fixed K-factor of 32 for every player. Individual game pages show the expected score and rating-change calculation.';
+}
+
 function k2_lb_help_games(): string
 {
     return 'Rated games you have played (career).';

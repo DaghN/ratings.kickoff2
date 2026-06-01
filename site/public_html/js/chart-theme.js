@@ -284,65 +284,213 @@
         }
     }
 
-    /** Bar grow-up on all pointers; off when OS requests reduced motion. */
+    /** Set true to re-enable bar grow-up on Activity (server1). Off Jun 2026 — stutter WIP. */
+    var ACTIVITY_BAR_ENTRANCE_ENABLED = false;
+
     function activityBarMotionEnabled() {
-        return !prefersReducedMotion();
+        return ACTIVITY_BAR_ENTRANCE_ENABLED;
     }
 
     function activityBarGrowDurationMs() {
-        return isCoarsePointer() ? 420 : 520;
+        return isCoarsePointer() ? 440 : 560;
     }
 
-    function activityBarGrowAnimation() {
-        return {
+    function activityBarGrowEasing() {
+        return 'easeOutCubic';
+    }
+
+    function activityBarGrowAnimation(onComplete) {
+        var anim = {
             duration: activityBarGrowDurationMs(),
-            easing: 'easeOutQuart'
+            easing: activityBarGrowEasing()
         };
+        if (onComplete) {
+            anim.onComplete = onComplete;
+        }
+        return anim;
     }
 
-    /** Pixel Y where the bar top starts (baseline or stack foot) — not 0 (top of canvas). */
-    function activityBarGrowYFrom(ctx) {
-        if (!ctx || ctx.type !== 'data') {
-            return undefined;
+    function activityBarClearHoverState(chart) {
+        if (!chart) {
+            return;
         }
-        var chart = ctx.chart;
-        var meta = chart.getDatasetMeta(ctx.datasetIndex);
-        var yAxisID = (meta && meta.yAxisID) ? meta.yAxisID : 'y';
-        var yScale = chart.scales[yAxisID];
-        if (!yScale || typeof yScale.getPixelForValue !== 'function') {
-            return undefined;
+        if (typeof chart.setActiveElements === 'function') {
+            chart.setActiveElements([]);
         }
-        var datasets = chart.data.datasets;
-        var dataset = datasets[ctx.datasetIndex];
-        var baseValue = 0;
-        if (dataset && dataset.stack) {
-            var stackId = dataset.stack;
-            var i;
-            for (i = 0; i < ctx.datasetIndex; i++) {
-                if (datasets[i].stack === stackId) {
-                    var raw = datasets[i].data[ctx.dataIndex];
-                    var n = typeof raw === 'object' && raw !== null ? raw.y : raw;
-                    baseValue += Number(n) || 0;
+        if (chart.tooltip && typeof chart.tooltip.setActiveElements === 'function') {
+            chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+        }
+    }
+
+    function activityBarPointY(pt) {
+        if (pt === null || pt === undefined) {
+            return 0;
+        }
+        if (typeof pt === 'object') {
+            return Number(pt.y) || 0;
+        }
+        return Number(pt) || 0;
+    }
+
+    function activityBarDataMaxY(datasets) {
+        var max = 0;
+        var d;
+        var i;
+        if (!datasets || !datasets.length) {
+            return max;
+        }
+        var stackId = datasets[0].stack;
+        var len = (datasets[0].data && datasets[0].data.length) || 0;
+        if (stackId) {
+            for (i = 0; i < len; i++) {
+                var sum = 0;
+                for (d = 0; d < datasets.length; d++) {
+                    if (datasets[d].stack !== stackId) {
+                        continue;
+                    }
+                    sum += activityBarPointY(datasets[d].data[i]);
+                }
+                if (sum > max) {
+                    max = sum;
+                }
+            }
+        } else {
+            for (d = 0; d < datasets.length; d++) {
+                var data = datasets[d].data || [];
+                for (i = 0; i < data.length; i++) {
+                    var v = activityBarPointY(data[i]);
+                    if (v > max) {
+                        max = v;
+                    }
                 }
             }
         }
-        return yScale.getPixelForValue(baseValue);
+        return max;
     }
 
-    function activityBarGrowAnimations() {
-        var duration = activityBarGrowDurationMs();
+    function activityBarYAxisMax(dataMax) {
+        if (dataMax <= 0) {
+            return 1;
+        }
+        return Math.ceil(dataMax * 1.05);
+    }
+
+    /** Lock y-axis max during entrance so tick labels (and plot width) do not shift x. */
+    function activityBarPinYScales(options, dataMax) {
+        if (!options || !options.scales || dataMax <= 0) {
+            return options;
+        }
+        var cap = activityBarYAxisMax(dataMax);
+        var scales = options.scales;
+        var key;
+        var next = Object.assign({}, options, { scales: Object.assign({}, scales) });
+        for (key in scales) {
+            if (key === 'y' || key.charAt(0) === 'y') {
+                next.scales[key] = Object.assign({}, scales[key], {
+                    min: 0,
+                    max: cap
+                });
+            }
+        }
+        return next;
+    }
+
+    function activityBarEntranceYFromPixel(chart, datasetIndex, dataIndex, el) {
+        if (!el || !chart) {
+            return undefined;
+        }
+        var dataset = chart.data.datasets[datasetIndex];
+        if (dataset && dataset.stack) {
+            var meta = chart.getDatasetMeta(datasetIndex);
+            var yAxisID = (meta && meta.yAxisID) ? meta.yAxisID : 'y';
+            var yScale = chart.scales[yAxisID];
+            if (!yScale || typeof yScale.getPixelForValue !== 'function') {
+                return el.base;
+            }
+            var stackId = dataset.stack;
+            var baseValue = 0;
+            var i;
+            for (i = 0; i < datasetIndex; i++) {
+                if (chart.data.datasets[i].stack === stackId) {
+                    baseValue += activityBarPointY(chart.data.datasets[i].data[dataIndex]);
+                }
+            }
+            return yScale.getPixelForValue(baseValue);
+        }
+        return el.base;
+    }
+
+    /** One layout pass while hidden; cache bar-foot pixels so `from` does not drift per frame. */
+    function activityBarCacheEntranceYFrom(chart) {
+        var cache = Object.create(null);
+        var d;
+        var meta;
+        var i;
+        var el;
+        var key;
+        if (!chart) {
+            return cache;
+        }
+        for (d = 0; d < chart.data.datasets.length; d++) {
+            meta = chart.getDatasetMeta(d);
+            if (!meta || !meta.data) {
+                continue;
+            }
+            for (i = 0; i < meta.data.length; i++) {
+                el = meta.data[i];
+                if (!el) {
+                    continue;
+                }
+                key = d + ':' + i;
+                cache[key] = activityBarEntranceYFromPixel(chart, d, i, el);
+            }
+        }
+        chart.$k2BarEntranceYFrom = cache;
+        return cache;
+    }
+
+    function activityBarGrowYFrom(ctx) {
+        if (!ctx || !ctx.chart) {
+            return undefined;
+        }
+        var cache = ctx.chart.$k2BarEntranceYFrom;
+        var key = ctx.datasetIndex + ':' + ctx.dataIndex;
+        if (cache && cache[key] !== undefined) {
+            return cache[key];
+        }
+        return activityBarEntranceYFromPixel(ctx.chart, ctx.datasetIndex, ctx.dataIndex, ctx.element);
+    }
+
+    /** Bar top (y) only; layout props snap — easeOutCubic. */
+    function activityBarEntranceAnimations() {
+        var lock = { duration: 0 };
+        var ms = activityBarGrowDurationMs();
+        var ease = activityBarGrowEasing();
         return {
+            x: lock,
+            width: lock,
+            base: lock,
+            height: lock,
             y: {
                 type: 'number',
                 from: activityBarGrowYFrom,
-                duration: duration,
-                easing: 'easeOutQuart'
-            }
+                duration: ms,
+                easing: ease
+            },
+            borderWidth: lock,
+            backgroundColor: lock,
+            borderColor: lock,
+            colors: false
         };
     }
 
     function activityChartTransitions() {
         return {
+            active: {
+                animation: {
+                    duration: 200
+                }
+            },
             resize: {
                 animation: {
                     duration: 0
@@ -369,9 +517,9 @@
         }
         var base = {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            resizeDelay: animateBars ? 600 : 0,
             animation: animateBars ? activityBarGrowAnimation() : false,
-            animations: animateBars ? activityBarGrowAnimations() : false,
             transitions: activityChartTransitions(),
             /* Phone: no touchstart — keeps vertical scroll; tooltips off (tap tooltips stuck scroll). */
             events: coarse
@@ -394,12 +542,152 @@
             merged.plugins.tooltip = Object.assign({}, merged.plugins.tooltip, { enabled: false });
         }
         merged.transitions = Object.assign({}, activityChartTransitions(), u.transitions || {});
-        if (animateBars && u.animation === undefined) {
-            merged.animation = activityBarGrowAnimation();
-            merged.animations = activityBarGrowAnimations();
+        if (animateBars) {
+            if (u.animation === undefined) {
+                merged.animation = activityBarGrowAnimation();
+            }
+            delete merged.animations;
+        } else if (u.animations === undefined) {
+            delete merged.animations;
         }
         merged.events = u.events || base.events;
         return merged;
+    }
+
+    function cloneChartDataPoints(data) {
+        var out = [];
+        var i;
+        if (!data || !data.length) {
+            return out;
+        }
+        for (i = 0; i < data.length; i++) {
+            var pt = data[i];
+            if (pt !== null && typeof pt === 'object') {
+                out.push(Object.assign({}, pt));
+            } else {
+                out.push(pt);
+            }
+        }
+        return out;
+    }
+
+    function zeroBarDataPoints(data) {
+        var out = [];
+        var i;
+        if (!data || !data.length) {
+            return out;
+        }
+        for (i = 0; i < data.length; i++) {
+            var pt = data[i];
+            if (pt !== null && typeof pt === 'object') {
+                var z = Object.assign({}, pt);
+                z.y = 0;
+                out.push(z);
+            } else {
+                out.push(0);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Bar grow-up: silent y=0 mount (hidden), then one animated update() — user sees only the grow.
+     * responsive: true so Chart.js owns canvas + devicePixelRatio (no manual bitmap sizing — avoids blur).
+     */
+    function createActivityChart(canvas, config, chartKind) {
+        if (typeof Chart === 'undefined' || !canvas) {
+            return null;
+        }
+        config = config || {};
+        var kind = chartKind || 'none';
+        var userOpts = config.options || {};
+        var animatedOpts = activityChartOptions(userOpts, { chartKind: kind });
+
+        if (kind !== 'bar' || !activityBarMotionEnabled()) {
+            config.options = animatedOpts;
+            return new Chart(canvas, config);
+        }
+
+        var frame = canvas.parentElement;
+        var datasets = config.data && config.data.datasets;
+        var savedSeries = [];
+        var dataMax = 0;
+        var i;
+
+        if (datasets) {
+            dataMax = activityBarDataMaxY(datasets);
+            for (i = 0; i < datasets.length; i++) {
+                savedSeries[i] = cloneChartDataPoints(datasets[i].data);
+                datasets[i].data = zeroBarDataPoints(datasets[i].data);
+            }
+        }
+
+        animatedOpts = activityBarPinYScales(animatedOpts, dataMax);
+
+        if (frame) {
+            frame.style.visibility = 'hidden';
+        }
+
+        config.options = Object.assign({}, animatedOpts, { animation: false });
+        var chart = new Chart(canvas, config);
+
+        if (datasets) {
+            for (i = 0; i < datasets.length; i++) {
+                datasets[i].data = savedSeries[i];
+                if (chart.data && chart.data.datasets && chart.data.datasets[i]) {
+                    chart.data.datasets[i].data = savedSeries[i];
+                }
+            }
+        }
+
+        chart.update('none');
+        activityBarCacheEntranceYFrom(chart);
+
+        var entranceRevealed = false;
+        var entranceAnim = activityBarGrowAnimation(function () {
+            var c = this;
+            if (c) {
+                delete c.$k2BarEntranceYFrom;
+            }
+            activityBarClearHoverState(c);
+            if (frame) {
+                frame.style.visibility = '';
+            }
+        });
+        entranceAnim.onProgress = function () {
+            if (!entranceRevealed && frame) {
+                entranceRevealed = true;
+                frame.style.visibility = '';
+            }
+        };
+        chart.options.animation = entranceAnim;
+        chart.options.animations = activityBarEntranceAnimations();
+        chart.options.transitions = animatedOpts.transitions;
+
+        requestAnimationFrame(function () {
+            if (!chart || chart.destroyed) {
+                if (frame) {
+                    frame.style.visibility = '';
+                }
+                return;
+            }
+            if (typeof chart.stop === 'function') {
+                chart.stop();
+            }
+            chart.update();
+        });
+
+        return chart;
+    }
+
+    function resizeActivityChart(canvas) {
+        if (!canvas || typeof Chart === 'undefined' || typeof Chart.getChart !== 'function') {
+            return;
+        }
+        var chart = Chart.getChart(canvas);
+        if (chart && typeof chart.resize === 'function') {
+            chart.resize(0);
+        }
     }
 
     global.K2ChartTheme = {
@@ -484,6 +772,8 @@
         mergeTooltip: mergeTooltip,
         applyTooltipDefaults: applyChartTooltipDefaults,
         activityChartOptions: activityChartOptions,
+        createActivityChart: createActivityChart,
+        resizeActivityChart: resizeActivityChart,
         activityBarMotionEnabled: activityBarMotionEnabled,
         isCoarsePointer: isCoarsePointer,
         prefersReducedMotion: prefersReducedMotion

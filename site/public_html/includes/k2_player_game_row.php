@@ -60,10 +60,47 @@ function k2_player_game_signed_number_html(float $value): string
     return '<span class="red">' . $text . '</span>';
 }
 
+/** 0-based column index for each server-side `sort` query key on `individual3.php`. */
+function k2_player_game_sort_col_index(string $sortKey): int
+{
+    $map = [
+        'id' => 0,
+        'date' => 1,
+        'team_a' => 2,
+        'team_b' => 5,
+        'result' => 6,
+        'opponent' => 7,
+        'for' => 8,
+        'against' => 9,
+        'diff' => 10,
+        'sum' => 11,
+        'player_rating' => 12,
+        'opponent_rating' => 13,
+        'es' => 14,
+        'adjustment' => 15,
+    ];
+
+    return $map[$sortKey] ?? 0;
+}
+
+function k2_player_game_td(string $content, int $colIndex, int $sortedColIndex, string $extraClass = ''): string
+{
+    $classes = [];
+    if ($extraClass !== '') {
+        $classes[] = $extraClass;
+    }
+    if ($colIndex === $sortedColIndex) {
+        $classes[] = 'k2-table-col-sorted';
+    }
+    $classAttr = $classes !== [] ? ' class="' . implode(' ', $classes) . '"' : '';
+
+    return '<td' . $classAttr . '>' . $content . '</td>';
+}
+
 /**
  * @param array<string, mixed> $row normalized or raw ratedresults row
  */
-function k2_player_game_row_html(array $row, int $playerId): string
+function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex = 0): string
 {
     $game = k2_player_game_normalize_row($row);
     $isPlayerA = $game['idA'] === $playerId;
@@ -98,21 +135,21 @@ function k2_player_game_row_html(array $row, int $playerId): string
     }
 
     return '<tr>'
-        . '<td><a href="game.php?id=' . $game['id'] . '">' . $game['id'] . '</a></td>'
-        . '<td class="k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl">' . k2_player_game_date_html($game['Date']) . '</td>'
-        . '<td>' . k2_player_game_player_link($game['idA'], $game['NameA']) . '</td>'
-        . '<td>' . $game['GoalsA'] . '</td>'
-        . '<td class="k2-table-cell--left">' . $game['GoalsB'] . '</td>'
-        . '<td class="k2-table-cell--left">' . k2_player_game_player_link($game['idB'], $game['NameB']) . '</td>'
-        . '<td class="k2-table-cell--left k2-table-cell--pad-left-xl">' . $resultCell . '</td>'
-        . '<td class="k2-table-cell--left">' . k2_player_game_player_link($opponentId, $opponentName) . '</td>'
-        . '<td>' . $goalsFor . '</td>'
-        . '<td>' . $goalsAgainst . '</td>'
-        . '<td>' . $diffCell . '</td>'
-        . '<td>' . $game['SumOfGoals'] . '</td>'
-        . '<td>' . (int) round($playerRating) . '</td>'
-        . '<td>' . (int) round($opponentRating) . '</td>'
-        . '<td>' . number_format(100 * $expectedScore, 1) . '%</td>'
-        . '<td>' . k2_player_game_signed_number_html($adjustment) . '</td>'
+        . k2_player_game_td('<a href="game.php?id=' . $game['id'] . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
+        . k2_player_game_td(k2_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
+        . k2_player_game_td(k2_player_game_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
+        . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)
+        . k2_player_game_td((string) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left')
+        . k2_player_game_td(k2_player_game_player_link($game['idB'], $game['NameB']), 5, $sortedColIndex, 'k2-table-cell--left')
+        . k2_player_game_td($resultCell, 6, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xl')
+        . k2_player_game_td(k2_player_game_player_link($opponentId, $opponentName), 7, $sortedColIndex, 'k2-table-cell--left')
+        . k2_player_game_td((string) $goalsFor, 8, $sortedColIndex)
+        . k2_player_game_td((string) $goalsAgainst, 9, $sortedColIndex)
+        . k2_player_game_td($diffCell, 10, $sortedColIndex)
+        . k2_player_game_td((string) $game['SumOfGoals'], 11, $sortedColIndex)
+        . k2_player_game_td((string) (int) round($playerRating), 12, $sortedColIndex)
+        . k2_player_game_td((string) (int) round($opponentRating), 13, $sortedColIndex)
+        . k2_player_game_td(number_format(100 * $expectedScore, 1) . '%', 14, $sortedColIndex)
+        . k2_player_game_td(k2_player_game_signed_number_html($adjustment), 15, $sortedColIndex)
         . '</tr>';
 }

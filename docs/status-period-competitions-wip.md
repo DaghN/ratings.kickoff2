@@ -85,7 +85,7 @@ Mobile: single column, **Activity first**, then Points.
 | 3 | **Monday editorial strip** | 48h window (try); previous week top 3 × points + activity; hook `data-k2-editorial`; tables stay on **current** week | Not started |
 | 4 | **Archive always visible** | A/B vs collapsed `<details>` for picker row | Not started |
 | 5 | **Points pickers without archive** | Same Tier B chrome when ready (if still desired) | Not started |
-| 6 | **Day tab — games list under tables** | When **Day** period is selected, show a compact list of **rated games that day** below Activity + Points (who played whom, score, link to game/profile). Week/month/year unchanged. Prefer stored/precomputed or indexed read — not full-table `ratedresults` scan per request if avoidable. | **Not started** (Dagh request May 2026) |
+| 6 | **Day tab — games list under tables** | When **Day** period is selected, show a compact list of **rated games that day** below Activity + Points (who played whom, score, link to game/profile). Week/month/year unchanged. Indexed `ratedresults` day range + `api/status_period_day_games.php`. | **Shipped** (Jun 2026) |
 
 ### Day games list — product sketch (item 6)
 

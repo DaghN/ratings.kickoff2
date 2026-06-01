@@ -49,7 +49,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
 	<p class="k2-ms-meta-hint">This player has no rated games yet — milestones unlock once you join the ladder.</p>
 <?php } elseif ($counts !== null) { ?>
 	<p class="k2-ms-meta-hint">
-		<strong><?php echo (int) $counts['total']; ?></strong> of <?php echo (int) $milestoneCatalogTotal; ?> milestones unlocked.
+		<span class="k2-ms-meta-hint__unlocked"><?php echo (int) $counts['total']; ?></span> of <?php echo (int) $milestoneCatalogTotal; ?> milestones unlocked.
 		Light up the garden over your career — locked cards still show what each feat takes.
 	</p>
 <?php } ?>

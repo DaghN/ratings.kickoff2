@@ -1098,6 +1098,12 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
 
         $totalGames = $key !== null ? k2_period_activity_total_games($con, $period, $key) : 0;
 
+        $dayGames = [];
+        $dayGamesError = null;
+        if ($period === 'day' && $key !== null) {
+            $dayGames = k2_status_rated_games_for_calendar_day($con, $key, $dayGamesError) ?? [];
+        }
+
         $periods[$period] = [
             'points' => $points,
             'points_error' => $pointsError,
@@ -1108,6 +1114,8 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
                 'label' => $key !== null ? k2_format_period_activity_label($period, $key) : '',
                 'error' => $activityError,
             ],
+            'day_games' => $dayGames,
+            'day_games_error' => $dayGamesError,
         ];
 
         $currentKeys[$period] = $key ?? '';
@@ -1270,6 +1278,62 @@ function k2_status_recent_registrations(mysqli $con, int $limit = 10, ?string &$
         ];
     }
     mysqli_free_result($r);
+
+    return $out;
+}
+
+/**
+ * Rated games on one UTC calendar day (Status Daily tab list).
+ *
+ * @return list<array{id: int, name_a: string, name_b: string, goals_a: int, goals_b: int, at: string, id_a: int, id_b: int}>|null
+ */
+function k2_status_rated_games_for_calendar_day(mysqli $con, string $dayYmd, ?string &$error = null): ?array
+{
+    $error = null;
+    $bounds = k2_status_bounds_from_period_key('day', $dayYmd);
+    if ($bounds === null) {
+        $error = 'invalid_day';
+
+        return null;
+    }
+
+    $sql = 'SELECT id, idA, idB, NameA, NameB, GoalsA, GoalsB, `Date` FROM ratedresults '
+        . 'WHERE `Date` >= ? AND `Date` < ? ORDER BY `Date` DESC';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        $error = mysqli_error($con);
+
+        return null;
+    }
+    mysqli_stmt_bind_param($stmt, 'ss', $bounds['start'], $bounds['end']);
+    if (!mysqli_stmt_execute($stmt)) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        return null;
+    }
+    $r = mysqli_stmt_get_result($stmt);
+    if ($r === false) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        return null;
+    }
+    $out = [];
+    while ($row = mysqli_fetch_assoc($r)) {
+        $out[] = [
+            'id' => (int) $row['id'],
+            'id_a' => (int) $row['idA'],
+            'id_b' => (int) $row['idB'],
+            'name_a' => (string) $row['NameA'],
+            'name_b' => (string) $row['NameB'],
+            'goals_a' => (int) $row['GoalsA'],
+            'goals_b' => (int) $row['GoalsB'],
+            'at' => (string) $row['Date'],
+        ];
+    }
+    mysqli_free_result($r);
+    mysqli_stmt_close($stmt);
 
     return $out;
 }

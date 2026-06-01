@@ -9,8 +9,6 @@
     var DR = global.K2ChartDateRange;
     var REALM = 'online';
     var GAP_MS = 100;
-    /** After boot, wait for last bar entrance (~520ms) before global resize. */
-    var BOOT_RESIZE_DELAY_MS = 560;
     var FRAME_OPTS = { maintainAspectRatio: false };
 
     function dayToDate(dayStr) {
@@ -187,12 +185,16 @@
     }
 
     function resizeChart(canvas) {
+        if (T && typeof T.resizeActivityChart === 'function') {
+            T.resizeActivityChart(canvas);
+            return;
+        }
         if (!canvas || typeof Chart === 'undefined' || typeof Chart.getChart !== 'function') {
             return;
         }
         var instance = Chart.getChart(canvas);
-        if (instance) {
-            instance.resize();
+        if (instance && typeof instance.resize === 'function') {
+            instance.resize(0);
         }
     }
 
@@ -211,6 +213,10 @@
         return T.activityChartOptions(Object.assign({}, FRAME_OPTS, extra || {}), {
             chartKind: chartKind || 'none'
         });
+    }
+
+    function createChart(canvas, config, chartKind) {
+        return T.createActivityChart(canvas, config, chartKind || 'none');
     }
 
     function mountGamesDay(root) {
@@ -250,7 +256,7 @@
                     status.textContent = '';
                 }
 
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -307,7 +313,7 @@
                             y: scaleYCount()
                         }
                     }, 'bar')
-                });
+                }, 'bar');
             })
             .catch(function (err) {
                 if (status) {
@@ -355,7 +361,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -389,7 +395,7 @@
                             y: scaleYCount()
                         }
                     }, 'bar')
-                });
+                }, 'bar');
             })
             .catch(function () {
                 if (status) {
@@ -430,7 +436,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         labels: labels,
@@ -516,7 +522,7 @@
                             }
                         }
                     }, 'bar')
-                });
+                }, 'bar');
             })
             .catch(function () {
                 if (status) {
@@ -863,7 +869,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -897,7 +903,7 @@
                             y: scaleYCount()
                         }
                     }, 'bar')
-                });
+                }, 'bar');
             })
             .catch(function () {
                 if (status) {
@@ -941,7 +947,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'line',
                     data: {
                         datasets: [Object.assign({
@@ -989,7 +995,7 @@
                             y: scaleYCount()
                         }
                     }, 'line')
-                });
+                }, 'line');
             })
             .catch(function () {
                 if (status) {
@@ -1025,7 +1031,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -1060,7 +1066,7 @@
                             y: scaleYCount()
                         }
                     }, 'bar')
-                });
+                }, 'bar');
             })
             .catch(function () {
                 if (status) {
@@ -1106,7 +1112,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         datasets: [Object.assign({
@@ -1160,7 +1166,7 @@
                             }
                         }
                     }, 'bar')
-                });
+                }, 'bar');
             })
             .catch(function () {
                 if (status) {
@@ -1209,7 +1215,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'line',
                     data: {
                         datasets: [Object.assign({
@@ -1275,7 +1281,7 @@
                             }
                         }
                     }, 'line')
-                });
+                }, 'line');
             })
             .catch(function () {
                 if (status) {
@@ -1317,7 +1323,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'bar',
                     data: {
                         labels: labels,
@@ -1377,7 +1383,7 @@
                             }
                         }
                     }, 'bar')
-                });
+                }, 'bar');
             })
             .catch(function () {
                 if (status) {
@@ -1541,7 +1547,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                var chartInstance = new Chart(canvas, {
+                var chartInstance = createChart(canvas, {
                     type: 'line',
                     data: {
                         labels: monthDates,
@@ -1616,7 +1622,7 @@
                             }
                         }
                     }, 'line')
-                });
+                }, 'line');
                 if (!T.isCoarsePointer()) {
                     chartInstance._k2HighlightIdx = -1;
                     canvas.addEventListener('mouseleave', function () {
@@ -1665,7 +1671,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                new Chart(canvas, {
+                createChart(canvas, {
                     type: 'line',
                     data: {
                         datasets: [
@@ -1740,7 +1746,7 @@
                             }
                         }
                     }, 'line')
-                });
+                }, 'line');
             })
             .catch(function () {
                 if (status) {
@@ -1749,15 +1755,16 @@
             });
     }
 
-    /** False until sequential panel boot finishes — blocks resize during bar entrance animations. */
-    var chartsBootComplete = false;
+    /** No chart.resize() until panels mounted + bar entrance (~520ms desktop). */
+    var panelsLoadComplete = false;
+    var resizeListenerBound = false;
+    var BAR_ENTRANCE_BUFFER_MS = 600;
 
     var PANELS = [
         { id: 'games-day', selector: '.server-games-day-chart', run: mountGamesDay },
         { id: 'games-month', selector: '.server-games-month-chart', run: mountGamesMonth },
         { id: 'games-year', selector: '.server-games-year-chart', run: mountGamesYear },
-        /* TEMP A/B: heatmap off — re-enable to test bar animation vs daily activity panel */
-        // { id: 'heatmap', selector: '.server-activity-heatmap', run: mountHeatmap },
+        { id: 'heatmap', selector: '.server-activity-heatmap', run: mountHeatmap },
         { id: 'active-month', selector: '.server-active-players-month-chart', run: mountActivePlayersMonth },
         { id: 'daily-active', selector: '.server-daily-active-players-chart', run: mountDailyActivePlayers },
         { id: 'matchup', selector: '.server-matchup-breadth-chart', run: mountMatchupBreadth },
@@ -1773,19 +1780,27 @@
         if (!root) {
             return Promise.resolve();
         }
-        return Promise.resolve(spec.run(root)).finally(function () {
-            if (chartsBootComplete) {
-                resizeChart(chartCanvas(root));
-            }
-        });
+        return Promise.resolve(spec.run(root));
+    }
+
+    function bindWindowResize() {
+        if (resizeListenerBound) {
+            return;
+        }
+        resizeListenerBound = true;
+        window.addEventListener('resize', resizeAll);
+    }
+
+    function finishPanelLoad() {
+        setTimeout(function () {
+            panelsLoadComplete = true;
+            bindWindowResize();
+        }, BAR_ENTRANCE_BUFFER_MS);
     }
 
     function drain(index) {
         if (index >= PANELS.length) {
-            setTimeout(function () {
-                chartsBootComplete = true;
-                resizeAll();
-            }, BOOT_RESIZE_DELAY_MS);
+            finishPanelLoad();
             return;
         }
         runPanel(PANELS[index]).finally(function () {
@@ -1798,7 +1813,7 @@
     var resizeAllTimer;
 
     function resizeAll() {
-        if (!chartsBootComplete) {
+        if (!panelsLoadComplete) {
             return;
         }
         if (resizeAllTimer) {
@@ -1823,13 +1838,13 @@
         if (!isActivityChartsPage()) {
             return;
         }
-        chartsBootComplete = false;
+        panelsLoadComplete = false;
+        resizeListenerBound = false;
         installHeatmapTouchDismiss();
         drain(0);
     }
 
     document.addEventListener('DOMContentLoaded', boot);
-    window.addEventListener('resize', resizeAll);
 
     global.K2ActivityChartsV2 = {
         panels: PANELS,

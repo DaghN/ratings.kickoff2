@@ -11,6 +11,8 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 (function () {
 	var root = document.documentElement;
 	var S = window.K2TintSchedule;
+	var OPEN_KEY = 'k2-accent-palette-open';
+	var LEGACY_HIDE_KEY = 'k2-accent-pills-hidden';
 
 	function readLocal(key) {
 		try {
@@ -39,9 +41,11 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 		root.setAttribute('data-k2-accent', 'amber');
 	}
 
-	/* Default hidden; sessionStorage "0" = user chose Show tint */
-	if (readSession('k2-accent-pills-hidden') !== '0') {
-		root.setAttribute('data-k2-accent-pills-hidden', '1');
+	/* Default: palette closed. OPEN_KEY "1" or legacy hide "0" = leave open for first paint */
+	if (readSession(OPEN_KEY) === '1' || readSession(LEGACY_HIDE_KEY) === '0') {
+		root.setAttribute('data-k2-accent-palette-open', '1');
+	} else {
+		root.setAttribute('data-k2-accent-palette-hidden', '1');
 	}
 })();
 </script>

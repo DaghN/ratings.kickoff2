@@ -58,6 +58,35 @@ if (!function_exists('k2_status_period_competition_show_medals')) {
     }
 }
 
+if (!function_exists('k2_status_render_day_games_list')) {
+    /**
+     * @param list<array{id: int, name_a: string, name_b: string, goals_a: int, goals_b: int, at: string, id_a: int, id_b: int}> $games
+     */
+    function k2_status_render_day_games_list(array $games): void
+    {
+        if ($games === []) {
+            echo '<p class="k2-status-panel__empty">—</p>';
+
+            return;
+        }
+        ?>
+							<ul class="k2-status-recency-list k2-status-day-games-list">
+<?php foreach ($games as $g) { ?>
+								<li>
+									<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_short_time($g['at'])); ?></span>
+									<span class="k2-status-match">
+										<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_a'], $g['name_a']); ?></span>
+										<span class="k2-status-score"><?php echo (int) $g['goals_a']; ?>–<?php echo (int) $g['goals_b']; ?></span>
+										<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_b'], $g['name_b']); ?></span>
+									</span>
+									<a class="k2-link-star k2-status-day-games-list__game" href="game.php?id=<?php echo (int) $g['id']; ?>"><?php echo (int) $g['id']; ?></a>
+								</li>
+<?php } ?>
+							</ul>
+<?php
+    }
+}
+
 if (!function_exists('k2_status_render_archive_listbox')) {
     /**
      * Themed week / month / year picker (replaces native &lt;select&gt; on Status Leagues).
@@ -143,6 +172,10 @@ $initialActivityEntries = is_array($initialActivity['entries'] ?? null) ? $initi
 $initialActivityError = $initialActivity['error'] ?? null;
 $initialPanelAttrs = k2_status_period_competition_points_panel_attrs($initialPoints, $serverNowEpoch);
 $initialShowMedals = k2_status_period_competition_show_medals($initialPoints, $serverNowEpoch);
+$dayBundle = is_array($compPeriods['day'] ?? null) ? $compPeriods['day'] : [];
+$initialDayGames = is_array($dayBundle['day_games'] ?? null) ? $dayBundle['day_games'] : [];
+$initialDayGamesError = $dayBundle['day_games_error'] ?? null;
+$initialDayKey = (string) ($currentKeys['day'] ?? '');
 if ($initialPoints !== null) {
     $initialMeta = k2_status_league_meta_html_for_clock(
         $initialPoints,
@@ -175,13 +208,13 @@ $podiumMedalHtml = [
 			</div>
 
 			<div class="k2-status-period-competitions__controls">
-				<div class="k2-status-period-competitions__period-tabs" role="tablist" aria-label="League period">
+				<div class="k2-chrome-tabs__bar k2-status-period-competitions__period-tabs" role="tablist" aria-label="League period">
 <?php foreach (['day', 'week', 'month', 'year'] as $period) {
     $active = $period === $defaultPeriod;
     ?>
 					<button
 						type="button"
-						class="k2-status-period-competitions__period-btn<?php echo $active ? ' is-active' : ''; ?>"
+						class="k2-chrome-tabs__tab k2-status-period-competitions__period-btn<?php echo $active ? ' is-active' : ''; ?>"
 						role="tab"
 						aria-selected="<?php echo $active ? 'true' : 'false'; ?>"
 						data-competition-period="<?php echo k2_status_h($period); ?>"
@@ -277,6 +310,21 @@ $podiumMedalHtml = [
 } ?>
 							</div>
 							</div>
+						</div>
+					</div>
+					<div
+						class="k2-status-period-competitions__day-games"
+						data-competition-day-games
+						data-day-games-key="<?php echo k2_status_h($initialDayKey); ?>"
+						hidden="hidden"
+					>
+						<h3 class="k2-panel-heading k2-status-period-competitions__day-games-title">Games this day</h3>
+						<div data-competition-day-games-body>
+<?php if (!empty($initialDayGamesError)) { ?>
+							<p class="k2-status-panel__empty">Could not load games for this day.</p>
+<?php } else {
+    k2_status_render_day_games_list($initialDayGames);
+} ?>
 						</div>
 					</div>
 				</div>
