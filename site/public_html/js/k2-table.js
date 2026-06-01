@@ -190,6 +190,29 @@
 		return String(value).replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').toLowerCase();
 	}
 
+	/** Secondary key when primary compare ties; always sorts ascending (e.g. fixed unlock #). */
+	function getSortTieValue(row, columnIndex) {
+		var cell = row.cells[columnIndex];
+		var raw;
+		var num;
+
+		if (cell) {
+			raw = cell.getAttribute('data-k2-sort-tie-value');
+			if (raw !== null && raw !== '') {
+				num = parseFloat(String(raw).replace(/,/g, ''));
+				return isNaN(num) ? NaN : num;
+			}
+		}
+
+		raw = row.getAttribute('data-k2-sort-tie-value');
+		if (raw !== null && raw !== '') {
+			num = parseFloat(String(raw).replace(/,/g, ''));
+			return isNaN(num) ? NaN : num;
+		}
+
+		return NaN;
+	}
+
 	function compareValues(a, b, sortType) {
 		if (a.value === b.value) {
 			return 0;
@@ -320,6 +343,9 @@
 			for (j = 0; j < rows.length; j++) {
 				row = rows[j];
 				if (!row.cells || !row.cells[sortIndex]) {
+					continue;
+				}
+				if (row.cells[sortIndex].colSpan > 1) {
 					continue;
 				}
 				addClass(row.cells[sortIndex], SORTED_COL_CLASS);
@@ -454,10 +480,21 @@
 
 		mapped.sort(function (a, b) {
 			var result = compareValues(a, b, sortType);
-			if (result === 0) {
-				return a.index - b.index;
+			var tieA;
+			var tieB;
+			var tieResult;
+
+			if (result !== 0) {
+				return direction === 'desc' ? -result : result;
 			}
-			return direction === 'desc' ? -result : result;
+
+			tieA = getSortTieValue(a.row, columnIndex);
+			tieB = getSortTieValue(b.row, columnIndex);
+			if (!isNaN(tieA) && !isNaN(tieB) && tieA !== tieB) {
+				return tieA - tieB;
+			}
+
+			return a.index - b.index;
 		});
 
 		for (i = 0; i < mapped.length; i++) {

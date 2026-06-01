@@ -39,7 +39,7 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | REP-014 + REP-008 wave 1 | **6658** | Full **110**-key catalog; before `diversity_merchant` per-game rule fix |
 | **Canonical today** | **6615** | After **REP-008b**; verify `diversity_merchant` = **25**, `giant_slayer` = **31** |
 
-**Staging / local sanity check (May 2026):** `SELECT COUNT(*) FROM player_milestones` → **6615** (grows when new catalog keys are added, e.g. catalog **112** with `year_in_heaven`). Run log rows below keep historical counts for audit; use this table for “what should it be now?”.
+**Staging / local sanity check:** After **REP-008b**, baseline **6615** rows. Total **grows** when new unlocks land (e.g. catalog **112**, `year_in_heaven`). **Jun 2026** staging after day-close surgical SQL: **6620** total, **`perfect_day`+`nightmare_day` = 113** (all `00:00:00`). Run log rows below keep historical counts for audit; use this table for “what should it be now?”.
 
 ### Run log (append rows)
 
@@ -65,6 +65,7 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | 2026-05 | Staging | `kooldb` | Steve | 74870 | 0 | SCH-014 + REP-015: `player_play_streaks` 264×2 rows; max day **87** week **126**; HoF `LongestDailyPlayStreak` 87 (id **582**, game **52468**), `LongestWeeklyPlayStreak` 126 (id **344**, game **39412**); matches local |
 | 2026-05 | Staging | `kooldb` | Steve | 74870 | 0 | SCH-011–013 + REP-014 + REP-008 wave 1: 110 keys, 6658 unlock rows, 0 null source_kind, giant_slayer=31, established_20_diff=0, geo4444=100/110; ~79s rebuild |
 | 2026-05 | Staging | `kooldb` | Steve | 74870 | 0 | REP-008b + REP-014 reload: diversity_merchant=25, total_rows=6615, giant_slayer=31, diversity tier key/amber; matches local |
+| 2026-06 | Staging | `kooldb` | Steve | — | 0 | Day-close surgical: `player_milestones_fix_day_close.sql`; perfect+nightmare=**113**, all `TIME(achieved_at)` midnight; total_rows=**6620**; garden PHP separate |
 
 ### Prod cutover (when scheduled)
 

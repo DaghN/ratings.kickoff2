@@ -8,6 +8,7 @@
 |----|--------|---------|-------|---------|------|----------------------|-------|
 | OO-001 | `scripts/throwaway_drop_playertable_kungfu_columns.php` | Drop unused `KungFu*` columns | Done | Done | Unknown | N/A | Historical; throwaway pattern — do not re-run blindly |
 | OO-002 | *(template)* | — | — | — | — | — | Copy template; register here before asking Steve |
+| OO-003 | `scripts/oneoff/apply_day_milestone_achieved_at_fix.py` | DELETE + re-INSERT `perfect_day` / `nightmare_day` with day-close `achieved_at` | Done | **Done** Jun 2026 | Pending | Staging SQL + Dagh UI smoke **done** Jun 2026; prod cutover still pending |
 
 ### Before asking Steve
 

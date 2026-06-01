@@ -5,12 +5,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.ph
 if (isset($_GET['key'])) {
 	$legacyKey = k2_milestone_key_param('key');
 	if ($legacyKey !== null) {
-		$params = ['key' => $legacyKey];
-		$sort = k2_milestone_achiever_sort_param();
-		if ($sort !== 'newest') {
-			$params['sort'] = $sort;
-		}
-		header('Location: milestone.php?' . http_build_query($params), true, 302);
+		header('Location: milestone.php?' . http_build_query(['key' => $legacyKey]), true, 302);
 		exit;
 	}
 }
@@ -67,20 +62,21 @@ mysqli_close($con);
 		<p class="k2-ms-meta-hint">Milestone catalog data is not available on this database yet.</p>
 	</section>
 <?php } elseif ($hubView === 'catalog') { ?>
-	<header class="k2-ms-hub-page-head">
-		<h1 class="k2-panel-heading">Milestone catalog</h1>
-		<p class="k2-ms-hub-page-head__lede">
-			Every feat on this ladder — sorted by how many players have unlocked it (most common first).
-			Colors are <strong>milestone tier</strong> bands, not the site tint.
-			Open any card for the full achiever list and charts.
-		</p>
-		<p class="k2-ms-meta-hint"><?php echo (int) $catalogTotal; ?> milestones in the catalog.</p>
+	<header class="k2-hub-page-intro-head">
+		<p class="k2-hub-page-intro">All <span class="blue"><?php echo (int) $catalogTotal; ?></span> milestones sorted by tier and how rare they are (most common first).<br />
+			Open any card for the achiever list and charts.</p>
 	</header>
 	<?php k2_milestone_render_catalog_grid($catalogCards); ?>
-<?php } else {
+<?php } else { ?>
+	<div class="k2-ms-recent-feed">
+		<div class="k2-ms-recent-cluster">
+		<?php
 		k2_milestone_render_recent_tier_filter($recentTier);
 		k2_milestone_render_recent_feed($recentUnlocks, $recentTier);
-} ?>
+		?>
+		</div>
+	</div>
+<?php } ?>
 </main>
 
 </div><!-- .k2-page-nav -->

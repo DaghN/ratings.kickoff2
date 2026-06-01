@@ -3,7 +3,7 @@
  * Milestone unlock event UI register (link + context per milestone_key).
  *
  * Spec: docs/milestones-unlock-event-ui.md
- * Data: data/milestone_garden_links.json · docs/milestones-garden-links.md
+ * Catalog: docs/milestones-catalog.md · data/milestone_garden_links.json
  * Regenerate: python scripts/oneoff/build_milestone_garden_links.py
  */
 declare(strict_types=1);

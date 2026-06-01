@@ -23,7 +23,7 @@
 
 ## Scroll order (as shipped)
 
-1. Site header + **hero** (name, rank, rating, games; **milestones** column with `{n}/{catalog}` then tier subcounts when `NumberGames >= 1` — links to garden tab; catalog via `k2_milestone_catalog_total()`)
+1. Site header + **hero** (name, rank, rating, games; **milestones** column with `{n}/{catalog}` only when `NumberGames >= 1` — links to garden tab; catalog via `k2_milestone_catalog_total()`)
 2. Feast **pills**
 4. **Presence** + **Career** (at-a-glance; career ranks when `Display = 1`)
 5. **Played days** (current calendar year, played-day cells)
@@ -61,7 +61,7 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 |------|------|------|
 | Games | `individual3.php` | Full match ledger |
 | W/D/L / Goals / DDs | `individual2a/b/c.php` | Per-opponent aggregates |
-| Milestones | `individual_milestones.php` | Tier garden (110 cards from catalog + unlock rows) |
+| Milestones | `individual_milestones.php` | Tier garden (112 cards from catalog + unlock rows) |
 
 Profile does **not** duplicate those tables.
 

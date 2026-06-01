@@ -122,11 +122,60 @@ function k2_rated_game_id_html(array $game, string $idMode = 'link'): string
 }
 
 /**
+ * Compact row for Games Highlights (no Elo / adjustment columns).
+ *
  * @param array<string, mixed> $game normalized or raw ratedresults row
- * @param array{id_mode?: string, date_format?: string} $options
+ * @param array{id_mode?: string, date_format?: string, show_peak_column?: bool} $options
+ */
+function k2_rated_game_row_compact_html(array $game, array $options = []): string
+{
+    $game = k2_rated_game_normalize_row($game);
+    $idMode = ($options['id_mode'] ?? 'link') === 'plain' ? 'plain' : 'link';
+    $dateFormat = ($options['date_format'] ?? 'display') === 'raw' ? 'raw' : 'display';
+    $showPeak = !empty($options['show_peak_column']);
+
+    $idA = $game['idA'];
+    $idB = $game['idB'];
+    $nameA = (string) $game['NameA'];
+    $nameB = (string) $game['NameB'];
+    $peakGoals = max((int) $game['GoalsA'], (int) $game['GoalsB']);
+
+    $gameId = (int) $game['id'];
+    $idCell = k2_rated_game_id_html($game, $idMode);
+    $dateCell = k2_rated_game_date_html($game, $dateFormat);
+    $dateSortValue = strtotime($game['Date']) ?: 0;
+    $teamA = '<a href="individual1.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
+    $teamB = '<a href="individual1.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
+    $winnerCell = k2_rated_game_winner_html($game);
+
+    $row = '<tr data-k2-sort-tie-value="' . $gameId . '">'
+        . '<td></td>'
+        . '<td class="k2-games-highlights-table__id" data-k2-sort-value="' . $gameId . '">' . $idCell . '</td>'
+        . '<td class="k2-table-cell--left k2-table-cell--pad-left-xs" data-k2-sort-value="' . $dateSortValue . '">' . $dateCell . '</td>'
+        . '<td class="k2-table-cell--left">' . $teamA . '</td>'
+        . '<td>' . (int) $game['GoalsA'] . '</td>'
+        . '<td class="k2-table-cell--left">' . (int) $game['GoalsB'] . '</td>'
+        . '<td class="k2-table-cell--left">' . $teamB . '</td>'
+        . '<td>' . (int) $game['GoalDifference'] . '</td>'
+        . '<td>' . (int) $game['SumOfGoals'] . '</td>';
+
+    if ($showPeak) {
+        $row .= '<td data-k2-sort-value="' . $peakGoals . '">' . $peakGoals . '</td>';
+    }
+
+    return $row . '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . $winnerCell . '</td></tr>';
+}
+
+/**
+ * @param array<string, mixed> $game normalized or raw ratedresults row
+ * @param array{id_mode?: string, date_format?: string, variant?: string, show_peak_column?: bool} $options
  */
 function k2_rated_game_row_html(array $game, array $options = []): string
 {
+    if (($options['variant'] ?? '') === 'compact') {
+        return k2_rated_game_row_compact_html($game, $options);
+    }
+
     $game = k2_rated_game_normalize_row($game);
     $idMode = ($options['id_mode'] ?? 'link') === 'plain' ? 'plain' : 'link';
     $dateFormat = ($options['date_format'] ?? 'display') === 'raw' ? 'raw' : 'display';

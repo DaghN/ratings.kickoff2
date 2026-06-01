@@ -44,17 +44,7 @@ $heroMsCatalogTotal = isset($heroMsCatalogTotal) ? (int) $heroMsCatalogTotal : 0
 					<span class="k2-player-hero__stat-label">Milestones</span>
 					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--milestones">
 						<a class="k2-player-hero__milestones" href="<?php echo htmlspecialchars($gardenHref, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo $msTotal; ?> of <?php echo $heroMsCatalogTotal; ?> milestones unlocked">
-							<span class="k2-player-hero__milestones-row">
-								<span class="k2-player-hero__milestones-total"><?php echo $msTotal; ?>/<?php echo $heroMsCatalogTotal; ?></span>
-								<span class="k2-player-hero__milestones-sep" aria-hidden="true">·</span>
-								<span class="k2-player-hero__milestones-tier k2-player-hero__milestones-tier--pitch" title="Aspirational"><?php echo (int) $heroMs['aspirational']; ?></span>
-								<span class="k2-player-hero__milestones-sep" aria-hidden="true">·</span>
-								<span class="k2-player-hero__milestones-tier k2-player-hero__milestones-tier--chrome" title="Dedicated"><?php echo (int) $heroMs['dedicated']; ?></span>
-								<span class="k2-player-hero__milestones-sep" aria-hidden="true">·</span>
-								<span class="k2-player-hero__milestones-tier k2-player-hero__milestones-tier--amber" title="Accomplished"><?php echo (int) $heroMs['accomplished']; ?></span>
-								<span class="k2-player-hero__milestones-sep" aria-hidden="true">·</span>
-								<span class="k2-player-hero__milestones-tier k2-player-hero__milestones-tier--holo" title="Legendary"><?php echo (int) $heroMs['legendary']; ?></span>
-							</span>
+							<span class="k2-player-hero__milestones-total"><?php echo $msTotal; ?>/<?php echo $heroMsCatalogTotal; ?></span>
 						</a>
 					</span>
 				</div>

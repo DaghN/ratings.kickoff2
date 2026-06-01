@@ -20,6 +20,12 @@ Does **not** document Steve’s employment constraints or release politics — p
 
 ---
 
+## Typography (May 2026)
+
+Hero paragraphs and card copy use **`--k2-text-secondary`** (calmer than body primary; links stay `--k2-link`). Page title remains display primary. See `docs/design-direction.md` text hierarchy.
+
+---
+
 ## Routes & chrome
 
 | Item | Location |

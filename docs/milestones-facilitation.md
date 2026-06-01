@@ -2,15 +2,15 @@
 
 **Kick Off 2 ratings site · May 2026**
 
-Maps the **110 curated keys** to implementation families: what stored truth to read, how rebuild unlock rows, and post-game expectations. Authoritative keys: [`milestones-tier-curated.md`](milestones-tier-curated.md). Catalog metadata: [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) → `milestone_definitions` table.
+Maps the **112 curated keys** to implementation families: what stored truth to read, how rebuild unlock rows, and post-game expectations. Per-key list: [`milestones-catalog.md`](milestones-catalog.md). Catalog metadata: [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) → `milestone_definitions` table.
 
-**Status:** All rebuild waves done. **110/110** keys in `player_milestones` (splice: core + exists + streaks + chrono + tail + period + league). Next: Phase 4 UI + live post-game inserts.
+**Status:** All rebuild waves done. **112/112** keys in `player_milestones` (splice: core + exists + streaks + chrono + tail + period + league). Next: Phase 4 UI + live post-game inserts.
 
 ---
 
 ## Unlock event UI (UX register)
 
-Per-key **Link + Event** (not DB columns): master table [`milestones-garden-links.md`](milestones-garden-links.md) · spec [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) · `data/milestone_garden_links.json` · regenerate with `python scripts/oneoff/build_milestone_garden_links.py`.
+Per-key **Link + Event** (not DB columns): [`milestones-catalog.md`](milestones-catalog.md) · index [`milestones-garden-links.md`](milestones-garden-links.md) · spec [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) · regenerate with `python scripts/oneoff/build_milestone_garden_links.py`.
 
 ---
 
@@ -34,7 +34,7 @@ Waves 2–6 writers must set these on insert (chronological first-cross for game
 
 | Wave | Family | Keys (approx.) | Rebuild source | Post-game |
 |------|--------|----------------:|----------------|-----------|
-| **0** | Catalog | 110 | `load_milestone_definitions.py` | N/A (metadata) |
+| **0** | Catalog | 112 | `load_milestone_definitions.py` | N/A (metadata) |
 | **1** | League awards + career wins | 20 | `player_league_award`, `player_league_totals` | On league finalize (PER-003) — see contract § league |
 | **2** | Game count / peak / exists / streaks / period / chrono / tail | 90 | Rebuild SQL + generators | Per rated game — see [`website-data-contract.md`](website-data-contract.md) § `player_milestones` post-game |
 | **lobby** | `entered_arena` | 1 | `playertable.JoinDate` | At account register |

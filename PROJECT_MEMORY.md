@@ -69,10 +69,47 @@
 
 | When | What |
 |------|------|
-| 2026-05 | **Garden + HoF** — locked title links: dim until hover (underline + brighten on hover only); HoF milestone copy removed; register table [`milestones-garden-links.md`](docs/milestones-garden-links.md) = Link + Event columns. |
+| 2026-06 | **Activity peaks sub-nav** — `ranked8.php` Calendar / All time uses **`k2-chrome-tabs`** segment track; removed duplicate top margin (was wing gap + mode bar margin). |
+| 2026-06 | **League honours sub-nav** — `ranked9.php` cup/grain filters use **`k2-chrome-tabs`** segment track (matches Activity peaks / milestones / games highlights), not Status leagues period pills. |
+| 2026-06 | **`milestone.php` achiever match lines** — Event scoreline uses official **team A · GoalsA–GoalsB · team B** (`ratedresults` order), not unlocker-first. |
+| 2026-06 | **`server3.php` games tables** — calm-stats body ink; Recent default sort ID desc; empty-day row stays secondary (`k2-table.js` skips colspan sorted-col). |
+| 2026-05 | **`daily_habit` rule copy** — Rule (short): “Rated game every day Monday to Sunday” (copy patch + local `milestone_definitions`). |
+| 2026-06 | **`game.php`** — leaderboard **`k2-table--calm-stats`** body ink only; hub tabs removed (detail page stays header + table). |
+| 2026-06 | **Games Highlights** — `server3.php` sub-nav **Recent** \| **Highlights**; board order Most goals → Biggest draws → One-side peak → Biggest wins; ties **lower game ID first** (SQL + `data-k2-sort-tie-value`). |
+| 2026-05 | **`milestone.php` Graphs typography** — chart titles use **`k2-panel-heading`**; block hints + legend labels use **`--k2-text-secondary`**. |
+| 2026-05 | **`milestone.php` polish** — removed catalog footer line; Graphs blocks use Activity-style **`--k2-chart-max-width` (960px)** boxed charts. |
+| 2026-06 | **Staging `perfect_day` / `nightmare_day` day-close** — Steve SQL + Dagh browser smoke **done**: **113** rows midnight UTC; Recent **`00:00`**; garden **Games** → `individual3.php?day=`; total **6620**. Handoff: [`milestones-staging-cutover-packet.md`](docs/coordination/milestones-staging-cutover-packet.md) § Day-close. |
+| 2026-05 | **`milestone.php` Graphs** — per-key year + cumulative charts (tier `T.pitch()` etc., ladder MIN Date→today); removed monthly timeline. |
+| 2026-05 | **`milestone.php` segments** — **Made it** \| Graphs; carry-scroll on tier filter + detail panels. |
+| 2026-05 | **Milestones catalog** — removed redundant `title` tooltip on cards (name/rule already visible). |
+| 2026-05 | **`milestone.php` spotlight** — garden-style glow card (name + rule only); dropped hero tier/holders/desc panel. |
+| 2026-05 | **`milestone.php` achievers table** — tier `--k2-ms-accent` on header hairline, sort, links; row/wrap borders unchanged. |
+| 2026-05 | **Profile milestone garden** — Game/League event links use tier ink (`k2-ms-tier-event-link`), not link-star. |
+| 2026-05 | **Milestone dates** — display/header drop “UTC” suffix; achievers Unlocked column stays muted when sorted. |
+| 2026-05 | **Milestone achievers sort** — `k2-table.js` tie-break on `data-k2-sort-tie-value` (fixed `#` when `achieved_at` matches, e.g. same game). |
+| 2026-05 | **`milestone.php`** achievers — fixed `#` = unlock order (1 earliest); default sort unlock desc; no autorank. |
+| 2026-05 | **`milestone.php`** — hub Recent \| Catalog sub-nav (`$k2MsHubView` empty); text crumb removed. |
+| 2026-05 | **Milestones Recent filter** — tier segment pills (`.k2-ms-recent-tier-filter` + chrome track; tier ink). |
+| 2026-05 | **Catalog cards** — dropped rule `line-clamp` + hidden `<br>` pad (false `…`); `min-height` only. |
+| 2026-05 | **`five_goal_frenzy`** — `rule_short` → `5+ goals in one game` (catalog copy patch). |
+| 2026-05 | **Milestones Recent** — fix league/Games event links (`html_entity_decode` before tier re-wrap). |
+| 2026-05 | **Milestones Recent** — cluster left; filter centred over table width; fixed cols + inner scroll. |
+| 2026-05 | **Text selection** — `::selection` on `body.k2-site` (tint-aware); overrides Windows/browser blue default. |
+| 2026-05 | **Hub lede** — shared `.k2-hub-page-intro` (muted 13px): Milestones catalog + HoF notes above tables. |
+| 2026-05 | **Leagues pickers** — Flatpickr day grid + month chrome + date input: secondary (selected day still accent). |
+| 2026-05 | **HoF + hub LBs** — HoF label/date muted; ranked/Status/peaks calm tables secondary; active sort primary 600. |
+| 2026-05 | **Milestone garden** — catalog-style hover lift (`translateY(-1px)`) on profile garden cards. |
+| 2026-05 | **Milestones Catalog** — tier sections + garden headings (Aspirational…Legendary); sort unchanged within band. |
+| 2026-05 | **Milestones Catalog intro** — single-line h1 instead of title + lede split. |
+| 2026-05 | **Milestones Recent layout** — five shrink-wrapped columns (when · player · milestone · muted rule · event); tier links not link-star; feed `width: fit-content`. |
+| 2026-05 | **`five_goal_frenzy` explainer** — `rule_short` = “Scored 5 goals or more in one game” (seed + local DB via catalog copy patch). |
+| 2026-05 | **Milestones Catalog UI** — compact equal-height grid; no card/title glow (glow stays on profile garden). |
+| 2026-05 | **`milestones-README.md`** — plain-language Rule vs Event; seed vs copy-patches workflows for agents. |
+| 2026-05 | **`perfect_day` event copy** — `event_context_label` = “All wins that UTC day (5+ rated games).”; regen `milestone_garden_links.json`. |
+| 2026-05 | **Milestones doc consolidation** — [`milestones-README.md`](docs/milestones-README.md) + generated [`milestones-catalog.md`](docs/milestones-catalog.md) (112 keys); tier-curated tables archived; one build script. |
 | 2026-05 | **Milestone achievers table** — **Event** (what happened) + **Link** (Game/League/Games from register). |
 | 2026-05 | **Milestone unlock event UI** — one register (`event_link` + `event_context`); Recent feed + garden + achievers use `k2_milestone_unlock_event_*`; spec [`milestones-unlock-event-ui.md`](docs/milestones-unlock-event-ui.md). |
-| 2026-05 | **Milestones Recent typography** — feed inherits site body 14px (was 15px list); row padding unchanged. |
+| 2026-05 | **Milestones Recent typography** — feed **13px** / 1.45 (hub parity with tabs, Status hints); was 14px body inherit. |
 | 2026-05 | **Milestone ms-holo only** — legendary `#bf80f8`; dedicated chrome + pitch/amber use `--k2-pure-*` on milestone surfaces. |
 | 2026-05 | **Milestones Recent tab** — stripped intro/count copy; fixed **100**-row feed; tier filter only (`milestones.php`). |
 | 2026-05 | **Doc hygiene — SCH-008 / milestone counts** — removed stale MEMORY bullet (“staging SCH-008 pending”); canonical timeline in [`replay-register.md`](docs/coordination/replay-register.md) § Milestone unlock row counts (**6615** rows today, not 151). |

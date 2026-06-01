@@ -104,8 +104,8 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | Item | Plan |
 |------|------|
 | `player_milestones` | One row per player per `milestone_key`; `achieved_at` UTC |
-| Unlock event link + context | [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) · register [`milestones-garden-links.md`](milestones-garden-links.md) + `data/milestone_garden_links.json` · `milestone_garden_links.php` |
-| `milestone_definitions` (Phase 3) | SCH-011; 110 rows from [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
+| Unlock event link + context | [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) · catalog [`milestones-catalog.md`](milestones-catalog.md) + `data/milestone_garden_links.json` |
+| `milestone_definitions` (Phase 3) | SCH-011; **112** rows from [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
 | `player_milestones` unlock rows | **22 key types** after rebuild wave 1 (2 game + 20 league); ~88 TODO — [`milestones-facilitation.md`](milestones-facilitation.md) |
 
 ---
@@ -114,7 +114,7 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 
 | Topic | State |
 |-------|--------|
-| Final milestone list | **110 keys** — [`milestones-tier-curated.md`](milestones-tier-curated.md) |
+| Final milestone list | **112 keys** — [`milestones-catalog.md`](milestones-catalog.md) (generated) |
 | Exact Key (~15–20) keys | **20 accomplished band** — locked in curated list |
 | League rules (podium vs winner, win totals) | **Locked** — [`leagues-rules-spec.md`](leagues-rules-spec.md) |
 | Profile layout for milestones | Integrate when profile rethought |

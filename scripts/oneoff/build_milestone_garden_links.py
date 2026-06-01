@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """
-Build data/milestone_garden_links.json and docs/milestones-garden-links.md.
+Build milestone catalog + unlock-event register (lockstep).
 
-Per-key unlock event UX (link + context) — lockstep with milestone_garden_links.php.
-See docs/milestones-unlock-event-ui.md.
+Outputs:
+  - data/milestone_garden_links.json
+  - docs/milestones-catalog.md          (master per-key table)
+  - docs/milestones-garden-links.md     (Link + Event index)
 
-Regenerate after catalog changes:
+Regenerate after catalog or unlock-event edits:
   python scripts/oneoff/build_milestone_garden_links.py
+
+See docs/milestones-README.md · docs/milestones-unlock-event-ui.md
 """
 from __future__ import annotations
 
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
@@ -20,7 +25,8 @@ if str(_REPO) not in sys.path:
 
 SEED = _REPO / "data" / "milestones_definitions_seed.json"
 OUT_JSON = _REPO / "data" / "milestone_garden_links.json"
-OUT_MD = _REPO / "docs" / "milestones-garden-links.md"
+OUT_CATALOG_MD = _REPO / "docs" / "milestones-catalog.md"
+OUT_GARDEN_MD = _REPO / "docs" / "milestones-garden-links.md"
 
 DEFAULT_LINK = "game"
 
@@ -54,6 +60,22 @@ CONTEXT_DESCRIBE_DEFAULT = {
     "day_games": "Day games summary",
     "lobby_copy": "Joined the ladder",
     "none": "—",
+}
+
+TIER_ORDER = ("legendary", "accomplished", "dedicated", "aspirational")
+
+TIER_LABEL = {
+    "legendary": "Legendary",
+    "accomplished": "Accomplished",
+    "dedicated": "Dedicated",
+    "aspirational": "Aspirational",
+}
+
+TIER_CHART_TOKEN = {
+    "legendary": "holo",
+    "accomplished": "amber",
+    "dedicated": "chrome",
+    "aspirational": "pitch",
 }
 
 LEAGUE_KEYS = frozenset(
@@ -90,7 +112,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
     "perfect_day": {
         "event_link": "player_day_games",
         "event_context": "day_games",
-        "event_context_label": "Perfect day — all wins (5+ rated games that UTC day)",
+        "event_context_label": "All wins that UTC day (5+ rated games).",
         "notes": "All rated games that UTC day (W only, min 5). Link uses achieved_at day-close + player id.",
     },
     "nightmare_day": {
@@ -100,6 +122,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": "All rated games that UTC day (L only, min 5). Link uses achieved_at day-close + player id.",
     },
 }
+
+
+def md_cell(value: str) -> str:
+    return value.replace("|", "\\|").replace("\n", " ")
 
 
 def profile_for_key(key: str) -> tuple[str, str, str, str]:
@@ -123,9 +149,26 @@ def profile_for_key(key: str) -> tuple[str, str, str, str]:
     )
 
 
+def event_describe(entry: dict[str, str]) -> str:
+    if entry.get("event_context_label"):
+        return entry["event_context_label"]
+    return CONTEXT_DESCRIBE_DEFAULT.get(entry["event_context"], entry["event_context"])
+
+
+def tier_sort_key(defn: dict) -> tuple[int, str]:
+    tier = (defn.get("tier_band") or "aspirational").lower()
+    try:
+        tier_idx = TIER_ORDER.index(tier)
+    except ValueError:
+        tier_idx = len(TIER_ORDER)
+    return tier_idx, defn["milestone_key"]
+
+
 def main() -> None:
     seed = json.loads(SEED.read_text(encoding="utf-8"))
-    keys = sorted(d["milestone_key"] for d in seed["definitions"])
+    definitions = sorted(seed["definitions"], key=tier_sort_key)
+    keys = [d["milestone_key"] for d in definitions]
+
     entries: dict[str, dict[str, str]] = {}
     for key in keys:
         link, context, notes, context_label = profile_for_key(key)
@@ -141,6 +184,7 @@ def main() -> None:
 
     payload = {
         "version": seed.get("version", "2026-05-curated"),
+        "milestone_count": len(keys),
         "default_event_link": DEFAULT_LINK,
         "default_garden_link": DEFAULT_LINK,
         "event_link_values": list(LINK_VALUES),
@@ -150,39 +194,90 @@ def main() -> None:
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
-    lines = [
-        "# Milestone unlock event register (generated)",
+    tier_counts = Counter((d.get("tier_band") or "").lower() for d in definitions)
+    version = seed.get("version", "2026-05-curated")
+
+    catalog_lines = [
+        "# Milestone catalog (generated)",
         "",
-        "**Human-readable master table** for all milestone keys: **Link** (where the UI goes) "
-        "and **Event** (what achievers / detail surfaces describe).",
+        "**Start here:** [`milestones-README.md`](milestones-README.md).",
         "",
-        "**Authority / behaviour:** [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md).",
+        "Per-key **intended + implemented UI** view: identity (tier, title, rule) plus unlock-event "
+        "**Link** and **Event**. Rebuild probe hints come from the definitions seed.",
         "",
-        "Lockstep: `data/milestone_garden_links.json` · "
-        "`site/public_html/includes/milestone_garden_links.php`.",
+        "**Machine sources:** `data/milestones_definitions_seed.json` · "
+        "`data/milestone_garden_links.json` · PHP `milestone_garden_links.php`.",
         "",
-        "**Not** stored on `player_milestones`. **Not** the tier-planning docs "
-        "([`milestones-tier-curated.md`](milestones-tier-curated.md) is tiers only).",
+        "**DB / rebuild contract:** [`website-data-contract.md`](website-data-contract.md) § "
+        "`player_milestones` · families [`milestones-facilitation.md`](milestones-facilitation.md).",
         "",
-        f"**Regenerate after edits:** `python scripts/oneoff/build_milestone_garden_links.py` · "
-        f"**Keys:** {len(keys)}",
+        f"**Regenerate:** `python scripts/oneoff/build_milestone_garden_links.py` · "
+        f"**Seed version:** `{version}` · **Keys:** {len(keys)}",
+        "",
+        "## Summary by tier",
+        "",
+        "| Band | Chart token | Keys |",
+        "|------|-------------|-----:|",
+    ]
+    for tier in TIER_ORDER:
+        catalog_lines.append(
+            f"| {TIER_LABEL[tier]} | `{TIER_CHART_TOKEN[tier]}` | "
+            f"{tier_counts.get(tier, 0)} |"
+        )
+    catalog_lines.append(f"| **Total** | — | **{len(keys)}** |")
+    catalog_lines.extend(
+        [
+            "",
+            "## Full catalog",
+            "",
+            "Sorted: Legendary → Accomplished → Dedicated → Aspirational, then `milestone_key`.",
+            "",
+            "| `milestone_key` | Tier | Display name | Rule (short) | Link | Event | `rule_probe` |",
+            "|-----------------|------|--------------|--------------|------|-------|--------------|",
+        ]
+    )
+
+    defn_by_key = {d["milestone_key"]: d for d in definitions}
+    for key in keys:
+        d = defn_by_key[key]
+        e = entries[key]
+        tier = (d.get("tier_band") or "").lower()
+        tier_label = TIER_LABEL.get(tier, tier)
+        display = md_cell(str(d.get("display_name", "")))
+        rule = md_cell(str(d.get("rule_short", "")))
+        probe = md_cell(str(d.get("rule_probe", "")))
+        link_ui = LINK_UI_LABEL.get(e["event_link"], e["event_link"])
+        event = md_cell(event_describe(e))
+        catalog_lines.append(
+            f"| `{key}` | {tier_label} | {display} | {rule} | {link_ui} | {event} | {probe} |"
+        )
+    catalog_lines.append("")
+    OUT_CATALOG_MD.write_text("\n".join(catalog_lines), encoding="utf-8")
+
+    garden_lines = [
+        "# Milestone unlock event index (generated)",
+        "",
+        "**Link + Event only** — subset of [`milestones-catalog.md`](milestones-catalog.md).",
+        "",
+        "Behaviour spec: [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md).",
+        "",
+        f"**Regenerate:** `python scripts/oneoff/build_milestone_garden_links.py` · **Keys:** {len(keys)}",
         "",
         "| `milestone_key` | Link | Event | Notes |",
         "|-----------------|------|-------|-------|",
     ]
     for key in keys:
         e = entries[key]
-        notes = e["notes"].replace("|", "\\|")
+        notes = md_cell(e["notes"])
         link_ui = LINK_UI_LABEL.get(e["event_link"], e["event_link"])
-        event_desc = e.get("event_context_label") or CONTEXT_DESCRIBE_DEFAULT.get(
-            e["event_context"], e["event_context"]
-        )
-        event_desc = event_desc.replace("|", "\\|")
-        lines.append(f"| `{key}` | {link_ui} | {event_desc} | {notes} |")
-    lines.append("")
-    OUT_MD.write_text("\n".join(lines), encoding="utf-8")
+        event = md_cell(event_describe(e))
+        garden_lines.append(f"| `{key}` | {link_ui} | {event} | {notes} |")
+    garden_lines.append("")
+    OUT_GARDEN_MD.write_text("\n".join(garden_lines), encoding="utf-8")
+
     print(f"Wrote {OUT_JSON} ({len(keys)} keys)")
-    print(f"Wrote {OUT_MD}")
+    print(f"Wrote {OUT_CATALOG_MD}")
+    print(f"Wrote {OUT_GARDEN_MD}")
 
 
 if __name__ == "__main__":

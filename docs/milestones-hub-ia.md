@@ -4,7 +4,7 @@
 
 **Status:** **Work in progress — subject to change.** This doc is the sandbox for the server-side Milestones universe. **Committed hub routing** (tab order, Games demotion) lives in [`hub-ia-agreement.md`](hub-ia-agreement.md). Tier bands and profile garden: [`milestones-product-spec.md`](milestones-product-spec.md).
 
-**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed) and **Catalog** (`milestones.php?view=catalog`) tier-colored cards sorted by holder count. Single-milestone package: **`milestone.php?key=`** (achievers + timeline chart + signature charts for DD / Established). Activity digest/charts still on `server1.php`.
+**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones.php?view=catalog`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span; optional rating chart for DD / Established). Activity digest unchanged on `server1.php`.
 
 ---
 
@@ -13,7 +13,7 @@
 Single **public home** for the milestone system:
 
 - Explain what milestones are (many holders; not Hall of Fame records).
-- Browse all **110** catalog keys and open **achiever lists** per key.
+- Browse all **112** catalog keys and open **achiever lists** per key.
 - Show **recent unlocks** and (later) server-wide **story** feeds.
 - Host **milestone-domain charts** migrated from Activity when ready.
 
@@ -35,12 +35,12 @@ Single **public home** for the milestone system:
 
 | Sub-tab | URL | Role |
 |---------|-----|------|
-| **Recent** | `milestones.php` | Tier filter (All / band) + vertical scannable feed (100 unlocks, no count UI) |
-| **Catalog** | `milestones.php?view=catalog` | All milestones as tier-colored cards, sorted by holder count |
+| **Recent** | `milestones.php` | Tier filter = `.k2-ms-recent-tier-filter` segment bar (`data-k2-carry-scroll`, **tier-colored** labels); centred over table; fixed cols (`--k2-ms-recent-col-*`) |
+| **Catalog** | `milestones.php?view=catalog` | Four tier sections (garden headings); `entered_arena` first in its band; rarity within band |
 
 Single milestone (no sub-nav tab):
 
-- `milestone.php?key={milestone_key}` — achievers, unlock timeline chart, signature charts when defined
+- `milestone.php?key={milestone_key}` — spotlight card; segment **Made it** | **Graphs** (`?panel=graphs`); achievers table + charts in panels; hub sub-nav; segment bars use **`data-k2-carry-scroll`** (same y-lock as hub pills)
 - `milestones.php?key=` → 302 to `milestone.php` (legacy)
 
 ---
@@ -49,7 +49,7 @@ Single milestone (no sub-nav tab):
 
 1. **Context block** — 2–4 sentences: shared career landmarks; many players per feat; link to HoF for single-holder records.
 2. **Recent milestones** — global ticker / table from `player_milestones` (newest unlocks first); not mixed with server “busiest day” facts.
-3. **Catalog navigator** — four panels (Legendary → Aspirational per [`milestones-tier-curated.md`](milestones-tier-curated.md) presentation order, or Aspirational → Legendary if product reverses). Each milestone: title + short rule in **tier color**; acts as in-page picker (not 110 separate routes).
+3. **Catalog navigator** — four panels (Legendary → Aspirational per [`milestones-catalog.md`](milestones-catalog.md) / product spec). Each milestone: title + short rule in **tier color**; acts as in-page picker (not 112 separate routes).
 4. **Achievers pane** — when a key is selected: table newest-first (spec default); columns player, unlocked (UTC), match/game link where `source_kind` allows. Optional sorts: **first unlock**, **latest unlock**.
 
 ### Per-key unlock chart (idea — v1.1 OK)

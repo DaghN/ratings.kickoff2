@@ -1,6 +1,7 @@
 /**
- * Peer nav pills (hub, leaderboard wing, player profile): carry window scrollY to the
- * next full page load. Set on pill click; restored once by k2_carry_scroll_restore.php in <head>.
+ * Peer nav pills (hub, leaderboard wing, player profile, milestones segment bars): carry
+ * window scrollY to the next full page load. Set on pill click; restored once by
+ * k2_carry_scroll_restore.php in <head>.
  */
 (function () {
 	'use strict';

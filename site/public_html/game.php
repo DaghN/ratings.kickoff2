@@ -6,6 +6,7 @@
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
 
@@ -41,7 +42,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 <?php if ($row === null) { ?>
 <p>Game not found.</p>
 <?php } else { ?>
-<table class="k2-table k2-table--numeric-default">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table">
 
 <thead>
 	<tr>

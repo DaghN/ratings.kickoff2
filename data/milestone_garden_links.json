@@ -1,5 +1,6 @@
 {
   "version": "2026-05-curated",
+  "milestone_count": 112,
   "default_event_link": "game",
   "default_garden_link": "game",
   "event_link_values": [
@@ -22,6 +23,126 @@
     "player_day_games"
   ],
   "keys": {
+    "century_of_rivals": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "club_10000": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "club_2300": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "filthy_fifteen": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "knife_edge": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "league_wins_500": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_yearly_activity_winner": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_yearly_points_winner": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "leaky_merchant": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "merchant_denied": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "merchant_streak": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "merchant_trade_fair": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "minimalist_merchant": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "monthly_regular": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "play_streak_100": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "ultra_day_30": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "united_nations": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "unlucky": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "win_streak_30": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "year_in_heaven": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
     "absurd_day": {
       "event_link": "game",
       "event_context": "match_line",
@@ -33,6 +154,120 @@
       "event_context": "league_period",
       "garden_link": "league",
       "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "club_2000": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "diversity_merchant": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "dozen_dash": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "fifty_faces": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "giant_slayer": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "league_monthly_points_medal": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_monthly_points_winner": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_weekly_activity_winner": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_weekly_points_winner": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_wins_100": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_wins_50": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_yearly_activity_medal": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_yearly_points_medal": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "perfect_storm": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "rampage": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "ruthless": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "survivor": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "travelling_salesman": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "twenty_goal_chaos": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
     },
     "battle_hardened": {
       "event_link": "game",
@@ -52,19 +287,7 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "brace": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "centurion_100": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "century_of_rivals": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",
@@ -88,12 +311,6 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "club_10000": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "club_1700": {
       "event_link": "game",
       "event_context": "match_line",
@@ -106,25 +323,7 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "club_2000": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "club_2300": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "club_500": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "cold_streak": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",
@@ -148,25 +347,237 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "debut": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "diversity_merchant": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "dozen_dash": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "eight_goal_storm": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "five_victims": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "fortress_builder": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "generous": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "goal_fest_draw": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "grind_month": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "half_century_50": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "hundred_goals": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "league_daily_activity_winner": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_monthly_activity_medal": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_weekly_activity_medal": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_weekly_points_medal": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "league_wins_10": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "lifetime_rivalry": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "marathon_day": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "marathoner_250": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "massive_upset": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "millennium_merchant_1000": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "minimalist": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "moment_of_glory": {
+      "event_link": "league",
+      "event_context": "league_period",
+      "garden_link": "league",
+      "notes": "Status league period (source_league_* on unlock row)."
+    },
+    "newbie_welcomer": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "nightmare_day": {
+      "event_link": "player_day_games",
+      "event_context": "day_games",
+      "garden_link": "player_day_games",
+      "notes": "All rated games that UTC day (L only, min 5). Link uses achieved_at day-close + player id.",
+      "event_context_label": "Nightmare day \u2014 all losses (5+ rated games that UTC day)"
+    },
+    "peace_streak": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "perfect_day": {
+      "event_link": "player_day_games",
+      "event_context": "day_games",
+      "garden_link": "player_day_games",
+      "notes": "All rated games that UTC day (W only, min 5). Link uses achieved_at day-close + player id.",
+      "event_context_label": "All wins that UTC day (5+ rated games)."
+    },
+    "rare_blank": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "regular_customer": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "ten_culprits": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "ten_draws": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "ten_wins": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "ten_wins_straight": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "thousand_goal_club": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "twenty_five_victims": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "weekly_regular": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "wide_net": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "win_hat_trick": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "year_round": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "brace": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "cold_streak": {
+      "event_link": "game",
+      "event_context": "match_line",
+      "garden_link": "game",
+      "notes": "Single game via source_game_id (ratedresults)."
+    },
+    "debut": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",
@@ -179,18 +590,6 @@
       "notes": "Lobby registration; no game or league URL."
     },
     "established_20": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "fifty_faces": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "filthy_fifteen": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",
@@ -226,48 +625,6 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "five_victims": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "fortress_builder": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "generous": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "giant_slayer": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "goal_fest_draw": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "grind_month": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "half_century_50": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "hard_lesson": {
       "event_link": "game",
       "event_context": "match_line",
@@ -286,25 +643,7 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "hundred_goals": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "knife_edge": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "league_daily_activity_medal": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_daily_activity_winner": {
       "event_link": "league",
       "event_context": "league_period",
       "garden_link": "league",
@@ -316,261 +655,13 @@
       "garden_link": "league",
       "notes": "Status league period (source_league_* on unlock row)."
     },
-    "league_monthly_activity_medal": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_monthly_points_medal": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_monthly_points_winner": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_weekly_activity_medal": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_weekly_activity_winner": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_weekly_points_medal": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_weekly_points_winner": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_wins_10": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_wins_100": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_wins_50": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_wins_500": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_yearly_activity_medal": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_yearly_activity_winner": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_yearly_points_medal": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "league_yearly_points_winner": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "leaky_merchant": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "lifetime_rivalry": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "marathon_day": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "marathoner_250": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "massive_upset": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "merchant_denied": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "merchant_streak": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "merchant_trade_fair": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "millennium_merchant_1000": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "minimalist": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "minimalist_merchant": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "moment_of_glory": {
-      "event_link": "league",
-      "event_context": "league_period",
-      "garden_link": "league",
-      "notes": "Status league period (source_league_* on unlock row)."
-    },
-    "monthly_regular": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "newbie_welcomer": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "nightmare_day": {
-      "event_link": "player_day_games",
-      "event_context": "day_games",
-      "garden_link": "player_day_games",
-      "notes": "All rated games that UTC day (L only, min 5). Link uses achieved_at day-close + player id.",
-      "event_context_label": "Nightmare day \u2014 all losses (5+ rated games that UTC day)"
-    },
     "on_the_scoresheet": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "peace_streak": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "perfect_day": {
-      "event_link": "player_day_games",
-      "event_context": "day_games",
-      "garden_link": "player_day_games",
-      "notes": "All rated games that UTC day (W only, min 5). Link uses achieved_at day-close + player id.",
-      "event_context_label": "Perfect day \u2014 all wins (5+ rated games that UTC day)"
-    },
-    "perfect_storm": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "persistence": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "play_streak_100": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "rampage": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "rare_blank": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "regular_customer": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "ruthless": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "survivor": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "ten_culprits": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "ten_draws": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",
@@ -588,67 +679,7 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "ten_wins": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "ten_wins_straight": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "thousand_goal_club": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "travelling_salesman": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "twenty_five_victims": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "twenty_goal_chaos": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "ultra_day_30": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "united_nations": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "unlucky": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "victim_of_commerce": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "weekly_regular": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",
@@ -660,37 +691,7 @@
       "garden_link": "game",
       "notes": "Single game via source_game_id (ratedresults)."
     },
-    "wide_net": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
     "win_drought": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "win_hat_trick": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "win_streak_30": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "year_in_heaven": {
-      "event_link": "game",
-      "event_context": "match_line",
-      "garden_link": "game",
-      "notes": "Single game via source_game_id (ratedresults)."
-    },
-    "year_round": {
       "event_link": "game",
       "event_context": "match_line",
       "garden_link": "game",

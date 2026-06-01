@@ -43,7 +43,7 @@ We need **one register**, **two axes**, **one PHP resolver family**, multiple **
 
 | Value | Used on | Rendering |
 |-------|---------|-----------|
-| `match_line` | Achievers **detail** (default for `event_link=game`) | Status scoreline for anchor game |
+| `match_line` | Achievers **detail** (default for `event_link=game`) | Status scoreline: **NameA · GoalsA–GoalsB · NameB** (official side order, not unlocker-first) |
 | `league_period` | Achievers detail | Short league period label (+ link) |
 | `day_games` | Achievers detail | One-line day summary (+ Games link) |
 | `lobby_copy` | Achievers detail | “Joined the ladder” (no link) |
@@ -63,7 +63,7 @@ We need **one register**, **two axes**, **one PHP resolver family**, multiple **
 
 **Garden:** `achieved_label · {event link}` — compact.
 
-**Server Recent:** `{player} · {feat link}{rule} · {event link}` — compact.
+**Server Recent:** `{player} · {feat link}{rule} · {event link}` — compact. Tier re-wrap decodes href entities once before `k2_h` (league `&` query params).
 
 **Achievers:** **Event** = what happened (scoreline, league period words, day copy, lobby copy). **Link** = register deep link (`Game` / `League` / `Games`) or `—`.
 
@@ -74,7 +74,8 @@ We need **one register**, **two axes**, **one PHP resolver family**, multiple **
 | Artifact | Role |
 |----------|------|
 | [`data/milestone_garden_links.json`](../data/milestone_garden_links.json) | Machine register (`event_link`, `event_context`, `notes`; `garden_link` mirrors `event_link` for legacy readers) |
-| [`docs/milestones-garden-links.md`](milestones-garden-links.md) | **Generated master table** — Link + Event per key (read this first) |
+| [`docs/milestones-catalog.md`](milestones-catalog.md) | **Generated master table** — tier, rule, Link, Event per key |
+| [`docs/milestones-garden-links.md`](milestones-garden-links.md) | Link + Event index (subset of catalog) |
 | [`scripts/oneoff/build_milestone_garden_links.py`](../scripts/oneoff/build_milestone_garden_links.py) | Regenerate JSON + md from seed + `OVERRIDES` |
 | [`site/public_html/includes/milestone_garden_links.php`](../site/public_html/includes/milestone_garden_links.php) | Load JSON; `k2_milestone_unlock_event_link_html()`; `k2_milestone_unlock_event_context_html()` |
 | [`site/public_html/includes/player_milestones_helpers.php`](../site/public_html/includes/player_milestones_helpers.php) | Garden, Recent query/render, achievers |
@@ -111,31 +112,21 @@ k2_milestone_unlock_event_context_html(int $playerId, array $unlockRow, string $
 
 ---
 
-## Master table (Link + Event per key)
+## Master table
 
-**This is the document you meant:** [`milestones-garden-links.md`](milestones-garden-links.md) — all **112** keys with two human columns:
+**Per-key catalog:** [`milestones-catalog.md`](milestones-catalog.md) — all **112** keys (tier, title, rule, **Link**, **Event**, `rule_probe`).
 
-| Column | Meaning |
-|--------|---------|
-| **Link** | UI link label: Game / League / Games / — |
-| **Event** | What the achievers **Event** column shows (or default behaviour for that family) |
+**Workflows:** [`milestones-README.md`](milestones-README.md).
 
-Machine fields live in `data/milestone_garden_links.json` (`event_link`, `event_context`, optional `event_context_label`). Regenerate both files after edits:
+Regenerate after register edits:
 
 ```text
 python scripts/oneoff/build_milestone_garden_links.py
 ```
 
-**To change one key:** edit `OVERRIDES` in `scripts/oneoff/build_milestone_garden_links.py` (link, context kind, or `event_context_label` prose), run the script, deploy JSON (+ md if you read it on GitHub).
+**To change Link or Event prose:** edit `OVERRIDES` in `scripts/oneoff/build_milestone_garden_links.py`, run the script, deploy `data/milestone_garden_links.json`.
 
-**Not this table:** [`milestones-tier-curated.md`](milestones-tier-curated.md) / [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) = tier planning and brainstorm only.
-
-### Other copy (titles & rules)
-
-| What you see | Where |
-|--------------|--------|
-| Milestone **title** + **rule** on cards / Recent / detail hero | `data/milestones_definitions_seed.json` → `milestone_definitions` |
-| Game **scorelines** in Event | Built from `ratedresults` at read time (not prose in the register) |
+**To change title or rule:** edit `data/milestones_definitions_seed.json`, reload `milestone_definitions`.
 
 ---
 

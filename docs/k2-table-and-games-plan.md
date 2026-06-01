@@ -13,7 +13,7 @@
 | `ranked1`-`ranked5`, `ranked7`, `ranked10`, league honours | `k2-table.js` sort + autorank; `data-k2-anchor-col` for one permanent link-star column per wing; lighter `k2-table-col-sorted` on the active sort column when it differs from the anchor. Optional deep link: `?k2_sort={col}&k2_dir=desc|asc` (Hall of Fame values via `records_hof_links.php`) — applies one client-side sort on init for `ranked-pages-table` only; does not change anchor column. |
 | `ranked8` / `peak_period_leaderboards_section.php` | **Calendar** day/week/month/year: calm-stats, Games anchor (col 3), not sortable; **All time / Longevity**: calm-stats + sort + anchor (Games / Days). |
 | `individual2a/b/c.php` | `k2-table.js` sort; Games default sort indicator. |
-| `server3.php` | 14 day buckets; each day table uses `k2-table.js` on all columns, default Date desc matching SQL order. |
+| `server3.php` | Sub-nav **Recent** \| **Highlights** (`games_hub_nav.php`). **Recent:** 14 day buckets; `k2-table--calm-stats` body ink; each day table uses `k2-table.js` on all columns, default **ID** desc (SQL still Date desc, id desc for fetch). **Highlights:** server-side top 100 per board (`games_highlights_helpers.php`); calm-stats; compact rows via `k2_rated_game_row` `variant=compact`; board segment + `k2-table.js` autorank on bounded table. |
 | `game.php` | Static single-game table with `k2-table.js` header help only; no sorting. |
 | `individual3.php` | Server-side Result/Opponent filters, URL sort links, 100-row slices, shared row renderer; no table JS. |
 | `status.php` | Active LB: sort + Elo anchor; league tables: calm-stats + Pts/Games anchors — **PHP** (`k2_league_table_render.php`) and **JS** (`status-period-competitions.js` inject + `k2TableApplyAnchors`). |
@@ -51,7 +51,7 @@ Tables opt in explicitly:
 
 ## Games Row Contract
 
-`game.php` and `server3.php` share rated-game row rendering through `includes/k2_rated_game_row.php`.
+`game.php`, `server3.php` (Recent), and `server3.php` Highlights share rated-game row rendering through `includes/k2_rated_game_row.php`. Highlights use `variant=compact` (no Elo/adjustment columns; optional **Peak** on one-side board).
 
 Canonical row rules:
 

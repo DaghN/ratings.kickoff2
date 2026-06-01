@@ -13,6 +13,8 @@
 
 **Authority for “is staging DB current?”** [`schema-register.md`](schema-register.md) + [`replay-register.md`](replay-register.md) run log — not contradictory bullets in `PROJECT_MEMORY.md`.
 
+**Catalog size (May 2026):** **112** keys in seed + [`milestones-catalog.md`](../milestones-catalog.md). Older steps below that say **110** are from wave-1 verification before `play_streak_100` / `year_in_heaven`.
+
 ---
 
 ## Part 1 — Dagh: WinSCP upload
@@ -35,8 +37,7 @@ Create remote folder `staging-sql/milestones/` if missing.
 | `scripts/ladder/sql/player_milestones_rebuild_exists.sql` | `staging-sql/milestones/player_milestones_rebuild_exists.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_streaks.sql` | `staging-sql/milestones/player_milestones_rebuild_streaks.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_chrono.sql` | `staging-sql/milestones/player_milestones_rebuild_chrono.sql` |
-
-**Day-close fix (May 2026):** `perfect_day` / `nightmare_day` `achieved_at` = `00:00:00` UTC day after qualifying day. After uploading chrono SQL, run on staging DB: `python scripts/oneoff/apply_day_milestone_achieved_at_fix.py` (from repo root on dev) or delete those two keys and re-splice chrono wave from updated SQL.
+| `scripts/ladder/sql/player_milestones_fix_day_close.sql` | `staging-sql/milestones/player_milestones_fix_day_close.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_tail.sql` | `staging-sql/milestones/player_milestones_rebuild_tail.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_period.sql` | `staging-sql/milestones/player_milestones_rebuild_period.sql` |
 | `scripts/ladder/sql/player_milestones_rebuild_giant_slayer.sql` | `staging-sql/milestones/player_milestones_rebuild_giant_slayer.sql` |
@@ -184,6 +185,8 @@ Base URL: staging site root (same host as today’s staging ratings).
 | `individual1.php?id=537` | Profile glance **100/110** |
 | `server2.php` | “Milestone achievers” DD Merchant list (not single-holder records) |
 | `milestones.php` | Hub stub + nav tab |
+| `milestones.php` (Recent) | Perfect/Nightmare unlock times show **`00:00` UTC** (not last-game evening) — after § Day-close DB fix |
+| `individual_milestones.php?id=<player>` | Perfect/Nightmare garden link label **Games** → `individual3.php?id=&day=` (qualifying UTC day = calendar day before `achieved_at`) |
 
 If counts match but a page errors, paste PHP error / screenshot to agent — likely a missing WinSCP file from § C.
 
@@ -198,6 +201,48 @@ If counts match but a page errors, paste PHP error / screenshot to agent — lik
 **Your remaining checks:** Part 3 browser smoke on staging after WinSCP PHP (if not done).
 
 **Prod:** not in this packet — post-game C++ M1–M7 per contract later.
+
+---
+
+## Day-close fix — `perfect_day` / `nightmare_day` (Jun 2026)
+
+**Semantics:** `achieved_at` = **`00:00:00` UTC on the calendar day after** the qualifying UTC day (not the last game time that evening). **`source_game_id`** stays the last rated game that day (evidence only). Garden link kind: **`player_day_games`** → `individual3.php?id=&day=` (qualifying day derived from `achieved_at`). Contract: [`website-data-contract.md`](../website-data-contract.md) · register: [`milestones-unlock-event-ui.md`](../milestones-unlock-event-ui.md).
+
+**Generate SQL (dev):** `python scripts/oneoff/apply_day_milestone_achieved_at_fix.py` → `scripts/ladder/sql/player_milestones_fix_day_close.sql` (113 INSERTs). Upload per § A table.
+
+### Steve — apply + verify (from `public_html`)
+
+**Preflight** — if newest `nightmare_day` times look like evening hours, run step 2.
+
+```bash
+mysql -u MYSQL_USER -p kooldb < staging-sql/milestones/player_milestones_fix_day_close.sql
+```
+
+**Verify (paste output to Dagh):**
+
+```bash
+mysql -u MYSQL_USER -p kooldb -e "
+SELECT COUNT(*) AS perfect_nightmare_after
+FROM player_milestones
+WHERE milestone_key IN ('perfect_day', 'nightmare_day');
+SELECT milestone_key, achieved_at, source_game_id
+FROM player_milestones
+WHERE milestone_key IN ('perfect_day', 'nightmare_day')
+ORDER BY achieved_at DESC
+LIMIT 5;
+SELECT COUNT(*) AS total_milestone_rows FROM player_milestones;
+SELECT TIME(achieved_at) AS t, COUNT(*) AS n
+FROM player_milestones
+WHERE milestone_key IN ('perfect_day', 'nightmare_day')
+GROUP BY TIME(achieved_at)
+ORDER BY n DESC
+LIMIT 5;
+"
+```
+
+**Expected:** `perfect_nightmare_after` = **113**; samples `00:00:00`; total rows ≈ **6615+** (grows with new unlocks); TIME group only **`00:00:00`**.
+
+**Staging verified (Jun 2026):** Steve SQL — **113** / **113** midnight; total **6620**; newest sample `nightmare_day` **2026-04-22 00:00:00** game **74055**. Dagh browser smoke **done** — `milestones.php` Recent `00:00` UTC; `individual_milestones.php` Perfect/Nightmare **Games** → `individual3.php?day=` OK.
 
 ---
 

@@ -20,7 +20,7 @@
 2. For each row, note your `tier_band` in a scratch column or on the catalog.
 3. Use **%vet** (vs **107** veterans) for tier design; **%≥1g** includes tryouts; **Band** is a probe hint only — flavor and tier caps override.
 4. See **Duplicates & overlaps** before locking Keystone picks.
-5. **Curated tiers (authoritative):** [`milestones-tier-curated.md`](milestones-tier-curated.md). Probe palettes below are for counts only.
+5. **Curated tiers (authoritative):** [`milestones-catalog.md`](milestones-catalog.md). Probe palettes below are for counts only.
 
 **Counts (deduped):** **~111** keys in tables (`top_ten_sweep` discarded).
 

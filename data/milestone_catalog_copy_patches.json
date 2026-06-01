@@ -1,6 +1,6 @@
 {
   "version": "2026-05-copy-pass-1",
-  "notes": "Catalog display_name / rule_short only. Apply: python scripts/oneoff/apply_milestone_catalog_copy_patch.py. Staging: php staging-scripts/patch_milestone_catalog_copy.php",
+  "notes": "Catalog display_name / rule_short only. Start: docs/milestones-README.md § Rule copy. Apply: python scripts/oneoff/apply_milestone_catalog_copy_patch.py then build_milestone_garden_links.py. Staging: php staging-scripts/patch_milestone_catalog_copy.php",
   "patches": [
     {
       "milestone_key": "play_streak_100",
@@ -105,6 +105,14 @@
     {
       "milestone_key": "hat_trick",
       "rule_short": "3+ goals in one game"
+    },
+    {
+      "milestone_key": "five_goal_frenzy",
+      "rule_short": "5+ goals in one game"
+    },
+    {
+      "milestone_key": "daily_habit",
+      "rule_short": "Rated game every day Monday to Sunday"
     }
   ]
 }

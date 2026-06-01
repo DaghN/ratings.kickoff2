@@ -167,10 +167,14 @@ function k2_render_peak_longevity_panel(array $panel): void
 }
 ?>
 <div class="server-peak-period-leaderboards" data-k2-activity-mode="period">
-	<nav class="server-peak-period-mode" aria-label="Activity view">
-		<button type="button" class="server-peak-period-mode__btn is-active" data-k2-activity-target="period" aria-pressed="true">Calendar</button>
-		<button type="button" class="server-peak-period-mode__btn" data-k2-activity-target="all-time" aria-pressed="false">All time</button>
-	</nav>
+	<div class="server-peak-period-leaderboards__subnav">
+		<nav class="server-peak-period-leaderboards__bar-wrap" aria-label="Activity view">
+			<div class="k2-chrome-tabs__bar server-peak-period-leaderboards__bar" role="tablist">
+				<button type="button" class="k2-chrome-tabs__tab is-active" data-k2-activity-target="period" aria-pressed="true" role="tab">Calendar</button>
+				<button type="button" class="k2-chrome-tabs__tab" data-k2-activity-target="all-time" aria-pressed="false" role="tab">All time</button>
+			</div>
+		</nav>
+	</div>
 	<div class="server-peak-period-leaderboards__panel" data-k2-activity-panel="period">
 		<div class="server-peak-period-leaderboards__grid server-peak-period-leaderboards__grid--period">
 <?php foreach ($k2PeakPeriodPanels as $period) { k2_render_peak_period_panel($period, $k2PeakPanels[$period], false); } ?>

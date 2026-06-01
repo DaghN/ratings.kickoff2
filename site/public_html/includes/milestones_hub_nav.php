@@ -1,7 +1,7 @@
 <?php
 /**
  * Milestones hub sub-navigation — Recent · Catalog.
- * Set $k2MsHubView before include: recent | catalog
+ * Set $k2MsHubView before include: recent | catalog | null | '' (detail — neither active).
  */
 $k2MsHubView = $k2MsHubView ?? 'recent';
 $k2MsHubTabs = [
@@ -11,9 +11,11 @@ $k2MsHubTabs = [
 ?>
 <div class="k2-chrome-tabs k2-ms-hub-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Milestones hub">
-<?php foreach ($k2MsHubTabs as $id => $tab) { ?>
+<?php foreach ($k2MsHubTabs as $id => $tab) {
+	$isActive = $k2MsHubView !== null && $k2MsHubView !== '' && $k2MsHubView === $id;
+	?>
 		<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>"
-			class="k2-chrome-tabs__tab<?php echo $k2MsHubView === $id ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
+			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
 <?php } ?>
 	</nav>
 </div>

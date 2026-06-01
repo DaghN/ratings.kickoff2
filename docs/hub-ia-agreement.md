@@ -28,7 +28,7 @@ Routing:
 | Hall of Fame | `server2.php` |
 | Play & Setup | `join.php` |
 
-**Not a hub tab:** **Games** / full match log — `server3.php`. Primary entry: Status recent games panel → **Games →**. Direct URL and player **Games** pill unchanged.
+**Not a hub tab:** **Games** — `server3.php`. Sub-nav (Milestones-style): **Recent** (14-day rated ledger, default) · **Highlights** (`?view=highlights`, all-time top-100 spectacle boards among matches — biggest wins, most goals, biggest draws, one-side peak; not Hall of Fame single-holder records). Primary entry: Status recent games panel → **Games →**. Direct URL and player **Games** pill (`individual3.php`) unchanged.
 
 Direct legacy URLs remain valid. The hub is page navigation, not a client-side SPA.
 
@@ -134,7 +134,7 @@ Notes:
 | Surface | Contract |
 |---------|----------|
 | Activity | `server1.php` — server pulse: key sentence, fact cards, games/opponents line, charts (includes milestone digest/charts until migrated). |
-| Match log | `server3.php` — rated-game ledger; 14 day buckets; **not** a hub tab. |
+| Match log | `server3.php` — **Recent** (14 day buckets) + **Highlights** (top matches by board); **not** a hub tab. |
 | Hall of Fame | `server2.php` — single-holder record extremes only (milestone achievers trial migrates later). |
 
 Do not merge these page bodies into Status unless Dagh explicitly changes the hub strategy.

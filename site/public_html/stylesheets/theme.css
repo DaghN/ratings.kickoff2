@@ -79,6 +79,9 @@ html {
 	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
 	--k2-table-positive: color-mix(in srgb, var(--k2-stat-positive-base) 78%, var(--k2-text-primary));
 	--k2-table-negative: color-mix(in srgb, var(--k2-stat-negative-base) 78%, var(--k2-text-primary));
+	/* Drag-select highlight — overrides OS/browser default (e.g. Windows blue) */
+	--k2-text-selection-bg: color-mix(in srgb, var(--k2-accent) 42%, var(--k2-bg-elevated));
+	--k2-text-selection-color: var(--k2-text-primary);
 }
 
 html[data-k2-accent="amber"] {
@@ -128,6 +131,16 @@ body.k2-site {
 	background-color: var(--k2-bg-page);
 }
 
+body.k2-site ::selection {
+	background-color: var(--k2-text-selection-bg);
+	color: var(--k2-text-selection-color);
+}
+
+body.k2-site ::-moz-selection {
+	background-color: var(--k2-text-selection-bg);
+	color: var(--k2-text-selection-color);
+}
+
 body.k2-site a {
 	color: var(--k2-link);
 	font-weight: 500;
@@ -141,6 +154,21 @@ body.k2-site a:hover {
 
 body.k2-site h1 {
 	color: var(--k2-text-primary);
+}
+
+/* Hub page lede — muted 13px (catalog, HoF notes, etc.) */
+body.k2-site .k2-hub-page-intro-head {
+	margin-bottom: 22px;
+}
+
+body.k2-site .k2-hub-page-intro {
+	margin: 0;
+	font-family: var(--k2-font-body);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+	max-width: 44rem;
 }
 
 /* ── Site header ── */
@@ -538,6 +566,84 @@ html[data-realm="amiga"] .k2-realm-switch__btn[data-realm="amiga"]:hover,
 	margin: 0 auto;
 }
 
+body.k2-site .k2-games-hub {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+body.k2-site .k2-games-hub-tabs {
+	margin-bottom: 16px;
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-games-hub-tabs .k2-chrome-tabs__bar {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-games-highlights-cluster {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	width: 100%;
+}
+
+body.k2-site .k2-games-highlights-board-filter {
+	margin-bottom: 12px;
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-games-highlights-board-filter__bar {
+	width: fit-content;
+	max-width: 100%;
+	flex-wrap: wrap;
+}
+
+body.k2-site .k2-games-highlights {
+	width: 100%;
+	margin-bottom: 24px;
+}
+
+body.k2-site .k2-games-highlights .k2-panel-heading {
+	margin-bottom: 8px;
+}
+
+/* Highlights table — not ranked-pages-table (col 2 there is min 9.1em for player names). */
+body.k2-site .k2-games-highlights .k2-table.k2-games-highlights-table {
+	width: auto;
+	max-width: 100%;
+	table-layout: auto;
+}
+
+body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(1),
+body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(1) {
+	width: 2.5em;
+	min-width: 2.5em;
+}
+
+body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(2),
+body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(2),
+body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td.k2-games-highlights-table__id {
+	width: 1%;
+	white-space: nowrap;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(5),
+body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(5),
+body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(6),
+body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(6),
+body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(8),
+body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(8),
+body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(9),
+body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(9) {
+	width: 1%;
+	white-space: nowrap;
+}
+
 body.k2-site .k2-games-list {
 	max-width: 1200px;
 	margin: 0 auto;
@@ -552,7 +658,11 @@ body.k2-site .k2-games-day__heading.k2-panel-heading {
 }
 
 body.k2-site .k2-games-day__empty {
-	color: var(--k2-text-muted);
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty {
+	color: var(--k2-text-secondary);
 }
 
 /* ── Chart blocks on server / profile pages ── */
@@ -821,46 +931,24 @@ body.k2-site .server-period-activity-leaderboard-status {
 }
 
 /* Busiest day / month / year / all-time Activity tables (ranked8) */
-body.k2-site .server-peak-period-mode {
-	display: inline-flex;
-	gap: 2px;
-	padding: 4px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
-	margin: 12px 0;
+body.k2-site .server-peak-period-leaderboards__subnav {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	margin-bottom: 12px;
+	width: fit-content;
+	max-width: 100%;
 }
 
-body.k2-site .server-peak-period-mode__btn {
-	margin: 0;
-	padding: 6px 14px;
-	border: 1px solid transparent;
-	border-radius: calc(var(--k2-radius-md) - 2px);
-	background: transparent;
-	color: var(--k2-text-muted);
-	font-family: var(--k2-font-display);
-	font-size: 13px;
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	cursor: pointer;
-	transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+body.k2-site .server-peak-period-leaderboards__bar-wrap {
+	width: fit-content;
+	max-width: 100%;
 }
 
-body.k2-site .server-peak-period-mode__btn:hover:not(.is-active) {
-	color: var(--k2-text-secondary);
-	background: var(--k2-bg-hover);
-}
-
-body.k2-site .server-peak-period-mode__btn.is-active {
-	color: var(--k2-segment-active-text);
-	background: transparent;
-	border-color: var(--k2-segment-active-ring);
-	box-shadow: none;
-}
-
-body.k2-site .server-peak-period-mode__btn.is-active:hover {
-	color: var(--k2-segment-active-text);
-	background: transparent;
+body.k2-site .server-peak-period-leaderboards__bar {
+	width: fit-content;
+	max-width: 100%;
 }
 
 body.k2-site .server-peak-period-leaderboards__panel[hidden] {
@@ -942,7 +1030,13 @@ body.k2-site .server-records-table {
 	width: auto;
 }
 
-.k2-chrome-tabs__bar + .server-peak-period-leaderboards {
+/* HoF: row labels + date/period column — muted (values/holders stay primary / link-star) */
+body.k2-site .k2-table.server-records-table tbody td:first-child,
+body.k2-site .k2-table.server-records-table tbody td:nth-child(4) {
+	color: var(--k2-text-muted);
+}
+
+.k2-chrome-tabs > .server-peak-period-leaderboards {
 	margin-top: 12px;
 }
 
@@ -1018,7 +1112,7 @@ body.k2-site .server-period-activity-leaderboard__input {
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-sm);
 	background: var(--k2-bg-surface);
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 	font-size: 0.9em;
 }
 
@@ -1268,10 +1362,34 @@ body.k2-site .k2-table tbody td.k2-table-col-sorted {
 	font-weight: 600;
 }
 
-/* Calm leaderboards: neutral body; active sort (non-anchor) = weight only, not accent */
+/* Hub leaderboards + Activity peaks (ranked8): secondary body cells; anchor + active sort pop */
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td,
+body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td,
+body.k2-site .k2-table.k2-status-table.k2-table--calm-stats tbody td:not(.k2-table-anchor-cell):not(.k2-table-col-sorted) {
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .blue,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .red,
+body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td.k2-table-anchor-cell,
+body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td.k2-table-anchor-cell .blue,
+body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td.k2-table-anchor-cell .red {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
+/* Calm leaderboards: active sort (non-anchor) = primary + 600 */
 body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-table-col-sorted {
 	color: var(--k2-text-primary);
 	font-weight: 600;
+}
+
+/* Colspan empty-state rows (e.g. server3 “no games”) — stay calm secondary even when sort col is 0 */
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty,
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty.k2-table-col-sorted {
+	color: var(--k2-text-secondary);
+	font-weight: inherit;
 }
 
 /* Status league tables: anchor = cross-tint link-star weight, not current --k2-accent */
@@ -1574,22 +1692,14 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	box-shadow: var(--k2-shadow-surface);
 }
 
-.k2-player-hero::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 4px;
-	background: linear-gradient(90deg, var(--k2-accent), transparent 70%);
-	opacity: 0.65;
-}
-
 .k2-player-hero__inner {
+	--k2-player-hero-avatar-air: 32px;
 	display: grid;
 	grid-template-columns: auto 1fr;
-	gap: 20px;
+	column-gap: var(--k2-player-hero-avatar-air);
+	row-gap: 20px;
 	padding: 20px;
+	padding-left: var(--k2-player-hero-avatar-air);
 }
 
 .k2-player-hero__avatar {
@@ -1600,7 +1710,7 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	height: 80px;
 	border: 2px solid var(--k2-accent);
 	border-radius: 50%;
-	background: linear-gradient(145deg, var(--k2-bg-elevated), var(--k2-bg-hover));
+	background: var(--k2-bg-surface);
 	color: var(--k2-accent);
 	font-family: var(--k2-font-display);
 	font-size: 28px;
@@ -1660,7 +1770,7 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 .k2-player-hero__stat--milestones {
-	min-width: 7.5rem;
+	min-width: 0;
 }
 
 .k2-player-hero__stat-value--milestones {
@@ -1680,27 +1790,13 @@ body.k2-site a.k2-player-hero__milestones:hover {
 	text-decoration: none;
 }
 
-body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-total,
-body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-sep {
+body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-total {
 	color: var(--k2-link);
 }
 
-.k2-player-hero__milestones-row {
-	display: inline-flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 6px 8px;
-}
-
-.k2-player-hero__milestones-sep,
 .k2-player-hero__milestones-total {
 	color: var(--k2-text-primary);
 }
-
-.k2-player-hero__milestones-tier--pitch { color: var(--k2-pure-pitch); }
-.k2-player-hero__milestones-tier--chrome { color: var(--k2-pure-chrome); }
-.k2-player-hero__milestones-tier--amber { color: var(--k2-pure-amber); }
-.k2-player-hero__milestones-tier--holo { color: var(--k2-ms-holo); }
 
 /* Rank + rating glow: stylesheets/player-hero-rank.css (via k2_head.php) */
 
@@ -1829,9 +1925,9 @@ body.k2-site a.k2-player-hero__milestones:hover .k2-player-hero__milestones-sep 
 
 .k2-join-page__lede {
 	margin: 0 0 18px;
-	font-size: 15px;
+	font-size: 14px;
 	line-height: 1.55;
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 }
 
 .k2-join-page__actions,
@@ -1892,7 +1988,7 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	margin: 0 0 12px;
 	font-size: 14px;
 	line-height: 1.55;
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 }
 
 .k2-join-page__prose:last-child {
@@ -1909,7 +2005,7 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	padding-left: 1.25rem;
 	font-size: 14px;
 	line-height: 1.55;
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 }
 
 .k2-join-page__steps li {
@@ -1925,6 +2021,7 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	padding-left: 1.25rem;
 	font-size: 14px;
 	line-height: 1.5;
+	color: var(--k2-text-secondary);
 }
 
 .k2-join-page__link-list li {
@@ -2410,12 +2507,24 @@ body.k2-site a.k2-status-period-competitions__period-btn.is-active {
 	margin-top: 12px;
 }
 
-.k2-lb-league-honours.k2-status-period-competitions {
-	margin-bottom: 0;
+body.k2-site .k2-lb-league-honours__subnav {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	margin-bottom: 12px;
+	width: fit-content;
+	max-width: 100%;
 }
 
-.k2-lb-league-honours .k2-status-period-competitions__controls {
-	margin-bottom: 12px;
+body.k2-site .k2-lb-league-honours__bar-wrap {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-lb-league-honours__bar {
+	width: fit-content;
+	max-width: 100%;
 }
 
 .k2-lb-league-honours > .k2-table-wrap {
@@ -2864,8 +2973,8 @@ body.k2-site .flatpickr-current-month {
 
 body.k2-site .flatpickr-months .flatpickr-month,
 body.k2-site .flatpickr-current-month {
-	color: var(--k2-text-primary);
-	fill: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
+	fill: var(--k2-text-secondary);
 }
 
 body.k2-site .flatpickr-current-month .numInputWrapper.k2-flatpickr-year-stepper--hidden {
@@ -2922,7 +3031,7 @@ body.k2-site span.flatpickr-weekday {
 }
 
 body.k2-site .flatpickr-day {
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 	border-color: transparent;
 }
 
@@ -2930,7 +3039,7 @@ body.k2-site .flatpickr-day:hover,
 body.k2-site .flatpickr-day:focus {
 	background: var(--k2-bg-hover);
 	border-color: transparent;
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 }
 
 body.k2-site .flatpickr-day.today {
@@ -2940,7 +3049,7 @@ body.k2-site .flatpickr-day.today {
 body.k2-site .flatpickr-day.today:hover,
 body.k2-site .flatpickr-day.today:focus {
 	background: var(--k2-bg-hover);
-	color: var(--k2-text-primary);
+	color: var(--k2-text-secondary);
 }
 
 body.k2-site .flatpickr-day.selected,
@@ -2978,8 +3087,8 @@ body.k2-site .flatpickr-months .flatpickr-next-month {
 
 body.k2-site .flatpickr-months .flatpickr-prev-month:hover,
 body.k2-site .flatpickr-months .flatpickr-next-month:hover {
-	color: var(--k2-text-primary);
-	fill: var(--k2-text-primary);
+	color: color-mix(in srgb, var(--k2-text-secondary) 70%, var(--k2-text-primary));
+	fill: color-mix(in srgb, var(--k2-text-secondary) 70%, var(--k2-text-primary));
 }
 
 body.k2-site .flatpickr-months .flatpickr-prev-month svg,
@@ -3492,7 +3601,8 @@ body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	background: var(--k2-bg-surface);
 }
 
-body.k2-site a.k2-chrome-tabs__tab {
+body.k2-site a.k2-chrome-tabs__tab,
+body.k2-site button.k2-chrome-tabs__tab {
 	position: relative;
 	display: inline-block;
 	margin: 0;
@@ -3509,24 +3619,32 @@ body.k2-site a.k2-chrome-tabs__tab {
 	transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
+body.k2-site button.k2-chrome-tabs__tab {
+	-webkit-appearance: none;
+	appearance: none;
+}
+
 body.k2-site a.k2-chrome-tabs__tab:visited {
 	color: var(--k2-text-muted);
 }
 
-body.k2-site a.k2-chrome-tabs__tab:hover:not(.is-active) {
+body.k2-site a.k2-chrome-tabs__tab:hover:not(.is-active),
+body.k2-site button.k2-chrome-tabs__tab:hover:not(.is-active) {
 	color: var(--k2-text-secondary);
 	text-decoration: none;
 }
 
 body.k2-site a.k2-chrome-tabs__tab.is-active,
-body.k2-site a.k2-chrome-tabs__tab.is-active:visited {
+body.k2-site a.k2-chrome-tabs__tab.is-active:visited,
+body.k2-site button.k2-chrome-tabs__tab.is-active {
 	color: var(--k2-segment-active-text);
 	background: transparent;
 	border-color: var(--k2-segment-active-ring);
 	box-shadow: none;
 }
 
-body.k2-site a.k2-chrome-tabs__tab.is-active:hover {
+body.k2-site a.k2-chrome-tabs__tab.is-active:hover,
+body.k2-site button.k2-chrome-tabs__tab.is-active:hover {
 	color: var(--k2-segment-active-text);
 	background: transparent;
 	text-decoration: none;

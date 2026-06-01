@@ -154,14 +154,20 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 |-------|------|
 | Body/table data | `--k2-text-primary`, normal weight |
 | Muted helpers/headings | `--k2-text-muted` |
+| Hub page lede (`.k2-hub-page-intro` in `.k2-hub-page-intro-head`) | 13px `--k2-text-muted`, max-width 44rem — Milestones catalog + HoF footnotes above tables; optional `.blue` / `.holo` |
+| Status-style tickers (arc line) | `--k2-text-muted`; key counts `.blue` |
+| Onboarding / long explanatory prose (Play & setup) | `--k2-text-secondary` (14px); page title stays `--k2-text-primary` |
 | Player names / dense table links | `a.k2-link-star`, weight 600; hover/focus underline |
 | Prose/footer links | `--k2-link` |
-| Positive/negative table stats | `.blue` / `.red` on profile/games rows, Status ticker/meta, record **dates** (`(New!)` / `(Legendary)` on `server2.php`); **not** on calm leaderboard/records value cells (`k2-table--calm-stats`) |
+| Positive/negative table stats | `.blue` / `.red` on profile/games rows, Status ticker/meta, record **date markers** (`(New!)` / `(Legendary)` on `server2.php`); **not** on calm leaderboard value cells |
+| HoF record row label + date column | `server-records-table` col 1 + 4 → `--k2-text-muted`; value (anchor) + holder unchanged |
+| Hub `ranked-pages-table`, Activity peaks, Status `k2-status-table` calm body cells | default `--k2-text-secondary`; anchor → link-star or league-anchor-ink; `k2-table-col-sorted` → primary 600 |
 | Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` → `--k2-link-star`, weight 600; permanent. Peak on Rating wing; Elo anchor on Results + Status active board only. |
 | Status **league** anchors (Pts / Games) | `k2-table--league-anchor-cross` → `--k2-league-anchor-ink` (85% pure + primary, same recipe as link-star): **chrome** when tint is amber or pitch; **pitch** when tint is chrome or holo — not `--k2-accent`. |
 | Calm LB active sort (not anchor) | `k2-table--calm-stats` + `k2-table-col-sorted` → `--k2-text-primary`, weight 600 (tunable; avoids faux link-star) |
 | Other sortable tables (non-calm) | `k2-table-col-sorted` → `--k2-segment-active-text`, weight 600 |
 | **Listbox / archive picker** (`.k2-archive-listbox`) | Closed: `--k2-text-secondary`, weight 500; hover/open/selected: subtle `color-mix` toward primary (not full primary); selection via background — **not** `--k2-segment-active-text`; trigger width locked to longest option label (JS measure probe); Leagues picker row uses max width across day/week/month/year so tab change does not shift step nav |
+| **Flatpickr (Leagues day)** | Day cells + month chrome: `--k2-text-secondary`; weekdays/disabled: muted; selected day: accent fill |
 | **Leagues meta ticker** | Plain **League** + `<span class="blue">` period label; end dates use full month names (`F j` UTC) |
 
 Do not add one-off hex in page CSS when a token exists.
@@ -176,6 +182,7 @@ Do not add one-off hex in page CSS when a token exists.
 | Numbers | tabular numbers or IBM Plex Mono where useful |
 | Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
+| Text selection (drag highlight) | `::selection` on `body.k2-site` — `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
 
 Never use pixel/bitmap fonts for readable data.
 

@@ -204,6 +204,7 @@
         opponentFocusBorder: function () { return this.chrome(); },
         opponentFocusFill: function (alpha) { return this.fill(this.chrome(), alpha == null ? 0.12 : alpha); },
         textPrimary: function () { return cssVar('--k2-text-primary', '#d0d7de'); },
+        textSecondary: function () { return cssVar('--k2-text-secondary', '#a8b3bf'); },
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },
         grid: function () { return 'rgba(255, 255, 255, 0.08)'; },
         softGrid: function () { return 'rgba(255, 255, 255, 0.045)'; },

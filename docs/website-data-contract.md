@@ -517,7 +517,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 | Chronological | 16 keys | `gen_milestone_chrono_sql.py` → `player_milestones_rebuild_chrono.sql` (first cross; `peace_streak` in streaks batch) |
 | Tail playertable + matchup | 30 keys | `gen_milestone_tail_sql.py` → `player_milestones_rebuild_tail.sql` (first cross; `diversity_merchant` = per-game DD vs 5 opponents) |
 
-**Full rebuild:** `scripts/ladder/sql/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **110** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL).
+**Full rebuild:** `scripts/ladder/sql/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **112** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL). Per-key catalog: [`milestones-catalog.md`](milestones-catalog.md).
 
 **Schema:** SCH-011 (`milestone_definitions`), SCH-012 + SCH-013 (`player_milestones` + `source_kind` including `lobby`).
 
@@ -625,7 +625,7 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 |-----|-------------------|
 | `newbie_welcomer` | Opponent was in someone’s **debut** rated game |
 | `generous` | Opponent conceded 2+ in someone’s debut game |
-| `perfect_day` / `nightmare_day` | End of UTC day: ≥5 games that day, all W / all L. **`achieved_at`** = `00:00:00` UTC on the **calendar day after** the qualifying day (day-close / end-of-day job). **`source_game_id`** = last rated game that qualifying day (evidence anchor only). Garden link: [`milestones-garden-links.md`](milestones-garden-links.md) `player_day_games`. |
+| `perfect_day` / `nightmare_day` | End of UTC day: ≥5 games that day, all W / all L. **`achieved_at`** = `00:00:00` UTC on the **calendar day after** the qualifying day (day-close / end-of-day job). **`source_game_id`** = last rated game that qualifying day (evidence anchor only). Garden link: [`milestones-catalog.md`](milestones-catalog.md) · `player_day_games`. |
 | `merchant_streak` / `minimalist_merchant` | 5 consecutive games with 10+ goals / 3 consecutive exact 10-goal games |
 | `peace_streak` / `united_nations` | 3 / 5 consecutive draws |
 | `knife_edge` / `unlucky` | 5 consecutive 1-goal margin wins / losses |
@@ -978,7 +978,7 @@ All six values must match.
 
 Additional checks:
 
-- `player_milestones`: `COUNT(DISTINCT milestone_key) = 110`; `source_kind IS NULL` count = 0; `established_20` count = `playertable` with `NumberGames >= 20`; `giant_slayer` count = **31** (active #1 rule — see § `giant_slayer`).
+- `player_milestones`: `COUNT(DISTINCT milestone_key) = 112`; `source_kind IS NULL` count = 0; `established_20` count = `playertable` with `NumberGames >= 20`; `giant_slayer` count = **31** (active #1 rule — see § `giant_slayer`).
 - `python scripts/oneoff/milestone_v0_sanity_check.py` — PHP read helpers match SQL (local).
 - Recent `server_period_matchups` month counts equal raw UTC `COUNT(DISTINCT pair)` by month.
 - Key APIs keep their JSON shape while reading stored truth.

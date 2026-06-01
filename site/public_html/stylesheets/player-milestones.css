@@ -20,6 +20,16 @@
 	gap: 12px;
 }
 
+/* Catalog-style lift on hover (whole card; title link focus counts) */
+.k2-ms-garden__grid .k2-ms-card {
+	transition: transform 0.08s ease-out;
+}
+
+.k2-ms-garden__grid .k2-ms-card:hover,
+.k2-ms-garden__grid .k2-ms-card:focus-within {
+	transform: translateY(-2px);
+}
+
 .k2-ms-card {
 	margin: 0;
 	padding: 14px 16px;
@@ -71,6 +81,7 @@
 
 body.k2-site a.k2-ms-card__title-link {
 	color: inherit;
+	font-weight: 600;
 	text-decoration: none;
 	text-shadow: inherit;
 }
@@ -83,10 +94,6 @@ body.k2-site a.k2-ms-card__title-link--locked:hover {
 
 body.k2-site .k2-ms-card.is-unlocked a.k2-ms-card__title-link:hover {
 	text-decoration: underline;
-}
-
-.k2-ms-card.is-unlocked .k2-ms-card__when a {
-	color: var(--k2-link-star);
 }
 
 .k2-ms-card--pitch { --k2-ms-accent: var(--k2-pure-pitch); }
@@ -161,109 +168,183 @@ body.k2-site .k2-ms-card.is-unlocked a.k2-ms-card__title-link:hover {
 	padding: 4px 0 48px;
 }
 
+/* Shrink-wrap segment track — do not stretch to page width */
 .k2-ms-hub-tabs {
 	margin-bottom: 16px;
+	width: fit-content;
+	max-width: 100%;
 }
 
-.k2-ms-hub-page-head {
-	margin-bottom: 22px;
-}
-
-.k2-ms-hub-page-head__lede {
-	margin: 0 0 10px;
-	font-size: 15px;
-	line-height: 1.55;
-	color: var(--k2-text-primary);
-	max-width: 44rem;
-}
-
-.k2-ms-hub-page-head__links {
-	margin: 0;
+.k2-ms-hub-tabs .k2-chrome-tabs__bar {
+	width: fit-content;
+	max-width: 100%;
 }
 
 .k2-ms-hub-placeholder {
 	padding: 8px 0 32px;
 }
 
-/* Recent feed — tier filter + list (type inherits body.k2-site 14px / 1.5) */
-.k2-ms-recent-filter {
-	margin: 0 0 14px;
+/* Recent feed — full hub width cap; grid scrolls inside list block if needed */
+.k2-ms-recent-feed {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	width: 100%;
+	max-width: 100%;
+	font-size: 13px;
+	line-height: 1.45;
 }
 
-.k2-ms-recent-filter__link {
-	color: var(--k2-text-muted);
-	text-decoration: none;
+/* Shrink-wrap table width; filter centred inside this box, cluster left on page */
+.k2-ms-recent-cluster {
+	width: fit-content;
+	max-width: 100%;
 }
 
-.k2-ms-recent-filter__link:hover,
-.k2-ms-recent-filter__link:focus-visible {
-	text-decoration: underline;
+/* Tier filter — chrome segment track; tier ink on labels (not hub tint) */
+.k2-ms-recent-tier-filter {
+	width: 100%;
+	margin: 0 0 18px;
+	display: flex;
+	justify-content: center;
 }
 
-.k2-ms-recent-filter__link.is-active {
+.k2-ms-recent-tier-filter__bar {
+	width: auto;
+	max-width: 100%;
+	justify-content: center;
+	padding: 3px;
+	gap: 3px;
+}
+
+body.k2-site a.k2-ms-recent-tier-filter__tab {
+	padding: 6px 11px;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+body.k2-site a.k2-ms-recent-tier-filter__tab.is-active {
 	font-weight: 600;
-	text-decoration: none;
 }
 
-body.k2-site .k2-ms-recent-filter__link--all,
-body.k2-site .k2-ms-recent-filter__link--all:visited {
+/* All — muted always; active = neutral segment chrome only */
+body.k2-site a.k2-ms-recent-tier-filter__tab--all,
+body.k2-site a.k2-ms-recent-tier-filter__tab--all:visited {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site a.k2-ms-recent-tier-filter__tab--all:hover:not(.is-active),
+body.k2-site a.k2-ms-recent-tier-filter__tab--all:focus-visible:not(.is-active) {
 	color: var(--k2-text-secondary);
 }
 
-body.k2-site .k2-ms-recent-filter__link--all.is-active,
-body.k2-site .k2-ms-recent-filter__link--all.is-active:visited {
-	color: var(--k2-text-primary);
+body.k2-site a.k2-ms-recent-tier-filter__tab--all.is-active,
+body.k2-site a.k2-ms-recent-tier-filter__tab--all.is-active:visited {
+	color: var(--k2-text-secondary);
+	background: var(--k2-bg-elevated);
+	border-color: var(--k2-border-strong);
+	box-shadow: none;
 }
 
-body.k2-site .k2-ms-recent-filter__link--all:hover,
-body.k2-site .k2-ms-recent-filter__link--all:focus-visible {
-	color: var(--k2-text-primary);
-	text-decoration: underline;
-}
-
-body.k2-site .k2-ms-recent-filter__link--pitch,
-body.k2-site .k2-ms-recent-filter__link--pitch:visited {
+/* Tier labels — milestone hues; active = subtle tier fill + ring */
+body.k2-site a.k2-ms-recent-tier-filter__tab--pitch,
+body.k2-site a.k2-ms-recent-tier-filter__tab--pitch:visited {
 	color: var(--k2-pure-pitch);
 }
 
-body.k2-site .k2-ms-recent-filter__link--chrome,
-body.k2-site .k2-ms-recent-filter__link--chrome:visited {
+body.k2-site a.k2-ms-recent-tier-filter__tab--chrome,
+body.k2-site a.k2-ms-recent-tier-filter__tab--chrome:visited {
 	color: var(--k2-pure-chrome);
 }
 
-body.k2-site .k2-ms-recent-filter__link--amber,
-body.k2-site .k2-ms-recent-filter__link--amber:visited {
+body.k2-site a.k2-ms-recent-tier-filter__tab--amber,
+body.k2-site a.k2-ms-recent-tier-filter__tab--amber:visited {
 	color: var(--k2-pure-amber);
 }
 
-body.k2-site .k2-ms-recent-filter__link--holo,
-body.k2-site .k2-ms-recent-filter__link--holo:visited {
+body.k2-site a.k2-ms-recent-tier-filter__tab--holo,
+body.k2-site a.k2-ms-recent-tier-filter__tab--holo:visited {
 	color: var(--k2-ms-holo);
 }
 
-body.k2-site .k2-ms-recent-filter__link--pitch:hover,
-body.k2-site .k2-ms-recent-filter__link--pitch:focus-visible,
-body.k2-site .k2-ms-recent-filter__link--chrome:hover,
-body.k2-site .k2-ms-recent-filter__link--chrome:focus-visible,
-body.k2-site .k2-ms-recent-filter__link--amber:hover,
-body.k2-site .k2-ms-recent-filter__link--amber:focus-visible,
-body.k2-site .k2-ms-recent-filter__link--holo:hover,
-body.k2-site .k2-ms-recent-filter__link--holo:focus-visible {
-	text-decoration: underline;
+body.k2-site a.k2-ms-recent-tier-filter__tab--pitch.is-active,
+body.k2-site a.k2-ms-recent-tier-filter__tab--pitch.is-active:visited,
+body.k2-site a.k2-ms-recent-tier-filter__tab--pitch.is-active:hover {
+	color: var(--k2-pure-pitch);
+	background: color-mix(in srgb, var(--k2-pure-pitch) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-pure-pitch) 42%, transparent);
 }
 
-.k2-ms-recent-filter__sep {
-	color: var(--k2-text-muted);
+body.k2-site a.k2-ms-recent-tier-filter__tab--chrome.is-active,
+body.k2-site a.k2-ms-recent-tier-filter__tab--chrome.is-active:visited,
+body.k2-site a.k2-ms-recent-tier-filter__tab--chrome.is-active:hover {
+	color: var(--k2-pure-chrome);
+	background: color-mix(in srgb, var(--k2-pure-chrome) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-pure-chrome) 42%, transparent);
 }
 
-/* One grid: date + player columns sized to longest cell in each column */
+body.k2-site a.k2-ms-recent-tier-filter__tab--amber.is-active,
+body.k2-site a.k2-ms-recent-tier-filter__tab--amber.is-active:visited,
+body.k2-site a.k2-ms-recent-tier-filter__tab--amber.is-active:hover {
+	color: var(--k2-pure-amber);
+	background: color-mix(in srgb, var(--k2-pure-amber) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-pure-amber) 42%, transparent);
+}
+
+body.k2-site a.k2-ms-recent-tier-filter__tab--holo.is-active,
+body.k2-site a.k2-ms-recent-tier-filter__tab--holo.is-active:visited,
+body.k2-site a.k2-ms-recent-tier-filter__tab--holo.is-active:hover {
+	color: var(--k2-ms-holo);
+	background: color-mix(in srgb, var(--k2-ms-holo) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-ms-holo) 42%, transparent);
+}
+
+body.k2-site a.k2-ms-recent-tier-filter__tab--pitch:hover:not(.is-active),
+body.k2-site a.k2-ms-recent-tier-filter__tab--chrome:hover:not(.is-active),
+body.k2-site a.k2-ms-recent-tier-filter__tab--amber:hover:not(.is-active),
+body.k2-site a.k2-ms-recent-tier-filter__tab--holo:hover:not(.is-active) {
+	background: color-mix(in srgb, var(--k2-bg-elevated) 80%, transparent);
+	text-decoration: none;
+}
+
+.k2-ms-recent-list-block {
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.k2-ms-recent-list-inner {
+	width: max-content;
+	max-width: 100%;
+}
+
+.k2-ms-recent-list__heading {
+	margin: 0 0 10px;
+}
+
+/*
+ * Recent list columns — fixed widths so tier filter does not shift layout
+ * (max-content per filter subset was jumping). Tune --k2-ms-recent-col-* if clipping.
+ */
 .k2-ms-recent-list {
+	--k2-ms-recent-col-when: 9.5rem; /* ~70% of 13.5rem — UTC datetime may ellipsis */
+	--k2-ms-recent-col-player: 6.65rem; /* 70% of 9.5rem */
+	--k2-ms-recent-col-feat: 10.35rem; /* 90% of 11.5rem */
+	--k2-ms-recent-col-rule: calc(18.4rem + 10px); /* +10px on prior 18.4rem */
+	--k2-ms-recent-col-event: 4.8rem; /* 60% of 8rem */
 	list-style: none;
 	margin: 0;
 	padding: 0;
+	width: 100%;
 	display: grid;
-	grid-template-columns: max-content max-content minmax(0, 1fr);
-	column-gap: 1.25rem;
+	grid-template-columns:
+		var(--k2-ms-recent-col-when)
+		var(--k2-ms-recent-col-player)
+		var(--k2-ms-recent-col-feat)
+		var(--k2-ms-recent-col-rule)
+		var(--k2-ms-recent-col-event);
+	column-gap: 1rem;
 	align-items: baseline;
 	color: var(--k2-text-primary);
 }
@@ -287,13 +368,14 @@ body.k2-site .k2-ms-recent-filter__link--holo:focus-visible {
 }
 
 @supports not (grid-template-columns: subgrid) {
-	.k2-ms-recent-list {
-		grid-template-columns: 12.25rem max-content minmax(0, 1fr);
-	}
-
 	.k2-ms-recent-list__item {
-		grid-template-columns: 12.25rem max-content minmax(0, 1fr);
-		column-gap: 1.25rem;
+		grid-template-columns:
+			var(--k2-ms-recent-col-when)
+			var(--k2-ms-recent-col-player)
+			var(--k2-ms-recent-col-feat)
+			var(--k2-ms-recent-col-rule)
+			var(--k2-ms-recent-col-event);
+		column-gap: 1rem;
 	}
 }
 
@@ -311,230 +393,387 @@ body.k2-site .k2-ms-recent-filter__link--holo:focus-visible {
 }
 
 .k2-ms-recent-line__when {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 	text-align: left;
 	color: var(--k2-text-muted);
 }
 
-.k2-ms-recent-line__player {
+.k2-ms-recent-line__player,
+.k2-ms-recent-line__feat {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.k2-ms-recent-line__ms {
+.k2-ms-recent-line__event {
 	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: right;
 }
 
-.k2-ms-recent-line__rule,
-.k2-ms-recent-list__item .k2-link-star,
-body.k2-site a.k2-ms-recent-line__feat {
+.k2-ms-recent-line__rule {
+	min-width: 0;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site a.k2-ms-recent-line__link,
+body.k2-site a.k2-ms-tier-event-link {
 	display: inline;
-}
-
-body.k2-site a.k2-ms-recent-line__feat {
 	font-weight: 600;
 	text-decoration: none;
 }
 
 /* Beat body.k2-site a { color: var(--k2-link) } — milestone tier, not site tint */
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch:visited {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--pitch,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--pitch:visited {
 	color: var(--k2-pure-pitch);
 }
 
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome:visited {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--chrome,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--chrome:visited {
 	color: var(--k2-pure-chrome);
 }
 
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber:visited {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--amber,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--amber:visited {
 	color: var(--k2-pure-amber);
 }
 
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo:visited {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--holo,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--holo:visited {
 	color: var(--k2-ms-holo);
 }
 
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch:hover,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--pitch:focus-visible {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--pitch:hover,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--pitch:focus-visible {
 	color: var(--k2-pure-pitch);
 	text-decoration: underline;
 }
 
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome:hover,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--chrome:focus-visible {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--chrome:hover,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--chrome:focus-visible {
 	color: var(--k2-pure-chrome);
 	text-decoration: underline;
 }
 
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber:hover,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--amber:focus-visible {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--amber:hover,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--amber:focus-visible {
 	color: var(--k2-pure-amber);
 	text-decoration: underline;
 }
 
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo:hover,
-body.k2-site a.k2-ms-recent-line__feat.k2-lb-ms-tier--holo:focus-visible {
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--holo:hover,
+body.k2-site a.k2-ms-tier-event-link.k2-lb-ms-tier--holo:focus-visible {
 	color: var(--k2-ms-holo);
 	text-decoration: underline;
 }
 
-.k2-ms-recent-list__item .k2-link-star {
-	font-weight: 600;
-}
-
-.k2-ms-recent-line__rule {
-	margin-left: 0.35em;
+.k2-ms-recent-line__none {
 	color: var(--k2-text-muted);
 }
 
-/* Catalog — tier-colored garden cards, sorted by holders */
+/* Catalog — tier sections (headings match profile garden) */
+.k2-ms-catalog .k2-ms-catalog__section:last-child {
+	margin-bottom: 0;
+}
+
+/* Catalog — compact tier-colored cards (tier = border + title ink) */
 .k2-ms-catalog-grid {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: 12px;
+	grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+	gap: 10px;
+	align-items: stretch;
+}
+
+.k2-ms-catalog-grid > li {
+	display: flex;
+	min-height: 0;
 }
 
 body.k2-site a.k2-ms-catalog-card {
-	display: block;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	width: 100%;
+	min-height: 0;
 	text-decoration: none;
-	color: inherit;
-	min-height: 120px;
+	color: var(--k2-text-primary);
+	font-weight: inherit;
+	padding: 9px 11px;
 	position: relative;
+	transition: transform 0.08s ease-out;
 }
 
-.k2-ms-catalog-card__holders {
-	margin: 0 0 8px;
+body.k2-site a.k2-ms-catalog-card.k2-ms-card {
+	min-height: 0;
+}
+
+/* Catalog: flat cards — tier ink only; glow reserved for profile garden unlocks */
+body.k2-site a.k2-ms-catalog-card.k2-ms-card.is-unlocked {
+	box-shadow: none;
+	border-color: color-mix(in srgb, var(--k2-ms-accent) 38%, var(--k2-border-subtle));
+}
+
+/* Title: natural height (one line typical); clamp only if very long */
+body.k2-site a.k2-ms-catalog-card.k2-ms-card.is-unlocked .k2-ms-card__title {
+	flex: 0 0 auto;
+	color: var(--k2-ms-accent, var(--k2-pure-pitch));
+	font-weight: 600;
+	font-size: 13px;
+	line-height: 1.25;
+	margin: 4px 0 6px;
+	text-shadow: none;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+}
+
+/* Min-height reserves two rule lines for card rhythm; no line-clamp (hidden <br> pad used to trip ellipsis) */
+body.k2-site a.k2-ms-catalog-card .k2-ms-card__rule {
+	flex: 0 0 auto;
+	margin: 0;
 	font-size: 11px;
+	font-weight: inherit;
+	line-height: 1.3;
+	color: var(--k2-text-muted);
+	min-height: calc(2 * 1.3em);
+}
+
+body.k2-site a.k2-ms-catalog-card .k2-ms-catalog-card__holders {
+	flex: 0 0 auto;
+	margin: 0 0 3px;
+	font-size: 10px;
 	font-weight: 600;
 	letter-spacing: 0.03em;
 	text-transform: uppercase;
 	color: var(--k2-text-muted);
 }
 
-.k2-ms-catalog-card__tier {
-	margin: 10px 0 0;
-	font-size: 11px;
+body.k2-site a.k2-ms-catalog-card .k2-ms-catalog-card__holders-num {
+	color: var(--k2-ms-accent, var(--k2-pure-pitch));
 }
 
-body.k2-site a.k2-ms-catalog-card:hover {
+body.k2-site a.k2-ms-catalog-card:hover,
+body.k2-site a.k2-ms-catalog-card:focus-visible {
+	color: var(--k2-text-primary);
+	text-decoration: none;
 	transform: translateY(-2px);
 }
 
-/* Milestone detail page */
-.k2-ms-detail-crumb {
-	margin: 0 0 14px;
-	font-size: 13px;
+body.k2-site a.k2-ms-catalog-card:hover .k2-ms-card__title,
+body.k2-site a.k2-ms-catalog-card:focus-visible .k2-ms-card__title,
+body.k2-site a.k2-ms-catalog-card:hover .k2-ms-catalog-card__holders-num,
+body.k2-site a.k2-ms-catalog-card:focus-visible .k2-ms-catalog-card__holders-num {
+	color: var(--k2-ms-accent, var(--k2-pure-pitch));
+	text-decoration: none;
+}
+
+/*
+ * milestone.php achievers — tier ink via --k2-ms-accent on .k2-ms-detail-page--{token}
+ * Header hairline + sort underline only (row/wrap borders stay default subtle)
+ */
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table thead tr:last-child th {
+	border-bottom-color: color-mix(in srgb, var(--k2-ms-accent) 40%, transparent);
+}
+
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table thead th.k2-table-sortable:hover,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table thead th.k2-table-sorted-asc,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table thead th.k2-table-sorted-desc {
+	box-shadow: inset 0 -2px 0 var(--k2-ms-accent);
+}
+
+/* Secondary body: # rank */
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table.k2-table--calm-stats tbody td:not(.k2-table-anchor-cell):not(.k2-table-col-sorted):not(.k2-ms-achiever-unlocked) {
+	color: var(--k2-text-muted);
+	font-weight: 400;
+}
+
+/* Active sort column — tier ink (not Unlocked) */
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table.k2-table--calm-stats tbody td.k2-table-col-sorted:not(.k2-ms-achiever-unlocked) {
+	color: var(--k2-ms-accent);
+	font-weight: 600;
+}
+
+/* Player col + Event/Link anchors */
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td.k2-table-anchor-cell,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td.k2-table-anchor-cell a,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td.k2-table-anchor-cell a:visited,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td a.k2-ms-tier-event-link,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td a.k2-ms-tier-event-link:visited {
+	color: var(--k2-ms-accent);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td.k2-table-anchor-cell a:hover,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td.k2-table-anchor-cell a:focus-visible,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td a.k2-ms-tier-event-link:hover,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td a.k2-ms-tier-event-link:focus-visible {
+	color: var(--k2-ms-accent);
+	text-decoration: underline;
+}
+
+/* Event cell: scoreline stays muted; names use tier links above */
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td.k2-ms-achiever-event-cell {
 	color: var(--k2-text-muted);
 }
 
-.k2-ms-detail-hero {
-	margin-bottom: 28px;
-	padding: 20px 22px;
-	border-radius: var(--k2-radius-lg);
-	border: 1px solid var(--k2-border-subtle);
-	background: var(--k2-bg-surface);
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table tbody td.k2-ms-achiever-event-cell .k2-status-score {
+	color: var(--k2-text-muted);
+	font-weight: 500;
 }
 
-.k2-ms-detail-page--pitch .k2-ms-detail-hero {
-	border-top: 4px solid var(--k2-pure-pitch);
-	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-pure-pitch) 12%, transparent);
+/* Unlocked column — muted even when default/active sort (after tier col-sorted rules) */
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table.k2-table--calm-stats tbody td.k2-ms-achiever-unlocked,
+body.k2-site .k2-ms-detail-page .k2-ms-achievers-table.k2-table--calm-stats tbody td.k2-ms-achiever-unlocked.k2-table-col-sorted {
+	color: var(--k2-text-muted);
+	font-weight: 400;
 }
 
-.k2-ms-detail-page--chrome .k2-ms-detail-hero {
-	border-top: 4px solid var(--k2-pure-chrome);
-	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-pure-chrome) 12%, transparent);
+/* Milestone detail page */
+.k2-ms-detail-page .k2-ms-hub-tabs {
+	margin-bottom: 16px;
 }
 
-.k2-ms-detail-page--amber .k2-ms-detail-hero {
-	border-top: 4px solid var(--k2-pure-amber);
-	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-pure-amber) 12%, transparent);
+.k2-ms-detail-panel-tabs {
+	width: fit-content;
+	max-width: 100%;
+	margin-bottom: 18px;
+}
+
+body.k2-site .k2-ms-detail-page .k2-ms-detail-panel-tabs a.k2-chrome-tabs__tab.is-active,
+body.k2-site .k2-ms-detail-page .k2-ms-detail-panel-tabs a.k2-chrome-tabs__tab.is-active:visited {
+	color: var(--k2-ms-accent);
+	border-color: color-mix(in srgb, var(--k2-ms-accent) 50%, var(--k2-border-subtle));
+}
+
+body.k2-site .k2-ms-detail-page .k2-ms-detail-panel-tabs a.k2-chrome-tabs__tab.is-active:hover,
+body.k2-site .k2-ms-detail-page .k2-ms-detail-panel-tabs a.k2-chrome-tabs__tab.is-active:hover:visited {
+	color: var(--k2-ms-accent);
+}
+
+.k2-ms-detail-panels {
+	margin-bottom: 32px;
+}
+
+.k2-ms-detail-panel[hidden] {
+	display: none !important;
+}
+
+.k2-ms-detail-page--pitch {
+	--k2-ms-accent: var(--k2-pure-pitch);
+}
+
+.k2-ms-detail-page--chrome {
+	--k2-ms-accent: var(--k2-pure-chrome);
+}
+
+.k2-ms-detail-page--amber {
+	--k2-ms-accent: var(--k2-pure-amber);
 }
 
 .k2-ms-detail-page--holo {
 	--k2-chart-holo: var(--k2-ms-holo);
+	--k2-ms-accent: var(--k2-ms-holo);
 }
 
-.k2-ms-detail-page--holo .k2-ms-detail-hero {
-	border-top: 4px solid var(--k2-ms-holo);
-	box-shadow: 0 0 40px color-mix(in srgb, var(--k2-ms-holo) 14%, transparent);
+/* Spotlight card — milestone “home”; larger than garden/catalog, tier glow */
+.k2-ms-detail-spotlight {
+	margin: 0 0 28px;
 }
 
-.k2-ms-detail-hero__tier {
-	margin: 0 0 8px;
-	font-size: 12px;
-	color: var(--k2-text-muted);
+.k2-ms-detail-spotlight-card {
+	width: 100%;
+	max-width: 18.9rem; /* 75% of prior 25.2rem spotlight cap */
+	min-height: 0;
+	margin: 0;
+	padding: 22px 26px 24px;
+	border-radius: var(--k2-radius-lg);
 }
 
-.k2-ms-detail-hero__title {
-	margin: 0 0 10px;
+.k2-ms-detail-spotlight-card.is-unlocked {
+	border-color: color-mix(in srgb, var(--k2-ms-accent) 58%, var(--k2-border-subtle));
+	box-shadow:
+		0 0 16px color-mix(in srgb, var(--k2-ms-accent) 34%, transparent),
+		0 0 40px color-mix(in srgb, var(--k2-ms-accent) 22%, transparent),
+		0 0 72px color-mix(in srgb, var(--k2-ms-accent) 10%, transparent),
+		inset 0 1px 0 color-mix(in srgb, var(--k2-ms-accent) 16%, transparent);
+}
+
+.k2-ms-detail-spotlight-card__title {
+	margin: 0 0 12px;
 	font-family: var(--k2-font-display);
-	font-size: 26px;
+	font-size: 22px;
 	font-weight: 600;
-	line-height: 1.2;
+	line-height: 1.25;
+	color: var(--k2-ms-accent, var(--k2-pure-pitch));
+	text-shadow: 0 0 28px color-mix(in srgb, var(--k2-ms-accent) 40%, transparent);
 }
 
-.k2-ms-detail-hero__rule {
+.k2-ms-detail-spotlight-card__rule {
 	margin: 0;
 	font-size: 15px;
 	line-height: 1.5;
+	color: var(--k2-text-muted);
 }
 
-.k2-ms-detail-hero__desc {
-	margin: 12px 0 0;
-	font-size: 14px;
-	line-height: 1.5;
-	color: var(--k2-text-muted);
-	max-width: 44rem;
+@media (min-width: 720px) {
+	.k2-ms-detail-spotlight-card {
+		padding: 26px 30px 28px;
+	}
+
+	.k2-ms-detail-spotlight-card__title {
+		font-size: 24px;
+	}
+
+	.k2-ms-detail-spotlight-card__rule {
+		font-size: 16px;
+	}
 }
 
 .k2-ms-detail-section {
 	margin-bottom: 32px;
 }
 
-.k2-ms-detail-section__sort {
-	margin: -6px 0 12px;
-	font-size: 13px;
+.k2-ms-detail-charts__empty-note {
+	margin: 0 0 12px;
+	max-width: var(--k2-chart-max-width, 960px);
+	font-size: 12px;
+	line-height: 1.4;
+	color: var(--k2-text-secondary);
 }
 
-.k2-ms-detail-section__sort-link {
-	color: var(--k2-link-star);
-	text-decoration: none;
+/* Graphs tab — Activity chart headings; hints one step dimmer than global muted */
+body.k2-site .k2-ms-detail-charts .k2-chart-block__hint {
+	color: var(--k2-text-secondary);
 }
 
-body.k2-site a.k2-ms-detail-section__sort-link.is-active {
-	font-weight: 600;
-	text-decoration: underline;
+/* Match Activity (server1) chart blocks — 960px column, not full page width */
+body.k2-site .k2-ms-detail-charts .milestone-unlocks-year-chart,
+body.k2-site .k2-ms-detail-charts .milestone-cumulative-unlocks-chart,
+body.k2-site .k2-ms-detail-charts .server-double-digit-merchant-rating-distribution-chart,
+body.k2-site .k2-ms-detail-charts .server-established-rating-distribution-chart {
+	max-width: var(--k2-chart-max-width, 960px);
+	margin-bottom: 16px;
+	padding: 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
 }
 
-.k2-ms-detail-charts {
-	display: flex;
-	flex-direction: column;
-	gap: 28px;
-}
-
-.k2-ms-detail-chart {
-	padding: 14px 0 0;
-	border-top: 1px solid var(--k2-border-subtle);
-}
-
-.k2-ms-detail-chart__title {
-	margin: 0 0 6px;
-	font-family: var(--k2-font-display);
-	font-size: 16px;
-	font-weight: 600;
-}
-
-.k2-ms-detail-chart__status {
-	margin: 0 0 8px;
-	font-size: 13px;
+body.k2-site .k2-ms-detail-charts .milestone-unlocks-year-chart-status,
+body.k2-site .k2-ms-detail-charts .milestone-cumulative-unlocks-chart-status,
+body.k2-site .k2-ms-detail-charts .server-double-digit-merchant-rating-distribution-chart-status,
+body.k2-site .k2-ms-detail-charts .server-established-rating-distribution-chart-status {
 	color: var(--k2-text-muted);
-}
-
-.k2-ms-detail-footer {
-	margin-top: 8px;
 }

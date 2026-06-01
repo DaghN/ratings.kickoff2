@@ -268,6 +268,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
 mysqli_close($con);
 ?>
 
+<header class="k2-hub-page-intro-head">
+	<p class="k2-hub-page-intro">Records that are less than one month old are displayed as &quot;<span class="blue">(New!)</span>&quot;.<br />
+		Records that are more than 5 years old are displayed as &quot;<span class="holo">(Legendary)</span>&quot;.<br />
+		A player must play <?php echo (int) k2_established_min_games(); ?> games for ratios and averages to take effect.</p>
+</header>
 
 <div class="server-records-panels">
 <section class="server-records-panel server-records-panel--activity">
@@ -532,14 +537,6 @@ records_render_row(
 </div><!-- .k2-table-wrap -->
 </section>
 </div><!-- .server-records-panels -->
-
-Records that are less than one month old are displayed as "<span class="blue">(New!)</span>".
-<br />
-Records that are more than 5 years old are displayed as "<span class="holo">(Legendary)</span>".
-<br />
-A player must play <?php echo (int) k2_established_min_games(); ?> games for ratios and averages to take effect (same threshold as established players on leaderboards).
-
-
 
 
 

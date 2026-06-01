@@ -32,9 +32,10 @@ $grainTabs = [
     'year' => k2_status_period_segment_label('year'),
 ];
 ?>
-<div class="k2-status-period-competitions k2-lb-league-honours">
-	<div class="k2-status-period-competitions__controls">
-		<div class="k2-status-period-competitions__period-tabs" role="tablist" aria-label="League honours view">
+<div class="k2-lb-league-honours">
+	<div class="k2-lb-league-honours__subnav">
+		<nav class="k2-lb-league-honours__bar-wrap" data-k2-carry-scroll aria-label="League honours view">
+			<div class="k2-chrome-tabs__bar k2-lb-league-honours__bar" role="tablist">
 <?php
 $sliceGrain = ($cup !== 'overall' && $grain !== null) ? (string) $grain : 'day';
 foreach ($cupTabs as $cupId => $label) {
@@ -45,28 +46,31 @@ foreach ($cupTabs as $cupId => $label) {
         $filterOpts
     );
     ?>
-			<a
-				href="<?php echo htmlspecialchars($href, ENT_QUOTES, 'UTF-8'); ?>"
-				class="k2-status-period-competitions__period-btn<?php echo $active ? ' is-active' : ''; ?>"
-				role="tab"
-				aria-selected="<?php echo $active ? 'true' : 'false'; ?>"
-			><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></a>
+				<a
+					href="<?php echo htmlspecialchars($href, ENT_QUOTES, 'UTF-8'); ?>"
+					class="k2-chrome-tabs__tab<?php echo $active ? ' is-active' : ''; ?>"
+					role="tab"
+					aria-selected="<?php echo $active ? 'true' : 'false'; ?>"
+				><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></a>
 <?php } ?>
-		</div>
+			</div>
+		</nav>
 <?php if ($cup !== 'overall') { ?>
-		<div class="k2-status-period-competitions__period-tabs" role="tablist" aria-label="League time span">
+		<nav class="k2-lb-league-honours__bar-wrap" data-k2-carry-scroll aria-label="League time span">
+			<div class="k2-chrome-tabs__bar k2-lb-league-honours__bar" role="tablist">
 <?php foreach ($grainTabs as $grainId => $label) {
     $active = $grain === $grainId;
     $href = k2_lb_league_honours_href($cup, $grainId, $filterOpts);
     ?>
-			<a
-				href="<?php echo htmlspecialchars($href, ENT_QUOTES, 'UTF-8'); ?>"
-				class="k2-status-period-competitions__period-btn<?php echo $active ? ' is-active' : ''; ?>"
-				role="tab"
-				aria-selected="<?php echo $active ? 'true' : 'false'; ?>"
-			><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></a>
+				<a
+					href="<?php echo htmlspecialchars($href, ENT_QUOTES, 'UTF-8'); ?>"
+					class="k2-chrome-tabs__tab<?php echo $active ? ' is-active' : ''; ?>"
+					role="tab"
+					aria-selected="<?php echo $active ? 'true' : 'false'; ?>"
+				><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></a>
 <?php } ?>
-		</div>
+			</div>
+		</nav>
 <?php } ?>
 	</div>
 

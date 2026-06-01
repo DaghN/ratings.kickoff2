@@ -2,7 +2,7 @@
 
 **Kick Off 2 ratings site · May 2026**
 
-**Project phase:** **Phase 1 (idea creation) complete** — this file is a **first brainstorm + pass 1 curation**, **not** a finalized or signed-off catalog. See [`milestones-project.md`](milestones-project.md).
+**Project phase:** **Phase 1 (idea creation) complete** — this file is a **first brainstorm + pass 1 curation**, **not** the live catalog. **Current keys:** [`milestones-catalog.md`](milestones-catalog.md). See [`milestones-README.md`](milestones-README.md).
 
 Brainstorm list with `want` / `maybe` / `discard` from pass 1. Items not mentioned in pass 1 are **discard** (kept in tables for reference, with notes where useful).
 

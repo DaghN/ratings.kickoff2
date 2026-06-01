@@ -28,7 +28,7 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 
 
-**Working set:** [`milestones-tier-curated.md`](milestones-tier-curated.md) (110 milestones). **Seed:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json). **Facilitation:** [`milestones-facilitation.md`](milestones-facilitation.md).
+**Catalog (112 keys):** [`milestones-README.md`](milestones-README.md) → [`milestones-catalog.md`](milestones-catalog.md) (generated). **Seed:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json). **Facilitation:** [`milestones-facilitation.md`](milestones-facilitation.md).
 
 **Unlock row counts (staging/local):** After a full rebuild, expect **6615** rows in `player_milestones` (not **151** from the early SCH-008 shell). Timeline: [`coordination/replay-register.md`](coordination/replay-register.md) § Milestone unlock row counts.
 
@@ -52,7 +52,7 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 | 2 | **Definition** | **Done (May 2026)** | [`milestones-product-spec.md`](milestones-product-spec.md), curated list, meta JSON, seed export |
 
-| 3 | **Data contract** | **Done (local)** | Rebuild 110/110 + parity scripts |
+| 3 | **Data contract** | **Done (local)** | Rebuild 112/112 + parity scripts |
 
 | 4 | **Build & ship** | **v0 + hub stub (local)** | Profile garden, `ranked10.php`, hub tab [`milestones.php`](../site/public_html/milestones.php) stub; full hub WIP |
 
@@ -110,9 +110,9 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 |------|--------|
 
-| `milestone_definitions` | SCH-011 local; 110 rows from seed |
+| `milestone_definitions` | SCH-011 local; **112** rows from seed |
 
-| `player_milestones` | **110/110** keys in rebuild (all waves parity-checked on local `ko2unity_db`) |
+| `player_milestones` | **112/112** keys in rebuild (all waves parity-checked on local `ko2unity_db`) |
 
 | Activity UI | Digest/charts for Established / DD only |
 
@@ -132,15 +132,22 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 |-----|------|
 
+| [`milestones-README.md`](milestones-README.md) | **Start here** — workflows & doc map |
+
+| [`milestones-catalog.md`](milestones-catalog.md) | **Generated** per-key catalog (tier, rule, Link, Event) |
+
 | **This file** | Phase status |
 
 | [`milestones-facilitation.md`](milestones-facilitation.md) | Implementation families & waves |
 
 | [`milestones-product-spec.md`](milestones-product-spec.md) | Tier bands, garden UI, leaderboard |
 
-| [`milestones-tier-curated.md`](milestones-tier-curated.md) | Locked 110-key snapshot |
+| [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) | Unlock link/event UI spec |
+
+| [`milestones-tier-curated.md`](milestones-tier-curated.md) | Archived snapshot — win-streak + discard notes |
 
 | [`milestones-system-discussion.md`](milestones-system-discussion.md) | Discovery context |
+
 | [`milestones-hub-ia.md`](milestones-hub-ia.md) | **WIP** — server hub IA & build phases |
 
 

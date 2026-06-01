@@ -801,7 +801,7 @@
       "tier_band": "dedicated",
       "chart_token": "chrome",
       "name_score": 4,
-      "rule_short": "Rated game every calendar day Mon–Sun in one Monday-start week",
+      "rule_short": "Rated game every day Monday to Sunday",
       "rule_probe": "chronological Mon-Sun week",
       "unlock_veterans": 47,
       "pct_veterans": "43.9%"
@@ -1054,7 +1054,7 @@
       "tier_band": "aspirational",
       "chart_token": "pitch",
       "name_score": 4,
-      "rule_short": "5+ in one game",
+      "rule_short": "5+ goals in one game",
       "rule_probe": "ratedresults any game",
       "unlock_veterans": 102,
       "pct_veterans": "95.3%"

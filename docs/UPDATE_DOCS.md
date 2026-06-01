@@ -33,7 +33,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Stored / derived DB tables, rebuild, post-game rules | `docs/website-data-contract.md` |
 | Status hub panels / league | `docs/STATUS_PAGE_DATA.md` |
 | Player profile layout | `docs/player-profile-feast.md` |
-| Milestones feature (phases, catalog, tier plan) | `docs/milestones-project.md`, `docs/milestones-product-spec.md`, `docs/milestones-ideas-catalog.md` |
+| Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
 | Play & setup / join page | `docs/join-play-setup.md` |
 | Visual identity / theme | `docs/design-direction.md` |
