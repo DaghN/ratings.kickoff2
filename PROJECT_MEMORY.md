@@ -32,7 +32,7 @@
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Ladder ops platform (Jun 2026):** hub **`docs/ladder-ops-platform.md`** + **`site/public_html/ops/`** scaffold (no `dispatch.php` in repo). Steve agreed ground/derived + `game_id` API. **Next:** implement dispatcher/modules slice. Legacy **`staging-scripts/`** until migrated.
+- **Ladder ops platform (Jun 2026):** **`docs/ladder-ops-platform.md`** §6 conventions + **`ops/`** scaffold (no PHP yet). Steve agreed ground/derived + `game_id` API. **Next chat slice:** work DB reset/extend on **`ko2unity_work`**, then post-game module. Legacy **`staging-scripts/`** until migrated.
 - **Local dev:** browser **`ko2unity_db`** (~19 tables). **Prod sandbox:** **`ko2unity_baseline`** + **`ko2unity_work`** — **`docs/coordination/database-copies-2026-06.md`**, setup scripts in `scripts/`.
 
 - **Change style:** small, reversible slices.
@@ -65,7 +65,7 @@
 3. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
 4. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
 5. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
-6. **Ladder ops code** — `dispatch.php` + modules on work DB (separate slice; scaffold/docs done); see **`docs/ladder-ops-platform.md`**.
+6. **Work DB pipeline** — baseline → work reset + apply migrations on **`ko2unity_work`**; then **`ProcessCompletedGame`** module before `dispatch.php` — **`docs/ladder-ops-platform.md`** §6–9.
 7. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
 
 ---
@@ -77,7 +77,8 @@
 | When | What |
 |------|------|
 | 2026-06 | **`docs/ground-truth-manifest.md`** — scannable ground vs derived for prod five tables + local/staging roles; KungFu + ratio HoF columns = delete targets; `Display`/`PlayerRank` = not Dagh. |
-| 2026-06 | **Ladder ops springboard** — [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) + `ops/` scaffold only; no dispatcher PHP in repo (premature stub removed). |
+| 2026-06 | **Ops conventions (§6)** — naming, bootstrap guards, `staging-scripts/` vs `ops/`, test-before-dispatch; docs only. |
+| 2026-06 | **Ladder ops springboard** — [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) + `ops/` scaffold; no dispatcher PHP in repo. |
 | 2026-06 | **Local prod sandbox live** — baseline + work from sanitized dump; dev untouched; sanitize fix in `ProdDumpSanitize.ps1`; verify ~75,204 rated on work. |
 | 2026-06 | **Local DB model (3 DBs)** — scripts + **`database-copies-2026-06.md`**; ground/derived + `game_id` API direction to Steve. |
 | 2026-06 | **Games Highlights table ink** — `k2-games-highlights-table` now gets the same `k2-table--calm-stats` secondary body text as leaderboards/Recent (`theme.css`). |

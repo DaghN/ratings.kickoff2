@@ -130,26 +130,113 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 ---
 
-## 6. Target `ops/` tree
+## 6. Ops layout & conventions
+
+**Canonical rules live here.** [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) is a short checklist for humans syncing the folder — do not fork naming or bootstrap rules into a second spec.
+
+**Status (Jun 2026):** Conventions agreed; **no PHP implementation in repo yet** (`dispatch.php`, `includes/`, modules are planned paths only).
+
+### 6.1 `ops/` vs `staging-scripts/`
+
+| Location | Use |
+|----------|-----|
+| **`site/public_html/ops/`** | All **new** ladder ops: dispatcher, modules, SQL mirrors, sim/post-game/periodic CMDs. |
+| **`site/public_html/staging-scripts/`** | **Legacy** one-shot rebuild runners (milestones, league awards, play streaks, …). **Leave in place** until a deliberate migration slice moves a script into `ops/modules/` and updates docs/registers. |
+
+**Migration criteria (when moving a legacy script):** the runner is still needed on staging/prod path; it fits the `CMD=` or documented dev-runner pattern; callers and README are updated in the **same slice**; nothing is deleted from `staging-scripts/` until the replacement is verified.
+
+**Do not** add new long-term business logic under `staging-scripts/`.
+
+### 6.2 Target tree
 
 ```text
 site/public_html/ops/
-  .htaccess              # deny web
-  README.md
-  dispatch.php           # planned — not in repo yet
-  modules/               # post_game.php, periodic_*.php, …
+  .htaccess                 # deny HTTP
+  README.md                 # checklist → this doc §6
+  dispatch.php              # thin router (planned)
+  includes/
+    ops_bootstrap.php       # CLI, mysqli, DB guards (planned)
+    ops_argv.php            # CMD= key=value parsing (planned)
+  modules/
+    process_completed_game.php   # example: one primary file per CMD
+    …                       # periodic_*, replay_*, etc. as needed
   sql/
-    migrations/          # mirror schema/migrations/
-    rebuild/             # optional REP SQL mirrors
+    migrations/             # mirror schema/migrations/
+    rebuild/                # optional REP SQL mirrors
 ```
 
-**Local sim (today):** Python replay on work DB — `python -m scripts.ladder run --target sandbox` ([`scripts/ladder/README.md`](../scripts/ladder/README.md)). **After `dispatch.php` ships:** same `CMD=` habit from `public_html/` against `ko2unity_work` / `ladder-work.ini`.
+**`ops/lib/`:** not used until shared helpers are duplicated across modules (YAGNI). Shared post-game helpers may later live in `includes/` (bootstrap-sized) or `lib/` — pick one when the need appears; until then, keep modules self-contained.
+
+### 6.3 Naming: `CMD` ↔ file ↔ function
+
+| Layer | Convention | Example |
+|-------|------------|---------|
+| **Steve / CLI `CMD`** | PascalCase, verb-led | `ProcessCompletedGame`, `ReplayChronological`, `FinalizeLeaguePeriod` |
+| **Module file** | `snake_case` under `modules/`, derived from `CMD` | `modules/process_completed_game.php` |
+| **PHP entry function** | `k2_ops_<snake_case>()` | `k2_ops_process_completed_game(mysqli $con, int $gameId): void` |
+
+**One primary module file per `CMD`** at first. Orchestration CMDs (`ReplayChronological`, `ApplySchema`) may call other `k2_ops_*` functions in the same or other module files — still no logic in `dispatch.php`.
+
+**Periodic jobs** use the **same** `dispatch.php` (e.g. `CMD=RatingFade`) — not separate top-level PHP entry files unless Steve requires a different host path (document exception if so).
+
+### 6.4 Bootstrap contract (planned behaviour)
+
+Document only until implemented — agents must not assume these files exist.
+
+| Rule | Detail |
+|------|--------|
+| **SAPI** | CLI only for ops entry points (same as legacy `staging-scripts/`). |
+| **Document root** | Set to `site/public_html/` so config resolves like the website. |
+| **Base config** | `site/config/ko2unitydb_config.php` (gitignored). |
+| **Work DB override** | `ini=ladder-work.ini` → `[database]` in `site/config/ladder-work.ini` (see `.example`). |
+| **Explicit override** | `database=ko2unity_work` on the command line (after ini). |
+| **Protected DBs** | **Refuse** connects to `ko2unity_baseline` and `kooldb2` (reset sources). |
+| **Dev DB guard** | **`ko2unity_db`** (browser daily dev) is **off-limits by default**. Ops must pass explicit `allow_dev_db=1` (or equivalent flag) to connect — prevents accidental derived writes on dev. |
+| **Charset / TZ** | `utf8mb4`, `SET time_zone = '+00:00'` (match legacy staging bootstrap). |
+
+**Target DB for sim/post-game development:** `ko2unity_work` locally, `kooldb1` on staging — see §4.
+
+### 6.5 `dispatch.php` — allowed vs forbidden
+
+| Allowed | Forbidden |
+|---------|-----------|
+| Parse `CMD` and `key=value` args | Elo, milestones, aggregates, contract SQL |
+| Enforce bootstrap + DB guards | Large copy-pasted logic from `staging-scripts/` |
+| `switch`/map `CMD` → require module + call `k2_ops_*` | Reading `ratedresults` for anything beyond sanity checks |
+| Exit codes / stderr usage messages | New CMD names without a module file |
+
+### 6.6 Testing before `dispatch.php` exists
+
+Implement and prove modules **before** wiring Steve’s entry point.
+
+| Phase | How |
+|-------|-----|
+| **Module development** | Build `k2_ops_*` in `modules/`; test via a **temporary** dev runner in the **same slice** (e.g. `ops/run_dev.php` that only `require`s bootstrap + one module) **or** a one-line CLI wrapper documented in the slice — **not** committed as permanent surface unless agreed. |
+| **After module works** | Add `dispatch.php` routing to that module; delete or stop using the dev runner in the same or follow-up slice. |
+| **Full history sim** | Until `CMD=ReplayChronological` ships: Python `python -m scripts.ladder run --target sandbox` on work DB. |
+
+**Anti-pattern:** shipping `dispatch.php` with stub modules “for later” (see premature stub removed Jun 2026).
+
+### 6.7 Slice boundaries (agents)
+
+| Slice type | Typical contents |
+|------------|------------------|
+| **Conventions** (this §) | Docs only — no PHP |
+| **Schema on work** | `schema/migrations/`, mirror to `ops/sql/migrations/`, PowerShell reset/apply scripts — no post-game |
+| **Post-game phase** | One `modules/*.php` + contract subsection + tests on `ko2unity_work` — may include dev runner; may add `dispatch.php` only when the module is real |
+| **Legacy migration** | Move one `staging-scripts/` runner → `ops/modules/` + update platform/README |
 
 ---
 
-## 7. Lifecycle pipelines
+## 7. Target `ops/` tree (summary)
 
-### 7.1 Staging / cutover prep (Dagh)
+See §6.2 for the full tree. **Local sim (today):** Python replay on work DB — `python -m scripts.ladder run --target sandbox` ([`scripts/ladder/README.md`](../scripts/ladder/README.md)). **After `dispatch.php` ships:** same `CMD=` habit from `public_html/` against `ko2unity_work` / `ladder-work.ini`.
+
+---
+
+## 8. Lifecycle pipelines
+
+### 8.1 Staging / cutover prep (Dagh)
 
 ```text
 1. ExpandSchema          → ops/sql/migrations on work DB (kooldb1 / ko2unity_work)
@@ -159,7 +246,7 @@ site/public_html/ops/
 5. Verify                → checklist queries / CMD=Verify
 ```
 
-### 7.2 Production (steady state)
+### 8.2 Production (steady state)
 
 ```text
 Steve: INSERT ratedresults (ground) → game_id
@@ -169,17 +256,19 @@ Periodic: php ops/dispatch.php CMD=… (scheduler)
 
 ---
 
-## 8. Implementation order (suggested)
+## 9. Implementation order (suggested)
 
-1. `dispatch.php` + guards + `ProcessCompletedGame` stub reading `game_id`.
-2. Implement derived phases per [`website-data-contract.md`](website-data-contract.md) post-game § (incremental).
-3. `ReplayChronological` calling same core on work DB.
-4. Migrate high-traffic paths from `staging-scripts/` → `ops/modules/`.
-5. Cutover: Steve wires prod call; retire duplicate Python authority when parity boring.
+1. ~~Ops layout & conventions (§6).~~ **Done (Jun 2026)** — docs only.
+2. Work DB **reset + extend** pipeline on `ko2unity_work` (baseline copy, apply migrations) — see `scripts/reset_local_work_db.ps1`, `scripts/apply_schema_to_work.ps1`.
+3. `ProcessCompletedGame` module + derived phases per [`website-data-contract.md`](website-data-contract.md) (incremental); prove on work DB before dispatcher.
+4. `dispatch.php` + guards routing to real modules (not empty stubs).
+5. `ReplayChronological` calling same core on work DB.
+6. Migrate legacy `staging-scripts/` → `ops/modules/` as needed.
+7. Cutover: Steve wires prod call; retire duplicate Python authority when parity boring.
 
 ---
 
-## 9. Open questions (non-blocking)
+## 10. Open questions (non-blocking)
 
 | Item | Notes |
 |------|--------|
@@ -189,7 +278,7 @@ Periodic: php ops/dispatch.php CMD=… (scheduler)
 
 ---
 
-## 10. Explicit non-goals (this platform doc)
+## 11. Explicit non-goals (this platform doc)
 
 - Replacing [`website-data-contract.md`](website-data-contract.md) row-level rules before implementation.
 - Moving `staging-scripts/` files in the same slice as first `dispatch.php` commit.

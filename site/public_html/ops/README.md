@@ -2,31 +2,55 @@
 
 **Audience:** Dagh, Steve, Cursor agents.
 
-**Deploy:** Included when you WinSCP-sync `site/public_html/` → staging `public_html/`.
+**Deploy:** WinSCP-sync with `site/public_html/` → staging `public_html/`.
 
-**Authority:** [`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md)
+**Full conventions (canonical):** [`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) **§6 Ops layout & conventions** — naming, bootstrap, dispatcher rules, slice boundaries. **Do not duplicate rules here.**
 
-## Purpose
+---
 
-Home for **future** runnable PHP commands, **SQL mirrors**, and ladder modules:
+## Today
 
-- Post-game derived truth (`ProcessCompletedGame` — planned)
-- Periodic jobs (league finalize, rating fade, …)
-- Schema expand, work-DB reset, chronological sim, parity checks
+Folder scaffold only: `.htaccess`, `modules/`, `sql/`. **No** `dispatch.php`, `includes/`, or module PHP yet.
 
-**Not** for browser traffic — `.htaccess` denies web access.
+---
 
-**Today:** folder scaffold only (`modules/`, `sql/`). No `dispatch.php` yet — see platform doc implementation order.
-
-## Layout (target)
+## Checklist (target layout)
 
 | Path | Role |
 |------|------|
-| `dispatch.php` | Thin entry — `CMD=…` (Steve + CLI) → modules (**planned**) |
-| `modules/` | Derived-truth logic (post-game, periodic, orchestration) |
-| `sql/migrations/` | Mirror of `schema/migrations/` for staging sync |
-| `sql/rebuild/` | One-shot REP SQL (optional mirror of `scripts/ladder/sql/`) |
+| `dispatch.php` | Thin `CMD=` router → modules (**planned**) |
+| `includes/ops_bootstrap.php`, `ops_argv.php` | CLI, DB connect, protected DBs (**planned**) |
+| `modules/<snake_case>.php` | One primary file per `CMD` (e.g. `process_completed_game.php`) |
+| `sql/migrations/` | Mirror of repo `schema/migrations/` before staging sync |
+| `sql/rebuild/` | Optional REP SQL mirrors |
 
-## Legacy (until migrated)
+**Legacy:** [`../staging-scripts/`](../staging-scripts/) — old runners; migrate in named slices only.
 
-Older runners still live in `../staging-scripts/`. New work goes under `ops/`. Do not delete legacy paths without a migration slice.
+---
+
+## Quick rules
+
+- **New ladder ops code** → `ops/`, not `staging-scripts/`.
+- **No business logic** in `dispatch.php`.
+- **Work / sim DB:** `ko2unity_work` (+ `ladder-work.ini`); **never** `ko2unity_baseline` / `kooldb2`.
+- **Dev DB (`ko2unity_db`):** off-limits for ops unless explicit `allow_dev_db=1` when implemented.
+- **Test modules** before shipping `dispatch.php` (see platform doc §6.6).
+
+---
+
+## Local sim (until PHP replay CMD)
+
+```text
+python -m scripts.ladder run --target sandbox
+```
+
+See [`scripts/ladder/README.md`](../../../scripts/ladder/README.md).
+
+---
+
+## Planned Steve call (not live yet)
+
+```text
+php …/ops/dispatch.php   CMD=ProcessCompletedGame   game_id=<id>
+```
+
