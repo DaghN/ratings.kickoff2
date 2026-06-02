@@ -32,7 +32,7 @@
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Ladder ops platform (Jun 2026):** **`docs/ladder-ops-platform.md`** §6 conventions + §2 runtime authority. **`ops/`** scaffold, no PHP yet. **Next:** schema on **`ko2unity_work`**, then post-game module.
+- **Ladder ops platform (Jun 2026):** Prepare in **`ops/run_prepare.php`**. Post-game PHP **reverted** — playbook only: [`docs/post-game-php-development.md`](docs/post-game-php-development.md). **Next:** P0+P1 per playbook (per-game commit, incremental GST, no `RecentAverageRating`).
 - **Local dual website (Jun 2026, live):** **`ratingskickoff.test`** → dev DB · **`work.ratingskickoff.test`** → work DB (router + `setup_laragon_work_site.ps1`); **not** config-file cutover. Leaderboards on work URL verified vs prod snapshot. **`database-copies-2026-06.md`** § Local dual website · **`LOCAL_DEV.md`**.
 
 - **Change style:** small, reversible slices.
@@ -44,7 +44,7 @@
 | Topic | Where |
 |--------|--------|
 | Live post-game C++ (prod today) | `docs/ratings_cpp.txt` |
-| Ladder ops / PHP post-game (target) | `docs/ladder-ops-platform.md` §2 |
+| Ladder ops / PHP post-game (target) | `docs/ladder-ops-platform.md` §2 · build guide `docs/post-game-php-development.md` |
 | Per-game table | `docs/ratedresults-schema.md` |
 | Replay / Elo sandbox | `scripts/ladder/`, `docs/replay-v1-scope-and-reset.md` |
 | Profile layout / charts | `docs/player-profile-feast.md` |
@@ -78,6 +78,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Post-game PHP reset** — reverted first attempt (playbook+P1–P2); new [`post-game-php-development.md`](docs/post-game-php-development.md) (per-game sim, `ratedresults` policy, `RecentAverageRating` retired). |
 | 2026-06 | **Peak HoF read path** — removed live `ratedresults` fallback in `peak_month_leaderboard_query.php` (stored tables only; fixes slow server2 + post-prepare false peaks). |
 | 2026-06 | **Prepare in PHP** — `site/public_html/ops/run_prepare.php` (no `dispatch.php`); `prepare_local_work_db.ps1` calls PHP; Python `work_prepare` legacy. |
 | 2026-06 | **Prepare v2 end-to-end** — SCH-015 KungFu drop (9+1), `seed-catalog` in orchestrator, parity **idA/idB/Date** vs baseline (UTC); `apply_local.ps1` pins `time_zone=+00:00` (fixes 16 DST `Date` drifts on index build). |
