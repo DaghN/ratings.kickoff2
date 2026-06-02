@@ -32,8 +32,8 @@
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Ladder ops platform (Jun 2026):** **`docs/ladder-ops-platform.md`** §6 conventions + §2 runtime authority (contract = rules, PHP ops = target wiring). **`ops/`** scaffold, no PHP yet. **Next:** work DB reset/extend on **`ko2unity_work`**, then post-game module. Legacy **`staging-scripts/`** until migrated.
-- **Local dev:** browser **`ko2unity_db`** (~19 tables). **Prod sandbox:** **`ko2unity_baseline`** + **`ko2unity_work`** — **`docs/coordination/database-copies-2026-06.md`**, setup scripts in `scripts/`.
+- **Ladder ops platform (Jun 2026):** **`docs/ladder-ops-platform.md`** §6 conventions + §2 runtime authority. **`ops/`** scaffold, no PHP yet. **Next:** schema on **`ko2unity_work`**, then post-game module.
+- **Local dual website (Jun 2026, live):** **`ratingskickoff.test`** → dev DB · **`work.ratingskickoff.test`** → work DB (router + `setup_laragon_work_site.ps1`); **not** config-file cutover. Leaderboards on work URL verified vs prod snapshot. **`database-copies-2026-06.md`** § Local dual website · **`LOCAL_DEV.md`**.
 
 - **Change style:** small, reversible slices.
 
@@ -78,6 +78,7 @@
 | When | What |
 |------|------|
 | 2026-06 | **`docs/ground-truth-manifest.md`** — scannable ground vs derived for prod five tables + local/staging roles; KungFu + ratio HoF columns = delete targets; `Display`/`PlayerRank` = not Dagh. |
+| 2026-06 | **Local dual website shipped** — two URLs in parallel (rejected config `$database` flip); work leaderboards smoke-tested; docs in `LOCAL_DEV.md` + `database-copies-2026-06.md`. |
 | 2026-06 | **Post-game doc alignment** — contract vs PHP ops vs C++-today called out in platform §2, contract, AGENTS, OPERATIONS, PROJECT_MAP. |
 | 2026-06 | **Ops conventions (§6)** — naming, bootstrap guards, `staging-scripts/` vs `ops/`, test-before-dispatch; docs only. |
 | 2026-06 | **Ladder ops springboard** — [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) + `ops/` scaffold; no dispatcher PHP in repo. |

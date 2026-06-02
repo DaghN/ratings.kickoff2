@@ -6,11 +6,13 @@
 
 ## Three local databases
 
-| MySQL name | You use it for |
-|------------|----------------|
-| **`ko2unity_db`** | Browser / PHP — **daily dev** (unchanged by sandbox setup) |
-| **`ko2unity_baseline`** | Frozen prod copy — **never** migrate or replay |
-| **`ko2unity_work`** | Prod-shaped sim, expand, ladder experiments |
+| MySQL name | Browser URL (local) | You use it for |
+|------------|---------------------|----------------|
+| **`ko2unity_db`** | `http://ratingskickoff.test/` | Daily dev (full schema) |
+| **`ko2unity_baseline`** | — | Frozen prod copy — **never** migrate or replay |
+| **`ko2unity_work`** | `http://work.ratingskickoff.test/` | Prod-shaped sim — **parallel** to dev (not a config cutover) |
+
+Dual URLs: [`docs/LOCAL_DEV.md`](../docs/LOCAL_DEV.md) · setup: `scripts\setup_laragon_work_site.ps1`
 
 ---
 

@@ -1,0 +1,13 @@
+<?php
+/**
+ * Dev site DB — used by http://ratingskickoff.test/
+ *
+ *   copy ko2unitydb_config.local.php.example ko2unitydb_config.local.php
+ *
+ * ko2unitydb_config.local.php is gitignored — never commit credentials.
+ */
+$dbhost = '127.0.0.1';
+$username = 'root';
+$password = '';
+$database = 'ko2unity_db';
+$dbportnum = 3306;

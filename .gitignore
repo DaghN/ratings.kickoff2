@@ -2,7 +2,8 @@
 .env
 .env.*
 !.env.example
-site/config/ko2unitydb_config.php
+site/config/ko2unitydb_config.local.php
+site/config/ko2unitydb_config_work.local.php
 site/config/ladder.ini
 site/config/ladder-work.ini
 

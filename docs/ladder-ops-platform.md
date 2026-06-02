@@ -110,9 +110,12 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 | Environment | Work / experiments | Pristine / reset copy | Browser / daily dev |
 |-------------|-------------------|---------------------|---------------------|
-| **Local** | `ko2unity_work` | `ko2unity_baseline` | `ko2unity_db` |
-| **Staging** | `kooldb1` (config1) | `kooldb2` (config2) | N/A — use local dev |
+| **Local** | `ko2unity_work` | `ko2unity_baseline` | `ko2unity_db` at **`http://ratingskickoff.test/`** |
+| **Local browser (work)** | — | — | **`http://work.ratingskickoff.test/`** → `ko2unity_work` (parallel; no config flip) |
+| **Staging** | `kooldb1` (config1) | `kooldb2` (config2) | N/A — use local dev URLs |
 | **Production** | live DB | — | — |
+
+**Local browse:** Two hostnames, one PHP tree — see [`LOCAL_DEV.md`](../LOCAL_DEV.md) and [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) § Local dual website. **Do not** “cut over” by editing only `$database` in a shared config; that pattern is retired for local work.
 
 **Rules:**
 
@@ -202,7 +205,7 @@ Document only until implemented — agents must not assume these files exist.
 | **Work DB override** | `ini=ladder-work.ini` → `[database]` in `site/config/ladder-work.ini` (see `.example`). |
 | **Explicit override** | `database=ko2unity_work` on the command line (after ini). |
 | **Protected DBs** | **Refuse** connects to `ko2unity_baseline` and `kooldb2` (reset sources). |
-| **Dev DB guard** | **`ko2unity_db`** (browser daily dev) is **off-limits by default**. Ops must pass explicit `allow_dev_db=1` (or equivalent flag) to connect — prevents accidental derived writes on dev. |
+| **Dev DB guard** | **`ko2unity_db`** (browser at `ratingskickoff.test`) is **off-limits by default** for ops CLI. Ops must pass explicit `allow_dev_db=1` to connect — prevents accidental derived writes on dev. Browse work at **`http://work.ratingskickoff.test/`** ([`LOCAL_DEV.md`](../LOCAL_DEV.md)). |
 | **Charset / TZ** | `utf8mb4`, `SET time_zone = '+00:00'` (match legacy staging bootstrap). |
 
 **Target DB for sim/post-game development:** `ko2unity_work` locally, `kooldb1` on staging — see §4.

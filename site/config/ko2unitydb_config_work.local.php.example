@@ -1,0 +1,14 @@
+<?php
+/**
+ * Work / prod-shaped sandbox DB — used by http://work.ratingskickoff.test/
+ *
+ *   copy ko2unitydb_config_work.local.php.example ko2unitydb_config_work.local.php
+ *
+ * Same host/user/password as dev; only database name differs.
+ * ko2unitydb_config_work.local.php is gitignored.
+ */
+$dbhost = '127.0.0.1';
+$username = 'root';
+$password = '';
+$database = 'ko2unity_work';
+$dbportnum = 3306;

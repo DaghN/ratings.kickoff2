@@ -1,5 +1,6 @@
 ; Prod-shaped sandbox DB for Python ladder / sim (gitignored copy: ladder-work.ini).
-; PHP site keeps using ko2unitydb_config.php -> ko2unity_db until you cut over.
+; PHP: http://work.ratingskickoff.test/ uses ko2unity_work via ko2unitydb_config_work.local.php
+; PHP: http://ratingskickoff.test/ uses ko2unity_db via ko2unitydb_config.local.php
 ;
 ;   copy ladder-work.ini.example ladder-work.ini
 ;

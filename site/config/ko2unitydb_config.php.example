@@ -1,13 +1,15 @@
 <?php
 /**
- * Copy to ko2unitydb_config.php (same folder) and adjust for your machine.
- * ko2unitydb_config.php is gitignored — never commit real credentials.
+ * @deprecated Use the committed router + local files instead.
  *
- * Laragon defaults are usually root with an empty password on 127.0.0.1:3306.
- * Local dump imports as database ko2unity_db (see data/README.md).
+ *   site/config/ko2unitydb_config.php              — router (in git)
+ *   site/config/ko2unitydb_config.local.php        — dev DB (gitignored)
+ *   site/config/ko2unitydb_config_work.local.php   — work DB (gitignored)
+ *
+ * Copy:
+ *   ko2unitydb_config.local.php.example      → ko2unitydb_config.local.php
+ *   ko2unitydb_config_work.local.php.example → ko2unitydb_config_work.local.php
+ *
+ * Setup: scripts\setup_laragon_work_site.ps1
+ * Docs:  docs\LOCAL_DEV.md
  */
-$dbhost = '127.0.0.1';
-$username = 'root';
-$password = '';
-$database = 'ko2unity_db';
-$dbportnum = 3306;

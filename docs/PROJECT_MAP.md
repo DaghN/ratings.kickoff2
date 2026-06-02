@@ -6,7 +6,7 @@
 
 ## What this is
 
-**KOOL Kick Off 2 ratings site** — PHP + MariaDB ladder/stats for online play. Dagh iterates in **Cursor** locally (`http://ratingskickoff.test`), deploys PHP to **staging** via **WinSCP**, **production DB + C++ post-game** coordinated with **Steve** later.
+**KOOL Kick Off 2 ratings site** — PHP + MariaDB ladder/stats for online play. Dagh iterates locally: **`http://ratingskickoff.test`** (dev DB) and **`http://work.ratingskickoff.test`** (work DB); deploys PHP to **staging** via **WinSCP**; **production** coordinated with **Steve** later.
 
 Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense stats UI, Chart.js APIs.
 

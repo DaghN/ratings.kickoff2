@@ -4,6 +4,8 @@
 
 **Ladder ops (Steve, staging deploy, sim):** [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) — sync **`site/public_html/`** (includes **`ops/`**); DB names in [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md).
 
+**Local two URLs:** dev **`http://ratingskickoff.test/`** · work **`http://work.ratingskickoff.test/`** — setup: `scripts\setup_laragon_work_site.ps1` ([`LOCAL_DEV.md`](LOCAL_DEV.md)).
+
 ---
 
 ## Status at a glance (May 2026)

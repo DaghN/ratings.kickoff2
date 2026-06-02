@@ -31,7 +31,7 @@ See **`docs/ladder-engine-plan.md`** (§2 databases table) and **`docs/STATUS_PA
 | Local dev DB | **`ko2unity_db`** (PHP config) |
 | Prod sandbox | **`ko2unity_baseline`** + **`ko2unity_work`** — see `data/README.md` |
 | Prod SQL dump (gitignored) | `data/dumps/ko2unity_prod-2026-06-02.sql` |
-| PHP DB config (gitignored) | `site/config/ko2unitydb_config.php` |
+| PHP DB config | Router: `site/config/ko2unitydb_config.php` · credentials: `*.local.php` (gitignored) |
 | Python DB config | Same as PHP: `site/config/ko2unitydb_config.php` (optional `ladder.ini` override) |
 | Examples (committed) | `site/config/*.example` |
 
@@ -41,9 +41,48 @@ See **`docs/ladder-engine-plan.md`** (§2 databases table) and **`docs/STATUS_PA
 
 ## URLs (do not confuse)
 
-| URL | What it is |
-|-----|------------|
-| **`http://ratingskickoff.test/`** | Full PHP ladder site via **Laragon Apache** (port **80**). Requires Apache running. |
+| URL | Database | Use |
+|-----|----------|-----|
+| **`http://ratingskickoff.test/`** | **`ko2unity_db`** | Daily dev — full schema, cosmetics, features |
+| **`http://work.ratingskickoff.test/`** | **`ko2unity_work`** | Prod-shaped sandbox — replay/post-game browse |
+
+Both use the **same** `site/public_html` code. Only the hostname selects the DB ([`site/config/ko2unitydb_config.php`](../site/config/ko2unitydb_config.php) router → `*.local.php` files).
+
+**One-time setup for work URL:**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup_laragon_work_site.ps1
+```
+
+Adds `127.0.0.1 work.ratingskickoff.test` to **hosts** (may need **Run as administrator**). Laragon’s `auto.ratingskickoff.test.conf` already has `ServerAlias *.ratingskickoff.test` — no extra Apache vhost file.
+
+**Config files:**
+
+| File | Git | Points at |
+|------|-----|-----------|
+| `ko2unitydb_config.php` | Yes (router) | picks local file from hostname |
+| `ko2unitydb_config.local.php` | No | `ko2unity_db` |
+| `ko2unitydb_config_work.local.php` | No | `ko2unity_work` |
+
+Copy from `*.example` if missing. **CLI Python ladder** still defaults to **dev** via `.local.php`; use `--ini site/config/ladder-work.ini` for work.
+
+### Why two URLs (not flipping `$database` in one config file)
+
+**Shipped Jun 2026.** We deliberately **do not** “cut over” the PHP site by editing `ko2unitydb_config.php` to point at `ko2unity_work` and back.
+
+| Approach | Problem |
+|----------|---------|
+| **Flip `$database` in a single config** | Easy to forget you left work enabled; dev cosmetics/features hit the wrong DB; agents assume one browser DB. |
+| **Two hostnames + router** (chosen) | **`ratingskickoff.test`** and **`work.ratingskickoff.test`** are unambiguous bookmarks; dev and prod-shaped sandbox run **in parallel**. |
+
+**Mental shortcut:**
+
+- **Dev website** → `http://ratingskickoff.test/` → `ko2unity_db`
+- **Work website** → `http://work.ratingskickoff.test/` → `ko2unity_work`
+
+Same PHP tree; only hostname + gitignored `*.local.php` differ. **Future prod/staging cutover** (Steve, `kooldb1`, live games) is a separate decision — documented in [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) and [`ladder-ops-platform.md`](ladder-ops-platform.md), not “rename dev config and hope.”
+
+**Verified (Jun 2026):** leaderboards on work URL show prod-snapshot ratings after hosts + `setup_laragon_work_site.ps1`.
 
 ---
 
@@ -51,10 +90,10 @@ See **`docs/ladder-engine-plan.md`** (§2 databases table) and **`docs/STATUS_PA
 
 1. Open **Laragon** (your desktop shortcut is fine).
 2. Click **Start All**.
-3. Open **`http://ratingskickoff.test/`**
+3. Open **`http://ratingskickoff.test/`** (dev) and/or **`http://work.ratingskickoff.test/`** (sandbox) as needed.
 4. **Stop All** — wait a few seconds; the site should stop loading (watchdog stops Apache if Laragon left it running). **Verified working May 2026.**
 
-No PowerShell scripts are required for normal use.
+No PowerShell scripts are required for normal use after dual-URL setup.
 
 ---
 

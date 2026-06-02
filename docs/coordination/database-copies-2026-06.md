@@ -27,7 +27,7 @@
 |----------|------|-------------|-----------|---------------|
 | **`ko2unity_db`** | **Dev** — current work | Yes (`schema/apply_local.ps1` default) | **Yes** (`ko2unitydb_config.php`) | `--target local` (default config) |
 | **`ko2unity_baseline`** | Pristine prod snapshot | **Never** | **No** | **Never** |
-| **`ko2unity_work`** | Disposable prod-shaped experiments | When you choose (`apply_schema_to_work.ps1`) | **No** until cutover | `--target sandbox --ini site/config/ladder-work.ini` |
+| **`ko2unity_work`** | Disposable prod-shaped experiments | When you choose (`apply_schema_to_work.ps1`) | **`http://work.ratingskickoff.test/`** (after setup) | `--target sandbox --ini site/config/ladder-work.ini` |
 
 **Safety:** Setup scripts **must not** `DROP` or import into `ko2unity_db`. The archived prod dump in `data/dumps/` is **sanitized at extract** (`CREATE DATABASE` / `USE` → `ko2unity_baseline` only). Raw `KOOL_DB.sql` from Steve's zip is **not** kept as the import target.
 
@@ -35,8 +35,8 @@
 
 | File | Purpose |
 |------|---------|
-| `site/config/ko2unitydb_config.php` | PHP + default Python → **`ko2unity_db`** |
-| `site/config/ladder-work.ini` | Python sandbox only → **`ko2unity_work`** (copy from `ladder-work.ini.example`) |
+| `site/config/ko2unitydb_config.php` | Router: **`ratingskickoff.test`** → `.local.php` → **`ko2unity_db`**; **`work.ratingskickoff.test`** → `_work.local.php` → **`ko2unity_work`** |
+| `site/config/ladder-work.ini` | Python CLI sandbox → **`ko2unity_work`** (copy from `ladder-work.ini.example`) |
 
 ### One-time: create sandbox (does not touch dev)
 
@@ -67,12 +67,28 @@ powershell -ExecutionPolicy Bypass -File scripts\verify_local_databases.ps1
 powershell -ExecutionPolicy Bypass -File scripts\check_local_dev.ps1
 ```
 
-### Cutover to prod-shaped site (later, deliberate)
+### Local dual website (Jun 2026 — shipped)
 
-1. Parity/sim checklist passed on `ko2unity_work`.
-2. Change `ko2unitydb_config.php` → `$database = 'ko2unity_work'`.
-3. Smoke-test `http://ratingskickoff.test/`.
-4. Keep or drop `ko2unity_db` as archive.
+**Decision:** Browse **`ko2unity_work`** at **`http://work.ratingskickoff.test/`** while **`http://ratingskickoff.test/`** stays on **`ko2unity_db`**. We **rejected** the older plan of temporarily changing `$database` in one PHP config file (“cut over config to work”) because it is easy to leave work enabled by mistake and it blocks parallel dev + sandbox use.
+
+| Piece | Detail |
+|-------|--------|
+| **Router (git)** | `site/config/ko2unitydb_config.php` — hostname → `*.local.php` |
+| **Setup** | `scripts\setup_laragon_work_site.ps1` + hosts line (often needs Administrator) |
+| **Apache** | Laragon `ServerAlias *.ratingskickoff.test` — no second vhost file |
+| **Docs** | [`LOCAL_DEV.md`](../LOCAL_DEV.md) § URLs |
+
+**Smoke test (Jun 2026):** leaderboards on work URL show prod-snapshot ratings (~75k games). Dev URL unchanged.
+
+**Setup steps:**
+
+1. `scripts\setup_laragon_work_site.ps1` (hosts + `*_work.local.php`).
+2. Open **`http://work.ratingskickoff.test/`** alongside **`http://ratingskickoff.test/`**.
+3. After `apply_schema_to_work.ps1` + replay, more pages match work derived state — core ladder pages work on prod-shaped tables today.
+
+### Future prod / staging cutover (later, deliberate)
+
+**Not** the same as local dual URLs. Live games, Steve, `kooldb1`/`kooldb2`, PHP `ops/` — [`ladder-ops-platform.md`](../ladder-ops-platform.md).
 
 ---
 

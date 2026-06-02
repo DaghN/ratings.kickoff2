@@ -80,15 +80,28 @@ def _load_from_ini(path: Path) -> DbConfig:
     )
 
 
+def _resolve_php_config_path(path: Path) -> Path:
+    """If path is the host router, load dev credentials from *.local.php (CLI has no HTTP_HOST)."""
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return path
+    if "ko2unitydb_config.local.php" in text and "HTTP_HOST" in text:
+        local = path.parent / "ko2unitydb_config.local.php"
+        if local.is_file():
+            return local
+    return path
+
+
 def _find_php_config() -> Path | None:
     for path in _php_config_candidates():
         if path.is_file():
-            return path
+            return _resolve_php_config_path(path)
     return None
 
 
 def load_db_config(ini_path: Path | None = None) -> DbConfig:
-    """Load DB settings. Default: ko2unitydb_config.php (same as the PHP site)."""
+    """Load DB settings. Default: ko2unitydb_config.local.php via router (dev DB, same as ratingskickoff.test)."""
     if ini_path is not None:
         if not ini_path.is_file():
             raise SystemExit(f"Config not found: {ini_path}")
