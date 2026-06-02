@@ -26,7 +26,9 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 ### Agent policy (post-game)
 
 - **Local / staging:** Apply schema + run `*_rebuild.sql` ([`scripts/rebuild_website_derived_data_local.ps1`](../scripts/rebuild_website_derived_data_local.ps1)). That is sufficient for PHP to use stored truth.
-- **Prod live games:** Steve merges C++ from this document’s **Post-game rule** sections at cutover — not from retired per-table snippet packs.
+- **What to implement:** This document’s **Post-game rule** sections are the behaviour authority — whether the writer is Python replay, a future PHP `ops/modules/` module, or prod C++ until cutover.
+- **Prod live games (today):** Steve merges **C++** from those sections at cutover — not from retired per-table snippet packs.
+- **Prod target (agreed Jun 2026):** After cutover, Steve inserts ground truth, then invokes PHP derived processing per [`ladder-ops-platform.md`](ladder-ops-platform.md) — same rules as here, different runtime. Until then, do not treat missing PHP `dispatch.php` as incomplete contract definition.
 - **Exception:** server records / `generalstatstable` — [`docs/coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
 
 ### Derived data index

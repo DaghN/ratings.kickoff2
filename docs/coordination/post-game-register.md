@@ -1,6 +1,6 @@
 # Post-game (C++) — coordination pointer
 
-**Agents:** Do **not** treat “post-game pending” or missing prod C++ as incomplete **website** work. For local and staging, **schema + REP rebuilds** are enough for PHP to use stored truth. Live C++ is updated **once at prod cutover** from the contract, not from per-table snippet packs in this repo.
+**Agents:** Do **not** treat “post-game pending” or missing prod C++ as incomplete **website** work. For local and staging, **schema + REP rebuilds** are enough for PHP to use stored truth. Live C++ is updated **once at prod cutover** from the contract, not from per-table snippet packs in this repo. **Agreed prod target:** PHP derived step via [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2 — same contract rules, different runtime; missing `dispatch.php` in repo is not missing behaviour spec.
 
 ---
 

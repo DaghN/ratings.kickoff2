@@ -28,6 +28,17 @@
 | **Steve** | Persist **ground truth** after a rated game (insert into `ratedresults`; later possibly more event columns). Then **invoke** our PHP entry point. |
 | **Dagh (repo)** | **Derived truth**: dispatcher, modules, SQL mirrors, sim/replay orchestration, website contract. |
 
+### Post-game runtime authority (read this when docs disagree)
+
+| Question | Canonical answer |
+|----------|------------------|
+| **What** must post-game compute? | [`website-data-contract.md`](website-data-contract.md) post-game §§ — rules for each table/column. |
+| **Who invokes** derived updates after ground insert? | This doc — Steve calls PHP `ops/dispatch.php` `CMD=ProcessCompletedGame` with `game_id` (planned; not in repo yet). |
+| **Prod today** | Live games still use **Steve’s C++** post-game until cutover. |
+| **Prod target** | PHP ops modules implement the **same contract rules**; C++ writer retires when agreed. |
+
+Registers ([`prod-coordination.md`](prod-coordination.md), [`coordination/post-game-register.md`](coordination/post-game-register.md)) track cutover status — they do **not** override the split above.
+
 **Agreed call shape (Steve proposed, aligned with ground/derived):**
 
 ```text

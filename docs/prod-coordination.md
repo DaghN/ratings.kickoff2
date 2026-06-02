@@ -16,17 +16,20 @@
 
 **Derived website data contract:** `docs/website-data-contract.md` is the behavior authority for project-owned aggregate tables, rebuild rules, parity checks, and post-game requirements. Coordination registers track deployment status. **Post-game cutover index (links only):** [`coordination/post-game-cutover-checklist.md`](coordination/post-game-cutover-checklist.md).
 
+**Post-game runtime (Jun 2026):** Contract §§ define **what** derived updates must do. [`ladder-ops-platform.md`](ladder-ops-platform.md) §2 defines **who invokes** them after ground insert — **target** PHP `ops/dispatch.php`; **prod today** still C++ until cutover. Registers below still say “C++” where that reflects current prod; update rows when PHP ships.
+
 ---
 
 ## Three databases (quick reference)
 
 | Environment | DB name | Live game writes? | Site code | DB updates |
 |-------------|---------|-------------------|-----------|------------|
-| **Local** | `ko2unity_db` | No | Repo + Laragon | Dump import, `schema/`, `python -m scripts.ladder run --target local` |
-| **Staging** | `kooldb` | **No** | WinSCP → `public_html/` | Steve: SQL, replay, one-offs — **not** live play |
-| **Production** | Steve-managed live DB (not stored in repo) | **Yes** (C++ post-game + periodic jobs) | Steve / agreed deploy | Continuous + cutover packets |
+| **Local dev** | `ko2unity_db` | No | Repo + Laragon | Dump import, `schema/apply_local.ps1`, `--target local` |
+| **Local sandbox** | `ko2unity_work` (+ `ko2unity_baseline` reset) | No | Not PHP site | `reset_local_work_db.ps1`, `apply_schema_to_work.ps1`, `--target sandbox` |
+| **Staging** | `kooldb1` work / `kooldb2` reset (legacy `kooldb` possible) | **No** | WinSCP → `public_html/` | Steve: SQL, replay, one-offs — **not** live play |
+| **Production** | Steve-managed live DB (not stored in repo) | **Yes** (C++ post-game today; PHP ops target) | Steve / agreed deploy | Continuous + cutover packets |
 
-Steve confirmed staging and production are on entirely different physical servers; do not infer production access from the staging `kooldb` name.
+Steve confirmed staging and production are on entirely different physical servers; do not infer production access from staging DB names.
 
 Full detail: `docs/ladder-engine-plan.md` §2, `docs/STATUS_PAGE_DATA.md`, `docs/LOCAL_DEV.md`.
 

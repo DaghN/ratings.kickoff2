@@ -55,7 +55,34 @@ powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1 -DryRun
 
 **After replay (optional):** `python -m scripts.ladder.golden_record_checks` — Hall of Fame date regression matrix ([`docs/staging-post-game-record-defects.md`](staging-post-game-record-defects.md)).
 
-**Manual equivalent:** `python -m scripts.ladder run --target local` — full options in `scripts/ladder/README.md`. Staging `kooldb` requires `--target staging`; production would need a separately reviewed wrapper.
+**Manual equivalent:** `python -m scripts.ladder run --target local` — full options in `scripts/ladder/README.md`. Staging **`kooldb1`** (work DB; legacy name `kooldb` may still exist) requires `--target staging`; production would need a separately reviewed wrapper.
+
+---
+
+## Work DB (prod sandbox — local)
+
+For ladder ops / post-game dev on a **prod-shaped** copy, use **`ko2unity_work`** — not `ko2unity_db` (browser dev). Full roles: [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) · conventions: [`ladder-ops-platform.md`](ladder-ops-platform.md) §6.
+
+**One-time setup** (does not touch dev DB):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup_local_prod_sandbox.ps1
+```
+
+**Typical loop:**
+
+```powershell
+# Clone baseline → work (fast reset)
+powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1
+
+# Expand project schema on work when ready
+powershell -ExecutionPolicy Bypass -File scripts\apply_schema_to_work.ps1
+
+# Full derived replay on work (until PHP ReplayChronological exists)
+python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
+```
+
+Copy `site/config/ladder-work.ini.example` → `ladder-work.ini` first. **Never** run destructive ops on `ko2unity_baseline`.
 
 ---
 
@@ -125,7 +152,7 @@ bash run_staging_ladder_replay.sh
 
 The wrapper passes `--target staging`, and the Python replay prints DB identity before writes.
 
-**Schema on staging:** send SQL file(s) from `schema/migrations/` — Steve runs on staging `kooldb`. Steve confirmed staging and production are on entirely different physical servers; production cutover still needs its own reviewed instructions.
+**Schema on staging:** send SQL file(s) from `schema/migrations/` — Steve runs on staging work DB **`kooldb1`** (pristine copy **`kooldb2`**). Legacy **`kooldb`** may still exist from May 2026. Steve confirmed staging and production are on entirely different physical servers; production cutover still needs its own reviewed instructions.
 
 **Full checklist:** `docs/STAGING_REPLAY.md` · **Cutover email template:** `docs/coordination/cutover-packet-template.md`
 

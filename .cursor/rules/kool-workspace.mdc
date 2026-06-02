@@ -14,7 +14,7 @@ alwaysApply: true
 Unless the first user message already contains equivalent context:
 
 1. **Read** (tool, not memory): `PROJECT_MEMORY.md` → `AGENTS.md` → `docs/PROJECT_MAP.md`
-2. If the task names an area, read that spec (e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md`, `docs/design-direction.md` for UI)
+2. If the task names an area, read that spec (e.g. `docs/STATUS_PAGE_DATA.md`, `docs/player-profile-feast.md`, `docs/design-direction.md` for UI). If the task touches **sandbox / `ko2unity_work` / `ops/` / post-game / Steve ladder boundary / schema on work**, also read `docs/ladder-ops-platform.md` and `docs/coordination/database-copies-2026-06.md` before coding.
 3. **Do not** read all of `docs/coordination/` unless the task is migration / Steve / schema / replay / C++
 
 Then implement what Dagh asked.

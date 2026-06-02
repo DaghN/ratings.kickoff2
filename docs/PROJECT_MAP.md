@@ -83,20 +83,25 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → planned `ops/dispatch.php` | Steve insert + call (agreed Jun 2026; PHP not in repo yet) |
 | Hourly fade | Document stop (PER-001) | Stops job |
 
-Prod post-game: Steve merges C++ from [`website-data-contract.md`](website-data-contract.md) post-game § at cutover; records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md). Pointer: [`coordination/post-game-register.md`](coordination/post-game-register.md).
+Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Runtime:** prod **today** = Steve C++; **target** = PHP `ops/dispatch.php` per [`ladder-ops-platform.md`](ladder-ops-platform.md) §2 (not in repo yet). Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md). Pointer: [`coordination/post-game-register.md`](coordination/post-game-register.md).
 
 ---
 
 ## Essential commands
 
 ```powershell
-# Local replay
+# Local replay (dev DB ko2unity_db)
 powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1
 
-# Local schema
+# Prod-shaped sandbox: reset work from baseline, schema on work, replay on work
+powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1
+powershell -ExecutionPolicy Bypass -File scripts\apply_schema_to_work.ps1
+python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
+
+# Local schema (dev DB)
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 
-# Local website-derived aggregate rebuild
+# Local website-derived aggregate rebuild (dev DB)
 powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
 ```
 

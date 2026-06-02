@@ -31,6 +31,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Area touched | Spec file |
 |--------------|-----------|
 | Stored / derived DB tables, rebuild, post-game rules | `docs/website-data-contract.md` |
+| Ladder ops, `ops/`, Steve boundary, sandbox DBs, dispatcher conventions | `docs/ladder-ops-platform.md` (+ `docs/coordination/database-copies-2026-06.md` if DB roles change) |
 | Status hub panels / league | `docs/STATUS_PAGE_DATA.md` |
 | Player profile layout | `docs/player-profile-feast.md` |
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |

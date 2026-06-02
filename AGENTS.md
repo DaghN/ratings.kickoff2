@@ -14,7 +14,7 @@ Cold start (do **before** coding unless Dagh pasted full context):
 | 2 | [`AGENTS.md`](AGENTS.md) | Agent rituals, authority, and finish rules |
 | 3 | [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) | What repo is; where code and docs live |
 | 4 | Dagh’s message | Today’s goal wins over stale docs |
-| 5 | Feature spec **if** obvious | e.g. `docs/ladder-ops-platform.md` (Steve/ops/sim), `docs/STATUS_PAGE_DATA.md`, `docs/activity-charts.md` |
+| 5 | Feature spec **if** obvious | Ladder sim / `ops/` / `ko2unity_work` / Steve boundary → **`docs/ladder-ops-platform.md`** (§6 if coding under `ops/`). Else e.g. `docs/STATUS_PAGE_DATA.md`, `docs/activity-charts.md` |
 | 6 | [`docs/design-direction.md`](docs/design-direction.md) | If UI/theme work |
 
 **Do not** read all of `docs/coordination/` up front. Open [`docs/prod-coordination.md`](docs/prod-coordination.md) only when the task touches **stored ladder truth** or Steve/migration.
@@ -44,7 +44,7 @@ Cold start (do **before** coding unless Dagh pasted full context):
 
 ## Migration awareness (background)
 
-Prod ladder data is written by **Steve’s C++** (per game) + **periodic jobs** (e.g. hourly fade). We maintain a **migration backlog** in `docs/coordination/` for when stored truth changes — **not** on every cosmetics session.
+Prod ladder data is written by **Steve** (per game + periodic jobs). **Today:** live derived updates are still **C++** post-game. **Agreed target (Jun 2026):** Steve inserts ground truth, then PHP **`ops/dispatch.php`** derived step — see [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) §2; behaviour rules stay in [`website-data-contract.md`](docs/website-data-contract.md). We maintain a **migration backlog** in `docs/coordination/` for when stored truth changes — **not** on every cosmetics session.
 
 **Performance / stored truth habit:** For any feature that aggregates across historical `ratedresults`, **the default is stored/precomputed truth** — not live SQL. Measured evidence (May 2026): even with only ~75k rows, raw aggregation from `ratedresults` is **~73x slower** than reading a precomputed aggregate table, because the table is wide (27 cols, mediumtext), two-player games require UNION ALL doubling, and DISTINCT counting per group is expensive. Do not assume "the table is small, a live scan is fine."
 

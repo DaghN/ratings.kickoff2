@@ -1,6 +1,6 @@
 # KOOL Kick Off 2 ratings site
 
-PHP + MariaDB ladder and statistics for online Kick Off 2 play. Dagh develops locally ([`docs/LOCAL_DEV.md`](docs/LOCAL_DEV.md)), deploys PHP to staging via WinSCP; production database and post-game logic are coordinated with Steve.
+PHP + MariaDB ladder and statistics for online Kick Off 2 play. Dagh develops locally ([`docs/LOCAL_DEV.md`](docs/LOCAL_DEV.md)), deploys PHP to staging via WinSCP; production database and post-game logic are coordinated with Steve ([`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) — ground/derived split and `ops/` target).
 
 ## Start here
 
