@@ -3,28 +3,8 @@
  * Top players by personal peak calendar day / week / month / year (most rated games in one period).
  * One row per player (their best period). Ties on game count: earlier period wins.
  *
- * Prefer the player_peak_period_games cache, then player_period_games when present; fall back to ratedresults while
- * staging/prod are still catching up with the aggregate-table rollout.
+ * Read stored truth only: player_peak_period_games, then player_period_games. No live ratedresults scan.
  */
-
-/**
- * @return 'day'|'month'|'year'|null
- */
-function k2_peak_period_key_sql(string $period): ?string
-{
-    switch ($period) {
-        case 'day':
-            return 'DATE(`Date`)';
-        case 'week':
-            return 'DATE_SUB(DATE(`Date`), INTERVAL WEEKDAY(`Date`) DAY)';
-        case 'month':
-            return "DATE_FORMAT(`Date`, '%Y-%m')";
-        case 'year':
-            return 'YEAR(`Date`)';
-        default:
-            return null;
-    }
-}
 
 /**
  * @return string|null SQL expression for player_period_games.period_start.
@@ -91,7 +71,7 @@ function k2_peak_period_leaderboard_entries_from_peak_table(mysqli $con, string 
         ];
     }
 
-    return $entries ?: null;
+    return $entries;
 }
 
 /**
@@ -142,7 +122,7 @@ function k2_peak_period_leaderboard_entries_from_aggregate(mysqli $con, string $
         ];
     }
 
-    return $entries ?: null;
+    return $entries;
 }
 
 /**
@@ -186,7 +166,7 @@ function k2_peak_all_time_leaderboard_entries_from_aggregate(mysqli $con, int $l
         ];
     }
 
-    return $entries ?: null;
+    return $entries;
 }
 
 /**
@@ -203,41 +183,7 @@ function k2_peak_all_time_leaderboard_entries(mysqli $con, int $limit = 0, ?stri
         return $aggregateEntries;
     }
 
-    $limitSql = $limit > 0 ? ' LIMIT ' . (int) $limit : '';
-
-    $sql = 'SELECT p.ID AS player_id, p.Name AS player_name, '
-        . "DATE_FORMAT(first_games.first_date, '%Y-%m-%d') AS period_key, "
-        . 'p.NumberGames AS games '
-        . 'FROM playertable p INNER JOIN ('
-        . 'SELECT player_id, MIN(game_date) AS first_date FROM ('
-        . 'SELECT idA AS player_id, `Date` AS game_date FROM ratedresults '
-        . 'UNION ALL '
-        . 'SELECT idB AS player_id, `Date` AS game_date FROM ratedresults'
-        . ') AS appearances GROUP BY player_id'
-        . ') AS first_games ON first_games.player_id = p.ID '
-        . 'WHERE p.NumberGames > 0 '
-        . 'ORDER BY games DESC, period_key ASC' . $limitSql;
-
-    $res = mysqli_query($con, $sql);
-    if ($res === false) {
-        $error = mysqli_error($con);
-        return [];
-    }
-
-    $entries = [];
-    $rank = 0;
-    while ($row = mysqli_fetch_assoc($res)) {
-        $rank++;
-        $entries[] = [
-            'rank' => $rank,
-            'player_id' => (int) $row['player_id'],
-            'player_name' => (string) $row['player_name'],
-            'period_key' => (string) $row['period_key'],
-            'games' => (int) $row['games'],
-        ];
-    }
-
-    return $entries;
+    return [];
 }
 
 /**
@@ -282,7 +228,7 @@ function k2_peak_longevity_leaderboard_entries_from_aggregate(mysqli $con, int $
         ];
     }
 
-    return $entries ?: null;
+    return $entries;
 }
 
 /**
@@ -299,41 +245,7 @@ function k2_peak_longevity_leaderboard_entries(mysqli $con, int $limit = 0, ?str
         return $aggregateEntries;
     }
 
-    $limitSql = $limit > 0 ? ' LIMIT ' . (int) $limit : '';
-
-    $sql = 'SELECT p.ID AS player_id, p.Name AS player_name, '
-        . "DATE_FORMAT(MIN(a.game_date), '%Y-%m-%d') AS first_game, "
-        . "DATE_FORMAT(MAX(a.game_date), '%Y-%m-%d') AS last_game, "
-        . 'DATEDIFF(DATE(MAX(a.game_date)), DATE(MIN(a.game_date))) + 1 AS days '
-        . 'FROM playertable p INNER JOIN ('
-        . 'SELECT idA AS player_id, `Date` AS game_date FROM ratedresults '
-        . 'UNION ALL '
-        . 'SELECT idB AS player_id, `Date` AS game_date FROM ratedresults'
-        . ') AS a ON a.player_id = p.ID '
-        . 'GROUP BY p.ID, p.Name '
-        . 'ORDER BY days DESC, first_game ASC, player_name ASC' . $limitSql;
-
-    $res = mysqli_query($con, $sql);
-    if ($res === false) {
-        $error = mysqli_error($con);
-        return [];
-    }
-
-    $entries = [];
-    $rank = 0;
-    while ($row = mysqli_fetch_assoc($res)) {
-        $rank++;
-        $entries[] = [
-            'rank' => $rank,
-            'player_id' => (int) $row['player_id'],
-            'player_name' => (string) $row['player_name'],
-            'first_game' => (string) $row['first_game'],
-            'last_game' => (string) $row['last_game'],
-            'days' => (int) $row['days'],
-        ];
-    }
-
-    return $entries;
+    return [];
 }
 
 /**
@@ -362,48 +274,7 @@ function k2_peak_period_leaderboard_entries(mysqli $con, string $period, int $li
         return $aggregateEntries;
     }
 
-    $keySql = k2_peak_period_key_sql($period);
-    if ($keySql === null) {
-        $error = 'invalid_period';
-
-        return [];
-    }
-
-    $limitSql = $limit > 0 ? ' LIMIT ' . (int) $limit : '';
-
-    $sql = 'SELECT player_id, player_name, period_key, games FROM ('
-        . 'SELECT pm.player_id, p.Name AS player_name, pm.period_key, pm.games, '
-        . 'ROW_NUMBER() OVER (PARTITION BY pm.player_id ORDER BY pm.games DESC, pm.period_key ASC) AS rn '
-        . 'FROM ('
-        . 'SELECT player_id, period_key, COUNT(*) AS games FROM ('
-        . 'SELECT idA AS player_id, ' . $keySql . ' AS period_key FROM ratedresults '
-        . 'UNION ALL '
-        . 'SELECT idB AS player_id, ' . $keySql . ' AS period_key FROM ratedresults'
-        . ') AS appearances GROUP BY player_id, period_key'
-        . ') AS pm INNER JOIN playertable p ON p.ID = pm.player_id'
-        . ') AS best_period WHERE rn = 1 '
-        . 'ORDER BY games DESC, period_key ASC' . $limitSql;
-
-    $res = mysqli_query($con, $sql);
-    if ($res === false) {
-        $error = mysqli_error($con);
-        return [];
-    }
-
-    $entries = [];
-    $rank = 0;
-    while ($row = mysqli_fetch_assoc($res)) {
-        $rank++;
-        $entries[] = [
-            'rank' => $rank,
-            'player_id' => (int) $row['player_id'],
-            'player_name' => (string) $row['player_name'],
-            'period_key' => (string) $row['period_key'],
-            'games' => (int) $row['games'],
-        ];
-    }
-
-    return $entries;
+    return [];
 }
 
 /**

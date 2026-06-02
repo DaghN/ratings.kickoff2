@@ -78,6 +78,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Peak HoF read path** — removed live `ratedresults` fallback in `peak_month_leaderboard_query.php` (stored tables only; fixes slow server2 + post-prepare false peaks). |
 | 2026-06 | **Prepare in PHP** — `site/public_html/ops/run_prepare.php` (no `dispatch.php`); `prepare_local_work_db.ps1` calls PHP; Python `work_prepare` legacy. |
 | 2026-06 | **Prepare v2 end-to-end** — SCH-015 KungFu drop (9+1), `seed-catalog` in orchestrator, parity **idA/idB/Date** vs baseline (UTC); `apply_local.ps1` pins `time_zone=+00:00` (fixes 16 DST `Date` drifts on index build). |
 | 2026-06 | **Full prepare v2 verified** on `ko2unity_work` — parity all PASS; §4.5 truncates on migrated work; fixed `schema/apply_local.ps1` Unicode em-dash breaking PowerShell migrate. |
