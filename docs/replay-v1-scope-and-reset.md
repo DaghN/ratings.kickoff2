@@ -104,7 +104,7 @@ Do **not** change:
 - Goals: `GoalsFor`, `GoalsAgainst`, `AverageGoalsFor`, `AverageGoalsAgainst`, `GoalRatio`
 - Extremes (values): `MostGoalsScored`, `MostGoalsConceded`, `BiggestWinDifference`, `BiggestDrawSum`, `BiggestLossDifference`, `BiggestSumOfGoals`, `DoubleDigits`, `CleanSheets`, and all ratio/conceded variants
 - Opponent / victim / culprit **counts**: `DifferentOpponents`, `DifferentVictims`, `DoubleDigitsVictims`, `CleanSheetsVictims`, `MostGoalsConcededVictims`, `LeastGoalsScoredVictims`, `BiggestWinVictims`, `DifferentCulprits`, `DoubleDigitsCulprits`, `CleanSheetsCulprits`, `MostGoalsScoredCulprits`, `LeastGoalsConcededCulprits`, `BiggestWinCulprits`
-- Rating career: `SumOfOpponentsRating`, `AverageOpponentRating`, `HighestRatedVictim`, `CurrentRatingAscent`, `BiggestRatingAscent`, `CurrentRatingDescent`, `BiggestRatingDescent`, `PeakRating`, `LowestRating`, `RecentAverageRating` — at reset use unset sentinels for peak/nadir (`PeakRating` NULL/0, `LowestRating` **5000**); **required write rules** after replay: [`website-data-contract.md`](website-data-contract.md) § **Career peak and nadir** (establish at 20 games; legacy `player_state.py` until updated)
+- Rating career: `SumOfOpponentsRating`, `AverageOpponentRating`, `HighestRatedVictim`, `CurrentRatingAscent`, `BiggestRatingAscent`, `CurrentRatingDescent`, `BiggestRatingDescent`, `PeakRating`, `LowestRating` — at reset use unset sentinels for peak/nadir (`PeakRating` NULL/0, `LowestRating` **5000**); **required write rules** after replay: [`website-data-contract.md`](website-data-contract.md) § **Career peak and nadir** (establish at 20 games; legacy `player_state.py` until updated). **`RecentAverageRating`:** dropped on work DB (**SCH-016**); replay does not write it.
 - Streaks (current + longest): `WinningStreak`, `DrawingStreak`, `LosingStreak`, `NonWinStreak`, `NonDrawStreak`, `NonLossStreak`, `LongestWinningStreak`, `LongestDrawingStreak`, `LongestLosingStreak`, `LongestNonWinStreak`, `LongestNonDrawStreak`, `LongestNonLossStreak`
 - Pointers to record games: all `*GameID` and `*VictimID` / `*CulpritID` columns listed in `docs/playertable-schema.md`
 - **Last game pointers (replay will set):** `LastGame`, `LastGameGameID`, `LastWinGameID`, `LastDrawGameID`, `LastLossGameID` — NULL at reset; v1 may only set `LastGame` + `LastGameGameID` during replay (see §6)
@@ -140,7 +140,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 | `LastGame` | This game’s `Date` |
 | `LastGameGameID` | This game’s `id` |
 
-**v2 replay (`scripts/ladder/` May 2026)** also rebuilds: extremes, streaks, opponent/victim/culprit counts, rating career fields, all `*GameID` / `*VictimID` / `*CulpritID` pointers, `RecentAverageRating`, and `Display=1` when `NumberGames >= 1`. **`generalstatstable`** row `id=1` is ensured (CREATE + seed if missing), cleared on reset, and rebuilt from final `ratedresults` + `playertable`.
+**v2 replay (`scripts/ladder/` May 2026)** also rebuilds: extremes, streaks, opponent/victim/culprit counts, rating career fields, all `*GameID` / `*VictimID` / `*CulpritID` pointers, and `Display=1` when `NumberGames >= 1` (not `RecentAverageRating` — column dropped **SCH-016**). **`generalstatstable`** row `id=1` is ensured (CREATE + seed if missing), cleared on reset, and rebuilt from final `ratedresults` + `playertable`.
 
 ---
 

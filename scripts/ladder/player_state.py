@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from .constants import RECENT_RATING_LOOKBACK, START_RATING
+from .constants import START_RATING
 
 SENTINEL_LEAST_GOALS = 50
 SENTINEL_LOWEST_RATING = 5000.0
@@ -139,7 +139,6 @@ class PlayerState:
     biggest_loss_culprit_id: int = 0
     highest_rated_victim_game_id: int | None = None
     lowest_rated_culprit_game_id: int | None = None
-    rating_history: list[float] = field(default_factory=list)
     game_flags: GameRecordFlags = field(default_factory=GameRecordFlags)
     _network_opponents: set[int] = field(default_factory=set, repr=False)
     _network_victims: set[int] = field(default_factory=set, repr=False)
@@ -157,12 +156,6 @@ class PlayerState:
 
     def network_cs_victim_count(self) -> int:
         return len(self._network_cs_victims)
-
-    def recent_average_rating(self) -> float | None:
-        if not self.rating_history:
-            return None
-        tail = self.rating_history[-RECENT_RATING_LOOKBACK:]
-        return round(sum(tail) / len(tail), 2)
 
     def apply_match(
         self,
@@ -356,8 +349,6 @@ class PlayerState:
         else:
             self.last_loss_game_id = game_id
 
-        self.rating_history.append(new_rating)
-
     def _update_streaks(self, won: bool, drew: bool, lost: bool) -> None:
         if won:
             self.winning_streak += 1
@@ -447,7 +438,6 @@ class PlayerState:
             "BiggestRatingDescent": self.biggest_rating_descent or None,
             "LowestRating": self.lowest_rating,
             "PeakRating": self.peak_rating or None,
-            "RecentAverageRating": self.recent_average_rating(),
             "WinningStreak": self.winning_streak or None,
             "DrawingStreak": self.drawing_streak or None,
             "LosingStreak": self.losing_streak or None,

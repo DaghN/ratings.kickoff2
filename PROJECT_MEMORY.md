@@ -32,7 +32,7 @@
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Ladder ops platform (Jun 2026):** Prepare in **`ops/run_prepare.php`**. Post-game PHP **reverted** — playbook only: [`docs/post-game-php-development.md`](docs/post-game-php-development.md). **Next:** P0+P1 per playbook (per-game commit, incremental GST, no `RecentAverageRating`).
+- **Ladder ops platform (Jun 2026):** Prepare in **`ops/run_prepare.php`**. Post-game PHP **reverted** — playbook only: [`docs/post-game-php-development.md`](docs/post-game-php-development.md). **SCH-016** drops `RecentAverageRating` on work migrate. **Next:** P0+P1 per playbook.
 - **Local dual website (Jun 2026, live):** **`ratingskickoff.test`** → dev DB · **`work.ratingskickoff.test`** → work DB (router + `setup_laragon_work_site.ps1`); **not** config-file cutover. Leaderboards on work URL verified vs prod snapshot. **`database-copies-2026-06.md`** § Local dual website · **`LOCAL_DEV.md`**.
 
 - **Change style:** small, reversible slices.

@@ -11,6 +11,35 @@
 | [`ladder-ops-platform.md`](ladder-ops-platform.md) | Steve boundary, `dispatch.php`, `ops/` layout, prod target |
 | [`work-db-prepare.md`](work-db-prepare.md) | Prepare, zero derived, simul modes A/B/C |
 | [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) | Core ladder column lists for reset/replay |
+| [`ratings_cpp.txt`](ratings_cpp.txt) | **Prod today** — per-game block shape and field order (inspiration; not the speed or tie-policy target) |
+
+---
+
+## 0. Authority and performance (read before coding)
+
+### 0.1 What to implement — three sources, one rank
+
+| Rank | Source | Use it for |
+|------|--------|------------|
+| **1 — Must match** | [`website-data-contract.md`](website-data-contract.md) (+ [`records-post-game-exception.md`](coordination/records-post-game-exception.md) for GST records) | **Correctness:** column meanings, processing order, tie policy **targets** (`>` on HoF and, when shipped, playertable personal extremes), UTC, incremental post-game rules. |
+| **2 — Structural inspiration** | [`ratings_cpp.txt`](ratings_cpp.txt) (`RatingProcedureUnity` per-game block) | **What prod does today:** which fields get updated per game, rough sequencing (ratedresults → playertable → generalstatstable), formulas that are not spelled out elsewhere. |
+| **3 — Parity oracle (batch)** | `scripts/ladder/` (`elo.py`, `outcome.py`, `player_state.py`, `server_records.py`, …) | **Checkpoint diffs** on work after prepare — same end state for shipped phases. **Do not** copy replay loop structure (memory + batch finalize). |
+
+**When sources disagree:** contract wins on behaviour; C++ documents legacy quirks (e.g. `>=` on personal extremes, dropped `RecentAverageRating` scan, ratio leaders on GST). PHP implements **contract target**, not every C++ detail, unless you are explicitly parity-matching legacy for a transition slice.
+
+### 0.2 Speed — first-class requirement
+
+Post-game PHP must be **fast per game** — suitable for Steve calling it **once after every live match**, and for **Mode A sim** over ~75k games without “batch cheat” shortcuts.
+
+| Requirement | Detail |
+|-------------|--------|
+| **Per-game budget** | Small constant number of SQL round-trips; reads/writes scoped to this `game_id`, players A/B, and GST row `id=1`. |
+| **Incremental only** | Update running totals on `playertable` and `generalstatstable` from values already computed for this game — see §3. |
+| **No legacy slow paths** | Do **not** port C++ patterns that scan all of `ratedresults` per game (e.g. old `RecentAverageRating` query, full-table GST `SUM`). |
+| **Sim scale** | `replay-to` through 100 / 1000 games should feel like a dev smoke test, not a batch job; full history is late confidence, not every edit. |
+| **Server note** | [`ladder-ops-platform.md`](ladder-ops-platform.md) §2 — PHP on prod is acceptable; that is not a licence for per-game full-history scans. |
+
+**Acceptance smell-test:** if one `process_completed_game` call does an unbounded `ratedresults` aggregation, it fails this playbook even if parity passes.
 
 ---
 
@@ -66,12 +95,38 @@ The site avoids **full-history scans on read paths** (profile indexes, stored pe
 |---------|----------------------------------|
 | Read **this** game row (ground + already-derived cols you need) | `SELECT COUNT(*) / SUM(…) FROM ratedresults` with **no** `id` / pair / player bound |
 | **Bounded** history: e.g. `EXISTS (… prior pair game … AND id < ?)` with index-friendly predicates | Rescan entire table each game to refresh GST totals |
-| Read **two** `playertable` rows (A, B) at start of game | Recompute `RecentAverageRating` from career history (column **retired** — see §4) |
+| Read **two** `playertable` rows (A, B) at start of game | Column **removed** (SCH-016) — see §4 |
 | Increment stored counters on `generalstatstable` id=1 | End-of-run `finalize_*` over all games in PHP sim |
 
 **Contract note:** “Sums from full corpus” on GST aggregate columns describes the **meaning** of the number, not the implementation. Live and PHP sim should **maintain running totals** on `generalstatstable` (and derived cols on the game row you just wrote).
 
 **Indexes:** Use existing `idx_ratedresults_idA`, `idx_ratedresults_idB`, `idx_ratedresults_date` for any bounded history probe.
+
+### 3.1 Stored facilitators (optional, flagged)
+
+While implementing a phase, **look for** SQL that is correct but **heavy on the per-game hot path** — repeated probes, or bounded history reads that still feel like “fairly slow” work every match. You are **not** asked to squeeze every millisecond; you **are** asked to **flag** candidates where a **migrated, incrementally maintained** field could replace recurring queries.
+
+| Step | What to do |
+|------|------------|
+| **Default** | Ship the phase with incremental updates from rows already loaded/written (§3, §0.2). |
+| **Notice** | If a query runs often per game (e.g. many `EXISTS`/`COUNT` on `ratedresults` for the same pair) or cannot be reduced to one cheap indexed lookup, note it: **Slow-query candidate** — query shape, how often per game, rough idea for stored truth. |
+| **Promote** | Open a migration (**SCH-NNN** in `schema/migrations/`) + contract § only when the candidate is on the hot path and indexes alone are not enough. Discuss with Dagh before widening `playertable` or adding new aggregate tables. |
+| **Implement** | New stored fields must update **inside** `k2_ops_process_completed_game` (same transaction as the rest of the phase), not in a batch job after sim, if later games depend on them. |
+
+**Good facilitator patterns (examples):**
+
+- **Cumulative counters** on `generalstatstable` id=1 or `playertable` (already the default for GST totals).
+- **Directed pair rows** — contract already has `player_matchup_summary`; maintaining A→B stats there may replace repeated “have they played before?” history probes in P2+.
+- **Small side tables** — often easier than new wide `playertable` columns; register in [`schema-register.md`](coordination/schema-register.md).
+
+**Do not:**
+
+- Block P1 on schema design for later phases — **flag** and continue.
+- Add duplicate stored truth in two places that can drift.
+- Use facilitators to avoid per-game commit / simul shape (§2).
+- Reintroduce full-history scans “just once per game” (still forbidden in §3).
+
+**Authority for new stored fields:** [`website-data-contract.md`](website-data-contract.md) post-game rule + parity; structural hint from [`ratings_cpp.txt`](ratings_cpp.txt) or `scripts/ladder/` as today.
 
 ---
 
@@ -79,7 +134,7 @@ The site avoids **full-history scans on read paths** (profile indexes, stored pe
 
 | Item | Status |
 |------|--------|
-| **`playertable.RecentAverageRating`** | **Retired on website** — do not compute, display, or parity-check in PHP post-game. Prepare/zero-derived should NULL it (migration tweak planned; not in prepare yet). Python replay may still write it until ladder script is trimmed — PHP ignores. |
+| **`playertable.RecentAverageRating`** | **Dropped on work DB** — `schema/migrations/016_drop_playertable_recent_average_rating.sql` (SCH-016) runs in prepare **migrate** step. Do not reference in PHP post-game or parity. Python replay no longer writes it. Prod C++ may still expect the column until cutover. |
 | **Ratio leader columns on `generalstatstable`** | Dropped — leaders from `playertable` at read time ([`records-post-game-exception.md`](coordination/records-post-game-exception.md)). |
 | **`player_milestones`, period aggregates, …** | Later phases (P4+) — contract § Post-game derived-data behavior. |
 
@@ -181,7 +236,7 @@ Name checkpoints explicitly in chat/commits: e.g. “through **id 74879**” vs 
 | **3** | `generalstatstable` id=1 (holders + incremental aggregates) | Server records phase |
 | **4** | Aggregates / `player_milestones` | When PHP implements them incrementally |
 
-Exclude `RecentAverageRating` from playertable diffs.
+`RecentAverageRating` is absent after SCH-016 — no playertable diff column for it.
 
 ### 9.2 Dev vs work gate (reference)
 
@@ -206,9 +261,9 @@ Follow contract processing order. Ship **one phase → checkpoint → parity** b
 | Phase | Scope | Notes |
 |-------|--------|--------|
 | **P0** | Bootstrap + load game row + guards + dev runner skeleton | §5 |
-| **P1** | `ratedresults` Elo + outcome derived cols | Mirror `scripts/ladder/elo.py`, `outcome.py` |
-| **P2** | `playertable` career counters, rating, extremes, streaks | Mirror `player_state.py`; personal extremes still **`>=`** in Python until contract `>` cutover — document if diverging |
-| **P3** | `generalstatstable` — **incremental** aggregates + strict `>` holders | Mirror `server_records.py`; aggregates **increment**, do not rescan |
+| **P1** | `ratedresults` Elo + outcome derived cols | Contract + `ratings_cpp.txt` Elo block; parity vs `elo.py` / `outcome.py` |
+| **P2** | `playertable` career counters, rating, extremes, streaks | Contract + C++ per-game playertable block; parity vs `player_state.py` (personal extremes **`>=`** in Python/C++ until contract `>` cutover) |
+| **P3** | `generalstatstable` — **incremental** aggregates + strict `>` holders | Contract + `records-post-game-exception.md`; parity vs `server_records.py`; aggregates **increment**, do not rescan |
 | **P4** | `player_period_games` + `player_peak_period_games` | contract §§ |
 | **P5** | `server_daily_activity`, period totals, matchups, league slices | |
 | **P6** | `player_milestones` (incremental) | |
@@ -258,5 +313,8 @@ Match [`website-data-contract.md`](website-data-contract.md) and prepare bootstr
 
 | When | What |
 |------|------|
+| 2026-06 | **§3.1** — stored facilitators: flag slow per-game queries; consider SCH + contract when indexes are not enough. |
+| 2026-06 | **§0** — authority rank (contract > C++ inspiration > Python parity) and explicit per-game performance requirement. |
+| 2026-06 | **SCH-016** — DROP `playertable.RecentAverageRating` on prepare migrate; parity `recent_average_rating_column_absent`. |
 | 2026-06 | **Careful rewrite** after revert of first PHP attempt: simul = per-game commit; `ratedresults` policy; `RecentAverageRating` retired; no unverified parity claims. |
 | 2026-06 | *(removed)* First playbook + P1–P2 PHP — reverted; do not treat as shipped. |

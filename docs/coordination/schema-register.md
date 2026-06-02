@@ -23,6 +23,7 @@ SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `s
 | SCH-013 | `012_player_milestones_source_lobby.sql` | Extend `source_kind` with `lobby` for `entered_arena` (`playertable.JoinDate` = register/lobby) | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Yes (REP-008) | Staging with REP-008; live writer at account register on prod |
 | SCH-014 | `014_player_play_streaks.sql` | Create `player_play_streaks`; add `LongestDailyPlayStreak*` / `LongestWeeklyPlayStreak*` on `generalstatstable` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Yes (REP-015) | Staging verified May 2026 (Steve): day/week max **87**/**126**, HoF player **582**/**344**; UI `ranked4.php` + `server2.php` |
 | SCH-015 | `015_drop_kungfu_columns.sql` | DROP `playertable.KungFu*` (9) + `resulttable.KungFuGameID` (1); sanitizes invalid `LastGame`/`LastLogin` before ALTER | **Done** (Jun 2026, prepare on work; parity PASS) | **Pending** | **Pending** | No | Apply with UTC (`apply_local.ps1`); coordinate Steve if prod C++ still writes these columns |
+| SCH-016 | `016_drop_playertable_recent_average_rating.sql` | DROP `playertable.RecentAverageRating` (retired; was avg of own last N post-game ratings) | **Done** (Jun 2026, via prepare migrate on work) | **Pending** | **Pending** | No | Website does not read; Python replay no longer writes; prod C++ still references until cutover |
 
 ### Adding a row
 

@@ -132,6 +132,21 @@ function k2_ops_run_parity_checks(K2OpsWorkTarget $target): array
             'detail' => "KungFu% columns remaining={$kungfu}",
         ];
 
+        $res = $con->query(
+            "SELECT COUNT(*) AS n FROM information_schema.COLUMNS "
+            . "WHERE table_schema = DATABASE() AND table_name = 'playertable' "
+            . "AND column_name = 'RecentAverageRating'"
+        );
+        $recentAvg = $res ? (int) $res->fetch_assoc()['n'] : -1;
+        if ($res) {
+            $res->free();
+        }
+        $results[] = [
+            'name' => 'recent_average_rating_column_absent',
+            'ok' => $recentAvg === 0,
+            'detail' => 'RecentAverageRating column ' . ($recentAvg === 0 ? 'absent' : 'still present'),
+        ];
+
         $res = $con->query('SELECT COUNT(*) AS n FROM ratedresults WHERE NewRatingA IS NOT NULL');
         $derived = $res ? (int) $res->fetch_assoc()['n'] : -1;
         if ($res) {

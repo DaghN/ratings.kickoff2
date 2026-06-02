@@ -49,7 +49,7 @@ const K2_OPS_PLAYERTABLE_NULL_ON_RESET = [
     'DoubleDigitsCulprits', 'CleanSheetsCulprits', 'MostGoalsScoredCulprits', 'LeastGoalsConcededCulprits',
     'BiggestWinCulprits', 'SumOfOpponentsRating', 'AverageOpponentRating', 'HighestRatedVictim',
     'CurrentRatingAscent', 'BiggestRatingAscent', 'CurrentRatingDescent', 'BiggestRatingDescent',
-    'PeakRating', 'RecentAverageRating', 'WinningStreak', 'DrawingStreak', 'LosingStreak',
+    'PeakRating', 'WinningStreak', 'DrawingStreak', 'LosingStreak',
     'NonWinStreak', 'NonDrawStreak', 'NonLossStreak', 'LongestWinningStreak', 'LongestDrawingStreak',
     'LongestLosingStreak', 'LongestNonWinStreak', 'LongestNonDrawStreak', 'LongestNonLossStreak',
     'LastGameGameID', 'LastWinGameID', 'LastDrawGameID', 'LastLossGameID', 'LowestRatingGameID',

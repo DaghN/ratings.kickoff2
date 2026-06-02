@@ -103,7 +103,7 @@ Types and nullability from **`SHOW FULL COLUMNS`**.
 | BiggestRatingDescent | decimal(11,3) | YES | | |
 | LowestRating | decimal(6,2) | NO | | 5000.00 |
 | PeakRating | decimal(6,2) | YES | | |
-| RecentAverageRating | decimal(6,2) | YES | | |
+| ~~RecentAverageRating~~ | — | — | — | **Dropped** locally/staging via **SCH-016** (`016_drop_playertable_recent_average_rating.sql`). Legacy C++ still computed rolling avg of own `NewRating*`; site retired. |
 | Rating | decimal(10,6) | NO | | 1600.000000 |
 | WinningStreak | smallint(6) | YES | | |
 | DrawingStreak | smallint(6) | YES | | |

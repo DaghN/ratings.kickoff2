@@ -138,6 +138,21 @@ def run_parity_checks(target: WorkTarget) -> list[ParityResult]:
                 )
             )
 
+            cur.execute(
+                "SELECT COUNT(*) AS n FROM information_schema.COLUMNS "
+                "WHERE table_schema = DATABASE() AND table_name = 'playertable' "
+                "AND column_name = 'RecentAverageRating'"
+            )
+            recent_avg_col = int(cur.fetchone()["n"])
+            results.append(
+                ParityResult(
+                    "recent_average_rating_column_absent",
+                    recent_avg_col == 0,
+                    "RecentAverageRating column "
+                    + ("absent" if recent_avg_col == 0 else "still present"),
+                )
+            )
+
             cur.execute("SELECT COUNT(*) AS n FROM ratedresults WHERE NewRatingA IS NOT NULL")
             derived_rows = int(cur.fetchone()["n"])
             results.append(

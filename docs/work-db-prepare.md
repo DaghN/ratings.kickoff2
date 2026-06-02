@@ -107,6 +107,7 @@ After **full prepare**, `php site/public_html/ops/run_prepare.php parity --targe
 | `ratedresults_goals_match_baseline` | `GoalsA` / `GoalsB` unchanged |
 | `index_idx_ratedresults_idA` / `idB` / `date` | Present after migrate |
 | `kungfu_columns_absent` | No `KungFu%` columns (post **015**) |
+| `recent_average_rating_column_absent` | No `playertable.RecentAverageRating` (post **016**) |
 | `milestone_definitions_seeded` | 112 catalog rows |
 | `ratedresults_derived_cleared` | `NewRatingA IS NULL` on all rows |
 | `playertable_rating_day_zero` | All `Rating = 1600` |
