@@ -6,14 +6,16 @@
 
 **Audience:** Dagh, Steve, Cursor agents.
 
+**Platform (Steve boundary, dispatcher, ops folder, sim):** [`docs/ladder-ops-platform.md`](../ladder-ops-platform.md)
+
 ---
 
 ## Vocabulary
 
 | Term | Meaning |
 |------|---------|
-| **Ground truth** | Match facts (who, score, time; events later). Stored first; `game_id` boundary for derived step. |
-| **Derived truth** | Elo, milestones, aggregates, etc. — one post-game processor reading DB. |
+| **Ground truth** | Match facts (who, score, time; events later). Stored first; `game_id` boundary for derived step. Column/table list: [`docs/ground-truth-manifest.md`](../ground-truth-manifest.md). |
+| **Derived truth** | Elo, milestones, aggregates, etc. — one post-game processor reading DB. Same manifest for sandbox vs prod boundaries. |
 | **Dev DB** | `ko2unity_db` — browser, PHP, day-to-day feature work. |
 | **Prod sandbox** | `ko2unity_baseline` + `ko2unity_work` — prod-shaped copy for expand/sim; **not** the PHP site until cutover. |
 
@@ -134,6 +136,7 @@ Steve (2026-06-02): two prod-shaped copies on the staging server. Config paths a
 
 ## Related
 
+- [`docs/ladder-ops-platform.md`](../ladder-ops-platform.md) — ops folder, dispatcher, deploy
 - `data/README.md` — dump paths, step list
 - `docs/LOCAL_DEV.md` — Laragon
 - `scripts/ladder/README.md` — CLI including sandbox target

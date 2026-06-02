@@ -2,6 +2,8 @@
 
 **Day-to-day only** — run commands here. Migration tracking: **`docs/UPDATE_DOCS.md`** when you or the agent run **“update docs”**. Registers: **`docs/prod-coordination.md`**.
 
+**Ladder ops (Steve, staging deploy, sim):** [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) — sync **`site/public_html/`** (includes **`ops/`**); DB names in [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md).
+
 ---
 
 ## Status at a glance (May 2026)

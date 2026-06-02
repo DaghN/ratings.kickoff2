@@ -1,0 +1,8 @@
+# Server operations only — not part of the public website.
+# Block HTTP access (CLI / php from shell is unaffected).
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>
