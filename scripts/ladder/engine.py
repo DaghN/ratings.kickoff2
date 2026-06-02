@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 
 TARGET_DATABASES = {
     "local": "ko2unity_db",
+    "sandbox": "ko2unity_work",
     "staging": "kooldb",
 }
 
@@ -89,9 +90,11 @@ def _resolve_target(cfg: DbConfig, target: str | None) -> str:
     if target is None:
         if cfg.database == TARGET_DATABASES["local"]:
             return "local"
+        if cfg.database == TARGET_DATABASES["sandbox"]:
+            return "sandbox"
         raise SystemExit(
             f"Refusing to use database {cfg.database!r} without an explicit target. "
-            "Pass --target staging for the staging replay wrapper."
+            "Use --target sandbox with ladder-work.ini, or --target staging for staging."
         )
 
     if target not in TARGET_DATABASES:

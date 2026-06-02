@@ -1,0 +1,14 @@
+; Prod-shaped sandbox DB for Python ladder / sim (gitignored copy: ladder-work.ini).
+; PHP site keeps using ko2unitydb_config.php -> ko2unity_db until you cut over.
+;
+;   copy ladder-work.ini.example ladder-work.ini
+;
+; Run replay on work:
+;   python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
+
+[database]
+host = 127.0.0.1
+port = 3306
+user = root
+password =
+database = ko2unity_work

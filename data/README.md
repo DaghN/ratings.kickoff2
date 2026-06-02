@@ -1,62 +1,72 @@
 # Local data (not in Git)
 
-This folder holds **local-only** database artefacts for sandbox work on your PC.
+**Inventory:** [`docs/coordination/database-copies-2026-06.md`](../docs/coordination/database-copies-2026-06.md)
 
-## Database dump
+---
 
-| File | Description |
-|------|-------------|
-| `dumps/ko2unity_db-2026-05-20.sql` | HeidiSQL export of dev (~May 2026). Creates database **`ko2unity_db`** (MariaDB 10.11.7). |
+## Three local databases
 
-**Do not commit** files under `dumps/`. They may contain account-related data and are large (~600 MB).
+| MySQL name | You use it for |
+|------------|----------------|
+| **`ko2unity_db`** | Browser / PHP — **daily dev** (unchanged by sandbox setup) |
+| **`ko2unity_baseline`** | Frozen prod copy — **never** migrate or replay |
+| **`ko2unity_work`** | Prod-shaped sim, expand, ladder experiments |
 
-**Tables in this dump:** `ratedresults`, `playertable`, `resulttable`. **`generalstatstable` is not in the `.sql` file`** — ladder replay can create it locally. This dump is enough to build hub **Status** (online, logins, live games, recent games) per **`docs/STATUS_PAGE_DATA.md`** — same data family as joshua’s legacy status page, snapshot-stale until refreshed or wired to live DB.
+---
 
-## Import into Laragon (one-time)
+## Prod snapshot file
 
-**Note:** Recent Laragon versions often **do not** show **Menu → MySQL → Import**. That is normal. Use one of the methods below.
+| File | Source |
+|------|--------|
+| `dumps/ko2unity_prod-2026-06-02.sql` | `Downloads\KOOL_DB_Live.zip` → `KOOL_DB.sql` (~624 MB) |
 
-1. **Start All** in Laragon (MySQL must be green/running).
+**Sanitized on extract:** `extract_prod_dump.ps1` rewrites `CREATE DATABASE` / `USE` to **`ko2unity_baseline`** only. The file in `dumps/` is safe to import (it will not create dev `ko2unity_db`). Prefer **`setup_local_prod_sandbox.ps1`** for the full baseline+work flow.
 
-2. Pick **one** import method:
+**Staging archive (optional):** `Downloads\kooldb.zip` — not needed for sandbox setup.
 
-   **A — Repo script (easiest)** — from project root in PowerShell:
+---
 
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts\import_local_ko2unity_db.ps1
-   ```
+## Step-by-step: prod sandbox (one time)
 
-   Uses `C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe` when present. Takes several minutes.
+1. Laragon → **Start All**.
+2. Confirm zip: `C:\Users\daghn\Downloads\KOOL_DB_Live.zip`.
+3. Repo root PowerShell:
 
-   **B — Laragon Terminal** — **Menu → Laragon → Terminal** (Cmder), then:
+```powershell
+cd "C:\Users\daghn\Desktop\Online and Amiga 500 ELO"
+powershell -ExecutionPolicy Bypass -File scripts\setup_local_prod_sandbox.ps1
+```
 
-   ```bat
-   mysql -u root < "C:\Users\daghn\Desktop\Online and Amiga 500 ELO\data\dumps\ko2unity_db-2026-05-20.sql"
-   ```
+4. When finished:
 
-   (Adjust the path if your repo lives elsewhere.) The dump includes `CREATE DATABASE` / `USE ko2unity_db`.
+```powershell
+copy site\config\ladder-work.ini.example site\config\ladder-work.ini
+powershell -ExecutionPolicy Bypass -File scripts\verify_local_databases.ps1
+```
 
-   **C — HeidiSQL** (bundled with Laragon) — **Menu → MySQL → HeidiSQL**, connect as **root** (Laragon default password is often empty), then **File → Load SQL file** (or Run SQL file), select `dumps/ko2unity_db-2026-05-20.sql`, execute. Fine for ~600 MB; can take a while.
+5. Browser still uses **`ko2unity_db`** — no config change.
 
-   **Not recommended:** phpMyAdmin/Adminer for this size (timeouts).
+**Optional later:** `-ApplyMigrationsToWork` on setup, or `scripts\apply_schema_to_work.ps1` when schema expand is ready.
 
-3. Verify:
+---
 
-   ```sql
-   USE ko2unity_db;
-   SELECT COUNT(*) AS games FROM ratedresults;
-   SELECT COUNT(*) AS players FROM playertable;
-   SELECT id, GamesPlayed FROM generalstatstable;
-   ```
+## Legacy dev dump (May 2026)
 
-## PHP site config (gitignored)
+`dumps/ko2unity_db-2026-05-20.sql` — import only via `scripts\import_local_ko2unity_db.ps1` if you need to **rebuild dev** from scratch (separate from prod sandbox).
 
-Copy `site/config/ko2unitydb_config.php.example` to `site/config/ko2unitydb_config.php` and set `$database = 'ko2unity_db'` (and Laragon credentials).
+---
 
-## Python ladder scripts (later)
+## Reset work DB (minutes)
 
-Python ladder uses the same DB as PHP (`site/config/ko2unitydb_config.php`). Staging: **`docs/STAGING_REPLAY.md`**.
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1
+```
 
-## Restore after a bad reset/replay
+---
 
-Drop and re-import the same `.sql` file into a fresh `ko2unity_db` (keep the pristine dump unchanged).
+## PHP / Python config
+
+| Config | Database |
+|--------|----------|
+| `site/config/ko2unitydb_config.php` | `ko2unity_db` |
+| `site/config/ladder-work.ini` | `ko2unity_work` |

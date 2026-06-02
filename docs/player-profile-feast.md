@@ -146,7 +146,7 @@ Profile does **not** duplicate those tables.
 
 **Agent jargon:** **“Fold”** = first screen before scroll (above the fold), **not** a named section. Usually hero ± top of Presence/Career — not “the Presence panel” by definition.
 
-**Authority chain for profile content:** Dagh’s latest intent → this § → archive Part B/C → shipped `individual1.php`.
+**Authority chain for profile content:** Dagh’s latest intent → this § → [`profile-content-candidates.md`](profile-content-candidates.md) (Jun 2026 catalog) → archive Part B/C → shipped `individual1.php`.
 
 ---
 

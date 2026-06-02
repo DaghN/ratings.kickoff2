@@ -1,4 +1,6 @@
-# Import local dev dump into Laragon MySQL/MariaDB (Windows).
+# Import LEGACY DEV dump (May 2026) into ko2unity_db - NOT the prod snapshot.
+# Prod sandbox: use scripts\setup_local_prod_sandbox.ps1 (never imports into ko2unity_db).
+#
 # Usage (from repo root):
 #   powershell -ExecutionPolicy Bypass -File scripts\import_local_ko2unity_db.ps1
 #

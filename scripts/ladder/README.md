@@ -1,6 +1,6 @@
 # Ladder replay (Python v1)
 
-Recalculates Elo on local **`ko2unity_db`** per **`docs/replay-v1-scope-and-reset.md`**. Prod/staging coordination: **`docs/prod-coordination.md`**.
+Recalculates Elo per **`docs/replay-v1-scope-and-reset.md`**. Local **dev** = `ko2unity_db`; **prod sandbox** = `ko2unity_work` (see **`docs/coordination/database-copies-2026-06.md`**).
 
 ## Setup
 
@@ -8,26 +8,31 @@ Recalculates Elo on local **`ko2unity_db`** per **`docs/replay-v1-scope-and-rese
 pip install -r scripts/ladder/requirements.txt
 ```
 
-**Database:** **`ko2unitydb_config.php`** (local: `site/config/`; server: `config/` beside `public_html`, or `../config/` when run from `public_html/scripts/ladder/`). Optional **`ladder.ini`** via `--ini`. **Staging one-shot:** **`docs/STAGING_REPLAY.md`**.
+**Database:** **`ko2unitydb_config.php`** → dev `ko2unity_db`. **Sandbox:** copy `site/config/ladder-work.ini.example` → `ladder-work.ini`, use `--target sandbox --ini site/config/ladder-work.ini`. **Staging:** **`docs/STAGING_REPLAY.md`**.
 
 ## Commands (from repo root)
 
+### Dev (`ko2unity_db`)
+
 ```bash
-# Safe first check — logs SQL and sample math, no writes
 python -m scripts.ladder run --target local --dry-run
-
-# Reset derived columns + full replay (~74k games, full playertable rebuild)
 python -m scripts.ladder run --target local
+```
 
-# Steps separately
+### Prod sandbox (`ko2unity_work` — destructive to work only)
+
+```bash
+python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini --dry-run
+python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
+```
+
+Reset work from baseline: `powershell -File scripts\reset_local_work_db.ps1`
+
+```bash
 python -m scripts.ladder reset --target local
 python -m scripts.ladder replay --target local
-
-# Rebuild player period activity aggregate (SQL wrapper for local)
-powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_local.ps1
-
-# Smoke test: reset + first 100 games only
 python -m scripts.ladder run --target local --limit 100
+powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_local.ps1
 ```
 
 **Recovery:** re-import `data/dumps/ko2unity_db-2026-05-20.sql` if needed (`data/README.md`).
@@ -36,7 +41,7 @@ python -m scripts.ladder run --target local --limit 100
 
 - K = 32, starting rating = 1600, no decay
 - Order: `Date ASC`, `id ASC`
-- Database allowlist: `ko2unity_db` (local) and `kooldb` (staging). Local can be inferred for `ko2unity_db`; `kooldb` requires `--target staging`.
+- Database allowlist includes `ko2unity_db`, `ko2unity_work`, `ko2unity_baseline`, `kooldb`. Targets: `local`, `sandbox`, `staging`.
 
 **v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and rebuilds `generalstatstable` row `id=1` at the end.
 

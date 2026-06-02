@@ -8,7 +8,7 @@
 
 | | Local | Staging | Production |
 |---|--------|---------|------------|
-| DB name | `ko2unity_db` | `kooldb` | `kooldb` |
+| DB name | **`ko2unity_db`** (dev); sandbox: `ko2unity_work` + `ko2unity_baseline` | **`kooldb1`** / **`kooldb2`** (config1/config2) — [`database-copies-2026-06.md`](coordination/database-copies-2026-06.md) | Steve-managed live DB |
 | Live game writes | No | **No** | **Yes** (C++ post-game) |
 | Site code updates | Edit in repo | WinSCP sync | Steve / agreed deploy |
 | Typical DB refresh | Re-import dump | Steve: replay / SQL / dump | Continuous |
@@ -28,8 +28,9 @@ See **`docs/ladder-engine-plan.md`** (§2 databases table) and **`docs/STATUS_PA
 | Apache config includes | `C:\laragon\etc\apache2\sites-enabled\*.conf` |
 | Web junction | `C:\laragon\www\ratingskickoff` → repo **`site\public_html`** |
 | Hosts entry | `127.0.0.1 ratingskickoff.test` (#laragon magic!) |
-| Local DB name | **`ko2unity_db`** (from SQL dump; not `kooldb`) |
-| SQL dump (gitignored) | `data/dumps/ko2unity_db-2026-05-20.sql` |
+| Local dev DB | **`ko2unity_db`** (PHP config) |
+| Prod sandbox | **`ko2unity_baseline`** + **`ko2unity_work`** — see `data/README.md` |
+| Prod SQL dump (gitignored) | `data/dumps/ko2unity_prod-2026-06-02.sql` |
 | PHP DB config (gitignored) | `site/config/ko2unitydb_config.php` |
 | Python DB config | Same as PHP: `site/config/ko2unitydb_config.php` (optional `ladder.ini` override) |
 | Examples (committed) | `site/config/*.example` |
@@ -102,19 +103,17 @@ Checks MySQL, port 80, HTTP 200, and DB row counts.
 
 ---
 
-## Database import (one-time)
+## Databases
 
-Already documented in **`data/README.md`**. Summary:
+| Purpose | Command / doc |
+|---------|----------------|
+| **Dev** (browser) | `ko2unity_db` — `check_local_dev.ps1` |
+| **Prod sandbox** (sim) | `setup_local_prod_sandbox.ps1` — **`data/README.md`** |
+| **Status of all three** | `verify_local_databases.ps1` |
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\import_local_ko2unity_db.ps1
-```
-
-Verify:
-
-```sql
-USE ko2unity_db;
-SELECT COUNT(*) FROM ratedresults;   -- expect ~74870
+powershell -ExecutionPolicy Bypass -File scripts\check_local_dev.ps1
+powershell -ExecutionPolicy Bypass -File scripts\verify_local_databases.ps1
 ```
 
 **Schema migrations (indexes, etc.):** after import, run once:

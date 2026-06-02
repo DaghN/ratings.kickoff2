@@ -9,6 +9,8 @@ param(
     [switch]$AllowNonLocal
 )
 
+$AllowedLocalDatabases = @('ko2unity_work', 'ko2unity_baseline', 'ko2unity_db')
+
 $ErrorActionPreference = 'Stop'
 $MigrationsDir = Join-Path $PSScriptRoot 'migrations'
 $MysqlExe = 'C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe'
@@ -17,8 +19,12 @@ if (-not (Test-Path $MysqlExe)) {
     Write-Error "mysql.exe not found at $MysqlExe (start Laragon - docs/LOCAL_DEV.md)."
 }
 
-if ($Database -ne 'ko2unity_db' -and -not $AllowNonLocal) {
-    Write-Error "Refusing to apply local migrations to '$Database'. Use -AllowNonLocal only for an explicitly reviewed one-off."
+if ($Database -eq 'ko2unity_baseline') {
+    Write-Error "Refusing to apply migrations to ko2unity_baseline (pristine prod snapshot — never mutate)."
+}
+
+if ($Database -notin $AllowedLocalDatabases -and -not $AllowNonLocal) {
+    Write-Error "Refusing to apply local migrations to '$Database'. Allowed: $($AllowedLocalDatabases -join ', '). Use -AllowNonLocal for one-offs."
 }
 
 $files = Get-ChildItem -Path $MigrationsDir -Filter '*.sql' | Sort-Object Name

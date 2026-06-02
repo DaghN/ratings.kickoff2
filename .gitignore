@@ -4,9 +4,11 @@
 !.env.example
 site/config/ko2unitydb_config.php
 site/config/ladder.ini
+site/config/ladder-work.ini
 
 # Local database dumps (large; may contain account data)
-/data/dumps/
+/data/dumps/*
+!/data/dumps/README.md
 /KO2PC_DB/
 *.sql
 !schema/**/*.sql

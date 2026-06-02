@@ -1,4 +1,4 @@
-"""CLI: python -m scripts.ladder [reset|replay|run] [--target local|staging] [--dry-run] [--limit N]"""
+"""CLI: python -m scripts.ladder [reset|replay|run] [--target local|sandbox|staging] [--dry-run] [--limit N]"""
 
 from __future__ import annotations
 
@@ -45,9 +45,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--target",
-        choices=("local", "staging"),
+        choices=("local", "sandbox", "staging"),
         default=None,
-        help="Expected environment. Local ko2unity_db can be inferred; staging kooldb must be explicit.",
+        help="local=ko2unity_db (dev); sandbox=ko2unity_work (use --ini ladder-work.ini); staging=kooldb.",
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()

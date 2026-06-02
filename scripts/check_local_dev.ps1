@@ -47,9 +47,9 @@ if (Test-Path $MysqlExe) {
 if (Test-Path $MysqlExe) {
     $games = & $MysqlExe -u root -N -e "SELECT COUNT(*) FROM ko2unity_db.ratedresults;" 2>&1
     if ($LASTEXITCODE -eq 0 -and $games -match '^\d+$') {
-        Report -Pass $true -Message "ko2unity_db ratedresults rows: $games"
+        Report -Pass $true -Message "ko2unity_db (dev) ratedresults rows: $games"
     } else {
-        Report -Pass $false -Message "ko2unity_db missing or empty - import data/dumps (see data/README.md): $games"
+        Report -Pass $false -Message "ko2unity_db missing or empty - import dev dump (data/README.md): $games"
     }
     $gst = & $MysqlExe -u root -N -e "SHOW TABLES FROM ko2unity_db LIKE 'generalstatstable';" 2>&1
     if ($gst -match 'generalstatstable') {

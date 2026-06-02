@@ -32,7 +32,7 @@
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Local dev:** **`docs/LOCAL_DEV.md`** — `http://ratingskickoff.test`, DB `ko2unity_db`, dump `data/dumps/`, replay `scripts/run_local_replay.ps1`.
+- **Local dev:** browser **`ko2unity_db`** (~19 tables). **Prod sandbox done Jun 2026:** **`ko2unity_baseline`** + **`ko2unity_work`** (~75k games, prod-shaped ~5 tables until expand on work); `ladder-work.ini` + `--target sandbox`. Inventory **`docs/coordination/database-copies-2026-06.md`**. **Restructuring / derived-truth sim** = next on **work**, not dev.
 
 - **Change style:** small, reversible slices.
 
@@ -61,8 +61,8 @@
 3. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
 4. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
 5. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
-6. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers, `schema/migrations/`. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
-7. **Optional** — local `ko2unitydb_config.php` template from Steve (gitignored).
+6. **Derived-truth / sandbox (Jun 2026)** — on **`ko2unity_work`** / staging **`kooldb1`** (reset copy **`kooldb2`** / local **`ko2unity_baseline`**); expand + sim on work; Steve: `game_id` API gut-check. Names: **`database-copies-2026-06.md`**.
+7. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
 
 ---
 
@@ -72,8 +72,10 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Local prod sandbox live** — baseline + work from sanitized dump; dev untouched; sanitize fix in `ProdDumpSanitize.ps1`; verify ~75,204 rated on work. |
+| 2026-06 | **Local DB model (3 DBs)** — scripts + **`database-copies-2026-06.md`**; ground/derived + `game_id` API direction to Steve. |
 | 2026-06 | **Games Highlights table ink** — `k2-games-highlights-table` now gets the same `k2-table--calm-stats` secondary body text as leaderboards/Recent (`theme.css`). |
-| 2026-06 | **Profile narrative confirmation** — Jun re-audit in `player-profile-feast.md`: same story-first plan; zones A/B/C; milestone + league snippets backlog; heatmap-before-moments drift noted. |
+| 2026-06 | **Profile content catalog** — `docs/profile-content-candidates.md`: ~70 candidates (P0–P3) across identity, presence, moments, milestones, league, heatmaps, charts; for Dagh curation. |
 | 2026-06 | **Profile graph polish (2)** — played-days year picker ascending; peak label flips below line when near chart top; selected opponent bar gets green border; heatmap legend swatches matched size. |
 | 2026-06 | **Profile graph restoration** — `individual1.php` charts use Activity-style full-width `k2-chart-frame`s; rating peak dashed line restored; graph time axes start at server origin (2017-06-09); rating comparison gets date/games-played toggle; top opponents remains the matchup gateway; career played-days heatmap; winrate-vs-Elo API/JS removed. |
 | 2026-06 | **Rating LB Elo tooltip** — `ranked1.php` + `ranked7.php` ELO rating headers now explain standard Elo, fixed K=32, and point users to game-page expected-score/adjustment tooltips. |
