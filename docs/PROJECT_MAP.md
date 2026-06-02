@@ -56,6 +56,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | | Local | Staging | Prod |
 |---|--------|---------|------|
 | Name | `ko2unity_db` (+ sandbox `ko2unity_work` / `ko2unity_baseline`) | `kooldb1` / `kooldb2` (legacy `kooldb` possible) | Steve-managed |
+| Work prepare / simul | [`work-db-prepare.md`](work-db-prepare.md) | Same vocabulary (refresh → migrate → zero derived) | — |
 | Live games | No | **No** | **Yes** |
 | PHP deploy | Laragon | WinSCP sync **`site/public_html/`** | Steve |
 
@@ -93,10 +94,9 @@ Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **R
 # Local replay (dev DB ko2unity_db)
 powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1
 
-# Prod-shaped sandbox: reset work from baseline, schema on work, replay on work
-powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1
-powershell -ExecutionPolicy Bypass -File scripts\apply_schema_to_work.ps1
-python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
+# Prod-shaped sandbox: prepare v2 then simul (work-db-prepare.md)
+powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
+# python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
 
 # Local schema (dev DB)
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1

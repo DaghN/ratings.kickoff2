@@ -8,7 +8,7 @@ Derived = can be recomputed or dropped when obsolete. Safe to reset on sandbox (
 
 Legacy / someone else = still on the server, but not Dagh’s job to change.
 
-Detail: `docs/replay-v1-scope-and-reset.md`, `docs/website-data-contract.md`, `docs/coordination/database-copies-2026-06.md`.
+Detail: `docs/replay-v1-scope-and-reset.md`, `docs/website-data-contract.md`, `docs/coordination/database-copies-2026-06.md`. **Prepare / zero derived on work:** `docs/work-db-prepare.md`.
 
 
 Where things live

@@ -8,6 +8,8 @@
 
 **Platform (Steve boundary, dispatcher, ops folder, sim):** [`docs/ladder-ops-platform.md`](../ladder-ops-platform.md)
 
+**Prepare / zero derived / simul vocabulary:** [`docs/work-db-prepare.md`](../work-db-prepare.md) (canonical).
+
 ---
 
 ## Vocabulary
@@ -17,7 +19,10 @@
 | **Ground truth** | Match facts (who, score, time; events later). Stored first; `game_id` boundary for derived step. Column/table list: [`docs/ground-truth-manifest.md`](../ground-truth-manifest.md). |
 | **Derived truth** | Elo, milestones, aggregates, etc. — one post-game processor reading DB. Same manifest for sandbox vs prod boundaries. |
 | **Dev DB** | `ko2unity_db` — browser, PHP, day-to-day feature work. |
-| **Prod sandbox** | `ko2unity_baseline` + `ko2unity_work` — prod-shaped copy for expand/sim; **not** the PHP site until cutover. |
+| **Prod sandbox** | `ko2unity_baseline` + `ko2unity_work` — prod-shaped copy for migrate/sim; **not** the PHP site until cutover. |
+| **Refresh work** | Clone baseline → work (script: `reset_local_work_db.ps1`). **Not** “zero derived.” |
+| **Migrate work** | Apply `schema/migrations/` on work only. |
+| **Zero derived** | Derived day-zero pre-game; ground truth kept. See [`work-db-prepare.md`](../work-db-prepare.md) §4. |
 
 ---
 
@@ -48,17 +53,15 @@ Requires `Downloads\KOOL_DB_Live.zip`. ~15–40 min. **Does not** change PHP con
 
 Alias: `scripts\setup_local_prod_databases.ps1` (same script).
 
-### After bad replay/sim on work only
+### Prepare work DB (typical)
+
+**Preferred (v2):** [`docs/work-db-prepare.md`](../work-db-prepare.md) · [`docs/OPS_STANDARDS.md`](../OPS_STANDARDS.md)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1
+powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
 ```
 
-### When expand schema is ready (work only)
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\apply_schema_to_work.ps1
-```
+Fast path: `-ZeroOnly`. Legacy manual steps: work-db-prepare §3.4.
 
 ### Verify (read-only)
 
@@ -78,13 +81,13 @@ powershell -ExecutionPolicy Bypass -File scripts\check_local_dev.ps1
 | **Apache** | Laragon `ServerAlias *.ratingskickoff.test` — no second vhost file |
 | **Docs** | [`LOCAL_DEV.md`](../LOCAL_DEV.md) § URLs |
 
-**Smoke test (Jun 2026):** leaderboards on work URL show prod-snapshot ratings (~75k games). Dev URL unchanged.
+**Smoke test (Jun 2026):** leaderboards on work URL show prod-snapshot ratings (~75k games) **until** prepare step 3 (zero derived). Dev URL unchanged.
 
 **Setup steps:**
 
 1. `scripts\setup_laragon_work_site.ps1` (hosts + `*_work.local.php`).
 2. Open **`http://work.ratingskickoff.test/`** alongside **`http://ratingskickoff.test/`**.
-3. After `apply_schema_to_work.ps1` + replay, more pages match work derived state — core ladder pages work on prod-shaped tables today.
+3. Run **prepare** ([`work-db-prepare.md`](../work-db-prepare.md)), then **simul** when ready (`ladder run --target sandbox` or future ops CMDs).
 
 ### Future prod / staging cutover (later, deliberate)
 
@@ -143,17 +146,19 @@ Steve (2026-06-02): two prod-shaped copies on the staging server. Config paths a
 |------|----------|
 | Status, profile, cosmetics on local site | `ko2unity_db` |
 | Prod-shaped replay / derived-truth sim | Local: `ko2unity_work` + `ladder-work.ini`. Staging: **`kooldb1`** (Steve / agreed SQL) |
-| Reset work from pristine copy | Local: `reset_local_work_db.ps1`. Staging: refresh **`kooldb1`** from **`kooldb2`** (Steve) |
-| Reset pristine prod anchor | Local: re-import sanitized dump to `ko2unity_baseline` only (rare) |
+| Refresh work from baseline | Local: `reset_local_work_db.ps1`. Staging: clone **`kooldb1`** ← **`kooldb2`** (Steve) |
+| Prepare work (full) | [`work-db-prepare.md`](../work-db-prepare.md) — refresh → migrate → zero derived |
+| Re-import pristine prod anchor | Local: sanitized dump → `ko2unity_baseline` only (rare) |
 
-**Never** apply migrations or `scripts/ladder reset` on **`ko2unity_baseline`**.
+**Never** migrate, zero derived, or replay on **`ko2unity_baseline`** / **`kooldb2`**.
 
 ---
 
 ## Related
 
+- [`docs/work-db-prepare.md`](../work-db-prepare.md) — prepare pipeline, simul modes, zero derived checklist
 - [`docs/ladder-ops-platform.md`](../ladder-ops-platform.md) — ops folder, dispatcher, deploy
 - `data/README.md` — dump paths, step list
 - `docs/LOCAL_DEV.md` — Laragon
 - `scripts/ladder/README.md` — CLI including sandbox target
-- `docs/replay-v1-scope-and-reset.md` — fact vs derived columns
+- `docs/replay-v1-scope-and-reset.md` — core ladder column manifest

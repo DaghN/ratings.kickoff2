@@ -25,7 +25,7 @@
 | Environment | DB name | Live game writes? | Site code | DB updates |
 |-------------|---------|-------------------|-----------|------------|
 | **Local dev** | `ko2unity_db` | No | Repo + Laragon | Dump import, `schema/apply_local.ps1`, `--target local` |
-| **Local sandbox** | `ko2unity_work` (+ `ko2unity_baseline` reset) | No | Not PHP site | `reset_local_work_db.ps1`, `apply_schema_to_work.ps1`, `--target sandbox` |
+| **Local sandbox** | `ko2unity_work` (+ `ko2unity_baseline` pristine) | No | `work.ratingskickoff.test` | Prepare: [`work-db-prepare.md`](work-db-prepare.md); simul: `--target sandbox` |
 | **Staging** | `kooldb1` work / `kooldb2` reset (legacy `kooldb` possible) | **No** | WinSCP → `public_html/` | Steve: SQL, replay, one-offs — **not** live play |
 | **Production** | Steve-managed live DB (not stored in repo) | **Yes** (C++ post-game today; PHP ops target) | Steve / agreed deploy | Continuous + cutover packets |
 

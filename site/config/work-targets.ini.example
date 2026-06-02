@@ -1,0 +1,21 @@
+; Work DB prepare targets (copy to work-targets.ini — gitignored — optional).
+; CLI: python -m scripts.work_prepare prepare --target local-work --full
+;
+;   copy site\config\work-targets.ini.example site\config\work-targets.ini
+
+[local-work]
+work_database = ko2unity_work
+baseline_database = ko2unity_baseline
+host = 127.0.0.1
+port = 3306
+user = root
+password =
+
+[staging-work]
+work_database = kooldb1
+baseline_database = kooldb2
+host = 127.0.0.1
+port = 3306
+user = root
+password =
+; Refresh may require server-side clone on staging; use only when MySQL reaches this host.

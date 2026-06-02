@@ -3,7 +3,7 @@
 **Status:** **Doc + `ops/` folder scaffold** (Jun 2026). **`dispatch.php` and modules not in repo yet** — design agreed with Steve; implementation is a separate slice.  
 **Audience:** Dagh, Steve, Cursor agents.
 
-**Related:** [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (fact vs derived columns)
+**Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
 
 ---
 
@@ -15,6 +15,10 @@
 | **Derived truth** | Everything computed from facts + prior DB state: Elo, `WinnerID`, milestones, aggregates, league honours, `playertable` career fields, etc. |
 | **Post-game** | Derived updates for **one** rated game (`game_id`). |
 | **Periodic** | Derived updates driven by **time/calendar** (rating fade, league finalize, …) — not one new game. |
+| **Refresh work** | Clone pristine baseline → work DB (restores prod ground + prod-derived in core tables). |
+| **Migrate work** | Apply project `schema/migrations/` on work only. |
+| **Zero derived** | Clear derived to day-zero pre-game; keep ground truth. Not the same as refresh work. |
+| **Simul** | Re-run derived writers over history (game-only, batch rebuild, or timeline — see [`work-db-prepare.md`](work-db-prepare.md) §5). |
 | **Ops** | Server-side runnable tooling under `site/public_html/ops/` — not the public website. |
 
 **Elo is derived truth**, same class as milestones — not a separate “Steve core” category.
@@ -76,7 +80,8 @@ Business logic lives in `ops/modules/` (and shared includes as needed):
 | Per-game derived | `ProcessCompletedGame` | **Steve** (each live game on prod path) |
 | Periodic | `RatingFade`, `FinalizeLeaguePeriod`, … | Steve scheduler / exe |
 | Schema on work DB | `ApplySchema` | Dagh / Steve staging |
-| Reset work from baseline | `ResetWorkFromBaseline` | Dagh |
+| Refresh work from baseline | `RefreshWorkFromBaseline` (script today: `reset_local_work_db.ps1`) | Dagh |
+| Prepare work (refresh + migrate + zero derived) | `PrepareWork` (planned) | Dagh |
 | Chronological sim | `ReplayChronological` | Dagh (prep / cutover) |
 | Parity (optional) | `ParityCheck` | Dagh |
 
@@ -120,7 +125,7 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 **Rules:**
 
 - Never migrate or replay on **`ko2unity_baseline`** / **`kooldb2`** (reset sources).
-- **`ko2unity_work`** / **`kooldb1`**: expand schema, sim, post-game tests.
+- **`ko2unity_work`** / **`kooldb1`**: migrate work, prepare, simul, post-game tests — [`work-db-prepare.md`](work-db-prepare.md).
 - Prod dump import: sanitized dump only — [`data/README.md`](../data/README.md).
 
 ---
@@ -252,13 +257,23 @@ See §6.2 for the full tree. **Local sim (today):** Python replay on work DB —
 
 ### 8.1 Staging / cutover prep (Dagh)
 
+**Prepare** (canonical order — [`work-db-prepare.md`](work-db-prepare.md)):
+
 ```text
-1. ExpandSchema          → ops/sql/migrations on work DB (kooldb1 / ko2unity_work)
-2. ResetWorkFromBaseline → clone baseline → work; derived wiped
-3. ReplayChronological   → processCompletedGame × N
-4. (optional) Periodic commands at boundaries or batch after replay
-5. Verify                → checklist queries / CMD=Verify
+1. RefreshWorkFromBaseline → clone baseline → work (kooldb2 → kooldb1 / ko2unity_baseline → ko2unity_work)
+2. MigrateWork             → schema/migrations on work only
+3. ZeroDerived             → derived day-zero; ground truth intact
 ```
+
+**Simul** (after prepare):
+
+```text
+4. ReplayChronological     → processCompletedGame × N (game-only mode today)
+5. (optional) Periodic at simulated boundaries (timeline simul) OR batch website rebuild after full history
+6. Verify                  → checklist queries / CMD=Verify
+```
+
+**Do not** migrate then full-clone without re-migrate — refresh destroys expanded schema on work.
 
 ### 8.2 Production (steady state)
 
@@ -273,7 +288,7 @@ Periodic: php ops/dispatch.php CMD=… (scheduler)
 ## 9. Implementation order (suggested)
 
 1. ~~Ops layout & conventions (§6).~~ **Done (Jun 2026)** — docs only.
-2. Work DB **reset + extend** pipeline on `ko2unity_work` (baseline copy, apply migrations) — see `scripts/reset_local_work_db.ps1`, `scripts/apply_schema_to_work.ps1`.
+2. Work DB **prepare** pipeline documented — [`work-db-prepare.md`](work-db-prepare.md); automate (`PrepareWork` CMD / script) after ZeroDerived checklist sign-off.
 3. `ProcessCompletedGame` module + derived phases per [`website-data-contract.md`](website-data-contract.md) (incremental); prove on work DB before dispatcher.
 4. `dispatch.php` + guards routing to real modules (not empty stubs).
 5. `ReplayChronological` calling same core on work DB.
@@ -288,7 +303,8 @@ Periodic: php ops/dispatch.php CMD=… (scheduler)
 |------|--------|
 | Staging **website** DB config | `ko2unitydb_config.php` vs config1/2 — confirm with Steve |
 | Legacy **`kooldb`** | May still exist from May 2026; new work uses **kooldb1** / **kooldb2** |
-| Periodic vs replay ordering | Interleave day-boundary CMDs in sim, or batch after full replay |
+| Periodic vs replay ordering | **Timeline simul** (interleave) vs **batch rebuild** — see [`work-db-prepare.md`](work-db-prepare.md) §5 |
+| ZeroDerived aggregate tables | Checklist §4.5 — automation pending Dagh review |
 
 ---
 

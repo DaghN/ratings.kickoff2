@@ -179,10 +179,22 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 
 ---
 
+## Zero derived vs refresh work
+
+| Operation | What it does |
+|-----------|----------------|
+| **Refresh work** | Full DB clone from baseline → work. Restores prod **derived** in core tables. Script: `reset_local_work_db.ps1`. |
+| **Zero derived** (this doc) | `reset_universe`: clear derived columns on `ratedresults` / `playertable` + GST row; **keep** game facts. |
+
+Full prepare pipeline and aggregate tables: [`work-db-prepare.md`](work-db-prepare.md).
+
+---
+
 ## Related docs
 
 | Doc | Role |
 |-----|------|
+| `docs/work-db-prepare.md` | Prepare work DB, simul modes, ZeroDerived checklist |
 | `docs/ladder-engine-plan.md` | Architecture & phases |
 | `docs/ratedresults-schema.md` | Per-game columns |
 | `docs/playertable-schema.md` | Per-player columns |

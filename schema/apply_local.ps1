@@ -20,7 +20,7 @@ if (-not (Test-Path $MysqlExe)) {
 }
 
 if ($Database -eq 'ko2unity_baseline') {
-    Write-Error "Refusing to apply migrations to ko2unity_baseline (pristine prod snapshot — never mutate)."
+    Write-Error 'Refusing to apply migrations to ko2unity_baseline (pristine prod snapshot - never mutate).'
 }
 
 if ($Database -notin $AllowedLocalDatabases -and -not $AllowNonLocal) {
@@ -45,7 +45,8 @@ foreach ($f in $files) {
 }
 foreach ($f in $files) {
     Write-Host "  -> $($f.Name)" -ForegroundColor DarkCyan
-    $sql = "USE $Database;`n" + (Get-Content -Raw -LiteralPath $f.FullName)
+    # Pin UTC before any ratedresults.Date / TIMESTAMP work (website-data-contract.md).
+    $sql = "USE $Database;`nSET time_zone = '+00:00';`n" + (Get-Content -Raw -LiteralPath $f.FullName)
     $sql | & $MysqlExe @mysqlArgs
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed: $($f.Name)"

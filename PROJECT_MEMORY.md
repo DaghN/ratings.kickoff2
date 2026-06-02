@@ -55,6 +55,7 @@
 | Prod cutover | `docs/prod-coordination.md`, `docs/coordination/` |
 | Ladder ops platform (Steve, `ops/`, sim) | `docs/ladder-ops-platform.md` |
 | DB copies (local + staging names) | `docs/coordination/database-copies-2026-06.md` |
+| Work DB prepare / simul | `docs/work-db-prepare.md` |
 | Ground vs derived columns | `docs/replay-v1-scope-and-reset.md`, `docs/ground-truth-manifest.md` |
 
 ---
@@ -66,7 +67,7 @@
 3. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
 4. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
 5. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
-6. **Work DB pipeline** — baseline → work reset + apply migrations on **`ko2unity_work`**; then **`ProcessCompletedGame`** module before `dispatch.php` — **`docs/ladder-ops-platform.md`** §6–9.
+6. **Work DB prepare v2** — [`scripts/work_prepare/`](scripts/work_prepare/), `prepare_local_work_db.ps1`; legacy scripts kept for parity. **Next:** parity smoke vs legacy, then retire old entry points; **`ProcessCompletedGame`** before `dispatch.php`.
 7. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
 
 ---
@@ -77,6 +78,12 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Prepare in PHP** — `site/public_html/ops/run_prepare.php` (no `dispatch.php`); `prepare_local_work_db.ps1` calls PHP; Python `work_prepare` legacy. |
+| 2026-06 | **Prepare v2 end-to-end** — SCH-015 KungFu drop (9+1), `seed-catalog` in orchestrator, parity **idA/idB/Date** vs baseline (UTC); `apply_local.ps1` pins `time_zone=+00:00` (fixes 16 DST `Date` drifts on index build). |
+| 2026-06 | **Full prepare v2 verified** on `ko2unity_work` — parity all PASS; §4.5 truncates on migrated work; fixed `schema/apply_local.ps1` Unicode em-dash breaking PowerShell migrate. |
+| 2026-06 | **Prepare platform v2** — `scripts/work_prepare/`, `prepare_local_work_db.ps1`, §4.5 truncates, `refresh_local_work_db.ps1`, `docs/OPS_STANDARDS.md`. |
+| 2026-06 | **`docs/work-db-prepare.md`** §4 signed off (ZeroDerived contract). |
+| 2026-06 | **`docs/work-db-prepare.md`** — vocabulary (refresh / migrate / zero derived / simul modes A–C), prepare order; aligned `database-copies`, OPERATIONS, ladder-ops §8. |
 | 2026-06 | **`docs/ground-truth-manifest.md`** — scannable ground vs derived for prod five tables + local/staging roles; KungFu + ratio HoF columns = delete targets; `Display`/`PlayerRank` = not Dagh. |
 | 2026-06 | **Local dual website shipped** — two URLs in parallel (rejected config `$database` flip); work leaderboards smoke-tested; docs in `LOCAL_DEV.md` + `database-copies-2026-06.md`. |
 | 2026-06 | **Post-game doc alignment** — contract vs PHP ops vs C++-today called out in platform §2, contract, AGENTS, OPERATIONS, PROJECT_MAP. |

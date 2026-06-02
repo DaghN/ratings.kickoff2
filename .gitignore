@@ -6,6 +6,7 @@ site/config/ko2unitydb_config.local.php
 site/config/ko2unitydb_config_work.local.php
 site/config/ladder.ini
 site/config/ladder-work.ini
+site/config/work-targets.ini
 
 # Local database dumps (large; may contain account data)
 /data/dumps/*

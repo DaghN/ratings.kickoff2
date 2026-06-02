@@ -58,7 +58,9 @@ powershell -ExecutionPolicy Bypass -File scripts\verify_local_databases.ps1
 
 ---
 
-## Reset work DB (minutes)
+## Refresh work DB (minutes)
+
+Clones `ko2unity_baseline` → `ko2unity_work`. **Not** zero derived — see [`docs/work-db-prepare.md`](../docs/work-db-prepare.md).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1

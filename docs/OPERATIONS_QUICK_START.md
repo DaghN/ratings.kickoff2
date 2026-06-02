@@ -63,7 +63,7 @@ powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1 -DryRun
 
 ## Work DB (prod sandbox — local)
 
-For ladder ops / post-game dev on a **prod-shaped** copy, use **`ko2unity_work`** — not `ko2unity_db` (browser dev). Full roles: [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) · conventions: [`ladder-ops-platform.md`](ladder-ops-platform.md) §6.
+For ladder ops / post-game dev on a **prod-shaped** copy, use **`ko2unity_work`** — not `ko2unity_db` (browser dev). **Canonical pipeline:** [`work-db-prepare.md`](work-db-prepare.md). DB names: [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) · ops: [`ladder-ops-platform.md`](ladder-ops-platform.md).
 
 **One-time setup** (does not touch dev DB):
 
@@ -71,20 +71,23 @@ For ladder ops / post-game dev on a **prod-shaped** copy, use **`ko2unity_work`*
 powershell -ExecutionPolicy Bypass -File scripts\setup_local_prod_sandbox.ps1
 ```
 
-**Typical loop:**
+**Prepare work** (v2 — preferred):
 
 ```powershell
-# Clone baseline → work (fast reset)
-powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1
+powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
+```
 
-# Expand project schema on work when ready
-powershell -ExecutionPolicy Bypass -File scripts\apply_schema_to_work.ps1
+Legacy steps: [`work-db-prepare.md`](work-db-prepare.md) §3.4.
 
-# Full derived replay on work (until PHP ReplayChronological exists)
+**Simul** (after prepare) — game-only chronology today:
+
+```powershell
 python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
 ```
 
-Copy `site/config/ladder-work.ini.example` → `ladder-work.ini` first. **Never** run destructive ops on `ko2unity_baseline`.
+(`run` includes zero derived at start.) Optional **batch website rebuild** and future **timeline simul**: [`work-db-prepare.md`](work-db-prepare.md) §5.
+
+Copy `site/config/ladder-work.ini.example` → `ladder-work.ini` first. **Never** refresh/migrate/zero on `ko2unity_baseline`.
 
 ---
 

@@ -145,12 +145,19 @@ def _log_connection_identity(
     )
 
 
+_PROTECTED_BASELINE_DATABASES = frozenset({"ko2unity_baseline", "kooldb2"})
+
+
 def connect(
     cfg: DbConfig,
     *,
     dry_run: bool,
     target: str | None = None,
 ) -> pymysql.connections.Connection:
+    if cfg.database in _PROTECTED_BASELINE_DATABASES:
+        raise SystemExit(
+            f"Refusing to connect to protected baseline database {cfg.database!r}."
+        )
     resolved_target = _resolve_target(cfg, target)
     conn = pymysql.connect(
         host=cfg.host,

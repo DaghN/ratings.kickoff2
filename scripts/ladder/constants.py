@@ -34,7 +34,7 @@ RATEDRESULTS_CLEAR = (
 )
 
 # playertable — never touched by reset/replay v1
-PLAYERTABLE_PRESERVE_PREFIXES = ("Pref_", "Profile_", "Feedback_", "KungFu")
+PLAYERTABLE_PRESERVE_PREFIXES = ("Pref_", "Profile_", "Feedback_")
 PLAYERTABLE_PRESERVE_EXACT = frozenset(
     {
         "ID",

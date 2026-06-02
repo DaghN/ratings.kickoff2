@@ -21,7 +21,7 @@ Write-Host ''
 foreach ($row in @(
         @{ Name = 'ko2unity_db'; Role = 'DEV - browser / daily PHP' },
         @{ Name = 'ko2unity_baseline'; Role = 'SANDBOX - pristine prod (do not mutate)' },
-        @{ Name = 'ko2unity_work'; Role = 'SANDBOX - sim / replay / expand' }
+        @{ Name = 'ko2unity_work'; Role = 'SANDBOX - prepare / simul (migrate on work)' }
     )) {
     $db = $row.Name
     $exists = & $MysqlExe -u root -N -e "SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='$db';"
