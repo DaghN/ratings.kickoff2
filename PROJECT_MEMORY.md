@@ -28,11 +28,11 @@
 
 - **Operational loop:** edit locally/Git → **WinSCP** sync `site/public_html/` → staging `public_html/`; hard refresh after assets. **SSH:** permission denied for Dagh (May 2026) — Steve runs one-offs when sent.
 
-- **Ladder replay (Python):** P0–P2 done — local `ko2unity_db` + staging replay (`kooldb1` / legacy `kooldb`); **`docs/STAGING_REPLAY.md`**, **`scripts/ladder/README.md`**. Sandbox: `--target sandbox` on **`ko2unity_work`**. Deferred P3–P5: **`docs/ladder-engine-plan.md`**. **Prod live post-game still C++** until PHP ops cutover (target: **`ladder-ops-platform.md`**).
+- **Ladder replay (Python):** P0–P5 on work sandbox (`scripts/ladder/` + `ab-post-game`); local `ko2unity_db` + staging replay history in **`docs/STAGING_REPLAY.md`**. Sandbox: `--target sandbox` on **`ko2unity_work`**. **Prod live post-game still C++** until PHP ops cutover (target: **`ladder-ops-platform.md`**).
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Ladder ops platform (Jun 2026):** Prepare in **`ops/run_prepare.php`**. Post-game PHP **reverted** — playbook only: [`docs/post-game-php-development.md`](docs/post-game-php-development.md). **SCH-016** drops `RecentAverageRating` on work migrate. **Next:** P0+P1 per playbook.
+- **Ladder ops platform (Jun 2026):** Post-game **P0–P5** in `ops/run_process_game.php`. Parity: **`ab-post-game --phase p5 --limit N`**. **Next:** P6 `player_milestones` incremental.
 - **Local dual website (Jun 2026, live):** **`ratingskickoff.test`** → dev DB · **`work.ratingskickoff.test`** → work DB (router + `setup_laragon_work_site.ps1`); **not** config-file cutover. Leaderboards on work URL verified vs prod snapshot. **`database-copies-2026-06.md`** § Local dual website · **`LOCAL_DEV.md`**.
 
 - **Change style:** small, reversible slices.
@@ -78,6 +78,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Post-game P0–P5 shipped** — PHP `run_process_game.php` per-game through period aggregates; `ab-post-game --phase p5`; Python rebuild `period_activity.py` + `period_aggregates.py`. **Next:** P6 milestones. |
 | 2026-06 | **Post-game PHP reset** — reverted first attempt (playbook+P1–P2); new [`post-game-php-development.md`](docs/post-game-php-development.md) (per-game sim, `ratedresults` policy, `RecentAverageRating` retired). |
 | 2026-06 | **Peak HoF read path** — removed live `ratedresults` fallback in `peak_month_leaderboard_query.php` (stored tables only; fixes slow server2 + post-prepare false peaks). |
 | 2026-06 | **Prepare in PHP** — `site/public_html/ops/run_prepare.php` (no `dispatch.php`); `prepare_local_work_db.ps1` calls PHP; Python `work_prepare` legacy. |

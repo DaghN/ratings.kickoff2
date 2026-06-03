@@ -1,6 +1,6 @@
 # Post-game PHP — development playbook (local / work)
 
-**Status:** **Jun 2026** — Playbook only. **No post-game PHP modules in repo yet** (reverted after first attempt). Implementation not started; parity claims in old drafts are void until re-run locally.
+**Status:** **Jun 2026** — **P0–P5 shipped**. Parity: `ab-post-game --phase p5` (layers 1–5). **Next:** P6 `player_milestones` (incremental).
 **Audience:** Dagh, Cursor agents.
 
 **This doc is how we build and test.** It does **not** replace:
@@ -179,10 +179,10 @@ Work browse: `http://work.ratingskickoff.test/` → work DB ([`LOCAL_DEV.md`](LO
 ## 7. Daily loop
 
 ```text
-1. prepare work     php site/public_html/ops/run_prepare.php prepare --target local-work
+1. prepare work     zero-derived (daily) or full prepare (migrations / refresh) — §work-db-prepare.md
 2. implement slice  one phase in process_completed_game.php (see §10)
 3. sim checkpoint   replay-to = loop process-one logic only; no batch finalize
-4. parity           ground truth gate, then derived diff for shipped phase only (§9)
+4. parity           python -m scripts.work_prepare ab-post-game --limit N (§8.3)
 5. repeat           next phase; add dispatch.php when Steve-facing surface needed
 ```
 
@@ -220,7 +220,11 @@ Name checkpoints explicitly in chat/commits: e.g. “through **id 74879**” vs 
 
 ### 8.3 Parity status
 
-**No phase is “verified” until Dagh runs work-only A/B locally** (prepare → PHP sim → snapshot → prepare → Python `run --limit N` → diff). Do not copy “0 mismatches” from old agent notes into commits or MEMORY without a fresh run.
+**Verification gate (preferred):** `python -m scripts.work_prepare ab-post-game --target local-work --limit N --phase p5` — zero-derived → PHP `replay-to` → snapshots → Python `ladder run` → diff layers 1–5. Optional `--full-prepare` for refresh/migrate day-start.
+
+**No phase is “verified” until that command (or equivalent manual steps) reports 0 mismatches** on the shipped layers. Do not copy “0 mismatches” from old agent notes into commits or MEMORY without a fresh run.
+
+**Quick self-check after PHP replay alone:** `python scripts/oneoff/verify_ratedresults_derived_rows.py --target sandbox --limit N` — internal consistency from stored `RatingA`/`RatingB` + goals; **not** a substitute for `ab-post-game`.
 
 ---
 
@@ -234,7 +238,10 @@ Name checkpoints explicitly in chat/commits: e.g. “through **id 74879**” vs 
 | **1** | `ratedresults` derived columns | Elo / outcome phase |
 | **2** | `playertable` for players in those games | Career stats phase |
 | **3** | `generalstatstable` id=1 (holders + incremental aggregates) | Server records phase |
-| **4** | Aggregates / `player_milestones` | When PHP implements them incrementally |
+| **4** | `player_period_games` + `player_peak_period_games` | P4 |
+| **5** | `server_daily_activity`, `player_period_league`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` | P5 — not `league_period` / awards (periodic batch) |
+| **6** | `player_milestones` | P6 (next) |
+| **7** | `player_play_streaks` (+ GST streak holders when shipped) | P7 |
 
 `RecentAverageRating` is absent after SCH-016 — no playertable diff column for it.
 
@@ -246,7 +253,22 @@ Name checkpoints explicitly in chat/commits: e.g. “through **id 74879**” vs 
 
 **Ground truth through 74879:** ids/goals should match; **16** `Date` rows may differ by 1h at DST under `SET time_zone = '+00:00'` — id 74879 not affected.
 
-**Strongest test:** work-only A/B (same DB, prepare → PHP through G → snapshot → prepare → Python through G → diff). Dev not required.
+**Strongest test:** `ab-post-game` (§8.3) — zero-derived → PHP through checkpoint → snapshot → Python `run` (resets, then replays same N) → diff layer 1. No second full prepare required. Dev not required.
+
+### 9.4 `ab-post-game` orchestrator
+
+| Flag | Effect |
+|------|--------|
+| (default) | `zero-derived` on work |
+| `--full-prepare` | refresh → migrate → seed → zero (day-start) |
+| `--skip-prepare` | assume day-zero already |
+| `--limit N` / `--until-game-id G` | checkpoint size |
+| `--phase p1` / `--layers 1` | diff scope (extend when P2+ ships) |
+| `--skip-ground-parity` | skip prepare parity after zero |
+| `--skip-sanity` | skip `verify_ratedresults_derived_rows.py` |
+| `--keep-snapshot` | leave `parity_ab_ratedresults_php` on work DB |
+
+Snapshot is a work-DB table (not a repo file). PHP via Laragon path auto-detect or `K2_PHP_BIN`.
 
 ### 9.3 Website read paths
 
@@ -265,8 +287,8 @@ Follow contract processing order. Ship **one phase → checkpoint → parity** b
 | **P2** | `playertable` career counters, rating, extremes, streaks | Contract + C++ per-game playertable block; parity vs `player_state.py` (personal extremes **`>=`** in Python/C++ until contract `>` cutover) |
 | **P3** | `generalstatstable` — **incremental** aggregates + strict `>` holders | Contract + `records-post-game-exception.md`; parity vs `server_records.py`; aggregates **increment**, do not rescan |
 | **P4** | `player_period_games` + `player_peak_period_games` | contract §§ |
-| **P5** | `server_daily_activity`, period totals, matchups, league slices | |
-| **P6** | `player_milestones` (incremental) | |
+| **P5** | `server_daily_activity`, `player_period_league`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` | Shipped; PHP `post_game_period_aggregates.php`; Python `period_aggregates.py` rebuild (processed rows only) |
+| **P6** | `player_milestones` (incremental) | **Next** — many keys; batch SQL under `scripts/ladder/sql/player_milestones_rebuild*.sql` |
 | **P7** | `player_play_streaks` | SCH-014 / contract |
 
 Full checklist: [`website-data-contract.md`](website-data-contract.md) § Post-game derived-data behavior.
@@ -313,6 +335,11 @@ Match [`website-data-contract.md`](website-data-contract.md) and prepare bootstr
 
 | When | What |
 |------|------|
+| 2026-06 | **P5** — period aggregates per game (`server_daily_activity`, league slices, matchups, server period totals); layer 5 parity; Python `period_aggregates.py`; PHP treats missing `playertable` rows like Python `setdefault` (1600) for games-only IDs. |
+| 2026-06 | **P4** — `player_period_games` + `player_peak_period_games` per game; layer 4 parity; Python `period_activity.py` rebuild from processed rows. |
+| 2026-06 | **P3** — incremental `generalstatstable` id=1; `ab-post-game --phase p3`; Python `generalstats.py` counts `NewRatingA IS NOT NULL` only. |
+| 2026-06 | **P2** — full `playertable` career per game; layer 2 parity. |
+| 2026-06 | **P0/P1** — `run_process_game.php`, per-game commit, ratedresults derived + `playertable.Rating`; `status-ratedresults` coverage verb. |
 | 2026-06 | **§3.1** — stored facilitators: flag slow per-game queries; consider SCH + contract when indexes are not enough. |
 | 2026-06 | **§0** — authority rank (contract > C++ inspiration > Python parity) and explicit per-game performance requirement. |
 | 2026-06 | **SCH-016** — DROP `playertable.RecentAverageRating` on prepare migrate; parity `recent_average_rating_column_absent`. |

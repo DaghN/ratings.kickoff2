@@ -49,4 +49,8 @@ powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_loc
 
 **`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Staging DB name `kooldb` is allowlisted when `$database` in PHP config is `kooldb`.
 
-**`player_period_games`:** Rebuilt from `ratedresults` by `scripts/ladder/sql/player_period_games_rebuild.sql` (or `scripts/rebuild_website_derived_data_local.ps1`). Production live maintenance: contract post-game § — not per-table snippet packs in repo.
+**Period activity (P4):** After replay, `period_activity.py` rebuilds `player_period_games` / peaks from rows with `NewRatingA IS NOT NULL`.
+
+**Period aggregates (P5):** `period_aggregates.py` rebuilds `server_daily_activity` (from day `player_period_games`), `player_period_league`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` from processed `ratedresults` (SQL under `scripts/ladder/sql/*_rebuild.sql`).
+
+Production live maintenance: contract post-game § — PHP per-game path in `ops/run_process_game.php`.

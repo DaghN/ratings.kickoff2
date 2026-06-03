@@ -11,7 +11,8 @@
 ## Today
 
 - **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare without `dispatch.php` (see §6.6).
-- **Not yet:** `dispatch.php`, `ProcessCompletedGame`, post-game modules.
+- **Post-game P0–P5 (PHP):** `run_process_game.php` — through period aggregates (daily activity, period league, matchups, server period totals). Parity: `ab-post-game --phase p5`.
+- **Not yet:** `dispatch.php`, P6 milestones, P7 play streaks, periodic league finalize.
 
 ---
 
@@ -49,13 +50,22 @@ Or: `powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1`
 
 Legacy Python: `python -m scripts.work_prepare` (kept for reference).
 
-## Local sim (until PHP replay CMD)
+## Local sim (post-game PHP)
 
 ```text
-python -m scripts.ladder run --target sandbox
+php site/public_html/ops/run_process_game.php replay-to --limit 100 --target local-work
+php site/public_html/ops/run_process_game.php status-ratedresults --limit 100 --target local-work
 ```
 
-See [`scripts/ladder/README.md`](../../../scripts/ladder/README.md).
+**P1 parity gate (orchestrated):**
+
+```text
+python -m scripts.work_prepare ab-post-game --target local-work --limit 100
+```
+
+Default: zero-derived → PHP `replay-to` → snapshots → Python `ladder run` → diff layers 1–5 with `--phase p5` (tol 0.001). Python batch-rebuilds period + aggregate tables from processed `ratedresults` at end of replay (`period_activity.py`, `period_aggregates.py`).
+
+See [`scripts/work_prepare/README.md`](../../../scripts/work_prepare/README.md) and [`scripts/ladder/README.md`](../../../scripts/ladder/README.md).
 
 ---
 

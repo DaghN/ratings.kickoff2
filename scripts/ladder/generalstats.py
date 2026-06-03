@@ -56,7 +56,7 @@ def compute_server_aggregates(conn: pymysql.connections.Connection) -> dict[str,
             "SUM(SumOfGoals) AS goals, "
             "SUM(DDPlayerA + DDPlayerB) AS dd, "
             "SUM(CSPlayerA + CSPlayerB) AS cs "
-            "FROM ratedresults"
+            "FROM ratedresults WHERE NewRatingA IS NOT NULL"
         )
         agg = cur.fetchone()
         games = int(agg["games"] or 0)

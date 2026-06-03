@@ -20,6 +20,8 @@ from .constants import (
 from .elo import compute_elo
 from .finalize_counts import finalize_network_counts_from_rows
 from .generalstats import rebuild_generalstats_if_present
+from .period_activity import rebuild_period_activity_if_present
+from .period_aggregates import rebuild_period_aggregates_if_present
 from .outcome import outcome_from_goals
 from .player_state import PlayerState
 from .server_records import ServerRecordState, update_server_records_after_game
@@ -400,6 +402,8 @@ def replay_all(
             cur.executemany(PLAYERTABLE_UPDATE, player_rows)
         log.info("playertable updated: %s players with at least one game", len(player_rows))
 
+    rebuild_period_activity_if_present(conn)
+    rebuild_period_aggregates_if_present(conn)
     rebuild_generalstats_if_present(conn, server_records)
     conn.commit()
     log.info("replay_all complete: %s games", processed)
