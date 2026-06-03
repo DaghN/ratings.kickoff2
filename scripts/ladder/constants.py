@@ -129,11 +129,6 @@ PLAYERTABLE_NULL_ON_RESET = (
     "LongestNonWinStreak",
     "LongestNonDrawStreak",
     "LongestNonLossStreak",
-    "ScoreStreak",
-    "MerchantStreak",
-    "ExactTenGoalStreak",
-    "WinMarginOneStreak",
-    "LossMarginOneStreak",
     "LastGameGameID",
     "LastWinGameID",
     "LastDrawGameID",
@@ -157,6 +152,15 @@ PLAYERTABLE_NULL_ON_RESET = (
     "BiggestLossCulpritID",
     "HighestRatedVictimGameID",
     "LowestRatedCulpritGameID",
+)
+
+# NOT NULL milestone facilitators (SCH-018) — zero on reset, not NULL.
+PLAYERTABLE_ZERO_ON_RESET = (
+    "ScoreStreak",
+    "MerchantStreak",
+    "ExactTenGoalStreak",
+    "WinMarginOneStreak",
+    "LossMarginOneStreak",
 )
 
 # NOT NULL sentinels on reset (docs/replay-v1-scope-and-reset.md §5.2)

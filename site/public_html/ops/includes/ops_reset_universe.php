@@ -92,6 +92,9 @@ function k2_ops_reset_universe(mysqli $con, bool $dryRun): void
     foreach (K2_OPS_PLAYERTABLE_NULL_ON_RESET as $col) {
         $playerParts[] = "`{$col}` = NULL";
     }
+    foreach (K2_OPS_PLAYERTABLE_ZERO_ON_RESET as $col) {
+        $playerParts[] = "`{$col}` = 0";
+    }
     foreach (K2_OPS_PLAYERTABLE_SENTINELS_ON_RESET as $col => $val) {
         $playerParts[] = is_int($val) ? "`{$col}` = {$val}" : "`{$col}` = {$val}";
     }

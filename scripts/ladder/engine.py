@@ -14,6 +14,7 @@ from .constants import (
     PLAYERTABLE_LASTGAME_RESET,
     PLAYERTABLE_NULL_ON_RESET,
     PLAYERTABLE_SENTINELS_ON_RESET,
+    PLAYERTABLE_ZERO_ON_RESET,
     RATEDRESULTS_CLEAR,
     START_RATING,
 )
@@ -201,6 +202,7 @@ def reset_universe(conn: pymysql.connections.Connection, *, dry_run: bool) -> No
 
     player_parts = [f"`Rating` = {START_RATING}"]
     player_parts.append(_sql_set_null(PLAYERTABLE_NULL_ON_RESET))
+    player_parts.extend(f"`{c}` = 0" for c in PLAYERTABLE_ZERO_ON_RESET)
     for col, val in PLAYERTABLE_SENTINELS_ON_RESET.items():
         player_parts.append(f"`{col}` = {val}")
     player_parts.append(f"`LastGame` = '{PLAYERTABLE_LASTGAME_RESET}'")

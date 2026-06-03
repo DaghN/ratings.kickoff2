@@ -117,11 +117,11 @@ Types and nullability from **`SHOW FULL COLUMNS`**.
 | LongestNonWinStreak | smallint(6) | YES | | |
 | LongestNonDrawStreak | smallint(6) | YES | | |
 | LongestNonLossStreak | smallint(6) | YES | | |
-| ScoreStreak | smallint(6) | YES | | | **SCH-018** — `on_the_scoresheet` facilitator |
-| MerchantStreak | smallint(6) | YES | | | **SCH-018** — `merchant_streak` |
-| ExactTenGoalStreak | smallint(6) | YES | | | **SCH-018** — `minimalist_merchant` |
-| WinMarginOneStreak | smallint(6) | YES | | | **SCH-018** — `knife_edge` |
-| LossMarginOneStreak | smallint(6) | YES | | | **SCH-018** — `unlucky` |
+| ScoreStreak | smallint(6) | NO | | 0 | **SCH-018** — `on_the_scoresheet` facilitator; writer uses `0`, not NULL |
+| MerchantStreak | smallint(6) | NO | | 0 | **SCH-018** — `merchant_streak` |
+| ExactTenGoalStreak | smallint(6) | NO | | 0 | **SCH-018** — `minimalist_merchant` |
+| WinMarginOneStreak | smallint(6) | NO | | 0 | **SCH-018** — `knife_edge` |
+| LossMarginOneStreak | smallint(6) | NO | | 0 | **SCH-018** — `unlucky` |
 | LastGameGameID | int(11) | YES | | |
 | LastWinGameID | int(11) | YES | | |
 | LastDrawGameID | int(11) | YES | | |

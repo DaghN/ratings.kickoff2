@@ -120,7 +120,7 @@ Schema reference: `docs/playertable-schema.md`.
 
 **Site (read path):** Until replay, UI may still show legacy-stored values. Profile/feast should treat unset sentinels as “no career peak/nadir yet” once writer matches this §.
 
-**Milestone facilitators (SCH-018, post-game only):** `ScoreStreak`, `MerchantStreak`, `ExactTenGoalStreak`, `WinMarginOneStreak`, `LossMarginOneStreak` — current-run counters for `on_the_scoresheet`, `merchant_streak`, `minimalist_merchant`, `knife_edge`, `unlucky`. Stored as NULL when 0 (same pattern as `WinningStreak`). Updated each rated game in PHP replay/live; not shown on public profile. Rules match `gen_milestone_chrono_sql.py`.
+**Milestone facilitators (SCH-018, post-game only):** `ScoreStreak`, `MerchantStreak`, `ExactTenGoalStreak`, `WinMarginOneStreak`, `LossMarginOneStreak` — current-run counters for `on_the_scoresheet`, `merchant_streak`, `minimalist_merchant`, `knife_edge`, `unlucky`. Columns are **`NOT NULL` default `0`** (unlike legacy nullable streak columns such as `WinningStreak`). PHP/Python post-game writers always persist **`0`** when the streak is inactive; **zero-derived** resets them to **`0`** via `PLAYERTABLE_ZERO_ON_RESET` (not `NULL`). Updated each rated game in PHP replay/live; not shown on public profile. Rules match `gen_milestone_chrono_sql.py`.
 
 ---
 

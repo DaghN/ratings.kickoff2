@@ -51,13 +51,21 @@ const K2_OPS_PLAYERTABLE_NULL_ON_RESET = [
     'PeakRating', 'WinningStreak', 'DrawingStreak', 'LosingStreak',
     'NonWinStreak', 'NonDrawStreak', 'NonLossStreak', 'LongestWinningStreak', 'LongestDrawingStreak',
     'LongestLosingStreak', 'LongestNonWinStreak', 'LongestNonDrawStreak', 'LongestNonLossStreak',
-    'ScoreStreak', 'MerchantStreak', 'ExactTenGoalStreak', 'WinMarginOneStreak', 'LossMarginOneStreak',
     'LastGameGameID', 'LastWinGameID', 'LastDrawGameID', 'LastLossGameID', 'LowestRatingGameID',
     'PeakRatingGameID', 'MostGoalsScoredGameID', 'LeastGoalsScoredGameID', 'MostGoalsConcededGameID',
     'LeastGoalsConcededGameID', 'BiggestWinGameID', 'BiggestDrawGameID', 'BiggestLossGameID',
     'SmallestSumOfGoalsGameID', 'BiggestSumOfGoalsGameID', 'MostGoalsScoredVictimID',
     'LeastGoalsConcededVictimID', 'BiggestWinVictimID', 'MostGoalsConcededCulpritID',
     'LeastGoalsScoredCulpritID', 'BiggestLossCulpritID', 'HighestRatedVictimGameID', 'LowestRatedCulpritGameID',
+];
+
+/** NOT NULL columns (SCH-018) — reset to 0, not NULL. */
+const K2_OPS_PLAYERTABLE_ZERO_ON_RESET = [
+    'ScoreStreak',
+    'MerchantStreak',
+    'ExactTenGoalStreak',
+    'WinMarginOneStreak',
+    'LossMarginOneStreak',
 ];
 
 /** @var array<string, int|float> */
