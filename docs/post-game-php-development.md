@@ -81,9 +81,22 @@ From [`work-db-prepare.md`](work-db-prepare.md) §5:
 |------|---------------------------|
 | **A — Game-only** | **Yes** — N× `process_completed_game`, same as live. |
 | **B — Batch website rebuild** | Parity for **aggregate tables** only when PHP does not own them yet — **not** a substitute for Mode A. |
-| **C — Timeline** | Later — league finalize, day-close milestones, etc. |
+| **C — Timeline** | Later — league finalize, **UTC day-close milestones**, `entered_arena` is register-only (see §10.1). |
 
 Python Mode A today still batch-finalizes some ladder fields at end; treat Python as **oracle for checkpoints**, not as the PHP loop structure.
+
+### 2.3 P6 milestones — in scope vs out of scope (Jun 2026)
+
+**`ProcessCompletedGame` / `replay-to` use the same code path.** One commit per game. **No** chrono notebook, **no** `ratedresults` re-sim hydrate, **no** replay tail batch (`seed_lobby`, day-close finalize).
+
+| In scope (per rated game, DB-backed) | Out of scope |
+|--------------------------------------|--------------|
+| Exists, streak/tail/network/matchup, period burst, rating `club_*`, `rare_blank`, debut opponent awards, **`giant_slayer`** (ladder SQL), **`daily_habit`** / **`monthly_regular`** (`player_period_games`) | **`perfect_day`**, **`nightmare_day`** — Mode C day-close or rebuild |
+| `play_streak_100` via `player_play_streaks.php` | **`entered_arena`** — `ProcessPlayerRegistered` only |
+| `united_nations` via **`DrawingStreak`** on `playertable` | **`on_the_scoresheet`**, **`merchant_streak`**, **`minimalist_merchant`**, **`knife_edge`**, **`unlucky`** via SCH-018 columns (`ScoreStreak`, …) |
+| `weekly_regular`, `year_round` | **`player_period_games`** bounded week/month queries | Implemented (same path as `daily_habit` / `monthly_regular`) |
+
+**Parity:** `ab-post-game` layer 6 excludes only `perfect_day`, `nightmare_day`, `entered_arena`. Apply **SCH-018** before replay; see [`post-game-milestone-facilitators-pending.md`](coordination/post-game-milestone-facilitators-pending.md).
 
 ---
 
@@ -288,7 +301,7 @@ Follow contract processing order. Ship **one phase → checkpoint → parity** b
 | **P3** | `generalstatstable` — **incremental** aggregates + strict `>` holders | Contract + `records-post-game-exception.md`; parity vs `server_records.py`; aggregates **increment**, do not rescan |
 | **P4** | `player_period_games` + `player_peak_period_games` | contract §§ |
 | **P5** | `server_daily_activity`, `player_period_league`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` | Shipped; PHP `post_game_period_aggregates.php`; Python `period_aggregates.py` rebuild (processed rows only) |
-| **P6** | `player_milestones` (incremental) | **Shipped** — `post_game_milestones.php`; oracle `milestones.py` (exists SQL + simulators). Streak/tail/network/matchup/chrono keys credit the **crossing game** (`===` threshold), except `perfect_day` / `nightmare_day` (next UTC midnight). `play_streak_100` unlocks on the game that extends the UTC day streak to 100 (`player_play_streaks.php`, wired from ops after P4). |
+| **P6** | `player_milestones` (incremental, rated-game only) | **Shipped** — `post_game_milestones.php`; §10.1 for out-of-scope keys. Crossing-game chrono on **this game**; `play_streak_100` via `player_play_streaks.php`. **Not** `perfect_day` / `nightmare_day` / `entered_arena`. |
 | **P7** | `player_play_streaks` row + HoF | Table updates ship with P6 milestone hook; full P7 parity TBD |
 
 Full checklist: [`website-data-contract.md`](website-data-contract.md) § Post-game derived-data behavior.

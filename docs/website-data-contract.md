@@ -120,6 +120,8 @@ Schema reference: `docs/playertable-schema.md`.
 
 **Site (read path):** Until replay, UI may still show legacy-stored values. Profile/feast should treat unset sentinels as “no career peak/nadir yet” once writer matches this §.
 
+**Milestone facilitators (SCH-018, post-game only):** `ScoreStreak`, `MerchantStreak`, `ExactTenGoalStreak`, `WinMarginOneStreak`, `LossMarginOneStreak` — current-run counters for `on_the_scoresheet`, `merchant_streak`, `minimalist_merchant`, `knife_edge`, `unlucky`. Stored as NULL when 0 (same pattern as `WinningStreak`). Updated each rated game in PHP replay/live; not shown on public profile. Rules match `gen_milestone_chrono_sql.py`.
+
 ---
 
 ## Rebuild architecture
@@ -603,7 +605,7 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 
 **Streak keys:** In-memory counters during post-game (win resets loss/draw streaks, etc.). Unlock when **current** streak **equals** threshold on this game (`win_hat_trick` only on a win, `cold_streak` on a loss, `peace_streak` on a draw, `win_drought` when `non_win_streak === 10`). `ten_wins` = 10th career win on this game.
 
-**Exceptions (not crossing-game):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. Oracle batch may use day-close timestamps; live PHP uses the same rule in `k2_post_game_milestones_finalize_chrono_day`.
+**Exceptions (not in `ProcessCompletedGame`):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. **Live/post-game PHP:** Mode C UTC day-close job (TBD) — not per-game post-game. **Until then:** rebuild SQL / surgical day-close (`player_milestones_fix_day_close.sql`). Oracle batch may emit midnight `achieved_at` in parity sim.
 
 **Tail highlights (post-update `playertable` or per-game):**
 
@@ -677,7 +679,7 @@ League rules: [`leagues-rules-spec.md`](leagues-rules-spec.md). Rebuild: league 
 
 **Not** `LobbyTime`. **Not** on first rated game (`debut` is separate). No `source_game_id` / league columns.
 
-**Live writer:** `k2_milestone_maybe_unlock_entered_arena()` in `includes/player_milestone_entered_arena.php` — called from ops `ProcessPlayerRegistered` when Steve registers a player (dispatcher `player_id` only). Full-history replay may still bulk-insert via `k2_post_game_milestones_seed_lobby()`.
+**Live writer:** `k2_milestone_maybe_unlock_entered_arena()` in `includes/player_milestone_entered_arena.php` — called from ops `ProcessPlayerRegistered` when Steve registers a player (dispatcher `player_id` only). **Not** `ProcessCompletedGame` or `replay-to`. Full-history backfill: milestone rebuild SQL / prepare, not post-game replay tail.
 
 ---
 
@@ -927,7 +929,7 @@ Required updates:
 | `player_play_streaks` | Update day/week current + personal best for A and B; HoF columns if personal best rose — see § `player_play_streaks` |
 | `server_daily_activity` | Increment `rated_games`; increment `active_players` only for players newly active that day |
 | `player_period_league` | Upsert A and B W/D/L/GF/GA/GD/points for day/week/month/year |
-| `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — rated game (both players), league finalize (PER-003), register (`entered_arena`). Until prod ships: backfill-only; site reads rebuild. |
+| `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — **rated game** (both players) from `ProcessCompletedGame` only; **not** `perfect_day` / `nightmare_day` / `entered_arena` (day-close job, register, or rebuild). League keys: PER-003. Until prod ships: backfill-only; site reads rebuild. |
 | `player_matchup_summary` | Upsert directed A-to-B and B-to-A rows |
 | `server_period_game_totals` | Increment day/week/month/year server totals |
 | `server_period_matchups` | Increment canonical pair for day/week/month/year |

@@ -25,6 +25,7 @@ SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `s
 | SCH-015 | `015_drop_kungfu_columns.sql` | DROP `playertable.KungFu*` (9) + `resulttable.KungFuGameID` (1); sanitizes invalid `LastGame`/`LastLogin` before ALTER | **Done** (Jun 2026, prepare on work; parity PASS) | **Pending** | **Pending** | No | Apply with UTC (`apply_local.ps1`); coordinate Steve if prod C++ still writes these columns |
 | SCH-016 | `016_drop_playertable_recent_average_rating.sql` | DROP `playertable.RecentAverageRating` (retired; was avg of own last N post-game ratings) | **Done** (Jun 2026, via prepare migrate on work) | **Pending** | **Pending** | No | Website does not read; Python replay no longer writes; prod C++ still references until cutover |
 | SCH-017 | `017_drop_player_monthly_league.sql` | DROP legacy `player_monthly_league` (month league via `player_period_league`) | **Pending** (Jun 2026) | **Pending** | **Pending** | No | Status reads `player_period_league` only; apply with prepare migrate-work |
+| SCH-018 | `018_playertable_milestone_streak_facilitators.sql` | ADD `ScoreStreak`, `MerchantStreak`, `ExactTenGoalStreak`, `WinMarginOneStreak`, `LossMarginOneStreak` on `playertable` (P6 chrono facilitators) | **Pending** (Jun 2026) | **Pending** | **Pending** | Yes (full replay resets to 0; unlocks via post-game) | PHP `post_game_player_state.php` + `post_game_milestones.php`; oracle `player_state.py` |
 
 ### Adding a row
 

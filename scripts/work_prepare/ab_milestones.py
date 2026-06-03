@@ -10,6 +10,15 @@ log = logging.getLogger(__name__)
 
 MILESTONE_SNAPSHOT = "parity_ab_player_milestones_php"
 
+# Not written by ProcessCompletedGame (register, day-close, rebuild).
+P6_PARITY_EXCLUDE_KEYS: frozenset[str] = frozenset(
+    {
+        "perfect_day",
+        "nightmare_day",
+        "entered_arena",
+    }
+)
+
 MILESTONE_COLS = (
     "milestone_key",
     "achieved_at",
@@ -36,6 +45,11 @@ def create_milestones_snapshot(conn: pymysql.connections.Connection, *, dry_run:
     log.info("snapshot: %s rows in %s", n, MILESTONE_SNAPSHOT)
 
 
+def _parity_exclude_sql(alias: str) -> str:
+    keys = ", ".join(f"'{k}'" for k in sorted(P6_PARITY_EXCLUDE_KEYS))
+    return f"{alias}.milestone_key NOT IN ({keys})"
+
+
 def diff_milestones_layer(
     conn: pymysql.connections.Connection,
     *,
@@ -43,6 +57,8 @@ def diff_milestones_layer(
 ) -> tuple[int, list[str]]:
     cols = ", ".join(f"l.`{c}` AS py_{c}" for c in MILESTONE_COLS)
     snap_cols = ", ".join(f"s.`{c}` AS php_{c}" for c in MILESTONE_COLS)
+    ex_l = _parity_exclude_sql("l")
+    ex_s = _parity_exclude_sql("s")
     mismatches = 0
     lines: list[str] = []
 
@@ -51,7 +67,7 @@ def diff_milestones_layer(
         FROM `player_milestones` l
         INNER JOIN `{MILESTONE_SNAPSHOT}` s
           ON s.player_id = l.player_id AND s.milestone_key = l.milestone_key
-        WHERE (
+        WHERE {ex_l} AND {ex_s} AND (
             l.achieved_at <> s.achieved_at
             OR l.value <> s.value
             OR l.source_kind <> s.source_kind
@@ -78,9 +94,11 @@ def diff_milestones_layer(
                         )
                         break
 
-        cur.execute("SELECT COUNT(*) AS n FROM `player_milestones`")
+        cur.execute(f"SELECT COUNT(*) AS n FROM `player_milestones` WHERE {_parity_exclude_sql('player_milestones')}")
         live_n = int(cur.fetchone()["n"])
-        cur.execute(f"SELECT COUNT(*) AS n FROM `{MILESTONE_SNAPSHOT}`")
+        cur.execute(
+            f"SELECT COUNT(*) AS n FROM `{MILESTONE_SNAPSHOT}` WHERE {_parity_exclude_sql(MILESTONE_SNAPSHOT)}"
+        )
         snap_n = int(cur.fetchone()["n"])
 
     if live_n != snap_n:
@@ -92,8 +110,8 @@ def diff_milestones_layer(
         SELECT s.player_id, s.milestone_key
         FROM `{MILESTONE_SNAPSHOT}` s
         LEFT JOIN `player_milestones` l
-          ON l.player_id = s.player_id AND l.milestone_key = s.milestone_key
-        WHERE l.player_id IS NULL
+          ON l.player_id = s.player_id AND l.milestone_key = l.milestone_key
+        WHERE l.player_id IS NULL AND {_parity_exclude_sql('s')}
         LIMIT {max_report + 1}
     """
     only_py_sql = f"""
@@ -101,7 +119,7 @@ def diff_milestones_layer(
         FROM `player_milestones` l
         LEFT JOIN `{MILESTONE_SNAPSHOT}` s
           ON s.player_id = l.player_id AND s.milestone_key = l.milestone_key
-        WHERE s.player_id IS NULL
+        WHERE s.player_id IS NULL AND {_parity_exclude_sql('l')}
         LIMIT {max_report + 1}
     """
     with conn.cursor() as cur:

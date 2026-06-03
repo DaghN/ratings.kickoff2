@@ -51,6 +51,7 @@ const K2_OPS_PLAYERTABLE_NULL_ON_RESET = [
     'PeakRating', 'WinningStreak', 'DrawingStreak', 'LosingStreak',
     'NonWinStreak', 'NonDrawStreak', 'NonLossStreak', 'LongestWinningStreak', 'LongestDrawingStreak',
     'LongestLosingStreak', 'LongestNonWinStreak', 'LongestNonDrawStreak', 'LongestNonLossStreak',
+    'ScoreStreak', 'MerchantStreak', 'ExactTenGoalStreak', 'WinMarginOneStreak', 'LossMarginOneStreak',
     'LastGameGameID', 'LastWinGameID', 'LastDrawGameID', 'LastLossGameID', 'LowestRatingGameID',
     'PeakRatingGameID', 'MostGoalsScoredGameID', 'LeastGoalsScoredGameID', 'MostGoalsConcededGameID',
     'LeastGoalsConcededGameID', 'BiggestWinGameID', 'BiggestDrawGameID', 'BiggestLossGameID',

@@ -31,6 +31,7 @@ from .ab_period_aggregates import (
     drop_period_aggregate_snapshots,
 )
 from .ab_milestones import (
+    P6_PARITY_EXCLUDE_KEYS,
     create_milestones_snapshot,
     diff_milestones_layer,
     drop_milestones_snapshot,
@@ -477,6 +478,10 @@ def run_ab_post_game(opts: AbPostGameOptions) -> int:
                     log.error("  %s", line)
 
         if 6 in opts.layers:
+            log.info(
+                "layer 6 diff excludes keys not in ProcessCompletedGame: %s",
+                ", ".join(sorted(P6_PARITY_EXCLUDE_KEYS)),
+            )
             n_bad, lines = diff_milestones_layer(conn)
             if n_bad == 0:
                 log.info("[OK] layer 6 player_milestones: 0 mismatches")

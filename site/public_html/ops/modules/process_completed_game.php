@@ -483,15 +483,10 @@ function k2_ops_apply_playertable_for_game(
 function k2_ops_process_completed_game(
     mysqli $con,
     int $gameId,
-    bool $dryRun = false,
-    ?array &$milestoneChrono = null
+    bool $dryRun = false
 ): array
 
 {
-
-    if ($milestoneChrono === null) {
-        $milestoneChrono = ['_mode' => 'hydrate'];
-    }
 
     $game = k2_ops_load_rated_game_row($con, $gameId);
 
@@ -553,8 +548,7 @@ function k2_ops_process_completed_game(
                 $periodCounts['weekB'],
                 $periodCounts['monthA'],
                 $periodCounts['monthB'],
-                $periodCounts['weekStart'],
-                $milestoneChrono
+                $periodCounts['weekStart']
             );
             require_once dirname(__DIR__, 2) . '/includes/player_play_streaks.php';
             k2_play_streak_after_rated_game(
@@ -588,7 +582,7 @@ function k2_ops_process_completed_game(
 
 /**
 
- * Chronological sim — one k2_ops_process_completed_game per game (no batch finalize).
+ * Chronological sim — one k2_ops_process_completed_game per game (rated-game milestones only).
 
  *
 
@@ -607,10 +601,6 @@ function k2_ops_replay_post_game(
     bool $dryRun = false
 
 ): array {
-
-    require_once __DIR__ . '/../includes/post_game_milestones.php';
-    k2_post_game_milestones_reset_replay_cache();
-    $milestoneChrono = ['_mode' => 'batch'];
 
     $sql = 'SELECT id FROM ratedresults ORDER BY Date ASC, id ASC';
 
@@ -654,7 +644,7 @@ function k2_ops_replay_post_game(
 
     foreach ($ids as $gid) {
 
-        $result = k2_ops_process_completed_game($con, $gid, $dryRun, $milestoneChrono);
+        $result = k2_ops_process_completed_game($con, $gid, $dryRun);
 
         $processed[] = $gid;
 
@@ -664,11 +654,6 @@ function k2_ops_replay_post_game(
 
         }
 
-    }
-
-    if (!$dryRun) {
-        k2_post_game_milestones_finalize_replay_chrono($con, $milestoneChrono);
-        k2_post_game_milestones_seed_lobby($con);
     }
 
     return ['processed' => $processed, 'committed' => $committed];

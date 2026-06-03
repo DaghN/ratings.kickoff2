@@ -115,6 +115,11 @@ class PlayerState:
     longest_non_win_streak: int = 0
     longest_non_draw_streak: int = 0
     longest_non_loss_streak: int = 0
+    score_streak: int = 0
+    merchant_streak: int = 0
+    exact_ten_goal_streak: int = 0
+    win_margin_one_streak: int = 0
+    loss_margin_one_streak: int = 0
     last_game: datetime | None = None
     last_game_id: int | None = None
     last_win_game_id: int | None = None
@@ -352,6 +357,7 @@ class PlayerState:
         self._apply_career_peak_nadir(new_rating, game_id)
 
         self._update_streaks(won, drew, lost)
+        self._update_milestone_streaks(goals_for, goals_against, won, lost)
 
         if won:
             self.last_win_game_id = game_id
@@ -389,6 +395,31 @@ class PlayerState:
         self.longest_non_win_streak = max(self.longest_non_win_streak, self.non_win_streak)
         self.longest_non_draw_streak = max(self.longest_non_draw_streak, self.non_draw_streak)
         self.longest_non_loss_streak = max(self.longest_non_loss_streak, self.non_loss_streak)
+
+    def _update_milestone_streaks(
+        self, goals_for: int, goals_against: int, won: bool, lost: bool
+    ) -> None:
+        if goals_for > 0:
+            self.score_streak += 1
+        else:
+            self.score_streak = 0
+        if goals_for >= 10:
+            self.merchant_streak += 1
+        else:
+            self.merchant_streak = 0
+        if goals_for == 10:
+            self.exact_ten_goal_streak += 1
+        else:
+            self.exact_ten_goal_streak = 0
+        margin = abs(goals_for - goals_against) if (won or lost) else 0
+        if won and margin == 1:
+            self.win_margin_one_streak += 1
+        else:
+            self.win_margin_one_streak = 0
+        if lost and margin == 1:
+            self.loss_margin_one_streak += 1
+        else:
+            self.loss_margin_one_streak = 0
 
     def to_db_row(self, player_id: int) -> dict:
         g = self.games
@@ -461,6 +492,11 @@ class PlayerState:
             "LongestNonWinStreak": self.longest_non_win_streak or None,
             "LongestNonDrawStreak": self.longest_non_draw_streak or None,
             "LongestNonLossStreak": self.longest_non_loss_streak or None,
+            "ScoreStreak": self.score_streak or None,
+            "MerchantStreak": self.merchant_streak or None,
+            "ExactTenGoalStreak": self.exact_ten_goal_streak or None,
+            "WinMarginOneStreak": self.win_margin_one_streak or None,
+            "LossMarginOneStreak": self.loss_margin_one_streak or None,
             "LastGame": self.last_game,
             "LastGameGameID": self.last_game_id,
             "LastWinGameID": self.last_win_game_id,

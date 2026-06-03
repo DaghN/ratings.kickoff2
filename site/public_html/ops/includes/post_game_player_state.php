@@ -67,6 +67,11 @@ function k2_post_game_player_state_new(): array
         'longest_non_win_streak' => 0,
         'longest_non_draw_streak' => 0,
         'longest_non_loss_streak' => 0,
+        'score_streak' => 0,
+        'merchant_streak' => 0,
+        'exact_ten_goal_streak' => 0,
+        'win_margin_one_streak' => 0,
+        'loss_margin_one_streak' => 0,
         'last_game' => null,
         'last_game_id' => null,
         'last_win_game_id' => null,
@@ -204,6 +209,49 @@ function k2_post_game_player_update_streaks(array &$st, bool $won, bool $drew, b
     $st['longest_non_win_streak'] = max($st['longest_non_win_streak'], $st['non_win_streak']);
     $st['longest_non_draw_streak'] = max($st['longest_non_draw_streak'], $st['non_draw_streak']);
     $st['longest_non_loss_streak'] = max($st['longest_non_loss_streak'], $st['non_loss_streak']);
+}
+
+/**
+ * Milestone facilitators (gen_milestone_chrono_sql.py); persisted on playertable (SCH-018).
+ *
+ * @param array<string, mixed> $st
+ */
+function k2_post_game_player_update_milestone_streaks(
+    array &$st,
+    int $goalsFor,
+    int $goalsAgainst,
+    bool $won,
+    bool $lost
+): void {
+    if ($goalsFor > 0) {
+        $st['score_streak']++;
+    } else {
+        $st['score_streak'] = 0;
+    }
+
+    if ($goalsFor >= 10) {
+        $st['merchant_streak']++;
+    } else {
+        $st['merchant_streak'] = 0;
+    }
+
+    if ($goalsFor === 10) {
+        $st['exact_ten_goal_streak']++;
+    } else {
+        $st['exact_ten_goal_streak'] = 0;
+    }
+
+    $margin = ($won || $lost) ? abs($goalsFor - $goalsAgainst) : 0;
+    if ($won && $margin === 1) {
+        $st['win_margin_one_streak']++;
+    } else {
+        $st['win_margin_one_streak'] = 0;
+    }
+    if ($lost && $margin === 1) {
+        $st['loss_margin_one_streak']++;
+    } else {
+        $st['loss_margin_one_streak'] = 0;
+    }
 }
 
 /**
@@ -476,6 +524,7 @@ function k2_post_game_player_apply_match(
     k2_post_game_player_apply_career_peak_nadir($st, $newRating, $gameId);
 
     k2_post_game_player_update_streaks($st, $won, $drew, $lost);
+    k2_post_game_player_update_milestone_streaks($st, $goalsFor, $goalsAgainst, $won, $lost);
 
     if ($won) {
         $st['last_win_game_id'] = $gameId;
@@ -598,6 +647,11 @@ function k2_post_game_player_to_db_row(array $st, int $playerId): array
         'LongestNonWinStreak' => $st['longest_non_win_streak'] > 0 ? (int) $st['longest_non_win_streak'] : null,
         'LongestNonDrawStreak' => $st['longest_non_draw_streak'] > 0 ? (int) $st['longest_non_draw_streak'] : null,
         'LongestNonLossStreak' => $st['longest_non_loss_streak'] > 0 ? (int) $st['longest_non_loss_streak'] : null,
+        'ScoreStreak' => $st['score_streak'] > 0 ? (int) $st['score_streak'] : null,
+        'MerchantStreak' => $st['merchant_streak'] > 0 ? (int) $st['merchant_streak'] : null,
+        'ExactTenGoalStreak' => $st['exact_ten_goal_streak'] > 0 ? (int) $st['exact_ten_goal_streak'] : null,
+        'WinMarginOneStreak' => $st['win_margin_one_streak'] > 0 ? (int) $st['win_margin_one_streak'] : null,
+        'LossMarginOneStreak' => $st['loss_margin_one_streak'] > 0 ? (int) $st['loss_margin_one_streak'] : null,
         'LastGame' => $st['last_game'],
         'LastGameGameID' => $st['last_game_id'],
         'LastWinGameID' => $st['last_win_game_id'],

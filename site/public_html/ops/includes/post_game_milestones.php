@@ -1,8 +1,9 @@
-<?php
-/**
- * player_milestones incremental unlocks (P6) — game-triggered keys after P5.
- */
+﻿<?php
 declare(strict_types=1);
+
+/**
+ * player_milestones incremental unlocks (P6) - game-triggered keys after P5.
+ */
 
 require_once __DIR__ . '/post_game_constants.php';
 require_once __DIR__ . '/ops_bootstrap.php';
@@ -10,6 +11,30 @@ require_once __DIR__ . '/ops_bootstrap.php';
 function k2_post_game_milestones_table_available(mysqli $con): bool
 {
     return k2_ops_table_exists($con, 'player_milestones');
+}
+
+function k2_post_game_milestone_player_has(
+    mysqli $con,
+    int $playerId,
+    string $key
+): bool {
+    if (!k2_post_game_milestones_table_available($con)) {
+        return false;
+    }
+    $stmt = $con->prepare(
+        'SELECT 1 FROM player_milestones WHERE player_id = ? AND milestone_key = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare milestone has: ' . $con->error);
+    }
+    $stmt->bind_param('is', $playerId, $key);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute milestone has: ' . $stmt->error);
+    }
+    $stmt->store_result();
+    $has = $stmt->num_rows > 0;
+    $stmt->close();
+    return $has;
 }
 
 /**
@@ -96,10 +121,8 @@ function k2_post_game_milestones_rating_clubs(
     string $gameDate,
     int $gameId
 ): void {
-    global $k2_post_game_milestone_peak_rating;
-    $prevPeak = $k2_post_game_milestone_peak_rating[$playerId] ?? $preGameRating;
     foreach ([1700, 1800, 2000, 2300] as $thresh) {
-        if ($prevPeak < $thresh && $newRating >= $thresh) {
+        if ($preGameRating < $thresh && $newRating >= $thresh) {
             k2_post_game_milestone_try_insert_game(
                 $con,
                 $playerId,
@@ -110,7 +133,6 @@ function k2_post_game_milestones_rating_clubs(
             );
         }
     }
-    $k2_post_game_milestone_peak_rating[$playerId] = max($prevPeak, $newRating);
 }
 
 /**
@@ -228,8 +250,27 @@ function k2_post_game_milestones_streak_keys(
     if ($drew && $ds === 3) {
         k2_post_game_milestone_try_insert_game($con, $playerId, 'peace_streak', $gameDate, 3, $gameId);
     }
+    if ($drew && $ds === 5) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'united_nations', $gameDate, 5, $gameId);
+    }
     if ($wins === 10) {
         k2_post_game_milestone_try_insert_game($con, $playerId, 'ten_wins', $gameDate, 10, $gameId);
+    }
+
+    if ((int) $st['score_streak'] === 10) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'on_the_scoresheet', $gameDate, 10, $gameId);
+    }
+    if ((int) $st['merchant_streak'] === 5) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'merchant_streak', $gameDate, 5, $gameId);
+    }
+    if ((int) $st['exact_ten_goal_streak'] === 3) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'minimalist_merchant', $gameDate, 3, $gameId);
+    }
+    if ($won && (int) $st['win_margin_one_streak'] === 5) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'knife_edge', $gameDate, 5, $gameId);
+    }
+    if ($lost && (int) $st['loss_margin_one_streak'] === 5) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'unlucky', $gameDate, 5, $gameId);
     }
 }
 
@@ -399,27 +440,6 @@ function k2_post_game_milestones_period_burst(
     }
 }
 
-function k2_post_game_milestones_chrono_init_player(): array
-{
-    return [
-        'games' => 0,
-        'current_day' => null,
-        'last_gid' => 0,
-        'score_streak' => 0,
-        'draw_streak' => 0,
-        'win_margin_streak' => 0,
-        'loss_margin_streak' => 0,
-        'merchant_streak' => 0,
-        'exact_ten_streak' => 0,
-        'games_by_day' => [],
-        'days_by_month' => [],
-        'games_by_month' => [],
-        'week_days' => [],
-        'week_keys' => [],
-        'done' => [],
-    ];
-}
-
 function k2_post_game_milestones_monday_week_key(DateTimeImmutable $dt): string
 {
     $monday = $dt->modify('-' . ((int) $dt->format('N') - 1) . ' days');
@@ -427,471 +447,371 @@ function k2_post_game_milestones_monday_week_key(DateTimeImmutable $dt): string
     return $monday->format('Y-m-d');
 }
 
-function k2_post_game_milestones_month_key(DateTimeImmutable $dt): string
-{
-    return $dt->format('Y-m');
+/**
+ * @return list<string> period_start dates (Y-m-d) with games >= 1, ascending
+ */
+function k2_post_game_milestones_period_starts_with_games(
+    mysqli $con,
+    int $playerId,
+    string $periodType,
+    string $rangeStart,
+    string $rangeEnd
+): array {
+    $stmt = $con->prepare(
+        'SELECT period_start FROM player_period_games '
+        . 'WHERE player_id = ? AND period_type = ? '
+        . 'AND period_start >= ? AND period_start <= ? AND games >= 1 '
+        . 'ORDER BY period_start ASC'
+    );
+    if ($stmt === false) {
+        return [];
+    }
+    $stmt->bind_param('isss', $playerId, $periodType, $rangeStart, $rangeEnd);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return [];
+    }
+    $res = $stmt->get_result();
+    $out = [];
+    while ($row = $res->fetch_assoc()) {
+        $out[] = (string) $row['period_start'];
+    }
+    mysqli_free_result($res);
+    $stmt->close();
+
+    return $out;
 }
 
 /**
- * @param array<string, mixed> $c
+ * @param list<string> $weekStarts Monday period_start values, ascending
  */
-function k2_post_game_milestones_chrono_try_unlock(
+function k2_post_game_milestones_weekly_regular_qualifies(array $weekStarts, string $currentWeekStart): bool
+{
+    $n = count($weekStarts);
+    if ($n < 13) {
+        return false;
+    }
+    for ($i = 0; $i <= $n - 13; $i++) {
+        if ($weekStarts[$i + 12] !== $currentWeekStart) {
+            continue;
+        }
+        $ok = true;
+        for ($j = 1; $j < 13; $j++) {
+            $d0 = new DateTimeImmutable($weekStarts[$i + $j - 1], new DateTimeZone('UTC'));
+            $d1 = new DateTimeImmutable($weekStarts[$i + $j], new DateTimeZone('UTC'));
+            if ($d0->diff($d1)->days > 10) {
+                $ok = false;
+                break;
+            }
+        }
+        if ($ok) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function k2_post_game_milestones_maybe_weekly_regular(
     mysqli $con,
     int $playerId,
-    string $key,
-    array &$c,
-    string $achievedAt,
-    int $value,
+    DateTimeImmutable $dt,
+    string $gameDate,
     int $gameId
 ): void {
-    if ($key === 'peace_streak' || isset($c['done'][$key])) {
+    if (k2_post_game_milestone_player_has($con, $playerId, 'weekly_regular')) {
         return;
     }
-    $c['done'][$key] = true;
-    k2_post_game_milestone_try_insert_game($con, $playerId, $key, $achievedAt, $value, $gameId);
-}
-
-/**
- * @param array<int, array<string, mixed>> $chronoState
- * @param array<int, float> $ratings
- * @param array<int, string> $lastGameDt
- */
-function k2_post_game_milestones_chrono_for_player(
-    mysqli $con,
-    int $playerId,
-    int $opponentId,
-    array &$chronoState,
-    array &$ratings,
-    array &$lastGameDt,
-    array $game,
-    array $derived,
-    array $side,
-    array $st
-): void {
-    $gameId = (int) $game['id'];
-    $gameDate = (string) $game['Date'];
-    $dt = new DateTimeImmutable($gameDate, new DateTimeZone('UTC'));
-    $dayKey = $dt->format('Y-m-d');
-    $monthKey = k2_post_game_milestones_month_key($dt);
-    $dayOfMonth = (int) $dt->format('j');
-
-    if (!isset($chronoState[$playerId])) {
-        $chronoState[$playerId] = k2_post_game_milestones_chrono_init_player();
+    if (!k2_post_game_milestones_period_games_table_available($con)) {
+        return;
     }
-    $c = &$chronoState[$playerId];
-
-    if ((int) $c['games'] === 0) {
-        if (!isset($chronoState[$opponentId])) {
-            $chronoState[$opponentId] = k2_post_game_milestones_chrono_init_player();
-        }
-        k2_post_game_milestones_chrono_try_unlock($con, $opponentId, 'newbie_welcomer', $chronoState[$opponentId], $gameDate, 1, $gameId);
-        if ((int) $side['gf'] >= 2) {
-            k2_post_game_milestones_chrono_try_unlock($con, $opponentId, 'generous', $chronoState[$opponentId], $gameDate, 2, $gameId);
-        }
-    }
-
-    if ($c['current_day'] !== null && $c['current_day'] !== $dayKey) {
-        k2_post_game_milestones_finalize_chrono_day($con, $playerId, $c, (int) $c['last_gid']);
-    }
-    $c['current_day'] = $dayKey;
-    $c['last_gid'] = $gameId;
-
-    $sc = (float) $side['w'];
-    $gf = (int) $side['gf'];
-    $ga = (int) $side['ga'];
-    $won = $sc === 1.0;
-    $drew = $sc === 0.5;
-    $lost = $sc === 0.0;
-    $margin = $won || $lost ? abs($gf - $ga) : 0;
-
-    // rule_short “after 50+ career games” → first 0-goal game when NumberGames >= 51 (game 51+).
-    if ((int) $st['games'] >= 51 && $gf === 0) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'rare_blank', $c, $gameDate, 0, $gameId);
-    }
-
-    $outcome = $won ? 'W' : ($drew ? 'D' : 'L');
-    if (!isset($c['games_by_day'][$dayKey])) {
-        $c['games_by_day'][$dayKey] = [];
-    }
-    $c['games_by_day'][$dayKey][] = $outcome;
-
-    if (!isset($c['days_by_month'][$monthKey])) {
-        $c['days_by_month'][$monthKey] = [];
-    }
-    if (!in_array($dayOfMonth, $c['days_by_month'][$monthKey], true)) {
-        $c['days_by_month'][$monthKey][] = $dayOfMonth;
-    }
-    if (!isset($c['games_by_month'][$monthKey])) {
-        $c['games_by_month'][$monthKey] = 0;
-    }
-    $c['games_by_month'][$monthKey]++;
-
-    if ($gf > 0) {
-        $c['score_streak']++;
-    } else {
-        $c['score_streak'] = 0;
-    }
-    if ($c['score_streak'] === 10) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'on_the_scoresheet', $c, $gameDate, 10, $gameId);
-    }
-
-    if ($drew) {
-        $c['draw_streak']++;
-    } else {
-        $c['draw_streak'] = 0;
-    }
-    if ($c['draw_streak'] === 5) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'united_nations', $c, $gameDate, 5, $gameId);
-    }
-
-    if ($won && $margin === 1) {
-        $c['win_margin_streak']++;
-    } else {
-        $c['win_margin_streak'] = 0;
-    }
-    if ($c['win_margin_streak'] === 5) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'knife_edge', $c, $gameDate, 5, $gameId);
-    }
-
-    if ($lost && $margin === 1) {
-        $c['loss_margin_streak']++;
-    } else {
-        $c['loss_margin_streak'] = 0;
-    }
-    if ($c['loss_margin_streak'] === 5) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'unlucky', $c, $gameDate, 5, $gameId);
-    }
-
-    if ($gf >= 10) {
-        $c['merchant_streak']++;
-    } else {
-        $c['merchant_streak'] = 0;
-    }
-    if ($c['merchant_streak'] === 5) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'merchant_streak', $c, $gameDate, 5, $gameId);
-    }
-
-    if ($gf === 10) {
-        $c['exact_ten_streak']++;
-    } else {
-        $c['exact_ten_streak'] = 0;
-    }
-    if ($c['exact_ten_streak'] === 3) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'minimalist_merchant', $c, $gameDate, 3, $gameId);
-    }
-
-    $newR = $playerId === (int) $game['idA']
-        ? (float) $derived['NewRatingA']
-        : (float) $derived['NewRatingB'];
-    $ratings[$playerId] = $newR > 0 ? $newR : ($ratings[$playerId] ?? (float) $side['r_pre']);
-    $lastGameDt[$playerId] = $gameDate;
-
-    k2_post_game_milestones_maybe_giant_slayer(
+    $currentWeekStart = k2_post_game_milestones_monday_week_key($dt);
+    $windowStart = (new DateTimeImmutable($currentWeekStart, new DateTimeZone('UTC')))
+        ->modify('-12 weeks')
+        ->format('Y-m-d');
+    $weekStarts = k2_post_game_milestones_period_starts_with_games(
         $con,
         $playerId,
-        $opponentId,
-        $won,
-        (float) $side['r_pre'],
-        (float) $side['r_opp'],
-        $ratings,
-        $lastGameDt,
-        $gameDate,
-        $gameId,
-        [(int) $game['idA'], (int) $game['idB']]
+        'week',
+        $windowStart,
+        $currentWeekStart
     );
-
-    $daysInMonth = (int) $dt->format('t');
-    $daysPlayed = $c['days_by_month'][$monthKey];
-    if (count($daysPlayed) >= $daysInMonth) {
-        $allDays = range(1, $daysInMonth);
-        $haveAll = true;
-        foreach ($allDays as $d) {
-            if (!in_array($d, $daysPlayed, true)) {
-                $haveAll = false;
-                break;
-            }
-        }
-        if ($haveAll) {
-            k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'monthly_regular', $c, $gameDate, $daysInMonth, $gameId);
-        }
+    if (!k2_post_game_milestones_weekly_regular_qualifies($weekStarts, $currentWeekStart)) {
+        return;
     }
-
-    $weekKey = k2_post_game_milestones_monday_week_key($dt);
-    $isoDow = (int) $dt->format('N') - 1;
-    if (!isset($c['week_days'][$weekKey])) {
-        $c['week_days'][$weekKey] = [];
-    }
-    if (!in_array($isoDow, $c['week_days'][$weekKey], true)) {
-        $c['week_days'][$weekKey][] = $isoDow;
-    }
-    if (count($c['week_days'][$weekKey]) === 7) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'daily_habit', $c, $gameDate, 7, $gameId);
-    }
-
-    if (!in_array($weekKey, $c['week_keys'], true)) {
-        $c['week_keys'][] = $weekKey;
-        sort($c['week_keys']);
-        if (count($c['week_keys']) >= 13) {
-            $keys = $c['week_keys'];
-            for ($i = 0, $n = count($keys) - 12; $i < $n; $i++) {
-                $block = array_slice($keys, $i, 13);
-                $ok = true;
-                for ($j = 1; $j < 13; $j++) {
-                    $d0 = new DateTimeImmutable($block[$j - 1], new DateTimeZone('UTC'));
-                    $d1 = new DateTimeImmutable($block[$j], new DateTimeZone('UTC'));
-                    if ($d0->diff($d1)->days > 10) {
-                        $ok = false;
-                        break;
-                    }
-                }
-                if ($ok) {
-                    k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'weekly_regular', $c, $gameDate, 13, $gameId);
-                    break;
-                }
-            }
-        }
-    }
-
-    $monthsSorted = array_keys(array_filter(
-        $c['games_by_month'],
-        static fn (int $cnt): bool => $cnt > 0
-    ));
-    sort($monthsSorted);
-    if (count($monthsSorted) >= 12) {
-        for ($i = 0, $n = count($monthsSorted) - 11; $i < $n; $i++) {
-            [$y0, $m0] = array_map('intval', explode('-', $monthsSorted[$i]));
-            $ok = true;
-            for ($j = 0; $j < 12; $j++) {
-                $ym = $y0 + intdiv($m0 - 1 + $j, 12);
-                $mm = ($m0 - 1 + $j) % 12 + 1;
-                $mk = sprintf('%04d-%02d', $ym, $mm);
-                if (($c['games_by_month'][$mk] ?? 0) < 1) {
-                    $ok = false;
-                    break;
-                }
-            }
-            if ($ok) {
-                k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'year_round', $c, $gameDate, 12, $gameId);
-                break;
-            }
-        }
-    }
-
-    $c['games']++;
+    k2_post_game_milestone_try_insert_game($con, $playerId, 'weekly_regular', $gameDate, 13, $gameId);
 }
 
-/**
- * @param array<string, mixed> $c
- */
-function k2_post_game_milestones_finalize_chrono_day(
+function k2_post_game_milestones_maybe_year_round(
     mysqli $con,
     int $playerId,
-    array $c,
+    DateTimeImmutable $dt,
+    string $gameDate,
     int $gameId
 ): void {
-    $dayKey = $c['current_day'] ?? null;
-    if ($dayKey === null) {
+    if (k2_post_game_milestone_player_has($con, $playerId, 'year_round')) {
         return;
     }
-    $outcomes = $c['games_by_day'][$dayKey] ?? [];
-    if (count($outcomes) < 5) {
+    if (!k2_post_game_milestones_period_games_table_available($con)) {
         return;
     }
-    $closeAt = (new DateTimeImmutable($dayKey, new DateTimeZone('UTC')))
-        ->modify('+1 day')
-        ->format('Y-m-d H:i:s');
-    if (count(array_filter($outcomes, static fn ($o) => $o === 'W')) === count($outcomes)) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'perfect_day', $c, $closeAt, 5, $gameId);
+    $monthStart = $dt->format('Y-m-01');
+    $windowStart = (new DateTimeImmutable($monthStart, new DateTimeZone('UTC')))
+        ->modify('-11 months')
+        ->format('Y-m-01');
+    $monthStarts = k2_post_game_milestones_period_starts_with_games(
+        $con,
+        $playerId,
+        'month',
+        $windowStart,
+        $monthStart
+    );
+    $activeMonths = [];
+    foreach ($monthStarts as $ps) {
+        $activeMonths[substr($ps, 0, 7)] = true;
     }
-    if (count(array_filter($outcomes, static fn ($o) => $o === 'L')) === count($outcomes)) {
-        k2_post_game_milestones_chrono_try_unlock($con, $playerId, 'nightmare_day', $c, $closeAt, 5, $gameId);
+    $cursor = new DateTimeImmutable($windowStart, new DateTimeZone('UTC'));
+    for ($j = 0; $j < 12; $j++) {
+        $key = $cursor->format('Y-m');
+        if (!isset($activeMonths[$key])) {
+            return;
+        }
+        $cursor = $cursor->modify('+1 month');
+    }
+    k2_post_game_milestone_try_insert_game($con, $playerId, 'year_round', $gameDate, 12, $gameId);
+}
+
+/**
+ * @param array<string, mixed> $st player state after this game
+ */
+function k2_post_game_milestones_maybe_rare_blank(
+    mysqli $con,
+    int $playerId,
+    array $st,
+    int $goalsFor,
+    string $gameDate,
+    int $gameId
+): void {
+    if ((int) $st['games'] >= 51 && $goalsFor === 0) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'rare_blank', $gameDate, 0, $gameId);
     }
 }
 
 /**
- * Replay prior rated games into chrono state (live process-one). Batch replay skips this.
+ * Debut game awards for the opponent (playertable NumberGames === 1 on this game).
  *
- * @param array<int|string, mixed> $chronoState
+ * @param array<string, mixed> $st
  */
-function k2_post_game_milestones_hydrate_chrono_until(
+function k2_post_game_milestones_debut_opponent_awards(
     mysqli $con,
-    int $playerId,
-    int $beforeGameId,
-    array &$chronoState,
-    array &$ratings,
-    array &$lastGameDt
+    int $debutPlayerId,
+    int $opponentId,
+    array $st,
+    int $goalsFor,
+    string $gameDate,
+    int $gameId
 ): void {
-    $fromId = (int) ($chronoState['_hydrated_until'][$playerId] ?? 0);
-    if ($fromId >= $beforeGameId - 1) {
+    if ((int) $st['games'] !== 1) {
         return;
     }
+    k2_post_game_milestone_try_insert_game($con, $opponentId, 'newbie_welcomer', $gameDate, 1, $gameId);
+    if ($goalsFor >= 2) {
+        k2_post_game_milestone_try_insert_game($con, $opponentId, 'generous', $gameDate, 2, $gameId);
+    }
+}
 
+function k2_post_game_milestones_period_games_table_available(mysqli $con): bool
+{
+    return k2_ops_table_exists($con, 'player_period_games');
+}
+
+function k2_post_game_milestones_maybe_daily_habit(
+    mysqli $con,
+    int $playerId,
+    DateTimeImmutable $dt,
+    string $gameDate,
+    int $gameId
+): void {
+    if (!k2_post_game_milestones_period_games_table_available($con)) {
+        return;
+    }
+    $weekStart = k2_post_game_milestones_monday_week_key($dt);
+    $weekEnd = (new DateTimeImmutable($weekStart, new DateTimeZone('UTC')))->modify('+7 days')->format('Y-m-d');
     $stmt = $con->prepare(
-        'SELECT id, `Date`, idA, idB, GoalsA, GoalsB, ActualScore, '
-        . 'RatingA, RatingB, NewRatingA, NewRatingB '
-        . 'FROM ratedresults WHERE id > ? AND id < ? '
-        . 'AND (idA = ? OR idB = ?) AND NewRatingA IS NOT NULL '
-        . 'ORDER BY `Date` ASC, id ASC'
+        'SELECT COUNT(*) AS c FROM player_period_games '
+        . 'WHERE player_id = ? AND period_type = \'day\' '
+        . 'AND period_start >= ? AND period_start < ? AND games >= 1'
     );
     if ($stmt === false) {
         return;
     }
-    $stmt->bind_param('iiii', $fromId, $beforeGameId, $playerId, $playerId);
+    $stmt->bind_param('iss', $playerId, $weekStart, $weekEnd);
     if (!$stmt->execute()) {
         $stmt->close();
 
         return;
     }
     $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $gid = (int) $row['id'];
-        $idA = (int) $row['idA'];
-        $idB = (int) $row['idB'];
-        $game = $row;
-        $derived = [
-            'ActualScore' => (float) $row['ActualScore'],
-            'RatingA' => (float) $row['RatingA'],
-            'RatingB' => (float) $row['RatingB'],
-            'NewRatingA' => (float) $row['NewRatingA'],
-            'NewRatingB' => (float) $row['NewRatingB'],
-        ];
-        $opp = $playerId === $idA ? $idB : $idA;
-        $side = k2_post_game_milestone_side_stats(
-            $playerId,
-            $idA,
-            $idB,
-            (int) $row['GoalsA'],
-            (int) $row['GoalsB'],
-            (float) $derived['ActualScore'],
-            (float) $derived['RatingA'],
-            (float) $derived['RatingB']
-        );
-        $stubSt = ['games' => 0];
-        k2_post_game_milestones_chrono_for_player(
-            $con,
-            $playerId,
-            $opp,
-            $chronoState,
-            $ratings,
-            $lastGameDt,
-            $game,
-            $derived,
-            $side,
-            $stubSt
-        );
-        $fromId = $gid;
-    }
+    $row = $res ? $res->fetch_assoc() : false;
     $stmt->close();
-    $chronoState['_hydrated_until'][$playerId] = max($fromId, $beforeGameId - 1);
+    if ($row !== false && (int) ($row['c'] ?? 0) === 7) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'daily_habit', $gameDate, 7, $gameId);
+    }
 }
 
-/**
- * @param array<int|string, mixed> $chronoState
- */
-function k2_post_game_milestones_prepare_chrono_for_game(
+function k2_post_game_milestones_maybe_monthly_regular(
     mysqli $con,
-    array $game,
-    array &$chronoState,
-    array &$ratings,
-    array &$lastGameDt
+    int $playerId,
+    DateTimeImmutable $dt,
+    string $gameDate,
+    int $gameId
 ): void {
-    if (($chronoState['_mode'] ?? '') === 'batch') {
+    if (!k2_post_game_milestones_period_games_table_available($con)) {
         return;
     }
-    $gameId = (int) $game['id'];
-    k2_post_game_milestones_hydrate_chrono_until($con, (int) $game['idA'], $gameId, $chronoState, $ratings, $lastGameDt);
-    k2_post_game_milestones_hydrate_chrono_until($con, (int) $game['idB'], $gameId, $chronoState, $ratings, $lastGameDt);
+    $monthStart = $dt->format('Y-m-01');
+    $monthEnd = (new DateTimeImmutable($monthStart, new DateTimeZone('UTC')))->modify('+1 month')->format('Y-m-d');
+    $daysInMonth = (int) $dt->format('t');
+    $stmt = $con->prepare(
+        'SELECT COUNT(*) AS c FROM player_period_games '
+        . 'WHERE player_id = ? AND period_type = \'day\' '
+        . 'AND period_start >= ? AND period_start < ? AND games >= 1'
+    );
+    if ($stmt === false) {
+        return;
+    }
+    $stmt->bind_param('iss', $playerId, $monthStart, $monthEnd);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return;
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : false;
+    $stmt->close();
+    if ($row !== false && (int) ($row['c'] ?? 0) === $daysInMonth) {
+        k2_post_game_milestone_try_insert_game($con, $playerId, 'monthly_regular', $gameDate, $daysInMonth, $gameId);
+    }
 }
 
 /**
- * @param array<int, float> $ratings
- * @param array<int, string> $lastGameDt
- * @param list<int> $inGame
+ * Active #1 by contract: highest Rating among players active in last 365 UTC days or in this match.
  */
+function k2_post_game_milestones_active_top_player_id(
+    mysqli $con,
+    string $gameDate,
+    int $idA,
+    int $idB
+): int {
+    $at = new DateTimeImmutable($gameDate, new DateTimeZone('UTC'));
+    $cutoff = $at->modify('-365 days')->format('Y-m-d H:i:s');
+    $stmt = $con->prepare(
+        'SELECT ID AS pid FROM playertable '
+        . 'WHERE (LastGame >= ? OR ID IN (?, ?)) '
+        . 'ORDER BY Rating DESC, ID DESC LIMIT 1'
+    );
+    if ($stmt === false) {
+        return 0;
+    }
+    $stmt->bind_param('sii', $cutoff, $idA, $idB);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return 0;
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : false;
+    $stmt->close();
+
+    return $row !== false ? (int) $row['pid'] : 0;
+}
+
 function k2_post_game_milestones_maybe_giant_slayer(
     mysqli $con,
     int $playerId,
     int $opponentId,
     bool $won,
-    float $rPre,
-    float $rOpp,
-    array $ratings,
-    array $lastGameDt,
+    float $rSelfPre,
+    float $rOppPre,
     string $gameDate,
     int $gameId,
-    array $inGame
+    int $idA,
+    int $idB
 ): void {
-    if (!$won || $opponentId !== k2_post_game_milestones_active_top_id($ratings, $lastGameDt, $gameDate, $inGame)) {
+    if (!$won || $opponentId === $playerId || $rOppPre < $rSelfPre) {
         return;
     }
-    if ($opponentId === $playerId || $rOpp < $rPre) {
+    $topId = k2_post_game_milestones_active_top_player_id($con, $gameDate, $idA, $idB);
+    if ($topId !== $opponentId) {
         return;
     }
     k2_post_game_milestone_try_insert_game($con, $playerId, 'giant_slayer', $gameDate, 1, $gameId);
 }
 
 /**
- * @param array<int, float> $ratings
- * @param array<int, string> $lastGameDt
- * @param list<int> $inGame
+ * DB-backed milestone checks only (no chrono notebook, no ratedresults re-sim).
+ *
+ * @param array<int, array<string, mixed>> $players
  */
-function k2_post_game_milestones_active_top_id(
-    array $ratings,
-    array $lastGameDt,
+function k2_post_game_milestones_db_backed_after_game(
+    mysqli $con,
+    array $game,
+    array $derived,
+    array &$players,
+    int $idA,
+    int $idB,
+    int $goalsA,
+    int $goalsB,
+    float $actualScore,
     string $gameDate,
-    array $inGame
-): int {
-    $at = new DateTimeImmutable($gameDate, new DateTimeZone('UTC'));
-    $cutoff = $at->modify('-365 days');
-    $playing = array_flip($inGame);
-    $bestId = 0;
-    $bestRating = -1.0;
-    foreach ($ratings as $pid => $rating) {
-        if (isset($playing[$pid])) {
-            if ($rating > $bestRating || ($rating === $bestRating && $pid > $bestId)) {
-                $bestRating = $rating;
-                $bestId = (int) $pid;
-            }
+    int $gameId
+): void {
+    $dt = new DateTimeImmutable($gameDate, new DateTimeZone('UTC'));
+
+    foreach ([$idA, $idB] as $pid) {
+        if (!isset($players[$pid])) {
             continue;
         }
-        if (!isset($lastGameDt[$pid])) {
-            continue;
-        }
-        $lg = new DateTimeImmutable($lastGameDt[$pid], new DateTimeZone('UTC'));
-        if ($lg < $cutoff) {
-            continue;
-        }
-        if ($rating > $bestRating || ($rating === $bestRating && $pid > $bestId)) {
-            $bestRating = $rating;
-            $bestId = (int) $pid;
-        }
+        $st = $players[$pid];
+        $opp = $pid === $idA ? $idB : $idA;
+        $side = k2_post_game_milestone_side_stats(
+            $pid,
+            $idA,
+            $idB,
+            $goalsA,
+            $goalsB,
+            $actualScore,
+            (float) $derived['RatingA'],
+            (float) $derived['RatingB']
+        );
+        $won = (float) $side['w'] === 1.0;
+
+        k2_post_game_milestones_maybe_rare_blank($con, $pid, $st, (int) $side['gf'], $gameDate, $gameId);
+        k2_post_game_milestones_debut_opponent_awards($con, $pid, $opp, $st, (int) $side['gf'], $gameDate, $gameId);
+        k2_post_game_milestones_maybe_daily_habit($con, $pid, $dt, $gameDate, $gameId);
+        k2_post_game_milestones_maybe_monthly_regular($con, $pid, $dt, $gameDate, $gameId);
+        k2_post_game_milestones_maybe_weekly_regular($con, $pid, $dt, $gameDate, $gameId);
+        k2_post_game_milestones_maybe_year_round($con, $pid, $dt, $gameDate, $gameId);
+        k2_post_game_milestones_maybe_giant_slayer(
+            $con,
+            $pid,
+            $opp,
+            $won,
+            (float) $side['r_pre'],
+            (float) $side['r_opp'],
+            $gameDate,
+            $gameId,
+            $idA,
+            $idB
+        );
     }
-
-    return $bestId;
-}
-
-/** @var array<int, float> */
-$k2_post_game_milestone_ratings = [];
-
-/** @var array<int, string> */
-$k2_post_game_milestone_last_game = [];
-
-/** @var array<int, float> */
-$k2_post_game_milestone_peak_rating = [];
-
-function k2_post_game_milestones_reset_replay_cache(): void
-{
-    global $k2_post_game_milestone_ratings, $k2_post_game_milestone_last_game, $k2_post_game_milestone_peak_rating;
-    $k2_post_game_milestone_ratings = [];
-    $k2_post_game_milestone_last_game = [];
-    $k2_post_game_milestone_peak_rating = [];
 }
 
 /**
  * @param array<string, mixed> $game
  * @param array<string, mixed> $derived
- * @param array<int, array<string, mixed>> &$players
- * @param array<int|string, mixed> $chronoState chrono state (`_mode` => `batch` for replay-to)
+ * @param array<int, array<string, mixed>> $players
  */
 function k2_post_game_update_milestones_after_game(
     mysqli $con,
@@ -904,8 +824,7 @@ function k2_post_game_update_milestones_after_game(
     int $weekGamesB,
     int $monthGamesA,
     int $monthGamesB,
-    string $weekStart,
-    array &$chronoState
+    string $weekStart
 ): void {
     if (!k2_post_game_milestones_table_available($con)) {
         return;
@@ -919,16 +838,6 @@ function k2_post_game_update_milestones_after_game(
     $goalsB = (int) $game['GoalsB'];
     $actualScore = (float) $derived['ActualScore'];
 
-    global $k2_post_game_milestone_ratings, $k2_post_game_milestone_last_game;
-
-    k2_post_game_milestones_prepare_chrono_for_game(
-        $con,
-        $game,
-        $chronoState,
-        $k2_post_game_milestone_ratings,
-        $k2_post_game_milestone_last_game
-    );
-
     foreach (
         [
             $idA => [$dayGamesA, $weekGamesA, $monthGamesA],
@@ -939,7 +848,16 @@ function k2_post_game_update_milestones_after_game(
             continue;
         }
         $st = &$players[$pid];
-        $side = k2_post_game_milestone_side_stats($pid, $idA, $idB, $goalsA, $goalsB, $actualScore, (float) $derived['RatingA'], (float) $derived['RatingB']);
+        $side = k2_post_game_milestone_side_stats(
+            $pid,
+            $idA,
+            $idB,
+            $goalsA,
+            $goalsB,
+            $actualScore,
+            (float) $derived['RatingA'],
+            (float) $derived['RatingB']
+        );
         $opp = $pid === $idA ? $idB : $idA;
 
         k2_post_game_milestones_nth_games($con, $pid, $st, $gameDate, $gameId);
@@ -957,51 +875,19 @@ function k2_post_game_update_milestones_after_game(
         k2_post_game_milestones_period_burst($con, $pid, $dayG, $monthG, $gameDate, $gameId);
         k2_post_game_milestones_year_in_heaven($con, $pid, $weekG, $weekStart, $gameId, $gameDate);
         k2_post_game_milestones_tail_keys($con, $pid, $opp, $st, $side, $gameDate, $gameId);
+    }
 
-        k2_post_game_milestones_chrono_for_player(
-            $con,
-            $pid,
-            $opp,
-            $chronoState,
-            $k2_post_game_milestone_ratings,
-            $k2_post_game_milestone_last_game,
-            $game,
-            $derived,
-            $side,
-            $st
-        );
-    }
-}
-
-function k2_post_game_milestones_finalize_replay_chrono(
-    mysqli $con,
-    array &$chronoState
-): void {
-    foreach ($chronoState as $playerId => $c) {
-        if (!is_array($c) || str_starts_with((string) $playerId, '_')) {
-            continue;
-        }
-        if (($c['current_day'] ?? null) !== null) {
-            k2_post_game_milestones_finalize_chrono_day($con, (int) $playerId, $c, (int) $c['last_gid']);
-        }
-    }
-}
-
-function k2_post_game_milestones_seed_lobby(mysqli $con): void
-{
-    if (!k2_post_game_milestones_table_available($con)) {
-        return;
-    }
-    $sql = 'INSERT INTO player_milestones '
-        . '(player_id, milestone_key, achieved_at, value, source_kind, source_game_id, '
-        . 'source_league_kind, source_period_type, source_period_start) '
-        . 'SELECT ID, \'entered_arena\', JoinDate, 1, \'lobby\', NULL, NULL, NULL, NULL '
-        . 'FROM playertable WHERE NumberGames >= 1 '
-        . 'AND NOT EXISTS ('
-        . 'SELECT 1 FROM player_milestones pm WHERE pm.player_id = playertable.ID '
-        . 'AND pm.milestone_key = \'entered_arena\''
-        . ')';
-    if (!$con->query($sql)) {
-        throw new RuntimeException('seed entered_arena: ' . $con->error);
-    }
+    k2_post_game_milestones_db_backed_after_game(
+        $con,
+        $game,
+        $derived,
+        $players,
+        $idA,
+        $idB,
+        $goalsA,
+        $goalsB,
+        $actualScore,
+        $gameDate,
+        $gameId
+    );
 }
