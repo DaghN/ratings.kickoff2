@@ -10,7 +10,7 @@
 
 ## Today
 
-- **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare without `dispatch.php` (see §6.6).
+- **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare, `seed-catalog`, `zero-derived`, parity (see §6.6).
 - **Post-game P0–P7 (PHP):** `run_process_game.php` — through milestones + play streaks. Parity: `ab-post-game --phase p6` (layers 1–6); P7 layer diff not wired yet.
 - **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
 - **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` on work DB (`--as-of` for timeline simul); REP-012/013 via `rebuild-all` / `rebuild-aggregates`.
@@ -38,7 +38,7 @@
 - **New ladder ops code** → `ops/`, not `staging-scripts/`.
 - **No business logic** in `dispatch.php`.
 - **Work / sim DB:** `ko2unity_work` (+ `ladder-work.ini`); **never** `ko2unity_baseline` / `kooldb2`.
-- **Dev DB (`ko2unity_db`):** off-limits for ops unless explicit `allow_dev_db=1` when implemented.
+- **Dev DB (`ko2unity_db`):** use `--target local-dev` only for intentional verbs (`seed-catalog`, league finalize); not for full `prepare` / `zero-derived`.
 - **Test modules** before shipping `dispatch.php` (see platform doc §6.6).
 
 ---
@@ -50,6 +50,13 @@ php site/public_html/ops/run_prepare.php prepare --target local-work
 ```
 
 Or: `powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1`
+
+**Catalog only (REP-014):**
+
+```text
+php site/public_html/ops/run_prepare.php seed-catalog --target local-work
+php site/public_html/ops/run_prepare.php seed-catalog --target local-dev
+```
 
 Legacy Python: `python -m scripts.work_prepare` (kept for reference).
 

@@ -44,7 +44,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_league_award` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only** |
 | `player_league_totals` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only**; re-aggregate from awards |
 | `player_league_slice_totals` | SCH-010 | `player_league_slice_totals_rebuild.sql` (REP-013) | **Periodic only**; with career totals after awards |
-| `milestone_definitions` | SCH-011 | `scripts/oneoff/load_milestone_definitions.py` | Static catalog; reload when seed changes |
+| `milestone_definitions` | SCH-011 | `ops/run_prepare.php seed-catalog` or `scripts/oneoff/load_milestone_definitions.py` | Static catalog; reload when seed changes |
 | `player_milestones` | SCH-008, SCH-012–013 | `player_milestones_rebuild.sql` (+ spliced generators) | § `player_milestones` — game / league / lobby; M1–M7 phases |
 | `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
 | `server_period_game_totals` | SCH-008 | `server_period_game_totals_rebuild.sql` | Server totals ×4 period types |

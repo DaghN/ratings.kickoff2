@@ -11,9 +11,13 @@ require_once __DIR__ . '/../includes/ops_shell.php';
 require_once __DIR__ . '/../includes/ops_reset_universe.php';
 require_once __DIR__ . '/../includes/ops_seed_lobby.php';
 
-function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun): void
+function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun, bool $allowDevDb = false): void
 {
-    k2_ops_assert_mutate_work_target($target);
+    if (!$allowDevDb) {
+        k2_ops_assert_mutate_work_target($target);
+    } else {
+        k2_ops_log('WARNING: mutating ko2unity_db via local-dev seed-catalog');
+    }
     $seedPath = k2_ops_repo_root() . '/data/milestones_definitions_seed.json';
     if (!is_file($seedPath)) {
         fwrite(STDERR, "Missing seed file: {$seedPath}\n");
@@ -37,7 +41,7 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
         return;
     }
 
-    $con = k2_ops_connect_work($target);
+    $con = k2_ops_connect_work($target, $allowDevDb);
     $con->autocommit(false);
     try {
         if (!k2_ops_table_exists($con, 'milestone_definitions')) {

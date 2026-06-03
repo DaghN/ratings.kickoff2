@@ -23,7 +23,7 @@
 
 Matches local reference (May 2026). **Prod** schema + C++ post-game still **pending**.
 
-**Milestone catalog (add-one):** `load_milestone_definitions.php` → **111** rows on staging (verified May 2026); `play_streak_100` = **100 days**, rule *100 consecutive UTC days with a rated game*. Unlock splice optional (`run_milestone_play_streak_100_unlock.php` — expect **0** rows). See [`milestones-add-one-playbook.md`](milestones-add-one-playbook.md).
+**Milestone catalog (add-one):** ops `seed-catalog` or legacy `load_milestone_definitions.php` → **111** rows on staging (verified May 2026); `play_streak_100` = **100 days**, rule *100 consecutive UTC days with a rated game*. Unlock splice optional (`run_milestone_play_streak_100_unlock.php` — expect **0** rows). See [`milestones-add-one-playbook.md`](milestones-add-one-playbook.md).
 
 ---
 

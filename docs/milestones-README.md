@@ -49,8 +49,9 @@ Both end up in `data/milestones_definitions_seed.json` and `milestone_definition
 1. Edit `rule_short` / `display_name` in [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json).
 2. Run `python scripts/oneoff/build_milestone_garden_links.py` (updates `milestones-catalog.md`).
 3. Load into DB:
-   - **Local:** `python scripts/oneoff/load_milestone_definitions.py` (or your usual local load).
-   - **Staging:** `php staging-scripts/load_milestone_definitions.php` (full catalog reload from seed on server).
+   - **Work / dev (preferred):** `php site/public_html/ops/run_prepare.php seed-catalog --target local-work` (or `local-dev` for `ko2unity_db`).
+   - **Local alt:** `python scripts/oneoff/load_milestone_definitions.py`.
+   - **Staging (legacy until ops + `data/` on server):** `php staging-scripts/load_milestone_definitions.php` (WinSCP `staging-data/milestones_definitions_seed.json`).
 
 ### B) Copy pass — patch list (good for several keys or staging-only sync)
 

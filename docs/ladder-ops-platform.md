@@ -1,6 +1,6 @@
 # Ladder operations platform — design (Jun 2026)
 
-**Status:** **Doc + `ops/` folder scaffold** (Jun 2026). **`dispatch.php` and modules not in repo yet** — design agreed with Steve; implementation is a separate slice.  
+**Status:** **`ops/` dev runners live** (prepare, post-game, league finalize, timeline sim — Jun 2026). **`dispatch.php` not in repo yet** — Steve `CMD=` router is a separate slice.  
 **Audience:** Dagh, Steve, Cursor agents.
 
 **Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
@@ -154,14 +154,14 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 **Canonical rules live here.** [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) is a short checklist for humans syncing the folder — do not fork naming or bootstrap rules into a second spec.
 
-**Status (Jun 2026):** Conventions agreed; **no PHP implementation in repo yet** (`dispatch.php`, `includes/`, modules are planned paths only).
+**Status (Jun 2026):** Conventions agreed; **`run_*.php` dev runners + `includes/` + `modules/`** in repo. **`dispatch.php`** still planned (thin router only).
 
 ### 6.1 `ops/` vs `staging-scripts/`
 
 | Location | Use |
 |----------|-----|
 | **`site/public_html/ops/`** | All **new** ladder ops: dispatcher, modules, SQL mirrors, sim/post-game/periodic CMDs. |
-| **`site/public_html/staging-scripts/`** | **Legacy** one-shot rebuild runners (milestones, league awards, play streaks, …). **Leave in place** until a deliberate migration slice moves a script into `ops/modules/` and updates docs/registers. |
+| **`site/public_html/staging-scripts/`** | **Legacy** one-shot rebuild runners. **Do not add new logic.** League awards runner **removed** (Jun 2026); catalog superseded by `ops/run_prepare.php seed-catalog`. Inventory: [`coordination/staging-scripts-inventory.md`](coordination/staging-scripts-inventory.md). |
 
 **Migration criteria (when moving a legacy script):** the runner is still needed on staging/prod path; it fits the `CMD=` or documented dev-runner pattern; callers and README are updated in the **same slice**; nothing is deleted from `staging-scripts/` until the replacement is verified.
 
@@ -174,8 +174,12 @@ site/public_html/ops/
   .htaccess                 # deny HTTP
   README.md                 # checklist → this doc §6
   dispatch.php              # thin router (planned)
+  run_prepare.php           # dev runner: prepare / seed-catalog / zero-derived / parity
+  run_process_game.php      # dev runner: post-game P0–P7
+  run_finalize_league.php   # dev runner: PER-003 + REP-012/013
+  run_timeline_sim.php      # dev runner: Mode C simul
   includes/
-    ops_bootstrap.php       # CLI, mysqli, DB guards (planned)
+    ops_bootstrap.php       # CLI, mysqli, DB guards
     ops_argv.php            # CMD= key=value parsing (planned)
   modules/
     process_completed_game.php   # example: one primary file per CMD
@@ -199,9 +203,9 @@ site/public_html/ops/
 
 **Periodic jobs** use the **same** `dispatch.php` (e.g. `CMD=RatingFade`) — not separate top-level PHP entry files unless Steve requires a different host path (document exception if so).
 
-### 6.4 Bootstrap contract (planned behaviour)
+### 6.4 Bootstrap contract
 
-Document only until implemented — agents must not assume these files exist.
+Implemented in `includes/ops_bootstrap.php` and work-target profiles (`local-work`, `local-dev`, `staging-work`). **`dispatch.php`** will reuse the same connect/guards.
 
 | Rule | Detail |
 |------|--------|
@@ -211,7 +215,7 @@ Document only until implemented — agents must not assume these files exist.
 | **Work DB override** | `ini=ladder-work.ini` → `[database]` in `site/config/ladder-work.ini` (see `.example`). |
 | **Explicit override** | `database=ko2unity_work` on the command line (after ini). |
 | **Protected DBs** | **Refuse** connects to `ko2unity_baseline` and `kooldb2` (reset sources). |
-| **Dev DB guard** | **`ko2unity_db`** (browser at `ratingskickoff.test`) is **off-limits by default** for ops CLI. Ops must pass explicit `allow_dev_db=1` to connect — prevents accidental derived writes on dev. Browse work at **`http://work.ratingskickoff.test/`** ([`LOCAL_DEV.md`](../LOCAL_DEV.md)). |
+| **Dev DB guard** | **`ko2unity_db`** is **off-limits by default**. Use **`--target local-dev`** only on intentional verbs (`seed-catalog`, `finalize-due` / `rebuild-all`, …). Full prepare/zero-derived stay **work DB only**. Browse work at **`http://work.ratingskickoff.test/`** ([`LOCAL_DEV.md`](../LOCAL_DEV.md)). |
 | **Charset / TZ** | `utf8mb4`, `SET time_zone = '+00:00'` (match legacy staging bootstrap). |
 
 **Target DB for sim/post-game development:** `ko2unity_work` locally, `kooldb1` on staging — see §4.

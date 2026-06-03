@@ -1,5 +1,7 @@
 <?php
 /**
+ * @archived One-off (May 2026). Do not run unless explicitly re-applying a copy patch batch.
+ *
  * Staging one-shot: apply milestone catalog copy patches (no TRUNCATE).
  *
  * CLI only. After WinSCP upload:

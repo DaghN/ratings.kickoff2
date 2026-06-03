@@ -1,5 +1,7 @@
 <?php
 /**
+ * @archived One-off (May 2026). Optional splice — expect 0 unlock rows on May 2026 import.
+ *
  * Surgical REP: add play_streak_100 unlock rows + refresh catalog row (no full milestones truncate).
  *
  * Prerequisites: milestone_definitions loaded (111 keys); player_period_games (REP-003).

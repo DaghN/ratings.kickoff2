@@ -4,7 +4,7 @@
  *
  * CLI only. Prerequisites:
  *   - staging-sql/011 + 012 applied (source columns)
- *   - load_milestone_definitions.php run (REP-014)
+ *   - REP-014 catalog (ops seed-catalog or legacy load_milestone_definitions.php)
  *   - REP-012 done (player_league_award populated)
  *   - staging-sql/milestones/*.sql uploaded (from repo scripts/ladder/sql/)
  *
@@ -26,7 +26,7 @@ if (!k2_staging_table_exists($con, 'player_milestones')) {
     exit(1);
 }
 if (!k2_staging_table_exists($con, 'milestone_definitions')) {
-    fwrite(STDERR, "Apply staging-sql/010 + load_milestone_definitions.php first.\n");
+    fwrite(STDERR, "Apply staging-sql/010 + REP-014 (ops seed-catalog or load_milestone_definitions.php) first.\n");
     exit(1);
 }
 

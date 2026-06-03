@@ -1,5 +1,7 @@
 <?php
 /**
+ * @archived One-off (May 2026). Staging fix applied — do not re-run.
+ *
  * Staging wave 2: diversity_merchant rule fix (per-game DD vs 5 opponents).
  *
  * Run after REP-008 wave 1 (full milestones + giant_slayer) succeeded.

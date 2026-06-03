@@ -8,6 +8,7 @@
  *   php site/public_html/ops/run_prepare.php refresh-work --target local-work
  *   php site/public_html/ops/run_prepare.php migrate-work --target local-work
  *   php site/public_html/ops/run_prepare.php seed-catalog --target local-work
+ *   php site/public_html/ops/run_prepare.php seed-catalog --target local-dev
  *   php site/public_html/ops/run_prepare.php zero-derived --target local-work
  *   php site/public_html/ops/run_prepare.php seed-lobby --target local-work
  *
@@ -25,7 +26,7 @@ k2_ops_require_cli();
 
 $verb = $argv[1] ?? '';
 if ($verb === '' || str_starts_with($verb, '-')) {
-    fwrite(STDERR, "Usage: php run_prepare.php <verb> [--target local-work] [--dry-run] [--zero-only]\n");
+    fwrite(STDERR, "Usage: php run_prepare.php <verb> [--target local-work|local-dev|staging-work] [--dry-run] [--zero-only]\n");
     fwrite(STDERR, "Verbs: prepare, refresh-work, migrate-work, seed-catalog, zero-derived, seed-lobby, parity\n");
     exit(1);
 }
@@ -73,7 +74,7 @@ switch ($verb) {
         k2_ops_migrate_work($target, $dryRun);
         break;
     case 'seed-catalog':
-        k2_ops_seed_milestone_definitions($target, $dryRun);
+        k2_ops_seed_milestone_definitions($target, $dryRun, $targetName === 'local-dev');
         break;
     case 'zero-derived':
         k2_ops_zero_derived($target, $dryRun);

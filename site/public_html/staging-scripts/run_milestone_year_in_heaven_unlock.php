@@ -1,5 +1,7 @@
 <?php
 /**
+ * @archived One-off handoff. Surgical unlock — use only when replaying that add-one slice.
+ *
  * Surgical REP: add year_in_heaven unlock rows + refresh catalog (no full milestones truncate).
  *
  * Prerequisites: milestone_definitions loaded (112 keys); player_period_games week rows (REP-003).

@@ -9,7 +9,7 @@ Behavior authority: [`website-data-contract.md`](../website-data-contract.md) §
 | Item | Status in repo |
 |------|----------------|
 | Schema SCH-011–013 | `schema/migrations/010–012_*.sql` |
-| Catalog REP-014 | `staging-scripts/load_milestone_definitions.php` |
+| Catalog REP-014 | `ops/run_prepare.php seed-catalog` (legacy: `load_milestone_definitions.php`) |
 | History REP-008 | `staging-scripts/run_player_milestones_rebuild.php` (+ `staging-sql/milestones/*.sql`) |
 | `giant_slayer` fix | Built into rebuild script (chrono + surgical SQL); verify **31** holders |
 | Website v0 | WinSCP list in packet § C |

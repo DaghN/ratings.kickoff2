@@ -114,9 +114,9 @@ Unlock rows for this key still **0** on May 2026 import (max personal day streak
 |------|----------------|
 | WinSCP | `data/milestones_definitions_seed.json` → `staging-data/` |
 | WinSCP | `player_milestones_rebuild_play_streak_100.sql` → `staging-sql/milestones/` |
-| WinSCP | PHP: `load_milestone_definitions.php`, `run_milestone_play_streak_100_unlock.php`, helpers, garden order, `player_play_streaks.php` |
-| Steve | `php staging-scripts/load_milestone_definitions.php` (expect **111** definitions) |
-| Steve | `php staging-scripts/run_milestone_play_streak_100_unlock.php` (expect **0** unlock rows on May 2026 import — max day streak 87) |
+| WinSCP | PHP: `load_milestone_definitions.php` (deprecated), archived `run_milestone_play_streak_100_unlock.php`, helpers, garden order, `player_play_streaks.php` |
+| Steve | `php ops/run_prepare.php seed-catalog` when ops synced; else legacy `load_milestone_definitions.php` |
+| Steve | `run_milestone_play_streak_100_unlock.php` only if re-applying splice (**archived** — expect **0** unlock rows on May 2026 import) |
 | Browser | Garden shows **100 days** locked card; geo4444 still **100/111** or **100/110** until first holder |
 
 Full REP-008 re-run still valid after splice update; surgical path avoids wiping 6658 rows.

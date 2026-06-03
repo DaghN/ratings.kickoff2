@@ -1,5 +1,7 @@
 # Milestones staging cutover packet (May 2026)
 
+**Historical runbook** — staging DB was cut over May 2026. **Current paths:** [`staging-scripts-inventory.md`](staging-scripts-inventory.md) · ops `run_prepare.php seed-catalog` · league `run_finalize_league.php` (staging `run_league_awards_rebuild.php` **removed** Jun 2026).
+
 **Operational runbook** for Dagh (WinSCP) + Steve (SSH/`kooldb`). Overview: [`milestones-staging-steve-handoff.md`](milestones-staging-steve-handoff.md). Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_milestones`.
 
 **Staging host:** `ratings.kickoff2.com` port **5322** (SFTP → `public_html/`).  
@@ -8,7 +10,7 @@
 **Already done on staging (do not repeat unless broken):**
 
 - SCH-008 (`007_stored_truth`) — five aggregate tables incl. `player_milestones`  
-- SCH-009/010 + **REP-012/013** — league awards (`staging-sql/008` + `009` + `php staging-scripts/run_league_awards_rebuild.php`)  
+- SCH-009/010 + **REP-012/013** — league awards (`staging-sql/008` + `009` + historical `run_league_awards_rebuild.php`; superseded by `ops/run_finalize_league.php`)  
 - Full milestone rebuild waves + **REP-008b** — **canonical `player_milestones` total = 6615** (see [`replay-register.md`](replay-register.md) § Milestone unlock row counts; step tables below that say **6658** are wave-1 historical)
 
 **Authority for “is staging DB current?”** [`schema-register.md`](schema-register.md) + [`replay-register.md`](replay-register.md) run log — not contradictory bullets in `PROJECT_MEMORY.md`.

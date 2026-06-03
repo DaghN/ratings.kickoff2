@@ -1,12 +1,16 @@
 <?php
 /**
- * Staging one-shot: REP-014 — load milestone_definitions from seed JSON.
+ * @deprecated Superseded by site/public_html/ops/run_prepare.php seed-catalog (REP-014).
  *
- * CLI only. After staging-sql/010_milestone_definitions.sql:
+ * Work / Laragon dev:
+ *   php site/public_html/ops/run_prepare.php seed-catalog --target local-work
+ *   php site/public_html/ops/run_prepare.php seed-catalog --target local-dev
+ *
+ * Staging (until ops + repo data/ are on server): this file reloads from
+ * public_html/staging-data/milestones_definitions_seed.json (WinSCP copy of seed).
+ *
+ * Historical CLI after staging-sql/010:
  *   php staging-scripts/load_milestone_definitions.php
- *
- * Expects: public_html/staging-data/milestones_definitions_seed.json
- * (copy from repo data/milestones_definitions_seed.json via WinSCP).
  */
 declare(strict_types=1);
 
@@ -44,6 +48,7 @@ $dbName = ($dbRes && ($r = $dbRes->fetch_assoc())) ? (string) $r['db'] : '?';
 if ($dbRes) {
     $dbRes->free();
 }
+fwrite(STDERR, "Note: prefer ops/run_prepare.php seed-catalog when available.\n");
 echo "REP-014: loading milestone_definitions on {$dbName}...\n";
 $con->query('TRUNCATE TABLE milestone_definitions');
 
