@@ -1,12 +1,12 @@
 <?php
 /**
- * Staging one-shot: REP-012 + REP-013 (league medals + career/slice totals).
+ * @deprecated Superseded by site/public_html/ops/run_finalize_league.php (REP-012/013, PER-003).
  *
- * CLI only. Run from public_html on staging after 008/009 SQL applied:
+ * Staging one-shot (May 2026): REP-012 + REP-013. Do not re-run on staging — awards already applied.
+ * For new work DB parity use: php ops/run_finalize_league.php rebuild-all --target local-work
+ *
+ * Historical CLI (public_html on staging after 008/009):
  *   php staging-scripts/run_league_awards_rebuild.php
- *
- * Requires: player_period_league + player_period_games populated (SCH-008 rebuilds).
- * No cron / PER-003 — this is a manual full backfill only.
  */
 declare(strict_types=1);
 

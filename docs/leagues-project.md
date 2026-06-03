@@ -23,7 +23,7 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 | Track | Name | Status | Deliverables |
 |-------|------|--------|----------------|
 | 0 | **Rules & identity** | **Done** | [`leagues-rules-spec.md`](leagues-rules-spec.md) |
-| 1 | **Stored truth** | **Done local + staging** | SCH-009/010, REP-012/013; `finalize_league_periods.php`, staging `run_league_awards_rebuild.php` |
+| 1 | **Stored truth** | **Done local + staging** | SCH-009/010, REP-012/013; ops `run_finalize_league.php` (staging one-shot was `run_league_awards_rebuild.php`) |
 | 2 | **Status integration** | **Partial** | Sort via `league_standings.php`; medals top-3 by rank (matches awards when closed) |
 | 3 | **Career leaderboard** | **v1 shipped** | `ranked9.php` — `player_league_totals` + `player_league_slice_totals` |
 | 4 | **Player universe** | Not started | Profile slot TBD — `k2_league_player_slice_totals()` ready |

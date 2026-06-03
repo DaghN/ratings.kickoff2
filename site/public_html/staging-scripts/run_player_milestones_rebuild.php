@@ -47,7 +47,7 @@ if ($awardRes) {
 }
 $awardCount = (int) ($awardRow['n'] ?? 0);
 if ($awardCount < 1) {
-    fwrite(STDERR, "player_league_award is empty — run REP-012 (run_league_awards_rebuild.php) first.\n");
+    fwrite(STDERR, "player_league_award is empty — run REP-012 (ops/run_finalize_league.php rebuild-all) first.\n");
     exit(1);
 }
 echo "player_league_award rows: {$awardCount}\n";

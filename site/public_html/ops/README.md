@@ -90,7 +90,14 @@ Parity backfill on work (destructive — truncates awards):
 php site/public_html/ops/run_finalize_league.php rebuild-all --target local-work
 ```
 
-Legacy equivalent (dev DB config, not work target): `php scripts/finalize_league_periods.php`.
+Laragon dev DB (`ko2unity_db`) — same verbs with `--target local-dev` (used by `rebuild_website_derived_data_local.ps1`):
+
+```text
+php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev
+php site/public_html/ops/run_finalize_league.php finalize-due --target local-dev
+```
+
+`scripts/finalize_league_periods.php` is a thin delegate to the above (deprecated).
 
 ## Timeline sim (Mode C)
 

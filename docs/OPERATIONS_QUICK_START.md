@@ -27,9 +27,9 @@
 | Path | Command | Resets | Replays / rebuilds |
 |------|---------|--------|---------------------|
 | **Ladder replay** | `scripts\run_local_replay.ps1` | Derived columns on `ratedresults` + career fields on `playertable`; NULLs `generalstatstable` id=1 | **Every game** in `Date ASC, id ASC` order (Elo + per-game stats + in-memory server records), then **batch** `playertable` write + **GST** aggregates/holders |
-| **Website derived data** | `scripts\rebuild_website_derived_data_local.ps1` | Truncates/rebuilds aggregate tables + **league awards** (REP-012) | SQL + `php scripts/finalize_league_periods.php --full-rebuild` |
-| **League awards only** | `scripts\run_league_awards_rebuild.ps1` | `player_league_award`, `player_league_totals` | After aggregates exist; see [`leagues-rules-spec.md`](leagues-rules-spec.md) |
-| **Finalize due leagues (daily)** | `php scripts/finalize_league_periods.php` | Closed periods not yet in `league_period` | PER-003 prod cron equivalent |
+| **Website derived data** | `scripts\rebuild_website_derived_data_local.ps1` | Truncates/rebuilds aggregate tables + **league awards** (REP-012) | SQL + `php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev` |
+| **League awards only** | `scripts\run_league_awards_rebuild.ps1` | `player_league_award`, `player_league_totals` | Same ops runner (`rebuild-all --target local-dev`); see [`leagues-rules-spec.md`](leagues-rules-spec.md) |
+| **Finalize due leagues (daily)** | `php site/public_html/ops/run_finalize_league.php finalize-due --target local-dev` | Closed periods not yet in `league_period` | PER-003 prod cron equivalent; work DB use `--target local-work` |
 
 **Hall of Fame record dates (Gianni streaks, Fiery victims, Eternalstudent opponents, etc.):** ladder replay + fixed C++ post-game — **not** the website-derived script. Known staging defects: [`docs/staging-post-game-record-defects.md`](staging-post-game-record-defects.md).
 

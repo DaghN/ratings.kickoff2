@@ -74,8 +74,8 @@ Update **same PR** as code: handoffs, `replay-register`, `OPERATIONS_QUICK_START
 
 ## Suggested migration order (Phase 1+)
 
-1. **Docs only** — Point PER-003 / REP-012 at `ops/run_finalize_league.php`; mark `run_league_awards_rebuild.php` superseded in `replay-register`.
-2. **Retire** `scripts/finalize_league_periods.php` (local duplicate).
+1. **Docs only** — **Done (Jun 2026).** PER-003 / REP-012 → `ops/run_finalize_league.php`; `replay-register` marks staging `run_league_awards_rebuild.php` superseded.
+2. **Retire** `scripts/finalize_league_periods.php` — **Done:** thin delegate to ops `--target local-dev`.
 3. **Superseded** `load_milestone_definitions.php` → comment + delete after Steve confirms `seed-catalog` on staging.
 4. **One-off archives** — Leave in place until cutover packets closed; then delete milestone unlock/fix runners (no `ops` home).
 5. **`run_player_milestones_rebuild.php`** — Last large piece; retire when PHP post-game milestones on staging/prod (feature-log).

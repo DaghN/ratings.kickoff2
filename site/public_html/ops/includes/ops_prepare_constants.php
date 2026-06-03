@@ -91,6 +91,14 @@ const K2_OPS_REQUIRED_RATEDRESULTS_INDEXES = [
 
 /** @var array<string, array<string, string|int>> */
 const K2_OPS_DEFAULT_PROFILES = [
+    'local-dev' => [
+        'work_database' => 'ko2unity_db',
+        'baseline_database' => 'ko2unity_db',
+        'host' => '127.0.0.1',
+        'port' => 3306,
+        'user' => 'root',
+        'password' => '',
+    ],
     'local-work' => [
         'work_database' => 'ko2unity_work',
         'baseline_database' => 'ko2unity_baseline',

@@ -1,7 +1,16 @@
 ; Work DB prepare targets (copy to work-targets.ini — gitignored — optional).
 ; CLI: python -m scripts.work_prepare prepare --target local-work --full
+; League finalize on Laragon dev DB: ops/run_finalize_league.php --target local-dev
 ;
 ;   copy site\config\work-targets.ini.example site\config\work-targets.ini
+
+[local-dev]
+work_database = ko2unity_db
+baseline_database = ko2unity_db
+host = 127.0.0.1
+port = 3306
+user = root
+password =
 
 [local-work]
 work_database = ko2unity_work

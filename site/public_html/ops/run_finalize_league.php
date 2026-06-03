@@ -7,6 +7,8 @@
  *   php site/public_html/ops/run_finalize_league.php rebuild-all --target local-work
  *   php site/public_html/ops/run_finalize_league.php rebuild-aggregates --target local-work
  *
+ * Local Laragon dev DB (ko2unity_db): add --target local-dev (legacy OPERATIONS_QUICK_START path).
+ *
  * PER-003: finalize-due. REP-012/013: rebuild-all, rebuild-aggregates.
  * See docs/leagues-rules-spec.md and docs/coordination/periodic-register.md.
  */
@@ -21,7 +23,7 @@ k2_ops_require_cli();
 
 $verb = $argv[1] ?? '';
 if ($verb === '' || str_starts_with($verb, '-')) {
-    fwrite(STDERR, "Usage: php run_finalize_league.php <verb> [--target local-work] [--as-of ISO-8601-UTC]\n");
+    fwrite(STDERR, "Usage: php run_finalize_league.php <verb> [--target local-work|local-dev|staging-work] [--as-of ISO-8601-UTC]\n");
     fwrite(STDERR, "Verbs: finalize-due (PER-003), rebuild-all (REP-012), rebuild-aggregates (REP-013)\n");
     exit(1);
 }
@@ -48,12 +50,17 @@ if (!in_array($verb, $allowed, true)) {
 }
 
 $target = k2_ops_load_work_target($targetName);
-k2_ops_assert_mutate_work_target($target);
+$allowDevDb = ($targetName === 'local-dev');
+if (!$allowDevDb) {
+    k2_ops_assert_mutate_work_target($target);
+} else {
+    k2_ops_log('WARNING: mutating ko2unity_db via --target local-dev');
+}
 
 $asOf = k2_ops_parse_as_of($asOfRaw);
 $t0 = microtime(true);
 
-$con = k2_ops_connect_work($target);
+$con = k2_ops_connect_work($target, $allowDevDb);
 try {
     k2_ops_log(
         'PER-003 league ops profile=' . $target->profile

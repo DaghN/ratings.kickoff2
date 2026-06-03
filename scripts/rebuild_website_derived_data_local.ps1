@@ -154,7 +154,7 @@ if (-not (Test-Path $PhpExe)) {
     Get-ChildItem 'C:\laragon\bin\php\*\php.exe' | Select-Object -First 1 | ForEach-Object { $PhpExe = $_.FullName }
 }
 if (Test-Path $PhpExe) {
-    & $PhpExe (Join-Path $RepoRoot 'scripts\finalize_league_periods.php') '--full-rebuild'
+    & $PhpExe (Join-Path $RepoRoot 'site\public_html\ops\run_finalize_league.php') 'rebuild-all' '--target' 'local-dev'
     if ($LASTEXITCODE -ne 0) {
         Write-Error 'League awards rebuild failed.'
     }
