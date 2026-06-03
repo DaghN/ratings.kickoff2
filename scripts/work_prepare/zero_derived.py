@@ -9,6 +9,7 @@ from scripts.ladder.engine import reset_universe
 from .constants import AGGREGATE_TABLES_TRUNCATE, CATALOG_TABLES_NEVER_TRUNCATE
 from .db import connect
 from .guards import assert_mutate_work_target
+from .seed_lobby import seed_lobby_milestones
 from .targets import WorkTarget
 
 log = logging.getLogger(__name__)
@@ -54,4 +55,5 @@ def zero_derived(target: WorkTarget, *, dry_run: bool = False) -> None:
         conn.close()
 
     truncate_aggregate_tables(target, dry_run=dry_run)
+    seed_lobby_milestones(target, dry_run=dry_run)
     log.info("[OK] zero_derived complete on %s", target.work_database)

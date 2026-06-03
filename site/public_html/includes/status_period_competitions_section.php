@@ -31,16 +31,19 @@ if (!function_exists('k2_status_period_competition_points_panel_attrs')) {
             ];
         }
 
+        if (!function_exists('k2_status_league_end_epoch')) {
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
+        }
         $serverNow = new DateTimeImmutable('@' . $serverNowEpoch);
         $metaText = k2_status_league_meta_line_for_clock($league, $serverNow);
-        $endTs = strtotime((string) ($league['end'] ?? ''));
+        $endTs = k2_status_league_end_epoch($league);
 
         return [
             'data-league-meta-text' => $metaText,
             'data-league-period-label' => (string) ($league['label'] ?? ''),
             'data-league-total-games' => (string) (int) ($league['total_games'] ?? 0),
             'data-league-end-label' => k2_status_league_end_label($league),
-            'data-league-end-epoch' => $endTs === false ? '0' : (string) (int) $endTs,
+            'data-league-end-epoch' => $endTs > 0 ? (string) $endTs : '0',
             'data-league-period' => (string) ($league['period'] ?? ''),
         ];
     }
@@ -52,9 +55,12 @@ if (!function_exists('k2_status_period_competition_show_medals')) {
         if ($points === null) {
             return false;
         }
-        $endTs = strtotime((string) ($points['end'] ?? ''));
+        if (!function_exists('k2_status_league_end_epoch')) {
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
+        }
+        $endTs = k2_status_league_end_epoch($points);
 
-        return $endTs !== false && $endTs <= $serverNowEpoch;
+        return $endTs > 0 && $endTs <= $serverNowEpoch;
     }
 }
 

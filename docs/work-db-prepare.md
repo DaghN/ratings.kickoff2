@@ -51,6 +51,7 @@ Use when work is untrusted, schema on work is wrong/missing, or you need a new p
 2. Migrate work       schema/migrations on ko2unity_work (indexes, KungFu drop 015, new tables)
 3. Seed catalog       milestone_definitions from data/milestones_definitions_seed.json (112 rows)
 4. Zero derived       derived day-zero on work (§4)
+5. Seed lobby         entered_arena from playertable.JoinDate for all registered players (§4.7)
 ```
 
 **Staging mirror:** Steve (or agreed SQL) refreshes **`kooldb1`** from **`kooldb2`**, then migrations, then zero derived.
@@ -62,7 +63,7 @@ Use when work is untrusted, schema on work is wrong/missing, or you need a new p
 When only derived state is wrong (bad replay, partial simul):
 
 ```text
-Zero derived only
+Zero derived only     (includes seed lobby — step 5 of full prepare)
 ```
 
 Skip refresh if ground truth on work is still trusted.
@@ -111,7 +112,8 @@ After **full prepare**, `php site/public_html/ops/run_prepare.php parity --targe
 | `milestone_definitions_seeded` | 112 catalog rows |
 | `ratedresults_derived_cleared` | `NewRatingA IS NULL` on all rows |
 | `playertable_rating_day_zero` | All `Rating = 1600` |
-| `player_milestones_empty` / aggregates | 0 rows (or table missing before migrate) |
+| `player_milestones_lobby_seeded` | `entered_arena` rows = playertable with valid `JoinDate`; no other keys |
+| `player_period_games_empty` / `server_daily_activity_empty` | 0 rows (or table missing before migrate) |
 
 Compare to legacy path: same counts; legacy **without** v2 `zero-derived` may leave §4.5 tables non-empty if previously simul’d.
 
@@ -188,15 +190,28 @@ These tables **do not exist** on baseline until **migrate work**. After migrate,
 |-------|--------|
 | `milestone_definitions` | **Do not truncate** — static catalog from migrations; not simul output |
 
+### 4.7 Lobby milestone seed (ground truth, not simul)
+
+After §4.5 truncates `player_milestones`, **seed lobby** restores `entered_arena` from preserved `playertable.JoinDate` (register = enter lobby — live-faithful, not `NumberGames >= 1`).
+
+| Key | Eligibility | `achieved_at` | `source_kind` |
+|-----|-------------|---------------|---------------|
+| `entered_arena` | Valid `JoinDate` on `playertable` | `JoinDate` | `lobby` |
+
+Runs at end of **zero derived** (full and fast prepare). Idempotent. Not produced by game replay — see [`website-data-contract.md`](website-data-contract.md) § Lobby.
+
+**CLI:** `seed-lobby` verb or bundled in `zero-derived` / `prepare`.
+
 ### 4.6 Implementation (prepare platform v2)
 
 | Layer | Contract | Implementation |
 |-------|----------|----------------|
 | Core ladder (`reset_universe`) | §4.3 | `scripts/work_prepare/zero_derived.py` → `scripts/ladder/engine.py` |
 | Aggregate truncates (§4.5) | TRUNCATE at day zero | Same module — skips missing tables |
-| Full prepare orchestrator | Refresh → migrate → zero derived | `prepare_local_work_db.ps1` / `work_prepare prepare` |
+| Lobby seed (§4.7) | `entered_arena` from `JoinDate` | `seed_lobby` / end of `zero_derived` |
+| Full prepare orchestrator | Refresh → migrate → seed catalog → zero derived | `prepare_local_work_db.ps1` / `work_prepare prepare` |
 
-**Seed catalog:** `prepare` runs `seed-catalog` after migrate (112 rows from `data/milestones_definitions_seed.json`). `player_milestones` unlock rows stay empty until simul.
+**Seed catalog:** `prepare` runs `seed-catalog` after migrate (112 rows from `data/milestones_definitions_seed.json`). **Seed lobby:** `zero-derived` inserts `entered_arena` for every player with valid `JoinDate`. Other `player_milestones` unlock rows stay empty until simul.
 
 ---
 
@@ -254,5 +269,6 @@ After cutover: Steve inserts ground → `CMD=ProcessCompletedGame` per game; per
 | When | What |
 |------|------|
 | 2026-06 | Initial doc pass: vocabulary, prepare order, simul modes A/B/C, ZeroDerived checklist. |
+| 2026-06 | **§4.7 seed lobby** — `entered_arena` from `JoinDate` at end of zero-derived. |
 | 2026-06 | **Prepare platform v2** — `scripts/work_prepare/`, parity command, legacy aliases. |
 | 2026-06 | **§4 signed off** (Dagh). |

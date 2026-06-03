@@ -9,6 +9,7 @@
  *   php site/public_html/ops/run_prepare.php migrate-work --target local-work
  *   php site/public_html/ops/run_prepare.php seed-catalog --target local-work
  *   php site/public_html/ops/run_prepare.php zero-derived --target local-work
+ *   php site/public_html/ops/run_prepare.php seed-lobby --target local-work
  *
  * See docs/work-db-prepare.md and docs/ladder-ops-platform.md §6.6.
  */
@@ -25,7 +26,7 @@ k2_ops_require_cli();
 $verb = $argv[1] ?? '';
 if ($verb === '' || str_starts_with($verb, '-')) {
     fwrite(STDERR, "Usage: php run_prepare.php <verb> [--target local-work] [--dry-run] [--zero-only]\n");
-    fwrite(STDERR, "Verbs: prepare, refresh-work, migrate-work, seed-catalog, zero-derived, parity\n");
+    fwrite(STDERR, "Verbs: prepare, refresh-work, migrate-work, seed-catalog, zero-derived, seed-lobby, parity\n");
     exit(1);
 }
 
@@ -47,7 +48,7 @@ for ($i = 2, $n = count($argv); $i < $n; $i++) {
 $target = k2_ops_load_work_target($targetName);
 
 $allowed = [
-    'prepare', 'refresh-work', 'migrate-work', 'seed-catalog', 'zero-derived', 'parity',
+    'prepare', 'refresh-work', 'migrate-work', 'seed-catalog', 'zero-derived', 'seed-lobby', 'parity',
 ];
 if (!in_array($verb, $allowed, true)) {
     fwrite(STDERR, "Unknown verb {$verb}\n");
@@ -76,6 +77,9 @@ switch ($verb) {
         break;
     case 'zero-derived':
         k2_ops_zero_derived($target, $dryRun);
+        break;
+    case 'seed-lobby':
+        k2_ops_seed_lobby_milestones($target, $dryRun);
         break;
     case 'parity':
         exit(k2_ops_print_parity_report(k2_ops_run_parity_checks($target)));

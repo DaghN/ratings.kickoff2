@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 
@@ -38,15 +39,19 @@ if (isset($_GET['limit']) && $_GET['limit'] !== '') {
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
+k2_site_ensure_utc();
 $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if ($con->connect_errno) {
     http_response_code(500);
     echo json_encode(['error' => 'db_connect_failed']);
     exit;
 }
-
 $con->set_charset('utf8mb4');
-$con->query("SET time_zone = '+00:00'");
+if (!$con->query("SET time_zone = '+00:00'")) {
+    http_response_code(500);
+    echo json_encode(['error' => 'db_timezone_failed']);
+    exit;
+}
 
 $queryError = null;
 $league = k2_status_league_for_key($con, $period, $key, $limit, $queryError);
@@ -57,7 +62,7 @@ if ($queryError !== null || $league === null) {
     exit;
 }
 
-$endTs = strtotime((string) ($league['end'] ?? ''));
+$timing = k2_status_league_timing_for_api($con, $league);
 
 mysqli_close($con);
 
@@ -67,7 +72,9 @@ echo json_encode([
     'label' => (string) ($league['label'] ?? ''),
     'total_games' => (int) ($league['total_games'] ?? 0),
     'end' => (string) ($league['end'] ?? ''),
-    'end_epoch' => $endTs === false ? 0 : (int) $endTs,
+    'end_epoch' => $timing['end_epoch'],
     'end_label' => k2_status_league_end_label($league),
+    'server_now_epoch' => $timing['server_now_epoch'],
+    'show_medals' => $timing['show_medals'],
     'rows' => $league['rows'] ?? [],
 ]);

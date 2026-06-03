@@ -79,6 +79,9 @@ const K2_OPS_PLAYERTABLE_SENTINELS_ON_RESET = [
 
 const K2_OPS_PLAYERTABLE_LASTGAME_RESET = '1970-01-01 00:00:00';
 
+/** entered_arena prepare seed — live-faithful (register = lobby), not NumberGames >= 1. */
+const K2_OPS_JOIN_DATE_VALID_WHERE = '`JoinDate` IS NOT NULL AND UNIX_TIMESTAMP(`JoinDate`) > 0';
+
 /** @var list<string> */
 const K2_OPS_REQUIRED_RATEDRESULTS_INDEXES = [
     'idx_ratedresults_idA',

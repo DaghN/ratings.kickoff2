@@ -4,6 +4,19 @@
  */
 declare(strict_types=1);
 
+/** Ensure PHP date functions interpret naive datetimes as UTC (visitor league countdown/medals). */
+function k2_site_ensure_utc(): void
+{
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    if (date_default_timezone_get() !== 'UTC') {
+        date_default_timezone_set('UTC');
+    }
+    $done = true;
+}
+
 function k2_h(mixed $value): string
 {
 	return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
@@ -36,6 +49,7 @@ function k2_db_connect_or_public_error(
 	string $database,
 	int|string $dbportnum
 ): mysqli {
+	k2_site_ensure_utc();
 	$con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
 	if ($con->connect_errno) {
 		error_log('DB connection failed: ' . $con->connect_error);

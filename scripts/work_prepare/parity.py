@@ -7,6 +7,7 @@ import logging
 from dataclasses import dataclass
 
 from .db import connect, database_exists
+from .constants import JOIN_DATE_VALID_WHERE
 from .paths import REPO_ROOT
 from .targets import WorkTarget
 
@@ -200,11 +201,7 @@ def run_parity_checks(target: WorkTarget) -> list[ParityResult]:
                     )
                 )
 
-            for table in (
-                "player_milestones",
-                "player_period_games",
-                "server_daily_activity",
-            ):
+            for table in ("player_period_games", "server_daily_activity"):
                 cur.execute(
                     "SELECT COUNT(*) AS n FROM information_schema.tables "
                     "WHERE table_schema = DATABASE() AND table_name = %s",
@@ -218,6 +215,37 @@ def run_parity_checks(target: WorkTarget) -> list[ParityResult]:
                 cur.execute(f"SELECT COUNT(*) AS n FROM `{table}`")
                 n = int(cur.fetchone()["n"])
                 results.append(ParityResult(f"{table}_empty", n == 0, f"rows={n}"))
+
+            cur.execute(
+                "SELECT COUNT(*) AS n FROM information_schema.tables "
+                "WHERE table_schema = DATABASE() AND table_name = 'player_milestones'"
+            )
+            if int(cur.fetchone()["n"]) == 0:
+                results.append(
+                    ParityResult(
+                        "player_milestones_lobby_seeded",
+                        True,
+                        "table missing (pre-migrate OK)",
+                    )
+                )
+            else:
+                cur.execute(f"SELECT COUNT(*) AS n FROM playertable WHERE {JOIN_DATE_VALID_WHERE}")
+                eligible = int(cur.fetchone()["n"])
+                cur.execute(
+                    "SELECT COUNT(*) AS n FROM player_milestones WHERE milestone_key = 'entered_arena'"
+                )
+                lobby_rows = int(cur.fetchone()["n"])
+                cur.execute(
+                    "SELECT COUNT(*) AS n FROM player_milestones WHERE milestone_key <> 'entered_arena'"
+                )
+                other_rows = int(cur.fetchone()["n"])
+                results.append(
+                    ParityResult(
+                        "player_milestones_lobby_seeded",
+                        lobby_rows == eligible and other_rows == 0,
+                        f"entered_arena={lobby_rows} eligible={eligible} other_keys={other_rows}",
+                    )
+                )
 
             cur.execute(
                 "SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_schema = DATABASE()"

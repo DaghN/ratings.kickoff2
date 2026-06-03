@@ -44,6 +44,10 @@ function k2_status_league_meta_line(array $monthly): string
 /** @return array{now: DateTimeImmutable, now_sql: string, source: string, timezone: string} */
 function k2_status_server_clock(mysqli $con): array
 {
+    if (function_exists('k2_site_ensure_utc')) {
+        k2_site_ensure_utc();
+    }
+    $utc = new DateTimeZone('UTC');
     $row = null;
     $r = mysqli_query($con, 'SELECT NOW() AS server_now, @@session.time_zone AS session_tz, @@system_time_zone AS system_tz');
     if ($r !== false) {
@@ -53,10 +57,10 @@ function k2_status_server_clock(mysqli $con): array
 
     $nowSql = $row && !empty($row['server_now'])
         ? (string) $row['server_now']
-        : date('Y-m-d H:i:s');
-    $now = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $nowSql);
+        : (new DateTimeImmutable('now', $utc))->format('Y-m-d H:i:s');
+    $now = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $nowSql, $utc);
     if (!$now instanceof DateTimeImmutable) {
-        $now = new DateTimeImmutable('now');
+        $now = new DateTimeImmutable('now', $utc);
         $nowSql = $now->format('Y-m-d H:i:s');
     }
 
@@ -72,12 +76,51 @@ function k2_status_server_clock(mysqli $con): array
     ];
 }
 
+/** Unix epoch for league period end (UTC). */
+function k2_status_league_end_epoch(array $league): int
+{
+    if (function_exists('k2_site_ensure_utc')) {
+        k2_site_ensure_utc();
+    }
+    $end = (string) ($league['end'] ?? '');
+    if ($end === '') {
+        return 0;
+    }
+    $utc = new DateTimeZone('UTC');
+    $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $end, $utc);
+    if ($dt instanceof DateTimeImmutable) {
+        return $dt->getTimestamp();
+    }
+    $endTs = strtotime($end);
+
+    return $endTs === false ? 0 : (int) $endTs;
+}
+
+/**
+ * Timing fields for Status league JSON APIs (visitor countdown + medals).
+ *
+ * @return array{end_epoch: int, server_now_epoch: int, show_medals: bool}
+ */
+function k2_status_league_timing_for_api(mysqli $con, ?array $league): array
+{
+    $clock = k2_status_server_clock($con);
+    $serverNowEpoch = $clock['now']->getTimestamp();
+    $endEpoch = $league !== null ? k2_status_league_end_epoch($league) : 0;
+
+    return [
+        'end_epoch' => $endEpoch,
+        'server_now_epoch' => $serverNowEpoch,
+        'show_medals' => $endEpoch > 0 && $endEpoch <= $serverNowEpoch,
+    ];
+}
+
 /**
  * @return array{start: string, end: string, label: string}|null
  */
 function k2_status_league_period_bounds(string $period, int $periodOffset, ?DateTimeImmutable $serverNow = null): ?array
 {
-    $serverNow = $serverNow ?? new DateTimeImmutable('now');
+    $utc = new DateTimeZone('UTC');
+    $serverNow = $serverNow ?? new DateTimeImmutable('now', $utc);
     $periodOffset = max(-24, min(0, $periodOffset));
     $today = $serverNow->setTime(0, 0, 0);
 
@@ -211,7 +254,7 @@ function k2_status_format_league_time_left(int $seconds): string
 
 function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $serverNow): string
 {
-    $endTs = strtotime((string) ($league['end'] ?? ''));
+    $endTs = k2_status_league_end_epoch($league);
     $nowTs = $serverNow->getTimestamp();
     $totalGames = (int) ($league['total_games'] ?? 0);
     $gamesLabel = $totalGames === 1 ? 'rated game' : 'rated games';
@@ -234,7 +277,7 @@ function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $
 /** Meta line for leagues block; period label + live countdown use {@see .blue}. */
 function k2_status_league_meta_html_for_clock(array $league, DateTimeImmutable $serverNow): string
 {
-    $endTs = strtotime((string) ($league['end'] ?? ''));
+    $endTs = k2_status_league_end_epoch($league);
     $nowTs = $serverNow->getTimestamp();
     $totalGames = (int) ($league['total_games'] ?? 0);
     $gamesLabel = $totalGames === 1 ? 'rated game' : 'rated games';
@@ -826,6 +869,10 @@ function k2_status_bounds_from_period_key(string $period, string $key): ?array
     if (!function_exists('k2_period_activity_normalize_key')) {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
     }
+    if (function_exists('k2_site_ensure_utc')) {
+        k2_site_ensure_utc();
+    }
+    $utc = new DateTimeZone('UTC');
 
     $normalized = k2_period_activity_normalize_key($period, $key);
     if ($normalized === null) {
@@ -834,22 +881,22 @@ function k2_status_bounds_from_period_key(string $period, string $key): ?array
 
     switch ($period) {
         case 'day':
-            $start = new DateTimeImmutable($normalized . ' 00:00:00');
+            $start = new DateTimeImmutable($normalized . ' 00:00:00', $utc);
             $end = $start->modify('+1 day');
             $label = k2_format_calendar_day_label($normalized);
             break;
         case 'week':
-            $start = new DateTimeImmutable($normalized . ' 00:00:00');
+            $start = new DateTimeImmutable($normalized . ' 00:00:00', $utc);
             $end = $start->modify('+1 week');
             $label = k2_format_calendar_week_label($start->format('Y-m-d'));
             break;
         case 'month':
-            $start = new DateTimeImmutable($normalized . '-01 00:00:00');
+            $start = new DateTimeImmutable($normalized . '-01 00:00:00', $utc);
             $end = $start->modify('+1 month');
             $label = $start->format('F Y');
             break;
         case 'year':
-            $start = new DateTimeImmutable($normalized . '-01-01 00:00:00');
+            $start = new DateTimeImmutable($normalized . '-01-01 00:00:00', $utc);
             $end = $start->modify('+1 year');
             $label = $normalized;
             break;

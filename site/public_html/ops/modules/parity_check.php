@@ -195,7 +195,7 @@ function k2_ops_run_parity_checks(K2OpsWorkTarget $target): array
             ];
         }
 
-        foreach (['player_milestones', 'player_period_games', 'server_daily_activity'] as $table) {
+        foreach (['player_period_games', 'server_daily_activity'] as $table) {
             if (!k2_ops_table_exists($con, $table)) {
                 $results[] = ['name' => "{$table}_empty_or_absent", 'ok' => true, 'detail' => 'table missing (pre-migrate OK)'];
                 continue;
@@ -206,6 +206,41 @@ function k2_ops_run_parity_checks(K2OpsWorkTarget $target): array
                 $res->free();
             }
             $results[] = ['name' => "{$table}_empty", 'ok' => $n === 0, 'detail' => "rows={$n}"];
+        }
+
+        if (!k2_ops_table_exists($con, 'player_milestones')) {
+            $results[] = [
+                'name' => 'player_milestones_lobby_seeded',
+                'ok' => true,
+                'detail' => 'table missing (pre-migrate OK)',
+            ];
+        } else {
+            $res = $con->query(
+                'SELECT COUNT(*) AS n FROM playertable WHERE ' . K2_OPS_JOIN_DATE_VALID_WHERE
+            );
+            $eligible = $res ? (int) $res->fetch_assoc()['n'] : 0;
+            if ($res) {
+                $res->free();
+            }
+            $res = $con->query(
+                "SELECT COUNT(*) AS n FROM player_milestones WHERE milestone_key = 'entered_arena'"
+            );
+            $lobbyRows = $res ? (int) $res->fetch_assoc()['n'] : 0;
+            if ($res) {
+                $res->free();
+            }
+            $res = $con->query(
+                "SELECT COUNT(*) AS n FROM player_milestones WHERE milestone_key <> 'entered_arena'"
+            );
+            $otherRows = $res ? (int) $res->fetch_assoc()['n'] : 0;
+            if ($res) {
+                $res->free();
+            }
+            $results[] = [
+                'name' => 'player_milestones_lobby_seeded',
+                'ok' => $lobbyRows === $eligible && $otherRows === 0,
+                'detail' => "entered_arena={$lobbyRows} eligible={$eligible} other_keys={$otherRows}",
+            ];
         }
 
         $res = $con->query(

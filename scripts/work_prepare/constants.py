@@ -28,6 +28,9 @@ AGGREGATE_TABLES_TRUNCATE: tuple[str, ...] = (
 # Do not truncate — static catalog from migrations (seed separately if needed).
 CATALOG_TABLES_NEVER_TRUNCATE: frozenset[str] = frozenset({"milestone_definitions"})
 
+# entered_arena prepare seed — live-faithful (register = lobby), not NumberGames >= 1.
+JOIN_DATE_VALID_WHERE = "`JoinDate` IS NOT NULL AND UNIX_TIMESTAMP(`JoinDate`) > 0"
+
 DEFAULT_PROFILES: dict[str, dict[str, str | int]] = {
     "local-work": {
         "work_database": "ko2unity_work",

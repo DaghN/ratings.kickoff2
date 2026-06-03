@@ -9,6 +9,7 @@ require_once __DIR__ . '/../includes/ops_work_target.php';
 require_once __DIR__ . '/../includes/ops_bootstrap.php';
 require_once __DIR__ . '/../includes/ops_shell.php';
 require_once __DIR__ . '/../includes/ops_reset_universe.php';
+require_once __DIR__ . '/../includes/ops_seed_lobby.php';
 
 function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun): void
 {
@@ -103,7 +104,7 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
 function k2_ops_prepare_full(K2OpsWorkTarget $target, bool $dryRun): void
 {
     k2_ops_log(
-        '=== prepare full (refresh → migrate → seed catalog → zero derived) profile='
+        '=== prepare full (refresh → migrate → seed catalog → zero derived → seed lobby) profile='
         . $target->profile . ' ==='
     );
     k2_ops_refresh_work($target, $dryRun);
@@ -114,6 +115,6 @@ function k2_ops_prepare_full(K2OpsWorkTarget $target, bool $dryRun): void
 
 function k2_ops_prepare_fast(K2OpsWorkTarget $target, bool $dryRun): void
 {
-    k2_ops_log('=== prepare fast (zero derived only) profile=' . $target->profile . ' ===');
+    k2_ops_log('=== prepare fast (zero derived → seed lobby) profile=' . $target->profile . ' ===');
     k2_ops_zero_derived($target, $dryRun);
 }

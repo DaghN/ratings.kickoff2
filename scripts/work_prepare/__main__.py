@@ -17,6 +17,7 @@ from scripts.work_prepare.parity import print_parity_report, run_parity_checks
 from scripts.work_prepare.prepare import prepare_fast, prepare_full
 from scripts.work_prepare.refresh import refresh_work
 from scripts.work_prepare.seed_catalog import seed_milestone_definitions
+from scripts.work_prepare.seed_lobby import seed_lobby_milestones
 from scripts.work_prepare.targets import load_target
 from scripts.work_prepare.zero_derived import zero_derived
 
@@ -61,7 +62,8 @@ def main() -> None:
         ("refresh-work", "clone baseline → work"),
         ("migrate-work", "schema/migrations on work"),
         ("seed-catalog", "milestone_definitions seed"),
-        ("zero-derived", "§4 zero derived + aggregate truncates"),
+        ("zero-derived", "§4 zero derived + aggregate truncates + seed lobby"),
+        ("seed-lobby", "entered_arena from playertable.JoinDate"),
         ("parity", "read-only ground-truth / day-zero checks"),
     ):
         sub.add_parser(name, parents=[common], help=help_text)
@@ -97,6 +99,8 @@ def main() -> None:
         seed_milestone_definitions(target, dry_run=args.dry_run)
     elif args.verb == "zero-derived":
         zero_derived(target, dry_run=args.dry_run)
+    elif args.verb == "seed-lobby":
+        seed_lobby_milestones(target, dry_run=args.dry_run)
     elif args.verb == "parity":
         sys.exit(print_parity_report(run_parity_checks(target)))
 

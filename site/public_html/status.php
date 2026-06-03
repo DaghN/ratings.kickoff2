@@ -30,20 +30,16 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 
 $k2StatusRoom = null;
 $k2StatusRoomError = null;
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-    $k2StatusRoomError = mysqli_connect_error();
-} else {
-    $con->query("SET time_zone = '+00:00'");
-    $k2StatusRoom = k2_status_load_room($con, $k2StatusRoomError);
-    mysqli_close($con);
-    unset($con);
-}
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+$k2StatusRoom = k2_status_load_room($con, $k2StatusRoomError);
+mysqli_close($con);
+unset($con);
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/status_room_section.php';
 ?>

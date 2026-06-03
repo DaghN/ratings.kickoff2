@@ -13,7 +13,9 @@
 - **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare without `dispatch.php` (see §6.6).
 - **Post-game P0–P7 (PHP):** `run_process_game.php` — through milestones + play streaks. Parity: `ab-post-game --phase p6` (layers 1–6); P7 layer diff not wired yet.
 - **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
-- **Not yet:** `dispatch.php`, periodic **league finalize** (league milestones / awards), live **register** → `entered_arena`.
+- **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` on work DB (`--as-of` for timeline simul); REP-012/013 via `rebuild-all` / `rebuild-aggregates`.
+- **Timeline sim (Mode C):** `run_timeline_sim.php run --stop-at …` — post-game + daily `finalize-due` step.
+- **Not yet:** `dispatch.php`, live **register** → `entered_arena`.
 
 ---
 
@@ -67,6 +69,38 @@ python -m scripts.work_prepare ab-post-game --target local-work --limit 100
 Default: zero-derived → PHP `replay-to` → snapshots → Python `ladder run` → diff layers 1–5 with `--phase p5` (tol 0.001). Python batch-rebuilds period + aggregate tables from processed `ratedresults` at end of replay (`period_activity.py`, `period_aggregates.py`).
 
 See [`scripts/work_prepare/README.md`](../../../scripts/work_prepare/README.md) and [`scripts/ladder/README.md`](../../../scripts/ladder/README.md).
+
+## Local league finalize (PER-003 on work)
+
+Requires `player_period_league` / `player_period_games` from post-game replay (or batch rebuild). After prepare, run post-game sim, then:
+
+```text
+php site/public_html/ops/run_finalize_league.php finalize-due --target local-work
+```
+
+Simulated midnight (timeline prep):
+
+```text
+php site/public_html/ops/run_finalize_league.php finalize-due --target local-work --as-of 2026-05-27T00:00:01Z
+```
+
+Parity backfill on work (destructive — truncates awards):
+
+```text
+php site/public_html/ops/run_finalize_league.php rebuild-all --target local-work
+```
+
+Legacy equivalent (dev DB config, not work target): `php scripts/finalize_league_periods.php`.
+
+## Timeline sim (Mode C)
+
+Post-game for each game in order; at each **UTC day** boundary, one `finalize-due` as-of next day `00:00:01Z`.
+
+```text
+php site/public_html/ops/run_timeline_sim.php run --target local-work --stop-at 2017-07-10T00:10:00Z
+```
+
+Optional `--start-at 2017-06-09T00:00:00Z` to skip earlier history. Stops before processing any game with `Date` > `--stop-at`.
 
 ---
 

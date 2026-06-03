@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ops_prepare_constants.php';
 require_once __DIR__ . '/ops_bootstrap.php';
+require_once __DIR__ . '/ops_seed_lobby.php';
 
 function k2_ops_split_sql_statements(string $sql): array
 {
@@ -163,5 +164,6 @@ function k2_ops_zero_derived(K2OpsWorkTarget $target, bool $dryRun): void
     } finally {
         $con->close();
     }
+    k2_ops_seed_lobby_milestones($target, $dryRun);
     k2_ops_log('[OK] zero_derived complete on ' . $target->workDatabase);
 }
