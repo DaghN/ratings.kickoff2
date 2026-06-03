@@ -15,5 +15,6 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | [periodic-register.md](periodic-register.md) | Scheduled server jobs |
 | [one-off-register.md](one-off-register.md) | Rare scripts (`scripts/oneoff/`) |
 | [cutover-packet-template.md](cutover-packet-template.md) | Copy for Steve per release |
+| [staging-scripts-inventory.md](staging-scripts-inventory.md) | Phase 0: legacy `staging-scripts/` → `ops/` migration backlog |
 
 **Retired May 2026:** `cpp-snippets/` per-table packs — do not recreate.
