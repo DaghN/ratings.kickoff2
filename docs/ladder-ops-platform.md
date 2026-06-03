@@ -38,8 +38,8 @@
 |----------|------------------|
 | **What** must post-game compute? | [`website-data-contract.md`](website-data-contract.md) post-game §§ — rules for each table/column. |
 | **Who invokes** derived updates after ground insert? | This doc — Steve calls PHP `ops/dispatch.php` `CMD=ProcessCompletedGame` with `game_id` (planned; not in repo yet). |
-| **Prod today** | Live games still use **Steve’s C++** post-game until cutover. |
-| **Prod target** | PHP ops modules implement the **same contract rules**; C++ writer retires when agreed. |
+| **Prod today** | Live games still use **Steve’s C++** derived post-game until cutover. |
+| **Prod target** | **PHP ops** (`ProcessCompletedGame`) implements contract rules per game; **C++ derived post-game is retired** (not extended with M1–M7). |
 
 Registers ([`prod-coordination.md`](prod-coordination.md), [`coordination/post-game-register.md`](coordination/post-game-register.md)) track cutover status — they do **not** override the split above.
 
@@ -78,6 +78,7 @@ Business logic lives in `ops/modules/` (and shared includes as needed):
 | Module role | Example `CMD` | Typical caller |
 |-------------|-----------------|----------------|
 | Per-game derived | `ProcessCompletedGame` | **Steve** (each live game on prod path) |
+| Register / lobby | `ProcessPlayerRegistered` | **Steve** after app registration (`player_id` only) → `entered_arena` from `playertable.JoinDate` |
 | Periodic | `RatingFade`, `FinalizeLeaguePeriod`, … | Steve scheduler / exe |
 | Schema on work DB | `ApplySchema` | Dagh / Steve staging |
 | Refresh work from baseline | `RefreshWorkFromBaseline` (script today: `reset_local_work_db.ps1`) | Dagh |

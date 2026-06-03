@@ -10,6 +10,9 @@ const K2_POST_GAME_START_RATING = 1600.0;
 /** Draw outcome sentinel for WinnerID (matches Python / legacy C++). */
 const K2_POST_GAME_WINNER_ID_DRAW = -1;
 
+/** Career peak/nadir — contract § Career peak and nadir (matches K2_ESTABLISHED_MIN_GAMES). */
+const K2_POST_GAME_ESTABLISHED_MIN_GAMES = 20;
+
 /** Personal extreme sentinels (scripts/ladder/constants.py / replay-v1 §5.2). */
 const K2_POST_GAME_SENTINEL_LEAST_GOALS = 50;
 const K2_POST_GAME_SENTINEL_LOWEST_RATING = 5000.0;

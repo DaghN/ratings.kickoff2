@@ -480,9 +480,18 @@ function k2_ops_apply_playertable_for_game(
 
  */
 
-function k2_ops_process_completed_game(mysqli $con, int $gameId, bool $dryRun = false): array
+function k2_ops_process_completed_game(
+    mysqli $con,
+    int $gameId,
+    bool $dryRun = false,
+    ?array &$milestoneChrono = null
+): array
 
 {
+
+    if ($milestoneChrono === null) {
+        $milestoneChrono = ['_mode' => 'hydrate'];
+    }
 
     $game = k2_ops_load_rated_game_row($con, $gameId);
 
@@ -530,7 +539,34 @@ function k2_ops_process_completed_game(mysqli $con, int $gameId, bool $dryRun = 
 
         k2_post_game_update_generalstats_after_game($con, $game, $derived, $players, $names);
 
-        k2_post_game_update_period_activity_after_game($con, $game, $derived);
+        $periodCounts = k2_post_game_update_period_activity_after_game($con, $game, $derived);
+        if ($periodCounts !== null) {
+            require_once __DIR__ . '/../includes/post_game_milestones.php';
+            k2_post_game_update_milestones_after_game(
+                $con,
+                $game,
+                $derived,
+                $players,
+                $periodCounts['dayA'],
+                $periodCounts['dayB'],
+                $periodCounts['weekA'],
+                $periodCounts['weekB'],
+                $periodCounts['monthA'],
+                $periodCounts['monthB'],
+                $periodCounts['weekStart'],
+                $milestoneChrono
+            );
+            require_once dirname(__DIR__, 2) . '/includes/player_play_streaks.php';
+            k2_play_streak_after_rated_game(
+                $con,
+                $gameId,
+                (string) $game['Date'],
+                $idA,
+                $idB,
+                $names[$idA] ?? '',
+                $names[$idB] ?? ''
+            );
+        }
 
         $con->commit();
 
@@ -572,6 +608,10 @@ function k2_ops_replay_post_game(
 
 ): array {
 
+    require_once __DIR__ . '/../includes/post_game_milestones.php';
+    k2_post_game_milestones_reset_replay_cache();
+    $milestoneChrono = ['_mode' => 'batch'];
+
     $sql = 'SELECT id FROM ratedresults ORDER BY Date ASC, id ASC';
 
     $res = $con->query($sql);
@@ -608,15 +648,13 @@ function k2_ops_replay_post_game(
 
     $res->free();
 
-
-
     $processed = [];
 
     $committed = 0;
 
     foreach ($ids as $gid) {
 
-        $result = k2_ops_process_completed_game($con, $gid, $dryRun);
+        $result = k2_ops_process_completed_game($con, $gid, $dryRun, $milestoneChrono);
 
         $processed[] = $gid;
 
@@ -628,7 +666,10 @@ function k2_ops_replay_post_game(
 
     }
 
-
+    if (!$dryRun) {
+        k2_post_game_milestones_finalize_replay_chrono($con, $milestoneChrono);
+        k2_post_game_milestones_seed_lobby($con);
+    }
 
     return ['processed' => $processed, 'committed' => $committed];
 

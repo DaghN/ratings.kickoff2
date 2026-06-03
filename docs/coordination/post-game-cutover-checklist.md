@@ -15,7 +15,8 @@
 | `club_1700` … `club_2300` milestones | Contract § `player_milestones` — **Rating club** + implementation notes below |
 | Personal BL/BW/MGC/MGS + inverse counts | Contract § **Personal record pointers**; site copy: `ranked5.php` at cutover |
 | HoF `generalstatstable` | [`records-post-game-exception.md`](records-post-game-exception.md) |
-| Steve merge shape | [`ratings_cpp.txt`](../ratings_cpp.txt), [`post-game-register.md`](post-game-register.md) |
+| PHP post-game + cutover | [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2, [`post-game-register.md`](post-game-register.md), `ops/run_process_game.php` |
+| Legacy C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) — field order reference only |
 | Replay command | [`STAGING_REPLAY.md`](../STAGING_REPLAY.md), `scripts/run_local_replay.ps1` |
 
 ---
@@ -60,7 +61,7 @@
 1. Staging: schema (if any) + **dry-run** new post-game on test game(s).
 2. Staging: **full ladder replay** + `rebuild_website_derived_data_local.ps1` (or prod equivalents).
 3. Parity: contract § **Global validation checklist** + milestone sanity scripts.
-4. Prod: schema + replay + merge C++ from contract (+ records exception doc).
+4. Prod: schema + replay + enable **PHP** post-game on live games; retire C++ derived writer.
 5. Site: `ranked5` tooltips/footer if personal `>` shipped; profile peak/nadir tooltips when ready.
 6. **feature-log** + **MEMORY** — Prod live / done date.
 

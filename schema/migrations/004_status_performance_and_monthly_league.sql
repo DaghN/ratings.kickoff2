@@ -1,6 +1,6 @@
 -- SCH-005: Status page performance indexes + monthly league aggregate.
 -- Register: docs/coordination/schema-register.md
--- Steve: apply on staging/prod before PHP relies on player_monthly_league; prod live writer per website-data-contract.md.
+-- Steve: apply on staging/prod for Status indexes. player_monthly_league removed by 017_drop_player_monthly_league.sql (Jun 2026).
 
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.statistics

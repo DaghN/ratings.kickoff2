@@ -116,9 +116,9 @@ Individual `PG-*.md` snippet files can remain as implementation aids. They shoul
 | `docs/coordination/post-game-register.md` | Keep PG status; link behavior to contract |
 | `docs/coordination/cpp-snippets/` | **Retired May 2026** — except records → `records-post-game-exception.md` |
 | `scripts/rebuild_player_period_games_local.ps1` | Superseded by one rebuild entrypoint; kept as compatibility wrapper |
-| `scripts/rebuild_player_monthly_league_local.ps1` | Superseded by one rebuild entrypoint; kept as compatibility wrapper |
+| `scripts/rebuild_player_monthly_league_local.ps1` | **Removed** Jun 2026 (legacy monthly table dropped) |
 | `scripts/ladder/sql/server_daily_activity_rebuild_raw.sql` | Mark as emergency fallback, not normal pipeline |
-| `player_monthly_league` docs/read paths | Mark as legacy/superseded by `player_period_league` month rows where appropriate |
+| `player_monthly_league` | **Dropped** Jun 2026 (SCH-017); month via `player_period_league` only |
 
 ---
 
@@ -135,7 +135,7 @@ Individual `PG-*.md` snippet files can remain as implementation aids. They shoul
 
 Legacy compatibility:
 
-- `player_monthly_league` may still be rebuilt while old fallbacks exist, but the contract should mark it superseded by `player_period_league`.
+- ~~`player_monthly_league`~~ removed; month league is `player_period_league` only.
 
 ---
 
@@ -170,5 +170,5 @@ The new rebuild command must prove:
 ## Open decisions (historical)
 
 - Keep the redirect docs long-term, or move them to archive after links settle?
-- Should the first one-command rebuild include `player_monthly_league` for compatibility, or leave it as explicitly legacy?
+- ~~Should the first one-command rebuild include `player_monthly_league`?~~ Resolved: table dropped Jun 2026.
 - Should the post-game contract replace most individual PG snippet prose now, or only become the authority while snippets remain unchanged?

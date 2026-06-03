@@ -312,7 +312,9 @@ function k2_play_streak_check_year_in_heaven_after_new_week(
     int $playerId,
     string $streakType,
     string $periodAnchor,
-    string $prevAnchor
+    string $prevAnchor,
+    int $gameId,
+    string $gameDate
 ): void {
     if ($streakType !== 'week' || $periodAnchor === $prevAnchor) {
         return;
@@ -320,7 +322,7 @@ function k2_play_streak_check_year_in_heaven_after_new_week(
     if (!function_exists('k2_milestone_maybe_unlock_year_in_heaven')) {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestone_year_in_heaven.php';
     }
-    k2_milestone_maybe_unlock_year_in_heaven($con, $playerId, $periodAnchor);
+    k2_milestone_maybe_unlock_year_in_heaven($con, $playerId, $periodAnchor, $gameId, $gameDate);
 }
 
 /**
@@ -356,7 +358,15 @@ function k2_play_streak_apply_game(
             $bestChanged = true;
         }
         k2_play_streak_save_row($con, $row);
-        k2_play_streak_check_year_in_heaven_after_new_week($con, $playerId, $streakType, $periodAnchor, $prevAnchor);
+        k2_play_streak_check_year_in_heaven_after_new_week(
+            $con,
+            $playerId,
+            $streakType,
+            $periodAnchor,
+            $prevAnchor,
+            $gameId,
+            $gameDate
+        );
 
         return $bestChanged;
     }
@@ -379,12 +389,17 @@ function k2_play_streak_apply_game(
         }
         k2_play_streak_save_row($con, $row);
         if ($streakType === 'day' && $newLen === 100) {
-            $est100 = k2_play_streak_establishing_game($con, $playerId, $periodAnchor, 'day');
-            if ($est100 !== null) {
-                k2_play_streak_maybe_unlock_milestone_100($con, $playerId, $est100['id'], $est100['Date']);
-            }
+            k2_play_streak_maybe_unlock_milestone_100($con, $playerId, $gameId, $gameDate);
         }
-        k2_play_streak_check_year_in_heaven_after_new_week($con, $playerId, $streakType, $periodAnchor, $prevAnchor);
+        k2_play_streak_check_year_in_heaven_after_new_week(
+            $con,
+            $playerId,
+            $streakType,
+            $periodAnchor,
+            $prevAnchor,
+            $gameId,
+            $gameDate
+        );
 
         return $bestChanged;
     }
@@ -403,7 +418,15 @@ function k2_play_streak_apply_game(
         $bestChanged = true;
     }
     k2_play_streak_save_row($con, $row);
-    k2_play_streak_check_year_in_heaven_after_new_week($con, $playerId, $streakType, $periodAnchor, $prevAnchor);
+    k2_play_streak_check_year_in_heaven_after_new_week(
+        $con,
+        $playerId,
+        $streakType,
+        $periodAnchor,
+        $prevAnchor,
+        $gameId,
+        $gameDate
+    );
 
     return $bestChanged;
 }

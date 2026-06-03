@@ -49,7 +49,6 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
 | `server_period_game_totals` | SCH-008 | `server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
 | `server_period_matchups` | SCH-008 | `server_period_matchups_rebuild.sql` | Canonical pair ×4 period types |
-| `player_monthly_league` | SCH-005 | `player_monthly_league_rebuild.sql` | Legacy monthly (prefer period league) |
 | `generalstatstable` | SCH-002–003 | Ladder replay | **Exception doc** — records tie/UTC/ratio |
 
 ---
@@ -100,9 +99,9 @@ Schema reference: `docs/playertable-schema.md`.
 
 **Threshold:** `K2_ESTABLISHED_MIN_GAMES` (**20**) — `site/public_html/includes/lb_player_filters.php`. Leaderboard “exclude provisional” uses the same number for **who is listed**; this section defines **when the columns exist and how they are written**.
 
-**Legacy behaviour (prod C++ + replay today — not the target):** Updates can start from game 1. Peak only moves when `NewRating > PeakRating` **and** `NewRating > OldRating`; nadir only when `NewRating < LowestRating` **and** `NewRating < OldRating`. Reference: `docs/ratings_cpp.txt`; replay: `scripts/ladder/player_state.py` (`apply_match`).
+**Legacy behaviour (prod C++ today — retiring):** Updates can start from game 1. Peak only moves when `NewRating > PeakRating` **and** `NewRating > OldRating`; nadir only when `NewRating < LowestRating` **and** `NewRating < OldRating`. Reference: `docs/ratings_cpp.txt`.
 
-**Required behaviour (future post-game + full replay):**
+**Required behaviour (PHP ops post-game + full replay — target):**
 
 1. **Games 1–19:** Leave `PeakRating` and `LowestRating` at **unset** sentinels. Do not update them during the provisional window (provisional rating path may still move `Rating`).
 2. **End of the 20th rated game** (`NumberGames` becomes **20** after this game): **Establish** both columns from the player’s **post-game `Rating`** after that game (same value for peak and nadir at birth). Rationale: birth rating (~1600) is not a fair career extreme; after 20 games the current rating is treated as the settled baseline for peak/nadir tracking.
@@ -142,7 +141,6 @@ After a full replay, the database must be identical to one that was maintained b
 - `player_period_games`, `player_peak_period_games`, `server_daily_activity`
 - `player_period_league`, `player_milestones`, `player_matchup_summary`
 - `server_period_game_totals`, `server_period_matchups`
-- `player_monthly_league` (legacy)
 
 These are implemented as bulk `INSERT ... SELECT` SQL scripts run after the event engine replay completes.
 
@@ -515,7 +513,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 | Lobby | `entered_arena` | `playertable.JoinDate` (registration = lobby entry) |
 | Exists feats | 18 keys (e.g. `brace`, `merchant_trade_fair`) | `ratedresults` first matching game |
 | Streaks | 8 keys | Chronological first cross (`gen_milestone_streak_sql.py` → `player_milestones_rebuild_streaks.sql`) |
-| Period bursts | 5 keys (`hot_day` … `grind_month`) | `player_period_games` first cross + last game that UTC day/month (`player_milestones_rebuild_period.sql`) |
+| Period bursts | 5 keys (`hot_day` … `grind_month`) | `player_period_games` first qualifying UTC day/month; anchor game = rated game where day/month count hits N (`player_milestones_rebuild_period.sql`) |
 | Chronological | 16 keys | `gen_milestone_chrono_sql.py` → `player_milestones_rebuild_chrono.sql` (first cross; `peace_streak` in streaks batch) |
 | Tail playertable + matchup | 30 keys | `gen_milestone_tail_sql.py` → `player_milestones_rebuild_tail.sql` (first cross; `diversity_merchant` = per-game DD vs 5 opponents) |
 
@@ -584,8 +582,8 @@ Period-burst keys (`hot_day`, `marathon_day`, `absurd_day`, `ultra_day_30`, `gri
 | First 10+ goal game | `dd_merchant_10` | First game with `goals_for >= 10` (player side) | 10 | same |
 | Rating club | `club_1700`, `club_1800`, `club_2000`, `club_2300` | Post-game **`Rating`** (after Elo update) first `>=` threshold — **independent** of `PeakRating` / established peak-nadir (§ Career peak and nadir). May unlock during games 1–19 as encouragement. | threshold | **Target:** first chronological game where that player’s `NewRating` crosses threshold. **Rebuild today:** same first-cross logic + redundant `PeakRating >= thresh` join on legacy data — see § **Rating club — rebuild / live writer** below. |
 | Exists feats | 18 keys (`brace`, `hat_trick`, … `leaky_merchant`) | First game matching condition on **player side** | see generator | `gen_milestone_exists_sql.py` — conditions in file |
-| Streak / career | 8 keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`, `peace_streak`, `ten_wins`) | **Current** streak or career wins at end of this game reaches threshold (not `Longest*` alone) | threshold | `gen_milestone_streak_sql.py` |
-| Period burst | 5 keys | After period bucket update: day/month `games` count first reaches 5/10/20/30/50; `achieved_at` = **last game that UTC day/month** (same as rebuild LATERAL) | 5/10/20/30/50 | `player_milestones_rebuild_period.sql` |
+| Streak / career | 8 keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`, `peace_streak`, `ten_wins`) | **Current** streak or career wins **equals** threshold on this game (crossing game; not a later replay when `Longest*` was higher) | threshold | `milestone_sim.py` (oracle); legacy `gen_milestone_streak_sql.py` |
+| Period burst | 5 keys | After period bucket update: when day/month `games` count **equals** 5/10/20/30/50 on the **first** qualifying UTC day/month; `achieved_at` = **that crossing game** (`ratedresults.Date`, `source_game_id` = that game) | 5/10/20/30/50 | `player_milestones_rebuild_period.sql` |
 | Chronological | 16 keys (`newbie_welcomer`, `generous`, `merchant_streak`, `perfect_day`, …) | Per-game state machine; see below | varies | `gen_milestone_chrono_sql.py` |
 | Tail / playertable | 30 keys (`first_victory`, `century_of_wins`, `ten_opponents`, `travelling_salesman`, …) | Per-game counters / network sets; see below | varies | `gen_milestone_tail_sql.py` |
 
@@ -603,7 +601,9 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 
 **Exists feat conditions (player side, `ActualScore` as W/D/L):** Same as `gen_milestone_exists_sql.py` — e.g. `brace` → `goals_for >= 2`; `merchant_trade_fair` → draw 10–10; `massive_upset` → win and `(Rating_opponent - Rating_self) >= 500` pre-game.
 
-**Streak keys:** Use in-memory streak counters maintained during `RatingProcedureUnity` (same semantics as rebuild: win resets loss/draw streaks, etc.). Unlock when **current** streak crosses threshold on this game. `ten_wins` = career win count ≥ 10.
+**Streak keys:** In-memory counters during post-game (win resets loss/draw streaks, etc.). Unlock when **current** streak **equals** threshold on this game (`win_hat_trick` only on a win, `cold_streak` on a loss, `peace_streak` on a draw, `win_drought` when `non_win_streak === 10`). `ten_wins` = 10th career win on this game.
+
+**Exceptions (not crossing-game):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. Oracle batch may use day-close timestamps; live PHP uses the same rule in `k2_post_game_milestones_finalize_chrono_day`.
 
 **Tail highlights (post-update `playertable` or per-game):**
 
@@ -632,10 +632,11 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 | `peace_streak` / `united_nations` | 3 / 5 consecutive draws |
 | `knife_edge` / `unlucky` | 5 consecutive 1-goal margin wins / losses |
 | `on_the_scoresheet` | 10 consecutive games with at least one goal scored |
+| `rare_blank` | First game with **0 goals scored** once the player already has **50+** career games (`rule_short`: “after 50+ career games” = in a **later** game, not on the game that completes the 50th). **Live / sim:** `NumberGames >= 51` and `goals_for = 0` on that game; dedupe via chrono `done` (only the first blank after the threshold). Aligns with `rule_short` — not “51+” in copy. |
 | `giant_slayer` | **Active #1** rule (below) |
 | `daily_habit`, `weekly_regular`, `monthly_regular`, `year_round` | Calendar habit rules — match `gen_milestone_chrono_sql.py` |
-| `play_streak_100` | First cross of **100** consecutive UTC days with ≥1 rated game; unlock game = `MIN(id)` on the 100th UTC day of the run — `gen_milestone_play_streak_100_sql.py`; live: `k2_play_streak_maybe_unlock_milestone_100()` after establishing game on that day |
-| `year_in_heaven` | First calendar year **Y** with a rated game in all **52** UTC week slots (Monday grid containing 1 Jan — profile Played weeks); unlock game = `MIN(id)` on the week Monday that completes 52/52 — `gen_milestone_year_in_heaven_sql.py`; live: `k2_milestone_maybe_unlock_year_in_heaven()` on first game of a new UTC week, after `player_period_games` week upsert — [`coordination/milestones-year-in-heaven-handoff.md`](coordination/milestones-year-in-heaven-handoff.md) |
+| `play_streak_100` | First cross of **100** consecutive UTC days with ≥1 rated game; unlock on the **game that extends** the day streak to 100 — `k2_play_streak_maybe_unlock_milestone_100()` / `simulate_play_streak_100_milestones()`; batch SQL may still use establishing-game backfill |
+| `year_in_heaven` | First calendar year **Y** with a rated game in all **52** UTC week slots (Monday grid containing 1 Jan — profile Played weeks); **live:** unlock on the rated game that fills the 52nd slot (`achieved_at` = that game's `Date`, `source_game_id` = that game) when week `games` = 1 after upsert; batch rebuild SQL may use establishing-game lookup — [`coordination/milestones-year-in-heaven-handoff.md`](coordination/milestones-year-in-heaven-handoff.md) |
 
 **`giant_slayer` (game — active #1):** After this game’s Elo and `LastGame` updates, for each winner:
 
@@ -675,6 +676,8 @@ League rules: [`leagues-rules-spec.md`](leagues-rules-spec.md). Rebuild: league 
 | `entered_arena` | `playertable` row created (registration) | `playertable.JoinDate` |
 
 **Not** `LobbyTime`. **Not** on first rated game (`debut` is separate). No `source_game_id` / league columns.
+
+**Live writer:** `k2_milestone_maybe_unlock_entered_arena()` in `includes/player_milestone_entered_arena.php` — called from ops `ProcessPlayerRegistered` when Steve registers a player (dispatcher `player_id` only). Full-history replay may still bulk-insert via `k2_post_game_milestones_seed_lobby()`.
 
 ---
 
@@ -802,28 +805,6 @@ Staging/local: **full backfill** via rebuild is enough for UI until each phase s
 
 ---
 
-### `player_monthly_league`
-
-**Lifecycle:** Legacy compatibility; superseded by `player_period_league` with `period_type = 'month'`.
-
-**Purpose:** Older monthly Status league aggregate. Kept temporarily because some fallback code and staging/prod slices may still reference it.
-
-**Source truth:** `ratedresults`.
-
-**Grain:** one row per `(month_start, player_id)`.
-
-**Primary key:** `(month_start, player_id)`.
-
-**Full rebuild:** Same monthly league semantics as `player_period_league` month rows.
-
-**Post-game rule:** Legacy monthly upsert per game while this table is maintained. New work should prefer `player_period_league`.
-
-**Parity check:** `SUM(played) / 2` must equal `COUNT(*) FROM ratedresults`.
-
-**Implementation:** `scripts/ladder/sql/player_monthly_league_rebuild.sql`.
-
----
-
 ### `generalstatstable`
 
 **Lifecycle:** Existing core server-stat table.
@@ -892,13 +873,11 @@ The **server-wide** record pointers (e.g. `MostCleanSheetsVictimsS`) in `general
 
 Counts move when the **credited opponent** for that personal record changes, not on every game between the same pair.
 
-**Legacy behaviour (prod C++ today; replay mirrors — not the target policy):**  
-Per-game block uses **`>=`** when comparing a new game to the stored extreme (e.g. `GoalDifference >= BiggestLossDifference`). Games run in **`ratedresults` `Date ASC, id ASC`** order. When the condition fires, margin and `*GameID` update; if the credited opponent id changes, decrement the previous opponent's inverse count and increment the new opponent's. On a **tied** margin with a **different** opponent, the later opponent takes the credit (classic 7–0 then 0–7 tie). On a tied margin with the **same** opponent, inverse counts are unchanged but the game id may advance to the later game.
+**Legacy behaviour (prod C++ today — retiring):**  
+Per-game block uses **`>=`** when comparing a new game to the stored extreme. On a **tied** margin with a **different** opponent, the later opponent takes the credit. Reference: `docs/ratings_cpp.txt`.
 
-Reference: `docs/ratings_cpp.txt` (per-game block); replay: `scripts/ladder/player_state.py` (`apply_match`, `_transfer_record_count`).
-
-**Required tie policy (future post-game + full replay — deliberate change):**  
-Align with non-ratio Hall of Fame records (§ Non-ratio hall-of-fame records): **first holder keeps until strictly beaten** — use **`>`**, not **`>=`**.
+**Required tie policy (PHP ops post-game + Python oracle — target):**  
+Align with non-ratio Hall of Fame records (§ Non-ratio hall-of-fame records): **first holder keeps until strictly beaten** — use **`>`**, not **`>=`**. Implemented in `post_game_player_state.php` / `player_state.py` (Jun 2026).
 
 When a new game **equals** the stored personal extreme: do **not** change the margin/goals, `*CulpritID` / `*VictimID`, `*GameID`, or any inverse count (`BiggestLossVictims`, `BiggestWinCulprits`, `MostGoalsConcededVictims`, `MostGoalsScoredCulprits`, etc.).
 
@@ -952,7 +931,6 @@ Required updates:
 | `player_matchup_summary` | Upsert directed A-to-B and B-to-A rows |
 | `server_period_game_totals` | Increment day/week/month/year server totals |
 | `server_period_matchups` | Increment canonical pair for day/week/month/year |
-| `player_monthly_league` | Legacy monthly update only while legacy table is maintained |
 | `generalstatstable` | Update server totals; check non-ratio records with strict `>` tie policy; do NOT write ratio leader columns — see [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |
 | `playertable` career peak and nadir | `PeakRating`, `LowestRating`, `PeakRatingGameID`, `LowestRatingGameID` — see § **Career peak and nadir** (establish at 20 games from post-game `Rating`; then max/min every game; no gain/loss gate). |
 | `playertable` personal extremes + inverse victim/culprit counts | Apply **`>`** on single-game max/min comparisons; update `*CulpritID` / `*VictimID` and inverse counts **only on strict improvement** — see § Personal record pointers. **Not** included in HoF-only C++ edits. |

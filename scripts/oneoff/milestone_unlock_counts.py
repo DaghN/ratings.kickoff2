@@ -558,7 +558,8 @@ def run_chronological(cur) -> dict[str, CountResult]:
                 if gf >= 2:
                     generous.add(opp)
                 welcomers.add(opp)
-            if st.games >= 50 and gf == 0:
+            st.games += 1
+            if st.games >= 51 and gf == 0:
                 rare_blank.add(pid)
             if st.last_date is not None:
                 gap = (d - st.last_date).days
@@ -566,7 +567,6 @@ def run_chronological(cur) -> dict[str, CountResult]:
                     back_in_game.add(pid)
                 if gap >= 365 * 3:
                     long_sleep.add(pid)
-            st.games += 1
             st.last_date = d
             st.years.add(d.year)
             day_key = d.isoformat()

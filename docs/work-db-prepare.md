@@ -175,7 +175,6 @@ These tables **do not exist** on baseline until **migrate work**. After migrate,
 | `player_matchup_summary` | Matchup aggregates |
 | `server_period_game_totals` | Period totals |
 | `server_period_matchups` | Period matchup breadth |
-| `player_monthly_league` | Legacy compatibility |
 | `player_milestones` | Unlock rows only |
 | `player_play_streaks` | Rated play streak state |
 | `player_league_award` | Period awards (PER-003) |

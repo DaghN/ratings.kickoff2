@@ -4,6 +4,7 @@ from __future__ import annotations
 
 K_FACTOR = 32
 START_RATING = 1600.0
+ESTABLISHED_MIN_GAMES = 20
 ALLOWED_DATABASES = frozenset(
     {"ko2unity_work", "ko2unity_baseline", "ko2unity_db", "kooldb"}
 )

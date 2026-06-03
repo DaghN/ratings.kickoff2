@@ -207,6 +207,35 @@ function k2_post_game_player_update_streaks(array &$st, bool $won, bool $drew, b
 }
 
 /**
+ * Career peak/nadir — contract § Career peak and nadir (unset until 20 games).
+ *
+ * @param array<string, mixed> $st
+ */
+function k2_post_game_player_apply_career_peak_nadir(array &$st, float $newRating, int $gameId): void
+{
+    $games = (int) $st['games'];
+    if ($games < K2_POST_GAME_ESTABLISHED_MIN_GAMES) {
+        return;
+    }
+    if ($games === K2_POST_GAME_ESTABLISHED_MIN_GAMES) {
+        $st['peak_rating'] = $newRating;
+        $st['peak_rating_game_id'] = $gameId;
+        $st['lowest_rating'] = $newRating;
+        $st['lowest_rating_game_id'] = $gameId;
+
+        return;
+    }
+    if ($newRating > (float) $st['peak_rating']) {
+        $st['peak_rating'] = $newRating;
+        $st['peak_rating_game_id'] = $gameId;
+    }
+    if ($newRating < (float) $st['lowest_rating']) {
+        $st['lowest_rating'] = $newRating;
+        $st['lowest_rating_game_id'] = $gameId;
+    }
+}
+
+/**
  * @param array<int, array<string, mixed>> $players players touched this game (loaded from DB + network sets)
  */
 function k2_post_game_player_apply_match(
@@ -297,7 +326,7 @@ function k2_post_game_player_apply_match(
 
     $st['sum_opponents_rating'] += $opponentRatingBefore;
 
-    if ($goalsFor >= $st['most_goals_scored'] && $goalsFor >= 1) {
+    if ($goalsFor >= 1 && $goalsFor > (int) $st['most_goals_scored']) {
         if ((int) $st['most_goals_scored_victim_id'] !== $opponentId) {
             k2_post_game_player_transfer_record_count(
                 $con,
@@ -313,7 +342,7 @@ function k2_post_game_player_apply_match(
         $st['most_goals_scored_game_id'] = $gameId;
     }
 
-    if ($goalsFor <= $st['least_goals_scored']) {
+    if ($goalsFor < (int) $st['least_goals_scored']) {
         if ((int) $st['least_goals_scored_culprit_id'] !== $opponentId) {
             k2_post_game_player_transfer_record_count(
                 $con,
@@ -329,7 +358,7 @@ function k2_post_game_player_apply_match(
         $st['least_goals_scored_game_id'] = $gameId;
     }
 
-    if ($goalsAgainst >= $st['most_goals_conceded']) {
+    if ($goalsAgainst > (int) $st['most_goals_conceded']) {
         if ((int) $st['most_goals_conceded_culprit_id'] !== $opponentId) {
             k2_post_game_player_transfer_record_count(
                 $con,
@@ -345,7 +374,7 @@ function k2_post_game_player_apply_match(
         $st['most_goals_conceded_game_id'] = $gameId;
     }
 
-    if ($goalsAgainst <= $st['least_goals_conceded']) {
+    if ($goalsAgainst < (int) $st['least_goals_conceded']) {
         if ((int) $st['least_goals_conceded_victim_id'] !== $opponentId) {
             k2_post_game_player_transfer_record_count(
                 $con,
@@ -361,7 +390,7 @@ function k2_post_game_player_apply_match(
         $st['least_goals_conceded_game_id'] = $gameId;
     }
 
-    if ($won && $goalDifference >= $st['biggest_win_difference']) {
+    if ($won && $goalDifference > (int) $st['biggest_win_difference']) {
         if ((int) $st['biggest_win_victim_id'] !== $opponentId) {
             k2_post_game_player_transfer_record_count(
                 $con,
@@ -377,12 +406,12 @@ function k2_post_game_player_apply_match(
         $st['biggest_win_game_id'] = $gameId;
     }
 
-    if ($drew && $sumOfGoals >= $st['biggest_draw_sum']) {
+    if ($drew && $sumOfGoals > (int) $st['biggest_draw_sum']) {
         $st['biggest_draw_sum'] = $sumOfGoals;
         $st['biggest_draw_game_id'] = $gameId;
     }
 
-    if ($lost && $goalDifference >= $st['biggest_loss_difference']) {
+    if ($lost && $goalDifference > (int) $st['biggest_loss_difference']) {
         if ((int) $st['biggest_loss_culprit_id'] !== $opponentId) {
             k2_post_game_player_transfer_record_count(
                 $con,
@@ -398,11 +427,11 @@ function k2_post_game_player_apply_match(
         $st['biggest_loss_game_id'] = $gameId;
     }
 
-    if ($sumOfGoals <= $st['smallest_sum_of_goals']) {
+    if ($sumOfGoals < (int) $st['smallest_sum_of_goals']) {
         $st['smallest_sum_of_goals'] = $sumOfGoals;
         $st['smallest_sum_of_goals_game_id'] = $gameId;
     }
-    if ($sumOfGoals >= $st['biggest_sum_of_goals']) {
+    if ($sumOfGoals > (int) $st['biggest_sum_of_goals']) {
         $st['biggest_sum_of_goals'] = $sumOfGoals;
         $st['biggest_sum_of_goals_game_id'] = $gameId;
     }
@@ -420,11 +449,11 @@ function k2_post_game_player_apply_match(
         $st['clean_sheets_conceded']++;
     }
 
-    if ($won && $opponentRatingBefore >= $st['highest_rated_victim']) {
+    if ($won && $opponentRatingBefore > (float) $st['highest_rated_victim']) {
         $st['highest_rated_victim'] = $opponentRatingBefore;
         $st['highest_rated_victim_game_id'] = $gameId;
     }
-    if ($lost && $opponentRatingBefore <= $st['lowest_rated_culprit']) {
+    if ($lost && $opponentRatingBefore < (float) $st['lowest_rated_culprit']) {
         $st['lowest_rated_culprit'] = $opponentRatingBefore;
         $st['lowest_rated_culprit_game_id'] = $gameId;
     }
@@ -444,14 +473,7 @@ function k2_post_game_player_apply_match(
         $st['biggest_rating_descent'] = $st['current_rating_descent'];
     }
 
-    if ($newRating > $st['peak_rating'] && $newRating > $oldRating) {
-        $st['peak_rating'] = $newRating;
-        $st['peak_rating_game_id'] = $gameId;
-    }
-    if ($newRating < $st['lowest_rating'] && $newRating < $oldRating) {
-        $st['lowest_rating'] = $newRating;
-        $st['lowest_rating_game_id'] = $gameId;
-    }
+    k2_post_game_player_apply_career_peak_nadir($st, $newRating, $gameId);
 
     k2_post_game_player_update_streaks($st, $won, $drew, $lost);
 

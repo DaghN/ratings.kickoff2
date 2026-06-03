@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from .constants import START_RATING
+from .constants import ESTABLISHED_MIN_GAMES, START_RATING
 
 SENTINEL_LEAST_GOALS = 50
 SENTINEL_LOWEST_RATING = 5000.0
@@ -157,6 +157,22 @@ class PlayerState:
     def network_cs_victim_count(self) -> int:
         return len(self._network_cs_victims)
 
+    def _apply_career_peak_nadir(self, new_rating: float, game_id: int) -> None:
+        if self.games < ESTABLISHED_MIN_GAMES:
+            return
+        if self.games == ESTABLISHED_MIN_GAMES:
+            self.peak_rating = new_rating
+            self.peak_rating_game_id = game_id
+            self.lowest_rating = new_rating
+            self.lowest_rating_game_id = game_id
+            return
+        if new_rating > self.peak_rating:
+            self.peak_rating = new_rating
+            self.peak_rating_game_id = game_id
+        if new_rating < self.lowest_rating:
+            self.lowest_rating = new_rating
+            self.lowest_rating_game_id = game_id
+
     def apply_match(
         self,
         *,
@@ -222,7 +238,7 @@ class PlayerState:
 
         self.sum_opponents_rating += opponent_rating_before
 
-        if goals_for >= self.most_goals_scored and goals_for >= 1:
+        if goals_for >= 1 and goals_for > self.most_goals_scored:
             if self.most_goals_scored_victim_id != opponent_id:
                 _transfer_record_count(
                     players,
@@ -234,7 +250,7 @@ class PlayerState:
             self.most_goals_scored = goals_for
             self.most_goals_scored_game_id = game_id
 
-        if goals_for <= self.least_goals_scored:
+        if goals_for < self.least_goals_scored:
             if self.least_goals_scored_culprit_id != opponent_id:
                 _transfer_record_count(
                     players,
@@ -246,7 +262,7 @@ class PlayerState:
             self.least_goals_scored = goals_for
             self.least_goals_scored_game_id = game_id
 
-        if goals_against >= self.most_goals_conceded:
+        if goals_against > self.most_goals_conceded:
             if self.most_goals_conceded_culprit_id != opponent_id:
                 _transfer_record_count(
                     players,
@@ -258,7 +274,7 @@ class PlayerState:
             self.most_goals_conceded = goals_against
             self.most_goals_conceded_game_id = game_id
 
-        if goals_against <= self.least_goals_conceded:
+        if goals_against < self.least_goals_conceded:
             if self.least_goals_conceded_victim_id != opponent_id:
                 _transfer_record_count(
                     players,
@@ -270,7 +286,7 @@ class PlayerState:
             self.least_goals_conceded = goals_against
             self.least_goals_conceded_game_id = game_id
 
-        if won and goal_difference >= self.biggest_win_difference:
+        if won and goal_difference > self.biggest_win_difference:
             if self.biggest_win_victim_id != opponent_id:
                 _transfer_record_count(
                     players,
@@ -282,11 +298,11 @@ class PlayerState:
             self.biggest_win_difference = goal_difference
             self.biggest_win_game_id = game_id
 
-        if drew and sum_of_goals >= self.biggest_draw_sum:
+        if drew and sum_of_goals > self.biggest_draw_sum:
             self.biggest_draw_sum = sum_of_goals
             self.biggest_draw_game_id = game_id
 
-        if lost and goal_difference >= self.biggest_loss_difference:
+        if lost and goal_difference > self.biggest_loss_difference:
             if self.biggest_loss_culprit_id != opponent_id:
                 _transfer_record_count(
                     players,
@@ -298,10 +314,10 @@ class PlayerState:
             self.biggest_loss_difference = goal_difference
             self.biggest_loss_game_id = game_id
 
-        if sum_of_goals <= self.smallest_sum_of_goals:
+        if sum_of_goals < self.smallest_sum_of_goals:
             self.smallest_sum_of_goals = sum_of_goals
             self.smallest_sum_of_goals_game_id = game_id
-        if sum_of_goals >= self.biggest_sum_of_goals:
+        if sum_of_goals > self.biggest_sum_of_goals:
             self.biggest_sum_of_goals = sum_of_goals
             self.biggest_sum_of_goals_game_id = game_id
 
@@ -314,10 +330,10 @@ class PlayerState:
         if goals_for == 0:
             self.clean_sheets_conceded += 1
 
-        if won and opponent_rating_before >= self.highest_rated_victim:
+        if won and opponent_rating_before > self.highest_rated_victim:
             self.highest_rated_victim = opponent_rating_before
             self.highest_rated_victim_game_id = game_id
-        if lost and opponent_rating_before <= self.lowest_rated_culprit:
+        if lost and opponent_rating_before < self.lowest_rated_culprit:
             self.lowest_rated_culprit = opponent_rating_before
             self.lowest_rated_culprit_game_id = game_id
 
@@ -333,12 +349,7 @@ class PlayerState:
         if self.current_rating_descent > self.biggest_rating_descent:
             self.biggest_rating_descent = self.current_rating_descent
 
-        if new_rating > self.peak_rating and new_rating > old_rating:
-            self.peak_rating = new_rating
-            self.peak_rating_game_id = game_id
-        if new_rating < self.lowest_rating and new_rating < old_rating:
-            self.lowest_rating = new_rating
-            self.lowest_rating_game_id = game_id
+        self._apply_career_peak_nadir(new_rating, game_id)
 
         self._update_streaks(won, drew, lost)
 

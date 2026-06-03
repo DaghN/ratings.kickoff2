@@ -8,7 +8,7 @@
 
 ## Current focus
 
-- **Milestones project:** **Staging DB done** May 2026. Catalog **112** — `play_streak_100` (0 holders) + **`year_in_heaven`** (**5** holders, verified on `kooldb`). **Next:** prod schema+REP+C++ M1–M7; hub Home [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). **`club_*`:** contract = **`Rating`** unlock; no prod C++ writer today; rebuild OK on legacy data — drop `PeakRating` join when career peak-at-20 replay ships ([`post-game-cutover-checklist.md`](docs/coordination/post-game-cutover-checklist.md)).
+- **Milestones project:** **Staging DB done** May 2026. Catalog **112**. **Post-game target:** PHP ops (`run_process_game.php`) replaces prod C++ derived writer at cutover — [`ladder-ops-platform.md`](docs/ladder-ops-platform.md) §2, [`post-game-register.md`](docs/coordination/post-game-register.md). Discrepancy register: [`post-game-contract-vs-oracle-discrepancies.md`](docs/coordination/post-game-contract-vs-oracle-discrepancies.md). **`club_*`:** regen rebuild SQL after peak-at-20 replay.
 
 - **Rated play streaks:** **Staging DB + UI done** May 2026 (SCH-014, REP-015; `ranked4` Days/Weeks, HoF `server2`). **Next:** prod schema + C++ post-game; profile surface TBD.
 
@@ -19,7 +19,7 @@
 - **Activity charts v2:** **shipped on `server1.php`** — [`activity-charts-v2.js`](site/public_html/js/activity-charts-v2.js) + [`server_activity_chart_panels.php`](site/public_html/includes/server_activity_chart_panels.php); legacy boot files removed. **Bar grow-up** on phone + desktop via `chart-theme.js` (Jun 2026). Plan: [`docs/activity-charts.md`](docs/activity-charts.md). **Next (optional L4):** lazy load, phone long-press tooltips.
 - **Charts:** **six-colour palette signed** (May 2026) — canonical tokens in `theme.css` + `chart-theme.js`. Profile uses pitch/chrome or `profileCompare*` helpers.
 
-- **DB performance (May 2026):** Profile load fixed mainly via **`idx_ratedresults_idA` / `idx_ratedresults_idB`** — local + staging; **production still pending** (Steve when agreed). Heavy profiles ~**8s → ~1s** locally. **Status page local + staging DB fixed** via `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_monthly_league`; local HTTP ~8.5s → ~0.28s, staging SQL verified by Steve (2,674 monthly rows / 149,740 appearances). **`server1.php` shell is fast locally** (~40–120ms HTML); remaining Activity cost is async chart APIs (~2.8s concurrent / ~7s sequential), mainly established-player and active-player aggregates.
+- **DB performance (May 2026):** Profile load fixed mainly via **`idx_ratedresults_idA` / `idx_ratedresults_idB`** — local + staging; **production still pending** (Steve when agreed). Heavy profiles ~**8s → ~1s** locally. **Status page local + staging DB fixed** via `idx_ratedresults_date`, `idx_resulttable_live_status`, and **`player_period_league`** (legacy `player_monthly_league` dropped SCH-017 Jun 2026). **`server1.php` shell is fast locally** (~40–120ms HTML); remaining Activity cost is async chart APIs (~2.8s concurrent / ~7s sequential), mainly established-player and active-player aggregates.
 
 - **Profile feast (shipped):** production **`individual1.php`** only — **`docs/player-profile-feast.md`**. Further work = gradual copy/UX, not mock lab (`docs/archive/`).
 
@@ -32,7 +32,7 @@
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Ladder ops platform (Jun 2026):** Post-game **P0–P5** in `ops/run_process_game.php`. Parity: **`ab-post-game --phase p5 --limit N`**. **Next:** P6 `player_milestones` incremental.
+- **Ladder ops platform (Jun 2026):** Post-game **P0–P6** in `ops/run_process_game.php`. Parity: **`ab-post-game --phase p6 --limit N`** (layer 6 milestones). **100-game parity OK** Jun 2026; **1000-game timing** ~849s PHP replay vs ~140s Python oracle (work DB).
 - **Local dual website (Jun 2026, live):** **`ratingskickoff.test`** → dev DB · **`work.ratingskickoff.test`** → work DB (router + `setup_laragon_work_site.ps1`); **not** config-file cutover. Leaderboards on work URL verified vs prod snapshot. **`database-copies-2026-06.md`** § Local dual website · **`LOCAL_DEV.md`**.
 
 - **Change style:** small, reversible slices.
@@ -78,7 +78,8 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Post-game P0–P5 shipped** — PHP `run_process_game.php` per-game through period aggregates; `ab-post-game --phase p5`; Python rebuild `period_activity.py` + `period_aggregates.py`. **Next:** P6 milestones. |
+| 2026-06 | **Post-game P6 milestones** — PHP incremental + Python oracle; period burst anchor = **crossing game** (5th/10th/…/50th); chrono calendar keys (`daily_habit`, `weekly_regular`, `monthly_regular`, `year_round`, `rare_blank`) in live PHP with hydrate on `process-one`; `ab-post-game --phase p6` @ 100 games. |
+| 2026-06 | **Post-game P0–P5 shipped** — PHP `run_process_game.php` per-game through period aggregates; `ab-post-game --phase p5`; Python rebuild `period_activity.py` + `period_aggregates.py`. |
 | 2026-06 | **Post-game PHP reset** — reverted first attempt (playbook+P1–P2); new [`post-game-php-development.md`](docs/post-game-php-development.md) (per-game sim, `ratedresults` policy, `RecentAverageRating` retired). |
 | 2026-06 | **Peak HoF read path** — removed live `ratedresults` fallback in `peak_month_leaderboard_query.php` (stored tables only; fixes slow server2 + post-prepare false peaks). |
 | 2026-06 | **Prepare in PHP** — `site/public_html/ops/run_prepare.php` (no `dispatch.php`); `prepare_local_work_db.ps1` calls PHP; Python `work_prepare` legacy. |

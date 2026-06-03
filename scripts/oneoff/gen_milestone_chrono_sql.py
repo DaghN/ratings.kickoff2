@@ -177,10 +177,10 @@ def main() -> None:
                 )
             st.current_day = day_key
 
-            if st.games >= 50 and gf == 0:
-                _unlock(rows, pid, "rare_blank", st, dt, gid, 0)
-
             st.games += 1
+            # “after 50+ career games” → NumberGames >= 51 on qualifying game
+            if st.games >= 51 and gf == 0:
+                _unlock(rows, pid, "rare_blank", st, dt, gid, 0)
             month_key = _month_key(d)
             st.days_by_month[month_key].add(d.day)
             outcome = (

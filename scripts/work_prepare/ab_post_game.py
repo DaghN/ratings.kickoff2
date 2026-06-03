@@ -30,6 +30,11 @@ from .ab_period_aggregates import (
     diff_period_aggregate_layers,
     drop_period_aggregate_snapshots,
 )
+from .ab_milestones import (
+    create_milestones_snapshot,
+    diff_milestones_layer,
+    drop_milestones_snapshot,
+)
 from .ab_generalstats import (
     SNAPSHOT_TABLE as GENERALSTATS_SNAPSHOT_TABLE,
     create_generalstats_snapshot,
@@ -396,6 +401,8 @@ def run_ab_post_game(opts: AbPostGameOptions) -> int:
             create_period_activity_snapshots(conn, dry_run=False)
         if 5 in opts.layers:
             create_period_aggregate_snapshots(conn, dry_run=False)
+        if 6 in opts.layers:
+            create_milestones_snapshot(conn, dry_run=False)
 
         # Python run resets DB then replays (oracle)
         _run_python_oracle(repo, opts.target.profile, limit=game_count, dry_run=False)
@@ -469,8 +476,18 @@ def run_ab_post_game(opts: AbPostGameOptions) -> int:
                 for line in lines:
                     log.error("  %s", line)
 
+        if 6 in opts.layers:
+            n_bad, lines = diff_milestones_layer(conn)
+            if n_bad == 0:
+                log.info("[OK] layer 6 player_milestones: 0 mismatches")
+            else:
+                exit_code = 1
+                log.error("[FAIL] layer 6 player_milestones: %s mismatch(es)", n_bad)
+                for line in lines:
+                    log.error("  %s", line)
+
         for layer_id in opts.layers:
-            if layer_id in (0, 1, 2, 3, 4, 5):
+            if layer_id in (0, 1, 2, 3, 4, 5, 6):
                 continue
             spec = LAYER_REGISTRY[layer_id]
             if not spec.shipped:
@@ -486,6 +503,8 @@ def run_ab_post_game(opts: AbPostGameOptions) -> int:
                 drop_period_activity_snapshots(conn, dry_run=False)
             if 5 in opts.layers:
                 drop_period_aggregate_snapshots(conn, dry_run=False)
+            if 6 in opts.layers:
+                drop_milestones_snapshot(conn, dry_run=False)
         else:
             log.info("keeping snapshot tables %s", SNAPSHOT_TABLE)
             if 2 in opts.layers:

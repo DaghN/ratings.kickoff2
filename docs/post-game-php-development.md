@@ -1,6 +1,6 @@
 # Post-game PHP — development playbook (local / work)
 
-**Status:** **Jun 2026** — **P0–P5 shipped**. Parity: `ab-post-game --phase p5` (layers 1–5). **Next:** P6 `player_milestones` (incremental).
+**Status:** **Jun 2026** — **P0–P6 shipped**. Parity: `ab-post-game --phase p6` (layers 1–6). PHP incremental milestones in `post_game_milestones.php`; Python oracle `scripts/ladder/milestones.py` + `milestone_sim.py`.
 **Audience:** Dagh, Cursor agents.
 
 **This doc is how we build and test.** It does **not** replace:
@@ -23,9 +23,9 @@
 |------|--------|------------|
 | **1 — Must match** | [`website-data-contract.md`](website-data-contract.md) (+ [`records-post-game-exception.md`](coordination/records-post-game-exception.md) for GST records) | **Correctness:** column meanings, processing order, tie policy **targets** (`>` on HoF and, when shipped, playertable personal extremes), UTC, incremental post-game rules. |
 | **2 — Structural inspiration** | [`ratings_cpp.txt`](ratings_cpp.txt) (`RatingProcedureUnity` per-game block) | **What prod does today:** which fields get updated per game, rough sequencing (ratedresults → playertable → generalstatstable), formulas that are not spelled out elsewhere. |
-| **3 — Parity oracle (batch)** | `scripts/ladder/` (`elo.py`, `outcome.py`, `player_state.py`, `server_records.py`, …) | **Checkpoint diffs** on work after prepare — same end state for shipped phases. **Do not** copy replay loop structure (memory + batch finalize). |
+| **3 — Parity oracle (batch)** | `scripts/ladder/` (`elo.py`, `outcome.py`, `player_state.py`, `server_records.py`, …) | **Checkpoint diffs** — oracle must be updated when contract changes (see [`post-game-contract-vs-oracle-discrepancies.md`](coordination/post-game-contract-vs-oracle-discrepancies.md)). **Do not** copy replay loop structure (memory + batch finalize). |
 
-**When sources disagree:** contract wins on behaviour; C++ documents legacy quirks (e.g. `>=` on personal extremes, dropped `RecentAverageRating` scan, ratio leaders on GST). PHP implements **contract target**, not every C++ detail, unless you are explicitly parity-matching legacy for a transition slice.
+**When sources disagree:** **Contract wins.** Update PHP ops and Python oracle together. C++ / old oracle behaviour is legacy only. Prod target is **PHP post-game**, not extending C++ ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2).
 
 ### 0.2 Speed — first-class requirement
 
@@ -240,7 +240,7 @@ Name checkpoints explicitly in chat/commits: e.g. “through **id 74879**” vs 
 | **3** | `generalstatstable` id=1 (holders + incremental aggregates) | Server records phase |
 | **4** | `player_period_games` + `player_peak_period_games` | P4 |
 | **5** | `server_daily_activity`, `player_period_league`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` | P5 — not `league_period` / awards (periodic batch) |
-| **6** | `player_milestones` | P6 (next) |
+| **6** | `player_milestones` | P6 — `ab-post-game --phase p6` |
 | **7** | `player_play_streaks` (+ GST streak holders when shipped) | P7 |
 
 `RecentAverageRating` is absent after SCH-016 — no playertable diff column for it.
@@ -284,12 +284,12 @@ Follow contract processing order. Ship **one phase → checkpoint → parity** b
 |-------|--------|--------|
 | **P0** | Bootstrap + load game row + guards + dev runner skeleton | §5 |
 | **P1** | `ratedresults` Elo + outcome derived cols | Contract + `ratings_cpp.txt` Elo block; parity vs `elo.py` / `outcome.py` |
-| **P2** | `playertable` career counters, rating, extremes, streaks | Contract + C++ per-game playertable block; parity vs `player_state.py` (personal extremes **`>=`** in Python/C++ until contract `>` cutover) |
+| **P2** | `playertable` career counters, rating, extremes, streaks | Contract § career peak/nadir + personal `>`; parity vs `player_state.py` (contract-aligned Jun 2026) |
 | **P3** | `generalstatstable` — **incremental** aggregates + strict `>` holders | Contract + `records-post-game-exception.md`; parity vs `server_records.py`; aggregates **increment**, do not rescan |
 | **P4** | `player_period_games` + `player_peak_period_games` | contract §§ |
 | **P5** | `server_daily_activity`, `player_period_league`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` | Shipped; PHP `post_game_period_aggregates.php`; Python `period_aggregates.py` rebuild (processed rows only) |
-| **P6** | `player_milestones` (incremental) | **Next** — many keys; batch SQL under `scripts/ladder/sql/player_milestones_rebuild*.sql` |
-| **P7** | `player_play_streaks` | SCH-014 / contract |
+| **P6** | `player_milestones` (incremental) | **Shipped** — `post_game_milestones.php`; oracle `milestones.py` (exists SQL + simulators). Streak/tail/network/matchup/chrono keys credit the **crossing game** (`===` threshold), except `perfect_day` / `nightmare_day` (next UTC midnight). `play_streak_100` unlocks on the game that extends the UTC day streak to 100 (`player_play_streaks.php`, wired from ops after P4). |
+| **P7** | `player_play_streaks` row + HoF | Table updates ship with P6 milestone hook; full P7 parity TBD |
 
 Full checklist: [`website-data-contract.md`](website-data-contract.md) § Post-game derived-data behavior.
 

@@ -138,17 +138,25 @@ function k2_post_game_apply_period_activity_for_player(
     mysqli $con,
     int $playerId,
     array $periodStarts
-): int {
+): array {
     $dayGames = 0;
+    $weekGames = 0;
+    $monthGames = 0;
     foreach ($periodStarts as $periodType => $periodStart) {
         $games = k2_post_game_upsert_period_game($con, $periodType, $periodStart, $playerId);
         k2_post_game_update_peak_period($con, $periodType, $playerId, $periodStart, $games);
         if ($periodType === 'day') {
             $dayGames = $games;
         }
+        if ($periodType === 'week') {
+            $weekGames = $games;
+        }
+        if ($periodType === 'month') {
+            $monthGames = $games;
+        }
     }
 
-    return $dayGames;
+    return ['day' => $dayGames, 'week' => $weekGames, 'month' => $monthGames];
 }
 
 /**
@@ -157,21 +165,26 @@ function k2_post_game_apply_period_activity_for_player(
  * @param array<string, mixed> $game must include Date, idA, idB
  * @param array<string, mixed>|null $derived ratedresults derived row (P5)
  */
+/**
+ * @return array{dayA: int, dayB: int, weekA: int, weekB: int, monthA: int, monthB: int, weekStart: string}|null when $derived set
+ */
 function k2_post_game_update_period_activity_after_game(
     mysqli $con,
     array $game,
     ?array $derived = null
-): void {
+): ?array {
     if (!k2_post_game_period_tables_available($con)) {
-        return;
+        return $derived !== null
+            ? ['dayA' => 0, 'dayB' => 0, 'weekA' => 0, 'weekB' => 0, 'monthA' => 0, 'monthB' => 0, 'weekStart' => '']
+            : null;
     }
 
     $idA = (int) $game['idA'];
     $idB = (int) $game['idB'];
     $periodStarts = k2_post_game_period_starts_from_game_date((string) $game['Date']);
 
-    $dayGamesA = k2_post_game_apply_period_activity_for_player($con, $idA, $periodStarts);
-    $dayGamesB = k2_post_game_apply_period_activity_for_player($con, $idB, $periodStarts);
+    $countsA = k2_post_game_apply_period_activity_for_player($con, $idA, $periodStarts);
+    $countsB = k2_post_game_apply_period_activity_for_player($con, $idB, $periodStarts);
 
     if ($derived !== null) {
         require_once __DIR__ . '/post_game_period_aggregates.php';
@@ -180,8 +193,22 @@ function k2_post_game_update_period_activity_after_game(
             $game,
             $derived,
             $periodStarts,
-            $dayGamesA,
-            $dayGamesB
+            $countsA['day'],
+            $countsB['day']
         );
     }
+
+    if ($derived === null) {
+        return null;
+    }
+
+    return [
+        'dayA' => $countsA['day'],
+        'dayB' => $countsB['day'],
+        'weekA' => $countsA['week'],
+        'weekB' => $countsB['week'],
+        'monthA' => $countsA['month'],
+        'monthB' => $countsB['month'],
+        'weekStart' => $periodStarts['week'],
+    ];
 }

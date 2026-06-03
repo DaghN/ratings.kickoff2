@@ -2,8 +2,9 @@
 
 **Catalog key:** `year_in_heaven` — **Year in Heaven**  
 **Rule:** Rated game in **every UTC week** of a **calendar year** (52 Monday slots; same grid as profile Played weeks).  
-**Unlock game:** `MIN(ratedresults.id)` on the **week Monday that completes** the 52/52 set (establishing game — see [`records-post-game-exception.md`](records-post-game-exception.md) §4).  
-**Post-game:** `k2_milestone_maybe_unlock_year_in_heaven()` from `player_play_streaks.php` on **first game of a new UTC week**, after `player_period_games` week upsert.
+**Unlock game (live):** the rated game that fills the **52nd** UTC week slot — `achieved_at` = that game's `Date` (shows in Recent immediately).  
+**Post-game:** `k2_milestone_maybe_unlock_year_in_heaven()` when week `games` = **1** after upsert (ops `post_game_milestones.php` + `player_play_streaks.php` on new UTC week).  
+**Batch rebuild SQL:** may still use establishing-game `MIN(id)` on the completing week Monday for historical backfill.
 
 **Generator:** `python scripts/oneoff/gen_milestone_year_in_heaven_sql.py` → `scripts/ladder/sql/player_milestones_rebuild_year_in_heaven.sql`
 

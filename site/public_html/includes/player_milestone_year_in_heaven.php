@@ -63,12 +63,18 @@ function k2_milestone_player_has_unlock(mysqli $con, int $playerId, string $mile
 }
 
 /**
- * Post-game: after player_period_games week row includes this game. Call only on first game of a new UTC week.
+ * Post-game: after player_period_games week row includes this game.
+ * Call when this rated game is the first in its UTC week slot (week games = 1 after upsert).
+ *
+ * @param int|null $qualifyingGameId rated game that completed 52/52 (live post-game = current game)
+ * @param string|null $qualifyingGameDate that game's `Date` (Recent feed / achieved_at)
  */
 function k2_milestone_maybe_unlock_year_in_heaven(
     mysqli $con,
     int $playerId,
-    string $weekMondayYmd
+    string $weekMondayYmd,
+    ?int $qualifyingGameId = null,
+    ?string $qualifyingGameDate = null
 ): void {
     if ($playerId < 1 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $weekMondayYmd)) {
         return;
@@ -97,7 +103,7 @@ function k2_milestone_maybe_unlock_year_in_heaven(
     }
 
     $placeholders = implode(',', array_fill(0, count($slots), '?'));
-    $types = 'is' . str_repeat('s', count($slots));
+    $types = 'i' . str_repeat('s', count($slots));
     $sql = 'SELECT COUNT(*) AS c FROM `player_period_games` '
         . 'WHERE `player_id` = ? AND `period_type` = \'week\' AND `period_start` IN (' . $placeholders . ')';
     $stmt = $con->prepare($sql);
@@ -117,17 +123,24 @@ function k2_milestone_maybe_unlock_year_in_heaven(
         return;
     }
 
-    $est = k2_play_streak_establishing_game($con, $playerId, $weekMondayYmd, 'week');
-    if ($est === null) {
-        return;
+    if ($qualifyingGameId !== null && $qualifyingGameId > 0 && $qualifyingGameDate !== null && $qualifyingGameDate !== '') {
+        $unlockGameId = $qualifyingGameId;
+        $unlockAt = $qualifyingGameDate;
+    } else {
+        $est = k2_play_streak_establishing_game($con, $playerId, $weekMondayYmd, 'week');
+        if ($est === null) {
+            return;
+        }
+        $unlockGameId = $est['id'];
+        $unlockAt = $est['Date'];
     }
 
     k2_milestone_insert_game_unlock(
         $con,
         $playerId,
         'year_in_heaven',
-        $est['id'],
-        $est['Date'],
+        $unlockGameId,
+        $unlockAt,
         $calendarYear
     );
 }

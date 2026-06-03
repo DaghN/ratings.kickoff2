@@ -11,8 +11,9 @@
 ## Today
 
 - **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare without `dispatch.php` (see §6.6).
-- **Post-game P0–P5 (PHP):** `run_process_game.php` — through period aggregates (daily activity, period league, matchups, server period totals). Parity: `ab-post-game --phase p5`.
-- **Not yet:** `dispatch.php`, P6 milestones, P7 play streaks, periodic league finalize.
+- **Post-game P0–P7 (PHP):** `run_process_game.php` — through milestones + play streaks. Parity: `ab-post-game --phase p6` (layers 1–6); P7 layer diff not wired yet.
+- **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
+- **Not yet:** `dispatch.php`, periodic **league finalize** (league milestones / awards), live **register** → `entered_arena`.
 
 ---
 

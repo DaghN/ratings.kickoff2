@@ -72,6 +72,12 @@ LAYER_REGISTRY: dict[int, ParityLayerSpec] = {
         True,
         "server_daily_activity, player_period_league, matchups, server period totals (P5)",
     ),
+    6: ParityLayerSpec(
+        6,
+        "player_milestones",
+        True,
+        "player_milestones game-triggered keys (P6)",
+    ),
 }
 
 PHASE_LAYERS: dict[str, tuple[int, ...]] = {
@@ -80,6 +86,7 @@ PHASE_LAYERS: dict[str, tuple[int, ...]] = {
     "p3": (1, 2, 3),
     "p4": (1, 2, 3, 4),
     "p5": (1, 2, 3, 4, 5),
+    "p6": (1, 2, 3, 4, 5, 6),
     "auto": (1,),
 }
 

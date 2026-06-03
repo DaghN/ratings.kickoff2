@@ -32,7 +32,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Hub / Status cosmetics | — | — | — | — | — | PHP only; May 2026 **peer pill carry-scroll** (`data-k2-carry-scroll`, `k2-carry-scroll.js`) on hub / `lb_nav` / `player_nav` |
 | Milestones hub tab (stub) | L0 | — | — | — | — | `milestones.php` + hub nav; full hub WIP [`milestones-hub-ia.md`](../milestones-hub-ia.md) |
 | Hub IA — Games off top nav | — | — | — | — | — | `server3.php` Recent + Highlights sub-nav; Status **Games →** → Recent |
-| Status monthly league / performance | L2 | SCH-005 | REP-004 | Pending | — | Staging done; prod indexes + live writer at cutover |
+| Status league / performance | L2 | SCH-005, SCH-017 | REP-007 | Pending | — | Indexes from SCH-005; month league via `player_period_league`; legacy monthly table dropped Jun 2026 |
 | Period activity leaderboards | L2 | SCH-004, SCH-006 | REP-003, REP-005 | Pending | — | Staging SCH+REP done May 2026 |
 | Profile hero milestones (no peak) | L0 | — | — | — | — | Hero: `n/catalog` → garden (tier subcounts removed Jun 2026); peak only on leaderboards/charts |
 | Milestones Phase 4 v0 UI | L0 | — | — | Pending | — | **Staging DB done** May 2026; WinSCP PHP for garden/ranked10/HoF if not already; prod pending |

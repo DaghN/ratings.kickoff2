@@ -6,8 +6,7 @@ param(
     [string]$Database = 'ko2unity_db',
     [string]$User = 'root',
     [string]$Password = '',
-    [switch]$AllowNonLocal,
-    [switch]$SkipLegacyMonthlyLeague
+    [switch]$AllowNonLocal
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,10 +67,6 @@ $steps = @(
     @{ File = 'server_period_game_totals_rebuild.sql'; Label = 'server_period_game_totals' },
     @{ File = 'server_period_matchups_rebuild.sql'; Label = 'server_period_matchups' }
 )
-
-if (-not $SkipLegacyMonthlyLeague) {
-    $steps += @{ File = 'player_monthly_league_rebuild.sql'; Label = 'player_monthly_league (legacy compatibility)' }
-}
 
 foreach ($step in $steps) {
     Invoke-RebuildSql $step.File $step.Label
