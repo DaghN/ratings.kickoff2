@@ -17,7 +17,7 @@
 | **How to change replay logic?** | Edit **`scripts/ladder/`** — see [Updating replay](#updating-replay) |
 | **One-off template?** | **Yes** — `scripts/oneoff/_template.py` + README |
 | **Staging package for Steve?** | **Partial** — `run_staging_ladder_replay.sh` + upload `scripts/ladder/`; no single zip; schema SQL separate |
-| **Schema migrations folder?** | **Yes** — `schema/migrations/` + `schema/apply_local.ps1` |
+| **Schema migrations folder?** | **Yes** — `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
 | **Coordination registers?** | **Docs only** — track WHAT for prod; not automated |
 
 ---
@@ -100,7 +100,7 @@ Copy `site/config/ladder-work.ini.example` → `ladder-work.ini` first. **Never*
 | Player career stats | `scripts/ladder/player_state.py`, `finalize_counts.py` |
 | Server row `generalstatstable` | `scripts/ladder/generalstats.py` |
 | What gets reset | `scripts/ladder/engine.py` (`reset_universe`), `docs/replay-v1-scope-and-reset.md` |
-| New column needs backfill | Above + `schema/migrations/` + register in `docs/coordination/replay-register.md` |
+| New column needs backfill | Above + `ops/sql/migrations/` + register in `docs/coordination/replay-register.md` |
 
 After code changes: `run_local_replay.ps1` on local; then staging (below).
 
@@ -112,7 +112,7 @@ After code changes: `run_local_replay.ps1` on local; then staging (below).
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 ```
 
-Adds indexes etc. from `schema/migrations/*.sql` to local `ko2unity_db`. The script refuses non-local DB names unless `-AllowNonLocal` is explicitly passed for a reviewed one-off. Register: `docs/coordination/schema-register.md`.
+Adds indexes etc. from `ops/sql/migrations/*.sql` to local `ko2unity_db` (via `apply_local.ps1` or `run_prepare.php migrate-work`). Register: `docs/coordination/schema-register.md`.
 
 ---
 
@@ -172,7 +172,7 @@ scripts/ladder/          ← replay engine (Python)
 scripts/run_local_replay.ps1
 scripts/rebuild_website_derived_data_local.ps1
 scripts/oneoff/          ← one-off template
-schema/migrations/       ← SQL for Steve + local apply
+site/public_html/ops/sql/migrations/  ← SCH DDL (synced with ops)
 run_staging_ladder_replay.sh   ← Steve staging replay wrapper
 docs/coordination/       ← schema + replay registers; contract = behavior
 docs/prod-coordination.md      ← hub when coordinating prod

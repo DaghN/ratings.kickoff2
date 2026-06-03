@@ -6,7 +6,7 @@ Jobs that run on a **schedule** on the server — **not** immediately after each
 |----|-----|------------------------|-------------------------|-------------|-------|
 | PER-001 | **Rating fade** | **Hourly** (Steve, May 2026) | **Stop before** any prod deploy that changes rating/stat semantics | Running | Steve: can stop easily. Not in `ratings_cpp.txt` excerpt. |
 | PER-002 | *(example)* Monthly league medals on profiles | — | Superseded by PER-003 | — | — |
-| PER-003 | **League finalize** | **Daily ~00:00:01 UTC** (proposed) | Finalize all leagues with `period_end <= now`; write `player_league_award`, `player_league_totals`, `league_period.finalized_at`; milestone threshold checks | **Pending** | Rules `docs/leagues-rules-spec.md`; not per-game. Local/work: `php site/public_html/ops/run_finalize_league.php finalize-due --target local-work`. Local dev DB: `--target local-dev`. Prod: Steve cron / `dispatch.php` (TBD). |
+| PER-003 | **League finalize** | **Daily ~00:00:01 UTC** (proposed) | Finalize all leagues with `period_end <= now`; write `player_league_award`, `player_league_totals`, `league_period.finalized_at`; milestone threshold checks | **Pending** | Rules `docs/leagues-rules-spec.md`; not per-game. Steve/cron: `php ops/dispatch.php CMD=FinalizeLeagueDue target=staging-work`. Dev: `run_finalize_league.php finalize-due`. See [`ops-dispatch.md`](ops-dispatch.md). |
 
 ### Adding a row
 

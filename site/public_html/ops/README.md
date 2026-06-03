@@ -15,7 +15,8 @@
 - **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
 - **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` on work DB (`--as-of` for timeline simul); REP-012/013 via `rebuild-all` / `rebuild-aggregates`.
 - **Timeline sim (Mode C):** `run_timeline_sim.php run --stop-at …` — post-game + daily `finalize-due` step.
-- **Not yet:** `dispatch.php`, live **register** → `entered_arena`.
+- **Dispatcher:** `dispatch.php` — Steve/cron `CMD=` entry ([`ops-dispatch.md`](../../../docs/coordination/ops-dispatch.md)).
+- **Not yet:** live **register** wired on prod (CMD exists: `ProcessPlayerRegistered`).
 
 ---
 
@@ -23,13 +24,33 @@
 
 | Path | Role |
 |------|------|
-| `dispatch.php` | Thin `CMD=` router → modules (**planned**) |
+| `dispatch.php` | Thin `CMD=` router → modules |
+| `includes/ops_dispatch.php` | CMD registry + handlers (extend here) |
 | `includes/ops_bootstrap.php`, `ops_argv.php` | CLI, DB connect, protected DBs (**planned**) |
 | `modules/<snake_case>.php` | One primary file per `CMD` (e.g. `process_completed_game.php`) |
-| `sql/migrations/` | Mirror of repo `schema/migrations/` before staging sync |
+| `sql/migrations/` | Canonical SCH DDL — `migrate-work` applies in filename order |
+| `data/milestones_definitions_seed.json` | REP-014 catalog (prepare `seed-catalog`) |
+| `config/work-targets.ini` | DB profiles (`staging-work`, …) — copy from `.example`, gitignored |
 | `sql/rebuild/` | Optional REP SQL mirrors |
 
 **Legacy:** [`../staging-scripts/`](../staging-scripts/) — old runners; migrate in named slices only.
+
+---
+
+## Staging WinSCP (self-contained under `public_html/ops/`)
+
+Sync **`site/public_html/`** → server **`public_html/`** (includes all of `ops/`).
+
+On the server once:
+
+1. `ops/config/work-targets.ini.example` → `ops/config/work-targets.ini` — fill `[staging-work]` with same MySQL login as `config/ko2unitydb_config1.php` (`kooldb1` / `kooldb2`).
+2. Run: `php ops/run_prepare.php prepare --target staging-work`
+
+No separate `data/` or `site/config/` upload required for prepare/dispatch (legacy `site/config/work-targets.ini` still works locally if present).
+
+**Steve staging runbook:** [`docs/coordination/staging-work-steve-handoff.md`](../../../docs/coordination/staging-work-steve-handoff.md)
+
+**Still outside ops:** `scripts/ladder/sql/generalstatstable.sql` (zero-derived GST), host `mysqldump`/`mysql` for refresh.
 
 ---
 
@@ -50,6 +71,14 @@ php site/public_html/ops/run_prepare.php prepare --target local-work
 ```
 
 Or: `powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1`
+
+**Migrate only (SCH DDL on work):**
+
+```text
+php site/public_html/ops/run_prepare.php migrate-work --target local-work
+```
+
+See [`docs/coordination/ops-schema-migrations.md`](../../../docs/coordination/ops-schema-migrations.md).
 
 **Catalog only (REP-014):**
 
@@ -118,9 +147,14 @@ Optional `--start-at 2017-06-09T00:00:00Z` to skip earlier history. Stops before
 
 ---
 
-## Planned Steve call (not live yet)
+## Steve / cron (dispatcher)
 
 ```text
-php …/ops/dispatch.php   CMD=ProcessCompletedGame   game_id=<id>
+php site/public_html/ops/dispatch.php CMD=ProcessCompletedGame game_id=<id> target=staging-work
+php site/public_html/ops/dispatch.php CMD=FinalizeLeagueDue target=staging-work
 ```
+
+Exit codes, failure semantics, adding CMDs: [`docs/coordination/ops-dispatch.md`](../../../docs/coordination/ops-dispatch.md).
+
+Batch simul still uses `run_process_game.php replay-to` (not dispatch).
 

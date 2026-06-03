@@ -1,4 +1,5 @@
-# Apply all schema/migrations/*.sql in order on local Laragon MySQL.
+# Apply ops/sql/migrations/*.sql in order on local Laragon MySQL (legacy wrapper).
+# Prefer: php site/public_html/ops/run_prepare.php migrate-work --target local-work
 # Usage: powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 # Register: docs/coordination/schema-register.md
 
@@ -12,7 +13,7 @@ param(
 $AllowedLocalDatabases = @('ko2unity_work', 'ko2unity_baseline', 'ko2unity_db')
 
 $ErrorActionPreference = 'Stop'
-$MigrationsDir = Join-Path $PSScriptRoot 'migrations'
+$MigrationsDir = Join-Path $PSScriptRoot '..\site\public_html\ops\sql\migrations'
 $MysqlExe = 'C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe'
 
 if (-not (Test-Path $MysqlExe)) {
@@ -29,7 +30,7 @@ if ($Database -notin $AllowedLocalDatabases -and -not $AllowNonLocal) {
 
 $files = Get-ChildItem -Path $MigrationsDir -Filter '*.sql' | Sort-Object Name
 if ($files.Count -eq 0) {
-    Write-Host '[OK] No migrations in schema/migrations/.' -ForegroundColor Green
+    Write-Host '[OK] No migrations in ops/sql/migrations/.' -ForegroundColor Green
     exit 0
 }
 

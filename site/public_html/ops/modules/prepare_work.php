@@ -10,6 +10,7 @@ require_once __DIR__ . '/../includes/ops_bootstrap.php';
 require_once __DIR__ . '/../includes/ops_shell.php';
 require_once __DIR__ . '/../includes/ops_reset_universe.php';
 require_once __DIR__ . '/../includes/ops_seed_lobby.php';
+require_once __DIR__ . '/../includes/ops_paths.php';
 
 function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun, bool $allowDevDb = false): void
 {
@@ -18,7 +19,7 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
     } else {
         k2_ops_log('WARNING: mutating ko2unity_db via local-dev seed-catalog');
     }
-    $seedPath = k2_ops_repo_root() . '/data/milestones_definitions_seed.json';
+    $seedPath = k2_ops_milestones_seed_path();
     if (!is_file($seedPath)) {
         fwrite(STDERR, "Missing seed file: {$seedPath}\n");
         exit(1);

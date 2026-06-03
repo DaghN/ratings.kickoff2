@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Load milestone_definitions from data/milestones_definitions_seed.json (local/staging).
+Load milestone_definitions from ops/data/milestones_definitions_seed.json (local/staging).
 
 Usage (repo root):
   python scripts/oneoff/load_milestone_definitions.py
@@ -20,7 +20,7 @@ from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
 
 log = logging.getLogger("load_milestone_definitions")
-SEED = _REPO / "data" / "milestones_definitions_seed.json"
+SEED = _REPO / "site" / "public_html" / "ops" / "data" / "milestones_definitions_seed.json"
 
 # Seed tier labels (Phase 2) → product tier_band (Phase 3 / milestones-product-spec.md)
 TIER_BAND_PRODUCT = {

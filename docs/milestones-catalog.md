@@ -4,7 +4,7 @@
 
 Per-key **intended + implemented UI** view: identity (tier, title, rule) plus unlock-event **Link** and **Event**. Rebuild probe hints come from the definitions seed.
 
-**Machine sources:** `data/milestones_definitions_seed.json` · `data/milestone_garden_links.json` · PHP `milestone_garden_links.php`.
+**Machine sources:** `ops/data/milestones_definitions_seed.json` · `data/milestone_garden_links.json` · PHP `milestone_garden_links.php`.
 
 **DB / rebuild contract:** [`website-data-contract.md`](website-data-contract.md) § `player_milestones` · families [`milestones-facilitation.md`](milestones-facilitation.md).
 

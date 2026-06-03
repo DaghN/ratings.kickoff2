@@ -46,7 +46,7 @@ Expect spot-check: `play_streak_100` → **100 days of bliss**.
 
 | Step | What |
 |------|------|
-| 1 | **Catalog** — Add object to `data/milestones_definitions_seed.json` (`milestone_key`, `display_name`, `tier_band`, `chart_token`, `rule_short`, …). Bump `milestone_count`. |
+| 1 | **Catalog** — Add object to `ops/data/milestones_definitions_seed.json` (`milestone_key`, `display_name`, `tier_band`, `chart_token`, `rule_short`, …). Bump `milestone_count`. |
 | 2 | **Garden order** — Add `milestone_key` to `site/public_html/includes/player_milestones_garden_order.php` in the right tier list. **Within a tier, list runs common → rare** (more holders first, fewer holders later). Regenerate probe: `python scripts/oneoff/milestone_unlock_counts.py --write-doc --export-seed` and read `unlock_veterans`. **0** holders → last in Legendary. **Do not** blindly append every new key after the previous add-one unless probe count is truly lowest (e.g. `year_in_heaven` = **5** holders sits with other 5s like `monthly_regular`, not after `club_10000` at 1). |
 | 3 | **Unlock SQL** — Generator or hand-written `INSERT` into `player_milestones` (first cross only, `source_kind = game`, `source_game_id`). For `play_streak_100`: `python scripts/oneoff/gen_milestone_play_streak_100_sql.py` → `scripts/ladder/sql/player_milestones_rebuild_play_streak_100.sql`. |
 | 4 | **Full rebuild splice** — Append new SQL file to splice list in `scripts/rebuild_website_derived_data_local.ps1` and `staging-scripts/run_player_milestones_rebuild.php` (before league marker block). |
@@ -112,7 +112,7 @@ Unlock rows for this key still **0** on May 2026 import (max personal day streak
 
 | Step | Command / file |
 |------|----------------|
-| WinSCP | `data/milestones_definitions_seed.json` → `staging-data/` |
+| WinSCP | Sync `public_html/ops/` (includes `data/milestones_definitions_seed.json`) |
 | WinSCP | `player_milestones_rebuild_play_streak_100.sql` → `staging-sql/milestones/` |
 | WinSCP | PHP: `load_milestone_definitions.php` (deprecated), archived `run_milestone_play_streak_100_unlock.php`, helpers, garden order, `player_play_streaks.php` |
 | Steve | `php ops/run_prepare.php seed-catalog` when ops synced; else legacy `load_milestone_definitions.php` |

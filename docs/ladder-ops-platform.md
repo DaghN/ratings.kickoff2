@@ -1,6 +1,6 @@
 # Ladder operations platform — design (Jun 2026)
 
-**Status:** **`ops/` dev runners live** (prepare, post-game, league finalize, timeline sim — Jun 2026). **`dispatch.php` not in repo yet** — Steve `CMD=` router is a separate slice.  
+**Status:** **`ops/` dev runners + `dispatch.php`** (prepare, post-game, league finalize, timeline sim, `CMD=` router — Jun 2026).  
 **Audience:** Dagh, Steve, Cursor agents.
 
 **Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
@@ -16,7 +16,7 @@
 | **Post-game** | Derived updates for **one** rated game (`game_id`). |
 | **Periodic** | Derived updates driven by **time/calendar** (rating fade, league finalize, …) — not one new game. |
 | **Refresh work** | Clone pristine baseline → work DB (restores prod ground + prod-derived in core tables). |
-| **Migrate work** | Apply project `schema/migrations/` on work only. |
+| **Migrate work** | Apply project `ops/sql/migrations/` on work only. |
 | **Zero derived** | Clear derived to day-zero pre-game; keep ground truth. Not the same as refresh work. |
 | **Simul** | Re-run derived writers over history (game-only, batch rebuild, or timeline — see [`work-db-prepare.md`](work-db-prepare.md) §5). |
 | **Ops** | Server-side runnable tooling under `site/public_html/ops/` — not the public website. |
@@ -143,8 +143,8 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 **Schema:**
 
-- **Canonical:** `schema/migrations/` (repo root) — registers, `schema/apply_local.ps1` on dev/work.
-- **Staging mirror:** `ops/sql/migrations/` — copy each new migration before sync.
+- **Canonical:** `site/public_html/ops/sql/migrations/` — synced with ops; apply via `run_prepare.php migrate-work` ([`coordination/ops-schema-migrations.md`](coordination/ops-schema-migrations.md)).
+- **Legacy wrapper:** `schema/apply_local.ps1` (Laragon) reads the same files.
 
 **Not synced:** `scripts/*.ps1` (Windows), `data/dumps/`, gitignored config.
 
@@ -154,7 +154,7 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 **Canonical rules live here.** [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) is a short checklist for humans syncing the folder — do not fork naming or bootstrap rules into a second spec.
 
-**Status (Jun 2026):** Conventions agreed; **`run_*.php` dev runners + `includes/` + `modules/`** in repo. **`dispatch.php`** still planned (thin router only).
+**Status (Jun 2026):** **`dispatch.php`** thin router — see [`coordination/ops-dispatch.md`](coordination/ops-dispatch.md). Extend via `K2_OPS_DISPATCH_REGISTRY`, not by growing `dispatch.php`.
 
 ### 6.1 `ops/` vs `staging-scripts/`
 
@@ -185,7 +185,7 @@ site/public_html/ops/
     process_completed_game.php   # example: one primary file per CMD
     …                       # periodic_*, replay_*, etc. as needed
   sql/
-    migrations/             # mirror schema/migrations/
+    migrations/             # canonical SCH *.sql
     rebuild/                # optional REP SQL mirrors
 ```
 
@@ -246,7 +246,7 @@ Implement and prove modules **before** wiring Steve’s entry point.
 | Slice type | Typical contents |
 |------------|------------------|
 | **Conventions** (this §) | Docs only — no PHP |
-| **Schema on work** | `schema/migrations/`, mirror to `ops/sql/migrations/`, PowerShell reset/apply scripts — no post-game |
+| **Schema on work** | `ops/sql/migrations/` + `migrate-work`; refresh via PowerShell — no post-game |
 | **Post-game phase** | One `modules/*.php` + contract subsection + tests on `ko2unity_work` — may include dev runner; may add `dispatch.php` only when the module is real |
 | **Legacy migration** | Move one `staging-scripts/` runner → `ops/modules/` + update platform/README |
 
@@ -266,7 +266,7 @@ See §6.2 for the full tree. **Local sim (today):** Python replay on work DB —
 
 ```text
 1. RefreshWorkFromBaseline → clone baseline → work (kooldb2 → kooldb1 / ko2unity_baseline → ko2unity_work)
-2. MigrateWork             → schema/migrations on work only
+2. MigrateWork             → ops/sql/migrations on work only
 3. ZeroDerived             → derived day-zero; ground truth intact
 ```
 

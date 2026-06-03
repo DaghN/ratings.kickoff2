@@ -2,7 +2,7 @@
 
 **Kick Off 2 ratings site · May 2026**
 
-Maps the **112 curated keys** to implementation families: what stored truth to read, how rebuild unlock rows, and post-game expectations. Per-key list: [`milestones-catalog.md`](milestones-catalog.md). Catalog metadata: [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) → `milestone_definitions` table.
+Maps the **112 curated keys** to implementation families: what stored truth to read, how rebuild unlock rows, and post-game expectations. Per-key list: [`milestones-catalog.md`](milestones-catalog.md). Catalog metadata: [`ops/data/milestones_definitions_seed.json`](../site/public_html/ops/data/milestones_definitions_seed.json) → `milestone_definitions` table.
 
 **Status:** All rebuild waves done. **112/112** keys in `player_milestones` (splice: core + exists + streaks + chrono + tail + period + league). Next: Phase 4 UI + live post-game inserts.
 

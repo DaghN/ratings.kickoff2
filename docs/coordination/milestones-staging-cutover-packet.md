@@ -51,7 +51,7 @@ Create remote folder `staging-sql/milestones/` if missing.
 | `site/public_html/staging-scripts/_staging_milestones_bootstrap.php` | `staging-scripts/_staging_milestones_bootstrap.php` |
 | `site/public_html/staging-scripts/load_milestone_definitions.php` | `staging-scripts/load_milestone_definitions.php` |
 | `site/public_html/staging-scripts/run_player_milestones_rebuild.php` | `staging-scripts/run_player_milestones_rebuild.php` |
-| `data/milestones_definitions_seed.json` | `staging-data/milestones_definitions_seed.json` |
+| `site/public_html/ops/data/milestones_definitions_seed.json` | (inside synced `public_html/ops/data/`) |
 | `data/milestone_garden_links.json` | `staging-data/milestone_garden_links.json` |
 
 Create remote folder `staging-data/` if missing.

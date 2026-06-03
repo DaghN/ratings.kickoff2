@@ -1,10 +1,22 @@
-# SQL migrations mirror (staging)
+# SQL migrations (canonical)
 
-**Canonical source in git:** [`schema/migrations/`](../../../../../schema/migrations/) at repo root.
+Numbered SCH DDL for work DB prepare. **Register:** [`docs/coordination/schema-register.md`](../../../../docs/coordination/schema-register.md)  
+**Design:** [`docs/coordination/ops-schema-migrations.md`](../../../../docs/coordination/ops-schema-migrations.md)
 
-When adding a migration:
+## Apply
 
-1. Add `schema/migrations/NNN_….sql` (registers + local `schema/apply_local.ps1`).
-2. Copy the same file here before WinSCP sync so Steve / staging CLI can run `mysql … < ops/sql/migrations/NNN_….sql`.
+```text
+php site/public_html/ops/run_prepare.php migrate-work --target local-work
+```
 
-Until a file is copied here, staging may lag local schema — check [`docs/coordination/schema-register.md`](../../../../../docs/coordination/schema-register.md).
+Part of full prepare: `run_prepare.php prepare --target local-work`.
+
+Files are applied in **sorted filename order**, re-run every time (must be **idempotent**). Session uses `SET time_zone = '+00:00'`.
+
+## Adding a migration
+
+1. Add `NNN_short_name.sql` here (idempotent where possible).
+2. Add SCH row in `schema-register.md`.
+3. Run `migrate-work` on `ko2unity_work` (or full `prepare`).
+
+**Not here:** REP rebuild SQL → `scripts/ladder/sql/`; catalog seed → `data/` + `seed-catalog`.

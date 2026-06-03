@@ -8,12 +8,12 @@ from dataclasses import dataclass
 
 from .db import connect, database_exists
 from .constants import JOIN_DATE_VALID_WHERE
-from .paths import REPO_ROOT
+from .paths import MILESTONES_SEED_PATH
 from .targets import WorkTarget
 
 log = logging.getLogger(__name__)
 
-SEED_PATH = REPO_ROOT / "data" / "milestones_definitions_seed.json"
+SEED_PATH = MILESTONES_SEED_PATH
 
 REQUIRED_RATEDRESULTS_INDEXES = (
     "idx_ratedresults_idA",

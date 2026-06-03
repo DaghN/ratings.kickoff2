@@ -450,7 +450,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 **Purpose:** Catalog metadata for all curated milestones (display, tier color, short rule). Unlock times live in `player_milestones`.
 
-**Source truth:** [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) (generated from curated list + probe).
+**Source truth:** [`site/public_html/ops/data/milestones_definitions_seed.json`](../site/public_html/ops/data/milestones_definitions_seed.json) (generated from curated list + probe).
 
 **Grain:** one row per `milestone_key`.
 

@@ -1,10 +1,11 @@
 <?php
 /**
- * Work DB prepare target profiles (see site/config/work-targets.ini.example).
+ * Work DB prepare target profiles (ops/config/work-targets.ini.example; legacy site/config/).
  */
 declare(strict_types=1);
 
 require_once __DIR__ . '/ops_prepare_constants.php';
+require_once __DIR__ . '/ops_paths.php';
 
 final class K2OpsWorkTarget
 {
@@ -38,7 +39,7 @@ function k2_ops_load_work_target(string $profile): K2OpsWorkTarget
     }
 
     $data = K2_OPS_DEFAULT_PROFILES[$profile];
-    $iniPath = k2_ops_repo_root() . '/site/config/work-targets.ini';
+    $iniPath = k2_ops_work_targets_ini_path();
     if (is_file($iniPath)) {
         $ini = parse_ini_file($iniPath, true, INI_SCANNER_TYPED);
         if (is_array($ini) && isset($ini[$profile]) && is_array($ini[$profile])) {

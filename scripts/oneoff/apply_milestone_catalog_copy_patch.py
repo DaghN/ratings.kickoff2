@@ -2,7 +2,7 @@
 """
 Apply milestone catalog copy patches (display_name / rule_short).
 
-Updates data/milestones_definitions_seed.json and milestone_definitions in DB.
+Updates ops/data/milestones_definitions_seed.json and milestone_definitions in DB.
 
 Usage (repo root):
   python scripts/oneoff/apply_milestone_catalog_copy_patch.py
@@ -25,7 +25,7 @@ from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
 
 log = logging.getLogger("apply_milestone_catalog_copy_patch")
-SEED = _REPO / "data" / "milestones_definitions_seed.json"
+SEED = _REPO / "site" / "public_html" / "ops" / "data" / "milestones_definitions_seed.json"
 PATCHES = _REPO / "data" / "milestone_catalog_copy_patches.json"
 
 

@@ -14,7 +14,7 @@
 | Term | Meaning | Local today | Avoid calling it |
 |------|---------|-------------|------------------|
 | **Refresh work** | Drop/recreate work DB and **clone from baseline** (full MySQL copy). Restores prod ground truth **and** prod-derived values in core tables. | `refresh_local_work_db.ps1` or `work_prepare refresh-work` | “Reset work DB” |
-| **Migrate work** | Apply `schema/migrations/` to work only (indexes, KungFu drop, tables). | `work_prepare migrate-work` | “Expand” alone (informal OK in chat) |
+| **Migrate work** | Apply `ops/sql/migrations/` to work only (indexes, KungFu drop, tables). | `ops/run_prepare.php migrate-work` or `work_prepare migrate-work` | “Expand” alone (informal OK in chat) |
 | **Seed catalog** | Load `milestone_definitions` reference rows (not unlocks). | `work_prepare seed-catalog` | — |
 | **Zero derived** | Clear **derived** columns/tables to **day-zero pre-game** state. Ground truth rows stay; facts on `ratedresults` stay. | `python -m scripts.work_prepare zero-derived` (§4.3 + §4.5 truncates) | “Reset” without qualifier |
 | **Simul** | Re-execute derived writers over history (umbrella term). See §3 modes. | `python -m scripts.ladder run --target sandbox` (game-only today) | Assuming simul = only ladder replay |
@@ -48,8 +48,8 @@ Use when work is untrusted, schema on work is wrong/missing, or you need a new p
 
 ```text
 1. Refresh work       clone ko2unity_baseline → ko2unity_work  (wipes prior migrations on work)
-2. Migrate work       schema/migrations on ko2unity_work (indexes, KungFu drop 015, new tables)
-3. Seed catalog       milestone_definitions from data/milestones_definitions_seed.json (112 rows)
+2. Migrate work       ops/sql/migrations on ko2unity_work (indexes, KungFu drop 015, new tables)
+3. Seed catalog       milestone_definitions from ops/data/milestones_definitions_seed.json (112 rows)
 4. Zero derived       derived day-zero on work (§4)
 5. Seed lobby         entered_arena from playertable.JoinDate for all registered players (§4.7)
 ```
@@ -211,7 +211,7 @@ Runs at end of **zero derived** (full and fast prepare). Idempotent. Not produce
 | Lobby seed (§4.7) | `entered_arena` from `JoinDate` | `seed_lobby` / end of `zero_derived` |
 | Full prepare orchestrator | Refresh → migrate → seed catalog → zero derived | `prepare_local_work_db.ps1` / `work_prepare prepare` |
 
-**Seed catalog:** `prepare` runs `seed-catalog` after migrate (112 rows from `data/milestones_definitions_seed.json`). **Seed lobby:** `zero-derived` inserts `entered_arena` for every player with valid `JoinDate`. Other `player_milestones` unlock rows stay empty until simul.
+**Seed catalog:** `prepare` runs `seed-catalog` after migrate (112 rows from `site/public_html/ops/data/milestones_definitions_seed.json`). **Seed lobby:** `zero-derived` inserts `entered_arena` for every player with valid `JoinDate`. Other `player_milestones` unlock rows stay empty until simul.
 
 ---
 

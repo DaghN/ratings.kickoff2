@@ -1,4 +1,4 @@
-"""Migrate work — apply schema/migrations to work database only."""
+"""Migrate work — apply ops/sql/migrations via apply_local.ps1 (legacy) or use ops run_prepare migrate-work."""
 
 from __future__ import annotations
 

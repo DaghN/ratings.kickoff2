@@ -1,8 +1,10 @@
 <?php
 /**
- * Refresh / migrate via Laragon mysql + PowerShell apply_local.ps1.
+ * Refresh work via PowerShell; migrate via ops/sql/migrations (PHP).
  */
 declare(strict_types=1);
+
+require_once __DIR__ . '/ops_migrate.php';
 
 require_once __DIR__ . '/ops_work_target.php';
 require_once __DIR__ . '/ops_bootstrap.php';
@@ -180,25 +182,10 @@ function k2_ops_refresh_work(K2OpsWorkTarget $target, bool $dryRun): void
 
 function k2_ops_migrate_work(K2OpsWorkTarget $target, bool $dryRun): void
 {
-    k2_ops_assert_mutate_work_target($target);
     k2_ops_log("migrate_work profile={$target->profile} database={$target->workDatabase} dry_run=" . ($dryRun ? 'true' : 'false'));
     if ($dryRun) {
         return;
     }
 
-    $script = k2_ops_repo_root() . '/schema/apply_local.ps1';
-    if (!is_file($script)) {
-        fwrite(STDERR, "Missing {$script}\n");
-        exit(1);
-    }
-    k2_ops_run_command([
-        'powershell',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-File',
-        $script,
-        '-Database',
-        $target->workDatabase,
-    ]);
-    k2_ops_log('[OK] migrations applied to ' . $target->workDatabase);
+    k2_ops_apply_migrations($target);
 }

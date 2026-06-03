@@ -23,7 +23,7 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-SEED = _REPO / "data" / "milestones_definitions_seed.json"
+SEED = _REPO / "site" / "public_html" / "ops" / "data" / "milestones_definitions_seed.json"
 OUT_JSON = _REPO / "data" / "milestone_garden_links.json"
 OUT_CATALOG_MD = _REPO / "docs" / "milestones-catalog.md"
 OUT_GARDEN_MD = _REPO / "docs" / "milestones-garden-links.md"
@@ -205,7 +205,7 @@ def main() -> None:
         "Per-key **intended + implemented UI** view: identity (tier, title, rule) plus unlock-event "
         "**Link** and **Event**. Rebuild probe hints come from the definitions seed.",
         "",
-        "**Machine sources:** `data/milestones_definitions_seed.json` · "
+        "**Machine sources:** `ops/data/milestones_definitions_seed.json` · "
         "`data/milestone_garden_links.json` · PHP `milestone_garden_links.php`.",
         "",
         "**DB / rebuild contract:** [`website-data-contract.md`](website-data-contract.md) § "

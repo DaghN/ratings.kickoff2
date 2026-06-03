@@ -41,7 +41,7 @@ log = logging.getLogger("milestone_counts")
 THEME_DOC = _REPO / "docs" / "milestones-want-maybe-by-theme.md"
 CURATED_DOC = _REPO / "docs" / "milestones-tier-curated.md"
 CURATED_META = _REPO / "data" / "milestones_curated_meta.json"
-DEFINITIONS_SEED = _REPO / "data" / "milestones_definitions_seed.json"
+DEFINITIONS_SEED = _REPO / "site" / "public_html" / "ops" / "data" / "milestones_definitions_seed.json"
 JSON_OUT = _REPO / "data" / "scratch" / "milestone_unlock_counts.json"
 
 TIER_CHART_TOKEN = {

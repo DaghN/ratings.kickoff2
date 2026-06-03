@@ -6,6 +6,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+OPS_ROOT = REPO_ROOT / "site" / "public_html" / "ops"
+MILESTONES_SEED_PATH = OPS_ROOT / "data" / "milestones_definitions_seed.json"
+
 MYSQL_CANDIDATES = (
     Path(r"C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe"),
     Path(r"C:\laragon\bin\mysql\mysql-8.0.30-winx64\bin\mysql.exe"),
@@ -32,8 +35,14 @@ def find_mysqldump_exe() -> Path:
 
 
 def work_targets_ini() -> Path:
+    ops_ini = OPS_ROOT / "config" / "work-targets.ini"
+    if ops_ini.is_file():
+        return ops_ini
     return REPO_ROOT / "site" / "config" / "work-targets.ini"
 
 
 def work_targets_example_ini() -> Path:
+    ops_example = OPS_ROOT / "config" / "work-targets.ini.example"
+    if ops_example.is_file():
+        return ops_example
     return REPO_ROOT / "site" / "config" / "work-targets.ini.example"

@@ -1,6 +1,6 @@
 # Schema register
 
-SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `schema/apply_local.ps1`. Staging/prod: Steve runs the same files against the intended server DB; staging is `kooldb`, production DB identity is Steve-managed and not stored in repo config.
+SQL files live in **`site/public_html/ops/sql/migrations/`** (numbered, apply in order). Local/work: `php site/public_html/ops/run_prepare.php migrate-work --target local-work`. Legacy wrapper: `schema/apply_local.ps1` (same files). Staging/prod: Steve runs the same files against the intended server DB after WinSCP sync of `ops/`; design: [`ops-schema-migrations.md`](ops-schema-migrations.md).
 
 **Note:** Steve reported the game server may **auto-add columns** it knows about. This register still documents **indexes, new tables, and website-driven schema** we rely on, plus what replay/post-game expect.
 
@@ -29,9 +29,9 @@ SQL files live in **`schema/migrations/`** (numbered, apply in order). Local: `s
 
 ### Adding a row
 
-1. Add `schema/migrations/NNN_short_name.sql` (idempotent where possible: `IF NOT EXISTS`).
+1. Add `site/public_html/ops/sql/migrations/NNN_short_name.sql` (idempotent where possible: `IF NOT EXISTS`).
 2. Add a line to this table.
-3. Run `schema/apply_local.ps1` on `ko2unity_db`.
+3. Run `php site/public_html/ops/run_prepare.php migrate-work --target local-work` (or legacy `schema/apply_local.ps1` on `ko2unity_db`).
 4. After Steve applies on staging/prod, set Staging/Prod to **Done** and note date in Notes.
 
 ### Status legend

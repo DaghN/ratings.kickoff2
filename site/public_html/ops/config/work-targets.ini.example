@@ -1,7 +1,10 @@
-; Legacy path — prefer ops/config/work-targets.ini.example (synced with public_html/ops/).
-; Ops CLI reads ops/config/work-targets.ini first, then this file.
+; Ops work DB profiles — copy to work-targets.ini (gitignored) beside this file.
+; Staging: fill [staging-work] with same host/user/password as ko2unitydb_config1.php.
 ;
 ;   copy site\public_html\ops\config\work-targets.ini.example site\public_html\ops\config\work-targets.ini
+;
+; CLI: php ops/run_prepare.php prepare --target staging-work
+;      php ops/dispatch.php CMD=ProcessCompletedGame game_id=N target=staging-work
 
 [local-dev]
 work_database = ko2unity_db
@@ -26,4 +29,3 @@ host = 127.0.0.1
 port = 3306
 user = root
 password =
-; Refresh may require server-side clone on staging; use only when MySQL reaches this host.

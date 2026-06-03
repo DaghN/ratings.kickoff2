@@ -24,7 +24,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `scripts/ladder/` | **Python replay** — recalc Elo/stats from all games |
 | `scripts/run_local_replay.ps1` | One-command local replay |
 | `scripts/rebuild_website_derived_data_local.ps1` | One-command local rebuild for website aggregate tables |
-| `schema/migrations/` | SQL for local + Steve (indexes, DDL) |
+| `site/public_html/ops/sql/migrations/` | Canonical SCH DDL (indexes, tables); see `ops-schema-migrations.md` |
 | `run_staging_ladder_replay.sh` | Steve runs on staging server |
 | `docs/` | Specs, coordination, agent playbooks |
 | `data/dumps/` | Local SQL dump (gitignored) |
@@ -79,7 +79,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | Piece | Us (repo) | Steve |
 |-------|-----------|--------|
 | PHP site + `ops/` | WinSCP sync `site/public_html/` | Prod deploy agreed |
-| Schema SQL | `schema/migrations/` (+ mirror `ops/sql/migrations/`) | Runs on staging DB (see database-copies doc) |
+| Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
 | History replay | `scripts/ladder` | Runs shell on server |
 | After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → planned `ops/dispatch.php` | Steve insert + call (agreed Jun 2026; PHP not in repo yet) |
 | Hourly fade | Document stop (PER-001) | Stops job |

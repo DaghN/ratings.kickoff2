@@ -1,19 +1,18 @@
-"""Seed milestone_definitions catalog from data/milestones_definitions_seed.json."""
+"""Seed milestone_definitions catalog from ops/data/milestones_definitions_seed.json."""
 
 from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
 
 from .db import connect
 from .guards import assert_mutate_work_target
-from .paths import REPO_ROOT
+from .paths import MILESTONES_SEED_PATH
 from .targets import WorkTarget
 
 log = logging.getLogger(__name__)
 
-SEED_PATH = REPO_ROOT / "data" / "milestones_definitions_seed.json"
+SEED_PATH = MILESTONES_SEED_PATH
 
 TIER_BAND_PRODUCT = {
     "aspirational": "aspirational",

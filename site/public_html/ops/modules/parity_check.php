@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../includes/ops_prepare_constants.php';
 require_once __DIR__ . '/../includes/ops_work_target.php';
 require_once __DIR__ . '/../includes/ops_bootstrap.php';
+require_once __DIR__ . '/../includes/ops_paths.php';
 
 /**
  * @return list<array{name: string, ok: bool, detail: string}>
@@ -22,7 +23,7 @@ function k2_ops_run_parity_checks(K2OpsWorkTarget $target): array
     }
 
     $expectedMilestones = 112;
-    $seedPath = k2_ops_repo_root() . '/data/milestones_definitions_seed.json';
+    $seedPath = k2_ops_milestones_seed_path();
     if (is_file($seedPath)) {
         $payload = json_decode((string) file_get_contents($seedPath), true);
         if (is_array($payload)) {
