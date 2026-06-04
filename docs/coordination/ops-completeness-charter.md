@@ -57,7 +57,6 @@
 
 | Item | Decision |
 |------|----------|
-| **Rating fade (PER-001)** | **Retired — not in scope.** Product intent is to run **without** rating fade. Do not implement fade in PHP ops or simul. A **project-wide doc sweep** to remove or mark stale PER-001 references is **deferred** (see §6). |
 | Byte-for-byte **dev DB parity** | Work + PHP ops = forward truth; frozen dev is reference only |
 | Second authority (Python) for prod | Python remains oracle/checkpoint tooling until PHP sim is trusted |
 | Physical DB split (facts vs derived tables) | Deferred per [`ladder-ops-platform.md`](../ladder-ops-platform.md) |
@@ -86,7 +85,7 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 | **0 — Charter** | Align intent | **This doc** + ADR + DDR template |
 | **1 — DDR v1** | Inventory | **Done (Jun 2026)** — [`ops-derived-data-registry.md`](ops-derived-data-registry.md) |
 | **2 — Orchestration** | Lock midnight design | **`FinalizeUtcDay` shipped** — Steve cron cutover + full-history orchestrator CLI still open |
-| **3 — Gap closure** | Code | **Shipped:** `FinalizeUtcDay` + timeline sim. **Open:** Steve cron cutover; optional `replay-to` → timeline wrapper; rating-fade doc sweep |
+| **3 — Gap closure** | Code | **Shipped:** `FinalizeUtcDay` + timeline sim. **Open:** Steve cron cutover; optional `replay-to` → timeline wrapper |
 | **4 — Steve / cutover** | Handoff | Update [`staging-work-steve-handoff.md`](staging-work-steve-handoff.md), cutover packet |
 | **5 — Validation** | Ongoing | `run_verify_ops_sim.php` (read-only) + `ab-post-game`; see §6 testing order |
 
@@ -121,7 +120,6 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 
 | Item | When |
 |------|------|
-| **Rating fade doc sweep** | Remove or neutralize PER-001 / “hourly fade” in [`periodic-register.md`](periodic-register.md), [`prod-coordination.md`](../prod-coordination.md), cutover templates, etc. Charter records decision; sweep is editorial, not blocking ops build |
 | **DDR exhaustive rows** | Phase 1 after template lands |
 | **GST ratio columns** | Intentionally not post-game — do not chase as ops gaps |
 
@@ -146,7 +144,6 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 | Date | Decision |
 |------|----------|
 | Jun 2026 | Ops completeness programme adopted; **AUD-004** is the audit anchor |
-| Jun 2026 | **No rating fade** in target ops |
 | Jun 2026 | **One** Steve midnight CMD (`FinalizeUtcDay`) with ordered internal steps — see ADR |
 | Jun 2026 | Batch rebuilds = **dev parity / repair only**, not simul definition of done |
 | Jun 2026 | **`run_verify_ops_sim`** = read-only post-sim SQL gate; does not run simul or batch; short-run league FAIL is expected; frozen-dev parity is a separate step after Steve **74879** |

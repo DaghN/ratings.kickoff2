@@ -124,15 +124,7 @@ foreach game in chronological order:
 
 ---
 
-## Decision 6 — Rating fade excluded
-
-**Decision:** **No** hourly rating fade job in ops platform. PER-001 is **not** part of simul or midnight tick.
-
-See charter §3. Doc sweep deferred.
-
----
-
-## Decision 7 — Register path
+## Decision 6 — Register path
 
 **Decision:** `entered_arena` stays on **`ProcessPlayerRegistered`** for **new** accounts, not per-game. Historical simul uses **prepare lobby seed** (`achieved_at = JoinDate`); timeline sim does **not** replay registration.
 
@@ -145,7 +137,7 @@ See charter §3. Doc sweep deferred.
 | Each rated game | `ProcessCompletedGame` | 1 per game |
 | Each UTC day (~00:00:01) | `FinalizeUtcDay` | **1** per day |
 | New account | `ProcessPlayerRegistered` | 1 per registration |
-| Hourly | *(none — no fade)* | 0 |
+| Hourly | — | 0 |
 
 **Not** ~20 midnight calls.
 

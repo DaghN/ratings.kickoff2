@@ -4,9 +4,9 @@ Jobs that run on a **schedule** on the server — **not** immediately after each
 
 | ID | Job | Schedule (prod today) | Action for our releases | Prod status | Notes |
 |----|-----|------------------------|-------------------------|-------------|-------|
-| PER-001 | **Rating fade** | *(legacy — hourly on prod)* | **Retired for PHP ops** — product runs **without** fade; do not add to simul or new CMDs | — | **Decision:** [`ops-completeness-charter.md`](ops-completeness-charter.md) §3. Doc sweep to remove stale mentions deferred. Steve may already have fade off. |
-| PER-002 | *(example)* Monthly league medals on profiles | — | Superseded by PER-003 | — | — |
 | PER-003 | **UTC day tick** | **Daily ~00:00:01 UTC** (proposed) | `CMD=FinalizeUtcDay` — league finalize + league event milestones + `perfect_day` / `nightmare_day`. Legacy: `FinalizeLeagueDue` (league only). | **Shipped (PHP)** | Steve/cron: `php ops/dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=…`. Dev: `run_finalize_utc_day.php`, `run_timeline_sim.php`. [`ops-orchestration-adr.md`](ops-orchestration-adr.md). |
+
+**Retired periodic jobs** (do not add rows here): [`../archive/retired-product-decisions.md`](../archive/retired-product-decisions.md).
 
 ### Adding a row
 
@@ -19,4 +19,4 @@ Jobs that run on a **schedule** on the server — **not** immediately after each
 
 ### Cutover rule
 
-Document in [cutover packet](cutover-packet-template.md): fade **off** before schema/replay/C++ deploy (Dagh policy, May 2026).
+See [cutover packet](cutover-packet-template.md) for schema/replay/C++ deploy checks.

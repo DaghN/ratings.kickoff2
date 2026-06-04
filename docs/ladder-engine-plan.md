@@ -26,7 +26,7 @@
 
 ### Goals
 
-1. **Dev database (sandbox)** — Recalculate ratings and derived stats from all stored games using rules we control (e.g. **no rating decay**), so charts and profiles on staging reflect trustworthy numbers while we iterate on the PHP site.
+1. **Dev database (sandbox)** — Recalculate ratings and derived stats from all stored games using rules we control, so charts and profiles on staging reflect trustworthy numbers while we iterate on the PHP site.
 
 2. **Amiga 500 / offline universe (later)** — Same *kind* of pipeline for a **separate** results population, with import and identity rules that differ from online (e.g. players created from results, not account signup).
 
@@ -37,7 +37,7 @@
 ### Non-goals (for this phase)
 
 - Byte-for-byte reimplementation of legacy C++ for its own sake.
-- Forcing sandbox recalc to match current prod numbers before decay is removed and rules are agreed.
+- Forcing sandbox recalc to match current prod numbers before rules are agreed.
 - Deciding how the **website** exposes two realms (separate pages vs `realm=` parameter vs duplicate APIs) — see §8.
 - Committing DB passwords or running destructive jobs on production without an explicit cutover plan.
 
@@ -57,7 +57,7 @@
 
 | Environment | Typical DB name | Live C++ post-game writes? | How data stays current |
 |-------------|-----------------|------------------------------|-------------------------|
-| **Production** (joshua / live ladder) | `kooldb` | **Yes** — each rated game + periodic jobs (e.g. hourly rating fade) | Continuous |
+| **Production** (joshua / live ladder) | `kooldb` | **Yes** — each rated game + periodic jobs | Continuous |
 | **Staging** (`ratings.kickoff2.com`) | `kooldb` | **No** — game server does **not** write here | PHP deploy via WinSCP; DB updated by **dump import**, **Steve-run scripts** (replay, schema SQL, one-offs), or manual refresh — not by live play |
 | **Local** (Laragon) | `ko2unity_db` | **No** | SQL dump import + local Python replay / migrations |
 
@@ -75,7 +75,7 @@ We **are** building:
 - A **nod** to `docs/ratings_cpp.txt` for Elo shape, column names we choose to support, and “what prod roughly does today.”
 - **Freedom** to omit per-game legacy baggage where a **batch** rebuild at end of replay is enough (e.g. `generalstatstable` — see `scripts/ladder/generalstats.py`).
 
-**Why:** Sandbox has **no obligation** to match prod’s decay or every aggregate. Offline will differ in **how rows enter** the system. A greenfield Python design is easier to reason about than a fork of ~2000 lines of C++.
+**Why:** Sandbox has **no obligation** to match every prod aggregate. Offline will differ in **how rows enter** the system. A greenfield Python design is easier to reason about than a fork of ~2000 lines of C++.
 
 **Steve coordination (agreed pattern):**
 
@@ -165,8 +165,6 @@ From `docs/ratings_cpp.txt` / live behaviour (reference):
 - **Career extremes / streaks:** v2 `playertable` rebuild covers profile and ranked needs; fun-stats PHP can follow.
 - **`Display = 1` at 1 game** in C++ vs **established = 20 games** on website — keep website rules in PHP; engine can use its own display rules for sandbox.
 
-**Decay:** Dagh wants it **removed** from desired behaviour. Not present in the supplied C++ excerpt; may exist elsewhere in Steve’s tree. New engine: **no decay**. Steve to remove from live when agreed.
-
 **Not in excerpt (confirm with Steve before prod parity):** `Kfactor` numeric value for live (sandbox v1 uses **K=32**), starting rating for new players (sandbox **1600**), unrated-player paths.
 
 ---
@@ -219,7 +217,7 @@ This plan **does not** choose one. Schema vocabulary (§6) is chosen so any opti
 | **P2 — Validate** | **Done** | Local Laragon + staging **`kooldb`** one-shot replay (May 2026). |
 | **P3 — Offline schema + import** | **Deferred** | Amiga raw data → vocabulary; player-from-results. |
 | **P4 — Offline replay** | **Deferred** | Second track scripts; separate DB connection. |
-| **P5 — Live alignment** | **Deferred** | Steve: C++ decay removal / formula alignment; prod cutover + backup. |
+| **P5 — Live alignment** | **Deferred** | Steve: C++ formula alignment; prod cutover + backup. |
 
 PHP/charts work can continue on **local `ko2unity_db`** and **staging `kooldb`**; prod cutover waits for P5.
 
@@ -242,9 +240,8 @@ PHP/charts work can continue on **local `ko2unity_db`** and **staging `kooldb`**
 
 1. Starting **Rating** for new/replayed players on **live** (sandbox replay locked to **1600** in `docs/replay-v1-scope-and-reset.md`).
 2. **`Kfactor`** on **live** (sandbox v1 locked to **32**).
-3. Where **decay** lives in Steve’s full tree and removal plan for live.
-4. ~~Whether v1 must update **`generalstatstable`**~~ — **yes:** batch rebuild at end of `run` (`generalstats.py`); table auto-created if missing.
-5. Amiga: physical **separate database** vs tables on same server.
+3. ~~Whether v1 must update **`generalstatstable`**~~ — **yes:** batch rebuild at end of `run` (`generalstats.py`); table auto-created if missing.
+4. Amiga: physical **separate database** vs tables on same server.
 
 ---
 

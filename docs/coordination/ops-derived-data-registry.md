@@ -81,11 +81,9 @@ One row per **logical derived artifact**. Not every column gets its own row.
 
 ---
 
-## Retired
+---
 
-| ID | Artifact | Notes |
-|----|----------|-------|
-| DDR-040 | Rating fade (PER-001) | Product: **no fade**; doc sweep deferred |
+**Retired product ideas** (not DDR rows): [`archive/retired-product-decisions.md`](../archive/retired-product-decisions.md).
 
 ---
 
@@ -169,3 +167,4 @@ Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 | Jun 2026 | v1 inventory; verify runner; Mode C simul flags |
 | Jun 2026 | DDR-030 prepare-only for sim; `run_ops_sim` |
 | Jun 2026 | Verification § — verify read-only; short-run expectations; no batch-as-gate |
+| Jun 2026 | Rating fade removed from active docs — [`archive/retired-product-decisions.md`](../archive/retired-product-decisions.md) |

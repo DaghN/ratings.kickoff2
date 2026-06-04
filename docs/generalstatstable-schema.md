@@ -289,7 +289,7 @@ Column names in MySQL **match the C++ variable names** (e.g. `MostGamesPlayedIDS
 | **v1 scope** | Safe to **defer** per-game `generalstatstable` updates; charts/ranked sort depend on `ratedresults` + `playertable`, not this row. |
 | **`reset_universe`** | `scripts/ladder/schema.py` applies `scripts/ladder/sql/generalstatstable.sql` if needed; NULLs all columns on `id=1` (keep the row); do not drop the table. |
 | **`replay_all` end** | Prefer **one rebuild** of `id=1` from replayed `ratedresults` + `playertable` rather than 74k incremental C++-style updates. |
-| **Elo-sensitive records** | `BiggestPeakRating`, `BiggestRatingAscent`, `BiggestAverageOpponentRating` will change when ratings are replayed without decay. |
+| **Elo-sensitive records** | `BiggestPeakRating`, `BiggestRatingAscent`, `BiggestAverageOpponentRating` will change when ratings are replayed from ground truth. |
 | **Names** | `*Name` columns are denormalized; rebuild from `playertable.Name` by `*ID` when refreshing. |
 | **`server1.php`** | Will show wrong server totals until this row is rebuilt or updated. |
 

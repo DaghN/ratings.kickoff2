@@ -39,7 +39,7 @@ powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_loc
 
 ## Defaults
 
-- K = 32, starting rating = 1600, no decay
+- K = 32, starting rating = 1600
 - Order: `Date ASC`, `id ASC`
 - Database allowlist includes `ko2unity_db`, `ko2unity_work`, `ko2unity_baseline`, `kooldb`. Targets: `local`, `sandbox`, `staging`.
 

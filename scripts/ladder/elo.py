@@ -1,4 +1,4 @@
-"""Elo adjustment (v1: K=32, no decay)."""
+"""Elo adjustment (v1: K=32)."""
 
 from __future__ import annotations
 

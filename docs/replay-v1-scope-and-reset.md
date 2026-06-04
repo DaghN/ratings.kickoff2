@@ -10,7 +10,7 @@
 
 ## 1. V1 purpose (one sentence)
 
-Recalculate **Elo and core per-game rating columns** from fixed game facts in chronological order, **without rating decay**, and refresh a **minimal** set of `playertable` career fields — enough to trust **ranked sort** and **rating history charts** on the local site.
+Recalculate **Elo and core per-game rating columns** from fixed game facts in chronological order and refresh a **minimal** set of `playertable` career fields — enough to trust **ranked sort** and **rating history charts** on the local site.
 
 ---
 
@@ -20,7 +20,6 @@ Recalculate **Elo and core per-game rating columns** from fixed game facts in ch
 |-----------|----------|--------|
 | **K-factor** | **32** | Common ladder default; document in replay logs. Confirm with Steve before prod parity. |
 | **Starting `Rating`** (at reset) | **1600.0** | Matches `playertable.Rating` column default in schema snapshot. |
-| **Rating decay** | **Off** | Not in our engine; not in supplied C++ excerpt. |
 | **Expected score** | `1 / (1 + 10^((Rb - Ra) / 400))` | Player A perspective; B is `1 - ExpectedScoreA`. |
 | **`ActualScore` from goals** | A win `1`, draw `0.5`, B win `0` | If `GoalsA > GoalsB` → 1; equal → 0.5; else 0. |
 | **`WinnerID` from goals** | A win → `idA`; B win → `idB`; draw → **`-1`** (matches C++ and current DB — see `docs/ratedresults-schema.md`). Recompute on replay; do not read pre-reset values as input. |

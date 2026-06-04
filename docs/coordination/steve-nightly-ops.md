@@ -40,8 +40,3 @@ php ops/dispatch.php CMD=ProcessPlayerRegistered player_id=PLAYER_ID target=stag
 
 Historical replay on the work DB does **not** need this — prepare already wrote `entered_arena` from join dates.
 
----
-
-## Rating fade
-
-**Not used** in the PHP ops plan. No hourly fade job required for this cutover.

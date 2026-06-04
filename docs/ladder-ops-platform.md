@@ -14,7 +14,7 @@
 | **Ground truth** | What happened in the match: who played, score, time; later richer in-match events. Persisted first (Steve insert into `ratedresults`). |
 | **Derived truth** | Everything computed from facts + prior DB state: Elo, `WinnerID`, milestones, aggregates, league honours, `playertable` career fields, etc. |
 | **Post-game** | Derived updates for **one** rated game (`game_id`). |
-| **Periodic** | Derived updates driven by **time/calendar** (rating fade, league finalize, …) — not one new game. |
+| **Periodic** | Derived updates driven by **time/calendar** (e.g. league finalize, UTC day tick) — not one new game. |
 | **Refresh work** | Clone pristine baseline → work DB (restores prod ground + prod-derived in core tables). |
 | **Migrate work** | Apply project `ops/sql/migrations/` on work only. |
 | **Zero derived** | Clear derived to day-zero pre-game; keep ground truth. Not the same as refresh work. |
@@ -79,7 +79,7 @@ Business logic lives in `ops/modules/` (and shared includes as needed):
 |-------------|-----------------|----------------|
 | Per-game derived | `ProcessCompletedGame` | **Steve** (each live game on prod path) |
 | Register / lobby | `ProcessPlayerRegistered` | **Steve** after app registration (`player_id` only) → `entered_arena` from `playertable.JoinDate` |
-| Periodic | `RatingFade`, `FinalizeLeaguePeriod`, … | Steve scheduler / exe |
+| Periodic | `FinalizeUtcDay`, … | Steve scheduler / `ops/dispatch.php` |
 | Schema on work DB | `ApplySchema` | Dagh / Steve staging |
 | Refresh work from baseline | `RefreshWorkFromBaseline` (script today: `reset_local_work_db.ps1`) | Dagh |
 | Prepare work (refresh + migrate + zero derived) | `PrepareWork` (planned) | Dagh |
@@ -201,7 +201,7 @@ site/public_html/ops/
 
 **One primary module file per `CMD`** at first. Orchestration CMDs (`ReplayChronological`, `ApplySchema`) may call other `k2_ops_*` functions in the same or other module files — still no logic in `dispatch.php`.
 
-**Periodic jobs** use the **same** `dispatch.php` (e.g. `CMD=RatingFade`) — not separate top-level PHP entry files unless Steve requires a different host path (document exception if so).
+**Periodic jobs** use the **same** `dispatch.php` (e.g. `CMD=FinalizeUtcDay`) — not separate top-level PHP entry files unless Steve requires a different host path (document exception if so).
 
 ### 6.4 Bootstrap contract
 

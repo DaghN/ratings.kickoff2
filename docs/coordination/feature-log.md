@@ -48,7 +48,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011, SCH-012, SCH-013 | REP-008, REP-014 | Pending | — | **Staging done** May 2026; catalog **112** keys; prod schema+REP+C++ pending |
 | Stored truth expansion | L4 | SCH-008 | REP-007–011 | Pending | — | Five tables: local + **staging `kooldb` done** May 2026 (Steve SCH-008 + REP-007–011, parity verify pass); prod cutover + contract post-game pending |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | Pending | — | Prod index apply pending Steve |
-| Ladder replay sandbox (K32/1600/no decay) | L2 | SCH-002 | REP-001 | Pending | PER-001 | Staging replay done |
+| Ladder replay sandbox (K32/1600) | L2 | SCH-002 | REP-001 | Pending | — | Staging replay done |
 | Records ratio leaders from playertable | L2 | SCH-003 | REP-001 note | Pending | — | [`records-post-game-exception.md`](records-post-game-exception.md) for prod C++ |
 | Career peak/nadir (`PeakRating`, `LowestRating`) | L2 | — | REP with post-game | Pending | — | Contract § May 2026: unset until 20 games; establish from `Rating` at game 20; max/min after; legacy C++/replay until cutover |
 

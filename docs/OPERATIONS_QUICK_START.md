@@ -185,5 +185,4 @@ docs/OPERATIONS_QUICK_START.md ← this file
 
 - **Prod** replay / schema / C++ cutover (registers track; Steve executes)
 - **Bundled “staging deploy” script** (WinSCP automate) — optional
-- **Elo K / fade** prod changes — contract + periodic register when scoped
-- **Periodic jobs** beyond documenting fade (PER-001)
+- **Periodic jobs** — [`coordination/periodic-register.md`](coordination/periodic-register.md)

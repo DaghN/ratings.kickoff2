@@ -17,7 +17,6 @@ Copy this section into email/chat when a release needs **prod database + server 
 ## Preconditions
 
 - [ ] Dagh confirmed staging: schema + replay (if any) + PHP
-- [ ] **Rating fade** — not used in PHP ops plan (no hourly fade job for this release)
 - [ ] Backup / maintenance window: **[Steve decides]**
 
 ---
@@ -48,7 +47,7 @@ mysql -u … kooldb < schema/migrations/001_ratedresults_player_indexes.sql
 | Tool | [ reviewed production replay wrapper / Steve C++ to spec ] |
 | K-factor | 32 |
 | Start rating | 1600 |
-| Decay | Off |
+| Order | `Date ASC`, `id ASC` |
 | Tables | `ratedresults`, `playertable`, `generalstatstable` |
 
 **Spec:** `docs/replay-v1-scope-and-reset.md`
@@ -85,8 +84,7 @@ bash run_PROD_WRAPPER_TBD.sh
 
 | Register ID | Action |
 |-------------|--------|
-| PER-001 | Fade **OFF** (already done in preconditions?) |
-| PER-… | [new/changed job] |
+| PER-… | [new/changed job — see [`periodic-register.md`](periodic-register.md)] |
 
 ---
 

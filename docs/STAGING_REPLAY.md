@@ -2,7 +2,7 @@
 
 > **Jun 2026 note:** This doc records the **May 2026** run on legacy staging DB name **`kooldb`**. Current staging work/reset copies are **`kooldb1`** / **`kooldb2`** — see [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md). Local prod-shaped sandbox: **`ko2unity_work`** — [`ladder-ops-platform.md`](ladder-ops-platform.md).
 
-**Goal:** Run Python replay **once** on staging **`kooldb`** (K=32, start 1600, no decay) — reset derived columns, replay ~74k **`ratedresults`**, rebuild **`playertable`** and **`generalstatstable`** row `id=1`.
+**Goal:** Run Python replay **once** on staging **`kooldb`** (K=32, start 1600) — reset derived columns, replay ~74k **`ratedresults`**, rebuild **`playertable`** and **`generalstatstable`** row `id=1`.
 
 **Staging DB note:** **`kooldb` on ratings.kickoff2.com does not receive live game writes** from the production game server (May 2026). Staging is updated by **scripts Steve runs** (replay, schema SQL, dumps), not by each new rated match. WinSCP deploys **PHP only**.
 

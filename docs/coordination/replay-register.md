@@ -2,7 +2,7 @@
 
 Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: **`python -m scripts.ladder`** — spec `docs/replay-v1-scope-and-reset.md`.
 
-**Parameters (current sandbox default):** K=32, start rating 1600, **no decay**, order `Date ASC, id ASC`.
+**Parameters (current sandbox default):** K=32, start rating 1600, order `Date ASC, id ASC`.
 
 **Timezone rule:** `ratedresults.Date` is a MySQL `timestamp`. SQL rebuild scripts must start with `SET time_zone = '+00:00';` before using `DATE(Date)` / `DATE_FORMAT(Date, ...)`, so local rebuilds match staging/prod period boundaries regardless of the developer machine timezone.
 
@@ -69,7 +69,7 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 
 ### Prod cutover (when scheduled)
 
-- **Prerequisite:** [PER-001](periodic-register.md) fade off; schema migrations applied.
+- **Prerequisite:** schema migrations applied.
 - **Tool:** Python replay tested on staging **or** Steve C++ replay to **same spec** (TBD with Steve).
 - **Packet:** `docs/coordination/cutover-packet-template.md`
 - **After:** Post-game C++ must match replay rules for **new** games (P5).

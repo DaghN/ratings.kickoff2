@@ -54,6 +54,8 @@ Steve handoff for **prod** is schema + REP on server, then C++ merged from the c
 
 **Triggers to think about migration:** new DB columns/tables/indexes, `scripts/ladder/` edits, “store this on profile” vs compute in PHP, medals persistent on `playertable`, etc.
 
+**Do not resurrect:** obsolete product ideas (e.g. legacy rating fade / PER-001) — if an old id appears, see [`docs/archive/retired-product-decisions.md`](docs/archive/retired-product-decisions.md) only.
+
 **Then:** Part B of UPDATE_DOCS + [`feature-log.md`](docs/coordination/feature-log.md).
 
 ---

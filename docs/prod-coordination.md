@@ -41,7 +41,7 @@ Full detail: `docs/ladder-engine-plan.md` §2, `docs/STATUS_PAGE_DATA.md`, `docs
 |----------|------|--------|
 | Schema | [coordination/schema-register.md](coordination/schema-register.md) | Tables, columns, indexes — SQL in `schema/migrations/` |
 | Post-game (C++) | [coordination/post-game-register.md](coordination/post-game-register.md) | **Retired snippet workflow** — prod C++ from [website-data-contract.md](website-data-contract.md); records: [records-post-game-exception.md](coordination/records-post-game-exception.md) |
-| Periodic | [coordination/periodic-register.md](coordination/periodic-register.md) | Hourly fade, future cron jobs |
+| Periodic | [coordination/periodic-register.md](coordination/periodic-register.md) | Scheduled jobs (e.g. `FinalizeUtcDay`) |
 | Replay | [coordination/replay-register.md](coordination/replay-register.md) | Full-history rebuilds, parameters, run log |
 | One-off | [coordination/one-off-register.md](coordination/one-off-register.md) | Rare scripts; prefer replay when possible |
 
@@ -54,14 +54,13 @@ Full detail: `docs/ladder-engine-plan.md` §2, `docs/STATUS_PAGE_DATA.md`, `docs
 Use for any release that changes **stored ladder truth** (not PHP-only cosmetics):
 
 1. **Agree** cutover with Steve; send [cutover packet](coordination/cutover-packet-template.md).
-2. **Turn off rating fade** (hourly) — required before deploy that changes ratings/stats semantics.
-3. **Apply schema** — `schema/migrations/*.sql` in order on the production DB (Steve).
-4. **Replay history** (if register says so) — Python `scripts/ladder` per `docs/replay-v1-scope-and-reset.md`, tested on staging; or Steve’s C++ replay to the **same written spec**.
-5. **Deploy post-game C++** — Steve merges live writer from [website-data-contract.md](website-data-contract.md) post-game rules (+ [records exception](coordination/records-post-game-exception.md) if applicable).
-6. **Deploy periodic jobs** (if any new/changed).
-7. **Deploy PHP** (WinSCP or agreed path).
-8. **Smoke checks** — spot profiles, ranked sort, one chart API; log in replay register.
-9. **Mark registers done** — update status columns in each register file.
+2. **Apply schema** — `schema/migrations/*.sql` in order on the production DB (Steve).
+3. **Replay history** (if register says so) — Python `scripts/ladder` per `docs/replay-v1-scope-and-reset.md`, tested on staging; or Steve’s C++ replay to the **same written spec**.
+4. **Deploy post-game C++** — Steve merges live writer from [website-data-contract.md](website-data-contract.md) post-game rules (+ [records exception](coordination/records-post-game-exception.md) if applicable).
+5. **Deploy periodic jobs** (if any new/changed).
+6. **Deploy PHP** (WinSCP or agreed path).
+7. **Smoke checks** — spot profiles, ranked sort, one chart API; log in replay register.
+8. **Mark registers done** — update status columns in each register file.
 
 Staging rehearsal: steps 3–4 (+ PHP 7) on staging `kooldb` without live writes — proves server path only.
 
@@ -131,7 +130,7 @@ When stored truth is the right shape, use: schema migration, REP rebuild scripts
 | **Schema** | `schema/migrations/*.sql` | Runs on the intended production DB |
 | **Replay** | Tested Python + spec (`docs/replay-v1-scope-and-reset.md`) | Runs on server; or his C++ replay to same spec |
 | **Post-game C++** | [website-data-contract.md](website-data-contract.md) (+ records exception doc) | Merges into his post-game code at prod cutover |
-| **Periodic** | Register row + ask in cutover packet | Implements scheduler / stops fade |
+| **Periodic** | Register row + ask in cutover packet | Implements scheduler |
 | **PHP site** | WinSCP / agreed deploy | Host + DB read when needed |
 
 - At prod cutover, Steve implements from the contract + `ratings_cpp.txt`; records use the exception doc with staging defect matrix.

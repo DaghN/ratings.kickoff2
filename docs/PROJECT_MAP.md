@@ -83,7 +83,6 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
 | History replay | `scripts/ladder` | Runs shell on server |
 | After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → planned `ops/dispatch.php` | Steve insert + call (agreed Jun 2026; PHP not in repo yet) |
-| Hourly fade | Document stop (PER-001) | Stops job |
 
 Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Runtime:** prod **today** = Steve C++; **target** = PHP `ops/dispatch.php` per [`ladder-ops-platform.md`](ladder-ops-platform.md) §2 (not in repo yet). Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md). Pointer: [`coordination/post-game-register.md`](coordination/post-game-register.md).
 
