@@ -122,6 +122,8 @@ Profile does **not** duplicate those tables.
 | Hero | Rank, strength, volume — “how does he sit on the ladder?” |
 | Presence | Last seen, last game, this month/year — “is he still around?” |
 | Career | Games, wins, goals, DDs, opponents + ranks — “what kind of player?” (not full W/D-L grid) |
+
+**Lab note (Jun 2026):** Production uses `pm3efg-duo` side-by-side stat tables. **Profile lab agents** should rethink B1/B2 layout (same facts) — see [`profile-lab-agent-handoff.md`](profile-lab-agent-handoff.md) § B1/B2 and playbook §3.1.
 | Personal bests | Busiest day / month / year — another story beat |
 | Moments | Longest win streak + trophy games — specific memorable events |
 | Heatmaps | Played days/weeks — visual life of the ladder; streak motivation |

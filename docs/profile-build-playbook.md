@@ -61,8 +61,8 @@ Implement v1 **into bands**. Bands may map to one `pm3d-section` or a subsection
 
 | Band | Job | v1 content | Target surface |
 |------|-----|------------|----------------|
-| **B1 — Pulse** | Still here? | B01–B03 (shipped) · **B06** win streak · **B07/B08** play streak · optional **B09** recent matches (consider) | Extend **Presence** panel or tight lines under duo |
-| **B2 — Character** | Who is he? | C01–C05 (shipped; **rethink ranks**) · **C12** victims line · **P02** best-year ticker · **P05** distinct days played | **Career** duo + one prose line / ticker |
+| **B1 — Pulse** | Still here? | B01–B03 (shipped) · **B06** win streak · **B07/B08** play streak · optional **B09** recent matches (consider) | Light tile / prose — **lab: free layout** (see §3.1) |
+| **B2 — Character** | Who is he? | C01–C05 (shipped; **rethink ranks**) · **C12** victims line · **P02** best-year ticker · **P05** distinct days played | Same — **not** locked to duo tables |
 | **B3 — Recognition** | Community marks | **MS01** latest unlock card · **MS02** holo/amber count · **MS04** unlocks last 12 mo · **MS03** link (hero has count) · **MS08** league milestone card · **L01** latest medal · **L04** league wins · **L02/L07/L08** career medals + honours link | **One section** e.g. “Honours” — combined strip, not three equal cards |
 | **B4 — Memory** | Specific events | P01 (shipped) · M01–M02 (shipped) · **M03** max rated victim · **M08** favourite victim · **M10/M11** (consider, tone) | **Personal bests** then **Moments** mosaic |
 | **B5 — Texture** | Habit over years | H01–H03 (shipped) | Open background heatmaps — **keep** |
@@ -91,6 +91,21 @@ C1  Matchups: M09 line → charts → search (+ M12 links in rivalry/moments)
 
 **Current shipped order** (May–Jun 2026) places heatmaps **before** Personal bests/Moments. v1 build **may** move B4 above B5 to match Chronicle-first story, **or** keep heatmaps early — Dagh preferred activity texture early; confirm in slice prompt if moving.
 
+### 3.1 B1 / B2 — Presence & Career (content vs presentation)
+
+**Two questions, one contract:**
+
+| Band | Question | v1 data (must appear somewhere in B1/B2) |
+|------|----------|---------------------------------------------|
+| **B1** | Is he still around? | Last seen, last game, games this month/year, win streak, play streak |
+| **B2** | What kind of player? | Games, wins, goals, DDs, opponents (+ ranks if useful), victims line, best-year ticker, distinct days |
+
+**Production today:** `player_feast_render_presence_career_duo()` — two bordered panels, HTML stat tables (`pm3efg-duo`). That is the **shipped reference**, not a layout law.
+
+**Lab builds** (`individual1-profile-lab{N}.php`): **rethink presentation** — split or merge bands, tiles/chips/tickers instead of tables, open background, drop rank column, fewer rows with higher craft. Same facts; no encyclopedia.
+
+**Production merge:** only after Dagh picks a lab winner; until then do not assume duo tables survive.
+
 ---
 
 ## 4. Module recipes (copy these patterns)
@@ -115,19 +130,30 @@ Read the **reference implementation** before inventing markup.
 
 **M03 gate:** Show max-rated-victim card especially for **non-elite** players (e.g. current rank below cutoff — exact threshold in slice prompt or `player_feast_helpers.php` constant).
 
-### 4.2 Streak / stat tile (`pm3efg-stat-table`)
+### 4.2 Streak / stat tile (`pm3efg-stat-table`) — production reference
 
-**Use for:** Presence rows, Career rows (C01–C05).
+**Production use:** Presence rows, Career rows (C01–C05) in the shipped duo.
 
 **Reference:** `player_feast_render_presence_career_duo()`, `player_feast_render_career_stats_table()`.
 
-| Slot | Rule |
-|------|------|
+**Lab:** Prefer **§4.3 prose/ticker** or **§4.1 card/tile** patterns when they tell the story better. Tables are allowed but not the default target.
+
+| Slot | Rule (if using tables) |
+|------|------------------------|
 | Label | `th scope="row"` |
 | Value | Muted or primary number |
-| Rank | Optional `(#n)` in third column — **v1: rethink visually**; omit column if cluttered |
+| Rank | Optional `(#n)` — **rethink or omit** in lab |
 
-**Do not** add ten new rows — prefer **one line** under the duo for B06/B07/C12/P05.
+**Do not** add ten new rows — prefer **one line** or ticker for B06/B07/C12/P05.
+
+### 4.2b B1 / B2 lab patterns (encouraged)
+
+Examples without duo tables:
+
+- **Pulse strip:** “Last game May 17 · 32 this month · 12-day play streak”  
+- **Character line:** “5,940 games · 142 opponents · favourite victim Lee (87 wins)”  
+- **Split headings:** separate `pm3d-section` for Presence and Career with 2–3 tiles each  
+- **Highlight one stat:** one large number (distinct days played) + supporting lines  
 
 ### 4.3 Prose line / ticker
 
