@@ -104,21 +104,48 @@ One row per **logical derived artifact**. Not every column gets its own row.
 
 ## Verification
 
-**Local gate (before Steve full simul):**
+**`run_verify_ops_sim.php`** — **read-only** work-DB checks after simul. Does **not** invoke prepare, timeline sim, `ProcessCompletedGame`, `FinalizeUtcDay`, or batch rebuild scripts. Safe to run without starting another replay.
 
-```bash
-php ops/run_prepare.php prepare --target local-work
-php ops/run_ops_sim.php run --target local-work --until-game-id 74800
-php ops/run_verify_ops_sim.php --target local-work
-```
+**Narrative (misreads to avoid):** [`ops-simul-runbook.md`](ops-simul-runbook.md) § Verify.
+
+### Local sequence
+
+| Phase | Command |
+|-------|---------|
+| Day zero | `php ops/run_prepare.php prepare --target local-work` |
+| Proof / smoke | `run_timeline_sim.php run --stop-at …` **or** `run_ops_sim.php run --until-game-id 500` |
+| Optional gate | `php ops/run_verify_ops_sim.php --target local-work` |
+| Depth (Steve) | `run_ops_sim.php run --until-game-id 74879` on staging when local gate passes |
+
+### What verify checks (SQL only)
+
+| Id | Meaning | Short local run |
+|----|---------|-----------------|
+| `rated_games` | Processed vs unprocessed tail | Unprocessed tail → **warn** |
+| `six_value` | Contract day totals = processed count | **Fail** if real inconsistency |
+| `league_awards` | Awards + finalized periods exist | Often **fail** until enough history — **not** batch trigger |
+| `league_milestones` | Distinct league-related keys | Often **warn** |
+| `day_close` | `perfect_day` / `nightmare_day` counts | Informational |
+| `lobby_seed` | `entered_arena` vs `JoinDate` | Prepare, not sim depth |
+| `game_milestones` | Game-sourced rows | **Warn** if empty after no games |
+
+Exit **1** only on severity **`fail`**. Warnings do not fail the run.
+
+### What verify does not replace
+
+| Need | Tool |
+|------|------|
+| Ground parity at prepare | `run_prepare.php` built-in parity |
+| Frozen dev / layer diffs | `ab-post-game`, spot SQL, site @ checkpoint |
+| Repair empty derived | Re-prepare + Mode C simul — **not** Mode B batch as happy path |
 
 | Check | Tool |
 |-------|------|
-| Six-value SQL + league + milestones | `run_verify_ops_sim.php` |
+| Six-value + league + milestones (work internal) | `run_verify_ops_sim.php` |
 | Layer diffs | `ab-post-game` (exclude `entered_arena`, day-close as documented) |
 | Site spot | ranked9, garden, status @ checkpoint |
 
-**Steve staging:** Same sequence on `staging-work` when local gate passes — see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Testing order.
+**Steve staging:** prepare + simul to **74879**, then verify + spot checks — see [`ops-simul-runbook.md`](ops-simul-runbook.md).
 
 ---
 
@@ -141,3 +168,4 @@ php ops/run_verify_ops_sim.php --target local-work
 |------|--------|
 | Jun 2026 | v1 inventory; verify runner; Mode C simul flags |
 | Jun 2026 | DDR-030 prepare-only for sim; `run_ops_sim` |
+| Jun 2026 | Verification § — verify read-only; short-run expectations; no batch-as-gate |

@@ -14,7 +14,7 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | [ops-derived-data-registry.md](ops-derived-data-registry.md) | **DDR** — per-artifact inventory (trigger, CMD, gaps) |
 | [ops-simul-runbook.md](ops-simul-runbook.md) | **Mode C** — prepare + `run_ops_sim.php`; what “simul complete” means |
 | [steve-nightly-ops.md](steve-nightly-ops.md) | **Steve** — per-game + one nightly call (non-technical) |
-| `site/.../ops/run_verify_ops_sim.php` | CLI verify after local `run_ops_sim` (before staging) |
+| `site/.../ops/run_verify_ops_sim.php` | **Read-only** SQL after simul — see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Verify (does not run simul or batch) |
 | [schema-register.md](schema-register.md) | SCH DDL in `ops/sql/migrations/` |
 | [ops-schema-migrations.md](ops-schema-migrations.md) | Why migrations live under ops + migration plan |
 | [ops-dispatch.md](ops-dispatch.md) | `dispatch.php` CMD registry, exit codes, failure semantics |

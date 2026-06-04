@@ -88,7 +88,7 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 | **2 — Orchestration** | Lock midnight design | **`FinalizeUtcDay` shipped** — Steve cron cutover + full-history orchestrator CLI still open |
 | **3 — Gap closure** | Code | **Shipped:** `FinalizeUtcDay` + timeline sim. **Open:** Steve cron cutover; optional `replay-to` → timeline wrapper; rating-fade doc sweep |
 | **4 — Steve / cutover** | Handoff | Update [`staging-work-steve-handoff.md`](staging-work-steve-handoff.md), cutover packet |
-| **5 — Validation** | Ongoing | `run_verify_ops_sim.php` + `ab-post-game`; see §7 testing order |
+| **5 — Validation** | Ongoing | `run_verify_ops_sim.php` (read-only) + `ab-post-game`; see §6 testing order |
 
 **Implementation priority inside phase 3** (highest leverage):
 
@@ -100,22 +100,24 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 
 ---
 
-## 7. Testing order (before Steve full simul)
+## 6. Testing order (before Steve full simul)
 
 | Step | Who | Action |
 |------|-----|--------|
-| 1 | Dagh | `prepare` on **local-work** (or private `kooldb1` run without broadcast) |
-| 2 | Dagh | **`run_ops_sim`** smoke `--until-game-id 500`; parity prep uses **74879** (dev DB ceiling) on Steve |
-| 3 | Dagh | **`run_verify_ops_sim`** — fix failures on work |
-| 4 | Dagh | Site spot-check + optional `ab-post-game` |
-| 5 | Dagh | DDR / audit fixes that change behaviour — repeat 2–4 |
-| 6 | Steve | **One** full staging simul + nightly `FinalizeUtcDay` when Dagh says ready ([`steve-nightly-ops.md`](steve-nightly-ops.md)) |
+| 1 | Dagh / agent | `prepare` on **local-work** (or private `kooldb1` without broadcast) |
+| 2 | Dagh / agent | **Short** proof: `run_timeline_sim` **`--stop-at`** (bisect, seconds–minutes) **or** smoke `run_ops_sim --until-game-id 500` (tens of minutes) — **not** local full history |
+| 3 | Dagh / agent | **Optional** `run_verify_ops_sim` — read-only SQL; see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Verify. After **short** runs: trust processed + six-value; **ignore league-awards FAIL** unless chasing honours at depth. **Do not** run batch rebuilds because verify failed |
+| 4 | Dagh / agent | Fix **proven** ops failures (root cause in PHP sim path); repeat 2–3. Site spot-check + optional `ab-post-game` when chunk is large enough |
+| 5 | Steve | **One** staging simul to **`--until-game-id 74879`** + nightly `FinalizeUtcDay` when Dagh says ready ([`steve-nightly-ops.md`](steve-nightly-ops.md)) |
+| 6 | Both | Parity / sign-off: spot SQL, site, `ab-post-game` — **not** “batch until verify passes” |
 
-**Not recommended:** asking Steve to start a multi-hour replay while steps 2–5 are still failing locally.
+**Not recommended:** Steve multi-hour replay while local **six-value** or “won’t run” issues remain; **never** use legacy batch scripts as the definition of simul complete ([`ops-simul-runbook.md`](ops-simul-runbook.md) § What verify is not).
+
+**Prepare parity** (ground `idA`/`idB`/`Date` vs baseline) is a **separate** gate inside `run_prepare.php` — not `run_verify_ops_sim`.
 
 ---
 
-## 6. Deferred maintenance
+## 7. Deferred maintenance
 
 | Item | When |
 |------|------|
@@ -125,7 +127,7 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 
 ---
 
-## 7. Related registers & code
+## 8. Related registers & code
 
 | Area | Path |
 |------|------|
@@ -139,7 +141,7 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 
 ---
 
-## 8. Decision log (charter level)
+## 9. Decision log (charter level)
 
 | Date | Decision |
 |------|----------|
@@ -147,3 +149,4 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 | Jun 2026 | **No rating fade** in target ops |
 | Jun 2026 | **One** Steve midnight CMD (`FinalizeUtcDay`) with ordered internal steps — see ADR |
 | Jun 2026 | Batch rebuilds = **dev parity / repair only**, not simul definition of done |
+| Jun 2026 | **`run_verify_ops_sim`** = read-only post-sim SQL gate; does not run simul or batch; short-run league FAIL is expected; frozen-dev parity is a separate step after Steve **74879** |
