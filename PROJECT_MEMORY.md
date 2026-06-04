@@ -78,6 +78,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Dead surface pass** — removed `elolist.js`, `status-league-toggle.js`, realm-lab CSS + migration one-shots; `status-realm-lab.php` → 302 `status.php`; audit [`docs/DEAD_SURFACE.md`](docs/DEAD_SURFACE.md). |
 | 2026-06 | **Post-game P6 milestones** — PHP incremental + Python oracle; period burst anchor = **crossing game** (5th/10th/…/50th); chrono calendar keys (`daily_habit`, `weekly_regular`, `monthly_regular`, `year_round`, `rare_blank`) in live PHP with hydrate on `process-one`; `ab-post-game --phase p6` @ 100 games. |
 | 2026-06 | **Post-game P0–P5 shipped** — PHP `run_process_game.php` per-game through period aggregates; `ab-post-game --phase p5`; Python rebuild `period_activity.py` + `period_aggregates.py`. |
 | 2026-06 | **Post-game PHP reset** — reverted first attempt (playbook+P1–P2); new [`post-game-php-development.md`](docs/post-game-php-development.md) (per-game sim, `ratedresults` policy, `RecentAverageRating` retired). |
@@ -96,6 +97,8 @@
 | 2026-06 | **Local prod sandbox live** — baseline + work from sanitized dump; dev untouched; sanitize fix in `ProdDumpSanitize.ps1`; verify ~75,204 rated on work. |
 | 2026-06 | **Local DB model (3 DBs)** — scripts + **`database-copies-2026-06.md`**; ground/derived + `game_id` API direction to Steve. |
 | 2026-06 | **Games Highlights table ink** — `k2-games-highlights-table` now gets the same `k2-table--calm-stats` secondary body text as leaderboards/Recent (`theme.css`). |
+| 2026-06 | **Profile build playbook** — `docs/profile-build-playbook.md`: placement charter (B1–B5 + C), module recipes, waves, acceptance checks; links v1 curated list. |
+| 2026-06 | **Profile content v1 curated** — Dagh pass on `profile-content-candidates.md`: ship play streak, P05 distinct days (site-wide), milestone/league snippets, M03/M08/M09, rivalry/Games deep links; defer A03/A07/A08; reject extra charts. |
 | 2026-06 | **Profile content catalog** — `docs/profile-content-candidates.md`: ~70 candidates (P0–P3) across identity, presence, moments, milestones, league, heatmaps, charts; for Dagh curation. |
 | 2026-06 | **Profile graph polish (2)** — played-days year picker ascending; peak label flips below line when near chart top; selected opponent bar gets green border; heatmap legend swatches matched size. |
 | 2026-06 | **Profile graph restoration** — `individual1.php` charts use Activity-style full-width `k2-chart-frame`s; rating peak dashed line restored; graph time axes start at server origin (2017-06-09); rating comparison gets date/games-played toggle; top opponents remains the matchup gateway; career played-days heatmap; winrate-vs-Elo API/JS removed. |

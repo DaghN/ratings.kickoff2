@@ -32,7 +32,7 @@ Loaded per page as `<script src="js/...">` — not from a CDN at runtime.
 | Library | File(s) | Used on |
 |---------|---------|---------|
 | **Chart.js** 4.4.7 | `js/chart.umd.min.js`, `js/chartjs-adapter-date-fns.bundle.min.js` | Profile, milestones detail, Activity (`server1.php`), charts lab |
-| **flatpickr** | `js/flatpickr.min.js`, `stylesheets/flatpickr.min.css` | Status daily picker, status-realm-lab |
+| **flatpickr** | `js/flatpickr.min.js`, `stylesheets/flatpickr.min.css` | Status daily picker |
 | **k2-table.js** | `js/k2-table.js` | Leaderboards, profile matchup tabs, many tables |
 | **activity-charts-v2.js** | `js/activity-charts-v2.js` | Activity page |
 | **chart-theme.js**, **chart-date-range.js** | `js/chart-theme.js`, `js/chart-date-range.js` | Chart pages |
@@ -44,7 +44,9 @@ Loaded per page as `<script src="js/...">` — not from a CDN at runtime.
 
 License pointer: `js/flatpickr.LICENSE.txt`. Chart.js vendored build notes in first lines of `js/chart.umd.min.js`.
 
-**Not referenced in production pages:** `js/elolist.js` (legacy; comments only mention external URLs).
+**Removed Jun 2026 (dead surface pass):** `js/elolist.js`, `js/status-league-toggle.js` — see [`DEAD_SURFACE.md`](DEAD_SURFACE.md).
+
+**Legacy URL redirects (no extra JS):** `server1-charts-lab.php` → `server1.php`; `status-realm-lab.php` → `status.php`.
 
 ---
 

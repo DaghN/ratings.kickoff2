@@ -1,6 +1,8 @@
 # Profile content — candidate catalog (Jun 2026)
 
-**Purpose:** Wide menu for Profile tab additions after the [narrative confirmation](player-profile-feast.md#narrative-model-jun-2026-confirmation). **Not a build list** — Dagh curates; only a subset should ship.
+**Purpose:** Wide menu for Profile tab additions after the [narrative confirmation](player-profile-feast.md#narrative-model-jun-2026-confirmation).
+
+**Complete build list:** **Profile content v1** § below (Dagh curated Jun 2026). **How to implement:** [`profile-build-playbook.md`](profile-build-playbook.md) — placement charter, module recipes, waves, acceptance checks.
 
 **How to use:** Skim **P0** first. Mark keep / defer / kill per row. Respect **Do not propose** § at bottom (May audit DROPs).
 
@@ -186,40 +188,94 @@ Hero · Presence · Career duo · Personal bests · Moments · Played days/weeks
 
 ---
 
-## P0 shortlist (agent recommendation — Dagh overrides)
-
-| ID | Why |
-|----|-----|
-| **A04** | Cheapest narrative glue; anchors whole page |
-| **M09** | Makes matchup charts feel like story not machinery |
-| **MS01** | Milestone presence without garden migration |
-| **MS02** | One “wow” card for veterans |
-| **L01** | League finally visible on profile |
-| **L02** | Career league identity in one line |
-| **B07** | Play streak = stored, celebratory, ties heatmaps |
-| **M03** | Missing trophy card already in audit SCROLL |
-
-**Second wave (P1):** A03, A05, B06, B09 (5 rows), C06–C11, M04, M07, M12, P02–P05, MS04–MS08, L03–L04, L07–L08, X01–X05.
-
----
-
 ## Do not propose (May audit DROP — unless tagged “reconsider”)
 
 Rating nadir row · Recent avg rating · Current/biggest rating ascent/descent · Win rate vs opp rating chart · Least For / Smallest Sum games · Min rated culprit · Obscure victim/culprit count rows · Current losing/drawing streaks as headline · Duplicate CORE rows · Full per-opponent tables · Full milestone garden · Full league history table · Nemesis shame-first copy.
 
 ---
 
-## Curation worksheet (for Dagh)
+## Profile content v1 — Dagh curation (Jun 2026)
 
-Copy IDs to buckets:
+**Status:** Curated build list. **Not fully implemented** — follow playbook waves §7.
 
-| Bucket | IDs |
-|--------|-----|
-| **Ship next** | |
-| **Good but later** | |
-| **No** | |
-| **Reconsider DROP** | |
+### Reject / no
+
+**A:** A01, A02, A05, A06, A09, A10, A11, A12, A13, A14  
+**B:** B04, B10, B11, B12  
+**C:** C06–C11, C13  
+**M:** M04, M05 (dup M02), M06 (unclear — skip until spec), M07  
+**P:** P06  
+**MS:** MS05, MS06, MS07  
+**L:** L03, L05  
+**H:** H06  
+**G:** G05–G09 (keep shipped G01–G04 only)  
+**X:** X02, X03  
+
+### Defer
+
+A03, A07, A08 · B05 · H04  
+
+### Consider / maybe (needs design pass)
+
+| ID | Dagh note |
+|----|-----------|
+| **A04** | Participation sentence — **competes with hero fold** (rank/rating/games already there); only if it adds without clutter |
+| **B09** | Recent matches strip — answers “what is he doing on the server”; cap rows; vs Games tab |
+| **M10** | Biggest loss card — only if tone right (hidden card, light touch) |
+| **M11** | Most goals conceded — humorous angle (e.g. Fisher asleep GK gag) |
+| **C14** | Peak Elo historic rank — **select few only**, e.g. “Reached 2134 — 7th highest ever” with cutoff |
+| **L06** | First league gold — memorable moment card; may need DB/store facilitation |
+| **H05** | Heatmap overlay options — milestone days and/or **DD days lit up** (needs stored per-day DD — heavier) |
+
+### Keep — already shipped
+
+B01–B03 · C01–C05 (see rank rethink) · M01–M02 · P01 · H01–H03 · G01–G04 · MS03 (hero count)
+
+### Keep — build next (v1 scope)
+
+| ID | Implementation note |
+|----|---------------------|
+| **B06** | Current win streak when meaningful (e.g. ≥3) |
+| **B07 / B08** | Play streak — **pick one narrative per load or rotate:** current run vs historical best with date (“played 37 games in a row in …”); day vs week as alternatives |
+| **C01–C05** | Keep tiles; **rethink `(#rank)` column** — keep only if cleaner visually |
+| **C12** | “142 opponents · 89 victims” — promising; watch dup with opponents tile |
+| **M03** | Max rated victim card — **celebrate non-elite upsets**; consider **show only below rating/rank cutoff** |
+| **M08** | Favourite victim line — “His favourite victim is … — beaten X times” |
+| **M09** | Featured rivalry W–D–L before matchup charts — try it |
+| **M12** | Deep link to `individual3.php` with **opponent pre-filtered** |
+| **P02** | Best year as **ticker** — e.g. “Won 135 games in 2023!” (wins; P03/P04 folded into P01 busiest) |
+| **P05** | **Distinct days played** — key stat; **site-wide** (Profile + HoF + elsewhere); not just heatmap footnote |
+| **MS01** | Latest unlock — **card**: “Unlocked *X* on *date*” → `milestone.php` |
+| **MS02** | Holo unlock count (or amber count if no holo) — celebrate rarity |
+| **MS04** | Unlocks in last 12 months — good for newcomers seeing activity |
+| **MS08** | League-tied milestone card — subtle league emphasis |
+| **L01** | Latest medal — with **bling** |
+| **L02 / L07 / L08** | Career medal totals — aggregate gold (and podium) with presentation + honours deep link |
+| **L04** | League wins count — key community-presence stat |
+| **X01** | Positive empty states for moments |
+| **X04** | **Conditional display rules** (and optional rotation) for snippets |
+| **X05 / X06** | Deep links where they earn their place (garden, streaks LB, etc.) |
+
+### Charts & heatmaps
+
+- **Charts:** no new chart types; keep current stack.  
+- **Heatmaps:** keep days/weeks/year picker; H03 status line probably keep; let viewers count streaks themselves (no H04).
+
+### Cross-site / data follow-ups
+
+| Item | Scope |
+|------|--------|
+| **P05** distinct days played | Precompute or cheap COUNT on `player_period_games` day rows; expose on Profile + **Hall of Fame** (not designed yet) |
+| **L06** first gold moment | May need stored “first award” or query on `player_league_award` |
+| **H05** DD-day heatmap | New stored truth or expensive rebuild — defer unless facilitated |
+| **M12** Games tab opponent filter | `individual3.php` query param + filter UI |
 
 ---
 
-*Generated Jun 2026 from `website-data-contract.md`, `player_feast_load.php`, archive Part B2, and narrative confirmation in `player-profile-feast.md`.*
+## Curation worksheet (archived — filled Jun 2026)
+
+See **Profile content v1** § above. Supersedes agent P0 shortlist.
+
+---
+
+*Generated Jun 2026. Curation recorded Jun 2026 (Dagh).*

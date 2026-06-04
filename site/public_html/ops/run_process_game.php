@@ -72,13 +72,20 @@ if ($verb === 'process-one') {
     $con = k2_ops_connect_work($target);
     try {
         $result = k2_ops_process_completed_game($con, $gameId, $dryRun);
-        $d = $result['derived'];
-        k2_ops_log(
-            '[OK] process-one game_id=' . $gameId
-            . ' NewRatingA=' . round((float) $d['NewRatingA'], 3)
-            . ' NewRatingB=' . round((float) $d['NewRatingB'], 3)
-            . ($result['committed'] ? '' : ' (dry-run)')
-        );
+        if (!empty($result['skipped'])) {
+            k2_ops_log(
+                '[OK] process-one game_id=' . $gameId
+                . ' skipped reason=' . ($result['skip_reason'] ?? 'unknown')
+            );
+        } else {
+            $d = $result['derived'];
+            k2_ops_log(
+                '[OK] process-one game_id=' . $gameId
+                . ' NewRatingA=' . round((float) $d['NewRatingA'], 3)
+                . ' NewRatingB=' . round((float) $d['NewRatingB'], 3)
+                . ($result['committed'] ? '' : ' (dry-run)')
+            );
+        }
     } finally {
         $con->close();
     }
@@ -113,12 +120,17 @@ if ($verb === 'replay-to') {
     try {
         $result = k2_ops_replay_post_game($con, $limit, $untilGameId, $dryRun);
         $processed = $result['processed'];
+        $skipped = $result['skipped'] ?? [];
         k2_ops_log(
             '[OK] replay-to games=' . count($processed)
             . ($processed !== [] ? ' last_id=' . $processed[array_key_last($processed)] : '')
             . ' committed=' . $result['committed']
+            . (count($skipped) > 0 ? ' skipped=' . count($skipped) : '')
             . ($dryRun ? ' (dry-run)' : '')
         );
+        if ($skipped !== []) {
+            k2_ops_log('skipped_ids=' . implode(',', array_map('strval', $skipped)));
+        }
     } finally {
         $con->close();
     }

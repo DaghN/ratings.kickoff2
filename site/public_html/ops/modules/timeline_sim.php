@@ -87,9 +87,6 @@ function k2_ops_timeline_sim_run(
         ++$processed;
         $lastGameId = $gameId;
         $lastGameDate = $gameAt->format('Y-m-d H:i:s');
-        if ($result['committed'] === false && !$dryRun) {
-            // still counted as processed attempt
-        }
         $openUtcDay = $gameDay;
     }
     $res->free();

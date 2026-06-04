@@ -1,5 +1,7 @@
 # Staging work DB — Steve handoff (ops self-contained)
 
+**Narrative (five phases: Broadcast, Prepare, Simul, Live, Bug fixing):** [`staging-work-steve-brief.md`](staging-work-steve-brief.md)
+
 **Goal:** Refresh `kooldb1` from `kooldb2`, apply SCH migrations, seed milestone catalog, then full simul. Site reads **`kooldb1`** during the run.
 
 **Parity check:** Compare at game **~74800** against frozen legacy dev DB (human-verified truth), not a separate small replay.
@@ -45,7 +47,7 @@ php ops/run_prepare.php prepare --target staging-work
 
 Includes: dump baseline → work, `migrate-work`, `seed-catalog` (112 rows from `ops/data/milestones_definitions_seed.json`), zero-derived GST, lobby seed.
 
-**Requires on host:** `mysqldump`, `mysql` in PATH. **Still from repo (not in ops):** `scripts/ladder/sql/generalstatstable.sql` if zero-derived needs it — ensure full repo or that path exists on server for prepare.
+**Requires on host:** `mysqldump` and `mysql` CLI (Laragon paths on Windows; `/usr/bin` on Linux). Zero-derived GST DDL ships in `ops/sql/generalstatstable.sql` (synced with `public_html`).
 
 ---
 

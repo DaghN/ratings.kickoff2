@@ -11,7 +11,8 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | [schema-register.md](schema-register.md) | SCH DDL in `ops/sql/migrations/` |
 | [ops-schema-migrations.md](ops-schema-migrations.md) | Why migrations live under ops + migration plan |
 | [ops-dispatch.md](ops-dispatch.md) | `dispatch.php` CMD registry, exit codes, failure semantics |
-| [staging-work-steve-handoff.md](staging-work-steve-handoff.md) | WinSCP + prepare + simul on `kooldb1`/`kooldb2` |
+| [staging-work-steve-brief.md](staging-work-steve-brief.md) | **Steve narrative** — five phases, ground vs derived, dispatcher |
+| [staging-work-steve-handoff.md](staging-work-steve-handoff.md) | WinSCP + prepare + simul commands on `kooldb1`/`kooldb2` |
 | [replay-register.md](replay-register.md) | `*_rebuild.sql` backfills + run log |
 | [post-game-register.md](post-game-register.md) | **Retired** — pointer; prod C++ from contract |
 | [records-post-game-exception.md](records-post-game-exception.md) | Hall of Fame / `generalstatstable` C++ exception only |

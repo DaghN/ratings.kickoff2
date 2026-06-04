@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/ops_prepare_constants.php';
+require_once __DIR__ . '/ops_paths.php';
 require_once __DIR__ . '/ops_bootstrap.php';
 require_once __DIR__ . '/ops_seed_lobby.php';
 
@@ -30,7 +31,7 @@ function k2_ops_split_sql_statements(string $sql): array
 
 function k2_ops_ensure_generalstatstable(mysqli $con): void
 {
-    $path = k2_ops_repo_root() . '/scripts/ladder/sql/generalstatstable.sql';
+    $path = k2_ops_generalstatstable_sql_path();
     if (!is_file($path)) {
         fwrite(STDERR, "Missing SQL: {$path}\n");
         exit(1);

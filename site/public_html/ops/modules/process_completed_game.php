@@ -83,51 +83,35 @@ function k2_ops_load_rated_game_row(mysqli $con, int $gameId): array
 
 
 /**
-
- * @param array<string, mixed> $game
-
+ * Ground-truth checks before post-game. C++ live only rejected id -1; id 0 was inserted.
+ * PHP skips unprocessable rows (log + continue) so replay and dispatch never fatal-exit.
+ *
+ * @return string|null null if OK; otherwise stable skip reason code
  */
-
-function k2_ops_guard_rated_game_processable(array $game): void
-
+function k2_ops_rated_game_skip_reason(array $game): ?string
 {
-
-    $gameId = (int) $game['id'];
-
     $idA = (int) $game['idA'];
-
     $idB = (int) $game['idB'];
 
-
-
     if ($idA <= 0 || $idB <= 0) {
-
-        throw new RuntimeException("ratedresults id={$gameId}: invalid idA/idB");
-
+        return 'invalid_idA_idB';
     }
-
     if ($idA === $idB) {
-
-        throw new RuntimeException("ratedresults id={$gameId}: idA must differ from idB");
-
+        return 'idA_equals_idB';
     }
-
     if ($game['GoalsA'] === null || $game['GoalsB'] === null) {
-
-        throw new RuntimeException("ratedresults id={$gameId}: goals must be set");
-
+        return 'goals_missing';
     }
-
     if ($game['NewRatingA'] !== null) {
-
-        throw new RuntimeException(
-
-            "ratedresults id={$gameId} already processed (NewRatingA is set); run prepare zero-derived to replay"
-
-        );
-
+        return 'already_processed';
     }
 
+    return null;
+}
+
+function k2_ops_log_skip_rated_game(int $gameId, string $reason): void
+{
+    k2_ops_log('[SKIP] ratedresults id=' . $gameId . ' reason=' . $reason);
 }
 
 
@@ -476,7 +460,7 @@ function k2_ops_apply_playertable_for_game(
 
  *
 
- * @return array{derived: array<string, mixed>, committed: bool}
+ * @return array{derived: array<string, mixed>, committed: bool, skipped: bool, skip_reason: string|null}
 
  */
 
@@ -490,7 +474,17 @@ function k2_ops_process_completed_game(
 
     $game = k2_ops_load_rated_game_row($con, $gameId);
 
-    k2_ops_guard_rated_game_processable($game);
+    $skipReason = k2_ops_rated_game_skip_reason($game);
+    if ($skipReason !== null) {
+        k2_ops_log_skip_rated_game($gameId, $skipReason);
+
+        return [
+            'derived' => [],
+            'committed' => false,
+            'skipped' => true,
+            'skip_reason' => $skipReason,
+        ];
+    }
 
 
 
@@ -512,7 +506,7 @@ function k2_ops_process_completed_game(
 
     if ($dryRun) {
 
-        return ['derived' => $derived, 'committed' => false];
+        return ['derived' => $derived, 'committed' => false, 'skipped' => false, 'skip_reason' => null];
 
     }
 
@@ -574,7 +568,7 @@ function k2_ops_process_completed_game(
 
 
 
-    return ['derived' => $derived, 'committed' => true];
+    return ['derived' => $derived, 'committed' => true, 'skipped' => false, 'skip_reason' => null];
 
 }
 
@@ -586,7 +580,7 @@ function k2_ops_process_completed_game(
 
  *
 
- * @return array{processed: list<int>, committed: int}
+ * @return array{processed: list<int>, committed: int, skipped: list<int>, skip_reasons: array<int, string>}
 
  */
 
@@ -642,9 +636,23 @@ function k2_ops_replay_post_game(
 
     $committed = 0;
 
+    $skipped = [];
+
+    $skipReasons = [];
+
     foreach ($ids as $gid) {
 
         $result = k2_ops_process_completed_game($con, $gid, $dryRun);
+
+        if (!empty($result['skipped'])) {
+
+            $skipped[] = $gid;
+
+            $skipReasons[$gid] = (string) ($result['skip_reason'] ?? 'unknown');
+
+            continue;
+
+        }
 
         $processed[] = $gid;
 
@@ -656,7 +664,12 @@ function k2_ops_replay_post_game(
 
     }
 
-    return ['processed' => $processed, 'committed' => $committed];
+    return [
+        'processed' => $processed,
+        'committed' => $committed,
+        'skipped' => $skipped,
+        'skip_reasons' => $skipReasons,
+    ];
 
 }
 

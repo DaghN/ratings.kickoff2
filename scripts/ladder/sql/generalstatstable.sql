@@ -1,5 +1,6 @@
 -- Server-wide stats (single row id=1). Ratio player leaders: playertable + server2.php (PG-004).
 -- Safe to run on fresh DB: CREATE IF NOT EXISTS + seed row only.
+-- Deploy copy (WinSCP): site/public_html/ops/sql/generalstatstable.sql — keep identical.
 
 SET time_zone = '+00:00';
 

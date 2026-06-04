@@ -182,12 +182,20 @@ function k2_ops_dispatch_process_completed_game(array $params, string $profileNa
     $con = k2_ops_dispatch_connect($profileName);
     try {
         $result = k2_ops_process_completed_game($con, $gameId, $dryRun);
+        if (!empty($result['skipped'])) {
+            k2_ops_dispatch_log(
+                'ProcessCompletedGame game_id=' . $gameId
+                . ' skipped=true reason=' . ($result['skip_reason'] ?? 'unknown')
+            );
+
+            return 0;
+        }
         $d = $result['derived'];
         k2_ops_dispatch_log(
             'ProcessCompletedGame game_id=' . $gameId
             . ' committed=' . ($result['committed'] ? 'true' : 'false')
-            . ' NewRatingA=' . round((float) $d['NewRatingA'], 3)
-            . ' NewRatingB=' . round((float) $d['NewRatingB'], 3)
+            . ' NewRatingA=' . round((float) ($d['NewRatingA'] ?? 0), 3)
+            . ' NewRatingB=' . round((float) ($d['NewRatingB'] ?? 0), 3)
         );
         if (!$result['committed'] && !$dryRun) {
             k2_ops_dispatch_fail('ProcessCompletedGame did not commit', 1);

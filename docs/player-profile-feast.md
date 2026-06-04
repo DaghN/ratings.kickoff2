@@ -1,7 +1,9 @@
 # Player profile (feast) — shipped layout
 
 **Status:** Jun 2026 (layout + narrative contract). **Production page:** `individual1.php?id={player}`.  
-**Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md) (Phase 0 jobs + principles), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md) (asset verdicts + feast contract Part C). **Jun 2026 confirmation** below — same plan, updated picks for milestones/league.
+**Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
+**Build list:** [`docs/profile-content-candidates.md`](profile-content-candidates.md) — Profile content v1.  
+**Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md).
 
 ---
 
@@ -132,7 +134,8 @@ Profile does **not** duplicate those tables.
 | Heatmaps before Personal bests / Moments in DOM | **Accepted drift** — emphasizes activity texture early; editorial fork vs “Chronicle-first” mock A |
 | Milestones on profile | **Partial** — hero count only; garden stays on Milestones tab |
 | League on profile | **Gap** — stored awards exist; no profile snippet yet |
-| Participation sentence (N21), rivalry one-liner (N4), recent matches strip (N5) | **Still backlog** — cheap narrative glue |
+| Participation sentence (A04) | **Consider** — may compete with hero fold |
+| Rivalry line (M09), milestone/league snippets | **v1 curated** — see backlog |
 
 **Rough decisions now (next content passes — not all shipped):**
 
@@ -146,23 +149,37 @@ Profile does **not** duplicate those tables.
 
 **Agent jargon:** **“Fold”** = first screen before scroll (above the fold), **not** a named section. Usually hero ± top of Presence/Career — not “the Presence panel” by definition.
 
-**Authority chain for profile content:** Dagh’s latest intent → this § → [`profile-content-candidates.md`](profile-content-candidates.md) (Jun 2026 catalog) → archive Part B/C → shipped `individual1.php`.
+**Authority chain for profile content:** Dagh’s latest intent → [`profile-build-playbook.md`](profile-build-playbook.md) → v1 in [`profile-content-candidates.md`](profile-content-candidates.md) → this § → archive Part B/C.
 
 ---
 
 ## Gradual improvements (backlog)
 
-Prioritized from Jun 2026 confirmation — **Zone B story glue first**, then optional Zone C polish.
+**Curated v1:** [`profile-content-candidates.md`](profile-content-candidates.md). **How to build:** [`profile-build-playbook.md`](profile-build-playbook.md) (waves §7). Below = short summary.
 
-| ID | Asset | Zone | Notes |
-|----|-------|------|-------|
-| N21 | **Participation sentence** | B | Template under hero or above Presence: name · N games · O opponents · since year |
-| — | **Milestone snippet** | B | Latest or signature unlock; link to garden / `milestone.php` — not the full garden |
-| — | **League snippet** | B | Recent medal + compact career counts; link to League honours / Status |
-| N4 | **Featured rivalry one-liner** | C (intro) | #1 opponent by volume + W–D–L before matchup charts (data exists; chart auto-selects) |
-| N5 | **Recent matches strip** | B | 5–8 rows max — defer if it competes with Games tab |
-| — | **Rated play streaks** | B? | `player_play_streaks` — live on Streaks LB + HoF; one line only if added |
-| — | SQL / load consolidation | — | Diag-driven; not user-visible |
+### Ship next (v1)
+
+| Theme | Items |
+|-------|--------|
+| **Presence** | B06 win streak · B07/B08 play streak (current vs best narrative; day/week; optional rotate on load) |
+| **Career** | C01–C05 tiles — revisit `(#rank)` styling · C12 victims line if not redundant |
+| **Moments** | M03 max rated victim (rank-gated for non-elite) · M08 favourite victim · M09 rivalry line · M12 Games tab opponent filter |
+| **Peaks** | P02 best-year ticker · **P05 distinct days played** (Profile + site-wide HoF later) |
+| **Milestones** | MS01 latest-unlock card · MS02 holo/amber count · MS04 unlocks last 12 months · MS08 league milestone card |
+| **League** | L01 latest medal (bling) · L02/L07/L08 career medals + honours link · L04 league wins count |
+| **UX rules** | X01 optimistic empty states · X04 conditional show / rotate snippets · deep links X05/X06 |
+
+### Consider / design pass
+
+A04 (vs hero fold) · B09 recent matches strip · M10/M11 loss cards (tone) · C14 historic peak rank (elite cutoff) · L06 first gold moment card · H05 heatmap overlays (DD days = DB work).
+
+### Defer
+
+A03, A07, A08 · B05 · H04.
+
+### Reject (v1)
+
+See catalog v1 § Reject — includes extra charts, tier-count MS05, MS07 list, participation-adjacent A01–A02, etc.
 
 Do not revive the mock lab; iterate on `individual1.php` and this doc.
 

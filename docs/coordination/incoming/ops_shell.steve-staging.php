@@ -16,31 +16,32 @@ function k2_ops_find_mysql_exe(): string
         'C:\\laragon\\bin\\mysql\\mysql-8.0.30-winx64\\bin\\mysql.exe',
         'C:\\laragon\\bin\\mariadb\\mariadb-11.4.2-winx64\\bin\\mysql.exe',
         'C:\\laragon\\bin\\mariadb\\mariadb-10.11.8-winx64\\bin\\mysql.exe',
-        '/usr/bin/mysql',
-        '/usr/local/bin/mysql',
-        '/bin/mysql',
+		'/bin/mysql',
     ];
     foreach ($candidates as $path) {
         if (is_file($path)) {
             return $path;
         }
     }
-    fwrite(STDERR, "mysql client not found (Laragon on Windows, or /usr/bin/mysql on Linux).\n");
+    fwrite(STDERR, "mysql.exe not found under C:\\laragon (docs/LOCAL_DEV.md).\n");
     exit(1);
 }
 
 function k2_ops_find_mysqldump_exe(): string
 {
     $mysql = k2_ops_find_mysql_exe();
-    $dir = dirname($mysql);
-    foreach (['mysqldump.exe', 'mysqldump'] as $name) {
-        $dump = $dir . DIRECTORY_SEPARATOR . $name;
-        if (is_file($dump)) {
-            return $dump;
-        }
+    $dump = dirname($mysql) . '\\mysqldump.exe';
+    if (!is_file($dump)) 
+	{
+		//try linux
+		$dump = dirname($mysql) . '/mysqldump';
+		if (!is_file($dump)) 
+		{
+			fwrite(STDERR, "mysqldump.exe not found beside {$mysql} \n");
+			exit(1);
+		}
     }
-    fwrite(STDERR, "mysqldump not found beside {$mysql}\n");
-    exit(1);
+    return $dump;
 }
 
 /** @param list<string> $args */
@@ -49,7 +50,7 @@ function k2_ops_run_command(array $args, ?string $cwd = null): void
     $cmd = implode(' ', array_map('escapeshellarg', $args));
     k2_ops_log('Running: ' . $cmd);
     $descriptor = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-    $proc = proc_open($cmd, $descriptor, $pipes, $cwd ?? k2_ops_root_directory());
+    $proc = proc_open($cmd, $descriptor, $pipes, $cwd ?? k2_ops_repo_root());
     if (!is_resource($proc)) {
         fwrite(STDERR, "Failed to start: {$cmd}\n");
         exit(1);

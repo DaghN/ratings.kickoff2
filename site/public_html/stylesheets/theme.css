@@ -259,13 +259,7 @@ body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
 	font-size: 13px;
 }
 
-/* Realm beside wordmark: current shared header + status-realm-lab.php identity variant */
-.k2-realm-lab-header {
-	align-items: center;
-}
-
-.k2-site-header__brand,
-.k2-realm-lab-brand {
+.k2-site-header__brand {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -273,8 +267,7 @@ body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
 	min-width: 0;
 }
 
-.k2-site-header__realm,
-.k2-realm-lab-inline-realm {
+.k2-site-header__realm {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -307,13 +300,11 @@ body.k2-site a.k2-site-header__utility-link:focus-visible {
 	text-decoration: none;
 }
 
-.k2-site-header__search,
-.k2-realm-lab-search {
+.k2-site-header__search {
 	margin-left: auto;
 }
 
-.k2-site-header__realm-label,
-.k2-realm-lab-label {
+.k2-site-header__realm-label {
 	color: var(--k2-text-muted);
 	font-size: 11px;
 	font-weight: 700;
@@ -321,44 +312,8 @@ body.k2-site a.k2-site-header__utility-link:focus-visible {
 	text-transform: uppercase;
 }
 
-.k2-realm-lab-strip {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 10px 16px;
-	margin: 0 0 -4px;
-	padding: 10px 12px;
-	border: 1px solid color-mix(in srgb, var(--k2-accent) 24%, var(--k2-border-subtle));
-	border-radius: var(--k2-radius-md);
-	background:
-		linear-gradient(135deg, color-mix(in srgb, var(--k2-accent) 8%, transparent), transparent 62%),
-		var(--k2-bg-surface);
-	box-shadow: var(--k2-shadow-surface);
-}
-
-.k2-realm-lab-strip__copy {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 8px 12px;
-	min-width: 0;
-}
-
-.k2-realm-lab-strip__hint {
-	color: var(--k2-text-muted);
-	font-size: 12px;
-}
-
 @media (max-width: 760px) {
-	.k2-realm-lab-inline-realm {
-		width: 100%;
-		padding-left: 0;
-		border-left: none;
-	}
-
-	.k2-site-header__search,
-	.k2-realm-lab-search {
+	.k2-site-header__search {
 		margin-left: 0;
 	}
 }
@@ -2725,46 +2680,6 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	color: var(--k2-text-secondary);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
-}
-
-/* Legacy — pre–Leagues Phase 1; status-league-toggle.js not loaded on status.php */
-.k2-status-league-toggle {
-	display: inline-flex;
-	flex-wrap: wrap;
-	gap: 4px;
-	padding: 2px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	background: rgba(0, 0, 0, 0.2);
-}
-
-.k2-status-league-toggle__btn {
-	display: inline-block;
-	padding: 4px 10px;
-	font-size: 12px;
-	font-weight: 600;
-	font-family: inherit;
-	color: var(--k2-text-muted);
-	background: transparent;
-	border: 1px solid transparent;
-	border-radius: calc(var(--k2-radius-sm) - 1px);
-	line-height: 1.3;
-	cursor: pointer;
-	transition: color 0.15s, border-color 0.15s;
-}
-
-.k2-status-league-toggle__btn:hover:not(.is-active) {
-	color: var(--k2-text-secondary);
-}
-
-.k2-status-league-toggle__btn.is-active {
-	color: var(--k2-segment-active-text);
-	border-color: var(--k2-segment-active-ring);
-	box-shadow: none;
-}
-
-.k2-status-league-panel[hidden] {
-	display: none;
 }
 
 /* Status — paired period competitions (Activity + Points) */

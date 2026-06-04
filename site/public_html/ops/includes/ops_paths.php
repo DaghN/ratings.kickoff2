@@ -14,6 +14,11 @@ function k2_ops_milestones_seed_path(): string
     return k2_ops_root_directory() . '/data/milestones_definitions_seed.json';
 }
 
+function k2_ops_generalstatstable_sql_path(): string
+{
+    return k2_ops_root_directory() . '/sql/generalstatstable.sql';
+}
+
 function k2_ops_work_targets_ini_path(): string
 {
     $opsIni = k2_ops_root_directory() . '/config/work-targets.ini';

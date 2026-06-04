@@ -89,6 +89,8 @@ Python Mode A today still batch-finalizes some ladder fields at end; treat Pytho
 
 **`ProcessCompletedGame` / `replay-to` use the same code path.** One commit per game. **No** chrono notebook, **no** `ratedresults` re-sim hydrate, **no** replay tail batch (`seed_lobby`, day-close finalize).
 
+**Unprocessable ground truth (skip, do not fatal):** `k2_ops_rated_game_skip_reason()` — `idA`/`idB` ≤ 0, same id, missing goals, or already processed (`NewRatingA` set). Logs `[SKIP] ratedresults id=… reason=…` and continues (`replay-to`) or exits 0 (`dispatch.php`). C++ live only rejected **-1**; historical rows with `idA=0` are skipped on PHP replay (see `docs/ratings_cpp.txt` `RatingProcedureUnity` gate).
+
 | In scope (per rated game, DB-backed) | Out of scope |
 |--------------------------------------|--------------|
 | Exists, streak/tail/network/matchup, period burst, rating `club_*`, `rare_blank`, debut opponent awards, **`giant_slayer`** (ladder SQL), **`daily_habit`** / **`monthly_regular`** (`player_period_games`) | **`perfect_day`**, **`nightmare_day`** — Mode C day-close or rebuild |
