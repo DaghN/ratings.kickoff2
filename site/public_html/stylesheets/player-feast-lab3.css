@@ -1,0 +1,223 @@
+.player-feast-body--lab3 .k2-lab3-banner {
+	margin: 0 0 14px;
+	padding: 8px 12px;
+	border: 1px solid rgba(255, 255, 255, 0.13);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.04);
+	color: var(--k2-text-muted, #aeb6c2);
+	font-size: 0.92rem;
+}
+
+.player-feast-body--lab3 .pm3-lab3-presence,
+.player-feast-body--lab3 .pm3-lab3-character,
+.player-feast-body--lab3 .pm3-lab3-honours {
+	display: grid;
+	gap: 16px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-presence {
+	grid-template-columns: minmax(210px, 0.85fr) minmax(0, 1.6fr);
+	align-items: stretch;
+}
+
+.player-feast-body--lab3 .pm3-lab3-presence__lead,
+.player-feast-body--lab3 .pm3-lab3-mini,
+.player-feast-body--lab3 .pm3-lab3-career-tile,
+.player-feast-body--lab3 .pm3-lab3-honours__summary,
+.player-feast-body--lab3 .pm3-lab3-empty,
+.player-feast-body--lab3 .pm3-lab3-rivalry,
+.player-feast-body--lab3 .pm3-lab3-favourite {
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 16px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+	box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
+.player-feast-body--lab3 .pm3-lab3-presence__lead {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 8px;
+	padding: 20px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-kicker,
+.player-feast-body--lab3 .pm3-lab3-mini span,
+.player-feast-body--lab3 .pm3-lab3-career-tile span {
+	color: var(--k2-text-muted, #aeb6c2);
+	font-size: 0.78rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.player-feast-body--lab3 .pm3-lab3-presence__lead strong {
+	font-size: clamp(1.55rem, 3vw, 2.35rem);
+	line-height: 1;
+}
+
+.player-feast-body--lab3 .pm3-lab3-presence__lead span:last-child,
+.player-feast-body--lab3 .pm3-lab3-mini em,
+.player-feast-body--lab3 .pm3-lab3-pulse-line em {
+	color: var(--k2-text-muted, #aeb6c2);
+	font-style: normal;
+}
+
+.player-feast-body--lab3 .pm3-lab3-pulse-grid,
+.player-feast-body--lab3 .pm3-lab3-character__tiles,
+.player-feast-body--lab3 .pm3-lab3-honours__cards {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-mini,
+.player-feast-body--lab3 .pm3-lab3-career-tile {
+	position: relative;
+	min-height: 96px;
+	padding: 16px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-mini strong,
+.player-feast-body--lab3 .pm3-lab3-career-tile strong {
+	display: block;
+	margin: 8px 0 4px;
+	font-size: clamp(1.3rem, 2vw, 1.85rem);
+	line-height: 1;
+}
+
+.player-feast-body--lab3 .pm3-lab3-pulse-lines {
+	grid-column: 2;
+	display: grid;
+	gap: 8px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-pulse-line {
+	display: grid;
+	grid-template-columns: minmax(90px, 0.55fr) minmax(150px, 1fr) minmax(120px, 1fr) auto;
+	gap: 10px;
+	align-items: center;
+	margin: 0;
+	padding: 11px 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.player-feast-body--lab3 .pm3-lab3-pulse-line span,
+.player-feast-body--lab3 .pm3-lab3-character__lines {
+	color: var(--k2-text-muted, #aeb6c2);
+}
+
+.player-feast-body--lab3 .pm3-lab3-character__lines {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-character__lines p {
+	margin: 0;
+	padding: 10px 13px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.055);
+}
+
+.player-feast-body--lab3 .pm3-lab3-rank {
+	position: absolute;
+	right: 13px;
+	top: 13px;
+	padding: 2px 7px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--k2-text-muted, #aeb6c2);
+	font-size: 0.78rem;
+}
+
+.player-feast-body--lab3 .pm3-lab3-honours {
+	grid-template-columns: minmax(0, 1.9fr) minmax(240px, 0.85fr);
+	align-items: stretch;
+}
+
+.player-feast-body--lab3 .pm3-lab3-honour-card {
+	min-height: 100%;
+}
+
+.player-feast-body--lab3 .pm3-lab3-honour-card--medal {
+	border-color: rgba(255, 206, 102, 0.32);
+	box-shadow: 0 0 0 1px rgba(255, 206, 102, 0.08), 0 14px 32px rgba(0, 0, 0, 0.18);
+}
+
+.player-feast-body--lab3 .pm3-lab3-honours__summary {
+	padding: 18px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-honours__summary p {
+	margin: 0 0 10px;
+	color: var(--k2-text-muted, #aeb6c2);
+}
+
+.player-feast-body--lab3 .pm3-lab3-chip {
+	display: inline-flex;
+	margin: 8px 8px 0 0;
+	padding: 7px 10px;
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.06);
+	text-decoration: none;
+}
+
+.player-feast-body--lab3 .pm3-lab3-empty {
+	padding: 18px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-empty strong,
+.player-feast-body--lab3 .pm3-lab3-empty span {
+	display: block;
+}
+
+.player-feast-body--lab3 .pm3-lab3-empty span {
+	margin-top: 5px;
+	color: var(--k2-text-muted, #aeb6c2);
+}
+
+.player-feast-body--lab3 .pm3-lab3-bests .pm3-busiest__list li {
+	transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.player-feast-body--lab3 .pm3-lab3-bests .pm3-busiest__list li:hover {
+	transform: translateY(-2px);
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+.player-feast-body--lab3 .pm3-lab3-favourite,
+.player-feast-body--lab3 .pm3-lab3-rivalry {
+	margin: 14px 0 0;
+	padding: 13px 15px;
+	color: var(--k2-text-muted, #aeb6c2);
+}
+
+.player-feast-body--lab3 .pm3-lab3-rivalry {
+	margin: 0 0 16px;
+}
+
+.player-feast-body--lab3 .pm3-lab3-rivalry a:last-child {
+	margin-left: 10px;
+}
+
+@media (max-width: 860px) {
+	.player-feast-body--lab3 .pm3-lab3-presence,
+	.player-feast-body--lab3 .pm3-lab3-honours {
+		grid-template-columns: 1fr;
+	}
+
+	.player-feast-body--lab3 .pm3-lab3-pulse-lines {
+		grid-column: auto;
+	}
+
+	.player-feast-body--lab3 .pm3-lab3-pulse-grid,
+	.player-feast-body--lab3 .pm3-lab3-character__tiles,
+	.player-feast-body--lab3 .pm3-lab3-honours__cards {
+		grid-template-columns: 1fr;
+	}
+
+	.player-feast-body--lab3 .pm3-lab3-pulse-line {
+		grid-template-columns: 1fr;
+	}
+}
