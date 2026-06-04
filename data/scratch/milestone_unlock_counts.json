@@ -4,7 +4,7 @@
     "eligible_players": 261,
     "veteran_players": 107,
     "ratedresults_games": 74870,
-    "computed_at": "2026-05-29 07:07 UTC"
+    "computed_at": "2026-06-04 19:25 UTC"
   },
   "counts": {
     "absurd_day": {
@@ -59,7 +59,7 @@
     },
     "clean_sheet_spread": {
       "unlock": 47,
-      "method": "ratedresults distinct CS victims",
+      "method": "ratedresults distinct opponents where goals_against=0",
       "band": "dedicated?"
     },
     "club_10000": {

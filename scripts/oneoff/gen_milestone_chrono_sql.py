@@ -136,6 +136,9 @@ def main() -> None:
         last_game[id_b] = dt
         ga, gb = int(g["GoalsA"] or 0), int(g["GoalsB"] or 0)
         sc = float(g["ActualScore"])
+        kickoff_top_id = giant_slayer_active_top_id(
+            ratings, last_game, dt, in_game=(id_a, id_b)
+        )
 
         for pid, gf, ga_c, opp, r_pre, r_opp, new_r in (
             (
@@ -239,11 +242,13 @@ def main() -> None:
                 _unlock(rows, pid, "minimalist_merchant", st, dt, gid, 3)
 
             ratings[pid] = new_r if new_r > 0 else ratings[pid]
-            top_id = giant_slayer_active_top_id(
-                ratings, last_game, dt, in_game=(id_a, id_b)
-            )
             if giant_slayer_qualifies(
-                won=won, pid=pid, opp=opp, top_id=top_id, r_pre=r_pre, r_opp=r_opp
+                won=won,
+                pid=pid,
+                opp=opp,
+                top_id=kickoff_top_id,
+                r_pre=r_pre,
+                r_opp=r_opp,
             ):
                 _unlock(rows, pid, "giant_slayer", st, dt, gid, 1)
 

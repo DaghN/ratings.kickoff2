@@ -348,7 +348,7 @@ function k2_post_game_milestones_tail_keys(
             k2_post_game_milestone_try_insert_game($con, $playerId, 'travelling_salesman', $gameDate, 10, $gameId);
         }
     }
-    if ($ga === 0 && $gf > 0 && !empty($flags['new_cs_victim'])) {
+    if ($ga === 0 && !empty($flags['new_cs_victim'])) {
         $csN = (int) ($st['clean_sheets_victims'] ?? 0);
         if ($csN === 10) {
             k2_post_game_milestone_try_insert_game($con, $playerId, 'clean_sheet_spread', $gameDate, 10, $gameId);
@@ -696,9 +696,13 @@ function k2_post_game_milestones_maybe_monthly_regular(
 }
 
 /**
- * Active #1 by contract: highest Rating among players active in last 365 UTC days or in this match.
+ * Kickoff active #1: highest playertable.Rating among players active for this match.
+ *
+ * Must run before k2_post_game_player_write() for idA/idB so Rating/LastGame are still pre-game.
+ * Active = LastGame within 365 rolling UTC days before game Date, or idA/idB of this game.
+ * Tie → highest playertable.ID.
  */
-function k2_post_game_milestones_active_top_player_id(
+function k2_post_game_milestones_kickoff_active_top_player_id(
     mysqli $con,
     string $gameDate,
     int $idA,
@@ -742,11 +746,64 @@ function k2_post_game_milestones_maybe_giant_slayer(
     if (!$won || $opponentId === $playerId || $rOppPre < $rSelfPre) {
         return;
     }
-    $topId = k2_post_game_milestones_active_top_player_id($con, $gameDate, $idA, $idB);
+    $topId = k2_post_game_milestones_kickoff_active_top_player_id($con, $gameDate, $idA, $idB);
     if ($topId !== $opponentId) {
         return;
     }
     k2_post_game_milestone_try_insert_game($con, $playerId, 'giant_slayer', $gameDate, 1, $gameId);
+}
+
+/**
+ * Giant slayer at kickoff — call before playertable write for this game (see process_completed_game).
+ *
+ * @param array<string, mixed> $game
+ * @param array<string, mixed> $derived
+ */
+function k2_post_game_milestones_apply_giant_slayer_at_kickoff(
+    mysqli $con,
+    array $game,
+    array $derived
+): void {
+    if (!k2_post_game_milestones_table_available($con)) {
+        return;
+    }
+
+    $gameId = (int) $game['id'];
+    $gameDate = (string) $game['Date'];
+    $idA = (int) $game['idA'];
+    $idB = (int) $game['idB'];
+    $goalsA = (int) $game['GoalsA'];
+    $goalsB = (int) $game['GoalsB'];
+    $actualScore = (float) $derived['ActualScore'];
+
+    foreach ([$idA, $idB] as $pid) {
+        $opp = $pid === $idA ? $idB : $idA;
+        $side = k2_post_game_milestone_side_stats(
+            $pid,
+            $idA,
+            $idB,
+            $goalsA,
+            $goalsB,
+            $actualScore,
+            (float) $derived['RatingA'],
+            (float) $derived['RatingB']
+        );
+        if ((float) $side['w'] !== 1.0) {
+            continue;
+        }
+        k2_post_game_milestones_maybe_giant_slayer(
+            $con,
+            $pid,
+            $opp,
+            true,
+            (float) $side['r_pre'],
+            (float) $side['r_opp'],
+            $gameDate,
+            $gameId,
+            $idA,
+            $idB
+        );
+    }
 }
 
 /**
@@ -793,18 +850,6 @@ function k2_post_game_milestones_db_backed_after_game(
         k2_post_game_milestones_maybe_monthly_regular($con, $pid, $dt, $gameDate, $gameId);
         k2_post_game_milestones_maybe_weekly_regular($con, $pid, $dt, $gameDate, $gameId);
         k2_post_game_milestones_maybe_year_round($con, $pid, $dt, $gameDate, $gameId);
-        k2_post_game_milestones_maybe_giant_slayer(
-            $con,
-            $pid,
-            $opp,
-            $won,
-            (float) $side['r_pre'],
-            (float) $side['r_opp'],
-            $gameDate,
-            $gameId,
-            $idA,
-            $idB
-        );
     }
 }
 

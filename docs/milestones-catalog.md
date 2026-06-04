@@ -52,7 +52,7 @@ Sorted: Legendary → Accomplished → Dedicated → Aspirational, then `milesto
 | `diversity_merchant` | Accomplished | Diversity merchant | DD vs 5 different opponents | Game | Scoreline (anchor game) | ratedresults distinct per-game DD opponents (>=5) |
 | `dozen_dash` | Accomplished | Dozen dash | Scored 12+ in one game | Game | Scoreline (anchor game) | ratedresults any game |
 | `fifty_faces` | Accomplished | Fifty faces | 50 unique opponents | Game | Scoreline (anchor game) | playertable |
-| `giant_slayer` | Accomplished | Giant slayer | Beat #1 rated **active** player | Game | Scoreline (anchor game) | chrono beat #1 active (365d rolling UTC) |
+| `giant_slayer` | Accomplished | Giant slayer | Beat #1 rated **active** player | Game | Scoreline (anchor game) | kickoff beat #1 active (365d rolling UTC) |
 | `league_monthly_points_medal` | Accomplished | Runner-up reign | Monthly points medal | League | League period label | player_league_award (league_kind='points' AND period_type='month' AND finish_rank<=3) |
 | `league_monthly_points_winner` | Accomplished | Reigning accountant | Monthly points winner | League | League period label | player_league_award (league_kind='points' AND period_type='month' AND is_winner=1) |
 | `league_weekly_activity_winner` | Accomplished | Seven-day siege | Weekly activity winner | League | League period label | player_league_award (league_kind='activity' AND period_type='week' AND is_winner=1) |

@@ -28,7 +28,7 @@
 | `monthly_regular` | **`player_period_games`** day rows in calendar month | **Implemented** |
 | `weekly_regular` | **`player_period_games`** week rows | **Implemented** |
 | `year_round` | **`player_period_games`** month rows | **Implemented** |
-| `giant_slayer` | **`playertable`** query active #1 | **Implemented** |
+| `giant_slayer` | **`playertable`** kickoff active #1 (before this game write) | **Implemented** |
 | `united_nations` | **`DrawingStreak`** on `playertable` | **Implemented** |
 | `perfect_day` / `nightmare_day` | Mode C UTC day-close job | **Not** post-game |
 

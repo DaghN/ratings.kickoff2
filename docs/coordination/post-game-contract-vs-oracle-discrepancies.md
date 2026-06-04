@@ -44,7 +44,7 @@ Use this list for manual review before prod cutover. Do not treat “Python pass
 | Topic | Contract | Oracle / PHP | Status |
 |-------|----------|--------------|--------|
 | Game keys (streak, tail, period burst, DB calendar, …) | Crossing game / first cross; **no chrono notebook** | `post_game_milestones.php` + `milestone_sim.py` | **Fixed** (ongoing parity: `ab-post-game --phase p6`; pending keys excluded) |
-| `giant_slayer` | Ladder-wide active #1 SQL on `playertable` | `k2_post_game_milestones_active_top_player_id()` | **Fixed** Jun 2026 (was broken in-memory map) |
+| `giant_slayer` | Kickoff active #1 SQL on `playertable` before this game write | `k2_post_game_milestones_kickoff_active_top_player_id()` via `apply_giant_slayer_at_kickoff()` | **Fixed** Jun 2026 (kickoff not post-game #1) |
 | `perfect_day` / `nightmare_day` | Day-close `achieved_at` (`FinalizeUtcDay` or rebuild SQL) | `day_close_milestones.php` via `CMD=FinalizeUtcDay` / timeline sim — **not** per-game | **N/A per game** — excluded from `ab-post-game` layer 6 diff |
 | `rare_blank` | After 50+ career games → first 0-goal game (`NumberGames >= 51`) | PHP + sim | **Fixed** |
 | **League event keys** (16) | On **league period finalize** (PER-003) | `k2_league_sync_event_milestones()` in `FinalizeUtcDay` | **N/A per game** — incremental via day tick |

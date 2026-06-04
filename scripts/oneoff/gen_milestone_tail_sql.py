@@ -189,7 +189,7 @@ def main() -> None:
                     _unlock(rows, pid, "fortress_builder", st, dt, gid, 25)
                 if st.clean_sheets == 50:
                     _unlock(rows, pid, "clean_sheet_artist", st, dt, gid, 50)
-            if ga_c == 0 and gf > 0 and opp not in st.cs_opponents:
+            if ga_c == 0 and opp not in st.cs_opponents:
                 st.cs_opponents.add(opp)
                 _check_thresholds(
                     rows, pid, st, dt, gid, SPECIAL_CS_OPP, len(st.cs_opponents)

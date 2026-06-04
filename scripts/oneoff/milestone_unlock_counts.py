@@ -412,9 +412,9 @@ def clean_sheet_spread_count(cur) -> CountResult:
         f"""
         SELECT COUNT(*) AS n FROM (
           SELECT r.pid FROM (
-            SELECT idA AS pid, idB AS oid FROM ratedresults WHERE GoalsB = 0 AND GoalsA > 0
+            SELECT idA AS pid, idB AS oid FROM ratedresults WHERE GoalsB = 0
             UNION ALL
-            SELECT idB, idA FROM ratedresults WHERE GoalsA = 0 AND GoalsB > 0
+            SELECT idB, idA FROM ratedresults WHERE GoalsA = 0
           ) r
           WHERE pid IN (SELECT ID FROM playertable WHERE {ELIGIBLE_WHERE})
           GROUP BY pid
@@ -422,7 +422,10 @@ def clean_sheet_spread_count(cur) -> CountResult:
         ) t
         """
     )
-    return CountResult(int(cur.fetchone()["n"]), "ratedresults distinct CS victims")
+    return CountResult(
+        int(cur.fetchone()["n"]),
+        "ratedresults distinct opponents where goals_against=0",
+    )
 
 
 def dd_distinct_opponents_count(cur, min_opponents: int) -> CountResult:
@@ -547,6 +550,9 @@ def run_chronological(cur) -> dict[str, CountResult]:
         last_game[id_b] = dt
         ga, gb = int(g["GoalsA"] or 0), int(g["GoalsB"] or 0)
         sc = float(g["ActualScore"])
+        kickoff_top_id = giant_slayer_active_top_id(
+            ratings, last_game, dt, in_game=(id_a, id_b)
+        )
 
         for pid, gf, ga_c, opp, r_pre, r_opp, new_r in (
             (id_a, ga, gb, id_b, float(g["RatingA"] or 1600), float(g["RatingB"] or 1600), float(g["NewRatingA"] or 0)),
@@ -625,15 +631,17 @@ def run_chronological(cur) -> dict[str, CountResult]:
             if st.exact_ten_streak >= 3:
                 minimalist_merchant.add(pid)
 
-            if ga_c == 0 and gf > 0:
+            if ga_c == 0:
                 st.cs_opponents.add(opp)
 
             ratings[pid] = new_r if new_r > 0 else ratings[pid]
-            top_id = giant_slayer_active_top_id(
-                ratings, last_game, dt, in_game=(id_a, id_b)
-            )
             if giant_slayer_qualifies(
-                won=won, pid=pid, opp=opp, top_id=top_id, r_pre=r_pre, r_opp=r_opp
+                won=won,
+                pid=pid,
+                opp=opp,
+                top_id=kickoff_top_id,
+                r_pre=r_pre,
+                r_opp=r_opp,
             ):
                 giant_slayer.add(pid)
 
@@ -722,7 +730,7 @@ def run_chronological(cur) -> dict[str, CountResult]:
         "merchant_streak": CountResult(cnt(merchant_streak), "chronological"),
         "minimalist_merchant": CountResult(cnt(minimalist_merchant), "chronological"),
         "giant_slayer": CountResult(
-            cnt(giant_slayer), "chrono beat #1 active (365d rolling UTC)"
+            cnt(giant_slayer), "kickoff beat #1 active (365d rolling UTC)"
         ),
         "perfect_day": CountResult(cnt(perfect_day), "chronological UTC day"),
         "nightmare_day": CountResult(cnt(nightmare_day), "chronological UTC day"),

@@ -1,4 +1,8 @@
-"""Giant slayer milestone — active #1 rule (shared by chrono generator and parity probe)."""
+"""Giant slayer milestone — kickoff active #1 (shared by chrono generator and parity probe).
+
+Active #1 is the highest-rated active player at game start (before this game's Elo
+is applied). Tie → highest player_id (matches PHP ORDER BY Rating DESC, ID DESC).
+"""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -18,7 +22,7 @@ def giant_slayer_active_top_id(
 
     Active = rated game within the last GIANT_SLAYER_ACTIVE_DAYS (UTC rolling), or
     one of the two players in the current game (they are playing now).
-    Ties: highest player_id wins (matches max() on ids).
+    Ties: highest player_id wins (matches PHP ORDER BY Rating DESC, ID DESC).
     """
     cutoff = at - timedelta(days=GIANT_SLAYER_ACTIVE_DAYS)
     playing = frozenset(in_game)
@@ -32,7 +36,7 @@ def giant_slayer_active_top_id(
             cands.append(k)
     if not cands:
         return 0
-    return max(cands, key=lambda k: ratings[k])
+    return max(cands, key=lambda k: (ratings[k], k))
 
 
 def giant_slayer_qualifies(

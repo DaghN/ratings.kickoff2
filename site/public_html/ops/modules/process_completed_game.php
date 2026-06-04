@@ -28,6 +28,8 @@ require_once __DIR__ . '/../includes/post_game_generalstats.php';
 
 require_once __DIR__ . '/../includes/post_game_period_activity.php';
 
+require_once __DIR__ . '/../includes/post_game_milestones.php';
+
 require_once __DIR__ . '/../includes/ops_bootstrap.php';
 
 
@@ -519,6 +521,8 @@ function k2_ops_process_completed_game(
 
         k2_ops_write_ratedresults_derived($con, $derived);
 
+        k2_post_game_milestones_apply_giant_slayer_at_kickoff($con, $game, $derived);
+
         foreach ($players as $pid => $st) {
 
             k2_post_game_player_write($con, k2_post_game_player_to_db_row($st, (int) $pid));
@@ -531,7 +535,6 @@ function k2_ops_process_completed_game(
 
         $periodCounts = k2_post_game_update_period_activity_after_game($con, $game, $derived);
         if ($periodCounts !== null) {
-            require_once __DIR__ . '/../includes/post_game_milestones.php';
             k2_post_game_update_milestones_after_game(
                 $con,
                 $game,

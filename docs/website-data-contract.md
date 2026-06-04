@@ -619,7 +619,7 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 | `five_victims`, `twenty_five_victims`, `ten_culprits` | `DifferentVictims` / `DifferentCulprits` cross thresholds (victim = opponent beaten; culprit = opponent who beat you — same as `finalize_network_counts`) |
 | `diversity_merchant` | 5th **distinct** opponent in a game where player scored 10+ (per-game DD; same family as travelling salesman) |
 | `travelling_salesman` | 10th **distinct** opponent in a game where player scored 10+ |
-| `clean_sheet_spread` | 10th distinct opponent with a clean-sheet win (`goals_against = 0`, `goals_for > 0`) |
+| `clean_sheet_spread` | 10th distinct opponent in a game where you kept a clean sheet (`goals_against = 0`; includes 0–0 draws) |
 | `ten_match_saga`, `lifetime_rivalry` | 10th / 50th rated game vs same opponent (per directed pair count) |
 | `regular_customer`, `bogeyman` | 10th / 20th win vs same opponent |
 
@@ -635,16 +635,17 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 | `knife_edge` / `unlucky` | 5 consecutive 1-goal margin wins / losses |
 | `on_the_scoresheet` | 10 consecutive games with at least one goal scored |
 | `rare_blank` | First game with **0 goals scored** once the player already has **50+** career games (`rule_short`: “after 50+ career games” = in a **later** game, not on the game that completes the 50th). **Live / sim:** `NumberGames >= 51` and `goals_for = 0` on that game; dedupe via chrono `done` (only the first blank after the threshold). Aligns with `rule_short` — not “51+” in copy. |
-| `giant_slayer` | **Active #1** rule (below) |
+| `giant_slayer` | **Kickoff active #1** rule (below) |
 | `daily_habit`, `weekly_regular`, `monthly_regular`, `year_round` | Calendar habit rules — match `gen_milestone_chrono_sql.py` |
 | `play_streak_100` | First cross of **100** consecutive UTC days with ≥1 rated game; unlock on the **game that extends** the day streak to 100 — `k2_play_streak_maybe_unlock_milestone_100()` / `simulate_play_streak_100_milestones()`; batch SQL may still use establishing-game backfill |
 | `year_in_heaven` | First calendar year **Y** with a rated game in all **52** UTC week slots (Monday grid containing 1 Jan — profile Played weeks); **live:** unlock on the rated game that fills the 52nd slot (`achieved_at` = that game's `Date`, `source_game_id` = that game) when week `games` = 1 after upsert; batch rebuild SQL may use establishing-game lookup — [`coordination/milestones-year-in-heaven-handoff.md`](coordination/milestones-year-in-heaven-handoff.md) |
 
-**`giant_slayer` (game — active #1):** After this game’s Elo and `LastGame` updates, for each winner:
+**`giant_slayer` (game — kickoff active #1):** For each winner, facts are at **game start** (before this game’s Elo is written to `playertable`):
 
-- **Active player:** `LastGame` within **365 rolling UTC days** before game `Date`, **or** is `idA`/`idB` of this game.
-- **Active #1:** highest `Rating` among active players; tie → highest `playertable.ID`.
-- **Unlock (first time):** won; opponent is active #1; opponent ≠ self; pre-game `Rating_opponent >= Rating_self`.
+- **Active player:** `LastGame` within **365 rolling UTC days** before game `Date`, **or** is `idA`/`idB` of this game (same as at kickoff; match players count as active).
+- **Kickoff active #1:** highest `playertable.Rating` among active players **before** this game’s `playertable` update; tie → highest `playertable.ID`. Post-game ratings must not be used (beating #1 can demote them).
+- **Unlock (first time):** won; opponent is kickoff active #1; opponent ≠ self; pre-game `Rating_opponent >= Rating_self` (`ratedresults.RatingA` / `RatingB`).
+- **Live / sim:** `k2_post_game_milestones_apply_giant_slayer_at_kickoff()` runs after `ratedresults` write, **before** `k2_post_game_player_write()` for `idA`/`idB`.
 - Insert: `source_kind = game`, `source_game_id = ratedresults.id`, `achieved_at = Date`, `value = 1`.
 
 Rebuild: `gen_milestone_chrono_sql.py`; surgical `player_milestones_rebuild_giant_slayer.sql`. Probe: `scripts/oneoff/milestone_giant_slayer.py`.
@@ -960,7 +961,7 @@ All six values must match.
 
 Additional checks:
 
-- `player_milestones`: `COUNT(DISTINCT milestone_key) = 112`; `source_kind IS NULL` count = 0; `established_20` count = `playertable` with `NumberGames >= 20`; `giant_slayer` count = **31** (active #1 rule — see § `giant_slayer`).
+- `player_milestones`: `COUNT(DISTINCT milestone_key) = 112`; `source_kind IS NULL` count = 0; `established_20` count = `playertable` with `NumberGames >= 20`; `giant_slayer` count = **33** on current import (kickoff active #1 — see § `giant_slayer`; was 31 under post-game #1).
 - `python scripts/oneoff/milestone_v0_sanity_check.py` — PHP read helpers match SQL (local).
 - Recent `server_period_matchups` month counts equal raw UTC `COUNT(DISTINCT pair)` by month.
 - Key APIs keep their JSON shape while reading stored truth.

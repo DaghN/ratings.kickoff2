@@ -417,7 +417,7 @@
       "chart_token": "amber",
       "name_score": 5,
       "rule_short": "Beat #1 rated **active** player",
-      "rule_probe": "chrono beat #1 active (365d rolling UTC)",
+      "rule_probe": "kickoff beat #1 active (365d rolling UTC)",
       "unlock_veterans": 31,
       "pct_veterans": "29.0%"
     },
@@ -824,7 +824,7 @@
       "chart_token": "chrome",
       "name_score": 4,
       "rule_short": "Clean sheet vs 10 different opponents",
-      "rule_probe": "ratedresults distinct CS victims",
+      "rule_probe": "ratedresults distinct opponents where goals_against=0",
       "unlock_veterans": 47,
       "pct_veterans": "43.9%"
     },

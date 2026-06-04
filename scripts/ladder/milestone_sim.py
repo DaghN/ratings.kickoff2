@@ -382,6 +382,9 @@ def simulate_chrono_milestones(games: list[dict[str, Any]]) -> list[MilestoneRow
         last_game[id_b] = dt
         ga, gb = int(g["GoalsA"] or 0), int(g["GoalsB"] or 0)
         sc = float(g["ActualScore"])
+        kickoff_top_id = giant_slayer_active_top_id(
+            ratings, last_game, dt, in_game=(id_a, id_b)
+        )
 
         for pid, gf, ga_c, opp, r_pre, r_opp, new_r in (
             (
@@ -478,11 +481,13 @@ def simulate_chrono_milestones(games: list[dict[str, Any]]) -> list[MilestoneRow
                 _chrono_unlock(rows, pid, "minimalist_merchant", st, dt, gid, 3)
 
             ratings[pid] = new_r if new_r > 0 else ratings[pid]
-            top_id = giant_slayer_active_top_id(
-                ratings, last_game, dt, in_game=(id_a, id_b)
-            )
             if giant_slayer_qualifies(
-                won=won, pid=pid, opp=opp, top_id=top_id, r_pre=r_pre, r_opp=r_opp
+                won=won,
+                pid=pid,
+                opp=opp,
+                top_id=kickoff_top_id,
+                r_pre=r_pre,
+                r_opp=r_opp,
             ):
                 _chrono_unlock(rows, pid, "giant_slayer", st, dt, gid, 1)
 
@@ -693,7 +698,7 @@ def simulate_tail_milestones(
                     _tail_unlock(rows, pid, "fortress_builder", st, dt, gid, 25)
                 if st.clean_sheets == 50:
                     _tail_unlock(rows, pid, "clean_sheet_artist", st, dt, gid, 50)
-                if gf > 0 and opp not in st.cs_opponents:
+                if opp not in st.cs_opponents:
                     st.cs_opponents.add(opp)
                     _check_thresholds(
                         rows, pid, st, dt, gid, SPECIAL_CS_OPP, len(st.cs_opponents)
