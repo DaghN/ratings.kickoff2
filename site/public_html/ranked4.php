@@ -81,16 +81,16 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr>
         <td><?php echo $rank ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td><?php echo round($row[2]) ?></td>
-        <td><?php echo $row[3] ?></td>
-        <td><?php echo $row[4] == 0 ? '-' : (int) $row[4]; ?></td>
-        <td><?php echo $row[5] == 0 ? '-' : (int) $row[5]; ?></td>
-        <td><?php echo $row[6] == 0 ? '-' : (int) $row[6]; ?></td>
-        <td><?php echo $row[7] == 0 ? '-' : (int) $row[7]; ?></td>
-        <td><?php echo $row[8] == 0 ? '-' : (int) $row[8]; ?></td>
-        <td><?php echo $row[9] == 0 ? '-' : (int) $row[9]; ?></td>
-        <td><?php echo $row[10] == 0 ? '-' : (int) $row[10]; ?></td>
-        <td><?php echo $row[11] == 0 ? '-' : (int) $row[11]; ?></td>
+        <td><?php echo k2_fmt_int($row[2]); ?></td>
+        <td><?php echo k2_fmt_count($row[3]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[4]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[5]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[6]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[7]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[8]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[9]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[10]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[11]); ?></td>
     </tr> 
     
     <?php

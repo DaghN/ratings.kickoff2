@@ -57,7 +57,7 @@ foreach ($leaderRows as $row) {
     <tr>
         <td><?php echo $rank; ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row['player_id'], $row['player_name']); ?></td>
-        <td><?php echo (int) round($row['rating']); ?></td>
+        <td><?php echo k2_fmt_int($row['rating']); ?></td>
         <td><?php echo (int) $row['games']; ?></td>
         <td><span class="k2-lb-ms-tier--pitch"><?php echo (int) $row['aspirational']; ?></span></td>
         <td><span class="k2-lb-ms-tier--chrome"><?php echo (int) $row['dedicated']; ?></span></td>

@@ -73,23 +73,23 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr>
         <td><?php echo $rank ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td><?php echo round($row[2]) ?></td>
-        <td><?php echo $row[3] ?></td>
-        <td><?php echo (int) $row[4]; ?></td>
-        <td><?php echo (int) $row[5]; ?></td>
-        <td><?php echo number_format((float) $row[6], 2); ?></td>
-        <td><?php echo number_format((float) $row[7], 2); ?></td>
+        <td><?php echo k2_fmt_int($row[2]); ?></td>
+        <td><?php echo k2_fmt_count($row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[4]); ?></td>
+        <td><?php echo k2_fmt_count($row[5]); ?></td>
+        <td><?php echo k2_fmt_decimal($row[6]); ?></td>
+        <td><?php echo k2_fmt_decimal($row[7]); ?></td>
         <td><?php
-        	if ($row[8] === null || $row[8] == -1) {
-                echo '-';
+        	if (k2_db_is_null($row[8]) || (float) $row[8] == -1.0) {
+                echo k2_fmt_dash();
             } else {
-                echo number_format((float) $row[8], 2);
+                echo k2_fmt_decimal($row[8]);
             }
         ?></td>
-        <td><?php echo $row[9] != 0 ? (int) $row[9] : '-'; ?></td>
-        <td><?php echo $row[10] != 0 ? (int) $row[10] : '-'; ?></td>
-        <td><?php echo $row[11] != 0 ? (int) $row[11] : '-'; ?></td>
-        <td><?php echo $row[12] != 0 ? (int) $row[12] : '-'; ?></td>
+        <td><?php echo k2_fmt_optional_int($row[9]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[10]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[11]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[12]); ?></td>
         <td><?php if ($row[15]!=0) {echo $row[13]/2; echo "-"; echo $row[13]/2;} else {echo "-";} ?></td>
         <td><?php echo $row[14] ?></td>
     </tr> 

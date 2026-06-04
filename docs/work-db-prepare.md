@@ -145,6 +145,8 @@ Compare to legacy path: same counts; legacy **without** v2 `zero-derived` may le
 | `playertable.Display` | **Leave** as import | Not ladder-derived; legacy Unity/site listing |
 | `playertable.PlayerRank` | **Leave** as import | Not Dagh ladder lane; Steve B / legacy if prod changes needed |
 
+**Website:** Rows with `Display = 1` and NULL career fields are valid between zero-derived and replay catch-up (e.g. joins present on work baseline after dev freeze). Leaderboards still list them; PHP renders unset stats as `-` via `k2_safety.php` formatters — see [`playertable-schema.md`](playertable-schema.md) § Display without derived career stats.
+
 ### 4.3 Core ladder derived (implemented: `reset_universe`)
 
 | Object | Action |

@@ -6,6 +6,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/k2_safety.php';
+
 function k2_status_h(mixed $value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
@@ -520,7 +522,7 @@ function k2_status_active_top_rated(mysqli $con, ?string &$error = null): ?array
         $out[] = [
             'id' => (int) $row['ID'],
             'name' => (string) $row['Name'],
-            'rating' => (int) round((float) $row['Rating']),
+            'rating' => k2_db_is_null($row['Rating']) ? 0 : (int) round((float) $row['Rating']),
             'last_game' => (string) $row['LastGame'],
             'games' => (int) ($row['NumberGames'] ?? 0),
         ];

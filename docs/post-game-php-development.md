@@ -150,6 +150,7 @@ While implementing a phase, **look for** SQL that is correct but **heavy on the 
 | Item | Status |
 |------|--------|
 | **`playertable.RecentAverageRating`** | **Dropped on work DB** — `schema/migrations/016_drop_playertable_recent_average_rating.sql` (SCH-016) runs in prepare **migrate** step. Do not reference in PHP post-game or parity. Python replay no longer writes it. Prod C++ may still expect the column until cutover. |
+| **`Display = 1` + NULL career fields** | Valid on work between zero-derived and replay catch-up; **not** a post-game writer bug. Public site uses `k2_fmt_*` in `includes/k2_safety.php` — see [`playertable-schema.md`](playertable-schema.md). |
 | **Ratio leader columns on `generalstatstable`** | Dropped — leaders from `playertable` at read time ([`records-post-game-exception.md`](coordination/records-post-game-exception.md)). |
 | **`player_milestones`, period aggregates, …** | Later phases (P4+) — contract § Post-game derived-data behavior. |
 

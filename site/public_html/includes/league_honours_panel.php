@@ -9,6 +9,7 @@ if (!function_exists('k2_lb_league_honours_parse_view')) {
 }
 require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/lb_column_help.php';
+require_once __DIR__ . '/k2_safety.php';
 
 $honoursView = $honoursView ?? k2_lb_league_honours_parse_view();
 $honoursRows = $honoursRows ?? [];
@@ -99,7 +100,7 @@ foreach ($cupTabs as $cupId => $label) {
 				<tr>
 					<td></td>
 					<td class="k2-table-cell--left"><?php echo k2_player_link($row['id'], $row['name']); ?></td>
-					<td><?php echo (int) round($row['rating']); ?></td>
+					<td><?php echo k2_fmt_int($row['rating']); ?></td>
 					<td><?php echo (int) $row['games']; ?></td>
 					<td><?php echo (int) $row['gold']; ?></td>
 					<td><?php echo (int) $row['silver']; ?></td>

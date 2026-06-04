@@ -3,14 +3,16 @@
  * Player hero scaffold — expects $Name, optional $Rating, $NumberGames, $Display, $rank,
  * optional $heroMilestoneCounts (from player_hero_vars.php or individual1 feast load), $id for garden link.
  */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+
 if (empty($Name)) {
 	return;
 }
 $heroInitial = strtoupper(substr((string) $Name, 0, 1));
 $heroDisplay = isset($Display) && (int) $Display === 1;
 $heroRank = $heroDisplay && isset($rank) ? '#' . (int) $rank : '—';
-$heroRating = $heroDisplay && isset($Rating) ? round($Rating) : '—';
-$heroGames = isset($NumberGames) ? (int) $NumberGames : 0;
+$heroRating = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating) ? k2_fmt_int($Rating, '—') : '—';
+$heroGames = isset($NumberGames) && !k2_db_is_null($NumberGames) ? (int) $NumberGames : 0;
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroMs = isset($heroMilestoneCounts) && is_array($heroMilestoneCounts) ? $heroMilestoneCounts : null;
 $heroMsPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
@@ -19,7 +21,7 @@ $heroLbRatingHref = 'ranked7.php';
 $heroLbGamesPeakHref = 'ranked8.php#k2-peak-period-all-time';
 $heroMsCatalogTotal = isset($heroMsCatalogTotal) ? (int) $heroMsCatalogTotal : 0;
 $heroRankLinked = $heroDisplay && isset($rank);
-$heroRatingLinked = $heroDisplay && isset($Rating);
+$heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 ?>
 <article class="k2-player-hero k2-player-hero--feast">
 	<div class="k2-player-hero__inner">
@@ -49,7 +51,7 @@ $heroRatingLinked = $heroDisplay && isset($Rating);
 					<span class="k2-player-hero__stat-label">Rating</span>
 					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php
 						if ($heroRatingLinked) {
-							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbRatingHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo (int) round($Rating); ?></a><?php
+							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbRatingHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_fmt_int($Rating, '—'); ?></a><?php
 						} else {
 							echo $heroRating;
 						}

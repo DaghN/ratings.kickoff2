@@ -66,13 +66,13 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr>
         <td><?php echo $rank ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td><?php echo round($row[2]) ?></td>
-        <td><?php echo $row[3] ?></td>
-        <td><?php echo $row[4] == 0 ? '-' : (int) round($row[4]); ?></td>
-        <td><?php echo $row[5] == 5000 ? '-' : (int) round($row[5]); ?></td>
-        <td><?php echo (int) round($row[6]); ?></td>
-        <td><?php echo $row[7] == 0 ? '-' : (int) round($row[7]); ?></td>
-        <td><?php echo $row[8] == 5000 ? '-' : (int) round($row[8]); ?></td>
+        <td><?php echo k2_fmt_int($row[2]); ?></td>
+        <td><?php echo k2_fmt_count($row[3]); ?></td>
+        <td><?php echo k2_fmt_peak_rating($row[4]); ?></td>
+        <td><?php echo k2_fmt_nadir_rating($row[5]); ?></td>
+        <td><?php echo k2_fmt_int($row[6]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[7]); ?></td>
+        <td><?php echo k2_fmt_optional_int($row[8], 5000.0); ?></td>
     </tr> 
     
     <?php

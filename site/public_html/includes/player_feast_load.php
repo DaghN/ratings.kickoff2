@@ -5,6 +5,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_profile.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 
 /**
  * @return array<string, mixed>
@@ -27,13 +28,15 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $rank = (int) $rankRow[0];
 
     $display = (int) $row['Display'] === 1;
-    $rating = $display ? (int) round((float) $row['Rating']) : null;
-    $peak = $display && (float) $row['PeakRating'] != 0 ? (int) round((float) $row['PeakRating']) : null;
-    $games = (int) $row['NumberGames'];
-    $wins = (int) $row['NumberWins'];
-    $draws = (int) $row['NumberDraws'];
-    $losses = (int) $row['NumberLosses'];
-    $winPct = $games > 0 ? round(100 * (float) $row['WinRatio'], 1) : 0;
+    $rating = $display && !k2_db_is_null($row['Rating']) ? (int) round((float) $row['Rating']) : null;
+    $peak = $display && !k2_db_is_null($row['PeakRating']) && (float) $row['PeakRating'] != 0
+        ? (int) round((float) $row['PeakRating']) : null;
+    $games = k2_db_is_null($row['NumberGames']) ? 0 : (int) $row['NumberGames'];
+    $wins = k2_db_is_null($row['NumberWins']) ? 0 : (int) $row['NumberWins'];
+    $draws = k2_db_is_null($row['NumberDraws']) ? 0 : (int) $row['NumberDraws'];
+    $losses = k2_db_is_null($row['NumberLosses']) ? 0 : (int) $row['NumberLosses'];
+    $winPct = $games > 0 && !k2_db_is_null($row['WinRatio'])
+        ? round(100 * (float) $row['WinRatio'], 1) : ($games > 0 ? 0.0 : null);
 
     $monthResult = k2_player_feast_query(
         $con,
@@ -157,8 +160,10 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'different_opponents' => $differentOpponents,
         'different_victims' => (int) $row['DifferentVictims'],
         'busiest' => $busiest,
-        'average_opponent_rating' => $display ? (int) round((float) $row['AverageOpponentRating']) : null,
-        'goal_ratio' => $display ? round((float) $row['GoalRatio'], 2) : null,
+        'average_opponent_rating' => ($display && !k2_db_is_null($row['AverageOpponentRating']))
+            ? (int) round((float) $row['AverageOpponentRating']) : null,
+        'goal_ratio' => ($display && !k2_db_is_null($row['GoalRatio']))
+            ? round((float) $row['GoalRatio'], 2) : null,
         'goals_for' => (int) $row['GoalsFor'],
         'goals_against' => (int) $row['GoalsAgainst'],
         'double_digits' => (int) $row['DoubleDigits'],
@@ -258,7 +263,7 @@ function player_feast_expose_hero_vars(array $pm): void
     $rank = (int) $pm['rank'];
     $NumberGames = (int) $pm['games'];
     $Display = !empty($pm['display']) ? 1 : 0;
-    $Rating = $Display === 1 ? (float) $pm['rating_raw'] : 0;
-    $PeakRating = $Display === 1 ? (float) $pm['peak_raw'] : 0;
+    $Rating = ($Display === 1 && $pm['rating'] !== null) ? (float) $pm['rating'] : null;
+    $PeakRating = ($Display === 1 && $pm['peak'] !== null) ? (float) $pm['peak'] : null;
 }
 

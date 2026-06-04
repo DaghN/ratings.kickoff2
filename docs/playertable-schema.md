@@ -215,6 +215,10 @@ In the app, **registering = entering the lobby**. Milestone **`entered_arena`**:
 - **`Display = 1`** — used on ranked pages to mean “show on ladder listings.”
 - **`PlayerRank <> 9999`** — legacy **Unity / server-side rank** slot; **449** accounts keep the default **`9999`**. The ratings site previously filtered on this, which hid almost everyone.
 
+### Display without derived career stats (Jun 2026)
+
+After **zero-derived** (or partial replay on work), a row may have **`Display = 1`** (left from import per [`work-db-prepare.md`](work-db-prepare.md) §4.2) while **`NumberGames`**, ratio columns, and **`AverageOpponentRating`** are still **NULL** until post-game reaches that player’s games. Public PHP must not call `round()` / `number_format()` on those NULLs — use helpers in `site/public_html/includes/k2_safety.php` (`k2_fmt_int`, `k2_fmt_pct_from_ratio`, …) and show **`-`** in tables.
+
 ---
 
 ## Privacy / security

@@ -70,16 +70,16 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr>
         <td><?php echo $rank ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td><?php echo round($row[2]) ?></td>
-        <td><?php echo $row[3] ?></td>
-        <td><?php echo (int) $row[4]; ?></td>
-        <td><?php echo (int) $row[5]; ?></td>
-        <td><?php echo $row[6] == 0 ? '0%' : number_format(100 * $row[6], 1) . '%'; ?></td>
-        <td><?php echo $row[7] == 0 ? '0%' : number_format(100 * $row[7], 1) . '%'; ?></td>
-        <td><?php echo (int) $row[8]; ?></td>
-        <td><?php echo (int) $row[9]; ?></td>
-        <td><?php echo $row[10] == 0 ? '0%' : number_format(100 * $row[10], 1) . '%'; ?></td>
-        <td><?php echo $row[11] == 0 ? '0%' : number_format(100 * $row[11], 1) . '%'; ?></td>
+        <td><?php echo k2_fmt_int($row[2]); ?></td>
+        <td><?php echo k2_fmt_count($row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[4]); ?></td>
+        <td><?php echo k2_fmt_count($row[5]); ?></td>
+        <td><?php echo k2_fmt_pct_from_ratio($row[6], $row[3]); ?></td>
+        <td><?php echo k2_fmt_pct_from_ratio($row[7], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[8]); ?></td>
+        <td><?php echo k2_fmt_count($row[9]); ?></td>
+        <td><?php echo k2_fmt_pct_from_ratio($row[10], $row[3]); ?></td>
+        <td><?php echo k2_fmt_pct_from_ratio($row[11], $row[3]); ?></td>
     </tr> 
     
     <?php
