@@ -1,0 +1,118 @@
+/**
+ * Profile lab Agent 1 — banner, feast lines, honours strip.
+ */
+
+.k2-lab-banner {
+	margin: 0 0 16px;
+	padding: 10px 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	font-size: 13px;
+	text-align: center;
+}
+
+.pm3-feast-line {
+	margin: 12px 0 0;
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+.pm3-feast-line--pulse {
+	padding-top: 4px;
+}
+
+.pm3-feast-line__tag {
+	display: inline-block;
+	margin-right: 6px;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--k2-accent);
+}
+
+.pm3-feast-line__sub {
+	opacity: 0.85;
+}
+
+.pm3-feast-line__action {
+	margin-left: 8px;
+	font-size: 13px;
+	white-space: nowrap;
+}
+
+.pm3-feast-line--rival {
+	margin-bottom: 14px;
+}
+
+.pm3-moments-empty {
+	margin: 0;
+	padding: 20px 16px;
+	border: 1px dashed var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	text-align: center;
+}
+
+.pm3efg-stat-table--career-inline-rank .pm3efg-career-stats__rank {
+	display: none;
+}
+
+/* Honours band (B3) */
+.pm3-honours__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 12px;
+	margin-bottom: 14px;
+}
+
+.pm3-moment--honour {
+	min-height: 120px;
+}
+
+.pm3-honours-medal {
+	padding: 14px 16px;
+	border-radius: var(--k2-radius-lg);
+	border: 1px solid var(--k2-border-subtle);
+	background: var(--k2-bg-surface);
+}
+
+.pm3-honours-medal--gold {
+	border-color: color-mix(in srgb, var(--k2-accent) 55%, var(--k2-border-subtle));
+	box-shadow: 0 0 0 1px color-mix(in srgb, var(--k2-accent) 20%, transparent);
+}
+
+.pm3-honours-medal__title {
+	margin: 0 0 6px;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+.pm3-honours-medal__score {
+	margin: 0;
+	font-family: var(--k2-font-display);
+	font-size: 22px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.pm3-honours-medal__meta {
+	margin: 6px 0 0;
+	font-size: 12px;
+	color: var(--k2-text-muted);
+}
+
+.pm3-honours__stats {
+	margin: 0 0 10px;
+	padding: 0 0 0 18px;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.pm3-honours__links {
+	margin: 0;
+	font-size: 14px;
+}
