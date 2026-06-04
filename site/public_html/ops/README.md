@@ -17,7 +17,7 @@
 - **UTC day tick:** `run_finalize_utc_day.php` — dev runner same as `CMD=FinalizeUtcDay`.
 - **Prod-shaped simul:** `run_ops_sim.php run` — full history or `--until-game-id` (preferred). Low-level: `run_timeline_sim.php`.
 - **After simul (local gate):** `run_verify_ops_sim.php` — six-value + league + milestone smoke SQL.
-- **Dispatcher:** `dispatch.php` — Steve/cron `CMD=` entry ([`ops-dispatch.md`](../../../docs/coordination/ops-dispatch.md)).
+- **Dispatcher:** `dispatch.php` — Steve/cron `CMD=` entry · **Steve docs:** [`docs/post-dagh-live-story.md`](docs/post-dagh-live-story.md) (full bootstrap → live), [`docs/steve-live-ops.md`](docs/steve-live-ops.md), [`docs/ops-dispatch.md`](docs/ops-dispatch.md) (synced with WinSCP).
 - **Not yet:** live **register** wired on prod (CMD exists: `ProcessPlayerRegistered`).
 
 ---
@@ -39,20 +39,17 @@
 
 ---
 
-## Staging WinSCP (self-contained under `public_html/ops/`)
+## Server deploy (Steve)
 
-Sync **`site/public_html/`** → server **`public_html/`** (includes all of `ops/`).
+Dagh syncs **`site/public_html/`** → server **`public_html/`**. Steve runs all CLI on the host.
 
-On the server once:
+1. **`ops/docs/post-dagh-live-story.md`** — bootstrap + live (start here).
+2. `ops/config/work-targets.ini.example` → `work-targets.ini` (Steve maintains).
+3. Live dispatch: **`ops/docs/steve-live-ops.md`**.
 
-1. `ops/config/work-targets.ini.example` → `ops/config/work-targets.ini` — fill `[staging-work]` with same MySQL login as `config/ko2unitydb_config1.php` (`kooldb1` / `kooldb2`).
-2. Run: `php ops/run_prepare.php prepare --target staging-work`
+`refresh-work` / full `prepare` = optional two-DB path ([`work-db-prepare.md`](../../../docs/work-db-prepare.md)); **not** the prod-copy runbook.
 
-No separate `data/` or `site/config/` upload required for prepare/dispatch (legacy `site/config/work-targets.ini` still works locally if present).
-
-**Steve staging runbook:** [`docs/coordination/staging-work-steve-handoff.md`](../../../docs/coordination/staging-work-steve-handoff.md)
-
-**Host binaries for refresh:** `mysql` / `mysqldump` on PATH or standard Laragon (Windows) / `/usr/bin` (Linux) paths — see `includes/ops_shell.php`.
+**Host binaries:** `mysql` / `mysqldump` only needed for `refresh-work` — see `includes/ops_shell.php`.
 
 ---
 
@@ -151,12 +148,15 @@ Optional `--start-at 2017-06-09T00:00:00Z` to skip earlier history. Stops before
 
 ## Steve / cron (dispatcher)
 
+**Read first:** [`docs/steve-live-ops.md`](docs/steve-live-ops.md) · Detail: [`docs/ops-dispatch.md`](docs/ops-dispatch.md)
+
 ```text
-php site/public_html/ops/dispatch.php CMD=ProcessCompletedGame game_id=<id> target=staging-work
-php site/public_html/ops/dispatch.php CMD=FinalizeLeagueDue target=staging-work
+php ops/dispatch.php CMD=ProcessPlayerRegistered player_id=<id> target=staging-work
+php ops/dispatch.php CMD=ProcessCompletedGame game_id=<id> target=staging-work
+php ops/dispatch.php CMD=FinalizeUtcDay target=staging-work
 ```
 
-Exit codes, failure semantics, adding CMDs: [`docs/coordination/ops-dispatch.md`](../../../docs/coordination/ops-dispatch.md).
+Run from `public_html/`. Exit codes and semantics: [`docs/ops-dispatch.md`](docs/ops-dispatch.md).
 
 Batch simul still uses `run_process_game.php replay-to` (not dispatch).
 

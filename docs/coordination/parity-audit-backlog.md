@@ -15,9 +15,9 @@
 | **Status** | **Complete** — spot-check across leaderboards, honours, victims/culprits, goals, player games; not every UI corner visited. |
 | **Verdict** | **No critical blockers** found for continuing on **work + PHP ops** as forward truth. Dev remains a **legacy reference**, not a byte-for-byte target. |
 | **Shipped during audit** | Leaderboard display policy (`k2_fmt_*`, ranked1–7); ranked2 draw/MGC fixes; **individual3** / game row unprocessed display (**AUD-006**). |
-| **Post-audit (not blocking)** | **AUD-004** ops pipeline (one-click simul = daily ops, not batch rebuilds); **AUD-001** writer NULL→0 optional; **AUD-003** ranked5 tie policy accepted; league honours empty until finalize (**AUD-005**). |
-| **Follow-ups (low)** | `individual3` win/draw/loss filters on `ActualScore` for unprocessed rows (**AUD-006**); sweep other `ratedresults` listings if needed. |
-| **Next step** | **[Ops completeness programme](ops-completeness-charter.md)** (charter + [ADR](ops-orchestration-adr.md) + [DDR](ops-derived-data-registry.md)) — implement **AUD-004**; then post-audit triage for deferred writer/display items. |
+| **Ops pipeline (AUD-004 / AUD-005)** | **Closed Jun 2026** — Mode C `run_ops_sim` + `FinalizeUtcDay` on staging `kooldb1`; Steve `run_verify_ops_sim` **0 fail / 0 warn** (74,865 processed; 21,867 league awards; 20 league milestone keys). Visual parity pass: staging simul vs frozen local dev — **acceptable** after two milestone rule fixes (`clean_sheet_spread`, `giant_slayer`; commit `a3cb1c0`). |
+| **Deferred (low)** | **AUD-001** writer NULL→0 optional; **AUD-003** ranked5 tie policy accepted (work vs dev); **AUD-006** `individual3` filters on unprocessed rows; sweep other `ratedresults` listings if needed. |
+| **Next step** | **Staging Live phase** — per-game `dispatch.php` + nightly `FinalizeUtcDay` on `kooldb1` ([`staging-work-steve-brief.md`](staging-work-steve-brief.md) §4.4). **Prod cutover** still separate ([`prod-coordination.md`](../prod-coordination.md)). Optional: `ab-post-game` samples, DDR Track C depth on demand. |
 
 ---
 
@@ -81,7 +81,7 @@
 
 | Field | Content |
 |--------|---------|
-| **Status** | `verified` (audit Jun 2026); **planned comprehensive ops audit + fix** (same day — owner) |
+| **Status** | **`done`** (Jun 2026) — ops completeness programme + staging sign-off |
 | **Found** | **League honours (ranked9)** on **work**: `player_league_award` / `player_league_totals` / `league_period` **empty** after game-only simul; `player_period_league` populated (~38k rows). Steve staging runbook §4 = `replay-to` only; §5 finalize is optional/separate. User intent: **one-click simul** should mirror **day-to-day ops**, **not** depend on batch rebuilds as the definition of “simul complete.” |
 | **Observation — intent vs today** | **Intent:** Simul = faithful replay of **live pipeline**: per-game post-game + **periodic** jobs (at minimum **league finalize ~00:00:01 UTC**, plus other calendar-bound writers). **Today:** Default path is **Mode A** (`run_process_game.php replay-to` / `CMD=ProcessCompletedGame` only) = per-game derived truth. **Mode B** (batch `rebuild_website_derived_data_local.ps1`, `player_milestones_rebuild.sql`, `run_finalize_league.php rebuild-all`) is a **shortcut**, explicitly **not** the simul definition in [`work-db-prepare.md`](../work-db-prepare.md) §5. **Mode C** (`run_timeline_sim.php`) exists but is partial / not the default Steve path. |
 | **Observation — derived layers** | **Per-game** (in `replay-to`): Elo, `playertable`, GST, `player_period_games` / `player_period_league`, most P6 game keys → `ProcessCompletedGame`. **Periodic** (not in `replay-to`): PER-003 league finalize (awards, honours), day-close milestones → `FinalizeUtcDay`. **Register:** `entered_arena` → `ProcessPlayerRegistered` only. **Batch rebuild** (Mode B — not target simul semantics): full `player_league_award`, ~20 league medal keys in `player_milestones_rebuild.sql`, some aggregates — often used to backfill gaps. |
@@ -94,7 +94,7 @@
 | **Options (first look)** | **Adopted (Jun 2026):** [`ops-orchestration-adr.md`](ops-orchestration-adr.md) — one midnight CMD, ordered steps, sim interleave, batch = repair only. **(a–e)** from original list map to charter phases 2–3. |
 | **Open questions** | Python ladder tail batch fields; `rebuild-aggregates` without `k2_league_sync_win_milestones`; exact sim midnight convention. |
 | **Links** | [`ops-completeness-charter.md`](ops-completeness-charter.md) · [`ops-orchestration-adr.md`](ops-orchestration-adr.md) · [`ops-derived-data-registry.md`](ops-derived-data-registry.md) · [`work-db-prepare.md`](../work-db-prepare.md) §5.1–5.2 · [`staging-work-steve-handoff.md`](staging-work-steve-handoff.md) §4–5 · [`ops-dispatch.md`](ops-dispatch.md) · [`periodic-register.md`](periodic-register.md) · [`post-game-php-development.md`](../post-game-php-development.md) §2.2–2.3 |
-| **Resolution** | **Partial (Jun 2026):** `FinalizeUtcDay` + `run_ops_sim.php` + [`ops-simul-runbook.md`](ops-simul-runbook.md). **Steve:** adopt nightly `FinalizeUtcDay` ([`steve-nightly-ops.md`](steve-nightly-ops.md)). Close fully after staging full `run_ops_sim` + site smoke. |
+| **Resolution** | **Done (Jun 2026):** `FinalizeUtcDay` + `run_ops_sim.php` + [`ops-simul-runbook.md`](ops-simul-runbook.md). Staging: full simul on `kooldb1`, `run_verify_ops_sim` all PASS, Dagh visual parity vs frozen dev. **Open for cutover:** Steve nightly `FinalizeUtcDay` cron + **Live** phase dispatch ([`steve-live-ops.md`](../../site/public_html/ops/docs/steve-live-ops.md), [`staging-work-steve-brief.md`](staging-work-steve-brief.md) §4.4). Batch rebuilds remain repair-only. |
 
 ### AUD-005 — League honours empty on work (symptom of AUD-004)
 
@@ -108,7 +108,7 @@
 | **Options (first look)** | Fix via **AUD-004** orchestration; interim: `run_finalize_league.php rebuild-all --target …` (batch — not target simul semantics). |
 | **Open questions** | None separate from AUD-004. |
 | **Links** | **AUD-004**; `ranked9.php`, `league_honours_leaderboard.php`. |
-| **Resolution** | *(post-audit)* |
+| **Resolution** | **Done (Jun 2026)** — resolved with **AUD-004**; staging `player_league_award` populated after Mode C simul + verify PASS.
 
 ### AUD-006 — `individual3.php` / game rows: unprocessed `ratedresults` (NULL derived)
 
@@ -125,16 +125,18 @@
 
 ---
 
-## Post-audit triage (empty until review)
+## Post-audit triage (Jun 2026)
 
 | AUD | Resolution | Rationale | Verify | Priority |
 |-----|------------|-----------|--------|----------|
-| AUD-001 | | | | |
-| AUD-002 | | | | |
-| AUD-003 | | | | |
-| AUD-004 | | | | |
-| AUD-005 | | | | |
-| AUD-006 | | | | |
+| AUD-001 | **deferred** | Display fix shipped (`k2_fmt_*`); writer NULL→0 optional — no ops blocker | ranked3 spot | low |
+| AUD-002 | **done** | ranked2 record columns + draw scoreline | SneakusBeakus case | — |
+| AUD-003 | **wontfix vs dev** | Contract `>` vs legacy C++ `>=` on personal pointers — forward truth = work | ranked5 tooltips | — |
+| AUD-004 | **done** | Mode C simul = daily ops; staging verify + visual sign-off | `run_verify_ops_sim` staging; site compare | — |
+| AUD-005 | **done** | Symptom of AUD-004 | ranked9 + award counts on `kooldb1` | — |
+| AUD-006 | **done** (display) | Unprocessed row display policy | individual3 / game rows | low (filters optional) |
+
+**Staging verify snapshot (Steve, `kooldb1`):** ground 75,204 · processed 74,865 · unprocessed 339 · awards 21,867 · finalized periods 7,422 · league milestone keys 20 · `perfect_day` 36 · `nightmare_day` 77 · `entered_arena` 479.
 
 ---
 

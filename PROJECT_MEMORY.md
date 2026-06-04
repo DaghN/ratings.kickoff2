@@ -32,7 +32,7 @@
 
 - **`ratedresults` only** for ladder/replay (~74.9k rated rows). **`resulttable`** is wider match log — external JSON on `GameID` can differ slightly; expected.
 
-- **Ladder ops platform (Jun 2026):** Post-game **P0–P6** in `ops/run_process_game.php`. Parity: **`ab-post-game --phase p6 --limit N`** (layer 6 milestones). **100-game parity OK** Jun 2026; **1000-game timing** ~849s PHP replay vs ~140s Python oracle (work DB).
+- **Ladder ops platform (Jun 2026):** Post-game **P0–P6** in `ops/run_process_game.php`. **Staging simul signed off** — `run_ops_sim` + Steve `run_verify_ops_sim` PASS on `kooldb1`; visual parity vs frozen dev OK after `clean_sheet_spread` / `giant_slayer` fixes (`a3cb1c0`). **Next:** Live on prod copy ([`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md)). **AUD-004/005** closed in parity backlog.
 - **Local dual website (Jun 2026, live):** **`ratingskickoff.test`** → dev DB · **`work.ratingskickoff.test`** → work DB (router + `setup_laragon_work_site.ps1`); **not** config-file cutover. Leaderboards on work URL verified vs prod snapshot. **`database-copies-2026-06.md`** § Local dual website · **`LOCAL_DEV.md`**.
 
 - **Change style:** small, reversible slices.
@@ -62,13 +62,13 @@
 
 ## Next (prioritised intent)
 
-1. **Deploy Activity v2** — WinSCP sync `server1.php`, `activity-charts-v2.js`, `server_activity_chart_panels.php`, `theme.css`, `chart-theme.js`; hard refresh.
-2. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub, ranked, server, **status** pages.
-3. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
-4. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
-5. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
-6. **Work DB prepare v2** — [`scripts/work_prepare/`](scripts/work_prepare/), `prepare_local_work_db.ps1`; legacy scripts kept for parity. **Next:** parity smoke vs legacy, then retire old entry points; **`ProcessCompletedGame`** before `dispatch.php`.
-7. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers. **Staging:** SCH-008 + REP-007–011 **done** May 2026; prod cutover + contract post-game still pending Steve.
+1. **Live prod copy (Steve)** — bootstrap + dispatch per [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md); WinSCP `public_html/ops/`.
+2. **Deploy Activity v2** — WinSCP sync `server1.php`, `activity-charts-v2.js`, `server_activity_chart_panels.php`, `theme.css`, `chart-theme.js`; hard refresh.
+3. **Deploy cosmetics slice** — WinSCP sync `site/public_html/` → staging; hard refresh hub, ranked, server, **status** pages.
+4. **Status on prod data** — Steve: prod DB read for live panels; joshua redirect when agreed (`docs/STATUS_PAGE_DATA.md`).
+5. **Launch polish** — unhide realm switcher when Amiga realm ships (`theme.css` + `site_header.php`).
+6. **Profile gradual improvements** — `docs/player-profile-feast.md`; archived planning in `docs/archive/`.
+7. **Prod coordination** — when stored truth changes: `docs/prod-coordination.md`, registers. **Staging ops simul done** Jun 2026; **prod** PHP post-game cutover still pending Steve.
 
 ---
 
@@ -78,6 +78,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Steve ops docs under `ops/docs/`** — `post-dagh-live-story.md` (prod copy → live), `steve-live-ops.md`, `ops-dispatch.md`; coordination stubs redirect. |
+| 2026-06 | **Staging ops sign-off** — Steve `run_verify_ops_sim` on `kooldb1` (0 fail); Dagh visual parity staging simul vs frozen dev; **AUD-004/005** closed; milestone fixes `clean_sheet_spread`, `giant_slayer` (`a3cb1c0`). **Next:** Live dispatch + cron on staging. |
 | 2026-06 | **Rating fade chapter closed** — active docs omit PER-001; tombstone only [`docs/archive/retired-product-decisions.md`](docs/archive/retired-product-decisions.md). |
 | 2026-06 | **Ops verify process** — docs: `run_verify_ops_sim` = read-only SQL gate; short-run league FAIL expected; no batch-as-simul-DOD; debug=`stop-at`, Steve parity=74879 ([`docs/coordination/ops-simul-runbook.md`](docs/coordination/ops-simul-runbook.md) § Verify). |
 | 2026-06 | **Dead surface pass** — removed `elolist.js`, `status-league-toggle.js`, realm-lab CSS + migration one-shots; `status-realm-lab.php` → 302 `status.php`; audit [`docs/DEAD_SURFACE.md`](docs/DEAD_SURFACE.md). |

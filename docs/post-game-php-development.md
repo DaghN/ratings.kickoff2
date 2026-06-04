@@ -81,7 +81,7 @@ From [`work-db-prepare.md`](work-db-prepare.md) §5:
 |------|---------------------------|
 | **A — Game-only** | **Yes** — N× `process_completed_game`, same as live. |
 | **B — Batch website rebuild** | Parity for **aggregate tables** only when PHP does not own them yet — **not** a substitute for Mode A. |
-| **C — Timeline** | `run_timeline_sim.php` — post-game + **`FinalizeUtcDay`** per UTC day. **`entered_arena`:** prepare lobby seed (§4.7), not timeline. Runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **Remaining AUD-004:** game-only `replay-to` is not ops-complete. |
+| **C — Timeline** | `run_ops_sim.php` / `run_timeline_sim.php` — post-game + **`FinalizeUtcDay`** per UTC day. **`entered_arena`:** prepare lobby seed (§4.7), not timeline. Runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **Mode A** (`replay-to` alone) is **not** ops-complete — use Mode C. |
 
 Python Mode A today still batch-finalizes some ladder fields at end; treat Python as **oracle for checkpoints**, not as the PHP loop structure.
 
@@ -93,7 +93,7 @@ Python Mode A today still batch-finalizes some ladder fields at end; treat Pytho
 
 **Public display before processing:** `k2_rated_game_is_processed()` (`NewRatingA` set) — game lists show scoreline from goals; Elo columns **`-`** until processed ([`parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-006**).
 
-**Parity audit (Jun 2026):** Closed — no critical blockers; see backlog **AUD-001–006**. Main follow-up: **AUD-004** via [`coordination/ops-completeness-charter.md`](coordination/ops-completeness-charter.md).
+**Parity audit (Jun 2026):** Closed — no critical blockers; see backlog **AUD-001–006**. **Ops pipeline (AUD-004/005):** closed — staging `run_ops_sim` + verify PASS + visual sign-off; **next:** Live phase on `kooldb1` ([`coordination/staging-work-steve-brief.md`](coordination/staging-work-steve-brief.md) §4.4).
 
 | In scope (per rated game, DB-backed) | Out of scope |
 |--------------------------------------|--------------|

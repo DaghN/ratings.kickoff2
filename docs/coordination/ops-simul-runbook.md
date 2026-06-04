@@ -3,7 +3,9 @@
 **Audience:** Dagh, Steve, Cursor agents.  
 **Charter:** [`ops-completeness-charter.md`](ops-completeness-charter.md) · **ADR:** [`ops-orchestration-adr.md`](ops-orchestration-adr.md)
 
-This is the **canonical** way to fill derived data on `ko2unity_work` / `kooldb1` so the result matches **daily ops** (per-game + UTC day tick), not batch rebuild shortcuts.
+This is the **canonical** way to fill derived data so the result matches **daily ops** (per-game + UTC day tick), not batch rebuild shortcuts.
+
+**Steve (server):** day-zero on a prod copy = [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) (`migrate-work` → `seed-catalog` → `zero-derived`, then this runbook §2). **Not** full `prepare` / `refresh-work`.
 
 ---
 
@@ -13,7 +15,7 @@ This is the **canonical** way to fill derived data on `ko2unity_work` / `kooldb1
 |----------|-----|
 | Per-game derived | `ProcessCompletedGame` for each rated game in order |
 | UTC day tick | `FinalizeUtcDay` at each crossed UTC midnight (league, league event milestones, `perfect_day` / `nightmare_day`) |
-| `entered_arena` | **Prepare §4.7 seed lobby** (`JoinDate`) — **not** timeline sim |
+| `entered_arena` | **`zero-derived`** lobby seed (`JoinDate`) — **not** timeline sim |
 | New accounts after cutover | Live `ProcessPlayerRegistered` — validate at go-live |
 
 **Not** the definition of done: Mode B batch (`rebuild_website_derived_data_local.ps1`, `player_milestones_rebuild.sql`, `rebuild-all`) except as **repair**.
@@ -22,13 +24,23 @@ This is the **canonical** way to fill derived data on `ko2unity_work` / `kooldb1
 
 ## Pipeline
 
-### 1. Prepare (day zero)
+### 1. Day zero (before simul)
+
+**Steve — prod copy** ([`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md)):
 
 ```bash
-php ops/run_prepare.php prepare --target staging-work
+php ops/run_prepare.php migrate-work --target YOUR_TARGET
+php ops/run_prepare.php seed-catalog --target YOUR_TARGET
+php ops/run_prepare.php zero-derived --target YOUR_TARGET
 ```
 
-Includes migrate, seed catalog, zero derived, **lobby seed** (`entered_arena` from `playertable.JoinDate`). See [`work-db-prepare.md`](../work-db-prepare.md) §4.7.
+`zero-derived` ends with lobby seed (`entered_arena`). Do **not** run `prepare` / `refresh-work` unless you intentionally use the two-DB refresh path ([`work-db-prepare.md`](../work-db-prepare.md)).
+
+**Dagh local — optional full refresh:**
+
+```bash
+php ops/run_prepare.php prepare --target local-work
+```
 
 ### 2. Prod-shaped simul (recommended)
 
@@ -62,7 +74,7 @@ Wrapper runs timeline sim (post-game + `FinalizeUtcDay` each UTC day). Full hist
 php ops/run_process_game.php replay-to --until-game-id N --target staging-work
 ```
 
-After Mode A only: league honours, day-close milestones, and league event keys may be **missing** ([`parity-audit-backlog.md`](parity-audit-backlog.md) AUD-004).
+After Mode A only: league honours, day-close milestones, and league event keys may be **missing** (why **AUD-004** required Mode C — see backlog).
 
 ### 3. Verify (optional, read-only)
 
@@ -103,7 +115,7 @@ Expect **league awards FAIL** only when **no** `FinalizeUtcDay` ran or standings
 | League awards FAIL before any closed day | **Expected** (no medals yet) |
 | League milestones WARN | Often **expected** with few keys |
 | Day-close counts | **Informational** only (always PASS) |
-| Lobby `entered_arena` | Reflects **prepare**, not how far simul ran |
+| Lobby `entered_arena` | Reflects **`zero-derived`**, not how far simul ran |
 
 **Agreed process:** use verify after smoke to confirm “scripts + six-value hang together”; do **not** treat short-run league FAIL as a mandate to chase old batch parity.
 
@@ -115,6 +127,17 @@ Then spot-check ranked9 / garden on work URL; optional `ab-post-game` per DDR.
 
 Full checklist table: [`ops-derived-data-registry.md`](ops-derived-data-registry.md) § Verification.
 
+### Staging sign-off (Jun 2026)
+
+| Gate | Result |
+|------|--------|
+| Steve full simul on `kooldb1` | **Done** |
+| `run_verify_ops_sim --target staging-work` | **PASS** — 0 fail, 0 warn (74,865 processed; league awards + 20 league keys present) |
+| Dagh visual parity vs frozen local dev | **Acceptable** — two milestone rule fixes (`clean_sheet_spread`, `giant_slayer`) then re-check |
+| **AUD-004 / AUD-005** | **Closed** — [`parity-audit-backlog.md`](parity-audit-backlog.md) |
+
+**Next:** Live-shaped test — [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md); not another full simul unless day-zero (`zero-derived`) resets derived data.
+
 ---
 
 ## Testing order
@@ -123,19 +146,9 @@ See charter §6 — **prepare → simul → (optional) verify**; Steve full simu
 
 ---
 
-## Live-shaped midnight (staging / prod)
+## Live-shaped (after simul)
 
-One call per UTC day (~00:00:01):
-
-```bash
-php ops/dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=2026-06-04T00:00:01Z
-```
-
-Per game after ground insert:
-
-```bash
-php ops/dispatch.php CMD=ProcessCompletedGame game_id=N target=staging-work
-```
+See [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) and [`steve-live-ops.md`](../../site/public_html/ops/docs/steve-live-ops.md).
 
 ---
 
@@ -145,7 +158,7 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=N target=staging-work
 |------|---------|---------------|
 | **A** | `replay-to` | No |
 | **B** | A + batch rebuild scripts | Repair / parity only |
-| **C** | `run_ops_sim.php run` after prepare | **Yes** (target) |
+| **C** | `run_ops_sim.php run` after day zero | **Yes** (target) |
 
 ---
 
@@ -153,6 +166,6 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=N target=staging-work
 
 | Doc | Topic |
 |-----|--------|
-| [`staging-work-steve-handoff.md`](staging-work-steve-handoff.md) | Staging WinSCP + commands |
+| [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) | Steve bootstrap + live |
 | [`work-db-prepare.md`](../work-db-prepare.md) §5 | Simul modes |
 | [`ops-dispatch.md`](ops-dispatch.md) | CMD registry |

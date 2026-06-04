@@ -143,7 +143,7 @@ Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 | Layer diffs | `ab-post-game` (exclude `entered_arena`, day-close as documented) |
 | Site spot | ranked9, garden, status @ checkpoint |
 
-**Steve staging:** prepare + simul to **74879**, then verify + spot checks — see [`ops-simul-runbook.md`](ops-simul-runbook.md).
+**Steve staging:** **Signed off Jun 2026** — full simul + `run_verify_ops_sim` PASS on `kooldb1`; visual parity vs frozen dev acceptable. **Next:** Live phase — see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Staging sign-off.
 
 ---
 
@@ -168,3 +168,4 @@ Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 | Jun 2026 | DDR-030 prepare-only for sim; `run_ops_sim` |
 | Jun 2026 | Verification § — verify read-only; short-run expectations; no batch-as-gate |
 | Jun 2026 | Rating fade removed from active docs — [`archive/retired-product-decisions.md`](../archive/retired-product-decisions.md) |
+| Jun 2026 | Staging simul sign-off — verify PASS + visual parity; AUD-004 closed |

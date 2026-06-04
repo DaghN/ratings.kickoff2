@@ -3,7 +3,7 @@
 **Status:** **`ops/` dev runners + `dispatch.php`** (prepare, post-game, league finalize, timeline sim, `CMD=` router — Jun 2026).  
 **Audience:** Dagh, Steve, Cursor agents.
 
-**Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/ops-completeness-charter.md`](coordination/ops-completeness-charter.md) (post-audit ops programme, **AUD-004**) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
+**Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/ops-completeness-charter.md`](coordination/ops-completeness-charter.md) (**staging simul signed off** Jun 2026; Live phase next) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
 
 ---
 
@@ -154,7 +154,7 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 **Canonical rules live here.** [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) is a short checklist for humans syncing the folder — do not fork naming or bootstrap rules into a second spec.
 
-**Status (Jun 2026):** **`dispatch.php`** thin router — see [`coordination/ops-dispatch.md`](coordination/ops-dispatch.md). Extend via `K2_OPS_DISPATCH_REGISTRY`, not by growing `dispatch.php`.
+**Status (Jun 2026):** **`dispatch.php`** thin router — see [`site/public_html/ops/docs/ops-dispatch.md`](../site/public_html/ops/docs/ops-dispatch.md) (canonical, WinSCP). Steve: [`steve-live-ops.md`](../site/public_html/ops/docs/steve-live-ops.md). Extend via `K2_OPS_DISPATCH_REGISTRY`, not by growing `dispatch.php`.
 
 ### 6.1 `ops/` vs `staging-scripts/`
 

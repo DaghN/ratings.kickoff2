@@ -92,7 +92,8 @@ Details: [`prod-coordination.md`](prod-coordination.md#prod-readiness-levels).
 | Replay | `scripts/ladder/` + [`replay-register.md`](coordination/replay-register.md) |
 | Post-game rules (contract) | Extend [`website-data-contract.md`](website-data-contract.md) § for the table; records only → [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |
 | Periodic job | [`periodic-register.md`](coordination/periodic-register.md) |
-| Ops CMD / derived inventory / sim orchestration | [`ops-dispatch.md`](coordination/ops-dispatch.md), [`ops-derived-data-registry.md`](coordination/ops-derived-data-registry.md), [`ops-orchestration-adr.md`](coordination/ops-orchestration-adr.md) |
+| Ops CMD / Steve live handoff | **Edit** [`site/public_html/ops/docs/`](../site/public_html/ops/docs/) (`steve-live-ops.md`, `ops-dispatch.md`) — WinSCP canonical; `docs/coordination/` stubs redirect |
+| Ops derived inventory / sim orchestration | [`ops-derived-data-registry.md`](coordination/ops-derived-data-registry.md), [`ops-orchestration-adr.md`](coordination/ops-orchestration-adr.md) |
 | One-off script | [`one-off-register.md`](coordination/one-off-register.md) |
 
 Set **feature-log** level column when known.

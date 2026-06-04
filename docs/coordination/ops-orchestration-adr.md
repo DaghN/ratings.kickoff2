@@ -162,7 +162,7 @@ foreach game in chronological order:
 | `periodic-register.md` | PER-003 → `FinalizeUtcDay` step 1; add steps 2–3 |
 | `staging-work-steve-handoff.md` | One midnight line; simul = orchestrator |
 | `timeline_sim.php` | Call full day tick, not only league subset |
-| `parity-audit-backlog.md` | Close **AUD-004** when checklist passes |
+| `parity-audit-backlog.md` | **AUD-004 closed** Jun 2026 (staging verify + visual sign-off) |
 
 ---
 
