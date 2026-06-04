@@ -74,24 +74,34 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo $rank ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
         <td><?php echo k2_fmt_int($row[2]); ?></td>
-        <td><?php echo k2_fmt_count($row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[4]); ?></td>
-        <td><?php echo k2_fmt_count($row[5]); ?></td>
-        <td><?php echo k2_fmt_decimal($row[6]); ?></td>
-        <td><?php echo k2_fmt_decimal($row[7]); ?></td>
+        <td><?php echo k2_fmt_games_played($row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[4], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[5], $row[3]); ?></td>
+        <td><?php echo k2_fmt_decimal($row[6], $row[3]); ?></td>
+        <td><?php echo k2_fmt_decimal($row[7], $row[3]); ?></td>
         <td><?php
-        	if (k2_db_is_null($row[8]) || (float) $row[8] == -1.0) {
+        	if (!k2_derived_games_started($row[3])) {
+                echo k2_fmt_dash();
+            } elseif (k2_db_is_null($row[8]) || (float) $row[8] == -1.0) {
                 echo k2_fmt_dash();
             } else {
-                echo k2_fmt_decimal($row[8]);
+                echo k2_fmt_decimal($row[8], $row[3]);
             }
         ?></td>
-        <td><?php echo k2_fmt_optional_int($row[9]); ?></td>
-        <td><?php echo k2_fmt_optional_int($row[10]); ?></td>
-        <td><?php echo k2_fmt_optional_int($row[11]); ?></td>
-        <td><?php echo k2_fmt_optional_int($row[12]); ?></td>
-        <td><?php if ($row[15]!=0) {echo $row[13]/2; echo "-"; echo $row[13]/2;} else {echo "-";} ?></td>
-        <td><?php echo $row[14] ?></td>
+        <td><?php echo k2_fmt_count($row[9], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[10], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[11], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[12], $row[3]); ?></td>
+        <td><?php
+        	if (!k2_derived_games_started($row[3]) || (int) $row[15] === 0) {
+                echo k2_fmt_dash();
+            } else {
+                $drawSum = k2_db_is_null($row[13]) ? 0 : (int) $row[13];
+                $half = (int) ($drawSum / 2);
+                echo $half . '-' . $half;
+            }
+        ?></td>
+        <td><?php echo k2_fmt_count($row[14], $row[3]); ?></td>
     </tr> 
     
     <?php

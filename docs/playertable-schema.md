@@ -217,7 +217,20 @@ In the app, **registering = entering the lobby**. Milestone **`entered_arena`**:
 
 ### Display without derived career stats (Jun 2026)
 
-After **zero-derived** (or partial replay on work), a row may have **`Display = 1`** (left from import per [`work-db-prepare.md`](work-db-prepare.md) §4.2) while **`NumberGames`**, ratio columns, and **`AverageOpponentRating`** are still **NULL** until post-game reaches that player’s games. Public PHP must not call `round()` / `number_format()` on those NULLs — use helpers in `site/public_html/includes/k2_safety.php` (`k2_fmt_int`, `k2_fmt_pct_from_ratio`, …) and show **`-`** in tables.
+After **zero-derived** (or partial replay on work), a row may have **`Display = 1`** (left from import per [`work-db-prepare.md`](work-db-prepare.md) §4.2) while **`NumberGames`**, ratio columns, and **`AverageOpponentRating`** are still **NULL** until post-game reaches that player’s games. Public PHP must not call `round()` / `number_format()` on those NULLs — use helpers in `site/public_html/includes/k2_safety.php`.
+
+**Leaderboard display policy (Jun 2026):**
+
+| Derived `NumberGames` | Games column | ELO `Rating` | Other career counts / ratios |
+|----------------------|--------------|--------------|------------------------------|
+| NULL or 0 (no replay yet) | **0** | **1600** (day-zero in DB) | **`-`** |
+| **> 0** | actual count | actual rating | **0** when DB has NULL for a zero count (post-game often stores zero as NULL — see [`parity-audit-backlog.md`](coordination/parity-audit-backlog.md) AUD-001); ratios **0%** when unset but games started; **`-`** only when undefined (e.g. goal ratio sentinel **-1** on ranked2) |
+
+All **`ranked1.php`–`ranked7.php`** playertable wings use this policy via `k2_fmt_games_played`, `k2_fmt_count`, `k2_fmt_lb_stat`, `k2_fmt_pct_from_ratio`, and `k2_fmt_decimal` (pass **`NumberGames`** as `$games`). **ranked2** draw column and **goal ratio -1** sentinel are documented exceptions.
+
+**Still dash when career started:** Peak / Nadir on **ranked1** (`k2_fmt_peak_rating` / `k2_fmt_nadir_rating` until set); **ranked2** goal ratio **-1** (0 GF and 0 GA); **ranked1** Lowest Culprit when stored as **5000** (unset sentinel).
+
+**Other leaderboard pages:** **ranked8** (activity peaks), **ranked9** (league honours), **ranked10** (milestones) use different tables — only **ranked10** games column uses `k2_fmt_games_played`.
 
 ---
 

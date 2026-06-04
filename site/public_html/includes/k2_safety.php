@@ -97,6 +97,22 @@ function k2_fmt_dash(): string
 	return '-';
 }
 
+/** Derived career game count from simul/post-game (`NumberGames` > 0). */
+function k2_derived_games_started(mixed $games): bool
+{
+	return !k2_db_is_null($games) && (int) $games > 0;
+}
+
+/** Games column: always a number; NULL/0 before first processed game displays as 0. */
+function k2_fmt_games_played(mixed $games): string
+{
+	if (k2_db_is_null($games)) {
+		return '0';
+	}
+
+	return (string) (int) $games;
+}
+
 function k2_fmt_int(mixed $val, string $empty = '-'): string
 {
 	if (k2_db_is_null($val)) {
@@ -106,37 +122,53 @@ function k2_fmt_int(mixed $val, string $empty = '-'): string
 	return (string) (int) round((float) $val);
 }
 
-function k2_fmt_count(mixed $val, string $empty = '-'): string
+/**
+ * Career count column. NULL means dash only before first derived game; after that NULL → 0.
+ *
+ * @param mixed $games Pass playertable `NumberGames` (or null to use legacy dash-on-NULL only).
+ */
+function k2_fmt_count(mixed $val, mixed $games = null, string $empty = '-'): string
 {
-	if (k2_db_is_null($val)) {
-		return $empty;
+	if (!k2_db_is_null($val)) {
+		return (string) (int) $val;
+	}
+	if ($games !== null && k2_derived_games_started($games)) {
+		return '0';
 	}
 
-	return (string) (int) $val;
+	return $empty;
 }
 
 /**
- * Ratio stored as 0–1 fraction; optional $games avoids showing 0% when career stats are unset.
+ * Ratio stored as 0–1 fraction; $games gates dash vs 0% (see parity display policy in playertable-schema.md).
  */
 function k2_fmt_pct_from_ratio(mixed $ratio, mixed $games = null, int $decimals = 1, string $empty = '-'): string
 {
-	if ($games !== null && k2_db_is_null($games)) {
+	if (!k2_derived_games_started($games)) {
 		return $empty;
 	}
 	if (k2_db_is_null($ratio)) {
-		return $empty;
+		return number_format(0, $decimals) . '%';
 	}
 
-	return number_format(100 * (float) $ratio, $decimals) . '%';
+	$pct = 100 * (float) $ratio;
+	if ($pct == 0.0) {
+		return '0%';
+	}
+
+	return number_format($pct, $decimals) . '%';
 }
 
-function k2_fmt_decimal(mixed $val, int $decimals = 2, string $empty = '-'): string
+function k2_fmt_decimal(mixed $val, mixed $games = null, int $decimals = 2, string $empty = '-'): string
 {
-	if (k2_db_is_null($val)) {
-		return $empty;
+	if (!k2_db_is_null($val)) {
+		return number_format((float) $val, $decimals);
+	}
+	if ($games !== null && k2_derived_games_started($games)) {
+		return number_format(0, $decimals);
 	}
 
-	return number_format((float) $val, $decimals);
+	return $empty;
 }
 
 function k2_fmt_peak_rating(mixed $val, string $empty = '-'): string
@@ -157,7 +189,29 @@ function k2_fmt_nadir_rating(mixed $val, float $sentinel = 5000.0, string $empty
 	return (string) (int) round((float) $val);
 }
 
-/** Victim/culprit/streak-style: unset or zero displays as dash. */
+/**
+ * Leaderboard career stat: games-started NULL → 0; optional $dashWhenEqual (e.g. nadir 5000).
+ */
+function k2_fmt_lb_stat(mixed $val, mixed $games, ?float $dashWhenEqual = null, string $empty = '-'): string
+{
+	if ($dashWhenEqual !== null && !k2_db_is_null($val) && (float) $val == $dashWhenEqual) {
+		return $empty;
+	}
+
+	return k2_fmt_count($val, $games, $empty);
+}
+
+/**
+ * ratedresults row has been through post-game (same marker as ops replay skip check).
+ *
+ * @param array<string, mixed> $row raw mysqli assoc row
+ */
+function k2_rated_game_is_processed(array $row): bool
+{
+	return !k2_db_is_null($row['NewRatingA'] ?? null);
+}
+
+/** Non-leaderboard: unset or zero displays as dash (no NumberGames context). */
 function k2_fmt_optional_int(mixed $val, float $zeroMeansEmpty = 0.0, string $empty = '-'): string
 {
 	if (k2_db_is_null($val) || (float) $val == $zeroMeansEmpty) {

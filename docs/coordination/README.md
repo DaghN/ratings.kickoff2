@@ -13,6 +13,7 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | [ops-dispatch.md](ops-dispatch.md) | `dispatch.php` CMD registry, exit codes, failure semantics |
 | [staging-work-steve-brief.md](staging-work-steve-brief.md) | **Steve narrative** — five phases, ground vs derived, dispatcher |
 | [staging-work-steve-handoff.md](staging-work-steve-handoff.md) | WinSCP + prepare + simul commands on `kooldb1`/`kooldb2` |
+| [parity-audit-backlog.md](parity-audit-backlog.md) | **Parity audit (closed Jun 2026)** — AUD-001–006; triage + ops pipeline fix (**AUD-004**) next |
 | [replay-register.md](replay-register.md) | `*_rebuild.sql` backfills + run log |
 | [post-game-register.md](post-game-register.md) | **Retired** — pointer; prod C++ from contract |
 | [records-post-game-exception.md](records-post-game-exception.md) | Hall of Fame / `generalstatstable` C++ exception only |

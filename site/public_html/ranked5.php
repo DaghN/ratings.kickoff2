@@ -74,18 +74,18 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td><?php echo $rank ?></td>
         <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
         <td><?php echo k2_fmt_int($row[2]); ?></td>
-        <td><?php echo k2_fmt_count($row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[4]); ?></td>
-        <td><?php echo k2_fmt_count($row[5]); ?></td>
-        <td><?php echo k2_fmt_count($row[6]); ?></td>
-        <td><?php echo k2_fmt_count($row[7]); ?></td>
-        <td><?php echo k2_fmt_count($row[8]); ?></td>
-        <td><?php echo k2_fmt_count($row[9]); ?></td>
-        <td><?php echo k2_fmt_count($row[10]); ?></td>
-        <td><?php echo k2_fmt_count($row[11]); ?></td>
-        <td><?php echo k2_fmt_count($row[12]); ?></td>
-        <td><?php echo k2_fmt_count($row[13]); ?></td>
-        <td><?php echo k2_fmt_count($row[14]); ?></td>
+        <td><?php echo k2_fmt_games_played($row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[4], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[5], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[6], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[7], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[8], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[9], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[10], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[11], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[12], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[13], $row[3]); ?></td>
+        <td><?php echo k2_fmt_count($row[14], $row[3]); ?></td>
     </tr> 
     
     <?php

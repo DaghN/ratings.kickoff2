@@ -81,7 +81,7 @@ From [`work-db-prepare.md`](work-db-prepare.md) §5:
 |------|---------------------------|
 | **A — Game-only** | **Yes** — N× `process_completed_game`, same as live. |
 | **B — Batch website rebuild** | Parity for **aggregate tables** only when PHP does not own them yet — **not** a substitute for Mode A. |
-| **C — Timeline** | Later — league finalize, **UTC day-close milestones**, `entered_arena` is register-only (see §10.1). |
+| **C — Timeline** | Later — league finalize, **UTC day-close milestones**, `entered_arena` is register-only (see §10.1). **Gap vs intent:** [`coordination/parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-004** (simul should equal daily ops, not batch rebuilds). |
 
 Python Mode A today still batch-finalizes some ladder fields at end; treat Python as **oracle for checkpoints**, not as the PHP loop structure.
 
@@ -90,6 +90,10 @@ Python Mode A today still batch-finalizes some ladder fields at end; treat Pytho
 **`ProcessCompletedGame` / `replay-to` use the same code path.** One commit per game. **No** chrono notebook, **no** `ratedresults` re-sim hydrate, **no** replay tail batch (`seed_lobby`, day-close finalize).
 
 **Unprocessable ground truth (skip, do not fatal):** `k2_ops_rated_game_skip_reason()` — `idA`/`idB` ≤ 0, same id, missing goals, or already processed (`NewRatingA` set). Logs `[SKIP] ratedresults id=… reason=…` and continues (`replay-to`) or exits 0 (`dispatch.php`). C++ live only rejected **-1**; historical rows with `idA=0` are skipped on PHP replay (see `docs/ratings_cpp.txt` `RatingProcedureUnity` gate).
+
+**Public display before processing:** `k2_rated_game_is_processed()` (`NewRatingA` set) — game lists show scoreline from goals; Elo columns **`-`** until processed ([`parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-006**).
+
+**Parity audit (Jun 2026):** Closed — no critical blockers; see backlog **AUD-001–006** and post-audit triage (**AUD-004** ops pipeline is the main follow-up).
 
 | In scope (per rated game, DB-backed) | Out of scope |
 |--------------------------------------|--------------|
@@ -150,7 +154,7 @@ While implementing a phase, **look for** SQL that is correct but **heavy on the 
 | Item | Status |
 |------|--------|
 | **`playertable.RecentAverageRating`** | **Dropped on work DB** — `schema/migrations/016_drop_playertable_recent_average_rating.sql` (SCH-016) runs in prepare **migrate** step. Do not reference in PHP post-game or parity. Python replay no longer writes it. Prod C++ may still expect the column until cutover. |
-| **`Display = 1` + NULL career fields** | Valid on work between zero-derived and replay catch-up; **not** a post-game writer bug. Public site uses `k2_fmt_*` in `includes/k2_safety.php` — see [`playertable-schema.md`](playertable-schema.md). |
+| **`Display = 1` + NULL career fields** | Valid on work between zero-derived and replay catch-up; **not** a post-game writer bug. Public site uses `k2_fmt_*` in `includes/k2_safety.php` — see [`playertable-schema.md`](playertable-schema.md). NULL-as-zero storage vs display: [`coordination/parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-001**. |
 | **Ratio leader columns on `generalstatstable`** | Dropped — leaders from `playertable` at read time ([`records-post-game-exception.md`](coordination/records-post-game-exception.md)). |
 | **`player_milestones`, period aggregates, …** | Later phases (P4+) — contract § Post-game derived-data behavior. |
 

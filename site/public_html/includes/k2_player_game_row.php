@@ -5,6 +5,8 @@
  * @see docs/k2-table-and-games-plan.md Phase 7B
  */
 
+require_once __DIR__ . '/k2_safety.php';
+
 function k2_player_game_h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
@@ -60,6 +62,47 @@ function k2_player_game_signed_number_html(float $value): string
     return '<span class="red">' . $text . '</span>';
 }
 
+/**
+ * Win/draw/loss from scoreline (ground truth goals).
+ *
+ * @return array{is_win: bool, is_draw: bool, is_loss: bool}
+ */
+function k2_player_game_outcome_from_goals(int $goalsFor, int $goalsAgainst): array
+{
+    if ($goalsFor > $goalsAgainst) {
+        return ['is_win' => true, 'is_draw' => false, 'is_loss' => false];
+    }
+    if ($goalsFor < $goalsAgainst) {
+        return ['is_win' => false, 'is_draw' => false, 'is_loss' => true];
+    }
+
+    return ['is_win' => false, 'is_draw' => true, 'is_loss' => false];
+}
+
+function k2_player_game_result_html(bool $isWin, bool $isDraw): string
+{
+    if ($isWin) {
+        return '<span class="blue">Win</span>';
+    }
+    if ($isDraw) {
+        return '-';
+    }
+
+    return '<span class="red">Loss</span>';
+}
+
+function k2_player_game_diff_html(int $goalDifference, bool $isWin, bool $isDraw): string
+{
+    if ($isDraw) {
+        return (string) $goalDifference;
+    }
+    if (!$isWin) {
+        return '<span class="red">' . -$goalDifference . '</span>';
+    }
+
+    return '<span class="blue">' . $goalDifference . '</span>';
+}
+
 /** 0-based column index for each server-side `sort` query key on `individual3.php`. */
 function k2_player_game_sort_col_index(string $sortKey): int
 {
@@ -102,37 +145,46 @@ function k2_player_game_td(string $content, int $colIndex, int $sortedColIndex, 
  */
 function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex = 0): string
 {
+    $processed = k2_rated_game_is_processed($row);
     $game = k2_player_game_normalize_row($row);
     $isPlayerA = $game['idA'] === $playerId;
     $opponentId = $isPlayerA ? $game['idB'] : $game['idA'];
     $opponentName = $isPlayerA ? $game['NameB'] : $game['NameA'];
     $goalsFor = $isPlayerA ? $game['GoalsA'] : $game['GoalsB'];
     $goalsAgainst = $isPlayerA ? $game['GoalsB'] : $game['GoalsA'];
-    $playerRating = $isPlayerA ? $game['RatingA'] : $game['RatingB'];
-    $opponentRating = $isPlayerA ? $game['RatingB'] : $game['RatingA'];
-    $expectedScore = $isPlayerA ? $game['ExpectedScoreA'] : $game['ExpectedScoreB'];
-    $adjustment = $isPlayerA ? $game['AdjustmentA'] : $game['AdjustmentB'];
-    $isDraw = abs($game['ActualScore'] - 0.5) < 0.001;
-    $isWin = !$isDraw && (
-        ($isPlayerA && abs($game['ActualScore'] - 1.0) < 0.001)
-        || (!$isPlayerA && abs($game['ActualScore']) < 0.001)
-    );
+    $sumGoals = (int) $game['GoalsA'] + (int) $game['GoalsB'];
+    $goalDiff = abs((int) $game['GoalsA'] - (int) $game['GoalsB']);
 
-    if ($isWin) {
-        $resultCell = '<span class="blue">Win</span>';
-    } elseif ($isDraw) {
-        $resultCell = '-';
+    if ($processed) {
+        $playerRating = $isPlayerA ? $game['RatingA'] : $game['RatingB'];
+        $opponentRating = $isPlayerA ? $game['RatingB'] : $game['RatingA'];
+        $expectedScore = $isPlayerA ? $game['ExpectedScoreA'] : $game['ExpectedScoreB'];
+        $adjustment = $isPlayerA ? $game['AdjustmentA'] : $game['AdjustmentB'];
+        $isDraw = abs($game['ActualScore'] - 0.5) < 0.001;
+        $isWin = !$isDraw && (
+            ($isPlayerA && abs($game['ActualScore'] - 1.0) < 0.001)
+            || (!$isPlayerA && abs($game['ActualScore']) < 0.001)
+        );
+        $sumCell = (string) $game['SumOfGoals'];
+        $diffCell = k2_player_game_diff_html((int) $game['GoalDifference'], $isWin, $isDraw);
     } else {
-        $resultCell = '<span class="red">Loss</span>';
+        $outcome = k2_player_game_outcome_from_goals($goalsFor, $goalsAgainst);
+        $isWin = $outcome['is_win'];
+        $isDraw = $outcome['is_draw'];
+        $playerRating = 0.0;
+        $opponentRating = 0.0;
+        $expectedScore = 0.0;
+        $adjustment = 0.0;
+        $sumCell = (string) $sumGoals;
+        $diffCell = k2_player_game_diff_html($goalDiff, $isWin, $isDraw);
     }
 
-    if ($isDraw) {
-        $diffCell = (string) $game['GoalDifference'];
-    } elseif (!$isWin) {
-        $diffCell = '<span class="red">' . -$game['GoalDifference'] . '</span>';
-    } else {
-        $diffCell = '<span class="blue">' . $game['GoalDifference'] . '</span>';
-    }
+    $resultCell = k2_player_game_result_html($isWin, $isDraw);
+    $dash = k2_fmt_dash();
+    $playerRatingCell = $processed ? (string) (int) round($playerRating) : $dash;
+    $opponentRatingCell = $processed ? (string) (int) round($opponentRating) : $dash;
+    $esCell = $processed ? number_format(100 * $expectedScore, 1) . '%' : $dash;
+    $adjustmentCell = $processed ? k2_player_game_signed_number_html($adjustment) : $dash;
 
     return '<tr>'
         . k2_player_game_td('<a href="game.php?id=' . $game['id'] . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
@@ -146,10 +198,10 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
         . k2_player_game_td((string) $goalsFor, 8, $sortedColIndex)
         . k2_player_game_td((string) $goalsAgainst, 9, $sortedColIndex)
         . k2_player_game_td($diffCell, 10, $sortedColIndex)
-        . k2_player_game_td((string) $game['SumOfGoals'], 11, $sortedColIndex)
-        . k2_player_game_td((string) (int) round($playerRating), 12, $sortedColIndex)
-        . k2_player_game_td((string) (int) round($opponentRating), 13, $sortedColIndex)
-        . k2_player_game_td(number_format(100 * $expectedScore, 1) . '%', 14, $sortedColIndex)
-        . k2_player_game_td(k2_player_game_signed_number_html($adjustment), 15, $sortedColIndex)
+        . k2_player_game_td($sumCell, 11, $sortedColIndex)
+        . k2_player_game_td($playerRatingCell, 12, $sortedColIndex)
+        . k2_player_game_td($opponentRatingCell, 13, $sortedColIndex)
+        . k2_player_game_td($esCell, 14, $sortedColIndex)
+        . k2_player_game_td($adjustmentCell, 15, $sortedColIndex)
         . '</tr>';
 }
