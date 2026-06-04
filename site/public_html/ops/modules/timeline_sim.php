@@ -48,7 +48,9 @@ function k2_ops_timeline_list_game_ids(
     ?DateTimeImmutable $startAt,
     ?int $untilGameId
 ): array {
-    $res = $con->query('SELECT id, `Date` FROM ratedresults ORDER BY `Date` ASC, id ASC');
+    $res = $con->query(
+        'SELECT id, UNIX_TIMESTAMP(`Date`) AS date_utc_ts FROM ratedresults ORDER BY `Date` ASC, id ASC'
+    );
     if ($res === false) {
         throw new RuntimeException('list games: ' . $con->error);
     }
@@ -56,7 +58,13 @@ function k2_ops_timeline_list_game_ids(
     $ids = [];
     while ($row = $res->fetch_assoc()) {
         $gameId = (int) $row['id'];
-        $gameAt = new DateTimeImmutable((string) $row['Date'], new DateTimeZone('UTC'));
+        $ts = (int) ($row['date_utc_ts'] ?? 0);
+        $gameAt = $ts > 0
+            ? DateTimeImmutable::createFromFormat('U', (string) $ts, new DateTimeZone('UTC'))
+            : k2_post_game_row_utc_datetime($row);
+        if ($gameAt === false) {
+            throw new RuntimeException('invalid date_utc_ts for ratedresults id=' . $gameId);
+        }
         if ($gameAt > $stopAt) {
             break;
         }
@@ -104,7 +112,7 @@ function k2_ops_timeline_sim_run(
 
     foreach ($gameIds as $gameId) {
         $game = k2_ops_load_rated_game_row($con, $gameId);
-        $gameAt = new DateTimeImmutable((string) $game['Date'], new DateTimeZone('UTC'));
+        $gameAt = k2_post_game_row_utc_datetime($game);
         $gameDay = $gameAt->format('Y-m-d');
 
         if ($openUtcDay !== null && $gameDay > $openUtcDay) {

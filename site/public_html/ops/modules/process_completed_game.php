@@ -44,7 +44,8 @@ function k2_ops_load_rated_game_row(mysqli $con, int $gameId): array
 
     $stmt = $con->prepare(
 
-        'SELECT id, Date, idA, idB, GoalsA, GoalsB, NewRatingA FROM ratedresults WHERE id = ? LIMIT 1'
+        'SELECT id, `Date`, UNIX_TIMESTAMP(`Date`) AS date_utc_ts, idA, idB, GoalsA, GoalsB, NewRatingA '
+        . 'FROM ratedresults WHERE id = ? LIMIT 1'
 
     );
 
@@ -76,7 +77,7 @@ function k2_ops_load_rated_game_row(mysqli $con, int $gameId): array
 
 
 
-    return $row;
+    return k2_post_game_normalize_rated_game_row($row);
 
 }
 

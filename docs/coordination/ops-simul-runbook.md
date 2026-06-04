@@ -94,12 +94,13 @@ Checks include: processed vs unprocessed `ratedresults`; contract **six-value** 
 
 #### After a **short** local run (bisect / `stop-at`)
 
-Expect **hard FAIL** on **league awards** when no (or few) league periods have finalized — that is **normal**, not a signal to run batch scripts.
+Expect **league awards FAIL** only when **no** `FinalizeUtcDay` ran or standings are empty. If day/week finalize ran and awards are still **0**, that is a **bug** (not “short run noise”).
 
 | Check | Short run |
 |-------|-----------|
 | Processed count, six-value (if DB only contains that window) | **Trust** — real regressions here matter |
-| League awards FAIL | **Expected** until enough UTC day ticks / history |
+| League awards FAIL after finalize with day standings | **Bug** — investigate UTC bucketing / league finalize |
+| League awards FAIL before any closed day | **Expected** (no medals yet) |
 | League milestones WARN | Often **expected** with few keys |
 | Day-close counts | **Informational** only (always PASS) |
 | Lobby `entered_arena` | Reflects **prepare**, not how far simul ran |

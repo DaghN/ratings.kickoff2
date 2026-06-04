@@ -106,7 +106,7 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 |------|-----|--------|
 | 1 | Dagh / agent | `prepare` on **local-work** (or private `kooldb1` without broadcast) |
 | 2 | Dagh / agent | **Short** proof: `run_timeline_sim` **`--stop-at`** (bisect, seconds–minutes) **or** smoke `run_ops_sim --until-game-id 500` (tens of minutes) — **not** local full history |
-| 3 | Dagh / agent | **Optional** `run_verify_ops_sim` — read-only SQL; see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Verify. After **short** runs: trust processed + six-value; **ignore league-awards FAIL** unless chasing honours at depth. **Do not** run batch rebuilds because verify failed |
+| 3 | Dagh / agent | **Optional** `run_verify_ops_sim` — read-only SQL; see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Verify. Trust processed + six-value; **league-awards FAIL after finalize + standings is a bug**. **Do not** run batch rebuilds because verify failed |
 | 4 | Dagh / agent | Fix **proven** ops failures (root cause in PHP sim path); repeat 2–3. Site spot-check + optional `ab-post-game` when chunk is large enough |
 | 5 | Steve | **One** staging simul to **`--until-game-id 74879`** + nightly `FinalizeUtcDay` when Dagh says ready ([`steve-nightly-ops.md`](steve-nightly-ops.md)) |
 | 6 | Both | Parity / sign-off: spot SQL, site, `ab-post-game` — **not** “batch until verify passes” |

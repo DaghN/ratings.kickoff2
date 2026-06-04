@@ -9,14 +9,68 @@ declare(strict_types=1);
 require_once __DIR__ . '/ops_bootstrap.php';
 
 /**
- * UTC period starts for a rated game (aligned with rebuild SQL).
+ * UTC instant for a rated game row (mysqli may return local-shifted Date strings on Windows).
+ */
+function k2_post_game_row_utc_datetime(array $game): DateTimeImmutable
+{
+    if (isset($game['date_utc_ts']) && $game['date_utc_ts'] !== null && $game['date_utc_ts'] !== '') {
+        $dt = DateTimeImmutable::createFromFormat(
+            'U',
+            (string) (int) $game['date_utc_ts'],
+            new DateTimeZone('UTC')
+        );
+        if ($dt !== false) {
+            return $dt;
+        }
+    }
+
+    return new DateTimeImmutable((string) ($game['Date'] ?? 'now'), new DateTimeZone('UTC'));
+}
+
+/**
+ * Normalize Date to UTC wall clock for downstream post-game (matches DATE(Date) at time_zone +00:00).
+ *
+ * @param array<string, mixed> $row
+ * @return array<string, mixed>
+ */
+function k2_post_game_normalize_rated_game_row(array $row): array
+{
+    if (isset($row['date_utc_ts']) && $row['date_utc_ts'] !== null && $row['date_utc_ts'] !== '') {
+        $row['Date'] = gmdate('Y-m-d H:i:s', (int) $row['date_utc_ts']);
+    }
+
+    return $row;
+}
+
+/**
+ * Period starts from UNIX_TIMESTAMP(Date) at UTC (avoids Windows local TZ on DateTime format).
+ *
+ * @return array<string, string>
+ */
+function k2_post_game_period_starts_from_utc_ts(int $ts): array
+{
+    $day = gmdate('Y-m-d', $ts);
+    $isoDow = (int) gmdate('N', $ts);
+    $weekStartTs = $ts - ($isoDow - 1) * 86400;
+    $weekStart = gmdate('Y-m-d', $weekStartTs);
+    $month = gmdate('Y-m-01', $ts);
+    $year = gmdate('Y', $ts) . '-01-01';
+
+    return [
+        'day' => $day,
+        'week' => $weekStart,
+        'month' => $month,
+        'year' => $year,
+    ];
+}
+
+/**
+ * UTC period starts for a rated game (aligned with rebuild SQL / contract DATE(Date) at UTC).
  *
  * @return array<string, string> period_type => period_start (Y-m-d)
  */
-function k2_post_game_period_starts_from_game_date(string $gameDate): array
+function k2_post_game_period_starts_from_utc(DateTimeImmutable $dt): array
 {
-    $dt = new DateTimeImmutable($gameDate, new DateTimeZone('UTC'));
-
     $day = $dt->format('Y-m-d');
     $isoDow = (int) $dt->format('N');
     $weekStart = $dt->modify('-' . ($isoDow - 1) . ' days')->format('Y-m-d');
@@ -29,6 +83,29 @@ function k2_post_game_period_starts_from_game_date(string $gameDate): array
         'month' => $month,
         'year' => $year,
     ];
+}
+
+/**
+ * @return array<string, string> period_type => period_start (Y-m-d)
+ */
+function k2_post_game_period_starts_from_game_date(string $gameDate): array
+{
+    return k2_post_game_period_starts_from_utc(
+        new DateTimeImmutable($gameDate, new DateTimeZone('UTC'))
+    );
+}
+
+/**
+ * @param array<string, mixed> $game rated row with optional date_utc_ts from UNIX_TIMESTAMP(Date)
+ * @return array<string, string>
+ */
+function k2_post_game_period_starts_for_game(array $game): array
+{
+    if (isset($game['date_utc_ts']) && $game['date_utc_ts'] !== null && $game['date_utc_ts'] !== '') {
+        return k2_post_game_period_starts_from_utc_ts((int) $game['date_utc_ts']);
+    }
+
+    return k2_post_game_period_starts_from_utc(k2_post_game_row_utc_datetime($game));
 }
 
 function k2_post_game_period_tables_available(mysqli $con): bool
@@ -181,7 +258,7 @@ function k2_post_game_update_period_activity_after_game(
 
     $idA = (int) $game['idA'];
     $idB = (int) $game['idB'];
-    $periodStarts = k2_post_game_period_starts_from_game_date((string) $game['Date']);
+    $periodStarts = k2_post_game_period_starts_for_game($game);
 
     $countsA = k2_post_game_apply_period_activity_for_player($con, $idA, $periodStarts);
     $countsB = k2_post_game_apply_period_activity_for_player($con, $idB, $periodStarts);

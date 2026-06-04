@@ -81,10 +81,10 @@ function k2_league_load_first_games(
     $params = [$periodStart, $periodEnd, $periodStart, $periodEnd];
     if ($maxGameDate !== null) {
         $maxClause = ' AND `Date` <= ?';
-        $types .= 's';
-        $params[] = $maxGameDate->format('Y-m-d H:i:s');
-        $types .= 's';
-        $params[] = $maxGameDate->format('Y-m-d H:i:s');
+        $maxStr = $maxGameDate->format('Y-m-d H:i:s');
+        // Per UNION branch: start, end, max — not start, end, start, end, max, max.
+        $types = 'ssssss';
+        $params = [$periodStart, $periodEnd, $maxStr, $periodStart, $periodEnd, $maxStr];
     }
 
     $sql = <<<SQL
@@ -487,7 +487,7 @@ function k2_league_write_instance_awards(
     string $periodStart,
     string $periodEnd,
     array $podium
-): void {
+): int {
     $sql = <<<'SQL'
 INSERT INTO player_league_award (
   player_id, league_kind, period_type, period_start, period_end,
@@ -498,8 +498,9 @@ INSERT INTO player_league_award (
 SQL;
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
-        return;
+        return 0;
     }
+    $written = 0;
     foreach ($podium as $row) {
         $playerId = (int) $row['player_id'];
         $finishRank = (int) $row['finish_rank'];
@@ -535,9 +536,13 @@ SQL;
             $firstGameId,
             $firstSide
         );
-        mysqli_stmt_execute($stmt);
+        if (mysqli_stmt_execute($stmt) && mysqli_stmt_affected_rows($stmt) > 0) {
+            ++$written;
+        }
     }
     mysqli_stmt_close($stmt);
+
+    return $written;
 }
 
 function k2_league_upsert_period_header(
@@ -707,7 +712,8 @@ SQL;
 }
 
 /**
- * Finalize one league instance if closed. Returns true if awards were written.
+ * Finalize one league instance if closed.
+ * Returns true only when every podium medal row was persisted (strict — no empty finalized_at).
  */
 function k2_league_finalize_instance(
     mysqli $con,
@@ -737,7 +743,28 @@ function k2_league_finalize_instance(
     }
 
     k2_league_delete_instance_awards($con, $leagueKind, $periodType, $periodStart);
-    k2_league_write_instance_awards($con, $leagueKind, $periodType, $periodStart, $periodEnd, $podium);
+    $written = k2_league_write_instance_awards(
+        $con,
+        $leagueKind,
+        $periodType,
+        $periodStart,
+        $periodEnd,
+        $podium
+    );
+    $podiumCount = count($podium);
+    if ($written === 0 || $written < $podiumCount) {
+        if (function_exists('k2_ops_log')) {
+            k2_ops_log(
+                'league_finalize_skip awards_not_written kind=' . $leagueKind
+                . ' period=' . $periodType
+                . ' start=' . $periodStart
+                . ' written=' . $written
+                . ' podium=' . $podiumCount
+            );
+        }
+
+        return false;
+    }
 
     $ratedGames = k2_league_rated_games_for_period($con, $periodType, $periodStart);
     $finalizedAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
