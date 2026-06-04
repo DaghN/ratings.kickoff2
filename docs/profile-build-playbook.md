@@ -1,6 +1,10 @@
 # Profile build playbook — agent execution guide
 
-**Status:** Jun 2026. **Use this doc when implementing** `site/public_html/individual1.php` Profile tab content.
+**Status:** Jun 2026. **Use this doc when implementing** Profile tab content.
+
+**Production:** `site/public_html/individual1.php` — edit only when merging a winner.
+
+**Multi-agent lab:** Isolated previews on `individual1-profile-lab{N}.php` — read [`profile-lab-agent-handoff.md`](profile-lab-agent-handoff.md) for scaffold rules and copy-paste builder prompts.
 
 **Authority chain:** Dagh’s latest message → this playbook → [`profile-content-candidates.md`](profile-content-candidates.md) (**Profile content v1**) → [`player-profile-feast.md`](player-profile-feast.md) (shipped layout + narrative model) → archive framing/audit.
 

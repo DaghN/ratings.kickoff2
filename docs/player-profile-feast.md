@@ -2,6 +2,7 @@
 
 **Status:** Jun 2026 (layout + narrative contract). **Production page:** `individual1.php?id={player}`.  
 **Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
+**Multi-agent lab previews:** [`docs/profile-lab-agent-handoff.md`](profile-lab-agent-handoff.md) — `individual1-profile-lab{N}.php`, do not edit production until merge.  
 **Build list:** [`docs/profile-content-candidates.md`](profile-content-candidates.md) — Profile content v1.  
 **Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md).
 

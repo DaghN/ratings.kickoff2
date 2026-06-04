@@ -99,6 +99,7 @@
 | 2026-06 | **Local prod sandbox live** — baseline + work from sanitized dump; dev untouched; sanitize fix in `ProdDumpSanitize.ps1`; verify ~75,204 rated on work. |
 | 2026-06 | **Local DB model (3 DBs)** — scripts + **`database-copies-2026-06.md`**; ground/derived + `game_id` API direction to Steve. |
 | 2026-06 | **Games Highlights table ink** — `k2-games-highlights-table` now gets the same `k2-table--calm-stats` secondary body text as leaderboards/Recent (`theme.css`). |
+| 2026-06 | **Profile lab agent handoff** — `docs/profile-lab-agent-handoff.md`: multi-agent prompts, `individual1-profile-lab{N}.php` isolation; production untouched until merge. |
 | 2026-06 | **Profile build playbook** — `docs/profile-build-playbook.md`: placement charter (B1–B5 + C), module recipes, waves, acceptance checks; links v1 curated list. |
 | 2026-06 | **Profile content v1 curated** — Dagh pass on `profile-content-candidates.md`: ship play streak, P05 distinct days (site-wide), milestone/league snippets, M03/M08/M09, rivalry/Games deep links; defer A03/A07/A08; reject extra charts. |
 | 2026-06 | **Profile content catalog** — `docs/profile-content-candidates.md`: ~70 candidates (P0–P3) across identity, presence, moments, milestones, league, heatmaps, charts; for Dagh curation. |
