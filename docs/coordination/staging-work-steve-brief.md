@@ -102,22 +102,22 @@ That does, in order:
 
 ### 4.2 Simul
 
-**Goal:** Prove PHP post-game over **many** games — same code path as live, but driven in chronological batch.
+**Goal:** Replay history on `kooldb1` the same way live ops would — each game, plus **once per UTC day** the “midnight” batch (league results, daily milestones).
+
+**One command (after Dagh has run prepare):**
 
 ```bash
-php ops/run_process_game.php replay-to --until-game-id G --target staging-work   # checkpoint
-php ops/run_process_game.php replay-to --target staging-work                    # full history
+php ops/run_ops_sim.php run --target staging-work
+php ops/run_ops_sim.php run --target staging-work --until-game-id 74800
 ```
 
-- Order: `Date ASC`, `id ASC`.
-- Stops after game **G** when `--until-game-id` is set (inclusive).
-- Full run is roughly **1–5 hours** depending on host.
+- Chronological order (`Date`, then `id`).
+- `--until-game-id` stops after that game (checkpoint parity).
+- Full run can take **hours**.
 
-**Checkpoint (~74800):** Dagh compares `kooldb1` at **G** to the **frozen reference DB** (SQL + spot checks on the site). Ground truth at G already matched in earlier checks; this pass is about **derived** state and UI.
+**Lobby:** `entered_arena` is written during **prepare**, not during simul — do not expect a separate register step in the replay.
 
-**Optional:** `run_timeline_sim.php` if we need **league finalize at each UTC midnight** during replay (heavier). First pass can be post-game only and run finalize in a second pass.
-
-**You do not need `dispatch.php` for simul.** `run_process_game.php` calls the same module as dispatch will.
+**You do not need `dispatch.php` for simul.** `run_ops_sim.php` uses the same PHP modules as dispatch.
 
 ---
 
@@ -145,7 +145,7 @@ Broadcast is **not** a different pipeline — it is **simul + public read access
 |------|-----|
 | Game server persists rated result | **Steve** → `ratedresults` on **`kooldb1`** (credentials must point at work DB, **not** server 3 prod) |
 | Derived update for that game | **Steve** (or cron wrapper) → `dispatch.php CMD=ProcessCompletedGame game_id=N target=staging-work` |
-| Daily league finalize | **Cron** ~00:00:01 UTC → `dispatch.php CMD=FinalizeLeagueDue target=staging-work` |
+| End of each UTC day (league + daily milestones) | **Cron** ~00:00:01 UTC → `dispatch.php CMD=FinalizeUtcDay target=staging-work` (one call; Dagh will paste exact line) |
 | New registration lobby milestone | `CMD=ProcessPlayerRegistered player_id=N` when wired |
 
 **Dispatcher = thin router.** It does not contain ladder rules; it connects to `kooldb1` and calls the same functions simul uses.
@@ -186,10 +186,10 @@ Sync **`site/public_html/`** → server **`public_html/`**. That includes:
 | Piece | Role |
 |-------|------|
 | `run_prepare.php` | Prepare, migrate, seed, zero-derived |
-| `run_process_game.php` | Simul / per-game dev runner |
-| `run_finalize_league.php` | League finalize (batch; same logic as dispatch CMD) |
-| `run_timeline_sim.php` | Optional timeline simul |
-| **`dispatch.php`** | **Your** stable entry: `CMD=ProcessCompletedGame`, `FinalizeLeagueDue`, `ProcessPlayerRegistered` |
+| `run_ops_sim.php` | **Full simul** (games + midnight steps) |
+| `run_process_game.php` | Per-game dev / `replay-to` (ladder-only shortcut) |
+| `run_finalize_league.php` | Repair / batch league rebuild |
+| **`dispatch.php`** | **Your** stable entry: `ProcessCompletedGame`, **`FinalizeUtcDay`** (nightly), `ProcessPlayerRegistered` |
 | `ops/sql/migrations/` | Schema apply on work |
 | `ops/data/milestones_definitions_seed.json` | Milestone catalog |
 | `ops/config/work-targets.ini` | **Created on server only** (not in git) |

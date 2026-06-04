@@ -4,6 +4,7 @@
  *
  *   php site/public_html/ops/dispatch.php CMD=ProcessCompletedGame game_id=57216 target=staging-work
  *   php site/public_html/ops/dispatch.php CMD=FinalizeLeagueDue target=staging-work
+ *   php site/public_html/ops/dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=2026-06-04T00:00:01Z
  *   php site/public_html/ops/dispatch.php CMD=Help
  *
  * Design: docs/coordination/ops-dispatch.md · platform: docs/ladder-ops-platform.md §6.5

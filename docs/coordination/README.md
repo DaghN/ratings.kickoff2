@@ -5,9 +5,16 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | Start here | [`feature-log.md`](feature-log.md) — what features exist and migration status |
 | Behavior | [`../website-data-contract.md`](../website-data-contract.md) — tables, rebuild, post-game rules |
 | Playbook | [`../UPDATE_DOCS.md`](../UPDATE_DOCS.md) |
+| **Ops completeness** | [`ops-completeness-charter.md`](ops-completeness-charter.md) — post-audit programme (AUD-004); ADR + DDR below |
 
 | File | Purpose |
 |------|---------|
+| [ops-completeness-charter.md](ops-completeness-charter.md) | **Phase 0** — live/sim definition of done, four tracks, roadmap |
+| [ops-orchestration-adr.md](ops-orchestration-adr.md) | Midnight `FinalizeUtcDay`, step order, simul interleaving |
+| [ops-derived-data-registry.md](ops-derived-data-registry.md) | **DDR** — per-artifact inventory (trigger, CMD, gaps) |
+| [ops-simul-runbook.md](ops-simul-runbook.md) | **Mode C** — prepare + `run_ops_sim.php`; what “simul complete” means |
+| [steve-nightly-ops.md](steve-nightly-ops.md) | **Steve** — per-game + one nightly call (non-technical) |
+| `site/.../ops/run_verify_ops_sim.php` | CLI verify after local `run_ops_sim` (before staging) |
 | [schema-register.md](schema-register.md) | SCH DDL in `ops/sql/migrations/` |
 | [ops-schema-migrations.md](ops-schema-migrations.md) | Why migrations live under ops + migration plan |
 | [ops-dispatch.md](ops-dispatch.md) | `dispatch.php` CMD registry, exit codes, failure semantics |

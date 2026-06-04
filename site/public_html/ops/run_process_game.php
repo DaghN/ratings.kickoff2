@@ -131,6 +131,13 @@ if ($verb === 'replay-to') {
         if ($skipped !== []) {
             k2_ops_log('skipped_ids=' . implode(',', array_map('strval', $skipped)));
         }
+        if (!$dryRun) {
+            k2_ops_log(
+                '[NOTE] replay-to is Mode A (per-game only). For prod-shaped simul '
+                . '(league honours, day-close milestones), use run_timeline_sim.php '
+                . '— see docs/coordination/ops-simul-runbook.md'
+            );
+        }
     } finally {
         $con->close();
     }

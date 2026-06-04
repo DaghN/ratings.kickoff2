@@ -3,7 +3,7 @@
 **Status:** **`ops/` dev runners + `dispatch.php`** (prepare, post-game, league finalize, timeline sim, `CMD=` router — Jun 2026).  
 **Audience:** Dagh, Steve, Cursor agents.
 
-**Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
+**Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/ops-completeness-charter.md`](coordination/ops-completeness-charter.md) (post-audit ops programme, **AUD-004**) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
 
 ---
 

@@ -51,13 +51,16 @@ Includes: dump baseline → work, `migrate-work`, `seed-catalog` (112 rows from 
 
 ---
 
-## 4. Full simul
+## 4. Full simul (prod-shaped)
+
+**Canonical:** [`ops-simul-runbook.md`](ops-simul-runbook.md). After prepare, one command replays games **and** runs the same “end of UTC day” work as live (league medals, daily milestones, etc.). Lobby milestone **`entered_arena`** is already set during prepare — not part of this replay.
 
 ```bash
-php ops/run_process_game.php replay-to --until-game-id 75200 --target staging-work
+php ops/run_ops_sim.php run --target staging-work
+php ops/run_ops_sim.php run --target staging-work --until-game-id 74800
 ```
 
-Adjust `--until-game-id` to current work ceiling. Expect **~1–5 hours**. Site on `kooldb1` to watch ladder/milestones.
+Expect a long run (hours for full history). For ladder-only dev (no league honours), `replay-to` still exists but is **not** a complete simul.
 
 ---
 
@@ -67,10 +70,9 @@ Thin router (same post-game pipeline as simul):
 
 ```bash
 php ops/dispatch.php CMD=ProcessCompletedGame game_id=N target=staging-work
-php ops/dispatch.php CMD=FinalizeLeagueDue target=staging-work
 ```
 
-See [`ops-dispatch.md`](ops-dispatch.md).
+Nightly: [`steve-nightly-ops.md`](steve-nightly-ops.md). Simul: §4 + [`ops-simul-runbook.md`](ops-simul-runbook.md). Detail: [`ops-dispatch.md`](ops-dispatch.md).
 
 ---
 

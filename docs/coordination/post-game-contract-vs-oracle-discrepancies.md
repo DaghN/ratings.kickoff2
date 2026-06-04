@@ -45,10 +45,11 @@ Use this list for manual review before prod cutover. Do not treat “Python pass
 |-------|----------|--------------|--------|
 | Game keys (streak, tail, period burst, DB calendar, …) | Crossing game / first cross; **no chrono notebook** | `post_game_milestones.php` + `milestone_sim.py` | **Fixed** (ongoing parity: `ab-post-game --phase p6`; pending keys excluded) |
 | `giant_slayer` | Ladder-wide active #1 SQL on `playertable` | `k2_post_game_milestones_active_top_player_id()` | **Fixed** Jun 2026 (was broken in-memory map) |
-| `perfect_day` / `nightmare_day` | Day-close `achieved_at` (Mode C job or rebuild SQL) | **Not** in `ProcessCompletedGame` / `replay-to`; oracle batch may still emit | **N/A per game** — excluded from `ab-post-game` layer 6 diff |
+| `perfect_day` / `nightmare_day` | Day-close `achieved_at` (`FinalizeUtcDay` or rebuild SQL) | `day_close_milestones.php` via `CMD=FinalizeUtcDay` / timeline sim — **not** per-game | **N/A per game** — excluded from `ab-post-game` layer 6 diff |
 | `rare_blank` | After 50+ career games → first 0-goal game (`NumberGames >= 51`) | PHP + sim | **Fixed** |
-| **League keys** (~20) | On **league period finalize** (PER-003) | SQL splice in `milestones.py` rebuild only | **N/A per game** — no PHP incremental yet |
-| `entered_arena` | On register (`lobby`) | `ProcessPlayerRegistered` / dev `register-arena` only — **not** `replay-to` | **N/A per game** — excluded from layer 6 diff; backfill via rebuild |
+| **League event keys** (16) | On **league period finalize** (PER-003) | `k2_league_sync_event_milestones()` in `FinalizeUtcDay` | **N/A per game** — incremental via day tick |
+| **League win-count keys** (4) | On finalize | `k2_league_sync_win_milestones()` | **N/A per game** |
+| `entered_arena` | On register (`lobby`); simul via prepare seed | `ProcessPlayerRegistered` (live); **prepare §4.7** `seed-lobby` (work) — **not** `replay-to` or timeline sim | **N/A per game** — excluded from layer 6 diff |
 | `club_*` rebuild SQL | First `Rating` cross; drop `PeakRating` join when peak-at-20 replay ships | Rebuild SQL may still join `PeakRating` | **Open** — regen `player_milestones_rebuild.sql` after cutover replay |
 | `play_streak_100` contract text | Unlock on game that extends day streak to 100 | Doc line still mentions MIN on 100th day in places | **Open** — copy-only in [`website-data-contract.md`](../website-data-contract.md) § chrono table |
 

@@ -1,6 +1,7 @@
 <?php
 /**
- * Dev runner: Mode C timeline simul (post-game + daily PER-003 step).
+ * Dev runner: Mode C timeline simul (post-game + FinalizeUtcDay per UTC day).
+ * Canonical prod-shaped simul — see docs/coordination/ops-simul-runbook.md
  *
  *   php site/public_html/ops/run_timeline_sim.php run --target local-work
  *     --stop-at 2017-07-10T00:10:00Z
@@ -85,7 +86,10 @@ try {
         . ($dryRun ? ' dry_run=true' : '')
     );
     $result = k2_ops_timeline_sim_run($con, $stopAt, $startAt, $dryRun);
-    k2_ops_log('games_processed=' . $result['processed']);
+    k2_ops_log(
+        'games_processed=' . $result['processed']
+        . ' skipped=' . ($result['skipped'] ?? 0)
+    );
     k2_ops_log(
         'last_game id=' . ($result['last_game_id'] ?? 'none')
         . ' Date=' . ($result['last_game_date'] ?? 'none')

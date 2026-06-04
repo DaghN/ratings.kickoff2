@@ -17,7 +17,7 @@ Copy this section into email/chat when a release needs **prod database + server 
 ## Preconditions
 
 - [ ] Dagh confirmed staging: schema + replay (if any) + PHP
-- [ ] **Rating fade (hourly) stopped** — required before this cutover
+- [ ] **Rating fade** — not used in PHP ops plan (no hourly fade job for this release)
 - [ ] Backup / maintenance window: **[Steve decides]**
 
 ---

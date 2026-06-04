@@ -20,6 +20,11 @@ const K2_OPS_DISPATCH_REGISTRY = [
         'required' => [],
         'optional' => ['as_of'],
     ],
+    'FinalizeUtcDay' => [
+        'summary' => 'UTC day tick: league finalize + league event milestones + day-close milestones.',
+        'required' => [],
+        'optional' => ['as_of', 'closed_utc_day'],
+    ],
     'ProcessPlayerRegistered' => [
         'summary' => 'Lobby milestone entered_arena for one player.',
         'required' => ['player_id'],
@@ -46,6 +51,7 @@ function k2_ops_dispatch_usage(): void
     $lines[] = 'Examples:';
     $lines[] = '  php dispatch.php CMD=ProcessCompletedGame game_id=57216 target=staging-work';
     $lines[] = '  php dispatch.php CMD=FinalizeLeagueDue target=staging-work as_of=2026-06-03T00:00:01Z';
+    $lines[] = '  php dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=2026-06-04T00:00:01Z';
     $lines[] = '';
     $lines[] = 'Exit codes: 0 ok | 1 error | 2 already processed (no DB change) | 64 usage';
     fwrite(STDERR, implode(PHP_EOL, $lines) . PHP_EOL);
@@ -150,6 +156,7 @@ function k2_ops_dispatch_run(string $cmd, array $params, bool $dryRun): int
         $exitCode = match ($cmd) {
             'ProcessCompletedGame' => k2_ops_dispatch_process_completed_game($params, $profileName, $dryRun),
             'FinalizeLeagueDue' => k2_ops_dispatch_finalize_league_due($params, $profileName),
+            'FinalizeUtcDay' => k2_ops_dispatch_finalize_utc_day($params, $profileName, $dryRun),
             'ProcessPlayerRegistered' => k2_ops_dispatch_process_player_registered($params, $profileName, $dryRun),
             default => k2_ops_dispatch_fail("CMD={$cmd} not wired", 64),
         };
@@ -221,6 +228,42 @@ function k2_ops_dispatch_finalize_league_due(array $params, string $profileName)
         k2_ops_dispatch_log(
             'FinalizeLeagueDue finalized=' . $result['finalized']
             . ' as_of=' . $result['as_of']
+        );
+        k2_ops_dispatch_log(
+            '[NOTE] FinalizeLeagueDue is league-only. Nightly cron should use CMD=FinalizeUtcDay '
+            . '(league + league milestones + perfect_day/nightmare_day).'
+        );
+    } finally {
+        $con->close();
+    }
+
+    return 0;
+}
+
+/**
+ * @param array<string, string> $params
+ */
+function k2_ops_dispatch_finalize_utc_day(array $params, string $profileName, bool $dryRun): int
+{
+    require_once dirname(__DIR__) . '/modules/finalize_utc_day.php';
+
+    $asOf = k2_ops_parse_as_of($params['as_of'] ?? null);
+    $closedUtcDay = isset($params['closed_utc_day']) && $params['closed_utc_day'] !== ''
+        ? $params['closed_utc_day']
+        : null;
+
+    $con = k2_ops_dispatch_connect($profileName);
+    try {
+        $result = k2_ops_finalize_utc_day($con, $asOf, $dryRun, $closedUtcDay);
+        k2_ops_dispatch_log(
+            'FinalizeUtcDay'
+            . ' closed_utc_day=' . $result['closed_utc_day']
+            . ' as_of=' . $result['as_of']
+            . ' league_finalized=' . $result['league_finalized']
+            . ' league_event_milestones=' . $result['league_event_milestones_inserted']
+            . ' perfect_day=' . $result['perfect_day']
+            . ' nightmare_day=' . $result['nightmare_day']
+            . ($dryRun ? ' dry_run=true' : '')
         );
     } finally {
         $con->close();

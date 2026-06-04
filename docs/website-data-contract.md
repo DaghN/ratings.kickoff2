@@ -929,7 +929,7 @@ Required updates:
 | `player_play_streaks` | Update day/week current + personal best for A and B; HoF columns if personal best rose — see § `player_play_streaks` |
 | `server_daily_activity` | Increment `rated_games`; increment `active_players` only for players newly active that day |
 | `player_period_league` | Upsert A and B W/D/L/GF/GA/GD/points for day/week/month/year |
-| `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — **rated game** (both players) from `ProcessCompletedGame` only; **not** `perfect_day` / `nightmare_day` / `entered_arena` (day-close job, register, or rebuild). League keys: PER-003. Until prod ships: backfill-only; site reads rebuild. |
+| `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — **rated game** (both players) from `ProcessCompletedGame` only; **not** `perfect_day` / `nightmare_day` (`FinalizeUtcDay`); **`entered_arena`** = prepare lobby seed + live register, not replay. League keys: `FinalizeUtcDay` / PER-003. Simul runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). |
 | `player_matchup_summary` | Upsert directed A-to-B and B-to-A rows |
 | `server_period_game_totals` | Increment day/week/month/year server totals |
 | `server_period_matchups` | Increment canonical pair for day/week/month/year |

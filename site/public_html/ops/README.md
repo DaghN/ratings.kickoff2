@@ -13,8 +13,10 @@
 - **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare, `seed-catalog`, `zero-derived`, parity (see §6.6).
 - **Post-game P0–P7 (PHP):** `run_process_game.php` — through milestones + play streaks. Parity: `ab-post-game --phase p6` (layers 1–6); P7 layer diff not wired yet.
 - **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
-- **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` on work DB (`--as-of` for timeline simul); REP-012/013 via `rebuild-all` / `rebuild-aggregates`.
-- **Timeline sim (Mode C):** `run_timeline_sim.php run --stop-at …` — post-game + daily `finalize-due` step.
+- **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` / `rebuild-all` (batch repair); **Steve midnight:** `CMD=FinalizeUtcDay` (league + league milestones + day-close).
+- **UTC day tick:** `run_finalize_utc_day.php` — dev runner same as `CMD=FinalizeUtcDay`.
+- **Prod-shaped simul:** `run_ops_sim.php run` — full history or `--until-game-id` (preferred). Low-level: `run_timeline_sim.php`.
+- **After simul (local gate):** `run_verify_ops_sim.php` — six-value + league + milestone smoke SQL.
 - **Dispatcher:** `dispatch.php` — Steve/cron `CMD=` entry ([`ops-dispatch.md`](../../../docs/coordination/ops-dispatch.md)).
 - **Not yet:** live **register** wired on prod (CMD exists: `ProcessPlayerRegistered`).
 

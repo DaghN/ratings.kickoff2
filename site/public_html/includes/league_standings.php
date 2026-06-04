@@ -70,19 +70,34 @@ function k2_league_period_is_closed(string $periodType, string $periodStart, ?Da
 /**
  * @return array<int, array{first_game_id: int, first_game_side: string}>
  */
-function k2_league_load_first_games(mysqli $con, string $periodStart, string $periodEnd): array
-{
-    $sql = <<<'SQL'
+function k2_league_load_first_games(
+    mysqli $con,
+    string $periodStart,
+    string $periodEnd,
+    ?DateTimeImmutable $maxGameDate = null
+): array {
+    $maxClause = '';
+    $types = 'ssss';
+    $params = [$periodStart, $periodEnd, $periodStart, $periodEnd];
+    if ($maxGameDate !== null) {
+        $maxClause = ' AND `Date` <= ?';
+        $types .= 's';
+        $params[] = $maxGameDate->format('Y-m-d H:i:s');
+        $types .= 's';
+        $params[] = $maxGameDate->format('Y-m-d H:i:s');
+    }
+
+    $sql = <<<SQL
 SELECT player_id, game_id, side FROM (
   SELECT idA AS player_id, id AS game_id, 'A' AS side,
          ROW_NUMBER() OVER (PARTITION BY idA ORDER BY `Date` ASC, id ASC) AS rn
   FROM ratedresults
-  WHERE `Date` >= ? AND `Date` < ?
+  WHERE `Date` >= ? AND `Date` < ? AND NewRatingA IS NOT NULL{$maxClause}
   UNION ALL
   SELECT idB AS player_id, id AS game_id, 'B' AS side,
          ROW_NUMBER() OVER (PARTITION BY idB ORDER BY `Date` ASC, id ASC) AS rn
   FROM ratedresults
-  WHERE `Date` >= ? AND `Date` < ?
+  WHERE `Date` >= ? AND `Date` < ? AND NewRatingA IS NOT NULL{$maxClause}
 ) ranked
 WHERE rn = 1
 SQL;
@@ -91,7 +106,7 @@ SQL;
     if ($stmt === false) {
         return [];
     }
-    mysqli_stmt_bind_param($stmt, 'ssss', $periodStart, $periodEnd, $periodStart, $periodEnd);
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
     if (!mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
 
@@ -120,8 +135,10 @@ function k2_league_attach_first_games(array $rows, array $firstGames): array
     foreach ($rows as &$row) {
         $pid = (int) ($row['player_id'] ?? $row['id'] ?? 0);
         $fg = $firstGames[$pid] ?? null;
-        $row['first_game_id'] = $fg['first_game_id'] ?? PHP_INT_MAX;
+        $row['first_game_id'] = $fg['first_game_id'] ?? 0;
         $row['first_game_side'] = $fg['first_game_side'] ?? 'A';
+        // Sort tie-break only — never persist (see write_instance_awards).
+        $row['first_game_sort_key'] = $fg['first_game_id'] ?? PHP_INT_MAX;
     }
     unset($row);
 
@@ -135,7 +152,7 @@ function k2_league_compare_points(array $a, array $b): int
         ['gd', 'desc'],
         ['gf', 'desc'],
         ['played', 'desc'],
-        ['first_game_id', 'asc'],
+        ['first_game_sort_key', 'asc'],
     ];
     foreach ($fields as [$key, $dir]) {
         $av = (int) ($a[$key] ?? 0);
@@ -144,7 +161,8 @@ function k2_league_compare_points(array $a, array $b): int
             return $dir === 'desc' ? $bv <=> $av : $av <=> $bv;
         }
     }
-    if ((int) $a['first_game_id'] === (int) $b['first_game_id']) {
+    if ((int) ($a['first_game_sort_key'] ?? $a['first_game_id'] ?? 0)
+        === (int) ($b['first_game_sort_key'] ?? $b['first_game_id'] ?? 0)) {
         $aB = ($a['first_game_side'] ?? 'A') === 'B';
         $bB = ($b['first_game_side'] ?? 'A') === 'B';
         if ($aB !== $bB) {
@@ -422,13 +440,14 @@ function k2_league_build_sorted_standings(
     mysqli $con,
     string $leagueKind,
     string $periodType,
-    string $periodStart
+    string $periodStart,
+    ?DateTimeImmutable $asOf = null
 ): array {
     $bounds = k2_league_bounds_for_start($periodType, $periodStart);
     if ($bounds === null) {
         return [];
     }
-    $firstGames = k2_league_load_first_games($con, $bounds['start'], $bounds['end']);
+    $firstGames = k2_league_load_first_games($con, $bounds['start'], $bounds['end'], $asOf);
     $rows = $leagueKind === 'points'
         ? k2_league_load_points_rows($con, $periodType, $periodStart)
         : k2_league_load_activity_rows($con, $periodType, $periodStart);
@@ -491,7 +510,10 @@ SQL;
         $gf = $row['goals_for'];
         $played = $row['played'];
         $games = $row['games'];
-        $firstGameId = (int) $row['first_game_id'];
+        $firstGameId = (int) ($row['first_game_id'] ?? 0);
+        if ($firstGameId <= 0) {
+            continue;
+        }
         $firstSide = (string) $row['first_game_side'];
         $bindTypes = 'i' . 'ssss' . 'i' . 's' . 'i' . 'iiiii' . 'i' . 's';
         mysqli_stmt_bind_param(
@@ -705,7 +727,7 @@ function k2_league_finalize_instance(
     if ($periodEnd === null) {
         return false;
     }
-    $sorted = k2_league_build_sorted_standings($con, $leagueKind, $periodType, $periodStart);
+    $sorted = k2_league_build_sorted_standings($con, $leagueKind, $periodType, $periodStart, $asOf);
     if ($sorted === []) {
         return false;
     }

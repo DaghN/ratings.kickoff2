@@ -81,7 +81,7 @@ From [`work-db-prepare.md`](work-db-prepare.md) §5:
 |------|---------------------------|
 | **A — Game-only** | **Yes** — N× `process_completed_game`, same as live. |
 | **B — Batch website rebuild** | Parity for **aggregate tables** only when PHP does not own them yet — **not** a substitute for Mode A. |
-| **C — Timeline** | Later — league finalize, **UTC day-close milestones**, `entered_arena` is register-only (see §10.1). **Gap vs intent:** [`coordination/parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-004** (simul should equal daily ops, not batch rebuilds). |
+| **C — Timeline** | `run_timeline_sim.php` — post-game + **`FinalizeUtcDay`** per UTC day. **`entered_arena`:** prepare lobby seed (§4.7), not timeline. Runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **Remaining AUD-004:** game-only `replay-to` is not ops-complete. |
 
 Python Mode A today still batch-finalizes some ladder fields at end; treat Python as **oracle for checkpoints**, not as the PHP loop structure.
 
@@ -93,12 +93,12 @@ Python Mode A today still batch-finalizes some ladder fields at end; treat Pytho
 
 **Public display before processing:** `k2_rated_game_is_processed()` (`NewRatingA` set) — game lists show scoreline from goals; Elo columns **`-`** until processed ([`parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-006**).
 
-**Parity audit (Jun 2026):** Closed — no critical blockers; see backlog **AUD-001–006** and post-audit triage (**AUD-004** ops pipeline is the main follow-up).
+**Parity audit (Jun 2026):** Closed — no critical blockers; see backlog **AUD-001–006**. Main follow-up: **AUD-004** via [`coordination/ops-completeness-charter.md`](coordination/ops-completeness-charter.md).
 
 | In scope (per rated game, DB-backed) | Out of scope |
 |--------------------------------------|--------------|
 | Exists, streak/tail/network/matchup, period burst, rating `club_*`, `rare_blank`, debut opponent awards, **`giant_slayer`** (ladder SQL), **`daily_habit`** / **`monthly_regular`** (`player_period_games`) | **`perfect_day`**, **`nightmare_day`** — Mode C day-close or rebuild |
-| `play_streak_100` via `player_play_streaks.php` | **`entered_arena`** — `ProcessPlayerRegistered` only |
+| `play_streak_100` via `player_play_streaks.php` | **`entered_arena`** — prepare seed lobby + live `ProcessPlayerRegistered` (not per-game replay) |
 | `united_nations` via **`DrawingStreak`** on `playertable` | **`on_the_scoresheet`**, **`merchant_streak`**, **`minimalist_merchant`**, **`knife_edge`**, **`unlucky`** via SCH-018 columns (`ScoreStreak`, …) |
 | `weekly_regular`, `year_round` | **`player_period_games`** bounded week/month queries | Implemented (same path as `daily_habit` / `monthly_regular`) |
 

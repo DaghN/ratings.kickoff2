@@ -4,9 +4,9 @@ Jobs that run on a **schedule** on the server — **not** immediately after each
 
 | ID | Job | Schedule (prod today) | Action for our releases | Prod status | Notes |
 |----|-----|------------------------|-------------------------|-------------|-------|
-| PER-001 | **Rating fade** | **Hourly** (Steve, May 2026) | **Stop before** any prod deploy that changes rating/stat semantics | Running | Steve: can stop easily. Not in `ratings_cpp.txt` excerpt. |
+| PER-001 | **Rating fade** | *(legacy — hourly on prod)* | **Retired for PHP ops** — product runs **without** fade; do not add to simul or new CMDs | — | **Decision:** [`ops-completeness-charter.md`](ops-completeness-charter.md) §3. Doc sweep to remove stale mentions deferred. Steve may already have fade off. |
 | PER-002 | *(example)* Monthly league medals on profiles | — | Superseded by PER-003 | — | — |
-| PER-003 | **League finalize** | **Daily ~00:00:01 UTC** (proposed) | Finalize all leagues with `period_end <= now`; write `player_league_award`, `player_league_totals`, `league_period.finalized_at`; milestone threshold checks | **Pending** | Rules `docs/leagues-rules-spec.md`; not per-game. Steve/cron: `php ops/dispatch.php CMD=FinalizeLeagueDue target=staging-work`. Dev: `run_finalize_league.php finalize-due`. See [`ops-dispatch.md`](ops-dispatch.md). |
+| PER-003 | **UTC day tick** | **Daily ~00:00:01 UTC** (proposed) | `CMD=FinalizeUtcDay` — league finalize + league event milestones + `perfect_day` / `nightmare_day`. Legacy: `FinalizeLeagueDue` (league only). | **Shipped (PHP)** | Steve/cron: `php ops/dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=…`. Dev: `run_finalize_utc_day.php`, `run_timeline_sim.php`. [`ops-orchestration-adr.md`](ops-orchestration-adr.md). |
 
 ### Adding a row
 

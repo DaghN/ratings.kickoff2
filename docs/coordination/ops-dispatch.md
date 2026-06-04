@@ -41,7 +41,8 @@ Optional: `dry_run=1` or `--dry-run` (no commit).
 | CMD | Module | When Steve calls |
 |-----|--------|------------------|
 | `ProcessCompletedGame` | `process_completed_game.php` | After ground truth insert for one rated game |
-| `FinalizeLeagueDue` | `finalize_league_period.php` | Daily ~00:00:01 UTC (cron) |
+| `FinalizeLeagueDue` | `finalize_league_period.php` | League finalize only (legacy cron; prefer `FinalizeUtcDay`) |
+| `FinalizeUtcDay` | `finalize_utc_day.php` | **Daily ~00:00:01 UTC** — league + league event milestones + `perfect_day` / `nightmare_day` |
 | `ProcessPlayerRegistered` | `process_player_registered.php` | New account / lobby milestone |
 
 **Future CMDs (same file family):** `ReplayChronological`, `PrepareWork`, `MigrateWork` — batch/dev paths may stay on `run_*.php` until needed in cron.

@@ -227,9 +227,9 @@ Runs at end of **zero derived** (full and fast prepare). Idempotent. Not produce
 |------|-----------|-------------|
 | **A — Game-only** | Per-game processor × N in `Date, id` order (Elo, career, GST batch at end of run) | Ladder parity, post-game module dev |
 | **B — Game + batch website rebuild** | Mode A, then truncate/rebuild aggregate SQL + league/milestone rebuild scripts | Fast local/staging when periodic logic is not under test |
-| **C — Timeline** | Mode A **plus** periodic CMDs at simulated calendar boundaries (league finalize, daily rollups, PER-003, …) | Parity when awards/activity depend on **when** periods closed |
+| **C — Timeline** | Mode A **plus** `FinalizeUtcDay` at each UTC day boundary | **Prod-shaped simul** — league, league milestones, day-close |
 
-**Today:** Mode A ≈ `python -m scripts.ladder run --target sandbox`. Mode B ≈ add `rebuild_website_derived_data_local.ps1 -AllowNonLocal` (see OPERATIONS_QUICK_START). Mode C ≈ **future** (`ReplayChronological` + interleaved `FinalizeLeaguePeriod`, etc.) — [`ladder-ops-platform.md`](ladder-ops-platform.md) §8, §10.
+**Today:** Mode A ≈ `php ops/run_process_game.php replay-to` (or legacy Python ladder). Mode B ≈ `rebuild_website_derived_data_local.ps1` (repair only). Mode C ≈ **`php ops/run_timeline_sim.php run`** — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **`entered_arena`:** prepare §4.7 only, not Mode C loop.
 
 `ladder run` **includes** zero derived at start — equivalent to prepare step 3 + Mode A in one command.
 
