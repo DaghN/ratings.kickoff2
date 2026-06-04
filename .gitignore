@@ -9,13 +9,17 @@ site/config/ladder-work.ini
 site/config/work-targets.ini
 site/public_html/ops/config/work-targets.ini
 
-# Local database dumps (large; may contain account data)
+# Local database dumps (large; may contain account data) — never commit full DB exports
 /data/dumps/*
 !/data/dumps/README.md
 /KO2PC_DB/
+
+# Stray *.sql elsewhere (HeidiSQL exports, ad-hoc dumps). Canonical DDL is allowlisted below.
 *.sql
-!schema/**/*.sql
+!site/public_html/ops/sql/migrations/**/*.sql
+!site/public_html/ops/sql/generalstatstable.sql
 !scripts/ladder/sql/**/*.sql
+!schema/**/*.sql
 
 # Laragon Apache shim build artifacts
 laragon/*.exe

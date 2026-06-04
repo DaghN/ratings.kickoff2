@@ -28,7 +28,7 @@
 | `includes/ops_dispatch.php` | CMD registry + handlers (extend here) |
 | `includes/ops_bootstrap.php`, `ops_argv.php` | CLI, DB connect, protected DBs (**planned**) |
 | `modules/<snake_case>.php` | One primary file per `CMD` (e.g. `process_completed_game.php`) |
-| `sql/migrations/` | Canonical SCH DDL — `migrate-work` applies in filename order |
+| `sql/migrations/` | Canonical SCH DDL — `migrate-work` applies in filename order; **commit every new `NNN_*.sql`** (not dump-gitignored) |
 | `data/milestones_definitions_seed.json` | REP-014 catalog (prepare `seed-catalog`) |
 | `config/work-targets.ini` | DB profiles (`staging-work`, …) — copy from `.example`, gitignored |
 | `sql/rebuild/` | Optional REP SQL mirrors |
@@ -50,7 +50,7 @@ No separate `data/` or `site/config/` upload required for prepare/dispatch (lega
 
 **Steve staging runbook:** [`docs/coordination/staging-work-steve-handoff.md`](../../../docs/coordination/staging-work-steve-handoff.md)
 
-**Still outside ops:** `scripts/ladder/sql/generalstatstable.sql` (zero-derived GST), host `mysqldump`/`mysql` for refresh.
+**Host binaries for refresh:** `mysql` / `mysqldump` on PATH or standard Laragon (Windows) / `/usr/bin` (Linux) paths — see `includes/ops_shell.php`.
 
 ---
 

@@ -17,6 +17,7 @@ Files are applied in **sorted filename order**, re-run every time (must be **ide
 
 1. Add `NNN_short_name.sql` here (idempotent where possible).
 2. Add SCH row in `schema-register.md`.
-3. Run `migrate-work` on `ko2unity_work` (or full `prepare`).
+3. **Commit** the `.sql` file (allowlisted in repo `.gitignore`; WinSCP + git backup must match disk).
+4. Run `migrate-work` on `ko2unity_work` (or full `prepare`).
 
-**Not here:** REP rebuild SQL → `scripts/ladder/sql/`; catalog seed → `data/` + `seed-catalog`.
+**Not here:** REP rebuild SQL → `scripts/ladder/sql/`; catalog seed → `data/` + `seed-catalog`. GST bootstrap DDL → `../generalstatstable.sql` (zero-derived; keep in sync with `scripts/ladder/sql/generalstatstable.sql`).

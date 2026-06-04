@@ -143,10 +143,10 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 **Schema:**
 
-- **Canonical:** `site/public_html/ops/sql/migrations/` — synced with ops; apply via `run_prepare.php migrate-work` ([`coordination/ops-schema-migrations.md`](coordination/ops-schema-migrations.md)).
+- **Canonical:** `site/public_html/ops/sql/migrations/` — synced with ops; apply via `run_prepare.php migrate-work` ([`coordination/ops-schema-migrations.md`](coordination/ops-schema-migrations.md)). **Track in git** (repo `.gitignore` allowlists ops SCH DDL; only `data/dumps/` etc. stay ignored).
 - **Legacy wrapper:** `schema/apply_local.ps1` (Laragon) reads the same files.
 
-**Not synced:** `scripts/*.ps1` (Windows), `data/dumps/`, gitignored config.
+**Not synced:** `scripts/*.ps1` (Windows), `data/dumps/`, gitignored config (`ops/config/work-targets.ini`, `*.local.php`).
 
 ---
 
