@@ -88,6 +88,7 @@
 | 2026-06 | **Agent doc alignment pass** — ops migration paths, STATUS_PAGE_DATA `kooldb1`, AGENTS traps, `ladder-engine-plan` → archive; staging `staging-scripts/` confirmed gone local + remote. |
 | 2026-06 | **Ops includes hygiene** — `day_close_milestones.php`, `league_milestones_sync.php` → `ops/includes/` (FinalizeUtcDay writers only). |
 | 2026-06 | **Agent doc pass (tier 1–3)** — `kool-workspace.mdc`, contract, OPERATIONS, playbooks → ops simul vocabulary; `STAGING_REPLAY` archived; day-close surgical SQL → `sql/archive/one-off-2026-06/`. |
+| 2026-06 | **Header realm switcher + cross-realm search** — `realm_switcher.php` (Online · Amiga 500 beside wordmark); header search `realm=all` with per-hit realm labels; `player-search.js` in `site_header.php`. |
 | 2026-06 | **Doc hygiene + header cleanup** — long handoffs → `docs/archive/` stubs; session log archived; header realm switcher removed (markup/CSS; `realm-switch.js` tint-only); Activity v2 = local + staging; Deferred trimmed (no Amiga/realm backlog). |
 | 2026-06 | **Batch rebuild SQL cleanup** — orphans deleted; `*_rebuild.sql` → `scripts/ladder/sql/archive/batch-2026-05/`; OPERATIONS_QUICK_START → ops simul first. |
 | 2026-06 | **Ops vocabulary cleanup** — [`cutover-readiness.md`](docs/coordination/cutover-readiness.md); registers reframed; Phase 1.5 handoff retired. |

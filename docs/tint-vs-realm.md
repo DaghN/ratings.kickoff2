@@ -81,10 +81,8 @@ Each pill sets `--k2-accent: var(--k2-pure-*)`. That drives link-star and nav mi
 
 - [x] `status-realm-lab.php` variants retired; URL **302 → `status.php`**
 - [x] Production header: wordmark + player search only (Jun 2026)
-
-### Deferred
-
-- Search scoped to `data-realm`
+- [x] Production header: wordmark + **realm switcher** (Online · Amiga 500) + player search (Jun 2026) — `includes/realm_switcher.php`; plain links to `/status.php` and `/amiga/rating.php`; segment-outline active cell; tint unchanged on switch
+- [x] Header player search cross-realm (Jun 2026) — `api/player_search.php?realm=all`; dropdown shows **Online** / **Amiga** per hit; `player-search.js` in `site_header.php`; in-page H2H pickers stay `realm=online`
 
 ## Smoke checklist (after deploy)
 
@@ -92,5 +90,6 @@ Each pill sets `--k2-accent: var(--k2-pure-*)`. That drives link-star and nav mi
 2. **Manual Pitch** — green accent; survives reload within the same six-hour window; reverts to schedule after the boundary.
 3. **Chrome / Holo** — manual preference survives browser restart.
 4. **Online ↔ Amiga** — tint unchanged.
-5. **status.php**, **leaderboards/rating.php**, **player/profile.php** — player names follow tint.
-6. **Long-open tab** — scheduled tint updates within ~1s of six-hour boundary (no reload).
+5. **Header search** — type a name on Status or `/amiga/rating.php`; hits from both ladders when applicable; realm label + correct profile URL per row.
+6. **status.php**, **leaderboards/rating.php**, **player/profile.php** — player names follow tint.
+7. **Long-open tab** — scheduled tint updates within ~1s of six-hour boundary (no reload).

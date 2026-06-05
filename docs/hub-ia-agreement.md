@@ -74,7 +74,8 @@ Still open with Steve / prod:
 
 | Area | Current decision |
 |------|------------------|
-| Header | Wordmark + player search on the right. **Play & Setup** is a hub tab (`join.php`), not a header link. No kickoff2.com header link. |
+| Header | Wordmark + **realm switcher** (Online · Amiga 500) beside wordmark + player search on the right. **Play & Setup** is a hub tab (`join.php`), not a header link. No kickoff2.com header link. |
+| Header player search | Cross-realm: `api/player_search.php?realm=all` — Online + Amiga 500 in one dropdown; each hit labelled **Online** or **Amiga** and links to the correct profile (`/player/profile.php` vs `/amiga/profile.php`). No realm picker on the search field. In-page pickers (e.g. H2H opponent) stay `realm=online`. |
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |

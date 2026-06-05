@@ -26,6 +26,8 @@
 
 **Deploy:** WinSCP sync `site/public_html/` (JS deletes, `status-realm-lab.php`, `theme.css`). Hard refresh.
 
+**Re-shipped Jun 2026:** header realm switcher (`includes/realm_switcher.php`, `.k2-realm-switch*` in `theme.css`) and cross-realm header search (`realm=all` API). Tint picker still via `realm-switch.js` only.
+
 ---
 
 ## Kept on purpose

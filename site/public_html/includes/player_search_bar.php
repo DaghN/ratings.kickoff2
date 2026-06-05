@@ -1,16 +1,20 @@
 <?php
 
 /**
- * Player search widget (realm-ready). Default realm: online.
+ * Player search widget (realm-ready).
  *
  * Optional before include:
- *   $playerSearchRealm — string, e.g. 'online' | 'offline'
- *   $playerProfilePage — profile PHP basename, default player/profile.php
- *   $playerSearchInHeader — if true, mock-style header search in site chrome
+ *   $playerSearchRealm — 'online' | 'amiga' | 'all' (header defaults to all)
+ *   $playerProfilePage — profile path for single-realm widgets, default player/profile.php
+ *   $playerSearchInHeader — if true, header chrome search (cross-realm)
  */
 
+if (!isset($playerSearchInHeader)) {
+    $playerSearchInHeader = false;
+}
+
 if (!isset($playerSearchRealm)) {
-    $playerSearchRealm = 'online';
+    $playerSearchRealm = $playerSearchInHeader ? 'all' : 'online';
 }
 
 if (!isset($playerProfilePage)) {
@@ -18,18 +22,15 @@ if (!isset($playerProfilePage)) {
     $playerProfilePage = k2_route('player-profile');
 }
 
-if (!isset($playerSearchInHeader)) {
-    $playerSearchInHeader = false;
-}
-
 $realmEsc = htmlspecialchars((string) $playerSearchRealm, ENT_QUOTES, 'UTF-8');
 $profileEsc = htmlspecialchars((string) $playerProfilePage, ENT_QUOTES, 'UTF-8');
+$crossRealm = $playerSearchRealm === 'all';
 $headerClass = $playerSearchInHeader ? ' k2-header-search player-search--header' : '';
 $compactChrome = $playerSearchInHeader;
 
 ?>
 
-<div class="player-search<?php echo $headerClass; ?>" data-player-search-realm="<?php echo $realmEsc; ?>" data-player-profile-page="<?php echo $profileEsc; ?>" role="search">
+<div class="player-search<?php echo $headerClass; ?>" data-player-search-realm="<?php echo $realmEsc; ?>" data-player-profile-page="<?php echo $profileEsc; ?>" data-player-search-cross-realm="<?php echo $crossRealm ? '1' : '0'; ?>" role="search">
 
     <label class="player-search-label<?php echo $compactChrome ? ' visually-hidden' : ''; ?>" for="player-search-q">Find player<?php if (!$compactChrome): ?> <span class="player-search-realm-tag">(<?php echo $realmEsc; ?>)</span><?php endif; ?></label>
 

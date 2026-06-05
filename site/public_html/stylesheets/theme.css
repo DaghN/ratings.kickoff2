@@ -267,6 +267,74 @@ body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
 	min-width: 0;
 }
 
+/* Realm switcher — segment track beside wordmark (tint-derived active ring, not realm colours) */
+.k2-realm-switch {
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+.k2-realm-switch__track {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 3px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	box-sizing: border-box;
+}
+
+body.k2-site a.k2-realm-switch__btn {
+	display: inline-block;
+	margin: 0;
+	padding: 5px 10px;
+	border: 1px solid transparent;
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	background: transparent;
+	color: var(--k2-text-muted);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+body.k2-site a.k2-realm-switch__btn:visited {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site a.k2-realm-switch__btn:hover:not(.is-active) {
+	color: var(--k2-text-secondary);
+	background: rgba(255, 255, 255, 0.05);
+	text-decoration: none;
+}
+
+body.k2-site a.k2-realm-switch__btn.is-active,
+body.k2-site a.k2-realm-switch__btn.is-active:visited {
+	color: var(--k2-segment-active-text);
+	background: transparent;
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: none;
+	text-decoration: none;
+}
+
+body.k2-site a.k2-realm-switch__btn.is-active:hover {
+	color: var(--k2-segment-active-text);
+	background: transparent;
+	text-decoration: none;
+}
+
+@media (max-width: 760px) {
+	.k2-realm-switch {
+		flex-basis: 100%;
+	}
+}
+
 .k2-site-header__utility-link {
 	flex: 0 0 auto;
 	padding: 6px 12px;
@@ -408,6 +476,20 @@ body.k2-site .player-search-results .player-search-name {
 	min-width: 0;
 	white-space: nowrap;
 	color: var(--k2-text-primary);
+}
+
+body.k2-site .player-search-results .player-search-meta {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: baseline;
+	gap: 0.5em;
+	white-space: nowrap;
+}
+
+body.k2-site .player-search-results .player-search-realm {
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--k2-text-muted);
 }
 
 body.k2-site .player-search-results .player-search-rating {

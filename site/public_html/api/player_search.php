@@ -2,8 +2,9 @@
 /**
  * JSON player lookup for autocomplete (realm-ready).
  *
- * GET: q (required, min 2 chars), realm (default online), limit (default 15, max 30)
- * Online realm: playertable rows with Display = 1; matches Name substring (LIKE), case-insensitive per collation.
+ * GET: q (required, min 2 chars), realm (online | amiga | all; default online), limit (default 15, max 30)
+ * online / amiga: single-database substring match on Name (LIKE), case-insensitive per collation.
+ * all: both databases merged, sorted by name, capped at limit.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -24,7 +25,8 @@ if ($limit > 30) {
     $limit = 30;
 }
 
-if ($realm !== 'online') {
+$allowedRealms = ['online', 'amiga', 'all'];
+if (!in_array($realm, $allowedRealms, true)) {
     echo json_encode([
         'realm' => $realm,
         'players' => [],
@@ -50,48 +52,149 @@ function ko2_escape_like($s)
     return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $s);
 }
 
-$pattern = '%' . ko2_escape_like($qRaw) . '%';
+/**
+ * @return list<array{id: int, name: string, rating: int, realm: string}>
+ */
+function ko2_player_search_rows(mysqli $con, string $pattern, int $limit, string $realmId, bool $onlineDisplayFilter): array
+{
+    $where = 'Name IS NOT NULL AND Name <> \'\' AND LOWER(Name) LIKE LOWER(?) ESCAPE \'\\\\\'';
+    if ($onlineDisplayFilter) {
+        $where = 'Display = 1 AND ' . $where;
+    } else {
+        $where = 'NumberGames > 0 AND ' . $where;
+    }
 
-include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+    $sql = 'SELECT ID, Name, ROUND(Rating) AS ratingRounded FROM playertable WHERE '
+        . $where . ' ORDER BY Name ASC LIMIT ?';
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if ($con->connect_errno) {
-    http_response_code(500);
-    echo json_encode(['error' => 'db_connect_failed']);
-    exit;
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return [];
+    }
+
+    $stmt->bind_param('si', $pattern, $limit);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    $players = [];
+    while ($row = $res->fetch_assoc()) {
+        $players[] = [
+            'id' => (int) $row['ID'],
+            'name' => $row['Name'],
+            'rating' => (int) $row['ratingRounded'],
+            'realm' => $realmId,
+        ];
+    }
+
+    $stmt->close();
+
+    return $players;
 }
 
-$con->set_charset('utf8mb4');
-$con->query("SET time_zone = '+00:00'");
+/**
+ * @return mysqli|null
+ */
+function ko2_player_search_connect_online()
+{
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
-$sql = 'SELECT ID, Name, ROUND(Rating) AS ratingRounded FROM playertable '
-    . 'WHERE Display = 1 AND Name IS NOT NULL AND Name <> \'\' '
-    . 'AND Name LIKE ? ESCAPE \'\\\\\' '
-    . 'ORDER BY Name ASC LIMIT ?';
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    if ($con->connect_errno) {
+        return null;
+    }
 
-$stmt = $con->prepare($sql);
-if (!$stmt) {
-    http_response_code(500);
-    echo json_encode(['error' => 'prepare_failed']);
-    mysqli_close($con);
-    exit;
+    $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+
+    return $con;
 }
 
-$stmt->bind_param('si', $pattern, $limit);
-$stmt->execute();
-$res = $stmt->get_result();
-
-$players = [];
-while ($row = $res->fetch_assoc()) {
-    $players[] = [
-        'id' => (int) $row['ID'],
-        'name' => $row['Name'],
-        'rating' => (int) $row['ratingRounded'],
+/**
+ * @return mysqli|null
+ */
+function ko2_player_search_connect_amiga()
+{
+    $candidates = [
+        $_SERVER['DOCUMENT_ROOT'] . '/amiga/ko2amiga_config.local.php',
+        dirname($_SERVER['DOCUMENT_ROOT']) . '/config/ko2amiga_config.local.php',
     ];
+
+    $configFile = null;
+    foreach ($candidates as $path) {
+        if (is_file($path)) {
+            $configFile = $path;
+            break;
+        }
+    }
+
+    if ($configFile === null) {
+        return null;
+    }
+
+    require $configFile;
+
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    if ($con->connect_errno) {
+        return null;
+    }
+
+    $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+
+    return $con;
 }
 
-$stmt->close();
-mysqli_close($con);
+/**
+ * @param list<array{id: int, name: string, rating: int, realm: string}> $players
+ * @return list<array{id: int, name: string, rating: int, realm: string}>
+ */
+function ko2_player_search_merge_sort(array $players, int $limit): array
+{
+    usort($players, static function (array $a, array $b): int {
+        return strcasecmp($a['name'], $b['name']);
+    });
+
+    if (count($players) <= $limit) {
+        return $players;
+    }
+
+    return array_slice($players, 0, $limit);
+}
+
+$pattern = '%' . ko2_escape_like($qRaw) . '%';
+$players = [];
+
+if ($realm === 'online' || $realm === 'all') {
+    $con = ko2_player_search_connect_online();
+    if ($con === null) {
+        http_response_code(500);
+        echo json_encode(['error' => 'db_connect_failed']);
+        exit;
+    }
+
+    $fetchLimit = $realm === 'all' ? $limit : $limit;
+    $players = array_merge(
+        $players,
+        ko2_player_search_rows($con, $pattern, $fetchLimit, 'online', true)
+    );
+    mysqli_close($con);
+}
+
+if ($realm === 'amiga' || $realm === 'all') {
+    $con = ko2_player_search_connect_amiga();
+    if ($con !== null) {
+        $fetchLimit = $realm === 'all' ? $limit : $limit;
+        $players = array_merge(
+            $players,
+            ko2_player_search_rows($con, $pattern, $fetchLimit, 'amiga', false)
+        );
+        mysqli_close($con);
+    }
+}
+
+if ($realm === 'all') {
+    $players = ko2_player_search_merge_sort($players, $limit);
+}
 
 echo json_encode([
     'realm' => $realm,

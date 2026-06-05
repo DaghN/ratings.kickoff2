@@ -1,4 +1,4 @@
-# Kick Off 2 Ratings ó Design Direction
+# Kick Off 2 Ratings ù Design Direction
 
 **Status:** current design contract, May 2026. Phase A hub shell and Status Phase B v1.2 are shipped in repo; staging deploy is via WinSCP, not `git push`.
 
@@ -29,7 +29,7 @@ Use **neon noir statistics** as the shorthand:
 
 **Realm** chooses the ladder universe and data: `online` now, `amiga` later.
 
-**Tint** chooses UI paint: `amber`, `pitch`, `chrome`, `holo`. Without a manual pill pick, tint follows a **six-hour rotation** in the visitorís local time (amber ? pitch ? chrome ? holo); see [`tint-vs-realm.md`](tint-vs-realm.md). A manual pill choice applies for the **current six-hour window only**, then the schedule resumes. Tint is stored on `html[data-k2-accent]` and must not imply realm.
+**Tint** chooses UI paint: `amber`, `pitch`, `chrome`, `holo`. Without a manual pill pick, tint follows a **six-hour rotation** in the visitorùs local time (amber ? pitch ? chrome ? holo); see [`tint-vs-realm.md`](tint-vs-realm.md). A manual pill choice applies for the **current six-hour window only**, then the schedule resumes. Tint is stored on `html[data-k2-accent]` and must not imply realm.
 
 ```html
 <html data-realm="online" data-k2-accent="amber">
@@ -46,7 +46,7 @@ Rules:
 
 ## Color System
 
-**Source of truth:** `site/public_html/stylesheets/theme.css` (`:root` + `html[data-k2-accent="Ö"]`). Chart.js reads the same variables via `js/chart-theme.js` (`K2ChartTheme.pitch()`, `.amber()`, `.pureAmber()`, etc.).
+**Source of truth:** `site/public_html/stylesheets/theme.css` (`:root` + `html[data-k2-accent="ù"]`). Chart.js reads the same variables via `js/chart-theme.js` (`K2ChartTheme.pitch()`, `.amber()`, `.pureAmber()`, etc.).
 
 **Tint vs chart:** The four hub tint pills share **hex** with `--k2-pure-*`, but **roles differ**. Tint (`--k2-accent`) follows the picker. Chart amber is **softened** and **does not** follow the picker. Milestone card glow always uses **pure** tier hues. See also [`docs/tint-vs-realm.md`](tint-vs-realm.md).
 
@@ -56,16 +56,16 @@ Only **`--k2-pure-*`** (and chart-only `teal` / `magenta`) hold literal hex. Eve
 
 ```text
 --k2-pure-amber | pitch | chrome | holo     ? only hex for these four
-        ¶
+        ù
         +-? --k2-amber-soft (85% pure-amber + 15% text-primary)
-        ¶         +-? --k2-chart-amber --? T.amber()  (goals, play-texture, Ö)
-        ¶
+        ù         +-? --k2-chart-amber --? T.amber()  (goals, play-texture, ù)
+        ù
         +-? --k2-chart-pitch|chrome|holo --? var(--k2-pure-*) --? T.pitch() etc.
-        ¶
+        ù
         +-? --k2-ms-accent on garden card --? var(--k2-pure-*)  (per tier token)
-        ¶
+        ù
         +-? --k2-accent (active tint pill) --? var(--k2-pure-*)
-                  ¶
+                  ù
                   +-? --k2-link-star (85% accent + 15% primary)  ? links, player names
                   +-? --k2-segment-active-text (72% accent + 28% secondary) ? hub/LB nav active tab
                   +-? pure fill: avatar initial, LB filter dot when on, calendar selected day
@@ -121,7 +121,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 |---------|----------------|-----|
 | Milestone garden unlocked title, border, glow | `--k2-ms-accent` ? `--k2-pure-*` | Full saturation; must not use `--k2-chart-amber` (soft) |
 | Hero / ranked10 tier label (pitch/chrome/amber/holo) | `--k2-pure-*`; legendary ? `--k2-ms-holo` on `.k2-lb-ms-tier--holo` | Tier identity, not chart ink |
-| Amber chart series (play-texture amber, Ö) | `T.amber()` ? `--k2-chart-amber` ? `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
+| Amber chart series (play-texture amber, ù) | `T.amber()` ? `--k2-chart-amber` ? `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
 | Pitch / chrome / holo chart series | `T.pitch()` etc. ? `--k2-chart-*` ? `--k2-pure-*` | Full palette ink (no extra softening yet) |
 | Player name, profile link, Elo highlight span | `a.k2-link-star` / `.k2-link-star` | Tint-following soft accent |
 | Active hub tab, LB wing tab, player sub-nav | `--k2-segment-active-text` | Softer than link-star (72% + secondary) |
@@ -146,7 +146,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 - Point milestone cards or tier glow at `--k2-chart-*` (chart amber is softened).
 - Use `T.linkStar()` for amber **chart** series if the chart must stay goals-orange when tint is Chrome (use `T.amber()`).
 - Duplicate hex for the four hub hues outside `:root` / `html[data-k2-accent]` swatch lines.
-- Assume ìchart amberî and ìtint amberî are one variable; they are related hues with different tokens and mixes.
+- Assume ùchart amberù and ùtint amberù are one variable; they are related hues with different tokens and mixes.
 
 ### Text/link hierarchy (unchanged classes)
 
@@ -154,7 +154,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 |-------|------|
 | Body/table data | `--k2-text-primary`, normal weight |
 | Muted helpers/headings | `--k2-text-muted` |
-| Hub page lede (`.k2-hub-page-intro` in `.k2-hub-page-intro-head`) | 13px `--k2-text-muted`, max-width 44rem ó Milestones catalog + HoF footnotes above tables; optional `.blue` / `.holo` |
+| Hub page lede (`.k2-hub-page-intro` in `.k2-hub-page-intro-head`) | 13px `--k2-text-muted`, max-width 44rem ù Milestones catalog + HoF footnotes above tables; optional `.blue` / `.holo` |
 | Status-style tickers (arc line) | `--k2-text-muted`; key counts `.blue` |
 | Onboarding / long explanatory prose (Play & setup) | `--k2-text-secondary` (14px); page title stays `--k2-text-primary` |
 | Player names / dense table links | `a.k2-link-star`, weight 600; hover/focus underline |
@@ -166,10 +166,10 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Player matchup W/D/L (`individual2a`, `k2-table--player-matchup`) | Calm-stats; **Games** anchor; `.blue`/`.red` editorial; bolder when sort column (700) |
 | Player Goals + DDs matchup (`individual2b/c`) | Hub LB parity (`ranked2` / `ranked3`); calm-stats, no editorial blue/red; **Games** anchor; `lb_column_help` headers/tooltips |
 | Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` ? `--k2-link-star`, weight 600; permanent. Peak on Rating wing; Elo anchor on Results + Status active board only. |
-| Status **league** anchors (Pts / Games) | `k2-table--league-anchor-cross` ? `--k2-league-anchor-ink` (85% pure + primary, same recipe as link-star): **chrome** when tint is amber or pitch; **pitch** when tint is chrome or holo ó not `--k2-accent`. |
+| Status **league** anchors (Pts / Games) | `k2-table--league-anchor-cross` ? `--k2-league-anchor-ink` (85% pure + primary, same recipe as link-star): **chrome** when tint is amber or pitch; **pitch** when tint is chrome or holo ù not `--k2-accent`. |
 | Calm LB active sort (not anchor) | `k2-table--calm-stats` + `k2-table-col-sorted` ? `--k2-text-primary`, weight 600 (tunable; avoids faux link-star) |
 | Other sortable tables (non-calm) | `k2-table-col-sorted` ? `--k2-segment-active-text`, weight 600 |
-| **Listbox / archive picker** (`.k2-archive-listbox`) | Closed: `--k2-text-secondary`, weight 500; hover/open/selected: subtle `color-mix` toward primary (not full primary); selection via background ó **not** `--k2-segment-active-text`; trigger width locked to longest option label (JS measure probe); Leagues picker row uses max width across day/week/month/year so tab change does not shift step nav; **Player Games** Result/Opponent filters use the same component (`includes/k2_archive_listbox.php`) |
+| **Listbox / archive picker** (`.k2-archive-listbox`) | Closed: `--k2-text-secondary`, weight 500; hover/open/selected: subtle `color-mix` toward primary (not full primary); selection via background ù **not** `--k2-segment-active-text`; trigger width locked to longest option label (JS measure probe); Leagues picker row uses max width across day/week/month/year so tab change does not shift step nav; **Player Games** Result/Opponent filters use the same component (`includes/k2_archive_listbox.php`) |
 | **Flatpickr (Leagues day)** | Day cells + month chrome: `--k2-text-secondary`; weekdays/disabled: muted; selected day: accent fill |
 | **Leagues meta ticker** | Plain **League** + `<span class="blue">` period label; end dates use full month names (`F j` UTC) |
 
@@ -185,7 +185,7 @@ Do not add one-off hex in page CSS when a token exists.
 | Numbers | tabular numbers or IBM Plex Mono where useful |
 | Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial (self-hosted; preloaded in `k2_fonts_head.php`) |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
-| Text selection (drag highlight) | `::selection` on `body.k2-site` ó `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
+| Text selection (drag highlight) | `::selection` on `body.k2-site` ù `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
 
 Never use pixel/bitmap fonts for readable data.
 
@@ -195,7 +195,7 @@ Never use pixel/bitmap fonts for readable data.
 
 Current shared chrome:
 
-- `includes/site_header.php` for wordmark + player search. Wordmark **always** street-sign neon (`text-shadow` layers on `.k2-wordmark__main`, px-capped and pleasant rather than foggy ó avoid huge `calc()` blurs); **hover** adds a controlled wider shadow (no unbounded bloom).
+- `includes/site_header.php` for wordmark + **realm switcher** (`includes/realm_switcher.php`: Online ù Amiga 500, beside wordmark) + cross-realm player search (`realm=all`, per-hit Online/Amiga label). Realm switch uses segment-outline active cell (site tint, not per-realm colours). Wordmark **always** street-sign neon (`text-shadow` layers on `.k2-wordmark__main`, px-capped and pleasant rather than foggy ù avoid huge `calc()` blurs); **hover** adds a controlled wider shadow (no unbounded bloom).
 - `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / Hall of Fame / Play & Setup (`games.php` match log off-hub).
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.
@@ -215,7 +215,7 @@ Imagery:
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 
-**Surface rhythm (mixed containment):** Not every data block needs the same bordered panel. Use **open page background** when the visual is the content (profile heatmaps: played days/weeks on `--k2-bg-hover` cells). Use **chart panels** (`k2-chart-panel`, `k2-chart-frame`) when Chart.js, toggles, and fixed frames need a reading device ó Activity and profile charts share this. Use **light tiles/mosaics** for small stat or story clusters. Alternating open and contained blocks creates scroll rhythm; uniform panel stacks feel generic. Profile contract: [`player-profile-feast.md`](player-profile-feast.md) ó Surface rhythm. Do not panel everything for ìconsistencyî unless the module type warrants it.
+**Surface rhythm (mixed containment):** Not every data block needs the same bordered panel. Use **open page background** when the visual is the content (profile heatmaps: played days/weeks on `--k2-bg-hover` cells). Use **chart panels** (`k2-chart-panel`, `k2-chart-frame`) when Chart.js, toggles, and fixed frames need a reading device ù Activity and profile charts share this. Use **light tiles/mosaics** for small stat or story clusters. Alternating open and contained blocks creates scroll rhythm; uniform panel stacks feel generic. Profile contract: [`player-profile-feast.md`](player-profile-feast.md) ù Surface rhythm. Do not panel everything for ùconsistencyù unless the module type warrants it.
 
 ---
 
@@ -226,16 +226,16 @@ Imagery:
 | Status hub | `status.php` is the default landing; Phase B v1.2 room grid is shipped in repo. |
 | Leaderboards | `ranked1`-`ranked5`, `ranked7`, `ranked8` use `k2-table.js` for simple sort/autorank. |
 | Games | `games.php` renders 14 sortable day buckets using shared rated-game rows. |
-| Player profile | `player/profile.php` is the shipped feast layout; **mixed surface rhythm** (open heatmaps + chart panels + light tiles) ó see [`player-profile-feast.md`](player-profile-feast.md); gradual copy/UX improvements only. |
+| Player profile | `player/profile.php` is the shipped feast layout; **mixed surface rhythm** (open heatmaps + chart panels + light tiles) ù see [`player-profile-feast.md`](player-profile-feast.md); gradual copy/UX improvements only. |
 | Player games | `player/games.php` uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
 | Records/Hall of Fame | `hall-of-fame.php` is the Hall of Fame page; `leaderboards/activity-peaks.php` is Activity. |
-| Activity / charts | `activity.php` starts with a key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts grouped into question-led sections with short intros; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` (`mergeTooltip` / `applyTooltipDefaults`); dataset colour swatches use the tooltip surface + solid stroke. **Implementation plan:** [`activity-charts.md`](activity-charts.md) ó single module, lab-only `.k2-chart-frame`, lab ? promote (no global phone layout changes during lab). |
+| Activity / charts | `activity.php` starts with a key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts grouped into question-led sections with short intros; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` (`mergeTooltip` / `applyTooltipDefaults`); dataset colour swatches use the tooltip surface + solid stroke. **Implementation plan:** [`activity-charts.md`](activity-charts.md) ù single module, lab-only `.k2-chart-frame`, lab ? promote (no global phone layout changes during lab). |
 
 Microcopy:
 
 - Tooltips are supplemental: use them for abbreviations, formulas, unfamiliar rules, and hidden context.
 - Do not add tooltip text that only repeats a visible label; sortable headers can rely on the shared `Click to sort.` affordance when no extra explanation is useful.
-- Leaderboard hub wings (`ranked1`ñ`5`, `7`, `10`, league honours, ranked8 longevity): shared strings in `site/public_html/includes/lb_column_help.php`. Column help uses **you** = the player in that row (not the site visitor); see `docs/k2-table-and-games-plan.md`.
+- Leaderboard hub wings (`ranked1`ù`5`, `7`, `10`, league honours, ranked8 longevity): shared strings in `site/public_html/includes/lb_column_help.php`. Column help uses **you** = the player in that row (not the site visitor); see `docs/k2-table-and-games-plan.md`.
 - Avoid native `title` attributes for visible-label help; use visible labels, `aria-label`, or the shared K2 tooltip behavior as appropriate.
 
 ---
@@ -278,4 +278,4 @@ Legacy cleanup:
 - Preserve dense table functionality while changing visuals.
 - Update this doc only when a visual contract changes, not for every tiny CSS tweak.
 
-*Last pruned: May 2026 ó current contract separated from retired theme-lab history.*
+*Last pruned: May 2026 ù current contract separated from retired theme-lab history.*

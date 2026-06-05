@@ -6,7 +6,15 @@
 
     var DEBOUNCE_MS = 200;
     var MIN_CHARS = 2;
-    var API_PATH = 'api/player_search.php';
+    var API_PATH = '/api/player_search.php';
+    var PROFILE_BY_REALM = {
+        online: '/player/profile.php',
+        amiga: '/amiga/profile.php'
+    };
+    var REALM_LABELS = {
+        online: 'Online',
+        amiga: 'Amiga'
+    };
 
     function debounce(fn, ms) {
         var timer = null;
@@ -75,7 +83,13 @@
         closeList(root, input, list);
     }
 
-    function renderResults(root, input, list, players, profilePage) {
+    function playerProfileHref(p, profilePage) {
+        var realm = p.realm || 'online';
+        var base = PROFILE_BY_REALM[realm] || profilePage;
+        return base + '?id=' + encodeURIComponent(p.id);
+    }
+
+    function renderResults(root, input, list, players, profilePage, showRealmLabel) {
         list.innerHTML = '';
         root._psItems = [];
         root._psActiveIndex = -1;
@@ -95,19 +109,30 @@
             var a = document.createElement('a');
             a.setAttribute('role', 'option');
             a.setAttribute('id', 'player-search-opt-' + i);
-            a.href = profilePage + '?id=' + encodeURIComponent(p.id);
+            a.href = playerProfileHref(p, profilePage);
             a.tabIndex = -1;
 
             var nameSpan = document.createElement('span');
             nameSpan.className = 'player-search-name';
             nameSpan.appendChild(document.createTextNode(p.name));
 
+            var metaSpan = document.createElement('span');
+            metaSpan.className = 'player-search-meta';
+
+            if (showRealmLabel && p.realm && REALM_LABELS[p.realm]) {
+                var realmSpan = document.createElement('span');
+                realmSpan.className = 'player-search-realm';
+                realmSpan.appendChild(document.createTextNode(REALM_LABELS[p.realm]));
+                metaSpan.appendChild(realmSpan);
+            }
+
             var ratingSpan = document.createElement('span');
             ratingSpan.className = 'player-search-rating';
             ratingSpan.appendChild(document.createTextNode(String(p.rating)));
+            metaSpan.appendChild(ratingSpan);
 
             a.appendChild(nameSpan);
-            a.appendChild(ratingSpan);
+            a.appendChild(metaSpan);
 
             li.appendChild(a);
             list.appendChild(li);
@@ -120,8 +145,14 @@
     }
 
     function initRoot(root) {
+        if (root.getAttribute('data-ps-initialized') === '1') {
+            return;
+        }
+        root.setAttribute('data-ps-initialized', '1');
+
         var realm = root.getAttribute('data-player-search-realm') || 'online';
         var profilePage = root.getAttribute('data-player-profile-page') || '/player/profile.php';
+        var showRealmLabel = root.getAttribute('data-player-search-cross-realm') === '1';
         var input = root.querySelector('.player-search-input');
         var list = root.querySelector('.player-search-results');
         if (!input || !list) {
@@ -168,7 +199,7 @@
                 })
                 .then(function (data) {
                     var players = data.players || [];
-                    renderResults(root, input, list, players, profilePage);
+                    renderResults(root, input, list, players, profilePage, showRealmLabel);
                 })
                 .catch(function (err) {
                     if (err && err.name === 'AbortError') {

@@ -19,7 +19,8 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Activity charts v2 (single module) | — | — | — | — | — | — | **Shipped** — [`activity-charts.md`](../activity-charts.md) |
 | Persistent tint preference | — | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | — | `k2-tint-schedule.js` |
-| Header realm switcher | — | — | — | — | — | — | **Removed Jun 2026** |
+| Header realm switcher | — | — | — | — | — | — | **Re-shipped Jun 2026** — `realm_switcher.php` beside wordmark; Online ↔ `/status.php`, Amiga 500 ↔ `/amiga/rating.php` |
+| Header cross-realm player search | — | — | — | — | — | — | `api/player_search.php?realm=all`; realm label per dropdown row; H2H stays online-only |
 | Records two-panel split | L0 | — | — | — | — | — | Peak cache read path |
 | League honours leaderboard (v1) | L0 | — | — | **Proven** | **Not executed** | — | `leaderboards/league-honours.php`; **proven on `kooldb1`** after simul |
 | League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Not executed** | PER-003 at cutover | Same simul as honours; live cron `FinalizeUtcDay` when wired |
