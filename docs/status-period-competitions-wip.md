@@ -2,7 +2,7 @@
 
 UI heading: **Leagues** (paired Activity + Points tables).
 
-**Status:** **Phase 1 shipped** on `status.php` (May 2026). **Phase 1.5** backlog below is next. Retire or archive this doc when 1.5 is stable and staging QA is done.
+**Status:** **Phase 1 shipped** on `status.php` (May 2026). Items below are **optional polish only** — Phase 1.5 agent handoff is **retired** ([`coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md)). Do not treat this file as mandatory next work.
 
 **Operating chat:** Use the Cursor thread where this doc was created for day-to-day decisions; this file is the durable decision log.
 

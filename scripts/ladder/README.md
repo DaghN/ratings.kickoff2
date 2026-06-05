@@ -41,13 +41,13 @@ powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_loc
 
 - K = 32, starting rating = 1600
 - Order: `Date ASC`, `id ASC`
-- Database allowlist includes `ko2unity_db`, `ko2unity_work`, `ko2unity_baseline`, `kooldb`. Targets: `local`, `sandbox`, `staging`.
+- Database allowlist includes `ko2unity_db`, `ko2unity_work`, `ko2unity_baseline`, `kooldb1`, `kooldb2`, and legacy `kooldb`. Targets: `local`, `sandbox`, `staging`. Forward staging work DB = **`kooldb1`** ([`docs/coordination/database-copies-2026-06.md`](../../docs/coordination/database-copies-2026-06.md)).
 
 **v2 replay** also rebuilds career stats on `playertable` (extremes, streaks, victim/culprit counts, `*GameID`, etc.) and rebuilds `generalstatstable` row `id=1` at the end.
 
 **Server records:** non-ratio hall-of-fame rows via `server_records.py` (strict `>` on ties). **Ratio leaders** are **not** written to `generalstatstable` — Records page queries `playertable` (`site/public_html/includes/records_ratio_leaders.php`). Steve: `docs/coordination/records-post-game-exception.md`.
 
-**`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Staging DB name `kooldb` is allowlisted when `$database` in PHP config is `kooldb`.
+**`generalstatstable`:** DDL in `scripts/ladder/sql/generalstatstable.sql` (from `docs/generalstatstable-schema.md`). `reset` / `run` create the table and seed `id=1` if missing, NULL the row on reset, then fill it after replay. Website aggregates on staging/work use **ops simul**, not ladder `run --target staging` alone.
 
 **Period activity (P4):** After replay, `period_activity.py` rebuilds `player_period_games` / peaks from rows with `NewRatingA IS NOT NULL`.
 

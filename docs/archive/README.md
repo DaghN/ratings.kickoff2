@@ -42,7 +42,7 @@ Planning and audit material kept for history — **not** the live spec for the s
 | `retired-product-decisions.md` | Tombstone for retired product ideas (e.g. PER-001 rating fade) |
 | `status-period-competitions-phase-1.5-handoff.md` | Agent handoff for Phase 1.5 (retired Jun 2026) |
 
-**Status Leagues optional backlog (live):** [`../status-period-competitions-wip.md`](../status-period-competitions-wip.md)
+**Status Leagues optional backlog (live only — no copy in this folder):** [`../status-period-competitions-wip.md`](../status-period-competitions-wip.md)
 
 **Current maintainer docs:** `docs/player-profile-feast.md` · `docs/milestones-README.md` · `docs/website-data-contract.md` · `docs/coordination/cutover-readiness.md`
 

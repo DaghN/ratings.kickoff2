@@ -11,7 +11,7 @@ Prepare platform v2 (`scripts/work_prepare/`) sets the pattern for later `ops/di
 | Verb | Meaning |
 |------|---------|
 | **refresh-work** | Clone baseline → work (restores prod-derived in core tables) |
-| **migrate-work** | Apply `schema/migrations/` on work only |
+| **migrate-work** | Apply `site/public_html/ops/sql/migrations/` on work only |
 | **zero-derived** | §4 day-zero: core ladder + truncate aggregate tables |
 | **prepare** | Orchestrator: full (refresh → migrate → zero-derived) or `--zero-only` |
 | **parity** | Read-only checks after prepare |

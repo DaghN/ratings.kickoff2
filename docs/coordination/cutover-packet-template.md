@@ -2,6 +2,8 @@
 
 Copy this section into email/chat when a release needs **prod database + server job** changes. Fill every `[bracket]`. Attach or link Git paths.
 
+**Forward cutover (Jun 2026):** Schema DDL lives in **`site/public_html/ops/sql/migrations/`**; apply via **`php ops/run_prepare.php migrate-work`** on the target DB (staging work = **`kooldb1`**). Website aggregates = **`ops/run_ops_sim.php`** — not batch `REP-xxx` on legacy **`kooldb`**. Live post-game target = **PHP `ops/dispatch.php`** — see [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md).
+
 ---
 
 ## Summary
@@ -27,11 +29,14 @@ Apply in order:
 
 | # | File | Register ID |
 |---|------|-------------|
-| 1 | `schema/migrations/[NNN_….sql]` | SCH-… |
+| 1 | `site/public_html/ops/sql/migrations/[NNN_….sql]` | SCH-… |
 
 ```bash
-# Example — Steve adjusts paths
-mysql -u … kooldb < schema/migrations/001_ratedresults_player_indexes.sql
+# Preferred — after WinSCP sync of ops/
+php site/public_html/ops/run_prepare.php migrate-work --target staging-work
+
+# Manual equivalent (Steve adjusts host/user/DB — work DB = kooldb1)
+mysql -u … kooldb1 < site/public_html/ops/sql/migrations/001_ratedresults_player_indexes.sql
 ```
 
 **Verify:** `[e.g. SHOW INDEX FROM ratedresults WHERE Key_name LIKE 'idx_ratedresults_id%']`
@@ -65,11 +70,11 @@ bash run_PROD_WRAPPER_TBD.sh
 
 ---
 
-## 3. Post-game C++ (future games)
+## 3. Post-game PHP ops (live games at cutover)
 
 **Deploy needed?** [ Yes / No ]
 
-**Handoff style:** Steve merges live writer from **[`website-data-contract.md`](../website-data-contract.md)** — § Post-game derived-data behavior and per-table **Post-game rule** sections. No per-table snippet packs in repo.
+**Handoff style:** Wire **`ops/dispatch.php` `CMD=ProcessCompletedGame`** (+ midnight **`FinalizeUtcDay`**) per **[`steve-live-ops.md`](../../site/public_html/ops/docs/steve-live-ops.md)**. Rules in **[`website-data-contract.md`](../website-data-contract.md)** — § Post-game derived-data behavior. Retire legacy **C++ derived** post-game; do not extend C++.
 
 | Area | Doc |
 |------|-----|

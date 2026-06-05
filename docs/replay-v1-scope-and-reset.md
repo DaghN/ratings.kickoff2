@@ -145,7 +145,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 
 ## 7. Safety & verification (local, before first real reset)
 
-**Staging one-shot:** use **`docs/STAGING_REPLAY.md`** instead of this checklist.
+**Work DB / staging website aggregates:** use **[`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)** — `ops/run_ops_sim.php` on **`kooldb1`** / **`ko2unity_work`**. **Not** [`STAGING_REPLAY.md`](STAGING_REPLAY.md) (May 2026 archive stub). This checklist is for **local dev** `ko2unity_db` core ladder replay only.
 
 1. **Target DB:** confirm `SELECT DATABASE()` → **`ko2unity_db`**.
 2. **Row counts (before):** `SELECT COUNT(*) FROM ratedresults` → expect **~74,870** locally.
@@ -171,10 +171,11 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 |-------|----------|
 | CLI | `python -m scripts.ladder` — `reset`, `replay`, `run` |
 | Code | `scripts/ladder/` (`engine.py`, `outcome.py`, `elo.py`) |
-| Config | `ko2unitydb_config.php` (same as PHP). Staging run → **`docs/STAGING_REPLAY.md`** |
+| Config | `ko2unitydb_config.php` (same as PHP). Sandbox → `ladder-work.ini` + `--target sandbox` |
 | Usage | `scripts/ladder/README.md` |
+| Website aggregates on work/staging | [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) — ops simul, not this CLI |
 
-**Verified (2026-05-21, local):** `run` ~198s; top rating spot-check (e.g. game `id=10` → 1616 / 1584). **P2 staging:** **`docs/STAGING_REPLAY.md`**.
+**Verified (2026-05-21, local):** `run` ~198s; top rating spot-check (e.g. game `id=10` → 1616 / 1584). **May 2026 staging one-shot record:** [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md) — historical only.
 
 ---
 

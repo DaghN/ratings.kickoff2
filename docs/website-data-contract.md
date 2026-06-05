@@ -481,7 +481,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Post-game rule:** None — update seed + reload when catalog changes.
 
-**Implementation:** `schema/migrations/010_milestone_definitions.sql` (SCH-011).
+**Implementation:** `site/public_html/ops/sql/migrations/010_milestone_definitions.sql` (SCH-011).
 
 ---
 
@@ -853,7 +853,7 @@ Records such as `MostGamesPlayed`, `MostWins`, `MostGoalsScored`, `MostDoubleDig
 
 #### Ratio/average leaders
 
-Ratio and average leaders (best win ratio, best attack/defense average, best goal ratio, best DD/CS frequency) are **not stored** in `generalstatstable`. They were dropped locally via `schema/migrations/002_generalstatstable_drop_ratio_leader_columns.sql` (SCH-003).
+Ratio and average leaders (best win ratio, best attack/defense average, best goal ratio, best DD/CS frequency) are **not stored** in `generalstatstable`. They were dropped locally via `site/public_html/ops/sql/migrations/002_generalstatstable_drop_ratio_leader_columns.sql` (SCH-003).
 
 Leaders are read live from `playertable` at page render by `site/public_html/includes/records_ratio_leaders.php`. Eligible: `NumberGames >= 20` (`K2_ESTABLISHED_MIN_GAMES`). Ties: lowest player `ID` wins (implicit MySQL `ORDER BY column, ID ASC LIMIT 1`).
 

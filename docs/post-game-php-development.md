@@ -102,7 +102,7 @@ Python Mode A today still batch-finalizes some ladder fields at end; treat Pytho
 | `united_nations` via **`DrawingStreak`** on `playertable` | **`on_the_scoresheet`**, **`merchant_streak`**, **`minimalist_merchant`**, **`knife_edge`**, **`unlucky`** via SCH-018 columns (`ScoreStreak`, …) |
 | `weekly_regular`, `year_round` | **`player_period_games`** bounded week/month queries | Implemented (same path as `daily_habit` / `monthly_regular`) |
 
-**Milestones (P6):** layer-6 diff tooling (if used) excludes `perfect_day`, `nightmare_day`, `entered_arena`. **SCH-018** via migrate-work; see [`post-game-milestone-facilitators-pending.md`](coordination/post-game-milestone-facilitators-pending.md).
+**Milestones (P6):** layer-6 diff tooling (if used) excludes `perfect_day`, `nightmare_day`, `entered_arena`. **SCH-018** via migrate-work; see [`post-game-milestone-facilitators.md`](coordination/post-game-milestone-facilitators.md).
 
 ---
 
@@ -129,7 +129,7 @@ While implementing a phase, **look for** SQL that is correct but **heavy on the 
 |------|------------|
 | **Default** | Ship the phase with incremental updates from rows already loaded/written (§3, §0.2). |
 | **Notice** | If a query runs often per game (e.g. many `EXISTS`/`COUNT` on `ratedresults` for the same pair) or cannot be reduced to one cheap indexed lookup, note it: **Slow-query candidate** — query shape, how often per game, rough idea for stored truth. |
-| **Promote** | Open a migration (**SCH-NNN** in `schema/migrations/`) + contract § only when the candidate is on the hot path and indexes alone are not enough. Discuss with Dagh before widening `playertable` or adding new aggregate tables. |
+| **Promote** | Open a migration (**SCH-NNN** in `site/public_html/ops/sql/migrations/`) + contract § only when the candidate is on the hot path and indexes alone are not enough. Discuss with Dagh before widening `playertable` or adding new aggregate tables. |
 | **Implement** | New stored fields must update **inside** `k2_ops_process_completed_game` (same transaction as the rest of the phase), not in a batch job after sim, if later games depend on them. |
 
 **Good facilitator patterns (examples):**
@@ -153,7 +153,7 @@ While implementing a phase, **look for** SQL that is correct but **heavy on the 
 
 | Item | Status |
 |------|--------|
-| **`playertable.RecentAverageRating`** | **Dropped on work DB** — `schema/migrations/016_drop_playertable_recent_average_rating.sql` (SCH-016) runs in prepare **migrate** step. Do not reference in PHP post-game or parity. Python replay no longer writes it. Prod C++ may still expect the column until cutover. |
+| **`playertable.RecentAverageRating`** | **Dropped on work DB** — `site/public_html/ops/sql/migrations/016_drop_playertable_recent_average_rating.sql` (SCH-016) runs in prepare **migrate** step. Do not reference in PHP post-game or parity. Python replay no longer writes it. Prod C++ may still expect the column until cutover. |
 | **`Display = 1` + NULL career fields** | Valid on work between zero-derived and replay catch-up; **not** a post-game writer bug. Public site uses `k2_fmt_*` in `includes/k2_safety.php` — see [`playertable-schema.md`](playertable-schema.md). NULL-as-zero storage vs display: [`coordination/parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-001**. |
 | **Ratio leader columns on `generalstatstable`** | Dropped — leaders from `playertable` at read time ([`records-post-game-exception.md`](coordination/records-post-game-exception.md)). |
 | **`player_milestones`, period aggregates, …** | Later phases (P4+) — contract § Post-game derived-data behavior. |
@@ -177,7 +177,7 @@ site/public_html/ops/
 | **No `dispatch.php` first** | Router only after checkpoint tests pass. |
 | **No business logic in dispatcher** | Parse `CMD`, guards, call `k2_ops_*` only. |
 | **No per-game `.sql` rebuild files** | Live post-game = incremental PHP. Batch `.sql` under `scripts/ladder/sql/archive/batch-2026-05/` = **local repair only**. |
-| **Schema migrations** | `schema/migrations/` via prepare — not post-game. |
+| **Schema migrations** | `site/public_html/ops/sql/migrations/` via prepare — not post-game. |
 
 Prepare analogue: [`run_prepare.php`](../site/public_html/ops/run_prepare.php) + modules.
 

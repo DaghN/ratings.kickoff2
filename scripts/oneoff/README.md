@@ -16,7 +16,7 @@
 
 Same as ladder replay: `site/config/ko2unitydb_config.php` (local) or server `config/ko2unitydb_config.php`. Use `load_db_config()` and `engine.connect()` from `scripts/ladder/` (see `_template.py`).
 
-Allowlist: `ko2unity_db`, `kooldb` only.
+Allowlist: `ko2unity_db`, `ko2unity_work`, `ko2unity_baseline`, `kooldb1`, `kooldb2`, and legacy `kooldb` (frozen). Forward staging work = **`kooldb1`** — see [`docs/coordination/database-copies-2026-06.md`](../../docs/coordination/database-copies-2026-06.md).
 
 ## Related
 

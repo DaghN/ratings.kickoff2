@@ -2,7 +2,18 @@
 
 Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md` Part B** applies (not on every “update docs”).
 
-**Trap:** Grep hits for `staging-scripts/*.php` or `REP-xxx` runbooks are **historical** unless you are reading [`cutover-readiness.md`](cutover-readiness.md) for forward cutover. Repo ladder path = **`site/public_html/ops/`** only (`staging-scripts/` removed Jun 2026).
+**Grep traps (stale unless `cutover-readiness.md` says otherwise):**
+
+| Pattern | Treat as |
+|---------|----------|
+| `schema/migrations/` | **Redirect only** — DDL = `site/public_html/ops/sql/migrations/` |
+| `kooldb` without `1`/`2` | **Frozen May 2026** — forward staging work = **`kooldb1`** |
+| `staging-scripts/` | **Removed** — use `site/public_html/ops/` |
+| `STAGING_REPLAY.md` as runbook | **Archive stub** — forward = ops simul |
+| C++ cutover checklists / “C++ pending” | **Legacy** — target = PHP `ops/dispatch.php` |
+| `REP-xxx` / `*_rebuild.sql` on prod | **Repair/history** — not cutover recipe |
+
+**Read first for ladder/DB work:** [`cutover-readiness.md`](cutover-readiness.md). Repo ladder path = **`site/public_html/ops/`** only.
 
 | **Cutover / prod prep** | [`cutover-readiness.md`](cutover-readiness.md) — prep done vs live execution (**read before registers**) |
 | Start here | [`feature-log.md`](feature-log.md) — features + `kooldb1` proof vs live cutover |

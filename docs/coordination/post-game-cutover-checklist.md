@@ -1,8 +1,10 @@
 # Post-game cutover checklist (agent / Dagh)
 
-**Purpose:** One-page index before prod merges **new** post-game C++. **Policy detail stays in** [`website-data-contract.md`](../website-data-contract.md) — do not duplicate rules here.
+> **Jun 2026 — forward cutover:** Live post-game target is **PHP `ops/dispatch.php`** (`ProcessCompletedGame`, `FinalizeUtcDay`), not new C++ merges. Steve runbook: [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md). Prep proof: [`cutover-readiness.md`](cutover-readiness.md). Legacy C++ = read-only reference ([`ratings_cpp.txt`](../ratings_cpp.txt)).
 
-**When to use:** Planning or executing Steve cutover, replay dry-run, or “what did we decide about peak vs club milestones?”
+**Purpose:** One-page index of **contract vs legacy C++** deltas before Steve **enables PHP ops** on live. **Policy detail stays in** [`website-data-contract.md`](../website-data-contract.md) — do not duplicate rules here.
+
+**When to use:** Planning live cutover, ops simul parity checks, or “what did we decide about peak vs club milestones?”
 
 ---
 
@@ -17,7 +19,9 @@
 | HoF `generalstatstable` | [`records-post-game-exception.md`](records-post-game-exception.md) |
 | PHP post-game + cutover | [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2, [`post-game-register.md`](post-game-register.md), `ops/run_process_game.php` |
 | Legacy C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) — field order reference only |
-| Replay command | [`STAGING_REPLAY.md`](../STAGING_REPLAY.md), `scripts/run_local_replay.ps1` |
+| Core ladder Elo replay (dev/sandbox) | `scripts/run_local_replay.ps1` · `python -m scripts.ladder run` — **not** website aggregate cutover |
+| Website aggregates (work/staging/prod copy) | [`cutover-readiness.md`](cutover-readiness.md) — `ops/run_ops_sim.php` + `run_verify_ops_sim.php` |
+| Historical May staging one-shot | [`STAGING_REPLAY.md`](../STAGING_REPLAY.md) → archive stub only |
 
 ---
 
@@ -61,7 +65,7 @@
 1. Staging: schema (if any) + **dry-run** new post-game on test game(s).
 2. Staging: **full ladder replay** + `rebuild_website_derived_data_local.ps1` (or prod equivalents).
 3. Parity: contract § **Global validation checklist** + milestone sanity scripts.
-4. Prod: schema + replay + enable **PHP** post-game on live games; retire C++ derived writer.
+4. Prod: `migrate-work` → `seed-catalog` → `zero-derived` → **ops simul** → enable **PHP** `dispatch.php` on live games; retire C++ derived writer.
 5. Site: `ranked5` tooltips/footer if personal `>` shipped; profile peak/nadir tooltips when ready.
 6. **feature-log** + **MEMORY** — Prod live / done date.
 
@@ -70,4 +74,4 @@
 ## Related MEMORY / feature-log
 
 - `PROJECT_MEMORY.md` — Recent log (career peak/nadir, milestones).
-- `feature-log.md` — row **Career peak/nadir**; **Milestones post-game contract** (M1–M7 pending).
+- `feature-log.md` — **Live cutover = Not executed** means Steve go-live scheduled, not incomplete repo work.

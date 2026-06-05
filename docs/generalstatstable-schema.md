@@ -6,7 +6,7 @@
 
 **Companion docs:** `docs/ratedresults-schema.md`, `docs/playertable-schema.md`, `docs/ratings_cpp.txt`, `docs/ladder-engine-plan.md`.
 
-**PG-004 (May 2026):** This snapshot still lists **28 ratio player leader** columns (`BiggestWinRatio`, …). They were **dropped** on local `ko2unity_db` via `schema/migrations/002_…sql` (SCH-003). Steve should apply the same on prod; Records page reads those leaders from `playertable` (`docs/RECORDS_PAGE_DATA.md`). Server-wide `DoubleDigitsRatio` / `CleanSheetsRatio` **stay** on this table.
+**PG-004 (May 2026):** This snapshot still lists **28 ratio player leader** columns (`BiggestWinRatio`, …). They were **dropped** on local `ko2unity_db` via `site/public_html/ops/sql/migrations/002_generalstatstable_drop_ratio_leader_columns.sql` (SCH-003). Steve should apply the same on prod; Records page reads those leaders from `playertable` (`docs/RECORDS_PAGE_DATA.md`). Server-wide `DoubleDigitsRatio` / `CleanSheetsRatio` **stay** on this table.
 
 **Engine / charset:** `MyISAM`, `utf8mb4_general_ci`.
 

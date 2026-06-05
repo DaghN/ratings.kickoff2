@@ -13,7 +13,7 @@
 | Site code updates | Edit in repo | WinSCP sync | Steve / agreed deploy |
 | Typical DB refresh | Re-import dump | Steve: replay / SQL / dump | Continuous |
 
-See **`docs/ladder-engine-plan.md`** (§2 databases table) and **`docs/STATUS_PAGE_DATA.md`** (snapshot vs live).
+See **`docs/coordination/database-copies-2026-06.md`** (DB names) and **`docs/STATUS_PAGE_DATA.md`** (snapshot vs live).
 
 ---
 
