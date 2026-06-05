@@ -21,7 +21,7 @@ if str(_REPO) not in sys.path:
 from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
 
-OUT = _REPO / "scripts" / "ladder" / "sql" / "player_milestones_rebuild_year_in_heaven.sql"
+OUT = _REPO / "scripts" / "ladder" / "sql" / "archive" / "batch-2026-05" / "player_milestones_rebuild_year_in_heaven.sql"
 KEY = "year_in_heaven"
 WEEKS_PER_YEAR = 52
 

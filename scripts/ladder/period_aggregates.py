@@ -10,7 +10,7 @@ import pymysql
 
 log = logging.getLogger(__name__)
 
-_SQL_DIR = Path(__file__).resolve().parent / "sql"
+_SQL_DIR = Path(__file__).resolve().parent / "sql" / "archive" / "batch-2026-05"
 _RR_FROM = re.compile(r"FROM `ratedresults`", re.IGNORECASE)
 
 

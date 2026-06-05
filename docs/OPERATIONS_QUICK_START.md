@@ -8,32 +8,33 @@
 
 ---
 
-## Status at a glance (May 2026)
+## Status at a glance (Jun 2026)
 
 | Question | Answer |
 |----------|--------|
-| **Local replay — one command?** | **Yes** — `scripts\run_local_replay.ps1` (or `python -m scripts.ladder run --target local`) |
-| **Website derived data rebuild — one command?** | **Yes** — `scripts\rebuild_website_derived_data_local.ps1` |
-| **How to change replay logic?** | Edit **`scripts/ladder/`** — see [Updating replay](#updating-replay) |
-| **One-off template?** | **Yes** — `scripts/oneoff/_template.py` + README |
-| **Staging package for Steve?** | **Partial** — `run_staging_ladder_replay.sh` + upload `scripts/ladder/`; no single zip; schema SQL separate |
-| **Schema migrations folder?** | **Yes** — `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
-| **Coordination registers?** | **Docs only** — track WHAT for prod; not automated |
+| **Work DB / staging proof path?** | **Yes** — prepare + **`php ops/run_ops_sim.php run`** — [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) |
+| **Local Elo / GST replay (`ko2unity_db`)?** | `scripts\run_local_replay.ps1` — core ladder only |
+| **Website aggregates on dev DB (repair)?** | `scripts\rebuild_website_derived_data_local.ps1` — **deprecated**; prefer simul on `ko2unity_work` |
+| **Steve prod cutover?** | [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
+| **Schema migrations?** | `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
 
 ---
 
-## Two rebuild paths (do not confuse)
+## Three paths (do not confuse)
 
-| Path | Command | Resets | Replays / rebuilds |
-|------|---------|--------|---------------------|
-| **Ladder replay** | `scripts\run_local_replay.ps1` | Derived columns on `ratedresults` + career fields on `playertable`; NULLs `generalstatstable` id=1 | **Every game** in `Date ASC, id ASC` order (Elo + per-game stats + in-memory server records), then **batch** `playertable` write + **GST** aggregates/holders |
-| **Website derived data** | `scripts\rebuild_website_derived_data_local.ps1` | Truncates/rebuilds aggregate tables + **league awards** (REP-012) | SQL + `php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev` |
-| **League awards only** | `scripts\run_league_awards_rebuild.ps1` | `player_league_award`, `player_league_totals` | Same ops runner (`rebuild-all --target local-dev`); see [`leagues-rules-spec.md`](leagues-rules-spec.md) |
-| **Finalize due leagues (daily)** | `php site/public_html/ops/run_finalize_league.php finalize-due --target local-dev` | Closed periods not yet in `league_period` | PER-003 prod cron equivalent; work DB use `--target local-work` |
+| Path | Command | Use when |
+|------|---------|----------|
+| **Ops simul (authoritative)** | `run_prepare.php` → `run_ops_sim.php` → `run_verify_ops_sim.php` | **`ko2unity_work`**, **`kooldb1`**, prod copy cutover — [`work-db-prepare.md`](work-db-prepare.md) |
+| **Ladder replay (dev DB)** | `scripts\run_local_replay.ps1` | Elo + `playertable` + `generalstatstable` on **`ko2unity_db`** only |
+| **Batch SQL repair (legacy)** | `scripts\rebuild_website_derived_data_local.ps1` | **`ko2unity_db`** emergency refill of aggregate tables — SQL in `scripts/ladder/sql/archive/batch-2026-05/` |
 
-**Hall of Fame record dates (Gianni streaks, Fiery victims, Eternalstudent opponents, etc.):** ladder replay + fixed C++ post-game — **not** the website-derived script. Known staging defects: [`docs/staging-post-game-record-defects.md`](staging-post-game-record-defects.md).
+| Ops helper | Command |
+|------------|---------|
+| **League awards rebuild** | `php site/public_html/ops/run_finalize_league.php rebuild-all --target local-work` |
+| **Finalize due (daily)** | `php site/public_html/ops/run_finalize_league.php finalize-due --target local-work` |
+| **Play streaks repair** | `php scripts/rebuild_player_play_streaks.php` (not batch `.sql`) |
 
-**Is replay “reset + game-by-game only”?** Almost: `python -m scripts.ladder run` = **(1) reset** derived ladder state, **(2) chronological per-game replay** (~74k), **(3) short end phase** — finalize opponent/victim counts, write `playertable`, rebuild `generalstatstable` row `id=1` (SQL totals + record holders). No separate step for GST within that command. Website aggregates are a **second** optional command if you need Status/Activity tables refreshed.
+**Hall of Fame record dates:** ladder replay + post-game contract — see [`staging-post-game-record-defects.md`](staging-post-game-record-defects.md). **Not** the batch website repair script.
 
 ---
 
@@ -79,13 +80,16 @@ powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
 
 Legacy steps: [`work-db-prepare.md`](work-db-prepare.md) §3.4.
 
-**Simul** (after prepare) — game-only chronology today:
+**Simul** (after prepare) — prod-shaped (per-game + UTC day ticks):
 
 ```powershell
-python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
+php site/public_html/ops/run_ops_sim.php run --target local-work
+php site/public_html/ops/run_verify_ops_sim.php --target local-work
 ```
 
-(`run` includes zero derived at start.) Optional **batch website rebuild** and future **timeline simul**: [`work-db-prepare.md`](work-db-prepare.md) §5.
+Steve on staging: `--target staging-work` (see `ops/config/work-targets.ini`). Full runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
+
+Legacy: `python -m scripts.ladder run --target sandbox` — batch tail only; **not** cutover sign-off.
 
 Copy `site/config/ladder-work.ini.example` → `ladder-work.ini` first. **Never** refresh/migrate/zero on `ko2unity_baseline`.
 
@@ -100,7 +104,7 @@ Copy `site/config/ladder-work.ini.example` → `ladder-work.ini` first. **Never*
 | Player career stats | `scripts/ladder/player_state.py`, `finalize_counts.py` |
 | Server row `generalstatstable` | `scripts/ladder/generalstats.py` |
 | What gets reset | `scripts/ladder/engine.py` (`reset_universe`), `docs/replay-v1-scope-and-reset.md` |
-| New column needs backfill | Above + `ops/sql/migrations/` + register in `docs/coordination/replay-register.md` |
+| New column needs backfill | Above + `ops/sql/migrations/` + [`cutover-readiness.md`](coordination/cutover-readiness.md) |
 
 After code changes: `run_local_replay.ps1` on local; then staging (below).
 
@@ -116,17 +120,17 @@ Adds indexes etc. from `ops/sql/migrations/*.sql` to local `ko2unity_db` (via `a
 
 ---
 
-## Website derived data (local)
+## Website derived data
 
-Rebuilds the website-owned aggregate tables from ground truth and runs parity checks:
+**Preferred:** ops simul on **`ko2unity_work`** (see [Work DB](#work-db-prod-sandbox--local) above).
+
+**Legacy repair on `ko2unity_db` only** (batch SQL in `scripts/ladder/sql/archive/batch-2026-05/`):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
 ```
 
-Contract: `docs/website-data-contract.md`.
-
-The command refuses non-local DB names unless `-AllowNonLocal` is explicitly passed for a reviewed one-off. It pins MySQL to UTC, runs the modular SQL rebuilds in dependency order, and verifies totals against `ratedresults`.
+Contract: `docs/website-data-contract.md`. Refuses non-`ko2unity_db` unless `-AllowNonLocal`.
 
 ---
 
@@ -170,7 +174,8 @@ The wrapper passes `--target staging`, and the Python replay prints DB identity 
 ```text
 scripts/ladder/          ← replay engine (Python)
 scripts/run_local_replay.ps1
-scripts/rebuild_website_derived_data_local.ps1
+scripts/rebuild_website_derived_data_local.ps1   # legacy repair only
+scripts/ladder/sql/archive/batch-2026-05/        # batch SQL (not cutover)
 scripts/oneoff/          ← one-off template
 site/public_html/ops/sql/migrations/  ← SCH DDL (synced with ops)
 run_staging_ladder_replay.sh   ← Steve staging replay wrapper

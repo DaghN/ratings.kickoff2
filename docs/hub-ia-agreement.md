@@ -46,7 +46,7 @@ Current Status v1.2 includes:
 - Live games from `resulttable`.
 - Rated-games arc/count summary with link to Activity.
 - Active Elo leaderboard, top 20 active players.
-- **Leagues** (points + activity, day/week/month/year) — **Phase 1 shipped**; **Phase 1.5 active** — [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) · [`docs/coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md).
+- **Leagues** (points + activity, day/week/month/year) — **Phase 1 shipped**; optional backlog — [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) only.
 - Recent logins.
 - Recent registrations.
 - Recent rated games (with link to full match log on `server3.php`).

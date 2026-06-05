@@ -23,7 +23,8 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `site/config/` | DB config (gitignored) — `ko2unitydb_config.php` |
 | `scripts/ladder/` | **Python replay** — recalc Elo/stats from all games |
 | `scripts/run_local_replay.ps1` | One-command local replay |
-| `scripts/rebuild_website_derived_data_local.ps1` | One-command local rebuild for website aggregate tables |
+| `docs/coordination/cutover-readiness.md` | **Prep done vs live cutover** — read before schema/replay registers |
+| `scripts/rebuild_website_derived_data_local.ps1` | **Dev repair only** — batch rebuild; cutover uses `ops/run_ops_sim.php` |
 | `site/public_html/ops/sql/migrations/` | Canonical SCH DDL (indexes, tables); see `ops-schema-migrations.md` |
 | `run_staging_ladder_replay.sh` | Steve runs on staging server |
 | `docs/` | Specs, coordination, agent playbooks |
@@ -45,7 +46,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | **Ladder ops platform** | Steve boundary, `ops/`, sim | [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
-| **Migration backlog** | Stored DB truth / Steve | `docs/prod-coordination.md`, `docs/coordination/` — post-game day: [`post-game-cutover-checklist.md`](coordination/post-game-cutover-checklist.md) |
+| **Cutover / live prod** | Steve go-live | [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), `ops/docs/post-dagh-live-story.md` |
 
 **Migration is a side track** — not required for CSS-only days. See decision tree in `UPDATE_DOCS.md` § Migration pass.
 
@@ -80,7 +81,8 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 |-------|-----------|--------|
 | PHP site + `ops/` | WinSCP sync `site/public_html/` | Prod deploy agreed |
 | Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
-| History replay | `scripts/ladder` | Runs shell on server |
+| Website derived history | `ops/run_ops_sim.php` | Steve on prod copy / live (cutover) |
+| Core ladder Elo replay | `scripts/ladder` | Optional / legacy baseline |
 | After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → `ops/dispatch.php` (`run_process_game.php`) | Steve insert + call (agreed Jun 2026) |
 
 Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Cutover runtime:** PHP `ops/dispatch.php` ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2). **Prod today:** legacy C++ until Steve switches — agents implement PHP ops + contract, not C++ extensions. Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
@@ -100,8 +102,11 @@ powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
 # Local schema (dev DB)
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 
-# Local website-derived aggregate rebuild (dev DB)
-powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
+# Work DB: prod-shaped simul (preferred — see work-db-prepare.md)
+php site/public_html/ops/run_ops_sim.php run --target local-work
+
+# Dev repair only: batch SQL rebuild chain (not cutover path)
+# powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
 ```
 
 ---

@@ -10,7 +10,7 @@
 
 **Agents — “update docs”:** [`UPDATE_DOCS.md`](UPDATE_DOCS.md) — Part A every time; registers (Part B) only when stored truth changes.
 
-**Philosophy:** This hub is a **migration backlog**, not daily vibecoding. Touch registers when a feature changes **stored** ladder data (L1+). L0 PHP-only features get one line in [`coordination/feature-log.md`](coordination/feature-log.md).
+**Philosophy:** This hub tracks **live prod execution** when stored truth changes — not day-to-day repo work. **Prep is done** for the Jun 2026 ops cutover set (migrations in package, simul proven on `kooldb1`) — see [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md). L0 PHP-only features get one line in [`coordination/feature-log.md`](coordination/feature-log.md).
 
 **Performance policy:** For DB-backed website work, treat stored/indexed/replayed truth as a normal option. Schema SQL, replay/backfill, and **PHP ops post-game** are expected machinery — not reasons to default to slow live historical queries.
 
@@ -48,11 +48,12 @@ Full detail: [`coordination/database-copies-2026-06.md`](coordination/database-c
 
 | Register | File | Tracks |
 |----------|------|--------|
-| Schema | [schema-register.md](coordination/schema-register.md) | Tables, columns, indexes — SQL in `ops/sql/migrations/` |
-| Post-game | [post-game-register.md](coordination/post-game-register.md) | Pointer — PHP ops target; contract = behaviour |
+| **Cutover readiness** | [cutover-readiness.md](coordination/cutover-readiness.md) | **Start here** — prep (A+B) vs live execution (C) |
+| Schema | [schema-register.md](coordination/schema-register.md) | SCH DDL in `ops/sql/migrations/` |
+| Post-game | [post-game-register.md](coordination/post-game-register.md) | PHP ops cutover pointer |
 | Periodic | [periodic-register.md](coordination/periodic-register.md) | Scheduled jobs (`FinalizeUtcDay`, etc.) |
-| Replay | [replay-register.md](coordination/replay-register.md) | Full-history rebuilds, parameters, run log |
-| One-off | [one-off-register.md](coordination/one-off-register.md) | Rare scripts; prefer replay when possible |
+| Replay (historical) | [replay-register.md](coordination/replay-register.md) | Stub → May 2026 batch log |
+| One-off | [one-off-register.md](coordination/one-off-register.md) | Rare scripts; prefer ops simul when possible |
 
 **When a feature touches prod-bound data:** update registers per [`UPDATE_DOCS.md`](UPDATE_DOCS.md) Part B (usually at **“update docs”**). See [prod-readiness levels](#prod-readiness-levels).
 
@@ -64,7 +65,7 @@ Use when a release changes **stored ladder truth** (not PHP-only cosmetics):
 
 1. **Agree** cutover with Steve; send [cutover packet](coordination/cutover-packet-template.md).
 2. **Apply schema** — `ops/sql/migrations/*.sql` in order on the production DB (Steve).
-3. **Replay / simul backfill** (if register says so) — ops `run_ops_sim.php` or Python `scripts/ladder` per spec; prove on `kooldb1` or prod copy first.
+3. **Ops simul backfill** — `php ops/run_ops_sim.php run` then `run_verify_ops_sim.php` on prod copy first (**not** per-table `*_rebuild.sql` marathon).
 4. **Deploy PHP ops + site** — WinSCP `public_html/` incl. `ops/`; Steve configures `work-targets.ini`.
 5. **Wire live dispatch** — after each rated game: ground insert → `dispatch.php CMD=ProcessCompletedGame`; ~00:00:01 UTC: `CMD=FinalizeUtcDay` ([`steve-live-ops.md`](../site/public_html/ops/docs/steve-live-ops.md)).
 6. **Records exception** — if Hall of Fame / `generalstatstable` behaviour changed: [`records-post-game-exception.md`](coordination/records-post-game-exception.md) (parity vs legacy C++ on cutover, not new C++ development).
@@ -83,8 +84,8 @@ Use when a release changes **stored ladder truth** (not PHP-only cosmetics):
 | **L1** | Schema only; no backfill yet | New nullable column, unfilled |
 | **L2** | Replay / simul must backfill history | New derived column on `playertable` |
 | **L3** | *(retired)* | Was “snippet pack required” |
-| **L4** | Staging-tested; cutover packet ready | Schema + REP/simul on staging; contract + PHP ops verified |
-| **L5** | Prod done | Live PHP ops + registers closed |
+| **L4** | **Prep complete** — ops package + simul verified on work DB (`kooldb1` / prod copy) | migrate-work + simul + verify; see [`cutover-readiness.md`](coordination/cutover-readiness.md) |
+| **L5** | **Live executed** | Steve ran cutover on live prod + dispatch wired |
 
 ---
 
@@ -92,7 +93,7 @@ Use when a release changes **stored ladder truth** (not PHP-only cosmetics):
 
 Prefer stored/indexed/replayed truth when hot pages scan `ratedresults` heavily or values update per game. Prefer read-time SQL when cheap and exploratory.
 
-When stored truth is right: schema migration, REP or ops simul, document post-game in [`website-data-contract.md`](website-data-contract.md), Part B of UPDATE_DOCS. Implement writers in **PHP ops**, not new C++.
+When stored truth is right: schema in `ops/sql/migrations/`, fill history via **ops simul**, document post-game in [`website-data-contract.md`](website-data-contract.md), Part B of UPDATE_DOCS. Implement writers in **PHP ops**, not new C++.
 
 ---
 
@@ -105,7 +106,8 @@ When stored truth is right: schema migration, REP or ops simul, document post-ga
 | Work prepare / simul | [`work-db-prepare.md`](work-db-prepare.md) · `ops/run_prepare.php` · `ops/run_ops_sim.php` |
 | Post-game PHP | `ops/run_process_game.php` · `ops/dispatch.php` |
 | Steve bootstrap → live | [`ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
-| Website derived rebuild (dev) | `scripts/rebuild_website_derived_data_local.ps1` |
+| Website derived fill (happy path) | `ops/run_ops_sim.php` — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md) |
+| Website derived rebuild (dev repair) | `scripts/rebuild_website_derived_data_local.ps1` — **deprecated** for cutover |
 | Legacy C++ (historical only) | [`ratings_cpp.txt`](ratings_cpp.txt) |
 | Post-game rules | [`website-data-contract.md`](website-data-contract.md) |
 | Records cutover notes | [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |

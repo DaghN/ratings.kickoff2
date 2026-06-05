@@ -11,7 +11,7 @@
 ## Today
 
 - **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare, `seed-catalog`, `zero-derived`, parity (see §6.6).
-- **Post-game P0–P7 (PHP):** `run_process_game.php` — through milestones + play streaks. Parity: `ab-post-game --phase p6` (layers 1–6); P7 layer diff not wired yet.
+- **Post-game P0–P7 (PHP):** `run_process_game.php` — milestones + play streaks. **Sign-off:** `run_ops_sim.php` + `run_verify_ops_sim.php` ([`cutover-readiness.md`](../../../docs/coordination/cutover-readiness.md)).
 - **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
 - **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` / `rebuild-all` (batch repair); **Steve midnight:** `CMD=FinalizeUtcDay` (league + league milestones + day-close).
 - **UTC day tick:** `run_finalize_utc_day.php` — dev runner same as `CMD=FinalizeUtcDay`.
@@ -94,15 +94,14 @@ php site/public_html/ops/run_process_game.php replay-to --limit 100 --target loc
 php site/public_html/ops/run_process_game.php status-ratedresults --limit 100 --target local-work
 ```
 
-**P1 parity gate (orchestrated):**
+**Sign-off gate (prod-shaped):**
 
 ```text
-python -m scripts.work_prepare ab-post-game --target local-work --limit 100
+php site/public_html/ops/run_ops_sim.php run --target local-work --until-game-id 500
+php site/public_html/ops/run_verify_ops_sim.php --target local-work
 ```
 
-Default: zero-derived → PHP `replay-to` → snapshots → Python `ladder run` → diff layers 1–5 with `--phase p5` (tol 0.001). Python batch-rebuilds period + aggregate tables from processed `ratedresults` at end of replay (`period_activity.py`, `period_aggregates.py`).
-
-See [`scripts/work_prepare/README.md`](../../../scripts/work_prepare/README.md) and [`scripts/ladder/README.md`](../../../scripts/ladder/README.md).
+See [`docs/coordination/ops-simul-runbook.md`](../../../docs/coordination/ops-simul-runbook.md). Archived PHP-vs-Python A/B: `python -m scripts.work_prepare ab-post-game` — [`post-game-php-development.md`](../../../docs/post-game-php-development.md) §9 only.
 
 ## Local league finalize (PER-003 on work)
 

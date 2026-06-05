@@ -45,7 +45,7 @@ Expect spot-check: `play_streak_100` → **100 days of bliss**.
 |------|------|
 | 1 | **Catalog** — Add object to `ops/data/milestones_definitions_seed.json` (`milestone_key`, `display_name`, `tier_band`, `chart_token`, `rule_short`, …). Bump `milestone_count`. |
 | 2 | **Garden order** — Add `milestone_key` to `site/public_html/includes/player_milestones_garden_order.php` in the right tier list. **Within a tier, list runs common → rare** (more holders first, fewer holders later). Regenerate probe: `python scripts/oneoff/milestone_unlock_counts.py --write-doc --export-seed` and read `unlock_veterans`. **0** holders → last in Legendary. **Do not** blindly append every new key after the previous add-one unless probe count is truly lowest (e.g. `year_in_heaven` = **5** holders sits with other 5s like `monthly_regular`, not after `club_10000` at 1). |
-| 3 | **Unlock SQL** — Generator or hand-written `INSERT` into `player_milestones` (first cross only, `source_kind = game`, `source_game_id`). For `play_streak_100`: `python scripts/oneoff/gen_milestone_play_streak_100_sql.py` → `scripts/ladder/sql/player_milestones_rebuild_play_streak_100.sql`. |
+| 3 | **Unlock SQL** — Generator → `scripts/ladder/sql/archive/batch-2026-05/` (splice into repair script only). **Proof on work:** ops simul, not batch splice on prod. |
 | 4 | **Full rebuild splice (local repair only)** — Append new SQL file to splice list in `scripts/rebuild_website_derived_data_local.ps1` (before league marker block). Staging/work happy path: ops sim / post-game replay, not batch splice. |
 | 5 | **Post-game** — Document in `docs/website-data-contract.md` § `player_milestones`; implement PHP reference (and later C++). `play_streak_100`: `k2_play_streak_maybe_unlock_milestone_100()` when day streak hits 100. |
 | 6 | **Parity** — `milestone_definitions` count = N. `COUNT(DISTINCT milestone_key)` in `player_milestones` may be **N−1** if no player has unlocked yet (ultra-rare). |
@@ -62,7 +62,7 @@ After repo edits, **before** expecting UI changes on Laragon:
 cd "C:\Users\daghn\Desktop\Online and Amiga 500 ELO"
 python scripts/oneoff/load_milestone_definitions.py
 # Apply the new splice SQL (example: year_in_heaven)
-& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root ko2unity_db -e "source C:/Users/daghn/Desktop/Online and Amiga 500 ELO/scripts/ladder/sql/player_milestones_rebuild_year_in_heaven.sql"
+& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root ko2unity_db -e "source C:/Users/daghn/Desktop/Online and Amiga 500 ELO/scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild_year_in_heaven.sql"
 ```
 
 Use your key’s `player_milestones_rebuild_<key>.sql` file instead when different. Hard-refresh (`Ctrl+F5`). Confirm `SELECT COUNT(*) FROM milestone_definitions` = **N**.

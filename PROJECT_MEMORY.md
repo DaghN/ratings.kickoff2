@@ -12,11 +12,13 @@
 
 - **Milestones:** Catalog **112**; staging DB + v0 UI done. Live writer = **PHP ops** at cutover (not C++). **`club_*`:** regen rebuild SQL after peak-at-20 replay when needed.
 
-- **Rated play streaks:** Staging DB + UI done (`ranked4`, HoF `server2`). Live writer = **PHP ops** at cutover; optional profile surface.
+- **Cutover prep (done):** Schema + PHP ops + **simul proven on `kooldb1`** — [`cutover-readiness.md`](docs/coordination/cutover-readiness.md). **Live prod execution** = Steve when scheduled (not repo backlog).
 
-- **Leagues:** League honours v1 local + staging (`ranked9.php`). Optional: profile league block; `FinalizeUtcDay` for medals (PER-003).
+- **Rated play streaks:** **Proven `kooldb1`** (`ranked4`, HoF). Live = PHP ops at cutover.
 
-- **Status Leagues:** Phase **1** shipped. **Phase 1.5 in progress** — [`status-period-competitions-phase-1.5-handoff.md`](docs/coordination/status-period-competitions-phase-1.5-handoff.md) · backlog [`status-period-competitions-wip.md`](docs/status-period-competitions-wip.md).
+- **Leagues:** **Honours proven `kooldb1`** (`ranked9.php`). Live = `FinalizeUtcDay` when wired.
+
+- **Status Leagues:** Phase **1** shipped. Optional backlog only — [`status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (no agent handoff).
 
 - **Profile:** Feast shipped on `individual1.php`. **Lab active** — compare `individual1-profile-lab*.php`; handoff [`profile-lab-agent-handoff.md`](docs/profile-lab-agent-handoff.md).
 
@@ -26,7 +28,7 @@
 
 - **Hub IA:** Status · Activity · Leaderboards · Milestones (v0) · HoF · Play & Setup — [`hub-ia-agreement.md`](docs/hub-ia-agreement.md).
 
-- **DB performance:** `idx_ratedresults_idA/idB` local + staging; **prod indexes pending** Steve.
+- **DB performance:** `idx_ratedresults_idA/idB` in ops migration **001** (migrate-work); proven on work DB; live = cutover migrate step.
 
 - **Operational loop:** edit locally → **WinSCP** sync `site/public_html/` → staging; hard refresh. Steve runs server one-offs.
 
@@ -47,9 +49,10 @@
 | Profile layout / charts | `docs/player-profile-feast.md` |
 | Activity charts (plan + registry) | `docs/activity-charts.md` |
 | Status hub spec | `docs/STATUS_PAGE_DATA.md` |
-| Staging schema / replay status | `docs/coordination/schema-register.md`, `docs/coordination/replay-register.md` |
-| `player_milestones` row-count timeline (151 → 6658 → **6615**) | `docs/coordination/replay-register.md` § Milestone unlock row counts |
-| Prod cutover | `docs/prod-coordination.md`, `docs/coordination/` |
+| Cutover readiness (prep vs live) | `docs/coordination/cutover-readiness.md` |
+| Schema DDL status | `docs/coordination/schema-register.md` |
+| `player_milestones` row-count timeline | `docs/archive/replay-register-2026-05.md` § Milestone unlock row counts |
+| Prod cutover | `docs/prod-coordination.md`, `site/public_html/ops/docs/post-dagh-live-story.md` |
 | Ladder ops platform (Steve, `ops/`, sim) | `docs/ladder-ops-platform.md` |
 | DB copies (local + staging names) | `docs/coordination/database-copies-2026-06.md` |
 | Work DB prepare / simul | `docs/work-db-prepare.md` |
@@ -61,8 +64,8 @@
 
 **Dagh**
 
-1. **Status Leagues Phase 1.5** — [`status-period-competitions-phase-1.5-handoff.md`](docs/coordination/status-period-competitions-phase-1.5-handoff.md) · backlog [`status-period-competitions-wip.md`](docs/status-period-competitions-wip.md).
-2. **Profile** — lab compare + gradual improvements — [`player-profile-feast.md`](docs/player-profile-feast.md) · [`profile-build-playbook.md`](docs/profile-build-playbook.md).
+1. **Profile** — lab compare + gradual improvements — [`player-profile-feast.md`](docs/player-profile-feast.md) · [`profile-build-playbook.md`](docs/profile-build-playbook.md).
+2. **Status Leagues** — optional polish only — [`status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (Phase 1 shipped).
 
 **Steve (when ready)**
 
@@ -79,7 +82,8 @@
 | When | What |
 |------|------|
 | 2026-06 | **Doc hygiene + header cleanup** — long handoffs → `docs/archive/` stubs; session log archived; header realm switcher removed (markup/CSS; `realm-switch.js` tint-only); Activity v2 = local + staging; Deferred trimmed (no Amiga/realm backlog). |
-| 2026-06 | **MEMORY + prod-coordination refresh** — Next trimmed (no deploy rows); PHP ops = cutover target; C++ legacy prod-only; Phase 1.5 handoff restored active. |
+| 2026-06 | **Batch rebuild SQL cleanup** — orphans deleted; `*_rebuild.sql` → `scripts/ladder/sql/archive/batch-2026-05/`; OPERATIONS_QUICK_START → ops simul first. |
+| 2026-06 | **Ops vocabulary cleanup** — [`cutover-readiness.md`](docs/coordination/cutover-readiness.md); registers reframed; Phase 1.5 handoff retired. |
 | 2026-06 | **Steve ops docs under `ops/docs/`** — `post-dagh-live-story.md` (prod copy → live), `steve-live-ops.md`, `ops-dispatch.md`; coordination stubs redirect. |
 | 2026-06 | **Staging ops sign-off** — Steve `run_verify_ops_sim` on `kooldb1` (0 fail); Dagh visual parity staging simul vs frozen dev; **AUD-004/005** closed; milestone fixes `clean_sheet_spread`, `giant_slayer` (`a3cb1c0`). **Next:** Live dispatch + cron on staging. |
 | 2026-06 | **Rating fade chapter closed** — active docs omit PER-001; tombstone only [`docs/archive/retired-product-decisions.md`](docs/archive/retired-product-decisions.md). |
@@ -131,6 +135,7 @@
 | Prod coordination | **`docs/prod-coordination.md`** · **`docs/coordination/`** |
 | Config | `site/config/ko2unitydb_config.php` — **never commit** |
 | Throwaway probes | **`scripts/`** only — copy to `public_html` manually, delete from server after |
-| `ratedresults` indexes | `idx_ratedresults_idA`, `idx_ratedresults_idB` — local + staging; prod via Steve |
+| Cutover index | **`docs/coordination/cutover-readiness.md`** |
+| `ratedresults` indexes | SCH-001 in ops `migrate-work` |
 
 **Agent hygiene:** one Recent log line per shipped slice; never commit secrets; use `js/` not `javascript/` on server paths.

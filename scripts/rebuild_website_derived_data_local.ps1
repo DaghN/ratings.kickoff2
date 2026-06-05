@@ -1,4 +1,8 @@
-# Rebuild all website-owned derived data on local ko2unity_db.
+# DEPRECATED for cutover — dev repair on ko2unity_db only.
+# Happy path: php site/public_html/ops/run_ops_sim.php run --target local-work
+# See: docs/coordination/cutover-readiness.md, docs/coordination/ops-simul-runbook.md
+#
+# Rebuild all website-owned derived data on local ko2unity_db (batch SQL chain).
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
 # Contract: docs/website-data-contract.md
 
@@ -11,7 +15,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$SqlDir = Join-Path $RepoRoot 'scripts\ladder\sql'
+$SqlDir = Join-Path $RepoRoot 'scripts\ladder\sql\archive\batch-2026-05'
 $MysqlExe = 'C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe'
 
 if (-not (Test-Path $MysqlExe)) {

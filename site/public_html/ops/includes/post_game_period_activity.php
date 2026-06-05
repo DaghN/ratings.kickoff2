@@ -2,7 +2,7 @@
 /**
  * player_period_games + player_peak_period_games (P4).
  *
- * Mirrors scripts/ladder/sql/player_period_games_rebuild.sql period bucketing (UTC).
+ * Period bucketing (UTC) — same rules as archived batch SQL in sql/archive/batch-2026-05/.
  */
 declare(strict_types=1);
 

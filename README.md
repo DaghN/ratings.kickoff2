@@ -9,6 +9,6 @@ PHP + MariaDB ladder and statistics for online Kick Off 2 play. Dagh develops lo
 | **Cursor agent (new chat)** | [`PROJECT_MEMORY.md`](PROJECT_MEMORY.md) → [`AGENTS.md`](AGENTS.md) → [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) |
 | **Human — product intent** | [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) |
 | **Run replay / SQL / deploy** | [`docs/OPERATIONS_QUICK_START.md`](docs/OPERATIONS_QUICK_START.md) |
-| **Prod migration / Steve** | [`docs/prod-coordination.md`](docs/prod-coordination.md) |
+| **Prod cutover / Steve** | [`docs/coordination/cutover-readiness.md`](docs/coordination/cutover-readiness.md) · [`docs/prod-coordination.md`](docs/prod-coordination.md) |
 
 Website code lives in [`site/public_html/`](site/public_html/). Session handoff and “update docs” ritual: [`docs/UPDATE_DOCS.md`](docs/UPDATE_DOCS.md).

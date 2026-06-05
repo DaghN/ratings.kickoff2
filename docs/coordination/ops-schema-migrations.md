@@ -32,7 +32,7 @@ Numbered schema migrations from [`schema-register.md`](schema-register.md): `CRE
 
 | Artifact | Location |
 |----------|----------|
-| REP rebuild SQL (backfill from `ratedresults`) | `scripts/ladder/sql/` (optional future mirror: `ops/sql/rebuild/`) |
+| Batch rebuild SQL (repair only) | `scripts/ladder/sql/archive/batch-2026-05/` — cutover uses **ops simul** |
 | Milestone catalog seed | `ops/data/milestones_definitions_seed.json` + `seed-catalog` |
 | One-off surgical fixes | `scripts/oneoff/` (local); ops sim/replay on work/staging |
 

@@ -12,7 +12,7 @@ if str(_REPO) not in sys.path:
 from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
 
-CHRONO = _REPO / "scripts" / "ladder" / "sql" / "player_milestones_rebuild_chrono.sql"
+CHRONO = _REPO / "scripts" / "ladder" / "sql" / "archive" / "batch-2026-05" / "player_milestones_rebuild_chrono.sql"
 OUT_SQL = _REPO / "scripts" / "ladder" / "sql" / "player_milestones_fix_day_close.sql"
 
 

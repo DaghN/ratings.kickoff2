@@ -1,61 +1,57 @@
 # Post-game — coordination pointer
 
-**Agents:** Do **not** treat “post-game pending” as incomplete **website** work when **schema + REP rebuilds** and **ops PHP replay** already satisfy the contract on work/staging.
+**Agents:** Post-game **prep is done** on `kooldb1` (ops simul + verify). **Not** incomplete website work. Live prod still uses legacy C++ until cutover — see [`cutover-readiness.md`](cutover-readiness.md).
 
-**Prod target (agreed Jun 2026):** After cutover, **Steve inserts ground truth**, then invokes **PHP** [`ladder-ops-platform.md`](../ladder-ops-platform.md) `ops/dispatch.php` `CMD=ProcessCompletedGame` (runner today: `run_process_game.php`). **Prod C++ derived post-game is retired** — not extended with M1–M7. Correctness = [`website-data-contract.md`](../website-data-contract.md); PHP reference = `site/public_html/ops/modules/process_completed_game.php` + includes.
+**Prod target (agreed Jun 2026):** Steve inserts ground truth → **PHP** `ops/dispatch.php` `CMD=ProcessCompletedGame`. **Retire C++ derived post-game** at cutover. Behaviour = [`website-data-contract.md`](../website-data-contract.md); code = `ops/modules/process_completed_game.php` + includes.
 
-**Discrepancy register (contract vs legacy oracle / C++):** [`post-game-contract-vs-oracle-discrepancies.md`](post-game-contract-vs-oracle-discrepancies.md).
+**Steve runbook:** [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) — **migrate → seed → zero → simul → verify → live dispatch** (not `*_rebuild.sql` marathon).
 
----
-
-## Behavior authority (matches contract)
-
-| Area | Document | What it owns |
-|------|----------|----------------|
-| All project-owned aggregate tables | [`website-data-contract.md`](../website-data-contract.md) | Per-table **Post-game rule**, full rebuild, parity; § **Post-game derived-data behavior** for shared rules (`SET time_zone = '+00:00'`, etc.) |
-| Hall of Fame / `generalstatstable` records | [`records-post-game-exception.md`](records-post-game-exception.md) | Tie policy (`>` not `>=`), UTC dates, ratio column removal, staging defect examples |
-| Legacy prod C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) | Historical field order / quirks — **not** the cutover spec |
-| PHP ops post-game (target) | `ops/modules/process_completed_game.php` | Per-game derived writer for prod |
-| Cutover index (peak, clubs, pointers, sequence) | [`post-game-cutover-checklist.md`](post-game-cutover-checklist.md) | Links only — rules stay in contract |
-
-**Contract index** (table → post-game §): see the **Derived data index** table at the top of `website-data-contract.md` (`player_period_games`, `player_period_league`, `server_daily_activity`, …). Each row’s **Post-game rule** is what Steve implements for **new** prod games at cutover.
-
-**Do not:** create `cpp-snippets/` or cite `PG-00x` as blocking local/staging work (retired May 2026).
+**Discrepancies:** [`post-game-contract-vs-oracle-discrepancies.md`](post-game-contract-vs-oracle-discrepancies.md).
 
 ---
 
-## What we coordinate in repo
+## Behaviour authority
+
+| Area | Document |
+|------|----------|
+| Aggregate tables | [`website-data-contract.md`](../website-data-contract.md) |
+| HoF / records | [`records-post-game-exception.md`](records-post-game-exception.md) |
+| Legacy C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) |
+| PHP ops (target) | `ops/modules/process_completed_game.php` |
+| Cutover links | [`post-game-cutover-checklist.md`](post-game-cutover-checklist.md) |
+
+---
+
+## Environments
 
 | Environment | Deliverable |
 |-------------|-------------|
-| Local / staging | [`schema-register.md`](schema-register.md) + [`replay-register.md`](replay-register.md) (`*_rebuild.sql` or `scripts/rebuild_website_derived_data_local.ps1`) |
-| Prod cutover | Schema + full replay + **enable PHP post-game** on live games; retire C++ derived block; note **Prod live** in [`feature-log.md`](feature-log.md) when done |
+| Work / `kooldb1` | **Done** — simul sign-off Jun 2026 ([`cutover-readiness.md`](cutover-readiness.md)) |
+| Live prod | **Not executed** — Steve cutover when scheduled |
 
 ---
 
-## Steve — prod cutover checklist
+## Steve — prod cutover (summary)
 
-1. Apply pending [`schema/migrations/`](../schema/migrations/) on prod.
-2. Run matching `*_rebuild.sql` scripts (same set as staging — see [`replay-register.md`](replay-register.md)).
-3. **Full ladder replay** so stored truth matches contract (peak-at-20, personal `>`, milestones, …).
-4. Wire live games: after ground insert → call **PHP** `ProcessCompletedGame` (see [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2); **remove/disable C++ derived post-game** once verified.
-5. Agent index: [`post-game-cutover-checklist.md`](post-game-cutover-checklist.md). **Records:** [`records-post-game-exception.md`](records-post-game-exception.md).
+1. `migrate-work` — all files in `ops/sql/migrations/`
+2. `seed-catalog` + `zero-derived`
+3. **`run_ops_sim.php run`** + **`run_verify_ops_sim.php`**
+4. Wire `ProcessCompletedGame` + `FinalizeUtcDay`; disable C++ derived block
+5. Mark **Live prod executed** in [`schema-register.md`](schema-register.md) / [`feature-log.md`](feature-log.md)
 
-Email template: [`cutover-packet-template.md`](cutover-packet-template.md).
+Details: [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md). Email: [`cutover-packet-template.md`](cutover-packet-template.md).
 
 ---
 
-## Prod live writer (informal tracker)
+## Live writer tracker
 
-No PG-NNN IDs. When prod maintains an aggregate on each new game, note **table name** and **done date** in feature-log **Prod live** or MEMORY.
+| Table / area | Target writer | Prep (`kooldb1`) |
+|--------------|---------------|------------------|
+| Per-game P0–P7 | PHP ops | **Proven** (simul) |
+| `player_milestones` | PHP + `FinalizeUtcDay` | **Proven** |
+| `generalstatstable` | PHP | **Proven** |
+| `player_play_streaks` | PHP P7 | **Proven** |
+| `playertable` / Elo | PHP P1–P2 | **Proven** |
+| **Legacy live today** | C++ | Until cutover |
 
-| Table / area | Prod live writer (target) | Notes |
-|--------------|---------------------------|-------|
-| Per-game derived (P1–P7) | **PHP ops** (pending cutover) | Reference impl in repo; parity `ab-post-game` |
-| `player_milestones` | PHP + periodic league job | Game keys in `post_game_milestones.php`; league keys on finalize |
-| `generalstatstable` | PHP | Strict `>` HoF — shipped in ops |
-| `player_play_streaks` + HoF cols | PHP | `k2_play_streak_after_rated_game()` — wired from ops |
-| `playertable` / Elo on `ratedresults` | PHP ops P1–P2 | Retire C++ `RatingProcedureUnity` derived section at cutover |
-| **Legacy** | C++ today | Until PHP hook is live on prod |
-
-**Retired May 2026:** `docs/coordination/cpp-snippets/` (deleted); `post-game-cpp-handoff.md` merged into this file.
+**Retired May 2026:** `cpp-snippets/`; PG-NNN IDs.

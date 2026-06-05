@@ -19,7 +19,7 @@ SKIP = frozenset({"peace_streak"})
 
 
 def main() -> None:
-    sql = (_REPO / "scripts/ladder/sql/player_milestones_rebuild_chrono.sql").read_text()
+    sql = (_REPO / "scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild_chrono.sql").read_text()
     gen = Counter(re.findall(r"VALUES \(\d+, '([^']+)'", sql))
     con = connect(load_db_config(), dry_run=False)
     cur = con.cursor()

@@ -19,7 +19,7 @@ def _table_exists(conn: pymysql.connections.Connection, table: str) -> bool:
         )
         return int(cur.fetchone()["n"]) > 0
 
-_SQL_DIR = Path(__file__).resolve().parent / "sql"
+_SQL_DIR = Path(__file__).resolve().parent / "sql" / "archive" / "batch-2026-05"
 
 _PROCESSED_FILTER = " AND `NewRatingA` IS NOT NULL"
 

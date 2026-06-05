@@ -17,11 +17,11 @@ php site/public_html/ops/run_prepare.php parity --target local-work
 python -m scripts.work_prepare prepare --target local-work
 python -m scripts.work_prepare parity --target local-work
 
-# Post-game Mode A parity (after P1+ PHP changes)
-python -m scripts.work_prepare ab-post-game --target local-work --limit 100
+# Archived — PHP vs Python A/B only (not cutover sign-off)
+# python -m scripts.work_prepare ab-post-game --target local-work --limit 100
 ```
 
-**`ab-post-game`** (see [`docs/post-game-php-development.md`](../docs/post-game-php-development.md) §8.3): zero-derived (default) → PHP `replay-to` → `verify_ratedresults_derived_rows.py` → snapshot tables → Python `ladder run` → diff shipped layers (`--phase p6` includes layer 6). Layer 6 **excludes** `perfect_day`, `nightmare_day`, `entered_arena` (not in post-game PHP). Use `--full-prepare` when refresh/migrate needed.
+**Sign-off:** `php site/public_html/ops/run_ops_sim.php` + `run_verify_ops_sim.php` — [`docs/coordination/cutover-readiness.md`](../../docs/coordination/cutover-readiness.md). **`ab-post-game`:** [`docs/post-game-php-development.md`](../docs/post-game-php-development.md) §9 (archived).
 
 Optional config: copy `site/config/work-targets.ini.example` → `work-targets.ini`.
 

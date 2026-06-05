@@ -23,7 +23,7 @@ from .milestone_sim import (
 
 log = logging.getLogger(__name__)
 
-_SQL_DIR = Path(__file__).resolve().parent / "sql"
+_SQL_DIR = Path(__file__).resolve().parent / "sql" / "archive" / "batch-2026-05"
 # Unaliased ratedresults scans only (exists SQL); skip `FROM ratedresults r` in period rebuild.
 _RR_FROM = re.compile(r"FROM\s+`?ratedresults`?(?=\s*(?:\r?\n|$))", re.IGNORECASE)
 _EXISTS_PATH = _SQL_DIR / "player_milestones_rebuild_exists.sql"

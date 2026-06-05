@@ -1,6 +1,6 @@
 # Post-game PHP — development playbook (local / work)
 
-**Status:** **Jun 2026** — **P0–P6 shipped**. Parity: `ab-post-game --phase p6` (layers 1–6). PHP incremental milestones in `post_game_milestones.php`; Python oracle `scripts/ladder/milestones.py` + `milestone_sim.py`.
+**Status:** **Jun 2026** — **P0–P7 shipped**. **Sign-off gate:** prod-shaped **`run_ops_sim.php`** + **`run_verify_ops_sim.php`** on work / `kooldb1` ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)). §9 `ab-post-game` = **archived dev tooling** only.
 **Audience:** Dagh, Cursor agents.
 
 **This doc is how we build and test.** It does **not** replace:
@@ -102,7 +102,7 @@ Python Mode A today still batch-finalizes some ladder fields at end; treat Pytho
 | `united_nations` via **`DrawingStreak`** on `playertable` | **`on_the_scoresheet`**, **`merchant_streak`**, **`minimalist_merchant`**, **`knife_edge`**, **`unlucky`** via SCH-018 columns (`ScoreStreak`, …) |
 | `weekly_regular`, `year_round` | **`player_period_games`** bounded week/month queries | Implemented (same path as `daily_habit` / `monthly_regular`) |
 
-**Parity:** `ab-post-game` layer 6 excludes only `perfect_day`, `nightmare_day`, `entered_arena`. Apply **SCH-018** before replay; see [`post-game-milestone-facilitators-pending.md`](coordination/post-game-milestone-facilitators-pending.md).
+**Milestones (P6):** layer-6 diff tooling (if used) excludes `perfect_day`, `nightmare_day`, `entered_arena`. **SCH-018** via migrate-work; see [`post-game-milestone-facilitators-pending.md`](coordination/post-game-milestone-facilitators-pending.md).
 
 ---
 
@@ -176,7 +176,7 @@ site/public_html/ops/
 |------|--------|
 | **No `dispatch.php` first** | Router only after checkpoint tests pass. |
 | **No business logic in dispatcher** | Parse `CMD`, guards, call `k2_ops_*` only. |
-| **No per-game `.sql` rebuild files** | Live post-game = incremental `mysqli` in PHP. Batch `.sql` under `scripts/ladder/sql/` = **full-history REP** only (local repair). |
+| **No per-game `.sql` rebuild files** | Live post-game = incremental PHP. Batch `.sql` under `scripts/ladder/sql/archive/batch-2026-05/` = **local repair only**. |
 | **Schema migrations** | `schema/migrations/` via prepare — not post-game. |
 
 Prepare analogue: [`run_prepare.php`](../site/public_html/ops/run_prepare.php) + modules.
@@ -202,7 +202,7 @@ Work browse: `http://work.ratingskickoff.test/` → work DB ([`LOCAL_DEV.md`](LO
 1. prepare work     zero-derived (daily) or full prepare (migrations / refresh) — §work-db-prepare.md
 2. implement slice  one phase in process_completed_game.php (see §10)
 3. sim checkpoint   replay-to = loop process-one logic only; no batch finalize
-4. parity           python -m scripts.work_prepare ab-post-game --limit N (§8.3)
+4. verify           run_ops_sim (checkpoint) + run_verify_ops_sim; optional spot SQL (§8–9)
 5. repeat           next phase; add dispatch.php when Steve-facing surface needed
 ```
 
@@ -238,17 +238,19 @@ Name checkpoints explicitly in chat/commits: e.g. “through **id 74879**” vs 
 | Elo slice | **1000** games or id **~5000** | `ratedresults` derived cols |
 | Dev reference | **id 74879** | Matches dev DB last game (May 2026) — §9.2 |
 
-### 8.3 Parity status
+### 8.3 Verification (current)
 
-**Verification gate (preferred):** `python -m scripts.work_prepare ab-post-game --target local-work --limit N --phase p5` — zero-derived → PHP `replay-to` → snapshots → Python `ladder run` → diff layers 1–5. Optional `--full-prepare` for refresh/migrate day-start.
+**Gate for “done” (Jun 2026):** [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md) — timeline simul + `run_verify_ops_sim.php` (0 fail). Full-history sign-off already recorded on **`kooldb1`** ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)).
 
-**No phase is “verified” until that command (or equivalent manual steps) reports 0 mismatches** on the shipped layers. Do not copy “0 mismatches” from old agent notes into commits or MEMORY without a fresh run.
+**While editing post-game PHP:** short checkpoint `run_ops_sim.php run --until-game-id G` + verify; or `verify_ratedresults_derived_rows.py` for Elo self-consistency only.
 
-**Quick self-check after PHP replay alone:** `python scripts/oneoff/verify_ratedresults_derived_rows.py --target sandbox --limit N` — internal consistency from stored `RatingA`/`RatingB` + goals; **not** a substitute for `ab-post-game`.
+**Do not** require `ab-post-game` for sign-off (§9.4 — archived).
 
 ---
 
-## 9. Parity
+## 9. Parity (archived — `ab-post-game`)
+
+**Jun 2026:** PHP ops is **authority** for cutover. Prod-shaped **simul + verify** replaced Python A/B as the sign-off gate. Keep this section for **historical** layer numbers and optional local regression only — **not** for agents assessing cutover readiness.
 
 ### 9.1 Layers (only compare what you shipped)
 
@@ -273,9 +275,9 @@ Name checkpoints explicitly in chat/commits: e.g. “through **id 74879**” vs 
 
 **Ground truth through 74879:** ids/goals should match; **16** `Date` rows may differ by 1h at DST under `SET time_zone = '+00:00'` — id 74879 not affected.
 
-**Strongest test:** `ab-post-game` (§8.3) — zero-derived → PHP through checkpoint → snapshot → Python `run` (resets, then replays same N) → diff layer 1. No second full prepare required. Dev not required.
+**Historical “strongest test” (pre-sign-off):** `ab-post-game` — see §9.4. **Do not use for cutover readiness.**
 
-### 9.4 `ab-post-game` orchestrator
+### 9.4 `ab-post-game` orchestrator (archived — optional regression only)
 
 | Flag | Effect |
 |------|--------|

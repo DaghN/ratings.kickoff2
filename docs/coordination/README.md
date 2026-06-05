@@ -2,7 +2,8 @@
 
 Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md` Part B** applies (not on every “update docs”).
 
-| Start here | [`feature-log.md`](feature-log.md) — what features exist and migration status |
+| **Cutover / prod prep** | [`cutover-readiness.md`](cutover-readiness.md) — prep done vs live execution (**read before registers**) |
+| Start here | [`feature-log.md`](feature-log.md) — features + `kooldb1` proof vs live cutover |
 | Behavior | [`../website-data-contract.md`](../website-data-contract.md) — tables, rebuild, post-game rules |
 | Playbook | [`../UPDATE_DOCS.md`](../UPDATE_DOCS.md) |
 | **Ops completeness** | [`ops-completeness-charter.md`](ops-completeness-charter.md) — simul signed off Jun 2026; **next:** live on prod copy ([`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md)) |
@@ -25,7 +26,8 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | [staging-work-steve-handoff.md](staging-work-steve-handoff.md) | Redirect → post-dagh-live-story |
 | [post-dagh-live-story.md](post-dagh-live-story.md) | Redirect (repo index) → `ops/docs/` |
 | [parity-audit-backlog.md](parity-audit-backlog.md) | **Parity audit (closed Jun 2026)** — summary stub; full table in [`../archive/parity-audit-backlog.md`](../archive/parity-audit-backlog.md) |
-| [replay-register.md](replay-register.md) | `*_rebuild.sql` backfills + run log |
+| [cutover-readiness.md](cutover-readiness.md) | **Prep vs live** — simul on `kooldb1`, Steve cutover checklist |
+| [replay-register.md](replay-register.md) | **Stub** → archived May 2026 batch REP ([`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md)) |
 | [post-game-register.md](post-game-register.md) | **Pointer** — PHP ops cutover; contract = behaviour |
 | [records-post-game-exception.md](records-post-game-exception.md) | Hall of Fame / `generalstatstable` C++ exception only |
 | [periodic-register.md](periodic-register.md) | Scheduled server jobs |

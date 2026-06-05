@@ -76,9 +76,9 @@ Ask: *Will production someday need schema, replay, C++ post-game, or a periodic 
 |-------|---------|-----------|
 | **L0** | Read-time SQL only; no new stored truth | feature-log only |
 | **L1** | Schema; no backfill yet | schema-register + `schema/migrations/` |
-| **L2** | Schema + REP backfill | schema-register + replay-register + contract post-game § |
-| **L4** | Staging-tested; cutover ready | feature-log: schema + REP done on staging |
-| **L5** | Prod done | feature-log **Prod live** + registers closed |
+| **L2** | Schema + ops simul backfill on work DB | schema-register + [`cutover-readiness.md`](coordination/cutover-readiness.md) + contract post-game § |
+| **L4** | Prep complete (`kooldb1` / work simul verified) | feature-log: **kooldb1 proof** = Proven |
+| **L5** | Live cutover executed | feature-log **Live cutover** = Done + schema-register live column |
 
 Do **not** add `cpp-snippets/` or PG-NNN rows. Post-game behavior → [`website-data-contract.md`](website-data-contract.md). Records exception only: [`records-post-game-exception.md`](coordination/records-post-game-exception.md).
 
@@ -89,7 +89,7 @@ Details: [`prod-coordination.md`](prod-coordination.md#prod-readiness-levels).
 | If… | Update |
 |-----|--------|
 | SQL migration | `schema/migrations/NNN_….sql` + [`schema-register.md`](coordination/schema-register.md) |
-| Replay | `scripts/ladder/` + [`replay-register.md`](coordination/replay-register.md) |
+| Ops simul / ladder changes | [`cutover-readiness.md`](coordination/cutover-readiness.md); historical batch log: [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
 | Post-game rules (contract) | Extend [`website-data-contract.md`](website-data-contract.md) § for the table; records only → [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |
 | Periodic job | [`periodic-register.md`](coordination/periodic-register.md) |
 | Ops CMD / Steve live handoff | **Edit** [`site/public_html/ops/docs/`](../site/public_html/ops/docs/) (`steve-live-ops.md`, `ops-dispatch.md`) — WinSCP canonical; `docs/coordination/` stubs redirect |
@@ -100,7 +100,7 @@ Set **feature-log** level column when known.
 
 ### B4. Migration note to Dagh (if L≥2)
 
-Short paragraph: level, registers touched, whether local REP was run. Prod C++ is contract-driven at cutover — not a standing snippet task.
+Short paragraph: level, registers touched, whether **ops simul** was run on work DB. Prod cutover = Steve runbook — not batch `REP-xxx` scripts.
 
 ### B5. Do not (unless Dagh asks)
 

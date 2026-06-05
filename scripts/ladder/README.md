@@ -51,6 +51,6 @@ powershell -ExecutionPolicy Bypass -File scripts\rebuild_player_period_games_loc
 
 **Period activity (P4):** After replay, `period_activity.py` rebuilds `player_period_games` / peaks from rows with `NewRatingA IS NOT NULL`.
 
-**Period aggregates (P5):** `period_aggregates.py` rebuilds `server_daily_activity` (from day `player_period_games`), `player_period_league`, `player_matchup_summary`, `server_period_game_totals`, `server_period_matchups` from processed `ratedresults` (SQL under `scripts/ladder/sql/*_rebuild.sql`).
+**Period aggregates (P5):** At end of `run`, optional batch SQL from `sql/archive/batch-2026-05/` — **repair/oracle only**; cutover uses **ops simul**.
 
 Production live maintenance: contract post-game § — PHP per-game path in `ops/run_process_game.php`.

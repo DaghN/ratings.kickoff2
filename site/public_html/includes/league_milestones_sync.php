@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Incremental league-event milestone keys (first matching award per player).
  * Win-count keys (league_wins_*) use k2_league_sync_win_milestones() in league_standings.php.
  *
- * @see scripts/ladder/sql/player_milestones_rebuild.sql (league wave)
+ * @see ops day tick / finalize (league wave); historical batch: scripts/ladder/sql/archive/batch-2026-05/
  * @see docs/coordination/ops-orchestration-adr.md
  */
 

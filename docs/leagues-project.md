@@ -12,8 +12,8 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 
 | | |
 |--|--|
-| **Done** | Status Leagues UI · rules spec · shared ranker · SCH-009/010 + REP-012/013 **local + staging** · League honours `ranked9.php` · slice helper for profile |
-| **Next** | Profile league block · prod schema/REP at cutover · optional daily finalize (PER-003) later |
+| **Done** | Status Leagues UI · rules spec · SCH-009/010 · **League honours proven on `kooldb1`** (`ranked9.php`) · ops simul sign-off |
+| **Next** | Profile league block · **live prod cutover** when Steve ready ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)) |
 | **Not started** | Milestones merge (Track 5) · prod cron |
 
 ---
@@ -28,7 +28,7 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 | 3 | **Career leaderboard** | **v1 shipped** | `ranked9.php` — `player_league_totals` + `player_league_slice_totals` |
 | 4 | **Player universe** | Not started | Profile slot TBD — `k2_league_player_slice_totals()` ready |
 | 5 | **Milestones merge** | Not started | [`milestones-project.md`](milestones-project.md) |
-| 6 | **Prod** | Not started | Schema + REP; no PER-003 unless requested |
+| 6 | **Prod** | Prep done; live not executed | Steve cutover runbook — simul, not batch REP |
 
 ---
 

@@ -1,5 +1,9 @@
 # Database copies — June 2026 (Steve + local)
 
+> **`kooldb` (May 2026):** **Frozen** — historical batch-rebuild logs only; **no agent tasks.**  
+> **Forward proof / ops work:** **`kooldb1`** (staging work) and **`ko2unity_work`** (local work).  
+> **Cutover status:** [`cutover-readiness.md`](cutover-readiness.md).
+
 **Status:** **Local sandbox done** (Jun 2026). **Staging DB names confirmed** (Jun 2026): `kooldb1` / `kooldb2` via config1/config2.
 
 **After setup (expected):** `ko2unity_work` / `ko2unity_baseline` have **prod table count** (~5 core tables, ~75k `ratedresults`) until you run expand/migrations on work. `ko2unity_db` keeps **project schema** (~19 tables) for browser work.
@@ -116,7 +120,7 @@ Steve (2026-06-02): two prod-shaped copies on the staging server. Config paths a
 
 **Live staging site PHP:** which file the vhost includes is not recorded here — confirm with Steve (often still default `config/ko2unitydb_config.php` → legacy **`kooldb`** from May 2026 work). WinSCP deploys **PHP only**; DB switching is manual / Steve.
 
-**Legacy (May 2026):** single staging DB **`kooldb`** — milestones, replay register, SCH/REP history. Do not assume `kooldb` still exists unless Steve confirms.
+**Legacy (May 2026):** single staging DB **`kooldb`** — **frozen POC**; historical SCH/REP run log in [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md). **No further work on `kooldb`.** All ops proof uses **`kooldb1`**.
 
 **No live game writes** on staging (prod server is separate).
 

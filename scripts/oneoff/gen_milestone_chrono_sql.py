@@ -25,9 +25,9 @@ from scripts.oneoff.milestone_giant_slayer import (  # noqa: E402
     giant_slayer_qualifies,
 )
 
-OUT = _REPO / "scripts" / "ladder" / "sql" / "player_milestones_rebuild_chrono.sql"
+OUT = _REPO / "scripts" / "ladder" / "sql" / "archive" / "batch-2026-05" / "player_milestones_rebuild_chrono.sql"
 GIANT_SLAYER_OUT = (
-    _REPO / "scripts" / "ladder" / "sql" / "player_milestones_rebuild_giant_slayer.sql"
+    _REPO / "scripts" / "ladder" / "sql" / "archive" / "batch-2026-05" / "player_milestones_rebuild_giant_slayer.sql"
 )
 
 SKIP_KEYS = frozenset({"peace_streak"})

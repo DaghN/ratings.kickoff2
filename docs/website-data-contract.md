@@ -17,16 +17,18 @@ This document owns:
 
 Deployment status is tracked elsewhere:
 
-- Schema status: `docs/coordination/schema-register.md`
-- Rebuild/run status: `docs/coordination/replay-register.md`
-- User-facing feature map: `docs/coordination/feature-log.md`
+- **Cutover prep vs live:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)
+- Schema DDL: [`coordination/schema-register.md`](coordination/schema-register.md)
+- Features: [`coordination/feature-log.md`](coordination/feature-log.md)
+- Historical batch rebuild log (May 2026): [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md)
 
 Those registers link here for behavior; they do **not** duplicate post-game rules.
 
 ### Agent policy (post-game)
 
-- **Local / staging:** Schema + REP or ops simul ([`scripts/rebuild_website_derived_data_local.ps1`](../scripts/rebuild_website_derived_data_local.ps1), `ops/run_ops_sim.php`) — sufficient for PHP to use stored truth.
-- **Behaviour authority:** This document’s **Post-game rule** sections — implemented in **PHP ops** (`ops/run_process_game.php`, `ops/dispatch.php`) and Python replay for parity.
+- **Fill derived tables (happy path):** **`ops/run_ops_sim.php`** after migrate + seed + zero — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **Not** prod cutover via each `scripts/ladder/sql/archive/batch-2026-05/*_rebuild.sql`.
+- **Dev repair only:** [`scripts/rebuild_website_derived_data_local.ps1`](../scripts/rebuild_website_derived_data_local.ps1) — deprecated for cutover; batch SQL chain.
+- **Behaviour authority:** This document’s **Post-game rule** sections — implemented in **PHP ops** (`ops/run_process_game.php`, `ops/dispatch.php`).
 - **Prod live games (today):** Legacy **C++** still runs until Steve cutover — **do not extend C++**; do not block website/staging work on “C++ pending.”
 - **Prod cutover:** Steve inserts ground truth → `dispatch.php CMD=ProcessCompletedGame` (+ `FinalizeUtcDay`) — same rules as here. Guide: [`post-game-php-development.md`](post-game-php-development.md), [`ladder-ops-platform.md`](ladder-ops-platform.md).
 - **Historical C++:** [`ratings_cpp.txt`](ratings_cpp.txt) — read-only comparison only.
@@ -41,10 +43,10 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_play_streaks` | SCH-014 | `rebuild_player_play_streaks.php` (REP-015) | After period games; day/week streak + HoF if personal best rises |
 | `server_daily_activity` | SCH-007 | `server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
 | `player_period_league` | SCH-008 | `player_period_league_rebuild.sql` | W/D/L/points per period |
-| `league_period` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only** — finalize closed periods |
-| `player_league_award` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only** |
-| `player_league_totals` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only**; re-aggregate from awards |
-| `player_league_slice_totals` | SCH-010 | `player_league_slice_totals_rebuild.sql` (REP-013) | **Periodic only**; with career totals after awards |
+| `league_period` | SCH-009 | `ops/run_finalize_league.php` | **Periodic only** — finalize closed periods |
+| `player_league_award` | SCH-009 | `ops/run_finalize_league.php` | **Periodic only** |
+| `player_league_totals` | SCH-009 | `ops/run_finalize_league.php` | **Periodic only**; re-aggregate from awards |
+| `player_league_slice_totals` | SCH-010 | `ops/run_finalize_league.php` | **Periodic only**; with career totals after awards |
 | `milestone_definitions` | SCH-011 | `ops/run_prepare.php seed-catalog` or `scripts/oneoff/load_milestone_definitions.py` | Static catalog; reload when seed changes |
 | `player_milestones` | SCH-008, SCH-012–013 | `player_milestones_rebuild.sql` (+ spliced generators) | § `player_milestones` — game / league / lobby; PHP ops P6 + day-close |
 | `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
@@ -168,7 +170,7 @@ The normal one-command rebuild flow is:
 
 Implementation entrypoint (aggregates only): `scripts/rebuild_website_derived_data_local.ps1`.
 
-The modular SQL files under `scripts/ladder/sql/` remain implementation units. They are not the conceptual source of truth — this document is.
+Batch rebuild SQL (repair only) lives under `scripts/ladder/sql/archive/batch-2026-05/`. Live/cutover authority is **PHP ops** + this document.
 
 ---
 
@@ -199,7 +201,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 **Parity check:** For each `period_type`, `SUM(games)` must equal `COUNT(*) FROM ratedresults * 2`.
 
-**Implementation:** `scripts/ladder/sql/player_period_games_rebuild.sql`.
+**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_period_games_rebuild.sql`.
 
 ---
 
@@ -228,7 +230,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 **Parity check:** Every cache row must match the best row in `player_period_games` for that `(period_type, player_id)`.
 
-**Implementation:** `scripts/ladder/sql/player_peak_period_games_rebuild.sql`.
+**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_peak_period_games_rebuild.sql`.
 
 ---
 
@@ -295,7 +297,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 **Parity check:** `SUM(rated_games)` must equal `COUNT(*) FROM ratedresults`.
 
-**Implementation:** `scripts/ladder/sql/server_daily_activity_rebuild.sql`; emergency fallback `scripts/ladder/sql/server_daily_activity_rebuild_raw.sql`.
+**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/server_daily_activity_rebuild.sql` (batch repair); live = post-game + `player_period_games`.
 
 ---
 
@@ -331,7 +333,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 **Parity check:** `SUM(played) / 2` for each period type must equal `COUNT(*) FROM ratedresults`.
 
-**Implementation:** `scripts/ladder/sql/player_period_league_rebuild.sql`.
+**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_period_league_rebuild.sql`.
 
 ---
 
@@ -362,7 +364,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 **Parity check:** For a sample of closed weeks, top 3 `player_league_award` rows match shared ranker output from `player_period_league` / `player_period_games`.
 
-**Implementation:** `scripts/ladder/sql/league_period_awards_rebuild.sql` (REP-012); sorter shared with PHP `includes/league_standings.php` (planned).
+**Implementation:** `site/public_html/ops/run_finalize_league.php`; sorter in `includes/league_standings.php`.
 
 ---
 
@@ -520,7 +522,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 | Chronological | 16 keys | `gen_milestone_chrono_sql.py` → `player_milestones_rebuild_chrono.sql` (first cross; `peace_streak` in streaks batch) |
 | Tail playertable + matchup | 30 keys | `gen_milestone_tail_sql.py` → `player_milestones_rebuild_tail.sql` (first cross; `diversity_merchant` = per-game DD vs 5 opponents) |
 
-**Full rebuild:** `scripts/ladder/sql/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **112** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL). Per-key catalog: [`milestones-catalog.md`](milestones-catalog.md).
+**Full rebuild:** `scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **112** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL). Per-key catalog: [`milestones-catalog.md`](milestones-catalog.md).
 
 **Schema:** SCH-011 (`milestone_definitions`), SCH-012 + SCH-013 (`player_milestones` + `source_kind` including `lobby`).
 
@@ -711,7 +713,7 @@ Staging/local: **full backfill** via rebuild + ops simul is enough for UI until 
 | Catalog | N rows in `milestone_definitions` (111 after `play_streak_100`); distinct keys in `player_milestones` ≤ N (may be N−1 if no holder yet) |
 | `dd_merchant_10` | Achiever list count = `COUNT(*) FROM player_milestones WHERE milestone_key = 'dd_merchant_10'` |
 
-**Implementation (rebuild):** `scripts/ladder/sql/player_milestones_rebuild.sql` + generated splice files.
+**Implementation (rebuild):** `scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild.sql` + generated splice files.
 
 ---
 
@@ -744,7 +746,7 @@ Staging/local: **full backfill** via rebuild + ops simul is enough for UI until 
 
 **Parity check:** `SUM(games)` must equal `COUNT(*) FROM ratedresults * 2`.
 
-**Implementation:** `scripts/ladder/sql/player_matchup_summary_rebuild.sql`.
+**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql`.
 
 ---
 
@@ -776,7 +778,7 @@ Staging/local: **full backfill** via rebuild + ops simul is enough for UI until 
 
 **Parity check:** `SUM(rated_games)` for day rows must equal `COUNT(*) FROM ratedresults`.
 
-**Implementation:** `scripts/ladder/sql/server_period_game_totals_rebuild.sql`.
+**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/server_period_game_totals_rebuild.sql`.
 
 ---
 
@@ -806,7 +808,7 @@ Staging/local: **full backfill** via rebuild + ops simul is enough for UI until 
 
 **Parity check:** `SUM(games)` for day rows must equal `COUNT(*) FROM ratedresults`. Monthly `COUNT(*)` rows should match raw UTC distinct-pair counts.
 
-**Implementation:** `scripts/ladder/sql/server_period_matchups_rebuild.sql`.
+**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/server_period_matchups_rebuild.sql`.
 
 ---
 

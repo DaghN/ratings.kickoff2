@@ -1,6 +1,6 @@
 # One-off scripts register
 
-**Policy:** Prefer [replay](replay-register.md) for anything derived from ordered game history. One-offs are for imports, fixes, or experiments — mark **superseded by replay** when migrated.
+**Policy:** Prefer **ops simul** ([`ops-simul-runbook.md`](ops-simul-runbook.md)) for derived history. Batch REP: [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md) (historical). One-offs are for imports, fixes, or experiments — mark **superseded by replay** when migrated.
 
 **Template:** `scripts/oneoff/_template.py` · **README:** `scripts/oneoff/README.md`
 
