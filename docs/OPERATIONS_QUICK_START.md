@@ -17,6 +17,7 @@
 | **Website aggregates on dev DB (repair)?** | `scripts\rebuild_website_derived_data_local.ps1` — **deprecated**; prefer simul on `ko2unity_work` |
 | **Steve prod cutover?** | [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 | **Schema migrations?** | `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
+| **Amiga staging DB refresh?** | Agent **runs** `scripts\export_ko2amiga_db.ps1` when Dagh asks to export to staged → tells him **ready for sync + import** → **preview** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` → **apply** `&apply=1` on `ratings.kickoff2.com` — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 
 ---
 
@@ -158,6 +159,25 @@ Prefer replay when the job is “recompute from all games in order.”
 **Legacy (May 2026, frozen `kooldb` only):** `run_staging_ladder_replay.sh` + `scripts/ladder/` — historical record [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md). **Not** the cutover recipe.
 
 **Cutover email template:** [`coordination/cutover-packet-template.md`](coordination/cutover-packet-template.md)
+
+---
+
+## Amiga realm (offline — separate DB)
+
+Not online ladder ops. Local build any way you like → export snapshot → sync → browser import on staging.
+
+**Agent habit:** Dagh says **export to staged** → run export script, confirm **ready for WinSCP sync and staging import** (with URLs below).
+
+| Step | Command / URL |
+|------|----------------|
+| Build local `ko2amiga_db` | `scripts\setup_ko2amiga_db.ps1` or `python -m scripts.amiga run` |
+| **Export SQL (agent runs this)** | `scripts\export_ko2amiga_db.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql` |
+| Deploy (Dagh) | WinSCP sync `site/public_html/` |
+| **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
+| **Staging import (apply)** | same + `&apply=1` |
+| **Local import dry-run** | http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
+
+Full handoff: [`amiga-staging-handoff.md`](amiga-staging-handoff.md) · scripts: [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
 ---
 

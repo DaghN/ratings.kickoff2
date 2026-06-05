@@ -46,7 +46,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, **`docs/activity-charts.md`** (Activity `activity.php` charts), **`docs/milestones-README.md`** (milestones entry → `milestones-catalog.md`), `docs/player-profile-feast.md`, **`docs/amiga-profile-v0.md`** / **`docs/amiga-staging-handoff.md`**, `docs/hub-ia-agreement.md` |
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
 | **Ladder ops platform** | Steve boundary, `ops/`, sim | [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
-| **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
+| **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
 | **Cutover / live prod** | Steve go-live | [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), `ops/docs/post-dagh-live-story.md` |
 
@@ -59,7 +59,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | | Local | Staging | Prod |
 |---|--------|---------|------|
 | **Online** | `ko2unity_db` (+ sandbox `ko2unity_work` / `ko2unity_baseline`) | `kooldb1` / `kooldb2` (legacy `kooldb` possible) | Steve-managed |
-| **Amiga (offline)** | `ko2amiga_db` — separate realm, no player linking | **`ko2amiga_db`** live — `config/ko2amiga_config.local.php` + SQL import | TBD |
+| **Amiga (offline)** | `ko2amiga_db` — separate realm, no player linking | **`ko2amiga_db`** — export + WinSCP + **`/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`** | TBD |
 | Work prepare / simul | [`work-db-prepare.md`](work-db-prepare.md) | Same vocabulary (refresh → migrate → zero derived) | — |
 | Live games | No | **No** | **Yes** |
 | PHP deploy | Laragon | WinSCP sync **`site/public_html/`** | Steve |

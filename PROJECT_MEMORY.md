@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** Phase **A1** shipped — Access import → **`ko2amiga_db`**, Elo replay (1600/K=32), `/amiga/rating.php`, profile, games. **Staging live** on `ratings.kickoff2.com` — config in `site/config/ko2amiga_config.local.php` (sibling of `public_html`); deploy [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). Track B (tournament standings) not started.
+- **Amiga realm (Jun 2026):** Phase **A1** shipped — Access import → **`ko2amiga_db`**, Elo replay (1600/K=32), `/amiga/rating.php`, profile, games. **Staging live** on `ratings.kickoff2.com`. **“Export to staged”:** agent runs `scripts\export_ko2amiga_db.ps1`, tells Dagh **ready for sync + import** → **`/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`** (apply `&apply=1`) — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). Track B (tournament standings) not started.
 
 ---
 

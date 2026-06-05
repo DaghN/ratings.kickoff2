@@ -72,6 +72,7 @@ Prod ladder data is written by **Steve** (ground insert per game + periodic jobs
 - **`docs/archive/`** and May handoffs = **history** — do not run `staging-scripts/` PHP (folder **removed** from repo and remote Jun 2026); use **`site/public_html/ops/`**.
 - **New SCH DDL** → `site/public_html/ops/sql/migrations/` — not `schema/migrations/` (redirect only).
 - **`docs/STAGING_REPLAY.md`** is an **archive stub** — not the current staging runbook ([`cutover-readiness.md`](docs/coordination/cutover-readiness.md)).
+- **Amiga staging data refresh** — separate DB **`ko2amiga_db`**, not online `kooldb*`. **When Dagh asks to export to staged / push Amiga data to staging:** run `powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1` from repo root (or `setup_ko2amiga_db.ps1` if he needs a full rebuild first), then tell him it is **ready for WinSCP sync + browser import** — do not only link the doc. After sync, remind him: **preview** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` · **apply** same URL with `&apply=1` · local dry-run `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`. Full loop: [`docs/amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). Do **not** ping Steve for routine Amiga SQL re-import.
 
 ---
 

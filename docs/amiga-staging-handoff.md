@@ -2,6 +2,10 @@
 
 **Status:** **Live** on `ratings.kickoff2.com` (Jun 2026) — rating, profile, games, cross-realm search.
 
+**Agents — remind Dagh:** When local `ko2amiga_db` should match staging (any import path, not only Access file changes): export → WinSCP sync → browser import. Script: `public_html/amiga/run_import_ko2amiga.php`. Password **`coffee`** — add `&pwd=coffee` to the URL, or enter it on the form when the `once` link is valid without `pwd`. **Preview:** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` · **Apply:** add `&apply=1` (password form preserves apply mode). Staging base: `https://ratings.kickoff2.com` · local: `http://ratingskickoff.test`. Dump on server: `public_html/amiga/_import/ko2amiga_db.sql` (gitignored; carried by WinSCP).
+
+**Agents — when Dagh says “export to staged” (or similar):** **run** `scripts\export_ko2amiga_db.ps1` yourself (unless he clearly needs a full Access rebuild first → `setup_ko2amiga_db.ps1`), then reply that the dump is **ready for WinSCP sync and staging import** — include preview/apply URLs above. Do not hand-wave “run export locally”; execute it.
+
 ---
 
 ## Layout (same as online site)
@@ -30,15 +34,30 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 ## Dagh — code or data refresh
 
 1. **Code:** WinSCP sync **`site/public_html/`** → staging **`public_html/`** (usual button).
-2. **Data (only when Amiga DB changed locally):**
+2. **Data** — whenever local **`ko2amiga_db`** is the state you want on staging (Access import, replay-only, manual SQL, etc.):
 
 ```powershell
+# Full rebuild from Access (import + Elo + export):
+powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
+
+# Or export only if ko2amiga_db is already correct:
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Then sync again so `amiga/_import/ko2amiga_db.sql` reaches the server. Ping Steve to re-import.
+WinSCP sync `public_html/` (must include `amiga/_import/ko2amiga_db.sql` + `amiga/run_import_ko2amiga.php`), then open a preview URL (or apply URL — you will get a password form if `pwd` is omitted):
 
-`setup_ko2amiga_db.ps1` runs export automatically at the end of a full local rebuild.
+| Step | URL |
+|------|-----|
+| **Preview** (no DB changes) | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
+| **Apply import** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee&apply=1 |
+
+Password is **`coffee`** (`&pwd=coffee` in URL, or type it on the prompt page).
+
+Local dry-run (same paths, `ratingskickoff.test`): preview URL above with local host.
+
+Spot-check: `/amiga/rating.php`, `/amiga/profile.php?id=1`, `/amiga/games.php?id=1`.
+
+**Fallback:** Steve Heidi/mysql import — only if browser import fails.
 
 ---
 
@@ -52,17 +71,13 @@ Then sync again so `amiga/_import/ko2amiga_db.sql` reaches the server. Ping Stev
 
 ---
 
-## WhatsApp — data refresh only
+## WhatsApp — only if browser import fails
 
 ```
-Amiga data refresh on staging.
+Amiga staging import failed in browser.
 
-I synced public_html including a new dump:
-  public_html/amiga/_import/ko2amiga_db.sql
-Please re-import into ko2amiga_db (usual Heidi/mysql way).
+Dump synced: public_html/amiga/_import/ko2amiga_db.sql
+Error: [paste from run_import_ko2amiga.php apply page]
 
-Pages to spot-check:
-  /amiga/rating.php
-  /amiga/profile.php?id=1
-  /amiga/games.php?id=1
+Please re-import into ko2amiga_db (Heidi/mysql) or check PHP limits.
 ```
