@@ -26,6 +26,7 @@ Planning and audit material kept for history — **not** the live spec for the s
 | `profile-lab-agent-handoff.md` | Multi-agent lab prompts (Jun 2026; production feast shipped) |
 | `profile-content-candidates.md` | ~70 profile content candidates; v1 curation complete |
 | `derived-data-refactor-plan.md` | May 2026 refactor plan (executed; live spec is `website-data-contract.md`) |
+| `ladder-engine-plan.md` | Python replay / Elo sandbox intent (May 2026); cutover = ops simul — stub at [`../ladder-engine-plan.md`](../ladder-engine-plan.md) |
 | `player-period-games-handoff.md` | Staging runbook for SCH-004/006 (staging done May 2026) |
 | `play-streaks-staging-handoff.md` | Rated play streaks staging runbook (done May 2026) |
 | `milestones-year-in-heaven-handoff.md` | `year_in_heaven` staging handoff (done May 2026) |

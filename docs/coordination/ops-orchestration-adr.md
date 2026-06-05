@@ -78,8 +78,8 @@ php ops/dispatch.php CMD=FinalizeUtcDay target=<profile> as_of=2026-06-04T00:00:
 | Step | Function (planned) | Today |
 |------|-------------------|--------|
 | 1 | `k2_ops_finalize_league_due_periods($con, $asOf)` | `finalize_league_period.php` / `CMD=FinalizeLeagueDue` |
-| 2 | `k2_ops_sync_league_event_milestones($con, $asOf)` | **Missing** — `player_milestones_rebuild.sql` |
-| 3 | `k2_day_close_finalize_utc_day()` | **Shipped** — `site/public_html/includes/day_close_milestones.php` via `FinalizeUtcDay` |
+| 2 | `k2_league_sync_event_milestones()` | **Shipped** — `site/public_html/ops/includes/league_milestones_sync.php` via `FinalizeUtcDay` |
+| 3 | `k2_day_close_finalize_utc_day()` | **Shipped** — `site/public_html/ops/includes/day_close_milestones.php` via `FinalizeUtcDay` |
 
 Stdout: `[dispatch] step=league_finalize ok` (or `fail`) per sub-step for grep.
 

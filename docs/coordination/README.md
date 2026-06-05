@@ -2,6 +2,8 @@
 
 Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md` Part B** applies (not on every “update docs”).
 
+**Trap:** Grep hits for `staging-scripts/*.php` or `REP-xxx` runbooks are **historical** unless you are reading [`cutover-readiness.md`](cutover-readiness.md) for forward cutover. Repo ladder path = **`site/public_html/ops/`** only (`staging-scripts/` removed Jun 2026).
+
 | **Cutover / prod prep** | [`cutover-readiness.md`](cutover-readiness.md) — prep done vs live execution (**read before registers**) |
 | Start here | [`feature-log.md`](feature-log.md) — features + `kooldb1` proof vs live cutover |
 | Behavior | [`../website-data-contract.md`](../website-data-contract.md) — tables, rebuild, post-game rules |

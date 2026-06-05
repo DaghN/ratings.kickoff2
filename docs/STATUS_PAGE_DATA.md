@@ -14,7 +14,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | Environment | Database name | Notes |
 |-------------|---------------|--------|
 | **Production / joshua** | Steve live DB | **Live writes** — legacy C++ **today**; **PHP ops** (`ops/dispatch.php`) at cutover |
-| **Staging** | `kooldb` | **Same schema, no live game writes** — not fed by the game server; DB changes via dump, Steve-run replay/SQL, or one-offs. WinSCP only updates PHP. |
+| **Staging work** | **`kooldb1`** (pristine clone **`kooldb2`**) | **Same schema family, no live game writes** — forward proof via ops prepare/simul ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)). Legacy May DB **`kooldb`** = frozen historical log only. WinSCP syncs PHP only. |
 | **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, May 2026; no live writes |
 
 **No separate “status.php API”** — PHP + SQL against these tables (same pattern as `server1.php`, ranked pages).
@@ -113,9 +113,9 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | **Phase B v1** | **Shipped** — `status_queries.php`, `status_room_section.php`, `status.php` |
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
 | **League stack (legacy)** | Replaced on Status by **Leagues** block (`status_period_competitions_section.php`); old four-panel + `status-league-toggle.js` removed from `status.php` |
-| **League stored truth (SCH-008)** | **Local + staging done** (May 2026) — `player_period_league` + REP-007–011 on `kooldb`; Steve verify all parity checks pass (74,870 rated games). Prod schema + post-game from contract pending |
-| Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_period_league`; Status loader ~6.6s → ~51ms locally; legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
-| Period activity prep | **Local + staging done (May 2026)** — SCH-006 + REP-003 week refresh + REP-005 on `kooldb`; prod handoff/method pending Steve |
+| **League stored truth (SCH-008)** | **Repo + `kooldb1` proof done** (Jun 2026) — `player_period_league` via ops simul on work DB; May batch era on frozen **`kooldb`** only. **Live prod:** schema + PHP post-game at Steve cutover (not repo backlog) |
+| Performance pass | **Local + work/staging proof done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, `player_period_league`; Status loader ~6.6s → ~51ms locally; legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
+| Period activity prep | **Repo + `kooldb1` proof done** — `player_period_games` / peaks via ops simul; historical May **`kooldb`** batch in [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
 | **Leagues (period competitions)** | **Shipped** — paired Activity + Points, tab nav, prewarm, Daily games list — [`docs/status-period-competitions.md`](status-period-competitions.md) |
 | v1.5+ | Polling, kickoff2 embed, joshua redirect |
 

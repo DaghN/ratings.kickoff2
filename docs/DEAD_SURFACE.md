@@ -40,11 +40,19 @@
 
 ---
 
+## Remote deploy (confirmed Jun 2026)
+
+| Item | Status |
+|------|--------|
+| `public_html/staging-scripts/` on staging | **Removed** — Dagh confirmed remote matches repo after WinSCP sync |
+
+---
+
 ## Next dead-surface candidates (not done here)
 
 | Candidate | Blocker / note |
 |-----------|----------------|
-| Delete `staging-scripts/` on staging server | After WinSCP sync — Steve confirm nothing cron'd there |
+| ~~Delete `staging-scripts/` on staging server~~ | **Done** Jun 2026 (local + remote) |
 | `scripts/oneoff/` rows marked Archived in register | Delete script files after grep |
 | Legacy CSS tokens with zero grep hits | Careful pass on `theme.css` only |
 | `body.k2-activity-charts-lab` rules in `theme.css` | Grep — likely orphan after Activity v2 (verify before delete) |

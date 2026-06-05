@@ -54,8 +54,8 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | DDR-020 | `player_league_award`, `league_period` | DDR-005 | `finalize_league_period.php` | Y | Y | ok | ranked9, honours |
 | DDR-021 | `player_league_totals`, slice totals | DDR-020 | `league_standings.php` | Y | Y | ok | ranked9 |
 | DDR-022 | `league_wins_10/50/100/500` | DDR-020 | `k2_league_sync_win_milestones` | Y | partial | ok | garden |
-| DDR-023 | 16 league event keys | DDR-020 | `league_milestones_sync.php` | Y | Y | ok | garden |
-| DDR-024 | `perfect_day`, `nightmare_day` | DDR-004 | `day_close_milestones.php` | Y | Y | ok | garden, individual3 |
+| DDR-023 | 16 league event keys | DDR-020 | `ops/includes/league_milestones_sync.php` | Y | Y | ok | garden |
+| DDR-024 | `perfect_day`, `nightmare_day` | DDR-004 | `ops/includes/day_close_milestones.php` | Y | Y | ok | garden, individual3 |
 | DDR-025 | Day tick orchestrator | DDR-020–024 | `finalize_utc_day.php` | Y | Y | ok | — |
 
 **Mode A (`replay-to`) only:** DDR-001–011 partial; DDR-020–025 **missing** → empty honours / day-close.

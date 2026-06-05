@@ -173,6 +173,8 @@ site/public_html/ops/
   includes/
     ops_bootstrap.php       # CLI, mysqli, DB guards
     ops_argv.php            # CMD= key=value parsing (planned)
+    day_close_milestones.php   # perfect_day / nightmare_day (FinalizeUtcDay)
+    league_milestones_sync.php # league-event milestone wave (FinalizeUtcDay)
   modules/
     process_completed_game.php   # example: one primary file per CMD
     …                       # periodic_*, replay_*, etc. as needed
@@ -181,7 +183,9 @@ site/public_html/ops/
     rebuild/                # optional REP SQL mirrors
 ```
 
-**`ops/lib/`:** not used until shared helpers are duplicated across modules (YAGNI). Shared post-game helpers may later live in `includes/` (bootstrap-sized) or `lib/` — pick one when the need appears; until then, keep modules self-contained.
+**`ops/lib/`:** not used until shared helpers are duplicated across modules (YAGNI).
+
+**`ops/includes/` vs `public_html/includes/`:** Ops-only writers (e.g. `day_close_milestones.php`, `league_milestones_sync.php`, `post_game_*.php`) live under **`ops/includes/`**. Shared domain libs used by **both** ops and website pages (e.g. `league_standings.php`, `player_play_streaks.php`) stay in **`public_html/includes/`** — ops `require`s them with `dirname(__DIR__, 2) . '/includes/…'`.
 
 ### 6.3 Naming: `CMD` ↔ file ↔ function
 

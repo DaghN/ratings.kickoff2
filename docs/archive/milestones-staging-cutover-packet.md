@@ -1,5 +1,7 @@
 # Milestones staging cutover packet (May 2026)
 
+> **DO NOT RUN** commands below for current work. **Forward path:** [`../coordination/cutover-readiness.md`](../coordination/cutover-readiness.md) → `migrate-work` → `seed-catalog` → `zero-derived` → **`php ops/run_ops_sim.php run`** on **`kooldb1`** / **`ko2unity_work`**. `staging-scripts/` **deleted** from repo and remote Jun 2026.
+
 **Historical runbook** — staging DB was cut over May 2026. CLI paths below used `staging-scripts/` (folder **deleted Jun 2026**). **Current:** [`staging-scripts-inventory.md`](staging-scripts-inventory.md) · ops `run_prepare.php seed-catalog` · `run_finalize_league.php` · `run_ops_sim.php`.
 
 **Operational runbook** for Dagh (WinSCP) + Steve (SSH/`kooldb`). Overview: [`milestones-staging-steve-handoff.md`](milestones-staging-steve-handoff.md). Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_milestones`.

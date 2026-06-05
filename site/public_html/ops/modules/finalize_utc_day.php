@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/ops_bootstrap.php';
 require_once __DIR__ . '/finalize_league_period.php';
-require_once dirname(__DIR__, 2) . '/includes/league_milestones_sync.php';
-require_once dirname(__DIR__, 2) . '/includes/day_close_milestones.php';
+require_once __DIR__ . '/../includes/league_milestones_sync.php';
+require_once __DIR__ . '/../includes/day_close_milestones.php';
 
 /**
  * Closed UTC calendar day for a day tick (as_of is start of next day 00:00:01).

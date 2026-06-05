@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @see docs/coordination/ops-orchestration-adr.md
  */
 
-require_once __DIR__ . '/league_standings.php';
+require_once dirname(__DIR__, 2) . '/includes/league_standings.php';
 
 /**
  * @return list<array{key: string, value: int, where: string}>

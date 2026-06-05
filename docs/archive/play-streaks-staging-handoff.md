@@ -1,5 +1,7 @@
 # Rated play streaks — staging handoff (May 2026)
 
+> **DO NOT RUN** `staging-scripts/` or `REP-015` blocks below. **Forward proof:** ops simul on **`kooldb1`** — [`../coordination/cutover-readiness.md`](../coordination/cutover-readiness.md). Streaks **proven** May 2026; live writer = PHP ops at cutover.
+
 **Contract:** [`website-data-contract.md`](../website-data-contract.md) § `player_play_streaks`  
 **Post-game:** PHP reference in `includes/player_play_streaks.php` → `k2_play_streak_after_rated_game()`; prod C++ after `player_period_games` (Steve).  
 **HoF tie-break:** same `best_last_game_id` → holder is `ratedresults.idB`; else longer streak, then earlier `best_achieved_at`.

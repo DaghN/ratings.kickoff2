@@ -25,7 +25,7 @@
 | **Dev DB** | `ko2unity_db` — browser, PHP, day-to-day feature work. |
 | **Prod sandbox** | `ko2unity_baseline` + `ko2unity_work` — prod-shaped copy for migrate/sim; **not** the PHP site until cutover. |
 | **Refresh work** | Clone baseline → work (script: `reset_local_work_db.ps1`). **Not** “zero derived.” |
-| **Migrate work** | Apply `schema/migrations/` on work only. |
+| **Migrate work** | Apply **`site/public_html/ops/sql/migrations/`** on work only (`php site/public_html/ops/run_prepare.php migrate-work`, or `schema/apply_local.ps1` → same SQL files). |
 | **Zero derived** | Derived day-zero pre-game; ground truth kept. See [`work-db-prepare.md`](../work-db-prepare.md) §4. |
 
 ---
@@ -36,7 +36,7 @@
 |----------|------|-------------|-----------|---------------|
 | **`ko2unity_db`** | **Dev** — current work | Yes (`schema/apply_local.ps1` default) | **Yes** (`ko2unitydb_config.php`) | `--target local` (default config) |
 | **`ko2unity_baseline`** | Pristine prod snapshot | **Never** | **No** | **Never** |
-| **`ko2unity_work`** | Disposable prod-shaped experiments | When you choose (`apply_schema_to_work.ps1`) | **`http://work.ratingskickoff.test/`** (after setup) | `--target sandbox --ini site/config/ladder-work.ini` |
+| **`ko2unity_work`** | Disposable prod-shaped experiments | **`run_prepare.php migrate-work`** (ops SCH DDL) | **`http://work.ratingskickoff.test/`** (after setup) | `--target sandbox --ini site/config/ladder-work.ini` |
 
 **Safety:** Setup scripts **must not** `DROP` or import into `ko2unity_db`. The archived prod dump in `data/dumps/` is **sanitized at extract** (`CREATE DATABASE` / `USE` → `ko2unity_baseline` only). Raw `KOOL_DB.sql` from Steve's zip is **not** kept as the import target.
 

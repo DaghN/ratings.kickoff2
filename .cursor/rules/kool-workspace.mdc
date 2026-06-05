@@ -37,7 +37,7 @@ For DB-backed website features, especially profile, status, activity, leaderboar
 - Narrow single-player lookups that use `idA`/`idB` indexes
 - Genuinely temporary prototypes you plan to replace
 
-Do **not** reject schema, replay, index, aggregate-table, periodic-job, or post-game C++ updates merely because they require Steve coordination or register handoff. In this repo, that coordination is normal project machinery and is available within reason.
+Do **not** block PHP ops, contract, schema, replay, index, aggregate-table, or periodic-job work merely because Steve coordination or register handoff is needed later. **Do not extend legacy C++ derived post-game** — implement and prove in **`site/public_html/ops/`** per [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) §2.
 
 ### Ladder ops — no `staging-scripts/`
 

@@ -7,18 +7,18 @@
 
 ---
 
-## 1. Problem
+## 1. Current state (Jun 2026)
 
 Prepare pipeline (prod baseline → work → simul) requires **migrate work** before zero-derived and simul. Migrations define what PHP post-game and aggregates may assume (tables, indexes, dropped columns).
 
-Today:
+**Done:**
 
-- **Canonical files:** `schema/migrations/*.sql` (repo root)
-- **Apply:** `schema/apply_local.ps1` (Laragon PowerShell + `mysql.exe`)
-- **Ops:** `run_prepare.php migrate-work` shells out to that script — **orchestrates but does not own** DDL
-- **Deploy:** `ops/sql/migrations/` documented as WinSCP mirror — **was empty**; staging historically used server-only `staging-sql/`
+- **Canonical DDL:** `site/public_html/ops/sql/migrations/*.sql` (synced with `ops/` via WinSCP)
+- **Apply (preferred):** `php site/public_html/ops/run_prepare.php migrate-work` → `includes/ops_migrate.php` (mysqli, sorted `*.sql`, idempotent)
+- **Apply (legacy wrapper):** `schema/apply_local.ps1` — same SQL directory; default DB `ko2unity_db` or pass `-Database ko2unity_work`
+- **Redirect only:** `schema/migrations/README.md` — points here; **do not** add new SCH files under `schema/migrations/`
 
-That splits “platform” (synced `ops/`) from “foundational step 0” (root `schema/`). For legacy prod → prepared work → simul, migrations must live in the **same bundle** as prepare, not as “local only, then copy.”
+**Retired:** server-only `staging-sql/` DDL; duplicate “copy migrations into ops after the fact” workflow.
 
 ---
 

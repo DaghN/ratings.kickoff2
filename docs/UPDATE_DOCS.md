@@ -75,7 +75,7 @@ Ask: *Will production someday need schema, replay, C++ post-game, or a periodic 
 | Level | Meaning | Registers |
 |-------|---------|-----------|
 | **L0** | Read-time SQL only; no new stored truth | feature-log only |
-| **L1** | Schema; no backfill yet | schema-register + `schema/migrations/` |
+| **L1** | Schema; no backfill yet | schema-register + `site/public_html/ops/sql/migrations/` |
 | **L2** | Schema + ops simul backfill on work DB | schema-register + [`cutover-readiness.md`](coordination/cutover-readiness.md) + contract post-game § |
 | **L4** | Prep complete (`kooldb1` / work simul verified) | feature-log: **kooldb1 proof** = Proven |
 | **L5** | Live cutover executed | feature-log **Live cutover** = Done + schema-register live column |
@@ -88,7 +88,7 @@ Details: [`prod-coordination.md`](prod-coordination.md#prod-readiness-levels).
 
 | If… | Update |
 |-----|--------|
-| SQL migration | `schema/migrations/NNN_….sql` + [`schema-register.md`](coordination/schema-register.md) |
+| SQL migration | `site/public_html/ops/sql/migrations/NNN_….sql` + [`schema-register.md`](coordination/schema-register.md) |
 | Ops simul / ladder changes | [`cutover-readiness.md`](coordination/cutover-readiness.md); historical batch log: [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
 | Post-game rules (contract) | Extend [`website-data-contract.md`](website-data-contract.md) § for the table; records only → [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |
 | Periodic job | [`periodic-register.md`](coordination/periodic-register.md) |

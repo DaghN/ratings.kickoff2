@@ -8,7 +8,7 @@ Recalculates Elo per **`docs/replay-v1-scope-and-reset.md`**. Local **dev** = `k
 pip install -r scripts/ladder/requirements.txt
 ```
 
-**Database:** **`ko2unitydb_config.php`** → dev `ko2unity_db`. **Sandbox:** copy `site/config/ladder-work.ini.example` → `ladder-work.ini`, use `--target sandbox --ini site/config/ladder-work.ini`. **Staging:** **`docs/STAGING_REPLAY.md`**.
+**Database:** **`ko2unitydb_config.php`** → dev `ko2unity_db`. **Sandbox:** copy `site/config/ladder-work.ini.example` → `ladder-work.ini`, use `--target sandbox --ini site/config/ladder-work.ini`. **Website aggregates on staging/work:** ops simul ([`docs/coordination/cutover-readiness.md`](../../docs/coordination/cutover-readiness.md)) — not [`docs/STAGING_REPLAY.md`](../../docs/STAGING_REPLAY.md) (archive stub).
 
 ## Commands (from repo root)
 

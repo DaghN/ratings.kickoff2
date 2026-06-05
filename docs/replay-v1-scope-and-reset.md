@@ -2,7 +2,7 @@
 
 **Status:** **P1 implemented** (`scripts/ladder/`, May 2026). Verified on local **`ko2unity_db`**: 74,870 games replayed; 0 NULL `NewRating*`; draws `WinnerID = -1` (9,053).
 
-**Authority:** Product intent in `docs/ladder-engine-plan.md`. If this doc and that plan disagree on v1 scope, **this doc wins** until Dagh says otherwise.
+**Authority:** Python replay intent in `docs/ladder-engine-plan.md` (redirect → [`archive/ladder-engine-plan.md`](archive/ladder-engine-plan.md)). If this doc and that plan disagree on v1 scope, **this doc wins** until Dagh says otherwise. **Website aggregates / cutover:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), not replay alone.
 
 **Database:** Local / dev **`ko2unity_db`** (`ratedresults`, `playertable`). See `docs/LOCAL_DEV.md`.
 

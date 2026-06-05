@@ -1,6 +1,6 @@
 # Profile lab — multi-agent handoff (redirect)
 
-**Lab still active (Jun 2026)** — compare layouts on `individual1-profile-lab*.php`; production feast on `individual1.php` until you merge a winner.
+**Optional compare only (Jun 2026)** — production feast is **`individual1.php`**; lab pages (`individual1-profile-lab*.php`) for layout experiments until you merge a winner.
 
 | Live spec | Path |
 |-----------|------|

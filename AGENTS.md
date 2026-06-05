@@ -64,6 +64,17 @@ Prod ladder data is written by **Steve** (ground insert per game + periodic jobs
 
 ---
 
+## Agent traps (grep / register misreads)
+
+- **Cutover prep is done** on `kooldb1` / `ko2unity_work` via **ops simul** — do not assign batch **`REP-xxx`** or `*_rebuild.sql` on prod. Historical log: [`archive/replay-register-2026-05.md`](docs/archive/replay-register-2026-05.md).
+- **`kooldb`** (May 2026) is **frozen** — forward staging work DB = **`kooldb1`**; pristine clone = **`kooldb2`**.
+- **`feature-log.md` “Live cutover = Not executed”** means **Steve go-live scheduled**, not incomplete repo work.
+- **`docs/archive/`** and May handoffs = **history** — do not run `staging-scripts/` PHP (folder **removed** from repo and remote Jun 2026); use **`site/public_html/ops/`**.
+- **New SCH DDL** → `site/public_html/ops/sql/migrations/` — not `schema/migrations/` (redirect only).
+- **`docs/STAGING_REPLAY.md`** is an **archive stub** — not the current staging runbook ([`cutover-readiness.md`](docs/coordination/cutover-readiness.md)).
+
+---
+
 ## Optional opener for Dagh
 
 **Not required** — rules autoload bootstrap. If you want extra steer:

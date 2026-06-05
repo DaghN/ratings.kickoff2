@@ -616,7 +616,7 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 
 **Streak keys:** In-memory counters during post-game (win resets loss/draw streaks, etc.). Unlock when **current** streak **equals** threshold on this game (`win_hat_trick` only on a win, `cold_streak` on a loss, `peace_streak` on a draw, `win_drought` when `non_win_streak === 10`). `ten_wins` = 10th career win on this game.
 
-**Exceptions (not in `ProcessCompletedGame`):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. **Live/post-game PHP:** `FinalizeUtcDay` — `site/public_html/includes/day_close_milestones.php` (ops simul + Steve midnight dispatch). Not per-game post-game. Historical surgical SQL on frozen `kooldb`: `scripts/ladder/sql/archive/one-off-2026-06/player_milestones_fix_day_close.sql` (audit only).
+**Exceptions (not in `ProcessCompletedGame`):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. **Live/post-game PHP:** `FinalizeUtcDay` — `site/public_html/ops/includes/day_close_milestones.php` (ops simul + Steve midnight dispatch). Not per-game post-game. Historical surgical SQL on frozen `kooldb`: `scripts/ladder/sql/archive/one-off-2026-06/player_milestones_fix_day_close.sql` (audit only).
 
 **Tail highlights (post-update `playertable` or per-game):**
 

@@ -1,5 +1,7 @@
 # Milestone `year_in_heaven` — staging handoff (May 2026)
 
+> **DO NOT RUN** `staging-scripts/` steps below. Milestone is in catalog + simul path; forward work = [`../coordination/cutover-readiness.md`](../coordination/cutover-readiness.md) / ops post-game — not this packet.
+
 **Catalog key:** `year_in_heaven` — **Year in Heaven**  
 **Rule:** Rated game in **every UTC week** of a **calendar year** (52 Monday slots; same grid as profile Played weeks).  
 **Unlock game (live):** the rated game that fills the **52nd** UTC week slot — `achieved_at` = that game's `Date` (shows in Recent immediately).  
