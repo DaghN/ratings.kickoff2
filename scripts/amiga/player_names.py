@@ -9,8 +9,8 @@ _WS = re.compile(r"\s+")
 
 
 def normalize_display_name(raw: str) -> str:
-    """Trim and collapse internal whitespace (Access sometimes has double spaces)."""
-    return _WS.sub(" ", raw.strip())
+    """Trim, collapse whitespace, drop a trailing period (Access abbreviation artefact)."""
+    return _WS.sub(" ", raw.strip()).rstrip(".")
 
 
 def identity_key(raw: str) -> str:
@@ -28,7 +28,7 @@ def build_canonical_name_map(
     Map every raw Access name string → canonical display name.
 
     Rules:
-    - Same identity_key (trim, collapse spaces, casefold) → one player
+    - Same identity_key (trim, collapse spaces, strip trailing `.`, casefold) → one player
     - Canonical spelling = variant with the most game rows; tie → prefer Rankings country
     """
     raw_counts: Counter[str] = Counter()

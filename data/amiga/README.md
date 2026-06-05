@@ -41,7 +41,7 @@ data/amiga/exports/
 | **Format** | `.mdb` (Jet) |
 | **Size** | ~5.6 MB |
 | **Games (`Scores`)** | 27,408 |
-| **Players (distinct in `Scores`)** | 477 raw → **474** after import merges |
+| **Players (distinct in `Scores`)** | 477 raw → **473** after import merges |
 | **Tournaments (`Tournament players`)** | 604 (Nov 2001 – Nov 2025) |
 | **File modified** | 2026-05-16 |
 | **Notes** | Phase A0 discovery + **A1 import/replay** — see [`docs/amiga-schema-discovery.md`](../docs/amiga-schema-discovery.md), [`scripts/amiga/README.md`](../../scripts/amiga/README.md) |

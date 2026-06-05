@@ -46,7 +46,7 @@ Then open:
   https://ratings.kickoff2.com/amiga/rating.php
   https://ratings.kickoff2.com/amiga/profile.php?id=1
 
-Amiga Elo leaderboard (~27k games, 474 players after name merges). Legacy Access ratings are not shown.
+Amiga Elo leaderboard (~27k games, 473 players after name merges). Legacy Access ratings are not shown.
 
 Online kooldb* untouched.
 ```

@@ -38,6 +38,7 @@ That is fine at current scale (27k games total; busiest player ~1.1k games). Whe
 `scripts/amiga/player_names.py` merges Access duplicates at import:
 
 - Collapsed whitespace (`Gianni  T` → `Gianni T`)
+- Trailing period (`Knut L.` → `Knut L`, most games wins)
 - Case variants (`Oliver ST` → `Oliver St`, most games wins)
 - Country from `Rankings` when any alias had one
 
