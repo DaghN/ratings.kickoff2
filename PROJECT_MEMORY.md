@@ -97,7 +97,8 @@
 | 2026-06 | **`docs/ground-truth-manifest.md`** — scannable ground vs derived for prod five tables + local/staging roles. |
 | 2026-06 | **Local dual website shipped** — `ratingskickoff.test` + `work.ratingskickoff.test`; docs in `LOCAL_DEV.md` + `database-copies-2026-06.md`. |
 | 2026-06 | **Post-game doc alignment** — contract vs PHP ops vs C++-today in platform §2, contract, AGENTS, PROJECT_MAP. |
-| 2026-06 | **Ops conventions (§6)** — naming, bootstrap guards, `staging-scripts/` vs `ops/`, test-before-dispatch. |
+| 2026-06 | **Ops conventions (§6)** — naming, bootstrap guards, test-before-dispatch. |
+| 2026-06 | **`staging-scripts/` removed** — May 2026 cutover PHP deleted; ladder ops = `site/public_html/ops/` only ([`archive/staging-scripts-inventory.md`](docs/archive/staging-scripts-inventory.md)). |
 | 2026-06 | **Ladder ops platform** — [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) + `site/public_html/ops/` incl. `dispatch.php`, `run_process_game.php`, `run_prepare.php`. |
 | 2026-06 | **Local prod sandbox live** — baseline + work from sanitized dump; ~75,204 rated on work. |
 | 2026-06 | **Local DB model (3 DBs)** — scripts + **`database-copies-2026-06.md`**. |

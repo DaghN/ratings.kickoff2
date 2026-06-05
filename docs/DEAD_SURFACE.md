@@ -35,7 +35,7 @@
 | `server1-charts-lab.php` | **302 → `server1.php`** (old Activity lab bookmarks) |
 | `status-realm-lab.php` | **302 → `status.php`** (old realm lab bookmarks) |
 | `scripts/throwaway_*.php` | Schema snapshot / index apply via browser; documented in `ratedresults-schema.md`, `LOCAL_DEV.md`, `one-off-register.md` — **not** in default `site/public_html/` sync |
-| `site/public_html/staging-scripts/` | Server cutover backlog — retire per [`coordination/staging-scripts-inventory.md`](coordination/staging-scripts-inventory.md) (separate slice) |
+| ~~`site/public_html/staging-scripts/`~~ | **Removed Jun 2026** — May 2026 cutover runners; ops replaces all paths ([`archive/staging-scripts-inventory.md`](archive/staging-scripts-inventory.md)) |
 | `scripts/finalize_league_periods.php` | Thin delegate → `ops/run_finalize_league.php` (documented deprecated) |
 
 ---
@@ -44,7 +44,7 @@
 
 | Candidate | Blocker / note |
 |-----------|----------------|
-| Empty `staging-scripts/` on server | Execute inventory + Steve confirm |
+| Delete `staging-scripts/` on staging server | After WinSCP sync — Steve confirm nothing cron'd there |
 | `scripts/oneoff/` rows marked Archived in register | Delete script files after grep |
 | Legacy CSS tokens with zero grep hits | Careful pass on `theme.css` only |
 | `body.k2-activity-charts-lab` rules in `theme.css` | Grep — likely orphan after Activity v2 (verify before delete) |

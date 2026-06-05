@@ -265,7 +265,7 @@ The modular SQL files under `scripts/ladder/sql/` remain implementation units. T
 
 **Parity check:** Rebuild from `player_period_games` must match incremental simulation on a sample of players; HoF daily/weekly equals top `best_streak` from table with tie order above.
 
-**Implementation:** `site/public_html/includes/player_play_streaks.php`; `scripts/rebuild_player_play_streaks.php`; staging `staging-scripts/run_player_play_streaks_rebuild.php`. Handoff: [`coordination/play-streaks-staging-handoff.md`](coordination/play-streaks-staging-handoff.md).
+**Implementation:** `site/public_html/includes/player_play_streaks.php`; ops post-game P7; local repair `scripts/rebuild_player_play_streaks.php`. Historical handoff: [`archive/play-streaks-staging-handoff.md`](archive/play-streaks-staging-handoff.md).
 
 **UI (read stored truth):** Leaderboards → Streaks [`ranked4.php`](../site/public_html/ranked4.php) — **Days** / **Weeks** (`best_streak` from `player_play_streaks`). Hall of Fame [`server2.php`](../site/public_html/server2.php) — **Most days in a row** / **Most weeks in a row** (`generalstatstable` `LongestDailyPlayStreak*` / `LongestWeeklyPlayStreak*`). **Staging verified** May 2026 (Steve; max day 87, week 126).
 

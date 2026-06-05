@@ -27,7 +27,7 @@ Full-history rebuild from **`ratedresults`** (canonical ladder games). Engine: *
 | REP-011 | Server period matchups | Rebuild `server_period_matchups` (canonical pair per period) from `ratedresults` | Done May 2026 | **Done** (May 2026) | **Pending** | `scripts/ladder/sql/server_period_matchups_rebuild.sql` |
 | REP-012 | League period awards | Rebuild `league_period`, `player_league_award`, `player_league_totals` for all closed periods using `docs/leagues-rules-spec.md` sort | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Local dev: `ops/run_finalize_league.php rebuild-all --target local-dev` or `scripts/run_league_awards_rebuild.ps1`. Work: `--target local-work`. Staging one-shot **removed** Jun 2026 — use `ops/run_finalize_league.php` on work DB for parity. |
 | REP-013 | Player league slice totals | Rebuild `player_league_slice_totals` from `player_league_award` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Runs at end of REP-012 full rebuild |
-| REP-015 | Player rated play streaks | Rebuild `player_play_streaks` + HoF `LongestDaily/WeeklyPlayStreak*` from `player_period_games` + `ratedresults` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | `php scripts/rebuild_player_play_streaks.php`; staging `staging-scripts/run_player_play_streaks_rebuild.php`; needs SCH-014 + REP-003 |
+| REP-015 | Player rated play streaks | Rebuild `player_play_streaks` + HoF `LongestDaily/WeeklyPlayStreak*` from `player_period_games` + `ratedresults` | **Done** (May 2026) | **Done** (May 2026) | **Pending** | Local repair: `php scripts/rebuild_player_play_streaks.php`; live: ops post-game P7; needs SCH-014 + REP-003 |
 
 ### Milestone unlock row counts (timeline)
 

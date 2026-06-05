@@ -139,7 +139,6 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 |------|----------|
 | `site/public_html/` (root) | Website — pages, `api/`, assets |
 | `site/public_html/ops/` | **Operations** — dispatcher, modules, SQL mirrors |
-| `site/public_html/staging-scripts/` | **Legacy** — migrate into `ops/` over time |
 
 **Schema:**
 
@@ -156,16 +155,9 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 **Status (Jun 2026):** **`dispatch.php`** thin router — see [`site/public_html/ops/docs/ops-dispatch.md`](../site/public_html/ops/docs/ops-dispatch.md) (canonical, WinSCP). Steve: [`steve-live-ops.md`](../site/public_html/ops/docs/steve-live-ops.md). Extend via `K2_OPS_DISPATCH_REGISTRY`, not by growing `dispatch.php`.
 
-### 6.1 `ops/` vs `staging-scripts/`
+### 6.1 Ladder ops location
 
-| Location | Use |
-|----------|-----|
-| **`site/public_html/ops/`** | All **new** ladder ops: dispatcher, modules, SQL mirrors, sim/post-game/periodic CMDs. |
-| **`site/public_html/staging-scripts/`** | **Legacy** one-shot rebuild runners. **Do not add new logic.** League awards runner **removed** (Jun 2026); catalog superseded by `ops/run_prepare.php seed-catalog`. Inventory: [`coordination/staging-scripts-inventory.md`](coordination/staging-scripts-inventory.md). |
-
-**Migration criteria (when moving a legacy script):** the runner is still needed on staging/prod path; it fits the `CMD=` or documented dev-runner pattern; callers and README are updated in the **same slice**; nothing is deleted from `staging-scripts/` until the replacement is verified.
-
-**Do not** add new long-term business logic under `staging-scripts/`.
+All server ladder ops live under **`site/public_html/ops/`** (dispatcher, modules, SQL migrations, sim/post-game/periodic CMDs). Legacy **`staging-scripts/`** was removed Jun 2026 — see [`archive/staging-scripts-inventory.md`](archive/staging-scripts-inventory.md). **Do not** recreate cutover runners under `public_html/`; extend `ops/` or use `scripts/oneoff/` locally.
 
 ### 6.2 Target tree
 
@@ -209,7 +201,7 @@ Implemented in `includes/ops_bootstrap.php` and work-target profiles (`local-wor
 
 | Rule | Detail |
 |------|--------|
-| **SAPI** | CLI only for ops entry points (same as legacy `staging-scripts/`). |
+| **SAPI** | CLI only for ops entry points. |
 | **Document root** | Set to `site/public_html/` so config resolves like the website. |
 | **Base config** | `site/config/ko2unitydb_config.php` (gitignored). |
 | **Work DB override** | `ini=ladder-work.ini` → `[database]` in `site/config/ladder-work.ini` (see `.example`). |
@@ -225,7 +217,7 @@ Implemented in `includes/ops_bootstrap.php` and work-target profiles (`local-wor
 | Allowed | Forbidden |
 |---------|-----------|
 | Parse `CMD` and `key=value` args | Elo, milestones, aggregates, contract SQL |
-| Enforce bootstrap + DB guards | Large copy-pasted logic from `staging-scripts/` |
+| Enforce bootstrap + DB guards | Shared `ops_bootstrap.php` + work-target profiles |
 | `switch`/map `CMD` → require module + call `k2_ops_*` | Reading `ratedresults` for anything beyond sanity checks |
 | Exit codes / stderr usage messages | New CMD names without a module file |
 
@@ -248,7 +240,7 @@ Implement and prove modules **before** wiring Steve’s entry point.
 | **Conventions** (this §) | Docs only — no PHP |
 | **Schema on work** | `ops/sql/migrations/` + `migrate-work`; refresh via PowerShell — no post-game |
 | **Post-game phase** | One `modules/*.php` + contract subsection + tests on `ko2unity_work` — may include dev runner; may add `dispatch.php` only when the module is real |
-| **Legacy migration** | Move one `staging-scripts/` runner → `ops/modules/` + update platform/README |
+| **Ops module** | One `modules/*.php` + contract subsection + tests on work DB |
 
 ---
 
@@ -297,8 +289,7 @@ Periodic: php ops/dispatch.php CMD=… (scheduler)
 3. `ProcessCompletedGame` module + derived phases per [`website-data-contract.md`](website-data-contract.md) (incremental); prove on work DB before dispatcher.
 4. `dispatch.php` + guards routing to real modules (not empty stubs).
 5. `ReplayChronological` calling same core on work DB.
-6. Migrate legacy `staging-scripts/` → `ops/modules/` as needed.
-7. Cutover: Steve wires prod call; retire duplicate Python authority when parity boring.
+6. Cutover: Steve wires prod call; retire duplicate Python authority when parity boring.
 
 ---
 
@@ -316,5 +307,5 @@ Periodic: php ops/dispatch.php CMD=… (scheduler)
 ## 11. Explicit non-goals (this platform doc)
 
 - Replacing [`website-data-contract.md`](website-data-contract.md) row-level rules before implementation.
-- Moving `staging-scripts/` files in the same slice as first `dispatch.php` commit.
+- Recreating deleted `staging-scripts/` cutover runners under `public_html/`.
 - Committing raw prod SQL dumps to git.

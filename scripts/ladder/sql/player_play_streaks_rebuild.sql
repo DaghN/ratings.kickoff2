@@ -1,6 +1,6 @@
 -- REP-015: player_play_streaks is rebuilt via PHP (establishing-game = MIN id per period).
 -- Run: php scripts/rebuild_player_play_streaks.php (local)
---      php staging-scripts/run_player_play_streaks_rebuild.php (staging)
+--      php scripts/rebuild_player_play_streaks.php (local repair)
 --
 -- Requires player_period_games (REP-003) and SCH-014 schema.
 

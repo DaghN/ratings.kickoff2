@@ -11,7 +11,7 @@
 
 ## Staging verified (Steve — May 2026)
 
-**Done:** SCH-014 + REP-015 (`php staging-scripts/run_player_play_streaks_rebuild.php`).  
+**Done:** SCH-014 + REP-015 (May 2026; former `staging-scripts/run_player_play_streaks_rebuild.php` — **deleted Jun 2026**).  
 **UI synced:** `ranked4.php` (Streaks wing **Days** / **Weeks**), `server2.php` (HoF **Most days in a row** / **Most weeks in a row**), `includes/player_play_streaks.php`, `js/k2-table.js`, `stylesheets/theme.css`.
 
 | Check | Staging `kooldb` |

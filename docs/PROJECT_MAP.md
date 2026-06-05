@@ -18,7 +18,6 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 |------|------|
 | `site/public_html/` | **The website** — PHP pages, `api/`, `stylesheets/`, `js/`, `fonts/` |
 | `site/public_html/ops/` | **Server operations** — `dispatch.php`, modules, SQL mirrors; [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
-| `site/public_html/staging-scripts/` | **Legacy** staging PHP runners — migrate into `ops/` over time |
 | `docs/self-hosted-assets.md` | **CDN audit** — what is self-hosted vs external (fonts, JS, YouTube embed) |
 | `docs/DEAD_SURFACE.md` | **Removed / kept** runtime files and one-shot scripts (trim pass) |
 | `site/config/` | DB config (gitignored) — `ko2unitydb_config.php` |

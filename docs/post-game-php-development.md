@@ -176,7 +176,7 @@ site/public_html/ops/
 |------|--------|
 | **No `dispatch.php` first** | Router only after checkpoint tests pass. |
 | **No business logic in dispatcher** | Parse `CMD`, guards, call `k2_ops_*` only. |
-| **No per-game `.sql` rebuild files** | Live post-game = incremental `mysqli` in PHP. Batch `.sql` under `staging-scripts/` / `scripts/ladder/sql/` = **full-history REP** only. |
+| **No per-game `.sql` rebuild files** | Live post-game = incremental `mysqli` in PHP. Batch `.sql` under `scripts/ladder/sql/` = **full-history REP** only (local repair). |
 | **Schema migrations** | `schema/migrations/` via prepare — not post-game. |
 
 Prepare analogue: [`run_prepare.php`](../site/public_html/ops/run_prepare.php) + modules.

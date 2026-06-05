@@ -35,9 +35,8 @@
 | `config/work-targets.ini` | DB profiles (`staging-work`, …) — copy from `.example`, gitignored |
 | `sql/rebuild/` | Optional REP SQL mirrors |
 
-**Legacy:** [`../staging-scripts/`](../staging-scripts/) — old runners; migrate in named slices only.
-
 ---
+
 
 ## Server deploy (Steve)
 
@@ -55,7 +54,7 @@ Dagh syncs **`site/public_html/`** → server **`public_html/`**. Steve runs all
 
 ## Quick rules
 
-- **New ladder ops code** → `ops/`, not `staging-scripts/`.
+- **All ladder ops code** → `ops/` only (legacy `staging-scripts/` removed Jun 2026).
 - **No business logic** in `dispatch.php`.
 - **Work / sim DB:** `ko2unity_work` (+ `ladder-work.ini`); **never** `ko2unity_baseline` / `kooldb2`.
 - **Dev DB (`ko2unity_db`):** use `--target local-dev` only for intentional verbs (`seed-catalog`, league finalize); not for full `prepare` / `zero-derived`.

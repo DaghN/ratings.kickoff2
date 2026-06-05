@@ -63,7 +63,7 @@ python scripts/oneoff/apply_milestone_catalog_copy_patch.py
 
 - Updates **seed + local DB** (default).
 - `--seed-only` or `--db-only` if you need just one side.
-- **Staging:** upload `staging-data/milestone_catalog_copy_patches.json`, then `php staging-scripts/patch_milestone_catalog_copy.php` (no full TRUNCATE).
+- **Staging/work:** after `apply_milestone_catalog_copy_patch.py`, sync `ops/data/milestones_definitions_seed.json` and run `php ops/run_prepare.php seed-catalog --target staging-work` (no per-row patch runner on server).
 
 **Adding a new rule change:** append a `{ "milestone_key": "…", "rule_short": "…" }` row to the patches file, then run the apply script (and the build script so `milestones-catalog.md` stays in sync).
 

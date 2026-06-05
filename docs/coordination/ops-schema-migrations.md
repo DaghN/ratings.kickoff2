@@ -34,7 +34,7 @@ Numbered schema migrations from [`schema-register.md`](schema-register.md): `CRE
 |----------|----------|
 | REP rebuild SQL (backfill from `ratedresults`) | `scripts/ladder/sql/` (optional future mirror: `ops/sql/rebuild/`) |
 | Milestone catalog seed | `ops/data/milestones_definitions_seed.json` + `seed-catalog` |
-| One-off surgical fixes | `staging-scripts/` archives / `scripts/oneoff/` |
+| One-off surgical fixes | `scripts/oneoff/` (local); ops sim/replay on work/staging |
 
 ---
 

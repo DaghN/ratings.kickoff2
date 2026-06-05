@@ -39,6 +39,10 @@ For DB-backed website features, especially profile, status, activity, leaderboar
 
 Do **not** reject schema, replay, index, aggregate-table, periodic-job, or post-game C++ updates merely because they require Steve coordination or register handoff. In this repo, that coordination is normal project machinery and is available within reason.
 
+### Ladder ops — no `staging-scripts/`
+
+**`site/public_html/staging-scripts/` was removed Jun 2026.** Do not recreate it or “fix bugs” in deleted cutover runners. Server ladder work = **`site/public_html/ops/`** only (`run_prepare.php`, `run_process_game.php`, `run_ops_sim.php`, `dispatch.php`, …). Local batch repair / parity = `scripts/ladder/`, `scripts/work_prepare/`, `scripts/rebuild_website_derived_data_local.ps1` (Mode B, not live path). See [`docs/archive/staging-scripts-inventory.md`](docs/archive/staging-scripts-inventory.md).
+
 Default question before implementing stats: *What stored table should this value live in, and what does `docs/website-data-contract.md` say for rebuild and post-game?* — not "can we compute it on the fly?" Do not create or cite `PG-00x` / `cpp-snippets/`; local/staging = schema + REP rebuild scripts.
 
 Use read-time SQL only when it is clearly cheap (single-row lookup, indexed narrow fetch), infrequent (admin-only, one-off), or the value genuinely cannot be precomputed (depends on request-time parameters that are unbounded).

@@ -1,6 +1,6 @@
 # Milestones staging cutover packet (May 2026)
 
-**Historical runbook** — staging DB was cut over May 2026. **Current paths:** [`staging-scripts-inventory.md`](staging-scripts-inventory.md) · ops `run_prepare.php seed-catalog` · league `run_finalize_league.php` (staging `run_league_awards_rebuild.php` **removed** Jun 2026).
+**Historical runbook** — staging DB was cut over May 2026. CLI paths below used `staging-scripts/` (folder **deleted Jun 2026**). **Current:** [`staging-scripts-inventory.md`](staging-scripts-inventory.md) · ops `run_prepare.php seed-catalog` · `run_finalize_league.php` · `run_ops_sim.php`.
 
 **Operational runbook** for Dagh (WinSCP) + Steve (SSH/`kooldb`). Overview: [`milestones-staging-steve-handoff.md`](milestones-staging-steve-handoff.md). Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_milestones`.
 
