@@ -25,7 +25,7 @@ if ($playerId < 1) {
 }
 
 if ($realm === 'amiga') {
-    include $_SERVER['DOCUMENT_ROOT'] . '/amiga/ko2amiga_config.php';
+    include __DIR__ . '/../../config/ko2amiga_config.php';
 } elseif ($realm === 'online') {
     include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 } else {

@@ -6,8 +6,7 @@ $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
 
 foreach ($pair in @(
-        @('site\config\ko2amiga_config.local.php', 'site\config\ko2amiga_config.local.php.example'),
-        @('site\public_html\amiga\ko2amiga_config.local.php', 'site\public_html\amiga\ko2amiga_config.local.php.example')
+        @('site\config\ko2amiga_config.local.php', 'site\config\ko2amiga_config.local.php.example')
     )) {
     $dest = Join-Path $RepoRoot $pair[0]
     $src = Join-Path $RepoRoot $pair[1]

@@ -114,24 +114,12 @@ function ko2_player_search_connect_online()
  */
 function ko2_player_search_connect_amiga()
 {
-    $candidates = [
-        $_SERVER['DOCUMENT_ROOT'] . '/amiga/ko2amiga_config.local.php',
-        dirname($_SERVER['DOCUMENT_ROOT']) . '/config/ko2amiga_config.local.php',
-    ];
-
-    $configFile = null;
-    foreach ($candidates as $path) {
-        if (is_file($path)) {
-            $configFile = $path;
-            break;
-        }
-    }
-
-    if ($configFile === null) {
+    $configRouter = __DIR__ . '/../../config/ko2amiga_config.php';
+    if (!is_file($configRouter)) {
         return null;
     }
 
-    require $configFile;
+    include $configRouter;
 
     $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
     if ($con->connect_errno) {

@@ -3,7 +3,7 @@
  * Amiga realm DB config loader (committed router).
  *
  * Credentials: ko2amiga_config.local.php (gitignored).
- * Used by site/public_html/amiga/*.php — not the default online site.
+ * Used by site/public_html/amiga/*.php via ../../config/ko2amiga_config.php.
  */
 declare(strict_types=1);
 

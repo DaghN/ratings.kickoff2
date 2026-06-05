@@ -1,9 +1,10 @@
 <?php
 /**
- * Amiga realm DB — local / staging credentials.
+ * Amiga realm DB — local Laragon + staging (sibling of public_html).
  *
  *   copy ko2amiga_config.local.php.example → ko2amiga_config.local.php
  *
+ * Amiga pages load this via ../../config/ko2amiga_config.php.
  * ko2amiga_config.local.php is gitignored — never commit credentials.
  */
 $dbhost = '127.0.0.1';

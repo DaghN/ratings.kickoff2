@@ -24,11 +24,13 @@ python scripts/amiga/discover_access_schema.py
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Browser:
+Browser (local):
 
 - `http://ratingskickoff.test/amiga/rating.php`
 - `http://ratingskickoff.test/amiga/profile.php?id=1`
 - `http://ratingskickoff.test/amiga/games.php?id=1`
+
+Staging: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; deploy [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 
 Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
 

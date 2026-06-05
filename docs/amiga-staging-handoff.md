@@ -1,53 +1,68 @@
-# Amiga staging — Dagh checklist (two steps)
+# Amiga staging — deploy & refresh
 
-## 1. WinSCP
+**Status:** **Live** on `ratings.kickoff2.com` (Jun 2026) — rating, profile, games, cross-realm search.
 
-Sync **`site/public_html/`** → staging **`public_html/`** (your usual button).
+---
 
-That uploads:
+## Layout (same as online site)
 
-- `amiga/rating.php` — leaderboard
-- `amiga/profile.php` — player profile v0
-- `amiga/_import/ko2amiga_db.sql` — database dump (gitignored; export before sync)
-- `amiga/ko2amiga_config.php` + `.local.php.example` (Steve copies example → `.local.php`)
+| Piece | Path on server |
+|--------|----------------|
+| Web root | `public_html/` (WinSCP sync from `site/public_html/`) |
+| Amiga DB config | `config/ko2amiga_config.local.php` — **sibling of `public_html`**, not inside it |
+| Config router (git) | `config/ko2amiga_config.php` |
+| Amiga PHP include | `include __DIR__ . '/../../config/ko2amiga_config.php';` in `public_html/amiga/*.php` |
+| Database | **`ko2amiga_db`** (separate from online `kooldb*`) |
+| SQL dump (gitignored) | `public_html/amiga/_import/ko2amiga_db.sql` |
 
-**Before sync** (only when you changed Amiga data locally):
+Online `kooldb*` is untouched. Credentials mirror staging config1 user/password; only `$database` differs.
+
+---
+
+## Live URLs
+
+- https://ratings.kickoff2.com/amiga/rating.php
+- https://ratings.kickoff2.com/amiga/profile.php?id=1
+- https://ratings.kickoff2.com/amiga/games.php?id=1
+
+---
+
+## Dagh — code or data refresh
+
+1. **Code:** WinSCP sync **`site/public_html/`** → staging **`public_html/`** (usual button).
+2. **Data (only when Amiga DB changed locally):**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-`setup_ko2amiga_db.ps1` runs export automatically at the end.
+Then sync again so `amiga/_import/ko2amiga_db.sql` reaches the server. Ping Steve to re-import.
 
-## 2. WhatsApp Steve
-
-Use the message in this doc — update nothing unless the SQL path changed.
+`setup_ko2amiga_db.ps1` runs export automatically at the end of a full local rebuild.
 
 ---
 
-## WhatsApp text (copy-paste)
+## Steve — one-time setup (done)
+
+1. Create MySQL database **`ko2amiga_db`**.
+2. Import `public_html/amiga/_import/ko2amiga_db.sql`.
+3. Copy `config/ko2amiga_config.local.php.example` → `config/ko2amiga_config.local.php` (same folder as online `ko2unitydb_config.local.php`).
+
+**Do not** put Amiga config under `public_html/amiga/` — pages load `../../config/ko2amiga_config.php` only.
+
+---
+
+## WhatsApp — data refresh only
 
 ```
-Amiga offline ladder — first staging drop.
+Amiga data refresh on staging.
 
-I synced public_html. Two jobs your side:
+I synced public_html including a new dump:
+  public_html/amiga/_import/ko2amiga_db.sql
+Please re-import into ko2amiga_db (usual Heidi/mysql way).
 
-1) Create empty MySQL DB: ko2amiga_db (name flexible if you prefer).
-
-2) Import the dump:
-   public_html/amiga/_import/ko2amiga_db.sql
-   into that database (Heidi / mysql — usual way).
-
-3) Copy public_html/amiga/ko2amiga_config.local.php.example
-   → ko2amiga_config.local.php
-   Same DB user/password as staging config1; $database = ko2amiga_db.
-
-Then open:
-  https://ratings.kickoff2.com/amiga/rating.php
-  https://ratings.kickoff2.com/amiga/profile.php?id=1
-  https://ratings.kickoff2.com/amiga/games.php?id=1
-
-Amiga Elo leaderboard (~27k games, 473 players after name merges). Legacy Access ratings are not shown.
-
-Online kooldb* untouched.
+Pages to spot-check:
+  /amiga/rating.php
+  /amiga/profile.php?id=1
+  /amiga/games.php?id=1
 ```

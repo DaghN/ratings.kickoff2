@@ -219,7 +219,7 @@ Separate database (e.g. `ko2amiga_db`), ground vs derived split:
 | **Player names** | Faithful display; merge spacing/case duplicates at import (`player_names.py` → 474 players) |
 | **Website v1** | Leaderboard + profile v0 shipped; game list + tournament index deferred |
 
-**Implemented:** `scripts/amiga/` (`import_access.py`, `python -m scripts.amiga run`), `ko2amiga_db`, `/amiga/rating.php`, `/amiga/profile.php`. Staging: [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
+**Implemented:** `scripts/amiga/` (`import_access.py`, `python -m scripts.amiga run`), `ko2amiga_db`, `/amiga/rating.php`, profile, games. **Staging live** — [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
 
 **Next (Track B):** tournament standings engine; then `docs/amiga-data-contract.md` when derived tables are needed.
 

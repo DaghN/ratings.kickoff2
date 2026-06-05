@@ -8,7 +8,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 |---------|-------|--------|-----------|-----------------|--------------|----------|-------|
 | Ladder ops platform (`ops/`, PHP post-game) | — | — | — | **Done** Jun 2026 | **Not executed** | — | P0–P7 + `dispatch.php`; Steve `CMD=ProcessCompletedGame` |
 | Local dual website (dev + work URLs) | — | — | — | — | — | — | **Jun 2026** — `ratingskickoff.test` → `ko2unity_db`, `work.ratingskickoff.test` → `ko2unity_work`; config router |
-| Amiga offline realm (A1) | L0 | `scripts/amiga/sql/001_core.sql` | — | — | **Not executed** | — | Access → `ko2amiga_db`; `/amiga/rating.php` + profile v0; Steve imports SQL — [`amiga-staging-handoff.md`](../amiga-staging-handoff.md) |
+| Amiga offline realm (A1) | L0 | `scripts/amiga/sql/001_core.sql` | — | — | **Not executed** | — | **Staging live Jun 2026** — `ko2amiga_db`, rating/profile/games; config `site/config/` — [`amiga-staging-handoff.md`](../amiga-staging-handoff.md) |
 | Profile graph restoration | L0 | — | — | — | — | — | `player/profile.php` profile visuals restored to Activity-style chart frames; server-origin time axes; peak dashed line; comparison date/games toggle; played-days year picker; top-opponents tall chart; winrate-vs-Elo graph removed |
 | Daily active players chart | L2 | SCH-007 | Yes | **Done** | **Not executed** | — | `server_daily_activity`; post-game via PHP ops at live cutover |
 | All-time busiest players chart (Activity) | L0 | — | — | — | — | — | Top 10 by `playertable.NumberGames` (tie → lowest ID); monthly series from `player_period_games`; was monthly top-10 eras |
