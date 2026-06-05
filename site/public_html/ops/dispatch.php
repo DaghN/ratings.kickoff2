@@ -8,6 +8,7 @@
  *   php site/public_html/ops/dispatch.php CMD=Help
  *
  * Steve: ops/docs/steve-live-ops.md · Design: ops/docs/ops-dispatch.md
+ * Registry: includes/ops_dispatch.php
  */
 declare(strict_types=1);
 

@@ -24,8 +24,8 @@ All commands: **`cd public_html`**, space-separated `key=value` args, your **`ta
 ## Setup (once)
 
 1. Dagh uploads **`public_html/`** (incl. `ops/`).
-2. You: `ops/config/work-targets.ini.example` → `work-targets.ini` (credentials + profile).
-3. Smoke: `php ops/dispatch.php CMD=Help`
+2. You: `ops/config/work-targets.ini.example` → `work-targets.ini` — set **real** `host`, `user`, `password`, and `work_database` for this server (do not leave example `127.0.0.1` on production).
+3. Smoke: `php ops/dispatch.php CMD=Help` — prints command list to stderr; exit **64** is normal (not a failure).
 
 ---
 
@@ -45,9 +45,9 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=GAME_ID target=YOUR_TARGET
 
 | Exit | Meaning |
 |------|---------|
-| **0** | OK (or skipped with log — still continue) |
-| **1** | Failed — retry if `NewRatingA` still NULL |
-| **2** | Already processed |
+| **0** | OK — derived committed, or skipped (bad ids / goals — see log) |
+| **1** | Failed — retry after fix if `NewRatingA` still NULL |
+| **2** | Already processed (`NewRatingA` set) — safe duplicate; ignore |
 | **64** | Bad CLI |
 
 **Midnight UTC:**

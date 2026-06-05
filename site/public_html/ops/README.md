@@ -1,5 +1,23 @@
 # `ops/` — server operations (not the public site)
 
+---
+
+## Steve — read this first (do not use this README as your runbook)
+
+**You are in the `ops/` folder.** This file is a **developer map**. Your instructions are in **`ops/docs/`**.
+
+| Step | Open this file |
+|------|----------------|
+| **1 — Start here (prod cutover, full story)** | **[`docs/post-dagh-live-story.md`](docs/post-dagh-live-story.md)** |
+| **2 — After cutover (daily commands)** | [`docs/steve-live-ops.md`](docs/steve-live-ops.md) |
+| **3 — Only if you need exit codes / CMD detail** | [`docs/ops-dispatch.md`](docs/ops-dispatch.md) |
+
+**Before you run anything:** copy `config/work-targets.ini.example` → `config/work-targets.ini` and set the real database host, user, and password for this server.
+
+`dispatch.php` in this folder is the **program you run** — not the guide. The guide is **`docs/post-dagh-live-story.md`**.
+
+---
+
 **Audience:** Dagh, Steve, Cursor agents.
 
 **Deploy:** WinSCP-sync with `site/public_html/` → staging `public_html/`.
@@ -28,7 +46,7 @@
 |------|------|
 | `dispatch.php` | Thin `CMD=` router → modules |
 | `includes/ops_dispatch.php` | CMD registry + handlers (extend here) |
-| `includes/ops_bootstrap.php`, `ops_argv.php` | CLI, DB connect, protected DBs (**planned**) |
+| `includes/ops_bootstrap.php`, `ops_argv.php` | CLI, DB connect, protected DBs, `CMD=` parsing |
 | `includes/day_close_milestones.php`, `league_milestones_sync.php` | UTC day tick writers (`FinalizeUtcDay` only) |
 | `modules/<snake_case>.php` | One primary file per `CMD` (e.g. `process_completed_game.php`) |
 | `sql/migrations/` | Canonical SCH DDL — `migrate-work` applies in filename order; **commit every new `NNN_*.sql`** (not dump-gitignored) |

@@ -115,7 +115,7 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=GAME_ID target=YOUR_TARGET
 
 Use the new row’s **`id`** as `game_id`. PHP reads the row; do not pass scores on the command line.
 
-**Exit codes:** `0` OK (or intentional skip) · `1` failed — retry after fix if `NewRatingA` still NULL · `2` already processed · `64` bad CLI.
+**Exit codes:** `0` OK (committed, or skipped bad row — see log) · `1` failed — retry after fix if `NewRatingA` still NULL · `2` already processed (duplicate dispatch) · `64` bad CLI.
 
 ### 2.3 UTC midnight (cron)
 
@@ -175,14 +175,14 @@ Pre-game Elo for processing comes from **`playertable.Rating`** at dispatch time
 
 Schema reference (git repo): `docs/ratedresults-schema.md`
 
-### Rows PHP will skip (exit 0, no commit)
+### Rows PHP will skip (no commit)
 
-| Reason | Cause |
-|--------|--------|
-| `invalid_idA_idB` | Missing or non-positive ids |
-| `idA_equals_idB` | Same player both sides |
-| `goals_missing` | NULL goals |
-| `already_processed` | `NewRatingA` already set |
+| Reason | Exit | Cause |
+|--------|------|--------|
+| `already_processed` | **2** | `NewRatingA` already set — safe duplicate dispatch |
+| `invalid_idA_idB` | **0** | Missing or non-positive ids |
+| `idA_equals_idB` | **0** | Same player both sides |
+| `goals_missing` | **0** | NULL goals |
 
 ### What one successful `ProcessCompletedGame` updates
 

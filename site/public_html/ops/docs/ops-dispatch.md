@@ -44,8 +44,8 @@ After committed `ratedresults` with ground columns only; **`NewRatingA` NULL**. 
 
 Same code as `run_ops_sim.php` per-game step. **No** C++ post-game on the same row.
 
-- Exit **0** + `skipped=true`: bad ids, missing goals, etc. — no commit.
-- Exit **2**: already processed.
+- Exit **0** + `skipped=true`: bad ids, missing goals, etc. — no commit; log and continue.
+- Exit **2**: `skip_reason=already_processed` (`NewRatingA` already set) — safe duplicate dispatch; no commit.
 
 ### `FinalizeUtcDay`
 
@@ -64,7 +64,7 @@ Same code as `run_ops_sim.php` per-game step. **No** C++ post-game on the same r
 
 Logs: `[dispatch]` prefix.
 
-**Retry (`ProcessCompletedGame`):** yes on **1** if unprocessed; no on **2** or **0**+skip.
+**Retry (`ProcessCompletedGame`):** yes on **1** if unprocessed; no on **2** (duplicate); **0**+other skip = fix data if unexpected, else continue.
 
 ---
 
@@ -74,7 +74,7 @@ Logs: `[dispatch]` prefix.
 |-----|-----|
 | **`FinalizeUtcDay`** | **Steve cron** |
 | `FinalizeLeagueDue` | **Do not** schedule — league finalize only |
-| `Help` | List CMDs |
+| `Help` / `List` | Print usage to stderr — exit **64** (not a success smoke test) |
 
 ---
 
@@ -83,6 +83,7 @@ Logs: `[dispatch]` prefix.
 | Topic | Detail |
 |-------|--------|
 | Registry | `includes/ops_dispatch.php` |
+| Cutover / simul | [`cutover-readiness.md`](../../../../docs/coordination/cutover-readiness.md) — not batch `REP-xxx` on prod |
 | Add CMD | module + registry + steve-live-ops + `periodic-register.md` if scheduled |
 | Mid-simul repair | `run_ops_sim.php` / SQL — not dispatch |
 | Local profiles | `local-work`, `local-dev` in ini — Dagh only |

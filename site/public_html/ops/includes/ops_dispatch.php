@@ -190,10 +190,14 @@ function k2_ops_dispatch_process_completed_game(array $params, string $profileNa
     try {
         $result = k2_ops_process_completed_game($con, $gameId, $dryRun);
         if (!empty($result['skipped'])) {
+            $reason = (string) ($result['skip_reason'] ?? 'unknown');
             k2_ops_dispatch_log(
                 'ProcessCompletedGame game_id=' . $gameId
-                . ' skipped=true reason=' . ($result['skip_reason'] ?? 'unknown')
+                . ' skipped=true reason=' . $reason
             );
+            if ($reason === 'already_processed') {
+                return 2;
+            }
 
             return 0;
         }

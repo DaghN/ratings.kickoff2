@@ -1,5 +1,7 @@
 # Ops docs (WinSCP → `public_html/ops/docs/`)
 
+**Steve:** You want **`post-dagh-live-story.md`** in this folder. If you opened **`../README.md`** one level up, that file told you to come here — start with the table row below.
+
 Edit here; `docs/coordination/` stubs redirect here.
 
 | File | Audience |

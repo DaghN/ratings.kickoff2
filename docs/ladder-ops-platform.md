@@ -151,9 +151,9 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 ## 6. Ops layout & conventions
 
-**Canonical rules live here.** [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) is a short checklist for humans syncing the folder — do not fork naming or bootstrap rules into a second spec.
+**Canonical rules live here.** [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) — folder map for Dagh/agents (Steve is redirected at the top). **Steve runbook start:** [`ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) — do not fork naming or bootstrap rules into a second spec.
 
-**Status (Jun 2026):** **`dispatch.php`** thin router — see [`site/public_html/ops/docs/ops-dispatch.md`](../site/public_html/ops/docs/ops-dispatch.md) (canonical, WinSCP). Steve: [`steve-live-ops.md`](../site/public_html/ops/docs/steve-live-ops.md). Extend via `K2_OPS_DISPATCH_REGISTRY`, not by growing `dispatch.php`.
+**Status (Jun 2026):** **`dispatch.php`** thin router — see [`site/public_html/ops/docs/ops-dispatch.md`](../site/public_html/ops/docs/ops-dispatch.md) (canonical, WinSCP). Steve daily: [`steve-live-ops.md`](../site/public_html/ops/docs/steve-live-ops.md). Extend via `K2_OPS_DISPATCH_REGISTRY`, not by growing `dispatch.php`.
 
 ### 6.1 Ladder ops location
 

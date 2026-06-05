@@ -81,6 +81,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Ops Steve UX + dispatch** — `ops/README.md` “read this first” table; `ops/docs/README` pointer; exit **2** for `already_processed`; steve-live / ops-dispatch / post-dagh aligned; `work-targets.ini` + Help=64 notes. |
 | 2026-06 | **Agent doc alignment pass** — ops migration paths, STATUS_PAGE_DATA `kooldb1`, AGENTS traps, `ladder-engine-plan` → archive; staging `staging-scripts/` confirmed gone local + remote. |
 | 2026-06 | **Ops includes hygiene** — `day_close_milestones.php`, `league_milestones_sync.php` → `ops/includes/` (FinalizeUtcDay writers only). |
 | 2026-06 | **Agent doc pass (tier 1–3)** — `kool-workspace.mdc`, contract, OPERATIONS, playbooks → ops simul vocabulary; `STAGING_REPLAY` archived; day-close surgical SQL → `sql/archive/one-off-2026-06/`. |
