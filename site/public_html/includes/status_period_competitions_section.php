@@ -336,5 +336,4 @@ $podiumMedalHtml = [
 				</div>
 			</div>
 			<p class="k2-status-period-competitions__status" data-competition-status hidden="hidden" aria-live="polite"></p>
-			<div class="k2-status-period-competitions__editorial" data-k2-editorial hidden="hidden" aria-hidden="true"></div>
 		</section>

@@ -34,7 +34,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Ladder ops, `ops/`, Steve boundary, sandbox DBs, dispatcher conventions | `docs/ladder-ops-platform.md` (+ `docs/coordination/database-copies-2026-06.md` if DB roles change) |
 | Work DB prepare, zero derived, simul modes | `docs/work-db-prepare.md` |
 | Status hub panels / league | `docs/STATUS_PAGE_DATA.md` |
-| Player profile layout / v1 build | `docs/player-profile-feast.md`, `docs/profile-build-playbook.md`, `docs/profile-content-candidates.md` |
+| Player profile layout / v1 build | `docs/player-profile-feast.md`, `docs/profile-build-playbook.md` (v1 decisions: `docs/archive/profile-content-candidates.md`) |
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
 | Play & setup / join page | `docs/join-play-setup.md` |

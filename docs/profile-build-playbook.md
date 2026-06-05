@@ -4,11 +4,9 @@
 
 **Production:** `site/public_html/individual1.php` — edit only when merging a winner.
 
-**Multi-agent lab:** Isolated previews on `individual1-profile-lab{N}.php` — read [`profile-lab-agent-handoff.md`](profile-lab-agent-handoff.md) for scaffold rules and copy-paste builder prompts.
+**Multi-agent lab (archived):** Lab PHP may remain for comparison; handoff in [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
 
-**Authority chain:** Dagh’s latest message → this playbook → [`profile-content-candidates.md`](profile-content-candidates.md) (**Profile content v1**) → [`player-profile-feast.md`](player-profile-feast.md) (shipped layout + narrative model) → archive framing/audit.
-
-**Complete build list:** v1 § in `profile-content-candidates.md`. **Do not** re-open the catalog for every slice unless Dagh asks.
+**Authority chain:** Dagh’s latest message → this playbook → [`player-profile-feast.md`](player-profile-feast.md) (shipped layout + v1 summary) → v1 detail in [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md).
 
 ---
 
@@ -17,7 +15,7 @@
 | Order | Doc / file | Why |
 |-------|------------|-----|
 | 1 | This playbook | Placement, recipes, waves, acceptance |
-| 2 | `profile-content-candidates.md` — **Profile content v1** | What to build / reject / defer |
+| 2 | [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md) — **Profile content v1** | What to build / reject / defer |
 | 3 | `player-profile-feast.md` — narrative model + surface rhythm | Story zones, panel vs open bg |
 | 4 | `includes/player_feast_blocks.php` + `player_feast_load.php` | Patterns to extend, not replace |
 | 5 | `docs/website-data-contract.md` | Stored tables for new reads |
@@ -315,7 +313,7 @@ Copy and fill:
 ```
 Profile slice — [Wave N: band name]
 
-Read: docs/profile-build-playbook.md + profile-content-candidates.md (v1) + player-profile-feast.md
+Read: docs/profile-build-playbook.md + archive/profile-content-candidates.md (v1) + player-profile-feast.md
 
 Build: [IDs]
 Band: [B1/B2/B3/B4/B5/C1/C2/C3]
@@ -341,7 +339,7 @@ Done when: acceptance §8 + test id=237 + sparse player
 | G01–G04, search | C2–C3 |
 | M12, X01, X04, X05, X06 | cross-cutting |
 
-**Reject / defer / consider:** see `profile-content-candidates.md` v1 §.
+**Reject / defer / consider:** see `archive/profile-content-candidates.md` v1 §.
 
 ---
 

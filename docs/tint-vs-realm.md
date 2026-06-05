@@ -79,11 +79,8 @@ Each pill sets `--k2-accent: var(--k2-pure-*)`. That drives link-star and nav mi
 
 ### Header placement lab
 
-- [x] `status-realm-lab.php?variant=identity` — mock Status shell with realm beside the wordmark and search isolated on the right.
-- [x] `status-realm-lab.php?variant=strip` — mock Status shell with header search alone and a realm strip above hub nav.
-- **Jun 2026:** Lab page removed; `status-realm-lab.php` **302 → `status.php`**. Production uses `site_header.php` (realm switcher hidden in CSS until Amiga).
-- [x] Identity layout temporarily promoted to shared `site_header.php` as a visual discussion prompt.
-- [ ] Decide whether to keep identity layout for deploy and whether to update search behavior.
+- [x] `status-realm-lab.php` variants retired; URL **302 → `status.php`**
+- [x] Production header: wordmark + player search only (Jun 2026)
 
 ### Deferred
 

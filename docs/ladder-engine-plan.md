@@ -1,5 +1,7 @@
 # Ladder engine & replay — plan and intent
 
+> **Jun 2026:** For **post-game ops, work DB prepare, and staging simul**, use [`ladder-ops-platform.md`](ladder-ops-platform.md) + [`work-db-prepare.md`](work-db-prepare.md). This doc remains the **Python replay / Elo sandbox** intent archive.
+
 **Status:** **P0–P2 done** (May 2026) — local **`ko2unity_db`** + staging **`kooldb`** one-shot replay. **Deferred:** P3–P5 (Amiga/offline, prod C++ alignment). **Commands:** `scripts/ladder/README.md`; staging record: **`docs/STAGING_REPLAY.md`**; logistics: `PROJECT_MEMORY.md`.
 
 **Audience:** Dagh, Steve, and Cursor agents. This doc captures **decisions from design discussion** so we do not re-derive them from chat history.

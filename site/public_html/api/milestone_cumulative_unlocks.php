@@ -29,10 +29,11 @@ if ($def === null) {
 $firstRated = k2_milestone_chart_first_rated_date($con);
 
 $sql = "
-    SELECT `achieved_at`
-    FROM `player_milestones`
-    WHERE `milestone_key` = '$keyEsc'
-    ORDER BY `achieved_at` ASC, `player_id` ASC
+    SELECT pm.`achieved_at`
+    FROM `player_milestones` pm
+    INNER JOIN `playertable` p ON p.ID = pm.`player_id`
+    WHERE pm.`milestone_key` = '$keyEsc'
+    ORDER BY pm.`achieved_at` ASC, pm.`player_id` ASC
 ";
 $events = [];
 $cumulative = 0;

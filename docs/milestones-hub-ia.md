@@ -1,8 +1,8 @@
-# Milestones hub — IA & build plan (WIP)
+# Milestones hub — IA & build plan
 
-**Kick Off 2 ratings site · May 2026**
+**Kick Off 2 ratings site · Jun 2026**
 
-**Status:** **Work in progress — subject to change.** This doc is the sandbox for the server-side Milestones universe. **Committed hub routing** (tab order, Games demotion) lives in [`hub-ia-agreement.md`](hub-ia-agreement.md). Tier bands and profile garden: [`milestones-product-spec.md`](milestones-product-spec.md).
+**Status:** **v0 shipped** in repo (Recent · Catalog · `milestone.php`). **This doc** tracks **future** hub phases (Story, Charts migration, etc.) — subject to change. **Committed hub routing** lives in [`hub-ia-agreement.md`](hub-ia-agreement.md).
 
 **Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones.php?view=catalog`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span). Established rating distribution lives on **Activity** (`server1.php`) only. Activity summary includes **busiest day** (from `server_period_game_totals`); milestone digest panel removed Jun 2026.
 

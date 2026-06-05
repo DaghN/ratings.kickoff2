@@ -24,9 +24,9 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | [staging-work-steve-brief.md](staging-work-steve-brief.md) | Redirect → post-dagh-live-story |
 | [staging-work-steve-handoff.md](staging-work-steve-handoff.md) | Redirect → post-dagh-live-story |
 | [post-dagh-live-story.md](post-dagh-live-story.md) | Redirect (repo index) → `ops/docs/` |
-| [parity-audit-backlog.md](parity-audit-backlog.md) | **Parity audit (closed Jun 2026)** — AUD-001–006 triaged; **AUD-004/005 done** (ops pipeline + staging verify) |
+| [parity-audit-backlog.md](parity-audit-backlog.md) | **Parity audit (closed Jun 2026)** — summary stub; full table in [`../archive/parity-audit-backlog.md`](../archive/parity-audit-backlog.md) |
 | [replay-register.md](replay-register.md) | `*_rebuild.sql` backfills + run log |
-| [post-game-register.md](post-game-register.md) | **Retired** — pointer; prod C++ from contract |
+| [post-game-register.md](post-game-register.md) | **Pointer** — PHP ops cutover; contract = behaviour |
 | [records-post-game-exception.md](records-post-game-exception.md) | Hall of Fame / `generalstatstable` C++ exception only |
 | [periodic-register.md](periodic-register.md) | Scheduled server jobs |
 | [one-off-register.md](one-off-register.md) | Rare scripts (`scripts/oneoff/`) |

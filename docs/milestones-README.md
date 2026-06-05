@@ -96,7 +96,5 @@ Deploy `milestone_garden_links.json` to `staging-data/` on staging. **Rule copy*
 | [`milestones-product-spec.md`](milestones-product-spec.md) | Tier bands, colours, presentation plan |
 | [`milestones-facilitation.md`](milestones-facilitation.md) | Rebuild waves & `source_kind` families |
 | [`milestones-hub-ia.md`](milestones-hub-ia.md) | Hub tab IA (WIP) |
-| [`milestones-tier-curated.md`](milestones-tier-curated.md) | **Archived** — win-streak notes + discard list only |
-| [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) | Phase 1 brainstorm archive |
 
-**Historical coordination:** [`coordination/milestones-staging-cutover-packet.md`](coordination/milestones-staging-cutover-packet.md) — older steps may say **110** keys; current catalog is **112**.
+**Archived (history only):** [`archive/milestones-system-discussion.md`](archive/milestones-system-discussion.md), [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md), [`archive/milestones-tier-curated.md`](archive/milestones-tier-curated.md), staging cutover packet — stubs at [`coordination/milestones-staging-cutover-packet.md`](coordination/milestones-staging-cutover-packet.md).

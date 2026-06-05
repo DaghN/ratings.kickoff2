@@ -12,7 +12,7 @@
 |------|----------|
 | `site/public_html/js/elolist.js` | No `src=` references; table cloak in `theme.css` + `k2-table.js` |
 | `site/public_html/js/status-league-toggle.js` | Status Leagues Phase 1 replaced legacy four-panel stack; no PHP loads it |
-| `site/public_html/status-realm-lab.php` (body) | **302 → `status.php`**; realm decision in production `site_header.php` (switcher hidden until Amiga) |
+| `site/public_html/status-realm-lab.php` (body) | **302 → `status.php`**; realm header lab retired |
 | `theme.css` — `.k2-realm-lab-*`, `.k2-status-league-toggle*` | Only used by removed lab / legacy league UI |
 | `scripts/wire_k2_theme_pages.py` | One-shot theme wiring (May 2026); pages already migrated |
 | `scripts/patch_k2_head.py` | One-shot head patch |

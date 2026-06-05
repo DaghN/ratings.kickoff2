@@ -2,9 +2,9 @@
 
 **Kick Off 2 ratings site · May 2026**
 
-**Status:** **Plan** — direction agreed for Phase 2 definition; **not locked**. Catalog keys, exact Key count (~15–20), league edge cases, and pixel UI remain TBD. Implementation has not started beyond two live DB keys.
+**Status:** **Shipped v0** (May–Jun 2026) — 112 keys, tier bands in seed + catalog, profile garden + `ranked10.php` + hub stub live.
 
-**Related:** [`milestones-project.md`](milestones-project.md) (phases) · [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) (pass 1 brainstorm) · [`milestones-system-discussion.md`](milestones-system-discussion.md) (discovery)
+**Related:** [`milestones-project.md`](milestones-project.md) (phases) · archived brainstorm in [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md)
 
 ---
 
@@ -55,7 +55,7 @@ Chart semantics in [`design-direction.md`](design-direction.md) are **suggestive
 - Public **achiever lists** (newest first) where prominence is warranted
 - Examples of the **profile** of a Key milestone: `dd_merchant_10` (first 10+ goal game), `established_20`, league-defining firsts, etc.
 
-Phase 2 work: **select ~15–20** from the `want` pool in [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) by fit, not by two different checklists.
+Phase 2 work (complete): Key subset selected from archived [`milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md) `want` pool; live keys in seed + [`milestones-catalog.md`](milestones-catalog.md).
 
 ---
 

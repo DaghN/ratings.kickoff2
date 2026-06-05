@@ -13,7 +13,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 
 | Environment | Database name | Notes |
 |-------------|---------------|--------|
-| **Production / joshua** | `kooldb` (typical PHP config name) | **Live writes** from C++ post-game (`docs/ratings_cpp.txt`) + periodic server jobs |
+| **Production / joshua** | Steve live DB | **Live writes** — legacy C++ **today**; **PHP ops** (`ops/dispatch.php`) at cutover |
 | **Staging** | `kooldb` | **Same schema, no live game writes** — not fed by the game server; DB changes via dump, Steve-run replay/SQL, or one-offs. WinSCP only updates PHP. |
 | **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, May 2026; no live writes |
 
@@ -36,7 +36,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | 3 (widest) | Live games | Recent games |
 | 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption) | Leaderboard (active Elo top 20) |
 
-Below west: **Leagues** (Phase **1** shipped in repo) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **Daily tab only:** compact **Games this day** list below the league tables (recent-games style + `game.php` link column); updates with day picker / step nav via `api/status_period_day_games.php`. **Phase 1.5 next** (one-liner, Monday editorial, etc.): [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) · handoff [`docs/coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md).
+Below west: **Leagues** (shipped) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **Daily tab only:** compact **Games this day** list below the league tables (recent-games style + `game.php` link column); updates with day picker / step nav via `api/status_period_day_games.php`. Spec: [`docs/status-period-competitions.md`](status-period-competitions.md).
 
 **Legacy (pre–period competitions):** League stack was **Daily**, **Weekly**, **Monthly**, **Yearly** panels, each with current/previous toggle (`js/status-league-toggle.js`; medals on previous period only). Monday-start weeks.
 
@@ -116,7 +116,7 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | **League stored truth (SCH-008)** | **Local + staging done** (May 2026) — `player_period_league` + REP-007–011 on `kooldb`; Steve verify all parity checks pass (74,870 rated games). Prod schema + post-game from contract pending |
 | Performance pass | **Local + staging DB done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, and `player_period_league`; Status loader ~6.6s → ~51ms locally; legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
 | Period activity prep | **Local + staging done (May 2026)** — SCH-006 + REP-003 week refresh + REP-005 on `kooldb`; prod handoff/method pending Steve |
-| **Leagues (period competitions)** | **Phase 1 shipped** — paired Activity + Points, tab nav, prewarm; **Phase 1.5** next — [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) |
+| **Leagues (period competitions)** | **Shipped** — paired Activity + Points, tab nav, prewarm, Daily games list — [`docs/status-period-competitions.md`](status-period-competitions.md) |
 | v1.5+ | Polling, kickoff2 embed, joshua redirect |
 
 ---

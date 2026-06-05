@@ -2,7 +2,7 @@
 
 **Status:** current hub/navigation contract, May 2026. Phase A hub shell and Status Phase B v1.2 are shipped in repo. This file is no longer a phase diary; use it to answer "what is the hub supposed to be?"
 
-**Related:** `docs/design-direction.md` for visual rules, `docs/STATUS_PAGE_DATA.md` for Status panel data, `docs/tint-vs-realm.md` for tint/realm separation, `docs/milestones-hub-ia.md` (WIP) for Milestones hub build plan.
+**Related:** `docs/design-direction.md` for visual rules, `docs/STATUS_PAGE_DATA.md` for Status panel data, `docs/tint-vs-realm.md` for tint/realm separation, `docs/milestones-hub-ia.md` for **future** hub phases (Story / Charts migration — not required for current v0).
 
 ---
 
@@ -24,7 +24,7 @@ Routing:
 | Status | `status.php` |
 | Activity | `server1.php` |
 | Leaderboards | `ranked7.php` default; wings `ranked1`–`ranked5`, `ranked7`–`ranked10` (see Leaderboards contract) |
-| Milestones | `milestones.php` (stub → full hub per WIP spec) |
+| Milestones | `milestones.php` — **v0 hub** (Recent + Catalog sub-nav); detail `milestone.php?key=` |
 | Hall of Fame | `server2.php` |
 | Play & Setup | `join.php` |
 
@@ -32,7 +32,7 @@ Routing:
 
 Direct legacy URLs remain valid. The hub is page navigation, not a client-side SPA.
 
-Ordering principle: **alive → pulse → rank → shared career → extremes → join.** Status answers whether the scene is alive; Activity shows server pulse and (for now) legacy milestone charts; Leaderboards answers who is better on the ladder; Milestones is the public milestone universe; Hall of Fame preserves single-holder records; **Play & Setup** (last tab) is how to get online.
+Ordering principle: **alive → pulse → rank → shared career → extremes → join.** Status answers whether the scene is alive; Activity shows server pulse charts; Leaderboards answers who is better on the ladder; **Milestones** is the public milestone universe (Recent feed + catalog + per-key achievers); Hall of Fame preserves single-holder records; **Play & Setup** (last tab) is how to get online.
 
 ---
 
@@ -46,7 +46,7 @@ Current Status v1.2 includes:
 - Live games from `resulttable`.
 - Rated-games arc/count summary with link to Activity.
 - Active Elo leaderboard, top 20 active players.
-- **Leagues** (points + activity, day/week/month/year) — **Phase 1 shipped** on Status; **Phase 1.5** polish — [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md).
+- **Leagues** (points + activity, day/week/month/year) — **Phase 1 shipped**; **Phase 1.5 active** — [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) · [`docs/coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md).
 - Recent logins.
 - Recent registrations.
 - Recent rated games (with link to full match log on `server3.php`).
@@ -74,14 +74,13 @@ Still open with Steve / prod:
 
 | Area | Current decision |
 |------|------------------|
-| Header | Wordmark + player search on the right. Online/Amiga realm switcher **hidden** (markup in `site_header.php`, `display: none` in `theme.css`) until Amiga ships. **Play & Setup** is a hub tab (`join.php`), not a header link. No kickoff2.com header link. |
+| Header | Wordmark + player search on the right. **Play & Setup** is a hub tab (`join.php`), not a header link. No kickoff2.com header link. |
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |
 | Player pages | Replace hub tabs with player context tabs: Profile, Games, W/D/L, Goals, DDs, Milestones. |
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
 | Tint picker | Closed by default behind **Tint** disclosure (hub + player nav). |
-| Realm switcher | UI for future Online/Amiga realm; tint and realm are separate. |
 | Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps `window.scrollY` on the next page (one-shot `sessionStorage`). Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
 
 The old hub-nav A/B tuning path is removed; segment track + outline active cell is now the fixed product contract.
@@ -117,15 +116,17 @@ Notes:
 
 ---
 
-## Milestones hub (stub → full)
+## Milestones hub (v0 shipped; future phases)
 
 | Item | Contract |
 |------|----------|
 | Hub tab | `milestones.php` between Leaderboards and Hall of Fame |
-| Build plan | [`docs/milestones-hub-ia.md`](milestones-hub-ia.md) — Recent · Catalog · `milestone.php` detail |
+| **Shipped v0** | **Recent** (tier filter + unlock feed) · **Catalog** (four tier sections) · **`milestone.php?key=`** (Made it + Graphs) |
+| Build plan (future) | [`docs/milestones-hub-ia.md`](milestones-hub-ia.md) — Story sub-nav, Charts migration from Activity, etc. |
 | Player garden | `individual_milestones.php` (per player) |
-| HoF achievers | **Removed** May 2026 — DD list on `milestone.php`; HoF footer links to Milestones hub |
-| Activity | Milestone digest/charts stay on `server1.php` until hub Charts sub-nav; **no Activity slim scheduled in stub slice** |
+| Meta leaderboard | `ranked10.php` (Leaderboards wing) |
+| HoF achievers | **Removed** May 2026 — per-key lists on `milestone.php`; HoF footer links to Milestones hub |
+| Activity | Established-player charts on `server1.php`; milestone digest removed Jun 2026. Further milestone charts may migrate to hub later. |
 
 ---
 
@@ -159,9 +160,8 @@ Future Amiga/photo/media work belongs on the profile/content track, not in hub I
 
 - Production Status DB read and joshua redirect.
 - kickoff2.com embed.
-- Amiga realm routing once data exists.
 - Pretty URLs / rebrand decisions.
-- Full Milestones hub (Home / Story / Charts) — see WIP doc.
+- Full Milestones hub **Story / Charts** sub-navs — see [`milestones-hub-ia.md`](milestones-hub-ia.md) (v0 Recent + Catalog + detail already shipped).
 
 ---
 
@@ -174,7 +174,7 @@ Keep this short; it prevents old chat ideas from reappearing as current plans.
 | Leaderboards as default landing | Status is default. |
 | Hub tab **Games** | Removed May 2026; match log via Status **Games →** and `server3.php`. |
 | Five-tab arc with Games before Leaderboards | Replaced: Status · Activity · Leaderboards · Milestones · HoF. |
-| Milestones hub tab deferred | Tab + stub shipped; full hub WIP. |
+| Milestones hub tab deferred | Tab shipped May 2026; **v0** Recent + Catalog + `milestone.php` live; Story/Charts later. |
 | Single Activity tab | Split into Status + Activity; Activity peaks is a Leaderboards wing. |
 | Live as tab name | Status. |
 | Records before Games | Superseded by Games demotion. |
@@ -183,4 +183,4 @@ Keep this short; it prevents old chat ideas from reappearing as current plans.
 | Full-accent links everywhere | Use `--k2-link-star` / `--k2-link` hierarchy. |
 | Moving server1/server2/server3 bodies into hub panels | Not current plan. |
 
-*Last pruned: May 2026 — hub IA update: Milestones tab, Games off hub.*
+*Last pruned: Jun 2026 — Milestones v0 hub (not stub); Status Leagues spec closed (no Phase 1.5 track).*

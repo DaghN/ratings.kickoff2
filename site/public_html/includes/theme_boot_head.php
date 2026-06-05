@@ -1,6 +1,6 @@
 <?php
 /**
- * Apply saved realm / tint before first paint.
+ * Apply saved tint before first paint.
  * Tint: six-hour schedule (visitor local time) unless user picked a pill (manual).
  * Loaded from includes/k2_head.php in <head> (after theme.css).
  */
@@ -28,11 +28,6 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 		} catch (e) {
 			return null;
 		}
-	}
-
-	var realm = readLocal('k2-realm');
-	if (realm === 'online' || realm === 'amiga') {
-		root.setAttribute('data-realm', realm);
 	}
 
 	if (S) {

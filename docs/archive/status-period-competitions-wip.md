@@ -1,3 +1,9 @@
+# Status — Leagues block (archived WIP)
+
+**Retired Jun 2026** — not a live backlog. Shipped behaviour: [`../status-period-competitions.md`](../status-period-competitions.md). Phase 1.5 agent handoff: [`status-period-competitions-phase-1.5-handoff.md`](status-period-competitions-phase-1.5-handoff.md).
+
+---
+
 # Status — Leagues block (WIP)
 
 UI heading: **Leagues** (paired Activity + Points tables).

@@ -2,8 +2,8 @@
 
 **Status:** Jun 2026 (layout + narrative contract). **Production page:** `individual1.php?id={player}`.  
 **Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
-**Multi-agent lab previews:** [`docs/profile-lab-agent-handoff.md`](profile-lab-agent-handoff.md) — `individual1-profile-lab{N}.php`, do not edit production until merge.  
-**Build list:** [`docs/profile-content-candidates.md`](profile-content-candidates.md) — Profile content v1.  
+**v1 content decisions (archive):** [`docs/archive/profile-content-candidates.md`](archive/profile-content-candidates.md).  
+**Lab handoff (archive):** [`docs/archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md) — optional `individual1-profile-lab{N}.php` previews.  
 **Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md).
 
 ---
@@ -123,7 +123,7 @@ Profile does **not** duplicate those tables.
 | Presence | Last seen, last game, this month/year — “is he still around?” |
 | Career | Games, wins, goals, DDs, opponents + ranks — “what kind of player?” (not full W/D-L grid) |
 
-**Lab note (Jun 2026):** Production uses `pm3efg-duo` side-by-side stat tables. **Profile lab agents** should rethink B1/B2 layout (same facts) — see [`profile-lab-agent-handoff.md`](profile-lab-agent-handoff.md) § B1/B2 and playbook §3.1.
+**Lab note (Jun 2026):** Production uses `pm3efg-duo` side-by-side stat tables. Lab B1/B2 experiments archived — see [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
 | Personal bests | Busiest day / month / year — another story beat |
 | Moments | Longest win streak + trophy games — specific memorable events |
 | Heatmaps | Played days/weeks — visual life of the ladder; streak motivation |
@@ -152,13 +152,13 @@ Profile does **not** duplicate those tables.
 
 **Agent jargon:** **“Fold”** = first screen before scroll (above the fold), **not** a named section. Usually hero ± top of Presence/Career — not “the Presence panel” by definition.
 
-**Authority chain for profile content:** Dagh’s latest intent → [`profile-build-playbook.md`](profile-build-playbook.md) → v1 in [`profile-content-candidates.md`](profile-content-candidates.md) → this § → archive Part B/C.
+**Authority chain for profile content:** Dagh’s latest intent → [`profile-build-playbook.md`](profile-build-playbook.md) → v1 in [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md) → this §.
 
 ---
 
 ## Gradual improvements (backlog)
 
-**Curated v1:** [`profile-content-candidates.md`](profile-content-candidates.md). **How to build:** [`profile-build-playbook.md`](profile-build-playbook.md) (waves §7). Below = short summary.
+**Curated v1:** [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md). **How to build:** [`profile-build-playbook.md`](profile-build-playbook.md) (waves §7). Below = short summary.
 
 ### Ship next (v1)
 

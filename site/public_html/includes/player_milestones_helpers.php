@@ -477,6 +477,14 @@ function k2_milestone_hub_href(?string $key = null, ?string $sort = null): strin
 }
 
 /**
+ * Join used for public holder counts — must match {@see k2_milestone_achievers()} (excludes orphan player_id rows).
+ */
+function k2_milestone_playertable_join_clause(string $pmAlias = 'pm'): string
+{
+    return "INNER JOIN `playertable` p ON p.ID = {$pmAlias}.`player_id`";
+}
+
+/**
  * @return array<string, int>
  */
 function k2_milestone_holder_counts(mysqli $con): array
@@ -485,9 +493,10 @@ function k2_milestone_holder_counts(mysqli $con): array
         return [];
     }
     $counts = [];
+    $join = k2_milestone_playertable_join_clause('pm');
     $result = k2_query_or_public_error(
         $con,
-        'SELECT `milestone_key`, COUNT(*) AS holders FROM `player_milestones` GROUP BY `milestone_key`',
+        "SELECT pm.`milestone_key`, COUNT(*) AS holders FROM `player_milestones` pm {$join} GROUP BY pm.`milestone_key`",
         'milestone holder counts'
     );
     while ($row = mysqli_fetch_assoc($result)) {
@@ -581,9 +590,10 @@ function k2_milestone_definition_hub(mysqli $con, string $milestoneKey): ?array
             COALESCE(h.holders, 0) AS holders
         FROM milestone_definitions d
         LEFT JOIN (
-            SELECT milestone_key, COUNT(*) AS holders
-            FROM player_milestones
-            GROUP BY milestone_key
+            SELECT pm.milestone_key, COUNT(*) AS holders
+            FROM player_milestones pm
+            INNER JOIN playertable p ON p.ID = pm.player_id
+            GROUP BY pm.milestone_key
         ) h ON h.milestone_key = d.milestone_key
         WHERE d.milestone_key = '$keyEsc'
         LIMIT 1
@@ -786,10 +796,10 @@ function k2_milestone_achievers(mysqli $con, string $milestoneKey, string $chart
             r.GoalsB,
             ROW_NUMBER() OVER (ORDER BY pm.achieved_at ASC, pm.player_id ASC) AS unlock_rank
         FROM player_milestones pm
-        INNER JOIN playertable p ON p.ID = pm.player_id
+        " . k2_milestone_playertable_join_clause('pm') . "
         LEFT JOIN ratedresults r ON r.id = pm.source_game_id AND pm.source_kind = 'game'
         WHERE pm.milestone_key = '$keyEsc'
-        ORDER BY pm.achieved_at DESC, unlock_rank ASC
+        ORDER BY pm.achieved_at DESC, unlock_rank DESC
     ";
     $result = k2_query_or_public_error($con, $sql, 'milestone achievers');
     $rows = [];
@@ -1037,13 +1047,14 @@ function k2_milestone_render_achievers_table(array $achievers, array $options = 
 	<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-ms-achievers-table"
 		data-k2-table="sortable"
 		data-k2-anchor-col="2"
+		data-k2-sort-tie-order="match"
 		data-k2-default-sort="2"
 		data-k2-default-direction="desc">
 	<thead>
 		<tr>
 			<th data-k2-sort="number"<?php echo $rankHelp ? ' data-k2-help="1 = earliest unlock for this milestone (fixed). Table sort does not renumber; default view is newest unlock first."' : ''; ?>>#</th>
 			<th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-			<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="When this milestone was unlocked. Click to sort. Same-time unlocks stay in fixed # order (1 before 2).">Unlocked</th>
+			<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="When this milestone was unlocked. Click to sort. Same-time unlocks keep fixed # order (higher # first when sorted newest-first).">Unlocked</th>
 			<th class="k2-table-cell--left" data-k2-sort="text">Event</th>
 			<th class="k2-table-cell--left"<?php echo $linkHelp !== '' ? ' data-k2-help="' . k2_h($linkHelp) . '"' : ''; ?> data-k2-sort="text">Link</th>
 		</tr>

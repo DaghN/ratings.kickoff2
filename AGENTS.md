@@ -44,13 +44,15 @@ Cold start (do **before** coding unless Dagh pasted full context):
 
 ## Migration awareness (background)
 
-Prod ladder data is written by **Steve** (per game + periodic jobs). **Today:** live derived updates are still **C++** post-game. **Agreed target (Jun 2026):** Steve inserts ground truth, then PHP **`ops/dispatch.php`** derived step — see [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) §2; behaviour rules stay in [`website-data-contract.md`](docs/website-data-contract.md). We maintain a **migration backlog** in `docs/coordination/` for when stored truth changes — **not** on every cosmetics session.
+Prod ladder data is written by **Steve** (ground insert per game + periodic jobs). **Reference implementation:** PHP **`ops/dispatch.php`** (`ProcessCompletedGame`, `FinalizeUtcDay`) — see [`ladder-ops-platform.md`](docs/ladder-ops-platform.md) §2. Behaviour rules: [`website-data-contract.md`](docs/website-data-contract.md).
 
-**Performance / stored truth habit:** For any feature that aggregates across historical `ratedresults`, **the default is stored/precomputed truth** — not live SQL. Measured evidence (May 2026): even with only ~75k rows, raw aggregation from `ratedresults` is **~73x slower** than reading a precomputed aggregate table, because the table is wide (27 cols, mediumtext), two-player games require UNION ALL doubling, and DISTINCT counting per group is expensive. Do not assume "the table is small, a live scan is fine."
+**Prod today:** live games still run **legacy C++** derived post-game until Steve cutover — **do not extend C++** or treat “C++ pending” as blocking repo work. Parity target is PHP ops (simul signed off Jun 2026).
 
-**Default question:** *What stored table should this value live in, and what does [`website-data-contract.md`](docs/website-data-contract.md) say for rebuild + post-game?* Local/staging: **schema + REP** only. Do **not** treat missing C++ snippet packs as incomplete features.
+**Performance / stored truth habit:** For DB-backed website work, default to stored/precomputed truth on hot paths (~73× faster than wide `ratedresults` scans at ~75k rows — see May 2026 evidence in prior MEMORY).
 
-Steve handoff for **prod** is schema + REP on server, then C++ merged from the contract at cutover ([`records-post-game-exception.md`](docs/coordination/records-post-game-exception.md) for Hall of Fame records only).
+**Default question:** *What stored table should this value live in, and what does [`website-data-contract.md`](docs/website-data-contract.md) say for rebuild + post-game?* Local/staging: **schema + REP or ops simul**. Do **not** treat missing C++ snippets as incomplete features.
+
+**Steve cutover:** schema + backfill on server, sync `ops/`, wire `dispatch.php` — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Hall of Fame records: [`records-post-game-exception.md`](docs/coordination/records-post-game-exception.md) (parity notes at cutover, not new C++ dev).
 
 **Triggers to think about migration:** new DB columns/tables/indexes, `scripts/ladder/` edits, “store this on profile” vs compute in PHP, medals persistent on `playertable`, etc.
 

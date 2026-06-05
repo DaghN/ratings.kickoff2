@@ -4,7 +4,7 @@
 
 Maps the **112 curated keys** to implementation families: what stored truth to read, how rebuild unlock rows, and post-game expectations. Per-key list: [`milestones-catalog.md`](milestones-catalog.md). Catalog metadata: [`ops/data/milestones_definitions_seed.json`](../site/public_html/ops/data/milestones_definitions_seed.json) → `milestone_definitions` table.
 
-**Status:** All rebuild waves done. **112/112** keys in `player_milestones` (splice: core + exists + streaks + chrono + tail + period + league). Next: Phase 4 UI + live post-game inserts.
+**Status:** All rebuild waves done. **112/112** keys in `player_milestones`. **Forward post-game:** PHP ops P6 — [`post-game-php-development.md`](post-game-php-development.md).
 
 ---
 
@@ -39,7 +39,7 @@ Waves 2–6 writers must set these on insert (chronological first-cross for game
 | **2** | Game count / peak / exists / streaks / period / chrono / tail | 90 | Rebuild SQL + generators | Per rated game — see [`website-data-contract.md`](website-data-contract.md) § `player_milestones` post-game |
 | **lobby** | `entered_arena` | 1 | `playertable.JoinDate` | At account register |
 
-Win/loss **streak** keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`): use **`playertable` longest-streak columns** at first cross — see [`milestones-tier-curated.md`](milestones-tier-curated.md) § Win-streak milestones.
+Win/loss **streak** keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`): use **`playertable` longest-streak columns** at first cross — see [`archive/milestones-tier-curated.md`](archive/milestones-tier-curated.md) § Win-streak milestones.
 
 ---
 

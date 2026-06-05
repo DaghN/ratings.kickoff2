@@ -13,13 +13,13 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Activity recent milestones digest | — | — | — | — | — | **Removed Jun 2026**; busiest day moved to Activity summary (`server_period_game_totals`) |
 | Activity Double Digit Merchant charts | — | — | — | — | — | **Removed Jun 2026** (Activity + APIs/JS deleted; `milestone.php` Graphs = unlock year + cumulative only; rating histograms on `server1.php` for established only) |
 | Activity recent daily chart | L0 | — | — | — | — | Read-time |
-| Activity charts v2 (single module) | — | — | — | — | — | **Shipped** on `server1.php` — `activity-charts-v2.js`; legacy boot files removed Jun 2026; bar grow-up via `createActivityChart` (`responsive` held off until entrance completes); [`activity-charts.md`](../activity-charts.md) |
+| Activity charts v2 (single module) | — | — | — | — | — | **Shipped** on `server1.php` (local + staging) — `activity-charts-v2.js`; legacy boot files removed Jun 2026; [`activity-charts.md`](../activity-charts.md) |
 | Persistent tint preference | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | Local 6h slots; manual override; `k2-tint-schedule.js` |
 | Records two-panel split | L0 | — | — | — | — | Peak cache read path |
 | League honours leaderboard (v1) | L0 | — | — | — | — | `ranked9.php`; reads `playertable` + `player_league_totals`; wing tab in `lb_nav.php` |
 | League period awards (medals DB) | L4 | SCH-009, SCH-010 | REP-012, REP-013 | Pending | — | **Staging done** May 2026 (Steve; counts match local); League honours + slice totals live on `kooldb`; prod schema + REP pending; no cron/PER-003 yet |
-| Status Leagues (Activity + Points) | L0 | — | — | — | — | Phase 1 shipped; **Daily tab** games list (Jun 2026); sort/tie-break via `league_standings.php`; Phase 1.5 [`status-period-competitions-wip.md`](../status-period-competitions-wip.md) |
+| Status Leagues (Activity + Points) | L0 | — | — | — | — | Shipped (May–Jun 2026): paired tables, nav, Daily games list; spec [`status-period-competitions.md`](../status-period-competitions.md) |
 | Status league stack | L4 | SCH-008 | REP-007 | Pending | — | PHP reads `player_period_league` when present; **staging done** May 2026 (Steve verify); prod schema + post-game at cutover |
 | Player games server-side filters/sort | L0 | — | — | — | — | Read-time |
 | Hall of Fame aggregate read path | L0 | — | — | — | — | Peak/period cache with fallbacks |
@@ -41,15 +41,15 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Milestones doc consolidation | L0 | — | — | — | — | [`milestones-README.md`](../milestones-README.md) + generated [`milestones-catalog.md`](../milestones-catalog.md); tier-curated tables archived |
 | Milestone `year_in_heaven` (52 weeks/year) | L2 | SCH-011 | REP-008 splice | **Staging done** May 2026 | — | Catalog **112**, **5** holders on `kooldb` (geo4444/2021); establishing game; add-one playbook local-verify; handoff [`milestones-year-in-heaven-handoff.md`](milestones-year-in-heaven-handoff.md) |
 | Milestone `play_streak_100` (100 days of bliss) | L2 | SCH-011 | REP-008 splice | Pending | — | **Catalog on staging** May 2026; copy patch May 2026 (`patch_milestone_catalog_copy.php`); 0 unlock holders; playbook [`milestones-add-one-playbook.md`](milestones-add-one-playbook.md) |
-| Milestones post-game contract | L2 | SCH-011–013 | REP-008 | Pending | — | `website-data-contract.md` § post-game (M1–M7); **staging REP-008 done**; prod C++ pending Steve |
-| Rated play streaks (day/week) | L4 | SCH-014 | REP-015 | Pending | — | **Staging DB+UI done** May 2026 (Steve): REP-015 verified; `ranked4.php` **Days**/**Weeks**; `server2.php` **Most days/weeks in a row**; prod C++ post-game pending |
+| Milestones post-game contract | L2 | SCH-011–013 | REP-008 | Pending | — | PHP ops P6 + contract §; **staging REP-008 done**; **prod PHP ops cutover** pending Steve |
+| Rated play streaks (day/week) | L4 | SCH-014 | REP-015 | Pending | — | **Staging DB+UI done** May 2026; live writer = **PHP ops** at cutover |
 | Milestones `diversity_merchant` per-game DD | L4 | — | REP-008b | **Staging done** May 2026 | — | Rule fix: per-game DD × 5 opponents (was cumulative 68→**25**); tier accomplished (`key`/`amber`); staging **6615** rows verified; prod pending |
 | Milestones `giant_slayer` active #1 | L2 | — | — | — | — | Rule fix: beat #1 among 365d-active; **staging verify 31** May 2026; contract post-game |
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011, SCH-012, SCH-013 | REP-008, REP-014 | Pending | — | **Staging done** May 2026; catalog **112** keys; prod schema+REP+C++ pending |
 | Stored truth expansion | L4 | SCH-008 | REP-007–011 | Pending | — | Five tables: local + **staging `kooldb` done** May 2026 (Steve SCH-008 + REP-007–011, parity verify pass); prod cutover + contract post-game pending |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | Pending | — | Prod index apply pending Steve |
 | Ladder replay sandbox (K32/1600) | L2 | SCH-002 | REP-001 | Pending | — | Staging replay done |
-| Records ratio leaders from playertable | L2 | SCH-003 | REP-001 note | Pending | — | [`records-post-game-exception.md`](records-post-game-exception.md) for prod C++ |
+| Records ratio leaders from playertable | L2 | SCH-003 | REP-001 note | Pending | — | [`records-post-game-exception.md`](records-post-game-exception.md) — parity at PHP ops cutover |
 | Career peak/nadir (`PeakRating`, `LowestRating`) | L2 | — | REP with post-game | Pending | — | Contract § May 2026: unset until 20 games; establish from `Rating` at game 20; max/min after; legacy C++/replay until cutover |
 
 ### Column legend

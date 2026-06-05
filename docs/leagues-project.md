@@ -30,8 +30,6 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 | 5 | **Milestones merge** | Not started | [`milestones-project.md`](milestones-project.md) |
 | 6 | **Prod** | Not started | Schema + REP; no PER-003 unless requested |
 
-**Parallel:** Status Phase 1.5 polish — **not** blocking Track 1; day games list deferred.
-
 ---
 
 ## Deferred product slots
@@ -49,7 +47,7 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 |-----|------|
 | **This file** | Where we are in the pipeline |
 | [`leagues-rules-spec.md`](leagues-rules-spec.md) | Sort, finality, URLs, timestamps |
-| [`status-period-competitions-wip.md`](status-period-competitions-wip.md) | Status Leagues UI |
+| [`status-period-competitions.md`](status-period-competitions.md) | Status Leagues UI (shipped) |
 | [`website-data-contract.md`](website-data-contract.md) | Table rebuild + post-game + periodic |
 | [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) | §IIIb–IIIc league milestone keys |
 

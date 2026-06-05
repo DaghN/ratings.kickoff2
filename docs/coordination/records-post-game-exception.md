@@ -1,6 +1,6 @@
 # Records post-game exception — `generalstatstable` / Hall of Fame
 
-**Why this file exists:** Server records are not simple aggregate bookkeeping. Staging defects, tie policy, UTC dates, and ratio-column removal need worked examples for Steve’s prod C++ merge. **All other derived tables:** behavior only in [`website-data-contract.md`](../website-data-contract.md) — no per-table C++ snippet packs in repo.
+**Why this file exists:** Server records need worked examples for **cutover parity** (tie policy, UTC dates, ratio-column removal). **All other derived tables:** behaviour in [`website-data-contract.md`](../website-data-contract.md); live writer = **PHP ops** at cutover — not new C++ development.
 
 **Schema:** [schema-register.md](schema-register.md) **SCH-003**
 **Feature:** Hall of Fame (`server2.php`)
@@ -132,7 +132,7 @@ Establishing game = **first** rated game (`MIN(id)`) on the last UTC day / last 
 
 **Not** the same as `LongestWinningStreak` on `playertable` — those are result streaks; these are “played at least one rated game” streaks.
 
-Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_play_streaks`. Staging: [`play-streaks-staging-handoff.md`](play-streaks-staging-handoff.md) — **SCH-014 + REP-015 verified** May 2026 (Steve); HoF rows live on staging `server2.php`; prod C++ post-game still pending.
+Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_play_streaks`. Staging: [`play-streaks-staging-handoff.md`](play-streaks-staging-handoff.md) — **SCH-014 + REP-015 verified** May 2026. Live writer = **PHP ops** at cutover.
 
 ---
 

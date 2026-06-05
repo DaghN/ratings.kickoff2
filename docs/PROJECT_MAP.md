@@ -17,7 +17,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | Path | What |
 |------|------|
 | `site/public_html/` | **The website** — PHP pages, `api/`, `stylesheets/`, `js/`, `fonts/` |
-| `site/public_html/ops/` | **Server operations** — dispatcher (planned), modules, SQL mirrors; [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
+| `site/public_html/ops/` | **Server operations** — `dispatch.php`, modules, SQL mirrors; [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | `site/public_html/staging-scripts/` | **Legacy** staging PHP runners — migrate into `ops/` over time |
 | `docs/self-hosted-assets.md` | **CDN audit** — what is self-hosted vs external (fonts, JS, YouTube embed) |
 | `docs/DEAD_SURFACE.md` | **Removed / kept** runtime files and one-shot scripts (trim pass) |
@@ -82,9 +82,9 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | PHP site + `ops/` | WinSCP sync `site/public_html/` | Prod deploy agreed |
 | Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
 | History replay | `scripts/ladder` | Runs shell on server |
-| After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → planned `ops/dispatch.php` | Steve insert + call (agreed Jun 2026; PHP not in repo yet) |
+| After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → `ops/dispatch.php` (`run_process_game.php`) | Steve insert + call (agreed Jun 2026) |
 
-Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Runtime:** prod **today** = Steve C++; **target** = PHP `ops/dispatch.php` per [`ladder-ops-platform.md`](ladder-ops-platform.md) §2 (not in repo yet). Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md). Pointer: [`coordination/post-game-register.md`](coordination/post-game-register.md).
+Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Cutover runtime:** PHP `ops/dispatch.php` ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2). **Prod today:** legacy C++ until Steve switches — agents implement PHP ops + contract, not C++ extensions. Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
 
 ---
 

@@ -25,11 +25,12 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 
 ### Agent policy (post-game)
 
-- **Local / staging:** Apply schema + run `*_rebuild.sql` ([`scripts/rebuild_website_derived_data_local.ps1`](../scripts/rebuild_website_derived_data_local.ps1)). That is sufficient for PHP to use stored truth.
-- **What to implement:** This document’s **Post-game rule** sections are the behaviour authority — whether the writer is Python replay, a future PHP `ops/modules/` module, or prod C++ until cutover.
-- **Prod live games (today):** Steve merges **C++** from those sections at cutover — not from retired per-table snippet packs.
-- **Prod target (agreed Jun 2026):** After cutover, Steve inserts ground truth, then invokes PHP derived processing per [`ladder-ops-platform.md`](ladder-ops-platform.md) — same rules as here, different runtime. Until then, do not treat missing PHP `dispatch.php` as incomplete contract definition.
-- **Exception:** server records / `generalstatstable` — [`docs/coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
+- **Local / staging:** Schema + REP or ops simul ([`scripts/rebuild_website_derived_data_local.ps1`](../scripts/rebuild_website_derived_data_local.ps1), `ops/run_ops_sim.php`) — sufficient for PHP to use stored truth.
+- **Behaviour authority:** This document’s **Post-game rule** sections — implemented in **PHP ops** (`ops/run_process_game.php`, `ops/dispatch.php`) and Python replay for parity.
+- **Prod live games (today):** Legacy **C++** still runs until Steve cutover — **do not extend C++**; do not block website/staging work on “C++ pending.”
+- **Prod cutover:** Steve inserts ground truth → `dispatch.php CMD=ProcessCompletedGame` (+ `FinalizeUtcDay`) — same rules as here. Guide: [`post-game-php-development.md`](post-game-php-development.md), [`ladder-ops-platform.md`](ladder-ops-platform.md).
+- **Historical C++:** [`ratings_cpp.txt`](ratings_cpp.txt) — read-only comparison only.
+- **Exception:** Hall of Fame / `generalstatstable` — [`records-post-game-exception.md`](coordination/records-post-game-exception.md).
 
 ### Derived data index
 
@@ -45,7 +46,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_league_totals` | SCH-009 | `league_period_awards_rebuild.sql` (REP-012) | **Periodic only**; re-aggregate from awards |
 | `player_league_slice_totals` | SCH-010 | `player_league_slice_totals_rebuild.sql` (REP-013) | **Periodic only**; with career totals after awards |
 | `milestone_definitions` | SCH-011 | `ops/run_prepare.php seed-catalog` or `scripts/oneoff/load_milestone_definitions.py` | Static catalog; reload when seed changes |
-| `player_milestones` | SCH-008, SCH-012–013 | `player_milestones_rebuild.sql` (+ spliced generators) | § `player_milestones` — game / league / lobby; M1–M7 phases |
+| `player_milestones` | SCH-008, SCH-012–013 | `player_milestones_rebuild.sql` (+ spliced generators) | § `player_milestones` — game / league / lobby; PHP ops P6 + day-close |
 | `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
 | `server_period_game_totals` | SCH-008 | `server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
 | `server_period_matchups` | SCH-008 | `server_period_matchups_rebuild.sql` | Canonical pair ×4 period types |
@@ -591,9 +592,10 @@ Period-burst keys (`hot_day`, `marathon_day`, `absurd_day`, `ultra_day_30`, `gri
 
 #### Rating club — rebuild / live writer
 
-| Layer | Status (May 2026) |
+| Layer | Status (Jun 2026) |
 |-------|-------------------|
-| **Prod C++** | Does **not** write `player_milestones` (no `club_*` or other game keys). Milestones on prod UI come from rebuild until M1–M7 live writer ships. |
+| **Prod live (today)** | Legacy C++ does **not** write milestone unlock rows; UI uses batch rebuild data until PHP ops cutover. |
+| **PHP ops (repo)** | `ProcessCompletedGame` + P6 milestone modules — cutover target. |
 | **Rebuild** | `player_milestones_rebuild.sql`: first game where running max of `NewRating` ≥ threshold; also `INNER JOIN playertable … PeakRating >= thresh`. |
 | **Legacy replay verify** | On `ko2unity_db` after replay: holder counts and first-unlock games match first `NewRating >= threshold` for all four keys; `PeakRating` join excludes **no** players. |
 | **When § Career peak and nadir ships** | Remove `PeakRating` join from rebuild SQL. Live post-game must use post-game **`Rating`**, not `PeakRating`, or players with `Rating >= 1700` before game 20 would miss unlocks. |
@@ -684,19 +686,19 @@ League rules: [`leagues-rules-spec.md`](leagues-rules-spec.md). Rebuild: league 
 
 ---
 
-#### Suggested Steve rollout (prod C++)
+#### PHP ops coverage (cutover reference)
 
-| Phase | Scope | Unlocks live on new events |
-|-------|--------|----------------------------|
-| **M1** | `entered_arena` at register; `established_20`, `dd_merchant_10` with full `source_*` | Lobby + 2 headline game keys |
-| **M2** | All **exists** feats (18) | Single-game conditions |
-| **M3** | Nth-game + **rating club** (`Rating`, not `PeakRating`) + `first_*` / career tail keys driven off updated `playertable` | Volume / firsts |
-| **M4** | Streak keys (8) using live streak counters | Streak crosses |
-| **M5** | `player_period_games` + period burst (5) | After bucket increment |
-| **M6** | League block (20) on finalize | PER-003 |
-| **M7** | Remaining chronological + matchup/network keys | Highest complexity |
+Implemented in repo (`ops/run_process_game.php` / `FinalizeUtcDay` where noted). Prod receives these via `dispatch.php` at cutover — **not** via new C++ phases.
 
-Staging/local: **full backfill** via rebuild is enough for UI until each phase ships on prod.
+| Area | Scope | Live trigger |
+|------|--------|--------------|
+| Register | `entered_arena` | `ProcessPlayerRegistered` |
+| Game keys | exists feats, streaks, tail, rating club, chrono (most) | `ProcessCompletedGame` |
+| Period burst | 5 keys | After bucket update on crossing game |
+| League block | ~20 keys | `FinalizeUtcDay` / league finalize |
+| Day-close | `perfect_day`, `nightmare_day` | `FinalizeUtcDay` |
+
+Staging/local: **full backfill** via rebuild + ops simul is enough for UI until prod cutover.
 
 ---
 

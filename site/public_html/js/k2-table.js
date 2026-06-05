@@ -190,7 +190,11 @@
 		return String(value).replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').toLowerCase();
 	}
 
-	/** Secondary key when primary compare ties; always sorts ascending (e.g. fixed unlock #). */
+	/**
+	 * Secondary key when primary compare ties.
+	 * Default: always ascending (e.g. games highlights — lower game ID first on equal scores).
+	 * data-k2-sort-tie-order="match": follow primary sort direction (milestone unlock # on same achieved_at).
+	 */
 	function getSortTieValue(row, columnIndex) {
 		var cell = row.cells[columnIndex];
 		var raw;
@@ -482,7 +486,7 @@
 			var result = compareValues(a, b, sortType);
 			var tieA;
 			var tieB;
-			var tieResult;
+			var tieResult = 0;
 
 			if (result !== 0) {
 				return direction === 'desc' ? -result : result;
@@ -491,7 +495,12 @@
 			tieA = getSortTieValue(a.row, columnIndex);
 			tieB = getSortTieValue(b.row, columnIndex);
 			if (!isNaN(tieA) && !isNaN(tieB) && tieA !== tieB) {
-				return tieA - tieB;
+				tieResult = tieA - tieB;
+				if (table.getAttribute('data-k2-sort-tie-order') === 'match') {
+					return direction === 'desc' ? -tieResult : tieResult;
+				}
+
+				return tieResult;
 			}
 
 			return a.index - b.index;

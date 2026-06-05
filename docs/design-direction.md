@@ -39,7 +39,7 @@ Rules:
 
 - Charts stay realm-neutral and use the chart palette.
 - Links, nav rings, avatar ring, and small UI accents derive from `--k2-accent`.
-- The realm switcher uses segment outline styling, not realm-colored paint.
+- Hub segment track uses outline active cell styling (site tint, not realm colour).
 - Amiga/offline can later add photos/media without forking the design system.
 
 ---
@@ -195,7 +195,7 @@ Never use pixel/bitmap fonts for readable data.
 
 Current shared chrome:
 
-- `includes/site_header.php` for wordmark, player search, realm switcher (**hidden** via `theme.css` until Amiga ships; markup retained). Wordmark **always** street-sign neon (`text-shadow` layers on `.k2-wordmark__main`, px-capped and pleasant rather than foggy — avoid huge `calc()` blurs); **hover** adds a controlled wider shadow (no unbounded bloom).
+- `includes/site_header.php` for wordmark + player search. Wordmark **always** street-sign neon (`text-shadow` layers on `.k2-wordmark__main`, px-capped and pleasant rather than foggy — avoid huge `calc()` blurs); **hover** adds a controlled wider shadow (no unbounded bloom).
 - `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / Hall of Fame / Play & Setup (`server3.php` match log off-hub).
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.
@@ -266,7 +266,6 @@ Legacy cleanup:
 ## Open Decisions
 
 - Exact `<title>` rename timing from old KOOL wording to Kick Off 2 ratings.
-- Realm routing once Amiga/offline data exists.
 - Further profile copy/UX and fun stats block.
 
 ---

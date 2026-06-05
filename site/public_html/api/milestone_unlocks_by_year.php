@@ -46,9 +46,10 @@ $firstYear = (int) gmdate('Y', strtotime($firstRated . ' UTC'));
 $currentYear = (int) gmdate('Y');
 
 $sql = "
-    SELECT YEAR(`achieved_at`) AS yr, COUNT(*) AS unlocks
-    FROM `player_milestones`
-    WHERE `milestone_key` = '$keyEsc'
+    SELECT YEAR(pm.`achieved_at`) AS yr, COUNT(*) AS unlocks
+    FROM `player_milestones` pm
+    INNER JOIN `playertable` p ON p.ID = pm.`player_id`
+    WHERE pm.`milestone_key` = '$keyEsc'
     GROUP BY yr
 ";
 $countsByYear = [];

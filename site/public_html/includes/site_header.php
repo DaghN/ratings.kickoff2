@@ -1,9 +1,8 @@
 <?php
 /**
- * Shared site chrome — wordmark + realm identity, header search.
+ * Shared site chrome — wordmark, header search.
  * Requires <html data-realm="online"> and body.k2-site on themed pages.
- * Tint (UI accent) and realm boot from includes/theme_boot_head.php via k2_head.php.
- * Initial realm button paint comes from html[data-realm]; JS syncs classes/ARIA.
+ * Tint boot from includes/theme_boot_head.php via k2_head.php; accent pills via realm-switch.js.
  */
 ?>
 <header class="k2-site-header">
@@ -13,14 +12,6 @@
 				<span class="k2-wordmark__main">Kick Off 2</span>
 			</a>
 		</h1>
-		<!-- Hidden via theme.css until Amiga realm ships; markup + realm-switch.js kept for later -->
-		<div class="k2-site-header__realm" aria-label="Site realm">
-			<span class="k2-site-header__realm-label">Realm</span>
-			<nav class="k2-realm-switch" aria-label="Realm">
-				<button type="button" class="k2-realm-switch__btn" data-realm="online" aria-pressed="true">Online</button>
-				<button type="button" class="k2-realm-switch__btn" data-realm="amiga" aria-pressed="false">Amiga</button>
-			</nav>
-		</div>
 	</div>
 	<div class="k2-site-header__links k2-site-header__search">
 		<?php $playerSearchInHeader = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_search_bar.php'; ?>

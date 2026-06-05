@@ -37,7 +37,7 @@
 | Question | Canonical answer |
 |----------|------------------|
 | **What** must post-game compute? | [`website-data-contract.md`](website-data-contract.md) post-game §§ — rules for each table/column. |
-| **Who invokes** derived updates after ground insert? | This doc — Steve calls PHP `ops/dispatch.php` `CMD=ProcessCompletedGame` with `game_id` (planned; not in repo yet). |
+| **Who invokes** derived updates after ground insert? | Steve calls PHP `site/public_html/ops/dispatch.php` `CMD=ProcessCompletedGame` with `game_id` (in repo; runner: `run_process_game.php`). |
 | **Prod today** | Live games still use **Steve’s C++** derived post-game until cutover. |
 | **Prod target** | **PHP ops** (`ProcessCompletedGame`) implements contract rules per game; **C++ derived post-game is retired** (not extended with M1–M7). |
 
@@ -62,7 +62,7 @@ php …/ops/dispatch.php   CMD=ProcessCompletedGame   game_id=57216
 
 ### 3.1 Thin dispatcher (interface + light orchestration)
 
-**File (planned):** `site/public_html/ops/dispatch.php`
+**File:** `site/public_html/ops/dispatch.php` (WinSCP with `ops/`)
 
 | Job | Yes | No |
 |-----|-----|-----|

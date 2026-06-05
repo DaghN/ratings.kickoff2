@@ -1,8 +1,8 @@
 # Leagues — rules & data contract (signed decisions)
 
-**Status:** Rules locked for implementation (May 2026). Supersedes informal medal notes in [`status-period-competitions-wip.md`](status-period-competitions-wip.md) for **ordering and persistence**.
+**Status:** Rules locked for implementation (May 2026). Supersedes informal medal notes in archived [`status-period-competitions-wip.md`](archive/status-period-competitions-wip.md) for **ordering and persistence**.
 
-**Related:** [`leagues-project.md`](leagues-project.md) (phase tracker) · [`website-data-contract.md`](website-data-contract.md) (tables, rebuild, periodic job) · [`status-period-competitions-wip.md`](status-period-competitions-wip.md) (Status UI)
+**Related:** [`leagues-project.md`](leagues-project.md) (phase tracker) · [`website-data-contract.md`](website-data-contract.md) (tables, rebuild, periodic job) · [`status-period-competitions.md`](status-period-competitions.md) (Status UI)
 
 ---
 
@@ -164,7 +164,7 @@ Register: **PER-003** in [`coordination/periodic-register.md`](coordination/peri
 ## UI / product (out of scope for this spec)
 
 - Profile “story + eye candy” — placeholder in [`leagues-project.md`](leagues-project.md) only
-- Status Phase 1.5 day games list — not blocking awards work
+- Status Leagues Daily games list — shipped; not blocking awards work
 
 ---
 
