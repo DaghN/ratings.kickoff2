@@ -1,7 +1,7 @@
 <?php
 /**
  * Profile feast data — build $pm from playertable + aggregates.
- * Used by individual1.php (Profile tab).
+ * Used by player/profile.php (Profile tab).
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_profile.php';

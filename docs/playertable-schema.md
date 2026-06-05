@@ -25,7 +25,7 @@ So **`PlayerRank`** defaults to **`9999`** (`NOT NULL DEFAULT 9999`): almost eve
 
 ## Naming note for PHP
 
-MySQL column names use **PascalCase** (e.g. `ID`, `Display`, `PlayerRank`). Some legacy PHP uses lowercase keys depending on fetch mode; `individual1.php` uses `$row['ID']`, `$row['Name']`, etc. Keep case consistent when writing new queries.
+MySQL column names use **PascalCase** (e.g. `ID`, `Display`, `PlayerRank`). Some legacy PHP uses lowercase keys depending on fetch mode; `player/profile.php` uses `$row['ID']`, `$row['Name']`, etc. Keep case consistent when writing new queries.
 
 ---
 
@@ -226,7 +226,7 @@ After **zero-derived** (or partial replay on work), a row may have **`Display = 
 | NULL or 0 (no replay yet) | **0** | **1600** (day-zero in DB) | **`-`** |
 | **> 0** | actual count | actual rating | **0** when DB has NULL for a zero count (post-game often stores zero as NULL — see [`parity-audit-backlog.md`](coordination/parity-audit-backlog.md) AUD-001); ratios **0%** when unset but games started; **`-`** only when undefined (e.g. goal ratio sentinel **-1** on ranked2) |
 
-All **`ranked1.php`–`ranked7.php`** playertable wings use this policy via `k2_fmt_games_played`, `k2_fmt_count`, `k2_fmt_lb_stat`, `k2_fmt_pct_from_ratio`, and `k2_fmt_decimal` (pass **`NumberGames`** as `$games`). **ranked2** draw column and **goal ratio -1** sentinel are documented exceptions.
+All **`leaderboards/peak-rating.php`–`leaderboards/rating.php`** playertable wings use this policy via `k2_fmt_games_played`, `k2_fmt_count`, `k2_fmt_lb_stat`, `k2_fmt_pct_from_ratio`, and `k2_fmt_decimal` (pass **`NumberGames`** as `$games`). **ranked2** draw column and **goal ratio -1** sentinel are documented exceptions.
 
 **Still dash when career started:** Peak / Nadir on **ranked1** (`k2_fmt_peak_rating` / `k2_fmt_nadir_rating` until set); **ranked2** goal ratio **-1** (0 GF and 0 GA); **ranked1** Lowest Culprit when stored as **5000** (unset sentinel).
 

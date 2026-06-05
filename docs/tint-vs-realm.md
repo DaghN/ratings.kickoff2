@@ -92,5 +92,5 @@ Each pill sets `--k2-accent: var(--k2-pure-*)`. That drives link-star and nav mi
 2. **Manual Pitch** — green accent; survives reload within the same six-hour window; reverts to schedule after the boundary.
 3. **Chrome / Holo** — manual preference survives browser restart.
 4. **Online ↔ Amiga** — tint unchanged.
-5. **status.php**, **ranked7.php**, **individual1.php** — player names follow tint.
+5. **status.php**, **leaderboards/rating.php**, **player/profile.php** — player names follow tint.
 6. **Long-open tab** — scheduled tint updates within ~1s of six-hour boundary (no reload).

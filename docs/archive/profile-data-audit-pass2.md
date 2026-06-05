@@ -1,6 +1,6 @@
 # Profile data audit (archived)
 
-> **Superseded May 2026** by shipped `individual1.php` feast layout. Maintainer reference: **`docs/player-profile-feast.md`**. Part A2 below describes the **old** table-heavy profile, not production today.
+> **Superseded May 2026** by shipped `player/profile.php` feast layout. Maintainer reference: **`docs/player-profile-feast.md`**. Part A2 below describes the **old** table-heavy profile, not production today.
 
 Working document for Profile redesign (pass 2 mocks).  
 **Part A** = sources & map. **Part B** = value & story ranking (B1 + B2). **Part C** = feast contract + pass 2 mock briefs (not a locked wireframe).
@@ -26,15 +26,15 @@ Every `individual*.php` page shares:
 
 | Pill | File | Primary source | Grain |
 |------|------|----------------|-------|
-| **Profile** | `individual1.php` | `playertable` + `ratedresults` (lookups) + Chart.js APIs | One player; career + charts |
-| **Games** | `individual3.php` | `ratedresults` (all rows for player, newest first) | One row per rated game |
-| **Wins** | `individual2a.php` | `ratedresults` aggregated per opponent | Opponent × W/D/L counts & ratios |
-| **Goals** | `individual2b.php` | `ratedresults` aggregated per opponent | Opponent × goal stats |
-| **DDs** | `individual2c.php` | `ratedresults` aggregated per opponent | Opponent × DD/CS stats |
+| **Profile** | `player/profile.php` | `playertable` + `ratedresults` (lookups) + Chart.js APIs | One player; career + charts |
+| **Games** | `player/games.php` | `ratedresults` (all rows for player, newest first) | One row per rated game |
+| **Wins** | `player/wdl.php` | `ratedresults` aggregated per opponent | Opponent × W/D/L counts & ratios |
+| **Goals** | `player/goals.php` | `ratedresults` aggregated per opponent | Opponent × goal stats |
+| **DDs** | `player/double-digits.php` | `ratedresults` aggregated per opponent | Opponent × DD/CS stats |
 
 ---
 
-### A2. Production Profile (`individual1.php`) — vertical order today
+### A2. Production Profile (`player/profile.php`) — vertical order today
 
 Actual render order (what users scroll through):
 
@@ -171,19 +171,19 @@ All: `GET`, `realm=online`, `id=<player>`. MariaDB / `ratedresults` (+ `playerta
 
 ### A6. Sibling tabs — column inventory (what Profile should not duplicate)
 
-#### Games (`individual3.php`)
+#### Games (`player/games.php`)
 
 Full **match ledger** (sortable/filterable/paged). Authoritative for “what happened game by game.”
 
-#### Wins (`individual2a.php`) — per opponent
+#### Wins (`player/wdl.php`) — per opponent
 
 Games, Wins, Draws, Losses, Win/Draw/Loss **ratios**.
 
-#### Goals (`individual2b.php`) — per opponent
+#### Goals (`player/goals.php`) — per opponent
 
 Games, GF, GA, averages, ratio, most/least scored/conceded, biggest W/L/D diffs, draw count, biggest/smallest goal sums.
 
-#### DDs (`individual2c.php`) — per opponent
+#### DDs (`player/double-digits.php`) — per opponent
 
 Games, DD, DD conceded, CS, CS conceded, four ratio columns.
 
@@ -598,7 +598,7 @@ Grouped by **impact vs effort**. All truthful on ladder data; Steve (`237`) is t
 | N17 | **Activity heatmap** | 52-week grid, colour = games count | Weekly bucket SQL | Visual “wow”; works on phone |
 | N18 | **Goals per month chart** | GF/GA or total goals by month (new chart) | New API sibling to games/month | Storytelling complement to C2 |
 | N19 | **Rolling win % chart** | 50-game rolling win rate | Window SQL + new small chart | Form over time — not recent avg **rating** |
-| N20 | **Filter link: all games vs Lee** | `individual3.php?opponent=263` (param TBD) | UX only | Makes rivalry actionable |
+| N20 | **Filter link: all games vs Lee** | `player/games.php?opponent=263` (param TBD) | UX only | Makes rivalry actionable |
 | N21 | **Participation sentence** | Template: “[Name] has played [G] rated games across [O] opponents since [year].” | Fields + counts | Cheap narrative glue |
 
 #### Tier P2 — valuable but schema, scope, or maintenance heavier
@@ -894,7 +894,7 @@ Suggested **starting** stack for mocks; permute within zones for pass 2 explorat
 
 ### C4. Pass 2 mock briefs (same checklist, different emphasis)
 
-**May 2026:** Lab mocks A/B/C and portal removed. Working preview: `profile_feast.php` (integrate → `individual1.php` + feast tabs). Archived mocks in git before cleanup (`b8c5a98`).  
+**May 2026:** Lab mocks A/B/C and portal removed. Working preview: `profile_feast.php` (integrate → `player/profile.php` + feast tabs). Archived mocks in git before cleanup (`b8c5a98`).  
 **Content parity** per C1.3; **visual emphasis** differs:
 
 #### Mock A — **The Chronicle** (celebration-forward)
@@ -958,10 +958,10 @@ Suggested **starting** stack for mocks; permute within zones for pass 2 explorat
 
 ### C6. After pass 2 (path to production)
 
-1. Dagh reviews three mocks + prod `individual1.php?id=237` (four tabs).  
+1. Dagh reviews three mocks + prod `player/profile.php?id=237` (four tabs).  
 2. Note steals: layout, emphasis, chart pairing, moment card style.  
 3. Write **C v1** — single reference order + chosen mock hybrid.  
-4. Implement `individual1.php` in slices (CORE → zones → charts → drop legacy rows).  
+4. Implement `player/profile.php` in slices (CORE → zones → charts → drop legacy rows).  
 5. **Achievement system** — separate session (P2); aspirational badges not blocking Profile v1.  
 6. **Offline realm** photos + cross-realm link — separate track.
 

@@ -2,7 +2,7 @@
 
 **Status:** Jun 2026. **Use this doc when implementing** Profile tab content.
 
-**Production:** `site/public_html/individual1.php` — edit only when merging a winner.
+**Production:** `site/public_html/player/profile.php` — edit only when merging a winner.
 
 **Multi-agent lab (archived):** Lab PHP may remain for comparison; handoff in [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
 
@@ -75,7 +75,7 @@ Implement v1 **into bands**. Bands may map to one `pm3d-section` or a subsection
 
 ### Target vertical order (v1 build goal)
 
-Use this as the **story spine** when reordering `individual1.php` render calls:
+Use this as the **story spine** when reordering `player/profile.php` render calls:
 
 ```
 Hero → pills
@@ -204,7 +204,7 @@ Examples without duo tables:
 
 **Use for:** G01–G04 only.
 
-**Reference:** `player_feast_render_charts()`, Activity `server1.php` panels.
+**Reference:** `player_feast_render_charts()`, Activity `activity.php` panels.
 
 | Rule | |
 |------|--|
@@ -218,10 +218,10 @@ Examples without duo tables:
 
 | Target | Pattern |
 |--------|---------|
-| Games vs opponent | `individual3.php` + opponent filter param (implement in Games slice) |
-| Milestone garden | `individual_milestones.php?id=` |
+| Games vs opponent | `player/games.php` + opponent filter param (implement in Games slice) |
+| Milestone garden | `player/milestones.php?id=` |
 | League honours | League wing URL with player context (see `league_standings.php` / honours panel) |
-| Streaks LB | `ranked4.php` when streak is highlight-worthy |
+| Streaks LB | `leaderboards/streaks.php` when streak is highlight-worthy |
 
 ---
 
@@ -256,7 +256,7 @@ Apply on every new module:
 | Matchups: `player_matchup_summary` or existing top-opponents API | |
 | **P05** distinct days: `COUNT(*)` on `player_period_games` where `period_type='day'` — consider caching on `playertable` later for HoF |
 
-Set `time_zone = '+00:00'` on connection (already on `individual1.php`).
+Set `time_zone = '+00:00'` on connection (already on `player/profile.php`).
 
 ---
 
@@ -286,7 +286,7 @@ Answer **yes** before marking done:
 2. **One question per module:** Can you state the single human question each new block answers?
 3. **No hero competition:** New lines don’t repeat rank/rating/games louder than hero?
 4. **Tab respect:** Not rebuilding Games / W-D-L / Goals / DDs / garden tables?
-5. **Test trio:** `individual1.php?id=237` (veteran) · one mid-volume active player · one sparse / &lt;20 games player
+5. **Test trio:** `player/profile.php?id=237` (veteran) · one mid-volume active player · one sparse / &lt;20 games player
 6. **Sparse = optimistic** (X01), not broken layout
 7. **Docs:** Same-turn Part A — MEMORY line + feast spec / this playbook if behaviour changed
 

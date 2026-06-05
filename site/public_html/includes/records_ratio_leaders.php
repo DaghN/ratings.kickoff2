@@ -45,7 +45,7 @@ function records_fetch_ratio_leader(mysqli $con, string $column, string $directi
 }
 
 /**
- * Load all ratio record variables used by server2.php.
+ * Load all ratio record variables used by hall-of-fame.php.
  */
 function records_load_ratio_leaders(mysqli $con): void
 {

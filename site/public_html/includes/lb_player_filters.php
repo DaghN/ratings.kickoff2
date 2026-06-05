@@ -8,6 +8,8 @@
  * Established player threshold (rated games): same as HoF ratio/average eligibility and
  * `established_20` milestone — see docs/ratedresults-schema.md.
  */
+require_once __DIR__ . '/k2_routes.php';
+
 if (!defined('K2_ESTABLISHED_MIN_GAMES')) {
     define('K2_ESTABLISHED_MIN_GAMES', 20);
 }
@@ -114,7 +116,7 @@ function k2_lb_filter_query_string(?array $opts = null): string
 function k2_lb_filter_toggle_href(string $param): string
 {
     if ($param !== 'inactive' && $param !== 'provisional') {
-        return basename($_SERVER['SCRIPT_NAME'] ?? 'ranked7.php');
+        return k2_route('lb-rating');
     }
 
     $opts = k2_lb_filter_opts();
@@ -136,8 +138,8 @@ function k2_lb_filter_toggle_href(string $param): string
 
     $params = array_merge($params, k2_lb_sort_query_params());
 
-    $page = basename($_SERVER['SCRIPT_NAME'] ?? 'ranked7.php');
-    if ($page === 'ranked9.php') {
+    $page = k2_current_page_path() !== '' ? '/' . k2_current_page_path() : k2_route('lb-rating');
+    if (k2_route_is_current('lb-league-honours')) {
         if (!function_exists('k2_lb_league_honours_merge_filter_params')) {
             require_once __DIR__ . '/league_honours_leaderboard.php';
         }

@@ -12,7 +12,7 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 
 | | |
 |--|--|
-| **Done** | Status Leagues UI · rules spec · SCH-009/010 · **League honours proven on `kooldb1`** (`ranked9.php`) · ops simul sign-off |
+| **Done** | Status Leagues UI · rules spec · SCH-009/010 · **League honours proven on `kooldb1`** (`leaderboards/league-honours.php`) · ops simul sign-off |
 | **Next** | Profile league block · **live prod cutover** when Steve ready ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)) |
 | **Not started** | Milestones merge (Track 5) · prod cron |
 
@@ -25,7 +25,7 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 | 0 | **Rules & identity** | **Done** | [`leagues-rules-spec.md`](leagues-rules-spec.md) |
 | 1 | **Stored truth** | **Done local + staging** | SCH-009/010, REP-012/013; ops `run_finalize_league.php` (staging one-shot was `run_league_awards_rebuild.php`) |
 | 2 | **Status integration** | **Partial** | Sort via `league_standings.php`; medals top-3 by rank (matches awards when closed) |
-| 3 | **Career leaderboard** | **v1 shipped** | `ranked9.php` — `player_league_totals` + `player_league_slice_totals` |
+| 3 | **Career leaderboard** | **v1 shipped** | `leaderboards/league-honours.php` — `player_league_totals` + `player_league_slice_totals` |
 | 4 | **Player universe** | Not started | Profile slot TBD — `k2_league_player_slice_totals()` ready |
 | 5 | **Milestones merge** | Not started | [`milestones-project.md`](milestones-project.md) |
 | 6 | **Prod** | Prep done; live not executed | Steve cutover runbook — simul, not batch REP |

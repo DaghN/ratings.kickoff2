@@ -36,7 +36,7 @@ We need **one register**, **two axes**, **one PHP resolver family**, multiple **
 |-------|------------|-------------|
 | `game` | Game | `source_game_id` → `game.php` |
 | `league` | League | `source_league_*` → Status league period page |
-| `player_day_games` | Games | `individual3.php?id=&day=` from `achieved_at` day-close |
+| `player_day_games` | Games | `player/games.php?id=&day=` from `achieved_at` day-close |
 | `none` | *(no link)* | e.g. `entered_arena` |
 
 ### `event_context` values

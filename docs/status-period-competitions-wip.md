@@ -91,7 +91,7 @@ Mobile: single column, **Activity first**, then Points.
 
 - **When:** `Day` tab active only; updates with ←/→ / calendar / lock-step day key.
 - **Where:** Below the two league tables (full width or under Points column — match Status density).
-- **Content:** Chronological or reverse-chronological rows: time optional, **Player A vs Player B**, result/score, links (`individual1.php`, game detail if exists).
+- **Content:** Chronological or reverse-chronological rows: time optional, **Player A vs Player B**, result/score, links (`player/profile.php`, game detail if exists).
 - **Empty:** Align with league empty states; no list when 0 rated games that day.
 - **Performance:** Default habit = narrow query on `ratedresults` by `DATE(Date)` + indexes, or small aggregate/API endpoint; see contract for rebuild/post-game if storing a day game list is justified.
 

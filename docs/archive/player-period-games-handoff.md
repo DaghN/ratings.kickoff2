@@ -27,7 +27,7 @@ Staging `kooldb` has no live game writes, so the goal is schema + one rebuild + 
 | Backfill table | `scripts/ladder/sql/player_period_games_rebuild.sql` |
 | Backfill peak cache | `scripts/ladder/sql/player_peak_period_games_rebuild.sql` |
 | PHP reader | `site/public_html/includes/period_activity_leaderboard_query.php` |
-| Activity Hall of Fame / Records readers | `site/public_html/ranked8.php`, `site/public_html/server2.php` |
+| Activity Hall of Fame / Records readers | `site/public_html/leaderboards/activity-peaks.php`, `site/public_html/hall-of-fame.php` |
 | API | `site/public_html/api/server_period_activity_leaderboard.php` |
 | Preview page | ~~`dev-period-activity.php`~~ — **removed May 2026**; use Status **Leagues** block on `status.php` |
 
@@ -77,8 +77,8 @@ ORDER BY FIELD(period_type, 'day', 'week', 'month', 'year');
 ```text
 /api/server_period_activity_leaderboard.php?period=week&key=2026-05-18&limit=5
 /api/server_period_activity_leaderboard.php?period=month&key=2026-05&limit=5
-/ranked8.php
-/server2.php
+/leaderboards/activity-peaks.php
+/hall-of-fame.php
 `status.php` (Leagues block)
 ```
 

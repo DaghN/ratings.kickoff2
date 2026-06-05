@@ -14,7 +14,7 @@
 ## Staging verified (Steve — May 2026)
 
 **Done:** SCH-014 + REP-015 (May 2026; former `staging-scripts/run_player_play_streaks_rebuild.php` — **deleted Jun 2026**).  
-**UI synced:** `ranked4.php` (Streaks wing **Days** / **Weeks**), `server2.php` (HoF **Most days in a row** / **Most weeks in a row**), `includes/player_play_streaks.php`, `js/k2-table.js`, `stylesheets/theme.css`.
+**UI synced:** `leaderboards/streaks.php` (Streaks wing **Days** / **Weeks**), `hall-of-fame.php` (HoF **Most days in a row** / **Most weeks in a row**), `includes/player_play_streaks.php`, `js/k2-table.js`, `stylesheets/theme.css`.
 
 | Check | Staging `kooldb` |
 |-------|------------------|
@@ -37,8 +37,8 @@ Matches local reference (May 2026). **Prod** schema + C++ post-game still **pend
 | `site/public_html/includes/player_play_streaks.php` | `includes/player_play_streaks.php` |
 | `site/public_html/staging-scripts/_staging_play_streaks_bootstrap.php` | `staging-scripts/_staging_play_streaks_bootstrap.php` |
 | `site/public_html/staging-scripts/run_player_play_streaks_rebuild.php` | `staging-scripts/run_player_play_streaks_rebuild.php` |
-| `site/public_html/ranked4.php` | `ranked4.php` |
-| `site/public_html/server2.php` | `server2.php` |
+| `site/public_html/leaderboards/streaks.php` | `leaderboards/streaks.php` |
+| `site/public_html/hall-of-fame.php` | `hall-of-fame.php` |
 | `site/public_html/js/k2-table.js` | `js/k2-table.js` |
 | `site/public_html/stylesheets/theme.css` | `stylesheets/theme.css` |
 
@@ -99,8 +99,8 @@ FROM generalstatstable WHERE id = 1;
 
 **Browser smoke (after PHP sync):**
 
-- Leaderboards → **Streaks** (`ranked4.php`): **Days** and **Weeks** columns (personal best from `player_play_streaks`).
-- **Hall of Fame** (`server2.php`): **Most days in a row** / **Most weeks in a row** (after “most games in …”, before Most wins).
+- Leaderboards → **Streaks** (`leaderboards/streaks.php`): **Days** and **Weeks** columns (personal best from `player_play_streaks`).
+- **Hall of Fame** (`hall-of-fame.php`): **Most days in a row** / **Most weeks in a row** (after “most games in …”, before Most wins).
 
 ---
 

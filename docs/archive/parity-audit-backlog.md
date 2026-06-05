@@ -57,9 +57,9 @@
 | **Observation** | Sneakus: `GoalsFor`/`GoalsAgainst` = 0 (display OK); `MostGoalsScored`, `BiggestWinDifference`, `BiggestSumOfGoals`, etc. **NULL** (writer `> 0 ? x : null`). Draw column used `NumberDraws != 0` but formatted **`BiggestDrawSum`** (NULL for 0–0) → broken/empty scoreline. **`GoalRatio = -1`** sentinel (0 GF / 0 GA) still **`-`** by design. |
 | **Hypothesis / cause** | First display pass updated `k2_fmt_count` columns but left **`k2_fmt_optional_int`** on “record” columns and legacy draw logic. |
 | **Impact** | Active low-scoring / all-draw players look “empty” on goals leaderboard. |
-| **Options (first look)** | **(a)** Use `k2_fmt_count(…, NumberGames)` on ranked2 record columns; draw: if `NumberDraws > 0`, show `(BiggestDrawSum??0)/2` as `n-n` (match `individual2b.php`). **(b)** Writer: persist 0 for `BiggestDrawSum` when draw sum is 0 (replay). **(c)** Both. |
+| **Options (first look)** | **(a)** Use `k2_fmt_count(…, NumberGames)` on ranked2 record columns; draw: if `NumberDraws > 0`, show `(BiggestDrawSum??0)/2` as `n-n` (match `player/goals.php`). **(b)** Writer: persist 0 for `BiggestDrawSum` when draw sum is 0 (replay). **(c)** Both. |
 | **Open questions** | Same NULL-as-zero pattern on ranked4 optional columns; whether goal ratio **-1** should ever show a numeric value for 0–0 careers. |
-| **Links** | `ranked2.php`; work DB id **579**; `individual2b.php` draw display. |
+| **Links** | `leaderboards/goals.php`; work DB id **579**; `player/goals.php` draw display. |
 | **Resolution** | *(post-audit)* |
 
 ### AUD-003 — ranked5 Victims & Culprits: work vs dev (inverse counts / tie policy)
@@ -67,14 +67,14 @@
 | Field | Content |
 |--------|---------|
 | **Status** | `verified` (initial investigation Jun 2026 — **no suspicious findings**; optional double-check deferred) |
-| **Found** | **ranked5.php** — many work/dev gaps on inverse columns (MGC/BL/MGS/BW victims & culprits), far more than unprocessed tail games. Example: **hanso** (id **302**), same **`NumberGames` = 4391** on both DBs: **MGC Victims** dev **8** vs work **11**; **BL Victims** 11 vs 14; personal **MostGoalsConceded** still **15** but credited opponent differs (dev **GianniT** / game **10686** vs work **kof2** / game **2229**). |
+| **Found** | **leaderboards/victims.php** — many work/dev gaps on inverse columns (MGC/BL/MGS/BW victims & culprits), far more than unprocessed tail games. Example: **hanso** (id **302**), same **`NumberGames` = 4391** on both DBs: **MGC Victims** dev **8** vs work **11**; **BL Victims** 11 vs 14; personal **MostGoalsConceded** still **15** but credited opponent differs (dev **GianniT** / game **10686** vs work **kof2** / game **2229**). |
 | **Observation** | Inverse counts = players whose **current** personal-record pointer names this opponent (`MostGoalsConcededCulpritID`, etc.). **Contract + PHP ops (Jun 2026):** strict **`>`** on personal extremes — on a **tie**, first credited opponent keeps credit; inverse counts move only when margin is **strictly** beaten and credit shifts. **Legacy prod C++ / dev snapshot:** **`>=`** — later opponent can take credit on a tie (`docs/ratings_cpp.txt` ~516–531). Holder diffs for hanso match that story (e.g. **ColonelMcCoy**, **fusionsynth**, **CRASHOVERRIDE** credit hanso on work but another culprit on dev at the **same** MGC margin; **gabry1980** the reverse). Same pattern appears on other names with identical game counts (e.g. **Logos** MGC Victims +7 on work). Site tooltips: `k2_lb_help_victims_wing_tie()` — *“In a tie, the first offender gets the credit.”* |
 | **Hypothesis / cause** | **Expected parity drift** between dev (legacy `>=` semantics) and work (full PHP replay with contract `>`). Not ranked5 display; not explained by a small unprocessed-game tail alone. |
 | **Impact** | Audit noise if work is scored against dev byte-for-byte; Steve/questions on “lost” or “gained” victims. Forward truth = **work + contract**, same stance as other post-game policy deltas. |
 | **Initial read** | **As intended** — implementation matches documented contract; hanso-style deltas are consistent with credit reassignment on tied records, not a rogue simul bug. **Nothing in first pass looked suspicious.** |
 | **Options (first look)** | **(a)** Accept as documented behaviour difference; no change. **(b)** Post-audit **double-check**: trace 1–2 holder flips (e.g. gabry1980 / fusionsynth) through `ratedresults` chronology for tied MGC games. **(c)** Verify inverse-count integrity (e.g. hanso work column **11** vs **10** rows with `MostGoalsConcededCulpritID = 302`). **(d)** Do not force work → dev. |
 | **Open questions** | Whether post-audit spot traces are worth the time; whether any player-level counter/pointer mismatch is systematic or one-off. |
-| **Links** | [`website-data-contract.md`](../website-data-contract.md) § Personal record pointers; [`post-game-contract-vs-oracle-discrepancies.md`](post-game-contract-vs-oracle-discrepancies.md) (P2 **Fixed**); `post_game_player_state.php` ~409–476; `ranked5.php`; `lb_column_help.php` (`k2_lb_help_mgc_victims`, tie line). |
+| **Links** | [`website-data-contract.md`](../website-data-contract.md) § Personal record pointers; [`post-game-contract-vs-oracle-discrepancies.md`](post-game-contract-vs-oracle-discrepancies.md) (P2 **Fixed**); `post_game_player_state.php` ~409–476; `leaderboards/victims.php`; `lb_column_help.php` (`k2_lb_help_mgc_victims`, tie line). |
 | **Resolution** | *(post-audit)* |
 
 ### AUD-004 — **Fundamental gap:** simul ≠ daily ops pipeline (derived data coverage)
@@ -107,10 +107,10 @@
 | **Impact** | Parity noise vs dev; misleading staging demo. |
 | **Options (first look)** | Fix via **AUD-004** orchestration; interim: `run_finalize_league.php rebuild-all --target …` (batch — not target simul semantics). |
 | **Open questions** | None separate from AUD-004. |
-| **Links** | **AUD-004**; `ranked9.php`, `league_honours_leaderboard.php`. |
+| **Links** | **AUD-004**; `leaderboards/league-honours.php`, `league_honours_leaderboard.php`. |
 | **Resolution** | **Done (Jun 2026)** — resolved with **AUD-004**; staging `player_league_award` populated after Mode C simul + verify PASS.
 
-### AUD-006 — `individual3.php` / game rows: unprocessed `ratedresults` (NULL derived)
+### AUD-006 — `player/games.php` / game rows: unprocessed `ratedresults` (NULL derived)
 
 | Field | Content |
 |--------|---------|
@@ -119,8 +119,8 @@
 | **Observation** | **Ground truth** on import: `Date`, names, `GoalsA`/`GoalsB`. **Derived** (post-game): `RatingA/B`, `ExpectedScore*`, `ActualScore`, `Adjustment*`, `NewRating*`, `GoalDifference`, `SumOfGoals` (often NULL until processed). Ops marker: **`NewRatingA IS NULL`** = unprocessed (same as `k2_ops_rated_game_skip_reason`). |
 | **Display policy (implemented)** | If **unprocessed**: show **Win/Draw/Loss**, **F**, **A**, **Diff**, **Sum** from **scoreline (goals)**; **`-`** for **ratings**, **ES**, **adjustment**. If **processed**: unchanged (use stored derived fields). Shared: `k2_rated_game_is_processed()`, `k2_player_game_row.php`, `k2_rated_game_row.php` (`game.php`, highlights compact). |
 | **Impact** | Misleading audit on partial simul; players look like losing streak when Elo not replayed yet. |
-| **Open questions** | Win/draw/loss **filters** on `individual3.php` still SQL-filter on `ActualScore` — unprocessed games may drop out of filtered views; extend WHERE to goal-based logic if needed. Other pages listing `ratedresults`? |
-| **Links** | `individual3.php`; `includes/k2_player_game_row.php`; `includes/k2_rated_game_row.php`; `includes/k2_safety.php`; `process_completed_game.php` (`NewRatingA`). |
+| **Open questions** | Win/draw/loss **filters** on `player/games.php` still SQL-filter on `ActualScore` — unprocessed games may drop out of filtered views; extend WHERE to goal-based logic if needed. Other pages listing `ratedresults`? |
+| **Links** | `player/games.php`; `includes/k2_player_game_row.php`; `includes/k2_rated_game_row.php`; `includes/k2_safety.php`; `process_completed_game.php` (`NewRatingA`). |
 | **Resolution** | *(post-audit)* |
 
 ---

@@ -1,6 +1,6 @@
 <?php
 /**
- * Activity chart panels for server1.php (v2 frames).
+ * Activity chart panels for activity.php (v2 frames).
  * Loaded by activity-charts-v2.js — see docs/activity-charts.md.
  */
 ?>

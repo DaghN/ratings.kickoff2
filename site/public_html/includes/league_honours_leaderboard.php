@@ -52,7 +52,7 @@ function k2_lb_league_honours_href(string $cup, ?string $grain = null, ?array $f
         $params['grain'] = $grain ?? 'day';
     }
 
-    return 'ranked9.php?' . http_build_query($params);
+    return k2_route('lb-league-honours', $params);
 }
 
 /**
@@ -63,7 +63,7 @@ function k2_lb_league_honours_href(string $cup, ?string $grain = null, ?array $f
  */
 function k2_lb_league_honours_merge_filter_params(array $params): array
 {
-    if (basename($_SERVER['SCRIPT_NAME'] ?? '') !== 'ranked9.php') {
+    if (!k2_route_is_current('lb-league-honours')) {
         return $params;
     }
 

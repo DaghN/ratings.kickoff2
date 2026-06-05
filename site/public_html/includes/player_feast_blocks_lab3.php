@@ -36,7 +36,7 @@ function player_feast_rank_badge(?int $rank): string
 
 function player_feast_lab3_games_link(int $playerId, ?int $opponentId = null): string
 {
-    $href = 'individual3.php?id=' . (int) $playerId;
+    $href = 'player/games.php?id=' . (int) $playerId;
     if ($opponentId !== null && $opponentId > 0) {
         $href .= '&amp;opponent=' . (int) $opponentId;
     }
@@ -92,7 +92,7 @@ function player_feast_lab3_render_streak_line(array $pm): void
 		<strong><?php echo number_format($value); ?> <?php echo pm_h($noun); ?><?php echo $value === 1 ? '' : 's'; ?></strong>
 		<em><?php echo $mode === 'current' ? 'current run' : 'personal best'; ?><?php echo $dateLabel !== '' ? ' · ' . pm_h($dateLabel) : ''; ?></em>
 		<?php if ($value >= ($isWeek ? 4 : 7)) { ?>
-		<a href="ranked4.php">Streaks LB</a>
+		<a href="/leaderboards/streaks.php">Streaks LB</a>
 		<?php } ?>
 	</p>
     <?php
@@ -245,9 +245,9 @@ function player_feast_render_honours_lab3(array $pm): void
 		<?php if ($career && (int) $career['podiums'] > 0) { ?>
 		<p><strong><?php echo number_format((int) $career['gold']); ?></strong> gold · <strong><?php echo number_format((int) $career['silver']); ?></strong> silver · <strong><?php echo number_format((int) $career['bronze']); ?></strong> bronze.</p>
 		<p><strong><?php echo number_format((int) $career['wins']); ?></strong> league win<?php echo (int) $career['wins'] === 1 ? '' : 's'; ?> across daily, weekly, monthly, and yearly races.</p>
-		<a class="pm3-lab3-chip" href="ranked9.php?cup=overall">League honours</a>
+		<a class="pm3-lab3-chip" href="/leaderboards/league-honours.php?cup=overall">League honours</a>
 		<?php } ?>
-		<a class="pm3-lab3-chip" href="individual_milestones.php?id=<?php echo (int) $pm['id']; ?>">Milestone garden</a>
+		<a class="pm3-lab3-chip" href="/player/milestones.php?id=<?php echo (int) $pm['id']; ?>">Milestone garden</a>
 	</div>
 </div>
     <?php
@@ -371,11 +371,11 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag"><?php echo pm_h((string) $maxVictim['tag']); ?></span>
 			<h3 class="pm3-moment__label"><?php echo pm_h((string) $maxVictim['label']); ?></h3>
 			<p class="pm3-moment__score">
-				<a href="game.php?id=<?php echo (int) $maxVictim['game_id']; ?>"><?php echo pm_h((string) $maxVictim['score']); ?></a>
+				<a href="/game.php?id=<?php echo (int) $maxVictim['game_id']; ?>"><?php echo pm_h((string) $maxVictim['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h((string) $maxVictim['outcome_class']); ?>"><?php echo pm_h((string) $maxVictim['outcome']); ?></span>
-				· vs <a href="individual1.php?id=<?php echo (int) $maxVictim['opponent_id']; ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
+				· vs <a href="/player/profile.php?id=<?php echo (int) $maxVictim['opponent_id']; ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
 				<?php if ((int) $maxVictim['opponent_rating'] > 0) { ?> · opp <?php echo (int) $maxVictim['opponent_rating']; ?><?php } ?>
 				· <?php echo pm_h((string) $maxVictim['date']); ?>
 			</p>
@@ -387,11 +387,11 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag"><?php echo pm_h($t['tag']); ?></span>
 			<h3 class="pm3-moment__label"><?php echo pm_h($t['label']); ?></h3>
 			<p class="pm3-moment__score">
-				<a href="game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
+				<a href="/game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
-				· vs <a href="individual1.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
+				· vs <a href="/player/profile.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
 				· <?php echo pm_h($t['date']); ?>
 			</p>
 		</article>
@@ -455,7 +455,7 @@ function player_feast_render_charts(int $playerId, array $pm = []): void
         ?>
 <p class="pm3-lab3-rivalry">
 	Most-played opponent:
-	<a href="individual1.php?id=<?php echo (int) $rival['opponent_id']; ?>"><?php echo pm_h((string) $rival['opponent_name']); ?></a>
+	<a href="/player/profile.php?id=<?php echo (int) $rival['opponent_id']; ?>"><?php echo pm_h((string) $rival['opponent_name']); ?></a>
 	— <strong><?php echo number_format((int) $rival['wins']); ?></strong>W
 	· <strong><?php echo number_format((int) $rival['draws']); ?></strong>D
 	· <strong><?php echo number_format((int) $rival['losses']); ?></strong>L

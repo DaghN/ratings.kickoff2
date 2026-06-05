@@ -1,6 +1,6 @@
 # Profile lab — multi-agent handoff
 
-**Status:** Jun 2026. **Role:** Feeder agent prepares **builder agents** who implement Profile **content v1** on isolated lab URLs. Production `individual1.php` stays untouched until Dagh merges a winner.
+**Status:** Jun 2026. **Role:** Feeder agent prepares **builder agents** who implement Profile **content v1** on isolated lab URLs. Production `player/profile.php` stays untouched until Dagh merges a winner.
 
 **Dagh:** Copy one **Builder prompt** § below into a new Cursor chat per agent. Replace `{N}` with the agent number (1, 2, 3, …).
 
@@ -12,7 +12,7 @@
 
 | Benefit | Why |
 |---------|-----|
-| Production safe | `individual1.php` and shared blocks unchanged |
+| Production safe | `player/profile.php` and shared blocks unchanged |
 | Side-by-side compare | Open `individual1-profile-lab1.php?id=237` vs `lab2` vs production |
 | Same brief, different craft | Tests execution quality (cards, order, copy), not re-negotiating strategy |
 | Playbook already locks v1 | Builders don’t re-litigate the catalog |
@@ -50,7 +50,7 @@
 
 | Asset | Production (do not edit) | Agent lab copy |
 |-------|---------------------------|----------------|
-| Page URL | `individual1.php` | `individual1-profile-lab{N}.php` |
+| Page URL | `player/profile.php` | `individual1-profile-lab{N}.php` |
 | Blocks | `includes/player_feast_blocks.php` | `includes/player_feast_blocks_lab{N}.php` |
 | Load | `includes/player_feast_load.php` | `includes/player_feast_load_lab{N}.php` (fork when adding fields) |
 | CSS (optional) | shared feast CSS | `stylesheets/player-feast-lab{N}.css` or `body.player-feast-body--lab{N}` scoping |
@@ -65,13 +65,13 @@
 
 Before v1 content, create isolated lab files:
 
-1. Copy `site/public_html/individual1.php` → `individual1-profile-lab{N}.php`.
+1. Copy `site/public_html/player/profile.php` → `individual1-profile-lab{N}.php`.
 2. Copy `includes/player_feast_blocks.php` → `includes/player_feast_blocks_lab{N}.php`.
 3. In the lab page: `require` lab load/blocks paths; call the same render functions (defined in your lab blocks file).
 4. Add a visible banner at top of feast body, e.g.  
    `Profile lab preview — Agent {N} — not production`  
    (use `pm3-muted` or a small `k2-lab-banner` class; do not use error styling).
-5. Verify: `individual1-profile-lab{N}.php?id=237` renders; production `individual1.php?id=237` unchanged in git diff for blocks/load (only new files + lab page).
+5. Verify: `individual1-profile-lab{N}.php?id=237` renders; production `player/profile.php?id=237` unchanged in git diff for blocks/load (only new files + lab page).
 
 ---
 
@@ -105,7 +105,7 @@ Production ships **Presence + Career** as one side-by-side duo (`pm3efg-duo`) wi
 
 **Lab agents should propose a fresher B1/B2** (Chronicle tone, not spreadsheet). Copying `player_feast_render_presence_career_duo()` verbatim is a valid fallback, not the goal.
 
-**Production merge** (`individual1.php`) waits until Dagh picks a winner — lab-only layout experiments stay in `player_feast_blocks_lab{N}.php`.
+**Production merge** (`player/profile.php`) waits until Dagh picks a winner — lab-only layout experiments stay in `player_feast_blocks_lab{N}.php`.
 
 **Isolation unchanged:** work only in your `lab{N}` files; do not read or edit other agents’ lab paths or production blocks.
 
@@ -145,7 +145,7 @@ Read first (in order):
 4. docs/player-profile-feast.md — narrative model + surface rhythm
 
 Task:
-0. Scaffold lab files per handoff § (individual1-profile-lab1.php, player_feast_blocks_lab1.php, player_feast_load_lab1.php as needed). Do NOT edit production individual1.php or player_feast_blocks.php.
+0. Scaffold lab files per handoff § (individual1-profile-lab1.php, player_feast_blocks_lab1.php, player_feast_load_lab1.php as needed). Do NOT edit production player/profile.php or player_feast_blocks.php.
 1. Implement full Profile content v1 on your lab page per playbook (placement charter, module recipes, display rules).
 2. Match the quality bar of existing Moments cards — story-driven, not spreadsheet.
 3. Test: id=237 (Steve), one mid-volume player, one sparse player.
@@ -168,7 +168,7 @@ Read first (in order):
 Do NOT read or copy Agent 1’s lab files (player_feast_blocks_lab1.php, individual1-profile-lab1.php). Work only in lab2 paths.
 
 Task:
-0. Scaffold: individual1-profile-lab2.php, player_feast_blocks_lab2.php, player_feast_load_lab2.php as needed. Do not edit production individual1.php or player_feast_blocks.php.
+0. Scaffold: individual1-profile-lab2.php, player_feast_blocks_lab2.php, player_feast_load_lab2.php as needed. Do not edit production player/profile.php or player_feast_blocks.php.
 1. Implement full Profile content v1 on your lab page — same scope as Agent 1, your own layout/copy/craft choices within playbook rules.
 2. Prioritize Chronicle tone: celebration and memory before analyst charts.
 3. Test id=237 + sparse player.
@@ -191,7 +191,7 @@ Do NOT read or copy other agents’ lab files. Use lab3 paths only.
 Primary goal: a **complete, shippable** Profile content v1 lab page — not a partial prototype or gimmick layout. Layout choices (B1/B2, Honours band, scroll order) should **elevate** the full build, not replace building every v1 module.
 
 Task:
-0. Scaffold: individual1-profile-lab3.php, player_feast_blocks_lab3.php, player_feast_load_lab3.php as needed. Do NOT edit production individual1.php or player_feast_blocks.php.
+0. Scaffold: individual1-profile-lab3.php, player_feast_blocks_lab3.php, player_feast_load_lab3.php as needed. Do NOT edit production player/profile.php or player_feast_blocks.php.
 1. Implement **every** Profile content v1 item per handoff § Builder scope and playbook §3–4 (placement charter, module recipes, display rules). Tick v1 IDs as you go; document any intentional skip.
 2. **Rethink B1/B2 (Presence + Career):** all v1 facts, fresh presentation — production `pm3efg-duo` tables are reference only. Prefer Chronicle tone: readable at a glance, not spreadsheet.
 3. **Layout direction (polish, not stunt):** combine milestone + league into one **Honours** band (B3); follow playbook target spine (Hero → B1 → B2 → B3 → B5 → B4 → C). B4 vs B5 order is your call per playbook §3 if it improves story — document why.
@@ -218,7 +218,7 @@ Do NOT read or copy other agents’ lab files (lab1, lab2, lab3, lab5). Work onl
 This brief overlaps Agent 1–2 on purpose — Dagh is comparing **models**, not different specs. Your independent craft matters.
 
 Task:
-0. Scaffold: individual1-profile-lab4.php, player_feast_blocks_lab4.php, player_feast_load_lab4.php as needed. Do NOT edit production individual1.php or player_feast_blocks.php.
+0. Scaffold: individual1-profile-lab4.php, player_feast_blocks_lab4.php, player_feast_load_lab4.php as needed. Do NOT edit production player/profile.php or player_feast_blocks.php.
 1. Implement full Profile content v1 per playbook (placement charter, module recipes, display rules).
 2. **Rethink B1/B2 (Presence + Career):** deliver all v1 facts from handoff § B1/B2, but do **not** copy the production `pm3efg-duo` stat tables by default. Prefer story-led layout — split sections, tickers, tiles, chips, or open background. Document what you tried.
 3. Match the quality bar of existing Moments cards — celebration before analyst charts.
@@ -244,7 +244,7 @@ Do NOT read or copy other agents’ lab files (lab1–lab4). Work only in lab5 p
 Same scope as Agent 4 — overlap is intentional; Dagh compares **models**, not prompt variants.
 
 Task:
-0. Scaffold: individual1-profile-lab5.php, player_feast_blocks_lab5.php, player_feast_load_lab5.php as needed. Do NOT edit production individual1.php or player_feast_blocks.php.
+0. Scaffold: individual1-profile-lab5.php, player_feast_blocks_lab5.php, player_feast_load_lab5.php as needed. Do NOT edit production player/profile.php or player_feast_blocks.php.
 1. Implement full Profile content v1 per playbook (placement charter, module recipes, display rules).
 2. **Rethink B1/B2 (Presence + Career):** all v1 pulse + character facts, fresh presentation — production duo tables are reference only (playbook §3.1, §4.2b). Aim for Chronicle tone: readable at a glance, not a spreadsheet.
 3. Honours (B3), Moments, and rivalry line (M09) should feel as polished as B1/B2 — not an afterthought.
@@ -263,7 +263,7 @@ You are Profile lab builder Agent {N}.
 
 Read: docs/profile-lab-agent-handoff.md → profile-build-playbook.md → profile-content-candidates.md (v1) → player-profile-feast.md
 
-Do not read other agents’ lab files. Scaffold individual1-profile-lab{N}.php + player_feast_blocks_lab{N}.php (+ load if needed). Do not edit production individual1.php or player_feast_blocks.php.
+Do not read other agents’ lab files. Scaffold individual1-profile-lab{N}.php + player_feast_blocks_lab{N}.php (+ load if needed). Do not edit production player/profile.php or player_feast_blocks.php.
 
 Implement full Profile content v1 on your lab page per playbook. **Rethink B1/B2 presentation** (handoff § B1/B2) — facts required, `pm3efg-duo` tables not. Post deliverables per handoff §.
 ```
@@ -280,7 +280,7 @@ If Dagh prefers **one** lab URL assembled in waves (not A/B agents), use **one**
 
 Dagh compares:
 
-- `individual1.php?id=237` (production)  
+- `player/profile.php?id=237` (production)  
 - `individual1-profile-lab1.php?id=237` … through **lab5** (and any later labs)
 
 Pick winners per module or one overall spine → merge into production in a **separate** merge chat (not automatic).

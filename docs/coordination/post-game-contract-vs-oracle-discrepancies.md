@@ -91,4 +91,4 @@ Use this list for manual review before prod cutover. Do not treat “Python pass
 2. Spot-check players with `NumberGames` 19→21 for peak/nadir sentinels vs values.
 3. Spot-check tied BL/BW margins: holder + inverse counts unchanged on tie.
 4. Regenerate milestone rebuild SQL if `club_*` / league copy depends on peak-at-20 data.
-5. Update `ranked5.php` tooltips when personal `>` ships to prod (contract § Personal record pointers).
+5. Update `leaderboards/victims.php` tooltips when personal `>` ships to prod (contract § Personal record pointers).

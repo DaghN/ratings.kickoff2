@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared rated-game table row (game.php, Games tab / server3.php).
+ * Shared rated-game table row (game.php, Games tab / games.php).
  *
  * @see docs/k2-table-and-games-plan.md Phase 2
  */
@@ -80,20 +80,20 @@ function k2_rated_game_winner_html(array $row): string
 
     if (!k2_rated_game_is_processed($row)) {
         if (k2_rated_game_is_a_win_from_goals($game)) {
-            return '<a href="individual1.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
+            return '<a href="/player/profile.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
         }
         if (k2_rated_game_is_b_win_from_goals($game)) {
-            return '<a href="individual1.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
+            return '<a href="/player/profile.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
         }
 
         return k2_fmt_dash();
     }
 
     if (k2_rated_game_is_a_win($game)) {
-        return '<a href="individual1.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
+        return '<a href="/player/profile.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
     }
     if (k2_rated_game_is_b_win($game)) {
-        return '<a href="individual1.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
+        return '<a href="/player/profile.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
     }
 
     return 'Draw';
@@ -141,7 +141,7 @@ function k2_rated_game_id_html(array $game, string $idMode = 'link'): string
         return (string) $id;
     }
 
-    return '<a href="game.php?id=' . $id . '">' . $id . '</a>';
+    return '<a href="/game.php?id=' . $id . '">' . $id . '</a>';
 }
 
 /**
@@ -168,8 +168,8 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
     $idCell = k2_rated_game_id_html($game, $idMode);
     $dateCell = k2_rated_game_date_html($game, $dateFormat);
     $dateSortValue = strtotime($game['Date']) ?: 0;
-    $teamA = '<a href="individual1.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
-    $teamB = '<a href="individual1.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
+    $teamA = '<a href="/player/profile.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
+    $teamB = '<a href="/player/profile.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
     $winnerCell = k2_rated_game_winner_html($row);
     $goalDiff = $processed
         ? (int) $game['GoalDifference']
@@ -219,8 +219,8 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     $idCell = k2_rated_game_id_html($game, $idMode);
     $dateCell = k2_rated_game_date_html($game, $dateFormat);
     $dateSortValue = strtotime($game['Date']) ?: 0;
-    $teamA = '<a href="individual1.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
-    $teamB = '<a href="individual1.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
+    $teamA = '<a href="/player/profile.php?id=' . $idA . '">' . k2_rated_game_h($nameA) . '</a>';
+    $teamB = '<a href="/player/profile.php?id=' . $idB . '">' . k2_rated_game_h($nameB) . '</a>';
     $winnerCell = k2_rated_game_winner_html($row);
     $goalDiff = $processed
         ? (int) $game['GoalDifference']

@@ -14,7 +14,7 @@
  *   B5     Played days → Played weeks
  *   C1/C2  Rivalry line (M09) → charts → opponent search
  *
- * Production individual1.php / player_feast_blocks.php are untouched.
+ * Production player/profile.php / player_feast_blocks.php are untouched.
  */
 
 /* ------------------------------------------------------------------ *
@@ -445,7 +445,7 @@ function player_feast_render_honours(array $pm): void
 			<li><strong><?php echo (int) $ms['last12']; ?></strong> unlocked in the last 12 months</li>
             <?php } ?>
 		</ul>
-		<p class="k2-lab2-honours__link"><a href="individual_milestones.php?id=<?php echo $playerId; ?>">Milestone garden →</a></p>
+		<p class="k2-lab2-honours__link"><a href="/player/milestones.php?id=<?php echo $playerId; ?>">Milestone garden →</a></p>
 	</div>
     <?php } ?>
     <?php if ($hasLeague) {
@@ -477,7 +477,7 @@ function player_feast_render_honours(array $pm): void
 			<li>Strongest in <strong><?php echo pm_h((string) $lg['top_slice']['label']); ?></strong> <span class="k2-lab2-muted">(<?php echo (int) $lg['top_slice']['gold']; ?> gold)</span></li>
             <?php } ?>
 		</ul>
-		<p class="k2-lab2-honours__link"><a href="status.php">League standings →</a></p>
+		<p class="k2-lab2-honours__link"><a href="/status.php">League standings →</a></p>
 	</div>
     <?php } ?>
 </div>
@@ -543,11 +543,11 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag">Giant-killing</span>
 			<h3 class="pm3-moment__label">Best scalp<?php echo (isset($maxVictim['victim_rating']) && (int) $maxVictim['victim_rating'] > 0) ? ' · ' . (int) $maxVictim['victim_rating'] . ' Elo' : ''; ?></h3>
 			<p class="pm3-moment__score">
-				<a href="game.php?id=<?php echo (int) $maxVictim['game_id']; ?>"><?php echo pm_h((string) $maxVictim['score']); ?></a>
+				<a href="/game.php?id=<?php echo (int) $maxVictim['game_id']; ?>"><?php echo pm_h((string) $maxVictim['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h((string) $maxVictim['outcome_class']); ?>"><?php echo pm_h((string) $maxVictim['outcome']); ?></span>
-				· vs <a href="individual1.php?id=<?php echo (int) $maxVictim['opponent_id']; ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
+				· vs <a href="/player/profile.php?id=<?php echo (int) $maxVictim['opponent_id']; ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
 				· <?php echo pm_h((string) $maxVictim['date']); ?>
 			</p>
 		</article>
@@ -558,11 +558,11 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag"><?php echo pm_h($t['tag']); ?></span>
 			<h3 class="pm3-moment__label"><?php echo pm_h($t['label']); ?></h3>
 			<p class="pm3-moment__score">
-				<a href="game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
+				<a href="/game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
-				· vs <a href="individual1.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
+				· vs <a href="/player/profile.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
 				· <?php echo pm_h($t['date']); ?>
 			</p>
 		</article>
@@ -571,7 +571,7 @@ function player_feast_render_moments(array $pm): void
     <?php if (is_array($fave)) { ?>
 	<p class="k2-lab2-fave-victim">
 		Favourite victim:
-		<a href="individual3.php?id=<?php echo (int) $pm['id']; ?>&amp;opponent=<?php echo (int) $fave['opponent_id']; ?>"><?php echo pm_h((string) $fave['opponent_name']); ?></a>
+		<a href="/player/games.php?id=<?php echo (int) $pm['id']; ?>&amp;opponent=<?php echo (int) $fave['opponent_id']; ?>"><?php echo pm_h((string) $fave['opponent_name']); ?></a>
 		— beaten <strong><?php echo (int) $fave['wins']; ?></strong> times.
 	</p>
     <?php } ?>
@@ -596,14 +596,14 @@ function player_feast_render_rivalry_line(array $pm): void
     ?>
 <p class="k2-lab2-rivalry">
 	Most-played opponent:
-	<a href="individual1.php?id=<?php echo (int) $rival['opponent_id']; ?>"><?php echo pm_h((string) $rival['opponent_name']); ?></a>
+	<a href="/player/profile.php?id=<?php echo (int) $rival['opponent_id']; ?>"><?php echo pm_h((string) $rival['opponent_name']); ?></a>
 	over <strong><?php echo (int) $rival['games']; ?></strong> games —
 	<span class="k2-lab2-wdl">
 		<span class="pm-outcome--win"><?php echo (int) $rival['wins']; ?>W</span> ·
 		<span class="pm-outcome--draw"><?php echo (int) $rival['draws']; ?>D</span> ·
 		<span class="pm-outcome--loss"><?php echo (int) $rival['losses']; ?>L</span>
 	</span>.
-	<a class="k2-lab2-rivalry__link" href="individual3.php?id=<?php echo $playerId; ?>&amp;opponent=<?php echo (int) $rival['opponent_id']; ?>">All games →</a>
+	<a class="k2-lab2-rivalry__link" href="/player/games.php?id=<?php echo $playerId; ?>&amp;opponent=<?php echo (int) $rival['opponent_id']; ?>">All games →</a>
 </p>
     <?php
     player_feast_section_close();

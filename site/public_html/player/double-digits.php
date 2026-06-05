@@ -5,8 +5,8 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
 
 </head>
 
@@ -52,7 +52,7 @@ function individual2c_ratio_cell(float $ratio): string
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero.php"; ?>
 <?php
-$k2PlayerTabActive = 'dds';
+$k2PlayerTabActive = 'double-digits';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_nav.php";
 ?>
 

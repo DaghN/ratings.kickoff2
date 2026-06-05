@@ -4,6 +4,7 @@
  * optional $heroMilestoneCounts (from player_hero_vars.php or individual1 feast load), $id for garden link.
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 
 if (empty($Name)) {
 	return;
@@ -16,9 +17,9 @@ $heroGames = isset($NumberGames) && !k2_db_is_null($NumberGames) ? (int) $Number
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroMs = isset($heroMilestoneCounts) && is_array($heroMilestoneCounts) ? $heroMilestoneCounts : null;
 $heroMsPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
-$heroProfileHref = $heroMsPlayerId > 0 ? 'individual1.php?id=' . $heroMsPlayerId : '';
-$heroLbRatingHref = 'ranked7.php';
-$heroLbGamesPeakHref = 'ranked8.php#k2-peak-period-all-time';
+$heroProfileHref = $heroMsPlayerId > 0 ? k2_route('player-profile', ['id' => $heroMsPlayerId]) : '';
+$heroLbRatingHref = k2_route('lb-rating');
+$heroLbGamesPeakHref = k2_route('lb-activity-peaks') . '#k2-peak-period-all-time';
 $heroMsCatalogTotal = isset($heroMsCatalogTotal) ? (int) $heroMsCatalogTotal : 0;
 $heroRankLinked = $heroDisplay && isset($rank);
 $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
@@ -62,7 +63,7 @@ $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 					<span class="k2-player-hero__stat-value"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbGamesPeakHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
 				</div>
 				<?php if ($heroMs !== null && $heroMsPlayerId > 0) {
-					$gardenHref = 'individual_milestones.php?id=' . $heroMsPlayerId;
+					$gardenHref = k2_route('player-milestones', ['id' => $heroMsPlayerId]);
 					$msTotal = (int) $heroMs['total'];
 					?>
 				<div class="k2-player-hero__stat k2-player-hero__stat--milestones">

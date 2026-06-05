@@ -8,6 +8,8 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/k2_routes.php';
+
 /** Server Recent + garden date line — link only, no context prose. */
 const K2_MILESTONE_EVENT_SURFACE_COMPACT = 'compact';
 
@@ -117,7 +119,7 @@ function k2_milestone_unlock_event_link_html(int $playerId, array $row): ?string
         if ($day === null || $playerId < 1) {
             return null;
         }
-        $href = 'individual3.php?id=' . $playerId . '&day=' . rawurlencode($day);
+        $href = k2_route('player-games', ['id' => $playerId, 'day' => $day]);
 
         return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">Games</a>';
     }

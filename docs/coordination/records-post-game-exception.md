@@ -3,7 +3,7 @@
 **Why this file exists:** Server records need worked examples for **cutover parity** (tie policy, UTC dates, ratio-column removal). **All other derived tables:** behaviour in [`website-data-contract.md`](../website-data-contract.md); live writer = **PHP ops** at cutover — not new C++ development.
 
 **Schema:** [schema-register.md](schema-register.md) **SCH-003**
-**Feature:** Hall of Fame (`server2.php`)
+**Feature:** Hall of Fame (`hall-of-fame.php`)
 **Behavior authority:** [`website-data-contract.md`](../website-data-contract.md) — `generalstatstable` section.
 **Regression matrix:** [`staging-post-game-record-defects.md`](../staging-post-game-record-defects.md)
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared player-perspective rated-game table row (`individual3.php`).
+ * Shared player-perspective rated-game table row (`player/games.php`).
  *
  * @see docs/k2-table-and-games-plan.md Phase 7B
  */
@@ -14,7 +14,7 @@ function k2_player_game_h(string $value): string
 
 function k2_player_game_player_link(int $id, string $name): string
 {
-    return '<a href="individual1.php?id=' . $id . '">' . k2_player_game_h($name) . '</a>';
+    return '<a href="/player/profile.php?id=' . $id . '">' . k2_player_game_h($name) . '</a>';
 }
 
 /**
@@ -103,7 +103,7 @@ function k2_player_game_diff_html(int $goalDifference, bool $isWin, bool $isDraw
     return '<span class="blue">' . $goalDifference . '</span>';
 }
 
-/** 0-based column index for each server-side `sort` query key on `individual3.php`. */
+/** 0-based column index for each server-side `sort` query key on `player/games.php`. */
 function k2_player_game_sort_col_index(string $sortKey): int
 {
     $map = [
@@ -187,7 +187,7 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
     $adjustmentCell = $processed ? k2_player_game_signed_number_html($adjustment) : $dash;
 
     return '<tr>'
-        . k2_player_game_td('<a href="game.php?id=' . $game['id'] . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
+        . k2_player_game_td('<a href="/game.php?id=' . $game['id'] . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
         . k2_player_game_td(k2_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
         . k2_player_game_td(k2_player_game_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
         . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)

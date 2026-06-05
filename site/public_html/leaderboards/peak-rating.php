@@ -5,8 +5,8 @@
 <title>Kick Off 2 ratings</title>
 
 <?php $k2RankedCloak = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
 
 </head>
 
@@ -33,7 +33,7 @@ mysqli_close($con);
 ?>
 
 <?php
-$k2LbWingActive = 'rating';
+$k2LbWingActive = 'peak-rating';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 ?>
 

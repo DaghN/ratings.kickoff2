@@ -15,10 +15,10 @@
 | 2026-06 | **Status heritage glow** — right-side KO2 box art gets a clipped warm tint halo/rays inside the inset, balancing the wordmark glow. |
 | 2026-06 | **Status heritage inset** — dark well + muted art; tint backlight removed for fresh pass. |
 | 2026-06 | **Self-hosted fonts** — Google Fonts removed; `fonts/*.woff2` + `k2-fonts.css` + preload in `k2_fonts_head.php`; audit `docs/self-hosted-assets.md`; regen `scripts/sync_self_hosted_fonts.ps1`. |
-| 2026-06 | **Player hero links** — name → Profile; rank/rating → `ranked7.php`; games → Activity peaks all-time (`ranked8.php#k2-peak-period-all-time`); neutral pointer-only stat/name links. |
+| 2026-06 | **Player hero links** — name → Profile; rank/rating → `leaderboards/rating.php`; games → Activity peaks all-time (`leaderboards/activity-peaks.php#k2-peak-period-all-time`); neutral pointer-only stat/name links. |
 | 2026-06 | **Player DDs tab (`individual2c`)** — hub `ranked3` headers/tooltips + column order; calm-stats; Games anchor. |
 | 2026-06 | **Player Goals tab (`individual2b`)** — Win/Loss margin SQL fixed (CASE on outcome, not MAX of signed diffs); hub LB headers; Games anchor; Draw/Least display fixes. |
-| 2026-06 | **Player Games polish (`individual3.php`)** — calm-stats table ink, shared `k2-archive-listbox` filters (Status Leagues parity), default sort id desc, server-side `k2-table-col-sorted`; win/loss blue/red kept. |
+| 2026-06 | **Player Games polish (`player/games.php`)** — calm-stats table ink, shared `k2-archive-listbox` filters (Status Leagues parity), default sort id desc, server-side `k2-table-col-sorted`; win/loss blue/red kept. |
 | 2026-06 | **Status Leagues — Daily games list** — under Activity + Points when **Daily** tab active; recent-games layout + `game.php` id link; `k2_status_rated_games_for_calendar_day` + `api/status_period_day_games.php`. |
 | 2026-06 | **Activity bar animation** — **off** (`ACTIVITY_BAR_ENTRANCE_ENABLED` in `chart-theme.js`); grow-up WIP (stutter). |
 | 2026-06 | **Activity heatmap months** — month row uses `grid-column: span N` per month (full “Jan”, not ellipsis in one week column). |
@@ -28,18 +28,18 @@
 | 2026-06 | **Activity charts L4 (partial)** — desktop bar grow-up (`chartKind: 'bar'` in v2); lines unchanged; phone still no animation. |
 | 2026-06 | **Activity busiest-day card** — summary stat order: Rated games (label) → count → Busiest day · date (note). |
 | 2026-06 | **Activity highlights panel width** — `.server-activity-summary` uses `--k2-max-width` (1200px), not chart 960px cap. |
-| 2026-06 | **Activity charts v2 L3** — `server1.php` ships v2 only; legacy 12 JS files deleted; `server1-charts-lab.php` → redirect; `body.k2-activity-charts` + `server_activity_chart_panels.php`. |
+| 2026-06 | **Activity charts v2 L3** — `activity.php` ships v2 only; legacy 12 JS files deleted; `server1-charts-lab.php` → redirect; `body.k2-activity-charts` + `server_activity_chart_panels.php`. |
 | 2026-06 | **Activity charts phone touch** — coarse: panel + canvas `touch-action: pan-y pinch-zoom` (scroll + pinch; `pan-y` alone blocked zoom); Chart.js tooltips off on phone; heatmap tooltips desktop-only. |
 | 2026-06 | **Chart `T.amber()`** — returns resolved `amberSoft()` rgb so Chart.js never gets unresolved `color-mix` vars (fixed black line on top-10 chart for LORENZOL). |
 | 2026-06 | **Daily active players chart** — calendar 30-day rolling mean (gap days = 0); explicit smooth line in v2 + legacy `server-daily-active-players-chart.js`. |
 | 2026-06 | **Activity charts v2 L2** — all 12 panels in `activity-charts-v2.js`; `server_activity_chart_panels_lab.php`; lab loads `chart-date-range.js`; production unchanged (legacy). |
 | 2026-06 | **Milestones Recent density** — feed typography tuned to **12px / 1.4**, tighter **7px** row padding, and narrower date column (`player-milestones.css`). |
-| 2026-06 | **Revert site-wide mobile experiments** — removed viewport meta, hub scroll CSS, canvas stretch; lab CSS scoped to `body.k2-activity-charts-lab` only; `server1.php` canvases 960×271 restored. |
-| 2026-06 | **Activity charts lab UX** — tap link `server1.php` ↔ lab; no lab banner; lab summary full column width, charts still 960px frame. |
+| 2026-06 | **Revert site-wide mobile experiments** — removed viewport meta, hub scroll CSS, canvas stretch; lab CSS scoped to `body.k2-activity-charts-lab` only; `activity.php` canvases 960×271 restored. |
+| 2026-06 | **Activity charts lab UX** — tap link `activity.php` ↔ lab; no lab banner; lab summary full column width, charts still 960px frame. |
 | 2026-06 | **Activity charts v2 L1 lab** — `server1-charts-lab.php` + `activity-charts-v2.js` (games/day); `.k2-chart-frame` CSS; summary → `includes/server_activity_summary.php`; removed canvas `%` stretch rules. |
 | 2026-06 | **Activity charts v2 plan** — [`docs/activity-charts.md`](docs/activity-charts.md): single module, lab → promote, panel registry + parity checklist. |
 | 2026-06 | **Activity charts fix** — `activity-charts.js` boot only on `DOMContentLoaded` (first chart was skipped when boot ran before defer modules registered). Mobile: viewport meta in `k2_head.php`, chart `touch-action: pan-y`, fluid canvas width (removed 960px attrs), header/hub `min-width: 0`. |
-| 2026-06 | **Activity charts rewrite** — `chart-theme.js` slim (colours + tooltips + `activityChartOptions` only; no global `Chart.defaults` / touch plugin / `createBarChart`). `activity-charts.js` loads panels **sequentially** (~100ms gap). All Activity modules register with `K2ActivityCharts`; heatmap + play texture + busiest players **re-enabled** on `server1.php`. Mobile: `animation: false`; busiest chart skips hover highlight on coarse pointers. |
+| 2026-06 | **Activity charts rewrite** — `chart-theme.js` slim (colours + tooltips + `activityChartOptions` only; no global `Chart.defaults` / touch plugin / `createBarChart`). `activity-charts.js` loads panels **sequentially** (~100ms gap). All Activity modules register with `K2ActivityCharts`; heatmap + play texture + busiest players **re-enabled** on `activity.php`. Mobile: `animation: false`; busiest chart skips hover highlight on coarse pointers. |
 | 2026-06 | **Fix** — restored missing `prefersReducedMotion()` in `chart-theme.js` (broke all Activity charts with “Could not load…”). |
 | 2026-06 | **Activity chart interaction** — desktop bar grow restored even when browser reports reduced motion; mobile chart touch is tap-based (`touchstart`/`click`, no `touchmove`) + `touch-action: manipulation`. |
 | 2026-06 | **Cumulative established tooltip** — body line only: `Total established: N` (removed afterLabel explainer). |
@@ -48,25 +48,25 @@
 | 2026-06 | **Activity summary** — **Busiest day** stat (PHP, `server_period_game_totals`); removed Recent milestones panel + digest API/JS. |
 | 2026-06 | **Most games played chart** — hover highlight fix (`dataset` mode + opacity dim; tooltip still index-by-month). |
 | 2026-06 | **Most games played chart** — trailing 6-month rolling average; fixed top 10 by `NumberGames` (tie → lowest ID). |
-| 2026-06 | **Activity layout** — All-time busiest players + Play texture are last on `server1.php` (after established rating distribution). |
+| 2026-06 | **Activity layout** — All-time busiest players + Play texture are last on `activity.php` (after established rating distribution). |
 | 2026-06 | **Activity tab** — removed **Goals per month** chart + `server_goals_by_month.php` / `server-goals-month-chart.js`. |
-| 2026-06 | **Activity layout** — daily activity heatmap is chart **#4** on `server1.php` (after games day / month / year). |
-| 2026-06 | **`milestone.php` Graphs** — rating distribution charts removed for DD Merchant + Established (year + cumulative only); established rating distribution stays on `server1.php` Activity. |
+| 2026-06 | **Activity layout** — daily activity heatmap is chart **#4** on `activity.php` (after games day / month / year). |
+| 2026-06 | **`milestone.php` Graphs** — rating distribution charts removed for DD Merchant + Established (year + cumulative only); established rating distribution stays on `activity.php` Activity. |
 | 2026-06 | **Activity cleanup** — deleted APIs/JS for participation depth + all three DD merchant Activity charts. |
-| 2026-06 | **Activity tab** — dropped **Participation depth by month** chart from `server1.php` (redundant vs active players / games per month). |
-| 2026-06 | **Activity copy** — unique matchups chart hint: “social breadth of the community” (`server1.php`). |
-| 2026-06 | **Activity tab** — removed three Double Digit Merchant charts from `server1.php` (new/cumulative per year, rating distribution); established-player charts + milestone digest unchanged on Activity. |
-| 2026-06 | **Status rated-games arc** — removed **Activity →** link from arc panel (`status_room_section.php`); Activity remains hub tab on `server1.php`. |
-| 2026-06 | **Activity peaks sub-nav** — `ranked8.php` Calendar / All time uses **`k2-chrome-tabs`** segment track; removed duplicate top margin (was wing gap + mode bar margin). |
-| 2026-06 | **League honours sub-nav** — `ranked9.php` cup/grain filters use **`k2-chrome-tabs`** segment track (matches Activity peaks / milestones / games highlights), not Status leagues period pills. |
+| 2026-06 | **Activity tab** — dropped **Participation depth by month** chart from `activity.php` (redundant vs active players / games per month). |
+| 2026-06 | **Activity copy** — unique matchups chart hint: “social breadth of the community” (`activity.php`). |
+| 2026-06 | **Activity tab** — removed three Double Digit Merchant charts from `activity.php` (new/cumulative per year, rating distribution); established-player charts + milestone digest unchanged on Activity. |
+| 2026-06 | **Status rated-games arc** — removed **Activity →** link from arc panel (`status_room_section.php`); Activity remains hub tab on `activity.php`. |
+| 2026-06 | **Activity peaks sub-nav** — `leaderboards/activity-peaks.php` Calendar / All time uses **`k2-chrome-tabs`** segment track; removed duplicate top margin (was wing gap + mode bar margin). |
+| 2026-06 | **League honours sub-nav** — `leaderboards/league-honours.php` cup/grain filters use **`k2-chrome-tabs`** segment track (matches Activity peaks / milestones / games highlights), not Status leagues period pills. |
 | 2026-06 | **`milestone.php` achiever match lines** — Event scoreline uses official **team A · GoalsA–GoalsB · team B** (`ratedresults` order), not unlocker-first. |
-| 2026-06 | **`server3.php` games tables** — calm-stats body ink; Recent default sort ID desc; empty-day row stays secondary (`k2-table.js` skips colspan sorted-col). |
+| 2026-06 | **`games.php` games tables** — calm-stats body ink; Recent default sort ID desc; empty-day row stays secondary (`k2-table.js` skips colspan sorted-col). |
 | 2026-05 | **`daily_habit` rule copy** — Rule (short): “Rated game every day Monday to Sunday” (copy patch + local `milestone_definitions`). |
 | 2026-06 | **`game.php`** — leaderboard **`k2-table--calm-stats`** body ink only; hub tabs removed (detail page stays header + table). |
-| 2026-06 | **Games Highlights** — `server3.php` sub-nav **Recent** \| **Highlights**; board order Most goals → Biggest draws → One-side peak → Biggest wins; ties **lower game ID first** (SQL + `data-k2-sort-tie-value`). |
+| 2026-06 | **Games Highlights** — `games.php` sub-nav **Recent** \| **Highlights**; board order Most goals → Biggest draws → One-side peak → Biggest wins; ties **lower game ID first** (SQL + `data-k2-sort-tie-value`). |
 | 2026-05 | **`milestone.php` Graphs typography** — chart titles use **`k2-panel-heading`**; block hints + legend labels use **`--k2-text-secondary`**. |
 | 2026-05 | **`milestone.php` polish** — removed catalog footer line; Graphs blocks use Activity-style **`--k2-chart-max-width` (960px)** boxed charts. |
-| 2026-06 | **Staging `perfect_day` / `nightmare_day` day-close** — Steve SQL + Dagh browser smoke **done**: **113** rows midnight UTC; Recent **`00:00`**; garden **Games** → `individual3.php?day=`; total **6620**. Handoff: [`milestones-staging-cutover-packet.md`](docs/coordination/milestones-staging-cutover-packet.md) § Day-close. |
+| 2026-06 | **Staging `perfect_day` / `nightmare_day` day-close** — Steve SQL + Dagh browser smoke **done**: **113** rows midnight UTC; Recent **`00:00`**; garden **Games** → `player/games.php?day=`; total **6620**. Handoff: [`milestones-staging-cutover-packet.md`](docs/coordination/milestones-staging-cutover-packet.md) § Day-close. |
 | 2026-05 | **`milestone.php` Graphs** — per-key year + cumulative charts (tier `T.pitch()` etc., ladder MIN Date→today); removed monthly timeline. |
 | 2026-05 | **`milestone.php` segments** — **Made it** \| Graphs; carry-scroll on tier filter + detail panels. |
 | 2026-05 | **Milestones catalog** — removed redundant `title` tooltip on cards (name/rule already visible). |
@@ -116,12 +116,12 @@
 | 2026-05 | **KOOL listbox pickers** — Leagues week/month/year + Flatpickr month/year use `k2-archive-listbox` (accent hover); native `<select>` removed from those controls. |
 | 2026-05 | **Career peak/nadir contract** — `website-data-contract.md`: unset until 20 games; establish both from post-game `Rating` at game 20; max/min every game after; no gain/loss gate; full replay on cutover. `club_*` milestones = **`Rating`** (provisional OK); rebuild/C++ alignment **TBD**. |
 | 2026-05 | **Playertable tie policy in contract** — `website-data-contract.md`: personal pointers + inverse BL/BW/MGC/MGS need `>` (not `>=`); HoF handoff separate; `ranked5` tooltips/footer called out at cutover. |
-| 2026-05 | **Streaks LB headers** — `ranked4.php`: Wins, Undefeated, Draws, Decided, Losses, Win drought, Days, Weeks (no “streak” in labels). |
+| 2026-05 | **Streaks LB headers** — `leaderboards/streaks.php`: Wins, Undefeated, Draws, Decided, Losses, Win drought, Days, Weeks (no “streak” in labels). |
 | 2026-05 | **Hub LB padding reset** — all `ranked-pages-table` wings: uniform 8px in CSS; stripped `k2-table-cell--pad-left-*` from ranked1–7,10 + league honours (Goals/DD/CS already clean). |
 | 2026-05 | **LB column padding** — removed legacy `k2-table-cell--pad-left-*` on Goals + DD/CS wings (`ranked2`/`ranked3`); was widening cols after full-word headers. |
-| 2026-05 | **DD/CS LB headers** — `ranked3.php`: Double Digits, Clean Sheets, DD conceded, CS conceded; ratio cols still abbreviated; footer removed. |
+| 2026-05 | **DD/CS LB headers** — `leaderboards/double-digits.php`: Double Digits, Clean Sheets, DD conceded, CS conceded; ratio cols still abbreviated; footer removed. |
 | 2026-05 | **k2-table sort toggle** — same-column click re-sorts asc/desc (was DOM reverse only); fixes second click not reaching true descending order. |
-| 2026-05 | **Goals LB headers** — `ranked2.php`: Scored/Conceded, Most Scored/Most Conceded, Draw/Goal sum, Win/Loss margin; footer trimmed. |
+| 2026-05 | **Goals LB headers** — `leaderboards/goals.php`: Scored/Conceded, Most Scored/Most Conceded, Draw/Goal sum, Win/Loss margin; footer trimmed. |
 | 2026-05 | **LB filter toggles keep sort** — `k2_sort`/`k2_dir` on inactive/provisional toggle hrefs; `k2-table.js` syncs URL + filter links on column sort (same wing only; wing tabs unchanged). |
 | 2026-05 | **Established = 20 games aligned** — `K2_ESTABLISHED_MIN_GAMES` in `lb_player_filters.php`; HoF ratio leaders + footer 20 (was 30); HoF LB links add `provisional=0`. C++ ratio blocks still documented as legacy 30. |
 | 2026-05 | **HoF context links** — values → LB wings + `k2_sort`; `provisional=0` only on ratio/average rows; activity peaks → `ranked8#…`. |
@@ -151,12 +151,12 @@
 | 2026-05 | **Milestones staging cutover packet** — [`docs/coordination/milestones-staging-cutover-packet.md`](docs/coordination/milestones-staging-cutover-packet.md): WinSCP manifest, Steve commands, expected counts (incl. **giant_slayer = 31**), staging PHP rebuild scripts. |
 | 2026-05 | **Milestones post-game contract** — `website-data-contract.md` § full write rules (game/league/lobby), M1–M7 Steve phases. |
 | 2026-05 | **Milestones v0 sanity** — `milestone_v0_sanity_check.py` passed (PHP helpers = SQL; browser spot-check). |
-| 2026-05 | **Hub IA — Milestones tab + Games off hub** — `hub_nav.php`: Status · Activity · Leaderboards · **Milestones** · HoF; `milestones.php` stub; `server3.php` via Status only; WIP [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). |
-| 2026-05 | **Leaderboards wing order (scenario A)** — `lb_nav.php`: classic block unchanged (Rating→Victims), then League honours · Milestones · Activity peaks, **Peak rating** last (`ranked1`); hub default still `ranked7.php`. |
-| 2026-05 | **Milestones LB polish** — `ranked10.php` + League honours: **ELO rating** header + `k2-table-cell--pad-left-sm` on Games (matches classic ranked tables). |
+| 2026-05 | **Hub IA — Milestones tab + Games off hub** — `hub_nav.php`: Status · Activity · Leaderboards · **Milestones** · HoF; `milestones.php` stub; `games.php` via Status only; WIP [`docs/milestones-hub-ia.md`](docs/milestones-hub-ia.md). |
+| 2026-05 | **Leaderboards wing order (scenario A)** — `lb_nav.php`: classic block unchanged (Rating→Victims), then League honours · Milestones · Activity peaks, **Peak rating** last (`ranked1`); hub default still `leaderboards/rating.php`. |
+| 2026-05 | **Milestones LB polish** — `leaderboards/milestones.php` + League honours: **ELO rating** header + `k2-table-cell--pad-left-sm` on Games (matches classic ranked tables). |
 | 2026-05 | **`giant_slayer` rule fix** — active #1 (365d rolling UTC); `milestone_giant_slayer.py` + chrono regen; surgical `player_milestones_rebuild_giant_slayer.sql`; contract post-game §; holders 22→31 (geo4444 unlocks). |
-| 2026-05 | **Milestones Phase 4 v0** — garden page, profile `{n}/110` glance + tier dots, `ranked10.php` meta-leaderboard, `server2.php` DD Merchant achiever trial; read-only on local DB. |
-| 2026-05 | **Games hub (`server3.php`)** — day headings for days older than yesterday show weekday + date (`Monday · May 26, 2026`); Today/Yesterday unchanged. |
+| 2026-05 | **Milestones Phase 4 v0** — garden page, profile `{n}/110` glance + tier dots, `leaderboards/milestones.php` meta-leaderboard, `hall-of-fame.php` DD Merchant achiever trial; read-only on local DB. |
+| 2026-05 | **Games hub (`games.php`)** — day headings for days older than yesterday show weekday + date (`Monday · May 26, 2026`); Today/Yesterday unchanged. |
 | 2026-05 | **Milestones rebuild complete** — `gen_milestone_tail_sql.py` (30 playertable/matchup keys); **110/110** in `player_milestones`, 0 null `source_kind`; tail parity 0 mismatches. |
 | 2026-05 | **Milestones chrono wave** — `gen_milestone_chrono_sql.py` → 16 keys; `milestone_chrono_parity.py` 0 mismatches. |
 | 2026-05 | **Milestones period wave** — `player_milestones_rebuild_period.sql` wired (5 keys); **64/110**; `milestone_period_parity.py` 0 mismatches. |
@@ -178,13 +178,13 @@
 | 2026-05 | **League awards on staging** — Steve SCH-009/010 + REP-012/013 on `kooldb` (7424 instances, 21873 awards; matches local); Dagh confirmed League honours + Status leagues UI parity. |
 | 2026-05 | **League period pills** — segment labels Daily / Weekly / Monthly / Year (`k2_status_period_segment_label`); panel titles use “Year league” not Yearly. |
 | 2026-05 | **`player_league_slice_totals` (SCH-010)** — per-player gold/silver/bronze by league_kind × period_type; REP-013 rebuild; League honours + `k2_league_player_slice_totals()` for profile. |
-| 2026-05 | **League honours views** — `ranked9.php` pills Overall / Activity / Points + Day–Year; URL `cup` & `grain`. |
-| 2026-05 | **League honours v1** — `ranked9.php` wing; spec [`docs/leagues-career-leaderboard-proposal.md`](docs/leagues-career-leaderboard-proposal.md). |
+| 2026-05 | **League honours views** — `leaderboards/league-honours.php` pills Overall / Activity / Points + Day–Year; URL `cup` & `grain`. |
+| 2026-05 | **League honours v1** — `leaderboards/league-honours.php` wing; spec [`docs/leagues-career-leaderboard-proposal.md`](docs/leagues-career-leaderboard-proposal.md). |
 | 2026-05 | **Activity league uncapped on Status** — all players with ≥1 game shown; `limit=0` default in API/SSR. |
-| 2026-05 | **Rating wing anchor** — `ranked1.php`: Peak (col 4) is link-star anchor; current Elo is neutral like other columns. |
+| 2026-05 | **Rating wing anchor** — `leaderboards/peak-rating.php`: Peak (col 4) is link-star anchor; current Elo is neutral like other columns. |
 | 2026-05 | **Status league cross-tint anchors** — `k2-table--league-anchor-cross`: Games/Pts use `--k2-league-anchor-ink` (chrome on amber/pitch tint, pitch on chrome/holo), not `--k2-link-star`. |
 | 2026-05 | **Status league calm-stats fix** — `status-period-competitions.js` rebuilds league HTML client-side; matched PHP calm-stats/anchors + `window.k2TableApplyAnchors` after inject/cache restore. |
-| 2026-05 | **Calm-stats site-wide (hub tables)** — `k2-table--calm-stats` + anchors on ranked8 activity peaks, Status league tables, `server2.php` record values; `initAnchorTables()` for non-sortable tables. Profile `individual2a/b/c` unchanged. |
+| 2026-05 | **Calm-stats site-wide (hub tables)** — `k2-table--calm-stats` + anchors on ranked8 activity peaks, Status league tables, `hall-of-fame.php` record values; `initAnchorTables()` for non-sortable tables. Profile `individual2a/b/c` unchanged. |
 | 2026-05 | **Leaderboard calm-stats** — all hub sortable LBs + Status active board: neutral cells, anchor link-star; active sort = bold grey until tuned. |
 | 2026-05 | **Leaderboard anchor columns** — `data-k2-anchor-col` + `k2-table.js`: one permanent link-star column per wing (Elo on Rating/Results/Status only); lighter `k2-table-col-sorted` when sorting a non-anchor column. |
 | 2026-05 | **League awards Track 1 local** — `league_standings.php`, REP-012 backfill, finalize script; Status points/activity use tie-break sort; `player_league_totals` + win milestones synced. |
@@ -214,7 +214,7 @@
 | 2026-05 | **UTC period-boundary fix** — `ratedresults.Date` is `timestamp`, so local Estonia MySQL sessions were rebuilding day buckets three hours ahead of UK/staging. Added `SET time_zone = '+00:00'` to PHP DB connections and rebuild scripts, reran local aggregate rebuilds, and verified daily stored rows now match UTC buckets (e.g. 2026-05-17=26, 2026-05-18=31). `api/server_matchup_breadth.php` now also uses the UTC pin and `server_period_matchups`. |
 | 2026-05 | **Daily active players chart** — `server_daily_activity` (SCH-007); stored path ~73× faster than raw `ratedresults` in local perf test; API `source=stored|raw`. |
 | 2026-05 | **Dev period activity date picker affordance** — the Daily panel date input now has a visible accent calendar button and a brightened native picker indicator, so users can open the calendar instead of typing a date. |
-| 2026-05 | **Top activity eras chart shipped locally** — `server1.php` now has a "Top activity eras" multi-player line chart: each month shows the top 10 players by rated games, lines appear/disappear as players enter/leave the top 10, hover highlights one player and dims others; powered by new `api/server_top_activity_eras.php` reading `player_period_games` (L0, no new stored truth). |
+| 2026-05 | **Top activity eras chart shipped locally** — `activity.php` now has a "Top activity eras" multi-player line chart: each month shows the top 10 players by rated games, lines appear/disappear as players enter/leave the top 10, hover highlights one player and dims others; powered by new `api/server_top_activity_eras.php` reading `player_period_games` (L0, no new stored truth). |
 | 2026-05 | **Realm header identity layout promoted** — shared `site_header.php` now uses the first lab direction: Online/Amiga beside the Kick Off 2 wordmark, with player search isolated on the right; strip variant remains lab-only for comparison. |
 | 2026-05 | **Stored truth performance policy added** — agent instructions now say DB-backed features should actively consider indexes, aggregate tables, replay outputs, `playertable` fields, periodic jobs, and post-game C++ updates as normal options for hot stats/profile/achievement work, not burdens to avoid. |
 | 2026-05 | **Ranked8 phone activity layout fix** — Calendar and All time activity tables now keep their intended two-column layout below tablet widths, with horizontal overflow only if a very narrow viewport needs it. |
@@ -222,16 +222,16 @@
 | 2026-05 | **Status panel action-link alignment** — the active leaderboard `Leaderboards →` link now uses the same compact Status action styling as `Activity →` and `Games →`. |
 | 2026-05 | **Activity Graph Roadmap shipped** — five new Activity features: 12-month daily heatmap (GitHub-style), participation depth stacked bars (1/2-4/5-9/10+ bands), play-texture small-multiples (goals/game, draw %, DD/100, CS/100), unique matchups per month, and a recent milestone digest card; all L0 read-time from `ratedresults`+`playertable`. |
 | 2026-05 | **Double Digit Merchant charts** — Activity now has a read-time chart trio for first 10+ goal games: new merchants by year, cumulative merchants, and merchant rating distribution; data is derived from `ratedresults`, not stored on `playertable`. |
-| 2026-05 | **Activity copy sharpened** — `server1.php` no longer says "server" in user-facing chart headings/status/aria copy; the past-month daily games chart now shows the same `Games` legend chip as the longer-horizon charts. |
+| 2026-05 | **Activity copy sharpened** — `activity.php` no longer says "server" in user-facing chart headings/status/aria copy; the past-month daily games chart now shows the same `Games` legend chip as the longer-horizon charts. |
 | 2026-05 | **Tooltip microcopy audit** — redundant chart helper under the Activity daily chart removed; table/header tooltip copy now favors abbreviation definitions, formulas, and contextual rules while obvious labels fall back to the shared `Click to sort.` affordance; tint picker native hover titles are removed. |
 | 2026-05 | **Chart semantics pass** — chart colors now follow a first-pass vocabulary: pitch = games/wins/profile subject, amber = goals, chrome = active players/projections/opponent focus, holo = cumulative history, magenta = milestones, teal = distributions; dense monthly bars stay borderless. |
-| 2026-05 | **Activity recent daily chart** — `server1.php` now opens its chart stack with a past-month games-per-day bar chart from `api/server_games_by_day_recent.php`, including zero-game days. |
+| 2026-05 | **Activity recent daily chart** — `activity.php` now opens its chart stack with a past-month games-per-day bar chart from `api/server_games_by_day_recent.php`, including zero-game days. |
 | 2026-05 | **Hub nav reordered** — top nav is now `Status · Activity · Games · Leaderboards · Hall of Fame`, frontloading life/evidence before competition and records. |
 | 2026-05 | **Status leaderboard sorting** — Status active leaderboard now loads `k2-table.js` for sortable Rank/Player/Elo/Games columns with compact header help, autorank on resort, `past year` heading copy, and `Leaderboards →` destination meta. |
-| 2026-05 | **Game table tooltips** — `server3.php` keeps all-column header popups and `game.php` mirrors them as non-sortable help; deep Elo explanation lives on `Fav ES` and visible `Adjustment`. |
-| 2026-05 | **Activity summary completes legacy stats merge** — `server1.php` now folds the old Overall Server Stats table into a key sentence, four fact cards (goals/draws/DD/CS), and a quiet games/opponents line before charts. |
-| 2026-05 | **Status arc → Activity landing** — Status rated-games arc links to `server1.php` with a discreet left-aligned action below the sentence; Activity opens with the all-time activity story before the historical charts. |
-| 2026-05 | **Table spacing cleanup + Games detail path** — inline table `&nbsp;`/`text-align` hacks removed from ranked/player/server/game table families in favor of `theme.css` utilities; `server3.php` now shows 14 day buckets with fully sortable game tables (`GD`, `Elo Diff`, `Fav ES`, `Adjustment`), and Status recent games links to the full Games list via `Games →`. |
+| 2026-05 | **Game table tooltips** — `games.php` keeps all-column header popups and `game.php` mirrors them as non-sortable help; deep Elo explanation lives on `Fav ES` and visible `Adjustment`. |
+| 2026-05 | **Activity summary completes legacy stats merge** — `activity.php` now folds the old Overall Server Stats table into a key sentence, four fact cards (goals/draws/DD/CS), and a quiet games/opponents line before charts. |
+| 2026-05 | **Status arc → Activity landing** — Status rated-games arc links to `activity.php` with a discreet left-aligned action below the sentence; Activity opens with the all-time activity story before the historical charts. |
+| 2026-05 | **Table spacing cleanup + Games detail path** — inline table `&nbsp;`/`text-align` hacks removed from ranked/player/server/game table families in favor of `theme.css` utilities; `games.php` now shows 14 day buckets with fully sortable game tables (`GD`, `Elo Diff`, `Fav ES`, `Adjustment`), and Status recent games links to the full Games list via `Games →`. |
 | 2026-05 | **Status league stack shipped locally** — `status.php` now stacks uncapped Daily, Weekly (Monday-start), Monthly, and Yearly league panels where the monthly league was; each has its own current/previous toggle, shared 3/1/0 table logic, MySQL `NOW()` server-clock boundaries, and live countdown/end meta. |
 | 2026-05 | **Period activity + daily activity on staging** — `kooldb`: SCH-006/007 + REP-003 (week), REP-005, REP-006 backfills done May 2026; stored-truth PHP OK on staging; prod live C++ at cutover per contract. |
 | 2026-05 | **Status online presence fix** — Online now uses nonzero `IsOnline` directly, without the `Display = 1` ladder/public-stats gate, and `status.php` sends no-cache headers so frozen lobby presence is not hidden by stale pages. |
@@ -254,9 +254,9 @@
 | 2026-05 | **Sortable header help tooltips** — `k2-table.js` now uses a styled shared tooltip for sortable headers, combining abbreviation/activity/player-table explanations with the “Click to sort.” hint, including server-side Games history sort links. |
 | 2026-05 | **Realm switch flash fix** — header toggle initial paint now follows early `html[data-realm]` boot state, so Amiga no longer flashes Online during main-nav page loads. |
 | 2026-05 | **Leaderboard/player table modernization** — `ranked1`–`ranked5`, `ranked7`, `ranked8`, and `individual2a/b/c` use opt-in `k2-table.js`; profile Games uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
-| 2026-05 | **Activity / Hall of Fame / Records polish** — `ranked8.php` period/all-time activity tables, `server2.php` two-panel Hall of Fame split, peak-period aggregate fallback, and natural-width table polish are in repo. |
+| 2026-05 | **Activity / Hall of Fame / Records polish** — `leaderboards/activity-peaks.php` period/all-time activity tables, `hall-of-fame.php` two-panel Hall of Fame split, peak-period aggregate fallback, and natural-width table polish are in repo. |
 | 2026-05 | **Games tab shared row renderer** — `game.php` and the Games tab share `includes/k2_rated_game_row.php`; current Games tab behavior is recorded in the newer table-spacing cleanup row above. |
 | 2026-05 | **Status Phase B v1.2 in repo** — `status.php` has 4-col room grid, active leaderboard, monthly league toggle, recent logins/registrations/games; prod DB read + joshua redirect still open. |
-| 2026-05 | **Profile feast shipped** — production `individual1.php` feast layout only; mock lab removed; further profile work should be gradual copy/UX. |
+| 2026-05 | **Profile feast shipped** — production `player/profile.php` feast layout only; mock lab removed; further profile work should be gradual copy/UX. |
 | 2026-05 | **Core migration/prod coordination set up** — `prod-coordination.md`, registers, schema migrations, staging replay docs; prod post-game from `website-data-contract.md`; prod live ratings still C++. |
 | 2026-05 | **Chart/theme foundation shipped** — six-ink chart palette, dark theme tokens, shared header/nav/wing tabs, and `status.php` hub landing are in repo. |

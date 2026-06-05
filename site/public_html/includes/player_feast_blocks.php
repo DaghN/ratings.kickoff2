@@ -1,6 +1,6 @@
 <?php
 /**
- * Player profile feast blocks (individual1.php Profile tab).
+ * Player profile feast blocks (player/profile.php Profile tab).
  */
 
 function player_feast_section_open(string $title, ?string $hint = null): void
@@ -119,11 +119,11 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag"><?php echo pm_h($t['tag']); ?></span>
 			<h3 class="pm3-moment__label"><?php echo pm_h($t['label']); ?></h3>
 			<p class="pm3-moment__score">
-				<a href="game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
+				<a href="/game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
-				· vs <a href="individual1.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
+				· vs <a href="/player/profile.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
 				· <?php echo pm_h($t['date']); ?>
 			</p>
 		</article>

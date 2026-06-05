@@ -148,7 +148,7 @@ function player_feast_render_moments(array $pm): void
 	His favourite victim is <a href="individual1-profile-lab1.php?id=<?php echo (int) $fav['opponent_id']; ?>"><?php echo pm_h((string) $fav['opponent_name']); ?></a>
 	— beaten <strong><?php echo (int) $fav['wins']; ?></strong> times
 	<span class="pm3-feast-line__sub">(<?php echo (int) $fav['games']; ?> meetings)</span>.
-	<a class="pm3-feast-line__action" href="individual3.php?id=<?php echo $playerId; ?>&amp;opponent=<?php echo (int) $fav['opponent_id']; ?>">All games vs <?php echo pm_h((string) $fav['opponent_name']); ?></a>
+	<a class="pm3-feast-line__action" href="/player/games.php?id=<?php echo $playerId; ?>&amp;opponent=<?php echo (int) $fav['opponent_id']; ?>">All games vs <?php echo pm_h((string) $fav['opponent_name']); ?></a>
 </p>
         <?php
     }
@@ -178,7 +178,7 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag">Giant killing</span>
 			<h3 class="pm3-moment__label">Beat a rated giant</h3>
 			<p class="pm3-moment__score">
-				<a href="game.php?id=<?php echo (int) $m03['game_id']; ?>"><?php echo pm_h($m03['score']); ?></a>
+				<a href="/game.php?id=<?php echo (int) $m03['game_id']; ?>"><?php echo pm_h($m03['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($m03['outcome_class']); ?>"><?php echo pm_h($m03['outcome']); ?></span>
@@ -201,7 +201,7 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag"><?php echo pm_h($t['tag']); ?></span>
 			<h3 class="pm3-moment__label"><?php echo pm_h($t['label']); ?></h3>
 			<p class="pm3-moment__score">
-				<a href="game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
+				<a href="/game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
@@ -418,8 +418,8 @@ function player_feast_render_honours(array $pm): void
 		<?php } ?>
 	</ul>
 	<p class="pm3-honours__links">
-		<a href="<?php echo pm_h((string) ($honours['garden_href'] ?? 'individual_milestones.php?id=' . $playerId)); ?>">Milestone garden</a>
-		· <a href="<?php echo pm_h((string) ($honours['honours_href'] ?? 'ranked9.php?cup=overall')); ?>">League honours</a>
+		<a href="<?php echo pm_h((string) ($honours['garden_href'] ?? 'player/milestones.php?id=' . $playerId)); ?>">Milestone garden</a>
+		· <a href="<?php echo pm_h((string) ($honours['honours_href'] ?? 'leaderboards/league-honours.php?cup=overall')); ?>">League honours</a>
 	</p>
 </div>
     <?php
@@ -476,7 +476,7 @@ function player_feast_render_charts(array $pm): void
 	Main rival <a href="individual1-profile-lab1.php?id=<?php echo (int) $rival['opponent_id']; ?>"><?php echo pm_h((string) $rival['opponent_name']); ?></a>:
 	<strong><?php echo (int) $rival['wins']; ?></strong>–<strong><?php echo (int) $rival['draws']; ?></strong>–<strong><?php echo (int) $rival['losses']; ?></strong>
 	<span class="pm3-muted">(<?php echo (int) $rival['games']; ?> rated games)</span>
-	<a class="pm3-feast-line__action" href="individual3.php?id=<?php echo $playerIdForCharts; ?>&amp;opponent=<?php echo (int) $rival['opponent_id']; ?>">All games vs <?php echo pm_h((string) $rival['opponent_name']); ?></a>
+	<a class="pm3-feast-line__action" href="/player/games.php?id=<?php echo $playerIdForCharts; ?>&amp;opponent=<?php echo (int) $rival['opponent_id']; ?>">All games vs <?php echo pm_h((string) $rival['opponent_name']); ?></a>
 </p>
         <?php
     }

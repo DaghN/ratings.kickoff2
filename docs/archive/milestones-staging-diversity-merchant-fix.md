@@ -57,8 +57,8 @@ SELECT tier_band, chart_token FROM milestone_definitions WHERE milestone_key = '
 
 ## Browser smoke (Dagh)
 
-- `individual_milestones.php` — former false positives lose chrome **Diversity merchant**; holders show amber tier.
-- `ranked10.php` — meta totals drop by 1 for ~43 players.
+- `player/milestones.php` — former false positives lose chrome **Diversity merchant**; holders show amber tier.
+- `leaderboards/milestones.php` — meta totals drop by 1 for ~43 players.
 
 ---
 

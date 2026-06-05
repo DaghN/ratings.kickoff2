@@ -16,17 +16,17 @@
 
 - **Rated play streaks:** **Proven `kooldb1`** (`ranked4`, HoF). Live = PHP ops at cutover.
 
-- **Leagues:** **Honours proven `kooldb1`** (`ranked9.php`). Live = `FinalizeUtcDay` when wired.
+- **Leagues:** **Honours proven `kooldb1`** (`leaderboards/league-honours.php`). Live = `FinalizeUtcDay` when wired.
 
 - **Status Leagues:** Phase **1** shipped. Optional backlog only — [`status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (no agent handoff).
 
-- **Profile:** Feast shipped on **`individual1.php`**. Optional **lab compare** only (`individual1-profile-lab*.php`) — prompts in [`archive/profile-lab-agent-handoff.md`](docs/archive/profile-lab-agent-handoff.md); live spec [`player-profile-feast.md`](docs/player-profile-feast.md).
+- **Profile:** Feast shipped on **`player/profile.php`**. Optional **lab compare** only (`individual1-profile-lab*.php`) — prompts in [`archive/profile-lab-agent-handoff.md`](docs/archive/profile-lab-agent-handoff.md); live spec [`player-profile-feast.md`](docs/player-profile-feast.md).
 
 - **Design / Status hub:** Phase B v1.2 room grid shipped. Prod live DB read + joshua redirect = **deferred** ([`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md)).
 
-- **Activity (`server1.php`):** Charts v2 shipped **local + staging** — `activity-charts-v2.js` + `server_activity_chart_panels.php` ([`activity-charts.md`](docs/activity-charts.md)). Optional L4 polish in feature doc only.
+- **Activity (`activity.php`):** Charts v2 shipped **local + staging** — `activity-charts-v2.js` + `server_activity_chart_panels.php` ([`activity-charts.md`](docs/activity-charts.md)). Optional L4 polish in feature doc only.
 
-- **Hub IA:** Status · Activity · Leaderboards · Milestones (v0) · HoF · Play & Setup — [`hub-ia-agreement.md`](docs/hub-ia-agreement.md).
+- **Hub IA:** Status · Activity · Leaderboards · Milestones (v0) · HoF · Play & Setup — [`hub-ia-agreement.md`](docs/hub-ia-agreement.md). **URLs (Jun 2026):** semantic paths + `leaderboards/` + `player/` folders; registry [`k2_routes.php`](site/public_html/includes/k2_routes.php) — [`url-routes.md`](docs/url-routes.md).
 
 - **DB performance:** `idx_ratedresults_idA/idB` in ops migration **001** (migrate-work); proven on work DB; live = cutover migrate step.
 
@@ -111,15 +111,16 @@
 | 2026-06 | **Ladder ops platform** — [`docs/ladder-ops-platform.md`](docs/ladder-ops-platform.md) + `site/public_html/ops/` incl. `dispatch.php`, `run_process_game.php`, `run_prepare.php`. |
 | 2026-06 | **Local prod sandbox live** — baseline + work from sanitized dump; ~75,204 rated on work. |
 | 2026-06 | **Local DB model (3 DBs)** — scripts + **`database-copies-2026-06.md`**. |
-| 2026-06 | **Profile feast + content v1** — production `individual1.php`; playbook + v1 in [`player-profile-feast.md`](docs/player-profile-feast.md) / [`profile-build-playbook.md`](docs/profile-build-playbook.md); lab archived. |
-| 2026-06 | **Activity charts v2 shipped** — `server1.php` uses `activity-charts-v2.js` + `server_activity_chart_panels.php`; plan [`activity-charts.md`](docs/activity-charts.md). |
+| 2026-06 | **Profile feast + content v1** — production `player/profile.php`; playbook + v1 in [`player-profile-feast.md`](docs/player-profile-feast.md) / [`profile-build-playbook.md`](docs/profile-build-playbook.md); lab archived. |
+| 2026-06 | **Activity charts v2 shipped** — `activity.php` uses `activity-charts-v2.js` + `server_activity_chart_panels.php`; plan [`activity-charts.md`](docs/activity-charts.md). |
+| 2026-06 | **URL routes rename** — legacy `server*` / `ranked*` / `individual*` → semantic paths; `k2_routes.php`; [`url-routes.md`](docs/url-routes.md). |
 
 ---
 
 ## Deferred / blocked
 
 - GitHub branch protection — when collaborators land.
-- **Pretty URLs** (`/online/{id}`) — needs Steve (`.htaccess` / vhost).
+- **Extensionless URLs** (`.htaccess` rewrites) — optional; filenames and folders done Jun 2026.
 - **Status on prod live DB** + joshua redirect — [`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md).
 - **Prod PHP ops cutover** — after prod copy proves live dispatch (Steve).
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Hall of Fame (server2.php) — leaderboard deep links on record values.
+ * Hall of Fame (hall-of-fame.php) — leaderboard deep links on record values.
  *
  * Ratio/average HoF rows append provisional=0 (matches HoF >=20 eligibility). Other rows use
  * default leaderboard pool (both include toggles on). k2_sort / k2_dir see js/k2-table.js.
@@ -18,39 +18,48 @@ require_once __DIR__ . '/lb_player_filters.php';
 function records_hof_lb_target(string $metric): ?array
 {
 	static $map = [
-		'most_games' => ['page' => 'ranked7.php', 'sort' => 3, 'dir' => 'desc'],
-		// ranked8.php has several small tables; no k2_sort deep link (calendar panels are not sortable).
-		'peak_year' => ['page' => 'ranked8.php', 'sort' => -1, 'dir' => 'desc'],
-		'peak_month' => ['page' => 'ranked8.php', 'sort' => -1, 'dir' => 'desc'],
-		'peak_week' => ['page' => 'ranked8.php', 'sort' => -1, 'dir' => 'desc'],
-		'peak_day' => ['page' => 'ranked8.php', 'sort' => -1, 'dir' => 'desc'],
-		'play_streak_day' => ['page' => 'ranked4.php', 'sort' => 10, 'dir' => 'desc'],
-		'play_streak_week' => ['page' => 'ranked4.php', 'sort' => 11, 'dir' => 'desc'],
-		'most_wins' => ['page' => 'ranked7.php', 'sort' => 4, 'dir' => 'desc'],
-		'most_goals' => ['page' => 'ranked2.php', 'sort' => 4, 'dir' => 'desc'],
-		'most_dd' => ['page' => 'ranked3.php', 'sort' => 4, 'dir' => 'desc'],
-		'most_cs' => ['page' => 'ranked3.php', 'sort' => 5, 'dir' => 'desc'],
-		'most_opponents' => ['page' => 'ranked5.php', 'sort' => 4, 'dir' => 'desc'],
-		'most_victims' => ['page' => 'ranked5.php', 'sort' => 5, 'dir' => 'desc'],
-		'most_dd_victims' => ['page' => 'ranked5.php', 'sort' => 6, 'dir' => 'desc'],
-		'most_cs_victims' => ['page' => 'ranked5.php', 'sort' => 7, 'dir' => 'desc'],
-		'most_goals_one_game' => ['page' => 'ranked2.php', 'sort' => 9, 'dir' => 'desc'],
-		'biggest_win_margin' => ['page' => 'ranked2.php', 'sort' => 11, 'dir' => 'desc'],
-		'biggest_draw' => ['page' => 'ranked2.php', 'sort' => 13, 'dir' => 'desc'],
-		'biggest_sum_goals' => ['page' => 'ranked2.php', 'sort' => 14, 'dir' => 'desc'],
-		'peak_rating' => ['page' => 'ranked1.php', 'sort' => 4, 'dir' => 'desc'],
-		'win_streak' => ['page' => 'ranked4.php', 'sort' => 4, 'dir' => 'desc'],
-		'non_loss_streak' => ['page' => 'ranked4.php', 'sort' => 5, 'dir' => 'desc'],
-		'draw_streak' => ['page' => 'ranked4.php', 'sort' => 6, 'dir' => 'desc'],
-		'attack_avg' => ['page' => 'ranked2.php', 'sort' => 6, 'dir' => 'desc'],
-		'defense_avg' => ['page' => 'ranked2.php', 'sort' => 7, 'dir' => 'asc'],
-		'goal_ratio' => ['page' => 'ranked2.php', 'sort' => 8, 'dir' => 'desc'],
-		'win_ratio' => ['page' => 'ranked7.php', 'sort' => 7, 'dir' => 'desc'],
-		'dd_ratio' => ['page' => 'ranked3.php', 'sort' => 6, 'dir' => 'desc'],
-		'cs_ratio' => ['page' => 'ranked3.php', 'sort' => 7, 'dir' => 'desc'],
+		'most_games' => ['page' => 'lb-rating', 'sort' => 3, 'dir' => 'desc'],
+		// activity-peaks has several small tables; no k2_sort deep link (calendar panels are not sortable).
+		'peak_year' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
+		'peak_month' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
+		'peak_week' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
+		'peak_day' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
+		'play_streak_day' => ['page' => 'lb-streaks', 'sort' => 10, 'dir' => 'desc'],
+		'play_streak_week' => ['page' => 'lb-streaks', 'sort' => 11, 'dir' => 'desc'],
+		'most_wins' => ['page' => 'lb-rating', 'sort' => 4, 'dir' => 'desc'],
+		'most_goals' => ['page' => 'lb-goals', 'sort' => 4, 'dir' => 'desc'],
+		'most_dd' => ['page' => 'lb-double-digits', 'sort' => 4, 'dir' => 'desc'],
+		'most_cs' => ['page' => 'lb-double-digits', 'sort' => 5, 'dir' => 'desc'],
+		'most_opponents' => ['page' => 'lb-victims', 'sort' => 4, 'dir' => 'desc'],
+		'most_victims' => ['page' => 'lb-victims', 'sort' => 5, 'dir' => 'desc'],
+		'most_dd_victims' => ['page' => 'lb-victims', 'sort' => 6, 'dir' => 'desc'],
+		'most_cs_victims' => ['page' => 'lb-victims', 'sort' => 7, 'dir' => 'desc'],
+		'most_goals_one_game' => ['page' => 'lb-goals', 'sort' => 9, 'dir' => 'desc'],
+		'biggest_win_margin' => ['page' => 'lb-goals', 'sort' => 11, 'dir' => 'desc'],
+		'biggest_draw' => ['page' => 'lb-goals', 'sort' => 13, 'dir' => 'desc'],
+		'biggest_sum_goals' => ['page' => 'lb-goals', 'sort' => 14, 'dir' => 'desc'],
+		'peak_rating' => ['page' => 'lb-peak-rating', 'sort' => 4, 'dir' => 'desc'],
+		'win_streak' => ['page' => 'lb-streaks', 'sort' => 4, 'dir' => 'desc'],
+		'non_loss_streak' => ['page' => 'lb-streaks', 'sort' => 5, 'dir' => 'desc'],
+		'draw_streak' => ['page' => 'lb-streaks', 'sort' => 6, 'dir' => 'desc'],
+		'attack_avg' => ['page' => 'lb-goals', 'sort' => 6, 'dir' => 'desc'],
+		'defense_avg' => ['page' => 'lb-goals', 'sort' => 7, 'dir' => 'asc'],
+		'goal_ratio' => ['page' => 'lb-goals', 'sort' => 8, 'dir' => 'desc'],
+		'win_ratio' => ['page' => 'lb-rating', 'sort' => 7, 'dir' => 'desc'],
+		'dd_ratio' => ['page' => 'lb-double-digits', 'sort' => 6, 'dir' => 'desc'],
+		'cs_ratio' => ['page' => 'lb-double-digits', 'sort' => 7, 'dir' => 'desc'],
 	];
 
-	return $map[$metric] ?? null;
+	$row = $map[$metric] ?? null;
+	if ($row === null) {
+		return null;
+	}
+
+	return [
+		'page' => k2_route($row['page']),
+		'sort' => $row['sort'],
+		'dir' => $row['dir'],
+	];
 }
 
 /** HoF ratio/average leaders require NumberGames >= 20 — link with provisional=0 so the wing matches. */

@@ -8,7 +8,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 |---------|-------|--------|-----------|-----------------|--------------|----------|-------|
 | Ladder ops platform (`ops/`, PHP post-game) | — | — | — | **Done** Jun 2026 | **Not executed** | — | P0–P7 + `dispatch.php`; Steve `CMD=ProcessCompletedGame` |
 | Local dual website (dev + work URLs) | — | — | — | — | — | — | **Jun 2026** — `ratingskickoff.test` → `ko2unity_db`, `work.ratingskickoff.test` → `ko2unity_work`; config router |
-| Profile graph restoration | L0 | — | — | — | — | — | `individual1.php` profile visuals restored to Activity-style chart frames; server-origin time axes; peak dashed line; comparison date/games toggle; played-days year picker; top-opponents tall chart; winrate-vs-Elo graph removed |
+| Profile graph restoration | L0 | — | — | — | — | — | `player/profile.php` profile visuals restored to Activity-style chart frames; server-origin time axes; peak dashed line; comparison date/games toggle; played-days year picker; top-opponents tall chart; winrate-vs-Elo graph removed |
 | Daily active players chart | L2 | SCH-007 | Yes | **Done** | **Not executed** | — | `server_daily_activity`; post-game via PHP ops at live cutover |
 | All-time busiest players chart (Activity) | L0 | — | — | — | — | — | Top 10 by `playertable.NumberGames` (tie → lowest ID); monthly series from `player_period_games`; was monthly top-10 eras |
 | Activity Graph Roadmap | L0 | — | — | — | — | — | Read-time `ratedresults`/`playertable` |
@@ -20,7 +20,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Six-hour tint schedule | — | — | — | — | — | — | `k2-tint-schedule.js` |
 | Header realm switcher | — | — | — | — | — | — | **Removed Jun 2026** |
 | Records two-panel split | L0 | — | — | — | — | — | Peak cache read path |
-| League honours leaderboard (v1) | L0 | — | — | **Proven** | **Not executed** | — | `ranked9.php`; **proven on `kooldb1`** after simul |
+| League honours leaderboard (v1) | L0 | — | — | **Proven** | **Not executed** | — | `leaderboards/league-honours.php`; **proven on `kooldb1`** after simul |
 | League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Not executed** | PER-003 at cutover | Same simul as honours; live cron `FinalizeUtcDay` when wired |
 | Status Leagues (Activity + Points) | L0 | — | — | **Proven** | **Not executed** | — | Phase **1** shipped; spec [`status-period-competitions.md`](../status-period-competitions.md) |
 | Status league stack | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | `player_period_league`; PHP ops post-game at live cutover |
@@ -29,12 +29,12 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Hall of Fame context links | L0 | — | — | — | — | — | ranked wings + `k2_sort` (May 2026) |
 | Player stat `k2-table.js` migration | L0 | — | — | — | — | — | JS only |
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | — | Sort + anchor column (May 2026) |
-| Games tab 14-day buckets | L0 | — | — | — | — | — | **Recent** on `server3.php` |
-| Games Highlights (spectacle boards) | L0 | — | — | — | — | — | `server3.php?view=highlights` |
+| Games tab 14-day buckets | L0 | — | — | — | — | — | **Recent** on `games.php` |
+| Games Highlights (spectacle boards) | L0 | — | — | — | — | — | `games.php?view=highlights` |
 | Play & Setup page | L0 | — | — | — | — | — | `join.php` |
 | Hub / Status cosmetics | — | — | — | — | — | — | PHP only |
 | Milestones hub tab (stub) | L0 | — | — | — | — | — | `milestones.php` v0 hub |
-| Hub IA — Games off top nav | — | — | — | — | — | — | `server3.php` sub-nav |
+| Hub IA — Games off top nav | — | — | — | — | — | — | `games.php` sub-nav |
 | Status league / performance | L2 | SCH-005, SCH-017 | Yes | **Proven** | **Not executed** | — | Indexes + `player_period_league` |
 | Period activity leaderboards | L2 | SCH-004, SCH-006 | Yes | **Proven** | **Not executed** | — | `player_period_games` / peaks |
 | Profile hero milestones (no peak) | L0 | — | — | — | — | — | Garden hero |

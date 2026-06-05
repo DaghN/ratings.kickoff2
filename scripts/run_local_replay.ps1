@@ -33,7 +33,7 @@ try {
     }
     Write-Host '[OK] Replay finished.' -ForegroundColor Green
     if (-not $DryRun) {
-        Write-Host 'Spot-check: http://ratingskickoff.test/individual1.php?id=237' -ForegroundColor Cyan
+        Write-Host 'Spot-check: http://ratingskickoff.test/player/profile.php?id=237' -ForegroundColor Cyan
     }
 } finally {
     Pop-Location

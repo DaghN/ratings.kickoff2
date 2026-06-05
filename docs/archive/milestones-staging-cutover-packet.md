@@ -65,17 +65,17 @@ Create remote folder `staging-data/` if missing.
 | `site/public_html/includes/player_milestones_helpers.php` | `includes/player_milestones_helpers.php` |
 | `site/public_html/includes/player_milestones_garden_order.php` | `includes/player_milestones_garden_order.php` |
 | `site/public_html/includes/milestone_garden_links.php` | `includes/milestone_garden_links.php` |
-| `site/public_html/individual3.php` | `individual3.php` |
+| `site/public_html/player/games.php` | `player/games.php` |
 | `site/public_html/includes/player_nav.php` | `includes/player_nav.php` |
 | `site/public_html/includes/hub_nav.php` | `includes/hub_nav.php` |
 | `site/public_html/includes/lb_nav.php` | `includes/lb_nav.php` |
 | `site/public_html/includes/k2_league_period_page.php` | `includes/k2_league_period_page.php` |
-| `site/public_html/individual_milestones.php` | `individual_milestones.php` |
-| `site/public_html/individual1.php` | `individual1.php` |
+| `site/public_html/player/milestones.php` | `player/milestones.php` |
+| `site/public_html/player/profile.php` | `player/profile.php` |
 | `site/public_html/milestones.php` | `milestones.php` |
-| `site/public_html/ranked10.php` | `ranked10.php` |
+| `site/public_html/leaderboards/milestones.php` | `leaderboards/milestones.php` |
 | `site/public_html/league.php` | `league.php` |
-| `site/public_html/server2.php` | `server2.php` |
+| `site/public_html/hall-of-fame.php` | `hall-of-fame.php` |
 | `site/public_html/stylesheets/player-milestones.css` | `stylesheets/player-milestones.css` |
 | `site/public_html/api/server_established_players_by_year.php` | `api/server_established_players_by_year.php` |
 | `site/public_html/api/server_cumulative_established_by_month.php` | `api/server_cumulative_established_by_month.php` |
@@ -182,13 +182,13 @@ Base URL: staging site root (same host as today’s staging ratings).
 
 | URL | Check |
 |-----|--------|
-| `ranked10.php` | Milestones meta-leaderboard loads; tier columns sort |
-| `individual_milestones.php?id=537` | geo4444 garden shows **100/110** + tier dots |
-| `individual1.php?id=537` | Profile glance **100/110** |
-| `server2.php` | “Milestone achievers” DD Merchant list (not single-holder records) |
+| `leaderboards/milestones.php` | Milestones meta-leaderboard loads; tier columns sort |
+| `player/milestones.php?id=537` | geo4444 garden shows **100/110** + tier dots |
+| `player/profile.php?id=537` | Profile glance **100/110** |
+| `hall-of-fame.php` | “Milestone achievers” DD Merchant list (not single-holder records) |
 | `milestones.php` | Hub stub + nav tab |
 | `milestones.php` (Recent) | Perfect/Nightmare unlock times show **`00:00` UTC** (not last-game evening) — after § Day-close DB fix |
-| `individual_milestones.php?id=<player>` | Perfect/Nightmare garden link label **Games** → `individual3.php?id=&day=` (qualifying UTC day = calendar day before `achieved_at`) |
+| `player/milestones.php?id=<player>` | Perfect/Nightmare garden link label **Games** → `player/games.php?id=&day=` (qualifying UTC day = calendar day before `achieved_at`) |
 
 If counts match but a page errors, paste PHP error / screenshot to agent — likely a missing WinSCP file from § C.
 
@@ -208,7 +208,7 @@ If counts match but a page errors, paste PHP error / screenshot to agent — lik
 
 ## Day-close fix — `perfect_day` / `nightmare_day` (Jun 2026)
 
-**Semantics:** `achieved_at` = **`00:00:00` UTC on the calendar day after** the qualifying UTC day (not the last game time that evening). **`source_game_id`** stays the last rated game that day (evidence only). Garden link kind: **`player_day_games`** → `individual3.php?id=&day=` (qualifying day derived from `achieved_at`). Contract: [`website-data-contract.md`](../website-data-contract.md) · register: [`milestones-unlock-event-ui.md`](../milestones-unlock-event-ui.md).
+**Semantics:** `achieved_at` = **`00:00:00` UTC on the calendar day after** the qualifying UTC day (not the last game time that evening). **`source_game_id`** stays the last rated game that day (evidence only). Garden link kind: **`player_day_games`** → `player/games.php?id=&day=` (qualifying day derived from `achieved_at`). Contract: [`website-data-contract.md`](../website-data-contract.md) · register: [`milestones-unlock-event-ui.md`](../milestones-unlock-event-ui.md).
 
 **Generate SQL (dev):** `python scripts/oneoff/apply_day_milestone_achieved_at_fix.py` → `scripts/ladder/sql/player_milestones_fix_day_close.sql` (113 INSERTs). Upload per § A table.
 
@@ -244,7 +244,7 @@ LIMIT 5;
 
 **Expected:** `perfect_nightmare_after` = **113**; samples `00:00:00`; total rows ≈ **6615+** (grows with new unlocks); TIME group only **`00:00:00`**.
 
-**Staging verified (Jun 2026):** Steve SQL — **113** / **113** midnight; total **6620**; newest sample `nightmare_day` **2026-04-22 00:00:00** game **74055**. Dagh browser smoke **done** — `milestones.php` Recent `00:00` UTC; `individual_milestones.php` Perfect/Nightmare **Games** → `individual3.php?day=` OK.
+**Staging verified (Jun 2026):** Steve SQL — **113** / **113** midnight; total **6620**; newest sample `nightmare_day` **2026-04-22 00:00:00** game **74055**. Dagh browser smoke **done** — `milestones.php` Recent `00:00` UTC; `player/milestones.php` Perfect/Nightmare **Games** → `player/games.php?day=` OK.
 
 ---
 

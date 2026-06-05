@@ -266,7 +266,7 @@
                                 }
                                 var pt = items[0].raw;
                                 if (pt && pt.gameId) {
-                                    return 'game.php?id=' + pt.gameId;
+                                    return '/game.php?id=' + pt.gameId;
                                 }
                                 return '';
                             }

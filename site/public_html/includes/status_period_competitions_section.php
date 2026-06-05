@@ -85,7 +85,7 @@ if (!function_exists('k2_status_render_day_games_list')) {
 										<span class="k2-status-score"><?php echo (int) $g['goals_a']; ?>–<?php echo (int) $g['goals_b']; ?></span>
 										<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_b'], $g['name_b']); ?></span>
 									</span>
-									<a class="k2-link-star k2-status-day-games-list__game" href="game.php?id=<?php echo (int) $g['id']; ?>"><?php echo (int) $g['id']; ?></a>
+									<a class="k2-link-star k2-status-day-games-list__game" href="/game.php?id=<?php echo (int) $g['id']; ?>"><?php echo (int) $g['id']; ?></a>
 								</li>
 <?php } ?>
 							</ul>

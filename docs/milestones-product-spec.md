@@ -2,7 +2,7 @@
 
 **Kick Off 2 ratings site · May 2026**
 
-**Status:** **Shipped v0** (May–Jun 2026) — 112 keys, tier bands in seed + catalog, profile garden + `ranked10.php` + hub stub live.
+**Status:** **Shipped v0** (May–Jun 2026) — 112 keys, tier bands in seed + catalog, profile garden + `leaderboards/milestones.php` + hub stub live.
 
 **Related:** [`milestones-project.md`](milestones-project.md) (phases) · archived brainstorm in [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md)
 
@@ -121,7 +121,7 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | Key completion % leaderboard | TBD |
 | Hub tab route | **`milestones.php`** stub (May 2026); full hub WIP — [`milestones-hub-ia.md`](milestones-hub-ia.md) |
 
-**Shipped v0 URLs (May 2026, local):** hub stub `milestones.php` · garden `individual_milestones.php?id={player}` · meta-leaderboard `ranked10.php` · profile hero milestones on all player tabs (`player_hero.php`) · trial achiever list on `server2.php` (Double Digit Merchant only; migrates when hub ready).
+**Shipped v0 URLs (May 2026, local):** hub stub `milestones.php` · garden `player/milestones.php?id={player}` · meta-leaderboard `leaderboards/milestones.php` · profile hero milestones on all player tabs (`player_hero.php`) · trial achiever list on `hall-of-fame.php` (Double Digit Merchant only; migrates when hub ready).
 
 ---
 

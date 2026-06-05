@@ -1,18 +1,20 @@
 <?php
 /**
- * Player feast pills — Profile · Games · W/D/L · Goals · DDs
+ * Player feast pills — Profile · Games · W/D/L · Goals · DDs · Milestones
  * Set $k2PlayerTabActive and $id before include.
  * Tint picker on the right (parity with hub_nav.php).
  */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
+
 $k2PlayerTabActive = $k2PlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
 $k2PlayerTabs = [
-	'profile' => ['href' => 'individual1.php?id=' . $id, 'label' => 'Profile'],
-	'games' => ['href' => 'individual3.php?id=' . $id, 'label' => 'Games'],
-	'wins' => ['href' => 'individual2a.php?id=' . $id, 'label' => 'W/D/L'],
-	'goals' => ['href' => 'individual2b.php?id=' . $id, 'label' => 'Goals'],
-	'dds' => ['href' => 'individual2c.php?id=' . $id, 'label' => 'DDs'],
-	'milestones' => ['href' => 'individual_milestones.php?id=' . $id, 'label' => 'Milestones'],
+	'profile' => ['href' => k2_route('player-profile', ['id' => $id]), 'label' => 'Profile'],
+	'games' => ['href' => k2_route('player-games', ['id' => $id]), 'label' => 'Games'],
+	'wins' => ['href' => k2_route('player-wdl', ['id' => $id]), 'label' => 'W/D/L'],
+	'goals' => ['href' => k2_route('player-goals', ['id' => $id]), 'label' => 'Goals'],
+	'double-digits' => ['href' => k2_route('player-double-digits', ['id' => $id]), 'label' => 'DDs'],
+	'milestones' => ['href' => k2_route('player-milestones', ['id' => $id]), 'label' => 'Milestones'],
 ];
 ?>
 <div class="k2-player-nav-bar">
@@ -27,4 +29,4 @@ $k2PlayerTabs = [
 		</div>
 	</nav>
 </div>
-<script type="text/javascript" src="js/k2-tint-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-tint-toggle.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-tint-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-tint-toggle.js'); ?>" defer="defer"></script>

@@ -10,7 +10,7 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 | | |
 |--|--|
-| **Completed** | **Phase 1–4 v0** — catalog **112** keys; full rebuild + parity on local/work; **staging `kooldb`** (May 2026); UI (profile garden, `ranked10.php`, hub stub); **rated play streaks** SCH-014 + REP-015; **`year_in_heaven`** + **`play_streak_100`** |
+| **Completed** | **Phase 1–4 v0** — catalog **112** keys; full rebuild + parity on local/work; **staging `kooldb`** (May 2026); UI (profile garden, `leaderboards/milestones.php`, hub stub); **rated play streaks** SCH-014 + REP-015; **`year_in_heaven`** + **`play_streak_100`** |
 | **Next** | Post-game PHP on work/staging live (see [`ladder-ops-platform.md`](ladder-ops-platform.md)); hub Home [`milestones-hub-ia.md`](milestones-hub-ia.md); prod cutover when Steve ready |
 
 **Catalog (112 keys):** [`milestones-README.md`](milestones-README.md) → [`milestones-catalog.md`](milestones-catalog.md) (generated). **Seed:** [`site/public_html/ops/data/milestones_definitions_seed.json`](../site/public_html/ops/data/milestones_definitions_seed.json). **Facilitation:** [`milestones-facilitation.md`](milestones-facilitation.md).
@@ -27,7 +27,7 @@ Single place to see **where the milestone feature is** in the pipeline.
 | 1 | **Idea creation** | Done | [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md) |
 | 2 | **Definition** | Done (May 2026) | [`milestones-product-spec.md`](milestones-product-spec.md), seed + generated catalog |
 | 3 | **Data contract + rebuild** | Done (local/work/staging) | [`milestones-facilitation.md`](milestones-facilitation.md), [`website-data-contract.md`](website-data-contract.md) |
-| 4 | **Build & ship** | **v0 + hub stub** | Profile garden, `ranked10.php`, hub `milestones.php` stub; full hub WIP |
+| 4 | **Build & ship** | **v0 + hub stub** | Profile garden, `leaderboards/milestones.php`, hub `milestones.php` stub; full hub WIP |
 
 ---
 
@@ -38,7 +38,7 @@ Single place to see **where the milestone feature is** in the pipeline.
 | `milestone_definitions` | SCH-011; **112** rows from seed |
 | `player_milestones` | **112/112** keys in rebuild; parity scripts on local/work |
 | Post-game (forward) | PHP ops P6 — [`post-game-php-development.md`](post-game-php-development.md); prod C++ until cutover |
-| Profiles / leaderboards | **v0** — profile pill + garden, `ranked10.php`, hub stub |
+| Profiles / leaderboards | **v0** — profile pill + garden, `leaderboards/milestones.php`, hub stub |
 
 ---
 

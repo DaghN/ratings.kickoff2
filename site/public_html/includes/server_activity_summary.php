@@ -1,7 +1,7 @@
 <?php
 /**
  * Activity tab summary block (PHP + markup).
- * Used by server1.php (Activity hub).
+ * Used by activity.php (Activity hub).
  */
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 

@@ -5,7 +5,7 @@
  *
  * Optional before include:
  *   $playerSearchRealm — string, e.g. 'online' | 'offline'
- *   $playerProfilePage — profile PHP basename, default individual1.php
+ *   $playerProfilePage — profile PHP basename, default player/profile.php
  *   $playerSearchInHeader — if true, mock-style header search in site chrome
  */
 
@@ -14,7 +14,8 @@ if (!isset($playerSearchRealm)) {
 }
 
 if (!isset($playerProfilePage)) {
-    $playerProfilePage = 'individual1.php';
+    require_once __DIR__ . '/k2_routes.php';
+    $playerProfilePage = k2_route('player-profile');
 }
 
 if (!isset($playerSearchInHeader)) {

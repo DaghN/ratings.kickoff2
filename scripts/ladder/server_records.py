@@ -1,7 +1,7 @@
 """Server hall-of-fame (generalstatstable row id=1) during chronological replay.
 
 Tie policy (a): first holder keeps the record until strictly beaten (use >, not >=).
-Ratio/average leaders are not stored here — see playertable + server2.php queries.
+Ratio/average leaders are not stored here — see playertable + hall-of-fame.php queries.
 """
 
 from __future__ import annotations

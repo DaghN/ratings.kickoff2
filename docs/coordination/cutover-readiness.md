@@ -49,8 +49,8 @@ migrate-work → seed-catalog → zero-derived → run_ops_sim.php → run_verif
 |------|-------------|
 | **Ops simul** | Signed off; verify **0 fail** |
 | **Post-game PHP** | P0–P7 in `run_process_game.php`; live target `CMD=ProcessCompletedGame` + `FinalizeUtcDay` |
-| **League honours** | `ranked9.php` — `player_league_totals` + slice totals; UI + data verified after simul |
-| **Rated play streaks** | `ranked4.php` + HoF on `server2.php`; `player_play_streaks` + GST columns |
+| **League honours** | `leaderboards/league-honours.php` — `player_league_totals` + slice totals; UI + data verified after simul |
+| **Rated play streaks** | `leaderboards/streaks.php` + HoF on `hall-of-fame.php`; `player_play_streaks` + GST columns |
 | **Status leagues** | `player_period_league` + activity via `player_period_games` (Phase **1** shipped) |
 | **Milestones** | Catalog **112**; `player_milestones` populated via simul (canonical **6615**+ after rule fixes; see archive replay register for row-count timeline) |
 | **Indexes (SCH-001)** | `idx_ratedresults_idA` / `idB` — part of **`migrate-work`** (migration `001_…`), not a separate manual prod prep step |

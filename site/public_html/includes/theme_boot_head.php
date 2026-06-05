@@ -6,7 +6,7 @@
  */
 $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 ?>
-<script type="text/javascript" src="js/k2-tint-schedule.js?v=<?php echo (int) @filemtime($k2DocRoot . '/js/k2-tint-schedule.js'); ?>"></script>
+<script type="text/javascript" src="/js/k2-tint-schedule.js?v=<?php echo (int) @filemtime($k2DocRoot . '/js/k2-tint-schedule.js'); ?>"></script>
 <script type="text/javascript">
 (function () {
 	var root = document.documentElement;

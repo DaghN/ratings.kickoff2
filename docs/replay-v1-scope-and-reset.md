@@ -151,7 +151,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 2. **Row counts (before):** `SELECT COUNT(*) FROM ratedresults` → expect **~74,870** locally.
 3. **Backup:** keep `data/dumps/ko2unity_db-2026-05-20.sql`; re-import if reset goes wrong (`data/README.md`).
 4. **Dry-run (P1):** first CLI flag `--dry-run` logs row counts and sample SQL, no `UPDATE`.
-5. **After full replay:** spot-check one known player’s rating chart, `ranked1.php` order, and `SELECT Rating FROM playertable ORDER BY Rating DESC LIMIT 10`.
+5. **After full replay:** spot-check one known player’s rating chart, `leaderboards/peak-rating.php` order, and `SELECT Rating FROM playertable ORDER BY Rating DESC LIMIT 10`.
 
 ---
 

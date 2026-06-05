@@ -10,7 +10,7 @@
  *   - M03 max rated victim, M08 favourite victim, M09 featured rival
  *   - MS01/MS02/MS04 milestone snippets, L01/L02/L04 league snippets
  *
- * Production individual1.php is untouched. Extras live under $pm['lab2'].
+ * Production player/profile.php is untouched. Extras live under $pm['lab2'].
  */
 declare(strict_types=1);
 

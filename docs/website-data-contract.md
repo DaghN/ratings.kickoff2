@@ -90,7 +90,7 @@ Schema reference: `docs/playertable-schema.md`.
 
 #### Career peak and nadir (`PeakRating`, `LowestRating`)
 
-**Purpose:** Per-player **career** high and low Elo after the player is **established** (same story as `K2_ESTABLISHED_MIN_GAMES` = **20** rated games). Shown on the Peak rating leaderboard wing (`ranked1.php`), profile/feast (tooltips TBD), and anywhere else that reads these columns.
+**Purpose:** Per-player **career** high and low Elo after the player is **established** (same story as `K2_ESTABLISHED_MIN_GAMES` = **20** rated games). Shown on the Peak rating leaderboard wing (`leaderboards/peak-rating.php`), profile/feast (tooltips TBD), and anywhere else that reads these columns.
 
 **Not the same as:**
 
@@ -101,8 +101,8 @@ Schema reference: `docs/playertable-schema.md`.
 
 | Column | Unset value | Site display |
 |--------|-------------|--------------|
-| `PeakRating` | `0` (or NULL treated as unset) | `-` on `ranked1.php` |
-| `LowestRating` | `5000.00` | `-` on `ranked1.php` |
+| `PeakRating` | `0` (or NULL treated as unset) | `-` on `leaderboards/peak-rating.php` |
+| `LowestRating` | `5000.00` | `-` on `leaderboards/peak-rating.php` |
 
 **Threshold:** `K2_ESTABLISHED_MIN_GAMES` (**20**) — `site/public_html/includes/lb_player_filters.php`. Leaderboard “exclude provisional” uses the same number for **who is listed**; this section defines **when the columns exist and how they are written**.
 
@@ -276,7 +276,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Implementation:** `site/public_html/includes/player_play_streaks.php`; ops post-game P7; local repair `scripts/rebuild_player_play_streaks.php`. Historical handoff: [`archive/play-streaks-staging-handoff.md`](archive/play-streaks-staging-handoff.md).
 
-**UI (read stored truth):** Leaderboards → Streaks [`ranked4.php`](../site/public_html/ranked4.php) — **Days** / **Weeks** (`best_streak` from `player_play_streaks`). Hall of Fame [`server2.php`](../site/public_html/server2.php) — **Most days in a row** / **Most weeks in a row** (`generalstatstable` `LongestDailyPlayStreak*` / `LongestWeeklyPlayStreak*`). **Staging verified** May 2026 (Steve; max day 87, week 126).
+**UI (read stored truth):** Leaderboards → Streaks [`leaderboards/streaks.php`](../site/public_html/leaderboards/streaks.php) — **Days** / **Weeks** (`best_streak` from `player_play_streaks`). Hall of Fame [`hall-of-fame.php`](../site/public_html/hall-of-fame.php) — **Most days in a row** / **Most weeks in a row** (`generalstatstable` `LongestDailyPlayStreak*` / `LongestWeeklyPlayStreak*`). **Staging verified** May 2026 (Steve; max day 87, week 126).
 
 ---
 
@@ -823,7 +823,7 @@ Staging/local: **full backfill** via rebuild + ops simul is enough for UI until 
 
 **Lifecycle:** Existing core server-stat table.
 
-**Purpose:** One-row server-wide stats and record pointers used by Hall of Fame (`server2.php`) and status surfaces.
+**Purpose:** One-row server-wide stats and record pointers used by Hall of Fame (`hall-of-fame.php`) and status surfaces.
 
 **Source truth:** `ratedresults` (chronological replay) and `playertable` (for aggregate totals).
 
@@ -871,7 +871,7 @@ The **server-wide** record pointers (e.g. `MostCleanSheetsVictimsS`) in `general
 
 ##### Personal record pointers and record-holder victim/culprit counts
 
-**Scope:** Per-player **single-game extremes** and the **inverse counts** on opponents (Victims & Culprits leaderboard, `ranked5.php`). Examples:
+**Scope:** Per-player **single-game extremes** and the **inverse counts** on opponents (Victims & Culprits leaderboard, `leaderboards/victims.php`). Examples:
 
 | Stored on player | Meaning |
 |------------------|---------|
@@ -909,9 +909,9 @@ When a new game **strictly exceeds** the stored extreme: update margin/goals and
 
 **Rebuild parity:** Full replay must use the same **`>`** rules so `playertable` matches prod. Golden checks should include at least one **tied margin, two opponents** case for `BiggestLossVictims` / `BiggestWinCulprits`.
 
-**Site copy when `>` ships (do not skip):** Behaviour change is not visible from numbers alone — update user-facing text on the Victims & Culprits wing (`ranked5.php`) and anywhere else that explains BL/BW/MGC/MGS-style stats:
+**Site copy when `>` ships (do not skip):** Behaviour change is not visible from numbers alone — update user-facing text on the Victims & Culprits wing (`leaderboards/victims.php`) and anywhere else that explains BL/BW/MGC/MGS-style stats:
 
-- **Footer legend** under `ranked5.php`: removed May 2026; tie rule and abbrev live in column tooltips (`lb_column_help.php`). If a footer returns, do not reintroduce “latest game takes precedence” (**legacy `>=`**).
+- **Footer legend** under `leaderboards/victims.php`: removed May 2026; tie rule and abbrev live in column tooltips (`lb_column_help.php`). If a footer returns, do not reintroduce “latest game takes precedence” (**legacy `>=`**).
 - **Column tooltips** (`data-k2-help` on `th`): align with `>` — e.g. credited opponent stays on a tie; inverse counts move only when margin is **strictly** beaten and credit shifts.
 - **HoF / profile cross-links** only if their help text repeats the old tie story.
 

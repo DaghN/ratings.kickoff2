@@ -115,11 +115,11 @@ if (Test-Path $hostsFile) {
 
 # HTTP site
 try {
-    $r = Invoke-WebRequest -Uri 'http://ratingskickoff.test/ranked1.php' -UseBasicParsing -TimeoutSec 12
+    $r = Invoke-WebRequest -Uri 'http://ratingskickoff.test/leaderboards/peak-rating.php' -UseBasicParsing -TimeoutSec 12
     if ($r.StatusCode -eq 200) {
-        Report -Pass $true -Message "HTTP ratingskickoff.test/ranked1.php status $($r.StatusCode)"
+        Report -Pass $true -Message "HTTP ratingskickoff.test/leaderboards/peak-rating.php status $($r.StatusCode)"
     } else {
-        Report -Pass $false -Message "HTTP ranked1.php status $($r.StatusCode)"
+        Report -Pass $false -Message "HTTP leaderboards/peak-rating.php status $($r.StatusCode)"
     }
 } catch {
     Report -Pass $false -Message "HTTP ratingskickoff.test failed: $($_.Exception.Message)"
@@ -148,11 +148,11 @@ if (Test-Path $MysqlExe) {
 
 # Work site HTTP (same code, different host -> work DB)
 try {
-    $wr = Invoke-WebRequest -Uri 'http://work.ratingskickoff.test/ranked1.php' -UseBasicParsing -TimeoutSec 12
+    $wr = Invoke-WebRequest -Uri 'http://work.ratingskickoff.test/leaderboards/peak-rating.php' -UseBasicParsing -TimeoutSec 12
     if ($wr.StatusCode -eq 200) {
-        Report -Pass $true -Message "HTTP work.ratingskickoff.test/ranked1.php status $($wr.StatusCode)"
+        Report -Pass $true -Message "HTTP work.ratingskickoff.test/leaderboards/peak-rating.php status $($wr.StatusCode)"
     } else {
-        Report -Pass $false -Message "HTTP work ranked1.php status $($wr.StatusCode)"
+        Report -Pass $false -Message "HTTP work leaderboards/peak-rating.php status $($wr.StatusCode)"
     }
 } catch {
     Report -Pass $false -Message "HTTP work.ratingskickoff.test failed (hosts + Laragon?): $($_.Exception.Message)"

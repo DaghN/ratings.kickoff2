@@ -12,7 +12,7 @@ if (isset($_GET['sort'])) {
 	if (isset($_GET['panel']) && strtolower(trim((string) $_GET['panel'])) === 'graphs') {
 		$params['panel'] = 'graphs';
 	}
-	header('Location: milestone.php?' . http_build_query($params), true, 302);
+	header('Location: ' . k2_route('milestone', $params), true, 302);
 	exit;
 }
 

@@ -113,7 +113,7 @@ function k2_render_period_activity_tbody(string $period, array $entries): void
     foreach ($entries as $entry) {
         echo '<tr>';
         echo '<td>' . (int) $entry['rank'] . '</td>';
-        echo '<td class="k2-table-cell--left"><a href="individual1.php?id='
+        echo '<td class="k2-table-cell--left"><a href="/player/profile.php?id='
             . (int) $entry['player_id'] . '">'
             . htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8') . '</a></td>';
         echo '<td>' . (int) $entry['games'] . '</td>';

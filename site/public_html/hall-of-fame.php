@@ -15,7 +15,7 @@
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
 <?php
-$k2HubTabActive = 'records';
+$k2HubTabActive = 'hall-of-fame';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 ?>
 
@@ -138,7 +138,7 @@ function records_render_peak_period_row(string $label, string $period, ?array $e
 	records_render_row(
 		$label,
 		htmlspecialchars(records_value_or_dash($entry['games']), ENT_QUOTES, 'UTF-8'),
-		records_holder_html('<a href="individual1.php?id=' . $entry['player_id'] . '">' . $entry['player_name'] . '</a>'),
+		records_holder_html('<a href="/player/profile.php?id=' . $entry['player_id'] . '">' . $entry['player_name'] . '</a>'),
 		records_add_age_marker($periodText, records_peak_period_age_date($period, $periodKey), $newRecordCutoff, $legendaryRecordCutoff),
 		null,
 		$lbHref
@@ -288,7 +288,7 @@ mysqli_close($con);
 records_render_row(
 	'Most games',
 	(string) $records['MostGamesPlayed'],
-	records_holder_html('<a href="individual1.php?id=' . $records['MostGamesPlayedID'] . '">' . $records['MostGamesPlayedName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostGamesPlayedID'] . '">' . $records['MostGamesPlayedName'] . '</a>'),
 	records_date_or_dash($records['MostGamesPlayedDate'], true, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_games')
@@ -304,7 +304,7 @@ records_render_row(
 	'Most days in a row',
 	records_value_or_dash($records['LongestDailyPlayStreak'] ?? null),
 	$hasDailyPlayStreak
-		? records_holder_html('<a href="individual1.php?id=' . (int) $records['LongestDailyPlayStreakID'] . '">' . $records['LongestDailyPlayStreakName'] . '</a>')
+		? records_holder_html('<a href="/player/profile.php?id=' . (int) $records['LongestDailyPlayStreakID'] . '">' . $records['LongestDailyPlayStreakName'] . '</a>')
 		: '-',
 	records_date_or_dash($records['LongestDailyPlayStreakDate'] ?? null, $hasDailyPlayStreak, $newRecordCutoff, $legendaryRecordCutoff),
 	k2_play_streak_help_day(),
@@ -315,7 +315,7 @@ records_render_row(
 	'Most weeks in a row',
 	records_value_or_dash($records['LongestWeeklyPlayStreak'] ?? null),
 	$hasWeeklyPlayStreak
-		? records_holder_html('<a href="individual1.php?id=' . (int) $records['LongestWeeklyPlayStreakID'] . '">' . $records['LongestWeeklyPlayStreakName'] . '</a>')
+		? records_holder_html('<a href="/player/profile.php?id=' . (int) $records['LongestWeeklyPlayStreakID'] . '">' . $records['LongestWeeklyPlayStreakName'] . '</a>')
 		: '-',
 	records_date_or_dash($records['LongestWeeklyPlayStreakDate'] ?? null, $hasWeeklyPlayStreak, $newRecordCutoff, $legendaryRecordCutoff),
 	k2_play_streak_help_week(),
@@ -326,7 +326,7 @@ records_render_spacer_row();
 records_render_row(
 	'Most wins',
 	records_value_or_dash($records['MostWins']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostWinsID'] . '">' . $records['MostWinsName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostWinsID'] . '">' . $records['MostWinsName'] . '</a>'),
 	records_date_or_dash($records['MostWinsDate'], records_has_value($records['MostWins']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_wins')
@@ -334,7 +334,7 @@ records_render_row(
 records_render_row(
 	'Most goals',
 	records_value_or_dash($records['MostGoalsScored']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostGoalsScoredID'] . '">' . $records['MostGoalsScoredName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostGoalsScoredID'] . '">' . $records['MostGoalsScoredName'] . '</a>'),
 	records_date_or_dash($records['MostGoalsScoredDate'], records_has_value($records['MostGoalsScored']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_goals')
@@ -342,7 +342,7 @@ records_render_row(
 records_render_row(
 	'Most double digits',
 	records_value_or_dash($records['MostDoubleDigits']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostDoubleDigitsID'] . '">' . $records['MostDoubleDigitsName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostDoubleDigitsID'] . '">' . $records['MostDoubleDigitsName'] . '</a>'),
 	records_date_or_dash($records['MostDoubleDigitsDate'], records_has_value($records['MostDoubleDigits']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_dd')
@@ -350,7 +350,7 @@ records_render_row(
 records_render_row(
 	'Most clean sheets',
 	records_value_or_dash($records['MostCleanSheets']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostCleanSheetsID'] . '">' . $records['MostCleanSheetsName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostCleanSheetsID'] . '">' . $records['MostCleanSheetsName'] . '</a>'),
 	records_date_or_dash($records['MostCleanSheetsDate'], records_has_value($records['MostCleanSheets']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_cs')
@@ -360,7 +360,7 @@ records_render_spacer_row();
 records_render_row(
 	'Most opponents',
 	(string) $records['MostDifferentOpponents'],
-	records_holder_html('<a href="individual1.php?id=' . $records['MostDifferentOpponentsID'] . '">' . $records['MostDifferentOpponentsName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostDifferentOpponentsID'] . '">' . $records['MostDifferentOpponentsName'] . '</a>'),
 	records_date_or_dash($records['MostDifferentOpponentsDate'], true, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_opponents')
@@ -368,7 +368,7 @@ records_render_row(
 records_render_row(
 	'Most victims',
 	records_value_or_dash($records['MostDifferentVictims']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostDifferentVictimsID'] . '">' . $records['MostDifferentVictimsName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostDifferentVictimsID'] . '">' . $records['MostDifferentVictimsName'] . '</a>'),
 	records_date_or_dash($records['MostDifferentVictimsDate'], records_has_value($records['MostDifferentVictims']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_victims')
@@ -376,7 +376,7 @@ records_render_row(
 records_render_row(
 	'Most double digit victims',
 	records_value_or_dash($records['MostDoubleDigitsVictims']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostDoubleDigitsVictimsID'] . '">' . $records['MostDoubleDigitsVictimsName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostDoubleDigitsVictimsID'] . '">' . $records['MostDoubleDigitsVictimsName'] . '</a>'),
 	records_date_or_dash($records['MostDoubleDigitsVictimsDate'], records_has_value($records['MostDoubleDigitsVictims']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_dd_victims')
@@ -384,7 +384,7 @@ records_render_row(
 records_render_row(
 	'Most clean sheet victims',
 	records_value_or_dash($records['MostCleanSheetsVictims']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostCleanSheetsVictimsID'] . '">' . $records['MostCleanSheetsVictimsName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostCleanSheetsVictimsID'] . '">' . $records['MostCleanSheetsVictimsName'] . '</a>'),
 	records_date_or_dash($records['MostCleanSheetsVictimsDate'], records_has_value($records['MostCleanSheetsVictims']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_cs_victims')
@@ -410,7 +410,7 @@ $hasMostGoalsOneGame = records_has_value($records['MostGoalsScoredInOneGame']);
 records_render_row(
 	'Most goals in one game',
 	records_value_or_dash($records['MostGoalsScoredInOneGame']),
-	records_holder_html('<a href="individual1.php?id=' . $records['MostGoalsScoredInOneGameID'] . '">' . $records['MostGoalsScoredInOneGameName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['MostGoalsScoredInOneGameID'] . '">' . $records['MostGoalsScoredInOneGameName'] . '</a>'),
 	records_date_or_dash($records['MostGoalsScoredInOneGameDate'], $hasMostGoalsOneGame, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('most_goals_one_game')
@@ -419,7 +419,7 @@ $hasBiggestWinMargin = records_has_value($records['BiggestWinDifference']);
 records_render_row(
 	'Biggest winning margin',
 	records_value_or_dash($records['BiggestWinDifference']),
-	records_holder_html('<a href="individual1.php?id=' . $records['BiggestWinDifferenceID'] . '">' . $records['BiggestWinDifferenceName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['BiggestWinDifferenceID'] . '">' . $records['BiggestWinDifferenceName'] . '</a>'),
 	records_date_or_dash($records['BiggestWinDifferenceDate'], $hasBiggestWinMargin, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('biggest_win_margin')
@@ -431,7 +431,7 @@ $biggestDrawScore = $hasBiggestDraw
 records_render_row(
 	'Biggest draw',
 	$biggestDrawScore,
-	records_holder_html('<a href="individual1.php?id=' . $records['BiggestDrawSumIDA'] . '">' . $records['BiggestDrawSumNameA'] . '</a> / <a href="individual1.php?id=' . $records['BiggestDrawSumIDB'] . '">' . $records['BiggestDrawSumNameB'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['BiggestDrawSumIDA'] . '">' . $records['BiggestDrawSumNameA'] . '</a> / <a href="/player/profile.php?id=' . $records['BiggestDrawSumIDB'] . '">' . $records['BiggestDrawSumNameB'] . '</a>'),
 	records_date_or_dash($records['BiggestDrawSumDate'], $hasBiggestDraw, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('biggest_draw')
@@ -440,7 +440,7 @@ $hasBiggestSumGoals = records_has_value($records['BiggestSumOfGoals']);
 records_render_row(
 	'Biggest sum of goals',
 	records_value_or_dash($records['BiggestSumOfGoals']),
-	records_holder_html('<a href="individual1.php?id=' . $records['BiggestSumOfGoalsIDA'] . '">' . $records['BiggestSumOfGoalsNameA'] . '</a> / <a href="individual1.php?id=' . $records['BiggestSumOfGoalsIDB'] . '">' . $records['BiggestSumOfGoalsNameB'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['BiggestSumOfGoalsIDA'] . '">' . $records['BiggestSumOfGoalsNameA'] . '</a> / <a href="/player/profile.php?id=' . $records['BiggestSumOfGoalsIDB'] . '">' . $records['BiggestSumOfGoalsNameB'] . '</a>'),
 	records_date_or_dash($records['BiggestSumOfGoalsDate'], $hasBiggestSumGoals, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('biggest_sum_goals')
@@ -450,7 +450,7 @@ records_render_spacer_row();
 records_render_row(
 	'Highest peak rating',
 	number_format((float) $records['BiggestPeakRating'], 0, '.', ''),
-	records_holder_html('<a href="individual1.php?id=' . $records['BiggestPeakRatingID'] . '">' . $records['BiggestPeakRatingName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['BiggestPeakRatingID'] . '">' . $records['BiggestPeakRatingName'] . '</a>'),
 	records_date_or_dash($records['BiggestPeakRatingDate'], true, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('peak_rating')
@@ -458,7 +458,7 @@ records_render_row(
 records_render_row(
 	'Longest winning streak',
 	records_value_or_dash($records['LongestWinningStreak']),
-	records_holder_html('<a href="individual1.php?id=' . $records['LongestWinningStreakID'] . '">' . $records['LongestWinningStreakName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['LongestWinningStreakID'] . '">' . $records['LongestWinningStreakName'] . '</a>'),
 	records_date_or_dash($records['LongestWinningStreakDate'], records_has_value($records['LongestWinningStreak']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('win_streak')
@@ -466,7 +466,7 @@ records_render_row(
 records_render_row(
 	'Longest undefeated streak',
 	(string) $records['LongestNonLossStreak'],
-	records_holder_html('<a href="individual1.php?id=' . $records['LongestNonLossStreakID'] . '">' . $records['LongestNonLossStreakName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['LongestNonLossStreakID'] . '">' . $records['LongestNonLossStreakName'] . '</a>'),
 	records_date_or_dash($records['LongestNonLossStreakDate'], true, $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('non_loss_streak')
@@ -474,7 +474,7 @@ records_render_row(
 records_render_row(
 	'Longest drawing streak',
 	records_value_or_dash($records['LongestDrawingStreak']),
-	records_holder_html('<a href="individual1.php?id=' . $records['LongestDrawingStreakID'] . '">' . $records['LongestDrawingStreakName'] . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $records['LongestDrawingStreakID'] . '">' . $records['LongestDrawingStreakName'] . '</a>'),
 	records_date_or_dash($records['LongestDrawingStreakDate'], records_has_value($records['LongestDrawingStreak']), $newRecordCutoff, $legendaryRecordCutoff),
 	null,
 	records_hof_lb_href('draw_streak')
@@ -484,7 +484,7 @@ records_render_spacer_row();
 records_render_row(
 	'Best attack average',
 	records_fixed_or_dash($BiggestGoalsForAverage, 2),
-	records_holder_html('<a href="individual1.php?id=' . $BiggestGoalsForAverageID . '">' . $BiggestGoalsForAverageName . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $BiggestGoalsForAverageID . '">' . $BiggestGoalsForAverageName . '</a>'),
 	'-',
 	null,
 	records_hof_lb_href('attack_avg')
@@ -492,7 +492,7 @@ records_render_row(
 records_render_row(
 	'Best defense average',
 	records_fixed_or_dash($SmallestGoalsAgainstAverage, 2),
-	records_holder_html('<a href="individual1.php?id=' . $SmallestGoalsAgainstAverageID . '">' . $SmallestGoalsAgainstAverageName . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $SmallestGoalsAgainstAverageID . '">' . $SmallestGoalsAgainstAverageName . '</a>'),
 	'-',
 	null,
 	records_hof_lb_href('defense_avg')
@@ -500,7 +500,7 @@ records_render_row(
 records_render_row(
 	'Best goal ratio',
 	records_fixed_or_dash($BiggestGoalRatio, 2),
-	records_holder_html('<a href="individual1.php?id=' . $BiggestGoalRatioID . '">' . $BiggestGoalRatioName . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $BiggestGoalRatioID . '">' . $BiggestGoalRatioName . '</a>'),
 	'-',
 	null,
 	records_hof_lb_href('goal_ratio')
@@ -510,7 +510,7 @@ records_render_spacer_row();
 records_render_row(
 	'Highest winning frequency',
 	records_percent_or_dash($BiggestWinRatio),
-	records_holder_html('<a href="individual1.php?id=' . $BiggestWinRatioID . '">' . $BiggestWinRatioName . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $BiggestWinRatioID . '">' . $BiggestWinRatioName . '</a>'),
 	'-',
 	null,
 	records_hof_lb_href('win_ratio')
@@ -518,7 +518,7 @@ records_render_row(
 records_render_row(
 	'Highest double digit frequency',
 	records_percent_or_dash($BiggestDoubleDigitsRatio),
-	records_holder_html('<a href="individual1.php?id=' . $BiggestDoubleDigitsRatioID . '">' . $BiggestDoubleDigitsRatioName . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $BiggestDoubleDigitsRatioID . '">' . $BiggestDoubleDigitsRatioName . '</a>'),
 	'-',
 	null,
 	records_hof_lb_href('dd_ratio')
@@ -526,7 +526,7 @@ records_render_row(
 records_render_row(
 	'Highest clean sheet frequency',
 	records_percent_or_dash($BiggestCleanSheetsRatio),
-	records_holder_html('<a href="individual1.php?id=' . $BiggestCleanSheetsRatioID . '">' . $BiggestCleanSheetsRatioName . '</a>'),
+	records_holder_html('<a href="/player/profile.php?id=' . $BiggestCleanSheetsRatioID . '">' . $BiggestCleanSheetsRatioName . '</a>'),
 	'-',
 	null,
 	records_hof_lb_href('cs_ratio')

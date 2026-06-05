@@ -103,7 +103,7 @@ bash run_PROD_WRAPPER_TBD.sh
 
 ## 6. Smoke checks
 
-- [ ] `individual1.php?id=[heavy player]` loads in ~1s (if indexes)
+- [ ] `player/profile.php?id=[heavy player]` loads in ~1s (if indexes)
 - [ ] Ranked page sort by rating sane
 - [ ] `[other]`
 

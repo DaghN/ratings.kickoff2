@@ -1,9 +1,9 @@
 # Activity charts — architecture & v2 plan
 
-**Page:** `site/public_html/server1.php` (hub tab **Activity**).  
+**Page:** `site/public_html/activity.php` (hub tab **Activity**).  
 **Authority:** Product taste → [`design-direction.md`](design-direction.md). Hub data patterns → [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) (summary PHP only; charts are client-side). **This doc** owns chart JS/CSS structure, panel registry, lab → promote.
 
-**Status (Jun 2026):** **L3 shipped** on **local + staging** — [`server1.php`](../site/public_html/server1.php) loads only [`js/activity-charts-v2.js`](../site/public_html/js/activity-charts-v2.js); panels in [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php); `body.k2-activity-charts`. Legacy `activity-charts.js` + eleven `server-*-chart.js` boot files **removed**. [`server1-charts-lab.php`](../site/public_html/server1-charts-lab.php) redirects to `server1.php`. Chart panels are grouped into five question-led Activity sections (`k2-activity-section`) with short intro copy above the factual chart headings.
+**Status (Jun 2026):** **L3 shipped** on **local + staging** — [`activity.php`](../site/public_html/activity.php) loads only [`js/activity-charts-v2.js`](../site/public_html/js/activity-charts-v2.js); panels in [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php); `body.k2-activity-charts`. Legacy `activity-charts.js` + eleven `server-*-chart.js` boot files **removed**. [`server1-charts-lab.php`](../site/public_html/server1-charts-lab.php) redirects to `activity.php`. Chart panels are grouped into five question-led Activity sections (`k2-activity-section`) with short intro copy above the factual chart headings.
 
 ---
 
@@ -14,7 +14,7 @@ One professional **Activity charts feature**:
 - **One JS owner** (module or single bundle) with an explicit **panel registry** — not eleven copy-paste boot files.
 - **PHP JSON APIs unchanged** — same URLs, query params, response shapes.
 - **CSS chart panel component** — capped width (~960px), Chart.js `responsive` inside a **frame** — never stretch the `<canvas>` with `%` / `aspect-ratio` hacks.
-- **Lab → promote** — parallel surface until parity; then one switch on `server1.php` and delete legacy boot files.
+- **Lab → promote** — parallel surface until parity; then one switch on `activity.php` and delete legacy boot files.
 
 ---
 
@@ -32,7 +32,7 @@ One professional **Activity charts feature**:
 ## 3. Target architecture
 
 ```
-server1.php (markup: panels + status lines)
+activity.php (markup: panels + status lines)
     ↓
 api/server_*.php (JSON, realm=online)
     ↓
@@ -90,8 +90,8 @@ Chart.js 4.4.7 + date-fns adapter
 
 ### Production surface (shipped)
 
-- **`server1.php`** — `body.k2-activity-charts`; one script `activity-charts-v2.js`; panels include with `.k2-chart-frame`.
-- **`server1-charts-lab.php`** — 302 → `server1.php` (old bookmarks).
+- **`activity.php`** — `body.k2-activity-charts`; one script `activity-charts-v2.js`; panels include with `.k2-chart-frame`.
+- **`server1-charts-lab.php`** — 302 → `activity.php` (old bookmarks).
 
 ### Phases
 
@@ -99,7 +99,7 @@ Chart.js 4.4.7 + date-fns adapter
 |-------|-------------|
 | **L1** | Lab + games/day + `.k2-chart-frame` — done |
 | **L2** | All 12 panels in v2 — done |
-| **L3** | Promote to `server1.php`; delete legacy boot files — **done** |
+| **L3** | Promote to `activity.php`; delete legacy boot files — **done** |
 | **L4** | Bar grow-up animation — **done** (`chartKind` in v2; phone + desktop); optional: lazy load, phone long-press tooltips |
 
 ### Promotion gate
@@ -116,7 +116,7 @@ Chart.js 4.4.7 + date-fns adapter
 
 ## 5. Panel registry (parity contract)
 
-**Load order** = table order (matches `server1.php`).
+**Load order** = table order (matches `activity.php`).
 
 | # | Panel class | API | Chart | Notes |
 |---|-------------|-----|-------|--------|
@@ -156,7 +156,7 @@ Use when porting each row in §5.
 ## 7. Mobile v1 (definition of done)
 
 - **Scroll / layout on phone:** tune **inside the lab page only**; no site-wide viewport or hub CSS experiments.
-- **Layout:** Chart.js inside `.k2-chart-frame` on `body.k2-activity-charts` (`server1.php`).
+- **Layout:** Chart.js inside `.k2-chart-frame` on `body.k2-activity-charts` (`activity.php`).
 - **Tooltips:** desktop hover/tap via Chart.js `touchstart`; **phone** — tooltips disabled + `touch-action: pan-y pinch-zoom` on panels/canvases so scroll and pinch-zoom work (heatmap tooltips desktop-only).
 - **Perf:** sequential load; heaviest panels (11, 12) last in queue.
 
@@ -196,6 +196,6 @@ Use when porting each row in §5.
 
 ## 11. Agent notes
 
-- **Bootstrap:** Read this file when task says Activity charts, `server1.php` graphs, chart loader, or mobile chart UX.
+- **Bootstrap:** Read this file when task says Activity charts, `activity.php` graphs, chart loader, or mobile chart UX.
 - **Migration:** Front-end only — **no** Part B unless new DB columns/APIs added.
 - **Finish:** On lab ship or promote, UPDATE_DOCS Part A — `PROJECT_MEMORY.md` + this file status line + optional feature-log row.

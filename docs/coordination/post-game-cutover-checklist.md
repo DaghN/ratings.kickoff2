@@ -15,7 +15,7 @@
 | All aggregate tables + per-game order | [`website-data-contract.md`](../website-data-contract.md) — **Derived data index**, § **Post-game derived-data behavior** |
 | Career `PeakRating` / `LowestRating` | Contract § **Career peak and nadir** (`playertable`) |
 | `club_1700` … `club_2300` milestones | Contract § `player_milestones` — **Rating club** + implementation notes below |
-| Personal BL/BW/MGC/MGS + inverse counts | Contract § **Personal record pointers**; site copy: `ranked5.php` at cutover |
+| Personal BL/BW/MGC/MGS + inverse counts | Contract § **Personal record pointers**; site copy: `leaderboards/victims.php` at cutover |
 | HoF `generalstatstable` | [`records-post-game-exception.md`](records-post-game-exception.md) |
 | PHP post-game + cutover | [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2, [`post-game-register.md`](post-game-register.md), `ops/run_process_game.php` |
 | Legacy C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) — field order reference only |
@@ -41,7 +41,7 @@
 
 | Name | Meaning |
 |------|---------|
-| `playertable.PeakRating` / `LowestRating` | Career peak/nadir (exist after **20** games) — `ranked1.php`, profile |
+| `playertable.PeakRating` / `LowestRating` | Career peak/nadir (exist after **20** games) — `leaderboards/peak-rating.php`, profile |
 | `playertable.Rating` | Current Elo — **`club_*` milestones** |
 | `generalstatstable.BiggestPeakRating` | Server HoF record (separate) |
 | `player_peak_period_games` | Activity “best period”, not Elo |

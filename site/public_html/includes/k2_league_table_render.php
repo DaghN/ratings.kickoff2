@@ -9,7 +9,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 if (!function_exists('k2_status_player_link')) {
     function k2_status_player_link(int $id, string $name): string
     {
-        return '<a class="k2-link-star" href="individual1.php?id=' . (int) $id . '">' . k2_status_h($name) . '</a>';
+        return '<a class="k2-link-star" href="/player/profile.php?id=' . (int) $id . '">' . k2_status_h($name) . '</a>';
     }
 }
 

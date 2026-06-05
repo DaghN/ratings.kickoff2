@@ -50,7 +50,7 @@ function k2_game_rating_adjustment_pick(array $game, string $side): array
 function k2_game_rating_adjustment_player_link(int $id, string $name): string
 {
     if ($id > 0) {
-        return '<a class="k2-link-star" href="individual1.php?id=' . $id . '">'
+        return '<a class="k2-link-star" href="/player/profile.php?id=' . $id . '">'
             . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
     }
 

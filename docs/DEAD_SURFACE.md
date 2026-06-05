@@ -32,7 +32,7 @@
 
 | Item | Role |
 |------|------|
-| `server1-charts-lab.php` | **302 → `server1.php`** (old Activity lab bookmarks) |
+| `server1-charts-lab.php` | **302 → `activity.php`** (old Activity lab bookmarks) |
 | `status-realm-lab.php` | **302 → `status.php`** (old realm lab bookmarks) |
 | `scripts/throwaway_*.php` | Schema snapshot / index apply via browser; documented in `ratedresults-schema.md`, `LOCAL_DEV.md`, `one-off-register.md` — **not** in default `site/public_html/` sync |
 | ~~`site/public_html/staging-scripts/`~~ | **Removed Jun 2026** — May 2026 cutover runners; ops replaces all paths ([`archive/staging-scripts-inventory.md`](archive/staging-scripts-inventory.md)) |

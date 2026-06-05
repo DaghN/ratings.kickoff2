@@ -121,7 +121,7 @@
 
     function initRoot(root) {
         var realm = root.getAttribute('data-player-search-realm') || 'online';
-        var profilePage = root.getAttribute('data-player-profile-page') || 'individual1.php';
+        var profilePage = root.getAttribute('data-player-profile-page') || '/player/profile.php';
         var input = root.querySelector('.player-search-input');
         var list = root.querySelector('.player-search-results');
         if (!input || !list) {

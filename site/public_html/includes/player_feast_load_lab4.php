@@ -5,7 +5,7 @@
  * Wraps production player_feast_load_pm() and bolts on the v1 facts the
  * production load does not expose (play streaks, milestone snippets, league
  * medals, matchup rival/victim, best-year ticker, distinct days, max-rated
- * victim). Lab only — production individual1.php is untouched.
+ * victim). Lab only — production player/profile.php is untouched.
  */
 declare(strict_types=1);
 

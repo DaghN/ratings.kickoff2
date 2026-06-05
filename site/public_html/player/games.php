@@ -5,10 +5,10 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="js/player-search.js" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
 
 </head>
 
@@ -40,7 +40,7 @@ function individual3_valid_direction(string $value): string
 
 function individual3_build_url(array $params): string
 {
-    return 'individual3.php?' . http_build_query($params);
+    return '/player/games.php?' . http_build_query($params);
 }
 
 function individual3_query_all(mysqli $con, string $sql, string $types = '', array $params = []): array
@@ -324,7 +324,7 @@ foreach ($opponentRows as $opponentRow) {
 }
 ?>
 
-<form class="k2-player-games-controls" method="get" action="individual3.php">
+<form class="k2-player-games-controls" method="get" action="/player/games.php">
     <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
     <input type="hidden" name="sort" value="<?php echo individual3_h($sortKey); ?>" />
     <input type="hidden" name="dir" value="<?php echo individual3_h($sortDirection); ?>" />
@@ -339,7 +339,7 @@ foreach ($opponentRows as $opponentRow) {
         <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
         <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
     </div>
-    <a class="k2-player-games-action" href="individual3.php?id=<?php echo $playerId; ?>">Reset</a>
+    <a class="k2-player-games-action" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
 </form>
 
 <div class="k2-player-games-status">

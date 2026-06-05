@@ -163,7 +163,7 @@ powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
 
 (Wrapper: `scripts\apply_ratedresults_player_indexes.ps1` — local helper that applies only `001_ratedresults_player_indexes.sql`.)
 
-Then spot-check `http://ratingskickoff.test/individual1.php?id=237` — profile should load in ~1s for heavy players or ~100ms for light ones (was multi-second before indexes).
+Then spot-check `http://ratingskickoff.test/player/profile.php?id=237` — profile should load in ~1s for heavy players or ~100ms for light ones (was multi-second before indexes).
 
 **Staging / production (no terminal):** WinSCP copy **`scripts/throwaway_ratedresults_player_indexes.php`** → server **`public_html/`** only when needed; browser preview/apply per file header; **delete from server immediately after**. This file is **not** in `site/public_html/` (avoids accidental sync).
 

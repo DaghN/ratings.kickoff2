@@ -1,6 +1,6 @@
 # Profile redesign — Phase 0 framing (archived)
 
-> **Superseded May 2026.** Feast is live on **`individual1.php`**. See **`docs/player-profile-feast.md`**.
+> **Superseded May 2026.** Feast is live on **`player/profile.php`**. See **`docs/player-profile-feast.md`**.
 
 **Status:** May 2026. Framing doc for profile feast direction. Lab mocks and portal removed — see git history / `b8c5a98` checkpoint.
 
@@ -59,7 +59,7 @@ Snapshot from **`ko2unity_db`** (May 2026):
 
 ---
 
-## 4. What's wrong with production `individual1.php` today
+## 4. What's wrong with production `player/profile.php` today
 
 - **First screen = analyst stack:** rating chart, games/month, rating-by-game#, win-rate buckets, top opponents, H2H — before identity lands.
 - **Tone = exhaustive ledger:** encyclopedic `playertable` tables reward insiders but feel like homework for everyone else.
@@ -97,7 +97,7 @@ Preview (`profile_feast.php`): real `id=237` data, global `theme.css` tokens, si
 
 ## 7. After review
 
-Pick A, B, C, or a labeled hybrid → short **profile contract** (section order + tone rules) → promote to `individual1.php` in small slices.
+Pick A, B, C, or a labeled hybrid → short **profile contract** (section order + tone rules) → promote to `player/profile.php` in small slices.
 
 Do not link mocks from hub nav. Deploy to staging only when ready for wider eyes.
 

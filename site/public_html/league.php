@@ -51,7 +51,7 @@ if ($request !== null) {
 <?php k2_league_period_render_table($loaded); ?>
 	</div>
 	<p class="k2-league-period__footer k2-ms-meta-hint">
-		<a href="status.php">Current leagues on Status</a>
+		<a href="/status.php">Current leagues on Status</a>
 		· Same standings layout as the Status hub
 	</p>
 <?php } ?>

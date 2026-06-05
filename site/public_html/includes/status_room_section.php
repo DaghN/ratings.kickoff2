@@ -89,7 +89,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title">
 			<div class="k2-status-panel__head">
 				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active players in the past year</h2>
-				<p class="k2-status-panel__meta"><a class="k2-link-star k2-status-panel__more" href="ranked7.php">Leaderboards &rarr;</a></p>
+				<p class="k2-status-panel__meta"><a class="k2-link-star k2-status-panel__more" href="/leaderboards/rating.php">Leaderboards &rarr;</a></p>
 			</div>
 <?php if (!empty($room['active_top_error'])) { ?>
 			<p class="k2-status-panel__empty">Could not load active ratings.</p>
@@ -147,7 +147,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-games" aria-labelledby="k2-status-games-title">
 			<div class="k2-status-panel__heading-row">
 				<h2 id="k2-status-games-title" class="k2-panel-heading">Recent games</h2>
-				<a class="k2-link-star k2-status-panel__more" href="server3.php">Games &rarr;</a>
+				<a class="k2-link-star k2-status-panel__more" href="/games.php">Games &rarr;</a>
 			</div>
 <?php if ($recentGames === []) { ?>
 			<p class="k2-status-panel__empty">—</p>

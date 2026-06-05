@@ -1,6 +1,6 @@
 # `generalstatstable` schema snapshot
 
-**What this is:** A **single-row** table of server-wide ladder totals and “hall of fame” records. Production updates **`WHERE id = 1`** after each rated game (`docs/ratings_cpp.txt` → `RatingProcedureUnity`). The PHP site reads it from `server1.php` and `server2.php` (`SELECT * FROM generalstatstable` — no `WHERE`, but only one row exists).
+**What this is:** A **single-row** table of server-wide ladder totals and “hall of fame” records. Production updates **`WHERE id = 1`** after each rated game (`docs/ratings_cpp.txt` → `RatingProcedureUnity`). The PHP site reads it from `activity.php` and `hall-of-fame.php` (`SELECT * FROM generalstatstable` — no `WHERE`, but only one row exists).
 
 **How this doc was made:** Dev/staging **`kooldb`**, captured **2026-05-19** via `scripts/throwaway_generalstatstable_schema.php` (`?once=generalstatstable-schema-one-shot`). **Treat as a snapshot** — re-run the throwaway and replace this file if columns change.
 
@@ -291,7 +291,7 @@ Column names in MySQL **match the C++ variable names** (e.g. `MostGamesPlayedIDS
 | **`replay_all` end** | Prefer **one rebuild** of `id=1` from replayed `ratedresults` + `playertable` rather than 74k incremental C++-style updates. |
 | **Elo-sensitive records** | `BiggestPeakRating`, `BiggestRatingAscent`, `BiggestAverageOpponentRating` will change when ratings are replayed from ground truth. |
 | **Names** | `*Name` columns are denormalized; rebuild from `playertable.Name` by `*ID` when refreshing. |
-| **`server1.php`** | Will show wrong server totals until this row is rebuilt or updated. |
+| **`activity.php`** | Will show wrong server totals until this row is rebuilt or updated. |
 
 ---
 

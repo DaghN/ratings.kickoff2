@@ -93,7 +93,7 @@ function player_feast_lab1_load_play_streak(mysqli $con, int $playerId): array
     $streakLbHref = null;
     if ($highlightBest && $best >= 20) {
         $sort = $useWeek ? 11 : 10;
-        $streakLbHref = 'ranked4.php?sort=' . $sort . '&dir=desc';
+        $streakLbHref = 'leaderboards/streaks.php?sort=' . $sort . '&dir=desc';
     }
 
     return [
@@ -120,8 +120,8 @@ function player_feast_lab1_load_honours(mysqli $con, int $playerId, array $pm): 
         'latest_medal' => null,
         'career_medals' => null,
         'league_wins' => 0,
-        'garden_href' => 'individual_milestones.php?id=' . $playerId,
-        'honours_href' => 'ranked9.php?cup=overall',
+        'garden_href' => 'player/milestones.php?id=' . $playerId,
+        'honours_href' => 'leaderboards/league-honours.php?cup=overall',
     ];
 
     $games = (int) ($pm['games'] ?? 0);

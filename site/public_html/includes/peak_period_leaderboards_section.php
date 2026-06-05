@@ -1,6 +1,6 @@
 <?php
 /**
- * Busiest day / week / month / year / all-time hall of fame (ranked8.php Hall of Fame).
+ * Busiest day / week / month / year / all-time hall of fame (leaderboards/activity-peaks.php Hall of Fame).
  *
  * Optional before include:
  *   $k2PeakPeriodLimit (default 0 = all players in day/week/month/year)
@@ -109,7 +109,7 @@ function k2_render_peak_period_panel(string $period, array $panel, bool $sortabl
 <?php foreach ($entries as $entry) { ?>
 					<tr>
 						<td><?php echo (int) $entry['rank']; ?></td>
-						<td class="k2-table-cell--left"><a href="individual1.php?id=<?php echo (int) $entry['player_id']; ?>"><?php echo htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8'); ?></a></td>
+						<td class="k2-table-cell--left"><a href="/player/profile.php?id=<?php echo (int) $entry['player_id']; ?>"><?php echo htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8'); ?></a></td>
 						<td class="k2-table-cell--left" data-k2-sort-value="<?php echo htmlspecialchars((string) $entry['period_key'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(k2_format_peak_period($period, $entry['period_key']), ENT_QUOTES, 'UTF-8'); ?></td>
 						<td><?php echo (int) $entry['games']; ?></td>
 					</tr>
@@ -151,7 +151,7 @@ function k2_render_peak_longevity_panel(array $panel): void
 <?php foreach ($entries as $entry) { ?>
 					<tr>
 						<td><?php echo (int) $entry['rank']; ?></td>
-						<td class="k2-table-cell--left"><a href="individual1.php?id=<?php echo (int) $entry['player_id']; ?>"><?php echo htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8'); ?></a></td>
+						<td class="k2-table-cell--left"><a href="/player/profile.php?id=<?php echo (int) $entry['player_id']; ?>"><?php echo htmlspecialchars($entry['player_name'], ENT_QUOTES, 'UTF-8'); ?></a></td>
 						<td class="k2-table-cell--left" data-k2-sort-value="<?php echo htmlspecialchars((string) $entry['first_game'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(k2_format_peak_period('all-time', $entry['first_game']), ENT_QUOTES, 'UTF-8'); ?></td>
 						<td class="k2-table-cell--left" data-k2-sort-value="<?php echo htmlspecialchars((string) $entry['last_game'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(k2_format_peak_period('all-time', $entry['last_game']), ENT_QUOTES, 'UTF-8'); ?></td>
 						<td><?php echo (int) $entry['days']; ?></td>

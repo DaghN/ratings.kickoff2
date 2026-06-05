@@ -1,6 +1,6 @@
 # Player profile (feast) — shipped layout
 
-**Status:** Jun 2026 (layout + narrative contract). **Production page:** `individual1.php?id={player}`.  
+**Status:** Jun 2026 (layout + narrative contract). **Production page:** `player/profile.php?id={player}`.  
 **Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
 **v1 content decisions (archive):** [`docs/archive/profile-content-candidates.md`](archive/profile-content-candidates.md).  
 **Lab handoff (archive):** [`docs/archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md) — optional `individual1-profile-lab{N}.php` previews.  
@@ -12,13 +12,13 @@
 
 | Layer | Files |
 |-------|--------|
-| Page | `individual1.php` |
+| Page | `player/profile.php` |
 | Data | `includes/player_feast_load.php` → `player_feast_load_pm()` |
 | Blocks | `includes/player_feast_blocks.php` |
 | Helpers | `includes/player_feast_helpers.php` |
 | Hero | `includes/player_hero.php` (rank, rating, games, milestones when unlocked) |
 | Nav pills | `includes/player_nav.php` — Profile · Games · W/D/L · Goals · DDs · **Milestones** |
-| Milestones | `individual_milestones.php` — tier garden (catalog count from DB, **112** after `year_in_heaven`); all card titles link to `milestone.php?key=` (locked = underline + hover brighten); date line uses unlock-event register; helpers `includes/player_milestones_helpers.php` |
+| Milestones | `player/milestones.php` — tier garden (catalog count from DB, **112** after `year_in_heaven`); all card titles link to `milestone.php?key=` (locked = underline + hover brighten); date line uses unlock-event register; helpers `includes/player_milestones_helpers.php` |
 | CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
 | Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_weeks.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
 
@@ -26,7 +26,7 @@
 
 ## Scroll order (as shipped)
 
-1. Site header + **hero** (name → Profile tab; rank + rating → `ranked7.php` Rating LB; games → `ranked8.php#k2-peak-period-all-time`; **milestones** `{n}/{catalog}` when `NumberGames >= 1` → garden tab; stat links = pointer only, no hover ink)
+1. Site header + **hero** (name → Profile tab; rank + rating → `leaderboards/rating.php` Rating LB; games → `leaderboards/activity-peaks.php#k2-peak-period-all-time`; **milestones** `{n}/{catalog}` when `NumberGames >= 1` → garden tab; stat links = pointer only, no hover ink)
 2. Feast **pills**
 4. **Presence** + **Career** (at-a-glance; career ranks when `Display = 1`)
 5. **Played days** (UTC calendar; year segment picker; 12 months in one row for the selected year)
@@ -50,7 +50,7 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 | Surface | Use when… | Shipped examples |
 |---------|-----------|------------------|
 | **Open background** (`pm3-cal--hero`, no border/surface) | The visual *is* the content; low chrome; accent cells should pop against `--k2-bg-hover` | Played days, played weeks |
-| **Chart panel** (`k2-chart-panel` + `k2-chart-frame`) | Chart.js canvas, toggles, tooltips, fixed frame height; same contract as Activity (`server1.php`) | Rating, games/month, matchup charts |
+| **Chart panel** (`k2-chart-panel` + `k2-chart-frame`) | Chart.js canvas, toggles, tooltips, fixed frame height; same contract as Activity (`activity.php`) | Rating, games/month, matchup charts |
 | **Light tile / mosaic** | Small stat clusters or story cards; containment without full chart chrome | Presence/career tiles, personal bests, moments |
 
 **Do not** “helpfully” panel everything for consistency. **Do** keep the split **typed** (same module type → same surface treatment) so the mix feels editorial, not random.
@@ -86,9 +86,9 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 
 | Pill | File | Role |
 |------|------|------|
-| Games | `individual3.php` | Full match ledger |
+| Games | `player/games.php` | Full match ledger |
 | W/D/L / Goals / DDs | `individual2a/b/c.php` | Per-opponent aggregates |
-| Milestones | `individual_milestones.php` | Tier garden (112 cards from catalog + unlock rows) |
+| Milestones | `player/milestones.php` | Tier garden (112 cards from catalog + unlock rows) |
 
 Profile does **not** duplicate those tables.
 
@@ -184,6 +184,6 @@ A03, A07, A08 · B05 · H04.
 
 See catalog v1 § Reject — includes extra charts, tier-count MS05, MS07 list, participation-adjacent A01–A02, etc.
 
-Do not revive the mock lab; iterate on `individual1.php` and this doc.
+Do not revive the mock lab; iterate on `player/profile.php` and this doc.
 
 **CSS hygiene (May 2026):** `player-feast.css` pruned to shipped blocks only (calendar, moments mosaic, busiest inline); mock nav/CORE/rivalry variants removed.

@@ -43,7 +43,7 @@ function k2_games_highlights_valid_board(string $board): string
 
 function k2_games_highlights_href(string $board): string
 {
-	return 'server3.php?' . http_build_query([
+	return '/games.php?' . http_build_query([
 		'view' => 'highlights',
 		'board' => k2_games_highlights_valid_board($board),
 	]);

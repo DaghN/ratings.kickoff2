@@ -5,7 +5,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.ph
 if (isset($_GET['key'])) {
 	$legacyKey = k2_milestone_key_param('key');
 	if ($legacyKey !== null) {
-		header('Location: milestone.php?' . http_build_query(['key' => $legacyKey]), true, 302);
+		header('Location: ' . k2_route('milestone', ['key' => $legacyKey]), true, 302);
 		exit;
 	}
 }

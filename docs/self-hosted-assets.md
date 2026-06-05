@@ -31,14 +31,14 @@ Loaded per page as `<script src="js/...">` — not from a CDN at runtime.
 
 | Library | File(s) | Used on |
 |---------|---------|---------|
-| **Chart.js** 4.4.7 | `js/chart.umd.min.js`, `js/chartjs-adapter-date-fns.bundle.min.js` | Profile, milestones detail, Activity (`server1.php`), charts lab |
+| **Chart.js** 4.4.7 | `js/chart.umd.min.js`, `js/chartjs-adapter-date-fns.bundle.min.js` | Profile, milestones detail, Activity (`activity.php`), charts lab |
 | **flatpickr** | `js/flatpickr.min.js`, `stylesheets/flatpickr.min.css` | Status daily picker |
 | **k2-table.js** | `js/k2-table.js` | Leaderboards, profile matchup tabs, many tables |
 | **activity-charts-v2.js** | `js/activity-charts-v2.js` | Activity page |
 | **chart-theme.js**, **chart-date-range.js** | `js/chart-theme.js`, `js/chart-date-range.js` | Chart pages |
 | **player-search.js** | `js/player-search.js` | Header search, many pages |
 | **realm-switch.js**, **k2-tint-toggle.js** | `js/` | Tint picker (hub + player nav) |
-| Profile feast charts | `js/player-*-chart.js`, `js/player-feast/*` | `individual1.php` |
+| Profile feast charts | `js/player-*-chart.js`, `js/player-feast/*` | `player/profile.php` |
 | Status leagues | `js/status-period-competitions.js`, `js/k2-archive-listbox.js` | `status.php` |
 | Other site JS | `js/*.js` | Page-specific |
 
@@ -46,7 +46,7 @@ License pointer: `js/flatpickr.LICENSE.txt`. Chart.js vendored build notes in fi
 
 **Removed Jun 2026 (dead surface pass):** `js/elolist.js`, `js/status-league-toggle.js` — see [`DEAD_SURFACE.md`](DEAD_SURFACE.md).
 
-**Legacy URL redirects (no extra JS):** `server1-charts-lab.php` → `server1.php`; `status-realm-lab.php` → `status.php`.
+**Legacy URL redirects (no extra JS):** `server1-charts-lab.php` → `activity.php`; `status-realm-lab.php` → `status.php`.
 
 ---
 
@@ -80,7 +80,7 @@ These are **links or embeds** to other sites — not CDN dependencies for app ch
 |------|-------|----------------|
 | **YouTube promo embeds** | `join.php` → `includes/join_page_section.php` iframe `youtube.com/embed/…`; `game.php` interim replay placeholder uses `youtube-nocookie.com/embed/…` | Video host; self-hosting = hosting video files yourself |
 | **Outbound links** | `includes/join_page_links.php` | Discord, kickoff2.net, shops, YouTube watch URLs, etc. |
-| **Player profile links** | `k2_player_link()`, tables | `individual1.php` on same site |
+| **Player profile links** | `k2_player_link()`, tables | `player/profile.php` on same site |
 | **W3C DTD / xmlns URLs** | HTML doctype | Identifier strings; browsers do not fetch them |
 
 To remove YouTube **runtime** dependency: replace iframes with self-hosted posters + links, or locally hosted MP4/WebM files (large asset; product decision).

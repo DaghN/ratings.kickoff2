@@ -66,7 +66,7 @@ Data has been rebuilt from full game history and checked against player totals. 
 
 ## 2. What the website already shows
 
-### Activity page (`server1.php`) — the most mature surface
+### Activity page (`activity.php`) — the most mature surface
 
 Already live in the repo:
 
@@ -78,7 +78,7 @@ So “milestone” is already user-facing language on Activity. Only part of the
 
 ### Player profiles — open for rethink
 
-Today’s shipped profile (`individual1.php`) has celebratory **Moments** (streaks, trophy games) and career stats, but **does not** yet read the milestone table.
+Today’s shipped profile (`player/profile.php`) has celebratory **Moments** (streaks, trophy games) and career stats, but **does not** yet read the milestone table.
 
 **Profile layout is not settled.** The page should be rethought while keeping the site’s core values (truthful data, welcoming tone, stats-first identity). **Where milestones appear on a profile — hero, badges, dedicated block, mixed with other content — is an open design question**, not something this doc prescribes.
 

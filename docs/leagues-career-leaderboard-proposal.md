@@ -1,6 +1,6 @@
 # Career league honours — leaderboard (v1 spec)
 
-**Status:** **v1 implemented** in repo (`ranked9.php`). This doc is the v1 reference; later versions may change columns or filters without treating v1 as permanent.
+**Status:** **v1 implemented** in repo (`leaderboards/league-honours.php`). This doc is the v1 reference; later versions may change columns or filters without treating v1 as permanent.
 
 **Data:** `playertable` + `LEFT JOIN player_league_totals` ([`leagues-rules-spec.md`](leagues-rules-spec.md)). Event history remains `player_league_award` (profile / later).
 
@@ -11,7 +11,7 @@
 | Item | Choice |
 |------|--------|
 | Placement | Leaderboards wing — after Victims & Culprits, before Milestones / Activity peaks / Peak rating ([`hub-ia-agreement.md`](hub-ia-agreement.md)) |
-| Page | `ranked9.php` |
+| Page | `leaderboards/league-honours.php` |
 | Label | **League honours** |
 | Player pool | Same as other ranked wings (`lb_player_filters.php`) — **all eligible players**, including zero medals |
 | Extra UI | None (no intro line, strip, or period filter) |
@@ -24,7 +24,7 @@
 | **Activity leagues** | + Day · Week · Month · Year | Aggregate `player_league_award` read-time (`league_kind=activity`, `period_type`) |
 | **Points leagues** | + Day · Week · Month · Year | Same for `points` |
 
-**URL:** `ranked9.php?cup=overall` · `?cup=activity&grain=day` · `?cup=points&grain=week` (plus leaderboard filter params). Tab link defaults to **Overall**; first visit to Activity/Points defaults **Day**. Switching Activity ↔ Points keeps the current `grain` (daily/weekly/monthly/year). Canonical redirect adds `grain=day` when missing.
+**URL:** `leaderboards/league-honours.php?cup=overall` · `?cup=activity&grain=day` · `?cup=points&grain=week` (plus leaderboard filter params). Tab link defaults to **Overall**; first visit to Activity/Points defaults **Day**. Switching Activity ↔ Points keeps the current `grain` (daily/weekly/monthly/year). Canonical redirect adds `grain=day` when missing.
 
 **Slice data:** `player_league_slice_totals` (SCH-010, REP-013) — read-time aggregation removed May 2026.
 
@@ -65,7 +65,7 @@ Do **not** aggregate from `player_league_award` on page load. Totals are maintai
 |-------|------|
 | Query + URL helpers | `includes/league_honours_leaderboard.php` |
 | Pills + table | `includes/league_honours_panel.php` |
-| Page | `ranked9.php` |
+| Page | `leaderboards/league-honours.php` |
 | Wing tab | `includes/lb_nav.php` → `league-honours` |
 
 ---

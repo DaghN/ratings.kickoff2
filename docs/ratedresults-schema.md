@@ -46,7 +46,7 @@ Both columns are **derived from goals** at insert time (legacy C++ in `docs/rati
 
 Verified on local import **`ko2unity_db`** (May 2026): 0 rows where draw `WinnerID` is `idA`/`idB`; 0 win rows with mismatched `WinnerID`. PHP in this repo **does not write** `WinnerID` — only reads it.
 
-**H2H / charts:** Prefer **`ActualScore`** for draws (`api/player_head_to_head.php` checks `0.5` before `WinnerID`). Older pages (e.g. `individual3.php`) also use `ActualScore == 0.5` for draw display.
+**H2H / charts:** Prefer **`ActualScore`** for draws (`api/player_head_to_head.php` checks `0.5` before `WinnerID`). Older pages (e.g. `player/games.php`) also use `ActualScore == 0.5` for draw display.
 
 **Legacy flags** (still on the row, used by older opponent pages): `HomeWin`, `Draw`, `AwayWin`, `DDPlayerA` / `DDPlayerB` (double digit), `CSPlayerA` / `CSPlayerB` (clean sheet). Prefer `ActualScore` and goals for new code; flags are rebuilt on replay like `WinnerID`.
 
@@ -164,8 +164,8 @@ CREATE TABLE `ratedresults` (
 | Area | Usage |
 |------|--------|
 | `game.php` | Single-row detail (numeric `mysqli_fetch_row` indices — fragile; prefer named columns in new code) |
-| `individual3.php` | Player game list |
-| `server3.php` | Recent activity |
+| `player/games.php` | Player game list |
+| `games.php` | Recent activity |
 | `api/player_*`, `api/server_*` | Charts and leaderboards (monthly counts, H2H, rating history, peak month, etc.) |
 | `playertable.*GameID` | Extremes on profile link to `ratedresults.id` |
 

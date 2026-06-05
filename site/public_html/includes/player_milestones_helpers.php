@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_garden_order.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/milestone_garden_links.php';
@@ -271,7 +272,7 @@ function k2_milestone_source_link_html(array $row): ?string
     if ($kind === 'game' && !empty($row['source_game_id'])) {
         $gid = (int) $row['source_game_id'];
 
-        return '<a href="game.php?id=' . $gid . '">Game</a>';
+        return '<a href="/game.php?id=' . $gid . '">Game</a>';
     }
     if ($kind === 'league') {
         $cup = (string) ($row['source_league_kind'] ?? '');
@@ -437,15 +438,15 @@ function k2_milestone_recent_tier_param(): ?string
 function k2_milestones_recent_href(?string $tierBand = null): string
 {
     if ($tierBand === null || $tierBand === '') {
-        return 'milestones.php';
+        return k2_route('milestones');
     }
 
-    return 'milestones.php?' . http_build_query(['tier' => $tierBand]);
+    return k2_route('milestones', ['tier' => $tierBand]);
 }
 
 function k2_milestones_catalog_href(): string
 {
-    return 'milestones.php?view=catalog';
+    return k2_route('milestones', ['view' => 'catalog']);
 }
 
 /** @return 'unlockers'|'graphs' */
@@ -463,7 +464,7 @@ function k2_milestone_detail_href(string $milestoneKey, string $panel = 'unlocke
         $params['panel'] = 'graphs';
     }
 
-    return 'milestone.php?' . http_build_query($params);
+    return k2_route('milestone', $params);
 }
 
 /** @deprecated Use k2_milestones_recent_href / k2_milestone_detail_href */
@@ -716,8 +717,8 @@ function k2_milestone_game_match_html(int $playerId, array $game, string $chartT
     $nameA = (string) $game['NameA'];
     $nameB = (string) $game['NameB'];
     if ($chartToken !== '') {
-        $teamA = k2_milestone_tier_link('individual1.php?id=' . $idA, $nameA, $chartToken);
-        $teamB = k2_milestone_tier_link('individual1.php?id=' . $idB, $nameB, $chartToken);
+        $teamA = k2_milestone_tier_link('/player/profile.php?id=' . $idA, $nameA, $chartToken);
+        $teamB = k2_milestone_tier_link('/player/profile.php?id=' . $idB, $nameB, $chartToken);
     } else {
         $teamA = k2_player_link($idA, $nameA);
         $teamB = k2_player_link($idB, $nameB);
@@ -855,7 +856,7 @@ function k2_milestone_recent_tier_link(string $href, string $label, string $char
 
 function k2_milestone_recent_player_link(int $playerId, string $playerName, string $chartToken): string
 {
-    return k2_milestone_recent_tier_link('individual1.php?id=' . $playerId, $playerName, $chartToken);
+    return k2_milestone_recent_tier_link('/player/profile.php?id=' . $playerId, $playerName, $chartToken);
 }
 
 /**
@@ -1067,7 +1068,7 @@ function k2_milestone_render_achievers_table(array $achievers, array $options = 
         $playerId = (int) $ach['player_id'];
         $playerName = (string) $ach['player_name'];
         $playerCell = $chartToken !== ''
-            ? k2_milestone_tier_link('individual1.php?id=' . $playerId, $playerName, $chartToken)
+            ? k2_milestone_tier_link('/player/profile.php?id=' . $playerId, $playerName, $chartToken)
             : k2_player_link($playerId, $playerName);
         ?>
 		<tr data-k2-sort-tie-value="<?php echo $unlockRank; ?>">

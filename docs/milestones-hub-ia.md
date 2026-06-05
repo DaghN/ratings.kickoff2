@@ -4,7 +4,7 @@
 
 **Status:** **v0 shipped** in repo (Recent · Catalog · `milestone.php`). **This doc** tracks **future** hub phases (Story, Charts migration, etc.) — subject to change. **Committed hub routing** lives in [`hub-ia-agreement.md`](hub-ia-agreement.md).
 
-**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones.php?view=catalog`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span). Established rating distribution lives on **Activity** (`server1.php`) only. Activity summary includes **busiest day** (from `server_period_game_totals`); milestone digest panel removed Jun 2026.
+**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones.php?view=catalog`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span). Established rating distribution lives on **Activity** (`activity.php`) only. Activity summary includes **busiest day** (from `server_period_game_totals`); milestone digest panel removed Jun 2026.
 
 ---
 
@@ -17,7 +17,7 @@ Single **public home** for the milestone system:
 - Show **recent unlocks** and (later) server-wide **story** feeds.
 - Host **milestone-domain charts** migrated from Activity when ready.
 
-**Not here:** per-player garden (profile `individual_milestones.php`); competitive meta-sort (`ranked10.php` Leaderboards wing); single-holder extremes (`server2.php` Hall of Fame).
+**Not here:** per-player garden (profile `player/milestones.php`); competitive meta-sort (`leaderboards/milestones.php` Leaderboards wing); single-holder extremes (`hall-of-fame.php` Hall of Fame).
 
 ---
 
@@ -27,7 +27,7 @@ Single **public home** for the milestone system:
 |------|--------|
 | Top-level tab | **Milestones** — after Leaderboards, before Hall of Fame |
 | Page | `milestones.php` |
-| HoF achievers | **Removed** from `server2.php` — per-key lists on `milestone.php` |
+| HoF achievers | **Removed** from `hall-of-fame.php` — per-key lists on `milestone.php` |
 
 ---
 
@@ -68,9 +68,9 @@ Chronological unlock feed — server-wide or curated slice. Tier dot/stripe per 
 
 ## Charts (planned; defer with Activity slim)
 
-Migrate from `server1.php` when hub exists:
+Migrate from `activity.php` when hub exists:
 
-- Established chart group (Activity still has these on `server1.php` until hub Charts exists)
+- Established chart group (Activity still has these on `activity.php` until hub Charts exists)
 
 Until then, Activity keeps established charts ([`hub-ia-agreement.md`](hub-ia-agreement.md)); busiest day lives in the summary fact row. DD merchant / participation-depth Activity APIs and chart JS **deleted** Jun 2026.
 
@@ -80,10 +80,10 @@ Until then, Activity keeps established charts ([`hub-ia-agreement.md`](hub-ia-ag
 
 | Surface | Relationship |
 |---------|----------------|
-| `ranked10.php` | Meta-leaderboard (“most milestones”); link into hub for per-key lore |
-| `individual_milestones.php` | Personal garden; hub links “your milestones” when logged in via profile |
-| `server2.php` | Remove trial **Milestone achievers** section when hub hosts DD Merchant + more |
-| `server1.php` | Charts/digest migrate later; no Activity slim in stub slice |
+| `leaderboards/milestones.php` | Meta-leaderboard (“most milestones”); link into hub for per-key lore |
+| `player/milestones.php` | Personal garden; hub links “your milestones” when logged in via profile |
+| `hall-of-fame.php` | Remove trial **Milestone achievers** section when hub hosts DD Merchant + more |
+| `activity.php` | Charts/digest migrate later; no Activity slim in stub slice |
 | Status | No planned unlock teaser strip (deferred; not documented elsewhere) |
 
 ---

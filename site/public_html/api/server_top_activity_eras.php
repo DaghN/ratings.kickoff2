@@ -1,7 +1,7 @@
 <?php
 /**
  * JSON monthly games for the 10 players with the most rated games right now.
- * Powers the Activity "Top activity eras" line chart on server1.php.
+ * Powers the Activity "Top activity eras" line chart on activity.php.
  *
  * GET: realm (default online), limit (default 10, max 20)
  *

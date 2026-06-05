@@ -22,7 +22,7 @@ Root causes in C++ excerpt (see exact line doc):
 
 ## Critical regression matrix (test revised post-game against these)
 
-Use **Hall of Fame** (`server2.php`) or SQL on `generalstatstable WHERE id = 1`.
+Use **Hall of Fame** (`hall-of-fame.php`) or SQL on `generalstatstable WHERE id = 1`.
 
 | Record | Holder | Value | **Wrong (staging / bug)** | **Correct (contract / golden)** | PG-004 area |
 |--------|--------|-------|---------------------------|----------------------------------|-------------|

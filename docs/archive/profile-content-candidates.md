@@ -242,7 +242,7 @@ B01–B03 · C01–C05 (see rank rethink) · M01–M02 · P01 · H01–H03 · G0
 | **M03** | Max rated victim card — **celebrate non-elite upsets**; consider **show only below rating/rank cutoff** |
 | **M08** | Favourite victim line — “His favourite victim is … — beaten X times” |
 | **M09** | Featured rivalry W–D–L before matchup charts — try it |
-| **M12** | Deep link to `individual3.php` with **opponent pre-filtered** |
+| **M12** | Deep link to `player/games.php` with **opponent pre-filtered** |
 | **P02** | Best year as **ticker** — e.g. “Won 135 games in 2023!” (wins; P03/P04 folded into P01 busiest) |
 | **P05** | **Distinct days played** — key stat; **site-wide** (Profile + HoF + elsewhere); not just heatmap footnote |
 | **MS01** | Latest unlock — **card**: “Unlocked *X* on *date*” → `milestone.php` |
@@ -268,7 +268,7 @@ B01–B03 · C01–C05 (see rank rethink) · M01–M02 · P01 · H01–H03 · G0
 | **P05** distinct days played | Precompute or cheap COUNT on `player_period_games` day rows; expose on Profile + **Hall of Fame** (not designed yet) |
 | **L06** first gold moment | May need stored “first award” or query on `player_league_award` |
 | **H05** DD-day heatmap | New stored truth or expensive rebuild — defer unless facilitated |
-| **M12** Games tab opponent filter | `individual3.php` query param + filter UI |
+| **M12** Games tab opponent filter | `player/games.php` query param + filter UI |
 
 ---
 
