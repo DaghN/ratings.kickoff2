@@ -45,6 +45,7 @@ I synced public_html. Two jobs your side:
 Then open:
   https://ratings.kickoff2.com/amiga/rating.php
   https://ratings.kickoff2.com/amiga/profile.php?id=1
+  https://ratings.kickoff2.com/amiga/games.php?id=1
 
 Amiga Elo leaderboard (~27k games, 473 players after name merges). Legacy Access ratings are not shown.
 

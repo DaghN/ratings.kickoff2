@@ -8,12 +8,15 @@
 |------|------|
 | Leaderboard | `/amiga/rating.php` |
 | Profile | `/amiga/profile.php?id={playertable.ID}` |
+| Games | `/amiga/games.php?id={playertable.ID}` |
 
 ## What v0 shows
 
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): rank, rating, games, country line
+- **Player nav** — Profile · Games (`amiga_player_nav.php`)
 - **Career strip** — single `playertable` read (W/D/L, goals, peak, opp avg)
 - **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` (scans that player’s games in `ratedresults`)
+- **Games tab** — server-side filters (result, opponent), sort, 100-row pages; tournament + phase columns from `ratedresults` + `tournaments`
 
 ## Data strategy (important)
 
@@ -30,8 +33,12 @@ That is fine at current scale (27k games total; busiest player ~1.1k games). Whe
 
 - `includes/amiga_player_load.php`
 - `includes/amiga_player_hero.php`
+- `includes/amiga_player_nav.php`
 - `includes/amiga_profile_blocks.php`
+- `includes/amiga_player_games_lib.php`
+- `includes/amiga_player_game_row.php`
 - `amiga/profile.php`
+- `amiga/games.php`
 
 ## Import: player identity
 
@@ -50,4 +57,4 @@ Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN
 
 ## Not in v0
 
-- Game list tab, H2H, milestones, tournament pages, compare chart
+- H2H, milestones, tournament index pages, per-game detail page, compare chart

@@ -28,6 +28,7 @@ Browser:
 
 - `http://ratingskickoff.test/amiga/rating.php`
 - `http://ratingskickoff.test/amiga/profile.php?id=1`
+- `http://ratingskickoff.test/amiga/games.php?id=1`
 
 Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
 

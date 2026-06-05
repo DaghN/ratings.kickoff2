@@ -15,6 +15,8 @@ $heroGames = isset($NumberGames) ? (int) $NumberGames : 0;
 $heroRank = isset($rank) ? '#' . (int) $rank : '—';
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $lbHref = '/amiga/rating.php';
+$heroPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
+$gamesHref = $heroPlayerId > 0 ? '/amiga/games.php?id=' . $heroPlayerId : '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
 ?>
 <article class="k2-player-hero k2-player-hero--feast">
@@ -42,7 +44,13 @@ $heroCountry = isset($Country) ? trim((string) $Country) : '';
 				</div>
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Games</span>
-					<span class="k2-player-hero__stat-value"><?php echo $heroGames; ?></span>
+					<span class="k2-player-hero__stat-value"><?php
+                    if ($gamesHref !== '') {
+                        ?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($gamesHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a><?php
+                    } else {
+                        echo $heroGames;
+                    }
+                    ?></span>
 				</div>
 			</div>
 		</div>

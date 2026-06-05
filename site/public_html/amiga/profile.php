@@ -60,6 +60,9 @@ $playerId = $pm['id'];
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
 <?php
+$k2AmigaPlayerTabActive = 'profile';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
+
 amiga_profile_render_career($pm);
 amiga_profile_render_rating_chart($playerId);
 ?>
