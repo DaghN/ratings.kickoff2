@@ -34,7 +34,26 @@
         return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     }
 
-    function serverStartDate() {
+    function parseStartDate(value) {
+        if (!value) {
+            return null;
+        }
+        var s = String(value).trim();
+        if (!s) {
+            return null;
+        }
+        var d = new Date(s.replace(' ', 'T'));
+        if (isNaN(d.getTime()) && s.length >= 10) {
+            d = new Date(s.slice(0, 10) + 'T00:00:00');
+        }
+        return isNaN(d.getTime()) ? null : d;
+    }
+
+    function serverStartDate(override) {
+        var custom = parseStartDate(override);
+        if (custom) {
+            return custom;
+        }
         return new Date(SERVER_START.getTime());
     }
 
@@ -99,6 +118,7 @@
 
     global.K2ChartDateRange = {
         monthToDate: monthToDate,
+        parseStartDate: parseStartDate,
         serverStartDate: serverStartDate,
         serverStartMonth: serverStartMonth,
         endOfCurrentMonth: endOfCurrentMonth,

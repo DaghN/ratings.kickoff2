@@ -4,13 +4,25 @@
 
 ---
 
-## Three local databases
+## Amiga Access snapshot
+
+| Path | Purpose |
+|------|---------|
+| **`amiga/source/`** | Microsoft Access `.mdb` / `.accdb` — **gitignored** |
+| **`amiga/exports/`** | Optional CSV/JSON from discovery — **gitignored** |
+
+Details: [`amiga/README.md`](amiga/README.md)
+
+---
+
+## Local databases
 
 | MySQL name | Browser URL (local) | You use it for |
 |------------|---------------------|----------------|
 | **`ko2unity_db`** | `http://ratingskickoff.test/` | Daily dev (full schema) |
 | **`ko2unity_baseline`** | — | Frozen prod copy — **never** migrate or replay |
 | **`ko2unity_work`** | `http://work.ratingskickoff.test/` | Prod-shaped sim — **parallel** to dev (not a config cutover) |
+| **`ko2amiga_db`** | `http://ratingskickoff.test/amiga/rating.php` | Amiga offline realm — separate from online |
 
 Dual URLs: [`docs/LOCAL_DEV.md`](../docs/LOCAL_DEV.md) · setup: `scripts\setup_laragon_work_site.ps1`
 
@@ -74,3 +86,4 @@ powershell -ExecutionPolicy Bypass -File scripts\reset_local_work_db.ps1
 |--------|----------|
 | `site/config/ko2unitydb_config.php` | `ko2unity_db` |
 | `site/config/ladder-work.ini` | `ko2unity_work` |
+| `site/config/ko2amiga_config.local.php` | `ko2amiga_db` |

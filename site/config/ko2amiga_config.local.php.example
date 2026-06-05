@@ -1,0 +1,13 @@
+<?php
+/**
+ * Amiga realm DB — local / staging credentials.
+ *
+ *   copy ko2amiga_config.local.php.example → ko2amiga_config.local.php
+ *
+ * ko2amiga_config.local.php is gitignored — never commit credentials.
+ */
+$dbhost = '127.0.0.1';
+$username = 'root';
+$password = '';
+$database = 'ko2amiga_db';
+$dbportnum = 3306;

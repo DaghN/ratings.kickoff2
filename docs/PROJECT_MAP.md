@@ -20,7 +20,9 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `site/public_html/ops/` | **Server operations** — `dispatch.php`, modules, SQL mirrors; [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | `docs/self-hosted-assets.md` | **CDN audit** — what is self-hosted vs external (fonts, JS, YouTube embed) |
 | `docs/DEAD_SURFACE.md` | **Removed / kept** runtime files and one-shot scripts (trim pass) |
-| `site/config/` | DB config (gitignored) — `ko2unitydb_config.php` |
+| `site/config/` | DB config — `ko2unitydb_config.php` router; `*.local.php` gitignored |
+| `site/public_html/amiga/` | **Amiga realm** — leaderboard, profile, staging SQL dump path |
+| `scripts/amiga/` | **Amiga import + replay** — Access → `ko2amiga_db` |
 | `scripts/ladder/` | **Python replay** — recalc Elo/stats from all games |
 | `scripts/run_local_replay.ps1` | One-command local replay |
 | `docs/coordination/cutover-readiness.md` | **Prep done vs live cutover** — read before schema/replay registers |
@@ -41,7 +43,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 |-------|------|--------|
 | **Taste** | UI/copy/scope disputes | `PROJECT_BRIEF.md`, `docs/design-direction.md` |
 | **Now** | Every session | `PROJECT_MEMORY.md` |
-| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, **`docs/activity-charts.md`** (Activity `activity.php` charts), **`docs/milestones-README.md`** (milestones entry → `milestones-catalog.md`), `docs/player-profile-feast.md`, `docs/hub-ia-agreement.md` |
+| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, **`docs/activity-charts.md`** (Activity `activity.php` charts), **`docs/milestones-README.md`** (milestones entry → `milestones-catalog.md`), `docs/player-profile-feast.md`, **`docs/amiga-profile-v0.md`** / **`docs/amiga-staging-handoff.md`**, `docs/hub-ia-agreement.md` |
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
 | **Ladder ops platform** | Steve boundary, `ops/`, sim | [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` |
@@ -52,11 +54,12 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 
 ---
 
-## Three databases (don’t confuse)
+## Databases (don’t confuse)
 
 | | Local | Staging | Prod |
 |---|--------|---------|------|
-| Name | `ko2unity_db` (+ sandbox `ko2unity_work` / `ko2unity_baseline`) | `kooldb1` / `kooldb2` (legacy `kooldb` possible) | Steve-managed |
+| **Online** | `ko2unity_db` (+ sandbox `ko2unity_work` / `ko2unity_baseline`) | `kooldb1` / `kooldb2` (legacy `kooldb` possible) | Steve-managed |
+| **Amiga (offline)** | `ko2amiga_db` — separate realm, no player linking | Steve creates + imports `amiga/_import/ko2amiga_db.sql` | TBD |
 | Work prepare / simul | [`work-db-prepare.md`](work-db-prepare.md) | Same vocabulary (refresh → migrate → zero derived) | — |
 | Live games | No | **No** | **Yes** |
 | PHP deploy | Laragon | WinSCP sync **`site/public_html/`** | Steve |

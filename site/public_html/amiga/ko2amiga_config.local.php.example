@@ -1,0 +1,9 @@
+<?php
+/**
+ * Staging / local credentials for Amiga realm (copy → ko2amiga_config.local.php).
+ */
+$dbhost = '127.0.0.1';
+$username = 'root';
+$password = '';
+$database = 'ko2amiga_db';
+$dbportnum = 3306;

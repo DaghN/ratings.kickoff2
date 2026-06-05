@@ -1,0 +1,2 @@
+# Block web access to SQL dumps (import via server shell only).
+Require all denied

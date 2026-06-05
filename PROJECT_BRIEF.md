@@ -4,7 +4,7 @@
 
 **Context**
 
-- **Kick Off 2 retro community.** The production site (**KOOL Rating**) is a **statistics and ladder website** — **game results**, derived metrics, and an **Elo-style rating (“Dagh Rating”)** computed from **online play** logged on the ladder.
+- **Kick Off 2 retro community.** The production site (**KOOL Rating**) is a **statistics and ladder website** — **game results**, derived metrics, and an **Elo rating** computed from **online play** logged on the ladder.
 
 - **Data scope.** Online results are **the core feed today.** Over time there may also be comparable treatment of **offline** (or other) competitions — phased and only when that data discipline exists; agents should assume **parity of spirit** without inventing integrations that aren’t real yet.
 

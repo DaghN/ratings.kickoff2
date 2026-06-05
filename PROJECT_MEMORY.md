@@ -36,6 +36,8 @@
 
 - **Change style:** small, reversible slices.
 
+- **Amiga realm (Jun 2026):** Phase **A1** shipped — Access import → **`ko2amiga_db`**, Elo replay (1600/K=32), `/amiga/rating.php` + `/amiga/profile.php`. Staging: WinSCP + Steve SQL import — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). Track B (tournament standings) not started.
+
 ---
 
 ## Deep reference (read on demand)
@@ -114,6 +116,7 @@
 | 2026-06 | **Profile feast + content v1** — production `player/profile.php`; playbook + v1 in [`player-profile-feast.md`](docs/player-profile-feast.md) / [`profile-build-playbook.md`](docs/profile-build-playbook.md); lab archived. |
 | 2026-06 | **Activity charts v2 shipped** — `activity.php` uses `activity-charts-v2.js` + `server_activity_chart_panels.php`; plan [`activity-charts.md`](docs/activity-charts.md). |
 | 2026-06 | **URL routes rename** — legacy `server*` / `ranked*` / `individual*` → semantic paths; `k2_routes.php`; [`url-routes.md`](docs/url-routes.md). |
+| 2026-06 | **Amiga realm A1** — `ko2amiga_db` import from `koatd.mdb` (27,408 games, 474 players after name merges), Elo replay, `/amiga/rating.php` + profile v0; staging handoff [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). |
 
 ---
 

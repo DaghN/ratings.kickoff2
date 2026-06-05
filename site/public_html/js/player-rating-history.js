@@ -4,7 +4,8 @@
 (function (global) {
     'use strict';
 
-    var API_PATH = 'api/player_rating_history.php';
+    // Root-relative — profile lives under /player/ and /amiga/, not site root.
+    var API_PATH = '/api/player_rating_history.php';
     var cache = {};
 
     function cacheKey(playerId, realm) {

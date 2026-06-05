@@ -6,7 +6,7 @@ K_FACTOR = 32
 START_RATING = 1600.0
 ESTABLISHED_MIN_GAMES = 20
 ALLOWED_DATABASES = frozenset(
-    {"ko2unity_work", "ko2unity_baseline", "ko2unity_db", "kooldb"}
+    {"ko2unity_work", "ko2unity_baseline", "ko2unity_db", "kooldb", "ko2amiga_db"}
 )
 
 # ratedresults — cleared on reset, rewritten on replay

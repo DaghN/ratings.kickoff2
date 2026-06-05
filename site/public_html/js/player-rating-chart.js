@@ -154,7 +154,10 @@
         };
     }
 
-    function createDateChart(canvas, chartData, peakValue) {
+    function createDateChart(canvas, chartData, peakValue, timelineStart) {
+        var xMin = DR && DR.serverStartDate
+            ? DR.serverStartDate(timelineStart)
+            : undefined;
         return createChart(canvas, {
             type: 'line',
             data: {
@@ -194,7 +197,7 @@
                 scales: {
                     x: {
                         type: 'time',
-                        min: DR && DR.serverStartDate ? DR.serverStartDate() : undefined,
+                        min: xMin,
                         max: DR ? DR.endOfToday() : undefined,
                         time: {
                             displayFormats: {
@@ -365,6 +368,7 @@
             gameChart: null,
             gameChartData: [],
             peakValue: null,
+            timelineStart: null,
             activeView: 'date'
         };
 
@@ -383,8 +387,14 @@
             });
         }
 
-        History.load(playerId, 'online')
+        var realm = root.getAttribute('data-realm')
+            || (document.documentElement && document.documentElement.getAttribute('data-realm'))
+            || 'online';
+
+        History.load(playerId, realm)
             .then(function (data) {
+                state.timelineStart = data.timelineStart || null;
+
                 var points = data.points || [];
                 if (!points.length) {
                     if (status) {
@@ -430,7 +440,12 @@
                     status.textContent = '';
                 }
 
-                state.dateChart = createDateChart(dateCanvas, dateChartData, state.peakValue);
+                state.dateChart = createDateChart(
+                    dateCanvas,
+                    dateChartData,
+                    state.peakValue,
+                    state.timelineStart
+                );
                 setActiveView(root, 'date', state);
             })
             .catch(function () {

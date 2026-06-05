@@ -35,6 +35,7 @@ TARGET_DATABASES = {
     "local": "ko2unity_db",
     "sandbox": "ko2unity_work",
     "staging": "kooldb",
+    "amiga": "ko2amiga_db",
 }
 
 GAME_SELECT = """
@@ -96,9 +97,12 @@ def _resolve_target(cfg: DbConfig, target: str | None) -> str:
             return "local"
         if cfg.database == TARGET_DATABASES["sandbox"]:
             return "sandbox"
+        if cfg.database == TARGET_DATABASES["amiga"]:
+            return "amiga"
         raise SystemExit(
             f"Refusing to use database {cfg.database!r} without an explicit target. "
-            "Use --target sandbox with ladder-work.ini, or --target staging for staging."
+            "Use --target sandbox with ladder-work.ini, --target amiga with ko2amiga_config.local.php, "
+            "or --target staging for staging."
         )
 
     if target not in TARGET_DATABASES:

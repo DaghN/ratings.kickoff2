@@ -18,7 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $realm = isset($_GET['realm']) ? strtolower(trim((string) $_GET['realm'])) : 'online';
 $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
-if ($realm !== 'online') {
+if ($playerId < 1) {
+    http_response_code(400);
+    echo json_encode(['error' => 'invalid_id']);
+    exit;
+}
+
+if ($realm === 'amiga') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/amiga/ko2amiga_config.php';
+} elseif ($realm === 'online') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+} else {
     echo json_encode([
         'realm' => $realm,
         'playerId' => $playerId,
@@ -28,14 +38,6 @@ if ($realm !== 'online') {
     ]);
     exit;
 }
-
-if ($playerId < 1) {
-    http_response_code(400);
-    echo json_encode(['error' => 'invalid_id']);
-    exit;
-}
-
-include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
 $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if ($con->connect_errno) {
@@ -105,12 +107,30 @@ while ($row = $res->fetch_assoc()) {
 }
 
 $stmt->close();
+
+$timelineStart = null;
+if ($realm === 'amiga') {
+    $minRes = $con->query('SELECT MIN(Date) AS d FROM ratedresults');
+    if ($minRes) {
+        $minRow = $minRes->fetch_assoc();
+        if ($minRow && $minRow['d'] !== null) {
+            $timelineStart = $minRow['d'];
+        }
+        $minRes->free();
+    }
+}
+
 mysqli_close($con);
 
-echo json_encode([
+$payload = [
     'realm' => $realm,
     'playerId' => $playerId,
     'playerName' => $playerName,
     'currentRating' => $currentRating,
     'points' => $points,
-]);
+];
+if ($timelineStart !== null) {
+    $payload['timelineStart'] = $timelineStart;
+}
+
+echo json_encode($payload);

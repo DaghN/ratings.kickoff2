@@ -4,6 +4,9 @@
 !.env.example
 site/config/ko2unitydb_config.local.php
 site/config/ko2unitydb_config_work.local.php
+site/config/ko2amiga_config.local.php
+site/public_html/amiga/ko2amiga_config.local.php
+site/public_html/amiga/_import/*.sql
 site/config/ladder.ini
 site/config/ladder-work.ini
 site/config/work-targets.ini
@@ -12,6 +15,13 @@ site/public_html/ops/config/work-targets.ini
 # Local database dumps (large; may contain account data) — never commit full DB exports
 /data/dumps/*
 !/data/dumps/README.md
+
+# Amiga Access snapshot + discovery exports (large; may contain personal data)
+/data/amiga/source/*
+!/data/amiga/source/.gitkeep
+/data/amiga/exports/*
+!/data/amiga/exports/.gitkeep
+
 /KO2PC_DB/
 
 # Stray *.sql elsewhere (HeidiSQL exports, ad-hoc dumps). Canonical DDL is allowlisted below.
@@ -19,6 +29,7 @@ site/public_html/ops/config/work-targets.ini
 !site/public_html/ops/sql/migrations/**/*.sql
 !site/public_html/ops/sql/generalstatstable.sql
 !scripts/ladder/sql/**/*.sql
+!scripts/amiga/sql/**/*.sql
 !schema/**/*.sql
 
 # Laragon Apache shim build artifacts
