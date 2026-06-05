@@ -16,6 +16,7 @@ Lightweight index: **what we built**, **prod level**, **migration status**. Agen
 | Activity charts v2 (single module) | — | — | — | — | — | **Shipped** on `server1.php` (local + staging) — `activity-charts-v2.js`; legacy boot files removed Jun 2026; [`activity-charts.md`](../activity-charts.md) |
 | Persistent tint preference | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | Local 6h slots; manual override; `k2-tint-schedule.js` |
+| Header realm switcher | — | — | — | — | — | **Removed Jun 2026** — markup/CSS deleted; `realm-switch.js` tint-only; `data-realm="online"` retained on pages |
 | Records two-panel split | L0 | — | — | — | — | Peak cache read path |
 | League honours leaderboard (v1) | L0 | — | — | — | — | `ranked9.php`; reads `playertable` + `player_league_totals`; wing tab in `lb_nav.php` |
 | League period awards (medals DB) | L4 | SCH-009, SCH-010 | REP-012, REP-013 | Pending | — | **Staging done** May 2026 (Steve; counts match local); League honours + slice totals live on `kooldb`; prod schema + REP pending; no cron/PER-003 yet |

@@ -20,6 +20,9 @@
 | `scripts/simplify_individual1_layout.py` | One-shot profile layout |
 | `scripts/patch-activity-charts.js` | Patched deleted `server-*-chart.js` boot files (Activity v2) |
 | `scripts/test_daily_active_perf.php` | Local perf probe; findings recorded in MEMORY / contract habit |
+| `site_header.php` — Online/Amiga realm switcher markup | No Amiga realm UI; tint picker unchanged via `realm-switch.js` |
+| `theme.css` — `.k2-site-header__realm*`, `.k2-realm-switch*` | Orphan after header markup removed |
+| `realm-switch.js` — realm UI + `k2-realm` localStorage | File kept for tint pills only; `theme_boot_head.php` no longer reads realm |
 
 **Deploy:** WinSCP sync `site/public_html/` (JS deletes, `status-realm-lab.php`, `theme.css`). Hard refresh.
 

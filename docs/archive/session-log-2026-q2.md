@@ -8,6 +8,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Doc hygiene** — `PROJECT_MEMORY` trim → `docs/archive/session-log-2026-q2.md`; completed handoffs + milestones brainstorm → archive stubs; PHP ops = cutover narrative; Phase 1.5 handoff restored active. |
+| 2026-06 | **Header realm switcher removed** — markup/CSS deleted; `realm-switch.js` tint-only; hub IA docs updated. |
 | 2026-06 | **Status leagues period menu** — Day/Week/Month/Year selector now uses the shared `k2-chrome-tabs` segment track with compact milestone-style density. |
 | 2026-06 | **Wordmark bloom softened** — Kick Off 2 neon keeps its street-sign feel with reduced outer haze and hover flare. |
 | 2026-06 | **Status heritage glow** — right-side KO2 box art gets a clipped warm tint halo/rays inside the inset, balancing the wordmark glow. |
