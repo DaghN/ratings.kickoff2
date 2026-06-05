@@ -144,28 +144,20 @@ Prefer replay when the job is “recompute from all games in order.”
 
 ---
 
-## Staging — what to give Steve
+## Staging / Steve — what to sync today
 
-**Not** a single installer. Repeatable **upload list**:
+**Forward path:** WinSCP-sync **`site/public_html/`** (includes **`ops/`**). Work DB on staging = **`kooldb1`** — prepare + simul per [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) and [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md).
 
-| Upload to server `public_html/` | From repo |
-|----------------------------------|-----------|
-| `run_staging_ladder_replay.sh` | repo root |
-| `scripts/ladder/` (whole tree) | `scripts/ladder/` |
+| Task | Command / doc |
+|------|----------------|
+| Schema on work DB | `php ops/run_prepare.php migrate-work --target staging-work` |
+| Fill derived tables | `php ops/run_ops_sim.php run --target staging-work` |
+| Verify | `php ops/run_verify_ops_sim.php --target staging-work` |
+| Live cutover (when scheduled) | [`post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 
-Steve runs from `public_html/`:
+**Legacy (May 2026, frozen `kooldb` only):** `run_staging_ladder_replay.sh` + `scripts/ladder/` — historical record [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md). **Not** the cutover recipe.
 
-```bash
-bash run_staging_ladder_replay.sh
-```
-
-The wrapper passes `--target staging`, and the Python replay prints DB identity before writes.
-
-**Schema on staging:** send SQL file(s) from `schema/migrations/` — Steve runs on staging work DB **`kooldb1`** (pristine copy **`kooldb2`**). Legacy **`kooldb`** may still exist from May 2026. Steve confirmed staging and production are on entirely different physical servers; production cutover still needs its own reviewed instructions.
-
-**Full checklist:** `docs/STAGING_REPLAY.md` · **Cutover email template:** `docs/coordination/cutover-packet-template.md`
-
-**Remember:** staging DB does **not** get live games — replay is how numbers catch up.
+**Cutover email template:** [`coordination/cutover-packet-template.md`](coordination/cutover-packet-template.md)
 
 ---
 
@@ -178,7 +170,7 @@ scripts/rebuild_website_derived_data_local.ps1   # legacy repair only
 scripts/ladder/sql/archive/batch-2026-05/        # batch SQL (not cutover)
 scripts/oneoff/          ← one-off template
 site/public_html/ops/sql/migrations/  ← SCH DDL (synced with ops)
-run_staging_ladder_replay.sh   ← Steve staging replay wrapper
+run_staging_ladder_replay.sh   ← deprecated May 2026 kooldb replay
 docs/coordination/       ← schema + replay registers; contract = behavior
 docs/prod-coordination.md      ← hub when coordinating prod
 docs/OPERATIONS_QUICK_START.md ← this file
@@ -188,6 +180,6 @@ docs/OPERATIONS_QUICK_START.md ← this file
 
 ## Still to-do (not built yet)
 
-- **Prod** replay / schema / C++ cutover (registers track; Steve executes)
+- **Live prod cutover** — prep done on `kooldb1`; Steve executes when scheduled ([`cutover-readiness.md`](coordination/cutover-readiness.md))
 - **Bundled “staging deploy” script** (WinSCP automate) — optional
 - **Periodic jobs** — [`coordination/periodic-register.md`](coordination/periodic-register.md)

@@ -1,5 +1,5 @@
+-- ARCHIVED (Jun 2026) — one-time fix on frozen kooldb; superseded by FinalizeUtcDay (day_close_milestones.php)
 -- Surgical: perfect_day + nightmare_day (day-close achieved_at)
--- mysql -u MYSQL_USER -p kooldb < staging-sql/milestones/player_milestones_fix_day_close.sql
 SET time_zone = '+00:00';
 
 DELETE FROM player_milestones WHERE milestone_key IN ('perfect_day', 'nightmare_day');

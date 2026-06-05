@@ -1,6 +1,6 @@
 # Replay register — archived (May 2026 batch era)
 
-**Historical only.** Cutover agents: [`../coordination/cutover-readiness.md`](../coordination/cutover-readiness.md). Active stub: [`../coordination/replay-register.md`](../coordination/replay-register.md).
+**Historical only — do not assign tasks from the Prod column.** “**Pending**” here meant “not yet run on live prod” in May 2026; it is **not** repo backlog. Cutover prep is **done** on `kooldb1` via ops simul ([`../coordination/cutover-readiness.md`](../coordination/cutover-readiness.md)). Active stub: [`../coordination/replay-register.md`](../coordination/replay-register.md).
 
 ---
 

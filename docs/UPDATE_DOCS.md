@@ -135,6 +135,6 @@ While coding, **notice** migration triggers (new column, ladder change). You may
 | Theme tint + hub CSS | MEMORY, maybe design-direction | Skip |
 | New chart API (existing columns) | MEMORY, maybe feature-log | Skip or L0 |
 | Status league copy tweak | MEMORY, STATUS_PAGE_DATA if rules changed | L0 if new panel rules |
-| New aggregate table + profile UI | MEMORY, website-data-contract, feature-log | L2: schema + REP + contract § |
+| New aggregate table + profile UI | MEMORY, website-data-contract, feature-log | L2: schema + ops simul on work DB + contract § |
 
 *Authority: `PROJECT_BRIEF.md`; Dagh’s latest message wins.*

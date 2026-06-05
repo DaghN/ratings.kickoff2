@@ -43,7 +43,9 @@ Do **not** reject schema, replay, index, aggregate-table, periodic-job, or post-
 
 **`site/public_html/staging-scripts/` was removed Jun 2026.** Do not recreate it or “fix bugs” in deleted cutover runners. Server ladder work = **`site/public_html/ops/`** only (`run_prepare.php`, `run_process_game.php`, `run_ops_sim.php`, `dispatch.php`, …). Local batch repair / parity = `scripts/ladder/`, `scripts/work_prepare/`, `scripts/rebuild_website_derived_data_local.ps1` (Mode B, not live path). See [`docs/archive/staging-scripts-inventory.md`](docs/archive/staging-scripts-inventory.md).
 
-Default question before implementing stats: *What stored table should this value live in, and what does `docs/website-data-contract.md` say for rebuild and post-game?* — not "can we compute it on the fly?" Do not create or cite `PG-00x` / `cpp-snippets/`; local/staging = schema + REP rebuild scripts.
+**Cutover vocabulary:** Prep is **done** on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; batch `*_rebuild.sql` and `rebuild_website_derived_data_local.ps1` are **legacy repair on `ko2unity_db` only** — not tasks, not prod. Read [`docs/coordination/cutover-readiness.md`](docs/coordination/cutover-readiness.md) before assigning “pending on prod” work.
+
+Default question before implementing stats: *What stored table should this value live in, and what does `docs/website-data-contract.md` say for rebuild and post-game?* — not "can we compute it on the fly?" Do not create or cite `PG-00x` / `cpp-snippets/`. Work/staging proof = **ops simul** (`run_ops_sim.php` + verify); batch SQL in `scripts/ladder/sql/archive/` = repair/oracle only.
 
 Use read-time SQL only when it is clearly cheap (single-row lookup, indexed narrow fetch), infrequent (admin-only, one-off), or the value genuinely cannot be precomputed (depends on request-time parameters that are unbounded).
 

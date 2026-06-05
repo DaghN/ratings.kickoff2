@@ -4,6 +4,8 @@
 
 **Purpose:** One place for **what is done vs what is left** for production. Replaces misleading readings of **“Pending on prod”** in old registers as “work still to do in the repo.”
 
+**One-line rule:** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; batch `*_rebuild.sql` and `rebuild_website_derived_data_local.ps1` are legacy repair on `ko2unity_db` only — not tasks, not prod.
+
 **Steve runbook (live execution only):** [`site/public_html/ops/docs/post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md)  
 **Simul definition of done:** [`ops-simul-runbook.md`](ops-simul-runbook.md)  
 **Schema DDL:** [`schema-register.md`](schema-register.md) · **Historical batch era:** [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md)
@@ -84,6 +86,7 @@ Single checklist (details in post-dagh-live-story):
 | Batch table rebuilds | `scripts/ladder/sql/archive/batch-2026-05/*_rebuild.sql` (repair only) |
 | Dev-only chain | `scripts/rebuild_website_derived_data_local.ps1` |
 | PHP vs Python A/B (dev era) | `python -m scripts.work_prepare ab-post-game` — see [`post-game-php-development.md`](../post-game-php-development.md) §9 (archived tooling) |
+| Day-close surgical SQL (frozen `kooldb`) | `scripts/ladder/sql/archive/one-off-2026-06/player_milestones_fix_day_close.sql` — superseded by `FinalizeUtcDay` |
 
 **Elo / core ladder** (`playertable` ratings from all games): still documented in [`replay-v1-scope-and-reset.md`](../replay-v1-scope-and-reset.md) — distinct from website aggregate simul; ops simul owns website derived tables at cutover.
 

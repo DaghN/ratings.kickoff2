@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# DEPRECATED (Jun 2026) — May 2026 one-shot on frozen staging kooldb only.
+# Forward work: ops simul on kooldb1 — docs/coordination/cutover-readiness.md
+# Historical record: docs/archive/STAGING_REPLAY-2026-05.md
+#
 # One-shot staging ladder replay (staging kooldb only).
 # Run on the server from either:
 #   - project root (scripts/ beside public_html/), or

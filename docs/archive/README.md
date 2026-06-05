@@ -2,8 +2,24 @@
 
 Planning and audit material kept for history — **not** the live spec for the site.
 
+**Agent rule:** Do **not** assign tasks from archived registers (especially **“Pending on prod”** in [`replay-register-2026-05.md`](replay-register-2026-05.md)). Forward cutover: [`../coordination/cutover-readiness.md`](../coordination/cutover-readiness.md).
+
+## Frozen environments (May 2026)
+
+| Name | Role today |
+|------|------------|
+| **`kooldb`** | Single staging DB; batch `*_rebuild.sql` era — **frozen, historical logs only** |
+| **`staging-scripts/`** | Removed Jun 2026 — inventory [`staging-scripts-inventory.md`](staging-scripts-inventory.md) |
+| **`run_staging_ladder_replay.sh`** | May 2026 Python replay on `kooldb` — [`STAGING_REPLAY-2026-05.md`](STAGING_REPLAY-2026-05.md) |
+
+**Forward proof DB:** **`kooldb1`** / local **`ko2unity_work`** — ops simul, not batch REP marathon.
+
+## File index
+
 | File | Contents |
 |------|----------|
+| `replay-register-2026-05.md` | Full May 2026 REP register + run log |
+| `STAGING_REPLAY-2026-05.md` | May 2026 staging Python ladder one-shot |
 | `session-log-2026-q2.md` | Trimmed `PROJECT_MEMORY.md` Recent log rows (May–Jun 2026) |
 | `profile-data-audit-pass2.md` | Pass-2 data map, B1/B2 ranking, feast contract, mock briefs (pre-ship) |
 | `profile-redesign-framing.md` | Audience, JTBD, Steve anchor, tone |
@@ -23,9 +39,10 @@ Planning and audit material kept for history — **not** the live spec for the s
 | `milestones-want-maybe-by-theme.md` | Thematic tier-band grouping pass |
 | `milestones-tier-curated.md` | Phase 2 tier snapshot + win-streak notes |
 | `retired-product-decisions.md` | Tombstone for retired product ideas (e.g. PER-001 rating fade) |
-| `status-period-competitions-wip.md` | Status Leagues WIP + Phase 1.5 polish backlog (retired Jun 2026) |
 | `status-period-competitions-phase-1.5-handoff.md` | Agent handoff for Phase 1.5 (retired Jun 2026) |
 
-**Current maintainer docs:** `docs/player-profile-feast.md` · `docs/milestones-README.md` · `docs/website-data-contract.md`
+**Status Leagues optional backlog (live):** [`../status-period-competitions-wip.md`](../status-period-competitions-wip.md)
+
+**Current maintainer docs:** `docs/player-profile-feast.md` · `docs/milestones-README.md` · `docs/website-data-contract.md` · `docs/coordination/cutover-readiness.md`
 
 **Code checkpoint before mock deletion:** git commit `b8c5a98`.

@@ -24,6 +24,8 @@ Deployment status is tracked elsewhere:
 
 Those registers link here for behavior; they do **not** duplicate post-game rules.
 
+**One-line cutover rule (agents):** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; batch `*_rebuild.sql` and `rebuild_website_derived_data_local.ps1` are legacy repair on `ko2unity_db` only — not tasks, not prod.
+
 ### Agent policy (post-game)
 
 - **Fill derived tables (happy path):** **`ops/run_ops_sim.php`** after migrate + seed + zero — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **Not** prod cutover via each `scripts/ladder/sql/archive/batch-2026-05/*_rebuild.sql`.
@@ -36,23 +38,25 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 
 ### Derived data index
 
-| Table | Schema | Rebuild (REP) | Post-game (contract §) |
-|-------|--------|---------------|-------------------------|
-| `player_period_games` | SCH-004, SCH-006 | `player_period_games_rebuild.sql` | Both players × day/week/month/year +1 |
-| `player_peak_period_games` | SCH-006 | `player_peak_period_games_rebuild.sql` | After period games; update peak if beaten |
-| `player_play_streaks` | SCH-014 | `rebuild_player_play_streaks.php` (REP-015) | After period games; day/week streak + HoF if personal best rises |
-| `server_daily_activity` | SCH-007 | `server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
-| `player_period_league` | SCH-008 | `player_period_league_rebuild.sql` | W/D/L/points per period |
-| `league_period` | SCH-009 | `ops/run_finalize_league.php` | **Periodic only** — finalize closed periods |
-| `player_league_award` | SCH-009 | `ops/run_finalize_league.php` | **Periodic only** |
-| `player_league_totals` | SCH-009 | `ops/run_finalize_league.php` | **Periodic only**; re-aggregate from awards |
-| `player_league_slice_totals` | SCH-010 | `ops/run_finalize_league.php` | **Periodic only**; with career totals after awards |
-| `milestone_definitions` | SCH-011 | `ops/run_prepare.php seed-catalog` or `scripts/oneoff/load_milestone_definitions.py` | Static catalog; reload when seed changes |
-| `player_milestones` | SCH-008, SCH-012–013 | `player_milestones_rebuild.sql` (+ spliced generators) | § `player_milestones` — game / league / lobby; PHP ops P6 + day-close |
-| `player_matchup_summary` | SCH-008 | `player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
-| `server_period_game_totals` | SCH-008 | `server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
-| `server_period_matchups` | SCH-008 | `server_period_matchups_rebuild.sql` | Canonical pair ×4 period types |
-| `generalstatstable` | SCH-002–003 | Ladder replay | **Exception doc** — records tie/UTC/ratio |
+**Full history fill (happy path):** `ops/run_ops_sim.php` after migrate + seed + zero. **Batch repair column** = legacy `ko2unity_db` only (`scripts/ladder/sql/archive/batch-2026-05/`).
+
+| Table | Schema | Ops simul / post-game | Batch repair (legacy) | Post-game (contract §) |
+|-------|--------|----------------------|------------------------|-------------------------|
+| `player_period_games` | SCH-004, SCH-006 | PHP ops P4 | `archive/.../player_period_games_rebuild.sql` | Both players × day/week/month/year +1 |
+| `player_peak_period_games` | SCH-006 | PHP ops P4 | `archive/.../player_peak_period_games_rebuild.sql` | After period games; update peak if beaten |
+| `player_play_streaks` | SCH-014 | PHP ops P7 | `scripts/rebuild_player_play_streaks.php` | After period games; day/week streak + HoF if personal best rises |
+| `server_daily_activity` | SCH-007 | PHP ops P5 | `archive/.../server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
+| `player_period_league` | SCH-008 | PHP ops P5 | `archive/.../player_period_league_rebuild.sql` | W/D/L/points per period |
+| `league_period` | SCH-009 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only** — finalize closed periods |
+| `player_league_award` | SCH-009 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only** |
+| `player_league_totals` | SCH-009 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only**; re-aggregate from awards |
+| `player_league_slice_totals` | SCH-010 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only**; with career totals after awards |
+| `milestone_definitions` | SCH-011 | `seed-catalog` | `load_milestone_definitions.py` | Static catalog; reload when seed changes |
+| `player_milestones` | SCH-008, SCH-012–013 | PHP ops P6 + `FinalizeUtcDay` | `archive/.../player_milestones_rebuild.sql` (+ splices) | § `player_milestones` — game / league / lobby |
+| `player_matchup_summary` | SCH-008 | PHP ops P5 | `archive/.../player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
+| `server_period_game_totals` | SCH-008 | PHP ops P5 | `archive/.../server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
+| `server_period_matchups` | SCH-008 | PHP ops P5 | `archive/.../server_period_matchups_rebuild.sql` | Canonical pair ×4 period types |
+| `generalstatstable` | SCH-002–003 | Ladder replay | Ladder replay | **Exception doc** — records tie/UTC/ratio |
 
 ---
 
@@ -161,16 +165,19 @@ Current aggregate tables do not need to move into the event engine because they 
 
 ### Normal rebuild pipeline
 
-The normal one-command rebuild flow is:
+**Work DB / cutover (authoritative):**
 
-1. Apply schema migrations in `schema/migrations/` if needed.
-2. Run full event-engine replay: `scripts/run_local_replay.ps1` (resets `playertable`, `ratedresults` derived cols, `generalstatstable`).
-3. Run website aggregate rebuild: `scripts/rebuild_website_derived_data_local.ps1` (rebuilds all aggregate tables).
-4. Parity checks pass.
+1. `php ops/run_prepare.php migrate-work` (+ `seed-catalog`, `zero-derived` as needed).
+2. `php ops/run_ops_sim.php run` then `php ops/run_verify_ops_sim.php`.
+3. Sign-off = verify **0 fail** — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
 
-Implementation entrypoint (aggregates only): `scripts/rebuild_website_derived_data_local.ps1`.
+**Dev DB `ko2unity_db` only (legacy repair):**
 
-Batch rebuild SQL (repair only) lives under `scripts/ladder/sql/archive/batch-2026-05/`. Live/cutover authority is **PHP ops** + this document.
+1. Schema via `ops/sql/migrations/` if needed.
+2. `scripts/run_local_replay.ps1` — Elo + `playertable` + `generalstatstable`.
+3. Optional emergency aggregate refill: `scripts/rebuild_website_derived_data_local.ps1` (batch SQL in `scripts/ladder/sql/archive/batch-2026-05/`).
+
+Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 ---
 
@@ -609,7 +616,7 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 
 **Streak keys:** In-memory counters during post-game (win resets loss/draw streaks, etc.). Unlock when **current** streak **equals** threshold on this game (`win_hat_trick` only on a win, `cold_streak` on a loss, `peace_streak` on a draw, `win_drought` when `non_win_streak === 10`). `ten_wins` = 10th career win on this game.
 
-**Exceptions (not in `ProcessCompletedGame`):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. **Live/post-game PHP:** Mode C UTC day-close job (TBD) — not per-game post-game. **Until then:** rebuild SQL / surgical day-close (`player_milestones_fix_day_close.sql`). Oracle batch may emit midnight `achieved_at` in parity sim.
+**Exceptions (not in `ProcessCompletedGame`):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. **Live/post-game PHP:** `FinalizeUtcDay` — `site/public_html/includes/day_close_milestones.php` (ops simul + Steve midnight dispatch). Not per-game post-game. Historical surgical SQL on frozen `kooldb`: `scripts/ladder/sql/archive/one-off-2026-06/player_milestones_fix_day_close.sql` (audit only).
 
 **Tail highlights (post-update `playertable` or per-game):**
 

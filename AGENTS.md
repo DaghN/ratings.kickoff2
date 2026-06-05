@@ -50,7 +50,9 @@ Prod ladder data is written by **Steve** (ground insert per game + periodic jobs
 
 **Performance / stored truth habit:** For DB-backed website work, default to stored/precomputed truth on hot paths (~73× faster than wide `ratedresults` scans at ~75k rows — see May 2026 evidence in prior MEMORY).
 
-**Default question:** *What stored table should this value live in, and what does [`website-data-contract.md`](docs/website-data-contract.md) say for rebuild + post-game?* Local/staging: **schema + REP or ops simul**. Do **not** treat missing C++ snippets as incomplete features.
+**Default question:** *What stored table should this value live in, and what does [`website-data-contract.md`](docs/website-data-contract.md) say for rebuild + post-game?* Work/staging proof: **ops simul** after `migrate-work` — not batch `REP-xxx` or `*_rebuild.sql` on prod. Do **not** treat missing C++ snippets as incomplete features.
+
+**One-line cutover rule:** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; batch SQL and `rebuild_website_derived_data_local.ps1` are legacy repair on `ko2unity_db` only.
 
 **Steve cutover:** schema + backfill on server, sync `ops/`, wire `dispatch.php` — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Hall of Fame records: [`records-post-game-exception.md`](docs/coordination/records-post-game-exception.md) (parity notes at cutover, not new C++ dev).
 

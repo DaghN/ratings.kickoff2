@@ -13,7 +13,15 @@ from scripts.ladder.config import load_db_config  # noqa: E402
 from scripts.ladder.engine import connect  # noqa: E402
 
 CHRONO = _REPO / "scripts" / "ladder" / "sql" / "archive" / "batch-2026-05" / "player_milestones_rebuild_chrono.sql"
-OUT_SQL = _REPO / "scripts" / "ladder" / "sql" / "player_milestones_fix_day_close.sql"
+OUT_SQL = (
+    _REPO
+    / "scripts"
+    / "ladder"
+    / "sql"
+    / "archive"
+    / "one-off-2026-06"
+    / "player_milestones_fix_day_close.sql"
+)
 
 
 def export_sql() -> None:
@@ -25,7 +33,7 @@ def export_sql() -> None:
     ]
     body = [
         "-- Surgical: perfect_day + nightmare_day (day-close achieved_at)",
-        "-- mysql -u MYSQL_USER -p kooldb < staging-sql/milestones/player_milestones_fix_day_close.sql",
+        "-- Historical audit only — superseded by FinalizeUtcDay (day_close_milestones.php)",
         "SET time_zone = '+00:00';",
         "",
         "DELETE FROM player_milestones WHERE milestone_key IN ('perfect_day', 'nightmare_day');",

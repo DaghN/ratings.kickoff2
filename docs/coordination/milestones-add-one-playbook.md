@@ -50,13 +50,28 @@ Expect spot-check: `play_streak_100` → **100 days of bliss**.
 | 5 | **Post-game** — Document in `docs/website-data-contract.md` § `player_milestones`; implement PHP reference (and later C++). `play_streak_100`: `k2_play_streak_maybe_unlock_milestone_100()` when day streak hits 100. |
 | 6 | **Parity** — `milestone_definitions` count = N. `COUNT(DISTINCT milestone_key)` in `player_milestones` may be **N−1** if no player has unlocked yet (ultra-rare). |
 | 7 | **Sanity** — `python scripts/oneoff/milestone_v0_sanity_check.py` (update expected N if needed). Spot-check garden for a player with/without unlock. |
-| 8 | **Local verify (required before browser)** — Run catalog reload + apply unlock SQL (step 9 below). Without this, hero still shows old **/111** and new cards are missing. |
+| 8 | **Proof on work DB** — After PHP post-game change: ops simul + verify on **`ko2unity_work`** (or staging **`kooldb1`**). See [`cutover-readiness.md`](cutover-readiness.md). |
+| 9 | **Local dev UI (optional)** — Catalog reload on **`ko2unity_db`** only if you need garden preview without full simul (step below). |
 
 ---
 
-## Local verify (required — same as staging surgical path)
+## Work DB verify (preferred)
 
-After repo edits, **before** expecting UI changes on Laragon:
+After implementing PHP unlock logic:
+
+```powershell
+php site/public_html/ops/run_prepare.php seed-catalog --target local-work
+php site/public_html/ops/run_ops_sim.php run --target local-work
+php site/public_html/ops/run_verify_ops_sim.php --target local-work
+```
+
+Spot-check garden + `SELECT COUNT(DISTINCT milestone_key) FROM player_milestones`.
+
+---
+
+## Local dev verify (`ko2unity_db` repair only)
+
+If you only need catalog + splice preview on the **dev** DB (not cutover proof):
 
 ```powershell
 cd "C:\Users\daghn\Desktop\Online and Amiga 500 ELO"
@@ -65,9 +80,7 @@ python scripts/oneoff/load_milestone_definitions.py
 & "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root ko2unity_db -e "source C:/Users/daghn/Desktop/Online and Amiga 500 ELO/scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild_year_in_heaven.sql"
 ```
 
-Use your key’s `player_milestones_rebuild_<key>.sql` file instead when different. Hard-refresh (`Ctrl+F5`). Confirm `SELECT COUNT(*) FROM milestone_definitions` = **N**.
-
-**Alternative:** full `scripts\rebuild_website_derived_data_local.ps1` (truncates `player_milestones`, re-splices all milestone SQL).
+Hard-refresh (`Ctrl+F5`). **Alternative (full truncate):** `scripts\rebuild_website_derived_data_local.ps1` — legacy repair only.
 
 ---
 
@@ -87,36 +100,15 @@ powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_lo
 
 ---
 
-## Staging verified — `play_streak_100` catalog (May 2026)
+## Staging / work (forward)
 
-Steve / Dagh on `kooldb` after `load_milestone_definitions.php`:
+| Step | Command |
+|------|---------|
+| WinSCP | Sync `public_html/ops/` + PHP includes (garden order, helpers) |
+| Steve / local work | `php ops/run_prepare.php seed-catalog --target staging-work` |
+| Proof | `php ops/run_ops_sim.php run` + `run_verify_ops_sim.php` on **`kooldb1`** |
 
-```sql
-SELECT COUNT(*) FROM milestone_definitions;
-SELECT display_name, rule_short FROM milestone_definitions WHERE milestone_key = 'play_streak_100';
-```
-
-| Check | Expected |
-|-------|----------|
-| `COUNT(*)` | **111** |
-| `play_streak_100` | `display_name` **100 days of bliss**; `rule_short` **100 consecutive UTC days with a rated game** |
-
-Unlock rows for this key still **0** on May 2026 import (max personal day streak 87). Run `run_milestone_play_streak_100_unlock.php` when you want the splice applied without full REP-008.
-
----
-
-## Staging (no full truncate if prod-like DB already at 110 keys)
-
-| Step | Command / file |
-|------|----------------|
-| WinSCP | Sync `public_html/ops/` (includes `data/milestones_definitions_seed.json`) |
-| WinSCP | `player_milestones_rebuild_play_streak_100.sql` → `staging-sql/milestones/` |
-| WinSCP | PHP: `load_milestone_definitions.php` (deprecated), archived `run_milestone_play_streak_100_unlock.php`, helpers, garden order, `player_play_streaks.php` |
-| Steve | `php ops/run_prepare.php seed-catalog` when ops synced; else legacy `load_milestone_definitions.php` |
-| Steve | `run_milestone_play_streak_100_unlock.php` only if re-applying splice (**archived** — expect **0** unlock rows on May 2026 import) |
-| Browser | Garden shows **100 days** locked card; geo4444 still **100/111** or **100/110** until first holder |
-
-Full REP-008 re-run still valid after splice update; surgical path avoids wiping 6658 rows.
+Historical May 2026 `kooldb` batch path: [`../archive/milestones-staging-cutover-packet.md`](../archive/milestones-staging-cutover-packet.md) — **not** forward cutover.
 
 ---
 
@@ -142,10 +134,10 @@ Full REP-008 re-run still valid after splice update; surgical path avoids wiping
 | `display_name` | **100 days** |
 | `rule_short` | **100 consecutive UTC days with a rated game** |
 | Rule | First time `player_period_games` day streak reaches 100; establishing game = `MIN(id)` on day 100 of the run |
-| Depends | `player_period_games` (day rows); **REP-015 staging done** May 2026 (play-streak UI/HoF on `kooldb`) |
+| Depends | `player_period_games` (day rows); play streaks proven on **`kooldb1`** after ops simul |
 
 ---
 
 ## Prod
 
-Steve: reload catalog + surgical unlock SQL (or wait for full rebuild). C++ post-game when M4+ includes play-streak day counter / reads `player_play_streaks`.
+Steve: same as work proof — migrate → seed → zero → simul → verify → live `dispatch.php`. See [`cutover-readiness.md`](cutover-readiness.md).
