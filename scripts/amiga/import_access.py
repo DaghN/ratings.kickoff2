@@ -23,7 +23,10 @@ from scripts.amiga.player_names import (
 from scripts.amiga.tournament_names import resolve_phase, resolve_tournament_name
 log = logging.getLogger(__name__)
 
+_SQL_TRACK_B = Path(__file__).resolve().parent / "sql" / "002_tournament_standings.sql"
+
 _AMIGA_TABLES_DROP_ORDER = (
+    "amiga_tournament_standings",
     "amiga_game_ratings",
     "amiga_player_stats",
     "amiga_games",
@@ -47,6 +50,7 @@ class AccessScore:
     goals_b: int
     raw_tournament: str
     phase: str | None
+    extra: str | None
 
 
 def connect_access(mdb: Path) -> pyodbc.Connection:
@@ -86,10 +90,18 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
             for table in _AMIGA_TABLES_DROP_ORDER:
                 cur.execute(f"DROP TABLE IF EXISTS `{table}`")
             cur.execute("SET FOREIGN_KEY_CHECKS = 1")
-    sql = _SQL.read_text(encoding="utf-8")
-    with conn.cursor() as cur:
-        for stmt in _split_sql(sql):
-            cur.execute(stmt)
+    for sql_path in (_SQL, _SQL_TRACK_B):
+        sql = sql_path.read_text(encoding="utf-8")
+        with conn.cursor() as cur:
+            for stmt in _split_sql(sql):
+                if stmt.strip().upper().startswith("ALTER TABLE"):
+                    try:
+                        cur.execute(stmt)
+                    except pymysql.err.OperationalError as exc:
+                        if exc.args[0] != 1060:  # Duplicate column name
+                            raise
+                else:
+                    cur.execute(stmt)
     conn.commit()
 
 
@@ -101,6 +113,7 @@ def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
     """
     with conn.cursor() as cur:
         cur.execute("SET FOREIGN_KEY_CHECKS = 0")
+        cur.execute("TRUNCATE TABLE amiga_tournament_standings")
         cur.execute("TRUNCATE TABLE amiga_game_ratings")
         cur.execute("TRUNCATE TABLE amiga_player_stats")
         cur.execute("TRUNCATE TABLE amiga_games")
@@ -135,6 +148,7 @@ def load_access_scores(cur: pyodbc.Cursor) -> list[AccessScore]:
     cur.execute("SELECT ID, [Team A], [Team B], A, B, Tournament, Phase, Extra FROM Scores")
     out: list[AccessScore] = []
     for row in cur.fetchall():
+        extra_raw = row[7]
         out.append(
             AccessScore(
                 source_id=int(row[0]),
@@ -144,6 +158,7 @@ def load_access_scores(cur: pyodbc.Cursor) -> list[AccessScore]:
                 goals_b=int(row[4]),
                 raw_tournament=str(row[5]).strip() if row[5] else "",
                 phase=str(row[6]).strip() if row[6] else None,
+                extra=str(extra_raw).strip() if extra_raw else None,
             )
         )
     return out
@@ -279,6 +294,7 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
                 "phase": phase,
                 "goals_a": s.goals_a,
                 "goals_b": s.goals_b,
+                "extra": s.extra,
             }
         )
 
@@ -286,10 +302,11 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         cur.executemany(
             """
             INSERT INTO amiga_games
-              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, phase, goals_a, goals_b)
+              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, phase,
+               goals_a, goals_b, extra)
             VALUES
               (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
-               %(tournament_id)s, %(phase)s, %(goals_a)s, %(goals_b)s)
+               %(tournament_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
             """,
             game_rows,
         )

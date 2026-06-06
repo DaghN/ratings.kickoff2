@@ -29,6 +29,7 @@ $con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 
 try {
     $pm = amiga_player_load($con, $id);
@@ -38,6 +39,7 @@ try {
     exit('Player not found.');
 }
 
+$recentTournaments = amiga_player_recent_tournaments($con, $id, 5);
 mysqli_close($con);
 
 $Name = $pm['name'];
@@ -64,6 +66,7 @@ $k2AmigaPlayerTabActive = 'profile';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 
 amiga_profile_render_career($pm);
+amiga_profile_render_recent_tournaments($recentTournaments);
 amiga_profile_render_rating_chart($playerId);
 ?>
 

@@ -26,6 +26,10 @@ php site/public_html/amiga/ops/run_process_game.php verify
 # Full derived rebuild (batch repair — use Python, not unbounded PHP replay-to):
 python -m scripts.amiga replay
 
+# Tournament standings parity vs Access Tables (reference only):
+python -m scripts.amiga standings-parity --tournament "London XXIII"
+python -m scripts.amiga standings-parity --tournament "World Cup XI" --scope group --scope-key "Round 1 - Group A"
+
 # Incremental post-game (live append-only — last game in contract order):
 php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N
 
@@ -51,6 +55,16 @@ Browser (local pages):
 - `http://ratingskickoff.test/amiga/rating.php`
 - `http://ratingskickoff.test/amiga/profile.php?id=1`
 - `http://ratingskickoff.test/amiga/games.php?id=1`
+- `http://ratingskickoff.test/amiga/tournament.php?id=1`
+
+**Track B migration** (existing DBs without `extra` / standings table):
+
+```powershell
+# Applied automatically with --recreate-schema; otherwise run once:
+mysql ko2amiga_db < scripts/amiga/sql/002_tournament_standings.sql
+python -m scripts.amiga import   # reload ground truth with Scores.Extra
+python -m scripts.amiga replay   # Elo + standings
+```
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 

@@ -45,7 +45,7 @@ Computed from ground truth by chronological replay or per-game ops. **Always reb
 |------|--------|
 | Per-game Elo | Ratings before/after, adjustments, outcome flags |
 | Player career stats | W/D/L, goals, streaks, peaks, opponent networks |
-| Tournament standings | Points tables, group tables — from games, not Access snapshots |
+| Tournament standings | Points tables, group tables — from games via `scripts/amiga/tournament_standings.py` |
 | Future aggregates | H2H summaries, period activity, etc. — when needed |
 
 **Rule:** After one new canonical game, derived tables must match what a full replay from empty would produce.
@@ -94,7 +94,7 @@ full history      →  chronological replay            →  same derived state
 - **Rating authority:** replay from `Scores` only — never display legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Current implementation (Phase A2):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py`. **Incremental post-game:** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — live `process-one` (append-only last game) or sim `replay-to` (next unrated in contract order).
+**Current implementation (Phase A2 + Track B v1):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py` (Elo + tournament standings). **Incremental post-game:** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — live `process-one` (append-only last game) or sim `replay-to` (next unrated in contract order). Standings rebuild is **batch-only** in v1 (full `replay`); PHP incremental standings is v2.
 
 **Simul pipeline (PHP, mirrors online Mode A):**
 
@@ -142,10 +142,19 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_games` | Ground | Import / submission |
 | `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
 | `amiga_player_stats` | Derived | Replay or PHP `amiga_process_completed_game` / `replay-to` |
-| `amiga_tournament_standings` | Derived | **Planned** (Track B) |
+| `amiga_tournament_standings` | Derived | Replay (`scripts/amiga/replay.py`) |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
-DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php).
+DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B migration [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
+
+### Tournament standings rules (Track B v1)
+
+- **Source:** `amiga_games` grouped per `tournament_id`, ordered by `source_scores_id` within tournament.
+- **Points:** 3 per win, 1 per draw, 0 per loss (W×3 + D×1). Tie-break: goal difference, goals scored.
+- **Scopes:** `scope_type` + `scope_key` from phase labels (`scripts/amiga/tournament_phases.py`). Phase NULL → single `overall` table. Group labels (`Round 1 - Group A`, …) → per-group tables. Knockout phases excluded from league tables in v1.
+- **Goals:** Regulation `goals_a` / `goals_b` only for league/group tables (Elo uses the same). `extra` column stores Access `Scores.Extra` for future knockout winner resolution; does not affect Elo.
+- **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity`.
+- **v2 gaps:** PHP incremental standings in `process_completed_game`; full knockout bracket advancement; cross-stage promotion (Tier 4).
 
 ---
 
@@ -160,8 +169,8 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql). Webs
 | Staging multi-part browser import | **Done** (Jun 2026) |
 | Amiga `ProcessCompletedGame` ops | **Done** (v1 CLI — `process-one` append-only) |
 | Amiga ops simul (`zero-derived` + `replay-to`) | **Done** (v1 — 500-game parity gate vs Python `replay --limit 500`) |
-| Tournament standings (derived) | **Planned** (Track B) |
-| Reference parity tables / diffs | **Planned** (with Track B) |
+| Tournament standings (derived) | **Done** (Track B v1 — league + group tables) |
+| Reference parity tables / diffs | **Partial** (`standings-parity` CLI vs Access ODBC) |
 
 ---
 

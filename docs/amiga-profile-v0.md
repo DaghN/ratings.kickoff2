@@ -9,12 +9,14 @@
 | Leaderboard | `/amiga/rating.php` |
 | Profile | `/amiga/profile.php?id={amiga_players.id}` |
 | Games | `/amiga/games.php?id={amiga_players.id}` |
+| Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
 
 ## What v0 shows
 
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): rank, rating, games, country line
 - **Player nav** — Profile · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
+- **Recent tournaments** — `amiga_tournament_standings` overall scope (position, pts) with link to tournament page
 - **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` (chronological games via `amiga_db.php` join)
 - **Games tab** — server-side filters (result, opponent), sort, 100-row pages; tournament + phase from `amiga_games` + `tournaments`, ratings from `amiga_game_ratings`
 
@@ -25,7 +27,7 @@
 | **`amiga_players` + `amiga_player_stats`** | Hero, career strip, rank | 2 queries per page (row + rank) |
 | **`amiga_games` + `amiga_game_ratings`** (via `amiga_db.php`) | Games list, rating history JSON | 1 query per chart load (~≤1k rows max per player) |
 
-**A2 derived tables in use:** `amiga_game_ratings`, `amiga_player_stats` (rebuilt by `scripts/amiga/replay.py`). **Not yet:** `player_period_games`, milestones, calendars, H2H aggregates, tournament standings.
+**A2 derived tables in use:** `amiga_game_ratings`, `amiga_player_stats`, `amiga_tournament_standings` (rebuilt by `scripts/amiga/replay.py`). **Not yet:** `player_period_games`, milestones, calendars, H2H aggregates.
 
 That is fine at current scale (27k games total; busiest player ~1.1k games). When profiles grow (activity calendars, top opponents, tournament honours), materialize hot paths per [`amiga-data-contract.md`](amiga-data-contract.md) — same pattern as online `website-data-contract.md`, not live scans on every request.
 
@@ -36,6 +38,8 @@ That is fine at current scale (27k games total; busiest player ~1.1k games). Whe
 - `includes/amiga_player_hero.php`
 - `includes/amiga_player_nav.php`
 - `includes/amiga_profile_blocks.php`
+- `includes/amiga_tournament_lib.php`
+- `amiga/tournament.php`
 - `includes/amiga_player_games_lib.php`
 - `includes/amiga_player_game_row.php`
 - `amiga/profile.php`
@@ -58,4 +62,4 @@ Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN
 
 ## Not in v0
 
-- H2H, milestones, tournament index pages, per-game detail page, compare chart
+- H2H, milestones, tournament index listing, per-game detail page, compare chart, knockout brackets

@@ -3,6 +3,7 @@
  * Amiga profile v0 blocks — career facts from playertable + rating chart shell.
  */
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/amiga_tournament_lib.php';
 
 /**
  * @param array<string, mixed> $pm from amiga_player_load()
@@ -31,6 +32,44 @@ function amiga_profile_render_career(array $pm): void
 	</dl>
 </section>
     <?php
+}
+
+/**
+ * @param list<array<string, mixed>> $tournaments from amiga_player_recent_tournaments()
+ */
+function amiga_profile_render_recent_tournaments(array $tournaments): void
+{
+    if ($tournaments === []) {
+        return;
+    }
+    ?>
+<section class="k2-amiga-profile-tournaments" style="padding:0 1.25rem 1.5rem">
+	<h3 class="k2-panel-heading">Recent tournaments</h3>
+	<ul style="margin:0;padding-left:1.25rem">
+	<?php foreach ($tournaments as $t) { ?>
+		<li><?php
+            echo amiga_tournament_link((int) $t['id'], (string) $t['name']);
+            echo ' — ';
+            echo (int) $t['position'] . ordinal_suffix((int) $t['position']);
+            echo ' · ' . (int) $t['points'] . ' pts';
+        ?></li>
+	<?php } ?>
+	</ul>
+</section>
+    <?php
+}
+
+function ordinal_suffix(int $n): string
+{
+    if ($n % 100 >= 11 && $n % 100 <= 13) {
+        return 'th';
+    }
+    return match ($n % 10) {
+        1 => 'st',
+        2 => 'nd',
+        3 => 'rd',
+        default => 'th',
+    };
 }
 
 function amiga_profile_render_rating_chart(int $playerId): void

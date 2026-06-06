@@ -1,0 +1,218 @@
+Implement Amiga Track B: derived tournament standings per docs/amiga-data-contract.md.
+
+GOAL
+Compute tournament standings from ground-truth games (not Access snapshot tables) and expose them on the Amiga read path.
+
+  amiga_games (+ phase, tournament)  →  standings engine  →  amiga_tournament_standings
+  full replay / incremental post-game  →  same derived standings state
+
+Parity rule: derived standings must match what you get by aggregating games with the documented rules. Access `Tables` / `World Cup * Tables` and optional external spot-checks are **reference only** — never written by the hot path.
+
+READ FIRST
+- docs/amiga-data-contract.md (layers, table register, post-game rules)
+- docs/amiga-schema-discovery.md (Access inventory, Phase/Extra, Tables shape)
+- scripts/amiga/sql/001_core.sql (current DDL — no standings table yet)
+- scripts/amiga/import_access.py, tournament_names.py (tournament + phase import)
+- scripts/amiga/replay.py (batch derived rebuild pattern — mirror for standings)
+- site/public_html/amiga/ops/modules/process_completed_game.php (incremental derived writes)
+- site/public_html/includes/amiga_db.php, amiga_profile_blocks.php (read path extension points)
+- docs/amiga-profile-v0.md § Not in v0 (standings called out as deferred)
+
+DO NOT wire into online ops/dispatch.php or kooldb*. All Amiga work stays under scripts/amiga/, site/public_html/amiga/, includes/amiga_*.php.
+
+---
+
+INVESTIGATION FINDINGS (locked — verify with queries, do not re-litigate without new evidence)
+
+Scale (local ko2amiga_db, Jun 2026):
+- 604 tournaments, 27,408 games, 473 players
+- 61% of games have phase = NULL (informal / open-play events)
+- 39% have structured phase labels (cups, group stages, knockouts)
+
+Tournament format signals (tournaments catalog):
+| is_cup | equal_teams | ~tournaments | ~games | phase usage |
+|--------|-------------|-------------|--------|-------------|
+| 0      | 0           | 141         | 6,471  | mostly NULL phase |
+| 0      | 1           | 433         | 20,623 | mix NULL + rare phases — **marathon round-robins** (e.g. London XXIII: 24 games/player, no phase) |
+| 1      | 0           | 5           | 57     | small cups |
+| 1      | 1           | 25          | 257    | **structured World Cups / major cups** — phase always set |
+
+Phase label taxonomy (non-exhaustive; strings are messy — normalize carefully):
+- **Group stages:** `Round 1 - Group A` … `Round 1 - Group D`, `Round 2 - Group E/F`, `Silver Cup - Group G/H`, `Bronze Cup - Group I`, variants without hyphen (`Round 1 Group A`)
+- **Knockout:** `Quarter Finals`, `Semi Finals`, `Final`, `3rd Place Final`, `9th Place Final`, …
+- **Placement brackets:** `Places 9-16`, `Places 17-20`, `Places 25-32`, …
+- **Informal:** phase NULL — treat as single-table round-robin within the tournament
+
+Points system (confirmed from Access `Tables`, e.g. London XXIII):
+- **3 points per win, 1 per draw, 0 per loss** (W×3 + D×1 = Pts)
+- Goal difference / goals scored as tie-breakers (infer ordering from Access rows when in doubt)
+
+Access reference standings (parity only — do NOT import as derived truth):
+- `Tables` — 4,359 rows, one overall table per tournament (G/W/D/L/GS/GC/Pts/position)
+- `World Cup I` … `XXIII Tables` — per-group snapshots within a cup (multiple `P=1` rows = different groups/stages)
+- Normalize into one `amiga_tournament_standings` (or companion tables you register in the contract)
+
+**Critical ground-truth gap — `Scores.Extra` NOT imported today:**
+- Access column `Extra` on 108 games (~0.4%), mostly World Cup knockouts / placement finals
+- Examples: `7-7 e.t.`, `3-5 e.t.`, `(4-4) 5-3 p.k.`, `(5-4 pen.)`, `(0-0) 7-6pen`
+- Regulation goals (`goals_a` / `goals_b`) can be a **draw** while `Extra` records ET or penalties
+- Elo replay correctly uses regulation score (draw = 0.5 actual_score) — **standings/bracket advancement must use match winner**, which may differ from regulation result
+- `import_access.py` reads `Extra` in SQL but **drops it** on `AccessScore` — must add to ground truth before knockout advancement is reliable
+
+Knockout draws in phase labels:
+- ~158 games with phase containing `Final` and regulation draw — expect `Extra` or duplicate legs to resolve winner
+- Some knockouts appear **twice** (home/away legs or rematches) — same players, swapped sides; bracket logic must not double-count as independent ties
+
+Multi-competition events (World Cups):
+- Parallel tracks: main World Cup groups, Silver Cup, Bronze Cup (phase prefix distinguishes)
+- Staged flow: Round 1 groups → Round 2 groups → knockouts → placement finals
+- External human reference (optional parity, not authority): Alkis Polyrakis event pages, e.g. https://www.alkis.org/ecups.html and per-event match pages like https://www.alkis.org/matches11.html — useful to understand multi-cup structure, placement finals, and narrative; **not** a machine API; spot-check only
+
+Milan X / alias handling already in tournament_names.py — phase may be inferred from fragment tournament names.
+
+---
+
+DIFFICULTY TIERS (implement in this order)
+
+**Tier 1 — Leagues / open round-robins (easy)**
+- Tournaments where all games share one logical table: phase NULL, or single implicit group
+- Examples: London XXIII, Reading XIII, Gloucester I (200–300 games each, no phase)
+- Output: one standings row per player per tournament (position, G/W/D/L, GF/GA, Pts)
+- Parity: compare to Access `Tables` for same tournament name
+
+**Tier 2 — Single-group / labeled group stages (medium)**
+- Parse `phase` → `(competition_track, stage, group_id)` — design a normalizer; labels are inconsistent
+- Aggregate W/D/L within each group scope
+- Output: standings per `(tournament_id, group_key)` e.g. `Round 1 - Group A`, `Silver Cup - Group G`
+- Parity: Access `World Cup * Tables` for selected cups
+
+**Tier 3 — Knockout brackets + advancement (hard)**
+- Requires ground-truth winner per knockout game (regulation winner OR parse `Extra`)
+- Placement brackets (`Places 9-16`, etc.) are mini-knockouts — same machinery
+- May need `amiga_match_decision` ground column or `extra` text on `amiga_games` + parsed `winner_id` for standings only (do not change Elo inputs)
+- Handle two-leg ties / duplicate rows — investigate per tournament before coding assumptions
+
+**Tier 4 — Cross-stage promotion (hardest — defer if needed)**
+- Rules for who advances from Round 1 groups → Round 2 groups → WC vs Silver Cup
+- May require tournament **format metadata** not fully in DB today (`equal_teams`, `player_count`, `is_cup` are hints only)
+- v1 can ship Tiers 1–2 without simulating full WC draw engine; document gaps
+
+---
+
+V1 SCOPE (first PR — suggest slices)
+
+In scope:
+1. **Contract + DDL** — register `amiga_tournament_standings` (and any companion tables) in amiga-data-contract.md; migration in scripts/amiga/sql/
+2. **Ground truth: import `Extra`** — extend import_access.py + amiga_games column; re-import note in README (or nullable backfill script)
+3. **Phase parser module** — scripts/amiga/tournament_phases.py (or similar): normalize labels → scope keys
+4. **Standings engine (Python)** — rebuild from games in tournament-local order (within tournament: source_scores_id ASC); functions for league table + group tables
+5. **replay integration** — `replay.py` calls standings rebuild after ratings (or parallel pass); clear_derived includes standings
+6. **Parity tooling** — script to diff derived vs Access `Tables` / selected `World Cup N Tables` (export Access to JSON once, or ODBC read in dev)
+7. **Read path v1** — tournament index page and/or profile block: “Last tournaments” + link to `/amiga/tournament.php?id=` showing overall table
+8. **Smoke gate** — e.g. London XXIII + one World Cup group stage: row counts + top 3 names/pts match Access reference within tolerance
+
+Out of scope v1 (document as v2):
+- PHP incremental standings update in process_completed_game (batch rebuild OK for v1)
+- Full interactive bracket diagram / ET penalty UI
+- Automated crawl of alkis.org
+- `reference_*` persistent tables (optional JSON in data/amiga/exports/ is fine)
+- Medal counts on player profile (added_players gold/silver/bronze) — separate from standings table
+- Mid-tournament format changes / admin draw editor
+
+---
+
+BOUNDARIES
+- Standings are **derived** — rebuildable from ground games; never mutate goals/phase on amiga_games from standings code
+- ko2amiga_db only; SET time_zone = '+00:00'
+- Elo path unchanged — regulation goals only; standings winner logic is separate
+- Do not break existing replay, ops simul, or profile/games pages
+- One standings rebuild pass per full replay; per-tournament incremental is v2
+
+---
+
+SCHEMA HINTS (agent proposes final DDL)
+
+Minimum useful columns for `amiga_tournament_standings`:
+- tournament_id, player_id
+- scope_type: `overall` | `group` | `placement` (agent may refine)
+- scope_key: varchar — e.g. `''`, `Round 1 - Group A`, `Silver Cup - Group G`
+- position (int), games, wins, draws, losses, goals_for, goals_against, points
+- optional: rank tie-break metadata
+
+Consider whether knockout **match results** need a separate derived table (`amiga_tournament_bracket`) vs encoding advancement only in standings. Prefer simplest model that renders WC group tables + overall league tables correctly.
+
+Match winner for knockouts (if not inferable from regulation goals):
+- Parse `extra` text into structured fields OR store `standings_winner_id` as derived per game (document derivation rule)
+
+---
+
+PIPELINE (document in contract + README)
+
+```bash
+# After schema migration + import with Extra:
+python -m scripts.amiga import          # or run
+python -m scripts.amiga replay          # ratings + standings
+
+# Parity smoke
+python -m scripts.amiga standings-parity --tournament "London XXIII"
+python -m scripts.amiga standings-parity --tournament "World Cup XI" --scope group
+
+# Website
+http://ratingskickoff.test/amiga/tournament.php?id=N
+```
+
+---
+
+FILES TO READ
+docs/amiga-data-contract.md
+docs/amiga-schema-discovery.md
+scripts/amiga/sql/001_core.sql
+scripts/amiga/import_access.py
+scripts/amiga/tournament_names.py
+scripts/amiga/replay.py
+site/public_html/includes/amiga_db.php
+site/public_html/amiga/profile.php
+data/amiga/source/koatd.mdb (ODBC probes — Extra, Tables, phase distribution)
+
+FILES TO ADD / CHANGE (expected)
+scripts/amiga/sql/002_tournament_standings.sql (or extend 001 with migration note)
+scripts/amiga/tournament_phases.py
+scripts/amiga/tournament_standings.py
+scripts/amiga/replay.py — integrate rebuild
+scripts/amiga/import_access.py — persist Extra
+scripts/amiga/__main__.py — optional standings-parity verb
+docs/amiga-data-contract.md — table register + standings rules
+scripts/amiga/README.md
+site/public_html/includes/amiga_tournament_lib.php (or amiga_db.php extensions)
+site/public_html/amiga/tournament.php
+docs/amiga-profile-v0.md — link to tournament pages
+
+---
+
+ACCEPTANCE
+[ ] ko2amiga_db only; time_zone +00:00
+[ ] amiga_tournament_standings registered in data contract
+[ ] Extra imported to ground truth (or equivalent match-decision field)
+[ ] Tier 1: London XXIII (or similar) overall table matches Access `Tables` top 10 by Pts/GF
+[ ] Tier 2: at least one World Cup group table matches Access `World Cup N Tables` for that group
+[ ] Full replay rebuilds standings idempotently; clear_derived clears standings
+[ ] Tournament read page renders without scanning all 27k games on every request (precomputed rows)
+[ ] Elo replay unchanged — spot-check game with Extra still has same rating row
+[ ] Known knockout/ET limitations documented if Tier 3 incomplete
+[ ] Do not break replay.py ratings, PHP ops simul, or existing Amiga pages
+
+---
+
+SLICES (suggested PR sequence)
+1. Investigation output: phase taxonomy docstring + DDL proposal (PR can be schema-only)
+2. Import Extra + phase parser + league standings (Tier 1) + parity script
+3. Group standings (Tier 2) + one WC parity case
+4. Knockout winner parsing + bracket/ placement (Tier 3) — as much as ground data allows
+5. tournament.php + profile link + docs
+
+LOCAL SMOKE
+  python -m scripts.amiga replay
+  python -m scripts.amiga standings-parity --tournament "London XXIII"
+  # browser: /amiga/tournament.php?id=<london_xxiii_id>
+
+Commit only when asked. Small focused slices. Update amiga-data-contract.md table register before implementing DDL.

@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `amiga_games` (
   `phase` varchar(50) DEFAULT NULL,
   `goals_a` int(11) NOT NULL,
   `goals_b` int(11) NOT NULL,
+  `extra` varchar(80) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_amiga_games_source_scores_id` (`source_scores_id`),
   KEY `idx_amiga_games_date` (`game_date`),
