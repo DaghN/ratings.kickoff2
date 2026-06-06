@@ -35,7 +35,7 @@ Canonical facts we treat as source history. Written by **import** or **future li
 | Player identity | Name, country (display fields only at import) |
 | Provenance | `source_scores_id`, `source_id` where applicable |
 
-Replay may **read** ground truth; it must not invent or overwrite canonical match facts.
+Replay may **read** ground truth; it must not invent or overwrite canonical match facts. Replay game order follows § Chronology (`scripts/amiga/replay.py` joins `tournaments` for `chrono` / `event_date`, then `source_scores_id`).
 
 ### 2. Derived truth
 
@@ -148,7 +148,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql). Webs
 
 ## Agent policy
 
-- **Import:** ground truth only — see `scripts/amiga/import_access.py`
-- **Replay:** derived truth only — clears derived columns, never truncates canonical game rows
+- **Import:** ground truth only — see `scripts/amiga/import_access.py`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
+- **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders

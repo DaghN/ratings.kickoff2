@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** shipped — ground/derived schema (`amiga_games`, `amiga_game_ratings`, …), `scripts/amiga/replay.py`, read path `includes/amiga_db.php`. **Staging live** on `ratings.kickoff2.com`; **multi-part browser import verified** (16 parts, `&apply=1&part=1`). **“Export to staged”:** agent runs `scripts\export_ko2amiga_db.ps1` → WinSCP sync `_import/` + `run_import_ko2amiga.php` — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Next:** Track B tournament standings + reference parity.
+- **Amiga realm (Jun 2026):** **A2** shipped — ground/derived schema (`amiga_games`, `amiga_game_ratings`, …), `scripts/amiga/replay.py`, read path `includes/amiga_db.php`. **Staging live** on `ratings.kickoff2.com`; **multi-part browser import verified** (16 parts, `&apply=1&part=1`). **A2 audit** [`audits/amiga-a2-restructure-audit-2026-06-06.md`](docs/audits/amiga-a2-restructure-audit-2026-06-06.md) — export `MAX(id)`, contract-order replay, import/replay docs. **“Export to staged”:** agent runs `scripts\export_ko2amiga_db.ps1` → WinSCP sync `_import/` + `run_import_ko2amiga.php` — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Next:** Track B tournament standings + reference parity.
 
 ---
 
@@ -117,8 +117,9 @@
 | 2026-06 | **Profile feast + content v1** — production `player/profile.php`; playbook + v1 in [`player-profile-feast.md`](docs/player-profile-feast.md) / [`profile-build-playbook.md`](docs/profile-build-playbook.md); lab archived. |
 | 2026-06 | **Activity charts v2 shipped** — `activity.php` uses `activity-charts-v2.js` + `server_activity_chart_panels.php`; plan [`activity-charts.md`](docs/activity-charts.md). |
 | 2026-06 | **URL routes rename** — legacy `server*` / `ranked*` / `individual*` → semantic paths; `k2_routes.php`; [`url-routes.md`](docs/url-routes.md). |
-| 2026-06 | **Amiga realm A1** — `ko2amiga_db` import from `koatd.mdb` (27,408 games, 474 players after name merges), Elo replay, rating/profile/games; **staging live** on `ratings.kickoff2.com`; DB config consolidated to `site/config/` — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). |
+| 2026-06 | **Amiga realm A1** — `ko2amiga_db` import from `koatd.mdb` (27,408 games, 473 players after name merges), Elo replay, rating/profile/games; **staging live** on `ratings.kickoff2.com`; DB config consolidated to `site/config/` — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). |
 | 2026-06 | **Amiga A2 + staging import** — ground/derived schema split, `replay.py`, `amiga_db.php` read path; multi-part export/import (16 parts) verified on staging — [`amiga-data-contract.md`](docs/amiga-data-contract.md). |
+| 2026-06 | **Amiga A2 audit fixes** — contract-order replay, dynamic export chunking, import/replay boundary docs; audit report [`audits/amiga-a2-restructure-audit-2026-06-06.md`](docs/audits/amiga-a2-restructure-audit-2026-06-06.md). |
 
 ---
 

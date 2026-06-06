@@ -15,11 +15,16 @@ from scripts.ladder.player_state import PlayerState
 
 log = logging.getLogger(__name__)
 
+# Contract chronology: tournaments.chrono, event_date, source_scores_id (see amiga-data-contract.md).
 GAME_SELECT = """
     SELECT g.id, g.game_date AS Date, g.player_a_id AS idA, g.player_b_id AS idB,
            g.goals_a AS GoalsA, g.goals_b AS GoalsB
     FROM amiga_games g
-    ORDER BY g.game_date ASC, g.id ASC
+    LEFT JOIN tournaments t ON t.id = g.tournament_id
+    ORDER BY COALESCE(t.chrono, 999999) ASC,
+             COALESCE(t.event_date, '1970-01-01') ASC,
+             g.source_scores_id ASC,
+             g.id ASC
 """
 
 

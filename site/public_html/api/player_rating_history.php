@@ -90,7 +90,11 @@ $currentRating = (int) round((float) $nameRow['Rating']);
 if ($realm === 'amiga') {
     $sql = 'SELECT r.id, r.Date, r.idA, r.idB, r.NewRatingA, r.NewRatingB '
         . amiga_rated_games_from_sql()
-        . ' WHERE r.idA = ? OR r.idB = ? ORDER BY r.Date ASC, r.id ASC';
+        . ' INNER JOIN amiga_games g ON g.id = r.id '
+        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE r.idA = ? OR r.idB = ? '
+        . 'ORDER BY COALESCE(t.chrono, 999999) ASC, COALESCE(t.event_date, \'1970-01-01\') ASC, '
+        . 'g.source_scores_id ASC, g.id ASC';
 } else {
     $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
         . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';

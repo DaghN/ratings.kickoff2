@@ -216,7 +216,7 @@ Separate database (e.g. `ko2amiga_db`), ground vs derived split:
 | **Synthetic dates** | Tournament `event_date` + 1 second per game within event (ordered by source `Scores.ID`) |
 | **Tournament sub-events** | Milan X fragments merged to parent catalog row; `phase` column holds stage |
 | **Starting rating / K** | 1600 / K=32 (online sandbox constants) |
-| **Player names** | Faithful display; merge spacing/case duplicates at import (`player_names.py` → 474 players) |
+| **Player names** | Faithful display; merge spacing/case duplicates at import (`player_names.py` → 473 players) |
 | **Website v1** | Leaderboard + profile v0 shipped; game list + tournament index deferred |
 
 **Implemented:** `scripts/amiga/` (`import_access.py`, `python -m scripts.amiga run`), `ko2amiga_db`, `/amiga/rating.php`, profile, games. **Staging live** — [`amiga-staging-handoff.md`](amiga-staging-handoff.md).

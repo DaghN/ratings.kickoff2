@@ -13,7 +13,7 @@ Phase A0+ tooling for the offline Access source (`data/amiga/source/koatd.mdb`).
 # One-shot local build (create DB, import, Elo replay)
 powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 
-# Or step by step:
+# Or step by step (import alone clears derived tables — always replay before browsing):
 python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
 

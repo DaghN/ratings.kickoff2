@@ -94,6 +94,11 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
 
 
 def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
+    """Clear ground tables for a full reload.
+
+    Also truncates derived tables first (FK dependency). Import does not write
+    derived rows — run ``python -m scripts.amiga replay`` before serving pages.
+    """
     with conn.cursor() as cur:
         cur.execute("SET FOREIGN_KEY_CHECKS = 0")
         cur.execute("TRUNCATE TABLE amiga_game_ratings")
@@ -297,4 +302,8 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         "name_merge_groups": len(merge_log),
     }
     mysql.close()
+    log.warning(
+        "Import cleared derived tables and reloaded ground truth only. "
+        "Run `python -m scripts.amiga replay` (or `python -m scripts.amiga run`) before serving the website."
+    )
     return stats

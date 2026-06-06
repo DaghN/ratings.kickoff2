@@ -45,9 +45,15 @@ $playersFile = Join-Path $OutDir 'ko2amiga_03_players.sql'
 Write-DumpFile $playersFile @('--no-create-info', 'ko2amiga_db', 'amiga_players')
 $parts.Add('ko2amiga_03_players.sql')
 
-# 04–09 — games + ratings in ~5k row chunks (staging-friendly)
+# 04+ — games + ratings in ~5k row chunks (staging-friendly)
 $chunkSize = 5000
-$maxId = 27408
+$maxIdText = (& $MysqlExe -u root -N -B -e 'SELECT COALESCE(MAX(id), 0) FROM ko2amiga_db.amiga_games' 2>&1 | Out-String).Trim()
+if ($maxIdText -notmatch '^\d+$') {
+    Write-Error "Could not read MAX(id) from ko2amiga_db.amiga_games: $maxIdText"
+}
+$maxId = [int]$maxIdText
+Write-Host "Chunking games/ratings: max id $maxId (chunk size $chunkSize)"
+
 $idx = 4
 for ($start = 1; $start -le $maxId; $start += $chunkSize) {
     $end = [Math]::Min($start + $chunkSize - 1, $maxId)
@@ -64,9 +70,10 @@ for ($start = 1; $start -le $maxId; $start += $chunkSize) {
     $idx++
 }
 
-$statsFile = Join-Path $OutDir 'ko2amiga_16_stats.sql'
+$statsPart = ('ko2amiga_{0:D2}_stats.sql' -f $idx)
+$statsFile = Join-Path $OutDir $statsPart
 Write-DumpFile $statsFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_stats')
-$parts.Add('ko2amiga_16_stats.sql')
+$parts.Add($statsPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
