@@ -163,8 +163,11 @@ def _sort_key(item: tuple[int, PlayerStanding]) -> tuple:
     return (-st.points, -st.goal_difference, -st.goals_for, -st.games)
 
 
-def _knockout_positions(table: dict[int, PlayerStanding]) -> list[tuple[int, PlayerStanding, int]]:
-    """Two-player tie: winner by aggregate goal difference, then goals scored."""
+def _knockout_positions(
+    table: dict[int, PlayerStanding],
+    games: list[dict[str, Any]] | None = None,
+) -> list[tuple[int, PlayerStanding, int]]:
+    """Two-player tie: aggregate GD/GF, then Extra penalties when still tied."""
     if len(table) != 2:
         return _assign_positions(table)
     (id1, s1), (id2, s2) = sorted(table.items(), key=lambda x: x[0])
@@ -177,6 +180,21 @@ def _knockout_positions(table: dict[int, PlayerStanding]) -> list[tuple[int, Pla
     elif s2.goals_for > s1.goals_for:
         winner, loser = (id2, s2), (id1, s1)
     else:
+        if games:
+            for g in games:
+                extra = g.get("extra")
+                if not extra or not str(extra).strip():
+                    continue
+                wid = parse_standings_winner(
+                    int(g["goals_a"]),
+                    int(g["goals_b"]),
+                    str(extra),
+                    int(g["player_a_id"]),
+                    int(g["player_b_id"]),
+                )
+                if wid is not None:
+                    loser_id = id2 if wid == id1 else id1
+                    return [(wid, table[wid], 1), (loser_id, table[loser_id], 2)]
         return _assign_positions(table)
     wid, ws = winner
     lid, ls = loser
@@ -203,6 +221,7 @@ def compute_tournament_standings(
     """Build standings rows for one tournament's games (already ordered)."""
     scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
     knockout_scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
+    knockout_games: dict[tuple[ScopeType, str], list[dict[str, Any]]] = defaultdict(list)
     has_null_phase = False
     has_structured = False
 
@@ -220,6 +239,8 @@ def compute_tournament_standings(
         if is_knockout_phase(phase):
             pair_key = knockout_pair_scope_key(str(phase), player_a_id, player_b_id)
             scope = PhaseScope(ScopeType.KNOCKOUT, pair_key)
+            scope_key = (scope.scope_type, scope.scope_key)
+            knockout_games[scope_key].append(g)
             _apply_game(
                 knockout_scopes,
                 scope,
@@ -273,8 +294,11 @@ def compute_tournament_standings(
     for (stype, skey), table in sorted(scopes.items(), key=lambda x: (x[0][0].value, x[0][1])):
         if not table:
             continue
-        assign = _knockout_positions if stype == ScopeType.KNOCKOUT else _assign_positions
-        for pid, st, pos in assign(table):
+        if stype == ScopeType.KNOCKOUT:
+            ranked = _knockout_positions(table, knockout_games.get((stype, skey), []))
+        else:
+            ranked = _assign_positions(table)
+        for pid, st, pos in ranked:
             rows.append(
                 {
                     "tournament_id": tournament_id,

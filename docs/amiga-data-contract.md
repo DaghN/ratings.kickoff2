@@ -152,7 +152,8 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - **Source:** `amiga_games` grouped per `tournament_id`, ordered by `source_scores_id` within tournament.
 - **Points:** 3 per win, 1 per draw, 0 per loss (W×3 + D×1). Tie-break: goal difference, goals scored.
 - **Scopes:** `scope_type` + `scope_key` from phase labels (`scripts/amiga/tournament_phases.py`). Phase NULL → single `overall` table. Group labels → per-group league tables. Knockout phases (`Semi Finals`, `Places 9-16`, …) → `knockout` scope per **player pair** (`scope_key` = `{phase}|{id}-{id}`), two rows per tie.
-- **Goals:** Regulation `goals_a` / `goals_b` only for league/group tables (Elo uses the same). `extra` column stores Access `Scores.Extra` for future knockout winner resolution; does not affect Elo.
+- **Goals:** Regulation `goals_a` / `goals_b` only for league/group tables (Elo uses the same). `extra` column stores Access `Scores.Extra` (ET/penalties text); does not affect Elo.
+- **Knockout tie winner** (per pair scope, all legs in that phase between the two players): (1) higher aggregate goal difference; (2) if tied, higher aggregate goals scored; (3) if still tied, `parse_standings_winner` on any leg with non-empty `extra` (penalties); (4) if unresolved, UI shows “Tie unresolved” and falls back to derived `position` order. Same rules in `scripts/amiga/tournament_standings.py` (`_knockout_positions`) and `includes/amiga_tournament_lib.php` (`amiga_tournament_knockout_resolve_winner`). Website knockout view lists per-leg fixtures via `amiga_tournament_knockout_fixture_games`.
 - **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity`.
 - **v2 gaps:** PHP incremental standings in `process_completed_game`; full knockout bracket advancement; cross-stage promotion (Tier 4).
 

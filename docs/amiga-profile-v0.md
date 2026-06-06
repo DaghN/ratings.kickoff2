@@ -74,6 +74,6 @@ After `python -m scripts.amiga replay`, spot-check locally:
 3. **Cup group** — World Cup XI → Group A tab — winner Alkis P (45 pts)
 4. **Games links** — busy player games tab — tournament name → overall table; phase → group scope
 5. **Profile** — recent tournaments block links match index; positions look plausible
-6. **Empty scope** — click a knockout phase link (e.g. Final) — empty table + hint (expected v1)
+6. **Knockout fixture** — World Cup XI → Elimination ties → Semi Finals Gianni T / Lorenzo C (`scope_key=Semi Finals|149-253`) — 2 legs listed, winner Gianni T (aggregate 10–6); Alkis P / Andy G semi shows Alkis as winner; leg with `extra` shows penalty text on score line
 
 CLI parity: `python -m scripts.amiga standings-parity --tournament "London XXIII"`

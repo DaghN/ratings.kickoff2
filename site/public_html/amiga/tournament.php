@@ -112,6 +112,13 @@ if ($scopeKey !== '' && $scopeType !== 'overall') {
 }
 $isKnockoutView = $scopeType === 'knockout';
 
+$knockoutFixture = [];
+$knockoutWinner = null;
+if ($isKnockoutView && $scopeKey !== '') {
+    $knockoutFixture = amiga_tournament_knockout_fixture_games($con, $id, $scopeKey);
+    $knockoutWinner = amiga_tournament_knockout_resolve_winner($knockoutFixture, $rows);
+}
+
 mysqli_close($con);
 
 ?>
@@ -215,6 +222,104 @@ mysqli_close($con);
   <?php } ?>
 
 </div>
+
+
+
+<?php if ($isKnockoutView && $knockoutFixture !== []) {
+
+    $winnerId = $knockoutWinner !== null ? ($knockoutWinner['winner_id'] ?? null) : null;
+    $loserId = $knockoutWinner !== null ? ($knockoutWinner['loser_id'] ?? null) : null;
+    $winnerUnresolved = $knockoutWinner !== null && !empty($knockoutWinner['unresolved']);
+    $fixtureNames = [];
+    foreach ($knockoutFixture as $leg) {
+        $fixtureNames[(int) $leg['player_a_id']] = (string) $leg['player_a_name'];
+        $fixtureNames[(int) $leg['player_b_id']] = (string) $leg['player_b_name'];
+    }
+    $winnerName = $winnerId !== null ? ($fixtureNames[$winnerId] ?? ('#' . $winnerId)) : '';
+    $winnerAgg = ($winnerId !== null && $knockoutWinner !== null)
+        ? ($knockoutWinner['aggregate'][$winnerId] ?? null)
+        : null;
+    $loserAgg = ($loserId !== null && $knockoutWinner !== null)
+        ? ($knockoutWinner['aggregate'][$loserId] ?? null)
+        : null;
+
+?>
+
+<div style="padding:0 1.25rem 1.25rem">
+
+  <div class="k2-table-wrap" style="margin:0">
+
+    <p style="margin:0 0 0.75rem;line-height:1.5">
+
+      <?php if ($winnerUnresolved) { ?>
+
+      <strong>Tie unresolved</strong>
+
+      <?php } elseif ($winnerId !== null && $winnerAgg !== null && $loserAgg !== null) { ?>
+
+      <strong>Winner:</strong> <?php echo k2_amiga_player_link($winnerId, $winnerName); ?>
+
+      (aggregate <?php echo (int) $winnerAgg['goals_for']; ?>–<?php echo (int) $loserAgg['goals_for']; ?>)
+
+      <?php } ?>
+
+    </p>
+
+    <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
+
+      <thead>
+
+        <tr>
+
+          <th class="k2-table-cell--left">Leg</th>
+
+          <th class="k2-table-cell--left" colspan="3">Fixture</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody class="black">
+
+      <?php foreach ($knockoutFixture as $legIdx => $leg) { ?>
+
+        <tr>
+
+          <td class="k2-table-cell--left"><?php echo (int) ($legIdx + 1); ?></td>
+
+          <td class="k2-table-cell--left"><?php
+
+              echo k2_amiga_player_link((int) $leg['player_a_id'], (string) $leg['player_a_name']);
+
+          ?></td>
+
+          <td><?php
+
+              echo (int) $leg['goals_a'] . ' – ' . (int) $leg['goals_b'];
+
+              echo amiga_tournament_format_game_extra(isset($leg['extra']) ? (string) $leg['extra'] : null);
+
+          ?></td>
+
+          <td class="k2-table-cell--left"><?php
+
+              echo k2_amiga_player_link((int) $leg['player_b_id'], (string) $leg['player_b_name']);
+
+          ?></td>
+
+        </tr>
+
+      <?php } ?>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+<?php } ?>
 
 
 
@@ -328,7 +433,7 @@ mysqli_close($con);
 
   <?php if ($isKnockoutView) { ?>
 
-  Two-player elimination tie (aggregate goals across legs in this phase). Winner/loser by total goal difference.
+  Per-leg scores above; aggregate table below. Winner by total goal difference (penalties in <code>extra</code> when aggregate is tied).
 
   <?php } else { ?>
 

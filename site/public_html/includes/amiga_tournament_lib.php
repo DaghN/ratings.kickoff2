@@ -348,3 +348,217 @@ function amiga_tournament_index_count(mysqli $con): int
     mysqli_free_result($res);
     return (int) ($row['n'] ?? 0);
 }
+
+/**
+ * Parse knockout scope_key into phase and canonical player id pair.
+ *
+ * @return array{phase: string, player_lo: int, player_hi: int}|null
+ */
+function amiga_tournament_parse_knockout_scope_key(string $scopeKey): ?array
+{
+    if (preg_match('/^(.+)\|(\d+)-(\d+)$/', $scopeKey, $m) !== 1) {
+        return null;
+    }
+    return [
+        'phase' => $m[1],
+        'player_lo' => (int) $m[2],
+        'player_hi' => (int) $m[3],
+    ];
+}
+
+/**
+ * Ground-truth legs for a knockout pair scope (ordered by source_scores_id).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_tournament_knockout_fixture_games(mysqli $con, int $tournamentId, string $scopeKey): array
+{
+    $parsed = amiga_tournament_parse_knockout_scope_key($scopeKey);
+    if ($parsed === null || $tournamentId < 1) {
+        return [];
+    }
+    $phase = $parsed['phase'];
+    $lo = $parsed['player_lo'];
+    $hi = $parsed['player_hi'];
+    $sql = 'SELECT g.id, g.source_scores_id, g.game_date, g.player_a_id, g.player_b_id,
+                   g.goals_a, g.goals_b, g.extra, g.phase,
+                   pa.name AS player_a_name, pb.name AS player_b_name
+            FROM amiga_games g
+            INNER JOIN amiga_players pa ON pa.id = g.player_a_id
+            INNER JOIN amiga_players pb ON pb.id = g.player_b_id
+            WHERE g.tournament_id = ? AND g.phase = ?
+              AND ((g.player_a_id = ? AND g.player_b_id = ?) OR (g.player_a_id = ? AND g.player_b_id = ?))
+            ORDER BY g.source_scores_id ASC, g.id ASC';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, 'isiiii', $tournamentId, $phase, $lo, $hi, $hi, $lo);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+    return $rows;
+}
+
+/**
+ * Resolve match winner for knockouts (regulation or Extra). Parity with parse_standings_winner in Python.
+ */
+function amiga_parse_standings_winner(
+    int $goalsA,
+    int $goalsB,
+    ?string $extra,
+    int $playerAId,
+    int $playerBId
+): ?int {
+    if ($goalsA > $goalsB) {
+        return $playerAId;
+    }
+    if ($goalsB > $goalsA) {
+        return $playerBId;
+    }
+    if ($extra === null || trim($extra) === '') {
+        return null;
+    }
+    $text = strtolower(trim($extra));
+    $patterns = [
+        '/\((\d+)\s*-\s*(\d+)\)\s*(\d+)\s*-\s*(\d+)\s*(?:p\.?k\.?|pen)/',
+        '/\((\d+)\s*-\s*(\d+)\)\s*(\d+)\s*-\s*(\d+)/',
+        '/(\d+)\s*-\s*(\d+)\s*pen/',
+    ];
+    foreach ($patterns as $pat) {
+        if (preg_match($pat, $text, $m) !== 1) {
+            continue;
+        }
+        if (count($m) >= 5) {
+            $penA = (int) $m[3];
+            $penB = (int) $m[4];
+        } else {
+            $penA = (int) $m[1];
+            $penB = (int) $m[2];
+        }
+        if ($penA > $penB) {
+            return $playerAId;
+        }
+        if ($penB > $penA) {
+            return $playerBId;
+        }
+    }
+    return null;
+}
+
+/**
+ * Resolve knockout tie winner from fixture legs (aggregate GD/GF, then extra, then standings fallback).
+ *
+ * @param list<array<string, mixed>> $games
+ * @param list<array<string, mixed>> $standingsRows
+ * @return array{
+ *   winner_id: int|null,
+ *   loser_id: int|null,
+ *   unresolved: bool,
+ *   aggregate: array<int, array{goals_for: int, goals_against: int, goal_difference: int}>
+ * }
+ */
+function amiga_tournament_knockout_resolve_winner(array $games, array $standingsRows): array
+{
+    /** @var array<int, array{goals_for: int, goals_against: int, goal_difference: int}> $aggregate */
+    $aggregate = [];
+    foreach ($games as $g) {
+        $aId = (int) $g['player_a_id'];
+        $bId = (int) $g['player_b_id'];
+        $ga = (int) $g['goals_a'];
+        $gb = (int) $g['goals_b'];
+        if (!isset($aggregate[$aId])) {
+            $aggregate[$aId] = ['goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0];
+        }
+        if (!isset($aggregate[$bId])) {
+            $aggregate[$bId] = ['goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0];
+        }
+        $aggregate[$aId]['goals_for'] += $ga;
+        $aggregate[$aId]['goals_against'] += $gb;
+        $aggregate[$bId]['goals_for'] += $gb;
+        $aggregate[$bId]['goals_against'] += $ga;
+    }
+    foreach ($aggregate as $pid => $st) {
+        $aggregate[$pid]['goal_difference'] = $st['goals_for'] - $st['goals_against'];
+    }
+
+    $playerIds = array_keys($aggregate);
+    if (count($playerIds) !== 2) {
+        return [
+            'winner_id' => null,
+            'loser_id' => null,
+            'unresolved' => true,
+            'aggregate' => $aggregate,
+        ];
+    }
+
+    $id1 = min($playerIds[0], $playerIds[1]);
+    $id2 = max($playerIds[0], $playerIds[1]);
+    $s1 = $aggregate[$id1];
+    $s2 = $aggregate[$id2];
+
+    $winnerId = null;
+    if ($s1['goal_difference'] > $s2['goal_difference']) {
+        $winnerId = $id1;
+    } elseif ($s2['goal_difference'] > $s1['goal_difference']) {
+        $winnerId = $id2;
+    } elseif ($s1['goals_for'] > $s2['goals_for']) {
+        $winnerId = $id1;
+    } elseif ($s2['goals_for'] > $s1['goals_for']) {
+        $winnerId = $id2;
+    } else {
+        foreach ($games as $g) {
+            $extra = isset($g['extra']) ? (string) $g['extra'] : '';
+            if (trim($extra) === '') {
+                continue;
+            }
+            $wid = amiga_parse_standings_winner(
+                (int) $g['goals_a'],
+                (int) $g['goals_b'],
+                $extra,
+                (int) $g['player_a_id'],
+                (int) $g['player_b_id']
+            );
+            if ($wid !== null) {
+                $winnerId = $wid;
+                break;
+            }
+        }
+    }
+
+    if ($winnerId === null && $standingsRows !== []) {
+        usort(
+            $standingsRows,
+            static fn (array $a, array $b): int => (int) $a['position'] <=> (int) $b['position']
+        );
+        $winnerId = (int) $standingsRows[0]['player_id'];
+    }
+
+    $loserId = null;
+    if ($winnerId !== null) {
+        $loserId = $winnerId === $id1 ? $id2 : $id1;
+    }
+
+    return [
+        'winner_id' => $winnerId,
+        'loser_id' => $loserId,
+        'unresolved' => $winnerId === null,
+        'aggregate' => $aggregate,
+    ];
+}
+
+/** Optional extra line for fixture score (e.g. penalties). */
+function amiga_tournament_format_game_extra(?string $extra): string
+{
+    if ($extra === null || trim($extra) === '') {
+        return '';
+    }
+    return ' <span style="color:var(--k2-text-secondary)">(' . k2_h(trim($extra)) . ')</span>';
+}
