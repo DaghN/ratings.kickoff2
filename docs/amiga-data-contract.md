@@ -94,7 +94,25 @@ full history      →  chronological replay            →  same derived state
 - **Rating authority:** replay from `Scores` only — never display legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Current implementation (Phase A2):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py`. **Incremental post-game (v1):** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — CLI dev runner only; append-only (chronologically last game).
+**Current implementation (Phase A2):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py`. **Incremental post-game:** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — live `process-one` (append-only last game) or sim `replay-to` (next unrated in contract order).
+
+**Simul pipeline (PHP, mirrors online Mode A):**
+
+```bash
+# Day zero — derived only
+php site/public_html/amiga/ops/run_process_game.php zero-derived
+
+# Parity gate (500 games — v1 sign-off)
+python -m scripts.amiga replay --limit 500          # oracle
+php site/public_html/amiga/ops/run_process_game.php zero-derived
+php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
+php site/public_html/amiga/ops/run_process_game.php verify   # 500 ratings, no derived_gap
+
+# Optional: full derived rebuild (batch oracle — ~10s Python; PHP replay-to unbounded is slow)
+python -m scripts.amiga replay
+```
+
+**Parity rule (v1):** after `replay-to --limit 500`, row counts and spot-checks must match `python -m scripts.amiga replay --limit 500` (500 `amiga_game_ratings`, same `amiga_player_stats` count, last-game ratings align to 6 dp). Full-history PHP simul is not a v1 gate — use Python `replay` for batch repair. Repair path for gaps: `zero-derived` then `replay-to`.
 
 ---
 
@@ -122,8 +140,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `tournaments` | Ground | Import / submission |
 | `amiga_players` | Ground | Import / submission |
 | `amiga_games` | Ground | Import / submission |
-| `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` (append-only v1) |
-| `amiga_player_stats` | Derived | Replay or PHP `amiga_process_completed_game` (append-only v1) |
+| `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
+| `amiga_player_stats` | Derived | Replay or PHP `amiga_process_completed_game` / `replay-to` |
 | `amiga_tournament_standings` | Derived | **Planned** (Track B) |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
@@ -140,7 +158,8 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql). Webs
 | This contract (layer intent) | **Done** |
 | Schema split (`amiga_games` / …) | **Done** (A2) |
 | Staging multi-part browser import | **Done** (Jun 2026) |
-| Amiga `ProcessCompletedGame` ops | **Done** (v1 CLI — `amiga/ops/run_process_game.php`) |
+| Amiga `ProcessCompletedGame` ops | **Done** (v1 CLI — `process-one` append-only) |
+| Amiga ops simul (`zero-derived` + `replay-to`) | **Done** (v1 — 500-game parity gate vs Python `replay --limit 500`) |
 | Tournament standings (derived) | **Planned** (Track B) |
 | Reference parity tables / diffs | **Planned** (with Track B) |
 
@@ -150,6 +169,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql). Webs
 
 - **Import:** ground truth only — see `scripts/amiga/import_access.py`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
 - **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
-- **Incremental post-game (v1):** `php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N` — `ko2amiga_db` only; idempotent (`already_processed` if rating row exists); **append-only** (game must be chronologically last; errors `not_append_only` / `derived_gap` otherwise). Parity smoke: full `replay` → `replay --limit (N-1)` → PHP `process-one` on last id → compare rating + both players' stats to full replay.
+- **Incremental post-game (live):** `php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N` — `ko2amiga_db` only; idempotent (`already_processed` if rating row exists); **append-only** (game must be chronologically last; errors `not_append_only` / `derived_gap` otherwise). Parity smoke: full `replay` → `replay --limit (N-1)` → PHP `process-one` on last id → compare rating + both players' stats to full replay.
+- **Simul (replay-to):** `zero-derived` then `replay-to [--limit N] [--until-game-id G]` — walks contract chronology (`tournaments.chrono`, `event_date`, `source_scores_id`, `g.id`); sim chronology = first unrated game in order (`derived_gap` if hole). Idempotent re-run skips `already_processed`. **v1 parity gate:** `--limit 500` vs `python -m scripts.amiga replay --limit 500` (counts + spot-check; not full 27k PHP sim).
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders

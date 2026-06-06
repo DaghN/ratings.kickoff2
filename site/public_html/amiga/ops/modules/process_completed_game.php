@@ -2,7 +2,8 @@
 /**
  * Amiga post-game: one canonical game → amiga_game_ratings + amiga_player_stats.
  *
- * v1 append-only: game must be chronologically last in contract order.
+ * Live (process-one): append-only — game must be chronologically last in contract order.
+ * Sim (replay-to): next unrated game in contract order (no append-only).
  */
 declare(strict_types=1);
 
@@ -75,6 +76,44 @@ function amiga_ops_last_game_id(mysqli $con): int
 }
 
 /**
+ * First game in contract order without an amiga_game_ratings row.
+ */
+function amiga_ops_first_unrated_game_id(mysqli $con): ?int
+{
+    $sql = 'SELECT g.id FROM amiga_games g '
+        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+        . 'LEFT JOIN amiga_game_ratings r ON r.game_id = g.id '
+        . 'WHERE r.game_id IS NULL '
+        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_ASC . ' LIMIT 1';
+    $res = $con->query($sql);
+    if ($res === false) {
+        throw new RuntimeException('first unrated game: ' . $con->error);
+    }
+    $row = $res->fetch_assoc();
+    $res->free();
+    if ($row === null) {
+        return null;
+    }
+
+    return (int) $row['id'];
+}
+
+/**
+ * Sim chronology: G must be the first unrated game in contract order.
+ *
+ * @return string|null null if OK
+ */
+function amiga_ops_sim_skip_reason(mysqli $con, int $gameId): ?string
+{
+    $firstUnrated = amiga_ops_first_unrated_game_id($con);
+    if ($firstUnrated === null || $firstUnrated === $gameId) {
+        return null;
+    }
+
+    return 'derived_gap';
+}
+
+/**
  * @return string|null null if OK
  */
 function amiga_ops_append_only_skip_reason(mysqli $con, int $gameId): ?string
@@ -105,7 +144,7 @@ function amiga_ops_append_only_skip_reason(mysqli $con, int $gameId): ?string
 /**
  * @return string|null null if OK
  */
-function amiga_ops_game_skip_reason(mysqli $con, array $game): ?string
+function amiga_ops_game_skip_reason(mysqli $con, array $game, bool $simMode = false): ?string
 {
     $gameId = (int) $game['id'];
     $idA = (int) $game['idA'];
@@ -124,7 +163,9 @@ function amiga_ops_game_skip_reason(mysqli $con, array $game): ?string
         return 'already_processed';
     }
 
-    return amiga_ops_append_only_skip_reason($con, $gameId);
+    return $simMode
+        ? amiga_ops_sim_skip_reason($con, $gameId)
+        : amiga_ops_append_only_skip_reason($con, $gameId);
 }
 
 function amiga_ops_log_skip_game(int $gameId, string $reason): void
@@ -343,10 +384,10 @@ function amiga_ops_write_game_ratings(mysqli $con, array $row): void
  *   skip_reason: string|null
  * }
  */
-function amiga_process_completed_game(mysqli $con, int $gameId, bool $dryRun = false): array
+function amiga_process_completed_game(mysqli $con, int $gameId, bool $dryRun = false, bool $simMode = false): array
 {
     $game = amiga_ops_load_game_row($con, $gameId);
-    $skipReason = amiga_ops_game_skip_reason($con, $game);
+    $skipReason = amiga_ops_game_skip_reason($con, $game, $simMode);
     if ($skipReason !== null) {
         amiga_ops_log_skip_game($gameId, $skipReason);
 
@@ -383,4 +424,204 @@ function amiga_process_completed_game(mysqli $con, int $gameId, bool $dryRun = f
     }
 
     return ['derived' => $derived, 'committed' => true, 'skipped' => false, 'skip_reason' => null];
+}
+
+/**
+ * Clear derived tables only (ground truth preserved). Mirrors replay.py clear_derived.
+ */
+function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
+{
+    $res = $con->query(
+        'SELECT '
+        . '(SELECT COUNT(*) FROM amiga_games) AS games, '
+        . '(SELECT COUNT(*) FROM amiga_players) AS players, '
+        . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
+        . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats'
+    );
+    if ($res === false) {
+        throw new RuntimeException('zero-derived counts: ' . $con->error);
+    }
+    $row = $res->fetch_assoc();
+    $res->free();
+    amiga_ops_log(
+        'zero-derived: amiga_games=' . (int) ($row['games'] ?? 0)
+        . ' amiga_players=' . (int) ($row['players'] ?? 0)
+        . ' clearing ratings=' . (int) ($row['ratings'] ?? 0)
+        . ' stats=' . (int) ($row['stats'] ?? 0)
+        . ($dryRun ? ' (dry-run)' : '')
+    );
+    if ($dryRun) {
+        return;
+    }
+    if (!$con->query('DELETE FROM amiga_game_ratings')) {
+        throw new RuntimeException('DELETE amiga_game_ratings: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_player_stats')) {
+        throw new RuntimeException('DELETE amiga_player_stats: ' . $con->error);
+    }
+}
+
+/**
+ * Game ids in contract chronology order (mirrors replay.py GAME_SELECT).
+ *
+ * @return list<int>
+ */
+function amiga_ops_list_game_ids(mysqli $con, ?int $limit = null, ?int $untilGameId = null): array
+{
+    $sql = 'SELECT g.id FROM amiga_games g '
+        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_ASC;
+    $res = $con->query($sql);
+    if ($res === false) {
+        throw new RuntimeException('list games: ' . $con->error);
+    }
+
+    $ids = [];
+    while ($row = $res->fetch_assoc()) {
+        $gid = (int) $row['id'];
+        if ($untilGameId !== null && $gid > $untilGameId) {
+            break;
+        }
+        $ids[] = $gid;
+        if ($limit !== null && count($ids) >= $limit) {
+            break;
+        }
+    }
+    $res->free();
+
+    return $ids;
+}
+
+/**
+ * Chronological sim — one amiga_process_completed_game per game (sim chronology).
+ *
+ * @return array{
+ *   processed: list<int>,
+ *   committed: int,
+ *   skipped: list<int>,
+ *   skip_reasons: array<int, string>
+ * }
+ */
+function amiga_ops_replay_post_game(
+    mysqli $con,
+    ?int $limit = null,
+    ?int $untilGameId = null,
+    bool $dryRun = false
+): array {
+    $ids = amiga_ops_list_game_ids($con, $limit, $untilGameId);
+    $total = count($ids);
+    amiga_ops_log("replay-to: {$total} games in contract order" . ($dryRun ? ' (dry-run)' : ''));
+
+    $processed = [];
+    $committed = 0;
+    $skipped = [];
+    $skipReasons = [];
+    $logEvery = $total > 5000 ? 5000 : 500;
+
+    foreach ($ids as $i => $gid) {
+        $result = amiga_process_completed_game($con, $gid, $dryRun, true);
+        if (!empty($result['skipped'])) {
+            $skipped[] = $gid;
+            $skipReasons[$gid] = (string) ($result['skip_reason'] ?? 'unknown');
+            continue;
+        }
+        $processed[] = $gid;
+        if ($result['committed']) {
+            $committed++;
+        }
+        $n = $i + 1;
+        if ($n % $logEvery === 0 || $n === $total) {
+            amiga_ops_log("replay-to progress: {$n}/{$total} walked, committed={$committed}, skipped=" . count($skipped));
+        }
+    }
+
+    return [
+        'processed' => $processed,
+        'committed' => $committed,
+        'skipped' => $skipped,
+        'skip_reasons' => $skipReasons,
+    ];
+}
+
+/**
+ * True when an unrated game appears before a later rated game in contract order.
+ */
+function amiga_ops_has_derived_gap(mysqli $con): bool
+{
+    $sql = 'SELECT (r.game_id IS NOT NULL) AS rated FROM amiga_games g '
+        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+        . 'LEFT JOIN amiga_game_ratings r ON r.game_id = g.id '
+        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_ASC;
+    $res = $con->query($sql);
+    if ($res === false) {
+        throw new RuntimeException('derived gap scan: ' . $con->error);
+    }
+
+    $seenUnrated = false;
+    while ($row = $res->fetch_assoc()) {
+        $rated = (int) ($row['rated'] ?? 0) === 1;
+        if (!$rated) {
+            $seenUnrated = true;
+        } elseif ($seenUnrated) {
+            $res->free();
+
+            return true;
+        }
+    }
+    $res->free();
+
+    return false;
+}
+
+/**
+ * Row counts + derived_gap probe for smoke verify.
+ *
+ * @return array{
+ *   rating_count: int,
+ *   stats_count: int,
+ *   game_count: int,
+ *   derived_gap: bool,
+ *   first_unrated_game_id: int|null,
+ *   last_rated_game_id: int|null
+ * }
+ */
+function amiga_ops_derived_coverage(mysqli $con): array
+{
+    $res = $con->query(
+        'SELECT '
+        . '(SELECT COUNT(*) FROM amiga_games) AS games, '
+        . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
+        . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats'
+    );
+    if ($res === false) {
+        throw new RuntimeException('derived coverage: ' . $con->error);
+    }
+    $row = $res->fetch_assoc();
+    $res->free();
+
+    $firstUnrated = amiga_ops_first_unrated_game_id($con);
+    $lastRated = null;
+    $ratedRes = $con->query(
+        'SELECT g.id FROM amiga_games g '
+        . 'INNER JOIN amiga_game_ratings r ON r.game_id = g.id '
+        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_DESC . ' LIMIT 1'
+    );
+    if ($ratedRes === false) {
+        throw new RuntimeException('last rated game: ' . $con->error);
+    }
+    $ratedRow = $ratedRes->fetch_assoc();
+    $ratedRes->free();
+    if ($ratedRow !== null) {
+        $lastRated = (int) $ratedRow['id'];
+    }
+
+    return [
+        'rating_count' => (int) ($row['ratings'] ?? 0),
+        'stats_count' => (int) ($row['stats'] ?? 0),
+        'game_count' => (int) ($row['games'] ?? 0),
+        'derived_gap' => amiga_ops_has_derived_gap($con),
+        'first_unrated_game_id' => $firstUnrated,
+        'last_rated_game_id' => $lastRated,
+    ];
 }
