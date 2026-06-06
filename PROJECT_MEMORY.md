@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Box art story page** — `boxart.php` + `includes/boxart_story_section.php` + `stylesheets/boxart-story.css`; long-form, illustrated history of the KO2 cover (Cameron Buxton; Andy Gray foreground, Hugo Sánchez background; 6 Jun 2026 WhatsApp/Reddit sleuthing). Status heritage box now links to it (`status_room_section.php`; hover-only styles in `theme.css`). Images in `images/boxart/`. Content/cosmetic only. |
 | 2026-06 | **Amiga ops simul v1** — `zero-derived`, `replay-to`, `verify` on `amiga/ops/`; sim chronology (next unrated in contract order); 500-game parity gate vs Python `replay --limit 500`; live `process-one` append-only unchanged. |
 | 2026-06 | **Amiga ProcessCompletedGame v1** — `amiga/ops/` PHP post-game (ratings + player stats); CLI `run_process_game.php`; append-only chronology; parity vs `replay` on game 27408; contract + README updated. |
 | 2026-06 | **Agent doc grep-trap pass** — `schema/migrations` → `ops/sql/migrations` in active playbooks; cutover checklist + replay-v1 + coordination README traps; facilitators doc renamed; wip/status + script allowlists aligned. |

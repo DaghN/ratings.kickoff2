@@ -34,6 +34,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Games tab 14-day buckets | L0 | — | — | — | — | — | **Recent** on `games.php` |
 | Games Highlights (spectacle boards) | L0 | — | — | — | — | — | `games.php?view=highlights` |
 | Play & Setup page | L0 | — | — | — | — | — | `join.php` |
+| Box art story page | — | — | — | — | — | — | `boxart.php` (+ `boxart_story_section.php`, `boxart-story.css`, `images/boxart/`); KO2 cover history; Status heritage box links to it; PHP/CSS/content only |
 | Hub / Status cosmetics | — | — | — | — | — | — | PHP only |
 | Milestones hub tab (stub) | L0 | — | — | — | — | — | `milestones.php` v0 hub |
 | Hub IA — Games off top nav | — | — | — | — | — | — | `games.php` sub-nav |

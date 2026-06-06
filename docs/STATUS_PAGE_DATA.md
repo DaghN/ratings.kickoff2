@@ -34,7 +34,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | 1 (narrow) | Ticker (players/games counts, blue numbers) | New players |
 | 2 (narrow) | Online | Recent logins |
 | 3 (widest) | Live games | Recent games |
-| 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption) | Leaderboard (active Elo top 20) |
+| 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption); **whole inset is a link to `boxart.php`** (box art story) — hover lift/ring only, no visible link text | Leaderboard (active Elo top 20) |
 
 Below west: **Leagues** (shipped) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **Daily tab only:** compact **Games this day** list below the league tables (recent-games style + `game.php` link column); updates with day picker / step nav via `api/status_period_day_games.php`. Spec: [`docs/status-period-competitions.md`](status-period-competitions.md).
 
@@ -67,7 +67,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | **Recent logins** | `playertable` · `LastLogin DESC` | ~10 |
 | **Recent registrations** | `playertable` · `JoinDate DESC` | ~10; important community signal |
 | **Recent rated games** | `ratedresults` · `Date DESC` | ~10; show player names and score only, no rating deltas; header link `Games →` opens full Games list |
-| **Heritage box** | static image | Box art only; **Play & Setup** is a hub tab |
+| **Heritage box** | static image | Box art only; **Play & Setup** is a hub tab. Inset now links to **`boxart.php`** (illustrated box-art history) |
 
 **Not in v1:** games-played-by-period triple tables (`period_activity_leaderboards_section.php` — now backed by `player_period_games`, preview only until deliberately placed); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics; polling (v1.5).
 

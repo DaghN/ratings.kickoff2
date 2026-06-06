@@ -31,6 +31,8 @@
 
 `index.php` redirects to `/status.php`.
 
+**Standalone (no route key yet):** `/boxart.php` — box-art story page, linked directly (`href="/boxart.php"`) from the Status heritage box. Add to `K2_ROUTES` if it gains more inbound links.
+
 ---
 
 ## Leaderboards (`leaderboards/`)
