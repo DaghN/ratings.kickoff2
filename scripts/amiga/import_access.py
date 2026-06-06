@@ -24,6 +24,7 @@ from scripts.amiga.tournament_names import resolve_phase, resolve_tournament_nam
 log = logging.getLogger(__name__)
 
 _SQL_TRACK_B = Path(__file__).resolve().parent / "sql" / "002_tournament_standings.sql"
+_SQL_KNOCKOUT = Path(__file__).resolve().parent / "sql" / "003_knockout_scope.sql"
 
 _AMIGA_TABLES_DROP_ORDER = (
     "amiga_tournament_standings",
@@ -90,7 +91,7 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
             for table in _AMIGA_TABLES_DROP_ORDER:
                 cur.execute(f"DROP TABLE IF EXISTS `{table}`")
             cur.execute("SET FOREIGN_KEY_CHECKS = 1")
-    for sql_path in (_SQL, _SQL_TRACK_B):
+    for sql_path in (_SQL, _SQL_TRACK_B, _SQL_KNOCKOUT):
         sql = sql_path.read_text(encoding="utf-8")
         with conn.cursor() as cur:
             for stmt in _split_sql(sql):

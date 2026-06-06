@@ -126,7 +126,7 @@ $games = amiga_games_query_all(
     $con,
     'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.GoalsA, r.GoalsB, '
         . 'r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference, '
-        . 'r.phase, r.tournament_name '
+        . 'r.phase, r.tournament_id, r.tournament_name '
         . $fromSql . ' WHERE ' . $whereSql
         . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC'
         . ' LIMIT ' . $limit . ' OFFSET ' . $offset,
@@ -134,7 +134,6 @@ $games = amiga_games_query_all(
     $whereParams
 );
 
-mysqli_close($con);
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -143,6 +142,7 @@ mysqli_close($con);
 
 <p style="padding:0.75rem 1.25rem 0;margin:0">
 	<a class="k2-link-star" href="/amiga/rating.php">← Amiga ladder</a>
+	· <a class="k2-link-star" href="/amiga/tournaments.php">Tournaments</a>
 </p>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
@@ -263,7 +263,7 @@ foreach ($opponentRows as $opponentRow) {
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>
-    <?php echo amiga_player_game_row_html($game, $playerId, $sortedColIndex); ?>
+    <?php echo amiga_player_game_row_html($game, $playerId, $sortedColIndex, $con); ?>
     <?php } ?>
 </tbody>
 
@@ -272,5 +272,6 @@ foreach ($opponentRows as $opponentRow) {
 </div><!-- .k2-table-wrap -->
 
 </div><!-- .k2-page-nav -->
+<?php mysqli_close($con); ?>
 </body>
 </html>

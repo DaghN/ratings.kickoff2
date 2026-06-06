@@ -1,0 +1,166 @@
+Implement Amiga Track B — Step 2: knockout fixture detail (leg-by-leg read path).
+
+GOAL
+When viewing a knockout tie (`scope_type = knockout` on `tournament.php`), show the **actual matches** between the two players (1 or 2 legs, home/away swaps), not only the derived aggregate W/D/L standings row. Surface `amiga_games.extra` when present. Resolve and display the **tie winner** using the same rules as the standings engine (aggregate GD, then `extra` for ET/penalties).
+
+Why now: pair scopes are correct (`Semi Finals|id-id` = 2 players only), but the current knockout view still looks like a mini league table (each player may show 1W–1L across two legs). That is hard to sanity-check and hides ET/penalty facts in `extra`.
+
+READ FIRST
+- docs/amiga-data-contract.md — knockout scope rules, `extra` ground column, Elo vs standings winner separation
+- docs/amiga-profile-v0.md — § Browser QA checklist (standings); update when done
+- scripts/amiga/tournament_phases.py — `is_knockout_phase`, `knockout_pair_scope_key`
+- scripts/amiga/tournament_standings.py — `parse_standings_winner`, `_knockout_positions` (aggregate GD winner today)
+- site/public_html/includes/amiga_tournament_lib.php — `amiga_tournament_scope_label`, pair scope_key format `{phase}|{lo}-{hi}`
+- site/public_html/amiga/tournament.php — knockout tie UI (W/L column, collapsible tie list)
+- site/public_html/amiga/games.php + amiga_player_game_row.php — phase links already land on pair scope
+
+DO NOT wire into online ops/dispatch.php or kooldb*. Amiga paths only.
+
+---
+
+CURRENT STATE (locked — verify, do not re-litigate)
+
+Track B shipped (Jun 2026):
+- Derived `amiga_tournament_standings` with `overall` | `group` | `knockout` scopes
+- Knockout: one scope per player pair (`scope_key` = `Semi Finals|149-253`, etc.)
+- `amiga_games.extra` imported (~108 games); Elo still uses regulation goals only
+- Pages: `/amiga/tournaments.php`, `/amiga/tournament.php`, games/profile links
+- CLI: `python -m scripts.amiga replay`, `standings-parity`, `verify-track-b`
+- Staging export: 17 parts includes `amiga_tournament_standings` (not yet re-imported on staging unless Dagh synced)
+
+Known gap this step fixes:
+- Knockout view = 2-row aggregate stats only; no per-leg fixture list
+- `parse_standings_winner()` exists in Python but is **not** used for `_knockout_positions` when aggregate GD ties
+- WC two-leg ties: e.g. WC XI Semi Finals Gianni T vs Lorenzo C — leg 5–5, leg 5–1; winner must be obvious on page
+
+---
+
+V1 SCOPE (this PR)
+
+In scope:
+1. **PHP read helper** — `amiga_tournament_knockout_fixture_games($con, $tournamentId, $scopeKey)`:
+   - Parse `scope_key` → phase + player id pair
+   - Load matching `amiga_games` rows ordered by `source_scores_id`
+   - Return goals, `extra`, synthetic `game_date`, player names (Team A/B as stored)
+2. **tournament.php knockout UI** — above or instead of aggregate table when `scope=knockout`:
+   - List each leg: Team A vs Team B, score, optional `extra` line (e.g. `(4-4) 5-3 p.k.`)
+   - Prominent **tie winner** line (aggregate GF–GA across legs in scope; label both players)
+3. **Shared winner logic** — prefer one implementation:
+   - **Option A (preferred):** small PHP function mirroring `parse_standings_winner` + aggregate GD (document parity with Python)
+   - **Option B:** expose winner via derived column later — not v1
+4. **Python alignment (small):** wire `parse_standings_winner` into `_knockout_positions` when aggregate GD/GF tied and any leg has `extra` — keeps DB `position` consistent with UI
+5. **Docs** — amiga-data-contract.md § knockout winner rule; amiga-profile-v0.md QA item for WC XI semi tie
+6. **Smoke** — manual + optional `verify-track-b` extension or tiny pytest for `parse_standings_winner` cases
+
+Out of scope v1:
+- Full bracket tree / SVG diagram
+- PHP incremental standings in `process_completed_game`
+- Staging WinSCP deploy (separate ops slice — see § Optional follow-up)
+- Cross-stage promotion (Tier 4)
+- Changing Elo replay
+
+---
+
+UI HINTS (match existing Amiga pages)
+
+Knockout fixture block on `tournament.php` (when `scope_type === knockout`):
+
+```
+Semi Finals — Gianni T / Lorenzo C
+Winner: Gianni T (aggregate 10–6)
+
+Leg 1   Gianni T  5 – 5  Lorenzo C
+Leg 2   Lorenzo C  1 – 5  Gianni T
+
+[optional: keep compact 2-row aggregate table below, or replace it]
+```
+
+Use existing `k2-table` / panel patterns from `games.php`. Link each leg’s game id to `/amiga/games.php?id={player}` with filters if easy; plain score line is enough for v1.
+
+For single-leg finals / place finals: one row only.
+
+---
+
+SCOPE_KEY CONTRACT
+
+Knockout `scope_key` format (already in DB):
+  `{phase}|{min_player_id}-{max_player_id}`
+
+Example: `Semi Finals|149-253`
+
+Query games:
+  `tournament_id = ? AND phase = ? AND player pair matches (a,b) in either order`
+
+Phase string must match `amiga_games.phase` exactly (e.g. `Semi Finals`, `Places 9-16`).
+
+---
+
+WINNER RESOLUTION (document + implement consistently)
+
+Per pair, all games in that phase between those two players:
+1. Sum goals for/against per player across legs
+2. Higher aggregate GD wins the tie
+3. If aggregate GD equal → higher aggregate GF
+4. If still tied → `parse_standings_winner` on any leg with `extra` (penalties); if still unresolved, show “Tie unresolved” in UI and fall back to standings `position` order
+
+Elo path unchanged — regulation draw with `extra` still rates as draw.
+
+---
+
+FILES TO ADD / CHANGE (expected)
+
+site/public_html/includes/amiga_tournament_lib.php — fixture query + winner helper + optional `extra` formatter
+site/public_html/amiga/tournament.php — knockout fixture panel
+scripts/amiga/tournament_standings.py — use `extra` in `_knockout_positions` when aggregate tied
+docs/amiga-data-contract.md — knockout winner rule (bullet under Track B)
+docs/amiga-profile-v0.md — update QA checklist item 6 (knockout now has fixture detail)
+scripts/amiga/verify_track_b.py or tests — optional ET/penalty winner spot case
+
+---
+
+ACCEPTANCE
+
+[ ] WC XI `Semi Finals|149-253` (Gianni T / Lorenzo C): page shows 2 legs, winner Gianni T
+[ ] WC XI `Semi Finals|14-30` (Alkis P / Andy G): 2 legs, winner Alkis P
+[ ] Final / single-leg knockout: one leg listed
+[ ] Game with `extra` (find via `SELECT * FROM amiga_games WHERE extra <> '' LIMIT 5`) — extra text visible on fixture line
+[ ] `python -m scripts.amiga replay` then `verify-track-b` still passes
+[ ] `standings-parity --tournament "London XXIII"` still passes (league unchanged)
+[ ] No SQL in templates; helpers in `includes/amiga_tournament_lib.php`
+[ ] Elo replay unchanged
+
+---
+
+LOCAL SMOKE
+
+python -m scripts.amiga replay
+python -m scripts.amiga verify-track-b
+python -m scripts.amiga standings-parity --tournament "London XXIII"
+
+# Find WC XI tournament id (often ~World Cup XI in DB):
+# http://ratingskickoff.test/amiga/tournament.php?id=N&scope=knockout&scope_key=Semi+Finals%7C149-253
+# Or: games tab → click Semi Finals phase on a semi-final game → lands on pair scope
+
+---
+
+BOUNDARIES
+
+- Read path only — query ground `amiga_games` for fixtures; do not mutate derived standings shape unless fixing winner `position` when `extra` breaks aggregate tie
+- ko2amiga_db only; `SET time_zone = '+00:00'`
+- Commit only when asked
+
+---
+
+OPTIONAL FOLLOW-UP (next chat after this — do NOT implement here)
+
+**Staging refresh:** Dagh WinSCP sync `public_html/` + `amiga/_import/` → browser import 17 parts (`run_import_ko2amiga.php?apply=1&part=1`). Verify `/amiga/tournaments.php` on ratings.kickoff2.com.
+
+**After fixture detail:** PHP incremental standings in `process_completed_game` (v2) or bracket index page grouping ties by phase round.
+
+---
+
+AGENT POLICY
+
+- Read surrounding Amiga PHP before editing; match `k2_h`, `k2_amiga_player_link`, table classes
+- Minimize scope — fixture panel + winner parity; no bracket visualization
+- Update data contract before changing winner derivation rules

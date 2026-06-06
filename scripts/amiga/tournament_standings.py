@@ -12,7 +12,14 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.tournament_phases import PhaseScope, ScopeType, is_league_scope, parse_phase
+from scripts.amiga.tournament_phases import (
+    PhaseScope,
+    ScopeType,
+    is_knockout_phase,
+    is_league_scope,
+    knockout_pair_scope_key,
+    parse_phase,
+)
 
 log = logging.getLogger(__name__)
 
@@ -119,8 +126,10 @@ def _apply_game(
     player_b_id: int,
     goals_a: int,
     goals_b: int,
+    *,
+    league_only: bool = True,
 ) -> None:
-    if not is_league_scope(scope):
+    if league_only and not is_league_scope(scope):
         return
     key = (scope.scope_type, scope.scope_key)
     table = standings.setdefault(key, {})
@@ -154,6 +163,26 @@ def _sort_key(item: tuple[int, PlayerStanding]) -> tuple:
     return (-st.points, -st.goal_difference, -st.goals_for, -st.games)
 
 
+def _knockout_positions(table: dict[int, PlayerStanding]) -> list[tuple[int, PlayerStanding, int]]:
+    """Two-player tie: winner by aggregate goal difference, then goals scored."""
+    if len(table) != 2:
+        return _assign_positions(table)
+    (id1, s1), (id2, s2) = sorted(table.items(), key=lambda x: x[0])
+    if s1.goal_difference > s2.goal_difference:
+        winner, loser = (id1, s1), (id2, s2)
+    elif s2.goal_difference > s1.goal_difference:
+        winner, loser = (id2, s2), (id1, s1)
+    elif s1.goals_for > s2.goals_for:
+        winner, loser = (id1, s1), (id2, s2)
+    elif s2.goals_for > s1.goals_for:
+        winner, loser = (id2, s2), (id1, s1)
+    else:
+        return _assign_positions(table)
+    wid, ws = winner
+    lid, ls = loser
+    return [(wid, ws, 1), (lid, ls, 2)]
+
+
 def _assign_positions(table: dict[int, PlayerStanding]) -> list[tuple[int, PlayerStanding, int]]:
     ranked = sorted(table.items(), key=_sort_key)
     out: list[tuple[int, PlayerStanding, int]] = []
@@ -173,6 +202,7 @@ def compute_tournament_standings(
 ) -> list[dict[str, Any]]:
     """Build standings rows for one tournament's games (already ordered)."""
     scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
+    knockout_scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
     has_null_phase = False
     has_structured = False
 
@@ -182,14 +212,33 @@ def compute_tournament_standings(
             has_null_phase = True
         else:
             has_structured = True
+        player_a_id = int(g["player_a_id"])
+        player_b_id = int(g["player_b_id"])
+        goals_a = int(g["goals_a"])
+        goals_b = int(g["goals_b"])
+
+        if is_knockout_phase(phase):
+            pair_key = knockout_pair_scope_key(str(phase), player_a_id, player_b_id)
+            scope = PhaseScope(ScopeType.KNOCKOUT, pair_key)
+            _apply_game(
+                knockout_scopes,
+                scope,
+                player_a_id,
+                player_b_id,
+                goals_a,
+                goals_b,
+                league_only=False,
+            )
+            continue
+
         scope = parse_phase(phase)
         _apply_game(
             scopes,
             scope,
-            int(g["player_a_id"]),
-            int(g["player_b_id"]),
-            int(g["goals_a"]),
-            int(g["goals_b"]),
+            player_a_id,
+            player_b_id,
+            goals_a,
+            goals_b,
         )
 
     # Marathon round-robins: all phase NULL → one overall table only.
@@ -216,12 +265,16 @@ def compute_tournament_standings(
         if overall:
             scopes[(ScopeType.OVERALL, "")] = dict(overall)
 
+    for (stype, skey), table in knockout_scopes.items():
+        scopes[(stype, skey)] = table
+
     tournament_id = int(games[0]["tournament_id"]) if games else 0
     rows: list[dict[str, Any]] = []
     for (stype, skey), table in sorted(scopes.items(), key=lambda x: (x[0][0].value, x[0][1])):
         if not table:
             continue
-        for pid, st, pos in _assign_positions(table):
+        assign = _knockout_positions if stype == ScopeType.KNOCKOUT else _assign_positions
+        for pid, st, pos in assign(table):
             rows.append(
                 {
                     "tournament_id": tournament_id,

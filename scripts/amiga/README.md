@@ -40,11 +40,11 @@ python scripts/amiga/discover_access_schema.py
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Export writes **16 part files** + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Sync all of `_import/` via WinSCP.
+Export writes **17 part files** + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Sync all of `_import/` via WinSCP.
 
 **Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
 
-- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 16`
+- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 17`
 - **Apply:** same URL with `&apply=1&part=1` (auto-continues)
 - **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`
 
@@ -55,7 +55,10 @@ Browser (local pages):
 - `http://ratingskickoff.test/amiga/rating.php`
 - `http://ratingskickoff.test/amiga/profile.php?id=1`
 - `http://ratingskickoff.test/amiga/games.php?id=1`
+- `http://ratingskickoff.test/amiga/tournaments.php`
 - `http://ratingskickoff.test/amiga/tournament.php?id=1`
+
+Browser QA checklist: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md) § Browser QA checklist (standings).
 
 **Track B migration** (existing DBs without `extra` / standings table):
 

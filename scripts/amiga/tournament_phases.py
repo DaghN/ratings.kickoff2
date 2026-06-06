@@ -18,6 +18,7 @@ class ScopeType(str, Enum):
     OVERALL = "overall"
     GROUP = "group"
     PLACEMENT = "placement"
+    KNOCKOUT = "knockout"
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,6 +33,7 @@ _GROUP_RE = re.compile(
     re.IGNORECASE,
 )
 _PLACES_RE = re.compile(r"^Places\s+(\d+(?:-\d+)?)$", re.IGNORECASE)
+_PLACE_FINAL_RE = re.compile(r"^\d+(?:st|nd|rd|th)\s+Place\s+Final$", re.IGNORECASE)
 _KNOCKOUT_LABELS = frozenset(
     {
         "quarter finals",
@@ -56,10 +58,29 @@ def _canonical_group_key(prefix: str | None, group: str) -> str:
     group = group.upper().replace(" ", "")
     if prefix:
         prefix_norm = _normalize_whitespace(prefix)
-        if re.match(r"^Round\s+\d+$", prefix_norm, re.IGNORECASE):
-            return f"{prefix_norm} - Group {group}"
         return f"{prefix_norm} - Group {group}"
     return f"Group {group}"
+
+
+def is_knockout_phase(phase: str | None) -> bool:
+    """Elimination phases: paired ties, not league tables."""
+    if not phase or not str(phase).strip():
+        return False
+    label = _normalize_whitespace(str(phase))
+    if label.lower() in _KNOCKOUT_LABELS:
+        return True
+    if _PLACES_RE.match(label):
+        return True
+    if _PLACE_FINAL_RE.match(label):
+        return True
+    return False
+
+
+def knockout_pair_scope_key(phase: str, player_a_id: int, player_b_id: int) -> str:
+    """Stable scope_key for one elimination tie (two players)."""
+    phase = _normalize_whitespace(phase)
+    lo, hi = min(player_a_id, player_b_id), max(player_a_id, player_b_id)
+    return f"{phase}|{lo}-{hi}"
 
 
 def parse_phase(phase: str | None) -> PhaseScope:
@@ -69,6 +90,9 @@ def parse_phase(phase: str | None) -> PhaseScope:
 
     label = _normalize_whitespace(str(phase))
 
+    if is_knockout_phase(label):
+        return PhaseScope(ScopeType.KNOCKOUT, label)
+
     m = _GROUP_RE.match(label)
     if m:
         return PhaseScope(
@@ -76,7 +100,6 @@ def parse_phase(phase: str | None) -> PhaseScope:
             _canonical_group_key(m.group("prefix"), m.group("group")),
         )
 
-    # ``Round 1 - Group A`` with hyphen already in source string.
     m2 = re.match(
         r"^(?P<prefix>Round\s+\d+|Silver\s+Cup|Bronze\s+Cup)\s*-\s*Group\s+(?P<group>[A-Z](?:/[A-Z])?)$",
         label,
@@ -88,18 +111,8 @@ def parse_phase(phase: str | None) -> PhaseScope:
             _canonical_group_key(m2.group("prefix"), m2.group("group")),
         )
 
-    if _PLACES_RE.match(label):
-        return PhaseScope(ScopeType.PLACEMENT, label)
-
-    if label.lower() in _KNOCKOUT_LABELS:
-        # Knockout rows are not league tables in v1; skip from group/overall aggregation.
-        return PhaseScope(ScopeType.PLACEMENT, label)
-
     # Unknown structured label — treat as its own group-like scope for aggregation.
-    if label:
-        return PhaseScope(ScopeType.GROUP, label)
-
-    return PhaseScope(ScopeType.OVERALL, "")
+    return PhaseScope(ScopeType.GROUP, label)
 
 
 def access_group_label_for_parity(scope_key: str) -> str:
@@ -114,11 +127,9 @@ def access_group_label_for_parity(scope_key: str) -> str:
 
 
 def is_league_scope(scope: PhaseScope) -> bool:
-    """Scopes that contribute W/D/L points tables (not knockouts in v1)."""
+    """Scopes that contribute W/D/L points tables (round-robin groups only)."""
     if scope.scope_type == ScopeType.OVERALL:
         return True
     if scope.scope_type == ScopeType.GROUP:
-        return True
-    if scope.scope_type == ScopeType.PLACEMENT and scope.scope_key.lower().startswith("places "):
         return True
     return False

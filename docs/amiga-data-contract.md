@@ -151,7 +151,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 
 - **Source:** `amiga_games` grouped per `tournament_id`, ordered by `source_scores_id` within tournament.
 - **Points:** 3 per win, 1 per draw, 0 per loss (W×3 + D×1). Tie-break: goal difference, goals scored.
-- **Scopes:** `scope_type` + `scope_key` from phase labels (`scripts/amiga/tournament_phases.py`). Phase NULL → single `overall` table. Group labels (`Round 1 - Group A`, …) → per-group tables. Knockout phases excluded from league tables in v1.
+- **Scopes:** `scope_type` + `scope_key` from phase labels (`scripts/amiga/tournament_phases.py`). Phase NULL → single `overall` table. Group labels → per-group league tables. Knockout phases (`Semi Finals`, `Places 9-16`, …) → `knockout` scope per **player pair** (`scope_key` = `{phase}|{id}-{id}`), two rows per tie.
 - **Goals:** Regulation `goals_a` / `goals_b` only for league/group tables (Elo uses the same). `extra` column stores Access `Scores.Extra` for future knockout winner resolution; does not affect Elo.
 - **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity`.
 - **v2 gaps:** PHP incremental standings in `process_completed_game`; full knockout bracket advancement; cross-stage promotion (Tier 4).

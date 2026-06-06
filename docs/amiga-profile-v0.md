@@ -9,6 +9,7 @@
 | Leaderboard | `/amiga/rating.php` |
 | Profile | `/amiga/profile.php?id={amiga_players.id}` |
 | Games | `/amiga/games.php?id={amiga_players.id}` |
+| Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
 
 ## What v0 shows
@@ -62,4 +63,17 @@ Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN
 
 ## Not in v0
 
-- H2H, milestones, tournament index listing, per-game detail page, compare chart, knockout brackets
+- H2H, milestones, per-game detail page, compare chart, knockout brackets
+
+## Browser QA checklist (standings)
+
+After `python -m scripts.amiga replay`, spot-check locally:
+
+1. **Index** — `/amiga/tournaments.php` — events list, game counts, links open standings
+2. **League table** — find London XXIII — top 3: Dagh N (69), Gianni T (65), Sandro T (60)
+3. **Cup group** — World Cup XI → Group A tab — winner Alkis P (45 pts)
+4. **Games links** — busy player games tab — tournament name → overall table; phase → group scope
+5. **Profile** — recent tournaments block links match index; positions look plausible
+6. **Empty scope** — click a knockout phase link (e.g. Final) — empty table + hint (expected v1)
+
+CLI parity: `python -m scripts.amiga standings-parity --tournament "London XXIII"`

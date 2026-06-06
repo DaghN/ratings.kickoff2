@@ -11,6 +11,7 @@ from pathlib import Path
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
 from scripts.amiga.standings_parity import main as standings_parity_main
+from scripts.amiga.verify_track_b import main as verify_track_b_main
 
 log = logging.getLogger("scripts.amiga")
 
@@ -43,6 +44,8 @@ def main(argv: list[str] | None = None) -> int:
     p_parity.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
     p_parity.add_argument("--top", type=int, default=10)
 
+    sub.add_parser("verify-track-b", help="Post-import smoke: extra column + Elo draw rule")
+
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -60,6 +63,9 @@ def main(argv: list[str] | None = None) -> int:
         log.info("Import complete: %s", stats)
         run_replay(dry_run=args.dry_run, limit=args.limit)
         return 0
+
+    if args.cmd == "verify-track-b":
+        return verify_track_b_main()
 
     if args.cmd == "standings-parity":
         return standings_parity_main(

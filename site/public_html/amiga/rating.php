@@ -10,7 +10,8 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <div class="k2-page-nav" style="padding:1rem 1.25rem 0">
-  <p class="k2-hub-intro" style="margin:0 0 1rem">Amiga 500 offline ladder — Elo rating (K=32, start 1600). Imported from historical tournament results.</p>
+  <p class="k2-hub-intro" style="margin:0 0 0.5rem">Amiga 500 offline ladder — Elo rating (K=32, start 1600). Imported from historical tournament results.</p>
+  <p style="margin:0 0 1rem"><a class="k2-link-star" href="/amiga/tournaments.php">Tournament standings →</a></p>
 </div>
 
 <?php

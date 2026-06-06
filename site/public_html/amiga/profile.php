@@ -57,6 +57,7 @@ $playerId = $pm['id'];
 
 <p style="padding:0.75rem 1.25rem 0;margin:0">
 	<a class="k2-link-star" href="/amiga/rating.php">← Amiga ladder</a>
+	· <a class="k2-link-star" href="/amiga/tournaments.php">Tournaments</a>
 </p>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>

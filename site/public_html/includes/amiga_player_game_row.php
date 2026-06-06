@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_player_game_row.php';
 require_once __DIR__ . '/amiga_player_load.php';
+require_once __DIR__ . '/amiga_tournament_lib.php';
 
 /** 0-based column index for each server-side `sort` query key on `amiga/games.php`. */
 function amiga_player_game_sort_col_index(string $sortKey): int
@@ -35,10 +36,16 @@ function amiga_player_game_sort_col_index(string $sortKey): int
 /**
  * @param array<string, mixed> $row ratedresults row (+ optional tournament_name)
  */
-function amiga_player_game_row_html(array $row, int $playerId, int $sortedColIndex = 0): string
+function amiga_player_game_row_html(
+    array $row,
+    int $playerId,
+    int $sortedColIndex = 0,
+    ?mysqli $con = null
+): string
 {
     $processed = k2_rated_game_is_processed($row);
     $game = k2_player_game_normalize_row($row);
+    $tournamentId = (int) ($row['tournament_id'] ?? 0);
     $tournamentName = trim((string) ($row['tournament_name'] ?? ''));
     $phase = trim((string) ($row['phase'] ?? ''));
     $isPlayerA = $game['idA'] === $playerId;
@@ -79,8 +86,22 @@ function amiga_player_game_row_html(array $row, int $playerId, int $sortedColInd
     $opponentRatingCell = $processed ? (string) (int) round($opponentRating) : $dash;
     $esCell = $processed ? number_format(100 * $expectedScore, 1) . '%' : $dash;
     $adjustmentCell = $processed ? k2_player_game_signed_number_html($adjustment) : $dash;
-    $tournamentCell = $tournamentName !== '' ? k2_h($tournamentName) : $dash;
-    $phaseCell = $phase !== '' ? k2_h($phase) : $dash;
+    if ($tournamentName !== '' && $tournamentId > 0) {
+        $tournamentCell = amiga_tournament_link($tournamentId, $tournamentName);
+    } else {
+        $tournamentCell = $tournamentName !== '' ? k2_h($tournamentName) : $dash;
+    }
+    if ($phase !== '' && $tournamentId > 0 && $con !== null) {
+        $phaseCell = amiga_tournament_phase_link(
+            $con,
+            $tournamentId,
+            $phase,
+            (int) $game['idA'],
+            (int) $game['idB']
+        );
+    } else {
+        $phaseCell = $phase !== '' ? k2_h($phase) : $dash;
+    }
 
     return '<tr>'
         . k2_player_game_td((string) $game['id'], 0, $sortedColIndex)

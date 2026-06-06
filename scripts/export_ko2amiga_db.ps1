@@ -15,7 +15,8 @@ New-Item -ItemType Directory -Force -Path $ArchiveDir | Out-Null
 $Stamp = Get-Date -Format 'yyyy-MM-dd'
 
 $Tables = @(
-    'tournaments', 'amiga_players', 'amiga_games', 'amiga_game_ratings', 'amiga_player_stats'
+    'tournaments', 'amiga_players', 'amiga_games', 'amiga_game_ratings', 'amiga_player_stats',
+    'amiga_tournament_standings'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -74,6 +75,12 @@ $statsPart = ('ko2amiga_{0:D2}_stats.sql' -f $idx)
 $statsFile = Join-Path $OutDir $statsPart
 Write-DumpFile $statsFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_stats')
 $parts.Add($statsPart)
+$idx++
+
+$standingsPart = ('ko2amiga_{0:D2}_standings.sql' -f $idx)
+$standingsFile = Join-Path $OutDir $standingsPart
+Write-DumpFile $standingsFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_standings')
+$parts.Add($standingsPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
