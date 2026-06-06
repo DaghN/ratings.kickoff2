@@ -17,6 +17,9 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
 
+# Incremental post-game (v1 append-only — last game in contract order):
+php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N
+
 # Schema inventory from Access
 python scripts/amiga/discover_access_schema.py
 

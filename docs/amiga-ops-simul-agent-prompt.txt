@@ -1,0 +1,154 @@
+Implement Amiga ops simul (full-history game-by-game) per docs/amiga-data-contract.md — online Mode A analogue.
+
+GOAL
+Prove that N sequential calls to ProcessCompletedGame (Amiga), from empty derived state, reproduce the same end state as batch replay:
+
+  zero-derived  ->  simul (game 1..N in contract order)  ->  amiga_game_ratings + amiga_player_stats
+  zero-derived  ->  python -m scripts.amiga replay         ->  same derived state
+
+Parity rule: after simul through game G (inclusive), every amiga_game_ratings row and every amiga_player_stats row must match a full Python replay. Spot-check + row-count gates are acceptable for smoke; full diff or sampled hash for sign-off.
+
+Online analogue (pattern only — do not wire into online ops):
+
+  zero-derived     ->  ops/run_prepare.php zero-derived
+  replay-to / sim  ->  k2_ops_replay_post_game() in ops/modules/process_completed_game.php
+                      ops/run_process_game.php replay-to
+                      ops/run_ops_sim.php (Mode C adds FinalizeUtcDay — NOT needed for Amiga v1)
+
+Amiga has no UTC day tick, leagues, milestones, or entered_arena in v1 sim scope.
+
+READ FIRST
+- docs/amiga-data-contract.md (chronology, layers, post-game rules)
+- docs/amiga-process-completed-game-agent-prompt.txt (v1 ProcessCompletedGame — prerequisite, already shipped)
+- site/public_html/amiga/ops/modules/process_completed_game.php (amiga_process_completed_game)
+- site/public_html/amiga/ops/run_process_game.php (process-one today)
+- site/public_html/ops/modules/process_completed_game.php k2_ops_replay_post_game() (loop pattern)
+- site/public_html/ops/run_process_game.php replay-to verb
+- scripts/amiga/replay.py (GAME_SELECT order, clear_derived)
+- docs/coordination/ops-simul-runbook.md (online pipeline vocabulary — day zero + sim + verify)
+
+DO NOT wire Amiga into online ops/dispatch.php or kooldb*. All Amiga ops stay under site/public_html/amiga/ops/.
+
+CURRENT STATE (ProcessCompletedGame v1 done)
+- amiga_process_completed_game() writes amiga_game_ratings + amiga_player_stats incrementally
+- CLI: php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N
+- Idempotent: already_processed if rating row exists
+- **Blocker for simul:** v1 enforces append-only — game must be chronologically LAST in amiga_games. That works for one live new game, not for replaying game 2..27408. Simul requires a v2 rule (see CHRONOLOGY below).
+- Batch oracle: python -m scripts.amiga replay (~27k games, ~10s local)
+- Ground: 27,408 games, contract order = tournaments.chrono, event_date, source_scores_id, g.id
+
+V1 SIMUL SCOPE (this PR)
+In scope:
+1. **zero-derived** — clear amiga_game_ratings + amiga_player_stats only; never truncate amiga_games / amiga_players / tournaments (mirror replay.py clear_derived)
+2. **Sim loop** — e.g. amiga_ops_replay_post_game(mysqli $con, ?limit, ?untilGameId, dryRun) listing games in contract order, one amiga_process_completed_game per id
+3. **v2 chronology rule for sim** — replace append-only with “next unprocessed in contract order” when running inside sim (or always: first game without rating row when walking chrono order; all prior rated). Keep append-only for standalone process-one live path OR document that live process-one = sim with one game at end only
+4. **CLI** — extend run_process_game.php or add run_amiga_sim.php:
+     zero-derived
+     replay-to [--limit N] [--until-game-id G] [--dry-run]
+     (optional) verify — row counts + sample rating/stats diff vs replay oracle
+5. **Progress logging** — [amiga-ops] every 500–5000 games; final summary processed / skipped / skip_reasons
+6. **Parity proof** — at minimum:
+     zero-derived -> replay-to --limit 500 -> compare to replay --limit 500
+     zero-derived -> full replay-to -> row counts + spot-check last game + 2–3 players vs full replay
+
+Out of scope v1 simul:
+- FinalizeUtcDay, period activity, milestones, generalstatstable, server records
+- amiga_tournament_standings (Track B), reference_* tables
+- HTTP dispatch / staging cron
+- Mid-history INSERT with partial sim resume across gaps (error on derived_gap; full zero-derived + replay-to is the repair path)
+- Python changes unless needed for a shared verify helper (prefer PHP-only sim)
+
+BOUNDARIES
+- Sim writes derived ONLY; never mutates ground truth on amiga_games
+- ko2amiga_db only; SET time_zone = '+00:00'
+- scripts/amiga/replay.py must keep working as batch oracle / repair
+- One transaction per game (existing process_completed_game behaviour)
+
+CHRONOLOGY (critical)
+Contract game order (same as replay.py GAME_SELECT):
+
+  ORDER BY COALESCE(t.chrono, 999999) ASC,
+           COALESCE(t.event_date, '1970-01-01') ASC,
+           g.source_scores_id ASC,
+           g.id ASC
+
+Sim must list game ids in this order — NOT amiga_games.id ASC alone.
+
+**v1 live rule (keep):** process-one on a single new game at the end of history.
+
+**v2 sim rule (implement):** game G is processable when:
+  - no amiga_game_ratings row for G (else already_processed skip)
+  - G is the first game in contract order without a rating row
+  - equivalently: count(ratings) + 1 = position of G in ordered list, or derived_gap if a hole exists
+
+Do not use append-only (is last game in table) inside sim loop.
+
+PIPELINE (document in amiga-data-contract.md)
+  # Day zero
+  php site/public_html/amiga/ops/run_process_game.php zero-derived
+  # or: python -m scripts.amiga replay with dry-run clear only — prefer PHP for ops symmetry
+
+  # Smoke (~500 games, minutes)
+  php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
+
+  # Full history (~27k games — budget time; log progress)
+  php site/public_html/amiga/ops/run_process_game.php replay-to
+
+  # Oracle compare
+  python -m scripts.amiga replay
+  php ... verify   # optional CLI diff
+
+IMPLEMENTATION HINTS
+- Reuse amiga_ops_bootstrap.php (connect, log, AMIGA_GAME_CHRONO_ORDER_* constants)
+- zero-derived SQL: DELETE FROM amiga_game_ratings; DELETE FROM amiga_player_stats; (FK order — ratings first if needed)
+- Loop body: same as k2_ops_replay_post_game — collect skip_reasons; already_processed on re-run is OK
+- until-game-id: stop after processing that id (inclusive), matching online replay-to
+- Consider --stop-after N processed commits for bisect debugging
+- Elo floats: keep amiga_ops_round6() before write (v1 parity fix)
+- Exit codes: 0 success; non-zero on derived_gap or unexpected skip in strict verify mode
+
+FILES TO READ
+docs/amiga-data-contract.md
+docs/amiga-process-completed-game-agent-prompt.txt
+scripts/amiga/replay.py (GAME_SELECT, clear_derived)
+site/public_html/amiga/ops/modules/process_completed_game.php
+site/public_html/amiga/ops/run_process_game.php
+site/public_html/ops/modules/process_completed_game.php (k2_ops_replay_post_game)
+site/public_html/ops/run_process_game.php (replay-to, zero-derived via prepare)
+docs/coordination/ops-simul-runbook.md (vocabulary)
+
+FILES TO ADD / CHANGE (expected)
+site/public_html/amiga/ops/modules/process_completed_game.php  — sim chronology rule; replay_post_game()
+site/public_html/amiga/ops/run_process_game.php                 — zero-derived, replay-to verbs (+ help)
+docs/amiga-data-contract.md                                     — simul pipeline + migration status
+scripts/amiga/README.md                                           — link PHP simul commands
+(optional) site/public_html/amiga/ops/modules/verify_amiga_sim.php
+
+ACCEPTANCE
+[ ] ko2amiga_db only; time_zone +00:00
+[ ] zero-derived clears derived only
+[ ] replay-to walks contract order (not raw id order)
+[ ] Full sim end state matches python -m scripts.amiga replay (counts + spot-check; document full diff approach)
+[ ] replay-to --limit 500 smoke passes locally
+[ ] Idempotent re-run: second replay-to skips already_processed, no duplicate rows
+[ ] process-one append-only / live path still works for last game after replay-to --limit (N-1)
+[ ] derived_gap error if ground game missing rating in the middle of order
+[ ] CLI help documents pipeline
+[ ] Do not break replay.py or PHP read path
+
+SLICES
+1. zero-derived + list games in contract order (no loop yet)
+2. v2 chronology in process_completed_game (sim vs live flag or unified next-unprocessed rule)
+3. amiga_ops_replay_post_game loop + replay-to CLI
+4. verify / docs / smoke --limit 500
+
+LOCAL SMOKE
+  python -m scripts.amiga replay
+  php site/public_html/amiga/ops/run_process_game.php zero-derived
+  php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
+  python -c "..." # or verify verb: compare counts + last game rating vs oracle snapshot
+
+LOCAL FULL (optional sign-off, ~tens of minutes PHP vs ~10s Python)
+  zero-derived -> replay-to (no limit) -> compare to replay
+
+Commit only when asked. Small focused changes.

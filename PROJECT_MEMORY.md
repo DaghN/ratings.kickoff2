@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** shipped — ground/derived schema (`amiga_games`, `amiga_game_ratings`, …), `scripts/amiga/replay.py`, read path `includes/amiga_db.php`. **Staging live** on `ratings.kickoff2.com`; **multi-part browser import verified** (16 parts, `&apply=1&part=1`). **A2 audit** [`audits/amiga-a2-restructure-audit-2026-06-06.md`](docs/audits/amiga-a2-restructure-audit-2026-06-06.md) — export `MAX(id)`, contract-order replay, import/replay docs. **“Export to staged”:** agent runs `scripts\export_ko2amiga_db.ps1` → WinSCP sync `_import/` + `run_import_ko2amiga.php` — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Next:** Track B tournament standings + reference parity.
+- **Amiga realm (Jun 2026):** **A2** shipped — ground/derived schema (`amiga_games`, `amiga_game_ratings`, …), `scripts/amiga/replay.py`, read path `includes/amiga_db.php`. **Staging live** on `ratings.kickoff2.com`; **multi-part browser import verified** (16 parts, `&apply=1&part=1`). **A2 audit** [`audits/amiga-a2-restructure-audit-2026-06-06.md`](docs/audits/amiga-a2-restructure-audit-2026-06-06.md) — export `MAX(id)`, contract-order replay, import/replay docs. **“Export to staged”:** agent runs `scripts\export_ko2amiga_db.ps1` → WinSCP sync `_import/` + `run_import_ko2amiga.php` — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). **ProcessCompletedGame v1:** `site/public_html/amiga/ops/` — CLI `run_process_game.php process-one --game-id=N`; append-only + idempotent; parity vs replay proven. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Next:** Track B tournament standings + reference parity; HTTP dispatch (v2).
 
 ---
 
@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga ProcessCompletedGame v1** — `amiga/ops/` PHP post-game (ratings + player stats); CLI `run_process_game.php`; append-only chronology; parity vs `replay` on game 27408; contract + README updated. |
 | 2026-06 | **Agent doc grep-trap pass** — `schema/migrations` → `ops/sql/migrations` in active playbooks; cutover checklist + replay-v1 + coordination README traps; facilitators doc renamed; wip/status + script allowlists aligned. |
 | 2026-06 | **Ops Steve UX + dispatch** — `ops/README.md` “read this first” table; `ops/docs/README` pointer; exit **2** for `already_processed`; steve-live / ops-dispatch / post-dagh aligned; `work-targets.ini` + Help=64 notes. |
 | 2026-06 | **Agent doc alignment pass** — ops migration paths, STATUS_PAGE_DATA `kooldb1`, AGENTS traps, `ladder-engine-plan` → archive; staging `staging-scripts/` confirmed gone local + remote. |

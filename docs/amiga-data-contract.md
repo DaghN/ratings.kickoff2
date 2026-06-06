@@ -94,7 +94,7 @@ full history      →  chronological replay            →  same derived state
 - **Rating authority:** replay from `Scores` only — never display legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Current implementation (Phase A2):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py`. Amiga-specific `ProcessCompletedGame` PHP ops = **not yet**.
+**Current implementation (Phase A2):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py`. **Incremental post-game (v1):** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — CLI dev runner only; append-only (chronologically last game).
 
 ---
 
@@ -122,8 +122,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `tournaments` | Ground | Import / submission |
 | `amiga_players` | Ground | Import / submission |
 | `amiga_games` | Ground | Import / submission |
-| `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) |
-| `amiga_player_stats` | Derived | Replay |
+| `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` (append-only v1) |
+| `amiga_player_stats` | Derived | Replay or PHP `amiga_process_completed_game` (append-only v1) |
 | `amiga_tournament_standings` | Derived | **Planned** (Track B) |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
@@ -140,7 +140,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql). Webs
 | This contract (layer intent) | **Done** |
 | Schema split (`amiga_games` / …) | **Done** (A2) |
 | Staging multi-part browser import | **Done** (Jun 2026) |
-| Amiga `ProcessCompletedGame` ops | **Planned** (after A2) |
+| Amiga `ProcessCompletedGame` ops | **Done** (v1 CLI — `amiga/ops/run_process_game.php`) |
 | Tournament standings (derived) | **Planned** (Track B) |
 | Reference parity tables / diffs | **Planned** (with Track B) |
 
@@ -150,5 +150,6 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql). Webs
 
 - **Import:** ground truth only — see `scripts/amiga/import_access.py`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
 - **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
+- **Incremental post-game (v1):** `php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N` — `ko2amiga_db` only; idempotent (`already_processed` if rating row exists); **append-only** (game must be chronologically last; errors `not_append_only` / `derived_gap` otherwise). Parity smoke: full `replay` → `replay --limit (N-1)` → PHP `process-one` on last id → compare rating + both players' stats to full replay.
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders

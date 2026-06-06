@@ -1,0 +1,88 @@
+Implement Amiga ProcessCompletedGame per docs/amiga-data-contract.md (Track A).
+
+GOAL
+One new canonical game in amiga_games must update derived truth the same way full replay would:
+
+  canonical game in amiga_games  ->  ProcessCompletedGame (Amiga)  ->  amiga_game_ratings + amiga_player_stats
+  full history                   ->  python -m scripts.amiga replay   ->  same derived state
+
+Parity rule: after game G exists in ground truth, ProcessCompletedGame(G) must match replay-from-scratch for G's rating row and both players' amiga_player_stats rows.
+
+READ FIRST
+- docs/amiga-data-contract.md (behaviour authority)
+- docs/audits/amiga-a2-restructure-audit-2026-06-06.md (F-08 = this task)
+- scripts/amiga/replay.py (batch oracle)
+- scripts/ladder/engine.py apply_game_row() (shared Elo logic)
+- site/public_html/ops/modules/process_completed_game.php (pattern only — online ratedresults/playertable)
+
+DO NOT wire Amiga into online ops/dispatch.php or kooldb*. Amiga-owned CLI under site/public_html/amiga/ (e.g. amiga/ops/).
+
+CURRENT STATE (A2 done)
+Ground: tournaments, amiga_players, amiga_games (import_access.py)
+Derived: amiga_game_ratings, amiga_player_stats (replay.py)
+Read path: includes/amiga_db.php, amiga/*.php
+Elo: 1600 start, K=32; SET time_zone = '+00:00'
+Replay order: tournaments.chrono, event_date, source_scores_id, g.id (see replay.py GAME_SELECT)
+
+V1 SCOPE (first PR)
+In scope:
+1. PHP function e.g. amiga_process_completed_game(mysqli $con, int $gameId)
+2. CLI dev runner e.g. site/public_html/amiga/ops/run_process_game.php (before any prod dispatch)
+3. For game already in amiga_games: load game + both players' stats; compute Elo/outcome; write amiga_game_ratings; update both amiga_player_stats incrementally (same columns replay writes)
+4. Idempotency: if amiga_game_ratings row exists for game_id, exit safely (already_processed)
+5. Parity proof: incremental on last game vs full python -m scripts.amiga replay
+
+Out of scope v1:
+- Milestones, period activity, generalstatstable, server records
+- amiga_tournament_standings (Track B), reference_* tables
+- HTTP entry point (CLI only)
+- Ground INSERT UI (document test INSERT; live flow is ground then process later)
+- Online ops/dispatch.php
+
+BOUNDARIES
+- ProcessCompletedGame writes derived ONLY; never mutates goals/players/tournament on amiga_games
+- ko2amiga_db only; refuse other databases
+- Import/replay Python pipeline must keep working
+
+CHRONOLOGY (v1)
+Replay processes all games in contract order. Incremental post-game v1 = APPEND-ONLY: new game is chronologically last (latest chrono, event_date, source_scores_id). Document and enforce; error if not. Mid-history insert + partial replay = v2.
+
+HARD PART
+replay.py uses in-memory PlayerState + finalize_network_counts_from_rows. PHP incremental must update network-count fields (DifferentOpponents, victim/culprit counts, streaks, peaks, etc.) the same way scripts/ladder/player_state.py and finalize_counts.py do. Read those files carefully.
+
+IMPLEMENTATION HINTS
+- Template: site/public_html/ops/includes/post_game_elo.php, post_game_outcome.php, post_game_player_state.php, post_game_player_db.php — reimplement for amiga_* tables
+- DB columns: amiga_game_ratings snake_case; amiga_player_stats PascalCase (Rating, NumberGames, ...)
+- Config: site/config/ko2amiga_config.php
+- One transaction per game; log prefix [amiga-ops]; clear exit codes like online ops
+
+FILES TO READ
+docs/amiga-data-contract.md
+scripts/amiga/sql/001_core.sql
+scripts/amiga/replay.py
+scripts/ladder/engine.py, player_state.py, finalize_counts.py, elo.py, outcome.py
+site/public_html/includes/amiga_db.php
+site/public_html/ops/modules/process_completed_game.php (pattern only)
+
+ACCEPTANCE
+[ ] ko2amiga_db only; time_zone +00:00
+[ ] Derived-only writes
+[ ] Idempotent re-run
+[ ] Append-only chronology documented/enforced
+[ ] Parity: incremental last game == full replay for that game + both players' stats
+[ ] Dev CLI: process-one game_id=N and help
+[ ] Update amiga-data-contract.md migration status + local run instructions
+[ ] Do not break replay.py or PHP read path
+
+SLICES
+1. amiga_game_ratings only; Elo parity vs replay
+2. amiga_player_stats incremental; full stat parity
+3. Idempotency + CLI + docs
+
+LOCAL SMOKE
+  python -m scripts.amiga replay
+  php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N
+  python -m scripts.amiga replay
+  (compare rating row + player stats)
+
+Commit only when asked. Small focused changes.
