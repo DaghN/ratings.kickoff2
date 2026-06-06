@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $realm = isset($_GET['realm']) ? strtolower(trim((string) $_GET['realm'])) : 'online';
 $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
+if ($realm === 'amiga') {
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
+}
+
 if ($playerId < 1) {
     http_response_code(400);
     echo json_encode(['error' => 'invalid_id']);
@@ -49,7 +53,13 @@ if ($con->connect_errno) {
 $con->set_charset('utf8mb4');
 $con->query("SET time_zone = '+00:00'");
 
-$nameStmt = $con->prepare('SELECT Name, Rating FROM playertable WHERE ID = ? LIMIT 1');
+if ($realm === 'amiga') {
+    $nameSql = 'SELECT p.name AS Name, s.Rating FROM amiga_players p '
+        . 'INNER JOIN amiga_player_stats s ON s.player_id = p.id WHERE p.id = ? LIMIT 1';
+} else {
+    $nameSql = 'SELECT Name, Rating FROM playertable WHERE ID = ? LIMIT 1';
+}
+$nameStmt = $con->prepare($nameSql);
 if (!$nameStmt) {
     http_response_code(500);
     echo json_encode(['error' => 'prepare_failed']);
@@ -77,8 +87,14 @@ if ($nameRow === null) {
 $playerName = $nameRow['Name'];
 $currentRating = (int) round((float) $nameRow['Rating']);
 
-$sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
-    . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
+if ($realm === 'amiga') {
+    $sql = 'SELECT r.id, r.Date, r.idA, r.idB, r.NewRatingA, r.NewRatingB '
+        . amiga_rated_games_from_sql()
+        . ' WHERE r.idA = ? OR r.idB = ? ORDER BY r.Date ASC, r.id ASC';
+} else {
+    $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
+        . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
+}
 
 $stmt = $con->prepare($sql);
 if (!$stmt) {
@@ -110,7 +126,7 @@ $stmt->close();
 
 $timelineStart = null;
 if ($realm === 'amiga') {
-    $minRes = $con->query('SELECT MIN(Date) AS d FROM ratedresults');
+    $minRes = $con->query('SELECT MIN(game_date) AS d FROM amiga_games');
     if ($minRes) {
         $minRow = $minRes->fetch_assoc();
         if ($minRow && $minRow['d'] !== null) {

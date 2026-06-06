@@ -1,0 +1,21 @@
+{
+    "generated":  "2026-06-06 03:06:54",
+    "parts":  [
+                  "ko2amiga_01_schema.sql",
+                  "ko2amiga_02_tournaments.sql",
+                  "ko2amiga_03_players.sql",
+                  "ko2amiga_04_games_1_5000.sql",
+                  "ko2amiga_05_ratings_1_5000.sql",
+                  "ko2amiga_06_games_5001_10000.sql",
+                  "ko2amiga_07_ratings_5001_10000.sql",
+                  "ko2amiga_08_games_10001_15000.sql",
+                  "ko2amiga_09_ratings_10001_15000.sql",
+                  "ko2amiga_10_games_15001_20000.sql",
+                  "ko2amiga_11_ratings_15001_20000.sql",
+                  "ko2amiga_12_games_20001_25000.sql",
+                  "ko2amiga_13_ratings_20001_25000.sql",
+                  "ko2amiga_14_games_25001_27408.sql",
+                  "ko2amiga_15_ratings_25001_27408.sql",
+                  "ko2amiga_16_stats.sql"
+              ]
+}

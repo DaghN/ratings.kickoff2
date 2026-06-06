@@ -22,12 +22,12 @@
 
 | Source | Used for | v0 cost |
 |--------|----------|---------|
-| **`playertable`** (replay) | Hero, career strip, rank | 2 queries per page (row + rank) |
-| **`ratedresults`** (per game) | Rating history JSON | 1 query per chart load (~≤1k rows max per player) |
+| **`amiga_players` + `amiga_player_stats`** | Hero, career strip, rank | 2 queries per page (row + rank) |
+| **`amiga_games` + `amiga_game_ratings`** (via `amiga_db.php`) | Games list, rating history JSON | 1 query per chart load (~≤1k rows max per player) |
 
 **No Amiga derived tables yet** — no `player_period_games`, milestones, calendars, H2H aggregates.
 
-That is fine at current scale (27k games total; busiest player ~1.1k games). When profiles grow (activity calendars, top opponents, tournament honours), add an **`amiga-data-contract.md`** and materialize hot paths — same pattern as online `website-data-contract.md`, not live scans on every request.
+That is fine at current scale (27k games total; busiest player ~1.1k games). When profiles grow (activity calendars, top opponents, tournament honours), materialize hot paths per [`amiga-data-contract.md`](amiga-data-contract.md) — same pattern as online `website-data-contract.md`, not live scans on every request.
 
 ## Files
 

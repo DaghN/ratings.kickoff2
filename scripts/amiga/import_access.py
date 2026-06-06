@@ -21,9 +21,17 @@ from scripts.amiga.player_names import (
     normalize_display_name,
 )
 from scripts.amiga.tournament_names import resolve_phase, resolve_tournament_name
-from scripts.ladder.constants import START_RATING
-
 log = logging.getLogger(__name__)
+
+_AMIGA_TABLES_DROP_ORDER = (
+    "amiga_game_ratings",
+    "amiga_player_stats",
+    "amiga_games",
+    "amiga_players",
+    "ratedresults",
+    "playertable",
+    "tournaments",
+)
 
 _REPO = Path(__file__).resolve().parents[2]
 _DEFAULT_MDB = _REPO / "data" / "amiga" / "source" / "koatd.mdb"
@@ -75,7 +83,7 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
     with conn.cursor() as cur:
         if drop_existing:
             cur.execute("SET FOREIGN_KEY_CHECKS = 0")
-            for table in ("ratedresults", "playertable", "tournaments"):
+            for table in _AMIGA_TABLES_DROP_ORDER:
                 cur.execute(f"DROP TABLE IF EXISTS `{table}`")
             cur.execute("SET FOREIGN_KEY_CHECKS = 1")
     sql = _SQL.read_text(encoding="utf-8")
@@ -88,8 +96,10 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
 def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
     with conn.cursor() as cur:
         cur.execute("SET FOREIGN_KEY_CHECKS = 0")
-        cur.execute("TRUNCATE TABLE ratedresults")
-        cur.execute("TRUNCATE TABLE playertable")
+        cur.execute("TRUNCATE TABLE amiga_game_ratings")
+        cur.execute("TRUNCATE TABLE amiga_player_stats")
+        cur.execute("TRUNCATE TABLE amiga_games")
+        cur.execute("TRUNCATE TABLE amiga_players")
         cur.execute("TRUNCATE TABLE tournaments")
         cur.execute("SET FOREIGN_KEY_CHECKS = 1")
     conn.commit()
@@ -221,13 +231,13 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
             variants = variants_by_key.get(identity_key(name), [name])
             country = canonical_country(name, variants, countries)
             cur.execute(
-                "INSERT INTO playertable (Name, Country, Rating) VALUES (%s, %s, %s)",
-                (name, country, START_RATING),
+                "INSERT INTO amiga_players (name, country) VALUES (%s, %s)",
+                (name, country),
             )
 
     with mysql.cursor() as cur:
-        cur.execute("SELECT ID, Name FROM playertable")
-        player_id = {row["Name"]: int(row["ID"]) for row in cur.fetchall()}
+        cur.execute("SELECT id, name FROM amiga_players")
+        player_id = {row["name"]: int(row["id"]) for row in cur.fetchall()}
 
     # Chronology: chrono, event date, source id.
     def sort_key(s: AccessScore) -> tuple:
@@ -257,26 +267,24 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         game_rows.append(
             {
                 "source_scores_id": s.source_id,
-                "Date": game_dt.strftime("%Y-%m-%d %H:%M:%S"),
-                "idA": player_id[s.team_a],
-                "NameA": s.team_a,
-                "idB": player_id[s.team_b],
-                "NameB": s.team_b,
+                "game_date": game_dt.strftime("%Y-%m-%d %H:%M:%S"),
+                "player_a_id": player_id[s.team_a],
+                "player_b_id": player_id[s.team_b],
                 "tournament_id": tour_id_by_name[parent],
                 "phase": phase,
-                "GoalsA": s.goals_a,
-                "GoalsB": s.goals_b,
+                "goals_a": s.goals_a,
+                "goals_b": s.goals_b,
             }
         )
 
     with mysql.cursor() as cur:
         cur.executemany(
             """
-            INSERT INTO ratedresults
-              (source_scores_id, Date, idA, NameA, idB, NameB, tournament_id, phase, GoalsA, GoalsB)
+            INSERT INTO amiga_games
+              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, phase, goals_a, goals_b)
             VALUES
-              (%(source_scores_id)s, %(Date)s, %(idA)s, %(NameA)s, %(idB)s, %(NameB)s,
-               %(tournament_id)s, %(phase)s, %(GoalsA)s, %(GoalsB)s)
+              (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
+               %(tournament_id)s, %(phase)s, %(goals_a)s, %(goals_b)s)
             """,
             game_rows,
         )

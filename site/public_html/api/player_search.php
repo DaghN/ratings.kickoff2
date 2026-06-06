@@ -57,15 +57,23 @@ function ko2_escape_like($s)
  */
 function ko2_player_search_rows(mysqli $con, string $pattern, int $limit, string $realmId, bool $onlineDisplayFilter): array
 {
-    $where = 'Name IS NOT NULL AND Name <> \'\' AND LOWER(Name) LIKE LOWER(?) ESCAPE \'\\\\\'';
-    if ($onlineDisplayFilter) {
-        $where = 'Display = 1 AND ' . $where;
+    if ($realmId === 'amiga') {
+        $where = 'p.name IS NOT NULL AND p.name <> \'\' AND LOWER(p.name) LIKE LOWER(?) ESCAPE \'\\\\\''
+            . ' AND s.NumberGames > 0';
+        $sql = 'SELECT p.id AS ID, p.name AS Name, ROUND(s.Rating) AS ratingRounded '
+            . 'FROM amiga_players p INNER JOIN amiga_player_stats s ON s.player_id = p.id WHERE '
+            . $where . ' ORDER BY p.name ASC LIMIT ?';
     } else {
-        $where = 'NumberGames > 0 AND ' . $where;
-    }
+        $where = 'Name IS NOT NULL AND Name <> \'\' AND LOWER(Name) LIKE LOWER(?) ESCAPE \'\\\\\'';
+        if ($onlineDisplayFilter) {
+            $where = 'Display = 1 AND ' . $where;
+        } else {
+            $where = 'NumberGames > 0 AND ' . $where;
+        }
 
-    $sql = 'SELECT ID, Name, ROUND(Rating) AS ratingRounded FROM playertable WHERE '
-        . $where . ' ORDER BY Name ASC LIMIT ?';
+        $sql = 'SELECT ID, Name, ROUND(Rating) AS ratingRounded FROM playertable WHERE '
+            . $where . ' ORDER BY Name ASC LIMIT ?';
+    }
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {

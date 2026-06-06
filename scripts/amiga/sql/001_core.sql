@@ -1,4 +1,4 @@
--- Amiga realm core schema (ko2amiga_db). Ground truth + ladder replay columns.
+-- Amiga realm core schema (ko2amiga_db). Ground truth + derived truth (A2 split).
 SET time_zone = '+00:00';
 
 CREATE TABLE IF NOT EXISTS `tournaments` (
@@ -15,16 +15,69 @@ CREATE TABLE IF NOT EXISTS `tournaments` (
   UNIQUE KEY `uq_tournaments_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `playertable` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `Name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `Country` varchar(50) NOT NULL DEFAULT '',
+-- Ground truth: player identity
+CREATE TABLE IF NOT EXISTS `amiga_players` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `country` varchar(50) NOT NULL DEFAULT '',
+  `display` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_amiga_players_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Ground truth: canonical match results
+CREATE TABLE IF NOT EXISTS `amiga_games` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source_scores_id` int(11) NOT NULL,
+  `game_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `player_a_id` int(11) NOT NULL,
+  `player_b_id` int(11) NOT NULL,
+  `tournament_id` int(11) DEFAULT NULL,
+  `phase` varchar(50) DEFAULT NULL,
+  `goals_a` int(11) NOT NULL,
+  `goals_b` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_amiga_games_source_scores_id` (`source_scores_id`),
+  KEY `idx_amiga_games_date` (`game_date`),
+  KEY `idx_amiga_games_player_a` (`player_a_id`),
+  KEY `idx_amiga_games_player_b` (`player_b_id`),
+  KEY `idx_amiga_games_tournament` (`tournament_id`),
+  CONSTRAINT `fk_amiga_games_player_a` FOREIGN KEY (`player_a_id`) REFERENCES `amiga_players` (`id`),
+  CONSTRAINT `fk_amiga_games_player_b` FOREIGN KEY (`player_b_id`) REFERENCES `amiga_players` (`id`),
+  CONSTRAINT `fk_amiga_games_tournament` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Derived: per-game Elo and outcome flags (1:1 with amiga_games)
+CREATE TABLE IF NOT EXISTS `amiga_game_ratings` (
+  `game_id` int(11) NOT NULL,
+  `rating_a` decimal(10,6) DEFAULT NULL,
+  `rating_b` decimal(10,6) DEFAULT NULL,
+  `rating_difference` decimal(10,6) DEFAULT NULL,
+  `expected_score_a` decimal(10,6) DEFAULT NULL,
+  `expected_score_b` decimal(10,6) DEFAULT NULL,
+  `actual_score` decimal(10,6) DEFAULT NULL,
+  `adjustment_a` decimal(10,6) DEFAULT NULL,
+  `adjustment_b` decimal(10,6) DEFAULT NULL,
+  `new_rating_a` decimal(10,6) DEFAULT NULL,
+  `new_rating_b` decimal(10,6) DEFAULT NULL,
+  `sum_of_goals` int(11) DEFAULT NULL,
+  `goal_difference` int(11) DEFAULT NULL,
+  `winner_id` int(11) DEFAULT NULL,
+  `home_win` tinyint(4) DEFAULT NULL,
+  `draw` tinyint(4) DEFAULT NULL,
+  `away_win` tinyint(4) DEFAULT NULL,
+  `dd_player_a` tinyint(4) DEFAULT NULL,
+  `dd_player_b` tinyint(4) DEFAULT NULL,
+  `cs_player_a` tinyint(4) DEFAULT NULL,
+  `cs_player_b` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`game_id`),
+  CONSTRAINT `fk_amiga_game_ratings_game` FOREIGN KEY (`game_id`) REFERENCES `amiga_games` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Derived: per-player career stats (column names match ladder replay output)
+CREATE TABLE IF NOT EXISTS `amiga_player_stats` (
+  `player_id` int(11) NOT NULL,
   `Display` mediumint(9) DEFAULT 0,
-  `PlayerRank` int(11) NOT NULL DEFAULT 9999,
-  `JoinDate` timestamp NOT NULL DEFAULT current_timestamp(),
-  `LastLogin` datetime NOT NULL DEFAULT current_timestamp(),
-  `LastActive` timestamp NOT NULL DEFAULT current_timestamp(),
-  `LastGame` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `Rating` decimal(10,6) DEFAULT NULL,
   `NumberGames` mediumint(9) DEFAULT NULL,
   `NumberWins` mediumint(9) DEFAULT NULL,
@@ -95,6 +148,7 @@ CREATE TABLE IF NOT EXISTS `playertable` (
   `ExactTenGoalStreak` mediumint(9) NOT NULL DEFAULT 0,
   `WinMarginOneStreak` mediumint(9) NOT NULL DEFAULT 0,
   `LossMarginOneStreak` mediumint(9) NOT NULL DEFAULT 0,
+  `LastGame` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `LastGameGameID` int(11) DEFAULT NULL,
   `LastWinGameID` int(11) DEFAULT NULL,
   `LastDrawGameID` int(11) DEFAULT NULL,
@@ -118,46 +172,6 @@ CREATE TABLE IF NOT EXISTS `playertable` (
   `BiggestLossCulpritID` int(11) DEFAULT NULL,
   `HighestRatedVictimGameID` int(11) DEFAULT NULL,
   `LowestRatedCulpritGameID` int(11) DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `uq_playertable_name` (`Name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `ratedresults` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `source_scores_id` int(11) NOT NULL,
-  `Date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `idA` int(11) DEFAULT NULL,
-  `NameA` varchar(50) DEFAULT NULL,
-  `idB` int(11) DEFAULT NULL,
-  `NameB` varchar(50) DEFAULT NULL,
-  `tournament_id` int(11) DEFAULT NULL,
-  `phase` varchar(50) DEFAULT NULL,
-  `GoalsA` int(11) DEFAULT NULL,
-  `GoalsB` int(11) DEFAULT NULL,
-  `RatingA` decimal(10,6) DEFAULT NULL,
-  `RatingB` decimal(10,6) DEFAULT NULL,
-  `RatingDifference` decimal(10,6) DEFAULT NULL,
-  `HomeWin` tinyint(4) DEFAULT NULL,
-  `Draw` tinyint(4) DEFAULT NULL,
-  `AwayWin` tinyint(4) DEFAULT NULL,
-  `DDPlayerA` tinyint(4) DEFAULT NULL,
-  `DDPlayerB` tinyint(4) DEFAULT NULL,
-  `CSPlayerA` tinyint(4) DEFAULT NULL,
-  `CSPlayerB` tinyint(4) DEFAULT NULL,
-  `ExpectedScoreA` decimal(10,6) DEFAULT NULL,
-  `ExpectedScoreB` decimal(10,6) DEFAULT NULL,
-  `ActualScore` decimal(10,6) DEFAULT NULL,
-  `AdjustmentA` decimal(10,6) DEFAULT NULL,
-  `AdjustmentB` decimal(10,6) DEFAULT NULL,
-  `NewRatingA` decimal(10,6) DEFAULT NULL,
-  `NewRatingB` decimal(10,6) DEFAULT NULL,
-  `SumOfGoals` int(11) DEFAULT NULL,
-  `GoalDifference` int(11) DEFAULT NULL,
-  `WinnerID` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_ratedresults_source_scores_id` (`source_scores_id`),
-  KEY `idx_ratedresults_idA` (`idA`),
-  KEY `idx_ratedresults_idB` (`idB`),
-  KEY `idx_ratedresults_tournament_id` (`tournament_id`),
-  KEY `idx_ratedresults_date` (`Date`)
+  PRIMARY KEY (`player_id`),
+  CONSTRAINT `fk_amiga_player_stats_player` FOREIGN KEY (`player_id`) REFERENCES `amiga_players` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -164,7 +164,7 @@ Access stores **no game timestamp**. Recommended ordering for replay:
 **Synthetic `Date` for each game row:**
 
 - Start with the parent tournament’s `Date` (UTC midnight).
-- Within a tournament, add a small offset from sort index (seconds or fractional day) so ordering is stable and unique — **document the rule** in `amiga-data-contract.md` before import.
+- Within a tournament, add a small offset from sort index (seconds or fractional day) so ordering is stable and unique — rule locked in [`amiga-data-contract.md`](amiga-data-contract.md) § Chronology.
 
 Global `Scores.ID` alone is **mostly** chronological but **not sufficient** (tournaments overlap; IDs span 20+ years).
 
@@ -221,7 +221,7 @@ Separate database (e.g. `ko2amiga_db`), ground vs derived split:
 
 **Implemented:** `scripts/amiga/` (`import_access.py`, `python -m scripts.amiga run`), `ko2amiga_db`, `/amiga/rating.php`, profile, games. **Staging live** — [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
 
-**Next (Track B):** tournament standings engine; then `docs/amiga-data-contract.md` when derived tables are needed.
+**Next (Track B):** schema split (A2) per [`amiga-data-contract.md`](amiga-data-contract.md), then tournament standings engine + reference parity.
 
 ---
 

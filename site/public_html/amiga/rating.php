@@ -15,17 +15,19 @@
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
-$query = 'SELECT ID, Name, Rating, NumberGames, NumberWins, NumberDraws, NumberLosses, WinRatio, DrawRatio, LossRatio, AverageOpponentRating, Country '
-    . 'FROM playertable WHERE NumberGames > 0 ORDER BY Rating DESC';
+$query = 'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
+    . 's.WinRatio, s.DrawRatio, s.LossRatio, s.AverageOpponentRating, p.country AS Country '
+    . amiga_player_base_from_sql() . ' WHERE s.NumberGames > 0 ORDER BY s.Rating DESC';
 $result = k2_query_or_public_error($con, $query, 'amiga rating leaderboard');
 
 $gameCount = 0;
-$gcRes = mysqli_query($con, 'SELECT COUNT(*) AS n FROM ratedresults');
+$gcRes = mysqli_query($con, 'SELECT COUNT(*) AS n FROM amiga_games');
 if ($gcRes) {
     $gcRow = mysqli_fetch_assoc($gcRes);
     $gameCount = (int) ($gcRow['n'] ?? 0);

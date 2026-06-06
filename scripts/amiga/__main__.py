@@ -8,9 +8,8 @@ import logging
 import sys
 from pathlib import Path
 
-from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
-from scripts.ladder.engine import connect, replay_all, reset_universe
+from scripts.amiga.replay import run_replay
 
 log = logging.getLogger("scripts.amiga")
 
@@ -41,29 +40,14 @@ def main(argv: list[str] | None = None) -> int:
         log.info("Import complete: %s", stats)
         return 0
 
-    cfg = load_amiga_db_config()
-    if cfg.database != "ko2amiga_db":
-        log.error("Refusing: database must be ko2amiga_db (got %r)", cfg.database)
-        return 1
-
     if args.cmd == "replay":
-        conn = connect(cfg, dry_run=args.dry_run, target="amiga")
-        try:
-            reset_universe(conn, dry_run=args.dry_run)
-            replay_all(conn, dry_run=args.dry_run, limit=args.limit)
-        finally:
-            conn.close()
+        run_replay(dry_run=args.dry_run, limit=args.limit)
         return 0
 
     if args.cmd == "run":
         stats = import_all(mdb=args.mdb, recreate_schema=args.recreate_schema)
         log.info("Import complete: %s", stats)
-        conn = connect(cfg, dry_run=args.dry_run, target="amiga")
-        try:
-            reset_universe(conn, dry_run=args.dry_run)
-            replay_all(conn, dry_run=args.dry_run, limit=args.limit)
-        finally:
-            conn.close()
+        run_replay(dry_run=args.dry_run, limit=args.limit)
         return 0
 
     return 1

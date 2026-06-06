@@ -19,6 +19,7 @@ if ($playerId < 1) {
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_games_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_game_row.php';
@@ -60,7 +61,7 @@ $sortMap = [
     'date' => 'r.`Date`',
     'team_a' => 'r.NameA',
     'team_b' => 'r.NameB',
-    'tournament' => 't.name',
+    'tournament' => 'r.tournament_name',
     'phase' => 'r.phase',
     'result' => "CASE WHEN ((r.idA = $playerIdSql AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = $playerIdSql AND ABS(r.ActualScore) < 0.001)) THEN 2 WHEN ABS(r.ActualScore - 0.5) < 0.001 THEN 1 ELSE 0 END",
     'opponent' => "CASE WHEN r.idA = $playerIdSql THEN r.NameB ELSE r.NameA END",
@@ -77,14 +78,16 @@ if (!isset($sortMap[$sortKey])) {
     $sortKey = 'id';
 }
 
-$fromSql = 'FROM ratedresults r LEFT JOIN tournaments t ON t.id = r.tournament_id';
+$fromSql = amiga_rated_games_from_sql();
 
 $opponentRows = amiga_games_query_all(
     $con,
     'SELECT opponent_id, opponent_name, COUNT(*) AS games FROM ('
-        . 'SELECT idB AS opponent_id, NameB AS opponent_name FROM ratedresults WHERE idA = ? '
+        . 'SELECT g.player_b_id AS opponent_id, pb.name AS opponent_name FROM amiga_games g '
+        . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id WHERE g.player_a_id = ? '
         . 'UNION ALL '
-        . 'SELECT idA AS opponent_id, NameA AS opponent_name FROM ratedresults WHERE idB = ?'
+        . 'SELECT g.player_a_id AS opponent_id, pa.name AS opponent_name FROM amiga_games g '
+        . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id WHERE g.player_b_id = ?'
         . ') AS opponents GROUP BY opponent_id, opponent_name ORDER BY games DESC, opponent_name ASC',
     'ii',
     [$playerId, $playerId]
@@ -123,7 +126,7 @@ $games = amiga_games_query_all(
     $con,
     'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.GoalsA, r.GoalsB, '
         . 'r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference, '
-        . 'r.phase, t.name AS tournament_name '
+        . 'r.phase, r.tournament_name '
         . $fromSql . ' WHERE ' . $whereSql
         . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC'
         . ' LIMIT ' . $limit . ' OFFSET ' . $offset,

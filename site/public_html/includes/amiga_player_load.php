@@ -1,8 +1,9 @@
 <?php
 /**
- * Amiga profile v0 — playertable row + ladder rank. No derived-table queries.
+ * Amiga profile v0 — player row + ladder rank. No derived-table queries beyond stats join.
  */
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/amiga_db.php';
 
 /**
  * @return array<string, mixed>
@@ -14,9 +15,10 @@ function amiga_player_load(mysqli $con, int $id): array
     }
 
     $stmt = $con->prepare(
-        'SELECT ID, Name, Country, Display, Rating, PeakRating, NumberGames, NumberWins, NumberDraws, NumberLosses, '
-        . 'WinRatio, GoalsFor, GoalsAgainst, GoalRatio, PeakRatingGameID, AverageOpponentRating '
-        . 'FROM playertable WHERE ID = ? LIMIT 1'
+        'SELECT p.id AS ID, p.name AS Name, p.country AS Country, p.display AS Display, '
+        . 's.Rating, s.PeakRating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
+        . 's.WinRatio, s.GoalsFor, s.GoalsAgainst, s.GoalRatio, s.PeakRatingGameID, s.AverageOpponentRating '
+        . amiga_player_base_from_sql() . ' WHERE p.id = ? LIMIT 1'
     );
     if (!$stmt) {
         throw new RuntimeException('Player query failed.');
@@ -37,8 +39,8 @@ function amiga_player_load(mysqli $con, int $id): array
     }
 
     $rankStmt = $con->prepare(
-        'SELECT COUNT(*) + 1 AS r FROM playertable WHERE NumberGames > 0 AND Rating > '
-        . '(SELECT Rating FROM playertable WHERE ID = ? LIMIT 1)'
+        'SELECT COUNT(*) + 1 AS r FROM amiga_player_stats WHERE NumberGames > 0 AND Rating > '
+        . '(SELECT Rating FROM amiga_player_stats WHERE player_id = ? LIMIT 1)'
     );
     if (!$rankStmt) {
         throw new RuntimeException('Rank query failed.');

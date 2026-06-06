@@ -59,7 +59,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | | Local | Staging | Prod |
 |---|--------|---------|------|
 | **Online** | `ko2unity_db` (+ sandbox `ko2unity_work` / `ko2unity_baseline`) | `kooldb1` / `kooldb2` (legacy `kooldb` possible) | Steve-managed |
-| **Amiga (offline)** | `ko2amiga_db` — separate realm, no player linking | **`ko2amiga_db`** — export + WinSCP + **`/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`** | TBD |
+| **Amiga (offline)** | `ko2amiga_db` — separate realm, no player linking | **`ko2amiga_db`** — `export_ko2amiga_db.ps1` + WinSCP + browser import (`&apply=1&part=1`, 16 parts) — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) | A2 live staging |
 | Work prepare / simul | [`work-db-prepare.md`](work-db-prepare.md) | Same vocabulary (refresh → migrate → zero derived) | — |
 | Live games | No | **No** | **Yes** |
 | PHP deploy | Laragon | WinSCP sync **`site/public_html/`** | Steve |

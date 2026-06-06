@@ -2,7 +2,7 @@
 
 **Status:** **Live** on `ratings.kickoff2.com` (Jun 2026) — rating, profile, games, cross-realm search.
 
-**Agents — remind Dagh:** When local `ko2amiga_db` should match staging (any import path, not only Access file changes): export → WinSCP sync → browser import. Script: `public_html/amiga/run_import_ko2amiga.php`. Password **`coffee`** — add `&pwd=coffee` to the URL, or enter it on the form when the `once` link is valid without `pwd`. **Preview:** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` · **Apply:** add `&apply=1` (password form preserves apply mode). Staging base: `https://ratings.kickoff2.com` · local: `http://ratingskickoff.test`. Dump on server: `public_html/amiga/_import/ko2amiga_db.sql` (gitignored; carried by WinSCP).
+**Agents — remind Dagh:** When local `ko2amiga_db` should match staging (any import path, not only Access file changes): export → WinSCP sync → browser import. Script: `public_html/amiga/run_import_ko2amiga.php` (build tag in page header, e.g. `a2-2026-06-06-b4`). Password **`coffee`** — add `&pwd=coffee` to the URL, or enter it on the form when the `once` link is valid without `pwd`. **Preview:** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` · **Apply:** `&apply=1&part=1` (16 short parts auto-continue; avoids gateway timeout). Staging base: `https://ratings.kickoff2.com` · local: `http://ratingskickoff.test`. Import payload: `public_html/amiga/_import/ko2amiga_manifest.json` + `ko2amiga_*.sql` part files (gitignored; WinSCP). Full dump `ko2amiga_db.sql` optional (Heidi fallback).
 
 **Agents — when Dagh says “export to staged” (or similar):** **run** `scripts\export_ko2amiga_db.ps1` yourself (unless he clearly needs a full Access rebuild first → `setup_ko2amiga_db.ps1`), then reply that the dump is **ready for WinSCP sync and staging import** — include preview/apply URLs above. Do not hand-wave “run export locally”; execute it.
 
@@ -17,7 +17,7 @@
 | Config router (git) | `config/ko2amiga_config.php` |
 | Amiga PHP include | `include __DIR__ . '/../../config/ko2amiga_config.php';` in `public_html/amiga/*.php` |
 | Database | **`ko2amiga_db`** (separate from online `kooldb*`) |
-| SQL dump (gitignored) | `public_html/amiga/_import/ko2amiga_db.sql` |
+| Import payload (gitignored) | `public_html/amiga/_import/ko2amiga_manifest.json` + `ko2amiga_01_schema.sql` … `ko2amiga_16_stats.sql` (+ optional full `ko2amiga_db.sql`) |
 
 Online `kooldb*` is untouched. Credentials mirror staging config1 user/password; only `$database` differs.
 
@@ -44,12 +44,14 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-WinSCP sync `public_html/` (must include `amiga/_import/ko2amiga_db.sql` + `amiga/run_import_ko2amiga.php`), then open a preview URL (or apply URL — you will get a password form if `pwd` is omitted):
+WinSCP sync `public_html/` (must include `amiga/run_import_ko2amiga.php` + `amiga/_import/ko2amiga_manifest.json` + all `ko2amiga_*.sql` part files from export), then open a preview URL (or apply URL — password form if `pwd` is omitted):
 
 | Step | URL |
 |------|-----|
 | **Preview** (no DB changes) | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
-| **Apply import** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee&apply=1 |
+| **Apply import** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee&apply=1&part=1 |
+
+Preview must show **`parts: 16`** and the importer build tag. Apply runs part 1 (schema) through part 16 (stats); each part auto-continues (~2s). Expect **473 players**, **27,408 games** after part 16.
 
 Password is **`coffee`** (`&pwd=coffee` in URL, or type it on the prompt page).
 
@@ -57,7 +59,9 @@ Local dry-run (same paths, `ratingskickoff.test`): preview URL above with local 
 
 Spot-check: `/amiga/rating.php`, `/amiga/profile.php?id=1`, `/amiga/games.php?id=1`.
 
-**Fallback:** Steve Heidi/mysql import — only if browser import fails.
+**Verified Jun 2026:** A2 schema + multi-part browser import on staging (`ratings.kickoff2.com`).
+
+**Fallback:** Steve Heidi/mysql import of `ko2amiga_db.sql` — only if browser import fails.
 
 ---
 
@@ -76,7 +80,8 @@ Spot-check: `/amiga/rating.php`, `/amiga/profile.php?id=1`, `/amiga/games.php?id
 ```
 Amiga staging import failed in browser.
 
-Dump synced: public_html/amiga/_import/ko2amiga_db.sql
+Import files synced: public_html/amiga/_import/ko2amiga_manifest.json + ko2amiga_*.sql
+Failed on part: [N/16]
 Error: [paste from run_import_ko2amiga.php apply page]
 
 Please re-import into ko2amiga_db (Heidi/mysql) or check PHP limits.
