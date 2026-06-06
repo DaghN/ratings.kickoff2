@@ -181,9 +181,8 @@
 		0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
-/* Tall sources (artwork, portraits) — keep them from dominating */
-.k2-boxart__figure--portrait img,
-.k2-boxart__figure--source img {
+/* Tall portrait artwork — keep it from dominating */
+.k2-boxart__figure--portrait img {
 	max-width: 340px;
 }
 

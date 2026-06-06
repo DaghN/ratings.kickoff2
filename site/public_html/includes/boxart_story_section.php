@@ -121,7 +121,7 @@ $img = static function (string $file): string {
 			Sánchez</a>, the legendary Mexican striker, lifted almost pose-for-pose from a 1986 World Cup photograph.
 		</p>
 
-		<figure class="k2-boxart__figure k2-boxart__figure--source">
+		<figure class="k2-boxart__figure">
 			<img src="<?php echo $img('hugo-sanchez-1986.png'); ?>" alt="Hugo Sánchez of Mexico on his knees with arms raised during the 1986 World Cup." loading="lazy" decoding="async" />
 			<figcaption>
 				The source: Hugo Sánchez, Mexico v Paraguay, 1986 FIFA World Cup, Aztec Stadium, 7 June 1986.
@@ -214,6 +214,23 @@ $img = static function (string $file): string {
 		<figure class="k2-boxart__figure">
 			<img src="<?php echo $img('andy-gray-running-color.png'); ?>" alt="Colour action photo of Andy Gray of Crystal Palace running with the ball." loading="lazy" decoding="async" />
 			<figcaption>Andy Gray in full Crystal Palace flight. The boots, the build, the gait &mdash; it all checks out.</figcaption>
+		</figure>
+
+		<p class="k2-boxart__prose">
+			And then came the moment that put it beyond doubt. Steve B dropped the cover and that very press photo
+			side by side &mdash; the cocked shooting leg, the outstretched arm, the AVR-sashed Palace shirt &mdash; with
+			the verdict:
+		</p>
+
+		<blockquote class="k2-boxart__quote">
+			<p>&ldquo;Yes! In fact, I&rsquo;d say it was drawn from this picture actually&hellip; but just imagined
+			from a different angle.&rdquo;</p>
+			<cite>&mdash; Steve B, closing the case</cite>
+		</blockquote>
+
+		<figure class="k2-boxart__figure">
+			<img src="<?php echo $img('boxart-vs-photo-sidebyside.png'); ?>" alt="The Kick Off 2 box art beside the black-and-white press photo of Andy Gray, showing the same shooting pose from a different angle." loading="lazy" decoding="async" />
+			<figcaption>Cover (left) vs. the press photo (right). Same player, same strike &mdash; Buxton just spun the camera around.</figcaption>
 		</figure>
 	</section>
 
