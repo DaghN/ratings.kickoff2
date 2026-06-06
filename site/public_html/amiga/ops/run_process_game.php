@@ -22,10 +22,10 @@ function amiga_ops_print_help(): void
 {
     fwrite(STDOUT, "Usage: php run_process_game.php <verb> [options]\n");
     fwrite(STDOUT, "Verbs:\n");
-    fwrite(STDOUT, "  zero-derived          Clear amiga_game_ratings + amiga_player_stats (ground kept)\n");
+    fwrite(STDOUT, "  zero-derived          Clear ratings + stats + standings (ground kept)\n");
     fwrite(STDOUT, "  replay-to             Sim loop in contract chronology order\n");
     fwrite(STDOUT, "  process-one           Live append-only: one game at end of history\n");
-    fwrite(STDOUT, "  verify                Row counts + derived_gap probe\n");
+    fwrite(STDOUT, "  verify                Row counts + derived_gap + standings spot-checks\n");
     fwrite(STDOUT, "  help\n");
     fwrite(STDOUT, "Options:\n");
     fwrite(STDOUT, "  --game-id N           process-one target\n");
@@ -33,8 +33,8 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "  --until-game-id G     replay-to: stop after game G (inclusive)\n");
     fwrite(STDOUT, "  --dry-run\n");
     fwrite(STDOUT, "Database: ko2amiga_db only (site/config/ko2amiga_config.local.php)\n");
-    fwrite(STDOUT, "\nParity gate (v1): python -m scripts.amiga replay --limit 500;\n");
-    fwrite(STDOUT, "  zero-derived -> replay-to --limit 500 -> verify (counts + no derived_gap)\n");
+    fwrite(STDOUT, "\nParity gate: python -m scripts.amiga replay --limit 500;\n");
+    fwrite(STDOUT, "  zero-derived -> replay-to --limit 500 -> verify (counts + standings spot-checks)\n");
 }
 
 $verb = $argv[1] ?? '';
@@ -123,6 +123,7 @@ if ($verb === 'verify') {
         amiga_ops_log(
             'verify: ratings=' . $cov['rating_count']
             . ' stats=' . $cov['stats_count']
+            . ' standings=' . $cov['standings_count']
             . ' games=' . $cov['game_count']
             . ' last_rated=' . ($cov['last_rated_game_id'] ?? 'none')
             . ' first_unrated=' . ($cov['first_unrated_game_id'] ?? 'none')
@@ -131,7 +132,18 @@ if ($verb === 'verify') {
             amiga_ops_log('ERROR: derived_gap — hole in contract order');
             exit(1);
         }
-        amiga_ops_log('verify OK (row counts; compare to python -m scripts.amiga replay for parity)');
+        if ($cov['rating_count'] > 0 && $cov['standings_count'] < 1) {
+            amiga_ops_log('ERROR: standings_count is 0 but ratings exist');
+            exit(1);
+        }
+        $standingsErrors = amiga_ops_verify_standings_spot_checks($con);
+        if ($standingsErrors !== []) {
+            foreach ($standingsErrors as $err) {
+                amiga_ops_log('ERROR: standings ' . $err);
+            }
+            exit(1);
+        }
+        amiga_ops_log('verify OK (counts + standings spot-checks)');
     } finally {
         $con->close();
     }

@@ -17,11 +17,11 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
 
-# Ops simul — v1 parity gate (500 games; oracle: python -m scripts.amiga replay --limit 500):
+# Ops simul — parity gate (500 games; oracle: python -m scripts.amiga replay --limit 500):
 python -m scripts.amiga replay --limit 500
 php site/public_html/amiga/ops/run_process_game.php zero-derived
 php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
-php site/public_html/amiga/ops/run_process_game.php verify
+php site/public_html/amiga/ops/run_process_game.php verify   # ratings + standings spot-checks
 
 # Full derived rebuild (batch repair — use Python, not unbounded PHP replay-to):
 python -m scripts.amiga replay

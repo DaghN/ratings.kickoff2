@@ -80,10 +80,10 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		</section>
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-heritage" aria-label="Original Amiga box art">
-			<div class="k2-status-heritage-inset">
-				<img class="k2-heritage-box__art" src="images/KO2BoxFront.jpg" width="88" alt="" loading="lazy" decoding="async" />
+			<a class="k2-status-heritage-inset k2-status-heritage-inset--link" href="/boxart.php" title="The story behind the Kick Off 2 box art">
+				<img class="k2-heritage-box__art" src="images/KO2BoxFront.jpg" width="88" alt="The original 1990 Kick Off 2 Amiga box art — read its story" loading="lazy" decoding="async" />
 				<p class="k2-heritage-box__caption">KO2 · 1990</p>
-			</div>
+			</a>
 		</section>
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title">

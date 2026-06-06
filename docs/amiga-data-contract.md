@@ -94,7 +94,7 @@ full history      →  chronological replay            →  same derived state
 - **Rating authority:** replay from `Scores` only — never display legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Current implementation (Phase A2 + Track B v1):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py` (Elo + tournament standings). **Incremental post-game:** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — live `process-one` (append-only last game) or sim `replay-to` (next unrated in contract order). Standings rebuild is **batch-only** in v1 (full `replay`); PHP incremental standings is v2.
+**Current implementation (Phase A2 + Track B):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py` (Elo + tournament standings batch repair). **Incremental post-game:** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — live `process-one` (append-only last game) or sim `replay-to` (next unrated in contract order); updates Elo, player stats, and tournament standings in one transaction. Python `replay` remains the batch repair oracle (`rebuild_all_standings`).
 
 **Simul pipeline (PHP, mirrors online Mode A):**
 
@@ -106,13 +106,13 @@ php site/public_html/amiga/ops/run_process_game.php zero-derived
 python -m scripts.amiga replay --limit 500          # oracle
 php site/public_html/amiga/ops/run_process_game.php zero-derived
 php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
-php site/public_html/amiga/ops/run_process_game.php verify   # 500 ratings, no derived_gap
+php site/public_html/amiga/ops/run_process_game.php verify   # 500 ratings, standings spot-checks, no derived_gap
 
 # Optional: full derived rebuild (batch oracle — ~10s Python; PHP replay-to unbounded is slow)
 python -m scripts.amiga replay
 ```
 
-**Parity rule (v1):** after `replay-to --limit 500`, row counts and spot-checks must match `python -m scripts.amiga replay --limit 500` (500 `amiga_game_ratings`, same `amiga_player_stats` count, last-game ratings align to 6 dp). Full-history PHP simul is not a v1 gate — use Python `replay` for batch repair. Repair path for gaps: `zero-derived` then `replay-to`.
+**Parity rule:** after `replay-to --limit 500`, row counts and spot-checks must match `python -m scripts.amiga replay --limit 500` (500 `amiga_game_ratings`, same `amiga_player_stats` count, `amiga_tournament_standings` for walked tournaments, last-game ratings align to 6 dp). Full-history PHP simul is slow — use Python `replay` for batch repair. Repair path for gaps: `zero-derived` then `replay-to`.
 
 ---
 
@@ -142,7 +142,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_games` | Ground | Import / submission |
 | `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
 | `amiga_player_stats` | Derived | Replay or PHP `amiga_process_completed_game` / `replay-to` |
-| `amiga_tournament_standings` | Derived | Replay (`scripts/amiga/replay.py`) |
+| `amiga_tournament_standings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
 DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B migration [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
@@ -155,7 +155,8 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - **Goals:** Regulation `goals_a` / `goals_b` only for league/group tables (Elo uses the same). `extra` column stores Access `Scores.Extra` (ET/penalties text); does not affect Elo.
 - **Knockout tie winner** (per pair scope, all legs in that phase between the two players): (1) higher aggregate goal difference; (2) if tied, higher aggregate goals scored; (3) if still tied, `parse_standings_winner` on any leg with non-empty `extra` (penalties); (4) if unresolved, UI shows “Tie unresolved” and falls back to derived `position` order. Same rules in `scripts/amiga/tournament_standings.py` (`_knockout_positions`) and `includes/amiga_tournament_lib.php` (`amiga_tournament_knockout_resolve_winner`). Website knockout view lists per-leg fixtures via `amiga_tournament_knockout_fixture_games`.
 - **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity`.
-- **v2 gaps:** PHP incremental standings in `process_completed_game`; full knockout bracket advancement; cross-stage promotion (Tier 4).
+- **PHP incremental:** per-game rebuild from rated `amiga_games` for the touched tournament (`amiga_post_game_standings.php`); knockout positions use aggregate GD/GF + `extra` via `amiga_parse_standings_winner`.
+- **Future gaps:** full knockout bracket advancement; cross-stage promotion (Tier 4).
 
 ---
 
@@ -170,7 +171,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 | Staging multi-part browser import | **Done** (Jun 2026) |
 | Amiga `ProcessCompletedGame` ops | **Done** (v1 CLI — `process-one` append-only) |
 | Amiga ops simul (`zero-derived` + `replay-to`) | **Done** (v1 — 500-game parity gate vs Python `replay --limit 500`) |
-| Tournament standings (derived) | **Done** (Track B v1 — league + group tables) |
+| Tournament standings (derived) | **Done** (Track B — league + group + knockout; PHP incremental post-game) |
 | Reference parity tables / diffs | **Partial** (`standings-parity` CLI vs Access ODBC) |
 
 ---

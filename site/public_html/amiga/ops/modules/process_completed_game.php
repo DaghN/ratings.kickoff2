@@ -12,6 +12,7 @@ require_once dirname(__DIR__, 3) . '/ops/includes/post_game_elo.php';
 require_once dirname(__DIR__, 3) . '/ops/includes/post_game_outcome.php';
 require_once __DIR__ . '/../includes/amiga_post_game_player_db.php';
 require_once __DIR__ . '/../includes/amiga_post_game_player_apply.php';
+require_once __DIR__ . '/../includes/amiga_post_game_standings.php';
 
 /**
  * @return array<string, mixed>
@@ -20,7 +21,7 @@ function amiga_ops_load_game_row(mysqli $con, int $gameId): array
 {
     $stmt = $con->prepare(
         'SELECT g.id, g.game_date AS `Date`, g.player_a_id AS idA, g.player_b_id AS idB, '
-        . 'g.goals_a AS GoalsA, g.goals_b AS GoalsB '
+        . 'g.goals_a AS GoalsA, g.goals_b AS GoalsB, g.tournament_id, g.phase, g.extra, g.source_scores_id '
         . 'FROM amiga_games g WHERE g.id = ? LIMIT 1'
     );
     if ($stmt === false) {
@@ -417,6 +418,7 @@ function amiga_process_completed_game(mysqli $con, int $gameId, bool $dryRun = f
         foreach ($players as $pid => $st) {
             amiga_post_game_player_write($con, k2_post_game_player_to_db_row($st, (int) $pid));
         }
+        amiga_ops_standings_apply_game($con, $game);
         $con->commit();
     } catch (Throwable $e) {
         $con->rollback();
@@ -436,7 +438,8 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . '(SELECT COUNT(*) FROM amiga_games) AS games, '
         . '(SELECT COUNT(*) FROM amiga_players) AS players, '
         . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
-        . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats'
+        . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats, '
+        . '(SELECT COUNT(*) FROM amiga_tournament_standings) AS standings'
     );
     if ($res === false) {
         throw new RuntimeException('zero-derived counts: ' . $con->error);
@@ -448,10 +451,14 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . ' amiga_players=' . (int) ($row['players'] ?? 0)
         . ' clearing ratings=' . (int) ($row['ratings'] ?? 0)
         . ' stats=' . (int) ($row['stats'] ?? 0)
+        . ' standings=' . (int) ($row['standings'] ?? 0)
         . ($dryRun ? ' (dry-run)' : '')
     );
     if ($dryRun) {
         return;
+    }
+    if (!$con->query('DELETE FROM amiga_tournament_standings')) {
+        throw new RuntimeException('DELETE amiga_tournament_standings: ' . $con->error);
     }
     if (!$con->query('DELETE FROM amiga_game_ratings')) {
         throw new RuntimeException('DELETE amiga_game_ratings: ' . $con->error);
@@ -616,12 +623,204 @@ function amiga_ops_derived_coverage(mysqli $con): array
         $lastRated = (int) $ratedRow['id'];
     }
 
+    $standingsRes = $con->query('SELECT COUNT(*) AS n FROM amiga_tournament_standings');
+    if ($standingsRes === false) {
+        throw new RuntimeException('standings count: ' . $con->error);
+    }
+    $standingsRow = $standingsRes->fetch_assoc();
+    $standingsRes->free();
+
     return [
         'rating_count' => (int) ($row['ratings'] ?? 0),
         'stats_count' => (int) ($row['stats'] ?? 0),
         'game_count' => (int) ($row['games'] ?? 0),
+        'standings_count' => (int) ($standingsRow['n'] ?? 0),
         'derived_gap' => amiga_ops_has_derived_gap($con),
         'first_unrated_game_id' => $firstUnrated,
         'last_rated_game_id' => $lastRated,
+    ];
+}
+
+/**
+ * Spot-check standings vs known oracle cases (after replay-to parity gate).
+ *
+ * @return list<string> empty when OK
+ */
+function amiga_ops_verify_standings_spot_checks(mysqli $con): array
+{
+    $errors = [];
+
+    $standingsCount = 0;
+    $res = $con->query('SELECT COUNT(*) AS n FROM amiga_tournament_standings');
+    if ($res !== false) {
+        $row = $res->fetch_assoc();
+        $standingsCount = (int) ($row['n'] ?? 0);
+        $res->free();
+    }
+    if ($standingsCount < 1) {
+        $errors[] = 'standings_count is 0 (expected rows after replay-to)';
+
+        return $errors;
+    }
+
+    $tidLondon = amiga_ops_tournament_id_by_name($con, 'London XXIII');
+    if ($tidLondon !== null && amiga_ops_standings_scope_has_rows($con, $tidLondon, 'overall', '')) {
+        $top = amiga_ops_standings_top_n($con, $tidLondon, 'overall', '', 3);
+        $want = [
+            ['name' => 'Dagh N', 'points' => 69],
+            ['name' => 'Gianni T', 'points' => 65],
+            ['name' => 'Sandro T', 'points' => 60],
+        ];
+        foreach ($want as $i => $exp) {
+            if (!isset($top[$i])) {
+                $errors[] = 'London XXIII overall pos ' . ($i + 1) . ': missing row';
+                continue;
+            }
+            $gotName = (string) ($top[$i]['player_name'] ?? '');
+            $gotPts = (int) ($top[$i]['points'] ?? 0);
+            if ($gotName !== $exp['name'] || $gotPts !== $exp['points']) {
+                $errors[] = 'London XXIII overall pos ' . ($i + 1) . ": want {$exp['name']} ({$exp['points']} pts), got {$gotName} ({$gotPts} pts)";
+            }
+        }
+    }
+
+    $tidWc = amiga_ops_tournament_id_by_name($con, 'World Cup XI');
+    if ($tidWc !== null) {
+        if (amiga_ops_standings_scope_has_rows($con, $tidWc, 'group', 'Round 1 - Group A')) {
+            $groupA = amiga_ops_standings_top_n($con, $tidWc, 'group', 'Round 1 - Group A', 1);
+            if ($groupA === []) {
+                $errors[] = 'World Cup XI Group A: no standings rows';
+            } else {
+                $winnerName = (string) ($groupA[0]['player_name'] ?? '');
+                $winnerPts = (int) ($groupA[0]['points'] ?? 0);
+                if ($winnerName !== 'Alkis P' || $winnerPts !== 45) {
+                    $errors[] = "World Cup XI Group A winner: want Alkis P (45 pts), got {$winnerName} ({$winnerPts} pts)";
+                }
+            }
+        }
+
+        if (amiga_ops_standings_scope_has_rows($con, $tidWc, 'knockout', 'Semi Finals|149-253')) {
+            $ko = amiga_ops_standings_scope_winner($con, $tidWc, 'knockout', 'Semi Finals|149-253');
+            if ($ko === null) {
+                $errors[] = 'World Cup XI knockout Semi Finals|149-253: expected 2 rows';
+            } elseif ($ko['player_id'] !== 149 || $ko['position'] !== 1) {
+                $errors[] = 'World Cup XI Semi Finals|149-253: winner should be player 149 pos 1, got '
+                    . $ko['player_id'] . ' pos ' . $ko['position'];
+            }
+        }
+    }
+
+    return $errors;
+}
+
+function amiga_ops_standings_scope_has_rows(
+    mysqli $con,
+    int $tournamentId,
+    string $scopeType,
+    string $scopeKey
+): bool {
+    $stmt = $con->prepare(
+        'SELECT 1 FROM amiga_tournament_standings '
+        . 'WHERE tournament_id = ? AND scope_type = ? AND scope_key = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        return false;
+    }
+    $stmt->bind_param('iss', $tournamentId, $scopeType, $scopeKey);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return false;
+    }
+    $res = $stmt->get_result();
+    $found = $res && $res->fetch_assoc() !== null;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    return $found;
+}
+
+function amiga_ops_tournament_id_by_name(mysqli $con, string $name): ?int
+{
+    $stmt = $con->prepare('SELECT id FROM tournaments WHERE name = ? LIMIT 1');
+    if ($stmt === false) {
+        return null;
+    }
+    $stmt->bind_param('s', $name);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return null;
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+    if ($row === null) {
+        return null;
+    }
+
+    return (int) $row['id'];
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_ops_standings_top_n(
+    mysqli $con,
+    int $tournamentId,
+    string $scopeType,
+    string $scopeKey,
+    int $limit
+): array {
+    $sql = 'SELECT s.position, s.points, p.id AS player_id, p.name AS player_name '
+        . 'FROM amiga_tournament_standings s '
+        . 'INNER JOIN amiga_players p ON p.id = s.player_id '
+        . 'WHERE s.tournament_id = ? AND s.scope_type = ? AND s.scope_key = ? '
+        . 'ORDER BY s.position ASC LIMIT ' . (int) $limit;
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        return [];
+    }
+    $stmt->bind_param('iss', $tournamentId, $scopeType, $scopeKey);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return [];
+    }
+    $res = $stmt->get_result();
+    $rows = [];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $res->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return array{player_id: int, position: int}|null
+ */
+function amiga_ops_standings_scope_winner(
+    mysqli $con,
+    int $tournamentId,
+    string $scopeType,
+    string $scopeKey
+): ?array {
+    $rows = amiga_ops_standings_top_n($con, $tournamentId, $scopeType, $scopeKey, 2);
+    if (count($rows) !== 2) {
+        return null;
+    }
+
+    return [
+        'player_id' => (int) $rows[0]['player_id'],
+        'position' => (int) $rows[0]['position'],
     ];
 }

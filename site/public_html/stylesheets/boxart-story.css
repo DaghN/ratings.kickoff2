@@ -1,0 +1,280 @@
+@charset "utf-8";
+
+/**
+ * Kick Off 2 box art story page (boxart.php).
+ * Long-form, magazine-style layout: tinted hero, framed figures, pull-quotes.
+ * Uses theme tokens from theme.css; accent follows the hub tint picker.
+ */
+
+.k2-boxart {
+	--k2-boxart-read: 46rem;
+	max-width: var(--k2-max-width);
+	margin: 0 auto;
+	padding: 8px 16px 56px;
+}
+
+/* ── Hero ── */
+.k2-boxart__hero {
+	max-width: var(--k2-boxart-read);
+	margin: 0 auto 36px;
+	padding: 28px 26px 24px;
+	border: 1px solid var(--k2-border-strong);
+	border-radius: var(--k2-radius-lg);
+	background:
+		radial-gradient(120% 90% at 50% -10%,
+			color-mix(in srgb, var(--k2-accent) 16%, transparent) 0%,
+			transparent 60%),
+		linear-gradient(170deg, var(--k2-bg-elevated) 0%, var(--k2-bg-surface) 70%);
+	box-shadow: var(--k2-shadow-surface);
+	text-align: center;
+}
+
+.k2-boxart__kicker {
+	margin: 0 0 10px;
+	font-family: var(--k2-font-mono);
+	font-size: 11px;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: color-mix(in srgb, var(--k2-accent) 78%, var(--k2-text-secondary));
+}
+
+.k2-boxart__title {
+	margin: 0 0 14px;
+	font-family: var(--k2-font-display);
+	font-size: clamp(28px, 5vw, 44px);
+	font-weight: 700;
+	line-height: 1.08;
+	color: var(--k2-text-primary);
+	text-wrap: balance;
+}
+
+.k2-boxart__lede {
+	max-width: 38rem;
+	margin: 0 auto;
+	font-size: 16px;
+	line-height: 1.6;
+	color: var(--k2-text-secondary);
+	text-wrap: pretty;
+}
+
+/* ── Sections ── */
+.k2-boxart__section,
+.k2-boxart__outro {
+	max-width: var(--k2-boxart-read);
+	margin: 0 auto 40px;
+}
+
+.k2-boxart__h2 {
+	position: relative;
+	margin: 0 0 16px;
+	padding-bottom: 8px;
+	font-family: var(--k2-font-display);
+	font-size: clamp(20px, 3.4vw, 28px);
+	font-weight: 600;
+	line-height: 1.18;
+	color: var(--k2-text-primary);
+}
+
+.k2-boxart__h2::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 56px;
+	height: 3px;
+	border-radius: 2px;
+	background: linear-gradient(90deg,
+		var(--k2-accent) 0%,
+		color-mix(in srgb, var(--k2-accent) 30%, transparent) 100%);
+}
+
+.k2-boxart__prose {
+	margin: 0 0 16px;
+	font-size: 15.5px;
+	line-height: 1.66;
+	color: var(--k2-text-secondary);
+	text-wrap: pretty;
+}
+
+.k2-boxart__prose:last-child {
+	margin-bottom: 0;
+}
+
+.k2-boxart__prose em {
+	color: var(--k2-text-primary);
+	font-style: italic;
+}
+
+.k2-boxart__prose strong,
+.k2-boxart__cast strong {
+	color: var(--k2-text-primary);
+}
+
+/* ── Cast list ── */
+.k2-boxart__cast {
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+}
+
+.k2-boxart__cast li {
+	position: relative;
+	margin: 0 0 10px;
+	padding: 12px 14px 12px 16px;
+	font-size: 15px;
+	line-height: 1.55;
+	color: var(--k2-text-secondary);
+	border: 1px solid var(--k2-border-subtle);
+	border-left: 3px solid color-mix(in srgb, var(--k2-accent) 70%, transparent);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+/* ── Figures ── */
+.k2-boxart__figure {
+	margin: 22px 0;
+	padding: 10px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	text-align: center;
+}
+
+.k2-boxart__figure img {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin: 0 auto;
+	border-radius: var(--k2-radius-sm);
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+.k2-boxart__figure figcaption {
+	margin: 12px 6px 4px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--k2-text-muted);
+	text-wrap: pretty;
+}
+
+.k2-boxart__figure figcaption strong,
+.k2-boxart__figure figcaption em {
+	color: var(--k2-text-secondary);
+}
+
+/* Hero cover: spotlight glow behind the box */
+.k2-boxart__figure--hero {
+	max-width: 360px;
+	margin: 26px auto 0;
+	padding: 14px;
+	border-color: var(--k2-border-strong);
+	background:
+		radial-gradient(90% 70% at 50% 30%,
+			color-mix(in srgb, var(--k2-accent) 14%, transparent) 0%,
+			transparent 70%),
+		var(--k2-bg-elevated);
+}
+
+.k2-boxart__figure--hero img {
+	box-shadow:
+		0 10px 40px rgba(0, 0, 0, 0.55),
+		0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+/* Tall sources (artwork, portraits) — keep them from dominating */
+.k2-boxart__figure--portrait img,
+.k2-boxart__figure--source img {
+	max-width: 340px;
+}
+
+.k2-boxart__figure--chat img {
+	max-width: 460px;
+}
+
+.k2-boxart__figure--screen img {
+	max-width: 520px;
+	image-rendering: auto;
+}
+
+/* ── Two-up gallery ── */
+.k2-boxart__gallery {
+	display: grid;
+	gap: 16px;
+	margin: 22px 0;
+}
+
+.k2-boxart__gallery .k2-boxart__figure {
+	margin: 0;
+}
+
+@media (min-width: 620px) {
+	.k2-boxart__gallery--two {
+		grid-template-columns: 1fr 1fr;
+		align-items: start;
+	}
+}
+
+/* ── Pull quotes ── */
+.k2-boxart__quote {
+	position: relative;
+	margin: 22px 0;
+	padding: 18px 22px 16px 26px;
+	border: 1px solid var(--k2-border-subtle);
+	border-left: 4px solid var(--k2-accent);
+	border-radius: var(--k2-radius-md);
+	background:
+		linear-gradient(120deg,
+			color-mix(in srgb, var(--k2-accent) 8%, var(--k2-bg-elevated)) 0%,
+			var(--k2-bg-surface) 60%);
+}
+
+.k2-boxart__quote p {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-display);
+	font-size: 18px;
+	font-style: italic;
+	line-height: 1.5;
+	color: var(--k2-text-primary);
+	text-wrap: pretty;
+}
+
+.k2-boxart__quote--tight p {
+	font-size: 20px;
+}
+
+.k2-boxart__quote cite {
+	display: block;
+	font-style: normal;
+	font-size: 13px;
+	color: var(--k2-text-muted);
+}
+
+/* ── Outro ── */
+.k2-boxart__outro {
+	padding-top: 22px;
+	border-top: 1px solid var(--k2-border-subtle);
+}
+
+.k2-boxart__credits {
+	margin: 0 0 16px;
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--k2-text-muted);
+}
+
+.k2-boxart__back {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+@media (max-width: 480px) {
+	.k2-boxart {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.k2-boxart__hero {
+		padding: 22px 16px 18px;
+	}
+}
