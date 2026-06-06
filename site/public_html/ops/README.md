@@ -52,6 +52,8 @@
 | `sql/migrations/` | Canonical SCH DDL — `migrate-work` applies in filename order; **commit every new `NNN_*.sql`** (not dump-gitignored) |
 | `data/milestones_definitions_seed.json` | REP-014 catalog (prepare `seed-catalog`) |
 | `config/work-targets.ini` | DB profiles (`staging-work`, …) — copy from `.example`, gitignored |
+| `config/dispatch-http.ini` | HTTP dispatch `shared_key` — copy from `.example`, gitignored |
+| `../dispatch_request.php` | HTTP bridge to dispatch (game server) |
 | `sql/rebuild/` | Optional REP SQL mirrors |
 
 ---

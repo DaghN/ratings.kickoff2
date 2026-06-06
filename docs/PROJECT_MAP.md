@@ -86,7 +86,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
 | Website derived history | `ops/run_ops_sim.php` | Steve on prod copy / live (cutover) |
 | Core ladder Elo replay | `scripts/ladder` | Optional / legacy baseline |
-| After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → `ops/dispatch.php` (`run_process_game.php`) | Steve insert + call (agreed Jun 2026) |
+| After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → `dispatch_request.php` or `ops/dispatch.php` | Steve insert + HTTP/CLI call (agreed Jun 2026) |
 
 Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Cutover runtime:** PHP `ops/dispatch.php` ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2). **Prod today:** legacy C++ until Steve switches — agents implement PHP ops + contract, not C++ extensions. Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
 

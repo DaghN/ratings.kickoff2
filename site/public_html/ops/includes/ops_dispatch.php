@@ -4,6 +4,34 @@
  */
 declare(strict_types=1);
 
+final class K2OpsDispatchHttpContext
+{
+    public static bool $enabled = false;
+
+    /** @var list<string> */
+    public static array $lines = [];
+}
+
+final class K2OpsDispatchExit extends RuntimeException
+{
+    public function __construct(public readonly int $exitCode)
+    {
+        parent::__construct('dispatch exit ' . $exitCode);
+    }
+}
+
+function k2_ops_dispatch_http_begin(): void
+{
+    K2OpsDispatchHttpContext::$enabled = true;
+    K2OpsDispatchHttpContext::$lines = [];
+}
+
+/** @return list<string> */
+function k2_ops_dispatch_http_lines(): array
+{
+    return K2OpsDispatchHttpContext::$lines;
+}
+
 require_once __DIR__ . '/ops_argv.php';
 require_once __DIR__ . '/ops_work_target.php';
 require_once __DIR__ . '/ops_bootstrap.php';
@@ -54,17 +82,33 @@ function k2_ops_dispatch_usage(): void
     $lines[] = '  php dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=2026-06-04T00:00:01Z';
     $lines[] = '';
     $lines[] = 'Exit codes: 0 ok | 1 error | 2 already processed (no DB change) | 64 usage';
+    if (K2OpsDispatchHttpContext::$enabled) {
+        foreach ($lines as $line) {
+            K2OpsDispatchHttpContext::$lines[] = $line;
+        }
+        throw new K2OpsDispatchExit(64);
+    }
     fwrite(STDERR, implode(PHP_EOL, $lines) . PHP_EOL);
 }
 
 function k2_ops_dispatch_log(string $message): void
 {
-    fwrite(STDOUT, '[dispatch] ' . $message . PHP_EOL);
+    $line = '[dispatch] ' . $message;
+    if (K2OpsDispatchHttpContext::$enabled) {
+        K2OpsDispatchHttpContext::$lines[] = $line;
+        return;
+    }
+    fwrite(STDOUT, $line . PHP_EOL);
 }
 
 function k2_ops_dispatch_fail(string $message, int $exitCode = 1): never
 {
-    fwrite(STDERR, '[dispatch] ERROR: ' . $message . PHP_EOL);
+    $line = '[dispatch] ERROR: ' . $message;
+    if (K2OpsDispatchHttpContext::$enabled) {
+        K2OpsDispatchHttpContext::$lines[] = $line;
+        throw new K2OpsDispatchExit($exitCode);
+    }
+    fwrite(STDERR, $line . PHP_EOL);
     exit($exitCode);
 }
 
@@ -160,6 +204,8 @@ function k2_ops_dispatch_run(string $cmd, array $params, bool $dryRun): int
             'ProcessPlayerRegistered' => k2_ops_dispatch_process_player_registered($params, $profileName, $dryRun),
             default => k2_ops_dispatch_fail("CMD={$cmd} not wired", 64),
         };
+    } catch (K2OpsDispatchExit $e) {
+        throw $e;
     } catch (Throwable $e) {
         $msg = $e->getMessage();
         if (str_contains($msg, 'already processed')) {

@@ -26,7 +26,8 @@ php ops/dispatch.php CMD=FinalizeUtcDay target=YOUR_TARGET
 - Args: separate tokens (`CMD=…` `game_id=…` `target=…`) — not one comma-separated string.
 - **`target=YOUR_TARGET`** or `database=…` from **`work-targets.ini`** — required; no silent default.
 - Optional: `dry_run=1` (player/game); `as_of=2026-06-04T00:00:01Z` (midnight only).
-- CLI only — [`../.htaccess`](../.htaccess) denies HTTP. **`exec`** and read exit code.
+- **CLI:** `php ops/dispatch.php` — [`../.htaccess`](../.htaccess) denies HTTP under `ops/`.
+- **HTTP (game server):** `public_html/dispatch_request.php?key=…&CMD=…&game_id=…&target=…` — JSON `{ ok, exit, cmd, log }`; auth in `ops/config/dispatch-http.ini`. See [`steve-live-ops.md`](steve-live-ops.md).
 
 ---
 

@@ -37,24 +37,25 @@
 | Question | Canonical answer |
 |----------|------------------|
 | **What** must post-game compute? | [`website-data-contract.md`](website-data-contract.md) post-game §§ — rules for each table/column. |
-| **Who invokes** derived updates after ground insert? | Steve calls PHP `site/public_html/ops/dispatch.php` `CMD=ProcessCompletedGame` with `game_id` (in repo; runner: `run_process_game.php`). |
+| **Who invokes** derived updates after ground insert? | Steve: `CMD=ProcessCompletedGame` `game_id=` via **`dispatch_request.php`** (HTTP, game server) or **`ops/dispatch.php`** (CLI on web host). Runner: `run_process_game.php`. |
 | **Prod today** | Live games still use **Steve’s C++** derived post-game until cutover. |
 | **Prod target** | **PHP ops** (`ProcessCompletedGame`) implements contract rules per game; **C++ derived post-game is retired** (not extended with M1–M7). |
 
 Registers ([`prod-coordination.md`](prod-coordination.md), [`coordination/post-game-register.md`](coordination/post-game-register.md)) track cutover status — they do **not** override the split above.
 
-**Agreed call shape (Steve proposed, aligned with ground/derived):**
+**Agreed call shape (game server — HTTP, no PHP CLI on game machine):**
 
 ```text
-php …/ops/dispatch.php   CMD=ProcessCompletedGame   game_id=57216
+/dispatch_request.php?key=…&CMD=ProcessCompletedGame&game_id=57216&target=staging-work
 ```
 
+**Web host / cron (CLI):** `php ops/dispatch.php CMD=FinalizeUtcDay target=…` (and optional CLI for per-game if same host).
+
 - **No** duplicate player ids / scores in the call — module reads facts from DB.
-- Other commands later: periodic jobs, batch sim, schema apply (mostly Dagh/CLI; same file family).
+- Auth: `ops/config/dispatch-http.ini` (`shared_key`). Steve: [`steve-live-ops.md`](../site/public_html/ops/docs/steve-live-ops.md).
+- Other commands: periodic jobs, batch sim, schema apply (mostly Dagh/CLI; same registry).
 
 **Steve server check (Jun 2026):** PHP/SQL workloads Dagh sent ran fine — one CPU core maxed on heavy jobs; storage, memory, network healthy. PHP is an acceptable host for derived processing on the server.
-
-**Still confirm when convenient:** exact invocation (CLI path vs internal HTTP), which PHP config the **staging website** vhost uses vs `kooldb1`/`kooldb2`.
 
 ---
 
@@ -205,7 +206,7 @@ Implemented in `includes/ops_bootstrap.php` and work-target profiles (`local-wor
 
 | Rule | Detail |
 |------|--------|
-| **SAPI** | CLI only for ops entry points. |
+| **SAPI** | `ops/*.php` CLI only (`.htaccess`); game server uses `public_html/dispatch_request.php` (HTTP → same registry). |
 | **Document root** | Set to `site/public_html/` so config resolves like the website. |
 | **Base config** | `site/config/ko2unitydb_config.php` (gitignored). |
 | **Work DB override** | `ini=ladder-work.ini` → `[database]` in `site/config/ladder-work.ini` (see `.example`). |

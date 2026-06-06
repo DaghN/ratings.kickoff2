@@ -1,0 +1,9 @@
+; HTTP dispatch auth — copy to dispatch-http.ini (gitignored) beside this file.
+;
+;   copy site\public_html\ops\config\dispatch-http.ini.example site\public_html\ops\config\dispatch-http.ini
+;
+; Game server (no PHP CLI): GET /dispatch_request.php?key=…&CMD=ProcessCompletedGame&game_id=N&target=staging-work
+; Server cron may still use: php ops/dispatch.php CMD=FinalizeUtcDay target=staging-work
+
+[http]
+shared_key = change-me-before-go-live

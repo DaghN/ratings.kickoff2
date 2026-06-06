@@ -192,10 +192,15 @@ Among others: `ratedresults` derived columns, both players’ `playertable`, `ge
 
 ## Calling dispatch from the game server
 
-- **Working directory:** `public_html/`, or absolute paths to `php` and `ops/dispatch.php`.
-- **Arguments:** separate tokens — `CMD=ProcessCompletedGame` `game_id=57216` `target=YOUR_TARGET` (not one comma-separated string).
-- Read the process **exit code**, not only stdout (`[dispatch]` log prefix).
-- **`ops/` is CLI only** — not HTTP.
+**HTTP (typical — game server on another machine, no PHP CLI):**
+
+```text
+/dispatch_request.php?key=YOUR_KEY&CMD=ProcessCompletedGame&game_id=57216&target=YOUR_TARGET
+```
+
+JSON response: `exit` (same codes as CLI), `log` (`[dispatch]` lines). Configure `ops/config/dispatch-http.ini` (`shared_key`). Details: [`steve-live-ops.md`](steve-live-ops.md).
+
+**CLI (optional — same host as PHP):** `cd public_html`, then `php ops/dispatch.php CMD=…` with separate `key=value` tokens. `ops/` is blocked from HTTP (`.htaccess`); use `dispatch_request.php` for HTTP.
 
 ---
 

@@ -23,9 +23,11 @@ All commands: **`cd public_html`**, space-separated `key=value` args, your **`ta
 
 ## Setup (once)
 
-1. Dagh uploads **`public_html/`** (incl. `ops/`).
+1. Dagh uploads **`public_html/`** (incl. `ops/` and `dispatch_request.php`).
 2. You: `ops/config/work-targets.ini.example` → `work-targets.ini` — set **real** `host`, `user`, `password`, and `work_database` for this server (do not leave example `127.0.0.1` on production).
-3. Smoke: `php ops/dispatch.php CMD=Help` — prints command list to stderr; exit **64** is normal (not a failure).
+3. **Game server (HTTP):** `ops/config/dispatch-http.ini.example` → `dispatch-http.ini` — set a strong **`shared_key`** (not the example placeholder).
+4. Smoke (on web host): `php ops/dispatch.php CMD=Help` — prints command list to stderr; exit **64** is normal (not a failure).
+5. Smoke (HTTP): `GET /dispatch_request.php?key=YOUR_KEY&CMD=ProcessCompletedGame&game_id=TEST_ID&target=YOUR_TARGET` — JSON `exit` field matches CLI exit codes.
 
 ---
 
@@ -62,13 +64,37 @@ Use **`FinalizeUtcDay`** only — not **`FinalizeLeagueDue`** (legacy, league-on
 
 ## From the game server (.exe)
 
-`exec` PHP from `public_html/` (or absolute paths); read **exit code**, not only stdout.
+The game server often runs on a **different machine** than the website — **no PHP CLI** there. Use **HTTP** via `dispatch_request.php` on the site host.
+
+**Rated game** (after ground `INSERT`; use row `id` as `game_id`):
+
+```text
+https://ratings.kickoff2.com/dispatch_request.php?key=YOUR_KEY&CMD=ProcessCompletedGame&game_id=57216&target=YOUR_TARGET
+```
+
+**Registration:**
+
+```text
+https://ratings.kickoff2.com/dispatch_request.php?key=YOUR_KEY&CMD=ProcessPlayerRegistered&player_id=42&target=YOUR_TARGET
+```
+
+Read the JSON **`exit`** field (same semantics as CLI). **`log`** carries `[dispatch]` lines. HTTP status: **200** for exit **0** or **2**; **400** for **64**; **500** for **1**; **401** if `key` is wrong; **503** if `dispatch-http.ini` is missing.
+
+`key=` is required on every request (value from `ops/config/dispatch-http.ini`).
+
+**Optional — same host as PHP:** `exec` CLI instead:
 
 ```text
 /usr/bin/php ops/dispatch.php CMD=ProcessCompletedGame game_id=57216 target=YOUR_TARGET
 ```
 
-`ops/` is **CLI only** — not HTTP.
+`ops/dispatch.php` remains **CLI only** (`.htaccess` blocks HTTP under `ops/`). **`dispatch_request.php`** is the public HTTP bridge.
+
+**Midnight UTC** — run on the **web server** (cron + PHP CLI), not from the game machine:
+
+```bash
+php ops/dispatch.php CMD=FinalizeUtcDay target=YOUR_TARGET
+```
 
 ---
 
