@@ -127,6 +127,34 @@ function amiga_fixture_require_player(mysqli $con, int $playerId): void
     }
 }
 
+function amiga_fixture_require_active_entrant(mysqli $con, int $tournamentId, int $playerId): void
+{
+    $stmt = $con->prepare(
+        'SELECT status FROM tournament_entrants WHERE tournament_id = ? AND player_id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare entrant check: ' . $con->error);
+    }
+    $stmt->bind_param('ii', $tournamentId, $playerId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute entrant check: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    if ($row === null) {
+        throw new RuntimeException(
+            "Player {$playerId} is not a tournament entrant in tournament {$tournamentId}."
+        );
+    }
+    if ((string) $row['status'] !== 'registered') {
+        throw new RuntimeException(
+            "Player {$playerId} entrant status is '{$row['status']}'; "
+            . 'only registered entrants may be used in fixture assignment or result entry.'
+        );
+    }
+}
+
 function amiga_fixture_template_id(mysqli $con, string $slug): int
 {
     $stmt = $con->prepare('SELECT id FROM tournament_format_templates WHERE slug = ? LIMIT 1');
@@ -406,6 +434,9 @@ function amiga_fixture_assign_players(mysqli $con, int $fixtureId, int $playerAI
     }
 
     $tournamentId = (int) $fixture['tournament_id'];
+    amiga_fixture_require_active_entrant($con, $tournamentId, $playerAId);
+    amiga_fixture_require_active_entrant($con, $tournamentId, $playerBId);
+
     $stmt = $con->prepare('SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = ?');
     if ($stmt === false) {
         throw new RuntimeException('prepare fixture assignment game count: ' . $con->error);
@@ -484,6 +515,12 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
         throw new RuntimeException('Fixture must have both players before result entry.');
     }
 
+    $tournamentId = (int) $fixture['tournament_id'];
+    $playerAId = (int) $fixture['player_a_id'];
+    $playerBId = (int) $fixture['player_b_id'];
+    amiga_fixture_require_active_entrant($con, $tournamentId, $playerAId);
+    amiga_fixture_require_active_entrant($con, $tournamentId, $playerBId);
+
     $stmt = $con->prepare('SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = ?');
     if ($stmt === false) {
         throw new RuntimeException('prepare fixture game count: ' . $con->error);
@@ -504,9 +541,6 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
     $extraValue = trim((string) ($extra ?? ''));
     $extraValue = $extraValue === '' ? null : $extraValue;
     $phase = $fixture['phase_label'] !== null ? (string) $fixture['phase_label'] : null;
-    $playerAId = (int) $fixture['player_a_id'];
-    $playerBId = (int) $fixture['player_b_id'];
-    $tournamentId = (int) $fixture['tournament_id'];
 
     $con->begin_transaction();
     try {

@@ -133,6 +133,7 @@ python -m scripts.amiga build-tournament verify-built --tournament-id N
 python -m scripts.amiga fixtures list-entrants --tournament-id N
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
+# set-players and record-result require both players to be active (registered) tournament entrants.
 python -m scripts.amiga fixtures list --tournament-id N
 python -m scripts.amiga fixtures detail --fixture-id F
 python -m scripts.amiga fixtures set-players --fixture-id F --player-a-id 1 --player-b-id 2 --dry-run

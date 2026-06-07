@@ -65,6 +65,24 @@ def _require_player(conn: pymysql.connections.Connection, player_id: int) -> Non
         raise ValueError(f"player_id={player_id} not found")
 
 
+def _require_active_tournament_entrant(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    player_id: int,
+) -> None:
+    entrant = _load_entrant_row(conn, tournament_id=tournament_id, player_id=player_id)
+    if entrant is None:
+        raise ValueError(
+            f"player_id={player_id} is not a tournament entrant in tournament_id={tournament_id}"
+        )
+    if entrant["status"] != "registered":
+        raise ValueError(
+            f"player_id={player_id} entrant status is {entrant['status']!r}; "
+            "only registered entrants may be used in fixture assignment or result entry"
+        )
+
+
 def _load_stage_by_key(conn: pymysql.connections.Connection, tournament_id: int, stage_key: str) -> dict[str, Any] | None:
     return _load_one(
         conn,
@@ -248,8 +266,10 @@ def create_fixture(
         raise ValueError(f"status must be one of {sorted(VALID_FIXTURE_STATUSES)}")
     if player_a_id is not None:
         _require_player(conn, player_a_id)
+        _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=player_a_id)
     if player_b_id is not None:
         _require_player(conn, player_b_id)
+        _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=player_b_id)
     if player_a_id is not None and player_b_id is not None and player_a_id == player_b_id:
         raise ValueError("fixture players must be different")
 
@@ -350,6 +370,8 @@ def set_fixture_players(
     if fixture["status"] != "scheduled":
         raise ValueError(f"fixture_id={fixture_id} status is {fixture['status']!r}, expected 'scheduled'")
     tournament_id = int(fixture["tournament_id"])
+    _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=player_a_id)
+    _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=player_b_id)
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = %s", (fixture_id,))
         if int(cur.fetchone()["n"]) > 0:
@@ -401,6 +423,9 @@ def record_fixture_result(
     player_b_id = fixture["player_b_id"]
     if player_a_id is None or player_b_id is None:
         raise ValueError("fixture must have both players before result entry")
+    tournament_id = int(fixture["tournament_id"])
+    _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=int(player_a_id))
+    _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=int(player_b_id))
 
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = %s", (fixture_id,))
