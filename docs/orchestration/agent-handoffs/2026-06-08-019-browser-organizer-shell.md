@@ -79,7 +79,7 @@ None. No migrations; same POST actions and backend functions.
 
 ## Commit hash and push target
 
-_(filled after commit)_
+`1a4ecd0383f1f779fc8aea5f0dc474a8e768c7e9` — Add browser organizer shell.
 
 Push target: `origin/main`
 
