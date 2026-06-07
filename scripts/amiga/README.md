@@ -108,6 +108,12 @@ python -m scripts.amiga fixtures backfill-entrants --dry-run
 python -m scripts.amiga fixtures backfill-entrants
 python -m scripts.amiga fixtures backfill-entrants --tournament-id N --dry-run
 
+# Entrant status changes (generated tournaments only; dry-run first).
+python -m scripts.amiga fixtures withdraw-entrant --tournament-id N --player-id P --dry-run
+python -m scripts.amiga fixtures withdraw-entrant --tournament-id N --player-id P --note "injury"
+python -m scripts.amiga fixtures replace-entrant --tournament-id N --old-player-id OLD --new-player-id NEW --dry-run
+python -m scripts.amiga fixtures replace-entrant --tournament-id N --old-player-id OLD --new-player-id NEW --note "late swap"
+
 # Examples for future live events:
 python -m scripts.amiga fixtures create-stage --tournament-id 1 --stage-key overall --name "Overall" --stage-type league
 python -m scripts.amiga fixtures create-fixture --tournament-id 1 --stage-key overall --fixture-key overall-001 --player-a-id 1 --player-b-id 2
