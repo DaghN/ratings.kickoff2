@@ -239,3 +239,123 @@
 		break-inside: avoid;
 	}
 }
+
+/* Live tournament ops (fixture manager) — minimal forms inside site chrome */
+.k2-amiga-live-ops {
+	margin: 0 1.25rem 1.25rem;
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__section {
+	margin-top: 1.25rem;
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__flash {
+	padding: 0.65rem 0.85rem;
+	margin: 0 0 1rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 90%, transparent);
+	color: var(--k2-text-primary);
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__flash--error {
+	border-color: color-mix(in srgb, var(--k2-stat-negative-base) 45%, var(--k2-border-subtle));
+	color: var(--k2-table-negative);
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__muted {
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__inline-form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: flex-end;
+	margin-top: 0.35rem;
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__grid-form {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: 0.65rem;
+	max-width: 72rem;
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__grid-form label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.k2-amiga-live-ops .k2-amiga-live-ops__grid-form .wide {
+	grid-column: 1 / -1;
+}
+
+/* Match theme.css player-search-input + table-autofilter (dark form controls) */
+body.k2-site .k2-amiga-live-ops input:not([type="hidden"]),
+body.k2-site .k2-amiga-live-ops select {
+	box-sizing: border-box;
+	padding: 6px 10px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+	font: inherit;
+	font-size: 13px;
+}
+
+body.k2-site .k2-amiga-live-ops select {
+	border-color: var(--k2-border-strong);
+}
+
+body.k2-site .k2-amiga-live-ops input::placeholder {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-amiga-live-ops input:focus,
+body.k2-site .k2-amiga-live-ops select:focus {
+	outline: none;
+	border-color: var(--k2-accent);
+	box-shadow: 0 0 0 2px var(--k2-accent-muted);
+}
+
+body.k2-site .k2-amiga-live-ops .k2-status-day-picker {
+	display: block;
+}
+
+body.k2-site .k2-amiga-live-ops .k2-status-day-picker .k2-archive-listbox__trigger {
+	width: 100%;
+	max-width: 16rem;
+	text-align: left;
+}
+
+body.k2-site .k2-amiga-live-ops button[type="submit"] {
+	padding: 6px 14px;
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 58%, transparent);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-accent-muted);
+	color: var(--k2-segment-active-text);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+body.k2-site .k2-amiga-live-ops button[type="submit"]:hover,
+body.k2-site .k2-amiga-live-ops button[type="submit"]:focus-visible {
+	border-color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 22%, transparent);
+	color: var(--k2-text-primary);
+	box-shadow: 0 0 0 2px var(--k2-accent-muted);
+	outline: none;
+}
+
+body.k2-site .k2-amiga-live-ops input[type="number"] {
+	width: 5rem;
+}
+
+body.k2-site .k2-amiga-live-ops input[type="text"] {
+	min-width: 6rem;
+}

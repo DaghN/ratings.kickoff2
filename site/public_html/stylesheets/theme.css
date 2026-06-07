@@ -3434,7 +3434,8 @@ body.k2-site .flatpickr-months .flatpickr-next-month svg {
 	padding-top: 0;
 }
 
-.k2-status-period-competitions .k2-status-day-picker__fp-anchor {
+.k2-status-period-competitions .k2-status-day-picker__fp-anchor,
+body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	position: absolute;
 	width: 1px;
 	height: 1px;

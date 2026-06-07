@@ -2,7 +2,7 @@
 /**
  * Amiga realm hub tabs — Ladder · Tournaments · Hall of Fame.
  *
- * Set $k2AmigaHubTabActive before include: ladder | tournaments | hall-of-fame
+ * Set $k2AmigaHubTabActive before include: ladder | tournaments | live-tournaments | hall-of-fame
  *
  * Leaderboards wing nav (/amiga/leaderboards/*) ships in a later phase — Rating wing
  * lives under Ladder for now. No streaks wing (unknown within-day play order;
@@ -15,6 +15,7 @@ $k2AmigaHubTabActive = $k2AmigaHubTabActive ?? '';
 $k2AmigaHubTabs = [
 	'ladder' => ['href' => '/amiga/rating.php', 'label' => 'Ladder'],
 	'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
+	'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live tournaments'],
 	'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
 ];
 

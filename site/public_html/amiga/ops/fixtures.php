@@ -28,18 +28,61 @@ $pwdProvided = $pwdValue !== '';
 $pwdOk = $pwdProvided && hash_equals($opsPassword, $pwdValue);
 $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/ops/fixtures.php', ENT_QUOTES, 'UTF-8');
 
-if (!$pwdOk) {
+function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPickerAssets = false): void
+{
+    global $k2AmigaHubTabActive;
+    $k2AmigaHubTabActive = 'live-tournaments';
     header('Content-Type: text/html; charset=utf-8');
-    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Amiga fixtures — password</title>';
-    echo '<style>body{font-family:system-ui,sans-serif;max-width:32rem;margin:2rem auto;line-height:1.5}';
-    echo 'input{width:100%;padding:.5rem;font-size:1rem;box-sizing:border-box}button{margin-top:.75rem;padding:.5rem 1rem;font-size:1rem}.fail{color:#c0392b;font-weight:600}</style></head><body>';
-    echo '<h1>Amiga fixtures</h1>';
-    echo $pwdProvided ? '<p class="fail">Incorrect password.</p>' : '<p>Password required to continue.</p>';
-    echo '<form method="get" action="' . $self . '">';
-    echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
-    echo '<p><label for="pwd">Password</label><br><input type="password" id="pwd" name="pwd" autocomplete="current-password" required autofocus></p>';
-    echo '<p><label for="tournament_id">Tournament id</label><br><input type="number" id="tournament_id" name="tournament_id" min="1"></p>';
-    echo '<button type="submit">Continue</button></form></body></html>';
+    ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="amiga">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><?php echo k2_h($pageTitle); ?></title>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
+<?php
+    if ($withDayPickerAssets) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_day_picker.php';
+        k2_render_day_picker_assets();
+    }
+?>
+</head>
+<body class="k2-site">
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php'; ?>
+    <?php
+}
+
+function amiga_fixture_render_chrome_end(): void
+{
+    echo "</div><!-- .k2-page-nav -->\n</body>\n</html>";
+}
+
+if (!$pwdOk) {
+    amiga_fixture_render_chrome_start('Amiga — Fixture manager');
+    ?>
+<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
+  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Fixture manager</h1>
+  <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">Password required for fixture ops.</p>
+</header>
+<div class="k2-amiga-live-ops">
+<?php if ($pwdProvided) { ?>
+  <div class="k2-amiga-live-ops__flash k2-amiga-live-ops__flash--error">Incorrect password.</div>
+<?php } ?>
+  <form method="get" action="<?php echo $self; ?>" class="k2-amiga-live-ops__grid-form" style="max-width:24rem">
+    <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+    <label>Password
+      <input type="password" id="pwd" name="pwd" autocomplete="current-password" required autofocus>
+    </label>
+    <label>Tournament id
+      <input type="number" id="tournament_id" name="tournament_id" min="1">
+    </label>
+    <div class="wide"><button type="submit">Continue</button></div>
+  </form>
+</div>
+<?php
+    amiga_fixture_render_chrome_end();
     exit;
 }
 
@@ -1022,43 +1065,26 @@ if ($tournamentId > 0) {
 }
 
 mysqli_close($con);
-header('Content-Type: text/html; charset=utf-8');
+amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Amiga fixtures</title>
-<style>
-body{font-family:system-ui,sans-serif;margin:2rem;line-height:1.45;color:#1f2933}
-table{border-collapse:collapse;width:100%;margin-top:1rem}
-th,td{border-bottom:1px solid #ddd;padding:.45rem;text-align:left;vertical-align:top}
-th{background:#f4f6f8}
-a{color:#1d4ed8}.section{margin-top:1.5rem}
-.flash{padding:.65rem .8rem;margin:1rem 0;border-radius:.4rem;background:#ecfdf3;color:#027a48}
-.flash--error{background:#fef3f2;color:#b42318}
-.muted{color:#667085}.pill{display:inline-block;padding:.1rem .45rem;border-radius:999px;background:#eef2ff}
-.lifecycle-panel{padding:.75rem 1rem;border:1px solid #e4e7ec;border-radius:.5rem;background:#f9fafb;max-width:42rem}
-.lifecycle-panel dl{display:grid;grid-template-columns:auto 1fr;gap:.25rem 1rem;margin:0}
-.lifecycle-form{display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;margin-top:.75rem}
-.lifecycle-form label{display:flex;flex-direction:column;gap:.2rem}
-input,select,button{padding:.4rem;font-size:1rem}
-.score-form{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap}
-.score-form input[type=number]{width:4.5rem}
-.score-form input[type=text]{width:8rem}
-.assign-form{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;margin-top:.35rem}
-.assign-form input[type=number]{width:5.5rem}
-.create-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.65rem;max-width:72rem}
-.create-form label{display:flex;flex-direction:column;gap:.2rem}
-.create-form .wide{grid-column:1/-1}
-</style>
-</head>
-<body>
-<h1>Amiga fixtures</h1>
+<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
+  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Fixture manager</h1>
+  <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">
+    Create generated tournaments, manage lifecycle, assign players, and record results.
+  </p>
+  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav" aria-label="Live tournament tools" style="margin-bottom:1rem">
+    <div class="k2-player-nav__links">
+      <a href="/amiga/live-tournaments.php" class="k2-player-nav__btn">Live tournaments</a>
+      <span class="k2-player-nav__btn is-active" aria-current="page">Fixture manager</span>
+    </div>
+  </nav>
+</header>
+
+<div class="k2-amiga-live-ops">
 <?php if ($flash !== null) { ?>
-  <div class="flash<?php echo $flashIsError ? ' flash--error' : ''; ?>"><?php echo k2_h($flash); ?></div>
+  <div class="k2-amiga-live-ops__flash<?php echo $flashIsError ? ' k2-amiga-live-ops__flash--error' : ''; ?>"><?php echo k2_h($flash); ?></div>
 <?php } ?>
-<form method="get" action="<?php echo $self; ?>">
+<form class="k2-amiga-live-ops__inline-form" method="get" action="<?php echo $self; ?>">
   <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
   <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
   <label>Tournament id <input type="number" name="tournament_id" min="1" value="<?php echo $tournamentId > 0 ? (int) $tournamentId : ''; ?>"></label>
@@ -1072,10 +1098,10 @@ input,select,button{padding:.4rem;font-size:1rem}
   <button type="submit">View</button>
 </form>
 
-<div class="section">
+<div class="k2-amiga-live-ops__section">
   <h2>Create kitchen marathon</h2>
-  <p class="muted">Internal ops only. Creates one generated tournament, one overall league stage, and scheduled round-robin fixtures.</p>
-  <form class="create-form" method="post" action="<?php echo $self; ?>">
+  <p class="k2-amiga-live-ops__muted">Internal ops only. Creates one generated tournament, one overall league stage, and scheduled round-robin fixtures.</p>
+  <form class="k2-amiga-live-ops__grid-form" method="post" action="<?php echo $self; ?>">
     <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="action" value="create_kitchen">
@@ -1083,7 +1109,7 @@ input,select,button{padding:.4rem;font-size:1rem}
       <input type="text" name="name" required maxlength="120" placeholder="Thursday Kitchen I">
     </label>
     <label>Date
-      <input type="date" name="event_date" required value="<?php echo htmlspecialchars(gmdate('Y-m-d'), ENT_QUOTES, 'UTF-8'); ?>">
+      <?php k2_render_day_picker('amiga-fixture-event-date', 'event_date', gmdate('Y-m-d'), 'Tournament date'); ?>
     </label>
     <label>Country
       <input type="text" name="country" maxlength="50" placeholder="Denmark">
@@ -1104,26 +1130,26 @@ input,select,button{padding:.4rem;font-size:1rem}
 </div>
 
 <?php if ($tournamentId <= 0) { ?>
-  <p class="muted">Enter a generated tournament id, or pick a recent generated fixture-backed tournament below.</p>
+  <p class="k2-amiga-live-ops__muted">Enter a generated tournament id, or pick a recent generated fixture-backed tournament below.</p>
 <?php } elseif ($tournament === null) { ?>
-  <p class="muted">Tournament not found.</p>
+  <p class="k2-amiga-live-ops__muted">Tournament not found.</p>
 <?php } else { ?>
-  <h2><?php echo k2_h((string) $tournament['name']); ?> <span class="muted">#<?php echo (int) $tournament['id']; ?></span></h2>
+  <h2><?php echo k2_h((string) $tournament['name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $tournament['id']; ?></span></h2>
   <?php if ($lifecycle !== null) { ?>
-    <div class="section lifecycle-panel">
+    <div class="k2-amiga-live-ops__section" style="padding:.75rem 1rem;border:1px solid var(--k2-border-subtle);border-radius:var(--k2-radius-md);max-width:42rem">
       <h3>Tournament lifecycle</h3>
-      <dl>
+      <dl style="display:grid;grid-template-columns:auto 1fr;gap:.25rem 1rem;margin:0">
         <dt>Status</dt>
-        <dd><span class="pill"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></dd>
+        <dd><span class="k2-amiga-tournament-badge"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></dd>
         <dt>Started</dt>
-        <dd><?php echo $lifecycle['started_at'] !== null ? k2_h($lifecycle['started_at']) : '<span class="muted">not set</span>'; ?></dd>
+        <dd><?php echo $lifecycle['started_at'] !== null ? k2_h($lifecycle['started_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
         <dt>Completed</dt>
-        <dd><?php echo $lifecycle['completed_at'] !== null ? k2_h($lifecycle['completed_at']) : '<span class="muted">not set</span>'; ?></dd>
+        <dd><?php echo $lifecycle['completed_at'] !== null ? k2_h($lifecycle['completed_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
       </dl>
       <?php if ($lifecycle['source_id'] !== null) { ?>
-        <p class="muted">Imported historical tournament — lifecycle changes are CLI-only.</p>
+        <p class="k2-amiga-live-ops__muted">Imported historical tournament — lifecycle changes are CLI-only.</p>
       <?php } elseif ($lifecycleTargets !== []) { ?>
-        <form class="lifecycle-form" method="post" action="<?php echo $self; ?>">
+        <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
           <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
           <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
           <input type="hidden" name="action" value="set_lifecycle_status">
@@ -1138,30 +1164,31 @@ input,select,button{padding:.4rem;font-size:1rem}
           <button type="submit">Apply lifecycle transition</button>
         </form>
       <?php } elseif ($lifecycle['lifecycle_status'] === 'running') { ?>
-        <p class="muted">No browser transitions available: complete all scheduled fixtures before marking completed, or use CLI for force transitions.</p>
+        <p class="k2-amiga-live-ops__muted">No browser transitions available: complete all scheduled fixtures before marking completed, or use CLI for force transitions.</p>
       <?php } else { ?>
-        <p class="muted">No browser lifecycle transitions available from this status.</p>
+        <p class="k2-amiga-live-ops__muted">No browser lifecycle transitions available from this status.</p>
       <?php } ?>
       <?php if ($lifecycle['lifecycle_status'] !== 'running') { ?>
-        <p class="muted">Result entry is allowed only when lifecycle status is <strong>running</strong>.</p>
+        <p class="k2-amiga-live-ops__muted">Result entry is allowed only when lifecycle status is <strong>running</strong>.</p>
       <?php } ?>
     </div>
   <?php } ?>
-  <p class="muted"><?php echo count($fixtures); ?> fixture<?php echo count($fixtures) === 1 ? '' : 's'; ?> shown.</p>
-  <table>
+  <p class="k2-amiga-live-ops__muted"><?php echo count($fixtures); ?> fixture<?php echo count($fixtures) === 1 ? '' : 's'; ?> shown.</p>
+  <div class="k2-table-wrap">
+  <table class="k2-table k2-table--calm-stats">
     <thead>
-      <tr><th>ID</th><th>Stage</th><th>Key</th><th>Players</th><th>Status</th><th>Result</th></tr>
+      <tr><th class="k2-table-cell--left">ID</th><th class="k2-table-cell--left">Stage</th><th class="k2-table-cell--left">Key</th><th class="k2-table-cell--left">Players</th><th>Status</th><th class="k2-table-cell--left">Result</th></tr>
     </thead>
     <tbody>
     <?php foreach ($fixtures as $row) { ?>
       <tr>
-        <td><?php echo (int) $row['id']; ?></td>
-        <td><?php echo k2_h((string) $row['stage_name']); ?><br><span class="muted"><?php echo k2_h((string) $row['stage_type']); ?></span></td>
-        <td><?php echo k2_h((string) $row['fixture_key']); ?></td>
-        <td>
+        <td class="k2-table-cell--left"><?php echo (int) $row['id']; ?></td>
+        <td class="k2-table-cell--left"><?php echo k2_h((string) $row['stage_name']); ?><br><span class="k2-amiga-live-ops__muted"><?php echo k2_h((string) $row['stage_type']); ?></span></td>
+        <td class="k2-table-cell--left"><?php echo k2_h((string) $row['fixture_key']); ?></td>
+        <td class="k2-table-cell--left">
           <?php echo k2_h((string) ($row['player_a_name'] ?? 'TBD')); ?> vs <?php echo k2_h((string) ($row['player_b_name'] ?? 'TBD')); ?>
           <?php if ($row['status'] === 'scheduled' && ($row['player_a_id'] === null || $row['player_b_id'] === null)) { ?>
-            <form class="assign-form" method="post" action="<?php echo $self; ?>">
+            <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
               <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="action" value="assign_players">
@@ -1173,11 +1200,11 @@ input,select,button{padding:.4rem;font-size:1rem}
             </form>
           <?php } ?>
         </td>
-        <td><span class="pill"><?php echo k2_h((string) $row['status']); ?></span></td>
-        <td><?php
+        <td><span class="k2-amiga-tournament-badge"><?php echo k2_h((string) $row['status']); ?></span></td>
+        <td class="k2-table-cell--left"><?php
             if ($row['game_id'] !== null) {
                 echo (int) $row['goals_a'] . '-' . (int) $row['goals_b'] . ' ';
-                echo '<span class="muted">game #' . (int) $row['game_id'] . '</span>';
+                echo '<span class="k2-amiga-live-ops__muted">game #' . (int) $row['game_id'] . '</span>';
             } elseif (
                 $row['status'] === 'scheduled'
                 && $row['player_a_id'] !== null
@@ -1186,7 +1213,7 @@ input,select,button{padding:.4rem;font-size:1rem}
                 && $lifecycle['lifecycle_status'] === 'running'
             ) {
                 ?>
-                <form class="score-form" method="post" action="<?php echo $self; ?>">
+                <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
                   <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
                   <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
                   <input type="hidden" name="action" value="record_result">
@@ -1206,23 +1233,25 @@ input,select,button{padding:.4rem;font-size:1rem}
                 && $lifecycle !== null
                 && $lifecycle['lifecycle_status'] !== 'running'
             ) {
-                echo '<span class="muted">result entry requires running lifecycle</span>';
+                echo '<span class="k2-amiga-live-ops__muted">result entry requires running lifecycle</span>';
             } else {
-                echo '<span class="muted">not played</span>';
+                echo '<span class="k2-amiga-live-ops__muted">not played</span>';
             }
         ?></td>
       </tr>
     <?php } ?>
     </tbody>
   </table>
-  <div class="section">
+  </div>
+  <div class="k2-amiga-live-ops__section">
     <h2>Overall standings</h2>
     <?php if ($standingsRows === []) { ?>
-      <p class="muted">No derived standings yet. Enter a fixture result to populate this table.</p>
+      <p class="k2-amiga-live-ops__muted">No derived standings yet. Enter a fixture result to populate this table.</p>
     <?php } else { ?>
-      <table>
+      <div class="k2-table-wrap">
+      <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
         <thead>
-          <tr><th>Pos</th><th>Player</th><th>Games</th><th>W-D-L</th><th>Goals</th><th>GD</th><th>Pts</th></tr>
+          <tr><th>Pos</th><th class="k2-table-cell--left">Player</th><th>Games</th><th>W-D-L</th><th>Goals</th><th>GD</th><th>Pts</th></tr>
         </thead>
         <tbody>
         <?php foreach ($standingsRows as $row) {
@@ -1232,7 +1261,7 @@ input,select,button{padding:.4rem;font-size:1rem}
             ?>
           <tr>
             <td><?php echo (int) $row['position']; ?></td>
-            <td><?php echo k2_h((string) $row['player_name']); ?> <span class="muted">#<?php echo (int) $row['player_id']; ?></span></td>
+            <td class="k2-table-cell--left"><?php echo k2_h((string) $row['player_name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $row['player_id']; ?></span></td>
             <td><?php echo (int) $row['games']; ?></td>
             <td><?php echo (int) $row['wins']; ?>-<?php echo (int) $row['draws']; ?>-<?php echo (int) $row['losses']; ?></td>
             <td><?php echo $gf; ?>-<?php echo $ga; ?></td>
@@ -1242,18 +1271,20 @@ input,select,button{padding:.4rem;font-size:1rem}
         <?php } ?>
         </tbody>
       </table>
+      </div>
     <?php } ?>
   </div>
 <?php } ?>
 
-<div class="section">
+<div class="k2-amiga-live-ops__section">
   <h2>Generated fixture-backed tournaments</h2>
   <?php if ($generatedTournaments === []) { ?>
-    <p class="muted">No generated fixture-backed tournaments currently exist in this database.</p>
+    <p class="k2-amiga-live-ops__muted">No generated fixture-backed tournaments currently exist in this database.</p>
   <?php } else { ?>
-    <table>
+    <div class="k2-table-wrap">
+    <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
       <thead>
-        <tr><th>ID</th><th>Tournament</th><th>Date</th><th>Stages</th><th>Fixtures</th><th>Games</th><th></th></tr>
+        <tr><th class="k2-table-cell--left">ID</th><th class="k2-table-cell--left">Tournament</th><th>Date</th><th>Stages</th><th>Fixtures</th><th>Games</th><th class="k2-table-cell--left"></th></tr>
       </thead>
       <tbody>
       <?php foreach ($generatedTournaments as $row) {
@@ -1263,18 +1294,19 @@ input,select,button{padding:.4rem;font-size:1rem}
               . '&tournament_id=' . (int) $row['id'];
           ?>
         <tr>
-          <td><?php echo (int) $row['id']; ?></td>
-          <td><?php echo k2_h((string) $row['name']); ?></td>
-          <td><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '<span class="muted">none</span>'; ?></td>
+          <td class="k2-table-cell--left"><?php echo (int) $row['id']; ?></td>
+          <td class="k2-table-cell--left"><?php echo k2_h((string) $row['name']); ?></td>
+          <td><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '<span class="k2-amiga-live-ops__muted">none</span>'; ?></td>
           <td><?php echo (int) $row['stage_count']; ?></td>
           <td><?php echo (int) $row['fixture_count']; ?></td>
           <td><?php echo (int) $row['game_count']; ?></td>
-          <td><a href="<?php echo htmlspecialchars($viewUrl, ENT_QUOTES, 'UTF-8'); ?>">view fixtures</a></td>
+          <td class="k2-table-cell--left"><a href="<?php echo htmlspecialchars($viewUrl, ENT_QUOTES, 'UTF-8'); ?>">view fixtures</a></td>
         </tr>
       <?php } ?>
       </tbody>
     </table>
+    </div>
   <?php } ?>
 </div>
-</body>
-</html>
+</div>
+<?php amiga_fixture_render_chrome_end();

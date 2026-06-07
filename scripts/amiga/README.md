@@ -186,7 +186,9 @@ python -m scripts.amiga players create --name "Mark Be" --country "England" --dr
 python -m scripts.amiga players create --name "Mark Be" --country "England"
 ```
 
-Internal fixture browser/create/result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N`.
+Live tournaments hub (Amiga realm tab): `/amiga/live-tournaments.php` — lists generated events; links to the fixture manager.
+
+Internal fixture browser/create/result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N` (same site chrome as the hub).
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 
