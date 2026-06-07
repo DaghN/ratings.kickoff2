@@ -152,8 +152,10 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 
 # Browser ops: /amiga/ops/fixtures.php (password-gated tournament organizer) uses tabbed views
 # (setup, players, fixtures, table, results, advanced). League create uses player search + chips;
-# successful create redirects to view=fixtures. Lifecycle status and supports
-# draft→ready, ready→running, running→completed (no scheduled fixtures), running→void (no games).
+# successful create redirects to view=fixtures. Setup tab shows friendly lifecycle labels and
+# Start tournament / Mark complete / Void tournament actions (same guardrails as CLI:
+# draft|registration→ready→running on start, running→completed when no scheduled fixtures,
+# running→void when no games). Raw single-step transitions remain on Advanced.
 # Imported tournaments and --force transitions remain CLI-only.
 # Browser entrant ops (generated tournaments): list entrants, search existing players, add existing
 # entrant (draft/registration/ready), withdraw, replace — same guardrails as fixtures add/withdraw/replace CLI.

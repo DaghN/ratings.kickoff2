@@ -491,7 +491,7 @@ function amiga_fixture_browser_allowed_lifecycle_targets(mysqli $con, array $lif
 
     $current = $lifecycle['lifecycle_status'];
     $tournamentId = $lifecycle['id'];
-    if ($current === 'draft') {
+    if ($current === 'draft' || $current === 'registration') {
         return ['ready'];
     }
     if ($current === 'ready') {
@@ -510,6 +510,177 @@ function amiga_fixture_browser_allowed_lifecycle_targets(mysqli $con, array $lif
     }
 
     return [];
+}
+
+function amiga_fixture_organizer_status_label(string $status): string
+{
+    if ($status === 'draft' || $status === 'registration') {
+        return 'Not started';
+    }
+    if ($status === 'ready') {
+        return 'Ready to start';
+    }
+    if ($status === 'running') {
+        return 'In progress';
+    }
+    if ($status === 'completed' || $status === 'archived') {
+        return 'Finished';
+    }
+    if ($status === 'void') {
+        return 'Void';
+    }
+
+    return $status;
+}
+
+function amiga_fixture_organizer_status_badge_modifier(string $status): string
+{
+    if ($status === 'draft' || $status === 'registration') {
+        return 'not-started';
+    }
+    if ($status === 'ready') {
+        return 'ready';
+    }
+    if ($status === 'running') {
+        return 'running';
+    }
+    if ($status === 'completed' || $status === 'archived') {
+        return 'finished';
+    }
+    if ($status === 'void') {
+        return 'void';
+    }
+
+    return 'default';
+}
+
+/**
+ * Organizer-facing lifecycle summary for Setup tab rendering.
+ *
+ * Status mapping: draft/registration → Not started; ready → Ready to start;
+ * running → In progress; completed/archived → Finished; void → Void.
+ *
+ * @param array{id:int,name:string,source_id:?int,lifecycle_status:string,started_at:?string,completed_at:?string} $lifecycle
+ * @return array{
+ *   label:string,
+ *   badge_modifier:string,
+ *   raw_status:string,
+ *   is_imported:bool,
+ *   is_read_only:bool,
+ *   can_start:bool,
+ *   can_complete:bool,
+ *   can_void:bool,
+ *   complete_blocked_reason:?string,
+ *   scheduled_remaining:int,
+ *   game_count:int
+ * }
+ */
+function amiga_fixture_organizer_lifecycle_ui(mysqli $con, array $lifecycle): array
+{
+    $rawStatus = $lifecycle['lifecycle_status'];
+    $isImported = $lifecycle['source_id'] !== null;
+    $scheduledRemaining = amiga_fixture_count_scheduled_fixtures($con, $lifecycle['id']);
+    $gameCount = amiga_fixture_count_tournament_games($con, $lifecycle['id']);
+    $allowed = $isImported ? [] : amiga_fixture_browser_allowed_lifecycle_targets($con, $lifecycle);
+
+    $canStart = !$isImported
+        && in_array($rawStatus, ['draft', 'registration', 'ready'], true)
+        && (in_array('running', $allowed, true) || in_array('ready', $allowed, true));
+    $canComplete = !$isImported && in_array('completed', $allowed, true);
+    $canVoid = !$isImported && in_array('void', $allowed, true);
+
+    $completeBlockedReason = null;
+    if ($rawStatus === 'running' && !$canComplete && !$isImported) {
+        if ($scheduledRemaining > 0) {
+            $fixtureWord = $scheduledRemaining === 1 ? 'fixture' : 'fixtures';
+            $completeBlockedReason = "Mark complete is unavailable while {$scheduledRemaining} scheduled {$fixtureWord} remain.";
+        } elseif ($gameCount === 0) {
+            $completeBlockedReason = 'Mark complete is unavailable until at least one match has been played or voided fixtures are cleared.';
+        }
+    }
+
+    $isReadOnly = $isImported
+        || in_array($rawStatus, ['completed', 'archived', 'void'], true);
+
+    return [
+        'label' => amiga_fixture_organizer_status_label($rawStatus),
+        'badge_modifier' => amiga_fixture_organizer_status_badge_modifier($rawStatus),
+        'raw_status' => $rawStatus,
+        'is_imported' => $isImported,
+        'is_read_only' => $isReadOnly,
+        'can_start' => $canStart,
+        'can_complete' => $canComplete,
+        'can_void' => $canVoid,
+        'complete_blocked_reason' => $completeBlockedReason,
+        'scheduled_remaining' => $scheduledRemaining,
+        'game_count' => $gameCount,
+    ];
+}
+
+/**
+ * Apply an organizer-friendly lifecycle action via existing transition guardrails.
+ *
+ * start_tournament: draft/registration → ready → running; ready → running.
+ *
+ * @return array{
+ *   tournament_id:int,
+ *   action:string,
+ *   previous_status:string,
+ *   lifecycle_status:string,
+ *   changed:bool,
+ *   steps:list<string>
+ * }
+ */
+function amiga_fixture_apply_organizer_lifecycle_action(mysqli $con, int $tournamentId, string $action): array
+{
+    $validActions = ['start_tournament', 'mark_complete', 'void_tournament'];
+    if (!in_array($action, $validActions, true)) {
+        throw new RuntimeException('Unknown organizer lifecycle action.');
+    }
+
+    $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+    if ($lifecycle === null) {
+        throw new RuntimeException("Tournament {$tournamentId} not found.");
+    }
+
+    $previousStatus = $lifecycle['lifecycle_status'];
+    $steps = [];
+
+    if ($action === 'start_tournament') {
+        if (!in_array($previousStatus, ['draft', 'registration', 'ready'], true)) {
+            throw new RuntimeException(
+                "Tournament {$tournamentId} cannot be started from status '{$previousStatus}'."
+            );
+        }
+        if (in_array($previousStatus, ['draft', 'registration'], true)) {
+            $readySummary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'ready');
+            if ($readySummary['changed']) {
+                $steps[] = "{$previousStatus} → ready";
+            }
+        }
+        $runningSummary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'running');
+
+        return [
+            'tournament_id' => $tournamentId,
+            'action' => $action,
+            'previous_status' => $previousStatus,
+            'lifecycle_status' => $runningSummary['lifecycle_status'],
+            'changed' => $previousStatus !== $runningSummary['lifecycle_status'] || $steps !== [],
+            'steps' => array_merge($steps, $runningSummary['changed'] ? ['ready → running'] : []),
+        ];
+    }
+
+    $targetStatus = $action === 'mark_complete' ? 'completed' : 'void';
+    $summary = amiga_fixture_set_lifecycle_status($con, $tournamentId, $targetStatus);
+
+    return [
+        'tournament_id' => $tournamentId,
+        'action' => $action,
+        'previous_status' => $summary['previous_status'],
+        'lifecycle_status' => $summary['lifecycle_status'],
+        'changed' => $summary['changed'],
+        'steps' => $summary['changed'] ? ["{$summary['previous_status']} → {$targetStatus}"] : [],
+    ];
 }
 
 /**
@@ -2046,6 +2217,8 @@ $tournament = null;
 $lifecycle = null;
 /** @var list<string> */
 $lifecycleTargets = [];
+/** @var array<string, mixed>|null */
+$organizerLifecycleUi = null;
 $fixtures = [];
 $standingsRows = [];
 $generatedTournaments = [];
@@ -2181,6 +2354,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     "Tournament #{$tournamentId} lifecycle: {$summary['previous_status']} → {$newStatus}."
                 );
             }
+            $lifecycleRedirectView = trim((string) ($_POST['view'] ?? 'setup'));
+            if (!in_array($lifecycleRedirectView, AMIGA_FIXTURE_OPS_VIEWS, true)) {
+                $lifecycleRedirectView = 'setup';
+            }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, $lifecycleRedirectView, $postStatus);
+        } elseif ($action === 'organizer_lifecycle_action') {
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            if ($tournamentId <= 0) {
+                throw new RuntimeException('Missing tournament id.');
+            }
+            $lifecycleAction = trim((string) ($_POST['lifecycle_action'] ?? ''));
+            $summary = amiga_fixture_apply_organizer_lifecycle_action($con, $tournamentId, $lifecycleAction);
+            if (!$summary['changed']) {
+                if ($lifecycleAction === 'start_tournament') {
+                    amiga_fixture_ops_flash_set('Tournament is already in progress.');
+                } elseif ($lifecycleAction === 'mark_complete') {
+                    amiga_fixture_ops_flash_set('Tournament is already marked complete.');
+                } else {
+                    amiga_fixture_ops_flash_set('Tournament is already void.');
+                }
+            } elseif ($lifecycleAction === 'start_tournament') {
+                amiga_fixture_ops_flash_set('Tournament started — you can now enter results on the Fixtures tab.');
+            } elseif ($lifecycleAction === 'mark_complete') {
+                amiga_fixture_ops_flash_set('Tournament marked complete.');
+            } else {
+                amiga_fixture_ops_flash_set('Tournament voided.');
+            }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'setup', $postStatus);
         } elseif ($action === 'add_entrant') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
@@ -2289,7 +2489,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errorView = 'fixtures';
             if (in_array($action, ['add_entrant', 'withdraw_entrant', 'replace_entrant'], true)) {
                 $errorView = 'players';
-            } elseif ($action === 'set_lifecycle_status') {
+            } elseif ($action === 'set_lifecycle_status' || $action === 'organizer_lifecycle_action') {
                 $errorView = 'setup';
             } elseif ($action === 'place_stage_entrant') {
                 $errorView = 'advanced';
@@ -2344,6 +2544,7 @@ if ($tournamentId > 0) {
         $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
         if ($lifecycle !== null) {
             $lifecycleTargets = amiga_fixture_browser_allowed_lifecycle_targets($con, $lifecycle);
+            $organizerLifecycleUi = amiga_fixture_organizer_lifecycle_ui($con, $lifecycle);
         }
     }
 
@@ -2440,8 +2641,10 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
   <div class="k2-amiga-organizer__header">
     <p class="k2-amiga-organizer__back"><a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, 0, 'setup'), ENT_QUOTES, 'UTF-8'); ?>">Create new league</a></p>
     <h2 class="k2-amiga-organizer__title"><?php echo k2_h((string) $tournament['name']); ?></h2>
-    <?php if ($lifecycle !== null) { ?>
-      <p class="k2-amiga-live-ops__muted">Status: <span class="k2-amiga-tournament-badge"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></p>
+    <?php if ($organizerLifecycleUi !== null) { ?>
+      <p class="k2-amiga-organizer-lifecycle__header-status">
+        <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--lifecycle k2-amiga-tournament-badge--<?php echo k2_h($organizerLifecycleUi['badge_modifier']); ?>"><?php echo k2_h($organizerLifecycleUi['label']); ?></span>
+      </p>
     <?php } ?>
   </div>
   <nav class="k2-amiga-organizer-tabs" aria-label="Tournament views">
@@ -2539,45 +2742,77 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
   </div>
   <?php } elseif ($tournament === null) { ?>
     <p class="k2-amiga-live-ops__muted">That tournament could not be found. <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, 0, 'setup'), ENT_QUOTES, 'UTF-8'); ?>">Create or open a league</a> from the list below.</p>
-  <?php } elseif ($lifecycle !== null) { ?>
-    <div class="k2-amiga-live-ops__section" style="padding:.75rem 1rem;border:1px solid var(--k2-border-subtle);border-radius:var(--k2-radius-md);max-width:42rem">
-      <h3>Tournament lifecycle</h3>
-      <dl style="display:grid;grid-template-columns:auto 1fr;gap:.25rem 1rem;margin:0">
-        <dt>Status</dt>
-        <dd><span class="k2-amiga-tournament-badge"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></dd>
+  <?php } elseif ($lifecycle !== null && $organizerLifecycleUi !== null) { ?>
+    <div class="k2-amiga-live-ops__section k2-amiga-organizer-lifecycle">
+      <h3>Tournament status</h3>
+      <p class="k2-amiga-organizer-lifecycle__summary">
+        <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--lifecycle k2-amiga-tournament-badge--<?php echo k2_h($organizerLifecycleUi['badge_modifier']); ?>"><?php echo k2_h($organizerLifecycleUi['label']); ?></span>
+      </p>
+      <dl class="k2-amiga-organizer-lifecycle__meta">
         <dt>Started</dt>
         <dd><?php echo $lifecycle['started_at'] !== null ? k2_h($lifecycle['started_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
         <dt>Completed</dt>
         <dd><?php echo $lifecycle['completed_at'] !== null ? k2_h($lifecycle['completed_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
+        <dt>Internal status</dt>
+        <dd><span class="k2-amiga-live-ops__muted"><?php echo k2_h($organizerLifecycleUi['raw_status']); ?></span></dd>
       </dl>
-      <?php if ($lifecycle['source_id'] !== null) { ?>
-        <p class="k2-amiga-live-ops__muted">Imported historical tournament — lifecycle changes are CLI-only.</p>
-      <?php } elseif ($lifecycleTargets !== []) { ?>
-        <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
-          <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-          <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-          <input type="hidden" name="action" value="set_lifecycle_status">
-          <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-          <input type="hidden" name="view" value="setup">
-          <?php if ($status !== '') { ?>
-            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-          <?php } ?>
-          <label>Transition to
-            <select name="lifecycle_status" required>
-              <?php foreach ($lifecycleTargets as $target) { ?>
-                <option value="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?></option>
-              <?php } ?>
-            </select>
-          </label>
-          <button type="submit">Apply lifecycle transition</button>
-        </form>
-      <?php } elseif ($lifecycle['lifecycle_status'] === 'running') { ?>
-        <p class="k2-amiga-live-ops__muted">No browser transitions available: complete all scheduled fixtures before marking completed, or use CLI for force transitions.</p>
+      <?php if ($organizerLifecycleUi['is_imported']) { ?>
+        <p class="k2-amiga-live-ops__muted">Historical import — lifecycle changes are CLI-only.</p>
+      <?php } elseif ($organizerLifecycleUi['raw_status'] === 'void') { ?>
+        <p class="k2-amiga-live-ops__muted">This tournament was voided. No further lifecycle actions are available in the browser.</p>
+      <?php } elseif ($organizerLifecycleUi['is_read_only']) { ?>
+        <p class="k2-amiga-live-ops__muted">This tournament is finished. No further lifecycle actions are available in the browser.</p>
       <?php } else { ?>
-        <p class="k2-amiga-live-ops__muted">No browser lifecycle transitions available from this status.</p>
+        <div class="k2-amiga-organizer-lifecycle__actions">
+          <?php if ($organizerLifecycleUi['can_start']) { ?>
+            <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>">
+              <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="action" value="organizer_lifecycle_action">
+              <input type="hidden" name="lifecycle_action" value="start_tournament">
+              <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+              <input type="hidden" name="view" value="setup">
+              <?php if ($status !== '') { ?>
+                <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+              <?php } ?>
+              <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary">Start tournament</button>
+            </form>
+          <?php } ?>
+          <?php if ($organizerLifecycleUi['can_complete']) { ?>
+            <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>">
+              <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="action" value="organizer_lifecycle_action">
+              <input type="hidden" name="lifecycle_action" value="mark_complete">
+              <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+              <input type="hidden" name="view" value="setup">
+              <?php if ($status !== '') { ?>
+                <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+              <?php } ?>
+              <button type="submit" class="k2-amiga-organizer-lifecycle__action">Mark complete</button>
+            </form>
+          <?php } ?>
+          <?php if ($organizerLifecycleUi['can_void']) { ?>
+            <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>">
+              <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="action" value="organizer_lifecycle_action">
+              <input type="hidden" name="lifecycle_action" value="void_tournament">
+              <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+              <input type="hidden" name="view" value="setup">
+              <?php if ($status !== '') { ?>
+                <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+              <?php } ?>
+              <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--secondary">Void tournament</button>
+            </form>
+          <?php } ?>
+        </div>
+        <?php if ($organizerLifecycleUi['complete_blocked_reason'] !== null) { ?>
+          <p class="k2-amiga-organizer-lifecycle__hint"><?php echo k2_h($organizerLifecycleUi['complete_blocked_reason']); ?></p>
+        <?php } ?>
       <?php } ?>
-      <?php if ($lifecycle['lifecycle_status'] !== 'running') { ?>
-        <p class="k2-amiga-live-ops__muted">Result entry is allowed only when lifecycle status is <strong>running</strong>.</p>
+      <?php if ($organizerLifecycleUi['raw_status'] !== 'running') { ?>
+        <p class="k2-amiga-live-ops__muted">Result entry unlocks after you start the tournament.</p>
       <?php } ?>
     </div>
   <?php } ?>
@@ -2766,6 +3001,44 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 <?php } ?>
 
 <?php if ($view === 'advanced' && $tournamentId > 0 && $tournament !== null) { ?>
+  <?php if ($lifecycle !== null) { ?>
+  <div class="k2-amiga-live-ops__section k2-amiga-organizer-lifecycle-advanced">
+    <h3>Lifecycle (advanced)</h3>
+    <p class="k2-amiga-live-ops__muted">Internal status transitions for operators. Prefer the friendly Start / Mark complete actions on Setup for normal league nights.</p>
+    <dl class="k2-amiga-organizer-lifecycle__meta">
+      <dt>Internal status</dt>
+      <dd><span class="k2-amiga-live-ops__muted"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></dd>
+      <dt>Started</dt>
+      <dd><?php echo $lifecycle['started_at'] !== null ? k2_h($lifecycle['started_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
+      <dt>Completed</dt>
+      <dd><?php echo $lifecycle['completed_at'] !== null ? k2_h($lifecycle['completed_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
+    </dl>
+    <?php if ($lifecycle['source_id'] !== null) { ?>
+      <p class="k2-amiga-live-ops__muted">Imported historical tournament — lifecycle changes are CLI-only.</p>
+    <?php } elseif ($lifecycleTargets !== []) { ?>
+      <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
+        <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="hidden" name="action" value="set_lifecycle_status">
+        <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+        <input type="hidden" name="view" value="advanced">
+        <?php if ($status !== '') { ?>
+          <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+        <?php } ?>
+        <label>Transition to (internal)
+          <select name="lifecycle_status" required>
+            <?php foreach ($lifecycleTargets as $target) { ?>
+              <option value="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?></option>
+            <?php } ?>
+          </select>
+        </label>
+        <button type="submit">Apply lifecycle transition</button>
+      </form>
+    <?php } else { ?>
+      <p class="k2-amiga-live-ops__muted">No single-step browser transitions available from this status. Use CLI <code>fixtures set-tournament-status --force</code> for unusual cases.</p>
+    <?php } ?>
+  </div>
+  <?php } ?>
   <div class="k2-amiga-live-ops__section">
     <h3>Fixture status filter</h3>
     <form class="k2-amiga-live-ops__inline-form" method="get" action="<?php echo $self; ?>">

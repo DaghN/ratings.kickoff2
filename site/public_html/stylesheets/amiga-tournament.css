@@ -607,3 +607,104 @@ body.k2-site .k2-amiga-organizer-player-search__results {
 .k2-amiga-organizer-player-search__results li.player-search-active .k2-amiga-organizer-player-search__option {
 	background: color-mix(in srgb, var(--k2-accent) 10%, var(--k2-bg-elevated));
 }
+
+/* Organizer lifecycle (Setup tab) */
+.k2-amiga-organizer-lifecycle {
+	max-width: 42rem;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+}
+
+.k2-amiga-organizer-lifecycle__header-status {
+	margin: 0.35rem 0 0;
+}
+
+.k2-amiga-organizer-lifecycle__summary {
+	margin: 0 0 0.75rem;
+}
+
+.k2-amiga-organizer-lifecycle__meta {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 0.25rem 1rem;
+	margin: 0 0 0.75rem;
+	font-size: 0.92rem;
+}
+
+.k2-amiga-organizer-lifecycle__meta dt {
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-organizer-lifecycle__meta dd {
+	margin: 0;
+}
+
+.k2-amiga-organizer-lifecycle__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.65rem;
+	margin: 0 0 0.5rem;
+}
+
+.k2-amiga-organizer-lifecycle__action-form {
+	margin: 0;
+}
+
+body.k2-site .k2-amiga-organizer-lifecycle__action {
+	padding: 0.45rem 0.85rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+body.k2-site .k2-amiga-organizer-lifecycle__action--primary {
+	border-color: var(--k2-segment-active-ring);
+	background: color-mix(in srgb, var(--k2-accent) 18%, var(--k2-bg-elevated));
+	font-weight: 600;
+}
+
+body.k2-site .k2-amiga-organizer-lifecycle__action--secondary {
+	color: var(--k2-text-secondary);
+	font-size: 0.85rem;
+}
+
+body.k2-site .k2-amiga-organizer-lifecycle__action:hover,
+body.k2-site .k2-amiga-organizer-lifecycle__action:focus-visible {
+	border-color: var(--k2-segment-active-ring);
+}
+
+.k2-amiga-organizer-lifecycle__hint {
+	margin: 0.35rem 0 0;
+	padding: 0.5rem 0.65rem;
+	border-radius: var(--k2-radius-sm);
+	font-size: 0.88rem;
+	color: var(--k2-text-secondary);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 70%, transparent);
+	border: 1px dashed var(--k2-border-subtle);
+}
+
+.k2-amiga-tournament-badge--lifecycle.k2-amiga-tournament-badge--running {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
+}
+
+.k2-amiga-tournament-badge--lifecycle.k2-amiga-tournament-badge--ready {
+	border-color: color-mix(in srgb, var(--k2-accent) 45%, var(--k2-border-subtle));
+}
+
+.k2-amiga-tournament-badge--lifecycle.k2-amiga-tournament-badge--finished {
+	opacity: 0.85;
+}
+
+.k2-amiga-tournament-badge--lifecycle.k2-amiga-tournament-badge--void {
+	color: var(--k2-text-secondary);
+	border-style: dashed;
+}
+
+.k2-amiga-organizer-lifecycle-advanced {
+	max-width: 42rem;
+}
