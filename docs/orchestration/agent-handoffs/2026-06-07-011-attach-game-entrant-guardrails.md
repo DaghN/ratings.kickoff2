@@ -106,7 +106,7 @@ python -m scripts.amiga verify-tournament-formats
 
 ## Commit hash and push target
 
-- Implementation commit: _(filled after commit)_
+- Implementation commit: `4c4f27c`
 - Push target: `origin/main`
 
 ## Recommended next steps
