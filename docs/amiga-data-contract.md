@@ -16,6 +16,7 @@
 | **Import layer** (archival → ground truth) | [`amiga-import-layer.md`](amiga-import-layer.md) |
 | Chronology fix | [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) |
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
+| **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
 | DDL (current) | [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql) |
@@ -167,7 +168,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - **Scopes:** `scope_type` + `scope_key` from phase labels (`scripts/amiga/tournament_phases.py`). Phase NULL → single `overall` table. Group labels → per-group league tables. Knockout phases (`Semi Finals`, `Places 9-16`, …) → `knockout` scope per **player pair** (`scope_key` = `{phase}|{id}-{id}`), two rows per tie.
 - **Goals:** Regulation `goals_a` / `goals_b` only for league/group tables (Elo uses the same). `extra` column stores Access `Scores.Extra` (ET/penalties text); does not affect Elo.
 - **Knockout tie winner** (per pair scope, all legs in that phase between the two players): (1) higher aggregate goal difference; (2) if tied, higher aggregate goals scored; (3) if still tied, `parse_standings_winner` on any leg with non-empty `extra` (penalties); (4) if unresolved, UI shows “Tie unresolved” and falls back to derived `position` order. Same rules in `scripts/amiga/tournament_standings.py` (`_knockout_positions`) and `includes/amiga_tournament_lib.php` (`amiga_tournament_knockout_resolve_winner`). Website knockout view lists per-leg fixtures via `amiga_tournament_knockout_fixture_games`.
-- **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity`.
+- **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity` (spot check) or `standings-parity --sweep` (full report → `data/amiga/exports/standings_parity_report.json`). Player names normalized via `normalize_display_name` at compare time; Silver/Bronze cup groups map to Access `Group A`…`H` labels.
 - **PHP incremental:** per-game rebuild from rated `amiga_games` for the touched tournament (`amiga_post_game_standings.php`); knockout positions use aggregate GD/GF + `extra` via `amiga_parse_standings_winner`.
 - **Future gaps:** full knockout bracket advancement; cross-stage promotion (Tier 4).
 
@@ -185,7 +186,22 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 | Amiga `ProcessCompletedGame` ops | **Done** (v1 CLI — `process-one` append-only) |
 | Amiga ops simul (`zero-derived` + `replay-to`) | **Done** (v1 — 500-game parity gate vs Python `replay --limit 500`) |
 | Tournament standings (derived) | **Done** (Track B — league + group + knockout; PHP incremental post-game) |
-| Reference parity tables / diffs | **Partial** (`standings-parity` CLI vs Access ODBC) |
+| Reference parity tables / diffs | **Done** (`standings-parity --sweep` vs Access ODBC; 0 engine FAILs Jun 2026) |
+| Amiga hub nav (v0) | **Done** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); HoF stub `/amiga/hall-of-fame.php` |
+
+---
+
+## Known parity exceptions (reference only)
+
+Full sweep (Jun 2026): **671 PASS**, **109 SKIP** (no Access reference or no derived rows), **26 EXCEPTION** (documented below), **0 FAIL** (engine matches game aggregation). Report: `data/amiga/exports/standings_parity_report.json`.
+
+| Reason | Count | Meaning |
+|--------|------:|---------|
+| `ref_stale_tables` | 24 | Access `Tables` / `World Cup * Tables` disagree with aggregating `Scores` — legacy snapshot not updated after late result entry. Derived engine matches ground-truth games. |
+| `ref_alias_merge` | 1 | **Gloucester III** — import merges `Gloucester III Team` games into parent (`tournament_names.py`); Access overall table counts only the parent label. |
+| `mixed_overall_league_only` | 1 | **Athens LXXXV** — overall derived table = null-phase round-robin only; Access `Tables` includes knockout legs in the same overall row. |
+
+Do not “fix” these by importing Access snapshots as truth. Re-run: `python -m scripts.amiga standings-parity --sweep`.
 
 ---
 

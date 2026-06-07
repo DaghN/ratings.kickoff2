@@ -1,0 +1,241 @@
+/* Amiga tournament pages — bracket + hero (neon noir, tint from --k2-accent) */
+
+.k2-amiga-tournament-hero {
+	margin: 0 1.25rem 1rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+.k2-amiga-tournament-hero__title {
+	margin: 0 0 0.35rem;
+	font-size: 1.35rem;
+	line-height: 1.25;
+}
+
+.k2-amiga-tournament-hero__meta {
+	margin: 0;
+	color: var(--k2-text-secondary);
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+
+.k2-amiga-tournament-hero__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.k2-amiga-tournament-badge {
+	display: inline-block;
+	padding: 0.2rem 0.55rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	color: var(--k2-text-secondary);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 88%, transparent);
+}
+
+.k2-amiga-tournament-badge--cup {
+	color: var(--k2-segment-active-text);
+	border-color: var(--k2-segment-active-ring);
+}
+
+.k2-amiga-tournament-badge--league {
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-tournament-nav {
+	margin: 0 1.25rem 1rem;
+}
+
+.k2-amiga-tournament-nav .k2-player-nav__links {
+	flex-wrap: wrap;
+}
+
+.k2-amiga-tournament-body {
+	padding: 0 0 2rem;
+}
+
+.k2-amiga-tournament-empty {
+	margin: 0 1.25rem 1rem;
+	padding: 0.85rem 1rem;
+	border: 1px dashed var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	color: var(--k2-text-secondary);
+	background: color-mix(in srgb, var(--k2-bg-surface) 70%, transparent);
+}
+
+/* ── Knockout bracket ── */
+
+.k2-amiga-bracket {
+	margin: 0 1.25rem 1.5rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+.k2-amiga-bracket .k2-panel-heading {
+	margin: 0 0 1rem;
+}
+
+.k2-amiga-bracket__subsection {
+	margin: 0 0 0.75rem;
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-bracket__section--placement {
+	margin-top: 1.25rem;
+	padding-top: 1rem;
+	border-top: 1px solid var(--k2-border-subtle);
+}
+
+.k2-amiga-bracket__rounds {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 1rem;
+	overflow-x: auto;
+	padding-bottom: 0.5rem;
+	-webkit-overflow-scrolling: touch;
+	scroll-snap-type: x proximity;
+}
+
+.k2-amiga-bracket__round {
+	flex: 0 0 auto;
+	min-width: 11.5rem;
+	max-width: 14rem;
+	scroll-snap-align: start;
+}
+
+.k2-amiga-bracket__round-title {
+	margin: 0 0 0.6rem;
+	font-size: 0.82rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-bracket__ties {
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+}
+
+.k2-amiga-bracket__tie {
+	display: block;
+	padding: 0.55rem 0.65rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	color: inherit;
+	background: color-mix(in srgb, var(--k2-bg-elevated) 55%, transparent);
+	transition: border-color 0.15s, background 0.15s;
+}
+
+.k2-amiga-bracket__tie:has(.k2-amiga-bracket__score:hover) {
+	border-color: color-mix(in srgb, var(--k2-accent) 45%, var(--k2-border-subtle));
+	background: color-mix(in srgb, var(--k2-accent) 8%, var(--k2-bg-elevated));
+}
+
+.k2-amiga-bracket__tie.is-active {
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: 0 0 0 1px var(--k2-segment-active-ring);
+}
+
+.k2-amiga-bracket__slot {
+	font-size: 0.88rem;
+	line-height: 1.35;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.k2-amiga-bracket__slot.is-winner {
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-amiga-bracket__slot.is-loser {
+	opacity: 0.72;
+}
+
+.k2-amiga-bracket__score {
+	display: block;
+	margin: 0.25rem 0;
+	font-size: 0.8rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--k2-segment-active-text);
+	text-align: center;
+	text-decoration: none;
+}
+
+.k2-amiga-bracket__score:hover {
+	text-decoration: underline;
+	color: var(--k2-link-star-hover);
+}
+
+.k2-amiga-bracket__score.is-unresolved {
+	color: var(--k2-text-muted);
+	font-style: italic;
+}
+
+.k2-amiga-bracket__hint {
+	margin: 1rem 0 0;
+	font-size: 0.82rem;
+	color: var(--k2-text-muted);
+	line-height: 1.45;
+}
+
+.k2-amiga-tournament-fixture {
+	margin: 0 1.25rem 1.25rem;
+}
+
+.k2-amiga-tournament-fixture .k2-table-wrap {
+	margin: 0;
+}
+
+/* Index type badge in table */
+.k2-amiga-tournament-type {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+@media (max-width: 640px) {
+	.k2-amiga-bracket__rounds {
+		flex-direction: column;
+		overflow-x: visible;
+		scroll-snap-type: none;
+	}
+
+	.k2-amiga-bracket__round {
+		min-width: 0;
+		max-width: none;
+		width: 100%;
+	}
+
+	.k2-amiga-bracket__slot {
+		white-space: normal;
+	}
+}
+
+@media print {
+	.k2-amiga-bracket__rounds {
+		flex-wrap: wrap;
+		overflow: visible;
+	}
+
+	.k2-amiga-bracket__tie {
+		break-inside: avoid;
+	}
+}

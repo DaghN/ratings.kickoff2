@@ -46,9 +46,11 @@ function amiga_profile_render_recent_tournaments(array $tournaments): void
 <section class="k2-amiga-profile-tournaments" style="padding:0 1.25rem 1.5rem">
 	<h3 class="k2-panel-heading">Recent tournaments</h3>
 	<ul style="margin:0;padding-left:1.25rem">
-	<?php foreach ($tournaments as $t) { ?>
+	<?php foreach ($tournaments as $t) {
+            $fragment = (int) ($t['knockout_ties'] ?? 0) > 0 ? 'bracket' : '';
+            ?>
 		<li><?php
-            echo amiga_tournament_link((int) $t['id'], (string) $t['name']);
+            echo amiga_tournament_link((int) $t['id'], (string) $t['name'], $fragment);
             echo ' — ';
             echo (int) $t['position'] . ordinal_suffix((int) $t['position']);
             echo ' · ' . (int) $t['points'] . ' pts';

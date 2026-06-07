@@ -116,8 +116,16 @@ def parse_phase(phase: str | None) -> PhaseScope:
 
 
 def access_group_label_for_parity(scope_key: str) -> str:
-    """Map derived scope_key to Access ``World Cup * Tables``.Tournament short label."""
-    m = re.match(r"^Round\s+\d+\s*-\s*Group\s+([A-Z](?:/[A-Z])?)$", scope_key, re.IGNORECASE)
+    """Map derived scope_key to Access ``World Cup * Tables``.Tournament short label.
+
+    Access stores main, silver, and bronze groups as ``Group A`` … ``Group H`` — the cup
+    prefix lives only in ``Scores.Phase``, not in the WC Tables ``Tournament`` column.
+    """
+    m = re.match(
+        r"^(?:Round\s+\d+|Silver\s+Cup|Bronze\s+Cup)\s*-\s*Group\s+([A-Z](?:/[A-Z])?)$",
+        scope_key,
+        re.IGNORECASE,
+    )
     if m:
         return f"Group {m.group(1).upper()}"
     m2 = re.match(r"^Group\s+([A-Z](?:/[A-Z])?)$", scope_key, re.IGNORECASE)

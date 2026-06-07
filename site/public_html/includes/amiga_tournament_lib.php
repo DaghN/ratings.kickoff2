@@ -100,7 +100,9 @@ function amiga_tournament_standings_rows(
 function amiga_player_recent_tournaments(mysqli $con, int $playerId, int $limit = 5): array
 {
     $limit = max(1, min(20, $limit));
-    $sql = 'SELECT t.id, t.name, t.event_date, s.position, s.points, s.games
+    $sql = 'SELECT t.id, t.name, t.event_date, t.is_cup, s.position, s.points, s.games,
+                   (SELECT COUNT(DISTINCT sk.scope_key) FROM amiga_tournament_standings sk
+                    WHERE sk.tournament_id = t.id AND sk.scope_type = \'knockout\') AS knockout_ties
             FROM amiga_tournament_standings s
             INNER JOIN tournaments t ON t.id = s.tournament_id
             WHERE s.player_id = ? AND s.scope_type = \'overall\' AND s.scope_key = \'\'
@@ -136,10 +138,28 @@ function amiga_tournament_url(int $id, string $scopeType = 'overall', string $sc
     return '/amiga/tournament.php?' . http_build_query($params);
 }
 
-function amiga_tournament_link(int $id, string $name): string
+function amiga_tournament_link(int $id, string $name, string $fragment = ''): string
 {
-    return '<a href="' . htmlspecialchars(amiga_tournament_url($id), ENT_QUOTES, 'UTF-8') . '">'
+    $href = amiga_tournament_url($id);
+    if ($fragment !== '') {
+        $href .= '#' . ltrim($fragment, '#');
+    }
+
+    return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
+}
+
+/** Index row format kind (cup vs league marathon). */
+function amiga_tournament_index_format_kind(array $row): string
+{
+    if ((int) ($row['knockout_ties'] ?? 0) > 0 || (int) ($row['group_scopes'] ?? 0) > 0) {
+        return 'cup';
+    }
+    if ((int) ($row['is_cup'] ?? 0) === 1) {
+        return 'cup';
+    }
+
+    return 'league';
 }
 
 /**
@@ -316,14 +336,16 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 500, int $offset 
 {
     $limit = max(1, min(1000, $limit));
     $offset = max(0, $offset);
-    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.country, t.player_count,
+    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.equal_teams, t.country, t.player_count,
                    COUNT(DISTINCT g.id) AS game_count,
                    COUNT(DISTINCT s.player_id) AS standing_players,
-                   COUNT(s.id) AS standing_rows
+                   COUNT(s.id) AS standing_rows,
+                   COUNT(DISTINCT CASE WHEN s.scope_type = \'group\' THEN s.scope_key END) AS group_scopes,
+                   COUNT(DISTINCT CASE WHEN s.scope_type = \'knockout\' THEN s.scope_key END) AS knockout_ties
             FROM tournaments t
             LEFT JOIN amiga_games g ON g.tournament_id = t.id
             LEFT JOIN amiga_tournament_standings s ON s.tournament_id = t.id
-            GROUP BY t.id, t.name, t.event_date, t.chrono, t.is_cup, t.country, t.player_count
+            GROUP BY t.id, t.name, t.event_date, t.chrono, t.is_cup, t.equal_teams, t.country, t.player_count
             ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC
             LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
     $res = mysqli_query($con, $sql);
@@ -561,4 +583,187 @@ function amiga_tournament_format_game_extra(?string $extra): string
         return '';
     }
     return ' <span style="color:var(--k2-text-secondary)">(' . k2_h(trim($extra)) . ')</span>';
+}
+
+/**
+ * Knockout phase sort rank (parity with scripts/amiga/tournament_phases.py taxonomy).
+ *
+ * Inference rules (lower = earlier round, displayed left in main bracket):
+ * - Round N / Round of 16 / Round of 32 → 100–199
+ * - Quarter Finals → 200
+ * - Semi Finals → 300
+ * - Final → 400
+ * - Nth Place Final → 500 + place number
+ * - Places X-Y brackets → 600 + lower bound
+ * - Unknown → 900
+ */
+function amiga_tournament_knockout_phase_rank(string $phase): int
+{
+    $label = trim($phase);
+    $lower = strtolower($label);
+
+    if (preg_match('/^round\s+of\s+32$/i', $label) === 1) {
+        return 120;
+    }
+    if (preg_match('/^round\s+of\s+16$/i', $label) === 1) {
+        return 140;
+    }
+    if (preg_match('/^round\s+(\d+)$/i', $label, $m) === 1) {
+        return 100 + (int) $m[1];
+    }
+    if ($lower === 'quarter finals') {
+        return 200;
+    }
+    if ($lower === 'semi finals') {
+        return 300;
+    }
+    if ($lower === 'final') {
+        return 400;
+    }
+    if (preg_match('/^(\d+)(?:st|nd|rd|th)\s+place\s+final$/i', $label, $m) === 1) {
+        return 500 + (int) $m[1];
+    }
+    if (preg_match('/^places\s+(\d+)(?:-\d+)?$/i', $label, $m) === 1) {
+        return 600 + (int) $m[1];
+    }
+
+    return 900;
+}
+
+/** main | placement_final | placement_bracket */
+function amiga_tournament_knockout_phase_bucket(string $phase): string
+{
+    $rank = amiga_tournament_knockout_phase_rank($phase);
+    if ($rank < 500) {
+        return 'main';
+    }
+    if ($rank < 600) {
+        return 'placement_final';
+    }
+
+    return 'placement_bracket';
+}
+
+/**
+ * Tournament format label for index badges.
+ *
+ * @param list<string> $groupScopes
+ * @param list<string> $knockoutScopes
+ */
+function amiga_tournament_format_kind(array $tournament, array $groupScopes, array $knockoutScopes): string
+{
+    if ($knockoutScopes !== [] || $groupScopes !== []) {
+        return 'cup';
+    }
+    if ((int) ($tournament['is_cup'] ?? 0) === 1) {
+        return 'cup';
+    }
+
+    return 'league';
+}
+
+/**
+ * Build bracket layout from knockout scope keys (read-path only; no advancement graph).
+ *
+ * @param list<string> $scopeKeys
+ * @return array{
+ *   main: list<array{phase: string, rank: int, ties: list<array<string, mixed>>}>,
+ *   placement_final: list<array{phase: string, rank: int, ties: list<array<string, mixed>>}>,
+ *   placement_bracket: list<array{phase: string, rank: int, ties: list<array<string, mixed>>}>
+ * }
+ */
+function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, array $scopeKeys): array
+{
+    $buckets = [
+        'main' => [],
+        'placement_final' => [],
+        'placement_bracket' => [],
+    ];
+    if ($scopeKeys === [] || $tournamentId < 1) {
+        return $buckets;
+    }
+
+    /** @var array<string, list<array<string, mixed>>> $byPhase */
+    $byPhase = [];
+    $allPlayerIds = [];
+
+    foreach ($scopeKeys as $scopeKey) {
+        $parsed = amiga_tournament_parse_knockout_scope_key($scopeKey);
+        if ($parsed === null) {
+            continue;
+        }
+        $phase = $parsed['phase'];
+        $playerLo = $parsed['player_lo'];
+        $playerHi = $parsed['player_hi'];
+        $allPlayerIds[] = $playerLo;
+        $allPlayerIds[] = $playerHi;
+
+        $games = amiga_tournament_knockout_fixture_games($con, $tournamentId, $scopeKey);
+        $standings = amiga_tournament_standings_rows($con, $tournamentId, 'knockout', $scopeKey);
+        $resolved = amiga_tournament_knockout_resolve_winner($games, $standings);
+
+        $winnerId = $resolved['winner_id'];
+        $loserId = $resolved['loser_id'];
+        $scoreLabel = '';
+        if ($resolved['unresolved']) {
+            $scoreLabel = 'Tie unresolved';
+        } elseif ($winnerId !== null && $loserId !== null) {
+            $wAgg = $resolved['aggregate'][$winnerId] ?? null;
+            $lAgg = $resolved['aggregate'][$loserId] ?? null;
+            if ($wAgg !== null && $lAgg !== null) {
+                $scoreLabel = (int) $wAgg['goals_for'] . '–' . (int) $lAgg['goals_for'];
+            }
+        }
+
+        if (!isset($byPhase[$phase])) {
+            $byPhase[$phase] = [];
+        }
+        $byPhase[$phase][] = [
+            'scope_key' => $scopeKey,
+            'player_lo' => $playerLo,
+            'player_hi' => $playerHi,
+            'winner_id' => $winnerId,
+            'unresolved' => $resolved['unresolved'],
+            'score' => $scoreLabel,
+            'url' => amiga_tournament_url($tournamentId, 'knockout', $scopeKey),
+        ];
+    }
+
+    $names = amiga_tournament_player_names($con, $allPlayerIds);
+
+    foreach ($byPhase as $phase => &$ties) {
+        usort(
+            $ties,
+            static fn (array $a, array $b): int => ($a['player_lo'] <=> $b['player_lo'])
+                ?: ($a['player_hi'] <=> $b['player_hi'])
+        );
+        foreach ($ties as &$tie) {
+            $lo = (int) $tie['player_lo'];
+            $hi = (int) $tie['player_hi'];
+            $tie['player_a_id'] = $lo;
+            $tie['player_b_id'] = $hi;
+            $tie['player_a_name'] = $names[$lo] ?? ('#' . $lo);
+            $tie['player_b_name'] = $names[$hi] ?? ('#' . $hi);
+        }
+        unset($tie);
+
+        $round = [
+            'phase' => $phase,
+            'rank' => amiga_tournament_knockout_phase_rank($phase),
+            'ties' => $ties,
+        ];
+        $bucket = amiga_tournament_knockout_phase_bucket($phase);
+        $buckets[$bucket][] = $round;
+    }
+    unset($ties);
+
+    foreach (['main', 'placement_final', 'placement_bracket'] as $bucket) {
+        usort(
+            $buckets[$bucket],
+            static fn (array $a, array $b): int => ($a['rank'] <=> $b['rank'])
+                ?: strcmp($a['phase'], $b['phase'])
+        );
+    }
+
+    return $buckets;
 }

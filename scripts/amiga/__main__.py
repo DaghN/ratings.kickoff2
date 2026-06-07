@@ -41,11 +41,20 @@ def main(argv: list[str] | None = None) -> int:
         "standings-parity",
         help="Compare derived standings to Access Tables (reference only)",
     )
-    p_parity.add_argument("--tournament", required=True)
+    p_parity.add_argument("--tournament", help="Single tournament (omit with --sweep)")
     p_parity.add_argument("--scope", choices=("overall", "group"), default="overall")
     p_parity.add_argument("--scope-key", default="")
     p_parity.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
     p_parity.add_argument("--top", type=int, default=10)
+    p_parity.add_argument(
+        "--sweep",
+        action="store_true",
+        help="Sweep all tournaments with Access reference standings",
+    )
+    p_parity.add_argument("--tournament-id", type=int, default=None)
+    p_parity.add_argument("--fail-fast", action="store_true")
+    p_parity.add_argument("--only-failures", action="store_true")
+    p_parity.add_argument("--report", type=Path, default=None)
 
     sub.add_parser("verify-track-b", help="Post-import smoke: extra column + Elo draw rule")
 
@@ -95,20 +104,29 @@ def main(argv: list[str] | None = None) -> int:
         return audit_catalog_dates_main()
 
     if args.cmd == "standings-parity":
-        return standings_parity_main(
-            [
-                "--tournament",
-                args.tournament,
-                "--scope",
-                args.scope,
-                "--scope-key",
-                args.scope_key,
-                "--mdb",
-                str(args.mdb),
-                "--top",
-                str(args.top),
-            ]
-        )
+        parity_argv: list[str] = [
+            "--scope",
+            args.scope,
+            "--scope-key",
+            args.scope_key,
+            "--mdb",
+            str(args.mdb),
+            "--top",
+            str(args.top),
+        ]
+        if args.sweep:
+            parity_argv.append("--sweep")
+        if args.tournament:
+            parity_argv.extend(["--tournament", args.tournament])
+        if args.tournament_id is not None:
+            parity_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.fail_fast:
+            parity_argv.append("--fail-fast")
+        if args.only_failures:
+            parity_argv.append("--only-failures")
+        if args.report is not None:
+            parity_argv.extend(["--report", str(args.report)])
+        return standings_parity_main(parity_argv)
 
     return 1
 

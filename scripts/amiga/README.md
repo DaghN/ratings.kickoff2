@@ -34,6 +34,11 @@ python -m scripts.amiga replay
 python -m scripts.amiga standings-parity --tournament "London XXIII"
 python -m scripts.amiga standings-parity --tournament "World Cup XI" --scope group --scope-key "Round 1 - Group A"
 
+# Full sweep (overall + World Cup groups; JSON report):
+python -m scripts.amiga standings-parity --sweep
+python -m scripts.amiga standings-parity --sweep --only-failures
+python -m scripts.amiga standings-parity --sweep --tournament-id 42 --fail-fast
+
 # Incremental post-game (live append-only — last game in contract order):
 php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N
 

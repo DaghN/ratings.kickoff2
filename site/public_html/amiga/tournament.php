@@ -10,6 +10,8 @@
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 
+<link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
+
 <script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 
 </head>
@@ -27,6 +29,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_bracket.php';
 
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
@@ -78,6 +82,8 @@ $groupScopes = amiga_tournament_list_scopes($con, $id, 'group');
 
 $knockoutScopes = amiga_tournament_list_scopes($con, $id, 'knockout');
 
+$overallRows = amiga_tournament_standings_rows($con, $id, 'overall', '');
+
 $rows = amiga_tournament_standings_rows($con, $id, $scopeType, $scopeKey);
 
 
@@ -106,11 +112,13 @@ foreach ($knockoutScopes as $kk) {
 }
 
 $tName = (string) $tournament['name'];
-$pageTitle = $tName;
-if ($scopeKey !== '' && $scopeType !== 'overall') {
-    $pageTitle .= ' — ' . amiga_tournament_scope_label($con, $scopeKey);
-}
+$scopeLabel = $scopeKey !== '' && $scopeType !== 'overall'
+    ? amiga_tournament_scope_label($con, $scopeKey)
+    : '';
 $isKnockoutView = $scopeType === 'knockout';
+$formatKind = amiga_tournament_format_kind($tournament, $groupScopes, $knockoutScopes);
+$hasBracket = $knockoutScopes !== [];
+$showOverallTable = $overallRows !== [] && ($scopeType === 'overall' || $groupScopes !== []);
 
 $knockoutFixture = [];
 $knockoutWinner = null;
@@ -119,109 +127,132 @@ if ($isKnockoutView && $scopeKey !== '') {
     $knockoutWinner = amiga_tournament_knockout_resolve_winner($knockoutFixture, $rows);
 }
 
+$bracketData = $hasBracket
+    ? amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes)
+    : ['main' => [], 'placement_final' => [], 'placement_bracket' => []];
+
 mysqli_close($con);
 
 ?>
 
 
 
-<div class="k2-page-nav" style="padding:1rem 1.25rem 0">
+<?php
+$k2AmigaHubTabActive = 'tournaments';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
+?>
 
-  <p style="margin:0 0 1rem">
+<p style="padding:0.5rem 1.25rem 0;margin:0">
+  <a class="k2-link-star" href="/amiga/tournaments.php">← All tournaments</a>
+</p>
 
-    <a class="k2-link-star" href="/amiga/rating.php">← Amiga ladder</a>
+<header class="k2-amiga-tournament-hero">
 
-    · <a class="k2-link-star" href="/amiga/tournaments.php">All tournaments</a>
+  <h1 class="k2-amiga-tournament-hero__title k2-hub-intro"><?php echo k2_h($tName); ?></h1>
 
-  </p>
+  <p class="k2-amiga-tournament-hero__meta"><?php
 
-  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem"><?php echo k2_h($pageTitle); ?></h1>
-
-  <?php if (!empty($tournament['event_date'])) { ?>
-
-  <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)"><?php
-
-      echo k2_h((string) $tournament['event_date']);
-
-      if (!empty($tournament['country'])) {
-
-          echo ' · ' . k2_h((string) $tournament['country']);
-
+      $meta = [];
+      if (!empty($tournament['event_date'])) {
+          $meta[] = (string) $tournament['event_date'];
       }
+      if (!empty($tournament['country'])) {
+          $meta[] = (string) $tournament['country'];
+      }
+      if ((int) ($tournament['player_count'] ?? 0) > 0) {
+          $meta[] = (int) $tournament['player_count'] . ' players';
+      }
+      echo $meta !== [] ? k2_h(implode(' · ', $meta)) : '—';
 
   ?></p>
 
-  <?php } ?>
+  <div class="k2-amiga-tournament-hero__badges">
 
+    <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--<?php echo k2_h($formatKind); ?>"><?php
 
+        echo $formatKind === 'cup' ? 'Cup' : 'League';
 
-  <?php if ($groupScopes !== []) { ?>
+    ?></span>
 
-  <p style="margin:0 0 0.5rem">
+    <?php if ((int) ($tournament['equal_teams'] ?? 0) === 1) { ?>
 
-    <strong>Groups:</strong>
-
-    <?php if ($scopeType === 'overall' && $scopeKey === '') { ?>
-
-    <a href="?id=<?php echo $id; ?>&amp;scope=overall" aria-current="page">Overall</a>
-
-    <?php } else { ?>
-
-    <a href="?id=<?php echo $id; ?>&amp;scope=overall">Overall</a>
+    <span class="k2-amiga-tournament-badge">Equal teams</span>
 
     <?php } ?>
 
-    <?php foreach ($groupScopes as $gk) {
+    <?php if ($scopeLabel !== '') { ?>
 
-        $active = $scopeType === 'group' && $scopeKey === $gk;
-
-        ?>
-
-    · <a href="?id=<?php echo $id; ?>&amp;scope=group&amp;scope_key=<?php echo urlencode($gk); ?>"<?php
-
-        echo $active ? ' aria-current="page"' : '';
-
-    ?>><?php echo k2_h($gk); ?></a>
+    <span class="k2-amiga-tournament-badge"><?php echo k2_h($scopeLabel); ?></span>
 
     <?php } ?>
 
-  </p>
+  </div>
 
-  <?php } ?>
+</header>
 
 
 
-  <?php if ($knockoutScopes !== []) { ?>
+<?php if ($groupScopes !== [] || $hasBracket || $showOverallTable) { ?>
 
-  <details style="margin:0 0 1rem"<?php echo $isKnockoutView ? ' open' : ''; ?>>
+<nav class="k2-amiga-tournament-nav k2-player-nav-bar" aria-label="Tournament sections">
 
-    <summary><strong>Elimination ties</strong> (<?php echo count($knockoutScopes); ?>)</summary>
+  <div class="k2-player-nav k2-nav-pills">
 
-    <p style="margin:0.5rem 0 0;line-height:1.6">
+    <div class="k2-player-nav__links">
 
-    <?php foreach ($knockoutScopes as $kk) {
+      <?php if ($showOverallTable) {
 
-        $active = $scopeType === 'knockout' && $scopeKey === $kk;
+          $overallActive = $scopeType === 'overall' && $scopeKey === '';
 
-        $label = $knockoutScopeLabels[$kk] ?? $kk;
+          ?>
 
-        ?>
+      <a href="?id=<?php echo $id; ?>&amp;scope=overall" class="k2-player-nav__btn<?php echo $overallActive ? ' is-active' : ''; ?>"<?php
 
-    <a href="?id=<?php echo $id; ?>&amp;scope=knockout&amp;scope_key=<?php echo urlencode($kk); ?>"<?php
+          echo $overallActive ? ' aria-current="page"' : '';
 
-        echo $active ? ' aria-current="page"' : '';
+      ?>>Overall</a>
 
-    ?> style="display:inline-block;margin:0 0.75rem 0.75rem 0"><?php echo k2_h($label); ?></a>
+      <?php } ?>
 
-    <?php } ?>
+      <?php foreach ($groupScopes as $gk) {
 
-    </p>
+          $active = $scopeType === 'group' && $scopeKey === $gk;
 
-  </details>
+          ?>
 
-  <?php } ?>
+      <a href="?id=<?php echo $id; ?>&amp;scope=group&amp;scope_key=<?php echo urlencode($gk); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
 
-</div>
+          echo $active ? ' aria-current="page"' : '';
+
+      ?>><?php echo k2_h($gk); ?></a>
+
+      <?php } ?>
+
+      <?php if ($hasBracket) { ?>
+
+      <a href="?id=<?php echo $id; ?>#bracket" class="k2-player-nav__btn<?php echo $isKnockoutView ? ' is-active' : ''; ?>">Bracket</a>
+
+      <?php } ?>
+
+    </div>
+
+  </div>
+
+</nav>
+
+<?php } ?>
+
+
+
+<div class="k2-amiga-tournament-body">
+
+
+
+<?php if ($hasBracket) {
+
+    amiga_tournament_render_bracket($bracketData, $isKnockoutView ? $scopeKey : '');
+
+} ?>
 
 
 
@@ -245,9 +276,15 @@ mysqli_close($con);
 
 ?>
 
-<div style="padding:0 1.25rem 1.25rem">
+<section class="k2-amiga-tournament-fixture" aria-labelledby="k2-amiga-fixture-heading">
 
-  <div class="k2-table-wrap" style="margin:0">
+  <h2 id="k2-amiga-fixture-heading" class="k2-panel-heading" style="margin:0 1.25rem 0.75rem"><?php
+
+      echo k2_h($knockoutScopeLabels[$scopeKey] ?? $scopeLabel);
+
+  ?></h2>
+
+  <div class="k2-table-wrap" style="margin:0 1.25rem">
 
     <p style="margin:0 0 0.75rem;line-height:1.5">
 
@@ -317,11 +354,25 @@ mysqli_close($con);
 
   </div>
 
-</div>
+</section>
 
 <?php } ?>
 
 
+
+<?php if (!$isKnockoutView && $rows === [] && $formatKind === 'league') { ?>
+
+<p class="k2-amiga-tournament-empty">No derived standings for this scope yet. Rebuild with <code>python -m scripts.amiga replay</code>.</p>
+
+<?php } elseif (!$isKnockoutView && $rows === [] && $groupScopes === [] && !$hasBracket) { ?>
+
+<p class="k2-amiga-tournament-empty">Informal round-robin — see overall table when standings are available.</p>
+
+<?php } ?>
+
+
+
+<?php if (!$isKnockoutView || $rows !== []) { ?>
 
 <div class="k2-table-wrap">
 
@@ -427,9 +478,11 @@ mysqli_close($con);
 
 </div>
 
+<?php } ?>
 
 
-<p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)">
+
+<p style="padding:0 1.25rem 0;color:var(--k2-text-secondary)">
 
   <?php if ($isKnockoutView) { ?>
 
@@ -443,9 +496,10 @@ mysqli_close($con);
 
 </p>
 
+</div><!-- .k2-amiga-tournament-body -->
 
+</div><!-- .k2-page-nav -->
 
 </body>
 
 </html>
-

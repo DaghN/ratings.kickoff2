@@ -4,37 +4,60 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Amiga tournaments</title>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <?php
+$k2AmigaHubTabActive = 'tournaments';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $limit = 200;
 $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
+$typeFilter = isset($_GET['type']) ? (string) $_GET['type'] : '';
+if (!in_array($typeFilter, ['', 'cup', 'league'], true)) {
+    $typeFilter = '';
+}
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 
 $total = amiga_tournament_index_count($con);
-$rows = amiga_tournament_index_rows($con, $limit, $offset);
+$allRows = amiga_tournament_index_rows($con, $limit, $offset);
 mysqli_close($con);
 
-$firstShown = $total > 0 ? $offset + 1 : 0;
+$rows = $allRows;
+if ($typeFilter !== '') {
+    $rows = array_values(array_filter(
+        $allRows,
+        static fn (array $row): bool => amiga_tournament_index_format_kind($row) === $typeFilter
+    ));
+}
+
+$firstShown = count($rows) > 0 ? $offset + 1 : 0;
 $lastShown = $offset + count($rows);
+$filterQuery = $offset > 0 ? '&amp;offset=' . $offset : '';
 ?>
 
-<div class="k2-page-nav" style="padding:1rem 1.25rem 0">
-  <p style="margin:0 0 1rem"><a class="k2-link-star" href="/amiga/rating.php">← Amiga ladder</a></p>
+<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
   <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Tournaments</h1>
   <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">
-    Offline events with derived standings. Click a name for the points table.
+    Offline events with derived standings. Cups include group tables and knockout brackets.
   </p>
-</div>
+  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav" aria-label="Filter by format" style="margin-bottom:1rem">
+    <div class="k2-player-nav__links">
+      <a href="?<?php echo $offset > 0 ? 'offset=' . $offset : ''; ?>" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
+      <a href="?type=cup<?php echo $filterQuery; ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'cup' ? ' is-active' : ''; ?>">Cups</a>
+      <a href="?type=league<?php echo $filterQuery; ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'league' ? ' is-active' : ''; ?>">Leagues</a>
+    </div>
+  </nav>
+</header>
 
 <div class="k2-table-wrap">
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="false">
@@ -45,19 +68,26 @@ $lastShown = $offset + count($rows);
         <th data-k2-sort="text">Country</th>
         <th data-k2-sort="number">Games</th>
         <th data-k2-sort="number">Players</th>
-        <th data-k2-sort="text">Type</th>
+        <th data-k2-sort="text">Format</th>
     </tr>
 </thead>
 <tbody class="black">
+<?php if ($rows === []) { ?>
+    <tr>
+        <td colspan="6" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No tournaments match this filter.</td>
+    </tr>
+<?php } ?>
 <?php foreach ($rows as $row) {
     $games = (int) $row['game_count'];
     $players = (int) $row['standing_players'];
     $hasStandings = (int) ($row['standing_rows'] ?? 0) > 0;
+    $kind = amiga_tournament_index_format_kind($row);
+    $linkFragment = $kind === 'cup' && (int) ($row['knockout_ties'] ?? 0) > 0 ? '#bracket' : '';
     ?>
     <tr>
         <td class="k2-table-cell--left"><?php
             if ($hasStandings) {
-                echo amiga_tournament_link((int) $row['id'], (string) $row['name']);
+                echo amiga_tournament_link((int) $row['id'], (string) $row['name'], $linkFragment);
             } else {
                 echo k2_h((string) $row['name']);
             }
@@ -66,7 +96,15 @@ $lastShown = $offset + count($rows);
         <td><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
         <td><?php echo $games; ?></td>
         <td><?php echo $hasStandings ? (string) $players : '—'; ?></td>
-        <td><?php echo (int) $row['is_cup'] === 1 ? 'Cup' : 'League'; ?></td>
+        <td>
+            <span class="k2-amiga-tournament-type">
+                <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--<?php echo k2_h($kind); ?>"><?php
+
+                    echo $kind === 'cup' ? 'Cup' : 'League';
+
+                ?></span>
+            </span>
+        </td>
     </tr>
 <?php } ?>
 </tbody>
@@ -74,14 +112,20 @@ $lastShown = $offset + count($rows);
 </div>
 
 <p style="padding:0 1.25rem 1rem;color:var(--k2-text-secondary)">
-    Showing <?php echo $firstShown; ?>–<?php echo $lastShown; ?> of <?php echo $total; ?> tournaments.
+    Showing <?php echo $firstShown; ?>–<?php echo $lastShown; ?> of <?php echo $total; ?> tournaments<?php
+
+        echo $typeFilter !== '' ? ' (filtered)' : '';
+
+    ?>.
     <?php if ($offset > 0) { ?>
-    <a href="?offset=<?php echo max(0, $offset - $limit); ?>">Previous <?php echo $limit; ?></a>
+    <a href="?offset=<?php echo max(0, $offset - $limit); ?><?php echo $typeFilter !== '' ? '&amp;type=' . urlencode($typeFilter) : ''; ?>">Previous <?php echo $limit; ?></a>
     <?php } ?>
     <?php if ($offset + $limit < $total) { ?>
-    <a href="?offset=<?php echo $offset + $limit; ?>">Next <?php echo $limit; ?></a>
+    <a href="?offset=<?php echo $offset + $limit; ?><?php echo $typeFilter !== '' ? '&amp;type=' . urlencode($typeFilter) : ''; ?>">Next <?php echo $limit; ?></a>
     <?php } ?>
 </p>
+
+</div><!-- .k2-page-nav -->
 
 </body>
 </html>

@@ -9,10 +9,14 @@
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
-<div class="k2-page-nav" style="padding:1rem 1.25rem 0">
-  <p class="k2-hub-intro" style="margin:0 0 0.5rem">Amiga 500 offline ladder — Elo rating (K=32, start 1600). Imported from historical tournament results.</p>
-  <p style="margin:0 0 1rem"><a class="k2-link-star" href="/amiga/tournaments.php">Tournament standings →</a></p>
-</div>
+<?php
+$k2AmigaHubTabActive = 'ladder';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
+?>
+
+<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
+  <p class="k2-hub-page-intro" style="margin:0 0 1rem">Amiga 500 offline ladder — Elo rating (K=32, start 1600). Imported from historical tournament results.</p>
+</header>
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
@@ -86,6 +90,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 </div>
 
 <p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($gameCount); ?> rated games in database.</p>
+
+</div><!-- .k2-page-nav -->
 
 </body>
 </html>
