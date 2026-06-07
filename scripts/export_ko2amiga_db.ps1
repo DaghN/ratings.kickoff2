@@ -16,7 +16,7 @@ $Stamp = Get-Date -Format 'yyyy-MM-dd'
 
 $Tables = @(
     'tournament_format_templates', 'tournaments', 'amiga_players',
-    'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
+    'tournament_entrants', 'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
     'amiga_games', 'amiga_game_ratings', 'amiga_player_stats',
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats'
 )
@@ -52,19 +52,23 @@ $playersFile = Join-Path $OutDir 'ko2amiga_04_players.sql'
 Write-DumpFile $playersFile @('--no-create-info', 'ko2amiga_db', 'amiga_players')
 $parts.Add('ko2amiga_04_players.sql')
 
-$stagesFile = Join-Path $OutDir 'ko2amiga_05_stages.sql'
+$entrantsFile = Join-Path $OutDir 'ko2amiga_05_entrants.sql'
+Write-DumpFile $entrantsFile @('--no-create-info', 'ko2amiga_db', 'tournament_entrants')
+$parts.Add('ko2amiga_05_entrants.sql')
+
+$stagesFile = Join-Path $OutDir 'ko2amiga_06_stages.sql'
 Write-DumpFile $stagesFile @('--no-create-info', 'ko2amiga_db', 'tournament_stages')
-$parts.Add('ko2amiga_05_stages.sql')
+$parts.Add('ko2amiga_06_stages.sql')
 
-$stagePlayersFile = Join-Path $OutDir 'ko2amiga_06_stage_players.sql'
+$stagePlayersFile = Join-Path $OutDir 'ko2amiga_07_stage_players.sql'
 Write-DumpFile $stagePlayersFile @('--no-create-info', 'ko2amiga_db', 'tournament_stage_players')
-$parts.Add('ko2amiga_06_stage_players.sql')
+$parts.Add('ko2amiga_07_stage_players.sql')
 
-$fixturesFile = Join-Path $OutDir 'ko2amiga_07_fixtures.sql'
+$fixturesFile = Join-Path $OutDir 'ko2amiga_08_fixtures.sql'
 Write-DumpFile $fixturesFile @('--no-create-info', 'ko2amiga_db', 'tournament_fixtures')
-$parts.Add('ko2amiga_07_fixtures.sql')
+$parts.Add('ko2amiga_08_fixtures.sql')
 
-# 08+ — games + ratings in ~5k row chunks (staging-friendly)
+# 09+ — games + ratings in ~5k row chunks (staging-friendly)
 $chunkSize = 5000
 $maxIdText = (& $MysqlExe -u root -N -B -e 'SELECT COALESCE(MAX(id), 0) FROM ko2amiga_db.amiga_games' 2>&1 | Out-String).Trim()
 if ($maxIdText -notmatch '^\d+$') {
@@ -73,7 +77,7 @@ if ($maxIdText -notmatch '^\d+$') {
 $maxId = [int]$maxIdText
 Write-Host "Chunking games/ratings: max id $maxId (chunk size $chunkSize)"
 
-$idx = 8
+$idx = 9
 for ($start = 1; $start -le $maxId; $start += $chunkSize) {
     $end = [Math]::Min($start + $chunkSize - 1, $maxId)
     $where = "id >= $start AND id <= $end"

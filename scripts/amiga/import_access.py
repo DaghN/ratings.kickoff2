@@ -44,6 +44,7 @@ _SQL_KNOCKOUT = Path(__file__).resolve().parent / "sql" / "003_knockout_scope.sq
 _SQL_CATALOG_STATS = Path(__file__).resolve().parent / "sql" / "004_tournament_catalog_stats.sql"
 _SQL_FORMATS = Path(__file__).resolve().parent / "sql" / "005_tournament_formats.sql"
 _SQL_FIXTURES = Path(__file__).resolve().parent / "sql" / "006_tournament_fixtures.sql"
+_SQL_ENTRANTS = Path(__file__).resolve().parent / "sql" / "007_tournament_entrants.sql"
 
 _AMIGA_TABLES_DROP_ORDER = (
     "amiga_tournament_catalog_stats",
@@ -54,6 +55,7 @@ _AMIGA_TABLES_DROP_ORDER = (
     "tournament_fixtures",
     "tournament_stage_players",
     "tournament_stages",
+    "tournament_entrants",
     "amiga_players",
     "ratedresults",
     "playertable",
@@ -125,7 +127,15 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
             for table in _AMIGA_TABLES_DROP_ORDER:
                 cur.execute(f"DROP TABLE IF EXISTS `{table}`")
             cur.execute("SET FOREIGN_KEY_CHECKS = 1")
-    for sql_path in (_SQL, _SQL_TRACK_B, _SQL_KNOCKOUT, _SQL_CATALOG_STATS, _SQL_FORMATS, _SQL_FIXTURES):
+    for sql_path in (
+        _SQL,
+        _SQL_TRACK_B,
+        _SQL_KNOCKOUT,
+        _SQL_CATALOG_STATS,
+        _SQL_FORMATS,
+        _SQL_FIXTURES,
+        _SQL_ENTRANTS,
+    ):
         sql = sql_path.read_text(encoding="utf-8")
         with conn.cursor() as cur:
             for stmt in _split_sql(sql):
@@ -156,6 +166,7 @@ def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
         cur.execute("TRUNCATE TABLE tournament_fixtures")
         cur.execute("TRUNCATE TABLE tournament_stage_players")
         cur.execute("TRUNCATE TABLE tournament_stages")
+        cur.execute("TRUNCATE TABLE tournament_entrants")
         cur.execute("TRUNCATE TABLE amiga_players")
         cur.execute("TRUNCATE TABLE tournaments")
         cur.execute("SET FOREIGN_KEY_CHECKS = 1")

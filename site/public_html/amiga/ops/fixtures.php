@@ -273,6 +273,23 @@ function amiga_fixture_create_kitchen_tournament(
         $tournamentId = (int) $stmt->insert_id;
         $stmt->close();
 
+        $entrantStatus = 'registered';
+        $stmt = $con->prepare(
+            'INSERT INTO tournament_entrants (tournament_id, player_id, seed_no, status, note) '
+            . 'VALUES (?, ?, ?, ?, NULL)'
+        );
+        if ($stmt === false) {
+            throw new RuntimeException('prepare entrant insert: ' . $con->error);
+        }
+        foreach ($playerIds as $idx => $playerId) {
+            $seedNo = $idx + 1;
+            $stmt->bind_param('iiis', $tournamentId, $playerId, $seedNo, $entrantStatus);
+            if (!$stmt->execute()) {
+                throw new RuntimeException('execute entrant insert: ' . $stmt->error);
+            }
+        }
+        $stmt->close();
+
         $stageKey = 'overall';
         $stageName = 'Overall';
         $stageType = 'league';

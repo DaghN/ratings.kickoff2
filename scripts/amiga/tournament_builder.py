@@ -16,6 +16,7 @@ from scripts.amiga.tournament_fixtures import (
     _load_one,
     _require_player,
     add_stage_player,
+    add_tournament_entrant,
     create_fixture,
     create_stage,
     record_fixture_result,
@@ -163,6 +164,14 @@ def create_kitchen_marathon_tournament(
         )
         tournament_id = int(cur.lastrowid)
 
+    for seed_no, player_id in enumerate(player_ids, start=1):
+        add_tournament_entrant(
+            conn,
+            tournament_id=tournament_id,
+            player_id=player_id,
+            seed_no=seed_no,
+        )
+
     stage_id = create_stage(
         conn,
         tournament_id=tournament_id,
@@ -251,6 +260,14 @@ def create_group_knockout_tournament(
             },
         )
         tournament_id = int(cur.lastrowid)
+
+    for seed_no, player_id in enumerate(player_ids, start=1):
+        add_tournament_entrant(
+            conn,
+            tournament_id=tournament_id,
+            player_id=player_id,
+            seed_no=seed_no,
+        )
 
     fixture_count = 0
     for group_idx, group in enumerate(groups, start=1):
@@ -364,6 +381,14 @@ def verify_built_tournament(
         cur.execute("SELECT COUNT(*) AS n FROM tournament_stages WHERE tournament_id = %s", (tournament_id,))
         if int(cur.fetchone()["n"]) != 1:
             errors.append("expected exactly one stage")
+
+        cur.execute(
+            "SELECT COUNT(*) AS n FROM tournament_entrants WHERE tournament_id = %s AND status = 'registered'",
+            (tournament_id,),
+        )
+        entrants = int(cur.fetchone()["n"])
+        if entrants != int(row["player_count"] or 0):
+            errors.append(f"entrant count {entrants}, expected {row['player_count']}")
 
         cur.execute(
             """

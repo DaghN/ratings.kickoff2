@@ -99,7 +99,9 @@ python -m scripts.amiga verify-tournament-formats
 
 ```powershell
 mysql ko2amiga_db < scripts/amiga/sql/006_tournament_fixtures.sql
+mysql ko2amiga_db < scripts/amiga/sql/007_tournament_entrants.sql
 python -m scripts.amiga fixtures verify
+python -m scripts.amiga fixtures verify-entrants
 
 # Examples for future live events:
 python -m scripts.amiga fixtures create-stage --tournament-id 1 --stage-key overall --name "Overall" --stage-type league
@@ -117,6 +119,7 @@ python -m scripts.amiga build-tournament smoke-fixture-result --player-ids 1,2
 python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Kitchen I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4
 python -m scripts.amiga build-tournament create-group-knockout --name "Test Cup I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4 --group-count 2
 python -m scripts.amiga build-tournament verify-built --tournament-id N
+python -m scripts.amiga fixtures list-entrants --tournament-id N
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
 python -m scripts.amiga fixtures list --tournament-id N

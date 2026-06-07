@@ -15,6 +15,8 @@ from scripts.amiga.config import load_amiga_db_config
 
 VALID_STAGE_TYPES = {"league", "group", "knockout", "placement", "other"}
 VALID_FIXTURE_STATUSES = {"scheduled", "played", "void"}
+VALID_ENTRANT_STATUSES = {"registered", "withdrawn", "replaced"}
+ACTIVE_ENTRANT_STATUSES = {"registered"}
 LIVE_SOURCE_SCORES_ID_BASE = 1_000_000_000
 
 
@@ -159,6 +161,38 @@ def create_stage(
         cur.execute(
             "SELECT id FROM tournament_stages WHERE tournament_id = %s AND stage_key = %s",
             (tournament_id, stage_key),
+        )
+        return int(cur.fetchone()["id"])
+
+
+def add_tournament_entrant(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    player_id: int,
+    seed_no: int | None = None,
+    status: str = "registered",
+    note: str | None = None,
+) -> int:
+    _require_tournament(conn, tournament_id)
+    _require_player(conn, player_id)
+    if status not in VALID_ENTRANT_STATUSES:
+        raise ValueError(f"status must be one of {sorted(VALID_ENTRANT_STATUSES)}")
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO tournament_entrants (tournament_id, player_id, seed_no, status, note)
+            VALUES (%s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                seed_no = VALUES(seed_no),
+                status = VALUES(status),
+                note = VALUES(note)
+            """,
+            (tournament_id, player_id, seed_no, status, note),
+        )
+        cur.execute(
+            "SELECT id FROM tournament_entrants WHERE tournament_id = %s AND player_id = %s",
+            (tournament_id, player_id),
         )
         return int(cur.fetchone()["id"])
 
@@ -400,6 +434,36 @@ def record_fixture_result(
     return game_id
 
 
+def list_entrants(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    status: str | None = None,
+    limit: int = 500,
+) -> list[dict[str, Any]]:
+    if status is not None and status not in VALID_ENTRANT_STATUSES:
+        raise ValueError(f"status must be one of {sorted(VALID_ENTRANT_STATUSES)}")
+    _require_tournament(conn, tournament_id)
+    params: list[Any] = [tournament_id]
+    status_clause = ""
+    if status is not None:
+        status_clause = " AND e.status = %s"
+        params.append(status)
+    params.append(max(1, min(limit, 2000)))
+    sql = f"""
+        SELECT e.id, e.tournament_id, e.player_id, p.name AS player_name,
+               e.seed_no, e.status, e.note, e.created_at
+        FROM tournament_entrants e
+        INNER JOIN amiga_players p ON p.id = e.player_id
+        WHERE e.tournament_id = %s{status_clause}
+        ORDER BY e.seed_no IS NULL, e.seed_no ASC, e.id ASC
+        LIMIT %s
+    """
+    with conn.cursor() as cur:
+        cur.execute(sql, tuple(params))
+        return list(cur.fetchall())
+
+
 def list_fixtures(
     conn: pymysql.connections.Connection,
     *,
@@ -485,6 +549,79 @@ def cleanup_generated_tournament(conn: pymysql.connections.Connection, *, tourna
         cur.execute("DELETE FROM tournaments WHERE id = %s", (tournament_id,))
 
 
+def audit_entrant_integrity(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int | None = None,
+) -> list[str]:
+    errors: list[str] = []
+    active_statuses = tuple(sorted(ACTIVE_ENTRANT_STATUSES))
+    placeholders = ", ".join(["%s"] * len(active_statuses))
+    tournament_clause = ""
+    tournament_params: tuple[Any, ...] = ()
+    if tournament_id is not None:
+        _require_tournament(conn, tournament_id)
+        tournament_clause = " AND s.tournament_id = %s"
+        tournament_params = (tournament_id,)
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT s.tournament_id, sp.player_id
+            FROM tournament_stage_players sp
+            INNER JOIN tournament_stages s ON s.id = sp.stage_id
+            LEFT JOIN tournament_entrants e
+              ON e.tournament_id = s.tournament_id
+             AND e.player_id = sp.player_id
+             AND e.status IN ({placeholders})
+            WHERE e.id IS NULL{tournament_clause}
+            ORDER BY s.tournament_id, sp.player_id
+            """,
+            (*active_statuses, *tournament_params),
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"tournament {row['tournament_id']} stage player {row['player_id']} "
+                "is not an active tournament entrant"
+            )
+
+        fixture_params = (*tournament_params, *active_statuses, *tournament_params, *active_statuses)
+        cur.execute(
+            f"""
+            SELECT s.tournament_id, f.id AS fixture_id, f.player_a_id AS player_id
+            FROM tournament_fixtures f
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            WHERE f.player_a_id IS NOT NULL{tournament_clause}
+              AND NOT EXISTS (
+                SELECT 1
+                FROM tournament_entrants e
+                WHERE e.tournament_id = s.tournament_id
+                  AND e.player_id = f.player_a_id
+                  AND e.status IN ({placeholders})
+              )
+            UNION
+            SELECT s.tournament_id, f.id AS fixture_id, f.player_b_id AS player_id
+            FROM tournament_fixtures f
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            WHERE f.player_b_id IS NOT NULL{tournament_clause}
+              AND NOT EXISTS (
+                SELECT 1
+                FROM tournament_entrants e
+                WHERE e.tournament_id = s.tournament_id
+                  AND e.player_id = f.player_b_id
+                  AND e.status IN ({placeholders})
+              )
+            ORDER BY tournament_id, fixture_id, player_id
+            """,
+            fixture_params,
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"tournament {row['tournament_id']} fixture {row['fixture_id']} "
+                f"player {row['player_id']} is not an active tournament entrant"
+            )
+    return errors
+
+
 def audit_fixture_integrity(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
     with conn.cursor() as cur:
@@ -541,7 +678,7 @@ def audit_fixture_integrity(conn: pymysql.connections.Connection) -> list[str]:
 
 def _print_counts(conn: pymysql.connections.Connection) -> None:
     with conn.cursor() as cur:
-        for table in ("tournament_stages", "tournament_stage_players", "tournament_fixtures"):
+        for table in ("tournament_entrants", "tournament_stages", "tournament_stage_players", "tournament_fixtures"):
             cur.execute(f"SELECT COUNT(*) AS n FROM {table}")
             print(f"{table}={int(cur.fetchone()['n'])}")
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id IS NOT NULL")
@@ -553,6 +690,14 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("verify", help="Verify fixture-backed game integrity")
+
+    p_verify_entrants = sub.add_parser("verify-entrants", help="Verify tournament entrant integrity")
+    p_verify_entrants.add_argument("--tournament-id", type=int, default=None)
+
+    p_list_entrants = sub.add_parser("list-entrants", help="List entrants for one tournament")
+    p_list_entrants.add_argument("--tournament-id", type=int, required=True)
+    p_list_entrants.add_argument("--status", choices=sorted(VALID_ENTRANT_STATUSES), default=None)
+    p_list_entrants.add_argument("--limit", type=int, default=500)
 
     p_stage = sub.add_parser("create-stage", help="Create or update a tournament stage")
     p_stage.add_argument("--tournament-id", type=int, required=True)
@@ -623,6 +768,33 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"FAIL: {error}", file=sys.stderr)
                 return 1
             print("OK: fixture integrity checks passed")
+            return 0
+
+        if args.cmd == "verify-entrants":
+            errors = audit_entrant_integrity(conn, tournament_id=args.tournament_id)
+            _print_counts(conn)
+            if errors:
+                for error in errors:
+                    print(f"FAIL: {error}", file=sys.stderr)
+                return 1
+            print("OK: tournament entrant integrity checks passed")
+            return 0
+
+        if args.cmd == "list-entrants":
+            rows = list_entrants(
+                conn,
+                tournament_id=args.tournament_id,
+                status=args.status,
+                limit=args.limit,
+            )
+            for row in rows:
+                seed = f" seed={row['seed_no']}" if row.get("seed_no") is not None else ""
+                note = f" note={row['note']!r}" if row.get("note") else ""
+                print(
+                    f"entrant_id={row['id']} player_id={row['player_id']} "
+                    f"name={row['player_name']} status={row['status']}{seed}{note}"
+                )
+            print(f"entrants={len(rows)}")
             return 0
 
         if args.cmd == "create-stage":

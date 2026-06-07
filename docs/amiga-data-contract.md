@@ -171,6 +171,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 |-------|-------|--------|
 | `tournament_format_templates` | Ground/config | Import seed / future admin-managed templates |
 | `tournaments` | Ground | Import / submission |
+| `tournament_entrants` | Ground | Future live tournament ops / fixture tooling |
 | `tournament_stages` | Ground | Future live tournament ops / fixture tooling |
 | `tournament_stage_players` | Ground | Future live tournament ops / fixture tooling |
 | `tournament_fixtures` | Ground | Future live tournament ops / fixture tooling |
@@ -182,7 +183,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP `amiga_ops_catalog_stats_refresh_tournament` per touched tournament on post-game |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
-DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
+DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql), entrant foundation [`007_tournament_entrants.sql`](../scripts/amiga/sql/007_tournament_entrants.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
 
 ### Tournament format metadata
 
@@ -191,8 +192,10 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - `tournaments.has_league` and `tournaments.has_cup` are **non-exclusive** ground catalog flags computed at import from canonical game phase labels plus the verbatim Access `is_cup` flag. A tournament with games must have at least one of these flags true; verify with `python -m scripts.amiga verify-tournament-formats`.
 - `tournaments.is_cup` remains the raw imported Access `Cup?` value. Do not use it as the product definition of cup play or honours eligibility.
 
-### Tournament stages and fixtures
+### Tournament entrants, stages, and fixtures
 
+- `tournament_entrants` is **tournament-level registration ground truth** for future live events: one row per player per tournament with seed, status (`registered`, `withdrawn`, `replaced`), and optional admin `note`. Player display names remain canonical in `amiga_players`; `display_name_snapshot` is deferred to avoid drift on rename. Legacy Access imports leave entrants empty; internal builders populate entrants before stage players.
+- Verify entrant integrity with `python -m scripts.amiga fixtures verify-entrants` (stage players and fixture participants must be active `registered` entrants). List with `python -m scripts.amiga fixtures list-entrants --tournament-id N`.
 - `tournament_stages` and `tournament_fixtures` are **ground truth for future live tournaments**. They are not derived from standings, and legacy Access imports leave them empty by default.
 - `amiga_games.fixture_id` is nullable. Fixture-backed games should point at `tournament_fixtures.id`; imported legacy games keep `fixture_id = NULL` and continue through phase-parser fallback.
 - Fixture attachment must preserve canonical game facts: tournament ids must match, and fixture players must match the game players when both fixture players are known. Verify integrity with `python -m scripts.amiga fixtures verify`.
@@ -238,6 +241,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 | Amiga hub nav (v0) | **Done** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); HoF stub `/amiga/hall-of-fame.php` |
 | Tournament format foundation | **In progress** — `tournament_format_templates` + non-exclusive `tournaments.has_league` / `has_cup` import flags |
 | Stage/fixture foundation | **In progress** — ground tables + internal CLI; no public builder UI yet |
+| Tournament entrants foundation | **In progress** — `tournament_entrants` + builder population + verify CLI |
 | Internal tournament builder | **Started** — `kitchen_marathon` round-robin generator only; no result-entry UI yet |
 
 ---
