@@ -1,7 +1,7 @@
 # Amiga tournament architecture/product checkpoint
 
 **Date:** 2026-06-07  
-**Status:** Active guidance after worker jobs 001–020
+**Status:** Active guidance after worker jobs 001–021
 
 ## Where we are
 
@@ -21,7 +21,7 @@ The internal tournament backbone is in good shape for future formats:
 | Public live UI | `/amiga/live-tournaments.php`, `/amiga/live-tournament.php?id=N` (allowlisted running fixtures, read-only) |
 | Staging export package | Manifest refreshed to 23 parts; Dagh-assisted staging sync/import verified |
 
-Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. Jobs 018–020 started the organizer-first browser workflow; job 021 should make Fixtures and Table useful immediately after league creation.
+Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. Jobs 018–021 started the organizer-first browser workflow; job 022 should move score entry into the Results tab.
 
 ## Demo-readiness goals
 
@@ -65,8 +65,9 @@ Do not delegate another foundation/guardrail worker job until staging refresh an
 | **J** | Browser organizer shell | Worker 019 | Tabs, create redirect, and player picker for the normal league path |
 | **K** | Friendly organizer lifecycle | Worker 020 | Replace raw lifecycle dropdown with Start/Complete organizer actions |
 | **L** | Fixtures and table preview | Worker 021 | Show readable schedule and zeroed table before kickoff |
-| **M** | Staging/code refresh + ops smoke | **Dagh** (WinSCP + browser) | Staging should reflect organizer UI before demo use |
-| **N** | Public builder / registration | Deferred | After internal workflow is smooth |
+| **M** | Organizer Results tab | Worker 022 | Make score entry a dedicated workflow instead of living on Fixtures |
+| **N** | Staging/code refresh + ops smoke | **Dagh** (WinSCP + browser) | Staging should reflect organizer UI before demo use |
+| **O** | Public builder / registration | Deferred | After internal workflow is smooth |
 
 ### 3. Public visibility rule (conservative)
 
@@ -139,3 +140,4 @@ Integrity checks passed (`fixtures verify`, `verify-entrants`, `verify-lifecycle
 - Browser organizer shell: [`prompt-019-browser-organizer-shell.md`](prompt-019-browser-organizer-shell.md)
 - Friendly organizer lifecycle: [`prompt-020-browser-friendly-lifecycle.md`](prompt-020-browser-friendly-lifecycle.md)
 - Fixtures and table preview: [`prompt-021-browser-fixtures-table-preview.md`](prompt-021-browser-fixtures-table-preview.md)
+- Organizer Results tab: [`prompt-022-browser-results-tab.md`](prompt-022-browser-results-tab.md)

@@ -67,7 +67,7 @@ Ops URL **404s** without `once=amiga-fixtures-one-shot` — intentional.
 
 ### Worker prompt inventory
 
-- Prompts **001–021** under `docs/orchestration/prompt-*.md`
+- Prompts **001–022** under `docs/orchestration/prompt-*.md`
 - Handoffs under `docs/orchestration/agent-handoffs/`
 - **012** = staging sync rehearsal (record-only handoff filed from Dagh's 4-point staging success)
 - **013** = read-only live public view (implemented and evaluated acceptable)
@@ -78,7 +78,8 @@ Ops URL **404s** without `once=amiga-fixtures-one-shot` — intentional.
 - **018** = browser organizer workflow checkpoint (implemented and evaluated acceptable)
 - **019** = browser organizer shell (implemented and evaluated acceptable)
 - **020** = browser friendly lifecycle (implemented and evaluated acceptable)
-- **021** = browser fixtures and table preview (drafted; next worker prompt)
+- **021** = browser fixtures and table preview (implemented and evaluated acceptable)
+- **022** = browser Results tab (drafted; next worker prompt)
 
 ### Strategic priority order (do not skip without Dagh)
 
@@ -93,10 +94,11 @@ Per checkpoint + orchestration model:
 7. ~~Browser organizer workflow checkpoint~~ **done** — normal create/select players/preview/start/enter-results flow defined
 8. ~~Browser organizer shell~~ **done** — tabs, create redirect, and player picker for league creation
 9. ~~Friendly organizer lifecycle~~ **done** — Start/Complete actions and friendly status labels
-10. **Fixtures and table preview** — drafted as prompt 021; readable schedule and empty league table from entrants
-11. **Staging/code refresh + ops smoke** — Dagh WinSCP sync/import and browser spot-checks after organizer UI shell
-12. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
-13. **Public builder / registration** — deferred
+10. ~~Fixtures and table preview~~ **done** — readable schedule and empty league table from entrants
+11. **Organizer Results tab** — drafted as prompt 022; move score entry to Results and keep Fixtures schedule-first
+12. **Staging/code refresh + ops smoke** — Dagh WinSCP sync/import and browser spot-checks after organizer UI shell
+13. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
+14. **Public builder / registration** — deferred
 
 **Pause rule:** Do not delegate another foundation/guardrail worker job unless regressions appear.
 
@@ -135,9 +137,9 @@ Plan file (do **not** edit): `c:\Users\daghn\.cursor\plans\tournament_checkpoint
 
 ### Your first actions as new orchestrator
 
-1. Confirm `git log -3` includes the prompt 021 commit on `main`.
-2. Offer to send **prompt 021 (browser fixtures and table preview)** to the next Composer 2.5 worker.
-3. Do not re-open foundation jobs 001–020 or late-entrant edge cases without a reported regression or explicit request.
+1. Confirm `git log -3` includes the prompt 022 commit on `main`.
+2. Offer to send **prompt 022 (browser Results tab)** to the next Composer 2.5 worker.
+3. Do not re-open foundation jobs 001–021 or late-entrant edge cases without a reported regression or explicit request.
 
 Acknowledge the mandate, summarize current state in 5–8 bullets, and ask Dagh which next step they want.
 

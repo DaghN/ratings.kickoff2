@@ -127,7 +127,7 @@ The orchestrator should usually prioritize making important global checks green 
 
 ## Current strategic priority
 
-**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001-011) are complete, the Dagh-assisted staging refresh is recorded in job 012, the read-only public live view landed in job 013, and browser ops parity for entrants/stages/fixture assignment landed in jobs 014-017. Workers 018-020 are turning the ops page into an organizer-first workflow. Next work should make Fixtures and Table useful as pre-tournament preview surfaces.
+**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001-011) are complete, the Dagh-assisted staging refresh is recorded in job 012, the read-only public live view landed in job 013, and browser ops parity for entrants/stages/fixture assignment landed in jobs 014-017. Workers 018-021 are turning the ops page into an organizer-first workflow. Next work should make Results the primary score-entry workspace.
 
 Immediate priority order:
 
@@ -140,9 +140,10 @@ Immediate priority order:
 7. ~~**Browser organizer workflow checkpoint**~~ — design the normal create/select players/preview/start/enter-results flow before more edge-case work. See [`browser-organizer-workflow-checkpoint.md`](browser-organizer-workflow-checkpoint.md).
 8. ~~**Browser organizer shell**~~ — tabs, create redirect, and player picker for league creation. See [`agent-handoffs/2026-06-08-019-browser-organizer-shell.md`](agent-handoffs/2026-06-08-019-browser-organizer-shell.md).
 9. ~~**Friendly organizer lifecycle**~~ — Start/Complete actions and friendly status labels. See [`agent-handoffs/2026-06-08-020-browser-friendly-lifecycle.md`](agent-handoffs/2026-06-08-020-browser-friendly-lifecycle.md).
-10. **Fixtures and table preview** — readable schedule and empty league table from entrants. See [`prompt-021-browser-fixtures-table-preview.md`](prompt-021-browser-fixtures-table-preview.md).
-11. **Staging/code refresh and ops smoke** — Dagh syncs `site/public_html/` to staging, then spot-checks live public and ops flows.
-12. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
+10. ~~**Fixtures and table preview**~~ — readable schedule and empty league table from entrants. See [`agent-handoffs/2026-06-08-021-browser-fixtures-table-preview.md`](agent-handoffs/2026-06-08-021-browser-fixtures-table-preview.md).
+11. **Organizer Results tab** — move score entry to Results and keep Fixtures schedule-first. See [`prompt-022-browser-results-tab.md`](prompt-022-browser-results-tab.md).
+12. **Staging/code refresh and ops smoke** — Dagh syncs `site/public_html/` to staging, then spot-checks live public and ops flows.
+13. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
 
 Completed foundation (do not re-delegate unless regressions appear):
 
