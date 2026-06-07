@@ -1,7 +1,7 @@
 # Amiga tournament architecture/product checkpoint
 
 **Date:** 2026-06-07  
-**Status:** Active guidance after worker jobs 001–016
+**Status:** Active guidance after worker jobs 001–017
 
 ## Where we are
 
@@ -21,7 +21,7 @@ The internal tournament backbone is in good shape for future formats:
 | Public live UI | `/amiga/live-tournaments.php`, `/amiga/live-tournament.php?id=N` (allowlisted running fixtures, read-only) |
 | Staging export package | Manifest refreshed to 23 parts; Dagh-assisted staging sync/import verified |
 
-Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–015 added browser entrant and stage management. The remaining near-term risk is **operator workflow friction**, not core schema design.
+Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. The remaining near-term risk is **staging freshness and operator smoke coverage**, not core schema design.
 
 ## Demo-readiness goals
 
@@ -60,8 +60,9 @@ Do not delegate another foundation/guardrail worker job until staging refresh an
 | **E** | Browser entrant management | Worker 014 | Reduce CLI stitching for internal operators |
 | **F** | Browser stage placement | Worker 015 | Complete late-entrant browser workflow before fixture assignment |
 | **G** | Browser fixture assignment UX | Worker 016 | Reduce raw numeric ID entry now that stage players are browser-visible |
-| **H** | Fixture-stage assignment guardrail | Future worker | Align server guardrail with stage-scoped assignment UI |
-| **I** | Public builder / registration | Deferred | After internal workflow is smooth |
+| **H** | Fixture-stage assignment guardrail | Worker 017 | Align server guardrail with stage-scoped assignment UI |
+| **I** | Staging/code refresh + ops smoke | **Dagh** (WinSCP + browser) | Staging should reflect jobs 013–017 before demo/design work |
+| **J** | Public builder / registration | Deferred | After internal workflow is smooth |
 
 ### 3. Public visibility rule (conservative)
 
@@ -129,4 +130,4 @@ Integrity checks passed (`fixtures verify`, `verify-entrants`, `verify-lifecycle
 - Browser entrant management: [`prompt-014-browser-entrant-management.md`](prompt-014-browser-entrant-management.md)
 - Browser stage placement: [`prompt-015-browser-stage-placement.md`](prompt-015-browser-stage-placement.md)
 - Browser fixture assignment UX: [`prompt-016-browser-fixture-slot-assignment-ux.md`](prompt-016-browser-fixture-slot-assignment-ux.md)
-- Next worker prompt (fixture-stage assignment guardrail): [`prompt-017-fixture-stage-assignment-guardrail.md`](prompt-017-fixture-stage-assignment-guardrail.md)
+- Fixture-stage assignment guardrail: [`prompt-017-fixture-stage-assignment-guardrail.md`](prompt-017-fixture-stage-assignment-guardrail.md)

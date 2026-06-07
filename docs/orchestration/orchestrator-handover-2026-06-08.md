@@ -73,8 +73,8 @@ Ops URL **404s** without `once=amiga-fixtures-one-shot` — intentional.
 - **013** = read-only live public view (implemented and evaluated acceptable)
 - **014** = browser entrant management (implemented and evaluated acceptable)
 - **015** = browser stage placement (implemented and evaluated acceptable)
-- **016** = browser fixture slot assignment UX (implemented; needs server guardrail follow-up)
-- **017** = fixture-stage assignment guardrail (drafted; next worker prompt)
+- **016** = browser fixture slot assignment UX (implemented; guardrail follow-up completed by 017)
+- **017** = fixture-stage assignment guardrail (implemented and evaluated acceptable)
 
 ### Strategic priority order (do not skip without Dagh)
 
@@ -85,9 +85,10 @@ Per checkpoint + orchestration model:
 3. ~~Read-only live public view~~ **done** — allowlisted running fixture events; no public result entry
 4. ~~Browser entrant management~~ **done** — entrant list, add by name search/id, withdraw/replace in ops UI
 5. ~~Browser stage placement~~ **done** — place registered entrants into stages from ops UI
-6. **Fixture-stage assignment guardrail** — require slot assignments to use players from the fixture's exact stage; drafted as prompt 017
-7. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
-8. **Public builder / registration** — deferred
+6. ~~Fixture-stage assignment guardrail~~ **done** — assignment now requires players from the fixture's exact stage
+7. **Staging/code refresh + ops smoke** — Dagh WinSCP sync/import and browser spot-checks after jobs 013–017
+8. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
+9. **Public builder / registration** — deferred
 
 **Pause rule:** Do not delegate another foundation/guardrail worker job unless regressions appear.
 
@@ -126,9 +127,9 @@ Plan file (do **not** edit): `c:\Users\daghn\.cursor\plans\tournament_checkpoint
 
 ### Your first actions as new orchestrator
 
-1. Confirm `git log -3` matches `7acf2a4` on `main`.
-2. Offer to send **prompt 017 (fixture-stage assignment guardrail)** to the next Composer 2.5 worker.
-3. Do not re-open foundation jobs 001–011, staging job 012, public live job 013, entrant-management job 014, or stage-placement job 015 without a reported regression.
+1. Confirm `git log -3` includes `11920d0` on `main`.
+2. Ask Dagh to do the staging/code refresh and ops smoke, or prepare a short checklist from `docs/amiga-staging-handoff.md`.
+3. Do not re-open foundation jobs 001–017 without a reported regression.
 
 Acknowledge the mandate, summarize current state in 5–8 bullets, and ask Dagh which next step they want.
 
