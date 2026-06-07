@@ -122,6 +122,11 @@ python -m scripts.amiga fixtures withdraw-entrant --tournament-id N --player-id 
 python -m scripts.amiga fixtures replace-entrant --tournament-id N --old-player-id OLD --new-player-id NEW --dry-run
 python -m scripts.amiga fixtures replace-entrant --tournament-id N --old-player-id OLD --new-player-id NEW --note "late swap"
 
+# Stage placement after late entrant registration (generated tournaments only; dry-run first).
+python -m scripts.amiga fixtures add-stage-player --tournament-id N --stage-key overall --player-id P --seed-no 5 --dry-run
+python -m scripts.amiga fixtures add-stage-player --tournament-id N --stage-key overall --player-id P --seed-no 5
+python -m scripts.amiga fixtures place-entrant --tournament-id N --stage-key overall --player-id P --seed-no 5 --group-key A --dry-run
+
 # Examples for future live events:
 python -m scripts.amiga fixtures create-stage --tournament-id 1 --stage-key overall --name "Overall" --stage-type league
 python -m scripts.amiga fixtures create-fixture --tournament-id 1 --stage-key overall --fixture-key overall-001 --player-a-id 1 --player-b-id 2

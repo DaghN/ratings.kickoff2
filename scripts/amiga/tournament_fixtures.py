@@ -96,13 +96,41 @@ def _require_lifecycle_allows_entrant_registration(
     *,
     tournament_id: int,
 ) -> None:
+    _require_lifecycle_in_statuses(
+        conn,
+        tournament_id=tournament_id,
+        allowed_statuses=ENTRANT_REGISTRATION_LIFECYCLE_STATUSES,
+        action_label="entrant registration",
+    )
+
+
+def _require_lifecycle_allows_stage_placement(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+) -> None:
+    _require_lifecycle_in_statuses(
+        conn,
+        tournament_id=tournament_id,
+        allowed_statuses=ENTRANT_REGISTRATION_LIFECYCLE_STATUSES,
+        action_label="stage player placement",
+    )
+
+
+def _require_lifecycle_in_statuses(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    allowed_statuses: set[str],
+    action_label: str,
+) -> None:
     row = _load_tournament_lifecycle(conn, tournament_id)
     status = str(row["lifecycle_status"])
-    if status not in ENTRANT_REGISTRATION_LIFECYCLE_STATUSES:
-        allowed = ", ".join(sorted(ENTRANT_REGISTRATION_LIFECYCLE_STATUSES))
+    if status not in allowed_statuses:
+        allowed = ", ".join(sorted(allowed_statuses))
         raise ValueError(
             f"tournament_id={tournament_id} lifecycle_status is {status!r}; "
-            f"entrant registration is allowed only in {allowed}"
+            f"{action_label} is allowed only in {allowed}"
         )
 
 
@@ -237,7 +265,7 @@ def _require_active_tournament_entrant(
     if entrant["status"] != "registered":
         raise ValueError(
             f"player_id={player_id} entrant status is {entrant['status']!r}; "
-            "only registered entrants may be used in fixture assignment or result entry"
+            "only registered entrants may be used in stage placement or fixture ops"
         )
 
 
@@ -388,20 +416,59 @@ def add_stage_player(
     player_id: int,
     seed_no: int | None = None,
     group_key: str | None = None,
-) -> None:
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    tournament = _require_eligible_generated_tournament(conn, tournament_id=tournament_id)
+    _require_lifecycle_allows_stage_placement(conn, tournament_id=tournament_id)
     stage = _load_stage_by_key(conn, tournament_id, stage_key)
     if stage is None:
         raise ValueError(f"stage {stage_key!r} not found in tournament_id={tournament_id}")
     _require_player(conn, player_id)
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            INSERT INTO tournament_stage_players (stage_id, player_id, seed_no, group_key)
-            VALUES (%s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE seed_no = VALUES(seed_no), group_key = VALUES(group_key)
-            """,
-            (int(stage["id"]), player_id, seed_no, group_key),
-        )
+    _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=player_id)
+
+    if not dry_run:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO tournament_stage_players (stage_id, player_id, seed_no, group_key)
+                VALUES (%s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE seed_no = VALUES(seed_no), group_key = VALUES(group_key)
+                """,
+                (int(stage["id"]), player_id, seed_no, group_key),
+            )
+
+    return {
+        "dry_run": dry_run,
+        "tournament_id": tournament_id,
+        "tournament_name": tournament.get("name"),
+        "stage_key": stage_key,
+        "stage_id": int(stage["id"]),
+        "player_id": player_id,
+        "seed_no": seed_no,
+        "group_key": group_key,
+    }
+
+
+def place_stage_entrant(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    stage_key: str,
+    player_id: int,
+    seed_no: int | None = None,
+    group_key: str | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Place a registered tournament entrant into a stage (alias for add_stage_player)."""
+    return add_stage_player(
+        conn,
+        tournament_id=tournament_id,
+        stage_key=stage_key,
+        player_id=player_id,
+        seed_no=seed_no,
+        group_key=group_key,
+        dry_run=dry_run,
+    )
 
 
 def create_fixture(
@@ -1724,12 +1791,27 @@ def main(argv: list[str] | None = None) -> int:
     p_stage.add_argument("--parent-stage-key", default=None)
     p_stage.add_argument("--config-json", default=None)
 
-    p_stage_player = sub.add_parser("add-stage-player", help="Add or update a player in a stage")
+    p_stage_player = sub.add_parser(
+        "add-stage-player",
+        help="Place a registered entrant into a stage (generated tournaments only)",
+    )
     p_stage_player.add_argument("--tournament-id", type=int, required=True)
     p_stage_player.add_argument("--stage-key", required=True)
     p_stage_player.add_argument("--player-id", type=int, required=True)
     p_stage_player.add_argument("--seed-no", type=int, default=None)
     p_stage_player.add_argument("--group-key", default=None)
+    p_stage_player.add_argument("--dry-run", action="store_true")
+
+    p_place_entrant = sub.add_parser(
+        "place-entrant",
+        help="Alias for add-stage-player: place a registered entrant into a stage",
+    )
+    p_place_entrant.add_argument("--tournament-id", type=int, required=True)
+    p_place_entrant.add_argument("--stage-key", required=True)
+    p_place_entrant.add_argument("--player-id", type=int, required=True)
+    p_place_entrant.add_argument("--seed-no", type=int, default=None)
+    p_place_entrant.add_argument("--group-key", default=None)
+    p_place_entrant.add_argument("--dry-run", action="store_true")
 
     p_fixture = sub.add_parser("create-fixture", help="Create or update a fixture")
     p_fixture.add_argument("--tournament-id", type=int, required=True)
@@ -1917,17 +1999,27 @@ def main(argv: list[str] | None = None) -> int:
             print(f"stage_id={stage_id}")
             return 0
 
-        if args.cmd == "add-stage-player":
-            add_stage_player(
+        if args.cmd in {"add-stage-player", "place-entrant"}:
+            summary = place_stage_entrant(
                 conn,
                 tournament_id=args.tournament_id,
                 stage_key=args.stage_key,
                 player_id=args.player_id,
                 seed_no=args.seed_no,
                 group_key=args.group_key,
+                dry_run=args.dry_run,
             )
-            conn.commit()
-            print("OK: stage player upserted")
+            if args.dry_run:
+                conn.rollback()
+                print("DRY RUN: rolled back")
+            else:
+                conn.commit()
+            seed = f" seed_no={summary['seed_no']}" if summary.get("seed_no") is not None else ""
+            group = f" group_key={summary['group_key']!r}" if summary.get("group_key") else ""
+            print(
+                f"tournament_id={summary['tournament_id']} stage_key={summary['stage_key']!r} "
+                f"stage_id={summary['stage_id']} player_id={summary['player_id']}{seed}{group}"
+            )
             return 0
 
         if args.cmd == "create-fixture":
