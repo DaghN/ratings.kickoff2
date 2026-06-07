@@ -103,7 +103,7 @@ Late-entrant workflow (browser or CLI): add entrant → place in stage → assig
 
 ## Commit hash and push target
 
-_(filled after commit)_
+`358628a` — Add browser Amiga stage placement.
 
 Push target: `origin/main`
 
