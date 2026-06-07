@@ -708,3 +708,103 @@ body.k2-site .k2-amiga-organizer-lifecycle__action:focus-visible {
 .k2-amiga-organizer-lifecycle-advanced {
 	max-width: 42rem;
 }
+
+/* Organizer match schedule (Fixtures tab) */
+.k2-amiga-organizer-schedule__group {
+	margin: 0 0 1.25rem;
+}
+
+.k2-amiga-organizer-schedule__heading {
+	margin: 0 0 0.5rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.k2-amiga-organizer-schedule__matches {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.k2-amiga-organizer-schedule__match {
+	padding: 0.55rem 0.65rem;
+	margin: 0 0 0.4rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 55%, transparent);
+}
+
+.k2-amiga-organizer-schedule__match-main {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.75rem;
+}
+
+.k2-amiga-organizer-schedule__matchup {
+	font-size: 0.95rem;
+}
+
+.k2-amiga-organizer-schedule__vs {
+	color: var(--k2-text-muted);
+	font-weight: normal;
+}
+
+.k2-amiga-organizer-schedule__score {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	color: var(--k2-segment-active-text);
+}
+
+.k2-amiga-organizer-schedule__status {
+	display: inline-block;
+	padding: 0.15rem 0.45rem;
+	border-radius: var(--k2-radius-sm);
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	color: var(--k2-text-secondary);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 88%, transparent);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+.k2-amiga-organizer-schedule__status--played {
+	color: var(--k2-segment-active-text);
+	border-color: color-mix(in srgb, var(--k2-accent) 35%, var(--k2-border-subtle));
+}
+
+.k2-amiga-organizer-schedule__status--void {
+	border-style: dashed;
+	opacity: 0.85;
+}
+
+.k2-amiga-organizer-schedule__result-form {
+	margin: 0.45rem 0 0;
+	padding-top: 0.45rem;
+	border-top: 1px dashed var(--k2-border-subtle);
+	font-size: 0.88rem;
+}
+
+.k2-amiga-organizer-schedule__hint {
+	margin: 0.35rem 0 0;
+	font-size: 0.85rem;
+}
+
+/* Organizer league table preview (Table tab) */
+.k2-amiga-organizer-table__preview-note {
+	margin: 0 0 0.75rem;
+	padding: 0.5rem 0.65rem;
+	border-radius: var(--k2-radius-sm);
+	font-size: 0.88rem;
+	color: var(--k2-text-secondary);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 70%, transparent);
+	border: 1px dashed var(--k2-border-subtle);
+}
+
+.k2-amiga-organizer-table__row--preview td {
+	color: var(--k2-text-secondary);
+}

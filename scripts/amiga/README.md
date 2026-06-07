@@ -161,8 +161,10 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 # entrant (draft/registration/ready), withdraw, replace — same guardrails as fixtures add/withdraw/replace CLI.
 # Browser stage placement: list stages/stage players, place/update registered entrant (draft/registration/ready)
 # with optional seed/group — same guardrails as fixtures place-entrant. Late workflow: add entrant → place in stage → assign fixtures.
-# Browser fixture assignment: incomplete scheduled fixtures show stage-scoped player selects (fallback numeric ids when <2 stage players).
+# Browser fixture assignment: incomplete scheduled fixtures show stage-scoped player selects on Advanced (fallback numeric ids when <2 stage players).
 # POST assign_players — same guardrails as fixtures set-players (fixture-stage membership); no running lifecycle required.
+# Browser fixtures preview: Fixtures tab groups matches by round with friendly schedule rows; technical ids on Advanced.
+# Browser table preview: Table tab shows registered entrants at zero before derived standings exist (read-only presentation).
 # No browser player creation or onboard-newcomer; use CLI for those.
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
