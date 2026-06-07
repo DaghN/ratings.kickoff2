@@ -21,7 +21,7 @@ The internal tournament backbone is in good shape for future formats:
 | Public live UI | `/amiga/live-tournaments.php`, `/amiga/live-tournament.php?id=N` (allowlisted running fixtures, read-only) |
 | Staging export package | Manifest refreshed to 23 parts; Dagh-assisted staging sync/import verified |
 
-Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. The remaining near-term risk is **staging freshness and operator smoke coverage**, not core schema design.
+Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. Dagh has chosen to focus next on the primary organizer workflow rather than more late-entrant edge cases or immediate staging smoke.
 
 ## Demo-readiness goals
 
@@ -61,8 +61,9 @@ Do not delegate another foundation/guardrail worker job until staging refresh an
 | **F** | Browser stage placement | Worker 015 | Complete late-entrant browser workflow before fixture assignment |
 | **G** | Browser fixture assignment UX | Worker 016 | Reduce raw numeric ID entry now that stage players are browser-visible |
 | **H** | Fixture-stage assignment guardrail | Worker 017 | Align server guardrail with stage-scoped assignment UI |
-| **I** | Staging/code refresh + ops smoke | **Dagh** (WinSCP + browser) | Staging should reflect jobs 013–017 before demo/design work |
-| **J** | Public builder / registration | Deferred | After internal workflow is smooth |
+| **I** | Browser organizer workflow checkpoint | Worker 018 | Current ops UI is technically capable but too clumsy for normal tournament running |
+| **J** | Staging/code refresh + ops smoke | **Dagh** (WinSCP + browser) | Staging should reflect jobs 013–018 before demo use |
+| **K** | Public builder / registration | Deferred | After internal workflow is smooth |
 
 ### 3. Public visibility rule (conservative)
 
@@ -131,3 +132,4 @@ Integrity checks passed (`fixtures verify`, `verify-entrants`, `verify-lifecycle
 - Browser stage placement: [`prompt-015-browser-stage-placement.md`](prompt-015-browser-stage-placement.md)
 - Browser fixture assignment UX: [`prompt-016-browser-fixture-slot-assignment-ux.md`](prompt-016-browser-fixture-slot-assignment-ux.md)
 - Fixture-stage assignment guardrail: [`prompt-017-fixture-stage-assignment-guardrail.md`](prompt-017-fixture-stage-assignment-guardrail.md)
+- Browser organizer workflow checkpoint: [`prompt-018-browser-organizer-workflow-checkpoint.md`](prompt-018-browser-organizer-workflow-checkpoint.md)
