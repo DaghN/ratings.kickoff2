@@ -127,7 +127,7 @@ The orchestrator should usually prioritize making important global checks green 
 
 ## Current strategic priority
 
-**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001–011) are complete, the Dagh-assisted staging refresh is recorded in job 012, the read-only public live view landed in job 013, and browser ops parity for entrants/stages/fixture assignment landed in jobs 014–017. Dagh has chosen to defer staging smoke for now and focus next on the primary browser organizer workflow.
+**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001-011) are complete, the Dagh-assisted staging refresh is recorded in job 012, the read-only public live view landed in job 013, and browser ops parity for entrants/stages/fixture assignment landed in jobs 014-017. Worker 018 defined the organizer-first browser workflow; next work should implement the first shell/navigation slice.
 
 Immediate priority order:
 
@@ -137,9 +137,10 @@ Immediate priority order:
 4. ~~**Browser entrant management**~~ — entrant list, add existing players by search/id, withdraw, and replace in ops UI. See [`agent-handoffs/2026-06-08-014-browser-entrant-management.md`](agent-handoffs/2026-06-08-014-browser-entrant-management.md).
 5. ~~**Browser stage placement**~~ — place registered entrants into stages from ops UI. See [`agent-handoffs/2026-06-08-015-browser-stage-placement.md`](agent-handoffs/2026-06-08-015-browser-stage-placement.md).
 6. ~~**Fixture-stage assignment guardrail**~~ — require slot assignments to use players from the fixture's exact stage. See [`agent-handoffs/2026-06-08-017-fixture-stage-assignment-guardrail.md`](agent-handoffs/2026-06-08-017-fixture-stage-assignment-guardrail.md).
-7. **Browser organizer workflow checkpoint** — design the normal create/select players/preview/start/enter-results flow before more edge-case work. See [`prompt-018-browser-organizer-workflow-checkpoint.md`](prompt-018-browser-organizer-workflow-checkpoint.md).
-8. **Staging/code refresh and ops smoke** — Dagh syncs `site/public_html/` to staging, then spot-checks live public and ops flows.
-9. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
+7. ~~**Browser organizer workflow checkpoint**~~ — design the normal create/select players/preview/start/enter-results flow before more edge-case work. See [`browser-organizer-workflow-checkpoint.md`](browser-organizer-workflow-checkpoint.md).
+8. **Browser organizer shell** — tabs, create redirect, and player picker for league creation. See [`prompt-019-browser-organizer-shell.md`](prompt-019-browser-organizer-shell.md).
+9. **Staging/code refresh and ops smoke** — Dagh syncs `site/public_html/` to staging, then spot-checks live public and ops flows.
+10. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
 
 Completed foundation (do not re-delegate unless regressions appear):
 

@@ -67,7 +67,7 @@ Ops URL **404s** without `once=amiga-fixtures-one-shot` — intentional.
 
 ### Worker prompt inventory
 
-- Prompts **001–018** under `docs/orchestration/prompt-*.md`
+- Prompts **001–019** under `docs/orchestration/prompt-*.md`
 - Handoffs under `docs/orchestration/agent-handoffs/`
 - **012** = staging sync rehearsal (record-only handoff filed from Dagh's 4-point staging success)
 - **013** = read-only live public view (implemented and evaluated acceptable)
@@ -75,7 +75,8 @@ Ops URL **404s** without `once=amiga-fixtures-one-shot` — intentional.
 - **015** = browser stage placement (implemented and evaluated acceptable)
 - **016** = browser fixture slot assignment UX (implemented; guardrail follow-up completed by 017)
 - **017** = fixture-stage assignment guardrail (implemented and evaluated acceptable)
-- **018** = browser organizer workflow checkpoint (drafted; next worker prompt)
+- **018** = browser organizer workflow checkpoint (implemented and evaluated acceptable)
+- **019** = browser organizer shell (drafted; next worker prompt)
 
 ### Strategic priority order (do not skip without Dagh)
 
@@ -87,10 +88,11 @@ Per checkpoint + orchestration model:
 4. ~~Browser entrant management~~ **done** — entrant list, add by name search/id, withdraw/replace in ops UI
 5. ~~Browser stage placement~~ **done** — place registered entrants into stages from ops UI
 6. ~~Fixture-stage assignment guardrail~~ **done** — assignment now requires players from the fixture's exact stage
-7. **Browser organizer workflow checkpoint** — drafted as prompt 018; focus on normal create/select players/preview/start/enter-results flow
-8. **Staging/code refresh + ops smoke** — Dagh WinSCP sync/import and browser spot-checks after jobs 013–018
-9. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
-10. **Public builder / registration** — deferred
+7. ~~Browser organizer workflow checkpoint~~ **done** — normal create/select players/preview/start/enter-results flow defined
+8. **Browser organizer shell** — drafted as prompt 019; tabs, create redirect, and player picker for league creation
+9. **Staging/code refresh + ops smoke** — Dagh WinSCP sync/import and browser spot-checks after organizer UI shell
+10. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
+11. **Public builder / registration** — deferred
 
 **Pause rule:** Do not delegate another foundation/guardrail worker job unless regressions appear.
 
@@ -129,9 +131,9 @@ Plan file (do **not** edit): `c:\Users\daghn\.cursor\plans\tournament_checkpoint
 
 ### Your first actions as new orchestrator
 
-1. Confirm `git log -3` includes the prompt 018 commit on `main`.
-2. Offer to send **prompt 018 (browser organizer workflow checkpoint)** to the next Composer 2.5 worker.
-3. Do not re-open foundation jobs 001–017 or late-entrant edge cases without a reported regression or explicit request.
+1. Confirm `git log -3` includes the prompt 019 commit on `main`.
+2. Offer to send **prompt 019 (browser organizer shell)** to the next Composer 2.5 worker.
+3. Do not re-open foundation jobs 001–018 or late-entrant edge cases without a reported regression or explicit request.
 
 Acknowledge the mandate, summarize current state in 5–8 bullets, and ask Dagh which next step they want.
 
