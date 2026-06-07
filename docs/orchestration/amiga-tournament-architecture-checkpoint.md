@@ -1,7 +1,7 @@
 # Amiga tournament architecture/product checkpoint
 
 **Date:** 2026-06-07  
-**Status:** Active guidance after worker jobs 001–012
+**Status:** Active guidance after worker jobs 001–014
 
 ## Where we are
 
@@ -16,12 +16,12 @@ The internal tournament backbone is in good shape for future formats:
 | Entrant onboarding | Internal CLI (`add-entrant`, `onboard-newcomer`) |
 | Stage placement | Guarded CLI (`add-stage-player` / `place-entrant`) |
 | Result entry & attach-game | Guarded; lifecycle + entrant checks |
-| Browser ops | Password-gated `/amiga/ops/fixtures.php` (create, lifecycle, results) |
+| Browser ops | Password-gated `/amiga/ops/fixtures.php` (create, lifecycle, entrant management, results) |
 | Public historical UI | `/amiga/tournaments.php`, `/amiga/tournament.php` (derived standings) |
 | Public live UI | `/amiga/live-tournaments.php`, `/amiga/live-tournament.php?id=N` (allowlisted running fixtures, read-only) |
 | Staging export package | Manifest refreshed to 23 parts; Dagh-assisted staging sync/import verified |
 
-Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. The remaining near-term risk is **operator workflow friction**, not core schema design.
+Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Job 014 added browser entrant management. The remaining near-term risk is **operator workflow friction**, not core schema design.
 
 ## Demo-readiness goals
 
@@ -57,8 +57,9 @@ Do not delegate another foundation/guardrail worker job until staging refresh an
 | **B** | Staging export re-run | Agent (local export) | Refreshes SQL parts after jobs 008–011 |
 | **C** | Staging sync + import | **Dagh** (WinSCP + browser) | Cannot be automated from repo; required for demo confidence |
 | **D** | Read-only live public view | Worker 013 | After visibility + staging proven |
-| **E** | Browser entrant management | Future worker | Reduce CLI stitching for internal operators |
-| **F** | Public builder / registration | Deferred | After internal workflow is smooth |
+| **E** | Browser entrant management | Worker 014 | Reduce CLI stitching for internal operators |
+| **F** | Browser stage placement | Future worker | Complete late-entrant browser workflow before fixture assignment |
+| **G** | Public builder / registration | Deferred | After internal workflow is smooth |
 
 ### 3. Public visibility rule (conservative)
 
@@ -123,4 +124,5 @@ Integrity checks passed (`fixtures verify`, `verify-entrants`, `verify-lifecycle
 - Staging loop: [`../amiga-staging-handoff.md`](../amiga-staging-handoff.md)
 - Staging sync record: [`prompt-012-staging-sync-rehearsal.md`](prompt-012-staging-sync-rehearsal.md)
 - Read-only live public view: [`prompt-013-read-only-live-public-view.md`](prompt-013-read-only-live-public-view.md)
-- Next worker prompt (browser entrant management): [`prompt-014-browser-entrant-management.md`](prompt-014-browser-entrant-management.md)
+- Browser entrant management: [`prompt-014-browser-entrant-management.md`](prompt-014-browser-entrant-management.md)
+- Next worker prompt (browser stage placement): [`prompt-015-browser-stage-placement.md`](prompt-015-browser-stage-placement.md)

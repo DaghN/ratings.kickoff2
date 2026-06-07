@@ -127,15 +127,16 @@ The orchestrator should usually prioritize making important global checks green 
 
 ## Current strategic priority
 
-**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001–011) are complete, the Dagh-assisted staging refresh is recorded in job 012, and the read-only public live view landed in job 013. Pause further deep model slices until browser entrant management is proven.
+**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001–011) are complete, the Dagh-assisted staging refresh is recorded in job 012, the read-only public live view landed in job 013, and browser entrant management landed in job 014. Pause further deep model slices until browser stage placement is proven.
 
 Immediate priority order:
 
 1. ~~**Public/private visibility boundary**~~ — done; public historical pages show only `completed` / `archived` tournaments; internal ops unchanged. See [`amiga-tournament-architecture-checkpoint.md`](amiga-tournament-architecture-checkpoint.md).
 2. ~~**Staging refresh rehearsal**~~ — verified by Dagh and recorded in [`agent-handoffs/2026-06-07-012-staging-sync-rehearsal.md`](agent-handoffs/2026-06-07-012-staging-sync-rehearsal.md).
 3. ~~**Read-only live public view**~~ — fixture schedule + lifecycle for allowlisted running events (no public result entry). See [`agent-handoffs/2026-06-08-013-read-only-live-public-view.md`](agent-handoffs/2026-06-08-013-read-only-live-public-view.md).
-4. **Browser entrant management** — entrant list, add existing players by search/id, withdraw, and replace in ops UI. See [`prompt-014-browser-entrant-management.md`](prompt-014-browser-entrant-management.md).
-5. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
+4. ~~**Browser entrant management**~~ — entrant list, add existing players by search/id, withdraw, and replace in ops UI. See [`agent-handoffs/2026-06-08-014-browser-entrant-management.md`](agent-handoffs/2026-06-08-014-browser-entrant-management.md).
+5. **Browser stage placement** — place registered entrants into stages from ops UI. See [`prompt-015-browser-stage-placement.md`](prompt-015-browser-stage-placement.md).
+6. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
 
 Completed foundation (do not re-delegate unless regressions appear):
 
