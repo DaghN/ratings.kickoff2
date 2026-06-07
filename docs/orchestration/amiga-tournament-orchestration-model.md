@@ -17,7 +17,7 @@ The orchestrator should:
 - Review the worker's handoff document and code changes when the user reports completion.
 - Decide whether deeper inspection is needed.
 - Produce the next worker prompt when satisfied.
-- Commit and push orchestration/process documentation and worker prompts that it creates directly in chat with the user, unless the user asks not to.
+- Commit and push orchestration/process documentation, handoff records, and worker prompts that it creates or edits directly in chat with the user, unless the user explicitly asks not to.
 
 The orchestrator should not normally implement the slice itself once this process is active, unless the user explicitly asks for direct implementation or a small correction.
 
@@ -34,6 +34,18 @@ The user may occasionally run a small git steward agent outside the main worker 
 Git steward commits are not part of the strategic worker sequence. During review, the orchestrator should distinguish them from worker implementation commits and should not treat them as scope drift unless they touch product or schema behavior unexpectedly.
 
 Worker agents should still assume they are **not** git stewards. They must not commit unrelated pre-existing local changes unless their prompt explicitly says to do so.
+
+## Orchestrator git requirements
+
+When the orchestrator creates or edits orchestration documents, process documents, handoff records, or worker prompts directly in chat, it should commit and push those documentation changes before handing control back to Dagh.
+
+This includes:
+
+- new `docs/orchestration/prompt-*.md` worker prompts
+- new or corrected `docs/orchestration/agent-handoffs/*.md` records
+- updates to checkpoint, handover, or process docs
+
+Do not leave orchestrator-authored prompt or process documentation uncommitted unless Dagh explicitly asks for a draft-only change. Do not include unrelated working-tree changes in these commits.
 
 ## Standard worker output
 
@@ -112,14 +124,14 @@ The orchestrator should usually prioritize making important global checks green 
 
 ## Current strategic priority
 
-**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001–011) are complete. Pause further deep model slices until demo readiness is proven.
+**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001–011) are complete, the Dagh-assisted staging refresh is recorded in job 012, and the read-only public live view landed in job 013. Pause further deep model slices until browser entrant management is proven.
 
 Immediate priority order:
 
-1. **Public/private visibility boundary** — public pages show only `completed` / `archived` tournaments; internal ops unchanged. See [`amiga-tournament-architecture-checkpoint.md`](amiga-tournament-architecture-checkpoint.md).
-2. **Staging refresh rehearsal** — re-export, WinSCP sync, browser preview/apply on staging, spot-check public pages and ops. Dagh owns sync/import; agents run local export and document results.
-3. **Read-only live public view** — fixture schedule + lifecycle for selected running events (no public result entry). After visibility + staging proven.
-4. **Browser entrant onboarding** — wire CLI onboarding into ops UI; reduce operator CLI stitching.
+1. ~~**Public/private visibility boundary**~~ — done; public historical pages show only `completed` / `archived` tournaments; internal ops unchanged. See [`amiga-tournament-architecture-checkpoint.md`](amiga-tournament-architecture-checkpoint.md).
+2. ~~**Staging refresh rehearsal**~~ — verified by Dagh and recorded in [`agent-handoffs/2026-06-07-012-staging-sync-rehearsal.md`](agent-handoffs/2026-06-07-012-staging-sync-rehearsal.md).
+3. ~~**Read-only live public view**~~ — fixture schedule + lifecycle for allowlisted running events (no public result entry). See [`agent-handoffs/2026-06-08-013-read-only-live-public-view.md`](agent-handoffs/2026-06-08-013-read-only-live-public-view.md).
+4. **Browser entrant management** — entrant list, add existing players by search/id, withdraw, and replace in ops UI. See [`prompt-014-browser-entrant-management.md`](prompt-014-browser-entrant-management.md).
 5. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
 
 Completed foundation (do not re-delegate unless regressions appear):
