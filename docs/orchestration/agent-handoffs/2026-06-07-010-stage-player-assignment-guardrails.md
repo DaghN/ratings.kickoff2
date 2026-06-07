@@ -86,7 +86,7 @@ python -m scripts.amiga fixtures cleanup-generated --tournament-id 632
 
 ## Commit hash and push target
 
-- Implementation commit: _(filled after commit)_
+- Implementation commit: `3977041`
 - Push target: `origin/main`
 
 ## Recommended next steps
