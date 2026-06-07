@@ -106,7 +106,7 @@ python -m scripts.amiga verify-tournament-formats
 
 ## Commit hash and push target
 
-_(filled after commit)_
+`5675e2d` — Add browser Amiga entrant management.
 
 Push target: `origin/main`
 
