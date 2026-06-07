@@ -784,6 +784,51 @@ function amiga_fixture_group_fixtures_for_schedule(array $fixtures): array
 }
 
 /**
+ * Split fixtures for the Results tab: playable entry rows, played context, skipped counts.
+ *
+ * @param list<array<string, mixed>> $fixtures
+ * @return array{
+ *   playable:list<array<string, mixed>>,
+ *   played:list<array<string, mixed>>,
+ *   skipped_void:int,
+ *   skipped_incomplete:int
+ * }
+ */
+function amiga_fixture_partition_for_results(array $fixtures): array
+{
+    $playable = [];
+    $played = [];
+    $skippedVoid = 0;
+    $skippedIncomplete = 0;
+
+    foreach ($fixtures as $fixture) {
+        $status = (string) ($fixture['status'] ?? '');
+        if ($status === 'void') {
+            $skippedVoid++;
+            continue;
+        }
+        if ($status === 'played' || $fixture['game_id'] !== null) {
+            $played[] = $fixture;
+            continue;
+        }
+        if ($status === 'scheduled') {
+            if ($fixture['player_a_id'] === null || $fixture['player_b_id'] === null) {
+                $skippedIncomplete++;
+                continue;
+            }
+            $playable[] = $fixture;
+        }
+    }
+
+    return [
+        'playable' => $playable,
+        'played' => $played,
+        'skipped_void' => $skippedVoid,
+        'skipped_incomplete' => $skippedIncomplete,
+    ];
+}
+
+/**
  * @param list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string}> $standingsRows
  * @param list<array{id:int,player_id:int,player_name:string,seed_no:?int,status:string,note:?string}> $entrants
  * @return array{
@@ -2514,7 +2559,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'Recorded fixture result as game #' . $gameId . ' and processed derived standings/ratings.'
                 );
             }
-            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'fixtures', $postStatus);
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
         } elseif ($action === 'set_lifecycle_status') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -2790,6 +2835,10 @@ if ($tournamentId > 0) {
 
 mysqli_close($con);
 $fixtureScheduleGroups = amiga_fixture_group_fixtures_for_schedule($fixtures);
+$fixtureResultsPartition = amiga_fixture_partition_for_results($fixtures);
+$fixtureResultsEntryGroups = amiga_fixture_group_fixtures_for_schedule($fixtureResultsPartition['playable']);
+$fixtureResultsPlayedGroups = amiga_fixture_group_fixtures_for_schedule($fixtureResultsPartition['played']);
+$resultsTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'results', $status);
 $organizerTableDisplay = amiga_fixture_organizer_table_rows($standingsRows, $entrants);
 $createMatchHint = amiga_fixture_expected_round_robin_fixtures(
     count($createDraft['player_ids']),
@@ -3408,7 +3457,15 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 <?php if ($view === 'fixtures' && $tournamentId > 0 && $tournament !== null) { ?>
   <div class="k2-amiga-live-ops__section k2-amiga-organizer-schedule">
     <h2>Match schedule</h2>
-    <p class="k2-amiga-live-ops__muted"><?php echo count($fixtures); ?> match<?php echo count($fixtures) === 1 ? '' : 'es'; ?><?php echo $status !== '' ? ' (' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . ' filter active — change on Advanced)' : ''; ?>. Technical ids and assignment controls are on the Advanced tab.</p>
+    <p class="k2-amiga-live-ops__muted"><?php echo count($fixtures); ?> match<?php echo count($fixtures) === 1 ? '' : 'es'; ?><?php echo $status !== '' ? ' (' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . ' filter active — change on Advanced)' : ''; ?>. Technical ids and assignment controls are on the Advanced tab.<?php
+      if (
+          $lifecycle !== null
+          && $lifecycle['lifecycle_status'] === 'running'
+          && $fixtureResultsPartition['playable'] !== []
+      ) {
+          echo ' <a href="' . htmlspecialchars($resultsTabUrl, ENT_QUOTES, 'UTF-8') . '">Enter scores on the Results tab</a>.';
+      }
+    ?></p>
     <?php if ($fixtures === []) { ?>
       <p class="k2-amiga-live-ops__muted">No fixtures for this tournament yet.</p>
     <?php } else { ?>
@@ -3420,11 +3477,6 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
               $statusModifier = amiga_fixture_organizer_fixture_status_modifier((string) $row['status']);
               $playerA = (string) ($row['player_a_name'] ?? 'TBD');
               $playerB = (string) ($row['player_b_name'] ?? 'TBD');
-              $canRecordResult = $row['status'] === 'scheduled'
-                  && $row['player_a_id'] !== null
-                  && $row['player_b_id'] !== null
-                  && $lifecycle !== null
-                  && $lifecycle['lifecycle_status'] === 'running';
               ?>
             <li class="k2-amiga-organizer-schedule__match">
               <div class="k2-amiga-organizer-schedule__match-main">
@@ -3434,27 +3486,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
                 <?php } ?>
                 <span class="k2-amiga-organizer-schedule__status k2-amiga-organizer-schedule__status--<?php echo k2_h($statusModifier); ?>"><?php echo k2_h(amiga_fixture_organizer_fixture_status_label((string) $row['status'])); ?></span>
               </div>
-              <?php if ($canRecordResult) { ?>
-                <form class="k2-amiga-organizer-schedule__result-form k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
-                  <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-                  <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-                  <input type="hidden" name="action" value="record_result">
-                  <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-                  <input type="hidden" name="view" value="fixtures">
-                  <?php if ($status !== '') { ?>
-                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-                  <?php } ?>
-                  <input type="hidden" name="fixture_id" value="<?php echo (int) $row['id']; ?>">
-                  <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerA); ?>
-                    <input type="number" name="goals_a" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerA); ?>">
-                  </label>
-                  <span aria-hidden="true">–</span>
-                  <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerB); ?>
-                    <input type="number" name="goals_b" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerB); ?>">
-                  </label>
-                  <button type="submit">Save result</button>
-                </form>
-              <?php } elseif (
+              <?php if (
                   $row['status'] === 'scheduled'
                   && $row['player_a_id'] !== null
                   && $row['player_b_id'] !== null
@@ -3514,10 +3546,91 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
   </div>
 <?php } ?>
 
-<?php if ($view === 'results' && $tournamentId > 0 && $tournament !== null) { ?>
-  <div class="k2-amiga-live-ops__section">
-    <h2>Results</h2>
-    <p class="k2-amiga-live-ops__muted">Dedicated result entry arrives in a later slice. For now, enter scores on the <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'fixtures', $status), ENT_QUOTES, 'UTF-8'); ?>">Fixtures</a> tab when the tournament lifecycle is <strong>running</strong>.</p>
+<?php if ($view === 'results' && $tournamentId > 0 && $tournament !== null) {
+    $lifecycleRunning = $lifecycle !== null && $lifecycle['lifecycle_status'] === 'running';
+    $setupTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'setup', $status);
+    ?>
+  <div class="k2-amiga-live-ops__section k2-amiga-organizer-results">
+    <h2>Enter results</h2>
+    <?php if ($organizerLifecycleUi !== null && $organizerLifecycleUi['is_imported']) { ?>
+      <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted">Historical import — result entry is read-only in the browser. Use CLI for ops changes.</p>
+    <?php } elseif (!$lifecycleRunning) { ?>
+      <p class="k2-amiga-organizer-results__hint">Result entry unlocks after you <strong>Start tournament</strong> on the <a href="<?php echo htmlspecialchars($setupTabUrl, ENT_QUOTES, 'UTF-8'); ?>">Setup</a> tab.</p>
+    <?php } else { ?>
+      <?php if ($fixtureResultsPartition['skipped_void'] > 0 || $fixtureResultsPartition['skipped_incomplete'] > 0) { ?>
+        <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted"><?php
+            $skipParts = [];
+            if ($fixtureResultsPartition['skipped_incomplete'] > 0) {
+                $n = $fixtureResultsPartition['skipped_incomplete'];
+                $skipParts[] = $n . ' incomplete match' . ($n === 1 ? '' : 'es') . ' (assign players on Advanced)';
+            }
+            if ($fixtureResultsPartition['skipped_void'] > 0) {
+                $n = $fixtureResultsPartition['skipped_void'];
+                $skipParts[] = $n . ' void match' . ($n === 1 ? '' : 'es');
+            }
+            echo k2_h(implode('; ', $skipParts)) . ' omitted from entry.';
+        ?></p>
+      <?php } ?>
+      <?php if ($fixtureResultsEntryGroups === []) { ?>
+        <p class="k2-amiga-live-ops__muted">No matches waiting for scores<?php echo $fixtureResultsPartition['played'] !== [] ? ' — all listed fixtures have been entered.' : '.'; ?></p>
+      <?php } else { ?>
+        <?php foreach ($fixtureResultsEntryGroups as $entryGroup) { ?>
+          <section class="k2-amiga-organizer-results__group">
+            <h3 class="k2-amiga-organizer-results__heading"><?php echo k2_h($entryGroup['label']); ?></h3>
+            <ul class="k2-amiga-organizer-results__entries">
+            <?php foreach ($entryGroup['fixtures'] as $row) {
+                $playerA = (string) ($row['player_a_name'] ?? 'TBD');
+                $playerB = (string) ($row['player_b_name'] ?? 'TBD');
+                ?>
+              <li class="k2-amiga-organizer-results__entry">
+                <form class="k2-amiga-organizer-results__form k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
+                  <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+                  <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+                  <input type="hidden" name="action" value="record_result">
+                  <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                  <input type="hidden" name="view" value="results">
+                  <?php if ($status !== '') { ?>
+                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                  <?php } ?>
+                  <input type="hidden" name="fixture_id" value="<?php echo (int) $row['id']; ?>">
+                  <span class="k2-amiga-organizer-results__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
+                  <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerA); ?>
+                    <input type="number" name="goals_a" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerA); ?>">
+                  </label>
+                  <span aria-hidden="true">–</span>
+                  <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerB); ?>
+                    <input type="number" name="goals_b" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerB); ?>">
+                  </label>
+                  <button type="submit">Save result</button>
+                </form>
+              </li>
+            <?php } ?>
+            </ul>
+          </section>
+        <?php } ?>
+      <?php } ?>
+      <?php if ($fixtureResultsPlayedGroups !== []) { ?>
+        <section class="k2-amiga-organizer-results__played">
+          <h3 class="k2-amiga-organizer-results__played-heading">Already entered</h3>
+          <?php foreach ($fixtureResultsPlayedGroups as $playedGroup) { ?>
+            <div class="k2-amiga-organizer-results__played-group">
+              <h4 class="k2-amiga-organizer-results__played-label"><?php echo k2_h($playedGroup['label']); ?></h4>
+              <ul class="k2-amiga-organizer-results__played-list">
+              <?php foreach ($playedGroup['fixtures'] as $row) {
+                  $playerA = (string) ($row['player_a_name'] ?? 'TBD');
+                  $playerB = (string) ($row['player_b_name'] ?? 'TBD');
+                  ?>
+                <li class="k2-amiga-organizer-results__played-row">
+                  <span class="k2-amiga-organizer-results__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
+                  <span class="k2-amiga-organizer-results__played-score"><?php echo (int) $row['goals_a']; ?>–<?php echo (int) $row['goals_b']; ?></span>
+                </li>
+              <?php } ?>
+              </ul>
+            </div>
+          <?php } ?>
+        </section>
+      <?php } ?>
+    <?php } ?>
   </div>
 <?php } ?>
 

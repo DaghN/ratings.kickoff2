@@ -164,6 +164,8 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 # Browser fixture assignment: incomplete scheduled fixtures show stage-scoped player selects on Advanced (fallback numeric ids when <2 stage players).
 # POST assign_players — same guardrails as fixtures set-players (fixture-stage membership); no running lifecycle required.
 # Browser fixtures preview: Fixtures tab groups matches by round with friendly schedule rows; technical ids on Advanced.
+# Browser results entry: Results tab lists playable fixtures with score forms when running; played results for context;
+# record_result POST redirects to view=results. Fixtures tab links to Results when scores can be entered.
 # Browser table preview: Table tab shows registered entrants at zero before derived standings exist (read-only presentation).
 # No browser player creation or onboard-newcomer; use CLI for those.
 
