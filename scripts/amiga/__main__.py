@@ -19,6 +19,7 @@ from scripts.amiga.verify_track_b import main as verify_track_b_main
 from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
+from scripts.amiga.player_registry import main as player_registry_main
 
 log = logging.getLogger("scripts.amiga")
 
@@ -100,6 +101,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_builder.add_argument("builder_args", nargs=argparse.REMAINDER)
 
+    p_players = sub.add_parser(
+        "players",
+        help="Internal KOA-aware player naming and creation (no public UI)",
+    )
+    p_players.add_argument("player_args", nargs=argparse.REMAINDER)
+
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -142,6 +149,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "build-tournament":
         return tournament_builder_main(args.builder_args)
+
+    if args.cmd == "players":
+        return player_registry_main(args.player_args)
 
     if args.cmd == "standings-parity":
         parity_argv: list[str] = [

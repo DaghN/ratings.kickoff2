@@ -116,8 +116,8 @@ The immediate strategic priority is to harden the tournament foundation before a
 
 1. Make entrant verification green for current generated/local tournament data.
 2. Tournament lifecycle.
-3. KOA-aware player naming and newcomer creation workflow.
+3. KOA-aware player naming and newcomer creation workflow — **internal CLI foundation shipped** (`python -m scripts.amiga players …`); public newcomer UX remains deferred.
 4. Separation of internal ops from public tournament viewing.
 5. Format capability model for future Swiss, group+knockout, marathon, World Cup class, and later honours.
 
-The first worker job in this orchestration model implemented tournament entrants/roster ground truth. The next worker job should close the transitional entrant backfill/verification gap.
+The first worker job in this orchestration model implemented tournament entrants/roster ground truth. Subsequent jobs closed entrant backfill, status workflow, fixture guardrails, lifecycle, and browser ops controls. KOA player naming is now available to operators via CLI only; wire it into entrant onboarding flows in a later slice.

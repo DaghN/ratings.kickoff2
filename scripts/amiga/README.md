@@ -157,6 +157,21 @@ php site/public_html/amiga/ops/run_process_game.php process-one --game-id=G
 python -m scripts.amiga fixtures cleanup-generated --tournament-id N --dry-run
 ```
 
+**KOA player naming** (internal CLI only; public newcomer registration deferred):
+
+```powershell
+# Check availability (normalizes spacing/trailing period; case-insensitive identity).
+python -m scripts.amiga players check-name --name "  Mark   B. "
+python -m scripts.amiga players check-name --name "Totally Unique Zz Player"
+
+# Suggest KOA-style abbreviation for a full newcomer name.
+python -m scripts.amiga players suggest-name --full-name "Mark Bentley"
+
+# Create a player row (dry-run first; does not register tournament entrants).
+python -m scripts.amiga players create --name "Mark Be" --country "England" --dry-run
+python -m scripts.amiga players create --name "Mark Be" --country "England"
+```
+
 Internal fixture browser/create/result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N`.
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).

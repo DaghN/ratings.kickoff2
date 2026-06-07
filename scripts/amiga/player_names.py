@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 
 _WS = re.compile(r"\s+")
 
@@ -15,6 +16,84 @@ def normalize_display_name(raw: str) -> str:
 
 def identity_key(raw: str) -> str:
     return normalize_display_name(raw).casefold()
+
+
+def split_full_name(raw: str) -> tuple[str, str] | None:
+    """Return (first_name, surname) when input has at least two tokens; else None."""
+    normalized = normalize_display_name(raw)
+    if not normalized:
+        return None
+    tokens = normalized.split(" ")
+    if len(tokens) < 2:
+        return None
+    return tokens[0], tokens[-1]
+
+
+def is_canonical_style_name(raw: str) -> bool:
+    """True when input already looks like a short KOA display name (e.g. Mark B)."""
+    normalized = normalize_display_name(raw)
+    tokens = normalized.split(" ")
+    if len(tokens) != 2:
+        return False
+    return len(tokens[1]) <= 3
+
+
+def koa_abbreviation_candidates(first_name: str, surname: str) -> list[str]:
+    """First S, First Su, … through the full surname spelling."""
+    surname = surname.strip()
+    if not first_name.strip() or not surname:
+        return []
+    candidates: list[str] = []
+    for length in range(1, len(surname) + 1):
+        candidates.append(f"{first_name} {surname[:length]}")
+    return candidates
+
+
+@dataclass(frozen=True)
+class NameSuggestion:
+    suggested_name: str | None
+    normalized_input: str
+    reason: str | None = None
+
+
+def suggest_koa_display_name(full_name: str, taken_identity_keys: set[str]) -> NameSuggestion:
+    """
+    Conservative KOA-style suggestion for a newcomer full name.
+
+    Uses identity_key collision checks only; does not merge with existing players.
+    """
+    normalized = normalize_display_name(full_name)
+    if not normalized:
+        return NameSuggestion(None, normalized, reason="empty name")
+
+    if is_canonical_style_name(normalized):
+        key = identity_key(normalized)
+        if key in taken_identity_keys:
+            return NameSuggestion(
+                None,
+                normalized,
+                reason=f"canonical-style name already taken: {normalized}",
+            )
+        return NameSuggestion(normalized, normalized)
+
+    parts = split_full_name(normalized)
+    if parts is None:
+        return NameSuggestion(
+            None,
+            normalized,
+            reason="need at least first name and surname to suggest a KOA abbreviation",
+        )
+
+    first_name, surname = parts
+    for candidate in koa_abbreviation_candidates(first_name, surname):
+        if identity_key(candidate) not in taken_identity_keys:
+            return NameSuggestion(candidate, normalized)
+
+    return NameSuggestion(
+        None,
+        normalized,
+        reason="all KOA abbreviation candidates for this name are already taken",
+    )
 
 
 def build_canonical_name_map(
