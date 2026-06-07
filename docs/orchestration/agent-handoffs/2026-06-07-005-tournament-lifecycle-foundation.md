@@ -113,7 +113,7 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id 626 --sta
 
 ## Commit hash and push target
 
-- Implementation commit: `PENDING`
+- Implementation commit: `508c205c7363784f53d59242754bf2f1caca9972`
 - Push target: `origin/main`
 
 ## Recommended next steps
