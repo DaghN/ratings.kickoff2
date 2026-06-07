@@ -4,6 +4,14 @@
  */
 declare(strict_types=1);
 
+/** ORDER BY fragment for game chronology walks (matches replay.py GAME_SELECT). */
+function amiga_game_chronology_order_sql(string $direction = 'ASC'): string
+{
+    $dir = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+
+    return "g.game_date {$dir}, g.id {$dir}";
+}
+
 /** Subquery alias `r` with column names compatible with legacy ratedresults consumers. */
 function amiga_rated_games_from_sql(): string
 {

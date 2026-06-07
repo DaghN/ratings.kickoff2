@@ -61,8 +61,7 @@ function amiga_ops_game_rating_exists(mysqli $con, int $gameId): bool
 function amiga_ops_last_game_id(mysqli $con): int
 {
     $sql = 'SELECT g.id FROM amiga_games g '
-        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
-        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_DESC . ' LIMIT 1';
+        . 'ORDER BY ' . AMIGA_GAME_CHRONOLOGY_ORDER_DESC . ' LIMIT 1';
     $res = $con->query($sql);
     if ($res === false) {
         throw new RuntimeException('last game id: ' . $con->error);
@@ -82,10 +81,9 @@ function amiga_ops_last_game_id(mysqli $con): int
 function amiga_ops_first_unrated_game_id(mysqli $con): ?int
 {
     $sql = 'SELECT g.id FROM amiga_games g '
-        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
         . 'LEFT JOIN amiga_game_ratings r ON r.game_id = g.id '
         . 'WHERE r.game_id IS NULL '
-        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_ASC . ' LIMIT 1';
+        . 'ORDER BY ' . AMIGA_GAME_CHRONOLOGY_ORDER_ASC . ' LIMIT 1';
     $res = $con->query($sql);
     if ($res === false) {
         throw new RuntimeException('first unrated game: ' . $con->error);
@@ -476,8 +474,7 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
 function amiga_ops_list_game_ids(mysqli $con, ?int $limit = null, ?int $untilGameId = null): array
 {
     $sql = 'SELECT g.id FROM amiga_games g '
-        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
-        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_ASC;
+        . 'ORDER BY ' . AMIGA_GAME_CHRONOLOGY_ORDER_ASC;
     $res = $con->query($sql);
     if ($res === false) {
         throw new RuntimeException('list games: ' . $con->error);
@@ -556,9 +553,8 @@ function amiga_ops_replay_post_game(
 function amiga_ops_has_derived_gap(mysqli $con): bool
 {
     $sql = 'SELECT (r.game_id IS NOT NULL) AS rated FROM amiga_games g '
-        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
         . 'LEFT JOIN amiga_game_ratings r ON r.game_id = g.id '
-        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_ASC;
+        . 'ORDER BY ' . AMIGA_GAME_CHRONOLOGY_ORDER_ASC;
     $res = $con->query($sql);
     if ($res === false) {
         throw new RuntimeException('derived gap scan: ' . $con->error);
@@ -611,8 +607,7 @@ function amiga_ops_derived_coverage(mysqli $con): array
     $ratedRes = $con->query(
         'SELECT g.id FROM amiga_games g '
         . 'INNER JOIN amiga_game_ratings r ON r.game_id = g.id '
-        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
-        . 'ORDER BY ' . AMIGA_GAME_CHRONO_ORDER_DESC . ' LIMIT 1'
+        . 'ORDER BY ' . AMIGA_GAME_CHRONOLOGY_ORDER_DESC . ' LIMIT 1'
     );
     if ($ratedRes === false) {
         throw new RuntimeException('last rated game: ' . $con->error);

@@ -7,17 +7,13 @@ declare(strict_types=1);
 const AMIGA_OPS_EXPECTED_DATABASE = 'ko2amiga_db';
 
 /** Contract chronology — mirrors scripts/amiga/replay.py GAME_SELECT. */
-const AMIGA_GAME_CHRONO_ORDER_ASC = <<<'SQL'
-COALESCE(t.chrono, 999999) ASC,
-COALESCE(t.event_date, '1970-01-01') ASC,
-g.source_scores_id ASC,
+const AMIGA_GAME_CHRONOLOGY_ORDER_ASC = <<<'SQL'
+g.game_date ASC,
 g.id ASC
 SQL;
 
-const AMIGA_GAME_CHRONO_ORDER_DESC = <<<'SQL'
-COALESCE(t.chrono, 999999) DESC,
-COALESCE(t.event_date, '1970-01-01') DESC,
-g.source_scores_id DESC,
+const AMIGA_GAME_CHRONOLOGY_ORDER_DESC = <<<'SQL'
+g.game_date DESC,
 g.id DESC
 SQL;
 

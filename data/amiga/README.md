@@ -25,11 +25,15 @@ Use the original filename if you like, or a stable name such as `amiga-ladder.md
 
 ## Optional exports
 
-Discovery scripts may write CSV/JSON extracts here (also gitignored):
+Import and discovery write JSON extracts here (gitignored):
 
 ```text
 data/amiga/exports/
+  import_manifest.json   # canonical audit — every import
+  name_merges.json       # legacy slice; also embedded in manifest
 ```
+
+See [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) and example [`docs/amiga-import-manifest.example.json`](../../docs/amiga-import-manifest.example.json).
 
 ---
 

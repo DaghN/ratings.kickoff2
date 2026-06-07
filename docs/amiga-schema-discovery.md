@@ -155,18 +155,21 @@ Many trailing columns (`easy1`, `opponentno`, …) are **precomputed fun stats**
 
 ## Chronology (critical for Elo replay)
 
-Access stores **no game timestamp**. Recommended ordering for replay:
+Access stores **no game timestamp**. **Import sort key** (see [`amiga-data-contract.md`](amiga-data-contract.md) § Chronology):
 
-1. **`Tournament players.Chrono`** ASC (global event order)
-2. **`Tournament players.Date`** ASC (tie-break)
-3. **`Scores.ID`** ASC within the same tournament (insertion order ≈ play order)
+1. **`Tournament players.Date`** ASC (calendar-first)
+2. **`Tournament players.Chrono`** ASC (same-day tie-break)
+3. **`Scores.ID`** ASC within the same tournament
 
 **Synthetic `Date` for each game row:**
 
-- Start with the parent tournament’s `Date` (UTC midnight).
-- Within a tournament, add a small offset from sort index (seconds or fractional day) so ordering is stable and unique — rule locked in [`amiga-data-contract.md`](amiga-data-contract.md) § Chronology.
+- Parent tournament `Date` at UTC midnight + running seconds **per calendar day** (continuous across tournaments on the same day).
+
+**Read path:** `ORDER BY game_date ASC, id ASC` — order is materialized at import; replay/API/ops read it back.
 
 Global `Scores.ID` alone is **mostly** chronological but **not sufficient** (tournaments overlap; IDs span 20+ years).
+
+> **Supersedes Phase A1:** chrono-first import order and per-tournament midnight reset — see [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md).
 
 ---
 
@@ -213,7 +216,7 @@ Separate database (e.g. `ko2amiga_db`), ground vs derived split:
 | Topic | Decision |
 |-------|----------|
 | **Rating authority** | Full Elo replay from `Scores` only — never show legacy Access `Rankings` |
-| **Synthetic dates** | Tournament `event_date` + 1 second per game within event (ordered by source `Scores.ID`) |
+| **Synthetic dates** | ~~Tournament `event_date` + 1 second per game within event~~ → **superseded:** calendar-day continuous counter; reads `game_date ASC, id ASC` |
 | **Tournament sub-events** | Milan X fragments merged to parent catalog row; `phase` column holds stage |
 | **Starting rating / K** | 1600 / K=32 (online sandbox constants) |
 | **Player names** | Faithful display; merge spacing/case duplicates at import (`player_names.py` → 473 players) |

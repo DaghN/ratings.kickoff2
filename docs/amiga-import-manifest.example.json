@@ -1,0 +1,52 @@
+{
+  "manifest_version": 1,
+  "generated_at_utc": "2026-06-07T12:00:00+00:00",
+  "source": {
+    "path": "C:/…/data/amiga/source/koatd.mdb",
+    "filename": "koatd.mdb",
+    "size_bytes": 5898240,
+    "modified_utc": "2026-05-16T00:00:00+00:00"
+  },
+  "stats": {
+    "tournaments": 604,
+    "games": 27408,
+    "players_raw": 477,
+    "players_canonical": 473,
+    "name_merge_groups": 1
+  },
+  "transforms": {
+    "name_merges": [
+      {
+        "canonical": "Oliver St",
+        "variants": [
+          { "raw": "Oliver ST", "games": 1 },
+          { "raw": "Oliver St", "games": 808 }
+        ]
+      }
+    ],
+    "catalog_overrides": [
+      {
+        "tournament": "World Cup VIII",
+        "field": "event_date",
+        "access": "2008-09-08",
+        "canonical": "2008-11-09",
+        "reason": "Access Date wrong; chrono 325 fits November 2008 slot; real event 9 Nov 2008."
+      },
+      {
+        "tournament": "Wiesbaden IX",
+        "field": "event_date",
+        "access": "2009-04-07",
+        "canonical": "2009-01-25",
+        "reason": "Access Date wrong; chrono 333 before Wiesbaden X; forum https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684"
+      }
+    ]
+  },
+  "registry": {
+    "automatic_modules": [
+      "scripts.amiga.player_names",
+      "scripts.amiga.tournament_names",
+      "scripts.amiga.import_access"
+    ],
+    "manual_overrides_module": "scripts.amiga.import_corrections"
+  }
+}

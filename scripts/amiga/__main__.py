@@ -12,6 +12,9 @@ from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
 from scripts.amiga.standings_parity import main as standings_parity_main
 from scripts.amiga.verify_track_b import main as verify_track_b_main
+from scripts.amiga.verify_chronology import main as verify_chronology_main
+from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
+from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
 
 log = logging.getLogger("scripts.amiga")
 
@@ -46,6 +49,21 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("verify-track-b", help="Post-import smoke: extra column + Elo draw rule")
 
+    sub.add_parser(
+        "verify-chronology",
+        help="Assert 0 backward game_date transitions in canonical order",
+    )
+
+    sub.add_parser(
+        "verify-import-manifest",
+        help="Assert import_manifest.json and catalog overrides in MySQL",
+    )
+
+    sub.add_parser(
+        "audit-catalog-dates",
+        help="Scan Access for chrono/date inversions; fail if uncorrected",
+    )
+
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -66,6 +84,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-track-b":
         return verify_track_b_main()
+
+    if args.cmd == "verify-chronology":
+        return verify_chronology_main()
+
+    if args.cmd == "verify-import-manifest":
+        return verify_import_manifest_main()
+
+    if args.cmd == "audit-catalog-dates":
+        return audit_catalog_dates_main()
 
     if args.cmd == "standings-parity":
         return standings_parity_main(

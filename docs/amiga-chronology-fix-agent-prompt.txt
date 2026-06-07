@@ -1,0 +1,125 @@
+Implement Amiga chronology fix — calendar-first game order, continuous same-day timestamps, simplify consumers to `ORDER BY game_date ASC, id ASC`.
+
+GOAL
+Fix Amiga game ordering so timeline matches tournament calendar dates (not legacy chrono-first), eliminate same-day timestamp resets that break rating charts, and align read paths with online habit: order is materialized at import on each row; replay/API/ops read `game_date, id`.
+
+Why now: profile rating calendar chart shows illegal geometry (backward x, triangular fill) for player 73 and others. Root cause documented in plan — not a Chart.js bug alone.
+
+READ FIRST (mandatory)
+- docs/amiga-chronology-fix-plan.md — full spec, phases, validation, risks (THIS IS THE AUTHORITY)
+- docs/amiga-data-contract.md — § Chronology (current vs planned)
+- docs/amiga-schema-discovery.md — § Chronology, Phase A1 (being superseded)
+- scripts/amiga/import_access.py — sort_key + synthetic game_date assignment
+- scripts/amiga/replay.py — GAME_SELECT order
+- site/public_html/amiga/ops/includes/amiga_ops_bootstrap.php — AMIGA_GAME_CHRONO_ORDER_*
+- site/public_html/api/player_rating_history.php — amiga ORDER BY
+- scripts/amiga/README.md — recreate + replay commands
+
+DO NOT
+- Chart-only / JS-only fix without replay alignment
+- Delete tournaments.chrono column (keep for import tie-break + catalog)
+- Touch online realm (kooldb*, ko2unity*, /player/* ops)
+- Run destructive prod DB commands without explicit user approval
+- Commit unless user asks
+
+---
+
+CURRENT STATE (locked — verify, do not re-litigate)
+
+Phase A1 contract today:
+- Import sorts: chrono → event_date → source_scores_id
+- Synthetic game_date: tournament event_date midnight + 1s per game WITHIN tournament (resets per tournament → ~79 backward same-day timestamps)
+- Replay, PHP post-game, player_rating_history API all re-derive chrono-first order (do not trust id/game_date)
+- Access source: 27,408 games, 604 tournaments; no per-game clock time
+
+Known data quirks (from analysis):
+- Only 2 adjacent chrono/date inversions in 604 tournaments (World Cup VIII, Newent XVI) — but ~8.8% of games reposition under calendar-first order
+- WC VIII: event_date 2008-09-08, chrono 325, processed after many Sep–Nov 2008 events
+- Same-day multi-tournament days: 91 calendar days, ~4554 games
+
+Principle (target):
+  Import → define order once, write game_date + id
+  Replay → ORDER BY game_date, id → derived ratings
+  API/UI → ORDER BY game_date, id
+
+---
+
+V1 SCOPE (this task)
+
+In scope:
+1. **import_access.py**
+   - sort_key: event_date ASC → chrono ASC → source_scores_id ASC
+   - game_date: running second counter PER CALENDAR DAY across sorted walk (no per-tournament midnight reset)
+2. **replay.py** — GAME_SELECT: ORDER BY g.game_date ASC, g.id ASC (no chrono join for ordering)
+3. **amiga_ops_bootstrap.php** — replace AMIGA_GAME_CHRONO_ORDER_* with game_date, id (rename constants e.g. AMIGA_GAME_CHRONOLOGY_ORDER_ASC)
+4. **process_completed_game.php** — append-only / simul uses new order (must remain parity with replay.py)
+5. **player_rating_history.php** — ORDER BY g.game_date ASC, g.id ASC for realm=amiga; fix file header comment
+6. **Grep cleanup** — any other amiga game-walk queries using COALESCE(t.chrono for ordering (exclude display-only tournament index sorts unless clearly wrong)
+7. **Verify script** — add scripts/amiga/verify_chronology.py (or extend verify_track_b): assert 0 backward game_date in canonical order
+8. **Docs** — mark plan checkboxes done in amiga-chronology-fix-plan.md; update amiga-data-contract.md § Chronology to target state when implemented
+
+Out of scope v1:
+- End-of-day chart collapse in player-rating-chart.js (try without first)
+- Manual Access outlier fixes (WC VIII date review) unless evidence found during QA
+- Staging/production DB rebuild (user runs recreate — provide commands in PR summary)
+- Renumbering or changing source_scores_id
+
+Optional if easy:
+- Shared PHP helper amiga_game_chronology_order_sql() in amiga_db.php
+
+---
+
+IMPLEMENTATION ORDER
+
+1. import_access.py (sort + continuous game_date)
+2. replay.py + amiga_ops_bootstrap.php + process_completed_game.php + player_rating_history.php
+3. verify_chronology.py
+4. Docs update
+5. Local validation (user env):
+
+   python -m scripts.amiga run --recreate-schema
+   python -m scripts.amiga replay
+   python -m scripts.amiga verify_chronology   # new
+   php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
+
+6. Manual QA: http://ratingskickoff.test/amiga/profile.php?id=73 — calendar chart monotonic, no triangle fill
+
+---
+
+VALIDATION GATES
+
+| Check | Expected |
+|-------|----------|
+| Backward game_date in ORDER BY game_date, id | 0 |
+| Python replay vs PHP replay-to --limit 500 | Parity |
+| player_rating_history id=73 realm=amiga | dates monotonic in API order |
+| Profile calendar chart player 73 | No Sep 2008 zigzag |
+
+Note: full recreate changes derived ratings from first mis-ordered block onward — expected, not a regression.
+
+---
+
+FILES LIKELY TOUCHED
+
+- scripts/amiga/import_access.py
+- scripts/amiga/replay.py
+- scripts/amiga/verify_chronology.py (new)
+- site/public_html/amiga/ops/includes/amiga_ops_bootstrap.php
+- site/public_html/amiga/ops/modules/process_completed_game.php
+- site/public_html/api/player_rating_history.php
+- site/public_html/includes/amiga_db.php (optional helper)
+- docs/amiga-chronology-fix-plan.md
+- docs/amiga-data-contract.md
+
+---
+
+ACCEPTANCE
+
+- [ ] Import assigns monotonic game_date (0 backward transitions)
+- [ ] All game walks use game_date ASC, id ASC (no chrono in hot path)
+- [ ] verify_chronology passes on recreated DB
+- [ ] PHP replay-to limit 500 parity with python replay
+- [ ] Plan doc checkboxes updated
+- [ ] PR summary includes recreate/replay commands + note that ratings will shift
+
+Start by reading docs/amiga-chronology-fix-plan.md end-to-end, then implement Phase 2–3 from that doc.

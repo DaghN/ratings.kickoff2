@@ -13,6 +13,8 @@
 | Topic | Document |
 |--------|----------|
 | Access inventory, quirks, chronology | [`amiga-schema-discovery.md`](amiga-schema-discovery.md) |
+| **Import layer** (archival → ground truth) | [`amiga-import-layer.md`](amiga-import-layer.md) |
+| Chronology fix | [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) |
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
@@ -22,11 +24,13 @@ This document owns **layer definitions**, **table register**, **post-game/replay
 
 ---
 
-## Three data layers
+## Data layers
+
+Archival Access (`koatd.mdb`) is **input**, not website ground truth. Import applies documented transforms (see [`amiga-import-layer.md`](amiga-import-layer.md)) and writes audit output to `data/amiga/exports/import_manifest.json`.
 
 ### 1. Ground truth
 
-Canonical facts we treat as source history. Written by **import** or **future live submission** — never by replay.
+Canonical facts in MySQL after **import** or **future live submission** — never written by replay.
 
 | Fact | Notes |
 |------|--------|
@@ -35,7 +39,7 @@ Canonical facts we treat as source history. Written by **import** or **future li
 | Player identity | Name, country (display fields only at import) |
 | Provenance | `source_scores_id`, `source_id` where applicable |
 
-Replay may **read** ground truth; it must not invent or overwrite canonical match facts. Replay game order follows § Chronology (`scripts/amiga/replay.py` joins `tournaments` for `chrono` / `event_date`, then `source_scores_id`).
+Replay may **read** ground truth; it must not invent or overwrite canonical match facts. Replay game order follows § Chronology (`ORDER BY game_date ASC, id ASC`).
 
 ### 2. Derived truth
 
@@ -66,18 +70,25 @@ Reference data is **never** written by post-game or replay. Store in `data/amiga
 
 ## Chronology (ground truth)
 
-Access has no per-game timestamp. Canonical game order for replay:
+Access has no per-game timestamp. **Import sort key** (walk only — not used at read time):
 
-1. `tournaments.chrono` ASC
-2. `tournaments.event_date` ASC
+1. `tournaments.event_date` ASC
+2. `tournaments.chrono` ASC (same-day tie-break, e.g. cup/main pairs)
 3. `source_scores_id` ASC within the same tournament
 
-**Synthetic `Date` on each game row:**
+**Synthetic `game_date` on each game row:**
 
 - Base = parent tournament `event_date` at UTC midnight
-- Within tournament: +1 second per game (ordered by `source_scores_id`)
+- **Running second counter per calendar day** across the sorted walk (does not reset when tournament changes on the same day)
+- After import: `id` (insert order) and `game_date` are the canonical sequence
 
-Locked in Phase A1 — see [`amiga-schema-discovery.md`](amiga-schema-discovery.md) § Phase A1 decisions.
+**Read path** (replay, API, ops, charts):
+
+```sql
+ORDER BY g.game_date ASC, g.id ASC
+```
+
+`tournaments.chrono` remains imported metadata for import tie-breaks and catalog display — not for replay or API game walks. Verify: `python -m scripts.amiga verify-chronology`. Spec history: [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md).
 
 ---
 
@@ -104,6 +115,8 @@ php site/public_html/amiga/ops/run_process_game.php zero-derived
 
 # Parity gate (500 games — v1 sign-off)
 python -m scripts.amiga replay --limit 500          # oracle
+python -m scripts.amiga verify-chronology           # 0 backward game_date
+python -m scripts.amiga audit-catalog-dates         # Access catalog inversions covered
 php site/public_html/amiga/ops/run_process_game.php zero-derived
 php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
 php site/public_html/amiga/ops/run_process_game.php verify   # 500 ratings, standings spot-checks, no derived_gap
@@ -178,9 +191,9 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 
 ## Agent policy
 
-- **Import:** ground truth only — see `scripts/amiga/import_access.py`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
+- **Import:** ground truth only — see `scripts/amiga/import_access.py` and [`amiga-import-layer.md`](amiga-import-layer.md). Corrections to legacy Access belong in the import layer (`import_corrections.py`, `player_names.py`, `tournament_names.py`), not in edited `koatd.mdb`. Each import writes `data/amiga/exports/import_manifest.json`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
 - **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
 - **Incremental post-game (live):** `php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N` — `ko2amiga_db` only; idempotent (`already_processed` if rating row exists); **append-only** (game must be chronologically last; errors `not_append_only` / `derived_gap` otherwise). Parity smoke: full `replay` → `replay --limit (N-1)` → PHP `process-one` on last id → compare rating + both players' stats to full replay.
-- **Simul (replay-to):** `zero-derived` then `replay-to [--limit N] [--until-game-id G]` — walks contract chronology (`tournaments.chrono`, `event_date`, `source_scores_id`, `g.id`); sim chronology = first unrated game in order (`derived_gap` if hole). Idempotent re-run skips `already_processed`. **v1 parity gate:** `--limit 500` vs `python -m scripts.amiga replay --limit 500` (counts + spot-check; not full 27k PHP sim).
+- **Simul (replay-to):** `zero-derived` then `replay-to [--limit N] [--until-game-id G]` — walks contract chronology (`game_date ASC, id ASC`); sim chronology = first unrated game in order (`derived_gap` if hole). Idempotent re-run skips `already_processed`. **v1 parity gate:** `--limit 500` vs `python -m scripts.amiga replay --limit 500` (counts + spot-check; not full 27k PHP sim).
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders

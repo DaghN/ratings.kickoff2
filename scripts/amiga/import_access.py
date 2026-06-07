@@ -14,6 +14,12 @@ import pyodbc
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.import_corrections import apply_catalog_corrections
+from scripts.amiga.import_manifest import (
+    build_manifest,
+    default_manifest_path,
+    write_manifest,
+)
 from scripts.amiga.player_names import (
     build_canonical_name_map,
     canonical_country,
@@ -190,8 +196,23 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
     acc = connect_access(mdb)
     acc_cur = acc.cursor()
     tournaments = load_access_tournaments(acc_cur)
+    catalog_overrides = apply_catalog_corrections(tournaments)
+    if catalog_overrides:
+        log.info("Applied %s catalog override(s) from import_corrections.py", len(catalog_overrides))
+        for entry in catalog_overrides:
+            log.info(
+                "  → %s.%s: %s → %s",
+                entry["tournament"],
+                entry["field"],
+                entry["access"],
+                entry["canonical"],
+            )
     scores = load_access_scores(acc_cur)
     countries = load_country_by_player(acc_cur)
+    raw_player_names: set[str] = set()
+    for s in scores:
+        raw_player_names.add(s.team_a)
+        raw_player_names.add(s.team_b)
     raw_to_canonical, merge_log = build_canonical_name_map(scores, countries=countries)
     apply_name_map(scores, raw_to_canonical)
     if merge_log:
@@ -260,19 +281,20 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         cur.execute("SELECT id, name FROM amiga_players")
         player_id = {row["name"]: int(row["id"]) for row in cur.fetchall()}
 
-    # Chronology: chrono, event date, source id.
+    # Chronology: event date, chrono (same-day tie-break), source id.
     def sort_key(s: AccessScore) -> tuple:
         parent = resolve_tournament_name(s.raw_tournament)
         meta = tour_by_name.get(parent, {})
         chrono = meta.get("chrono")
         ev = meta.get("event_date")
         ev_date = ev.date() if isinstance(ev, datetime) else (ev or date(1970, 1, 1))
-        return (chrono if chrono is not None else 999999.0, ev_date, s.source_id)
+        chrono_val = chrono if chrono is not None else 999999.0
+        return (ev_date, chrono_val, s.source_id)
 
     scores_sorted = sorted(scores, key=sort_key)
 
-    # Synthetic Date: tournament day + 1 second per game within tournament (ordered by source id).
-    per_tournament_seq: dict[str, int] = {}
+    # Synthetic Date: calendar day + 1 second per game across all tournaments on that day.
+    per_day_seq: dict[date, int] = {}
     game_rows: list[dict] = []
     for s in scores_sorted:
         parent = resolve_tournament_name(s.raw_tournament)
@@ -281,8 +303,8 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         base_day = ev.date() if isinstance(ev, datetime) else ev
         if base_day is None:
             base_day = date(1970, 1, 1)
-        seq = per_tournament_seq.get(parent, 0)
-        per_tournament_seq[parent] = seq + 1
+        seq = per_day_seq.get(base_day, 0)
+        per_day_seq[base_day] = seq + 1
         game_dt = datetime.combine(base_day, datetime.min.time()) + timedelta(seconds=seq)
         phase = resolve_phase(s.raw_tournament, s.phase)
         game_rows.append(
@@ -315,10 +337,20 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
     mysql.commit()
     stats = {
         "tournaments": len(tournaments),
-        "players": len(names),
         "games": len(game_rows),
+        "players_raw": len(raw_player_names),
+        "players_canonical": len(names),
         "name_merge_groups": len(merge_log),
     }
+    manifest = build_manifest(
+        mdb=mdb,
+        stats=stats,
+        name_merges=merge_log,
+        catalog_overrides=catalog_overrides,
+    )
+    manifest_path = default_manifest_path(_REPO)
+    write_manifest(manifest_path, manifest)
+    log.info("Wrote import manifest: %s", manifest_path)
     mysql.close()
     log.warning(
         "Import cleared derived tables and reloaded ground truth only. "

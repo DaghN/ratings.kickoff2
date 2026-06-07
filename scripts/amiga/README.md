@@ -16,9 +16,13 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 # Or step by step (import alone clears derived tables — always replay before browsing):
 python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
+python -m scripts.amiga verify-chronology
+python -m scripts.amiga verify-import-manifest
+python -m scripts.amiga audit-catalog-dates
 
 # Ops simul — parity gate (500 games; oracle: python -m scripts.amiga replay --limit 500):
 python -m scripts.amiga replay --limit 500
+python -m scripts.amiga verify-chronology
 php site/public_html/amiga/ops/run_process_game.php zero-derived
 php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
 php site/public_html/amiga/ops/run_process_game.php verify   # ratings + standings spot-checks
@@ -75,6 +79,7 @@ Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
 
 ## Docs
 
+- **Import layer:** [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) — archival → ground truth, overrides, manifest
 - **Data contract:** [`docs/amiga-data-contract.md`](../../docs/amiga-data-contract.md) — ground / derived / reference layers
 - Discovery write-up: [`docs/amiga-schema-discovery.md`](../../docs/amiga-schema-discovery.md)
 - Source layout: [`data/amiga/README.md`](../../data/amiga/README.md)

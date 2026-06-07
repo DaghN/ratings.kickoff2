@@ -55,7 +55,7 @@ That is fine at current scale (27k games total; busiest player ~1.1k games). Whe
 - Case variants (`Oliver ST` → `Oliver St`, most games wins)
 - Country from `Rankings` when any alias had one
 
-Re-run: `python -m scripts.amiga run --recreate-schema`. Merge log: `data/amiga/exports/name_merges.json`.
+Re-run: `python -m scripts.amiga run --recreate-schema`. Import audit: `data/amiga/exports/import_manifest.json` (see [`amiga-import-layer.md`](amiga-import-layer.md)).
 
 ## Rating chart timeline
 

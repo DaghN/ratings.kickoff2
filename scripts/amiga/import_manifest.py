@@ -1,0 +1,61 @@
+"""Build and write the per-import audit manifest."""
+
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+MANIFEST_VERSION = 1
+
+# Modules that apply transforms (documented in docs/amiga-import-layer.md).
+AUTOMATIC_TRANSFORM_MODULES = (
+    "scripts.amiga.player_names",
+    "scripts.amiga.tournament_names",
+    "scripts.amiga.import_access",
+)
+MANUAL_TRANSFORM_MODULE = "scripts.amiga.import_corrections"
+
+
+def source_metadata(mdb: Path) -> dict[str, Any]:
+    stat = mdb.stat()
+    modified = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat()
+    return {
+        "path": str(mdb.resolve()),
+        "filename": mdb.name,
+        "size_bytes": stat.st_size,
+        "modified_utc": modified,
+    }
+
+
+def build_manifest(
+    *,
+    mdb: Path,
+    stats: dict[str, int],
+    name_merges: list[dict[str, object]],
+    catalog_overrides: list[dict[str, str]],
+) -> dict[str, Any]:
+    return {
+        "manifest_version": MANIFEST_VERSION,
+        "generated_at_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "source": source_metadata(mdb),
+        "stats": stats,
+        "transforms": {
+            "name_merges": name_merges,
+            "catalog_overrides": catalog_overrides,
+        },
+        "registry": {
+            "automatic_modules": list(AUTOMATIC_TRANSFORM_MODULES),
+            "manual_overrides_module": MANUAL_TRANSFORM_MODULE,
+        },
+    }
+
+
+def default_manifest_path(repo_root: Path) -> Path:
+    return repo_root / "data" / "amiga" / "exports" / "import_manifest.json"
+
+
+def write_manifest(path: Path, manifest: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
