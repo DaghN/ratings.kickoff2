@@ -103,6 +103,11 @@ mysql ko2amiga_db < scripts/amiga/sql/007_tournament_entrants.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 
+# Backfill missing entrants on pre-foundation generated tournaments (dry-run first).
+python -m scripts.amiga fixtures backfill-entrants --dry-run
+python -m scripts.amiga fixtures backfill-entrants
+python -m scripts.amiga fixtures backfill-entrants --tournament-id N --dry-run
+
 # Examples for future live events:
 python -m scripts.amiga fixtures create-stage --tournament-id 1 --stage-key overall --name "Overall" --stage-type league
 python -m scripts.amiga fixtures create-fixture --tournament-id 1 --stage-key overall --fixture-key overall-001 --player-a-id 1 --player-b-id 2
