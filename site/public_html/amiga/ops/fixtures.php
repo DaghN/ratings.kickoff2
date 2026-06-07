@@ -664,6 +664,20 @@ function amiga_fixture_list_stage_players(mysqli $con, int $tournamentId): array
 }
 
 /**
+ * @param list<array{stage_id:int,stage_key:string,stage_name:string,stage_type:string,player_id:int,player_name:string,seed_no:?int,group_key:?string}> $rows
+ * @return array<int, list<array{stage_id:int,stage_key:string,stage_name:string,stage_type:string,player_id:int,player_name:string,seed_no:?int,group_key:?string}>>
+ */
+function amiga_fixture_stage_players_by_stage(array $rows): array
+{
+    $byStage = [];
+    foreach ($rows as $row) {
+        $byStage[$row['stage_id']][] = $row;
+    }
+
+    return $byStage;
+}
+
+/**
  * @return array{stage_id:int,stage_key:string,player_id:int,seed_no:?int,group_key:?string,updated:bool}
  */
 function amiga_fixture_place_stage_entrant(
@@ -1779,6 +1793,8 @@ $entrants = [];
 $entrantOpsEligible = false;
 $stages = [];
 $stagePlayers = [];
+/** @var array<int, list<array{stage_id:int,stage_key:string,stage_name:string,stage_type:string,player_id:int,player_name:string,seed_no:?int,group_key:?string}>> */
+$stagePlayersByStage = [];
 $stageOpsEligible = false;
 $playerSearchQuery = isset($_GET['player_search']) ? trim((string) $_GET['player_search']) : '';
 $playerSearchResults = [];
@@ -1982,7 +1998,7 @@ if ($tournamentId > 0) {
 
     $sql = "
         SELECT f.id, f.fixture_key, f.leg_no, f.status, f.phase_label,
-               s.stage_key, s.name AS stage_name, s.stage_type, s.sequence_no,
+               s.id AS stage_id, s.stage_key, s.name AS stage_name, s.stage_type, s.sequence_no,
                f.player_a_id, f.player_b_id,
                pa.name AS player_a_name, pb.name AS player_b_name,
                g.id AS game_id, g.goals_a, g.goals_b
@@ -2038,6 +2054,7 @@ if ($tournamentId > 0) {
         $stageOpsEligible = true;
         $stages = amiga_fixture_list_stages($con, $tournamentId);
         $stagePlayers = amiga_fixture_list_stage_players($con, $tournamentId);
+        $stagePlayersByStage = amiga_fixture_stage_players_by_stage($stagePlayers);
     }
     if ($playerSearchQuery !== '') {
         $playerSearchResults = amiga_fixture_search_players($con, $playerSearchQuery);
@@ -2324,10 +2341,6 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
   <?php if ($stageOpsEligible) {
       $canPlaceStageEntrants = $lifecycle !== null
           && in_array($lifecycle['lifecycle_status'], AMIGA_FIXTURE_ENTRANT_REGISTRATION_LIFECYCLES, true);
-      $stagePlayersByStage = [];
-      foreach ($stagePlayers as $stagePlayerRow) {
-          $stagePlayersByStage[$stagePlayerRow['stage_id']][] = $stagePlayerRow;
-      }
       ?>
   <div class="k2-amiga-live-ops__section">
     <h3>Stage players</h3>
@@ -2424,15 +2437,47 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
         <td class="k2-table-cell--left"><?php echo k2_h((string) $row['fixture_key']); ?></td>
         <td class="k2-table-cell--left">
           <?php echo k2_h((string) ($row['player_a_name'] ?? 'TBD')); ?> vs <?php echo k2_h((string) ($row['player_b_name'] ?? 'TBD')); ?>
-          <?php if ($row['status'] === 'scheduled' && ($row['player_a_id'] === null || $row['player_b_id'] === null)) { ?>
+          <?php
+            $canAssignFixturePlayers = $row['status'] === 'scheduled'
+                && $row['game_id'] === null
+                && ($row['player_a_id'] === null || $row['player_b_id'] === null);
+            if ($canAssignFixturePlayers) {
+                $fixtureStageId = (int) $row['stage_id'];
+                $fixtureStagePlayers = $stagePlayersByStage[$fixtureStageId] ?? [];
+                $useStagePlayerSelects = count($fixtureStagePlayers) >= 2;
+                $selectedPlayerA = $row['player_a_id'] !== null ? (int) $row['player_a_id'] : 0;
+                $selectedPlayerB = $row['player_b_id'] !== null ? (int) $row['player_b_id'] : 0;
+                ?>
             <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
               <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="action" value="assign_players">
               <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
               <input type="hidden" name="fixture_id" value="<?php echo (int) $row['id']; ?>">
-              <input type="number" name="player_a_id" min="1" required placeholder="Player A" aria-label="Player A id">
-              <input type="number" name="player_b_id" min="1" required placeholder="Player B" aria-label="Player B id">
+              <?php if ($useStagePlayerSelects) { ?>
+                <label class="k2-amiga-live-ops__muted">Player A
+                  <select name="player_a_id" required aria-label="Player A for fixture <?php echo (int) $row['id']; ?>">
+                    <option value="">— select —</option>
+                    <?php foreach ($fixtureStagePlayers as $stagePlayerOption) { ?>
+                      <option value="<?php echo (int) $stagePlayerOption['player_id']; ?>"<?php echo $selectedPlayerA === (int) $stagePlayerOption['player_id'] ? ' selected' : ''; ?>><?php echo k2_h($stagePlayerOption['player_name']); ?> (#<?php echo (int) $stagePlayerOption['player_id']; ?>)</option>
+                    <?php } ?>
+                  </select>
+                </label>
+                <label class="k2-amiga-live-ops__muted">Player B
+                  <select name="player_b_id" required aria-label="Player B for fixture <?php echo (int) $row['id']; ?>">
+                    <option value="">— select —</option>
+                    <?php foreach ($fixtureStagePlayers as $stagePlayerOption) { ?>
+                      <option value="<?php echo (int) $stagePlayerOption['player_id']; ?>"<?php echo $selectedPlayerB === (int) $stagePlayerOption['player_id'] ? ' selected' : ''; ?>><?php echo k2_h($stagePlayerOption['player_name']); ?> (#<?php echo (int) $stagePlayerOption['player_id']; ?>)</option>
+                    <?php } ?>
+                  </select>
+                </label>
+              <?php } else { ?>
+                <?php if (count($fixtureStagePlayers) < 2 && $stageOpsEligible) { ?>
+                  <span class="k2-amiga-live-ops__muted">Place at least two entrants in this stage before assigning fixture slots.</span>
+                <?php } ?>
+                <input type="number" name="player_a_id" min="1"<?php echo $selectedPlayerA > 0 ? ' value="' . $selectedPlayerA . '"' : ''; ?> required placeholder="Player A" aria-label="Player A id for fixture <?php echo (int) $row['id']; ?>">
+                <input type="number" name="player_b_id" min="1"<?php echo $selectedPlayerB > 0 ? ' value="' . $selectedPlayerB . '"' : ''; ?> required placeholder="Player B" aria-label="Player B id for fixture <?php echo (int) $row['id']; ?>">
+              <?php } ?>
               <button type="submit">Assign</button>
             </form>
           <?php } ?>
