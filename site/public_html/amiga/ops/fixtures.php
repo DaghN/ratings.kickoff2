@@ -448,6 +448,44 @@ function amiga_fixture_require_active_entrant(mysqli $con, int $tournamentId, in
     }
 }
 
+/**
+ * @param list<int> $playerIds
+ */
+function amiga_fixture_require_stage_players(mysqli $con, int $stageId, array $playerIds): void
+{
+    if ($playerIds === []) {
+        return;
+    }
+    $placeholders = implode(', ', array_fill(0, count($playerIds), '?'));
+    $sql = 'SELECT player_id FROM tournament_stage_players WHERE stage_id = ? AND player_id IN (' . $placeholders . ')';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare stage player check: ' . $con->error);
+    }
+    $types = 'i' . str_repeat('i', count($playerIds));
+    $params = array_merge([$stageId], $playerIds);
+    $stmt->bind_param($types, ...$params);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute stage player check: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $found = [];
+    if ($res !== false) {
+        while ($row = $res->fetch_assoc()) {
+            $found[(int) $row['player_id']] = true;
+        }
+    }
+    $stmt->close();
+    foreach ($playerIds as $playerId) {
+        if (!isset($found[$playerId])) {
+            throw new RuntimeException(
+                "Player {$playerId} is not placed in stage {$stageId}; "
+                . 'fixture players must belong to the fixture\'s stage.'
+            );
+        }
+    }
+}
+
 /** @var list<string> */
 const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
     'scripts.amiga.tournament_builder',
@@ -1600,7 +1638,7 @@ function amiga_fixture_assign_players(mysqli $con, int $fixtureId, int $playerAI
     amiga_fixture_require_player($con, $playerBId);
 
     $stmt = $con->prepare(
-        'SELECT f.id, f.status, s.tournament_id '
+        'SELECT f.id, f.status, f.stage_id, s.tournament_id '
         . 'FROM tournament_fixtures f '
         . 'INNER JOIN tournament_stages s ON s.id = f.stage_id '
         . 'WHERE f.id = ? LIMIT 1'
@@ -1623,8 +1661,10 @@ function amiga_fixture_assign_players(mysqli $con, int $fixtureId, int $playerAI
     }
 
     $tournamentId = (int) $fixture['tournament_id'];
+    $stageId = (int) $fixture['stage_id'];
     amiga_fixture_require_active_entrant($con, $tournamentId, $playerAId);
     amiga_fixture_require_active_entrant($con, $tournamentId, $playerBId);
+    amiga_fixture_require_stage_players($con, $stageId, [$playerAId, $playerBId]);
 
     $stmt = $con->prepare('SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = ?');
     if ($stmt === false) {
@@ -1639,26 +1679,6 @@ function amiga_fixture_assign_players(mysqli $con, int $fixtureId, int $playerAI
     $stmt->close();
     if ((int) ($row['n'] ?? 0) > 0) {
         throw new RuntimeException("Fixture {$fixtureId} already has an attached game.");
-    }
-
-    $stmt = $con->prepare(
-        'SELECT COUNT(DISTINCT sp.player_id) AS n '
-        . 'FROM tournament_stage_players sp '
-        . 'INNER JOIN tournament_stages s ON s.id = sp.stage_id '
-        . 'WHERE s.tournament_id = ? AND sp.player_id IN (?, ?)'
-    );
-    if ($stmt === false) {
-        throw new RuntimeException('prepare tournament player check: ' . $con->error);
-    }
-    $stmt->bind_param('iii', $tournamentId, $playerAId, $playerBId);
-    if (!$stmt->execute()) {
-        throw new RuntimeException('execute tournament player check: ' . $stmt->error);
-    }
-    $res = $stmt->get_result();
-    $row = $res ? $res->fetch_assoc() : null;
-    $stmt->close();
-    if ((int) ($row['n'] ?? 0) !== 2) {
-        throw new RuntimeException('Fixture players must already belong to the tournament.');
     }
 
     $stmt = $con->prepare('UPDATE tournament_fixtures SET player_a_id = ?, player_b_id = ? WHERE id = ?');

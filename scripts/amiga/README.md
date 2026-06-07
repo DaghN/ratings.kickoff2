@@ -158,14 +158,14 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 # Browser stage placement: list stages/stage players, place/update registered entrant (draft/registration/ready)
 # with optional seed/group — same guardrails as fixtures place-entrant. Late workflow: add entrant → place in stage → assign fixtures.
 # Browser fixture assignment: incomplete scheduled fixtures show stage-scoped player selects (fallback numeric ids when <2 stage players).
-# POST assign_players — same guardrails as fixtures set-players; no running lifecycle required.
+# POST assign_players — same guardrails as fixtures set-players (fixture-stage membership); no running lifecycle required.
 # No browser player creation or onboard-newcomer; use CLI for those.
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
 # record-result requires lifecycle_status=running and both players to be active (registered) entrants.
 # attach-game links an existing unattached game to a scheduled fixture with the same players;
 # requires lifecycle_status=running, active entrants, fixture players already set, and no existing attachment.
-# set-players requires active entrants but does not require running lifecycle.
+# set-players requires active entrants placed in the fixture's stage but does not require running lifecycle.
 python -m scripts.amiga fixtures list --tournament-id N
 python -m scripts.amiga fixtures detail --fixture-id F
 python -m scripts.amiga fixtures set-players --fixture-id F --player-a-id 1 --player-b-id 2 --dry-run

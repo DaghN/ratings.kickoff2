@@ -269,6 +269,33 @@ def _require_active_tournament_entrant(
         )
 
 
+def _require_stage_players(
+    conn: pymysql.connections.Connection,
+    *,
+    stage_id: int,
+    player_ids: list[int],
+) -> None:
+    if not player_ids:
+        return
+    placeholders = ", ".join(["%s"] * len(player_ids))
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT player_id
+            FROM tournament_stage_players
+            WHERE stage_id = %s AND player_id IN ({placeholders})
+            """,
+            (stage_id, *player_ids),
+        )
+        found = {int(row["player_id"]) for row in cur.fetchall()}
+    for player_id in player_ids:
+        if player_id not in found:
+            raise ValueError(
+                f"player_id={player_id} is not placed in stage_id={stage_id}; "
+                "fixture players must belong to the fixture's stage"
+            )
+
+
 def _load_stage_by_key(conn: pymysql.connections.Connection, tournament_id: int, stage_key: str) -> dict[str, Any] | None:
     return _load_one(
         conn,
@@ -626,7 +653,7 @@ def set_fixture_players(
     fixture = _load_one(
         conn,
         """
-        SELECT f.id, f.status, s.tournament_id
+        SELECT f.id, f.status, f.stage_id, s.tournament_id
         FROM tournament_fixtures f
         INNER JOIN tournament_stages s ON s.id = f.stage_id
         WHERE f.id = %s
@@ -638,24 +665,14 @@ def set_fixture_players(
     if fixture["status"] != "scheduled":
         raise ValueError(f"fixture_id={fixture_id} status is {fixture['status']!r}, expected 'scheduled'")
     tournament_id = int(fixture["tournament_id"])
+    stage_id = int(fixture["stage_id"])
     _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=player_a_id)
     _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=player_b_id)
+    _require_stage_players(conn, stage_id=stage_id, player_ids=[player_a_id, player_b_id])
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = %s", (fixture_id,))
         if int(cur.fetchone()["n"]) > 0:
             raise ValueError(f"fixture_id={fixture_id} already has an attached game")
-        cur.execute(
-            """
-            SELECT COUNT(DISTINCT sp.player_id) AS n
-            FROM tournament_stage_players sp
-            INNER JOIN tournament_stages s ON s.id = sp.stage_id
-            WHERE s.tournament_id = %s
-              AND sp.player_id IN (%s, %s)
-            """,
-            (tournament_id, player_a_id, player_b_id),
-        )
-        if int(cur.fetchone()["n"]) != 2:
-            raise ValueError("fixture players must already belong to the tournament")
         cur.execute(
             "UPDATE tournament_fixtures SET player_a_id = %s, player_b_id = %s WHERE id = %s",
             (player_a_id, player_b_id, fixture_id),
