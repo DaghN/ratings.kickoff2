@@ -89,7 +89,7 @@ None. Presentation and redirect-only; no new tables or writes.
 
 ## Commit hash and push target
 
-- Commit: `72689f3`
+- Commit: `c711aad`
 - Push target: `origin/main`
 
 ## Recommended next steps
