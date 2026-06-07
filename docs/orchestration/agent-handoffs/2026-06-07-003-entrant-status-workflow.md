@@ -109,7 +109,7 @@ No lasting changes to tournaments 610, 611, 614 or other active browser test dat
 
 ## Commit hash and push target
 
-- Implementation commit: `(filled after commit)`
+- Implementation commit: `49b6eb459d9384b81d25032574c0f79854656992`
 - Push target: `origin/main`
 
 ## Recommended next steps
