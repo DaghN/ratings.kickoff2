@@ -106,21 +106,31 @@ python -m scripts.amiga fixtures create-stage --tournament-id 1 --stage-key over
 python -m scripts.amiga fixtures create-fixture --tournament-id 1 --stage-key overall --fixture-key overall-001 --player-a-id 1 --player-b-id 2
 ```
 
-**Internal tournament builder** (first supported template: `kitchen_marathon`):
+**Internal tournament builder** (supported starters: `kitchen_marathon`, minimal `group_knockout`):
 
 ```powershell
 # Dry-run rolls back after building the structure.
 python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Kitchen I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4 --dry-run
+python -m scripts.amiga build-tournament smoke-fixture-result --player-ids 1,2
 
 # Real create, then verify before entering results in a later workflow.
 python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Kitchen I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4
+python -m scripts.amiga build-tournament create-group-knockout --name "Test Cup I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4 --group-count 2
 python -m scripts.amiga build-tournament verify-built --tournament-id N
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
+python -m scripts.amiga fixtures list --tournament-id N
+python -m scripts.amiga fixtures detail --fixture-id F
+python -m scripts.amiga fixtures set-players --fixture-id F --player-a-id 1 --player-b-id 2 --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2 --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2
 php site/public_html/amiga/ops/run_process_game.php process-one --game-id=G
+
+# Cleanup is intentionally limited to unplayed tournament_builder output.
+python -m scripts.amiga fixtures cleanup-generated --tournament-id N --dry-run
 ```
+
+Internal fixture browser/create/result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N`.
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 
