@@ -100,8 +100,10 @@ python -m scripts.amiga verify-tournament-formats
 ```powershell
 mysql ko2amiga_db < scripts/amiga/sql/006_tournament_fixtures.sql
 mysql ko2amiga_db < scripts/amiga/sql/007_tournament_entrants.sql
+mysql ko2amiga_db < scripts/amiga/sql/008_tournament_lifecycle.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
+python -m scripts.amiga fixtures verify-lifecycle
 
 # Backfill missing entrants on pre-foundation generated tournaments (dry-run first).
 python -m scripts.amiga fixtures backfill-entrants --dry-run
@@ -132,8 +134,14 @@ python -m scripts.amiga build-tournament create-group-knockout --name "Test Cup 
 python -m scripts.amiga build-tournament verify-built --tournament-id N
 python -m scripts.amiga fixtures list-entrants --tournament-id N
 
+# Lifecycle transitions (dry-run first). Generated tournaments start as draft; set running before result entry.
+python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status running --dry-run
+python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status running
+python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status completed --force
+
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
-# set-players and record-result require both players to be active (registered) tournament entrants.
+# record-result requires lifecycle_status=running and both players to be active (registered) entrants.
+# set-players requires active entrants but does not require running lifecycle.
 python -m scripts.amiga fixtures list --tournament-id N
 python -m scripts.amiga fixtures detail --fixture-id F
 python -m scripts.amiga fixtures set-players --fixture-id F --player-a-id 1 --player-b-id 2 --dry-run

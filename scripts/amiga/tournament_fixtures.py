@@ -17,6 +17,18 @@ VALID_STAGE_TYPES = {"league", "group", "knockout", "placement", "other"}
 VALID_FIXTURE_STATUSES = {"scheduled", "played", "void"}
 VALID_ENTRANT_STATUSES = {"registered", "withdrawn", "replaced"}
 ACTIVE_ENTRANT_STATUSES = {"registered"}
+VALID_LIFECYCLE_STATUSES = {
+    "draft",
+    "registration",
+    "ready",
+    "running",
+    "completed",
+    "archived",
+    "void",
+}
+RESULT_ENTRY_LIFECYCLE_STATUSES = {"running"}
+IMPORTED_LIFECYCLE_STATUSES = {"completed", "archived"}
+GENERATED_DEFAULT_LIFECYCLE_STATUS = "draft"
 GENERATED_FIXTURE_PREFIXES = (
     "scripts.amiga.tournament_builder",
     "site.public_html.amiga.ops.fixtures",
@@ -57,6 +69,135 @@ def _require_tournament(conn: pymysql.connections.Connection, tournament_id: int
     if row is None:
         raise ValueError(f"tournament_id={tournament_id} not found")
     return row
+
+
+def _load_tournament_lifecycle(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> dict[str, Any]:
+    row = _load_one(
+        conn,
+        """
+        SELECT id, name, source_id, lifecycle_status, started_at, completed_at
+        FROM tournaments
+        WHERE id = %s
+        """,
+        (tournament_id,),
+    )
+    if row is None:
+        raise ValueError(f"tournament_id={tournament_id} not found")
+    return row
+
+
+def _require_lifecycle_allows_result_entry(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+) -> None:
+    row = _load_tournament_lifecycle(conn, tournament_id)
+    status = str(row["lifecycle_status"])
+    if status not in RESULT_ENTRY_LIFECYCLE_STATUSES:
+        allowed = ", ".join(sorted(RESULT_ENTRY_LIFECYCLE_STATUSES))
+        raise ValueError(
+            f"tournament_id={tournament_id} lifecycle_status is {status!r}; "
+            f"result entry is allowed only in {allowed}"
+        )
+
+
+def _count_unplayed_scheduled_fixtures(conn: pymysql.connections.Connection, *, tournament_id: int) -> int:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM tournament_fixtures f
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            WHERE s.tournament_id = %s
+              AND f.status = 'scheduled'
+            """,
+            (tournament_id,),
+        )
+        return int(cur.fetchone()["n"])
+
+
+def set_tournament_lifecycle_status(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    status: str,
+    dry_run: bool = False,
+    force: bool = False,
+) -> dict[str, Any]:
+    if status not in VALID_LIFECYCLE_STATUSES:
+        raise ValueError(f"status must be one of {sorted(VALID_LIFECYCLE_STATUSES)}")
+
+    row = _load_tournament_lifecycle(conn, tournament_id)
+    current = str(row["lifecycle_status"])
+    if current == status:
+        return {
+            "dry_run": dry_run,
+            "tournament_id": tournament_id,
+            "previous_status": current,
+            "lifecycle_status": status,
+            "changed": False,
+            "started_at": row.get("started_at"),
+            "completed_at": row.get("completed_at"),
+        }
+
+    is_imported = row.get("source_id") is not None
+    if is_imported:
+        if current in IMPORTED_LIFECYCLE_STATUSES and status not in IMPORTED_LIFECYCLE_STATUSES:
+            if not force:
+                raise ValueError(
+                    f"tournament_id={tournament_id} is an imported historical tournament "
+                    f"(lifecycle_status={current!r}); refusing transition to {status!r} without --force"
+                )
+        if status not in IMPORTED_LIFECYCLE_STATUSES and not force:
+            raise ValueError(
+                f"tournament_id={tournament_id} is an imported historical tournament; "
+                f"only {sorted(IMPORTED_LIFECYCLE_STATUSES)} are allowed without --force"
+            )
+
+    unplayed = 0
+    if status == "completed":
+        unplayed = _count_unplayed_scheduled_fixtures(conn, tournament_id=tournament_id)
+        if unplayed > 0 and not force:
+            raise ValueError(
+                f"tournament_id={tournament_id} has {unplayed} scheduled fixture(s); "
+                "refusing transition to completed without --force"
+            )
+
+    started_at = row.get("started_at")
+    completed_at = row.get("completed_at")
+    now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+    if status == "running" and started_at is None:
+        started_at = now
+    if status in {"completed", "archived"} and completed_at is None:
+        completed_at = now
+
+    if not dry_run:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE tournaments
+                SET lifecycle_status = %s,
+                    started_at = %s,
+                    completed_at = %s
+                WHERE id = %s
+                """,
+                (status, started_at, completed_at, tournament_id),
+            )
+
+    return {
+        "dry_run": dry_run,
+        "tournament_id": tournament_id,
+        "previous_status": current,
+        "lifecycle_status": status,
+        "changed": True,
+        "started_at": started_at,
+        "completed_at": completed_at,
+        "unplayed_scheduled_fixtures": unplayed,
+        "force": force,
+    }
 
 
 def _require_player(conn: pymysql.connections.Connection, player_id: int) -> None:
@@ -424,6 +565,7 @@ def record_fixture_result(
     if player_a_id is None or player_b_id is None:
         raise ValueError("fixture must have both players before result entry")
     tournament_id = int(fixture["tournament_id"])
+    _require_lifecycle_allows_result_entry(conn, tournament_id=tournament_id)
     _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=int(player_a_id))
     _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=int(player_b_id))
 
@@ -1228,6 +1370,92 @@ def audit_entrant_integrity(
     return errors
 
 
+def audit_lifecycle_integrity(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int | None = None,
+) -> list[str]:
+    errors: list[str] = []
+    tournament_clause = ""
+    params: tuple[Any, ...] = ()
+    if tournament_id is not None:
+        _require_tournament(conn, tournament_id)
+        tournament_clause = " WHERE t.id = %s"
+        params = (tournament_id,)
+
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT t.id, t.lifecycle_status
+            FROM tournaments t{tournament_clause}
+            """,
+            params,
+        )
+        for row in cur.fetchall():
+            status = str(row["lifecycle_status"])
+            if status not in VALID_LIFECYCLE_STATUSES:
+                errors.append(
+                    f"tournament {row['id']} lifecycle_status {status!r} is not a valid lifecycle status"
+                )
+
+        cur.execute(
+            f"""
+            SELECT t.id, t.lifecycle_status
+            FROM tournaments t
+            WHERE t.source_id IS NOT NULL
+              AND t.lifecycle_status NOT IN ('completed', 'archived')
+              {('AND t.id = %s' if tournament_id is not None else '')}
+            ORDER BY t.id
+            """,
+            params,
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"tournament {row['id']} is imported but lifecycle_status is {row['lifecycle_status']!r}; "
+                "expected completed or archived"
+            )
+
+        cur.execute(
+            f"""
+            SELECT t.id, t.lifecycle_status
+            FROM tournaments t
+            WHERE t.source_id IS NULL
+              AND t.lifecycle_status IN ('draft', 'registration', 'ready')
+              AND EXISTS (SELECT 1 FROM amiga_games g WHERE g.tournament_id = t.id)
+              {('AND t.id = %s' if tournament_id is not None else '')}
+            ORDER BY t.id
+            """,
+            params,
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"tournament {row['id']} has games but lifecycle_status is {row['lifecycle_status']!r}; "
+                "expected running or completed"
+            )
+
+        cur.execute(
+            f"""
+            SELECT t.id, t.lifecycle_status, COUNT(f.id) AS unplayed
+            FROM tournaments t
+            INNER JOIN tournament_stages s ON s.tournament_id = t.id
+            INNER JOIN tournament_fixtures f ON f.stage_id = s.id
+            WHERE t.lifecycle_status IN ('completed', 'archived')
+              AND f.status = 'scheduled'
+              {('AND t.id = %s' if tournament_id is not None else '')}
+            GROUP BY t.id, t.lifecycle_status
+            ORDER BY t.id
+            """,
+            params,
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"tournament {row['id']} lifecycle_status is {row['lifecycle_status']!r} "
+                f"but has {int(row['unplayed'])} scheduled fixture(s)"
+            )
+
+    return errors
+
+
 def audit_fixture_integrity(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
     with conn.cursor() as cur:
@@ -1299,6 +1527,15 @@ def main(argv: list[str] | None = None) -> int:
 
     p_verify_entrants = sub.add_parser("verify-entrants", help="Verify tournament entrant integrity")
     p_verify_entrants.add_argument("--tournament-id", type=int, default=None)
+
+    p_verify_lifecycle = sub.add_parser("verify-lifecycle", help="Verify tournament lifecycle integrity")
+    p_verify_lifecycle.add_argument("--tournament-id", type=int, default=None)
+
+    p_set_status = sub.add_parser("set-tournament-status", help="Transition tournament lifecycle status")
+    p_set_status.add_argument("--tournament-id", type=int, required=True)
+    p_set_status.add_argument("--status", choices=sorted(VALID_LIFECYCLE_STATUSES), required=True)
+    p_set_status.add_argument("--dry-run", action="store_true")
+    p_set_status.add_argument("--force", action="store_true")
 
     p_list_entrants = sub.add_parser("list-entrants", help="List entrants for one tournament")
     p_list_entrants.add_argument("--tournament-id", type=int, required=True)
@@ -1404,6 +1641,53 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"FAIL: {error}", file=sys.stderr)
                 return 1
             print("OK: tournament entrant integrity checks passed")
+            return 0
+
+        if args.cmd == "verify-lifecycle":
+            errors = audit_lifecycle_integrity(conn, tournament_id=args.tournament_id)
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT lifecycle_status, COUNT(*) AS n
+                    FROM tournaments
+                    GROUP BY lifecycle_status
+                    ORDER BY lifecycle_status
+                    """
+                )
+                for row in cur.fetchall():
+                    print(f"lifecycle_status={row['lifecycle_status']} count={int(row['n'])}")
+            if errors:
+                for error in errors:
+                    print(f"FAIL: {error}", file=sys.stderr)
+                return 1
+            print("OK: tournament lifecycle integrity checks passed")
+            return 0
+
+        if args.cmd == "set-tournament-status":
+            summary = set_tournament_lifecycle_status(
+                conn,
+                tournament_id=args.tournament_id,
+                status=args.status,
+                dry_run=args.dry_run,
+                force=args.force,
+            )
+            if args.dry_run:
+                conn.rollback()
+                print("DRY RUN: rolled back")
+            else:
+                conn.commit()
+            print(
+                f"tournament_id={summary['tournament_id']} "
+                f"previous_status={summary['previous_status']} "
+                f"lifecycle_status={summary['lifecycle_status']} "
+                f"changed={summary['changed']}"
+            )
+            if summary.get("started_at") is not None:
+                print(f"started_at={summary['started_at']}")
+            if summary.get("completed_at") is not None:
+                print(f"completed_at={summary['completed_at']}")
+            if summary.get("unplayed_scheduled_fixtures"):
+                print(f"unplayed_scheduled_fixtures={summary['unplayed_scheduled_fixtures']}")
             return 0
 
         if args.cmd == "list-entrants":

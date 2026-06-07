@@ -183,7 +183,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP `amiga_ops_catalog_stats_refresh_tournament` per touched tournament on post-game |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
-DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql), entrant foundation [`007_tournament_entrants.sql`](../scripts/amiga/sql/007_tournament_entrants.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
+DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql), entrant foundation [`007_tournament_entrants.sql`](../scripts/amiga/sql/007_tournament_entrants.sql), lifecycle foundation [`008_tournament_lifecycle.sql`](../scripts/amiga/sql/008_tournament_lifecycle.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
 
 ### Tournament format metadata
 
@@ -191,6 +191,15 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - `tournaments.format_template_id` points to the selected template. Legacy imports default to `legacy_inferred`; future live events may use concrete templates such as `kitchen_marathon`, `group_knockout`, or `world_cup_class`.
 - `tournaments.has_league` and `tournaments.has_cup` are **non-exclusive** ground catalog flags computed at import from canonical game phase labels plus the verbatim Access `is_cup` flag. A tournament with games must have at least one of these flags true; verify with `python -m scripts.amiga verify-tournament-formats`.
 - `tournaments.is_cup` remains the raw imported Access `Cup?` value. Do not use it as the product definition of cup play or honours eligibility.
+
+### Tournament lifecycle
+
+- `tournaments.lifecycle_status` is **ground truth** for whether an event is draft, in preparation, running, finished, archived, or void. Statuses: `draft`, `registration`, `ready`, `running`, `completed`, `archived`, `void`.
+- `tournaments.started_at` and `tournaments.completed_at` are nullable UTC timestamps set on transition to `running` and `completed`/`archived` respectively (when not already set).
+- **Defaults:** Access import sets `lifecycle_status = completed` with `completed_at` from `event_date`. Internal builders and `/amiga/ops/fixtures.php` kitchen create set `draft` so generated events do not look like historical imports.
+- **Result entry:** fixture-backed result entry (`fixtures record-result`, browser ops) is allowed only when `lifecycle_status = running`. Refused for `completed`, `archived`, and `void`.
+- **Ops:** `python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status STATUS` with optional `--dry-run` and `--force`. Imported historical tournaments refuse transitions away from `completed`/`archived` without `--force`. Transition to `completed` refuses when scheduled fixtures remain unplayed unless `--force`.
+- **Verify:** `python -m scripts.amiga fixtures verify-lifecycle` (imported rows must be `completed` or `archived`; generated rows with games must not stay in `draft`/`registration`/`ready`).
 
 ### Tournament entrants, stages, and fixtures
 
@@ -245,6 +254,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 | Tournament format foundation | **In progress** — `tournament_format_templates` + non-exclusive `tournaments.has_league` / `has_cup` import flags |
 | Stage/fixture foundation | **In progress** — ground tables + internal CLI; no public builder UI yet |
 | Tournament entrants foundation | **In progress** — `tournament_entrants` + builder population + verify CLI + withdraw/replace ops |
+| Tournament lifecycle foundation | **In progress** — `lifecycle_status` + internal transition CLI + result-entry guardrails |
 | Internal tournament builder | **Started** — `kitchen_marathon` round-robin generator only; no result-entry UI yet |
 
 ---

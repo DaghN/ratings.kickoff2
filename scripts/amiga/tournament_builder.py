@@ -12,6 +12,7 @@ from typing import Any
 import pymysql
 
 from scripts.amiga.tournament_fixtures import (
+    GENERATED_DEFAULT_LIFECYCLE_STATUS,
     _connect,
     _load_one,
     _require_player,
@@ -20,6 +21,7 @@ from scripts.amiga.tournament_fixtures import (
     create_fixture,
     create_stage,
     record_fixture_result,
+    set_tournament_lifecycle_status,
 )
 from scripts.amiga.tournament_format import seed_format_templates
 
@@ -147,10 +149,11 @@ def create_kitchen_marathon_tournament(
             """
             INSERT INTO tournaments
                 (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count,
-                 format_template_id, format_overrides, has_league, has_cup)
+                 format_template_id, format_overrides, has_league, has_cup, lifecycle_status)
             VALUES
                 (NULL, %(name)s, NULL, %(event_date)s, 0, %(country)s, %(equal_teams)s,
-                 %(player_count)s, %(format_template_id)s, %(format_overrides)s, 1, 0)
+                 %(player_count)s, %(format_template_id)s, %(format_overrides)s, 1, 0,
+                 %(lifecycle_status)s)
             """,
             {
                 "name": name,
@@ -160,6 +163,7 @@ def create_kitchen_marathon_tournament(
                 "player_count": len(player_ids),
                 "format_template_id": template_id,
                 "format_overrides": json.dumps(overrides, sort_keys=True),
+                "lifecycle_status": GENERATED_DEFAULT_LIFECYCLE_STATUS,
             },
         )
         tournament_id = int(cur.lastrowid)
@@ -244,10 +248,11 @@ def create_group_knockout_tournament(
             """
             INSERT INTO tournaments
                 (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count,
-                 format_template_id, format_overrides, has_league, has_cup)
+                 format_template_id, format_overrides, has_league, has_cup, lifecycle_status)
             VALUES
                 (NULL, %(name)s, NULL, %(event_date)s, 1, %(country)s, %(equal_teams)s,
-                 %(player_count)s, %(format_template_id)s, %(format_overrides)s, 1, 1)
+                 %(player_count)s, %(format_template_id)s, %(format_overrides)s, 1, 1,
+                 %(lifecycle_status)s)
             """,
             {
                 "name": name,
@@ -257,6 +262,7 @@ def create_group_knockout_tournament(
                 "player_count": len(player_ids),
                 "format_template_id": template_id,
                 "format_overrides": json.dumps(overrides, sort_keys=True),
+                "lifecycle_status": GENERATED_DEFAULT_LIFECYCLE_STATUS,
             },
         )
         tournament_id = int(cur.lastrowid)
@@ -348,7 +354,7 @@ def verify_built_tournament(
     row = _load_one(
         conn,
         """
-        SELECT t.id, t.name, t.player_count, t.has_league, t.has_cup,
+        SELECT t.id, t.name, t.player_count, t.has_league, t.has_cup, t.lifecycle_status,
                t.format_overrides, ft.slug AS template_slug
         FROM tournaments t
         LEFT JOIN tournament_format_templates ft ON ft.id = t.format_template_id
@@ -365,6 +371,11 @@ def verify_built_tournament(
         errors.append("expected kitchen_marathon has_league=1 and has_cup=0")
     if template_slug == "group_knockout" and (int(row["has_league"]) != 1 or int(row["has_cup"]) != 1):
         errors.append("expected group_knockout has_league=1 and has_cup=1")
+    if str(row.get("lifecycle_status")) != GENERATED_DEFAULT_LIFECYCLE_STATUS and not allow_attached_games:
+        errors.append(
+            f"lifecycle_status is {row.get('lifecycle_status')!r}, "
+            f"expected {GENERATED_DEFAULT_LIFECYCLE_STATUS!r}"
+        )
 
     overrides: dict[str, Any] = {}
     if row.get("format_overrides"):
@@ -446,6 +457,11 @@ def smoke_fixture_result_flow(conn: pymysql.connections.Connection, *, player_id
             (result["tournament_id"],),
         )
         fixture_id = int(cur.fetchone()["id"])
+    set_tournament_lifecycle_status(
+        conn,
+        tournament_id=result["tournament_id"],
+        status="running",
+    )
     game_id = record_fixture_result(conn, fixture_id=fixture_id, goals_a=1, goals_b=0)
     errors = verify_built_tournament(conn, tournament_id=result["tournament_id"], allow_attached_games=True)
     if errors:

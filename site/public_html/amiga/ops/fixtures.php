@@ -127,6 +127,32 @@ function amiga_fixture_require_player(mysqli $con, int $playerId): void
     }
 }
 
+function amiga_fixture_require_running_lifecycle(mysqli $con, int $tournamentId): void
+{
+    $stmt = $con->prepare(
+        'SELECT lifecycle_status FROM tournaments WHERE id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare lifecycle check: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute lifecycle check: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    if ($row === null) {
+        throw new RuntimeException("Tournament {$tournamentId} not found.");
+    }
+    if ((string) $row['lifecycle_status'] !== 'running') {
+        throw new RuntimeException(
+            "Tournament {$tournamentId} lifecycle_status is '{$row['lifecycle_status']}'; "
+            . 'result entry is allowed only when lifecycle_status is running.'
+        );
+    }
+}
+
 function amiga_fixture_require_active_entrant(mysqli $con, int $tournamentId, int $playerId): void
 {
     $stmt = $con->prepare(
@@ -273,17 +299,18 @@ function amiga_fixture_create_kitchen_tournament(
         $hasLeague = 1;
         $hasCup = 0;
         $isCup = 0;
+        $lifecycleStatus = 'draft';
         $stmt = $con->prepare(
             'INSERT INTO tournaments '
             . '(source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count, '
-            . 'format_template_id, format_overrides, has_league, has_cup) '
-            . 'VALUES (NULL, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            . 'format_template_id, format_overrides, has_league, has_cup, lifecycle_status) '
+            . 'VALUES (NULL, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         if ($stmt === false) {
             throw new RuntimeException('prepare tournament insert: ' . $con->error);
         }
         $stmt->bind_param(
-            'ssisiiisii',
+            'ssisiiisiis',
             $name,
             $eventDate,
             $isCup,
@@ -293,7 +320,8 @@ function amiga_fixture_create_kitchen_tournament(
             $templateId,
             $overrides,
             $hasLeague,
-            $hasCup
+            $hasCup,
+            $lifecycleStatus
         );
         if (!$stmt->execute()) {
             throw new RuntimeException('execute tournament insert: ' . $stmt->error);
@@ -518,6 +546,7 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
     $tournamentId = (int) $fixture['tournament_id'];
     $playerAId = (int) $fixture['player_a_id'];
     $playerBId = (int) $fixture['player_b_id'];
+    amiga_fixture_require_running_lifecycle($con, $tournamentId);
     amiga_fixture_require_active_entrant($con, $tournamentId, $playerAId);
     amiga_fixture_require_active_entrant($con, $tournamentId, $playerBId);
 

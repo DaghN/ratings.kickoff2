@@ -45,6 +45,7 @@ _SQL_CATALOG_STATS = Path(__file__).resolve().parent / "sql" / "004_tournament_c
 _SQL_FORMATS = Path(__file__).resolve().parent / "sql" / "005_tournament_formats.sql"
 _SQL_FIXTURES = Path(__file__).resolve().parent / "sql" / "006_tournament_fixtures.sql"
 _SQL_ENTRANTS = Path(__file__).resolve().parent / "sql" / "007_tournament_entrants.sql"
+_SQL_LIFECYCLE = Path(__file__).resolve().parent / "sql" / "008_tournament_lifecycle.sql"
 
 _AMIGA_TABLES_DROP_ORDER = (
     "amiga_tournament_catalog_stats",
@@ -135,6 +136,7 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
         _SQL_FORMATS,
         _SQL_FIXTURES,
         _SQL_ENTRANTS,
+        _SQL_LIFECYCLE,
     ):
         sql = sql_path.read_text(encoding="utf-8")
         with conn.cursor() as cur:
@@ -291,10 +293,11 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
                 """
                 INSERT INTO tournaments
                   (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count,
-                   format_template_id, has_league, has_cup)
+                   format_template_id, has_league, has_cup, lifecycle_status, completed_at)
                 VALUES (%(source_id)s, %(name)s, %(chrono)s, %(event_date)s, %(is_cup)s,
                         %(country)s, %(equal_teams)s, %(player_count)s,
-                        %(format_template_id)s, %(has_league)s, %(has_cup)s)
+                        %(format_template_id)s, %(has_league)s, %(has_cup)s,
+                        'completed', %(completed_at)s)
                 """,
                 {
                     **t,
@@ -302,6 +305,14 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
                     "format_template_id": legacy_template_id,
                     "has_league": inferred_format.has_league,
                     "has_cup": inferred_format.has_cup,
+                    "completed_at": (
+                        datetime.combine(
+                            t["event_date"].date() if isinstance(t["event_date"], datetime) else t["event_date"],
+                            datetime.min.time(),
+                        )
+                        if t.get("event_date") is not None
+                        else None
+                    ),
                 },
             )
 
