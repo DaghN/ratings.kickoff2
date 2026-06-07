@@ -150,7 +150,9 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status running
 python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status completed --force
 
-# Browser ops: /amiga/ops/fixtures.php (password-gated) shows lifecycle status and supports
+# Browser ops: /amiga/ops/fixtures.php (password-gated tournament organizer) uses tabbed views
+# (setup, players, fixtures, table, results, advanced). League create uses player search + chips;
+# successful create redirects to view=fixtures. Lifecycle status and supports
 # draft→ready, ready→running, running→completed (no scheduled fixtures), running→void (no games).
 # Imported tournaments and --force transitions remain CLI-only.
 # Browser entrant ops (generated tournaments): list entrants, search existing players, add existing
@@ -193,9 +195,9 @@ python -m scripts.amiga players create --name "Mark Be" --country "England" --dr
 python -m scripts.amiga players create --name "Mark Be" --country "England"
 ```
 
-Live tournaments hub (Amiga realm tab): `/amiga/live-tournaments.php` — lists generated events; links to the fixture manager.
+Live tournaments hub (Amiga realm tab): `/amiga/live-tournaments.php` — lists generated events; links to the tournament organizer.
 
-Internal fixture browser/create/result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N` (same site chrome as the hub).
+Internal tournament organizer / create / result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N&view=fixtures` (same site chrome as the hub; default `view=fixtures` when `tournament_id` is set, else `view=setup`).
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 

@@ -60,10 +60,10 @@ function amiga_fixture_render_chrome_end(): void
 }
 
 if (!$pwdOk) {
-    amiga_fixture_render_chrome_start('Amiga — Fixture manager');
+    amiga_fixture_render_chrome_start('Amiga — Tournament organizer');
     ?>
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Fixture manager</h1>
+  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Tournament organizer</h1>
   <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">Password required for fixture ops.</p>
 </header>
 <div class="k2-amiga-live-ops">
@@ -86,11 +86,31 @@ if (!$pwdOk) {
     exit;
 }
 
+amiga_fixture_ops_session_start();
+
 $tournamentId = isset($_GET['tournament_id']) ? max(0, (int) $_GET['tournament_id']) : 0;
+if (isset($_POST['tournament_id'])) {
+    $tournamentId = max(0, (int) $_POST['tournament_id']);
+}
 $status = isset($_GET['status']) ? (string) $_GET['status'] : '';
 if (!in_array($status, ['', 'scheduled', 'played', 'void'], true)) {
     $status = '';
 }
+$view = isset($_GET['view']) ? (string) $_GET['view'] : '';
+if (!in_array($view, AMIGA_FIXTURE_OPS_VIEWS, true)) {
+    $view = '';
+}
+if ($tournamentId > 0) {
+    if ($view === '') {
+        $view = 'fixtures';
+    }
+} else {
+    $view = 'setup';
+}
+$createPlayerSearch = isset($_GET['create_player_search']) ? trim((string) $_GET['create_player_search']) : '';
+$createDraft = amiga_fixture_create_draft_from_request();
+$createSelectedPlayers = [];
+$createPlayerSearchResults = [];
 
 function amiga_fixture_next_live_source_scores_id(mysqli $con): int
 {
@@ -150,6 +170,236 @@ function amiga_fixture_parse_player_ids(string $raw): array
     }
 
     return $ids;
+}
+
+/** @var list<string> */
+const AMIGA_FIXTURE_OPS_VIEWS = ['setup', 'players', 'fixtures', 'table', 'results', 'advanced'];
+
+function amiga_fixture_ops_session_start(): void
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+}
+
+function amiga_fixture_ops_flash_set(string $message, bool $isError = false): void
+{
+    amiga_fixture_ops_session_start();
+    $_SESSION['amiga_ops_flash'] = ['message' => $message, 'error' => $isError];
+}
+
+/**
+ * @return array{message:string,error:bool}|null
+ */
+function amiga_fixture_ops_flash_consume(): ?array
+{
+    amiga_fixture_ops_session_start();
+    if (!isset($_SESSION['amiga_ops_flash'])) {
+        return null;
+    }
+    $flash = $_SESSION['amiga_ops_flash'];
+    unset($_SESSION['amiga_ops_flash']);
+
+    return $flash;
+}
+
+function amiga_fixture_ops_redirect(
+    string $self,
+    string $onceKey,
+    string $pwd,
+    int $tournamentId,
+    string $view,
+    string $status = ''
+): void {
+    $params = [
+        'once' => $onceKey,
+        'pwd' => $pwd,
+        'view' => $view,
+    ];
+    if ($tournamentId > 0) {
+        $params['tournament_id'] = $tournamentId;
+    }
+    if ($status !== '') {
+        $params['status'] = $status;
+    }
+    header('Location: ' . $self . '?' . http_build_query($params));
+    exit;
+}
+
+/**
+ * @param list<int> $ids
+ * @return list<int>
+ */
+function amiga_fixture_validate_player_id_list(array $ids): array
+{
+    $normalized = [];
+    foreach ($ids as $raw) {
+        $id = (int) $raw;
+        if ($id > 0) {
+            $normalized[] = $id;
+        }
+    }
+    $normalized = array_values(array_unique($normalized));
+    if (count($normalized) < 2) {
+        throw new RuntimeException('At least two players are required.');
+    }
+
+    return $normalized;
+}
+
+/**
+ * @return list<int>
+ */
+function amiga_fixture_collect_player_ids_from_request(): array
+{
+    if (isset($_POST['player_ids']) && is_array($_POST['player_ids'])) {
+        $ids = [];
+        foreach ($_POST['player_ids'] as $raw) {
+            $id = (int) $raw;
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+        if ($ids !== []) {
+            return amiga_fixture_validate_player_id_list($ids);
+        }
+    }
+    if (isset($_POST['player_ids_raw']) && trim((string) $_POST['player_ids_raw']) !== '') {
+        return amiga_fixture_parse_player_ids((string) $_POST['player_ids_raw']);
+    }
+    if (isset($_POST['player_ids']) && is_string($_POST['player_ids']) && trim($_POST['player_ids']) !== '') {
+        return amiga_fixture_parse_player_ids((string) $_POST['player_ids']);
+    }
+
+    throw new RuntimeException('At least two players are required.');
+}
+
+function amiga_fixture_expected_round_robin_fixtures(int $playerCount, int $legs): int
+{
+    if ($playerCount < 2) {
+        return 0;
+    }
+    $legs = max(1, min(2, $legs));
+
+    return (int) (($playerCount * ($playerCount - 1) / 2) * $legs);
+}
+
+/**
+ * @param list<int> $ids
+ * @return list<array{id:int,name:string}>
+ */
+function amiga_fixture_load_player_summaries(mysqli $con, array $ids): array
+{
+    if ($ids === []) {
+        return [];
+    }
+    $summaries = [];
+    $seen = [];
+    foreach ($ids as $id) {
+        $id = (int) $id;
+        if ($id <= 0 || isset($seen[$id])) {
+            continue;
+        }
+        $seen[$id] = true;
+        $stmt = $con->prepare('SELECT id, name FROM amiga_players WHERE id = ? LIMIT 1');
+        if ($stmt === false) {
+            throw new RuntimeException('prepare player summary: ' . $con->error);
+        }
+        $stmt->bind_param('i', $id);
+        if (!$stmt->execute()) {
+            throw new RuntimeException('execute player summary: ' . $stmt->error);
+        }
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+        if ($row !== null) {
+            $summaries[] = [
+                'id' => (int) $row['id'],
+                'name' => (string) $row['name'],
+            ];
+        }
+    }
+
+    return $summaries;
+}
+
+/**
+ * @return array{name:string,event_date:string,country:string,legs:int,player_ids:list<int>}
+ */
+function amiga_fixture_create_draft_from_request(): array
+{
+    $playerIds = [];
+    if (isset($_POST['player_ids']) && is_array($_POST['player_ids'])) {
+        foreach ($_POST['player_ids'] as $raw) {
+            $id = (int) $raw;
+            if ($id > 0) {
+                $playerIds[] = $id;
+            }
+        }
+    } elseif (isset($_GET['cp_player']) && is_array($_GET['cp_player'])) {
+        foreach ($_GET['cp_player'] as $raw) {
+            $id = (int) $raw;
+            if ($id > 0) {
+                $playerIds[] = $id;
+            }
+        }
+    }
+    $playerIds = array_values(array_unique($playerIds));
+    $legs = (int) ($_POST['legs'] ?? $_GET['cp_legs'] ?? 1);
+
+    return [
+        'name' => trim((string) ($_POST['name'] ?? $_GET['cp_name'] ?? '')),
+        'event_date' => trim((string) ($_POST['event_date'] ?? $_GET['cp_date'] ?? gmdate('Y-m-d'))),
+        'country' => trim((string) ($_POST['country'] ?? $_GET['cp_country'] ?? '')),
+        'legs' => max(1, min(2, $legs)),
+        'player_ids' => $playerIds,
+    ];
+}
+
+/**
+ * @param array{name:string,event_date:string,country:string,legs:int,player_ids:list<int>} $draft
+ */
+function amiga_fixture_create_draft_query(array $draft, string $createPlayerSearch = ''): array
+{
+    $params = [
+        'cp_name' => $draft['name'],
+        'cp_date' => $draft['event_date'],
+        'cp_country' => $draft['country'],
+        'cp_legs' => $draft['legs'],
+        'view' => 'setup',
+    ];
+    foreach ($draft['player_ids'] as $playerId) {
+        $params['cp_player'][] = $playerId;
+    }
+    if ($createPlayerSearch !== '') {
+        $params['create_player_search'] = $createPlayerSearch;
+    }
+
+    return $params;
+}
+
+function amiga_fixture_ops_url(
+    string $self,
+    string $onceKey,
+    string $pwd,
+    int $tournamentId,
+    string $view,
+    string $status = '',
+    array $extra = []
+): string {
+    $params = array_merge([
+        'once' => $onceKey,
+        'pwd' => $pwd,
+        'view' => $view,
+    ], $extra);
+    if ($tournamentId > 0) {
+        $params['tournament_id'] = $tournamentId;
+    }
+    if ($status !== '') {
+        $params['status'] = $status;
+    }
+
+    return $self . '?' . http_build_query($params);
 }
 
 function amiga_fixture_require_player(mysqli $con, int $playerId): void
@@ -1819,22 +2069,72 @@ $stageOpsEligible = false;
 $playerSearchQuery = isset($_GET['player_search']) ? trim((string) $_GET['player_search']) : '';
 $playerSearchResults = [];
 $replacePlayerId = isset($_GET['replace_player_id']) ? max(0, (int) $_GET['replace_player_id']) : 0;
-$flash = null;
-$flashIsError = false;
+$sessionFlash = amiga_fixture_ops_flash_consume();
+$flash = $sessionFlash !== null ? (string) $sessionFlash['message'] : null;
+$flashIsError = $sessionFlash !== null ? (bool) $sessionFlash['error'] : false;
+$createFormError = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $tournamentId <= 0) {
+    $createMutated = false;
+    if (isset($_GET['create_add_player_id'])) {
+        $addId = max(0, (int) $_GET['create_add_player_id']);
+        if ($addId > 0 && !in_array($addId, $createDraft['player_ids'], true)) {
+            $createDraft['player_ids'][] = $addId;
+            $createMutated = true;
+        }
+    } elseif (isset($_GET['create_remove_player_id'])) {
+        $removeId = max(0, (int) $_GET['create_remove_player_id']);
+        if ($removeId > 0) {
+            $createDraft['player_ids'] = array_values(array_filter(
+                $createDraft['player_ids'],
+                static function (int $id) use ($removeId): bool {
+                    return $id !== $removeId;
+                }
+            ));
+            $createMutated = true;
+        }
+    }
+    if ($createMutated) {
+        $params = array_merge(
+            [
+                'once' => $key,
+                'pwd' => $pwdValue,
+                'view' => 'setup',
+            ],
+            amiga_fixture_create_draft_query($createDraft, $createPlayerSearch)
+        );
+        header('Location: ' . $self . '?' . http_build_query($params));
+        exit;
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string) ($_POST['action'] ?? '');
+    $postStatus = isset($_POST['status']) ? (string) $_POST['status'] : $status;
+    if (!in_array($postStatus, ['', 'scheduled', 'played', 'void'], true)) {
+        $postStatus = '';
+    }
     try {
         if ($action === 'create_kitchen') {
+            $createDraft = [
+                'name' => trim((string) ($_POST['name'] ?? '')),
+                'event_date' => trim((string) ($_POST['event_date'] ?? '')),
+                'country' => trim((string) ($_POST['country'] ?? '')),
+                'legs' => max(1, min(2, (int) ($_POST['legs'] ?? 1))),
+                'player_ids' => [],
+            ];
+            $playerIds = amiga_fixture_collect_player_ids_from_request();
+            $createDraft['player_ids'] = $playerIds;
             $tournamentId = amiga_fixture_create_kitchen_tournament(
                 $con,
-                (string) ($_POST['name'] ?? ''),
-                (string) ($_POST['event_date'] ?? ''),
-                (string) ($_POST['country'] ?? ''),
-                amiga_fixture_parse_player_ids((string) ($_POST['player_ids'] ?? '')),
-                (int) ($_POST['legs'] ?? 1)
+                $createDraft['name'],
+                $createDraft['event_date'],
+                $createDraft['country'],
+                $playerIds,
+                $createDraft['legs']
             );
-            $flash = 'Created tournament #' . $tournamentId . '.';
+            amiga_fixture_ops_flash_set('Created league #' . $tournamentId . '. Fixtures are ready to preview.');
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'fixtures');
         } elseif ($action === 'assign_players') {
             $fixtureId = max(0, (int) ($_POST['fixture_id'] ?? 0));
             amiga_fixture_assign_players(
@@ -1843,10 +2143,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 (int) ($_POST['player_a_id'] ?? 0),
                 (int) ($_POST['player_b_id'] ?? 0)
             );
-            $flash = 'Assigned players to fixture #' . $fixtureId . '.';
             if (isset($_POST['tournament_id'])) {
                 $tournamentId = max(0, (int) $_POST['tournament_id']);
             }
+            amiga_fixture_ops_flash_set('Assigned players to fixture #' . $fixtureId . '.');
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'fixtures', $postStatus);
         } elseif ($action === 'record_result') {
             $fixtureId = max(0, (int) ($_POST['fixture_id'] ?? 0));
             $goalsA = (int) ($_POST['goals_a'] ?? -1);
@@ -1862,15 +2163,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 isset($_POST['extra']) ? (string) $_POST['extra'] : null
             );
             $processed = amiga_process_completed_game($con, $gameId, false, false);
-            if ($processed['skipped']) {
-                $flashIsError = true;
-                $flash = 'Created game #' . $gameId . ', but derived processing skipped: ' . (string) $processed['skip_reason'];
-            } else {
-                $flash = 'Recorded fixture result as game #' . $gameId . ' and processed derived standings/ratings.';
-            }
             if (isset($_POST['tournament_id'])) {
                 $tournamentId = max(0, (int) $_POST['tournament_id']);
             }
+            if ($processed['skipped']) {
+                amiga_fixture_ops_flash_set(
+                    'Created game #' . $gameId . ', but derived processing skipped: ' . (string) $processed['skip_reason'],
+                    true
+                );
+            } else {
+                amiga_fixture_ops_flash_set(
+                    'Recorded fixture result as game #' . $gameId . ' and processed derived standings/ratings.'
+                );
+            }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'fixtures', $postStatus);
         } elseif ($action === 'set_lifecycle_status') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -1879,10 +2185,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newStatus = trim((string) ($_POST['lifecycle_status'] ?? ''));
             $summary = amiga_fixture_set_lifecycle_status($con, $tournamentId, $newStatus);
             if (!$summary['changed']) {
-                $flash = "Tournament #{$tournamentId} is already {$newStatus}.";
+                amiga_fixture_ops_flash_set("Tournament #{$tournamentId} is already {$newStatus}.");
             } else {
-                $flash = "Tournament #{$tournamentId} lifecycle: {$summary['previous_status']} → {$newStatus}.";
+                amiga_fixture_ops_flash_set(
+                    "Tournament #{$tournamentId} lifecycle: {$summary['previous_status']} → {$newStatus}."
+                );
             }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'setup', $postStatus);
         } elseif ($action === 'add_entrant') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -1897,8 +2206,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $noteRaw = trim((string) ($_POST['note'] ?? ''));
             $note = $noteRaw === '' ? null : $noteRaw;
             $summary = amiga_fixture_add_entrant_existing_player($con, $tournamentId, $playerId, $seedNo, $note);
-            $flash = 'Registered player #' . $summary['player_id'] . ' as entrant #' . $summary['entrant_id'] . '.';
-            $flash .= ' Use stage placement / fixture assignment separately when needed.';
+            amiga_fixture_ops_flash_set(
+                'Registered player #' . $summary['player_id'] . ' as entrant #' . $summary['entrant_id'] . '.'
+                . ' Use stage placement / fixture assignment separately when needed.'
+            );
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'players', $postStatus);
         } elseif ($action === 'withdraw_entrant') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -1911,10 +2223,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $noteRaw = trim((string) ($_POST['note'] ?? ''));
             $note = $noteRaw === '' ? null : $noteRaw;
             $summary = amiga_fixture_withdraw_entrant($con, $tournamentId, $playerId, $note);
-            $flash = 'Withdrew player #' . $summary['player_id'] . ' ('
+            amiga_fixture_ops_flash_set(
+                'Withdrew player #' . $summary['player_id'] . ' ('
                 . $summary['fixture_slots_cleared'] . ' fixture slot(s) cleared, '
-                . $summary['stage_player_rows_removed'] . ' stage-player row(s) removed).';
-            $replacePlayerId = 0;
+                . $summary['stage_player_rows_removed'] . ' stage-player row(s) removed).'
+            );
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'players', $postStatus);
         } elseif ($action === 'replace_entrant') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -1928,10 +2242,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $noteRaw = trim((string) ($_POST['note'] ?? ''));
             $note = $noteRaw === '' ? null : $noteRaw;
             $summary = amiga_fixture_replace_entrant($con, $tournamentId, $oldPlayerId, $newPlayerId, $note);
-            $flash = 'Replaced player #' . $summary['old_player_id'] . ' with #' . $summary['new_player_id']
+            amiga_fixture_ops_flash_set(
+                'Replaced player #' . $summary['old_player_id'] . ' with #' . $summary['new_player_id']
                 . ' (entrant #' . $summary['new_entrant_id'] . ', seed '
-                . ($summary['seed_no'] !== null ? (string) $summary['seed_no'] : 'none') . ').';
-            $replacePlayerId = 0;
+                . ($summary['seed_no'] !== null ? (string) $summary['seed_no'] : 'none') . ').'
+            );
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'players', $postStatus);
         } elseif ($action === 'place_stage_entrant') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -1958,18 +2274,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $groupKey
             );
             $verb = $summary['updated'] ? 'Updated' : 'Placed';
-            $flash = $verb . ' player #' . $summary['player_id'] . ' in stage '
-                . $summary['stage_key'] . ' (stage id ' . $summary['stage_id'] . ').';
-            $flash .= ' Use fixture assignment separately when needed.';
+            amiga_fixture_ops_flash_set(
+                $verb . ' player #' . $summary['player_id'] . ' in stage '
+                . $summary['stage_key'] . ' (stage id ' . $summary['stage_id'] . ').'
+                . ' Use fixture assignment separately when needed.'
+            );
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'advanced', $postStatus);
         } else {
             throw new RuntimeException('Unknown action.');
         }
     } catch (Throwable $e) {
-        $flashIsError = true;
-        $flash = $e->getMessage();
-        if (isset($_POST['tournament_id'])) {
-            $tournamentId = max(0, (int) $_POST['tournament_id']);
+        if ($action === 'create_kitchen') {
+            $createFormError = true;
+            $flashIsError = true;
+            $flash = $e->getMessage();
+            $view = 'setup';
+            $tournamentId = 0;
+            $createDraft = amiga_fixture_create_draft_from_request();
+        } else {
+            $flashIsError = true;
+            if (isset($_POST['tournament_id'])) {
+                $tournamentId = max(0, (int) $_POST['tournament_id']);
+            }
+            $errorView = 'fixtures';
+            if (in_array($action, ['add_entrant', 'withdraw_entrant', 'replace_entrant'], true)) {
+                $errorView = 'players';
+            } elseif ($action === 'set_lifecycle_status') {
+                $errorView = 'setup';
+            } elseif ($action === 'place_stage_entrant') {
+                $errorView = 'advanced';
+            }
+            amiga_fixture_ops_flash_set($e->getMessage(), true);
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, $errorView, $postStatus);
         }
+    }
+}
+
+if ($tournamentId <= 0) {
+    $createSelectedPlayers = amiga_fixture_load_player_summaries($con, $createDraft['player_ids']);
+    if ($createPlayerSearch !== '') {
+        $createPlayerSearchResults = amiga_fixture_search_players($con, $createPlayerSearch);
     }
 }
 
@@ -2082,77 +2426,184 @@ if ($tournamentId > 0) {
 }
 
 mysqli_close($con);
-amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
+$createMatchHint = amiga_fixture_expected_round_robin_fixtures(
+    count($createDraft['player_ids']),
+    $createDraft['legs']
+);
+amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 ?>
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Fixture manager</h1>
+  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Tournament organizer</h1>
   <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">
-    Create generated tournaments, manage entrants, lifecycle, assign players, and record results.
+    Internal league workflow: create a league, choose players, preview fixtures and table, start the tournament, then enter results.
   </p>
   <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav" aria-label="Live tournament tools" style="margin-bottom:1rem">
     <div class="k2-player-nav__links">
       <a href="/amiga/live-tournaments.php" class="k2-player-nav__btn">Live tournaments</a>
-      <span class="k2-player-nav__btn is-active" aria-current="page">Fixture manager</span>
+      <span class="k2-player-nav__btn is-active" aria-current="page">Tournament organizer</span>
     </div>
   </nav>
 </header>
 
-<div class="k2-amiga-live-ops">
+<div class="k2-amiga-live-ops k2-amiga-organizer">
 <?php if ($flash !== null) { ?>
   <div class="k2-amiga-live-ops__flash<?php echo $flashIsError ? ' k2-amiga-live-ops__flash--error' : ''; ?>"><?php echo k2_h($flash); ?></div>
 <?php } ?>
-<form class="k2-amiga-live-ops__inline-form" method="get" action="<?php echo $self; ?>">
+<form class="k2-amiga-live-ops__inline-form k2-amiga-organizer__picker" method="get" action="<?php echo $self; ?>">
   <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
   <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+  <?php if ($tournamentId > 0) { ?>
+    <input type="hidden" name="view" value="<?php echo htmlspecialchars($view, ENT_QUOTES, 'UTF-8'); ?>">
+  <?php } ?>
   <label>Tournament id <input type="number" name="tournament_id" min="1" value="<?php echo $tournamentId > 0 ? (int) $tournamentId : ''; ?>"></label>
-  <label>Status
-    <select name="status">
-      <?php foreach (['' => 'All', 'scheduled' => 'Scheduled', 'played' => 'Played', 'void' => 'Void'] as $value => $label) { ?>
-        <option value="<?php echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $status === $value ? ' selected' : ''; ?>><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></option>
-      <?php } ?>
-    </select>
-  </label>
-  <button type="submit">View</button>
+  <button type="submit">Open</button>
 </form>
 
-<div class="k2-amiga-live-ops__section">
-  <h2>Create kitchen marathon</h2>
-  <p class="k2-amiga-live-ops__muted">Internal ops only. Creates one generated tournament, one overall league stage, and scheduled round-robin fixtures.</p>
-  <form class="k2-amiga-live-ops__grid-form" method="post" action="<?php echo $self; ?>">
-    <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-    <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-    <input type="hidden" name="action" value="create_kitchen">
-    <label>Name
-      <input type="text" name="name" required maxlength="120" placeholder="Thursday Kitchen I">
-    </label>
-    <label>Date
-      <?php k2_render_day_picker('amiga-fixture-event-date', 'event_date', gmdate('Y-m-d'), 'Tournament date'); ?>
-    </label>
-    <label>Country
-      <input type="text" name="country" maxlength="50" placeholder="Denmark">
-    </label>
-    <label>Legs
-      <select name="legs">
-        <option value="1">1</option>
-        <option value="2">2</option>
-      </select>
-    </label>
-    <label class="wide">Player ids, comma-separated
-      <input type="text" name="player_ids" required placeholder="1,2,3,4">
-    </label>
-    <div class="wide">
-      <button type="submit">Create tournament</button>
-    </div>
-  </form>
-</div>
+<?php if ($tournamentId > 0 && $tournament !== null) { ?>
+  <div class="k2-amiga-organizer__header">
+    <h2 class="k2-amiga-organizer__title"><?php echo k2_h((string) $tournament['name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $tournament['id']; ?></span></h2>
+    <?php if ($lifecycle !== null) { ?>
+      <p class="k2-amiga-live-ops__muted">Status: <span class="k2-amiga-tournament-badge"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></p>
+    <?php } ?>
+  </div>
+  <nav class="k2-amiga-organizer-tabs" aria-label="Tournament views">
+    <?php
+    $tabLabels = [
+        'setup' => 'Setup',
+        'players' => 'Players',
+        'fixtures' => 'Fixtures',
+        'table' => 'Table',
+        'results' => 'Results',
+        'advanced' => 'Advanced',
+    ];
+    foreach ($tabLabels as $tabView => $tabLabel) {
+        $tabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, $tabView, $status);
+        $isActive = $view === $tabView;
+        ?>
+    <a href="<?php echo htmlspecialchars($tabUrl, ENT_QUOTES, 'UTF-8'); ?>" class="k2-amiga-organizer-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo htmlspecialchars($tabLabel, ENT_QUOTES, 'UTF-8'); ?></a>
+    <?php } ?>
+  </nav>
+<?php } ?>
 
-<?php if ($tournamentId <= 0) { ?>
-  <p class="k2-amiga-live-ops__muted">Enter a generated tournament id, or pick a recent generated fixture-backed tournament below.</p>
-<?php } elseif ($tournament === null) { ?>
-  <p class="k2-amiga-live-ops__muted">Tournament not found.</p>
-<?php } else { ?>
-  <h2><?php echo k2_h((string) $tournament['name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $tournament['id']; ?></span></h2>
-  <?php if ($lifecycle !== null) { ?>
+<div class="k2-amiga-organizer-panel">
+<?php if ($view === 'setup') { ?>
+  <?php if ($tournamentId <= 0) { ?>
+  <div class="k2-amiga-live-ops__section">
+    <h2>Create league</h2>
+    <p class="k2-amiga-live-ops__muted">Creates one generated round-robin league with scheduled fixtures. Search and add at least two existing players below.</p>
+    <form class="k2-amiga-live-ops__grid-form" method="post" action="<?php echo $self; ?>">
+      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="action" value="create_kitchen">
+      <label>Name
+        <input type="text" name="name" required maxlength="120" placeholder="Thursday Kitchen I" value="<?php echo k2_h($createDraft['name']); ?>">
+      </label>
+      <label>Date
+        <?php k2_render_day_picker('amiga-fixture-event-date', 'event_date', $createDraft['event_date'] !== '' ? $createDraft['event_date'] : gmdate('Y-m-d'), 'Tournament date'); ?>
+      </label>
+      <label>Country
+        <input type="text" name="country" maxlength="50" placeholder="Denmark" value="<?php echo k2_h($createDraft['country']); ?>">
+      </label>
+      <label>Round-robin format
+        <select name="legs">
+          <option value="1"<?php echo $createDraft['legs'] === 1 ? ' selected' : ''; ?>>Single round-robin</option>
+          <option value="2"<?php echo $createDraft['legs'] === 2 ? ' selected' : ''; ?>>Home and away</option>
+        </select>
+      </label>
+      <div class="wide k2-amiga-organizer__selected-players">
+        <span class="k2-amiga-organizer__field-label">Selected players</span>
+        <?php if ($createSelectedPlayers === []) { ?>
+          <p class="k2-amiga-live-ops__muted">No players selected yet. Search below and add at least two.</p>
+        <?php } else { ?>
+          <ul class="k2-amiga-organizer__player-chips">
+          <?php foreach ($createSelectedPlayers as $selectedPlayer) {
+              $removeUrl = $self . '?' . http_build_query(array_merge(
+                  ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_remove_player_id' => $selectedPlayer['id']],
+                  amiga_fixture_create_draft_query($createDraft, $createPlayerSearch)
+              ));
+              ?>
+            <li class="k2-amiga-organizer__player-chip">
+              <input type="hidden" name="player_ids[]" value="<?php echo (int) $selectedPlayer['id']; ?>">
+              <span><?php echo k2_h($selectedPlayer['name']); ?></span>
+              <a href="<?php echo htmlspecialchars($removeUrl, ENT_QUOTES, 'UTF-8'); ?>" class="k2-amiga-organizer__chip-remove" aria-label="Remove <?php echo k2_h($selectedPlayer['name']); ?>">×</a>
+            </li>
+          <?php } ?>
+          </ul>
+          <p class="k2-amiga-live-ops__muted"><?php echo count($createSelectedPlayers); ?> player<?php echo count($createSelectedPlayers) === 1 ? '' : 's'; ?> → <?php echo $createMatchHint; ?> fixture<?php echo $createMatchHint === 1 ? '' : 's'; ?>.</p>
+        <?php } ?>
+      </div>
+      <details class="wide k2-amiga-organizer__advanced-fallback">
+        <summary>Advanced: player IDs (no-JS fallback)</summary>
+        <label>Comma-separated player ids
+          <input type="text" name="player_ids_raw" placeholder="1,2,3,4"<?php echo $createSelectedPlayers !== [] ? ' disabled' : ''; ?>>
+        </label>
+        <p class="k2-amiga-live-ops__muted">Used only when no players are selected above.</p>
+      </details>
+      <div class="wide">
+        <button type="submit">Create league</button>
+      </div>
+    </form>
+
+    <h3 style="margin-top:1.25rem">Add players to league</h3>
+    <form class="k2-amiga-live-ops__inline-form" method="get" action="<?php echo $self; ?>">
+      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="view" value="setup">
+      <?php foreach (amiga_fixture_create_draft_query($createDraft) as $draftKey => $draftValue) {
+          if ($draftKey === 'view') {
+              continue;
+          }
+          if (is_array($draftValue)) {
+              foreach ($draftValue as $item) { ?>
+        <input type="hidden" name="<?php echo htmlspecialchars($draftKey, ENT_QUOTES, 'UTF-8'); ?>[]" value="<?php echo (int) $item; ?>">
+      <?php }
+          } else { ?>
+        <input type="hidden" name="<?php echo htmlspecialchars($draftKey, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo k2_h((string) $draftValue); ?>">
+      <?php }
+      } ?>
+      <label>Search player
+        <input type="search" name="create_player_search" value="<?php echo k2_h($createPlayerSearch); ?>" placeholder="id or name fragment" required>
+      </label>
+      <button type="submit">Search</button>
+    </form>
+    <?php if ($createPlayerSearch !== '') { ?>
+      <?php if ($createPlayerSearchResults === []) { ?>
+        <p class="k2-amiga-live-ops__muted">No players matched <?php echo k2_h($createPlayerSearch); ?>.</p>
+      <?php } else { ?>
+        <div class="k2-table-wrap" style="margin-top:.75rem">
+        <table class="k2-table k2-table--calm-stats">
+          <thead>
+            <tr><th class="k2-table-cell--left">Player</th><th class="k2-table-cell--left">Country</th><th class="k2-table-cell--left">Action</th></tr>
+          </thead>
+          <tbody>
+          <?php foreach ($createPlayerSearchResults as $playerRow) {
+              $alreadySelected = in_array((int) $playerRow['id'], $createDraft['player_ids'], true);
+              $addUrl = $self . '?' . http_build_query(array_merge(
+                  ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_add_player_id' => (int) $playerRow['id']],
+                  amiga_fixture_create_draft_query($createDraft, $createPlayerSearch)
+              ));
+              ?>
+            <tr>
+              <td class="k2-table-cell--left"><?php echo k2_h($playerRow['name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $playerRow['id']; ?></span></td>
+              <td class="k2-table-cell--left"><?php echo $playerRow['country'] !== null && $playerRow['country'] !== '' ? k2_h($playerRow['country']) : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
+              <td class="k2-table-cell--left">
+                <?php if ($alreadySelected) { ?>
+                  <span class="k2-amiga-live-ops__muted">selected</span>
+                <?php } else { ?>
+                  <a href="<?php echo htmlspecialchars($addUrl, ENT_QUOTES, 'UTF-8'); ?>">Add to league</a>
+                <?php } ?>
+              </td>
+            </tr>
+          <?php } ?>
+          </tbody>
+        </table>
+        </div>
+      <?php } ?>
+    <?php } ?>
+  </div>
+  <?php } elseif ($tournament === null) { ?>
+    <p class="k2-amiga-live-ops__muted">Tournament not found.</p>
+  <?php } elseif ($lifecycle !== null) { ?>
     <div class="k2-amiga-live-ops__section" style="padding:.75rem 1rem;border:1px solid var(--k2-border-subtle);border-radius:var(--k2-radius-md);max-width:42rem">
       <h3>Tournament lifecycle</h3>
       <dl style="display:grid;grid-template-columns:auto 1fr;gap:.25rem 1rem;margin:0">
@@ -2171,6 +2622,10 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
           <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
           <input type="hidden" name="action" value="set_lifecycle_status">
           <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+          <input type="hidden" name="view" value="setup">
+          <?php if ($status !== '') { ?>
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+          <?php } ?>
           <label>Transition to
             <select name="lifecycle_status" required>
               <?php foreach ($lifecycleTargets as $target) { ?>
@@ -2190,6 +2645,9 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
       <?php } ?>
     </div>
   <?php } ?>
+<?php } ?>
+
+<?php if ($view === 'players' && $tournamentId > 0 && $tournament !== null) { ?>
   <?php if ($entrantOpsEligible) {
       $canRegisterEntrants = $lifecycle !== null
           && in_array($lifecycle['lifecycle_status'], AMIGA_FIXTURE_ENTRANT_REGISTRATION_LIFECYCLES, true);
@@ -2240,19 +2698,24 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
                   <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
                   <input type="hidden" name="action" value="withdraw_entrant">
                   <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                  <input type="hidden" name="view" value="players">
+                  <?php if ($status !== '') { ?>
+                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                  <?php } ?>
                   <input type="hidden" name="player_id" value="<?php echo (int) $entrantRow['player_id']; ?>">
                   <input type="text" name="note" maxlength="120" placeholder="note (optional)" aria-label="Withdrawal note for player <?php echo (int) $entrantRow['player_id']; ?>">
                   <button type="submit">Withdraw</button>
                 </form>
                 <?php
-                $replaceUrl = $self
-                    . '?once=' . rawurlencode($key)
-                    . '&pwd=' . rawurlencode($pwdValue)
-                    . '&tournament_id=' . (int) $tournamentId
-                    . '&replace_player_id=' . (int) $entrantRow['player_id'];
-                if ($status !== '') {
-                    $replaceUrl .= '&status=' . rawurlencode($status);
-                }
+                $replaceUrl = amiga_fixture_ops_url(
+                    $self,
+                    $key,
+                    $pwdValue,
+                    $tournamentId,
+                    'players',
+                    $status,
+                    ['replace_player_id' => (int) $entrantRow['player_id']]
+                );
                 ?>
                 <a href="<?php echo htmlspecialchars($replaceUrl, ENT_QUOTES, 'UTF-8'); ?>">Replace…</a>
               <?php } else { ?>
@@ -2276,6 +2739,7 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
       <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+      <input type="hidden" name="view" value="players">
       <?php if ($status !== '') { ?>
         <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
       <?php } ?>
@@ -2287,13 +2751,7 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
       </label>
       <button type="submit">Search</button>
       <?php if ($replacePlayerId > 0) {
-          $cancelReplaceUrl = $self
-              . '?once=' . rawurlencode($key)
-              . '&pwd=' . rawurlencode($pwdValue)
-              . '&tournament_id=' . (int) $tournamentId;
-          if ($status !== '') {
-              $cancelReplaceUrl .= '&status=' . rawurlencode($status);
-          }
+          $cancelReplaceUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'players', $status);
           ?>
         <a href="<?php echo htmlspecialchars($cancelReplaceUrl, ENT_QUOTES, 'UTF-8'); ?>">Cancel replace</a>
       <?php } ?>
@@ -2325,6 +2783,10 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
                       <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
                       <input type="hidden" name="action" value="replace_entrant">
                       <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                      <input type="hidden" name="view" value="players">
+                      <?php if ($status !== '') { ?>
+                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                      <?php } ?>
                       <input type="hidden" name="old_player_id" value="<?php echo (int) $replaceEntrant['player_id']; ?>">
                       <input type="hidden" name="new_player_id" value="<?php echo (int) $playerRow['id']; ?>">
                       <input type="text" name="note" maxlength="120" placeholder="note (optional)" aria-label="Replacement note">
@@ -2340,6 +2802,10 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
                       <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
                       <input type="hidden" name="action" value="add_entrant">
                       <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                      <input type="hidden" name="view" value="players">
+                      <?php if ($status !== '') { ?>
+                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                      <?php } ?>
                       <input type="hidden" name="player_id" value="<?php echo (int) $playerRow['id']; ?>">
                       <input type="number" name="seed_no" min="1" placeholder="seed" aria-label="Seed for player <?php echo (int) $playerRow['id']; ?>">
                       <input type="text" name="note" maxlength="120" placeholder="note (optional)" aria-label="Registration note for player <?php echo (int) $playerRow['id']; ?>">
@@ -2357,6 +2823,30 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
         </div>
       <?php } ?>
     <?php } ?>
+  </div>
+  <?php } elseif ($tournament !== null && $tournament['source_id'] !== null) { ?>
+    <p class="k2-amiga-live-ops__muted">Imported historical tournament — entrant management is CLI-only.</p>
+  <?php } ?>
+<?php } ?>
+
+<?php if ($view === 'advanced' && $tournamentId > 0 && $tournament !== null) { ?>
+  <div class="k2-amiga-live-ops__section">
+    <h3>Fixture status filter</h3>
+    <form class="k2-amiga-live-ops__inline-form" method="get" action="<?php echo $self; ?>">
+      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+      <input type="hidden" name="view" value="advanced">
+      <label>Status
+        <select name="status">
+          <?php foreach (['' => 'All', 'scheduled' => 'Scheduled', 'played' => 'Played', 'void' => 'Void'] as $value => $label) { ?>
+            <option value="<?php echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $status === $value ? ' selected' : ''; ?>><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></option>
+          <?php } ?>
+        </select>
+      </label>
+      <button type="submit">Apply filter</button>
+    </form>
+    <p class="k2-amiga-live-ops__muted">Fixture assignment forms remain on the Fixtures tab for this slice.</p>
   </div>
   <?php if ($stageOpsEligible) {
       $canPlaceStageEntrants = $lifecycle !== null
@@ -2406,6 +2896,10 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
           <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
           <input type="hidden" name="action" value="place_stage_entrant">
           <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+          <input type="hidden" name="view" value="advanced">
+          <?php if ($status !== '') { ?>
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+          <?php } ?>
           <label>Stage
             <select name="stage_id" required>
               <?php foreach ($stages as $stageRow) { ?>
@@ -2440,10 +2934,12 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
     <?php } ?>
   </div>
   <?php } ?>
-  <?php } elseif ($tournament !== null && $tournament['source_id'] !== null) { ?>
-    <p class="k2-amiga-live-ops__muted">Imported historical tournament — entrant management is CLI-only.</p>
-  <?php } ?>
-  <p class="k2-amiga-live-ops__muted"><?php echo count($fixtures); ?> fixture<?php echo count($fixtures) === 1 ? '' : 's'; ?> shown.</p>
+<?php } ?>
+
+<?php if ($view === 'fixtures' && $tournamentId > 0 && $tournament !== null) { ?>
+  <div class="k2-amiga-live-ops__section">
+    <h2>Fixtures</h2>
+    <p class="k2-amiga-live-ops__muted"><?php echo count($fixtures); ?> fixture<?php echo count($fixtures) === 1 ? '' : 's'; ?> shown. Use the Advanced tab for fixture status filtering.</p>
   <div class="k2-table-wrap">
   <table class="k2-table k2-table--calm-stats">
     <thead>
@@ -2473,6 +2969,10 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
               <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="action" value="assign_players">
               <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+              <input type="hidden" name="view" value="fixtures">
+              <?php if ($status !== '') { ?>
+                <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+              <?php } ?>
               <input type="hidden" name="fixture_id" value="<?php echo (int) $row['id']; ?>">
               <?php if ($useStagePlayerSelects) { ?>
                 <label class="k2-amiga-live-ops__muted">Player A
@@ -2520,6 +3020,10 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
                   <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
                   <input type="hidden" name="action" value="record_result">
                   <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                  <input type="hidden" name="view" value="fixtures">
+                  <?php if ($status !== '') { ?>
+                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                  <?php } ?>
                   <input type="hidden" name="fixture_id" value="<?php echo (int) $row['id']; ?>">
                   <input type="number" name="goals_a" min="0" max="99" required aria-label="Goals A">
                   <span>-</span>
@@ -2545,6 +3049,10 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
     </tbody>
   </table>
   </div>
+  </div>
+<?php } ?>
+
+<?php if ($view === 'table' && $tournamentId > 0 && $tournament !== null) { ?>
   <div class="k2-amiga-live-ops__section">
     <h2>Overall standings</h2>
     <?php if ($standingsRows === []) { ?>
@@ -2578,6 +3086,16 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
   </div>
 <?php } ?>
 
+<?php if ($view === 'results' && $tournamentId > 0 && $tournament !== null) { ?>
+  <div class="k2-amiga-live-ops__section">
+    <h2>Results</h2>
+    <p class="k2-amiga-live-ops__muted">Dedicated result entry arrives in a later slice. For now, enter scores on the <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'fixtures', $status), ENT_QUOTES, 'UTF-8'); ?>">Fixtures</a> tab when the tournament lifecycle is <strong>running</strong>.</p>
+  </div>
+<?php } ?>
+
+</div><!-- .k2-amiga-organizer-panel -->
+
+<?php if ($view === 'setup' && $tournamentId <= 0) { ?>
 <div class="k2-amiga-live-ops__section">
   <h2>Generated fixture-backed tournaments</h2>
   <?php if ($generatedTournaments === []) { ?>
@@ -2590,10 +3108,7 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
       </thead>
       <tbody>
       <?php foreach ($generatedTournaments as $row) {
-          $viewUrl = $self
-              . '?once=' . rawurlencode($key)
-              . '&pwd=' . rawurlencode($pwdValue)
-              . '&tournament_id=' . (int) $row['id'];
+          $viewUrl = amiga_fixture_ops_url($self, $key, $pwdValue, (int) $row['id'], 'fixtures');
           ?>
         <tr>
           <td class="k2-table-cell--left"><?php echo (int) $row['id']; ?></td>
@@ -2602,7 +3117,7 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
           <td><?php echo (int) $row['stage_count']; ?></td>
           <td><?php echo (int) $row['fixture_count']; ?></td>
           <td><?php echo (int) $row['game_count']; ?></td>
-          <td class="k2-table-cell--left"><a href="<?php echo htmlspecialchars($viewUrl, ENT_QUOTES, 'UTF-8'); ?>">view fixtures</a></td>
+          <td class="k2-table-cell--left"><a href="<?php echo htmlspecialchars($viewUrl, ENT_QUOTES, 'UTF-8'); ?>">Open</a></td>
         </tr>
       <?php } ?>
       </tbody>
@@ -2610,5 +3125,6 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
     </div>
   <?php } ?>
 </div>
+<?php } ?>
 </div>
 <?php amiga_fixture_render_chrome_end();
