@@ -93,7 +93,8 @@ None. Presentation-only read helpers; no new tables or writes.
 
 ## Commit hash and push target
 
-_To be filled after commit/push._
+- Commit: `41f8d22`
+- Push target: `origin/main`
 
 ## Recommended next steps
 
