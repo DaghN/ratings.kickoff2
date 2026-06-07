@@ -115,6 +115,11 @@ python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Ki
 # Real create, then verify before entering results in a later workflow.
 python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Kitchen I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4
 python -m scripts.amiga build-tournament verify-built --tournament-id N
+
+# Fixture-backed result entry creates one canonical game and marks the fixture played.
+python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2 --dry-run
+python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2
+php site/public_html/amiga/ops/run_process_game.php process-one --game-id=G
 ```
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).

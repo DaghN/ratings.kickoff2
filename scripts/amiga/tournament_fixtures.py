@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timedelta, timezone
 import json
 import sys
 from typing import Any
@@ -14,6 +15,7 @@ from scripts.amiga.config import load_amiga_db_config
 
 VALID_STAGE_TYPES = {"league", "group", "knockout", "placement", "other"}
 VALID_FIXTURE_STATUSES = {"scheduled", "played", "void"}
+LIVE_SOURCE_SCORES_ID_BASE = 1_000_000_000
 
 
 def _connect() -> pymysql.connections.Connection:
@@ -69,6 +71,41 @@ def _parse_json_object(raw: str | None) -> dict[str, Any] | None:
     if not isinstance(value, dict):
         raise ValueError("JSON config must be an object")
     return value
+
+
+def _parse_played_at(raw: str | None) -> datetime | None:
+    if raw is None or raw.strip() == "":
+        return None
+    text = raw.strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    dt = datetime.fromisoformat(text)
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+    return dt
+
+
+def _next_live_source_scores_id(conn: pymysql.connections.Connection) -> int:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT COALESCE(MAX(source_scores_id), %s - 1) AS max_id
+            FROM amiga_games
+            WHERE source_scores_id >= %s
+            """,
+            (LIVE_SOURCE_SCORES_ID_BASE, LIVE_SOURCE_SCORES_ID_BASE),
+        )
+        return int(cur.fetchone()["max_id"]) + 1
+
+
+def _next_append_only_game_date(conn: pymysql.connections.Connection) -> datetime:
+    with conn.cursor() as cur:
+        cur.execute("SELECT MAX(game_date) AS max_game_date FROM amiga_games")
+        row = cur.fetchone()
+    max_game_date = row["max_game_date"] if row else None
+    if isinstance(max_game_date, datetime):
+        return max_game_date + timedelta(seconds=1)
+    return datetime.now(tz=timezone.utc).replace(tzinfo=None, microsecond=0)
 
 
 def create_stage(
@@ -246,6 +283,75 @@ def attach_game_to_fixture(
         cur.execute("UPDATE tournament_fixtures SET status = 'played' WHERE id = %s", (fixture_id,))
 
 
+def record_fixture_result(
+    conn: pymysql.connections.Connection,
+    *,
+    fixture_id: int,
+    goals_a: int,
+    goals_b: int,
+    extra: str | None = None,
+    played_at: datetime | None = None,
+) -> int:
+    if goals_a < 0 or goals_b < 0:
+        raise ValueError("goals must be non-negative")
+    fixture = _load_one(
+        conn,
+        """
+        SELECT f.id, f.player_a_id, f.player_b_id, f.status, f.phase_label, s.tournament_id
+        FROM tournament_fixtures f
+        INNER JOIN tournament_stages s ON s.id = f.stage_id
+        WHERE f.id = %s
+        """,
+        (fixture_id,),
+    )
+    if fixture is None:
+        raise ValueError(f"fixture_id={fixture_id} not found")
+    if fixture["status"] != "scheduled":
+        raise ValueError(f"fixture_id={fixture_id} status is {fixture['status']!r}, expected 'scheduled'")
+    player_a_id = fixture["player_a_id"]
+    player_b_id = fixture["player_b_id"]
+    if player_a_id is None or player_b_id is None:
+        raise ValueError("fixture must have both players before result entry")
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = %s", (fixture_id,))
+        if int(cur.fetchone()["n"]) > 0:
+            raise ValueError(f"fixture_id={fixture_id} already has an attached game")
+
+    game_date = played_at or _next_append_only_game_date(conn)
+    last_game_date = _next_append_only_game_date(conn) - timedelta(seconds=1)
+    if game_date <= last_game_date:
+        raise ValueError(f"played_at={game_date.isoformat(sep=' ')} is not after last game_date")
+
+    source_scores_id = _next_live_source_scores_id(conn)
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO amiga_games
+              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, fixture_id,
+               phase, goals_a, goals_b, extra)
+            VALUES
+              (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
+               %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
+            """,
+            {
+                "source_scores_id": source_scores_id,
+                "game_date": game_date.strftime("%Y-%m-%d %H:%M:%S"),
+                "player_a_id": int(player_a_id),
+                "player_b_id": int(player_b_id),
+                "tournament_id": int(fixture["tournament_id"]),
+                "fixture_id": fixture_id,
+                "phase": fixture["phase_label"],
+                "goals_a": goals_a,
+                "goals_b": goals_b,
+                "extra": extra.strip() if extra and extra.strip() else None,
+            },
+        )
+        game_id = int(cur.lastrowid)
+        cur.execute("UPDATE tournament_fixtures SET status = 'played' WHERE id = %s", (fixture_id,))
+    return game_id
+
+
 def audit_fixture_integrity(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
     with conn.cursor() as cur:
@@ -281,6 +387,22 @@ def audit_fixture_integrity(conn: pymysql.connections.Connection) -> list[str]:
         )
         for row in cur.fetchall():
             errors.append(f"game {row['game_id']} players do not match fixture players")
+
+        cur.execute(
+            """
+            SELECT f.id AS fixture_id, f.status, COUNT(g.id) AS game_count
+            FROM tournament_fixtures f
+            LEFT JOIN amiga_games g ON g.fixture_id = f.id
+            GROUP BY f.id, f.status
+            HAVING (f.status = 'played' AND game_count <> 1)
+                OR (f.status = 'scheduled' AND game_count <> 0)
+            ORDER BY f.id
+            """
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"fixture {row['fixture_id']} status {row['status']!r} has {row['game_count']} game(s)"
+            )
     return errors
 
 
@@ -330,6 +452,14 @@ def main(argv: list[str] | None = None) -> int:
     p_attach = sub.add_parser("attach-game", help="Attach an existing game to a fixture")
     p_attach.add_argument("--game-id", type=int, required=True)
     p_attach.add_argument("--fixture-id", type=int, required=True)
+
+    p_record = sub.add_parser("record-result", help="Create one canonical game row from a scheduled fixture")
+    p_record.add_argument("--fixture-id", type=int, required=True)
+    p_record.add_argument("--goals-a", type=int, required=True)
+    p_record.add_argument("--goals-b", type=int, required=True)
+    p_record.add_argument("--extra", default=None)
+    p_record.add_argument("--played-at", default=None, help="UTC ISO timestamp; defaults to last game_date + 1s")
+    p_record.add_argument("--dry-run", action="store_true")
 
     args = parser.parse_args(argv)
     conn = _connect()
@@ -394,6 +524,23 @@ def main(argv: list[str] | None = None) -> int:
             attach_game_to_fixture(conn, game_id=args.game_id, fixture_id=args.fixture_id)
             conn.commit()
             print("OK: game attached to fixture")
+            return 0
+
+        if args.cmd == "record-result":
+            game_id = record_fixture_result(
+                conn,
+                fixture_id=args.fixture_id,
+                goals_a=args.goals_a,
+                goals_b=args.goals_b,
+                extra=args.extra,
+                played_at=_parse_played_at(args.played_at),
+            )
+            if args.dry_run:
+                conn.rollback()
+                print("DRY RUN: rolled back")
+            else:
+                conn.commit()
+            print(f"game_id={game_id}")
             return 0
     finally:
         conn.close()
