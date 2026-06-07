@@ -536,18 +536,27 @@ def attach_game_to_fixture(
     *,
     game_id: int,
     fixture_id: int,
-) -> None:
+    dry_run: bool = False,
+) -> dict[str, Any]:
     game = _load_one(
         conn,
-        "SELECT id, tournament_id, player_a_id, player_b_id FROM amiga_games WHERE id = %s",
+        "SELECT id, tournament_id, player_a_id, player_b_id, fixture_id FROM amiga_games WHERE id = %s",
         (game_id,),
     )
     if game is None:
         raise ValueError(f"game_id={game_id} not found")
+    existing_fixture_id = game.get("fixture_id")
+    if existing_fixture_id is not None:
+        if int(existing_fixture_id) == fixture_id:
+            raise ValueError(f"game_id={game_id} is already attached to fixture_id={fixture_id}")
+        raise ValueError(
+            f"game_id={game_id} is already attached to fixture_id={existing_fixture_id}"
+        )
+
     fixture = _load_one(
         conn,
         """
-        SELECT f.id, f.player_a_id, f.player_b_id, s.tournament_id
+        SELECT f.id, f.player_a_id, f.player_b_id, f.status, s.tournament_id
         FROM tournament_fixtures f
         INNER JOIN tournament_stages s ON s.id = f.stage_id
         WHERE f.id = %s
@@ -556,17 +565,51 @@ def attach_game_to_fixture(
     )
     if fixture is None:
         raise ValueError(f"fixture_id={fixture_id} not found")
-    if int(game["tournament_id"]) != int(fixture["tournament_id"]):
+
+    tournament_id = int(fixture["tournament_id"])
+    if int(game["tournament_id"]) != tournament_id:
         raise ValueError("game and fixture belong to different tournaments")
 
-    fixture_players = {fixture["player_a_id"], fixture["player_b_id"]} - {None}
-    game_players = {int(game["player_a_id"]), int(game["player_b_id"])}
-    if fixture_players and {int(pid) for pid in fixture_players} != game_players:
-        raise ValueError("game players do not match fixture players")
+    fixture_status = str(fixture["status"])
+    if fixture_status == "void":
+        raise ValueError(f"fixture_id={fixture_id} status is 'void'; attachment refused")
+    if fixture_status == "played":
+        raise ValueError(f"fixture_id={fixture_id} status is 'played'; attachment refused")
+    if fixture_status != "scheduled":
+        raise ValueError(f"fixture_id={fixture_id} status is {fixture_status!r}, expected 'scheduled'")
 
     with conn.cursor() as cur:
-        cur.execute("UPDATE amiga_games SET fixture_id = %s WHERE id = %s", (fixture_id, game_id))
-        cur.execute("UPDATE tournament_fixtures SET status = 'played' WHERE id = %s", (fixture_id,))
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = %s", (fixture_id,))
+        if int(cur.fetchone()["n"]) > 0:
+            raise ValueError(f"fixture_id={fixture_id} already has an attached game")
+
+    game_player_a = int(game["player_a_id"])
+    game_player_b = int(game["player_b_id"])
+    game_players = {game_player_a, game_player_b}
+
+    fixture_players = {fixture["player_a_id"], fixture["player_b_id"]} - {None}
+    if not fixture_players:
+        raise ValueError(f"fixture_id={fixture_id} has no players assigned; use set-players first")
+    if {int(pid) for pid in fixture_players} != game_players:
+        raise ValueError("game players do not match fixture players")
+
+    _require_lifecycle_allows_result_entry(conn, tournament_id=tournament_id)
+    _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=game_player_a)
+    _require_active_tournament_entrant(conn, tournament_id=tournament_id, player_id=game_player_b)
+
+    if not dry_run:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE amiga_games SET fixture_id = %s WHERE id = %s", (fixture_id, game_id))
+            cur.execute("UPDATE tournament_fixtures SET status = 'played' WHERE id = %s", (fixture_id,))
+
+    return {
+        "dry_run": dry_run,
+        "game_id": game_id,
+        "fixture_id": fixture_id,
+        "tournament_id": tournament_id,
+        "player_a_id": game_player_a,
+        "player_b_id": game_player_b,
+    }
 
 
 def set_fixture_players(
@@ -1746,6 +1789,45 @@ def audit_fixture_integrity(conn: pymysql.connections.Connection) -> list[str]:
             errors.append(
                 f"fixture {row['fixture_id']} status {row['status']!r} has {row['game_count']} game(s)"
             )
+
+        active_statuses = tuple(sorted(ACTIVE_ENTRANT_STATUSES))
+        placeholders = ", ".join(["%s"] * len(active_statuses))
+        cur.execute(
+            f"""
+            SELECT g.id AS game_id, s.tournament_id, g.player_a_id AS player_id
+            FROM amiga_games g
+            INNER JOIN tournament_fixtures f ON f.id = g.fixture_id
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            WHERE g.player_a_id IS NOT NULL
+              AND NOT EXISTS (
+                SELECT 1
+                FROM tournament_entrants e
+                WHERE e.tournament_id = s.tournament_id
+                  AND e.player_id = g.player_a_id
+                  AND e.status IN ({placeholders})
+              )
+            UNION
+            SELECT g.id AS game_id, s.tournament_id, g.player_b_id AS player_id
+            FROM amiga_games g
+            INNER JOIN tournament_fixtures f ON f.id = g.fixture_id
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            WHERE g.player_b_id IS NOT NULL
+              AND NOT EXISTS (
+                SELECT 1
+                FROM tournament_entrants e
+                WHERE e.tournament_id = s.tournament_id
+                  AND e.player_id = g.player_b_id
+                  AND e.status IN ({placeholders})
+              )
+            ORDER BY game_id, player_id
+            """,
+            (*active_statuses, *active_statuses),
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"game {row['game_id']} player {row['player_id']} is not an active tournament entrant "
+                f"in tournament {row['tournament_id']}"
+            )
     return errors
 
 
@@ -1827,6 +1909,7 @@ def main(argv: list[str] | None = None) -> int:
     p_attach = sub.add_parser("attach-game", help="Attach an existing game to a fixture")
     p_attach.add_argument("--game-id", type=int, required=True)
     p_attach.add_argument("--fixture-id", type=int, required=True)
+    p_attach.add_argument("--dry-run", action="store_true")
 
     p_set_players = sub.add_parser("set-players", help="Assign players to a scheduled fixture")
     p_set_players.add_argument("--fixture-id", type=int, required=True)
@@ -2040,9 +2123,22 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.cmd == "attach-game":
-            attach_game_to_fixture(conn, game_id=args.game_id, fixture_id=args.fixture_id)
-            conn.commit()
-            print("OK: game attached to fixture")
+            summary = attach_game_to_fixture(
+                conn,
+                game_id=args.game_id,
+                fixture_id=args.fixture_id,
+                dry_run=args.dry_run,
+            )
+            if args.dry_run:
+                conn.rollback()
+                print("DRY RUN: rolled back")
+            else:
+                conn.commit()
+            print(
+                f"game_id={summary['game_id']} fixture_id={summary['fixture_id']} "
+                f"tournament_id={summary['tournament_id']} "
+                f"player_a_id={summary['player_a_id']} player_b_id={summary['player_b_id']}"
+            )
             return 0
 
         if args.cmd == "set-players":

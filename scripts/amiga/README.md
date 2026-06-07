@@ -156,10 +156,13 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
 # record-result requires lifecycle_status=running and both players to be active (registered) entrants.
+# attach-game links an existing unattached game to a scheduled fixture with the same players;
+# requires lifecycle_status=running, active entrants, fixture players already set, and no existing attachment.
 # set-players requires active entrants but does not require running lifecycle.
 python -m scripts.amiga fixtures list --tournament-id N
 python -m scripts.amiga fixtures detail --fixture-id F
 python -m scripts.amiga fixtures set-players --fixture-id F --player-a-id 1 --player-b-id 2 --dry-run
+python -m scripts.amiga fixtures attach-game --game-id G --fixture-id F --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2 --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2
 php site/public_html/amiga/ops/run_process_game.php process-one --game-id=G
