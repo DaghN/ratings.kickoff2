@@ -127,7 +127,7 @@ The orchestrator should usually prioritize making important global checks green 
 
 ## Current strategic priority
 
-**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001-011) are complete, the Dagh-assisted staging refresh is recorded in job 012, the read-only public live view landed in job 013, and browser ops parity for entrants/stages/fixture assignment landed in jobs 014-017. Worker 018 defined the organizer-first browser workflow, and worker 019 added the first organizer shell/navigation slice. Next work should replace raw lifecycle controls with friendly organizer actions.
+**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001-011) are complete, the Dagh-assisted staging refresh is recorded in job 012, the read-only public live view landed in job 013, and browser ops parity for entrants/stages/fixture assignment landed in jobs 014-017. Workers 018-020 are turning the ops page into an organizer-first workflow. Next work should make Fixtures and Table useful as pre-tournament preview surfaces.
 
 Immediate priority order:
 
@@ -139,9 +139,10 @@ Immediate priority order:
 6. ~~**Fixture-stage assignment guardrail**~~ — require slot assignments to use players from the fixture's exact stage. See [`agent-handoffs/2026-06-08-017-fixture-stage-assignment-guardrail.md`](agent-handoffs/2026-06-08-017-fixture-stage-assignment-guardrail.md).
 7. ~~**Browser organizer workflow checkpoint**~~ — design the normal create/select players/preview/start/enter-results flow before more edge-case work. See [`browser-organizer-workflow-checkpoint.md`](browser-organizer-workflow-checkpoint.md).
 8. ~~**Browser organizer shell**~~ — tabs, create redirect, and player picker for league creation. See [`agent-handoffs/2026-06-08-019-browser-organizer-shell.md`](agent-handoffs/2026-06-08-019-browser-organizer-shell.md).
-9. **Friendly organizer lifecycle** — Start/Complete actions and friendly status labels. See [`prompt-020-browser-friendly-lifecycle.md`](prompt-020-browser-friendly-lifecycle.md).
-10. **Staging/code refresh and ops smoke** — Dagh syncs `site/public_html/` to staging, then spot-checks live public and ops flows.
-11. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
+9. ~~**Friendly organizer lifecycle**~~ — Start/Complete actions and friendly status labels. See [`agent-handoffs/2026-06-08-020-browser-friendly-lifecycle.md`](agent-handoffs/2026-06-08-020-browser-friendly-lifecycle.md).
+10. **Fixtures and table preview** — readable schedule and empty league table from entrants. See [`prompt-021-browser-fixtures-table-preview.md`](prompt-021-browser-fixtures-table-preview.md).
+11. **Staging/code refresh and ops smoke** — Dagh syncs `site/public_html/` to staging, then spot-checks live public and ops flows.
+12. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
 
 Completed foundation (do not re-delegate unless regressions appear):
 
