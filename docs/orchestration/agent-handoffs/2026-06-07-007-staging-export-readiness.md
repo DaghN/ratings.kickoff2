@@ -84,7 +84,7 @@ mysql -u root -N -B -e "SELECT COUNT(*) players, (SELECT COUNT(*) FROM ko2amiga_
 
 ## Commit hash and push target
 
-- Commit: `ce4d58c` — Refresh Amiga staging export manifest.
+- Commit: `3872265` — Refresh Amiga staging export manifest.
 - Branch: `main`
 - Remote: `origin/main`
 
