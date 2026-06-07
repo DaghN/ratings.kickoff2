@@ -84,7 +84,7 @@ python -m scripts.amiga fixtures backfill-entrants --dry-run
 
 ## Commit hash and push target
 
-- Implementation commit: *(filled after commit)*
+- Implementation commit: `1f7f77238f4e2047fc2c7be17427506805bbacee`
 - Push target: `origin/main`
 
 ## Recommended next steps
