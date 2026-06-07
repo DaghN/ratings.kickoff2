@@ -127,6 +127,230 @@ function amiga_fixture_require_player(mysqli $con, int $playerId): void
     }
 }
 
+/** @var list<string> */
+const AMIGA_FIXTURE_VALID_LIFECYCLE_STATUSES = [
+    'draft',
+    'registration',
+    'ready',
+    'running',
+    'completed',
+    'archived',
+    'void',
+];
+
+/** @var list<string> */
+const AMIGA_FIXTURE_IMPORTED_LIFECYCLE_STATUSES = ['completed', 'archived'];
+
+/**
+ * @return array{id:int,name:string,source_id:?int,lifecycle_status:string,started_at:?string,completed_at:?string}|null
+ */
+function amiga_fixture_load_lifecycle(mysqli $con, int $tournamentId): ?array
+{
+    $stmt = $con->prepare(
+        'SELECT id, name, source_id, lifecycle_status, started_at, completed_at '
+        . 'FROM tournaments WHERE id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare lifecycle load: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute lifecycle load: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    if ($row === null) {
+        return null;
+    }
+
+    return [
+        'id' => (int) $row['id'],
+        'name' => (string) $row['name'],
+        'source_id' => $row['source_id'] !== null ? (int) $row['source_id'] : null,
+        'lifecycle_status' => (string) $row['lifecycle_status'],
+        'started_at' => $row['started_at'] !== null ? (string) $row['started_at'] : null,
+        'completed_at' => $row['completed_at'] !== null ? (string) $row['completed_at'] : null,
+    ];
+}
+
+function amiga_fixture_count_scheduled_fixtures(mysqli $con, int $tournamentId): int
+{
+    $stmt = $con->prepare(
+        'SELECT COUNT(*) AS n '
+        . 'FROM tournament_fixtures f '
+        . 'INNER JOIN tournament_stages s ON s.id = f.stage_id '
+        . 'WHERE s.tournament_id = ? AND f.status = ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare scheduled fixture count: ' . $con->error);
+    }
+    $scheduled = 'scheduled';
+    $stmt->bind_param('is', $tournamentId, $scheduled);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute scheduled fixture count: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+
+    return (int) ($row['n'] ?? 0);
+}
+
+function amiga_fixture_count_tournament_games(mysqli $con, int $tournamentId): int
+{
+    $stmt = $con->prepare('SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = ?');
+    if ($stmt === false) {
+        throw new RuntimeException('prepare tournament game count: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute tournament game count: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+
+    return (int) ($row['n'] ?? 0);
+}
+
+/**
+ * @param array{id:int,name:string,source_id:?int,lifecycle_status:string,started_at:?string,completed_at:?string} $lifecycle
+ * @return list<string>
+ */
+function amiga_fixture_browser_allowed_lifecycle_targets(mysqli $con, array $lifecycle): array
+{
+    if ($lifecycle['source_id'] !== null) {
+        return [];
+    }
+
+    $current = $lifecycle['lifecycle_status'];
+    $tournamentId = $lifecycle['id'];
+    if ($current === 'draft') {
+        return ['ready'];
+    }
+    if ($current === 'ready') {
+        return ['running'];
+    }
+    if ($current === 'running') {
+        $targets = [];
+        if (amiga_fixture_count_scheduled_fixtures($con, $tournamentId) === 0) {
+            $targets[] = 'completed';
+        }
+        if (amiga_fixture_count_tournament_games($con, $tournamentId) === 0) {
+            $targets[] = 'void';
+        }
+
+        return $targets;
+    }
+
+    return [];
+}
+
+/**
+ * @return array{
+ *   tournament_id:int,
+ *   previous_status:string,
+ *   lifecycle_status:string,
+ *   changed:bool,
+ *   started_at:?string,
+ *   completed_at:?string,
+ *   unplayed_scheduled_fixtures:int
+ * }
+ */
+function amiga_fixture_set_lifecycle_status(mysqli $con, int $tournamentId, string $status): array
+{
+    if (!in_array($status, AMIGA_FIXTURE_VALID_LIFECYCLE_STATUSES, true)) {
+        throw new RuntimeException(
+            'lifecycle_status must be one of: ' . implode(', ', AMIGA_FIXTURE_VALID_LIFECYCLE_STATUSES) . '.'
+        );
+    }
+
+    $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+    if ($lifecycle === null) {
+        throw new RuntimeException("Tournament {$tournamentId} not found.");
+    }
+
+    $current = $lifecycle['lifecycle_status'];
+    if ($current === $status) {
+        return [
+            'tournament_id' => $tournamentId,
+            'previous_status' => $current,
+            'lifecycle_status' => $status,
+            'changed' => false,
+            'started_at' => $lifecycle['started_at'],
+            'completed_at' => $lifecycle['completed_at'],
+            'unplayed_scheduled_fixtures' => 0,
+        ];
+    }
+
+    if ($lifecycle['source_id'] !== null) {
+        throw new RuntimeException(
+            "Tournament {$tournamentId} is an imported historical tournament; "
+            . 'lifecycle changes are not allowed in the browser ops page.'
+        );
+    }
+
+    $allowed = amiga_fixture_browser_allowed_lifecycle_targets($con, $lifecycle);
+    if (!in_array($status, $allowed, true)) {
+        throw new RuntimeException(
+            "Tournament {$tournamentId} lifecycle_status is '{$current}'; "
+            . "browser transition to '{$status}' is not allowed."
+        );
+    }
+
+    $unplayed = 0;
+    if ($status === 'completed') {
+        $unplayed = amiga_fixture_count_scheduled_fixtures($con, $tournamentId);
+        if ($unplayed > 0) {
+            throw new RuntimeException(
+                "Tournament {$tournamentId} has {$unplayed} scheduled fixture(s); "
+                . 'refusing transition to completed.'
+            );
+        }
+    }
+    if ($status === 'void') {
+        $gameCount = amiga_fixture_count_tournament_games($con, $tournamentId);
+        if ($gameCount > 0) {
+            throw new RuntimeException(
+                "Tournament {$tournamentId} has {$gameCount} game(s); refusing transition to void."
+            );
+        }
+    }
+
+    $startedAt = $lifecycle['started_at'];
+    $completedAt = $lifecycle['completed_at'];
+    $now = gmdate('Y-m-d H:i:s');
+    if ($status === 'running' && $startedAt === null) {
+        $startedAt = $now;
+    }
+    if (in_array($status, ['completed', 'archived'], true) && $completedAt === null) {
+        $completedAt = $now;
+    }
+
+    $stmt = $con->prepare(
+        'UPDATE tournaments SET lifecycle_status = ?, started_at = ?, completed_at = ? WHERE id = ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare lifecycle update: ' . $con->error);
+    }
+    $stmt->bind_param('sssi', $status, $startedAt, $completedAt, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute lifecycle update: ' . $stmt->error);
+    }
+    $stmt->close();
+
+    return [
+        'tournament_id' => $tournamentId,
+        'previous_status' => $current,
+        'lifecycle_status' => $status,
+        'changed' => true,
+        'started_at' => $startedAt,
+        'completed_at' => $completedAt,
+        'unplayed_scheduled_fixtures' => $unplayed,
+    ];
+}
+
 function amiga_fixture_require_running_lifecycle(mysqli $con, int $tournamentId): void
 {
     $stmt = $con->prepare(
@@ -622,6 +846,9 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $con->query("SET time_zone = '+00:00'");
 
 $tournament = null;
+$lifecycle = null;
+/** @var list<string> */
+$lifecycleTargets = [];
 $fixtures = [];
 $standingsRows = [];
 $generatedTournaments = [];
@@ -677,6 +904,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['tournament_id'])) {
                 $tournamentId = max(0, (int) $_POST['tournament_id']);
             }
+        } elseif ($action === 'set_lifecycle_status') {
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            if ($tournamentId <= 0) {
+                throw new RuntimeException('Missing tournament id.');
+            }
+            $newStatus = trim((string) ($_POST['lifecycle_status'] ?? ''));
+            $summary = amiga_fixture_set_lifecycle_status($con, $tournamentId, $newStatus);
+            if (!$summary['changed']) {
+                $flash = "Tournament #{$tournamentId} is already {$newStatus}.";
+            } else {
+                $flash = "Tournament #{$tournamentId} lifecycle: {$summary['previous_status']} → {$newStatus}.";
+            }
         } else {
             throw new RuntimeException('Unknown action.');
         }
@@ -715,12 +954,22 @@ if ($res) {
 }
 
 if ($tournamentId > 0) {
-    $stmt = $con->prepare('SELECT id, name, event_date FROM tournaments WHERE id = ?');
+    $stmt = $con->prepare(
+        'SELECT id, name, event_date, source_id, lifecycle_status, started_at, completed_at '
+        . 'FROM tournaments WHERE id = ?'
+    );
     $stmt->bind_param('i', $tournamentId);
     $stmt->execute();
     $res = $stmt->get_result();
     $tournament = $res ? $res->fetch_assoc() : null;
     $stmt->close();
+
+    if ($tournament !== null) {
+        $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+        if ($lifecycle !== null) {
+            $lifecycleTargets = amiga_fixture_browser_allowed_lifecycle_targets($con, $lifecycle);
+        }
+    }
 
     $sql = "
         SELECT f.id, f.fixture_key, f.leg_no, f.status, f.phase_label,
@@ -789,6 +1038,10 @@ a{color:#1d4ed8}.section{margin-top:1.5rem}
 .flash{padding:.65rem .8rem;margin:1rem 0;border-radius:.4rem;background:#ecfdf3;color:#027a48}
 .flash--error{background:#fef3f2;color:#b42318}
 .muted{color:#667085}.pill{display:inline-block;padding:.1rem .45rem;border-radius:999px;background:#eef2ff}
+.lifecycle-panel{padding:.75rem 1rem;border:1px solid #e4e7ec;border-radius:.5rem;background:#f9fafb;max-width:42rem}
+.lifecycle-panel dl{display:grid;grid-template-columns:auto 1fr;gap:.25rem 1rem;margin:0}
+.lifecycle-form{display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;margin-top:.75rem}
+.lifecycle-form label{display:flex;flex-direction:column;gap:.2rem}
 input,select,button{padding:.4rem;font-size:1rem}
 .score-form{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap}
 .score-form input[type=number]{width:4.5rem}
@@ -856,6 +1109,44 @@ input,select,button{padding:.4rem;font-size:1rem}
   <p class="muted">Tournament not found.</p>
 <?php } else { ?>
   <h2><?php echo k2_h((string) $tournament['name']); ?> <span class="muted">#<?php echo (int) $tournament['id']; ?></span></h2>
+  <?php if ($lifecycle !== null) { ?>
+    <div class="section lifecycle-panel">
+      <h3>Tournament lifecycle</h3>
+      <dl>
+        <dt>Status</dt>
+        <dd><span class="pill"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></dd>
+        <dt>Started</dt>
+        <dd><?php echo $lifecycle['started_at'] !== null ? k2_h($lifecycle['started_at']) : '<span class="muted">not set</span>'; ?></dd>
+        <dt>Completed</dt>
+        <dd><?php echo $lifecycle['completed_at'] !== null ? k2_h($lifecycle['completed_at']) : '<span class="muted">not set</span>'; ?></dd>
+      </dl>
+      <?php if ($lifecycle['source_id'] !== null) { ?>
+        <p class="muted">Imported historical tournament — lifecycle changes are CLI-only.</p>
+      <?php } elseif ($lifecycleTargets !== []) { ?>
+        <form class="lifecycle-form" method="post" action="<?php echo $self; ?>">
+          <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="action" value="set_lifecycle_status">
+          <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+          <label>Transition to
+            <select name="lifecycle_status" required>
+              <?php foreach ($lifecycleTargets as $target) { ?>
+                <option value="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?></option>
+              <?php } ?>
+            </select>
+          </label>
+          <button type="submit">Apply lifecycle transition</button>
+        </form>
+      <?php } elseif ($lifecycle['lifecycle_status'] === 'running') { ?>
+        <p class="muted">No browser transitions available: complete all scheduled fixtures before marking completed, or use CLI for force transitions.</p>
+      <?php } else { ?>
+        <p class="muted">No browser lifecycle transitions available from this status.</p>
+      <?php } ?>
+      <?php if ($lifecycle['lifecycle_status'] !== 'running') { ?>
+        <p class="muted">Result entry is allowed only when lifecycle status is <strong>running</strong>.</p>
+      <?php } ?>
+    </div>
+  <?php } ?>
   <p class="muted"><?php echo count($fixtures); ?> fixture<?php echo count($fixtures) === 1 ? '' : 's'; ?> shown.</p>
   <table>
     <thead>
@@ -887,7 +1178,13 @@ input,select,button{padding:.4rem;font-size:1rem}
             if ($row['game_id'] !== null) {
                 echo (int) $row['goals_a'] . '-' . (int) $row['goals_b'] . ' ';
                 echo '<span class="muted">game #' . (int) $row['game_id'] . '</span>';
-            } elseif ($row['status'] === 'scheduled' && $row['player_a_id'] !== null && $row['player_b_id'] !== null) {
+            } elseif (
+                $row['status'] === 'scheduled'
+                && $row['player_a_id'] !== null
+                && $row['player_b_id'] !== null
+                && $lifecycle !== null
+                && $lifecycle['lifecycle_status'] === 'running'
+            ) {
                 ?>
                 <form class="score-form" method="post" action="<?php echo $self; ?>">
                   <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
@@ -902,6 +1199,14 @@ input,select,button{padding:.4rem;font-size:1rem}
                   <button type="submit">Record</button>
                 </form>
                 <?php
+            } elseif (
+                $row['status'] === 'scheduled'
+                && $row['player_a_id'] !== null
+                && $row['player_b_id'] !== null
+                && $lifecycle !== null
+                && $lifecycle['lifecycle_status'] !== 'running'
+            ) {
+                echo '<span class="muted">result entry requires running lifecycle</span>';
             } else {
                 echo '<span class="muted">not played</span>';
             }

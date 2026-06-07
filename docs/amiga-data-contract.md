@@ -198,7 +198,8 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - `tournaments.started_at` and `tournaments.completed_at` are nullable UTC timestamps set on transition to `running` and `completed`/`archived` respectively (when not already set).
 - **Defaults:** Access import sets `lifecycle_status = completed` with `completed_at` from `event_date`. Internal builders and `/amiga/ops/fixtures.php` kitchen create set `draft` so generated events do not look like historical imports.
 - **Result entry:** fixture-backed result entry (`fixtures record-result`, browser ops) is allowed only when `lifecycle_status = running`. Refused for `completed`, `archived`, and `void`.
-- **Ops:** `python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status STATUS` with optional `--dry-run` and `--force`. Imported historical tournaments refuse transitions away from `completed`/`archived` without `--force`. Transition to `completed` refuses when scheduled fixtures remain unplayed unless `--force`.
+- **Ops (CLI):** `python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status STATUS` with optional `--dry-run` and `--force`. Imported historical tournaments refuse transitions away from `completed`/`archived` without `--force`. Transition to `completed` refuses when scheduled fixtures remain unplayed unless `--force`.
+- **Ops (browser):** password-gated `/amiga/ops/fixtures.php` shows `lifecycle_status`, `started_at`, and `completed_at` for the selected tournament and offers conservative transitions only: `draft`→`ready`, `ready`→`running`, `running`→`completed` when no scheduled fixtures remain, `running`→`void` when no games exist. Imported Access tournaments refuse all browser lifecycle changes. No `--force` equivalent in the browser; use CLI for forced transitions.
 - **Verify:** `python -m scripts.amiga fixtures verify-lifecycle` (imported rows must be `completed` or `archived`; generated rows with games must not stay in `draft`/`registration`/`ready`).
 
 ### Tournament entrants, stages, and fixtures
@@ -254,7 +255,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 | Tournament format foundation | **In progress** — `tournament_format_templates` + non-exclusive `tournaments.has_league` / `has_cup` import flags |
 | Stage/fixture foundation | **In progress** — ground tables + internal CLI; no public builder UI yet |
 | Tournament entrants foundation | **In progress** — `tournament_entrants` + builder population + verify CLI + withdraw/replace ops |
-| Tournament lifecycle foundation | **In progress** — `lifecycle_status` + internal transition CLI + result-entry guardrails |
+| Tournament lifecycle foundation | **In progress** — `lifecycle_status` + internal transition CLI + browser ops controls + result-entry guardrails |
 | Internal tournament builder | **Started** — `kitchen_marathon` round-robin generator only; no result-entry UI yet |
 
 ---

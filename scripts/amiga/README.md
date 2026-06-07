@@ -139,6 +139,10 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status running
 python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status completed --force
 
+# Browser ops: /amiga/ops/fixtures.php (password-gated) shows lifecycle status and supports
+# draft→ready, ready→running, running→completed (no scheduled fixtures), running→void (no games).
+# Imported tournaments and --force transitions remain CLI-only.
+
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
 # record-result requires lifecycle_status=running and both players to be active (registered) entrants.
 # set-players requires active entrants but does not require running lifecycle.
