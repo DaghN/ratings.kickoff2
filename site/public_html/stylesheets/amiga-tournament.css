@@ -240,6 +240,44 @@
 	}
 }
 
+/* Public read-only live tournament view */
+.k2-amiga-live-view {
+	margin: 0 0 1.25rem;
+}
+
+.k2-amiga-live-view__section {
+	margin: 0 0 1.5rem;
+}
+
+.k2-amiga-live-view__section .k2-panel-heading {
+	margin: 0 1.25rem 0.75rem;
+}
+
+.k2-amiga-live-view__stage-type {
+	margin-left: 0.35rem;
+	font-size: 0.85em;
+	font-weight: normal;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-live-view__placeholder {
+	color: var(--k2-text-secondary);
+	font-style: italic;
+}
+
+.k2-amiga-live-view__row--void td {
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-live-view__void-label {
+	color: var(--k2-text-secondary);
+	font-style: italic;
+}
+
+.k2-amiga-live-view__badge--void {
+	opacity: 0.75;
+}
+
 /* Live tournament ops (fixture manager) — minimal forms inside site chrome */
 .k2-amiga-live-ops {
 	margin: 0 1.25rem 1.25rem;

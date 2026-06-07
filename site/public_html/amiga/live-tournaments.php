@@ -15,90 +15,69 @@ $k2AmigaHubTabActive = 'live-tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 
-$fixtureOpsUrl = '/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee';
-
-/** @var list<array<string, mixed>> */
-$generatedRows = [];
-$res = $con->query(
-    "SELECT t.id, t.name, t.event_date, t.lifecycle_status,
-            COUNT(DISTINCT s.id) AS stage_count,
-            COUNT(DISTINCT f.id) AS fixture_count,
-            COUNT(DISTINCT g.id) AS game_count
-     FROM tournaments t
-     INNER JOIN tournament_stages s ON s.tournament_id = t.id
-     LEFT JOIN tournament_fixtures f ON f.stage_id = s.id
-     LEFT JOIN amiga_games g ON g.fixture_id = f.id
-     WHERE t.source_id IS NULL
-       AND (
-         COALESCE(t.format_overrides, '') LIKE '%scripts.amiga.tournament_builder%'
-         OR COALESCE(t.format_overrides, '') LIKE '%site.public_html.amiga.ops.fixtures%'
-       )
-     GROUP BY t.id, t.name, t.event_date, t.lifecycle_status
-     ORDER BY t.id DESC
-     LIMIT 50"
-);
-while ($res && ($row = $res->fetch_assoc())) {
-    $generatedRows[] = $row;
-}
-if ($res) {
-    $res->free();
-}
+$liveRows = amiga_live_tournament_index_rows($con);
+$allowlistConfigured = amiga_live_tournament_allowlist_ids() !== [];
 mysqli_close($con);
 ?>
 
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
   <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Live tournaments</h1>
   <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">
-    Fixture-backed events created in this database — create, lifecycle, fixtures, and result entry.
-    Historical completed events remain under the <a href="/amiga/tournaments.php">Tournaments</a> tab.
+    Read-only view of running fixture-backed events selected for public display.
+    Completed and archived events remain under the <a href="/amiga/tournaments.php">Tournaments</a> tab.
   </p>
-  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav" aria-label="Live tournament tools" style="margin-bottom:1rem">
-    <div class="k2-player-nav__links">
-      <a href="<?php echo k2_h($fixtureOpsUrl); ?>" class="k2-player-nav__btn is-active">Fixture manager</a>
-    </div>
-  </nav>
 </header>
 
 <div class="k2-table-wrap" style="padding:0 1.25rem 1rem">
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="false">
 <thead>
   <tr>
-    <th class="k2-table-cell--left" data-k2-sort="number">ID</th>
     <th class="k2-table-cell--left" data-k2-sort="text">Tournament</th>
     <th data-k2-sort="text">Date</th>
-    <th data-k2-sort="text">Lifecycle</th>
+    <th data-k2-sort="text">Country</th>
+    <th data-k2-sort="text">Status</th>
+    <th data-k2-sort="number">Played</th>
+    <th data-k2-sort="number">Scheduled</th>
     <th data-k2-sort="number">Fixtures</th>
-    <th data-k2-sort="number">Games</th>
-    <th class="k2-table-cell--left">Manage</th>
   </tr>
 </thead>
 <tbody>
-<?php if ($generatedRows === []) { ?>
+<?php if ($liveRows === []) { ?>
   <tr>
-    <td colspan="7" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No generated fixture-backed tournaments yet. Open the fixture manager to create one.</td>
+    <td colspan="7" class="k2-table-cell--left" style="color:var(--k2-text-secondary)"><?php
+        if (!$allowlistConfigured) {
+            echo 'No live events are published for public viewing yet.';
+        } else {
+            echo 'No running live events match the current public allowlist.';
+        }
+    ?></td>
   </tr>
 <?php } ?>
-<?php foreach ($generatedRows as $row) {
-    $manageUrl = $fixtureOpsUrl . '&tournament_id=' . (int) $row['id'];
-    ?>
+<?php foreach ($liveRows as $row) { ?>
   <tr>
-    <td class="k2-table-cell--left"><?php echo (int) $row['id']; ?></td>
-    <td class="k2-table-cell--left"><?php echo k2_h((string) $row['name']); ?></td>
+    <td class="k2-table-cell--left"><?php echo amiga_live_tournament_link((int) $row['id'], (string) $row['name']); ?></td>
     <td><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '—'; ?></td>
+    <td><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
     <td><span class="k2-amiga-tournament-badge"><?php echo k2_h((string) $row['lifecycle_status']); ?></span></td>
-    <td><?php echo (int) $row['fixture_count']; ?></td>
-    <td><?php echo (int) $row['game_count']; ?></td>
-    <td class="k2-table-cell--left"><a href="<?php echo k2_h($manageUrl); ?>">fixtures</a></td>
+    <td><?php echo (int) ($row['played_count'] ?? 0); ?></td>
+    <td><?php echo (int) ($row['scheduled_count'] ?? 0); ?></td>
+    <td><?php echo (int) ($row['fixture_count'] ?? 0); ?></td>
   </tr>
 <?php } ?>
 </tbody>
 </table>
 </div>
+
+<p class="k2-amiga-live-view__ops-note" style="padding:0 1.25rem 1rem;color:var(--k2-text-secondary)">
+  Operators: fixture management and result entry use the internal
+  <a href="/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot">fixture manager</a> (password required).
+</p>
 
 </div><!-- .k2-page-nav -->
 

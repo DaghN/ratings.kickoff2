@@ -10,6 +10,19 @@ require_once __DIR__ . '/k2_safety.php';
 const AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES = ['completed', 'archived'];
 
 /**
+ * Tournament IDs intentionally published on the public live view.
+ * Add ids here when an event should appear on /amiga/live-tournaments.php.
+ * Local overrides: $amigaPublicLiveTournamentIds in ko2amiga_config.local.php (gitignored).
+ */
+const AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS = [];
+
+/** Prefixes in tournaments.format_overrides.generated_by for fixture-backed generated events. */
+const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
+    'scripts.amiga.tournament_builder',
+    'site.public_html.amiga.ops.fixtures',
+];
+
+/**
  * SQL fragment: tournaments visible on public pages.
  */
 function amiga_tournament_public_visibility_where(string $tableAlias = 't'): string
@@ -25,6 +38,270 @@ function amiga_tournament_public_visibility_where(string $tableAlias = 't'): str
 function amiga_tournament_is_publicly_visible_lifecycle(string $lifecycleStatus): bool
 {
     return in_array($lifecycleStatus, AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES, true);
+}
+
+/**
+ * @return list<int>
+ */
+function amiga_live_tournament_allowlist_ids(): array
+{
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+
+    $ids = array_values(array_filter(
+        array_map('intval', AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS),
+        static fn (int $id): bool => $id > 0
+    ));
+
+    global $amigaPublicLiveTournamentIds;
+    if (isset($amigaPublicLiveTournamentIds) && is_array($amigaPublicLiveTournamentIds)) {
+        foreach ($amigaPublicLiveTournamentIds as $rawId) {
+            $id = (int) $rawId;
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+    }
+
+    $cached = array_values(array_unique($ids));
+
+    return $cached;
+}
+
+function amiga_live_tournament_is_allowlisted(int $tournamentId): bool
+{
+    return in_array($tournamentId, amiga_live_tournament_allowlist_ids(), true);
+}
+
+function amiga_live_tournament_fixture_generated_where(string $tableAlias = 't'): string
+{
+    $parts = [];
+    foreach (AMIGA_FIXTURE_GENERATED_BY_PREFIXES as $prefix) {
+        $escaped = str_replace("'", "''", $prefix);
+        $parts[] = "COALESCE({$tableAlias}.format_overrides, '') LIKE '%{$escaped}%'";
+    }
+
+    return $tableAlias . '.source_id IS NULL AND (' . implode(' OR ', $parts) . ')';
+}
+
+function amiga_live_tournament_url(int $tournamentId): string
+{
+    return '/amiga/live-tournament.php?' . http_build_query(['id' => $tournamentId]);
+}
+
+function amiga_live_tournament_link(int $tournamentId, string $name): string
+{
+    $href = amiga_live_tournament_url($tournamentId);
+
+    return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
+        . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
+}
+
+/**
+ * Public live index: allowlisted, running, fixture-backed generated tournaments only.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_live_tournament_index_rows(mysqli $con): array
+{
+    $allowlist = amiga_live_tournament_allowlist_ids();
+    if ($allowlist === []) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($allowlist), '?'));
+    $types = str_repeat('i', count($allowlist));
+    $sql = 'SELECT t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at,
+                   COUNT(DISTINCT f.id) AS fixture_count,
+                   SUM(CASE WHEN f.status = \'played\' THEN 1 ELSE 0 END) AS played_count,
+                   SUM(CASE WHEN f.status = \'scheduled\' THEN 1 ELSE 0 END) AS scheduled_count
+            FROM tournaments t
+            INNER JOIN tournament_stages s ON s.tournament_id = t.id
+            LEFT JOIN tournament_fixtures f ON f.stage_id = s.id
+            WHERE t.lifecycle_status = \'running\'
+              AND ' . amiga_live_tournament_fixture_generated_where('t') . '
+              AND t.id IN (' . $placeholders . ')
+            GROUP BY t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at
+            ORDER BY COALESCE(t.started_at, t.event_date, \'1970-01-01\') DESC, t.id DESC';
+
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$allowlist);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $rows;
+}
+
+/**
+ * Load one public live tournament or null when not eligible.
+ *
+ * @return array<string, mixed>|null
+ */
+function amiga_live_tournament_load(mysqli $con, int $tournamentId): ?array
+{
+    if (!amiga_live_tournament_is_allowlisted($tournamentId)) {
+        return null;
+    }
+
+    $sql = 'SELECT t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at, t.completed_at,
+                   t.player_count, t.has_league, t.has_cup
+            FROM tournaments t
+            INNER JOIN tournament_stages s ON s.tournament_id = t.id
+            WHERE t.id = ?
+              AND t.lifecycle_status = \'running\'
+              AND ' . amiga_live_tournament_fixture_generated_where('t') . '
+            GROUP BY t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at, t.completed_at,
+                     t.player_count, t.has_league, t.has_cup
+            LIMIT 1';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return null;
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : null;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $row ?: null;
+}
+
+/**
+ * Registered entrants, or stage players when entrants are empty.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_live_tournament_participants(mysqli $con, int $tournamentId): array
+{
+    $sql = 'SELECT e.player_id, e.seed_no, e.status, p.name AS player_name, p.country
+            FROM tournament_entrants e
+            INNER JOIN amiga_players p ON p.id = e.player_id
+            WHERE e.tournament_id = ? AND e.status = \'registered\'
+            ORDER BY COALESCE(e.seed_no, 9999) ASC, p.name ASC';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+    if ($rows !== []) {
+        return $rows;
+    }
+
+    $sql = 'SELECT DISTINCT sp.player_id, sp.seed_no, p.name AS player_name, p.country
+            FROM tournament_stage_players sp
+            INNER JOIN tournament_stages s ON s.id = sp.stage_id
+            INNER JOIN amiga_players p ON p.id = sp.player_id
+            WHERE s.tournament_id = ?
+            ORDER BY COALESCE(sp.seed_no, 9999) ASC, p.name ASC';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $rows;
+}
+
+/**
+ * Fixture schedule grouped by stage (stable order).
+ *
+ * @return list<array{stage: array<string, mixed>, fixtures: list<array<string, mixed>>}>
+ */
+function amiga_live_tournament_fixture_groups(mysqli $con, int $tournamentId): array
+{
+    $sql = 'SELECT f.id, f.fixture_key, f.leg_no, f.status, f.phase_label,
+                   s.id AS stage_id, s.stage_key, s.name AS stage_name, s.stage_type, s.sequence_no,
+                   f.player_a_id, f.player_b_id,
+                   pa.name AS player_a_name, pb.name AS player_b_name,
+                   g.id AS game_id, g.goals_a, g.goals_b, g.extra
+            FROM tournament_fixtures f
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            LEFT JOIN amiga_players pa ON pa.id = f.player_a_id
+            LEFT JOIN amiga_players pb ON pb.id = f.player_b_id
+            LEFT JOIN amiga_games g ON g.fixture_id = f.id
+            WHERE s.tournament_id = ?
+            ORDER BY s.sequence_no ASC, s.id ASC, f.id ASC';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    /** @var array<int, array{stage: array<string, mixed>, fixtures: list<array<string, mixed>>}> $byStage */
+    $byStage = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $stageId = (int) $row['stage_id'];
+            if (!isset($byStage[$stageId])) {
+                $byStage[$stageId] = [
+                    'stage' => [
+                        'id' => $stageId,
+                        'stage_key' => (string) $row['stage_key'],
+                        'name' => (string) $row['stage_name'],
+                        'stage_type' => (string) $row['stage_type'],
+                        'sequence_no' => (int) $row['sequence_no'],
+                    ],
+                    'fixtures' => [],
+                ];
+            }
+            $byStage[$stageId]['fixtures'][] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return array_values($byStage);
+}
+
+function amiga_live_tournament_format_player_slot(
+    ?int $playerId,
+    ?string $playerName,
+    string $placeholder = 'TBD'
+): string {
+    if ($playerId !== null && $playerId > 0 && $playerName !== null && $playerName !== '') {
+        require_once __DIR__ . '/amiga_player_load.php';
+
+        return k2_amiga_player_link($playerId, $playerName);
+    }
+
+    return '<span class="k2-amiga-live-view__placeholder">' . k2_h($placeholder) . '</span>';
 }
 
 /**

@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="amiga">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Amiga — Live tournament</title>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
+</head>
+<body class="k2-site">
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
+
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
+include __DIR__ . '/../../config/ko2amiga_config.php';
+
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+if ($id < 1) {
+    http_response_code(404);
+    exit('Live tournament not found.');
+}
+
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+$con->query("SET time_zone = '+00:00'");
+
+$tournament = amiga_live_tournament_load($con, $id);
+if ($tournament === null) {
+    mysqli_close($con);
+    http_response_code(404);
+    exit('Live tournament not found.');
+}
+
+$participants = amiga_live_tournament_participants($con, $id);
+$fixtureGroups = amiga_live_tournament_fixture_groups($con, $id);
+mysqli_close($con);
+
+$k2AmigaHubTabActive = 'live-tournaments';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
+
+$tName = (string) $tournament['name'];
+$meta = [];
+if (!empty($tournament['event_date'])) {
+    $meta[] = (string) $tournament['event_date'];
+}
+if (!empty($tournament['country'])) {
+    $meta[] = (string) $tournament['country'];
+}
+if ((int) ($tournament['player_count'] ?? 0) > 0) {
+    $meta[] = (int) $tournament['player_count'] . ' players';
+}
+if (!empty($tournament['started_at'])) {
+    $meta[] = 'started ' . (string) $tournament['started_at'] . ' UTC';
+}
+?>
+
+<p style="padding:0.5rem 1.25rem 0;margin:0">
+  <a class="k2-link-star" href="/amiga/live-tournaments.php">← Live tournaments</a>
+</p>
+
+<header class="k2-amiga-tournament-hero">
+  <h1 class="k2-amiga-tournament-hero__title k2-hub-intro"><?php echo k2_h($tName); ?></h1>
+  <p class="k2-amiga-tournament-hero__meta"><?php echo $meta !== [] ? k2_h(implode(' · ', $meta)) : '—'; ?></p>
+  <div class="k2-amiga-tournament-hero__badges">
+    <span class="k2-amiga-tournament-badge"><?php echo k2_h((string) $tournament['lifecycle_status']); ?></span>
+    <span class="k2-amiga-tournament-badge">Live view</span>
+  </div>
+</header>
+
+<div class="k2-amiga-live-view">
+
+<?php if ($participants !== []) { ?>
+<section class="k2-amiga-live-view__section" aria-labelledby="k2-amiga-live-players-heading">
+  <h2 id="k2-amiga-live-players-heading" class="k2-panel-heading">Players</h2>
+  <div class="k2-table-wrap">
+    <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
+      <thead>
+        <tr>
+          <th data-k2-sort="number">Seed</th>
+          <th class="k2-table-cell--left">Player</th>
+          <th data-k2-sort="text">Country</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php foreach ($participants as $row) { ?>
+        <tr>
+          <td><?php echo $row['seed_no'] !== null ? (int) $row['seed_no'] : '—'; ?></td>
+          <td class="k2-table-cell--left"><?php
+              echo k2_amiga_player_link((int) $row['player_id'], (string) $row['player_name']);
+          ?></td>
+          <td><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
+        </tr>
+      <?php } ?>
+      </tbody>
+    </table>
+  </div>
+</section>
+<?php } ?>
+
+<?php foreach ($fixtureGroups as $group) {
+    $stage = $group['stage'];
+    $fixtures = $group['fixtures'];
+    $stageHeading = (string) $stage['name'];
+    if ((string) $stage['stage_key'] !== '' && (string) $stage['stage_key'] !== $stageHeading) {
+        $stageHeading .= ' (' . (string) $stage['stage_key'] . ')';
+    }
+    ?>
+<section class="k2-amiga-live-view__section" aria-labelledby="k2-amiga-live-stage-<?php echo (int) $stage['id']; ?>">
+  <h2 id="k2-amiga-live-stage-<?php echo (int) $stage['id']; ?>" class="k2-panel-heading">
+    <?php echo k2_h($stageHeading); ?>
+    <span class="k2-amiga-live-view__stage-type"><?php echo k2_h((string) $stage['stage_type']); ?></span>
+  </h2>
+  <div class="k2-table-wrap">
+    <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
+      <thead>
+        <tr>
+          <th class="k2-table-cell--left">Fixture</th>
+          <th class="k2-table-cell--left">Phase</th>
+          <th class="k2-table-cell--left">Home</th>
+          <th>Score</th>
+          <th class="k2-table-cell--left">Away</th>
+          <th data-k2-sort="text">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php foreach ($fixtures as $fixture) {
+          $status = (string) $fixture['status'];
+          $rowClass = $status === 'void' ? ' k2-amiga-live-view__row--void' : '';
+          $playerAId = $fixture['player_a_id'] !== null ? (int) $fixture['player_a_id'] : null;
+          $playerBId = $fixture['player_b_id'] !== null ? (int) $fixture['player_b_id'] : null;
+          ?>
+        <tr class="<?php echo trim($rowClass); ?>">
+          <td class="k2-table-cell--left"><?php echo k2_h((string) $fixture['fixture_key']); ?></td>
+          <td class="k2-table-cell--left"><?php
+              $phase = (string) ($fixture['phase_label'] ?? '');
+              echo $phase !== '' ? k2_h($phase) : '—';
+          ?></td>
+          <td class="k2-table-cell--left"><?php
+              echo amiga_live_tournament_format_player_slot(
+                  $playerAId,
+                  $fixture['player_a_name'] !== null ? (string) $fixture['player_a_name'] : null
+              );
+          ?></td>
+          <td><?php
+              if ($status === 'played' && $fixture['game_id'] !== null) {
+                  echo (int) $fixture['goals_a'] . ' – ' . (int) $fixture['goals_b'];
+                  echo amiga_tournament_format_game_extra(
+                      isset($fixture['extra']) ? (string) $fixture['extra'] : null
+                  );
+              } elseif ($status === 'void') {
+                  echo '<span class="k2-amiga-live-view__void-label">void</span>';
+              } else {
+                  echo '—';
+              }
+          ?></td>
+          <td class="k2-table-cell--left"><?php
+              echo amiga_live_tournament_format_player_slot(
+                  $playerBId,
+                  $fixture['player_b_name'] !== null ? (string) $fixture['player_b_name'] : null
+              );
+          ?></td>
+          <td><span class="k2-amiga-tournament-badge<?php echo $status === 'void' ? ' k2-amiga-live-view__badge--void' : ''; ?>"><?php
+              echo k2_h($status);
+          ?></span></td>
+        </tr>
+      <?php } ?>
+      </tbody>
+    </table>
+  </div>
+</section>
+<?php } ?>
+
+<?php if ($fixtureGroups === []) { ?>
+<p class="k2-amiga-tournament-empty">No fixtures scheduled for this event yet.</p>
+<?php } ?>
+
+</div><!-- .k2-amiga-live-view -->
+
+</div><!-- .k2-page-nav -->
+
+</body>
+</html>

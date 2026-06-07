@@ -12,3 +12,6 @@ $username = 'root';
 $password = '';
 $database = 'ko2amiga_db';
 $dbportnum = 3306;
+
+// Optional: tournament ids published on /amiga/live-tournaments.php (merged with AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS).
+// $amigaPublicLiveTournamentIds = [627];
