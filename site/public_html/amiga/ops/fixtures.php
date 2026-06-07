@@ -45,6 +45,11 @@ function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPicke
     if ($withDayPickerAssets) {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_day_picker.php';
         k2_render_day_picker_assets();
+        $organizerPickerJs = $_SERVER['DOCUMENT_ROOT'] . '/js/amiga-organizer-player-picker.js';
+        if (is_file($organizerPickerJs)) {
+            echo '<script type="text/javascript" src="/js/amiga-organizer-player-picker.js?v='
+                . (int) @filemtime($organizerPickerJs) . '" defer="defer"></script>' . "\n";
+        }
     }
 ?>
 </head>
@@ -85,32 +90,6 @@ if (!$pwdOk) {
     amiga_fixture_render_chrome_end();
     exit;
 }
-
-amiga_fixture_ops_session_start();
-
-$tournamentId = isset($_GET['tournament_id']) ? max(0, (int) $_GET['tournament_id']) : 0;
-if (isset($_POST['tournament_id'])) {
-    $tournamentId = max(0, (int) $_POST['tournament_id']);
-}
-$status = isset($_GET['status']) ? (string) $_GET['status'] : '';
-if (!in_array($status, ['', 'scheduled', 'played', 'void'], true)) {
-    $status = '';
-}
-$view = isset($_GET['view']) ? (string) $_GET['view'] : '';
-if (!in_array($view, AMIGA_FIXTURE_OPS_VIEWS, true)) {
-    $view = '';
-}
-if ($tournamentId > 0) {
-    if ($view === '') {
-        $view = 'fixtures';
-    }
-} else {
-    $view = 'setup';
-}
-$createPlayerSearch = isset($_GET['create_player_search']) ? trim((string) $_GET['create_player_search']) : '';
-$createDraft = amiga_fixture_create_draft_from_request();
-$createSelectedPlayers = [];
-$createPlayerSearchResults = [];
 
 function amiga_fixture_next_live_source_scores_id(mysqli $con): int
 {
@@ -264,13 +243,6 @@ function amiga_fixture_collect_player_ids_from_request(): array
             return amiga_fixture_validate_player_id_list($ids);
         }
     }
-    if (isset($_POST['player_ids_raw']) && trim((string) $_POST['player_ids_raw']) !== '') {
-        return amiga_fixture_parse_player_ids((string) $_POST['player_ids_raw']);
-    }
-    if (isset($_POST['player_ids']) && is_string($_POST['player_ids']) && trim($_POST['player_ids']) !== '') {
-        return amiga_fixture_parse_player_ids((string) $_POST['player_ids']);
-    }
-
     throw new RuntimeException('At least two players are required.');
 }
 
@@ -735,12 +707,6 @@ function amiga_fixture_require_stage_players(mysqli $con, int $stageId, array $p
         }
     }
 }
-
-/** @var list<string> */
-const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
-    'scripts.amiga.tournament_builder',
-    'site.public_html.amiga.ops.fixtures',
-];
 
 /** @var list<string> */
 const AMIGA_FIXTURE_ENTRANT_REGISTRATION_LIFECYCLES = ['draft', 'registration', 'ready'];
@@ -2049,6 +2015,30 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
     return $gameId;
 }
 
+amiga_fixture_ops_session_start();
+
+$tournamentId = isset($_GET['tournament_id']) ? max(0, (int) $_GET['tournament_id']) : 0;
+if (isset($_POST['tournament_id'])) {
+    $tournamentId = max(0, (int) $_POST['tournament_id']);
+}
+$status = isset($_GET['status']) ? (string) $_GET['status'] : '';
+if (!in_array($status, ['', 'scheduled', 'played', 'void'], true)) {
+    $status = '';
+}
+$view = isset($_GET['view']) ? (string) $_GET['view'] : '';
+if (!in_array($view, AMIGA_FIXTURE_OPS_VIEWS, true)) {
+    $view = '';
+}
+if ($tournamentId > 0) {
+    if ($view === '') {
+        $view = 'fixtures';
+    }
+} else {
+    $view = 'setup';
+}
+$createDraft = amiga_fixture_create_draft_from_request();
+$createSelectedPlayers = [];
+
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 
@@ -2101,7 +2091,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $tournamentId <= 0) {
                 'pwd' => $pwdValue,
                 'view' => 'setup',
             ],
-            amiga_fixture_create_draft_query($createDraft, $createPlayerSearch)
+            amiga_fixture_create_draft_query($createDraft)
         );
         header('Location: ' . $self . '?' . http_build_query($params));
         exit;
@@ -2312,9 +2302,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($tournamentId <= 0) {
     $createSelectedPlayers = amiga_fixture_load_player_summaries($con, $createDraft['player_ids']);
-    if ($createPlayerSearch !== '') {
-        $createPlayerSearchResults = amiga_fixture_search_players($con, $createPlayerSearch);
-    }
 }
 
 $sql = "
@@ -2449,19 +2436,10 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 <?php if ($flash !== null) { ?>
   <div class="k2-amiga-live-ops__flash<?php echo $flashIsError ? ' k2-amiga-live-ops__flash--error' : ''; ?>"><?php echo k2_h($flash); ?></div>
 <?php } ?>
-<form class="k2-amiga-live-ops__inline-form k2-amiga-organizer__picker" method="get" action="<?php echo $self; ?>">
-  <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-  <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-  <?php if ($tournamentId > 0) { ?>
-    <input type="hidden" name="view" value="<?php echo htmlspecialchars($view, ENT_QUOTES, 'UTF-8'); ?>">
-  <?php } ?>
-  <label>Tournament id <input type="number" name="tournament_id" min="1" value="<?php echo $tournamentId > 0 ? (int) $tournamentId : ''; ?>"></label>
-  <button type="submit">Open</button>
-</form>
-
 <?php if ($tournamentId > 0 && $tournament !== null) { ?>
   <div class="k2-amiga-organizer__header">
-    <h2 class="k2-amiga-organizer__title"><?php echo k2_h((string) $tournament['name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $tournament['id']; ?></span></h2>
+    <p class="k2-amiga-organizer__back"><a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, 0, 'setup'), ENT_QUOTES, 'UTF-8'); ?>">Create new league</a></p>
+    <h2 class="k2-amiga-organizer__title"><?php echo k2_h((string) $tournament['name']); ?></h2>
     <?php if ($lifecycle !== null) { ?>
       <p class="k2-amiga-live-ops__muted">Status: <span class="k2-amiga-tournament-badge"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></p>
     <?php } ?>
@@ -2487,14 +2465,58 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 
 <div class="k2-amiga-organizer-panel">
 <?php if ($view === 'setup') { ?>
-  <?php if ($tournamentId <= 0) { ?>
-  <div class="k2-amiga-live-ops__section">
+  <?php if ($tournamentId <= 0) {
+      $organizerPickerBase = $self . '?' . http_build_query(array_merge(
+          ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup'],
+          amiga_fixture_create_draft_query($createDraft)
+      ));
+      $organizerSelectedIds = implode(',', array_map('intval', $createDraft['player_ids']));
+      ?>
+  <div class="k2-amiga-live-ops__section k2-amiga-organizer-create">
     <h2>Create league</h2>
-    <p class="k2-amiga-live-ops__muted">Creates one generated round-robin league with scheduled fixtures. Search and add at least two existing players below.</p>
-    <form class="k2-amiga-live-ops__grid-form" method="post" action="<?php echo $self; ?>">
+
+    <h3 class="k2-amiga-organizer-create__step">Players</h3>
+    <div class="k2-amiga-organizer-player-search"
+         data-organizer-search-realm="amiga"
+         data-organizer-add-base="<?php echo htmlspecialchars($organizerPickerBase, ENT_QUOTES, 'UTF-8'); ?>"
+         data-organizer-selected-ids="<?php echo htmlspecialchars($organizerSelectedIds, ENT_QUOTES, 'UTF-8'); ?>"
+         role="search">
+      <label class="k2-amiga-organizer-player-search__label" for="amiga-organizer-create-player-search">Find player</label>
+      <input id="amiga-organizer-create-player-search" class="k2-amiga-organizer-player-search__input" type="search" maxlength="32" autocomplete="off" spellcheck="false"
+        aria-autocomplete="list" aria-expanded="false" aria-controls="amiga-organizer-create-player-search-list" placeholder="Type at least 2 characters…" />
+      <ul id="amiga-organizer-create-player-search-list" class="k2-amiga-organizer-player-search__results" role="listbox" hidden="hidden"></ul>
+      <span class="k2-amiga-organizer-player-search__live visually-hidden" aria-live="polite"></span>
+    </div>
+
+    <form class="k2-amiga-live-ops__grid-form k2-amiga-organizer-create__form" method="post" action="<?php echo $self; ?>">
       <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="action" value="create_kitchen">
+      <div class="wide k2-amiga-organizer__selected-players">
+        <?php if ($createSelectedPlayers === []) { ?>
+          <p class="k2-amiga-live-ops__muted">No players selected yet.</p>
+        <?php } else { ?>
+          <ul class="k2-amiga-organizer__player-chips">
+          <?php foreach ($createSelectedPlayers as $selectedPlayer) {
+              $removeUrl = $self . '?' . http_build_query(array_merge(
+                  ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_remove_player_id' => $selectedPlayer['id']],
+                  amiga_fixture_create_draft_query($createDraft)
+              ));
+              ?>
+            <li class="k2-amiga-organizer__player-chip">
+              <input type="hidden" name="player_ids[]" value="<?php echo (int) $selectedPlayer['id']; ?>">
+              <span><?php echo k2_h($selectedPlayer['name']); ?></span>
+              <a href="<?php echo htmlspecialchars($removeUrl, ENT_QUOTES, 'UTF-8'); ?>" class="k2-amiga-organizer__chip-remove" aria-label="Remove <?php echo k2_h($selectedPlayer['name']); ?>">×</a>
+            </li>
+          <?php } ?>
+          </ul>
+          <?php if ($createMatchHint > 0) { ?>
+            <p class="k2-amiga-live-ops__muted"><?php echo count($createSelectedPlayers); ?> player<?php echo count($createSelectedPlayers) === 1 ? '' : 's'; ?> → <?php echo $createMatchHint; ?> fixture<?php echo $createMatchHint === 1 ? '' : 's'; ?>.</p>
+          <?php } ?>
+        <?php } ?>
+      </div>
+
+      <h3 class="wide k2-amiga-organizer-create__step">League details</h3>
       <label>Name
         <input type="text" name="name" required maxlength="120" placeholder="Thursday Kitchen I" value="<?php echo k2_h($createDraft['name']); ?>">
       </label>
@@ -2510,99 +2532,13 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
           <option value="2"<?php echo $createDraft['legs'] === 2 ? ' selected' : ''; ?>>Home and away</option>
         </select>
       </label>
-      <div class="wide k2-amiga-organizer__selected-players">
-        <span class="k2-amiga-organizer__field-label">Selected players</span>
-        <?php if ($createSelectedPlayers === []) { ?>
-          <p class="k2-amiga-live-ops__muted">No players selected yet. Search below and add at least two.</p>
-        <?php } else { ?>
-          <ul class="k2-amiga-organizer__player-chips">
-          <?php foreach ($createSelectedPlayers as $selectedPlayer) {
-              $removeUrl = $self . '?' . http_build_query(array_merge(
-                  ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_remove_player_id' => $selectedPlayer['id']],
-                  amiga_fixture_create_draft_query($createDraft, $createPlayerSearch)
-              ));
-              ?>
-            <li class="k2-amiga-organizer__player-chip">
-              <input type="hidden" name="player_ids[]" value="<?php echo (int) $selectedPlayer['id']; ?>">
-              <span><?php echo k2_h($selectedPlayer['name']); ?></span>
-              <a href="<?php echo htmlspecialchars($removeUrl, ENT_QUOTES, 'UTF-8'); ?>" class="k2-amiga-organizer__chip-remove" aria-label="Remove <?php echo k2_h($selectedPlayer['name']); ?>">×</a>
-            </li>
-          <?php } ?>
-          </ul>
-          <p class="k2-amiga-live-ops__muted"><?php echo count($createSelectedPlayers); ?> player<?php echo count($createSelectedPlayers) === 1 ? '' : 's'; ?> → <?php echo $createMatchHint; ?> fixture<?php echo $createMatchHint === 1 ? '' : 's'; ?>.</p>
-        <?php } ?>
-      </div>
-      <details class="wide k2-amiga-organizer__advanced-fallback">
-        <summary>Advanced: player IDs (no-JS fallback)</summary>
-        <label>Comma-separated player ids
-          <input type="text" name="player_ids_raw" placeholder="1,2,3,4"<?php echo $createSelectedPlayers !== [] ? ' disabled' : ''; ?>>
-        </label>
-        <p class="k2-amiga-live-ops__muted">Used only when no players are selected above.</p>
-      </details>
       <div class="wide">
         <button type="submit">Create league</button>
       </div>
     </form>
-
-    <h3 style="margin-top:1.25rem">Add players to league</h3>
-    <form class="k2-amiga-live-ops__inline-form" method="get" action="<?php echo $self; ?>">
-      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-      <input type="hidden" name="view" value="setup">
-      <?php foreach (amiga_fixture_create_draft_query($createDraft) as $draftKey => $draftValue) {
-          if ($draftKey === 'view') {
-              continue;
-          }
-          if (is_array($draftValue)) {
-              foreach ($draftValue as $item) { ?>
-        <input type="hidden" name="<?php echo htmlspecialchars($draftKey, ENT_QUOTES, 'UTF-8'); ?>[]" value="<?php echo (int) $item; ?>">
-      <?php }
-          } else { ?>
-        <input type="hidden" name="<?php echo htmlspecialchars($draftKey, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo k2_h((string) $draftValue); ?>">
-      <?php }
-      } ?>
-      <label>Search player
-        <input type="search" name="create_player_search" value="<?php echo k2_h($createPlayerSearch); ?>" placeholder="id or name fragment" required>
-      </label>
-      <button type="submit">Search</button>
-    </form>
-    <?php if ($createPlayerSearch !== '') { ?>
-      <?php if ($createPlayerSearchResults === []) { ?>
-        <p class="k2-amiga-live-ops__muted">No players matched <?php echo k2_h($createPlayerSearch); ?>.</p>
-      <?php } else { ?>
-        <div class="k2-table-wrap" style="margin-top:.75rem">
-        <table class="k2-table k2-table--calm-stats">
-          <thead>
-            <tr><th class="k2-table-cell--left">Player</th><th class="k2-table-cell--left">Country</th><th class="k2-table-cell--left">Action</th></tr>
-          </thead>
-          <tbody>
-          <?php foreach ($createPlayerSearchResults as $playerRow) {
-              $alreadySelected = in_array((int) $playerRow['id'], $createDraft['player_ids'], true);
-              $addUrl = $self . '?' . http_build_query(array_merge(
-                  ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_add_player_id' => (int) $playerRow['id']],
-                  amiga_fixture_create_draft_query($createDraft, $createPlayerSearch)
-              ));
-              ?>
-            <tr>
-              <td class="k2-table-cell--left"><?php echo k2_h($playerRow['name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $playerRow['id']; ?></span></td>
-              <td class="k2-table-cell--left"><?php echo $playerRow['country'] !== null && $playerRow['country'] !== '' ? k2_h($playerRow['country']) : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
-              <td class="k2-table-cell--left">
-                <?php if ($alreadySelected) { ?>
-                  <span class="k2-amiga-live-ops__muted">selected</span>
-                <?php } else { ?>
-                  <a href="<?php echo htmlspecialchars($addUrl, ENT_QUOTES, 'UTF-8'); ?>">Add to league</a>
-                <?php } ?>
-              </td>
-            </tr>
-          <?php } ?>
-          </tbody>
-        </table>
-        </div>
-      <?php } ?>
-    <?php } ?>
   </div>
   <?php } elseif ($tournament === null) { ?>
-    <p class="k2-amiga-live-ops__muted">Tournament not found.</p>
+    <p class="k2-amiga-live-ops__muted">That tournament could not be found. <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, 0, 'setup'), ENT_QUOTES, 'UTF-8'); ?>">Create or open a league</a> from the list below.</p>
   <?php } elseif ($lifecycle !== null) { ?>
     <div class="k2-amiga-live-ops__section" style="padding:.75rem 1rem;border:1px solid var(--k2-border-subtle);border-radius:var(--k2-radius-md);max-width:42rem">
       <h3>Tournament lifecycle</h3>
@@ -3095,26 +3031,24 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 
 </div><!-- .k2-amiga-organizer-panel -->
 
-<?php if ($view === 'setup' && $tournamentId <= 0) { ?>
+<?php if ($view === 'setup' && ($tournamentId <= 0 || $tournament === null)) { ?>
 <div class="k2-amiga-live-ops__section">
-  <h2>Generated fixture-backed tournaments</h2>
+  <h2>Recent leagues</h2>
   <?php if ($generatedTournaments === []) { ?>
-    <p class="k2-amiga-live-ops__muted">No generated fixture-backed tournaments currently exist in this database.</p>
+    <p class="k2-amiga-live-ops__muted">No leagues yet — create one above.</p>
   <?php } else { ?>
     <div class="k2-table-wrap">
     <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
       <thead>
-        <tr><th class="k2-table-cell--left">ID</th><th class="k2-table-cell--left">Tournament</th><th>Date</th><th>Stages</th><th>Fixtures</th><th>Games</th><th class="k2-table-cell--left"></th></tr>
+        <tr><th class="k2-table-cell--left">League</th><th>Date</th><th>Fixtures</th><th>Games</th><th class="k2-table-cell--left"></th></tr>
       </thead>
       <tbody>
       <?php foreach ($generatedTournaments as $row) {
           $viewUrl = amiga_fixture_ops_url($self, $key, $pwdValue, (int) $row['id'], 'fixtures');
           ?>
         <tr>
-          <td class="k2-table-cell--left"><?php echo (int) $row['id']; ?></td>
           <td class="k2-table-cell--left"><?php echo k2_h((string) $row['name']); ?></td>
-          <td><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '<span class="k2-amiga-live-ops__muted">none</span>'; ?></td>
-          <td><?php echo (int) $row['stage_count']; ?></td>
+          <td><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
           <td><?php echo (int) $row['fixture_count']; ?></td>
           <td><?php echo (int) $row['game_count']; ?></td>
           <td class="k2-table-cell--left"><a href="<?php echo htmlspecialchars($viewUrl, ENT_QUOTES, 'UTF-8'); ?>">Open</a></td>

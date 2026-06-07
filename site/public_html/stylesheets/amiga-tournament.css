@@ -399,12 +399,26 @@ body.k2-site .k2-amiga-live-ops input[type="text"] {
 }
 
 /* Tournament organizer shell (internal ops) */
-.k2-amiga-organizer__picker {
-	margin-bottom: 1rem;
-}
-
 .k2-amiga-organizer__header {
 	margin: 0 0 0.75rem;
+}
+
+.k2-amiga-organizer__back {
+	margin: 0 0 0.5rem;
+	font-size: 0.9rem;
+}
+
+.k2-amiga-organizer-create__step {
+	margin: 1.25rem 0 0.65rem;
+	font-size: 1rem;
+}
+
+.k2-amiga-organizer-create__step:first-of-type {
+	margin-top: 0.75rem;
+}
+
+.k2-amiga-organizer-create__form {
+	margin-top: 0.75rem;
 }
 
 .k2-amiga-organizer__title {
@@ -489,7 +503,107 @@ body.k2-site .k2-amiga-live-ops input[type="text"] {
 	color: var(--k2-table-negative);
 }
 
-.k2-amiga-organizer__advanced-fallback {
-	margin-top: 0.5rem;
+.k2-amiga-organizer-player-search {
+	position: relative;
+	max-width: 24rem;
+	margin-top: 0.35rem;
+}
+
+body.k2-site .k2-amiga-organizer-player-search__label {
+	display: block;
+	margin: 0 0 6px;
+	color: var(--k2-text-primary);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+body.k2-site .k2-amiga-organizer-player-search__input {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 6px 10px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+	color: var(--k2-text-primary);
+	font: inherit;
+	font-size: 13px;
+}
+
+body.k2-site .k2-amiga-organizer-player-search__input::placeholder {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-amiga-organizer-player-search__input:focus {
+	outline: none;
+	border-color: var(--k2-accent);
+	box-shadow: 0 0 0 2px var(--k2-accent-muted);
+}
+
+body.k2-site .k2-amiga-organizer-player-search__results {
+	position: absolute;
+	left: 0;
+	z-index: 50;
+	min-width: 100%;
+	width: max-content;
+	max-width: 22em;
+	margin: 2px 0 0;
+	padding: 0;
+	list-style: none;
+	max-height: 14em;
+	overflow-x: auto;
+	overflow-y: auto;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg-elevated);
+	box-shadow: var(--k2-shadow-surface);
+	font-size: 12px;
+	line-height: 1.35;
+	color: var(--k2-text-primary);
+}
+
+.k2-amiga-organizer-player-search__option {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 0.65rem;
+	padding: 0.45rem 0.65rem;
+	font-size: 13px;
+}
+
+.k2-amiga-organizer-player-search__pick {
+	padding: 2px 8px;
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 58%, transparent);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-accent-muted);
+	color: var(--k2-segment-active-text);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.k2-amiga-organizer-player-search__pick:hover,
+.k2-amiga-organizer-player-search__pick:focus-visible {
+	border-color: var(--k2-accent);
+	outline: none;
+}
+
+.k2-amiga-organizer-player-search__picked {
 	color: var(--k2-text-secondary);
+	font-size: 12px;
+	font-style: italic;
+}
+
+.k2-amiga-organizer-player-search__results li {
+	margin: 0;
+	padding: 0;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.k2-amiga-organizer-player-search__results li:last-child {
+	border-bottom: none;
+}
+
+.k2-amiga-organizer-player-search__results li.player-search-active .k2-amiga-organizer-player-search__option {
+	background: color-mix(in srgb, var(--k2-accent) 10%, var(--k2-bg-elevated));
 }
