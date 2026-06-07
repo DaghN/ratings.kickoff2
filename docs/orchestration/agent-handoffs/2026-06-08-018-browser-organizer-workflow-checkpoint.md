@@ -66,7 +66,7 @@ No PHP or Python files edited; no lint or verify commands required.
 
 ## Commit hash and push target
 
-*(filled after commit)*
+`921bcd4` — Document browser organizer workflow checkpoint.
 
 Push target: `origin/main`
 
