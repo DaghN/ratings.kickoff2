@@ -544,6 +544,198 @@ function amiga_fixture_require_entrant_registration_lifecycle(mysqli $con, int $
     }
 }
 
+function amiga_fixture_require_stage_placement_lifecycle(mysqli $con, int $tournamentId): void
+{
+    $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+    if ($lifecycle === null) {
+        throw new RuntimeException("Tournament {$tournamentId} not found.");
+    }
+    $current = $lifecycle['lifecycle_status'];
+    if (!in_array($current, AMIGA_FIXTURE_ENTRANT_REGISTRATION_LIFECYCLES, true)) {
+        throw new RuntimeException(
+            "Tournament {$tournamentId} lifecycle_status is '{$current}'; "
+            . 'stage player placement is allowed only in draft, registration, or ready.'
+        );
+    }
+}
+
+/**
+ * @return list<array{id:int,stage_key:string,name:string,stage_type:string,sequence_no:int}>
+ */
+function amiga_fixture_list_stages(mysqli $con, int $tournamentId): array
+{
+    $stmt = $con->prepare(
+        'SELECT id, stage_key, name, stage_type, sequence_no '
+        . 'FROM tournament_stages WHERE tournament_id = ? '
+        . 'ORDER BY sequence_no ASC, id ASC'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare stage list: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute stage list: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $rows = [];
+    while ($res && ($row = $res->fetch_assoc())) {
+        $rows[] = [
+            'id' => (int) $row['id'],
+            'stage_key' => (string) $row['stage_key'],
+            'name' => (string) $row['name'],
+            'stage_type' => (string) $row['stage_type'],
+            'sequence_no' => (int) $row['sequence_no'],
+        ];
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return array{id:int,stage_key:string,name:string,stage_type:string}|null
+ */
+function amiga_fixture_load_stage(mysqli $con, int $tournamentId, int $stageId): ?array
+{
+    $stmt = $con->prepare(
+        'SELECT id, stage_key, name, stage_type '
+        . 'FROM tournament_stages WHERE id = ? AND tournament_id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare stage load: ' . $con->error);
+    }
+    $stmt->bind_param('ii', $stageId, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute stage load: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    if ($row === null) {
+        return null;
+    }
+
+    return [
+        'id' => (int) $row['id'],
+        'stage_key' => (string) $row['stage_key'],
+        'name' => (string) $row['name'],
+        'stage_type' => (string) $row['stage_type'],
+    ];
+}
+
+/**
+ * @return list<array{stage_id:int,stage_key:string,stage_name:string,stage_type:string,player_id:int,player_name:string,seed_no:?int,group_key:?string}>
+ */
+function amiga_fixture_list_stage_players(mysqli $con, int $tournamentId): array
+{
+    $stmt = $con->prepare(
+        'SELECT s.id AS stage_id, s.stage_key, s.name AS stage_name, s.stage_type, '
+        . 'sp.player_id, p.name AS player_name, sp.seed_no, sp.group_key '
+        . 'FROM tournament_stage_players sp '
+        . 'INNER JOIN tournament_stages s ON s.id = sp.stage_id '
+        . 'INNER JOIN amiga_players p ON p.id = sp.player_id '
+        . 'WHERE s.tournament_id = ? '
+        . 'ORDER BY s.sequence_no ASC, s.id ASC, sp.seed_no IS NULL, sp.seed_no ASC, sp.player_id ASC'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare stage player list: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute stage player list: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $rows = [];
+    while ($res && ($row = $res->fetch_assoc())) {
+        $rows[] = [
+            'stage_id' => (int) $row['stage_id'],
+            'stage_key' => (string) $row['stage_key'],
+            'stage_name' => (string) $row['stage_name'],
+            'stage_type' => (string) $row['stage_type'],
+            'player_id' => (int) $row['player_id'],
+            'player_name' => (string) $row['player_name'],
+            'seed_no' => $row['seed_no'] !== null ? (int) $row['seed_no'] : null,
+            'group_key' => $row['group_key'] !== null ? (string) $row['group_key'] : null,
+        ];
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return array{stage_id:int,stage_key:string,player_id:int,seed_no:?int,group_key:?string,updated:bool}
+ */
+function amiga_fixture_place_stage_entrant(
+    mysqli $con,
+    int $tournamentId,
+    int $stageId,
+    int $playerId,
+    ?int $seedNo,
+    ?string $groupKey
+): array {
+    amiga_fixture_require_generated_tournament($con, $tournamentId);
+    amiga_fixture_require_stage_placement_lifecycle($con, $tournamentId);
+    $stage = amiga_fixture_load_stage($con, $tournamentId, $stageId);
+    if ($stage === null) {
+        throw new RuntimeException("Stage {$stageId} not found in tournament {$tournamentId}.");
+    }
+    amiga_fixture_require_player($con, $playerId);
+    amiga_fixture_require_active_entrant($con, $tournamentId, $playerId);
+
+    $groupKeyValue = $groupKey !== null && trim($groupKey) !== '' ? trim($groupKey) : null;
+
+    $stmt = $con->prepare(
+        'SELECT player_id FROM tournament_stage_players WHERE stage_id = ? AND player_id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare stage player lookup: ' . $con->error);
+    }
+    $stmt->bind_param('ii', $stageId, $playerId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute stage player lookup: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $existing = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    $updated = $existing !== null;
+
+    if ($seedNo === null) {
+        $stmt = $con->prepare(
+            'INSERT INTO tournament_stage_players (stage_id, player_id, seed_no, group_key) '
+            . 'VALUES (?, ?, NULL, ?) '
+            . 'ON DUPLICATE KEY UPDATE seed_no = VALUES(seed_no), group_key = VALUES(group_key)'
+        );
+        if ($stmt === false) {
+            throw new RuntimeException('prepare stage player upsert: ' . $con->error);
+        }
+        $stmt->bind_param('iis', $stageId, $playerId, $groupKeyValue);
+    } else {
+        $stmt = $con->prepare(
+            'INSERT INTO tournament_stage_players (stage_id, player_id, seed_no, group_key) '
+            . 'VALUES (?, ?, ?, ?) '
+            . 'ON DUPLICATE KEY UPDATE seed_no = VALUES(seed_no), group_key = VALUES(group_key)'
+        );
+        if ($stmt === false) {
+            throw new RuntimeException('prepare stage player upsert: ' . $con->error);
+        }
+        $stmt->bind_param('iiis', $stageId, $playerId, $seedNo, $groupKeyValue);
+    }
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute stage player upsert: ' . $stmt->error);
+    }
+    $stmt->close();
+
+    return [
+        'stage_id' => $stageId,
+        'stage_key' => $stage['stage_key'],
+        'player_id' => $playerId,
+        'seed_no' => $seedNo,
+        'group_key' => $groupKeyValue,
+        'updated' => $updated,
+    ];
+}
+
 function amiga_fixture_append_entrant_note(?string $existing, string $action, ?string $note): string
 {
     $timestamp = gmdate('Y-m-d');
@@ -1585,6 +1777,9 @@ $standingsRows = [];
 $generatedTournaments = [];
 $entrants = [];
 $entrantOpsEligible = false;
+$stages = [];
+$stagePlayers = [];
+$stageOpsEligible = false;
 $playerSearchQuery = isset($_GET['player_search']) ? trim((string) $_GET['player_search']) : '';
 $playerSearchResults = [];
 $replacePlayerId = isset($_GET['replace_player_id']) ? max(0, (int) $_GET['replace_player_id']) : 0;
@@ -1701,6 +1896,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 . ' (entrant #' . $summary['new_entrant_id'] . ', seed '
                 . ($summary['seed_no'] !== null ? (string) $summary['seed_no'] : 'none') . ').';
             $replacePlayerId = 0;
+        } elseif ($action === 'place_stage_entrant') {
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            if ($tournamentId <= 0) {
+                throw new RuntimeException('Missing tournament id.');
+            }
+            $stageId = max(0, (int) ($_POST['stage_id'] ?? 0));
+            if ($stageId <= 0) {
+                throw new RuntimeException('Missing stage id.');
+            }
+            $playerId = max(0, (int) ($_POST['player_id'] ?? 0));
+            if ($playerId <= 0) {
+                throw new RuntimeException('Missing player id.');
+            }
+            $seedRaw = trim((string) ($_POST['seed_no'] ?? ''));
+            $seedNo = $seedRaw === '' ? null : max(0, (int) $seedRaw);
+            $groupRaw = trim((string) ($_POST['group_key'] ?? ''));
+            $groupKey = $groupRaw === '' ? null : $groupRaw;
+            $summary = amiga_fixture_place_stage_entrant(
+                $con,
+                $tournamentId,
+                $stageId,
+                $playerId,
+                $seedNo,
+                $groupKey
+            );
+            $verb = $summary['updated'] ? 'Updated' : 'Placed';
+            $flash = $verb . ' player #' . $summary['player_id'] . ' in stage '
+                . $summary['stage_key'] . ' (stage id ' . $summary['stage_id'] . ').';
+            $flash .= ' Use fixture assignment separately when needed.';
         } else {
             throw new RuntimeException('Unknown action.');
         }
@@ -1811,6 +2035,9 @@ if ($tournamentId > 0) {
     ]);
     if ($entrantOpsEligible) {
         $entrants = amiga_fixture_list_entrants($con, $tournamentId);
+        $stageOpsEligible = true;
+        $stages = amiga_fixture_list_stages($con, $tournamentId);
+        $stagePlayers = amiga_fixture_list_stage_players($con, $tournamentId);
     }
     if ($playerSearchQuery !== '') {
         $playerSearchResults = amiga_fixture_search_players($con, $playerSearchQuery);
@@ -2094,6 +2321,92 @@ amiga_fixture_render_chrome_start('Amiga — Fixture manager', true);
       <?php } ?>
     <?php } ?>
   </div>
+  <?php if ($stageOpsEligible) {
+      $canPlaceStageEntrants = $lifecycle !== null
+          && in_array($lifecycle['lifecycle_status'], AMIGA_FIXTURE_ENTRANT_REGISTRATION_LIFECYCLES, true);
+      $stagePlayersByStage = [];
+      foreach ($stagePlayers as $stagePlayerRow) {
+          $stagePlayersByStage[$stagePlayerRow['stage_id']][] = $stagePlayerRow;
+      }
+      ?>
+  <div class="k2-amiga-live-ops__section">
+    <h3>Stage players</h3>
+    <p class="k2-amiga-live-ops__muted">Place registered entrants into tournament stages with the same guardrails as <code>fixtures place-entrant</code>. Does not generate or reschedule fixtures.</p>
+    <?php if ($stages === []) { ?>
+      <p class="k2-amiga-live-ops__muted">No stages defined for this tournament.</p>
+    <?php } else { ?>
+      <?php foreach ($stages as $stageRow) {
+          $stageId = (int) $stageRow['id'];
+          $playersInStage = $stagePlayersByStage[$stageId] ?? [];
+          ?>
+      <div style="margin-bottom:1rem">
+        <h4 style="margin:0 0 .35rem"><?php echo k2_h($stageRow['name']); ?> <span class="k2-amiga-live-ops__muted">(<?php echo k2_h($stageRow['stage_key']); ?> · <?php echo k2_h($stageRow['stage_type']); ?>)</span></h4>
+        <?php if ($playersInStage === []) { ?>
+          <p class="k2-amiga-live-ops__muted">No players in this stage yet.</p>
+        <?php } else { ?>
+          <div class="k2-table-wrap">
+          <table class="k2-table k2-table--calm-stats">
+            <thead>
+              <tr><th class="k2-table-cell--left">Player</th><th>Seed</th><th>Group</th></tr>
+            </thead>
+            <tbody>
+            <?php foreach ($playersInStage as $stagePlayerRow) { ?>
+              <tr>
+                <td class="k2-table-cell--left"><?php echo k2_h($stagePlayerRow['player_name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $stagePlayerRow['player_id']; ?></span></td>
+                <td><?php echo $stagePlayerRow['seed_no'] !== null ? (int) $stagePlayerRow['seed_no'] : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
+                <td><?php echo $stagePlayerRow['group_key'] !== null && $stagePlayerRow['group_key'] !== '' ? k2_h($stagePlayerRow['group_key']) : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
+              </tr>
+            <?php } ?>
+            </tbody>
+          </table>
+          </div>
+        <?php } ?>
+      </div>
+      <?php } ?>
+
+      <h4 style="margin-top:1.25rem">Place or update stage entrant</h4>
+      <?php if (!$canPlaceStageEntrants) { ?>
+        <p class="k2-amiga-live-ops__muted">Stage placement requires lifecycle draft, registration, or ready.</p>
+      <?php } else { ?>
+        <form class="k2-amiga-live-ops__grid-form" method="post" action="<?php echo $self; ?>" style="max-width:36rem">
+          <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="action" value="place_stage_entrant">
+          <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+          <label>Stage
+            <select name="stage_id" required>
+              <?php foreach ($stages as $stageRow) { ?>
+                <option value="<?php echo (int) $stageRow['id']; ?>"><?php echo k2_h($stageRow['name']); ?> (<?php echo k2_h($stageRow['stage_key']); ?>)</option>
+              <?php } ?>
+            </select>
+          </label>
+          <label>Registered entrant
+            <select name="player_id" required>
+              <option value="">— select —</option>
+              <?php foreach ($entrants as $entrantRow) {
+                  if ($entrantRow['status'] !== 'registered') {
+                      continue;
+                  }
+                  ?>
+                <option value="<?php echo (int) $entrantRow['player_id']; ?>"><?php echo k2_h($entrantRow['player_name']); ?> (#<?php echo (int) $entrantRow['player_id']; ?>)</option>
+              <?php } ?>
+            </select>
+          </label>
+          <label>Seed (optional)
+            <input type="number" name="seed_no" min="1" placeholder="seed">
+          </label>
+          <label>Group key (optional)
+            <input type="text" name="group_key" maxlength="32" placeholder="e.g. A">
+          </label>
+          <div class="wide">
+            <button type="submit">Place in stage</button>
+          </div>
+        </form>
+        <p class="k2-amiga-live-ops__muted" style="margin-top:.5rem">Late-entrant workflow: add entrant → place in stage → assign fixture slots below. Re-submitting updates seed/group for an existing stage player.</p>
+      <?php } ?>
+    <?php } ?>
+  </div>
+  <?php } ?>
   <?php } elseif ($tournament !== null && $tournament['source_id'] !== null) { ?>
     <p class="k2-amiga-live-ops__muted">Imported historical tournament — entrant management is CLI-only.</p>
   <?php } ?>

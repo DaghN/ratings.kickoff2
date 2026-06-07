@@ -155,7 +155,9 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 # Imported tournaments and --force transitions remain CLI-only.
 # Browser entrant ops (generated tournaments): list entrants, search existing players, add existing
 # entrant (draft/registration/ready), withdraw, replace — same guardrails as fixtures add/withdraw/replace CLI.
-# No browser player creation or onboard-newcomer; use CLI for those. Stage placement remains CLI place-entrant.
+# Browser stage placement: list stages/stage players, place/update registered entrant (draft/registration/ready)
+# with optional seed/group — same guardrails as fixtures place-entrant. Late workflow: add entrant → place in stage → assign fixtures.
+# No browser player creation or onboard-newcomer; use CLI for those.
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
 # record-result requires lifecycle_status=running and both players to be active (registered) entrants.
