@@ -38,9 +38,13 @@ function amiga_ops_standings_regulation_delta(int $goalsA, int $goalsB, bool $fo
 function amiga_ops_standings_load_rated_tournament_games(mysqli $con, int $tournamentId): array
 {
     $sql = 'SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id, '
-        . 'g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id '
+        . 'g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id, g.fixture_id, '
+        . 'f.phase_label AS fixture_phase_label, '
+        . 's.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
         . 'FROM amiga_games g '
         . 'INNER JOIN amiga_game_ratings r ON r.game_id = g.id '
+        . 'LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id '
+        . 'LEFT JOIN tournament_stages s ON s.id = f.stage_id '
         . 'WHERE g.tournament_id = ? '
         . 'ORDER BY g.source_scores_id ASC, g.id ASC';
     $stmt = $con->prepare($sql);
@@ -62,6 +66,51 @@ function amiga_ops_standings_load_rated_tournament_games(mysqli $con, int $tourn
     $stmt->close();
 
     return $rows;
+}
+
+/**
+ * @return array{scope_type: string, scope_key: string, elimination: bool}|null
+ */
+function amiga_ops_fixture_standings_scope(array $game, int $playerAId, int $playerBId): ?array
+{
+    if (!isset($game['fixture_id']) || $game['fixture_id'] === null || (int) $game['fixture_id'] <= 0) {
+        return null;
+    }
+
+    $stageType = strtolower(trim((string) ($game['stage_type'] ?? '')));
+    $stageKey = trim((string) ($game['stage_key'] ?? ''));
+    $label = trim((string) (
+        ($game['fixture_phase_label'] ?? '')
+        ?: ($game['stage_name'] ?? '')
+        ?: ($game['stage_key'] ?? '')
+        ?: 'Fixture'
+    ));
+    if ($label === '') {
+        $label = 'Fixture';
+    }
+
+    if ($stageType === 'league') {
+        if ($stageKey === '' || strtolower($stageKey) === 'overall') {
+            return ['scope_type' => AMIGA_SCOPE_TYPE_OVERALL, 'scope_key' => '', 'elimination' => false];
+        }
+
+        return ['scope_type' => AMIGA_SCOPE_TYPE_GROUP, 'scope_key' => $label, 'elimination' => false];
+    }
+    if ($stageType === 'group') {
+        return ['scope_type' => AMIGA_SCOPE_TYPE_GROUP, 'scope_key' => $label, 'elimination' => false];
+    }
+    if ($stageType === 'knockout' || $stageType === 'placement') {
+        return [
+            'scope_type' => AMIGA_SCOPE_TYPE_KNOCKOUT,
+            'scope_key' => amiga_ops_knockout_pair_scope_key($label, $playerAId, $playerBId),
+            'elimination' => true,
+        ];
+    }
+    if ($stageType === 'other') {
+        return ['scope_type' => AMIGA_SCOPE_TYPE_GROUP, 'scope_key' => $label, 'elimination' => false];
+    }
+
+    return null;
 }
 
 /**
@@ -265,6 +314,28 @@ function amiga_ops_compute_tournament_standings(array $games): array
         $goalsA = (int) $g['goals_a'];
         $goalsB = (int) $g['goals_b'];
 
+        $fixtureScope = amiga_ops_fixture_standings_scope($g, $playerAId, $playerBId);
+        if ($fixtureScope !== null) {
+            $hasStructured = true;
+            $scopeKey = $fixtureScope['scope_type'] . "\0" . $fixtureScope['scope_key'];
+            if ($fixtureScope['elimination']) {
+                if (!isset($knockoutScopes[$scopeKey])) {
+                    $knockoutScopes[$scopeKey] = [];
+                }
+                if (!isset($knockoutGames[$scopeKey])) {
+                    $knockoutGames[$scopeKey] = [];
+                }
+                $knockoutGames[$scopeKey][] = $g;
+                amiga_ops_standings_apply_game_to_table($knockoutScopes[$scopeKey], $playerAId, $playerBId, $goalsA, $goalsB);
+            } else {
+                if (!isset($scopes[$scopeKey])) {
+                    $scopes[$scopeKey] = [];
+                }
+                amiga_ops_standings_apply_game_to_table($scopes[$scopeKey], $playerAId, $playerBId, $goalsA, $goalsB);
+            }
+            continue;
+        }
+
         if (amiga_ops_is_knockout_phase($phase !== null ? (string) $phase : null)) {
             $phaseStr = amiga_ops_normalize_whitespace((string) $phase);
             $pairKey = amiga_ops_knockout_pair_scope_key($phaseStr, $playerAId, $playerBId);
@@ -368,6 +439,50 @@ function amiga_ops_compute_tournament_standings(array $games): array
  *
  * @param list<array<string, mixed>> $rows
  */
+/**
+ * Upsert one tournament row in amiga_tournament_catalog_stats (index page aggregates).
+ */
+function amiga_ops_catalog_stats_refresh_tournament(mysqli $con, int $tournamentId): void
+{
+    if ($tournamentId < 1) {
+        return;
+    }
+
+    $sql = 'INSERT INTO amiga_tournament_catalog_stats (
+                tournament_id, game_count, standing_players, standing_rows, group_scopes, knockout_ties
+            )
+            SELECT
+                ?,
+                (SELECT COUNT(*) FROM amiga_games WHERE tournament_id = ?),
+                COALESCE((
+                    SELECT COUNT(DISTINCT player_id) FROM amiga_tournament_standings WHERE tournament_id = ?
+                ), 0),
+                COALESCE((SELECT COUNT(*) FROM amiga_tournament_standings WHERE tournament_id = ?), 0),
+                COALESCE((
+                    SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
+                    WHERE tournament_id = ? AND scope_type = \'group\'
+                ), 0),
+                COALESCE((
+                    SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
+                    WHERE tournament_id = ? AND scope_type = \'knockout\'
+                ), 0)
+            ON DUPLICATE KEY UPDATE
+                game_count = VALUES(game_count),
+                standing_players = VALUES(standing_players),
+                standing_rows = VALUES(standing_rows),
+                group_scopes = VALUES(group_scopes),
+                knockout_ties = VALUES(knockout_ties)';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare catalog stats refresh: ' . $con->error);
+    }
+    $stmt->bind_param('iiiiii', $tournamentId, $tournamentId, $tournamentId, $tournamentId, $tournamentId, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute catalog stats refresh: ' . $stmt->error);
+    }
+    $stmt->close();
+}
+
 function amiga_ops_standings_replace_tournament(mysqli $con, int $tournamentId, array $rows): void
 {
     $stmt = $con->prepare('DELETE FROM amiga_tournament_standings WHERE tournament_id = ?');
@@ -443,4 +558,5 @@ function amiga_ops_standings_apply_game(mysqli $con, array $game): void
     $ratedGames = amiga_ops_standings_load_rated_tournament_games($con, $tournamentId);
     $rows = amiga_ops_compute_tournament_standings($ratedGames);
     amiga_ops_standings_replace_tournament($con, $tournamentId, $rows);
+    amiga_ops_catalog_stats_refresh_tournament($con, $tournamentId);
 }

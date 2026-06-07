@@ -47,7 +47,8 @@ Ground truth is **not** “whatever Access says.” It is what we commit to MySQ
 | Module | What it does |
 |--------|----------------|
 | [`player_names.py`](../scripts/amiga/player_names.py) | Collapse spacing / case duplicates (`Oliver ST` → `Oliver St`) |
-| [`tournament_names.py`](../scripts/amiga/tournament_names.py) | Map Scores tournament strings to catalog parents (Milan X fragments, cup aliases) |
+| [`tournament_names.py`](../scripts/amiga/tournament_names.py) | Map Scores tournament strings to catalog parents (Milan X fragments, cup aliases, WC V KOA Cup → World Cup V) |
+| [`tournament_format.py`](../scripts/amiga/tournament_format.py) | Seed format templates and infer non-exclusive `has_league` / `has_cup` catalog flags from canonical phases |
 | [`import_access.py`](../scripts/amiga/import_access.py) | Calendar-first sort, continuous same-day `game_date`, player/tournament insert order |
 
 ### Manual (explicit overrides)
@@ -116,10 +117,19 @@ Exits non-zero if a new inversion appears that is **not** covered by `import_cor
 
 | Tournament | Field | Access value | Canonical | Reason |
 |------------|-------|--------------|-----------|--------|
+| World Cup 2015 | `name` | World Cup 2015 | **World Cup XV** | Chrono 548 between XIV and XVI; Access `Scores` / catalog use year label; reference groups already `World Cup XV Tables` |
 | World Cup VIII | `event_date` | 2008-09-08 | **2008-11-09** | Chrono 325 between Newent XIV (Nov 3) and Helsingborg (Nov 14); real event 9 Nov 2008 |
 | Wiesbaden IX | `event_date` | 2009-04-07 | **2009-01-25** | Chrono 333 before Wiesbaden X (Feb 22); Access April date breaks IX-before-X order. Source: [KO Gathering forum](https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684) |
 
 Newent XVI (2009-02-13, chrono 334) needs no override — it sits correctly between corrected Wiesbaden IX (Jan 25) and Wiesbaden X (Feb 22).
+
+### Scores tournament aliases (automatic)
+
+| Access `Scores.Tournament` | Canonical parent | Reason |
+|----------------------------|------------------|--------|
+| World Cup V KOA Cup | **World Cup V** | 2005 Cologne KOA Cup = consolation bracket within WC V (Alkis matches5; Access `World Cup V Tables` Groups I–L). WC IV uses `KOA Cup - …` phases under the parent; 2005 wrongly split into a second catalog row. Catalog row skipped on import; phases prefixed `KOA Cup - …`. |
+
+See `TOURNAMENT_ALIAS_RATIONALE` in `tournament_names.py`.
 
 ---
 

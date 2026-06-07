@@ -83,7 +83,20 @@ function amiga_ops_parse_phase(?string $phase): array
     }
 
     if (preg_match(
-        '/^(?:(?P<prefix>Round\s+\d+|Silver\s+Cup|Bronze\s+Cup)\s*[-]?\s*)?Group\s+(?P<group>[A-Z](?:\/[A-Z])?)$/i',
+        '/^KOA\s+Cup\s*-\s*(?P<round>Round\s+\d+)\s*-\s*Group\s+(?P<group>[A-Z](?:\/[A-Z])?)$/i',
+        $label,
+        $mKoa
+    ) === 1) {
+        $prefix = 'KOA Cup - ' . amiga_ops_normalize_whitespace($mKoa['round']);
+
+        return [
+            'scope_type' => AMIGA_SCOPE_TYPE_GROUP,
+            'scope_key' => amiga_ops_canonical_group_key($prefix, $mKoa['group']),
+        ];
+    }
+
+    if (preg_match(
+        '/^(?:(?P<prefix>Round\s+\d+|Silver\s+Cup|Bronze\s+Cup|KOA\s+Cup)\s*[-]?\s*)?Group\s+(?P<group>[A-Z](?:\/[A-Z])?)$/i',
         $label,
         $m
     ) === 1) {
@@ -94,7 +107,7 @@ function amiga_ops_parse_phase(?string $phase): array
     }
 
     if (preg_match(
-        '/^(?P<prefix>Round\s+\d+|Silver\s+Cup|Bronze\s+Cup)\s*-\s*Group\s+(?P<group>[A-Z](?:\/[A-Z])?)$/i',
+        '/^(?P<prefix>Round\s+\d+|Silver\s+Cup|Bronze\s+Cup|KOA\s+Cup)\s*-\s*Group\s+(?P<group>[A-Z](?:\/[A-Z])?)$/i',
         $label,
         $m2
     ) === 1) {

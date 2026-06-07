@@ -19,10 +19,10 @@ The **online realm** is a mature hub: Status pulse, Activity charts, nine leader
 ### Top 5 recommendations (priority order)
 
 1. **Amiga hub IA v0 shipped** — three tabs (**Ladder · Tournaments · Hall of Fame**) via `amiga_hub_nav.php`; realm switcher still lands on `/amiga/rating.php`. **Next:** fourth **Leaderboards** tab when `/amiga/leaderboards/` wings exist.
-2. **Phase A leaderboard wings as thin pages only** — Goals, DDs & CSs, Streaks (match streaks), Victims & Culprits, Peak rating already have **full column parity** in `amiga_player_stats`; replay + PHP post-game maintain them today. Only `/amiga/leaderboards/*.php` + shared nav are missing.
-3. **HoF v1 = career extremes + ratio leaders from `amiga_player_stats`** plus a small **`amiga_generalstats`** (or replay `server_records.py` port) for single-holder server records; add **Amiga-native tournament honours** (WC medals, marathon league wins) from `amiga_tournament_standings` — do not mirror online UTC activity peaks or calendar play streaks in v1.
+2. **Phase A leaderboard wings as thin pages only** — Goals, DDs & CSs, Victims & Culprits, Peak rating already have **full column parity** in `amiga_player_stats`; replay + PHP post-game maintain them today. Only `/amiga/leaderboards/*.php` + shared nav are missing. **No Streaks wing** — match streaks are off the table (unknown real within-day play order; see [`amiga-data-contract.md`](amiga-data-contract.md) § Match streaks).
+3. **HoF v1 = career extremes + ratio leaders from `amiga_player_stats`** plus a small **`amiga_generalstats`** (or replay `server_records.py` port) for single-holder server records; add **Amiga-native tournament honours** (WC medals, marathon league wins) from `amiga_tournament_standings` — do not mirror online UTC activity peaks, calendar play streaks, or **match streaks** in v1.
 4. **Defer profile feast depth** until leaderboard + HoF ship; then add `amiga_player_matchup_summary` (direct port of online pattern) for top opponents / H2H — not live scans at 1.1k games/player.
-5. **Explicit skips:** Milestones (deferred indefinitely), Status, Activity server pulse, League honours, Play & Setup, cross-realm H2H — document rationale in hub copy, not empty stubs.
+5. **Explicit skips:** Milestones (deferred indefinitely), Status, Activity server pulse, League honours, Play & Setup, **match streaks** (unknown within-day order), cross-realm H2H — document rationale in hub copy, not empty stubs.
 
 ### The one product decision Dagh must make first
 
@@ -31,7 +31,7 @@ The **online realm** is a mature hub: Status pulse, Activity charts, nine leader
 | Option | Hub default | Leaderboards | HoF |
 |--------|-------------|--------------|-----|
 | **A — Mirror wings** | Ladder (`rating`) | Same nine wings minus Milestones + League honours; Activity peaks redefined later | Mostly port online record list |
-| **B — Tournament-native (recommended)** | **Tournaments** or balanced **Ladder** | Five wings: Rating, Goals, DDs, Streaks, Victims, Peak rating; **Tournament honours** as sixth wing or HoF section | Career extremes + **WC / league honours**; skip UTC calendar records |
+| **B — Tournament-native (recommended)** | **Tournaments** or balanced **Ladder** | Five wings: Rating, Goals, DDs, Victims, Peak rating; **Tournament honours** as sixth wing or HoF section | Career extremes + **WC / league honours**; skip match streaks + UTC calendar records |
 
 Option B matches offline play patterns (event bursts, medals, marathon leagues) without pretending the Amiga ladder is a live UTC server. Option A is faster to explain to online veterans but buries the Amiga differentiator.
 
@@ -64,14 +64,14 @@ Online SQL sources verified from `site/public_html/leaderboards/*.php`. Amiga an
 | **Rating** | `leaderboards/rating.php` | `playertable` | `/amiga/rating.php` | **Yes** — `Rating`, W/D/L, ratios, `AverageOpponentRating` | No | **Already** (move under hub) | Thin page exists; fold into `/amiga/leaderboards/rating.php` + wing nav |
 | **Goals** | `leaderboards/goals.php` | `playertable` — `GoalsFor`, `GoalsAgainst`, averages, extremes, `BiggestWinDifference`, … | None | **Yes** — same columns on `amiga_player_stats` | No | **Ship** (page only) | `ORDER BY GoalsFor DESC`; replay populates via shared `PlayerState` |
 | **DDs & CSs** | `leaderboards/double-digits.php` | `playertable` — `DoubleDigits`, `CleanSheets`, ratios, conceded cols | None | **Yes** | No | **Ship** (page only) | |
-| **Streaks** | `leaderboards/streaks.php` | `playertable` longest match streaks + **`player_play_streaks`** (days/weeks) | None | **Partial** — all `Longest*` match streak cols **yes**; calendar play streaks **no** | No for match streaks; **yes** for day/week | **Ship** match-streak wing; **Skip** day/week tabs (v1) | Offline batch play ≠ UTC daily habit |
+| **Streaks** | `leaderboards/streaks.php` | `playertable` longest match streaks + **`player_play_streaks`** (days/weeks) | None | Columns exist on `amiga_player_stats` from shared replay engine — **not product truth** | No | **Skip** | Real within-day match order unknown; synthetic `game_date` order is arbitrary for streaks. Calendar play streaks also skip (offline batch play ≠ UTC daily habit). See [`amiga-data-contract.md`](amiga-data-contract.md) § Match streaks |
 | **Victims & Culprits** | `leaderboards/victims.php` | `playertable` network + inverse counts | None | **Yes** — full victim/culprit column set | No | **Ship** (page only) | Same `>` tie policy as online when porting copy |
 | **League honours** | `leaderboards/league-honours.php` | `player_league_totals`, `player_league_slice_totals` | None | No UTC leagues | No | **Skip** | Replace with **Tournament honours** (Amiga-native) |
 | **Milestones** | `leaderboards/milestones.php` | `player_milestones` | None | No | No | **Skip** (deferred indefinitely) | |
 | **Activity peaks** | `leaderboards/activity-peaks.php` | `player_peak_period_games` → `player_period_games` | None | No period tables | **Yes** if meaningful | **Defer** → Amiga-native | Event-year or “games at one tournament day” semantics TBD; not UTC month/week |
 | **Peak rating** | `leaderboards/peak-rating.php` | `playertable` — `PeakRating`, `LowestRating`, … | None | **Yes** — `PeakRating`, `LowestRating`, sentinels | No | **Ship** (page only) | Same establishment rules as online contract |
 
-**Key insight:** Seven of nine online wings (excluding Milestones + League honours) are **`playertable` scans**. Amiga already stores the same career columns in `amiga_player_stats`, written by `scripts/amiga/replay.py` (`PlayerState.to_db_row`) and `amiga_process_completed_game` — **stats exist, pages don’t**.
+**Key insight:** Six of nine online wings (excluding Milestones, League honours, and **Streaks** — match streaks not valid offline) are **`playertable` scans**. Amiga already stores the same career columns in `amiga_player_stats`, written by `scripts/amiga/replay.py` (`PlayerState.to_db_row`) and `amiga_process_completed_game` — **stats exist, pages don’t** (streak columns exist too but must not be shown).
 
 ### Hall of Fame (record-by-record)
 
@@ -85,7 +85,7 @@ Online SQL sources verified from `site/public_html/leaderboards/*.php`. Amiga an
 | Most goals in one game | `generalstatstable` + game id | `MostGoalsScored` on stats + `MostGoalsScoredGameID` | generalstats for holder date | **Ship** |
 | Biggest win margin / draw / sum of goals | `generalstatstable` + game ids | stats extremes + game ids | generalstats | **Ship** |
 | Highest peak rating (server record) | `generalstatstable.BiggestPeakRating` | scan `amiga_game_ratings.new_rating_*` or generalstats | generalstats | **Ship** |
-| Longest win / undefeated / draw streaks | `generalstatstable` | `Longest*` on stats | generalstats | **Ship** |
+| Longest win / undefeated / draw streaks | `generalstatstable` | `Longest*` on stats (non-authoritative) | — | **Skip** — same within-day order problem as streaks wing |
 | Best attack/defense avg, goal ratio, win %, DD/CS % | `records_ratio_leaders.php` → `playertable` | same columns on `amiga_player_stats` | No (read-time) | **Ship** (read-time query) |
 | **WC gold/silver/bronze** (Access) | `added_players` (reference) | Derive from `amiga_tournament_standings` + cup flags | **Tournament honours** aggregate | **Amiga-native Ship** |
 | **Marathon league wins** (e.g. London XXIII) | — | `amiga_tournament_standings` overall `position=1` | Roll-up table optional | **Amiga-native Ship** |
@@ -169,7 +169,7 @@ Approximate query counts per page (Amiga today):
 | `/amiga/rating.php` | 2 (leaderboard + game count) | Full scan ~473 stat rows | Fine at 10× players |
 | `/amiga/profile.php` | 3 (player, rank, recent tournaments) + chart API | Chart API loads ≤1.1k rating rows/player | Chart JSON for busiest player |
 | `/amiga/games.php` | 4+ (player, rank, count, page of 100) | Join `amiga_rated_games_from_sql()` with filters | Per-player scans OK; avoid realm-wide |
-| `/amiga/tournaments.php` | 2 (count + 200 rows) | Index sort on `tournaments` | Fine |
+| `/amiga/tournaments.php` | 2 (count + 200 rows) | `tournaments` + `amiga_tournament_catalog_stats` join | Fine — **no** live `amiga_games` aggregation (see contract § Tournament index) |
 | `/amiga/tournament.php` | 3–6 (meta, scopes, standings, optional knockout legs) | Per-tournament | Fine |
 | **Future LB wing** | 1 | `amiga_player_stats` scan + sort | Same as online `playertable` wings |
 | **Future HoF** | 1 generalstats + 4 peak queries + 6 ratio queries | Ratio queries cheap | Peak periods if ported without cache |
@@ -222,7 +222,7 @@ Approximate query counts per page (Amiga today):
 
 ### Leaderboard wings under Amiga
 
-- Path: `/amiga/leaderboards/{rating,goals,double-digits,streaks,victims,peak-rating}.php`
+- Path: `/amiga/leaderboards/{rating,goals,double-digits,victims,peak-rating}.php` — **no `streaks.php`** (match streaks skipped)
 - Reuse patterns from `includes/lb_nav.php` — new **`includes/amiga_lb_nav.php`** with Amiga routes, `data-realm="amiga"`, Amiga profile links (`/amiga/profile.php`).
 - Filters: port `lb_player_filters.php` concepts — Amiga has no “inactive 1 year” lobby; **provisional &lt;20 games** still applies for peak/ratio wings.
 
@@ -231,7 +231,7 @@ Approximate query counts per page (Amiga today):
 - `/amiga/hall-of-fame.php` — structurally similar to online `hall-of-fame.php` but:
   - Profile links → `/amiga/profile.php`
   - LB deep links → `/amiga/leaderboards/…`
-  - **Omit** day/week play streak rows (or mark TBD)
+  - **Omit** match streak rows and day/week play streak rows
   - **Add** panel: World Cup medals, major cup wins, marathon league wins
 
 ### Chrome
@@ -246,23 +246,23 @@ Approximate query counts per page (Amiga today):
 
 | Phase | User-visible outcome | Tables | Pages / includes | Ops gates | Size | Deps |
 |-------|---------------------|--------|------------------|-----------|------|------|
-| **A — LB pages only** | Five new leaderboard wings + wing nav; hub shell **partial** (v0 nav shipped) | None | `/amiga/leaderboards/*`, `amiga_lb_nav.php`; fourth hub tab | None (read existing stats) | **S** | Hub nav v0 done |
+| **A — LB pages only** | Four new leaderboard wings + wing nav (Rating move + Goals, DDs, Victims, Peak); hub shell **partial** (v0 nav shipped) | None | `/amiga/leaderboards/*`, `amiga_lb_nav.php`; fourth hub tab — **no streaks wing** | None (read existing stats) | **S** | Hub nav v0 done |
 | **B — HoF subset** | Amiga Hall of Fame: career + single-game + ratio rows | **`amiga_generalstats`** (new) | `/amiga/hall-of-fame.php`, `amiga_records_*.php` | Replay + post-game update generalstats | **M** | Phase A links |
 | **C — Tournament honours** | WC medals LB + profile snippets; “most tournament wins” | Optional **`amiga_player_tournament_honours`** | LB wing or HoF section; profile block | Rebuild on standings post-game | **M** | Standings (done) |
 | **D — Profile feast slices** | Top opponents, H2H, moments | **`amiga_player_matchup_summary`** | APIs + profile blocks | Post-game upsert + replay | **M** | — |
 | **E — Period / activity (optional)** | Event-year peaks or games-per-month | **`amiga_player_period_games`** (+ peak cache) | Activity peaks wing or profile calendars | Define semantics first | **L** | Product decision |
-| **Skipped** | Milestones, Status, Activity, League honours, Play & Setup, calendar play streaks, cross-realm H2H | — | — | — | — | — |
+| **Skipped** | Milestones, Status, Activity, League honours, Play & Setup, **match streaks**, calendar play streaks, cross-realm H2H | — | — | — | — | — |
 
 ---
 
 ## 8. Open questions for Dagh
 
 1. **Hub landing:** Tournaments vs Ladder when switching realm?
-2. **Leaderboard scope:** Full mirror (minus Milestones/League) vs five wings + tournament honours?
+2. **Leaderboard scope:** Full mirror (minus Milestones/League/Streaks) vs five wings + tournament honours?
 3. **HoF:** Port online record list wholesale vs smaller set + Amiga tournament records upfront?
 4. **Activity peaks:** Meaningful offline — calendar month on synthetic `game_date`, **event-year** (group by `tournaments.event_date` year), or skip?
-5. **Calendar play streaks:** Same UTC rules as online or skip entirely?
-6. **Streaks wing:** Match streaks only, or invest in `player_play_streaks` for Amiga?
+5. **Calendar play streaks:** Skip (decided — offline batch play).
+6. **Match streaks:** Skip entirely (decided — unknown real within-day order; [`amiga-data-contract.md`](amiga-data-contract.md) § Match streaks).
 7. **Per-player W/D/L · Goals · DDs tabs:** Match online player nav or keep Profile + Games only?
 8. **Access parity:** Show reference diffs for medals in admin/tooling only, or never surface?
 
@@ -283,7 +283,7 @@ Approximate query counts per page (Amiga today):
 | Network | `DifferentOpponents` … `BiggestWinCulprits` | Same | No |
 | Opponent rating | `SumOfOpponentsRating` … `LowestRatedCulprit` | Same | No |
 | Rating extremes | `PeakRating`, `LowestRating`, ascent/descent | Same | No |
-| Match streaks | `WinningStreak` … `LongestNonLossStreak` | Same | No |
+| Match streaks | `WinningStreak` … `LongestNonLossStreak` | Same column names (replay writes) | **Product gap** — columns populated but **must not be displayed**; order within a day is synthetic |
 | Milestone facilitators | `ScoreStreak` … `LossMarginOneStreak` | Same | No |
 | Game / victim pointers | `*GameID`, `*VictimID`, `*CulpritID` | Same | No |
 | Account / online only | `JoinDate`, `PlayerRank`, `Email`, prefs, … | **Absent** | Intentional |
@@ -309,7 +309,7 @@ Approximate query counts per page (Amiga today):
 |------|------|
 | Amiga hub nav | `site/public_html/includes/amiga_hub_nav.php` |
 | Amiga LB wing nav | `site/public_html/includes/amiga_lb_nav.php` |
-| Leaderboard wings | `site/public_html/amiga/leaderboards/{rating,goals,double-digits,streaks,victims,peak-rating}.php` |
+| Leaderboard wings | `site/public_html/amiga/leaderboards/{rating,goals,double-digits,victims,peak-rating}.php` (no streaks) |
 | Hall of Fame | `site/public_html/amiga/hall-of-fame.php` |
 | HoF helpers | `site/public_html/includes/amiga_records_hof_links.php`, `amiga_records_ratio_leaders.php` |
 | DB read helpers | Extend `site/public_html/includes/amiga_db.php` |

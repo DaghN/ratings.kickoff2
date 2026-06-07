@@ -8,11 +8,15 @@
     "modified_utc": "2026-05-16T00:00:00+00:00"
   },
   "stats": {
-    "tournaments": 604,
+    "tournaments": 603,
     "games": 27408,
-    "players_raw": 477,
+    "players_raw": 474,
     "players_canonical": 473,
-    "name_merge_groups": 1
+    "name_merge_groups": 1,
+    "format_league_only": 517,
+    "format_cup_only": 10,
+    "format_league_and_cup": 75,
+    "format_neither": 1
   },
   "transforms": {
     "name_merges": [
@@ -25,6 +29,13 @@
       }
     ],
     "catalog_overrides": [
+      {
+        "tournament": "World Cup 2015",
+        "field": "name",
+        "access": "World Cup 2015",
+        "canonical": "World Cup XV",
+        "reason": "Roman series XV; Access catalog/Scores use year label; reference table World Cup XV Tables."
+      },
       {
         "tournament": "World Cup VIII",
         "field": "event_date",
@@ -45,6 +56,7 @@
     "automatic_modules": [
       "scripts.amiga.player_names",
       "scripts.amiga.tournament_names",
+      "scripts.amiga.tournament_format",
       "scripts.amiga.import_access"
     ],
     "manual_overrides_module": "scripts.amiga.import_corrections"

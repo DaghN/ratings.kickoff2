@@ -206,7 +206,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
           ?>
 
-      <a href="?id=<?php echo $id; ?>&amp;scope=overall" class="k2-player-nav__btn<?php echo $overallActive ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_url($id, 'overall')); ?>" class="k2-player-nav__btn<?php echo $overallActive ? ' is-active' : ''; ?>"<?php
 
           echo $overallActive ? ' aria-current="page"' : '';
 
@@ -220,7 +220,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
           ?>
 
-      <a href="?id=<?php echo $id; ?>&amp;scope=group&amp;scope_key=<?php echo urlencode($gk); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_url($id, 'group', $gk)); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
 
           echo $active ? ' aria-current="page"' : '';
 
@@ -230,7 +230,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       <?php if ($hasBracket) { ?>
 
-      <a href="?id=<?php echo $id; ?>#bracket" class="k2-player-nav__btn<?php echo $isKnockoutView ? ' is-active' : ''; ?>">Bracket</a>
+      <a href="<?php echo k2_h(amiga_tournament_url($id) . '#bracket'); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView ? ' is-active' : ''; ?>">Bracket</a>
 
       <?php } ?>
 

@@ -13,8 +13,8 @@ $k2GamesHubTabs = [
 ?>
 <div class="k2-chrome-tabs k2-games-hub-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Games">
-<?php foreach ($k2GamesHubTabs as $id => $tab) {
-	$isActive = $k2GamesHubView === $id;
+<?php foreach ($k2GamesHubTabs as $viewId => $tab) {
+	$isActive = $k2GamesHubView === $viewId;
 	?>
 		<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>"
 			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"

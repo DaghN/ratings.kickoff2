@@ -149,6 +149,12 @@ function amiga_tournament_link(int $id, string $name, string $fragment = ''): st
         . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
 }
 
+/** True when catalog name is a World Cup (e.g. World Cup XI). */
+function amiga_tournament_is_world_cup(array $row): bool
+{
+    return preg_match('/^World Cup\s+\S/i', trim((string) ($row['name'] ?? ''))) === 1;
+}
+
 /** Index row format kind (cup vs league marathon). */
 function amiga_tournament_index_format_kind(array $row): string
 {
@@ -160,6 +166,26 @@ function amiga_tournament_index_format_kind(array $row): string
     }
 
     return 'league';
+}
+
+/** Tournament index pill filter: '' | world-cup | league | cup */
+function amiga_tournament_index_matches_filter(array $row, string $filter): bool
+{
+    if ($filter === '') {
+        return true;
+    }
+    if ($filter === 'world-cup') {
+        return amiga_tournament_is_world_cup($row);
+    }
+    $kind = amiga_tournament_index_format_kind($row);
+    if ($filter === 'league') {
+        return $kind === 'league';
+    }
+    if ($filter === 'cup') {
+        return $kind === 'cup' && !amiga_tournament_is_world_cup($row);
+    }
+
+    return true;
 }
 
 /**
@@ -177,8 +203,11 @@ function amiga_tournament_phase_scope_candidates(string $phase): array
     if (preg_match('/^(Round\s+\d+)\s+Group\s+([A-Z](?:\/[A-Z])?)$/i', $phase, $m) === 1) {
         $candidates[] = $m[1] . ' - Group ' . strtoupper($m[2]);
     }
-    if (preg_match('/^(Silver Cup|Bronze Cup)\s+Group\s+([A-Z](?:\/[A-Z])?)$/i', $phase, $m) === 1) {
+    if (preg_match('/^(Silver Cup|Bronze Cup|KOA Cup)\s+Group\s+([A-Z](?:\/[A-Z])?)$/i', $phase, $m) === 1) {
         $candidates[] = $m[1] . ' - Group ' . strtoupper($m[2]);
+    }
+    if (preg_match('/^(KOA Cup)\s*-\s*(Round\s+\d+)\s*-\s*Group\s+([A-Z](?:\/[A-Z])?)$/i', $phase, $m) === 1) {
+        $candidates[] = $m[1] . ' - ' . $m[2] . ' - Group ' . strtoupper($m[3]);
     }
     return array_values(array_unique($candidates));
 }
@@ -332,20 +361,22 @@ function amiga_tournament_phase_link(
  *
  * @return list<array<string, mixed>>
  */
-function amiga_tournament_index_rows(mysqli $con, int $limit = 500, int $offset = 0): array
+function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 0): array
 {
-    $limit = max(1, min(1000, $limit));
+    if ($limit < 1) {
+        $limit = amiga_tournament_index_count($con);
+    }
+    $limit = max(1, min(5000, $limit));
     $offset = max(0, $offset);
+    // Read stored catalog aggregates (amiga_tournament_catalog_stats) — not live scans on amiga_games.
     $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.equal_teams, t.country, t.player_count,
-                   COUNT(DISTINCT g.id) AS game_count,
-                   COUNT(DISTINCT s.player_id) AS standing_players,
-                   COUNT(s.id) AS standing_rows,
-                   COUNT(DISTINCT CASE WHEN s.scope_type = \'group\' THEN s.scope_key END) AS group_scopes,
-                   COUNT(DISTINCT CASE WHEN s.scope_type = \'knockout\' THEN s.scope_key END) AS knockout_ties
+                   COALESCE(c.game_count, 0) AS game_count,
+                   COALESCE(c.standing_players, 0) AS standing_players,
+                   COALESCE(c.standing_rows, 0) AS standing_rows,
+                   COALESCE(c.group_scopes, 0) AS group_scopes,
+                   COALESCE(c.knockout_ties, 0) AS knockout_ties
             FROM tournaments t
-            LEFT JOIN amiga_games g ON g.tournament_id = t.id
-            LEFT JOIN amiga_tournament_standings s ON s.tournament_id = t.id
-            GROUP BY t.id, t.name, t.event_date, t.chrono, t.is_cup, t.equal_teams, t.country, t.player_count
+            LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
             ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC
             LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
     $res = mysqli_query($con, $sql);
@@ -403,19 +434,26 @@ function amiga_tournament_knockout_fixture_games(mysqli $con, int $tournamentId,
     $lo = $parsed['player_lo'];
     $hi = $parsed['player_hi'];
     $sql = 'SELECT g.id, g.source_scores_id, g.game_date, g.player_a_id, g.player_b_id,
-                   g.goals_a, g.goals_b, g.extra, g.phase,
+                   g.goals_a, g.goals_b, g.extra,
+                   COALESCE(g.phase, f.phase_label, s.name, s.stage_key) AS phase,
                    pa.name AS player_a_name, pb.name AS player_b_name
             FROM amiga_games g
+            LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+            LEFT JOIN tournament_stages s ON s.id = f.stage_id
             INNER JOIN amiga_players pa ON pa.id = g.player_a_id
             INNER JOIN amiga_players pb ON pb.id = g.player_b_id
-            WHERE g.tournament_id = ? AND g.phase = ?
+            WHERE g.tournament_id = ?
+              AND (
+                g.phase = ?
+                OR (g.fixture_id IS NOT NULL AND COALESCE(f.phase_label, s.name, s.stage_key) = ?)
+              )
               AND ((g.player_a_id = ? AND g.player_b_id = ?) OR (g.player_a_id = ? AND g.player_b_id = ?))
             ORDER BY g.source_scores_id ASC, g.id ASC';
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
         return [];
     }
-    mysqli_stmt_bind_param($stmt, 'isiiii', $tournamentId, $phase, $lo, $hi, $hi, $lo);
+    mysqli_stmt_bind_param($stmt, 'issiiii', $tournamentId, $phase, $phase, $lo, $hi, $hi, $lo);
     mysqli_stmt_execute($stmt);
     $res = mysqli_stmt_get_result($stmt);
     $rows = [];

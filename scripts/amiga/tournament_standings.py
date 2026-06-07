@@ -29,8 +29,13 @@ LOSS_POINTS = 0
 
 GAME_SELECT = """
     SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id,
-           g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id
+           g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id,
+           g.fixture_id,
+           f.phase_label AS fixture_phase_label,
+           s.stage_key, s.name AS stage_name, s.stage_type, s.track_key
     FROM amiga_games g
+    LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+    LEFT JOIN tournament_stages s ON s.id = f.stage_id
     WHERE g.tournament_id IS NOT NULL
     ORDER BY g.tournament_id ASC, g.source_scores_id ASC, g.id ASC
 """
@@ -215,6 +220,36 @@ def _assign_positions(table: dict[int, PlayerStanding]) -> list[tuple[int, Playe
     return out
 
 
+def _fixture_label(g: dict[str, Any]) -> str:
+    label = g.get("fixture_phase_label") or g.get("stage_name") or g.get("stage_key") or "Fixture"
+    return str(label).strip() or "Fixture"
+
+
+def _fixture_scope(
+    g: dict[str, Any],
+    player_a_id: int,
+    player_b_id: int,
+) -> tuple[PhaseScope, bool] | None:
+    if g.get("fixture_id") is None:
+        return None
+    stage_type = str(g.get("stage_type") or "").strip().lower()
+    stage_key = str(g.get("stage_key") or "").strip()
+    label = _fixture_label(g)
+
+    if stage_type == "league":
+        if stage_key == "" or stage_key.lower() == "overall":
+            return PhaseScope(ScopeType.OVERALL, ""), False
+        return PhaseScope(ScopeType.GROUP, label), False
+    if stage_type == "group":
+        return PhaseScope(ScopeType.GROUP, label), False
+    if stage_type in {"knockout", "placement"}:
+        pair_key = knockout_pair_scope_key(label, player_a_id, player_b_id)
+        return PhaseScope(ScopeType.KNOCKOUT, pair_key), True
+    if stage_type == "other":
+        return PhaseScope(ScopeType.GROUP, label), False
+    return None
+
+
 def compute_tournament_standings(
     games: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -227,14 +262,42 @@ def compute_tournament_standings(
 
     for g in games:
         phase = g.get("phase")
-        if not phase:
-            has_null_phase = True
-        else:
-            has_structured = True
         player_a_id = int(g["player_a_id"])
         player_b_id = int(g["player_b_id"])
         goals_a = int(g["goals_a"])
         goals_b = int(g["goals_b"])
+
+        fixture_scope = _fixture_scope(g, player_a_id, player_b_id)
+        if fixture_scope is not None:
+            scope, is_elimination = fixture_scope
+            has_structured = True
+            if is_elimination:
+                scope_key = (scope.scope_type, scope.scope_key)
+                knockout_games[scope_key].append(g)
+                _apply_game(
+                    knockout_scopes,
+                    scope,
+                    player_a_id,
+                    player_b_id,
+                    goals_a,
+                    goals_b,
+                    league_only=False,
+                )
+            else:
+                _apply_game(
+                    scopes,
+                    scope,
+                    player_a_id,
+                    player_b_id,
+                    goals_a,
+                    goals_b,
+                )
+            continue
+
+        if not phase:
+            has_null_phase = True
+        else:
+            has_structured = True
 
         if is_knockout_phase(phase):
             pair_key = knockout_pair_scope_key(str(phase), player_a_id, player_b_id)

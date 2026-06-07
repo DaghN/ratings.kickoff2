@@ -18,6 +18,8 @@ python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
 python -m scripts.amiga verify-chronology
 python -m scripts.amiga verify-import-manifest
+python -m scripts.amiga verify-tournament-formats
+python -m scripts.amiga fixtures verify
 python -m scripts.amiga audit-catalog-dates
 
 # Ops simul — parity gate (500 games; oracle: python -m scripts.amiga replay --limit 500):
@@ -49,11 +51,11 @@ python scripts/amiga/discover_access_schema.py
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Export writes **17 part files** + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Sync all of `_import/` via WinSCP.
+Export writes **22 part files** + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Sync all of `_import/` via WinSCP.
 
 **Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
 
-- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 17`
+- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 22`
 - **Apply:** same URL with `&apply=1&part=1` (auto-continues)
 - **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`
 
@@ -78,6 +80,43 @@ python -m scripts.amiga import   # reload ground truth with Scores.Extra
 python -m scripts.amiga replay   # Elo + standings
 ```
 
+**Tournament index stats** (`/amiga/tournaments.php` — existing DBs after Jun 2026 perf fix):
+
+```powershell
+mysql ko2amiga_db < scripts/amiga/sql/004_tournament_catalog_stats.sql
+python -m scripts.amiga catalog-stats-rebuild   # or full replay
+```
+
+**Tournament format foundation** (legacy imports + future format templates):
+
+```powershell
+mysql ko2amiga_db < scripts/amiga/sql/005_tournament_formats.sql
+python -m scripts.amiga import
+python -m scripts.amiga verify-tournament-formats
+```
+
+**Tournament fixtures foundation** (internal ops only; public builder UI deferred):
+
+```powershell
+mysql ko2amiga_db < scripts/amiga/sql/006_tournament_fixtures.sql
+python -m scripts.amiga fixtures verify
+
+# Examples for future live events:
+python -m scripts.amiga fixtures create-stage --tournament-id 1 --stage-key overall --name "Overall" --stage-type league
+python -m scripts.amiga fixtures create-fixture --tournament-id 1 --stage-key overall --fixture-key overall-001 --player-a-id 1 --player-b-id 2
+```
+
+**Internal tournament builder** (first supported template: `kitchen_marathon`):
+
+```powershell
+# Dry-run rolls back after building the structure.
+python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Kitchen I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4 --dry-run
+
+# Real create, then verify before entering results in a later workflow.
+python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Kitchen I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4
+python -m scripts.amiga build-tournament verify-built --tournament-id N
+```
+
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 
 Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
@@ -85,6 +124,6 @@ Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
 ## Docs
 
 - **Import layer:** [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) — archival → ground truth, overrides, manifest
-- **Data contract:** [`docs/amiga-data-contract.md`](../../docs/amiga-data-contract.md) — ground / derived / reference layers
+- **Data contract:** [`docs/amiga-data-contract.md`](../../docs/amiga-data-contract.md) — ground / derived / reference layers; **match streaks are not product truth** (§ Match streaks)
 - Discovery write-up: [`docs/amiga-schema-discovery.md`](../../docs/amiga-schema-discovery.md)
 - Source layout: [`data/amiga/README.md`](../../data/amiga/README.md)

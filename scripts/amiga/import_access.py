@@ -26,21 +26,39 @@ from scripts.amiga.player_names import (
     identity_key,
     normalize_display_name,
 )
-from scripts.amiga.tournament_names import resolve_phase, resolve_tournament_name
+from scripts.amiga.tournament_names import (
+    resolve_phase,
+    resolve_tournament_name,
+    scores_only_catalog_aliases,
+)
+from scripts.amiga.tournament_format import (
+    LEGACY_TEMPLATE_SLUG,
+    audit_tournament_format_flags,
+    infer_legacy_tournament_formats,
+    seed_format_templates,
+)
 log = logging.getLogger(__name__)
 
 _SQL_TRACK_B = Path(__file__).resolve().parent / "sql" / "002_tournament_standings.sql"
 _SQL_KNOCKOUT = Path(__file__).resolve().parent / "sql" / "003_knockout_scope.sql"
+_SQL_CATALOG_STATS = Path(__file__).resolve().parent / "sql" / "004_tournament_catalog_stats.sql"
+_SQL_FORMATS = Path(__file__).resolve().parent / "sql" / "005_tournament_formats.sql"
+_SQL_FIXTURES = Path(__file__).resolve().parent / "sql" / "006_tournament_fixtures.sql"
 
 _AMIGA_TABLES_DROP_ORDER = (
+    "amiga_tournament_catalog_stats",
     "amiga_tournament_standings",
     "amiga_game_ratings",
     "amiga_player_stats",
     "amiga_games",
+    "tournament_fixtures",
+    "tournament_stage_players",
+    "tournament_stages",
     "amiga_players",
     "ratedresults",
     "playertable",
     "tournaments",
+    "tournament_format_templates",
 )
 
 _REPO = Path(__file__).resolve().parents[2]
@@ -82,12 +100,22 @@ def connect_mysql(cfg) -> pymysql.connections.Connection:
 
 
 def _split_sql(sql: str) -> list[str]:
+    sql = "\n".join(ln for ln in sql.splitlines() if ln.strip() and not ln.strip().startswith("--"))
     parts: list[str] = []
     for chunk in sql.split(";"):
-        lines = [ln for ln in chunk.splitlines() if ln.strip() and not ln.strip().startswith("--")]
+        lines = [ln for ln in chunk.splitlines() if ln.strip()]
         if lines:
             parts.append("\n".join(lines))
     return parts
+
+
+def _is_idempotent_alter_error(exc: pymysql.err.OperationalError) -> bool:
+    if not exc.args:
+        return False
+    code = int(exc.args[0])
+    if code in (1060, 1061, 1826):  # duplicate column/key/foreign-key name
+        return True
+    return code == 1005 and "Duplicate" in str(exc)
 
 
 def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = False) -> None:
@@ -97,7 +125,7 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
             for table in _AMIGA_TABLES_DROP_ORDER:
                 cur.execute(f"DROP TABLE IF EXISTS `{table}`")
             cur.execute("SET FOREIGN_KEY_CHECKS = 1")
-    for sql_path in (_SQL, _SQL_TRACK_B, _SQL_KNOCKOUT):
+    for sql_path in (_SQL, _SQL_TRACK_B, _SQL_KNOCKOUT, _SQL_CATALOG_STATS, _SQL_FORMATS, _SQL_FIXTURES):
         sql = sql_path.read_text(encoding="utf-8")
         with conn.cursor() as cur:
             for stmt in _split_sql(sql):
@@ -105,7 +133,7 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
                     try:
                         cur.execute(stmt)
                     except pymysql.err.OperationalError as exc:
-                        if exc.args[0] != 1060:  # Duplicate column name
+                        if not _is_idempotent_alter_error(exc):
                             raise
                 else:
                     cur.execute(stmt)
@@ -120,10 +148,14 @@ def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
     """
     with conn.cursor() as cur:
         cur.execute("SET FOREIGN_KEY_CHECKS = 0")
+        cur.execute("TRUNCATE TABLE amiga_tournament_catalog_stats")
         cur.execute("TRUNCATE TABLE amiga_tournament_standings")
         cur.execute("TRUNCATE TABLE amiga_game_ratings")
         cur.execute("TRUNCATE TABLE amiga_player_stats")
         cur.execute("TRUNCATE TABLE amiga_games")
+        cur.execute("TRUNCATE TABLE tournament_fixtures")
+        cur.execute("TRUNCATE TABLE tournament_stage_players")
+        cur.execute("TRUNCATE TABLE tournament_stages")
         cur.execute("TRUNCATE TABLE amiga_players")
         cur.execute("TRUNCATE TABLE tournaments")
         cur.execute("SET FOREIGN_KEY_CHECKS = 1")
@@ -197,6 +229,15 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
     acc_cur = acc.cursor()
     tournaments = load_access_tournaments(acc_cur)
     catalog_overrides = apply_catalog_corrections(tournaments)
+    skip_catalog = scores_only_catalog_aliases()
+    skipped_catalog = sorted(t["name"] for t in tournaments if t["name"] in skip_catalog)
+    tournaments = [t for t in tournaments if t["name"] not in skip_catalog]
+    if skipped_catalog:
+        log.info(
+            "Skipped %s Access catalog row(s) merged via tournament_names aliases: %s",
+            len(skipped_catalog),
+            skipped_catalog,
+        )
     if catalog_overrides:
         log.info("Applied %s catalog override(s) from import_corrections.py", len(catalog_overrides))
         for entry in catalog_overrides:
@@ -225,23 +266,31 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
     acc.close()
 
     mysql = connect_mysql(cfg)
-    if recreate_schema:
-        apply_schema(mysql, drop_existing=True)
+    apply_schema(mysql, drop_existing=recreate_schema)
     truncate_ground_truth(mysql)
+    template_ids = seed_format_templates(mysql)
+    legacy_template_id = template_ids[LEGACY_TEMPLATE_SLUG]
+    format_by_name = infer_legacy_tournament_formats(tournaments, scores)
 
     tour_by_name = {t["name"]: t for t in tournaments}
     with mysql.cursor() as cur:
         for t in tournaments:
+            inferred_format = format_by_name[t["name"]]
             cur.execute(
                 """
                 INSERT INTO tournaments
-                  (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count)
+                  (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count,
+                   format_template_id, has_league, has_cup)
                 VALUES (%(source_id)s, %(name)s, %(chrono)s, %(event_date)s, %(is_cup)s,
-                        %(country)s, %(equal_teams)s, %(player_count)s)
+                        %(country)s, %(equal_teams)s, %(player_count)s,
+                        %(format_template_id)s, %(has_league)s, %(has_cup)s)
                 """,
                 {
                     **t,
                     "event_date": t["event_date"].date() if isinstance(t["event_date"], datetime) else t["event_date"],
+                    "format_template_id": legacy_template_id,
+                    "has_league": inferred_format.has_league,
+                    "has_cup": inferred_format.has_cup,
                 },
             )
 
@@ -334,13 +383,33 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
             game_rows,
         )
 
+    format_audit_failures = audit_tournament_format_flags(mysql)
+    if format_audit_failures:
+        raise SystemExit(f"Tournaments with games but neither format flag set: {format_audit_failures}")
+
     mysql.commit()
+    format_bucket_counts = {
+        "league_only": 0,
+        "cup_only": 0,
+        "league_and_cup": 0,
+        "neither": 0,
+    }
+    for inferred in format_by_name.values():
+        if inferred.has_league and inferred.has_cup:
+            format_bucket_counts["league_and_cup"] += 1
+        elif inferred.has_league:
+            format_bucket_counts["league_only"] += 1
+        elif inferred.has_cup:
+            format_bucket_counts["cup_only"] += 1
+        else:
+            format_bucket_counts["neither"] += 1
     stats = {
         "tournaments": len(tournaments),
         "games": len(game_rows),
         "players_raw": len(raw_player_names),
         "players_canonical": len(names),
         "name_merge_groups": len(merge_log),
+        **{f"format_{key}": value for key, value in format_bucket_counts.items()},
     }
     manifest = build_manifest(
         mdb=mdb,

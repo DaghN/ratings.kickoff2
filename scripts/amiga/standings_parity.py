@@ -16,6 +16,7 @@ import pyodbc
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.import_corrections import access_reference_tournament_name
 from scripts.amiga.player_names import normalize_display_name
 from scripts.amiga.tournament_names import TOURNAMENT_ALIASES
 from scripts.amiga.tournament_phases import access_group_label_for_parity
@@ -67,10 +68,11 @@ def _index_by_player(rows: list[dict]) -> dict[str, dict]:
 
 
 def load_access_overall(cur: pyodbc.Cursor, tournament_name: str) -> list[dict]:
+    ref_label = access_reference_tournament_name(tournament_name)
     cur.execute(
         "SELECT Player, G, W, D, L, GS, GC, Pts, P "
         "FROM [Tables] WHERE Tournament = ? ORDER BY Pts DESC, (GS-GC) DESC, GS DESC",
-        (tournament_name,),
+        (ref_label,),
     )
     cols = [d[0] for d in cur.description]
     return [dict(zip(cols, row)) for row in cur.fetchall()]
@@ -448,7 +450,8 @@ def run_sweep(
     results: list[ScopeResult] = []
     for t in tournaments:
         tid, tname = int(t["id"]), str(t["name"])
-        if tname not in ref_tournaments and not _wc_table_name(tname):
+        ref_label = access_reference_tournament_name(tname)
+        if ref_label not in ref_tournaments and not _wc_table_name(tname):
             continue
 
         scopes: list[tuple[str, str]] = [("overall", "")]
@@ -464,7 +467,7 @@ def run_sweep(
 
         with mysql.cursor() as mysql_cur:
             for scope_type, scope_key in scopes:
-                if scope_type == "overall" and tname not in ref_tournaments:
+                if scope_type == "overall" and ref_label not in ref_tournaments:
                     continue
                 res = compare_scope(
                     tournament_id=tid,

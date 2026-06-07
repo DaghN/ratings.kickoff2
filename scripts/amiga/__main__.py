@@ -10,6 +10,10 @@ from pathlib import Path
 
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
+from scripts.amiga.tournament_catalog_stats import run_catalog_stats_rebuild
+from scripts.amiga.tournament_builder import main as tournament_builder_main
+from scripts.amiga.tournament_format import main as tournament_format_main
+from scripts.amiga.tournament_fixtures import main as tournament_fixtures_main
 from scripts.amiga.standings_parity import main as standings_parity_main
 from scripts.amiga.verify_track_b import main as verify_track_b_main
 from scripts.amiga.verify_chronology import main as verify_chronology_main
@@ -69,9 +73,32 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     sub.add_parser(
+        "verify-tournament-formats",
+        help="Assert imported tournaments with games have league/cup format flags",
+    )
+
+    sub.add_parser(
         "audit-catalog-dates",
         help="Scan Access for chrono/date inversions; fail if uncorrected",
     )
+
+    p_catalog = sub.add_parser(
+        "catalog-stats-rebuild",
+        help="Rebuild amiga_tournament_catalog_stats (tournament index aggregates)",
+    )
+    p_catalog.add_argument("--dry-run", action="store_true")
+
+    p_fixtures = sub.add_parser(
+        "fixtures",
+        help="Internal stage/fixture operations for future live tournaments",
+    )
+    p_fixtures.add_argument("fixture_args", nargs=argparse.REMAINDER)
+
+    p_builder = sub.add_parser(
+        "build-tournament",
+        help="Internal builder for new fixture-backed tournaments",
+    )
+    p_builder.add_argument("builder_args", nargs=argparse.REMAINDER)
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -100,8 +127,21 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "verify-import-manifest":
         return verify_import_manifest_main()
 
+    if args.cmd == "verify-tournament-formats":
+        return tournament_format_main([])
+
     if args.cmd == "audit-catalog-dates":
         return audit_catalog_dates_main()
+
+    if args.cmd == "catalog-stats-rebuild":
+        run_catalog_stats_rebuild(dry_run=args.dry_run)
+        return 0
+
+    if args.cmd == "fixtures":
+        return tournament_fixtures_main(args.fixture_args)
+
+    if args.cmd == "build-tournament":
+        return tournament_builder_main(args.builder_args)
 
     if args.cmd == "standings-parity":
         parity_argv: list[str] = [

@@ -18,31 +18,24 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
-$limit = 200;
-$offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
 $typeFilter = isset($_GET['type']) ? (string) $_GET['type'] : '';
-if (!in_array($typeFilter, ['', 'cup', 'league'], true)) {
+if (!in_array($typeFilter, ['', 'world-cup', 'league', 'cup'], true)) {
     $typeFilter = '';
 }
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 
-$total = amiga_tournament_index_count($con);
-$allRows = amiga_tournament_index_rows($con, $limit, $offset);
+$allRows = amiga_tournament_index_rows($con);
 mysqli_close($con);
 
 $rows = $allRows;
 if ($typeFilter !== '') {
     $rows = array_values(array_filter(
         $allRows,
-        static fn (array $row): bool => amiga_tournament_index_format_kind($row) === $typeFilter
+        static fn (array $row): bool => amiga_tournament_index_matches_filter($row, $typeFilter)
     ));
 }
-
-$firstShown = count($rows) > 0 ? $offset + 1 : 0;
-$lastShown = $offset + count($rows);
-$filterQuery = $offset > 0 ? '&amp;offset=' . $offset : '';
 ?>
 
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
@@ -52,9 +45,10 @@ $filterQuery = $offset > 0 ? '&amp;offset=' . $offset : '';
   </p>
   <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav" aria-label="Filter by format" style="margin-bottom:1rem">
     <div class="k2-player-nav__links">
-      <a href="?<?php echo $offset > 0 ? 'offset=' . $offset : ''; ?>" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
-      <a href="?type=cup<?php echo $filterQuery; ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'cup' ? ' is-active' : ''; ?>">Cups</a>
-      <a href="?type=league<?php echo $filterQuery; ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'league' ? ' is-active' : ''; ?>">Leagues</a>
+      <a href="?" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
+      <a href="?type=world-cup" class="k2-player-nav__btn<?php echo $typeFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
+      <a href="?type=league" class="k2-player-nav__btn<?php echo $typeFilter === 'league' ? ' is-active' : ''; ?>">Leagues</a>
+      <a href="?type=cup" class="k2-player-nav__btn<?php echo $typeFilter === 'cup' ? ' is-active' : ''; ?>">Cups</a>
     </div>
   </nav>
 </header>
@@ -112,17 +106,11 @@ $filterQuery = $offset > 0 ? '&amp;offset=' . $offset : '';
 </div>
 
 <p style="padding:0 1.25rem 1rem;color:var(--k2-text-secondary)">
-    Showing <?php echo $firstShown; ?>–<?php echo $lastShown; ?> of <?php echo $total; ?> tournaments<?php
+    <?php echo count($rows); ?> tournament<?php echo count($rows) === 1 ? '' : 's'; ?><?php
 
         echo $typeFilter !== '' ? ' (filtered)' : '';
 
     ?>.
-    <?php if ($offset > 0) { ?>
-    <a href="?offset=<?php echo max(0, $offset - $limit); ?><?php echo $typeFilter !== '' ? '&amp;type=' . urlencode($typeFilter) : ''; ?>">Previous <?php echo $limit; ?></a>
-    <?php } ?>
-    <?php if ($offset + $limit < $total) { ?>
-    <a href="?offset=<?php echo $offset + $limit; ?><?php echo $typeFilter !== '' ? '&amp;type=' . urlencode($typeFilter) : ''; ?>">Next <?php echo $limit; ?></a>
-    <?php } ?>
 </p>
 
 </div><!-- .k2-page-nav -->

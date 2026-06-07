@@ -1,7 +1,8 @@
 """Normalize Access phase labels into standings scope keys.
 
 Phase label taxonomy (non-exhaustive; strings are messy):
-- Group stages: ``Round 1 - Group A``, ``Round 1 Group A``, ``Silver Cup - Group G``
+- Group stages: ``Round 1 - Group A``, ``Round 1 Group A``, ``Silver Cup - Group G``,
+  ``KOA Cup - Round 1 - Group I``
 - Knockout: ``Quarter Finals``, ``Semi Finals``, ``Final``, placement finals
 - Placement brackets: ``Places 9-16``, ``Places 17-20``, …
 - Informal: phase NULL → single overall round-robin within the tournament
@@ -27,9 +28,14 @@ class PhaseScope:
     scope_key: str  # '' for overall; canonical label for group/placement
 
 
+_CUP_GROUP_PREFIX = r"Round\s+\d+|Silver\s+Cup|Bronze\s+Cup|KOA\s+Cup"
 _GROUP_RE = re.compile(
-    r"^(?:(?P<prefix>Round\s+\d+|Silver\s+Cup|Bronze\s+Cup)\s*[-]?\s*)?"
+    rf"^(?:(?P<prefix>{_CUP_GROUP_PREFIX})\s*[-]?\s*)?"
     r"Group\s+(?P<group>[A-Z](?:/[A-Z])?)$",
+    re.IGNORECASE,
+)
+_KOA_ROUND_GROUP_RE = re.compile(
+    r"^KOA\s+Cup\s*-\s*(?P<round>Round\s+\d+)\s*-\s*Group\s+(?P<group>[A-Z](?:/[A-Z])?)$",
     re.IGNORECASE,
 )
 _PLACES_RE = re.compile(r"^Places\s+(\d+(?:-\d+)?)$", re.IGNORECASE)
@@ -101,7 +107,7 @@ def parse_phase(phase: str | None) -> PhaseScope:
         )
 
     m2 = re.match(
-        r"^(?P<prefix>Round\s+\d+|Silver\s+Cup|Bronze\s+Cup)\s*-\s*Group\s+(?P<group>[A-Z](?:/[A-Z])?)$",
+        rf"^(?P<prefix>{_CUP_GROUP_PREFIX})\s*-\s*Group\s+(?P<group>[A-Z](?:/[A-Z])?)$",
         label,
         re.IGNORECASE,
     )
@@ -109,6 +115,14 @@ def parse_phase(phase: str | None) -> PhaseScope:
         return PhaseScope(
             ScopeType.GROUP,
             _canonical_group_key(m2.group("prefix"), m2.group("group")),
+        )
+
+    m3 = _KOA_ROUND_GROUP_RE.match(label)
+    if m3:
+        prefix = f"KOA Cup - {_normalize_whitespace(m3.group('round'))}"
+        return PhaseScope(
+            ScopeType.GROUP,
+            _canonical_group_key(prefix, m3.group("group")),
         )
 
     # Unknown structured label — treat as its own group-like scope for aggregation.
@@ -122,7 +136,14 @@ def access_group_label_for_parity(scope_key: str) -> str:
     prefix lives only in ``Scores.Phase``, not in the WC Tables ``Tournament`` column.
     """
     m = re.match(
-        r"^(?:Round\s+\d+|Silver\s+Cup|Bronze\s+Cup)\s*-\s*Group\s+([A-Z](?:/[A-Z])?)$",
+        r"^KOA\s+Cup\s*-\s*Round\s+\d+\s*-\s*Group\s+([A-Z](?:/[A-Z])?)$",
+        scope_key,
+        re.IGNORECASE,
+    )
+    if m:
+        return f"Group {m.group(1).upper()}"
+    m = re.match(
+        rf"^(?:{_CUP_GROUP_PREFIX})\s*-\s*Group\s+([A-Z](?:/[A-Z])?)$",
         scope_key,
         re.IGNORECASE,
     )

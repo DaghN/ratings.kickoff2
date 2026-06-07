@@ -13,6 +13,7 @@ MANIFEST_VERSION = 1
 AUTOMATIC_TRANSFORM_MODULES = (
     "scripts.amiga.player_names",
     "scripts.amiga.tournament_names",
+    "scripts.amiga.tournament_format",
     "scripts.amiga.import_access",
 )
 MANUAL_TRANSFORM_MODULE = "scripts.amiga.import_corrections"

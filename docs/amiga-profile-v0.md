@@ -91,6 +91,7 @@ API returns every game; calendar collapse is client-side only. Busy Amiga days (
 ## Not in v0
 
 - H2H, milestones, per-game detail page, compare chart, full bracket advancement tree (cross-stage promotion)
+- **Match streaks** — no leaderboard wing, HoF rows, or profile moments. Real within-day play order is unknown; synthetic `game_date` chronology is not valid for consecutive-result streaks. See [`amiga-data-contract.md`](amiga-data-contract.md) § Match streaks.
 
 ## Browser QA checklist (standings + bracket)
 

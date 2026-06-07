@@ -17,6 +17,7 @@
 | Chronology fix | [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) |
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
 | **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
+| **Tournament format system** (legacy phases → templates/fixtures vision) | [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · handoff [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md) |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
 | DDL (current) | [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql) |
@@ -35,7 +36,7 @@ Canonical facts in MySQL after **import** or **future live submission** — neve
 
 | Fact | Notes |
 |------|--------|
-| Tournament catalog | Names, dates, chrono, cup flag, country |
+| Tournament catalog | Names, dates, chrono, verbatim Access cup flag, country, format template + league/cup flags |
 | Match results | Players, goals, tournament, phase |
 | Player identity | Name, country (display fields only at import) |
 | Provenance | `source_scores_id`, `source_id` where applicable |
@@ -49,7 +50,7 @@ Computed from ground truth by chronological replay or per-game ops. **Always reb
 | Fact | Notes |
 |------|--------|
 | Per-game Elo | Ratings before/after, adjustments, outcome flags |
-| Player career stats | W/D/L, goals, streaks, peaks, opponent networks |
+| Player career stats | W/D/L, goals, peaks, opponent networks — **not match streaks** (see § Match streaks; columns exist but are not product truth) |
 | Tournament standings | Points tables, group tables — from games via `scripts/amiga/tournament_standings.py` |
 | Future aggregates | H2H summaries, period activity, etc. — when needed |
 
@@ -90,6 +91,23 @@ ORDER BY g.game_date ASC, g.id ASC
 ```
 
 `tournaments.chrono` remains imported metadata for import tie-breaks and catalog display — not for replay or API game walks. Verify: `python -m scripts.amiga verify-chronology`. Spec history: [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md).
+
+### Match streaks — off the table (product policy)
+
+**Do not surface match streaks anywhere in the Amiga realm** — leaderboard wing, Hall of Fame rows, profile panels, or APIs.
+
+**Why:** Access has no per-game timestamp. Import assigns a **synthetic** within-day order (`running second counter` on `game_date`; tie-break `id` / `source_scores_id` within tournament). That sequence is correct enough for **Elo**, cumulative **W/D/L**, goals, peaks, and opponent networks, but it is **not** the real order matches were played on tournament day. Consecutive-win / draw / loss streaks depend on that unknown order, so any `Longest*` or current `*Streak` value is **arbitrary**, not a historical fact.
+
+**What agents should know:**
+
+| Topic | Policy |
+|--------|--------|
+| **Website / hub** | **Skip** streaks leaderboard wing; **omit** HoF longest-streak records; **no** profile “moments” for streaks |
+| **Calendar play streaks** (`player_play_streaks`, day/week) | Also **skip** — offline batch play ≠ UTC daily habit |
+| **`amiga_player_stats` columns** | `WinningStreak`, `LongestWinningStreak`, `LongestNonLossStreak`, etc. still exist — shared `PlayerState` / replay engine writes them for schema parity with online. Treat as **non-authoritative for Amiga product**; do not read them in PHP templates or new features |
+| **Removing columns / stopping replay writes** | Not required for v1; product simply never displays them. A future cleanup could zero or drop streak writers if desired |
+
+Roadmap detail: [`amiga-realm-vision.md`](amiga-realm-vision.md) § Leaderboard wings (Streaks), § Hall of Fame.
 
 ---
 
@@ -151,21 +169,44 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 
 | Table | Layer | Writer |
 |-------|-------|--------|
+| `tournament_format_templates` | Ground/config | Import seed / future admin-managed templates |
 | `tournaments` | Ground | Import / submission |
+| `tournament_stages` | Ground | Future live tournament ops / fixture tooling |
+| `tournament_stage_players` | Ground | Future live tournament ops / fixture tooling |
+| `tournament_fixtures` | Ground | Future live tournament ops / fixture tooling |
 | `amiga_players` | Ground | Import / submission |
 | `amiga_games` | Ground | Import / submission |
 | `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
 | `amiga_player_stats` | Derived | Replay or PHP `amiga_process_completed_game` / `replay-to` |
 | `amiga_tournament_standings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
+| `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP `amiga_ops_catalog_stats_refresh_tournament` per touched tournament on post-game |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
-DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B migration [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
+DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
+
+### Tournament format metadata
+
+- `tournament_format_templates` is canonical format/config metadata in `ko2amiga_db`, not an Access import table. Import seeds stable template slugs, including `legacy_inferred` for historical events and starter templates for future live tournament creation.
+- `tournaments.format_template_id` points to the selected template. Legacy imports default to `legacy_inferred`; future live events may use concrete templates such as `kitchen_marathon`, `group_knockout`, or `world_cup_class`.
+- `tournaments.has_league` and `tournaments.has_cup` are **non-exclusive** ground catalog flags computed at import from canonical game phase labels plus the verbatim Access `is_cup` flag. A tournament with games must have at least one of these flags true; verify with `python -m scripts.amiga verify-tournament-formats`.
+- `tournaments.is_cup` remains the raw imported Access `Cup?` value. Do not use it as the product definition of cup play or honours eligibility.
+
+### Tournament stages and fixtures
+
+- `tournament_stages` and `tournament_fixtures` are **ground truth for future live tournaments**. They are not derived from standings, and legacy Access imports leave them empty by default.
+- `amiga_games.fixture_id` is nullable. Fixture-backed games should point at `tournament_fixtures.id`; imported legacy games keep `fixture_id = NULL` and continue through phase-parser fallback.
+- Fixture attachment must preserve canonical game facts: tournament ids must match, and fixture players must match the game players when both fixture players are known. Verify integrity with `python -m scripts.amiga fixtures verify`.
+- Standings scope resolution prefers fixture metadata when `amiga_games.fixture_id` is present: `league` stages feed overall/group tables, `group` stages feed group tables, and `knockout` / `placement` stages feed per-pair knockout scopes. If `fixture_id` is NULL, `scripts/amiga/tournament_phases.py` remains the legacy parser.
+- Public tournament-builder UI is deferred. Until then, use internal ops/tooling only (`scripts/amiga/tournament_builder.py` and `scripts/amiga/tournament_fixtures.py`) and keep website reads behind existing Amiga helpers.
+- `python -m scripts.amiga build-tournament create-kitchen-marathon` is the first internal builder: it creates one new `tournaments` row from the `kitchen_marathon` template, one `overall` league stage, stage players, and scheduled round-robin fixtures. It does **not** create `amiga_games`; result entry remains a later slice.
+
+**Tournament index (`/amiga/tournaments.php`):** read **`amiga_tournament_catalog_stats`** only — one row per tournament (`game_count`, `standing_players`, `group_scopes`, `knockout_ties`). Do **not** aggregate `amiga_games` × `amiga_tournament_standings` at page load (cartesian explosion). Rebuild: `python -m scripts.amiga catalog-stats-rebuild` or full `replay`.
 
 ### Tournament standings rules (Track B v1)
 
 - **Source:** `amiga_games` grouped per `tournament_id`, ordered by `source_scores_id` within tournament.
 - **Points:** 3 per win, 1 per draw, 0 per loss (W×3 + D×1). Tie-break: goal difference, goals scored.
-- **Scopes:** `scope_type` + `scope_key` from phase labels (`scripts/amiga/tournament_phases.py`). Phase NULL → single `overall` table. Group labels → per-group league tables. Knockout phases (`Semi Finals`, `Places 9-16`, …) → `knockout` scope per **player pair** (`scope_key` = `{phase}|{id}-{id}`), two rows per tie.
+- **Scopes:** `scope_type` + `scope_key` from fixture stage metadata when `amiga_games.fixture_id` is present; otherwise from phase labels (`scripts/amiga/tournament_phases.py`). Phase NULL → single `overall` table. Group labels → per-group league tables. Knockout phases (`Semi Finals`, `Places 9-16`, …) → `knockout` scope per **player pair** (`scope_key` = `{phase}|{id}-{id}`), two rows per tie.
 - **Goals:** Regulation `goals_a` / `goals_b` only for league/group tables (Elo uses the same). `extra` column stores Access `Scores.Extra` (ET/penalties text); does not affect Elo.
 - **Knockout tie winner** (per pair scope, all legs in that phase between the two players): (1) higher aggregate goal difference; (2) if tied, higher aggregate goals scored; (3) if still tied, `parse_standings_winner` on any leg with non-empty `extra` (penalties); (4) if unresolved, UI shows “Tie unresolved” and falls back to derived `position` order. Same rules in `scripts/amiga/tournament_standings.py` (`_knockout_positions`) and `includes/amiga_tournament_lib.php` (`amiga_tournament_knockout_resolve_winner`). Website knockout view lists per-leg fixtures via `amiga_tournament_knockout_fixture_games`.
 - **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity` (spot check) or `standings-parity --sweep` (full report → `data/amiga/exports/standings_parity_report.json`). Player names normalized via `normalize_display_name` at compare time; Silver/Bronze cup groups map to Access `Group A`…`H` labels.
@@ -188,12 +229,15 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 | Tournament standings (derived) | **Done** (Track B — league + group + knockout; PHP incremental post-game) |
 | Reference parity tables / diffs | **Done** (`standings-parity --sweep` vs Access ODBC; 0 engine FAILs Jun 2026) |
 | Amiga hub nav (v0) | **Done** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); HoF stub `/amiga/hall-of-fame.php` |
+| Tournament format foundation | **In progress** — `tournament_format_templates` + non-exclusive `tournaments.has_league` / `has_cup` import flags |
+| Stage/fixture foundation | **In progress** — ground tables + internal CLI; no public builder UI yet |
+| Internal tournament builder | **Started** — `kitchen_marathon` round-robin generator only; no result-entry UI yet |
 
 ---
 
 ## Known parity exceptions (reference only)
 
-Full sweep (Jun 2026): **671 PASS**, **109 SKIP** (no Access reference or no derived rows), **26 EXCEPTION** (documented below), **0 FAIL** (engine matches game aggregation). Report: `data/amiga/exports/standings_parity_report.json`.
+Full sweep (Jun 2026): **684 PASS**, **116 SKIP** (no Access reference or no derived rows), **26 EXCEPTION** (documented below), **0 FAIL** (engine matches game aggregation). Report: `data/amiga/exports/standings_parity_report.json`.
 
 | Reason | Count | Meaning |
 |--------|------:|---------|
@@ -207,9 +251,10 @@ Do not “fix” these by importing Access snapshots as truth. Re-run: `python -
 
 ## Agent policy
 
-- **Import:** ground truth only — see `scripts/amiga/import_access.py` and [`amiga-import-layer.md`](amiga-import-layer.md). Corrections to legacy Access belong in the import layer (`import_corrections.py`, `player_names.py`, `tournament_names.py`), not in edited `koatd.mdb`. Each import writes `data/amiga/exports/import_manifest.json`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
+- **Import:** ground truth only — see `scripts/amiga/import_access.py` and [`amiga-import-layer.md`](amiga-import-layer.md). Corrections to legacy Access belong in the import layer (`import_corrections.py`, `player_names.py`, `tournament_names.py`, `tournament_format.py`), not in edited `koatd.mdb`. Each import writes `data/amiga/exports/import_manifest.json`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
 - **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
 - **Incremental post-game (live):** `php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N` — `ko2amiga_db` only; idempotent (`already_processed` if rating row exists); **append-only** (game must be chronologically last; errors `not_append_only` / `derived_gap` otherwise). Parity smoke: full `replay` → `replay --limit (N-1)` → PHP `process-one` on last id → compare rating + both players' stats to full replay.
 - **Simul (replay-to):** `zero-derived` then `replay-to [--limit N] [--until-game-id G]` — walks contract chronology (`game_date ASC, id ASC`); sim chronology = first unrated game in order (`derived_gap` if hole). Idempotent re-run skips `already_processed`. **v1 parity gate:** `--limit 500` vs `python -m scripts.amiga replay --limit 500` (counts + spot-check; not full 27k PHP sim).
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders
+- **Match streaks:** never ship UI or APIs that display `*Streak` / `Longest*Streak` on Amiga — see § Match streaks

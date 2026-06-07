@@ -23,8 +23,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';
 <div class="k2-hub-bar">
 	<nav class="k2-hub-tabs k2-nav-pills" data-k2-carry-scroll aria-label="Online hub">
 		<div class="k2-hub-tabs__links">
-<?php foreach ($k2HubTabs as $id => $tab) { ?>
-			<a href="<?php echo $tab['href']; ?>" class="k2-hub-tabs__btn<?php echo $k2HubTabActive === $id ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
+<?php foreach ($k2HubTabs as $hubTabId => $tab) { ?>
+			<a href="<?php echo $tab['href']; ?>" class="k2-hub-tabs__btn<?php echo $k2HubTabActive === $hubTabId ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
 <?php } ?>
 		</div>
 		<div class="k2-hub-tabs__tune k2-nav-tune">

@@ -24,10 +24,10 @@ $k2LbWingTabs = [
 ?>
 <div class="k2-chrome-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Leaderboard view">
-<?php foreach ($k2LbWingTabs as $id => $tab) {
-	$tabQs = ($id === 'activity-peaks') ? '' : $k2LbFilterQs;
+<?php foreach ($k2LbWingTabs as $wingId => $tab) {
+	$tabQs = ($wingId === 'activity-peaks') ? '' : $k2LbFilterQs;
 ?>
-		<a href="<?php echo htmlspecialchars($tab['href'] . $tabQs, ENT_QUOTES, 'UTF-8'); ?>" class="k2-chrome-tabs__tab<?php echo $k2LbWingActive === $id ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
+		<a href="<?php echo htmlspecialchars($tab['href'] . $tabQs, ENT_QUOTES, 'UTF-8'); ?>" class="k2-chrome-tabs__tab<?php echo $k2LbWingActive === $wingId ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
 <?php } ?>
 <?php if ($k2LbShowFilters) { ?>
 		<div class="k2-chrome-tabs__filters" role="group" aria-label="Leaderboard filters">

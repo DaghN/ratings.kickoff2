@@ -5,6 +5,12 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any
 
+# Access catalog name → canonical name (Roman series, etc.).
+# Scores rows use the Access label — also wired via tournament_names.TOURNAMENT_ALIASES.
+TOURNAMENT_NAME_OVERRIDES: dict[str, str] = {
+    "World Cup 2015": "World Cup XV",
+}
+
 # Tournament name → canonical event_date (calendar day).
 # Add entries only with documented evidence; see docs/amiga-import-layer.md.
 TOURNAMENT_EVENT_DATE_OVERRIDES: dict[str, date] = {
@@ -13,6 +19,12 @@ TOURNAMENT_EVENT_DATE_OVERRIDES: dict[str, date] = {
 }
 
 OVERRIDE_RATIONALE: dict[str, str] = {
+    "World Cup 2015": (
+        "Access [Tournament players].Tournament and Scores.Tournament use year label "
+        "'World Cup 2015'; chrono 548 sits between World Cup XIV and World Cup XVI. "
+        "Access group reference table is already 'World Cup XV Tables'. Canonical "
+        "catalog name is World Cup XV."
+    ),
     "World Cup VIII": (
         "Access [Tournament players].Date is 2008-09-08; chrono 325 sits between "
         "Newent XIV (2008-11-03) and Helsingborg I (2008-11-14). Real-world event "
@@ -25,6 +37,14 @@ OVERRIDE_RATIONALE: dict[str, str] = {
         "https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684"
     ),
 }
+
+
+def access_reference_tournament_name(canonical_name: str) -> str:
+    """Access [Tables].Tournament label for parity when it differs from canonical catalog name."""
+    for access_name, canonical in TOURNAMENT_NAME_OVERRIDES.items():
+        if canonical == canonical_name:
+            return access_name
+    return canonical_name
 
 
 def _as_date(value: date | datetime | None) -> date | None:
@@ -43,6 +63,25 @@ def apply_catalog_corrections(tournaments: list[dict[str, Any]]) -> list[dict[st
     """
     by_name = {t["name"]: t for t in tournaments}
     applied: list[dict[str, str]] = []
+
+    for access_name, canonical_name in TOURNAMENT_NAME_OVERRIDES.items():
+        row = by_name.get(access_name)
+        if row is None:
+            continue
+        if row["name"] == canonical_name:
+            continue
+        applied.append(
+            {
+                "tournament": access_name,
+                "field": "name",
+                "access": access_name,
+                "canonical": canonical_name,
+                "reason": OVERRIDE_RATIONALE.get(access_name, ""),
+            }
+        )
+        del by_name[access_name]
+        row["name"] = canonical_name
+        by_name[canonical_name] = row
 
     for name, canonical in TOURNAMENT_EVENT_DATE_OVERRIDES.items():
         row = by_name.get(name)

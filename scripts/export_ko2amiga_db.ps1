@@ -15,8 +15,10 @@ New-Item -ItemType Directory -Force -Path $ArchiveDir | Out-Null
 $Stamp = Get-Date -Format 'yyyy-MM-dd'
 
 $Tables = @(
-    'tournaments', 'amiga_players', 'amiga_games', 'amiga_game_ratings', 'amiga_player_stats',
-    'amiga_tournament_standings'
+    'tournament_format_templates', 'tournaments', 'amiga_players',
+    'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
+    'amiga_games', 'amiga_game_ratings', 'amiga_player_stats',
+    'amiga_tournament_standings', 'amiga_tournament_catalog_stats'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -37,16 +39,32 @@ $schemaFile = Join-Path $OutDir 'ko2amiga_01_schema.sql'
 Write-DumpFile $schemaFile @('--no-data', 'ko2amiga_db') + $Tables
 $parts.Add('ko2amiga_01_schema.sql')
 
-# 02–03 — small ground-truth data
-$tourFile = Join-Path $OutDir 'ko2amiga_02_tournaments.sql'
+# 02–07 — small ground-truth data
+$templatesFile = Join-Path $OutDir 'ko2amiga_02_format_templates.sql'
+Write-DumpFile $templatesFile @('--no-create-info', 'ko2amiga_db', 'tournament_format_templates')
+$parts.Add('ko2amiga_02_format_templates.sql')
+
+$tourFile = Join-Path $OutDir 'ko2amiga_03_tournaments.sql'
 Write-DumpFile $tourFile @('--no-create-info', 'ko2amiga_db', 'tournaments')
-$parts.Add('ko2amiga_02_tournaments.sql')
+$parts.Add('ko2amiga_03_tournaments.sql')
 
-$playersFile = Join-Path $OutDir 'ko2amiga_03_players.sql'
+$playersFile = Join-Path $OutDir 'ko2amiga_04_players.sql'
 Write-DumpFile $playersFile @('--no-create-info', 'ko2amiga_db', 'amiga_players')
-$parts.Add('ko2amiga_03_players.sql')
+$parts.Add('ko2amiga_04_players.sql')
 
-# 04+ — games + ratings in ~5k row chunks (staging-friendly)
+$stagesFile = Join-Path $OutDir 'ko2amiga_05_stages.sql'
+Write-DumpFile $stagesFile @('--no-create-info', 'ko2amiga_db', 'tournament_stages')
+$parts.Add('ko2amiga_05_stages.sql')
+
+$stagePlayersFile = Join-Path $OutDir 'ko2amiga_06_stage_players.sql'
+Write-DumpFile $stagePlayersFile @('--no-create-info', 'ko2amiga_db', 'tournament_stage_players')
+$parts.Add('ko2amiga_06_stage_players.sql')
+
+$fixturesFile = Join-Path $OutDir 'ko2amiga_07_fixtures.sql'
+Write-DumpFile $fixturesFile @('--no-create-info', 'ko2amiga_db', 'tournament_fixtures')
+$parts.Add('ko2amiga_07_fixtures.sql')
+
+# 08+ — games + ratings in ~5k row chunks (staging-friendly)
 $chunkSize = 5000
 $maxIdText = (& $MysqlExe -u root -N -B -e 'SELECT COALESCE(MAX(id), 0) FROM ko2amiga_db.amiga_games' 2>&1 | Out-String).Trim()
 if ($maxIdText -notmatch '^\d+$') {
@@ -55,7 +73,7 @@ if ($maxIdText -notmatch '^\d+$') {
 $maxId = [int]$maxIdText
 Write-Host "Chunking games/ratings: max id $maxId (chunk size $chunkSize)"
 
-$idx = 4
+$idx = 8
 for ($start = 1; $start -le $maxId; $start += $chunkSize) {
     $end = [Math]::Min($start + $chunkSize - 1, $maxId)
     $where = "id >= $start AND id <= $end"
@@ -81,6 +99,12 @@ $standingsPart = ('ko2amiga_{0:D2}_standings.sql' -f $idx)
 $standingsFile = Join-Path $OutDir $standingsPart
 Write-DumpFile $standingsFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_standings')
 $parts.Add($standingsPart)
+$idx++
+
+$catalogPart = ('ko2amiga_{0:D2}_catalog_stats.sql' -f $idx)
+$catalogFile = Join-Path $OutDir $catalogPart
+Write-DumpFile $catalogFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_catalog_stats')
+$parts.Add($catalogPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

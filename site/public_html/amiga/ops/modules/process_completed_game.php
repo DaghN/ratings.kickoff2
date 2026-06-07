@@ -437,7 +437,8 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . '(SELECT COUNT(*) FROM amiga_players) AS players, '
         . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
         . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats, '
-        . '(SELECT COUNT(*) FROM amiga_tournament_standings) AS standings'
+        . '(SELECT COUNT(*) FROM amiga_tournament_standings) AS standings, '
+        . '(SELECT COUNT(*) FROM amiga_tournament_catalog_stats) AS catalog_stats'
     );
     if ($res === false) {
         throw new RuntimeException('zero-derived counts: ' . $con->error);
@@ -450,10 +451,14 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . ' clearing ratings=' . (int) ($row['ratings'] ?? 0)
         . ' stats=' . (int) ($row['stats'] ?? 0)
         . ' standings=' . (int) ($row['standings'] ?? 0)
+        . ' catalog_stats=' . (int) ($row['catalog_stats'] ?? 0)
         . ($dryRun ? ' (dry-run)' : '')
     );
     if ($dryRun) {
         return;
+    }
+    if (!$con->query('DELETE FROM amiga_tournament_catalog_stats')) {
+        throw new RuntimeException('DELETE amiga_tournament_catalog_stats: ' . $con->error);
     }
     if (!$con->query('DELETE FROM amiga_tournament_standings')) {
         throw new RuntimeException('DELETE amiga_tournament_standings: ' . $con->error);
