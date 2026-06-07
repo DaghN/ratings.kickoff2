@@ -88,6 +88,15 @@ Example: `Status league — previous month medals column alignment.`
 
 ---
 
+## Subagents
+
+When launching subagents (Task tool, parallel agents, etc.):
+
+- **Use `composer-2.5`** for subagents.
+- **Never use `composer-2.5-fast`** for subagents.
+
+---
+
 ## Autoload (you do **not** activate this)
 
 **`.cursor/rules/kool-workspace.mdc`** has `alwaysApply: true`.
