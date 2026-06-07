@@ -112,12 +112,16 @@ The orchestrator should usually prioritize making important global checks green 
 
 ## Current strategic priority
 
-The immediate strategic priority is to harden the tournament foundation before adding broad public UI:
+**Checkpoint 2026-06-07:** Foundation and internal-ops guardrails (jobs 001–011) are complete. Pause further deep model slices until demo readiness is proven.
 
-1. Make entrant verification green for current generated/local tournament data.
-2. Tournament lifecycle.
-3. KOA-aware player naming and newcomer creation workflow — **internal CLI foundation shipped** (`python -m scripts.amiga players …`); public newcomer UX remains deferred.
-4. Separation of internal ops from public tournament viewing.
-5. Format capability model for future Swiss, group+knockout, marathon, World Cup class, and later honours.
+Immediate priority order:
 
-The first worker job in this orchestration model implemented tournament entrants/roster ground truth. Subsequent jobs closed entrant backfill, status workflow, fixture guardrails, lifecycle, and browser ops controls. KOA player naming is now available to operators via CLI only; wire it into entrant onboarding flows in a later slice.
+1. **Public/private visibility boundary** — public pages show only `completed` / `archived` tournaments; internal ops unchanged. See [`amiga-tournament-architecture-checkpoint.md`](amiga-tournament-architecture-checkpoint.md).
+2. **Staging refresh rehearsal** — re-export, WinSCP sync, browser preview/apply on staging, spot-check public pages and ops. Dagh owns sync/import; agents run local export and document results.
+3. **Read-only live public view** — fixture schedule + lifecycle for selected running events (no public result entry). After visibility + staging proven.
+4. **Browser entrant onboarding** — wire CLI onboarding into ops UI; reduce operator CLI stitching.
+5. **Format capability model** — Swiss, group+knockout promotion, World Cup class, honours. Design checkpoint after demo path stable.
+
+Completed foundation (do not re-delegate unless regressions appear):
+
+- Tournament entrants, lifecycle, KOA naming CLI, entrant onboarding, stage placement, fixture/attach guardrails, browser lifecycle controls, staging manifest refresh (job 007).

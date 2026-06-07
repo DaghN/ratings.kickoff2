@@ -201,6 +201,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - **Ops (CLI):** `python -m scripts.amiga fixtures set-tournament-status --tournament-id N --status STATUS` with optional `--dry-run` and `--force`. Imported historical tournaments refuse transitions away from `completed`/`archived` without `--force`. Transition to `completed` refuses when scheduled fixtures remain unplayed unless `--force`.
 - **Ops (browser):** password-gated `/amiga/ops/fixtures.php` shows `lifecycle_status`, `started_at`, and `completed_at` for the selected tournament and offers conservative transitions only: `draft`→`ready`, `ready`→`running`, `running`→`completed` when no scheduled fixtures remain, `running`→`void` when no games exist. Imported Access tournaments refuse all browser lifecycle changes. No `--force` equivalent in the browser; use CLI for forced transitions.
 - **Verify:** `python -m scripts.amiga fixtures verify-lifecycle` (imported rows must be `completed` or `archived`; generated rows with games must not stay in `draft`/`registration`/`ready`).
+- **Public read path:** `/amiga/tournaments.php` and `/amiga/tournament.php` list or load only tournaments with `lifecycle_status IN ('completed', 'archived')`. Internal generated events in `draft`, `registration`, `ready`, `running`, or `void` remain visible only through ops/CLI. Player profile recent-tournament links use the same filter. A future explicit publish flag may allow curated live public views.
 
 ### Tournament entrants, stages, and fixtures
 

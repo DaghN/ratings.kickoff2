@@ -6,16 +6,38 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 
+/** Lifecycle statuses shown on public tournament pages (index, detail, profile links). */
+const AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES = ['completed', 'archived'];
+
+/**
+ * SQL fragment: tournaments visible on public pages.
+ */
+function amiga_tournament_public_visibility_where(string $tableAlias = 't'): string
+{
+    $statuses = array_map(
+        static fn (string $s): string => "'" . str_replace("'", "''", $s) . "'",
+        AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES
+    );
+
+    return $tableAlias . '.lifecycle_status IN (' . implode(', ', $statuses) . ')';
+}
+
+function amiga_tournament_is_publicly_visible_lifecycle(string $lifecycleStatus): bool
+{
+    return in_array($lifecycleStatus, AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES, true);
+}
+
 /**
  * @return array<string, mixed>|null
  */
-function amiga_tournament_load(mysqli $con, int $tournamentId): ?array
+function amiga_tournament_load(mysqli $con, int $tournamentId, bool $publicOnly = true): ?array
 {
-    $stmt = mysqli_prepare(
-        $con,
-        'SELECT id, name, chrono, event_date, is_cup, country, equal_teams, player_count
-         FROM tournaments WHERE id = ?'
-    );
+    $visibility = $publicOnly ? ' AND ' . amiga_tournament_public_visibility_where('t') : '';
+    $sql = 'SELECT t.id, t.name, t.chrono, t.event_date, t.is_cup, t.country, t.equal_teams, t.player_count,
+                   t.lifecycle_status
+            FROM tournaments t
+            WHERE t.id = ?' . $visibility;
+    $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
         return null;
     }
@@ -106,6 +128,7 @@ function amiga_player_recent_tournaments(mysqli $con, int $playerId, int $limit 
             FROM amiga_tournament_standings s
             INNER JOIN tournaments t ON t.id = s.tournament_id
             WHERE s.player_id = ? AND s.scope_type = \'overall\' AND s.scope_key = \'\'
+              AND ' . amiga_tournament_public_visibility_where('t') . '
             ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC
             LIMIT ' . (int) $limit;
     $stmt = mysqli_prepare($con, $sql);
@@ -370,6 +393,7 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 
     $offset = max(0, $offset);
     // Read stored catalog aggregates (amiga_tournament_catalog_stats) — not live scans on amiga_games.
     $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.equal_teams, t.country, t.player_count,
+                   t.lifecycle_status,
                    COALESCE(c.game_count, 0) AS game_count,
                    COALESCE(c.standing_players, 0) AS standing_players,
                    COALESCE(c.standing_rows, 0) AS standing_rows,
@@ -377,6 +401,7 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 
                    COALESCE(c.knockout_ties, 0) AS knockout_ties
             FROM tournaments t
             LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
+            WHERE ' . amiga_tournament_public_visibility_where('t') . '
             ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC
             LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
     $res = mysqli_query($con, $sql);
@@ -393,7 +418,7 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 
 
 function amiga_tournament_index_count(mysqli $con): int
 {
-    $res = mysqli_query($con, 'SELECT COUNT(*) AS n FROM tournaments');
+    $res = mysqli_query($con, 'SELECT COUNT(*) AS n FROM tournaments t WHERE ' . amiga_tournament_public_visibility_where('t'));
     if ($res === false) {
         return 0;
     }
