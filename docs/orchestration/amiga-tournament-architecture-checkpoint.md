@@ -1,7 +1,7 @@
 # Amiga tournament architecture/product checkpoint
 
 **Date:** 2026-06-07  
-**Status:** Active guidance after worker jobs 001–018
+**Status:** Active guidance after worker jobs 001–019
 
 ## Where we are
 
@@ -21,7 +21,7 @@ The internal tournament backbone is in good shape for future formats:
 | Public live UI | `/amiga/live-tournaments.php`, `/amiga/live-tournament.php?id=N` (allowlisted running fixtures, read-only) |
 | Staging export package | Manifest refreshed to 23 parts; Dagh-assisted staging sync/import verified |
 
-Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. Job 018 defined the primary organizer workflow; job 019 should implement the first browser shell/navigation slice rather than more late-entrant edge cases.
+Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. Job 018 defined the primary organizer workflow, and job 019 added the organizer shell; job 020 should replace raw lifecycle controls with friendly Start/Complete actions.
 
 ## Demo-readiness goals
 
@@ -63,8 +63,9 @@ Do not delegate another foundation/guardrail worker job until staging refresh an
 | **H** | Fixture-stage assignment guardrail | Worker 017 | Align server guardrail with stage-scoped assignment UI |
 | **I** | Browser organizer workflow checkpoint | Worker 018 | Current ops UI is technically capable but too clumsy for normal tournament running |
 | **J** | Browser organizer shell | Worker 019 | Tabs, create redirect, and player picker for the normal league path |
-| **K** | Staging/code refresh + ops smoke | **Dagh** (WinSCP + browser) | Staging should reflect organizer UI before demo use |
-| **L** | Public builder / registration | Deferred | After internal workflow is smooth |
+| **K** | Friendly organizer lifecycle | Worker 020 | Replace raw lifecycle dropdown with Start/Complete organizer actions |
+| **L** | Staging/code refresh + ops smoke | **Dagh** (WinSCP + browser) | Staging should reflect organizer UI before demo use |
+| **M** | Public builder / registration | Deferred | After internal workflow is smooth |
 
 ### 3. Public visibility rule (conservative)
 
@@ -135,3 +136,4 @@ Integrity checks passed (`fixtures verify`, `verify-entrants`, `verify-lifecycle
 - Fixture-stage assignment guardrail: [`prompt-017-fixture-stage-assignment-guardrail.md`](prompt-017-fixture-stage-assignment-guardrail.md)
 - Browser organizer workflow checkpoint: [`prompt-018-browser-organizer-workflow-checkpoint.md`](prompt-018-browser-organizer-workflow-checkpoint.md)
 - Browser organizer shell: [`prompt-019-browser-organizer-shell.md`](prompt-019-browser-organizer-shell.md)
+- Friendly organizer lifecycle: [`prompt-020-browser-friendly-lifecycle.md`](prompt-020-browser-friendly-lifecycle.md)
