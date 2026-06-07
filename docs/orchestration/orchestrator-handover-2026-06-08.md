@@ -67,12 +67,13 @@ Ops URL **404s** without `once=amiga-fixtures-one-shot` — intentional.
 
 ### Worker prompt inventory
 
-- Prompts **001–015** under `docs/orchestration/prompt-*.md`
+- Prompts **001–016** under `docs/orchestration/prompt-*.md`
 - Handoffs under `docs/orchestration/agent-handoffs/`
 - **012** = staging sync rehearsal (record-only handoff filed from Dagh's 4-point staging success)
 - **013** = read-only live public view (implemented and evaluated acceptable)
 - **014** = browser entrant management (implemented and evaluated acceptable)
-- **015** = browser stage placement (drafted; next worker prompt)
+- **015** = browser stage placement (implemented and evaluated acceptable)
+- **016** = browser fixture slot assignment UX (drafted; next worker prompt)
 
 ### Strategic priority order (do not skip without Dagh)
 
@@ -82,9 +83,10 @@ Per checkpoint + orchestration model:
 2. ~~Staging refresh rehearsal~~ **verified by Dagh** and recorded in handoff 012
 3. ~~Read-only live public view~~ **done** — allowlisted running fixture events; no public result entry
 4. ~~Browser entrant management~~ **done** — entrant list, add by name search/id, withdraw/replace in ops UI
-5. **Browser stage placement** — place registered entrants into stages from ops UI; drafted as prompt 015
-6. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
-7. **Public builder / registration** — deferred
+5. ~~Browser stage placement~~ **done** — place registered entrants into stages from ops UI
+6. **Browser fixture assignment UX** — assign scheduled fixture slots from stage-player selects; drafted as prompt 016
+7. **Format expansion** (Swiss, group+KO promotion, honours) — design checkpoint after demo path stable
+8. **Public builder / registration** — deferred
 
 **Pause rule:** Do not delegate another foundation/guardrail worker job unless regressions appear.
 
@@ -124,8 +126,8 @@ Plan file (do **not** edit): `c:\Users\daghn\.cursor\plans\tournament_checkpoint
 ### Your first actions as new orchestrator
 
 1. Confirm `git log -3` matches `7acf2a4` on `main`.
-2. Offer to send **prompt 015 (browser stage placement)** to the next Composer 2.5 worker.
-3. Do not re-open foundation jobs 001–011, staging job 012, public live job 013, or entrant-management job 014 without a reported regression.
+2. Offer to send **prompt 016 (browser fixture assignment UX)** to the next Composer 2.5 worker.
+3. Do not re-open foundation jobs 001–011, staging job 012, public live job 013, entrant-management job 014, or stage-placement job 015 without a reported regression.
 
 Acknowledge the mandate, summarize current state in 5–8 bullets, and ask Dagh which next step they want.
 
