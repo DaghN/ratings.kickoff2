@@ -1,7 +1,7 @@
 # Amiga tournament architecture/product checkpoint
 
 **Date:** 2026-06-07  
-**Status:** Active guidance after worker jobs 001–015
+**Status:** Active guidance after worker jobs 001–016
 
 ## Where we are
 
@@ -59,8 +59,9 @@ Do not delegate another foundation/guardrail worker job until staging refresh an
 | **D** | Read-only live public view | Worker 013 | After visibility + staging proven |
 | **E** | Browser entrant management | Worker 014 | Reduce CLI stitching for internal operators |
 | **F** | Browser stage placement | Worker 015 | Complete late-entrant browser workflow before fixture assignment |
-| **G** | Browser fixture assignment UX | Future worker | Reduce raw numeric ID entry now that stage players are browser-visible |
-| **H** | Public builder / registration | Deferred | After internal workflow is smooth |
+| **G** | Browser fixture assignment UX | Worker 016 | Reduce raw numeric ID entry now that stage players are browser-visible |
+| **H** | Fixture-stage assignment guardrail | Future worker | Align server guardrail with stage-scoped assignment UI |
+| **I** | Public builder / registration | Deferred | After internal workflow is smooth |
 
 ### 3. Public visibility rule (conservative)
 
@@ -127,4 +128,5 @@ Integrity checks passed (`fixtures verify`, `verify-entrants`, `verify-lifecycle
 - Read-only live public view: [`prompt-013-read-only-live-public-view.md`](prompt-013-read-only-live-public-view.md)
 - Browser entrant management: [`prompt-014-browser-entrant-management.md`](prompt-014-browser-entrant-management.md)
 - Browser stage placement: [`prompt-015-browser-stage-placement.md`](prompt-015-browser-stage-placement.md)
-- Next worker prompt (browser fixture assignment UX): [`prompt-016-browser-fixture-slot-assignment-ux.md`](prompt-016-browser-fixture-slot-assignment-ux.md)
+- Browser fixture assignment UX: [`prompt-016-browser-fixture-slot-assignment-ux.md`](prompt-016-browser-fixture-slot-assignment-ux.md)
+- Next worker prompt (fixture-stage assignment guardrail): [`prompt-017-fixture-stage-assignment-guardrail.md`](prompt-017-fixture-stage-assignment-guardrail.md)
