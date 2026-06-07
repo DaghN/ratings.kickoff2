@@ -104,7 +104,7 @@ Late-entrant workflow (browser or CLI): add entrant → place in stage → assig
 
 ## Commit hash and push target
 
-`9284e2d` — Improve browser Amiga fixture assignment.
+`f271124` — Improve browser Amiga fixture assignment.
 
 Push target: `origin/main`
 
