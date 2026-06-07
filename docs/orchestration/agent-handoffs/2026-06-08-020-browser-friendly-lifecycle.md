@@ -110,7 +110,7 @@ None. No migrations.
 
 ## Commit hash and push target
 
-- _(filled after commit)_
+- `d26fd73df31111a0f8465bd8ed6440ee419dac38` — Add friendly organizer lifecycle actions.
 
 Push target: `origin/main`
 
