@@ -112,7 +112,7 @@ Late-entrant workflow: add entrant → place in stage → assign fixture slots (
 
 ## Commit hash and push target
 
-_(filled after commit)_
+`519c8a7` — Require fixture-stage membership for assignment.
 
 Push target: `origin/main`
 
