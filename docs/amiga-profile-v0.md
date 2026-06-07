@@ -18,7 +18,7 @@
 - **Player nav** — Profile · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
 - **Recent tournaments** — `amiga_tournament_standings` overall scope (position, pts) with link to tournament page
-- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` (chronological games via `amiga_db.php` join)
+- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=`; [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = one point per calendar day (end-of-day rating); **By game #** = every game
 - **Games tab** — server-side filters (result, opponent), sort, 100-row pages; tournament + phase from `amiga_games` + `tournaments`, ratings from `amiga_game_ratings`
 
 ## Data strategy (important)
@@ -60,6 +60,15 @@ Re-run: `python -m scripts.amiga run --recreate-schema`. Import audit: `data/ami
 ## Rating chart timeline
 
 Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN(game_date)` from `amiga_games` (first ladder game, ~Nov 2001). Online still uses June 2017.
+
+**Chart views** (`player-rating-chart.js`, shared with online profile):
+
+| Toggle | Points plotted | Peak / summary |
+|--------|----------------|----------------|
+| **By date** | One per local day — rating after the last game that day | Career peak from all games; latest from end-of-day series (+ today) |
+| **By game #** | Every rated game in chronological order | From full game series |
+
+API returns every game; calendar collapse is client-side only. Busy Amiga days (whole tournaments on one `event_date`) stay readable on the calendar axis.
 
 ## Not in v0
 

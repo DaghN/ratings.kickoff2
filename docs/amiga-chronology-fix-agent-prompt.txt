@@ -59,7 +59,7 @@ In scope:
 8. **Docs** — mark plan checkboxes done in amiga-chronology-fix-plan.md; update amiga-data-contract.md § Chronology to target state when implemented
 
 Out of scope v1:
-- End-of-day chart collapse in player-rating-chart.js (try without first)
+- ~~End-of-day chart collapse in player-rating-chart.js~~ — **done** (calendar view; see plan Phase 6)
 - Manual Access outlier fixes (WC VIII date review) unless evidence found during QA
 - Staging/production DB rebuild (user runs recreate — provide commands in PR summary)
 - Renumbering or changing source_scores_id

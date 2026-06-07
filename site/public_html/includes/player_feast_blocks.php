@@ -242,7 +242,7 @@ function player_feast_render_charts(int $playerId): void
 <div class="pm3d-career-charts">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
 		<h3 class="k2-panel-heading">ELO rating</h3>
-		<p class="k2-chart-block__hint">Calendar view uses the shared server timeline from June 9, 2017; game-number view shows career progress without calendar gaps.</p>
+		<p class="k2-chart-block__hint">Calendar view: end-of-day rating from June 9, 2017; game-number view shows every match without calendar gaps.</p>
 		<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
 			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
 			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By game #</button>

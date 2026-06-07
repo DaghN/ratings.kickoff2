@@ -174,7 +174,12 @@ Optional sanity: spot-check a few players vs Access `Rankings` monthly grid (200
 
 ### Phase 6 — Chart / UI QA
 
-Calendar chart should work from API data without JS workarounds. If still noisy at decade scale, optional **end-of-day collapse** in [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js) (display-only). Prefer trying without it first.
+- [x] **End-of-day collapse (calendar view)** in [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js) — display-only; applies to online and Amiga profiles.
+  - **By date:** one point per local calendar day = rating after the last game that day (walk API points in canonical order).
+  - **By game #:** every game unchanged.
+  - Peak line + summary still use **all games** (intraday peak not lost).
+  - Tooltip notes game count when a day had multiple rated games.
+- [ ] Manual QA: `/amiga/profile.php?id=73` and an online profile — calendar line smooth at decade scale.
 
 ### Phase 7 — Deploy
 

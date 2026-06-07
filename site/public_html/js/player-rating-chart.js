@@ -19,14 +19,55 @@
         return isNaN(d.getTime()) ? null : d;
     }
 
-    function buildDateChartData(points) {
-        var chartData = [];
+    function localCalendarDayKey(d) {
+        var y = d.getFullYear();
+        var m = d.getMonth() + 1;
+        var day = d.getDate();
+        return y + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+    }
+
+    function buildPerGameDateValues(points) {
+        var values = [];
         for (var i = 0; i < points.length; i++) {
             var x = parseGameDate(points[i].date);
             if (x === null) {
                 continue;
             }
-            chartData.push({ x: x, y: points[i].rating });
+            values.push({ x: x, y: points[i].rating });
+        }
+        return values;
+    }
+
+    /** Calendar view: one point per local day — last rating after the final game that day. */
+    function buildDateChartData(points) {
+        var chartData = [];
+        var currentDay = null;
+        var lastOfDay = null;
+
+        for (var i = 0; i < points.length; i++) {
+            var x = parseGameDate(points[i].date);
+            if (x === null) {
+                continue;
+            }
+            var dayKey = localCalendarDayKey(x);
+            if (dayKey !== currentDay) {
+                if (lastOfDay) {
+                    chartData.push(lastOfDay);
+                }
+                currentDay = dayKey;
+                lastOfDay = {
+                    x: x,
+                    y: points[i].rating,
+                    gamesOnDay: 1
+                };
+            } else {
+                lastOfDay.x = x;
+                lastOfDay.y = points[i].rating;
+                lastOfDay.gamesOnDay += 1;
+            }
+        }
+        if (lastOfDay) {
+            chartData.push(lastOfDay);
         }
         return chartData;
     }
@@ -190,6 +231,16 @@
                                     month: 'short',
                                     day: 'numeric'
                                 });
+                            },
+                            afterBody: function (items) {
+                                if (!items.length) {
+                                    return '';
+                                }
+                                var raw = items[0].raw;
+                                if (raw && raw.gamesOnDay > 1) {
+                                    return 'End-of-day rating (' + raw.gamesOnDay + ' games that day)';
+                                }
+                                return '';
                             }
                         }
                     })
@@ -414,6 +465,11 @@
                     return;
                 }
 
+                var perGameDateValues = buildPerGameDateValues(points);
+                var careerPeakStats = perGameDateValues.length
+                    ? peakStatsFromValues(perGameDateValues, 'peakDate', 'latest')
+                    : null;
+
                 var currentRating = typeof data.currentRating === 'number'
                     ? data.currentRating
                     : dateChartData[dateChartData.length - 1].y;
@@ -423,9 +479,14 @@
 
                 state.gameChartData = buildGameChartData(points);
 
-                var dateStats = peakStatsFromValues(dateChartData, 'peakDate', 'latest');
-                state.peakValue = dateStats.peak;
-                renderDateSummary(dateSummary, dateStats);
+                if (careerPeakStats) {
+                    state.peakValue = careerPeakStats.peak;
+                    renderDateSummary(dateSummary, {
+                        peak: careerPeakStats.peak,
+                        peakDate: careerPeakStats.peakDate,
+                        latest: dateChartData[dateChartData.length - 1].y
+                    });
+                }
 
                 if (state.gameChartData.length) {
                     var gameStats = peakStatsFromValues(state.gameChartData, 'peakGame', 'latest');
