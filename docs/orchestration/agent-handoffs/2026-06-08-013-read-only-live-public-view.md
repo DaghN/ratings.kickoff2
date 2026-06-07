@@ -82,7 +82,7 @@ OK: every tournament with games has has_league or has_cup
 
 ## Commit hash and push target
 
-- `d840a5b` on `origin/main`
+- `8281bb0` on `origin/main`
 
 ## Recommended next steps
 
