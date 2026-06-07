@@ -90,7 +90,7 @@ python -m scripts.amiga fixtures cleanup-generated --tournament-id 628
 
 ## Commit hash and push target
 
-`aec0359` — Add internal Amiga entrant onboarding tools.
+`876ddca` — Add internal Amiga entrant onboarding tools.
 
 Push target: `origin/main`
 
