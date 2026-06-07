@@ -87,7 +87,7 @@ None. No migrations; same POST actions and backend functions.
 ## Commit hash and push target
 
 - `1a4ecd0383f1f779fc8aea5f0dc474a8e768c7e9` — Add browser organizer shell.
-- _(follow-up commit hash filled after push)_
+- `b13397b421dd59e4c4b959fe6ddcae1fb98d43eb` — Polish organizer create flow and fix setup bugs.
 
 Push target: `origin/main`
 
