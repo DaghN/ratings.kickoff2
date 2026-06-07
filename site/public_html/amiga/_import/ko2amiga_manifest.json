@@ -1,5 +1,5 @@
 {
-    "generated":  "2026-06-06 05:53:34",
+    "generated":  "2026-06-07 17:50:09",
     "parts":  [
                   "ko2amiga_01_schema.sql",
                   "ko2amiga_02_tournaments.sql",
@@ -17,6 +17,7 @@
                   "ko2amiga_14_games_25001_27408.sql",
                   "ko2amiga_15_ratings_25001_27408.sql",
                   "ko2amiga_16_stats.sql",
-                  "ko2amiga_17_standings.sql"
+                  "ko2amiga_17_standings.sql",
+                  "ko2amiga_18_catalog_stats.sql"
               ]
 }
