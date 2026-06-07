@@ -69,6 +69,8 @@ Each handoff document should include:
 - Commit hash and push target
 - Recommended next steps
 
+The worker's final chat response must explicitly include the handoff document path and the pushed commit hash. If either is missing from the final response, the orchestrator should treat the job report as incomplete until the worker supplies or fixes the reference.
+
 ## Prompt contract
 
 Every worker prompt should include:
@@ -80,6 +82,7 @@ Every worker prompt should include:
 - Required output handoff path.
 - Required verification commands.
 - Requirement to commit and push when done.
+- Requirement that the final response includes the handoff document path and pushed commit hash.
 - Instruction not to use destructive git commands or revert unrelated user changes.
 - Instruction to inspect `git status` before staging and list any unrelated files intentionally left unstaged.
 
