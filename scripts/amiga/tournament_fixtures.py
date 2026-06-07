@@ -12,6 +12,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.player_registry import check_player_name, create_player, suggest_player_name
 
 VALID_STAGE_TYPES = {"league", "group", "knockout", "placement", "other"}
 VALID_FIXTURE_STATUSES = {"scheduled", "played", "void"}
@@ -27,6 +28,7 @@ VALID_LIFECYCLE_STATUSES = {
     "void",
 }
 RESULT_ENTRY_LIFECYCLE_STATUSES = {"running"}
+ENTRANT_REGISTRATION_LIFECYCLE_STATUSES = {"draft", "registration", "ready"}
 IMPORTED_LIFECYCLE_STATUSES = {"completed", "archived"}
 GENERATED_DEFAULT_LIFECYCLE_STATUS = "draft"
 GENERATED_FIXTURE_PREFIXES = (
@@ -87,6 +89,21 @@ def _load_tournament_lifecycle(
     if row is None:
         raise ValueError(f"tournament_id={tournament_id} not found")
     return row
+
+
+def _require_lifecycle_allows_entrant_registration(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+) -> None:
+    row = _load_tournament_lifecycle(conn, tournament_id)
+    status = str(row["lifecycle_status"])
+    if status not in ENTRANT_REGISTRATION_LIFECYCLE_STATUSES:
+        allowed = ", ".join(sorted(ENTRANT_REGISTRATION_LIFECYCLE_STATUSES))
+        raise ValueError(
+            f"tournament_id={tournament_id} lifecycle_status is {status!r}; "
+            f"entrant registration is allowed only in {allowed}"
+        )
 
 
 def _require_lifecycle_allows_result_entry(
@@ -845,6 +862,161 @@ def plan_entrant_backfill(conn: pymysql.connections.Connection, *, tournament_id
         next_seed += 1
 
     return planned
+
+
+def _validate_new_entrant_registration(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    player_id: int,
+) -> None:
+    existing = _load_entrant_row(conn, tournament_id=tournament_id, player_id=player_id)
+    if existing is None:
+        return
+    if existing["status"] in ACTIVE_ENTRANT_STATUSES:
+        raise ValueError(
+            f"player_id={player_id} is already a registered entrant in tournament_id={tournament_id}"
+        )
+    raise ValueError(
+        f"player_id={player_id} entrant status is {existing['status']!r}; "
+        "reactivation is not supported by entrant onboarding"
+    )
+
+
+def register_tournament_entrant(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    player_id: int,
+    seed_no: int | None = None,
+    note: str | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    tournament = _require_eligible_generated_tournament(conn, tournament_id=tournament_id)
+    _require_lifecycle_allows_entrant_registration(conn, tournament_id=tournament_id)
+    _require_player(conn, player_id)
+    _validate_new_entrant_registration(conn, tournament_id=tournament_id, player_id=player_id)
+
+    entrant_id: int | None = None
+    if not dry_run:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO tournament_entrants (tournament_id, player_id, seed_no, status, note)
+                VALUES (%s, %s, %s, 'registered', %s)
+                """,
+                (tournament_id, player_id, seed_no, note),
+            )
+            entrant_id = int(cur.lastrowid)
+
+    return {
+        "dry_run": dry_run,
+        "tournament_id": tournament_id,
+        "tournament_name": tournament.get("name"),
+        "player_id": player_id,
+        "entrant_id": entrant_id,
+        "seed_no": seed_no,
+        "status": "registered",
+        "note": note,
+    }
+
+
+def onboard_newcomer_entrant(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    name: str | None = None,
+    full_name: str | None = None,
+    country: str = "",
+    seed_no: int | None = None,
+    note: str | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    if name is not None and full_name is not None:
+        raise ValueError("provide only one of --name or --full-name, not both")
+    if name is None and full_name is None:
+        raise ValueError("one of --name or --full-name is required")
+
+    tournament = _require_eligible_generated_tournament(conn, tournament_id=tournament_id)
+    _require_lifecycle_allows_entrant_registration(conn, tournament_id=tournament_id)
+
+    name_source: str
+    resolved_name: str
+    suggestion_payload: dict[str, Any] | None = None
+
+    if name is not None:
+        check = check_player_name(name, conn=conn)
+        if not check.available:
+            existing = check.conflict
+            assert existing is not None
+            raise ValueError(
+                f"name conflict ({check.conflict_kind}): "
+                f"normalized={check.normalized_name!r} collides with "
+                f"player_id={existing.id} name={existing.name!r}"
+            )
+        resolved_name = check.normalized_name
+        name_source = "explicit"
+    else:
+        assert full_name is not None
+        suggestion_payload = suggest_player_name(full_name, conn=conn)
+        suggested = suggestion_payload.get("suggested_name")
+        if not suggestion_payload.get("available") or suggested is None:
+            reason = suggestion_payload.get("reason") or "no available KOA-style name"
+            raise ValueError(f"cannot suggest an available player name for {full_name!r}: {reason}")
+        resolved_name = str(suggested)
+        name_source = "suggested"
+
+    player_id: int | None = None
+    entrant_id: int | None = None
+
+    if dry_run:
+        return {
+            "dry_run": True,
+            "tournament_id": tournament_id,
+            "tournament_name": tournament.get("name"),
+            "name_source": name_source,
+            "resolved_name": resolved_name,
+            "country": country,
+            "player_id": None,
+            "entrant_id": None,
+            "seed_no": seed_no,
+            "status": "registered",
+            "note": note,
+            "suggestion": suggestion_payload,
+        }
+
+    try:
+        player_result = create_player(resolved_name, country=country, conn=conn)
+        player_id = player_result["player_id"]
+        assert player_id is not None
+
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO tournament_entrants (tournament_id, player_id, seed_no, status, note)
+                VALUES (%s, %s, %s, 'registered', %s)
+                """,
+                (tournament_id, player_id, seed_no, note),
+            )
+            entrant_id = int(cur.lastrowid)
+    except Exception:
+        conn.rollback()
+        raise
+
+    return {
+        "dry_run": False,
+        "tournament_id": tournament_id,
+        "tournament_name": tournament.get("name"),
+        "name_source": name_source,
+        "resolved_name": resolved_name,
+        "country": country,
+        "player_id": player_id,
+        "entrant_id": entrant_id,
+        "seed_no": seed_no,
+        "status": "registered",
+        "note": note,
+        "suggestion": suggestion_payload,
+    }
 
 
 def insert_entrant_if_missing(
@@ -1620,6 +1792,28 @@ def main(argv: list[str] | None = None) -> int:
     p_replace.add_argument("--note", default=None)
     p_replace.add_argument("--dry-run", action="store_true")
 
+    p_add_entrant = sub.add_parser(
+        "add-entrant",
+        help="Register an existing player as a tournament entrant (generated tournaments only)",
+    )
+    p_add_entrant.add_argument("--tournament-id", type=int, required=True)
+    p_add_entrant.add_argument("--player-id", type=int, required=True)
+    p_add_entrant.add_argument("--seed-no", type=int, default=None)
+    p_add_entrant.add_argument("--note", default=None)
+    p_add_entrant.add_argument("--dry-run", action="store_true")
+
+    p_onboard = sub.add_parser(
+        "onboard-newcomer",
+        help="Create a newcomer and register them as a tournament entrant in one atomic operation",
+    )
+    p_onboard.add_argument("--tournament-id", type=int, required=True)
+    p_onboard.add_argument("--name", default=None, help="Explicit canonical KOA display name")
+    p_onboard.add_argument("--full-name", default=None, help="Suggest first available KOA-style name")
+    p_onboard.add_argument("--country", default="")
+    p_onboard.add_argument("--seed-no", type=int, default=None)
+    p_onboard.add_argument("--note", default=None)
+    p_onboard.add_argument("--dry-run", action="store_true")
+
     args = parser.parse_args(argv)
     conn = _connect()
     try:
@@ -1902,6 +2096,59 @@ def main(argv: list[str] | None = None) -> int:
                 f"stage_player_rows_updated={summary['stage_player_rows_updated']}"
             )
             return 0
+
+        if args.cmd == "add-entrant":
+            summary = register_tournament_entrant(
+                conn,
+                tournament_id=args.tournament_id,
+                player_id=args.player_id,
+                seed_no=args.seed_no,
+                note=args.note,
+                dry_run=args.dry_run,
+            )
+            if args.dry_run:
+                conn.rollback()
+                print("DRY RUN: rolled back")
+            else:
+                conn.commit()
+            seed = f" seed_no={summary['seed_no']}" if summary.get("seed_no") is not None else ""
+            note = f" note={summary['note']!r}" if summary.get("note") else ""
+            print(
+                f"tournament_id={summary['tournament_id']} player_id={summary['player_id']} "
+                f"entrant_id={summary['entrant_id']} status={summary['status']}{seed}{note}"
+            )
+            return 0
+
+        if args.cmd == "onboard-newcomer":
+            summary = onboard_newcomer_entrant(
+                conn,
+                tournament_id=args.tournament_id,
+                name=args.name,
+                full_name=args.full_name,
+                country=args.country,
+                seed_no=args.seed_no,
+                note=args.note,
+                dry_run=args.dry_run,
+            )
+            if args.dry_run:
+                conn.rollback()
+                print("DRY RUN: rolled back")
+            else:
+                conn.commit()
+            seed = f" seed_no={summary['seed_no']}" if summary.get("seed_no") is not None else ""
+            note = f" note={summary['note']!r}" if summary.get("note") else ""
+            print(
+                f"tournament_id={summary['tournament_id']} name_source={summary['name_source']} "
+                f"resolved_name={summary['resolved_name']!r} player_id={summary['player_id']} "
+                f"entrant_id={summary['entrant_id']} status={summary['status']}{seed}{note}"
+            )
+            if summary.get("suggestion"):
+                print(json.dumps(summary["suggestion"], indent=2, sort_keys=True))
+            return 0
+    except ValueError as exc:
+        conn.rollback()
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     finally:
         conn.close()
 

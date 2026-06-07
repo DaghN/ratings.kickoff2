@@ -110,6 +110,12 @@ python -m scripts.amiga fixtures backfill-entrants --dry-run
 python -m scripts.amiga fixtures backfill-entrants
 python -m scripts.amiga fixtures backfill-entrants --tournament-id N --dry-run
 
+# Entrant onboarding (generated tournaments only; dry-run first).
+python -m scripts.amiga fixtures add-entrant --tournament-id N --player-id P --seed-no 5 --note "late signup" --dry-run
+python -m scripts.amiga fixtures add-entrant --tournament-id N --player-id P --seed-no 5 --note "late signup"
+python -m scripts.amiga fixtures onboard-newcomer --tournament-id N --full-name "Mark Bentley" --country "England" --seed-no 5 --dry-run
+python -m scripts.amiga fixtures onboard-newcomer --tournament-id N --name "Mark Be" --country "England" --seed-no 5 --dry-run
+
 # Entrant status changes (generated tournaments only; dry-run first).
 python -m scripts.amiga fixtures withdraw-entrant --tournament-id N --player-id P --dry-run
 python -m scripts.amiga fixtures withdraw-entrant --tournament-id N --player-id P --note "injury"

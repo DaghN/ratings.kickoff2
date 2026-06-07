@@ -178,7 +178,8 @@ def create_player(
         }
 
         if dry_run:
-            conn.rollback()
+            if owns_conn:
+                conn.rollback()
             return {"dry_run": True, "row": row, "player_id": None}
 
         with conn.cursor() as cur:
@@ -187,7 +188,8 @@ def create_player(
                 (row["name"], row["country"], row["display"]),
             )
             player_id = int(cur.lastrowid)
-        conn.commit()
+        if owns_conn:
+            conn.commit()
         return {"dry_run": False, "row": row, "player_id": player_id}
     except Exception:
         conn.rollback()
