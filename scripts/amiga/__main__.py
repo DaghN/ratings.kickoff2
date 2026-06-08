@@ -8,6 +8,7 @@ import logging
 import sys
 from pathlib import Path
 
+from scripts.amiga.finalize_tournament import run_finalize_tournament
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
 from scripts.amiga.tournament_catalog_stats import run_catalog_stats_rebuild
@@ -35,6 +36,13 @@ def main(argv: list[str] | None = None) -> int:
     p_replay = sub.add_parser("replay", help="Elo replay (1600 / K=32)")
     p_replay.add_argument("--dry-run", action="store_true")
     p_replay.add_argument("--limit", type=int, default=None)
+
+    p_finalize = sub.add_parser(
+        "finalize-tournament",
+        help="Finalize one tournament (frozen Elo batch + rating events)",
+    )
+    p_finalize.add_argument("--tournament-id", type=int, required=True)
+    p_finalize.add_argument("--dry-run", action="store_true")
 
     p_run = sub.add_parser("run", help="import + replay")
     p_run.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
@@ -117,6 +125,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "replay":
         run_replay(dry_run=args.dry_run, limit=args.limit)
+        return 0
+
+    if args.cmd == "finalize-tournament":
+        result = run_finalize_tournament(
+            tournament_id=args.tournament_id,
+            dry_run=args.dry_run,
+        )
+        log.info("finalize-tournament complete: %s", result)
         return 0
 
     if args.cmd == "run":

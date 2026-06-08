@@ -239,6 +239,8 @@ def apply_game_row(
     *,
     names: dict[int, str],
     server_records: ServerRecordState | None = None,
+    frozen_ratings: dict[int, float] | None = None,
+    commit_rating: bool = True,
 ) -> dict[str, Any]:
     id_a = int(game["idA"])
     id_b = int(game["idB"])
@@ -251,7 +253,9 @@ def apply_game_row(
     pb = players.setdefault(id_b, PlayerState())
 
     outcome = outcome_from_goals(goals_a, goals_b, id_a, id_b)
-    elo = compute_elo(pa.rating, pb.rating, outcome.actual_score)
+    rating_a = frozen_ratings[id_a] if frozen_ratings is not None else pa.rating
+    rating_b = frozen_ratings[id_b] if frozen_ratings is not None else pb.rating
+    elo = compute_elo(rating_a, rating_b, outcome.actual_score)
 
     pa.apply_match(
         players=players,
@@ -269,6 +273,7 @@ def apply_game_row(
         adjustment=elo.adjustment_a,
         game_id=game_id,
         game_date=game_date,
+        commit_rating=commit_rating,
     )
     pb.apply_match(
         players=players,
@@ -286,6 +291,7 @@ def apply_game_row(
         adjustment=elo.adjustment_b,
         game_id=game_id,
         game_date=game_date,
+        commit_rating=commit_rating,
     )
 
     if server_records is not None:

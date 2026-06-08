@@ -196,6 +196,7 @@ class PlayerState:
         adjustment: float,
         game_id: int,
         game_date: datetime,
+        commit_rating: bool = True,
     ) -> None:
         self.game_flags = GameRecordFlags()
 
@@ -216,7 +217,8 @@ class PlayerState:
 
         self.goals_for += goals_for
         self.goals_against += goals_against
-        self.rating = new_rating
+        if commit_rating:
+            self.rating = new_rating
         self.last_game = game_date
         self.last_game_id = game_id
 
@@ -342,19 +344,20 @@ class PlayerState:
             self.lowest_rated_culprit = opponent_rating_before
             self.lowest_rated_culprit_game_id = game_id
 
-        if new_rating > old_rating:
-            self.current_rating_ascent += abs(adjustment)
-            self.current_rating_descent = 0.0
-        elif new_rating < old_rating:
-            self.current_rating_descent += abs(adjustment)
-            self.current_rating_ascent = 0.0
+        if commit_rating:
+            if new_rating > old_rating:
+                self.current_rating_ascent += abs(adjustment)
+                self.current_rating_descent = 0.0
+            elif new_rating < old_rating:
+                self.current_rating_descent += abs(adjustment)
+                self.current_rating_ascent = 0.0
 
-        if self.current_rating_ascent > self.biggest_rating_ascent:
-            self.biggest_rating_ascent = self.current_rating_ascent
-        if self.current_rating_descent > self.biggest_rating_descent:
-            self.biggest_rating_descent = self.current_rating_descent
+            if self.current_rating_ascent > self.biggest_rating_ascent:
+                self.biggest_rating_ascent = self.current_rating_ascent
+            if self.current_rating_descent > self.biggest_rating_descent:
+                self.biggest_rating_descent = self.current_rating_descent
 
-        self._apply_career_peak_nadir(new_rating, game_id)
+            self._apply_career_peak_nadir(new_rating, game_id)
 
         self._update_streaks(won, drew, lost)
         self._update_milestone_streaks(goals_for, goals_against, won, lost)
