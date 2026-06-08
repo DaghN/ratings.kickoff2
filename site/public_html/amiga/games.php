@@ -51,6 +51,9 @@ $resultFilter = amiga_games_valid_result((string) ($_GET['result'] ?? 'all'));
 $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
 $utcDayFilter = amiga_games_valid_day((string) ($_GET['day'] ?? ''));
 $sortKey = (string) ($_GET['sort'] ?? 'id');
+if ($sortKey === 'for') {
+    $sortKey = 'goals_for';
+}
 $sortDirection = amiga_games_valid_direction((string) ($_GET['dir'] ?? 'desc'));
 $limit = 100;
 $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
@@ -65,7 +68,7 @@ $sortMap = [
     'phase' => 'r.phase',
     'result' => "CASE WHEN ((r.idA = $playerIdSql AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = $playerIdSql AND ABS(r.ActualScore) < 0.001)) THEN 2 WHEN ABS(r.ActualScore - 0.5) < 0.001 THEN 1 ELSE 0 END",
     'opponent' => "CASE WHEN r.idA = $playerIdSql THEN r.NameB ELSE r.NameA END",
-    'for' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END",
+    'goals_for' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END",
     'against' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END",
     'diff' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END",
     'sum' => 'r.SumOfGoals',
@@ -245,7 +248,7 @@ foreach ($opponentRows as $opponentRow) {
     <?php echo amiga_games_sort_header('phase', 'Phase', 'left', $sortState, 'Bracket phase when recorded (group, final, etc.).', 'Phase'); ?>
     <?php echo amiga_games_sort_header('result', 'Result', 'left', $sortState, 'Result from this player\'s perspective: win, draw, or loss.', 'Result', 'k2-table-cell--pad-left-xl'); ?>
     <?php echo amiga_games_sort_header('opponent', 'Opponent', 'left', $sortState, 'Opponent in this game.'); ?>
-    <?php echo amiga_games_sort_header('for', 'F', 'right', $sortState, 'Goals scored by this player.', 'For', 'k2-table-cell--pad-left-md'); ?>
+    <?php echo amiga_games_sort_header('goals_for', 'F', 'right', $sortState, 'Goals scored by this player.', 'For', 'k2-table-cell--pad-left-md'); ?>
     <?php echo amiga_games_sort_header('against', 'A', 'right', $sortState, 'Goals conceded by this player.', 'Against'); ?>
     <?php echo amiga_games_sort_header('diff', 'Diff', 'right', $sortState, 'Goal difference from this player\'s perspective.'); ?>
     <?php echo amiga_games_sort_header('sum', 'Sum', 'right', $sortState, 'Total goals scored by both players in the game.'); ?>

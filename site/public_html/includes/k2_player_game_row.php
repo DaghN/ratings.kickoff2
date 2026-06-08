@@ -113,7 +113,7 @@ function k2_player_game_sort_col_index(string $sortKey): int
         'team_b' => 5,
         'result' => 6,
         'opponent' => 7,
-        'for' => 8,
+        'goals_for' => 8,
         'against' => 9,
         'diff' => 10,
         'sum' => 11,

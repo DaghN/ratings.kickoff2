@@ -20,7 +20,7 @@ function amiga_player_game_sort_col_index(string $sortKey): int
         'phase' => 7,
         'result' => 8,
         'opponent' => 9,
-        'for' => 10,
+        'goals_for' => 10,
         'against' => 11,
         'diff' => 12,
         'sum' => 13,
