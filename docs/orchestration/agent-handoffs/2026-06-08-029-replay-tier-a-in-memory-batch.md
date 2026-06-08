@@ -25,4 +25,4 @@ Batch replay: incremental in-memory career state per tournament; full-history on
 
 ## Commit
 
-*(hash after push)*
+`0fcc8d7` — pushed to `main`
