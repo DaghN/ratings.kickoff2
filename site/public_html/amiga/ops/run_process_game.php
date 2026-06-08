@@ -15,6 +15,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/amiga_ops_bootstrap.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
+require_once __DIR__ . '/modules/refinalize_tournament.php';
 
 amiga_ops_require_cli();
 
@@ -24,6 +25,8 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "Verbs:\n");
     fwrite(STDOUT, "  zero-derived          Clear ratings + stats + standings + rating events (ground kept)\n");
     fwrite(STDOUT, "  finalize-tournament   Batch finalize one tournament (frozen Elo + rating events)\n");
+    fwrite(STDOUT, "  reopen-tournament     Clear one tournament's finalize markers + derived rows\n");
+    fwrite(STDOUT, "  refinalize-from       Rebuild-forward from tournament T through later events\n");
     fwrite(STDOUT, "  replay-to             Deprecated — use python -m scripts.amiga replay\n");
     fwrite(STDOUT, "  process-one           Deprecated for tournament games — use finalize-tournament\n");
     fwrite(STDOUT, "  verify                Row counts + derived_gap + standings spot-checks\n");
@@ -105,6 +108,54 @@ if ($verb === 'finalize-tournament') {
     } catch (AmigaTournamentAlreadyFinalizedException $e) {
         fwrite(STDERR, $e->getMessage() . PHP_EOL);
         exit(1);
+    } catch (AmigaTournamentNotFoundException $e) {
+        fwrite(STDERR, $e->getMessage() . PHP_EOL);
+        exit(1);
+    } catch (AmigaFinalizeLockException $e) {
+        fwrite(STDERR, $e->getMessage() . PHP_EOL);
+        exit(1);
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'reopen-tournament') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "reopen-tournament requires --tournament-id N\n");
+        exit(1);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_ops_reopen_tournament($con, $tournamentId, $dryRun);
+        amiga_ops_log(
+            'reopen-tournament done: id=' . $result['tournament_id']
+            . (!empty($result['reopened']) ? ' reopened' : ' no-op')
+            . ($dryRun ? ' (dry-run)' : '')
+        );
+    } catch (AmigaTournamentNotFoundException $e) {
+        fwrite(STDERR, $e->getMessage() . PHP_EOL);
+        exit(1);
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'refinalize-from') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "refinalize-from requires --tournament-id N\n");
+        exit(1);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_ops_refinalize_from($con, $tournamentId, $dryRun);
+        amiga_ops_log(
+            'refinalize-from done: id=' . $result['tournament_id']
+            . ' from_tournaments=' . ($result['from_tournaments'] ?? 0)
+            . ' games=' . ($result['games_finalized'] ?? 0)
+            . ($dryRun ? ' (dry-run)' : '')
+        );
     } catch (AmigaTournamentNotFoundException $e) {
         fwrite(STDERR, $e->getMessage() . PHP_EOL);
         exit(1);

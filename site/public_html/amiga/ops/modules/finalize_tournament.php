@@ -441,6 +441,77 @@ function amiga_ops_release_finalize_lock(mysqli $con): void
 }
 
 /**
+ * @param array<int, array<string, mixed>> $players
+ */
+function amiga_ops_apply_tournament_stats_batch(
+    mysqli $con,
+    int $tournamentId,
+    array &$players
+): void {
+    $games = amiga_ops_load_tournament_games_for_finalize($con, $tournamentId);
+    if ($games === []) {
+        return;
+    }
+
+    $participantIds = amiga_ops_tournament_participant_ids($games);
+    foreach ($participantIds as $pid) {
+        if (!isset($players[$pid])) {
+            $players[$pid] = k2_post_game_player_state_new();
+        }
+    }
+    $frozen = amiga_ops_frozen_ratings($participantIds, $players);
+
+    foreach ($games as $game) {
+        $derived = amiga_ops_compute_game_ratings_frozen($game, $frozen);
+        amiga_ops_apply_player_stats_for_game($con, $game, $derived, $players, false, false);
+    }
+
+    $stmt = $con->prepare(
+        'SELECT player_id, rating_after FROM amiga_rating_events WHERE tournament_id = ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare rating events for stats batch: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute rating events for stats batch: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    while ($res && ($row = $res->fetch_assoc())) {
+        $pid = (int) $row['player_id'];
+        if (isset($players[$pid])) {
+            $players[$pid]['rating'] = (float) $row['rating_after'];
+        }
+    }
+    $stmt->close();
+}
+
+/**
+ * @param list<int> $tournamentIds
+ */
+function amiga_ops_rebuild_stats_through_finalized(mysqli $con, array $tournamentIds): void
+{
+    if ($tournamentIds === []) {
+        return;
+    }
+
+    $players = [];
+    foreach ($tournamentIds as $tournamentId) {
+        amiga_ops_apply_tournament_stats_batch($con, $tournamentId, $players);
+    }
+
+    amiga_ops_finalize_network_counts_from_rows($players, amiga_ops_load_rated_game_rows_for_finalize($con));
+    amiga_ops_recompute_rating_peaks_from_events($con, $players, array_keys($players));
+
+    foreach ($players as $pid => $st) {
+        if ((int) ($st['games'] ?? 0) <= 0) {
+            continue;
+        }
+        amiga_post_game_player_write($con, k2_post_game_player_to_db_row($st, (int) $pid));
+    }
+}
+
+/**
  * Finalize one tournament per amiga-tournament-finalize-rating-contract.md § 5.
  *
  * @return array{

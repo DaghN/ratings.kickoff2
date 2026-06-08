@@ -2332,6 +2332,12 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
     $tournamentId = (int) $fixture['tournament_id'];
     $playerAId = (int) $fixture['player_a_id'];
     $playerBId = (int) $fixture['player_b_id'];
+    if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
+        throw new RuntimeException(
+            'Tournament is rating-finalized. Reopen and refinalize before entering more results: '
+            . '`python -m scripts.amiga refinalize-from --tournament-id=' . $tournamentId . '`'
+        );
+    }
     amiga_fixture_require_running_lifecycle($con, $tournamentId);
     amiga_fixture_require_active_entrant($con, $tournamentId, $playerAId);
     amiga_fixture_require_active_entrant($con, $tournamentId, $playerBId);
@@ -2589,6 +2595,7 @@ $generatedTournaments = [];
 $entrants = [];
 $entrantOpsEligible = false;
 $tournamentUnratedGameCount = 0;
+$tournamentRatingFinalized = false;
 /** @var array<int, bool> */
 $fixtureResultRated = [];
 $stages = [];
@@ -3027,6 +3034,7 @@ if ($tournamentId > 0) {
     }
 
     $tournamentUnratedGameCount = count(amiga_fixture_list_tournament_unrated_game_ids($con, $tournamentId));
+    $tournamentRatingFinalized = amiga_ops_tournament_rating_finalized($con, $tournamentId);
     $stmt = $con->prepare(
         'SELECT g.fixture_id, (r.game_id IS NOT NULL) AS rated '
         . 'FROM amiga_games g '
@@ -3726,6 +3734,14 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 <?php if ($view === 'table' && $tournamentId > 0 && $tournament !== null) { ?>
   <div class="k2-amiga-live-ops__section k2-amiga-organizer-table">
     <h2>League table</h2>
+    <?php if ($tournamentRatingFinalized) { ?>
+      <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
+        This league is <strong>rating-finalized</strong> — global ladder ratings are committed.
+        Ground-truth score edits require
+        <code>python -m scripts.amiga refinalize-from --tournament-id=<?php echo (int) $tournamentId; ?></code>
+        (rebuilds this event and all later tournaments).
+      </p>
+    <?php } ?>
     <?php if ($tournamentUnratedGameCount > 0) { ?>
       <div class="k2-amiga-organizer-table__reprocess">
         <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">

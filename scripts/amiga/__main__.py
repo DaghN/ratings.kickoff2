@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 
 from scripts.amiga.finalize_tournament import run_finalize_tournament
+from scripts.amiga.refinalize import run_refinalize_from, run_reopen_tournament
+from scripts.amiga.refinalize_smoke import main as refinalize_smoke_main
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
 from scripts.amiga.tournament_catalog_stats import run_catalog_stats_rebuild
@@ -52,6 +54,28 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_finalize.add_argument("--tournament-id", type=int, required=True)
     p_finalize.add_argument("--dry-run", action="store_true")
+
+    p_reopen = sub.add_parser(
+        "reopen-tournament",
+        help="Clear finalize markers + T derived rows (requires refinalize-from for global stats)",
+    )
+    p_reopen.add_argument("--tournament-id", type=int, required=True)
+    p_reopen.add_argument("--dry-run", action="store_true")
+
+    p_refinalize = sub.add_parser(
+        "refinalize-from",
+        help="Rebuild-forward: refinalize tournament T and all later tournaments",
+    )
+    p_refinalize.add_argument("--tournament-id", type=int, required=True)
+    p_refinalize.add_argument("--dry-run", action="store_true")
+
+    p_smoke = sub.add_parser(
+        "refinalize-smoke",
+        help="Smoke test: tweak one goal + refinalize-from (default: last tournament)",
+    )
+    p_smoke.add_argument("--tournament-id", type=int, default=None)
+    p_smoke.add_argument("--game-id", type=int, default=None)
+    p_smoke.add_argument("--dry-run", action="store_true")
 
     p_run = sub.add_parser("run", help="import + replay")
     p_run.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
@@ -148,6 +172,32 @@ def main(argv: list[str] | None = None) -> int:
         )
         log.info("finalize-tournament complete: %s", result)
         return 0
+
+    if args.cmd == "reopen-tournament":
+        result = run_reopen_tournament(
+            tournament_id=args.tournament_id,
+            dry_run=args.dry_run,
+        )
+        log.info("reopen-tournament complete: %s", result)
+        return 0
+
+    if args.cmd == "refinalize-from":
+        result = run_refinalize_from(
+            tournament_id=args.tournament_id,
+            dry_run=args.dry_run,
+        )
+        log.info("refinalize-from complete: %s", result)
+        return 0
+
+    if args.cmd == "refinalize-smoke":
+        smoke_argv = []
+        if args.tournament_id is not None:
+            smoke_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.game_id is not None:
+            smoke_argv.extend(["--game-id", str(args.game_id)])
+        if args.dry_run:
+            smoke_argv.append("--dry-run")
+        return refinalize_smoke_main(smoke_argv)
 
     if args.cmd == "run":
         stats = import_all(mdb=args.mdb, recreate_schema=args.recreate_schema)

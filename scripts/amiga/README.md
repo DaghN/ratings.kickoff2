@@ -13,6 +13,11 @@ Phase A0+ tooling for the offline Access source (`data/amiga/source/koatd.mdb`).
 # Finalize one tournament (frozen Elo — see docs/amiga-tournament-finalize-rating-contract.md):
 python -m scripts.amiga finalize-tournament --tournament-id=N
 
+# Corrections after finalize (rebuild-forward from T — contract § 6.3):
+python -m scripts.amiga reopen-tournament --tournament-id=T
+python -m scripts.amiga refinalize-from --tournament-id=T
+python -m scripts.amiga refinalize-smoke
+
 # One-shot local build (create DB, import, Elo replay)
 powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 

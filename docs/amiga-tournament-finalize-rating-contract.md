@@ -458,11 +458,12 @@ Shared Elo: continue `scripts/ladder/elo.py` / `post_game_elo.php` for formula; 
 - [ ] Profile chart update
 - [ ] Game page: show `adjustment_*` and frozen `rating_*` from `amiga_game_ratings`
 
-### Slice 4 — Corrections & refinalize
+### Slice 6 — Corrections & refinalize
 
-- [ ] Reopen tournament
-- [ ] Reverse + refinalize `T` and later tournaments
-- [ ] Ops documentation and safeguards
+- [x] `reopen-tournament --tournament-id=T` (Python + PHP CLI)
+- [x] `refinalize-from --tournament-id=T` rebuild-forward through later tournaments
+- [x] Fixtures ops guardrails when `rating_finalized`
+- [x] Smoke: `python scripts/amiga/refinalize_smoke.py`
 
 ### Slice 5 — Optional enhancements
 

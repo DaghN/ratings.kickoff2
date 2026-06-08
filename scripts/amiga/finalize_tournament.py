@@ -135,6 +135,48 @@ def recompute_rating_peaks_from_events(
             st.lowest_rating = min(points)
 
 
+def _apply_tournament_stats_batch(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    players: dict[int, PlayerState],
+    names: dict[int, str],
+) -> None:
+    """Replay career stats for one already-finalized tournament (ratings/events unchanged)."""
+    with conn.cursor() as cur:
+        cur.execute(GAME_SELECT_FOR_TOURNAMENT, (tournament_id,))
+        games = cur.fetchall()
+    if not games:
+        return
+
+    participant_ids = _participant_ids(games)
+    for pid in participant_ids:
+        players.setdefault(pid, PlayerState())
+
+    frozen = _frozen_ratings(participant_ids, players)
+    for game in games:
+        apply_game_row(
+            game,
+            players,
+            names=names,
+            frozen_ratings=frozen,
+            commit_rating=False,
+        )
+
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT player_id, rating_after
+            FROM amiga_rating_events
+            WHERE tournament_id = %s
+            """,
+            (tournament_id,),
+        )
+        for row in cur.fetchall():
+            pid = int(row["player_id"])
+            if pid in players:
+                players[pid].rating = float(row["rating_after"])
+
+
 def verify_tournament_finalize(
     conn: pymysql.connections.Connection,
     tournament_id: int,
