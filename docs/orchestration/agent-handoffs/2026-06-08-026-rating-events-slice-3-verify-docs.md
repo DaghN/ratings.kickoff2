@@ -49,4 +49,4 @@ Automated guards for contract § 5.9; update authority docs. **Milestone: histor
 
 ## Commit
 
-`TBD`
+`977e86f` — pushed to `main`
