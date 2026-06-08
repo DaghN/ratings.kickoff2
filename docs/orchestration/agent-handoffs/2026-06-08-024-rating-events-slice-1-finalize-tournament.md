@@ -68,4 +68,4 @@ Implement and prove `finalize_tournament(T)` for one tournament in isolation. Fu
 
 ## Commit
 
-*(filled after commit)*
+`f6bc153` — pushed to `main`
