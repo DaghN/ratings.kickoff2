@@ -47,7 +47,7 @@ function k2_player_game_normalize_row(array $row): array
 function k2_player_game_date_html(string $date): string
 {
     $ts = strtotime($date);
-    $text = $ts !== false ? date('M d Y, H:i', $ts) : $date;
+    $text = $ts !== false ? date('M d Y', $ts) : $date;
 
     return k2_player_game_h($text);
 }
