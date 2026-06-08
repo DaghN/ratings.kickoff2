@@ -366,9 +366,14 @@ rebuild_all_standings()
 rebuild_all_catalog_stats()
 ```
 
-**Batch vs live:** Each tournament finalize still commits rating facts (`amiga_game_ratings`), rating events, and global `Rating` + career counters for participants — same semantics as an operator clicking finalize. **Network counts** (`DifferentOpponents`, victims/culprits, DD/CS networks) and **peak/nadir** need a full rated-game / event timeline scan; live `finalize-tournament` runs that inline; batch `replay` and `refinalize-from` defer it to a single `commit_heavy_player_derived()` after the loop (~90s full local replay vs ~5½ min before this optimization, Jun 2026).
+**Batch vs live:** Each tournament finalize still commits rating facts (`amiga_game_ratings`) and `amiga_rating_events` — same semantics as an operator clicking finalize. **In-tournament** career counters (games, W/D/L, goals, records) update incrementally in memory from the entry snapshot; **network counts** and **peak/nadir** need a full-history scan.
 
-PHP live finalize always runs the heavy pass per event (no defer).
+| Mode | Entry state | Career stats on disk | Heavy derived (network + peak) |
+|------|-------------|----------------------|--------------------------------|
+| **Live** finalize | Load `amiga_player_stats` | Written per event | Inline at end of one tournament |
+| **Batch** `replay` / `refinalize-from` | Shared in-memory `players` dict | Once via `commit_heavy_player_derived(players)` | Same single pass at batch end |
+
+Batch full local replay ~23s (Jun 2026). PHP live finalize always uses the live row (no defer).
 
 ### 8.3 Parity with legacy
 

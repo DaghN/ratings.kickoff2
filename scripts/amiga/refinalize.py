@@ -11,6 +11,7 @@ from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.finalize_tournament import (
     TournamentNotFoundError,
     _apply_tournament_stats_batch,
+    _load_player_names,
     _load_rated_game_rows,
     _load_tournament,
     _stats_upsert_sql,
@@ -18,6 +19,7 @@ from scripts.amiga.finalize_tournament import (
     finalize_tournament,
     recompute_rating_peaks_from_events,
 )
+from scripts.amiga.player_stats_load import load_player_states
 from scripts.amiga.replay import _connect, _stats_row, tournament_ids_for_replay
 from scripts.amiga.tournament_catalog_stats import rebuild_all_catalog_stats
 from scripts.amiga.tournament_standings import clear_standings, rebuild_all_standings
@@ -183,12 +185,20 @@ def refinalize_from(
     conn.commit()
 
     rebuild_stats_through_finalized(conn, before_ids)
+    players = load_player_states(conn)
+    names = _load_player_names(conn)
 
     games_total = 0
     events_total = 0
     for tid in from_ids:
         result = finalize_tournament(
-            conn, tid, dry_run=False, defer_heavy_derived=True
+            conn,
+            tid,
+            dry_run=False,
+            defer_heavy_derived=True,
+            persist_player_stats=False,
+            players=players,
+            names=names,
         )
         if result.get("skipped"):
             continue
@@ -196,7 +206,7 @@ def refinalize_from(
         events_total += int(result.get("rating_events", 0))
 
     if from_ids:
-        commit_heavy_player_derived(conn)
+        commit_heavy_player_derived(conn, players=players)
 
     clear_standings(conn, dry_run=False)
     rebuild_all_standings(conn, dry_run=False)

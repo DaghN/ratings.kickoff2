@@ -36,10 +36,10 @@ python -m scripts.amiga replay
 python -m scripts.amiga verify-chronology
 python -m scripts.amiga verify-rating-events
 
-# Full replay (~27k games, ~90s local Jun 2026): each tournament is a real finalize
-# (per-game amiga_game_ratings + rating_events + Rating). Network counts + peak/nadir
-# are deferred to commit_heavy_player_derived() once at the end. Live finalize-tournament
-# (PHP or Python CLI) runs the heavy pass inline per event.
+# Full replay (~27k games, ~23s local Jun 2026): shared in-memory players across tournaments;
+# each finalize writes amiga_game_ratings + amiga_rating_events. amiga_player_stats +
+# network counts + peak/nadir once via commit_heavy_player_derived(players). Live
+# finalize-tournament (PHP or Python CLI) loads from DB and persists full stats per event.
 
 # Partial rebuild smoke (≥500 games in scope; verify-rating-events requires full replay):
 python -m scripts.amiga replay --limit 500

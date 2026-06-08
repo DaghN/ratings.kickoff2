@@ -202,9 +202,11 @@ def replay_all(
     Full derived rebuild via tournament-order finalize (see finalize-rating contract).
     """
     from scripts.amiga.finalize_tournament import (
+        _load_player_names,
         commit_heavy_player_derived,
         finalize_tournament,
     )
+    from scripts.ladder.player_state import PlayerState
 
     tournament_ids, games_in_scope = tournament_ids_for_replay(conn, limit_games=limit)
     with conn.cursor() as cur:
@@ -224,11 +226,19 @@ def replay_all(
             log.info("Dry-run first tournament: %s", result)
         return
 
+    players: dict[int, PlayerState] = {}
+    names = _load_player_names(conn)
     games_processed = 0
     events_total = 0
     for idx, tournament_id in enumerate(tournament_ids, start=1):
         result = finalize_tournament(
-            conn, tournament_id, dry_run=False, defer_heavy_derived=True
+            conn,
+            tournament_id,
+            dry_run=False,
+            defer_heavy_derived=True,
+            persist_player_stats=False,
+            players=players,
+            names=names,
         )
         if result.get("skipped"):
             continue
@@ -243,8 +253,8 @@ def replay_all(
             )
 
     if tournament_ids:
-        log.info("committing heavy player derived (network counts + peak/nadir)")
-        commit_heavy_player_derived(conn)
+        log.info("committing heavy player derived (network counts + peak/nadir + stats)")
+        commit_heavy_player_derived(conn, players=players)
 
     log.info("rebuilding tournament standings")
     rebuild_all_standings(conn, dry_run=False)

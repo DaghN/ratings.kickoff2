@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (slices 0–7 + staging 24-part import verified on `ratings.kickoff2.com`). Commit boundary = `finalize_tournament` only; batch oracle `python -m scripts.amiga replay` (~90s full local) + `verify-rating-events`; live PHP standings-only entry + `finalize-tournament` (heavy derived inline); profile chart from `amiga_rating_events`; corrections via `reopen-tournament` / `refinalize-from`. Contract: [`amiga-tournament-finalize-rating-contract.md`](docs/amiga-tournament-finalize-rating-contract.md). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Match streaks:** skip product surfaces. **Next:** resume other Amiga/product work per [`amiga-realm-vision.md`](docs/amiga-realm-vision.md).
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (slices 0–7 + staging 24-part import verified on `ratings.kickoff2.com`). Commit boundary = `finalize_tournament` only; batch oracle `python -m scripts.amiga replay` (~23s full local) + `verify-rating-events`; live PHP standings-only entry + `finalize-tournament` (heavy derived inline); profile chart from `amiga_rating_events`; corrections via `reopen-tournament` / `refinalize-from`. Contract: [`amiga-tournament-finalize-rating-contract.md`](docs/amiga-tournament-finalize-rating-contract.md). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Match streaks:** skip product surfaces. **Next:** resume other Amiga/product work per [`amiga-realm-vision.md`](docs/amiga-realm-vision.md).
 
 ---
 
@@ -83,7 +83,8 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Amiga replay perf** — `defer_heavy_derived` + `commit_heavy_player_derived()`; full replay ~90s local (was ~5½ min); live finalize unchanged. |
+| 2026-06 | **Amiga replay Tier A** — in-memory `players` across batch, defer stats + shared names; full replay ~23s (was ~90s / ~5½ min); live finalize unchanged. |
+| 2026-06 | **Amiga replay perf** — `defer_heavy_derived` + `commit_heavy_player_derived()`; live finalize unchanged. |
 | 2026-06 | **Amiga tournament finalize rating — closed** — slices 0–7 shipped; staging 24-part import verified (`ratings.kickoff2.com`); contract Implemented; rework pause lifted. |
 | 2026-06 | **Amiga tournament finalize rating (slices 0–7)** — `amiga_rating_events`, Python replay + PHP live ops + read path + refinalize; export part 24; PHP `replay-to` removed. |
 | 2026-06 | **Amiga hub nav v0** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); `/amiga/hall-of-fame.php` stub; wired on rating/tournaments/tournament pages; [`amiga-realm-vision.md`](docs/amiga-realm-vision.md) inventory doc. |
