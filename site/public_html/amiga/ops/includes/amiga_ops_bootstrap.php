@@ -27,7 +27,12 @@ function amiga_ops_require_cli(): void
 
 function amiga_ops_log(string $message): void
 {
-    fwrite(STDOUT, '[amiga-ops] ' . $message . PHP_EOL);
+    $line = '[amiga-ops] ' . $message . PHP_EOL;
+    if (PHP_SAPI === 'cli' && defined('STDOUT')) {
+        fwrite(STDOUT, $line);
+        return;
+    }
+    error_log(rtrim($line));
 }
 
 function amiga_ops_connect(): mysqli

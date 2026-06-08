@@ -426,6 +426,138 @@ function amiga_process_completed_game(mysqli $con, int $gameId, bool $dryRun = f
     return ['derived' => $derived, 'committed' => true, 'skipped' => false, 'skip_reason' => null];
 }
 
+function amiga_ops_count_unrated_games(mysqli $con): int
+{
+    $res = $con->query(
+        'SELECT COUNT(*) AS n FROM amiga_games g '
+        . 'LEFT JOIN amiga_game_ratings r ON r.game_id = g.id '
+        . 'WHERE r.game_id IS NULL'
+    );
+    if ($res === false) {
+        throw new RuntimeException('count unrated games: ' . $con->error);
+    }
+    $row = $res->fetch_assoc();
+    $res->free();
+
+    return (int) ($row['n'] ?? 0);
+}
+
+/**
+ * Process derived tables for one game: append-only when possible, otherwise walk
+ * contract chronology (replay-to) through any earlier unrated games first.
+ *
+ * @return array{
+ *   derived: array<string, mixed>,
+ *   committed: bool,
+ *   skipped: bool,
+ *   skip_reason: string|null,
+ *   processed_game_ids: list<int>
+ * }
+ */
+function amiga_ops_process_derived_for_game(mysqli $con, int $gameId, bool $dryRun = false): array
+{
+    if (amiga_ops_game_rating_exists($con, $gameId)) {
+        return [
+            'derived' => [],
+            'committed' => false,
+            'skipped' => false,
+            'skip_reason' => null,
+            'processed_game_ids' => [],
+        ];
+    }
+
+    $live = amiga_process_completed_game($con, $gameId, $dryRun, false);
+    if (!$live['skipped']) {
+        return [
+            'derived' => $live['derived'],
+            'committed' => $live['committed'],
+            'skipped' => false,
+            'skip_reason' => null,
+            'processed_game_ids' => [$gameId],
+        ];
+    }
+    if (!in_array($live['skip_reason'], ['derived_gap', 'not_append_only'], true)) {
+        return [
+            'derived' => [],
+            'committed' => false,
+            'skipped' => true,
+            'skip_reason' => $live['skip_reason'],
+            'processed_game_ids' => [],
+        ];
+    }
+
+    $unratedCount = amiga_ops_count_unrated_games($con);
+    if ($unratedCount > 100) {
+        return [
+            'derived' => [],
+            'committed' => false,
+            'skipped' => true,
+            'skip_reason' => 'derived_gap_bulk',
+            'processed_game_ids' => [],
+        ];
+    }
+
+    /** @var list<int> */
+    $processedGameIds = [];
+    $lastDerived = [];
+    $committed = false;
+    for ($step = 0; $step < $unratedCount; $step++) {
+        $firstUnrated = amiga_ops_first_unrated_game_id($con);
+        if ($firstUnrated === null) {
+            break;
+        }
+        if ($firstUnrated > $gameId) {
+            return [
+                'derived' => [],
+                'committed' => false,
+                'skipped' => true,
+                'skip_reason' => 'derived_gap',
+                'processed_game_ids' => $processedGameIds,
+            ];
+        }
+        $result = amiga_process_completed_game($con, $firstUnrated, $dryRun, true);
+        if ($result['skipped']) {
+            return [
+                'derived' => [],
+                'committed' => false,
+                'skipped' => true,
+                'skip_reason' => $result['skip_reason'],
+                'processed_game_ids' => $processedGameIds,
+            ];
+        }
+        $processedGameIds[] = $firstUnrated;
+        $lastDerived = $result['derived'];
+        $committed = $result['committed'] || $committed;
+        if ($firstUnrated === $gameId) {
+            return [
+                'derived' => $lastDerived,
+                'committed' => $committed,
+                'skipped' => false,
+                'skip_reason' => null,
+                'processed_game_ids' => $processedGameIds,
+            ];
+        }
+    }
+
+    if (amiga_ops_game_rating_exists($con, $gameId)) {
+        return [
+            'derived' => $lastDerived,
+            'committed' => $committed,
+            'skipped' => false,
+            'skip_reason' => null,
+            'processed_game_ids' => $processedGameIds,
+        ];
+    }
+
+    return [
+        'derived' => [],
+        'committed' => false,
+        'skipped' => true,
+        'skip_reason' => 'derived_gap',
+        'processed_game_ids' => $processedGameIds,
+    ];
+}
+
 /**
  * Clear derived tables only (ground truth preserved). Mirrors replay.py clear_derived.
  */

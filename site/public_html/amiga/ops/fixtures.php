@@ -2403,6 +2403,148 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
     return $gameId;
 }
 
+/**
+ * @return list<int>
+ */
+function amiga_fixture_list_tournament_unrated_game_ids(mysqli $con, int $tournamentId): array
+{
+    $stmt = $con->prepare(
+        'SELECT g.id FROM amiga_games g '
+        . 'WHERE g.tournament_id = ? '
+        . 'AND NOT EXISTS (SELECT 1 FROM amiga_game_ratings r WHERE r.game_id = g.id) '
+        . 'ORDER BY g.game_date ASC, g.id ASC'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare tournament unrated games: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute tournament unrated games: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $ids = [];
+    while ($res && ($row = $res->fetch_assoc())) {
+        $ids[] = (int) $row['id'];
+    }
+    $stmt->close();
+
+    return $ids;
+}
+
+/**
+ * @return array{processed:int,failed_game_id:?int,skip_reason:?string}
+ */
+function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournamentId): array
+{
+    amiga_fixture_require_generated_tournament($con, $tournamentId);
+    $gameIds = amiga_fixture_list_tournament_unrated_game_ids($con, $tournamentId);
+    if ($gameIds === []) {
+        return ['processed' => 0, 'failed_game_id' => null, 'skip_reason' => null];
+    }
+
+    $processed = 0;
+    foreach ($gameIds as $gameId) {
+        $result = amiga_ops_process_derived_for_game($con, $gameId, false);
+        if ($result['skipped']) {
+            return [
+                'processed' => $processed,
+                'failed_game_id' => $gameId,
+                'skip_reason' => $result['skip_reason'],
+            ];
+        }
+        $processed++;
+    }
+
+    return ['processed' => $processed, 'failed_game_id' => null, 'skip_reason' => null];
+}
+
+function amiga_fixture_undo_unprocessed_result(mysqli $con, int $fixtureId): void
+{
+    $stmt = $con->prepare(
+        'SELECT f.id, f.status, s.tournament_id '
+        . 'FROM tournament_fixtures f '
+        . 'INNER JOIN tournament_stages s ON s.id = f.stage_id '
+        . 'WHERE f.id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare fixture load: ' . $con->error);
+    }
+    $stmt->bind_param('i', $fixtureId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute fixture load: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $fixture = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    if ($fixture === null) {
+        throw new RuntimeException("Fixture {$fixtureId} not found.");
+    }
+    if ((string) $fixture['status'] !== 'played') {
+        throw new RuntimeException("Fixture {$fixtureId} is not played.");
+    }
+
+    $tournamentId = (int) $fixture['tournament_id'];
+    amiga_fixture_require_generated_tournament($con, $tournamentId);
+    amiga_fixture_require_running_lifecycle($con, $tournamentId);
+
+    $stmt = $con->prepare(
+        'SELECT g.id FROM amiga_games g WHERE g.fixture_id = ? ORDER BY g.id ASC LIMIT 2'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare fixture games: ' . $con->error);
+    }
+    $stmt->bind_param('i', $fixtureId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute fixture games: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $gameIds = [];
+    while ($res && ($row = $res->fetch_assoc())) {
+        $gameIds[] = (int) $row['id'];
+    }
+    $stmt->close();
+    if ($gameIds === []) {
+        throw new RuntimeException("Fixture {$fixtureId} has no attached game.");
+    }
+    if (count($gameIds) > 1) {
+        throw new RuntimeException("Fixture {$fixtureId} has multiple games; undo refused.");
+    }
+    $gameId = $gameIds[0];
+    if (amiga_ops_game_rating_exists($con, $gameId)) {
+        throw new RuntimeException(
+            'This result was already processed into ratings and standings. '
+            . 'Undo is not available in the browser — use CLI replay to repair derived tables.'
+        );
+    }
+
+    $con->begin_transaction();
+    try {
+        $stmt = $con->prepare('DELETE FROM amiga_games WHERE id = ?');
+        if ($stmt === false) {
+            throw new RuntimeException('prepare game delete: ' . $con->error);
+        }
+        $stmt->bind_param('i', $gameId);
+        if (!$stmt->execute()) {
+            throw new RuntimeException('execute game delete: ' . $stmt->error);
+        }
+        $stmt->close();
+
+        $stmt = $con->prepare("UPDATE tournament_fixtures SET status = 'scheduled' WHERE id = ?");
+        if ($stmt === false) {
+            throw new RuntimeException('prepare fixture reopen: ' . $con->error);
+        }
+        $stmt->bind_param('i', $fixtureId);
+        if (!$stmt->execute()) {
+            throw new RuntimeException('execute fixture reopen: ' . $stmt->error);
+        }
+        $stmt->close();
+        $con->commit();
+    } catch (Throwable $e) {
+        $con->rollback();
+        throw $e;
+    }
+}
+
 amiga_fixture_ops_session_start();
 
 $tournamentId = isset($_GET['tournament_id']) ? max(0, (int) $_GET['tournament_id']) : 0;
@@ -2441,6 +2583,9 @@ $standingsRows = [];
 $generatedTournaments = [];
 $entrants = [];
 $entrantOpsEligible = false;
+$tournamentUnratedGameCount = 0;
+/** @var array<int, bool> */
+$fixtureResultRated = [];
 $stages = [];
 $stagePlayers = [];
 /** @var array<int, list<array{stage_id:int,stage_key:string,stage_name:string,stage_type:string,player_id:int,player_name:string,seed_no:?int,group_key:?string}>> */
@@ -2545,20 +2690,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $goalsB,
                 isset($_POST['extra']) ? (string) $_POST['extra'] : null
             );
-            $processed = amiga_process_completed_game($con, $gameId, false, false);
+            $processed = amiga_ops_process_derived_for_game($con, $gameId, false);
             if (isset($_POST['tournament_id'])) {
                 $tournamentId = max(0, (int) $_POST['tournament_id']);
             }
             if ($processed['skipped']) {
+                $skipReason = (string) $processed['skip_reason'];
+                if ($skipReason === 'derived_gap_bulk') {
+                    $skipMessage = 'Created game #' . $gameId
+                        . ', but too many unrated games need replay first — run '
+                        . '`python -m scripts.amiga replay` or PHP replay-to.';
+                } elseif ($skipReason === 'derived_gap') {
+                    $skipMessage = 'Created game #' . $gameId
+                        . ', but derived processing could not catch up (earlier unrated games remain). '
+                        . 'Run `python -m scripts.amiga replay` to repair derived tables.';
+                } else {
+                    $skipMessage = 'Created game #' . $gameId
+                        . ', but derived processing skipped: ' . $skipReason;
+                }
+                amiga_fixture_ops_flash_set($skipMessage, true);
+            } else {
+                $backfillNote = '';
+                $processedIds = $processed['processed_game_ids'] ?? [];
+                if (count($processedIds) > 1) {
+                    $backfillNote = ' (also processed ' . (count($processedIds) - 1) . ' earlier unrated game(s)).';
+                }
                 amiga_fixture_ops_flash_set(
-                    'Created game #' . $gameId . ', but derived processing skipped: ' . (string) $processed['skip_reason'],
+                    'Recorded fixture result as game #' . $gameId
+                    . ' and processed derived standings/ratings.' . $backfillNote
+                );
+            }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
+        } elseif ($action === 'reprocess_tournament_derived') {
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            if ($tournamentId <= 0) {
+                throw new RuntimeException('Missing tournament id.');
+            }
+            $summary = amiga_fixture_reprocess_tournament_derived($con, $tournamentId);
+            if ($summary['processed'] === 0 && $summary['failed_game_id'] === null) {
+                amiga_fixture_ops_flash_set('Table is already up to date — no unprocessed results for this league.');
+            } elseif ($summary['failed_game_id'] !== null) {
+                amiga_fixture_ops_flash_set(
+                    'Processed ' . $summary['processed'] . ' game(s), then stopped at game #'
+                    . $summary['failed_game_id'] . ': ' . (string) $summary['skip_reason']
+                    . '. Try `python -m scripts.amiga replay` if this persists.',
                     true
                 );
             } else {
                 amiga_fixture_ops_flash_set(
-                    'Recorded fixture result as game #' . $gameId . ' and processed derived standings/ratings.'
+                    'Updated table from ' . $summary['processed'] . ' match result(s).'
                 );
             }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+        } elseif ($action === 'undo_fixture_result') {
+            $fixtureId = max(0, (int) ($_POST['fixture_id'] ?? 0));
+            if ($fixtureId <= 0) {
+                throw new RuntimeException('Missing fixture id.');
+            }
+            amiga_fixture_undo_unprocessed_result($con, $fixtureId);
+            if (isset($_POST['tournament_id'])) {
+                $tournamentId = max(0, (int) $_POST['tournament_id']);
+            }
+            amiga_fixture_ops_flash_set('Removed unprocessed result for fixture #' . $fixtureId . '. Match is scheduled again.');
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
         } elseif ($action === 'set_lifecycle_status') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
@@ -2595,7 +2788,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     amiga_fixture_ops_flash_set('Tournament is already void.');
                 }
             } elseif ($lifecycleAction === 'start_tournament') {
-                amiga_fixture_ops_flash_set('Tournament started — you can now enter results on the Fixtures tab.');
+                amiga_fixture_ops_flash_set('Tournament started — you can now enter results on the Results tab.');
             } elseif ($lifecycleAction === 'mark_complete') {
                 amiga_fixture_ops_flash_set('Tournament marked complete.');
             } else {
@@ -2709,6 +2902,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errorView = 'fixtures';
             if (in_array($action, ['add_entrant', 'withdraw_entrant', 'replace_entrant'], true)) {
                 $errorView = 'players';
+            } elseif (in_array($action, ['record_result', 'undo_fixture_result'], true)) {
+                $errorView = 'results';
+            } elseif ($action === 'reprocess_tournament_derived') {
+                $errorView = 'table';
             } elseif ($action === 'set_lifecycle_status' || $action === 'organizer_lifecycle_action') {
                 $errorView = 'setup';
             } elseif ($action === 'place_stage_entrant') {
@@ -2830,6 +3027,26 @@ if ($tournamentId > 0) {
     }
     if ($playerSearchQuery !== '') {
         $playerSearchResults = amiga_fixture_search_players($con, $playerSearchQuery);
+    }
+
+    $tournamentUnratedGameCount = count(amiga_fixture_list_tournament_unrated_game_ids($con, $tournamentId));
+    $stmt = $con->prepare(
+        'SELECT g.fixture_id, (r.game_id IS NOT NULL) AS rated '
+        . 'FROM amiga_games g '
+        . 'INNER JOIN tournament_fixtures f ON f.id = g.fixture_id '
+        . 'INNER JOIN tournament_stages s ON s.id = f.stage_id '
+        . 'LEFT JOIN amiga_game_ratings r ON r.game_id = g.id '
+        . 'WHERE s.tournament_id = ? AND g.fixture_id IS NOT NULL'
+    );
+    if ($stmt !== false) {
+        $stmt->bind_param('i', $tournamentId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $fixtureResultRated = [];
+        while ($res && ($row = $res->fetch_assoc())) {
+            $fixtureResultRated[(int) $row['fixture_id']] = (int) $row['rated'] === 1;
+        }
+        $stmt->close();
     }
 }
 
@@ -3512,7 +3729,27 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
 <?php if ($view === 'table' && $tournamentId > 0 && $tournament !== null) { ?>
   <div class="k2-amiga-live-ops__section k2-amiga-organizer-table">
     <h2>League table</h2>
-    <?php if ($organizerTableDisplay['preview_note'] !== null) { ?>
+    <?php if ($tournamentUnratedGameCount > 0) { ?>
+      <div class="k2-amiga-organizer-table__reprocess">
+        <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
+          <?php echo (int) $tournamentUnratedGameCount; ?> match result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?>
+          recorded but not yet reflected in the table (ratings/standings processing did not complete).
+        </p>
+        <?php if ($entrantOpsEligible) { ?>
+          <form class="k2-amiga-organizer-table__reprocess-form" method="post" action="<?php echo $self; ?>">
+            <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="action" value="reprocess_tournament_derived">
+            <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+            <input type="hidden" name="view" value="table">
+            <?php if ($status !== '') { ?>
+              <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+            <?php } ?>
+            <button type="submit">Update table from results</button>
+          </form>
+        <?php } ?>
+      </div>
+    <?php } elseif ($organizerTableDisplay['preview_note'] !== null) { ?>
       <p class="k2-amiga-organizer-table__preview-note"><?php echo k2_h($organizerTableDisplay['preview_note']); ?></p>
     <?php } ?>
     <?php if ($organizerTableDisplay['rows'] === []) { ?>
@@ -3552,6 +3789,15 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
     ?>
   <div class="k2-amiga-live-ops__section k2-amiga-organizer-results">
     <h2>Enter results</h2>
+    <?php if ($tournamentUnratedGameCount > 0) {
+        $tableTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'table', $status);
+        ?>
+      <p class="k2-amiga-organizer-results__hint k2-amiga-organizer-table__preview-note--warn">
+        <?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?>
+        not yet in the league table —
+        <a href="<?php echo htmlspecialchars($tableTabUrl, ENT_QUOTES, 'UTF-8'); ?>">update table on the Table tab</a>.
+      </p>
+    <?php } ?>
     <?php if ($organizerLifecycleUi !== null && $organizerLifecycleUi['is_imported']) { ?>
       <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted">Historical import — result entry is read-only in the browser. Use CLI for ops changes.</p>
     <?php } elseif (!$lifecycleRunning) { ?>
@@ -3623,6 +3869,26 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
                 <li class="k2-amiga-organizer-results__played-row">
                   <span class="k2-amiga-organizer-results__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
                   <span class="k2-amiga-organizer-results__played-score"><?php echo (int) $row['goals_a']; ?>–<?php echo (int) $row['goals_b']; ?></span>
+                  <?php
+                    $fixtureId = (int) $row['id'];
+                    $canUndoResult = $entrantOpsEligible
+                        && $lifecycleRunning
+                        && $row['game_id'] !== null
+                        && !($fixtureResultRated[$fixtureId] ?? true);
+                    if ($canUndoResult) { ?>
+                    <form class="k2-amiga-organizer-results__undo-form" method="post" action="<?php echo $self; ?>">
+                      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+                      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+                      <input type="hidden" name="action" value="undo_fixture_result">
+                      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                      <input type="hidden" name="view" value="results">
+                      <input type="hidden" name="fixture_id" value="<?php echo $fixtureId; ?>">
+                      <?php if ($status !== '') { ?>
+                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                      <?php } ?>
+                      <button type="submit" class="k2-amiga-organizer-results__undo">Undo</button>
+                    </form>
+                  <?php } ?>
                 </li>
               <?php } ?>
               </ul>

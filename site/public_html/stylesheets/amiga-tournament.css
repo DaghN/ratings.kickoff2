@@ -805,6 +805,37 @@ body.k2-site .k2-amiga-organizer-lifecycle__action:focus-visible {
 	border: 1px dashed var(--k2-border-subtle);
 }
 
+.k2-amiga-organizer-table__preview-note--warn {
+	border-color: color-mix(in srgb, var(--k2-stat-negative-base) 35%, var(--k2-border-subtle));
+	color: var(--k2-text-primary);
+}
+
+.k2-amiga-organizer-table__reprocess-form {
+	margin: 0 0 0.75rem;
+}
+
+.k2-amiga-organizer-results__undo-form {
+	margin: 0;
+}
+
+body.k2-site .k2-amiga-organizer-results__undo {
+	padding: 2px 8px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: transparent;
+	color: var(--k2-text-secondary);
+	font: inherit;
+	font-size: 0.8rem;
+	cursor: pointer;
+}
+
+body.k2-site .k2-amiga-organizer-results__undo:hover,
+body.k2-site .k2-amiga-organizer-results__undo:focus-visible {
+	border-color: var(--k2-table-negative);
+	color: var(--k2-table-negative);
+	outline: none;
+}
+
 .k2-amiga-organizer-table__row--preview td {
 	color: var(--k2-text-secondary);
 }
