@@ -1,10 +1,8 @@
 # Amiga tournament finalize — sliced implementation plan
 
-**Status:** Active (Jun 2026)  
-**Contract:** [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) — **what** we build  
-**This document:** **how** we build it, in order, with stop/report rules  
-
-**Repo policy during this work:** All other Amiga/product work is paused until this rework is fully working end-to-end.
+**Status:** **Complete** (Jun 2026) — slices 0–7 shipped; staging 24-part import verified on `ratings.kickoff2.com`  
+**Contract:** [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) — **what** we built  
+**This document:** **how** it was built, in order, with stop/report rules (historical record)
 
 ---
 
@@ -263,7 +261,7 @@ Automated guards for contract § 5.9; update authority docs.
 - [ ] Update [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay → pointer to finalize contract; mark old parity rule **retired**
 - [ ] Update [`scripts/amiga/README.md`](../scripts/amiga/README.md) commands
 - [ ] Update [`PROJECT_MEMORY.md`](../PROJECT_MEMORY.md) — Amiga replay model
-- [ ] Mark contract doc § 11 slice 1–3 items done; status **Partial** until slice 7
+- [x] Mark contract doc § 11 slice 1–3 items done; status **Implemented** (slice 7)
 
 ### Exit criteria
 
@@ -384,18 +382,18 @@ Deployable, documented, dead code removed.
 
 ### Tasks
 
-- [ ] Export script includes `009` schema
-- [ ] Staging import + full replay + verify on staging
-- [ ] Remove dead PHP `replay-to` per-game global path (or thin wrapper to Python)
-- [ ] Retire old verify parity rule (500-game PHP vs Python per-game ratings) — replace with finalize parity note
-- [ ] Contract doc status → **Implemented**
-- [ ] Final handoff with all verify commands green
+- [x] Export script includes `009` schema + `amiga_rating_events` data (part 24)
+- [x] Staging import verified — 24-part browser apply on `ratings.kickoff2.com` (Dagh, Jun 2026)
+- [x] Remove dead PHP `replay-to` per-game global path
+- [x] Retire old verify parity rule — `verify-rating-events` after Python replay
+- [x] Contract doc status → **Implemented**
+- [x] Final handoff with all verify commands green — [`2026-06-08-027-rating-events-slice-7-ship.md`](orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md)
 
 ### Exit criteria
 
-- [ ] Staging `ratings.kickoff2.com` replay + verify green (or documented staging data caveat)
-- [ ] `PROJECT_MEMORY.md` updated
-- [ ] No remaining calls to global `process_completed_game` on tournament game entry
+- [x] Staging `ratings.kickoff2.com` import green (export from replayed local DB; no server replay)
+- [x] `PROJECT_MEMORY.md` updated
+- [x] No remaining calls to global `process_completed_game` on tournament game entry
 
 ### Verify
 

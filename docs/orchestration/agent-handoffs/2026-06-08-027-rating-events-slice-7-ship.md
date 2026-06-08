@@ -40,10 +40,13 @@ Deployable package, dead PHP paths removed, contract **Implemented**, verify gre
 - [x] Batch oracle = Python replay + verify-rating-events
 - [x] PHP replay-to removed
 
-## Staging caveat
+## Staging
 
-Export must come from a local `ko2amiga_db` that already passed full `replay`. Staging import does not run Python replay automatically.
+- Export from replayed local DB (no server-side Python replay).
+- **Dagh verified Jun 2026:** 24-part preview + full browser apply on `ratings.kickoff2.com`; rating / profile / games spot-checks OK.
 
-## Commit
+## Commits
 
-`ee6d313` — pushed to `main`
+- `ee6d313` — slice 7 ship
+- `61feb40` — handoff hash
+- *(staging sign-off — see latest commit on `main`)*

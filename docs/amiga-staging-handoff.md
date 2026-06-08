@@ -63,7 +63,7 @@ Local dry-run (same paths, `ratingskickoff.test`): preview URL above with local 
 
 Spot-check: `/amiga/rating.php`, `/amiga/profile.php?id=1`, `/amiga/games.php?id=1`.
 
-**Verified Jun 2026:** A2 schema + multi-part browser import on staging (`ratings.kickoff2.com`).
+**Verified Jun 2026:** 24-part browser import on staging (`ratings.kickoff2.com`) — includes `amiga_rating_events` (part 24). Dagh confirmed preview (`parts: 24`) + full apply through part 24; rating, profile, and games spot-checks OK. Export-from-replayed-local-DB path — no server-side Python replay required.
 
 **Fallback:** Steve Heidi/mysql import of `ko2amiga_db.sql` — only if browser import fails.
 
@@ -85,7 +85,7 @@ Spot-check: `/amiga/rating.php`, `/amiga/profile.php?id=1`, `/amiga/games.php?id
 Amiga staging import failed in browser.
 
 Import files synced: public_html/amiga/_import/ko2amiga_manifest.json + ko2amiga_*.sql
-Failed on part: [N/23]
+Failed on part: [N/24]
 Error: [paste from run_import_ko2amiga.php apply page]
 
 Please re-import into ko2amiga_db (Heidi/mysql) or check PHP limits.

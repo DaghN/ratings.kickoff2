@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** (slices 0–7 **shipped**) — commit boundary = `finalize_tournament` only; batch oracle `python -m scripts.amiga replay` + `verify-rating-events`; live PHP standings-only entry + `finalize-tournament`; profile chart from `amiga_rating_events`; corrections via `reopen-tournament` / `refinalize-from`. Contract **Implemented:** [`amiga-tournament-finalize-rating-contract.md`](docs/amiga-tournament-finalize-rating-contract.md). **Staging live** on `ratings.kickoff2.com` (24-part export includes `amiga_rating_events`). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Match streaks:** skip product surfaces.
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (slices 0–7 + staging 24-part import verified on `ratings.kickoff2.com`). Commit boundary = `finalize_tournament` only; batch oracle `python -m scripts.amiga replay` + `verify-rating-events`; live PHP standings-only entry + `finalize-tournament`; profile chart from `amiga_rating_events`; corrections via `reopen-tournament` / `refinalize-from`. Contract: [`amiga-tournament-finalize-rating-contract.md`](docs/amiga-tournament-finalize-rating-contract.md). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Match streaks:** skip product surfaces. **Next:** resume other Amiga/product work per [`amiga-realm-vision.md`](docs/amiga-realm-vision.md).
 
 ---
 
@@ -83,7 +83,8 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Amiga tournament finalize rating (slices 0–7)** — `amiga_rating_events`, Python replay + PHP live ops + read path + refinalize; contract Implemented; export part 24 `rating_events`; PHP `replay-to` removed. |
+| 2026-06 | **Amiga tournament finalize rating — closed** — slices 0–7 shipped; staging 24-part import verified (`ratings.kickoff2.com`); contract Implemented; rework pause lifted. |
+| 2026-06 | **Amiga tournament finalize rating (slices 0–7)** — `amiga_rating_events`, Python replay + PHP live ops + read path + refinalize; export part 24; PHP `replay-to` removed. |
 | 2026-06 | **Amiga hub nav v0** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); `/amiga/hall-of-fame.php` stub; wired on rating/tournaments/tournament pages; [`amiga-realm-vision.md`](docs/amiga-realm-vision.md) inventory doc. |
 | 2026-06 | **Amiga standings reference parity** — `standings-parity --sweep` (671 PASS, 0 engine FAIL); Silver/Bronze cup group label fix; report `data/amiga/exports/standings_parity_report.json`; contract § Known parity exceptions. |
 | 2026-06 | **Amiga cup bracket UI** — knockout bracket on `amiga/tournament.php` (`amiga_tournament_bracket.php`, `amiga-tournament.css`); phase-ordered columns + placement sections; index Cup/League badges + filter; profile recent cups link `#bracket`. Read-path only via `amiga_tournament_lib.php`. |

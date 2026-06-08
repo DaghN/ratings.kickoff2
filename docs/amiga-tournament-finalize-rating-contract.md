@@ -1,6 +1,6 @@
 # Amiga tournament finalize & rating events — implementation contract
 
-**Status:** **Implemented** (Jun 2026) — tournament finalize commit boundary live in Python + PHP; rating history from `amiga_rating_events`  
+**Status:** **Implemented** (Jun 2026) — tournament finalize commit boundary live in Python + PHP; rating history from `amiga_rating_events`; **staging verified** (24-part import on `ratings.kickoff2.com`)  
 **Scope:** `ko2amiga_db` rating commit model, derived replay, and related read-path policy  
 **Supersedes:** [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay for rating and global career-stat commit rules  
 **Implementation plan:** [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) — slices 0–7 complete  
