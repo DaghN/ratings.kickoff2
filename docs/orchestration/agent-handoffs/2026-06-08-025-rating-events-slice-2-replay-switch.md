@@ -57,4 +57,4 @@ Replace game-at-a-time global replay with tournament-order `finalize_tournament`
 
 ## Commit
 
-*(filled after commit)*
+`dabb046` — pushed to `main`
