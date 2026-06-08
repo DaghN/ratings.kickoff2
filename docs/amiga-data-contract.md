@@ -18,6 +18,7 @@
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
 | **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
 | **Tournament format system** (legacy phases → templates/fixtures vision) | [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · handoff [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md) |
+| **Tournament finalize & rating events** (commit boundary, replay oracle) | [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · plan [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
 | DDL (current) | [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql) |
@@ -113,38 +114,34 @@ Roadmap detail: [`amiga-realm-vision.md`](amiga-realm-vision.md) § Leaderboard 
 
 ## Post-game / replay
 
-**Target architecture** (Amiga-owned ops, inspired by online — not shared online scripts):
+**Authoritative contract:** [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) — global derived state commits at **tournament finalize**, not per game.
+
+**Batch oracle (implemented Jun 2026):**
 
 ```
-canonical game in  →  ProcessCompletedGame (Amiga)  →  derived updates
-full history      →  chronological replay            →  same derived state
+import (ground only)  →  python -m scripts.amiga replay
+                         →  tournament-order finalize_tournament(T) for each event
+                         →  amiga_game_ratings + amiga_rating_events + amiga_player_stats
 ```
 
-- **Elo:** start 1600, K=32 (online sandbox constants)
-- **Rating authority:** replay from `Scores` only — never display legacy Access `Rankings`
+- **Elo:** start 1600, K=32; **frozen within-event** ratings at batch start; per-game adjustments on `amiga_game_ratings`; global `Rating` + **rating events** at tournament finalize
+- **Rating authority:** Python replay + `amiga_rating_events` — never legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Current implementation (Phase A2 + Track B):** `python -m scripts.amiga import` (ground only) + `replay` via `scripts/amiga/replay.py` (Elo + tournament standings batch repair). **Incremental post-game:** `amiga_process_completed_game()` in `site/public_html/amiga/ops/` — live `process-one` (append-only last game) or sim `replay-to` (next unrated in contract order); updates Elo, player stats, and tournament standings in one transaction. Python `replay` remains the batch repair oracle (`rebuild_all_standings`).
-
-**Simul pipeline (PHP, mirrors online Mode A):**
+**Batch rebuild commands:**
 
 ```bash
-# Day zero — derived only
-php site/public_html/amiga/ops/run_process_game.php zero-derived
-
-# Parity gate (500 games — v1 sign-off)
-python -m scripts.amiga replay --limit 500          # oracle
-python -m scripts.amiga verify-chronology           # 0 backward game_date
-python -m scripts.amiga audit-catalog-dates         # Access catalog inversions covered
-php site/public_html/amiga/ops/run_process_game.php zero-derived
-php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
-php site/public_html/amiga/ops/run_process_game.php verify   # 500 ratings, standings spot-checks, no derived_gap
-
-# Optional: full derived rebuild (batch oracle — ~10s Python; PHP replay-to unbounded is slow)
-python -m scripts.amiga replay
+python -m scripts.amiga import --recreate-schema   # ground only; clears derived
+python -m scripts.amiga replay                     # full derived rebuild (~600 tournament finalizes)
+python -m scripts.amiga verify-chronology
+python -m scripts.amiga verify-rating-events       # contract § 5.9 invariants
 ```
 
-**Parity rule:** after `replay-to --limit 500`, row counts and spot-checks must match `python -m scripts.amiga replay --limit 500` (500 `amiga_game_ratings`, same `amiga_player_stats` count, `amiga_tournament_standings` for walked tournaments, last-game ratings align to 6 dp). Full-history PHP simul is slow — use Python `replay` for batch repair. Repair path for gaps: `zero-derived` then `replay-to`.
+`replay --limit N` finalizes tournaments until **≥ N games** are covered (not N tournaments).
+
+**Live ops (transitional):** `amiga_process_completed_game()` / PHP `process-one` and `replay-to` still use the **legacy per-game global commit** until slice 4 ships PHP `finalize-tournament`. Do not treat PHP simul parity with old per-game ratings as the batch oracle.
+
+**Retired parity rule (Jun 2026):** per-game PHP `replay-to --limit 500` matching sequential global Elo — replaced by `verify-rating-events` after Python replay. Numeric ratings **intentionally differ** from the old sequential model.
 
 ---
 
@@ -177,13 +174,14 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `tournament_fixtures` | Ground | Future live tournament ops / fixture tooling |
 | `amiga_players` | Ground | Import / submission / internal `players create` CLI |
 | `amiga_games` | Ground | Import / submission |
-| `amiga_game_ratings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
-| `amiga_player_stats` | Derived | Replay or PHP `amiga_process_completed_game` / `replay-to` |
-| `amiga_tournament_standings` | Derived | Replay (`scripts/amiga/replay.py`) or PHP `amiga_process_completed_game` / `replay-to` |
+| `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit |
+| `amiga_rating_events` | Derived | Tournament finalize — authoritative rating timeline |
+| `amiga_player_stats` | Derived | Tournament finalize / `replay` (legacy PHP per-game path until slice 4) |
+| `amiga_tournament_standings` | Derived | `replay` end (`rebuild_all_standings`) or standings rebuild on result entry |
 | `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP `amiga_ops_catalog_stats_refresh_tournament` per touched tournament on post-game |
 | `reference_*` (optional) | Reference | Parity tooling only |
 
-DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql), entrant foundation [`007_tournament_entrants.sql`](../scripts/amiga/sql/007_tournament_entrants.sql), lifecycle foundation [`008_tournament_lifecycle.sql`](../scripts/amiga/sql/008_tournament_lifecycle.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
+DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql), entrant foundation [`007_tournament_entrants.sql`](../scripts/amiga/sql/007_tournament_entrants.sql), lifecycle foundation [`008_tournament_lifecycle.sql`](../scripts/amiga/sql/008_tournament_lifecycle.sql), rating events [`009_rating_events.sql`](../scripts/amiga/sql/009_rating_events.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
 
 ### Tournament format metadata
 

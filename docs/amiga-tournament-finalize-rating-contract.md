@@ -1,8 +1,9 @@
 # Amiga tournament finalize & rating events — implementation contract
 
-**Status:** Planned (Jun 2026) — **authoritative for the upcoming Amiga ops rework**  
+**Status:** Partial (Jun 2026) — **batch replay oracle implemented**; live PHP ops + read path pending  
 **Scope:** `ko2amiga_db` rating commit model, derived replay, and related read-path policy  
-**Supersedes (when implemented):** [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay for rating and global career-stat commit rules  
+**Supersedes:** [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay for rating and global career-stat commit rules (batch path)  
+**Implementation plan:** [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) — slices 0–3 done (batch/historical path)  
 
 **Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) · [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
@@ -434,15 +435,15 @@ Shared Elo: continue `scripts/ladder/elo.py` / `post_game_elo.php` for formula; 
 
 ## 11. Implementation slices
 
-### Slice 1 — Core contract (minimum viable)
+### Slice 1 — Core contract (minimum viable) — done (impl plan slices 0–2)
 
-- [ ] DDL: `amiga_rating_events`, `tournaments.rating_finalized(_at)`
-- [ ] Python `finalize_tournament(T)` with frozen ratings, per-game `amiga_game_ratings`, batch-end rating commit
-- [ ] Python replay: tournament-order finalize loop replaces game-at-a-time global rating
-- [ ] Non-rating career stats per game inside batch (rating field frozen)
-- [ ] Rating peak/nadir from rating events only
-- [ ] `clear_derived` / verify CLI for § 5.9 identities
-- [ ] Update [`amiga-data-contract.md`](amiga-data-contract.md) post-game section to point here
+- [x] DDL: `amiga_rating_events`, `tournaments.rating_finalized(_at)`
+- [x] Python `finalize_tournament(T)` with frozen ratings, per-game `amiga_game_ratings`, batch-end rating commit
+- [x] Python replay: tournament-order finalize loop replaces game-at-a-time global rating
+- [x] Non-rating career stats per game inside batch (rating field frozen)
+- [x] Rating peak/nadir from rating events only
+- [x] `clear_derived` / `verify-rating-events` CLI for § 5.9 identities
+- [x] Update [`amiga-data-contract.md`](amiga-data-contract.md) post-game section to point here
 
 ### Slice 2 — PHP ops parity
 

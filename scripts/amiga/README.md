@@ -20,20 +20,23 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
 python -m scripts.amiga verify-chronology
+python -m scripts.amiga verify-rating-events
 python -m scripts.amiga verify-import-manifest
 python -m scripts.amiga verify-tournament-formats
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga audit-catalog-dates
 
-# Ops simul — parity gate (500 games in scope; oracle: python -m scripts.amiga replay --limit 500):
-python -m scripts.amiga replay --limit 500
-python -m scripts.amiga verify-chronology
-php site/public_html/amiga/ops/run_process_game.php zero-derived
-php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
-php site/public_html/amiga/ops/run_process_game.php verify   # ratings + standings spot-checks
-
-# Full derived rebuild (batch repair — use Python, not unbounded PHP replay-to):
+# Batch derived rebuild + verify (oracle):
 python -m scripts.amiga replay
+python -m scripts.amiga verify-chronology
+python -m scripts.amiga verify-rating-events
+
+# Partial rebuild smoke (≥500 games in scope; verify-rating-events requires full replay):
+python -m scripts.amiga replay --limit 500
+
+# Legacy PHP simul (transitional — per-game path; retired as Elo parity oracle):
+# php site/public_html/amiga/ops/run_process_game.php zero-derived
+# php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
 
 # Tournament standings parity vs Access Tables (reference only):
 python -m scripts.amiga standings-parity --tournament "London XXIII"

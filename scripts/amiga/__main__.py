@@ -18,6 +18,7 @@ from scripts.amiga.tournament_fixtures import main as tournament_fixtures_main
 from scripts.amiga.standings_parity import main as standings_parity_main
 from scripts.amiga.verify_track_b import main as verify_track_b_main
 from scripts.amiga.verify_chronology import main as verify_chronology_main
+from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
 from scripts.amiga.player_registry import main as player_registry_main
@@ -82,6 +83,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "verify-chronology",
         help="Assert 0 backward game_date transitions in canonical order",
+    )
+
+    sub.add_parser(
+        "verify-rating-events",
+        help="Assert tournament finalize rating invariants (contract § 5.9)",
     )
 
     sub.add_parser(
@@ -154,6 +160,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-chronology":
         return verify_chronology_main()
+
+    if args.cmd == "verify-rating-events":
+        return verify_rating_events_main()
 
     if args.cmd == "verify-import-manifest":
         return verify_import_manifest_main()
