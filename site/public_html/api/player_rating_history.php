@@ -3,8 +3,9 @@
  * JSON ELO rating after each game (chronological) for one player.
  *
  * GET: id (required), realm (default online)
- * Rating after each game = NewRatingA / NewRatingB on the row.
- * gameNumber = 1-based index in chronological order (game_date ASC, id ASC).
+ * Online: rating after each game = NewRatingA / NewRatingB on the row.
+ * Amiga: one point per rating event (tournament finalize); rating_after from amiga_rating_events.
+ * gameNumber / eventNumber = 1-based index in chronological order.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -88,11 +89,12 @@ $playerName = $nameRow['Name'];
 $currentRating = (int) round((float) $nameRow['Rating']);
 
 if ($realm === 'amiga') {
-    $sql = 'SELECT r.id, r.Date, r.idA, r.idB, r.NewRatingA, r.NewRatingB '
-        . amiga_rated_games_from_sql()
-        . ' INNER JOIN amiga_games g ON g.id = r.id '
-        . 'WHERE r.idA = ? OR r.idB = ? '
-        . 'ORDER BY g.game_date ASC, g.id ASC';
+    $sql = 'SELECT e.id, e.tournament_id, e.rating_before, e.rating_delta, e.rating_after, '
+        . 'e.games_in_event, e.finalized_at, t.event_date, t.name AS tournament_name '
+        . 'FROM amiga_rating_events e '
+        . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
+        . 'WHERE e.player_id = ? '
+        . 'ORDER BY t.event_date ASC, t.chrono ASC, e.finalized_at ASC, e.id ASC';
 } else {
     $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
         . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
@@ -106,19 +108,38 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param('ii', $playerId, $playerId);
+if ($realm === 'amiga') {
+    $stmt->bind_param('i', $playerId);
+} else {
+    $stmt->bind_param('ii', $playerId, $playerId);
+}
 $stmt->execute();
 $res = $stmt->get_result();
 
 $points = [];
-$gameNumber = 0;
+$eventNumber = 0;
 while ($row = $res->fetch_assoc()) {
-    $gameNumber++;
+    $eventNumber++;
+    if ($realm === 'amiga') {
+        $points[] = [
+            'eventId' => (int) $row['id'],
+            'tournamentId' => (int) $row['tournament_id'],
+            'tournamentName' => (string) $row['tournament_name'],
+            'eventNumber' => $eventNumber,
+            'gameNumber' => $eventNumber,
+            'gameId' => (int) $row['tournament_id'],
+            'date' => $row['event_date'],
+            'rating' => (int) round((float) $row['rating_after']),
+            'ratingDelta' => round((float) $row['rating_delta'], 1),
+            'gamesInEvent' => (int) $row['games_in_event'],
+        ];
+        continue;
+    }
     $isA = ((int) $row['idA'] === $playerId);
     $ratingAfter = $isA ? (float) $row['NewRatingA'] : (float) $row['NewRatingB'];
     $points[] = [
         'gameId' => (int) $row['id'],
-        'gameNumber' => $gameNumber,
+        'gameNumber' => $eventNumber,
         'date' => $row['Date'],
         'rating' => (int) round($ratingAfter),
     ];
@@ -147,6 +168,9 @@ $payload = [
     'currentRating' => $currentRating,
     'points' => $points,
 ];
+if ($realm === 'amiga') {
+    $payload['meta'] = ['granularity' => 'event'];
+}
 if ($timelineStart !== null) {
     $payload['timelineStart'] = $timelineStart;
 }

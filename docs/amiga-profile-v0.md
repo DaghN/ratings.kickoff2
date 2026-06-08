@@ -19,17 +19,18 @@
 - **Player nav** — Profile · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
 - **Recent tournaments** — `amiga_tournament_standings` overall scope (position, pts) with link to tournament page
-- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=`; [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = one point per calendar day (end-of-day rating); **By game #** = every game
-- **Games tab** — server-side filters (result, opponent), sort, 100-row pages; tournament + phase from `amiga_games` + `tournaments`, ratings from `amiga_game_ratings`
+- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_rating_events` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags)
+- **Games tab** — server-side filters (result, opponent), sort, 100-row pages; tournament + phase from `amiga_games` + `tournaments`; per-game frozen `rating_a/b` and `adjustment_a/b` from `amiga_game_ratings` (`new_rating_*` NULL after finalize v1)
 
 ## Data strategy (important)
 
 | Source | Used for | v0 cost |
 |--------|----------|---------|
 | **`amiga_players` + `amiga_player_stats`** | Hero, career strip, rank | 2 queries per page (row + rank) |
-| **`amiga_games` + `amiga_game_ratings`** (via `amiga_db.php`) | Games list, rating history JSON | 1 query per chart load (~≤1k rows max per player) |
+| **`amiga_rating_events` + `tournaments`** | Profile rating chart JSON | 1 query per chart load (~≤1k events max per player) |
+| **`amiga_games` + `amiga_game_ratings`** (via `amiga_db.php`) | Games list per-match adjustments | 1 query per games page |
 
-**A2 derived tables in use:** `amiga_game_ratings`, `amiga_player_stats`, `amiga_tournament_standings` (rebuilt by `scripts/amiga/replay.py`). **Not yet:** `player_period_games`, milestones, calendars, H2H aggregates.
+**A2 derived tables in use:** `amiga_game_ratings`, `amiga_player_stats`, `amiga_rating_events`, `amiga_tournament_standings` (rebuilt by `scripts/amiga/replay.py` tournament finalize). **Not yet:** `player_period_games`, milestones, calendars, H2H aggregates.
 
 That is fine at current scale (27k games total; busiest player ~1.1k games). When profiles grow (activity calendars, top opponents, tournament honours), materialize hot paths per [`amiga-data-contract.md`](amiga-data-contract.md) — same pattern as online `website-data-contract.md`, not live scans on every request.
 
@@ -70,16 +71,16 @@ Re-run: `python -m scripts.amiga run --recreate-schema`. Import audit: `data/ami
 
 ## Rating chart timeline
 
-Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN(game_date)` from `amiga_games` (first ladder game, ~Nov 2001). Online still uses June 2017.
+Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN(game_date)` from `amiga_games` (first ladder game, ~Nov 2001) and `meta.granularity = event`. Online still uses June 2017 and per-game points.
 
-**Chart views** (`player-rating-chart.js`, shared with online profile):
+**Chart views** (`player-rating-chart.js`, shared shell with online profile):
 
 | Toggle | Points plotted | Peak / summary |
 |--------|----------------|----------------|
-| **By date** | One per local day — rating after the last game that day | Career peak from all games; latest from end-of-day series (+ today) |
-| **By game #** | Every rated game in chronological order | From full game series |
+| **By date** | One per local day — rating after the last event that day | Career peak from event series; latest from end-of-day series (+ today) |
+| **By tournament #** | One point per `amiga_rating_events` row (`rating_after`) | Event index on x-axis; tooltip links to tournament page |
 
-API returns every game; calendar collapse is client-side only. Busy Amiga days (whole tournaments on one `event_date`) stay readable on the calendar axis.
+API returns one point per finalized tournament (not per game). Multi-game tournaments appear as a single step on the tournament # axis.
 
 ## Tournament pages (cups + leagues)
 
@@ -103,7 +104,8 @@ After `python -m scripts.amiga replay`, spot-check locally:
 4. **Knockout bracket** — World Cup XI — bracket shows semi winners Gianni T over Lorenzo C (10–6) and Alkis P over Andy G; columns scroll on desktop, stack ~375px
 5. **Knockout fixture** — click semi score → leg table; Gianni T / Lorenzo C (`scope_key=Semi Finals|149-253`) — 2 legs, winner Gianni T (10–6). Penalties: open a tied placement tie (e.g. `Places 17-24|445-467`) — leg row shows `extra` text on the score line (e.g. `(4-4) 5-4 p.k.`)
 6. **Games links** — busy player games tab — tournament name → overall/group; phase → group or knockout scope
-7. **Profile** — recent tournaments block; cups with knockouts link to `#bracket`
-8. **Responsive** — tournament page usable at ~375px width (bracket stacks, nav wraps)
+7. **Profile** — recent tournaments block; cups with knockouts link to `#bracket`; rating chart **By tournament #** has no zigzags inside multi-game events; busy player with 10+ events in one year readable on calendar axis
+8. **Games tab** — adjustment column populated for finalized games (frozen rating + delta); sort by adjustment works
+9. **Responsive** — tournament page usable at ~375px width (bracket stacks, nav wraps)
 
 CLI parity: `python -m scripts.amiga standings-parity --tournament "London XXIII"`

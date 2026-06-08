@@ -208,7 +208,11 @@ function k2_fmt_lb_stat(mixed $val, mixed $games, ?float $dashWhenEqual = null, 
  */
 function k2_rated_game_is_processed(array $row): bool
 {
-	return !k2_db_is_null($row['NewRatingA'] ?? null);
+	if (!k2_db_is_null($row['NewRatingA'] ?? null)) {
+		return true;
+	}
+	// Amiga finalize v1: per-game ratings row without new_rating_*.
+	return !k2_db_is_null($row['AdjustmentA'] ?? null);
 }
 
 /** Non-leaderboard: unset or zero displays as dash (no NumberGames context). */

@@ -75,7 +75,7 @@
     function buildGameChartData(points) {
         var chartData = [];
         for (var i = 0; i < points.length; i++) {
-            var n = points[i].gameNumber;
+            var n = points[i].eventNumber != null ? points[i].eventNumber : points[i].gameNumber;
             if (n == null || n < 1) {
                 n = i + 1;
             }
@@ -83,10 +83,19 @@
                 x: n,
                 y: points[i].rating,
                 date: points[i].date,
-                gameId: points[i].gameId
+                gameId: points[i].gameId,
+                tournamentId: points[i].tournamentId,
+                tournamentName: points[i].tournamentName,
+                gamesInEvent: points[i].gamesInEvent,
+                ratingDelta: points[i].ratingDelta
             });
         }
         return chartData;
+    }
+
+    function historyIsEventGranularity(data, realm) {
+        return (data && data.meta && data.meta.granularity === 'event')
+            || realm === 'amiga';
     }
 
     function chartOptions(extra, chartKind) {
@@ -140,7 +149,7 @@
         summary.hidden = false;
     }
 
-    function renderGameSummary(summary, stats, totalGames) {
+    function renderGameSummary(summary, stats, totalGames, eventMode) {
         if (!summary) {
             return;
         }
@@ -148,9 +157,11 @@
         var gapText = gap === 0
             ? ' (latest rating is peak)'
             : ' (' + gap + ' below peak now)';
+        var unitLabel = eventMode ? 'tournaments' : 'rated games';
+        var atLabel = eventMode ? 'tournament #' : 'game #';
         summary.innerHTML = 'Peak: <strong>' + stats.peak + '</strong>'
-            + ' <span class="pm3d-chart__summary-note">at game #' + stats.peakGame + gapText
-            + ' &nbsp;&middot;&nbsp; ' + totalGames + ' rated games</span>';
+            + ' <span class="pm3d-chart__summary-note">at ' + atLabel + stats.peakGame + gapText
+            + ' &nbsp;&middot;&nbsp; ' + totalGames + ' ' + unitLabel + '</span>';
         summary.hidden = false;
     }
 
@@ -275,12 +286,14 @@
         }, 'line');
     }
 
-    function createGameChart(canvas, chartData, peakValue) {
+    function createGameChart(canvas, chartData, peakValue, eventMode) {
+        var xTitle = eventMode ? 'Tournament number' : 'Rated game number';
+        var datasetLabel = eventMode ? 'ELO rating (after tournament)' : 'ELO rating (after game)';
         return createChart(canvas, {
             type: 'line',
             data: {
                 datasets: [Object.assign({
-                    label: 'ELO rating (after game)',
+                    label: datasetLabel,
                     data: chartData,
                     fill: true,
                     tension: 0.1,
@@ -301,7 +314,11 @@
                                     return '';
                                 }
                                 var pt = items[0].raw;
-                                var title = 'Game #' + items[0].parsed.x;
+                                var prefix = eventMode ? 'Tournament #' : 'Game #';
+                                var title = prefix + items[0].parsed.x;
+                                if (eventMode && pt && pt.tournamentName) {
+                                    title += ' — ' + pt.tournamentName;
+                                }
                                 if (pt && pt.date) {
                                     var d = parseGameDate(pt.date);
                                     if (d) {
@@ -319,6 +336,17 @@
                                     return '';
                                 }
                                 var pt = items[0].raw;
+                                if (eventMode && pt && pt.tournamentId) {
+                                    var lines = ['/amiga/tournament.php?id=' + pt.tournamentId];
+                                    if (pt.gamesInEvent > 1) {
+                                        lines.push(pt.gamesInEvent + ' games in event');
+                                    }
+                                    if (typeof pt.ratingDelta === 'number') {
+                                        var sign = pt.ratingDelta > 0 ? '+' : '';
+                                        lines.push('Event delta: ' + sign + pt.ratingDelta);
+                                    }
+                                    return lines;
+                                }
                                 if (pt && pt.gameId) {
                                     return '/game.php?id=' + pt.gameId;
                                 }
@@ -332,7 +360,7 @@
                         type: 'linear',
                         title: {
                             display: true,
-                            text: 'Rated game number',
+                            text: xTitle,
                             color: T.tickColor()
                         },
                         ticks: {
@@ -374,7 +402,12 @@
         if (view === 'game' && !state.gameChart && state.gameChartData.length) {
             var gameCanvas = root.querySelector('.player-rating-canvas--game');
             if (gameCanvas) {
-                state.gameChart = createGameChart(gameCanvas, state.gameChartData, state.peakValue);
+                state.gameChart = createGameChart(
+                    gameCanvas,
+                    state.gameChartData,
+                    state.peakValue,
+                    state.eventMode
+                );
             }
         }
 
@@ -420,7 +453,8 @@
             gameChartData: [],
             peakValue: null,
             timelineStart: null,
-            activeView: 'date'
+            activeView: 'date',
+            eventMode: false
         };
 
         if (toggle) {
@@ -445,11 +479,14 @@
         History.load(playerId, realm)
             .then(function (data) {
                 state.timelineStart = data.timelineStart || null;
+                state.eventMode = historyIsEventGranularity(data, realm);
 
                 var points = data.points || [];
                 if (!points.length) {
                     if (status) {
-                        status.textContent = 'No rated games to chart.';
+                        status.textContent = state.eventMode
+                            ? 'No rating events to chart.'
+                            : 'No rated games to chart.';
                     }
                     if (toggle) {
                         toggle.hidden = true;
@@ -493,7 +530,8 @@
                     renderGameSummary(
                         gameSummary,
                         gameStats,
-                        state.gameChartData[state.gameChartData.length - 1].x
+                        state.gameChartData[state.gameChartData.length - 1].x,
+                        state.eventMode
                     );
                 }
 
