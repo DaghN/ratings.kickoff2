@@ -34,4 +34,4 @@ Speed up full-history `replay` / `refinalize-from` without changing live finaliz
 
 ## Commit
 
-*(hash after push)*
+`85f00f4` — pushed to `main`
