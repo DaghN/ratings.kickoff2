@@ -2,19 +2,19 @@
 /**
  * Dev runner: Amiga post-game PHP (no dispatch.php).
  *
- * Parity gate (500 games):
- *   python -m scripts.amiga replay --limit 500
+ * Tournament finalize replay oracle:
+ *   python -m scripts.amiga replay
  *   php site/public_html/amiga/ops/run_process_game.php zero-derived
- *   php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
- *   php site/public_html/amiga/ops/run_process_game.php verify
+ *   php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
  *
- * Live (append-only last game):
- *   php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N
+ * Live (open tournament result entry updates standings only until finalize):
+ *   php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
  */
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/amiga_ops_bootstrap.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
+require_once __DIR__ . '/modules/finalize_tournament.php';
 
 amiga_ops_require_cli();
 
@@ -22,19 +22,20 @@ function amiga_ops_print_help(): void
 {
     fwrite(STDOUT, "Usage: php run_process_game.php <verb> [options]\n");
     fwrite(STDOUT, "Verbs:\n");
-    fwrite(STDOUT, "  zero-derived          Clear ratings + stats + standings (ground kept)\n");
-    fwrite(STDOUT, "  replay-to             Sim loop in contract chronology order\n");
-    fwrite(STDOUT, "  process-one           Live append-only: one game at end of history\n");
+    fwrite(STDOUT, "  zero-derived          Clear ratings + stats + standings + rating events (ground kept)\n");
+    fwrite(STDOUT, "  finalize-tournament   Batch finalize one tournament (frozen Elo + rating events)\n");
+    fwrite(STDOUT, "  replay-to             Deprecated — use python -m scripts.amiga replay\n");
+    fwrite(STDOUT, "  process-one           Deprecated for tournament games — use finalize-tournament\n");
     fwrite(STDOUT, "  verify                Row counts + derived_gap + standings spot-checks\n");
     fwrite(STDOUT, "  help\n");
     fwrite(STDOUT, "Options:\n");
     fwrite(STDOUT, "  --game-id N           process-one target\n");
-    fwrite(STDOUT, "  --limit N             replay-to: max games to walk\n");
-    fwrite(STDOUT, "  --until-game-id G     replay-to: stop after game G (inclusive)\n");
+    fwrite(STDOUT, "  --tournament-id N     finalize-tournament target\n");
+    fwrite(STDOUT, "  --limit N             replay-to (deprecated)\n");
+    fwrite(STDOUT, "  --until-game-id G     replay-to (deprecated)\n");
     fwrite(STDOUT, "  --dry-run\n");
     fwrite(STDOUT, "Database: ko2amiga_db only (site/config/ko2amiga_config.local.php)\n");
-    fwrite(STDOUT, "\nParity gate: python -m scripts.amiga replay --limit 500;\n");
-    fwrite(STDOUT, "  zero-derived -> replay-to --limit 500 -> verify (counts + standings spot-checks)\n");
+    fwrite(STDOUT, "\nReplay oracle: python -m scripts.amiga replay\n");
 }
 
 $verb = $argv[1] ?? '';
@@ -49,6 +50,7 @@ if ($verb === 'help') {
 
 $dryRun = false;
 $gameId = null;
+$tournamentId = null;
 $limit = null;
 $untilGameId = null;
 
@@ -59,6 +61,10 @@ for ($i = 2, $n = count($argv); $i < $n; $i++) {
         $gameId = (int) $argv[++$i];
     } elseif (str_starts_with($argv[$i], '--game-id=')) {
         $gameId = (int) substr($argv[$i], 10);
+    } elseif ($argv[$i] === '--tournament-id' && isset($argv[$i + 1])) {
+        $tournamentId = (int) $argv[++$i];
+    } elseif (str_starts_with($argv[$i], '--tournament-id=')) {
+        $tournamentId = (int) substr($argv[$i], 16);
     } elseif ($argv[$i] === '--limit' && isset($argv[$i + 1])) {
         $limit = (int) $argv[++$i];
     } elseif (str_starts_with($argv[$i], '--limit=')) {
@@ -81,35 +87,46 @@ if ($verb === 'zero-derived') {
     exit(0);
 }
 
+if ($verb === 'finalize-tournament') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "finalize-tournament requires --tournament-id N\n");
+        exit(1);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_finalize_tournament($con, $tournamentId, $dryRun);
+        amiga_ops_log(
+            'finalize-tournament done: id=' . $result['tournament_id']
+            . ' games=' . $result['games']
+            . (isset($result['rating_events']) ? ' events=' . $result['rating_events'] : '')
+            . (!empty($result['skipped']) ? ' skipped' : '')
+            . ($dryRun ? ' (dry-run)' : '')
+        );
+    } catch (AmigaTournamentAlreadyFinalizedException $e) {
+        fwrite(STDERR, $e->getMessage() . PHP_EOL);
+        exit(1);
+    } catch (AmigaTournamentNotFoundException $e) {
+        fwrite(STDERR, $e->getMessage() . PHP_EOL);
+        exit(1);
+    } catch (AmigaFinalizeLockException $e) {
+        fwrite(STDERR, $e->getMessage() . PHP_EOL);
+        exit(1);
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
 if ($verb === 'replay-to') {
     $con = amiga_ops_connect();
     try {
         $result = amiga_ops_replay_post_game($con, $limit, $untilGameId, $dryRun);
-        $processed = $result['processed'];
-        $skipped = $result['skipped'];
-        $skipReasons = $result['skip_reasons'];
         amiga_ops_log(
-            'replay-to done: processed=' . count($processed)
-            . ($processed !== [] ? ' last_id=' . $processed[array_key_last($processed)] : '')
+            'replay-to done: processed=' . count($result['processed'])
             . ' committed=' . $result['committed']
-            . ' skipped=' . count($skipped)
+            . ' skipped=' . count($result['skipped'])
             . ($dryRun ? ' (dry-run)' : '')
         );
-        if ($skipped !== []) {
-            $reasonParts = [];
-            foreach ($skipReasons as $gid => $reason) {
-                $reasonParts[] = "{$gid}:{$reason}";
-            }
-            amiga_ops_log('skip_reasons: ' . implode(', ', $reasonParts));
-            $bad = array_filter(
-                $skipReasons,
-                static fn (string $r): bool => $r !== 'already_processed'
-            );
-            if ($bad !== []) {
-                amiga_ops_log('ERROR: unexpected skip reasons (e.g. derived_gap)');
-                exit(1);
-            }
-        }
     } finally {
         $con->close();
     }
@@ -159,10 +176,12 @@ if ($verb === 'process-one') {
     try {
         $result = amiga_process_completed_game($con, $gameId, $dryRun, false);
         if (!empty($result['skipped'])) {
-            amiga_ops_log(
-                'process-one game_id=' . $gameId
-                . ' skipped reason=' . ($result['skip_reason'] ?? 'unknown')
-            );
+            $reason = (string) ($result['skip_reason'] ?? 'unknown');
+            amiga_ops_log('process-one game_id=' . $gameId . ' skipped reason=' . $reason);
+            if ($reason === 'tournament_use_finalize') {
+                fwrite(STDERR, "Tournament games require finalize-tournament — not per-game global commit.\n");
+                exit(1);
+            }
             exit(0);
         }
         $d = $result['derived'];

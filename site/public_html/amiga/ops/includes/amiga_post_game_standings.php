@@ -33,6 +33,43 @@ function amiga_ops_standings_regulation_delta(int $goalsA, int $goalsB, bool $fo
 }
 
 /**
+ * Ground-truth tournament games (open or finalized) for standings rebuild.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_ops_standings_load_tournament_games(mysqli $con, int $tournamentId): array
+{
+    $sql = 'SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id, '
+        . 'g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id, g.fixture_id, '
+        . 'f.phase_label AS fixture_phase_label, '
+        . 's.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
+        . 'FROM amiga_games g '
+        . 'LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id '
+        . 'LEFT JOIN tournament_stages s ON s.id = f.stage_id '
+        . 'WHERE g.tournament_id = ? '
+        . 'ORDER BY g.source_scores_id ASC, g.id ASC';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare tournament games: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute tournament games: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $rows = [];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $res->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
  * @return list<array<string, mixed>>
  */
 function amiga_ops_standings_load_rated_tournament_games(mysqli $con, int $tournamentId): array
@@ -555,8 +592,8 @@ function amiga_ops_standings_apply_game(mysqli $con, array $game): void
         return;
     }
 
-    $ratedGames = amiga_ops_standings_load_rated_tournament_games($con, $tournamentId);
-    $rows = amiga_ops_compute_tournament_standings($ratedGames);
+    $tournamentGames = amiga_ops_standings_load_tournament_games($con, $tournamentId);
+    $rows = amiga_ops_compute_tournament_standings($tournamentGames);
     amiga_ops_standings_replace_tournament($con, $tournamentId, $rows);
     amiga_ops_catalog_stats_refresh_tournament($con, $tournamentId);
 }

@@ -203,6 +203,27 @@ function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGame
 /**
  * @param array<string, mixed> $dbRow from k2_post_game_player_to_db_row (ID key)
  */
+/**
+ * Load all persisted career rows for tournament finalize (no per-game network SQL).
+ *
+ * @return array<int, array<string, mixed>>
+ */
+function amiga_ops_load_player_states_for_finalize(mysqli $con): array
+{
+    $players = [];
+    $res = $con->query('SELECT * FROM amiga_player_stats');
+    if ($res === false) {
+        throw new RuntimeException('load player states for finalize: ' . $con->error);
+    }
+    while ($row = $res->fetch_assoc()) {
+        $pid = (int) $row['player_id'];
+        $players[$pid] = amiga_post_game_player_state_from_db_row($row);
+    }
+    $res->free();
+
+    return $players;
+}
+
 function amiga_post_game_player_write(mysqli $con, array $dbRow): void
 {
     $playerId = (int) $dbRow['ID'];

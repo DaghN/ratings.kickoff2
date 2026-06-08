@@ -1,9 +1,9 @@
 <?php
 /**
- * Amiga post-game: one canonical game → amiga_game_ratings + amiga_player_stats.
+ * Amiga post-game ops: open-tournament standings + tournament finalize batch.
  *
- * Live (process-one): append-only — game must be chronologically last in contract order.
- * Sim (replay-to): next unrated game in contract order (no append-only).
+ * Live result entry: standings only until finalize-tournament.
+ * Global derived commit: finalize_tournament.php only (mirrors Python § 5).
  */
 declare(strict_types=1);
 
@@ -250,7 +250,9 @@ function amiga_ops_apply_player_stats_for_game(
     mysqli $con,
     array $game,
     array $derived,
-    array &$players
+    array &$players,
+    bool $commitRating = true,
+    bool $reloadPlayers = true
 ): void {
     $gameId = (int) $game['id'];
     $idA = (int) $game['idA'];
@@ -260,8 +262,11 @@ function amiga_ops_apply_player_stats_for_game(
     $gameDate = (string) $game['Date'];
     $d = amiga_ops_derived_for_player_apply($derived);
 
-    $players[$idA] = amiga_post_game_player_load($con, $idA, $gameId);
-    $players[$idB] = amiga_post_game_player_load($con, $idB, $gameId);
+    foreach ([$idA, $idB] as $pid) {
+        if ($reloadPlayers || !isset($players[$pid])) {
+            $players[$pid] = amiga_post_game_player_load($con, $pid, $gameId);
+        }
+    }
 
     $oldRatingA = (float) $players[$idA]['rating'];
     $oldRatingB = (float) $players[$idB]['rating'];
@@ -286,7 +291,8 @@ function amiga_ops_apply_player_stats_for_game(
         (float) $d['AdjustmentA'],
         $gameId,
         $gameDate,
-        $gameId
+        $gameId,
+        $commitRating
     );
     amiga_post_game_player_apply_match(
         $con,
@@ -306,7 +312,8 @@ function amiga_ops_apply_player_stats_for_game(
         (float) $d['AdjustmentB'],
         $gameId,
         $gameDate,
-        $gameId
+        $gameId,
+        $commitRating
     );
 
     if ((int) $d['DDPlayerA'] === 1) {
@@ -386,6 +393,16 @@ function amiga_ops_write_game_ratings(mysqli $con, array $row): void
 function amiga_process_completed_game(mysqli $con, int $gameId, bool $dryRun = false, bool $simMode = false): array
 {
     $game = amiga_ops_load_game_row($con, $gameId);
+    $tournamentId = isset($game['tournament_id']) ? (int) $game['tournament_id'] : 0;
+    if ($tournamentId > 0) {
+        amiga_ops_log_skip_game($gameId, 'tournament_use_finalize');
+        return [
+            'derived' => [],
+            'committed' => false,
+            'skipped' => true,
+            'skip_reason' => 'tournament_use_finalize',
+        ];
+    }
     $skipReason = amiga_ops_game_skip_reason($con, $game, $simMode);
     if ($skipReason !== null) {
         amiga_ops_log_skip_game($gameId, $skipReason);
@@ -442,9 +459,28 @@ function amiga_ops_count_unrated_games(mysqli $con): int
     return (int) ($row['n'] ?? 0);
 }
 
+function amiga_ops_tournament_rating_finalized(mysqli $con, int $tournamentId): bool
+{
+    $stmt = $con->prepare('SELECT rating_finalized FROM tournaments WHERE id = ? LIMIT 1');
+    if ($stmt === false) {
+        throw new RuntimeException('prepare tournament finalized: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute tournament finalized: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : false;
+    $stmt->close();
+    if ($row === false || $row === null) {
+        return false;
+    }
+
+    return (int) ($row['rating_finalized'] ?? 0) === 1;
+}
+
 /**
- * Process derived tables for one game: append-only when possible, otherwise walk
- * contract chronology (replay-to) through any earlier unrated games first.
+ * Open tournament live path: standings rebuild only (no global derived commit).
  *
  * @return array{
  *   derived: array<string, mixed>,
@@ -466,95 +502,45 @@ function amiga_ops_process_derived_for_game(mysqli $con, int $gameId, bool $dryR
         ];
     }
 
-    $live = amiga_process_completed_game($con, $gameId, $dryRun, false);
-    if (!$live['skipped']) {
+    $game = amiga_ops_load_game_row($con, $gameId);
+    $tournamentId = isset($game['tournament_id']) ? (int) $game['tournament_id'] : 0;
+    if ($tournamentId <= 0) {
         return [
-            'derived' => $live['derived'],
-            'committed' => $live['committed'],
+            'derived' => [],
+            'committed' => false,
+            'skipped' => true,
+            'skip_reason' => 'missing_tournament_id',
+            'processed_game_ids' => [],
+        ];
+    }
+    if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
+        return [
+            'derived' => [],
+            'committed' => false,
+            'skipped' => true,
+            'skip_reason' => 'tournament_finalized_missing_rating',
+            'processed_game_ids' => [],
+        ];
+    }
+
+    if ($dryRun) {
+        return [
+            'derived' => [],
+            'committed' => false,
             'skipped' => false,
             'skip_reason' => null,
             'processed_game_ids' => [$gameId],
         ];
     }
-    if (!in_array($live['skip_reason'], ['derived_gap', 'not_append_only'], true)) {
-        return [
-            'derived' => [],
-            'committed' => false,
-            'skipped' => true,
-            'skip_reason' => $live['skip_reason'],
-            'processed_game_ids' => [],
-        ];
-    }
 
-    $unratedCount = amiga_ops_count_unrated_games($con);
-    if ($unratedCount > 100) {
-        return [
-            'derived' => [],
-            'committed' => false,
-            'skipped' => true,
-            'skip_reason' => 'derived_gap_bulk',
-            'processed_game_ids' => [],
-        ];
-    }
-
-    /** @var list<int> */
-    $processedGameIds = [];
-    $lastDerived = [];
-    $committed = false;
-    for ($step = 0; $step < $unratedCount; $step++) {
-        $firstUnrated = amiga_ops_first_unrated_game_id($con);
-        if ($firstUnrated === null) {
-            break;
-        }
-        if ($firstUnrated > $gameId) {
-            return [
-                'derived' => [],
-                'committed' => false,
-                'skipped' => true,
-                'skip_reason' => 'derived_gap',
-                'processed_game_ids' => $processedGameIds,
-            ];
-        }
-        $result = amiga_process_completed_game($con, $firstUnrated, $dryRun, true);
-        if ($result['skipped']) {
-            return [
-                'derived' => [],
-                'committed' => false,
-                'skipped' => true,
-                'skip_reason' => $result['skip_reason'],
-                'processed_game_ids' => $processedGameIds,
-            ];
-        }
-        $processedGameIds[] = $firstUnrated;
-        $lastDerived = $result['derived'];
-        $committed = $result['committed'] || $committed;
-        if ($firstUnrated === $gameId) {
-            return [
-                'derived' => $lastDerived,
-                'committed' => $committed,
-                'skipped' => false,
-                'skip_reason' => null,
-                'processed_game_ids' => $processedGameIds,
-            ];
-        }
-    }
-
-    if (amiga_ops_game_rating_exists($con, $gameId)) {
-        return [
-            'derived' => $lastDerived,
-            'committed' => $committed,
-            'skipped' => false,
-            'skip_reason' => null,
-            'processed_game_ids' => $processedGameIds,
-        ];
-    }
+    amiga_ops_standings_apply_game($con, $game);
 
     return [
         'derived' => [],
-        'committed' => false,
-        'skipped' => true,
-        'skip_reason' => 'derived_gap',
-        'processed_game_ids' => $processedGameIds,
+        'committed' => true,
+        'skipped' => false,
+        'skip_reason' => null,
+        'processed_game_ids' => [$gameId],
     ];
 }
 
@@ -570,7 +556,9 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
         . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats, '
         . '(SELECT COUNT(*) FROM amiga_tournament_standings) AS standings, '
-        . '(SELECT COUNT(*) FROM amiga_tournament_catalog_stats) AS catalog_stats'
+        . '(SELECT COUNT(*) FROM amiga_tournament_catalog_stats) AS catalog_stats, '
+        . '(SELECT COUNT(*) FROM amiga_rating_events) AS rating_events, '
+        . '(SELECT COUNT(*) FROM tournaments WHERE rating_finalized = 1) AS tournaments_finalized'
     );
     if ($res === false) {
         throw new RuntimeException('zero-derived counts: ' . $con->error);
@@ -584,6 +572,8 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . ' stats=' . (int) ($row['stats'] ?? 0)
         . ' standings=' . (int) ($row['standings'] ?? 0)
         . ' catalog_stats=' . (int) ($row['catalog_stats'] ?? 0)
+        . ' rating_events=' . (int) ($row['rating_events'] ?? 0)
+        . ' tournaments_finalized=' . (int) ($row['tournaments_finalized'] ?? 0)
         . ($dryRun ? ' (dry-run)' : '')
     );
     if ($dryRun) {
@@ -600,6 +590,12 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
     }
     if (!$con->query('DELETE FROM amiga_player_stats')) {
         throw new RuntimeException('DELETE amiga_player_stats: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_rating_events')) {
+        throw new RuntimeException('DELETE amiga_rating_events: ' . $con->error);
+    }
+    if (!$con->query('UPDATE tournaments SET rating_finalized = 0, rating_finalized_at = NULL')) {
+        throw new RuntimeException('UPDATE tournaments rating_finalized reset: ' . $con->error);
     }
 }
 
@@ -649,38 +645,15 @@ function amiga_ops_replay_post_game(
     ?int $untilGameId = null,
     bool $dryRun = false
 ): array {
-    $ids = amiga_ops_list_game_ids($con, $limit, $untilGameId);
-    $total = count($ids);
-    amiga_ops_log("replay-to: {$total} games in contract order" . ($dryRun ? ' (dry-run)' : ''));
-
-    $processed = [];
-    $committed = 0;
-    $skipped = [];
-    $skipReasons = [];
-    $logEvery = $total > 5000 ? 5000 : 500;
-
-    foreach ($ids as $i => $gid) {
-        $result = amiga_process_completed_game($con, $gid, $dryRun, true);
-        if (!empty($result['skipped'])) {
-            $skipped[] = $gid;
-            $skipReasons[$gid] = (string) ($result['skip_reason'] ?? 'unknown');
-            continue;
-        }
-        $processed[] = $gid;
-        if ($result['committed']) {
-            $committed++;
-        }
-        $n = $i + 1;
-        if ($n % $logEvery === 0 || $n === $total) {
-            amiga_ops_log("replay-to progress: {$n}/{$total} walked, committed={$committed}, skipped=" . count($skipped));
-        }
-    }
+    amiga_ops_log(
+        'replay-to is deprecated — use `python -m scripts.amiga replay` for tournament-order finalize'
+    );
 
     return [
-        'processed' => $processed,
-        'committed' => $committed,
-        'skipped' => $skipped,
-        'skip_reasons' => $skipReasons,
+        'processed' => [],
+        'committed' => 0,
+        'skipped' => [],
+        'skip_reasons' => [],
     ];
 }
 

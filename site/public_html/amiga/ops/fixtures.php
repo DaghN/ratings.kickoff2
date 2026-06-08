@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
+require_once __DIR__ . '/modules/finalize_tournament.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 const AMIGA_FIXTURE_LIVE_SOURCE_SCORES_ID_BASE = 1000000000;
@@ -2437,25 +2438,29 @@ function amiga_fixture_list_tournament_unrated_game_ids(mysqli $con, int $tourna
 function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournamentId): array
 {
     amiga_fixture_require_generated_tournament($con, $tournamentId);
+    if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
+        return ['processed' => 0, 'failed_game_id' => null, 'skip_reason' => 'already_finalized'];
+    }
     $gameIds = amiga_fixture_list_tournament_unrated_game_ids($con, $tournamentId);
     if ($gameIds === []) {
         return ['processed' => 0, 'failed_game_id' => null, 'skip_reason' => null];
     }
 
-    $processed = 0;
-    foreach ($gameIds as $gameId) {
-        $result = amiga_ops_process_derived_for_game($con, $gameId, false);
-        if ($result['skipped']) {
-            return [
-                'processed' => $processed,
-                'failed_game_id' => $gameId,
-                'skip_reason' => $result['skip_reason'],
-            ];
-        }
-        $processed++;
+    try {
+        $result = amiga_finalize_tournament($con, $tournamentId, false);
+    } catch (Throwable $e) {
+        return [
+            'processed' => 0,
+            'failed_game_id' => $gameIds[0] ?? null,
+            'skip_reason' => $e->getMessage(),
+        ];
     }
 
-    return ['processed' => $processed, 'failed_game_id' => null, 'skip_reason' => null];
+    return [
+        'processed' => (int) ($result['games'] ?? 0),
+        'failed_game_id' => null,
+        'skip_reason' => null,
+    ];
 }
 
 function amiga_fixture_undo_unprocessed_result(mysqli $con, int $fixtureId): void
@@ -2696,28 +2701,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if ($processed['skipped']) {
                 $skipReason = (string) $processed['skip_reason'];
-                if ($skipReason === 'derived_gap_bulk') {
+                if ($skipReason === 'tournament_finalized_missing_rating') {
                     $skipMessage = 'Created game #' . $gameId
-                        . ', but too many unrated games need replay first — run '
-                        . '`python -m scripts.amiga replay` or PHP replay-to.';
-                } elseif ($skipReason === 'derived_gap') {
-                    $skipMessage = 'Created game #' . $gameId
-                        . ', but derived processing could not catch up (earlier unrated games remain). '
-                        . 'Run `python -m scripts.amiga replay` to repair derived tables.';
+                        . ', but tournament is finalized without ratings — run refinalize repair.';
                 } else {
                     $skipMessage = 'Created game #' . $gameId
-                        . ', but derived processing skipped: ' . $skipReason;
+                        . ', but standings update skipped: ' . $skipReason;
                 }
                 amiga_fixture_ops_flash_set($skipMessage, true);
             } else {
-                $backfillNote = '';
-                $processedIds = $processed['processed_game_ids'] ?? [];
-                if (count($processedIds) > 1) {
-                    $backfillNote = ' (also processed ' . (count($processedIds) - 1) . ' earlier unrated game(s)).';
-                }
                 amiga_fixture_ops_flash_set(
                     'Recorded fixture result as game #' . $gameId
-                    . ' and processed derived standings/ratings.' . $backfillNote
+                    . '. Standings updated; global ratings commit on tournament finalize.'
                 );
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
@@ -2727,7 +2722,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new RuntimeException('Missing tournament id.');
             }
             $summary = amiga_fixture_reprocess_tournament_derived($con, $tournamentId);
-            if ($summary['processed'] === 0 && $summary['failed_game_id'] === null) {
+            if ($summary['skip_reason'] === 'already_finalized') {
+                amiga_fixture_ops_flash_set('This league is already rating-finalized.');
+            } elseif ($summary['processed'] === 0 && $summary['failed_game_id'] === null) {
                 amiga_fixture_ops_flash_set('Table is already up to date — no unprocessed results for this league.');
             } elseif ($summary['failed_game_id'] !== null) {
                 amiga_fixture_ops_flash_set(
@@ -2738,7 +2735,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
             } else {
                 amiga_fixture_ops_flash_set(
-                    'Updated table from ' . $summary['processed'] . ' match result(s).'
+                    'Finalized league from ' . $summary['processed'] . ' match result(s) — global ratings committed.'
                 );
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);

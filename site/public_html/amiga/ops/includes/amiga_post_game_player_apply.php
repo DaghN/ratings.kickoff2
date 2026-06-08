@@ -57,7 +57,8 @@ function amiga_post_game_player_apply_match(
     float $adjustment,
     int $gameId,
     string $gameDate,
-    int $beforeGameId
+    int $beforeGameId,
+    bool $commitRating = true
 ): void {
     if (!isset($players[$playerId])) {
         $players[$playerId] = amiga_post_game_player_load($con, $playerId, $beforeGameId);
@@ -91,7 +92,9 @@ function amiga_post_game_player_apply_match(
 
     $st['goals_for'] += $goalsFor;
     $st['goals_against'] += $goalsAgainst;
-    $st['rating'] = $newRating;
+    if ($commitRating) {
+        $st['rating'] = $newRating;
+    }
     $st['last_game'] = $gameDate;
     $st['last_game_id'] = $gameId;
 
@@ -259,22 +262,24 @@ function amiga_post_game_player_apply_match(
         $st['lowest_rated_culprit_game_id'] = $gameId;
     }
 
-    if ($newRating > $oldRating) {
-        $st['current_rating_ascent'] += abs($adjustment);
-        $st['current_rating_descent'] = 0.0;
-    } elseif ($newRating < $oldRating) {
-        $st['current_rating_descent'] += abs($adjustment);
-        $st['current_rating_ascent'] = 0.0;
-    }
+    if ($commitRating) {
+        if ($newRating > $oldRating) {
+            $st['current_rating_ascent'] += abs($adjustment);
+            $st['current_rating_descent'] = 0.0;
+        } elseif ($newRating < $oldRating) {
+            $st['current_rating_descent'] += abs($adjustment);
+            $st['current_rating_ascent'] = 0.0;
+        }
 
-    if ($st['current_rating_ascent'] > $st['biggest_rating_ascent']) {
-        $st['biggest_rating_ascent'] = $st['current_rating_ascent'];
-    }
-    if ($st['current_rating_descent'] > $st['biggest_rating_descent']) {
-        $st['biggest_rating_descent'] = $st['current_rating_descent'];
-    }
+        if ($st['current_rating_ascent'] > $st['biggest_rating_ascent']) {
+            $st['biggest_rating_ascent'] = $st['current_rating_ascent'];
+        }
+        if ($st['current_rating_descent'] > $st['biggest_rating_descent']) {
+            $st['biggest_rating_descent'] = $st['current_rating_descent'];
+        }
 
-    k2_post_game_player_apply_career_peak_nadir($st, $newRating, $gameId);
+        k2_post_game_player_apply_career_peak_nadir($st, $newRating, $gameId);
+    }
 
     k2_post_game_player_update_streaks($st, $won, $drew, $lost);
     k2_post_game_player_update_milestone_streaks($st, $goalsFor, $goalsAgainst, $won, $lost);
