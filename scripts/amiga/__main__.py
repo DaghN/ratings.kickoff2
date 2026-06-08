@@ -33,9 +33,17 @@ def main(argv: list[str] | None = None) -> int:
     p_import.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
     p_import.add_argument("--recreate-schema", action="store_true", help="Apply 001_core.sql first")
 
-    p_replay = sub.add_parser("replay", help="Elo replay (1600 / K=32)")
+    p_replay = sub.add_parser(
+        "replay",
+        help="Derived rebuild via tournament finalize (1600 / K=32, frozen within event)",
+    )
     p_replay.add_argument("--dry-run", action="store_true")
-    p_replay.add_argument("--limit", type=int, default=None)
+    p_replay.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Finalize tournaments until at least N games are covered (not N tournaments)",
+    )
 
     p_finalize = sub.add_parser(
         "finalize-tournament",

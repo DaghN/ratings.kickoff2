@@ -11,18 +11,16 @@ from pymysql.cursors import DictCursor
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.tournament_catalog_stats import rebuild_all_catalog_stats
 from scripts.amiga.tournament_standings import rebuild_all_standings
-from scripts.ladder.engine import apply_game_row
-from scripts.ladder.finalize_counts import finalize_network_counts_from_rows
 from scripts.ladder.player_state import PlayerState
 
 log = logging.getLogger(__name__)
 
-# Contract chronology: materialized at import — game_date ASC, id ASC (see amiga-data-contract.md).
-GAME_SELECT = """
-    SELECT g.id, g.game_date AS Date, g.player_a_id AS idA, g.player_b_id AS idB,
-           g.goals_a AS GoalsA, g.goals_b AS GoalsB
-    FROM amiga_games g
-    ORDER BY g.game_date ASC, g.id ASC
+TOURNAMENT_REPLAY_ORDER = """
+    SELECT t.id, COUNT(g.id) AS game_count
+    FROM tournaments t
+    INNER JOIN amiga_games g ON g.tournament_id = t.id
+    GROUP BY t.id, t.event_date, t.chrono
+    ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC
 """
 
 
@@ -62,17 +60,6 @@ def _rating_insert_sql() -> str:
             %(dd_player_a)s, %(dd_player_b)s, %(cs_player_a)s, %(cs_player_b)s
         )
     """
-
-
-def _stats_insert_sql() -> str:
-    sample = PlayerState().to_db_row(1)
-    cols = [k for k in sample if k != "ID"]
-    col_list = ", ".join(f"`{c}`" for c in cols)
-    val_list = ", ".join(f"%({c})s" for c in cols)
-    return (
-        f"INSERT INTO amiga_player_stats (player_id, {col_list}) "
-        f"VALUES (%(player_id)s, {val_list})"
-    )
 
 
 def _row_to_rating_insert(game_id: int, row: dict[str, Any]) -> dict[str, Any]:
@@ -129,71 +116,126 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
     conn.commit()
 
 
+def tournament_ids_for_replay(
+    conn: pymysql.connections.Connection,
+    *,
+    limit_games: int | None = None,
+) -> tuple[list[int], int]:
+    """
+    Tournament ids in catalog chronology order.
+
+    ``limit_games``: finalize tournaments until at least this many games are covered
+    (keeps legacy ``replay --limit 500`` habit).
+
+    Returns (tournament_ids, games_in_scope).
+    """
+    with conn.cursor() as cur:
+        cur.execute(TOURNAMENT_REPLAY_ORDER)
+        rows = cur.fetchall()
+
+    ids: list[int] = []
+    games_total = 0
+    for row in rows:
+        tid = int(row["id"])
+        count = int(row["game_count"])
+        ids.append(tid)
+        games_total += count
+        if limit_games is not None and games_total >= limit_games:
+            break
+    return ids, games_total
+
+
+def _replay_post_checks(
+    conn: pymysql.connections.Connection,
+    *,
+    full_rebuild: bool,
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
+        games = int(cur.fetchone()["n"])
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_game_ratings")
+        ratings = int(cur.fetchone()["n"])
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM tournaments t
+            WHERE t.rating_finalized = 0
+              AND EXISTS (
+                SELECT 1 FROM amiga_games g WHERE g.tournament_id = t.id
+              )
+            """
+        )
+        unfinalized = int(cur.fetchone()["n"])
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_rating_events")
+        events = int(cur.fetchone()["n"])
+
+    if full_rebuild:
+        if games != ratings:
+            raise SystemExit(
+                f"replay post-check failed: amiga_games={games} amiga_game_ratings={ratings}"
+            )
+        if unfinalized:
+            raise SystemExit(
+                f"replay post-check failed: {unfinalized} tournament(s) with games not rating_finalized"
+            )
+    elif ratings > games:
+        raise SystemExit(
+            f"replay post-check failed: more ratings ({ratings}) than games ({games})"
+        )
+
+    log.info(
+        "replay post-checks OK: games=%s ratings=%s rating_events=%s unfinalized_with_games=%s",
+        games,
+        ratings,
+        events,
+        unfinalized,
+    )
+
+
 def replay_all(
     conn: pymysql.connections.Connection,
     *,
     dry_run: bool,
     limit: int | None = None,
-    batch_size: int = 500,
 ) -> None:
-    players: dict[int, PlayerState] = {}
+    """
+    Full derived rebuild via tournament-order finalize (see finalize-rating contract).
+    """
+    from scripts.amiga.finalize_tournament import finalize_tournament
+
+    tournament_ids, games_in_scope = tournament_ids_for_replay(conn, limit_games=limit)
     with conn.cursor() as cur:
-        cur.execute("SELECT id, name FROM amiga_players")
-        names = {int(row["id"]): str(row["name"]) for row in cur.fetchall()}
-        for pid in names:
-            players[pid] = PlayerState()
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
+        total_games = int(cur.fetchone()["n"])
 
-    with conn.cursor() as cur:
-        cur.execute(GAME_SELECT)
-        games = cur.fetchall()
-
-    if limit is not None:
-        games = games[:limit]
-
-    log.info("replay_all: %s games, %s players in memory", len(games), len(players))
+    log.info(
+        "replay_all: %s tournaments to finalize (%s games in scope, %s total in DB)",
+        len(tournament_ids),
+        games_in_scope,
+        total_games,
+    )
 
     if dry_run:
-        if games:
-            sample = apply_game_row(games[0], players, names=names)
-            log.info(
-                "Dry-run sample game id=%s NewRatingA=%.3f NewRatingB=%.3f",
-                games[0]["id"],
-                sample["NewRatingA"],
-                sample["NewRatingB"],
-            )
+        if tournament_ids:
+            result = finalize_tournament(conn, tournament_ids[0], dry_run=True)
+            log.info("Dry-run first tournament: %s", result)
         return
 
-    rating_sql = _rating_insert_sql()
-    stats_sql = _stats_insert_sql()
-    rating_batch: list[dict[str, Any]] = []
-    all_rows: list[dict[str, Any]] = []
-    processed = 0
-
-    with conn.cursor() as cur:
-        for game in games:
-            game_id = int(game["id"])
-            row = apply_game_row(game, players, names=names)
-            rating_batch.append(_row_to_rating_insert(game_id, row))
-            all_rows.append(row)
-            processed += 1
-
-            if len(rating_batch) >= batch_size:
-                cur.executemany(rating_sql, rating_batch)
-                rating_batch.clear()
-                if processed % 5000 == 0:
-                    log.info("amiga_game_ratings: %s / %s games", processed, len(games))
-
-        if rating_batch:
-            cur.executemany(rating_sql, rating_batch)
-
-    log.info("amiga_game_ratings done; finalizing player stats")
-    finalize_network_counts_from_rows(players, all_rows)
-
-    stat_rows = [_stats_row(pid, st) for pid, st in players.items() if st.games > 0]
-    with conn.cursor() as cur:
-        if stat_rows:
-            cur.executemany(stats_sql, stat_rows)
-        log.info("amiga_player_stats: %s players with at least one game", len(stat_rows))
+    games_processed = 0
+    events_total = 0
+    for idx, tournament_id in enumerate(tournament_ids, start=1):
+        result = finalize_tournament(conn, tournament_id, dry_run=False)
+        if result.get("skipped"):
+            continue
+        games_processed += int(result.get("games", 0))
+        events_total += int(result.get("rating_events", 0))
+        if idx % 50 == 0 or idx == len(tournament_ids):
+            log.info(
+                "replay progress: %s / %s tournaments, %s games finalized",
+                idx,
+                len(tournament_ids),
+                games_processed,
+            )
 
     log.info("rebuilding tournament standings")
     rebuild_all_standings(conn, dry_run=False)
@@ -202,7 +244,13 @@ def replay_all(
     rebuild_all_catalog_stats(conn, dry_run=False)
 
     conn.commit()
-    log.info("replay_all complete: %s games", processed)
+    _replay_post_checks(conn, full_rebuild=limit is None)
+    log.info(
+        "replay_all complete: tournaments=%s games=%s rating_events=%s",
+        len(tournament_ids),
+        games_processed,
+        events_total,
+    )
 
 
 def run_replay(*, dry_run: bool = False, limit: int | None = None) -> None:

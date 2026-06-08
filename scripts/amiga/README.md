@@ -25,7 +25,7 @@ python -m scripts.amiga verify-tournament-formats
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga audit-catalog-dates
 
-# Ops simul — parity gate (500 games; oracle: python -m scripts.amiga replay --limit 500):
+# Ops simul — parity gate (500 games in scope; oracle: python -m scripts.amiga replay --limit 500):
 python -m scripts.amiga replay --limit 500
 python -m scripts.amiga verify-chronology
 php site/public_html/amiga/ops/run_process_game.php zero-derived
