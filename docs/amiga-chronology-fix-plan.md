@@ -215,6 +215,7 @@ After rebuild, catalog date fixes live in [`import_corrections.py`](../scripts/a
 
 - **World Cup VIII** — Access `event_date` 2008-09-08; **import canonical 2008-11-09** (chrono 325 fits November slot).
 - **Wiesbaden IX** — Access `event_date` 2009-04-07; **import canonical 2009-01-25** ([forum source](https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684)). Resolves the apparent Newent XVI inversion — Newent XVI (2009-02-13) is unchanged.
+- **Rodenbach II** — Access catalog row (2012-08-12, 5 players) but zero `Scores` rows; **10 supplemental games** from KO Gathering forum (complete round-robin).
 
 Confirm calendar dates are trustworthy before changing source data.
 

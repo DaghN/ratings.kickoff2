@@ -129,6 +129,7 @@
 | 2026-06 | **Activity charts v2 shipped** — `activity.php` uses `activity-charts-v2.js` + `server_activity_chart_panels.php`; plan [`activity-charts.md`](docs/activity-charts.md). |
 | 2026-06 | **URL routes rename** — legacy `server*` / `ranked*` / `individual*` → semantic paths; `k2_routes.php`; [`url-routes.md`](docs/url-routes.md). |
 | 2026-06 | **Amiga realm A1** — `ko2amiga_db` import from `koatd.mdb` (27,408 games, 473 players after name merges), Elo replay, rating/profile/games; **staging live** on `ratings.kickoff2.com`; DB config consolidated to `site/config/` — [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). |
+| 2026-06 | **Rodenbach II supplemental import** — Access catalog row had zero `Scores`; 10 forum-recovered round-robin games appended in `import_corrections.py` (ground truth **27,418** games). |
 | 2026-06 | **Amiga A2 + staging import** — ground/derived schema split, `replay.py`, `amiga_db.php` read path; multi-part export/import (16 parts) verified on staging — [`amiga-data-contract.md`](docs/amiga-data-contract.md). |
 | 2026-06 | **Amiga A2 audit fixes** — contract-order replay, dynamic export chunking, import/replay boundary docs; audit report [`audits/amiga-a2-restructure-audit-2026-06-06.md`](docs/audits/amiga-a2-restructure-audit-2026-06-06.md). |
 

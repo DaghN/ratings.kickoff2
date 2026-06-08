@@ -36,6 +36,7 @@ def build_manifest(
     stats: dict[str, int],
     name_merges: list[dict[str, object]],
     catalog_overrides: list[dict[str, str]],
+    score_supplements: list[dict[str, str | int]] | None = None,
 ) -> dict[str, Any]:
     return {
         "manifest_version": MANIFEST_VERSION,
@@ -45,6 +46,7 @@ def build_manifest(
         "transforms": {
             "name_merges": name_merges,
             "catalog_overrides": catalog_overrides,
+            "score_supplements": score_supplements or [],
         },
         "registry": {
             "automatic_modules": list(AUTOMATIC_TRANSFORM_MODULES),

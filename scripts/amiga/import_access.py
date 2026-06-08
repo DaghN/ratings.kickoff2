@@ -14,7 +14,12 @@ import pyodbc
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.import_corrections import apply_catalog_corrections
+from scripts.amiga.import_corrections import (
+    IMPORT_SUPPLEMENT_SCORES_ID_BASE,
+    SUPPLEMENTAL_SCORES,
+    apply_catalog_corrections,
+    supplemental_scores_manifest,
+)
 from scripts.amiga.import_manifest import (
     build_manifest,
     default_manifest_path,
@@ -237,6 +242,33 @@ def apply_name_map(scores: list[AccessScore], raw_to_canonical: dict[str, str]) 
         object.__setattr__(s, "team_b", raw_to_canonical.get(s.team_b, normalize_display_name(s.team_b)))
 
 
+def merge_supplemental_scores(scores: list[AccessScore]) -> list[AccessScore]:
+    """Append documented games missing from Access Scores (import_corrections.py)."""
+    if not SUPPLEMENTAL_SCORES:
+        return scores
+    existing_ids = {s.source_id for s in scores}
+    next_id = IMPORT_SUPPLEMENT_SCORES_ID_BASE
+    out = list(scores)
+    for sup in SUPPLEMENTAL_SCORES:
+        while next_id in existing_ids:
+            next_id += 1
+        out.append(
+            AccessScore(
+                source_id=next_id,
+                team_a=sup.team_a,
+                team_b=sup.team_b,
+                goals_a=sup.goals_a,
+                goals_b=sup.goals_b,
+                raw_tournament=sup.tournament,
+                phase=sup.phase,
+                extra=sup.extra,
+            )
+        )
+        existing_ids.add(next_id)
+        next_id += 1
+    return out
+
+
 def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
     cfg = load_amiga_db_config()
     if cfg.database != "ko2amiga_db":
@@ -266,6 +298,16 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
                 entry["canonical"],
             )
     scores = load_access_scores(acc_cur)
+    scores = merge_supplemental_scores(scores)
+    score_supplements = supplemental_scores_manifest()
+    if score_supplements:
+        log.info(
+            "Appended %s supplemental game(s) from import_corrections.py (%s tournament(s))",
+            len(SUPPLEMENTAL_SCORES),
+            len(score_supplements),
+        )
+        for entry in score_supplements:
+            log.info("  → %s: +%s games", entry["tournament"], entry["games_added"])
     countries = load_country_by_player(acc_cur)
     raw_player_names: set[str] = set()
     for s in scores:
@@ -442,6 +484,7 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         stats=stats,
         name_merges=merge_log,
         catalog_overrides=catalog_overrides,
+        score_supplements=score_supplements,
     )
     manifest_path = default_manifest_path(_REPO)
     write_manifest(manifest_path, manifest)

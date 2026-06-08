@@ -13,8 +13,10 @@ from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.import_corrections import (
+    SUPPLEMENTAL_SCORES,
     TOURNAMENT_EVENT_DATE_OVERRIDES,
     TOURNAMENT_NAME_OVERRIDES,
+    supplemental_scores_manifest,
 )
 from scripts.amiga.import_manifest import default_manifest_path
 
@@ -52,6 +54,18 @@ def main() -> int:
             if not match:
                 errors.append(f"manifest missing event_date override for {name!r}")
 
+        supplements = manifest.get("transforms", {}).get("score_supplements", [])
+        for entry in supplemental_scores_manifest():
+            name = str(entry["tournament"])
+            want_count = int(entry["games_added"])
+            match = [s for s in supplements if s.get("tournament") == name]
+            if not match:
+                errors.append(f"manifest missing score_supplements entry for {name!r}")
+            elif int(match[0].get("games_added", 0)) != want_count:
+                errors.append(
+                    f"manifest score_supplements {name!r}: games_added={match[0].get('games_added')!r}, want {want_count}"
+                )
+
     cfg = load_amiga_db_config()
     conn = pymysql.connect(
         host=cfg.host,
@@ -83,6 +97,24 @@ def main() -> int:
             got = row["event_date"]
             if isinstance(got, date) and got != want:
                 errors.append(f"{name}: event_date={got}, want {want}")
+
+        by_tournament: dict[str, int] = {}
+        for row in SUPPLEMENTAL_SCORES:
+            by_tournament[row.tournament] = by_tournament.get(row.tournament, 0) + 1
+        for name, want_count in sorted(by_tournament.items()):
+            cur.execute(
+                """
+                SELECT COUNT(g.id) AS n
+                FROM amiga_games g
+                INNER JOIN tournaments t ON t.id = g.tournament_id
+                WHERE t.name = %s
+                """,
+                (name,),
+            )
+            row = cur.fetchone()
+            got = int(row["n"]) if row else 0
+            if got != want_count:
+                errors.append(f"{name}: {got} games in DB, want {want_count} from supplemental import")
 
     conn.close()
 

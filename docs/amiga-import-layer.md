@@ -55,7 +55,7 @@ Ground truth is **not** “whatever Access says.” It is what we commit to MySQ
 
 | Module | What it does |
 |--------|----------------|
-| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale |
+| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **supplemental Scores rows** when Access catalog exists but games are missing |
 
 Add manual overrides only when:
 
@@ -75,6 +75,7 @@ Each import writes **`data/amiga/exports/import_manifest.json`** (gitignored; re
 | `stats` | tournaments, games, raw vs canonical player counts, merge groups |
 | `transforms.name_merges` | Same detail as legacy `name_merges.json` |
 | `transforms.catalog_overrides` | Applied manual patches (access vs canonical + reason) |
+| `transforms.score_supplements` | Games appended from external evidence (tournament, count, reason) |
 | `registry` | Module pointers for reviewers |
 
 Legacy **`name_merges.json`** is still written for backward compatibility; **`import_manifest.json`** is the canonical audit record.
@@ -122,6 +123,14 @@ Exits non-zero if a new inversion appears that is **not** covered by `import_cor
 | Wiesbaden IX | `event_date` | 2009-04-07 | **2009-01-25** | Chrono 333 before Wiesbaden X (Feb 22); Access April date breaks IX-before-X order. Source: [KO Gathering forum](https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684) |
 
 Newent XVI (2009-02-13, chrono 334) needs no override — it sits correctly between corrected Wiesbaden IX (Jan 25) and Wiesbaden X (Feb 22).
+
+### Supplemental Scores (manual)
+
+| Tournament | Games added | Reason |
+|------------|-------------|--------|
+| Rodenbach II | **10** | Access catalog row (2012-08-12, 5 players) but zero `Scores` rows; complete round-robin from KO Gathering forum thread |
+
+Supplemental rows use reserved `source_scores_id` ≥ `500_000_000` (see `IMPORT_SUPPLEMENT_SCORES_ID_BASE` in `import_corrections.py`).
 
 ### Scores tournament aliases (automatic)
 

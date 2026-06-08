@@ -178,7 +178,7 @@ Global `Scores.ID` alone is **mostly** chronological but **not sufficient** (tou
 | Issue | Detail | Mitigation |
 |-------|--------|------------|
 | Tournament name mismatches | 8 `Scores` tournament strings not in `Tournament players` (Milan X sub-stages) | Alias map or merge into parent event |
-| `Rodenbach II` | In catalog, zero games | Import catalog row; no games |
+| `Rodenbach II` | In catalog, zero `Scores` rows | **10 supplemental games** at import from KO Gathering forum (complete 5-player round-robin, 2012-08-12); see `import_corrections.py` |
 | Missing `Scores.ID`s | 961 gaps | Ignore; use present rows only |
 | NULL `Phase` | 61% of games | Expected for informal/local events; store NULL |
 | `rankpoints` scale | Not online Elo | **Recompute** Elo rating via shared Elo engine; optionally compare to `Rankings` grid |

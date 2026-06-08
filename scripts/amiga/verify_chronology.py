@@ -43,7 +43,7 @@ def main() -> int:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
         game_count = int(cur.fetchone()["n"])
         if game_count < 27000:
-            errors.append(f"expected ~27408 games, got {game_count}")
+            errors.append(f"expected ~27418 games, got {game_count}")
 
         cur.execute(
             """

@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
+
+# Reserved source_scores_id range for import supplements (Access max ~28k; live ops use >= 1e9).
+IMPORT_SUPPLEMENT_SCORES_ID_BASE = 500_000_000
 
 # Access catalog name → canonical name (Roman series, etc.).
 # Scores rows use the Access label — also wired via tournament_names.TOURNAMENT_ALIASES.
@@ -35,6 +39,44 @@ OVERRIDE_RATIONALE: dict[str, str] = {
         "and Newent XVI (334, 2009-02-13). Roman-numeral order requires IX before X. "
         "Canonical date 2009-01-25 from KO Gathering forum: "
         "https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684"
+    ),
+}
+
+
+@dataclass(frozen=True)
+class SupplementalScore:
+    """One game row absent from Access Scores but documented from external evidence."""
+
+    tournament: str
+    team_a: str
+    team_b: str
+    goals_a: int
+    goals_b: int
+    phase: str | None = None
+    extra: str | None = None
+
+
+# Games missing from koatd Scores — appended at import with reserved source_scores_id.
+# Order within a tournament is the forum / evidence order (affects synthetic game_date).
+SUPPLEMENTAL_SCORES: tuple[SupplementalScore, ...] = (
+    # Rodenbach II (2012-08-12): Access catalog row, zero Scores rows. Five-player round-robin.
+    SupplementalScore("Rodenbach II", "Frank F", "Horst L", 5, 2),
+    SupplementalScore("Rodenbach II", "Joerg D", "Jan K", 1, 2),
+    SupplementalScore("Rodenbach II", "Joerg D", "Thorsten B", 0, 8),
+    SupplementalScore("Rodenbach II", "Jan K", "Horst L", 1, 2),
+    SupplementalScore("Rodenbach II", "Jan K", "Frank F", 2, 8),
+    SupplementalScore("Rodenbach II", "Horst L", "Thorsten B", 1, 7),
+    SupplementalScore("Rodenbach II", "Horst L", "Joerg D", 6, 0),
+    SupplementalScore("Rodenbach II", "Thorsten B", "Frank F", 2, 5),
+    SupplementalScore("Rodenbach II", "Thorsten B", "Jan K", 5, 1),
+    SupplementalScore("Rodenbach II", "Frank F", "Joerg D", 13, 0),
+)
+
+SUPPLEMENT_RATIONALE: dict[str, str] = {
+    "Rodenbach II": (
+        "Access [Tournament players] lists Rodenbach II (2012-08-12, 5 players, chrono 513) but "
+        "Scores has zero rows. Results recovered from the original KO Gathering forum thread "
+        "(10 games = complete round-robin among Frank F, Horst L, Joerg D, Jan K, Thorsten B)."
     ),
 }
 
@@ -102,3 +144,18 @@ def apply_catalog_corrections(tournaments: list[dict[str, Any]]) -> list[dict[st
         row["event_date"] = canonical
 
     return applied
+
+
+def supplemental_scores_manifest() -> list[dict[str, str | int]]:
+    """Summary rows for import_manifest.json (one entry per supplemented tournament)."""
+    by_tournament: dict[str, int] = {}
+    for row in SUPPLEMENTAL_SCORES:
+        by_tournament[row.tournament] = by_tournament.get(row.tournament, 0) + 1
+    return [
+        {
+            "tournament": name,
+            "games_added": count,
+            "reason": SUPPLEMENT_RATIONALE.get(name, ""),
+        }
+        for name, count in sorted(by_tournament.items())
+    ]

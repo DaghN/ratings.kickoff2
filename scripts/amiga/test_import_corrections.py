@@ -1,0 +1,46 @@
+"""Unit tests for import_corrections supplemental Scores."""
+
+from __future__ import annotations
+
+import unittest
+
+from scripts.amiga.import_access import AccessScore, merge_supplemental_scores
+from scripts.amiga.import_corrections import (
+    IMPORT_SUPPLEMENT_SCORES_ID_BASE,
+    SUPPLEMENTAL_SCORES,
+    supplemental_scores_manifest,
+)
+
+
+class ImportCorrectionsTests(unittest.TestCase):
+    def test_rodenbach_ii_is_complete_round_robin(self) -> None:
+        players = {"Frank F", "Horst L", "Joerg D", "Jan K", "Thorsten B"}
+        pairs: set[tuple[str, str]] = set()
+        for row in SUPPLEMENTAL_SCORES:
+            if row.tournament != "Rodenbach II":
+                continue
+            self.assertIn(row.team_a, players)
+            self.assertIn(row.team_b, players)
+            key = tuple(sorted((row.team_a, row.team_b)))
+            self.assertNotIn(key, pairs)
+            pairs.add(key)
+        self.assertEqual(len(pairs), 10)
+
+    def test_merge_supplemental_scores_reserves_ids(self) -> None:
+        base = [
+            AccessScore(1, "A", "B", 1, 0, "T", None, None),
+        ]
+        merged = merge_supplemental_scores(base)
+        self.assertEqual(len(merged), 1 + len(SUPPLEMENTAL_SCORES))
+        sup_ids = {s.source_id for s in merged[len(base) :]}
+        self.assertTrue(all(i >= IMPORT_SUPPLEMENT_SCORES_ID_BASE for i in sup_ids))
+        self.assertEqual(len(sup_ids), len(SUPPLEMENTAL_SCORES))
+
+    def test_supplemental_manifest_counts(self) -> None:
+        manifest = supplemental_scores_manifest()
+        rodenbach = next(m for m in manifest if m["tournament"] == "Rodenbach II")
+        self.assertEqual(rodenbach["games_added"], 10)
+
+
+if __name__ == "__main__":
+    unittest.main()

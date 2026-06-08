@@ -9,14 +9,14 @@
   },
   "stats": {
     "tournaments": 603,
-    "games": 27408,
+    "games": 27418,
     "players_raw": 474,
     "players_canonical": 473,
     "name_merge_groups": 1,
-    "format_league_only": 517,
+    "format_league_only": 518,
     "format_cup_only": 10,
     "format_league_and_cup": 75,
-    "format_neither": 1
+    "format_neither": 0
   },
   "transforms": {
     "name_merges": [
@@ -49,6 +49,13 @@
         "access": "2009-04-07",
         "canonical": "2009-01-25",
         "reason": "Access Date wrong; chrono 333 before Wiesbaden X; forum https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684"
+      }
+    ],
+    "score_supplements": [
+      {
+        "tournament": "Rodenbach II",
+        "games_added": 10,
+        "reason": "Access catalog row (2012-08-12, 5 players) but zero Scores rows; complete round-robin from KO Gathering forum thread."
       }
     ]
   },

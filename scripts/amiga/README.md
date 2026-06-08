@@ -229,7 +229,7 @@ Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
 
 ## Docs
 
-- **Import layer:** [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) — archival → ground truth, overrides, manifest
+- **Import layer:** [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) — archival → ground truth, catalog overrides, supplemental Scores (e.g. Rodenbach II), manifest
 - **Data contract:** [`docs/amiga-data-contract.md`](../../docs/amiga-data-contract.md) — ground / derived / reference layers; **match streaks are not product truth** (§ Match streaks)
 - Discovery write-up: [`docs/amiga-schema-discovery.md`](../../docs/amiga-schema-discovery.md)
 - Source layout: [`data/amiga/README.md`](../../data/amiga/README.md)

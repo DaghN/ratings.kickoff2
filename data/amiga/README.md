@@ -44,7 +44,7 @@ See [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) and example
 | **Filename** | `koatd.mdb` |
 | **Format** | `.mdb` (Jet) |
 | **Size** | ~5.6 MB |
-| **Games (`Scores`)** | 27,408 |
+| **Games (`Scores`)** | 27,408 in Access · **27,418** in `ko2amiga_db` after import (+10 supplemental Rodenbach II games; see `import_corrections.py`) |
 | **Players (distinct in `Scores`)** | 477 raw → **473** after import merges |
 | **Tournaments (`Tournament players`)** | 604 (Nov 2001 – Nov 2025) |
 | **File modified** | 2026-05-16 |
