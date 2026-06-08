@@ -49,4 +49,4 @@ Deployable package, dead PHP paths removed, contract **Implemented**, verify gre
 
 - `ee6d313` — slice 7 ship
 - `61feb40` — handoff hash
-- *(staging sign-off — see latest commit on `main`)*
+- `67db99e` — staging sign-off docs
