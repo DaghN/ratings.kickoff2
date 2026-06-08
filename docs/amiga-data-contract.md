@@ -139,9 +139,9 @@ python -m scripts.amiga verify-rating-events       # contract § 5.9 invariants
 
 `replay --limit N` finalizes tournaments until **≥ N games** are covered (not N tournaments).
 
-**Live ops (transitional):** `amiga_process_completed_game()` / PHP `process-one` and `replay-to` still use the **legacy per-game global commit** until slice 4 ships PHP `finalize-tournament`. Do not treat PHP simul parity with old per-game ratings as the batch oracle.
+**Live ops:** result entry writes **ground truth + standings only** (`fixtures.php`, `amiga_ops_process_derived_for_game`). Global rating commit is **`finalize-tournament` only** (PHP + Python). PHP `process-one` **hard-fails** for tournament-tagged games; PHP `replay-to` is **removed** — use `python -m scripts.amiga replay`.
 
-**Retired parity rule (Jun 2026):** per-game PHP `replay-to --limit 500` matching sequential global Elo — replaced by `verify-rating-events` after Python replay. Numeric ratings **intentionally differ** from the old sequential model.
+**Batch oracle:** `python -m scripts.amiga replay` → tournament-order finalize + `verify-rating-events`. Numeric ratings **intentionally differ** from the old per-game sequential model.
 
 ---
 
@@ -176,7 +176,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_games` | Ground | Import / submission |
 | `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit |
 | `amiga_rating_events` | Derived | Tournament finalize — authoritative rating timeline |
-| `amiga_player_stats` | Derived | Tournament finalize / `replay` (legacy PHP per-game path until slice 4) |
+| `amiga_player_stats` | Derived | Tournament finalize / `replay` |
 | `amiga_tournament_standings` | Derived | `replay` end (`rebuild_all_standings`) or standings rebuild on result entry |
 | `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP `amiga_ops_catalog_stats_refresh_tournament` per touched tournament on post-game |
 | `reference_*` (optional) | Reference | Parity tooling only |
@@ -227,7 +227,7 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 - `python -m scripts.amiga build-tournament create-kitchen-marathon` is the first internal builder: it creates one new `tournaments` row from the `kitchen_marathon` template, one `overall` league stage, stage players, and scheduled round-robin fixtures. It does **not** create `amiga_games`; use fixture result entry for that.
 - `python -m scripts.amiga build-tournament create-group-knockout` is a minimal starter for group round robins plus a final placeholder. Advancing winners into knockout fixtures remains an explicit manual ops step until the promotion policy is modelled.
 - `python -m scripts.amiga build-tournament smoke-fixture-result` creates a tiny generated tournament, records one fixture result, verifies the generated structure, and rolls back. Use it as the local end-to-end guard for the live fixture path.
-- `python -m scripts.amiga fixtures record-result` is the first internal fixture-backed result entry path. It inserts one canonical `amiga_games` row for a scheduled fixture, marks the fixture `played`, and leaves derived writes to `replay` or PHP `process-one`. Both fixture players must be active (`registered`) tournament entrants before insert.
+- `python -m scripts.amiga fixtures record-result` is the first internal fixture-backed result entry path. It inserts one canonical `amiga_games` row for a scheduled fixture, marks the fixture `played`, and rebuilds **standings only** (no global rating commit until finalize). Both fixture players must be active (`registered`) tournament entrants before insert.
 - `python -m scripts.amiga fixtures list|detail` are read-only schedule inspection commands. `fixtures set-players` assigns participants to scheduled placeholder fixtures only when both players are active (`registered`) tournament entrants, are placed in `tournament_stage_players` for the fixture's exact `stage_id`, and no game is attached. `fixtures create-fixture` enforces the same entrant rule when `player_a_id` / `player_b_id` are non-null. `fixtures attach-game` is the guarded path for linking pre-existing unattached games to scheduled fixtures (see attachment rules above); prefer `record-result` for new fixture-backed results.
 - `/amiga/ops/fixtures.php` is the password-gated **tournament organizer** for internal ops (tabbed `view` navigation: setup, players, fixtures, table, results, advanced). It may create kitchen-marathon leagues with server-side player search at create time, list/search/manage entrants on generated tournaments, place registered entrants into stages, assign scheduled placeholder fixture players, and record scheduled fixture-backed results, but remains internal tooling rather than public UI. Successful league create POST-redirects to `view=fixtures` for the new tournament id. Assignment and result entry refuse withdrawn, replaced, or non-entrant players with a clear error.
 - **Ops (browser entrants):** on generated tournaments only (`source_id IS NULL` and approved `format_overrides.generated_by` prefix), the fixture manager lists entrants (player id, name, seed, status, note), searches existing `amiga_players` by id or name fragment, and supports add (`draft`/`registration`/`ready` only), withdraw, and replace with the same guardrails as `fixtures add-entrant`, `withdraw-entrant`, and `replace-entrant` (no player creation, no reactivation of `withdrawn`/`replaced` rows, transactional fixture/stage cleanup on withdraw, fixture/stage swap on replace).
@@ -272,8 +272,8 @@ DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Trac
 | This contract (layer intent) | **Done** |
 | Schema split (`amiga_games` / …) | **Done** (A2) |
 | Staging multi-part browser import | **Done** (Jun 2026) |
-| Amiga `ProcessCompletedGame` ops | **Done** (v1 CLI — `process-one` append-only) |
-| Amiga ops simul (`zero-derived` + `replay-to`) | **Done** (v1 — 500-game parity gate vs Python `replay --limit 500`) |
+| Amiga tournament finalize ops | **Done** — PHP `finalize-tournament` + live standings-only entry; Python `replay` batch oracle |
+| Amiga rating events + read path | **Done** — `amiga_rating_events`, profile chart from events, `verify-rating-events` |
 | Tournament standings (derived) | **Done** (Track B — league + group + knockout; PHP incremental post-game) |
 | Reference parity tables / diffs | **Done** (`standings-parity --sweep` vs Access ODBC; 0 engine FAILs Jun 2026) |
 | Amiga hub nav (v0) | **Done** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); HoF stub `/amiga/hall-of-fame.php` |
@@ -303,8 +303,10 @@ Do not “fix” these by importing Access snapshots as truth. Re-run: `python -
 
 - **Import:** ground truth only — see `scripts/amiga/import_access.py` and [`amiga-import-layer.md`](amiga-import-layer.md). Corrections to legacy Access belong in the import layer (`import_corrections.py`, `player_names.py`, `tournament_names.py`, `tournament_format.py`), not in edited `koatd.mdb`. Each import writes `data/amiga/exports/import_manifest.json`. A full import **truncates** `amiga_game_ratings` and `amiga_player_stats` (FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga run` for import + replay, or always follow `import` with `replay`.
 - **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
-- **Incremental post-game (live):** `php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N` — `ko2amiga_db` only; idempotent (`already_processed` if rating row exists); **append-only** (game must be chronologically last; errors `not_append_only` / `derived_gap` otherwise). Parity smoke: full `replay` → `replay --limit (N-1)` → PHP `process-one` on last id → compare rating + both players' stats to full replay.
-- **Simul (replay-to):** `zero-derived` then `replay-to [--limit N] [--until-game-id G]` — walks contract chronology (`game_date ASC, id ASC`); sim chronology = first unrated game in order (`derived_gap` if hole). Idempotent re-run skips `already_processed`. **v1 parity gate:** `--limit 500` vs `python -m scripts.amiga replay --limit 500` (counts + spot-check; not full 27k PHP sim).
+- **Live result entry:** browser `/amiga/ops/fixtures.php` or `fixtures record-result` — ground + standings rebuild only while tournament is open.
+- **Finalize:** `php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=T` or `python -m scripts.amiga finalize-tournament --tournament-id=T`.
+- **Batch rebuild:** `python -m scripts.amiga replay` then `verify-chronology` + `verify-rating-events`. PHP `replay-to` removed.
+- **Corrections:** `reopen-tournament` + `refinalize-from` (rebuild-forward through later tournaments).
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders
 - **Match streaks:** never ship UI or APIs that display `*Streak` / `Longest*Streak` on Amiga — see § Match streaks

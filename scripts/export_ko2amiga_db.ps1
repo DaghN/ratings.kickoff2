@@ -17,7 +17,7 @@ $Stamp = Get-Date -Format 'yyyy-MM-dd'
 $Tables = @(
     'tournament_format_templates', 'tournaments', 'amiga_players',
     'tournament_entrants', 'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
-    'amiga_games', 'amiga_game_ratings', 'amiga_player_stats',
+    'amiga_games', 'amiga_game_ratings', 'amiga_player_stats', 'amiga_rating_events',
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats'
 )
 
@@ -109,6 +109,12 @@ $catalogPart = ('ko2amiga_{0:D2}_catalog_stats.sql' -f $idx)
 $catalogFile = Join-Path $OutDir $catalogPart
 Write-DumpFile $catalogFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_catalog_stats')
 $parts.Add($catalogPart)
+$idx++
+
+$ratingEventsPart = ('ko2amiga_{0:D2}_rating_events.sql' -f $idx)
+$ratingEventsFile = Join-Path $OutDir $ratingEventsPart
+Write-DumpFile $ratingEventsFile @('--no-create-info', 'ko2amiga_db', 'amiga_rating_events')
+$parts.Add($ratingEventsPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

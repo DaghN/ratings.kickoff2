@@ -630,34 +630,6 @@ function amiga_ops_list_game_ids(mysqli $con, ?int $limit = null, ?int $untilGam
 }
 
 /**
- * Chronological sim — one amiga_process_completed_game per game (sim chronology).
- *
- * @return array{
- *   processed: list<int>,
- *   committed: int,
- *   skipped: list<int>,
- *   skip_reasons: array<int, string>
- * }
- */
-function amiga_ops_replay_post_game(
-    mysqli $con,
-    ?int $limit = null,
-    ?int $untilGameId = null,
-    bool $dryRun = false
-): array {
-    amiga_ops_log(
-        'replay-to is deprecated — use `python -m scripts.amiga replay` for tournament-order finalize'
-    );
-
-    return [
-        'processed' => [],
-        'committed' => 0,
-        'skipped' => [],
-        'skip_reasons' => [],
-    ];
-}
-
-/**
  * True when an unrated game appears before a later rated game in contract order.
  */
 function amiga_ops_has_derived_gap(mysqli $con): bool
@@ -747,7 +719,7 @@ function amiga_ops_derived_coverage(mysqli $con): array
 }
 
 /**
- * Spot-check standings vs known oracle cases (after replay-to parity gate).
+ * Spot-check standings vs known oracle cases (after Python replay).
  *
  * @return list<string> empty when OK
  */
@@ -763,7 +735,7 @@ function amiga_ops_verify_standings_spot_checks(mysqli $con): array
         $res->free();
     }
     if ($standingsCount < 1) {
-        $errors[] = 'standings_count is 0 (expected rows after replay-to)';
+        $errors[] = 'standings_count is 0 (expected rows after Python replay)';
 
         return $errors;
     }

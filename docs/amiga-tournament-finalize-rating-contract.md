@@ -1,9 +1,9 @@
 # Amiga tournament finalize & rating events — implementation contract
 
-**Status:** Partial (Jun 2026) — **batch replay oracle implemented**; live PHP ops + read path pending  
+**Status:** **Implemented** (Jun 2026) — tournament finalize commit boundary live in Python + PHP; rating history from `amiga_rating_events`  
 **Scope:** `ko2amiga_db` rating commit model, derived replay, and related read-path policy  
-**Supersedes:** [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay for rating and global career-stat commit rules (batch path)  
-**Implementation plan:** [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) — slices 0–3 done (batch/historical path)  
+**Supersedes:** [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay for rating and global career-stat commit rules  
+**Implementation plan:** [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) — slices 0–7 complete  
 
 **Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) · [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
@@ -445,18 +445,18 @@ Shared Elo: continue `scripts/ladder/elo.py` / `post_game_elo.php` for formula; 
 - [x] `clear_derived` / `verify-rating-events` CLI for § 5.9 identities
 - [x] Update [`amiga-data-contract.md`](amiga-data-contract.md) post-game section to point here
 
-### Slice 2 — PHP ops parity
+### Slice 2 — PHP ops parity — done
 
-- [ ] `finalize_tournament` in PHP ops (same semantics as Python)
-- [ ] Live result entry: ground + standings only (no global derived)
-- [ ] `finalize-tournament` ops endpoint + one-at-a-time lock
-- [ ] Deprecate global `process-one` for tournament-tagged games
+- [x] `finalize_tournament` in PHP ops (same semantics as Python)
+- [x] Live result entry: ground + standings only (no global derived)
+- [x] `finalize-tournament` ops endpoint + one-at-a-time lock
+- [x] Hard-fail `process-one` for tournament-tagged games; `replay-to` removed (use Python replay)
 
-### Slice 3 — Read path
+### Slice 3 — Read path — done
 
-- [ ] Rating history API from `amiga_rating_events`
-- [ ] Profile chart update
-- [ ] Game page: show `adjustment_*` and frozen `rating_*` from `amiga_game_ratings`
+- [x] Rating history API from `amiga_rating_events`
+- [x] Profile chart update (one point per rating event)
+- [x] Game page: show `adjustment_*` and frozen `rating_*` from `amiga_game_ratings`
 
 ### Slice 6 — Corrections & refinalize
 
@@ -529,4 +529,14 @@ This contract reflects alignment (Jun 2026) on:
 
 ---
 
-*When slice 1 ships, update [`PROJECT_MEMORY.md`](../PROJECT_MEMORY.md) and mark this document **Implemented** with commit hash and verification commands.*
+**Verification (oracle):**
+
+```powershell
+python -m scripts.amiga replay
+python -m scripts.amiga verify-chronology
+python -m scripts.amiga verify-rating-events
+python -m scripts.amiga refinalize-smoke
+php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
+```
+
+*Handoff: [`docs/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md`](orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md)*

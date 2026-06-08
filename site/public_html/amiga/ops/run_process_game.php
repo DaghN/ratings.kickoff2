@@ -27,7 +27,7 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "  finalize-tournament   Batch finalize one tournament (frozen Elo + rating events)\n");
     fwrite(STDOUT, "  reopen-tournament     Clear one tournament's finalize markers + derived rows\n");
     fwrite(STDOUT, "  refinalize-from       Rebuild-forward from tournament T through later events\n");
-    fwrite(STDOUT, "  replay-to             Deprecated — use python -m scripts.amiga replay\n");
+    fwrite(STDOUT, "  replay-to             Removed — use python -m scripts.amiga replay\n");
     fwrite(STDOUT, "  process-one           Deprecated for tournament games — use finalize-tournament\n");
     fwrite(STDOUT, "  verify                Row counts + derived_gap + standings spot-checks\n");
     fwrite(STDOUT, "  help\n");
@@ -169,19 +169,8 @@ if ($verb === 'refinalize-from') {
 }
 
 if ($verb === 'replay-to') {
-    $con = amiga_ops_connect();
-    try {
-        $result = amiga_ops_replay_post_game($con, $limit, $untilGameId, $dryRun);
-        amiga_ops_log(
-            'replay-to done: processed=' . count($result['processed'])
-            . ' committed=' . $result['committed']
-            . ' skipped=' . count($result['skipped'])
-            . ($dryRun ? ' (dry-run)' : '')
-        );
-    } finally {
-        $con->close();
-    }
-    exit(0);
+    fwrite(STDERR, "replay-to removed — use: python -m scripts.amiga replay\n");
+    exit(1);
 }
 
 if ($verb === 'verify') {

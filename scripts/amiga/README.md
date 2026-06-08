@@ -39,9 +39,7 @@ python -m scripts.amiga verify-rating-events
 # Partial rebuild smoke (≥500 games in scope; verify-rating-events requires full replay):
 python -m scripts.amiga replay --limit 500
 
-# Legacy PHP simul (transitional — per-game path; retired as Elo parity oracle):
-# php site/public_html/amiga/ops/run_process_game.php zero-derived
-# php site/public_html/amiga/ops/run_process_game.php replay-to --limit 500
+# PHP replay-to removed — batch oracle is Python replay only.
 
 # Tournament standings parity vs Access Tables (reference only):
 python -m scripts.amiga standings-parity --tournament "London XXIII"
@@ -52,8 +50,10 @@ python -m scripts.amiga standings-parity --sweep
 python -m scripts.amiga standings-parity --sweep --only-failures
 python -m scripts.amiga standings-parity --sweep --tournament-id 42 --fail-fast
 
-# Incremental post-game (live append-only — last game in contract order):
-php site/public_html/amiga/ops/run_process_game.php process-one --game-id=N
+# Finalize one tournament (PHP — same semantics as Python finalize-tournament):
+php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
+
+# process-one hard-fails for tournament-tagged games — use fixtures ops + finalize-tournament
 
 # Schema inventory from Access
 python scripts/amiga/discover_access_schema.py
@@ -62,11 +62,11 @@ python scripts/amiga/discover_access_schema.py
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Export writes **23 part files** + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Sync all of `_import/` via WinSCP.
+Export writes **24 part files** + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Part 24 is `amiga_rating_events`. Sync all of `_import/` via WinSCP.
 
 **Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
 
-- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 23`
+- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 24`
 - **Apply:** same URL with `&apply=1&part=1` (auto-continues)
 - **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`
 
@@ -192,7 +192,7 @@ python -m scripts.amiga fixtures set-players --fixture-id F --player-a-id 1 --pl
 python -m scripts.amiga fixtures attach-game --game-id G --fixture-id F --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2 --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2
-php site/public_html/amiga/ops/run_process_game.php process-one --game-id=G
+# Live browser ops record results + rebuild standings; finalize via finalize-tournament when event closes.
 
 # Cleanup is intentionally limited to unplayed tournament_builder output.
 python -m scripts.amiga fixtures cleanup-generated --tournament-id N --dry-run
