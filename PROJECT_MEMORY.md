@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga finalize latency** — batch full replay ~23s; live one tail-end finalize ~0.7s local (network scan bound). |
 | 2026-06 | **Amiga replay Tier A** — in-memory `players` across batch, defer stats + shared names; full replay ~23s (was ~90s / ~5½ min); live finalize unchanged. |
 | 2026-06 | **Amiga replay perf** — `defer_heavy_derived` + `commit_heavy_player_derived()`; live finalize unchanged. |
 | 2026-06 | **Amiga tournament finalize rating — closed** — slices 0–7 shipped; staging 24-part import verified (`ratings.kickoff2.com`); contract Implemented; rework pause lifted. |

@@ -40,6 +40,7 @@ python -m scripts.amiga verify-rating-events
 # each finalize writes amiga_game_ratings + amiga_rating_events. amiga_player_stats +
 # network counts + peak/nadir once via commit_heavy_player_derived(players). Live
 # finalize-tournament (PHP or Python CLI) loads from DB and persists full stats per event.
+# Live one-event finalize at catalog tail (full history on disk): ~0.7s local (Jun 2026).
 
 # Partial rebuild smoke (≥500 games in scope; verify-rating-events requires full replay):
 python -m scripts.amiga replay --limit 500

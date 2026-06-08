@@ -137,7 +137,9 @@ python -m scripts.amiga verify-chronology
 python -m scripts.amiga verify-rating-events       # contract § 5.9 invariants
 ```
 
-Full `replay` (~27k games): **~23s local** (Jun 2026) — each tournament is a real finalize (per-game `amiga_game_ratings` + `amiga_rating_events`); shared in-memory career state across the loop; `amiga_player_stats` + network counts + peak/nadir in one `commit_heavy_player_derived(players)` at the end. Live `finalize-tournament` (PHP or Python) loads entry state from DB and persists full stats immediately.
+Full `replay` (~27k games): **~23s local** (Jun 2026) — each tournament is a real finalize (per-game `amiga_game_ratings` + `amiga_rating_events`); shared in-memory career state across the loop; `amiga_player_stats` + network counts + peak/nadir in one `commit_heavy_player_derived(players)` at the end.
+
+Live `finalize-tournament` (PHP or Python CLI), with full history already on disk: **~0.7s local** for one tail-end event (Jun 2026 benchmark — e.g. World Cup XXIII, 331 games, after ~601 prior tournaments). Dominated by a single full-history network-count scan (~27k rated games), not by games in the current event.
 
 `replay --limit N` finalizes tournaments until **≥ N games** are covered (not N tournaments).
 

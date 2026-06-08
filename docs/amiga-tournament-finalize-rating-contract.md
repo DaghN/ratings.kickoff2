@@ -375,6 +375,8 @@ rebuild_all_catalog_stats()
 
 Batch full local replay ~23s (Jun 2026). PHP live finalize always uses the live row (no defer).
 
+**Live finalize latency (local, Jun 2026):** one tail-end `finalize_tournament` with ~601 prior tournaments on disk — **~0.7s** (331-game World Cup XXIII; ~0.7s for a small 18-game late event too). Cost is essentially one full rated-game scan for network counts, not the current event’s game count.
+
 ### 8.3 Parity with legacy
 
 - **Old sequential global Elo replay will not match** — intentional.

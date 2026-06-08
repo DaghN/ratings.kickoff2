@@ -23,6 +23,15 @@ Batch replay: incremental in-memory career state per tournament; full-history on
 | `python -m scripts.amiga verify-rating-events` | pass |
 | `python -m scripts.amiga refinalize-smoke` | pass |
 
+## Live finalize latency (tail end, local Jun 2026)
+
+| Event | Games | `finalize_tournament` (live path) |
+|-------|------:|----------------------------------:|
+| Last in catalog — World Cup XXIII (`id=25`) | 331 | ~0.76s |
+| Small late event (`id=15`) | 18 | ~0.68s |
+
+Dominated by one full-history network-count scan, not in-event game count.
+
 ## Commit
 
 `0fcc8d7` — pushed to `main`
