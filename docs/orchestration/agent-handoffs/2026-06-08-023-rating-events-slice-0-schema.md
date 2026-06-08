@@ -53,4 +53,4 @@ Add schema for tournament finalize rating events and finalize markers **without*
 
 ## Commit
 
-*(filled after commit)*
+`530aa62` — pushed to `main`
