@@ -46,10 +46,12 @@ _SQL_FORMATS = Path(__file__).resolve().parent / "sql" / "005_tournament_formats
 _SQL_FIXTURES = Path(__file__).resolve().parent / "sql" / "006_tournament_fixtures.sql"
 _SQL_ENTRANTS = Path(__file__).resolve().parent / "sql" / "007_tournament_entrants.sql"
 _SQL_LIFECYCLE = Path(__file__).resolve().parent / "sql" / "008_tournament_lifecycle.sql"
+_SQL_RATING_EVENTS = Path(__file__).resolve().parent / "sql" / "009_rating_events.sql"
 
 _AMIGA_TABLES_DROP_ORDER = (
     "amiga_tournament_catalog_stats",
     "amiga_tournament_standings",
+    "amiga_rating_events",
     "amiga_game_ratings",
     "amiga_player_stats",
     "amiga_games",
@@ -137,6 +139,7 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
         _SQL_FIXTURES,
         _SQL_ENTRANTS,
         _SQL_LIFECYCLE,
+        _SQL_RATING_EVENTS,
     ):
         sql = sql_path.read_text(encoding="utf-8")
         with conn.cursor() as cur:
@@ -162,6 +165,7 @@ def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
         cur.execute("SET FOREIGN_KEY_CHECKS = 0")
         cur.execute("TRUNCATE TABLE amiga_tournament_catalog_stats")
         cur.execute("TRUNCATE TABLE amiga_tournament_standings")
+        cur.execute("TRUNCATE TABLE amiga_rating_events")
         cur.execute("TRUNCATE TABLE amiga_game_ratings")
         cur.execute("TRUNCATE TABLE amiga_player_stats")
         cur.execute("TRUNCATE TABLE amiga_games")

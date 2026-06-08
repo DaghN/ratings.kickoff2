@@ -377,7 +377,7 @@ PHP ops simul must call the same finalize primitive for parity.
 | Case | Rule |
 |------|------|
 | Tournament with zero games | Skip finalize |
-| `amiga_games.tournament_id IS NULL` | Slice 1: define policy — recommend immediate single-game finalize as degenerate event, or attach to synthetic tournament |
+| `amiga_games.tournament_id IS NULL` | **Zero-tolerance:** import must assign every game a `tournament_id`; `verify-rating-events` (slice 3) fails if any rated game has NULL. Orphan rows are import bugs, not replay edge cases. |
 | Player’s first career game | `frozen_rating = 1600` |
 | Player in multiple tournaments | Each event produces one rating event; chain via `rating_before` / `rating_after` |
 | Withdrawn entrant, no games | No rating event |

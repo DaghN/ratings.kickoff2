@@ -101,6 +101,7 @@ python -m scripts.amiga verify-tournament-formats
 mysql ko2amiga_db < scripts/amiga/sql/006_tournament_fixtures.sql
 mysql ko2amiga_db < scripts/amiga/sql/007_tournament_entrants.sql
 mysql ko2amiga_db < scripts/amiga/sql/008_tournament_lifecycle.sql
+mysql ko2amiga_db < scripts/amiga/sql/009_rating_events.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle

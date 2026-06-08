@@ -120,8 +120,12 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
     with conn.cursor() as cur:
         cur.execute("DELETE FROM amiga_tournament_catalog_stats")
         cur.execute("DELETE FROM amiga_tournament_standings")
+        cur.execute("DELETE FROM amiga_rating_events")
         cur.execute("DELETE FROM amiga_game_ratings")
         cur.execute("DELETE FROM amiga_player_stats")
+        cur.execute(
+            "UPDATE tournaments SET rating_finalized = 0, rating_finalized_at = NULL"
+        )
     conn.commit()
 
 
