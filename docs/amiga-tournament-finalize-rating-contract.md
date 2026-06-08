@@ -360,12 +360,15 @@ Replace game-at-a-time global commit in `scripts/amiga/replay.py` with:
 clear_derived()
 for T in tournaments_chrono_order:
     if exists games for T:
-        finalize_tournament(T)
-rebuild_all_standings()   -- if not already inside finalize
+        finalize_tournament(T, defer_heavy_derived=True)   -- batch replay only
+commit_heavy_player_derived()   -- one full-history scan: network counts + peak/nadir
+rebuild_all_standings()
 rebuild_all_catalog_stats()
 ```
 
-PHP ops simul must call the same finalize primitive for parity.
+**Batch vs live:** Each tournament finalize still commits rating facts (`amiga_game_ratings`), rating events, and global `Rating` + career counters for participants — same semantics as an operator clicking finalize. **Network counts** (`DifferentOpponents`, victims/culprits, DD/CS networks) and **peak/nadir** need a full rated-game / event timeline scan; live `finalize-tournament` runs that inline; batch `replay` and `refinalize-from` defer it to a single `commit_heavy_player_derived()` after the loop (~90s full local replay vs ~5½ min before this optimization, Jun 2026).
+
+PHP live finalize always runs the heavy pass per event (no defer).
 
 ### 8.3 Parity with legacy
 

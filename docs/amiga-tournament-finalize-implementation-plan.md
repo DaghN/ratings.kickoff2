@@ -453,4 +453,10 @@ Slice 5 can start after slice 3 (read-only API) in parallel with slice 4 if need
 
 ---
 
+---
+
+## 16. Post-ship note (Jun 2026)
+
+**Batch replay performance:** `finalize_tournament(defer_heavy_derived=True)` in `replay` / `refinalize-from` loops; `commit_heavy_player_derived()` once after the loop. Live finalize unchanged. Full local replay ~90s (was ~5½ min). See contract § 8.2.
+
 *Maintainer: update this plan if slices split further. Amend contract first if requirements change.*

@@ -137,6 +137,8 @@ python -m scripts.amiga verify-chronology
 python -m scripts.amiga verify-rating-events       # contract § 5.9 invariants
 ```
 
+Full `replay` (~27k games): **~90s local** (Jun 2026) — each tournament is a real finalize commit; network counts + peak/nadir deferred to one `commit_heavy_player_derived()` at the end. Live `finalize-tournament` (PHP or Python) runs the heavy pass immediately so the site is correct after one event.
+
 `replay --limit N` finalizes tournaments until **≥ N games** are covered (not N tournaments).
 
 **Live ops:** result entry writes **ground truth + standings only** (`fixtures.php`, `amiga_ops_process_derived_for_game`). Global rating commit is **`finalize-tournament` only** (PHP + Python). PHP `process-one` **hard-fails** for tournament-tagged games; PHP `replay-to` is **removed** — use `python -m scripts.amiga replay`.

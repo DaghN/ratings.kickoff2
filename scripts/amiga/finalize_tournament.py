@@ -21,6 +21,17 @@ from scripts.ladder.engine import apply_game_row
 from scripts.ladder.finalize_counts import finalize_network_counts_from_rows
 from scripts.ladder.player_state import PlayerState
 
+# Re-exported for batch replay / refinalize orchestration.
+__all__ = [
+    "TournamentAlreadyFinalizedError",
+    "TournamentNotFoundError",
+    "commit_heavy_player_derived",
+    "finalize_tournament",
+    "recompute_rating_peaks_from_events",
+    "run_finalize_tournament",
+    "verify_tournament_finalize",
+]
+
 log = logging.getLogger(__name__)
 
 GAME_SELECT_FOR_TOURNAMENT = """
@@ -249,16 +260,46 @@ def verify_tournament_finalize(
     return errors
 
 
+def commit_heavy_player_derived(conn: pymysql.connections.Connection) -> int:
+    """
+    One-pass network counts + peak/nadir for all players after batch finalize replay.
+
+    Live single-tournament finalize runs this inline; batch jobs defer until the end.
+    """
+    players = load_player_states(conn)
+    if not players:
+        log.info("commit_heavy_player_derived: no player stats rows")
+        return 0
+
+    finalize_network_counts_from_rows(players, _load_rated_game_rows(conn))
+    recompute_rating_peaks_from_events(conn, players, set(players.keys()))
+
+    stats_sql = _stats_upsert_sql()
+    stat_rows = [_stats_row(pid, st) for pid, st in players.items() if st.games > 0]
+    with conn.cursor() as cur:
+        if stat_rows:
+            cur.executemany(stats_sql, stat_rows)
+    conn.commit()
+    log.info("commit_heavy_player_derived: wrote %s player stat rows", len(stat_rows))
+    return len(stat_rows)
+
+
 def finalize_tournament(
     conn: pymysql.connections.Connection,
     tournament_id: int,
     *,
     dry_run: bool = False,
+    defer_heavy_derived: bool = False,
 ) -> dict[str, Any]:
     """
     Finalize one tournament per amiga-tournament-finalize-rating-contract.md § 5.
 
     Requires prior tournaments (if any) already finalized when players carry history.
+
+    When ``defer_heavy_derived`` is True (batch replay / refinalize loops), skip the
+    full-history network-count scan and peak/nadir recompute for this tournament.
+    Call ``commit_heavy_player_derived`` once after the last finalize in the batch.
+    Live ops should leave ``defer_heavy_derived`` False (default).
     """
     tour = _load_tournament(conn, tournament_id)
     if int(tour["rating_finalized"]) == 1:
@@ -335,7 +376,8 @@ def finalize_tournament(
             games_in_event[id_b] = games_in_event.get(id_b, 0) + 1
             cur.execute(rating_sql, _row_to_rating_insert_finalize(game_id, row))
 
-        finalize_network_counts_from_rows(players, _load_rated_game_rows(conn))
+        if not defer_heavy_derived:
+            finalize_network_counts_from_rows(players, _load_rated_game_rows(conn))
 
         finalized_at = datetime.now(timezone.utc).replace(tzinfo=None)
         event_sql = """
@@ -367,7 +409,8 @@ def finalize_tournament(
                 },
             )
 
-        recompute_rating_peaks_from_events(conn, players, participant_ids)
+        if not defer_heavy_derived:
+            recompute_rating_peaks_from_events(conn, players, participant_ids)
 
         stat_rows = [
             _stats_row(pid, players[pid])

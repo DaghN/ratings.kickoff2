@@ -14,6 +14,7 @@ from scripts.amiga.finalize_tournament import (
     _load_rated_game_rows,
     _load_tournament,
     _stats_upsert_sql,
+    commit_heavy_player_derived,
     finalize_tournament,
     recompute_rating_peaks_from_events,
 )
@@ -186,11 +187,16 @@ def refinalize_from(
     games_total = 0
     events_total = 0
     for tid in from_ids:
-        result = finalize_tournament(conn, tid, dry_run=False)
+        result = finalize_tournament(
+            conn, tid, dry_run=False, defer_heavy_derived=True
+        )
         if result.get("skipped"):
             continue
         games_total += int(result.get("games", 0))
         events_total += int(result.get("rating_events", 0))
+
+    if from_ids:
+        commit_heavy_player_derived(conn)
 
     clear_standings(conn, dry_run=False)
     rebuild_all_standings(conn, dry_run=False)
