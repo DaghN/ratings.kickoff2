@@ -46,4 +46,4 @@ Export must come from a local `ko2amiga_db` that already passed full `replay`. S
 
 ## Commit
 
-*(hash after push)*
+`ee6d313` — pushed to `main`
