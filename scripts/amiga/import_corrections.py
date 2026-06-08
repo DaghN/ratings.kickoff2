@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
@@ -21,6 +22,39 @@ TOURNAMENT_EVENT_DATE_OVERRIDES: dict[str, date] = {
     "World Cup VIII": date(2008, 11, 9),
     "Wiesbaden IX": date(2009, 1, 25),
 }
+
+# Access labels every World Cup host as Country='WC'. Canonical catalog uses real host nations
+# and appends the host city to the Roman-series name (I–XXIII).
+WORLD_CUP_VENUES: dict[str, tuple[str, str]] = {
+    "World Cup I": ("Dartford", "England"),
+    "World Cup II": ("Athens", "Greece"),
+    "World Cup III": ("Groningen", "Netherlands"),
+    "World Cup IV": ("Milan", "Italy"),
+    "World Cup V": ("Cologne", "Germany"),
+    "World Cup VI": ("Rickmansworth", "England"),
+    "World Cup VII": ("Rome", "Italy"),
+    "World Cup VIII": ("Athens", "Greece"),
+    "World Cup IX": ("Voitsberg", "Austria"),
+    "World Cup X": ("Dusseldorf", "Germany"),
+    "World Cup XI": ("Birmingham", "England"),
+    "World Cup XII": ("Milan", "Italy"),
+    "World Cup XIII": ("Voitsberg", "Austria"),
+    "World Cup XIV": ("Copenhagen", "Denmark"),
+    "World Cup XV": ("Dublin", "Ireland"),
+    "World Cup XVI": ("Milan", "Italy"),
+    "World Cup XVII": ("Landskrona", "Sweden"),
+    "World Cup XVIII": ("Bournemouth", "England"),
+    "World Cup XIX": ("Bremen", "Germany"),
+    "World Cup XX": ("Athens", "Greece"),
+    "World Cup XXI": ("Torremolinos", "Spain"),
+    "World Cup XXII": ("Nottingham", "England"),
+    "World Cup XXIII": ("Milan", "Italy"),
+}
+
+WORLD_CUP_VENUE_RATIONALE = (
+    "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; "
+    "canonical catalog uses the real host nation and appends the host city to the name."
+)
 
 OVERRIDE_RATIONALE: dict[str, str] = {
     "World Cup 2015": (
@@ -81,12 +115,41 @@ SUPPLEMENT_RATIONALE: dict[str, str] = {
 }
 
 
+_WORLD_CUP_CITY_SUFFIX = re.compile(r"^(World Cup\s+\S+)\s+\([^)]+\)$")
+
+
+def strip_world_cup_city_suffix(name: str) -> str:
+    """``World Cup XV (Dublin)`` → ``World Cup XV`` for Access reference lookups."""
+    m = _WORLD_CUP_CITY_SUFFIX.match(name.strip())
+    return m.group(1) if m else name
+
+
+def world_cup_catalog_name(base_name: str) -> str:
+    """Roman-series World Cup name with host city suffix."""
+    city, _country = WORLD_CUP_VENUES[base_name]
+    return f"{base_name} ({city})"
+
+
+def world_cup_score_aliases() -> dict[str, str]:
+    """Map bare Access Scores/catalog names to canonical World Cup catalog names."""
+    return {base: world_cup_catalog_name(base) for base in WORLD_CUP_VENUES}
+
+
+def catalog_name_after_corrections(access_name: str) -> str:
+    """Expected MySQL tournaments.name after all import_corrections catalog patches."""
+    name = TOURNAMENT_NAME_OVERRIDES.get(access_name, access_name)
+    if name in WORLD_CUP_VENUES:
+        return world_cup_catalog_name(name)
+    return name
+
+
 def access_reference_tournament_name(canonical_name: str) -> str:
     """Access [Tables].Tournament label for parity when it differs from canonical catalog name."""
+    base = strip_world_cup_city_suffix(canonical_name)
     for access_name, canonical in TOURNAMENT_NAME_OVERRIDES.items():
-        if canonical == canonical_name:
+        if canonical == base:
             return access_name
-    return canonical_name
+    return base
 
 
 def _as_date(value: date | datetime | None) -> date | None:
@@ -142,6 +205,37 @@ def apply_catalog_corrections(tournaments: list[dict[str, Any]]) -> list[dict[st
             }
         )
         row["event_date"] = canonical
+
+    for base_name, (city, country) in WORLD_CUP_VENUES.items():
+        row = by_name.get(base_name)
+        if row is None:
+            continue
+        canonical_name = world_cup_catalog_name(base_name)
+        access_country = str(row.get("country") or "").strip()
+        if row["name"] != canonical_name:
+            applied.append(
+                {
+                    "tournament": base_name,
+                    "field": "name",
+                    "access": base_name,
+                    "canonical": canonical_name,
+                    "reason": WORLD_CUP_VENUE_RATIONALE,
+                }
+            )
+            del by_name[base_name]
+            row["name"] = canonical_name
+            by_name[canonical_name] = row
+        if access_country != country:
+            applied.append(
+                {
+                    "tournament": canonical_name,
+                    "field": "country",
+                    "access": access_country or "WC",
+                    "canonical": country,
+                    "reason": WORLD_CUP_VENUE_RATIONALE,
+                }
+            )
+            row["country"] = country
 
     return applied
 

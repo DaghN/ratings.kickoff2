@@ -23,6 +23,8 @@ from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
+from scripts.amiga.tournament_structure.audit import main as audit_suspicious_marathons_main
+from scripts.amiga.tournament_structure.verify import main as structure_main
 from scripts.amiga.player_registry import main as player_registry_main
 
 log = logging.getLogger("scripts.amiga")
@@ -129,6 +131,21 @@ def main(argv: list[str] | None = None) -> int:
         help="Scan Access for chrono/date inversions; fail if uncorrected",
     )
 
+    p_structure = sub.add_parser(
+        "structure",
+        help="Tournament structure spec registry (list / verify)",
+    )
+    p_structure.add_argument("structure_args", nargs=argparse.REMAINDER)
+
+    p_marathons = sub.add_parser(
+        "audit-suspicious-marathons",
+        help="JSON report: NULL phases + uneven/non-RR game counts in Access",
+    )
+    p_marathons.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_marathons.add_argument("--min-games", type=int, default=10)
+    p_marathons.add_argument("--min-players", type=int, default=4)
+    p_marathons.add_argument("--out", type=Path, default=None)
+
     p_catalog = sub.add_parser(
         "catalog-stats-rebuild",
         help="Rebuild amiga_tournament_catalog_stats (tournament index aggregates)",
@@ -222,6 +239,19 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "audit-catalog-dates":
         return audit_catalog_dates_main()
+
+    if args.cmd == "structure":
+        return structure_main(args.structure_args or ["list"])
+
+    if args.cmd == "audit-suspicious-marathons":
+        marathon_argv: list[str] = ["--mdb", str(args.mdb)]
+        if args.min_games != 10:
+            marathon_argv.extend(["--min-games", str(args.min_games)])
+        if args.min_players != 4:
+            marathon_argv.extend(["--min-players", str(args.min_players)])
+        if args.out is not None:
+            marathon_argv.extend(["--out", str(args.out)])
+        return audit_suspicious_marathons_main(marathon_argv)
 
     if args.cmd == "catalog-stats-rebuild":
         run_catalog_stats_rebuild(dry_run=args.dry_run)

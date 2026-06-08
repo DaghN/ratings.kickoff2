@@ -33,8 +33,22 @@
         "tournament": "World Cup 2015",
         "field": "name",
         "access": "World Cup 2015",
-        "canonical": "World Cup XV",
+        "canonical": "World Cup XV (Dublin)",
         "reason": "Roman series XV; Access catalog/Scores use year label; reference table World Cup XV Tables."
+      },
+      {
+        "tournament": "World Cup I",
+        "field": "name",
+        "access": "World Cup I",
+        "canonical": "World Cup I (Dartford)",
+        "reason": "Access Country is placeholder WC; canonical catalog uses host city and real nation."
+      },
+      {
+        "tournament": "World Cup I (Dartford)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "England",
+        "reason": "Access Country is placeholder WC; canonical catalog uses host city and real nation."
       },
       {
         "tournament": "World Cup VIII",

@@ -80,7 +80,7 @@ Structure lives in **phases**, not catalog flags.
 | Issue | Mitigation |
 |-------|------------|
 | Milan X fragments as separate `Scores.Tournament` | `tournament_names.py` aliases → parent + phase inference |
-| World Cup V KOA Cup as second catalog row (2005) | Alias → `World Cup V`, phases prefixed `KOA Cup - …`; catalog row skipped |
+| World Cup V KOA Cup as second catalog row (2005) | Alias → `World Cup V (Cologne)`, phases prefixed `KOA Cup - …`; catalog row skipped |
 | World Cup 2015 year label vs Roman XV | `import_corrections.py` name override |
 | Inconsistent phase spelling | `tournament_phases.py` normalizers |
 
@@ -302,7 +302,54 @@ resolve_scope(game):
 
 ---
 
-## 9. Open product questions
+## 9. Template extension contract (Jun 2026)
+
+Format templates are rows in `tournament_format_templates` with JSON `spec_json`. **Implemented** templates drive live builders and import backfill; **planned** templates reserve slug + shape only (`status: "planned"` in spec).
+
+### What every template must declare
+
+| Contract piece | Role | Implemented by |
+|----------------|------|----------------|
+| **`slug` + `stages[]`** | Canonical stage keys and types | `seed_format_templates()` · DDL `tournament_stages` |
+| **`stage_factory`** (slug or module path) | Creates stages + fixtures for **new** events | `tournament_builder.py` (e.g. `kitchen_marathon`, `group_knockout`) |
+| **`standings_resolver`** | How `amiga_games` map to `amiga_tournament_standings` scopes | `tournament_standings._fixture_scope()` · phase fallback when `fixture_id` NULL |
+| **`legacy_phase_fallback`** | Whether imported games without fixtures use `tournament_phases.py` | `true` only for `legacy_inferred` |
+| **Structure backfill** (historical) | Optional `StructureSpec` in `tournament_structure/registry.py` | Import hook `apply_structure_spec()` |
+
+### Template status lifecycle
+
+```
+planned  →  implemented  →  (optional) deprecated
+```
+
+- **`planned`:** seeded in DB; no builder, no standings branch, no tournaments may reference except tests.
+- **`implemented`:** builder and/or import structure path exists; `verify-tournament-formats` counts it as active.
+- Tournaments always store `format_template_id` + optional `format_overrides` JSON for event-specific facts (evidence URL, round count, etc.).
+
+### Seeded templates (Jun 2026)
+
+| Slug | Status | Stage factory | Standings resolver |
+|------|--------|---------------|-------------------|
+| `legacy_inferred` | implemented | — (import only) | `parse_phase()` |
+| `kitchen_marathon` | implemented | `create_kitchen_marathon_tournament` | fixture `league` / overall |
+| `group_knockout` | implemented | `create_group_knockout_tournament` + structure backfill | fixture `group` + `knockout` |
+| `world_cup_class` | implemented (partial) | deferred | phase + partial fixture |
+| `swiss` | **implemented** | `create_swiss_tournament` | fixture `league` / overall (cumulative) |
+| `double_elimination` | **implemented** | `create_double_elimination_tournament` + `advance_double_elim` | fixture `knockout` per tie |
+
+### Adding a new format family
+
+1. Add `FORMAT_TEMPLATES` row with `spec_json` (start with `status: "planned"` if not ready).
+2. Implement **stage factory** and wire `tournament_builder` CLI.
+3. Add **standings resolver** branch (Python + PHP if live ops).
+4. Add tests + `verify-tournament-formats`.
+5. For historical events: `StructureSpec` + registry — not ad-hoc import code.
+
+**Swiss implementation checklist:** [`amiga-format-add-swiss-checklist.md`](amiga-format-add-swiss-checklist.md)
+
+---
+
+## 10. Open product questions
 
 1. Backfill all 603 events or only `legacy_inferred` + curated majors?
 2. Is bracket **advancement graph** required, or phase-grouped columns enough for v2?
@@ -312,7 +359,7 @@ resolve_scope(game):
 
 ---
 
-## 10. Key codebase entry points
+## 11. Key codebase entry points
 
 | Area | Path |
 |------|------|
@@ -341,7 +388,7 @@ python -m scripts.amiga verify-import-manifest
 
 ---
 
-## 11. Conversation context (Jun 2026)
+## 12. Conversation context (Jun 2026)
 
 This document synthesises a Cursor chat thread covering:
 
@@ -354,7 +401,7 @@ Prior agent work in that thread: DB queries against `ko2amiga_db`, Access ODBC r
 
 ---
 
-## 12. Success criteria for the new system
+## 13. Success criteria for the new system
 
 1. **New tournament** can be created from a template without typing phase strings.
 2. **Legacy tournaments** still render correctly via fallback parser (0 parity regressions on sweep).

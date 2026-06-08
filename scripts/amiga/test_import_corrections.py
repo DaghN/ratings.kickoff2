@@ -8,7 +8,11 @@ from scripts.amiga.import_access import AccessScore, merge_supplemental_scores
 from scripts.amiga.import_corrections import (
     IMPORT_SUPPLEMENT_SCORES_ID_BASE,
     SUPPLEMENTAL_SCORES,
+    WORLD_CUP_VENUES,
+    apply_catalog_corrections,
+    catalog_name_after_corrections,
     supplemental_scores_manifest,
+    world_cup_catalog_name,
 )
 
 
@@ -40,6 +44,30 @@ class ImportCorrectionsTests(unittest.TestCase):
         manifest = supplemental_scores_manifest()
         rodenbach = next(m for m in manifest if m["tournament"] == "Rodenbach II")
         self.assertEqual(rodenbach["games_added"], 10)
+
+    def test_world_cup_venue_corrections(self) -> None:
+        tournaments = [
+            {
+                "name": "World Cup I",
+                "country": "WC",
+                "event_date": None,
+            },
+            {
+                "name": "World Cup 2015",
+                "country": "WC",
+                "event_date": None,
+            },
+        ]
+        applied = apply_catalog_corrections(tournaments)
+        self.assertEqual(tournaments[0]["name"], "World Cup I (Dartford)")
+        self.assertEqual(tournaments[0]["country"], "England")
+        self.assertEqual(tournaments[1]["name"], "World Cup XV (Dublin)")
+        self.assertEqual(tournaments[1]["country"], "Ireland")
+        self.assertEqual(len(WORLD_CUP_VENUES), 23)
+        self.assertEqual(
+            catalog_name_after_corrections("World Cup VIII"),
+            world_cup_catalog_name("World Cup VIII"),
+        )
 
 
 if __name__ == "__main__":

@@ -42,12 +42,11 @@
 	background: color-mix(in srgb, var(--k2-bg-elevated) 88%, transparent);
 }
 
-.k2-amiga-tournament-badge--cup {
-	color: var(--k2-segment-active-text);
-	border-color: var(--k2-segment-active-ring);
-}
-
-.k2-amiga-tournament-badge--league {
+.k2-amiga-tournament-format {
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
 	color: var(--k2-text-secondary);
 }
 

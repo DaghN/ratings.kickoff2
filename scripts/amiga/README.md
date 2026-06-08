@@ -49,7 +49,7 @@ python -m scripts.amiga replay --limit 500
 
 # Tournament standings parity vs Access Tables (reference only):
 python -m scripts.amiga standings-parity --tournament "London XXIII"
-python -m scripts.amiga standings-parity --tournament "World Cup XI" --scope group --scope-key "Round 1 - Group A"
+python -m scripts.amiga standings-parity --tournament "World Cup XI (Birmingham)" --scope group --scope-key "Round 1 - Group A"
 
 # Full sweep (overall + World Cup groups; JSON report):
 python -m scripts.amiga standings-parity --sweep
@@ -112,6 +112,40 @@ python -m scripts.amiga import
 python -m scripts.amiga verify-tournament-formats
 ```
 
+**Tournament structure backfill** (historical events with NULL Access phases):
+
+```powershell
+# List registered specs (active + stub)
+python -m scripts.amiga structure list
+
+# Verify a spec against Access before enabling import (no MySQL required)
+python -m scripts.amiga structure verify --tournament "Homburg"
+python -m scripts.amiga structure verify --tournament "Athens LXI"   # stub — expect FAIL
+
+# Find candidates still needing a spec
+python -m scripts.amiga audit-suspicious-marathons
+# JSON rows include structure_spec_status: null | stub | active
+```
+
+### How to add a structure spec
+
+1. **Evidence** — forum thread or results page with groups + KO rounds.
+2. **Spec module** — add `scripts/amiga/tournament_structure/<name>.py` defining a `StructureSpec` (group rosters + knockout `FixtureSpec` rows with `leg_no`).
+3. **Register** — append a `RegistryEntry(..., status="active")` in `tournament_structure/registry.py`. Use `status="stub"` while drafting.
+4. **Verify** — `python -m scripts.amiga structure verify --tournament "<Catalog name>"` must pass (fixture count = Access game count, all games link).
+5. **Import** — `python -m scripts.amiga import` then `python -m scripts.amiga replay`. Active specs create stages/fixtures and set `amiga_games.fixture_id` automatically.
+
+Pilot: **Homburg** (`homburg.py`, forum t=7711). No import code changes needed for tournament #2 — only registry + spec data.
+
+**Format templates** (including planned stubs):
+
+```powershell
+python -m scripts.amiga verify-tournament-formats
+# Reports: 6 templates, all implemented
+```
+
+Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-tournament-format-vision.md) §9 · Swiss checklist: [`docs/amiga-format-add-swiss-checklist.md`](../../docs/amiga-format-add-swiss-checklist.md)
+
 **Tournament fixtures foundation** (internal ops only; public builder UI deferred):
 
 ```powershell
@@ -150,9 +184,19 @@ python -m scripts.amiga fixtures create-stage --tournament-id 1 --stage-key over
 python -m scripts.amiga fixtures create-fixture --tournament-id 1 --stage-key overall --fixture-key overall-001 --player-a-id 1 --player-b-id 2
 ```
 
-**Internal tournament builder** (supported starters: `kitchen_marathon`, minimal `group_knockout`):
+**Internal tournament builder** (supported starters: `kitchen_marathon`, `group_knockout`, `swiss`):
 
 ```powershell
+# Swiss (round 1 by seed; later rounds via generate-swiss-round)
+python -m scripts.amiga build-tournament create-swiss --name "Test Swiss I" --event-date 2026-06-08 --country Denmark --player-ids 1,2,3,4,5,6 --dry-run
+python -m scripts.amiga build-tournament generate-swiss-round --tournament-id N --round 2 --dry-run
+python -m scripts.amiga build-tournament smoke-swiss --player-ids 1,2,3,4
+
+# Double elimination (4 or 8 players; advance after each round completes)
+python -m scripts.amiga build-tournament create-double-elim --name "Test DE I" --event-date 2026-06-08 --player-ids 1,2,3,4 --dry-run
+python -m scripts.amiga build-tournament advance-double-elim --tournament-id N --dry-run
+python -m scripts.amiga build-tournament smoke-double-elim --player-ids 1,2,3,4
+
 # Dry-run rolls back after building the structure.
 python -m scripts.amiga build-tournament create-kitchen-marathon --name "Test Kitchen I" --event-date 2026-06-07 --country Denmark --player-ids 1,2,3,4 --dry-run
 python -m scripts.amiga build-tournament smoke-fixture-result --player-ids 1,2

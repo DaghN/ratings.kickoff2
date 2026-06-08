@@ -49,6 +49,13 @@ FORMAT_TEMPLATES: tuple[dict[str, object], ...] = (
                 {"key": "groups", "type": "league_groups"},
                 {"key": "knockout", "type": "knockout"},
             ],
+            "knockout_rounds": [
+                "last_16",
+                "quarter",
+                "semi",
+                "final",
+                "placement_3rd",
+            ],
             "legacy_phase_fallback": False,
         },
     },
@@ -66,6 +73,44 @@ FORMAT_TEMPLATES: tuple[dict[str, object], ...] = (
             "legacy_phase_fallback": False,
         },
     },
+    {
+        "slug": "swiss",
+        "name": "Swiss system",
+        "description": "Pairing-based rounds with cumulative overall standings.",
+        "spec": {
+            "status": "implemented",
+            "stages": [{"key": "overall", "type": "league"}],
+            "pairing_policy": "swiss_standard",
+            "round_count_policy": "ceil_log2_players",
+            "standings_resolver": "swiss_overall_league",
+            "stage_factory": "create_swiss_tournament",
+            "legacy_phase_fallback": False,
+        },
+    },
+    {
+        "slug": "double_elimination",
+        "name": "Double elimination",
+        "description": "Winners and losers brackets with grand final (4 or 8 players).",
+        "spec": {
+            "status": "implemented",
+            "stages": [
+                {"key": "winners", "type": "knockout"},
+                {"key": "losers", "type": "knockout"},
+                {"key": "grand_final", "type": "knockout"},
+            ],
+            "bracket_sizes": [4, 8],
+            "standings_resolver": "knockout_fixture_scopes",
+            "stage_factory": "create_double_elimination_tournament",
+            "advance_hook": "advance_double_elim",
+            "legacy_phase_fallback": False,
+        },
+    },
+)
+
+PLANNED_TEMPLATE_SLUGS = frozenset(
+    str(row["slug"])
+    for row in FORMAT_TEMPLATES
+    if str(row.get("spec", {}).get("status", "")) == "planned"
 )
 
 
@@ -182,6 +227,50 @@ def _connect() -> pymysql.connections.Connection:
     return conn
 
 
+def list_seeded_templates(conn: pymysql.connections.Connection) -> list[dict[str, object]]:
+    """Return all rows from tournament_format_templates after seed."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT slug, name, schema_version, description, spec_json FROM tournament_format_templates ORDER BY id"
+        )
+        rows = list(cur.fetchall())
+    out: list[dict[str, object]] = []
+    for row in rows:
+        spec = json.loads(str(row["spec_json"] or "{}"))
+        out.append(
+            {
+                "slug": str(row["slug"]),
+                "name": str(row["name"]),
+                "schema_version": int(row["schema_version"]),
+                "status": str(spec.get("status", "implemented")),
+                "spec": spec,
+            }
+        )
+    return out
+
+
+def verify_template_registry(conn: pymysql.connections.Connection) -> list[str]:
+    """Assert seeded templates match FORMAT_TEMPLATES definition."""
+    errors: list[str] = []
+    expected_slugs = {str(t["slug"]) for t in FORMAT_TEMPLATES}
+    rows = list_seeded_templates(conn)
+    got_slugs = {str(r["slug"]) for r in rows}
+    missing = sorted(expected_slugs - got_slugs)
+    extra = sorted(got_slugs - expected_slugs)
+    if missing:
+        errors.append(f"missing templates in DB: {missing}")
+    if extra:
+        errors.append(f"unexpected extra templates in DB: {extra}")
+    if len(rows) != len(FORMAT_TEMPLATES):
+        errors.append(f"template count mismatch: DB={len(rows)}, expected={len(FORMAT_TEMPLATES)}")
+    planned = [r for r in rows if str(r.get("status")) == "planned"]
+    if len(planned) != len(PLANNED_TEMPLATE_SLUGS):
+        errors.append(
+            f"planned template count: DB={len(planned)}, expected={len(PLANNED_TEMPLATE_SLUGS)}"
+        )
+    return errors
+
+
 def format_bucket_counts(conn: pymysql.connections.Connection) -> dict[str, int]:
     sql = """
         SELECT
@@ -201,19 +290,36 @@ def main(argv: list[str] | None = None) -> int:
     _ = argv
     conn = _connect()
     try:
+        seed_format_templates(conn)
+        conn.commit()
+        registry_errors = verify_template_registry(conn)
+        templates = list_seeded_templates(conn)
         failures = audit_tournament_format_flags(conn)
         buckets = format_bucket_counts(conn)
     finally:
         conn.close()
 
+    planned = [t for t in templates if str(t.get("status")) == "planned"]
+    implemented = [t for t in templates if str(t.get("status")) != "planned"]
+    print(
+        f"Format templates: {len(templates)} total "
+        f"({len(implemented)} implemented, {len(planned)} planned)"
+    )
+    if planned:
+        print("  planned: " + ", ".join(str(t["slug"]) for t in planned))
     print("Tournament format buckets: " + ", ".join(f"{k}={v}" for k, v in buckets.items()))
+
+    errors: list[str] = list(registry_errors)
     if failures:
         for row in failures:
-            print(
-                f"FAIL: tournament id={row['id']} name={row['name']!r} "
-                f"has {row['game_count']} games but neither flag",
-                file=sys.stderr,
+            errors.append(
+                f"tournament id={row['id']} name={row['name']!r} "
+                f"has {row['game_count']} games but neither flag"
             )
+
+    if errors:
+        for err in errors:
+            print(f"FAIL: {err}", file=sys.stderr)
         return 1
-    print("OK: every tournament with games has has_league or has_cup")
+    print("OK: template registry + every tournament with games has has_league or has_cup")
     return 0

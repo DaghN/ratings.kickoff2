@@ -19,6 +19,7 @@
 | **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
 | **Tournament format system** (legacy phases → templates/fixtures vision) | [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · handoff [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md) |
 | **Tournament finalize & rating events** (commit boundary, replay oracle) | [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · plan [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) |
+| **Player universe** (derived expansion, participation, honours, H2H) | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
 | DDL (current) | [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql) |

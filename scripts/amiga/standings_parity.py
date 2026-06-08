@@ -16,7 +16,10 @@ import pyodbc
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.import_corrections import access_reference_tournament_name
+from scripts.amiga.import_corrections import (
+    access_reference_tournament_name,
+    strip_world_cup_city_suffix,
+)
 from scripts.amiga.player_names import normalize_display_name
 from scripts.amiga.tournament_names import TOURNAMENT_ALIASES
 from scripts.amiga.tournament_phases import access_group_label_for_parity
@@ -53,7 +56,8 @@ def _connect_access(mdb: Path) -> pyodbc.Connection:
 
 
 def _wc_table_name(tournament_name: str) -> str | None:
-    m = re.match(r"^World Cup\s+(\S+)$", tournament_name.strip())
+    base = strip_world_cup_city_suffix(tournament_name)
+    m = re.match(r"^World Cup\s+(\S+)$", base.strip())
     if not m:
         return None
     return f"World Cup {m.group(1)} Tables"

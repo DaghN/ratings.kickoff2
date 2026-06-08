@@ -19,7 +19,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $typeFilter = isset($_GET['type']) ? (string) $_GET['type'] : '';
-if (!in_array($typeFilter, ['', 'world-cup', 'league', 'cup'], true)) {
+if (!in_array($typeFilter, ['', 'world-cup', 'league', 'cup', 'league-cup'], true)) {
     $typeFilter = '';
 }
 
@@ -49,6 +49,7 @@ if ($typeFilter !== '') {
       <a href="?type=world-cup" class="k2-player-nav__btn<?php echo $typeFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
       <a href="?type=league" class="k2-player-nav__btn<?php echo $typeFilter === 'league' ? ' is-active' : ''; ?>">Leagues</a>
       <a href="?type=cup" class="k2-player-nav__btn<?php echo $typeFilter === 'cup' ? ' is-active' : ''; ?>">Cups</a>
+      <a href="?type=league-cup" class="k2-player-nav__btn<?php echo $typeFilter === 'league-cup' ? ' is-active' : ''; ?>">League + cup</a>
     </div>
   </nav>
 </header>
@@ -62,7 +63,7 @@ if ($typeFilter !== '') {
         <th data-k2-sort="text">Country</th>
         <th data-k2-sort="number">Games</th>
         <th data-k2-sort="number">Players</th>
-        <th data-k2-sort="text">Format</th>
+        <th class="k2-table-cell--left" data-k2-sort="text">Format</th>
     </tr>
 </thead>
 <tbody class="black">
@@ -76,7 +77,8 @@ if ($typeFilter !== '') {
     $players = (int) $row['standing_players'];
     $hasStandings = (int) ($row['standing_rows'] ?? 0) > 0;
     $kind = amiga_tournament_index_format_kind($row);
-    $linkFragment = $kind === 'cup' && (int) ($row['knockout_ties'] ?? 0) > 0 ? '#bracket' : '';
+    $formatLabel = amiga_tournament_index_format_label($kind);
+    $linkFragment = (int) ($row['knockout_ties'] ?? 0) > 0 ? '#bracket' : '';
     ?>
     <tr>
         <td class="k2-table-cell--left"><?php
@@ -90,14 +92,8 @@ if ($typeFilter !== '') {
         <td><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
         <td><?php echo $games; ?></td>
         <td><?php echo $hasStandings ? (string) $players : '—'; ?></td>
-        <td>
-            <span class="k2-amiga-tournament-type">
-                <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--<?php echo k2_h($kind); ?>"><?php
-
-                    echo $kind === 'cup' ? 'Cup' : 'League';
-
-                ?></span>
-            </span>
+        <td class="k2-table-cell--left">
+            <span class="k2-amiga-tournament-format"><?php echo k2_h($formatLabel); ?></span>
         </td>
     </tr>
 <?php } ?>

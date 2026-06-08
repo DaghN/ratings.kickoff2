@@ -55,8 +55,6 @@ if ($sortKey === 'for') {
     $sortKey = 'goals_for';
 }
 $sortDirection = amiga_games_valid_direction((string) ($_GET['dir'] ?? 'desc'));
-$limit = 100;
-$offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
 $playerIdSql = (int) $playerId;
 
 $sortMap = [
@@ -121,9 +119,6 @@ $countRows = amiga_games_query_all(
     $whereParams
 );
 $totalMatches = (int) ($countRows[0]['c'] ?? 0);
-if ($offset >= $totalMatches && $totalMatches > 0) {
-    $offset = 0;
-}
 
 $games = amiga_games_query_all(
     $con,
@@ -131,8 +126,7 @@ $games = amiga_games_query_all(
         . 'r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference, '
         . 'r.phase, r.tournament_id, r.tournament_name '
         . $fromSql . ' WHERE ' . $whereSql
-        . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC'
-        . ' LIMIT ' . $limit . ' OFFSET ' . $offset,
+        . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC',
     $whereTypes,
     $whereParams
 );
@@ -164,23 +158,6 @@ $sortState = [
     'opponent' => $opponentFilter,
     'day' => $utcDayFilter,
 ];
-$shownCount = count($games);
-$firstShown = $totalMatches > 0 ? $offset + 1 : 0;
-$lastShown = $offset + $shownCount;
-$pagerParams = [
-    'id' => $playerId,
-    'sort' => $sortKey,
-    'dir' => $sortDirection,
-];
-if ($resultFilter !== 'all') {
-    $pagerParams['result'] = $resultFilter;
-}
-if ($opponentFilter > 0) {
-    $pagerParams['opponent'] = $opponentFilter;
-}
-if ($utcDayFilter !== '') {
-    $pagerParams['day'] = $utcDayFilter;
-}
 $sortedColIndex = amiga_player_game_sort_col_index($sortKey);
 
 $resultChoices = [
@@ -221,15 +198,7 @@ foreach ($opponentRows as $opponentRow) {
     Rated games on <strong><?php echo amiga_games_h($utcDayFilter); ?></strong> UTC
     (<a href="<?php echo amiga_games_h(amiga_games_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []))); ?>">clear day filter</a>).
     <?php } ?>
-    Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
-    <?php if ($offset > 0) { ?>
-    <?php $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)]; ?>
-    <a class="k2-player-games-action" href="<?php echo amiga_games_h(amiga_games_build_url($prevParams)); ?>">Previous 100</a>
-    <?php } ?>
-    <?php if ($offset + $limit < $totalMatches) { ?>
-    <?php $nextParams = $pagerParams + ['offset' => $offset + $limit]; ?>
-    <a class="k2-player-games-action" href="<?php echo amiga_games_h(amiga_games_build_url($nextParams)); ?>">Next 100</a>
-    <?php } ?>
+    <?php echo $totalMatches; ?> matching game<?php echo $totalMatches === 1 ? '' : 's'; ?>.
 </div>
 
 <div class="k2-table-wrap">

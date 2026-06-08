@@ -16,7 +16,10 @@ from scripts.amiga.import_corrections import (
     SUPPLEMENTAL_SCORES,
     TOURNAMENT_EVENT_DATE_OVERRIDES,
     TOURNAMENT_NAME_OVERRIDES,
+    WORLD_CUP_VENUES,
+    catalog_name_after_corrections,
     supplemental_scores_manifest,
+    world_cup_catalog_name,
 )
 from scripts.amiga.import_manifest import default_manifest_path
 
@@ -26,7 +29,11 @@ _REPO = Path(__file__).resolve().parents[2]
 def main() -> int:
     errors: list[str] = []
     manifest_path = default_manifest_path(_REPO)
-    expected_override_count = len(TOURNAMENT_EVENT_DATE_OVERRIDES) + len(TOURNAMENT_NAME_OVERRIDES)
+    expected_override_count = (
+        len(TOURNAMENT_EVENT_DATE_OVERRIDES)
+        + len(TOURNAMENT_NAME_OVERRIDES)
+        + len(WORLD_CUP_VENUES) * 2
+    )
 
     if not manifest_path.is_file():
         errors.append(f"missing manifest: {manifest_path} (run import first)")
@@ -78,17 +85,31 @@ def main() -> int:
     )
     with conn.cursor() as cur:
         for access_name, canonical_name in TOURNAMENT_NAME_OVERRIDES.items():
-            cur.execute("SELECT id FROM tournaments WHERE name = %s LIMIT 1", (canonical_name,))
+            want_name = catalog_name_after_corrections(access_name)
+            cur.execute("SELECT id FROM tournaments WHERE name = %s LIMIT 1", (want_name,))
             if cur.fetchone() is None:
-                errors.append(f"tournaments row missing canonical name: {canonical_name!r}")
+                errors.append(f"tournaments row missing canonical name: {want_name!r}")
             cur.execute("SELECT id FROM tournaments WHERE name = %s LIMIT 1", (access_name,))
             if cur.fetchone() is not None:
                 errors.append(f"tournaments still has Access name: {access_name!r}")
 
+        for base_name, (_city, want_country) in WORLD_CUP_VENUES.items():
+            want_name = world_cup_catalog_name(base_name)
+            cur.execute(
+                "SELECT country FROM tournaments WHERE name = %s LIMIT 1",
+                (want_name,),
+            )
+            row = cur.fetchone()
+            if row is None:
+                errors.append(f"tournaments row missing World Cup: {want_name!r}")
+            elif str(row["country"]) != want_country:
+                errors.append(f"{want_name}: country={row['country']!r}, want {want_country!r}")
+
         for name, want in TOURNAMENT_EVENT_DATE_OVERRIDES.items():
+            lookup_name = catalog_name_after_corrections(name)
             cur.execute(
                 "SELECT event_date FROM tournaments WHERE name = %s LIMIT 1",
-                (name,),
+                (lookup_name,),
             )
             row = cur.fetchone()
             if row is None:

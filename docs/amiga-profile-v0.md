@@ -30,9 +30,9 @@
 | **`amiga_rating_events` + `tournaments`** | Profile rating chart JSON | 1 query per chart load (~≤1k events max per player) |
 | **`amiga_games` + `amiga_game_ratings`** (via `amiga_db.php`) | Games list per-match adjustments | 1 query per games page |
 
-**A2 derived tables in use:** `amiga_game_ratings`, `amiga_player_stats`, `amiga_rating_events`, `amiga_tournament_standings` (rebuilt by `scripts/amiga/replay.py` tournament finalize). **Not yet:** `player_period_games`, milestones, calendars, H2H aggregates.
+**A2 derived tables in use:** `amiga_game_ratings`, `amiga_player_stats`, `amiga_rating_events`, `amiga_tournament_standings` (rebuilt by `scripts/amiga/replay.py` tournament finalize). **Not yet:** participation junction, tournament totals, H2H, generalstats — see [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md).
 
-That is fine at current scale (27k games total; busiest player ~1.1k games). When profiles grow (activity calendars, top opponents, tournament honours), materialize hot paths per [`amiga-data-contract.md`](amiga-data-contract.md) — same pattern as online `website-data-contract.md`, not live scans on every request.
+That is fine at current scale (27k games total; busiest player ~1.1k games). When profiles grow (activity calendars, top opponents, tournament honours), materialize hot paths per [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) and [`amiga-data-contract.md`](amiga-data-contract.md) — same pattern as online `website-data-contract.md`, not live scans on every request.
 
 ## Hub navigation (v0)
 

@@ -1,7 +1,7 @@
 # Amiga tournament architecture/product checkpoint
 
-**Date:** 2026-06-07  
-**Status:** Active guidance after worker jobs 001–021
+**Date:** 2026-06-08 (format backbone addendum)  
+**Status:** Active guidance after worker jobs 001–022 and format backbone slices A–F
 
 ## Where we are
 
@@ -20,8 +20,9 @@ The internal tournament backbone is in good shape for future formats:
 | Public historical UI | `/amiga/tournaments.php`, `/amiga/tournament.php` (derived standings) |
 | Public live UI | `/amiga/live-tournaments.php`, `/amiga/live-tournament.php?id=N` (allowlisted running fixtures, read-only) |
 | Staging export package | Manifest refreshed to 23 parts; Dagh-assisted staging sync/import verified |
+| Format backbone | Structure specs + import hook; Homburg backfill; 6/6 format templates (incl. Swiss, double-elim CLI) |
 
-Worker jobs 001–011 closed foundation and internal-ops guardrails. Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. Jobs 018–021 started the organizer-first browser workflow; job 022 should move score entry into the Results tab.
+Worker jobs 001–011 closed foundation and internal-ops guardrails. Format backbone slices A–F (Jun 2026) added `tournament_structure/`, Homburg pilot backfill, and CLI builders for Swiss and double elimination — paused before staging re-export or second historical backfill. See [`2026-06-08-036-format-backbone-pause.md`](agent-handoffs/2026-06-08-036-format-backbone-pause.md). Job 012 recorded the successful Dagh-assisted staging refresh. Job 013 added the read-only public live view. Jobs 014–017 added browser entrant, stage, and fixture-assignment management with exact-stage assignment guardrails. Jobs 018–021 started the organizer-first browser workflow; job 022 should move score entry into the Results tab.
 
 ## Demo-readiness goals
 
@@ -83,7 +84,7 @@ A future explicit `public_visibility` or publish flag may be added later for cur
 
 ### 4. Swiss and format expansion
 
-The explicit format/stage/fixture/entrant model is **ready for extension**. Swiss needs pairing policy, bye handling, and standings scope rules — design checkpoint after demo path is stable.
+**Update (Jun 2026):** CLI Swiss pairing and double-elimination builders are implemented (`verify-tournament-formats`: 6/6). Historical structure backfill uses `tournament_structure/` (pilot: Homburg). Browser flows for new formats and additional backfills (e.g. Athens LXI) remain deferred.
 
 ## What “show interested people” means now
 

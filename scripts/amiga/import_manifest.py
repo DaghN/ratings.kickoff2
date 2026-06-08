@@ -14,6 +14,7 @@ AUTOMATIC_TRANSFORM_MODULES = (
     "scripts.amiga.player_names",
     "scripts.amiga.tournament_names",
     "scripts.amiga.tournament_format",
+    "scripts.amiga.tournament_structure",
     "scripts.amiga.import_access",
 )
 MANUAL_TRANSFORM_MODULE = "scripts.amiga.import_corrections"
@@ -37,6 +38,7 @@ def build_manifest(
     name_merges: list[dict[str, object]],
     catalog_overrides: list[dict[str, str]],
     score_supplements: list[dict[str, str | int]] | None = None,
+    structure_specs: list[dict[str, object]] | None = None,
 ) -> dict[str, Any]:
     return {
         "manifest_version": MANIFEST_VERSION,
@@ -47,6 +49,7 @@ def build_manifest(
             "name_merges": name_merges,
             "catalog_overrides": catalog_overrides,
             "score_supplements": score_supplements or [],
+            "structure_specs": structure_specs or [],
         },
         "registry": {
             "automatic_modules": list(AUTOMATIC_TRANSFORM_MODULES),

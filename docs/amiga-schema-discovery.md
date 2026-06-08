@@ -80,7 +80,7 @@ Derived Elo columns (`RatingA`, `NewRatingA`, …) are **not stored** in Access 
 | `Chrono` | REAL | Global chronological sort key (1.0 = World Cup I, …) |
 | `Date` | DATETIME | Event date (day precision) |
 | `Cup?` | BIT | World Cup / major cup flag |
-| `Country` | VARCHAR(50) | Host country label (`WC`, `England`, `Spain`, …) |
+| `Country` | VARCHAR(50) | Host country label (`WC` for all World Cups in Access — import maps to real nations; otherwise `England`, `Spain`, …) |
 | `EqualTeams` | BIT | Format flag |
 
 **604 events** from World Cups, city kitchens, national opens, etc.

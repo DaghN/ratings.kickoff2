@@ -49,13 +49,14 @@ Ground truth is **not** “whatever Access says.” It is what we commit to MySQ
 | [`player_names.py`](../scripts/amiga/player_names.py) | Collapse spacing / case duplicates (`Oliver ST` → `Oliver St`) |
 | [`tournament_names.py`](../scripts/amiga/tournament_names.py) | Map Scores tournament strings to catalog parents (Milan X fragments, cup aliases, WC V KOA Cup → World Cup V) |
 | [`tournament_format.py`](../scripts/amiga/tournament_format.py) | Seed format templates and infer non-exclusive `has_league` / `has_cup` catalog flags from canonical phases |
+| [`tournament_structure/`](../scripts/amiga/tournament_structure/) | Version-controlled structure specs (`StructureSpec` → stages/fixtures); `apply_structure_spec()` hook during import |
 | [`import_access.py`](../scripts/amiga/import_access.py) | Calendar-first sort, continuous same-day `game_date`, player/tournament insert order |
 
 ### Manual (explicit overrides)
 
 | Module | What it does |
 |--------|----------------|
-| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **supplemental Scores rows** when Access catalog exists but games are missing |
+| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **World Cup host city + country** (retire Access `WC` placeholder); **supplemental Scores rows** when Access catalog exists but games are missing |
 
 Add manual overrides only when:
 
@@ -76,6 +77,7 @@ Each import writes **`data/amiga/exports/import_manifest.json`** (gitignored; re
 | `transforms.name_merges` | Same detail as legacy `name_merges.json` |
 | `transforms.catalog_overrides` | Applied manual patches (access vs canonical + reason) |
 | `transforms.score_supplements` | Games appended from external evidence (tournament, count, reason) |
+| `transforms.structure_specs` | Registered structure specs applied (or skipped) during import |
 | `registry` | Module pointers for reviewers |
 
 Legacy **`name_merges.json`** is still written for backward compatibility; **`import_manifest.json`** is the canonical audit record.
@@ -92,9 +94,28 @@ python -m scripts.amiga replay            # derived truth
 python -m scripts.amiga verify-import-manifest
 python -m scripts.amiga verify-chronology
 python -m scripts.amiga audit-catalog-dates
+python -m scripts.amiga audit-suspicious-marathons
 ```
 
 After a fresh `koatd` drop: `python -m scripts.amiga run --recreate-schema` then verify commands above.
+
+### Tournament structure specs
+
+Registered specs live in `scripts/amiga/tournament_structure/` (`StructureSpec`, `StageSpec`, `FixtureSpec`, `GroupRosterSpec`). Import calls `apply_structure_spec()` after scores are prepared and before games are inserted. Slice A ships an empty registry (no-op); Slice B+ backfills events like Homburg from forum evidence.
+
+Pre-backfill audit — tournaments in Access with **all phases NULL** and **uneven game counts** or **not a full round-robin**:
+
+```powershell
+python -m scripts.amiga audit-suspicious-marathons
+python -m scripts.amiga audit-suspicious-marathons --out data/amiga/exports/suspicious_marathons.json
+```
+
+Pilot candidate **Homburg** (33 players, 86 games, all Phase NULL) should appear in this report. Rows include `structure_spec_status` (`null`, `stub`, or `active`) when registered in `tournament_structure/registry.py`.
+
+```powershell
+python -m scripts.amiga structure list
+python -m scripts.amiga structure verify --tournament "Homburg"
+```
 
 ### Catalog date audit
 
@@ -118,11 +139,41 @@ Exits non-zero if a new inversion appears that is **not** covered by `import_cor
 
 | Tournament | Field | Access value | Canonical | Reason |
 |------------|-------|--------------|-----------|--------|
-| World Cup 2015 | `name` | World Cup 2015 | **World Cup XV** | Chrono 548 between XIV and XVI; Access `Scores` / catalog use year label; reference groups already `World Cup XV Tables` |
+| World Cup 2015 | `name` | World Cup 2015 | **World Cup XV (Dublin)** | Chrono 548 between XIV and XVI; Access `Scores` / catalog use year label; reference groups already `World Cup XV Tables` |
 | World Cup VIII | `event_date` | 2008-09-08 | **2008-11-09** | Chrono 325 between Newent XIV (Nov 3) and Helsingborg (Nov 14); real event 9 Nov 2008 |
 | Wiesbaden IX | `event_date` | 2009-04-07 | **2009-01-25** | Chrono 333 before Wiesbaden X (Feb 22); Access April date breaks IX-before-X order. Source: [KO Gathering forum](https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684) |
 
 Newent XVI (2009-02-13, chrono 334) needs no override — it sits correctly between corrected Wiesbaden IX (Jan 25) and Wiesbaden X (Feb 22).
+
+### World Cup host city + country (manual)
+
+Access `[Tournament players]` labels every World Cup with `Country = 'WC'` and a bare Roman name (`World Cup I` … `World Cup XXIII`). Canonical catalog appends the host city and sets the real nation. Defined in `WORLD_CUP_VENUES` in `import_corrections.py`; `tournament_names.py` maps bare Scores strings to the suffixed catalog names.
+
+| World Cup | City | Country |
+|-----------|------|---------|
+| I | Dartford | England |
+| II | Athens | Greece |
+| III | Groningen | Netherlands |
+| IV | Milan | Italy |
+| V | Cologne | Germany |
+| VI | Rickmansworth | England |
+| VII | Rome | Italy |
+| VIII | Athens | Greece |
+| IX | Voitsberg | Austria |
+| X | Dusseldorf | Germany |
+| XI | Birmingham | England |
+| XII | Milan | Italy |
+| XIII | Voitsberg | Austria |
+| XIV | Copenhagen | Denmark |
+| XV | Dublin | Ireland |
+| XVI | Milan | Italy |
+| XVII | Landskrona | Sweden |
+| XVIII | Bournemouth | England |
+| XIX | Bremen | Germany |
+| XX | Athens | Greece |
+| XXI | Torremolinos | Spain |
+| XXII | Nottingham | England |
+| XXIII | Milan | Italy |
 
 ### Supplemental Scores (manual)
 
@@ -136,7 +187,7 @@ Supplemental rows use reserved `source_scores_id` ≥ `500_000_000` (see `IMPORT
 
 | Access `Scores.Tournament` | Canonical parent | Reason |
 |----------------------------|------------------|--------|
-| World Cup V KOA Cup | **World Cup V** | 2005 Cologne KOA Cup = consolation bracket within WC V (Alkis matches5; Access `World Cup V Tables` Groups I–L). WC IV uses `KOA Cup - …` phases under the parent; 2005 wrongly split into a second catalog row. Catalog row skipped on import; phases prefixed `KOA Cup - …`. |
+| World Cup V KOA Cup | **World Cup V (Cologne)** | 2005 Cologne KOA Cup = consolation bracket within WC V (Alkis matches5; Access `World Cup V Tables` Groups I–L). WC IV uses `KOA Cup - …` phases under the parent; 2005 wrongly split into a second catalog row. Catalog row skipped on import; phases prefixed `KOA Cup - …`. |
 
 See `TOURNAMENT_ALIAS_RATIONALE` in `tournament_names.py`.
 

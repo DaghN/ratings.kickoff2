@@ -42,6 +42,11 @@ from scripts.amiga.tournament_format import (
     infer_legacy_tournament_formats,
     seed_format_templates,
 )
+from scripts.amiga.tournament_structure.apply import (
+    ApplyContext,
+    apply_structure_spec,
+    structure_specs_manifest,
+)
 log = logging.getLogger(__name__)
 
 _SQL_TRACK_B = Path(__file__).resolve().parent / "sql" / "002_tournament_standings.sql"
@@ -438,17 +443,34 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
             }
         )
 
+    structure_result = apply_structure_spec(
+        mysql,
+        ApplyContext(
+            tour_id_by_name=tour_id_by_name,
+            player_id=player_id,
+            tour_by_name=tour_by_name,
+            scores=scores_sorted,
+        ),
+        game_rows,
+    )
+
     with mysql.cursor() as cur:
         cur.executemany(
             """
             INSERT INTO amiga_games
-              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, phase,
-               goals_a, goals_b, extra)
+              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, fixture_id,
+               phase, goals_a, goals_b, extra)
             VALUES
               (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
-               %(tournament_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
+               %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
             """,
-            game_rows,
+            [
+                {
+                    **row,
+                    "fixture_id": row.get("fixture_id"),
+                }
+                for row in game_rows
+            ],
         )
 
     format_audit_failures = audit_tournament_format_flags(mysql)
@@ -485,6 +507,7 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         name_merges=merge_log,
         catalog_overrides=catalog_overrides,
         score_supplements=score_supplements,
+        structure_specs=structure_specs_manifest(structure_result),
     )
     manifest_path = default_manifest_path(_REPO)
     write_manifest(manifest_path, manifest)

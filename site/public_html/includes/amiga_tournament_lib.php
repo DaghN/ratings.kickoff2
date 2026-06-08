@@ -455,20 +455,50 @@ function amiga_tournament_is_world_cup(array $row): bool
     return preg_match('/^World Cup\s+\S/i', trim((string) ($row['name'] ?? ''))) === 1;
 }
 
-/** Index row format kind (cup vs league marathon). */
-function amiga_tournament_index_format_kind(array $row): string
+/**
+ * Catalog format flags from import ground truth (non-exclusive).
+ *
+ * @return array{has_league: bool, has_cup: bool}
+ */
+function amiga_tournament_catalog_format_flags(array $row): array
 {
-    if ((int) ($row['knockout_ties'] ?? 0) > 0 || (int) ($row['group_scopes'] ?? 0) > 0) {
-        return 'cup';
-    }
-    if ((int) ($row['is_cup'] ?? 0) === 1) {
-        return 'cup';
-    }
-
-    return 'league';
+    return [
+        'has_league' => (int) ($row['has_league'] ?? 0) === 1,
+        'has_cup' => (int) ($row['has_cup'] ?? 0) === 1,
+    ];
 }
 
-/** Tournament index pill filter: '' | world-cup | league | cup */
+/**
+ * Index row format kind from catalog flags: league | cup | league_cup | ''.
+ */
+function amiga_tournament_index_format_kind(array $row): string
+{
+    $flags = amiga_tournament_catalog_format_flags($row);
+    if ($flags['has_league'] && $flags['has_cup']) {
+        return 'league_cup';
+    }
+    if ($flags['has_league']) {
+        return 'league';
+    }
+    if ($flags['has_cup']) {
+        return 'cup';
+    }
+
+    return '';
+}
+
+/** Display label for index format kind (uppercased by badge CSS). */
+function amiga_tournament_index_format_label(string $kind): string
+{
+    return match ($kind) {
+        'league_cup' => 'League + cup',
+        'league' => 'League',
+        'cup' => 'Cup',
+        default => '—',
+    };
+}
+
+/** Tournament index pill filter: '' | world-cup | league | cup | league-cup */
 function amiga_tournament_index_matches_filter(array $row, string $filter): bool
 {
     if ($filter === '') {
@@ -477,12 +507,15 @@ function amiga_tournament_index_matches_filter(array $row, string $filter): bool
     if ($filter === 'world-cup') {
         return amiga_tournament_is_world_cup($row);
     }
-    $kind = amiga_tournament_index_format_kind($row);
+    $flags = amiga_tournament_catalog_format_flags($row);
     if ($filter === 'league') {
-        return $kind === 'league';
+        return $flags['has_league'] && !$flags['has_cup'];
     }
     if ($filter === 'cup') {
-        return $kind === 'cup' && !amiga_tournament_is_world_cup($row);
+        return $flags['has_cup'] && !$flags['has_league'];
+    }
+    if ($filter === 'league-cup') {
+        return $flags['has_league'] && $flags['has_cup'];
     }
 
     return true;
@@ -669,7 +702,7 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 
     $limit = max(1, min(5000, $limit));
     $offset = max(0, $offset);
     // Read stored catalog aggregates (amiga_tournament_catalog_stats) — not live scans on amiga_games.
-    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.equal_teams, t.country, t.player_count,
+    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.has_league, t.has_cup, t.equal_teams, t.country, t.player_count,
                    t.lifecycle_status,
                    COALESCE(c.game_count, 0) AS game_count,
                    COALESCE(c.standing_players, 0) AS standing_players,
