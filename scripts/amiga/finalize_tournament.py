@@ -10,6 +10,7 @@ import pymysql
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.player_stats_load import load_player_states
+from scripts.amiga.player_tournament_participation import refresh_tournament_participation_stack
 from scripts.amiga.replay import (
     _connect,
     _rating_insert_sql,
@@ -453,6 +454,13 @@ def finalize_tournament(
     conn.commit()
 
     if not defer_heavy_derived:
+        part_rows, totals_players = refresh_tournament_participation_stack(conn, tournament_id)
+        log.info(
+            "finalize_tournament: participation refresh tournament_id=%s rows=%s totals_players=%s",
+            tournament_id,
+            part_rows,
+            totals_players,
+        )
         errors = verify_tournament_finalize(conn, tournament_id)
         if errors:
             raise RuntimeError(

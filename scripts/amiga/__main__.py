@@ -14,7 +14,11 @@ from scripts.amiga.refinalize_smoke import main as refinalize_smoke_main
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
 from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
-from scripts.amiga.player_tournament_participation import run_participation_rebuild
+from scripts.amiga.player_matchup_summary import run_matchup_rebuild
+from scripts.amiga.player_tournament_participation import (
+    run_participation_rebuild,
+    run_participation_refresh_tournament,
+)
 from scripts.amiga.tournament_catalog_stats import run_catalog_stats_rebuild
 from scripts.amiga.tournament_builder import main as tournament_builder_main
 from scripts.amiga.tournament_format import main as tournament_format_main
@@ -22,6 +26,7 @@ from scripts.amiga.tournament_fixtures import main as tournament_fixtures_main
 from scripts.amiga.standings_parity import main as standings_parity_main
 from scripts.amiga.verify_track_b import main as verify_track_b_main
 from scripts.amiga.verify_chronology import main as verify_chronology_main
+from scripts.amiga.verify_player_matchups import main as verify_player_matchups_main
 from scripts.amiga.verify_player_participation import main as verify_player_participation_main
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
@@ -125,6 +130,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     sub.add_parser(
+        "verify-player-matchups",
+        help="Assert H2H summary parity vs amiga_games (player universe contract §8)",
+    )
+
+    sub.add_parser(
         "verify-import-manifest",
         help="Assert import_manifest.json and catalog overrides in MySQL",
     )
@@ -165,6 +175,24 @@ def main(argv: list[str] | None = None) -> int:
         help="Rebuild amiga_player_tournament_participation + totals from standings",
     )
     p_participation.add_argument("--dry-run", action="store_true")
+
+    p_part_tournament = sub.add_parser(
+        "participation-refresh-tournament",
+        help="Incremental participation + totals for one tournament (live finalize hook)",
+    )
+    p_part_tournament.add_argument("--tournament-id", type=int, required=True)
+    p_part_tournament.add_argument(
+        "--skip-standings",
+        action="store_true",
+        help="Standings/catalog already refreshed (PHP finalize path)",
+    )
+    p_part_tournament.add_argument("--dry-run", action="store_true")
+
+    p_matchup = sub.add_parser(
+        "matchup-rebuild",
+        help="Rebuild amiga_player_matchup_summary from amiga_games",
+    )
+    p_matchup.add_argument("--dry-run", action="store_true")
 
     p_honours = sub.add_parser(
         "honours-parity-sample",
@@ -255,6 +283,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "verify-player-participation":
         return verify_player_participation_main()
 
+    if args.cmd == "verify-player-matchups":
+        return verify_player_matchups_main()
+
     if args.cmd == "verify-import-manifest":
         return verify_import_manifest_main()
 
@@ -288,6 +319,25 @@ def main(argv: list[str] | None = None) -> int:
             participation_rows,
             totals_rows,
         )
+        return 0
+
+    if args.cmd == "participation-refresh-tournament":
+        part_rows, totals_players = run_participation_refresh_tournament(
+            args.tournament_id,
+            skip_standings=args.skip_standings,
+            dry_run=args.dry_run,
+        )
+        log.info(
+            "participation-refresh-tournament complete: tournament_id=%s participation=%s totals_players=%s",
+            args.tournament_id,
+            part_rows,
+            totals_players,
+        )
+        return 0
+
+    if args.cmd == "matchup-rebuild":
+        rows = run_matchup_rebuild(dry_run=args.dry_run)
+        log.info("matchup-rebuild complete: rows=%s", rows)
         return 0
 
     if args.cmd == "honours-parity-sample":

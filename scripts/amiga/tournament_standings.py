@@ -381,6 +381,57 @@ def compute_tournament_standings(
     return rows
 
 
+GAME_SELECT_FOR_TOURNAMENT = """
+    SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id,
+           g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id,
+           g.fixture_id,
+           f.phase_label AS fixture_phase_label,
+           s.stage_key, s.name AS stage_name, s.stage_type, s.track_key
+    FROM amiga_games g
+    LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+    LEFT JOIN tournament_stages s ON s.id = f.stage_id
+    WHERE g.tournament_id = %s
+    ORDER BY g.source_scores_id ASC, g.id ASC
+"""
+
+_STANDINGS_INSERT_SQL = """
+    INSERT INTO amiga_tournament_standings (
+        tournament_id, player_id, scope_type, scope_key,
+        position, games, wins, draws, losses,
+        goals_for, goals_against, points
+    ) VALUES (
+        %(tournament_id)s, %(player_id)s, %(scope_type)s, %(scope_key)s,
+        %(position)s, %(games)s, %(wins)s, %(draws)s, %(losses)s,
+        %(goals_for)s, %(goals_against)s, %(points)s
+    )
+"""
+
+
+def rebuild_standings_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> int:
+    """Replace derived standings for one tournament from ground-truth games."""
+    with conn.cursor() as cur:
+        cur.execute(GAME_SELECT_FOR_TOURNAMENT, (tournament_id,))
+        games = cur.fetchall()
+    rows = compute_tournament_standings(games)
+    with conn.cursor() as cur:
+        cur.execute(
+            "DELETE FROM amiga_tournament_standings WHERE tournament_id = %s",
+            (tournament_id,),
+        )
+        if rows:
+            cur.executemany(_STANDINGS_INSERT_SQL, rows)
+    conn.commit()
+    log.info(
+        "rebuild_standings_for_tournament: tournament_id=%s rows=%s",
+        tournament_id,
+        len(rows),
+    )
+    return len(rows)
+
+
 def clear_standings(conn: pymysql.connections.Connection, *, dry_run: bool) -> None:
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_tournament_standings")
@@ -419,21 +470,10 @@ def rebuild_all_standings(
     if dry_run:
         return len(all_rows)
 
-    insert_sql = """
-        INSERT INTO amiga_tournament_standings (
-            tournament_id, player_id, scope_type, scope_key,
-            position, games, wins, draws, losses,
-            goals_for, goals_against, points
-        ) VALUES (
-            %(tournament_id)s, %(player_id)s, %(scope_type)s, %(scope_key)s,
-            %(position)s, %(games)s, %(wins)s, %(draws)s, %(losses)s,
-            %(goals_for)s, %(goals_against)s, %(points)s
-        )
-    """
     with conn.cursor() as cur:
         for i in range(0, len(all_rows), batch_size):
             batch = all_rows[i : i + batch_size]
-            cur.executemany(insert_sql, batch)
+            cur.executemany(_STANDINGS_INSERT_SQL, batch)
     conn.commit()
     return len(all_rows)
 

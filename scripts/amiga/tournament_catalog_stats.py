@@ -89,6 +89,45 @@ def rebuild_all_catalog_stats(conn: pymysql.connections.Connection, *, dry_run: 
     return written
 
 
+_CATALOG_REFRESH_ONE_SQL = """
+INSERT INTO amiga_tournament_catalog_stats (
+    tournament_id, game_count, standing_players, standing_rows, group_scopes, knockout_ties
+)
+SELECT
+    %s,
+    (SELECT COUNT(*) FROM amiga_games WHERE tournament_id = %s),
+    COALESCE((
+        SELECT COUNT(DISTINCT player_id) FROM amiga_tournament_standings WHERE tournament_id = %s
+    ), 0),
+    COALESCE((SELECT COUNT(*) FROM amiga_tournament_standings WHERE tournament_id = %s), 0),
+    COALESCE((
+        SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
+        WHERE tournament_id = %s AND scope_type = 'group'
+    ), 0),
+    COALESCE((
+        SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
+        WHERE tournament_id = %s AND scope_type = 'knockout'
+    ), 0)
+ON DUPLICATE KEY UPDATE
+    game_count = VALUES(game_count),
+    standing_players = VALUES(standing_players),
+    standing_rows = VALUES(standing_rows),
+    group_scopes = VALUES(group_scopes),
+    knockout_ties = VALUES(knockout_ties)
+"""
+
+
+def refresh_catalog_stats_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> None:
+    """Upsert one tournament row in amiga_tournament_catalog_stats."""
+    params = (tournament_id,) * 6
+    with conn.cursor() as cur:
+        cur.execute(_CATALOG_REFRESH_ONE_SQL, params)
+    conn.commit()
+
+
 def run_catalog_stats_rebuild(*, dry_run: bool = False) -> int:
     conn = _connect()
     try:

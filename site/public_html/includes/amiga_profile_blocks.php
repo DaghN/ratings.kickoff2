@@ -4,6 +4,7 @@
  */
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
+require_once __DIR__ . '/amiga_player_load.php';
 
 /**
  * @param array<string, mixed> $pm from amiga_player_load()
@@ -35,6 +36,38 @@ function amiga_profile_render_career(array $pm): void
 }
 
 /**
+ * Profile suffix for one recent tournament row.
+ *
+ * World Cups have no overall standing in participation — use wc_medal podium rank.
+ * Kitchen / marathon events use overall position and league points.
+ *
+ * @param array<string, mixed> $t participation row (name, position, points, wc_medal)
+ */
+function amiga_profile_tournament_result_label(array $t): string
+{
+    if (amiga_tournament_is_world_cup($t)) {
+        $rank = match ((string) ($t['wc_medal'] ?? 'none')) {
+            'gold' => 1,
+            'silver' => 2,
+            'bronze' => 3,
+            default => 0,
+        };
+        if ($rank > 0) {
+            return $rank . ordinal_suffix($rank);
+        }
+
+        return '—';
+    }
+
+    $position = (int) ($t['position'] ?? 0);
+    if ($position <= 0) {
+        return '—';
+    }
+
+    return $position . ordinal_suffix($position) . ' · ' . (int) ($t['points'] ?? 0) . ' pts';
+}
+
+/**
  * @param list<array<string, mixed>> $tournaments from amiga_player_tournament_participation_recent()
  */
 function amiga_profile_render_recent_tournaments(array $tournaments): void
@@ -52,8 +85,7 @@ function amiga_profile_render_recent_tournaments(array $tournaments): void
 		<li><?php
             echo amiga_tournament_link((int) $t['id'], (string) $t['name'], $fragment);
             echo ' — ';
-            echo (int) $t['position'] . ordinal_suffix((int) $t['position']);
-            echo ' · ' . (int) $t['points'] . ' pts';
+            echo htmlspecialchars(amiga_profile_tournament_result_label($t), ENT_QUOTES, 'UTF-8');
         ?></li>
 	<?php } ?>
 	</ul>
@@ -72,6 +104,48 @@ function ordinal_suffix(int $n): string
         3 => 'rd',
         default => 'th',
     };
+}
+
+/**
+ * @param list<array<string, mixed>> $opponents from amiga_player_top_opponents()
+ */
+function amiga_profile_render_top_opponents(array $opponents): void
+{
+    if ($opponents === []) {
+        return;
+    }
+    ?>
+<section class="k2-amiga-profile-opponents" style="padding:0 1.25rem 1.5rem">
+	<h3 class="k2-panel-heading">Top opponents</h3>
+	<table class="k2-table k2-table--numeric-default k2-table--calm-stats" style="width:100%;max-width:36rem">
+		<thead>
+			<tr>
+				<th class="k2-table-cell--left">Opponent</th>
+				<th>W – D – L</th>
+				<th>Games</th>
+			</tr>
+		</thead>
+		<tbody>
+		<?php foreach ($opponents as $row) {
+            $opponentId = (int) ($row['opponent_id'] ?? 0);
+            $opponentName = (string) ($row['opponent_name'] ?? '');
+            $wins = (int) ($row['wins'] ?? 0);
+            $draws = (int) ($row['draws'] ?? 0);
+            $losses = (int) ($row['losses'] ?? 0);
+            $games = (int) ($row['games'] ?? 0);
+            ?>
+			<tr>
+				<td class="k2-table-cell--left"><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
+				<td style="font-variant-numeric:tabular-nums"><?php
+                    echo $wins . ' – ' . $draws . ' – ' . $losses;
+                ?></td>
+				<td style="font-variant-numeric:tabular-nums"><?php echo $games; ?></td>
+			</tr>
+		<?php } ?>
+		</tbody>
+	</table>
+</section>
+    <?php
 }
 
 function amiga_profile_render_rating_chart(int $playerId): void

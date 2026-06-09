@@ -7,6 +7,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/process_completed_game.php';
+require_once __DIR__ . '/../includes/amiga_post_game_participation.php';
 
 const AMIGA_FINALIZE_LOCK_NAME = 'amiga_finalize_tournament';
 
@@ -667,6 +668,13 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
     } finally {
         amiga_ops_release_finalize_lock($con);
     }
+
+    $participation = amiga_ops_participation_refresh_tournament($con, $tournamentId);
+    amiga_ops_log(
+        'participation refresh: id=' . $tournamentId
+        . ' rows=' . (int) ($participation['participation_rows'] ?? 0)
+        . ' totals_players=' . (int) ($participation['totals_players'] ?? 0)
+    );
 
     $errors = amiga_ops_verify_tournament_finalize($con, $tournamentId);
     if ($errors !== []) {

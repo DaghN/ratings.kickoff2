@@ -151,6 +151,8 @@ def refresh_wc_medals(
             cur.execute("SELECT id, name FROM tournaments WHERE name REGEXP %s", (r"^World Cup[[:space:]]+[^[:space:]]",))
             wc_rows = list(cur.fetchall())
 
+    wc_rows = [row for row in wc_rows if is_world_cup_tournament(str(row["name"]))]
+
     if dry_run:
         return len(wc_rows)
 
@@ -158,7 +160,8 @@ def refresh_wc_medals(
     with conn.cursor() as cur:
         for row in wc_rows:
             tid = int(row["id"])
-            medals = derive_tournament_wc_medals(conn, tid, tournament_name=str(row["name"]))
+            name = str(row["name"])
+            medals = derive_tournament_wc_medals(conn, tid, tournament_name=name)
             cur.execute(
                 """
                 UPDATE amiga_player_tournament_participation

@@ -298,13 +298,38 @@ def rebuild_all_participation(
     return written
 
 
+def player_ids_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> list[int]:
+    """Distinct players with at least one game in the tournament."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT DISTINCT player_id
+            FROM (
+                SELECT player_a_id AS player_id
+                FROM amiga_games
+                WHERE tournament_id = %s
+                UNION ALL
+                SELECT player_b_id AS player_id
+                FROM amiga_games
+                WHERE tournament_id = %s
+            ) g
+            ORDER BY player_id
+            """,
+            (tournament_id, tournament_id),
+        )
+        return [int(row["player_id"]) for row in cur.fetchall()]
+
+
 def rebuild_participation_for_tournament(
     conn: pymysql.connections.Connection,
     tournament_id: int,
     *,
     dry_run: bool = False,
 ) -> int:
-    """Delete + reinsert participation for one tournament (incremental path; slice 6 expands)."""
+    """Delete + reinsert participation for one tournament (incremental path)."""
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -352,21 +377,7 @@ def rebuild_participation_for_tournament(
     return written
 
 
-_TOTALS_REBUILD_SQL = """
-INSERT INTO amiga_player_tournament_totals (
-    player_id,
-    tournaments_played,
-    tournaments_won,
-    wc_gold,
-    wc_silver,
-    wc_bronze,
-    cup_gold,
-    cup_silver,
-    cup_bronze,
-    podiums,
-    last_event_date,
-    last_tournament_id
-)
+_TOTALS_AGG_SELECT = """
 SELECT
     p.player_id,
     COUNT(*) AS tournaments_played,
@@ -411,8 +422,40 @@ SELECT
         ) AS UNSIGNED
     ) AS last_tournament_id
 FROM amiga_player_tournament_participation p
+WHERE __PLAYER_FILTER__
 GROUP BY p.player_id
 """
+
+_TOTALS_INSERT_PREFIX = """
+INSERT INTO amiga_player_tournament_totals (
+    player_id,
+    tournaments_played,
+    tournaments_won,
+    wc_gold,
+    wc_silver,
+    wc_bronze,
+    cup_gold,
+    cup_silver,
+    cup_bronze,
+    podiums,
+    last_event_date,
+    last_tournament_id
+)
+"""
+
+_TOTALS_REBUILD_SQL = _TOTALS_INSERT_PREFIX + _TOTALS_AGG_SELECT.replace(
+    "__PLAYER_FILTER__",
+    "1 = 1",
+)
+
+
+def _totals_insert_sql_for_players(player_ids: list[int]) -> tuple[str, list[int]]:
+    placeholders = ", ".join(["%s"] * len(player_ids))
+    sql = _TOTALS_INSERT_PREFIX + _TOTALS_AGG_SELECT.replace(
+        "__PLAYER_FILTER__",
+        f"p.player_id IN ({placeholders})",
+    )
+    return sql, list(player_ids)
 
 
 def clear_participation_totals(
@@ -429,6 +472,66 @@ def clear_participation_totals(
     with conn.cursor() as cur:
         cur.execute("DELETE FROM amiga_player_tournament_totals")
     conn.commit()
+
+
+def rebuild_totals_for_players(
+    conn: pymysql.connections.Connection,
+    player_ids: list[int],
+    *,
+    dry_run: bool = False,
+) -> int:
+    """Re-aggregate career totals for the given players from participation rows."""
+    unique_ids = sorted({int(player_id) for player_id in player_ids})
+    if not unique_ids:
+        return 0
+    log.info("rebuild_totals_for_players: %s player(s)", len(unique_ids))
+    if dry_run:
+        return len(unique_ids)
+
+    placeholders = ", ".join(["%s"] * len(unique_ids))
+    insert_sql, insert_params = _totals_insert_sql_for_players(unique_ids)
+
+    with conn.cursor() as cur:
+        cur.execute(
+            f"DELETE FROM amiga_player_tournament_totals WHERE player_id IN ({placeholders})",
+            unique_ids,
+        )
+        cur.execute(insert_sql, insert_params)
+        cur.execute(
+            f"""
+            DELETE t
+            FROM amiga_player_tournament_totals t
+            WHERE t.player_id IN ({placeholders})
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM amiga_player_tournament_participation p
+                  WHERE p.player_id = t.player_id
+              )
+            """,
+            unique_ids,
+        )
+    conn.commit()
+    log.info("amiga_player_tournament_totals: refreshed %s player(s)", len(unique_ids))
+    return len(unique_ids)
+
+
+def rebuild_participation_and_totals_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    *,
+    dry_run: bool = False,
+) -> tuple[int, int]:
+    """Incremental rebuild: one tournament participation + totals for players in that event."""
+    player_ids = player_ids_for_tournament(conn, tournament_id)
+    participation_rows = rebuild_participation_for_tournament(
+        conn,
+        tournament_id,
+        dry_run=dry_run,
+    )
+    if dry_run:
+        return participation_rows, len(player_ids)
+    totals_players = rebuild_totals_for_players(conn, player_ids, dry_run=False)
+    return participation_rows, totals_players
 
 
 def rebuild_all_participation_totals(
@@ -452,6 +555,50 @@ def rebuild_all_participation_totals(
     conn.commit()
     log.info("amiga_player_tournament_totals: %s rows", written)
     return written
+
+
+def refresh_tournament_participation_stack(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    *,
+    skip_standings: bool = False,
+    dry_run: bool = False,
+) -> tuple[int, int]:
+    """
+    Live finalize hook: standings (+ catalog) then participation + totals for one event.
+
+    Batch ``replay`` uses ``defer_heavy_derived`` and rebuilds globally instead.
+    """
+    if dry_run:
+        player_ids = player_ids_for_tournament(conn, tournament_id)
+        return len(player_ids), len(player_ids)
+
+    if not skip_standings:
+        from scripts.amiga.tournament_catalog_stats import refresh_catalog_stats_for_tournament
+        from scripts.amiga.tournament_standings import rebuild_standings_for_tournament
+
+        rebuild_standings_for_tournament(conn, tournament_id)
+        refresh_catalog_stats_for_tournament(conn, tournament_id)
+
+    return rebuild_participation_and_totals_for_tournament(conn, tournament_id, dry_run=False)
+
+
+def run_participation_refresh_tournament(
+    tournament_id: int,
+    *,
+    skip_standings: bool = False,
+    dry_run: bool = False,
+) -> tuple[int, int]:
+    conn = _connect()
+    try:
+        return refresh_tournament_participation_stack(
+            conn,
+            tournament_id,
+            skip_standings=skip_standings,
+            dry_run=dry_run,
+        )
+    finally:
+        conn.close()
 
 
 def run_participation_rebuild(*, dry_run: bool = False) -> tuple[int, int]:

@@ -9,6 +9,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.player_matchup_summary import rebuild_all_matchup_summary
 from scripts.amiga.player_tournament_participation import (
     rebuild_all_participation,
     rebuild_all_participation_totals,
@@ -109,6 +110,7 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
     if dry_run:
         return
     with conn.cursor() as cur:
+        cur.execute("DELETE FROM amiga_player_matchup_summary")
         cur.execute("DELETE FROM amiga_player_tournament_totals")
         cur.execute("DELETE FROM amiga_player_tournament_participation")
         cur.execute("DELETE FROM amiga_tournament_catalog_stats")
@@ -270,6 +272,9 @@ def replay_all(
 
     log.info("rebuilding player tournament totals")
     rebuild_all_participation_totals(conn, dry_run=False)
+
+    log.info("rebuilding player matchup summary")
+    rebuild_all_matchup_summary(conn, dry_run=False)
 
     log.info("rebuilding tournament catalog stats")
     rebuild_all_catalog_stats(conn, dry_run=False)
