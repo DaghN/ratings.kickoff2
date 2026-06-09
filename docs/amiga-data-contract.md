@@ -169,27 +169,28 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 
 ### Current (Phase A2 — split)
 
-| Table | Layer | Writer |
-|-------|-------|--------|
-| `tournament_format_templates` | Ground/config | Import seed / future admin-managed templates |
-| `tournaments` | Ground | Import / submission |
-| `tournament_entrants` | Ground | Future live tournament ops / fixture tooling |
-| `tournament_stages` | Ground | Future live tournament ops / fixture tooling |
-| `tournament_stage_players` | Ground | Future live tournament ops / fixture tooling |
-| `tournament_fixtures` | Ground | Future live tournament ops / fixture tooling |
-| `amiga_players` | Ground | Import / submission / internal `players create` CLI |
-| `amiga_games` | Ground | Import / submission |
-| `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit |
-| `amiga_rating_events` | Derived | Tournament finalize — authoritative rating timeline |
-| `amiga_player_stats` | Derived | Tournament finalize / `replay` |
-| `amiga_tournament_standings` | Derived | `replay` end (`rebuild_all_standings`) or standings rebuild on result entry |
-| `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP `amiga_ops_catalog_stats_refresh_tournament` per touched tournament on post-game |
-| `amiga_player_tournament_participation` | Derived | Batch: `replay` / `participation-rebuild`. Live: Python `finalize_tournament` (`refresh_tournament_participation_stack`) and PHP `amiga_ops_participation_refresh_tournament` after standings on tournament finalize |
-| `amiga_player_tournament_totals` | Derived | Re-aggregated from participation per affected player on the same paths as `amiga_player_tournament_participation` (`rebuild_totals_for_players` / `amiga_ops_participation_rebuild_totals_for_players`) |
-| `amiga_player_matchup_summary` | Derived | Batch: `replay` / `matchup-rebuild` (`rebuild_all_matchup_summary` from `amiga_games`); live incremental path deferred to later slice. Read: `includes/amiga_player_matchup_lib.php` (`amiga_player_top_opponents`) → profile top-opponents block |
-| `reference_*` (optional) | Reference | Parity tooling only |
+| Table | Layer | Writer | Status |
+|-------|-------|--------|--------|
+| `tournament_format_templates` | Ground/config | Import seed / future admin-managed templates | Active |
+| `tournaments` | Ground | Import / submission | Active |
+| `tournament_entrants` | Ground | Future live tournament ops / fixture tooling | Active |
+| `tournament_stages` | Ground | Future live tournament ops / fixture tooling | Active |
+| `tournament_stage_players` | Ground | Future live tournament ops / fixture tooling | Active |
+| `tournament_fixtures` | Ground | Future live tournament ops / fixture tooling | Active |
+| `amiga_players` | Ground | Import / submission / internal `players create` CLI | Active |
+| `amiga_games` | Ground | Import / submission | Active |
+| `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit | Active |
+| `amiga_rating_events` | Derived | Tournament finalize — authoritative rating timeline | Active |
+| `amiga_player_stats` | Derived | Tournament finalize / `replay` | Active |
+| `amiga_tournament_standings` | Derived | `replay` end (`rebuild_all_standings`) or standings rebuild on result entry | Active |
+| `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP `amiga_ops_catalog_stats_refresh_tournament` per touched tournament on post-game | Active |
+| `amiga_player_tournament_participation` | Derived | Batch: `replay` / `participation-rebuild`. Live: Python `finalize_tournament` (`refresh_tournament_participation_stack`) and PHP `amiga_ops_participation_refresh_tournament` after standings on tournament finalize | **Active** |
+| `amiga_player_tournament_totals` | Derived | Re-aggregated from participation per affected player on the same paths as `amiga_player_tournament_participation` (`rebuild_totals_for_players` / `amiga_ops_participation_rebuild_totals_for_players`). Read: `/amiga/leaderboards/tournament-honours.php` via `amiga_tournament_honours_leaderboard_rows()` | **Active** |
+| `amiga_player_matchup_summary` | Derived | Batch: `replay` / `matchup-rebuild` (`rebuild_all_matchup_summary` from `amiga_games`); live incremental path deferred. Read: `includes/amiga_player_matchup_lib.php` (`amiga_player_top_opponents`) → profile top-opponents block | **Active** |
+| `amiga_generalstats` | Derived | Batch: `replay` / `generalstats-rebuild` (`rebuild_generalstats` from `amiga_games`, `amiga_game_ratings`, `amiga_player_stats`); streak records excluded. Read: `/amiga/hall-of-fame.php` via `includes/amiga_records_*.php` | **Active** |
+| `reference_*` (optional) | Reference | Parity tooling only | — |
 
-DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql), entrant foundation [`007_tournament_entrants.sql`](../scripts/amiga/sql/007_tournament_entrants.sql), lifecycle foundation [`008_tournament_lifecycle.sql`](../scripts/amiga/sql/008_tournament_lifecycle.sql), rating events [`009_rating_events.sql`](../scripts/amiga/sql/009_rating_events.sql). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php).
+DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), index aggregates [`004_tournament_catalog_stats.sql`](../scripts/amiga/sql/004_tournament_catalog_stats.sql), format foundation [`005_tournament_formats.sql`](../scripts/amiga/sql/005_tournament_formats.sql), fixture foundation [`006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql), entrant foundation [`007_tournament_entrants.sql`](../scripts/amiga/sql/007_tournament_entrants.sql), lifecycle foundation [`008_tournament_lifecycle.sql`](../scripts/amiga/sql/008_tournament_lifecycle.sql), rating events [`009_rating_events.sql`](../scripts/amiga/sql/009_rating_events.sql), player universe [`010_player_tournament_participation.sql`](../scripts/amiga/sql/010_player_tournament_participation.sql) · [`011_player_tournament_totals.sql`](../scripts/amiga/sql/011_player_tournament_totals.sql) · [`012_player_matchup_summary.sql`](../scripts/amiga/sql/012_player_matchup_summary.sql) · [`013_generalstats.sql`](../scripts/amiga/sql/013_generalstats.sql). Contract: [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md). Website read path: [`includes/amiga_db.php`](../site/public_html/includes/amiga_db.php), tournament pages [`includes/amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php), participation [`includes/amiga_player_tournament_lib.php`](../site/public_html/includes/amiga_player_tournament_lib.php).
 
 ### Tournament format metadata
 

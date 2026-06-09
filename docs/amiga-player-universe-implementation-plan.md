@@ -467,10 +467,10 @@ SELECT * FROM amiga_generalstats WHERE id = 1;
 
 ### Tasks
 
-- [ ] Update `amiga-data-contract.md` table register (status Active for new tables)
-- [ ] Update `amiga-player-universe-contract.md` §12 migration register
-- [ ] `scripts/amiga/README.md` — all new CLIs
-- [ ] Final handoff summarizing slices 0–13
+- [x] Update `amiga-data-contract.md` table register (status Active for new tables)
+- [x] Update `amiga-player-universe-contract.md` §12 migration register
+- [x] `scripts/amiga/README.md` — all new CLIs
+- [x] Final handoff summarizing slices 0–13
 
 ### Verification
 

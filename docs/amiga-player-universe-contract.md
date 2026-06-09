@@ -76,18 +76,22 @@ A **rich player universe** for the offline Amiga ladder: career stats and extrem
 | `tournaments` | Event catalog; `player_count` is **headcount only**, not a roster |
 | `tournament_entrants` | **Live registration**; empty for historical Access import |
 
-### Derived truth (already shipped)
+### Derived truth (shipped)
 
 | Table | Grain | Player use today |
 |-------|-------|------------------|
 | `amiga_player_stats` | 1 row / player | Hero, career strip, leaderboard sorts, rank |
 | `amiga_game_ratings` | 1 row / game | Games list; per-game frozen ratings |
 | `amiga_rating_events` | 1 row / (player, tournament) | Rating chart API; event timeline |
-| `amiga_tournament_standings` | 1 row / (player, tournament, scope) | Recent tournaments (overall); tournament pages |
+| `amiga_tournament_standings` | 1 row / (player, tournament, scope) | Tournament pages; standings source for participation |
+| `amiga_player_tournament_participation` | 1 row / (player, tournament) | Profile recent tournaments; honours context |
+| `amiga_player_tournament_totals` | 1 row / player | Tournament honours LB; HoF WC panel |
+| `amiga_player_matchup_summary` | 1 row / (player, opponent) | Profile top opponents |
+| `amiga_generalstats` | 1 row (`id=1`) | Hall of Fame server records (no streak rows) |
 
-### Fragmentation problem (why expand)
+### Fragmentation (resolved Jun 2026)
 
-“Which tournaments did player P play in, and how did they do?” is answerable today only by **joining** standings + rating events + tournaments, with scope filters. There is no **canonical player↔tournament fact row**, no **career tournament totals**, and no documented read path equivalent to online’s `player_period_league` + `player_league_totals` stack.
+Player↔tournament facts and career rollups now live in `amiga_player_tournament_participation` + `amiga_player_tournament_totals`. H2H and server records use `amiga_player_matchup_summary` and `amiga_generalstats`. See slices 0–13 in [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md).
 
 ---
 
@@ -100,16 +104,16 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Hero + rank** | `/amiga/profile.php` | `amiga_player_stats` + rank subquery | `amiga_players` | A (shipped) |
 | **Career strip** | profile | `amiga_player_stats` | — | A (shipped) |
 | **Rating chart** | `api/player_rating_history.php?realm=amiga` | `amiga_rating_events` → `tournaments` | — | A (shipped) |
-| **Recent tournaments** | profile (5 rows) | `amiga_player_tournament_participation` **(target)**; interim: standings overall | — | B |
-| **Full tournament history** | profile expansion | `amiga_player_tournament_participation` | filters on `is_cup`, `country` | B |
+| **Recent tournaments** | profile (5 rows) | `amiga_player_tournament_participation` | — | B (shipped) |
+| **Full tournament history** | profile expansion | `amiga_player_tournament_participation` | filters on `is_cup`, `country` | B (deferred UI) |
 | **Games list** | `/amiga/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |
 | **Moments / trophy games** | profile block | `amiga_player_stats` `*GameID` + single-game fetch | no scan | A |
-| **Top opponents** | profile / API | `amiga_player_matchup_summary` | sort by `games` or `wins` | B |
-| **H2H pair page** | future API | `amiga_player_matchup_summary` + game list optional | — | B |
-| **Leaderboard wings** | `/amiga/leaderboards/*` | `amiga_player_stats` scans | ~473 rows | A |
-| **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` (TBD) | `amiga_player_tournament_totals` | — | B |
-| **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on stats | tournament honours panel | B |
-| **WC medals on profile** | profile block | `amiga_player_tournament_totals` or participation filter | — | B |
+| **Top opponents** | profile | `amiga_player_matchup_summary` | sort by `games` | B (shipped) |
+| **H2H pair page** | future API | `amiga_player_matchup_summary` + game list optional | — | B (deferred) |
+| **Leaderboard wings** | `/amiga/leaderboards/*` | `amiga_player_stats` + `amiga_player_tournament_totals` | Rating + honours wings | A/B |
+| **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_tournament_totals` | — | B (shipped) |
+| **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on stats | WC medal panel | B (shipped) |
+| **WC medals on profile** | profile block | `amiga_player_tournament_totals` or participation filter | — | B (deferred) |
 
 **Rule:** New PHP must not aggregate `amiga_games` on profile/leaderboard hot paths. Games tab remains the intentional scan surface (paginated, per player).
 
@@ -347,33 +351,37 @@ Steps 4–7 are idempotent truncates or upsert-from-source passes. They must not
 
 ---
 
-## 10. DDL sketch (for implementers)
+## 10. DDL and modules (implemented Jun 2026)
 
-Planned files under `scripts/amiga/sql/` (numbers TBD when applied):
+SQL under `scripts/amiga/sql/`:
 
 | File | Contents |
 |------|----------|
 | `010_player_tournament_participation.sql` | participation table + indexes |
 | `011_player_tournament_totals.sql` | totals table |
 | `012_player_matchup_summary.sql` | H2H table |
-| `013_generalstats.sql` | server records |
+| `013_generalstats.sql` | server records (no streak columns) |
 
-Python modules (planned):
+Python modules:
 
 | Module | Role |
 |--------|------|
-| `scripts/amiga/player_tournament_participation.py` | rebuild + medal derivation |
-| `scripts/amiga/player_matchup_summary.py` | bulk rebuild |
-| `scripts/amiga/server_records.py` | generalstats rebuild |
-| `scripts/amiga/replay.py` | orchestrate new steps after standings |
+| `scripts/amiga/player_tournament_participation.py` | rebuild + WC medal derivation + live finalize hook |
+| `scripts/amiga/player_matchup_summary.py` | bulk H2H rebuild |
+| `scripts/amiga/server_records.py` | `amiga_generalstats` rebuild |
+| `scripts/amiga/verify_player_participation.py` | participation + totals parity |
+| `scripts/amiga/verify_player_matchups.py` | H2H parity |
+| `scripts/amiga/replay.py` | orchestrates derived rebuilds after finalize |
 
-PHP:
+PHP read paths:
 
 | File | Role |
 |------|------|
-| `includes/amiga_player_tournament_lib.php` | read helpers for participation + totals |
-| Extend `amiga_profile_blocks.php` | tournament history, honours snippet |
-| `amiga/ops/modules/finalize_tournament.php` | call incremental participation rebuild |
+| `includes/amiga_player_tournament_lib.php` | participation + totals + honours LB |
+| `includes/amiga_player_matchup_lib.php` | top opponents |
+| `includes/amiga_profile_blocks.php` | recent tournaments, top opponents |
+| `includes/amiga_records_*.php` | Hall of Fame |
+| `amiga/ops/modules/finalize_tournament.php` | incremental participation after finalize |
 
 ---
 
@@ -390,18 +398,27 @@ PHP:
 
 ---
 
-## 12. Migration register (to merge into `amiga-data-contract.md` when implemented)
+## 12. Migration register
+
+Merged into [`amiga-data-contract.md`](amiga-data-contract.md) table register (Jun 2026).
 
 | Table | Layer | Writer | Status |
 |-------|-------|--------|--------|
-| `amiga_player_tournament_participation` | Derived | replay + finalize | **Planned** |
-| `amiga_player_tournament_totals` | Derived | replay + finalize | **Planned** |
-| `amiga_player_matchup_summary` | Derived | replay + post-game | **Planned** |
-| `amiga_generalstats` | Derived | replay + finalize | **Planned** |
+| `amiga_player_tournament_participation` | Derived | `replay` / `participation-rebuild`; live `finalize_tournament` + PHP ops | **Active** |
+| `amiga_player_tournament_totals` | Derived | same + per-player re-aggregate on live finalize | **Active** |
+| `amiga_player_matchup_summary` | Derived | `replay` / `matchup-rebuild` | **Active** |
+| `amiga_generalstats` | Derived | `replay` / `generalstats-rebuild` | **Active** |
 | `amiga_player_stats` | Derived | finalize | **Active** |
 | `amiga_rating_events` | Derived | finalize | **Active** |
 | `amiga_tournament_standings` | Derived | replay / standings | **Active** |
 | `tournament_entrants` | Ground | live ops | **Active** (empty historical) |
+
+**Verify suite (player universe):**
+
+```powershell
+python -m scripts.amiga verify-player-participation
+python -m scripts.amiga verify-player-matchups
+```
 
 ---
 

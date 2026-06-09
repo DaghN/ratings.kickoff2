@@ -15,6 +15,7 @@ from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
 from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
 from scripts.amiga.player_matchup_summary import run_matchup_rebuild
+from scripts.amiga.server_records import run_generalstats_rebuild
 from scripts.amiga.player_tournament_participation import (
     run_participation_rebuild,
     run_participation_refresh_tournament,
@@ -194,6 +195,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_matchup.add_argument("--dry-run", action="store_true")
 
+    p_generalstats = sub.add_parser(
+        "generalstats-rebuild",
+        help="Rebuild amiga_generalstats row id=1 (server hall-of-fame)",
+    )
+    p_generalstats.add_argument("--dry-run", action="store_true")
+
     p_honours = sub.add_parser(
         "honours-parity-sample",
         help="Reference report: derived WC medals vs Access added_players (top 20)",
@@ -338,6 +345,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "matchup-rebuild":
         rows = run_matchup_rebuild(dry_run=args.dry_run)
         log.info("matchup-rebuild complete: rows=%s", rows)
+        return 0
+
+    if args.cmd == "generalstats-rebuild":
+        patch = run_generalstats_rebuild(dry_run=args.dry_run)
+        log.info("generalstats-rebuild complete: GamesPlayed=%s", patch.get("GamesPlayed"))
         return 0
 
     if args.cmd == "honours-parity-sample":

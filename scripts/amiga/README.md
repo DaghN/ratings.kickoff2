@@ -35,6 +35,8 @@ python -m scripts.amiga audit-catalog-dates
 python -m scripts.amiga replay
 python -m scripts.amiga verify-chronology
 python -m scripts.amiga verify-rating-events
+python -m scripts.amiga verify-player-participation
+python -m scripts.amiga verify-player-matchups
 
 # Full replay (~27k games, ~23s local Jun 2026): shared in-memory players across tournaments;
 # each finalize writes amiga_game_ratings + amiga_rating_events. amiga_player_stats +
@@ -85,6 +87,8 @@ Browser (local pages):
 - `http://ratingskickoff.test/amiga/games.php?id=1`
 - `http://ratingskickoff.test/amiga/tournaments.php`
 - `http://ratingskickoff.test/amiga/tournament.php?id=1`
+- `http://ratingskickoff.test/amiga/hall-of-fame.php`
+- `http://ratingskickoff.test/amiga/leaderboards/tournament-honours.php`
 
 Browser QA checklist: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md) § Browser QA checklist (standings).
 
@@ -146,6 +150,32 @@ python -m scripts.amiga verify-tournament-formats
 
 Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-tournament-format-vision.md) §9 · Swiss checklist: [`docs/amiga-format-add-swiss-checklist.md`](../../docs/amiga-format-add-swiss-checklist.md)
 
+**Player universe derived tables** (participation, H2H, server records — contract [`amiga-player-universe-contract.md`](../../docs/amiga-player-universe-contract.md)):
+
+```powershell
+# Full stack is rebuilt by replay (after standings):
+# participation → totals → matchup_summary → generalstats → catalog_stats
+
+# Standalone rebuilds (idempotent):
+python -m scripts.amiga participation-rebuild
+python -m scripts.amiga matchup-rebuild
+python -m scripts.amiga generalstats-rebuild
+
+# Live finalize hook (one tournament; optional --skip-standings):
+python -m scripts.amiga participation-refresh-tournament --tournament-id N
+
+# Parity gates (player universe contract §8):
+python -m scripts.amiga verify-player-participation
+python -m scripts.amiga verify-player-matchups
+
+# WC medal spot-check vs Access (sample tournaments):
+python -m scripts.amiga honours-parity-sample
+```
+
+PHP live path: `amiga_ops_participation_refresh_tournament` in `finalize_tournament.php` after standings commit.
+
+Read surfaces: profile recent tournaments + top opponents; `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
+
 **Tournament fixtures foundation** (internal ops only; public builder UI deferred):
 
 ```powershell
@@ -156,6 +186,7 @@ mysql ko2amiga_db < scripts/amiga/sql/009_rating_events.sql
 mysql ko2amiga_db < scripts/amiga/sql/010_player_tournament_participation.sql
 mysql ko2amiga_db < scripts/amiga/sql/011_player_tournament_totals.sql
 mysql ko2amiga_db < scripts/amiga/sql/012_player_matchup_summary.sql
+mysql ko2amiga_db < scripts/amiga/sql/013_generalstats.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle
@@ -278,5 +309,6 @@ Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
 
 - **Import layer:** [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) — archival → ground truth, catalog overrides, supplemental Scores (e.g. Rodenbach II), manifest
 - **Data contract:** [`docs/amiga-data-contract.md`](../../docs/amiga-data-contract.md) — ground / derived / reference layers; **match streaks are not product truth** (§ Match streaks)
+- **Player universe:** [`docs/amiga-player-universe-contract.md`](../../docs/amiga-player-universe-contract.md) · plan [`docs/amiga-player-universe-implementation-plan.md`](../../docs/amiga-player-universe-implementation-plan.md)
 - Discovery write-up: [`docs/amiga-schema-discovery.md`](../../docs/amiga-schema-discovery.md)
 - Source layout: [`data/amiga/README.md`](../../data/amiga/README.md)

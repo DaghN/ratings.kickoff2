@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
+require_once __DIR__ . '/amiga_player_load.php';
 
 /**
  * Recent tournament participation for a player (canonical derived source).
@@ -100,4 +101,44 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
     mysqli_stmt_close($stmt);
 
     return $row !== false ? $row : null;
+}
+
+/**
+ * Tournament honours leaderboard rows (amiga_player_tournament_totals only).
+ *
+ * Default SQL order: wc_gold, wc_silver, wc_bronze, tournaments_won, tournaments_played.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
+{
+    $sql = 'SELECT t.player_id,
+                   p.name AS player_name,
+                   p.country,
+                   t.tournaments_played,
+                   t.tournaments_won,
+                   t.wc_gold,
+                   t.wc_silver,
+                   t.wc_bronze,
+                   t.podiums
+            FROM amiga_player_tournament_totals t
+            INNER JOIN amiga_players p ON p.id = t.player_id
+            WHERE t.tournaments_played > 0
+            ORDER BY t.wc_gold DESC,
+                     t.wc_silver DESC,
+                     t.wc_bronze DESC,
+                     t.tournaments_won DESC,
+                     t.tournaments_played DESC,
+                     t.player_id ASC';
+    $result = mysqli_query($con, $sql);
+    if (!$result) {
+        return [];
+    }
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rows[] = $row;
+    }
+    mysqli_free_result($result);
+
+    return $rows;
 }
