@@ -335,21 +335,15 @@ Steps 4–7 are idempotent truncates or upsert-from-source passes. They must not
 
 ---
 
-## 9. Phased implementation plan
+## 9. Implementation execution
 
-Aligns with [`amiga-realm-vision.md`](amiga-realm-vision.md) §7; **player contract** adds explicit DDL/writer ownership.
+**Agent slices (authoritative):** [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md) — Slices 0–14 with verification commands and browser STOP gates.
 
-| Phase | Deliverable | New tables | Writers | Pages |
-|-------|-------------|------------|---------|-------|
-| **P0 — Contract** | This document + table register update | — | — | — |
-| **P1 — LB wings (Tier A)** | Goals, DDs, Victims, Peak rating wings | None | None | `/amiga/leaderboards/*` |
-| **P2 — Participation + totals (Tier B core)** | Rich player↔tournament; profile history | `amiga_player_tournament_participation`, `amiga_player_tournament_totals` | `rebuild_player_tournament_*` in replay; incremental on finalize | Extend profile tournament block |
-| **P3 — HoF records (Tier B)** | Server record holders | `amiga_generalstats` | `server_records.py` port | `/amiga/hall-of-fame.php` |
-| **P4 — H2H (Tier B)** | Top opponents, pair summary API | `amiga_player_matchup_summary` | replay + post-game upsert | Profile opponents block |
-| **P5 — Tournament honours (Tier B)** | WC medals LB, HoF panel | (uses totals + participation) | medal derivation in participation rebuild | honours wing / HoF section |
-| **P6 — Activity (Tier C)** | Event-year games, optional calendar | `amiga_player_period_games`? | **Blocked** until period semantics chosen | profile activity |
+**Starter prompt for a new agent chat:** [`orchestration/agent-handoffs/amiga-player-universe-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-player-universe-STARTER-PROMPT.md)
 
-**Recommended sequencing:** P1 can ship in parallel with P2 schema work. P2 is the **highest leverage** for the rich player↔tournament goal discussed in this chat. P3–P5 are independent once P2 exists.
+**Parallel track (not in slices 0–14):** Tier A leaderboard wings — [`amiga-realm-vision.md`](amiga-realm-vision.md) Phase A; pages only, no new tables.
+
+**Deferred:** Tier C activity (`player_period_games` semantics TBD).
 
 ---
 

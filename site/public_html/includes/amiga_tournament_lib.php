@@ -392,38 +392,15 @@ function amiga_tournament_standings_rows(
 }
 
 /**
- * Recent tournaments for a player (overall scope, by event chrono desc).
+ * Recent tournaments for a player (participation table; event chrono desc).
  *
  * @return list<array<string, mixed>>
  */
 function amiga_player_recent_tournaments(mysqli $con, int $playerId, int $limit = 5): array
 {
-    $limit = max(1, min(20, $limit));
-    $sql = 'SELECT t.id, t.name, t.event_date, t.is_cup, s.position, s.points, s.games,
-                   (SELECT COUNT(DISTINCT sk.scope_key) FROM amiga_tournament_standings sk
-                    WHERE sk.tournament_id = t.id AND sk.scope_type = \'knockout\') AS knockout_ties
-            FROM amiga_tournament_standings s
-            INNER JOIN tournaments t ON t.id = s.tournament_id
-            WHERE s.player_id = ? AND s.scope_type = \'overall\' AND s.scope_key = \'\'
-              AND ' . amiga_tournament_public_visibility_where('t') . '
-            ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC
-            LIMIT ' . (int) $limit;
-    $stmt = mysqli_prepare($con, $sql);
-    if ($stmt === false) {
-        return [];
-    }
-    mysqli_stmt_bind_param($stmt, 'i', $playerId);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    $rows = [];
-    if ($res) {
-        while ($row = mysqli_fetch_assoc($res)) {
-            $rows[] = $row;
-        }
-        mysqli_free_result($res);
-    }
-    mysqli_stmt_close($stmt);
-    return $rows;
+    require_once __DIR__ . '/amiga_player_tournament_lib.php';
+
+    return amiga_player_tournament_participation_recent($con, $playerId, $limit);
 }
 
 function amiga_tournament_url(int $id, string $scopeType = 'overall', string $scopeKey = ''): string

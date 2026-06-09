@@ -35,7 +35,7 @@ function amiga_profile_render_career(array $pm): void
 }
 
 /**
- * @param list<array<string, mixed>> $tournaments from amiga_player_recent_tournaments()
+ * @param list<array<string, mixed>> $tournaments from amiga_player_tournament_participation_recent()
  */
 function amiga_profile_render_recent_tournaments(array $tournaments): void
 {

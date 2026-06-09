@@ -13,6 +13,8 @@ from scripts.amiga.refinalize import run_refinalize_from, run_reopen_tournament
 from scripts.amiga.refinalize_smoke import main as refinalize_smoke_main
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
 from scripts.amiga.replay import run_replay
+from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
+from scripts.amiga.player_tournament_participation import run_participation_rebuild
 from scripts.amiga.tournament_catalog_stats import run_catalog_stats_rebuild
 from scripts.amiga.tournament_builder import main as tournament_builder_main
 from scripts.amiga.tournament_format import main as tournament_format_main
@@ -20,6 +22,7 @@ from scripts.amiga.tournament_fixtures import main as tournament_fixtures_main
 from scripts.amiga.standings_parity import main as standings_parity_main
 from scripts.amiga.verify_track_b import main as verify_track_b_main
 from scripts.amiga.verify_chronology import main as verify_chronology_main
+from scripts.amiga.verify_player_participation import main as verify_player_participation_main
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
@@ -117,6 +120,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     sub.add_parser(
+        "verify-player-participation",
+        help="Assert participation + totals parity (player universe contract §8)",
+    )
+
+    sub.add_parser(
         "verify-import-manifest",
         help="Assert import_manifest.json and catalog overrides in MySQL",
     )
@@ -151,6 +159,19 @@ def main(argv: list[str] | None = None) -> int:
         help="Rebuild amiga_tournament_catalog_stats (tournament index aggregates)",
     )
     p_catalog.add_argument("--dry-run", action="store_true")
+
+    p_participation = sub.add_parser(
+        "participation-rebuild",
+        help="Rebuild amiga_player_tournament_participation + totals from standings",
+    )
+    p_participation.add_argument("--dry-run", action="store_true")
+
+    p_honours = sub.add_parser(
+        "honours-parity-sample",
+        help="Reference report: derived WC medals vs Access added_players (top 20)",
+    )
+    p_honours.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_honours.add_argument("--limit", type=int, default=20)
 
     p_fixtures = sub.add_parser(
         "fixtures",
@@ -231,6 +252,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "verify-rating-events":
         return verify_rating_events_main()
 
+    if args.cmd == "verify-player-participation":
+        return verify_player_participation_main()
+
     if args.cmd == "verify-import-manifest":
         return verify_import_manifest_main()
 
@@ -256,6 +280,23 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "catalog-stats-rebuild":
         run_catalog_stats_rebuild(dry_run=args.dry_run)
         return 0
+
+    if args.cmd == "participation-rebuild":
+        participation_rows, totals_rows = run_participation_rebuild(dry_run=args.dry_run)
+        log.info(
+            "participation-rebuild complete: participation=%s totals=%s",
+            participation_rows,
+            totals_rows,
+        )
+        return 0
+
+    if args.cmd == "honours-parity-sample":
+        honours_argv: list[str] = []
+        if args.mdb != _DEFAULT_MDB:
+            honours_argv.extend(["--mdb", str(args.mdb)])
+        if args.limit != 20:
+            honours_argv.extend(["--limit", str(args.limit)])
+        return honours_parity_sample_main(honours_argv)
 
     if args.cmd == "fixtures":
         return tournament_fixtures_main(args.fixture_args)

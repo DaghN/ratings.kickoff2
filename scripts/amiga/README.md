@@ -153,6 +153,8 @@ mysql ko2amiga_db < scripts/amiga/sql/006_tournament_fixtures.sql
 mysql ko2amiga_db < scripts/amiga/sql/007_tournament_entrants.sql
 mysql ko2amiga_db < scripts/amiga/sql/008_tournament_lifecycle.sql
 mysql ko2amiga_db < scripts/amiga/sql/009_rating_events.sql
+mysql ko2amiga_db < scripts/amiga/sql/010_player_tournament_participation.sql
+mysql ko2amiga_db < scripts/amiga/sql/011_player_tournament_totals.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle
