@@ -1,29 +1,35 @@
 # Amiga player profile (v0)
 
-**Status:** minimal template (Jun 2026). Extend deliberately — see data notes below.
+**Status:** profile feast v1 (Jun 2026) — **surface expansion slices 0–8 complete**. Extend via [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4 Potential only.
 
 ## URLs
 
 | Page | Path |
 |------|------|
 | Hub nav | Ladder · Tournaments · Hall of Fame (`includes/amiga_hub_nav.php`) |
-| Leaderboard (rating) | `/amiga/rating.php` (Ladder tab) |
+| Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Ladder tab; `/amiga/rating.php` redirects) |
+| Leaderboard wings | `/amiga/leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `performance-rating.php` — via `amiga_lb_nav.php` (`/amiga/rating.php` → 302) |
 | Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` |
 | Hall of Fame | `/amiga/hall-of-fame.php` |
 | Profile | `/amiga/profile.php?id={amiga_players.id}` |
 | Tournament history | `/amiga/player-tournaments.php?id={amiga_players.id}` |
 | Games | `/amiga/games.php?id={amiga_players.id}` |
+| Head-to-head | `/amiga/h2h.php?id1={id}&id2={id}` — directed `amiga_player_matchup_summary` rows |
 | Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
+| Tournament event stats | `/amiga/tournament.php?id={tournaments.id}&view=event-stats` — participation roster (all phases) |
 
 ## What v0 shows
 
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): rank, rating, games, country line
 - **Player nav** — Profile · Tournaments · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
-- **Recent tournaments** — `amiga_player_tournament_participation`: finish suffix from `overall_position` (league rank, **bracket finish** for knockout-only cups, or group rank on WCs) or WC `wc_medal` podium; **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1)
-- **Tournament history** — `/amiga/player-tournaments.php`: full participation list (no pagination); sortable table with per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); All / World Cups filter pills
-- **Top opponents** — `amiga_player_matchup_summary` via `amiga_player_top_opponents()` (W-D-L, games)
+- **Honours strip** — `amiga_player_tournament_totals` (already loaded): WC medals when any, tournaments won, podiums, optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
+- **Performance rating** — best event + latest event (participation, games ≥ 2); links to perf LB and tournament history; hidden when no qualifying perf rows
+- **Moments** — trophy games from `amiga_player_stats` `*GameID` pointers (`amiga_player_moments_lib.php`): biggest win, goal festival, peak rating game; score links to games tab with opponent filter; hidden when no resolvable game rows; **no streak card**
+- **Recent tournaments** — `amiga_player_tournament_participation`: finish suffix from `overall_position` (league rank, **bracket finish** for knockout-only cups, or group rank on WCs) or WC `wc_medal` podium; **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
+- **Tournament history** — `/amiga/player-tournaments.php`: full participation list (no pagination); sortable table with per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); filter pills — All / World Cups / Cups + event-location (country) row
+- **Top opponents** — `amiga_player_matchup_summary` via `amiga_player_top_opponents()` (W-D-L, goals, games; W-D-L and games link to H2H pair page)
 - **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_rating_events` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags)
 - **Games tab** — server-side filters (result, opponent), sort, 100-row pages; tournament + phase from `amiga_games` + `tournaments`; per-game frozen `rating_a/b` and `adjustment_a/b` from `amiga_game_ratings` (`new_rating_*` NULL after finalize v1)
 
@@ -37,7 +43,7 @@
 
 **Derived tables in use:** `amiga_game_ratings`, `amiga_player_stats`, `amiga_rating_events`, `amiga_tournament_standings`, `amiga_player_tournament_participation`, `amiga_player_tournament_totals`, `amiga_player_matchup_summary`, `amiga_generalstats` (all rebuilt by `scripts/amiga/replay.py` after tournament finalize). See [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) and [`amiga-data-contract.md`](amiga-data-contract.md).
 
-**Deferred on profile:** WC medals snippet, H2H pair page, activity calendars — see player-universe contract §4.
+**Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment — see player-universe contract §4 and [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
 
 ### Participation points (read carefully)
 
@@ -60,14 +66,17 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 - `includes/amiga_hub_nav.php` — realm hub tabs
 - `amiga/hall-of-fame.php` — HoF (generalstats + ratio leaders + WC medal panel)
 - `includes/amiga_player_tournament_lib.php` — participation + totals reads
-- `includes/amiga_player_matchup_lib.php` — top opponents
-- `includes/amiga_records_*.php` — HoF record panels
-- `amiga/leaderboards/tournament-honours.php` — tournament honours wing
+- `includes/amiga_player_matchup_lib.php` — top opponents + H2H pair reads
+- `includes/amiga_lb_nav.php`, `includes/amiga_lb_lib.php` — leaderboard wing tabs + shared row helpers
+- `includes/amiga_records_*.php`, `includes/amiga_records_hof_links.php` — HoF panels + metric deep links
+- `amiga/h2h.php` — head-to-head pair page
+- `amiga/leaderboards/*.php` — rating, goals, DDs, victims, peak, perf rating, tournament honours
 - `includes/amiga_db.php` — ground + derived join helpers
 - `includes/amiga_player_load.php`
 - `includes/amiga_player_hero.php`
 - `includes/amiga_player_nav.php`
 - `includes/amiga_profile_blocks.php`
+- `includes/amiga_player_moments_lib.php`
 - `includes/amiga_tournament_lib.php`
 - `includes/amiga_tournament_bracket.php`
 - `stylesheets/amiga-tournament.css`
@@ -110,11 +119,12 @@ API returns one point per finalized tournament (not per game). Multi-game tourna
 - **Bracket** — phase-grouped columns (Quarter → Semi → Final; placement finals/brackets below); click aggregate score for leg-by-leg tie detail (`scope=knockout&scope_key=…`); `extra` penalties on leg rows
 - **League marathons** — e.g. London XXIII: overall table only, no empty bracket shell
 
-## Not in v0
+## Not shipped (deferred)
 
-- H2H pair/compare page, milestones, per-game detail page, compare chart, full bracket advancement tree (cross-stage promotion)
-- Profile WC medals block
-- **Match streaks** — no leaderboard wing, HoF rows, or profile moments. Real within-day play order is unknown; synthetic `game_date` chronology is not valid for consecutive-result streaks. See [`amiga-data-contract.md`](amiga-data-contract.md) § Match streaks.
+- Per-game detail page, compare chart, cross-realm H2H, milestones
+- Dedicated profile WC medals block (honours strip covers career summary)
+- Tournament **Games** tab (scoped event game list)
+- **Match streaks** — no leaderboard wing, HoF rows, or profile streak moment. Real within-day play order is unknown; synthetic `game_date` chronology is not valid for consecutive-result streaks. See [`amiga-data-contract.md`](amiga-data-contract.md) § Match streaks.
 
 ## Browser QA checklist (standings + bracket)
 
@@ -126,10 +136,11 @@ After `python -m scripts.amiga replay`, spot-check locally:
 4. **Knockout bracket** — World Cup XI — bracket shows semi winners Gianni T over Lorenzo C (10–6) and Alkis P over Andy G; columns scroll on desktop, stack ~375px
 5. **Knockout fixture** — click semi score → leg table; Gianni T / Lorenzo C (`scope_key=Semi Finals|149-253`) — 2 legs, winner Gianni T (10–6). Penalties: open a tied placement tie (e.g. `Places 17-24|445-467`) — leg row shows `extra` text on the score line (e.g. `(4-4) 5-4 p.k.`)
 6. **Games links** — busy player games tab — tournament name → overall/group; phase → group or knockout scope
-7. **Profile** — recent tournaments block; top opponents plausible for busy player; cups with knockouts link to `#bracket`; rating chart **By tournament #** has no zigzags inside multi-game events; busy player with 10+ events in one year readable on calendar axis
-7b. **Tournament history** — `/amiga/player-tournaments.php?id=<busy_player>` — all events listed; **Pts** = `event_points`; WC rows show medal finish not group rank; filter pill **World Cups** works
-8. **Hall of Fame** — `/amiga/hall-of-fame.php` loads; record holders link to profiles; no streak rows
-9. **Tournament honours LB** — `/amiga/leaderboards/tournament-honours.php` sorts; top WC gold plausible (Gianni T)
+7. **Profile** — recent tournaments block; top opponents plausible for busy player; **Moments** (e.g. Oliver St `id=345` shows 26–0 goal festival); cups with knockouts link to `#bracket`; rating chart **By tournament #** has no zigzags inside multi-game events; busy player with 10+ events in one year readable on calendar axis
+7b. **Tournament history** — `/amiga/player-tournaments.php?id=<busy_player>` — all events listed; **Pts** = `event_points`; WC rows show medal finish not group rank; **Cups** and **country** pills reduce row set (e.g. Dagh N `id=73`: 2 cups, 5 in England)
+8. **Hall of Fame** — `/amiga/hall-of-fame.php` loads; record holders link to profiles; metric cells deep-link to LB wings; no streak rows
+8b. **Tier A LB** — `/amiga/leaderboards/goals.php` (and siblings) sort; wing nav complete; HoF links land correctly
+9. **Tournament honours LB** — `/amiga/leaderboards/tournament-honours.php` — WC + cup medal columns, podiums; sort by podiums (Alkis P leads at 95); default sort WC gold
 10. **Games tab** — adjustment column populated for finalized games (frozen rating + delta); sort by adjustment works
 11. **Responsive** — tournament page usable at ~375px width (bracket stacks, nav wraps)
 

@@ -32,6 +32,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_bracket.php';
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
+
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 
@@ -55,6 +59,8 @@ if (!in_array($scopeType, ['overall', 'group', 'placement', 'knockout'], true)) 
     $scopeType = 'overall';
 
 }
+
+$pageView = isset($_GET['view']) && (string) $_GET['view'] === 'event-stats' ? 'event-stats' : 'standings';
 
 
 
@@ -131,6 +137,10 @@ $bracketData = $hasBracket
     ? amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes)
     : ['main' => [], 'placement_final' => [], 'placement_bracket' => []];
 
+$eventStatsRows = amiga_tournament_participation_rows($con, $id);
+
+$isWorldCupEvent = amiga_tournament_is_world_cup($tournament);
+
 mysqli_close($con);
 
 ?>
@@ -192,7 +202,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 
 
-<?php if ($groupScopes !== [] || $hasBracket || $showOverallTable) { ?>
+<?php if ($groupScopes !== [] || $hasBracket || $showOverallTable || $eventStatsRows !== []) { ?>
 
 <nav class="k2-amiga-tournament-nav k2-player-nav-bar" aria-label="Tournament sections">
 
@@ -202,7 +212,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       <?php if ($showOverallTable) {
 
-          $overallActive = $scopeType === 'overall' && $scopeKey === '';
+          $overallActive = $scopeType === 'overall' && $scopeKey === '' && $pageView === 'standings';
 
           ?>
 
@@ -216,7 +226,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       <?php foreach ($groupScopes as $gk) {
 
-          $active = $scopeType === 'group' && $scopeKey === $gk;
+          $active = $scopeType === 'group' && $scopeKey === $gk && $pageView === 'standings';
 
           ?>
 
@@ -230,7 +240,21 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       <?php if ($hasBracket) { ?>
 
-      <a href="<?php echo k2_h(amiga_tournament_url($id) . '#bracket'); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView ? ' is-active' : ''; ?>">Bracket</a>
+      <a href="<?php echo k2_h(amiga_tournament_url($id) . '#bracket'); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'standings' ? ' is-active' : ''; ?>">Bracket</a>
+
+      <?php } ?>
+
+      <?php if ($eventStatsRows !== []) {
+
+          $eventStatsActive = $pageView === 'event-stats';
+
+          ?>
+
+      <a href="<?php echo k2_h(amiga_tournament_event_stats_url($id)); ?>" class="k2-player-nav__btn<?php echo $eventStatsActive ? ' is-active' : ''; ?>"<?php
+
+          echo $eventStatsActive ? ' aria-current="page"' : '';
+
+      ?>>Event stats</a>
 
       <?php } ?>
 
@@ -246,7 +270,27 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <div class="k2-amiga-tournament-body">
 
+<?php if ($pageView === 'event-stats') { ?>
 
+<section class="k2-amiga-tournament-event-stats" aria-labelledby="k2-amiga-event-stats-heading">
+
+  <h2 id="k2-amiga-event-stats-heading" class="k2-panel-heading" style="margin:0 1.25rem 0.75rem">Event stats</h2>
+
+  <p style="margin:0 1.25rem 0.75rem;color:var(--k2-text-secondary)">Per-player totals across all phases in this event — from stored participation, not a live game scan.</p>
+
+  <?php if ($eventStatsRows === []) { ?>
+
+  <p class="k2-amiga-tournament-empty">No participation rows for this event yet.</p>
+
+  <?php } else {
+
+      amiga_tournament_render_event_stats_table($eventStatsRows, $isWorldCupEvent);
+
+  } ?>
+
+</section>
+
+<?php } else { ?>
 
 <?php if ($hasBracket) {
 
@@ -495,6 +539,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
   <?php } ?>
 
 </p>
+
+<?php } ?>
 
 </div><!-- .k2-amiga-tournament-body -->
 

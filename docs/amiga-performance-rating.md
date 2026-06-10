@@ -77,8 +77,10 @@ Do **not** store on `amiga_tournament_standings` (phase-scoped, multiple rows pe
 | Surface | Source |
 |---------|--------|
 | `/amiga/player-tournaments.php` | `amiga_player_tournament_participation` — sortable **Perf. rating** column |
-| Profile recent tournaments | omitted (compact block) |
-| `/amiga/tournament.php` | not in v1 |
+| Profile highlight | `amiga_player_perf_rating_highlight()` — best event + latest event lines |
+| Profile recent tournaments | `amiga_profile_recent_tournament_extras()` — **Perf NNN** when games ≥ 2 (compact suffix) |
+| `/amiga/tournament.php` | `view=event-stats` — participation roster; **Perf. rating** column |
+| `/amiga/leaderboards/performance-rating.php` | Best single-event perf per player (`amiga_lb_performance_rating_rows`) |
 
 ---
 
@@ -97,7 +99,7 @@ Full replay recomputes via finalize loop (no separate backfill needed after `rep
 
 ## Non-goals (v1)
 
-- Leaderboards / HoF “best performance in an event”
+- HoF “best performance in an event” deep link (LB wing shipped slice 5)
 - `performance_rating − rating_before` column
 - Phase-scoped performance (group-only TPR)
 - Cross-realm or Access `activityrating` parity

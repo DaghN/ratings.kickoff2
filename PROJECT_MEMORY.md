@@ -83,6 +83,15 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga surface expansion complete (slices 0–8)** — profile feast v1, seven LB wings, H2H, event-stats, HoF deep links; docs + full verify suite pass; deferred → overview §4. |
+| 2026-06 | **Amiga surface expansion slice 7** — honours LB cup medals + podiums columns; player-tournaments Cups/country filters; recent tournaments Winner + Perf suffix. |
+| 2026-06 | **Amiga surface expansion slice 6** — profile Moments block from stats `*GameID` pointers (`amiga_player_moments_lib.php`); no streak card; peak game card pending `PeakRatingGameID` in replay. |
+| 2026-06 | **Amiga surface expansion slice 5** — profile perf highlight + `/amiga/leaderboards/performance-rating.php` wing. |
+| 2026-06 | **Amiga surface expansion slice 4** — tournament.php Event stats tab from participation (W-D-L, goals, rating, perf). |
+| 2026-06 | **Amiga surface expansion slice 3** — profile top opponents goals + `/amiga/h2h.php` pair page; games.php opponent filter linked. |
+| 2026-06 | **Amiga surface expansion slice 2** — HoF value cells deep-link to Tier A LB wings (`amiga_records_hof_links.php`). |
+| 2026-06 | **Amiga surface expansion slice 1** — Tier A LB wings (Goals, DDs, Victims, Peak) + `amiga_lb_nav`; rating at `/amiga/leaderboards/rating.php`. |
+| 2026-06 | **Amiga surface expansion slice 0** — profile honours strip from `amiga_player_tournament_totals` (WC medals, wins, podiums); [`amiga-surface-expansion-implementation-plan.md`](docs/amiga-surface-expansion-implementation-plan.md). |
 | 2026-06 | **Amiga participation placement ladder** — games-driven roster (`participation_placement.py` + PHP parity); knockout cups + group/KO events without overall scope now appear on player tournament history; contract §5.2.2; run `participation-rebuild`. |
 | 2026-06 | **Amiga derived-stat placement** — player-universe contract §5.0 (stored-truth policy, glossary, decision tree, placement matrix). |
 | 2026-06 | **Amiga performance rating** — event TPR on `amiga_rating_events` + participation denorm; Perf. rating column on `/amiga/player-tournaments.php`; migration `015`; [`amiga-performance-rating.md`](docs/amiga-performance-rating.md). |

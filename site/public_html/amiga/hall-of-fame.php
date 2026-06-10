@@ -139,44 +139,51 @@ amiga_records_render_row(
     'Most goals',
     amiga_records_value_or_dash($records['MostGoalsScored'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostGoalsScoredID'] ?? 0), (string) ($records['MostGoalsScoredName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostGoalsScoredDate'] ?? null, amiga_records_has_value($records['MostGoalsScored'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostGoalsScoredDate'] ?? null, amiga_records_has_value($records['MostGoalsScored'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_goals')
 );
 amiga_records_render_row(
     'Most double digits',
     amiga_records_value_or_dash($records['MostDoubleDigits'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDoubleDigitsID'] ?? 0), (string) ($records['MostDoubleDigitsName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostDoubleDigitsDate'] ?? null, amiga_records_has_value($records['MostDoubleDigits'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostDoubleDigitsDate'] ?? null, amiga_records_has_value($records['MostDoubleDigits'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_dd')
 );
 amiga_records_render_row(
     'Most clean sheets',
     amiga_records_value_or_dash($records['MostCleanSheets'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostCleanSheetsID'] ?? 0), (string) ($records['MostCleanSheetsName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostCleanSheetsDate'] ?? null, amiga_records_has_value($records['MostCleanSheets'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostCleanSheetsDate'] ?? null, amiga_records_has_value($records['MostCleanSheets'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_cs')
 );
 amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Most opponents',
     (string) ($records['MostDifferentOpponents'] ?? '-'),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDifferentOpponentsID'] ?? 0), (string) ($records['MostDifferentOpponentsName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostDifferentOpponentsDate'] ?? null, true, $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostDifferentOpponentsDate'] ?? null, true, $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_opponents')
 );
 amiga_records_render_row(
     'Most victims',
     amiga_records_value_or_dash($records['MostDifferentVictims'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDifferentVictimsID'] ?? 0), (string) ($records['MostDifferentVictimsName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostDifferentVictimsDate'] ?? null, amiga_records_has_value($records['MostDifferentVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostDifferentVictimsDate'] ?? null, amiga_records_has_value($records['MostDifferentVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_victims')
 );
 amiga_records_render_row(
     'Most double digit victims',
     amiga_records_value_or_dash($records['MostDoubleDigitsVictims'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDoubleDigitsVictimsID'] ?? 0), (string) ($records['MostDoubleDigitsVictimsName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostDoubleDigitsVictimsDate'] ?? null, amiga_records_has_value($records['MostDoubleDigitsVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostDoubleDigitsVictimsDate'] ?? null, amiga_records_has_value($records['MostDoubleDigitsVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_dd_victims')
 );
 amiga_records_render_row(
     'Most clean sheet victims',
     amiga_records_value_or_dash($records['MostCleanSheetsVictims'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostCleanSheetsVictimsID'] ?? 0), (string) ($records['MostCleanSheetsVictimsName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostCleanSheetsVictimsDate'] ?? null, amiga_records_has_value($records['MostCleanSheetsVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostCleanSheetsVictimsDate'] ?? null, amiga_records_has_value($records['MostCleanSheetsVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_cs_victims')
 );
 ?>
 </tbody>
@@ -199,14 +206,16 @@ amiga_records_render_row(
     'Most goals in one game',
     amiga_records_value_or_dash($records['MostGoalsScoredInOneGame'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostGoalsScoredInOneGameID'] ?? 0), (string) ($records['MostGoalsScoredInOneGameName'] ?? ''))),
-    amiga_records_date_or_dash($records['MostGoalsScoredInOneGameDate'] ?? null, $hasMostGoalsOneGame, $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['MostGoalsScoredInOneGameDate'] ?? null, $hasMostGoalsOneGame, $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_goals_one_game')
 );
 $hasBiggestWinMargin = amiga_records_has_value($records['BiggestWinDifference'] ?? 0);
 amiga_records_render_row(
     'Biggest winning margin',
     amiga_records_value_or_dash($records['BiggestWinDifference'] ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestWinDifferenceID'] ?? 0), (string) ($records['BiggestWinDifferenceName'] ?? ''))),
-    amiga_records_date_or_dash($records['BiggestWinDifferenceDate'] ?? null, $hasBiggestWinMargin, $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['BiggestWinDifferenceDate'] ?? null, $hasBiggestWinMargin, $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('biggest_win_margin')
 );
 $hasBiggestDraw = amiga_records_has_value($records['BiggestDrawSum'] ?? 0);
 $biggestDrawScore = $hasBiggestDraw
@@ -220,7 +229,8 @@ amiga_records_render_row(
         . ' / '
         . amiga_records_profile_link((int) ($records['BiggestDrawSumIDB'] ?? 0), (string) ($records['BiggestDrawSumNameB'] ?? ''))
     ),
-    amiga_records_date_or_dash($records['BiggestDrawSumDate'] ?? null, $hasBiggestDraw, $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['BiggestDrawSumDate'] ?? null, $hasBiggestDraw, $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('biggest_draw')
 );
 $hasBiggestSumGoals = amiga_records_has_value($records['BiggestSumOfGoals'] ?? 0);
 amiga_records_render_row(
@@ -231,7 +241,8 @@ amiga_records_render_row(
         . ' / '
         . amiga_records_profile_link((int) ($records['BiggestSumOfGoalsIDB'] ?? 0), (string) ($records['BiggestSumOfGoalsNameB'] ?? ''))
     ),
-    amiga_records_date_or_dash($records['BiggestSumOfGoalsDate'] ?? null, $hasBiggestSumGoals, $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['BiggestSumOfGoalsDate'] ?? null, $hasBiggestSumGoals, $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('biggest_sum_goals')
 );
 amiga_records_render_spacer_row();
 $hasPeakRating = amiga_records_has_value($records['BiggestPeakRating'] ?? 0);
@@ -239,26 +250,30 @@ amiga_records_render_row(
     'Highest peak rating',
     $hasPeakRating ? number_format((float) $records['BiggestPeakRating'], 0, '.', '') : '-',
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestPeakRatingID'] ?? 0), (string) ($records['BiggestPeakRatingName'] ?? ''))),
-    amiga_records_date_or_dash($records['BiggestPeakRatingDate'] ?? null, $hasPeakRating, $newRecordCutoff, $legendaryRecordCutoff)
+    amiga_records_date_or_dash($records['BiggestPeakRatingDate'] ?? null, $hasPeakRating, $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('peak_rating')
 );
 amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Best attack average',
     amiga_records_fixed_or_dash($BiggestGoalsForAverage ?? null, 2),
     amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestGoalsForAverageID ?? 0), (string) ($BiggestGoalsForAverageName ?? ''))),
-    '-'
+    '-',
+    amiga_records_hof_lb_href('attack_avg')
 );
 amiga_records_render_row(
     'Best defense average',
     amiga_records_fixed_or_dash($SmallestGoalsAgainstAverage ?? null, 2),
     amiga_records_holder_html(amiga_records_profile_link((int) ($SmallestGoalsAgainstAverageID ?? 0), (string) ($SmallestGoalsAgainstAverageName ?? ''))),
-    '-'
+    '-',
+    amiga_records_hof_lb_href('defense_avg')
 );
 amiga_records_render_row(
     'Best goal ratio',
     amiga_records_fixed_or_dash($BiggestGoalRatio ?? null, 2),
     amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestGoalRatioID ?? 0), (string) ($BiggestGoalRatioName ?? ''))),
-    '-'
+    '-',
+    amiga_records_hof_lb_href('goal_ratio')
 );
 amiga_records_render_spacer_row();
 amiga_records_render_row(
@@ -272,13 +287,15 @@ amiga_records_render_row(
     'Highest double digit frequency',
     amiga_records_percent_or_dash($BiggestDoubleDigitsRatio ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestDoubleDigitsRatioID ?? 0), (string) ($BiggestDoubleDigitsRatioName ?? ''))),
-    '-'
+    '-',
+    amiga_records_hof_lb_href('dd_ratio')
 );
 amiga_records_render_row(
     'Highest clean sheet frequency',
     amiga_records_percent_or_dash($BiggestCleanSheetsRatio ?? null),
     amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestCleanSheetsRatioID ?? 0), (string) ($BiggestCleanSheetsRatioName ?? ''))),
-    '-'
+    '-',
+    amiga_records_hof_lb_href('cs_ratio')
 );
 ?>
 </tbody>

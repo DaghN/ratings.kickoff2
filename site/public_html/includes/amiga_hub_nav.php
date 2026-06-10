@@ -4,16 +4,15 @@
  *
  * Set $k2AmigaHubTabActive before include: ladder | leaderboards | tournaments | live-tournaments | hall-of-fame
  *
- * Leaderboards wing nav (/amiga/leaderboards/*) ships in a later phase — Rating wing
- * lives under Ladder for now. No streaks wing (unknown within-day play order;
- * docs/amiga-data-contract.md § Match streaks).
+ * Ladder tab → rating wing under /amiga/leaderboards/. Honours tab → tournament honours wing.
+ * Wing nav on all leaderboard pages (includes/amiga_lb_nav.php). No streaks wing.
  *
  * Tint picker matches online hub (realm-neutral). Peer pill scroll: data-k2-carry-scroll.
  */
 $k2AmigaHubTabActive = $k2AmigaHubTabActive ?? '';
 
 $k2AmigaHubTabs = [
-	'ladder' => ['href' => '/amiga/rating.php', 'label' => 'Ladder'],
+	'ladder' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Ladder'],
 	'leaderboards' => ['href' => '/amiga/leaderboards/tournament-honours.php', 'label' => 'Honours'],
 	'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
 	'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live tournaments'],

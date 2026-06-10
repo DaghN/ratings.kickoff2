@@ -103,17 +103,21 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 |---------|---------------|--------------|-----------|------|
 | **Hero + rank** | `/amiga/profile.php` | `amiga_player_stats` + rank subquery | `amiga_players` | A (shipped) |
 | **Career strip** | profile | `amiga_player_stats` | — | A (shipped) |
+| **Honours strip** | profile | `amiga_player_tournament_totals` | WC medals, wins, podiums | B (shipped) |
+| **Performance rating highlight** | profile | `amiga_player_tournament_participation` | best + latest event | B (shipped) |
+| **Moments / trophy games** | profile | `amiga_player_stats` `*GameID` + batched game fetch | no table scan; `PeakRatingGameID` not yet written by replay | A (shipped) |
 | **Rating chart** | `api/player_rating_history.php?realm=amiga` | `amiga_rating_events` → `tournaments` | — | A (shipped) |
-| **Recent tournaments** | profile (5 rows) | `amiga_player_tournament_participation` | — | B (shipped) |
-| **Full tournament history** | `/amiga/player-tournaments.php` | `amiga_player_tournament_participation` | sortable table; W-D-L + **`event_points`** + **Perf. rating**; WC filter pill; all rows (no pagination) | B (shipped) |
+| **Recent tournaments** | profile (5 rows) | `amiga_player_tournament_participation` | finish suffix + Winner + Perf | B (shipped) |
+| **Full tournament history** | `/amiga/player-tournaments.php` | `amiga_player_tournament_participation` | sortable; filters All / WC / Cups / country | B (shipped) |
+| **Tournament event stats** | `/amiga/tournament.php?view=event-stats` | `amiga_player_tournament_participation` | roster for one event | B (shipped) |
 | **Games list** | `/amiga/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |
-| **Moments / trophy games** | profile block | `amiga_player_stats` `*GameID` + single-game fetch | no scan | A |
-| **Top opponents** | profile | `amiga_player_matchup_summary` | sort by `games` | B (shipped) |
-| **H2H pair page** | future API | `amiga_player_matchup_summary` + game list optional | — | B (deferred) |
-| **Leaderboard wings** | `/amiga/leaderboards/*` | `amiga_player_stats` + `amiga_player_tournament_totals` | Rating + honours wings | A/B |
-| **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_tournament_totals` | — | B (shipped) |
-| **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on stats | WC medal panel | B (shipped) |
-| **WC medals on profile** | profile block | `amiga_player_tournament_totals` or participation filter | — | B (deferred) |
+| **Top opponents** | profile | `amiga_player_matchup_summary` | goals column; H2H links | B (shipped) |
+| **H2H pair page** | `/amiga/h2h.php` | `amiga_player_matchup_summary` | directed pair summary | B (shipped) |
+| **Tier A LB wings** | `/amiga/leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php` | `amiga_player_stats` | `amiga_lb_nav.php` | A (shipped) |
+| **Performance rating LB** | `/amiga/leaderboards/performance-rating.php` | `amiga_player_tournament_participation` | best event per player | B (shipped) |
+| **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_tournament_totals` | WC + cup medals, podiums | B (shipped) |
+| **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on stats | WC panel; metric → LB deep links | B (shipped) |
+| **WC medals block (dedicated)** | profile | `amiga_player_tournament_totals` | honours strip covers summary | B (deferred) |
 
 **Rule:** New PHP must not aggregate `amiga_games` on profile/leaderboard hot paths. Games tab remains the intentional scan surface (paginated, per player).
 
@@ -501,9 +505,9 @@ python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
 ```
 
-**Parallel track (not in slices 0–14):** Tier A leaderboard wings (goals, DD, victims, peak) — [`amiga-realm-vision.md`](amiga-realm-vision.md) Phase A; pages only, no new tables.
+**Surface expansion (slices 0–8, Jun 2026):** **Complete** — Tier A LB wings, profile honours/perf/moments, H2H, event-stats tab, honours LB polish. Handoff: [`orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md). Overview deferred items: [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
 
-**Deferred (post–slice 14):** Profile WC medals snippet; live incremental H2H/generalstats on result entry; H2H pair page; tournament-history filters (`is_cup`, country); `amiga_player_tournament_slice_totals`; Tier C activity (`player_period_games` semantics TBD); `amiga-tournament-honours-rules.md` for edge-case WC medals.
+**Deferred (potential):** Dedicated profile WC medals block; live incremental H2H/generalstats on result entry; `amiga_player_tournament_slice_totals`; tournament **Games** tab (scoped `amiga_games`); Tier C activity; `performance_rating − rating_before` column; `PeakRatingGameID` replay writer; `amiga-tournament-honours-rules.md` for edge-case WC medals.
 
 ---
 

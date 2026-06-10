@@ -2,7 +2,7 @@
 
 **Status:** Investigation + phased delivery (Jun 2026). **Scope:** inventory and roadmap; implementation tracked in [`amiga-data-contract.md`](amiga-data-contract.md) migration table.
 
-**Shipped since investigation:** Amiga hub nav (`includes/amiga_hub_nav.php`) — **Ladder · Tournaments · Honours · Hall of Fame**. Player universe slices 0–14 (Jun 2026): participation, totals, H2H, `amiga_generalstats`, HoF page, tournament honours LB — see [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md). **Still backlog:** Tier A stat wings (goals, DD, victims, peak rating) from `amiga_player_stats` only.
+**Shipped since investigation:** Amiga hub nav — **Ladder · Tournaments · Honours · Hall of Fame**. Player universe slices 0–14 + **surface expansion slices 0–8** (Jun 2026): participation, totals, H2H pair page, `amiga_generalstats`, HoF + LB deep links, **seven leaderboard wings** (rating, goals, DDs, victims, peak, perf rating, tournament honours), profile honours/perf/moments, tournament event-stats tab — see [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4. **Backlog:** §4 Potential in [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) (tournament games tab, slice totals, activity charts, etc.).
 
 **Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (layers + table register), [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) (player derived expansion — intent), [`amiga-profile-v0.md`](amiga-profile-v0.md), [`hub-ia-agreement.md`](hub-ia-agreement.md), [`website-data-contract.md`](website-data-contract.md).
 

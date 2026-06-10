@@ -409,16 +409,20 @@ function amiga_player_recent_tournaments(mysqli $con, int $playerId, int $limit 
  * @return list<array<string, mixed>>
  */
 /**
- * @param 'all'|'world-cup' $eventFilter
+ * @param 'all'|'world-cup'|'cups' $eventFilter
  * @return list<array<string, mixed>>
  */
-function amiga_player_all_tournaments(mysqli $con, int $playerId, string $eventFilter = 'all'): array
-{
+function amiga_player_all_tournaments(
+    mysqli $con,
+    int $playerId,
+    string $eventFilter = 'all',
+    string $country = ''
+): array {
     require_once __DIR__ . '/amiga_player_tournament_lib.php';
 
     $rows = amiga_player_tournament_participation_all($con, $playerId);
 
-    return amiga_player_tournament_participation_filter_events($rows, $eventFilter);
+    return amiga_player_tournament_participation_filter_events($rows, $eventFilter, $country);
 }
 
 function amiga_tournament_url(int $id, string $scopeType = 'overall', string $scopeKey = ''): string
@@ -430,7 +434,13 @@ function amiga_tournament_url(int $id, string $scopeType = 'overall', string $sc
             $params['scope_key'] = $scopeKey;
         }
     }
+
     return '/amiga/tournament.php?' . http_build_query($params);
+}
+
+function amiga_tournament_event_stats_url(int $id): string
+{
+    return '/amiga/tournament.php?' . http_build_query(['id' => $id, 'view' => 'event-stats']);
 }
 
 function amiga_tournament_link(int $id, string $name, string $fragment = ''): string

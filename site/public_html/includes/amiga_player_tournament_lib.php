@@ -97,19 +97,257 @@ function amiga_player_tournament_participation_all(mysqli $con, int $playerId): 
 }
 
 /**
+ * Distinct event locations (country) from participation rows, sorted A–Z.
+ *
  * @param list<array<string, mixed>> $rows
+ * @return list<string>
+ */
+function amiga_player_tournament_participation_countries(array $rows): array
+{
+    $countries = [];
+    foreach ($rows as $row) {
+        $country = trim((string) ($row['country'] ?? ''));
+        if ($country !== '') {
+            $countries[$country] = true;
+        }
+    }
+    $list = array_keys($countries);
+    sort($list, SORT_STRING);
+
+    return $list;
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @param 'all'|'world-cup'|'cups' $filter
  * @return list<array<string, mixed>>
  */
-function amiga_player_tournament_participation_filter_events(array $rows, string $filter): array
-{
-    if ($filter !== 'world-cup') {
+function amiga_player_tournament_participation_filter_events(
+    array $rows,
+    string $filter,
+    string $country = ''
+): array {
+    $country = trim($country);
+    if ($filter === 'all' && $country === '') {
         return $rows;
     }
 
     return array_values(array_filter(
         $rows,
-        static fn (array $row): bool => amiga_tournament_is_world_cup($row)
+        static function (array $row) use ($filter, $country): bool {
+            if ($filter === 'world-cup' && !amiga_tournament_is_world_cup($row)) {
+                return false;
+            }
+            if ($filter === 'cups' && (int) ($row['is_cup'] ?? 0) !== 1) {
+                return false;
+            }
+            if ($country !== '' && trim((string) ($row['country'] ?? '')) !== $country) {
+                return false;
+            }
+
+            return true;
+        }
     ));
+}
+
+/**
+ * Filter pills URL for player tournament history.
+ */
+function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'all', string $country = ''): string
+{
+    $params = ['id' => $playerId];
+    if ($filter !== 'all') {
+        $params['filter'] = $filter;
+    }
+    $country = trim($country);
+    if ($country !== '') {
+        $params['country'] = $country;
+    }
+
+    return '/amiga/player-tournaments.php?' . http_build_query($params);
+}
+
+/**
+ * Event-wide participation roster for one tournament (tournament.php event stats).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): array
+{
+    if ($tournamentId < 1) {
+        return [];
+    }
+
+    $sql = 'SELECT p.player_id,
+                   pl.name AS player_name,
+                   p.tournament_id,
+                   p.tournament_name AS name,
+                   p.is_cup,
+                   p.has_league,
+                   p.has_cup,
+                   p.country,
+                   p.overall_position AS position,
+                   p.event_points,
+                   p.games,
+                   p.wins,
+                   p.draws,
+                   p.losses,
+                   p.goals_for,
+                   p.goals_against,
+                   p.avg_goals_for,
+                   p.avg_goals_against,
+                   p.rating_before,
+                   p.rating_delta,
+                   p.rating_after,
+                   p.performance_rating,
+                   p.is_winner,
+                   p.wc_medal
+            FROM amiga_player_tournament_participation p
+            INNER JOIN amiga_players pl ON pl.id = p.player_id
+            INNER JOIN tournaments t ON t.id = p.tournament_id
+            WHERE p.tournament_id = ?
+              AND ' . amiga_tournament_public_visibility_where('t') . '
+            ORDER BY p.event_points DESC,
+                     p.goals_for DESC,
+                     pl.name ASC';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $rows;
+}
+
+/**
+ * @return array<string, mixed>|null
+ */
+function amiga_player_perf_rating_row_fetch(
+    mysqli $con,
+    int $playerId,
+    string $orderSql,
+): ?array {
+    if ($playerId < 1) {
+        return null;
+    }
+
+    $sql = 'SELECT p.tournament_id,
+                   p.tournament_name AS name,
+                   p.games,
+                   p.performance_rating
+            FROM amiga_player_tournament_participation p
+            INNER JOIN tournaments t ON t.id = p.tournament_id
+            WHERE p.player_id = ?
+              AND p.performance_rating IS NOT NULL
+              AND p.games >= 2
+              AND ' . amiga_tournament_public_visibility_where('t') . '
+            ORDER BY ' . $orderSql . '
+            LIMIT 1';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return null;
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $playerId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : false;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $row !== false ? $row : null;
+}
+
+/**
+ * Profile discovery: best single-event perf and most recent perf with a value.
+ *
+ * @return array{best: ?array<string, mixed>, recent: ?array<string, mixed>}
+ */
+function amiga_player_perf_rating_highlight(mysqli $con, int $playerId): array
+{
+    $best = amiga_player_perf_rating_row_fetch(
+        $con,
+        $playerId,
+        'p.performance_rating DESC, p.games DESC, p.tournament_id DESC'
+    );
+    $recent = amiga_player_perf_rating_row_fetch(
+        $con,
+        $playerId,
+        'COALESCE(p.event_chrono, 0) DESC, COALESCE(p.event_date, \'1970-01-01\') DESC, p.tournament_id DESC'
+    );
+
+    return ['best' => $best, 'recent' => $recent];
+}
+
+/**
+ * Best single-event performance rating per player (one row each).
+ *
+ * Tie-break when picking the event: perf DESC, event games DESC, tournament_id DESC.
+ * Leaderboard order: perf DESC, event games DESC, ladder rating DESC, player_id ASC.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_lb_performance_rating_rows(mysqli $con): array
+{
+    $sql = 'SELECT ranked.player_id,
+                   ranked.player_name,
+                   ranked.Rating,
+                   ranked.NumberGames,
+                   ranked.tournament_id,
+                   ranked.tournament_name,
+                   ranked.event_games,
+                   ranked.performance_rating
+            FROM (
+                SELECT pl.id AS player_id,
+                       pl.name AS player_name,
+                       s.Rating,
+                       s.NumberGames,
+                       part.tournament_id,
+                       part.tournament_name,
+                       part.games AS event_games,
+                       part.performance_rating,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY part.player_id
+                           ORDER BY part.performance_rating DESC,
+                                    part.games DESC,
+                                    part.tournament_id DESC
+                       ) AS rn
+                FROM amiga_player_tournament_participation part
+                INNER JOIN amiga_players pl ON pl.id = part.player_id
+                INNER JOIN amiga_player_stats s ON s.player_id = part.player_id
+                INNER JOIN tournaments t ON t.id = part.tournament_id
+                WHERE part.performance_rating IS NOT NULL
+                  AND part.games >= 2
+                  AND s.NumberGames > 0
+                  AND ' . amiga_tournament_public_visibility_where('t') . '
+            ) ranked
+            WHERE ranked.rn = 1
+            ORDER BY ranked.performance_rating DESC,
+                     ranked.event_games DESC,
+                     ranked.Rating DESC,
+                     ranked.player_id ASC';
+    $result = mysqli_query($con, $sql);
+    if (!$result) {
+        return [];
+    }
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rows[] = $row;
+    }
+    mysqli_free_result($result);
+
+    return $rows;
 }
 
 /**
@@ -167,6 +405,9 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
                    t.wc_gold,
                    t.wc_silver,
                    t.wc_bronze,
+                   t.cup_gold,
+                   t.cup_silver,
+                   t.cup_bronze,
                    t.podiums
             FROM amiga_player_tournament_totals t
             INNER JOIN amiga_players p ON p.id = t.player_id
@@ -174,6 +415,7 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
             ORDER BY t.wc_gold DESC,
                      t.wc_silver DESC,
                      t.wc_bronze DESC,
+                     t.podiums DESC,
                      t.tournaments_won DESC,
                      t.tournaments_played DESC,
                      t.player_id ASC';

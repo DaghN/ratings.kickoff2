@@ -1,7 +1,7 @@
 # Amiga surface expansion — overview (post player-universe)
 
-**Status:** Reference overview (Jun 2026). **Purpose:** capture what the player-universe derived-data expansion made possible, what is already surfaced, and what is **ready** vs **potential** for short-term product work.  
-**Execution:** [`amiga-surface-expansion-implementation-plan.md`](amiga-surface-expansion-implementation-plan.md) · starter prompt [`orchestration/agent-handoffs/amiga-surface-expansion-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-surface-expansion-STARTER-PROMPT.md)
+**Status:** **Complete** (Jun 2026) — slices 0–8 shipped; see handoff [`orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md). **Purpose:** capture what the player-universe derived-data expansion made possible, what is surfaced, and what remains **potential**.  
+**Execution:** [`amiga-surface-expansion-implementation-plan.md`](amiga-surface-expansion-implementation-plan.md) (all slices done)
 
 **Authority (data policy):** [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 — store hot-path stats on derived tables at rebuild/finalize; do not aggregate `amiga_games` on profile/leaderboard load.
 
@@ -11,37 +11,37 @@
 
 ## 1. Executive summary
 
-The **derived layer is ahead of the UI**. Rebuild/finalize already maintains rich rows in `amiga_player_tournament_participation`, `amiga_player_tournament_totals`, `amiga_player_matchup_summary`, and full career columns on `amiga_player_stats`. The **richest single surface** today is `/amiga/player-tournaments.php` (sortable event history with W-D-L, goals, averages, points, rating journey, perf rating).
+Rebuild/finalize maintains rich rows in `amiga_player_tournament_participation`, `amiga_player_tournament_totals`, `amiga_player_matchup_summary`, and full career columns on `amiga_player_stats`. **Surface expansion (slices 0–8)** shipped read-path UI on profile, tournament pages, seven leaderboard wings, HoF deep links, and H2H pair page — see [`amiga-profile-v0.md`](amiga-profile-v0.md) and [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4.
 
-Most other pages still read like **profile v0**: thin career strip, compact recent tournaments, top opponents without goals or H2H deep links, tournament page on standings only, and only two leaderboard wings (Rating under Ladder + Tournament honours).
+**Richest surfaces:** `/amiga/player-tournaments.php` (full event history); `/amiga/profile.php` (honours, perf, moments, recent tournaments, top opponents + H2H); `/amiga/tournament.php?view=event-stats`.
 
-**Strategic pattern:** the participation row is the product atom. The highest-value short-term wins reuse that atom (and existing totals/stats) on **profile**, **tournament pages**, and **leaderboard wings** — mostly **read-path PHP**, not new writers.
+**Remaining work** is **§4 Potential** only (new tables, tournament games tab, slice totals, activity charts, etc.) — not “hidden data on existing tables.”
 
 ---
 
 ## 2. Inventory gap (stored vs surfaced)
 
 ```text
-STORED (rebuild/finalize)          SURFACED TODAY
-─────────────────────────          ────────────────
-participation (rich row)     →     player-tournaments.php ✓
-                                   profile recent ✗ (thin)
-                                   tournament.php ✗ (standings only)
+STORED (rebuild/finalize)          SURFACED (Jun 2026)
+─────────────────────────          ───────────────────
+participation (rich row)     →     player-tournaments.php ✓ (filters: WC, cups, country)
+                                   profile recent ✓ (finish + Winner + Perf)
+                                   tournament.php event-stats ✓
 
-tournament_totals            →     honours LB (partial)
-                                   profile ✗ (count only — row already fetched)
+tournament_totals            →     honours LB ✓ (WC + cup medals, podiums)
+                                   profile honours strip ✓
 
-matchup_summary              →     top opponents ✓ (W-D-L, games only)
-                                   H2H pair page ✗
+matchup_summary              →     top opponents ✓ (goals, H2H links)
+                                   /amiga/h2h.php ✓
 
-player_stats (full career)   →     career strip ✓ (subset)
-                                   Tier A LB wings ✗ (4 missing)
+player_stats (full career)   →     career strip ✓
+                                   Tier A LB wings ✓ (goals, DD, victims, peak)
+                                   profile moments ✓ (*GameID; peak game ID pending replay)
 
-generalstats + ratio leaders →     HoF ✓
-                                   profile moments ✗
+generalstats + ratio leaders →     HoF ✓ + LB deep links ✓
 
-performance_rating           →     history column ✓
-                                   discovery / compare ✗
+performance_rating           →     history + event-stats columns ✓
+                                   profile highlight + perf LB wing ✓
 ```
 
 ---
@@ -166,17 +166,11 @@ Document rationale in hub copy, not empty stubs:
 
 ---
 
-## 6. Suggested priority (product, not execution order)
+## 6. Shipped priority order (slices 0–8, Jun 2026)
 
-Execution order lives in the implementation plan. Product priority for **Amiga-native delight per effort**:
+All items below are **done** — retained for history:
 
-1. Profile honours strip (`tournament_totals` — already fetched on profile)
-2. Tier A LB wings + HoF deep links
-3. H2H pair page + goals on top opponents
-4. Participation-backed roster on `tournament.php`
-5. Perf rating discovery (profile highlight + optional LB)
-6. Moments block
-7. Honours LB podiums/cups + history filters + light recent-tournament enrich
+1. Profile honours strip · 2. Tier A LB wings + HoF deep links · 3. H2H + top opponents goals · 4. Tournament event-stats tab · 5. Perf rating discovery · 6. Moments block · 7. Honours LB + history filters + recent enrich · 8. Documentation closure
 
 ---
 

@@ -44,6 +44,8 @@ try {
 $recentTournaments = amiga_player_recent_tournaments($con, $id, 5);
 $topOpponents = amiga_player_top_opponents($con, $id, 10);
 $tournamentTotals = amiga_player_tournament_totals_row($con, $id);
+$perfHighlight = amiga_player_perf_rating_highlight($con, $id);
+$profileMoments = amiga_player_moments_load($con, $id);
 $totalTournaments = $tournamentTotals !== null
     ? (int) ($tournamentTotals['tournaments_played'] ?? 0)
     : count($recentTournaments);
@@ -74,8 +76,13 @@ $k2AmigaPlayerTabActive = 'profile';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 
 amiga_profile_render_career($pm);
+if ($tournamentTotals !== null) {
+    amiga_profile_render_honours($tournamentTotals, $playerId);
+}
+amiga_profile_render_perf_rating_highlight($perfHighlight, $playerId);
+amiga_profile_render_moments($profileMoments, $playerId);
 amiga_profile_render_recent_tournaments($recentTournaments, $playerId, $totalTournaments);
-amiga_profile_render_top_opponents($topOpponents);
+amiga_profile_render_top_opponents($topOpponents, $playerId);
 amiga_profile_render_rating_chart($playerId);
 ?>
 

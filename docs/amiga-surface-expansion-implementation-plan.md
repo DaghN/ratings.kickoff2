@@ -1,7 +1,7 @@
 # Amiga surface expansion — implementation plan (agent slices)
 
-**Status:** Planned (Jun 2026). **Overview:** [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md)  
-**Starter prompt:** [`orchestration/agent-handoffs/amiga-surface-expansion-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-surface-expansion-STARTER-PROMPT.md)
+**Status:** **Complete** (Jun 2026, slices 0–8). **Overview:** [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md)  
+**Closure handoff:** [`orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md)
 
 **In scope:** Read-path PHP and thin leaderboard pages reusing derived tables from player-universe track (slices 0–14).  
 **Out of scope:** New derived writers, DDL (unless user explicitly expands scope), milestones, match streaks, calendar play streaks, UTC league features, cross-realm H2H, `amiga_player_tournament_slice_totals`, live incremental matchup/generalstats on single-game finalize.
@@ -205,15 +205,15 @@ Trophy games from `amiga_player_stats` game-id pointers — single-game fetches 
 
 ### Tasks
 
-- [ ] Extend `amiga_player_load.php` or dedicated moments loader for needed `*GameID` columns + opponent names
-- [ ] `amiga_profile_render_moments()` — reuse online CSS classes from `player-feast.css` where sensible
-- [ ] Cards: biggest win, most goals in one game, peak rating game (subset — match online feast restraint)
-- [ ] Link each moment to `/amiga/games.php` or game detail if exists
+- [x] Extend `amiga_player_load.php` or dedicated moments loader for needed `*GameID` columns + opponent names
+- [x] `amiga_profile_render_moments()` — reuse online CSS classes from `player-feast.css` where sensible
+- [x] Cards: biggest win, most goals in one game, peak rating game (subset — match online feast restraint)
+- [x] Link each moment to `/amiga/games.php` or game detail if exists
 
 ### Verification
 
-- [ ] Player with known `MostGoalsScoredGameID` shows correct scoreline
-- [ ] No full-table scans in page load path
+- [x] Player with known `MostGoalsScoredGameID` shows correct scoreline
+- [x] No full-table scans in page load path
 
 ### STOP GATE E
 
@@ -229,14 +229,14 @@ Close remaining **ready** items from overview §3.7–§3.9.
 
 ### Tasks
 
-- [ ] Honours LB: add `podiums`; optional `cup_gold/silver/bronze` columns if table width acceptable
-- [ ] `player-tournaments.php`: filter pills for cups (`is_cup`) and/or `country` (query param + `amiga_player_tournament_participation_filter_events` extension)
-- [ ] Recent tournaments: light enrich — e.g. perf rating or winner badge; **do not** break event_points suffix policy
+- [x] Honours LB: add `podiums`; optional `cup_gold/silver/bronze` columns if table width acceptable
+- [x] `player-tournaments.php`: filter pills for cups (`is_cup`) and/or `country` (query param + `amiga_player_tournament_participation_filter_events` extension)
+- [x] Recent tournaments: light enrich — e.g. perf rating or winner badge; **do not** break event_points suffix policy
 
 ### Verification
 
-- [ ] Filters reduce row set correctly on sample player
-- [ ] Honours LB sort by podiums
+- [x] Filters reduce row set correctly on sample player
+- [x] Honours LB sort by podiums
 
 ### STOP GATE F
 
@@ -252,11 +252,11 @@ Register shipped surfaces; point deferred work to overview §4.
 
 ### Tasks
 
-- [ ] Update `docs/amiga-profile-v0.md` — new blocks and routes
-- [ ] Update `docs/amiga-player-universe-contract.md` §4 surfaces register (mark shipped/deferred)
-- [ ] Update `docs/amiga-realm-vision.md` backlog line (Tier A wings shipped)
-- [ ] Update `docs/amiga-performance-rating.md` read paths if slice 5 shipped
-- [ ] Handoff summary + full verify suite output
+- [x] Update `docs/amiga-profile-v0.md` — new blocks and routes
+- [x] Update `docs/amiga-player-universe-contract.md` §4 surfaces register (mark shipped/deferred)
+- [x] Update `docs/amiga-realm-vision.md` backlog line (Tier A wings shipped)
+- [x] Update `docs/amiga-performance-rating.md` read paths if slice 5 shipped
+- [x] Handoff summary + full verify suite output
 
 ### Verification
 
