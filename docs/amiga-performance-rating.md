@@ -1,0 +1,101 @@
+# Amiga performance rating (event TPR)
+
+**Status:** Shipped (Jun 2026)  
+**Scope:** `ko2amiga_db` — one performance rating per player per finalized tournament  
+**Related:** [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.2
+
+---
+
+## Purpose
+
+**Performance rating** (product label: **Perf. rating**) is the single Elo level that would produce the player’s **actual score** across all rated games in an event against the **frozen opponent ratings** used at finalize.
+
+It answers: *“How strong did I play in this tournament?”* — distinct from **Adjustment** (`rating_delta`), which answers *“How did my ladder rating move given my entry rating?”*
+
+Amiga-native only — no Access parity target.
+
+---
+
+## Definition
+
+For player **P** in finalized tournament **T**, for each game **g** in **T**:
+
+| Symbol | Source |
+|--------|--------|
+| `s_g` | Player’s score: `actual_score` from `amiga_game_ratings` (A side) or `1 − actual_score` (B side) |
+| `R_opp_g` | Opponent’s **frozen** rating: `rating_b` / `rating_a` on the same row |
+
+Find **R_perf** such that:
+
+```text
+Σ_g  E(R_perf, R_opp_g)  =  Σ_g  s_g
+```
+
+where `E(R, R_opp) = 1 / (1 + 10^((R_opp − R) / 400))` — same logistic as ladder Elo; **K does not apply**.
+
+**Game set:** all phases in the event (same grain as `event_points`, `games_in_event`).
+
+**Opponent inputs:** frozen batch-start ratings only — order-independent within the event ([finalize contract](amiga-tournament-finalize-rating-contract.md) §5.5).
+
+---
+
+## Product rules
+
+| Rule | Behaviour |
+|------|-----------|
+| **Minimum games** | `games_in_event ≥ 2` — otherwise NULL |
+| **Perfect 0% or 100%** | NULL (no finite logistic solution when every score is 0 or 1) |
+| **Not finalized** | NULL (no `amiga_game_ratings` / rating event) |
+| **Display** | Integer like entry rating; NULL → em dash + column tooltip |
+| **vs entry delta** | Not surfaced in v1 |
+
+---
+
+## Storage
+
+| Table | Role |
+|-------|------|
+| `amiga_rating_events.performance_rating` | **Canonical** — written at finalize / backfill |
+| `amiga_player_tournament_participation.performance_rating` | **Denorm copy** — player history reads |
+
+Do **not** store on `amiga_tournament_standings` (phase-scoped, multiple rows per player).
+
+**Writer order:**
+
+1. `finalize_tournament` — after per-game `amiga_game_ratings`, before/with rating event insert (Python + PHP ops)
+2. `performance-rating-rebuild` — recompute all events from stored game rows (migration / repair)
+3. `participation-rebuild` — copies from `amiga_rating_events` (runs backfill first on full rebuild)
+
+**Verify:** `verify-player-participation` — participation `performance_rating` must match `amiga_rating_events` when either side is non-NULL.
+
+---
+
+## Read paths
+
+| Surface | Source |
+|---------|--------|
+| `/amiga/player-tournaments.php` | `amiga_player_tournament_participation` — sortable **Perf. rating** column |
+| Profile recent tournaments | omitted (compact block) |
+| `/amiga/tournament.php` | not in v1 |
+
+---
+
+## CLI
+
+```powershell
+mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
+python -m scripts.amiga performance-rating-rebuild
+python -m scripts.amiga participation-rebuild
+python -m scripts.amiga verify-player-participation
+```
+
+Full replay recomputes via finalize loop (no separate backfill needed after `replay`).
+
+---
+
+## Non-goals (v1)
+
+- Leaderboards / HoF “best performance in an event”
+- `performance_rating − rating_before` column
+- Phase-scoped performance (group-only TPR)
+- Cross-realm or Access `activityrating` parity

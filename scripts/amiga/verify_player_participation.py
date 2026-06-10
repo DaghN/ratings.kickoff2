@@ -69,6 +69,53 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
         cur.execute(
             """
             SELECT COUNT(*) AS n
+            FROM (
+                SELECT DISTINCT g.tournament_id, g.player_a_id AS player_id
+                FROM amiga_games g
+                UNION
+                SELECT DISTINCT g.tournament_id, g.player_b_id AS player_id
+                FROM amiga_games g
+            ) gp
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM amiga_player_tournament_participation p
+                WHERE p.player_id = gp.player_id
+                  AND p.tournament_id = gp.tournament_id
+            )
+            """
+        )
+        missing_participation = int(cur.fetchone()["n"])
+        if missing_participation:
+            cur.execute(
+                """
+                SELECT gp.player_id, gp.tournament_id
+                FROM (
+                    SELECT DISTINCT g.tournament_id, g.player_a_id AS player_id
+                    FROM amiga_games g
+                    UNION
+                    SELECT DISTINCT g.tournament_id, g.player_b_id AS player_id
+                    FROM amiga_games g
+                ) gp
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM amiga_player_tournament_participation p
+                    WHERE p.player_id = gp.player_id
+                      AND p.tournament_id = gp.tournament_id
+                )
+                LIMIT %s
+                """,
+                (_SAMPLE_LIMIT,),
+            )
+            sample = cur.fetchall()
+            errors.append(
+                f"games roster missing participation: {missing_participation} "
+                f"(first player_id={sample[0]['player_id']}, "
+                f"tournament_id={sample[0]['tournament_id']})"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
             FROM amiga_tournament_standings s
             WHERE s.scope_type = 'overall'
               AND s.scope_key = ''
@@ -80,8 +127,8 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
               )
             """
         )
-        missing_participation = int(cur.fetchone()["n"])
-        if missing_participation:
+        missing_overall_participation = int(cur.fetchone()["n"])
+        if missing_overall_participation:
             cur.execute(
                 """
                 SELECT s.player_id, s.tournament_id
@@ -100,7 +147,7 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             )
             sample = cur.fetchall()
             errors.append(
-                f"overall standings missing participation: {missing_participation} "
+                f"overall standings missing participation: {missing_overall_participation} "
                 f"(first player_id={sample[0]['player_id']}, "
                 f"tournament_id={sample[0]['tournament_id']})"
             )
@@ -187,8 +234,16 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
                OR p.finalized_at IS NULL
                OR e.finalized_at IS NULL
                OR p.finalized_at != e.finalized_at
+               OR (
+                   (p.performance_rating IS NULL) != (e.performance_rating IS NULL)
+               )
+               OR (
+                   p.performance_rating IS NOT NULL
+                   AND e.performance_rating IS NOT NULL
+                   AND ABS(p.performance_rating - e.performance_rating) > %s
+               )
             """,
-            (_TOLERANCE, _TOLERANCE, _TOLERANCE),
+            (_TOLERANCE, _TOLERANCE, _TOLERANCE, _TOLERANCE),
         )
         rating_mismatch = int(cur.fetchone()["n"])
         if rating_mismatch:
@@ -207,9 +262,17 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
                    OR p.finalized_at IS NULL
                    OR e.finalized_at IS NULL
                    OR p.finalized_at != e.finalized_at
+                   OR (
+                       (p.performance_rating IS NULL) != (e.performance_rating IS NULL)
+                   )
+                   OR (
+                       p.performance_rating IS NOT NULL
+                       AND e.performance_rating IS NOT NULL
+                       AND ABS(p.performance_rating - e.performance_rating) > %s
+                   )
                 LIMIT %s
                 """,
-                (_TOLERANCE, _TOLERANCE, _TOLERANCE, _SAMPLE_LIMIT),
+                (_TOLERANCE, _TOLERANCE, _TOLERANCE, _TOLERANCE, _SAMPLE_LIMIT),
             )
             sample = cur.fetchall()
             errors.append(

@@ -21,8 +21,8 @@
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): rank, rating, games, country line
 - **Player nav** — Profile · Tournaments · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
-- **Recent tournaments** — `amiga_player_tournament_participation`: finish suffix from `overall_position` or WC `wc_medal`; **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1)
-- **Tournament history** — `/amiga/player-tournaments.php`: full participation list (no pagination); sortable table with per-event W-D-L, goals, **`event_points` (Pts)**, rating before/delta/after; All / World Cups filter pills
+- **Recent tournaments** — `amiga_player_tournament_participation`: finish suffix from `overall_position` (league rank, **bracket finish** for knockout-only cups, or group rank on WCs) or WC `wc_medal` podium; **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1)
+- **Tournament history** — `/amiga/player-tournaments.php`: full participation list (no pagination); sortable table with per-event W-D-L, goals, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); All / World Cups filter pills
 - **Top opponents** — `amiga_player_matchup_summary` via `amiga_player_top_opponents()` (W-D-L, games)
 - **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_rating_events` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags)
 - **Games tab** — server-side filters (result, opponent), sort, 100-row pages; tournament + phase from `amiga_games` + `tournaments`; per-game frozen `rating_a/b` and `adjustment_a/b` from `amiga_game_ratings` (`new_rating_*` NULL after finalize v1)
@@ -46,7 +46,7 @@
 | **Phase points** (league table, WC group, etc.) | `amiga_tournament_standings` per scope | Tournament page only — **not** on participation rows |
 | **Event points** (`event_points`) | `amiga_player_tournament_participation` | Tournament history **Pts** column; recent block when one phase = whole event |
 
-Participation **W-D-L and goals** are always rolled up from **`amiga_games`** (all phases), not from standings. For mixed league+cup events, `overall_position` is the **league** rank while `event_points` includes cup knockouts — do not show both in one suffix without labelling.
+Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row exists for every player with ≥1 game, regardless of standings shape. **Placement** (`overall_position`) is derived per contract §5.2.2 (overall scope when present; else bracket finish; WC = group rank). For mixed league+cup marathons, `overall_position` is the **league** rank while `event_points` includes cup knockouts — do not show both in one suffix without labelling.
 
 **World Cup finish** on history table: podium from `wc_medal` only; ignore `overall_position` (often a group rank).
 

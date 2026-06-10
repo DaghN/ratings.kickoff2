@@ -238,6 +238,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<th data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
 			<th data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adjustment</th>
 			<th data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
+			<th data-k2-sort="number" data-k2-help="Rating level implied by your results in this event against the opponents you faced (frozen ratings). Requires at least 2 games; omitted for perfect win or loss records.">Perf. rating</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -268,6 +269,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<td><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>
 			<td><?php echo amiga_profile_tournament_rating_delta_cell($t['rating_delta'] ?? null); ?></td>
 			<td><?php echo amiga_profile_tournament_rating_cell($t['rating_after'] ?? null); ?></td>
+			<td><?php echo amiga_profile_tournament_rating_cell($t['performance_rating'] ?? null); ?></td>
 		</tr>
 	<?php } ?>
 	</tbody>

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `amiga_rating_events` (
   `rating_before` decimal(10,6) NOT NULL,
   `rating_delta` decimal(10,6) NOT NULL,
   `rating_after` decimal(10,6) NOT NULL,
+  `performance_rating` decimal(10,6) DEFAULT NULL,
   `games_in_event` smallint(6) NOT NULL DEFAULT 0,
   `finalized_at` datetime NOT NULL,
   PRIMARY KEY (`id`),

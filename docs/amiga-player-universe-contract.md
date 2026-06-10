@@ -105,7 +105,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Career strip** | profile | `amiga_player_stats` | — | A (shipped) |
 | **Rating chart** | `api/player_rating_history.php?realm=amiga` | `amiga_rating_events` → `tournaments` | — | A (shipped) |
 | **Recent tournaments** | profile (5 rows) | `amiga_player_tournament_participation` | — | B (shipped) |
-| **Full tournament history** | `/amiga/player-tournaments.php` | `amiga_player_tournament_participation` | sortable table; W-D-L + **`event_points`**; WC filter pill; all rows (no pagination) | B (shipped) |
+| **Full tournament history** | `/amiga/player-tournaments.php` | `amiga_player_tournament_participation` | sortable table; W-D-L + **`event_points`** + **Perf. rating**; WC filter pill; all rows (no pagination) | B (shipped) |
 | **Games list** | `/amiga/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |
 | **Moments / trophy games** | profile block | `amiga_player_stats` `*GameID` + single-game fetch | no scan | A |
 | **Top opponents** | profile | `amiga_player_matchup_summary` | sort by `games` | B (shipped) |
@@ -151,7 +151,7 @@ amiga_games (ground)
 
 **Purpose:** Canonical **“player played in event”** fact with everything profile and honours need in one row. This is the Amiga analogue of online’s per-period participation row + award context, merged for tournament-shaped events.
 
-**Grain:** one row per `(player_id, tournament_id)` where the player has **≥1 game** in that tournament (participation = results, not registration).
+**Grain:** one row per `(player_id, tournament_id)` where the player has **≥1 game** in that tournament (participation = results, not registration). The **writer roster is always `amiga_games`** — not `amiga_tournament_standings` overall scope alone.
 
 **Primary key:** `(player_id, tournament_id)`.
 
@@ -170,7 +170,7 @@ amiga_games (ground)
 | `country` | varchar(50) | `tournaments.country` |
 | `has_league` | tinyint | `tournaments.has_league` |
 | `has_cup` | tinyint | `tournaments.has_cup` |
-| `overall_position` | smallint | `amiga_tournament_standings` `scope_type='overall'`, `scope_key=''` (league rank when event has a league phase) |
+| `overall_position` | smallint | **Derived placement** — see §5.2.2 (overall scope when present; else bracket finish; WC = primary group rank) |
 | `event_points` | smallint | **3×wins + 1×draws** over **all** games in the event (`amiga_games` rollup); full-event result tally |
 | `games` | smallint | `amiga_games` rollup (all phases) |
 | `wins` | smallint | same rollup |
@@ -181,13 +181,38 @@ amiga_games (ground)
 | `rating_before` | decimal | `amiga_rating_events` |
 | `rating_delta` | decimal | `amiga_rating_events` |
 | `rating_after` | decimal | `amiga_rating_events` |
+| `performance_rating` | decimal NULL | `amiga_rating_events` — chess-style event TPR; see [`amiga-performance-rating.md`](amiga-performance-rating.md) |
 | `games_in_event` | smallint | `amiga_rating_events` |
 | `finalized_at` | datetime | `amiga_rating_events.finalized_at` |
 | `is_winner` | tinyint | `overall_position = 1` (marathon / kitchen win) |
 | `wc_medal` | enum NULL | `none`, `gold`, `silver`, `bronze` — see §6 honours rules |
 | `best_knockout_phase` | varchar(50) NULL | optional: deepest knockout scope reached (Phase C+) |
 
-**Writer:** batch rebuild after standings + rating events for a tournament (full replay: end-of-pass rebuild all; live: after finalize + standings refresh for touched `tournament_id`).
+**Writer:** batch rebuild after standings + rating events for a tournament (full replay: end-of-pass rebuild all; live: after finalize + standings refresh for touched `tournament_id`). Shared placement helper: `scripts/amiga/participation_placement.py` · PHP parity `includes/amiga_participation_placement.php`.
+
+#### 5.2.2 Participation derivation ladder (Jun 2026)
+
+Ground → product flow (locked):
+
+```text
+amiga_games (roster + volume stats + event_points)
+       │
+       ├─► amiga_tournament_standings (phase views)
+       │         └─► placement pick by event shape → overall_position, is_winner
+       ├─► amiga_rating_events → rating_* / games_in_event / finalized_at
+       └─► tournaments (catalog denorm)
+                 └─► amiga_player_tournament_participation (one row / player×event)
+```
+
+**Placement rules** (`derive_participation_positions`):
+
+| Event shape | `overall_position` source | `is_winner` |
+|-------------|---------------------------|-------------|
+| World Cup name pattern | Primary **group** rank (`scope_type='group'`, lexicographically first `scope_key`) | `wc_medal = gold` after medal refresh |
+| Any **overall** scope rows | `scope_type='overall'`, `scope_key=''` (league phase in mixed marathons) | `overall_position = 1` |
+| Knockout-only / group+KO **without** overall | **Bracket event finish** from knockout/placement scopes (Final podium, then depth ordering) | `overall_position = 1` |
+
+Knockout cups (e.g. Bournemouth II) never had an overall standings scope; participation still lists every player with games and shows bracket finish (Dagh 2nd, champion 1st).
 
 **Not a substitute for:** `tournament_entrants` (registration), per-phase standings tables (still read `amiga_tournament_standings`).
 
@@ -208,8 +233,8 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 |--------------|--------|-------|
 | `games`, `wins`, `draws`, `losses`, `goals_for`, `goals_against` | `amiga_games` rollup (all phases) | Not from standings volume columns |
 | `event_points` | `wins * 3 + draws` (same rollup) | Renamed from `points` in migration `014` |
-| `overall_position`, `is_winner` (non-WC) | `amiga_tournament_standings` `scope_type='overall'` | For league+cup marathons, overall scope = **league phase only** (see `tournament_standings.py` mixed-event rule) — rank/placement context, not event finish |
-| `wc_medal`, `is_winner` (WC) | knockout/placement scopes | `overall_position` on WC rows is often a **group** rank, not event finish |
+| `overall_position`, `is_winner` (non-WC) | §5.2.2 placement rules | League+cup marathons: overall scope = **league phase only**; pure knockout cups: bracket finish |
+| `wc_medal`, `is_winner` (WC) | knockout/placement scopes + `refresh_wc_medals` | `overall_position` on WC rows is **group** rank, not event finish |
 | `rating_*`, `games_in_event`, `finalized_at` | `amiga_rating_events` | unchanged |
 | Catalog denorm | `tournaments` | name, flags, dates |
 
@@ -369,10 +394,11 @@ Steps 4–7 are idempotent truncates or upsert-from-source passes. They must not
 | Check | Rule |
 |-------|------|
 | Participation ⊆ games | Every participation row has ≥1 game for `(player_id, tournament_id)` |
-| Participation ⊇ standings overall | Every overall standing row has a participation row |
+| Participation ⊇ games roster | Every `(player_id, tournament_id)` with ≥1 `amiga_games` row has a participation row |
+| Participation ⊇ standings overall | Every overall standing row has a participation row (subset of games roster check) |
 | Games rollup | `games`, W-D-L, goals on participation = `amiga_games` rollup for that player×event |
 | Event points | `event_points = wins * 3 + draws` on every participation row |
-| Rating join | `rating_before/delta/after` matches `amiga_rating_events` when event exists |
+| Rating join | `rating_before/delta/after/performance_rating` matches `amiga_rating_events` when event exists |
 | Totals | `tournaments_played` = COUNT participation rows per player |
 | Matchups | `SUM(games) = 2 × COUNT(amiga_games)` |
 | WC medals (sample) | Spot-check vs Access `added_players` — reference report only |
@@ -406,6 +432,7 @@ SQL under `scripts/amiga/sql/`:
 |------|----------|
 | `010_player_tournament_participation.sql` | participation table + indexes (`event_points` on fresh install) |
 | `014_participation_event_points.sql` | existing DBs: rename `points` → `event_points` |
+| `015_performance_rating.sql` | `performance_rating` on rating events + participation |
 | `011_player_tournament_totals.sql` | totals table |
 | `012_player_matchup_summary.sql` | H2H table |
 | `013_generalstats.sql` | server records (no streak columns) |
@@ -414,7 +441,8 @@ Python modules:
 
 | Module | Role |
 |--------|------|
-| `scripts/amiga/player_tournament_participation.py` | rebuild + WC medal derivation + live finalize hook |
+| `scripts/amiga/participation_placement.py` | placement rules (§5.2.2); PHP parity `includes/amiga_participation_placement.php` |
+| `scripts/amiga/player_tournament_participation.py` | games-driven rebuild + WC medal refresh + live finalize hook |
 | `scripts/amiga/player_matchup_summary.py` | bulk H2H rebuild |
 | `scripts/amiga/server_records.py` | `amiga_generalstats` rebuild |
 | `scripts/amiga/verify_player_participation.py` | participation + totals parity |

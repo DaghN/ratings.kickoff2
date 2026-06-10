@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 3) . '/includes/amiga_tournament_lib.php';
+require_once dirname(__DIR__, 3) . '/includes/amiga_participation_placement.php';
 
 /**
  * Per-player event game totals from amiga_games (participation volume stats).
@@ -89,6 +90,98 @@ function amiga_ops_participation_player_ids_for_tournament(mysqli $con, int $tou
     return $ids;
 }
 
+/**
+ * @return array<int, array<string, mixed>>
+ */
+function amiga_ops_participation_games_rollups_for_tournament(mysqli $con, int $tournamentId): array
+{
+    $gamesRollup = amiga_ops_participation_player_games_rollup_sql();
+    $sql = "SELECT pg.player_id, pg.games, pg.wins, pg.draws, pg.losses,
+                   pg.goals_for, pg.goals_against
+            FROM {$gamesRollup}
+            WHERE pg.tournament_id = ?";
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare participation games rollup: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute participation games rollup: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $rollups = [];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $rollups[(int) $row['player_id']] = $row;
+        }
+        $res->free();
+    }
+    $stmt->close();
+
+    return $rollups;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_ops_participation_standing_rows_for_tournament(mysqli $con, int $tournamentId): array
+{
+    $stmt = $con->prepare(
+        'SELECT scope_type, scope_key, player_id, position
+         FROM amiga_tournament_standings
+         WHERE tournament_id = ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare participation standings: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute participation standings: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $rows = [];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $res->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return array<int, array<string, mixed>>
+ */
+function amiga_ops_participation_rating_events_for_tournament(mysqli $con, int $tournamentId): array
+{
+    $stmt = $con->prepare(
+        'SELECT player_id, rating_before, rating_delta, rating_after,
+                performance_rating, games_in_event, finalized_at
+         FROM amiga_rating_events
+         WHERE tournament_id = ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare participation rating events: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute participation rating events: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $events = [];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $events[(int) $row['player_id']] = $row;
+        }
+        $res->free();
+    }
+    $stmt->close();
+
+    return $events;
+}
+
 function amiga_ops_participation_replace_tournament(mysqli $con, int $tournamentId): int
 {
     $delete = $con->prepare('DELETE FROM amiga_player_tournament_participation WHERE tournament_id = ?');
@@ -101,80 +194,127 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
     }
     $delete->close();
 
-    $gamesRollup = amiga_ops_participation_player_games_rollup_sql();
-    $insertSql = <<<SQL
-INSERT INTO amiga_player_tournament_participation (
-    player_id,
-    tournament_id,
-    event_date,
-    event_chrono,
-    tournament_name,
-    is_cup,
-    country,
-    has_league,
-    has_cup,
-    overall_position,
-    event_points,
-    games,
-    wins,
-    draws,
-    losses,
-    goals_for,
-    goals_against,
-    rating_before,
-    rating_delta,
-    rating_after,
-    games_in_event,
-    finalized_at,
-    is_winner,
-    wc_medal
-)
-SELECT
-    s.player_id,
-    s.tournament_id,
-    t.event_date,
-    t.chrono AS event_chrono,
-    t.name AS tournament_name,
-    t.is_cup,
-    t.country,
-    t.has_league,
-    t.has_cup,
-    s.position AS overall_position,
-    (pg.wins * 3 + pg.draws) AS event_points,
-    pg.games,
-    pg.wins,
-    pg.draws,
-    pg.losses,
-    pg.goals_for,
-    pg.goals_against,
-    e.rating_before,
-    e.rating_delta,
-    e.rating_after,
-    COALESCE(e.games_in_event, 0) AS games_in_event,
-    e.finalized_at,
-    CASE WHEN s.position = 1 THEN 1 ELSE 0 END AS is_winner,
-    'none' AS wc_medal
-FROM amiga_tournament_standings s
-INNER JOIN tournaments t ON t.id = s.tournament_id
-INNER JOIN {$gamesRollup}
-    ON pg.tournament_id = s.tournament_id AND pg.player_id = s.player_id
-LEFT JOIN amiga_rating_events e
-    ON e.tournament_id = s.tournament_id AND e.player_id = s.player_id
-WHERE s.scope_type = 'overall'
-  AND s.scope_key = ''
-  AND s.tournament_id = ?
-SQL;
-    $insert = $con->prepare($insertSql);
+    $tournamentStmt = $con->prepare(
+        'SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup
+         FROM tournaments
+         WHERE id = ?
+         LIMIT 1'
+    );
+    if ($tournamentStmt === false) {
+        throw new RuntimeException('prepare participation tournament: ' . $con->error);
+    }
+    $tournamentStmt->bind_param('i', $tournamentId);
+    if (!$tournamentStmt->execute()) {
+        throw new RuntimeException('execute participation tournament: ' . $tournamentStmt->error);
+    }
+    $tres = $tournamentStmt->get_result();
+    $tournament = $tres ? $tres->fetch_assoc() : false;
+    if ($tres) {
+        $tres->free();
+    }
+    $tournamentStmt->close();
+    if ($tournament === false) {
+        return 0;
+    }
+
+    $rollups = amiga_ops_participation_games_rollups_for_tournament($con, $tournamentId);
+    if ($rollups === []) {
+        return 0;
+    }
+
+    $standingRows = amiga_ops_participation_standing_rows_for_tournament($con, $tournamentId);
+    $ratingEvents = amiga_ops_participation_rating_events_for_tournament($con, $tournamentId);
+    $playerIds = array_keys($rollups);
+    sort($playerIds, SORT_NUMERIC);
+    $positions = amiga_participation_derive_positions(
+        $standingRows,
+        (string) $tournament['name'],
+        $playerIds
+    );
+
+    $insert = $con->prepare(
+        'INSERT INTO amiga_player_tournament_participation (
+            player_id, tournament_id, event_date, event_chrono, tournament_name,
+            is_cup, country, has_league, has_cup, overall_position, event_points,
+            games, wins, draws, losses, goals_for, goals_against,
+            rating_before, rating_delta, rating_after, performance_rating,
+            games_in_event, finalized_at, is_winner, wc_medal
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )'
+    );
     if ($insert === false) {
         throw new RuntimeException('prepare participation insert: ' . $con->error);
     }
-    $insert->bind_param('i', $tournamentId);
-    if (!$insert->execute()) {
-        throw new RuntimeException('execute participation insert: ' . $insert->error);
+
+    $tournamentName = (string) $tournament['name'];
+    $written = 0;
+    foreach ($playerIds as $playerId) {
+        $rollup = $rollups[$playerId];
+        $overallPosition = (int) ($positions[$playerId] ?? 0);
+        $rating = $ratingEvents[$playerId] ?? null;
+        $wins = (int) ($rollup['wins'] ?? 0);
+        $draws = (int) ($rollup['draws'] ?? 0);
+        $isWinner = amiga_participation_is_winner($tournamentName, $overallPosition) ? 1 : 0;
+        $ratingBefore = $rating['rating_before'] ?? null;
+        $ratingDelta = $rating['rating_delta'] ?? null;
+        $ratingAfter = $rating['rating_after'] ?? null;
+        $performanceRating = $rating['performance_rating'] ?? null;
+        $gamesInEvent = (int) ($rating['games_in_event'] ?? 0);
+        $finalizedAt = $rating['finalized_at'] ?? null;
+        $wcMedal = 'none';
+        $eventDate = $tournament['event_date'];
+        $eventChrono = (float) ($tournament['chrono'] ?? 0);
+        $isCup = (int) ($tournament['is_cup'] ?? 0);
+        $country = (string) ($tournament['country'] ?? '');
+        $hasLeague = (int) ($tournament['has_league'] ?? 0);
+        $hasCup = (int) ($tournament['has_cup'] ?? 0);
+        $eventPoints = $wins * 3 + $draws;
+        $games = (int) ($rollup['games'] ?? 0);
+        $losses = (int) ($rollup['losses'] ?? 0);
+        $goalsFor = (int) ($rollup['goals_for'] ?? 0);
+        $goalsAgainst = (int) ($rollup['goals_against'] ?? 0);
+        $ratingBeforeVal = $ratingBefore !== null ? (float) $ratingBefore : null;
+        $ratingDeltaVal = $ratingDelta !== null ? (float) $ratingDelta : null;
+        $ratingAfterVal = $ratingAfter !== null ? (float) $ratingAfter : null;
+        $performanceRatingVal = $performanceRating !== null ? (float) $performanceRating : null;
+        $finalizedAtVal = $finalizedAt !== null ? (string) $finalizedAt : null;
+
+        $insert->bind_param(
+            'iisdsiiiiiiiiiiiddddiasis',
+            $playerId,
+            $tournamentId,
+            $eventDate,
+            $eventChrono,
+            $tournamentName,
+            $isCup,
+            $country,
+            $hasLeague,
+            $hasCup,
+            $overallPosition,
+            $eventPoints,
+            $games,
+            $wins,
+            $draws,
+            $losses,
+            $goalsFor,
+            $goalsAgainst,
+            $ratingBeforeVal,
+            $ratingDeltaVal,
+            $ratingAfterVal,
+            $performanceRatingVal,
+            $gamesInEvent,
+            $finalizedAtVal,
+            $isWinner,
+            $wcMedal
+        );
+        if (!$insert->execute()) {
+            throw new RuntimeException('execute participation insert: ' . $insert->error);
+        }
+        $written++;
     }
     $insert->close();
 
-    amiga_ops_participation_wc_supplement_tournament($con, $tournamentId);
     amiga_ops_participation_refresh_wc_medals_for_tournament($con, $tournamentId);
 
     $countStmt = $con->prepare(
@@ -245,6 +385,7 @@ INSERT INTO amiga_player_tournament_participation (
     rating_before,
     rating_delta,
     rating_after,
+    performance_rating,
     games_in_event,
     finalized_at,
     is_winner,
@@ -271,6 +412,7 @@ SELECT
     e.rating_before,
     e.rating_delta,
     e.rating_after,
+    e.performance_rating,
     COALESCE(e.games_in_event, 0) AS games_in_event,
     e.finalized_at,
     0 AS is_winner,

@@ -16,6 +16,7 @@ from scripts.amiga.replay import run_replay
 from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
 from scripts.amiga.player_matchup_summary import run_matchup_rebuild
 from scripts.amiga.server_records import run_generalstats_rebuild
+from scripts.amiga.performance_rating import run_performance_rating_rebuild
 from scripts.amiga.player_tournament_participation import (
     run_participation_rebuild,
     run_participation_refresh_tournament,
@@ -171,6 +172,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_catalog.add_argument("--dry-run", action="store_true")
 
+    p_performance = sub.add_parser(
+        "performance-rating-rebuild",
+        help="Recompute amiga_rating_events.performance_rating from amiga_game_ratings",
+    )
+    p_performance.add_argument("--tournament-id", type=int, default=None)
+    p_performance.add_argument("--dry-run", action="store_true")
+
     p_participation = sub.add_parser(
         "participation-rebuild",
         help="Rebuild amiga_player_tournament_participation + totals from standings",
@@ -317,6 +325,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "catalog-stats-rebuild":
         run_catalog_stats_rebuild(dry_run=args.dry_run)
+        return 0
+
+    if args.cmd == "performance-rating-rebuild":
+        updated = run_performance_rating_rebuild(
+            tournament_id=args.tournament_id,
+            dry_run=args.dry_run,
+        )
+        log.info("performance-rating-rebuild complete: rating_events=%s", updated)
         return 0
 
     if args.cmd == "participation-rebuild":

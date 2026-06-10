@@ -37,6 +37,7 @@ function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, 
                    p.rating_before,
                    p.rating_delta,
                    p.rating_after,
+                   p.performance_rating,
                    p.is_winner,
                    p.wc_medal,
                    (SELECT COUNT(DISTINCT sk.scope_key)

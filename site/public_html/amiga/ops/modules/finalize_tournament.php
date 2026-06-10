@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/process_completed_game.php';
 require_once __DIR__ . '/../includes/amiga_post_game_participation.php';
+require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
 
 const AMIGA_FINALIZE_LOCK_NAME = 'amiga_finalize_tournament';
 
@@ -581,6 +582,8 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
         $pendingDelta = array_fill_keys($participantIds, 0.0);
         /** @var array<int, int> $gamesInEvent */
         $gamesInEvent = array_fill_keys($participantIds, 0);
+        /** @var array<int, list<array{opponent: float, score: float}>> $perfPairs */
+        $perfPairs = array_fill_keys($participantIds, []);
 
         foreach ($games as $game) {
             $gameId = (int) $game['id'];
@@ -589,10 +592,15 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
 
             $idA = (int) $game['idA'];
             $idB = (int) $game['idB'];
+            $scoreA = (float) $derived['actual_score'];
+            $ratingA = (float) $derived['rating_a'];
+            $ratingB = (float) $derived['rating_b'];
             $pendingDelta[$idA] = ($pendingDelta[$idA] ?? 0.0) + (float) $derived['adjustment_a'];
             $pendingDelta[$idB] = ($pendingDelta[$idB] ?? 0.0) + (float) $derived['adjustment_b'];
             $gamesInEvent[$idA] = ($gamesInEvent[$idA] ?? 0) + 1;
             $gamesInEvent[$idB] = ($gamesInEvent[$idB] ?? 0) + 1;
+            $perfPairs[$idA][] = ['opponent' => $ratingB, 'score' => $scoreA];
+            $perfPairs[$idB][] = ['opponent' => $ratingA, 'score' => 1.0 - $scoreA];
 
             amiga_ops_write_game_ratings_finalize($con, $derived);
         }
@@ -603,8 +611,8 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
         $eventStmt = $con->prepare(
             'INSERT INTO amiga_rating_events ('
             . 'tournament_id, player_id, rating_before, rating_delta, '
-            . 'rating_after, games_in_event, finalized_at'
-            . ') VALUES (?, ?, ?, ?, ?, ?, ?)'
+            . 'rating_after, performance_rating, games_in_event, finalized_at'
+            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
         if ($eventStmt === false) {
             throw new RuntimeException('prepare rating event insert: ' . $con->error);
@@ -619,15 +627,17 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
             $ratingBefore = $frozen[$pid];
             $ratingDelta = amiga_ops_round6($pendingDelta[$pid] ?? 0.0);
             $ratingAfter = amiga_ops_round6($ratingBefore + $ratingDelta);
+            $performanceRating = amiga_performance_rating_from_pairs($perfPairs[$pid] ?? []);
             $players[$pid]['rating'] = $ratingAfter;
             $gamesPlayed = $gamesInEvent[$pid];
             $eventStmt->bind_param(
-                'iidddis',
+                'iidddddis',
                 $tournamentId,
                 $pid,
                 $ratingBefore,
                 $ratingDelta,
                 $ratingAfter,
+                $performanceRating,
                 $gamesPlayed,
                 $finalizedAt
             );

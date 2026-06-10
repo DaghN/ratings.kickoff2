@@ -114,7 +114,7 @@ Record tables created, files touched, verification output.
 
 ### Goal
 
-`rebuild_all_participation()` fills participation from standings (placement) + **games rollup** (volume + `event_points`) + catalog + rating events. **Post–slice 14 writer semantics:** see contract §5.2.1 and appendix below.
+`rebuild_all_participation()` fills participation from **games roster** + placement (§5.2.2) + catalog denorm + rating events. **Post–slice 14 / Jun 2026 placement ladder:** see contract §5.2.1–§5.2.2 and appendix below. (Slice 1 task bullets below still describe the original overall-standings driver — superseded.)
 
 ### Prerequisites
 
@@ -231,6 +231,7 @@ Slice 2.
 - [x] Register in `scripts/amiga/__main__.py` as `verify-player-participation`
 - [x] Checks:
   - participation ⊆ games (each row has ≥1 game)
+  - **games roster ⊆ participation** (every player with games has a row — Jun 2026)
   - overall standings ⊆ participation
   - rating columns match `amiga_rating_events` when present
   - `tournaments_played` sum = participation count per player
@@ -521,12 +522,14 @@ rebuild_all_catalog_stats
 
 ## Post–slice 14 — participation data model refinements (Jun 2026)
 
-Shipped after player-universe slice 14 closure (tournament history page + WC display fixes). **Authoritative detail:** contract §5.2.1.
+Shipped after player-universe slice 14 closure (tournament history page + WC display fixes). **Authoritative detail:** contract §5.2.1–§5.2.2.
 
 ### What changed (beyond “synthetic points”)
 
 | Area | Before (slice 1–14) | After |
 |------|---------------------|-------|
+| **Roster (who gets a row)** | Overall `amiga_tournament_standings` rows (+ WC supplement) | **Every player with ≥1 `amiga_games` row** |
+| **Placement** | Overall scope only (knockout cups missing) | `participation_placement.py` — overall / bracket finish / WC group |
 | Volume stats (`games`, W-D-L, goals) | Copied from overall `amiga_tournament_standings` | **`amiga_games` rollup** (all phases) |
 | Points column | `points` from standings overall (wrong for WCs; league-only for league+cup) | **`event_points`** = `wins*3 + draws` from games rollup; **no standings `points` on participation** |
 | Phase points | Implicitly conflated with participation `points` | **Only** in `amiga_tournament_standings` per scope |
@@ -539,7 +542,7 @@ Shipped after player-universe slice 14 closure (tournament history page + WC dis
 
 - [x] `014_participation_event_points.sql` — rename `points` → `event_points` on existing DBs
 - [x] `010_player_tournament_participation.sql` — fresh installs use `event_points`
-- [x] Writers: `player_tournament_participation.py`, `amiga_post_game_participation.php`
+- [x] Writers: `participation_placement.py`, `player_tournament_participation.py`, `amiga_participation_placement.php`, `amiga_post_game_participation.php`
 - [x] Verify: `event_points` invariant + games rollup parity
 - [x] UI: `amiga_profile_blocks.php`, `amiga_player_tournament_lib.php`, `player-tournaments.php`
 

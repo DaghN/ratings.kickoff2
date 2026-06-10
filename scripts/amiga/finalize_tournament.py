@@ -10,6 +10,7 @@ import pymysql
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.player_stats_load import load_player_states
+from scripts.amiga.performance_rating import performance_rating_from_pairs
 from scripts.amiga.player_tournament_participation import refresh_tournament_participation_stack
 from scripts.amiga.replay import (
     _connect,
@@ -374,6 +375,7 @@ def finalize_tournament(
     stats_sql = _stats_upsert_sql()
     pending_delta: dict[int, float] = {pid: 0.0 for pid in participant_ids}
     games_in_event: dict[int, int] = {pid: 0 for pid in participant_ids}
+    perf_pairs: dict[int, list[tuple[float, float]]] = {pid: [] for pid in participant_ids}
     rating_rows: list[dict[str, Any]] = []
 
     with conn.cursor() as cur:
@@ -388,10 +390,15 @@ def finalize_tournament(
             )
             id_a = int(row["idA"])
             id_b = int(row["idB"])
+            score_a = float(row["ActualScore"])
+            rating_a = float(row["RatingA"])
+            rating_b = float(row["RatingB"])
             pending_delta[id_a] = pending_delta.get(id_a, 0.0) + float(row["AdjustmentA"])
             pending_delta[id_b] = pending_delta.get(id_b, 0.0) + float(row["AdjustmentB"])
             games_in_event[id_a] = games_in_event.get(id_a, 0) + 1
             games_in_event[id_b] = games_in_event.get(id_b, 0) + 1
+            perf_pairs[id_a].append((rating_b, score_a))
+            perf_pairs[id_b].append((rating_a, 1.0 - score_a))
             rating_rows.append(_row_to_rating_insert_finalize(game_id, row))
 
         if rating_rows:
@@ -404,10 +411,10 @@ def finalize_tournament(
         event_sql = """
             INSERT INTO amiga_rating_events (
                 tournament_id, player_id, rating_before, rating_delta,
-                rating_after, games_in_event, finalized_at
+                rating_after, performance_rating, games_in_event, finalized_at
             ) VALUES (
                 %(tournament_id)s, %(player_id)s, %(rating_before)s, %(rating_delta)s,
-                %(rating_after)s, %(games_in_event)s, %(finalized_at)s
+                %(rating_after)s, %(performance_rating)s, %(games_in_event)s, %(finalized_at)s
             )
         """
         for pid in sorted(participant_ids):
@@ -416,6 +423,7 @@ def finalize_tournament(
             rating_before = frozen[pid]
             rating_delta = round(pending_delta.get(pid, 0.0), 6)
             rating_after = round(rating_before + rating_delta, 6)
+            performance_rating = performance_rating_from_pairs(perf_pairs.get(pid, []))
             players[pid].rating = rating_after
             cur.execute(
                 event_sql,
@@ -425,6 +433,7 @@ def finalize_tournament(
                     "rating_before": rating_before,
                     "rating_delta": rating_delta,
                     "rating_after": rating_after,
+                    "performance_rating": performance_rating,
                     "games_in_event": games_in_event[pid],
                     "finalized_at": finalized_at,
                 },

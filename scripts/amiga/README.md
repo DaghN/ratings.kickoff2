@@ -157,6 +157,7 @@ Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-
 # participation → totals → matchup_summary → generalstats → catalog_stats
 
 # Standalone rebuilds (idempotent):
+python -m scripts.amiga performance-rating-rebuild   # after 015 migration; participation-rebuild runs this too
 python -m scripts.amiga participation-rebuild
 python -m scripts.amiga matchup-rebuild
 python -m scripts.amiga generalstats-rebuild
@@ -174,7 +175,9 @@ python -m scripts.amiga honours-parity-sample
 
 PHP live path: `amiga_ops_participation_refresh_tournament` in `finalize_tournament.php` after standings commit.
 
-Read surfaces: profile recent tournaments + top opponents; `/amiga/player-tournaments.php` (full history, `event_points`); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
+Participation **roster = `amiga_games`**; placement from `participation_placement.py` / `includes/amiga_participation_placement.php` (overall scope → league rank; else bracket finish; WC → group rank). See contract §5.2.2.
+
+Read surfaces: profile recent tournaments + top opponents; `/amiga/player-tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
 
 **Participation columns (Jun 2026):** `event_points` + W-D-L from `amiga_games` rollup; phase league points only in `amiga_tournament_standings`. See contract §5.2.1. Existing DBs: apply `014` before rebuild if the table still has a `points` column.
 
