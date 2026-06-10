@@ -194,7 +194,7 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 | Event W-D-L, goals, `event_points` | player×event | `participation` | No | From `amiga_games` rollup at rebuild |
 | Rating before/delta/after | player×event | `amiga_rating_events` | Yes → `participation` | Finalize commit boundary |
 | `performance_rating` | player×event | `amiga_rating_events` | Yes → `participation` | [`amiga-performance-rating.md`](amiga-performance-rating.md) |
-| Avg goals per game in event | player×event | **`participation` column** (recommended when shipped) | No | Policy: store for hot sort/leaderboard; verify e.g. `avg * games ≈ goals_for` |
+| Avg goals for/against per game | player×event | `participation.avg_goals_for`, `avg_goals_against` | No | `decimal(6,4)`; `goals/games` at rebuild; NULL when `games=0`; verify `ROUND(avg*games,4)≈goals` |
 | Career WC gold count | player | `amiga_player_tournament_totals` | No | Aggregate from participation |
 | Per-game adjustment | game | `amiga_game_ratings` | No | Games tab / game page only |
 
@@ -258,6 +258,8 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 | `losses` | smallint | same rollup |
 | `goals_for` | smallint | same rollup |
 | `goals_against` | smallint | same rollup |
+| `avg_goals_for` | decimal(6,4) NULL | `goals_for / games` at rebuild (4 d.p.); NULL when `games=0` |
+| `avg_goals_against` | decimal(6,4) NULL | `goals_against / games` at rebuild |
 | `rating_before` | decimal | `amiga_rating_events` |
 | `rating_delta` | decimal | `amiga_rating_events` |
 | `rating_after` | decimal | `amiga_rating_events` |
@@ -478,6 +480,7 @@ Steps 4–7 are idempotent truncates or upsert-from-source passes. They must not
 | Participation ⊇ standings overall | Every overall standing row has a participation row (subset of games roster check) |
 | Games rollup | `games`, W-D-L, goals on participation = `amiga_games` rollup for that player×event |
 | Event points | `event_points = wins * 3 + draws` on every participation row |
+| Avg goals | `avg_goals_for = ROUND(goals_for / games, 4)` (and against) when `games > 0`; NULL when `games = 0` |
 | Rating join | `rating_before/delta/after/performance_rating` matches `amiga_rating_events` when event exists |
 | Totals | `tournaments_played` = COUNT participation rows per player |
 | Matchups | `SUM(games) = 2 × COUNT(amiga_games)` |
@@ -513,6 +516,7 @@ SQL under `scripts/amiga/sql/`:
 | `010_player_tournament_participation.sql` | participation table + indexes (`event_points` on fresh install) |
 | `014_participation_event_points.sql` | existing DBs: rename `points` → `event_points` |
 | `015_performance_rating.sql` | `performance_rating` on rating events + participation |
+| `016_participation_avg_goals.sql` | `avg_goals_for`, `avg_goals_against` on participation |
 | `011_player_tournament_totals.sql` | totals table |
 | `012_player_matchup_summary.sql` | H2H table |
 | `013_generalstats.sql` | server records (no streak columns) |

@@ -5,7 +5,10 @@ from __future__ import annotations
 import unittest
 from datetime import datetime
 
-from scripts.amiga.player_tournament_participation import participation_row_from_parts
+from scripts.amiga.player_tournament_participation import (
+    participation_avg_goals_per_game,
+    participation_row_from_parts,
+)
 
 
 class ParticipationRowFromPartsTests(unittest.TestCase):
@@ -50,6 +53,8 @@ class ParticipationRowFromPartsTests(unittest.TestCase):
         self.assertEqual(row["wc_medal"], "none")
         self.assertEqual(row["rating_after"], 1662.5)
         self.assertEqual(row["games_in_event"], 3)
+        self.assertEqual(row["avg_goals_for"], 3.3333)
+        self.assertEqual(row["avg_goals_against"], 0.6667)
 
     def test_non_winner_without_rating_event(self) -> None:
         standing = {
@@ -81,6 +86,11 @@ class ParticipationRowFromPartsTests(unittest.TestCase):
         self.assertIsNone(row["rating_before"])
         self.assertEqual(row["games_in_event"], 0)
         self.assertEqual(row["has_cup"], 1)
+        self.assertAlmostEqual(row["avg_goals_for"], 4 / 3, places=4)
+        self.assertAlmostEqual(row["avg_goals_against"], 7 / 3, places=4)
+
+    def test_avg_goals_null_when_no_games(self) -> None:
+        self.assertIsNone(participation_avg_goals_per_game(5, 0))
 
 
 if __name__ == "__main__":

@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS `amiga_player_tournament_participation` (
   `losses` smallint(6) NOT NULL DEFAULT 0,
   `goals_for` smallint(6) NOT NULL DEFAULT 0,
   `goals_against` smallint(6) NOT NULL DEFAULT 0,
+  `avg_goals_for` decimal(6,4) DEFAULT NULL,
+  `avg_goals_against` decimal(6,4) DEFAULT NULL,
   `rating_before` decimal(10,6) DEFAULT NULL,
   `rating_delta` decimal(10,6) DEFAULT NULL,
   `rating_after` decimal(10,6) DEFAULT NULL,

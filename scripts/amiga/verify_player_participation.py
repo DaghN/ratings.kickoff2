@@ -180,6 +180,59 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             )
 
         cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_participation p
+            WHERE p.games > 0
+              AND (
+                  p.avg_goals_for IS NULL
+                  OR p.avg_goals_against IS NULL
+                  OR ABS(p.avg_goals_for - ROUND(p.goals_for / p.games, 4)) > %s
+                  OR ABS(p.avg_goals_against - ROUND(p.goals_against / p.games, 4)) > %s
+              )
+            """,
+            (_TOLERANCE, _TOLERANCE),
+        )
+        avg_goals_mismatch = int(cur.fetchone()["n"])
+        if avg_goals_mismatch:
+            cur.execute(
+                """
+                SELECT p.player_id, p.tournament_id, p.games, p.goals_for, p.avg_goals_for
+                FROM amiga_player_tournament_participation p
+                WHERE p.games > 0
+                  AND (
+                      p.avg_goals_for IS NULL
+                      OR p.avg_goals_against IS NULL
+                      OR ABS(p.avg_goals_for - ROUND(p.goals_for / p.games, 4)) > %s
+                      OR ABS(p.avg_goals_against - ROUND(p.goals_against / p.games, 4)) > %s
+                  )
+                LIMIT %s
+                """,
+                (_TOLERANCE, _TOLERANCE, _SAMPLE_LIMIT),
+            )
+            sample = cur.fetchall()
+            row = sample[0]
+            errors.append(
+                f"participation avg_goals != goals/games: {avg_goals_mismatch} "
+                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
+                f"goals_for={row['goals_for']}, avg_goals_for={row['avg_goals_for']})"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_participation p
+            WHERE p.games = 0
+              AND (p.avg_goals_for IS NOT NULL OR p.avg_goals_against IS NOT NULL)
+            """
+        )
+        avg_goals_when_no_games = int(cur.fetchone()["n"])
+        if avg_goals_when_no_games:
+            errors.append(
+                f"participation avg_goals set when games=0: {avg_goals_when_no_games} rows"
+            )
+
+        cur.execute(
             f"""
             SELECT COUNT(*) AS n
             FROM amiga_player_tournament_participation p

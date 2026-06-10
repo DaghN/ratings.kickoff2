@@ -215,6 +215,11 @@ function amiga_profile_tournament_rating_cell(mixed $rating): string
     return k2_fmt_int($rating);
 }
 
+function amiga_profile_tournament_avg_goals_cell(mixed $avgGoals, int $games): string
+{
+    return k2_fmt_decimal($avgGoals, $games > 0 ? $games : null, 2);
+}
+
 /**
  * @param list<array<string, mixed>> $tournaments from amiga_player_tournament_participation_all()
  */
@@ -231,8 +236,10 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<th data-k2-sort="number">Wins</th>
 			<th data-k2-sort="number">Draws</th>
 			<th data-k2-sort="number">Losses</th>
-			<th data-k2-sort="number" data-k2-help="Goals scored in this event.">F</th>
-			<th data-k2-sort="number" data-k2-help="Goals conceded in this event.">A</th>
+			<th data-k2-sort="number" data-k2-help="Goals scored in this event (all phases).">F</th>
+			<th data-k2-sort="number" data-k2-help="Goals conceded in this event (all phases).">A</th>
+			<th data-k2-sort="number" data-k2-help="Average goals scored per game in this event.">GF/g</th>
+			<th data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
 			<th data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
 			<th data-k2-sort="text">Finish</th>
 			<th data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
@@ -264,6 +271,8 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<td><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
 			<td><?php echo $goalsFor; ?></td>
 			<td><?php echo $goalsAgainst; ?></td>
+			<td><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_for'] ?? null, $games); ?></td>
+			<td><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_against'] ?? null, $games); ?></td>
 			<td><?php echo $points; ?></td>
 			<td><?php echo htmlspecialchars($finishRank, ENT_QUOTES, 'UTF-8'); ?></td>
 			<td><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>

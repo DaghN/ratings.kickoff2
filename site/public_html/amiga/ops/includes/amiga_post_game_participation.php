@@ -12,6 +12,18 @@ require_once dirname(__DIR__, 3) . '/includes/amiga_tournament_lib.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_participation_placement.php';
 
 /**
+ * Average goals per game in event (4 d.p.; NULL when games = 0).
+ */
+function amiga_ops_participation_avg_goals_per_game(int $goals, int $games): ?float
+{
+    if ($games <= 0) {
+        return null;
+    }
+
+    return round($goals / $games, 4);
+}
+
+/**
  * Per-player event game totals from amiga_games (participation volume stats).
  */
 function amiga_ops_participation_player_games_rollup_sql(): string
@@ -237,10 +249,11 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
             player_id, tournament_id, event_date, event_chrono, tournament_name,
             is_cup, country, has_league, has_cup, overall_position, event_points,
             games, wins, draws, losses, goals_for, goals_against,
+            avg_goals_for, avg_goals_against,
             rating_before, rating_delta, rating_after, performance_rating,
             games_in_event, finalized_at, is_winner, wc_medal
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )'
     );
     if ($insert === false) {
@@ -274,6 +287,8 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
         $losses = (int) ($rollup['losses'] ?? 0);
         $goalsFor = (int) ($rollup['goals_for'] ?? 0);
         $goalsAgainst = (int) ($rollup['goals_against'] ?? 0);
+        $avgGoalsFor = amiga_ops_participation_avg_goals_per_game($goalsFor, $games);
+        $avgGoalsAgainst = amiga_ops_participation_avg_goals_per_game($goalsAgainst, $games);
         $ratingBeforeVal = $ratingBefore !== null ? (float) $ratingBefore : null;
         $ratingDeltaVal = $ratingDelta !== null ? (float) $ratingDelta : null;
         $ratingAfterVal = $ratingAfter !== null ? (float) $ratingAfter : null;
@@ -281,7 +296,7 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
         $finalizedAtVal = $finalizedAt !== null ? (string) $finalizedAt : null;
 
         $insert->bind_param(
-            'iisdsiiiiiiiiiiiddddiasis',
+            'iisdsisiiiiiiiiiddddddisis',
             $playerId,
             $tournamentId,
             $eventDate,
@@ -299,6 +314,8 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
             $losses,
             $goalsFor,
             $goalsAgainst,
+            $avgGoalsFor,
+            $avgGoalsAgainst,
             $ratingBeforeVal,
             $ratingDeltaVal,
             $ratingAfterVal,

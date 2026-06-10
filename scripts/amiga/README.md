@@ -193,6 +193,8 @@ mysql ko2amiga_db < scripts/amiga/sql/011_player_tournament_totals.sql
 mysql ko2amiga_db < scripts/amiga/sql/012_player_matchup_summary.sql
 mysql ko2amiga_db < scripts/amiga/sql/013_generalstats.sql
 mysql ko2amiga_db < scripts/amiga/sql/014_participation_event_points.sql
+mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
+mysql ko2amiga_db < scripts/amiga/sql/016_participation_avg_goals.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle
