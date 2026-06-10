@@ -9,26 +9,31 @@ require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
 
 /**
- * Recent tournament participation for a player (canonical derived source).
+ * Tournament participation rows for a player (canonical derived source).
  *
- * Rows are shaped for profile blocks: id, name, position, points, games, knockout_ties.
+ * Rows are shaped for profile blocks: id, name, position, event_points, games, knockout_ties.
+ * Ordered newest event first. Optional $limit caps rows (profile recent list); omit for full history.
  *
  * @return list<array<string, mixed>>
  */
-function amiga_player_tournament_participation_recent(mysqli $con, int $playerId, int $limit = 5): array
+function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, ?int $limit = null): array
 {
-    $limit = max(1, min(20, $limit));
     $sql = 'SELECT p.tournament_id AS id,
                    p.tournament_name AS name,
                    p.event_date,
                    p.event_chrono,
                    p.is_cup,
+                   p.has_league,
+                   p.has_cup,
+                   p.country,
                    p.overall_position AS position,
-                   p.points,
+                   p.event_points,
                    p.games,
                    p.wins,
                    p.draws,
                    p.losses,
+                   p.goals_for,
+                   p.goals_against,
                    p.rating_before,
                    p.rating_delta,
                    p.rating_after,
@@ -44,8 +49,11 @@ function amiga_player_tournament_participation_recent(mysqli $con, int $playerId
               AND ' . amiga_tournament_public_visibility_where('t') . '
             ORDER BY COALESCE(p.event_chrono, 999999) DESC,
                      COALESCE(p.event_date, \'1970-01-01\') DESC,
-                     p.tournament_id DESC
-            LIMIT ' . (int) $limit;
+                     p.tournament_id DESC';
+    if ($limit !== null) {
+        $limit = max(1, min(20, $limit));
+        $sql .= ' LIMIT ' . (int) $limit;
+    }
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
         return [];
@@ -63,6 +71,42 @@ function amiga_player_tournament_participation_recent(mysqli $con, int $playerId
     mysqli_stmt_close($stmt);
 
     return $rows;
+}
+
+/**
+ * Recent tournament participation (profile snippet).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_player_tournament_participation_recent(mysqli $con, int $playerId, int $limit = 5): array
+{
+    return amiga_player_tournament_participation_rows($con, $playerId, $limit);
+}
+
+/**
+ * Full tournament participation history (all events, no pagination).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_player_tournament_participation_all(mysqli $con, int $playerId): array
+{
+    return amiga_player_tournament_participation_rows($con, $playerId, null);
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return list<array<string, mixed>>
+ */
+function amiga_player_tournament_participation_filter_events(array $rows, string $filter): array
+{
+    if ($filter !== 'world-cup') {
+        return $rows;
+    }
+
+    return array_values(array_filter(
+        $rows,
+        static fn (array $row): bool => amiga_tournament_is_world_cup($row)
+    ));
 }
 
 /**

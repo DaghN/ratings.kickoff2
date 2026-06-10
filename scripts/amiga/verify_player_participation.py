@@ -9,6 +9,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.player_tournament_participation import _PLAYER_GAMES_ROLLUP_SQL
 
 _TOLERANCE = 1e-5
 _SAMPLE_LIMIT = 5
@@ -108,12 +109,80 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             """
             SELECT COUNT(*) AS n
             FROM amiga_player_tournament_participation p
+            WHERE p.event_points != (p.wins * 3 + p.draws)
+            """
+        )
+        event_points_mismatch = int(cur.fetchone()["n"])
+        if event_points_mismatch:
+            cur.execute(
+                """
+                SELECT p.player_id, p.tournament_id, p.event_points, p.wins, p.draws
+                FROM amiga_player_tournament_participation p
+                WHERE p.event_points != (p.wins * 3 + p.draws)
+                LIMIT %s
+                """,
+                (_SAMPLE_LIMIT,),
+            )
+            sample = cur.fetchall()
+            row = sample[0]
+            expected = int(row["wins"]) * 3 + int(row["draws"])
+            errors.append(
+                f"participation event_points != wins*3+draws: {event_points_mismatch} "
+                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
+                f"event_points={row['event_points']}, expected={expected})"
+            )
+
+        cur.execute(
+            f"""
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_participation p
+            INNER JOIN {_PLAYER_GAMES_ROLLUP_SQL}
+                ON pg.tournament_id = p.tournament_id AND pg.player_id = p.player_id
+            WHERE p.games != pg.games
+               OR p.wins != pg.wins
+               OR p.draws != pg.draws
+               OR p.losses != pg.losses
+               OR p.goals_for != pg.goals_for
+               OR p.goals_against != pg.goals_against
+            """
+        )
+        games_rollup_mismatch = int(cur.fetchone()["n"])
+        if games_rollup_mismatch:
+            cur.execute(
+                f"""
+                SELECT p.player_id, p.tournament_id, p.games, pg.games AS expected_games
+                FROM amiga_player_tournament_participation p
+                INNER JOIN {_PLAYER_GAMES_ROLLUP_SQL}
+                    ON pg.tournament_id = p.tournament_id AND pg.player_id = p.player_id
+                WHERE p.games != pg.games
+                   OR p.wins != pg.wins
+                   OR p.draws != pg.draws
+                   OR p.losses != pg.losses
+                   OR p.goals_for != pg.goals_for
+                   OR p.goals_against != pg.goals_against
+                LIMIT %s
+                """,
+                (_SAMPLE_LIMIT,),
+            )
+            sample = cur.fetchall()
+            row = sample[0]
+            errors.append(
+                f"participation volume stats != amiga_games rollup: {games_rollup_mismatch} "
+                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
+                f"games={row['games']}, expected={row['expected_games']})"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_participation p
             INNER JOIN amiga_rating_events e
                 ON e.tournament_id = p.tournament_id
                AND e.player_id = p.player_id
             WHERE ABS(p.rating_before - e.rating_before) > %s
                OR ABS(p.rating_delta - e.rating_delta) > %s
                OR ABS(p.rating_after - e.rating_after) > %s
+               OR p.games != e.games_in_event
                OR p.games_in_event != e.games_in_event
                OR p.finalized_at IS NULL
                OR e.finalized_at IS NULL
@@ -133,6 +202,7 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
                 WHERE ABS(p.rating_before - e.rating_before) > %s
                    OR ABS(p.rating_delta - e.rating_delta) > %s
                    OR ABS(p.rating_after - e.rating_after) > %s
+                   OR p.games != e.games_in_event
                    OR p.games_in_event != e.games_in_event
                    OR p.finalized_at IS NULL
                    OR e.finalized_at IS NULL

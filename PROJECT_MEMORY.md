@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga participation points model** — `event_points` (full-event 3-1-0 from `amiga_games`); phase points stay in `amiga_tournament_standings` only; games rollup + WC finish/medal UI; migration `014`; contract §5.2.1. |
 | 2026-06 | **Amiga finalize latency** — batch full replay ~23s; live one tail-end finalize ~0.7s local (network scan bound). |
 | 2026-06 | **Amiga replay Tier A** — in-memory `players` across batch, defer stats + shared names; full replay ~23s (was ~90s / ~5½ min); live finalize unchanged. |
 | 2026-06 | **Amiga replay perf** — `defer_heavy_derived` + `commit_heavy_player_derived()`; live finalize unchanged. |

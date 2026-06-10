@@ -2,7 +2,7 @@
 
 **Status:** Investigation + phased delivery (Jun 2026). **Scope:** inventory and roadmap; implementation tracked in [`amiga-data-contract.md`](amiga-data-contract.md) migration table.
 
-**Shipped since investigation:** Amiga hub nav v0 (`includes/amiga_hub_nav.php`) — **Ladder · Tournaments · Hall of Fame** on hub pages; HoF stub at `/amiga/hall-of-fame.php`. Leaderboards wing nav still Phase A backlog.
+**Shipped since investigation:** Amiga hub nav (`includes/amiga_hub_nav.php`) — **Ladder · Tournaments · Honours · Hall of Fame**. Player universe slices 0–14 (Jun 2026): participation, totals, H2H, `amiga_generalstats`, HoF page, tournament honours LB — see [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md). **Still backlog:** Tier A stat wings (goals, DD, victims, peak rating) from `amiga_player_stats` only.
 
 **Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (layers + table register), [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) (player derived expansion — intent), [`amiga-profile-v0.md`](amiga-profile-v0.md), [`hub-ia-agreement.md`](hub-ia-agreement.md), [`website-data-contract.md`](website-data-contract.md).
 

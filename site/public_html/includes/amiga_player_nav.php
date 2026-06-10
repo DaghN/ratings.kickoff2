@@ -9,6 +9,7 @@ $k2AmigaPlayerTabActive = $k2AmigaPlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
 $k2AmigaPlayerTabs = [
     'profile' => ['href' => '/amiga/profile.php?id=' . $id, 'label' => 'Profile'],
+    'tournaments' => ['href' => '/amiga/player-tournaments.php?id=' . $id, 'label' => 'Tournaments'],
     'games' => ['href' => '/amiga/games.php?id=' . $id, 'label' => 'Games'],
 ];
 ?>

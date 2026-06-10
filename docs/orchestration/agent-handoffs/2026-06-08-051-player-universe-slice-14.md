@@ -81,15 +81,17 @@ rebuild_all_catalog_stats
 | H2H directed pairs | 14 024 (`SUM(games)` = 54 836 = 2× games) |
 | HoF `GamesPlayed` | 27 418 |
 
-### STOP gates (user checkpoints)
+### STOP gates
 
-| Gate | Slice | Surface | Owner |
-|------|-------|---------|-------|
-| C | 7 | `verify-player-participation` | agent passed |
-| D | 9 | `verify-player-matchups` | agent passed |
-| E | 10 | Profile top opponents | **user** |
-| F | 12 | `/amiga/hall-of-fame.php` | **user** |
-| G | 13 | `/amiga/leaderboards/tournament-honours.php` | **user** |
+| Gate | Slice | Surface | Status |
+|------|-------|---------|--------|
+| A | 2 | Full replay + verify | passed |
+| B | 4 | Profile recent tournaments | passed |
+| C | 7 | `verify-player-participation` | passed |
+| D | 9 | `verify-player-matchups` | passed |
+| E | 10 | Profile top opponents | passed (owner Jun 2026 — overhaul later) |
+| F | 12 | `/amiga/hall-of-fame.php` | passed (owner Jun 2026 — overhaul later) |
+| G | 13 | `/amiga/leaderboards/tournament-honours.php` | passed (owner Jun 2026 — overhaul later) |
 
 ## Known limitations (track-wide)
 

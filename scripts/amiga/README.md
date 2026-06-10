@@ -174,7 +174,9 @@ python -m scripts.amiga honours-parity-sample
 
 PHP live path: `amiga_ops_participation_refresh_tournament` in `finalize_tournament.php` after standings commit.
 
-Read surfaces: profile recent tournaments + top opponents; `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
+Read surfaces: profile recent tournaments + top opponents; `/amiga/player-tournaments.php` (full history, `event_points`); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
+
+**Participation columns (Jun 2026):** `event_points` + W-D-L from `amiga_games` rollup; phase league points only in `amiga_tournament_standings`. See contract §5.2.1. Existing DBs: apply `014` before rebuild if the table still has a `points` column.
 
 **Tournament fixtures foundation** (internal ops only; public builder UI deferred):
 
@@ -187,6 +189,7 @@ mysql ko2amiga_db < scripts/amiga/sql/010_player_tournament_participation.sql
 mysql ko2amiga_db < scripts/amiga/sql/011_player_tournament_totals.sql
 mysql ko2amiga_db < scripts/amiga/sql/012_player_matchup_summary.sql
 mysql ko2amiga_db < scripts/amiga/sql/013_generalstats.sql
+mysql ko2amiga_db < scripts/amiga/sql/014_participation_event_points.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle

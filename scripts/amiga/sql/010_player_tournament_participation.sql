@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `amiga_player_tournament_participation` (
   `has_league` tinyint(1) NOT NULL DEFAULT 0,
   `has_cup` tinyint(1) NOT NULL DEFAULT 0,
   `overall_position` smallint(6) DEFAULT NULL,
-  `points` smallint(6) NOT NULL DEFAULT 0,
+  `event_points` smallint(6) NOT NULL DEFAULT 0,
   `games` smallint(6) NOT NULL DEFAULT 0,
   `wins` smallint(6) NOT NULL DEFAULT 0,
   `draws` smallint(6) NOT NULL DEFAULT 0,

@@ -11,6 +11,52 @@ declare(strict_types=1);
 require_once dirname(__DIR__, 3) . '/includes/amiga_tournament_lib.php';
 
 /**
+ * Per-player event game totals from amiga_games (participation volume stats).
+ */
+function amiga_ops_participation_player_games_rollup_sql(): string
+{
+    return <<<'SQL'
+(
+  SELECT
+    tournament_id,
+    player_id,
+    SUM(games) AS games,
+    SUM(wins) AS wins,
+    SUM(draws) AS draws,
+    SUM(losses) AS losses,
+    SUM(goals_for) AS goals_for,
+    SUM(goals_against) AS goals_against
+  FROM (
+    SELECT
+      g.tournament_id,
+      g.player_a_id AS player_id,
+      COUNT(*) AS games,
+      SUM(CASE WHEN g.goals_a > g.goals_b THEN 1 ELSE 0 END) AS wins,
+      SUM(CASE WHEN g.goals_a = g.goals_b THEN 1 ELSE 0 END) AS draws,
+      SUM(CASE WHEN g.goals_a < g.goals_b THEN 1 ELSE 0 END) AS losses,
+      SUM(g.goals_a) AS goals_for,
+      SUM(g.goals_b) AS goals_against
+    FROM amiga_games g
+    GROUP BY g.tournament_id, g.player_a_id
+    UNION ALL
+    SELECT
+      g.tournament_id,
+      g.player_b_id AS player_id,
+      COUNT(*) AS games,
+      SUM(CASE WHEN g.goals_b > g.goals_a THEN 1 ELSE 0 END) AS wins,
+      SUM(CASE WHEN g.goals_b = g.goals_a THEN 1 ELSE 0 END) AS draws,
+      SUM(CASE WHEN g.goals_b < g.goals_a THEN 1 ELSE 0 END) AS losses,
+      SUM(g.goals_b) AS goals_for,
+      SUM(g.goals_a) AS goals_against
+    FROM amiga_games g
+    GROUP BY g.tournament_id, g.player_b_id
+  ) side
+  GROUP BY tournament_id, player_id
+) pg
+SQL;
+}
+
+/**
  * @return list<int>
  */
 function amiga_ops_participation_player_ids_for_tournament(mysqli $con, int $tournamentId): array
@@ -55,7 +101,8 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
     }
     $delete->close();
 
-    $insertSql = <<<'SQL'
+    $gamesRollup = amiga_ops_participation_player_games_rollup_sql();
+    $insertSql = <<<SQL
 INSERT INTO amiga_player_tournament_participation (
     player_id,
     tournament_id,
@@ -67,7 +114,7 @@ INSERT INTO amiga_player_tournament_participation (
     has_league,
     has_cup,
     overall_position,
-    points,
+    event_points,
     games,
     wins,
     draws,
@@ -93,13 +140,13 @@ SELECT
     t.has_league,
     t.has_cup,
     s.position AS overall_position,
-    s.points,
-    s.games,
-    s.wins,
-    s.draws,
-    s.losses,
-    s.goals_for,
-    s.goals_against,
+    (pg.wins * 3 + pg.draws) AS event_points,
+    pg.games,
+    pg.wins,
+    pg.draws,
+    pg.losses,
+    pg.goals_for,
+    pg.goals_against,
     e.rating_before,
     e.rating_delta,
     e.rating_after,
@@ -109,6 +156,8 @@ SELECT
     'none' AS wc_medal
 FROM amiga_tournament_standings s
 INNER JOIN tournaments t ON t.id = s.tournament_id
+INNER JOIN {$gamesRollup}
+    ON pg.tournament_id = s.tournament_id AND pg.player_id = s.player_id
 LEFT JOIN amiga_rating_events e
     ON e.tournament_id = s.tournament_id AND e.player_id = s.player_id
 WHERE s.scope_type = 'overall'
@@ -173,7 +222,8 @@ function amiga_ops_participation_wc_supplement_tournament(mysqli $con, int $tour
         return 0;
     }
 
-    $sql = <<<'SQL'
+    $gamesRollup = amiga_ops_participation_player_games_rollup_sql();
+    $sql = <<<SQL
 INSERT INTO amiga_player_tournament_participation (
     player_id,
     tournament_id,
@@ -185,7 +235,7 @@ INSERT INTO amiga_player_tournament_participation (
     has_league,
     has_cup,
     overall_position,
-    points,
+    event_points,
     games,
     wins,
     draws,
@@ -211,13 +261,13 @@ SELECT
     t.has_league,
     t.has_cup,
     gs.position AS overall_position,
-    COALESCE(gs.points, 0) AS points,
-    COALESCE(gs.games, 0) AS games,
-    COALESCE(gs.wins, 0) AS wins,
-    COALESCE(gs.draws, 0) AS draws,
-    COALESCE(gs.losses, 0) AS losses,
-    COALESCE(gs.goals_for, 0) AS goals_for,
-    COALESCE(gs.goals_against, 0) AS goals_against,
+    (pg.wins * 3 + pg.draws) AS event_points,
+    pg.games,
+    pg.wins,
+    pg.draws,
+    pg.losses,
+    pg.goals_for,
+    pg.goals_against,
     e.rating_before,
     e.rating_delta,
     e.rating_after,
@@ -234,6 +284,8 @@ FROM (
     ) g
 ) ep
 INNER JOIN tournaments t ON t.id = ep.tournament_id
+INNER JOIN {$gamesRollup}
+    ON pg.tournament_id = ep.tournament_id AND pg.player_id = ep.player_id
 LEFT JOIN amiga_rating_events e
     ON e.tournament_id = ep.tournament_id AND e.player_id = ep.player_id
 LEFT JOIN amiga_tournament_standings gs

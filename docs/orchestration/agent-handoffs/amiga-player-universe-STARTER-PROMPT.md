@@ -1,8 +1,12 @@
 # Starter prompt — Amiga player universe implementation
 
-**Copy everything in the block below** into a new Cursor chat to begin execution.
+**Status:** Track complete (Jun 2026). Slices 0–14 shipped. See final handoff [`2026-06-08-051-player-universe-slice-14.md`](2026-06-08-051-player-universe-slice-14.md).
+
+Use this file only for **follow-up work** (profile overhaul, live incremental H2H, extra LB wings). For new agents, start from the deferred list in slice 14 handoff and [`amiga-player-universe-contract.md`](../../amiga-player-universe-contract.md) §9.
 
 ---
+
+## Archived starter prompt (slices 0–14 — do not use for new execution)
 
 ```
 You are implementing the Amiga player derived-data expansion for ko2amiga_db.
@@ -38,7 +42,7 @@ You are implementing the Amiga player derived-data expansion for ko2amiga_db.
 - Repo: Online and Amiga 500 ELO
 - DB: ko2amiga_db (local MySQL); config via scripts/amiga/config
 - Full rebuild oracle: `python -m scripts.amiga replay` (~23s, ~27k games)
-- Existing verifies: `verify-chronology`, `verify-rating-events`
+- Existing verifies: `verify-chronology`, `verify-rating-events`, `verify-player-participation`, `verify-player-matchups`
 
 ## Start command
 
@@ -49,15 +53,6 @@ When slice 0 is complete, report verification output and wait for me to say **"D
 
 ---
 
-## After the agent finishes slice 0
+## Parallel work (not this track)
 
-Typical user messages for the same chat:
-
-- `Do slice 1`
-- `Continue with the next slice`
-- `STOP gate B done — profile looks good, proceed to slice 5`
-- `Run full replay and all verify commands before slice 14`
-
-## Parallel work (not this agent)
-
-Leaderboard wings Tier A (`/amiga/leaderboards/goals.php`, etc.) are **out of scope** for this track — separate task reading existing `amiga_player_stats`.
+Leaderboard wings Tier A (`/amiga/leaderboards/goals.php`, etc.) are **out of scope** for slices 0–14 — separate task reading existing `amiga_player_stats`.

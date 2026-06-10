@@ -54,6 +54,8 @@ _KNOCKOUT_LABELS = frozenset(
         "15th place final",
     }
 )
+# Singular and minor variants (Scores.Phase often omits the trailing "s").
+_QUARTER_SEMI_FINAL_RE = re.compile(r"^(?:quarter|semi)\s+finals?$", re.IGNORECASE)
 
 
 def _normalize_whitespace(label: str) -> str:
@@ -74,6 +76,8 @@ def is_knockout_phase(phase: str | None) -> bool:
         return False
     label = _normalize_whitespace(str(phase))
     if label.lower() in _KNOCKOUT_LABELS:
+        return True
+    if _QUARTER_SEMI_FINAL_RE.match(label):
         return True
     if _PLACES_RE.match(label):
         return True

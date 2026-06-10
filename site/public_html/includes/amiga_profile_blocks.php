@@ -3,6 +3,7 @@
  * Amiga profile v0 blocks — career facts from playertable + rating chart shell.
  */
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/k2_player_game_row.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
 
@@ -36,12 +37,27 @@ function amiga_profile_render_career(array $pm): void
 }
 
 /**
+ * Whether recent-tournament label may append event_points (full-event 3-1-0 tally).
+ *
+ * League+cup marathons: overall_position is league-scoped; event_points include cup games — omit pts.
+ * Phase-scoped league points live in amiga_tournament_standings, not participation.
+ */
+function amiga_profile_tournament_label_includes_event_points(array $t): bool
+{
+    if (amiga_tournament_is_world_cup($t)) {
+        return false;
+    }
+
+    return empty($t['has_league']) || empty($t['has_cup']);
+}
+
+/**
  * Profile suffix for one recent tournament row.
  *
- * World Cups have no overall standing in participation — use wc_medal podium rank.
- * Kitchen / marathon events use overall position and league points.
+ * World Cups: wc_medal podium rank only. Others: overall_position; event_points when
+ * the full-event tally matches the single league phase (no separate cup on the row).
  *
- * @param array<string, mixed> $t participation row (name, position, points, wc_medal)
+ * @param array<string, mixed> $t participation row (name, position, event_points, wc_medal, has_league, has_cup)
  */
 function amiga_profile_tournament_result_label(array $t): string
 {
@@ -64,13 +80,18 @@ function amiga_profile_tournament_result_label(array $t): string
         return '—';
     }
 
-    return $position . ordinal_suffix($position) . ' · ' . (int) ($t['points'] ?? 0) . ' pts';
+    $label = $position . ordinal_suffix($position);
+    if (amiga_profile_tournament_label_includes_event_points($t)) {
+        $label .= ' · ' . (int) ($t['event_points'] ?? 0) . ' pts';
+    }
+
+    return $label;
 }
 
 /**
  * @param list<array<string, mixed>> $tournaments from amiga_player_tournament_participation_recent()
  */
-function amiga_profile_render_recent_tournaments(array $tournaments): void
+function amiga_profile_render_recent_tournaments(array $tournaments, int $playerId = 0, int $totalCount = 0): void
 {
     if ($tournaments === []) {
         return;
@@ -89,7 +110,169 @@ function amiga_profile_render_recent_tournaments(array $tournaments): void
         ?></li>
 	<?php } ?>
 	</ul>
+	<?php if ($playerId > 0 && $totalCount > count($tournaments)) { ?>
+	<p style="margin:0.75rem 0 0">
+		<a class="k2-link-star" href="/amiga/player-tournaments.php?id=<?php echo $playerId; ?>">All <?php echo (int) $totalCount; ?> tournaments</a>
+	</p>
+	<?php } elseif ($playerId > 0 && $totalCount > 0) { ?>
+	<p style="margin:0.75rem 0 0">
+		<a class="k2-link-star" href="/amiga/player-tournaments.php?id=<?php echo $playerId; ?>">Full tournament history</a>
+	</p>
+	<?php } ?>
 </section>
+    <?php
+}
+
+/**
+ * Tournament event date for history tables — named month, year last (`Jan 9, 2026`).
+ * Right-align the column so years stack visually; avoids numeric-only US/EU ambiguity.
+ */
+function amiga_profile_format_event_date(mixed $eventDate): string
+{
+    if ($eventDate === null || $eventDate === '') {
+        return '—';
+    }
+    $ts = strtotime((string) $eventDate);
+    if ($ts === false) {
+        return k2_h((string) $eventDate);
+    }
+
+    return k2_h(date('M j, Y', $ts));
+}
+
+/**
+ * @param array<string, mixed> $row participation row with event_date and optional event_chrono
+ */
+function amiga_profile_event_date_sort_value(array $row): string
+{
+    if (isset($row['event_chrono']) && $row['event_chrono'] !== null && $row['event_chrono'] !== '') {
+        return (string) (float) $row['event_chrono'];
+    }
+    $eventDate = $row['event_date'] ?? null;
+    if ($eventDate === null || $eventDate === '') {
+        return '0';
+    }
+    $ts = strtotime((string) $eventDate);
+
+    return (string) ($ts !== false ? $ts : 0);
+}
+
+function amiga_profile_tournament_finish_rank_label(array $row): string
+{
+    if (amiga_tournament_is_world_cup($row)) {
+        // Podium only — overall_position on WC rows is a group-phase rank, not event finish.
+        $rank = match ((string) ($row['wc_medal'] ?? 'none')) {
+            'gold' => 1,
+            'silver' => 2,
+            'bronze' => 3,
+            default => 0,
+        };
+        if ($rank > 0) {
+            return $rank . ordinal_suffix($rank);
+        }
+
+        return '—';
+    }
+
+    $position = (int) ($row['position'] ?? 0);
+    if ($position > 0) {
+        return $position . ordinal_suffix($position);
+    }
+
+    return '—';
+}
+
+function amiga_profile_tournament_wdl_cell(int $value, string $tone): string
+{
+    if ($value === 0) {
+        return '0';
+    }
+    if ($tone === 'win') {
+        return '<span class="blue">' . $value . '</span>';
+    }
+    if ($tone === 'loss') {
+        return '<span class="red">' . $value . '</span>';
+    }
+
+    return (string) $value;
+}
+
+function amiga_profile_tournament_rating_delta_cell(mixed $delta): string
+{
+    if ($delta === null || $delta === '') {
+        return k2_fmt_dash();
+    }
+
+    return k2_player_game_signed_number_html((float) $delta);
+}
+
+function amiga_profile_tournament_rating_cell(mixed $rating): string
+{
+    if ($rating === null || $rating === '') {
+        return k2_fmt_dash();
+    }
+
+    return k2_fmt_int($rating);
+}
+
+/**
+ * @param list<array<string, mixed>> $tournaments from amiga_player_tournament_participation_all()
+ */
+function amiga_profile_render_tournament_history_table(array $tournaments): void
+{
+    ?>
+<div class="k2-table-wrap">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-tournaments" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="0" data-k2-default-direction="desc">
+	<thead>
+		<tr>
+			<th class="k2-table-cell--right" data-k2-sort="number">Date</th>
+			<th class="k2-table-cell--left" data-k2-sort="text">Tournament</th>
+			<th data-k2-sort="number">Games</th>
+			<th data-k2-sort="number">Wins</th>
+			<th data-k2-sort="number">Draws</th>
+			<th data-k2-sort="number">Losses</th>
+			<th data-k2-sort="number" data-k2-help="Goals scored in this event.">F</th>
+			<th data-k2-sort="number" data-k2-help="Goals conceded in this event.">A</th>
+			<th data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
+			<th data-k2-sort="text">Finish</th>
+			<th data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
+			<th data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adjustment</th>
+			<th data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
+		</tr>
+	</thead>
+	<tbody>
+	<?php foreach ($tournaments as $t) {
+        $fragment = (int) ($t['knockout_ties'] ?? 0) > 0 ? 'bracket' : '';
+        $games = (int) ($t['games'] ?? 0);
+        $wins = (int) ($t['wins'] ?? 0);
+        $draws = (int) ($t['draws'] ?? 0);
+        $losses = (int) ($t['losses'] ?? 0);
+        $goalsFor = (int) ($t['goals_for'] ?? 0);
+        $goalsAgainst = (int) ($t['goals_against'] ?? 0);
+        $points = (int) ($t['event_points'] ?? 0);
+        $finishRank = amiga_profile_tournament_finish_rank_label($t);
+        ?>
+		<tr>
+			<td class="k2-table-cell--right" data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($t); ?>"><?php echo amiga_profile_format_event_date($t['event_date'] ?? null); ?></td>
+			<td class="k2-table-cell--left"><?php
+                echo amiga_tournament_link((int) $t['id'], (string) $t['name'], $fragment);
+            ?></td>
+			<td><?php echo k2_fmt_games_played($games); ?></td>
+			<td><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
+			<td><?php echo amiga_profile_tournament_wdl_cell($draws, 'draw'); ?></td>
+			<td><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
+			<td><?php echo $goalsFor; ?></td>
+			<td><?php echo $goalsAgainst; ?></td>
+			<td><?php echo $points; ?></td>
+			<td><?php echo htmlspecialchars($finishRank, ENT_QUOTES, 'UTF-8'); ?></td>
+			<td><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>
+			<td><?php echo amiga_profile_tournament_rating_delta_cell($t['rating_delta'] ?? null); ?></td>
+			<td><?php echo amiga_profile_tournament_rating_cell($t['rating_after'] ?? null); ?></td>
+		</tr>
+	<?php } ?>
+	</tbody>
+</table>
+</div>
     <?php
 }
 

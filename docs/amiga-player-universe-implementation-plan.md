@@ -1,12 +1,16 @@
 # Amiga player universe — implementation plan (agent slices)
 
-**Status:** Ready to execute (Jun 2026).  
+**Status:** Complete (Jun 2026). Slices 0–14 shipped; STOP gates A–G passed (E/F/G signed off by owner).  
 **Contract (authority):** [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)  
 **Out of scope for this track:** online-style milestones, match streaks, calendar play streaks, UTC league honours, Tier C activity (`player_period_games`), leaderboard wings Tier A (separate track in [`amiga-realm-vision.md`](amiga-realm-vision.md) §7 Phase A).
 
 ---
 
 ## How to use this plan
+
+**Track complete.** Handoffs: `docs/orchestration/agent-handoffs/2026-06-08-037` … `051`. For follow-up work see contract §9 deferred items and [`2026-06-08-051-player-universe-slice-14.md`](orchestration/agent-handoffs/2026-06-08-051-player-universe-slice-14.md).
+
+Historical execution rules (slices 0–14):
 
 1. User says **“Do slice N”** (or **“Continue with the next slice”**).
 2. Agent completes **only that slice** unless user explicitly asks for multiple slices in one session.
@@ -33,23 +37,23 @@
 
 ## Slice map (overview)
 
-| Slice | Deliverable | STOP gate |
-|-------|-------------|-----------|
-| **0** | DDL + schema wiring | Tables exist |
-| **1** | Participation rebuild (no WC medals yet) | — |
-| **2** | Totals rebuild + `replay.py` wire | **A** — replay + verify |
-| **3** | `verify-player-participation` CLI | — |
-| **4** | PHP read path + profile switch | **B** — browser profile |
-| **5** | WC medal derivation | — |
-| **6** | Incremental rebuild (one tournament) | — |
-| **7** | Wire finalize (PHP + Python) | **C** — finalize smoke |
-| **8** | H2H schema + bulk rebuild | — |
-| **9** | `verify-player-matchups` CLI | **D** — optional SQL check |
-| **10** | Profile top opponents block | **E** — browser profile |
-| **11** | `amiga_generalstats` + rebuild | — |
-| **12** | HoF page subset | **F** — browser HoF |
-| **13** | Tournament honours leaderboard | **G** — browser LB |
-| **14** | Docs register + README closure | Done |
+| Slice | Deliverable | STOP gate | Status |
+|-------|-------------|-----------|--------|
+| **0** | DDL + schema wiring | Tables exist | Done |
+| **1** | Participation rebuild (no WC medals yet) | — | Done |
+| **2** | Totals rebuild + `replay.py` wire | **A** — replay + verify | Done |
+| **3** | `verify-player-participation` CLI | — | Done |
+| **4** | PHP read path + profile switch | **B** — browser profile | Done |
+| **5** | WC medal derivation | — | Done |
+| **6** | Incremental rebuild (one tournament) | — | Done |
+| **7** | Wire finalize (PHP + Python) | **C** — finalize smoke | Done |
+| **8** | H2H schema + bulk rebuild | — | Done |
+| **9** | `verify-player-matchups` CLI | **D** — optional SQL check | Done |
+| **10** | Profile top opponents block | **E** — browser profile | Done |
+| **11** | `amiga_generalstats` + rebuild | — | Done |
+| **12** | HoF page subset | **F** — browser HoF | Done |
+| **13** | Tournament honours leaderboard | **G** — browser LB | Done |
+| **14** | Docs register + README closure | — | Done |
 
 ---
 
@@ -61,13 +65,13 @@ Create empty derived tables; wire into `apply_schema` / `clear_derived` without 
 
 ### Tasks
 
-- [ ] Add `scripts/amiga/sql/010_player_tournament_participation.sql`
-- [ ] Add `scripts/amiga/sql/011_player_tournament_totals.sql`
-- [ ] Append to `import_access.apply_schema()` sql bundle (after `009`)
-- [ ] Add tables to `_AMIGA_TABLES_DROP_ORDER` (before `amiga_tournament_standings` or after catalog_stats — FK order: participation references tournaments + players; totals references players only)
-- [ ] `replay.clear_derived`: `DELETE FROM amiga_player_tournament_totals` and `DELETE FROM amiga_player_tournament_participation`
-- [ ] `truncate_ground_truth`: truncate new tables in FK-safe order
-- [ ] Document in `scripts/amiga/README.md` (apply path only)
+- [x] Add `scripts/amiga/sql/010_player_tournament_participation.sql`
+- [x] Add `scripts/amiga/sql/011_player_tournament_totals.sql`
+- [x] Append to `import_access.apply_schema()` sql bundle (after `009`)
+- [x] Add tables to `_AMIGA_TABLES_DROP_ORDER` (before `amiga_tournament_standings` or after catalog_stats — FK order: participation references tournaments + players; totals references players only)
+- [x] `replay.clear_derived`: `DELETE FROM amiga_player_tournament_totals` and `DELETE FROM amiga_player_tournament_participation`
+- [x] `truncate_ground_truth`: truncate new tables in FK-safe order
+- [x] Document in `scripts/amiga/README.md` (apply path only)
 
 ### DDL notes
 
@@ -110,7 +114,7 @@ Record tables created, files touched, verification output.
 
 ### Goal
 
-`rebuild_all_participation()` fills participation from standings + catalog + rating events.
+`rebuild_all_participation()` fills participation from standings (placement) + **games rollup** (volume + `event_points`) + catalog + rating events. **Post–slice 14 writer semantics:** see contract §5.2.1 and appendix below.
 
 ### Prerequisites
 
@@ -118,16 +122,16 @@ Slice 0 merged.
 
 ### Tasks
 
-- [ ] New module `scripts/amiga/player_tournament_participation.py`
-- [ ] `rebuild_all_participation(conn, *, dry_run=False) -> int` — truncate + insert
-- [ ] Source query logic:
+- [x] New module `scripts/amiga/player_tournament_participation.py`
+- [x] `rebuild_all_participation(conn, *, dry_run=False) -> int` — truncate + insert
+- [x] Source query logic:
   - Base: `amiga_tournament_standings` WHERE `scope_type='overall'` AND `scope_key=''`
   - JOIN `tournaments` for denorm fields
   - LEFT JOIN `amiga_rating_events` ON `(tournament_id, player_id)`
   - Set `is_winner = (overall_position = 1)`
   - Set `wc_medal = 'none'` (slice 5 adds real medals)
-- [ ] `rebuild_participation_for_tournament(conn, tournament_id)` — delete + reinsert for one tournament (stub OK for slice 1; complete in slice 6)
-- [ ] Minimal unit test: synthetic standings + tournament + rating event → one participation row (mirror `test_tournament_format.py` style)
+- [x] `rebuild_participation_for_tournament(conn, tournament_id)` — delete + reinsert for one tournament (stub OK for slice 1; complete in slice 6)
+- [x] Minimal unit test: synthetic standings + tournament + rating event → one participation row (mirror `test_tournament_format.py` style)
 
 ### Verification
 
@@ -181,14 +185,14 @@ Slice 1.
 
 ### Tasks
 
-- [ ] `rebuild_all_participation_totals(conn, *, dry_run=False)` in same module or `player_tournament_totals.py`
-- [ ] Truncate `amiga_player_tournament_totals`; `INSERT … SELECT GROUP BY player_id` from participation
-- [ ] `replay.py` `replay_all()` after `rebuild_all_standings`:
+- [x] `rebuild_all_participation_totals(conn, *, dry_run=False)` in same module or `player_tournament_totals.py`
+- [x] Truncate `amiga_player_tournament_totals`; `INSERT … SELECT GROUP BY player_id` from participation
+- [x] `replay.py` `replay_all()` after `rebuild_all_standings`:
   1. `rebuild_all_participation`
   2. `rebuild_all_participation_totals`
   3. (keep existing `rebuild_all_catalog_stats`)
-- [ ] `clear_derived` already clears new tables (slice 0)
-- [ ] `python -m scripts.amiga participation-rebuild` CLI (optional alias) mirroring `catalog-stats-rebuild`
+- [x] `clear_derived` already clears new tables (slice 0)
+- [x] `python -m scripts.amiga participation-rebuild` CLI (optional alias) mirroring `catalog-stats-rebuild`
 
 ### Verification — **STOP GATE A**
 
@@ -223,15 +227,15 @@ Slice 2.
 
 ### Tasks
 
-- [ ] `scripts/amiga/verify_player_participation.py`
-- [ ] Register in `scripts/amiga/__main__.py` as `verify-player-participation`
-- [ ] Checks:
+- [x] `scripts/amiga/verify_player_participation.py`
+- [x] Register in `scripts/amiga/__main__.py` as `verify-player-participation`
+- [x] Checks:
   - participation ⊆ games (each row has ≥1 game)
   - overall standings ⊆ participation
   - rating columns match `amiga_rating_events` when present
   - `tournaments_played` sum = participation count per player
   - totals row count = players with ≥1 participation
-- [ ] Exit code 1 on failure; print first 20 errors
+- [x] Exit code 1 on failure; print first 20 errors
 
 ### Verification
 
@@ -253,12 +257,12 @@ Slice 2 (data populated).
 
 ### Tasks
 
-- [ ] New `site/public_html/includes/amiga_player_tournament_lib.php`
+- [x] New `site/public_html/includes/amiga_player_tournament_lib.php`
   - `amiga_player_tournament_participation_recent($con, $playerId, $limit = 5)`
   - `amiga_player_tournament_totals_row($con, $playerId)` for future hero use
-- [ ] Update `amiga_player_recent_tournaments()` in `amiga_tournament_lib.php` to call participation helper **or** deprecate and switch `profile.php` / `amiga_profile_blocks.php` to new helper
-- [ ] Preserve public visibility filter (`amiga_tournament_public_visibility_where`)
-- [ ] Order: `event_chrono DESC`, `event_date DESC` (match contract)
+- [x] Update `amiga_player_recent_tournaments()` in `amiga_tournament_lib.php` to call participation helper **or** deprecate and switch `profile.php` / `amiga_profile_blocks.php` to new helper
+- [x] Preserve public visibility filter (`amiga_tournament_public_visibility_where`)
+- [x] Order: `event_chrono DESC`, `event_date DESC` (match contract)
 
 ### Verification — **STOP GATE B**
 
@@ -286,13 +290,13 @@ Slice 4 (optional); slice 2 required.
 
 ### Tasks
 
-- [ ] `scripts/amiga/tournament_honours.py` (or submodule):
+- [x] `scripts/amiga/tournament_honours.py` (or submodule):
   - `is_world_cup_tournament(name)` — reuse PHP regex logic in Python
   - `derive_wc_medal(conn, tournament_id, player_id) -> str`
   - v1 rules (contract §6): inspect `amiga_tournament_standings` knockout/placement scopes; fallback overall position 1/2/3 only when no knockout scopes exist
-- [ ] Call from `rebuild_all_participation` when inserting rows
-- [ ] Rebuild totals after (wc_gold/silver/bronze columns)
-- [ ] Optional CLI: `python -m scripts.amiga honours-parity-sample` — compare top 20 WC medal holders vs Access `added_players` (ODBC); report only
+- [x] Call from `rebuild_all_participation` when inserting rows
+- [x] Rebuild totals after (wc_gold/silver/bronze columns)
+- [x] Optional CLI: `python -m scripts.amiga honours-parity-sample` — compare top 20 WC medal holders vs Access `added_players` (ODBC); report only
 
 ### Verification
 
@@ -319,9 +323,9 @@ Rebuild participation + totals for one `tournament_id` without full replay.
 
 ### Tasks
 
-- [ ] `rebuild_participation_for_tournament(conn, tournament_id)`
-- [ ] `rebuild_totals_for_players(conn, player_ids: list[int])` — re-aggregate only affected players (or full totals rebuild if simpler v1)
-- [ ] Used by live finalize path (slice 7)
+- [x] `rebuild_participation_for_tournament(conn, tournament_id)`
+- [x] `rebuild_totals_for_players(conn, player_ids: list[int])` — re-aggregate only affected players (or full totals rebuild if simpler v1)
+- [x] Used by live finalize path (slice 7)
 
 ### Verification
 
@@ -341,9 +345,9 @@ Slices 5–6.
 
 ### Tasks
 
-- [ ] Python `finalize_tournament.py`: after standings rebuild for `T`, call incremental participation + totals
-- [ ] PHP `site/public_html/amiga/ops/modules/finalize_tournament.php`: same hook after standings
-- [ ] Document in `amiga-data-contract.md` table register writers
+- [x] Python `finalize_tournament.py`: after standings rebuild for `T`, call incremental participation + totals
+- [x] PHP `site/public_html/amiga/ops/modules/finalize_tournament.php`: same hook after standings
+- [x] Document in `amiga-data-contract.md` table register writers
 
 ### Verification — **STOP GATE C**
 
@@ -362,11 +366,11 @@ python -m scripts.amiga verify-player-participation
 
 ### Tasks
 
-- [ ] `scripts/amiga/sql/012_player_matchup_summary.sql`
-- [ ] Wire schema + `clear_derived` + drop order
-- [ ] `scripts/amiga/player_matchup_summary.py` — port pattern from `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql` using `amiga_games`
-- [ ] `replay.py`: after participation totals, `rebuild_all_matchup_summary`
-- [ ] CLI `matchup-rebuild`
+- [x] `scripts/amiga/sql/012_player_matchup_summary.sql`
+- [x] Wire schema + `clear_derived` + drop order
+- [x] `scripts/amiga/player_matchup_summary.py` — port pattern from `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql` using `amiga_games`
+- [x] `replay.py`: after participation totals, `rebuild_all_matchup_summary`
+- [x] CLI `matchup-rebuild`
 
 ### Verification
 
@@ -386,8 +390,8 @@ SELECT COUNT(*) * 2 FROM amiga_games;
 
 ### Tasks
 
-- [ ] `verify_player_matchups.py` + `__main__.py` registration
-- [ ] Directed pair spot-check vs raw games for sample pairs
+- [x] `verify_player_matchups.py` + `__main__.py` registration
+- [x] Directed pair spot-check vs raw games for sample pairs
 
 ### Verification — **STOP GATE D**
 
@@ -401,9 +405,9 @@ python -m scripts.amiga verify-player-matchups
 
 ### Tasks
 
-- [ ] `amiga_player_top_opponents($con, $playerId, $limit = 10)` in `amiga_player_tournament_lib.php` or new `amiga_player_matchup_lib.php`
-- [ ] Profile block in `amiga_profile_blocks.php` (table: opponent name, W-D-L, games)
-- [ ] Link to `/amiga/profile.php?id=` and future H2H
+- [x] `amiga_player_top_opponents($con, $playerId, $limit = 10)` in `amiga_player_tournament_lib.php` or new `amiga_player_matchup_lib.php`
+- [x] Profile block in `amiga_profile_blocks.php` (table: opponent name, W-D-L, games)
+- [x] Link to `/amiga/profile.php?id=` and future H2H
 
 ### Verification — **STOP GATE E**
 
@@ -415,11 +419,11 @@ python -m scripts.amiga verify-player-matchups
 
 ### Tasks
 
-- [ ] `scripts/amiga/sql/013_generalstats.sql` — single row `id=1`
-- [ ] Port `scripts/ladder/server_records.py` → `scripts/amiga/server_records.py` (read `amiga_games`, `amiga_game_ratings`, `amiga_player_stats`)
-- [ ] **Exclude** streak records and play-day streaks
-- [ ] `replay.py`: `rebuild_generalstats` last
-- [ ] `clear_derived` clears generalstats
+- [x] `scripts/amiga/sql/013_generalstats.sql` — single row `id=1`
+- [x] Port `scripts/ladder/server_records.py` → `scripts/amiga/server_records.py` (read `amiga_games`, `amiga_game_ratings`, `amiga_player_stats`)
+- [x] **Exclude** streak records and play-day streaks
+- [x] `replay.py`: `rebuild_generalstats` before `rebuild_all_catalog_stats`
+- [x] `clear_derived` clears generalstats
 
 ### Verification
 
@@ -437,10 +441,10 @@ SELECT * FROM amiga_generalstats WHERE id = 1;
 
 ### Tasks
 
-- [ ] Replace stub `site/public_html/amiga/hall-of-fame.php` with subset of online HoF (career + single-game records from generalstats + ratio leaders from stats)
-- [ ] `includes/amiga_records_hof_links.php`, `amiga_records_ratio_leaders.php` (port patterns from online)
-- [ ] **Omit** streak rows; profile links → `/amiga/profile.php`
-- [ ] Small panel: WC medal leaders from `amiga_player_tournament_totals`
+- [x] Replace stub `site/public_html/amiga/hall-of-fame.php` with subset of online HoF (career + single-game records from generalstats + ratio leaders from stats)
+- [x] `includes/amiga_records_hof_links.php`, `amiga_records_ratio_leaders.php` (port patterns from online)
+- [x] **Omit** streak rows; profile links → `/amiga/profile.php`
+- [x] Small panel: WC medal leaders from `amiga_player_tournament_totals`
 
 ### Verification — **STOP GATE F**
 
@@ -452,10 +456,10 @@ SELECT * FROM amiga_generalstats WHERE id = 1;
 
 ### Tasks
 
-- [ ] `site/public_html/amiga/leaderboards/tournament-honours.php`
-- [ ] `includes/amiga_lb_nav.php` or extend hub nav when leaderboards tab exists
-- [ ] Sort: `wc_gold`, `wc_silver`, `wc_bronze`, `tournaments_won`, `tournaments_played`
-- [ ] Read `amiga_player_tournament_totals` only
+- [x] `site/public_html/amiga/leaderboards/tournament-honours.php`
+- [x] `includes/amiga_lb_nav.php` or extend hub nav when leaderboards tab exists
+- [x] Sort: `wc_gold`, `wc_silver`, `wc_bronze`, `tournaments_won`, `tournaments_played`
+- [x] Read `amiga_player_tournament_totals` only
 
 ### Verification — **STOP GATE G**
 
@@ -500,18 +504,58 @@ python -m scripts.amiga verify-player-matchups
 
 ---
 
-## Full replay order (target state after slice 11)
+## Full replay order (authoritative — shipped slice 11+)
 
 ```text
 finalize all tournaments → amiga_game_ratings, amiga_rating_events, PlayerState
 commit_heavy_player_derived → amiga_player_stats
 rebuild_all_standings
-rebuild_all_participation          # + wc_medal after slice 5
+rebuild_all_participation          # + wc_medal (slice 5+)
 rebuild_all_participation_totals
-rebuild_all_matchup_summary        # slice 8+
+rebuild_all_matchup_summary
+rebuild_generalstats
 rebuild_all_catalog_stats
-rebuild_generalstats               # slice 11+
 ```
+
+---
+
+## Post–slice 14 — participation data model refinements (Jun 2026)
+
+Shipped after player-universe slice 14 closure (tournament history page + WC display fixes). **Authoritative detail:** contract §5.2.1.
+
+### What changed (beyond “synthetic points”)
+
+| Area | Before (slice 1–14) | After |
+|------|---------------------|-------|
+| Volume stats (`games`, W-D-L, goals) | Copied from overall `amiga_tournament_standings` | **`amiga_games` rollup** (all phases) |
+| Points column | `points` from standings overall (wrong for WCs; league-only for league+cup) | **`event_points`** = `wins*3 + draws` from games rollup; **no standings `points` on participation** |
+| Phase points | Implicitly conflated with participation `points` | **Only** in `amiga_tournament_standings` per scope |
+| WC history **Pts** | One group’s league points (misleading) | Full-event `event_points` |
+| WC history **Finish** | Sometimes group `overall_position` as “1st” | **Medal only** (`wc_medal`) |
+| Profile recent suffix | `position · points` from participation | `position` + `event_points` only when single-phase; league+cup shows position without pts |
+| Knockout phase parsing | `Quarter Finals` / `Semi Finals` plural → `group` | Singular `Quarter Final` / `Semi Final` → `knockout` (`tournament_phases.py`) |
+
+### Schema / ops
+
+- [x] `014_participation_event_points.sql` — rename `points` → `event_points` on existing DBs
+- [x] `010_player_tournament_participation.sql` — fresh installs use `event_points`
+- [x] Writers: `player_tournament_participation.py`, `amiga_post_game_participation.php`
+- [x] Verify: `event_points` invariant + games rollup parity
+- [x] UI: `amiga_profile_blocks.php`, `amiga_player_tournament_lib.php`, `player-tournaments.php`
+
+### Deploy checklist
+
+```powershell
+# On DBs that already have participation with `points` column:
+mysql ko2amiga_db < scripts/amiga/sql/014_participation_event_points.sql
+python -m scripts.amiga participation-rebuild
+python -m scripts.amiga verify-player-participation
+```
+
+### Deferred
+
+- True WC **event finish** rank beyond medals (fix 4 / honours rules doc)
+- Profile snippet showing **phase** points for league+cup marathons (would read standings, not participation)
 
 ---
 

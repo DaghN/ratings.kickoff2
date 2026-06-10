@@ -34,7 +34,7 @@ def _participation_rows(conn: pymysql.connections.Connection, tournament_id: int
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT player_id, tournament_id, overall_position, points, wc_medal, is_winner
+            SELECT player_id, tournament_id, overall_position, event_points, wc_medal, is_winner
             FROM amiga_player_tournament_participation
             WHERE tournament_id = %s
             ORDER BY player_id
