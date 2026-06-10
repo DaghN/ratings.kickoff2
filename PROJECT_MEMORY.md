@@ -84,6 +84,7 @@
 | When | What |
 |------|------|
 | 2026-06 | **Amiga participation placement ladder** — games-driven roster (`participation_placement.py` + PHP parity); knockout cups + group/KO events without overall scope now appear on player tournament history; contract §5.2.2; run `participation-rebuild`. |
+| 2026-06 | **Amiga derived-stat placement** — player-universe contract §5.0 (stored-truth policy, glossary, decision tree, placement matrix). |
 | 2026-06 | **Amiga performance rating** — event TPR on `amiga_rating_events` + participation denorm; Perf. rating column on `/amiga/player-tournaments.php`; migration `015`; [`amiga-performance-rating.md`](docs/amiga-performance-rating.md). |
 | 2026-06 | **Amiga participation points model** — `event_points` (full-event 3-1-0 from `amiga_games`); phase points stay in `amiga_tournament_standings` only; games rollup + WC finish/medal UI; migration `014`; contract §5.2.1. |
 | 2026-06 | **Amiga finalize latency** — batch full replay ~23s; live one tail-end finalize ~0.7s local (network scan bound). |

@@ -53,6 +53,8 @@ where `E(R, R_opp) = 1 / (1 + 10^((R_opp − R) / 400))` — same logistic as la
 
 ## Storage
 
+General placement rules (grain, stored truth, when to denorm): [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) **§5.0**.
+
 | Table | Role |
 |-------|------|
 | `amiga_rating_events.performance_rating` | **Canonical** — written at finalize / backfill |

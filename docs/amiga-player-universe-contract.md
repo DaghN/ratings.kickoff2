@@ -20,7 +20,7 @@ A **rich player universe** for the offline Amiga ladder: career stats and extrem
 |-----------|------|
 | **Ground vs derived** | Games and catalog are ground truth; player product facts are derived and rebuildable |
 | **Finalize boundary** | Global career rating commits at **tournament finalize**; per-game rows on `amiga_game_ratings` are game facts, not ladder authority |
-| **Persist for reads** | Hot paths use materialized tables — no realm-wide or per-profile scans on `amiga_games` at page load |
+| **Persist for reads** | Hot paths use materialized tables — no realm-wide or per-profile scans on `amiga_games` at page load. Placement rules: **§5.0** |
 | **Amiga-native semantics** | Tournament events, World Cups, kitchen marathons — not UTC day/week leagues |
 | **Online as pattern, not copy** | Port *shapes* (`matchup_summary`, `generalstats`, junction + totals) where they fit; skip what does not |
 | **Reference ≠ product** | Access `added_players`, `Rankings`, `Tables` inform parity tooling only |
@@ -136,6 +136,86 @@ amiga_games (ground)
        ├─► amiga_player_matchup_summary             … directed H2H (NEW, Tier B)
        └─► amiga_generalstats                       … server records (NEW, Tier B)
 ```
+
+### 5.0 Derived stat placement — stored truth (Jun 2026)
+
+**Authority:** Repo-wide habit — stored / precomputed truth on DB-backed hot paths ([`AGENTS.md`](../AGENTS.md), [`.cursor/rules/kool-workspace.mdc`](../.cursor/rules/kool-workspace.mdc), online [`website-data-contract.md`](website-data-contract.md)). Amiga layer rules: [`amiga-data-contract.md`](amiga-data-contract.md). **Default question before any new profile / leaderboard / tournament stat:**
+
+> *What table should hold this at rebuild/finalize time, and what must verify enforce?*
+
+Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_ratings` rows) on page load — same anti-pattern as live `ratedresults` scans online.
+
+#### Glossary
+
+| Term | Meaning |
+|------|---------|
+| **Hot surface** | A user-facing page or API loaded often (profile, tournament history, sortable leaderboard). Not “we need a sort” — “this read path should stay fast.” |
+| **Stored truth** | Value written at **finalize**, **participation-rebuild**, or **replay** — rebuildable from ground truth, read cheaply later. |
+| **Grain** | What one row represents (per game, per player×event, per player×event×phase, per player career). |
+| **Denorm copy** | Same fact stored in a **second** table (or duplicated catalog columns on one row) so a read path avoids a join. One **canonical** writer; verify keeps copies equal. Not the same as “derive `goals_for / games` in PHP once per row.” |
+| **Player-first / tournament-first** | Access pattern (`WHERE player_id = ?` vs `WHERE tournament_id = ?`). Usually **one junction table** with indexes for both — not automatically two tables. |
+
+#### Decision tree (new player / tournament stat)
+
+```text
+1. What grain?
+   per game           → amiga_game_ratings (+ amiga_games ground)
+   per player×event   → amiga_player_tournament_participation (default)
+   per player×event×phase → amiga_tournament_standings only
+   per player career  → amiga_player_stats or amiga_player_tournament_totals
+
+2. Event-wide or phase-scoped?
+   all games in event → participation (or rating_events if rating-family)
+   one league group / KO leg only → standings scope row — never participation alone
+
+3. Source of volume counts?
+   W-D-L, goals, event_points → roll up from amiga_games at rebuild (already on participation)
+   never from standings volume columns for participation
+
+4. Store a column or compute on read?
+   Policy default: STORE on the junction/career row at rebuild if the surface is hot
+   (profile, history table, leaderboard sort) — including ratios like avg goals per game.
+   Exception: throwaway admin probe or genuinely trivial display-only formatting.
+
+5. Second table (denorm copy)?
+   Only when a second *home* needs the same fact without joining:
+   e.g. performance_rating canonical on amiga_rating_events, copy on participation.
+   Not required for “tournament roster sort” — participation already has (tournament_id, player_id) index.
+
+6. Verify
+   Add identity to verify-player-participation (or feature verify) when stored.
+```
+
+#### Placement matrix (examples)
+
+| Stat | Grain | Store where | Second copy? | Notes |
+|------|-------|-------------|--------------|-------|
+| Phase league points | player×event×phase | `amiga_tournament_standings` | No | Tournament page phase tabs |
+| Event W-D-L, goals, `event_points` | player×event | `participation` | No | From `amiga_games` rollup at rebuild |
+| Rating before/delta/after | player×event | `amiga_rating_events` | Yes → `participation` | Finalize commit boundary |
+| `performance_rating` | player×event | `amiga_rating_events` | Yes → `participation` | [`amiga-performance-rating.md`](amiga-performance-rating.md) |
+| Avg goals per game in event | player×event | **`participation` column** (recommended when shipped) | No | Policy: store for hot sort/leaderboard; verify e.g. `avg * games ≈ goals_for` |
+| Career WC gold count | player | `amiga_player_tournament_totals` | No | Aggregate from participation |
+| Per-game adjustment | game | `amiga_game_ratings` | No | Games tab / game page only |
+
+#### Read-path rules (tournament vs player)
+
+| Surface | Primary read | Scan `amiga_games` on load? |
+|---------|--------------|-----------------------------|
+| `/amiga/tournament.php` standings tabs | `amiga_tournament_standings` | **No** |
+| `/amiga/tournament.php` bracket / KO leg | `amiga_games` | **Yes, but** `WHERE tournament_id = ?` only (indexed) |
+| `/amiga/player-tournaments.php` | `participation` | **No** |
+| `/amiga/games.php` | `amiga_games` + `amiga_game_ratings` | **Yes, but** per player, paginated — intentional scan surface |
+| Hypothetical “top avg goals per event” LB | `participation` stored column + index | **No** |
+
+**Index note:** `amiga_games` already has `idx_amiga_games_tournament` (`tournament_id`). A future tournament **Games** tab uses the same scoped query; a composite `(tournament_id, game_date, id)` is optional if `EXPLAIN` shows sort cost.
+
+#### Anti-patterns
+
+- Live `SUM` / `COUNT` over all `amiga_games` for profile or realm-wide leaderboards.
+- Putting event-wide facts on every `amiga_tournament_standings` scope row (duplicates the same number per phase).
+- Two tables for the same grain when one junction + two indexes suffices.
+- Skipping store “because `goals_for` and `games` exist” on a **hot sortable leaderboard** — policy prefers a materialized column + verify.
 
 ### 5.1 Career row — `amiga_player_stats` (existing)
 

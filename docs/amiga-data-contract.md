@@ -21,6 +21,7 @@
 | **Tournament finalize & rating events** (commit boundary, replay oracle) | [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · plan [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) |
 | **Player universe** (derived expansion, participation, honours, H2H) | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) · slices [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md) |
 | **Event performance rating** (TPR per tournament) | [`amiga-performance-rating.md`](amiga-performance-rating.md) |
+| **Where to store player×event derived stats** | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
 | DDL (current) | [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql) |
