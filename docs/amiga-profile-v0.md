@@ -27,7 +27,7 @@
 - **Honours strip** — `amiga_player_tournament_totals` (already loaded): WC medals when any, tournaments won, podiums, optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
 - **Performance rating** — best event + latest event (participation, games ≥ 2); links to perf LB and tournament history; hidden when no qualifying perf rows
 - **Moments** — trophy games from `amiga_player_stats` `*GameID` pointers (`amiga_player_moments_lib.php`): biggest win, goal festival, peak rating game; score links to games tab with opponent filter; hidden when no resolvable game rows; **no streak card**
-- **Recent tournaments** — `amiga_player_tournament_participation`: finish suffix from **`event_finish_position`** when implemented (holistic event finish); until migration, legacy `overall_position`; WC rows always **`wc_medal`** podium only; **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
+- **Recent tournaments** — `amiga_player_tournament_participation`: finish suffix from **`event_finish_position`** (holistic event finish; NULL → —); WC rows always **`wc_medal`** podium only; **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
 - **Tournament history** — `/amiga/player-tournaments.php`: full participation list (no pagination); sortable table with per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); filter pills — All / World Cups / Cups + event-location (country) row
 - **Top opponents** — `amiga_player_matchup_summary` via `amiga_player_top_opponents()` (W-D-L, goals, games; W-D-L and games link to H2H pair page)
 - **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_rating_events` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags)
@@ -54,7 +54,7 @@
 
 Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row exists for every player with ≥1 game, regardless of standings shape.
 
-**Event finish** (policy): [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Target column **`event_finish_position`** (NULL when undefined). **Phase ranks are not stored on participation** — group/league tables live in `amiga_tournament_standings` only. Legacy `overall_position` is overloaded and **retiring**; do not use it for new features.
+**Event finish** (policy): [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Column **`event_finish_position`** (NULL when undefined). **Phase ranks are not stored on participation** — group/league tables live in `amiga_tournament_standings` only.
 
 **World Cup finish** on history table: podium from `wc_medal` only until WC holistic finish ships.
 

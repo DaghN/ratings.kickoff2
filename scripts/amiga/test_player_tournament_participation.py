@@ -16,7 +16,7 @@ class ParticipationRowFromPartsTests(unittest.TestCase):
         standing = {
             "tournament_id": 42,
             "player_id": 7,
-            "position": 1,
+            "event_finish_position": 1,
             "points": 9,
             "games": 3,
             "wins": 3,
@@ -47,7 +47,7 @@ class ParticipationRowFromPartsTests(unittest.TestCase):
         self.assertEqual(row["player_id"], 7)
         self.assertEqual(row["tournament_id"], 42)
         self.assertEqual(row["tournament_name"], "London XXIII")
-        self.assertEqual(row["overall_position"], 1)
+        self.assertEqual(row["event_finish_position"], 1)
         self.assertEqual(row["event_points"], 9)
         self.assertEqual(row["is_winner"], 1)
         self.assertEqual(row["wc_medal"], "none")
@@ -60,7 +60,7 @@ class ParticipationRowFromPartsTests(unittest.TestCase):
         standing = {
             "tournament_id": 99,
             "player_id": 3,
-            "position": 4,
+            "event_finish_position": 4,
             "points": 3,
             "games": 3,
             "wins": 1,

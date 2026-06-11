@@ -1,11 +1,10 @@
-"""Derive participation placement (overall_position) from standings scopes.
+"""Derive participation placement from standings scopes.
 
-Participation grain is ground-truth games; placement is a derived view chosen by
-event shape:
+Event finish derivation for ``event_finish_position`` (honours rules tiers A–D).
 
-1. World Cup — primary group rank (not event finish; medals own podium UI).
-2. Overall scope exists — league / marathon rank (mixed events: league phase only).
-3. Otherwise — knockout bracket event finish from elimination scopes.
+Target ``derive_event_finish_position`` → ``event_finish_position`` per
+``docs/amiga-tournament-honours-rules.md`` tiers A–E + ``best_knockout_phase``.
+Writers wire in slice 5.
 """
 
 from __future__ import annotations
@@ -82,24 +81,132 @@ def _overall_positions(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
     }
 
 
-def compute_knockout_event_finish(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
-    """Bracket event finish when the tournament has no overall scope."""
-    ko_rows = [
+def _knockout_or_placement_rows(standing_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
         r
         for r in standing_rows
         if str(r.get("scope_type") or "") in {"knockout", "placement"}
     ]
+
+
+def is_main_final_label(label: str) -> bool:
+    """Main-bracket Final only — not subsidiary cups (Silver Cup Final, etc.)."""
+    return _normalize_knockout_label(label) == "final"
+
+
+def placement_final_winner_loser_ranks(label: str) -> tuple[int, int] | None:
+    """Nth-place final scopes (3rd, 5th, 7th, …) → winner rank N, loser N+1."""
+    norm = _normalize_knockout_label(label)
+    match = re.match(r"^(\d+)(?:st|nd|rd|th)\s+place\s+final$", norm)
+    if not match:
+        return None
+    base = int(match.group(1))
+    return base, base + 1
+
+
+def is_third_place_final_label(label: str) -> bool:
+    return placement_final_winner_loser_ranks(label) == (3, 4)
+
+
+def is_semi_final_label(label: str) -> bool:
+    norm = _normalize_knockout_label(label)
+    return norm in {"semi final", "semi finals"}
+
+
+def _has_third_place_final_scope(ko_rows: list[dict[str, Any]]) -> bool:
+    for row in ko_rows:
+        if str(row.get("scope_type") or "") != "knockout":
+            continue
+        label = knockout_scope_label(str(row.get("scope_key") or ""))
+        if is_third_place_final_label(label):
+            return True
+    return False
+
+
+def is_subsidiary_cup_knockout_label(label: str) -> bool:
+    """Silver/Bronze/KOA cup tracks — not main-bracket depth for best_knockout_phase."""
+    norm = _normalize_knockout_label(label)
+    return bool(re.match(r"^(?:silver|bronze|koa)\s+cup", norm))
+
+
+def is_main_bracket_knockout_label(label: str) -> bool:
+    """Main-bracket KO scopes only (excludes subsidiary cup finals)."""
+    if is_subsidiary_cup_knockout_label(label):
+        return False
+    if knockout_round_depth(label) > 0:
+        return True
+    return placement_final_winner_loser_ranks(label) is not None
+
+
+def derive_best_knockout_phase(
+    standing_rows: list[dict[str, Any]],
+    player_id: int,
+) -> str | None:
+    """
+    Deepest main-bracket knockout round label for one player (display / diagnostics).
+
+    Returns the phase label from standings scope keys (e.g. ``Semi Finals``, ``Final``).
+    NULL when the player has no main-bracket knockout rows.
+    """
+    best_label: str | None = None
+    best_depth = -1
+    best_pos = 99
+
+    for row in standing_rows:
+        if str(row.get("scope_type") or "") != "knockout":
+            continue
+        if int(row["player_id"]) != int(player_id):
+            continue
+        label = knockout_scope_label(str(row.get("scope_key") or ""))
+        if not is_main_bracket_knockout_label(label):
+            continue
+        depth = knockout_round_depth(label)
+        pos = int(row["position"])
+        if depth > best_depth or (depth == best_depth and pos < best_pos):
+            best_depth = depth
+            best_pos = pos
+            best_label = label
+
+    return best_label
+
+
+def _deepest_knockout_rank_key(
+    ko_rows: list[dict[str, Any]],
+    player_id: int,
+) -> tuple[int, int]:
+    """Sort key: deeper round first, then better position within the tie."""
+    player_rows = _standing_rows_for_player(ko_rows, player_id)
+    deepest_depth = -1
+    deepest_pos = 99
+    for row in player_rows:
+        label = knockout_scope_label(str(row.get("scope_key") or ""))
+        depth = knockout_round_depth(label)
+        pos = int(row["position"])
+        if depth > deepest_depth or (depth == deepest_depth and pos < deepest_pos):
+            deepest_depth = depth
+            deepest_pos = pos
+    return deepest_depth, deepest_pos
+
+
+def compute_tier_a_knockout_finish(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
+    """Tier A — pure knockout (no overall scope): Final 1/2, 3rd-place 3/4, shared semi bronze, 5+."""
+    ko_rows = _knockout_or_placement_rows(standing_rows)
     if not ko_rows:
         return {}
 
     positions: dict[int, int] = {}
     all_players = {int(r["player_id"]) for r in ko_rows}
 
-    def assign_final_podium(label: str, winner_rank: int, loser_rank: int) -> None:
+    def assign_knockout_podium(
+        label_predicate,
+        winner_rank: int,
+        loser_rank: int,
+    ) -> None:
         for row in ko_rows:
             if str(row.get("scope_type") or "") != "knockout":
                 continue
-            if _normalize_knockout_label(knockout_scope_label(str(row.get("scope_key") or ""))) != label:
+            label = knockout_scope_label(str(row.get("scope_key") or ""))
+            if not label_predicate(label):
                 continue
             player_id = int(row["player_id"])
             pos = int(row["position"])
@@ -108,33 +215,49 @@ def compute_knockout_event_finish(standing_rows: list[dict[str, Any]]) -> dict[i
             elif pos == 2 and player_id not in positions:
                 positions[player_id] = loser_rank
 
-    assign_final_podium("final", 1, 2)
-    assign_final_podium("3rd place final", 3, 4)
+    assign_knockout_podium(is_main_final_label, 1, 2)
+
+    for row in ko_rows:
+        if str(row.get("scope_type") or "") != "knockout":
+            continue
+        label = knockout_scope_label(str(row.get("scope_key") or ""))
+        ranks = placement_final_winner_loser_ranks(label)
+        if ranks is None:
+            continue
+        winner_rank, loser_rank = ranks
+        player_id = int(row["player_id"])
+        pos = int(row["position"])
+        if pos == 1 and player_id not in positions:
+            positions[player_id] = winner_rank
+        elif pos == 2 and player_id not in positions:
+            positions[player_id] = loser_rank
+
+    if (
+        not _has_third_place_final_scope(ko_rows)
+        and 1 in positions.values()
+        and 2 in positions.values()
+    ):
+        for row in ko_rows:
+            if str(row.get("scope_type") or "") != "knockout":
+                continue
+            label = knockout_scope_label(str(row.get("scope_key") or ""))
+            if not is_semi_final_label(label):
+                continue
+            player_id = int(row["player_id"])
+            if int(row["position"]) == 2 and player_id not in positions:
+                positions[player_id] = 3
 
     unassigned = sorted(all_players - set(positions.keys()))
     if not unassigned:
         return positions
 
-    depth_rows: list[tuple[int, int, int, int]] = []
-    for player_id in unassigned:
-        player_rows = _standing_rows_for_player(ko_rows, player_id)
-        deepest_depth = -1
-        deepest_pos = 99
-        for row in player_rows:
-            label = knockout_scope_label(str(row.get("scope_key") or ""))
-            depth = knockout_round_depth(label)
-            pos = int(row["position"])
-            if depth > deepest_depth or (depth == deepest_depth and pos < deepest_pos):
-                deepest_depth = depth
-                deepest_pos = pos
-        depth_rows.append((player_id, deepest_depth, deepest_pos, player_id))
-
+    depth_rows = [
+        (player_id, *_deepest_knockout_rank_key(ko_rows, player_id), player_id)
+        for player_id in unassigned
+    ]
     depth_rows.sort(key=lambda item: (-item[1], item[2], item[3]))
 
-    next_rank = max(positions.values(), default=0) + 1
-    if next_rank < 3:
-        next_rank = 3
-
+    next_rank = max(5, max(positions.values(), default=0) + 1)
     for player_id, _depth, _pos, _pid in depth_rows:
         positions[player_id] = next_rank
         next_rank += 1
@@ -142,34 +265,82 @@ def compute_knockout_event_finish(standing_rows: list[dict[str, Any]]) -> dict[i
     return positions
 
 
-def derive_participation_positions(
+def compute_tier_b_league_cup_finish(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
+    """
+    Tier B — league + cup: cup podium + shared semi bronze from main bracket;
+    everyone else from overall league; cup assignments override league for KO players.
+    """
+    overall = _overall_positions(standing_rows)
+    ko_rows = _knockout_or_placement_rows(standing_rows)
+    has_cup_knockout = any(str(r.get("scope_type") or "") == "knockout" for r in ko_rows)
+    if not overall or not has_cup_knockout:
+        return {}
+
+    cup_finish = compute_tier_a_knockout_finish(standing_rows)
+    finish = dict(overall)
+    finish.update(cup_finish)
+    return finish
+
+
+def apply_finish_overrides(
+    finish: dict[int, int | None],
+    overrides: dict[int, int] | None,
+) -> dict[int, int | None]:
+    """Tier E — curated rows win over generic tier assignments."""
+    if not overrides:
+        return finish
+    merged: dict[int, int | None] = dict(finish)
+    for player_id, position in overrides.items():
+        merged[int(player_id)] = int(position)
+    return merged
+
+
+def derive_event_finish_position(
     standing_rows: list[dict[str, Any]],
     *,
     tournament_name: str,
+    has_league: bool = False,
+    has_cup: bool = False,
     player_ids: list[int] | None = None,
-) -> dict[int, int]:
-    """Map player_id → overall_position for participation rows."""
+    overrides: dict[int, int] | None = None,
+) -> dict[int, int | None]:
+    """
+    Map player_id → event_finish_position (NULL when unknown / deferred tier).
+
+    Tiers implemented: A (pure KO), B (league+cup), C (pure league), D (WC) → all NULL.
+    Tier E: ``overrides`` from ``amiga_tournament_finish_override`` wins per player.
+    """
+    overall = _overall_positions(standing_rows)
     if is_world_cup_tournament(tournament_name):
-        base = derive_wc_group_positions(standing_rows)
+        finish: dict[int, int] = {}
+    elif has_league and has_cup and overall:
+        finish = compute_tier_b_league_cup_finish(standing_rows)
+    elif overall:
+        finish = overall
     else:
-        overall = _overall_positions(standing_rows)
-        if overall:
-            base = overall
-        else:
-            base = compute_knockout_event_finish(standing_rows)
+        finish = compute_tier_a_knockout_finish(standing_rows)
+
+    finish = apply_finish_overrides(finish, overrides)
 
     if player_ids is None:
-        return base
+        return finish
 
-    return {int(pid): int(base.get(int(pid), 0)) for pid in player_ids}
+    out = {int(pid): finish.get(int(pid)) for pid in player_ids}
+    if overrides:
+        for pid in player_ids:
+            pid_int = int(pid)
+            if pid_int in overrides:
+                out[pid_int] = int(overrides[pid_int])
+    return out
 
 
 def participation_is_winner(
     *,
     tournament_name: str,
-    overall_position: int,
+    event_finish_position: int | None = None,
     wc_medal: str = "none",
 ) -> bool:
+    """Honours rules §4.3 — WC gold medal or event_finish_position = 1."""
     if is_world_cup_tournament(tournament_name):
         return wc_medal == "gold"
-    return overall_position == 1
+    return event_finish_position == 1

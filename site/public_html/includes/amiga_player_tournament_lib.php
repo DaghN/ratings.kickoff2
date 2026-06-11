@@ -11,7 +11,7 @@ require_once __DIR__ . '/amiga_player_load.php';
 /**
  * Tournament participation rows for a player (canonical derived source).
  *
- * Rows are shaped for profile blocks: id, name, position, event_points, games, knockout_ties.
+ * Rows are shaped for profile blocks: id, name, position (event_finish_position), event_points, games, knockout_ties.
  * Ordered newest event first. Optional $limit caps rows (profile recent list); omit for full history.
  *
  * @return list<array<string, mixed>>
@@ -26,7 +26,7 @@ function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, 
                    p.has_league,
                    p.has_cup,
                    p.country,
-                   p.overall_position AS position,
+                   p.event_finish_position AS position,
                    p.event_points,
                    p.games,
                    p.wins,
@@ -186,7 +186,7 @@ function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): ar
                    p.has_league,
                    p.has_cup,
                    p.country,
-                   p.overall_position AS position,
+                   p.event_finish_position AS position,
                    p.event_points,
                    p.games,
                    p.wins,

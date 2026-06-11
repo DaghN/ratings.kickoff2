@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (slices 0–7 + staging 24-part import verified on `ratings.kickoff2.com`). Commit boundary = `finalize_tournament` only; batch oracle `python -m scripts.amiga replay` (~23s full local) + `verify-rating-events`; live PHP standings-only entry + `finalize-tournament` (heavy derived inline); profile chart from `amiga_rating_events`; corrections via `reopen-tournament` / `refinalize-from`. Contract: [`amiga-tournament-finalize-rating-contract.md`](docs/amiga-tournament-finalize-rating-contract.md). **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Match streaks:** skip product surfaces. **Next:** resume other Amiga/product work per [`amiga-realm-vision.md`](docs/amiga-realm-vision.md).
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration** — **complete** (slices 0–10; [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md); migrations `017`–`019`). Batch oracle `python -m scripts.amiga replay` (~23s) + verify suite; live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Next:** other Amiga/product work per [`amiga-realm-vision.md`](docs/amiga-realm-vision.md).
 
 ---
 
@@ -83,7 +83,18 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Amiga event finish plan** — policy [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) + agent slices 0–10 [`amiga-event-finish-implementation-plan.md`](docs/amiga-event-finish-implementation-plan.md) + starter [`amiga-event-finish-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md); implementation pending. |
+| 2026-06 | **Amiga event finish slice 10 / track complete** — honours rules **Implemented**; docs closure; `feature-log` L1 row; migrations `017`–`019`. |
+| 2026-06 | **Amiga event finish slice 9** — `amiga_tournament_finish_override` (019) + Tier E hook in Python/PHP derivation; unit tests OK. |
+| 2026-06 | **Amiga event finish slice 8** — migration `018` drops `overall_position`; writers/tests/verify updated; full verify suite OK. |
+| 2026-06 | **Amiga event finish slice 7** — UI reads `event_finish_position` (profile + player-tournaments + event-stats); STOP gate C for browser check. |
+| 2026-06 | **Amiga event finish slice 6** — PHP placement parity + post-game participation writer (`event_finish_position`, `best_knockout_phase`); smoke 544 OK; verify suite OK. |
+| 2026-06 | **Amiga event finish slice 5** — participation writer + honours totals rebuild (4517 rows); STOP gate B; legacy `overall_position` retained until slice 8. |
+| 2026-06 | **Amiga event finish slice 4** — `derive_best_knockout_phase` (main bracket depth label); 7 unit tests + Bournemouth DB check. |
+| 2026-06 | **Amiga event finish slice 3** — WC `wc_medal` shared semi bronze; no group-overall medal fallback; Tier D NULL finish. |
+| 2026-06 | **Amiga event finish slice 2** — Tier B league+cup merge; placement-finals (3rd/5th/7th…) fix; Athens LXXXV DB test; STOP gate A. |
+| 2026-06 | **Amiga event finish slice 1** — `derive_event_finish_position` Tier A (shared semi bronze) + Tier C; 14 unit tests; writer still legacy `overall_position`. |
+| 2026-06 | **Amiga event finish slice 0** — migration `017`: `event_finish_position` + `best_knockout_phase` on participation; fresh `010` updated; writers unchanged. |
+| 2026-06 | **Amiga event finish plan** — policy [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) + agent slices 0–10 [`amiga-event-finish-implementation-plan.md`](docs/amiga-event-finish-implementation-plan.md) + starter [`amiga-event-finish-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md). |
 | 2026-06 | **Amiga tournament honours LB** — dropped cup medal cols; order WC medals → played → won → podiums (last). |
 | 2026-06 | **Amiga LB wing order** — Tournament honours tab second after Rating (`amiga_lb_nav.php`). |
 | 2026-06 | **Amiga hub IA** — main hub tab **Ladder** → **Leaderboards**; retired redundant **Honours** top-level tab (tournament honours stays sub-wing). |

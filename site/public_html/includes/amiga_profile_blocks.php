@@ -118,7 +118,7 @@ function amiga_profile_render_honours(array $totals, int $playerId): void
 /**
  * Whether recent-tournament label may append event_points (full-event 3-1-0 tally).
  *
- * League+cup marathons: overall_position is league-scoped; event_points include cup games — omit pts.
+ * League+cup marathons: event_points include cup games — omit pts suffix on profile lines.
  * Phase-scoped league points live in amiga_tournament_standings, not participation.
  */
 function amiga_profile_tournament_label_includes_event_points(array $t): bool
@@ -133,10 +133,10 @@ function amiga_profile_tournament_label_includes_event_points(array $t): bool
 /**
  * Profile suffix for one recent tournament row.
  *
- * World Cups: wc_medal podium rank only. Others: overall_position; event_points when
- * the full-event tally matches the single league phase (no separate cup on the row).
+ * World Cups: wc_medal podium rank only. Others: event_finish_position (as position);
+ * event_points when the full-event tally matches the single league phase (no separate cup).
  *
- * @param array<string, mixed> $t participation row (name, position, event_points, wc_medal, has_league, has_cup)
+ * @param array<string, mixed> $t participation row (name, position = event_finish_position, event_points, wc_medal, has_league, has_cup)
  */
 function amiga_profile_tournament_result_label(array $t): string
 {
@@ -154,10 +154,11 @@ function amiga_profile_tournament_result_label(array $t): string
         return '—';
     }
 
-    $position = (int) ($t['position'] ?? 0);
-    if ($position <= 0) {
+    $position = $t['position'] ?? null;
+    if ($position === null || $position === '' || (int) $position < 1) {
         return '—';
     }
+    $position = (int) $position;
 
     $label = $position . ordinal_suffix($position);
     if (amiga_profile_tournament_label_includes_event_points($t)) {
@@ -351,7 +352,7 @@ function amiga_profile_event_date_sort_value(array $row): string
 function amiga_profile_tournament_finish_rank_label(array $row): string
 {
     if (amiga_tournament_is_world_cup($row)) {
-        // Podium only — overall_position on WC rows is a group-phase rank, not event finish.
+        // Podium from wc_medal only — event_finish_position is always NULL on WC rows.
         $rank = match ((string) ($row['wc_medal'] ?? 'none')) {
             'gold' => 1,
             'silver' => 2,
@@ -365,9 +366,9 @@ function amiga_profile_tournament_finish_rank_label(array $row): string
         return '—';
     }
 
-    $position = (int) ($row['position'] ?? 0);
-    if ($position > 0) {
-        return $position . ordinal_suffix($position);
+    $position = $row['position'] ?? null;
+    if ($position !== null && $position !== '' && (int) $position > 0) {
+        return (int) $position . ordinal_suffix((int) $position);
     }
 
     return '—';

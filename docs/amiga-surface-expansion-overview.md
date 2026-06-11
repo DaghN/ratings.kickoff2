@@ -146,7 +146,7 @@ Not “blocked forever”; treat as **medium bets** or **parallel tracks** unles
 | **`amiga_player_tournament_slice_totals`** | Phase-native honours (group vs event); new table + writer |
 | **Tournament games tab** | Scoped `amiga_games` scan allowed but new surface; composite index TBD |
 | **WC holistic `event_finish_position`** | Policy locked — [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md); medals + shared semi bronze first; numeric WC finish deferred to import job |
-| **Event finish migration (`overall_position` → `event_finish_position`)** | Policy + contract done; schema/writers pending — implementation plan § Event finish migration |
+| **Event finish migration (`overall_position` → `event_finish_position`)** | **Done** Jun 2026 — [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md); migrations `017`–`019` |
 | **Live incremental H2H / generalstats on finalize** | Batch replay authoritative today |
 | **Activity / `player_period_games`** | Tier C; offline burst semantics TBD |
 | **Cross-realm H2H** | Different player ID spaces |

@@ -40,12 +40,57 @@ class ComputeWcMedalsTests(unittest.TestCase):
         self.assertEqual(medals[66], "bronze")
         self.assertNotIn(30, medals)
 
-    def test_overall_fallback_when_no_knockout(self) -> None:
+    def test_no_medals_from_group_overall_alone(self) -> None:
         medals = compute_wc_medals_from_standings(
-            [],
-            overall_positions={10: 1, 11: 2, 12: 3, 13: 4},
+            [
+                {"scope_type": "group", "scope_key": "Round 1 - Group A", "player_id": 10, "position": 1},
+            ],
         )
-        self.assertEqual(medals, {10: "gold", 11: "silver", 12: "bronze"})
+        self.assertEqual(medals, {})
+
+    def test_shared_semi_bronze_when_no_third_place_final(self) -> None:
+        rows = [
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|1-3", "player_id": 1, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|1-3", "player_id": 3, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|2-4", "player_id": 2, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|2-4", "player_id": 4, "position": 2},
+        ]
+        medals = compute_wc_medals_from_standings(rows)
+        self.assertEqual(medals[1], "gold")
+        self.assertEqual(medals[2], "silver")
+        self.assertEqual(medals[3], "bronze")
+        self.assertEqual(medals[4], "bronze")
+
+    def test_third_place_final_wins_over_semi_bronze(self) -> None:
+        rows = [
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
+            {"scope_type": "knockout", "scope_key": "3rd Place Final|3-4", "player_id": 3, "position": 1},
+            {"scope_type": "knockout", "scope_key": "3rd Place Final|3-4", "player_id": 4, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|1-3", "player_id": 3, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|2-4", "player_id": 4, "position": 2},
+        ]
+        medals = compute_wc_medals_from_standings(rows)
+        self.assertEqual(medals[3], "bronze")
+        self.assertNotIn(4, medals)
+
+    def test_incomplete_final_no_bronze_from_semis(self) -> None:
+        rows = [
+            {"scope_type": "knockout", "scope_key": "Semi Finals|1-3", "player_id": 3, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|2-4", "player_id": 4, "position": 2},
+        ]
+        self.assertEqual(compute_wc_medals_from_standings(rows), {})
+
+    def test_subsidiary_cup_final_ignored(self) -> None:
+        rows = [
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Silver Cup Final|5-6", "player_id": 5, "position": 1},
+        ]
+        medals = compute_wc_medals_from_standings(rows)
+        self.assertEqual(set(medals.values()), {"gold", "silver"})
 
 
 if __name__ == "__main__":

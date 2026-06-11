@@ -156,6 +156,50 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             """
             SELECT COUNT(*) AS n
             FROM amiga_player_tournament_participation p
+            WHERE p.event_finish_position = 0
+            """
+        )
+        zero_finish = int(cur.fetchone()["n"])
+        if zero_finish:
+            errors.append(
+                f"participation rows with event_finish_position = 0: {zero_finish} "
+                "(use NULL for unknown finish)"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_participation p
+            INNER JOIN tournaments t ON t.id = p.tournament_id
+            WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+              AND p.event_finish_position IS NOT NULL
+            """
+        )
+        wc_finish_set = int(cur.fetchone()["n"])
+        if wc_finish_set:
+            cur.execute(
+                """
+                SELECT p.player_id, p.tournament_id, p.event_finish_position, t.name
+                FROM amiga_player_tournament_participation p
+                INNER JOIN tournaments t ON t.id = p.tournament_id
+                WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+                  AND p.event_finish_position IS NOT NULL
+                LIMIT %s
+                """,
+                (_SAMPLE_LIMIT,),
+            )
+            sample = cur.fetchall()
+            row = sample[0]
+            errors.append(
+                f"World Cup rows with event_finish_position set: {wc_finish_set} "
+                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
+                f"name={row['name']!r})"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_participation p
             WHERE p.event_points != (p.wins * 3 + p.draws)
             """
         )

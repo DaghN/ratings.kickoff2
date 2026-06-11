@@ -254,8 +254,7 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 | `country` | varchar(50) | `tournaments.country` |
 | `has_league` | tinyint | `tournaments.has_league` |
 | `has_cup` | tinyint | `tournaments.has_cup` |
-| `overall_position` | smallint | **Legacy — retiring.** Overloaded phase rank; see [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Replaced by `event_finish_position`. |
-| `event_finish_position` | smallint NULL | **Planned.** Holistic post-event finish when definable; **NULL** = unknown. Policy §5.2.2 + honours rules doc. |
+| `event_finish_position` | smallint NULL | Holistic post-event finish when definable; **NULL** = unknown. Policy §5.2.2 + honours rules doc. |
 | `event_points` | smallint | **3×wins + 1×draws** over **all** games in the event (`amiga_games` rollup); full-event result tally |
 | `games` | smallint | `amiga_games` rollup (all phases) |
 | `wins` | smallint | same rollup |
@@ -271,9 +270,9 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 | `performance_rating` | decimal NULL | `amiga_rating_events` — chess-style event TPR; see [`amiga-performance-rating.md`](amiga-performance-rating.md) |
 | `games_in_event` | smallint | `amiga_rating_events` |
 | `finalized_at` | datetime | `amiga_rating_events.finalized_at` |
-| `is_winner` | tinyint | **Target:** `event_finish_position = 1` (non-WC) or `wc_medal = gold` (WC). **Legacy:** `overall_position = 1`. |
+| `is_winner` | tinyint | `event_finish_position = 1` (non-WC) or `wc_medal = gold` (WC). |
 | `wc_medal` | enum NULL | `none`, `gold`, `silver`, `bronze` — see §6 and [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) |
-| `best_knockout_phase` | varchar(50) NULL | Deepest main-bracket KO round reached — populate on rebuild; see honours rules §5 |
+| `best_knockout_phase` | varchar(50) NULL | Deepest main-bracket KO round — `derive_best_knockout_phase()` (slice 4); writer slice 5; see honours rules §5 |
 
 **Writer:** batch rebuild after standings + rating events for a tournament (full replay: end-of-pass rebuild all; live: after finalize + standings refresh for touched `tournament_id`). Shared placement helper: `scripts/amiga/participation_placement.py` · PHP parity `includes/amiga_participation_placement.php`.
 
@@ -281,7 +280,7 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 
 **Authoritative policy:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md).
 
-**Implementation status:** Writers still populate legacy `overall_position`. Migration to `event_finish_position` + drop `overall_position` is **pending** (see implementation plan § Event finish migration).
+**Implementation status:** **Complete** (Jun 2026) — `event_finish_position`, `best_knockout_phase`, Tier E overrides; Python + PHP writers; UI read paths; honours totals. Policy: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Plan: [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md).
 
 Ground → product flow (target):
 
@@ -305,11 +304,9 @@ amiga_games (roster + volume stats + event_points)
 | B | League + cup | Cup final + 3rd-place rules; non-finalists from league `overall`; cup overrides league for finalists |
 | C | Pure league | `overall` scope `position` |
 | D | World Cup | **NULL** (medals via `wc_medal` until WC finish job) |
-| E | Exotic / ambiguous | NULL or import override table |
+| E | Exotic / ambiguous | `amiga_tournament_finish_override` when curated; else NULL |
 
 **Rejected:** `league_position` and `group_position` on participation — phase order and points stay in `amiga_tournament_standings` only.
-
-**Legacy `overall_position` (shipped, retiring):** overloaded one column (WC group rank, league rank on marathons, bracket finish on KO cups). UI already shows WC finish from medals only; career totals still read legacy column until rebuild.
 
 **Not a substitute for:** `tournament_entrants` (registration), per-phase standings tables (`amiga_tournament_standings`).
 
@@ -330,7 +327,7 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 |--------------|--------|-------|
 | `games`, `wins`, `draws`, `losses`, `goals_for`, `goals_against` | `amiga_games` rollup (all phases) | Not from standings volume columns |
 | `event_points` | `wins * 3 + draws` (same rollup) | Renamed from `points` in migration `014` |
-| `event_finish_position`, `is_winner` (non-WC) | §5.2.2 / honours rules | **Target.** Legacy: `overall_position` |
+| `event_finish_position`, `is_winner` (non-WC) | §5.2.2 / honours rules | |
 | `wc_medal`, `is_winner` (WC) | `refresh_wc_medals` + honours rules §4.2 | WC rows: medals for podium; not group rank |
 | `best_knockout_phase` | KO depth from standings | Populate on rebuild |
 | `rating_*`, `games_in_event`, `finalized_at` | `amiga_rating_events` | unchanged |
@@ -345,8 +342,8 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 | Surface | Points shown | Finish shown |
 |---------|--------------|--------------|
 | `/amiga/tournament.php` phase tables | standings `points` per scope | standings `position` per scope |
-| `/amiga/player-tournaments.php` **Pts** column | `event_points` | WC: medal only; others: **`event_finish_position`** ordinal (legacy: `overall_position`) |
-| Profile **recent tournaments** suffix | `event_points` only when single-phase; omitted for league+cup marathons and WCs | WC medal; else **`event_finish_position`** (legacy: `overall_position`) |
+| `/amiga/player-tournaments.php` **Pts** column | `event_points` | WC: medal only; others: **`event_finish_position`** ordinal |
+| Profile **recent tournaments** suffix | `event_points` only when single-phase; omitted for league+cup marathons and WCs | WC medal; else **`event_finish_position`** |
 
 **Verify (`verify-player-participation`):** `event_points = wins * 3 + draws`; volume stats match `amiga_games` rollup; rating columns match `amiga_rating_events` when present.
 
@@ -367,8 +364,8 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 | `tournaments_played` | COUNT participation rows |
 | `tournaments_won` | COUNT `is_winner = 1` — **target:** `event_finish_position = 1` or WC gold |
 | `wc_gold` / `wc_silver` / `wc_bronze` | COUNT by `wc_medal` on World Cup events |
-| `cup_gold` / `cup_silver` / `cup_bronze` | Non-WC cups: **`event_finish_position`** 1 / 2 / 3 (legacy: `overall_position`) |
-| `podiums` | **Target:** `event_finish_position <= 3` OR WC medal podium. **Legacy:** `overall_position <= 3` |
+| `cup_gold` / `cup_silver` / `cup_bronze` | Non-WC cups: **`event_finish_position`** 1 / 2 / 3 |
+| `podiums` | `event_finish_position <= 3` OR WC medal podium |
 | `last_event_date` | MAX `event_date` |
 | `last_tournament_id` | tournament id at max chrono/date |
 
@@ -419,7 +416,7 @@ Replace Access `added_players.goldmedals` / `silvermedals` / `bronzemedals` with
 
 **Summary:**
 
-- **Event finish** → `event_finish_position` (nullable); retire `overall_position`.
+- **Event finish** → `event_finish_position` (nullable).
 - **WC podium** → `wc_medal` from main-bracket knockouts; shared bronze when no 3rd-place match; WC numeric finish deferred.
 - **Wins / podiums / cup medals** → aggregate from `event_finish_position` + `wc_medal` per honours rules §4.
 - **Phase tables** → `amiga_tournament_standings` only (no `league_position` / `group_position` on participation).
@@ -526,6 +523,7 @@ SQL under `scripts/amiga/sql/`:
 | `014_participation_event_points.sql` | existing DBs: rename `points` → `event_points` |
 | `015_performance_rating.sql` | `performance_rating` on rating events + participation |
 | `016_participation_avg_goals.sql` | `avg_goals_for`, `avg_goals_against` on participation |
+| `017_event_finish_position.sql` | `event_finish_position`, `best_knockout_phase` on participation (slice 0) |
 | `011_player_tournament_totals.sql` | totals table |
 | `012_player_matchup_summary.sql` | H2H table |
 | `013_generalstats.sql` | server records (no streak columns) |
@@ -534,7 +532,7 @@ Python modules:
 
 | Module | Role |
 |--------|------|
-| `scripts/amiga/participation_placement.py` | placement rules (§5.2.2); PHP parity `includes/amiga_participation_placement.php` |
+| `scripts/amiga/participation_placement.py` | `derive_event_finish_position` (tiers A–D), `derive_best_knockout_phase`; PHP parity in `includes/amiga_participation_placement.php` |
 | `scripts/amiga/player_tournament_participation.py` | games-driven rebuild + WC medal refresh + live finalize hook |
 | `scripts/amiga/player_matchup_summary.py` | bulk H2H rebuild |
 | `scripts/amiga/server_records.py` | `amiga_generalstats` rebuild |

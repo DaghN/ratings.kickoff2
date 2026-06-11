@@ -164,6 +164,42 @@ function amiga_ops_participation_standing_rows_for_tournament(mysqli $con, int $
 }
 
 /**
+ * Tier E curated finish positions for one tournament.
+ *
+ * @return array<int, int> player_id => event_finish_position
+ */
+function amiga_ops_participation_finish_overrides_for_tournament(mysqli $con, int $tournamentId): array
+{
+    if ($tournamentId < 1) {
+        return [];
+    }
+
+    $stmt = $con->prepare(
+        'SELECT player_id, event_finish_position
+         FROM amiga_tournament_finish_override
+         WHERE tournament_id = ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare finish overrides: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute finish overrides: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $overrides = [];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $overrides[(int) $row['player_id']] = (int) $row['event_finish_position'];
+        }
+        $res->free();
+    }
+    $stmt->close();
+
+    return $overrides;
+}
+
+/**
  * @return array<int, array<string, mixed>>
  */
 function amiga_ops_participation_rating_events_for_tournament(mysqli $con, int $tournamentId): array
@@ -235,40 +271,51 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
     }
 
     $standingRows = amiga_ops_participation_standing_rows_for_tournament($con, $tournamentId);
+    $finishOverrides = amiga_ops_participation_finish_overrides_for_tournament($con, $tournamentId);
     $ratingEvents = amiga_ops_participation_rating_events_for_tournament($con, $tournamentId);
     $playerIds = array_keys($rollups);
     sort($playerIds, SORT_NUMERIC);
-    $positions = amiga_participation_derive_positions(
+    $tournamentName = (string) $tournament['name'];
+    $hasLeague = (bool) ((int) ($tournament['has_league'] ?? 0));
+    $hasCup = (bool) ((int) ($tournament['has_cup'] ?? 0));
+    $eventFinishes = amiga_participation_derive_event_finish_position(
         $standingRows,
-        (string) $tournament['name'],
-        $playerIds
+        $tournamentName,
+        $hasLeague,
+        $hasCup,
+        $playerIds,
+        $finishOverrides
     );
 
     $insert = $con->prepare(
         'INSERT INTO amiga_player_tournament_participation (
             player_id, tournament_id, event_date, event_chrono, tournament_name,
-            is_cup, country, has_league, has_cup, overall_position, event_points,
+            is_cup, country, has_league, has_cup,
+            event_finish_position, best_knockout_phase, event_points,
             games, wins, draws, losses, goals_for, goals_against,
             avg_goals_for, avg_goals_against,
             rating_before, rating_delta, rating_after, performance_rating,
             games_in_event, finalized_at, is_winner, wc_medal
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )'
     );
     if ($insert === false) {
         throw new RuntimeException('prepare participation insert: ' . $con->error);
     }
 
-    $tournamentName = (string) $tournament['name'];
     $written = 0;
     foreach ($playerIds as $playerId) {
         $rollup = $rollups[$playerId];
-        $overallPosition = (int) ($positions[$playerId] ?? 0);
+        $eventFinishPosition = $eventFinishes[$playerId] ?? null;
+        if ($eventFinishPosition !== null) {
+            $eventFinishPosition = (int) $eventFinishPosition;
+        }
+        $bestKnockoutPhase = amiga_participation_derive_best_knockout_phase($standingRows, $playerId);
         $rating = $ratingEvents[$playerId] ?? null;
         $wins = (int) ($rollup['wins'] ?? 0);
         $draws = (int) ($rollup['draws'] ?? 0);
-        $isWinner = amiga_participation_is_winner($tournamentName, $overallPosition) ? 1 : 0;
+        $isWinner = amiga_participation_is_winner($tournamentName, $eventFinishPosition) ? 1 : 0;
         $ratingBefore = $rating['rating_before'] ?? null;
         $ratingDelta = $rating['rating_delta'] ?? null;
         $ratingAfter = $rating['rating_after'] ?? null;
@@ -296,7 +343,7 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
         $finalizedAtVal = $finalizedAt !== null ? (string) $finalizedAt : null;
 
         $insert->bind_param(
-            'iisdsisiiiiiiiiiddddddisis',
+            'iisdsisiiisiiiiiiiddddddisis',
             $playerId,
             $tournamentId,
             $eventDate,
@@ -306,7 +353,8 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
             $country,
             $hasLeague,
             $hasCup,
-            $overallPosition,
+            $eventFinishPosition,
+            $bestKnockoutPhase,
             $eventPoints,
             $games,
             $wins,
@@ -391,7 +439,8 @@ INSERT INTO amiga_player_tournament_participation (
     country,
     has_league,
     has_cup,
-    overall_position,
+    event_finish_position,
+    best_knockout_phase,
     event_points,
     games,
     wins,
@@ -418,7 +467,8 @@ SELECT
     t.country,
     t.has_league,
     t.has_cup,
-    gs.position AS overall_position,
+    NULL AS event_finish_position,
+    NULL AS best_knockout_phase,
     (pg.wins * 3 + pg.draws) AS event_points,
     pg.games,
     pg.wins,
@@ -493,67 +543,61 @@ function amiga_ops_wc_knockout_scope_label(string $scopeKey): string
  * @param array<int, int> $overallPositions
  * @return array<int, string>
  */
-function amiga_ops_compute_wc_medals_from_standings(array $standingRows, array $overallPositions = []): array
+function amiga_ops_compute_wc_medals_from_standings(array $standingRows): array
 {
-    $koOrPlacement = [];
+    $koRows = [];
     foreach ($standingRows as $row) {
-        $scopeType = (string) ($row['scope_type'] ?? '');
-        if ($scopeType === 'knockout' || $scopeType === 'placement') {
-            $koOrPlacement[] = $row;
+        if ((string) ($row['scope_type'] ?? '') === 'knockout') {
+            $koRows[] = $row;
         }
     }
 
     $goldId = null;
     $silverId = null;
-    $bronzeId = null;
+    /** @var array<int, true> $bronzeIds */
+    $bronzeIds = [];
 
-    foreach ($koOrPlacement as $row) {
-        $label = strtolower(amiga_ops_wc_knockout_scope_label((string) ($row['scope_key'] ?? '')));
+    foreach ($koRows as $row) {
+        $label = amiga_ops_wc_knockout_scope_label((string) ($row['scope_key'] ?? ''));
         $playerId = (int) $row['player_id'];
         $position = (int) $row['position'];
-        $scopeType = (string) ($row['scope_type'] ?? '');
 
-        if ($scopeType === 'knockout') {
-            if ($label === 'final') {
-                if ($position === 1) {
-                    $goldId = $playerId;
-                } elseif ($position === 2) {
-                    $silverId = $playerId;
-                }
-            } elseif ($label === '3rd place final' && $position === 1) {
-                $bronzeId = $playerId;
+        if (amiga_participation_is_main_final_label($label)) {
+            if ($position === 1) {
+                $goldId = $playerId;
+            } elseif ($position === 2) {
+                $silverId = $playerId;
+            }
+        } elseif (amiga_participation_is_third_place_final_label($label) && $position === 1) {
+            $bronzeIds[$playerId] = true;
+        }
+    }
+
+    if (
+        !amiga_participation_has_third_place_final_scope($koRows)
+        && $goldId !== null
+        && $silverId !== null
+    ) {
+        foreach ($koRows as $row) {
+            $label = amiga_ops_wc_knockout_scope_label((string) ($row['scope_key'] ?? ''));
+            if (!amiga_participation_is_semi_final_label($label)) {
+                continue;
+            }
+            if ((int) $row['position'] === 2) {
+                $bronzeIds[(int) $row['player_id']] = true;
             }
         }
     }
 
-    if ($goldId !== null || $silverId !== null || $bronzeId !== null) {
-        $medals = [];
-        if ($goldId !== null) {
-            $medals[$goldId] = 'gold';
-        }
-        if ($silverId !== null) {
-            $medals[$silverId] = 'silver';
-        }
-        if ($bronzeId !== null) {
-            $medals[$bronzeId] = 'bronze';
-        }
-
-        return $medals;
-    }
-
-    if ($koOrPlacement !== []) {
-        return [];
-    }
-
     $medals = [];
-    foreach ($overallPositions as $playerId => $position) {
-        if ($position === 1) {
-            $medals[(int) $playerId] = 'gold';
-        } elseif ($position === 2) {
-            $medals[(int) $playerId] = 'silver';
-        } elseif ($position === 3) {
-            $medals[(int) $playerId] = 'bronze';
-        }
+    if ($goldId !== null) {
+        $medals[$goldId] = 'gold';
+    }
+    if ($silverId !== null) {
+        $medals[$silverId] = 'silver';
+    }
+    foreach (array_keys($bronzeIds) as $bronzeId) {
+        $medals[(int) $bronzeId] = 'bronze';
     }
 
     return $medals;
@@ -595,20 +639,16 @@ function amiga_ops_participation_refresh_wc_medals_for_tournament(mysqli $con, i
         throw new RuntimeException('execute wc standings: ' . $standingsStmt->error);
     }
     $standingRows = [];
-    $overallPositions = [];
     $sres = $standingsStmt->get_result();
     if ($sres) {
         while ($row = $sres->fetch_assoc()) {
             $standingRows[] = $row;
-            if ((string) ($row['scope_type'] ?? '') === 'overall' && (string) ($row['scope_key'] ?? '') === '') {
-                $overallPositions[(int) $row['player_id']] = (int) $row['position'];
-            }
         }
         $sres->free();
     }
     $standingsStmt->close();
 
-    $medals = amiga_ops_compute_wc_medals_from_standings($standingRows, $overallPositions);
+    $medals = amiga_ops_compute_wc_medals_from_standings($standingRows);
 
     $reset = $con->prepare(
         "UPDATE amiga_player_tournament_participation SET wc_medal = 'none' WHERE tournament_id = ?"
@@ -712,7 +752,7 @@ SELECT
         CASE
             WHEN p.is_cup = 1
              AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.overall_position = 1
+             AND p.event_finish_position = 1
             THEN 1 ELSE 0
         END
     ) AS cup_gold,
@@ -720,7 +760,7 @@ SELECT
         CASE
             WHEN p.is_cup = 1
              AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.overall_position = 2
+             AND p.event_finish_position = 2
             THEN 1 ELSE 0
         END
     ) AS cup_silver,
@@ -728,11 +768,20 @@ SELECT
         CASE
             WHEN p.is_cup = 1
              AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.overall_position = 3
+             AND p.event_finish_position = 3
             THEN 1 ELSE 0
         END
     ) AS cup_bronze,
-    SUM(CASE WHEN p.overall_position <= 3 THEN 1 ELSE 0 END) AS podiums,
+    SUM(
+        CASE
+            WHEN (
+                p.event_finish_position IS NOT NULL
+                AND p.event_finish_position <= 3
+            )
+            OR p.wc_medal IN ('gold', 'silver', 'bronze')
+            THEN 1 ELSE 0
+        END
+    ) AS podiums,
     MAX(p.event_date) AS last_event_date,
     CAST(
         SUBSTRING_INDEX(

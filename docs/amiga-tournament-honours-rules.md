@@ -1,12 +1,12 @@
 # Amiga tournament honours and event finish — policy (Jun 2026)
 
-**Status:** Design lock — **policy and contracts**; schema/writer implementation **pending**.
+**Status:** **Implemented** (Jun 2026) — slices 0–10 complete; migrations `017`–`019` on `ko2amiga_db`.
 
-**Purpose:** Replace the overloaded `overall_position` column with a clear event-finish model, fix honours counters (podiums, cup medals, wins), and document derivation tiers for knockout, league, league+cup, and World Cup events.
+**Purpose:** Holistic event finish (`event_finish_position`), honours counters (podiums, cup medals, wins), and derivation tiers for knockout, league, league+cup, World Cup, and curated overrides.
 
 **Authority:** This doc owns **finish semantics and honours counting rules**. Table grain and writers: [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.2–§5.3. Phase standings: [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings. Profile read paths: [`amiga-profile-v0.md`](amiga-profile-v0.md).
 
-**Related history:** Jun 2026 participation placement ladder fixed knockout-only cups on tournament history, but `overall_position` still means different things by event shape (group rank on WCs, league rank on league+cup marathons, bracket finish on pure cups). UI was patched (WC finish = medal only) while career totals still read `overall_position` naively.
+**History:** Pre–Jun 2026 `overall_position` overloaded phase ranks (WC group, league marathon, KO bracket). Replaced by `event_finish_position` + `wc_medal`; column dropped migration `018`.
 
 ---
 
@@ -15,7 +15,7 @@
 | Decision | Rule |
 |----------|------|
 | **Event finish column** | Add `event_finish_position` (`SMALLINT NULL`) on `amiga_player_tournament_participation`. **NULL** = finish not defined for this player×event. **Never use 0** as “unknown.” |
-| **Retire `overall_position`** | Drop after backfill and reader migration. Do **not** keep both columns with similar names. |
+| **Retire `overall_position`** | **Done** (migration `018`). Do **not** reintroduce a similarly named column. |
 | **No phase ranks on participation** | Do **not** add `league_position` or `group_position`. Phase tables live in `amiga_tournament_standings` only. |
 | **Phase vs event** | “What did the group/league table look like?” → standings per scope. “How did the player finish the **event**?” → `event_finish_position` or WC `wc_medal`. |
 | **World Cup holistic finish** | `event_finish_position` stays **NULL** on WC rows until a dedicated WC finish import/verification job ships. |
@@ -104,9 +104,10 @@ Covers kitchen marathons, single-phase round-robins (e.g. London XXIII).
 
 Formats that cannot be inferred reliably (two leagues then 1v1/2v2/3v3 playoffs, cross-group bronze cups, placement mini-brackets for quarter-final losers, etc.):
 
-- **Preferred store:** `amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) filled at import or ops.
-- **Alternative:** tournament-level `placement_mode` metadata + import manifest entries.
-- Overrides win over generic tiers when present.
+- **Store (shipped slice 9):** `amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) — migration `019`; empty by default; filled at import or ops curation.
+- **Derivation:** `derive_event_finish_position` / PHP `amiga_participation_derive_event_finish_position` merge override rows **after** tiers A–D; override wins per player.
+- **Alternative (future):** tournament-level `placement_mode` metadata + import manifest entries.
+- Overrides win over generic tiers when present; can assign finish where generic derivation returns NULL.
 
 ---
 
@@ -114,14 +115,12 @@ Formats that cannot be inferred reliably (two leagues then 1v1/2v2/3v3 playoffs,
 
 ### 4.1 Career rollups (`amiga_player_tournament_totals`)
 
-| Column | Rule (target) |
-|--------|----------------|
+| Column | Rule |
+|--------|------|
 | `tournaments_won` | `event_finish_position = 1` **OR** `wc_medal = 'gold'` |
 | `podiums` | (`event_finish_position IS NOT NULL AND event_finish_position <= 3`) **OR** `wc_medal IN ('gold','silver','bronze')` |
 | `wc_gold` / `wc_silver` / `wc_bronze` | Count by `wc_medal` on WC events |
 | `cup_gold` / `cup_silver` / `cup_bronze` | Non-WC cup events: `event_finish_position` = 1 / 2 / 3 (`is_cup` + not WC name pattern). Tied bronze (two players at 3) → both count `cup_bronze`. |
-
-**Legacy bug (pre-migration):** `podiums` and `cup_bronze` use `overall_position`, which counts WC group top-3 and league rank on marathons — do not treat current totals as authoritative until rebuild.
 
 ### 4.2 World Cup medals (`wc_medal`)
 
@@ -157,7 +156,7 @@ Populate on participation rebuild: deepest main-bracket knockout round label rea
 
 ---
 
-## 6. UI read rules (target)
+## 6. UI read rules (shipped)
 
 | Surface | Finish shown | Points shown |
 |---------|--------------|--------------|
@@ -170,10 +169,30 @@ Populate on participation rebuild: deepest main-bracket knockout round label rea
 
 ## 7. Implementation
 
-**Agent execution plan:** [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) (slices 0–10, STOP gates).  
-**New chat starter:** [`orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md).
+**Plan (complete):** [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) · handoff log under `docs/orchestration/agent-handoffs/2026-06-11-*-amiga-event-finish-slice-*.md`.
 
-**Status:** Policy locked; implementation **pending** (slice 0 not started).
+**Status:** **Implemented** Jun 2026 (slices 0–10).
+
+| Slice | Deliverable | Done |
+|-------|-------------|------|
+| 0 | Schema `017` — `event_finish_position`, `best_knockout_phase` | [x] |
+| 1–4 | Python derivation tiers A–D + `best_knockout_phase` | [x] |
+| 5 | Writers + honours totals rebuild | [x] |
+| 6 | PHP writer parity | [x] |
+| 7 | UI read paths | [x] |
+| 8 | Drop `overall_position` (`018`) | [x] |
+| 9 | Tier E override table + hook (`019`) | [x] |
+| 10 | Documentation closure | [x] |
+
+**Migrations (existing DBs — apply in order):**
+
+| File | Change |
+|------|--------|
+| `scripts/amiga/sql/017_event_finish_position.sql` | Add `event_finish_position`, `best_knockout_phase` |
+| `scripts/amiga/sql/018_drop_overall_position.sql` | Drop legacy `overall_position` |
+| `scripts/amiga/sql/019_tournament_finish_override.sql` | Tier E curated overrides (empty by default) |
+
+**Rebuild after migrate:** `python -m scripts.amiga participation-rebuild` · verify: `verify-player-participation` (includes finish invariants).
 
 ---
 

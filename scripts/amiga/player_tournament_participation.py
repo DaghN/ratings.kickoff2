@@ -11,7 +11,8 @@ from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.participation_placement import (
-    derive_participation_positions,
+    derive_best_knockout_phase,
+    derive_event_finish_position,
     participation_is_winner,
 )
 from scripts.amiga.performance_rating import backfill_performance_ratings
@@ -82,7 +83,8 @@ INSERT INTO amiga_player_tournament_participation (
     country,
     has_league,
     has_cup,
-    overall_position,
+    event_finish_position,
+    best_knockout_phase,
     event_points,
     games,
     wins,
@@ -110,7 +112,8 @@ INSERT INTO amiga_player_tournament_participation (
     %(country)s,
     %(has_league)s,
     %(has_cup)s,
-    %(overall_position)s,
+    %(event_finish_position)s,
+    %(best_knockout_phase)s,
     %(event_points)s,
     %(games)s,
     %(wins)s,
@@ -141,7 +144,14 @@ def participation_row_from_parts(
 ) -> dict[str, Any]:
     """Map joined source rows to one participation insert dict (unit-test helper)."""
     rollup = games_rollup if games_rollup is not None else standing
-    position = int(standing.get("position") or standing.get("overall_position") or 0)
+    event_finish_position = standing.get("event_finish_position")
+    if event_finish_position is not None:
+        event_finish_position = int(event_finish_position)
+    elif standing.get("position") is not None:
+        event_finish_position = int(standing["position"])
+    best_knockout_phase = standing.get("best_knockout_phase")
+    if best_knockout_phase is not None:
+        best_knockout_phase = str(best_knockout_phase)
     wins = int(rollup.get("wins") or 0)
     draws = int(rollup.get("draws") or 0)
     games_count = int(rollup.get("games") or 0)
@@ -157,7 +167,8 @@ def participation_row_from_parts(
         "country": tournament.get("country"),
         "has_league": int(tournament.get("has_league") or 0),
         "has_cup": int(tournament.get("has_cup") or 0),
-        "overall_position": position,
+        "event_finish_position": event_finish_position,
+        "best_knockout_phase": best_knockout_phase,
         "games": games_count,
         "wins": wins,
         "draws": draws,
@@ -173,7 +184,14 @@ def participation_row_from_parts(
         "performance_rating": None,
         "games_in_event": 0,
         "finalized_at": None,
-        "is_winner": 1 if position == 1 else 0,
+        "is_winner": (
+            1
+            if participation_is_winner(
+                tournament_name=str(tournament["name"]),
+                event_finish_position=event_finish_position,
+            )
+            else 0
+        ),
         "wc_medal": "none",
     }
     if rating_event is not None:
@@ -214,6 +232,23 @@ def _load_tournament(conn: pymysql.connections.Connection, tournament_id: int) -
             (tournament_id,),
         )
         return cur.fetchone()
+
+
+def _load_finish_overrides(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> dict[int, int]:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT player_id, event_finish_position
+            FROM amiga_tournament_finish_override
+            WHERE tournament_id = %s
+            """,
+            (tournament_id,),
+        )
+        rows = cur.fetchall()
+    return {int(row["player_id"]): int(row["event_finish_position"]) for row in rows}
 
 
 def _load_standing_rows(
@@ -280,37 +315,37 @@ def build_participation_rows_for_tournament(
         return []
 
     standing_rows = _load_standing_rows(conn, tournament_id)
+    finish_overrides = _load_finish_overrides(conn, tournament_id)
     rating_events = _load_rating_events(conn, tournament_id)
     player_ids = sorted(rollups.keys())
-    positions = derive_participation_positions(
+    tournament_name = str(tournament["name"])
+    event_finishes = derive_event_finish_position(
         standing_rows,
-        tournament_name=str(tournament["name"]),
+        tournament_name=tournament_name,
+        has_league=bool(tournament.get("has_league")),
+        has_cup=bool(tournament.get("has_cup")),
         player_ids=player_ids,
+        overrides=finish_overrides or None,
     )
 
     rows: list[dict[str, Any]] = []
     for player_id in player_ids:
         rollup = rollups[player_id]
-        overall_position = int(positions.get(player_id, 0))
+        event_finish_position = event_finishes.get(player_id)
         rating_event = rating_events.get(player_id)
         row = participation_row_from_parts(
             {
                 "player_id": player_id,
                 "tournament_id": tournament_id,
-                "position": overall_position,
+                "event_finish_position": event_finish_position,
+                "best_knockout_phase": derive_best_knockout_phase(
+                    standing_rows,
+                    player_id,
+                ),
             },
             tournament,
             rating_event,
             games_rollup=rollup,
-        )
-        row["is_winner"] = (
-            1
-            if participation_is_winner(
-                tournament_name=str(tournament["name"]),
-                overall_position=overall_position,
-                wc_medal="none",
-            )
-            else 0
         )
         rows.append(row)
     return rows
@@ -441,7 +476,7 @@ SELECT
         CASE
             WHEN p.is_cup = 1
              AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.overall_position = 1
+             AND p.event_finish_position = 1
             THEN 1 ELSE 0
         END
     ) AS cup_gold,
@@ -449,7 +484,7 @@ SELECT
         CASE
             WHEN p.is_cup = 1
              AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.overall_position = 2
+             AND p.event_finish_position = 2
             THEN 1 ELSE 0
         END
     ) AS cup_silver,
@@ -457,11 +492,20 @@ SELECT
         CASE
             WHEN p.is_cup = 1
              AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.overall_position = 3
+             AND p.event_finish_position = 3
             THEN 1 ELSE 0
         END
     ) AS cup_bronze,
-    SUM(CASE WHEN p.overall_position <= 3 THEN 1 ELSE 0 END) AS podiums,
+    SUM(
+        CASE
+            WHEN (
+                p.event_finish_position IS NOT NULL
+                AND p.event_finish_position <= 3
+            )
+            OR p.wc_medal IN ('gold', 'silver', 'bronze')
+            THEN 1 ELSE 0
+        END
+    ) AS podiums,
     MAX(p.event_date) AS last_event_date,
     CAST(
         SUBSTRING_INDEX(

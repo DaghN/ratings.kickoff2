@@ -175,7 +175,9 @@ python -m scripts.amiga honours-parity-sample
 
 PHP live path: `amiga_ops_participation_refresh_tournament` in `finalize_tournament.php` after standings commit.
 
-Participation **roster = `amiga_games`**; finish from `participation_placement.py` / `includes/amiga_participation_placement.php`. **Target:** `event_finish_position` per [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md). **Legacy:** `overall_position` (retiring). Phase ranks stay in `amiga_tournament_standings` only.
+Participation **roster = `amiga_games`**; finish from `participation_placement.py` / `includes/amiga_participation_placement.php` → `event_finish_position` per [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) (tiers A–E; Tier E = `amiga_tournament_finish_override`). Phase ranks stay in `amiga_tournament_standings` only.
+
+**Event finish migrations (Jun 2026):** apply `017` → `018` → `019` on existing DBs, then `participation-rebuild`. Fresh installs: `010` includes `event_finish_position` (no `overall_position`).
 
 Read surfaces: profile recent tournaments + top opponents; `/amiga/player-tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
 
@@ -195,6 +197,9 @@ mysql ko2amiga_db < scripts/amiga/sql/013_generalstats.sql
 mysql ko2amiga_db < scripts/amiga/sql/014_participation_event_points.sql
 mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
 mysql ko2amiga_db < scripts/amiga/sql/016_participation_avg_goals.sql
+mysql ko2amiga_db < scripts/amiga/sql/017_event_finish_position.sql
+mysql ko2amiga_db < scripts/amiga/sql/018_drop_overall_position.sql
+mysql ko2amiga_db < scripts/amiga/sql/019_tournament_finish_override.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle

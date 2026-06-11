@@ -1,6 +1,6 @@
 # Amiga event finish migration — implementation plan (agent slices)
 
-**Status:** Ready for execution (Jun 2026).  
+**Status:** **Complete** (Jun 2026) — all slices 0–10 shipped.  
 **Policy (locked):** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)  
 **Parent track:** [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md) § Event finish migration
 
@@ -73,18 +73,20 @@ Add new columns without dropping `overall_position` yet (safe rollback during mi
 
 ### Tasks
 
-- [ ] New migration `scripts/amiga/sql/017_event_finish_position.sql`:
-  - `event_finish_position` `SMALLINT NULL` after catalog flags (or sensible place)
-  - `best_knockout_phase` `VARCHAR(50) NULL`
+- [x] New migration `scripts/amiga/sql/017_event_finish_position.sql`:
+  - `event_finish_position` `SMALLINT NULL` after `overall_position`
+  - `best_knockout_phase` `VARCHAR(50) NULL` after `wc_medal`
   - **Do not** drop `overall_position` in this slice
-- [ ] Update `scripts/amiga/sql/010_player_tournament_participation.sql` for fresh installs (both columns + keep `overall_position` until slice 8)
-- [ ] Document migration in honours rules §7 and data contract table register
-- [ ] Apply locally: `mysql ko2amiga_db < scripts/amiga/sql/017_event_finish_position.sql`
+- [x] Update `scripts/amiga/sql/010_player_tournament_participation.sql` for fresh installs (both columns + keep `overall_position` until slice 8)
+- [x] Document migration in honours rules §7 and data contract table register
+- [x] Apply locally: `mysql ko2amiga_db < scripts/amiga/sql/017_event_finish_position.sql`
 
 ### Verification
 
-- [ ] Column exists: `SHOW COLUMNS FROM amiga_player_tournament_participation LIKE 'event_finish_position'`
-- [ ] Existing verify suite still passes (writers unchanged this slice)
+- [x] Column exists: `SHOW COLUMNS FROM amiga_player_tournament_participation LIKE 'event_finish_position'`
+- [x] Existing verify suite still passes (writers unchanged this slice)
+
+**Handoff:** [`orchestration/agent-handoffs/2026-06-11-001-amiga-event-finish-slice-0.md`](orchestration/agent-handoffs/2026-06-11-001-amiga-event-finish-slice-0.md)
 
 ### Files (expected)
 
@@ -106,15 +108,18 @@ WC and league+cup return partial/NULL here (filled in slices 2–3).
 
 ### Tasks
 
-- [ ] Rename or wrap legacy `derive_participation_positions` — document transition
-- [ ] Implement `derive_event_finish_position(standing_rows, *, tournament_name, has_league, has_cup)` with tier routing
-- [ ] Unit tests: Bournemouth II-style KO; London XXIII-style league; 3rd-place match; shared semi bronze (no 3rd-place scope)
-- [ ] **Do not** wire writer yet (slice 5) unless user asks to combine slices
+- [x] Rename or wrap legacy `derive_participation_positions` — document transition
+- [x] Implement `derive_event_finish_position(standing_rows, *, tournament_name, has_league, has_cup)` with tier routing
+- [x] Tier A + Tier C; WC + league+cup return empty (slices 2–3)
+- [x] Unit tests: Bournemouth II-style KO; London XXIII-style league; 3rd-place match; shared semi bronze (no 3rd-place scope)
+- [x] **Do not** wire writer yet (slice 5)
 
 ### Verification
 
-- [ ] `python -m unittest scripts.amiga.test_participation_placement -v`
-- [ ] All new tests pass
+- [x] `python -m unittest scripts.amiga.test_participation_placement -v` — 14 OK
+- [x] All new tests pass
+
+**Handoff:** [`orchestration/agent-handoffs/2026-06-11-002-amiga-event-finish-slice-1.md`](orchestration/agent-handoffs/2026-06-11-002-amiga-event-finish-slice-1.md)
 
 ### Files (expected)
 
@@ -131,14 +136,17 @@ League+cup marathons: cup final → 1/2; cup 3rd-place or shared semi bronze; no
 
 ### Tasks
 
-- [ ] Implement Tier B in `derive_event_finish_position`
-- [ ] Tests: at least one league+cup fixture (e.g. Milan-style or synthetic rows); league-only-finalists case (3rd = league 3rd)
-- [ ] Wire **optional** dry-run script or test that loads one real `tournament_id` from ko2amiga_db if available
+- [x] Implement Tier B in `derive_event_finish_position`
+- [x] Tests: league+cup synthetic + Milan-style semi bronze + Athens LXXXV DB integration
+- [x] Placement finals (3rd/5th/7th…) rank helper fix in Tier A (shared by Tier B)
+- [x] DB dry-run test `tournament_id=592`
 
 ### Verification
 
-- [ ] Unit tests pass
+- [x] Unit tests pass — 19 OK
 - [ ] Manual SQL (after slice 5 rebuild): compare old `overall_position` vs new finish for one league+cup id user cares about
+
+**Handoff:** [`orchestration/agent-handoffs/2026-06-11-003-amiga-event-finish-slice-2.md`](orchestration/agent-handoffs/2026-06-11-003-amiga-event-finish-slice-2.md)
 
 ### STOP GATE A
 
@@ -162,14 +170,16 @@ When writer is wired and rebuild run, report to user:
 
 ### Tasks
 
-- [ ] Update `scripts/amiga/tournament_honours.py`
-- [ ] Update `scripts/amiga/test_tournament_honours.py`
-- [ ] Ensure derivation tier D returns empty finish map for WC name pattern
+- [x] Update `scripts/amiga/tournament_honours.py`
+- [x] Update `scripts/amiga/test_tournament_honours.py`
+- [x] Ensure derivation tier D returns empty finish map for WC name pattern
 
 ### Verification
 
-- [ ] `python -m unittest scripts.amiga.test_tournament_honours -v`
-- [ ] `python -m unittest scripts.amiga.test_participation_placement -v`
+- [x] `python -m unittest scripts.amiga.test_tournament_honours -v` — 8 OK
+- [x] `python -m unittest scripts.amiga.test_participation_placement -v` — 19 OK
+
+**Handoff:** [`orchestration/agent-handoffs/2026-06-11-004-amiga-event-finish-slice-3.md`](orchestration/agent-handoffs/2026-06-11-004-amiga-event-finish-slice-3.md)
 
 ### Files (expected)
 
@@ -187,13 +197,15 @@ Populate deepest main-bracket KO round label per player from standings depth log
 
 ### Tasks
 
-- [ ] Add `derive_best_knockout_phase(standing_rows, player_id) -> str|None` in placement module
-- [ ] Unit tests for QF/SF exit labels
-- [ ] Wire into writer in slice 5 (or here if writer already partial)
+- [x] Add `derive_best_knockout_phase(standing_rows, player_id) -> str|None` in placement module
+- [x] Unit tests for QF/SF exit labels + WC semi + placement final + DB Bournemouth II
+- [x] Wire into writer in slice 5 (deferred)
 
 ### Verification
 
-- [ ] Unit tests pass
+- [x] Unit tests pass — 27 placement + 8 honours OK
+
+**Handoff:** [`orchestration/agent-handoffs/2026-06-11-005-amiga-event-finish-slice-4.md`](orchestration/agent-handoffs/2026-06-11-005-amiga-event-finish-slice-4.md)
 
 ---
 
@@ -205,19 +217,21 @@ Participation rebuild writes `event_finish_position` + `best_knockout_phase`; to
 
 ### Tasks
 
-- [ ] `player_tournament_participation.py`: INSERT/UPDATE new columns; call `derive_event_finish_position`
-- [ ] Keep writing `overall_position` temporarily (copy or legacy derive) until slice 8 — **or** stop writing it here if user prefers (document in handoff)
-- [ ] `_TOTALS_AGG_SELECT`: podiums, cup_*, tournaments_won per honours rules §4
-- [ ] `participation_is_winner` uses new rules
-- [ ] `refresh_wc_medals` after participation (unchanged order)
-- [ ] Run `python -m scripts.amiga participation-rebuild`
+- [x] `player_tournament_participation.py`: INSERT/UPDATE new columns; call `derive_event_finish_position` + `derive_best_knockout_phase`
+- [x] Keep writing `overall_position` via legacy derive until slice 8
+- [x] `_TOTALS_AGG_SELECT`: podiums, cup_*, tournaments_won per honours rules §4
+- [x] `participation_is_winner` uses new rules
+- [x] `refresh_wc_medals` after participation (unchanged order)
+- [x] Run `python -m scripts.amiga participation-rebuild` — 4517 rows
 
 ### Verification
 
-- [ ] `python -m scripts.amiga verify-player-participation`
-- [ ] `python -m scripts.amiga verify-chronology`
-- [ ] `python -m scripts.amiga verify-rating-events`
-- [ ] Spot SQL: Dagh id 73 podiums count; Copenhagen WC not counting as podium via finish column
+- [x] `python -m scripts.amiga verify-player-participation` OK
+- [x] `python -m scripts.amiga verify-chronology` OK
+- [x] `python -m scripts.amiga verify-rating-events` OK
+- [x] Spot SQL: Dagh podiums 16; Copenhagen WC `event_finish_position` NULL, not a finish podium
+
+**Handoff:** [`orchestration/agent-handoffs/2026-06-11-006-amiga-event-finish-slice-5.md`](orchestration/agent-handoffs/2026-06-11-006-amiga-event-finish-slice-5.md)
 
 ### STOP GATE B
 
@@ -237,14 +251,14 @@ Live/post-game path matches Python derivation.
 
 ### Tasks
 
-- [ ] `includes/amiga_participation_placement.php` — parity with Python tiers A–D + best_knockout_phase
-- [ ] `amiga/ops/includes/amiga_post_game_participation.php` — write new columns
-- [ ] Smoke: finalize path or participation refresh for one tournament if CLI exists
+- [x] `includes/amiga_participation_placement.php` — parity with Python tiers A–D + best_knockout_phase
+- [x] `amiga/ops/includes/amiga_post_game_participation.php` — write new columns
+- [x] Smoke: finalize path or participation refresh for one tournament if CLI exists
 
 ### Verification
 
-- [ ] PHP syntax lint on touched files
-- [ ] Python verify suite still passes after another `participation-rebuild`
+- [x] PHP syntax lint on touched files
+- [x] Python verify suite still passes after another `participation-rebuild`
 
 ### Files (expected)
 
@@ -261,14 +275,14 @@ Profile and tournament history show `event_finish_position`; WC unchanged (medal
 
 ### Tasks
 
-- [ ] `amiga_player_tournament_lib.php` — SELECT `event_finish_position` AS position (or explicit alias)
-- [ ] `amiga_profile_blocks.php` — finish label from new column; comments updated
-- [ ] `player-tournaments.php` / event-stats if they reference position directly
-- [ ] Remove misleading comments about `overall_position`
+- [x] `amiga_player_tournament_lib.php` — SELECT `event_finish_position` AS position (or explicit alias)
+- [x] `amiga_profile_blocks.php` — finish label from new column; comments updated
+- [x] `player-tournaments.php` / event-stats if they reference position directly
+- [x] Remove misleading comments about `overall_position`
 
 ### Verification
 
-- [ ] `python -m scripts.amiga verify-player-participation`
+- [x] `python -m scripts.amiga verify-player-participation`
 - [ ] Manual browser list in STOP GATE C
 
 ### STOP GATE C
@@ -291,21 +305,21 @@ Remove legacy column and all code references.
 
 ### Tasks
 
-- [ ] Migration `018_drop_overall_position.sql` (or append to 017 if not yet deployed — prefer new file)
-- [ ] Remove from `010`, writers, PHP, tests, verify
-- [ ] Grep repo for `overall_position` — zero product references (orchestration archives OK)
-- [ ] `participation-rebuild` full pass
+- [x] Migration `018_drop_overall_position.sql` (or append to 017 if not yet deployed — prefer new file)
+- [x] Remove from `010`, writers, PHP, tests, verify
+- [x] Grep repo for `overall_position` — zero product references (orchestration archives OK)
+- [x] `participation-rebuild` full pass
 
 ### Verification
 
-- [ ] Full verify suite:
+- [x] Full verify suite:
   ```powershell
   python -m scripts.amiga verify-chronology
   python -m scripts.amiga verify-rating-events
   python -m scripts.amiga verify-player-participation
   python -m scripts.amiga verify-player-matchups
   ```
-- [ ] Extend `verify-player-participation`: no `event_finish_position = 0`; WC finish NULL; `event_points` invariant unchanged
+- [x] Extend `verify-player-participation`: no `event_finish_position = 0`; WC finish NULL; `event_points` invariant unchanged
 
 ### Files (expected)
 
@@ -323,15 +337,15 @@ Table + derivation hook for future import curation; no bulk data yet.
 
 ### Tasks
 
-- [ ] `scripts/amiga/sql/019_tournament_finish_override.sql`:
+- [x] `scripts/amiga/sql/019_tournament_finish_override.sql`:
   - `amiga_tournament_finish_override (tournament_id, player_id, event_finish_position)` PK `(tournament_id, player_id)`
-- [ ] Derivation: if override row exists, use it (wins over generic tiers)
-- [ ] Document in honours rules §3 Tier E
+- [x] Derivation: if override row exists, use it (wins over generic tiers)
+- [x] Document in honours rules §3 Tier E
 
 ### Verification
 
-- [ ] Unit test: override beats generic KO finish
-- [ ] Verify suite passes
+- [x] Unit test: override beats generic KO finish
+- [x] Verify suite passes
 
 ---
 
@@ -343,15 +357,15 @@ Mark policy implemented; registers updated.
 
 ### Tasks
 
-- [ ] `amiga-tournament-honours-rules.md` — status **Implemented**; §7 checklist ticked
-- [ ] `amiga-player-universe-contract.md` — remove legacy wording; `overall_position` gone
-- [ ] `amiga-profile-v0.md`, `amiga-data-contract.md`, `scripts/amiga/README.md`
-- [ ] `PROJECT_MEMORY.md` recent log
-- [ ] UPDATE_DOCS Part B if not done: schema-register, feature-log row
+- [x] `amiga-tournament-honours-rules.md` — status **Implemented**; §7 checklist ticked
+- [x] `amiga-player-universe-contract.md` — remove legacy wording; `overall_position` gone
+- [x] `amiga-profile-v0.md`, `amiga-data-contract.md`, `scripts/amiga/README.md`
+- [x] `PROJECT_MEMORY.md` recent log
+- [x] UPDATE_DOCS Part B: `feature-log.md` row (Amiga migrations `017`–`019`; no online `schema-register` — ko2amiga DDL lives under `scripts/amiga/sql/`)
 
 ### Verification
 
-- [ ] Grep docs for “legacy overall_position” only in archive/history context
+- [x] Grep docs for “legacy overall_position” only in archive/history context
 
 ---
 

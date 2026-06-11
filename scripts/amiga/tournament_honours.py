@@ -25,64 +25,87 @@ def knockout_scope_label(scope_key: str) -> str:
     return str(scope_key or "").split("|", 1)[0].strip()
 
 
+def _normalize_knockout_label(label: str) -> str:
+    text = re.sub(r"\s+", " ", str(label or "").strip().lower())
+    if re.match(r"^(?:quarter|semi)\s+final$", text):
+        return text + "s" if not text.endswith("s") else text
+    return text
+
+
+def _is_main_final_label(label: str) -> bool:
+    return _normalize_knockout_label(label) == "final"
+
+
+def _is_third_place_final_label(label: str) -> bool:
+    return _normalize_knockout_label(label) == "3rd place final"
+
+
+def _is_semi_final_label(label: str) -> bool:
+    return _normalize_knockout_label(label) in {"semi final", "semi finals"}
+
+
+def _has_third_place_final_scope(standing_rows: list[dict[str, Any]]) -> bool:
+    for row in standing_rows:
+        if str(row.get("scope_type") or "") != "knockout":
+            continue
+        label = knockout_scope_label(str(row.get("scope_key") or ""))
+        if _is_third_place_final_label(label):
+            return True
+    return False
+
+
 def compute_wc_medals_from_standings(
     standing_rows: list[dict[str, Any]],
-    *,
-    overall_positions: dict[int, int] | None = None,
 ) -> dict[int, WcMedal]:
     """
-    Derive WC medals for one tournament from knockout/placement standings.
+    Derive WC medals for one tournament from knockout standings.
 
-    v1: gold/silver from main ``Final`` knockout tie; bronze from ``3rd Place Final``
-    winner. Fallback to overall positions 1/2/3 only when no knockout/placement rows.
+    Gold/silver from main ``Final``; bronze from ``3rd Place Final`` winner **or**
+    both semi-final losers when no 3rd-place match and Final is complete (Olympic-style).
+    Never awards medals from group/overall league rank alone.
     """
-    overall_positions = overall_positions or {}
-    ko_or_placement = [
+    ko_rows = [
         r
         for r in standing_rows
-        if str(r.get("scope_type") or "") in {"knockout", "placement"}
+        if str(r.get("scope_type") or "") == "knockout"
     ]
 
     gold_id: int | None = None
     silver_id: int | None = None
-    bronze_id: int | None = None
+    bronze_ids: set[int] = set()
 
-    for row in ko_or_placement:
+    for row in ko_rows:
         label = knockout_scope_label(str(row.get("scope_key") or ""))
         player_id = int(row["player_id"])
         position = int(row["position"])
-        label_lower = label.lower()
 
-        if str(row.get("scope_type") or "") == "knockout":
-            if label_lower == "final":
-                if position == 1:
-                    gold_id = player_id
-                elif position == 2:
-                    silver_id = player_id
-            elif label_lower == "3rd place final" and position == 1:
-                bronze_id = player_id
+        if _is_main_final_label(label):
+            if position == 1:
+                gold_id = player_id
+            elif position == 2:
+                silver_id = player_id
+        elif _is_third_place_final_label(label) and position == 1:
+            bronze_ids.add(player_id)
 
-    if gold_id is not None or silver_id is not None or bronze_id is not None:
-        medals: dict[int, WcMedal] = {}
-        if gold_id is not None:
-            medals[gold_id] = "gold"
-        if silver_id is not None:
-            medals[silver_id] = "silver"
-        if bronze_id is not None:
-            medals[bronze_id] = "bronze"
-        return medals
+    if (
+        not _has_third_place_final_scope(standing_rows)
+        and gold_id is not None
+        and silver_id is not None
+    ):
+        for row in ko_rows:
+            label = knockout_scope_label(str(row.get("scope_key") or ""))
+            if not _is_semi_final_label(label):
+                continue
+            if int(row["position"]) == 2:
+                bronze_ids.add(int(row["player_id"]))
 
-    if ko_or_placement:
-        return {}
-
-    medals = {}
-    for player_id, position in overall_positions.items():
-        if position == 1:
-            medals[int(player_id)] = "gold"
-        elif position == 2:
-            medals[int(player_id)] = "silver"
-        elif position == 3:
-            medals[int(player_id)] = "bronze"
+    medals: dict[int, WcMedal] = {}
+    if gold_id is not None:
+        medals[gold_id] = "gold"
+    if silver_id is not None:
+        medals[silver_id] = "silver"
+    for player_id in bronze_ids:
+        medals[player_id] = "bronze"
     return medals
 
 
@@ -116,15 +139,7 @@ def derive_tournament_wc_medals(
         )
         standing_rows = cur.fetchall()
 
-    overall_positions: dict[int, int] = {}
-    for row in standing_rows:
-        if str(row["scope_type"]) == "overall" and str(row.get("scope_key") or "") == "":
-            overall_positions[int(row["player_id"])] = int(row["position"])
-
-    return compute_wc_medals_from_standings(
-        standing_rows,
-        overall_positions=overall_positions,
-    )
+    return compute_wc_medals_from_standings(standing_rows)
 
 
 def derive_wc_medal(

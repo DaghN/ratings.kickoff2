@@ -571,7 +571,7 @@ python -m scripts.amiga verify-player-participation
 |-----------|--------|
 | Policy + contract docs | **Done** |
 | Detailed slice plan + starter prompt | **Done** |
-| Slices 0–10 implementation | **Pending** |
+| Slices 0–10 implementation | **Done** Jun 2026 |
 | WC holistic `event_finish_position` (import job) | **Deferred** |
 
 **Rejected:** `league_position` / `group_position` on participation.

@@ -11,7 +11,9 @@ Copy the block below into a **new agent chat** to execute slices 0–10.
 ## Prompt (copy from here)
 
 ```
-You are implementing the Amiga **event finish migration** for ko2amiga_db — replace legacy `overall_position` with `event_finish_position`, fix honours counters (podiums, cup medals, wins), populate `best_knockout_phase`, and align PHP/Python writers and UI read paths.
+**Status: COMPLETE Jun 2026** (slices 0–10). Use for context only — do not start a new migration unless extending policy (e.g. WC holistic finish import).
+
+You implemented the Amiga **event finish migration** for ko2amiga_db — replace legacy `overall_position` with `event_finish_position`, fix honours counters (podiums, cup medals, wins), populate `best_knockout_phase`, and align PHP/Python writers and UI read paths.
 
 This is **schema + derivation writers + verify + UI** work. Follow the locked policy; do not invent new product rules.
 
