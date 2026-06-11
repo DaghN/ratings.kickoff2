@@ -10,7 +10,7 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <?php
-$k2AmigaHubTabActive = 'ladder';
+$k2AmigaHubTabActive = 'leaderboards';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';

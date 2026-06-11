@@ -83,6 +83,12 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga event finish plan** — policy [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) + agent slices 0–10 [`amiga-event-finish-implementation-plan.md`](docs/amiga-event-finish-implementation-plan.md) + starter [`amiga-event-finish-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md); implementation pending. |
+| 2026-06 | **Amiga tournament honours LB** — dropped cup medal cols; order WC medals → played → won → podiums (last). |
+| 2026-06 | **Amiga LB wing order** — Tournament honours tab second after Rating (`amiga_lb_nav.php`). |
+| 2026-06 | **Amiga hub IA** — main hub tab **Ladder** → **Leaderboards**; retired redundant **Honours** top-level tab (tournament honours stays sub-wing). |
+| 2026-06 | **Amiga rating LB** — removed hub intro lede above table. |
+| 2026-06 | **Amiga LB default-sort fix** — five ladder wings: `data-k2-default-sort` decremented by 1 so JS sort highlight matches PHP `ORDER BY` (Elo, Scored, Peak, DDs, Victims). |
 | 2026-06 | **Online LB anchor column** — all hub leaderboard wings (except Rating) use ELO col 2 as permanent `data-k2-anchor-col`; default sort unchanged per wing. |
 | 2026-06 | **Amiga surface expansion complete (slices 0–8)** — profile feast v1, seven LB wings, H2H, event-stats, HoF deep links; docs + full verify suite pass; deferred → overview §4. |
 | 2026-06 | **Amiga surface expansion slice 7** — honours LB cup medals + podiums columns; player-tournaments Cups/country filters; recent tournaments Winner + Perf suffix. |

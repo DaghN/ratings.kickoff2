@@ -13,6 +13,10 @@ $k2AmigaLbWingActive = $k2AmigaLbWingActive ?? 'rating';
 
 $k2AmigaLbWingTabs = [
     'rating' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Rating'],
+    'tournament-honours' => [
+        'href' => '/amiga/leaderboards/tournament-honours.php',
+        'label' => 'Tournament honours',
+    ],
     'goals' => ['href' => '/amiga/leaderboards/goals.php', 'label' => 'Goals'],
     'double-digits' => ['href' => '/amiga/leaderboards/double-digits.php', 'label' => 'DDs &amp; CSs'],
     'victims' => ['href' => '/amiga/leaderboards/victims.php', 'label' => 'Victims &amp; Culprits'],
@@ -20,10 +24,6 @@ $k2AmigaLbWingTabs = [
     'performance-rating' => [
         'href' => '/amiga/leaderboards/performance-rating.php',
         'label' => 'Perf. rating',
-    ],
-    'tournament-honours' => [
-        'href' => '/amiga/leaderboards/tournament-honours.php',
-        'label' => 'Tournament honours',
     ],
 ];
 ?>

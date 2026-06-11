@@ -557,8 +557,24 @@ python -m scripts.amiga verify-player-participation
 
 ### Deferred
 
-- True WC **event finish** rank beyond medals (fix 4 / honours rules doc)
 - Profile snippet showing **phase** points for league+cup marathons (would read standings, not participation)
+
+---
+
+## Event finish migration (design lock Jun 2026)
+
+**Policy:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md).  
+**Execution:** [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) (slices 0–10).  
+**Starter prompt:** [`orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md).
+
+| Milestone | Status |
+|-----------|--------|
+| Policy + contract docs | **Done** |
+| Detailed slice plan + starter prompt | **Done** |
+| Slices 0–10 implementation | **Pending** |
+| WC holistic `event_finish_position` (import job) | **Deferred** |
+
+**Rejected:** `league_position` / `group_position` on participation.
 
 ---
 

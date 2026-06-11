@@ -175,7 +175,7 @@ python -m scripts.amiga honours-parity-sample
 
 PHP live path: `amiga_ops_participation_refresh_tournament` in `finalize_tournament.php` after standings commit.
 
-Participation **roster = `amiga_games`**; placement from `participation_placement.py` / `includes/amiga_participation_placement.php` (overall scope → league rank; else bracket finish; WC → group rank). See contract §5.2.2.
+Participation **roster = `amiga_games`**; finish from `participation_placement.py` / `includes/amiga_participation_placement.php`. **Target:** `event_finish_position` per [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md). **Legacy:** `overall_position` (retiring). Phase ranks stay in `amiga_tournament_standings` only.
 
 Read surfaces: profile recent tournaments + top opponents; `/amiga/player-tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
 

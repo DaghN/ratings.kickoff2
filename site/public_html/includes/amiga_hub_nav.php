@@ -1,10 +1,10 @@
 <?php
 /**
- * Amiga realm hub tabs — Ladder · Tournaments · Hall of Fame.
+ * Amiga realm hub tabs — Leaderboards · Tournaments · Live tournaments · Hall of Fame.
  *
- * Set $k2AmigaHubTabActive before include: ladder | leaderboards | tournaments | live-tournaments | hall-of-fame
+ * Set $k2AmigaHubTabActive before include: leaderboards | tournaments | live-tournaments | hall-of-fame
  *
- * Ladder tab → rating wing under /amiga/leaderboards/. Honours tab → tournament honours wing.
+ * Leaderboards tab → rating wing under /amiga/leaderboards/ (tournament honours is a sub-wing only).
  * Wing nav on all leaderboard pages (includes/amiga_lb_nav.php). No streaks wing.
  *
  * Tint picker matches online hub (realm-neutral). Peer pill scroll: data-k2-carry-scroll.
@@ -12,8 +12,7 @@
 $k2AmigaHubTabActive = $k2AmigaHubTabActive ?? '';
 
 $k2AmigaHubTabs = [
-	'ladder' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Ladder'],
-	'leaderboards' => ['href' => '/amiga/leaderboards/tournament-honours.php', 'label' => 'Honours'],
+	'leaderboards' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Leaderboards'],
 	'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
 	'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live tournaments'],
 	'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],

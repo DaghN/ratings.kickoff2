@@ -37,7 +37,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 ?>
 
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-	<p class="k2-hub-page-intro" style="margin:0 0 1rem">Career tournament honours from derived participation — World Cup and cup medals, podium finishes, event wins, and events played.</p>
+	<p class="k2-hub-page-intro" style="margin:0 0 1rem">Career tournament honours from derived participation — World Cup medals, podium finishes, event wins, and events played.</p>
 </header>
 
 <div class="k2-table-wrap">
@@ -52,12 +52,9 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th data-k2-sort="number">WC gold</th>
         <th data-k2-sort="number">WC silver</th>
         <th data-k2-sort="number">WC bronze</th>
-        <th data-k2-sort="number">Cup gold</th>
-        <th data-k2-sort="number">Cup silver</th>
-        <th data-k2-sort="number">Cup bronze</th>
-        <th data-k2-sort="number">Podiums</th>
-        <th data-k2-sort="number">Tournaments won</th>
         <th data-k2-sort="number">Tournaments played</th>
+        <th data-k2-sort="number">Tournaments won</th>
+        <th data-k2-sort="number">Podiums</th>
     </tr>
 </thead>
 
@@ -74,12 +71,9 @@ foreach ($honoursRows as $row) {
         <td><?php echo (int) $row['wc_gold']; ?></td>
         <td><?php echo (int) $row['wc_silver']; ?></td>
         <td><?php echo (int) $row['wc_bronze']; ?></td>
-        <td><?php echo (int) $row['cup_gold']; ?></td>
-        <td><?php echo (int) $row['cup_silver']; ?></td>
-        <td><?php echo (int) $row['cup_bronze']; ?></td>
-        <td><?php echo (int) $row['podiums']; ?></td>
-        <td><?php echo (int) $row['tournaments_won']; ?></td>
         <td><?php echo (int) $row['tournaments_played']; ?></td>
+        <td><?php echo (int) $row['tournaments_won']; ?></td>
+        <td><?php echo (int) $row['podiums']; ?></td>
     </tr>
     <?php
     $rank++;

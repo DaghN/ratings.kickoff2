@@ -405,9 +405,6 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
                    t.wc_gold,
                    t.wc_silver,
                    t.wc_bronze,
-                   t.cup_gold,
-                   t.cup_silver,
-                   t.cup_bronze,
                    t.podiums
             FROM amiga_player_tournament_totals t
             INNER JOIN amiga_players p ON p.id = t.player_id
