@@ -82,7 +82,7 @@ foreach ($cupTabs as $cupId => $label) {
 <?php } ?>
 
 	<div class="k2-table-wrap">
-		<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="4" data-k2-default-sort="4" data-k2-default-direction="desc">
+		<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 			<thead>
 				<tr>
 					<th data-k2-sort="number">#</th>

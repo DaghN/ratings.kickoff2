@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Online LB anchor column** — all hub leaderboard wings (except Rating) use ELO col 2 as permanent `data-k2-anchor-col`; default sort unchanged per wing. |
 | 2026-06 | **Amiga surface expansion complete (slices 0–8)** — profile feast v1, seven LB wings, H2H, event-stats, HoF deep links; docs + full verify suite pass; deferred → overview §4. |
 | 2026-06 | **Amiga surface expansion slice 7** — honours LB cup medals + podiums columns; player-tournaments Cups/country filters; recent tournaments Winner + Perf suffix. |
 | 2026-06 | **Amiga surface expansion slice 6** — profile Moments block from stats `*GameID` pointers (`amiga_player_moments_lib.php`); no streak card; peak game card pending `PeakRatingGameID` in replay. |
