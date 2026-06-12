@@ -91,6 +91,7 @@ $pageTitle = $hubView === 'highlights' ? 'Games — Highlights' : 'Games — Rec
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/k2-table-scroll-mirror.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 
 </head>
@@ -129,7 +130,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_nav.php';
 <?php foreach ($gamesByDay as $day) { ?>
 	<div class="k2-games-day">
 		<h2 class="k2-panel-heading k2-games-day__heading"><?php echo $day['label']; ?></h2>
-		<div class="k2-table-wrap">
+		<div class="k2-table-wrap" data-k2-scroll-mirror>
 
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table" data-k2-table="sortable" data-k2-default-sort="0" data-k2-default-direction="desc">
 

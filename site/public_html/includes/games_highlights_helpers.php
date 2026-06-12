@@ -148,7 +148,7 @@ function k2_games_render_highlights_table(array $rows, string $board, bool $show
 	?>
 <section class="k2-games-highlights" aria-labelledby="k2-games-highlights-heading">
 	<h2 class="k2-panel-heading" id="k2-games-highlights-heading"><?php echo k2_rated_game_h($meta['heading']); ?></h2>
-	<div class="k2-table-wrap">
+	<div class="k2-table-wrap" data-k2-scroll-mirror>
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-games-highlights-table" data-k2-table="sortable" data-k2-autorank="true"
 	data-k2-default-sort="<?php echo $defaultSort; ?>" data-k2-default-direction="desc">
 <thead>

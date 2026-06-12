@@ -6,6 +6,7 @@
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-table-scroll-mirror.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
@@ -365,7 +366,7 @@ foreach ($opponentRows as $opponentRow) {
     <?php } ?>
 </div>
 
-<div class="k2-table-wrap">
+<div class="k2-table-wrap" data-k2-scroll-mirror>
 
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-games">
 

@@ -1834,8 +1834,44 @@ body.k2-site .k2-table-wrap {
 	background: var(--k2-bg-surface);
 }
 
+body.k2-site .k2-table-mirror-group {
+	width: fit-content;
+	max-width: 100%;
+	margin-bottom: 16px;
+}
+
+body.k2-site .k2-table-mirror-group .k2-table-wrap {
+	margin-bottom: 0;
+	border-top: none;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+body.k2-site .k2-table-scroll-mirror {
+	display: none;
+	overflow-x: auto;
+	overflow-y: hidden;
+	width: 100%;
+	max-width: 100%;
+	min-height: calc(var(--k2-scrollbar-size) + 2px);
+	border: 1px solid var(--k2-border-subtle);
+	border-bottom: none;
+	border-radius: var(--k2-radius-md) var(--k2-radius-md) 0 0;
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site .k2-table-mirror-group--active .k2-table-scroll-mirror {
+	display: block;
+}
+
+body.k2-site .k2-table-scroll-mirror__sizer {
+	height: 1px;
+	pointer-events: none;
+}
+
 /* In-page scroll regions — shared muted scrollbar chrome */
 body.k2-site .k2-table-wrap,
+body.k2-site .k2-table-scroll-mirror,
 body.k2-site .k2-archive-listbox__panel,
 body.k2-site .player-search-results,
 body.k2-site .k2-amiga-organizer-player-search__results,
@@ -1849,6 +1885,7 @@ body.k2-site .k2-amiga-bracket__rounds {
 }
 
 body.k2-site .k2-table-wrap::-webkit-scrollbar,
+body.k2-site .k2-table-scroll-mirror::-webkit-scrollbar,
 body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar,
 body.k2-site .player-search-results::-webkit-scrollbar,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar,
@@ -1862,6 +1899,7 @@ body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar {
 }
 
 body.k2-site .k2-table-wrap::-webkit-scrollbar-track,
+body.k2-site .k2-table-scroll-mirror::-webkit-scrollbar-track,
 body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-track,
 body.k2-site .player-search-results::-webkit-scrollbar-track,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-track,
@@ -1874,6 +1912,7 @@ body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-track {
 }
 
 body.k2-site .k2-table-wrap::-webkit-scrollbar-thumb,
+body.k2-site .k2-table-scroll-mirror::-webkit-scrollbar-thumb,
 body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb,
 body.k2-site .player-search-results::-webkit-scrollbar-thumb,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-thumb,
@@ -1887,6 +1926,7 @@ body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb {
 }
 
 body.k2-site .k2-table-wrap::-webkit-scrollbar-thumb:hover,
+body.k2-site .k2-table-scroll-mirror::-webkit-scrollbar-thumb:hover,
 body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb:hover,
 body.k2-site .player-search-results::-webkit-scrollbar-thumb:hover,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-thumb:hover,

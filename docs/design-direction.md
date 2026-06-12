@@ -217,6 +217,7 @@ Imagery:
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 - **In-page scrollbars** (`.k2-table-wrap`, archive listbox panels, heatmaps, bracket rails, etc.): thin muted thumb via `--k2-scrollbar-*` tokens in `theme.css` — not OS default gray, not tint accent. Page-level vertical scroll stays native unless we extend tokens to `html` later.
+- **Wide games tables** (`data-k2-scroll-mirror` on `.k2-table-wrap`, `k2-table-scroll-mirror.js`): top horizontal mirror bar synced to the wrap — shown only when the table overflows; bottom native bar remains for users deep in a long list. Shipped on player games (online + Amiga) and hub `games.php` (14-day Recent buckets + Highlights board).
 
 **Surface rhythm (mixed containment):** Not every data block needs the same bordered panel. Use **open page background** when the visual is the content (profile heatmaps: played days/weeks on `--k2-bg-hover` cells). Use **chart panels** (`k2-chart-panel`, `k2-chart-frame`) when Chart.js, toggles, and fixed frames need a reading device � Activity and profile charts share this. Use **light tiles/mosaics** for small stat or story clusters. Alternating open and contained blocks creates scroll rhythm; uniform panel stacks feel generic. Profile contract: [`player-profile-feast.md`](player-profile-feast.md) � Surface rhythm. Do not panel everything for �consistency� unless the module type warrants it.
 
