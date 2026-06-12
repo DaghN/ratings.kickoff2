@@ -83,6 +83,9 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **HoF table width parity** — `server-records-panels--sync-cols`: equal-width panels, `table-layout: fixed`, shared `colgroup` + `--k2-hof-*-col-ch` (label/value/date); stacked columns align. |
+| 2026-06 | **Amiga perf-rating leaderboard** — Date column after Event (`M j, Y` via `amiga_profile_format_event_date`); `event_date`/`event_chrono` in `amiga_lb_performance_rating_rows`. |
+| 2026-06 | **Amiga perf-rating leaderboard intro** — `performance-rating.php` lede: perfect-record exclusion + draw/loss qualification wording. |
 | 2026-06 | **Amiga game.php Date column** — `k2-table--single-game` overrides ranked-pages col-2 min-width (was leaderboard Player 9.1em). |
 | 2026-06 | **Amiga game.php (Phase 2)** — `/amiga/game.php?id=` neutral row (tournament, phase, Elo); `amiga_rated_game_row.php`; ID links from player games + profile moments. |
 | 2026-06 | **Amiga player URL taxonomy (Phase 1)** — profile/games/tournaments → `/amiga/player/*`; `k2_amiga_routes.php`; 302 from legacy flat URLs; frees `/amiga/games.php` for future realm log. |

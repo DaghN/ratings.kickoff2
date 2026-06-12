@@ -1235,11 +1235,32 @@ body.k2-site .server-records-table {
 	width: auto;
 }
 
-/* HoF side-by-side panels: PHP sets --k2-hof-label-col-ch from longest static label (both tables). */
-body.k2-site .server-records-panels--sync-cols .server-records-table tbody td:first-child {
-	min-width: var(--k2-hof-label-col-ch);
+/* HoF paired tables: equal width + shared column tracks (PHP sets --k2-hof-*-col-ch). */
+body.k2-site .server-records-panels--sync-cols {
+	width: 100%;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.k2-site .server-records-panels--sync-cols .server-records-panel .k2-table-wrap {
+	width: 100%;
+	overflow-x: auto;
+}
+
+body.k2-site .server-records-panels--sync-cols .server-records-table {
+	width: 100%;
+	table-layout: fixed;
+}
+
+body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--label {
 	width: var(--k2-hof-label-col-ch);
-	box-sizing: border-box;
+}
+
+body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--value {
+	width: var(--k2-hof-value-col-ch);
+}
+
+body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--date {
+	width: var(--k2-hof-date-col-ch);
 }
 
 /* HoF: row labels + date/period column — muted (values/holders stay primary / link-star) */

@@ -336,6 +336,8 @@ function amiga_lb_performance_rating_rows(mysqli $con): array
                    ranked.NumberGames,
                    ranked.tournament_id,
                    ranked.tournament_name,
+                   ranked.event_date,
+                   ranked.event_chrono,
                    ranked.event_games,
                    ranked.performance_rating
             FROM (
@@ -345,6 +347,8 @@ function amiga_lb_performance_rating_rows(mysqli $con): array
                        s.NumberGames,
                        part.tournament_id,
                        part.tournament_name,
+                       part.event_date,
+                       part.event_chrono,
                        part.games AS event_games,
                        part.performance_rating,
                        ROW_NUMBER() OVER (

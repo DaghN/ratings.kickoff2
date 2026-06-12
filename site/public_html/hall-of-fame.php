@@ -312,12 +312,15 @@ $k2HofRecordLabels = [
 	'Highest clean sheet frequency',
 ];
 $k2HofSyncedLabelColCh = k2_hof_synced_label_col_ch($k2HofRecordLabels);
+$k2HofSyncedValueColCh = k2_hof_synced_value_col_ch();
+$k2HofSyncedDateColCh = k2_hof_synced_date_col_ch();
 ?>
 
-<div class="server-records-panels server-records-panels--sync-cols" style="--k2-hof-label-col-ch: <?php echo (int) $k2HofSyncedLabelColCh; ?>ch;">
+<div class="server-records-panels server-records-panels--sync-cols" style="--k2-hof-label-col-ch: <?php echo (int) $k2HofSyncedLabelColCh; ?>ch; --k2-hof-value-col-ch: <?php echo (int) $k2HofSyncedValueColCh; ?>ch; --k2-hof-date-col-ch: <?php echo (int) $k2HofSyncedDateColCh; ?>ch;">
 <section class="server-records-panel server-records-panel--activity">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
+<?php records_hof_render_colgroup(); ?>
 <thead>
     <tr>
 		<th colspan="4" class="nohovercell k2-table-cell--left">Activity</th>
@@ -438,6 +441,7 @@ records_render_row(
 <section class="server-records-panel server-records-panel--performance">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
+<?php records_hof_render_colgroup(); ?>
 <thead>
     <tr>
 		<th colspan="4" class="nohovercell k2-table-cell--left">Performance</th>

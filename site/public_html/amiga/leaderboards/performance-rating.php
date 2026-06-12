@@ -32,7 +32,7 @@ $perfHelp = amiga_perf_rating_column_help();
 ?>
 
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-	<p class="k2-hub-page-intro" style="margin:0 0 1rem">Best single-event performance rating per player — the strongest tournament they played (at least 2 games in the event). Perfect win or loss records are omitted.</p>
+	<p class="k2-hub-page-intro" style="margin:0 0 1rem">Best single-event performance rating per player. Loosely speaking, the best tournament performance. However, perfect win or loss records cannot define a performance rating, so such perfect tournaments are not included here. Only tournaments where you had at least one draw or loss can qualify.</p>
 </header>
 
 <div class="k2-table-wrap">
@@ -48,6 +48,7 @@ $perfHelp = amiga_perf_rating_column_help();
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($perfHelp, ENT_QUOTES, 'UTF-8'); ?>">Perf. rating</th>
         <th data-k2-sort="number" data-k2-help="Games in the listed event.">Event games</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Event</th>
+        <th class="k2-table-cell--right" data-k2-sort="number">Date</th>
     </tr>
 </thead>
 
@@ -71,6 +72,7 @@ foreach ($perfRows as $row) {
                 (string) ($row['tournament_name'] ?? '')
             );
         ?></td>
+        <td class="k2-table-cell--right" data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($row); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
     </tr>
     <?php
     $rank++;
