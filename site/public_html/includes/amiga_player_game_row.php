@@ -1,14 +1,15 @@
 <?php
 /**
- * Amiga player-perspective rated-game table row (`amiga/games.php`).
+ * Amiga player-perspective rated-game table row (`amiga/player/games.php`).
  */
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_player_game_row.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
+require_once __DIR__ . '/amiga_rated_game_row.php';
 
-/** 0-based column index for each server-side `sort` query key on `amiga/games.php`. */
+/** 0-based column index for each server-side `sort` query key on `amiga/player/games.php`. */
 function amiga_player_game_sort_col_index(string $sortKey): int
 {
     $map = [
@@ -104,7 +105,7 @@ function amiga_player_game_row_html(
     }
 
     return '<tr>'
-        . k2_player_game_td((string) $game['id'], 0, $sortedColIndex)
+        . k2_player_game_td(amiga_rated_game_id_html((int) $game['id']), 0, $sortedColIndex)
         . k2_player_game_td(k2_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
         . k2_player_game_td(k2_amiga_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
         . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)

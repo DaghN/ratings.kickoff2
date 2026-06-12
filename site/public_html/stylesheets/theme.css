@@ -1463,6 +1463,14 @@ body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table tbody td:nt
 	min-width: 0;
 }
 
+/* Single-game pages (col 2 = Date; ranked-pages-table default col 2 is Player min 9.1em). */
+body.k2-site .k2-table.k2-table--single-game.ranked-pages-table thead th:nth-child(2),
+body.k2-site .k2-table.k2-table--single-game.ranked-pages-table tbody td:nth-child(2) {
+	width: auto;
+	min-width: 0;
+	white-space: nowrap;
+}
+
 /* Hub leaderboard wings: uniform padding (legacy per-th pad-left-* widened columns when labels changed). */
 body.k2-site .k2-table.ranked-pages-table thead th,
 body.k2-site .k2-table.ranked-pages-table tbody td {

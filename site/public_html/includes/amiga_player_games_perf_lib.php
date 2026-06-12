@@ -1,6 +1,6 @@
 <?php
 /**
- * Performance rating for the filtered games list on /amiga/games.php (async API).
+ * Performance rating for the filtered games list on /amiga/player/games.php (async API).
  *
  * @see docs/amiga-performance-rating.md
  */

@@ -101,16 +101,17 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 
 | Surface | Route / entry | Primary read | Secondary | Tier |
 |---------|---------------|--------------|-----------|------|
-| **Hero + rank** | `/amiga/profile.php` | `amiga_player_stats` + rank subquery | `amiga_players` | A (shipped) |
+| **Hero + rank** | `/amiga/player/profile.php` | `amiga_player_stats` + rank subquery | `amiga_players` | A (shipped) |
 | **Career strip** | profile | `amiga_player_stats` | — | A (shipped) |
 | **Honours strip** | profile | `amiga_player_tournament_totals` | WC medals, wins, podiums | B (shipped) |
 | **Performance rating highlight** | profile | `amiga_player_tournament_participation` | best + latest event | B (shipped) |
 | **Moments / trophy games** | profile | `amiga_player_stats` `*GameID` + batched game fetch | no table scan; `PeakRatingGameID` not yet written by replay | A (shipped) |
 | **Rating chart** | `api/player_rating_history.php?realm=amiga` | `amiga_rating_events` → `tournaments` | — | A (shipped) |
 | **Recent tournaments** | profile (5 rows) | `amiga_player_tournament_participation` | finish suffix + Winner + Perf | B (shipped) |
-| **Full tournament history** | `/amiga/player-tournaments.php` | `amiga_player_tournament_participation` | sortable; filters All / WC / Cups / country | B (shipped) |
+| **Full tournament history** | `/amiga/player/tournaments.php` | `amiga_player_tournament_participation` | sortable; filters All / WC / Cups / country | B (shipped) |
 | **Tournament event stats** | `/amiga/tournament.php?view=event-stats` | `amiga_player_tournament_participation` | roster for one event | B (shipped) |
-| **Games list** | `/amiga/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |
+| **Games list** | `/amiga/player/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |
+| **Single game** | `/amiga/game.php` | `amiga_games` + `amiga_game_ratings` | 1 row by `id` | A (shipped) |
 | **Top opponents** | profile | `amiga_player_matchup_summary` | goals column; H2H links | B (shipped) |
 | **H2H pair page** | `/amiga/h2h.php` | `amiga_player_matchup_summary` | directed pair summary | B (shipped) |
 | **Tier A LB wings** | `/amiga/leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php` | `amiga_player_stats` | `amiga_lb_nav.php` | A (shipped) |
@@ -200,7 +201,7 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 | `performance_rating` | player×event | `amiga_rating_events` | Yes → `participation` | [`amiga-performance-rating.md`](amiga-performance-rating.md) |
 | Avg goals for/against per game | player×event | `participation.avg_goals_for`, `avg_goals_against` | No | `decimal(6,4)`; `goals/games` at rebuild; NULL when `games=0`; verify `ROUND(avg*games,4)≈goals` |
 | Career WC gold count | player | `amiga_player_tournament_totals` | No | Aggregate from participation |
-| Per-game adjustment | game | `amiga_game_ratings` | No | Games tab / game page only |
+| Per-game adjustment | game | `amiga_game_ratings` | No | Games tab + `/amiga/game.php` |
 
 #### Read-path rules (tournament vs player)
 
@@ -208,8 +209,8 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 |---------|--------------|-----------------------------|
 | `/amiga/tournament.php` standings tabs | `amiga_tournament_standings` | **No** |
 | `/amiga/tournament.php` bracket / KO leg | `amiga_games` | **Yes, but** `WHERE tournament_id = ?` only (indexed) |
-| `/amiga/player-tournaments.php` | `participation` | **No** |
-| `/amiga/games.php` | `amiga_games` + `amiga_game_ratings` | **Yes, but** per player, paginated — intentional scan surface |
+| `/amiga/player/tournaments.php` | `participation` | **No** |
+| `/amiga/player/games.php` | `amiga_games` + `amiga_game_ratings` | **Yes, but** per player, paginated — intentional scan surface |
 | Hypothetical “top avg goals per event” LB | `participation` stored column + index | **No** |
 
 **Index note:** `amiga_games` already has `idx_amiga_games_tournament` (`tournament_id`). A future tournament **Games** tab uses the same scoped query; a composite `(tournament_id, game_date, id)` is optional if `EXPLAIN` shows sort cost.

@@ -76,8 +76,14 @@ function amiga_player_moment_fetch_games(mysqli $con, array $gameIds, int $playe
     return $byId;
 }
 
-function amiga_player_moment_games_href(int $playerId, int $opponentId): string
+function amiga_player_moment_games_href(int $playerId, int $opponentId, int $gameId = 0): string
 {
+    if ($gameId > 0) {
+        require_once __DIR__ . '/k2_amiga_routes.php';
+
+        return k2_amiga_route('amiga-game', ['id' => $gameId]);
+    }
+
     $params = ['id' => $playerId];
     if ($opponentId > 0) {
         $params['opponent'] = $opponentId;

@@ -19,6 +19,7 @@ if ($id1 < 1 || $id2 < 1 || $id1 === $id2) {
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_matchup_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -47,8 +48,8 @@ $pageTitle = $playerA['name'] . ' vs ' . $playerB['name'];
 <div class="k2-page-nav">
 
 <p style="padding:0.75rem 1.25rem 0;margin:0">
-	<a class="k2-link-star" href="/amiga/profile.php?id=<?php echo $id1; ?>">← <?php echo k2_h($playerA['name']); ?></a>
-	· <a class="k2-link-star" href="/amiga/profile.php?id=<?php echo $id2; ?>"><?php echo k2_h($playerB['name']); ?></a>
+	<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-profile', ['id' => $id1])); ?>">← <?php echo k2_h($playerA['name']); ?></a>
+	· <a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-profile', ['id' => $id2])); ?>"><?php echo k2_h($playerB['name']); ?></a>
 </p>
 
 <header style="padding:0.75rem 1.25rem 0">
@@ -71,7 +72,7 @@ $pageTitle = $playerA['name'] . ' vs ' . $playerB['name'];
 		<div><dt style="opacity:0.75;font-size:0.85rem">Games</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php echo $totalsAB['games']; ?></dd></div>
 	</dl>
 	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="/amiga/games.php?id=<?php echo $id1; ?>&amp;opponent=<?php echo $id2; ?>">All games — <?php echo k2_h($playerA['name']); ?> vs <?php echo k2_h($playerB['name']); ?></a>
+		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-games', ['id' => $id1, 'opponent' => $id2])); ?>">All games — <?php echo k2_h($playerA['name']); ?> vs <?php echo k2_h($playerB['name']); ?></a>
 	</p>
 </section>
 
@@ -87,7 +88,7 @@ $pageTitle = $playerA['name'] . ' vs ' . $playerB['name'];
 		<div><dt style="opacity:0.75;font-size:0.85rem">Games</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php echo $totalsBA['games']; ?></dd></div>
 	</dl>
 	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="/amiga/games.php?id=<?php echo $id2; ?>&amp;opponent=<?php echo $id1; ?>">All games — <?php echo k2_h($playerB['name']); ?> vs <?php echo k2_h($playerA['name']); ?></a>
+		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-games', ['id' => $id2, 'opponent' => $id1])); ?>">All games — <?php echo k2_h($playerB['name']); ?> vs <?php echo k2_h($playerA['name']); ?></a>
 	</p>
 </section>
 <?php } ?>

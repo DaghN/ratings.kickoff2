@@ -51,7 +51,7 @@ Legend: **Ship** = build for Amiga · **Skip** = no Amiga surface · **Amiga-nat
 | **Milestones hub + wing** | `milestones.php`, `leaderboards/milestones.php` | `player_milestones`, `milestone_definitions` | None | No | No | **Skip** (deferred indefinitely) | Per Dagh — out of Amiga scope |
 | **Realm switcher** | Header | — | `/amiga/rating.php` | — | No | **Ship** (update target) | Point to Amiga hub landing when built |
 | **Amiga hub nav** | — | — | **`amiga_hub_nav.php`** on ladder / tournaments / HoF stub | — | No | **Shipped (v0)** | Three tabs; Leaderboards wing tab deferred — see §6 |
-| **Games / match log (hub)** | `games.php` (off-hub) | `ratedresults` | None (realm-wide) | Ground truth in `amiga_games` | No | **Skip** (v1) | Per-player `amiga/games.php` is enough; realm highlights low value offline |
+| **Games / match log (hub)** | `games.php` (off-hub) | `ratedresults` | None (realm-wide) | Ground truth in `amiga_games` | No | **Skip** (v1) | Per-player `amiga/player/games.php` is enough; `/amiga/games.php` reserved for future realm log |
 | **Cross-realm search** | `api/player_search.php?realm=all` | Both DBs | Shipped | `amiga_players` | No | **Already** | Profiles link correctly |
 | **Cross-realm H2H** | `api/player_head_to_head.php` (online only) | `ratedresults` / `player_matchup_summary` | None | No aggregate | Yes if built | **Skip** (v1) | Different player ID spaces; Amiga H2H only inside realm |
 
@@ -125,7 +125,7 @@ Online SQL sources verified from `site/public_html/leaderboards/*.php`. Amiga an
 | Server Activity tab | `activity.php` + server period APIs | None | **Skip** |
 | Realm activity view | — | None | Optional **Amiga-native**: games per calendar year (single aggregate query on `amiga_games`) — low priority |
 | Hub games log | `games.php` | None | **Skip** — use per-player games |
-| Per-player games | `player/games.php` | `/amiga/games.php` | **Already** |
+| Per-player games | `player/games.php` | `/amiga/player/games.php` | **Already** |
 
 ---
 
@@ -167,8 +167,8 @@ Approximate query counts per page (Amiga today):
 | Page | Queries (typical) | Heavy work | Breaks first when… |
 |------|-------------------|------------|---------------------|
 | `/amiga/rating.php` | 2 (leaderboard + game count) | Full scan ~473 stat rows | Fine at 10× players |
-| `/amiga/profile.php` | 3 (player, rank, recent tournaments) + chart API | Chart API loads ≤1.1k rating rows/player | Chart JSON for busiest player |
-| `/amiga/games.php` | 4+ (player, rank, count, page of 100) | Join `amiga_rated_games_from_sql()` with filters | Per-player scans OK; avoid realm-wide |
+| `/amiga/player/profile.php` | 3 (player, rank, recent tournaments) + chart API | Chart API loads ≤1.1k rating rows/player | Chart JSON for busiest player |
+| `/amiga/player/games.php` | 4+ (player, rank, count, page of 100) | Join `amiga_rated_games_from_sql()` with filters | Per-player scans OK; avoid realm-wide |
 | `/amiga/tournaments.php` | 2 (count + 200 rows) | `tournaments` + `amiga_tournament_catalog_stats` join | Fine — **no** live `amiga_games` aggregation (see contract § Tournament index) |
 | `/amiga/tournament.php` | 3–6 (meta, scopes, standings, optional knockout legs) | Per-tournament | Fine |
 | **Future LB wing** | 1 | `amiga_player_stats` scan + sort | Same as online `playertable` wings |
@@ -223,13 +223,13 @@ Approximate query counts per page (Amiga today):
 ### Leaderboard wings under Amiga
 
 - Path: `/amiga/leaderboards/{rating,goals,double-digits,victims,peak-rating}.php` — **no `streaks.php`** (match streaks skipped)
-- Reuse patterns from `includes/lb_nav.php` — new **`includes/amiga_lb_nav.php`** with Amiga routes, `data-realm="amiga"`, Amiga profile links (`/amiga/profile.php`).
+- Reuse patterns from `includes/lb_nav.php` — new **`includes/amiga_lb_nav.php`** with Amiga routes, `data-realm="amiga"`, Amiga profile links (`/amiga/player/profile.php` via `k2_amiga_route()`).
 - Filters: port `lb_player_filters.php` concepts — Amiga has no “inactive 1 year” lobby; **provisional &lt;20 games** still applies for peak/ratio wings.
 
 ### Hall of Fame
 
 - `/amiga/hall-of-fame.php` — structurally similar to online `hall-of-fame.php` but:
-  - Profile links → `/amiga/profile.php`
+  - Profile links → `/amiga/player/profile.php`
   - LB deep links → `/amiga/leaderboards/…`
   - **Omit** match streak rows and day/week play streak rows
   - **Add** panel: World Cup medals, major cup wins, marathon league wins

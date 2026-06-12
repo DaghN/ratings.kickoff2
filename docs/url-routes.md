@@ -11,7 +11,7 @@
 1. **Canonical paths** — use `k2_route('route-key', $params)` or constants in `K2_ROUTES`; do not hardcode legacy filenames.
 2. **Root-absolute URLs** — `k2_route()` returns paths like `/milestones.php` (leading `/`). Required so hub and cross-links work from `leaderboards/` and `player/` subfolders.
 3. **Shared assets** — `/js/…`, `/stylesheets/…`, `/fonts/…` in `k2_head.php` and page templates (not bare `js/…` on subfolder pages).
-4. **Amiga (future)** — mirror this tree under `amiga/` or a second vhost; extend `K2_ROUTES` / realm prefix rather than duplicating legacy names.
+4. **Amiga** — player universe under `amiga/player/`; route keys in `includes/k2_amiga_routes.php` (`k2_amiga_route()`). Legacy flat URLs 302 to canonical paths.
 
 ---
 
@@ -63,6 +63,25 @@
 | `player-milestones` | `/player/milestones.php` |
 
 Query `?id=` required on all player tabs.
+
+---
+
+## Amiga player (`amiga/player/`)
+
+Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes.php).
+
+| Route key | Path |
+|-----------|------|
+| `amiga-game` | `/amiga/game.php` |
+| `amiga-player-profile` | `/amiga/player/profile.php` |
+| `amiga-player-games` | `/amiga/player/games.php` |
+| `amiga-player-tournaments` | `/amiga/player/tournaments.php` |
+
+Query `?id=` required on all player tabs.
+
+**Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php` → player games; `/amiga/player-tournaments.php` → tournaments. `/amiga/games.php` is reserved for a future realm-wide match log.
+
+**Not under `player/`:** `/amiga/h2h.php` (pair page), `/amiga/tournament.php`, hub pages under `/amiga/`.
 
 ---
 

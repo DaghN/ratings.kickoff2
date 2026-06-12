@@ -9,6 +9,8 @@ require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_matchup_lib.php';
 require_once __DIR__ . '/amiga_performance_rating.php';
 require_once __DIR__ . '/amiga_player_moments_lib.php';
+require_once __DIR__ . '/k2_amiga_routes.php';
+require_once __DIR__ . '/amiga_player_tournament_lib.php';
 
 /**
  * @param array<string, mixed> $pm from amiga_player_load()
@@ -107,7 +109,7 @@ function amiga_profile_render_honours(array $totals, int $playerId): void
 	<p style="margin:0.75rem 0 0">
 		<a class="k2-link-star" href="/amiga/leaderboards/tournament-honours.php">Tournament honours leaderboard</a><?php
         if ($hasWcMedals && $playerId > 0) {
-            echo ' · <a class="k2-link-star" href="/amiga/player-tournaments.php?id=' . $playerId . '&amp;filter=world-cup">World Cup history</a>';
+            echo ' · <a class="k2-link-star" href="' . k2_h(amiga_player_tournaments_filter_url($playerId, 'world-cup')) . '">World Cup history</a>';
         }
     ?>
 	</p>
@@ -204,7 +206,7 @@ function amiga_profile_render_moments(array $moments, int $playerId = 0): void
 		<div class="pm3-moments__grid">
 		<?php foreach ($moments as $moment) {
             $opponentId = (int) ($moment['opponent_id'] ?? 0);
-            $gamesHref = amiga_player_moment_games_href($playerId, $opponentId);
+            $gamesHref = amiga_player_moment_games_href($playerId, $opponentId, (int) ($moment['game_id'] ?? 0));
             $peakRating = $moment['peak_rating'] ?? null;
             ?>
 			<article class="pm3-moment<?php echo ($moment['key'] ?? '') === 'peak_rating' ? ' pm3-moment--peak' : ''; ?>">
@@ -269,7 +271,7 @@ function amiga_profile_render_perf_rating_highlight(array $highlight, int $playe
 	<p style="margin:0.75rem 0 0">
 		<a class="k2-link-star" href="/amiga/leaderboards/performance-rating.php">Best event performance leaderboard</a>
 		<?php if ($playerId > 0) { ?>
-		 · <a class="k2-link-star" href="/amiga/player-tournaments.php?id=<?php echo $playerId; ?>">Full tournament history</a>
+		 · <a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])); ?>">Full tournament history</a>
 		<?php } ?>
 	</p>
 </section>
@@ -302,11 +304,11 @@ function amiga_profile_render_recent_tournaments(array $tournaments, int $player
 	</ul>
 	<?php if ($playerId > 0 && $totalCount > count($tournaments)) { ?>
 	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="/amiga/player-tournaments.php?id=<?php echo $playerId; ?>">All <?php echo (int) $totalCount; ?> tournaments</a>
+		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])); ?>">All <?php echo (int) $totalCount; ?> tournaments</a>
 	</p>
 	<?php } elseif ($playerId > 0 && $totalCount > 0) { ?>
 	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="/amiga/player-tournaments.php?id=<?php echo $playerId; ?>">Full tournament history</a>
+		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])); ?>">Full tournament history</a>
 	</p>
 	<?php } ?>
 </section>

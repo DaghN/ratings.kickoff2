@@ -59,6 +59,38 @@ FROM (
 SQL;
 }
 
+/**
+ * Single rated Amiga game row (ground + derived), or null when missing.
+ *
+ * @return ?array<string, mixed>
+ */
+function amiga_rated_game_load(mysqli $con, int $gameId): ?array
+{
+    if ($gameId < 1) {
+        return null;
+    }
+
+    $sql = 'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.RatingDifference, '
+        . 'r.GoalsA, r.GoalsB, r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, '
+        . 'r.SumOfGoals, r.GoalDifference, r.phase, r.tournament_id, r.tournament_name '
+        . amiga_rated_games_from_sql()
+        . ' WHERE r.id = ? LIMIT 1';
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        throw new RuntimeException('Query failed: ' . $con->error);
+    }
+    $stmt->bind_param('i', $gameId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result ? $result->fetch_assoc() : false;
+    if ($result) {
+        $result->free();
+    }
+    $stmt->close();
+
+    return is_array($row) ? $row : null;
+}
+
 /** Ground + derived player row with playertable-shaped column names. */
 function amiga_player_base_from_sql(): string
 {

@@ -16,7 +16,8 @@ $heroRank = isset($rank) ? '#' . (int) $rank : '—';
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $lbHref = '/amiga/rating.php';
 $heroPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
-$gamesHref = $heroPlayerId > 0 ? '/amiga/games.php?id=' . $heroPlayerId : '';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
+$gamesHref = $heroPlayerId > 0 ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) : '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
 ?>
 <article class="k2-player-hero k2-player-hero--feast">

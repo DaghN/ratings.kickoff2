@@ -1,5 +1,5 @@
 /**
- * Lazy-load Perf. rating for /amiga/games.php (filtered games list).
+ * Lazy-load Perf. rating for /amiga/player/games.php (filtered games list).
  */
 (function () {
 	'use strict';

@@ -5,12 +5,14 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/k2_amiga_routes.php';
+
 $k2AmigaPlayerTabActive = $k2AmigaPlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
 $k2AmigaPlayerTabs = [
-    'profile' => ['href' => '/amiga/profile.php?id=' . $id, 'label' => 'Profile'],
-    'tournaments' => ['href' => '/amiga/player-tournaments.php?id=' . $id, 'label' => 'Tournaments'],
-    'games' => ['href' => '/amiga/games.php?id=' . $id, 'label' => 'Games'],
+    'profile' => ['href' => k2_amiga_route('amiga-player-profile', ['id' => $id]), 'label' => 'Profile'],
+    'tournaments' => ['href' => k2_amiga_route('amiga-player-tournaments', ['id' => $id]), 'label' => 'Tournaments'],
+    'games' => ['href' => k2_amiga_route('amiga-player-games', ['id' => $id]), 'label' => 'Games'],
 ];
 ?>
 <div class="k2-player-nav-bar">

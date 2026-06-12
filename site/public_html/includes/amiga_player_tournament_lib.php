@@ -194,7 +194,7 @@ function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'al
         $params['country'] = $country;
     }
 
-    return '/amiga/player-tournaments.php?' . http_build_query($params);
+    return k2_amiga_route('amiga-player-tournaments', $params);
 }
 
 /**

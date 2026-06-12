@@ -83,8 +83,9 @@ Script: `site/public_html/amiga/run_import_ko2amiga.php` · payload: `site/publi
 Browser (local pages):
 
 - `http://ratingskickoff.test/amiga/rating.php`
-- `http://ratingskickoff.test/amiga/profile.php?id=1`
-- `http://ratingskickoff.test/amiga/games.php?id=1`
+- `http://ratingskickoff.test/amiga/player/profile.php?id=1`
+- `http://ratingskickoff.test/amiga/player/games.php?id=1`
+- `http://ratingskickoff.test/amiga/game.php?id=1`
 - `http://ratingskickoff.test/amiga/tournaments.php`
 - `http://ratingskickoff.test/amiga/tournament.php?id=1`
 - `http://ratingskickoff.test/amiga/hall-of-fame.php`
@@ -181,7 +182,7 @@ Participation **roster = `amiga_games`**; finish from `participation_placement.p
 
 **Standings scope migration (Jun 2026 — complete):** apply `020` after `019` on existing DBs (`overall`+`group` → `league`; `group_scopes` → `league_scopes`). Fresh installs: `002`/`004` already use `league` enum. Policy: [`docs/amiga-standings-scope-policy.md`](../docs/amiga-standings-scope-policy.md). After migrate: full `python -m scripts.amiga replay` + verify suite. Parity CLI may still use `overall`/`group` as Access comparison labels (`standings_parity.py`).
 
-Read surfaces: profile recent tournaments + top opponents; `/amiga/player-tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
+Read surfaces: profile recent tournaments + top opponents; `/amiga/player/tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
 
 **Participation columns (Jun 2026):** `event_points` + W-D-L from `amiga_games` rollup; phase league points only in `amiga_tournament_standings`. See contract §5.2.1. Existing DBs: apply `014` before rebuild if the table still has a `points` column.
 

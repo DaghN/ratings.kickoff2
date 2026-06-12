@@ -9,7 +9,7 @@
     var API_PATH = '/api/player_search.php';
     var PROFILE_BY_REALM = {
         online: '/player/profile.php',
-        amiga: '/amiga/profile.php'
+        amiga: '/amiga/player/profile.php'
     };
     var REALM_LABELS = {
         online: 'Online',

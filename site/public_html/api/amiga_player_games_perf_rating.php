@@ -1,6 +1,6 @@
 <?php
 /**
- * JSON performance rating for the filtered games list on /amiga/games.php.
+ * JSON performance rating for the filtered games list on /amiga/player/games.php.
  *
  * GET: same filter params as games.php (id required; sort/dir ignored).
  */

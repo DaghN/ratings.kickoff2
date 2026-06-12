@@ -28,8 +28,8 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 - https://ratings.kickoff2.com/amiga/rating.php
 - https://ratings.kickoff2.com/amiga/tournaments.php
 - https://ratings.kickoff2.com/amiga/tournament.php?id=372 (London XXIII — adjust id after import)
-- https://ratings.kickoff2.com/amiga/profile.php?id=1
-- https://ratings.kickoff2.com/amiga/games.php?id=1
+- https://ratings.kickoff2.com/amiga/player/profile.php?id=1
+- https://ratings.kickoff2.com/amiga/player/games.php?id=1
 
 ---
 
@@ -61,9 +61,9 @@ Password is **`coffee`** (`&pwd=coffee` in URL, or type it on the prompt page).
 
 Local dry-run (same paths, `ratingskickoff.test`): preview URL above with local host.
 
-Spot-check: `/amiga/rating.php`, `/amiga/profile.php?id=1`, `/amiga/games.php?id=1`.
+Spot-check: `/amiga/rating.php`, `/amiga/player/profile.php?id=1`, `/amiga/player/games.php?id=1` (legacy `/amiga/profile.php` and `/amiga/games.php` redirect).
 
-**Verified Jun 2026:** 24-part browser import on staging (`ratings.kickoff2.com`) — rating, profile, and games spot-checks OK. **Jun 2026 fix:** export now includes parts 24–28 (`amiga_player_tournament_participation`, totals, matchup, generalstats) — required for `/amiga/player-tournaments.php` and honours/H2H surfaces. Re-import after sync if those pages were empty.
+**Verified Jun 2026:** 24-part browser import on staging (`ratings.kickoff2.com`) — rating, profile, and games spot-checks OK. **Jun 2026 fix:** export now includes parts 24–28 (`amiga_player_tournament_participation`, totals, matchup, generalstats) — required for `/amiga/player/tournaments.php` and honours/H2H surfaces. Re-import after sync if those pages were empty.
 
 **Fallback:** Steve Heidi/mysql import of `ko2amiga_db.sql` — only if browser import fails.
 

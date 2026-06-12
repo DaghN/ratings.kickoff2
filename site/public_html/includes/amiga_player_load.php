@@ -4,6 +4,7 @@
  */
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_db.php';
+require_once __DIR__ . '/k2_amiga_routes.php';
 
 /**
  * @return array<string, mixed>
@@ -76,7 +77,7 @@ function amiga_player_load(mysqli $con, int $id): array
 
 function k2_amiga_player_link(int $id, string $name): string
 {
-    $href = '/amiga/profile.php?id=' . $id;
+    $href = k2_amiga_route('amiga-player-profile', ['id' => $id]);
     return '<a class="k2-link-star" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
         . k2_h($name) . '</a>';
 }

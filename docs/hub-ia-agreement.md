@@ -75,7 +75,7 @@ Still open with Steve / prod:
 | Area | Current decision |
 |------|------------------|
 | Header | Wordmark + **realm switcher** (Online · Amiga 500) beside wordmark + player search on the right. **Play & Setup** is a hub tab (`join.php`), not a header link. No kickoff2.com header link. |
-| Header player search | Cross-realm: `api/player_search.php?realm=all` — Online + Amiga 500 in one dropdown; each hit labelled **Online** or **Amiga** and links to the correct profile (`/player/profile.php` vs `/amiga/profile.php`). No realm picker on the search field. In-page pickers (e.g. H2H opponent) stay `realm=online`. |
+| Header player search | Cross-realm: `api/player_search.php?realm=all` — Online + Amiga 500 in one dropdown; each hit labelled **Online** or **Amiga** and links to the correct profile (`/player/profile.php` vs `/amiga/player/profile.php`). No realm picker on the search field. In-page pickers (e.g. H2H opponent) stay `realm=online`. |
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |
@@ -83,7 +83,7 @@ Still open with Steve / prod:
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
 | Tint picker | Closed by default behind **Tint** disclosure (hub + player nav). |
 | Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps `window.scrollY` on the next page (one-shot `sessionStorage`). **Listbox filter forms** opt in with `data-k2-carry-scroll` on the `<form>` (`js/k2-carry-scroll.js` stores on listbox `change` before `form.submit()` and on in-form **Reset** links). **Player games** server-sort column links (`.k2-table--player-games`) carry scroll the same way. Online **Previous / Next 100** pager links opt in via `data-k2-carry-scroll` on `.k2-player-games-status` (same `a.k2-player-games-action` selector). Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
-| Wide games tables | Hub `games.php` (Recent per-day buckets + Highlights) and player games (`player/games.php`, `/amiga/games.php`): `data-k2-scroll-mirror` on `.k2-table-wrap` + `k2-table-scroll-mirror.js` — top horizontal bar when the table overflows; syncs `scrollLeft` with the wrap below. |
+| Wide games tables | Hub `games.php` (Recent per-day buckets + Highlights) and player games (`player/games.php`, `/amiga/player/games.php`): `data-k2-scroll-mirror` on `.k2-table-wrap` + `k2-table-scroll-mirror.js` — top horizontal bar when the table overflows; syncs `scrollLeft` with the wrap below. |
 
 The old hub-nav A/B tuning path is removed; segment track + outline active cell is now the fixed product contract.
 

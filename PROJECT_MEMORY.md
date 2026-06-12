@@ -83,6 +83,9 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga game.php Date column** — `k2-table--single-game` overrides ranked-pages col-2 min-width (was leaderboard Player 9.1em). |
+| 2026-06 | **Amiga game.php (Phase 2)** — `/amiga/game.php?id=` neutral row (tournament, phase, Elo); `amiga_rated_game_row.php`; ID links from player games + profile moments. |
+| 2026-06 | **Amiga player URL taxonomy (Phase 1)** — profile/games/tournaments → `/amiga/player/*`; `k2_amiga_routes.php`; 302 from legacy flat URLs; frees `/amiga/games.php` for future realm log. |
 | 2026-06 | **Leaderboards hub lede** — `lb_nav.php` chapter intro: “activity peaks...” ellipsis instead of “, and more.” |
 | 2026-06 | **Activity hub lede** — `activity.php` chapter intro shortened (removed day/month/year clause; Oxford comma on “active, and who”). |
 | 2026-06 | **Goals table column parity** — `player/goals.php` + hub `leaderboards/goals.php` + `amiga/leaderboards/goals.php`: GF/GA, Max win/loss/sum labels; tail order Max GF → Max GA → Max win → Max loss → Max sum → Draw (Min* profile-only). |

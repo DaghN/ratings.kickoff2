@@ -1,8 +1,10 @@
 <?php
 /**
- * Query helpers for amiga/games.php (mirrors player/games.php filters).
+ * Query helpers for amiga/player/games.php (mirrors player/games.php filters).
  */
 declare(strict_types=1);
+
+require_once __DIR__ . '/k2_amiga_routes.php';
 
 function amiga_games_h(string $value): string
 {
@@ -21,7 +23,7 @@ function amiga_games_valid_direction(string $value): string
 
 function amiga_games_build_url(array $params): string
 {
-    return '/amiga/games.php?' . http_build_query($params);
+    return k2_amiga_route('amiga-player-games', $params);
 }
 
 function amiga_games_query_all(mysqli $con, string $sql, string $types = '', array $params = []): array
