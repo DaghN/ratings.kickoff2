@@ -2,11 +2,15 @@
 /**
  * One-shot restore of scrollY after carry-scroll navigation (see js/k2-carry-scroll.js).
  * Inline in <head> so restore runs as early as practical on the next document.
+ * Retries only while the target is unreachable; stops on success, user scroll, or timeout.
  */
 ?>
 <script>
 (function () {
 	var KEY = 'k2:carryScrollY';
+	var APPLY_EPS = 3;
+	var STOP_MS = 2000;
+
 	try {
 		if ('scrollRestoration' in history) {
 			history.scrollRestoration = 'manual';
@@ -14,16 +18,22 @@
 	} catch (e1) {
 		/* ignore */
 	}
+
 	try {
 		var raw = sessionStorage.getItem(KEY);
 		if (raw === null) {
 			return;
 		}
 		sessionStorage.removeItem(KEY);
-		var y = parseInt(raw, 10);
-		if (isNaN(y) || y < 0) {
+		var targetY = parseInt(raw, 10);
+		if (isNaN(targetY) || targetY < 0) {
 			return;
 		}
+
+		var finished = false;
+		var userTookOver = false;
+		var resizeObserver = null;
+		var stopTimer = null;
 
 		function scrollHeightNow() {
 			var el = document.documentElement;
@@ -38,8 +48,8 @@
 			return Math.max(0, scrollHeightNow() - (window.innerHeight || 0));
 		}
 
-		function ensureMinScrollHeight(targetY) {
-			var needed = targetY + (window.innerHeight || 0);
+		function ensureMinScrollHeight(y) {
+			var needed = y + (window.innerHeight || 0);
 			var sh = scrollHeightNow();
 			if (sh >= needed) {
 				return;
@@ -48,28 +58,98 @@
 			el.style.minHeight = needed + 'px';
 		}
 
-		function apply() {
-			ensureMinScrollHeight(y);
-			var top = Math.min(y, maxScrollTop());
-			window.scrollTo(0, top);
+		function intendedTop() {
+			ensureMinScrollHeight(targetY);
+			return Math.min(targetY, maxScrollTop());
 		}
 
-		/* First pass in head: extend document and scroll before first paint when possible. */
-		ensureMinScrollHeight(y);
-		window.scrollTo(0, y);
+		function atTarget() {
+			return Math.abs(window.scrollY - intendedTop()) <= APPLY_EPS;
+		}
+
+		function cleanup() {
+			finished = true;
+			if (resizeObserver) {
+				resizeObserver.disconnect();
+				resizeObserver = null;
+			}
+			if (stopTimer) {
+				clearTimeout(stopTimer);
+				stopTimer = null;
+			}
+			window.removeEventListener('keydown', onScrollKeydown);
+		}
+
+		function userCancel() {
+			if (finished || userTookOver) {
+				return;
+			}
+			userTookOver = true;
+			cleanup();
+		}
+
+		function onScrollKeydown(ev) {
+			var key = ev.key;
+			if (
+				key === 'ArrowUp' ||
+				key === 'ArrowDown' ||
+				key === 'PageUp' ||
+				key === 'PageDown' ||
+				key === 'Home' ||
+				key === 'End' ||
+				key === ' '
+			) {
+				userCancel();
+			}
+		}
+
+		function tryRestore() {
+			if (finished || userTookOver) {
+				return;
+			}
+			var top = intendedTop();
+			if (atTarget()) {
+				cleanup();
+				return;
+			}
+			window.scrollTo(0, top);
+			if (atTarget()) {
+				cleanup();
+			}
+		}
+
+		window.addEventListener('wheel', userCancel, { passive: true, once: true });
+		window.addEventListener('touchmove', userCancel, { passive: true, once: true });
+		window.addEventListener('mousedown', userCancel, { once: true });
+		window.addEventListener('keydown', onScrollKeydown);
+
+		tryRestore();
 
 		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', apply, { once: true });
+			document.addEventListener(
+				'DOMContentLoaded',
+				function () {
+					tryRestore();
+					if (typeof requestAnimationFrame === 'function') {
+						requestAnimationFrame(function () {
+							requestAnimationFrame(tryRestore);
+						});
+					}
+				},
+				{ once: true }
+			);
 		} else {
-			apply();
+			tryRestore();
 		}
-		window.addEventListener(
-			'load',
-			function () {
-				apply();
-			},
-			{ once: true }
-		);
+
+		if (typeof ResizeObserver !== 'undefined') {
+			resizeObserver = new ResizeObserver(function () {
+				tryRestore();
+			});
+			resizeObserver.observe(document.documentElement);
+		}
+
+		stopTimer = setTimeout(cleanup, STOP_MS);
 	} catch (e) {
 		/* ignore */
 	}

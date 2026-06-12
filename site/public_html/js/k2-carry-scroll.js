@@ -1,7 +1,7 @@
 /**
  * Carry window scrollY across full-page peer navigation: nav pills, listbox filter
  * forms (data-k2-carry-scroll), and server-sort links on player games tables.
- * Store on interaction; restore once via k2_carry_scroll_restore.php in <head>.
+ * Store on interaction; restore via k2_carry_scroll_restore.php in <head> (conditional retries until success or user scroll).
  */
 (function () {
 	'use strict';
