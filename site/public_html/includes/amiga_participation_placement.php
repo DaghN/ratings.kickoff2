@@ -287,7 +287,7 @@ function amiga_participation_compute_tier_a_knockout_finish(array $standingRows)
  */
 function amiga_participation_compute_tier_b_league_cup_finish(array $standingRows): array
 {
-    $overall = amiga_participation_overall_positions($standingRows);
+    $primaryLeague = amiga_participation_resolve_primary_league_standings($standingRows);
     $koRows = amiga_participation_knockout_or_placement_rows($standingRows);
     $hasCupKnockout = false;
     foreach ($koRows as $row) {
@@ -296,13 +296,13 @@ function amiga_participation_compute_tier_b_league_cup_finish(array $standingRow
             break;
         }
     }
-    if ($overall === [] || !$hasCupKnockout) {
+    if ($primaryLeague === [] || !$hasCupKnockout) {
         return [];
     }
 
     $cupFinish = amiga_participation_compute_tier_a_knockout_finish($standingRows);
 
-    return $cupFinish + $overall;
+    return $cupFinish + $primaryLeague;
 }
 
 /**
@@ -338,13 +338,13 @@ function amiga_participation_derive_event_finish_position(
     ?array $playerIds = null,
     array $overrides = []
 ): array {
-    $overall = amiga_participation_overall_positions($standingRows);
+    $primaryLeague = amiga_participation_resolve_primary_league_standings($standingRows);
     if (amiga_tournament_is_world_cup(['name' => $tournamentName])) {
         $finish = [];
-    } elseif ($hasLeague && $hasCup && $overall !== []) {
+    } elseif ($hasLeague && $hasCup && $primaryLeague !== []) {
         $finish = amiga_participation_compute_tier_b_league_cup_finish($standingRows);
-    } elseif ($overall !== []) {
-        $finish = $overall;
+    } elseif ($primaryLeague !== []) {
+        $finish = $primaryLeague;
     } else {
         $finish = amiga_participation_compute_tier_a_knockout_finish($standingRows);
     }
@@ -404,16 +404,86 @@ function amiga_participation_derive_best_knockout_phase(array $standingRows, int
  * @param list<array<string, mixed>> $standingRows
  * @return array<int, int>
  */
-function amiga_participation_overall_positions(array $standingRows): array
+function amiga_participation_resolve_primary_league_standings(array $standingRows): array
 {
-    $out = [];
+    $leagueRows = [];
     foreach ($standingRows as $row) {
-        if ((string) ($row['scope_type'] ?? '') === 'overall' && (string) ($row['scope_key'] ?? '') === '') {
+        if ((string) ($row['scope_type'] ?? '') === 'league') {
+            $leagueRows[] = $row;
+        }
+    }
+    if ($leagueRows === []) {
+        return [];
+    }
+
+    $emptyKeyRows = [];
+    foreach ($leagueRows as $row) {
+        if ((string) ($row['scope_key'] ?? '') === '') {
+            $emptyKeyRows[] = $row;
+        }
+    }
+    if ($emptyKeyRows !== []) {
+        $out = [];
+        foreach ($emptyKeyRows as $row) {
             $out[(int) $row['player_id']] = (int) $row['position'];
+        }
+
+        return $out;
+    }
+
+    /** @var array<string, list<array<string, mixed>>> $byKey */
+    $byKey = [];
+    foreach ($leagueRows as $row) {
+        $scopeKey = (string) ($row['scope_key'] ?? '');
+        if ($scopeKey === '') {
+            continue;
+        }
+        $byKey[$scopeKey][] = $row;
+    }
+    if ($byKey === []) {
+        return [];
+    }
+
+    if (count($byKey) === 1) {
+        $onlyKey = array_key_first($byKey);
+        $out = [];
+        foreach ($byKey[$onlyKey] as $row) {
+            $out[(int) $row['player_id']] = (int) $row['position'];
+        }
+
+        return $out;
+    }
+
+    $chosenKey = null;
+    $chosenCount = -1;
+    foreach ($byKey as $scopeKey => $rows) {
+        $count = count($rows);
+        if (
+            $chosenKey === null
+            || $count > $chosenCount
+            || ($count === $chosenCount && $scopeKey < $chosenKey)
+        ) {
+            $chosenKey = $scopeKey;
+            $chosenCount = $count;
         }
     }
 
+    $out = [];
+    foreach ($byKey[$chosenKey] as $row) {
+        $out[(int) $row['player_id']] = (int) $row['position'];
+    }
+
     return $out;
+}
+
+/**
+ * @deprecated Use amiga_participation_resolve_primary_league_standings()
+ * @param list<array<string, mixed>> $standingRows
+ * @return array<int, int>
+ */
+function amiga_participation_overall_positions(array $standingRows): array
+{
+    return amiga_participation_resolve_primary_league_standings($standingRows);
 }
 
 function amiga_participation_is_winner(

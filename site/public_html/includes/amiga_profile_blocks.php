@@ -288,11 +288,9 @@ function amiga_profile_render_recent_tournaments(array $tournaments, int $player
 <section class="k2-amiga-profile-tournaments" style="padding:0 1.25rem 1.5rem">
 	<h3 class="k2-panel-heading">Recent tournaments</h3>
 	<ul style="margin:0;padding-left:1.25rem">
-	<?php foreach ($tournaments as $t) {
-            $fragment = (int) ($t['knockout_ties'] ?? 0) > 0 ? 'bracket' : '';
-            ?>
+	<?php foreach ($tournaments as $t) { ?>
 		<li><?php
-            echo amiga_tournament_link((int) $t['id'], (string) $t['name'], $fragment);
+            echo amiga_tournament_link((int) $t['id'], (string) $t['name']);
             echo ' — ';
             echo htmlspecialchars(
                 amiga_profile_tournament_result_label($t) . amiga_profile_recent_tournament_extras($t),
@@ -425,37 +423,38 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<th class="k2-table-cell--right" data-k2-sort="number">Date</th>
 			<th class="k2-table-cell--left" data-k2-sort="text">Tournament</th>
 			<th data-k2-sort="number">Games</th>
-			<th data-k2-sort="number">Wins</th>
-			<th data-k2-sort="number">Draws</th>
-			<th data-k2-sort="number">Losses</th>
-			<th data-k2-sort="number" data-k2-help="Goals scored in this event (all phases).">F</th>
-			<th data-k2-sort="number" data-k2-help="Goals conceded in this event (all phases).">A</th>
+			<th data-k2-sort="number" data-k2-help="Wins in this event (all phases).">W</th>
+			<th data-k2-sort="number" data-k2-help="Draws in this event (all phases).">D</th>
+			<th data-k2-sort="number" data-k2-help="Losses in this event (all phases).">L</th>
+			<th data-k2-sort="number" data-k2-help="Goals scored in this event (all phases).">GF</th>
+			<th data-k2-sort="number" data-k2-help="Goals conceded in this event (all phases).">GA</th>
+			<th data-k2-sort="number">GD</th>
 			<th data-k2-sort="number" data-k2-help="Average goals scored per game in this event.">GF/g</th>
 			<th data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
 			<th data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
 			<th data-k2-sort="text">Finish</th>
 			<th data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
-			<th data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adjustment</th>
+			<th data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adj.</th>
 			<th data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
 			<th data-k2-sort="number" data-k2-help="Rating level implied by your results in this event against the opponents you faced (frozen ratings). Requires at least 2 games; omitted for perfect win or loss records.">Perf. rating</th>
 		</tr>
 	</thead>
 	<tbody>
 	<?php foreach ($tournaments as $t) {
-        $fragment = (int) ($t['knockout_ties'] ?? 0) > 0 ? 'bracket' : '';
         $games = (int) ($t['games'] ?? 0);
         $wins = (int) ($t['wins'] ?? 0);
         $draws = (int) ($t['draws'] ?? 0);
         $losses = (int) ($t['losses'] ?? 0);
         $goalsFor = (int) ($t['goals_for'] ?? 0);
         $goalsAgainst = (int) ($t['goals_against'] ?? 0);
+        $goalDiff = $goalsFor - $goalsAgainst;
         $points = (int) ($t['event_points'] ?? 0);
         $finishRank = amiga_profile_tournament_finish_rank_label($t);
         ?>
 		<tr>
 			<td class="k2-table-cell--right" data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($t); ?>"><?php echo amiga_profile_format_event_date($t['event_date'] ?? null); ?></td>
 			<td class="k2-table-cell--left"><?php
-                echo amiga_tournament_link((int) $t['id'], (string) $t['name'], $fragment);
+                echo amiga_tournament_link((int) $t['id'], (string) $t['name']);
             ?></td>
 			<td><?php echo k2_fmt_games_played($games); ?></td>
 			<td><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
@@ -463,6 +462,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<td><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
 			<td><?php echo $goalsFor; ?></td>
 			<td><?php echo $goalsAgainst; ?></td>
+			<td><?php echo $goalDiff > 0 ? '+' . $goalDiff : (string) $goalDiff; ?></td>
 			<td><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_for'] ?? null, $games); ?></td>
 			<td><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_against'] ?? null, $games); ?></td>
 			<td><?php echo $points; ?></td>
@@ -499,7 +499,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
     }
     ?>
 <div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--tournament-event-stats" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="9" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--tournament-event-stats" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="10" data-k2-default-direction="desc">
 	<thead>
 		<tr>
 			<th class="k2-table-cell--left" data-k2-sort="text">Player</th>
@@ -507,8 +507,9 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<th data-k2-sort="number">Wins</th>
 			<th data-k2-sort="number">Draws</th>
 			<th data-k2-sort="number">Losses</th>
-			<th data-k2-sort="number" data-k2-help="Goals scored in this event (all phases).">F</th>
-			<th data-k2-sort="number" data-k2-help="Goals conceded in this event (all phases).">A</th>
+			<th data-k2-sort="number" data-k2-help="Goals scored in this event (all phases).">GF</th>
+			<th data-k2-sort="number" data-k2-help="Goals conceded in this event (all phases).">GA</th>
+			<th data-k2-sort="number">GD</th>
 			<th data-k2-sort="number" data-k2-help="Average goals scored per game in this event.">GF/g</th>
 			<th data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
 			<th data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
@@ -532,6 +533,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
         $losses = (int) ($row['losses'] ?? 0);
         $goalsFor = (int) ($row['goals_for'] ?? 0);
         $goalsAgainst = (int) ($row['goals_against'] ?? 0);
+        $goalDiff = $goalsFor - $goalsAgainst;
         $points = (int) ($row['event_points'] ?? 0);
         $finishCell = $isWorldCup
             ? amiga_tournament_wc_medal_label($row)
@@ -545,6 +547,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<td><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
 			<td><?php echo $goalsFor; ?></td>
 			<td><?php echo $goalsAgainst; ?></td>
+			<td><?php echo $goalDiff > 0 ? '+' . $goalDiff : (string) $goalDiff; ?></td>
 			<td><?php echo amiga_profile_tournament_avg_goals_cell($row['avg_goals_for'] ?? null, $games); ?></td>
 			<td><?php echo amiga_profile_tournament_avg_goals_cell($row['avg_goals_against'] ?? null, $games); ?></td>
 			<td><?php echo $points; ?></td>

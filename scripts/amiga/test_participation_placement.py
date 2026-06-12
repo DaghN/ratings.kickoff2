@@ -14,13 +14,14 @@ from scripts.amiga.participation_placement import (
     is_main_final_label,
     participation_is_winner,
     placement_final_winner_loser_ranks,
+    resolve_primary_league_standings,
 )
 
 
 class ParticipationPlacementTests(unittest.TestCase):
-    def test_overall_scope_wins_over_knockout(self) -> None:
+    def test_league_scope_wins_over_knockout(self) -> None:
         rows = [
-            {"scope_type": "overall", "scope_key": "", "player_id": 1, "position": 3},
+            {"scope_type": "league", "scope_key": "", "player_id": 1, "position": 3},
             {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
         ]
         positions = derive_event_finish_position(
@@ -33,8 +34,8 @@ class ParticipationPlacementTests(unittest.TestCase):
 
     def test_wc_event_finish_is_null(self) -> None:
         rows = [
-            {"scope_type": "group", "scope_key": "Group B", "player_id": 9, "position": 2},
-            {"scope_type": "group", "scope_key": "Group A", "player_id": 9, "position": 4},
+            {"scope_type": "league", "scope_key": "Group B", "player_id": 9, "position": 2},
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 9, "position": 4},
             {"scope_type": "knockout", "scope_key": "Final|9-10", "player_id": 9, "position": 1},
         ]
         positions = derive_event_finish_position(rows, tournament_name="World Cup XII")
@@ -77,10 +78,60 @@ class ParticipationPlacementTests(unittest.TestCase):
 
     def test_derive_wc_group_positions_picks_lexicographic_group(self) -> None:
         rows = [
-            {"scope_type": "group", "scope_key": "Group B", "player_id": 5, "position": 1},
-            {"scope_type": "group", "scope_key": "Group A", "player_id": 5, "position": 3},
+            {"scope_type": "league", "scope_key": "Group B", "player_id": 5, "position": 1},
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 5, "position": 3},
         ]
         self.assertEqual(derive_wc_group_positions(rows)[5], 3)
+
+
+class ResolvePrimaryLeagueStandingsTests(unittest.TestCase):
+    def test_null_phase_implicit_league(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "", "player_id": 2, "position": 2},
+        ]
+        self.assertEqual(resolve_primary_league_standings(rows), {1: 1, 2: 2})
+
+    def test_single_league_stage_scope(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "League Stage", "player_id": 10, "position": 1},
+            {"scope_type": "league", "scope_key": "League Stage", "player_id": 20, "position": 2},
+        ]
+        self.assertEqual(resolve_primary_league_standings(rows), {10: 1, 20: 2})
+
+    def test_empty_key_wins_over_labeled_scopes(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "", "player_id": 1, "position": 5},
+            {"scope_type": "league", "scope_key": "League Stage", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "League Stage", "player_id": 2, "position": 2},
+        ]
+        self.assertEqual(resolve_primary_league_standings(rows), {1: 5})
+
+    def test_multi_scope_picks_largest_player_count(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "Round 1 - Group A", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "Round 1 - Group B", "player_id": 2, "position": 1},
+            {"scope_type": "league", "scope_key": "Round 1 - Group B", "player_id": 3, "position": 2},
+        ]
+        self.assertEqual(resolve_primary_league_standings(rows), {2: 1, 3: 2})
+
+    def test_athens_xci_style_tier_b_league_stage_only(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "League Stage", "player_id": 10, "position": 3},
+            {"scope_type": "league", "scope_key": "League Stage", "player_id": 20, "position": 1},
+            {"scope_type": "league", "scope_key": "League Stage", "player_id": 30, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Final|10-20", "player_id": 20, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Final|10-20", "player_id": 10, "position": 2},
+        ]
+        finish = derive_event_finish_position(
+            rows,
+            tournament_name="Athens XCI",
+            has_league=True,
+            has_cup=True,
+        )
+        self.assertEqual(finish[20], 1)
+        self.assertEqual(finish[10], 2)
+        self.assertEqual(finish[30], 2)
 
 
 class EventFinishPositionTests(unittest.TestCase):
@@ -137,12 +188,13 @@ class EventFinishPositionTests(unittest.TestCase):
         self.assertEqual(overridden[1], 2)
         self.assertEqual(overridden[2], 1)
 
-    def test_tier_e_override_can_set_finish_when_generic_null(self) -> None:
+    def test_tier_e_override_wins_over_primary_league(self) -> None:
         rows = [
-            {"scope_type": "group", "scope_key": "Group A", "player_id": 9, "position": 2},
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 9, "position": 2},
         ]
-        self.assertIsNone(
-            derive_event_finish_position(rows, tournament_name="Exotic Format").get(9)
+        self.assertEqual(
+            derive_event_finish_position(rows, tournament_name="Exotic Format").get(9),
+            2,
         )
         self.assertEqual(
             derive_event_finish_position(
@@ -153,11 +205,11 @@ class EventFinishPositionTests(unittest.TestCase):
             5,
         )
 
-    def test_tier_c_london_xxiii_overall_league(self) -> None:
+    def test_tier_c_london_xxiii_primary_league(self) -> None:
         rows = [
-            {"scope_type": "overall", "scope_key": "", "player_id": 73, "position": 1},
-            {"scope_type": "overall", "scope_key": "", "player_id": 88, "position": 2},
-            {"scope_type": "overall", "scope_key": "", "player_id": 99, "position": 3},
+            {"scope_type": "league", "scope_key": "", "player_id": 73, "position": 1},
+            {"scope_type": "league", "scope_key": "", "player_id": 88, "position": 2},
+            {"scope_type": "league", "scope_key": "", "player_id": 99, "position": 3},
         ]
         finish = derive_event_finish_position(
             rows,
@@ -204,7 +256,7 @@ class EventFinishPositionTests(unittest.TestCase):
 
     def test_tier_d_wc_returns_null_finish(self) -> None:
         rows = [
-            {"scope_type": "group", "scope_key": "Group A", "player_id": 9, "position": 4},
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 9, "position": 4},
             {"scope_type": "knockout", "scope_key": "Final|9-10", "player_id": 9, "position": 1},
             {"scope_type": "knockout", "scope_key": "Final|9-10", "player_id": 10, "position": 2},
         ]
@@ -226,10 +278,10 @@ class EventFinishPositionTests(unittest.TestCase):
     def test_tier_b_final_only_league_third_is_third(self) -> None:
         """Minimal league+cup: title match only; 3rd = league 3rd among non-finalists."""
         rows = [
-            {"scope_type": "overall", "scope_key": "", "player_id": 1, "position": 1},
-            {"scope_type": "overall", "scope_key": "", "player_id": 2, "position": 2},
-            {"scope_type": "overall", "scope_key": "", "player_id": 3, "position": 3},
-            {"scope_type": "overall", "scope_key": "", "player_id": 4, "position": 4},
+            {"scope_type": "league", "scope_key": "", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "", "player_id": 2, "position": 2},
+            {"scope_type": "league", "scope_key": "", "player_id": 3, "position": 3},
+            {"scope_type": "league", "scope_key": "", "player_id": 4, "position": 4},
             {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
             {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
         ]
@@ -246,9 +298,9 @@ class EventFinishPositionTests(unittest.TestCase):
 
     def test_tier_b_cup_overrides_league_for_finalists(self) -> None:
         rows = [
-            {"scope_type": "overall", "scope_key": "", "player_id": 10, "position": 1},
-            {"scope_type": "overall", "scope_key": "", "player_id": 20, "position": 2},
-            {"scope_type": "overall", "scope_key": "", "player_id": 30, "position": 3},
+            {"scope_type": "league", "scope_key": "", "player_id": 10, "position": 1},
+            {"scope_type": "league", "scope_key": "", "player_id": 20, "position": 2},
+            {"scope_type": "league", "scope_key": "", "player_id": 30, "position": 3},
             {"scope_type": "knockout", "scope_key": "Final|10-30", "player_id": 30, "position": 1},
             {"scope_type": "knockout", "scope_key": "Final|10-30", "player_id": 10, "position": 2},
         ]
@@ -259,11 +311,11 @@ class EventFinishPositionTests(unittest.TestCase):
 
     def test_tier_b_shared_semi_bronze_overrides_league(self) -> None:
         rows = [
-            {"scope_type": "overall", "scope_key": "", "player_id": 1, "position": 1},
-            {"scope_type": "overall", "scope_key": "", "player_id": 2, "position": 2},
-            {"scope_type": "overall", "scope_key": "", "player_id": 3, "position": 3},
-            {"scope_type": "overall", "scope_key": "", "player_id": 4, "position": 4},
-            {"scope_type": "overall", "scope_key": "", "player_id": 5, "position": 5},
+            {"scope_type": "league", "scope_key": "", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "", "player_id": 2, "position": 2},
+            {"scope_type": "league", "scope_key": "", "player_id": 3, "position": 3},
+            {"scope_type": "league", "scope_key": "", "player_id": 4, "position": 4},
+            {"scope_type": "league", "scope_key": "", "player_id": 5, "position": 5},
             {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
             {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
             {"scope_type": "knockout", "scope_key": "Semi Finals|1-3", "player_id": 1, "position": 1},
@@ -295,7 +347,7 @@ class EventFinishPositionTests(unittest.TestCase):
         self.assertEqual(finish[5], 5)
         self.assertEqual(finish[6], 6)
 
-    def test_tier_b_flags_without_overall_falls_back_to_tier_a(self) -> None:
+    def test_tier_b_flags_without_primary_league_falls_back_to_tier_a(self) -> None:
         rows = [
             {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
             {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
@@ -311,7 +363,7 @@ class EventFinishPositionTests(unittest.TestCase):
 
     def test_player_ids_filter_returns_none_for_missing(self) -> None:
         rows = [
-            {"scope_type": "overall", "scope_key": "", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "", "player_id": 1, "position": 1},
         ]
         finish = derive_event_finish_position(
             rows,
@@ -353,7 +405,7 @@ class BestKnockoutPhaseTests(unittest.TestCase):
         self.assertEqual(derive_best_knockout_phase(rows, 422), "Quarter Final")
 
     def test_no_knockout_returns_none(self) -> None:
-        rows = [{"scope_type": "overall", "scope_key": "", "player_id": 1, "position": 1}]
+        rows = [{"scope_type": "league", "scope_key": "", "player_id": 1, "position": 1}]
         self.assertIsNone(derive_best_knockout_phase(rows, 1))
 
     def test_subsidiary_cup_final_ignored(self) -> None:
@@ -366,7 +418,7 @@ class BestKnockoutPhaseTests(unittest.TestCase):
 
     def test_wc_semi_final_label(self) -> None:
         rows = [
-            {"scope_type": "group", "scope_key": "Round 1 - Group A", "player_id": 9, "position": 1},
+            {"scope_type": "league", "scope_key": "Round 1 - Group A", "player_id": 9, "position": 1},
             {"scope_type": "knockout", "scope_key": "Semi Finals|9-10", "player_id": 9, "position": 2},
         ]
         self.assertEqual(derive_best_knockout_phase(rows, 9), "Semi Finals")

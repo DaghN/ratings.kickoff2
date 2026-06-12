@@ -167,6 +167,8 @@ WHERE s.scope_type = 'overall' AND s.scope_key = ''
 -- expect 0
 ```
 
+**Post-migration `020`:** replace `scope_type='overall'` with `scope_type='league'` (see `verify_player_participation.py`).
+
 ### Handoff
 
 Row count vs overall standings distinct (player, tournament) pairs.

@@ -180,6 +180,67 @@ body.k2-site .k2-hub-page-intro {
 	max-width: 44rem;
 }
 
+/* Hub section chapter — compact title + curator lede above wing/sub-nav (not browser-default h1 scale) */
+body.k2-site .k2-hub-chapter {
+	max-width: var(--k2-max-width);
+	margin: 0 0 10px;
+}
+
+body.k2-site .k2-hub-chapter__title {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-body);
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.3;
+	letter-spacing: 0.01em;
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .k2-hub-chapter__lede {
+	margin: 0 0 12px;
+	font-family: var(--k2-font-body);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+	max-width: 44rem;
+}
+
+body.k2-site .k2-hub-chapter__lede + .k2-hub-chapter__list {
+	margin-top: 0.65em;
+}
+
+body.k2-site .k2-hub-chapter__lede:has(+ .k2-hub-chapter__list) {
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-hub-chapter__list {
+	margin: 0 0 12px;
+	padding-left: 1.15rem;
+	list-style: disc;
+	list-style-position: outside;
+	max-width: 44rem;
+	font-family: var(--k2-font-body);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-hub-chapter__list li {
+	margin: 0;
+	padding-left: 0.2rem;
+}
+
+body.k2-site .k2-hub-chapter__list li::marker {
+	color: color-mix(in srgb, var(--k2-text-muted) 62%, var(--k2-accent) 38%);
+	font-size: 0.7em;
+}
+
+body.k2-site .k2-hub-chapter__nav {
+	margin-bottom: 12px;
+}
+
 /* ── Site header ── */
 .k2-site-header {
 	display: flex;
@@ -1167,6 +1228,13 @@ body.k2-site .server-records-panel .k2-table-wrap {
 
 body.k2-site .server-records-table {
 	width: auto;
+}
+
+/* HoF side-by-side panels: PHP sets --k2-hof-label-col-ch from longest static label (both tables). */
+body.k2-site .server-records-panels--sync-cols .server-records-table tbody td:first-child {
+	min-width: var(--k2-hof-label-col-ch);
+	width: var(--k2-hof-label-col-ch);
+	box-sizing: border-box;
 }
 
 /* HoF: row labels + date/period column — muted (values/holders stay primary / link-star) */

@@ -179,6 +179,8 @@ Participation **roster = `amiga_games`**; finish from `participation_placement.p
 
 **Event finish migrations (Jun 2026):** apply `017` → `018` → `019` on existing DBs, then `participation-rebuild`. Fresh installs: `010` includes `event_finish_position` (no `overall_position`).
 
+**Standings scope migration (Jun 2026 — complete):** apply `020` after `019` on existing DBs (`overall`+`group` → `league`; `group_scopes` → `league_scopes`). Fresh installs: `002`/`004` already use `league` enum. Policy: [`docs/amiga-standings-scope-policy.md`](../docs/amiga-standings-scope-policy.md). After migrate: full `python -m scripts.amiga replay` + verify suite. Parity CLI may still use `overall`/`group` as Access comparison labels (`standings_parity.py`).
+
 Read surfaces: profile recent tournaments + top opponents; `/amiga/player-tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
 
 **Participation columns (Jun 2026):** `event_points` + W-D-L from `amiga_games` rollup; phase league points only in `amiga_tournament_standings`. See contract §5.2.1. Existing DBs: apply `014` before rebuild if the table still has a `points` column.
@@ -200,6 +202,7 @@ mysql ko2amiga_db < scripts/amiga/sql/016_participation_avg_goals.sql
 mysql ko2amiga_db < scripts/amiga/sql/017_event_finish_position.sql
 mysql ko2amiga_db < scripts/amiga/sql/018_drop_overall_position.sql
 mysql ko2amiga_db < scripts/amiga/sql/019_tournament_finish_override.sql
+mysql ko2amiga_db < scripts/amiga/sql/020_unify_league_standings_scope.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle

@@ -22,6 +22,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 <?php
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_hof_links.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_hof_table.php';
 
 function records_has_value($value): bool
 {
@@ -268,19 +269,58 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
 mysqli_close($con);
 ?>
 
-<header class="k2-hub-page-intro-head">
-	<p class="k2-hub-page-intro">Records that are less than one month old are displayed as &quot;<span class="blue">(New!)</span>&quot;.<br />
-		Records that are more than 5 years old are displayed as &quot;<span class="holo">(Legendary)</span>&quot;.<br />
-		A player must play <?php echo (int) k2_established_min_games(); ?> games for ratios and averages to take effect.</p>
-</header>
+<?php
+$k2HubChapterTitle = 'Hall of Fame';
+$k2HubChapterLede = 'Here we show what the all-time server record is across dozens of categories, who holds it, and when it was set.';
+$k2HubChapterList = '<ul class="k2-hub-chapter__list">'
+	. '<li>Records less than one month old are shown as &quot;<span class="blue">(New!)</span>&quot;.</li>'
+	. '<li>Records more than five years old are shown as &quot;<span class="holo">(Legendary)</span>&quot;.</li>'
+	. '<li>A player must play ' . (int) k2_established_min_games() . ' games for ratios and averages to take effect.</li>'
+	. '</ul>';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 
-<div class="server-records-panels">
+// Static row labels — keep in sync with records_render_* calls below (shared col 1 width).
+$k2HofRecordLabels = [
+	'Most games',
+	'Most games in one year',
+	'Most games in one month',
+	'Most games in one week',
+	'Most games in one day',
+	'Most days in a row',
+	'Most weeks in a row',
+	'Most wins',
+	'Most goals',
+	'Most double digits',
+	'Most clean sheets',
+	'Most opponents',
+	'Most victims',
+	'Most double digit victims',
+	'Most clean sheet victims',
+	'Most goals in one game',
+	'Biggest winning margin',
+	'Biggest draw',
+	'Biggest sum of goals',
+	'Highest peak rating',
+	'Longest winning streak',
+	'Longest undefeated streak',
+	'Longest drawing streak',
+	'Best attack average',
+	'Best defense average',
+	'Best goal ratio',
+	'Highest winning frequency',
+	'Highest double digit frequency',
+	'Highest clean sheet frequency',
+];
+$k2HofSyncedLabelColCh = k2_hof_synced_label_col_ch($k2HofRecordLabels);
+?>
+
+<div class="server-records-panels server-records-panels--sync-cols" style="--k2-hof-label-col-ch: <?php echo (int) $k2HofSyncedLabelColCh; ?>ch;">
 <section class="server-records-panel server-records-panel--activity">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
 <thead>
     <tr>
-		<th colspan="4" class="nohovercell k2-table-cell--left">Peak activity</th>
+		<th colspan="4" class="nohovercell k2-table-cell--left">Activity</th>
     </tr>
 </thead>
 <tbody class="black">
@@ -400,7 +440,7 @@ records_render_row(
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
 <thead>
     <tr>
-		<th colspan="4" class="nohovercell k2-table-cell--left">Peak performance</th>
+		<th colspan="4" class="nohovercell k2-table-cell--left">Performance</th>
     </tr>
 </thead>
 <tbody class="black">

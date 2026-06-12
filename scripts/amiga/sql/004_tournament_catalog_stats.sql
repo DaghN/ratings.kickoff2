@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `amiga_tournament_catalog_stats` (
   `game_count` int(11) NOT NULL DEFAULT 0,
   `standing_players` int(11) NOT NULL DEFAULT 0,
   `standing_rows` int(11) NOT NULL DEFAULT 0,
-  `group_scopes` int(11) NOT NULL DEFAULT 0,
+  `league_scopes` int(11) NOT NULL DEFAULT 0,
   `knockout_ties` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`tournament_id`),
   CONSTRAINT `fk_amiga_tournament_catalog_stats_tournament`

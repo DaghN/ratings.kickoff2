@@ -106,9 +106,10 @@ $wcLeaders = amiga_records_wc_medal_leaders($con);
 mysqli_close($con);
 ?>
 
-<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-	<p class="k2-hub-page-intro">Single-holder career and single-game records for the offline Amiga ladder (<?php echo number_format((int) ($records['GamesPlayed'] ?? 0)); ?> rated games). Records under one month old show as &quot;<span class="blue">(New!)</span>&quot;; records over five years old as &quot;<span class="holo">(Legendary)</span>&quot;. Ratio leaders require <?php echo (int) k2_established_min_games(); ?>+ games. Match and calendar streaks are omitted.</p>
-</header>
+<?php
+$k2HubChapterTitle = 'Hall of Fame';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+?>
 
 <div class="server-records-panels">
 <section class="server-records-panel server-records-panel--activity">

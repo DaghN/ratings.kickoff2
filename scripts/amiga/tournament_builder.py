@@ -1023,9 +1023,9 @@ def smoke_swiss_flow(conn: pymysql.connections.Connection, *, player_ids: list[i
 
     games = _load_tournament_games(conn, tournament_id)
     standings = compute_tournament_standings(games)
-    overall = [r for r in standings if r["scope_type"] == "overall" and r["scope_key"] == ""]
-    if len(overall) != 4:
-        raise ValueError(f"expected 4 overall standings rows, got {len(overall)}")
+    league = [r for r in standings if r["scope_type"] == "league" and r["scope_key"] == ""]
+    if len(league) != 4:
+        raise ValueError(f"expected 4 league standings rows, got {len(league)}")
     if len(games) != 4:
         raise ValueError(f"expected 4 Swiss games (2 rounds × 2 pairings), got {len(games)}")
 
@@ -1036,7 +1036,7 @@ def smoke_swiss_flow(conn: pymysql.connections.Connection, *, player_ids: list[i
     return {
         **result,
         "games_played": len(games),
-        "standings_rows": len(overall),
+        "standings_rows": len(league),
     }
 
 

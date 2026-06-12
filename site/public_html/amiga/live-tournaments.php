@@ -26,15 +26,12 @@ $allowlistConfigured = amiga_live_tournament_allowlist_ids() !== [];
 mysqli_close($con);
 ?>
 
-<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Live tournaments</h1>
-  <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">
-    Read-only view of running fixture-backed events selected for public display.
-    Completed and archived events remain under the <a href="/amiga/tournaments.php">Tournaments</a> tab.
-  </p>
-</header>
+<?php
+$k2HubChapterTitle = 'Live tournaments';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+?>
 
-<div class="k2-table-wrap" style="padding:0 1.25rem 1rem">
+<div class="k2-table-wrap">
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="false">
 <thead>
   <tr>

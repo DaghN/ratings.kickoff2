@@ -96,7 +96,7 @@ Keep a **single PHP page** (`fixtures.php`) with a `view` query parameter (or pa
 | Mark ready | Optional intermediate; can auto on create for leagues | `set_lifecycle_status` → `ready` (if we keep two-step start) |
 | Start tournament | Primary button on Setup | `set_lifecycle_status` → `running` (from `ready`; auto-ready if still `draft` and fixtures exist) |
 | Enter result | Results tab | `POST action=record_result` → `amiga_fixture_record_result` + `amiga_process_completed_game` |
-| View table | Table tab | Existing `amiga_tournament_standings` query for `scope_type=overall` |
+| View table | Table tab | Existing `amiga_tournament_standings` query for `scope_type=league` (primary scope) |
 | Mark complete | Setup when no scheduled fixtures remain | `set_lifecycle_status` → `completed` |
 | Add late player | Advanced → Players (unchanged behavior) | `add_entrant` → `place_stage_entrant` → `assign_players` |
 | Withdraw / replace | Players tab | Existing entrant POST actions |

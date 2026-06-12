@@ -38,12 +38,12 @@ if ($typeFilter !== '') {
 }
 ?>
 
-<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-  <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Tournaments</h1>
-  <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">
-    Offline events with derived standings. Cups include group tables and knockout brackets.
+<header class="k2-hub-chapter">
+  <h1 class="k2-hub-chapter__title">Tournaments</h1>
+  <p class="k2-hub-chapter__lede">
+    Offline Kick Off 2 events on the Amiga ladder — leagues, cups, and World Cups. Standings are derived from match results; cups can include group tables and knockout brackets.
   </p>
-  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav" aria-label="Filter by format" style="margin-bottom:1rem">
+  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav k2-hub-chapter__nav" aria-label="Filter by format">
     <div class="k2-player-nav__links">
       <a href="?" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
       <a href="?type=world-cup" class="k2-player-nav__btn<?php echo $typeFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
@@ -78,12 +78,11 @@ if ($typeFilter !== '') {
     $hasStandings = (int) ($row['standing_rows'] ?? 0) > 0;
     $kind = amiga_tournament_index_format_kind($row);
     $formatLabel = amiga_tournament_index_format_label($kind);
-    $linkFragment = (int) ($row['knockout_ties'] ?? 0) > 0 ? '#bracket' : '';
     ?>
     <tr>
         <td class="k2-table-cell--left"><?php
             if ($hasStandings) {
-                echo amiga_tournament_link((int) $row['id'], (string) $row['name'], $linkFragment);
+                echo amiga_tournament_link((int) $row['id'], (string) $row['name']);
             } else {
                 echo k2_h((string) $row['name']);
             }

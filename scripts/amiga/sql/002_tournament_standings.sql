@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `amiga_tournament_standings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tournament_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
-  `scope_type` enum('overall','group','placement','knockout') NOT NULL DEFAULT 'overall',
+  `scope_type` enum('league','knockout') NOT NULL DEFAULT 'league',
   `scope_key` varchar(120) NOT NULL DEFAULT '',
   `position` smallint(6) NOT NULL,
   `games` smallint(6) NOT NULL DEFAULT 0,

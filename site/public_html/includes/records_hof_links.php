@@ -1,16 +1,17 @@
 <?php
 /**
- * Hall of Fame (hall-of-fame.php) — leaderboard deep links on record values.
+ * Hall of Fame (hall-of-fame.php) — deep links on record values.
  *
- * Ratio/average HoF rows append provisional=0 (matches HoF >=20 eligibility). Other rows use
- * default leaderboard pool (both include toggles on). k2_sort / k2_dir see js/k2-table.js.
- * Anchor columns on each wing are unchanged; only active sort + row order follow the query params.
- * Stored *GameID columns remain in DB for a future game-record surface — not linked from HoF.
+ * Single-game spectacle rows link to Games highlights boards (with #k2-games-highlights); career/ratio
+ * rows link to leaderboard
+ * wings. Ratio/average HoF rows append provisional=0 (matches HoF >=20 eligibility). Other LB rows
+ * use default leaderboard pool (both include toggles on). k2_sort / k2_dir see js/k2-table.js.
  */
 
 declare(strict_types=1);
 
 require_once __DIR__ . '/lb_player_filters.php';
+require_once __DIR__ . '/games_highlights_helpers.php';
 
 /**
  * @return array{page: string, sort: int, dir: 'asc'|'desc'}|null
@@ -34,10 +35,6 @@ function records_hof_lb_target(string $metric): ?array
 		'most_victims' => ['page' => 'lb-victims', 'sort' => 5, 'dir' => 'desc'],
 		'most_dd_victims' => ['page' => 'lb-victims', 'sort' => 6, 'dir' => 'desc'],
 		'most_cs_victims' => ['page' => 'lb-victims', 'sort' => 7, 'dir' => 'desc'],
-		'most_goals_one_game' => ['page' => 'lb-goals', 'sort' => 9, 'dir' => 'desc'],
-		'biggest_win_margin' => ['page' => 'lb-goals', 'sort' => 11, 'dir' => 'desc'],
-		'biggest_draw' => ['page' => 'lb-goals', 'sort' => 13, 'dir' => 'desc'],
-		'biggest_sum_goals' => ['page' => 'lb-goals', 'sort' => 14, 'dir' => 'desc'],
 		'peak_rating' => ['page' => 'lb-peak-rating', 'sort' => 4, 'dir' => 'desc'],
 		'win_streak' => ['page' => 'lb-streaks', 'sort' => 4, 'dir' => 'desc'],
 		'non_loss_streak' => ['page' => 'lb-streaks', 'sort' => 5, 'dir' => 'desc'],
@@ -77,6 +74,19 @@ function records_hof_metric_needs_established_pool(string $metric): bool
 	return in_array($metric, $metrics, true);
 }
 
+/** Single-game spectacle metrics → Games highlights board id (see K2_GAMES_HIGHLIGHT_BOARDS). */
+function records_hof_highlights_board(string $metric): ?string
+{
+	static $map = [
+		'most_goals_one_game' => 'most_goals_one_side',
+		'biggest_win_margin' => 'biggest_wins',
+		'biggest_draw' => 'biggest_draws',
+		'biggest_sum_goals' => 'most_goals',
+	];
+
+	return $map[$metric] ?? null;
+}
+
 /**
  * Query params for HoF → ranked wing links; optional sort; provisional=0 only for ratio rows.
  *
@@ -100,6 +110,11 @@ function records_hof_lb_query_params(string $metric): array
 
 function records_hof_lb_href(string $metric): ?string
 {
+	$highlightsBoard = records_hof_highlights_board($metric);
+	if ($highlightsBoard !== null) {
+		return k2_games_highlights_href($highlightsBoard);
+	}
+
 	$target = records_hof_lb_target($metric);
 	if ($target === null) {
 		return null;

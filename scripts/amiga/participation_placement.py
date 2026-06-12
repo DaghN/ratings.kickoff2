@@ -10,6 +10,7 @@ Writers wire in slice 5.
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from typing import Any
 
 from scripts.amiga.tournament_honours import is_world_cup_tournament, knockout_scope_label
@@ -58,10 +59,10 @@ def _standing_rows_for_player(
 
 
 def derive_wc_group_positions(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
-    """World Cup: one group rank per player (lexicographically first group scope)."""
+    """World Cup: one group rank per player (lexicographically first league scope)."""
     by_player: dict[int, tuple[str, int]] = {}
     for row in standing_rows:
-        if str(row.get("scope_type") or "") != "group":
+        if str(row.get("scope_type") or "") != "league":
             continue
         player_id = int(row["player_id"])
         scope_key = str(row.get("scope_key") or "")
@@ -72,12 +73,46 @@ def derive_wc_group_positions(standing_rows: list[dict[str, Any]]) -> dict[int, 
     return {pid: pos for pid, (_key, pos) in by_player.items()}
 
 
-def _overall_positions(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
+def resolve_primary_league_standings(
+    standing_rows: list[dict[str, Any]],
+) -> dict[int, int]:
+    """
+    Primary league table for honours Tier B/C (policy amiga-standings-scope-policy §3).
+
+    Resolution: ``league`` + empty key → single labeled scope → largest scope (lex tie-break).
+    """
+    league_rows = [
+        r for r in standing_rows if str(r.get("scope_type") or "") == "league"
+    ]
+    if not league_rows:
+        return {}
+
+    empty_key_rows = [
+        r for r in league_rows if str(r.get("scope_key") or "") == ""
+    ]
+    if empty_key_rows:
+        return {
+            int(row["player_id"]): int(row["position"]) for row in empty_key_rows
+        }
+
+    by_key: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in league_rows:
+        scope_key = str(row.get("scope_key") or "")
+        if scope_key != "":
+            by_key[scope_key].append(row)
+
+    if not by_key:
+        return {}
+
+    if len(by_key) == 1:
+        only_key = next(iter(by_key))
+        return {
+            int(row["player_id"]): int(row["position"]) for row in by_key[only_key]
+        }
+
+    chosen_key = min(by_key.keys(), key=lambda k: (-len(by_key[k]), k))
     return {
-        int(row["player_id"]): int(row["position"])
-        for row in standing_rows
-        if str(row.get("scope_type") or "") == "overall"
-        and str(row.get("scope_key") or "") == ""
+        int(row["player_id"]): int(row["position"]) for row in by_key[chosen_key]
     }
 
 
@@ -268,16 +303,16 @@ def compute_tier_a_knockout_finish(standing_rows: list[dict[str, Any]]) -> dict[
 def compute_tier_b_league_cup_finish(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
     """
     Tier B — league + cup: cup podium + shared semi bronze from main bracket;
-    everyone else from overall league; cup assignments override league for KO players.
+    everyone else from primary league; cup assignments override league for KO players.
     """
-    overall = _overall_positions(standing_rows)
+    primary_league = resolve_primary_league_standings(standing_rows)
     ko_rows = _knockout_or_placement_rows(standing_rows)
     has_cup_knockout = any(str(r.get("scope_type") or "") == "knockout" for r in ko_rows)
-    if not overall or not has_cup_knockout:
+    if not primary_league or not has_cup_knockout:
         return {}
 
     cup_finish = compute_tier_a_knockout_finish(standing_rows)
-    finish = dict(overall)
+    finish = dict(primary_league)
     finish.update(cup_finish)
     return finish
 
@@ -310,13 +345,13 @@ def derive_event_finish_position(
     Tiers implemented: A (pure KO), B (league+cup), C (pure league), D (WC) → all NULL.
     Tier E: ``overrides`` from ``amiga_tournament_finish_override`` wins per player.
     """
-    overall = _overall_positions(standing_rows)
+    primary_league = resolve_primary_league_standings(standing_rows)
     if is_world_cup_tournament(tournament_name):
         finish: dict[int, int] = {}
-    elif has_league and has_cup and overall:
+    elif has_league and has_cup and primary_league:
         finish = compute_tier_b_league_cup_finish(standing_rows)
-    elif overall:
-        finish = overall
+    elif primary_league:
+        finish = primary_league
     else:
         finish = compute_tier_a_knockout_finish(standing_rows)
 

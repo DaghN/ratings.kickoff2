@@ -332,7 +332,7 @@ function amiga_tournament_load(mysqli $con, int $tournamentId, bool $publicOnly 
 /**
  * @return list<string>
  */
-function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $scopeType = 'overall'): array
+function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $scopeType = 'league'): array
 {
     $stmt = mysqli_prepare(
         $con,
@@ -358,12 +358,47 @@ function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $sc
 }
 
 /**
+ * Labeled league phase keys (excludes implicit single-table ``scope_key = ''``).
+ *
+ * @return list<string>
+ */
+function amiga_tournament_list_league_labeled_scopes(mysqli $con, int $tournamentId): array
+{
+    $keys = amiga_tournament_list_scopes($con, $tournamentId, 'league');
+
+    return array_values(array_filter($keys, static fn (string $key): bool => $key !== ''));
+}
+
+/**
+ * Map legacy ``?scope=overall|group`` to canonical ``league`` request (policy S8).
+ *
+ * @return array{scope_type: string, scope_key: string, redirect: bool}
+ */
+function amiga_tournament_canonicalize_scope_request(string $scopeType, string $scopeKey): array
+{
+    if ($scopeType === 'overall') {
+        return ['scope_type' => 'league', 'scope_key' => '', 'redirect' => true];
+    }
+    if ($scopeType === 'group') {
+        return ['scope_type' => 'league', 'scope_key' => $scopeKey, 'redirect' => true];
+    }
+    if ($scopeType === 'placement') {
+        return ['scope_type' => 'knockout', 'scope_key' => $scopeKey, 'redirect' => true];
+    }
+    if (!in_array($scopeType, ['league', 'knockout'], true)) {
+        return ['scope_type' => 'league', 'scope_key' => '', 'redirect' => true];
+    }
+
+    return ['scope_type' => $scopeType, 'scope_key' => $scopeKey, 'redirect' => false];
+}
+
+/**
  * @return list<array<string, mixed>>
  */
 function amiga_tournament_standings_rows(
     mysqli $con,
     int $tournamentId,
-    string $scopeType = 'overall',
+    string $scopeType = 'league',
     string $scopeKey = ''
 ): array {
     $sql = 'SELECT s.position, s.games, s.wins, s.draws, s.losses,
@@ -425,22 +460,225 @@ function amiga_player_all_tournaments(
     return amiga_player_tournament_participation_filter_events($rows, $eventFilter, $country);
 }
 
-function amiga_tournament_url(int $id, string $scopeType = 'overall', string $scopeKey = ''): string
+function amiga_tournament_url(int $id, string $scopeType = 'league', string $scopeKey = '', ?string $view = null): string
 {
+    if ($scopeType === 'overall') {
+        $scopeType = 'league';
+        $scopeKey = '';
+    } elseif ($scopeType === 'group') {
+        $scopeType = 'league';
+    }
+
     $params = ['id' => $id];
-    if ($scopeType !== 'overall' || $scopeKey !== '') {
-        $params['scope'] = $scopeType;
+    if ($scopeType === 'knockout') {
+        $params['scope'] = 'knockout';
         if ($scopeKey !== '') {
             $params['scope_key'] = $scopeKey;
         }
+    } elseif ($scopeType === 'league' && $scopeKey !== '') {
+        $params['scope'] = 'league';
+        $params['scope_key'] = $scopeKey;
+    }
+    if ($view === 'event-stats' || $view === 'standings' || $view === 'stages' || $view === 'games') {
+        $params['view'] = $view;
     }
 
     return '/amiga/tournament.php?' . http_build_query($params);
 }
 
+/**
+ * Default Stages sub-view for World Cups (first group table, else league table, else bracket).
+ *
+ * @param list<string> $leagueLabeledScopes
+ */
+function amiga_tournament_stages_entry_url(
+    int $id,
+    bool $hasImplicitLeague,
+    array $leagueLabeledScopes,
+    bool $hasBracket,
+): string {
+    if ($leagueLabeledScopes !== []) {
+        return amiga_tournament_url($id, 'league', $leagueLabeledScopes[0], 'stages');
+    }
+    if ($hasImplicitLeague) {
+        return amiga_tournament_url($id, 'league', '', 'stages');
+    }
+    if ($hasBracket) {
+        return amiga_tournament_url($id, 'league', '', 'stages');
+    }
+
+    return amiga_tournament_url($id, 'league', '', 'stages');
+}
+
 function amiga_tournament_event_stats_url(int $id): string
 {
-    return '/amiga/tournament.php?' . http_build_query(['id' => $id, 'view' => 'event-stats']);
+    return amiga_tournament_url($id, 'league', '', 'event-stats');
+}
+
+function amiga_tournament_games_url(int $id, int $playerFilter = 0): string
+{
+    $params = ['id' => $id, 'view' => 'games'];
+    if ($playerFilter > 0) {
+        $params['player'] = $playerFilter;
+    }
+
+    return '/amiga/tournament.php?' . http_build_query($params);
+}
+
+/** Indexed lookup on ``amiga_games.tournament_id`` (`idx_amiga_games_tournament`). */
+function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
+{
+    if ($tournamentId < 1) {
+        return 0;
+    }
+    $stmt = mysqli_prepare($con, 'SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = ?');
+    if ($stmt === false) {
+        return 0;
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : null;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return (int) ($row['n'] ?? 0);
+}
+
+/**
+ * Participation roster for the player filter dropdown.
+ *
+ * @return list<array{player_id: int, player_name: string, games: int}>
+ */
+function amiga_tournament_game_player_choices(mysqli $con, int $tournamentId): array
+{
+    require_once __DIR__ . '/amiga_player_tournament_lib.php';
+    $choices = [];
+    foreach (amiga_tournament_participation_rows($con, $tournamentId) as $row) {
+        $choices[] = [
+            'player_id' => (int) ($row['player_id'] ?? 0),
+            'player_name' => (string) ($row['player_name'] ?? ''),
+            'games' => (int) ($row['games'] ?? 0),
+        ];
+    }
+
+    return $choices;
+}
+
+/**
+ * All rated games in one tournament (optional player filter).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_tournament_games_rows(mysqli $con, int $tournamentId, int $playerFilter = 0): array
+{
+    if ($tournamentId < 1) {
+        return [];
+    }
+
+    require_once __DIR__ . '/amiga_db.php';
+
+    $sql = 'SELECT g.id, g.source_scores_id, g.game_date, g.player_a_id, g.player_b_id,
+                   g.goals_a, g.goals_b, g.extra, g.phase,
+                   pa.name AS player_a_name, pb.name AS player_b_name
+            FROM amiga_games g
+            INNER JOIN amiga_players pa ON pa.id = g.player_a_id
+            INNER JOIN amiga_players pb ON pb.id = g.player_b_id
+            WHERE g.tournament_id = ?';
+    $types = 'i';
+    $params = [$tournamentId];
+    if ($playerFilter > 0) {
+        $sql .= ' AND (g.player_a_id = ? OR g.player_b_id = ?)';
+        $types .= 'ii';
+        $params[] = $playerFilter;
+        $params[] = $playerFilter;
+    }
+    $sql .= ' ORDER BY ' . amiga_game_chronology_order_sql('ASC');
+
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $rows;
+}
+
+/** Standings/stages sub-nav link; World Cups use ``view=stages`` so bare id does not reopen event stats. */
+function amiga_tournament_standings_nav_url(
+    int $id,
+    string $scopeType = 'league',
+    string $scopeKey = '',
+    bool $isWorldCup = false,
+): string {
+    return amiga_tournament_url($id, $scopeType, $scopeKey, $isWorldCup ? 'stages' : null);
+}
+
+/**
+ * 302 redirects before HTML — legacy scope canonicalization; World Cup bare ``?id=`` → event stats.
+ *
+ * @param array{scope_type: string, scope_key: string, redirect: bool} $canonicalScope
+ */
+function amiga_tournament_apply_entry_redirects(
+    int $id,
+    ?array $tournament,
+    array $canonicalScope,
+    string $pageView,
+    array $query,
+): void {
+    $isWorldCup = $tournament !== null && amiga_tournament_is_world_cup($tournament);
+
+    if ($canonicalScope['redirect'] && !in_array($pageView, ['event-stats', 'games'], true)) {
+        header(
+            'Location: ' . amiga_tournament_url(
+                $id,
+                $canonicalScope['scope_type'],
+                $canonicalScope['scope_key'],
+                $isWorldCup ? 'stages' : null,
+            ),
+            true,
+            302,
+        );
+        exit;
+    }
+
+    if ($isWorldCup) {
+        $viewParam = (string) ($query['view'] ?? '');
+        $hasStageParams = isset($query['scope']) || isset($query['scope_key']);
+        if (
+            ($pageView === 'standings' || $viewParam === 'standings')
+            && ($hasStageParams || $viewParam === 'standings')
+        ) {
+            header(
+                'Location: ' . amiga_tournament_url(
+                    $id,
+                    $canonicalScope['scope_type'],
+                    $canonicalScope['scope_key'],
+                    'stages',
+                ),
+                true,
+                302,
+            );
+            exit;
+        }
+
+        if (!isset($query['view']) && !isset($query['scope']) && !isset($query['scope_key'])) {
+            header('Location: ' . amiga_tournament_event_stats_url($id), true, 302);
+            exit;
+        }
+    }
 }
 
 function amiga_tournament_link(int $id, string $name, string $fragment = ''): string
@@ -454,10 +692,15 @@ function amiga_tournament_link(int $id, string $name, string $fragment = ''): st
         . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
 }
 
+function amiga_tournament_is_world_cup_by_name(string $name): bool
+{
+    return preg_match('/^World Cup\s+\S/i', trim($name)) === 1;
+}
+
 /** True when catalog name is a World Cup (e.g. World Cup XI). */
 function amiga_tournament_is_world_cup(array $row): bool
 {
-    return preg_match('/^World Cup\s+\S/i', trim((string) ($row['name'] ?? ''))) === 1;
+    return amiga_tournament_is_world_cup_by_name((string) ($row['name'] ?? ''));
 }
 
 /**
@@ -605,7 +848,7 @@ function amiga_tournament_resolve_phase_scope(
         $stmt = mysqli_prepare(
             $con,
             'SELECT 1 FROM amiga_tournament_standings
-             WHERE tournament_id = ? AND scope_type = \'group\' AND scope_key = ?
+             WHERE tournament_id = ? AND scope_type = \'league\' AND scope_key = ?
              LIMIT 1'
         );
         if ($stmt === false) {
@@ -620,7 +863,7 @@ function amiga_tournament_resolve_phase_scope(
         }
         mysqli_stmt_close($stmt);
         if ($found) {
-            return ['scope_type' => 'group', 'scope_key' => $candidate];
+            return ['scope_type' => 'league', 'scope_key' => $candidate];
         }
     }
     return null;
@@ -689,7 +932,7 @@ function amiga_tournament_phase_link(
         return htmlspecialchars($phase, ENT_QUOTES, 'UTF-8');
     }
     $href = amiga_tournament_url($tournamentId, $scope['scope_type'], $scope['scope_key']);
-    $title = $scope['scope_type'] === 'knockout' ? 'Elimination tie' : 'Group standings';
+    $title = $scope['scope_type'] === 'knockout' ? 'Elimination tie' : 'Phase standings';
     return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '" title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($phase, ENT_QUOTES, 'UTF-8') . '</a>';
 }
@@ -712,7 +955,7 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 
                    COALESCE(c.game_count, 0) AS game_count,
                    COALESCE(c.standing_players, 0) AS standing_players,
                    COALESCE(c.standing_rows, 0) AS standing_rows,
-                   COALESCE(c.group_scopes, 0) AS group_scopes,
+                   COALESCE(c.league_scopes, 0) AS league_scopes,
                    COALESCE(c.knockout_ties, 0) AS knockout_ties
             FROM tournaments t
             LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
@@ -1025,12 +1268,12 @@ function amiga_tournament_knockout_phase_bucket(string $phase): string
 /**
  * Tournament format label for index badges.
  *
- * @param list<string> $groupScopes
+ * @param list<string> $leagueLabeledScopes distinct non-empty league phase keys
  * @param list<string> $knockoutScopes
  */
-function amiga_tournament_format_kind(array $tournament, array $groupScopes, array $knockoutScopes): string
+function amiga_tournament_format_kind(array $tournament, array $leagueLabeledScopes, array $knockoutScopes): string
 {
-    if ($knockoutScopes !== [] || $groupScopes !== []) {
+    if ($knockoutScopes !== [] || $leagueLabeledScopes !== []) {
         return 'cup';
     }
     if ((int) ($tournament['is_cup'] ?? 0) === 1) {
@@ -1144,4 +1387,51 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
     }
 
     return $buckets;
+}
+
+/**
+ * @param list<array<string, mixed>> $rows from amiga_tournament_games_rows()
+ */
+function amiga_tournament_render_games_table(array $rows): void
+{
+    ?>
+<div class="k2-table-wrap" style="margin:0 1.25rem">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--tournament-games" data-k2-table="sortable" data-k2-anchor-col="2" data-k2-default-sort="0" data-k2-default-direction="asc">
+	<thead>
+		<tr>
+			<th class="k2-table-cell--left" data-k2-sort="number">#</th>
+			<th class="k2-table-cell--left" data-k2-sort="text">Phase</th>
+			<th class="k2-table-cell--left" data-k2-sort="text">Player A</th>
+			<th data-k2-sort="text">Score</th>
+			<th class="k2-table-cell--left" data-k2-sort="text">Player B</th>
+		</tr>
+	</thead>
+	<tbody class="black">
+	<?php if ($rows === []) { ?>
+		<tr>
+			<td colspan="5" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No games match this filter.</td>
+		</tr>
+	<?php } ?>
+	<?php foreach ($rows as $idx => $row) {
+        $phase = trim((string) ($row['phase'] ?? ''));
+        ?>
+		<tr>
+			<td class="k2-table-cell--left"><?php echo (int) ($idx + 1); ?></td>
+			<td class="k2-table-cell--left"><?php echo $phase !== '' ? k2_h($phase) : '—'; ?></td>
+			<td class="k2-table-cell--left"><?php
+                echo k2_amiga_player_link((int) $row['player_a_id'], (string) $row['player_a_name']);
+            ?></td>
+			<td><?php
+                echo (int) $row['goals_a'] . ' – ' . (int) $row['goals_b'];
+                echo amiga_tournament_format_game_extra(isset($row['extra']) ? (string) $row['extra'] : null);
+            ?></td>
+			<td class="k2-table-cell--left"><?php
+                echo k2_amiga_player_link((int) $row['player_b_id'], (string) $row['player_b_name']);
+            ?></td>
+		</tr>
+	<?php } ?>
+	</tbody>
+</table>
+</div>
+    <?php
 }

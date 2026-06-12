@@ -44,6 +44,10 @@ $k2HubTabActive = 'activity';
 
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 
+$k2HubChapterTitle = 'Online activity';
+$k2HubChapterLede = 'How much online Kick Off 2 do we play — day to day, month to month, year to year? How many of us are active, who become regulars, and do the busiest players fade or return? The charts on this page follow these rhythms from the past few weeks back to the first rated online game.';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+
 ?>
 
 

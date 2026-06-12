@@ -40,10 +40,10 @@ class ComputeWcMedalsTests(unittest.TestCase):
         self.assertEqual(medals[66], "bronze")
         self.assertNotIn(30, medals)
 
-    def test_no_medals_from_group_overall_alone(self) -> None:
+    def test_no_medals_from_league_rank_alone(self) -> None:
         medals = compute_wc_medals_from_standings(
             [
-                {"scope_type": "group", "scope_key": "Round 1 - Group A", "player_id": 10, "position": 1},
+                {"scope_type": "league", "scope_key": "Round 1 - Group A", "player_id": 10, "position": 1},
             ],
         )
         self.assertEqual(medals, {})

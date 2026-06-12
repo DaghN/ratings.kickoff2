@@ -117,7 +117,7 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             """
             SELECT COUNT(*) AS n
             FROM amiga_tournament_standings s
-            WHERE s.scope_type = 'overall'
+            WHERE s.scope_type = 'league'
               AND s.scope_key = ''
               AND NOT EXISTS (
                   SELECT 1
@@ -127,13 +127,13 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
               )
             """
         )
-        missing_overall_participation = int(cur.fetchone()["n"])
-        if missing_overall_participation:
+        missing_primary_league_participation = int(cur.fetchone()["n"])
+        if missing_primary_league_participation:
             cur.execute(
                 """
                 SELECT s.player_id, s.tournament_id
                 FROM amiga_tournament_standings s
-                WHERE s.scope_type = 'overall'
+                WHERE s.scope_type = 'league'
                   AND s.scope_key = ''
                   AND NOT EXISTS (
                       SELECT 1
@@ -147,7 +147,7 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             )
             sample = cur.fetchall()
             errors.append(
-                f"overall standings missing participation: {missing_overall_participation} "
+                f"primary league standings missing participation: {missing_primary_league_participation} "
                 f"(first player_id={sample[0]['player_id']}, "
                 f"tournament_id={sample[0]['tournament_id']})"
             )

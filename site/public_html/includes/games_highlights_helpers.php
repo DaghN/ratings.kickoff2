@@ -7,6 +7,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 
 const K2_GAMES_HIGHLIGHTS_LIMIT = 100;
 
+/** Hash target: board filter + table (below Games hub chrome). */
+const K2_GAMES_HIGHLIGHTS_ANCHOR = 'k2-games-highlights';
+
 /** @var array<string, array{label: string, heading: string, default_sort_col: int}> */
 const K2_GAMES_HIGHLIGHT_BOARDS = [
 	'most_goals' => [
@@ -17,12 +20,12 @@ const K2_GAMES_HIGHLIGHT_BOARDS = [
 	'biggest_draws' => [
 		'label' => 'Biggest draws',
 		'heading' => 'Biggest draws',
-		'default_sort_col' => 8,
+		'default_sort_col' => 7,
 	],
 	'most_goals_one_side' => [
 		'label' => 'One-side peak',
 		'heading' => 'Most goals by one side',
-		'default_sort_col' => 9,
+		'default_sort_col' => 7,
 	],
 	'biggest_wins' => [
 		'label' => 'Biggest wins',
@@ -41,12 +44,18 @@ function k2_games_highlights_valid_board(string $board): string
 	return isset(K2_GAMES_HIGHLIGHT_BOARDS[$board]) ? $board : 'most_goals';
 }
 
-function k2_games_highlights_href(string $board): string
+/**
+ * @param bool $scrollToAnchor true = append #k2-games-highlights (HoF / off-page entry).
+ *                           false = carry-scroll pills on the highlights board nav (no hash fight).
+ */
+function k2_games_highlights_href(string $board, bool $scrollToAnchor = true): string
 {
-	return '/games.php?' . http_build_query([
+	$url = '/games.php?' . http_build_query([
 		'view' => 'highlights',
 		'board' => k2_games_highlights_valid_board($board),
 	]);
+
+	return $scrollToAnchor ? $url . '#' . K2_GAMES_HIGHLIGHTS_ANCHOR : $url;
 }
 
 /**
@@ -102,7 +111,7 @@ function k2_games_render_highlights_board_filter(string $activeBoard): void
 <?php foreach (K2_GAMES_HIGHLIGHT_BOARDS as $boardId => $meta) {
 	$isActive = $boardId === $activeBoard;
 	?>
-		<a href="<?php echo k2_rated_game_h(k2_games_highlights_href($boardId)); ?>"
+		<a href="<?php echo k2_rated_game_h(k2_games_highlights_href($boardId, false)); ?>"
 			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
 			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo k2_rated_game_h($meta['label']); ?></a>
 <?php } ?>
@@ -114,11 +123,28 @@ function k2_games_render_highlights_board_filter(string $activeBoard): void
 /**
  * @param list<array<string, mixed>> $rows
  */
+function k2_games_highlights_show_gd_column(string $board): bool
+{
+	$board = k2_games_highlights_valid_board($board);
+
+	return $board !== 'biggest_draws' && $board !== 'most_goals_one_side';
+}
+
+function k2_games_highlights_show_sum_column(string $board): bool
+{
+	$board = k2_games_highlights_valid_board($board);
+
+	return $board !== 'most_goals_one_side' && $board !== 'biggest_wins';
+}
+
 function k2_games_render_highlights_table(array $rows, string $board, bool $showPeakColumn): void
 {
-	$meta = K2_GAMES_HIGHLIGHT_BOARDS[k2_games_highlights_valid_board($board)];
+	$board = k2_games_highlights_valid_board($board);
+	$meta = K2_GAMES_HIGHLIGHT_BOARDS[$board];
 	$defaultSort = (int) $meta['default_sort_col'];
-	$colspan = $showPeakColumn ? 11 : 10;
+	$showGdColumn = k2_games_highlights_show_gd_column($board);
+	$showSumColumn = k2_games_highlights_show_sum_column($board);
+	$colspan = 8 + ($showGdColumn ? 1 : 0) + ($showSumColumn ? 1 : 0) + ($showPeakColumn ? 1 : 0);
 	?>
 <section class="k2-games-highlights" aria-labelledby="k2-games-highlights-heading">
 	<h2 class="k2-panel-heading" id="k2-games-highlights-heading"><?php echo k2_rated_game_h($meta['heading']); ?></h2>
@@ -134,8 +160,12 @@ function k2_games_render_highlights_table(array $rows, string $board, bool $show
 		<th data-k2-sort="number" data-k2-tooltip-label="Goals A" data-k2-help="Goals scored by Team A.">A</th>
 		<th class="k2-table-cell--left" data-k2-sort="number" data-k2-tooltip-label="Goals B" data-k2-help="Goals scored by Team B.">B</th>
 		<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Player listed as Team B in the result row.">Team B</th>
+<?php if ($showGdColumn) { ?>
 		<th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game.">GD</th>
+<?php } ?>
+<?php if ($showSumColumn) { ?>
 		<th data-k2-sort="number" data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players.">Sum</th>
+<?php } ?>
 <?php if ($showPeakColumn) { ?>
 		<th data-k2-sort="number" data-k2-tooltip-label="Peak side" data-k2-help="Higher of Team A or Team B goals in this game.">Peak</th>
 <?php } ?>
@@ -153,6 +183,8 @@ function k2_games_render_highlights_table(array $rows, string $board, bool $show
 		'id_mode' => 'link',
 		'variant' => 'compact',
 		'show_peak_column' => $showPeakColumn,
+		'show_gd_column' => $showGdColumn,
+		'show_sum_column' => $showSumColumn,
 	]); ?>
 <?php } ?>
 <?php } ?>

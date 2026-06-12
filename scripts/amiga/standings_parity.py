@@ -1,4 +1,8 @@
-"""Compare derived standings to Access reference tables (parity only)."""
+"""Compare derived standings to Access reference tables (parity only).
+
+CLI ``--scope overall|group`` are **Access comparison labels** only; MySQL reads and
+``compute_tournament_standings`` use stored ``scope_type='league'`` via ``_derived_scope_type``.
+"""
 
 from __future__ import annotations
 
@@ -32,6 +36,13 @@ _DEFAULT_MDB = _REPO / "data" / "amiga" / "source" / "koatd.mdb"
 _DEFAULT_REPORT = _REPO / "data" / "amiga" / "exports" / "standings_parity_report.json"
 
 _STAT_COLS = ("G", "W", "D", "L", "GS", "GC", "Pts")
+
+
+def _derived_scope_type(parity_scope_type: str) -> str:
+    """Map CLI/Access parity labels to stored standings ``scope_type``."""
+    if parity_scope_type in {"overall", "group"}:
+        return "league"
+    return parity_scope_type
 
 
 def _connect_mysql() -> pymysql.connections.Connection:
@@ -298,10 +309,11 @@ def classify_mismatch(
 ) -> str:
     """Classify a reference mismatch (derived ≠ Access Tables)."""
     der_stats = _derived_stats_by_player(der)
+    derived_scope_type = _derived_scope_type(scope_type)
     engine_stats = load_engine_scope_stats(
         mysql_cur,
         tournament_id,
-        scope_type=scope_type,
+        scope_type=derived_scope_type,
         scope_key=scope_key,
     )
 
@@ -356,7 +368,12 @@ def compare_scope(
     access_tables: set[str],
     classify: bool = True,
 ) -> ScopeResult:
-    derived = load_derived(mysql, tournament_id, scope_type=scope_type, scope_key=scope_key)
+    derived = load_derived(
+        mysql,
+        tournament_id,
+        scope_type=_derived_scope_type(scope_type),
+        scope_key=scope_key,
+    )
     if not derived:
         return ScopeResult(
             tournament_id, tournament_name, scope_type, scope_key, "skip", "no_derived"
@@ -463,7 +480,8 @@ def run_sweep(
             with mysql.cursor() as c2:
                 c2.execute(
                     "SELECT DISTINCT scope_key FROM amiga_tournament_standings "
-                    "WHERE tournament_id = %s AND scope_type = 'group' ORDER BY scope_key",
+                    "WHERE tournament_id = %s AND scope_type = 'league' "
+                    "AND scope_key <> '' ORDER BY scope_key",
                     (tid,),
                 )
                 for row in c2.fetchall():
@@ -569,16 +587,21 @@ def run_parity(
         tournament_id = int(row["id"])
 
     if scope == "overall":
-        scope_type = "overall"
+        parity_scope_type = "overall"
         scope_key = ""
     elif scope == "group":
-        scope_type = "group"
+        parity_scope_type = "group"
         if not scope_key:
             scope_key = "Round 1 - Group A"
     else:
         raise SystemExit(f"Unknown scope: {scope!r}")
 
-    derived = load_derived(mysql, tournament_id, scope_type=scope_type, scope_key=scope_key)
+    derived = load_derived(
+        mysql,
+        tournament_id,
+        scope_type=_derived_scope_type(parity_scope_type),
+        scope_key=scope_key,
+    )
 
     acc = _connect_access(mdb)
     cur = acc.cursor()

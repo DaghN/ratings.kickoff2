@@ -1,3 +1,5 @@
+SUPERSEDED Jun 2026 — standings scope is `league`|`knockout` only; see docs/amiga-standings-scope-policy.md.
+
 Implement Amiga Track B: derived tournament standings per docs/amiga-data-contract.md.
 
 GOAL

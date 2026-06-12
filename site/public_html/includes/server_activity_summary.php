@@ -106,9 +106,9 @@ unset($con);
         </div>
         <?php if ($BusiestDayGames !== null) { ?>
         <div class="server-activity-summary__stat">
-            <span class="server-activity-summary__label"><?php echo (int) $BusiestDayGames === 1 ? 'Rated game' : 'Rated games'; ?></span>
+            <span class="server-activity-summary__label">Busiest day</span>
             <span class="server-activity-summary__value"><?php echo number_format($BusiestDayGames); ?></span>
-            <span class="server-activity-summary__note">Busiest day · <?php echo htmlspecialchars($BusiestDayDateLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+            <span class="server-activity-summary__note"><?php echo (int) $BusiestDayGames === 1 ? 'rated game' : 'rated games'; ?> · <?php echo htmlspecialchars($BusiestDayDateLabel, ENT_QUOTES, 'UTF-8'); ?></span>
         </div>
         <?php } ?>
     </div>

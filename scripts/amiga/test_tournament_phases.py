@@ -21,9 +21,14 @@ class KnockoutPhaseDetectionTests(unittest.TestCase):
         self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
         self.assertEqual(scope.scope_key, "Quarter Final")
 
-    def test_group_labels_stay_group(self) -> None:
+    def test_null_phase_is_implicit_league(self) -> None:
+        scope = parse_phase(None)
+        self.assertEqual(scope.scope_type, ScopeType.LEAGUE)
+        self.assertEqual(scope.scope_key, "")
+
+    def test_group_labels_map_to_league(self) -> None:
         scope = parse_phase("Round 1 - Group A")
-        self.assertEqual(scope.scope_type, ScopeType.GROUP)
+        self.assertEqual(scope.scope_type, ScopeType.LEAGUE)
         self.assertEqual(scope.scope_key, "Round 1 - Group A")
 
 

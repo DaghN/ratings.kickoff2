@@ -741,8 +741,8 @@ function amiga_ops_verify_standings_spot_checks(mysqli $con): array
     }
 
     $tidLondon = amiga_ops_tournament_id_by_name($con, 'London XXIII');
-    if ($tidLondon !== null && amiga_ops_standings_scope_has_rows($con, $tidLondon, 'overall', '')) {
-        $top = amiga_ops_standings_top_n($con, $tidLondon, 'overall', '', 3);
+    if ($tidLondon !== null && amiga_ops_standings_scope_has_rows($con, $tidLondon, 'league', '')) {
+        $top = amiga_ops_standings_top_n($con, $tidLondon, 'league', '', 3);
         $want = [
             ['name' => 'Dagh N', 'points' => 69],
             ['name' => 'Gianni T', 'points' => 65],
@@ -750,21 +750,21 @@ function amiga_ops_verify_standings_spot_checks(mysqli $con): array
         ];
         foreach ($want as $i => $exp) {
             if (!isset($top[$i])) {
-                $errors[] = 'London XXIII overall pos ' . ($i + 1) . ': missing row';
+                $errors[] = 'London XXIII league pos ' . ($i + 1) . ': missing row';
                 continue;
             }
             $gotName = (string) ($top[$i]['player_name'] ?? '');
             $gotPts = (int) ($top[$i]['points'] ?? 0);
             if ($gotName !== $exp['name'] || $gotPts !== $exp['points']) {
-                $errors[] = 'London XXIII overall pos ' . ($i + 1) . ": want {$exp['name']} ({$exp['points']} pts), got {$gotName} ({$gotPts} pts)";
+                $errors[] = 'London XXIII league pos ' . ($i + 1) . ": want {$exp['name']} ({$exp['points']} pts), got {$gotName} ({$gotPts} pts)";
             }
         }
     }
 
     $tidWc = amiga_ops_tournament_id_by_name($con, 'World Cup XI');
     if ($tidWc !== null) {
-        if (amiga_ops_standings_scope_has_rows($con, $tidWc, 'group', 'Round 1 - Group A')) {
-            $groupA = amiga_ops_standings_top_n($con, $tidWc, 'group', 'Round 1 - Group A', 1);
+        if (amiga_ops_standings_scope_has_rows($con, $tidWc, 'league', 'Round 1 - Group A')) {
+            $groupA = amiga_ops_standings_top_n($con, $tidWc, 'league', 'Round 1 - Group A', 1);
             if ($groupA === []) {
                 $errors[] = 'World Cup XI Group A: no standings rows';
             } else {

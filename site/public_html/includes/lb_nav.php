@@ -21,6 +21,9 @@ $k2LbWingTabs = [
 	'activity-peaks' => ['href' => k2_route('lb-activity-peaks'), 'label' => 'Activity peaks'],
 	'peak-rating' => ['href' => k2_route('lb-peak-rating'), 'label' => 'Peak rating'],
 ];
+$k2HubChapterTitle = 'Leaderboards';
+$k2HubChapterLede = 'Leaderboards for everyone who has ever played rated online Kick Off 2 — rating, goals, streaks, victims, league medals, milestones, activity peaks, and more. Sort any column to see who leads a different way.';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 <div class="k2-chrome-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Leaderboard view">

@@ -148,7 +148,7 @@ function k2_rated_game_id_html(array $game, string $idMode = 'link'): string
  * Compact row for Games Highlights (no Elo / adjustment columns).
  *
  * @param array<string, mixed> $game normalized or raw ratedresults row
- * @param array{id_mode?: string, date_format?: string, show_peak_column?: bool} $options
+ * @param array{id_mode?: string, date_format?: string, show_peak_column?: bool, show_gd_column?: bool, show_sum_column?: bool} $options
  */
 function k2_rated_game_row_compact_html(array $row, array $options = []): string
 {
@@ -157,6 +157,8 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
     $idMode = ($options['id_mode'] ?? 'link') === 'plain' ? 'plain' : 'link';
     $dateFormat = ($options['date_format'] ?? 'display') === 'raw' ? 'raw' : 'display';
     $showPeak = !empty($options['show_peak_column']);
+    $showGd = ($options['show_gd_column'] ?? true) !== false;
+    $showSum = ($options['show_sum_column'] ?? true) !== false;
 
     $idA = $game['idA'];
     $idB = $game['idB'];
@@ -174,6 +176,7 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
     $goalDiff = $processed
         ? (int) $game['GoalDifference']
         : abs((int) $game['GoalsA'] - (int) $game['GoalsB']);
+    $goalDiffCell = $goalDiff > 0 ? '+' . $goalDiff : (string) $goalDiff;
     $sumGoals = $processed
         ? (int) $game['SumOfGoals']
         : (int) $game['GoalsA'] + (int) $game['GoalsB'];
@@ -185,15 +188,23 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
         . '<td class="k2-table-cell--left">' . $teamA . '</td>'
         . '<td>' . (int) $game['GoalsA'] . '</td>'
         . '<td class="k2-table-cell--left">' . (int) $game['GoalsB'] . '</td>'
-        . '<td class="k2-table-cell--left">' . $teamB . '</td>'
-        . '<td>' . $goalDiff . '</td>'
-        . '<td>' . $sumGoals . '</td>';
+        . '<td class="k2-table-cell--left">' . $teamB . '</td>';
+
+    if ($showGd) {
+        $row .= '<td data-k2-sort-value="' . $goalDiff . '">' . $goalDiffCell . '</td>';
+    }
+
+    if ($showSum) {
+        $row .= '<td>' . $sumGoals . '</td>';
+    }
 
     if ($showPeak) {
         $row .= '<td data-k2-sort-value="' . $peakGoals . '">' . $peakGoals . '</td>';
     }
 
-    return $row . '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . $winnerCell . '</td></tr>';
+    $row .= '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . $winnerCell . '</td>';
+
+    return $row . '</tr>';
 }
 
 /**

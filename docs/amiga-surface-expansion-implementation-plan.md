@@ -157,15 +157,15 @@ Add participation-backed per-player event stats on `/amiga/tournament.php` witho
 
 ### Tasks
 
-- [ ] Read helper: participation rows for `tournament_id` (new function in `amiga_player_tournament_lib.php` or `amiga_tournament_lib.php`)
-- [ ] UI: tab, section, or expandable “Event stats” table — W-D-L, F/A, GF/g, GA/g, Pts, rating columns, Perf. rating per [`amiga-performance-rating.md`](amiga-performance-rating.md) tooltips
-- [ ] Join player names from `amiga_players`; respect public visibility like participation reads
-- [ ] WC rows: medal column; do not mislabel group `overall_position` as finish
+- [x] Read helper: participation rows for `tournament_id` (new function in `amiga_player_tournament_lib.php` or `amiga_tournament_lib.php`)
+- [x] UI: tab, section, or expandable “Event stats” table — W-D-L, GF/GA/GD, GF/g, GA/g, Pts, rating columns, **Perf. rating** per [`amiga-performance-rating.md`](amiga-performance-rating.md) tooltips
+- [x] Join player names from `amiga_players`; respect public visibility like participation reads
+- [x] WC rows: medal column; do not mislabel group rank as finish (`wc_medal` / `event_finish_position` policy)
 
 ### Verification
 
-- [ ] Compare one marathon event row to same player on `player-tournaments.php`
-- [ ] Verify suite
+- [x] Compare one marathon event row to same player on `player-tournaments.php`
+- [x] Verify suite
 
 ### STOP GATE C
 
@@ -181,15 +181,15 @@ Surface perf rating beyond per-player history sort.
 
 ### Tasks
 
-- [ ] Profile: compact “Best event perf” / “Recent perf” line from participation (max `performance_rating` with games ≥ 2, or last finalized event)
-- [ ] New LB e.g. `/amiga/leaderboards/performance-rating.php` — best single-event perf rating (tie-break rules documented in handoff)
-- [ ] Add wing to `amiga_lb_nav.php` if shipped
-- [ ] Tooltips from `amiga-performance-rating.md`
+- [x] Profile: compact “Best event perf” / “Recent perf” line from participation (max `performance_rating` with games ≥ 2, or last finalized event)
+- [x] New LB e.g. `/amiga/leaderboards/performance-rating.php` — best single-event perf rating (tie-break rules documented in handoff)
+- [x] Add wing to `amiga_lb_nav.php` if shipped
+- [x] Tooltips from `amiga-performance-rating.md`
 
 ### Verification
 
-- [ ] Spot-check player with known strong event vs `amiga_rating_events`
-- [ ] `verify-player-participation` (rating join invariant)
+- [x] Spot-check player with known strong event vs `amiga_rating_events`
+- [x] `verify-player-participation` (rating join invariant)
 
 ### STOP GATE D
 

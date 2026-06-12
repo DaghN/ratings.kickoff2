@@ -3,7 +3,7 @@
 **Page:** `site/public_html/activity.php` (hub tab **Activity**).  
 **Authority:** Product taste → [`design-direction.md`](design-direction.md). Hub data patterns → [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) (summary PHP only; charts are client-side). **This doc** owns chart JS/CSS structure, panel registry, lab → promote.
 
-**Status (Jun 2026):** **L3 shipped** on **local + staging** — [`activity.php`](../site/public_html/activity.php) loads only [`js/activity-charts-v2.js`](../site/public_html/js/activity-charts-v2.js); panels in [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php); `body.k2-activity-charts`. Legacy `activity-charts.js` + eleven `server-*-chart.js` boot files **removed**. [`server1-charts-lab.php`](../site/public_html/server1-charts-lab.php) redirects to `activity.php`. Chart panels are grouped into five question-led Activity sections (`k2-activity-section`) with short intro copy above the factual chart headings.
+**Status (Jun 2026):** **L3 shipped** on **local + staging** — [`activity.php`](../site/public_html/activity.php) loads only [`js/activity-charts-v2.js`](../site/public_html/js/activity-charts-v2.js); panels in [`includes/server_activity_chart_panels.php`](../site/public_html/includes/server_activity_chart_panels.php); `body.k2-activity-charts`. Legacy `activity-charts.js` + eleven `server-*-chart.js` boot files **removed**. [`server1-charts-lab.php`](../site/public_html/server1-charts-lab.php) redirects to `activity.php`. Chart panels are grouped into five question-led Activity sections (`k2-activity-section`) with short intro copy above the factual chart headings (volume section: time span only — hub lede carries the wider pitch).
 
 ---
 

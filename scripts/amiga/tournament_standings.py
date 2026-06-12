@@ -238,15 +238,15 @@ def _fixture_scope(
 
     if stage_type == "league":
         if stage_key == "" or stage_key.lower() == "overall":
-            return PhaseScope(ScopeType.OVERALL, ""), False
-        return PhaseScope(ScopeType.GROUP, label), False
+            return PhaseScope(ScopeType.LEAGUE, ""), False
+        return PhaseScope(ScopeType.LEAGUE, label), False
     if stage_type == "group":
-        return PhaseScope(ScopeType.GROUP, label), False
+        return PhaseScope(ScopeType.LEAGUE, label), False
     if stage_type in {"knockout", "placement"}:
         pair_key = knockout_pair_scope_key(label, player_a_id, player_b_id)
         return PhaseScope(ScopeType.KNOCKOUT, pair_key), True
     if stage_type == "other":
-        return PhaseScope(ScopeType.GROUP, label), False
+        return PhaseScope(ScopeType.LEAGUE, label), False
     return None
 
 
@@ -325,29 +325,29 @@ def compute_tournament_standings(
             goals_b,
         )
 
-    # Marathon round-robins: all phase NULL → one overall table only.
+    # Marathon round-robins: all phase NULL → one implicit league table only.
     if has_null_phase and not has_structured:
         scopes = {
-            k: v for k, v in scopes.items() if k == (ScopeType.OVERALL, "")
+            k: v for k, v in scopes.items() if k == (ScopeType.LEAGUE, "")
         }
     elif has_null_phase and has_structured:
-        # Mixed: also keep overall aggregating all league-scope games.
-        overall: dict[int, PlayerStanding] = defaultdict(PlayerStanding)
+        # Mixed: synthesize league + '' aggregating all labeled league-scope games.
+        league_aggregate: dict[int, PlayerStanding] = defaultdict(PlayerStanding)
         for (stype, skey), table in scopes.items():
-            if stype == ScopeType.OVERALL and skey == "":
+            if stype == ScopeType.LEAGUE and skey == "":
                 continue
-            if stype not in (ScopeType.OVERALL, ScopeType.GROUP):
+            if stype != ScopeType.LEAGUE:
                 continue
             for pid, st in table.items():
-                o = overall[pid]
-                o.games += st.games
-                o.wins += st.wins
-                o.draws += st.draws
-                o.losses += st.losses
-                o.goals_for += st.goals_for
-                o.goals_against += st.goals_against
-        if overall:
-            scopes[(ScopeType.OVERALL, "")] = dict(overall)
+                agg = league_aggregate[pid]
+                agg.games += st.games
+                agg.wins += st.wins
+                agg.draws += st.draws
+                agg.losses += st.losses
+                agg.goals_for += st.goals_for
+                agg.goals_against += st.goals_against
+        if league_aggregate:
+            scopes[(ScopeType.LEAGUE, "")] = dict(league_aggregate)
 
     for (stype, skey), table in knockout_scopes.items():
         scopes[(stype, skey)] = table

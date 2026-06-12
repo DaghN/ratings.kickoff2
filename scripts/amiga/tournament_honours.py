@@ -62,7 +62,7 @@ def compute_wc_medals_from_standings(
 
     Gold/silver from main ``Final``; bronze from ``3rd Place Final`` winner **or**
     both semi-final losers when no 3rd-place match and Final is complete (Olympic-style).
-    Never awards medals from group/overall league rank alone.
+    Never awards medals from league rank alone.
     """
     ko_rows = [
         r

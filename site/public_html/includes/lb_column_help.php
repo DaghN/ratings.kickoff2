@@ -42,40 +42,40 @@ function k2_lb_help_lowest_culprit(): string
     return 'Lowest-rated opponent you have lost to (their pre-game Elo on that loss).';
 }
 
-/** Goals wing (ranked2). */
+/** Goals wing (ranked2). Short headers may use GF/GA; tooltip bodies use scored/conceded and say career vs one game. */
 function k2_lb_help_goals_scored(): string
 {
-    return 'Your career goals for.';
+    return 'Total goals scored across your rated career.';
 }
 
 function k2_lb_help_goals_conceded(): string
 {
-    return 'Your career goals against.';
+    return 'Total goals conceded across your rated career.';
 }
 
 function k2_lb_help_goals_scored_avg(): string
 {
-    return 'Your goals for per rated game.';
+    return 'Average goals scored per rated game.';
 }
 
 function k2_lb_help_goals_conceded_avg(): string
 {
-    return 'Your goals against per rated game.';
+    return 'Average goals conceded per rated game.';
 }
 
 function k2_lb_help_goal_ratio(): string
 {
-    return 'Your goals for divided by your goals against.';
+    return 'Career goals scored divided by career goals conceded.';
 }
 
 function k2_lb_help_most_scored(): string
 {
-    return 'Most goals you scored in one game.';
+    return 'Most goals scored in one rated game.';
 }
 
 function k2_lb_help_most_conceded(): string
 {
-    return 'Most goals you conceded in one game.';
+    return 'Most goals conceded in one rated game.';
 }
 
 function k2_lb_help_win_margin(): string

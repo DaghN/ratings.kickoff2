@@ -155,12 +155,13 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Body/table data | `--k2-text-primary`, normal weight |
 | Muted helpers/headings | `--k2-text-muted` |
 | Hub page lede (`.k2-hub-page-intro` in `.k2-hub-page-intro-head`) | 13px `--k2-text-muted`, max-width 44rem � Milestones catalog + HoF footnotes above tables; optional `.blue` / `.holo` |
+| Hub section chapter (`.k2-hub-chapter`) | `__title` 1.25rem/600 primary; `__lede` 13px muted; optional `__list` (compact disc bullets, muted+accent `::marker`, same typography) via `$k2HubChapterList` in `includes/k2_hub_chapter.inc.php`. Online hub: Activity, Leaderboards (`lb_nav.php`), Milestones, HoF (rules list). Amiga hub: Leaderboards (`amiga_lb_nav.php`), Tournaments, Live tournaments, HoF. |
 | Status-style tickers (arc line) | `--k2-text-muted`; key counts `.blue` |
 | Onboarding / long explanatory prose (Play & setup) | `--k2-text-secondary` (14px); page title stays `--k2-text-primary` |
 | Player names / dense table links | `a.k2-link-star`, weight 600; hover/focus underline |
 | Prose/footer links | `--k2-link` |
 | Positive/negative table stats | `.blue` / `.red` on profile/games rows, Status ticker/meta, record **date markers** (`(New!)` / `(Legendary)` on `hall-of-fame.php`); **not** on calm leaderboard value cells |
-| HoF record row label + date column | `server-records-table` col 1 + 4 ? `--k2-text-muted`; value (anchor) + holder unchanged |
+| HoF record row label + date column | `server-records-table` col 1 + 4 ? `--k2-text-muted`; value (anchor) + holder unchanged; online two-panel HoF: shared col 1 via `--k2-hof-label-col-ch` (`includes/records_hof_table.php` + label register in `hall-of-fame.php`) |
 | Hub `ranked-pages-table`, Activity peaks, Status `k2-status-table` calm body cells | default `--k2-text-secondary`; anchor ? link-star or league-anchor-ink; `k2-table-col-sorted` ? primary 600 |
 | Player games (`player/games.php`, `k2-table--player-games`) | Calm secondary body; **keep** `.blue`/`.red` on Result/Diff/Adjustment; active sort column ? primary 600 (PHP `k2-table-col-sorted`); sorted editorial cells ? weight 700 on `.blue`/`.red` (trial) |
 | Player matchup W/D/L (`individual2a`, `k2-table--player-matchup`) | Calm-stats; **Games** anchor; `.blue`/`.red` editorial; bolder when sort column (700) |
@@ -185,6 +186,7 @@ Do not add one-off hex in page CSS when a token exists.
 | Numbers | tabular numbers or IBM Plex Mono where useful |
 | Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial (self-hosted; preloaded in `k2_fonts_head.php`) |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
+| Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, primary — header step above wing tabs (13px); below Amiga event hero (1.35rem) |
 | Text selection (drag highlight) | `::selection` on `body.k2-site` � `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
 
 Never use pixel/bitmap fonts for readable data.
@@ -229,7 +231,7 @@ Imagery:
 | Player profile | `player/profile.php` is the shipped feast layout; **mixed surface rhythm** (open heatmaps + chart panels + light tiles) � see [`player-profile-feast.md`](player-profile-feast.md); gradual copy/UX improvements only. |
 | Player games | `player/games.php` uses server-side Result/Opponent filters, URL sort links, 100-row slices, and shared row rendering. |
 | Records/Hall of Fame | `hall-of-fame.php` is the Hall of Fame page; `leaderboards/activity-peaks.php` is Activity. |
-| Activity / charts | `activity.php` starts with a key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts grouped into question-led sections with short intros; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` (`mergeTooltip` / `applyTooltipDefaults`); dataset colour swatches use the tooltip surface + solid stroke. **Implementation plan:** [`activity-charts.md`](activity-charts.md) � single module, lab-only `.k2-chart-frame`, lab ? promote (no global phone layout changes during lab). |
+| Activity / charts | `activity.php` hub chapter lede (direct, question-led prose) then summary block: key activity sentence, fact cards (goals, draws, double digits, clean sheets, **busiest day**), a small games/opponents line, and charts grouped into question-led sections with short intros; established-player chart group (new per year, cumulative, rating distribution); **no** Recent milestones digest panel (removed Jun 2026); **no** participation-depth or Double Digit Merchant chart stacks; `milestone.php` uses generic per-milestone unlock year/cumulative charts only; dense monthly bar charts use borderless bars to reduce phone noise; helper copy should add context, not restate the chart heading. Chart.js hovers use `--k2-tooltip-*` tokens (same as `.k2-table-tooltip`) via `chart-theme.js` (`mergeTooltip` / `applyTooltipDefaults`); dataset colour swatches use the tooltip surface + solid stroke. **Implementation plan:** [`activity-charts.md`](activity-charts.md) � single module, lab-only `.k2-chart-frame`, lab ? promote (no global phone layout changes during lab). |
 
 Microcopy:
 

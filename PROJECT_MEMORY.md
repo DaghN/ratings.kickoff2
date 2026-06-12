@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration** — **complete** (slices 0–10; [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md); migrations `017`–`019`). Batch oracle `python -m scripts.amiga replay` (~23s) + verify suite; live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md). **Next:** other Amiga/product work per [`amiga-realm-vision.md`](docs/amiga-realm-vision.md).
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration** — **complete** (slices 0–10; migrations `017`–`019`). **Standings scope unification** — **complete** (slices 0–7; migration `020`; `league`\|`knockout`; 5544+2320 standings rows; policy **Implemented** — [`amiga-standings-scope-policy.md`](docs/amiga-standings-scope-policy.md)). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
 
 ---
 
@@ -83,6 +83,21 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Hub ledes (online)** — Activity, Games (count + bullets), Leaderboards (`lb_nav.php`) content-first copy pass. |
+| 2026-06 | **Online HoF table cols** — Activity + Performance share col 1 width via PHP label register + `--k2-hof-label-col-ch` (`records_hof_table.php`). |
+| 2026-06 | **Online HoF hub chapter** — rules block as `k2-hub-chapter__list` (en-dash bullets); optional `$k2HubChapterList` on hub chapter include. |
+| 2026-06 | **Amiga WC tournament nav** — top tabs Event stats · Stages · Games; group/bracket sub-tabs under Stages (`?view=stages`). |
+| 2026-06 | **Amiga tournament Games tab** — `?view=games`; player dropdown; `idx_amiga_games_tournament` scoped read. |
+| 2026-06 | **Docs** — `amiga-surface-expansion-overview` §3.4/3.5: Perf. rating on tournament event-stats marked shipped (removed stale “not in v1”). |
+| 2026-06 | **Amiga standings scope slice 7 / track complete** — policy **Implemented**; data contract + honours Tier B/C + README + feature-log; starter prompt COMPLETE. |
+| 2026-06 | **Amiga standings scope slice 6** — full `replay` (~22s) + verify suite all OK; standings 5544 league + 2320 knockout; parity sweep FAIL=0. |
+| 2026-06 | **Amiga standings scope slice 5** — parity/verify tooling `league`; honours test fixture; grep clean (PHP zero hits; `standings_parity` CLI labels only); catalog-stats + verify-participation OK. |
+| 2026-06 | **Amiga standings scope slice 4** — `tournament.php` + `amiga_tournament_lib` league readers; legacy scope 302; Athens 22/24 browser OK; STOP gate C. |
+| 2026-06 | **Amiga standings scope slice 3** — `resolve_primary_league_standings()` Python/PHP; Tier B/C honours; 34 unit tests + participation-rebuild; spot 22/24/544 unchanged; STOP gate B. |
+| 2026-06 | **Amiga standings scope slice 2** — PHP `AMIGA_SCOPE_TYPE_LEAGUE`; post-game standings + fixtures labels; ops verify OK; PHP t24 rebuild smoke. |
+| 2026-06 | **Amiga standings scope slice 1** — Python `ScopeType.LEAGUE`; `tournament_phases`/`standings`/`catalog_stats` writers; parity derived reads; 25 unit tests OK; t24 rebuild smoke. |
+| 2026-06 | **Amiga standings scope slice 0** — migration `020`: standings enum `league`\|`knockout`; 5544 league + 2320 knockout rows; `league_scopes` column; fresh `002`/`004` updated; STOP gate A. |
+| 2026-06 | **Amiga standings scope unification — planning** — policy [`amiga-standings-scope-policy.md`](docs/amiga-standings-scope-policy.md); implementation plan slices 0–7; starter prompt for new chat (merge `overall`+`group` → `league`). |
 | 2026-06 | **Amiga event finish slice 10 / track complete** — honours rules **Implemented**; docs closure; `feature-log` L1 row; migrations `017`–`019`. |
 | 2026-06 | **Amiga event finish slice 9** — `amiga_tournament_finish_override` (019) + Tier E hook in Python/PHP derivation; unit tests OK. |
 | 2026-06 | **Amiga event finish slice 8** — migration `018` drops `overall_position`; writers/tests/verify updated; full verify suite OK. |
@@ -110,6 +125,8 @@
 | 2026-06 | **Amiga surface expansion slice 2** — HoF value cells deep-link to Tier A LB wings (`amiga_records_hof_links.php`). |
 | 2026-06 | **Amiga surface expansion slice 1** — Tier A LB wings (Goals, DDs, Victims, Peak) + `amiga_lb_nav`; rating at `/amiga/leaderboards/rating.php`. |
 | 2026-06 | **Amiga surface expansion slice 0** — profile honours strip from `amiga_player_tournament_totals` (WC medals, wins, podiums); [`amiga-surface-expansion-implementation-plan.md`](docs/amiga-surface-expansion-implementation-plan.md). |
+| 2026-06 | **Online HoF spectacle links** — Performance single-game record values link to `games.php?view=highlights` boards (not Goals LB); `records_hof_links.php`. |
+| 2026-06 | **Hub section chapter rollout** — `k2_hub_chapter.inc.php` + `.k2-hub-chapter` (1.25rem title); online Activity/LB/Milestones/HoF; Amiga LB/Tournaments/Live tournaments/HoF; placeholder lede except LB + Tournaments. |
 | 2026-06 | **Amiga participation placement ladder** — games-driven roster (`participation_placement.py` + PHP parity); knockout cups + group/KO events without overall scope now appear on player tournament history; contract §5.2.2; run `participation-rebuild`. |
 | 2026-06 | **Amiga derived-stat placement** — player-universe contract §5.0 (stored-truth policy, glossary, decision tree, placement matrix). |
 | 2026-06 | **Amiga performance rating** — event TPR on `amiga_rating_events` + participation denorm; Perf. rating column on `/amiga/player-tournaments.php`; migration `015`; [`amiga-performance-rating.md`](docs/amiga-performance-rating.md). |

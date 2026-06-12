@@ -17,7 +17,8 @@
 | Head-to-head | `/amiga/h2h.php?id1={id}&id2={id}` — directed `amiga_player_matchup_summary` rows |
 | Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
-| Tournament event stats | `/amiga/tournament.php?id={tournaments.id}&view=event-stats` — participation roster (all phases) |
+| Tournament event stats | `/amiga/tournament.php?id={tournaments.id}&view=event-stats` — participation roster (all phases); includes **Perf. rating** column |
+| Tournament games | `/amiga/tournament.php?id={tournaments.id}&view=games` — all games in event; player filter dropdown |
 
 ## What v0 shows
 
@@ -117,7 +118,7 @@ API returns one point per finalized tournament (not per game). Multi-game tourna
 ## Tournament pages (cups + leagues)
 
 - **Index** — `/amiga/tournaments.php` — Cup/League badges, optional All/Cups/Leagues filter; cup links with knockouts jump to `#bracket`
-- **Standings** — `/amiga/tournament.php?id=` — hero (name, date, format badge), section nav (Overall / groups / Bracket), knockout bracket for cup events (`stylesheets/amiga-tournament.css`)
+- **Standings** — `/amiga/tournament.php?id=` — hero (name, date, country meta), section nav (League table / phase tabs / Bracket / **Event stats**); **Perf. rating** on event-stats; World Cups open on event-stats by default (`stylesheets/amiga-tournament.css`)
 - **Bracket** — phase-grouped columns (Quarter → Semi → Final; placement finals/brackets below); click aggregate score for leg-by-leg tie detail (`scope=knockout&scope_key=…`); `extra` penalties on leg rows
 - **League marathons** — e.g. London XXIII: overall table only, no empty bracket shell
 
@@ -125,7 +126,6 @@ API returns one point per finalized tournament (not per game). Multi-game tourna
 
 - Per-game detail page, compare chart, cross-realm H2H, milestones
 - Dedicated profile WC medals block (honours strip covers career summary)
-- Tournament **Games** tab (scoped event game list)
 - **Match streaks** — no leaderboard wing, HoF rows, or profile streak moment. Real within-day play order is unknown; synthetic `game_date` chronology is not valid for consecutive-result streaks. See [`amiga-data-contract.md`](amiga-data-contract.md) § Match streaks.
 
 ## Browser QA checklist (standings + bracket)

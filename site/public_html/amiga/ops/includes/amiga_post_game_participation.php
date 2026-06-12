@@ -500,13 +500,14 @@ LEFT JOIN amiga_rating_events e
 LEFT JOIN amiga_tournament_standings gs
     ON gs.tournament_id = ep.tournament_id
    AND gs.player_id = ep.player_id
-   AND gs.scope_type = 'group'
+   AND gs.scope_type = 'league'
    AND gs.scope_key = (
        SELECT MIN(s2.scope_key)
        FROM amiga_tournament_standings s2
        WHERE s2.tournament_id = ep.tournament_id
          AND s2.player_id = ep.player_id
-         AND s2.scope_type = 'group'
+         AND s2.scope_type = 'league'
+         AND s2.scope_key <> ''
    )
 WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
   AND NOT EXISTS (

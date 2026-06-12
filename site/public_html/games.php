@@ -1,6 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/games_highlights_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
@@ -63,6 +64,21 @@ if ($hubView === 'highlights') {
 	mysqli_free_result($result);
 }
 
+$k2GamesHubArcError = null;
+$k2GamesHubArc = k2_status_arc_ticker($con, $k2GamesHubArcError);
+
+$k2GamesRecent14Count = 0;
+$recentCountRes = mysqli_query(
+	$con,
+	'SELECT COUNT(*) AS c FROM `ratedresults` WHERE `Date` >= DATE_SUB(CURDATE(), INTERVAL 13 DAY) '
+	. 'AND `Date` < DATE_ADD(CURDATE(), INTERVAL 1 DAY)'
+);
+if ($recentCountRes !== false) {
+	$recentCountRow = mysqli_fetch_assoc($recentCountRes);
+	mysqli_free_result($recentCountRes);
+	$k2GamesRecent14Count = (int) ($recentCountRow['c'] ?? 0);
+}
+
 mysqli_close($con);
 
 $pageTitle = $hubView === 'highlights' ? 'Games — Highlights' : 'Games — Recent';
@@ -84,14 +100,23 @@ $pageTitle = $hubView === 'highlights' ? 'Games — Highlights' : 'Games — Rec
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php'; ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_nav.php'; ?>
+<?php
+$k2HubChapterTitle = 'Games';
+$k2GamesPlayedLede = ($k2GamesHubArc !== null)
+	? '<span class="blue">' . number_format((int) $k2GamesHubArc['games']) . '</span> rated games'
+	: 'rated games';
+$k2HubChapterLede = 'The Kick Off 2 online server has a long history with ' . $k2GamesPlayedLede . '.';
+$k2HubChapterList = '<ul class="k2-hub-chapter__list">'
+	. '<li><strong>Recent</strong> lists <span class="blue">' . number_format($k2GamesRecent14Count) . '</span> games from the last 14 days, day by day.</li>'
+	. '<li><strong>Highlights</strong> surfaces all-time spectacles — goal feasts, huge draws, biggest wins.</li>'
+	. '</ul>';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_nav.php';
+?>
 
 <main class="k2-games-hub" id="main">
 <?php if ($hubView === 'highlights') { ?>
-	<header class="k2-hub-page-intro-head">
-		<p class="k2-hub-page-intro">The most spectacular matches on the server.</p>
-	</header>
-	<div class="k2-games-highlights-cluster">
+	<div id="<?php echo K2_GAMES_HIGHLIGHTS_ANCHOR; ?>" class="k2-games-highlights-cluster">
 		<?php k2_games_render_highlights_board_filter($highlightBoard); ?>
 		<?php k2_games_render_highlights_table(
 			$highlightRows,

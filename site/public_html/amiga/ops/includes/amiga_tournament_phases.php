@@ -4,8 +4,7 @@
  */
 declare(strict_types=1);
 
-const AMIGA_SCOPE_TYPE_OVERALL = 'overall';
-const AMIGA_SCOPE_TYPE_GROUP = 'group';
+const AMIGA_SCOPE_TYPE_LEAGUE = 'league';
 const AMIGA_SCOPE_TYPE_KNOCKOUT = 'knockout';
 
 /** @var list<string> */
@@ -73,7 +72,7 @@ function amiga_ops_canonical_group_key(?string $prefix, string $group): string
 function amiga_ops_parse_phase(?string $phase): array
 {
     if ($phase === null || trim($phase) === '') {
-        return ['scope_type' => AMIGA_SCOPE_TYPE_OVERALL, 'scope_key' => ''];
+        return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => ''];
     }
 
     $label = amiga_ops_normalize_whitespace($phase);
@@ -90,7 +89,7 @@ function amiga_ops_parse_phase(?string $phase): array
         $prefix = 'KOA Cup - ' . amiga_ops_normalize_whitespace($mKoa['round']);
 
         return [
-            'scope_type' => AMIGA_SCOPE_TYPE_GROUP,
+            'scope_type' => AMIGA_SCOPE_TYPE_LEAGUE,
             'scope_key' => amiga_ops_canonical_group_key($prefix, $mKoa['group']),
         ];
     }
@@ -101,7 +100,7 @@ function amiga_ops_parse_phase(?string $phase): array
         $m
     ) === 1) {
         return [
-            'scope_type' => AMIGA_SCOPE_TYPE_GROUP,
+            'scope_type' => AMIGA_SCOPE_TYPE_LEAGUE,
             'scope_key' => amiga_ops_canonical_group_key($m['prefix'] ?? null, $m['group']),
         ];
     }
@@ -112,12 +111,12 @@ function amiga_ops_parse_phase(?string $phase): array
         $m2
     ) === 1) {
         return [
-            'scope_type' => AMIGA_SCOPE_TYPE_GROUP,
+            'scope_type' => AMIGA_SCOPE_TYPE_LEAGUE,
             'scope_key' => amiga_ops_canonical_group_key($m2['prefix'], $m2['group']),
         ];
     }
 
-    return ['scope_type' => AMIGA_SCOPE_TYPE_GROUP, 'scope_key' => $label];
+    return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => $label];
 }
 
 /**
@@ -125,6 +124,5 @@ function amiga_ops_parse_phase(?string $phase): array
  */
 function amiga_ops_is_league_scope(array $scope): bool
 {
-    return $scope['scope_type'] === AMIGA_SCOPE_TYPE_OVERALL
-        || $scope['scope_type'] === AMIGA_SCOPE_TYPE_GROUP;
+    return $scope['scope_type'] === AMIGA_SCOPE_TYPE_LEAGUE;
 }

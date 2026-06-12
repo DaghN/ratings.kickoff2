@@ -48,13 +48,13 @@ amiga_games (ground — roster, volume, event_points rollup)
 
 ## 3. `event_finish_position` derivation tiers
 
-Shared helper (target): refactor `scripts/amiga/participation_placement.py` → event-finish derivation with PHP parity in `includes/amiga_participation_placement.php`.
+Shared helpers: `resolve_primary_league_standings()` in `scripts/amiga/participation_placement.py` + `amiga_participation_resolve_primary_league_standings()` in `includes/amiga_participation_placement.php`; event-finish derivation with PHP parity in the same modules.
 
 Apply tiers in order; first match wins unless Tier E override applies.
 
-### Tier A — Pure knockout (not WC; no `overall` scope)
+### Tier A — Pure knockout (not WC; no primary league standings)
 
-Cup or bracket-only event. Knockout scopes in standings; no league `overall` table.
+Cup or bracket-only event. Knockout scopes in standings; `resolve_primary_league_standings()` empty (no `league` points table).
 
 | Step | Condition | Assignment |
 |------|-----------|------------|
@@ -73,13 +73,13 @@ Cup or bracket-only event. Knockout scopes in standings; no league `overall` tab
 
 ### Tier B — League + cup
 
-`tournaments.has_league` and `has_cup`; `overall` scope exists **and** cup knockout scopes exist.
+`tournaments.has_league` and `has_cup`; primary league standings exist (`resolve_primary_league_standings()` non-empty) **and** cup knockout scopes exist.
 
 | Step | Rule |
 |------|------|
 | 1 | Cup **Final** → **1**, **2** |
 | 2 | Cup **3rd place final** → **3**, **4**; else shared semi bronze (same as Tier A step 3) on **cup** semis |
-| 3 | Players **not** in the cup final (and not cup semi losers already assigned): rank from **`overall` league standings** |
+| 3 | Players **not** in the cup final (and not cup semi losers already assigned): rank from **`resolve_primary_league_standings()`** |
 | 4 | Merge: cup assignments override league rank for players who appear in those cup ties |
 
 **Minimal case (locked):** League then **final only between top two** — 1st/2nd from cup Final; **3rd** = league table position 3 among players who did not contest the title match (and similarly 4th+ from league for non-finalists).
@@ -88,9 +88,9 @@ Cup or bracket-only event. Knockout scopes in standings; no league `overall` tab
 
 ### Tier C — Pure league
 
-`overall` scope (`scope_type='overall'`, `scope_key=''`), no meaningful cup knockout finish.
+Primary league table only (`resolve_primary_league_standings()` non-empty), no meaningful cup knockout finish.
 
-- `event_finish_position` = `position` from overall standings for that player.
+- `event_finish_position` = `position` from primary league standings for that player.
 
 Covers kitchen marathons, single-phase round-robins (e.g. London XXIII).
 
@@ -132,7 +132,7 @@ Apply when tournament name matches `^World Cup\s+\S` (`amiga_tournament_is_world
 | **Silver** | Main Final loser |
 | **Bronze** | 3rd place final winner **OR**, when no 3rd-place match exists and Final is complete, **both** semi-final losers (`position = 2` in semi ties) |
 
-Do not award WC medals from group `overall` or group scope rank alone.
+Do not award WC medals from `league` scope rank alone.
 
 ### 4.3 `is_winner` (participation row)
 

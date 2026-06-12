@@ -7,7 +7,7 @@
 <section class="k2-activity-section" aria-labelledby="k2-activity-volume-title">
     <header class="k2-activity-section__head">
         <h2 class="k2-panel-heading" id="k2-activity-volume-title">How much do we play?</h2>
-        <p class="k2-activity-section__intro">From the last few weeks to the full archive, this is the pulse of rated play.</p>
+        <p class="k2-activity-section__intro">From the last few weeks to the full history.</p>
     </header>
 
     <div class="server-games-day-chart k2-chart-panel" data-k2-chart-panel="games-day">

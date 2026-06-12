@@ -26,6 +26,8 @@ $k2AmigaLbWingTabs = [
         'label' => 'Perf. rating',
     ],
 ];
+$k2HubChapterTitle = 'Leaderboards';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 <div class="k2-chrome-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Amiga leaderboard view">

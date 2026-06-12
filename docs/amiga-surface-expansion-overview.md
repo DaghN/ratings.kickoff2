@@ -48,6 +48,8 @@ performance_rating           →     history + event-stats columns ✓
 
 ## 3. Ready — data exists, UI missing (short-term candidates)
 
+*Planning-time slice briefs (pre–Jun 2026). Most items below **shipped** in surface expansion slices 0–8 — see **§2** for current surfaced inventory. Rows still saying **Today** / **Gap** are historical unless §4 says otherwise.*
+
 Items below need **no new derived tables** and **no new rebuild writers** unless noted. Work is primarily PHP read paths, wing pages, and copy/tooltips.
 
 ### 3.1 Profile honours strip
@@ -83,18 +85,17 @@ Items below need **no new derived tables** and **no new rebuild writers** unless
 | | |
 |---|---|
 | **Source** | `amiga_player_tournament_participation` indexed by `(tournament_id, player_id)` |
-| **Today** | `/amiga/tournament.php` — phase standings from `amiga_tournament_standings` only |
-| **Ready columns** | Event W-D-L, goals, `avg_goals_*`, `event_points`, rating before/delta/after, `performance_rating`, `is_winner`, `wc_medal` |
-| **Perf rating** | [`amiga-performance-rating.md`](amiga-performance-rating.md) — explicitly “not in v1” on tournament.php today |
+| **Shipped** | `/amiga/tournament.php?view=event-stats` — participation roster per event: W-D-L, GF/GA/GD, GF/g, GA/g, Pts, Rating, Adj., New rating, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); WC **Medal** column (not group rank) |
+| **Also** | Standings tab(s) from `amiga_tournament_standings`; World Cups default to event-stats tab (Jun 2026) |
+| **Also** | **Games** tab (`?view=games`) — scoped `amiga_games` read via `idx_amiga_games_tournament`; player filter from participation roster |
 
 ### 3.5 Performance rating as discovery
 
 | | |
 |---|---|
 | **Source** | `participation.performance_rating` (denorm from `amiga_rating_events`) |
-| **Today** | Sortable column on player tournament history only |
-| **Ready ideas** | Profile one-liner (best/worst event); realm LB “best perf in a single event” with min-games rule |
-| **Non-goals (v1)** | `performance_rating − rating_before` column; phase-scoped TPR |
+| **Shipped** | Sortable **Perf. rating** on `player-tournaments.php` and tournament event-stats; profile best/recent highlight; `/amiga/leaderboards/performance-rating.php` wing |
+| **Non-goals** | `performance_rating − rating_before` column; phase-scoped TPR |
 
 ### 3.6 Career moments (trophy games)
 

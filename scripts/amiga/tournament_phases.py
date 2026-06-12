@@ -5,7 +5,7 @@ Phase label taxonomy (non-exhaustive; strings are messy):
   ``KOA Cup - Round 1 - Group I``
 - Knockout: ``Quarter Finals``, ``Semi Finals``, ``Final``, placement finals
 - Placement brackets: ``Places 9-16``, ``Places 17-20``, …
-- Informal: phase NULL → single overall round-robin within the tournament
+- Informal: phase NULL → single implicit league table (``league`` + empty ``scope_key``)
 """
 
 from __future__ import annotations
@@ -16,16 +16,14 @@ from enum import Enum
 
 
 class ScopeType(str, Enum):
-    OVERALL = "overall"
-    GROUP = "group"
-    PLACEMENT = "placement"
+    LEAGUE = "league"
     KNOCKOUT = "knockout"
 
 
 @dataclass(frozen=True, slots=True)
 class PhaseScope:
     scope_type: ScopeType
-    scope_key: str  # '' for overall; canonical label for group/placement
+    scope_key: str  # '' for implicit single-phase league; phase label otherwise
 
 
 _CUP_GROUP_PREFIX = r"Round\s+\d+|Silver\s+Cup|Bronze\s+Cup|KOA\s+Cup"
@@ -96,7 +94,7 @@ def knockout_pair_scope_key(phase: str, player_a_id: int, player_b_id: int) -> s
 def parse_phase(phase: str | None) -> PhaseScope:
     """Map a game phase label to a standings aggregation scope."""
     if not phase or not str(phase).strip():
-        return PhaseScope(ScopeType.OVERALL, "")
+        return PhaseScope(ScopeType.LEAGUE, "")
 
     label = _normalize_whitespace(str(phase))
 
@@ -106,7 +104,7 @@ def parse_phase(phase: str | None) -> PhaseScope:
     m = _GROUP_RE.match(label)
     if m:
         return PhaseScope(
-            ScopeType.GROUP,
+            ScopeType.LEAGUE,
             _canonical_group_key(m.group("prefix"), m.group("group")),
         )
 
@@ -117,7 +115,7 @@ def parse_phase(phase: str | None) -> PhaseScope:
     )
     if m2:
         return PhaseScope(
-            ScopeType.GROUP,
+            ScopeType.LEAGUE,
             _canonical_group_key(m2.group("prefix"), m2.group("group")),
         )
 
@@ -125,12 +123,12 @@ def parse_phase(phase: str | None) -> PhaseScope:
     if m3:
         prefix = f"KOA Cup - {_normalize_whitespace(m3.group('round'))}"
         return PhaseScope(
-            ScopeType.GROUP,
+            ScopeType.LEAGUE,
             _canonical_group_key(prefix, m3.group("group")),
         )
 
-    # Unknown structured label — treat as its own group-like scope for aggregation.
-    return PhaseScope(ScopeType.GROUP, label)
+    # Unknown structured label — treat as its own league scope for aggregation.
+    return PhaseScope(ScopeType.LEAGUE, label)
 
 
 def access_group_label_for_parity(scope_key: str) -> str:
@@ -160,9 +158,5 @@ def access_group_label_for_parity(scope_key: str) -> str:
 
 
 def is_league_scope(scope: PhaseScope) -> bool:
-    """Scopes that contribute W/D/L points tables (round-robin groups only)."""
-    if scope.scope_type == ScopeType.OVERALL:
-        return True
-    if scope.scope_type == ScopeType.GROUP:
-        return True
-    return False
+    """Scopes that contribute W/D/L points tables (league primitive only)."""
+    return scope.scope_type == ScopeType.LEAGUE

@@ -14,14 +14,14 @@ log = logging.getLogger(__name__)
 
 _REBUILD_SQL = """
 INSERT INTO amiga_tournament_catalog_stats (
-    tournament_id, game_count, standing_players, standing_rows, group_scopes, knockout_ties
+    tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties
 )
 SELECT
     t.id,
     COALESCE(g.game_count, 0),
     COALESCE(s.standing_players, 0),
     COALESCE(s.standing_rows, 0),
-    COALESCE(s.group_scopes, 0),
+    COALESCE(s.league_scopes, 0),
     COALESCE(s.knockout_ties, 0)
 FROM tournaments t
 LEFT JOIN (
@@ -33,7 +33,9 @@ LEFT JOIN (
     SELECT tournament_id,
            COUNT(DISTINCT player_id) AS standing_players,
            COUNT(*) AS standing_rows,
-           COUNT(DISTINCT CASE WHEN scope_type = 'group' THEN scope_key END) AS group_scopes,
+           COUNT(DISTINCT CASE
+               WHEN scope_type = 'league' AND scope_key <> '' THEN scope_key
+           END) AS league_scopes,
            COUNT(DISTINCT CASE WHEN scope_type = 'knockout' THEN scope_key END) AS knockout_ties
     FROM amiga_tournament_standings
     GROUP BY tournament_id
@@ -42,7 +44,7 @@ ON DUPLICATE KEY UPDATE
     game_count = VALUES(game_count),
     standing_players = VALUES(standing_players),
     standing_rows = VALUES(standing_rows),
-    group_scopes = VALUES(group_scopes),
+    league_scopes = VALUES(league_scopes),
     knockout_ties = VALUES(knockout_ties)
 """
 
@@ -91,7 +93,7 @@ def rebuild_all_catalog_stats(conn: pymysql.connections.Connection, *, dry_run: 
 
 _CATALOG_REFRESH_ONE_SQL = """
 INSERT INTO amiga_tournament_catalog_stats (
-    tournament_id, game_count, standing_players, standing_rows, group_scopes, knockout_ties
+    tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties
 )
 SELECT
     %s,
@@ -102,7 +104,7 @@ SELECT
     COALESCE((SELECT COUNT(*) FROM amiga_tournament_standings WHERE tournament_id = %s), 0),
     COALESCE((
         SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
-        WHERE tournament_id = %s AND scope_type = 'group'
+        WHERE tournament_id = %s AND scope_type = 'league' AND scope_key <> ''
     ), 0),
     COALESCE((
         SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
@@ -112,7 +114,7 @@ ON DUPLICATE KEY UPDATE
     game_count = VALUES(game_count),
     standing_players = VALUES(standing_players),
     standing_rows = VALUES(standing_rows),
-    group_scopes = VALUES(group_scopes),
+    league_scopes = VALUES(league_scopes),
     knockout_ties = VALUES(knockout_ties)
 """
 

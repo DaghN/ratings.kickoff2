@@ -128,13 +128,13 @@ function amiga_ops_fixture_standings_scope(array $game, int $playerAId, int $pla
 
     if ($stageType === 'league') {
         if ($stageKey === '' || strtolower($stageKey) === 'overall') {
-            return ['scope_type' => AMIGA_SCOPE_TYPE_OVERALL, 'scope_key' => '', 'elimination' => false];
+            return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => '', 'elimination' => false];
         }
 
-        return ['scope_type' => AMIGA_SCOPE_TYPE_GROUP, 'scope_key' => $label, 'elimination' => false];
+        return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => $label, 'elimination' => false];
     }
     if ($stageType === 'group') {
-        return ['scope_type' => AMIGA_SCOPE_TYPE_GROUP, 'scope_key' => $label, 'elimination' => false];
+        return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => $label, 'elimination' => false];
     }
     if ($stageType === 'knockout' || $stageType === 'placement') {
         return [
@@ -144,7 +144,7 @@ function amiga_ops_fixture_standings_scope(array $game, int $playerAId, int $pla
         ];
     }
     if ($stageType === 'other') {
-        return ['scope_type' => AMIGA_SCOPE_TYPE_GROUP, 'scope_key' => $label, 'elimination' => false];
+        return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => $label, 'elimination' => false];
     }
 
     return null;
@@ -401,35 +401,35 @@ function amiga_ops_compute_tournament_standings(array $games): array
 
     if ($hasNullPhase && !$hasStructured) {
         $filtered = [];
-        $overallKey = AMIGA_SCOPE_TYPE_OVERALL . "\0";
-        if (isset($scopes[$overallKey])) {
-            $filtered[$overallKey] = $scopes[$overallKey];
+        $leagueKey = AMIGA_SCOPE_TYPE_LEAGUE . "\0";
+        if (isset($scopes[$leagueKey])) {
+            $filtered[$leagueKey] = $scopes[$leagueKey];
         }
         $scopes = $filtered;
     } elseif ($hasNullPhase && $hasStructured) {
-        $overall = [];
+        $leagueAggregate = [];
         foreach ($scopes as $key => $table) {
-            [$stype] = explode("\0", $key, 2);
-            if ($stype === AMIGA_SCOPE_TYPE_OVERALL) {
+            [$stype, $skey] = explode("\0", $key, 2);
+            if ($stype === AMIGA_SCOPE_TYPE_LEAGUE && $skey === '') {
                 continue;
             }
-            if ($stype !== AMIGA_SCOPE_TYPE_OVERALL && $stype !== AMIGA_SCOPE_TYPE_GROUP) {
+            if ($stype !== AMIGA_SCOPE_TYPE_LEAGUE) {
                 continue;
             }
             foreach ($table as $pid => $st) {
-                if (!isset($overall[$pid])) {
-                    $overall[$pid] = ['games' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0];
+                if (!isset($leagueAggregate[$pid])) {
+                    $leagueAggregate[$pid] = ['games' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0];
                 }
-                $overall[$pid]['games'] += $st['games'];
-                $overall[$pid]['wins'] += $st['wins'];
-                $overall[$pid]['draws'] += $st['draws'];
-                $overall[$pid]['losses'] += $st['losses'];
-                $overall[$pid]['goals_for'] += $st['goals_for'];
-                $overall[$pid]['goals_against'] += $st['goals_against'];
+                $leagueAggregate[$pid]['games'] += $st['games'];
+                $leagueAggregate[$pid]['wins'] += $st['wins'];
+                $leagueAggregate[$pid]['draws'] += $st['draws'];
+                $leagueAggregate[$pid]['losses'] += $st['losses'];
+                $leagueAggregate[$pid]['goals_for'] += $st['goals_for'];
+                $leagueAggregate[$pid]['goals_against'] += $st['goals_against'];
             }
         }
-        if ($overall !== []) {
-            $scopes[AMIGA_SCOPE_TYPE_OVERALL . "\0"] = $overall;
+        if ($leagueAggregate !== []) {
+            $scopes[AMIGA_SCOPE_TYPE_LEAGUE . "\0"] = $leagueAggregate;
         }
     }
 
@@ -486,7 +486,7 @@ function amiga_ops_catalog_stats_refresh_tournament(mysqli $con, int $tournament
     }
 
     $sql = 'INSERT INTO amiga_tournament_catalog_stats (
-                tournament_id, game_count, standing_players, standing_rows, group_scopes, knockout_ties
+                tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties
             )
             SELECT
                 ?,
@@ -497,7 +497,7 @@ function amiga_ops_catalog_stats_refresh_tournament(mysqli $con, int $tournament
                 COALESCE((SELECT COUNT(*) FROM amiga_tournament_standings WHERE tournament_id = ?), 0),
                 COALESCE((
                     SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
-                    WHERE tournament_id = ? AND scope_type = \'group\'
+                    WHERE tournament_id = ? AND scope_type = \'league\' AND scope_key <> \'\'
                 ), 0),
                 COALESCE((
                     SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
@@ -507,7 +507,7 @@ function amiga_ops_catalog_stats_refresh_tournament(mysqli $con, int $tournament
                 game_count = VALUES(game_count),
                 standing_players = VALUES(standing_players),
                 standing_rows = VALUES(standing_rows),
-                group_scopes = VALUES(group_scopes),
+                league_scopes = VALUES(league_scopes),
                 knockout_ties = VALUES(knockout_ties)';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {

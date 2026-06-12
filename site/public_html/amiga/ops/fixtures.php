@@ -2151,7 +2151,7 @@ function amiga_fixture_create_kitchen_tournament(
         $stmt->close();
 
         $stageKey = 'overall';
-        $stageName = 'Overall';
+        $stageName = 'League table';
         $stageType = 'league';
         $sequenceNo = 1;
         $stageConfig = json_encode([
@@ -2193,7 +2193,7 @@ function amiga_fixture_create_kitchen_tournament(
         $stmt->close();
 
         $fixtureStatus = 'scheduled';
-        $phaseLabel = 'Overall';
+        $phaseLabel = 'League table';
         $stmt = $con->prepare(
             'INSERT INTO tournament_fixtures '
             . '(stage_id, fixture_key, player_a_id, player_b_id, leg_no, status, phase_label) '
@@ -3005,7 +3005,7 @@ if ($tournamentId > 0) {
         . 'p.id AS player_id, p.name AS player_name '
         . 'FROM amiga_tournament_standings s '
         . 'INNER JOIN amiga_players p ON p.id = s.player_id '
-        . 'WHERE s.tournament_id = ? AND s.scope_type = \'overall\' AND s.scope_key = \'\' '
+        . 'WHERE s.tournament_id = ? AND s.scope_type = \'league\' AND s.scope_key = \'\' '
         . 'ORDER BY s.position ASC, s.points DESC, (s.goals_for - s.goals_against) DESC, s.goals_for DESC'
     );
     if ($stmt !== false) {

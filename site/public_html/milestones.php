@@ -53,12 +53,15 @@ mysqli_close($con);
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php'; ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/milestones_hub_nav.php'; ?>
+<?php
+$k2HubChapterTitle = 'Milestones';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/milestones_hub_nav.php';
+?>
 
 <main class="k2-ms-hub" id="main">
 <?php if (!$tablesReady) { ?>
 	<section class="k2-ms-hub-placeholder">
-		<h1 class="k2-panel-heading">Milestones</h1>
 		<p class="k2-ms-meta-hint">Milestone catalog data is not available on this database yet.</p>
 	</section>
 <?php } elseif ($hubView === 'catalog') { ?>

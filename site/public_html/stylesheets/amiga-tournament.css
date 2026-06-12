@@ -54,6 +54,12 @@
 	margin: 0 1.25rem 1rem;
 }
 
+.k2-amiga-tournament-stages-nav {
+	margin-top: -0.35rem;
+	padding-left: 0.65rem;
+	border-left: 2px solid var(--k2-border-subtle);
+}
+
 .k2-amiga-tournament-nav .k2-player-nav__links {
 	flex-wrap: wrap;
 }
