@@ -83,6 +83,9 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Leaderboards hub lede** — `lb_nav.php` chapter intro: “activity peaks...” ellipsis instead of “, and more.” |
+| 2026-06 | **Activity hub lede** — `activity.php` chapter intro shortened (removed day/month/year clause; Oxford comma on “active, and who”). |
+| 2026-06 | **Goals table column parity** — `player/goals.php` + hub `leaderboards/goals.php` + `amiga/leaderboards/goals.php`: GF/GA, Max win/loss/sum labels; tail order Max GF → Max GA → Max win → Max loss → Max sum → Draw (Min* profile-only). |
 | 2026-06 | **Games table top scroll mirror** — `data-k2-scroll-mirror` + `k2-table-scroll-mirror.js` on player games + hub `games.php` Recent/Highlights (synced bar when wide). |
 | 2026-06 | **In-page scrollbar chrome** — `--k2-scrollbar-*` tokens + shared rules on `.k2-table-wrap`, listbox panels, heatmaps, profile week grid, bracket rails, etc. (muted thumb; not OS gray). |
 | 2026-06 | **Amiga games Year filter** — listbox `?year=` (calendar year only); `YEAR(Date) =` selected year; perf API + sort URLs preserve filter alongside existing Since. |
