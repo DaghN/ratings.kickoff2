@@ -271,7 +271,7 @@ mysqli_close($con);
 
 <?php
 $k2HubChapterTitle = 'Hall of Fame';
-$k2HubChapterLede = 'Here we show what the all-time server record is across dozens of categories, who holds it, and when it was set.';
+$k2HubChapterLede = 'What is the all-time online record? Who holds it, and when was it set?';
 $k2HubChapterList = '<ul class="k2-hub-chapter__list">'
 	. '<li>Records less than one month old are shown as &quot;<span class="blue">(New!)</span>&quot;.</li>'
 	. '<li>Records more than five years old are shown as &quot;<span class="holo">(Legendary)</span>&quot;.</li>'

@@ -55,6 +55,7 @@ mysqli_close($con);
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php'; ?>
 <?php
 $k2HubChapterTitle = 'Milestones';
+$k2HubChapterLede = 'Who just unlocked what on the ladder — a first double digit, a twentieth rated game, a league medal, a ten-thousand-match career? Milestones are those marks across a rated career, from first steps to legendary grinds. <strong>Recent</strong> follows new unlocks; <strong>Catalog</strong> walks the full set, tier by tier.';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/milestones_hub_nav.php';
 ?>

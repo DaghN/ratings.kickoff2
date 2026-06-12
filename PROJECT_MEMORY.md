@@ -83,7 +83,8 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Hub ledes (online)** — Activity, Games (count + bullets), Leaderboards (`lb_nav.php`) content-first copy pass. |
+| 2026-06 | **Agent track playbook** — [`docs/orchestration/agent-track-playbook.md`](docs/orchestration/agent-track-playbook.md) (doc · plan · prompt · slices); AGENTS + PROJECT_MAP links; online + Amiga. |
+| 2026-06 | **Hub ledes (online)** — Activity, Games, Leaderboards, Milestones (`milestones.php`). |
 | 2026-06 | **Online HoF table cols** — Activity + Performance share col 1 width via PHP label register + `--k2-hof-label-col-ch` (`records_hof_table.php`). |
 | 2026-06 | **Online HoF hub chapter** — rules block as `k2-hub-chapter__list` (en-dash bullets); optional `$k2HubChapterList` on hub chapter include. |
 | 2026-06 | **Amiga WC tournament nav** — top tabs Event stats · Stages · Games; group/bracket sub-tabs under Stages (`?view=stages`). |

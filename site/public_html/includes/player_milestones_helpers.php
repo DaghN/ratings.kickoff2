@@ -81,6 +81,13 @@ function k2_milestone_tier_label(string $tierBand): string
     return K2_MILESTONE_TIER_LABELS[$tierBand] ?? ucfirst($tierBand);
 }
 
+function k2_milestone_tier_heading_class(string $tierBand): string
+{
+    $token = K2_MILESTONE_TIER_CHART_TOKEN[$tierBand] ?? 'pitch';
+
+    return 'k2-panel-heading k2-ms-garden__heading k2-lb-ms-tier--' . $token;
+}
+
 /**
  * Sort garden cards: most common milestones first within tier (see garden_order.php).
  *
@@ -1004,7 +1011,7 @@ function k2_milestone_render_catalog_grid(array $catalogCards): void
         $label = k2_milestone_tier_label($tier);
         ?>
 	<section class="k2-ms-garden__section k2-ms-catalog__section" data-tier="<?php echo k2_h($tier); ?>">
-		<h2 class="k2-panel-heading k2-ms-garden__heading"><?php echo k2_h($label); ?></h2>
+		<h2 class="<?php echo k2_h(k2_milestone_tier_heading_class($tier)); ?>"><?php echo k2_h($label); ?></h2>
 		<ul class="k2-ms-catalog-grid">
     <?php foreach ($cards as $card) {
         $token = (string) $card['chart_token'];
@@ -1167,7 +1174,7 @@ function k2_milestone_render_garden(array $gardenByTier): void
         $label = k2_milestone_tier_label($tier);
         ?>
 <section class="k2-ms-garden__section" data-tier="<?php echo k2_h($tier); ?>">
-	<h2 class="k2-panel-heading k2-ms-garden__heading"><?php echo k2_h($label); ?></h2>
+	<h2 class="<?php echo k2_h(k2_milestone_tier_heading_class($tier)); ?>"><?php echo k2_h($label); ?></h2>
 	<ul class="k2-ms-garden__grid">
         <?php foreach ($cards as $card) {
             $token = (string) $card['chart_token'];

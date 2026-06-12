@@ -23,11 +23,12 @@ Cold start (do **before** coding unless Dagh pasted full context):
 
 ---
 
-## Two rituals
+## Rituals
 
 | Ritual | When | Doc |
 |--------|------|-----|
 | **Bootstrap** | Start of chat / new task | This file + PROJECT_MAP + MEMORY |
+| **Agent track** | Multi-session feature — locked policy, numbered slices | [`docs/orchestration/agent-track-playbook.md`](docs/orchestration/agent-track-playbook.md) — *doc · plan · prompt · slices* |
 | **Update docs** | Dagh says it, or end of substantial slice | [`docs/UPDATE_DOCS.md`](docs/UPDATE_DOCS.md) — **Part A always**, **Part B if migration triggers** |
 
 ---

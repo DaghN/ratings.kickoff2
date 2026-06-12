@@ -48,6 +48,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | **Ladder ops platform** | Steve boundary, `ops/`, sim | [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
+| **Multi-slice tracks** | Large features across chats | [`orchestration/agent-track-playbook.md`](orchestration/agent-track-playbook.md) |
 | **Cutover / live prod** | Steve go-live | [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), `ops/docs/post-dagh-live-story.md` |
 
 **Migration is a side track** — not required for CSS-only days. See decision tree in `UPDATE_DOCS.md` § Migration pass.
@@ -66,13 +67,17 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 
 ---
 
-## Two rituals (agents)
+## Rituals (agents)
 
 ### 1) New chat bootstrap
 
 See **`AGENTS.md`** § New chat. Minimal read: **MEMORY → this map → feature doc (if any)**.
 
-### 2) “Update docs” (any slice)
+### 2) Agent track (doc · plan · prompt · slices)
+
+For multi-session work (online or Amiga): explore → policy doc → implementation plan → starter prompt → execute slices in fresh chats. **`docs/orchestration/agent-track-playbook.md`**.
+
+### 3) “Update docs” (any slice)
 
 Dagh uses this phrase often — **not only for DB work**. Always: session handoff in docs. **Sometimes:** migration registers. Full steps: **`docs/UPDATE_DOCS.md`**.
 
