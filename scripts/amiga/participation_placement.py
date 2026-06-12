@@ -4,7 +4,6 @@ Event finish derivation for ``event_finish_position`` (honours rules tiers A–D
 
 Target ``derive_event_finish_position`` → ``event_finish_position`` per
 ``docs/amiga-tournament-honours-rules.md`` tiers A–E + ``best_knockout_phase``.
-Writers wire in slice 5.
 """
 
 from __future__ import annotations
@@ -13,7 +12,11 @@ import re
 from collections import defaultdict
 from typing import Any
 
-from scripts.amiga.tournament_honours import is_world_cup_tournament, knockout_scope_label
+from scripts.amiga.tournament_honours import (
+    compute_wc_podium_finish_from_standings,
+    is_world_cup_tournament,
+    knockout_scope_label,
+)
 
 # Higher depth = later / better round reached in the main bracket.
 _KNOCKOUT_ROUND_DEPTH: dict[str, int] = {
@@ -317,6 +320,15 @@ def compute_tier_b_league_cup_finish(standing_rows: list[dict[str, Any]]) -> dic
     return finish
 
 
+def compute_tier_d_wc_finish(standing_rows: list[dict[str, Any]]) -> dict[int, int]:
+    """
+    Tier D — World Cup podium → ``event_finish_position`` 1 / 2 / 3.
+
+    Below-podium entrants omitted (NULL). Group phase never copied to finish.
+    """
+    return compute_wc_podium_finish_from_standings(standing_rows)
+
+
 def apply_finish_overrides(
     finish: dict[int, int | None],
     overrides: dict[int, int] | None,
@@ -342,12 +354,12 @@ def derive_event_finish_position(
     """
     Map player_id → event_finish_position (NULL when unknown / deferred tier).
 
-    Tiers implemented: A (pure KO), B (league+cup), C (pure league), D (WC) → all NULL.
+    Tiers implemented: A (pure KO), B (league+cup), C (pure league), D (WC podium 1/2/3).
     Tier E: ``overrides`` from ``amiga_tournament_finish_override`` wins per player.
     """
     primary_league = resolve_primary_league_standings(standing_rows)
     if is_world_cup_tournament(tournament_name):
-        finish: dict[int, int] = {}
+        finish = compute_tier_d_wc_finish(standing_rows)
     elif has_league and has_cup and primary_league:
         finish = compute_tier_b_league_cup_finish(standing_rows)
     elif primary_league:
@@ -373,9 +385,7 @@ def participation_is_winner(
     *,
     tournament_name: str,
     event_finish_position: int | None = None,
-    wc_medal: str = "none",
 ) -> bool:
-    """Honours rules §4.3 — WC gold medal or event_finish_position = 1."""
-    if is_world_cup_tournament(tournament_name):
-        return wc_medal == "gold"
+    """Honours rules v2 §4.3 — ``event_finish_position = 1`` (all tournaments)."""
+    del tournament_name
     return event_finish_position == 1

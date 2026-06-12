@@ -295,9 +295,9 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
             games, wins, draws, losses, goals_for, goals_against,
             avg_goals_for, avg_goals_against,
             rating_before, rating_delta, rating_after, performance_rating,
-            games_in_event, finalized_at, is_winner, wc_medal
+            games_in_event, finalized_at, is_winner
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )'
     );
     if ($insert === false) {
@@ -322,7 +322,6 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
         $performanceRating = $rating['performance_rating'] ?? null;
         $gamesInEvent = (int) ($rating['games_in_event'] ?? 0);
         $finalizedAt = $rating['finalized_at'] ?? null;
-        $wcMedal = 'none';
         $eventDate = $tournament['event_date'];
         $eventChrono = (float) ($tournament['chrono'] ?? 0);
         $isCup = (int) ($tournament['is_cup'] ?? 0);
@@ -343,7 +342,7 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
         $finalizedAtVal = $finalizedAt !== null ? (string) $finalizedAt : null;
 
         $insert->bind_param(
-            'iisdsisiiisiiiiiiiddddddisis',
+            'iisdsisiiisiiiiiiiddddddisi',
             $playerId,
             $tournamentId,
             $eventDate,
@@ -370,8 +369,7 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
             $performanceRatingVal,
             $gamesInEvent,
             $finalizedAtVal,
-            $isWinner,
-            $wcMedal
+            $isWinner
         );
         if (!$insert->execute()) {
             throw new RuntimeException('execute participation insert: ' . $insert->error);
@@ -379,8 +377,6 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
         $written++;
     }
     $insert->close();
-
-    amiga_ops_participation_refresh_wc_medals_for_tournament($con, $tournamentId);
 
     $countStmt = $con->prepare(
         'SELECT COUNT(*) AS n FROM amiga_player_tournament_participation WHERE tournament_id = ?'
@@ -454,8 +450,7 @@ INSERT INTO amiga_player_tournament_participation (
     performance_rating,
     games_in_event,
     finalized_at,
-    is_winner,
-    wc_medal
+    is_winner
 )
 SELECT
     ep.player_id,
@@ -482,8 +477,7 @@ SELECT
     e.performance_rating,
     COALESCE(e.games_in_event, 0) AS games_in_event,
     e.finalized_at,
-    0 AS is_winner,
-    'none' AS wc_medal
+    0 AS is_winner
 FROM (
     SELECT DISTINCT g.tournament_id, g.player_id
     FROM (
@@ -540,168 +534,6 @@ function amiga_ops_wc_knockout_scope_label(string $scopeKey): string
 }
 
 /**
- * @param list<array<string, mixed>> $standingRows
- * @param array<int, int> $overallPositions
- * @return array<int, string>
- */
-function amiga_ops_compute_wc_medals_from_standings(array $standingRows): array
-{
-    $koRows = [];
-    foreach ($standingRows as $row) {
-        if ((string) ($row['scope_type'] ?? '') === 'knockout') {
-            $koRows[] = $row;
-        }
-    }
-
-    $goldId = null;
-    $silverId = null;
-    /** @var array<int, true> $bronzeIds */
-    $bronzeIds = [];
-
-    foreach ($koRows as $row) {
-        $label = amiga_ops_wc_knockout_scope_label((string) ($row['scope_key'] ?? ''));
-        $playerId = (int) $row['player_id'];
-        $position = (int) $row['position'];
-
-        if (amiga_participation_is_main_final_label($label)) {
-            if ($position === 1) {
-                $goldId = $playerId;
-            } elseif ($position === 2) {
-                $silverId = $playerId;
-            }
-        } elseif (amiga_participation_is_third_place_final_label($label) && $position === 1) {
-            $bronzeIds[$playerId] = true;
-        }
-    }
-
-    if (
-        !amiga_participation_has_third_place_final_scope($koRows)
-        && $goldId !== null
-        && $silverId !== null
-    ) {
-        foreach ($koRows as $row) {
-            $label = amiga_ops_wc_knockout_scope_label((string) ($row['scope_key'] ?? ''));
-            if (!amiga_participation_is_semi_final_label($label)) {
-                continue;
-            }
-            if ((int) $row['position'] === 2) {
-                $bronzeIds[(int) $row['player_id']] = true;
-            }
-        }
-    }
-
-    $medals = [];
-    if ($goldId !== null) {
-        $medals[$goldId] = 'gold';
-    }
-    if ($silverId !== null) {
-        $medals[$silverId] = 'silver';
-    }
-    foreach (array_keys($bronzeIds) as $bronzeId) {
-        $medals[(int) $bronzeId] = 'bronze';
-    }
-
-    return $medals;
-}
-
-function amiga_ops_participation_refresh_wc_medals_for_tournament(mysqli $con, int $tournamentId): int
-{
-    $nameStmt = $con->prepare('SELECT name FROM tournaments WHERE id = ? LIMIT 1');
-    if ($nameStmt === false) {
-        throw new RuntimeException('prepare wc medal tournament: ' . $con->error);
-    }
-    $nameStmt->bind_param('i', $tournamentId);
-    if (!$nameStmt->execute()) {
-        throw new RuntimeException('execute wc medal tournament: ' . $nameStmt->error);
-    }
-    $res = $nameStmt->get_result();
-    $name = '';
-    if ($res) {
-        $row = $res->fetch_assoc();
-        $name = (string) ($row['name'] ?? '');
-        $res->free();
-    }
-    $nameStmt->close();
-
-    if (!amiga_tournament_is_world_cup(['name' => $name])) {
-        return 0;
-    }
-
-    $standingsStmt = $con->prepare(
-        'SELECT scope_type, scope_key, player_id, position
-         FROM amiga_tournament_standings
-         WHERE tournament_id = ?'
-    );
-    if ($standingsStmt === false) {
-        throw new RuntimeException('prepare wc standings: ' . $con->error);
-    }
-    $standingsStmt->bind_param('i', $tournamentId);
-    if (!$standingsStmt->execute()) {
-        throw new RuntimeException('execute wc standings: ' . $standingsStmt->error);
-    }
-    $standingRows = [];
-    $sres = $standingsStmt->get_result();
-    if ($sres) {
-        while ($row = $sres->fetch_assoc()) {
-            $standingRows[] = $row;
-        }
-        $sres->free();
-    }
-    $standingsStmt->close();
-
-    $medals = amiga_ops_compute_wc_medals_from_standings($standingRows);
-
-    $reset = $con->prepare(
-        "UPDATE amiga_player_tournament_participation SET wc_medal = 'none' WHERE tournament_id = ?"
-    );
-    if ($reset === false) {
-        throw new RuntimeException('prepare wc medal reset: ' . $con->error);
-    }
-    $reset->bind_param('i', $tournamentId);
-    if (!$reset->execute()) {
-        throw new RuntimeException('execute wc medal reset: ' . $reset->error);
-    }
-    $reset->close();
-
-    $updated = 0;
-    if ($medals !== []) {
-        $update = $con->prepare(
-            'UPDATE amiga_player_tournament_participation
-             SET wc_medal = ?
-             WHERE tournament_id = ? AND player_id = ?'
-        );
-        if ($update === false) {
-            throw new RuntimeException('prepare wc medal update: ' . $con->error);
-        }
-        foreach ($medals as $playerId => $medal) {
-            $pid = (int) $playerId;
-            $update->bind_param('sii', $medal, $tournamentId, $pid);
-            if (!$update->execute()) {
-                throw new RuntimeException('execute wc medal update: ' . $update->error);
-            }
-            $updated += $update->affected_rows;
-        }
-        $update->close();
-    }
-
-    $winner = $con->prepare(
-        "UPDATE amiga_player_tournament_participation
-         SET is_winner = CASE WHEN wc_medal = 'gold' THEN 1 ELSE 0 END
-         WHERE tournament_id = ?"
-    );
-    if ($winner === false) {
-        throw new RuntimeException('prepare wc is_winner: ' . $con->error);
-    }
-    $winner->bind_param('i', $tournamentId);
-    if (!$winner->execute()) {
-        throw new RuntimeException('execute wc is_winner: ' . $winner->error);
-    }
-    $winner->close();
-
-    return $updated;
-}
-
-/**
  * @param list<int> $playerIds
  */
 function amiga_ops_participation_rebuild_totals_for_players(mysqli $con, array $playerIds): int
@@ -732,57 +564,62 @@ INSERT INTO amiga_player_tournament_totals (
     player_id,
     tournaments_played,
     tournaments_won,
+    event_gold,
+    event_silver,
+    event_bronze,
+    event_podiums,
+    wc_played,
     wc_gold,
     wc_silver,
     wc_bronze,
-    cup_gold,
-    cup_silver,
-    cup_bronze,
-    podiums,
+    wc_podiums,
     last_event_date,
     last_tournament_id
 )
 SELECT
     p.player_id,
     COUNT(*) AS tournaments_played,
-    SUM(p.is_winner) AS tournaments_won,
-    SUM(CASE WHEN p.wc_medal = 'gold' THEN 1 ELSE 0 END) AS wc_gold,
-    SUM(CASE WHEN p.wc_medal = 'silver' THEN 1 ELSE 0 END) AS wc_silver,
-    SUM(CASE WHEN p.wc_medal = 'bronze' THEN 1 ELSE 0 END) AS wc_bronze,
+    SUM(CASE WHEN p.event_finish_position = 1 THEN 1 ELSE 0 END) AS tournaments_won,
+    SUM(CASE WHEN p.event_finish_position = 1 THEN 1 ELSE 0 END) AS event_gold,
+    SUM(CASE WHEN p.event_finish_position = 2 THEN 1 ELSE 0 END) AS event_silver,
+    SUM(CASE WHEN p.event_finish_position = 3 THEN 1 ELSE 0 END) AS event_bronze,
     SUM(
         CASE
-            WHEN p.is_cup = 1
-             AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+            WHEN p.event_finish_position IS NOT NULL
+             AND p.event_finish_position <= 3
+            THEN 1 ELSE 0
+        END
+    ) AS event_podiums,
+    SUM(CASE WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]' THEN 1 ELSE 0 END) AS wc_played,
+    SUM(
+        CASE
+            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
              AND p.event_finish_position = 1
             THEN 1 ELSE 0
         END
-    ) AS cup_gold,
+    ) AS wc_gold,
     SUM(
         CASE
-            WHEN p.is_cup = 1
-             AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
              AND p.event_finish_position = 2
             THEN 1 ELSE 0
         END
-    ) AS cup_silver,
+    ) AS wc_silver,
     SUM(
         CASE
-            WHEN p.is_cup = 1
-             AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
              AND p.event_finish_position = 3
             THEN 1 ELSE 0
         END
-    ) AS cup_bronze,
+    ) AS wc_bronze,
     SUM(
         CASE
-            WHEN (
-                p.event_finish_position IS NOT NULL
-                AND p.event_finish_position <= 3
-            )
-            OR p.wc_medal IN ('gold', 'silver', 'bronze')
+            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+             AND p.event_finish_position IS NOT NULL
+             AND p.event_finish_position <= 3
             THEN 1 ELSE 0
         END
-    ) AS podiums,
+    ) AS wc_podiums,
     MAX(p.event_date) AS last_event_date,
     CAST(
         SUBSTRING_INDEX(

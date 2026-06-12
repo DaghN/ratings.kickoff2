@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_player_load.php';
+require_once __DIR__ . '/records_hof_table.php';
 
 function amiga_records_has_value($value): bool
 {
@@ -91,6 +92,8 @@ function amiga_records_render_row(
     echo '        <td>' . $holderHtml . "</td>\n";
     echo '        <td class="k2-table-cell--right">' . $dateHtml . "</td>\n";
     echo "    </tr>\n";
+
+    records_hof_sync_track($valueCell, $holderHtml, $dateHtml);
 }
 
 function amiga_records_render_spacer_row(): void

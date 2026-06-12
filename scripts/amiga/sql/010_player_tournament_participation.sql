@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS `amiga_player_tournament_participation` (
   `games_in_event` smallint(6) NOT NULL DEFAULT 0,
   `finalized_at` datetime DEFAULT NULL,
   `is_winner` tinyint(1) NOT NULL DEFAULT 0,
-  `wc_medal` enum('none','gold','silver','bronze') NOT NULL DEFAULT 'none',
   `best_knockout_phase` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`player_id`, `tournament_id`),
   KEY `idx_participation_player_chrono` (`player_id`, `event_chrono`, `tournament_id`),

@@ -213,6 +213,7 @@ Use a consistent `<topic>` slug across all four (e.g. `amiga-event-finish`, `rat
 | Track | Policy | Plan | Starter |
 |-------|--------|------|---------|
 | Amiga event finish | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) | [`amiga-event-finish-implementation-plan.md`](../amiga-event-finish-implementation-plan.md) | [`amiga-event-finish-STARTER-PROMPT.md`](agent-handoffs/amiga-event-finish-STARTER-PROMPT.md) ✓ |
+| Amiga tournament medals v2 | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) v2 | [`amiga-tournament-medals-unification-implementation-plan.md`](../amiga-tournament-medals-unification-implementation-plan.md) | [`amiga-tournament-medals-unification-STARTER-PROMPT.md`](agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md) ✓ |
 | Amiga standings scope | [`amiga-standings-scope-policy.md`](../amiga-standings-scope-policy.md) | [`amiga-standings-scope-implementation-plan.md`](../amiga-standings-scope-implementation-plan.md) | [`amiga-standings-scope-STARTER-PROMPT.md`](agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md) |
 | Amiga player universe | [`amiga-player-universe-contract.md`](../amiga-player-universe-contract.md) | [`amiga-player-universe-implementation-plan.md`](../amiga-player-universe-implementation-plan.md) | [`amiga-player-universe-STARTER-PROMPT.md`](agent-handoffs/amiga-player-universe-STARTER-PROMPT.md) |
 

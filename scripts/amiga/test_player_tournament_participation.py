@@ -50,7 +50,6 @@ class ParticipationRowFromPartsTests(unittest.TestCase):
         self.assertEqual(row["event_finish_position"], 1)
         self.assertEqual(row["event_points"], 9)
         self.assertEqual(row["is_winner"], 1)
-        self.assertEqual(row["wc_medal"], "none")
         self.assertEqual(row["rating_after"], 1662.5)
         self.assertEqual(row["games_in_event"], 3)
         self.assertEqual(row["avg_goals_for"], 3.3333)
@@ -88,6 +87,32 @@ class ParticipationRowFromPartsTests(unittest.TestCase):
         self.assertEqual(row["has_cup"], 1)
         self.assertAlmostEqual(row["avg_goals_for"], 4 / 3, places=4)
         self.assertAlmostEqual(row["avg_goals_against"], 7 / 3, places=4)
+
+    def test_wc_winner_from_finish_not_medal(self) -> None:
+        standing = {
+            "tournament_id": 603,
+            "player_id": 73,
+            "event_finish_position": 1,
+            "games": 5,
+            "wins": 4,
+            "draws": 1,
+            "losses": 0,
+            "goals_for": 12,
+            "goals_against": 3,
+        }
+        tournament = {
+            "name": "World Cup XVII (Landskrona)",
+            "event_date": "2005-06-01",
+            "chrono": 17.0,
+            "is_cup": 1,
+            "country": "Sweden",
+            "has_league": 1,
+            "has_cup": 1,
+        }
+
+        row = participation_row_from_parts(standing, tournament)
+
+        self.assertEqual(row["is_winner"], 1)
 
     def test_avg_goals_null_when_no_games(self) -> None:
         self.assertIsNone(participation_avg_goals_per_game(5, 0))

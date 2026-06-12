@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration** — **complete** (slices 0–10; migrations `017`–`019`). **Standings scope unification** — **complete** (slices 0–7; migration `020`; `league`\|`knockout`; 5544+2320 standings rows; policy **Implemented** — [`amiga-standings-scope-policy.md`](docs/amiga-standings-scope-policy.md)). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration (v1)** — **complete** (slices 0–10; migrations `017`–`019`). **Tournament medals unification (v2)** — **complete** local (`021`/`021b`/`022`; slices 0–8) — [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) v2 **Implemented**. **Standings scope unification** — **complete** (slices 0–7; migration `020`). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
 
 ---
 
@@ -83,8 +83,19 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga tournament medals v2 track complete** — slices 0–8; honours rules v2 **Implemented**; migrations `021`/`021b`/`022`; universe contract + data contract updated. |
+| 2026-06 | **Amiga tournament medals v2 slice 7** — honours LB v2 columns (Elo, event block, WC block, medal SVG headers); default sort WC gold; Alkis P #1 event podiums (85). |
+| 2026-06 | **Amiga tournament medals v2 slice 6** — migration `022` drops `wc_medal`; writers/readers/verify cleaned; `compute_wc_podium_finish_from_standings`; rebuild+verify OK; zero `wc_medal` in py/php. |
+| 2026-06 | **Amiga tournament medals v2 slice 5** — profile/tournaments read paths: finish from `event_finish_position`; honours strip uses `event_podiums`; STOP GATE B OK (Alkis P). |
+| 2026-06 | **Amiga tournament medals v2 slice 4** — full `participation-rebuild` (4517/473); v2 totals verify invariants; STOP GATE A passed (Alkis P `event_gold=58` `wc_gold=2`). |
+| 2026-06 | **Amiga tournament medals v2 slice 3** — v2 totals writers (`event_*`/`wc_*`); `is_winner` = finish 1 only; Python/PHP parity; Alkis P spot `event_gold=58` `wc_gold=2`. |
+| 2026-06 | **Amiga tournament medals v2 slice 2** — `021b` backfill: 70 WC podium rows (`wc_medal`→finish 1/2/3); verify wc_medal/finish parity OK. |
+| 2026-06 | **Amiga tournament medals v2 slice 1** — Tier D: WC podium → `event_finish_position` 1/2/3 (`compute_tier_d_wc_finish`); Python + PHP parity; 45 unit tests OK. |
+| 2026-06 | **Amiga tournament medals v2 slice 0** — migration `021` on `ko2amiga_db` (`event_*`, `wc_played`/`wc_podiums`; drop `cup_*`; `podiums`→`event_podiums`); fresh `011`; verify-player-participation OK. |
+| 2026-06 | **Amiga tournament medals v2 track** — honours policy v2 (unified `event_finish_position`, `event_*`/`wc_*` totals, drop `cup_*`/`wc_medal`); plan + starter [`amiga-tournament-medals-unification-*`](docs/amiga-tournament-medals-unification-implementation-plan.md); execution slices 0–8 pending. |
+| 2026-06 | **Status Online panel** — `.k2-status-name-list` stacks one player per line (was flex-wrap inline). |
 | 2026-06 | **Amiga perf-rating leaderboard** — dropped Career games column; default sort index adjusted. |
-| 2026-06 | **HoF table shrink-wrap** — paired panels `fit-content` / left-aligned; removed centering padding; shared 4-col `ch` tracks kept. |
+| 2026-06 | **Amiga HoF table sync** — Career + Peak panels use `server-records-panels--sync-cols` (shared `records_hof_table.php` dry-run); WC medals table unchanged (3-col). |
 | 2026-06 | **Amiga perf-rating leaderboard** — Date column after Event (`M j, Y` via `amiga_profile_format_event_date`); `event_date`/`event_chrono` in `amiga_lb_performance_rating_rows`. |
 | 2026-06 | **Amiga perf-rating leaderboard intro** — `performance-rating.php` lede: perfect-record exclusion + draw/loss qualification wording. |
 | 2026-06 | **Amiga game.php Date column** — `k2-table--single-game` overrides ranked-pages col-2 min-width (was leaderboard Player 9.1em). |

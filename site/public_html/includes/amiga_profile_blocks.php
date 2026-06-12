@@ -11,6 +11,7 @@ require_once __DIR__ . '/amiga_performance_rating.php';
 require_once __DIR__ . '/amiga_player_moments_lib.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_player_tournament_lib.php';
+require_once __DIR__ . '/amiga_participation_placement.php';
 
 /**
  * @param array<string, mixed> $pm from amiga_player_load()
@@ -56,13 +57,13 @@ function amiga_profile_tournament_totals_show_honours(?array $totals): bool
 
     return $wcTotal > 0
         || (int) ($totals['tournaments_won'] ?? 0) > 0
-        || (int) ($totals['podiums'] ?? 0) > 0;
+        || (int) ($totals['event_podiums'] ?? 0) > 0;
 }
 
 /**
  * @param array<string, mixed> $totals
  */
-function amiga_profile_wc_medals_label(array $totals): string
+function amiga_profile_career_wc_honours_label(array $totals): string
 {
     $parts = [];
     foreach (['gold', 'silver', 'bronze'] as $medal) {
@@ -86,10 +87,10 @@ function amiga_profile_render_honours(array $totals, int $playerId): void
         return;
     }
 
-    $wcLabel = amiga_profile_wc_medals_label($totals);
+    $wcLabel = amiga_profile_career_wc_honours_label($totals);
     $hasWcMedals = $wcLabel !== '';
     $tournamentsWon = (int) ($totals['tournaments_won'] ?? 0);
-    $podiums = (int) ($totals['podiums'] ?? 0);
+    $podiums = (int) ($totals['event_podiums'] ?? 0);
     $lastEventDate = $totals['last_event_date'] ?? null;
     ?>
 <section class="k2-amiga-profile-honours" style="padding:0 1.25rem 1.5rem">
@@ -133,36 +134,61 @@ function amiga_profile_tournament_label_includes_event_points(array $t): bool
 }
 
 /**
+ * Canonical holistic finish from a participation row (`position` = event_finish_position).
+ *
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_row_event_finish(array $row): ?int
+{
+    $position = $row['position'] ?? $row['event_finish_position'] ?? null;
+    if ($position === null || $position === '') {
+        return null;
+    }
+    $finish = (int) $position;
+
+    return $finish > 0 ? $finish : null;
+}
+
+/**
+ * Ordinal finish label (1st/2nd/3rd/4th…) from event_finish_position — all tournaments including WC.
+ *
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_event_finish_ordinal_label(array $row): string
+{
+    $finish = amiga_profile_row_event_finish($row);
+    if ($finish === null) {
+        return '—';
+    }
+
+    return $finish . ordinal_suffix($finish);
+}
+
+/**
+ * WC podium medal word from event_finish_position (v2).
+ *
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_wc_podium_word(array $row): string
+{
+    return amiga_participation_wc_podium_word_from_finish(amiga_profile_row_event_finish($row));
+}
+
+/**
  * Profile suffix for one recent tournament row.
  *
- * World Cups: wc_medal podium rank only. Others: event_finish_position (as position);
- * event_points when the full-event tally matches the single league phase (no separate cup).
+ * Holistic finish from event_finish_position (ordinal); event_points when allowed.
  *
- * @param array<string, mixed> $t participation row (name, position = event_finish_position, event_points, wc_medal, has_league, has_cup)
+ * @param array<string, mixed> $t participation row (name, position = event_finish_position, event_points, has_league, has_cup)
  */
 function amiga_profile_tournament_result_label(array $t): string
 {
-    if (amiga_tournament_is_world_cup($t)) {
-        $rank = match ((string) ($t['wc_medal'] ?? 'none')) {
-            'gold' => 1,
-            'silver' => 2,
-            'bronze' => 3,
-            default => 0,
-        };
-        if ($rank > 0) {
-            return $rank . ordinal_suffix($rank);
-        }
-
+    $finish = amiga_profile_row_event_finish($t);
+    if ($finish === null) {
         return '—';
     }
 
-    $position = $t['position'] ?? null;
-    if ($position === null || $position === '' || (int) $position < 1) {
-        return '—';
-    }
-    $position = (int) $position;
-
-    $label = $position . ordinal_suffix($position);
+    $label = $finish . ordinal_suffix($finish);
     if (amiga_profile_tournament_label_includes_event_points($t)) {
         $label .= ' · ' . (int) ($t['event_points'] ?? 0) . ' pts';
     }
@@ -351,27 +377,7 @@ function amiga_profile_event_date_sort_value(array $row): string
 
 function amiga_profile_tournament_finish_rank_label(array $row): string
 {
-    if (amiga_tournament_is_world_cup($row)) {
-        // Podium from wc_medal only — event_finish_position is always NULL on WC rows.
-        $rank = match ((string) ($row['wc_medal'] ?? 'none')) {
-            'gold' => 1,
-            'silver' => 2,
-            'bronze' => 3,
-            default => 0,
-        };
-        if ($rank > 0) {
-            return $rank . ordinal_suffix($rank);
-        }
-
-        return '—';
-    }
-
-    $position = $row['position'] ?? null;
-    if ($position !== null && $position !== '' && (int) $position > 0) {
-        return (int) $position . ordinal_suffix((int) $position);
-    }
-
-    return '—';
+    return amiga_profile_event_finish_ordinal_label($row);
 }
 
 function amiga_profile_tournament_wdl_cell(int $value, string $tone): string
@@ -481,16 +487,6 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
     <?php
 }
 
-function amiga_tournament_wc_medal_label(array $row): string
-{
-    return match ((string) ($row['wc_medal'] ?? 'none')) {
-        'gold' => 'Gold',
-        'silver' => 'Silver',
-        'bronze' => 'Bronze',
-        default => '—',
-    };
-}
-
 /**
  * @param list<array<string, mixed>> $rows from amiga_tournament_participation_rows()
  */
@@ -516,7 +512,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<th data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
 			<th data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
 			<?php if ($isWorldCup) { ?>
-			<th data-k2-sort="text" data-k2-help="World Cup podium medal only — not group-phase rank.">Medal</th>
+			<th data-k2-sort="text" data-k2-help="World Cup podium from event finish (1st–3rd); medal word is display only.">Medal</th>
 			<?php } else { ?>
 			<th data-k2-sort="text">Finish</th>
 			<?php } ?>
@@ -538,7 +534,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
         $goalDiff = $goalsFor - $goalsAgainst;
         $points = (int) ($row['event_points'] ?? 0);
         $finishCell = $isWorldCup
-            ? amiga_tournament_wc_medal_label($row)
+            ? amiga_profile_wc_podium_word($row)
             : amiga_profile_tournament_finish_rank_label($row);
         ?>
 		<tr>

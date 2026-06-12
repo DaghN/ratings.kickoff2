@@ -101,7 +101,7 @@ function amiga_records_load_ratio_leaders(mysqli $con): void
  *
  * @return array{gold: array<string, mixed>|null, silver: array<string, mixed>|null, bronze: array<string, mixed>|null}
  */
-function amiga_records_wc_medal_leaders(mysqli $con): array
+function amiga_records_wc_totals_leaders(mysqli $con): array
 {
     $out = ['gold' => null, 'silver' => null, 'bronze' => null];
     $specs = [

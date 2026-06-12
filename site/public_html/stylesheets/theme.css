@@ -3193,6 +3193,17 @@ body.k2-site .k2-lb-league-honours__bar {
 	width: 20px;
 }
 
+.k2-lb-tournament-honours .k2-lb-honours-medal-th {
+	text-align: center;
+	vertical-align: middle;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+
+.k2-lb-tournament-honours .k2-lb-honours-medal-th .k2-status-medal__svg {
+	width: 20px;
+}
+
 body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta.k2-status-room__arc {
 	margin-top: calc(var(--k2-leagues-meta-gap) * 1.5);
 	margin-bottom: var(--k2-leagues-meta-gap);
@@ -3979,9 +3990,14 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	padding: 0;
 	list-style: none;
 	display: flex;
-	flex-wrap: wrap;
-	gap: 6px 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px 0;
 	font-size: inherit;
+}
+
+.k2-status-name-list li {
+	padding: 1px 0;
 }
 
 .k2-status-live-list,

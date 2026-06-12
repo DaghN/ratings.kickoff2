@@ -297,3 +297,54 @@ function k2_lb_help_milestones_total(): string
 {
     return 'Milestone unlocks you have earned (all tiers).';
 }
+
+/** Amiga tournament honours wing (`/amiga/leaderboards/tournament-honours.php`). */
+function k2_lb_help_amiga_tournament_events(): string
+{
+    return 'Tournament events you entered (at least one rated game).';
+}
+
+function k2_lb_help_amiga_event_gold(): string
+{
+    return 'Tournament wins — holistic 1st place across the event (all tournament types).';
+}
+
+function k2_lb_help_amiga_event_silver(): string
+{
+    return 'Holistic 2nd-place tournament finishes.';
+}
+
+function k2_lb_help_amiga_event_bronze(): string
+{
+    return 'Holistic 3rd-place tournament finishes.';
+}
+
+function k2_lb_help_amiga_event_podiums(): string
+{
+    return 'Top-three tournament finishes (gold + silver + bronze).';
+}
+
+function k2_lb_help_amiga_wc_played(): string
+{
+    return 'World Cup events you entered.';
+}
+
+function k2_lb_help_amiga_wc_gold(): string
+{
+    return 'World Cup wins (holistic 1st place).';
+}
+
+function k2_lb_help_amiga_wc_silver(): string
+{
+    return 'World Cup 2nd-place finishes.';
+}
+
+function k2_lb_help_amiga_wc_bronze(): string
+{
+    return 'World Cup 3rd-place finishes.';
+}
+
+function k2_lb_help_amiga_wc_podiums(): string
+{
+    return 'World Cup top-three finishes (gold + silver + bronze).';
+}

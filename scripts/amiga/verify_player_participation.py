@@ -173,10 +173,11 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             INNER JOIN tournaments t ON t.id = p.tournament_id
             WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
               AND p.event_finish_position IS NOT NULL
+              AND p.event_finish_position NOT IN (1, 2, 3)
             """
         )
-        wc_finish_set = int(cur.fetchone()["n"])
-        if wc_finish_set:
+        wc_invalid_finish = int(cur.fetchone()["n"])
+        if wc_invalid_finish:
             cur.execute(
                 """
                 SELECT p.player_id, p.tournament_id, p.event_finish_position, t.name
@@ -184,6 +185,7 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
                 INNER JOIN tournaments t ON t.id = p.tournament_id
                 WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
                   AND p.event_finish_position IS NOT NULL
+                  AND p.event_finish_position NOT IN (1, 2, 3)
                 LIMIT %s
                 """,
                 (_SAMPLE_LIMIT,),
@@ -191,9 +193,9 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
             sample = cur.fetchall()
             row = sample[0]
             errors.append(
-                f"World Cup rows with event_finish_position set: {wc_finish_set} "
+                f"World Cup participation with non-podium event_finish_position: {wc_invalid_finish} "
                 f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
-                f"name={row['name']!r})"
+                f"finish={row['event_finish_position']})"
             )
 
         cur.execute(
@@ -492,6 +494,76 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
         if participation_rows and sum_played != participation_rows:
             errors.append(
                 f"SUM(tournaments_played) ({sum_played}) != participation rows ({participation_rows})"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_totals t
+            WHERE t.tournaments_won != t.event_gold
+            """
+        )
+        wins_not_event_gold = int(cur.fetchone()["n"])
+        if wins_not_event_gold:
+            errors.append(
+                f"totals.tournaments_won != event_gold: {wins_not_event_gold} players"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_totals t
+            WHERE t.event_podiums != t.event_gold + t.event_silver + t.event_bronze
+            """
+        )
+        event_podium_sum_mismatch = int(cur.fetchone()["n"])
+        if event_podium_sum_mismatch:
+            errors.append(
+                f"totals.event_podiums != event_gold+silver+bronze: {event_podium_sum_mismatch} players"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_totals t
+            WHERE t.wc_podiums != t.wc_gold + t.wc_silver + t.wc_bronze
+            """
+        )
+        wc_podium_sum_mismatch = int(cur.fetchone()["n"])
+        if wc_podium_sum_mismatch:
+            errors.append(
+                f"totals.wc_podiums != wc_gold+silver+bronze: {wc_podium_sum_mismatch} players"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_totals t
+            WHERE t.wc_gold > t.event_gold
+               OR t.wc_silver > t.event_silver
+               OR t.wc_bronze > t.event_bronze
+               OR t.wc_podiums > t.event_podiums
+            """
+        )
+        wc_subset_violation = int(cur.fetchone()["n"])
+        if wc_subset_violation:
+            errors.append(
+                f"totals wc_* exceeds event_* subset: {wc_subset_violation} players"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_tournament_participation p
+            WHERE p.is_winner != (
+                CASE WHEN p.event_finish_position = 1 THEN 1 ELSE 0 END
+            )
+            """
+        )
+        is_winner_mismatch = int(cur.fetchone()["n"])
+        if is_winner_mismatch:
+            errors.append(
+                f"participation is_winner != (event_finish_position = 1): {is_winner_mismatch} rows"
             )
 
     return errors

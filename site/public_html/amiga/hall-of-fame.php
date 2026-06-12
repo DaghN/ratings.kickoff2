@@ -102,19 +102,45 @@ $newRecordCutoff = strtotime('-1 month');
 $legendaryRecordCutoff = strtotime('-5 years');
 
 amiga_records_load_ratio_leaders($con);
-$wcLeaders = amiga_records_wc_medal_leaders($con);
+$wcLeaders = amiga_records_wc_totals_leaders($con);
 mysqli_close($con);
 ?>
 
 <?php
 $k2HubChapterTitle = 'Hall of Fame';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
-?>
 
-<div class="server-records-panels">
+// Static row labels — keep in sync with amiga_records_render_row calls below (shared col 1 width).
+$k2HofRecordLabels = [
+    'Most games',
+    'Most wins',
+    'Most goals',
+    'Most double digits',
+    'Most clean sheets',
+    'Most opponents',
+    'Most victims',
+    'Most double digit victims',
+    'Most clean sheet victims',
+    'Most goals in one game',
+    'Biggest winning margin',
+    'Biggest draw',
+    'Biggest sum of goals',
+    'Highest peak rating',
+    'Best attack average',
+    'Best defense average',
+    'Best goal ratio',
+    'Highest winning frequency',
+    'Highest double digit frequency',
+    'Highest clean sheet frequency',
+];
+
+records_hof_sync_reset();
+ob_start();
+?>
 <section class="server-records-panel server-records-panel--activity">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
+<?php records_hof_render_colgroup(); ?>
 <thead>
     <tr>
 		<th colspan="4" class="nohovercell k2-table-cell--left">Career records</th>
@@ -195,6 +221,7 @@ amiga_records_render_row(
 <section class="server-records-panel server-records-panel--performance">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
+<?php records_hof_render_colgroup(); ?>
 <thead>
     <tr>
 		<th colspan="4" class="nohovercell k2-table-cell--left">Peak performance &amp; ratios</th>
@@ -303,6 +330,13 @@ amiga_records_render_row(
 </table>
 </div>
 </section>
+<?php
+$k2HofTablesHtml = ob_get_clean();
+$k2HofSyncWidths = records_hof_sync_compute_widths($k2HofRecordLabels);
+?>
+<div class="server-records-panels server-records-panels--sync-cols" style="<?php echo htmlspecialchars(records_hof_sync_style_attr($k2HofSyncWidths), ENT_QUOTES, 'UTF-8'); ?>">
+<?php echo $k2HofTablesHtml; ?>
+</div><!-- .server-records-panels--sync-cols -->
 
 <section class="server-records-panel server-records-panel--honours">
 <div class="k2-table-wrap">
@@ -336,7 +370,6 @@ foreach ($medalLabels as $key => $label) {
 </table>
 </div>
 </section>
-</div>
 
 </div><!-- .k2-page-nav -->
 

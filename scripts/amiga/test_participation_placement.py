@@ -7,6 +7,7 @@ import unittest
 from scripts.amiga.participation_placement import (
     compute_tier_a_knockout_finish,
     compute_tier_b_league_cup_finish,
+    compute_tier_d_wc_finish,
     derive_best_knockout_phase,
     derive_event_finish_position,
     derive_wc_group_positions,
@@ -32,26 +33,34 @@ class ParticipationPlacementTests(unittest.TestCase):
         )
         self.assertEqual(positions[1], 3)
 
-    def test_wc_event_finish_is_null(self) -> None:
+    def test_wc_event_finish_from_final_winner(self) -> None:
         rows = [
             {"scope_type": "league", "scope_key": "Group B", "player_id": 9, "position": 2},
             {"scope_type": "league", "scope_key": "Group A", "player_id": 9, "position": 4},
             {"scope_type": "knockout", "scope_key": "Final|9-10", "player_id": 9, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Final|9-10", "player_id": 10, "position": 2},
         ]
         positions = derive_event_finish_position(rows, tournament_name="World Cup XII")
-        self.assertIsNone(positions.get(9))
+        self.assertEqual(positions[9], 1)
+        self.assertEqual(positions[10], 2)
 
-    def test_wc_winner_flag_uses_medal(self) -> None:
+    def test_wc_winner_requires_finish_one(self) -> None:
         self.assertTrue(
             participation_is_winner(
                 tournament_name="World Cup XII",
-                wc_medal="gold",
+                event_finish_position=1,
             )
         )
         self.assertFalse(
             participation_is_winner(
                 tournament_name="World Cup XII",
-                wc_medal="none",
+                event_finish_position=2,
+            )
+        )
+        self.assertFalse(
+            participation_is_winner(
+                tournament_name="World Cup XII",
+                event_finish_position=None,
             )
         )
 
@@ -60,7 +69,6 @@ class ParticipationPlacementTests(unittest.TestCase):
             participation_is_winner(
                 tournament_name="World Cup XIV (Copenhagen)",
                 event_finish_position=None,
-                wc_medal="none",
             )
         )
         self.assertTrue(
@@ -254,7 +262,7 @@ class EventFinishPositionTests(unittest.TestCase):
         self.assertFalse(is_main_final_label("Silver Cup Final"))
         self.assertFalse(is_main_final_label("3rd Place Final"))
 
-    def test_tier_d_wc_returns_null_finish(self) -> None:
+    def test_tier_d_wc_final_gold_silver(self) -> None:
         rows = [
             {"scope_type": "league", "scope_key": "Group A", "player_id": 9, "position": 4},
             {"scope_type": "knockout", "scope_key": "Final|9-10", "player_id": 9, "position": 1},
@@ -266,14 +274,50 @@ class EventFinishPositionTests(unittest.TestCase):
             has_league=True,
             has_cup=True,
         )
-        self.assertEqual(finish, {})
-        self.assertIsNone(
+        self.assertEqual(finish[9], 1)
+        self.assertEqual(finish[10], 2)
+        self.assertEqual(
             derive_event_finish_position(
                 rows,
                 tournament_name="World Cup XII",
                 player_ids=[9],
             )[9],
+            1,
         )
+
+    def test_tier_d_wc_third_place_bronze(self) -> None:
+        rows = [
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
+            {"scope_type": "knockout", "scope_key": "3rd Place Final|3-4", "player_id": 3, "position": 1},
+            {"scope_type": "knockout", "scope_key": "3rd Place Final|3-4", "player_id": 4, "position": 2},
+        ]
+        finish = derive_event_finish_position(rows, tournament_name="World Cup XVII (Landskrona)")
+        self.assertEqual(finish[1], 1)
+        self.assertEqual(finish[2], 2)
+        self.assertEqual(finish[3], 3)
+        self.assertNotIn(4, finish)
+
+    def test_tier_d_wc_shared_semi_bronze(self) -> None:
+        rows = [
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 1, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Final|1-2", "player_id": 2, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|1-3", "player_id": 1, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|1-3", "player_id": 3, "position": 2},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|2-4", "player_id": 2, "position": 1},
+            {"scope_type": "knockout", "scope_key": "Semi Finals|2-4", "player_id": 4, "position": 2},
+        ]
+        finish = compute_tier_d_wc_finish(rows)
+        self.assertEqual(finish[1], 1)
+        self.assertEqual(finish[2], 2)
+        self.assertEqual(finish[3], 3)
+        self.assertEqual(finish[4], 3)
+
+    def test_tier_d_wc_group_rank_never_copied(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "Round 1 - Group A", "player_id": 10, "position": 1},
+        ]
+        self.assertEqual(derive_event_finish_position(rows, tournament_name="World Cup I"), {})
 
     def test_tier_b_final_only_league_third_is_third(self) -> None:
         """Minimal league+cup: title match only; 3rd = league 3rd among non-finalists."""

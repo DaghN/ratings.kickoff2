@@ -41,7 +41,6 @@ function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, 
                    p.rating_after,
                    p.performance_rating,
                    p.is_winner,
-                   p.wc_medal,
                    (SELECT COUNT(DISTINCT sk.scope_key)
                     FROM amiga_tournament_standings sk
                     WHERE sk.tournament_id = p.tournament_id
@@ -230,8 +229,7 @@ function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): ar
                    p.rating_delta,
                    p.rating_after,
                    p.performance_rating,
-                   p.is_winner,
-                   p.wc_medal
+                   p.is_winner
             FROM amiga_player_tournament_participation p
             INNER JOIN amiga_players pl ON pl.id = p.player_id
             INNER JOIN tournaments t ON t.id = p.tournament_id
@@ -394,13 +392,15 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
     $sql = 'SELECT player_id,
                    tournaments_played,
                    tournaments_won,
+                   event_gold,
+                   event_silver,
+                   event_bronze,
+                   event_podiums,
+                   wc_played,
                    wc_gold,
                    wc_silver,
                    wc_bronze,
-                   cup_gold,
-                   cup_silver,
-                   cup_bronze,
-                   podiums,
+                   wc_podiums,
                    last_event_date,
                    last_tournament_id
             FROM amiga_player_tournament_totals
@@ -423,9 +423,9 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
 }
 
 /**
- * Tournament honours leaderboard rows (amiga_player_tournament_totals only).
+ * Tournament honours leaderboard rows (totals + Elo from amiga_player_stats).
  *
- * Default SQL order: wc_gold, wc_silver, wc_bronze, tournaments_won, tournaments_played.
+ * Default SQL order: wc_gold, wc_silver, wc_bronze, event_podiums, event_gold, tournaments_played.
  *
  * @return list<array<string, mixed>>
  */
@@ -434,20 +434,26 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
+                   COALESCE(s.Rating, 0) AS rating,
                    t.tournaments_played,
-                   t.tournaments_won,
+                   t.event_gold,
+                   t.event_silver,
+                   t.event_bronze,
+                   t.event_podiums,
+                   t.wc_played,
                    t.wc_gold,
                    t.wc_silver,
                    t.wc_bronze,
-                   t.podiums
+                   t.wc_podiums
             FROM amiga_player_tournament_totals t
             INNER JOIN amiga_players p ON p.id = t.player_id
+            LEFT JOIN amiga_player_stats s ON s.player_id = t.player_id
             WHERE t.tournaments_played > 0
             ORDER BY t.wc_gold DESC,
                      t.wc_silver DESC,
                      t.wc_bronze DESC,
-                     t.podiums DESC,
-                     t.tournaments_won DESC,
+                     t.event_podiums DESC,
+                     t.event_gold DESC,
                      t.tournaments_played DESC,
                      t.player_id ASC';
     $result = mysqli_query($con, $sql);

@@ -307,9 +307,87 @@ function amiga_participation_compute_tier_b_league_cup_finish(array $standingRow
 
 /**
  * @param list<array<string, mixed>> $standingRows
- * @param list<int>|null $playerIds
- * @return array<int, int|null>
+ * @return array<int, int> player_id => event_finish_position (1/2/3)
  */
+function amiga_participation_compute_wc_podium_finish_from_standings(array $standingRows): array
+{
+    $koRows = [];
+    foreach ($standingRows as $row) {
+        if ((string) ($row['scope_type'] ?? '') === 'knockout') {
+            $koRows[] = $row;
+        }
+    }
+
+    $goldId = null;
+    $silverId = null;
+    /** @var array<int, true> $bronzeIds */
+    $bronzeIds = [];
+
+    foreach ($koRows as $row) {
+        $label = amiga_participation_knockout_scope_label((string) ($row['scope_key'] ?? ''));
+        $playerId = (int) $row['player_id'];
+        $position = (int) $row['position'];
+
+        if (amiga_participation_is_main_final_label($label)) {
+            if ($position === 1) {
+                $goldId = $playerId;
+            } elseif ($position === 2) {
+                $silverId = $playerId;
+            }
+        } elseif (amiga_participation_is_third_place_final_label($label) && $position === 1) {
+            $bronzeIds[$playerId] = true;
+        }
+    }
+
+    if (
+        !amiga_participation_has_third_place_final_scope($koRows)
+        && $goldId !== null
+        && $silverId !== null
+    ) {
+        foreach ($koRows as $row) {
+            $label = amiga_participation_knockout_scope_label((string) ($row['scope_key'] ?? ''));
+            if (!amiga_participation_is_semi_final_label($label)) {
+                continue;
+            }
+            if ((int) $row['position'] === 2) {
+                $bronzeIds[(int) $row['player_id']] = true;
+            }
+        }
+    }
+
+    $finish = [];
+    if ($goldId !== null) {
+        $finish[$goldId] = 1;
+    }
+    if ($silverId !== null) {
+        $finish[$silverId] = 2;
+    }
+    foreach (array_keys($bronzeIds) as $bronzeId) {
+        $finish[(int) $bronzeId] = 3;
+    }
+
+    return $finish;
+}
+
+/**
+ * @param list<array<string, mixed>> $standingRows
+ * @return array<int, int>
+ */
+function amiga_participation_compute_tier_d_wc_finish(array $standingRows): array
+{
+    return amiga_participation_compute_wc_podium_finish_from_standings($standingRows);
+}
+
+function amiga_participation_wc_podium_word_from_finish(?int $finish): string
+{
+    return match ($finish) {
+        1 => 'Gold',
+        2 => 'Silver',
+        3 => 'Bronze',
+        default => '—',
+    };
+}
+
 /**
  * @param array<int, int> $overrides Tier E rows keyed by player_id
  */
@@ -340,7 +418,7 @@ function amiga_participation_derive_event_finish_position(
 ): array {
     $primaryLeague = amiga_participation_resolve_primary_league_standings($standingRows);
     if (amiga_tournament_is_world_cup(['name' => $tournamentName])) {
-        $finish = [];
+        $finish = amiga_participation_compute_tier_d_wc_finish($standingRows);
     } elseif ($hasLeague && $hasCup && $primaryLeague !== []) {
         $finish = amiga_participation_compute_tier_b_league_cup_finish($standingRows);
     } elseif ($primaryLeague !== []) {
@@ -488,12 +566,9 @@ function amiga_participation_overall_positions(array $standingRows): array
 
 function amiga_participation_is_winner(
     string $tournamentName,
-    ?int $eventFinishPosition = null,
-    string $wcMedal = 'none'
+    ?int $eventFinishPosition = null
 ): bool {
-    if (amiga_tournament_is_world_cup(['name' => $tournamentName])) {
-        return $wcMedal === 'gold';
-    }
+    unset($tournamentName);
 
     return $eventFinishPosition === 1;
 }

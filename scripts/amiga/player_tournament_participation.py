@@ -16,7 +16,6 @@ from scripts.amiga.participation_placement import (
     participation_is_winner,
 )
 from scripts.amiga.performance_rating import backfill_performance_ratings
-from scripts.amiga.tournament_honours import refresh_wc_medals
 
 log = logging.getLogger(__name__)
 
@@ -100,8 +99,7 @@ INSERT INTO amiga_player_tournament_participation (
     performance_rating,
     games_in_event,
     finalized_at,
-    is_winner,
-    wc_medal
+    is_winner
 ) VALUES (
     %(player_id)s,
     %(tournament_id)s,
@@ -129,8 +127,7 @@ INSERT INTO amiga_player_tournament_participation (
     %(performance_rating)s,
     %(games_in_event)s,
     %(finalized_at)s,
-    %(is_winner)s,
-    %(wc_medal)s
+    %(is_winner)s
 )
 """
 
@@ -192,7 +189,6 @@ def participation_row_from_parts(
             )
             else 0
         ),
-        "wc_medal": "none",
     }
     if rating_event is not None:
         row["rating_before"] = rating_event.get("rating_before")
@@ -401,7 +397,6 @@ def rebuild_all_participation(
     for tournament_id in tournament_ids:
         rows = build_participation_rows_for_tournament(conn, tournament_id)
         written += _insert_participation_rows(conn, rows)
-    refresh_wc_medals(conn, dry_run=False)
     conn.commit()
     log.info("amiga_player_tournament_participation: %s rows", written)
     return written
@@ -454,7 +449,6 @@ def rebuild_participation_for_tournament(
         )
     rows = build_participation_rows_for_tournament(conn, tournament_id)
     written = _insert_participation_rows(conn, rows)
-    refresh_wc_medals(conn, tournament_id=tournament_id, dry_run=False)
     conn.commit()
     log.info(
         "amiga_player_tournament_participation tournament_id=%s: %s rows",
@@ -464,48 +458,52 @@ def rebuild_participation_for_tournament(
     return written
 
 
-_TOTALS_AGG_SELECT = """
+_WC_TOURNAMENT_FILTER = (
+    "p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'"
+)
+
+_TOTALS_AGG_SELECT = f"""
 SELECT
     p.player_id,
     COUNT(*) AS tournaments_played,
-    SUM(p.is_winner) AS tournaments_won,
-    SUM(CASE WHEN p.wc_medal = 'gold' THEN 1 ELSE 0 END) AS wc_gold,
-    SUM(CASE WHEN p.wc_medal = 'silver' THEN 1 ELSE 0 END) AS wc_silver,
-    SUM(CASE WHEN p.wc_medal = 'bronze' THEN 1 ELSE 0 END) AS wc_bronze,
+    SUM(CASE WHEN p.event_finish_position = 1 THEN 1 ELSE 0 END) AS tournaments_won,
+    SUM(CASE WHEN p.event_finish_position = 1 THEN 1 ELSE 0 END) AS event_gold,
+    SUM(CASE WHEN p.event_finish_position = 2 THEN 1 ELSE 0 END) AS event_silver,
+    SUM(CASE WHEN p.event_finish_position = 3 THEN 1 ELSE 0 END) AS event_bronze,
     SUM(
         CASE
-            WHEN p.is_cup = 1
-             AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.event_finish_position = 1
+            WHEN p.event_finish_position IS NOT NULL
+             AND p.event_finish_position <= 3
             THEN 1 ELSE 0
         END
-    ) AS cup_gold,
+    ) AS event_podiums,
+    SUM(CASE WHEN {_WC_TOURNAMENT_FILTER} THEN 1 ELSE 0 END) AS wc_played,
     SUM(
         CASE
-            WHEN p.is_cup = 1
-             AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.event_finish_position = 2
+            WHEN {_WC_TOURNAMENT_FILTER} AND p.event_finish_position = 1
             THEN 1 ELSE 0
         END
-    ) AS cup_silver,
+    ) AS wc_gold,
     SUM(
         CASE
-            WHEN p.is_cup = 1
-             AND p.tournament_name NOT REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-             AND p.event_finish_position = 3
+            WHEN {_WC_TOURNAMENT_FILTER} AND p.event_finish_position = 2
             THEN 1 ELSE 0
         END
-    ) AS cup_bronze,
+    ) AS wc_silver,
     SUM(
         CASE
-            WHEN (
-                p.event_finish_position IS NOT NULL
-                AND p.event_finish_position <= 3
-            )
-            OR p.wc_medal IN ('gold', 'silver', 'bronze')
+            WHEN {_WC_TOURNAMENT_FILTER} AND p.event_finish_position = 3
             THEN 1 ELSE 0
         END
-    ) AS podiums,
+    ) AS wc_bronze,
+    SUM(
+        CASE
+            WHEN {_WC_TOURNAMENT_FILTER}
+             AND p.event_finish_position IS NOT NULL
+             AND p.event_finish_position <= 3
+            THEN 1 ELSE 0
+        END
+    ) AS wc_podiums,
     MAX(p.event_date) AS last_event_date,
     CAST(
         SUBSTRING_INDEX(
@@ -527,13 +525,15 @@ INSERT INTO amiga_player_tournament_totals (
     player_id,
     tournaments_played,
     tournaments_won,
+    event_gold,
+    event_silver,
+    event_bronze,
+    event_podiums,
+    wc_played,
     wc_gold,
     wc_silver,
     wc_bronze,
-    cup_gold,
-    cup_silver,
-    cup_bronze,
-    podiums,
+    wc_podiums,
     last_event_date,
     last_tournament_id
 )

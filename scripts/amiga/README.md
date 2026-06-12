@@ -182,6 +182,8 @@ Participation **roster = `amiga_games`**; finish from `participation_placement.p
 
 **Standings scope migration (Jun 2026 — complete):** apply `020` after `019` on existing DBs (`overall`+`group` → `league`; `group_scopes` → `league_scopes`). Fresh installs: `002`/`004` already use `league` enum. Policy: [`docs/amiga-standings-scope-policy.md`](../docs/amiga-standings-scope-policy.md). After migrate: full `python -m scripts.amiga replay` + verify suite. Parity CLI may still use `overall`/`group` as Access comparison labels (`standings_parity.py`).
 
+**Tournament medals v2 (Jun 2026 — complete):** apply `021` → `021b` → `022` after `020` on existing DBs, then `participation-rebuild`. Totals use `event_*` / `wc_*` from `event_finish_position`; `is_winner` = finish 1; participation has no `wc_medal`. Policy: [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) v2 **Implemented**. Plan: [`docs/amiga-tournament-medals-unification-implementation-plan.md`](../docs/amiga-tournament-medals-unification-implementation-plan.md).
+
 Read surfaces: profile recent tournaments + top opponents; `/amiga/player/tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
 
 **Participation columns (Jun 2026):** `event_points` + W-D-L from `amiga_games` rollup; phase league points only in `amiga_tournament_standings`. See contract §5.2.1. Existing DBs: apply `014` before rebuild if the table still has a `points` column.
@@ -204,6 +206,9 @@ mysql ko2amiga_db < scripts/amiga/sql/017_event_finish_position.sql
 mysql ko2amiga_db < scripts/amiga/sql/018_drop_overall_position.sql
 mysql ko2amiga_db < scripts/amiga/sql/019_tournament_finish_override.sql
 mysql ko2amiga_db < scripts/amiga/sql/020_unify_league_standings_scope.sql
+mysql ko2amiga_db < scripts/amiga/sql/021_tournament_medals_totals.sql
+mysql ko2amiga_db < scripts/amiga/sql/021b_wc_finish_backfill.sql
+mysql ko2amiga_db < scripts/amiga/sql/022_drop_wc_medal.sql
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle

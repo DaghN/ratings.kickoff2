@@ -1,16 +1,9 @@
-"""World Cup medal derivation from tournament standings (Amiga-native honours v1)."""
+"""World Cup podium finish derivation from tournament standings (Amiga honours v2)."""
 
 from __future__ import annotations
 
-import logging
 import re
-from typing import Any, Literal
-
-import pymysql
-
-log = logging.getLogger(__name__)
-
-WcMedal = Literal["none", "gold", "silver", "bronze"]
+from typing import Any
 
 _WORLD_CUP_NAME_RE = re.compile(r"^World Cup\s+\S", re.IGNORECASE)
 
@@ -54,15 +47,15 @@ def _has_third_place_final_scope(standing_rows: list[dict[str, Any]]) -> bool:
     return False
 
 
-def compute_wc_medals_from_standings(
+def compute_wc_podium_finish_from_standings(
     standing_rows: list[dict[str, Any]],
-) -> dict[int, WcMedal]:
+) -> dict[int, int]:
     """
-    Derive WC medals for one tournament from knockout standings.
+    Derive WC podium ``event_finish_position`` (1/2/3) from knockout standings.
 
     Gold/silver from main ``Final``; bronze from ``3rd Place Final`` winner **or**
     both semi-final losers when no 3rd-place match and Final is complete (Olympic-style).
-    Never awards medals from league rank alone.
+    Never assigns finish from league rank alone.
     """
     ko_rows = [
         r
@@ -99,114 +92,11 @@ def compute_wc_medals_from_standings(
             if int(row["position"]) == 2:
                 bronze_ids.add(int(row["player_id"]))
 
-    medals: dict[int, WcMedal] = {}
+    finish: dict[int, int] = {}
     if gold_id is not None:
-        medals[gold_id] = "gold"
+        finish[gold_id] = 1
     if silver_id is not None:
-        medals[silver_id] = "silver"
+        finish[silver_id] = 2
     for player_id in bronze_ids:
-        medals[player_id] = "bronze"
-    return medals
-
-
-def _load_tournament_name(conn: pymysql.connections.Connection, tournament_id: int) -> str:
-    with conn.cursor() as cur:
-        cur.execute("SELECT name FROM tournaments WHERE id = %s", (tournament_id,))
-        row = cur.fetchone()
-    if not row:
-        return ""
-    return str(row["name"])
-
-
-def derive_tournament_wc_medals(
-    conn: pymysql.connections.Connection,
-    tournament_id: int,
-    *,
-    tournament_name: str | None = None,
-) -> dict[int, WcMedal]:
-    name = tournament_name if tournament_name is not None else _load_tournament_name(conn, tournament_id)
-    if not is_world_cup_tournament(name):
-        return {}
-
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT scope_type, scope_key, player_id, position
-            FROM amiga_tournament_standings
-            WHERE tournament_id = %s
-            """,
-            (tournament_id,),
-        )
-        standing_rows = cur.fetchall()
-
-    return compute_wc_medals_from_standings(standing_rows)
-
-
-def derive_wc_medal(
-    conn: pymysql.connections.Connection,
-    tournament_id: int,
-    player_id: int,
-) -> WcMedal:
-    medals = derive_tournament_wc_medals(conn, tournament_id)
-    return medals.get(int(player_id), "none")
-
-
-def refresh_wc_medals(
-    conn: pymysql.connections.Connection,
-    tournament_id: int | None = None,
-    *,
-    dry_run: bool = False,
-) -> int:
-    """Update ``wc_medal`` on participation rows for World Cup events."""
-    with conn.cursor() as cur:
-        if tournament_id is not None:
-            cur.execute("SELECT id, name FROM tournaments WHERE id = %s", (tournament_id,))
-            wc_rows = list(cur.fetchall())
-        else:
-            cur.execute("SELECT id, name FROM tournaments WHERE name REGEXP %s", (r"^World Cup[[:space:]]+[^[:space:]]",))
-            wc_rows = list(cur.fetchall())
-
-    wc_rows = [row for row in wc_rows if is_world_cup_tournament(str(row["name"]))]
-
-    if dry_run:
-        return len(wc_rows)
-
-    updated = 0
-    with conn.cursor() as cur:
-        for row in wc_rows:
-            tid = int(row["id"])
-            name = str(row["name"])
-            medals = derive_tournament_wc_medals(conn, tid, tournament_name=name)
-            cur.execute(
-                """
-                UPDATE amiga_player_tournament_participation
-                SET wc_medal = 'none'
-                WHERE tournament_id = %s
-                """,
-                (tid,),
-            )
-            for player_id, medal in medals.items():
-                cur.execute(
-                    """
-                    UPDATE amiga_player_tournament_participation
-                    SET wc_medal = %s
-                    WHERE tournament_id = %s AND player_id = %s
-                    """,
-                    (medal, tid, player_id),
-                )
-                updated += int(cur.rowcount)
-            cur.execute(
-                """
-                UPDATE amiga_player_tournament_participation
-                SET is_winner = CASE WHEN wc_medal = 'gold' THEN 1 ELSE 0 END
-                WHERE tournament_id = %s
-                """,
-                (tid,),
-            )
-    conn.commit()
-    log.info(
-        "refresh_wc_medals: %s World Cup tournament(s), %s medal row(s) set",
-        len(wc_rows),
-        updated,
-    )
-    return updated
+        finish[player_id] = 3
+    return finish

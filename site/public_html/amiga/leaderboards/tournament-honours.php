@@ -14,6 +14,8 @@ $k2AmigaHubTabActive = 'leaderboards';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
@@ -36,25 +38,27 @@ $k2AmigaLbWingActive = 'tournament-honours';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 ?>
 
-<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-	<p class="k2-hub-page-intro" style="margin:0 0 1rem">Career tournament honours from derived participation — World Cup medals, podium finishes, event wins, and events played.</p>
-</header>
-
+<div class="k2-lb-tournament-honours">
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="3" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="10" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th data-k2-sort="number">Rank</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_elo_rating(), ENT_QUOTES, 'UTF-8'); ?>">Elo</th>
         <th data-k2-sort="text">Country</th>
-        <th data-k2-sort="number">WC gold</th>
-        <th data-k2-sort="number">WC silver</th>
-        <th data-k2-sort="number">WC bronze</th>
-        <th data-k2-sort="number">Tournaments played</th>
-        <th data-k2-sort="number">Tournaments won</th>
-        <th data-k2-sort="number">Podiums</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_tournament_events(), ENT_QUOTES, 'UTF-8'); ?>">Events</th>
+        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Event gold" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_event_gold(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(1); ?><span class="visually-hidden">Event gold</span></th>
+        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Event silver" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_event_silver(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(2); ?><span class="visually-hidden">Event silver</span></th>
+        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Event bronze" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_event_bronze(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(3); ?><span class="visually-hidden">Event bronze</span></th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_event_podiums(), ENT_QUOTES, 'UTF-8'); ?>">Podiums</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_played(), ENT_QUOTES, 'UTF-8'); ?>">WCs</th>
+        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="WC gold" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_gold(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(1); ?><span class="visually-hidden">WC gold</span></th>
+        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="WC silver" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_silver(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(2); ?><span class="visually-hidden">WC silver</span></th>
+        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="WC bronze" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_bronze(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(3); ?><span class="visually-hidden">WC bronze</span></th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_podiums(), ENT_QUOTES, 'UTF-8'); ?>">WC pod.</th>
     </tr>
 </thead>
 
@@ -67,13 +71,18 @@ foreach ($honoursRows as $row) {
     <tr>
         <td><?php echo $rank; ?></td>
         <td class="k2-table-cell--left"><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
+        <td><?php echo k2_fmt_int($row['rating']); ?></td>
         <td><?php echo k2_h((string) ($row['country'] ?? '')); ?></td>
+        <td><?php echo (int) $row['tournaments_played']; ?></td>
+        <td><?php echo (int) $row['event_gold']; ?></td>
+        <td><?php echo (int) $row['event_silver']; ?></td>
+        <td><?php echo (int) $row['event_bronze']; ?></td>
+        <td><?php echo (int) $row['event_podiums']; ?></td>
+        <td><?php echo (int) $row['wc_played']; ?></td>
         <td><?php echo (int) $row['wc_gold']; ?></td>
         <td><?php echo (int) $row['wc_silver']; ?></td>
         <td><?php echo (int) $row['wc_bronze']; ?></td>
-        <td><?php echo (int) $row['tournaments_played']; ?></td>
-        <td><?php echo (int) $row['tournaments_won']; ?></td>
-        <td><?php echo (int) $row['podiums']; ?></td>
+        <td><?php echo (int) $row['wc_podiums']; ?></td>
     </tr>
     <?php
     $rank++;
@@ -83,6 +92,7 @@ foreach ($honoursRows as $row) {
 
 </table>
 
+</div>
 </div>
 
 <p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one tournament.</p>
