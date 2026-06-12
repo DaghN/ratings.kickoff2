@@ -92,6 +92,8 @@ function records_render_row(string $label, string $valueHtml, string $holderHtml
 	echo "        <td>" . $holderHtml . "</td>\n";
 	echo "        <td class=\"k2-table-cell--right\">" . $dateHtml . "</td>\n";
 	echo "    </tr>\n";
+
+	records_hof_sync_track($valueCell, $holderHtml, $dateHtml);
 }
 
 function records_render_spacer_row(): void
@@ -311,12 +313,10 @@ $k2HofRecordLabels = [
 	'Highest double digit frequency',
 	'Highest clean sheet frequency',
 ];
-$k2HofSyncedLabelColCh = k2_hof_synced_label_col_ch($k2HofRecordLabels);
-$k2HofSyncedValueColCh = k2_hof_synced_value_col_ch();
-$k2HofSyncedDateColCh = k2_hof_synced_date_col_ch();
-?>
 
-<div class="server-records-panels server-records-panels--sync-cols" style="--k2-hof-label-col-ch: <?php echo (int) $k2HofSyncedLabelColCh; ?>ch; --k2-hof-value-col-ch: <?php echo (int) $k2HofSyncedValueColCh; ?>ch; --k2-hof-date-col-ch: <?php echo (int) $k2HofSyncedDateColCh; ?>ch;">
+records_hof_sync_reset();
+ob_start();
+?>
 <section class="server-records-panel server-records-panel--activity">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
@@ -580,6 +580,12 @@ records_render_row(
 </table>
 </div><!-- .k2-table-wrap -->
 </section>
+<?php
+$k2HofTablesHtml = ob_get_clean();
+$k2HofSyncWidths = records_hof_sync_compute_widths($k2HofRecordLabels);
+?>
+<div class="server-records-panels server-records-panels--sync-cols" style="<?php echo htmlspecialchars(records_hof_sync_style_attr($k2HofSyncWidths), ENT_QUOTES, 'UTF-8'); ?>">
+<?php echo $k2HofTablesHtml; ?>
 </div><!-- .server-records-panels -->
 
 

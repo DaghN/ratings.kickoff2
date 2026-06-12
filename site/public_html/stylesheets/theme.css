@@ -1235,19 +1235,26 @@ body.k2-site .server-records-table {
 	width: auto;
 }
 
-/* HoF paired tables: equal width + shared column tracks (PHP sets --k2-hof-*-col-ch). */
+/* HoF paired tables: shrink-wrap panels to shared tight ch tracks (PHP --k2-hof-*-col-ch). */
 body.k2-site .server-records-panels--sync-cols {
-	width: 100%;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	width: fit-content;
+	max-width: 100%;
+	grid-template-columns: repeat(2, max-content);
+}
+
+body.k2-site .server-records-panels--sync-cols .server-records-panel {
+	width: fit-content;
+	max-width: 100%;
 }
 
 body.k2-site .server-records-panels--sync-cols .server-records-panel .k2-table-wrap {
-	width: 100%;
+	width: fit-content;
+	max-width: 100%;
 	overflow-x: auto;
 }
 
 body.k2-site .server-records-panels--sync-cols .server-records-table {
-	width: 100%;
+	width: calc(var(--k2-hof-label-col-ch) + var(--k2-hof-value-col-ch) + var(--k2-hof-holder-col-ch) + var(--k2-hof-date-col-ch));
 	table-layout: fixed;
 }
 
@@ -1257,6 +1264,10 @@ body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col
 
 body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--value {
 	width: var(--k2-hof-value-col-ch);
+}
+
+body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--holder {
+	width: var(--k2-hof-holder-col-ch);
 }
 
 body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--date {
@@ -1284,6 +1295,10 @@ body.k2-site .server-period-activity-leaderboards__grid {
 	body.k2-site .server-records-panels,
 	body.k2-site .server-period-activity-leaderboards__grid {
 		grid-template-columns: 1fr;
+	}
+
+	body.k2-site .server-records-panels--sync-cols {
+		grid-template-columns: max-content;
 	}
 }
 

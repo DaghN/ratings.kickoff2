@@ -37,14 +37,13 @@ $perfHelp = amiga_perf_rating_column_help();
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="3" data-k2-default-direction="desc">
 
 <thead>
     <tr>
         <th data-k2-sort="number">#</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
         <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number">Career games</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($perfHelp, ENT_QUOTES, 'UTF-8'); ?>">Perf. rating</th>
         <th data-k2-sort="number" data-k2-help="Games in the listed event.">Event games</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Event</th>
@@ -63,7 +62,6 @@ foreach ($perfRows as $row) {
         <td><?php echo $rank; ?></td>
         <td class="k2-table-cell--left"><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
         <td><?php echo k2_fmt_int($row['Rating']); ?></td>
-        <td><?php echo k2_fmt_games_played((int) ($row['NumberGames'] ?? 0)); ?></td>
         <td><?php echo amiga_profile_tournament_rating_cell($row['performance_rating'] ?? null); ?></td>
         <td><?php echo k2_fmt_games_played($eventGames); ?></td>
         <td class="k2-table-cell--left"><?php
