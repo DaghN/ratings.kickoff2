@@ -83,6 +83,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga games Year filter** — listbox `?year=` (calendar year only); `YEAR(Date) =` selected year; perf API + sort URLs preserve filter alongside existing Since. |
+| 2026-06 | **hub-ia-agreement carry-scroll** — peer pill row documents games pager (`data-k2-carry-scroll` on `.k2-player-games-status`). |
 | 2026-06 | **Player games status line** — `.k2-player-games-status` 12px `--k2-text-muted` (was inheriting body 14px primary); online + Amiga games/tournament list summaries. |
 | 2026-06 | **Carry-scroll games pager** — online `player/games.php` Previous/Next 100 (`data-k2-carry-scroll` on status bar); shared `[data-k2-carry-scroll] a.k2-player-games-action` selector. |
 | 2026-06 | **Carry-scroll filter Reset** — `a.k2-player-games-action` inside `form[data-k2-carry-scroll]` (games filters online + Amiga + tournament games tab). |
