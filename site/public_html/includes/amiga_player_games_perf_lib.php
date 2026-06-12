@@ -34,6 +34,7 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
         $filters['country'],
         $filters['day'],
         $filters['since'],
+        $filters['year'],
         $whereTypes,
         $whereParams
     );

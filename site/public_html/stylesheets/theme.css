@@ -59,6 +59,11 @@
 	--k2-tooltip-title: var(--k2-text-secondary);
 	--k2-tooltip-body: var(--k2-text-primary);
 	--k2-tooltip-footer: var(--k2-text-muted);
+	/* In-page scrollbars — muted chrome, not tint accent */
+	--k2-scrollbar-size: 8px;
+	--k2-scrollbar-track: transparent;
+	--k2-scrollbar-thumb: color-mix(in srgb, var(--k2-text-muted) 45%, transparent);
+	--k2-scrollbar-thumb-hover: color-mix(in srgb, var(--k2-text-muted) 62%, transparent);
 	/* Neon C · bold — stronger accent glow, no background grid */
 	--k2-glow-strength: 0.55;
 	--k2-accent-glow-blur: 18px;
@@ -1823,9 +1828,74 @@ body.k2-site .k2-table-wrap {
 	max-width: 100%;
 	margin-bottom: 16px;
 	overflow: auto;
+	padding-bottom: 2px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+}
+
+/* In-page scroll regions — shared muted scrollbar chrome */
+body.k2-site .k2-table-wrap,
+body.k2-site .k2-archive-listbox__panel,
+body.k2-site .player-search-results,
+body.k2-site .k2-amiga-organizer-player-search__results,
+.activity-heatmap.activity-heatmap--scrolls,
+body.k2-site .server-peak-period-leaderboards,
+body.k2-site .pm3-cal--weeks .pm3-cal__week-grid,
+body.k2-site .k2-ms-recent-list-block,
+body.k2-site .k2-amiga-bracket__rounds {
+	scrollbar-width: thin;
+	scrollbar-color: var(--k2-scrollbar-thumb) var(--k2-scrollbar-track);
+}
+
+body.k2-site .k2-table-wrap::-webkit-scrollbar,
+body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar,
+body.k2-site .player-search-results::-webkit-scrollbar,
+body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar,
+.activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar,
+body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar,
+body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar,
+body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar,
+body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar {
+	width: var(--k2-scrollbar-size);
+	height: var(--k2-scrollbar-size);
+}
+
+body.k2-site .k2-table-wrap::-webkit-scrollbar-track,
+body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-track,
+body.k2-site .player-search-results::-webkit-scrollbar-track,
+body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-track,
+.activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar-track,
+body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar-track,
+body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar-track,
+body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar-track,
+body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-track {
+	background: var(--k2-scrollbar-track);
+}
+
+body.k2-site .k2-table-wrap::-webkit-scrollbar-thumb,
+body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb,
+body.k2-site .player-search-results::-webkit-scrollbar-thumb,
+body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-thumb,
+.activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar-thumb,
+body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar-thumb,
+body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar-thumb,
+body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar-thumb,
+body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb {
+	background: var(--k2-scrollbar-thumb);
+	border-radius: var(--k2-radius-sm);
+}
+
+body.k2-site .k2-table-wrap::-webkit-scrollbar-thumb:hover,
+body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb:hover,
+body.k2-site .player-search-results::-webkit-scrollbar-thumb:hover,
+body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-thumb:hover,
+.activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar-thumb:hover,
+body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar-thumb:hover,
+body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar-thumb:hover,
+body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar-thumb:hover,
+body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb:hover {
+	background: var(--k2-scrollbar-thumb-hover);
 }
 
 body.k2-site .k2-player-games-controls {
@@ -3313,27 +3383,12 @@ body.k2-site .k2-archive-listbox__panel {
 	font-weight: 400;
 	line-height: 1.35;
 	color: var(--k2-text-secondary);
-	scrollbar-color: color-mix(in srgb, var(--k2-text-muted) 45%, transparent) var(--k2-bg-elevated);
-	scrollbar-width: thin;
 }
 
 body.k2-site .k2-archive-listbox__panel:focus {
 	outline: none;
 	border-color: var(--k2-border-subtle);
 	box-shadow: var(--k2-shadow-surface);
-}
-
-body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar {
-	width: 8px;
-}
-
-body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-track {
-	background: var(--k2-bg-elevated);
-}
-
-body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb {
-	background: color-mix(in srgb, var(--k2-text-muted) 50%, var(--k2-bg-elevated));
-	border-radius: 4px;
 }
 
 body.k2-site .k2-archive-listbox__option {

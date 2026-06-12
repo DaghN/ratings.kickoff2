@@ -136,7 +136,8 @@ function amiga_games_valid_since_year(int $value, array $yearOptions): int
  *     event: string,
  *     country: string,
  *     day: string,
- *     since: int
+ *     since: int,
+ *     year: int
  * }
  */
 function amiga_player_games_filters_from_request(mysqli $con, int $playerId, array $query): array
@@ -149,6 +150,10 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
     $yearOptions = amiga_player_games_year_options($con, $playerId);
     $sinceYear = amiga_games_valid_since_year(
         isset($query['since']) ? (int) $query['since'] : 0,
+        $yearOptions
+    );
+    $yearFilter = amiga_games_valid_since_year(
+        isset($query['year']) ? (int) $query['year'] : 0,
         $yearOptions
     );
 
@@ -223,6 +228,7 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
         'country' => $countryFilter,
         'day' => $utcDayFilter,
         'since' => $sinceYear,
+        'year' => $yearFilter,
     ];
 }
 
@@ -259,6 +265,9 @@ function amiga_games_active_url_params(array $state): array
     if ((int) ($state['since'] ?? 0) > 0) {
         $params['since'] = (int) $state['since'];
     }
+    if ((int) ($state['year'] ?? 0) > 0) {
+        $params['year'] = (int) $state['year'];
+    }
 
     return $params;
 }
@@ -284,6 +293,7 @@ function amiga_games_where_clause(
     string $countryFilter,
     string $utcDay,
     int $sinceYear,
+    int $yearFilter,
     string &$types,
     array &$params
 ): string {
@@ -340,6 +350,12 @@ function amiga_games_where_clause(
         $where[] = 'YEAR(r.`Date`) >= ?';
         $types .= 'i';
         $params[] = $sinceYear;
+    }
+
+    if ($yearFilter > 0) {
+        $where[] = 'YEAR(r.`Date`) = ?';
+        $types .= 'i';
+        $params[] = $yearFilter;
     }
 
     return implode(' AND ', $where);
