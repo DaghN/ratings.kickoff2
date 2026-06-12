@@ -1,5 +1,5 @@
 {
-    "generated":  "2026-06-08 20:33:32",
+    "generated":  "2026-06-12 07:11:54",
     "parts":  [
                   "ko2amiga_01_schema.sql",
                   "ko2amiga_02_format_templates.sql",
@@ -24,6 +24,11 @@
                   "ko2amiga_21_stats.sql",
                   "ko2amiga_22_standings.sql",
                   "ko2amiga_23_catalog_stats.sql",
-                  "ko2amiga_24_rating_events.sql"
+                  "ko2amiga_24_participation.sql",
+                  "ko2amiga_25_tournament_totals.sql",
+                  "ko2amiga_26_matchup_summary.sql",
+                  "ko2amiga_27_generalstats.sql",
+                  "ko2amiga_28_finish_override.sql",
+                  "ko2amiga_29_rating_events.sql"
               ]
 }

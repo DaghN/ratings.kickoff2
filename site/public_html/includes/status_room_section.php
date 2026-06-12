@@ -75,7 +75,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-arc" aria-label="Rated games summary">
 			<p class="k2-status-room__arc">
 				<span class="blue"><?php echo number_format((int) ($arc['players'] ?? 0)); ?></span> players played
-				<span class="blue"><?php echo number_format((int) $arc['games']); ?></span> rated games since <?php echo k2_status_h($arc['since_label']); ?>
+				<span class="blue"><?php echo number_format((int) $arc['games']); ?></span> online Kick Off 2 games since <?php echo k2_status_h($arc['since_label']); ?>
 			</p>
 		</section>
 

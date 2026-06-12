@@ -1,6 +1,7 @@
 /* Amiga tournament pages — bracket + hero (neon noir, tint from --k2-accent) */
 
 .k2-amiga-tournament-hero {
+	scroll-margin-top: 12px;
 	margin: 0 1.25rem 1rem;
 	padding: 1rem 1.25rem;
 	border: 1px solid var(--k2-border-subtle);

@@ -328,21 +328,25 @@ foreach ($opponentRows as $opponentRow) {
 ?>
 
 <form class="k2-player-games-controls" method="get" action="/player/games.php">
-    <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
-    <input type="hidden" name="sort" value="<?php echo individual3_h($sortKey); ?>" />
-    <input type="hidden" name="dir" value="<?php echo individual3_h($sortDirection); ?>" />
-    <?php if ($utcDayFilter !== '') { ?>
-    <input type="hidden" name="day" value="<?php echo individual3_h($utcDayFilter); ?>" />
-    <?php } ?>
-    <div class="k2-player-games-controls__field">
-        <span class="server-period-activity-leaderboard__picker-label">Result</span>
-        <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result'); ?>
+    <div class="k2-player-games-controls__meta">
+        <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
+        <input type="hidden" name="sort" value="<?php echo individual3_h($sortKey); ?>" />
+        <input type="hidden" name="dir" value="<?php echo individual3_h($sortDirection); ?>" />
+        <?php if ($utcDayFilter !== '') { ?>
+        <input type="hidden" name="day" value="<?php echo individual3_h($utcDayFilter); ?>" />
+        <?php } ?>
     </div>
-    <div class="k2-player-games-controls__field">
-        <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
-        <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
+    <div class="k2-player-games-controls__fields">
+        <div class="k2-player-games-controls__field">
+            <span class="server-period-activity-leaderboard__picker-label">Result</span>
+            <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result'); ?>
+        </div>
+        <div class="k2-player-games-controls__field">
+            <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
+            <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
+        </div>
+        <a class="k2-player-games-action" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
     </div>
-    <a class="k2-player-games-action" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
 </form>
 
 <div class="k2-player-games-status">

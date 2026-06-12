@@ -48,7 +48,8 @@ FROM (
         gr.sum_of_goals AS SumOfGoals,
         gr.goal_difference AS GoalDifference,
         gr.winner_id AS WinnerID,
-        t.name AS tournament_name
+        t.name AS tournament_name,
+        t.country AS tournament_country
     FROM amiga_games g
     INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id
     INNER JOIN amiga_players pa ON pa.id = g.player_a_id

@@ -53,7 +53,7 @@ WinSCP sync `public_html/` (must include `amiga/run_import_ko2amiga.php` + `amig
 | **Preview** (no DB changes) | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
 | **Apply import** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee&apply=1&part=1 |
 
-Preview must show **`parts: 24`** and the importer build tag. Apply runs part 1 (schema) through part 24 (`amiga_rating_events`); each part auto-continues (~2s). Expect **473 players**, **27,416 games**, **`amiga_rating_events`**, **`tournament_entrants`**, and **`lifecycle_status`** columns after part 24.
+Preview must show **`parts: 29`** and the importer build tag. Apply runs part 1 (schema) through part 29 (`amiga_rating_events`); each part auto-continues (~2s). Expect **473 players**, **~27k games**, **`amiga_player_tournament_participation`** (parts 24–28: participation, totals, H2H, generalstats), **`amiga_rating_events`**, **`tournament_entrants`**, and **`lifecycle_status`** columns after part 29.
 
 **Post-import verify (local or after staging refresh):** `python -m scripts.amiga verify-rating-events` and `verify-chronology` against the imported DB. Staging does not run Python replay automatically — export must come from a local DB that already passed full replay, or run replay on the server if tooling is available.
 
@@ -63,7 +63,7 @@ Local dry-run (same paths, `ratingskickoff.test`): preview URL above with local 
 
 Spot-check: `/amiga/rating.php`, `/amiga/profile.php?id=1`, `/amiga/games.php?id=1`.
 
-**Verified Jun 2026:** 24-part browser import on staging (`ratings.kickoff2.com`) — includes `amiga_rating_events` (part 24). Dagh confirmed preview (`parts: 24`) + full apply through part 24; rating, profile, and games spot-checks OK. Export-from-replayed-local-DB path — no server-side Python replay required.
+**Verified Jun 2026:** 24-part browser import on staging (`ratings.kickoff2.com`) — rating, profile, and games spot-checks OK. **Jun 2026 fix:** export now includes parts 24–28 (`amiga_player_tournament_participation`, totals, matchup, generalstats) — required for `/amiga/player-tournaments.php` and honours/H2H surfaces. Re-import after sync if those pages were empty.
 
 **Fallback:** Steve Heidi/mysql import of `ko2amiga_db.sql` — only if browser import fails.
 

@@ -36,10 +36,8 @@ try {
 }
 
 $eventFilter = 'all';
-if (isset($_GET['filter']) && is_string($_GET['filter'])) {
-    if (in_array($_GET['filter'], ['world-cup', 'cups'], true)) {
-        $eventFilter = $_GET['filter'];
-    }
+if (isset($_GET['filter']) && $_GET['filter'] === 'world-cup') {
+    $eventFilter = 'world-cup';
 }
 
 $allTournamentRows = amiga_player_tournament_participation_all($con, $playerId);
@@ -58,6 +56,12 @@ $tournaments = amiga_player_tournament_participation_filter_events(
     $countryFilter
 );
 $tournamentCount = count($tournaments);
+$listSummary = amiga_player_tournaments_list_summary(
+    $tournamentCount,
+    $eventFilter,
+    $countryFilter,
+    $allTournamentRows !== [],
+);
 mysqli_close($con);
 
 $id = $playerId;
@@ -68,16 +72,6 @@ $Display = $pm['display'] ? 1 : 0;
 $rank = $pm['rank'];
 $Country = $pm['country'];
 
-$filterLabelParts = [];
-if ($eventFilter === 'world-cup') {
-    $filterLabelParts[] = 'World Cups';
-} elseif ($eventFilter === 'cups') {
-    $filterLabelParts[] = 'Cups';
-}
-if ($countryFilter !== '') {
-    $filterLabelParts[] = $countryFilter;
-}
-$filterLabelSuffix = $filterLabelParts === [] ? '' : ' (' . implode(' · ', $filterLabelParts) . ')';
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -91,34 +85,33 @@ $k2AmigaPlayerTabActive = 'tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 ?>
 
-<nav class="k2-player-nav k2-nav-pills" aria-label="Filter events" style="padding:0 1.25rem 0.5rem;margin:0">
-	<div class="k2-player-nav__links">
-		<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, 'all', $countryFilter)); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>">All</a>
-		<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, 'world-cup', $countryFilter)); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
-		<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, 'cups', $countryFilter)); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'cups' ? ' is-active' : ''; ?>">Cups</a>
+<div class="k2-player-tournament-filters">
+	<div class="k2-player-tournament-filters__row">
+		<span class="server-period-activity-leaderboard__picker-label">Event</span>
+		<nav class="k2-player-tournament-filters__pills" data-k2-carry-scroll aria-label="Filter events">
+			<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, 'all', $countryFilter)); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>">All</a>
+			<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, 'world-cup', $countryFilter)); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
+		</nav>
 	</div>
-</nav>
 <?php if ($countryOptions !== []) { ?>
-<nav class="k2-player-nav k2-nav-pills" aria-label="Filter by event location" style="padding:0 0 1rem 1.25rem;margin:0">
-	<div class="k2-player-nav__links">
-		<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, $eventFilter)); ?>" class="k2-player-nav__btn<?php echo $countryFilter === '' ? ' is-active' : ''; ?>">All locations</a>
-		<?php foreach ($countryOptions as $countryName) { ?>
-		<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, $eventFilter, $countryName)); ?>" class="k2-player-nav__btn<?php echo $countryFilter === $countryName ? ' is-active' : ''; ?>"><?php echo k2_h($countryName); ?></a>
-		<?php } ?>
-	</div>
-</nav>
+	<div class="k2-player-tournament-filters__row">
+		<span class="server-period-activity-leaderboard__picker-label">Location</span>
+		<nav class="k2-player-tournament-filters__pills" data-k2-carry-scroll aria-label="Filter by event location">
+			<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, $eventFilter)); ?>" class="k2-player-nav__btn<?php echo $countryFilter === '' ? ' is-active' : ''; ?>">All locations</a>
+<?php foreach ($countryOptions as $countryName) { ?>
+			<a href="<?php echo k2_h(amiga_player_tournaments_filter_url($playerId, $eventFilter, $countryName)); ?>" class="k2-player-nav__btn<?php echo $countryFilter === $countryName ? ' is-active' : ''; ?>"><?php echo k2_h($countryName); ?></a>
 <?php } ?>
+		</nav>
+	</div>
+<?php } ?>
+</div>
 
-<div class="k2-player-games-status" style="padding:0 1.25rem 1rem">
-	<?php echo (int) $tournamentCount; ?> tournament<?php echo $tournamentCount === 1 ? '' : 's'; ?><?php
-        echo k2_h($filterLabelSuffix);
-    ?> — newest first (click column headers to re-sort).
+<div class="k2-player-games-status">
+	<?php echo k2_h($listSummary); ?>
 </div>
 
 <?php
-if ($tournaments === []) {
-    echo '<p style="padding:0 1.25rem 2rem">No tournament participation on record.</p>';
-} else {
+if ($tournaments !== []) {
     amiga_profile_render_tournament_history_table($tournaments);
 }
 ?>

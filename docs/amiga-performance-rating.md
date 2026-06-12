@@ -81,6 +81,9 @@ Do **not** store on `amiga_tournament_standings` (phase-scoped, multiple rows pe
 | Profile recent tournaments | `amiga_profile_recent_tournament_extras()` — **Perf NNN** when games ≥ 2 (compact suffix) |
 | `/amiga/tournament.php` | `view=event-stats` — participation roster; **Perf. rating** column |
 | `/amiga/leaderboards/performance-rating.php` | Best single-event perf per player (`amiga_lb_performance_rating_rows`) |
+| `/amiga/games.php` status line | **Read-time** over filtered games — `amiga_player_games_list_performance_rating()` via `api/amiga_player_games_perf_rating.php` (async after paint); frozen `rating_a`/`rating_b` per game; not stored |
+
+When the games tab filters to a **single tournament**, the list perf should match that event’s stored `participation.performance_rating` (same game set and frozen inputs).
 
 ---
 

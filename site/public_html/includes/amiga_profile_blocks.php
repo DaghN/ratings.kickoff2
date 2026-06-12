@@ -436,7 +436,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<th data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
 			<th data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adj.</th>
 			<th data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
-			<th data-k2-sort="number" data-k2-help="Rating level implied by your results in this event against the opponents you faced (frozen ratings). Requires at least 2 games; omitted for perfect win or loss records.">Perf. rating</th>
+			<th data-k2-sort="number" data-k2-tooltip-label="<?php echo htmlspecialchars(amiga_perf_rating_column_label(), ENT_QUOTES, 'UTF-8'); ?>" data-k2-help="<?php echo htmlspecialchars(amiga_perf_rating_column_help(), ENT_QUOTES, 'UTF-8'); ?>">Perf. rating</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -521,7 +521,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<th data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
 			<th data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adjustment</th>
 			<th data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
-			<th data-k2-sort="number" data-k2-help="Rating level implied by your results in this event against the opponents you faced (frozen ratings). Requires at least 2 games; omitted for perfect win or loss records.">Perf. rating</th>
+			<th data-k2-sort="number" data-k2-tooltip-label="<?php echo htmlspecialchars(amiga_perf_rating_column_label(), ENT_QUOTES, 'UTF-8'); ?>" data-k2-help="<?php echo htmlspecialchars(amiga_perf_rating_column_help(), ENT_QUOTES, 'UTF-8'); ?>">Perf. rating</th>
 		</tr>
 	</thead>
 	<tbody>

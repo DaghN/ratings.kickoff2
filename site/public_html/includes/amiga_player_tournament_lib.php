@@ -119,7 +119,7 @@ function amiga_player_tournament_participation_countries(array $rows): array
 
 /**
  * @param list<array<string, mixed>> $rows
- * @param 'all'|'world-cup'|'cups' $filter
+ * @param 'all'|'world-cup' $filter
  * @return list<array<string, mixed>>
  */
 function amiga_player_tournament_participation_filter_events(
@@ -138,9 +138,6 @@ function amiga_player_tournament_participation_filter_events(
             if ($filter === 'world-cup' && !amiga_tournament_is_world_cup($row)) {
                 return false;
             }
-            if ($filter === 'cups' && (int) ($row['is_cup'] ?? 0) !== 1) {
-                return false;
-            }
             if ($country !== '' && trim((string) ($row['country'] ?? '')) !== $country) {
                 return false;
             }
@@ -148,6 +145,39 @@ function amiga_player_tournament_participation_filter_events(
             return true;
         }
     ));
+}
+
+/**
+ * Plain-language count line for the filtered tournament history list.
+ */
+function amiga_player_tournaments_list_summary(
+    int $count,
+    string $eventFilter,
+    string $countryFilter,
+    bool $hasAnyParticipation,
+): string {
+    if ($count === 0) {
+        if (!$hasAnyParticipation) {
+            return 'No events on record yet.';
+        }
+
+        return 'No events match these filters.';
+    }
+
+    $word = $count === 1 ? 'event' : 'events';
+    $n = number_format($count);
+
+    if ($eventFilter === 'world-cup' && $countryFilter !== '') {
+        return $n . ' World Cup ' . $word . ' in ' . $countryFilter . '.';
+    }
+    if ($eventFilter === 'world-cup') {
+        return $n . ' World Cup ' . $word . '.';
+    }
+    if ($countryFilter !== '') {
+        return $n . ' ' . $word . ' in ' . $countryFilter . '.';
+    }
+
+    return $n . ' ' . $word . ' in total.';
 }
 
 /**

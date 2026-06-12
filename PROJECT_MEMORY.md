@@ -83,7 +83,31 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Status leaderboard copy** — heading + Elo tooltip: “active **online** players in the past year”. |
+| 2026-06 | **Amiga games list Perf. rating** — async `api/amiga_player_games_perf_rating.php` + `amiga-player-games-perf.js`; status line on `/amiga/games.php`; shared `amiga_player_games_filters_from_request()`. |
+| 2026-06 | **Player tournament filter panel** — `.k2-player-tournament-filters` padding `4px` (match player nav); tighter row gaps. |
+| 2026-06 | **Carry-scroll reverted** — `k2-carry-scroll.js` + `k2_carry_scroll_restore.php` restored to last committed baseline (simple pill click → store `scrollY`; no session peak / per-dest cache). |
+| 2026-06 | **Amiga games WC filter fix** — World Cup SQL REGEXP had stray literal space (`World Cup [[:space:]]` → `World Cup[[:space:]]`); World Cups pill returned 0 games. |
+| 2026-06 | **Player games filter layout** — stacked label above listbox per field; Amiga games row = four equal columns + Reset (online + Amiga). |
+| 2026-06 | **Player games sort carry-scroll** — `k2-carry-scroll.js` stores scrollY on `.k2-table--player-games` server-sort column clicks (online + Amiga `/player/games.php`, `/amiga/games.php`). |
+| 2026-06 | **Player goals matchup table** — min/max column labels tightened: **Min/Max GF/GA**, **Min/Max sum**, **Max win/loss**; shared `k2_lb_help_least_*` tooltips. |
+| 2026-06 | **Amiga player games tournament filter** — Tournament listbox on `/amiga/games.php` (`?tournament=`); events ordered latest-first (`chrono` / `event_date`); sort links + matching-games status preserve filter. |
+| 2026-06 | **Amiga player games status** — unfiltered list: `N official games.`; filtered: `N matching games.` |
+| 2026-06 | **Amiga player games filters** — Result/Opponent listbox + Reset keep scroll (`data-k2-carry-scroll` on filter form). |
+| 2026-06 | **Player tournament history** — plain count line above table (`39 events in total.`; filter-aware; no sort jargon). |
+| 2026-06 | **Player tournament history filters** — `.k2-player-tournament-filters` panel (Event + Location rows); All / World Cups only; carry-scroll on pills. |
+| 2026-06 | **Amiga tournament games tab** — removed in-tab **Games** h2 (nav pill is enough). |
+| 2026-06 | **Amiga tournament games Phase col** — hidden when every row has empty `phase` (plain single-league events); shown when any game has a phase label. |
+| 2026-06 | **Amiga tournament games filter** — player listbox + Reset keep scroll (`data-k2-carry-scroll`; listbox `change` handler — `form.submit()` skips submit event). |
+| 2026-06 | **Amiga tournament event stats** — removed in-tab **Event stats** h2 only; lede kept. |
+| 2026-06 | **Amiga tournament standings** — removed league-table footnote (replay/3-1-0 copy) under standings tables. |
+| 2026-06 | **Amiga tournament nav scroll** — section pills under hero use `data-k2-carry-scroll` (same as hub/player nav) so tab switches keep scroll position. |
+| 2026-06 | **Amiga tournament entry anchor** — `#tournament` on hero; `amiga_tournament_link()` defaults to it so index/profile links land with tournament title at viewport top. |
+| 2026-06 | **Amiga hub Activity tab** — `/amiga/activity.php` empty placeholder; after Live tournaments in hub nav. |
+| 2026-06 | **Amiga hub News tab** — `/amiga/news.php` empty placeholder; first hub tab + realm default (wordmark + Amiga 500 switcher). |
+| 2026-06 | **Header wordmark realm home** — Kick Off 2 title links to current realm default (`/status.php` or `/amiga/news.php`), not always online. |
+| 2026-06 | **Amiga staging export fix** — `export_ko2amiga_db.ps1` now dumps participation, tournament totals, matchup summary, generalstats (+ finish override); 29 parts (was 24). Fixes empty `/amiga/player-tournaments.php` on staging after import. |
+| 2026-06 | **Amiga tournaments hub** — removed chapter lede on `/amiga/tournaments.php` (title + filter pills only). |
+| 2026-06 | **Online hub copy** — status arc + leaderboards lede: “online Kick Off 2” without leading with “rated”; competitive detail in tables/wings. |
 | 2026-06 | **Agent track playbook** — [`docs/orchestration/agent-track-playbook.md`](docs/orchestration/agent-track-playbook.md) (doc · plan · prompt · slices); AGENTS + PROJECT_MAP links; online + Amiga. |
 | 2026-06 | **Hub ledes (online)** — Activity, Games, Leaderboards, Milestones (`milestones.php`). |
 | 2026-06 | **Online HoF table cols** — Activity + Performance share col 1 width via PHP label register + `--k2-hof-label-col-ch` (`records_hof_table.php`). |

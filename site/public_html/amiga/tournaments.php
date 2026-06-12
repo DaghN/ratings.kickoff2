@@ -40,10 +40,7 @@ if ($typeFilter !== '') {
 
 <header class="k2-hub-chapter">
   <h1 class="k2-hub-chapter__title">Tournaments</h1>
-  <p class="k2-hub-chapter__lede">
-    Offline Kick Off 2 events on the Amiga ladder — leagues, cups, and World Cups. Standings are derived from match results; cups can include group tables and knockout brackets.
-  </p>
-  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav k2-hub-chapter__nav" aria-label="Filter by format">
+  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav k2-hub-chapter__nav" data-k2-carry-scroll aria-label="Filter by format">
     <div class="k2-player-nav__links">
       <a href="?" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
       <a href="?type=world-cup" class="k2-player-nav__btn<?php echo $typeFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>

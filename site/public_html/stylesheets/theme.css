@@ -1828,36 +1828,64 @@ body.k2-site .k2-table-wrap {
 	background: var(--k2-bg-surface);
 }
 
-body.k2-site .k2-player-games-controls,
-body.k2-site .k2-player-games-status {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 8px 12px;
+body.k2-site .k2-player-games-controls {
 	margin-bottom: 12px;
 	color: var(--k2-text-muted);
 	font-size: 12px;
 }
 
-body.k2-site .k2-player-games-controls__field {
-	display: inline-flex;
-	flex-wrap: nowrap;
+body.k2-site .k2-player-games-controls__meta {
+	display: none;
+}
+
+body.k2-site .k2-player-games-controls__fields,
+body.k2-site .k2-player-games-status {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 6px 8px;
+}
+
+body.k2-site .k2-player-games-status {
 	align-items: center;
-	gap: 4px 6px;
+	margin-bottom: 12px;
+}
+
+body.k2-site .k2-player-games-controls__field {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 3px;
+	min-width: 0;
 }
 
 body.k2-site .k2-player-games-controls .server-period-activity-leaderboard__picker-label {
-	font-size: 11px;
+	flex: 0 0 auto;
+	font-size: 10px;
 	font-weight: 600;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.04em;
 	text-transform: uppercase;
 	color: var(--k2-text-secondary);
 	margin: 0;
+	line-height: 1.2;
+	white-space: nowrap;
 }
 
 body.k2-site .k2-player-games-controls .k2-archive-listbox {
-	min-width: 10em;
-	max-width: min(22em, 92vw);
+	flex: 0 1 auto;
+	min-width: 0;
+	width: 100%;
+	max-width: min(14rem, 42vw);
+}
+
+body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger {
+	width: 100%;
+	max-width: 100%;
+	padding: 4px 20px 4px 8px;
+	font-size: 11px;
+	line-height: 1.25;
+	gap: 4px;
+	background-position: right 6px center;
 }
 
 body.k2-site .k2-player-games-action,
@@ -1886,6 +1914,101 @@ body.k2-site .k2-player-games-action:focus-visible {
 	background: rgba(255, 255, 255, 0.035);
 	text-decoration: none;
 	outline: none;
+}
+
+/* Amiga player tournament history — labeled filter rows (Event / Location) in one panel */
+body.k2-site .k2-player-tournament-filters {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+	margin: 0 0 20px;
+	padding: 4px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+	box-sizing: border-box;
+}
+
+body.k2-site .k2-player-tournament-filters__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 8px;
+	min-width: 0;
+}
+
+body.k2-site .k2-player-tournament-filters__row .server-period-activity-leaderboard__picker-label {
+	flex: 0 0 auto;
+	min-width: 4.75rem;
+	margin: 0;
+}
+
+body.k2-site .k2-player-tournament-filters__pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2px;
+	flex: 1 1 auto;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+
+body.k2-site .k2-player-games-filters.k2-player-tournament-filters {
+	gap: 6px;
+}
+
+body.k2-site .k2-player-games-filters .k2-player-tournament-filters__row {
+	gap: 4px 6px;
+}
+
+body.k2-site .k2-player-games-filters .k2-player-games-controls {
+	margin-bottom: 0;
+	width: 100%;
+}
+
+/* Amiga games tab — stacked labels; four equal columns on laptop */
+body.k2-site .k2-player-games-filters .k2-player-games-controls__fields {
+	flex-wrap: nowrap;
+	gap: 6px;
+}
+
+body.k2-site .k2-player-games-filters .k2-player-games-controls__field {
+	flex: 1 1 0;
+}
+
+body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox {
+	max-width: none;
+}
+
+body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox,
+body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox__trigger {
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+}
+
+body.k2-site .k2-player-games-filters .k2-player-games-action {
+	flex: 0 0 auto;
+	align-self: flex-end;
+	padding: 4px 8px;
+	min-height: 28px;
+	font-size: 10px;
+}
+
+@media (max-width: 720px) {
+	body.k2-site .k2-player-games-filters .k2-player-games-controls__fields {
+		flex-wrap: wrap;
+	}
+
+	body.k2-site .k2-player-games-filters .k2-player-games-controls__field {
+		flex: 1 1 calc(50% - 6px);
+	}
 }
 
 /* Player games (`individual3.php`): calm secondary body; keep win/loss blue/red; sort column pops */

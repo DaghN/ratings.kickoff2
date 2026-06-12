@@ -234,7 +234,7 @@ $k2AmigaHubTabActive = 'tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 ?>
 
-<header class="k2-amiga-tournament-hero">
+<header id="<?php echo k2_h(AMIGA_TOURNAMENT_PAGE_FRAGMENT); ?>" class="k2-amiga-tournament-hero">
 
   <h1 class="k2-amiga-tournament-hero__title k2-hub-intro"><?php echo k2_h($tName); ?></h1>
 
@@ -260,7 +260,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php if ($hasLeagueStandingsNav || $hasBracket || $hasGamesTab || $eventStatsRows !== []) { ?>
 
-<nav class="k2-amiga-tournament-nav k2-player-nav-bar" aria-label="Tournament sections">
+<nav class="k2-amiga-tournament-nav k2-player-nav-bar" data-k2-carry-scroll aria-label="Tournament sections">
 
   <div class="k2-player-nav k2-nav-pills">
 
@@ -377,7 +377,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php if ($isWorldCupEvent && $pageView === 'stages' && ($hasLeagueStandingsNav || $hasBracket)) { ?>
 
-<nav class="k2-amiga-tournament-nav k2-amiga-tournament-stages-nav k2-player-nav-bar" aria-label="Tournament stages">
+<nav class="k2-amiga-tournament-nav k2-amiga-tournament-stages-nav k2-player-nav-bar" data-k2-carry-scroll aria-label="Tournament stages">
 
   <div class="k2-player-nav k2-nav-pills">
 
@@ -401,9 +401,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php if ($pageView === 'games') { ?>
 
-<section class="k2-amiga-tournament-games" aria-labelledby="k2-amiga-tournament-games-heading">
-
-  <h2 id="k2-amiga-tournament-games-heading" class="k2-panel-heading" style="margin:0 1.25rem 0.75rem">Games</h2>
+<section class="k2-amiga-tournament-games" aria-label="Games">
 
   <?php if (!$hasGamesTab) { ?>
 
@@ -427,33 +425,41 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       ?>
 
-  <form class="k2-player-games-controls" method="get" action="/amiga/tournament.php" style="margin:0 1.25rem 0.75rem">
+  <form class="k2-player-games-controls" method="get" action="/amiga/tournament.php" data-k2-carry-scroll style="margin:0 1.25rem 0.75rem">
 
-    <input type="hidden" name="id" value="<?php echo (int) $id; ?>" />
+    <div class="k2-player-games-controls__meta">
 
-    <input type="hidden" name="view" value="games" />
+      <input type="hidden" name="id" value="<?php echo (int) $id; ?>" />
 
-    <div class="k2-player-games-controls__field">
-
-      <span class="server-period-activity-leaderboard__picker-label">Player</span>
-
-      <?php k2_archive_listbox_render(
-
-          'player',
-
-          'k2-tournament-games-player',
-
-          (string) $tournamentGamesPlayerFilter,
-
-          $playerChoices,
-
-          'Filter by player',
-
-      ); ?>
+      <input type="hidden" name="view" value="games" />
 
     </div>
 
-    <a class="k2-player-games-action" href="<?php echo k2_h(amiga_tournament_games_url($id)); ?>">Reset</a>
+    <div class="k2-player-games-controls__fields">
+
+      <div class="k2-player-games-controls__field">
+
+        <span class="server-period-activity-leaderboard__picker-label">Player</span>
+
+        <?php k2_archive_listbox_render(
+
+            'player',
+
+            'k2-tournament-games-player',
+
+            (string) $tournamentGamesPlayerFilter,
+
+            $playerChoices,
+
+            'Filter by player',
+
+        ); ?>
+
+      </div>
+
+      <a class="k2-player-games-action" href="<?php echo k2_h(amiga_tournament_games_url($id)); ?>">Reset</a>
+
+    </div>
 
   </form>
 
@@ -479,9 +485,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php } elseif ($pageView === 'event-stats') { ?>
 
-<section class="k2-amiga-tournament-event-stats" aria-labelledby="k2-amiga-event-stats-heading">
-
-  <h2 id="k2-amiga-event-stats-heading" class="k2-panel-heading" style="margin:0 1.25rem 0.75rem">Event stats</h2>
+<section class="k2-amiga-tournament-event-stats" aria-label="Event stats">
 
   <p style="margin:0 1.25rem 0.75rem;color:var(--k2-text-secondary)">Per-player totals across all phases in this event.</p>
 
@@ -733,19 +737,15 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 
 
-<p style="padding:0 1.25rem 0;color:var(--k2-text-secondary)">
+<?php if ($isKnockoutView) { ?>
 
-  <?php if ($isKnockoutView) { ?>
+<p style="padding:0 1.25rem 0;color:var(--k2-text-secondary)">
 
   Per-leg scores above; aggregate table below. Winner by total goal difference (penalties in <code>extra</code> when aggregate is tied).
 
-  <?php } else { ?>
-
-  Standings derived from match results (3 pts win, 1 draw). Rebuilt by <code>python -m scripts.amiga replay</code>.
-
-  <?php } ?>
-
 </p>
+
+<?php } ?>
 
 <?php } ?>
 

@@ -78,6 +78,16 @@ function k2_lb_help_most_conceded(): string
     return 'Most goals conceded in one rated game.';
 }
 
+function k2_lb_help_least_scored(): string
+{
+    return 'Fewest goals scored in one rated game.';
+}
+
+function k2_lb_help_least_conceded(): string
+{
+    return 'Fewest goals conceded in one rated game.';
+}
+
 function k2_lb_help_win_margin(): string
 {
     return 'Your largest winning margin in one game.';
@@ -96,6 +106,11 @@ function k2_lb_help_biggest_draw(): string
 function k2_lb_help_goal_sum(): string
 {
     return 'Most total goals in one game you played in.';
+}
+
+function k2_lb_help_least_goal_sum(): string
+{
+    return 'Fewest total goals in one game you played in.';
 }
 
 /** DD / clean sheets wing (ranked3). */

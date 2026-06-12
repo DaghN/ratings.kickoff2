@@ -22,6 +22,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_games_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_performance_rating.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
 
@@ -47,9 +48,13 @@ $rank = $pm['rank'];
 $Country = $pm['country'];
 $name = $Name;
 
-$resultFilter = amiga_games_valid_result((string) ($_GET['result'] ?? 'all'));
-$opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
-$utcDayFilter = amiga_games_valid_day((string) ($_GET['day'] ?? ''));
+$gameFilters = amiga_player_games_filters_from_request($con, $playerId, $_GET);
+$resultFilter = $gameFilters['result'];
+$opponentFilter = $gameFilters['opponent'];
+$tournamentFilter = $gameFilters['tournament'];
+$eventFilter = $gameFilters['event'];
+$countryFilter = $gameFilters['country'];
+$utcDayFilter = $gameFilters['day'];
 $sortKey = (string) ($_GET['sort'] ?? 'id');
 if ($sortKey === 'for') {
     $sortKey = 'goals_for';
@@ -93,20 +98,53 @@ $opponentRows = amiga_games_query_all(
     'ii',
     [$playerId, $playerId]
 );
-$validOpponentIds = [];
-foreach ($opponentRows as $opponentRow) {
-    $validOpponentIds[(int) $opponentRow['opponent_id']] = true;
-}
-if ($opponentFilter > 0 && !isset($validOpponentIds[$opponentFilter])) {
-    $opponentFilter = 0;
+$countryMetaTypes = 'ii';
+$countryMetaParams = [$playerId, $playerId];
+$countryMetaSql = amiga_games_tournament_meta_and_sql($eventFilter, '', $countryMetaTypes, $countryMetaParams);
+$countryRowList = amiga_games_query_all(
+    $con,
+    'SELECT DISTINCT t.country AS country FROM amiga_games g '
+        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) '
+        . 'AND t.country IS NOT NULL AND TRIM(t.country) <> \'\''
+        . $countryMetaSql
+        . ' ORDER BY country ASC',
+    $countryMetaTypes,
+    $countryMetaParams
+);
+$countryOptions = [];
+foreach ($countryRowList as $countryRow) {
+    $countryOptions[] = (string) $countryRow['country'];
 }
 
+$tournamentMetaTypes = 'ii';
+$tournamentMetaParams = [$playerId, $playerId];
+$tournamentMetaSql = amiga_games_tournament_meta_and_sql(
+    $eventFilter,
+    $countryFilter,
+    $tournamentMetaTypes,
+    $tournamentMetaParams
+);
+$tournamentRows = amiga_games_query_all(
+    $con,
+    'SELECT g.tournament_id, t.name AS tournament_name, COUNT(*) AS games FROM amiga_games g '
+        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE g.player_a_id = ? OR g.player_b_id = ?'
+        . $tournamentMetaSql
+        . ' GROUP BY g.tournament_id, t.name, t.event_date, t.chrono '
+        . 'ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC',
+    $tournamentMetaTypes,
+    $tournamentMetaParams
+);
 $whereTypes = '';
 $whereParams = [];
 $whereSql = amiga_games_where_clause(
     $playerId,
     $resultFilter,
     $opponentFilter,
+    $tournamentFilter,
+    $eventFilter,
+    $countryFilter,
     $utcDayFilter,
     $whereTypes,
     $whereParams
@@ -151,8 +189,12 @@ $sortState = [
     'dir' => $sortDirection,
     'result' => $resultFilter,
     'opponent' => $opponentFilter,
+    'tournament' => $tournamentFilter,
+    'event' => $eventFilter,
+    'country' => $countryFilter,
     'day' => $utcDayFilter,
 ];
+$gamesUrlState = $sortState;
 $sortedColIndex = amiga_player_game_sort_col_index($sortKey);
 
 $resultChoices = [
@@ -168,32 +210,85 @@ foreach ($opponentRows as $opponentRow) {
         'label' => (string) $opponentRow['opponent_name'] . ' (' . (int) $opponentRow['games'] . ')',
     ];
 }
+$tournamentChoices = [['value' => '0', 'label' => 'All tournaments']];
+foreach ($tournamentRows as $tournamentRow) {
+    $tournamentChoices[] = [
+        'value' => (string) (int) $tournamentRow['tournament_id'],
+        'label' => (string) $tournamentRow['tournament_name'] . ' (' . (int) $tournamentRow['games'] . ')',
+    ];
+}
+$countryChoices = [['value' => '', 'label' => 'All countries']];
+foreach ($countryOptions as $countryName) {
+    $countryChoices[] = [
+        'value' => $countryName,
+        'label' => $countryName,
+    ];
+}
 ?>
 
-<form class="k2-player-games-controls" method="get" action="/amiga/games.php">
-    <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
-    <input type="hidden" name="sort" value="<?php echo amiga_games_h($sortKey); ?>" />
-    <input type="hidden" name="dir" value="<?php echo amiga_games_h($sortDirection); ?>" />
-    <?php if ($utcDayFilter !== '') { ?>
-    <input type="hidden" name="day" value="<?php echo amiga_games_h($utcDayFilter); ?>" />
-    <?php } ?>
-    <div class="k2-player-games-controls__field">
-        <span class="server-period-activity-leaderboard__picker-label">Result</span>
-        <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result'); ?>
+<div class="k2-player-tournament-filters k2-player-games-filters">
+    <div class="k2-player-tournament-filters__row">
+        <span class="server-period-activity-leaderboard__picker-label">Event</span>
+        <nav class="k2-player-tournament-filters__pills" data-k2-carry-scroll aria-label="Filter events">
+            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'all')); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>">All</a>
+            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'world-cup')); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
+        </nav>
     </div>
-    <div class="k2-player-games-controls__field">
-        <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
-        <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
-    </div>
-    <a class="k2-player-games-action" href="/amiga/games.php?id=<?php echo $playerId; ?>">Reset</a>
-</form>
+    <form class="k2-player-games-controls" method="get" action="/amiga/games.php" data-k2-carry-scroll>
+        <div class="k2-player-games-controls__meta">
+            <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
+            <input type="hidden" name="sort" value="<?php echo amiga_games_h($sortKey); ?>" />
+            <input type="hidden" name="dir" value="<?php echo amiga_games_h($sortDirection); ?>" />
+            <?php if ($eventFilter !== 'all') { ?>
+            <input type="hidden" name="filter" value="<?php echo amiga_games_h($eventFilter); ?>" />
+            <?php } ?>
+            <?php if ($utcDayFilter !== '') { ?>
+            <input type="hidden" name="day" value="<?php echo amiga_games_h($utcDayFilter); ?>" />
+            <?php } ?>
+        </div>
+        <div class="k2-player-games-controls__fields">
+            <div class="k2-player-games-controls__field">
+                <span class="server-period-activity-leaderboard__picker-label">Result</span>
+                <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result'); ?>
+            </div>
+            <div class="k2-player-games-controls__field">
+                <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
+                <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
+            </div>
+            <div class="k2-player-games-controls__field">
+                <span class="server-period-activity-leaderboard__picker-label">Tournament</span>
+                <?php k2_archive_listbox_render('tournament', 'k2-player-games-tournament', (string) $tournamentFilter, $tournamentChoices, 'Filter by tournament'); ?>
+            </div>
+            <?php if ($countryOptions !== []) { ?>
+            <div class="k2-player-games-controls__field">
+                <span class="server-period-activity-leaderboard__picker-label">Country</span>
+                <?php k2_archive_listbox_render('country', 'k2-player-games-country', $countryFilter, $countryChoices, 'Filter by country'); ?>
+            </div>
+            <?php } ?>
+            <a class="k2-player-games-action" href="/amiga/games.php?id=<?php echo $playerId; ?>">Reset</a>
+        </div>
+    </form>
+</div>
 
 <div class="k2-player-games-status">
     <?php if ($utcDayFilter !== '') { ?>
     Rated games on <strong><?php echo amiga_games_h($utcDayFilter); ?></strong> UTC
-    (<a href="<?php echo amiga_games_h(amiga_games_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []))); ?>">clear day filter</a>).
+    (<a href="<?php echo amiga_games_h(amiga_games_build_url(amiga_games_active_url_params(array_merge($gamesUrlState, ['day' => ''])))); ?>">clear day filter</a>).
     <?php } ?>
-    <?php echo $totalMatches; ?> matching game<?php echo $totalMatches === 1 ? '' : 's'; ?>.
+    <?php
+    $gamesListFiltered = $resultFilter !== 'all'
+        || $opponentFilter > 0
+        || $tournamentFilter > 0
+        || $eventFilter !== 'all'
+        || $countryFilter !== ''
+        || $utcDayFilter !== '';
+    if ($gamesListFiltered) {
+        echo (int) $totalMatches . ' matching game' . ($totalMatches === 1 ? '' : 's');
+    } else {
+        echo (int) $totalMatches . ' official game' . ($totalMatches === 1 ? '' : 's');
+    }
+    ?>
+    <span class="k2-player-games-status__perf" title="<?php echo amiga_games_h(amiga_perf_rating_games_list_help()); ?>">· Performance rating <span class="k2-player-games-status__perf-value">…</span></span>
 </div>
 
 <div class="k2-table-wrap">
@@ -240,5 +335,6 @@ foreach ($opponentRows as $opponentRow) {
 
 </div><!-- .k2-page-nav -->
 <?php mysqli_close($con); ?>
+<script type="text/javascript" src="/js/amiga-player-games-perf.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-player-games-perf.js'); ?>"></script>
 </body>
 </html>

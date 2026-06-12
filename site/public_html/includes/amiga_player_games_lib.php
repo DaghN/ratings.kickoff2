@@ -65,10 +65,179 @@ function amiga_games_valid_day(string $value): string
     return '';
 }
 
+/** @return 'all'|'world-cup' */
+function amiga_games_valid_event_filter(string $value): string
+{
+    return $value === 'world-cup' ? 'world-cup' : 'all';
+}
+
+/** SQL fragment: World Cup catalog names (`amiga_tournament_is_world_cup_by_name`). */
+function amiga_games_world_cup_name_sql(string $tournamentNameColumn): string
+{
+    // No literal space before [[:space:]] — "World Cup IV…" has only one space after Cup.
+    return $tournamentNameColumn . " REGEXP '^World Cup[[:space:]]+[^[:space:]]'";
+}
+
+/**
+ * @param list<string> $countryOptions
+ */
+function amiga_games_valid_country_filter(string $value, array $countryOptions): string
+{
+    $value = trim($value);
+    if ($value === '' || !in_array($value, $countryOptions, true)) {
+        return '';
+    }
+
+    return $value;
+}
+
+/**
+ * Normalized games-tab filters from a GET array (games.php + perf API).
+ *
+ * @param array<string, mixed> $query
+ * @return array{
+ *     result: string,
+ *     opponent: int,
+ *     tournament: int,
+ *     event: string,
+ *     country: string,
+ *     day: string
+ * }
+ */
+function amiga_player_games_filters_from_request(mysqli $con, int $playerId, array $query): array
+{
+    $resultFilter = amiga_games_valid_result((string) ($query['result'] ?? 'all'));
+    $opponentFilter = isset($query['opponent']) ? max(0, (int) $query['opponent']) : 0;
+    $tournamentFilter = isset($query['tournament']) ? max(0, (int) $query['tournament']) : 0;
+    $eventFilter = amiga_games_valid_event_filter((string) ($query['filter'] ?? 'all'));
+    $utcDayFilter = amiga_games_valid_day((string) ($query['day'] ?? ''));
+
+    if ($opponentFilter > 0) {
+        $opponentRows = amiga_games_query_all(
+            $con,
+            'SELECT opponent_id FROM ('
+                . 'SELECT g.player_b_id AS opponent_id FROM amiga_games g WHERE g.player_a_id = ? '
+                . 'UNION ALL '
+                . 'SELECT g.player_a_id AS opponent_id FROM amiga_games g WHERE g.player_b_id = ?'
+                . ') AS opponents WHERE opponent_id = ? LIMIT 1',
+            'iii',
+            [$playerId, $playerId, $opponentFilter]
+        );
+        if ($opponentRows === []) {
+            $opponentFilter = 0;
+        }
+    }
+
+    $countryMetaTypes = 'ii';
+    $countryMetaParams = [$playerId, $playerId];
+    $countryMetaSql = amiga_games_tournament_meta_and_sql($eventFilter, '', $countryMetaTypes, $countryMetaParams);
+    $countryRowList = amiga_games_query_all(
+        $con,
+        'SELECT DISTINCT t.country AS country FROM amiga_games g '
+            . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+            . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) '
+            . 'AND t.country IS NOT NULL AND TRIM(t.country) <> \'\''
+            . $countryMetaSql
+            . ' ORDER BY country ASC',
+        $countryMetaTypes,
+        $countryMetaParams
+    );
+    $countryOptions = [];
+    foreach ($countryRowList as $countryRow) {
+        $countryOptions[] = (string) $countryRow['country'];
+    }
+    $countryFilter = amiga_games_valid_country_filter(
+        isset($query['country']) && is_string($query['country']) ? $query['country'] : '',
+        $countryOptions
+    );
+
+    if ($tournamentFilter > 0) {
+        $checkTypes = 'iii';
+        $checkParams = [$playerId, $playerId, $tournamentFilter];
+        $checkMetaSql = amiga_games_tournament_meta_and_sql(
+            $eventFilter,
+            $countryFilter,
+            $checkTypes,
+            $checkParams
+        );
+        $tournamentRows = amiga_games_query_all(
+            $con,
+            'SELECT g.tournament_id FROM amiga_games g '
+                . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+                . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) AND g.tournament_id = ?'
+                . $checkMetaSql
+                . ' LIMIT 1',
+            $checkTypes,
+            $checkParams
+        );
+        if ($tournamentRows === []) {
+            $tournamentFilter = 0;
+        }
+    }
+
+    return [
+        'result' => $resultFilter,
+        'opponent' => $opponentFilter,
+        'tournament' => $tournamentFilter,
+        'event' => $eventFilter,
+        'country' => $countryFilter,
+        'day' => $utcDayFilter,
+    ];
+}
+
+/**
+ * Active GET params for games tab links (sort headers, event pills, clear day).
+ *
+ * @return array<string, int|string>
+ */
+function amiga_games_active_url_params(array $state): array
+{
+    $params = [
+        'id' => (int) $state['player_id'],
+        'sort' => (string) $state['sort'],
+        'dir' => (string) $state['dir'],
+    ];
+    if (($state['result'] ?? 'all') !== 'all') {
+        $params['result'] = (string) $state['result'];
+    }
+    if ((int) ($state['opponent'] ?? 0) > 0) {
+        $params['opponent'] = (int) $state['opponent'];
+    }
+    if ((int) ($state['tournament'] ?? 0) > 0) {
+        $params['tournament'] = (int) $state['tournament'];
+    }
+    if (($state['event'] ?? 'all') !== 'all') {
+        $params['filter'] = (string) $state['event'];
+    }
+    if (!empty($state['country'])) {
+        $params['country'] = (string) $state['country'];
+    }
+    if (!empty($state['day'])) {
+        $params['day'] = (string) $state['day'];
+    }
+
+    return $params;
+}
+
+function amiga_games_event_filter_url(array $state, string $eventFilter): string
+{
+    $params = amiga_games_active_url_params($state);
+    if ($eventFilter === 'all') {
+        unset($params['filter']);
+    } else {
+        $params['filter'] = $eventFilter;
+    }
+
+    return amiga_games_build_url($params);
+}
+
 function amiga_games_where_clause(
     int $playerId,
     string $resultFilter,
     int $opponentId,
+    int $tournamentId,
+    string $eventFilter,
+    string $countryFilter,
     string $utcDay,
     string &$types,
     array &$params
@@ -106,7 +275,45 @@ function amiga_games_where_clause(
         $params[] = $opponentId;
     }
 
+    if ($tournamentId > 0) {
+        $where[] = 'r.tournament_id = ?';
+        $types .= 'i';
+        $params[] = $tournamentId;
+    }
+
+    if ($eventFilter === 'world-cup') {
+        $where[] = amiga_games_world_cup_name_sql('r.tournament_name');
+    }
+
+    if ($countryFilter !== '') {
+        $where[] = 'r.tournament_country = ?';
+        $types .= 's';
+        $params[] = $countryFilter;
+    }
+
     return implode(' AND ', $where);
+}
+
+/**
+ * Optional AND fragments for tournament metadata filters on `t` alias.
+ */
+function amiga_games_tournament_meta_and_sql(
+    string $eventFilter,
+    string $countryFilter,
+    string &$types,
+    array &$params
+): string {
+    $parts = [];
+    if ($eventFilter === 'world-cup') {
+        $parts[] = amiga_games_world_cup_name_sql('t.name');
+    }
+    if ($countryFilter !== '') {
+        $parts[] = 't.country = ?';
+        $types .= 's';
+        $params[] = $countryFilter;
+    }
+
+    return $parts === [] ? '' : ' AND ' . implode(' AND ', $parts);
 }
 
 function amiga_games_sort_header(string $key, string $label, string $align, array $state, string $help, string $tooltipLabel = '', string $extraClass = ''): string
@@ -124,20 +331,9 @@ function amiga_games_sort_header(string $key, string $label, string $align, arra
         $classes[] = $state['dir'] === 'desc' ? 'k2-table-sorted-desc' : 'k2-table-sorted-asc';
     }
 
-    $params = [
-        'id' => $state['player_id'],
-        'sort' => $key,
-        'dir' => $nextDir,
-    ];
-    if ($state['result'] !== 'all') {
-        $params['result'] = $state['result'];
-    }
-    if ($state['opponent'] > 0) {
-        $params['opponent'] = $state['opponent'];
-    }
-    if (!empty($state['day'])) {
-        $params['day'] = $state['day'];
-    }
+    $params = amiga_games_active_url_params($state);
+    $params['sort'] = $key;
+    $params['dir'] = $nextDir;
 
     $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
     $attrs = [

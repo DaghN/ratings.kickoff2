@@ -22,6 +22,9 @@ const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
     'site.public_html.amiga.ops.fixtures',
 ];
 
+/** Hash target on tournament.php — entry links scroll the hero to the viewport top. */
+const AMIGA_TOURNAMENT_PAGE_FRAGMENT = 'tournament';
+
 /**
  * SQL fragment: tournaments visible on public pages.
  */
@@ -444,7 +447,7 @@ function amiga_player_recent_tournaments(mysqli $con, int $playerId, int $limit 
  * @return list<array<string, mixed>>
  */
 /**
- * @param 'all'|'world-cup'|'cups' $eventFilter
+ * @param 'all'|'world-cup' $eventFilter
  * @return list<array<string, mixed>>
  */
 function amiga_player_all_tournaments(
@@ -681,7 +684,7 @@ function amiga_tournament_apply_entry_redirects(
     }
 }
 
-function amiga_tournament_link(int $id, string $name, string $fragment = ''): string
+function amiga_tournament_link(int $id, string $name, string $fragment = AMIGA_TOURNAMENT_PAGE_FRAGMENT): string
 {
     $href = amiga_tournament_url($id);
     if ($fragment !== '') {
@@ -1390,17 +1393,37 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
 }
 
 /**
+ * Show Phase column only when at least one game has a phase label (groups, knockouts, etc.).
+ *
+ * @param list<array<string, mixed>> $rows
+ */
+function amiga_tournament_games_show_phase_column(array $rows): bool
+{
+    foreach ($rows as $row) {
+        if (trim((string) ($row['phase'] ?? '')) !== '') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * @param list<array<string, mixed>> $rows from amiga_tournament_games_rows()
  */
 function amiga_tournament_render_games_table(array $rows): void
 {
+    $showPhaseColumn = amiga_tournament_games_show_phase_column($rows);
+    $colCount = $showPhaseColumn ? 5 : 4;
     ?>
 <div class="k2-table-wrap" style="margin:0 1.25rem">
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--tournament-games" data-k2-table="sortable" data-k2-anchor-col="2" data-k2-default-sort="0" data-k2-default-direction="asc">
 	<thead>
 		<tr>
 			<th class="k2-table-cell--left" data-k2-sort="number">#</th>
+			<?php if ($showPhaseColumn) { ?>
 			<th class="k2-table-cell--left" data-k2-sort="text">Phase</th>
+			<?php } ?>
 			<th class="k2-table-cell--left" data-k2-sort="text">Player A</th>
 			<th data-k2-sort="text">Score</th>
 			<th class="k2-table-cell--left" data-k2-sort="text">Player B</th>
@@ -1409,7 +1432,7 @@ function amiga_tournament_render_games_table(array $rows): void
 	<tbody class="black">
 	<?php if ($rows === []) { ?>
 		<tr>
-			<td colspan="5" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No games match this filter.</td>
+			<td colspan="<?php echo (int) $colCount; ?>" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No games match this filter.</td>
 		</tr>
 	<?php } ?>
 	<?php foreach ($rows as $idx => $row) {
@@ -1417,7 +1440,9 @@ function amiga_tournament_render_games_table(array $rows): void
         ?>
 		<tr>
 			<td class="k2-table-cell--left"><?php echo (int) ($idx + 1); ?></td>
-			<td class="k2-table-cell--left"><?php echo $phase !== '' ? k2_h($phase) : '—'; ?></td>
+			<?php if ($showPhaseColumn) { ?>
+			<td class="k2-table-cell--left"><?php echo k2_h($phase); ?></td>
+			<?php } ?>
 			<td class="k2-table-cell--left"><?php
                 echo k2_amiga_player_link((int) $row['player_a_id'], (string) $row['player_a_name']);
             ?></td>

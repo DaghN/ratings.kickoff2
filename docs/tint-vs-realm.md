@@ -81,7 +81,7 @@ Each pill sets `--k2-accent: var(--k2-pure-*)`. That drives link-star and nav mi
 
 - [x] `status-realm-lab.php` variants retired; URL **302 → `status.php`**
 - [x] Production header: wordmark + player search only (Jun 2026)
-- [x] Production header: wordmark + **realm switcher** (Online · Amiga 500) + player search (Jun 2026) — `includes/realm_switcher.php`; plain links to `/status.php` and `/amiga/rating.php`; segment-outline active cell; tint unchanged on switch
+- [x] Production header: wordmark + **realm switcher** (Online · Amiga 500) + player search (Jun 2026) — `includes/realm_switcher.php` + `realm_switcher_nav.php`; wordmark and switcher both land on current realm home (`/status.php` or `/amiga/news.php`); segment-outline active cell; tint unchanged on switch
 - [x] Header player search cross-realm (Jun 2026) — `api/player_search.php?realm=all`; dropdown shows **Online** / **Amiga** per hit; `player-search.js` in `site_header.php`; in-page H2H pickers stay `realm=online`
 
 ## Smoke checklist (after deploy)

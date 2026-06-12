@@ -18,7 +18,9 @@ $Tables = @(
     'tournament_format_templates', 'tournaments', 'amiga_players',
     'tournament_entrants', 'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
     'amiga_games', 'amiga_game_ratings', 'amiga_player_stats', 'amiga_rating_events',
-    'amiga_tournament_standings', 'amiga_tournament_catalog_stats'
+    'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
+    'amiga_player_tournament_participation', 'amiga_player_tournament_totals',
+    'amiga_player_matchup_summary', 'amiga_generalstats', 'amiga_tournament_finish_override'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -109,6 +111,36 @@ $catalogPart = ('ko2amiga_{0:D2}_catalog_stats.sql' -f $idx)
 $catalogFile = Join-Path $OutDir $catalogPart
 Write-DumpFile $catalogFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_catalog_stats')
 $parts.Add($catalogPart)
+$idx++
+
+$participationPart = ('ko2amiga_{0:D2}_participation.sql' -f $idx)
+$participationFile = Join-Path $OutDir $participationPart
+Write-DumpFile $participationFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_tournament_participation')
+$parts.Add($participationPart)
+$idx++
+
+$totalsPart = ('ko2amiga_{0:D2}_tournament_totals.sql' -f $idx)
+$totalsFile = Join-Path $OutDir $totalsPart
+Write-DumpFile $totalsFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_tournament_totals')
+$parts.Add($totalsPart)
+$idx++
+
+$matchupPart = ('ko2amiga_{0:D2}_matchup_summary.sql' -f $idx)
+$matchupFile = Join-Path $OutDir $matchupPart
+Write-DumpFile $matchupFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_matchup_summary')
+$parts.Add($matchupPart)
+$idx++
+
+$generalstatsPart = ('ko2amiga_{0:D2}_generalstats.sql' -f $idx)
+$generalstatsFile = Join-Path $OutDir $generalstatsPart
+Write-DumpFile $generalstatsFile @('--no-create-info', 'ko2amiga_db', 'amiga_generalstats')
+$parts.Add($generalstatsPart)
+$idx++
+
+$finishOverridePart = ('ko2amiga_{0:D2}_finish_override.sql' -f $idx)
+$finishOverrideFile = Join-Path $OutDir $finishOverridePart
+Write-DumpFile $finishOverrideFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_finish_override')
+$parts.Add($finishOverridePart)
 $idx++
 
 $ratingEventsPart = ('ko2amiga_{0:D2}_rating_events.sql' -f $idx)
