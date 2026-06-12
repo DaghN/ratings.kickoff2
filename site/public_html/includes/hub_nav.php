@@ -5,7 +5,7 @@
  *
  * Full match log: games.php (linked from Status recent games — not a hub tab).
  * Tint picker: Tint disclosure — Amber · Pitch · Chrome · Holo (closed by default).
- * Peer pill clicks: data-k2-carry-scroll + js/k2-carry-scroll.js (keep window scrollY).
+ * Peer pill / listbox form / games sort: data-k2-carry-scroll + js/k2-carry-scroll.js (keep window scrollY).
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 

@@ -91,6 +91,40 @@ function amiga_games_valid_country_filter(string $value, array $countryOptions):
     return $value;
 }
 
+/** @return list<int> */
+function amiga_player_games_year_options(mysqli $con, int $playerId): array
+{
+    $rows = amiga_games_query_all(
+        $con,
+        'SELECT DISTINCT YEAR(g.game_date) AS yr FROM amiga_games g '
+            . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) AND g.game_date IS NOT NULL '
+            . 'ORDER BY yr ASC',
+        'ii',
+        [$playerId, $playerId]
+    );
+    $years = [];
+    foreach ($rows as $row) {
+        $year = (int) ($row['yr'] ?? 0);
+        if ($year > 0) {
+            $years[] = $year;
+        }
+    }
+
+    return $years;
+}
+
+/**
+ * @param list<int> $yearOptions
+ */
+function amiga_games_valid_since_year(int $value, array $yearOptions): int
+{
+    if ($value < 1 || !in_array($value, $yearOptions, true)) {
+        return 0;
+    }
+
+    return $value;
+}
+
 /**
  * Normalized games-tab filters from a GET array (games.php + perf API).
  *
@@ -101,7 +135,8 @@ function amiga_games_valid_country_filter(string $value, array $countryOptions):
  *     tournament: int,
  *     event: string,
  *     country: string,
- *     day: string
+ *     day: string,
+ *     since: int
  * }
  */
 function amiga_player_games_filters_from_request(mysqli $con, int $playerId, array $query): array
@@ -111,6 +146,11 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
     $tournamentFilter = isset($query['tournament']) ? max(0, (int) $query['tournament']) : 0;
     $eventFilter = amiga_games_valid_event_filter((string) ($query['filter'] ?? 'all'));
     $utcDayFilter = amiga_games_valid_day((string) ($query['day'] ?? ''));
+    $yearOptions = amiga_player_games_year_options($con, $playerId);
+    $sinceYear = amiga_games_valid_since_year(
+        isset($query['since']) ? (int) $query['since'] : 0,
+        $yearOptions
+    );
 
     if ($opponentFilter > 0) {
         $opponentRows = amiga_games_query_all(
@@ -182,6 +222,7 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
         'event' => $eventFilter,
         'country' => $countryFilter,
         'day' => $utcDayFilter,
+        'since' => $sinceYear,
     ];
 }
 
@@ -215,6 +256,9 @@ function amiga_games_active_url_params(array $state): array
     if (!empty($state['day'])) {
         $params['day'] = (string) $state['day'];
     }
+    if ((int) ($state['since'] ?? 0) > 0) {
+        $params['since'] = (int) $state['since'];
+    }
 
     return $params;
 }
@@ -239,6 +283,7 @@ function amiga_games_where_clause(
     string $eventFilter,
     string $countryFilter,
     string $utcDay,
+    int $sinceYear,
     string &$types,
     array &$params
 ): string {
@@ -289,6 +334,12 @@ function amiga_games_where_clause(
         $where[] = 'r.tournament_country = ?';
         $types .= 's';
         $params[] = $countryFilter;
+    }
+
+    if ($sinceYear > 0) {
+        $where[] = 'YEAR(r.`Date`) >= ?';
+        $types .= 'i';
+        $params[] = $sinceYear;
     }
 
     return implode(' AND ', $where);

@@ -1849,6 +1849,9 @@ body.k2-site .k2-player-games-status {
 body.k2-site .k2-player-games-status {
 	align-items: center;
 	margin-bottom: 12px;
+	font-size: 12px;
+	line-height: 1.35;
+	color: var(--k2-text-muted);
 }
 
 body.k2-site .k2-player-games-controls__field {
@@ -1972,7 +1975,7 @@ body.k2-site .k2-player-games-filters .k2-player-games-controls {
 	width: 100%;
 }
 
-/* Amiga games tab — stacked labels; four equal columns on laptop */
+/* Amiga games tab — stacked labels; equal-width filter columns on laptop */
 body.k2-site .k2-player-games-filters .k2-player-games-controls__fields {
 	flex-wrap: nowrap;
 	gap: 6px;

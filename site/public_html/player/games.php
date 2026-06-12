@@ -327,7 +327,7 @@ foreach ($opponentRows as $opponentRow) {
 }
 ?>
 
-<form class="k2-player-games-controls" method="get" action="/player/games.php">
+<form class="k2-player-games-controls" method="get" action="/player/games.php" data-k2-carry-scroll>
     <div class="k2-player-games-controls__meta">
         <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
         <input type="hidden" name="sort" value="<?php echo individual3_h($sortKey); ?>" />
@@ -349,7 +349,7 @@ foreach ($opponentRows as $opponentRow) {
     </div>
 </form>
 
-<div class="k2-player-games-status">
+<div class="k2-player-games-status" data-k2-carry-scroll>
     <?php if ($utcDayFilter !== '') { ?>
     Rated games on <strong><?php echo individual3_h($utcDayFilter); ?></strong> UTC
     (<a href="<?php echo individual3_h(individual3_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []))); ?>">clear day filter</a>).

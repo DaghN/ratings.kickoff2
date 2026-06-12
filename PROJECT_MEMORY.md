@@ -83,6 +83,11 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Player games status line** — `.k2-player-games-status` 12px `--k2-text-muted` (was inheriting body 14px primary); online + Amiga games/tournament list summaries. |
+| 2026-06 | **Carry-scroll games pager** — online `player/games.php` Previous/Next 100 (`data-k2-carry-scroll` on status bar); shared `[data-k2-carry-scroll] a.k2-player-games-action` selector. |
+| 2026-06 | **Carry-scroll filter Reset** — `a.k2-player-games-action` inside `form[data-k2-carry-scroll]` (games filters online + Amiga + tournament games tab). |
+| 2026-06 | **Carry-scroll listboxes + sort** — `k2-carry-scroll.js`: shared `K2CarryScroll.store()`, listbox `change` on `form[data-k2-carry-scroll]`, server-sort on `.k2-table--player-games`; script non-deferred in `k2_head.php`; online `player/games.php` form opted in. |
+| 2026-06 | **Amiga games Since filter** — listbox `?since=` (calendar year); `YEAR(game_date) >=` selected year; perf API + sort URLs preserve filter. |
 | 2026-06 | **Amiga games list Perf. rating** — async `api/amiga_player_games_perf_rating.php` + `amiga-player-games-perf.js`; status line on `/amiga/games.php`; shared `amiga_player_games_filters_from_request()`. |
 | 2026-06 | **Player tournament filter panel** — `.k2-player-tournament-filters` padding `4px` (match player nav); tighter row gaps. |
 | 2026-06 | **Carry-scroll reverted** — `k2-carry-scroll.js` + `k2_carry_scroll_restore.php` restored to last committed baseline (simple pill click → store `scrollY`; no session peak / per-dest cache). |

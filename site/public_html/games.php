@@ -108,7 +108,7 @@ $k2GamesPlayedLede = ($k2GamesHubArc !== null)
 $k2HubChapterLede = 'The Kick Off 2 online server has a long history with ' . $k2GamesPlayedLede . '.';
 $k2HubChapterList = '<ul class="k2-hub-chapter__list">'
 	. '<li><strong>Recent</strong> lists <span class="blue">' . number_format($k2GamesRecent14Count) . '</span> games from the last 14 days, day by day.</li>'
-	. '<li><strong>Highlights</strong> surfaces all-time spectacles — goal feasts, huge draws, biggest wins.</li>'
+	. '<li><strong>Highlights</strong> surfaces all-time spectacles — goal feasts, huge draws, big wins.</li>'
 	. '</ul>';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_nav.php';

@@ -55,6 +55,8 @@ $tournamentFilter = $gameFilters['tournament'];
 $eventFilter = $gameFilters['event'];
 $countryFilter = $gameFilters['country'];
 $utcDayFilter = $gameFilters['day'];
+$sinceYearFilter = $gameFilters['since'];
+$yearOptions = amiga_player_games_year_options($con, $playerId);
 $sortKey = (string) ($_GET['sort'] ?? 'id');
 if ($sortKey === 'for') {
     $sortKey = 'goals_for';
@@ -146,6 +148,7 @@ $whereSql = amiga_games_where_clause(
     $eventFilter,
     $countryFilter,
     $utcDayFilter,
+    $sinceYearFilter,
     $whereTypes,
     $whereParams
 );
@@ -193,6 +196,7 @@ $sortState = [
     'event' => $eventFilter,
     'country' => $countryFilter,
     'day' => $utcDayFilter,
+    'since' => $sinceYearFilter,
 ];
 $gamesUrlState = $sortState;
 $sortedColIndex = amiga_player_game_sort_col_index($sortKey);
@@ -222,6 +226,13 @@ foreach ($countryOptions as $countryName) {
     $countryChoices[] = [
         'value' => $countryName,
         'label' => $countryName,
+    ];
+}
+$sinceChoices = [['value' => '0', 'label' => 'Any time']];
+foreach ($yearOptions as $year) {
+    $sinceChoices[] = [
+        'value' => (string) $year,
+        'label' => (string) $year,
     ];
 }
 ?>
@@ -265,6 +276,12 @@ foreach ($countryOptions as $countryName) {
                 <?php k2_archive_listbox_render('country', 'k2-player-games-country', $countryFilter, $countryChoices, 'Filter by country'); ?>
             </div>
             <?php } ?>
+            <?php if ($yearOptions !== []) { ?>
+            <div class="k2-player-games-controls__field">
+                <span class="server-period-activity-leaderboard__picker-label">Since</span>
+                <?php k2_archive_listbox_render('since', 'k2-player-games-since', (string) $sinceYearFilter, $sinceChoices, 'Games from this year onward'); ?>
+            </div>
+            <?php } ?>
             <a class="k2-player-games-action" href="/amiga/games.php?id=<?php echo $playerId; ?>">Reset</a>
         </div>
     </form>
@@ -281,7 +298,8 @@ foreach ($countryOptions as $countryName) {
         || $tournamentFilter > 0
         || $eventFilter !== 'all'
         || $countryFilter !== ''
-        || $utcDayFilter !== '';
+        || $utcDayFilter !== ''
+        || $sinceYearFilter > 0;
     if ($gamesListFiltered) {
         echo (int) $totalMatches . ' matching game' . ($totalMatches === 1 ? '' : 's');
     } else {

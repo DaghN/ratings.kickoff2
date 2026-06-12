@@ -1,6 +1,6 @@
 <?php
 /**
- * One-shot restore of scrollY after peer nav pill navigation (see js/k2-carry-scroll.js).
+ * One-shot restore of scrollY after carry-scroll navigation (see js/k2-carry-scroll.js).
  * Inline in <head> so restore runs as early as practical on the next document.
  */
 ?>

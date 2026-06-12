@@ -12,7 +12,7 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 <?php include $k2DocRoot . '/includes/theme_boot_head.php'; ?>
 <?php include $k2DocRoot . '/includes/k2_carry_scroll_restore.php'; ?>
 <?php include $k2DocRoot . '/includes/favicon_head.php'; ?>
-<script type="text/javascript" src="/js/k2-carry-scroll.js?v=<?php echo (int) @filemtime($k2DocRoot . '/js/k2-carry-scroll.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-carry-scroll.js?v=<?php echo (int) @filemtime($k2DocRoot . '/js/k2-carry-scroll.js'); ?>"></script>
 <?php if (!empty($k2RankedCloak)) {
 	include $k2DocRoot . '/includes/ranked_table_cloak_head.php';
 } ?>
