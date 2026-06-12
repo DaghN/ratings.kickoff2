@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Status leaderboard copy** — heading + Elo tooltip: “active **online** players in the past year”. |
 | 2026-06 | **Agent track playbook** — [`docs/orchestration/agent-track-playbook.md`](docs/orchestration/agent-track-playbook.md) (doc · plan · prompt · slices); AGENTS + PROJECT_MAP links; online + Amiga. |
 | 2026-06 | **Hub ledes (online)** — Activity, Games, Leaderboards, Milestones (`milestones.php`). |
 | 2026-06 | **Online HoF table cols** — Activity + Performance share col 1 width via PHP label register + `--k2-hof-label-col-ch` (`records_hof_table.php`). |

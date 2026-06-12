@@ -88,7 +88,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title">
 			<div class="k2-status-panel__head">
-				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active players in the past year</h2>
+				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active online players in the past year</h2>
 				<p class="k2-status-panel__meta"><a class="k2-link-star k2-status-panel__more" href="/leaderboards/rating.php">Leaderboards &rarr;</a></p>
 			</div>
 <?php if (!empty($room['active_top_error'])) { ?>
@@ -102,7 +102,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<tr>
 							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Rank within this visible leaderboard. Rank updates when the table is sorted.">#</th>
 							<th class="k2-status-table__player" data-k2-sort="text">Player</th>
-							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Current Elo rating. This leaderboard includes all active players in the past year. The complete leaderboards are in the leaderboards section.">Elo</th>
+							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Current Elo rating. This leaderboard includes all active online players in the past year. The complete leaderboards are in the leaderboards section.">Elo</th>
 							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Games played (career).">Games</th>
 						</tr>
 					</thead>
