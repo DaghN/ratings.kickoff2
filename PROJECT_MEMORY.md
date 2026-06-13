@@ -83,7 +83,7 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Amiga tournament structure policy v2.1** — stage/fixture/game chain locked (fixture = one match; universal live+legacy); T8–T22 in [`amiga-tournament-structure-policy.md`](docs/amiga-tournament-structure-policy.md); data contract updated. |
+| 2026-06 | **Amiga tournament structure undo/resume** — handoff [`015`](docs/orchestration/agent-handoffs/2026-06-13-015-amiga-tournament-structure-undo-and-resume.md); slice 3 pilot void; Athens IV local standings restored; resume slice 4. |
 | 2026-06 | **Amiga tournament structure slice 3b (policy v2)** — RR scope + KO tie modules; tier-A auto only; `dematerialize`; Athens IV dematerialized; handoff [`014`](docs/orchestration/agent-handoffs/2026-06-13-014-amiga-tournament-structure-slice-3b.md). |
 | 2026-06 | **Amiga tournament structure slice 3** — ~~pilot~~ **superseded** — handoff [`012`](docs/orchestration/agent-handoffs/2026-06-13-012-amiga-tournament-structure-slice-3.md). |
 | 2026-06 | **Amiga tournament structure slice 2** — builders, Homburg spec, build/verify helpers, link side-parity doc, browser ops `round_robin`; Homburg verify OK (86/86); handoff [`2026-06-13-011-amiga-tournament-structure-slice-2.md`](docs/orchestration/agent-handoffs/2026-06-13-011-amiga-tournament-structure-slice-2.md). |
