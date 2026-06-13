@@ -29,8 +29,6 @@ WC_V_KOA_CUP = "World Cup V KOA Cup"
 def _build_tournament_aliases() -> dict[str, str]:
     aliases: dict[str, str] = {
         **{k: MILAN_X_PARENT for k in MILAN_X_FRAGMENTS},
-        "Gloucester III Team": "Gloucester III",
-        "Groningen VII Cup": "Groningen VII",
         WC_V_KOA_CUP: WC_V_PARENT,
         **world_cup_score_aliases(),
     }
@@ -46,7 +44,15 @@ def _build_tournament_aliases() -> dict[str, str]:
 TOURNAMENT_ALIASES: dict[str, str] = _build_tournament_aliases()
 
 # Documented in docs/amiga-import-layer.md when adding aliases.
+_MILAN_X_ALIAS_RATIONALE = (
+    "Access Scores stores Milan X knock-out stages as separate Tournament strings "
+    "(e.g. Milan X Quarter Finals) beside the catalog parent Milan X. Each fragment "
+    "row already has a matching Phase column. Merge into Milan X via alias; "
+    "resolve_phase() supplies phase when Access Phase is null on the parent label."
+)
+
 TOURNAMENT_ALIAS_RATIONALE: dict[str, str] = {
+    **{k: _MILAN_X_ALIAS_RATIONALE for k in MILAN_X_FRAGMENTS},
     WC_V_KOA_CUP: (
         "Access [Tournament players] lists World Cup V KOA Cup as chrono 138 (Nov 13) "
         "beside World Cup V (chrono 137). Alkis WC 2005: non–Round 2 qualifiers played "

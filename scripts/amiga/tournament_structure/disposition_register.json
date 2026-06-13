@@ -192,8 +192,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "48": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "9p; groups R1+R2, playouts + placement finals (46g after cup split to id 604). Format still uncertain. Forum search only: https://ko-gathering.com/forum/viewtopic.php?t=1746&start=78 \u2014 real result thread not found yet."
     },
     "49": {
       "handler": "pure_rr",
@@ -216,8 +216,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "54": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "structure_spec",
+      "notes": "8p; 2\u00d74 group RR (12g each) + KO playoffs (loser semis, game of shame, 5th, semis, bronze, final \u2014 g1183\u201390). AET/pens not in KOATD/DB (g1189 semi 1\u20131 vs forum 0\u20130 aet; g1188 bronze 0\u20130 only). Forum: https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040"
     },
     "55": {
       "handler": "pure_rr",
@@ -248,16 +248,16 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "62": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "pure_rr",
+      "notes": "10p double RR (90g); Gloucester III Team split to id 605."
     },
     "63": {
       "handler": "pure_rr",
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "64": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "structure_spec",
+      "notes": "4p two-leg league (12g g1451\u201362) + KO semis 2v3/1v4, 3rd-place, two-leg final (g1463\u201369); KOATD NULL phase. Forum: https://ko-gathering.com/forum/viewtopic.php?p=63225&hilit=Venice#p63225"
     },
     "65": {
       "handler": "pure_rr",
@@ -296,12 +296,12 @@
       "notes": "NULL phase + 4\u00d7 round-robin schedule"
     },
     "74": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "structure_spec",
+      "notes": "6p post-league cup; R1 (3g g953\u201355) + lucky loser (best GD among losers) \u2192 semis + final (g956\u201358); George/Apostolos meet twice. KOATD NULL phase. Forum: https://ko-gathering.com/forum/viewtopic.php?t=2668&hilit=Athens+IV"
     },
     "75": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "24p single-elim cup (23g g584\u2013606); 8 R1 ties + 8 byes to R2."
     },
     "76": {
       "handler": "pure_rr",
@@ -356,8 +356,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "89": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "16p; 2\u00d78 groups (uneven RR \u2014 A 6\u20138g, B 8\u201311g) + two-leg KO playoffs; KOATD labeled phases."
     },
     "90": {
       "handler": "pure_rr",
@@ -432,20 +432,20 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "108": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "pure_rr",
+      "notes": "5p double RR (21g); forum \"Grimstad 1\" = KOA Grimstad II; G E Land\u2013Kjetil M 3\u00d7 (g3176\u201387). Forum: https://ko-gathering.com/forum/viewtopic.php?t=6550&hilit=Grimstad+II"
     },
     "109": {
       "handler": "pure_rr",
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "110": {
-      "handler": "pure_rr",
-      "notes": "NULL phase + single round-robin schedule"
+      "handler": "structure_spec",
+      "notes": "8p single RR league (28g); cup playoffs on id 111 (8g). Forum one event: https://ko-gathering.com/forum/viewtopic.php?p=106321#p106321"
     },
     "111": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "structure_spec",
+      "notes": "Cup playoffs (8g g3245\u201352); league on id 110. AET/pens not in DB. Forum: https://ko-gathering.com/forum/viewtopic.php?p=106321#p106321"
     },
     "112": {
       "handler": "pure_rr",
@@ -484,8 +484,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "121": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "15p; 4 groups (A/B/D 4p, C 3p) \u2014 top 3 each; group winners bye, other 8 play R2 (4g) for QF; then KO to final. KOATD labeled phases. Forum: https://ko-gathering.com/forum/viewtopic.php?p=106321#p106321"
     },
     "122": {
       "handler": "pure_rr",
@@ -536,8 +536,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "134": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "structure_spec",
+      "notes": "7p; 42g pre-playoff (g4100\u2013141) + 8g playoffs (g4142\u201349: two-leg semis, 3rd-place + final \u2014 forum-labelled, score-matched); KOATD NULL phase. Forum: https://ko-gathering.com/forum/viewtopic.php?t=7561"
     },
     "135": {
       "handler": "pure_rr",
@@ -581,8 +581,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "145": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "8p; 2\u00d74 groups (Sandro T withdrew after groups) + variable-leg KO incl. Play Outs + placement finals; AET/pens on 4g (g5166, g5185\u201387, g5194). Forum Carnival Cup = KOA Milan V. Forum: https://ko-gathering.com/forum/viewtopic.php?t=9365&start=13"
     },
     "146": {
       "handler": "pure_rr",
@@ -609,8 +609,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "152": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "10p; 2\u00d75 double-RR groups + KO incl. Playouts + 5th/7th/9th placement finals; German Championship 2005 \u2014 format sibling to id 137. Forum: https://ko-gathering.com/forum/viewtopic.php?t=10006"
     },
     "153": {
       "handler": "pure_rr",
@@ -625,16 +625,16 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "156": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "10p; 2\u00d75 double-RR groups + KO; 3rd-place and final 3 legs each (g5513\u201318); Access KO fragments merged via alias (no import split)."
     },
     "157": {
       "handler": "pure_rr",
       "notes": "NULL phase + single round-robin schedule"
     },
     "158": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "15p single-elim cup; 7 R1 ties + 1 bye (James B) \u2192 QF/SF/F; KOATD phase \"Round 1\" not league (g5639\u20135652)."
     },
     "159": {
       "handler": "pure_rr",
@@ -665,8 +665,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "166": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "8p double-RR league (56g) + 2-leg semis + 3-leg final; KOATD phase \"Finals\" plural (g5961\u201363)."
     },
     "167": {
       "handler": "pure_rr",
@@ -685,28 +685,28 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "171": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "8p single-elim from QF + full placement bracket (Places 5-8 \u2192 5th/7th/3rd); AET g6723 (g6715\u20136726)."
     },
     "172": {
       "handler": "pure_rr",
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "173": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "4p double-RR league (12g) + 2-leg semis/3rd/final (g6781\u201388)."
     },
     "174": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "pure_rr",
+      "notes": "22p near-complete single RR (230/231g); James L\u2013Vagelis D unplayed; KOATD NULL phase."
     },
     "175": {
       "handler": "pure_rr",
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "176": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "6p double-RR league (30g) + 2-leg semis/3rd/final (g7121\u201328)."
     },
     "177": {
       "handler": "pure_rr",
@@ -750,15 +750,15 @@
     },
     "187": {
       "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "notes": "Split deferred (import not yet): merged 28g = 24g 4\u00d7 RR league + 4g cup (g7579, 7567, 7563, 7582); Access single Scores label \u2014 needs game-level partition like Groningen 604. Forum: https://ko-gathering.com/forum/viewtopic.php?t=12376"
     },
     "188": {
       "handler": "pure_rr",
       "notes": "NULL phase + single round-robin schedule"
     },
     "189": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "15p single-elim cup; 7 R1 ties + 1 bye (Steve C) \u2192 QF/SF/F; pens g7689, 7692; KOATD phase \"Round 1\" not league (g7688\u20137701). Main league on id 188."
     },
     "190": {
       "handler": "pure_rr",
@@ -769,8 +769,8 @@
       "notes": "NULL phase + 4\u00d7 round-robin schedule"
     },
     "192": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "4p single-elim cup; 2-leg semis (KOATD phase \"Round 1\") + 2-leg 3rd/final (g7768\u20137775). Main league on id 191."
     },
     "193": {
       "handler": "pure_rr",
@@ -793,8 +793,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "198": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "7p; 2 groups (4+3) double-RR + KO incl. Playouts 5-7 + placement finals (g7956\u2013991)."
     },
     "199": {
       "handler": "pure_rr",
@@ -857,12 +857,12 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "214": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "pure_rr",
+      "notes": "8p near-complete double RR (50/56g); Luigi F & Gabriele B left early (~18:30, Maurizio L delay) \u2014 6 pairings 1\u00d7 not 2\u00d7; KOATD NULL phase."
     },
     "215": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "12p single-RR league (66g) + 2-leg KO incl. Places 5-8 + placement finals; AET g8931 (g8908\u2013931)."
     },
     "216": {
       "handler": "pure_rr",
@@ -993,8 +993,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "248": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "7p single-elim cup; QF 2-leg (phase \"Round 1\") + variable-leg semis (Marios\u2013Filippos 3g) + AET final g10166; Antonis T bye to semis (g10155\u2013166). League on id 247."
     },
     "249": {
       "handler": "pure_rr",
@@ -1069,16 +1069,16 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "267": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "5p single-RR league (10g) + Game of Shame + final; AET g10553 (g10542\u2013553)."
     },
     "268": {
       "handler": "pure_rr",
       "notes": "NULL phase + 4\u00d7 round-robin schedule"
     },
     "269": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "25p; multi-group RR (R1 144g) + Playouts + R2 (16g) + full placement KO through 24th (g10578\u201310822)."
     },
     "270": {
       "handler": "pure_rr",
@@ -1105,8 +1105,8 @@
       "notes": "NULL phase + 4\u00d7 round-robin schedule"
     },
     "276": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "8p single-RR league (28g) + 2-leg KO incl. Places 5-8 + placement finals (g10996\u201311047)."
     },
     "277": {
       "handler": "pure_rr",
@@ -1125,8 +1125,8 @@
       "notes": "WC track"
     },
     "281": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "pure_rr",
+      "notes": "7p near-complete single RR (19/21g); Nikos Al missing Kostas Ka & Kostas O; KOATD NULL phase."
     },
     "282": {
       "handler": "pure_rr",
@@ -1137,8 +1137,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "284": {
-      "handler": "pending_review",
-      "notes": "B: labeled phases on games"
+      "handler": "structure_spec",
+      "notes": "14p; 2\u00d77 double-RR groups + Playouts Group + Playoffs Group + KO incl. Places 5-8; AET g11635\u201336 (g11516\u201311644)."
     },
     "285": {
       "handler": "pure_rr",
@@ -2415,6 +2415,14 @@
     "603": {
       "handler": "wc_deferred",
       "notes": "WC track"
+    },
+    "604": {
+      "handler": "pending_review",
+      "notes": "Import split: Groningen VII Cup (14g); Scores-only catalog"
+    },
+    "605": {
+      "handler": "pending_review",
+      "notes": "Import split: Gloucester III Team (10g); Scores-only catalog"
     }
   }
 }

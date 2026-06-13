@@ -6,11 +6,14 @@ import unittest
 
 from scripts.amiga.import_access import AccessScore, merge_supplemental_scores
 from scripts.amiga.import_corrections import (
+    IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE,
     IMPORT_SUPPLEMENT_SCORES_ID_BASE,
     SUPPLEMENTAL_SCORES,
     WORLD_CUP_VENUES,
     apply_catalog_corrections,
+    apply_catalog_splits,
     catalog_name_after_corrections,
+    catalog_splits_manifest,
     supplemental_scores_manifest,
     world_cup_catalog_name,
 )
@@ -68,6 +71,31 @@ class ImportCorrectionsTests(unittest.TestCase):
             catalog_name_after_corrections("World Cup VIII"),
             world_cup_catalog_name("World Cup VIII"),
         )
+
+    def test_catalog_split_appends_synthetic_row(self) -> None:
+        tournaments = [
+            {
+                "name": "Groningen VII",
+                "source_id": 23,
+                "chrono": 23.0,
+                "event_date": None,
+                "is_cup": True,
+                "country": "Netherlands",
+                "equal_teams": False,
+                "player_count": 9,
+            }
+        ]
+        applied = apply_catalog_splits(tournaments)
+        self.assertEqual(len(tournaments), 2)
+        cup = tournaments[1]
+        self.assertEqual(cup["name"], "Groningen VII Cup")
+        self.assertEqual(cup["source_id"], IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE + 1)
+        self.assertEqual(cup["chrono"], 23.5)
+        self.assertTrue(cup["is_cup"])
+        self.assertEqual(cup["player_count"], 8)
+        self.assertEqual(len(applied), 1)
+        manifest = catalog_splits_manifest()
+        self.assertEqual(manifest[0]["tournament"], "Groningen VII Cup")
 
 
 if __name__ == "__main__":

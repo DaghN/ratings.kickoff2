@@ -313,7 +313,7 @@ Full sweep (Jun 2026): **684 PASS**, **116 SKIP** (no Access reference or no der
 | Reason | Count | Meaning |
 |--------|------:|---------|
 | `ref_stale_tables` | 24 | Access `Tables` / `World Cup * Tables` disagree with aggregating `Scores` — legacy snapshot not updated after late result entry. Derived engine matches ground-truth games. |
-| `ref_alias_merge` | 1 | **Gloucester III** — import merges `Gloucester III Team` games into parent (`tournament_names.py`); Access overall table counts only the parent label. |
+| `ref_alias_merge` | 0 | _(Gloucester III Team split to id 605 Jun 2026 — was merged via alias.)_ |
 | `mixed_overall_league_only` | 1 | **Athens LXXXV** — overall derived table = null-phase round-robin only; Access `Tables` includes knockout legs in the same overall row. |
 
 Do not “fix” these by importing Access snapshots as truth. Re-run: `python -m scripts.amiga standings-parity --sweep`.

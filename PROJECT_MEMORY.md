@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **Tournament disposition** — register **603/603**; **67** `pending_review` (promoted through **29**); review [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md); slice 10 = import dispatch.
+- **Amiga realm (Jun 2026):** **Disposition review** — register **605/605**; **38** `pending_review` (promoted through **284**; **187** deferred split); [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
 ---
 
@@ -83,6 +83,10 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga import split queue closed** — Milan X not split (documented alias); Groningen **604** + Gloucester **605** splits shipped; gate open for disposition review. |
+| 2026-06 | **Amiga Gloucester III Team import split** — id **62**→90g + **605**→10g; both `pending_review`; register **605/605**. |
+| 2026-06 | **Amiga Groningen VII Cup import split** — `IMPORT_CATALOG_SPLITS` + append hook; id **48**→46g + **604**→14g; both `pending_review`; register **604/604** — [`import-layer`](docs/amiga-import-layer.md) § catalog splits. |
+| 2026-06 | **Amiga import split starter** — append-only synthetic catalog policy; queue Groningen VII (split), Gloucester III (pending), Milan X (not split); blocks disposition until gate — [`import-split-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-import-split-REVIEW-STARTER-PROMPT.md). |
 | 2026-06 | **Amiga disposition register + pure_knockout handler** — 603/603 JSON; preview CLI; 70 pending_review — [`handlers`](docs/amiga-tournament-structure-handlers.md) · [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md). |
 | 2026-06 | **Amiga tournament structure slice 6 apply** — GATE E OK; `materialize-tier-b-non-wc --apply` 41/41 (later **35 rolled back** by cup audit). |
 | 2026-06 | **Amiga tournament structure slice 6** — `materialize-tier-b-non-wc` bulk CLI; dry-run **41/41** OK — handoff [`018`](docs/orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md). |

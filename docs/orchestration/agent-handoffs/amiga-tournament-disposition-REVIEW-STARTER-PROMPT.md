@@ -3,6 +3,8 @@
 **Use a new chat** — one tournament per turn until every id has a final handler.  
 **Goal:** Assign each catalog tournament to exactly one handler in `disposition_register.json`.
 
+**Prerequisite:** Finish the **import split** track first if still open — [`amiga-import-split-REVIEW-STARTER-PROMPT.md`](amiga-import-split-REVIEW-STARTER-PROMPT.md). Do not disposition-review parents whose game bundle may still be a bad merge (e.g. Groningen VII until cup is split).
+
 **Read first:**
 1. [`docs/amiga-tournament-structure-handlers.md`](../../amiga-tournament-structure-handlers.md)
 2. [`docs/amiga-tournament-structure-pure-knockout-handler.md`](../../amiga-tournament-structure-pure-knockout-handler.md)

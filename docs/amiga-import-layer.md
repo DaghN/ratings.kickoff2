@@ -183,10 +183,22 @@ Access `[Tournament players]` labels every World Cup with `Country = 'WC'` and a
 
 Supplemental rows use reserved `source_scores_id` ≥ `500_000_000` (see `IMPORT_SUPPLEMENT_SCORES_ID_BASE` in `import_corrections.py`).
 
+### Catalog splits (manual, append-only)
+
+When Access has one `[Tournament players]` row but Scores uses a separate `Tournament` label for a second competition, add an `IMPORT_CATALOG_SPLITS` entry in `import_corrections.py`. Import **appends** the synthetic row at the end of the catalog insert (MySQL id **604+** after Jun 2026 bootstrap); never insert in the middle. Remove the merge alias from `tournament_names.py` so Scores route to the new catalog name.
+
+| Tournament | Parent | `source_id` | Reason |
+|------------|--------|-------------|--------|
+| Groningen VII Cup | Groningen VII (id **48**) | `900_000_001` | Access catalog row only for main event; 14 cup games under separate Scores label (2002-07-13). Child appends as id **604**. |
+| Gloucester III Team | Gloucester III (id **62**) | `900_000_002` | Same-day 10-player event; 90g double RR on parent label + 10g under Team label (Scores IDs 1411–1420). Child appends as id **605**. |
+
+Synthetic catalog rows use reserved `tournaments.source_id` ≥ `900_000_000` (see `IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE`).
+
 ### Scores tournament aliases (automatic)
 
 | Access `Scores.Tournament` | Canonical parent | Reason |
 |----------------------------|------------------|--------|
+| Milan X Final, Quarter Finals, Semi Finals, Round 1 Group A/B, 3rd Place Final | **Milan X** | KO stages stored as separate Scores tournament strings; each fragment has matching `Phase`. Merge to parent; `resolve_phase()` infers phase from fragment name when needed. **Not an import split.** |
 | World Cup V KOA Cup | **World Cup V (Cologne)** | 2005 Cologne KOA Cup = consolation bracket within WC V (Alkis matches5; Access `World Cup V Tables` Groups I–L). WC IV uses `KOA Cup - …` phases under the parent; 2005 wrongly split into a second catalog row. Catalog row skipped on import; phases prefixed `KOA Cup - …`. |
 
 See `TOURNAMENT_ALIAS_RATIONALE` in `tournament_names.py`.

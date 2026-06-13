@@ -18,6 +18,8 @@ from scripts.amiga.import_corrections import (
     IMPORT_SUPPLEMENT_SCORES_ID_BASE,
     SUPPLEMENTAL_SCORES,
     apply_catalog_corrections,
+    apply_catalog_splits,
+    catalog_splits_manifest,
     supplemental_scores_manifest,
 )
 from scripts.amiga.import_manifest import (
@@ -325,6 +327,11 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
                 entry["access"],
                 entry["canonical"],
             )
+    catalog_splits = apply_catalog_splits(tournaments)
+    if catalog_splits:
+        log.info("Appended %s synthetic catalog split(s) from import_corrections.py", len(catalog_splits))
+        for entry in catalog_splits:
+            log.info("  → %s (parent %s, source_id %s)", entry["tournament"], entry["parent"], entry["source_id"])
     scores = load_access_scores(acc_cur)
     scores = merge_supplemental_scores(scores)
     score_supplements = supplemental_scores_manifest()
@@ -529,6 +536,7 @@ def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
         stats=stats,
         name_merges=merge_log,
         catalog_overrides=catalog_overrides,
+        catalog_splits=catalog_splits_manifest(),
         score_supplements=score_supplements,
         structure_specs=structure_specs_manifest(structure_result),
     )

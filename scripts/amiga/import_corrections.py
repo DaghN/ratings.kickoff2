@@ -10,6 +10,9 @@ from typing import Any
 # Reserved source_scores_id range for import supplements (Access max ~28k; live ops use >= 1e9).
 IMPORT_SUPPLEMENT_SCORES_ID_BASE = 500_000_000
 
+# Reserved tournaments.source_id range for synthetic catalog splits (append-only at import).
+IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE = 900_000_000
+
 # Access catalog name → canonical name (Roman series, etc.).
 # Scores rows use the Access label — also wired via tournament_names.TOURNAMENT_ALIASES.
 TOURNAMENT_NAME_OVERRIDES: dict[str, str] = {
@@ -73,6 +76,52 @@ OVERRIDE_RATIONALE: dict[str, str] = {
         "and Newent XVI (334, 2009-02-13). Roman-numeral order requires IX before X. "
         "Canonical date 2009-01-25 from KO Gathering forum: "
         "https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684"
+    ),
+}
+
+
+@dataclass(frozen=True)
+class CatalogSplit:
+    """Scores-only competition split from a parent Access catalog row (append at import)."""
+
+    name: str
+    parent_name: str
+    source_id: int
+    chrono_offset: float = 0.5
+    is_cup: bool = True
+    player_count: int | None = None
+
+
+# Synthetic catalog rows appended after Access load — never insert in the middle of the list.
+IMPORT_CATALOG_SPLITS: tuple[CatalogSplit, ...] = (
+    CatalogSplit(
+        name="Groningen VII Cup",
+        parent_name="Groningen VII",
+        source_id=900_000_001,
+        chrono_offset=0.5,
+        is_cup=True,
+        player_count=8,
+    ),
+    CatalogSplit(
+        name="Gloucester III Team",
+        parent_name="Gloucester III",
+        source_id=900_000_002,
+        chrono_offset=0.5,
+        is_cup=False,
+        player_count=10,
+    ),
+)
+
+CATALOG_SPLIT_RATIONALE: dict[str, str] = {
+    "Groningen VII Cup": (
+        "Access [Tournament players] has one row for Groningen VII (2002-07-13) but Scores "
+        "uses a separate Tournament label for a 14-game cup (Round 1 / Semi Final / Final). "
+        "Split via synthetic catalog row; main event keeps id 48."
+    ),
+    "Gloucester III Team": (
+        "Access [Tournament players] has one row for Gloucester III (2002-10-12, 10 players) "
+        "but Scores uses label Gloucester III Team for 10 additional games (IDs contiguous "
+        "after the 90-game double round-robin). Split via synthetic catalog row; main keeps id 62."
     ),
 }
 
@@ -158,6 +207,67 @@ def _as_date(value: date | datetime | None) -> date | None:
     if isinstance(value, datetime):
         return value.date()
     return value
+
+
+def apply_catalog_splits(tournaments: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """
+    Append synthetic catalog rows for Scores-only split tournaments.
+
+    Rows are added at the end of the in-memory list (MySQL ids append after existing catalog).
+    """
+    by_name = {t["name"]: t for t in tournaments}
+    applied: list[dict[str, str]] = []
+
+    for split in IMPORT_CATALOG_SPLITS:
+        if split.name in by_name:
+            raise ValueError(f"catalog split {split.name!r} already exists in Access catalog")
+        parent = by_name.get(split.parent_name)
+        if parent is None:
+            raise ValueError(f"catalog split parent {split.parent_name!r} not found")
+        parent_chrono = parent.get("chrono")
+        if parent_chrono is None:
+            raise ValueError(f"catalog split parent {split.parent_name!r} has no chrono")
+
+        row = {
+            "source_id": split.source_id,
+            "name": split.name,
+            "chrono": float(parent_chrono) + split.chrono_offset,
+            "event_date": parent["event_date"],
+            "is_cup": split.is_cup,
+            "country": parent["country"],
+            "equal_teams": parent.get("equal_teams", False),
+            "player_count": (
+                split.player_count
+                if split.player_count is not None
+                else parent.get("player_count")
+            ),
+        }
+        tournaments.append(row)
+        by_name[split.name] = row
+        applied.append(
+            {
+                "tournament": split.name,
+                "parent": split.parent_name,
+                "source_id": split.source_id,
+                "chrono": row["chrono"],
+                "reason": CATALOG_SPLIT_RATIONALE.get(split.name, ""),
+            }
+        )
+
+    return applied
+
+
+def catalog_splits_manifest() -> list[dict[str, str | int | float]]:
+    """Summary rows for import_manifest.json (one entry per split tournament)."""
+    return [
+        {
+            "tournament": split.name,
+            "parent": split.parent_name,
+            "source_id": split.source_id,
+            "reason": CATALOG_SPLIT_RATIONALE.get(split.name, ""),
+        }
+        for split in IMPORT_CATALOG_SPLITS
+    ]
 
 
 def apply_catalog_corrections(tournaments: list[dict[str, Any]]) -> list[dict[str, str]]:
