@@ -63,8 +63,10 @@
 | **3b** | Policy v2 materialize: tier A only; per-tie KO; `dematerialize`; rollback Athens IV if needed | **B′** |
 | **4** | `verify-legacy` CLI + tier A/C inventory | — |
 | **5** | Bulk **tier A** NULL-phase complete RR marathons (1×–6× legs) | **C** |
-| **6** | Tier B labeled events (per-tie KO stages) | **D** |
-| **6b** | Manual StructureSpec queue (NULL cups — Athens IV, etc.) | — |
+| **6** | **Non-WC tier B bulk** — 41 auto-OK only (`NON_WC_TIER_B_AUTO_MATERIALIZE_IDS`) | **E** |
+| **6a** | **Parser-fix queue** — 8 events (`NON_WC_PARSER_FIX_FIRST_IDS`); fix phases, re-curate, materialize | **E′** |
+| **6b** | Manual StructureSpec queue (11 review ids + NULL cups) | — |
+| **6wc** | **World Cups** (23 tier-B WCs) — WC track | **D** |
 | **7** | Catalog flags from stages | — |
 | **8** | Steve WC reference doc + one WC `StructureSpec` draft | — |
 | **9** | Docs closure | — |
@@ -219,33 +221,86 @@ Materialize tournaments where **100% games have NULL phase** **and** complete k-
 
 ### Tasks
 
-- [ ] Query inventory: `SELECT id, name FROM tournaments t WHERE ...` (document count in handoff)
-- [ ] Batch command: `--all-null-phase` with `--dry-run` default off only after user OK at gate C
-- [ ] Standings rebuild batch for affected ids
-- [ ] `verify-legacy` sample (10 random + known edge cases)
+- [x] Query inventory: tier A **503** (via `audit-inventory`)
+- [x] Batch command: `materialize-tier-a --dry-run` / `--apply` (requires explicit flag; GATE C before apply)
+- [x] `--rebuild-standings` + `--verify-sample N` on apply
+- [x] Dry-run: **503/503** OK, 0 failures (Jun 2026 local)
 
 ### STOP GATE C
 
 User spot-checks tournament list + 2–3 detail pages (marathon + previously mis-tagged cup).
 
+**GATE C anchors:** Jerez XI id=**1** (2× RR), Milan XXIII id=**318** (1×), Athens IV id=**74** still tier C.
+
+```powershell
+python -m scripts.amiga tournament-structure materialize-tier-a --apply --rebuild-standings --verify-sample 10
+```
+
 ---
 
-## Slice 6 — Phase-labeled events
+## Slice 6 — Non-WC tier B bulk (41 only)
 
 ### Goal
 
-Pure cups (10 events), World Cups, placement bands; fix parser gaps found by verify (e.g. `Positions` vs `Places`).
+Materialize **only** `NON_WC_TIER_B_AUTO_MATERIALIZE_IDS` (**41** events). **Not** the 8 parser-fix ids (→ slice **6a**). **Not** WCs (→ **6wc**). **Not** manual review (→ **6b**).
+
+Planning curation: [`2026-06-13-018-amiga-tournament-structure-slice-6-curation.md`](orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md).
 
 ### Tasks
 
-- [ ] Extend materialize bucketing for labeled KO / RR phases
-- [ ] Parser fixes in `tournament_phases.py` as verify-legacy reports (separate commits per fix)
-- [ ] WC sample: one early + one modern tournament id (user may nominate)
-- [ ] Re-run honours/participation verify if standings scopes shift
+- [ ] `materialize-tier-b-non-wc` CLI — allow-list **41 only**; `is_slice_6_auto_ok()`
+- [ ] Pilot: Gloucester I Cup (**75**), Stoke Cup (**158**); negatives **592**, **48**
+- [ ] `--apply --rebuild-standings --verify-sample 10` after **GATE E**
+
+### STOP GATE E
+
+User spot-checks 2 labeled cups; confirms **592** and **48** refuse materialize.
+
+---
+
+## Slice 6a — Parser-fix queue (8 events)
+
+### Goal
+
+Separate slice **after slice 6 bulk** (or parallel only if Dagh asks). Fix `tournament_phases.py` for edge labels on these **8** ids only; re-run `curate_tier_b_non_wc`; move fixed ids from `NON_WC_PARSER_FIX_FIRST_IDS` → auto list; materialize with standings verify.
+
+**Ids:** 48, 145, 152, 166, 198, 267, 269, 284 — see handoff 018 table.
+
+### Tasks
+
+- [ ] Parser patches (Playouts, Play Outs, Places/Positions, Place N Final, Finals plural, …)
+- [ ] Re-curate; update register
+- [ ] `materialize-tier-b-non-wc` or per-id materialize for **graduated** ids only
+- [ ] `verify-legacy --check-standings` per event
+
+### STOP GATE E′
+
+User spot-checks 1–2 graduated parser-fix events (e.g. Groningen VII **48**).
+
+### Do not
+
+- Include these 8 in slice **6** bulk
+- Materialize while still listed in `NON_WC_PARSER_FIX_FIRST_IDS` (materialize refuses)
+
+---
+
+## Slice 6wc — World Cups (deferred WC track)
+
+### Goal
+
+~23 tier-B World Cups + Steve WC reference + WC `StructureSpec` drafts. **Not slice 6.** Former slice 8 expands here.
 
 ### STOP GATE D
 
-User confirms WC group tables still `league` scope; cups show bracket not league table.
+User confirms WC group tables + brackets (WC-specific).
+
+---
+
+## Slice 6b — Manual review queue
+
+### Goal
+
+StructureSpec / triage for tier C and `NON_WC_STRUCTURE_REVIEW_IDS` (Athens LXXXV, Fun Cup events, Athens IV, …).
 
 ---
 

@@ -27,6 +27,10 @@ from scripts.amiga.tournament_structure.materialize_legacy import (
     round_robin_legs,
 )
 from scripts.amiga.tournament_structure.registry import registry_entry_for_catalog
+from scripts.amiga.tournament_structure.tier_b_non_wc_register import (
+    all_structure_review_tournament_ids,
+    is_world_cup_catalog_name,
+)
 
 TIER_A = "A"
 TIER_B = "B"
@@ -86,8 +90,14 @@ def classify_legacy_tier(
     if not games:
         return TIER_C, "no games"
 
+    review_ids = all_structure_review_tournament_ids()
+    if tournament_id is not None and tournament_id in review_ids:
+        return TIER_C, "manual structure review (audit flag)"
+
     all_null_phase = all(not g.get("phase") or not str(g.get("phase")).strip() for g in games)
     if not all_null_phase:
+        if is_world_cup_catalog_name(tournament_name):
+            return TIER_B, "labeled phases on games (World Cup — WC track deferred)"
         return TIER_B, "labeled phases on games"
 
     if tournament_id is not None and tournament_id in STRUCTURE_REVIEW_TOURNAMENT_IDS:

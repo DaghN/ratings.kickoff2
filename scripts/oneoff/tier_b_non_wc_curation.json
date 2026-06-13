@@ -1,0 +1,238 @@
+{
+  "deferred_world_cup": [
+    {
+      "tournament_id": 5,
+      "name": "World Cup XVIII (Bournemouth)"
+    },
+    {
+      "tournament_id": 9,
+      "name": "World Cup XIX (Bremen)"
+    },
+    {
+      "tournament_id": 14,
+      "name": "World Cup XX (Athens)"
+    },
+    {
+      "tournament_id": 16,
+      "name": "World Cup XXI (Torremolinos)"
+    },
+    {
+      "tournament_id": 20,
+      "name": "World Cup XXII (Nottingham)"
+    },
+    {
+      "tournament_id": 25,
+      "name": "World Cup XXIII (Milan)"
+    },
+    {
+      "tournament_id": 26,
+      "name": "World Cup I (Dartford)"
+    },
+    {
+      "tournament_id": 66,
+      "name": "World Cup II (Athens)"
+    },
+    {
+      "tournament_id": 115,
+      "name": "World Cup III (Groningen)"
+    },
+    {
+      "tournament_id": 140,
+      "name": "World Cup IV (Milan)"
+    },
+    {
+      "tournament_id": 169,
+      "name": "World Cup V (Cologne)"
+    },
+    {
+      "tournament_id": 206,
+      "name": "World Cup VI (Rickmansworth)"
+    },
+    {
+      "tournament_id": 280,
+      "name": "World Cup VII (Rome)"
+    },
+    {
+      "tournament_id": 358,
+      "name": "World Cup VIII (Athens)"
+    },
+    {
+      "tournament_id": 418,
+      "name": "World Cup IX (Voitsberg)"
+    },
+    {
+      "tournament_id": 480,
+      "name": "World Cup X (Dusseldorf)"
+    },
+    {
+      "tournament_id": 526,
+      "name": "World Cup XI (Birmingham)"
+    },
+    {
+      "tournament_id": 554,
+      "name": "World Cup XII (Milan)"
+    },
+    {
+      "tournament_id": 569,
+      "name": "World Cup XIII (Voitsberg)"
+    },
+    {
+      "tournament_id": 577,
+      "name": "World Cup XIV (Copenhagen)"
+    },
+    {
+      "tournament_id": 585,
+      "name": "World Cup XV (Dublin)"
+    },
+    {
+      "tournament_id": 596,
+      "name": "World Cup XVI (Milan)"
+    },
+    {
+      "tournament_id": 603,
+      "name": "World Cup XVII (Landskrona)"
+    }
+  ],
+  "auto_ok": [
+    75,
+    89,
+    121,
+    156,
+    158,
+    171,
+    173,
+    176,
+    189,
+    192,
+    215,
+    248,
+    276,
+    316,
+    317,
+    329,
+    338,
+    341,
+    345,
+    413,
+    414,
+    452,
+    453,
+    454,
+    463,
+    465,
+    471,
+    493,
+    500,
+    518,
+    519,
+    521,
+    524,
+    535,
+    540,
+    544,
+    548,
+    553,
+    566,
+    568,
+    570
+  ],
+  "parser_fix": [
+    {
+      "id": 48,
+      "name": "Groningen VII",
+      "reason": "phase label needs parser fix (Positions/Playouts/Play Outs)"
+    },
+    {
+      "id": 145,
+      "name": "Milan V",
+      "reason": "phase label needs parser fix (Positions/Playouts/Play Outs)"
+    },
+    {
+      "id": 152,
+      "name": "Homburg II",
+      "reason": "phase label needs parser fix (Positions/Playouts/Play Outs)"
+    },
+    {
+      "id": 166,
+      "name": "Milan XII",
+      "reason": "odd scope label(s): ['Finals']"
+    },
+    {
+      "id": 198,
+      "name": "Milan XVII",
+      "reason": "phase label needs parser fix (Positions/Playouts/Play Outs)"
+    },
+    {
+      "id": 267,
+      "name": "Seeshaupt",
+      "reason": "odd scope label(s): ['Game of Shame']"
+    },
+    {
+      "id": 269,
+      "name": "Cologne I",
+      "reason": "phase label needs parser fix (Positions/Playouts/Play Outs)"
+    },
+    {
+      "id": 284,
+      "name": "Athens LIII",
+      "reason": "phase label needs parser fix (Positions/Playouts/Play Outs)"
+    }
+  ],
+  "manual_review": [
+    {
+      "id": 22,
+      "name": "Athens XCI",
+      "reason": "unknown league scope labels: ['League Stage']"
+    },
+    {
+      "id": 294,
+      "name": "Langenfeld II",
+      "reason": "unknown league scope labels: ['Fun Cup']"
+    },
+    {
+      "id": 352,
+      "name": "Wiesbaden V",
+      "reason": "unknown league scope labels: ['Playout Group']"
+    },
+    {
+      "id": 406,
+      "name": "Seeshaupt III",
+      "reason": "unknown league scope labels: ['Game of Shame']"
+    },
+    {
+      "id": 409,
+      "name": "Hamburg V",
+      "reason": "unknown league scope labels: ['Fun Cup']"
+    },
+    {
+      "id": 440,
+      "name": "Frankfurt II",
+      "reason": "unknown league scope labels: ['Gold Cup', 'Silver Cup']"
+    },
+    {
+      "id": 477,
+      "name": "Osnabruck II",
+      "reason": "unknown league scope labels: ['Fun Cup']"
+    },
+    {
+      "id": 496,
+      "name": "Rodenbach I",
+      "reason": "unknown league scope labels: ['Fun Cup']"
+    },
+    {
+      "id": 503,
+      "name": "Leicester I",
+      "reason": "unknown league scope labels: ['Qualifying Round']"
+    },
+    {
+      "id": 591,
+      "name": "Amsterdam I",
+      "reason": "unknown league scope labels: ['Bronze Final', 'Bronze Group', 'Clogs of Shame Game', 'Silver Final', 'Silver Group']"
+    },
+    {
+      "id": 592,
+      "name": "Athens LXXXV",
+      "reason": "mixed or distrusted structure (name/rule)"
+    }
+  ]
+}

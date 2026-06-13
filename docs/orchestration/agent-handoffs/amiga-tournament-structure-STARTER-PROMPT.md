@@ -1,55 +1,55 @@
 # Starter prompt — Amiga tournament structure (modules vs legacy backfill)
 
-**Status:** **RESUME** — slices 1–2, 3b, **4** on `main`; tier-A **k× RR** adjustment shipped (handoff **016**); continue **slice 5**.  
-**Read first:** [`2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md`](2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md)  
-**Undo + resume:** [`2026-06-13-015-amiga-tournament-structure-undo-and-resume.md`](2026-06-13-015-amiga-tournament-structure-undo-and-resume.md)  
-**Policy:** [`docs/amiga-tournament-structure-policy.md`](../../amiga-tournament-structure-policy.md) (T1–T22)  
-**Plan:** [`docs/amiga-tournament-structure-implementation-plan.md`](../../amiga-tournament-structure-implementation-plan.md)
+**Status:** **RESUME** — slice **5 applied**; **slice 6** next (41 non-WC bulk only). **Slice 6a** = 8 parser-fix events (separate).  
+**Read first:** [`2026-06-13-018-amiga-tournament-structure-slice-6-curation.md`](2026-06-13-018-amiga-tournament-structure-slice-6-curation.md)  
+**Register:** `scripts/amiga/tournament_structure/tier_b_non_wc_register.py`
 
 ---
 
 ## RESUME prompt (copy into implementation chat)
 
 ```
-Read docs/orchestration/agent-handoffs/2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md FIRST.
+Read docs/orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md FIRST.
 
-You are continuing the Amiga **tournament structure** track. Slices **1–2**, **3b**, and **4** are done. **Slice 3 pilot is VOID.**
+You are continuing the Amiga **tournament structure** track. Slice **5** is applied (504 materialized).
 
-**Planning intervention (already in repo — do not redo):**
-Tier A now accepts NULL-phase **multi-leg** round robins: `game_count = k×n×(n−1)/2` AND every player has `(n−1)×k` games (`round_robin_legs()` in materialize_legacy.py). Was 1× only → inventory tier A **503** (was 108), tier C **16** (was 411).
-Duesseldorf V (id=416) is flagged `STRUCTURE_REVIEW_TOURNAMENT_IDS` — tier C despite 3× game total (uneven per-player). Do not bulk-materialize it.
+**Slice map (non-WC tier B) — do not merge:**
+| Slice | Count | Action |
+|-------|------:|--------|
+| **6** (NOW) | **41** | Bulk `materialize-tier-b-non-wc` — NON_WC_TIER_B_AUTO_MATERIALIZE_IDS only |
+| **6a** (LATER) | **8** | Parser-fix queue — NON_WC_PARSER_FIX_FIRST_IDS — **NOT slice 6** |
+| **6b** | **11** | Manual review — refuse materialize |
+| **6wc** | **23** | World Cups — WC track |
 
-**Read next:**
-1. docs/amiga-tournament-structure-policy.md — T11, §4 tiers
-2. docs/amiga-tournament-structure-implementation-plan.md — **slice 5**
+**Slice 6 — your task now:**
+- Implement `materialize-tier-b-non-wc` using **only** the 41 auto-OK ids
+- Dry-run count must be **41**
+- Wait for GATE E before --apply
 
-**Do NOT:** redo slices 1–4; dematerialize Homburg (137); auto-materialize tier C (Athens IV id=74, Duesseldorf V id=416); bulk materialize without user OK at GATE C.
+**Slice 6a — NOT your task in slice 6:**
+- ids **48, 145, 152, 166, 198, 267, 269, 284**
+- materialize **refuses** these (NON_WC_PARSER_FIX_FIRST_IDS) until parser fixed + re-curated in slice 6a
+- Do not include them in slice 6 bulk; do not ad-hoc materialize them
 
-**Smoke before slice 5:**
+Register: scripts/amiga/tournament_structure/tier_b_non_wc_register.py
+
+**Smoke:**
 python -m unittest scripts.amiga.test_tournament_structure -q
-python -m scripts.amiga tournament-structure audit-inventory
-Expect tier counts A:503 B:83 C:16 D:1.
+python -m scripts.amiga tournament-structure materialize --tournament-id 75 --dry-run
+python -m scripts.amiga tournament-structure materialize --tournament-id 48
+python -m scripts.amiga tournament-structure materialize --tournament-id 592
+python -m scripts.amiga tournament-structure materialize --tournament-id 5 --dry-run
+Expect: 75 OK; **48 FAIL (slice 6a)**; 592 FAIL (review); 5 not in slice-6 bulk (WC).
 
-**First task:** Report smoke results, then wait for **Do slice 5** (tier-A bulk materialize, dry-run first).
+**Do NOT:** bulk or materialize WCs (23); parser-fix ids (8); review ids (11); dematerialize Homburg (137); start slice 6a unless Dagh says so.
 
-**Operating mode:** one slice at a time; handoff files; git commit only when Dagh asks.
-
-Confirm your understanding before taking action.
+Confirm understanding, then implement slice 6 bulk CLI + dry-run (=41).
 ```
 
 ---
 
-## Original prompt (cold start — only if slices 1–2 were never done)
+## After slice 6
 
-<details>
-<summary>Deprecated for this track — slices 1–2 already shipped</summary>
-
-See git history or [`2026-06-13-010-amiga-tournament-structure-slice-1.md`](2026-06-13-010-amiga-tournament-structure-slice-1.md). Use **RESUME prompt** above instead.
-
-</details>
-
----
-
-## After slices 5–7
-
-Mark plan status **Complete** in slice 9. Slice 8 (Steve WC reference) may trail.
+- **6a** — parser-fix 8 (separate handoff when Dagh starts it)  
+- **6b** — manual review queue  
+- **6wc** — World Cups

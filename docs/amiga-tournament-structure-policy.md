@@ -135,13 +135,15 @@ Scores live on **games**. Match identity (players, stage, status, leg order) liv
 | Tier | Condition | Action |
 |------|-----------|--------|
 | **A — auto RR** | NULL phase + complete k-leg RR (`k×n×(n−1)/2` games, equal per-player) | `materialize` → one `round_robin` stage; bulk OK (slice 5) |
-| **B — labeled** | Phase text on games | Bucket RR scopes / KO ties from parser |
-| **C — review** | NULL phase + incomplete RR, cups, uneven per-player at k× total, or **`STRUCTURE_REVIEW_TOURNAMENT_IDS`** audit flag | **Flag** (`needs_structure_review`); **no auto materialize**; human triage or `StructureSpec` |
+| **B — labeled** | Phase text on games | Bucket RR scopes / KO ties from parser. **Slice 6:** non-WC only (41 auto-OK). **23 WCs** → WC track (6wc). |
+| **C — review** | NULL phase + incomplete RR, cups, uneven per-player at k× total, **`STRUCTURE_REVIEW` / `NON_WC_STRUCTURE_REVIEW_IDS`** audit flags | **Flag** (`needs_structure_review`); **no auto materialize**; human triage or `StructureSpec` |
 | **D — curated** | Registry `StructureSpec` | `apply` path (Homburg, future Athens IV) |
 
 **Multi-leg NULL-phase marathons** (home-and-away, 2×/3×/4× RR): tier **A** when per-player game counts match `(n−1)×k`. **Duesseldorf V** (id=416): tier **C** — 3× game total but uneven per-player; listed in `STRUCTURE_REVIEW_TOURNAMENT_IDS`.
 
 **NULL-phase cups** (Athens IV): tier **C** until curated — do not infer rounds or event-wide KO stage.
+
+**Slice 6 (non-WC tier B):** register [`tier_b_non_wc_register.py`](../scripts/amiga/tournament_structure/tier_b_non_wc_register.py) — 41 auto bulk, 11 manual review (e.g. Athens LXXXV id=592), 8 parser-fix-first, 23 WCs deferred to WC track. Curation handoff [`018`](orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md).
 
 ---
 

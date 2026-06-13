@@ -355,6 +355,51 @@ class VerifyLegacyTests(unittest.TestCase):
         self.assertEqual(tier, TIER_C)
         self.assertIn("audit flag", detail)
 
+    def test_classify_tier_c_athens_lxxxv_mixed_labeled(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_C, classify_legacy_tier
+
+        games = [
+            {"player_a_id": 1, "player_b_id": 2, "phase": "Round 1"},
+            {"player_a_id": 3, "player_b_id": 4},
+        ]
+        tier, detail = classify_legacy_tier(
+            games,
+            tournament_name="Athens LXXXV",
+            format_overrides={},
+            tournament_id=592,
+        )
+        self.assertEqual(tier, TIER_C)
+        self.assertIn("audit flag", detail)
+
+    def test_classify_tier_b_wc_deferred_detail(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_B, classify_legacy_tier
+
+        games = [{"player_a_id": 1, "player_b_id": 2, "phase": "Group A"}]
+        tier, detail = classify_legacy_tier(
+            games,
+            tournament_name="World Cup XVIII (Bournemouth)",
+            format_overrides={},
+            tournament_id=5,
+        )
+        self.assertEqual(tier, TIER_B)
+        self.assertIn("WC track deferred", detail)
+
+    def test_materialize_refuses_parser_fix_deferred(self) -> None:
+        from scripts.amiga.tournament_structure.materialize_legacy import (
+            StructureReviewRequired,
+            _connect,
+            materialize_legacy_fixtures,
+        )
+
+        conn = _connect()
+        try:
+            with self.assertRaises(StructureReviewRequired) as ctx:
+                materialize_legacy_fixtures(conn, 48, dry_run=True)
+            self.assertIn("6a", str(ctx.exception))
+            self.assertIn("PARSER_FIX", str(ctx.exception))
+        finally:
+            conn.close()
+
     def test_classify_tier_c_athens_iv_pattern(self) -> None:
         from scripts.amiga.tournament_structure.verify_legacy import TIER_C, classify_legacy_tier
 
@@ -405,6 +450,64 @@ class VerifyLegacyTests(unittest.TestCase):
         computed = [dict(stored[0], points=3)]
         mismatches = _standings_compare(stored, computed)
         self.assertTrue(any("points" in m for m in mismatches))
+
+
+class BulkTierATests(unittest.TestCase):
+    def test_bulk_cli_requires_mode(self) -> None:
+        from scripts.amiga.tournament_structure.bulk_tier_a import main
+
+        self.assertEqual(main([]), 1)
+
+
+class BulkTierBNonWcTests(unittest.TestCase):
+    def test_register_auto_ok_count(self) -> None:
+        from scripts.amiga.tournament_structure.tier_b_non_wc_register import (
+            NON_WC_TIER_B_AUTO_MATERIALIZE_IDS,
+        )
+
+        self.assertEqual(len(NON_WC_TIER_B_AUTO_MATERIALIZE_IDS), 41)
+
+    def test_is_slice_6_auto_ok_pilot_75(self) -> None:
+        from scripts.amiga.tournament_structure.tier_b_non_wc_register import is_slice_6_auto_ok
+
+        self.assertTrue(is_slice_6_auto_ok(75, "Gloucester I Cup"))
+
+    def test_is_slice_6_auto_ok_wc_deferred(self) -> None:
+        from scripts.amiga.tournament_structure.tier_b_non_wc_register import is_slice_6_auto_ok
+
+        self.assertFalse(is_slice_6_auto_ok(5, "World Cup XVIII (Bournemouth)"))
+
+    def test_is_slice_6_auto_ok_review_refused(self) -> None:
+        from scripts.amiga.tournament_structure.tier_b_non_wc_register import is_slice_6_auto_ok
+
+        self.assertFalse(is_slice_6_auto_ok(592, "Athens LXXXV"))
+
+    def test_is_slice_6_auto_ok_parser_fix_refused(self) -> None:
+        from scripts.amiga.tournament_structure.tier_b_non_wc_register import is_slice_6_auto_ok
+
+        self.assertFalse(is_slice_6_auto_ok(48, "Groningen VII"))
+
+    def test_bulk_cli_requires_mode(self) -> None:
+        from scripts.amiga.tournament_structure.bulk_tier_b_non_wc import main
+
+        self.assertEqual(main([]), 1)
+
+    def test_tier_b_candidate_ids_count(self) -> None:
+        from scripts.amiga.tournament_structure.bulk_tier_b_non_wc import (
+            _connect,
+            tier_b_non_wc_candidate_ids,
+        )
+
+        conn = _connect()
+        try:
+            ids = tier_b_non_wc_candidate_ids(conn, skip_materialized=False)
+            self.assertEqual(len(ids), 41)
+            self.assertNotIn(5, ids)
+            self.assertNotIn(48, ids)
+            self.assertNotIn(592, ids)
+            self.assertIn(75, ids)
+        finally:
+            conn.close()
 
 
 if __name__ == "__main__":

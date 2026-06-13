@@ -360,6 +360,26 @@ def materialize_legacy_fixtures(
     if not games:
         raise ValueError(f"tournament_id={tournament_id} has no games")
 
+    from scripts.amiga.tournament_structure.tier_b_non_wc_register import (
+        all_structure_review_tournament_ids,
+        is_parser_fix_deferred,
+    )
+
+    if tournament_id in all_structure_review_tournament_ids():
+        raise StructureReviewRequired(
+            f"tournament_id={tournament_id} ({tournament['name']!r}) is flagged for "
+            "manual structure review (structure review register). "
+            "Add a StructureSpec or remove the flag after triage."
+        )
+
+    if is_parser_fix_deferred(tournament_id):
+        raise StructureReviewRequired(
+            f"tournament_id={tournament_id} ({tournament['name']!r}) is in "
+            "NON_WC_PARSER_FIX_FIRST_IDS — slice **6a** (parser fix) before materialize. "
+            "Not part of slice 6 bulk. Fix tournament_phases.py, re-run curate_tier_b_non_wc, "
+            "then materialize in slice 6a only."
+        )
+
     existing_stages = _count_existing_stages(conn, tournament_id)
     if existing_stages and not replace:
         raise ValueError(
@@ -486,6 +506,14 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.tournament_structure.verify_legacy import main_audit_inventory
 
         return main_audit_inventory(argv[1:])
+    if argv and argv[0] == "materialize-tier-a":
+        from scripts.amiga.tournament_structure.bulk_tier_a import main as bulk_tier_a_main
+
+        return bulk_tier_a_main(argv[1:])
+    if argv and argv[0] == "materialize-tier-b-non-wc":
+        from scripts.amiga.tournament_structure.bulk_tier_b_non_wc import main as bulk_tier_b_main
+
+        return bulk_tier_b_main(argv[1:])
 
     parser = argparse.ArgumentParser(description="Legacy tournament structure materialize")
     sub = parser.add_subparsers(dest="cmd", required=True)
