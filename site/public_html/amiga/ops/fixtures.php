@@ -2152,7 +2152,7 @@ function amiga_fixture_create_kitchen_tournament(
 
         $stageKey = 'overall';
         $stageName = 'League table';
-        $stageType = 'league';
+        $stageType = 'round_robin';
         $sequenceNo = 1;
         $stageConfig = json_encode([
             'generated_by' => 'site.public_html.amiga.ops.fixtures',

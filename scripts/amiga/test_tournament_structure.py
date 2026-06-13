@@ -6,6 +6,13 @@ import unittest
 
 from scripts.amiga.tournament_structure.apply import ApplyContext, apply_structure_spec, structure_specs_manifest
 from scripts.amiga.tournament_structure.registry import all_structure_specs
+from scripts.amiga.tournament_structure.materialize_legacy import (
+    AUTO_RR,
+    NEEDS_STRUCTURE_REVIEW,
+    classify_null_phase_tournament,
+    null_phase_round_robin_bucket,
+    stage_bucket_for_game,
+)
 from scripts.amiga.tournament_structure.specs import (
     FixtureSpec,
     GroupRosterSpec,
@@ -13,6 +20,107 @@ from scripts.amiga.tournament_structure.specs import (
     StructureSpec,
     parse_structure_spec,
 )
+from scripts.amiga.tournament_standings import _fixture_scope
+from scripts.amiga.tournament_phases import ScopeType
+
+
+class FixtureScopeMappingTests(unittest.TestCase):
+    def test_round_robin_overall_maps_to_league(self) -> None:
+        scope, elimination = _fixture_scope(
+            {"fixture_id": 1, "stage_type": "round_robin", "stage_key": "overall", "stage_name": "Overall"},
+            10,
+            20,
+        )
+        self.assertIsNotNone(scope)
+        assert scope is not None
+        self.assertEqual(scope.scope_type, ScopeType.LEAGUE)
+        self.assertEqual(scope.scope_key, "")
+        self.assertFalse(elimination)
+
+    def test_round_robin_group_maps_to_labeled_league(self) -> None:
+        scope, elimination = _fixture_scope(
+            {
+                "fixture_id": 1,
+                "stage_type": "round_robin",
+                "stage_key": "group-a",
+                "stage_name": "Group A",
+            },
+            10,
+            20,
+        )
+        self.assertIsNotNone(scope)
+        assert scope is not None
+        self.assertEqual(scope.scope_type, ScopeType.LEAGUE)
+        self.assertEqual(scope.scope_key, "Group A")
+        self.assertFalse(elimination)
+
+    def test_knockout_maps_to_pair_scope(self) -> None:
+        scope, elimination = _fixture_scope(
+            {
+                "fixture_id": 2,
+                "stage_type": "knockout",
+                "stage_key": "semi",
+                "fixture_phase_label": "Semi-final",
+            },
+            10,
+            20,
+        )
+        self.assertIsNotNone(scope)
+        assert scope is not None
+        self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
+        self.assertTrue(elimination)
+        self.assertIn("10", scope.scope_key)
+        self.assertIn("20", scope.scope_key)
+
+    def test_null_fixture_id_returns_none(self) -> None:
+        self.assertIsNone(_fixture_scope({"stage_type": "round_robin"}, 1, 2))
+
+class MaterializeLegacyTests(unittest.TestCase):
+    def test_null_phase_marathon_is_auto_rr(self) -> None:
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 3},
+        ]
+        self.assertEqual(classify_null_phase_tournament(games), AUTO_RR)
+        bucket = null_phase_round_robin_bucket()
+        self.assertEqual(bucket.stage_type, "round_robin")
+        self.assertEqual(bucket.stage_key, "overall")
+
+    def test_null_phase_incomplete_rr_needs_review(self) -> None:
+        # 3 players full RR = 3 games; 2 games = withdrawal / incomplete
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 1, "player_b_id": 3},
+        ]
+        self.assertEqual(classify_null_phase_tournament(games), NEEDS_STRUCTURE_REVIEW)
+
+    def test_null_phase_cup_needs_review(self) -> None:
+        # 6 players, 6 games — Athens IV pattern; not auto-classifiable
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 3, "player_b_id": 4},
+            {"player_a_id": 5, "player_b_id": 6},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 4},
+            {"player_a_id": 5, "player_b_id": 1},
+        ]
+        self.assertEqual(classify_null_phase_tournament(games), NEEDS_STRUCTURE_REVIEW)
+
+    def test_labeled_knockout_is_one_stage_per_tie(self) -> None:
+        bucket = stage_bucket_for_game(
+            {"phase": "Semi Finals", "player_a_id": 10, "player_b_id": 20},
+            all_null_phase=False,
+        )
+        self.assertEqual(bucket.stage_type, "knockout")
+        self.assertEqual(bucket.name, "Semi Finals")
+        self.assertIn("10-20", bucket.stage_key)
+
+        other_pair = stage_bucket_for_game(
+            {"phase": "Semi Finals", "player_a_id": 30, "player_b_id": 40},
+            all_null_phase=False,
+        )
+        self.assertNotEqual(bucket.stage_key, other_pair.stage_key)
 
 
 class StructureSpecParsingTests(unittest.TestCase):
@@ -38,7 +146,7 @@ class StructureSpecParsingTests(unittest.TestCase):
                 {
                     "stage_key": "groups",
                     "name": "Group stage",
-                    "stage_type": "league_groups",
+                    "stage_type": "round_robin",
                     "group_keys": ["A", "B"],
                     "groups": [
                         {"group_key": "A", "player_names": ["Alice", "Bob"]},
@@ -86,7 +194,7 @@ class StructureSpecParsingTests(unittest.TestCase):
         self.assertEqual(group.player_names, ("P1", "P2"))
 
         stage = StageSpec.from_dict(
-            {"stage_key": "overall", "stage_type": "league", "name": "Overall"}
+            {"stage_key": "overall", "stage_type": "round_robin", "name": "Overall"}
         )
         self.assertEqual(stage.name, "Overall")
 

@@ -14,7 +14,7 @@ from pymysql.cursors import DictCursor
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.player_registry import check_player_name, create_player, suggest_player_name
 
-VALID_STAGE_TYPES = {"league", "group", "knockout", "placement", "other"}
+VALID_STAGE_TYPES = {"round_robin", "knockout"}
 VALID_FIXTURE_STATUSES = {"scheduled", "played", "void"}
 VALID_ENTRANT_STATUSES = {"registered", "withdrawn", "replaced"}
 ACTIVE_ENTRANT_STATUSES = {"registered"}

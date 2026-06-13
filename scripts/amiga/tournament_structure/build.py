@@ -12,7 +12,7 @@ import pymysql
 
 from scripts.amiga.tournament_fixtures import create_stage
 from scripts.amiga.tournament_format import seed_format_templates
-from scripts.amiga.tournament_structure.specs import FixtureSpec, StructureSpec
+from scripts.amiga.tournament_structure.specs import FixtureSpec, StructureSpec, is_round_robin_group_stage, normalize_stage_type
 
 log = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ def _expand_group_fixtures(
     """Return (stage_key, phase_label, fixture_spec) for group round-robin legs."""
     out: list[tuple[str, str, FixtureSpec]] = []
     for stage in spec.stages:
-        if stage.stage_type != "group" or not stage.groups:
+        if not is_round_robin_group_stage(stage):
             continue
         for roster in stage.groups:
             players = roster.player_names
@@ -200,13 +200,13 @@ def build_tournament_structure(
             tournament_id=tournament_id,
             stage_key=stage.stage_key,
             name=stage.name,
-            stage_type=stage.stage_type,
+            stage_type=normalize_stage_type(stage.stage_type),
             sequence_no=seq,
             track_key=track_key,
             config={"import_structure": spec.catalog_name},
         )
         stage_id_by_key[stage.stage_key] = stage_id
-        if stage.stage_type == "group" and stage.groups:
+        if is_round_robin_group_stage(stage):
             roster = stage.groups[0]
             for seed_no, player_name in enumerate(roster.player_names, start=1):
                 pid = _resolve_player_id(player_id, player_name)

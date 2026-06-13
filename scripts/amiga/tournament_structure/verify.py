@@ -24,7 +24,7 @@ from scripts.amiga.tournament_structure.registry import (
     all_registry_entries,
     registry_entry_for_catalog,
 )
-from scripts.amiga.tournament_structure.specs import StructureSpec
+from scripts.amiga.tournament_structure.specs import StructureSpec, is_round_robin_group_stage
 
 
 @dataclass
@@ -107,9 +107,9 @@ def verify_structure_spec(
     result.access_game_count = len(games)
     result.access_player_count = len(player_id)
 
-    group_stages = [s for s in spec.stages if s.stage_type == "group"]
+    group_stages = [s for s in spec.stages if is_round_robin_group_stage(s)]
     if spec.template_slug == "group_knockout" and not group_stages:
-        result.errors.append("group_knockout spec has no group stages")
+        result.errors.append("group_knockout spec has no round_robin group stages")
         result.ok = False
 
     roster_names: set[str] = set()
@@ -208,7 +208,7 @@ def list_registry(*, mdb: Path = _DEFAULT_MDB) -> list[dict[str, Any]]:
             "catalog_name": spec.catalog_name,
             "template_slug": spec.template_slug,
             "status": entry.status,
-            "group_stages": sum(1 for s in spec.stages if s.stage_type == "group"),
+            "group_stages": sum(1 for s in spec.stages if is_round_robin_group_stage(s)),
             "knockout_fixtures": len(spec.fixtures),
             "evidence_url": spec.evidence_url,
             "notes": entry.notes,

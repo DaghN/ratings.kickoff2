@@ -5,6 +5,33 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+STAGE_TYPE_ROUND_ROBIN = "round_robin"
+STAGE_TYPE_KNOCKOUT = "knockout"
+VALID_STAGE_TYPES = frozenset({STAGE_TYPE_ROUND_ROBIN, STAGE_TYPE_KNOCKOUT})
+
+# Pre-migration 023 spec vocabulary (JSON round-trip only).
+_LEGACY_STAGE_TYPE_ALIASES: dict[str, str] = {
+    "league": STAGE_TYPE_ROUND_ROBIN,
+    "group": STAGE_TYPE_ROUND_ROBIN,
+    "league_groups": STAGE_TYPE_ROUND_ROBIN,
+    "other": STAGE_TYPE_ROUND_ROBIN,
+    "placement": STAGE_TYPE_KNOCKOUT,
+}
+
+
+def normalize_stage_type(stage_type: str) -> str:
+    key = str(stage_type).strip().lower()
+    if key in VALID_STAGE_TYPES:
+        return key
+    if key in _LEGACY_STAGE_TYPE_ALIASES:
+        return _LEGACY_STAGE_TYPE_ALIASES[key]
+    raise ValueError(f"stage_type must be round_robin or knockout, got {stage_type!r}")
+
+
+def is_round_robin_group_stage(stage: StageSpec) -> bool:
+    """Round-robin module with one or more group rosters (multi-group structure)."""
+    return normalize_stage_type(stage.stage_type) == STAGE_TYPE_ROUND_ROBIN and bool(stage.groups)
+
 
 @dataclass(frozen=True, slots=True)
 class GroupRosterSpec:

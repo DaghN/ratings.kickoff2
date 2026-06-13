@@ -236,13 +236,21 @@ def _fixture_scope(
     stage_key = str(g.get("stage_key") or "").strip()
     label = _fixture_label(g)
 
+    if stage_type == "round_robin":
+        if stage_key == "" or stage_key.lower() == "overall":
+            return PhaseScope(ScopeType.LEAGUE, ""), False
+        return PhaseScope(ScopeType.LEAGUE, label), False
+    if stage_type == "knockout":
+        pair_key = knockout_pair_scope_key(label, player_a_id, player_b_id)
+        return PhaseScope(ScopeType.KNOCKOUT, pair_key), True
+    # Legacy stage types (pre-migration 023) — keep until all DBs migrated.
     if stage_type == "league":
         if stage_key == "" or stage_key.lower() == "overall":
             return PhaseScope(ScopeType.LEAGUE, ""), False
         return PhaseScope(ScopeType.LEAGUE, label), False
     if stage_type == "group":
         return PhaseScope(ScopeType.LEAGUE, label), False
-    if stage_type in {"knockout", "placement"}:
+    if stage_type == "placement":
         pair_key = knockout_pair_scope_key(label, player_a_id, player_b_id)
         return PhaseScope(ScopeType.KNOCKOUT, pair_key), True
     if stage_type == "other":

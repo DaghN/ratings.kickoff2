@@ -126,6 +126,21 @@ function amiga_ops_fixture_standings_scope(array $game, int $playerAId, int $pla
         $label = 'Fixture';
     }
 
+    if ($stageType === 'round_robin') {
+        if ($stageKey === '' || strtolower($stageKey) === 'overall') {
+            return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => '', 'elimination' => false];
+        }
+
+        return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => $label, 'elimination' => false];
+    }
+    if ($stageType === 'knockout') {
+        return [
+            'scope_type' => AMIGA_SCOPE_TYPE_KNOCKOUT,
+            'scope_key' => amiga_ops_knockout_pair_scope_key($label, $playerAId, $playerBId),
+            'elimination' => true,
+        ];
+    }
+    // Legacy stage types (pre-migration 023) — keep until all DBs migrated.
     if ($stageType === 'league') {
         if ($stageKey === '' || strtolower($stageKey) === 'overall') {
             return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => '', 'elimination' => false];
@@ -136,7 +151,7 @@ function amiga_ops_fixture_standings_scope(array $game, int $playerAId, int $pla
     if ($stageType === 'group') {
         return ['scope_type' => AMIGA_SCOPE_TYPE_LEAGUE, 'scope_key' => $label, 'elimination' => false];
     }
-    if ($stageType === 'knockout' || $stageType === 'placement') {
+    if ($stageType === 'placement') {
         return [
             'scope_type' => AMIGA_SCOPE_TYPE_KNOCKOUT,
             'scope_key' => amiga_ops_knockout_pair_scope_key($label, $playerAId, $playerBId),

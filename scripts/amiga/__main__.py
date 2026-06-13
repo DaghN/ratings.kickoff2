@@ -34,7 +34,9 @@ from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
 from scripts.amiga.tournament_structure.audit import main as audit_suspicious_marathons_main
+from scripts.amiga.tournament_structure.materialize_legacy import main as tournament_structure_main
 from scripts.amiga.tournament_structure.verify import main as structure_main
+from scripts.amiga.tournament_standings import _connect as standings_connect, rebuild_standings_for_tournament
 from scripts.amiga.player_registry import main as player_registry_main
 
 log = logging.getLogger("scripts.amiga")
@@ -156,6 +158,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Tournament structure spec registry (list / verify)",
     )
     p_structure.add_argument("structure_args", nargs=argparse.REMAINDER)
+
+    p_tournament_structure = sub.add_parser(
+        "tournament-structure",
+        help="Legacy tournament structure materialize / verify",
+    )
+    p_tournament_structure.add_argument("tournament_structure_args", nargs=argparse.REMAINDER)
+
+    p_standings_rebuild = sub.add_parser(
+        "standings-rebuild",
+        help="Rebuild amiga_tournament_standings for one tournament from games",
+    )
+    p_standings_rebuild.add_argument("--tournament-id", type=int, required=True)
 
     p_marathons = sub.add_parser(
         "audit-suspicious-marathons",
@@ -312,6 +326,22 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "structure":
         return structure_main(args.structure_args or ["list"])
+
+    if args.cmd == "tournament-structure":
+        return tournament_structure_main(args.tournament_structure_args or [])
+
+    if args.cmd == "standings-rebuild":
+        conn = standings_connect()
+        try:
+            row_count = rebuild_standings_for_tournament(conn, args.tournament_id)
+            log.info(
+                "standings-rebuild complete tournament_id=%s rows=%s",
+                args.tournament_id,
+                row_count,
+            )
+        finally:
+            conn.close()
+        return 0
 
     if args.cmd == "audit-suspicious-marathons":
         marathon_argv: list[str] = ["--mdb", str(args.mdb)]

@@ -1,0 +1,517 @@
+"""Materialize tournament stages and fixtures from imported legacy games.
+
+Policy: docs/amiga-tournament-structure-policy.md (T8–T9, T13).
+Legacy path: games are ground truth → one fixture per game → assign fixture to stage.
+Fixture = one match, one result. KO tie = one stage; multi-leg = multiple fixtures in that stage.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import logging
+import re
+import sys
+from dataclasses import dataclass, field
+from typing import Any
+
+import pymysql
+from pymysql.cursors import DictCursor
+
+from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.tournament_fixtures import create_stage
+from scripts.amiga.tournament_phases import ScopeType, parse_phase
+from scripts.amiga.tournament_structure.specs import STAGE_TYPE_KNOCKOUT, STAGE_TYPE_ROUND_ROBIN
+
+log = logging.getLogger(__name__)
+
+MATERIALIZE_SOURCE = "scripts.amiga.tournament_structure.materialize_legacy"
+
+AUTO_RR = "auto_rr"
+NEEDS_STRUCTURE_REVIEW = "needs_structure_review"
+
+_GENERATED_BY_PREFIXES = (
+    "scripts.amiga.tournament_builder",
+    "site.public_html.amiga.ops.fixtures",
+)
+
+
+@dataclass(frozen=True, slots=True)
+class StageBucket:
+    stage_key: str
+    name: str
+    stage_type: str
+    sequence_no: int = 0
+
+
+class StructureReviewRequired(ValueError):
+    """Tournament cannot be auto-materialized — needs manual StructureSpec or triage."""
+
+
+@dataclass
+class MaterializeResult:
+    tournament_id: int
+    tournament_name: str
+    stages_created: int = 0
+    fixtures_created: int = 0
+    games_linked: int = 0
+    dry_run: bool = False
+    stage_summary: list[dict[str, Any]] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "tournament_id": self.tournament_id,
+            "tournament_name": self.tournament_name,
+            "stages_created": self.stages_created,
+            "fixtures_created": self.fixtures_created,
+            "games_linked": self.games_linked,
+            "dry_run": self.dry_run,
+            "stage_summary": self.stage_summary,
+        }
+
+
+def _connect() -> pymysql.connections.Connection:
+    cfg = load_amiga_db_config()
+    if cfg.database != "ko2amiga_db":
+        raise SystemExit(f"Refusing materialize: expected ko2amiga_db, got {cfg.database!r}")
+    conn = pymysql.connect(
+        host=cfg.host,
+        port=cfg.port,
+        user=cfg.user,
+        password=cfg.password,
+        database=cfg.database,
+        charset="utf8mb4",
+        autocommit=False,
+        cursorclass=DictCursor,
+    )
+    with conn.cursor() as cur:
+        cur.execute("SET time_zone = '+00:00'")
+    return conn
+
+
+def _slug_key(text: str, *, fallback: str = "stage") -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
+    return slug or fallback
+
+
+def _full_round_robin_game_count(player_count: int) -> int:
+    if player_count < 2:
+        return 0
+    return player_count * (player_count - 1) // 2
+
+
+def _distinct_player_ids(games: list[dict[str, Any]]) -> set[int]:
+    players: set[int] = set()
+    for game in games:
+        players.add(int(game["player_a_id"]))
+        players.add(int(game["player_b_id"]))
+    return players
+
+
+def classify_null_phase_tournament(games: list[dict[str, Any]]) -> str:
+    """Tier A (auto_rr) vs tier C (needs_structure_review) for all-NULL-phase events."""
+    player_count = len(_distinct_player_ids(games))
+    if player_count < 2:
+        return NEEDS_STRUCTURE_REVIEW
+    if len(games) == _full_round_robin_game_count(player_count):
+        return AUTO_RR
+    return NEEDS_STRUCTURE_REVIEW
+
+
+def null_phase_round_robin_bucket() -> StageBucket:
+    """Single RR scope for tier-A NULL-phase marathons."""
+    return StageBucket(
+        stage_key="overall",
+        name="Overall",
+        stage_type=STAGE_TYPE_ROUND_ROBIN,
+    )
+
+
+def _knockout_tie_bucket(game: dict[str, Any], *, phase_label: str) -> StageBucket:
+    """One knockout module per two-player tie (policy T3)."""
+    player_a_id = int(game["player_a_id"])
+    player_b_id = int(game["player_b_id"])
+    lo, hi = min(player_a_id, player_b_id), max(player_a_id, player_b_id)
+    label = phase_label.strip() or "Knockout"
+    stage_key = f"ko-{_slug_key(label, fallback='knockout')}-{lo}-{hi}"
+    return StageBucket(
+        stage_key=stage_key,
+        name=label,
+        stage_type=STAGE_TYPE_KNOCKOUT,
+    )
+
+
+def stage_bucket_for_game(
+    game: dict[str, Any],
+    *,
+    all_null_phase: bool,
+) -> StageBucket:
+    if all_null_phase:
+        raise RuntimeError("use null_phase_round_robin_bucket() for tier-A NULL-phase tournaments")
+
+    scope = parse_phase(game.get("phase"))
+    if scope.scope_type == ScopeType.KNOCKOUT:
+        label = scope.scope_key or "Knockout"
+        return _knockout_tie_bucket(game, phase_label=label)
+
+    if scope.scope_key == "":
+        return StageBucket(
+            stage_key="overall",
+            name="Overall",
+            stage_type=STAGE_TYPE_ROUND_ROBIN,
+        )
+
+    label = scope.scope_key
+    return StageBucket(
+        stage_key=_slug_key(label),
+        name=label,
+        stage_type=STAGE_TYPE_ROUND_ROBIN,
+    )
+
+
+def _bucket_key(bucket: StageBucket) -> tuple[str, str]:
+    return bucket.stage_key, bucket.stage_type
+
+
+def _load_tournament(conn: pymysql.connections.Connection, tournament_id: int) -> dict[str, Any]:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, name, source_id, format_overrides
+            FROM tournaments
+            WHERE id = %s
+            """,
+            (tournament_id,),
+        )
+        row = cur.fetchone()
+    if row is None:
+        raise ValueError(f"tournament_id={tournament_id} not found")
+    return row
+
+
+def _load_games(conn: pymysql.connections.Connection, tournament_id: int) -> list[dict[str, Any]]:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, tournament_id, player_a_id, player_b_id, goals_a, goals_b,
+                   phase, fixture_id, source_scores_id
+            FROM amiga_games
+            WHERE tournament_id = %s
+            ORDER BY source_scores_id ASC, id ASC
+            """,
+            (tournament_id,),
+        )
+        return list(cur.fetchall())
+
+
+def _parse_overrides(raw: Any) -> dict[str, Any]:
+    if raw is None or raw == "":
+        return {}
+    if isinstance(raw, dict):
+        return raw
+    return json.loads(str(raw))
+
+
+def _is_generated_tournament(overrides: dict[str, Any]) -> bool:
+    generated_by = str(overrides.get("generated_by", ""))
+    if any(generated_by.startswith(prefix) for prefix in _GENERATED_BY_PREFIXES):
+        return True
+    if overrides.get("structure_spec"):
+        return True
+    return False
+
+
+def _count_existing_stages(conn: pymysql.connections.Connection, tournament_id: int) -> int:
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT COUNT(*) AS n FROM tournament_stages WHERE tournament_id = %s",
+            (tournament_id,),
+        )
+        return int(cur.fetchone()["n"])
+
+
+def _clear_tournament_structure(conn: pymysql.connections.Connection, tournament_id: int) -> None:
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM tournament_stages WHERE tournament_id = %s", (tournament_id,))
+
+
+def dematerialize_legacy_fixtures(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    *,
+    dry_run: bool = False,
+) -> MaterializeResult:
+    """Remove legacy-materialized stages/fixtures; null ``fixture_id`` via FK cascade."""
+    tournament = _load_tournament(conn, tournament_id)
+    overrides = _parse_overrides(tournament.get("format_overrides"))
+    if _is_generated_tournament(overrides):
+        raise ValueError(
+            f"tournament_id={tournament_id} looks generated/curated — "
+            "refusing legacy dematerialize"
+        )
+
+    stage_count = _count_existing_stages(conn, tournament_id)
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = %s AND fixture_id IS NOT NULL",
+            (tournament_id,),
+        )
+        linked = int(cur.fetchone()["n"])
+
+    if stage_count == 0 and linked == 0:
+        raise ValueError(f"tournament_id={tournament_id} has no legacy structure to remove")
+
+    _clear_tournament_structure(conn, tournament_id)
+    return MaterializeResult(
+        tournament_id=tournament_id,
+        tournament_name=str(tournament["name"]),
+        stages_created=-stage_count,
+        fixtures_created=0,
+        games_linked=-linked,
+        dry_run=dry_run,
+    )
+
+
+def _import_create_fixture(
+    conn: pymysql.connections.Connection,
+    *,
+    stage_id: int,
+    fixture_key: str,
+    player_a_id: int,
+    player_b_id: int,
+    leg_no: int,
+    phase_label: str | None,
+) -> int:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO tournament_fixtures
+                (stage_id, fixture_key, player_a_id, player_b_id, leg_no, status, phase_label)
+            VALUES (%s, %s, %s, %s, %s, 'played', %s)
+            ON DUPLICATE KEY UPDATE
+                player_a_id = VALUES(player_a_id),
+                player_b_id = VALUES(player_b_id),
+                leg_no = VALUES(leg_no),
+                status = VALUES(status),
+                phase_label = VALUES(phase_label)
+            """,
+            (stage_id, fixture_key, player_a_id, player_b_id, leg_no, phase_label),
+        )
+        cur.execute(
+            "SELECT id FROM tournament_fixtures WHERE stage_id = %s AND fixture_key = %s",
+            (stage_id, fixture_key),
+        )
+        return int(cur.fetchone()["id"])
+
+
+def materialize_legacy_fixtures(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    *,
+    dry_run: bool = False,
+    replace: bool = False,
+) -> MaterializeResult:
+    """Create stages + one fixture per legacy game; link ``amiga_games.fixture_id``."""
+    tournament = _load_tournament(conn, tournament_id)
+    overrides = _parse_overrides(tournament.get("format_overrides"))
+    if _is_generated_tournament(overrides):
+        raise ValueError(
+            f"tournament_id={tournament_id} looks generated/curated — "
+            "refusing legacy materialize (use structure spec path)"
+        )
+
+    games = _load_games(conn, tournament_id)
+    if not games:
+        raise ValueError(f"tournament_id={tournament_id} has no games")
+
+    existing_stages = _count_existing_stages(conn, tournament_id)
+    if existing_stages and not replace:
+        raise ValueError(
+            f"tournament_id={tournament_id} already has {existing_stages} stage(s) — "
+            "pass replace=True to rebuild"
+        )
+    if existing_stages and replace:
+        _clear_tournament_structure(conn, tournament_id)
+
+    all_null_phase = all(not g.get("phase") or not str(g.get("phase")).strip() for g in games)
+
+    if all_null_phase:
+        tier = classify_null_phase_tournament(games)
+        if tier != AUTO_RR:
+            raise StructureReviewRequired(
+                f"tournament_id={tournament_id} ({tournament['name']!r}) has NULL phases and "
+                f"is not a full round-robin schedule — needs_structure_review (policy T10). "
+                "Add a StructureSpec or classify manually; do not auto-infer knockout."
+            )
+
+    bucket_map: dict[tuple[str, str], StageBucket] = {}
+    games_by_bucket: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    if all_null_phase:
+        bucket = null_phase_round_robin_bucket()
+        key = _bucket_key(bucket)
+        bucket_map[key] = bucket
+        games_by_bucket[key] = list(games)
+    else:
+        for game in games:
+            bucket = stage_bucket_for_game(game, all_null_phase=False)
+            key = _bucket_key(bucket)
+            bucket_map.setdefault(key, bucket)
+            games_by_bucket.setdefault(key, []).append(game)
+
+    ordered_buckets = sorted(
+        bucket_map.values(),
+        key=lambda b: (0 if b.stage_type == STAGE_TYPE_ROUND_ROBIN else 1, b.stage_key),
+    )
+    stage_id_by_key: dict[str, int] = {}
+    result = MaterializeResult(
+        tournament_id=tournament_id,
+        tournament_name=str(tournament["name"]),
+        dry_run=dry_run,
+    )
+
+    for seq, bucket in enumerate(ordered_buckets, start=1):
+        stage_id = create_stage(
+            conn,
+            tournament_id=tournament_id,
+            stage_key=bucket.stage_key,
+            name=bucket.name,
+            stage_type=bucket.stage_type,
+            sequence_no=seq,
+            config={
+                "materialized_by": MATERIALIZE_SOURCE,
+                "legacy_import": True,
+                "phase_provenance": "null" if all_null_phase else "labeled",
+            },
+        )
+        stage_id_by_key[bucket.stage_key] = stage_id
+        result.stages_created += 1
+        result.stage_summary.append(
+            {
+                "stage_key": bucket.stage_key,
+                "name": bucket.name,
+                "stage_type": bucket.stage_type,
+                "game_count": len(games_by_bucket[_bucket_key(bucket)]),
+            }
+        )
+
+    fixture_seq = 0
+    for bucket in ordered_buckets:
+        stage_id = stage_id_by_key[bucket.stage_key]
+        for game in games_by_bucket[_bucket_key(bucket)]:
+            fixture_seq += 1
+            player_a_id = int(game["player_a_id"])
+            player_b_id = int(game["player_b_id"])
+            phase_label = game.get("phase")
+            if phase_label is not None:
+                phase_label = str(phase_label).strip() or None
+            fixture_key = f"legacy-g{int(game['id'])}"
+            fixture_id = _import_create_fixture(
+                conn,
+                stage_id=stage_id,
+                fixture_key=fixture_key,
+                player_a_id=player_a_id,
+                player_b_id=player_b_id,
+                leg_no=1,
+                phase_label=phase_label,
+            )
+            result.fixtures_created += 1
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE amiga_games SET fixture_id = %s WHERE id = %s",
+                    (fixture_id, int(game["id"])),
+                )
+            result.games_linked += 1
+
+    log.info(
+        "materialize_legacy_fixtures tournament_id=%s stages=%s fixtures=%s games=%s dry_run=%s",
+        tournament_id,
+        result.stages_created,
+        result.fixtures_created,
+        result.games_linked,
+        dry_run,
+    )
+    return result
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Legacy tournament structure materialize")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    p_mat = sub.add_parser(
+        "materialize",
+        help="Create stages + fixtures from legacy games (one fixture per game)",
+    )
+    p_mat.add_argument("--tournament-id", type=int, required=True)
+    p_mat.add_argument("--dry-run", action="store_true")
+    p_mat.add_argument(
+        "--replace",
+        action="store_true",
+        help="Delete existing stages/fixtures for this tournament first",
+    )
+    p_mat.add_argument("--json", action="store_true")
+
+    p_dem = sub.add_parser(
+        "dematerialize",
+        help="Remove legacy-materialized stages/fixtures for a tournament",
+    )
+    p_dem.add_argument("--tournament-id", type=int, required=True)
+    p_dem.add_argument("--dry-run", action="store_true")
+    p_dem.add_argument("--json", action="store_true")
+
+    args = parser.parse_args(argv)
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+
+    conn = _connect()
+    try:
+        if args.cmd == "materialize":
+            result = materialize_legacy_fixtures(
+                conn,
+                args.tournament_id,
+                dry_run=args.dry_run,
+                replace=args.replace,
+            )
+        elif args.cmd == "dematerialize":
+            result = dematerialize_legacy_fixtures(
+                conn,
+                args.tournament_id,
+                dry_run=args.dry_run,
+            )
+        else:
+            return 1
+
+        if args.dry_run:
+            conn.rollback()
+            print("DRY RUN: rolled back")
+        else:
+            conn.commit()
+    except (ValueError, StructureReviewRequired) as exc:
+        conn.rollback()
+        print(f"FAIL: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        conn.close()
+
+    if args.json:
+        print(json.dumps(result.to_dict(), indent=2))
+    elif args.cmd == "materialize":
+        print(
+            f"{'DRY RUN ' if result.dry_run else ''}"
+            f"materialized {result.tournament_name!r} (id={result.tournament_id}): "
+            f"{result.stages_created} stage(s), {result.fixtures_created} fixture(s), "
+            f"{result.games_linked} game(s) linked"
+        )
+        for row in result.stage_summary:
+            print(
+                f"  - {row['stage_key']} ({row['stage_type']}): {row['game_count']} game(s)"
+            )
+    else:
+        print(
+            f"{'DRY RUN ' if result.dry_run else ''}"
+            f"dematerialized {result.tournament_name!r} (id={result.tournament_id}): "
+            f"removed {abs(result.stages_created)} stage(s), unlinked {abs(result.games_linked)} game(s)"
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

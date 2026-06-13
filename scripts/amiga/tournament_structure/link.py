@@ -1,4 +1,15 @@
-"""Link imported games to fixtures by player pair + chronological order."""
+"""Link imported games to fixtures by player pair + chronological order.
+
+Side parity (policy T9): after link, ``fixture.player_a_id`` must equal
+``game.player_a_id`` and ``fixture.player_b_id`` must equal ``game.player_b_id``.
+This helper matches on **unordered player pair** only — sufficient for
+structure-spec verify against Access (chronological game listing) but
+**insufficient alone** for legacy import backfill.
+
+Prefer slice 3 ``materialize_legacy_fixtures()`` which copies Team A/B from
+``amiga_games`` at fixture creation time. Full side-parity enforcement lands
+in slice 3 verify CLI.
+"""
 
 from __future__ import annotations
 
@@ -23,7 +34,10 @@ def link_games_to_fixtures(
     tournament_id: int,
     build: StructureBuildResult,
 ) -> LinkResult:
-    """Assign fixture_id on game_rows for one tournament (mutates in place)."""
+    """Assign fixture_id on game_rows for one tournament (mutates in place).
+
+    Uses unordered pair matching; does not verify or swap A/B sides.
+    """
     slots: list[BuiltFixture] = list(build.fixtures)
     linked = 0
     orphans = 0

@@ -199,7 +199,7 @@ def create_kitchen_marathon_tournament(
         tournament_id=tournament_id,
         stage_key="overall",
         name="Overall",
-        stage_type="league",
+        stage_type="round_robin",
         sequence_no=1,
         config={
             "generated_by": BUILDER_NAME,
@@ -301,7 +301,7 @@ def create_swiss_tournament(
         tournament_id=tournament_id,
         stage_key="overall",
         name="Swiss",
-        stage_type="league",
+        stage_type="round_robin",
         sequence_no=1,
         config={
             "generated_by": BUILDER_NAME,
@@ -744,7 +744,7 @@ def create_group_knockout_tournament(
             tournament_id=tournament_id,
             stage_key=stage_key,
             name=f"Group {group_key}",
-            stage_type="group",
+            stage_type="round_robin",
             sequence_no=group_idx,
             track_key=group_key,
             config={

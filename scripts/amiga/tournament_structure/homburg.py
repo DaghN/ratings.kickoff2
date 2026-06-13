@@ -51,7 +51,7 @@ def _group_stages() -> tuple[StageSpec, ...]:
             StageSpec(
                 stage_key=stage_key,
                 name=f"Group {group_key}",
-                stage_type="group",
+                stage_type="round_robin",
                 group_keys=(group_key,),
                 groups=(GroupRosterSpec(group_key=group_key, player_names=players),),
             )
@@ -82,7 +82,7 @@ def _knockout_stages() -> tuple[StageSpec, ...]:
         StageSpec(
             stage_key="ko-placement-3rd",
             name="3rd Place Final",
-            stage_type="placement",
+            stage_type="knockout",
             round_keys=("placement_3rd",),
         ),
         StageSpec(

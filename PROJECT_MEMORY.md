@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration (v1)** — **complete** (slices 0–10; migrations `017`–`019`). **Tournament medals unification (v2)** — **complete** local (`021`/`021b`/`022`; slices 0–8) — [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) v2 **Implemented**. **Standings scope unification** — **complete** (slices 0–7; migration `020`). **Tournament structure track** — **planned** (policy + plan + starter; slices 1–9 pending — `round_robin`/`knockout` stages, game-authoritative legacy materialize) — [`amiga-tournament-structure-policy.md`](docs/amiga-tournament-structure-policy.md). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration (v1)** — **complete** (slices 0–10; migrations `017`–`019`). **Tournament medals unification (v2)** — **complete** local (`021`/`021b`/`022`; slices 0–8) — [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) v2 **Implemented**. **Standings scope unification** — **complete** (slices 0–7; migration `020`). **Tournament structure track** — slices **1–2 done** (`023`); slice **3 pilot superseded** by **policy v2** (RR scope + KO tie; tier-A auto only) — resume **3b** via [`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](docs/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
 
 ---
 
@@ -83,6 +83,12 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga tournament structure policy v2.1** — stage/fixture/game chain locked (fixture = one match; universal live+legacy); T8–T22 in [`amiga-tournament-structure-policy.md`](docs/amiga-tournament-structure-policy.md); data contract updated. |
+| 2026-06 | **Amiga tournament structure slice 3b (policy v2)** — RR scope + KO tie modules; tier-A auto only; `dematerialize`; Athens IV dematerialized; handoff [`014`](docs/orchestration/agent-handoffs/2026-06-13-014-amiga-tournament-structure-slice-3b.md). |
+| 2026-06 | **Amiga tournament structure slice 3** — ~~pilot~~ **superseded** — handoff [`012`](docs/orchestration/agent-handoffs/2026-06-13-012-amiga-tournament-structure-slice-3.md). |
+| 2026-06 | **Amiga tournament structure slice 2** — builders, Homburg spec, build/verify helpers, link side-parity doc, browser ops `round_robin`; Homburg verify OK (86/86); handoff [`2026-06-13-011-amiga-tournament-structure-slice-2.md`](docs/orchestration/agent-handoffs/2026-06-13-011-amiga-tournament-structure-slice-2.md). |
+| 2026-06 | **Amiga tournament structure slice 1** — migration `023` (`round_robin`/`knockout` stage enum); `_fixture_scope` + PHP parity; `VALID_STAGE_TYPES`; 13 stages migrated (8 RR, 5 KO); STOP GATE A — handoff [`2026-06-13-010-amiga-tournament-structure-slice-1.md`](docs/orchestration/agent-handoffs/2026-06-13-010-amiga-tournament-structure-slice-1.md). |
+| 2026-06 | **Amiga tournament structure policy v2** — RR scope + KO **tie** modules; rounds in StructureSpec; NULL auto RR only when full schedule else flag; slice 3 pilot superseded; restart handoff [`013`](docs/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md). |
 | 2026-06 | **Amiga tournament structure track — planning** — policy [`amiga-tournament-structure-policy.md`](docs/amiga-tournament-structure-policy.md); implementation plan slices 1–9; starter [`amiga-tournament-structure-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md) (modules vs structure; game-authoritative legacy backfill; migration `023` next). |
 | 2026-06 | **Amiga tournaments index** — Date column before Tournament; formatted `M j, Y` (profile/LB event date style). |
 | 2026-06 | **Leaderboards hub lede** — “rating” → “ratings” in `lb_nav.php` chapter copy. |

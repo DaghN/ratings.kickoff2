@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `tournament_stages` (
   `parent_stage_id` int(11) DEFAULT NULL,
   `stage_key` varchar(80) NOT NULL,
   `name` varchar(120) NOT NULL,
-  `stage_type` enum('league','group','knockout','placement','other') NOT NULL,
+  `stage_type` enum('round_robin','knockout') NOT NULL,
   `track_key` varchar(80) DEFAULT NULL,
   `sequence_no` smallint(6) NOT NULL DEFAULT 0,
   `config_json` longtext DEFAULT NULL,

@@ -1,26 +1,54 @@
 # Amiga tournament structure — policy (modules vs structure)
 
-**Status:** **Planned** — track initiated Jun 2026; execution slices 1+ pending.  
-**Purpose:** Lock how we model **tournament modules (stages)** separately from **event structure** (composition, promotion, tracks), and how **legacy import** materializes fixtures without inventing draw-order schedules.
+**Status:** **In progress** — slices 1–2 shipped Jun 2026 (migration `023`); slice 3 pilot **revised** (policy v2 Jun 2026).  
+**Purpose:** Lock how we model **tournament modules** separately from **event structure** (composition, promotion, rounds, tracks), and how **legacy import** materializes fixtures without inventing draw-order schedules.
 
-**Authority:** This doc owns **stage module taxonomy**, **structure vs semantics split**, and **legacy backfill rules**. Standings tally primitives: [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md). Honours finish: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Table register: [`amiga-data-contract.md`](amiga-data-contract.md). Prior exploration: [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) (partially superseded by locked decisions here).
+**Authority:** This doc owns **module taxonomy**, **structure vs semantics split**, and **legacy backfill rules**. Standings tally primitives: [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md). Honours finish: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Table register: [`amiga-data-contract.md`](amiga-data-contract.md).
 
-**Implementation:** [`amiga-tournament-structure-implementation-plan.md`](amiga-tournament-structure-implementation-plan.md) · starter: [`orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md)
+**Implementation:** [`amiga-tournament-structure-implementation-plan.md`](amiga-tournament-structure-implementation-plan.md) · starter: [`orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md) · **restart handoff (policy v2):** [`orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)
 
-**History:** Jun 2026 exploration chat — rejected conflating `league`/`group` stage types (structural singleton vs multi-group encoded in type enum). Paused format-backbone slices (Homburg pilot) remain valid but must align with this policy before further backfill.
+**History:** Jun 2026 exploration — modules vs structure. Jun 2026 policy v2 — atomic KO **tie** module; bracket **rounds** in structure only; NULL-phase auto-classify **high-confidence RR only**, flag the rest. Jun 2026 policy v2.1 — **stage / fixture / game** chain locked (fixture = one match, one result; universal for live and legacy).
 
 ---
 
-## 1. Two questions, two artifacts
+## 1. Four concepts (do not conflate)
+
+```text
+MODULE (stage)     tournament_stages     RR scope or KO tie — the atom
+  └── FIXTURE      tournament_fixtures     exactly one match → exactly one result
+        └── GAME   amiga_games             score row (goals, ET, pens, …)
+
+STRUCTURE (separate artifact)
+  rounds, tracks, promotion, placement bands — references stage IDs, reads module outcomes
+```
+
+| Concept | Table | Meaning |
+|---------|-------|---------|
+| **Stage / module** | `tournament_stages` | Atom. `stage_type`: `round_robin` (player set) or `knockout` (one tie between two players). **`tournament_stages.id` is the canonical module handle** for structure graphs. |
+| **Fixture** | `tournament_fixtures` | **One match, one result.** Always belongs to exactly one stage (`stage_id`). Never a multi-leg bundle in a single row. |
+| **Game** | `amiga_games` | Canonical **score** row. Links to fixture via `fixture_id` when fixture-backed. |
+
+**Two-leg knockout:** one **KO stage** (the tie) + **two fixtures** (leg 1, leg 2) + **two games**. `leg_no` orders legs within the tie; it does **not** mean “one fixture contains multiple legs.”
+
+**Live vs legacy (same schema, different creation order):**
+
+| Path | Fixtures created by… | Games |
+|------|----------------------|-------|
+| **Live** | Tournament software (schedule first) | Filled when results entered (`record-result`, ops) |
+| **Legacy** | Materialize from imported games (results first) | Already ground truth; fixtures derived and assigned to stages |
+
+Do **not** maintain a legacy-only path that skips fixtures and points games directly at stages. The fixture layer is universal; only **provenance** differs.
 
 | Question | Answered by | Examples |
 |----------|-------------|----------|
-| **What modules exist, and what type is each?** | `tournament_stages` + `stage_type` + `config_json` + roster/fixtures | One RR module; eight RR modules (Group A–H); KO semi module |
-| **How do modules combine?** | `format_template` spec, `StructureSpec`, promotion/graph rules (evolving) | Single RR only (marathon); 8 groups → KO; silver/bronze tracks |
+| **What module is this match in?** | `fixture → stage → stage_type` | RR table; KO tie |
+| **Where is the score?** | `amiga_games` (linked via `fixture_id`) | goals, extra time |
+| **Who ranked / who won the module?** | Derived on the **stage** (RR table or tie winner) | structure reads this later |
+| **How do modules combine?** | `StructureSpec`, promotion graph | groups → KO; dinner 1v2/3v4 |
 
-**Rule:** Stage **type** describes **local behaviour** (how results inside the module are interpreted). **Structure** describes **inventory, order, tracks, and promotion** — not a third stage type called `league`.
+**UI rule:** Every match is either part of **an RR table** or **a 2-player elimination tie** — two module types, easy to display.
 
-Modules may have **internal** structure via **parameters** (RR legs, bracket size, pairing policy) without a separate inter-stage graph.
+**Not a third type:** “Knockout round” (R16, QF, SF) is **structure metadata** grouping several KO ties — not different result physics.
 
 ---
 
@@ -28,112 +56,135 @@ Modules may have **internal** structure via **parameters** (RR legs, bracket siz
 
 | # | Decision | Rule |
 |---|----------|------|
-| **T1** | **Two module types (v1)** | `tournament_stages.stage_type` is **`round_robin`** or **`knockout`** only for product work. |
-| **T2** | **Round-robin module** | All-play-all (or scheduled RR) in a player set → **points table semantics** on rebuild (standings `scope_type = league`). |
-| **T3** | **Knockout module** | **Two-player ties** only (one or more legs per tie) → **tie-winner semantics** (standings `scope_type = knockout`). |
-| **T4** | **No `placement` stage type** | Placement bands, ordinal pairing (1v2, 3v4…), 3rd-place finals = **`knockout`** modules + **structure/pairing** rules — not a third physics. |
-| **T5** | **Retire `league` + `group` stage types** | Collapse to **`round_robin`**. “Single marathon” vs “Group A of eight” is **structure** (`stage_key`, `group_key`, template), not type. |
-| **T6** | **Vocabulary: `league` on standings** | `amiga_tournament_standings.scope_type = league` remains the **points-table tally primitive** only — not a stage type. See standings policy S1–S10. |
-| **T7** | **Games authoritative (legacy)** | For completed import, `amiga_games` is canonical for pairings, scores, and **Team A / Team B**. Do not generate fixtures from draw order. |
-| **T8** | **Materialize fixtures from games** | Legacy backfill: **one fixture per game** (or per leg), copying `player_a_id` / `player_b_id` from the game row; set `fixture_id` on the game. |
-| **T9** | **Side parity verify** | After link: `fixture.player_a_id = game.player_a_id` AND `fixture.player_b_id = game.player_b_id`. Flag mismatches; game wins on conflict. |
-| **T10** | **Stage typing from phases** | NULL phase → one `round_robin` stage (implicit). Labeled RR phases → `round_robin` stage per bucket (`scope_key` / phase label). Knockout phases → `knockout` stage (or shared KO stage per policy in plan). Phase text retained as provenance. |
-| **T11** | **Resolver precedence** | When `fixture_id` present: scope from **fixture → stage → stage_type**. Else: `tournament_phases.py` fallback (legacy_inferred). |
-| **T12** | **Structure graph deferred (v1 import)** | Full promotion engine not required to ship bulk backfill. Inter-stage rules evolve in template/`StructureSpec` slices (Steve WC reference). |
-| **T13** | **`is_cup` / phase histogram flags** | Recompute `has_league` / `has_cup` from **stages** after backfill (slice 7), not from Access `Cup?` + NULL-phase marathon rule alone. |
-| **T14** | **Steve WC source** | Reference implementation for **structure + generation** on ~10 modern WCs; validate against games, do not replace game ground truth. |
-| **T15** | **No koatd patches** | Corrections in import layer / version-controlled specs only ([`amiga-import-layer.md`](amiga-import-layer.md)). |
+| **T1** | **Two module types (v1)** | `tournament_stages.stage_type` is **`round_robin`** or **`knockout`** only. |
+| **T2** | **Round-robin module** | A **player set** + games among them → points table semantics (`standings.scope_type = league`). |
+| **T3** | **Knockout module = one tie** | **Exactly two players**; one or more leg games; tie-winner semantics (`standings.scope_type = knockout`). **Legacy materialize:** one `knockout` stage per tie (not one stage per event, not “knockout round” as type). |
+| **T4** | **No `placement` stage type** | Placement bands, 3rd-place finals, dinner 1v2/3v4 = **`knockout` ties** + **structure/pairing** rules. |
+| **T5** | **Retire `league` + `group` stage types** | Collapse to **`round_robin`**. Singleton marathon vs Group A of eight = **structure** (`stage_key`, `group_key`), not type. |
+| **T6** | **Vocabulary: `league` on standings** | `scope_type = league` = points-table tally primitive only — not a stage type. |
+| **T7** | **Games authoritative (legacy)** | Pairings, scores, Team A/B from `amiga_games`. No draw-order RR generation for completed events. |
+| **T8** | **Fixture = one match** | One `tournament_fixtures` row = exactly one match = exactly one result. Legacy v1: one fixture per imported game. Multi-leg KO = multiple fixture rows in one KO stage. |
+| **T9** | **Fixture universal** | Live and legacy both use `tournament_fixtures`. Live: schedule fixtures then fill games. Legacy: materialize fixtures from games then assign to stages. **Do not** skip fixtures on legacy. |
+| **T10** | **Side parity** | `fixture.player_a_id = game.player_a_id` AND `fixture.player_b_id = game.player_b_id`. |
+| **T11** | **NULL phase — auto RR only when certain** | All phases NULL **and** `game_count = n×(n−1)/2` for distinct players → one `round_robin` / `overall` stage. **Otherwise → `needs_structure_review`** — do **not** auto-materialize; do **not** infer knockout. |
+| **T12** | **Incomplete RR stays RR** | Withdrawal / early exit → partial schedule → still **`round_robin`** once classified (manual or curated spec) — never “failed RR math ⇒ knockout”. |
+| **T13** | **Labeled phases** | RR labels → one `round_robin` stage per scope bucket. KO labels → **one `knockout` stage per tie** (player pair); **one fixture per game** in that stage. |
+| **T14** | **Module outcomes on stage** | RR: rank table keyed by `stage_id`. KO: tie winner/loser derived from fixtures/games in that `stage_id`. Structure graph references **stage IDs** and reads these outcomes (standard or special rules in spec). |
+| **T15** | **Resolver precedence** | `fixture_id` present → scope from fixture → stage → `stage_type`. Else phase parser fallback. |
+| **T16** | **Structure graph deferred** | Full promotion engine not required for bulk RR backfill. Rounds/bracket layout in `StructureSpec` (manual for NULL-phase cups). |
+| **T17** | **Catalog flags** | Recompute `has_league` / `has_cup` from stages after backfill (later slice), not Access-only heuristics. |
+| **T18** | **Steve WC source** | Structure reference for modern WCs; games remain ground truth. |
+| **T19** | **No koatd patches** | Import layer / version-controlled specs only. |
+| **T20** | **Rejected: NULL ⇒ KO heuristic** | `not full RR schedule` must **not** imply knockout (slice 3 pilot mistake — reverted). |
+| **T21** | **Rejected: fixture as tie container** | A fixture must **not** span multiple legs or multiple results. The tie is the **stage**; legs are separate fixtures. |
+| **T22** | **Rejected: legacy without fixtures** | Removing the fixture layer for legacy adds a second code path; keep fixtures, differentiate creation order only (T9). |
+
+### Generated / curated specs (Homburg, live builder)
+
+`StructureSpec` **may** use stage rows as **round containers** (e.g. `ko-semi` holding several ties) for ops UX on **generated** tournaments. **Legacy materialize** uses **per-tie** KO stages (T3). Structure graph / `round_key` on fixtures is authoritative for round grouping in both cases.
 
 ---
 
-## 3. Data model (target)
+## 3. Data model
 
 ```text
-LEGACY GROUND
-  amiga_games (scores, player_a/b, phase, fixture_id)
-  tournaments (format_template_id, format_overrides, has_league, has_cup)
-
-CANONICAL MODULES (ko2amiga)
-  tournament_stages
-    stage_type:  round_robin | knockout
-    stage_key, group_key, track_key, sequence_no, config_json
-  tournament_fixtures
-    stage_id, player_a_id, player_b_id, leg_no, phase_label, status
-  tournament_stage_players / tournament_entrants (live + optional legacy)
+CANONICAL (ground)
+  tournament_stages.id          module atom (RR scope | KO tie)
+  tournament_fixtures           one match; fixture.stage_id → stage
+  amiga_games.fixture_id        score row → fixture (when linked)
 
 STRUCTURE (evolving)
-  tournament_format_templates.spec_json
-  tournament_structure/StructureSpec (per-event curated backfill)
-  promotion / pairing rules (future)
+  StructureSpec, round_key on fixtures, promotion edges
+  references stage_id; reads module outcomes
 
 DERIVED
-  amiga_tournament_standings  (scope_type league | knockout — tally layer)
-  honours / participation / catalog_stats
+  amiga_tournament_standings      scope_type league | knockout
+  event_finish_position           tournament-level (honours); walks structure over stages
 ```
 
-### Stage type → standings primitive
+### Pointer chain (always)
 
-| `stage_type` | Result semantics (step 1) | Standings `scope_type` |
-|--------------|---------------------------|-------------------------|
-| `round_robin` | W/D/L, 3–1–0, rank in scope | `league` |
-| `knockout` | Tie winner (GD, `extra`, …) | `knockout` |
+```text
+amiga_games.fixture_id  →  tournament_fixtures.id  →  tournament_stages.id
+```
+
+Scores live on **games**. Match identity (players, stage, status, leg order) lives on **fixtures**. Module physics live on **stages**.
+
+### Module type → standings
+
+| `stage_type` | Module | Standings `scope_type` |
+|--------------|--------|-------------------------|
+| `round_robin` | Player-set RR scope | `league` |
+| `knockout` | One 2-player tie | `knockout` |
 
 ### Examples
 
-| Event | Modules (type) | Structure (template / graph) |
-|-------|----------------|------------------------------|
-| Kitchen marathon | 1 × `round_robin` | `kitchen_marathon` — single module, no promotion |
-| WC Round 1 Group A | 1 × `round_robin` (key `group-a`) | `world_cup_class` — one of eight parallel RR modules |
-| Semi-final tie | `knockout` fixture(s) | Bracket graph feeds pairings (live); legacy = games list |
-| Dinner placement 1v2, 3v4… | `knockout` ties | Structure pairs by ordinal rank — not a `placement` type |
+| Event | Modules | Structure (not type) |
+|-------|---------|----------------------|
+| Kitchen marathon | 1 × `round_robin` | `kitchen_marathon` |
+| Incomplete marathon (withdrawal) | 1 × `round_robin` (partial) | manual confirm or audit |
+| WC Group A | 1 × `round_robin` | one of eight parallel groups |
+| Semi-final tie (2 legs) | 1 × `knockout` stage | 2 fixtures, 2 games; `round_key: semi` in structure |
+| Athens IV NULL cup | **manual** `StructureSpec` | bracket rounds unknown from phases |
+| Dinner 1v2, 3v4 | N × `knockout` ties | placement band in structure |
 
 ---
 
-## 4. Legacy import (locked behaviour)
+## 4. Legacy import classification tiers
 
-1. Import games and players as today (`import_access.py`).  
-2. **After games exist:** classify stages per tournament; create stages + fixtures **from games** (materialize).  
-3. **Do not** run circle-method or `combinations()` scheduling for completed events.  
-4. **Do not** use unordered pair matching without **side parity** check ([`link.py`](../scripts/amiga/tournament_structure/link.py) pattern is insufficient alone — game-authoritative creation preferred).  
-5. Standings rebuild unchanged in spirit: fixture path when `fixture_id` set; else phase parser.  
-6. Full **promotion graph** optional for v1; honours may continue tier rules until structure slices land.
+| Tier | Condition | Action |
+|------|-----------|--------|
+| **A — auto RR** | NULL phase + full RR schedule | `materialize` → one `round_robin` stage; bulk OK |
+| **B — labeled** | Phase text on games | Bucket RR scopes / KO ties from parser |
+| **C — review** | NULL phase + not full RR | **Flag** (`needs_structure_review`); **no auto materialize**; human triage or `StructureSpec` |
+| **D — curated** | Registry `StructureSpec` | `apply` path (Homburg, future Athens IV) |
+
+**NULL-phase cups** (Athens IV): tier **C** until curated — do not infer rounds or event-wide KO stage.
 
 ---
 
-## 5. Rejected alternatives
+## 5. Legacy import behaviour
+
+1. Import games as today.  
+2. Classify tournament tier (A/B/C/D).  
+3. Tier A/B only: materialize stages + fixtures from games.  
+4. No circle-method scheduling.  
+5. Side parity at insert.  
+6. Standings rebuild via fixture path when linked.
+
+---
+
+## 6. Rejected alternatives
 
 | Alternative | Why rejected |
 |-------------|--------------|
-| Keep `league` vs `group` stage types | Encodes structure (“singleton vs one of many”) in type enum |
-| `placement` as third stage type | Same knockout tie semantics; pairing differs |
-| Synthetic `Scores.Phase` as primary fix | Bridge only; not canonical format layer |
-| Infer registration order from results | Underdetermined; games are authoritative for legacy |
-| Generate RR fixtures then swap A/B | Extra step; copy sides from game at creation |
-| Block all import on WC promotion engine | Bulk RR/KO materialization does not need full graph |
+| `not full RR` ⇒ single knockout stage | Misclassifies incomplete RR; conflates event with tie |
+| Knockout round as third stage type | Rounds are structure; physics unchanged per tie |
+| `league` vs `group` stage types | Encodes structure in enum |
+| Infer bracket from NULL-phase game graph | Spaghetti; manual structure for ambiguous events |
+| Block all import on promotion engine | Tier A bulk does not need graph |
+| Skip fixtures for legacy; `stage_id` on games only | Two code paths; live still needs fixtures; structure has no uniform match handle |
+| Fixture row spans multiple legs / results | Tie is the stage; each leg is its own fixture + game |
 
 ---
 
-## 6. Out of scope (this track unless plan slice says otherwise)
+## 7. Out of scope
 
-- Live WC **generator** UI (post-import product)  
-- Full automatic promotion interpreter for all 603 events  
-- Online `kooldb*` ladder  
-- Staging export / WinSCP (Dagh deploys)  
-- Replacing phase parser entirely (legacy fallback remains)  
-- Tournament index UI cutover (optional late slice)
+- Live WC generator UI  
+- Full auto promotion for all 603 events  
+- Online `kooldb*`  
+- Staging export (Dagh deploys)
 
 ---
 
-## 7. Related documents
+## 8. Related documents
 
 | Doc | Relation |
 |-----|----------|
-| [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) | Standings `league`/`knockout` tally — separate from stage types |
-| [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) | Background; slice phasing partially outdated |
-| [`amiga-format-backbone-orchestration-prompt.md`](amiga-format-backbone-orchestration-prompt.md) | Homburg pilot — align with T1–T5 before extending |
-| [`amiga-import-layer.md`](amiga-import-layer.md) | Import transforms, manifest |
-| [`docs/orchestration/agent-track-playbook.md`](orchestration/agent-track-playbook.md) | Doc · plan · prompt · slices ritual |
+| [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) | Standings tally layer |
+| [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) | Background |
+| [`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md) | Policy v2 + rollback + resume slices |
 
 ---
 
-*Track initiated from exploration Jun 2026 — modules vs structure, game-authoritative legacy backfill.*
+*Policy v2.1 — Jun 2026: stage = module atom; fixture = one match (live + legacy); structure references stages.*
