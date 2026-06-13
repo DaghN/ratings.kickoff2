@@ -497,6 +497,126 @@ def materialize_legacy_fixtures(
     return result
 
 
+def _main_preview_pure_knockout(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="Preview pure knockout handler grouping")
+    parser.add_argument("--tournament-id", type=int, required=True)
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args(argv)
+    from scripts.amiga.tournament_structure.pure_knockout import preview_cli
+
+    return preview_cli(args.tournament_id, as_json=args.json)
+
+
+def _main_materialize_pure_knockout(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="Materialize pure knockout handler")
+    parser.add_argument("--tournament-id", type=int, required=True)
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--replace", action="store_true")
+    parser.add_argument("--force", action="store_true", help="Apply despite preflight warnings (dev)")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args(argv)
+
+    conn = _connect()
+    try:
+        from scripts.amiga.tournament_structure.pure_knockout import materialize_pure_knockout
+
+        result = materialize_pure_knockout(
+            conn,
+            args.tournament_id,
+            dry_run=args.dry_run,
+            replace=args.replace,
+            force=args.force,
+        )
+        if args.dry_run:
+            conn.rollback()
+            print("DRY RUN: rolled back")
+        else:
+            conn.commit()
+    except (ValueError, StructureReviewRequired) as exc:
+        conn.rollback()
+        print(f"FAIL: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        conn.close()
+
+    if args.json:
+        print(json.dumps(result.to_dict(), indent=2))
+    else:
+        print(
+            f"{'DRY RUN ' if result.dry_run else ''}"
+            f"pure_knockout {result.tournament_name!r} (id={result.tournament_id}): "
+            f"{result.stages_created} stage(s), {result.fixtures_created} fixture(s), "
+            f"{result.games_linked} game(s) linked"
+        )
+    return 0
+
+
+def _main_generate_disposition_register(argv: list[str]) -> int:
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser(description="Generate disposition_register.json bootstrap")
+    parser.add_argument("--out", type=str, default=None)
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args(argv)
+
+    from scripts.amiga.tournament_structure.disposition_register import (
+        REGISTER_PATH,
+        generate_register,
+    )
+
+    out = Path(args.out) if args.out else REGISTER_PATH
+    conn = _connect()
+    try:
+        reg = generate_register(conn)
+        reg.save(out)
+        by_handler: dict[str, int] = {}
+        for row in reg.rows.values():
+            by_handler[row.handler] = by_handler.get(row.handler, 0) + 1
+        summary = {"path": str(out), "count": len(reg.rows), "by_handler": by_handler}
+    finally:
+        conn.close()
+
+    if args.json:
+        print(json.dumps(summary, indent=2))
+    else:
+        print(f"Wrote {out} ({summary['count']} tournaments)")
+        for h, n in sorted(by_handler.items()):
+            print(f"  {h}: {n}")
+    return 0
+
+
+def _main_verify_disposition_register(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="Verify disposition register coverage")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args(argv)
+
+    from scripts.amiga.tournament_structure.disposition_register import (
+        DispositionRegister,
+        verify_register,
+    )
+
+    conn = _connect()
+    try:
+        reg = DispositionRegister.load()
+        report = verify_register(conn, reg)
+    finally:
+        conn.close()
+
+    if args.json:
+        print(json.dumps(report, indent=2))
+    else:
+        print(
+            f"catalog={report['catalog_count']} register={report['register_count']} "
+            f"ok={report['ok']}"
+        )
+        if report["missing_ids"]:
+            mids = report["missing_ids"]
+            print(f"MISSING: {mids[:20]}{'…' if len(mids) > 20 else ''}")
+        for h, n in sorted(report.get("by_handler", {}).items()):
+            print(f"  {h}: {n}")
+    return 0 if report["ok"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "verify-legacy":
         from scripts.amiga.tournament_structure.verify_legacy import main_verify_legacy
@@ -514,6 +634,14 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.tournament_structure.bulk_tier_b_non_wc import main as bulk_tier_b_main
 
         return bulk_tier_b_main(argv[1:])
+    if argv and argv[0] == "preview-pure-knockout":
+        return _main_preview_pure_knockout(argv[1:])
+    if argv and argv[0] == "materialize-pure-knockout":
+        return _main_materialize_pure_knockout(argv[1:])
+    if argv and argv[0] == "generate-disposition-register":
+        return _main_generate_disposition_register(argv[1:])
+    if argv and argv[0] == "verify-disposition-register":
+        return _main_verify_disposition_register(argv[1:])
 
     parser = argparse.ArgumentParser(description="Legacy tournament structure materialize")
     sub = parser.add_subparsers(dest="cmd", required=True)

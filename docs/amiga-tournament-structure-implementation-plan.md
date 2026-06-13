@@ -346,6 +346,39 @@ Document modern WC module graph from Steve’s source (~10 WCs); one `StructureS
 
 ---
 
+## Slice 10 — Import closure (structure apply hook)
+
+### Goal
+
+**One import command, no follow-up materialize.** Wire tier A + graduated tier B legacy materialize into the same hook that already applies tier D `StructureSpec` during `import_access.py`.
+
+### Prerequisites
+
+- Review track producing durable data: `StructureSpec` entries, register graduations, parser fixes.
+- Slices 5–6 bulk logic proven (tier A + safe tier B).
+
+### Tasks
+
+- [x] `pure_knockout.py` handler + contract doc + preview/materialize CLI
+- [x] `disposition_register.json` bootstrap (603 rows) + generate/verify CLI
+- [ ] `apply_disposition_handlers_for_import(conn)` — dispatch register in `run`
+- [ ] Call from `import_access.py` after games staged (or post-insert), before commit
+- [ ] Standings rebuild for materialized tournaments in same pass
+- [ ] `verify-legacy --sample N` in `run` or post-import smoke
+- [ ] Deprecate separate bulk CLIs as **dev/repair only**, not ritual
+
+### Verification
+
+```powershell
+python -m scripts.amiga run --recreate-schema
+python -m scripts.amiga tournament-structure audit-inventory --json
+# Expect materialized_count ≈ tier A + tier D + graduated tier B; review ids still 0 stages
+```
+
+User confirms fresh import needs **no** manual materialize commands.
+
+---
+
 ## Slice 9 — Docs closure
 
 ### Tasks
@@ -353,7 +386,7 @@ Document modern WC module graph from Steve’s source (~10 WCs); one `StructureS
 - [ ] `amiga-data-contract.md` — stage types, legacy materialize, fixture ground truth for imported events
 - [ ] `amiga-tournament-format-vision.md` — pointer to structure policy as authority for stage types
 - [ ] `PROJECT_MEMORY.md`, `feature-log.md` (L1 if migration 023 not already logged)
-- [ ] Mark this plan **Complete** when slices 1–7 done (slice 8 may trail)
+- [ ] Mark this plan **Complete** when slices 1–7 **and slice 10 (import closure)** done (slice 8 may trail)
 
 ---
 

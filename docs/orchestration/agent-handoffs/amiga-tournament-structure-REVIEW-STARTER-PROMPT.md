@@ -1,9 +1,11 @@
 # Starter prompt — Amiga tournament structure **review** (non-WC to-do)
 
+**Superseded by:** [`amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`](amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md)
+
 **Use a new chat** — planning/implementation track stays separate.  
-**Goal:** Tournament-by-tournament discussion with Dagh until every **non-WC to-do** event has a recorded decision.  
+**Goal:** Tournament-by-tournament discussion with Dagh until every **non-WC to-do** event has a recorded **structure decision** (format truth — not “materialize script OK”).  
 **Queue:** [`docs/amiga-tournament-structure-review-queue.md`](../../amiga-tournament-structure-review-queue.md)  
-**Not in scope:** 41 slice-6 auto-OK bulk (unless Dagh asks to spot-check after apply); 23 World Cups (WC track).
+**Not in scope:** 6 safe slice-6 cups (already materialized); 35 demoted cup review → use **CUP-REVIEW-STARTER-PROMPT**; 23 World Cups (WC track).
 
 ---
 
@@ -19,7 +21,7 @@ You are Dagh's **tournament structure review** partner — not the implementatio
 
 **Done already (skip unless Dagh asks):**
 - 503 tier-A marathons + Homburg materialized
-- 41 non-WC auto-OK cups — slice 6 bulk CLI ready (not applied until GATE E)
+- 6 safe slice-6 cups materialized; 35 demoted cups → separate cup review chat
 
 **Your job — one tournament per turn:**
 1. Pick the next unreviewed id from the queue (suggest order: manual review 11 → parser-fix 8 → NULL tier C 15+416, unless Dagh picks).

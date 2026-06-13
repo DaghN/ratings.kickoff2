@@ -184,17 +184,19 @@ Participation **roster = `amiga_games`**; finish from `participation_placement.p
 
 **Tournament medals v2 (Jun 2026 — complete):** apply `021` → `021b` → `022` after `020` on existing DBs, then `participation-rebuild`. Totals use `event_*` / `wc_*` from `event_finish_position`; `is_winner` = finish 1; participation has no `wc_medal`. Policy: [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) v2 **Implemented**. Plan: [`docs/amiga-tournament-medals-unification-implementation-plan.md`](../docs/amiga-tournament-medals-unification-implementation-plan.md).
 
-**Tournament structure (Jun 2026):** slice **5 applied** (504 materialized). **Slice 6:** `materialize-tier-b-non-wc` (41 non-WC cups). Handoff [`018`](../docs/orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md).
+**Tournament structure (Jun 2026):** Disposition register **603/603** — [`amiga-tournament-structure-handlers.md`](../docs/amiga-tournament-structure-handlers.md). Review: [`disposition-REVIEW-STARTER`](../docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
 ```powershell
+python -m scripts.amiga tournament-structure generate-disposition-register
+python -m scripts.amiga tournament-structure verify-disposition-register
+python -m scripts.amiga tournament-structure preview-pure-knockout --tournament-id <id>
+python -m scripts.amiga tournament-structure materialize-pure-knockout --tournament-id <id> [--replace]
 python -m scripts.amiga tournament-structure materialize --tournament-id <id> [--dry-run] [--replace]
 python -m scripts.amiga tournament-structure dematerialize --tournament-id <id>
 python -m scripts.amiga tournament-structure verify-legacy --tournament-id <id> [--check-standings]
 python -m scripts.amiga tournament-structure audit-inventory [--tier A|B|C|D] [--json] [--out path.json]
 python -m scripts.amiga tournament-structure materialize-tier-a --dry-run
 python -m scripts.amiga tournament-structure materialize-tier-a --apply --rebuild-standings --verify-sample 10
-python -m scripts.amiga tournament-structure materialize-tier-b-non-wc --dry-run
-python -m scripts.amiga tournament-structure materialize-tier-b-non-wc --apply --rebuild-standings --verify-sample 10
 python -m scripts.amiga standings-rebuild --tournament-id <id>
 ```
 

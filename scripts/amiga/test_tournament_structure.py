@@ -465,12 +465,18 @@ class BulkTierBNonWcTests(unittest.TestCase):
             NON_WC_TIER_B_AUTO_MATERIALIZE_IDS,
         )
 
-        self.assertEqual(len(NON_WC_TIER_B_AUTO_MATERIALIZE_IDS), 41)
+        self.assertEqual(len(NON_WC_TIER_B_AUTO_MATERIALIZE_IDS), 6)
 
-    def test_is_slice_6_auto_ok_pilot_75(self) -> None:
+    def test_is_slice_6_auto_ok_safe_cup_413(self) -> None:
         from scripts.amiga.tournament_structure.tier_b_non_wc_register import is_slice_6_auto_ok
 
-        self.assertTrue(is_slice_6_auto_ok(75, "Gloucester I Cup"))
+        self.assertTrue(is_slice_6_auto_ok(413, "Birmingham XIV Gold Cup"))
+
+    def test_is_slice_6_auto_ok_demoted_cup_refused(self) -> None:
+        from scripts.amiga.tournament_structure.tier_b_non_wc_register import is_slice_6_auto_ok
+
+        self.assertFalse(is_slice_6_auto_ok(75, "Gloucester I Cup"))
+        self.assertFalse(is_slice_6_auto_ok(158, "Stoke Cup"))
 
     def test_is_slice_6_auto_ok_wc_deferred(self) -> None:
         from scripts.amiga.tournament_structure.tier_b_non_wc_register import is_slice_6_auto_ok
@@ -501,11 +507,70 @@ class BulkTierBNonWcTests(unittest.TestCase):
         conn = _connect()
         try:
             ids = tier_b_non_wc_candidate_ids(conn, skip_materialized=False)
-            self.assertEqual(len(ids), 41)
+            self.assertEqual(len(ids), 6)
             self.assertNotIn(5, ids)
             self.assertNotIn(48, ids)
             self.assertNotIn(592, ids)
-            self.assertIn(75, ids)
+            self.assertNotIn(75, ids)
+            self.assertIn(413, ids)
+        finally:
+            conn.close()
+
+
+class PureKnockoutHandlerTests(unittest.TestCase):
+    def test_single_leg_ties(self) -> None:
+        from scripts.amiga.tournament_structure.pure_knockout import infer_pure_knockout_structure
+
+        games = [
+            {"id": 1, "player_a_id": 10, "player_b_id": 20, "phase": "Final", "goals_a": 1, "goals_b": 0, "game_date": "2000-01-01"},
+            {"id": 2, "player_a_id": 30, "player_b_id": 40, "phase": "Semi Finals", "goals_a": 2, "goals_b": 1, "game_date": "2000-01-02"},
+        ]
+        preview = infer_pure_knockout_structure(games, tournament_id=1, tournament_name="Cup")
+        self.assertEqual(preview.tie_count, 2)
+        self.assertTrue(preview.ok_to_apply)
+
+    def test_two_leg_same_phase_groups_one_tie(self) -> None:
+        from scripts.amiga.tournament_structure.pure_knockout import infer_pure_knockout_structure
+
+        games = [
+            {"id": 1, "player_a_id": 10, "player_b_id": 20, "phase": "Semi Finals", "goals_a": 5, "goals_b": 5, "game_date": "2000-01-01"},
+            {"id": 2, "player_a_id": 20, "player_b_id": 10, "phase": "Semi Finals", "goals_a": 1, "goals_b": 5, "game_date": "2000-01-02"},
+        ]
+        preview = infer_pure_knockout_structure(games)
+        self.assertEqual(preview.tie_count, 1)
+        self.assertEqual(preview.ties[0].leg_count, 2)
+        self.assertEqual(preview.ties[0].legs[0].leg_no, 1)
+        self.assertEqual(preview.ties[0].legs[1].leg_no, 2)
+
+    def test_group_phase_warns(self) -> None:
+        from scripts.amiga.tournament_structure.pure_knockout import infer_pure_knockout_structure
+
+        games = [
+            {"id": 1, "player_a_id": 1, "player_b_id": 2, "phase": "Round 1 Group A", "goals_a": 1, "goals_b": 0, "game_date": "x"},
+        ]
+        preview = infer_pure_knockout_structure(games)
+        self.assertFalse(preview.ok_to_apply)
+        self.assertTrue(any("group_like" in w for w in preview.warnings))
+
+
+class DispositionRegisterTests(unittest.TestCase):
+    def test_register_loads_603(self) -> None:
+        from scripts.amiga.tournament_structure.disposition_register import DispositionRegister
+
+        reg = DispositionRegister.load()
+        self.assertGreaterEqual(len(reg.rows), 600)
+
+    def test_verify_coverage_ok(self) -> None:
+        from scripts.amiga.tournament_structure.disposition_register import (
+            DispositionRegister,
+            verify_register,
+        )
+        from scripts.amiga.tournament_structure.materialize_legacy import _connect
+
+        conn = _connect()
+        try:
+            report = verify_register(conn, DispositionRegister.load())
+            self.assertTrue(report["ok"])
         finally:
             conn.close()
 

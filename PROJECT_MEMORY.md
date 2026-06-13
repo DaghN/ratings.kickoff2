@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **Tournament structure** — slices **5** + **6 applied** (545 materialized: 503 tier-A + 41 tier-B non-WC + Homburg); **next:** 6a parser-fix (8) / 6b review (11) / 6wc — handoff [`018`](docs/orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md).
+- **Amiga realm (Jun 2026):** **Tournament disposition** — register **603/603**; **67** `pending_review` (promoted through **29**); review [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md); slice 10 = import dispatch.
 
 ---
 
@@ -83,7 +83,8 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Amiga tournament structure slice 6 apply** — GATE E OK; `materialize-tier-b-non-wc --apply` 41/41; verify 12/12; inventory **545** materialized. |
+| 2026-06 | **Amiga disposition register + pure_knockout handler** — 603/603 JSON; preview CLI; 70 pending_review — [`handlers`](docs/amiga-tournament-structure-handlers.md) · [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md). |
+| 2026-06 | **Amiga tournament structure slice 6 apply** — GATE E OK; `materialize-tier-b-non-wc --apply` 41/41 (later **35 rolled back** by cup audit). |
 | 2026-06 | **Amiga tournament structure slice 6** — `materialize-tier-b-non-wc` bulk CLI; dry-run **41/41** OK — handoff [`018`](docs/orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md). |
 | 2026-06 | **Amiga tournament structure slice 5** — `materialize-tier-a` bulk CLI; dry-run **503/503** OK — handoff [`017`](docs/orchestration/agent-handoffs/2026-06-13-017-amiga-tournament-structure-slice-5.md). |
 | 2026-06 | **Amiga tournament structure slice 6 CLI** — `materialize-tier-b-non-wc` dry-run 41/41; 38 tests; GATE E pending apply. Review track: [`REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-structure-REVIEW-STARTER-PROMPT.md). |

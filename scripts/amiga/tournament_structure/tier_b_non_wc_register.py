@@ -2,6 +2,7 @@
 
 World Cup catalog names → **WC track** (slice 8+), not slice 6.
 Regenerate audit: ``python -m scripts.oneoff.curate_tier_b_non_wc``.
+Cup safety audit: ``python -m scripts.oneoff.audit_auto_ok_cups``.
 """
 
 from __future__ import annotations
@@ -23,8 +24,8 @@ DEFERRED_WORLD_CUP_TOURNAMENT_IDS: frozenset[int] = frozenset({
     480, 526, 554, 569, 577, 585, 596, 603,
 })
 
-# Tier C / manual — non-WC labeled events distrusted for auto bulk (slice 6b queue).
-NON_WC_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
+# Original slice 6b manual review (pre–cup-audit curation).
+NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
     22,   # Athens XCI — League Stage (odd singleton scope)
     294,  # Langenfeld II — Fun Cup
     352,  # Wiesbaden V — Playout Group
@@ -38,6 +39,50 @@ NON_WC_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
     592,  # Athens LXXXV — 66 NULL + 12 labeled (mixed provenance)
 })
 
+# Slice 6 bulk mis-curated (Jun 2026 audit) — not obvious 2^n single-elim cups.
+# Dematerialized + materialize refuses until human triage.
+NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
+    75,   # Gloucester I Cup — 24p bye; Round 1/2 as league
+    89,   # Milan — groups
+    121,  # Norwegian Champs — groups + placement
+    156,  # Milan X — groups
+    158,  # Stoke Cup — 15p bye; Round 1 → league (parser)
+    171,  # Copenhagen Cup — placement band
+    173,  # Frankfurt — 4p many games
+    176,  # Milan XIV — long Round 1 league
+    189,  # Manchester II Cup — 15p bye; Round 1 → league
+    192,  # Hertford V Cup — extra Round 1 games
+    215,  # Kelkheim VII — placement marathon
+    248,  # Athens XXXVIII Cup — not n-1
+    276,  # Langenfeld — Round 1 league + Places 5-8
+    316,  # Birmingham VIII Gold — Round 1 → league despite 8p/7g
+    317,  # Birmingham VIII Silver — bye; Round 1 → league
+    329,  # Athens LXI Cup — placement
+    338,  # Seeshaupt II — multi-game Round 1
+    341,  # Copenhagen III Cup — Round 1 league
+    345,  # Voitsberg I — 5-player oddity
+    414,  # Birmingham XIV Silver — 6p bye (KO labels OK; demoted pending triage)
+    452,  # Birmingham XXI Gold — 6p bye
+    463,  # Dudley XX Cup — extra games
+    465,  # Wiesbaden XII — groups + gold/silver
+    471,  # Seeshaupt IV — extra games
+    493,  # Birmingham XXVII — bye; Round 1 → league
+    500,  # Birmingham XXVIII — 6p bye
+    518,  # Seeshaupt V — groups
+    519,  # Birmingham XXXIII — bye; Round 1 → league
+    521,  # Oldenburg II — full group cup + many placement finals
+    524,  # Birmingham XXXV — extra games
+    535,  # Birmingham XXXVII — Round 1 as league
+    544,  # Bournemouth II — 7p bye
+    553,  # Hanau III — placement marathon
+    568,  # Birmingham XLV — 4 games for 4 players
+    570,  # Volkenrath IV — Round 1 league + Places 5-8
+})
+
+NON_WC_STRUCTURE_REVIEW_IDS: frozenset[int] = (
+    NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS | NON_WC_SLICE6_CUP_REVIEW_IDS
+)
+
 # Fix ``tournament_phases.py`` before materialize — **slice 6a** (not slice 6 bulk).
 NON_WC_PARSER_FIX_FIRST_IDS: frozenset[int] = frozenset({
     48,   # Groningen VII — Playouts; Semi Final vs Semi Finals
@@ -50,17 +95,19 @@ NON_WC_PARSER_FIX_FIRST_IDS: frozenset[int] = frozenset({
     284,  # Athens LIII — Places 5-8, Playouts Group, Playoffs Group
 })
 
-# Slice 6 bulk allow — 41 non-WC cups/champs with uniform KO/group phase labels.
+# Slice 6 bulk allow — obvious 2^n single-elim cups only (Jun 2026 audit).
 NON_WC_TIER_B_AUTO_MATERIALIZE_IDS: frozenset[int] = frozenset({
-    75, 89, 121, 156, 158, 171, 173, 176, 189, 192, 215, 248, 276, 316, 317,
-    329, 338, 341, 345, 413, 414, 452, 453, 454, 463, 465, 471, 493, 500, 518,
-    519, 521, 524, 535, 540, 544, 548, 553, 566, 568, 570,
+    413,  # Birmingham XIV Gold Cup — 8p 7g all KO
+    453,  # Birmingham XXI Silver Cup — 4p 3g
+    454,  # Birmingham XXI Bronze Cup — 4p 3g
+    540,  # Birmingham XXXVIII — 4p 3g
+    548,  # Birmingham XL — 4p 3g
+    566,  # Birmingham XLIII — 4p 3g
 })
 
 # GATE E pilots (non-WC bulk).
 NON_WC_PILOT_TOURNAMENT_IDS: tuple[int, ...] = (
-    75,   # Gloucester I Cup — typical labeled cup
-    158,  # Stoke Cup
+    413,  # Birmingham XIV Gold Cup — safe 8p/7g pure cup
     592,  # negative control — must refuse
 )
 

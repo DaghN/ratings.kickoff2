@@ -1,4 +1,4 @@
-"""Bulk materialize slice-6 non-WC tier-B cups (41 auto-OK ids only)."""
+"""Bulk materialize slice-6 non-WC tier-B cups (auto-OK ids only)."""
 
 from __future__ import annotations
 
@@ -173,7 +173,7 @@ def bulk_materialize_tier_b_non_wc(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Bulk materialize slice-6 non-WC tier-B cups (41 auto-OK ids)",
+        description="Bulk materialize slice-6 non-WC tier-B cups (auto-OK ids only)",
     )
     parser.add_argument("--dry-run", action="store_true", help="Preview; roll back each tournament")
     parser.add_argument(
