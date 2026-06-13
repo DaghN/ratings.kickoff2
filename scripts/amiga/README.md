@@ -184,11 +184,13 @@ Participation **roster = `amiga_games`**; finish from `participation_placement.p
 
 **Tournament medals v2 (Jun 2026 — complete):** apply `021` → `021b` → `022` after `020` on existing DBs, then `participation-rebuild`. Totals use `event_*` / `wc_*` from `event_finish_position`; `is_winner` = finish 1; participation has no `wc_medal`. Policy: [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) v2 **Implemented**. Plan: [`docs/amiga-tournament-medals-unification-implementation-plan.md`](../docs/amiga-tournament-medals-unification-implementation-plan.md).
 
-**Tournament structure (Jun 2026):** slices 1–2 done (`023`). **Slice 3b (policy v2):** tier-A NULL auto RR only; per-tie KO stages; `dematerialize`; tier C refuses. Restart: [`2026-06-13-013-…`](../docs/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md). Policy: [`docs/amiga-tournament-structure-policy.md`](../docs/amiga-tournament-structure-policy.md).
+**Tournament structure (Jun 2026):** slices 1–2 + 3b + **4** done (`023`). Tier-A classifier accepts **k-leg** NULL-phase RR (`round_robin_legs()`). Local inventory: **503/83/16/1**. **Next:** slice 5 tier-A bulk (~503 events, GATE C). Policy: [`docs/amiga-tournament-structure-policy.md`](../docs/amiga-tournament-structure-policy.md). Intervention: [`2026-06-13-016-…`](../docs/orchestration/agent-handoffs/2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md).
 
 ```powershell
 python -m scripts.amiga tournament-structure materialize --tournament-id <id> [--dry-run] [--replace]
 python -m scripts.amiga tournament-structure dematerialize --tournament-id <id>
+python -m scripts.amiga tournament-structure verify-legacy --tournament-id <id> [--check-standings]
+python -m scripts.amiga tournament-structure audit-inventory [--tier A|B|C|D] [--json] [--out path.json]
 python -m scripts.amiga standings-rebuild --tournament-id <id>
 ```
 

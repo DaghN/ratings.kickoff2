@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration (v1)** — **complete** (slices 0–10; migrations `017`–`019`). **Tournament medals unification (v2)** — **complete** local (`021`/`021b`/`022`; slices 0–8) — [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) v2 **Implemented**. **Standings scope unification** — **complete** (slices 0–7; migration `020`). **Tournament structure track** — slices **1–2 done** (`023`); slice **3 pilot superseded** by **policy v2** (RR scope + KO tie; tier-A auto only) — resume **3b** via [`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](docs/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration (v1)** — **complete** (slices 0–10; migrations `017`–`019`). **Tournament medals unification (v2)** — **complete** local (`021`/`021b`/`022`; slices 0–8) — [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) v2 **Implemented**. **Standings scope unification** — **complete** (slices 0–7; migration `020`). **Tournament structure track** — slices **1–2** + **3b** + **4** done (`023`, materialize, `verify-legacy`, `audit-inventory`); **next slice 5** (tier-A bulk, GATE C) — [`amiga-tournament-structure-implementation-plan.md`](docs/amiga-tournament-structure-implementation-plan.md). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
 
 ---
 
@@ -83,6 +83,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga tournament structure tier-A k× RR** — `round_robin_legs()` + per-player equality; 503/83/16/1 inventory; Duesseldorf V (416) audit flag; handoff [`016`](docs/orchestration/agent-handoffs/2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md); 27 unit tests. |
+| 2026-06 | **Amiga tournament structure slice 4** — `verify-legacy` CLI (fixture integrity + optional standings parity); `audit-inventory` tier A/B/C/D; GATE B′ passed. |
 | 2026-06 | **Amiga tournament structure undo/resume** — handoff [`015`](docs/orchestration/agent-handoffs/2026-06-13-015-amiga-tournament-structure-undo-and-resume.md); slice 3 pilot void; Athens IV local standings restored; resume slice 4. |
 | 2026-06 | **Amiga tournament structure slice 3b (policy v2)** — RR scope + KO tie modules; tier-A auto only; `dematerialize`; Athens IV dematerialized; handoff [`014`](docs/orchestration/agent-handoffs/2026-06-13-014-amiga-tournament-structure-slice-3b.md). |
 | 2026-06 | **Amiga tournament structure slice 3** — ~~pilot~~ **superseded** — handoff [`012`](docs/orchestration/agent-handoffs/2026-06-13-012-amiga-tournament-structure-slice-3.md). |

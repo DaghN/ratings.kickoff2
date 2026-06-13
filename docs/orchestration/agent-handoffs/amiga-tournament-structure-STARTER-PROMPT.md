@@ -1,32 +1,38 @@
 # Starter prompt — Amiga tournament structure (modules vs legacy backfill)
 
-**Status:** **RESUME** — slices 1–2 + 3b code on `main`; slice 3 **pilot void**; continue from **slice 4** after undo check.  
-**Undo + resume:** [`2026-06-13-015-amiga-tournament-structure-undo-and-resume.md`](2026-06-13-015-amiga-tournament-structure-undo-and-resume.md) ← **read first**  
+**Status:** **RESUME** — slices 1–2, 3b, **4** on `main`; tier-A **k× RR** adjustment shipped (handoff **016**); continue **slice 5**.  
+**Read first:** [`2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md`](2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md)  
+**Undo + resume:** [`2026-06-13-015-amiga-tournament-structure-undo-and-resume.md`](2026-06-13-015-amiga-tournament-structure-undo-and-resume.md)  
 **Policy:** [`docs/amiga-tournament-structure-policy.md`](../../amiga-tournament-structure-policy.md) (T1–T22)  
-**Plan:** [`docs/amiga-tournament-structure-implementation-plan.md`](../../amiga-tournament-structure-implementation-plan.md)  
-**Restart handoff:** [`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](2026-06-13-013-amiga-tournament-structure-restart-handoff.md)
+**Plan:** [`docs/amiga-tournament-structure-implementation-plan.md`](../../amiga-tournament-structure-implementation-plan.md)
 
 ---
 
-## RESUME prompt (copy into implementation chat — use this, not slice 1)
+## RESUME prompt (copy into implementation chat)
 
 ```
-Read docs/orchestration/agent-handoffs/2026-06-13-015-amiga-tournament-structure-undo-and-resume.md FIRST.
+Read docs/orchestration/agent-handoffs/2026-06-13-016-amiga-tournament-structure-tier-a-multi-rr.md FIRST.
 
-You are continuing the Amiga **tournament structure** track. Slices **1–2** are done (migration 023, builders, Homburg). **Slice 3 pilot is VOID** (never passed GATE B). Code on main includes **3b** (policy v2 materialize) — do not redo unless regression.
+You are continuing the Amiga **tournament structure** track. Slices **1–2**, **3b**, and **4** are done. **Slice 3 pilot is VOID.**
 
-**Read next (mandatory):**
-1. docs/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md
-2. docs/amiga-tournament-structure-policy.md — T1–T22 (especially §1 stage/fixture/game, T8–T9, T14, T21–T22)
-3. docs/amiga-tournament-structure-implementation-plan.md — resume at **slice 4**
+**Planning intervention (already in repo — do not redo):**
+Tier A now accepts NULL-phase **multi-leg** round robins: `game_count = k×n×(n−1)/2` AND every player has `(n−1)×k` games (`round_robin_legs()` in materialize_legacy.py). Was 1× only → inventory tier A **503** (was 108), tier C **16** (was 411).
+Duesseldorf V (id=416) is flagged `STRUCTURE_REVIEW_TOURNAMENT_IDS` — tier C despite 3× game total (uneven per-player). Do not bulk-materialize it.
 
-**Do NOT:** redo slices 1–2; bulk materialize; auto-materialize tier C (e.g. Athens IV id=74); dematerialize Homburg (137).
+**Read next:**
+1. docs/amiga-tournament-structure-policy.md — T11, §4 tiers
+2. docs/amiga-tournament-structure-implementation-plan.md — **slice 5**
 
-**DB:** Verify Athens IV (74) per handoff 015 §2C (expect clean). Fix only if check fails.
+**Do NOT:** redo slices 1–4; dematerialize Homburg (137); auto-materialize tier C (Athens IV id=74, Duesseldorf V id=416); bulk materialize without user OK at GATE C.
 
-**First task after I confirm:** Run GATE B′ (handoff 015 §6), report results, then wait for **Do slice 4**.
+**Smoke before slice 5:**
+python -m unittest scripts.amiga.test_tournament_structure -q
+python -m scripts.amiga tournament-structure audit-inventory
+Expect tier counts A:503 B:83 C:16 D:1.
 
-**Operating mode:** one slice at a time; handoff files; no git commit unless I ask.
+**First task:** Report smoke results, then wait for **Do slice 5** (tier-A bulk materialize, dry-run first).
+
+**Operating mode:** one slice at a time; handoff files; git commit only when Dagh asks.
 
 Confirm your understanding before taking action.
 ```
@@ -44,6 +50,6 @@ See git history or [`2026-06-13-010-amiga-tournament-structure-slice-1.md`](2026
 
 ---
 
-## After slices 4–7
+## After slices 5–7
 
 Mark plan status **Complete** in slice 9. Slice 8 (Steve WC reference) may trail.

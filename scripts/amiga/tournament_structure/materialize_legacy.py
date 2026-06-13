@@ -30,6 +30,11 @@ MATERIALIZE_SOURCE = "scripts.amiga.tournament_structure.materialize_legacy"
 AUTO_RR = "auto_rr"
 NEEDS_STRUCTURE_REVIEW = "needs_structure_review"
 
+# Tournaments that pass coarse RR math but fail audit — tier C until curated.
+STRUCTURE_REVIEW_TOURNAMENT_IDS: frozenset[int] = frozenset({
+    416,  # Duesseldorf V — 3× game total, uneven per-player counts (8/9/9/10)
+})
+
 _GENERATED_BY_PREFIXES = (
     "scripts.amiga.tournament_builder",
     "site.public_html.amiga.ops.fixtures",
@@ -108,12 +113,43 @@ def _distinct_player_ids(games: list[dict[str, Any]]) -> set[int]:
     return players
 
 
-def classify_null_phase_tournament(games: list[dict[str, Any]]) -> str:
-    """Tier A (auto_rr) vs tier C (needs_structure_review) for all-NULL-phase events."""
+def _player_game_counts(games: list[dict[str, Any]]) -> dict[int, int]:
+    counts: dict[int, int] = {}
+    for game in games:
+        for pid in (int(game["player_a_id"]), int(game["player_b_id"])):
+            counts[pid] = counts.get(pid, 0) + 1
+    return counts
+
+
+def round_robin_legs(games: list[dict[str, Any]]) -> int | None:
+    """Return k when NULL-phase games form k complete RR legs with equal per-player games."""
     player_count = len(_distinct_player_ids(games))
     if player_count < 2:
-        return NEEDS_STRUCTURE_REVIEW
-    if len(games) == _full_round_robin_game_count(player_count):
+        return None
+    single_leg = _full_round_robin_game_count(player_count)
+    if single_leg <= 0:
+        return None
+    actual = len(games)
+    if actual % single_leg != 0:
+        return None
+    legs = actual // single_leg
+    if legs < 1:
+        return None
+    counts = _player_game_counts(games)
+    if len(counts) != player_count:
+        return None
+    per_player_values = set(counts.values())
+    if len(per_player_values) != 1:
+        return None
+    expected_per_player = (player_count - 1) * legs
+    if next(iter(per_player_values)) != expected_per_player:
+        return None
+    return legs
+
+
+def classify_null_phase_tournament(games: list[dict[str, Any]]) -> str:
+    """Tier A (auto_rr) vs tier C (needs_structure_review) for all-NULL-phase events."""
+    if round_robin_legs(games) is not None:
         return AUTO_RR
     return NEEDS_STRUCTURE_REVIEW
 
@@ -336,11 +372,19 @@ def materialize_legacy_fixtures(
     all_null_phase = all(not g.get("phase") or not str(g.get("phase")).strip() for g in games)
 
     if all_null_phase:
+        if tournament_id in STRUCTURE_REVIEW_TOURNAMENT_IDS:
+            raise StructureReviewRequired(
+                f"tournament_id={tournament_id} ({tournament['name']!r}) is flagged for "
+                "manual structure review (STRUCTURE_REVIEW_TOURNAMENT_IDS). "
+                "Add a StructureSpec or remove the flag after triage."
+            )
         tier = classify_null_phase_tournament(games)
         if tier != AUTO_RR:
+            legs = round_robin_legs(games)
             raise StructureReviewRequired(
                 f"tournament_id={tournament_id} ({tournament['name']!r}) has NULL phases and "
-                f"is not a full round-robin schedule — needs_structure_review (policy T10). "
+                f"is not a complete multi-leg round-robin schedule "
+                f"(legs={legs!r}) — needs_structure_review (policy T11). "
                 "Add a StructureSpec or classify manually; do not auto-infer knockout."
             )
 
@@ -434,6 +478,15 @@ def materialize_legacy_fixtures(
 
 
 def main(argv: list[str] | None = None) -> int:
+    if argv and argv[0] == "verify-legacy":
+        from scripts.amiga.tournament_structure.verify_legacy import main_verify_legacy
+
+        return main_verify_legacy(argv[1:])
+    if argv and argv[0] == "audit-inventory":
+        from scripts.amiga.tournament_structure.verify_legacy import main_audit_inventory
+
+        return main_audit_inventory(argv[1:])
+
     parser = argparse.ArgumentParser(description="Legacy tournament structure materialize")
     sub = parser.add_subparsers(dest="cmd", required=True)
 

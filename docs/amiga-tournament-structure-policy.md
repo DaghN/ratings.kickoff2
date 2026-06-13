@@ -66,7 +66,7 @@ Do **not** maintain a legacy-only path that skips fixtures and points games dire
 | **T8** | **Fixture = one match** | One `tournament_fixtures` row = exactly one match = exactly one result. Legacy v1: one fixture per imported game. Multi-leg KO = multiple fixture rows in one KO stage. |
 | **T9** | **Fixture universal** | Live and legacy both use `tournament_fixtures`. Live: schedule fixtures then fill games. Legacy: materialize fixtures from games then assign to stages. **Do not** skip fixtures on legacy. |
 | **T10** | **Side parity** | `fixture.player_a_id = game.player_a_id` AND `fixture.player_b_id = game.player_b_id`. |
-| **T11** | **NULL phase — auto RR only when certain** | All phases NULL **and** `game_count = n×(n−1)/2` for distinct players → one `round_robin` / `overall` stage. **Otherwise → `needs_structure_review`** — do **not** auto-materialize; do **not** infer knockout. |
+| **T11** | **NULL phase — auto RR when complete** | All phases NULL **and** `game_count = k×n×(n−1)/2` for integer **k ≥ 1** **and** every player has exactly **`(n−1)×k`** games → one `round_robin` / `overall` stage (single- or multi-leg RR). **Otherwise → `needs_structure_review`** — do **not** auto-materialize; do **not** infer knockout. Per-player equality is mandatory (catches data quirks at correct totals). |
 | **T12** | **Incomplete RR stays RR** | Withdrawal / early exit → partial schedule → still **`round_robin`** once classified (manual or curated spec) — never “failed RR math ⇒ knockout”. |
 | **T13** | **Labeled phases** | RR labels → one `round_robin` stage per scope bucket. KO labels → **one `knockout` stage per tie** (player pair); **one fixture per game** in that stage. |
 | **T14** | **Module outcomes on stage** | RR: rank table keyed by `stage_id`. KO: tie winner/loser derived from fixtures/games in that `stage_id`. Structure graph references **stage IDs** and reads these outcomes (standard or special rules in spec). |
@@ -134,10 +134,12 @@ Scores live on **games**. Match identity (players, stage, status, leg order) liv
 
 | Tier | Condition | Action |
 |------|-----------|--------|
-| **A — auto RR** | NULL phase + full RR schedule | `materialize` → one `round_robin` stage; bulk OK |
+| **A — auto RR** | NULL phase + complete k-leg RR (`k×n×(n−1)/2` games, equal per-player) | `materialize` → one `round_robin` stage; bulk OK (slice 5) |
 | **B — labeled** | Phase text on games | Bucket RR scopes / KO ties from parser |
-| **C — review** | NULL phase + not full RR | **Flag** (`needs_structure_review`); **no auto materialize**; human triage or `StructureSpec` |
+| **C — review** | NULL phase + incomplete RR, cups, uneven per-player at k× total, or **`STRUCTURE_REVIEW_TOURNAMENT_IDS`** audit flag | **Flag** (`needs_structure_review`); **no auto materialize**; human triage or `StructureSpec` |
 | **D — curated** | Registry `StructureSpec` | `apply` path (Homburg, future Athens IV) |
+
+**Multi-leg NULL-phase marathons** (home-and-away, 2×/3×/4× RR): tier **A** when per-player game counts match `(n−1)×k`. **Duesseldorf V** (id=416): tier **C** — 3× game total but uneven per-player; listed in `STRUCTURE_REVIEW_TOURNAMENT_IDS`.
 
 **NULL-phase cups** (Athens IV): tier **C** until curated — do not infer rounds or event-wide KO stage.
 

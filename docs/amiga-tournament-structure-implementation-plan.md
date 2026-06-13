@@ -43,10 +43,10 @@
 | T4 | Structure (singleton vs multi-group) is **not** encoded in stage type |
 | T5 | Legacy: games authoritative; materialize fixtures from games; no draw-order RR generation |
 | T6 | Side parity: fixture A/B must match game A/B after link |
-| T7 | NULL + full RR schedule → auto materialize; else **needs_structure_review** (no auto-KO) |
+| T7 | NULL + complete k-leg RR schedule → auto materialize; else **needs_structure_review** (no auto-KO) |
 | T8 | KO module = **one stage per 2-player tie**; rounds in StructureSpec only |
 | T9 | `fixture_id` path takes precedence over phase parser for scope |
-| T10 | Bulk slice 5 = **tier A only** (full NULL-phase RR marathons) |
+| T10 | Bulk slice 5 = **tier A only** (NULL-phase complete RR marathons, k≥1) |
 | T11 | Steve WC source = structure reference for slice 8+ |
 | T12 | **Fixture = one match, one result** — universal live + legacy (policy T8–T9, T21–T22) |
 | T13 | **Module outcomes on `stage_id`**; structure graph references stages, not games |
@@ -62,7 +62,7 @@
 | **3** | ~~Pilot materialize~~ — **superseded** (bad NULL⇒KO heuristic) | ~~B~~ cancelled |
 | **3b** | Policy v2 materialize: tier A only; per-tie KO; `dematerialize`; rollback Athens IV if needed | **B′** |
 | **4** | `verify-legacy` CLI + tier A/C inventory | — |
-| **5** | Bulk **tier A** NULL-phase full RR marathons only | **C** |
+| **5** | Bulk **tier A** NULL-phase complete RR marathons (1×–6× legs) | **C** |
 | **6** | Tier B labeled events (per-tie KO stages) | **D** |
 | **6b** | Manual StructureSpec queue (NULL cups — Athens IV, etc.) | — |
 | **7** | Catalog flags from stages | — |
@@ -157,7 +157,8 @@ Game-authoritative materialize with **tier A auto only**; **per-tie** KO stages;
 
 ### Tasks
 
-- [x] `classify_null_phase_tournament()` → `auto_rr` | `needs_structure_review`
+- [x] `classify_null_phase_tournament()` / `round_robin_legs()` → `auto_rr` when `k×` RR + equal per-player; else `needs_structure_review`
+- [x] `STRUCTURE_REVIEW_TOURNAMENT_IDS` audit flag (Duesseldorf V id=416)
 - [x] Refuse materialize on tier C (`StructureReviewRequired`)
 - [x] Labeled KO → one `knockout` stage per player pair (tie)
 - [x] `dematerialize` CLI for rollback
@@ -188,13 +189,14 @@ Repeatable audit for any tournament after materialize.
 
 ### Tasks
 
-- [ ] `scripts/amiga/tournament_structure/verify_legacy.py` (or extend `verify.py`):
+- [x] `scripts/amiga/tournament_structure/verify_legacy.py` (or extend `verify.py`):
   - orphan `fixture_id` / missing fixtures for games
   - side parity
   - stage coverage (every game has stage via fixture)
   - optional: standings parity vs phase-only rebuild snapshot
-- [ ] `python -m scripts.amiga tournament-structure verify-legacy --tournament-id N`
-- [ ] Document commands in `scripts/amiga/README.md`
+- [x] `python -m scripts.amiga tournament-structure verify-legacy --tournament-id N`
+- [x] `python -m scripts.amiga tournament-structure audit-inventory` (tier A/B/C/D from `ko2amiga_db`)
+- [x] Document commands in `scripts/amiga/README.md`
 
 ### Verification
 
@@ -203,13 +205,17 @@ python -m scripts.amiga tournament-structure verify-legacy --tournament-id 74
 python -m scripts.amiga tournament-structure verify-legacy --tournament-id 281
 ```
 
+**Local inventory (Jun 2026, after tier-A k× adjustment):** 603 imported — tier A **503**, B **83**, C **16**, D **1** (Homburg); materialized **1**. Tier C = cups, withdrawals, irregular counts, + Duesseldorf V audit flag.
+
 ---
 
 ## Slice 5 — Bulk tier-A NULL-phase backfill
 
 ### Goal
 
-Materialize tournaments where **100% games have NULL phase** **and** full RR schedule only.
+Materialize tournaments where **100% games have NULL phase** **and** complete k-leg RR schedule (`round_robin_legs()` passes; per-player equality enforced).
+
+**Expected bulk count:** ~503 tier-A events (was 108 when only 1× RR accepted).
 
 ### Tasks
 

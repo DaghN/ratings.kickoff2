@@ -11,6 +11,7 @@ from scripts.amiga.tournament_structure.materialize_legacy import (
     NEEDS_STRUCTURE_REVIEW,
     classify_null_phase_tournament,
     null_phase_round_robin_bucket,
+    round_robin_legs,
     stage_bucket_for_game,
 )
 from scripts.amiga.tournament_structure.specs import (
@@ -83,9 +84,43 @@ class MaterializeLegacyTests(unittest.TestCase):
             {"player_a_id": 2, "player_b_id": 3},
         ]
         self.assertEqual(classify_null_phase_tournament(games), AUTO_RR)
+        self.assertEqual(round_robin_legs(games), 1)
         bucket = null_phase_round_robin_bucket()
         self.assertEqual(bucket.stage_type, "round_robin")
         self.assertEqual(bucket.stage_key, "overall")
+
+    def test_null_phase_double_rr_is_auto_rr(self) -> None:
+        # 3 players, single leg = 3 games; double RR = 6 games, 4 per player
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 1},
+            {"player_a_id": 3, "player_b_id": 1},
+            {"player_a_id": 3, "player_b_id": 2},
+        ]
+        self.assertEqual(round_robin_legs(games), 2)
+        self.assertEqual(classify_null_phase_tournament(games), AUTO_RR)
+
+    def test_null_phase_uneven_per_player_needs_review(self) -> None:
+        # Duesseldorf V pattern: 4 players, 18 games (3× total) but uneven per-player
+        games = []
+        pairs = [
+            (71, 126),
+            (71, 345),
+            (71, 465),
+            (126, 345),
+            (126, 465),
+            (345, 465),
+        ]
+        for _ in range(3):
+            for a, b in pairs:
+                games.append({"player_a_id": a, "player_b_id": b})
+        # Drop one game for player 465 and add one for 71 → uneven counts
+        games.pop()
+        games.append({"player_a_id": 71, "player_b_id": 126})
+        self.assertIsNone(round_robin_legs(games))
+        self.assertEqual(classify_null_phase_tournament(games), NEEDS_STRUCTURE_REVIEW)
 
     def test_null_phase_incomplete_rr_needs_review(self) -> None:
         # 3 players full RR = 3 games; 2 games = withdrawal / incomplete
@@ -273,6 +308,103 @@ class ApplyStructureSpecTests(unittest.TestCase):
         self.assertEqual(result.orphans, 0)
         self.assertEqual(rows[0]["fixture_id"], 10)
         self.assertEqual(rows[1]["fixture_id"], 11)
+
+
+class VerifyLegacyTests(unittest.TestCase):
+    def test_classify_tier_a_full_rr(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_A, classify_legacy_tier
+
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 3},
+        ]
+        tier, detail = classify_legacy_tier(games, tournament_name="Test Marathon", format_overrides={})
+        self.assertEqual(tier, TIER_A)
+        self.assertIn("round-robin", detail)
+
+    def test_classify_tier_a_double_rr(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_A, classify_legacy_tier
+
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 1},
+            {"player_a_id": 3, "player_b_id": 1},
+            {"player_a_id": 3, "player_b_id": 2},
+        ]
+        tier, detail = classify_legacy_tier(games, tournament_name="Double Kitchen", format_overrides={})
+        self.assertEqual(tier, TIER_A)
+        self.assertIn("2×", detail)
+
+    def test_classify_tier_c_manual_review_flag(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_C, classify_legacy_tier
+
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 3},
+        ]
+        tier, detail = classify_legacy_tier(
+            games,
+            tournament_name="Duesseldorf V",
+            format_overrides={},
+            tournament_id=416,
+        )
+        self.assertEqual(tier, TIER_C)
+        self.assertIn("audit flag", detail)
+
+    def test_classify_tier_c_athens_iv_pattern(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_C, classify_legacy_tier
+
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 3, "player_b_id": 4},
+            {"player_a_id": 5, "player_b_id": 6},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 2, "player_b_id": 4},
+            {"player_a_id": 5, "player_b_id": 1},
+        ]
+        tier, detail = classify_legacy_tier(games, tournament_name="Athens IV Cup", format_overrides={})
+        self.assertEqual(tier, TIER_C)
+        self.assertIn("needs_structure_review", detail)
+
+    def test_classify_tier_b_labeled_phases(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_B, classify_legacy_tier
+
+        games = [{"player_a_id": 1, "player_b_id": 2, "phase": "Semi Finals"}]
+        tier, _ = classify_legacy_tier(games, tournament_name="Some Cup", format_overrides={})
+        self.assertEqual(tier, TIER_B)
+
+    def test_classify_tier_d_registry(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import TIER_D, classify_legacy_tier
+
+        tier, detail = classify_legacy_tier([], tournament_name="Homburg", format_overrides={})
+        self.assertEqual(tier, TIER_D)
+        self.assertIn("StructureSpec", detail)
+
+    def test_standings_compare_detects_mismatch(self) -> None:
+        from scripts.amiga.tournament_structure.verify_legacy import _standings_compare
+
+        stored = [
+            {
+                "player_id": 1,
+                "scope_type": "league",
+                "scope_key": "",
+                "position": 1,
+                "games": 2,
+                "wins": 1,
+                "draws": 1,
+                "losses": 0,
+                "goals_for": 3,
+                "goals_against": 2,
+                "points": 4,
+            }
+        ]
+        computed = [dict(stored[0], points=3)]
+        mismatches = _standings_compare(stored, computed)
+        self.assertTrue(any("points" in m for m in mismatches))
 
 
 if __name__ == "__main__":
