@@ -18,6 +18,7 @@
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
 | **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
 | **Tournament format system** (legacy phases → templates/fixtures vision) | [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · handoff [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md) |
+| **Tournament structure** (stage types, legacy materialize, modules vs graph) | [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) · plan [`amiga-tournament-structure-implementation-plan.md`](amiga-tournament-structure-implementation-plan.md) |
 | **Tournament finalize & rating events** (commit boundary, replay oracle) | [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · plan [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) |
 | **Player universe** (derived expansion, participation, honours, H2H) | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) · slices [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md) |
 | **Event performance rating** (TPR per tournament) | [`amiga-performance-rating.md`](amiga-performance-rating.md) |

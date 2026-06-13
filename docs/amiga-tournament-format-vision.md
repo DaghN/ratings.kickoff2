@@ -1,9 +1,9 @@
 # Amiga tournament format system — vision & analysis
 
-**Status:** Architectural investigation (Jun 2026). **Audience:** implementers, product, agents.  
+**Status:** Architectural investigation (Jun 2026). **Superseded for stage-type decisions** by [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) + agent track [`amiga-tournament-structure-implementation-plan.md`](amiga-tournament-structure-implementation-plan.md). **Audience:** implementers, product, agents.  
 **Purpose:** Capture analysis from design conversations about moving beyond legacy `koatd` phase strings toward an explicit format/fixture model in `ko2amiga_db`, while preserving historical fidelity.
 
-**Handoff prompt for implementation:** [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md)
+**Handoff prompt for implementation:** [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md) (exploration era) · **current execution:** [`orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md)
 
 **Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-schema-discovery.md`](amiga-schema-discovery.md) · [`amiga-realm-vision.md`](amiga-realm-vision.md) · [`amiga-track-b-tournament-standings-agent-prompt.txt`](amiga-track-b-tournament-standings-agent-prompt.txt)
 

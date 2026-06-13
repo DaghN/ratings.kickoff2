@@ -36,7 +36,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration (v1)** — **complete** (slices 0–10; migrations `017`–`019`). **Tournament medals unification (v2)** — **complete** local (`021`/`021b`/`022`; slices 0–8) — [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) v2 **Implemented**. **Standings scope unification** — **complete** (slices 0–7; migration `020`). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
+- **Amiga realm (Jun 2026):** **A2** + **tournament finalize rating** — **complete end-to-end** (staging 24-part import verified on `ratings.kickoff2.com`). **Event finish migration (v1)** — **complete** (slices 0–10; migrations `017`–`019`). **Tournament medals unification (v2)** — **complete** local (`021`/`021b`/`022`; slices 0–8) — [`amiga-tournament-honours-rules.md`](docs/amiga-tournament-honours-rules.md) v2 **Implemented**. **Standings scope unification** — **complete** (slices 0–7; migration `020`). **Tournament structure track** — **planned** (policy + plan + starter; slices 1–9 pending — `round_robin`/`knockout` stages, game-authoritative legacy materialize) — [`amiga-tournament-structure-policy.md`](docs/amiga-tournament-structure-policy.md). Live PHP `finalize-tournament`. **Data design:** [`amiga-data-contract.md`](docs/amiga-data-contract.md).
 
 ---
 
@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga tournament structure track — planning** — policy [`amiga-tournament-structure-policy.md`](docs/amiga-tournament-structure-policy.md); implementation plan slices 1–9; starter [`amiga-tournament-structure-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md) (modules vs structure; game-authoritative legacy backfill; migration `023` next). |
 | 2026-06 | **Amiga tournaments index** — Date column before Tournament; formatted `M j, Y` (profile/LB event date style). |
 | 2026-06 | **Leaderboards hub lede** — “rating” → “ratings” in `lb_nav.php` chapter copy. |
 | 2026-06 | **Amiga tournament honours LB** — default sort Events (desc); server ORDER BY matches JS default. |
