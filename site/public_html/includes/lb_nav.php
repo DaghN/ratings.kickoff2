@@ -22,7 +22,7 @@ $k2LbWingTabs = [
 	'peak-rating' => ['href' => k2_route('lb-peak-rating'), 'label' => 'Peak rating'],
 ];
 $k2HubChapterTitle = 'Leaderboards';
-$k2HubChapterLede = 'Leaderboards for everyone who has ever played online Kick Off 2 — rating, goals, streaks, victims, league medals, milestones, activity peaks... Sort any column to see who leads a different way.';
+$k2HubChapterLede = 'Leaderboards for everyone who has ever played online Kick Off 2 — ratings, goals, streaks, victims, league medals, milestones, activity peaks... Sort any column to see who leads a different way.';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 <div class="k2-chrome-tabs">

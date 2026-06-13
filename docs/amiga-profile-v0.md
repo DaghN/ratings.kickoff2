@@ -150,7 +150,7 @@ After `python -m scripts.amiga replay`, spot-check locally:
 7b. **Tournament history** — `/amiga/player/tournaments.php?id=<busy_player>` — all events listed; **Pts** = `event_points`; WC rows show medal finish not group rank; **country** pills reduce row set (e.g. Dagh N `id=73`: 2 cups, 5 in England)
 8. **Hall of Fame** — `/amiga/hall-of-fame.php` loads; record holders link to profiles; metric cells deep-link to LB wings; no streak rows
 8b. **Tier A LB** — `/amiga/leaderboards/goals.php` (and siblings) sort; wing nav complete; HoF links land correctly
-9. **Tournament honours LB** — `/amiga/leaderboards/tournament-honours.php` — Elo · Events · event medals/podiums · WC block; default sort WC gold
+9. **Tournament honours LB** — `/amiga/leaderboards/tournament-honours.php` — Elo · Events · event medals/podiums · WC block; default sort Events (desc)
 10. **Games tab** — adjustment column populated for finalized games (frozen rating + delta); sort by adjustment works
 11. **Responsive** — tournament page usable at ~375px width (bracket stacks, nav wraps)
 

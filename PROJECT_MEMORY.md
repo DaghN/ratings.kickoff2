@@ -83,6 +83,9 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga tournaments index** — Date column before Tournament; formatted `M j, Y` (profile/LB event date style). |
+| 2026-06 | **Leaderboards hub lede** — “rating” → “ratings” in `lb_nav.php` chapter copy. |
+| 2026-06 | **Amiga tournament honours LB** — default sort Events (desc); server ORDER BY matches JS default. |
 | 2026-06 | **Amiga tournament medals v2 track complete** — slices 0–8; honours rules v2 **Implemented**; migrations `021`/`021b`/`022`; universe contract + data contract updated. |
 | 2026-06 | **Amiga tournament medals v2 slice 7** — honours LB v2 columns (Elo, event block, WC block, medal SVG headers); default sort WC gold; Alkis P #1 event podiums (85). |
 | 2026-06 | **Amiga tournament medals v2 slice 6** — migration `022` drops `wc_medal`; writers/readers/verify cleaned; `compute_wc_podium_finish_from_standings`; rebuild+verify OK; zero `wc_medal` in py/php. |

@@ -16,6 +16,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $typeFilter = isset($_GET['type']) ? (string) $_GET['type'] : '';
@@ -55,8 +56,8 @@ if ($typeFilter !== '') {
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="false">
 <thead>
     <tr>
+        <th class="k2-table-cell--right" data-k2-sort="number">Date</th>
         <th class="k2-table-cell--left" data-k2-sort="text">Tournament</th>
-        <th data-k2-sort="text">Date</th>
         <th data-k2-sort="text">Country</th>
         <th data-k2-sort="number">Games</th>
         <th data-k2-sort="number">Players</th>
@@ -77,6 +78,10 @@ if ($typeFilter !== '') {
     $formatLabel = amiga_tournament_index_format_label($kind);
     ?>
     <tr>
+        <td class="k2-table-cell--right" data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
+            'event_date' => $row['event_date'] ?? null,
+            'event_chrono' => $row['chrono'] ?? null,
+        ]); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
         <td class="k2-table-cell--left"><?php
             if ($hasStandings) {
                 echo amiga_tournament_link((int) $row['id'], (string) $row['name']);
@@ -84,7 +89,6 @@ if ($typeFilter !== '') {
                 echo k2_h((string) $row['name']);
             }
         ?></td>
-        <td><?php echo $row['event_date'] ? k2_h((string) $row['event_date']) : '—'; ?></td>
         <td><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
         <td><?php echo $games; ?></td>
         <td><?php echo $hasStandings ? (string) $players : '—'; ?></td>

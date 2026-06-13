@@ -449,12 +449,10 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
             INNER JOIN amiga_players p ON p.id = t.player_id
             LEFT JOIN amiga_player_stats s ON s.player_id = t.player_id
             WHERE t.tournaments_played > 0
-            ORDER BY t.wc_gold DESC,
-                     t.wc_silver DESC,
-                     t.wc_bronze DESC,
-                     t.event_podiums DESC,
+            ORDER BY t.tournaments_played DESC,
                      t.event_gold DESC,
-                     t.tournaments_played DESC,
+                     t.event_podiums DESC,
+                     t.wc_gold DESC,
                      t.player_id ASC';
     $result = mysqli_query($con, $sql);
     if (!$result) {
