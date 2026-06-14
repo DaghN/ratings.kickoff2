@@ -2054,6 +2054,38 @@ body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger {
 	background-position: right 6px center;
 }
 
+body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option--split {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+body.k2-site .k2-player-games-controls .k2-archive-listbox--meta-options .k2-archive-listbox__panel {
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	right: auto;
+	box-sizing: border-box;
+	font-size: 11px;
+	line-height: 1.25;
+}
+
+body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option-label {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option-meta {
+	flex: 0 0 auto;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	color: var(--k2-text-muted);
+	font-weight: 400;
+}
+
 body.k2-site .k2-player-games-action,
 body.k2-site .k2-player-games-action:visited {
 	display: inline-flex;

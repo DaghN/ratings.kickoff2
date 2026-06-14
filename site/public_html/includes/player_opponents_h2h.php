@@ -579,6 +579,44 @@ function k2_h2h_race_val_html(string $display, string $side, string $leader): st
 }
 
 /**
+ * Tie rows colour both sides; 0–0 stays muted unless the row opts in (clean sheets).
+ *
+ * @return 'subject'|'opponent'|'tie'|''
+ */
+function k2_h2h_race_effective_leader(string $leader, float $subject, float $opponent, bool $colorZeroTie = false): string
+{
+    if ($leader !== 'tie') {
+        return $leader;
+    }
+
+    if ($colorZeroTie) {
+        return 'tie';
+    }
+
+    if (abs($subject) < 0.0001 && abs($opponent) < 0.0001) {
+        return '';
+    }
+
+    return 'tie';
+}
+
+/**
+ * @return 'subject'|'opponent'|'tie'|''
+ */
+function k2_h2h_race_margin_effective_leader(string $leader, ?int $subjectMargin, ?int $opponentMargin): string
+{
+    if ($leader !== 'tie') {
+        return $leader;
+    }
+
+    if ($subjectMargin === null || $opponentMargin === null) {
+        return 'tie';
+    }
+
+    return k2_h2h_race_effective_leader('tie', (float) $subjectMargin, (float) $opponentMargin, false);
+}
+
+/**
  * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $subjectCard
  * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $opponentCard
  * @param array<string, mixed> $detail
@@ -636,43 +674,72 @@ function player_opponents_render_h2h_pair_detail(array $subjectCard, array $oppo
             'Goals scored',
             k2_h(k2_fmt_int($goalsFor, '0')),
             k2_h(k2_fmt_int($goalsAgainst, '0')),
-            k2_h2h_race_leader((float) $goalsFor, (float) $goalsAgainst, 'higher')
+            k2_h2h_race_effective_leader(
+                k2_h2h_race_leader((float) $goalsFor, (float) $goalsAgainst, 'higher'),
+                (float) $goalsFor,
+                (float) $goalsAgainst
+            )
         );
     $renderRace(
         'Goals per game',
         k2_h(k2_fmt_decimal($avgFor, $games)),
         k2_h(k2_fmt_decimal($avgAgainst, $games)),
-        k2_h2h_race_leader($avgFor, $avgAgainst, 'higher')
+        k2_h2h_race_effective_leader(
+            k2_h2h_race_leader($avgFor, $avgAgainst, 'higher'),
+            $avgFor,
+            $avgAgainst
+        )
     );
     $renderRace(
         'Most scored',
         k2_h(k2_fmt_int($detail['max_goals_for'], '0')),
         k2_h(k2_fmt_int($detail['max_goals_against'], '0')),
-        k2_h2h_race_leader((float) $detail['max_goals_for'], (float) $detail['max_goals_against'], 'higher')
+        k2_h2h_race_effective_leader(
+            k2_h2h_race_leader((float) $detail['max_goals_for'], (float) $detail['max_goals_against'], 'higher'),
+            (float) $detail['max_goals_for'],
+            (float) $detail['max_goals_against']
+        )
     );
     $renderRace(
         'Biggest winning margin',
         k2_h(k2_h2h_race_margin_display($subjectWinMargin)),
         k2_h(k2_h2h_race_margin_display($opponentWinMargin)),
-        k2_h2h_race_margin_leader($subjectWinMargin, $opponentWinMargin)
+        k2_h2h_race_margin_effective_leader(
+            k2_h2h_race_margin_leader($subjectWinMargin, $opponentWinMargin),
+            $subjectWinMargin,
+            $opponentWinMargin
+        )
     );
     $renderRace(
         'Least conceded',
         k2_h(k2_fmt_int($leastConcededSubject, '0')),
         k2_h(k2_fmt_int($leastConcededOpponent, '0')),
-        k2_h2h_race_leader((float) $leastConcededSubject, (float) $leastConcededOpponent, 'lower')
+        k2_h2h_race_effective_leader(
+            k2_h2h_race_leader((float) $leastConcededSubject, (float) $leastConcededOpponent, 'lower'),
+            (float) $leastConcededSubject,
+            (float) $leastConcededOpponent
+        )
     );
     $renderRace(
         'Double digits',
         k2_h(k2_fmt_int($dd, '0')),
         k2_h(k2_fmt_int($oppDd, '0')),
-        k2_h2h_race_leader((float) $dd, (float) $oppDd, 'higher')
+        k2_h2h_race_effective_leader(
+            k2_h2h_race_leader((float) $dd, (float) $oppDd, 'higher'),
+            (float) $dd,
+            (float) $oppDd
+        )
     );
     $renderRace(
         'Clean sheets',
         k2_h(k2_fmt_int($cs, '0')),
         k2_h(k2_fmt_int($oppCs, '0')),
-        k2_h2h_race_leader((float) $cs, (float) $oppCs, 'higher')
+        k2_h2h_race_effective_leader(
+            k2_h2h_race_leader((float) $cs, (float) $oppCs, 'higher'),
+            (float) $cs,
+            (float) $oppCs,
+            true
+        )
     );
     ?>
 		</tbody>

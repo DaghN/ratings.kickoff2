@@ -143,6 +143,23 @@
         }
     }
 
+    /** Row width for split options (label + meta); ignores fixed data-trigger-label. */
+    function optionRowContentWidth(btn, opt) {
+        if (!btn || !opt || !opt.classList.contains('k2-archive-listbox__option--split')) {
+            return 0;
+        }
+        var labelNode = opt.querySelector('.k2-archive-listbox__option-label');
+        var metaNode = opt.querySelector('.k2-archive-listbox__option-meta');
+        var left = labelNode && labelNode.textContent ? labelNode.textContent : '';
+        var right = metaNode && metaNode.textContent ? metaNode.textContent : '';
+        var pad = 20;
+        var gap = 12;
+        if (!right) {
+            return measureTextWidth(btn, left) + pad;
+        }
+        return measureTextWidth(btn, left) + gap + measureTextWidth(btn, right) + pad;
+    }
+
     function syncTriggerWidth(box) {
         if (!box) {
             return;
@@ -152,6 +169,21 @@
         }
         var btn = trigger(box);
         if (!btn) {
+            return;
+        }
+        if (box.classList.contains('k2-archive-listbox--meta-options')) {
+            var metaMax = 0;
+            var metaOpts = options(box);
+            for (var m = 0; m < metaOpts.length; m++) {
+                metaMax = Math.max(metaMax, optionRowContentWidth(btn, metaOpts[m]));
+            }
+            var metaLbl = labelEl(box);
+            if (metaLbl && metaLbl.textContent) {
+                metaMax = Math.max(metaMax, measureTextWidth(btn, metaLbl.textContent) + 16);
+            }
+            if (metaMax > 0) {
+                setTriggerWidthPx(btn, metaMax + TRIGGER_WIDTH_EXTRA_PX);
+            }
             return;
         }
         var texts = [];
@@ -193,7 +225,7 @@
         if (trigger) {
             return trigger;
         }
-        var nameEl = opt.querySelector('.k2-h2h-listbox__name, .player-search-name');
+        var nameEl = opt.querySelector('.k2-h2h-listbox__name, .player-search-name, .k2-archive-listbox__option-label');
         if (nameEl && nameEl.textContent) {
             return nameEl.textContent;
         }

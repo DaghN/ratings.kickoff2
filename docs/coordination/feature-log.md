@@ -17,6 +17,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Amiga tournament medals unification v2 | L1 | `021`–`022` (`scripts/amiga/sql/`) | — | **Done** local Jun 2026 | **Not executed** | — | Unified finish + `event_*`/`wc_*` totals; honours LB — [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) v2 **Implemented** |
 | Amiga tournament structure (stage types) | L1 | `023` (`scripts/amiga/sql/`) | — | **Done** local slice 1 | **Not executed** | — | `round_robin`\|`knockout` stage enum; fixture scope parity — [`amiga-tournament-structure-policy.md`](../amiga-tournament-structure-policy.md) |
 | Profile graph restoration | L0 | — | — | — | — | — | `player/profile.php` profile visuals restored to Activity-style chart frames; server-origin time axes; peak dashed line; comparison date/games toggle; played-days year picker; top-opponents tall chart; winrate-vs-Elo graph removed |
+| Player games GF/GA filters | L0 | — | — | — | — | — | `player/games.php` — `gf`/`ga` listboxes; distinct goal counts per player |
 | Daily active players chart | L2 | SCH-007 | Yes | **Done** | **Not executed** | — | `server_daily_activity`; post-game via PHP ops at live cutover |
 | All-time busiest players chart (Activity) | L0 | — | — | — | — | — | Top 10 by `playertable.NumberGames` (tie → lowest ID); monthly series from `player_period_games`; was monthly top-10 eras |
 | Activity Graph Roadmap | L0 | — | — | — | — | — | Read-time `ratedresults`/`playertable` |

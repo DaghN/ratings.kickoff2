@@ -85,10 +85,21 @@ function individual3_valid_day(string $value): string
     return '';
 }
 
+function individual3_valid_goals_filter(int $value, array $validValues): int
+{
+    if ($value < 0) {
+        return -1;
+    }
+
+    return isset($validValues[$value]) ? $value : -1;
+}
+
 function individual3_where_clause(
     int $playerId,
     string $resultFilter,
     int $opponentId,
+    int $goalsScoredFilter,
+    int $goalsConcededFilter,
     string $utcDay,
     string &$types,
     array &$params
@@ -126,6 +137,24 @@ function individual3_where_clause(
         $params[] = $opponentId;
     }
 
+    if ($goalsScoredFilter >= 0) {
+        $where[] = '((r.idA = ? AND r.GoalsA = ?) OR (r.idB = ? AND r.GoalsB = ?))';
+        $types .= 'iiii';
+        $params[] = $playerId;
+        $params[] = $goalsScoredFilter;
+        $params[] = $playerId;
+        $params[] = $goalsScoredFilter;
+    }
+
+    if ($goalsConcededFilter >= 0) {
+        $where[] = '((r.idA = ? AND r.GoalsB = ?) OR (r.idB = ? AND r.GoalsA = ?))';
+        $types .= 'iiii';
+        $params[] = $playerId;
+        $params[] = $goalsConcededFilter;
+        $params[] = $playerId;
+        $params[] = $goalsConcededFilter;
+    }
+
     return implode(' AND ', $where);
 }
 
@@ -157,6 +186,12 @@ function individual3_sort_header(string $key, string $label, string $align, arra
     }
     if (!empty($state['day'])) {
         $params['day'] = $state['day'];
+    }
+    if (($state['gf'] ?? -1) >= 0) {
+        $params['gf'] = $state['gf'];
+    }
+    if (($state['ga'] ?? -1) >= 0) {
+        $params['ga'] = $state['ga'];
     }
 
     $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
@@ -196,6 +231,8 @@ $name = $Name ?? '';
 
 $resultFilter = individual3_valid_result((string) ($_GET['result'] ?? 'all'));
 $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
+$goalsScoredFilter = isset($_GET['gf']) ? (int) $_GET['gf'] : -1;
+$goalsConcededFilter = isset($_GET['ga']) ? (int) $_GET['ga'] : -1;
 $utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
 $sortKey = (string) ($_GET['sort'] ?? 'id');
 if ($sortKey === 'for') {
@@ -244,12 +281,45 @@ if ($opponentFilter > 0 && !isset($validOpponentIds[$opponentFilter])) {
     $opponentFilter = 0;
 }
 
+$goalsScoredRows = individual3_query_all(
+    $con,
+    'SELECT goals_for, COUNT(*) AS games FROM ('
+        . 'SELECT GoalsA AS goals_for FROM ratedresults WHERE idA = ? '
+        . 'UNION ALL '
+        . 'SELECT GoalsB AS goals_for FROM ratedresults WHERE idB = ?'
+        . ') AS goals GROUP BY goals_for ORDER BY goals_for ASC',
+    'ii',
+    [$playerId, $playerId]
+);
+$goalsConcededRows = individual3_query_all(
+    $con,
+    'SELECT goals_against, COUNT(*) AS games FROM ('
+        . 'SELECT GoalsB AS goals_against FROM ratedresults WHERE idA = ? '
+        . 'UNION ALL '
+        . 'SELECT GoalsA AS goals_against FROM ratedresults WHERE idB = ?'
+        . ') AS goals GROUP BY goals_against ORDER BY goals_against ASC',
+    'ii',
+    [$playerId, $playerId]
+);
+$validGoalsScored = [];
+foreach ($goalsScoredRows as $goalsScoredRow) {
+    $validGoalsScored[(int) $goalsScoredRow['goals_for']] = true;
+}
+$validGoalsConceded = [];
+foreach ($goalsConcededRows as $goalsConcededRow) {
+    $validGoalsConceded[(int) $goalsConcededRow['goals_against']] = true;
+}
+$goalsScoredFilter = individual3_valid_goals_filter($goalsScoredFilter, $validGoalsScored);
+$goalsConcededFilter = individual3_valid_goals_filter($goalsConcededFilter, $validGoalsConceded);
+
 $whereTypes = '';
 $whereParams = [];
 $whereSql = individual3_where_clause(
     $playerId,
     $resultFilter,
     $opponentFilter,
+    $goalsScoredFilter,
+    $goalsConcededFilter,
     $utcDayFilter,
     $whereTypes,
     $whereParams
@@ -292,6 +362,8 @@ $sortState = [
     'dir' => $sortDirection,
     'result' => $resultFilter,
     'opponent' => $opponentFilter,
+    'gf' => $goalsScoredFilter,
+    'ga' => $goalsConcededFilter,
     'day' => $utcDayFilter,
 ];
 $shownCount = count($games);
@@ -311,6 +383,12 @@ if ($opponentFilter > 0) {
 if ($utcDayFilter !== '') {
     $pagerParams['day'] = $utcDayFilter;
 }
+if ($goalsScoredFilter >= 0) {
+    $pagerParams['gf'] = $goalsScoredFilter;
+}
+if ($goalsConcededFilter >= 0) {
+    $pagerParams['ga'] = $goalsConcededFilter;
+}
 $sortedColIndex = k2_player_game_sort_col_index($sortKey);
 
 $resultChoices = [
@@ -324,6 +402,22 @@ foreach ($opponentRows as $opponentRow) {
     $opponentChoices[] = [
         'value' => (string) (int) $opponentRow['opponent_id'],
         'label' => (string) $opponentRow['opponent_name'] . ' (' . (int) $opponentRow['games'] . ')',
+    ];
+}
+$goalsScoredChoices = [['value' => '-1', 'label' => 'All scores']];
+foreach ($goalsScoredRows as $goalsScoredRow) {
+    $goalsScoredChoices[] = [
+        'value' => (string) (int) $goalsScoredRow['goals_for'],
+        'label' => (string) (int) $goalsScoredRow['goals_for'],
+        'meta' => (string) (int) $goalsScoredRow['games'],
+    ];
+}
+$goalsConcededChoices = [['value' => '-1', 'label' => 'All scores']];
+foreach ($goalsConcededRows as $goalsConcededRow) {
+    $goalsConcededChoices[] = [
+        'value' => (string) (int) $goalsConcededRow['goals_against'],
+        'label' => (string) (int) $goalsConcededRow['goals_against'],
+        'meta' => (string) (int) $goalsConcededRow['games'],
     ];
 }
 ?>
@@ -346,6 +440,14 @@ foreach ($opponentRows as $opponentRow) {
             <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
             <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
         </div>
+        <div class="k2-player-games-controls__field">
+            <span class="server-period-activity-leaderboard__picker-label">Goals scored</span>
+            <?php k2_archive_listbox_render('gf', 'k2-player-games-gf', (string) $goalsScoredFilter, $goalsScoredChoices, 'Filter by goals scored', '', 'All scores'); ?>
+        </div>
+        <div class="k2-player-games-controls__field">
+            <span class="server-period-activity-leaderboard__picker-label">Goals conceded</span>
+            <?php k2_archive_listbox_render('ga', 'k2-player-games-ga', (string) $goalsConcededFilter, $goalsConcededChoices, 'Filter by goals conceded', '', 'All scores'); ?>
+        </div>
         <a class="k2-player-games-action" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
     </div>
 </form>
@@ -353,7 +455,7 @@ foreach ($opponentRows as $opponentRow) {
 <div class="k2-player-games-status" data-k2-carry-scroll>
     <?php if ($utcDayFilter !== '') { ?>
     Rated games on <strong><?php echo individual3_h($utcDayFilter); ?></strong> UTC
-    (<a href="<?php echo individual3_h(individual3_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []))); ?>">clear day filter</a>).
+    (<a href="<?php echo individual3_h(individual3_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []) + ($goalsScoredFilter >= 0 ? ['gf' => $goalsScoredFilter] : []) + ($goalsConcededFilter >= 0 ? ['ga' => $goalsConcededFilter] : []))); ?>">clear day filter</a>).
     <?php } ?>
     Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
     <?php if ($offset > 0) { ?>

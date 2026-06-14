@@ -83,6 +83,10 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents Goals GF/GA tooltips** — column help says “against this opponent” (not career copy from leaderboards). |
+| 2026-06 | **Opponents H2H race 0–0 ties** — tied zeros stay muted grey on all race rows except Clean sheets (both sides still chrome/red there). |
+| 2026-06 | **Player games GF/GA filters** — `player/games.php` adds Goals scored + Goals conceded listboxes (`gf`/`ga` URL params); options from player’s distinct counts (Opponent-style). |
+| 2026-06 | **Opponents H2H moments name wrap** — scoreline names fill grid column (`stretch` + `width:100%`); dropped `text-wrap:pretty`; light negative letter-spacing so ~14-char names (e.g. Eternalstudent) stay one line in 48rem deck. |
 | 2026-06 | **Opponents H2H moments goal glow** — winner/draw goal numbers use race-table neon text-shadow stack. |
 | 2026-06 | **Opponents H2H poster lead meter** — chrome/red glow via blurred pseudo + box-shadow; track on `::before` so bloom isn’t buried. |
 | 2026-06 | **Opponents H2H poster W/L glow** — full neon stack on win counts at weight 600 (700 was too heavy with same glow). |
