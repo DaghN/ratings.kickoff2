@@ -338,9 +338,9 @@ foreach ($yearOptions as $year) {
     <?php echo amiga_games_sort_header('phase', 'Phase', 'left', $sortState, 'Bracket phase when recorded (group, final, etc.).', 'Phase'); ?>
     <?php echo amiga_games_sort_header('result', 'Result', 'left', $sortState, 'Result from this player\'s perspective: win, draw, or loss.', 'Result', 'k2-table-cell--pad-left-xl'); ?>
     <?php echo amiga_games_sort_header('opponent', 'Opponent', 'left', $sortState, 'Opponent in this game.'); ?>
-    <?php echo amiga_games_sort_header('goals_for', 'F', 'right', $sortState, 'Goals scored by this player.', 'For', 'k2-table-cell--pad-left-md'); ?>
-    <?php echo amiga_games_sort_header('against', 'A', 'right', $sortState, 'Goals conceded by this player.', 'Against'); ?>
-    <?php echo amiga_games_sort_header('diff', 'Diff', 'right', $sortState, 'Goal difference from this player\'s perspective.'); ?>
+    <?php echo amiga_games_sort_header('goals_for', 'GF', 'right', $sortState, 'Goals scored by this player.', 'Goals for', 'k2-table-cell--pad-left-md'); ?>
+    <?php echo amiga_games_sort_header('against', 'GA', 'right', $sortState, 'Goals conceded by this player.', 'Goals against'); ?>
+    <?php echo amiga_games_sort_header('diff', 'GD', 'right', $sortState, 'Goal difference from this player\'s perspective.', 'GD'); ?>
     <?php echo amiga_games_sort_header('sum', 'Sum', 'right', $sortState, 'Total goals scored by both players in the game.'); ?>
     <?php echo amiga_games_sort_header('player_rating', amiga_games_h($name), 'right', $sortState, 'This player\'s Elo rating before the game.', $name . ' rating', 'k2-table-cell--pad-left-md'); ?>
     <?php echo amiga_games_sort_header('opponent_rating', 'Opponent', 'right', $sortState, 'Opponent Elo rating before the game.', 'Opponent rating'); ?>

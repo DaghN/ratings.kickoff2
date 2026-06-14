@@ -10,6 +10,7 @@ require_once __DIR__ . '/k2_routes.php';
 require_once __DIR__ . '/player_opponents_lib.php';
 require_once __DIR__ . '/player_opponents_load.php';
 require_once __DIR__ . '/k2_archive_listbox.php';
+require_once __DIR__ . '/player_opponents_h2h_moments.php';
 
 function player_opponents_h2h_parse_opponent_id(mixed $raw, int $playerId): int
 {
@@ -393,7 +394,295 @@ function k2_h2h_poster_card_html(array $card, string $side): string
 }
 
 /**
- * Versus poster: mirrored identity cards around a `vs`, W/D/L hero, lead meter, goals.
+ * @return array<string, mixed>|null
+ */
+function player_opponents_h2h_pair_detail_live(mysqli $con, int $playerId, int $opponentId): ?array
+{
+    $sql = 'SELECT COUNT(*) AS games, COALESCE(SUM(win), 0) AS wins, COALESCE(SUM(draw), 0) AS draws, '
+        . 'COALESCE(SUM(defeat), 0) AS losses, COALESCE(SUM(goalsfor), 0) AS goals_for, '
+        . 'COALESCE(SUM(goalsagainst), 0) AS goals_against, COALESCE(SUM(DD), 0) AS double_digits, '
+        . 'COALESCE(SUM(DDC), 0) AS double_digits_conceded, COALESCE(SUM(CS), 0) AS clean_sheets, '
+        . 'COALESCE(SUM(CSC), 0) AS clean_sheets_conceded, MAX(goalsfor) AS max_goals_for, '
+        . 'MAX(goalsagainst) AS max_goals_against, MIN(goalsfor) AS min_goals_for, '
+        . 'MIN(goalsagainst) AS min_goals_against, '
+        . 'MAX(CASE WHEN goalsfor > goalsagainst THEN goalsfor - goalsagainst ELSE NULL END) AS max_win_margin, '
+        . 'MAX(CASE WHEN goalsagainst > goalsfor THEN goalsagainst - goalsfor ELSE NULL END) AS max_loss_margin, '
+        . 'MAX(CASE WHEN draw = 1 THEN goalsfor ELSE NULL END) AS max_draw_goals, '
+        . 'MAX(goalsfor + goalsagainst) AS max_goal_sum, MIN(goalsfor + goalsagainst) AS min_goal_sum '
+        . 'FROM ('
+        . 'SELECT homewin AS win, draw, awaywin AS defeat, goalsA AS goalsfor, goalsB AS goalsagainst, '
+        . 'DDPlayerA AS DD, DDPlayerB AS DDC, CSPlayerA AS CS, CSPlayerB AS CSC '
+        . 'FROM ratedresults WHERE idA = ? AND idB = ? '
+        . 'UNION ALL '
+        . 'SELECT awaywin AS win, draw, homewin AS defeat, goalsB AS goalsfor, goalsA AS goalsagainst, '
+        . 'DDPlayerB AS DD, DDPlayerA AS DDC, CSPlayerB AS CS, CSPlayerA AS CSC '
+        . 'FROM ratedresults WHERE idA = ? AND idB = ?'
+        . ') AS sides';
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return null;
+    }
+    $stmt->bind_param('iiii', $playerId, $opponentId, $opponentId, $playerId);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return null;
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    if ($row === null || (int) $row['games'] <= 0) {
+        return null;
+    }
+
+    return player_opponents_h2h_pair_detail_map_row($row, true);
+}
+
+/**
+ * @param array<string, mixed> $row
+ * @return array<string, mixed>
+ */
+function player_opponents_h2h_pair_detail_map_row(array $row, bool $extremesStored): array
+{
+    return [
+        'games' => (int) $row['games'],
+        'wins' => (int) $row['wins'],
+        'draws' => (int) $row['draws'],
+        'losses' => (int) $row['losses'],
+        'goals_for' => (int) $row['goals_for'],
+        'goals_against' => (int) $row['goals_against'],
+        'double_digits' => (int) ($row['double_digits'] ?? 0),
+        'double_digits_conceded' => (int) ($row['double_digits_conceded'] ?? 0),
+        'clean_sheets' => (int) ($row['clean_sheets'] ?? 0),
+        'clean_sheets_conceded' => (int) ($row['clean_sheets_conceded'] ?? 0),
+        'max_goals_for' => (int) ($row['max_goals_for'] ?? 0),
+        'max_goals_against' => (int) ($row['max_goals_against'] ?? 0),
+        'min_goals_for' => (int) ($row['min_goals_for'] ?? 0),
+        'min_goals_against' => (int) ($row['min_goals_against'] ?? 0),
+        'max_win_margin' => array_key_exists('max_win_margin', $row) && $row['max_win_margin'] !== null
+            ? (int) $row['max_win_margin'] : null,
+        'max_loss_margin' => array_key_exists('max_loss_margin', $row) && $row['max_loss_margin'] !== null
+            ? (int) $row['max_loss_margin'] : null,
+        'max_draw_goals' => array_key_exists('max_draw_goals', $row) && $row['max_draw_goals'] !== null
+            ? (int) $row['max_draw_goals'] : null,
+        'max_goal_sum' => (int) ($row['max_goal_sum'] ?? 0),
+        'min_goal_sum' => (int) ($row['min_goal_sum'] ?? 0),
+        'extremes_stored' => $extremesStored,
+    ];
+}
+
+/**
+ * @return array<string, mixed>|null
+ */
+function player_opponents_h2h_pair_detail_load(mysqli $con, int $playerId, int $opponentId): ?array
+{
+    if (
+        !k2_status_table_exists($con, 'player_matchup_summary')
+        || !player_opponents_matchup_summary_has_extension($con)
+    ) {
+        return player_opponents_h2h_pair_detail_live($con, $playerId, $opponentId);
+    }
+
+    $sql = 'SELECT games, wins, draws, losses, goals_for, goals_against, max_goals_for, max_goals_against, '
+        . 'min_goals_for, min_goals_against, max_win_margin, max_loss_margin, max_draw_goals, max_goal_sum, '
+        . 'min_goal_sum, double_digits, double_digits_conceded, clean_sheets, clean_sheets_conceded '
+        . 'FROM player_matchup_summary WHERE player_id = ? AND opponent_id = ? LIMIT 1';
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return player_opponents_h2h_pair_detail_live($con, $playerId, $opponentId);
+    }
+    $stmt->bind_param('ii', $playerId, $opponentId);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return player_opponents_h2h_pair_detail_live($con, $playerId, $opponentId);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    if ($row === null || (int) $row['games'] <= 0) {
+        return player_opponents_h2h_pair_detail_live($con, $playerId, $opponentId);
+    }
+
+    return player_opponents_h2h_pair_detail_map_row($row, true);
+}
+
+/**
+ * @return 'subject'|'opponent'|'tie'|''
+ */
+function k2_h2h_race_leader(float $subject, float $opponent, string $mode): string
+{
+    if ($mode === 'none') {
+        return '';
+    }
+
+    $epsilon = 0.0001;
+    if (abs($subject - $opponent) < $epsilon) {
+        return 'tie';
+    }
+
+    if ($mode === 'lower') {
+        return $subject < $opponent ? 'subject' : 'opponent';
+    }
+
+    return $subject > $opponent ? 'subject' : 'opponent';
+}
+
+/**
+ * Leader when either side may be missing (no wins yet → null margin).
+ *
+ * @return 'subject'|'opponent'|'tie'|''
+ */
+function k2_h2h_race_margin_leader(?int $subjectMargin, ?int $opponentMargin): string
+{
+    if ($subjectMargin === null && $opponentMargin === null) {
+        return 'tie';
+    }
+    if ($subjectMargin === null) {
+        return 'opponent';
+    }
+    if ($opponentMargin === null) {
+        return 'subject';
+    }
+
+    return k2_h2h_race_leader((float) $subjectMargin, (float) $opponentMargin, 'higher');
+}
+
+function k2_h2h_race_margin_display(?int $margin): string
+{
+    return $margin !== null ? k2_fmt_int($margin, '0') : '-';
+}
+
+function k2_h2h_race_val_class(string $side): string
+{
+    return 'k2-h2h2-race__val k2-h2h2-race__val--' . $side;
+}
+
+function k2_h2h_race_val_html(string $display, string $side, string $leader): string
+{
+    if ($leader !== $side) {
+        return $display;
+    }
+
+    $tone = $side === 'subject' ? 'blue' : 'red';
+
+    return '<span class="' . $tone . '">' . $display . '</span>';
+}
+
+/**
+ * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $subjectCard
+ * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $opponentCard
+ * @param array<string, mixed> $detail
+ */
+function player_opponents_render_h2h_pair_detail(array $subjectCard, array $opponentCard, array $detail): void
+{
+    $games = (int) $detail['games'];
+    if ($games <= 0) {
+        return;
+    }
+
+    $goalsFor = (int) $detail['goals_for'];
+    $goalsAgainst = (int) $detail['goals_against'];
+    $avgFor = $games > 0 ? $goalsFor / $games : 0.0;
+    $avgAgainst = $games > 0 ? $goalsAgainst / $games : 0.0;
+    $dd = (int) $detail['double_digits'];
+    $oppDd = (int) $detail['double_digits_conceded'];
+    $cs = (int) $detail['clean_sheets'];
+    $oppCs = (int) $detail['clean_sheets_conceded'];
+    $maxWin = $detail['max_win_margin'];
+    $maxLoss = $detail['max_loss_margin'];
+    $subjectWinMargin = $maxWin !== null ? (int) $maxWin : null;
+    $opponentWinMargin = $maxLoss !== null ? (int) $maxLoss : null;
+
+    $renderRace = static function (
+        string $label,
+        string $subjectDisplay,
+        string $opponentDisplay,
+        string $leader
+    ): void {
+        ?>
+	<tr class="k2-h2h2-race__row">
+		<td class="<?php echo k2_h(k2_h2h_race_val_class('subject')); ?>"><?php echo k2_h2h_race_val_html($subjectDisplay, 'subject', $leader); ?></td>
+		<th class="k2-h2h2-race__lab" scope="row"><?php echo k2_h($label); ?></th>
+		<td class="<?php echo k2_h(k2_h2h_race_val_class('opponent')); ?>"><?php echo k2_h2h_race_val_html($opponentDisplay, 'opponent', $leader); ?></td>
+	</tr>
+        <?php
+    };
+
+    $leastConcededSubject = (int) $detail['min_goals_against'];
+    $leastConcededOpponent = (int) $detail['min_goals_for'];
+
+    $caption = sprintf(
+        'Head-to-head comparison for %s versus %s.',
+        (string) ($subjectCard['name'] ?? ''),
+        (string) ($opponentCard['name'] ?? '')
+    );
+    ?>
+<section class="k2-h2h2-detail" aria-label="Head-to-head comparison">
+	<table class="k2-h2h2-race">
+		<caption class="k2-h2h2-race__caption"><?php echo k2_h($caption); ?></caption>
+		<tbody>
+		<?php
+        $renderRace(
+            'Goals scored',
+            k2_h(k2_fmt_int($goalsFor, '0')),
+            k2_h(k2_fmt_int($goalsAgainst, '0')),
+            k2_h2h_race_leader((float) $goalsFor, (float) $goalsAgainst, 'higher')
+        );
+    $renderRace(
+        'Goals per game',
+        k2_h(k2_fmt_decimal($avgFor, $games)),
+        k2_h(k2_fmt_decimal($avgAgainst, $games)),
+        k2_h2h_race_leader($avgFor, $avgAgainst, 'higher')
+    );
+    $renderRace(
+        'Most scored',
+        k2_h(k2_fmt_int($detail['max_goals_for'], '0')),
+        k2_h(k2_fmt_int($detail['max_goals_against'], '0')),
+        k2_h2h_race_leader((float) $detail['max_goals_for'], (float) $detail['max_goals_against'], 'higher')
+    );
+    $renderRace(
+        'Biggest winning margin',
+        k2_h(k2_h2h_race_margin_display($subjectWinMargin)),
+        k2_h(k2_h2h_race_margin_display($opponentWinMargin)),
+        k2_h2h_race_margin_leader($subjectWinMargin, $opponentWinMargin)
+    );
+    $renderRace(
+        'Least conceded',
+        k2_h(k2_fmt_int($leastConcededSubject, '0')),
+        k2_h(k2_fmt_int($leastConcededOpponent, '0')),
+        k2_h2h_race_leader((float) $leastConcededSubject, (float) $leastConcededOpponent, 'lower')
+    );
+    $renderRace(
+        'Double digits',
+        k2_h(k2_fmt_int($dd, '0')),
+        k2_h(k2_fmt_int($oppDd, '0')),
+        k2_h2h_race_leader((float) $dd, (float) $oppDd, 'higher')
+    );
+    $renderRace(
+        'Clean sheets',
+        k2_h(k2_fmt_int($cs, '0')),
+        k2_h(k2_fmt_int($oppCs, '0')),
+        k2_h2h_race_leader((float) $cs, (float) $oppCs, 'higher')
+    );
+    ?>
+		</tbody>
+	</table>
+</section>
+    <?php
+}
+
+/**
+ * Versus poster: mirrored identity cards around a `vs`, W/D/L hero, lead meter.
  *
  * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $subjectCard
  * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $opponentCard
@@ -409,8 +698,6 @@ function player_opponents_render_h2h_poster(
     $w = $hasGames ? (int) $record['wins'] : 0;
     $d = $hasGames ? (int) $record['draws'] : 0;
     $l = $hasGames ? (int) $record['losses'] : 0;
-    $gf = $hasGames ? (int) $record['goals_for'] : 0;
-    $ga = $hasGames ? (int) $record['goals_against'] : 0;
     $total = $w + $d + $l;
 
     $pct = static function (int $part) use ($total): string {
@@ -441,18 +728,18 @@ function player_opponents_render_h2h_poster(
 	</div>
 
 	<?php if ($hasGames) { ?>
-	<div class="k2-h2h2-record" role="group" aria-label="Win, draw and loss record">
+	<div class="k2-h2h2-record" role="group" aria-label="<?php echo k2_h(sprintf('%s wins, draws, %s wins', $subjectName, $opponentName)); ?>">
 		<div class="k2-h2h2-stat k2-h2h2-stat--win">
 			<span class="k2-h2h2-num blue"><?php echo k2_h(k2_fmt_int($w, '0')); ?></span>
-			<span class="k2-h2h2-lab">Won</span>
+			<span class="k2-h2h2-lab">Wins</span>
 		</div>
 		<div class="k2-h2h2-stat k2-h2h2-stat--draw">
 			<span class="k2-h2h2-num"><?php echo k2_h(k2_fmt_int($d, '0')); ?></span>
-			<span class="k2-h2h2-lab">Drew</span>
+			<span class="k2-h2h2-lab">Draws</span>
 		</div>
-		<div class="k2-h2h2-stat k2-h2h2-stat--loss">
+		<div class="k2-h2h2-stat k2-h2h2-stat--opp-win">
 			<span class="k2-h2h2-num red"><?php echo k2_h(k2_fmt_int($l, '0')); ?></span>
-			<span class="k2-h2h2-lab">Lost</span>
+			<span class="k2-h2h2-lab">Wins</span>
 		</div>
 	</div>
 
@@ -461,15 +748,6 @@ function player_opponents_render_h2h_poster(
 		<span class="k2-h2h2-seg k2-h2h2-seg--draw<?php echo $d > 0 ? ' is-on' : ''; ?>" style="width: <?php echo $pct($d); ?>%"></span>
 		<span class="k2-h2h2-seg k2-h2h2-seg--loss<?php echo $l > 0 ? ' is-on' : ''; ?>" style="width: <?php echo $pct($l); ?>%"></span>
 	</div>
-
-	<p class="k2-h2h2-goals">
-		<span class="k2-h2h2-goals-line">
-			<span class="k2-h2h2-goal k2-h2h2-goal--for"><?php echo k2_h(k2_fmt_int($gf, '0')); ?></span>
-			<span class="k2-h2h2-goals-sep" aria-hidden="true">–</span>
-			<span class="k2-h2h2-goal k2-h2h2-goal--against"><?php echo k2_h(k2_fmt_int($ga, '0')); ?></span>
-		</span>
-		<span class="k2-h2h2-goals-label">Goals</span>
-	</p>
 	<?php } else { ?>
 	<p class="k2-h2h2-none">No rated games yet</p>
 	<?php } ?>
@@ -635,6 +913,19 @@ function player_opponents_render_h2h_panel(
 		            : null;
 		        $games = (int) $pair['games'];
 		        player_opponents_render_h2h_poster($subjectCard, $opponentCard, $record, $games);
+		        if ($games > 0) {
+		            $detail = player_opponents_h2h_pair_detail_load($con, $playerId, $pair['opponent_id']);
+		            if ($detail !== null) {
+		                player_opponents_render_h2h_pair_detail($subjectCard, $opponentCard, $detail);
+		            }
+		            $momentGames = player_opponents_h2h_pair_games_rows($con, $playerId, $pair['opponent_id']);
+		            $momentSlots = player_opponents_h2h_moments_slots(
+		                $momentGames,
+		                (string) ($subjectCard['name'] ?? ''),
+		                (string) ($opponentCard['name'] ?? '')
+		            );
+		            player_opponents_render_h2h_moments_grid($momentSlots);
+		        }
 		    } else { ?>
 		<p class="k2-player-opponents-h2h__empty">Could not load player data for this pairing.</p>
 		<?php }

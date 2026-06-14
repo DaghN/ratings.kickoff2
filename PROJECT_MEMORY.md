@@ -83,6 +83,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents H2H rivalry chrome lock** — subject side locked to `--k2-pure-chrome` for pickers (search + listboxes), poster, race table, moments; wing hero keeps picked tint. |
+| 2026-06 | **Opponents H2H moments — scorecard redesign** — 3×3 deck of `k2-h2h2-mcard` cards; true score orientation (`NameA gA–gB NameB`, never flipped, full names both sides); subject blue / opponent red identity; winner-glow not hero Win/Loss; no emoji; **card accent = game outcome** (subject win blue / rival win red / draw holo); self-contained CSS. |
 | 2026-06 | **Player hero accent tweak** (cosmetic, all hero pages) — name now `--k2-link-star` (matches rank/rating ink); base `.k2-player-hero__stat-value` + `.k2-player-hero__milestones-total` muted to `--k2-text-secondary` so **Games + Milestones** read quiet (both brighten to primary on hover) while Rank/Rating stay link-star (via globally-loaded `player-hero-rank.css`). Also `.k2-player-hero__inner` → `align-items:center` so the avatar centres against the text block (was top-lifted via default stretch). `theme.css` only. Avatar stays pure `--k2-accent` (flagged: not link-star). |
 | 2026-06 | **Opponents DDs color** — Double Digits blue, DD conceded red (parity with Goals GF/GA). |
 | 2026-06 | **Opponents Goals GF/GA color** — GF column blue, GA column red (parity with W/D/L wins/losses). |

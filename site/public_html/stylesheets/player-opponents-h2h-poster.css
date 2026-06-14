@@ -1,14 +1,14 @@
 /**
- * Player Opponents — head-to-head versus poster (shipped Jun 2026).
+ * Player Opponents — head-to-head versus poster + pair-detail race tables (Jun 2026).
  *
  * Glowing hero-style identity cards around a `vs`, mirrored so avatars face
- * inward, then W/D/L counts, lead meter and goals on a bare stage background.
+ * inward, then W/D/L counts and lead meter on a bare stage background.
+ * Pair detail continues the centred column with player-vs-player stat races.
  * Linked from player/opponents/h2h.php.
  */
 
 /* ===== poster shell (bare — no outer frame) ===== */
 body.k2-site .k2-h2h2-poster {
-	--k2-h2h2-blue: var(--k2-table-positive);
 	--k2-h2h2-red: var(--k2-table-negative);
 	--k2-h2h2-draw: color-mix(in srgb, var(--k2-text-muted) 64%, transparent);
 	--k2-h2h2-marquee-max: 48rem;
@@ -217,7 +217,7 @@ body.k2-site .k2-h2h2-stat--win .k2-h2h2-num {
 	color: var(--k2-h2h2-blue);
 }
 
-body.k2-site .k2-h2h2-stat--loss .k2-h2h2-num {
+body.k2-site .k2-h2h2-stat--opp-win .k2-h2h2-num {
 	color: var(--k2-h2h2-red);
 }
 
@@ -266,48 +266,6 @@ body.k2-site .k2-h2h2-seg--loss {
 	background: var(--k2-h2h2-red);
 }
 
-/* ===== goals ===== */
-body.k2-site .k2-h2h2-goals {
-	margin: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 3px;
-}
-
-body.k2-site .k2-h2h2-goals-line {
-	display: inline-flex;
-	align-items: baseline;
-	gap: 0.45em;
-	font-variant-numeric: tabular-nums;
-}
-
-body.k2-site .k2-h2h2-goals-label {
-	font-size: 10px;
-	font-weight: 600;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--k2-text-muted);
-}
-
-body.k2-site .k2-h2h2-goal {
-	font-family: var(--k2-font-display);
-	font-size: clamp(15px, 2.4vw, 19px);
-	font-weight: 600;
-}
-
-body.k2-site .k2-h2h2-goal--for {
-	color: color-mix(in srgb, var(--k2-h2h2-blue) 72%, var(--k2-text-muted));
-}
-
-body.k2-site .k2-h2h2-goal--against {
-	color: color-mix(in srgb, var(--k2-h2h2-red) 72%, var(--k2-text-muted));
-}
-
-body.k2-site .k2-h2h2-goals-sep {
-	color: var(--k2-text-muted);
-}
-
 body.k2-site .k2-h2h2-none {
 	margin: 0;
 	font-family: var(--k2-font-display);
@@ -316,7 +274,101 @@ body.k2-site .k2-h2h2-none {
 	color: var(--k2-text-secondary);
 }
 
+/* ===== pair detail: centred stat races ===== */
+body.k2-site .k2-h2h2-detail {
+	--k2-h2h2-race-max: min(100%, 34rem);
+	width: 100%;
+	max-width: var(--k2-h2h2-marquee-max);
+	margin: clamp(18px, 3vw, 28px) auto 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+body.k2-site .k2-h2h2-race {
+	width: max-content;
+	max-width: var(--k2-h2h2-race-max);
+	margin-inline: auto;
+	border-collapse: collapse;
+	border-spacing: 0;
+	table-layout: auto;
+}
+
+body.k2-site .k2-h2h2-race__caption {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+body.k2-site .k2-h2h2-race__row + .k2-h2h2-race__row .k2-h2h2-race__val,
+body.k2-site .k2-h2h2-race__row + .k2-h2h2-race__row .k2-h2h2-race__lab {
+	border-top: 1px solid color-mix(in srgb, var(--k2-border-subtle) 72%, transparent);
+}
+
+body.k2-site .k2-h2h2-race__val,
+body.k2-site .k2-h2h2-race__lab {
+	padding-block: clamp(9px, 1.6vw, 12px);
+	vertical-align: middle;
+	font-variant-numeric: tabular-nums;
+}
+
+body.k2-site .k2-h2h2-race__val {
+	font-family: var(--k2-font-display);
+	font-size: clamp(17px, 2.8vw, 22px);
+	font-weight: 600;
+	line-height: 1.1;
+	color: var(--k2-text-secondary);
+	white-space: nowrap;
+}
+
+body.k2-site .k2-h2h2-race__val--subject {
+	text-align: right;
+	padding-inline: clamp(8px, 1.4vw, 12px) clamp(14px, 2.4vw, 22px);
+}
+
+body.k2-site .k2-h2h2-race__val--opponent {
+	text-align: left;
+	padding-inline: clamp(14px, 2.4vw, 22px) clamp(8px, 1.4vw, 12px);
+}
+
+body.k2-site .k2-h2h2-race__lab {
+	padding-inline: clamp(6px, 1vw, 10px);
+	font-size: clamp(11px, 1.7vw, 12px);
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-align: center;
+	color: var(--k2-text-muted);
+	line-height: 1.25;
+	white-space: nowrap;
+}
+
 @media (max-width: 640px) {
+	body.k2-site .k2-h2h2-detail {
+		--k2-h2h2-race-max: 100%;
+		padding-inline: clamp(4px, 1.5vw, 10px);
+	}
+
+	body.k2-site .k2-h2h2-race__lab {
+		white-space: normal;
+		max-width: 7.5rem;
+		line-height: 1.2;
+	}
+
+	body.k2-site .k2-h2h2-race__val--subject {
+		padding-inline: 6px 12px;
+	}
+
+	body.k2-site .k2-h2h2-race__val--opponent {
+		padding-inline: 12px 6px;
+	}
+
 	body.k2-site .k2-h2h2-marquee {
 		grid-template-columns: 1fr;
 		gap: 12px;
