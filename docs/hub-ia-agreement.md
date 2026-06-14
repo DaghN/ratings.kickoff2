@@ -79,7 +79,7 @@ Still open with Steve / prod:
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |
-| Player pages | Replace hub tabs with player context tabs: Profile, Games, W/D/L, Goals, DDs, Milestones. |
+| Player pages | Replace hub tabs with player context tabs: Profile, Games, Opponents, Milestones. |
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
 | Tint picker | Closed by default behind **Tint** disclosure (hub + player nav). |
 | Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps `window.scrollY` on the next page (one-shot `sessionStorage`). **Listbox filter forms** opt in with `data-k2-carry-scroll` on the `<form>` (`js/k2-carry-scroll.js` stores on listbox `change` before `form.submit()` and on in-form **Reset** links). **Player games** server-sort column links (`.k2-table--player-games`) carry scroll the same way. Online **Previous / Next 100** pager links opt in via `data-k2-carry-scroll` on `.k2-player-games-status` (same `a.k2-player-games-action` selector). Restore (`k2_carry_scroll_restore.php` in `<head>`) retries only while the clamped target is unreachable (DOM ready + `ResizeObserver`); stops on success, user scroll input, or 2s — no `load`-time force. Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
@@ -151,10 +151,10 @@ Do not merge these page bodies into Status unless Dagh explicitly changes the hu
 Player pages use the same global header, then player-specific context:
 
 - Hero block.
-- Player nav: Profile, Games, W/D/L, Goals, DDs, Milestones.
+- Player nav: Profile, Games, Opponents, Milestones.
 - `player/profile.php` is the warm profile feast landing.
 - `player/games.php` is the Games history tab with server-side filters/sort/100-row slices.
-- `player/wdl.php`, `player/goals.php`, `player/double-digits.php` are W/D/L, Goals, DDs matchup stat tabs.
+- `player/opponents.php` — Opponents wing with inner tabs W/D/L, Goals, DDs, Head-to-head (`view=`).
 
 Future Amiga/photo/media work belongs on the profile/content track, not in hub IA.
 

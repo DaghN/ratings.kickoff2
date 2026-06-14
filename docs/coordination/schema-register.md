@@ -34,6 +34,7 @@ php site/public_html/ops/run_prepare.php migrate-work --target local-work
 | SCH-016 | `016_drop_playertable_recent_average_rating.sql` | DROP `RecentAverageRating` | Yes | **Done** (prepare) | **Not yet** | Retire C++ reference at cutover |
 | SCH-017 | `017_drop_player_monthly_league.sql` | DROP legacy monthly league table | Yes | **Done** (migrate-work) | **Not yet** | |
 | SCH-018 | `018_playertable_milestone_streak_facilitators.sql` | P6 facilitator columns on `playertable` | Yes | **Done** (migrate-work + simul) | **Not yet** | |
+| SCH-019 | `019_player_matchup_summary_opponents_ext.sql` | `player_matchup_summary` goal extremes + DD/CS | Yes | **Done** (migrate + simul to 500 on work) | **Not yet** | Opponents Phase 3 — [`player-opponents-hub.md`](../player-opponents-hub.md) |
 
 ### Column legend
 

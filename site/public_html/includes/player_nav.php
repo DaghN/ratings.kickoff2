@@ -1,6 +1,6 @@
 <?php
 /**
- * Player feast pills — Profile · Games · W/D/L · Goals · DDs · Milestones
+ * Player feast pills — Profile · Games · Opponents · Milestones
  * Set $k2PlayerTabActive and $id before include.
  * Tint picker on the right (parity with hub_nav.php).
  */
@@ -11,9 +11,7 @@ $id = isset($id) ? (int) $id : 0;
 $k2PlayerTabs = [
 	'profile' => ['href' => k2_route('player-profile', ['id' => $id]), 'label' => 'Profile'],
 	'games' => ['href' => k2_route('player-games', ['id' => $id]), 'label' => 'Games'],
-	'wins' => ['href' => k2_route('player-wdl', ['id' => $id]), 'label' => 'W/D/L'],
-	'goals' => ['href' => k2_route('player-goals', ['id' => $id]), 'label' => 'Goals'],
-	'double-digits' => ['href' => k2_route('player-double-digits', ['id' => $id]), 'label' => 'DDs'],
+	'opponents' => ['href' => k2_route('player-opponents', ['id' => $id]), 'label' => 'Opponents'],
 	'milestones' => ['href' => k2_route('player-milestones', ['id' => $id]), 'label' => 'Milestones'],
 ];
 ?>

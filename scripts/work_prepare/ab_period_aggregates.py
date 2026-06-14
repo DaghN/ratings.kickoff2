@@ -34,7 +34,27 @@ P5_TABLES: tuple[tuple[str, tuple[str, ...], tuple[str, ...]], ...] = (
         "player_matchup_summary",
         "parity_ab_player_matchup_summary_php",
         ("player_id", "opponent_id"),
-        ("games", "wins", "draws", "losses", "goals_for", "goals_against"),
+        (
+            "games",
+            "wins",
+            "draws",
+            "losses",
+            "goals_for",
+            "goals_against",
+            "max_goals_for",
+            "max_goals_against",
+            "min_goals_for",
+            "min_goals_against",
+            "max_win_margin",
+            "max_loss_margin",
+            "max_draw_goals",
+            "max_goal_sum",
+            "min_goal_sum",
+            "double_digits",
+            "double_digits_conceded",
+            "clean_sheets",
+            "clean_sheets_conceded",
+        ),
     ),
     (
         "server_period_game_totals",
@@ -97,7 +117,7 @@ def _diff_table(
             SELECT {key_sel}, l.`{vcol}` AS py_v, s.`{vcol}` AS php_v
             FROM `{live}` l
             INNER JOIN `{snapshot}` s ON {joins}
-            WHERE l.`{vcol}` <> s.`{vcol}`
+            WHERE NOT (l.`{vcol}` <=> s.`{vcol}`)
             LIMIT {max_report + 1}
         """
         with conn.cursor() as cur:

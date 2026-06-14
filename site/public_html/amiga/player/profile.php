@@ -13,7 +13,7 @@
 <script type="text/javascript" src="/js/player-rating-history.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rating-history.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-rating-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rating-chart.js'); ?>" defer="defer"></script>
 </head>
-<body class="k2-site player-feast-body">
+<body class="k2-site k2-player-wing player-feast-body">
 
 <?php
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -63,8 +63,6 @@ $playerId = $pm['id'];
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
-<div class="k2-page-nav">
-
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
 <?php
@@ -82,7 +80,7 @@ amiga_profile_render_top_opponents($topOpponents, $playerId);
 amiga_profile_render_rating_chart($playerId);
 ?>
 
-</div>
+</div><!-- .k2-page-nav -->
 
 </body>
 </html>

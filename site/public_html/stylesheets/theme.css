@@ -638,6 +638,15 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 	margin: 0 auto;
 }
 
+body.k2-site.k2-player-wing .k2-page-nav {
+	padding-bottom: 48px;
+}
+
+body.k2-site.k2-player-wing .k2-page-nav__up {
+	margin: 0 0 6px;
+	padding: 2px 1.25rem 0;
+}
+
 body.k2-site .k2-games-hub {
 	max-width: 1200px;
 	margin: 0 auto;
@@ -2265,6 +2274,199 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	color: var(--k2-segment-active-text);
 	background: transparent;
 	text-decoration: none;
+}
+
+/* Opponents wing — mirror league-honours: 12px hub bar → sub bar; 12px sub bar → table */
+body.k2-site .k2-page-nav--opponents .k2-player-nav-bar {
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-page-nav--opponents .k2-chrome-tabs.k2-player-opponents {
+	margin-top: 12px;
+	margin-bottom: 4px;
+}
+
+body.k2-site .k2-player-opponents__nav {
+	width: fit-content;
+	max-width: 100%;
+	margin-bottom: 12px;
+}
+
+body.k2-site .k2-player-opponents__bar {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-player-opponents > .k2-table-wrap {
+	margin-top: 0;
+	border-top: 1px solid var(--k2-border-subtle);
+	border-top-left-radius: var(--k2-radius-md);
+	border-top-right-radius: var(--k2-radius-md);
+}
+
+body.k2-site .k2-player-opponents__h2h-placeholder {
+	margin-top: 0;
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site .k2-player-opponents-h2h {
+	margin-top: 0;
+}
+
+body.k2-site .k2-player-opponents-h2h__pickers {
+	--k2-h2h-picker-width: 12.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: clamp(10px, 2.5vw, 28px);
+	margin-bottom: 1.25rem;
+}
+
+body.k2-site .k2-player-opponents-h2h__search,
+body.k2-site .k2-player-opponents-h2h__listbox-wrap {
+	flex: 0 1 var(--k2-h2h-picker-width);
+	width: var(--k2-h2h-picker-width);
+	max-width: 100%;
+	min-width: 0;
+}
+
+body.k2-site .k2-player-opponents-h2h__search {
+	min-width: min(100%, 9.5rem);
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox-wrap {
+	min-width: min(100%, 9.5rem);
+}
+
+body.k2-site .k2-player-opponents-h2h__search-input {
+	box-sizing: border-box;
+	width: 100%;
+}
+
+body.k2-site .k2-player-opponents-h2h__search-results {
+	width: 100%;
+	max-width: none;
+}
+
+body.k2-site .k2-player-opponents-h2h__select-label {
+	display: block;
+	margin: 0 0 6px;
+	color: var(--k2-text-primary);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox-wrap .k2-archive-listbox,
+body.k2-site .k2-player-opponents-h2h__listbox-wrap .k2-archive-listbox__trigger {
+	box-sizing: border-box;
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__trigger {
+	padding: 6px 28px 6px 10px;
+	font-size: 13px;
+	line-height: 1.35;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__label--placeholder {
+	color: var(--k2-text-muted);
+	font-weight: 400;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox .k2-h2h-listbox__option {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox .k2-h2h-listbox__name {
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox .k2-h2h-listbox__meta {
+	flex: 0 0 auto;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	color: var(--k2-text-muted);
+	font-weight: 400;
+}
+
+body.k2-site .k2-player-opponents-h2h__stage {
+	padding: 1.25rem 1.5rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site .k2-player-opponents-h2h__prompt {
+	margin: 0;
+}
+
+body.k2-site .k2-player-opponents-h2h__empty {
+	margin: 0;
+	color: var(--k2-text-secondary);
+	font-size: 15px;
+	line-height: 1.5;
+}
+
+body.k2-site .k2-player-opponents-h2h__headline {
+	margin: 0;
+	font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+	font-weight: 700;
+	line-height: 1.25;
+	letter-spacing: -0.02em;
+}
+
+body.k2-site .k2-player-opponents-h2h__vs {
+	margin: 0 0.45em;
+	color: var(--k2-text-muted);
+	font-weight: 600;
+	font-size: 0.85em;
+	text-transform: lowercase;
+}
+
+body.k2-site .player-search-results .player-search-group {
+	padding: 6px 10px 4px;
+	color: var(--k2-text-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+body.k2-site .k2-player-opponents-h2h__search-option {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	width: 100%;
+	margin: 0;
+	padding: 6px 10px;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+body.k2-site .k2-player-opponents-h2h__search-option:hover,
+body.k2-site .k2-player-opponents-h2h__search-option:focus-visible {
+	background: var(--k2-bg-hover);
+	outline: none;
 }
 
 /* ── Player hero scaffold ── */

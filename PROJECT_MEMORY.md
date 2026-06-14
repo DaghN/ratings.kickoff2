@@ -83,6 +83,14 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents H2H pickers fix** — `K2ArchiveListbox.init()` on H2H tab (listboxes were inert); narrower search column; default headline = top opponent when `opponent` omitted. |
+| 2026-06 | **Opponents H2H v1** — search (global, games vs context) + games/A–Z dropdowns + pair headline; `?view=h2h&opponent=`; charts still on Profile. |
+| 2026-06 | **Opponents Phase 3 slice 3** — `ko2unity_work` zero + simul to game 500 (verify PASS, spot parity 24 pairs); Goals/DDs Opponents tabs read SCH-019 summary; Steve `kooldb1` next. |
+| 2026-06 | **Opponents Phase 3 slice 2** — SCH-019 migration + P5 extended upsert + AB parity. |
+| 2026-06 | **Opponents slice A** — W/D/L + core Goals read `player_matchup_summary` (~25× faster locally vs live scan); Goals Max/Min pending schema slice B; DDs still live. |
+| 2026-06 | **Player wing shell** — unified « Leaderboards link (`player_wing_up_link.php`, `k2-player-wing` body class, single `k2-page-nav` from `site_header`); online + Amiga player tabs. |
+| 2026-06 | **Player Opponents hub Phase 1** — top pill Opponents; `player/opponents.php` + inner W/D/L · Goals · DDs · H2H (stub); old wdl/goals/dds pages removed; Profile unchanged — [`player-opponents-hub.md`](docs/player-opponents-hub.md). |
+| 2026-06 | **Player Opponents hub (planning)** — agreed IA: umbrella Opponents pill (W/D/L · Goals · DDs · H2H sub-tabs), slim Profile matchups, optional Career totals; recenter doc [`player-opponents-hub.md`](docs/player-opponents-hub.md). |
 | 2026-06 | **Player hero back link** — compact `&larr; Leaderboards` above hero (status `k2-status-panel__more` sizing) on online + Amiga player pages. |
 | 2026-06 | **Player games Result column** — draws show **Draw** (not `-`) on online + Amiga games tabs; `k2_player_game_result_html()`. |
 | 2026-06 | **Amiga profile rating chart polish** — shorter chart hint; `player-feast-sections.css` toggle styling; calendar tooltip “at day end”. |

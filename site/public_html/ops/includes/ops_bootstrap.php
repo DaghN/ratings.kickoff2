@@ -76,3 +76,28 @@ function k2_ops_table_exists(mysqli $con, string $table): bool
     $res->free();
     return (int) ($row['n'] ?? 0) > 0;
 }
+
+function k2_ops_column_exists(mysqli $con, string $table, string $column): bool
+{
+    $stmt = $con->prepare(
+        'SELECT COUNT(*) AS n FROM information_schema.COLUMNS '
+        . 'WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?'
+    );
+    if ($stmt === false) {
+        return false;
+    }
+    $stmt->bind_param('ss', $table, $column);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return false;
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    return (int) ($row['n'] ?? 0) > 0;
+}

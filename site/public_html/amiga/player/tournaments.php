@@ -7,7 +7,7 @@
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 </head>
-<body class="k2-site player-feast-body">
+<body class="k2-site k2-player-wing player-feast-body">
 
 <?php
 $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -76,8 +76,6 @@ $Country = $pm['country'];
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
-<div class="k2-page-nav">
-
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
 <?php
@@ -116,7 +114,7 @@ if ($tournaments !== []) {
 }
 ?>
 
-</div>
+</div><!-- .k2-page-nav -->
 
 </body>
 </html>

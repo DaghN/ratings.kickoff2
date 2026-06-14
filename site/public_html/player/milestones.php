@@ -10,11 +10,9 @@
 
 </head>
 
-<body class="k2-site">
+<body class="k2-site k2-player-wing">
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
-
-<div class="k2-page-nav">
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';

@@ -6,6 +6,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/realm_switcher.php';
 $k2WordmarkHomeHref = htmlspecialchars($k2RealmHomeHref, ENT_QUOTES, 'UTF-8');
+$k2PageNavClass = isset($k2PageNavClass) ? trim((string) $k2PageNavClass) : '';
 ?>
 <header class="k2-site-header">
 	<div class="k2-site-header__brand">
@@ -22,4 +23,4 @@ $k2WordmarkHomeHref = htmlspecialchars($k2RealmHomeHref, ENT_QUOTES, 'UTF-8');
 </header>
 <script type="text/javascript" src="/js/player-search.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-search.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/realm-switch.js" defer="defer"></script>
-<div class="k2-page-nav">
+<div class="k2-page-nav<?php echo $k2PageNavClass !== '' ? ' ' . htmlspecialchars($k2PageNavClass, ENT_QUOTES, 'UTF-8') : ''; ?>">

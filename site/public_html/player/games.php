@@ -13,7 +13,7 @@
 
 </head>
 
-<body class="k2-site">
+<body class="k2-site k2-player-wing">
 
 <?php
 $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;

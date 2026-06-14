@@ -53,7 +53,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_league_slice_totals` | SCH-010 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only**; with career totals after awards |
 | `milestone_definitions` | SCH-011 | `seed-catalog` | `load_milestone_definitions.py` | Static catalog; reload when seed changes |
 | `player_milestones` | SCH-008, SCH-012–013 | PHP ops P6 + `FinalizeUtcDay` | `archive/.../player_milestones_rebuild.sql` (+ splices) | § `player_milestones` — game / league / lobby |
-| `player_matchup_summary` | SCH-008 | PHP ops P5 | `archive/.../player_matchup_summary_rebuild.sql` | Directed pair upsert ×2 |
+| `player_matchup_summary` | SCH-008, **SCH-019** (Jun 2026 ext) | PHP ops P5 | `archive/.../player_matchup_summary_rebuild.sql` (repair; ext TBD) | Directed pair upsert ×2 + goal extremes + DD/CS |
 | `server_period_game_totals` | SCH-008 | PHP ops P5 | `archive/.../server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
 | `server_period_matchups` | SCH-008 | PHP ops P5 | `archive/.../server_period_matchups_rebuild.sql` | Canonical pair ×4 period types |
 | `generalstatstable` | SCH-002–003 | Ladder replay | Ladder replay | **Exception doc** — records tie/UTC/ratio |
@@ -726,34 +726,117 @@ Staging/local: **full backfill** via rebuild + ops simul is enough for UI until 
 
 ### `player_matchup_summary`
 
-**Lifecycle:** Active.
+**Lifecycle:** Active. **Jun 2026 extension (SCH-019):** goal extremes + per-pair DD/CS — contract signed; DDL + P5 + UI in [`player-opponents-hub.md`](player-opponents-hub.md) Phase 3 slice B.
 
-**Purpose:** Directed player-vs-opponent aggregate totals for profile opponent pages and APIs.
+**Purpose:** Directed player-vs-opponent aggregate totals for Opponents wing tables (W/D/L, Goals, DDs), profile top-opponents API, and milestone matchup probes (`games` / `wins` only today).
 
-**Source truth:** `ratedresults`.
+**Source truth:** `ratedresults` — `GoalsA`, `GoalsB`, `ActualScore`, and per-game flags `DDPlayerA`, `DDPlayerB`, `CSPlayerA`, `CSPlayerB` (written by post-game before P5 runs).
 
 **Grain:** one directed row per `(player_id, opponent_id)`.
 
 **Primary key:** `(player_id, opponent_id)`.
 
-| Column | Meaning |
-|--------|---------|
-| `player_id` | Subject player |
-| `opponent_id` | Opponent |
-| `games` | Games against this opponent |
-| `wins` | Wins by subject player |
-| `draws` | Draws |
-| `losses` | Losses by subject player |
-| `goals_for` | Subject goals |
-| `goals_against` | Opponent goals |
+**Schema:** base table in migration **007** (`SCH-008`); extension columns in migration **019** (`SCH-019`, planned filename `019_player_matchup_summary_opponents_ext.sql`).
 
-**Full rebuild:** Union both player perspectives from `ratedresults`, then group by directed `(player_id, opponent_id)`.
+#### Core columns (shipped SCH-008)
 
-**Post-game rule:** Upsert two directed rows: A against B and B against A.
+| Column | Type | Meaning |
+|--------|------|---------|
+| `player_id` | `int` | Subject player |
+| `opponent_id` | `int` | Opponent |
+| `games` | `smallint unsigned` | Games against this opponent |
+| `wins` | `smallint unsigned` | Wins by subject player |
+| `draws` | `smallint unsigned` | Draws |
+| `losses` | `smallint unsigned` | Losses by subject player |
+| `goals_for` | `smallint unsigned` | Subject goals (sum) |
+| `goals_against` | `smallint unsigned` | Opponent goals (sum) |
 
-**Parity check:** `SUM(games)` must equal `COUNT(*) FROM ratedresults * 2`.
+#### Extension columns (SCH-019 — Opponents Goals tail + DDs tab)
 
-**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql`.
+| Column | Type | Meaning |
+|--------|------|---------|
+| `max_goals_for` | `smallint unsigned` | Highest goals scored by subject in one game vs this opponent |
+| `max_goals_against` | `smallint unsigned` | Highest goals conceded by subject in one game |
+| `min_goals_for` | `smallint unsigned` | Lowest goals scored by subject in one game |
+| `min_goals_against` | `smallint unsigned` | Lowest goals conceded by subject in one game |
+| `max_win_margin` | `smallint unsigned NULL` | Largest winning margin (`goals_for − goals_against`) in a win; **NULL** until the subject has at least one win vs this opponent |
+| `max_loss_margin` | `smallint unsigned NULL` | Largest losing margin (`goals_against − goals_for`) in a loss; **NULL** until at least one loss |
+| `max_draw_goals` | `smallint unsigned NULL` | Goals per side in the highest-scoring draw vs this opponent; **NULL** until at least one draw (a stored `0` after draws exist means a 0-0 draw was the highest-scoring draw) |
+| `max_goal_sum` | `smallint unsigned` | Highest `goals_for + goals_against` in one game |
+| `min_goal_sum` | `smallint unsigned` | Lowest `goals_for + goals_against` in one game |
+| `double_digits` | `smallint unsigned` | Games where **subject** scored ≥10 goals (`DDPlayer` for subject — per-player threshold, not combined score) |
+| `double_digits_conceded` | `smallint unsigned` | Games where **opponent** scored ≥10 goals against subject |
+| `clean_sheets` | `smallint unsigned` | Games where subject conceded 0 (`CSPlayer` for subject) |
+| `clean_sheets_conceded` | `smallint unsigned` | Games where subject scored 0 (opponent clean sheet against subject) |
+
+**Nullable subset maxima (`max_win_margin`, `max_loss_margin`, `max_draw_goals`):** one rule — **NULL** means no qualifying game yet for that statistic (same as live `MAX(CASE … ELSE NULL END)`). Do **not** use `0` as a sentinel for “never happened”; `0` is only valid once the subset exists (e.g. 0-0 draw). Additive counters (`double_digits`, …) stay NOT NULL default `0`.
+
+**UI mapping:** Opponents → Goals tail (Max GF/GA, Max win/loss, Max/Min sum, Draw) and Opponents → DDs (DD, CS, conceded variants; ratios computed at read time as `count / games`). Max win / max loss / Draw cells show **—** when the corresponding column is **NULL** (or when `wins` / `losses` / `draws` is 0). Reference live SQL: `site/public_html/includes/player_opponents_tables.php` (`player_opponents_render_goals_table_live`, `player_opponents_render_dds_table`).
+
+**Consumers unchanged by extension:** `api/player_top_opponents.php` (core W/D/L + goals only); `k2_post_game_milestone_matchup_counts()` (`games`, `wins` only).
+
+#### Per-game inputs (directed row: subject P vs opponent O)
+
+From one processed `ratedresults` row, derive **subject** goals and flags:
+
+| Subject is | `goals_for` | `goals_against` | `double_digits` | `double_digits_conceded` | `clean_sheets` | `clean_sheets_conceded` |
+|------------|-------------|-----------------|-----------------|--------------------------|----------------|-------------------------|
+| Player A | `GoalsA` | `GoalsB` | `DDPlayerA` | `DDPlayerB` | `CSPlayerA` | `CSPlayerB` |
+| Player B | `GoalsB` | `GoalsA` | `DDPlayerB` | `DDPlayerA` | `CSPlayerB` | `CSPlayerA` |
+
+Outcome for subject: `w` / `d` / `l` from `ActualScore` (same rules as existing P5 matchup upsert). Flag semantics match `k2_post_game_outcome_from_goals()` (`ops/includes/post_game_outcome.php`): DD = that player's goals ≥10; CS = opponent goals = 0.
+
+Let `gf`, `ga` = subject goals for/against; `gs = gf + ga`; `win_margin = gf − ga` when `w > 0`; `loss_margin = ga − gf` when `l > 0`.
+
+#### Full rebuild
+
+Union both player perspectives from **processed** `ratedresults` (derived flags present), then `GROUP BY` directed `(player_id, opponent_id)`:
+
+- **Sums:** `games`, `wins`, `draws`, `losses`, `goals_for`, `goals_against`, `double_digits`, `double_digits_conceded`, `clean_sheets`, `clean_sheets_conceded` — same as core rebuild plus `SUM` of directed DD/CS flags.
+- **Extremes:** `MAX`/`MIN` on directed `gf`/`ga`; `MAX(CASE WHEN win THEN win_margin END)` / `MAX(CASE WHEN loss THEN loss_margin END)`; `MAX(CASE WHEN draw THEN gf END)`; `MAX(gs)` / `MIN(gs)`.
+
+**Repair SQL (legacy, not cutover authority):** extend `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql` when batch parity is needed — after SCH-019 lands.
+
+#### Post-game rule (P5 — `k2_post_game_upsert_matchup_summary`)
+
+After each rated game, upsert **two** directed rows (A→B and B→A). Existing additive counters unchanged:
+
+`games += 1`, `wins`/`draws`/`losses +=`, `goals_for`/`goals_against +=`.
+
+**Extension on INSERT** (first game in pair): set mins and maxes to this game's `gf`/`ga`/`gs`; set `max_win_margin` / `max_loss_margin` / `max_draw_goals` only when that outcome applies (else leave **NULL**); DD/CS columns = this game's 0/1 flags.
+
+**Extension on DUPLICATE KEY UPDATE:**
+
+| Column | Update |
+|--------|--------|
+| `max_goals_for` | `GREATEST(max_goals_for, gf)` |
+| `max_goals_against` | `GREATEST(max_goals_against, ga)` |
+| `min_goals_for` | `LEAST(min_goals_for, gf)` |
+| `min_goals_against` | `LEAST(min_goals_against, ga)` |
+| `max_win_margin` | If win: `GREATEST(COALESCE(max_win_margin, 0), win_margin)`; else unchanged |
+| `max_loss_margin` | If loss: `GREATEST(COALESCE(max_loss_margin, 0), loss_margin)`; else unchanged |
+| `max_draw_goals` | If draw: `GREATEST(COALESCE(max_draw_goals, gf), gf)`; else unchanged |
+| `max_goal_sum` | `GREATEST(max_goal_sum, gs)` |
+| `min_goal_sum` | `LEAST(min_goal_sum, gs)` |
+| `double_digits` | `+=` subject DD flag (0 or 1) |
+| `double_digits_conceded` | `+=` opponent DD flag |
+| `clean_sheets` | `+=` subject CS flag |
+| `clean_sheets_conceded` | `+=` subject scored-zero flag |
+
+**History fill:** `ops/run_ops_sim.php` after `zero-derived` — not live-only incremental writers for past games.
+
+#### Parity checks
+
+| Check | Expected |
+|-------|----------|
+| Game count | `SUM(games)` = `COUNT(*) FROM ratedresults` × 2 (unchanged) |
+| Directed DD sum | For each `player_id`, `SUM(double_digits)` = count of processed games where that player had `DDPlayer* = 1` |
+| Directed CS sum | For each `player_id`, `SUM(clean_sheets)` = count of processed games where that player had `CSPlayer* = 1` |
+| Pair extremes (spot) | For sample `(player_id, opponent_id)`, `max_goals_for` / DD columns match live aggregation in `player_opponents_tables.php` over games in simul window |
+
+Extend `scripts/work_prepare/ab_period_aggregates.py` P5 parity keys to include extension columns when SCH-019 ships.
+
+**Implementation:** P5 — `ops/includes/post_game_period_aggregates.php`; DDL — `ops/sql/migrations/019_player_matchup_summary_opponents_ext.sql`; proof — [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md) on `ko2unity_work`, then Steve on `staging-work` / `kooldb1`.
 
 ---
 
@@ -942,7 +1025,7 @@ Required updates:
 | `server_daily_activity` | Increment `rated_games`; increment `active_players` only for players newly active that day |
 | `player_period_league` | Upsert A and B W/D/L/GF/GA/GD/points for day/week/month/year |
 | `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — **rated game** (both players) from `ProcessCompletedGame` only; **not** `perfect_day` / `nightmare_day` (`FinalizeUtcDay`); **`entered_arena`** = prepare lobby seed + live register, not replay. League keys: `FinalizeUtcDay` / PER-003. Simul runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). |
-| `player_matchup_summary` | Upsert directed A-to-B and B-to-A rows |
+| `player_matchup_summary` | Upsert directed A-to-B and B-to-A rows (core + SCH-019 extremes / DD / CS) |
 | `server_period_game_totals` | Increment day/week/month/year server totals |
 | `server_period_matchups` | Increment canonical pair for day/week/month/year |
 | `generalstatstable` | Update server totals; check non-ratio records with strict `>` tie policy; do NOT write ratio leader columns — see [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |

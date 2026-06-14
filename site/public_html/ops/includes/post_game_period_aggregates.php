@@ -122,7 +122,19 @@ function k2_post_game_upsert_period_league(
     $stmt->close();
 }
 
-function k2_post_game_upsert_matchup_summary(
+function k2_post_game_matchup_summary_has_extension(mysqli $con): bool
+{
+    static $cache = [];
+
+    $key = spl_object_id($con);
+    if (!array_key_exists($key, $cache)) {
+        $cache[$key] = k2_ops_column_exists($con, 'player_matchup_summary', 'max_goals_for');
+    }
+
+    return $cache[$key];
+}
+
+function k2_post_game_upsert_matchup_summary_core(
     mysqli $con,
     int $playerId,
     int $opponentId,
@@ -162,6 +174,118 @@ function k2_post_game_upsert_matchup_summary(
         throw new RuntimeException('execute player_matchup_summary: ' . $stmt->error);
     }
     $stmt->close();
+}
+
+function k2_post_game_upsert_matchup_summary_extended(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    int $w,
+    int $d,
+    int $l,
+    int $gf,
+    int $ga,
+    int $ddSubject,
+    int $ddConceded,
+    int $csSubject,
+    int $csConceded
+): void {
+    $goalSum = $gf + $ga;
+    $winMargin = $w > 0 ? $gf - $ga : null;
+    $lossMargin = $l > 0 ? $ga - $gf : null;
+    $drawGoals = $d > 0 ? $gf : null;
+
+    $stmt = $con->prepare(
+        'INSERT INTO player_matchup_summary ('
+        . 'player_id, opponent_id, games, wins, draws, losses, goals_for, goals_against, '
+        . 'max_goals_for, max_goals_against, min_goals_for, min_goals_against, '
+        . 'max_win_margin, max_loss_margin, max_draw_goals, max_goal_sum, min_goal_sum, '
+        . 'double_digits, double_digits_conceded, clean_sheets, clean_sheets_conceded'
+        . ') VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '
+        . 'ON DUPLICATE KEY UPDATE '
+        . 'games = games + 1, '
+        . 'wins = wins + VALUES(wins), draws = draws + VALUES(draws), losses = losses + VALUES(losses), '
+        . 'goals_for = goals_for + VALUES(goals_for), goals_against = goals_against + VALUES(goals_against), '
+        . 'max_goals_for = GREATEST(max_goals_for, VALUES(max_goals_for)), '
+        . 'max_goals_against = GREATEST(max_goals_against, VALUES(max_goals_against)), '
+        . 'min_goals_for = LEAST(min_goals_for, VALUES(min_goals_for)), '
+        . 'min_goals_against = LEAST(min_goals_against, VALUES(min_goals_against)), '
+        . 'max_win_margin = IF(VALUES(wins) > 0, GREATEST(COALESCE(max_win_margin, 0), COALESCE(VALUES(max_win_margin), 0)), max_win_margin), '
+        . 'max_loss_margin = IF(VALUES(losses) > 0, GREATEST(COALESCE(max_loss_margin, 0), COALESCE(VALUES(max_loss_margin), 0)), max_loss_margin), '
+        . 'max_draw_goals = IF(VALUES(draws) > 0, GREATEST(COALESCE(max_draw_goals, VALUES(max_draw_goals)), VALUES(max_draw_goals)), max_draw_goals), '
+        . 'max_goal_sum = GREATEST(max_goal_sum, VALUES(max_goal_sum)), '
+        . 'min_goal_sum = LEAST(min_goal_sum, VALUES(min_goal_sum)), '
+        . 'double_digits = double_digits + VALUES(double_digits), '
+        . 'double_digits_conceded = double_digits_conceded + VALUES(double_digits_conceded), '
+        . 'clean_sheets = clean_sheets + VALUES(clean_sheets), '
+        . 'clean_sheets_conceded = clean_sheets_conceded + VALUES(clean_sheets_conceded)'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare player_matchup_summary: ' . $con->error);
+    }
+    $stmt->bind_param(
+        'iiiiiiiiiiiiiiiiiiii',
+        $playerId,
+        $opponentId,
+        $w,
+        $d,
+        $l,
+        $gf,
+        $ga,
+        $gf,
+        $ga,
+        $gf,
+        $ga,
+        $winMargin,
+        $lossMargin,
+        $drawGoals,
+        $goalSum,
+        $goalSum,
+        $ddSubject,
+        $ddConceded,
+        $csSubject,
+        $csConceded
+    );
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute player_matchup_summary: ' . $stmt->error);
+    }
+    $stmt->close();
+}
+
+function k2_post_game_upsert_matchup_summary(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    int $w,
+    int $d,
+    int $l,
+    int $gf,
+    int $ga,
+    int $ddSubject = 0,
+    int $ddConceded = 0,
+    int $csSubject = 0,
+    int $csConceded = 0
+): void {
+    if (!k2_post_game_matchup_summary_has_extension($con)) {
+        k2_post_game_upsert_matchup_summary_core($con, $playerId, $opponentId, $w, $d, $l, $gf, $ga);
+
+        return;
+    }
+
+    k2_post_game_upsert_matchup_summary_extended(
+        $con,
+        $playerId,
+        $opponentId,
+        $w,
+        $d,
+        $l,
+        $gf,
+        $ga,
+        $ddSubject,
+        $ddConceded,
+        $csSubject,
+        $csConceded
+    );
 }
 
 function k2_post_game_upsert_server_period_totals(
@@ -293,6 +417,11 @@ function k2_post_game_update_period_aggregates_after_game(
         k2_post_game_upsert_server_period_matchup($con, $periodType, $periodStart, $pairA, $pairB);
     }
 
+    $ddA = (int) $derived['DDPlayerA'];
+    $ddB = (int) $derived['DDPlayerB'];
+    $csA = (int) $derived['CSPlayerA'];
+    $csB = (int) $derived['CSPlayerB'];
+
     k2_post_game_upsert_matchup_summary(
         $con,
         $idA,
@@ -301,7 +430,11 @@ function k2_post_game_update_period_aggregates_after_game(
         $outA['d'],
         $outA['l'],
         $goalsA,
-        $goalsB
+        $goalsB,
+        $ddA,
+        $ddB,
+        $csA,
+        $csB
     );
     k2_post_game_upsert_matchup_summary(
         $con,
@@ -311,6 +444,10 @@ function k2_post_game_update_period_aggregates_after_game(
         $outB['d'],
         $outB['l'],
         $goalsB,
-        $goalsA
+        $goalsA,
+        $ddB,
+        $ddA,
+        $csB,
+        $csA
     );
 }

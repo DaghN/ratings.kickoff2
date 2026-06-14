@@ -25,7 +25,7 @@
 <script src="/js/player-feast/player-calendar-weeks.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-feast/player-calendar-weeks.js'); ?>" defer></script>
 </head>
 
-<body class="k2-site player-feast-body">
+<body class="k2-site k2-player-wing player-feast-body">
 
 <?php
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -64,8 +64,6 @@ if ((int) $pm['games'] >= 1) {
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
-<div class="k2-page-nav">
-
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero.php'; ?>
 
 <?php
@@ -81,7 +79,7 @@ player_feast_render_moments($pm);
 player_feast_render_charts($playerId);
 ?>
 
-</div>
+</div><!-- .k2-page-nav -->
 
 <?php mysqli_close($con); ?>
 </body>

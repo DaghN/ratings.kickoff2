@@ -8,18 +8,7 @@
 	--pm3-ember-glow: rgba(255, 183, 77, 0.42);
 }
 
-/* Content column matches production (theme.css .k2-page-nav) */
-.player-feast-body .k2-page-nav {
-	max-width: var(--k2-max-width, 1200px);
-	margin-left: auto;
-	margin-right: auto;
-	padding-bottom: 48px;
-}
-
-.player-feast-body .k2-page-nav__up {
-	margin: 0 0 6px;
-	padding: 2px 1.25rem 0;
-}
+/* Content column — max-width/padding on .k2-player-wing in theme.css */
 
 /* ── Section: title/hint at column edge, content below ── */
 

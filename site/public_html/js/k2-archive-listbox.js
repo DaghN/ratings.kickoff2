@@ -147,6 +147,9 @@
         if (!box) {
             return;
         }
+        if (box.classList.contains('k2-player-opponents-h2h__listbox')) {
+            return;
+        }
         var btn = trigger(box);
         if (!btn) {
             return;
@@ -154,7 +157,7 @@
         var texts = [];
         var opts = options(box);
         for (var i = 0; i < opts.length; i++) {
-            texts.push(opts[i].textContent || '');
+            texts.push(optionTriggerLabel(opts[i]) || opts[i].textContent || '');
         }
         var lbl = labelEl(box);
         if (lbl && lbl.textContent) {
@@ -181,6 +184,22 @@
         return opt && (opt.classList.contains('is-disabled') || opt.getAttribute('aria-disabled') === 'true');
     }
 
+    /** Trigger text for rich options (name + meta in panel, short label on button). */
+    function optionTriggerLabel(opt) {
+        if (!opt) {
+            return '';
+        }
+        var trigger = opt.getAttribute('data-trigger-label');
+        if (trigger) {
+            return trigger;
+        }
+        var nameEl = opt.querySelector('.k2-h2h-listbox__name, .player-search-name');
+        if (nameEl && nameEl.textContent) {
+            return nameEl.textContent;
+        }
+        return opt.textContent || '';
+    }
+
     function markSelected(box, value) {
         var opts = options(box);
         for (var i = 0; i < opts.length; i++) {
@@ -203,7 +222,7 @@
     function labelForValue(box, value) {
         var opt = findOption(box, value);
         if (opt) {
-            return opt.textContent || value;
+            return optionTriggerLabel(opt) || opt.textContent || value;
         }
         return value;
     }
@@ -524,7 +543,7 @@
             return;
         }
         var value = opts[idx].getAttribute('data-value');
-        var label = opts[idx].textContent || value;
+        var label = optionTriggerLabel(opts[idx]) || opts[idx].textContent || value;
         commit(box, value, label, false);
         close(box, { keepTriggerFocus: true });
         restoreTriggerFocus(box, true);
@@ -540,7 +559,7 @@
         if (!value) {
             return;
         }
-        commit(box, value, li.textContent || value, false);
+        commit(box, value, optionTriggerLabel(li) || li.textContent || value, false);
         close(box);
         restoreTriggerFocus(box, false);
     }
