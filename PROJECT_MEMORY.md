@@ -83,6 +83,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Player hero back link** — compact `&larr; Leaderboards` above hero (status `k2-status-panel__more` sizing) on online + Amiga player pages. |
+| 2026-06 | **Player games Result column** — draws show **Draw** (not `-`) on online + Amiga games tabs; `k2_player_game_result_html()`. |
 | 2026-06 | **Amiga profile rating chart polish** — shorter chart hint; `player-feast-sections.css` toggle styling; calendar tooltip “at day end”. |
 | 2026-06 | **Amiga player hero country flags** — fourth hero stat column (Country label + flag) after Rank/Rating/Games; `k2_amiga_country_flag.php` + `img/flags/amiga/` SVGs. |
 | 2026-06 | **Amiga import split queue closed** — Milan X not split (documented alias); Groningen **604** + Gloucester **605** splits shipped; gate open for disposition review. |

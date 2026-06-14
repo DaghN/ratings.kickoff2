@@ -85,7 +85,7 @@ function k2_player_game_result_html(bool $isWin, bool $isDraw): string
         return '<span class="blue">Win</span>';
     }
     if ($isDraw) {
-        return '-';
+        return 'Draw';
     }
 
     return '<span class="red">Loss</span>';

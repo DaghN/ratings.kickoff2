@@ -23,7 +23,7 @@
 
 ## What v0 shows
 
-- **Hero** — same feast shell as online (`amiga_player_hero.php`): rank, rating, games, **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text
+- **Hero** — same feast shell as online (`amiga_player_hero.php`): **← Leaderboards** context link above panel; rank, rating, games, **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text
 - **Player nav** — Profile · Tournaments · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
 - **Honours strip** — `amiga_player_tournament_totals` (already loaded): career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums

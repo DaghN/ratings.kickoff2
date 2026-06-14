@@ -16,6 +16,11 @@
 	padding-bottom: 48px;
 }
 
+.player-feast-body .k2-page-nav__up {
+	margin: 0 0 6px;
+	padding: 2px 1.25rem 0;
+}
+
 /* ── Section: title/hint at column edge, content below ── */
 
 .pm3d-section {

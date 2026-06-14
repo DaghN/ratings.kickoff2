@@ -26,7 +26,7 @@
 
 ## Scroll order (as shipped)
 
-1. Site header + **hero** (name → Profile tab; rank + rating → `leaderboards/rating.php` Rating LB; games → `leaderboards/activity-peaks.php#k2-peak-period-all-time`; **milestones** `{n}/{catalog}` when `NumberGames >= 1` → garden tab; stat links = pointer only, no hover ink)
+1. Site header + **← Leaderboards** context link + **hero** (name → Profile tab; rank + rating → `leaderboards/rating.php` Rating LB; games → `leaderboards/activity-peaks.php#k2-peak-period-all-time`; **milestones** `{n}/{catalog}` when `NumberGames >= 1` → garden tab; stat links = pointer only, no hover ink)
 2. Feast **pills**
 4. **Presence** + **Career** (at-a-glance; career ranks when `Display = 1`)
 5. **Played days** (UTC calendar; year segment picker; 12 months in one row for the selected year)
