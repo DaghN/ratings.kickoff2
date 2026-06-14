@@ -292,27 +292,29 @@ function player_opponents_render_h2h_moments_grid(array $slots): void
 		        } else {
 		            $class .= ' is-won-opponent';
 		        }
-		        $class .= ' is-active';
+		        $class .= ' is-active k2-h2h2-mcard--link';
 		    } else {
 		        $class .= ' is-dim';
 		    }
-		    ?>
-		<article class="<?php echo k2_h($class); ?>">
+		    if ($active && $game !== null) { ?>
+		<a class="<?php echo k2_h($class); ?>" href="<?php echo k2_h((string) $game['href']); ?>">
 			<span class="k2-h2h2-mcard__kicker"><?php echo k2_h((string) ($slot['kicker'] ?? '')); ?></span>
-			<?php if ($active && $game !== null) { ?>
-			<a class="k2-h2h2-mcard__board" href="<?php echo k2_h((string) $game['href']); ?>">
+			<span class="k2-h2h2-mcard__board">
 				<?php echo k2_h2h_moment_side_html($game, 'a'); ?>
 				<span class="k2-h2h2-mcard__dash" aria-hidden="true">–</span>
 				<?php echo k2_h2h_moment_side_html($game, 'b'); ?>
-			</a>
+			</span>
 			<span class="k2-h2h2-mcard__date"><?php echo k2_h((string) $game['date_label']); ?></span>
-			<?php } else { ?>
+		</a>
+		    <?php } else { ?>
+		<article class="<?php echo k2_h($class); ?>">
+			<span class="k2-h2h2-mcard__kicker"><?php echo k2_h((string) ($slot['kicker'] ?? '')); ?></span>
 			<span class="k2-h2h2-mcard__board k2-h2h2-mcard__board--empty" aria-hidden="true">
 				<span class="k2-h2h2-mcard__pending">—</span>
 			</span>
 			<span class="k2-h2h2-mcard__date k2-h2h2-mcard__date--empty">Not played yet</span>
-			<?php } ?>
 		</article>
+		    <?php } ?>
 		<?php } ?>
 	</div>
 </section>

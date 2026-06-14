@@ -83,6 +83,17 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents H2H moments card chrome** — active cards use milestone detail spotlight border + glow stack by default. |
+| 2026-06 | **Milestone detail spotlight** — default card uses full lit border + glow (was hover-only). |
+| 2026-06 | **Lit-card hover fix** — dropped broken html shadow tokens; 2px borders + explicit garden glow (rest + hover); matches profile `pm3-moment` thick border. |
+| 2026-06 | **Lit-card hover pattern** — shared `--k2-card-lit-hover-shadow` in `theme.css`; applied to H2H fighter cards, milestone garden (unlocked), catalog, detail spotlight; H2H moments already had it. |
+| 2026-06 | **Opponents H2H moments hover** — active cards: profile-style lit border + glow on hover (box-shadow ring, no layout shift). |
+| 2026-06 | **Opponents H2H race table ties** — equal rows: both values in own colour (chrome + red), not holo. |
+| 2026-06 | **Opponents H2H moments kicker** — sentence-case display title (dropped all-caps tag styling). |
+| 2026-06 | **Opponents H2H moments score ink v2** — winner name in own colour; beaten side much dimmer; dash = winner colour. |
+| 2026-06 | **Opponents H2H moments score ink** — smaller goals; winner number + date = winner colour; beaten name/goals = dim grey; draw = holo throughout. |
+| 2026-06 | **Opponents H2H moments layout** — shorter cards (drop min-height + scoreline push-down); wider grid gap both axes. |
+| 2026-06 | **Opponents H2H moments card glow** — card border glow matches milestone garden `.k2-ms-card.is-unlocked`; removed radial fill + top hairline + hover shadow ramp; inner text glow unchanged. |
 | 2026-06 | **Opponents H2H rivalry chrome lock** — subject side locked to `--k2-pure-chrome` for pickers (search + listboxes), poster, race table, moments; wing hero keeps picked tint. |
 | 2026-06 | **Opponents H2H moments — scorecard redesign** — 3×3 deck of `k2-h2h2-mcard` cards; true score orientation (`NameA gA–gB NameB`, never flipped, full names both sides); subject blue / opponent red identity; winner-glow not hero Win/Loss; no emoji; **card accent = game outcome** (subject win blue / rival win red / draw holo); self-contained CSS. |
 | 2026-06 | **Player hero accent tweak** (cosmetic, all hero pages) — name now `--k2-link-star` (matches rank/rating ink); base `.k2-player-hero__stat-value` + `.k2-player-hero__milestones-total` muted to `--k2-text-secondary` so **Games + Milestones** read quiet (both brighten to primary on hover) while Rank/Rating stay link-star (via globally-loaded `player-hero-rank.css`). Also `.k2-player-hero__inner` → `align-items:center` so the avatar centres against the text block (was top-lifted via default stretch). `theme.css` only. Avatar stays pure `--k2-accent` (flagged: not link-star). |

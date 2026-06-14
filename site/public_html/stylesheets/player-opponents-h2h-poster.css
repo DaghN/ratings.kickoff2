@@ -46,15 +46,16 @@ body.k2-site .k2-h2h2-card {
 	align-items: center;
 	column-gap: clamp(12px, 2vw, 18px);
 	padding: clamp(14px, 2.2vw, 20px) clamp(16px, 2.6vw, 22px);
-	border: 1px solid color-mix(in srgb, var(--k2-h2h2-side) 46%, var(--k2-border-subtle));
+	border: 2px solid var(--k2-h2h2-side);
 	border-radius: var(--k2-radius-lg);
 	background: var(--k2-bg-surface);
 	min-width: 0;
-	transition: transform 0.08s ease-out;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 	box-shadow:
-		0 0 14px color-mix(in srgb, var(--k2-h2h2-side) 22%, transparent),
-		0 0 32px color-mix(in srgb, var(--k2-h2h2-side) 13%, transparent),
-		0 0 60px color-mix(in srgb, var(--k2-h2h2-side) 6%, transparent),
+		0 0 12px color-mix(in srgb, var(--k2-h2h2-side) 28%, transparent),
+		0 0 28px color-mix(in srgb, var(--k2-h2h2-side) 18%, transparent),
+		0 0 52px color-mix(in srgb, var(--k2-h2h2-side) 8%, transparent),
+		0 0 20px color-mix(in srgb, var(--k2-h2h2-side) 38%, transparent),
 		inset 0 1px 0 color-mix(in srgb, var(--k2-h2h2-side) 12%, transparent);
 }
 
@@ -68,7 +69,13 @@ body.k2-site a.k2-h2h2-card--link:visited {
 body.k2-site a.k2-h2h2-card--link:hover,
 body.k2-site a.k2-h2h2-card--link:focus-visible {
 	text-decoration: none;
-	transform: translateY(-2px);
+	box-shadow:
+		0 0 0 1px color-mix(in srgb, var(--k2-h2h2-side) 72%, transparent),
+		0 0 14px color-mix(in srgb, var(--k2-h2h2-side) 34%, transparent),
+		0 0 32px color-mix(in srgb, var(--k2-h2h2-side) 24%, transparent),
+		0 0 60px color-mix(in srgb, var(--k2-h2h2-side) 12%, transparent),
+		0 0 28px color-mix(in srgb, var(--k2-h2h2-side) 48%, transparent),
+		inset 0 1px 0 color-mix(in srgb, var(--k2-h2h2-side) 16%, transparent);
 }
 
 body.k2-site a.k2-h2h2-card--link:hover .k2-h2h2-card__name,

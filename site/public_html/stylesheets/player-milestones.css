@@ -20,14 +20,20 @@
 	gap: 12px;
 }
 
-/* Catalog-style lift on hover (whole card; title link focus counts) */
+/* Garden cards — same border + glow stack as H2H moment cards */
 .k2-ms-garden__grid .k2-ms-card {
-	transition: transform 0.08s ease-out;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.k2-ms-garden__grid .k2-ms-card:hover,
-.k2-ms-garden__grid .k2-ms-card:focus-within {
-	transform: translateY(-2px);
+.k2-ms-garden__grid .k2-ms-card.is-unlocked:hover,
+.k2-ms-garden__grid .k2-ms-card.is-unlocked:focus-within {
+	box-shadow:
+		0 0 0 1px color-mix(in srgb, var(--k2-ms-accent) 72%, transparent),
+		0 0 14px color-mix(in srgb, var(--k2-ms-accent) 34%, transparent),
+		0 0 32px color-mix(in srgb, var(--k2-ms-accent) 24%, transparent),
+		0 0 60px color-mix(in srgb, var(--k2-ms-accent) 12%, transparent),
+		0 0 28px color-mix(in srgb, var(--k2-ms-accent) 48%, transparent),
+		inset 0 1px 0 color-mix(in srgb, var(--k2-ms-accent) 16%, transparent);
 }
 
 .k2-ms-card {
@@ -66,11 +72,12 @@
 
 .k2-ms-card.is-unlocked {
 	opacity: 1;
-	border-color: color-mix(in srgb, var(--k2-ms-accent, var(--k2-pure-pitch)) 55%, var(--k2-border-subtle));
+	border: 2px solid var(--k2-ms-accent, var(--k2-pure-pitch));
 	box-shadow:
 		0 0 12px color-mix(in srgb, var(--k2-ms-accent) 28%, transparent),
 		0 0 28px color-mix(in srgb, var(--k2-ms-accent) 18%, transparent),
 		0 0 52px color-mix(in srgb, var(--k2-ms-accent) 8%, transparent),
+		0 0 20px color-mix(in srgb, var(--k2-ms-accent) 38%, transparent),
 		inset 0 1px 0 color-mix(in srgb, var(--k2-ms-accent) 12%, transparent);
 }
 
@@ -495,17 +502,17 @@ body.k2-site a.k2-ms-catalog-card {
 	font-weight: inherit;
 	padding: 9px 11px;
 	position: relative;
-	transition: transform 0.08s ease-out;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 body.k2-site a.k2-ms-catalog-card.k2-ms-card {
 	min-height: 0;
 }
 
-/* Catalog: flat cards — tier ink only; glow reserved for profile garden unlocks */
+/* Catalog: flat cards at rest; lit border + glow on hover (profile-moment pattern) */
 body.k2-site a.k2-ms-catalog-card.k2-ms-card.is-unlocked {
+	border: 2px solid color-mix(in srgb, var(--k2-ms-accent) 38%, var(--k2-border-subtle));
 	box-shadow: none;
-	border-color: color-mix(in srgb, var(--k2-ms-accent) 38%, var(--k2-border-subtle));
 }
 
 /* Title: natural height (one line typical); clamp only if very long */
@@ -548,11 +555,17 @@ body.k2-site a.k2-ms-catalog-card .k2-ms-catalog-card__holders-num {
 	color: var(--k2-ms-accent, var(--k2-pure-pitch));
 }
 
-body.k2-site a.k2-ms-catalog-card:hover,
-body.k2-site a.k2-ms-catalog-card:focus-visible {
+body.k2-site a.k2-ms-catalog-card.k2-ms-card.is-unlocked:hover,
+body.k2-site a.k2-ms-catalog-card.k2-ms-card.is-unlocked:focus-visible {
 	color: var(--k2-text-primary);
 	text-decoration: none;
-	transform: translateY(-2px);
+	border-color: var(--k2-ms-accent);
+	box-shadow:
+		0 0 12px color-mix(in srgb, var(--k2-ms-accent) 28%, transparent),
+		0 0 28px color-mix(in srgb, var(--k2-ms-accent) 18%, transparent),
+		0 0 52px color-mix(in srgb, var(--k2-ms-accent) 8%, transparent),
+		0 0 20px color-mix(in srgb, var(--k2-ms-accent) 38%, transparent),
+		inset 0 1px 0 color-mix(in srgb, var(--k2-ms-accent) 12%, transparent);
 }
 
 body.k2-site a.k2-ms-catalog-card:hover .k2-ms-card__title,
@@ -684,14 +697,16 @@ body.k2-site .k2-ms-detail-page .k2-ms-detail-panel-tabs a.k2-chrome-tabs__tab.i
 	margin: 0;
 	padding: 22px 26px 24px;
 	border-radius: var(--k2-radius-lg);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .k2-ms-detail-spotlight-card.is-unlocked {
-	border-color: color-mix(in srgb, var(--k2-ms-accent) 58%, var(--k2-border-subtle));
+	border: 2px solid var(--k2-ms-accent);
 	box-shadow:
 		0 0 16px color-mix(in srgb, var(--k2-ms-accent) 34%, transparent),
 		0 0 40px color-mix(in srgb, var(--k2-ms-accent) 22%, transparent),
 		0 0 72px color-mix(in srgb, var(--k2-ms-accent) 10%, transparent),
+		0 0 20px color-mix(in srgb, var(--k2-ms-accent) 38%, transparent),
 		inset 0 1px 0 color-mix(in srgb, var(--k2-ms-accent) 16%, transparent);
 }
 

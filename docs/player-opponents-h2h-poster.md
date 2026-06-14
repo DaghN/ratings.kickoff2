@@ -103,7 +103,7 @@ Fixed **3×3 deck** of **scorecard cards** below the race table. All nine slots 
 ### Score identity (locked)
 
 - **Never flip a score.** The scoreline is the stored `NameA GoalsA – GoalsB NameB`; a 0–17 stays 0–17 with the correct names. Names shown in **full**, both sides.
-- **Rivalry colours, not hero angle.** The page subject is always **chrome blue** (`--k2-pure-chrome`, locked in the rivalry band regardless of page tint), the opponent always **red**, on whichever side (A or B) they sat that game. No "Win/Loss" label — the **winner's goals glow**, the beaten side is dimmed; draws read level.
+- **Rivalry colours, not hero angle.** Winner **name** (own chrome/red) + **goals**, **dash**, and **date** use the winner's colour. Beaten **name + goals** are heavily dimmed grey. **Draw:** names, goals, dash, and date all holo (`--k2-pure-holo`). Card border glow follows outcome accent.
 
 ### Activation
 
@@ -123,7 +123,7 @@ Read-time: one indexed `ratedresults` pair scan — `player_opponents_h2h_pair_g
 ### Implementation
 
 - Load + render: `player_opponents_h2h_moments.php`; CSS `player-opponents-h2h-moments.css` (self-contained `k2-h2h2-mcard` scorecards — no `player-feast.css` / emoji).
-- **Outcome accent** per card (`--k2-mc-accent`): the game's **winner owns the card** — subject win = blue, rival win = red, **draw = holo** (`--k2-pure-holo`). Drives top hairline, kicker tint, and glow. (Not category-based.)
+- **Outcome accent** per card (`--k2-mc-accent`): the game's **winner owns the card** — subject win = blue, rival win = red, **draw = holo** (`--k2-pure-holo`). Drives border glow (milestone garden `.k2-ms-card.is-unlocked` pattern) and kicker tint. **Hover** — profile-moment style: border lights to full accent + outer glow; extra `box-shadow` ring simulates thicker border without layout jump. Inner scoreline text glow unchanged.
 
 ---
 
@@ -140,7 +140,7 @@ Goals scored · Goals per game · Most scored · Biggest winning margin · Least
 ### Framing
 
 - **Symmetric positives** — e.g. your goals scored vs their goals scored (`goals_for` vs `goals_against` on the directed row). Conceded columns are the opponent’s positive stat.
-- **Leader tint** — winning value wrapped in `.blue` (subject) or `.red` (opponent); ties stay muted.
+- **Leader tint** — winning value wrapped in `.blue` (subject) or `.red` (opponent); **ties** — both values in their own colour (chrome left, red right).
 
 ### Data
 

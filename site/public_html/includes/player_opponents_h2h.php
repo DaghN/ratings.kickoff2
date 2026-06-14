@@ -569,7 +569,7 @@ function k2_h2h_race_val_class(string $side): string
 
 function k2_h2h_race_val_html(string $display, string $side, string $leader): string
 {
-    if ($leader !== $side) {
+    if ($leader !== $side && $leader !== 'tie') {
         return $display;
     }
 
