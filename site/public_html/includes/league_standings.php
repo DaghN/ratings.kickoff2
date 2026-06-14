@@ -686,10 +686,11 @@ function k2_league_sync_win_milestones(mysqli $con): void
         return;
     }
 
+    require_once __DIR__ . '/milestone_unlock.php';
+
     foreach (K2_LEAGUE_WIN_MILESTONE_THRESHOLDS as $milestoneKey => $threshold) {
         $sql = <<<'SQL'
-INSERT INTO player_milestones (player_id, milestone_key, achieved_at, value)
-SELECT w.player_id, ?, w.period_end, ?
+SELECT w.player_id, w.period_end
 FROM (
   SELECT player_id, period_end,
          ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY period_end ASC, period_start ASC, league_kind ASC) AS win_num
@@ -705,8 +706,28 @@ SQL;
         if ($stmt === false) {
             continue;
         }
-        mysqli_stmt_bind_param($stmt, 'sisi', $milestoneKey, $threshold, $milestoneKey, $threshold);
-        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_param($stmt, 'si', $milestoneKey, $threshold);
+        if (!mysqli_stmt_execute($stmt)) {
+            mysqli_stmt_close($stmt);
+            continue;
+        }
+        $res = mysqli_stmt_get_result($stmt);
+        if ($res !== false) {
+            while ($row = mysqli_fetch_assoc($res)) {
+                k2_milestone_unlock_insert($con, [
+                    'player_id' => (int) $row['player_id'],
+                    'milestone_key' => $milestoneKey,
+                    'achieved_at' => (string) $row['period_end'],
+                    'value' => $threshold,
+                    'source_kind' => null,
+                    'source_game_id' => null,
+                    'source_league_kind' => null,
+                    'source_period_type' => null,
+                    'source_period_start' => null,
+                ]);
+            }
+            mysqli_free_result($res);
+        }
         mysqli_stmt_close($stmt);
     }
 }

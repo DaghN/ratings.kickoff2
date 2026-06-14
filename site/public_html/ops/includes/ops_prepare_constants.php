@@ -21,6 +21,7 @@ const K2_OPS_AGGREGATE_TABLES_TRUNCATE = [
     'server_period_game_totals',
     'server_period_matchups',
     'player_milestones',
+    'player_milestone_totals',
     'player_play_streaks',
     'player_league_award',
     'player_league_totals',

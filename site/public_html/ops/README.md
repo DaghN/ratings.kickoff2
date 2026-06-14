@@ -47,7 +47,8 @@
 | `dispatch.php` | Thin `CMD=` router → modules |
 | `includes/ops_dispatch.php` | CMD registry + handlers (extend here) |
 | `includes/ops_bootstrap.php`, `ops_argv.php` | CLI, DB connect, protected DBs, `CMD=` parsing |
-| `includes/day_close_milestones.php`, `league_milestones_sync.php` | UTC day tick writers (`FinalizeUtcDay` only) |
+| `includes/day_close_milestones.php`, `league_milestones_sync.php` | UTC day tick writers (`FinalizeUtcDay` only) — unlock rows via `../includes/milestone_unlock.php` |
+| `../includes/milestone_unlock.php` | Single live `player_milestones` INSERT path (post-game, day-close, league, register) |
 | `modules/<snake_case>.php` | One primary file per `CMD` (e.g. `process_completed_game.php`) |
 | `sql/migrations/` | Canonical SCH DDL — `migrate-work` applies in filename order; **commit every new `NNN_*.sql`** (not dump-gitignored) |
 | `data/milestones_definitions_seed.json` | REP-014 catalog (prepare `seed-catalog`) |

@@ -59,6 +59,8 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestones `diversity_merchant` per-game DD | L4 | — | Yes | **Proven** | **Not executed** | — | **25** holders; **6615** canonical rows |
 | Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Not executed** | — | **31** holders on work DB |
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | Catalog **112**; simul on `kooldb1` |
+| Milestone meta leaderboard totals | L2 | SCH-020 | Yes | **Proven** work | **Not executed** | — | `player_milestone_totals`; meta LB + profile hero; bump via librarian |
+| Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** work | **Not executed** | — | `milestone_definitions.holder_count`; hub catalog + detail; bump via librarian |
 | Stored truth expansion | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | Five tables; **ops simul on `kooldb1`** (not May `kooldb` batch) |
 | Opponents wing stored matchup (SCH-019) | L2 | SCH-019 | Yes | **Done** (work simul 500) | **Not executed** | — | Goals extremes + DDs from summary on work; Steve `kooldb1` next — [`player-opponents-hub.md`](../player-opponents-hub.md) |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | **Done** (migrate) | **Not executed** | — | Migration `001` in ops package; live = migrate-work on cutover |

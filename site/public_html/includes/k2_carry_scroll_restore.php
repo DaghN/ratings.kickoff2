@@ -1,8 +1,8 @@
 <?php
 /**
  * One-shot restore of scrollY after carry-scroll navigation (see js/k2-carry-scroll.js).
- * Inline in <head> so restore runs as early as practical on the next document.
- * Retries only while the target is unreachable; stops on success, user scroll, or timeout.
+ * Pill navigation may store a nav anchor (viewport offset) so table/filter height changes
+ * do not reclamp scroll upward. After first apply, only scrolls further down if the page grows.
  */
 ?>
 <script>
@@ -25,13 +25,29 @@
 			return;
 		}
 		sessionStorage.removeItem(KEY);
-		var targetY = parseInt(raw, 10);
-		if (isNaN(targetY) || targetY < 0) {
+
+		var storedY = 0;
+		var anchor = null;
+		if (raw.charAt(0) === '{') {
+			try {
+				var payload = JSON.parse(raw);
+				storedY = parseInt(payload.y, 10);
+				if (payload.anchor && payload.anchor.label) {
+					anchor = payload.anchor;
+				}
+			} catch (eParse) {
+				storedY = parseInt(raw, 10);
+			}
+		} else {
+			storedY = parseInt(raw, 10);
+		}
+		if (isNaN(storedY) || storedY < 0) {
 			return;
 		}
 
 		var finished = false;
 		var userTookOver = false;
+		var appliedY = null;
 		var resizeObserver = null;
 		var stopTimer = null;
 
@@ -58,13 +74,32 @@
 			el.style.minHeight = needed + 'px';
 		}
 
-		function intendedTop() {
-			ensureMinScrollHeight(targetY);
-			return Math.min(targetY, maxScrollTop());
+		function findAnchorNav() {
+			if (!anchor || !anchor.label) {
+				return null;
+			}
+			var nodes = document.querySelectorAll('nav[data-k2-carry-scroll]');
+			for (var i = 0; i < nodes.length; i++) {
+				if (nodes[i].getAttribute('aria-label') === anchor.label) {
+					return nodes[i];
+				}
+			}
+			return null;
 		}
 
-		function atTarget() {
-			return Math.abs(window.scrollY - intendedTop()) <= APPLY_EPS;
+		function resolveTargetY() {
+			var nav = findAnchorNav();
+			if (nav && typeof anchor.viewportOffset === 'number') {
+				var docTop = nav.getBoundingClientRect().top + window.scrollY;
+				return docTop - anchor.viewportOffset;
+			}
+			return storedY;
+		}
+
+		function clampedTop() {
+			var y = resolveTargetY();
+			ensureMinScrollHeight(y);
+			return Math.min(y, maxScrollTop());
 		}
 
 		function cleanup() {
@@ -107,14 +142,34 @@
 			if (finished || userTookOver) {
 				return;
 			}
-			var top = intendedTop();
-			if (atTarget()) {
-				cleanup();
+
+			var top = clampedTop();
+
+			if (appliedY !== null) {
+				/* Never scroll up after first apply — only down if the page grew. */
+				if (top > appliedY + APPLY_EPS) {
+					window.scrollTo(0, top);
+					appliedY = window.scrollY;
+				}
+				if (Math.abs(window.scrollY - top) <= APPLY_EPS) {
+					cleanup();
+				}
 				return;
 			}
+
 			window.scrollTo(0, top);
-			if (atTarget()) {
+			appliedY = window.scrollY;
+			if (Math.abs(appliedY - top) <= APPLY_EPS) {
 				cleanup();
+			}
+		}
+
+		function scheduleRestorePasses() {
+			tryRestore();
+			if (typeof requestAnimationFrame === 'function') {
+				requestAnimationFrame(function () {
+					tryRestore();
+				});
 			}
 		}
 
@@ -123,23 +178,14 @@
 		window.addEventListener('mousedown', userCancel, { once: true });
 		window.addEventListener('keydown', onScrollKeydown);
 
-		tryRestore();
-
 		if (document.readyState === 'loading') {
 			document.addEventListener(
 				'DOMContentLoaded',
-				function () {
-					tryRestore();
-					if (typeof requestAnimationFrame === 'function') {
-						requestAnimationFrame(function () {
-							requestAnimationFrame(tryRestore);
-						});
-					}
-				},
+				scheduleRestorePasses,
 				{ once: true }
 			);
 		} else {
-			tryRestore();
+			scheduleRestorePasses();
 		}
 
 		if (typeof ResizeObserver !== 'undefined') {

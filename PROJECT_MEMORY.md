@@ -83,7 +83,12 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Opponents H2H pickers fix** — `K2ArchiveListbox.init()` on H2H tab (listboxes were inert); narrower search column; default headline = top opponent when `opponent` omitted. |
+| 2026-06 | **Milestone totals (Phase 2)** — SCH-020 `player_milestone_totals`; librarian bump; meta LB + profile read stored truth; parity in `verify_ops_sim` — [`milestones-unlock-librarian.md`](docs/milestones-unlock-librarian.md). |
+| 2026-06 | **Milestone catalog holders (Phase 2b)** — SCH-021 `holder_count` on `milestone_definitions`; librarian bump; hub catalog + detail reads; parity in `verify_ops_sim`. |
+| 2026-06 | **Milestone unlock librarian (Phase 1)** — all live ops `player_milestones` INSERTs via `includes/milestone_unlock.php` — [`milestones-unlock-librarian.md`](docs/milestones-unlock-librarian.md). |
+| 2026-06 | **Carry-scroll anchor** — pill clicks store nav `aria-label` + viewport offset; restore keeps filter row stable when table height changes (tournament country pills, LB wings). |
+| 2026-06 | **Carry-scroll restore** — no upward re-scroll after first apply; still scrolls down when short pages grow. |
+| 2026-06 | **Opponents H2H carry-scroll** — opponent pick (search + listboxes) stores `scrollY` before navigate; same restore path as hub pills / games filters. |
 | 2026-06 | **Opponents H2H v1** — search (global, games vs context) + games/A–Z dropdowns + pair headline; `?view=h2h&opponent=`; charts still on Profile. |
 | 2026-06 | **Opponents Phase 3 slice 3** — `ko2unity_work` zero + simul to game 500 (verify PASS, spot parity 24 pairs); Goals/DDs Opponents tabs read SCH-019 summary; Steve `kooldb1` next. |
 | 2026-06 | **Opponents Phase 3 slice 2** — SCH-019 migration + P5 extended upsert + AB parity. |

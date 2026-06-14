@@ -299,6 +299,7 @@ function player_opponents_render_h2h_panel(
     ?>
 <div
 	class="k2-player-opponents-h2h"
+	data-k2-carry-scroll
 	data-player-id="<?php echo $playerId; ?>"
 	data-h2h-base="<?php echo k2_h(player_opponents_href($playerId, 'h2h')); ?>"
 >

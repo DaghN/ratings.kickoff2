@@ -35,6 +35,8 @@ php site/public_html/ops/run_prepare.php migrate-work --target local-work
 | SCH-017 | `017_drop_player_monthly_league.sql` | DROP legacy monthly league table | Yes | **Done** (migrate-work) | **Not yet** | |
 | SCH-018 | `018_playertable_milestone_streak_facilitators.sql` | P6 facilitator columns on `playertable` | Yes | **Done** (migrate-work + simul) | **Not yet** | |
 | SCH-019 | `019_player_matchup_summary_opponents_ext.sql` | `player_matchup_summary` goal extremes + DD/CS | Yes | **Done** (migrate + simul to 500 on work) | **Not yet** | Opponents Phase 3 — [`player-opponents-hub.md`](../player-opponents-hub.md) |
+| SCH-020 | `020_player_milestone_totals.sql` | `player_milestone_totals` per-player tier counts | Yes | **Done** (migrate-work + parity on work) | **Not yet** | Meta LB + profile hero; bump via `milestone_unlock.php` — [`milestones-unlock-librarian.md`](../milestones-unlock-librarian.md) |
+| SCH-021 | `021_milestone_definitions_holder_count.sql` | `milestone_definitions.holder_count` catalog aggregate | Yes | **Done** (migrate-work + parity on work) | **Not yet** | Hub catalog + milestone detail; bump via librarian — [`milestones-unlock-librarian.md`](../milestones-unlock-librarian.md) |
 
 ### Column legend
 

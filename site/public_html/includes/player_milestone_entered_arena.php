@@ -17,25 +17,7 @@ function k2_milestone_maybe_unlock_entered_arena(mysqli $con, int $playerId): bo
         return false;
     }
 
-    require_once __DIR__ . '/player_milestones_helpers.php';
-    if (!k2_milestone_tables_ready($con)) {
-        return false;
-    }
-
-    $check = $con->prepare(
-        'SELECT 1 FROM `player_milestones` '
-        . 'WHERE `player_id` = ? AND `milestone_key` = \'entered_arena\' LIMIT 1'
-    );
-    if ($check === false) {
-        throw new RuntimeException('entered_arena exists check: ' . $con->error);
-    }
-    $check->bind_param('i', $playerId);
-    $check->execute();
-    $exists = $check->get_result()->fetch_row() !== null;
-    $check->close();
-    if ($exists) {
-        return false;
-    }
+    require_once __DIR__ . '/milestone_unlock.php';
 
     $load = $con->prepare('SELECT `JoinDate` FROM `playertable` WHERE `ID` = ? LIMIT 1');
     if ($load === false) {
@@ -54,21 +36,16 @@ function k2_milestone_maybe_unlock_entered_arena(mysqli $con, int $playerId): bo
     if ($joinDate === null || (string) $joinDate === '' || (string) $joinDate === '0000-00-00 00:00:00') {
         return false;
     }
-    $achievedAt = (string) $joinDate;
 
-    $stmt = $con->prepare(
-        'INSERT IGNORE INTO `player_milestones` '
-        . '(`player_id`, `milestone_key`, `achieved_at`, `value`, '
-        . '`source_kind`, `source_game_id`, `source_league_kind`, `source_period_type`, `source_period_start`) '
-        . 'VALUES (?, \'entered_arena\', ?, 1, \'lobby\', NULL, NULL, NULL, NULL)'
-    );
-    if ($stmt === false) {
-        throw new RuntimeException('entered_arena insert: ' . $con->error);
-    }
-    $stmt->bind_param('is', $playerId, $achievedAt);
-    $stmt->execute();
-    $inserted = $stmt->affected_rows > 0;
-    $stmt->close();
-
-    return $inserted;
+    return k2_milestone_unlock_insert($con, [
+        'player_id' => $playerId,
+        'milestone_key' => 'entered_arena',
+        'achieved_at' => (string) $joinDate,
+        'value' => 1,
+        'source_kind' => 'lobby',
+        'source_game_id' => null,
+        'source_league_kind' => null,
+        'source_period_type' => null,
+        'source_period_start' => null,
+    ]);
 }

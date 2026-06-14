@@ -147,6 +147,72 @@ function k2_ops_verify_sim_complete(mysqli $con): array
         $gameMilestones > 0 ? 'ok' : 'warn'
     );
 
+    if (k2_ops_table_exists($con, 'player_milestone_totals')) {
+        $mismatch = k2_ops_verify_scalar(
+            $con,
+            <<<'SQL'
+SELECT COUNT(*) AS c FROM (
+  SELECT pm.player_id
+  FROM player_milestones pm
+  INNER JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
+  GROUP BY pm.player_id
+  HAVING COUNT(*) <> COALESCE((
+    SELECT t.total FROM player_milestone_totals t WHERE t.player_id = pm.player_id
+  ), 0)
+     OR COALESCE(SUM(md.tier_band = 'aspirational'), 0) <> COALESCE((
+    SELECT t.aspirational FROM player_milestone_totals t WHERE t.player_id = pm.player_id
+  ), 0)
+     OR COALESCE(SUM(md.tier_band = 'veteran'), 0) <> COALESCE((
+    SELECT t.dedicated FROM player_milestone_totals t WHERE t.player_id = pm.player_id
+  ), 0)
+     OR COALESCE(SUM(md.tier_band = 'key'), 0) <> COALESCE((
+    SELECT t.accomplished FROM player_milestone_totals t WHERE t.player_id = pm.player_id
+  ), 0)
+     OR COALESCE(SUM(md.tier_band = 'legendary'), 0) <> COALESCE((
+    SELECT t.legendary FROM player_milestone_totals t WHERE t.player_id = pm.player_id
+  ), 0)
+) AS x
+SQL
+        );
+        $totalsPlayers = k2_ops_verify_scalar(
+            $con,
+            'SELECT COUNT(*) AS c FROM player_milestone_totals'
+        );
+        $checks[] = k2_ops_verify_check(
+            'milestone_totals_parity',
+            'player_milestone_totals matches unlock rows',
+            $mismatch === 0,
+            "mismatch_players={$mismatch} totals_rows={$totalsPlayers}",
+            $mismatch === 0 ? 'ok' : 'fail'
+        );
+    }
+
+    if (k2_ops_column_exists($con, 'milestone_definitions', 'holder_count')) {
+        $holderMismatch = k2_ops_verify_scalar(
+            $con,
+            <<<'SQL'
+SELECT COUNT(*) AS c FROM (
+  SELECT d.milestone_key
+  FROM milestone_definitions d
+  LEFT JOIN (
+    SELECT pm.milestone_key, COUNT(*) AS holders
+    FROM player_milestones pm
+    INNER JOIN playertable p ON p.ID = pm.player_id
+    GROUP BY pm.milestone_key
+  ) h ON h.milestone_key = d.milestone_key
+  WHERE d.holder_count <> COALESCE(h.holders, 0)
+) AS x
+SQL
+        );
+        $checks[] = k2_ops_verify_check(
+            'milestone_holder_count_parity',
+            'milestone_definitions.holder_count matches unlock rows',
+            $holderMismatch === 0,
+            "mismatch_keys={$holderMismatch}",
+            $holderMismatch === 0 ? 'ok' : 'fail'
+        );
+    }
+
     return $checks;
 }
 

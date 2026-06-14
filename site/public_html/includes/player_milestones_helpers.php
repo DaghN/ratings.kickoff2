@@ -136,27 +136,36 @@ function k2_milestone_insert_game_unlock(
     string $achievedAt,
     int $value
 ): void {
-    if (!k2_milestone_tables_ready($con) || $playerId < 1 || $gameId < 1) {
+    if ($playerId < 1 || $gameId < 1) {
         return;
     }
-    $stmt = $con->prepare(
-        'INSERT IGNORE INTO `player_milestones` '
-        . '(`player_id`, `milestone_key`, `achieved_at`, `value`, '
-        . '`source_kind`, `source_game_id`, `source_league_kind`, `source_period_type`, `source_period_start`) '
-        . 'VALUES (?, ?, ?, ?, \'game\', ?, NULL, NULL, NULL)'
-    );
-    if ($stmt === false) {
-        return;
-    }
-    $stmt->bind_param('issii', $playerId, $milestoneKey, $achievedAt, $value, $gameId);
-    $stmt->execute();
-    $stmt->close();
+    require_once __DIR__ . '/milestone_unlock.php';
+    k2_milestone_unlock_insert($con, [
+        'player_id' => $playerId,
+        'milestone_key' => $milestoneKey,
+        'achieved_at' => $achievedAt,
+        'value' => $value,
+        'source_kind' => 'game',
+        'source_game_id' => $gameId,
+        'source_league_kind' => null,
+        'source_period_type' => null,
+        'source_period_start' => null,
+    ]);
 }
 
 function k2_milestone_tables_ready(mysqli $con): bool
 {
     return k2_status_table_exists($con, 'milestone_definitions')
         && k2_status_table_exists($con, 'player_milestones');
+}
+
+function k2_milestone_totals_read_ready(mysqli $con): bool
+{
+    if (!function_exists('k2_milestone_totals_table_ready')) {
+        require_once __DIR__ . '/milestone_unlock.php';
+    }
+
+    return k2_milestone_totals_table_ready($con);
 }
 
 /**
@@ -168,6 +177,46 @@ function k2_milestone_player_counts(mysqli $con, int $playerId): ?array
         return null;
     }
     $pid = (int) $playerId;
+    if ($pid < 1) {
+        return null;
+    }
+
+    if (k2_milestone_totals_read_ready($con)) {
+        $stmt = $con->prepare(
+            'SELECT `total`, `aspirational`, `dedicated`, `accomplished`, `legendary` '
+            . 'FROM `player_milestone_totals` WHERE `player_id` = ? LIMIT 1'
+        );
+        if ($stmt !== false) {
+            $stmt->bind_param('i', $pid);
+            if ($stmt->execute()) {
+                $res = $stmt->get_result();
+                $row = $res ? $res->fetch_assoc() : null;
+                if ($res) {
+                    $res->free();
+                }
+                $stmt->close();
+                if ($row) {
+                    return [
+                        'total' => (int) $row['total'],
+                        'aspirational' => (int) $row['aspirational'],
+                        'dedicated' => (int) $row['dedicated'],
+                        'accomplished' => (int) $row['accomplished'],
+                        'legendary' => (int) $row['legendary'],
+                    ];
+                }
+
+                return [
+                    'total' => 0,
+                    'aspirational' => 0,
+                    'dedicated' => 0,
+                    'accomplished' => 0,
+                    'legendary' => 0,
+                ];
+            }
+            $stmt->close();
+        }
+    }
+
     $sql = "
         SELECT
             COUNT(*) AS total,
@@ -184,6 +233,7 @@ function k2_milestone_player_counts(mysqli $con, int $playerId): ?array
         return null;
     }
     $row = mysqli_fetch_assoc($result);
+    mysqli_free_result($result);
     if (!$row) {
         return [
             'total' => 0,
@@ -360,30 +410,57 @@ function k2_milestone_meta_leaderboard_rows(mysqli $con): array
     if (!k2_milestone_tables_ready($con)) {
         return [];
     }
-    $sql = "
-        SELECT
-            p.ID AS player_id,
-            p.Name AS player_name,
-            p.Rating AS rating,
-            p.NumberGames AS games,
-            COUNT(pm.milestone_key) AS total,
-            COALESCE(SUM(md.tier_band = 'aspirational'), 0) AS aspirational,
-            COALESCE(SUM(md.tier_band = 'veteran'), 0) AS dedicated,
-            COALESCE(SUM(md.tier_band = 'key'), 0) AS accomplished,
-            COALESCE(SUM(md.tier_band = 'legendary'), 0) AS legendary
-        FROM playertable p
-        LEFT JOIN player_milestones pm ON pm.player_id = p.ID
-        LEFT JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
-        WHERE p.NumberGames >= 1 AND p.Display = 1
-        GROUP BY p.ID, p.Name
-        ORDER BY
-            total DESC,
-            aspirational DESC,
-            dedicated DESC,
-            accomplished DESC,
-            legendary DESC,
-            p.Name ASC
-    ";
+
+    if (k2_milestone_totals_read_ready($con)) {
+        $sql = "
+            SELECT
+                p.ID AS player_id,
+                p.Name AS player_name,
+                p.Rating AS rating,
+                p.NumberGames AS games,
+                COALESCE(t.total, 0) AS total,
+                COALESCE(t.aspirational, 0) AS aspirational,
+                COALESCE(t.dedicated, 0) AS dedicated,
+                COALESCE(t.accomplished, 0) AS accomplished,
+                COALESCE(t.legendary, 0) AS legendary
+            FROM playertable p
+            LEFT JOIN player_milestone_totals t ON t.player_id = p.ID
+            WHERE p.NumberGames >= 1 AND p.Display = 1
+            ORDER BY
+                total DESC,
+                aspirational DESC,
+                dedicated DESC,
+                accomplished DESC,
+                legendary DESC,
+                p.Name ASC
+        ";
+    } else {
+        $sql = "
+            SELECT
+                p.ID AS player_id,
+                p.Name AS player_name,
+                p.Rating AS rating,
+                p.NumberGames AS games,
+                COUNT(pm.milestone_key) AS total,
+                COALESCE(SUM(md.tier_band = 'aspirational'), 0) AS aspirational,
+                COALESCE(SUM(md.tier_band = 'veteran'), 0) AS dedicated,
+                COALESCE(SUM(md.tier_band = 'key'), 0) AS accomplished,
+                COALESCE(SUM(md.tier_band = 'legendary'), 0) AS legendary
+            FROM playertable p
+            LEFT JOIN player_milestones pm ON pm.player_id = p.ID
+            LEFT JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
+            WHERE p.NumberGames >= 1 AND p.Display = 1
+            GROUP BY p.ID, p.Name
+            ORDER BY
+                total DESC,
+                aspirational DESC,
+                dedicated DESC,
+                accomplished DESC,
+                legendary DESC,
+                p.Name ASC
+        ";
+    }
+
     $result = k2_query_or_public_error($con, $sql, 'milestone meta leaderboard');
     $rows = [];
     while ($row = mysqli_fetch_assoc($result)) {
@@ -500,6 +577,25 @@ function k2_milestone_holder_counts(mysqli $con): array
     if (!k2_milestone_tables_ready($con)) {
         return [];
     }
+
+    if (!function_exists('k2_milestone_holder_count_column_ready')) {
+        require_once __DIR__ . '/milestone_unlock.php';
+    }
+
+    if (k2_milestone_holder_count_column_ready($con)) {
+        $counts = [];
+        $result = k2_query_or_public_error(
+            $con,
+            'SELECT `milestone_key`, `holder_count` AS holders FROM `milestone_definitions`',
+            'milestone holder counts stored'
+        );
+        while ($row = mysqli_fetch_assoc($result)) {
+            $counts[(string) $row['milestone_key']] = (int) $row['holders'];
+        }
+
+        return $counts;
+    }
+
     $counts = [];
     $join = k2_milestone_playertable_join_clause('pm');
     $result = k2_query_or_public_error(
@@ -586,26 +682,47 @@ function k2_milestone_definition_hub(mysqli $con, string $milestoneKey): ?array
     if (!k2_milestone_tables_ready($con)) {
         return null;
     }
+
+    if (!function_exists('k2_milestone_holder_count_column_ready')) {
+        require_once __DIR__ . '/milestone_unlock.php';
+    }
+
     $keyEsc = mysqli_real_escape_string($con, $milestoneKey);
-    $sql = "
-        SELECT
-            d.milestone_key,
-            d.display_name,
-            d.rule_short,
-            d.description,
-            d.tier_band,
-            d.chart_token,
-            COALESCE(h.holders, 0) AS holders
-        FROM milestone_definitions d
-        LEFT JOIN (
-            SELECT pm.milestone_key, COUNT(*) AS holders
-            FROM player_milestones pm
-            INNER JOIN playertable p ON p.ID = pm.player_id
-            GROUP BY pm.milestone_key
-        ) h ON h.milestone_key = d.milestone_key
-        WHERE d.milestone_key = '$keyEsc'
-        LIMIT 1
-    ";
+    if (k2_milestone_holder_count_column_ready($con)) {
+        $sql = "
+            SELECT
+                d.milestone_key,
+                d.display_name,
+                d.rule_short,
+                d.description,
+                d.tier_band,
+                d.chart_token,
+                d.holder_count AS holders
+            FROM milestone_definitions d
+            WHERE d.milestone_key = '$keyEsc'
+            LIMIT 1
+        ";
+    } else {
+        $sql = "
+            SELECT
+                d.milestone_key,
+                d.display_name,
+                d.rule_short,
+                d.description,
+                d.tier_band,
+                d.chart_token,
+                COALESCE(h.holders, 0) AS holders
+            FROM milestone_definitions d
+            LEFT JOIN (
+                SELECT pm.milestone_key, COUNT(*) AS holders
+                FROM player_milestones pm
+                INNER JOIN playertable p ON p.ID = pm.player_id
+                GROUP BY pm.milestone_key
+            ) h ON h.milestone_key = d.milestone_key
+            WHERE d.milestone_key = '$keyEsc'
+            LIMIT 1
+        ";
+    }
     $result = mysqli_query($con, $sql);
     if ($result === false) {
         return null;

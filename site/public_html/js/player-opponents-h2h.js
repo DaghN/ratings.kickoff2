@@ -20,12 +20,19 @@
         };
     }
 
+    function storeCarryScroll() {
+        if (window.K2CarryScroll && typeof window.K2CarryScroll.store === 'function') {
+            window.K2CarryScroll.store();
+        }
+    }
+
     function navigateToOpponent(root, opponentId) {
         var base = root.getAttribute('data-h2h-base') || '';
         if (!base || !opponentId) {
             return;
         }
         var sep = base.indexOf('?') >= 0 ? '&' : '?';
+        storeCarryScroll();
         window.location.href = base + sep + 'opponent=' + encodeURIComponent(String(opponentId));
     }
 

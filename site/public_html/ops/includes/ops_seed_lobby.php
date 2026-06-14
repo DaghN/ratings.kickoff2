@@ -64,6 +64,11 @@ function k2_ops_seed_lobby_milestones(K2OpsWorkTarget $target, bool $dryRun): in
             throw new RuntimeException('seed_lobby insert: ' . $con->error);
         }
         $inserted = $con->affected_rows;
+        if (k2_ops_table_exists($con, 'player_milestone_totals')) {
+            require_once dirname(__DIR__, 2) . '/includes/milestone_unlock.php';
+            k2_milestone_stored_derived_rebuild($con);
+            k2_ops_log('[OK] seed_lobby_milestones: stored derived rebuilt');
+        }
         $con->commit();
         k2_ops_log("[OK] seed_lobby_milestones: inserted={$inserted} eligible={$eligible}");
 

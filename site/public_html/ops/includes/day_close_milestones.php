@@ -8,6 +8,8 @@ declare(strict_types=1);
  * @see scripts/ladder/milestone_sim.py _finalize_day
  */
 
+require_once dirname(__DIR__, 2) . '/includes/milestone_unlock.php';
+
 function k2_day_close_try_insert_milestone(
     mysqli $con,
     int $playerId,
@@ -15,28 +17,17 @@ function k2_day_close_try_insert_milestone(
     string $achievedAt,
     int $lastGameId
 ): bool {
-    $insertStmt = $con->prepare(
-        'INSERT INTO player_milestones '
-        . '(player_id, milestone_key, achieved_at, value, source_kind, source_game_id, '
-        . 'source_league_kind, source_period_type, source_period_start) '
-        . 'SELECT ?, ?, ?, 5, \'game\', ?, NULL, NULL, NULL FROM DUAL '
-        . 'WHERE NOT EXISTS ('
-        . 'SELECT 1 FROM player_milestones WHERE player_id = ? AND milestone_key = ? LIMIT 1'
-        . ')'
-    );
-    if ($insertStmt === false) {
-        throw new RuntimeException('prepare day-close insert: ' . $con->error);
-    }
-    $insertStmt->bind_param('issiis', $playerId, $key, $achievedAt, $lastGameId, $playerId, $key);
-    if (!$insertStmt->execute()) {
-        $err = $insertStmt->error;
-        $insertStmt->close();
-        throw new RuntimeException('day-close insert: ' . $err);
-    }
-    $inserted = $insertStmt->affected_rows > 0;
-    $insertStmt->close();
-
-    return $inserted;
+    return k2_milestone_unlock_insert($con, [
+        'player_id' => $playerId,
+        'milestone_key' => $key,
+        'achieved_at' => $achievedAt,
+        'value' => 5,
+        'source_kind' => 'game',
+        'source_game_id' => $lastGameId,
+        'source_league_kind' => null,
+        'source_period_type' => null,
+        'source_period_start' => null,
+    ]);
 }
 
 /**

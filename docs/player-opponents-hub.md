@@ -82,7 +82,7 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 
 ### Phase 2 — Head-to-head tab (in progress)
 
-**Design (locked Jun 2026):** Pair-first — not bar-chart entry. **No sticky picker.** **Player names always → profile** (no table row deep-links to H2H). Three pickers: **search** (global autofill, `games` not rating; opponents-with-history first while typing) · **by games ▾** · **A–Z ▾** (played opponents only). Selection → `?view=h2h&opponent={id}`. **Default headline:** when `opponent` is omitted, show the most-played opponent (URL stays without `opponent=` until user picks another).
+**Design (locked Jun 2026):** Pair-first — not bar-chart entry. **No sticky picker.** **Player names always → profile** (no table row deep-links to H2H). Three pickers: **search** (global autofill, `games` not rating; opponents-with-history first while typing) · **by games ▾** · **A–Z ▾** (played opponents only). Selection → `?view=h2h&opponent={id}` with **carry-scroll** (keeps `window.scrollY` on reload). **Default headline:** when `opponent` is omitted, show the most-played opponent (URL stays without `opponent=` until user picks another).
 
 - [x] **H2H v1 (Jun 2026):** picker band + pair headline (`includes/player_opponents_h2h.php`, `api/player_h2h_opponent_search.php`, `js/player-opponents-h2h.js`). Games/A–Z use shared **`k2-archive-listbox`** (two-column options: name · N games). No games → text only; no charts yet.
 - [ ] Move Profile **Matchups** charts (top opponents bar, H2H cumulative, rating compare) onto H2H tab below headline.

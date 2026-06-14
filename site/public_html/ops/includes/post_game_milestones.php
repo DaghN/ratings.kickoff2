@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/post_game_constants.php';
 require_once __DIR__ . '/ops_bootstrap.php';
+require_once dirname(__DIR__, 2) . '/includes/milestone_unlock.php';
 
 function k2_post_game_milestones_table_available(mysqli $con): bool
 {
@@ -53,23 +54,17 @@ function k2_post_game_milestone_try_insert_game(
     int $value,
     int $gameId
 ): void {
-    $stmt = $con->prepare(
-        'INSERT INTO player_milestones '
-        . '(player_id, milestone_key, achieved_at, value, source_kind, source_game_id, '
-        . 'source_league_kind, source_period_type, source_period_start) '
-        . 'SELECT ?, ?, ?, ?, \'game\', ?, NULL, NULL, NULL FROM DUAL '
-        . 'WHERE NOT EXISTS ('
-        . 'SELECT 1 FROM player_milestones WHERE player_id = ? AND milestone_key = ? LIMIT 1'
-        . ')'
-    );
-    if ($stmt === false) {
-        throw new RuntimeException('prepare milestone insert: ' . $con->error);
-    }
-    $stmt->bind_param('issiiis', $playerId, $key, $achievedAt, $value, $gameId, $playerId, $key);
-    if (!$stmt->execute()) {
-        throw new RuntimeException('execute milestone insert: ' . $stmt->error);
-    }
-    $stmt->close();
+    k2_milestone_unlock_insert($con, [
+        'player_id' => $playerId,
+        'milestone_key' => $key,
+        'achieved_at' => $achievedAt,
+        'value' => $value,
+        'source_kind' => 'game',
+        'source_game_id' => $gameId,
+        'source_league_kind' => null,
+        'source_period_type' => null,
+        'source_period_start' => null,
+    ]);
 }
 
 /**

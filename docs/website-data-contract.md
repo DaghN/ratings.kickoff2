@@ -51,8 +51,9 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_league_award` | SCH-009 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only** |
 | `player_league_totals` | SCH-009 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only**; re-aggregate from awards |
 | `player_league_slice_totals` | SCH-010 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only**; with career totals after awards |
-| `milestone_definitions` | SCH-011 | `seed-catalog` | `load_milestone_definitions.py` | Static catalog; reload when seed changes |
+| `milestone_definitions` | SCH-011, **SCH-021** (`holder_count`) | `seed-catalog`; bump on unlock | `load_milestone_definitions.py`; `k2_milestone_holder_counts_rebuild()` | Static catalog + stored holder counts |
 | `player_milestones` | SCH-008, SCH-012–013 | PHP ops P6 + `FinalizeUtcDay` | `archive/.../player_milestones_rebuild.sql` (+ splices) | § `player_milestones` — game / league / lobby |
+| `player_milestone_totals` | SCH-020 | `k2_milestone_unlock_insert()` bump | `k2_milestone_totals_rebuild()` | § `player_milestone_totals` — per-player tier counts |
 | `player_matchup_summary` | SCH-008, **SCH-019** (Jun 2026 ext) | PHP ops P5 | `archive/.../player_matchup_summary_rebuild.sql` (repair; ext TBD) | Directed pair upsert ×2 + goal extremes + DD/CS |
 | `server_period_game_totals` | SCH-008 | PHP ops P5 | `archive/.../server_period_game_totals_rebuild.sql` | Server totals ×4 period types |
 | `server_period_matchups` | SCH-008 | PHP ops P5 | `archive/.../server_period_matchups_rebuild.sql` | Canonical pair ×4 period types |
@@ -532,6 +533,60 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 **Full rebuild:** `scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **112** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL). Per-key catalog: [`milestones-catalog.md`](milestones-catalog.md).
 
 **Schema:** SCH-011 (`milestone_definitions`), SCH-012 + SCH-013 (`player_milestones` + `source_kind` including `lobby`).
+
+**Live write path (Jun 2026):** All incremental unlocks on the holy ops path go through **`includes/milestone_unlock.php`** — `k2_milestone_unlock_insert()`. On successful insert, **`k2_milestone_totals_bump()`** maintains **`player_milestone_totals`** (SCH-020) and **`k2_milestone_holder_count_bump()`** maintains **`milestone_definitions.holder_count`** (SCH-021). Detectors (post-game rules, `FinalizeUtcDay`, register) call the librarian; no direct `INSERT INTO player_milestones` elsewhere on live dispatch. Exceptions: prepare lobby seed (`ops_seed_lobby.php` + stored derived rebuild), batch repair SQL under `scripts/ladder/sql/archive/`. Track doc: [`milestones-unlock-librarian.md`](milestones-unlock-librarian.md).
+
+---
+
+### `player_milestone_totals`
+
+**Lifecycle:** Active (Jun 2026).
+
+**Purpose:** O(1) per-player milestone tier counts for meta leaderboard (`leaderboards/milestones.php`) and profile hero glance — avoids live `GROUP BY` over `player_milestones` on every request.
+
+**Grain:** one row per player with ≥1 unlock (players with zero unlocks have no row; reads use `LEFT JOIN` + `COALESCE`).
+
+**Primary key:** `player_id`.
+
+| Column | Meaning |
+|--------|---------|
+| `total` | Count of unlock rows (keys in `milestone_definitions`) |
+| `aspirational` | Tier `aspirational` |
+| `dedicated` | Tier `veteran` |
+| `accomplished` | Tier `key` |
+| `legendary` | Tier `legendary` |
+
+**Live writer:** `k2_milestone_totals_bump()` from `k2_milestone_unlock_insert()` after each new unlock.
+
+**Repair:** `k2_milestone_totals_rebuild()` — truncate + aggregate from `player_milestones` ⋈ `milestone_definitions`. Called after `ops_seed_lobby.php` bulk `entered_arena` seed.
+
+**Schema:** SCH-020 (`020_player_milestone_totals.sql`). Migration includes backfill `INSERT … SELECT`.
+
+**Parity:** `run_verify_ops_sim.php` check `milestone_totals_parity` — per-player totals must match unlock rows.
+
+---
+
+### `milestone_definitions.holder_count` (column)
+
+**Lifecycle:** Active (Jun 2026).
+
+**Purpose:** O(1) per-key holder count for milestones hub catalog (`milestones.php?view=catalog`) and milestone detail (`milestone.php?key=`) — avoids live `GROUP BY milestone_key` on `player_milestones` per catalog request.
+
+**Grain:** one stored count per catalog row (`milestone_key`).
+
+| Column | Meaning |
+|--------|---------|
+| `holder_count` | Players with an unlock row (join `playertable`; same rule as pre-stored live agg) |
+
+**Live writer:** `k2_milestone_holder_count_bump()` from `k2_milestone_unlock_insert()` after each new unlock.
+
+**Repair:** `k2_milestone_holder_counts_rebuild()` — zero all keys then aggregate from `player_milestones` ⋈ `playertable`. Bundled with totals in `k2_milestone_stored_derived_rebuild()` after `ops_seed_lobby.php` bulk seed.
+
+**Schema:** SCH-021 (`021_milestone_definitions_holder_count.sql`). Migration includes backfill `UPDATE` from unlock rows.
+
+**Parity:** `run_verify_ops_sim.php` check `milestone_holder_count_parity` — per-key counts must match unlock rows.
+
+**Recent feed:** unchanged — still reads `player_milestones` by `achieved_at`.
 
 ---
 
