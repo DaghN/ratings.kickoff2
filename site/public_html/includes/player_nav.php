@@ -4,14 +4,14 @@
  * Set $k2PlayerTabActive and $id before include.
  * Tint picker on the right (parity with hub_nav.php).
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_opponents_lib.php';
 
 $k2PlayerTabActive = $k2PlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
 $k2PlayerTabs = [
 	'profile' => ['href' => k2_route('player-profile', ['id' => $id]), 'label' => 'Profile'],
 	'games' => ['href' => k2_route('player-games', ['id' => $id]), 'label' => 'Games'],
-	'opponents' => ['href' => k2_route('player-opponents', ['id' => $id]), 'label' => 'Opponents'],
+	'opponents' => ['href' => player_opponents_default_href($id), 'label' => 'Opponents'],
 	'milestones' => ['href' => k2_route('player-milestones', ['id' => $id]), 'label' => 'Milestones'],
 ];
 ?>

@@ -20,7 +20,7 @@
 | Hero | `includes/player_hero.php` (rank, rating, games, milestones when unlocked) |
 | Wing context link | `includes/player_wing_up_link.php` — « Leaderboards (online + Amiga) |
 | Nav pills | `includes/player_nav.php` — Profile · Games · **Opponents** · Milestones |
-| Opponents wing | `player/opponents.php` — inner tabs W/D/L · Goals · DDs · Head-to-head (`includes/player_opponents_nav.php`, `player_opponents_tables.php`) |
+| Opponents wing | `player/opponents/*.php` — inner tabs Head-to-head · W/D/L · Goals · DDs |
 | Milestones | `player/milestones.php` — tier garden (catalog count from DB, **112** after `year_in_heaven`); all card titles link to `milestone.php?key=` (locked = underline + hover brighten); date line uses unlock-event register; helpers `includes/player_milestones_helpers.php` |
 | CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
 | Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_weeks.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
@@ -90,7 +90,7 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 | Pill | File | Role |
 |------|------|------|
 | Games | `player/games.php` | Full match ledger |
-| W/D/L / Goals / DDs | `player/opponents.php` (`view=`) | Per-opponent aggregates under **Opponents** tab |
+| W/D/L / Goals / DDs | `player/opponents/{wdl,goals,dds}.php` | Per-opponent aggregates under **Opponents** tab |
 | Milestones | `player/milestones.php` | Tier garden (112 cards from catalog + unlock rows) |
 
 Profile does **not** duplicate those tables.

@@ -26,7 +26,11 @@ const K2_ROUTES = [
 	'lb-milestones' => 'leaderboards/milestones.php',
 	'player-profile' => 'player/profile.php',
 	'player-games' => 'player/games.php',
-	'player-opponents' => 'player/opponents.php',
+	'player-opponents' => 'player/opponents/h2h.php', /* default Opponents pill → Head-to-head */
+	'player-opponents-h2h' => 'player/opponents/h2h.php',
+	'player-opponents-wdl' => 'player/opponents/wdl.php',
+	'player-opponents-goals' => 'player/opponents/goals.php',
+	'player-opponents-dds' => 'player/opponents/dds.php',
 	'player-milestones' => 'player/milestones.php',
 ];
 

@@ -7,27 +7,56 @@ declare(strict_types=1);
 require_once __DIR__ . '/k2_routes.php';
 
 /** @var list<string> */
-const K2_PLAYER_OPPONENTS_VIEWS = ['wdl', 'goals', 'dds', 'h2h'];
+const K2_PLAYER_OPPONENTS_VIEWS = ['h2h', 'wdl', 'goals', 'dds'];
+
+/** @var array<string, string> */
+const K2_PLAYER_OPPONENTS_ROUTE_KEYS = [
+    'h2h' => 'player-opponents-h2h',
+    'wdl' => 'player-opponents-wdl',
+    'goals' => 'player-opponents-goals',
+    'dds' => 'player-opponents-dds',
+];
+
+function player_opponents_view_from_script(): string
+{
+    $script = basename((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '.php');
+    $map = [
+        'h2h' => 'h2h',
+        'wdl' => 'wdl',
+        'goals' => 'goals',
+        'dds' => 'dds',
+    ];
+
+    return $map[$script] ?? 'h2h';
+}
 
 function player_opponents_parse_view(?string $raw): string
 {
-    $view = is_string($raw) ? strtolower(trim($raw)) : '';
+    if (is_string($raw) && $raw !== '') {
+        $view = strtolower(trim($raw));
+        if (in_array($view, K2_PLAYER_OPPONENTS_VIEWS, true)) {
+            return $view;
+        }
+    }
 
-    return in_array($view, K2_PLAYER_OPPONENTS_VIEWS, true) ? $view : 'wdl';
+    return player_opponents_view_from_script();
 }
 
-function player_opponents_href(int $playerId, string $view = 'wdl', ?int $opponentId = null): string
+function player_opponents_default_href(int $playerId): string
+{
+    return k2_route('player-opponents-h2h', ['id' => max(0, $playerId)]);
+}
+
+function player_opponents_href(int $playerId, string $view = 'h2h', ?int $opponentId = null): string
 {
     $view = player_opponents_parse_view($view);
+    $routeKey = K2_PLAYER_OPPONENTS_ROUTE_KEYS[$view] ?? K2_PLAYER_OPPONENTS_ROUTE_KEYS['h2h'];
     $params = ['id' => max(0, $playerId)];
-    if ($view !== 'wdl') {
-        $params['view'] = $view;
-    }
     if ($view === 'h2h' && $opponentId !== null && $opponentId > 0 && $opponentId !== $playerId) {
         $params['opponent'] = $opponentId;
     }
 
-    return k2_route('player-opponents', $params);
+    return k2_route($routeKey, $params);
 }
 
 function player_opponents_view_label(string $view): string
@@ -36,6 +65,7 @@ function player_opponents_view_label(string $view): string
         'goals' => 'Goals',
         'dds' => 'DDs',
         'h2h' => 'Head-to-head',
-        default => 'W/D/L',
+        'wdl' => 'W/D/L',
+        default => 'Head-to-head',
     };
 }

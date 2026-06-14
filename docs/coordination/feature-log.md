@@ -63,6 +63,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** work | **Not executed** | — | `milestone_definitions.holder_count`; hub catalog + detail; bump via librarian |
 | Stored truth expansion | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | Five tables; **ops simul on `kooldb1`** (not May `kooldb` batch) |
 | Opponents wing stored matchup (SCH-019) | L2 | SCH-019 | Yes | **Done** (work simul 500) | **Not executed** | — | Goals extremes + DDs from summary on work; Steve `kooldb1` next — [`player-opponents-hub.md`](../player-opponents-hub.md) |
+| H2H versus poster | — | — | — | — | — | — | **Shipped Jun 2026** — mirrored glowing identity cards + W/D/L hero + lead meter + goals on bare stage; `player-opponents-h2h-poster.css` — [`player-opponents-h2h-poster.md`](../player-opponents-h2h-poster.md) |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | **Done** (migrate) | **Not executed** | — | Migration `001` in ops package; live = migrate-work on cutover |
 | Ladder replay sandbox (K32/1600) | L2 | SCH-002 | Partial | **Done** (May) | **Not executed** | — | Core ladder via `scripts/ladder`; website aggregates via ops simul |
 | Records ratio leaders from playertable | L2 | SCH-003 | Yes | **Proven** | **Not executed** | — | [`records-post-game-exception.md`](records-post-game-exception.md) |

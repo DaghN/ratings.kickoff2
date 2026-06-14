@@ -25,13 +25,13 @@ The three pills **W/D/L**, **Goals**, and **DDs** under the player hero are stru
 | # | Decision |
 |---|----------|
 | 1 | Add top-level **Opponents** pill; remove W/D/L, Goals, DDs as siblings. |
-| 2 | Inner sub-tabs: **W/D/L · Goals · DDs · Head-to-head** (default: W/D/L). |
+| 2 | Inner sub-tabs: **Head-to-head · W/D/L · Goals · DDs** (default: Head-to-head). |
 | 3 | **Milestones** stays top-level (achievement / identity, not opponent analysis). |
 | 4 | Move Profile **Matchups** block (top opponents chart, H2H chart, rating comparison, opponent search) to **Opponents → Head-to-head**. |
 | 5 | Profile keeps **self-centric** charts: ELO over time, games per month. Optional small rivalry teaser (M09 one-liner) linking to Opponents — not a full matchup section. |
 | 6 | **Do not** mirror full `playertable` on Profile. Expand Career totals in a **curated** way (rows + `#rank` where useful), not a 40-column dump. |
 | 7 | **Start online**; Amiga follows the same mental model later. |
-| 8 | Legacy URLs not required pre-publish — old `player/wdl.php` etc. removed; canonical `player/opponents.php?view=`. |
+| 8 | Legacy URLs not required pre-publish — old `player/wdl.php` etc. removed; canonical `/player/opponents/h2h.php` (Opponents pill default). |
 
 ---
 
@@ -82,9 +82,11 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 
 ### Phase 2 — Head-to-head tab (in progress)
 
-**Design (locked Jun 2026):** Pair-first — not bar-chart entry. **No sticky picker.** **Player names always → profile** (no table row deep-links to H2H). Three pickers: **search** (global autofill, `games` not rating; opponents-with-history first while typing) · **by games ▾** · **A–Z ▾** (played opponents only). Selection → `?view=h2h&opponent={id}` with **carry-scroll** (keeps `window.scrollY` on reload). **Default headline:** when `opponent` is omitted, show the most-played opponent (URL stays without `opponent=` until user picks another).
+**Design (locked Jun 2026):** Pair-first — not bar-chart entry. **No sticky picker.** **Player names always → profile** (no table row deep-links to H2H). Three pickers: **search** (global autofill, `games` not rating; opponents-with-history first while typing) · **by games ▾** · **A–Z ▾** (played opponents only). Selection → `/player/opponents/h2h.php?opponent={id}` with **carry-scroll** (keeps `window.scrollY` on reload). **Default headline:** when `opponent` is omitted, show the most-played opponent (URL stays without `opponent=` until user picks another).
 
 - [x] **H2H v1 (Jun 2026):** picker band + pair headline (`includes/player_opponents_h2h.php`, `api/player_h2h_opponent_search.php`, `js/player-opponents-h2h.js`). Games/A–Z use shared **`k2-archive-listbox`** (two-column options: name · N games). No games → text only; no charts yet.
+- [x] **H2H poster v1 (Jun 2026)** — versus poster: diagonal arena, `VS` watermark, dual fighter cards (rank · rating · goals scored), centre W/D/L, full-width rivalry tug-of-war bar, leader glow/"Leads" chip. See [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Implementation (as built).
+- [ ] **H2H pair detail** — W/D/L + Goals + DDs fields for selected opponent only (same as sub-tab columns, one pair); below poster — see poster doc § Pair detail.
 - [ ] Move Profile **Matchups** charts (top opponents bar, H2H cumulative, rating compare) onto H2H tab below headline.
 - [ ] Remove `player_feast_render_charts()` **Matchups** section from `player/profile.php`.
 - [ ] Optional: rivalry one-liner on Profile → `opponents?view=h2h&opponent=…` (prose link, not name-link hijack).
@@ -129,20 +131,20 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 | Item | Location |
 |------|----------|
 | Top pills | `includes/player_nav.php` — Profile · Games · **Opponents** · Milestones |
-| Opponents shell | `player/opponents.php` — `view=wdl|goals|dds|h2h` (default wdl) |
+| Opponents shell | `player/opponents/{h2h,wdl,goals,dds}.php` + shared `includes/player_opponents_page.php` |
 | Inner sub-tabs | `includes/player_opponents_nav.php` |
 | Table bodies | `includes/player_opponents_tables.php` + **`includes/player_opponents_load.php`** |
 | H2H tab | `includes/player_opponents_h2h.php` · `api/player_h2h_opponent_search.php` · `js/player-opponents-h2h.js` |
 | Profile matchup block | `includes/player_feast_blocks.php` → charts still on Profile until Phase 2 charts slice |
-| Routes | `includes/k2_routes.php` — `player-opponents` |
+| Routes | `includes/k2_routes.php` — `player-opponents` + `player-opponents-{h2h,wdl,goals,dds}` |
 | Inner subnav precedent | `includes/league_honours_panel.php` (`k2-lb-league-honours__subnav`) |
 
 | View | URL |
 |------|-----|
-| W/D/L (default) | `/player/opponents.php?id={id}` |
-| Goals | `/player/opponents.php?id={id}&view=goals` |
-| DDs | `/player/opponents.php?id={id}&view=dds` |
-| H2H | `/player/opponents.php?id={id}&view=h2h` · optional `&opponent={opponentId}` |
+| Head-to-head | `/player/opponents/h2h.php?id={id}` · optional `&opponent={opponentId}` |
+| W/D/L | `/player/opponents/wdl.php?id={id}` |
+| Goals | `/player/opponents/goals.php?id={id}` |
+| DDs | `/player/opponents/dds.php?id={id}` |
 
 ---
 
@@ -182,6 +184,7 @@ Dagh taste call before building.
 | Jun 2026 | **Phase 1 shipped locally** — Opponents pill, inner sub-tabs, three tables, H2H placeholder; old `player/wdl|goals|double-digits.php` removed. |
 | Jun 2026 | IA agreed in chat; this doc created as recenter reference. |
 | Jun 2026 | **H2H v1** — three pickers + pair headline; contextual search API; games/A–Z themed listboxes; charts still on Profile. |
+| Jun 2026 | **H2H poster v1 shipped locally** — versus poster replaces the plain `A vs B` headline (diagonal arena, `VS` watermark, per-fighter goals, rivalry tug-of-war bar, leader emphasis). No schema change. |
 
 ---
 

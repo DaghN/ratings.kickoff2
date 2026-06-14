@@ -57,7 +57,11 @@
 |-----------|------|
 | `player-profile` | `/player/profile.php` |
 | `player-games` | `/player/games.php` |
-| `player-opponents` | `/player/opponents.php` (`view=wdl|goals|dds|h2h`, default wdl; H2H optional `opponent={id}`) |
+| `player-opponents` | `/player/opponents/h2h.php` (default Opponents tab — Head-to-head) |
+| `player-opponents-h2h` | `/player/opponents/h2h.php` (optional `opponent={id}`) |
+| `player-opponents-wdl` | `/player/opponents/wdl.php` |
+| `player-opponents-goals` | `/player/opponents/goals.php` |
+| `player-opponents-dds` | `/player/opponents/dds.php` |
 | `player-milestones` | `/player/milestones.php` |
 
 Query `?id=` required on all player tabs.

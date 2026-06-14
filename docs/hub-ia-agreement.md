@@ -154,7 +154,7 @@ Player pages use the same global header, then player-specific context:
 - Player nav: Profile, Games, Opponents, Milestones.
 - `player/profile.php` is the warm profile feast landing.
 - `player/games.php` is the Games history tab with server-side filters/sort/100-row slices.
-- `player/opponents.php` — Opponents wing with inner tabs W/D/L, Goals, DDs, Head-to-head (`view=`).
+- `player/opponents/{h2h,wdl,goals,dds}.php` — Opponents wing inner tabs (path per tab).
 
 Future Amiga/photo/media work belongs on the profile/content track, not in hub IA.
 

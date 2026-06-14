@@ -1,6 +1,6 @@
 <?php
 /**
- * Opponents inner sub-tabs — W/D/L · Goals · DDs · Head-to-head.
+ * Opponents inner sub-tabs — Head-to-head · W/D/L · Goals · DDs.
  * Set $k2PlayerOpponentsView and $id before include.
  */
 declare(strict_types=1);
@@ -11,10 +11,10 @@ $k2PlayerOpponentsView = player_opponents_parse_view($k2PlayerOpponentsView ?? n
 $id = isset($id) ? (int) $id : 0;
 
 $k2PlayerOpponentsTabs = [
+    'h2h' => 'Head-to-head',
     'wdl' => 'W/D/L',
     'goals' => 'Goals',
     'dds' => 'DDs',
-    'h2h' => 'Head-to-head',
 ];
 ?>
 <div class="k2-chrome-tabs k2-player-opponents">

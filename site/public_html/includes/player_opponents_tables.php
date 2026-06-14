@@ -206,8 +206,20 @@ function player_opponents_render_goals_table_from_rows(array $rows, bool $extrem
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_player_link($opponentId, $opponentName); ?></td>
         <td><?php echo $games; ?></td>
-        <td><?php echo $goalsFor; ?></td>
-        <td><?php echo $goalsAgainst; ?></td>
+        <td><?php if ($goalsFor != 0) {
+            echo "<span class='blue'>";
+            echo $goalsFor;
+            echo '</span>';
+        } else {
+            echo '0';
+        } ?></td>
+        <td><?php if ($goalsAgainst != 0) {
+            echo "<span class='red'>";
+            echo $goalsAgainst;
+            echo '</span>';
+        } else {
+            echo '0';
+        } ?></td>
         <td><?php echo number_format($averageFor, 2); ?></td>
         <td><?php echo number_format($averageAgainst, 2); ?></td>
         <td><?php
@@ -328,11 +340,23 @@ function player_opponents_render_dds_table_from_rows(array $rows): void
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_player_link($opponentId, $opponentName); ?></td>
         <td><?php echo $games; ?></td>
-        <td><?php echo $doubleDigits; ?></td>
+        <td><?php if ($doubleDigits != 0) {
+            echo "<span class='blue'>";
+            echo $doubleDigits;
+            echo '</span>';
+        } else {
+            echo '0';
+        } ?></td>
         <td><?php echo $cleanSheets; ?></td>
         <td><?php echo player_opponents_dds_ratio_cell($ddRatio); ?></td>
         <td><?php echo player_opponents_dds_ratio_cell($csRatio); ?></td>
-        <td><?php echo $doubleDigitsConceded; ?></td>
+        <td><?php if ($doubleDigitsConceded != 0) {
+            echo "<span class='red'>";
+            echo $doubleDigitsConceded;
+            echo '</span>';
+        } else {
+            echo '0';
+        } ?></td>
         <td><?php echo $cleanSheetsConceded; ?></td>
         <td><?php echo player_opponents_dds_ratio_cell($ddConcededRatio); ?></td>
         <td><?php echo player_opponents_dds_ratio_cell($csConcededRatio); ?></td>

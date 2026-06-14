@@ -1,7 +1,7 @@
-@charset "utf-8";
+﻿@charset "utf-8";
 
 /**
- * Kick Off 2 ratings — production theme.
+ * Kick Off 2 ratings â€” production theme.
  * Bold neon (C): glow on player hero avatar only. Exo 2, cyan/magenta table highlights.
  * UI accent (tint): default amber; hub pills override. Realm switch does not set paint (see docs/tint-vs-realm.md).
  */
@@ -17,7 +17,7 @@
 	--k2-border-subtle: rgba(255, 255, 255, 0.07);
 	--k2-border-strong: rgba(255, 255, 255, 0.1);
 
-	/* Foundational hues — single hex source (hub tint, milestone glow, chart aliases) */
+	/* Foundational hues â€” single hex source (hub tint, milestone glow, chart aliases) */
 	--k2-pure-amber: #ffb74d;
 	--k2-pure-pitch: #9ccc65;
 	--k2-pure-chrome: #64b5f6;
@@ -25,7 +25,7 @@
 	/* Milestone legendary band; pitch/chrome/amber use --k2-pure-* on milestone surfaces */
 	--k2-ms-holo: #bf80f8;
 
-	/* Amber chart ink only — soft mix (fixed hue; not tint-following) */
+	/* Amber chart ink only â€” soft mix (fixed hue; not tint-following) */
 	--k2-amber-soft: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
 
 	/* Chart role aliases (Chart.js / heatmaps); milestone cards use --k2-pure-* directly */
@@ -59,36 +59,36 @@
 	--k2-tooltip-title: var(--k2-text-secondary);
 	--k2-tooltip-body: var(--k2-text-primary);
 	--k2-tooltip-footer: var(--k2-text-muted);
-	/* In-page scrollbars — muted chrome, not tint accent */
+	/* In-page scrollbars â€” muted chrome, not tint accent */
 	--k2-scrollbar-size: 8px;
 	--k2-scrollbar-track: transparent;
 	--k2-scrollbar-thumb: color-mix(in srgb, var(--k2-text-muted) 45%, transparent);
 	--k2-scrollbar-thumb-hover: color-mix(in srgb, var(--k2-text-muted) 62%, transparent);
-	/* Neon C · bold — stronger accent glow, no background grid */
+	/* Neon C Â· bold â€” stronger accent glow, no background grid */
 	--k2-glow-strength: 0.55;
 	--k2-accent-glow-blur: 18px;
 }
 
-/* UI accent (tint) — default amber; hub pills override via data-k2-accent (docs/tint-vs-realm.md) */
+/* UI accent (tint) â€” default amber; hub pills override via data-k2-accent (docs/tint-vs-realm.md) */
 html {
 	--k2-accent: var(--k2-pure-amber);
 	--k2-accent-muted: rgba(255, 183, 77, 0.14);
 	--k2-accent-glow: rgba(255, 183, 77, 0.35);
 	--k2-segment-active-text: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
 	--k2-segment-active-ring: color-mix(in srgb, var(--k2-accent) 55%, transparent);
-	/* Text on solid accent fills (calendar selected day, etc.) — dark ink reads on all four tints */
+	/* Text on solid accent fills (calendar selected day, etc.) â€” dark ink reads on all four tints */
 	--k2-accent-solid-text: #0b0f14;
 	--k2-link: color-mix(in srgb, var(--k2-accent) 72%, var(--k2-text-secondary));
 	--k2-link-hover: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary));
-	/* Player names, IDs, profile stat highlights — accent-forward, not full chrome */
+	/* Player names, IDs, profile stat highlights â€” accent-forward, not full chrome */
 	--k2-link-star: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary));
 	--k2-link-star-hover: color-mix(in srgb, var(--k2-accent) 94%, var(--k2-text-primary));
-	/* Status league anchors: cross-tint ink (not --k2-accent); amber/pitch → chrome, chrome/holo → pitch */
+	/* Status league anchors: cross-tint ink (not --k2-accent); amber/pitch â†’ chrome, chrome/holo â†’ pitch */
 	--k2-league-anchor-pure: var(--k2-pure-chrome);
 	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
 	--k2-table-positive: color-mix(in srgb, var(--k2-stat-positive-base) 78%, var(--k2-text-primary));
 	--k2-table-negative: color-mix(in srgb, var(--k2-stat-negative-base) 78%, var(--k2-text-primary));
-	/* Drag-select highlight — overrides OS/browser default (e.g. Windows blue) */
+	/* Drag-select highlight â€” overrides OS/browser default (e.g. Windows blue) */
 	--k2-text-selection-bg: color-mix(in srgb, var(--k2-accent) 42%, var(--k2-bg-elevated));
 	--k2-text-selection-color: var(--k2-text-primary);
 	/* Stacked drop-shadow bloom (wordmark, heritage lamp); follows tint picker */
@@ -114,7 +114,7 @@ html[data-k2-accent="chrome"] {
 	--k2-accent: var(--k2-pure-chrome);
 	--k2-accent-muted: rgba(100, 181, 246, 0.14);
 	--k2-accent-glow: rgba(100, 181, 246, 0.38);
-	/* Cyan positive stats clash with chrome links — use pitch hue instead */
+	/* Cyan positive stats clash with chrome links â€” use pitch hue instead */
 	--k2-stat-positive-base: var(--k2-pure-pitch);
 	--k2-league-anchor-pure: var(--k2-pure-pitch);
 	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
@@ -124,7 +124,7 @@ html[data-k2-accent="holo"] {
 	--k2-accent: var(--k2-pure-holo);
 	--k2-accent-muted: rgba(179, 136, 255, 0.14);
 	--k2-accent-glow: rgba(179, 136, 255, 0.45);
-	/* Cyan positives clash with violet accent — use pitch hue (same rule as chrome) */
+	/* Cyan positives clash with violet accent â€” use pitch hue (same rule as chrome) */
 	--k2-stat-positive-base: var(--k2-pure-pitch);
 	--k2-league-anchor-pure: var(--k2-pure-pitch);
 	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
@@ -170,7 +170,7 @@ body.k2-site h1 {
 	color: var(--k2-text-primary);
 }
 
-/* Hub page lede — muted 13px (catalog, HoF notes, etc.) */
+/* Hub page lede â€” muted 13px (catalog, HoF notes, etc.) */
 body.k2-site .k2-hub-page-intro-head {
 	margin-bottom: 22px;
 }
@@ -185,7 +185,7 @@ body.k2-site .k2-hub-page-intro {
 	max-width: 44rem;
 }
 
-/* Hub section chapter — compact title + curator lede above wing/sub-nav (not browser-default h1 scale) */
+/* Hub section chapter â€” compact title + curator lede above wing/sub-nav (not browser-default h1 scale) */
 body.k2-site .k2-hub-chapter {
 	max-width: var(--k2-max-width);
 	margin: 0 0 10px;
@@ -246,7 +246,7 @@ body.k2-site .k2-hub-chapter__nav {
 	margin-bottom: 12px;
 }
 
-/* ── Site header ── */
+/* â”€â”€ Site header â”€â”€ */
 .k2-site-header {
 	display: flex;
 	flex-wrap: wrap;
@@ -281,7 +281,7 @@ body.k2-site a.k2-wordmark__link:focus-visible {
 	text-decoration: none;
 }
 
-/* Wordmark neon — fixed px shadows (calc() stacks >~120px were dropped by browsers) */
+/* Wordmark neon â€” fixed px shadows (calc() stacks >~120px were dropped by browsers) */
 .k2-wordmark__main {
 	color: var(--k2-accent);
 	text-shadow:
@@ -293,7 +293,7 @@ body.k2-site a.k2-wordmark__link:focus-visible {
 	filter: var(--k2-accent-bloom-filter);
 }
 
-/* Hover — same core + extra bloom (filter must repeat base drop-shadows) */
+/* Hover â€” same core + extra bloom (filter must repeat base drop-shadows) */
 body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main,
 body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
 	color: var(--k2-accent);
@@ -333,7 +333,7 @@ body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
 	min-width: 0;
 }
 
-/* Realm switcher — segment track beside wordmark (tint-derived active ring, not realm colours) */
+/* Realm switcher â€” segment track beside wordmark (tint-derived active ring, not realm colours) */
 .k2-realm-switch {
 	flex: 0 1 auto;
 	min-width: 0;
@@ -441,7 +441,7 @@ body.k2-site a.k2-site-header__utility-link:focus-visible {
 	text-decoration: none;
 }
 
-/* ── Player search ── */
+/* â”€â”€ Player search â”€â”€ */
 body.k2-site .player-search {
 	position: relative;
 	margin: 0;
@@ -691,7 +691,7 @@ body.k2-site .k2-games-highlights .k2-panel-heading {
 	margin-bottom: 8px;
 }
 
-/* Highlights table — not ranked-pages-table (col 2 there is min 9.1em for player names); calm-stats ink via .k2-games-highlights-table in calm-stats block below. */
+/* Highlights table â€” not ranked-pages-table (col 2 there is min 9.1em for player names); calm-stats ink via .k2-games-highlights-table in calm-stats block below. */
 body.k2-site .k2-games-highlights .k2-table.k2-games-highlights-table {
 	width: auto;
 	max-width: 100%;
@@ -746,11 +746,11 @@ body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty {
 	color: var(--k2-text-secondary);
 }
 
-/* ── Chart blocks on server / profile pages ── */
+/* â”€â”€ Chart blocks on server / profile pages â”€â”€ */
 body.k2-site .server-activity-summary {
 	box-sizing: border-box;
 	width: 100%;
-	/* Hub column width — charts below stay --k2-chart-max-width (960px) in .k2-chart-frame */
+	/* Hub column width â€” charts below stay --k2-chart-max-width (960px) in .k2-chart-frame */
 	max-width: min(var(--k2-max-width), 100%);
 	min-width: 0;
 	margin-bottom: 16px;
@@ -860,7 +860,7 @@ body.k2-site .player-h2h-opponent-search {
 	background: var(--k2-bg-surface);
 }
 
-/* Activity hub charts — v2 frame (docs/activity-charts.md); scoped to Activity page body class. */
+/* Activity hub charts â€” v2 frame (docs/activity-charts.md); scoped to Activity page body class. */
 body.k2-site.k2-activity-charts .k2-chart-frame {
 	position: relative;
 	width: 100%;
@@ -978,7 +978,7 @@ body.k2-site .player-compare-rating-chart canvas {
 	}
 }
 
-/* Profile stat tables — vertical stack in shared page column */
+/* Profile stat tables â€” vertical stack in shared page column */
 body.k2-site .k2-page-nav .k2-table {
 	max-width: 1200px;
 	margin-bottom: 16px;
@@ -988,7 +988,7 @@ body.k2-site .player-h2h-opponent-search label {
 	color: var(--k2-text-primary);
 }
 
-/* Data-surface headings — hub nav parity: Plex 600, muted, slightly larger than tabs */
+/* Data-surface headings â€” hub nav parity: Plex 600, muted, slightly larger than tabs */
 .k2-panel-heading {
 	margin: 0 0 4px;
 	font-family: var(--k2-font-body);
@@ -1031,7 +1031,7 @@ body.k2-site .server-matchup-breadth-chart-status {
 	color: var(--k2-text-muted);
 }
 
-/* ── Activity heatmap (cell size from JS: --heatmap-cell, --heatmap-weeks) ── */
+/* â”€â”€ Activity heatmap (cell size from JS: --heatmap-cell, --heatmap-weeks) â”€â”€ */
 .activity-heatmap {
 	--heatmap-cell: 11px;
 	--heatmap-weeks: 53;
@@ -1116,7 +1116,7 @@ body.k2-site .server-matchup-breadth-chart-status {
 	color: var(--k2-text-muted);
 }
 
-/* Games-by-period leaderboards (Status) — outer panel */
+/* Games-by-period leaderboards (Status) â€” outer panel */
 body.k2-site .server-period-activity-leaderboards {
 	max-width: var(--k2-max-width);
 	margin-bottom: 16px;
@@ -1283,7 +1283,7 @@ body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col
 	width: var(--k2-hof-date-col-ch);
 }
 
-/* HoF: row labels + date/period column — muted (values/holders stay primary / link-star) */
+/* HoF: row labels + date/period column â€” muted (values/holders stay primary / link-star) */
 body.k2-site .k2-table.server-records-table tbody td:first-child,
 body.k2-site .k2-table.server-records-table tbody td:nth-child(4) {
 	color: var(--k2-text-muted);
@@ -1462,7 +1462,7 @@ body.k2-site .server-period-activity-leaderboard--loading {
 	opacity: 0.72;
 }
 
-/* ── Leaderboard / data tables (k2-table — mock-aligned) ── */
+/* â”€â”€ Leaderboard / data tables (k2-table â€” mock-aligned) â”€â”€ */
 body.k2-site .k2-table {
 	border-collapse: collapse;
 	font-size: 12px;
@@ -1495,7 +1495,7 @@ body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
 }
 
-/* Player matchup tables (Opponent col 1, Games col 2): not hub Rank/Player — normal Games width */
+/* Player matchup tables (Opponent col 1, Games col 2): not hub Rank/Player â€” normal Games width */
 body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table thead th:nth-child(1),
 body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table tbody td:nth-child(1) {
 	width: auto;
@@ -1626,7 +1626,7 @@ body.k2-site .k2-table tbody td {
 	white-space: nowrap;
 }
 
-/* Wing anchor column (data-k2-anchor-col) — permanent link-star emphasis */
+/* Wing anchor column (data-k2-anchor-col) â€” permanent link-star emphasis */
 body.k2-site .k2-table tbody td.k2-table-anchor-cell,
 body.k2-site .k2-table tbody td.k2-table-anchor-cell .blue,
 body.k2-site .k2-table tbody td.k2-table-anchor-cell .red {
@@ -1664,7 +1664,7 @@ body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-table-col-sorted {
 	font-weight: 600;
 }
 
-/* Colspan empty-state rows (e.g. server3 “no games”) — stay calm secondary even when sort col is 0 */
+/* Colspan empty-state rows (e.g. server3 â€œno gamesâ€) â€” stay calm secondary even when sort col is 0 */
 body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty,
 body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty.k2-table-col-sorted {
 	color: var(--k2-text-secondary);
@@ -1705,7 +1705,7 @@ body.k2-site .k2-table .k2-table-cell--pad-x-md {
 }
 
 /* Extra header padding for legacy short labels (e.g. GF, DD). Avoid on long leaderboard
-   headers — applies to th only in PHP, but still widens the whole column. */
+   headers â€” applies to th only in PHP, but still widens the whole column. */
 body.k2-site .k2-table .k2-table-cell--pad-left-xs {
 	padding-left: 10.5px;
 }
@@ -1836,7 +1836,7 @@ body.k2-site .k2-table thead .filtercell select.table-autofilter {
 	box-shadow: var(--k2-shadow-surface);
 }
 
-/* game.php — interim while browser replay ships */
+/* game.php â€” interim while browser replay ships */
 body.k2-site .k2-game-page__aside {
 	max-width: 42rem;
 	margin: 24px 0 32px;
@@ -1922,7 +1922,7 @@ body.k2-site .k2-table-scroll-mirror__sizer {
 	pointer-events: none;
 }
 
-/* In-page scroll regions — shared muted scrollbar chrome */
+/* In-page scroll regions â€” shared muted scrollbar chrome */
 body.k2-site .k2-table-wrap,
 body.k2-site .k2-table-scroll-mirror,
 body.k2-site .k2-archive-listbox__panel,
@@ -2082,7 +2082,7 @@ body.k2-site .k2-player-games-action:focus-visible {
 	outline: none;
 }
 
-/* Amiga player tournament history — labeled filter rows (Event / Location) in one panel */
+/* Amiga player tournament history â€” labeled filter rows (Event / Location) in one panel */
 body.k2-site .k2-player-tournament-filters {
 	display: flex;
 	flex-direction: column;
@@ -2138,7 +2138,7 @@ body.k2-site .k2-player-games-filters .k2-player-games-controls {
 	width: 100%;
 }
 
-/* Amiga games tab — stacked labels; equal-width filter columns on laptop */
+/* Amiga games tab â€” stacked labels; equal-width filter columns on laptop */
 body.k2-site .k2-player-games-filters .k2-player-games-controls__fields {
 	flex-wrap: nowrap;
 	gap: 6px;
@@ -2202,7 +2202,7 @@ body.k2-site .k2-table.k2-table--player-matchup.k2-table--calm-stats tbody td.k2
 	border-top-right-radius: var(--k2-radius-md);
 }
 
-/* ── Player sub-nav ── */
+/* â”€â”€ Player sub-nav â”€â”€ */
 .k2-player-nav-bar {
 	width: 100%;
 	max-width: 100%;
@@ -2276,13 +2276,13 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	text-decoration: none;
 }
 
-/* Opponents wing — mirror league-honours: 12px hub bar → sub bar; 12px sub bar → table */
+/* Opponents wing â€” mirror league-honours: 12px hub bar â†’ sub bar; 12px sub bar â†’ table */
 body.k2-site .k2-page-nav--opponents .k2-player-nav-bar {
 	margin-bottom: 0;
 }
 
 body.k2-site .k2-page-nav--opponents .k2-chrome-tabs.k2-player-opponents {
-	margin-top: 12px;
+	margin-top: 4px;
 	margin-bottom: 4px;
 }
 
@@ -2312,21 +2312,32 @@ body.k2-site .k2-player-opponents__h2h-placeholder {
 	background: var(--k2-bg-surface);
 }
 
+body.k2-site .k2-player-opponents:has(.k2-player-opponents-h2h) .k2-player-opponents__nav {
+	margin-bottom: 20px;
+}
+
 body.k2-site .k2-player-opponents-h2h {
 	margin-top: 0;
 }
 
 body.k2-site .k2-player-opponents-h2h__pickers {
-	--k2-h2h-picker-width: 12.5rem;
+	--k2-h2h-picker-width: min(14rem, 42vw);
 	display: flex;
 	flex-wrap: wrap;
-	align-items: end;
-	gap: clamp(10px, 2.5vw, 28px);
-	margin-bottom: 1.25rem;
+	align-items: flex-end;
+	gap: clamp(12px, 2.5vw, 28px);
+	margin-top: 0;
+	margin-bottom: clamp(17px, 2.75vw, 27px);
+	color: var(--k2-text-muted);
+	font-size: 12px;
 }
 
 body.k2-site .k2-player-opponents-h2h__search,
 body.k2-site .k2-player-opponents-h2h__listbox-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 6px;
 	flex: 0 1 var(--k2-h2h-picker-width);
 	width: var(--k2-h2h-picker-width);
 	max-width: 100%;
@@ -2341,22 +2352,32 @@ body.k2-site .k2-player-opponents-h2h__listbox-wrap {
 	min-width: min(100%, 9.5rem);
 }
 
+/* H2H picker labels — muted uppercase, slightly larger than games filters */
+body.k2-site .k2-player-opponents-h2h__pickers .player-search-label,
+body.k2-site .k2-player-opponents-h2h__select-label {
+	display: block;
+	margin: 0;
+	flex: 0 0 auto;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--k2-text-secondary);
+	line-height: 1.2;
+	white-space: nowrap;
+}
+
 body.k2-site .k2-player-opponents-h2h__search-input {
 	box-sizing: border-box;
 	width: 100%;
+	padding: 4px 10px;
+	font-size: 13px;
+	line-height: 1.25;
 }
 
 body.k2-site .k2-player-opponents-h2h__search-results {
 	width: 100%;
 	max-width: none;
-}
-
-body.k2-site .k2-player-opponents-h2h__select-label {
-	display: block;
-	margin: 0 0 6px;
-	color: var(--k2-text-primary);
-	font-size: 13px;
-	font-weight: 600;
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox-wrap .k2-archive-listbox,
@@ -2368,14 +2389,25 @@ body.k2-site .k2-player-opponents-h2h__listbox-wrap .k2-archive-listbox__trigger
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__trigger {
-	padding: 6px 28px 6px 10px;
+	padding: 4px 24px 4px 10px;
 	font-size: 13px;
-	line-height: 1.35;
+	line-height: 1.25;
+	gap: 4px;
+	background-position: right 8px center;
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__label--placeholder {
 	color: var(--k2-text-muted);
 	font-weight: 400;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__panel {
+	font-size: 13px;
+}
+
+body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__option {
+	font-size: 13px;
+	font-weight: 500;
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox .k2-h2h-listbox__option {
@@ -2392,21 +2424,34 @@ body.k2-site .k2-player-opponents-h2h__listbox .k2-h2h-listbox__name {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	color: var(--k2-text-secondary);
+	font-weight: 500;
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox .k2-h2h-listbox__meta {
 	flex: 0 0 auto;
 	white-space: nowrap;
+	font-size: inherit;
 	font-variant-numeric: tabular-nums;
 	color: var(--k2-text-muted);
 	font-weight: 400;
 }
 
 body.k2-site .k2-player-opponents-h2h__stage {
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	overflow: visible;
+}
+
+body.k2-site .k2-player-opponents-h2h__stage:has(.k2-player-opponents-h2h__prompt),
+body.k2-site .k2-player-opponents-h2h__stage:has(.k2-player-opponents-h2h__empty) {
 	padding: 1.25rem 1.5rem;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
+	box-shadow: none;
 }
 
 body.k2-site .k2-player-opponents-h2h__prompt {
@@ -2418,22 +2463,6 @@ body.k2-site .k2-player-opponents-h2h__empty {
 	color: var(--k2-text-secondary);
 	font-size: 15px;
 	line-height: 1.5;
-}
-
-body.k2-site .k2-player-opponents-h2h__headline {
-	margin: 0;
-	font-size: clamp(1.35rem, 2.5vw, 1.75rem);
-	font-weight: 700;
-	line-height: 1.25;
-	letter-spacing: -0.02em;
-}
-
-body.k2-site .k2-player-opponents-h2h__vs {
-	margin: 0 0.45em;
-	color: var(--k2-text-muted);
-	font-weight: 600;
-	font-size: 0.85em;
-	text-transform: lowercase;
 }
 
 body.k2-site .player-search-results .player-search-group {
@@ -2450,26 +2479,43 @@ body.k2-site .k2-player-opponents-h2h__search-option {
 	flex-direction: row;
 	align-items: baseline;
 	justify-content: space-between;
-	gap: 12px;
+	gap: 0.65em;
 	width: 100%;
 	margin: 0;
-	padding: 6px 10px;
+	padding: 5px 8px;
+	min-height: 1.35em;
 	border: 0;
 	border-radius: 0;
-	background: transparent;
-	color: inherit;
+	border-bottom: 1px solid var(--k2-border-subtle);
+	background-color: var(--k2-bg-elevated);
+	color: var(--k2-link);
 	font: inherit;
+	font-size: inherit;
+	font-weight: normal;
 	text-align: left;
 	cursor: pointer;
 }
 
+body.k2-site .k2-player-opponents-h2h__search-results li:last-child .k2-player-opponents-h2h__search-option {
+	border-bottom: none;
+}
+
 body.k2-site .k2-player-opponents-h2h__search-option:hover,
 body.k2-site .k2-player-opponents-h2h__search-option:focus-visible {
-	background: var(--k2-bg-hover);
+	background-color: var(--k2-accent-muted);
 	outline: none;
 }
 
-/* ── Player hero scaffold ── */
+body.k2-site .k2-player-opponents-h2h__search-option .player-search-name {
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .k2-player-opponents-h2h__search-option:hover .player-search-name,
+body.k2-site .k2-player-opponents-h2h__search-option:focus-visible .player-search-name {
+	color: var(--k2-text-primary);
+}
+
+/* â”€â”€ Player hero scaffold â”€â”€ */
 .k2-player-hero {
 	position: relative;
 	overflow: hidden;
@@ -2485,6 +2531,9 @@ body.k2-site .k2-player-opponents-h2h__search-option:focus-visible {
 	--k2-player-hero-avatar-air: 32px;
 	display: grid;
 	grid-template-columns: auto 1fr;
+	/* centre the avatar against the name/stats block (was top-aligned via the
+	   default stretch, which made the ring look lifted) */
+	align-items: center;
 	column-gap: var(--k2-player-hero-avatar-air);
 	row-gap: 20px;
 	padding: 20px;
@@ -2538,7 +2587,7 @@ body.k2-site .k2-player-opponents-h2h__search-option:focus-visible {
 	font-family: var(--k2-font-display);
 	font-size: 24px;
 	font-weight: 600;
-	color: var(--k2-text-primary);
+	color: var(--k2-link-star);
 }
 
 body.k2-site a.k2-player-hero__name-link,
@@ -2595,7 +2644,9 @@ body.k2-site a.k2-player-hero__stat-link:focus {
 	font-weight: 600;
 	line-height: var(--k2-player-hero-value-line);
 	font-variant-numeric: tabular-nums;
-	color: var(--k2-text-primary);
+	/* base = muted supporting stats (Games, Milestones); Rank + Rating are
+	   re-accented to link-star by player-hero-rank.css (loaded globally) */
+	color: var(--k2-text-secondary);
 }
 
 .k2-player-hero__stat-value--accent {
@@ -2629,13 +2680,21 @@ body.k2-site a.k2-player-hero__milestones:focus .k2-player-hero__milestones-tota
 	color: var(--k2-text-primary);
 }
 
-.k2-player-hero__milestones-total {
+/* muted base stats (Games) brighten on hover, mirroring Milestones; the
+   [class*="--"] guard limits this to the un-modified value (Rank/Rating keep
+   their link-star ink, which is already an accented highlight) */
+body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__stat-link:hover,
+body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__stat-link:focus {
 	color: var(--k2-text-primary);
+}
+
+.k2-player-hero__milestones-total {
+	color: var(--k2-text-secondary);
 }
 
 /* Rank + rating glow: stylesheets/player-hero-rank.css (via k2_head.php) */
 
-/* ── Status bridge + cards ── */
+/* â”€â”€ Status bridge + cards â”€â”€ */
 .k2-status-bridge {
 	max-width: 1200px;
 }
@@ -2726,7 +2785,7 @@ body.k2-site a.k2-player-hero__milestones:focus .k2-player-hero__milestones-tota
 	font-size: 12px;
 }
 
-/* ── Play & setup (join.php) ── */
+/* â”€â”€ Play & setup (join.php) â”€â”€ */
 .k2-join-page {
 	--k2-join-read-width: 42rem;
 	max-width: var(--k2-max-width);
@@ -2881,12 +2940,12 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 }
 
 .k2-join-page__summary::before {
-	content: "▸ ";
+	content: "â–¸ ";
 	color: var(--k2-accent);
 }
 
 .k2-join-page__details[open] .k2-join-page__summary::before {
-	content: "▾ ";
+	content: "â–¾ ";
 }
 
 .k2-join-page__details-body {
@@ -2965,7 +3024,7 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	border: 0;
 }
 
-/* ── Status room (hub v1.2) ── */
+/* â”€â”€ Status room (hub v1.2) â”€â”€ */
 .k2-status-room {
 	max-width: 1200px;
 	margin: 0 auto;
@@ -3042,7 +3101,7 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	white-space: nowrap;
 }
 
-/* Heritage inset — clipped tint lamp balancing the wordmark glow. */
+/* Heritage inset â€” clipped tint lamp balancing the wordmark glow. */
 .k2-status-heritage-inset {
 	box-sizing: border-box;
 	display: flex;
@@ -3147,7 +3206,7 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	text-shadow: 0 0 12px color-mix(in srgb, var(--k2-heritage-lamp) 42%, transparent);
 }
 
-/* Clickable heritage box → box art story page */
+/* Clickable heritage box â†’ box art story page */
 .k2-status-heritage-inset--link {
 	text-decoration: none;
 	cursor: pointer;
@@ -3185,7 +3244,7 @@ body.k2-site a.k2-status-heritage-inset--link:focus-visible .k2-heritage-box__ar
 	font-size: 12px;
 }
 
-/* west: new | logins | games, then league — subgrid aligns with parent cols 1–3 */
+/* west: new | logins | games, then league â€” subgrid aligns with parent cols 1â€“3 */
 .k2-status-room__west {
 	grid-area: west;
 	display: grid;
@@ -3301,7 +3360,7 @@ body.k2-site a.k2-status-heritage-inset--link:focus-visible .k2-heritage-box__ar
 	letter-spacing: 0.04em;
 }
 
-/* Status — paired period competitions (Activity + Points) */
+/* Status â€” paired period competitions (Activity + Points) */
 .k2-status-period-competitions {
 	--k2-leagues-meta-gap: 20px;
 	--k2-leagues-points-min: 18rem;
@@ -3319,7 +3378,7 @@ body.k2-site a.k2-status-heritage-inset--link:focus-visible .k2-heritage-box__ar
 	margin-bottom: 0;
 }
 
-/* Status leagues — segment left; date picker centered in remaining row space (full-width centered when wrapped) */
+/* Status leagues â€” segment left; date picker centered in remaining row space (full-width centered when wrapped) */
 .k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) {
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -3541,7 +3600,7 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	box-sizing: border-box;
 }
 
-/* JS sets data-picker-slot-width — same width for Daily/Weekly/Monthly/Year tabs */
+/* JS sets data-picker-slot-width â€” same width for Daily/Weekly/Monthly/Year tabs */
 body.k2-site .k2-status-period-competitions__picker-row[data-picker-slot-width] {
 	flex: 0 0 auto;
 }
@@ -3603,7 +3662,7 @@ body.k2-site [data-k2-status-period-competitions][data-active-period="year"] [da
 	box-shadow: none;
 }
 
-/* KOOL listbox — shared (Leagues archive + Flatpickr month/year) */
+/* KOOL listbox â€” shared (Leagues archive + Flatpickr month/year) */
 body.k2-site .k2-archive-listbox {
 	position: relative;
 	display: inline-block;
@@ -3662,7 +3721,7 @@ body.k2-site .k2-archive-listbox__trigger:hover:not(:disabled) {
 	color: color-mix(in srgb, var(--k2-text-secondary) 82%, var(--k2-text-primary));
 }
 
-/* .is-open — no extra chrome; open panel carries state (prevents border flash on close). */
+/* .is-open â€” no extra chrome; open panel carries state (prevents border flash on close). */
 
 body.k2-site .k2-archive-listbox__trigger:focus-visible {
 	border-color: var(--k2-segment-active-ring);
@@ -3805,7 +3864,7 @@ body.k2-site .k2-status-period-competitions__archive-picker .k2-archive-listbox-
 	width: 100%;
 }
 
-/* Flatpickr — Leagues day picker (vendored flatpickr.min.css + KOOL overrides) */
+/* Flatpickr â€” Leagues day picker (vendored flatpickr.min.css + KOOL overrides) */
 body.k2-site .flatpickr-calendar {
 	margin-top: 6px;
 	font-family: inherit;
@@ -3844,7 +3903,7 @@ body.k2-site .flatpickr-months .k2-archive-listbox--compact .k2-archive-listbox_
 	pointer-events: auto;
 }
 
-/* Day grid can overlap the header in Flatpickr layout — do not let it steal header clicks */
+/* Day grid can overlap the header in Flatpickr layout â€” do not let it steal header clicks */
 body.k2-site .flatpickr-innerContainer {
 	position: relative;
 	z-index: 1;
@@ -4437,7 +4496,7 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	flex-shrink: 0;
 }
 
-/* Tint menu — disclosure pill + subdued swatch choices (segment grammar) */
+/* Tint menu â€” disclosure pill + subdued swatch choices (segment grammar) */
 .k2-tint-menu {
 	display: flex;
 	flex-wrap: wrap;
@@ -4592,7 +4651,7 @@ body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	text-decoration: none;
 }
 
-/* ── Leaderboard wing tabs (segment track + outline active) ── */
+/* â”€â”€ Leaderboard wing tabs (segment track + outline active) â”€â”€ */
 .k2-chrome-tabs {
 	max-width: 1200px;
 	margin-bottom: 4px;

@@ -1,0 +1,345 @@
+/**
+ * Player Opponents — head-to-head versus poster (shipped Jun 2026).
+ *
+ * Glowing hero-style identity cards around a `vs`, mirrored so avatars face
+ * inward, then W/D/L counts, lead meter and goals on a bare stage background.
+ * Linked from player/opponents/h2h.php.
+ */
+
+/* ===== poster shell (bare — no outer frame) ===== */
+body.k2-site .k2-h2h2-poster {
+	--k2-h2h2-blue: var(--k2-table-positive);
+	--k2-h2h2-red: var(--k2-table-negative);
+	--k2-h2h2-draw: color-mix(in srgb, var(--k2-text-muted) 64%, transparent);
+	--k2-h2h2-marquee-max: 48rem;
+	--k2-h2h2-record-max: 34rem;
+	--k2-h2h2-avatar: clamp(54px, 8vw, 68px);
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: clamp(12px, 2vw, 18px);
+	padding: clamp(4px, 0.7vw, 7px) 0 clamp(4px, 1vw, 10px);
+	border: 0;
+	background: none;
+	box-shadow: none;
+	text-align: center;
+}
+
+/* ===== marquee: card | vs | card ===== */
+body.k2-site .k2-h2h2-marquee {
+	width: 100%;
+	max-width: var(--k2-h2h2-marquee-max);
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: clamp(10px, 2.4vw, 22px);
+}
+
+/* ===== identity card ===== */
+body.k2-site .k2-h2h2-card {
+	--k2-h2h2-side: var(--k2-h2h2-blue);
+	position: relative;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	align-items: center;
+	column-gap: clamp(12px, 2vw, 18px);
+	padding: clamp(14px, 2.2vw, 20px) clamp(16px, 2.6vw, 22px);
+	border: 1px solid color-mix(in srgb, var(--k2-h2h2-side) 46%, var(--k2-border-subtle));
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+	min-width: 0;
+	transition: transform 0.08s ease-out;
+	box-shadow:
+		0 0 14px color-mix(in srgb, var(--k2-h2h2-side) 22%, transparent),
+		0 0 32px color-mix(in srgb, var(--k2-h2h2-side) 13%, transparent),
+		0 0 60px color-mix(in srgb, var(--k2-h2h2-side) 6%, transparent),
+		inset 0 1px 0 color-mix(in srgb, var(--k2-h2h2-side) 12%, transparent);
+}
+
+body.k2-site a.k2-h2h2-card--link,
+body.k2-site a.k2-h2h2-card--link:visited {
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+body.k2-site a.k2-h2h2-card--link:hover,
+body.k2-site a.k2-h2h2-card--link:focus-visible {
+	text-decoration: none;
+	transform: translateY(-2px);
+}
+
+body.k2-site a.k2-h2h2-card--link:hover .k2-h2h2-card__name,
+body.k2-site a.k2-h2h2-card--link:focus-visible .k2-h2h2-card__name {
+	color: color-mix(in srgb, var(--k2-h2h2-side) 82%, var(--k2-text-primary));
+}
+
+body.k2-site .k2-h2h2-card--subject {
+	--k2-h2h2-side: var(--k2-h2h2-blue);
+}
+
+body.k2-site .k2-h2h2-card--opponent {
+	--k2-h2h2-side: var(--k2-h2h2-red);
+}
+
+body.k2-site .k2-h2h2-card__media {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+body.k2-site .k2-h2h2-card__avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--k2-h2h2-avatar);
+	height: var(--k2-h2h2-avatar);
+	border: 2px solid var(--k2-h2h2-side);
+	border-radius: 50%;
+	background: var(--k2-bg-surface);
+	color: var(--k2-h2h2-side);
+	font-family: var(--k2-font-display);
+	font-size: clamp(22px, 3.6vw, 28px);
+	font-weight: 700;
+	line-height: 1;
+	box-shadow:
+		0 0 10px color-mix(in srgb, var(--k2-h2h2-side) 34%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-h2h2-side) 15%, transparent);
+}
+
+body.k2-site .k2-h2h2-card__body {
+	min-width: 0;
+	text-align: left;
+}
+
+body.k2-site .k2-h2h2-card__name {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-display);
+	font-size: clamp(18px, 3vw, 24px);
+	font-weight: 600;
+	line-height: 1.12;
+	color: var(--k2-h2h2-side);
+	text-shadow: 0 0 26px color-mix(in srgb, var(--k2-h2h2-side) 40%, transparent);
+	overflow-wrap: anywhere;
+}
+
+body.k2-site .k2-h2h2-card__stats {
+	margin: 0;
+	display: flex;
+	gap: clamp(14px, 2.4vw, 22px);
+}
+
+body.k2-site .k2-h2h2-card__stat {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+}
+
+body.k2-site .k2-h2h2-card__stat dt {
+	margin: 0;
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+	line-height: 1.2;
+}
+
+body.k2-site .k2-h2h2-card__stat dd {
+	margin: 0;
+	font-family: var(--k2-font-display);
+	font-size: clamp(15px, 2.4vw, 19px);
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+	font-variant-numeric: tabular-nums;
+	line-height: 1.1;
+}
+
+/* mirrored: opponent avatar faces the vs */
+body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent {
+	grid-template-columns: 1fr auto;
+}
+
+body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__media {
+	order: 2;
+}
+
+body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__body {
+	order: 1;
+	text-align: right;
+}
+
+body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__stats {
+	justify-content: flex-end;
+}
+
+body.k2-site .k2-h2h2-vs {
+	justify-self: center;
+	font-family: var(--k2-font-display);
+	font-size: clamp(15px, 2.4vw, 20px);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	color: var(--k2-text-secondary);
+}
+
+/* ===== W/D/L hero ===== */
+body.k2-site .k2-h2h2-record {
+	width: 100%;
+	max-width: var(--k2-h2h2-record-max);
+	margin: clamp(10px, 1.8vw, 16px) auto 0;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: clamp(8px, 3vw, 30px);
+	align-items: end;
+}
+
+body.k2-site .k2-h2h2-stat {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	min-width: 0;
+}
+
+body.k2-site .k2-h2h2-num {
+	font-family: var(--k2-font-display);
+	font-size: clamp(36px, 9.5vw, 66px);
+	font-weight: 700;
+	line-height: 0.92;
+	color: var(--k2-text-primary);
+	font-variant-numeric: tabular-nums;
+}
+
+body.k2-site .k2-h2h2-stat--win .k2-h2h2-num {
+	color: var(--k2-h2h2-blue);
+}
+
+body.k2-site .k2-h2h2-stat--loss .k2-h2h2-num {
+	color: var(--k2-h2h2-red);
+}
+
+body.k2-site .k2-h2h2-stat--draw .k2-h2h2-num {
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-h2h2-lab {
+	font-family: var(--k2-font-display);
+	font-size: clamp(10px, 1.6vw, 12px);
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+/* ===== lead meter ===== */
+body.k2-site .k2-h2h2-meter {
+	width: 100%;
+	max-width: var(--k2-h2h2-record-max);
+	height: 10px;
+	display: flex;
+	border-radius: 999px;
+	overflow: hidden;
+	background: var(--k2-bg-hover);
+	border: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .k2-h2h2-seg {
+	height: 100%;
+}
+
+body.k2-site .k2-h2h2-seg.is-on {
+	min-width: 3px;
+}
+
+body.k2-site .k2-h2h2-seg--win {
+	background: var(--k2-h2h2-blue);
+}
+
+body.k2-site .k2-h2h2-seg--draw {
+	background: var(--k2-h2h2-draw);
+}
+
+body.k2-site .k2-h2h2-seg--loss {
+	background: var(--k2-h2h2-red);
+}
+
+/* ===== goals ===== */
+body.k2-site .k2-h2h2-goals {
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3px;
+}
+
+body.k2-site .k2-h2h2-goals-line {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.45em;
+	font-variant-numeric: tabular-nums;
+}
+
+body.k2-site .k2-h2h2-goals-label {
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-h2h2-goal {
+	font-family: var(--k2-font-display);
+	font-size: clamp(15px, 2.4vw, 19px);
+	font-weight: 600;
+}
+
+body.k2-site .k2-h2h2-goal--for {
+	color: color-mix(in srgb, var(--k2-h2h2-blue) 72%, var(--k2-text-muted));
+}
+
+body.k2-site .k2-h2h2-goal--against {
+	color: color-mix(in srgb, var(--k2-h2h2-red) 72%, var(--k2-text-muted));
+}
+
+body.k2-site .k2-h2h2-goals-sep {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-h2h2-none {
+	margin: 0;
+	font-family: var(--k2-font-display);
+	font-size: clamp(17px, 3vw, 23px);
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+}
+
+@media (max-width: 640px) {
+	body.k2-site .k2-h2h2-marquee {
+		grid-template-columns: 1fr;
+		gap: 12px;
+	}
+
+	body.k2-site .k2-h2h2-card {
+		padding: 14px 16px;
+	}
+
+	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent {
+		grid-template-columns: auto 1fr;
+	}
+
+	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__media {
+		order: 0;
+	}
+
+	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__body {
+		order: 0;
+		text-align: left;
+	}
+
+	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__stats {
+		justify-content: flex-start;
+	}
+}

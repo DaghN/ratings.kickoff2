@@ -83,10 +83,14 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Player hero accent tweak** (cosmetic, all hero pages) — name now `--k2-link-star` (matches rank/rating ink); base `.k2-player-hero__stat-value` + `.k2-player-hero__milestones-total` muted to `--k2-text-secondary` so **Games + Milestones** read quiet (both brighten to primary on hover) while Rank/Rating stay link-star (via globally-loaded `player-hero-rank.css`). Also `.k2-player-hero__inner` → `align-items:center` so the avatar centres against the text block (was top-lifted via default stretch). `theme.css` only. Avatar stays pure `--k2-accent` (flagged: not link-star). |
+| 2026-06 | **Opponents DDs color** — Double Digits blue, DD conceded red (parity with Goals GF/GA). |
+| 2026-06 | **Opponents Goals GF/GA color** — GF column blue, GA column red (parity with W/D/L wins/losses). |
+| 2026-06 | **Opponents default wing** — main Opponents pill → Head-to-head (`player_opponents_default_href()` / `player/opponents/h2h.php`). |
 | 2026-06 | **Milestone totals (Phase 2)** — SCH-020 `player_milestone_totals`; librarian bump; meta LB + profile read stored truth; parity in `verify_ops_sim` — [`milestones-unlock-librarian.md`](docs/milestones-unlock-librarian.md). |
 | 2026-06 | **Milestone catalog holders (Phase 2b)** — SCH-021 `holder_count` on `milestone_definitions`; librarian bump; hub catalog + detail reads; parity in `verify_ops_sim`. |
 | 2026-06 | **Milestone unlock librarian (Phase 1)** — all live ops `player_milestones` INSERTs via `includes/milestone_unlock.php` — [`milestones-unlock-librarian.md`](docs/milestones-unlock-librarian.md). |
-| 2026-06 | **Carry-scroll anchor** — pill clicks store nav `aria-label` + viewport offset; restore keeps filter row stable when table height changes (tournament country pills, LB wings). |
+| 2026-06 | **H2H poster contract** — versus panel spec (rank/rating/W-D-L centre; no country; pair detail band scoped); [`player-opponents-h2h-poster.md`](docs/player-opponents-h2h-poster.md). |
 | 2026-06 | **Carry-scroll restore** — no upward re-scroll after first apply; still scrolls down when short pages grow. |
 | 2026-06 | **Opponents H2H carry-scroll** — opponent pick (search + listboxes) stores `scrollY` before navigate; same restore path as hub pills / games filters. |
 | 2026-06 | **Opponents H2H v1** — search (global, games vs context) + games/A–Z dropdowns + pair headline; `?view=h2h&opponent=`; charts still on Profile. |
