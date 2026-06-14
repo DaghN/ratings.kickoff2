@@ -23,7 +23,7 @@
 
 ## What v0 shows
 
-- **Hero** — same feast shell as online (`amiga_player_hero.php`): rank, rating, games, country line
+- **Hero** — same feast shell as online (`amiga_player_hero.php`): rank, rating, games, **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text
 - **Player nav** — Profile · Tournaments · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
 - **Honours strip** — `amiga_player_tournament_totals` (already loaded): career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
@@ -32,7 +32,7 @@
 - **Recent tournaments** — `amiga_player_tournament_participation`: finish from **`event_finish_position`** ordinal (all events including WC; NULL → —); **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
 - **Tournament history** — `/amiga/player/tournaments.php`: full participation list (no pagination); sortable table with per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); labeled filter panel (Event: All / World Cups; Location: country pills when applicable) — `.k2-player-tournament-filters` in `theme.css`
 - **Top opponents** — `amiga_player_matchup_summary` via `amiga_player_top_opponents()` (W-D-L, goals, games; W-D-L and games link to H2H pair page)
-- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_rating_events` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags)
+- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_rating_events` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags); toggle uses `player-feast-sections.css` segment control
 - **Games tab** — server-side filters: Event pills (All / World Cups), listboxes (result, opponent, tournament, country, year, since year), sort; tournament + phase from `amiga_games` + `tournaments`; per-game frozen `rating_a/b` and `adjustment_a/b` from `amiga_game_ratings` (`new_rating_*` NULL after finalize v1); status line shows game count + **Performance rating** for the filtered set (async JSON — same chess-style rules as event TPR, read-time from `amiga_game_ratings`); no pagination (full list)
 
 ## Data strategy (important)

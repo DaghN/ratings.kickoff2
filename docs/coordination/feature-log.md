@@ -8,6 +8,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 |---------|-------|--------|-----------|-----------------|--------------|----------|-------|
 | Ladder ops platform (`ops/`, PHP post-game) | — | — | — | **Done** Jun 2026 | **Not executed** | — | P0–P7 + `dispatch.php` + `dispatch_request.php` (HTTP); Steve `CMD=ProcessCompletedGame` |
 | Local dual website (dev + work URLs) | — | — | — | — | — | — | **Jun 2026** — `ratingskickoff.test` → `ko2unity_db`, `work.ratingskickoff.test` → `ko2unity_work`; config router |
+| Amiga player hero country flags | — | — | — | — | — | — | Country stat column (label + flag) on player profile/tournaments/games; `k2_amiga_country_flag.php` |
 | Amiga offline realm (A1) | L0 | `scripts/amiga/sql/001_core.sql` | — | — | **Not executed** | — | **Staging live Jun 2026** — `ko2amiga_db`, rating/profile/games; config `site/config/` — [`amiga-staging-handoff.md`](../amiga-staging-handoff.md) |
 | Amiga single game page | L0 | — | — | — | — | — | `/amiga/game.php?id=` — neutral row + tournament/phase; list ID links |
 | Amiga games tab filtered Perf. rating | L0 | — | — | — | — | — | Read-time async API on `/amiga/player/games.php` status line — [`amiga-performance-rating.md`](../amiga-performance-rating.md) |

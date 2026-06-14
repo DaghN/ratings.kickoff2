@@ -83,6 +83,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga profile rating chart polish** — shorter chart hint; `player-feast-sections.css` toggle styling; calendar tooltip “at day end”. |
+| 2026-06 | **Amiga player hero country flags** — fourth hero stat column (Country label + flag) after Rank/Rating/Games; `k2_amiga_country_flag.php` + `img/flags/amiga/` SVGs. |
 | 2026-06 | **Amiga import split queue closed** — Milan X not split (documented alias); Groningen **604** + Gloucester **605** splits shipped; gate open for disposition review. |
 | 2026-06 | **Amiga Gloucester III Team import split** — id **62**→90g + **605**→10g; both `pending_review`; register **605/605**. |
 | 2026-06 | **Amiga Groningen VII Cup import split** — `IMPORT_CATALOG_SPLITS` + append hook; id **48**→46g + **604**→14g; both `pending_review`; register **604/604** — [`import-layer`](docs/amiga-import-layer.md) § catalog splits. |

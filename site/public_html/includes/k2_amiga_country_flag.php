@@ -1,0 +1,73 @@
+<?php
+/**
+ * Amiga player country → bundled flag SVG (flag-icons 4x3, MIT).
+ * Keys match amiga_players.country display strings from Access import.
+ */
+require_once __DIR__ . '/k2_safety.php';
+
+/**
+ * @return array{code: string, label: string}|null
+ */
+function k2_amiga_country_flag_meta(string $country): ?array
+{
+    static $map = [
+        'Germany' => ['code' => 'de', 'label' => 'Germany'],
+        'England' => ['code' => 'gb-eng', 'label' => 'England'],
+        'Italy' => ['code' => 'it', 'label' => 'Italy'],
+        'Norway' => ['code' => 'no', 'label' => 'Norway'],
+        'Greece' => ['code' => 'gr', 'label' => 'Greece'],
+        'Netherlands' => ['code' => 'nl', 'label' => 'Netherlands'],
+        'Sweden' => ['code' => 'se', 'label' => 'Sweden'],
+        'Denmark' => ['code' => 'dk', 'label' => 'Denmark'],
+        'Spain' => ['code' => 'es', 'label' => 'Spain'],
+        'Austria' => ['code' => 'at', 'label' => 'Austria'],
+        'Ireland' => ['code' => 'ie', 'label' => 'Ireland'],
+        'France' => ['code' => 'fr', 'label' => 'France'],
+        'Poland' => ['code' => 'pl', 'label' => 'Poland'],
+        'Switzerland' => ['code' => 'ch', 'label' => 'Switzerland'],
+        'Turkey' => ['code' => 'tr', 'label' => 'Turkey'],
+        'Scotland' => ['code' => 'gb-sct', 'label' => 'Scotland'],
+        'Belgium' => ['code' => 'be', 'label' => 'Belgium'],
+        'Wales' => ['code' => 'gb-wls', 'label' => 'Wales'],
+        'Portugal' => ['code' => 'pt', 'label' => 'Portugal'],
+        'N. Ireland' => ['code' => 'gb-nir', 'label' => 'Northern Ireland'],
+        'Hong Kong' => ['code' => 'hk', 'label' => 'Hong Kong'],
+    ];
+
+    $country = trim($country);
+    if ($country === '') {
+        return null;
+    }
+
+    return $map[$country] ?? null;
+}
+
+function k2_amiga_country_flag_src(string $code): string
+{
+    return '/img/flags/amiga/' . rawurlencode($code) . '.svg';
+}
+
+/**
+ * @param array{class?: string, decorative?: bool} $opts
+ */
+function k2_amiga_country_flag_img(string $country, array $opts = []): string
+{
+    $meta = k2_amiga_country_flag_meta($country);
+    if ($meta === null) {
+        return '';
+    }
+
+    $class = isset($opts['class']) ? trim((string) $opts['class']) : '';
+    $decorative = !isset($opts['decorative']) || (bool) $opts['decorative'];
+    $src = k2_amiga_country_flag_src($meta['code']);
+    $classAttr = $class !== '' ? ' class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '"' : '';
+
+    if ($decorative) {
+        return '<img src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '"'
+            . ' width="28" height="21" decoding="async" loading="lazy" alt="" aria-hidden="true"' . $classAttr . '>';
+    }
+
+    return '<img src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '"'
+        . ' width="28" height="21" decoding="async" loading="lazy"'
+        . ' alt="' . htmlspecialchars($meta['label'], ENT_QUOTES, 'UTF-8') . '"' . $classAttr . '>';
+}

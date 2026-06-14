@@ -5,6 +5,7 @@
 <title>Amiga player profile</title>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/player-feast-sections.css" rel="stylesheet" type="text/css" />
 <script src="/js/chart.umd.min.js"></script>
 <script src="/js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="/js/chart-theme.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-theme.js'); ?>"></script>

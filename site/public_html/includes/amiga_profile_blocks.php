@@ -642,7 +642,7 @@ function amiga_profile_render_rating_chart(int $playerId): void
 <section class="k2-amiga-profile-chart" style="padding:0 1.25rem 2rem">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga">
 		<h3 class="k2-panel-heading">Elo rating</h3>
-		<p class="k2-chart-block__hint">Calendar view: end-of-day rating after each tournament day. Tournament # view: one point per finalized event (no within-event zigzags). Axis starts at the first Amiga ladder game.</p>
+		<p class="k2-chart-block__hint">Calendar view: end-of-day rating after each tournament day. Tournament # view: one point per finalized event.</p>
 		<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
 			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
 			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By tournament #</button>

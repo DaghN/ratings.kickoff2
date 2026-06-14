@@ -214,7 +214,7 @@
             type: 'line',
             data: {
                 datasets: [Object.assign({
-                    label: 'ELO rating (after game)',
+                    label: 'ELO rating (at day end)',
                     data: chartData,
                     fill: true,
                     tension: 0.1,
