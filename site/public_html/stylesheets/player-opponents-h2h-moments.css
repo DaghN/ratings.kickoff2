@@ -130,7 +130,12 @@ body.k2-site .k2-h2h2-mcard__goals {
 
 body.k2-site .k2-h2h2-mcard__side.is-winner .k2-h2h2-mcard__goals {
 	color: var(--k2-mc-accent);
-	text-shadow: 0 0 18px color-mix(in srgb, var(--k2-mc-accent) 30%, transparent);
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-mc-accent) 92%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-mc-accent) 72%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-mc-accent) 52%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-mc-accent) 34%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-mc-accent) 22%, transparent);
 }
 
 body.k2-site .k2-h2h2-mcard__side--subject.is-winner .k2-h2h2-mcard__name {
@@ -198,10 +203,18 @@ body.k2-site .k2-h2h2-mcard.is-won-subject { --k2-mc-accent: var(--k2-mc-blue); 
 body.k2-site .k2-h2h2-mcard.is-won-opponent { --k2-mc-accent: var(--k2-mc-red); }
 body.k2-site .k2-h2h2-mcard.is-drawn { --k2-mc-accent: var(--k2-pure-holo); }
 
-body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__name,
+body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__name {
+	color: var(--k2-pure-holo);
+}
+
 body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__goals {
 	color: var(--k2-pure-holo);
-	text-shadow: 0 0 18px color-mix(in srgb, var(--k2-pure-holo) 30%, transparent);
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-pure-holo) 92%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-pure-holo) 72%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-pure-holo) 52%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-pure-holo) 34%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-pure-holo) 22%, transparent);
 }
 
 body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__dash,

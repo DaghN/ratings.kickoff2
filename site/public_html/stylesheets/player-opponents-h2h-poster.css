@@ -220,16 +220,53 @@ body.k2-site .k2-h2h2-num {
 	font-variant-numeric: tabular-nums;
 }
 
+body.k2-site .k2-h2h2-stat--draw .k2-h2h2-num {
+	color: color-mix(in srgb, var(--k2-text-muted) 82%, transparent);
+	font-weight: 600;
+}
+
+/* Neon sign glow — race leaders (full stack) */
+body.k2-site .k2-h2h2-race__val .blue {
+	color: var(--k2-h2h2-blue, var(--k2-pure-chrome));
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 92%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 72%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 52%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 34%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 22%, transparent);
+}
+
+body.k2-site .k2-h2h2-race__val .red {
+	color: var(--k2-h2h2-red, var(--k2-table-negative));
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 92%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 72%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 52%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 34%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 22%, transparent);
+}
+
+/* Poster W/L — soft core, strong outer bloom (neon sign at weight 600) */
 body.k2-site .k2-h2h2-stat--win .k2-h2h2-num {
-	color: var(--k2-h2h2-blue);
+	color: var(--k2-h2h2-blue, var(--k2-pure-chrome));
+	font-weight: 600;
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 76%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 54%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 40%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 36%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 24%, transparent);
 }
 
 body.k2-site .k2-h2h2-stat--opp-win .k2-h2h2-num {
-	color: var(--k2-h2h2-red);
-}
-
-body.k2-site .k2-h2h2-stat--draw .k2-h2h2-num {
-	color: var(--k2-text-secondary);
+	color: var(--k2-h2h2-red, var(--k2-table-negative));
+	font-weight: 600;
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 76%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 54%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 40%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 36%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 24%, transparent);
 }
 
 body.k2-site .k2-h2h2-lab {
@@ -243,18 +280,39 @@ body.k2-site .k2-h2h2-lab {
 
 /* ===== lead meter ===== */
 body.k2-site .k2-h2h2-meter {
+	--k2-h2h2-meter-h: 10px;
+	position: relative;
 	width: 100%;
 	max-width: var(--k2-h2h2-record-max);
-	height: 10px;
+	height: calc(var(--k2-h2h2-meter-h) + 14px);
 	display: flex;
+	align-items: center;
 	border-radius: 999px;
-	overflow: hidden;
+	overflow: visible;
+	background: none;
+	border: 0;
+	margin-bottom: 4px;
+}
+
+/* Track plate sits behind segments so segment glow can spill */
+body.k2-site .k2-h2h2-meter::before {
+	content: '';
+	position: absolute;
+	inset-inline: 0;
+	top: 50%;
+	height: var(--k2-h2h2-meter-h);
+	transform: translateY(-50%);
+	border-radius: 999px;
 	background: var(--k2-bg-hover);
 	border: 1px solid var(--k2-border-subtle);
+	pointer-events: none;
+	z-index: 0;
 }
 
 body.k2-site .k2-h2h2-seg {
-	height: 100%;
+	height: var(--k2-h2h2-meter-h);
+	position: relative;
+	z-index: 1;
 }
 
 body.k2-site .k2-h2h2-seg.is-on {
@@ -263,6 +321,7 @@ body.k2-site .k2-h2h2-seg.is-on {
 
 body.k2-site .k2-h2h2-seg--win {
 	background: var(--k2-h2h2-blue);
+	border-radius: 999px 0 0 999px;
 }
 
 body.k2-site .k2-h2h2-seg--draw {
@@ -271,6 +330,54 @@ body.k2-site .k2-h2h2-seg--draw {
 
 body.k2-site .k2-h2h2-seg--loss {
 	background: var(--k2-h2h2-red);
+	border-radius: 0 999px 999px 0;
+}
+
+/* Pill ends when a side has no active segment */
+body.k2-site .k2-h2h2-meter:not(:has(.k2-h2h2-seg--draw.is-on)):not(:has(.k2-h2h2-seg--loss.is-on)) .k2-h2h2-seg--win.is-on {
+	border-radius: 999px;
+}
+
+body.k2-site .k2-h2h2-meter:not(:has(.k2-h2h2-seg--win.is-on)):not(:has(.k2-h2h2-seg--draw.is-on)) .k2-h2h2-seg--loss.is-on {
+	border-radius: 999px;
+}
+
+body.k2-site .k2-h2h2-meter:not(:has(.k2-h2h2-seg--loss.is-on)) .k2-h2h2-seg--draw.is-on {
+	border-radius: 0 999px 999px 0;
+}
+
+body.k2-site .k2-h2h2-meter:not(:has(.k2-h2h2-seg--win.is-on)) .k2-h2h2-seg--draw.is-on {
+	border-radius: 999px 0 0 999px;
+}
+
+/* Neon bloom on chrome / red segments (draw stays flat) */
+body.k2-site .k2-h2h2-seg--win.is-on::after,
+body.k2-site .k2-h2h2-seg--loss.is-on::after {
+	content: '';
+	position: absolute;
+	inset: -2px -4px -8px;
+	border-radius: inherit;
+	background: inherit;
+	filter: blur(8px);
+	opacity: 0.4;
+	z-index: -1;
+	pointer-events: none;
+}
+
+body.k2-site .k2-h2h2-seg--win.is-on {
+	box-shadow:
+		0 0 5px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 48%, transparent),
+		0 0 12px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 30%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 19%, transparent),
+		0 4px 24px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 12%, transparent);
+}
+
+body.k2-site .k2-h2h2-seg--loss.is-on {
+	box-shadow:
+		0 0 5px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 48%, transparent),
+		0 0 12px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 30%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 19%, transparent),
+		0 4px 24px color-mix(in srgb, var(--k2-h2h2-red, var(--k2-table-negative)) 12%, transparent);
 }
 
 body.k2-site .k2-h2h2-none {

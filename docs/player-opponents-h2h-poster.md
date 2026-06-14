@@ -79,8 +79,8 @@ No new schema for poster v1.
 - CSS: `stylesheets/player-opponents-h2h-poster.css` (namespace `k2-h2h2-*`); linked from `player/opponents/h2h.php`.
 - Composition:
   - **Mirrored identity cards** — avatar · name · rank · rating in glowing hero-style cards; opponent card mirrored so avatars face the `vs`. Whole card links to player profile (garden-style hover lift).
-  - **W/D/L hero** — subject **Wins** (blue) · **Draws** (centre) · opponent **Wins** (red, same count as subject losses); each side reads from that fighter’s perspective.
-  - **Lead meter** — proportional blue / muted / red bar under the counts.
+  - **W/D/L hero** — subject **Wins** (blue) · **Draws** (centre) · opponent **Wins** (red, same count as subject losses); each side reads from that fighter’s perspective. Win counts: **full neon stack**, display weight **600**.
+  - **Lead meter** — proportional blue / muted / red bar under the counts; **chrome + red segments** get neon box-shadow bloom (draw stays flat).
   - **Goals removed from poster** — totals and goal depth live in pair-detail race tables only.
   - **0 games** — both cards visible; “No rated games yet” below.
 - Reuses `k2_route('player-profile')`, `k2_h()`, `k2_fmt_int()`, `k2_db_is_null()`, and the same rank query idiom as the hero.
@@ -123,7 +123,7 @@ Read-time: one indexed `ratedresults` pair scan — `player_opponents_h2h_pair_g
 ### Implementation
 
 - Load + render: `player_opponents_h2h_moments.php`; CSS `player-opponents-h2h-moments.css` (self-contained `k2-h2h2-mcard` scorecards — no `player-feast.css` / emoji).
-- **Outcome accent** per card (`--k2-mc-accent`): the game's **winner owns the card** — subject win = blue, rival win = red, **draw = holo** (`--k2-pure-holo`). Drives border glow (milestone garden `.k2-ms-card.is-unlocked` pattern) and kicker tint. **Hover** — profile-moment style: border lights to full accent + outer glow; extra `box-shadow` ring simulates thicker border without layout jump. Inner scoreline text glow unchanged.
+- **Outcome accent** per card (`--k2-mc-accent`): the game's **winner owns the card** — subject win = blue, rival win = red, **draw = holo** (`--k2-pure-holo`). Drives border glow (milestone garden `.k2-ms-card.is-unlocked` pattern) and kicker tint. **Hover** — profile-moment style: border lights to full accent + outer glow; extra `box-shadow` ring simulates thicker border without layout jump. **Lit goal numbers** — winner (and both sides on draw) use the same five-layer neon `text-shadow` as race-table leaders.
 
 ---
 
@@ -140,7 +140,7 @@ Goals scored · Goals per game · Most scored · Biggest winning margin · Least
 ### Framing
 
 - **Symmetric positives** — e.g. your goals scored vs their goals scored (`goals_for` vs `goals_against` on the directed row). Conceded columns are the opponent’s positive stat.
-- **Leader tint** — winning value wrapped in `.blue` (subject) or `.red` (opponent); **ties** — both values in their own colour (chrome left, red right).
+- **Leader tint** — winning value wrapped in `.blue` (subject) or `.red` (opponent); **ties** — both values in their own colour (chrome left, red right). Leader/tie numerals use **neon text-shadow** (shared with poster W/L counts).
 
 ### Data
 

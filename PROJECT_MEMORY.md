@@ -83,6 +83,9 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents H2H moments goal glow** — winner/draw goal numbers use race-table neon text-shadow stack. |
+| 2026-06 | **Opponents H2H poster lead meter** — chrome/red glow via blurred pseudo + box-shadow; track on `::before` so bloom isn’t buried. |
+| 2026-06 | **Opponents H2H poster W/L glow** — full neon stack on win counts at weight 600 (700 was too heavy with same glow). |
 | 2026-06 | **Opponents H2H moments card chrome** — active cards use milestone detail spotlight border + glow stack by default. |
 | 2026-06 | **Milestone detail spotlight** — default card uses full lit border + glow (was hover-only). |
 | 2026-06 | **Lit-card hover fix** — dropped broken html shadow tokens; 2px borders + explicit garden glow (rest + hover); matches profile `pm3-moment` thick border. |
