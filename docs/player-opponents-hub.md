@@ -90,8 +90,8 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 - [x] **H2H moments grid (Jun 2026)** — 3×3 pair trophy board below race table; see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Pair moments.
 - [x] Move Profile **Matchups** charts (top opponents bar, H2H cumulative, rating compare) onto H2H tab below moments.
 - [x] Remove `player_feast_render_charts()` **Matchups** section from `player/profile.php`.
-- [ ] Optional: rivalry one-liner on Profile → `opponents?view=h2h&opponent=…` (prose link, not name-link hijack).
-- [ ] Optional: compact top-opponent teaser on Profile.
+- [x] Optional: rivalry one-liner on Profile → `opponents?view=h2h&opponent=…` — **placeholder card** (`player_feast_render_rivalry_teaser`) after Most played opponents; fuller band TBD.
+- [x] Optional: compact top-opponent teaser on Profile — same placeholder card (most-played name + H2H link).
 
 ### Phase 3 — stored reads — **slice 3 shipped locally Jun 2026**
 

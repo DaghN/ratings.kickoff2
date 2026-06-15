@@ -57,8 +57,8 @@
                 return;
             }
             heading.textContent = opponentLabel
-                ? 'Head-to-head vs ' + opponentLabel
-                : 'Head-to-head';
+                ? 'Wins vs ' + opponentLabel
+                : 'Wins';
         }
 
         function formatH2hMeta(data) {

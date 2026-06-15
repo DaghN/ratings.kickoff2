@@ -288,3 +288,48 @@ function player_feast_render_charts(int $playerId): void
     player_feast_render_top_opponents_chart($playerId);
     player_feast_section_close();
 }
+
+/**
+ * Placeholder rivalry card — top opponent + link to Opponents H2H (full band TBD).
+ */
+function player_feast_render_rivalry_teaser(mysqli $con, int $playerId): void
+{
+    $playerId = max(0, $playerId);
+    if ($playerId <= 0) {
+        return;
+    }
+
+    require_once __DIR__ . '/player_opponents_h2h.php';
+    require_once __DIR__ . '/player_opponents_lib.php';
+
+    $opponents = player_opponents_h2h_played_opponents($con, $playerId);
+    if ($opponents === []) {
+        return;
+    }
+
+    $top = $opponents[0];
+    $opponentId = (int) $top['opponent_id'];
+    $opponentName = (string) $top['opponent_name'];
+    $games = (int) $top['games'];
+    $h2hHref = player_opponents_href($playerId, 'h2h', $opponentId);
+
+    player_feast_section_open(
+        'Rivalry',
+        'Placeholder card — fuller rivalry summary (record, form, all games) will land here.'
+    );
+    ?>
+<article class="pm3-rivalry-teaser">
+	<p class="pm3-rivalry-teaser__tag">Placeholder</p>
+	<p class="pm3-rivalry-teaser__lead">
+		Most played opponent:
+		<strong><?php echo pm_h($opponentName); ?></strong>
+		<span class="pm3-rivalry-teaser__meta"><?php echo pm_h(k2_fmt_int($games, '0')); ?> rated games</span>
+	</p>
+	<p class="pm3-rivalry-teaser__note">Future slice: headline W/D/L, recent form, streak, and quick links to head-to-head and all games vs this rival.</p>
+	<p class="pm3-rivalry-teaser__actions">
+		<a class="pm3-rivalry-teaser__link" href="<?php echo pm_h($h2hHref); ?>">Head-to-head vs <?php echo pm_h($opponentName); ?></a>
+	</p>
+</article>
+    <?php
+    player_feast_section_close();
+}

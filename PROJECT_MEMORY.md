@@ -92,6 +92,9 @@
 | 2026-06 | **Activity league orphan eligibility** — `LEFT JOIN playertable` + `#id` fallback (same as points); finalize/awards/milestones include deleted-account IDs; work: zero-derived → simul. |
 | 2026-06 | **Work DB ops hygiene** — `work-db-prepare.md` §1.5: sign-off = prepare + simul only; docs demote batch repair; CLI refuses `rebuild-all` on work targets. |
 | 2026-06 | **SCH-021 holder_count policy** — counts all unlock rows (incl. deleted accounts); bump on each unlock; verify same rule; no post-simul rebuild; migration 021 DDL-only; lobby rebuild after bulk seed only. |
+| 2026-06 | **Opponents H2H wins chart title** — cumulative wins chart heading `Wins vs {opponent}` (was `Head-to-head vs`). |
+| 2026-06 | **Opponents H2H all-games link** — chrome `All {N} rated games vs {name} →` below race table, above moments; → `games.php?opponent=`. |
+| 2026-06 | **Profile rivalry teaser (placeholder)** — dashed card after Most played opponents: top rival by games + H2H link; fuller band TBD. |
 | 2026-06 | **Opponents H2H scoreline heatmap grid** — square 0…N both axes; N = max GF or GA seen in the pairing (e.g. 13 → 14×14 cells). |
 | 2026-06 | **Opponents H2H scoreline heatmap tile size** — fixed 36px cells (was fluid ~46px on wide Dagh vs Logos); horizontal scroll when grid wider than panel. |
 | 2026-06 | **Opponents H2H scoreline heatmap axis** — x tick labels live in the data grid header row so GA numbers center on tiles. |

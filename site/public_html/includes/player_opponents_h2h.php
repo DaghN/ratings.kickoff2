@@ -839,6 +839,38 @@ function player_opponents_render_h2h_pair_detail(array $subjectCard, array $oppo
 }
 
 /**
+ * Holo link to the subject's full rated games list vs this opponent.
+ *
+ * @param array{player_id:int,name:string} $subjectCard
+ * @param array{player_id:int,name:string} $opponentCard
+ */
+function player_opponents_render_h2h_all_games_link(array $subjectCard, array $opponentCard, int $games): void
+{
+    if ($games <= 0) {
+        return;
+    }
+
+    $subjectId = (int) ($subjectCard['player_id'] ?? 0);
+    $opponentId = (int) ($opponentCard['player_id'] ?? 0);
+    $opponentName = (string) ($opponentCard['name'] ?? '');
+    if ($subjectId <= 0 || $opponentId <= 0 || $opponentName === '') {
+        return;
+    }
+
+    $href = '/player/games.php?id=' . $subjectId . '&opponent=' . $opponentId;
+    $label = sprintf(
+        'All %s rated games vs %s →',
+        k2_fmt_int($games, '0'),
+        $opponentName
+    );
+    ?>
+<p class="k2-h2h2-all-games">
+	<a class="k2-h2h2-all-games__link" href="<?php echo k2_h($href); ?>"><?php echo k2_h($label); ?></a>
+</p>
+    <?php
+}
+
+/**
  * Versus poster: mirrored identity cards around a `vs`, W/D/L hero, lead meter.
  *
  * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $subjectCard
@@ -1079,6 +1111,7 @@ function player_opponents_render_h2h_panel(
 		            if ($detail !== null) {
 		                player_opponents_render_h2h_pair_detail($subjectCard, $opponentCard, $detail);
 		            }
+		            player_opponents_render_h2h_all_games_link($subjectCard, $opponentCard, $games);
 		            $momentGames = player_opponents_h2h_pair_games_rows($con, $playerId, $pair['opponent_id']);
 		            $momentSlots = player_opponents_h2h_moments_slots(
 		                $momentGames,

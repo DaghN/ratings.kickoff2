@@ -388,6 +388,40 @@ body.k2-site .k2-h2h2-none {
 	color: var(--k2-text-secondary);
 }
 
+/* All games escape hatch — below pair-detail races, above moments deck */
+body.k2-site .k2-h2h2-all-games {
+	margin: clamp(12px, 2vw, 18px) auto 0;
+	padding: 0;
+	width: 100%;
+	max-width: var(--k2-h2h2-record-max);
+	text-align: center;
+}
+
+body.k2-site .k2-h2h2-all-games__link,
+body.k2-site .k2-h2h2-all-games__link:visited {
+	font-family: var(--k2-font-body, inherit);
+	font-size: clamp(11px, 1.45vw, 13px);
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	line-height: 1.35;
+	color: var(--k2-h2h2-blue, var(--k2-pure-chrome));
+	text-decoration: none;
+	text-shadow:
+		0 0 6px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 42%, transparent),
+		0 0 14px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 22%, transparent);
+}
+
+body.k2-site .k2-h2h2-all-games__link:hover,
+body.k2-site .k2-h2h2-all-games__link:focus-visible {
+	color: var(--k2-h2h2-blue, var(--k2-pure-chrome));
+	text-decoration: underline;
+	text-underline-offset: 0.18em;
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 58%, transparent),
+		0 0 18px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 34%, transparent),
+		0 0 32px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 18%, transparent);
+}
+
 /* ===== pair detail: centred stat races ===== */
 body.k2-site .k2-h2h2-detail {
 	--k2-h2h2-race-max: min(100%, 34rem);

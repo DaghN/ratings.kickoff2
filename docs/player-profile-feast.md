@@ -38,10 +38,11 @@
 8. **Moments** (longest win streak + trophy games with links)
 9. **Charts** — Activity-style full-width frames: rating over time / by game # toggle with peak dashed line, games per month, **goals per game** histogram (0..max GF; bar click → games tab `gf` filter).
 10. **Most played opponents** — horizontal bar chart; click a bar opens **Opponents → Head-to-head** for that pairing. Cumulative H2H + rating comparison charts live on the H2H tab — see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md).
+11. **Rivalry (placeholder)** — dashed teaser card after charts: top opponent by games, link to Opponents H2H; fuller record/form/all-games band TBD.
 
 Win rate vs opponent rating was removed from the shipped page and the dormant API/JS were deleted in Jun 2026; do not reintroduce unless a future matchup-lab pass explicitly wants it.
 
-Standalone **rivalry section** was removed; top-opponents bar on Profile links into Opponents H2H (no inline H2H/compare charts on Profile).
+Standalone **rivalry section** (inline charts) was removed; top-opponents bar + **rivalry placeholder card** link into Opponents H2H.
 
 ---
 

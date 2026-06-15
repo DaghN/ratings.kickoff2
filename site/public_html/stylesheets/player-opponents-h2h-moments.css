@@ -16,6 +16,10 @@ body.k2-site .k2-h2h2-moments {
 	padding: 0;
 }
 
+body.k2-site .k2-h2h2-all-games + .k2-h2h2-moments {
+	margin-top: clamp(24px, 3.6vw, 36px);
+}
+
 body.k2-site .k2-h2h2-moments__grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));

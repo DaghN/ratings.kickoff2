@@ -47,7 +47,7 @@ function player_opponents_render_h2h_matchup_charts(
     if ($playerName === '') {
         $playerName = '#' . $playerId;
     }
-    $h2hHeading = 'Head-to-head';
+    $h2hHeading = 'Wins';
     if ($opponentName !== '') {
         $h2hHeading .= ' vs ' . $opponentName;
     }
