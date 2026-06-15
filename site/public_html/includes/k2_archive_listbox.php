@@ -31,7 +31,7 @@ function k2_archive_listbox_render(
     }
 
     $selectedLabel = '';
-    if ($fixedTriggerLabel !== '') {
+    if ($fixedTriggerLabel !== '' && ($selectedValue === '-1' || $selectedValue === '')) {
         $selectedLabel = $fixedTriggerLabel;
     } else {
         foreach ($choices as $choice) {
@@ -74,9 +74,13 @@ function k2_archive_listbox_render(
     if ($sel) {
         $optClass .= ' is-selected';
     }
-    $triggerLabelAttr = $fixedTriggerLabel !== '' ? ' data-trigger-label="' . k2_archive_listbox_h($fixedTriggerLabel) . '"' : '';
+    $triggerLabelAttr = '';
+    if ($fixedTriggerLabel !== '' && $value === '-1') {
+        $triggerLabelAttr = ' data-trigger-label="' . k2_archive_listbox_h($fixedTriggerLabel) . '"';
+    }
+    $metaAttr = $meta !== '' ? ' data-option-meta="' . k2_archive_listbox_h($meta) . '"' : '';
     ?>
-        <li class="<?php echo k2_archive_listbox_h($optClass); ?>" role="option" data-value="<?php echo k2_archive_listbox_h($value); ?>" aria-selected="<?php echo $sel ? 'true' : 'false'; ?>"<?php echo $triggerLabelAttr; ?>>
+        <li class="<?php echo k2_archive_listbox_h($optClass); ?>" role="option" data-value="<?php echo k2_archive_listbox_h($value); ?>" aria-selected="<?php echo $sel ? 'true' : 'false'; ?>"<?php echo $triggerLabelAttr . $metaAttr; ?>>
 <?php if ($hasMetaOptions || $fixedTriggerLabel !== '') { ?>
             <span class="k2-archive-listbox__option-label"><?php echo k2_archive_listbox_h($label); ?></span>
 <?php if ($meta !== '') { ?>

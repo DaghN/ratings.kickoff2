@@ -11,6 +11,7 @@ require_once __DIR__ . '/player_opponents_lib.php';
 require_once __DIR__ . '/player_opponents_load.php';
 require_once __DIR__ . '/k2_archive_listbox.php';
 require_once __DIR__ . '/player_opponents_h2h_moments.php';
+require_once __DIR__ . '/player_opponents_h2h_charts.php';
 
 function player_opponents_h2h_parse_opponent_id(mixed $raw, int $playerId): int
 {
@@ -371,14 +372,18 @@ function k2_h2h_poster_card_html(array $card, string $side): string
         : '—';
     $href = $pid > 0 ? k2_route('player-profile', ['id' => $pid]) : '';
 
+    $rankStat = '<div class="k2-h2h2-card__stat"><dt>Rank</dt><dd>' . k2_h($rank) . '</dd></div>';
+    $ratingStat = '<div class="k2-h2h2-card__stat"><dt>Rating</dt><dd>' . k2_h($rating) . '</dd></div>';
+    // Opponent card mirrors subject: rank on the outer (avatar) edge, rating toward the vs.
+    $stats = $side === 'opponent' ? ($ratingStat . $rankStat) : ($rankStat . $ratingStat);
+
     $inner = '<div class="k2-h2h2-card__media">'
         . '<div class="k2-h2h2-card__avatar" aria-hidden="true">' . k2_h($initial) . '</div>'
         . '</div>'
         . '<div class="k2-h2h2-card__body">'
         . '<p class="k2-h2h2-card__name">' . k2_h($name) . '</p>'
         . '<dl class="k2-h2h2-card__stats">'
-        . '<div class="k2-h2h2-card__stat"><dt>Rank</dt><dd>' . k2_h($rank) . '</dd></div>'
-        . '<div class="k2-h2h2-card__stat"><dt>Rating</dt><dd>' . k2_h($rating) . '</dd></div>'
+        . $stats
         . '</dl>'
         . '</div>';
 
@@ -926,6 +931,10 @@ function player_opponents_render_h2h_panel(
 	data-k2-carry-scroll
 	data-player-id="<?php echo $playerId; ?>"
 	data-h2h-base="<?php echo k2_h(player_opponents_href($playerId, 'h2h')); ?>"
+	<?php if ($pair !== null) { ?>
+	data-chart-opponent-id="<?php echo (int) $pair['opponent_id']; ?>"
+	data-chart-opponent-name="<?php echo k2_h((string) $pair['opponent_name']); ?>"
+	<?php } ?>
 >
 	<div class="k2-player-opponents-h2h__pickers">
 		<div class="k2-player-opponents-h2h__search player-search" role="search">
@@ -998,6 +1007,14 @@ function player_opponents_render_h2h_panel(
 		<?php }
 		    } ?>
 	</div>
+	<?php if ($played !== []) {
+	    player_opponents_render_h2h_matchup_charts(
+	        $playerId,
+	        false,
+	        $pair !== null ? (string) $pair['opponent_name'] : null,
+	        $pair !== null ? (int) $pair['opponent_id'] : null
+	    );
+	} ?>
 </div>
     <?php
 }

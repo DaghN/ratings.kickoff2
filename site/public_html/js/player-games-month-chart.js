@@ -8,7 +8,7 @@
     var T = window.K2ChartTheme;
     var DR = window.K2ChartDateRange;
 
-    var API_PATH = 'api/player_games_by_month.php';
+    var API_PATH = '/api/player_games_by_month.php';
 
     function chartOptions(extra) {
         if (T && T.activityChartOptions) {

@@ -23,6 +23,7 @@ if ($playerId < 1) {
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_goals_distribution.php';
 
 function individual3_h(string $value): string
 {
@@ -281,16 +282,7 @@ if ($opponentFilter > 0 && !isset($validOpponentIds[$opponentFilter])) {
     $opponentFilter = 0;
 }
 
-$goalsScoredRows = individual3_query_all(
-    $con,
-    'SELECT goals_for, COUNT(*) AS games FROM ('
-        . 'SELECT GoalsA AS goals_for FROM ratedresults WHERE idA = ? '
-        . 'UNION ALL '
-        . 'SELECT GoalsB AS goals_for FROM ratedresults WHERE idB = ?'
-        . ') AS goals GROUP BY goals_for ORDER BY goals_for ASC',
-    'ii',
-    [$playerId, $playerId]
-);
+$goalsScoredRows = player_goals_scored_per_game_rows($con, $playerId);
 $goalsConcededRows = individual3_query_all(
     $con,
     'SELECT goals_against, COUNT(*) AS games FROM ('
@@ -401,7 +393,8 @@ $opponentChoices = [['value' => '0', 'label' => 'All opponents']];
 foreach ($opponentRows as $opponentRow) {
     $opponentChoices[] = [
         'value' => (string) (int) $opponentRow['opponent_id'],
-        'label' => (string) $opponentRow['opponent_name'] . ' (' . (int) $opponentRow['games'] . ')',
+        'label' => (string) $opponentRow['opponent_name'],
+        'meta' => (string) (int) $opponentRow['games'],
     ];
 }
 $goalsScoredChoices = [['value' => '-1', 'label' => 'All scores']];
@@ -442,11 +435,11 @@ foreach ($goalsConcededRows as $goalsConcededRow) {
         </div>
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Goals scored</span>
-            <?php k2_archive_listbox_render('gf', 'k2-player-games-gf', (string) $goalsScoredFilter, $goalsScoredChoices, 'Filter by goals scored', '', 'All scores'); ?>
+            <?php k2_archive_listbox_render('gf', 'k2-player-games-gf', (string) $goalsScoredFilter, $goalsScoredChoices, 'Filter by goals scored'); ?>
         </div>
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Goals conceded</span>
-            <?php k2_archive_listbox_render('ga', 'k2-player-games-ga', (string) $goalsConcededFilter, $goalsConcededChoices, 'Filter by goals conceded', '', 'All scores'); ?>
+            <?php k2_archive_listbox_render('ga', 'k2-player-games-ga', (string) $goalsConcededFilter, $goalsConcededChoices, 'Filter by goals conceded'); ?>
         </div>
         <a class="k2-player-games-action" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
     </div>

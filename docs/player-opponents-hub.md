@@ -27,8 +27,8 @@ The three pills **W/D/L**, **Goals**, and **DDs** under the player hero are stru
 | 1 | Add top-level **Opponents** pill; remove W/D/L, Goals, DDs as siblings. |
 | 2 | Inner sub-tabs: **Head-to-head · W/D/L · Goals · DDs** (default: Head-to-head). |
 | 3 | **Milestones** stays top-level (achievement / identity, not opponent analysis). |
-| 4 | Move Profile **Matchups** block (top opponents chart, H2H chart, rating comparison, opponent search) to **Opponents → Head-to-head**. |
-| 5 | Profile keeps **self-centric** charts: ELO over time, games per month. Optional small rivalry teaser (M09 one-liner) linking to Opponents — not a full matchup section. |
+| 4 | Move Profile **pair matchup charts** (H2H cumulative, rating comparison) to **Opponents → Head-to-head**. |
+| 5 | Profile keeps **self-centric** charts: ELO over time, games per month, **most-played opponents bar** (links into H2H). Optional small rivalry teaser (M09 one-liner) — not a full matchup section. |
 | 6 | **Do not** mirror full `playertable` on Profile. Expand Career totals in a **curated** way (rows + `#rank` where useful), not a 40-column dump. |
 | 7 | **Start online**; Amiga follows the same mental model later. |
 | 8 | Legacy URLs not required pre-publish — old `player/wdl.php` etc. removed; canonical `/player/opponents/h2h.php` (Opponents pill default). |
@@ -88,8 +88,8 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 - [x] **H2H poster v1 (Jun 2026)** — versus poster: diagonal arena, `VS` watermark, dual fighter cards (rank · rating · goals scored), centre W/D/L, full-width rivalry tug-of-war bar, leader glow/"Leads" chip. See [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Implementation (as built).
 - [x] **H2H pair detail (Jun 2026)** — symmetric stat race table below poster; see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Pair detail.
 - [x] **H2H moments grid (Jun 2026)** — 3×3 pair trophy board below race table; see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Pair moments.
-- [ ] Move Profile **Matchups** charts (top opponents bar, H2H cumulative, rating compare) onto H2H tab below headline.
-- [ ] Remove `player_feast_render_charts()` **Matchups** section from `player/profile.php`.
+- [x] Move Profile **Matchups** charts (top opponents bar, H2H cumulative, rating compare) onto H2H tab below moments.
+- [x] Remove `player_feast_render_charts()` **Matchups** section from `player/profile.php`.
 - [ ] Optional: rivalry one-liner on Profile → `opponents?view=h2h&opponent=…` (prose link, not name-link hijack).
 - [ ] Optional: compact top-opponent teaser on Profile.
 

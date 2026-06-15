@@ -83,6 +83,17 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents H2H poster stat mirror** — opponent card outputs rating before rank so rank stays on the outer (avatar) edge, matching the subject card toward the `vs`. |
+| 2026-06 | **Player games opponent listbox** — game count as right-aligned meta (split row), not parenthesis in label; matches GF/GA listboxes. |
+| 2026-06 | **Opponents H2H goals histograms** — subject + rival charts share x-axis max (higher of either player’s peak GF in the pairing). |
+| 2026-06 | **Profile goals-per-game histogram** — full GF distribution (0..max) on Profile; `player_goals_distribution.php` + API; amber bars; click → `player/games.php?gf=`; games tab GF listbox shares helper. |
+| 2026-06 | **Opponents H2H chart headings** — `Head-to-head vs {opponent}` and `Rating comparison vs {opponent}` (PHP + JS on chart load). |
+| 2026-06 | **Opponents H2H chart meta** — cumulative wins chart shows `{n} rated games` only. |
+| 2026-06 | **Opponents H2H rating compare toggle** — By date / By games active state uses pure chrome (not tint segment tokens). |
+| 2026-06 | **Profile top opponents chart** — most-played bar back on Profile (own section); bar click → Opponents H2H; pair charts stay on H2H tab only. |
+| 2026-06 | **Profile games/month chart** — fixed relative `api/` path (404 under `/player/`); same class of bug as pre-move H2H matchup charts. |
+| 2026-06 | **Opponents H2H charts** — Profile Matchups block moved to H2H tab (cumulative H2H · rating compare); Profile keeps career rating + games/month; top opponents restored on Profile Jun 2026. |
+| 2026-06 | **Opponents H2H charts** — Profile Matchups block moved to H2H tab (top opponents · cumulative H2H · rating compare); bar click switches `?opponent=`; Profile keeps career rating + games/month only. |
 | 2026-06 | **Opponents Goals GF/GA tooltips** — column help says “against this opponent” (not career copy from leaderboards). |
 | 2026-06 | **Opponents H2H race 0–0 ties** — tied zeros stay muted grey on all race rows except Clean sheets (both sides still chrome/red there). |
 | 2026-06 | **Player games GF/GA filters** — `player/games.php` adds Goals scored + Goals conceded listboxes (`gf`/`ga` URL params); options from player’s distinct counts (Opponent-style). |

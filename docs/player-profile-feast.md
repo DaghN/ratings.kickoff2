@@ -36,11 +36,12 @@
 6. **Played weeks** (52 UTC week tiles per year from first rated game through today; tooltips = week range + game count)
 7. **Personal bests** (busiest day / month / year for this player)
 8. **Moments** (longest win streak + trophy games with links)
-9. **Charts** — Activity-style full-width frames: rating over time / by game # toggle with peak dashed line, games per month, tall top-opponents bar chart (feeds H2H), head-to-head, rating comparison by date / by games-played toggle (`vs` beside toggle), then optional opponent search
+9. **Charts** — Activity-style full-width frames: rating over time / by game # toggle with peak dashed line, games per month, **goals per game** histogram (0..max GF; bar click → games tab `gf` filter).
+10. **Most played opponents** — horizontal bar chart; click a bar opens **Opponents → Head-to-head** for that pairing. Cumulative H2H + rating comparison charts live on the H2H tab — see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md).
 
 Win rate vs opponent rating was removed from the shipped page and the dormant API/JS were deleted in Jun 2026; do not reintroduce unless a future matchup-lab pass explicitly wants it.
 
-Standalone **rivalry section** was removed; top-opponents chart auto-selects the #1 opponent for H2H/compare.
+Standalone **rivalry section** was removed; top-opponents bar on Profile links into Opponents H2H (no inline H2H/compare charts on Profile).
 
 ---
 
@@ -75,6 +76,7 @@ Standalone **rivalry section** was removed; top-opponents chart auto-selects the
 | Hero / career totals | `playertable` |
 | Rank | Computed: count of `display=1` players with higher `rating` |
 | Played days / weeks / games-by-month charts | `player_period_games` via APIs (`player_calendar_days.php`, `player_calendar_weeks.php`, `player_games_by_month.php`) — days/weeks use UTC period keys; graph time axes start at the server origin (**2017-06-09**) for comparability |
+| Goals per game histogram | Read-time `ratedresults` via `api/player_goals_scored_distribution.php` (same SQL as games tab GF listbox; buckets 0..max) |
 | Top opponents / H2H charts | `player_matchup_summary` via `api/player_top_opponents.php` and related APIs |
 | Personal bests (busiest day/month/year) | `player_peak_period_games` via `player_feast_load_busiest()` (same cache as ranked8 peaks; `ratedresults` fallback only if table missing) |
 | Moments | `playertable` extreme game IDs + single-row `ratedresults` lookups |

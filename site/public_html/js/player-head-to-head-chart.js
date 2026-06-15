@@ -1,13 +1,13 @@
 /**
  * Head-to-head cumulative wins vs one opponent (line chart).
- * Listens for kool-opponent-selected from the top-opponents chart.
+ * Listens for kool-opponent-selected (H2H tab) or loads initial opponent from page data attrs.
  */
 (function () {
     'use strict';
 
     var T = window.K2ChartTheme;
 
-    var API_PATH = 'api/player_head_to_head.php';
+    var API_PATH = '/api/player_head_to_head.php';
     var EVENT_NAME = 'kool-opponent-selected';
 
     function chartOptions(extra) {
@@ -34,7 +34,6 @@
 
         var canvas = root.querySelector('canvas');
         var status = root.querySelector('.player-head-to-head-chart-status');
-        var titleOpponent = root.querySelector('.player-head-to-head-opponent-name');
         var meta = root.querySelector('.player-head-to-head-meta');
         var chartInstance = null;
 
@@ -51,14 +50,26 @@
             }
         }
 
+        function setHeading(opponentLabel) {
+            var matchups = root.closest('.pm3d-matchups');
+            var heading = matchups ? matchups.querySelector('.player-head-to-head-chart-heading') : null;
+            if (!heading) {
+                return;
+            }
+            heading.textContent = opponentLabel
+                ? 'Head-to-head vs ' + opponentLabel
+                : 'Head-to-head';
+        }
+
+        function formatH2hMeta(data) {
+            return data.total_games + ' rated games';
+        }
+
         function loadOpponent(opponentId, opponentName) {
             if (!opponentId) {
                 return;
             }
 
-            if (titleOpponent) {
-                titleOpponent.textContent = opponentName || '…';
-            }
             if (status) {
                 status.textContent = 'Loading head-to-head…';
             }
@@ -95,14 +106,9 @@
                         opponentData.push({ x: n, y: points[i].opponent_wins });
                     }
 
-                    var lastPoint = points[points.length - 1];
-                    setMeta(
-                        lastPoint.player_wins + '\u2013' + data.draws + '\u2013' + lastPoint.opponent_wins
-                        + ' (W\u2013D\u2013L) \u00b7 ' + data.total_games + ' rated games between them'
-                    );
-
-                    if (titleOpponent && data.opponentName) {
-                        titleOpponent.textContent = data.opponentName;
+                    setMeta(formatH2hMeta(data));
+                    if (data.opponentName) {
+                        setHeading(data.opponentName);
                     }
 
                     if (status) {
@@ -120,8 +126,8 @@
                                 {
                                     label: data.playerName + ' wins',
                                     data: playerData,
-                                    borderColor: T.profileCompareBorder(),
-                                    backgroundColor: T.profileCompareFill(0.12),
+                                    borderColor: T.h2hSubjectBorder(),
+                                    backgroundColor: T.h2hSubjectFill(0.12),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     fill: false,
@@ -130,8 +136,8 @@
                                 {
                                     label: data.opponentName + ' wins',
                                     data: opponentData,
-                                    borderColor: T.opponentFocusBorder(),
-                                    backgroundColor: T.opponentFocusFill(0.12),
+                                    borderColor: T.h2hOpponentBorder(),
+                                    backgroundColor: T.h2hOpponentFill(0.12),
                                     borderWidth: 2,
                                     pointRadius: 0,
                                     fill: false,
@@ -202,6 +208,14 @@
             }
             loadOpponent(e.detail.opponentId, e.detail.opponentName);
         });
+
+        var h2hRoot = root.closest('.k2-player-opponents-h2h');
+        if (h2hRoot) {
+            var initialId = h2hRoot.getAttribute('data-chart-opponent-id');
+            if (initialId) {
+                loadOpponent(initialId, h2hRoot.getAttribute('data-chart-opponent-name') || '');
+            }
+        }
     }
 
     function boot() {

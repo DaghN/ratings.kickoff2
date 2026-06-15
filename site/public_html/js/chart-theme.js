@@ -4,6 +4,7 @@
  *
  * Primitives: --k2-pure-* (hex). Chart roles: --k2-chart-* (amber â†’ --k2-amber-soft).
  * Links: linkStar() follows active --k2-accent (tint). Profile compare uses pitch/chrome helpers.
+ * H2H rivalry charts use h2hSubject* / h2hOpponent* (chrome + table-negative — same as poster).
  */
 (function (global) {
     'use strict';
@@ -757,6 +758,17 @@
         profileCompareFill: function (alpha) { return this.fill(this.pitch(), alpha == null ? 0.12 : alpha); },
         opponentFocusBorder: function () { return this.chrome(); },
         opponentFocusFill: function (alpha) { return this.fill(this.chrome(), alpha == null ? 0.12 : alpha); },
+        /** Table loss/red ink (color-mix) — H2H poster `.red`, not chart magenta (milestones). */
+        tableNegative: function () {
+            return cssResolvedColorVar('--k2-table-negative', '#d48a9a')
+                || chartColor('--k2-stat-negative-base', '#f06292');
+        },
+        /** H2H pair charts: subject = chart chrome (aliases pure chrome). */
+        h2hSubjectBorder: function () { return this.chrome(); },
+        h2hSubjectFill: function (alpha) { return this.fill(this.chrome(), alpha == null ? 0.12 : alpha); },
+        /** H2H pair charts: opponent = table-negative red (not T.magenta()). */
+        h2hOpponentBorder: function () { return this.tableNegative(); },
+        h2hOpponentFill: function (alpha) { return this.fill(this.tableNegative(), alpha == null ? 0.12 : alpha); },
         textPrimary: function () { return cssVar('--k2-text-primary', '#d0d7de'); },
         textSecondary: function () { return cssVar('--k2-text-secondary', '#a8b3bf'); },
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },

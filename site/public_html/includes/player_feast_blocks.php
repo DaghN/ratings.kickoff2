@@ -235,9 +235,7 @@ function player_feast_render_presence_career_duo(array $pm): void
 
 function player_feast_render_charts(int $playerId): void
 {
-    $uid = 'pm3d-' . $playerId;
-
-    player_feast_section_open('Career rating', 'Rating arc and monthly activity — toggle the left chart by calendar date or game number.');
+    player_feast_section_open('Career rating', 'Rating arc, monthly activity, and goals-per-game spread — toggle the left chart by calendar date or game number.');
     ?>
 <div class="pm3d-career-charts">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
@@ -269,57 +267,24 @@ function player_feast_render_charts(int $playerId): void
 			<canvas aria-label="Games per calendar month"></canvas>
 		</div>
 	</div>
+	<div class="player-goals-scored-histogram k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+		<h3 class="k2-panel-heading">Goals per game</h3>
+		<p class="k2-chart-block__hint">How many rated games you scored exactly 0, 1, 2… goals. Click a bar to filter the games list.</p>
+		<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
+		<div class="k2-chart-frame">
+			<canvas aria-label="Goals scored per game histogram"></canvas>
+		</div>
+	</div>
 </div>
     <?php
     player_feast_section_close();
 
-    player_feast_section_open('Matchups', 'Pick a frequent opponent to update the head-to-head and rating comparison graphs.');
-    ?>
-<div class="pm3d-matchups">
-	<div class="player-top-opponents-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
-		<h3 class="k2-panel-heading">Most frequent opponents</h3>
-		<p class="k2-chart-block__hint">Click a bar to compare against that opponent below.</p>
-		<p class="player-top-opponents-chart-status pm3d-chart__status k2-chart-panel__status">Loading top opponents…</p>
-		<canvas class="player-top-opponents-canvas" aria-label="Most played opponents"></canvas>
-	</div>
-	<h3 class="pm3d-matchups__subtitle">Head-to-head</h3>
-	<div class="player-head-to-head-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
-		<p class="pm3d-chart__opponent">vs <span class="player-head-to-head-opponent-name">…</span></p>
-		<p class="player-head-to-head-meta pm3d-chart__meta"></p>
-		<p class="player-head-to-head-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
-		<div class="k2-chart-frame">
-			<canvas aria-label="Head-to-head cumulative wins"></canvas>
-		</div>
-	</div>
-	<h3 class="pm3d-matchups__subtitle">Rating comparison</h3>
-	<div class="player-compare-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
-		<div class="pm3d-chart-toolbar">
-			<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating comparison chart view">
-				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By games played</button>
-			</div>
-			<p class="pm3d-chart__opponent">vs <span class="player-compare-rating-opponent-name">…</span></p>
-		</div>
-		<p class="player-compare-rating-meta pm3d-chart__meta"></p>
-		<p class="player-compare-rating-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
-		<div class="player-compare-rating-view player-compare-rating-view--date">
-			<div class="k2-chart-frame">
-				<canvas class="player-compare-rating-canvas--date" aria-label="Rating comparison by calendar date"></canvas>
-			</div>
-		</div>
-		<div class="player-compare-rating-view player-compare-rating-view--game" hidden>
-			<div class="k2-chart-frame">
-				<canvas class="player-compare-rating-canvas--game" aria-label="Rating comparison by games played"></canvas>
-			</div>
-		</div>
-	</div>
-	<div class="player-h2h-opponent-search player-search pm3d-h2h-search" data-player-id="<?php echo $playerId; ?>" data-realm="online" role="search">
-		<label class="player-search-label" for="<?php echo pm_h($uid); ?>-h2h">Compare someone else</label>
-		<p class="k2-chart-block__hint">Search is here for rare matchups outside the top-opponent graph.</p>
-		<input id="<?php echo pm_h($uid); ?>-h2h" class="player-search-input player-h2h-search-input" type="search" maxlength="32" autocomplete="off" spellcheck="false" placeholder="Search player name…" />
-		<ul class="player-search-results player-h2h-search-results" role="listbox" hidden></ul>
-	</div>
-</div>
-    <?php
+    require_once __DIR__ . '/player_opponents_h2h_charts.php';
+
+    player_feast_section_open(
+        'Most played opponents',
+        'Who you meet most on the ladder — click a bar to open head-to-head.'
+    );
+    player_feast_render_top_opponents_chart($playerId);
     player_feast_section_close();
 }

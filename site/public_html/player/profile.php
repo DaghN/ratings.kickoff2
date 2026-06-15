@@ -17,10 +17,8 @@
 <script type="text/javascript" src="/js/player-rating-history.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rating-history.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-rating-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rating-chart.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-games-month-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-games-month-chart.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-goals-scored-histogram.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-goals-scored-histogram.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-top-opponents-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-top-opponents-chart.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="/js/player-head-to-head-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-head-to-head-chart.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="/js/player-compare-rating-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-compare-rating-chart.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="/js/player-h2h-opponent-search.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-h2h-opponent-search.js'); ?>" defer="defer"></script>
 <script src="/js/player-feast/player-calendar.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-feast/player-calendar.js'); ?>" defer></script>
 <script src="/js/player-feast/player-calendar-weeks.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-feast/player-calendar-weeks.js'); ?>" defer></script>
 </head>

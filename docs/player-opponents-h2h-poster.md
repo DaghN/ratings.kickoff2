@@ -1,6 +1,6 @@
 # Player Opponents — Head-to-head poster & pair detail
 
-**Status:** Poster + **pair-detail race tables shipped** (Jun 2026). Charts still planned.  
+**Status:** Poster + pair-detail race tables + **moments grid** + **matchup charts** shipped (Jun 2026).  
 **Authority:** Dagh’s latest message → this doc → [`player-opponents-hub.md`](player-opponents-hub.md) → [`design-direction.md`](design-direction.md).
 
 **Related:** [`player-profile-feast.md`](player-profile-feast.md) (hero / surface rhythm) · [`website-data-contract.md`](website-data-contract.md) (`player_matchup_summary` SCH-008 / SCH-019).
@@ -16,7 +16,7 @@ When a pair is selected, the Head-to-head tab tells the **rivalry story** in lay
 | **Pickers** | Choose opponent (search · by games · A–Z) | Shipped v1 |
 | **Poster** | Pair identity + headline record — “fight card” summary | **Shipped locally (Jun 2026)** |
 | **Pair detail** | Symmetric player-vs-player stat races (Results · Goals · DDs) for *this opponent only* | **Shipped Jun 2026** |
-| **Charts** | Top opponents bar (context), cumulative H2H, rating comparison | Move from Profile (Phase 2) |
+| **Charts** | Top opponents bar (context), cumulative H2H, rating comparison | **Shipped Jun 2026** (moved from Profile) |
 | **Moments** | Fixed 3×3 pair trophy grid (nine slots, dim until active; duplicates allowed) | **Shipped Jun 2026** |
 | **Games link** | Optional deep link to Games tab filtered by opponent | Optional |
 
@@ -78,7 +78,7 @@ No new schema for poster v1.
 - Render: `k2_h2h_poster_card_html()` + `player_opponents_render_h2h_poster()` in `includes/player_opponents_h2h.php`; called from `player_opponents_render_h2h_panel()` inside `k2-player-opponents-h2h__stage`.
 - CSS: `stylesheets/player-opponents-h2h-poster.css` (namespace `k2-h2h2-*`); linked from `player/opponents/h2h.php`.
 - Composition:
-  - **Mirrored identity cards** — avatar · name · rank · rating in glowing hero-style cards; opponent card mirrored so avatars face the `vs`. Whole card links to player profile (garden-style hover lift).
+  - **Mirrored identity cards** — avatar · name · rank · rating in glowing hero-style cards; opponent card mirrored so avatars face the `vs` and **rank sits on the outer (avatar) edge, rating toward centre** on both sides. Whole card links to player profile (garden-style hover lift).
   - **W/D/L hero** — subject **Wins** (blue) · **Draws** (centre) · opponent **Wins** (red, same count as subject losses); each side reads from that fighter’s perspective. Win counts: **full neon stack**, display weight **600**.
   - **Lead meter** — proportional blue / muted / red bar under the counts; **chrome + red segments** get neon box-shadow bloom (draw stays flat).
   - **Goals removed from poster** — totals and goal depth live in pair-detail race tables only.
@@ -190,7 +190,28 @@ Single directed row from `player_matchup_summary` (SCH-019 columns when present)
 4. **Poster**  
 5. **Pair detail** (stat races)  
 6. **Moments** (3×3 grid)  
-7. Matchup charts (from Profile)  
+7. **Matchup charts** — cumulative H2H · rating comparison · goals per game (`player_opponents_h2h_charts.php`; initial opponent from URL `data-chart-opponent-id`)
+
+**Profile:** most-played opponents bar only (`player_feast_render_top_opponents_chart`); bar click → H2H tab with `?opponent=`.
+
+### Charts (shipped Jun 2026)
+
+Pair charts render below moments when the subject has played opponents. **Top opponents bar** is on **Profile** only (Jun 2026 restore).
+
+| Chart | Where | Behaviour |
+|-------|-------|-----------|
+| **Top opponents** | Profile | Horizontal bar; click → Opponents H2H `?opponent=` (carry-scroll) |
+| **Head-to-head** | H2H tab | Cumulative wins vs selected opponent |
+| **Rating comparison** | H2H tab | Full career paths; date / games-played toggle |
+| **Goals per game** | H2H tab | Subject GF histogram (chrome) + rival GF histogram (table red); pair-scoped; shared 0..max x-axis; clicks → `games.php?gf=` / `?ga=` + `opponent=` |
+
+**Chart ink (Jun 2026):** H2H pair charts use `K2ChartTheme.h2hSubject*` (chart chrome = `--k2-chart-chrome` / pure chrome) and `h2hOpponent*` (`--k2-table-negative` red — same as poster `.red`, **not** `--k2-chart-magenta`). Profile top-opponents bar still uses pitch/chrome `profileCompare` / `opponentFocus`. Goals histograms on H2H: **chrome** = your goals vs opponent, **table red** = opponent goals vs you; Profile histogram stays **amber**. Rating compare **By date / By games** toggle active state: `--k2-pure-chrome` + `--k2-h2h2-chrome-ring` (not tint `--k2-segment-active-*`).
+
+Initial opponent comes from URL / default top opponent (`data-chart-opponent-id` on `.k2-player-opponents-h2h`). No duplicate “compare someone else” search — page pickers cover that.
+
+Scripts: Chart.js + `player-head-to-head-chart.js`, `player-compare-rating-chart.js`, `player-goals-scored-histogram.js` (H2H view in `player_opponents_page.php`). Profile loads `player-top-opponents-chart.js` and `player-goals-scored-histogram.js` separately.
+
+Profile keeps **Career rating** + **Games per month** only.  
 7. Optional games link  
 
 ---

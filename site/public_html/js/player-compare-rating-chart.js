@@ -8,8 +8,7 @@
     var T = window.K2ChartTheme;
     var DR = window.K2ChartDateRange;
 
-    var API_PATH = 'api/player_compare_rating_history.php';
-    var H2H_API_PATH = 'api/player_head_to_head.php';
+    var API_PATH = '/api/player_compare_rating_history.php';
     var EVENT_NAME = 'kool-opponent-selected';
 
     function fetchJson(url) {
@@ -21,17 +20,13 @@
         });
     }
 
-    function compareMetaLine(player, opponent, h2h) {
+    function formatToolbarGamesLine(player, opponent) {
+        var playerName = player.playerName || 'Player';
+        var opponentName = opponent.playerName || 'Opponent';
         var playerGames = player.points ? player.points.length : 0;
         var opponentGames = opponent.points ? opponent.points.length : 0;
-        var line = 'Full career rating paths';
-        if (h2h && typeof h2h.total_games === 'number' && h2h.total_games > 0) {
-            line += ' · ' + h2h.total_games + ' rated game'
-                + (h2h.total_games === 1 ? '' : 's') + ' between them';
-        }
-        line += ' · ' + playerGames + ' career games (this player) · '
-            + opponentGames + ' career games (opponent)';
-        return line;
+        return playerGames + ' ' + playerName + ' games \u00b7 '
+            + opponentGames + ' ' + opponentName + ' games';
     }
 
     function parseGameDate(dateStr) {
@@ -161,8 +156,8 @@
                     {
                         label: (cfg.player.playerName || 'Player') + ' rating',
                         data: playerData,
-                        borderColor: T.profileCompareBorder(),
-                        backgroundColor: T.profileCompareFill(0.1),
+                        borderColor: T.h2hSubjectBorder(),
+                        backgroundColor: T.h2hSubjectFill(0.1),
                         borderWidth: 2,
                         pointRadius: 0,
                         pointHoverRadius: 4,
@@ -172,8 +167,8 @@
                     {
                         label: (cfg.opponent.playerName || cfg.opponentName || 'Opponent') + ' rating',
                         data: opponentData,
-                        borderColor: T.opponentFocusBorder(),
-                        backgroundColor: T.opponentFocusFill(0.1),
+                        borderColor: T.h2hOpponentBorder(),
+                        backgroundColor: T.h2hOpponentFill(0.1),
                         borderWidth: 2,
                         pointRadius: 0,
                         pointHoverRadius: 4,
@@ -233,8 +228,7 @@
         var dateCanvas = root.querySelector('.player-compare-rating-canvas--date');
         var gameCanvas = root.querySelector('.player-compare-rating-canvas--game');
         var status = root.querySelector('.player-compare-rating-chart-status');
-        var titleOpponent = root.querySelector('.player-compare-rating-opponent-name');
-        var meta = root.querySelector('.player-compare-rating-meta');
+        var toolbarMeta = root.querySelector('.player-compare-rating-toolbar-meta');
         var toggle = root.querySelector('.pm3d-rating-toggle');
         var state = {
             dateChart: null,
@@ -252,10 +246,21 @@
             return;
         }
 
-        function setMeta(text) {
-            if (meta) {
-                meta.textContent = text || '';
+        function setToolbarMeta(text) {
+            if (toolbarMeta) {
+                toolbarMeta.textContent = text || '';
             }
+        }
+
+        function setHeading(opponentLabel) {
+            var matchups = root.closest('.pm3d-matchups');
+            var heading = matchups ? matchups.querySelector('.player-compare-rating-chart-heading') : null;
+            if (!heading) {
+                return;
+            }
+            heading.textContent = opponentLabel
+                ? 'Rating comparison vs ' + opponentLabel
+                : 'Rating comparison';
         }
 
         function loadOpponent(opponentId, opponentName) {
@@ -263,28 +268,16 @@
                 return;
             }
 
-            if (titleOpponent) {
-                titleOpponent.textContent = opponentName || '…';
-            }
             if (status) {
                 status.textContent = 'Loading rating comparison…';
             }
-            setMeta('');
+            setToolbarMeta('');
 
             var compareUrl = API_PATH + '?id=' + encodeURIComponent(playerId)
                 + '&opponent=' + encodeURIComponent(opponentId) + '&realm=online';
-            var h2hUrl = H2H_API_PATH + '?id=' + encodeURIComponent(playerId)
-                + '&opponent=' + encodeURIComponent(opponentId) + '&realm=online';
 
-            Promise.all([
-                fetchJson(compareUrl),
-                fetchJson(h2hUrl).catch(function () {
-                    return null;
-                })
-            ])
-                .then(function (results) {
-                    var data = results[0];
-                    var h2h = results[1];
+            fetchJson(compareUrl)
+                .then(function (data) {
                     var player = data.player || {};
                     var opponent = data.opponent || {};
                     var playerDateData = pointsToChartData(player.points || []);
@@ -322,11 +315,8 @@
                         return;
                     }
 
-                    if (titleOpponent && opponent.playerName) {
-                        titleOpponent.textContent = opponent.playerName;
-                    }
-
-                    setMeta(compareMetaLine(player, opponent, h2h));
+                    setHeading(opponent.playerName || opponentName);
+                    setToolbarMeta(formatToolbarGamesLine(player, opponent));
 
                     if (status) {
                         status.textContent = '';
@@ -366,6 +356,14 @@
             }
             loadOpponent(e.detail.opponentId, e.detail.opponentName);
         });
+
+        var h2hRoot = root.closest('.k2-player-opponents-h2h');
+        if (h2hRoot) {
+            var initialId = h2hRoot.getAttribute('data-chart-opponent-id');
+            if (initialId) {
+                loadOpponent(initialId, h2hRoot.getAttribute('data-chart-opponent-name') || '');
+            }
+        }
 
         if (toggle) {
             toggle.addEventListener('click', function (evt) {

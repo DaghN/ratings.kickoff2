@@ -294,8 +294,15 @@
     function ensureOption(box, value, label) {
         var existing = findOption(box, value);
         if (existing) {
-            if (label && existing.textContent !== label) {
-                existing.textContent = label;
+            if (label) {
+                var labelNode = existing.querySelector('.k2-archive-listbox__option-label');
+                if (labelNode) {
+                    if (labelNode.textContent !== label) {
+                        labelNode.textContent = label;
+                    }
+                } else if (existing.textContent !== label) {
+                    existing.textContent = label;
+                }
             }
             return existing;
         }
@@ -685,6 +692,10 @@
         var boxes = scope.querySelectorAll('[data-k2-archive-listbox]');
         for (var i = 0; i < boxes.length; i++) {
             bindBox(boxes[i]);
+            var inp = valueInput(boxes[i]);
+            if (inp && inp.value !== '') {
+                commit(boxes[i], inp.value, labelForValue(boxes[i], inp.value), true);
+            }
             syncTriggerWidth(boxes[i]);
         }
     }
