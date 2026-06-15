@@ -25,21 +25,21 @@ function player_feast_section_close(): void
     <?php
 }
 
-function player_feast_render_played_days(int $playerId, string $firstGameDateYmd): void
+function player_feast_render_played_days(int $playerId, string $firstGameDateYmd, string $playerName = ''): void
 {
     $fromAttr = preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd) ? $firstGameDateYmd : date('Y-m-d');
-    player_feast_section_open('Played days', 'UTC calendar days with at least one rated game, from the first rated game through today.');
     ?>
-<div class="pm3-cal pm3-cal--hero pm3-cal--days pm3-cal--year-pick" data-player-id="<?php echo $playerId; ?>" data-first-game-date="<?php echo pm_h($fromAttr); ?>" aria-label="Calendar activity">
-	<p class="pm3-cal__status pm3-muted">Loading calendar…</p>
-	<div class="pm3-cal__toolbar" hidden>
-		<div class="pm3-cal__year-picker pm3d-rating-toggle" role="tablist" aria-label="Calendar year"></div>
-	</div>
+<section class="pm3d-section pm3d-section--played-days" id="played-days">
+	<h2 class="k2-panel-heading pm3d-section__title">Played days</h2>
+	<p class="pm3d-section__hint"><span class="pm3-cal__status pm3-muted">Loading played days…</span></p>
+	<div class="pm3d-section__content">
+<div class="pm3-cal pm3-cal--hero pm3-cal--days pm3-cal--year-pick" data-player-id="<?php echo $playerId; ?>" data-player-name="<?php echo pm_h($playerName); ?>" data-first-game-date="<?php echo pm_h($fromAttr); ?>" aria-label="Calendar activity">
+	<div class="pm3-cal__year-picker pm3d-rating-toggle" role="tablist" aria-label="Calendar year" hidden></div>
 	<div class="pm3-cal__year-view"></div>
-	<p class="pm3-cal__legend"><span class="pm3-cal__cell" aria-hidden="true"></span> no rated game · <span class="pm3-cal__cell pm3-cal__cell--play" aria-hidden="true"></span> played</p>
 </div>
+	</div>
+</section>
     <?php
-    player_feast_section_close();
 }
 
 function player_feast_render_played_weeks(int $playerId, string $firstGameDateYmd): void

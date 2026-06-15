@@ -6,7 +6,7 @@
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
-<link href="/stylesheets/player-feast-sections.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/player-feast-sections.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-sections.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-glance.css" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-personal-bests.css" rel="stylesheet" type="text/css" />
 <script src="/js/chart.umd.min.js"></script>
@@ -70,7 +70,7 @@ $id = $playerId;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
 
 player_feast_render_presence_career_duo($pm);
-player_feast_render_played_days($playerId, (string) $pm['first_game_date_ymd']);
+player_feast_render_played_days($playerId, (string) $pm['first_game_date_ymd'], (string) $pm['name']);
 player_feast_render_played_weeks($playerId, (string) $pm['first_game_date_ymd']);
 player_feast_render_peak_activity($pm);
 player_feast_render_moments($pm);

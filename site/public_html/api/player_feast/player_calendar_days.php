@@ -1,7 +1,8 @@
 <?php
 /**
- * Distinct calendar dates with at least one rated game (profile feast played-days calendar).
+ * UTC calendar days with rated games (profile feast played-days calendar).
  * GET: id (required), from/to optional YYYY-MM-DD bounds
+ * Returns: days[] with { date, games } from player_period_games
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -40,7 +41,7 @@ $con->set_charset('utf8mb4');
 $con->query("SET time_zone = '+00:00'");
 
 $stmt = $con->prepare(
-    'SELECT `period_start` AS d FROM `player_period_games` '
+    'SELECT `period_start` AS d, `games` FROM `player_period_games` '
     . 'WHERE `period_type` = \'day\' AND `player_id` = ? '
     . 'AND `period_start` >= ? AND `period_start` < ? '
     . 'ORDER BY `period_start` ASC'
@@ -56,7 +57,10 @@ $stmt->execute();
 $result = $stmt->get_result();
 $days = [];
 while ($row = $result->fetch_assoc()) {
-    $days[] = (string) $row['d'];
+    $days[] = [
+        'date' => (string) $row['d'],
+        'games' => (int) $row['games'],
+    ];
 }
 $stmt->close();
 mysqli_close($con);

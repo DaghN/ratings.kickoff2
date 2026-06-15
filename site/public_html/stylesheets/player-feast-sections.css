@@ -78,8 +78,153 @@
 	width: 100%;
 }
 
-.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__toolbar {
+.pm3d-section--played-days .pm3d-section__hint {
+	margin-bottom: 8px;
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick {
+	padding-top: 0;
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__year-picker {
 	margin: 0 0 12px;
+	background: var(--k2-bg-surface);
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__year-btn:hover:not(.is-active) {
+	color: var(--k2-text-secondary);
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__year-btn.is-active {
+	color: var(--k2-segment-active-text);
+	background: color-mix(in srgb, var(--k2-accent) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 42%, transparent);
+	box-shadow: none;
+}
+
+.pm3-cal--days .pm3-cal__grid .pm3-cal__cell:not(.pm3-cal__cell--pad):focus {
+	outline: 1px solid var(--k2-segment-active-ring);
+	outline-offset: 1px;
+}
+
+.pm3-cal--days .pm3-cal__cell--play.pm3-cal__cell--clickable {
+	cursor: pointer;
+}
+
+.pm3d-section--played-days .pm3-cal__status-count,
+.pm3d-section--played-days .pm3-cal__status-name,
+body.k2-site .k2-table-tooltip .pm3-cal__tip-count {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
+body.k2-site .k2-table-tooltip.k2-table-tooltip--player-cal {
+	max-width: min(540px, calc(100vw - 24px));
+	padding: 10px 12px;
+}
+
+body.k2-site .k2-table-tooltip--player-cal .k2-table-tooltip__body {
+	margin-bottom: 0;
+}
+
+.pm3-cal-day-games-list {
+	display: grid;
+	grid-template-columns: 5.25em auto 2.1ch 0.95ch 2.1ch auto;
+	column-gap: 6px;
+	width: max-content;
+	max-width: 100%;
+	align-items: baseline;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 12px;
+}
+
+body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list > li {
+	display: contents;
+}
+
+body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list__cell {
+	padding: 4px 0;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list > li:last-child > .pm3-cal-day-games-list__cell {
+	border-bottom: none;
+}
+
+.pm3-cal-day-games-list__when {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	color: var(--k2-text-muted);
+	font-size: 11px;
+}
+
+.pm3-cal-day-games-list__side--a {
+	text-align: right;
+	white-space: nowrap;
+}
+
+.pm3-cal-day-games-list__goals,
+.pm3-cal-day-games-list__score-sep {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.pm3-cal-day-games-list__goals--a {
+	text-align: right;
+	margin-right: -3px;
+}
+
+.pm3-cal-day-games-list__score-sep {
+	text-align: center;
+	margin-left: -3px;
+	margin-right: -3px;
+}
+
+.pm3-cal-day-games-list__goals--b {
+	text-align: left;
+	margin-left: -3px;
+}
+
+.pm3-cal-day-games-list__side--b {
+	text-align: left;
+	white-space: nowrap;
+}
+
+.pm3-cal-day-games-list__side a {
+	white-space: nowrap;
+}
+
+.pm3-cal-day-games-list__side .pm3-cal__tip-rating {
+	white-space: nowrap;
+}
+
+.pm3-cal__tip-rating {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+}
+
+.pm3-cal__tip-loading,
+.pm3-cal__tip-empty {
+	margin: 0;
+	color: var(--k2-text-muted);
+	font-size: 12px;
+}
+
+.pm3-cal__tip-summary {
+	margin: 0 0 10px;
+	font-size: 12px;
+	line-height: 1.45;
+	color: var(--k2-tooltip-body);
+}
+
+.pm3-cal__tip-truncated {
+	margin: 6px 0 0;
+	color: var(--k2-text-muted);
+	font-size: 11px;
 }
 
 .pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__months {

@@ -197,7 +197,7 @@ Examples without duo tables:
 | Rule | |
 |------|--|
 | No `k2-chart-panel` wrapper | |
-| Year segment picker for days — ascending years left→right | |
+| Year segment picker for days — ascending years left→right; first + current year = full Jan–Dec grid | |
 | P05 distinct days may appear in B2 **and** inform heatmap status line — not a second grid |
 
 ### 4.7 Chart panel (`k2-chart-panel` + `k2-chart-frame`)

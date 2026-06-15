@@ -83,6 +83,17 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents H2H pickers spacing** — doubled gap between search/listbox row and fighter poster cards (`clamp(56px, 8vw, 88px)`). |
+| 2026-06 | **Opponents H2H all-games link** — `games.php?opponent=` now `#matching-games` (anchor above “Showing … matching games”). |
+| 2026-06 | **Played-days** — legend under grid removed; hint = story line per year. |
+| 2026-06 | **Games tab day filter polish** — `?day=` banner uses tooltip-style date (`Monday, Jan 27, 2034`); **← Played days** → profile `#played-days`; default sort Date desc when day set without explicit sort. |
+| 2026-06 | **Profile played-days tooltip games** — hover list (≤8) with UTC time, pre-game ratings, Status-style rows; “Click for more” → Games tab day filter. |
+| 2026-06 | **Profile played-days tooltips** — `k2-table-tooltip`; date `M j, Y`; game count from `player_period_games`. |
+| 2026-06 | **Profile played-days hint** — per-year count in section hint (replaces “through today”); year picker only. |
+| 2026-06 | **Profile played-days year picker** — inactive hover matches player nav (`rgba(255,255,255,0.05)`). |
+| 2026-06 | **Profile played-days year picker** — active year pill gets realm accent fill (milestone tier filter pattern). |
+| 2026-06 | **Profile played-days toolbar** — year count line beside year picker; count in link-star. |
+| 2026-06 | **Profile played-days heatmap** — first career year + current year always show full 12-month grid (future/prior months empty). |
 | 2026-06 | **Opponents H2H combined goals x-label** — “Goal sum” below chart (not panel hint); Chart.js x-axis title off. |
 | 2026-06 | **Opponents H2H combined goals naming** — chart title, hint, tooltips, axis, meta aligned on “combined goals per game” (was “total goals”). |
 | 2026-06 | **Opponents H2H combined goals meta** — “…average {avg} combined goals per game” (word order). |

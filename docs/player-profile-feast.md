@@ -23,7 +23,7 @@
 | Opponents wing | `player/opponents/*.php` — inner tabs Head-to-head · W/D/L · Goals · DDs |
 | Milestones | `player/milestones.php` — tier garden (catalog count from DB, **112** after `year_in_heaven`); all card titles link to `milestone.php?key=` (locked = underline + hover brighten); date line uses unlock-event register; helpers `includes/player_milestones_helpers.php` |
 | CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
-| Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_weeks.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
+| Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_day_games.php`, `player_calendar_weeks.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
 
 ---
 
@@ -32,7 +32,7 @@
 1. Site header + **← Leaderboards** context link + **hero** (name → Profile tab; rank + rating → `leaderboards/rating.php` Rating LB; games → `leaderboards/activity-peaks.php#k2-peak-period-all-time`; **milestones** `{n}/{catalog}` when `NumberGames >= 1` → garden tab; stat links = pointer only, no hover ink)
 2. Feast **pills**
 4. **Presence** + **Career** (at-a-glance; career ranks when `Display = 1`)
-5. **Played days** (UTC calendar; year segment picker; 12 months in one row for the selected year)
+5. **Played days** (UTC calendar; year segment picker; hint = per-year story line e.g. “In 2026, **Dagh** played on **110** rated days.”; 12 months in one row for the selected year — **first career year** and **current calendar year** always render the full Jan–Dec grid, including months before first play or after today). **Hover:** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played day → **Games** tab `?day=YYYY-MM-DD#day-games` (banner, prev/next played-day chevrons, carry-scroll).
 6. **Played weeks** (52 UTC week tiles per year from first rated game through today; tooltips = week range + game count)
 7. **Personal bests** (busiest day / month / year for this player)
 8. **Moments** (longest win streak + trophy games with links)

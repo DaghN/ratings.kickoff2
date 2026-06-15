@@ -86,6 +86,127 @@ function individual3_valid_day(string $value): string
     return '';
 }
 
+function individual3_format_utc_day_title(string $ymd): string
+{
+    $dt = DateTimeImmutable::createFromFormat('Y-m-d', $ymd, new DateTimeZone('UTC'));
+    if ($dt === false) {
+        return $ymd;
+    }
+
+    return $dt->format('l, M j, Y');
+}
+
+function individual3_format_utc_day_banner_html(string $ymd): string
+{
+    $dt = DateTimeImmutable::createFromFormat('Y-m-d', $ymd, new DateTimeZone('UTC'));
+    if ($dt === false) {
+        return individual3_h($ymd);
+    }
+
+    return individual3_h($dt->format('l')) . ', '
+        . '<span class="k2-link-star k2-player-games-day-banner__date">' . individual3_h($dt->format('M j')) . '</span>, '
+        . individual3_h($dt->format('Y'));
+}
+
+function individual3_has_games_filters_beyond_day(
+    string $resultFilter,
+    int $opponentFilter,
+    int $goalsScoredFilter,
+    int $goalsConcededFilter,
+    int $goalsSumFilter
+): bool {
+    return $resultFilter !== 'all'
+        || $opponentFilter > 0
+        || $goalsScoredFilter >= 0
+        || $goalsConcededFilter >= 0
+        || $goalsSumFilter >= 0;
+}
+
+function individual3_clear_day_filter_url(array $state): string
+{
+    return individual3_games_filter_url($state, null);
+}
+
+function individual3_games_filter_url(array $state, ?string $dayYmd): string
+{
+    $params = [
+        'id' => $state['player_id'],
+        'sort' => $state['sort'],
+        'dir' => $state['dir'],
+    ];
+    if ($dayYmd !== null && $dayYmd !== '') {
+        $params['day'] = $dayYmd;
+    }
+    if ($state['result'] !== 'all') {
+        $params['result'] = $state['result'];
+    }
+    if ($state['opponent'] > 0) {
+        $params['opponent'] = $state['opponent'];
+    }
+    if (($state['gf'] ?? -1) >= 0) {
+        $params['gf'] = $state['gf'];
+    }
+    if (($state['ga'] ?? -1) >= 0) {
+        $params['ga'] = $state['ga'];
+    }
+    if (($state['gs'] ?? -1) >= 0) {
+        $params['gs'] = $state['gs'];
+    }
+
+    $url = individual3_build_url($params);
+    if ($dayYmd !== null && $dayYmd !== '') {
+        $url .= '#day-games';
+    }
+
+    return $url;
+}
+
+/**
+ * @return array{prev: ?string, next: ?string} Y-m-d UTC played days from player_period_games.
+ */
+function individual3_adjacent_played_days(mysqli $con, int $playerId, string $utcDay): array
+{
+    $prevRows = individual3_query_all(
+        $con,
+        'SELECT DATE_FORMAT(period_start, \'%Y-%m-%d\') AS d FROM player_period_games '
+            . 'WHERE period_type = \'day\' AND player_id = ? AND period_start < ? '
+            . 'ORDER BY period_start DESC LIMIT 1',
+        'is',
+        [$playerId, $utcDay]
+    );
+    $nextRows = individual3_query_all(
+        $con,
+        'SELECT DATE_FORMAT(period_start, \'%Y-%m-%d\') AS d FROM player_period_games '
+            . 'WHERE period_type = \'day\' AND player_id = ? AND period_start > ? '
+            . 'ORDER BY period_start ASC LIMIT 1',
+        'is',
+        [$playerId, $utcDay]
+    );
+    $prev = individual3_valid_day((string) ($prevRows[0]['d'] ?? ''));
+    $next = individual3_valid_day((string) ($nextRows[0]['d'] ?? ''));
+
+    return [
+        'prev' => $prev !== '' ? $prev : null,
+        'next' => $next !== '' ? $next : null,
+    ];
+}
+
+function individual3_render_day_step(string $dir, ?string $dayYmd, array $state): void
+{
+    $isPrev = $dir === 'prev';
+    $label = $isPrev ? 'Previous played day' : 'Next played day';
+    $classes = 'k2-player-games-day-step k2-player-games-day-step--' . $dir;
+    if ($dayYmd === null || $dayYmd === '') {
+        echo '<span class="' . $classes . ' is-disabled" aria-disabled="true" title="' . individual3_h($label) . '">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
+
+        return;
+    }
+    $href = individual3_games_filter_url($state, $dayYmd);
+    echo '<a class="' . $classes . '" href="' . individual3_h($href) . '" aria-label="' . individual3_h($label) . '">';
+    echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
+}
+
 function individual3_valid_goals_filter(int $value, array $validValues): int
 {
     if ($value < 0) {
@@ -246,11 +367,16 @@ $goalsScoredFilter = isset($_GET['gf']) ? (int) $_GET['gf'] : -1;
 $goalsConcededFilter = isset($_GET['ga']) ? (int) $_GET['ga'] : -1;
 $goalsSumFilter = isset($_GET['gs']) ? (int) $_GET['gs'] : -1;
 $utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
-$sortKey = (string) ($_GET['sort'] ?? 'id');
-if ($sortKey === 'for') {
-    $sortKey = 'goals_for';
+if ($utcDayFilter !== '' && !isset($_GET['sort'])) {
+    $sortKey = 'date';
+    $sortDirection = 'desc';
+} else {
+    $sortKey = (string) ($_GET['sort'] ?? 'id');
+    if ($sortKey === 'for') {
+        $sortKey = 'goals_for';
+    }
+    $sortDirection = individual3_valid_direction((string) ($_GET['dir'] ?? 'desc'));
 }
-$sortDirection = individual3_valid_direction((string) ($_GET['dir'] ?? 'desc'));
 $limit = 100;
 $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
 $playerIdSql = (int) $playerId;
@@ -360,6 +486,11 @@ $games = individual3_query_all(
     $whereTypes,
     $whereParams
 );
+
+$adjacentPlayedDays = ['prev' => null, 'next' => null];
+if ($utcDayFilter !== '') {
+    $adjacentPlayedDays = individual3_adjacent_played_days($con, $playerId, $utcDayFilter);
+}
 
 mysqli_close($con);
 ?>
@@ -484,12 +615,50 @@ foreach ($goalsSumRows as $goalsSumRow) {
     </div>
 </form>
 
+<?php if ($utcDayFilter !== '') { ?>
+<section class="k2-player-games-day-view">
+<div id="day-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
+<?php } ?>
+
+<div id="matching-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
 <div class="k2-player-games-status" data-k2-carry-scroll>
-    <?php if ($utcDayFilter !== '') { ?>
-    Rated games on <strong><?php echo individual3_h($utcDayFilter); ?></strong> UTC
-    (<a href="<?php echo individual3_h(individual3_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []) + ($goalsScoredFilter >= 0 ? ['gf' => $goalsScoredFilter] : []) + ($goalsConcededFilter >= 0 ? ['ga' => $goalsConcededFilter] : []) + ($goalsSumFilter >= 0 ? ['gs' => $goalsSumFilter] : []))); ?>">clear day filter</a>).
+    <?php if ($utcDayFilter !== '') {
+        $dayBannerStory = !individual3_has_games_filters_beyond_day(
+            $resultFilter,
+            $opponentFilter,
+            $goalsScoredFilter,
+            $goalsConcededFilter,
+            $goalsSumFilter
+        );
+        $dayBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
+        $clearDayUrl = individual3_clear_day_filter_url($sortState);
+        ?>
+    <div class="k2-player-games-day-banner">
+        <a class="k2-link-star k2-player-games-day-banner__back" href="/player/profile.php?id=<?php echo $playerId; ?>#played-days">← Played days</a>
+        <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
+        <nav class="k2-player-games-day-steps" aria-label="Adjacent played days">
+            <?php individual3_render_day_step('prev', $adjacentPlayedDays['prev'], $sortState); ?>
+            <?php individual3_render_day_step('next', $adjacentPlayedDays['next'], $sortState); ?>
+        </nav>
+        <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
+        <span class="k2-player-games-day-banner__lead">
+            <?php if ($dayBannerStory) { ?>
+            <a class="k2-link-star" href="/player/profile.php?id=<?php echo $playerId; ?>"><?php echo individual3_h($name); ?></a>
+            played <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
+            <?php echo $dayBannerGamesWord; ?> on
+            <?php } else { ?>
+            <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
+            matching <?php echo $dayBannerGamesWord; ?> on
+            <?php } ?>
+            <?php echo individual3_format_utc_day_banner_html($utcDayFilter); ?> UTC
+        </span>
+        <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
+        <a class="k2-link-star k2-player-games-day-banner__clear" href="<?php echo individual3_h($clearDayUrl); ?>">clear day filter</a>
+    </div>
     <?php } ?>
+    <?php if ($utcDayFilter === '') { ?>
     Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
+    <?php } ?>
     <?php if ($offset > 0) { ?>
     <?php $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)]; ?>
     <a class="k2-player-games-action" href="<?php echo individual3_h(individual3_build_url($prevParams)); ?>">Previous 100</a>
@@ -507,7 +676,15 @@ foreach ($goalsSumRows as $goalsSumRow) {
 <thead>
 <tr>
     <?php echo individual3_sort_header('id', 'ID', 'left', $sortState, 'Rated game ID.'); ?>
-    <?php echo individual3_sort_header('date', 'Date', 'left', $sortState, 'Date the rated game was played.', 'Date', 'k2-table-cell--pad-left-xs'); ?>
+    <?php echo individual3_sort_header(
+        'date',
+        $utcDayFilter !== '' ? 'Time' : 'Date',
+        'left',
+        $sortState,
+        $utcDayFilter !== '' ? 'UTC time the rated game was played.' : 'UTC date and time the rated game was played.',
+        $utcDayFilter !== '' ? 'Time' : 'Date',
+        'k2-table-cell--pad-left-xs'
+    ); ?>
     <?php echo individual3_sort_header('team_a', 'Team A', 'right', $sortState, 'Player listed as Team A in the original game record.'); ?>
     <th></th>
     <th></th>
@@ -532,13 +709,18 @@ foreach ($goalsSumRows as $goalsSumRow) {
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>
-    <?php echo k2_player_game_row_html($game, $playerId, $sortedColIndex); ?>
+    <?php echo k2_player_game_row_html($game, $playerId, $sortedColIndex, $utcDayFilter !== ''); ?>
     <?php } ?>
 </tbody>
 
 </table>
 
 </div><!-- .k2-table-wrap -->
+
+<?php if ($utcDayFilter !== '') { ?>
+<div class="k2-player-games-day-scroll-pad" aria-hidden="true"></div>
+</section>
+<?php } ?>
 
 </div><!-- .k2-page-nav -->
 </body>

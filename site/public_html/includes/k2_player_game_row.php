@@ -44,12 +44,22 @@ function k2_player_game_normalize_row(array $row): array
     ];
 }
 
-function k2_player_game_date_html(string $date): string
+function k2_player_game_date_html(string $date, bool $utcDayView = false): string
 {
-    $ts = strtotime($date);
-    $text = $ts !== false ? date('M d Y', $ts) : $date;
+    $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('UTC'));
+    if ($dt === false) {
+        $ts = strtotime($date);
+        if ($ts === false) {
+            return k2_player_game_h($date);
+        }
+        $dt = (new DateTimeImmutable('@' . $ts))->setTimezone(new DateTimeZone('UTC'));
+    }
 
-    return k2_player_game_h($text);
+    if ($utcDayView) {
+        return k2_player_game_h($dt->format('H:i'));
+    }
+
+    return k2_player_game_h($dt->format('M d Y H:i'));
 }
 
 function k2_player_game_signed_number_html(float $value): string
@@ -143,7 +153,7 @@ function k2_player_game_td(string $content, int $colIndex, int $sortedColIndex, 
 /**
  * @param array<string, mixed> $row normalized or raw ratedresults row
  */
-function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex = 0): string
+function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex = 0, bool $utcDayView = false): string
 {
     $processed = k2_rated_game_is_processed($row);
     $game = k2_player_game_normalize_row($row);
@@ -188,7 +198,7 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
 
     return '<tr>'
         . k2_player_game_td('<a href="/game.php?id=' . $game['id'] . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
-        . k2_player_game_td(k2_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
+        . k2_player_game_td(k2_player_game_date_html($game['Date'], $utcDayView), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
         . k2_player_game_td(k2_player_game_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
         . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)
         . k2_player_game_td((string) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left')
