@@ -1,6 +1,6 @@
 /**
  * Goals scored per game — full histogram (0..max). Click bar → games tab gf/ga filter.
- * Profile: all games (amber). H2H: subject chrome + rival red; pair charts share x-axis max.
+ * Profile: single amber series. H2H: grouped chrome + red bars (shared x-axis max).
  */
 (function () {
     'use strict';
@@ -140,13 +140,8 @@
         };
     }
 
-    function renderChart(root, buckets, data) {
+    function renderStandaloneChart(root, buckets, data) {
         var playerId = root.getAttribute('data-player-id');
-        var opponentId = root.getAttribute('data-opponent-id') || '';
-        var h2hSide = root.getAttribute('data-h2h-side') || '';
-        var isRival = h2hSide === 'rival';
-        var isH2h = !!opponentId;
-        var goalParam = isRival ? 'ga' : 'gf';
         var canvas = root.querySelector('canvas');
         var status = root.querySelector('.player-goals-scored-histogram-status');
         var chartInstance = root._k2GoalsHistogramChart || null;
@@ -164,15 +159,9 @@
                 root._k2GoalsHistogramChart = null;
             }
             if (status) {
-                status.textContent = opponentId
-                    ? 'No rated games against this opponent.'
-                    : 'No rated games to chart.';
+                status.textContent = 'No rated games to chart.';
             }
             return;
-        }
-
-        if (!isRival && data && data.opponentName) {
-            setSectionHeading(root, data.opponentName);
         }
 
         if (status) {
@@ -180,7 +169,7 @@
         }
 
         var series = bucketsToSeries(buckets);
-        var barStyle = barStyleForSide(isH2h, isRival);
+        var barStyle = barStyleForSide(false, false);
 
         if (chartInstance) {
             chartInstance.destroy();
@@ -218,9 +207,7 @@
                                 return item.parsed.y + ' game' + (item.parsed.y === 1 ? '' : 's');
                             },
                             afterLabel: function () {
-                                return isRival
-                                    ? 'Click to filter games list by goals conceded'
-                                    : 'Click to filter games list';
+                                return 'Click to filter games list';
                             }
                         }
                     })
@@ -264,12 +251,183 @@
                     window.location.href = gamesListUrl(
                         playerId,
                         series.goalValues[idx],
-                        opponentId || null,
-                        goalParam
+                        null,
+                        'gf'
                     );
                 },
                 onHover: function (evt, elements) {
                     if (!elements.length || !series.games[elements[0].index]) {
+                        canvas.style.cursor = 'default';
+                        return;
+                    }
+                    canvas.style.cursor = 'pointer';
+                }
+            })
+        });
+        root._k2GoalsHistogramChart = chartInstance;
+    }
+
+    function renderGroupedH2hChart(root, subjectBuckets, rivalBuckets, subjectData, rivalData) {
+        var playerId = root.getAttribute('data-player-id');
+        var opponentId = root.getAttribute('data-opponent-id') || '';
+        var canvas = root.querySelector('canvas');
+        var status = root.querySelector('.player-goals-scored-histogram-status');
+        var chartInstance = root._k2GoalsHistogramChart || null;
+
+        if (!canvas || typeof Chart === 'undefined') {
+            if (status) {
+                status.textContent = 'Chart library failed to load.';
+            }
+            return;
+        }
+
+        if (!subjectBuckets.length && !rivalBuckets.length) {
+            if (chartInstance) {
+                chartInstance.destroy();
+                root._k2GoalsHistogramChart = null;
+            }
+            if (status) {
+                status.textContent = 'No rated games against this opponent.';
+            }
+            return;
+        }
+
+        if (subjectData && subjectData.opponentName) {
+            setSectionHeading(root, subjectData.opponentName);
+        }
+
+        if (status) {
+            status.textContent = '';
+        }
+
+        var subjectSeries = bucketsToSeries(subjectBuckets);
+        var rivalSeries = bucketsToSeries(rivalBuckets);
+        var subjectStyle = barStyleForSide(true, false);
+        var rivalStyle = barStyleForSide(true, true);
+        var subjectLabel = (subjectData && subjectData.playerName) ? subjectData.playerName : 'You';
+        var rivalLabel = (rivalData && rivalData.playerName) ? rivalData.playerName : 'Opponent';
+        var goalValues = subjectSeries.goalValues;
+
+        if (chartInstance) {
+            chartInstance.destroy();
+            root._k2GoalsHistogramChart = null;
+        }
+
+        chartInstance = createChart(canvas, {
+            type: 'bar',
+            data: {
+                labels: subjectSeries.labels,
+                datasets: [
+                    {
+                        label: subjectLabel,
+                        data: subjectSeries.games,
+                        backgroundColor: subjectStyle.backgroundColor,
+                        borderColor: subjectStyle.borderColor,
+                        borderWidth: subjectStyle.borderWidth,
+                        maxBarThickness: 28
+                    },
+                    {
+                        label: rivalLabel,
+                        data: rivalSeries.games,
+                        backgroundColor: rivalStyle.backgroundColor,
+                        borderColor: rivalStyle.borderColor,
+                        borderWidth: rivalStyle.borderWidth,
+                        maxBarThickness: 28
+                    }
+                ]
+            },
+            options: chartOptions({
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'start',
+                        labels: {
+                            color: T.legendColor ? T.legendColor() : undefined,
+                            boxWidth: 12,
+                            boxHeight: 12,
+                            usePointStyle: true,
+                            pointStyle: 'rect'
+                        }
+                    },
+                    tooltip: T.mergeTooltip({
+                        mode: 'index',
+                        intersect: true,
+                        filter: function (item) {
+                            return item.parsed.y > 0;
+                        },
+                        callbacks: {
+                            title: function (items) {
+                                if (!items.length) {
+                                    return '';
+                                }
+                                var goals = goalValues[items[0].dataIndex];
+                                return goals + ' goal' + (goals === 1 ? '' : 's') + ' scored';
+                            },
+                            label: function (item) {
+                                return item.dataset.label + ': '
+                                    + item.parsed.y + ' game' + (item.parsed.y === 1 ? '' : 's');
+                            },
+                            afterBody: function () {
+                                return 'Click a bar to filter the games list';
+                            }
+                        }
+                    })
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Goals scored',
+                            color: T.tickColor()
+                        },
+                        ticks: {
+                            color: T.tickColor(),
+                            autoSkip: false,
+                            maxRotation: 0
+                        },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Games',
+                            color: T.tickColor()
+                        },
+                        ticks: {
+                            color: T.tickColor(),
+                            precision: 0
+                        },
+                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+                    }
+                },
+                onClick: function (evt, elements) {
+                    if (!elements.length) {
+                        return;
+                    }
+                    var el = elements[0];
+                    var idx = el.index;
+                    var datasetIndex = el.datasetIndex;
+                    var games = datasetIndex === 1 ? rivalSeries.games : subjectSeries.games;
+                    if (!games[idx]) {
+                        return;
+                    }
+                    window.location.href = gamesListUrl(
+                        playerId,
+                        goalValues[idx],
+                        opponentId || null,
+                        datasetIndex === 1 ? 'ga' : 'gf'
+                    );
+                },
+                onHover: function (evt, elements) {
+                    if (!elements.length) {
+                        canvas.style.cursor = 'default';
+                        return;
+                    }
+                    var el = elements[0];
+                    var games = el.datasetIndex === 1 ? rivalSeries.games : subjectSeries.games;
+                    if (!games[el.index]) {
                         canvas.style.cursor = 'default';
                         return;
                     }
@@ -304,26 +462,22 @@
 
         fetchDistribution(playerId, null)
             .then(function (data) {
-                renderChart(root, data.buckets || [], data);
+                renderStandaloneChart(root, data.buckets || [], data);
             })
             .catch(function () {
                 setError(root);
             });
     }
 
-    function initH2hPair(subjectRoot, rivalRoot) {
-        var playerId = subjectRoot.getAttribute('data-player-id');
-        var opponentId = subjectRoot.getAttribute('data-opponent-id');
+    function initH2hGrouped(root) {
+        var playerId = root.getAttribute('data-player-id');
+        var opponentId = root.getAttribute('data-opponent-id');
         if (!playerId || !opponentId) {
-            initStandalone(subjectRoot);
-            if (rivalRoot) {
-                initStandalone(rivalRoot);
-            }
+            initStandalone(root);
             return;
         }
 
-        setLoading(subjectRoot);
-        setLoading(rivalRoot);
+        setLoading(root);
 
         Promise.all([
             fetchDistribution(playerId, opponentId),
@@ -341,55 +495,27 @@
                     sharedMax = 0;
                 }
 
-                var subjectBuckets = padBuckets(subjectData.buckets || [], sharedMax);
-                var rivalBuckets = padBuckets(rivalData.buckets || [], sharedMax);
-
-                if (!subjectBuckets.length && !rivalBuckets.length) {
-                    renderChart(subjectRoot, [], subjectData);
-                    renderChart(rivalRoot, [], rivalData);
-                    return;
-                }
-
-                renderChart(subjectRoot, subjectBuckets, subjectData);
-                renderChart(rivalRoot, rivalBuckets, rivalData);
+                renderGroupedH2hChart(
+                    root,
+                    padBuckets(subjectData.buckets || [], sharedMax),
+                    padBuckets(rivalData.buckets || [], sharedMax),
+                    subjectData,
+                    rivalData
+                );
             })
             .catch(function () {
-                setError(subjectRoot);
-                setError(rivalRoot);
+                setError(root);
             });
     }
 
     function boot() {
         var roots = document.querySelectorAll('.player-goals-scored-histogram');
-        var paired = typeof Set !== 'undefined' ? new Set() : null;
         var i;
 
         for (i = 0; i < roots.length; i++) {
             var root = roots[i];
-            if (paired && paired.has(root)) {
-                continue;
-            }
-
-            var opponentId = root.getAttribute('data-opponent-id');
-            if (!opponentId) {
-                initStandalone(root);
-                continue;
-            }
-
-            var matchups = root.closest('.pm3d-matchups');
-            var subjectRoot = matchups
-                ? matchups.querySelector('.player-goals-scored-histogram[data-h2h-side="subject"]')
-                : null;
-            var rivalRoot = matchups
-                ? matchups.querySelector('.player-goals-scored-histogram[data-h2h-side="rival"]')
-                : null;
-
-            if (subjectRoot && rivalRoot) {
-                if (paired) {
-                    paired.add(subjectRoot);
-                    paired.add(rivalRoot);
-                }
-                initH2hPair(subjectRoot, rivalRoot);
+            if (root.getAttribute('data-h2h-grouped') === '1') {
+                initH2hGrouped(root);
             } else {
                 initStandalone(root);
             }

@@ -85,7 +85,7 @@
 |------|------|
 | 2026-06 | **Opponents H2H poster stat mirror** — opponent card outputs rating before rank so rank stays on the outer (avatar) edge, matching the subject card toward the `vs`. |
 | 2026-06 | **Player games opponent listbox** — game count as right-aligned meta (split row), not parenthesis in label; matches GF/GA listboxes. |
-| 2026-06 | **Opponents H2H goals histograms** — subject + rival charts share x-axis max (higher of either player’s peak GF in the pairing). |
+| 2026-06 | **Opponents H2H goals histogram** — single grouped bar chart (chrome you + red rival); shared 0..max x-axis; click → `gf` / `ga` + `opponent=`. |
 | 2026-06 | **Profile goals-per-game histogram** — full GF distribution (0..max) on Profile; `player_goals_distribution.php` + API; amber bars; click → `player/games.php?gf=`; games tab GF listbox shares helper. |
 | 2026-06 | **Opponents H2H chart headings** — `Head-to-head vs {opponent}` and `Rating comparison vs {opponent}` (PHP + JS on chart load). |
 | 2026-06 | **Opponents H2H chart meta** — cumulative wins chart shows `{n} rated games` only. |

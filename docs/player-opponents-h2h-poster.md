@@ -203,9 +203,9 @@ Pair charts render below moments when the subject has played opponents. **Top op
 | **Top opponents** | Profile | Horizontal bar; click → Opponents H2H `?opponent=` (carry-scroll) |
 | **Head-to-head** | H2H tab | Cumulative wins vs selected opponent |
 | **Rating comparison** | H2H tab | Full career paths; date / games-played toggle |
-| **Goals per game** | H2H tab | Subject GF histogram (chrome) + rival GF histogram (table red); pair-scoped; shared 0..max x-axis; clicks → `games.php?gf=` / `?ga=` + `opponent=` |
+| **Goals per game** | H2H tab | Grouped bar chart: your goals (chrome) vs theirs (red) at each GF count; shared 0..max x-axis; legend + click → `games.php?gf=` / `?ga=` + `opponent=` |
 
-**Chart ink (Jun 2026):** H2H pair charts use `K2ChartTheme.h2hSubject*` (chart chrome = `--k2-chart-chrome` / pure chrome) and `h2hOpponent*` (`--k2-table-negative` red — same as poster `.red`, **not** `--k2-chart-magenta`). Profile top-opponents bar still uses pitch/chrome `profileCompare` / `opponentFocus`. Goals histograms on H2H: **chrome** = your goals vs opponent, **table red** = opponent goals vs you; Profile histogram stays **amber**. Rating compare **By date / By games** toggle active state: `--k2-pure-chrome` + `--k2-h2h2-chrome-ring` (not tint `--k2-segment-active-*`).
+**Chart ink (Jun 2026):** H2H pair charts use `K2ChartTheme.h2hSubject*` (chart chrome = `--k2-chart-chrome` / pure chrome) and `h2hOpponent*` (`--k2-table-negative` red — same as poster `.red`, **not** `--k2-chart-magenta`). Profile top-opponents bar still uses pitch/chrome `profileCompare` / `opponentFocus`. H2H goals histogram: **one grouped bar chart** (chrome = you, table red = opponent); Profile histogram stays **amber** single series. Rating compare **By date / By games** toggle active state: `--k2-pure-chrome` + `--k2-h2h2-chrome-ring` (not tint `--k2-segment-active-*`).
 
 Initial opponent comes from URL / default top opponent (`data-chart-opponent-id` on `.k2-player-opponents-h2h`). No duplicate “compare someone else” search — page pickers cover that.
 
