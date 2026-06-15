@@ -1,5 +1,5 @@
 /**
- * H2H total goals per game — SumOfGoals histogram for one pairing (holo bars).
+ * H2H combined goals per game — SumOfGoals histogram for one pairing (holo bars).
  * Click bar → games tab ?gs= + opponent=.
  */
 (function () {
@@ -24,6 +24,24 @@
             return T.createActivityChart(canvas, config, 'bar');
         }
         return new Chart(canvas, config);
+    }
+
+    function pickBarElement(chart, evt, elements) {
+        if (elements && elements.length) {
+            return elements[0];
+        }
+        if (chart && evt && typeof chart.getElementsAtEventForMode === 'function') {
+            var precise = chart.getElementsAtEventForMode(
+                evt,
+                'nearest',
+                { intersect: true },
+                false
+            );
+            if (precise.length) {
+                return precise[0];
+            }
+        }
+        return null;
     }
 
     function gamesListUrl(playerId, totalGoals, opponentId) {
@@ -85,10 +103,9 @@
         }
 
         var avgText = Number(avg).toFixed(2);
-        return playerName + ' and ' + opponentName
-            + ' have scored ' + avgText
-            + ' total goals on average in ' + games
-            + ' game' + (games === 1 ? '' : 's') + '.';
+        return 'Across ' + games + ' rated game' + (games === 1 ? '' : 's')
+            + ', ' + playerName + ' and ' + opponentName
+            + ' average ' + avgText + ' combined goals per game.';
     }
 
     function setHeading(root, opponentLabel) {
@@ -98,8 +115,8 @@
             return;
         }
         heading.textContent = opponentLabel
-            ? 'Total goals per game vs ' + opponentLabel
-            : 'Total goals per game';
+            ? 'Combined goals per game vs ' + opponentLabel
+            : 'Combined goals per game';
     }
 
     function renderChart(root, buckets, data) {
@@ -164,6 +181,10 @@
                 }]
             },
             options: chartOptions({
+                interaction: {
+                    mode: 'nearest',
+                    intersect: true
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: T.mergeTooltip({
@@ -176,13 +197,13 @@
                                     return '';
                                 }
                                 var total = series.goalValues[items[0].dataIndex];
-                                return total + ' total goal' + (total === 1 ? '' : 's');
+                                return total + ' goal' + (total === 1 ? '' : 's');
                             },
                             label: function (item) {
                                 return item.parsed.y + ' game' + (item.parsed.y === 1 ? '' : 's');
                             },
                             afterLabel: function () {
-                                return 'Click to filter games list';
+                                return 'Click to filter games list by goal sum';
                             }
                         }
                     })
@@ -190,9 +211,7 @@
                 scales: {
                     x: {
                         title: {
-                            display: true,
-                            text: 'Total goals in game',
-                            color: T.tickColor()
+                            display: false
                         },
                         ticks: {
                             color: T.tickColor(),
@@ -216,10 +235,11 @@
                     }
                 },
                 onClick: function (evt, elements) {
-                    if (!elements.length) {
+                    var el = pickBarElement(chartInstance, evt, elements);
+                    if (!el) {
                         return;
                     }
-                    var idx = elements[0].index;
+                    var idx = el.index;
                     if (!series.games[idx]) {
                         return;
                     }
@@ -230,7 +250,8 @@
                     );
                 },
                 onHover: function (evt, elements) {
-                    if (!elements.length || !series.games[elements[0].index]) {
+                    var el = pickBarElement(chartInstance, evt, elements);
+                    if (!el || !series.games[el.index]) {
                         canvas.style.cursor = 'default';
                         return;
                     }
@@ -257,7 +278,7 @@
             var status = root.querySelector('.player-h2h-total-goals-chart-status');
             var meta = root.querySelector('.player-h2h-total-goals-meta');
             if (status) {
-                status.textContent = 'Loading total goals per game…';
+                status.textContent = 'Loading combined goals per game…';
             }
             if (meta) {
                 meta.textContent = '';
@@ -278,7 +299,7 @@
                 })
                 .catch(function () {
                     if (status) {
-                        status.textContent = 'Could not load total goals per game.';
+                        status.textContent = 'Could not load combined goals per game.';
                     }
                 });
         }

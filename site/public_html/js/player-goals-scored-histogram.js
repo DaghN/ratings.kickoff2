@@ -123,6 +123,27 @@
         });
     }
 
+    function pickGroupedBarElement(chart, evt, elements) {
+        if (!elements || !elements.length) {
+            return null;
+        }
+        if (elements.length === 1) {
+            return elements[0];
+        }
+        if (chart && evt && typeof chart.getElementsAtEventForMode === 'function') {
+            var precise = chart.getElementsAtEventForMode(
+                evt,
+                'nearest',
+                { intersect: true },
+                false
+            );
+            if (precise.length) {
+                return precise[0];
+            }
+        }
+        return elements[0];
+    }
+
     function bucketsToSeries(buckets) {
         var labels = [];
         var games = [];
@@ -469,6 +490,10 @@
                 ]
             },
             options: chartOptions({
+                interaction: {
+                    mode: 'nearest',
+                    intersect: true
+                },
                 plugins: {
                     legend: {
                         display: true,
@@ -535,10 +560,10 @@
                     }
                 },
                 onClick: function (evt, elements) {
-                    if (!elements.length) {
+                    var el = pickGroupedBarElement(chartInstance, evt, elements);
+                    if (!el) {
                         return;
                     }
-                    var el = elements[0];
                     var idx = el.index;
                     var datasetIndex = el.datasetIndex;
                     var games = datasetIndex === 1 ? rivalSeries.games : subjectSeries.games;
@@ -553,11 +578,11 @@
                     );
                 },
                 onHover: function (evt, elements) {
-                    if (!elements.length) {
+                    var el = pickGroupedBarElement(chartInstance, evt, elements);
+                    if (!el) {
                         canvas.style.cursor = 'default';
                         return;
                     }
-                    var el = elements[0];
                     var games = el.datasetIndex === 1 ? rivalSeries.games : subjectSeries.games;
                     if (!games[el.index]) {
                         canvas.style.cursor = 'default';

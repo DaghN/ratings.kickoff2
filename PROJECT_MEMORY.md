@@ -83,6 +83,12 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Opponents H2H combined goals x-label** — “Goal sum” below chart (not panel hint); Chart.js x-axis title off. |
+| 2026-06 | **Opponents H2H combined goals naming** — chart title, hint, tooltips, axis, meta aligned on “combined goals per game” (was “total goals”). |
+| 2026-06 | **Opponents H2H combined goals meta** — “…average {avg} combined goals per game” (word order). |
+| 2026-06 | **Opponents H2H total goals histogram click** — bar click → `games.php?gs=` + `opponent=` (goal sum listbox); nearest-bar hit testing + hint copy. |
+| 2026-06 | **Player games Goal sum listbox** — `gs` filter UI on `games.php` (backend already wired); matches GF/GA listbox pattern with game counts in meta. |
+| 2026-06 | **Opponents H2H grouped goals histogram click** — side-by-side bars: rival (red) click → `ga` filter; was always `gf` because global Chart.js interaction mode `index` returned both bars and handler took `elements[0]`. |
 | 2026-06 | **Activity league orphan eligibility** — `LEFT JOIN playertable` + `#id` fallback (same as points); finalize/awards/milestones include deleted-account IDs; work: zero-derived → simul. |
 | 2026-06 | **Work DB ops hygiene** — `work-db-prepare.md` §1.5: sign-off = prepare + simul only; docs demote batch repair; CLI refuses `rebuild-all` on work targets. |
 | 2026-06 | **SCH-021 holder_count policy** — counts all unlock rows (incl. deleted accounts); bump on each unlock; verify same rule; no post-simul rebuild; migration 021 DDL-only; lobby rebuild after bulk seed only. |

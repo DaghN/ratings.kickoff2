@@ -63,7 +63,7 @@ function player_opponents_render_h2h_matchup_charts(
     if ($opponentName !== '') {
         $cumulativeGoalsHeading .= ' vs ' . $opponentName;
     }
-    $totalGoalsHeading = 'Total goals per game';
+    $totalGoalsHeading = 'Combined goals per game';
     if ($opponentName !== '') {
         $totalGoalsHeading .= ' vs ' . $opponentName;
     }
@@ -159,10 +159,11 @@ function player_opponents_render_h2h_matchup_charts(
 			data-opponent-id="<?php echo $opponentId; ?>"
 		>
 			<p class="player-h2h-total-goals-meta pm3d-chart__meta"></p>
-			<p class="player-h2h-total-goals-chart-status pm3d-chart__status k2-chart-panel__status">Loading total goals per game…</p>
+			<p class="player-h2h-total-goals-chart-status pm3d-chart__status k2-chart-panel__status">Loading combined goals per game…</p>
 			<div class="k2-chart-frame">
-				<canvas aria-label="Total goals per game against opponent"></canvas>
+				<canvas aria-label="Combined goals per game against opponent"></canvas>
 			</div>
+			<p class="player-h2h-total-goals-chart__x-label">Goal sum</p>
 		</div>
 		<h3 class="pm3d-matchups__subtitle player-h2h-scoreline-heatmap-heading"><?php echo k2_h($scorelineHeading); ?></h3>
 		<div

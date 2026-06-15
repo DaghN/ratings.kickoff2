@@ -559,6 +559,16 @@ body.k2-site .k2-h2h2-charts .k2-chart-frame {
 	margin: 0 auto;
 }
 
+body.k2-site .k2-h2h2-charts .player-h2h-total-goals-chart__x-label {
+	margin: 2px auto 0;
+	max-width: var(--k2-chart-max-width, 960px);
+	text-align: center;
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 1.25;
+	color: var(--k2-text-muted);
+}
+
 body.k2-site .k2-h2h2-charts .player-top-opponents-canvas {
 	display: block;
 	width: 100%;

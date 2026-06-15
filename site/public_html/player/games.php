@@ -440,6 +440,14 @@ foreach ($goalsConcededRows as $goalsConcededRow) {
         'meta' => (string) (int) $goalsConcededRow['games'],
     ];
 }
+$goalsSumChoices = [['value' => '-1', 'label' => 'All sums']];
+foreach ($goalsSumRows as $goalsSumRow) {
+    $goalsSumChoices[] = [
+        'value' => (string) (int) $goalsSumRow['goals_sum'],
+        'label' => (string) (int) $goalsSumRow['goals_sum'],
+        'meta' => (string) (int) $goalsSumRow['games'],
+    ];
+}
 ?>
 
 <form class="k2-player-games-controls" method="get" action="/player/games.php" data-k2-carry-scroll>
@@ -467,6 +475,10 @@ foreach ($goalsConcededRows as $goalsConcededRow) {
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Goals conceded</span>
             <?php k2_archive_listbox_render('ga', 'k2-player-games-ga', (string) $goalsConcededFilter, $goalsConcededChoices, 'Filter by goals conceded'); ?>
+        </div>
+        <div class="k2-player-games-controls__field">
+            <span class="server-period-activity-leaderboard__picker-label">Goal sum</span>
+            <?php k2_archive_listbox_render('gs', 'k2-player-games-gs', (string) $goalsSumFilter, $goalsSumChoices, 'Filter by goal sum'); ?>
         </div>
         <a class="k2-player-games-action" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
     </div>
