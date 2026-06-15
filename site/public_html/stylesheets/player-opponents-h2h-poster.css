@@ -525,10 +525,6 @@ body.k2-site .k2-h2h2-charts .pm3d-matchups {
 	max-width: 100%;
 }
 
-body.k2-site .k2-h2h2-charts .pm3d-matchups > .player-goals-scored-histogram--rival {
-	margin-top: 20px;
-}
-
 body.k2-site .k2-h2h2-charts .pm3d-matchups__subtitle {
 	margin: 4px 0 0;
 	font-size: 1rem;

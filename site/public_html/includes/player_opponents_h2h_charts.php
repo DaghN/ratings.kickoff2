@@ -91,27 +91,15 @@ function player_opponents_render_h2h_matchup_charts(
 		<?php if ($opponentId > 0) { ?>
 		<h3 class="pm3d-matchups__subtitle player-goals-scored-histogram-heading"><?php echo k2_h($goalsHeading); ?></h3>
 		<div
-			class="player-goals-scored-histogram k2-chart-panel"
+			class="player-goals-scored-histogram player-goals-scored-histogram--h2h-grouped k2-chart-panel"
 			data-player-id="<?php echo $playerId; ?>"
 			data-opponent-id="<?php echo $opponentId; ?>"
-			data-h2h-side="subject"
+			data-h2h-grouped="1"
 		>
-			<p class="k2-chart-block__hint">Goals you scored in rated games against this opponent. Click a bar to filter the games list.</p>
+			<p class="k2-chart-block__hint">Goals per game in rated games against this opponent — your bars (chrome) beside theirs (red). Click a bar to filter the games list.</p>
 			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
 			<div class="k2-chart-frame">
-				<canvas aria-label="Your goals scored per game against opponent"></canvas>
-			</div>
-		</div>
-		<div
-			class="player-goals-scored-histogram player-goals-scored-histogram--rival k2-chart-panel"
-			data-player-id="<?php echo $playerId; ?>"
-			data-opponent-id="<?php echo $opponentId; ?>"
-			data-h2h-side="rival"
-		>
-			<p class="k2-chart-block__hint">Goals <?php echo k2_h($opponentName); ?> scored against you in rated games. Click a bar to filter by goals conceded.</p>
-			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
-			<div class="k2-chart-frame">
-				<canvas aria-label="Opponent goals scored per game against you"></canvas>
+				<canvas aria-label="Goals scored per game comparison against opponent"></canvas>
 			</div>
 		</div>
 		<?php } ?>
