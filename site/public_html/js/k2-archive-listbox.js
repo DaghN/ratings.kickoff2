@@ -291,11 +291,20 @@
         }
     }
 
+    function splitOptionLabelNode(opt) {
+        if (!opt) {
+            return null;
+        }
+        return opt.querySelector('.k2-archive-listbox__option-label')
+            || opt.querySelector('.k2-h2h-listbox__name')
+            || opt.querySelector('.player-search-name');
+    }
+
     function ensureOption(box, value, label) {
         var existing = findOption(box, value);
         if (existing) {
             if (label) {
-                var labelNode = existing.querySelector('.k2-archive-listbox__option-label');
+                var labelNode = splitOptionLabelNode(existing);
                 if (labelNode) {
                     if (labelNode.textContent !== label) {
                         labelNode.textContent = label;

@@ -576,15 +576,15 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 | Column | Meaning |
 |--------|---------|
-| `holder_count` | Players with an unlock row (join `playertable`; same rule as pre-stored live agg) |
+| `holder_count` | Count of unlock rows per key (includes earners whose account was later deleted) |
 
-**Live writer:** `k2_milestone_holder_count_bump()` from `k2_milestone_unlock_insert()` after each new unlock.
+**Live writer:** `k2_milestone_holder_count_bump()` from `k2_milestone_unlock_insert()` after each new unlock (+1 per insert, same rule as unlock rows).
 
-**Repair:** `k2_milestone_holder_counts_rebuild()` — zero all keys then aggregate from `player_milestones` ⋈ `playertable`. Bundled with totals in `k2_milestone_stored_derived_rebuild()` after `ops_seed_lobby.php` bulk seed.
+**Lobby prepare only:** `k2_milestone_holder_counts_rebuild()` after `ops_seed_lobby.php` bulk seed (bypasses librarian). **Not** after simul; simul ends with incremental state live continues from.
 
-**Schema:** SCH-021 (`021_milestone_definitions_holder_count.sql`). Migration includes backfill `UPDATE` from unlock rows.
+**Schema:** SCH-021 (`021_milestone_definitions_holder_count.sql`). **DDL only** — no backfill in migration; counts from prepare lobby rebuild + simul/live bumps.
 
-**Parity:** `run_verify_ops_sim.php` check `milestone_holder_count_parity` — per-key counts must match unlock rows.
+**Parity:** `run_verify_ops_sim.php` check `milestone_holder_count_parity` — `holder_count` must equal `COUNT(*)` from `player_milestones` per key (all unlock rows).
 
 **Recent feed:** unchanged — still reads `player_milestones` by `achieved_at`.
 

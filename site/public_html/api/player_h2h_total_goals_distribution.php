@@ -1,9 +1,8 @@
 <?php
 /**
- * JSON cumulative head-to-head between two players (by game order).
+ * JSON total-goals-per-game histogram for one head-to-head pairing (SumOfGoals).
  *
- * GET: id (profile player), opponent (opponent id), realm (default online)
- * Points: cumulative wins and cumulative goals scored per side. Draws: win totals unchanged.
+ * GET: id (subject), opponent (required), realm (default online)
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -23,7 +22,11 @@ if ($realm !== 'online') {
         'realm' => $realm,
         'playerId' => $playerId,
         'opponentId' => $opponentId,
-        'points' => [],
+        'playerName' => null,
+        'opponentName' => null,
+        'maxGoals' => 0,
+        'totalGames' => 0,
+        'buckets' => [],
         'meta' => ['note' => 'realm_not_implemented'],
     ]);
     exit;
@@ -36,11 +39,13 @@ if ($playerId < 1 || $opponentId < 1) {
 }
 
 if ($playerId === $opponentId) {
+    http_response_code(400);
     echo json_encode(['error' => 'same_player']);
     exit;
 }
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_goals_distribution.php';
 
 $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 if ($con->connect_errno) {
@@ -74,75 +79,25 @@ if (!isset($names[$playerId], $names[$opponentId])) {
     exit;
 }
 
-$sql = 'SELECT id, Date, ActualScore, WinnerID, idA, GoalsA, GoalsB FROM ratedresults '
-    . 'WHERE (idA = ? AND idB = ?) OR (idA = ? AND idB = ?) '
-    . 'ORDER BY Date ASC, id ASC';
-
-$stmt = $con->prepare($sql);
-if (!$stmt) {
-    http_response_code(500);
-    echo json_encode(['error' => 'prepare_failed']);
-    mysqli_close($con);
-    exit;
+$buckets = player_h2h_total_goals_distribution_buckets($con, $playerId, $opponentId);
+$maxGoals = $buckets === [] ? 0 : (int) $buckets[count($buckets) - 1]['goals'];
+$totalGames = player_goals_scored_distribution_total_games($buckets);
+$goalSum = 0;
+foreach ($buckets as $bucket) {
+    $goalSum += (int) $bucket['goals'] * (int) $bucket['games'];
 }
+$avgTotalGoals = $totalGames > 0 ? round($goalSum / $totalGames, 2) : null;
 
-$stmt->bind_param('iiii', $playerId, $opponentId, $opponentId, $playerId);
-$stmt->execute();
-$res = $stmt->get_result();
-
-$points = [];
-$playerWins = 0;
-$opponentWins = 0;
-$playerGoals = 0;
-$opponentGoals = 0;
-$draws = 0;
-$gameNumber = 0;
-
-while ($row = $res->fetch_assoc()) {
-    $gameNumber++;
-    $actualScore = (float) $row['ActualScore'];
-    $winnerId = (int) $row['WinnerID'];
-    $idA = (int) $row['idA'];
-    $goalsA = (int) $row['GoalsA'];
-    $goalsB = (int) $row['GoalsB'];
-
-    if ($idA === $playerId) {
-        $playerGoals += $goalsA;
-        $opponentGoals += $goalsB;
-    } else {
-        $playerGoals += $goalsB;
-        $opponentGoals += $goalsA;
-    }
-
-    if (abs($actualScore - 0.5) < 0.001) {
-        $draws++;
-    } elseif ($winnerId === $playerId) {
-        $playerWins++;
-    } else {
-        $opponentWins++;
-    }
-
-    $points[] = [
-        'game_number' => $gameNumber,
-        'player_wins' => $playerWins,
-        'opponent_wins' => $opponentWins,
-        'player_goals' => $playerGoals,
-        'opponent_goals' => $opponentGoals,
-    ];
-}
-
-$stmt->close();
 mysqli_close($con);
 
 echo json_encode([
     'realm' => $realm,
     'playerId' => $playerId,
-    'playerName' => $names[$playerId],
     'opponentId' => $opponentId,
+    'playerName' => $names[$playerId],
     'opponentName' => $names[$opponentId],
-    'total_games' => $gameNumber,
-    'draws' => $draws,
-    'player_goals_total' => $playerGoals,
-    'opponent_goals_total' => $opponentGoals,
-    'points' => $points,
+    'maxGoals' => $maxGoals,
+    'totalGames' => $totalGames,
+    'avgTotalGoals' => $avgTotalGoals,
+    'buckets' => $buckets,
 ]);

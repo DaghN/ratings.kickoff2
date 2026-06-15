@@ -298,7 +298,7 @@ function k2_milestone_holder_count_column_ready(mysqli $con): bool
 }
 
 /**
- * Increment catalog holder_count for one milestone key.
+ * Increment catalog holder_count for one milestone key (one per unlock row — includes orphan earners).
  */
 function k2_milestone_holder_count_bump(mysqli $con, string $milestoneKey): void
 {
@@ -340,7 +340,6 @@ function k2_milestone_holder_counts_rebuild(mysqli $con): void
         INNER JOIN (
             SELECT pm.`milestone_key`, COUNT(*) AS `holders`
             FROM `player_milestones` pm
-            INNER JOIN `playertable` p ON p.`ID` = pm.`player_id`
             GROUP BY pm.`milestone_key`
         ) h ON h.`milestone_key` = d.`milestone_key`
         SET d.`holder_count` = h.`holders`

@@ -43,7 +43,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | DDR-010 | P6 game milestones (~90 keys) | per_game | `milestone_unlock.php` → `post_game_milestones.php` | Y | Y | ok | garden, profiles |
 | DDR-011 | `player_play_streaks` | per_game | `player_play_streaks.php` | Y | Y | ok | streak UI |
 | DDR-012 | `player_milestone_totals` | per_game + day + register | `milestone_unlock.php` bump; `k2_milestone_totals_rebuild()` repair | Y | Y | ok | meta LB, profile hero |
-| DDR-013 | `milestone_definitions.holder_count` | per_game + day + register | `milestone_unlock.php` bump; `k2_milestone_holder_counts_rebuild()` repair | Y | Y | ok | hub catalog, milestone detail |
+| DDR-013 | `milestone_definitions.holder_count` | per_game + day + register | `milestone_unlock.php` bump (+1/unlock); `k2_milestone_holder_counts_rebuild()` lobby prepare only | Y | Y | ok | hub catalog, milestone detail |
 
 **Excluded from per-game (by design):** `perfect_day`, `nightmare_day`, `entered_arena`, league medal keys — see below.
 
@@ -129,7 +129,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | `lobby_seed` | `entered_arena` vs `JoinDate` | Prepare, not sim depth |
 | `game_milestones` | Game-sourced rows | **Warn** if empty after no games |
 | `milestone_totals_parity` | `player_milestone_totals` vs unlock rows | **Fail** if mismatch (SCH-020) |
-| `milestone_holder_count_parity` | `milestone_definitions.holder_count` vs unlock rows | **Fail** if mismatch (SCH-021) |
+| `milestone_holder_count_parity` | `milestone_definitions.holder_count` vs all unlock rows per key | **Fail** if mismatch (SCH-021) |
 
 Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 

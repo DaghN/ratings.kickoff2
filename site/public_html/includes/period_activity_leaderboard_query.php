@@ -135,8 +135,8 @@ function k2_period_activity_leaderboard_entries(
         return [];
     }
 
-    $sql = 'SELECT g.player_id, p.Name AS player_name, g.games '
-        . 'FROM player_period_games g INNER JOIN playertable p ON p.ID = g.player_id '
+    $sql = 'SELECT g.player_id, COALESCE(p.Name, CONCAT(\'#\', g.player_id)) AS player_name, g.games '
+        . 'FROM player_period_games g LEFT JOIN playertable p ON p.ID = g.player_id '
         . 'WHERE g.period_type = ? AND g.period_start = ?';
 
     $stmt = mysqli_prepare($con, $sql);

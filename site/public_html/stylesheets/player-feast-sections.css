@@ -356,6 +356,7 @@
 .pm3d-matchups > .player-head-to-head-chart,
 .pm3d-matchups > .player-compare-rating-chart,
 .pm3d-matchups > .player-goals-scored-histogram,
+.pm3d-matchups > .player-goals-scored-histogram-grouped-heading,
 .pm3d-matchups > .player-h2h-opponent-search {
 	margin: 0;
 	max-width: var(--k2-chart-max-width, 960px);

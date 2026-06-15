@@ -144,7 +144,7 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 |------|-----|
 | Head-to-head | `/player/opponents/h2h.php?id={id}` · optional `&opponent={opponentId}` |
 | W/D/L | `/player/opponents/wdl.php?id={id}` |
-| Goals | `/player/opponents/goals.php?id={id}` |
+| Goals | `/player/opponents/goals.php?id={id}` — core GF/GA + **TG/g** (combined goals per game) after Ratio; extremes tail from stored summary when present |
 | DDs | `/player/opponents/dds.php?id={id}` |
 
 ---

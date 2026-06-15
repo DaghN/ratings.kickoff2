@@ -332,9 +332,9 @@ SQL;
 function k2_league_load_activity_rows(mysqli $con, string $periodType, string $periodStart): array
 {
     $sql = <<<'SQL'
-SELECT g.player_id, p.Name AS player_name, g.games
+SELECT g.player_id, COALESCE(p.Name, CONCAT('#', g.player_id)) AS player_name, g.games
 FROM player_period_games g
-INNER JOIN playertable p ON p.ID = g.player_id
+LEFT JOIN playertable p ON p.ID = g.player_id
 WHERE g.period_type = ? AND g.period_start = ?
 SQL;
     $stmt = mysqli_prepare($con, $sql);

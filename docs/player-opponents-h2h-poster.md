@@ -134,18 +134,20 @@ Below the poster, a **single centred race table** (no band headers, no name repe
 
 ### Rows (v1 slim)
 
-Goals scored · Goals per game · Most scored · Biggest winning margin · Least conceded (lower wins) · Double digits · Clean sheets
+Goals scored · Goals per game · Most scored · Biggest winning margin · Least conceded (lower wins) · Double digits · Clean sheets · Performance rating
+
+**Performance rating** — chess-style TPR per player in this pairing only: each side’s score vs the other’s **pre-game rating** in every rated game (`ratedresults`). Read-time (`player_h2h_pair_performance_ratings()` + shared `performance_rating.php`); min 2 games; `—` on perfect W/L (same rules as Amiga). Tooltip on row label.
 
 **Deferred:** wins/draws (on poster), goal ratio, highest/lowest-scoring game, highest-scoring draw, DD/CS rates — moments or later slices.
 
 ### Framing
 
 - **Symmetric positives** — e.g. your goals scored vs their goals scored (`goals_for` vs `goals_against` on the directed row). Conceded columns are the opponent’s positive stat.
-- **Leader tint** — winning value wrapped in `.blue` (subject) or `.red` (opponent); **ties** — both values in their own colour (chrome left, red right) except **0–0** (muted default grey) on every row except **Clean sheets**, where 0–0 still tints both sides. Leader/tie numerals use **neon text-shadow** (shared with poster W/L counts).
+- **Leader tint** — winning value wrapped in `.blue` (subject) or `.red` (opponent); **ties** — both values in their own colour (chrome left, red right) except **0–0** (muted default grey) on every row except **Least conceded**, where 0–0 still tints both sides. Leader/tie numerals use **neon text-shadow** (shared with poster W/L counts).
 
 ### Data
 
-Single directed row from `player_matchup_summary` (SCH-019 when present). Live single-pair aggregation fallback when summary or extension columns missing — `player_opponents_h2h_pair_detail_load()` in `includes/player_opponents_h2h.php`.
+Single directed row from `player_matchup_summary` (SCH-019 when present). Live single-pair aggregation fallback when summary or extension columns missing — `player_opponents_h2h_pair_detail_load()` in `includes/player_opponents_h2h.php`. **Performance rating** is always attached read-time from `ratedresults` (`player_h2h_performance_rating.php`), not stored on the summary row.
 
 ### Implementation
 
@@ -202,14 +204,17 @@ Pair charts render below moments when the subject has played opponents. **Top op
 |-------|-------|-----------|
 | **Top opponents** | Profile | Horizontal bar; click → Opponents H2H `?opponent=` (carry-scroll) |
 | **Head-to-head** | H2H tab | Cumulative wins vs selected opponent |
+| **Cumulative goals** | H2H tab | Cumulative goals scored per side by game #; meta shows final totals |
 | **Rating comparison** | H2H tab | Full career paths; date / games-played toggle |
-| **Goals per game** | H2H tab | Grouped bar chart: your goals (chrome) vs theirs (red) at each GF count; shared 0..max x-axis; legend + click → `games.php?gf=` / `?ga=` + `opponent=` |
+| **Goals per game** | H2H tab | Your histogram (chrome) + rival histogram (red) + **Side by side** grouped chart; shared 0..max x-axis; clicks → `games.php?gf=` / `?ga=` + `opponent=` |
+| **Total goals per game** | H2H tab | `SumOfGoals` histogram (holo); below side-by-side; meta = “{A} and {B} have scored {avg} total goals on average in {n} games.”; bar click → `games.php?gs=` + `opponent=` |
+| **Scoreline heatmap** | H2H tab | **Square** GF×GA grid (0…N both axes, N = max goals by either player in the pairing); **36px** tiles; hero vertical (**0 at bottom**, label left) × rival horizontal (**0 at left**, ticks + name **below** grid); origin **0–0 bottom-left**; 8-level intensity; intensity scale with `{hero} win` / `{rival} win` row labels; horizontal scroll when wider than panel; click → `games.php?gf=&ga=&opponent=` |
 
-**Chart ink (Jun 2026):** H2H pair charts use `K2ChartTheme.h2hSubject*` (chart chrome = `--k2-chart-chrome` / pure chrome) and `h2hOpponent*` (`--k2-table-negative` red — same as poster `.red`, **not** `--k2-chart-magenta`). Profile top-opponents bar still uses pitch/chrome `profileCompare` / `opponentFocus`. H2H goals histogram: **one grouped bar chart** (chrome = you, table red = opponent); Profile histogram stays **amber** single series. Rating compare **By date / By games** toggle active state: `--k2-pure-chrome` + `--k2-h2h2-chrome-ring` (not tint `--k2-segment-active-*`).
+**Chart ink (Jun 2026):** H2H pair charts use `K2ChartTheme.h2hSubject*` (chart chrome = `--k2-chart-chrome` / pure chrome) and `h2hOpponent*` (`--k2-table-negative` red — same as poster `.red`, **not** `--k2-chart-magenta`). Profile top-opponents bar still uses pitch/chrome `profileCompare` / `opponentFocus`. H2H goals: **two single-series histograms** (chrome you, red rival) **plus** optional grouped comparison chart; **total goals per game** uses holo (`--k2-chart-holo`) as a match-level stat; **scoreline heatmap** uses same outcome colours on a DOM grid (not Chart.js); Profile histogram stays **amber** single series. Rating compare **By date / By games** toggle active state: `--k2-pure-chrome` + `--k2-h2h2-chrome-ring` (not tint `--k2-segment-active-*`).
 
 Initial opponent comes from URL / default top opponent (`data-chart-opponent-id` on `.k2-player-opponents-h2h`). No duplicate “compare someone else” search — page pickers cover that.
 
-Scripts: Chart.js + `player-head-to-head-chart.js`, `player-compare-rating-chart.js`, `player-goals-scored-histogram.js` (H2H view in `player_opponents_page.php`). Profile loads `player-top-opponents-chart.js` and `player-goals-scored-histogram.js` separately.
+Scripts: Chart.js + `player-head-to-head-chart.js`, `player-head-to-head-goals-chart.js`, `player-h2h-total-goals-histogram.js`, `player-h2h-scoreline-heatmap.js`, `player-compare-rating-chart.js`, `player-goals-scored-histogram.js` (H2H view in `player_opponents_page.php`). Profile loads `player-top-opponents-chart.js` and `player-goals-scored-histogram.js` separately.
 
 Profile keeps **Career rating** + **Games per month** only.  
 7. Optional games link  

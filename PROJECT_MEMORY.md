@@ -83,9 +83,28 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Activity league orphan eligibility** — `LEFT JOIN playertable` + `#id` fallback (same as points); finalize/awards/milestones include deleted-account IDs; work: zero-derived → simul. |
+| 2026-06 | **Work DB ops hygiene** — `work-db-prepare.md` §1.5: sign-off = prepare + simul only; docs demote batch repair; CLI refuses `rebuild-all` on work targets. |
+| 2026-06 | **SCH-021 holder_count policy** — counts all unlock rows (incl. deleted accounts); bump on each unlock; verify same rule; no post-simul rebuild; migration 021 DDL-only; lobby rebuild after bulk seed only. |
+| 2026-06 | **Opponents H2H scoreline heatmap grid** — square 0…N both axes; N = max GF or GA seen in the pairing (e.g. 13 → 14×14 cells). |
+| 2026-06 | **Opponents H2H scoreline heatmap tile size** — fixed 36px cells (was fluid ~46px on wide Dagh vs Logos); horizontal scroll when grid wider than panel. |
+| 2026-06 | **Opponents H2H scoreline heatmap axis** — x tick labels live in the data grid header row so GA numbers center on tiles. |
+| 2026-06 | **Opponents H2H scoreline heatmap scale** — intensity legend rows labelled `{hero} win` / `{rival} win` (full phrase chrome/red). |
+| 2026-06 | **Opponents H2H race 0–0 tint** — only **Least conceded** row colours a 0–0 tie; other rows (incl. clean sheets) stay muted. |
+| 2026-06 | **Opponents H2H scoreline heatmap hover** — 2px flush border in outcome pure colour (chrome / holo / red). |
+| 2026-06 | **Opponents H2H scoreline heatmap touch** — phone: tap tile → tooltip + ring; tap same tile again → games list. |
+| 2026-06 | **Opponents H2H scoreline heatmap axes** — hero vertical (0 bottom, label left); rival horizontal (0 left, ticks + name below grid); origin 0–0 bottom-left. |
+| 2026-06 | **Opponents H2H scoreline heatmap** — full GF×GA grid (subject POV); win chrome / loss red / draw holo + count intensity; click → `games.php?gf=&ga=&opponent=`; below total goals chart. |
+| 2026-06 | **Opponents H2H total goals meta copy** — “have scored {avg} total goals on average” (not “a total of … goals”). |
+| 2026-06 | **Opponents Goals TG/g column** — average combined goals per game `(GF+GA)/games` after Ratio on Goals tab; read-time from summary rows. |
+| 2026-06 | **Opponents H2H total goals histogram** — SumOfGoals distribution (holo bars); click → `games.php?gs=` + `opponent=`; below cumulative goals on H2H tab. |
+| 2026-06 | **Opponents H2H cumulative goals chart** — chrome/red lines by game #; extends `player_head_to_head.php`; sits below cumulative wins on H2H tab. |
+| 2026-06 | **Opponents H2H pair detail performance rating** — first race row; chess-style TPR per side from `ratedresults` (read-time, min 2 games); shared `performance_rating.php` with Amiga. |
 | 2026-06 | **Opponents H2H poster stat mirror** — opponent card outputs rating before rank so rank stays on the outer (avatar) edge, matching the subject card toward the `vs`. |
+| 2026-06 | **Opponents H2H goals histogram copy** — hints use hero + opponent names (not you/this opponent). |
+| 2026-06 | **Opponents H2H listbox meta** — `ensureOption` preserves `.k2-h2h-listbox__meta` on selected row (same fix as games GF/GA). |
 | 2026-06 | **Player games opponent listbox** — game count as right-aligned meta (split row), not parenthesis in label; matches GF/GA listboxes. |
-| 2026-06 | **Opponents H2H goals histogram** — single grouped bar chart (chrome you + red rival); shared 0..max x-axis; click → `gf` / `ga` + `opponent=`. |
+| 2026-06 | **Opponents H2H goals histograms** — your + rival single-series charts **and** grouped side-by-side chart; shared 0..max x-axis; clicks → `gf` / `ga`. |
 | 2026-06 | **Profile goals-per-game histogram** — full GF distribution (0..max) on Profile; `player_goals_distribution.php` + API; amber bars; click → `player/games.php?gf=`; games tab GF listbox shares helper. |
 | 2026-06 | **Opponents H2H chart headings** — `Head-to-head vs {opponent}` and `Rating comparison vs {opponent}` (PHP + JS on chart load). |
 | 2026-06 | **Opponents H2H chart meta** — cumulative wins chart shows `{n} rated games` only. |

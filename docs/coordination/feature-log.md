@@ -17,7 +17,9 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Amiga tournament medals unification v2 | L1 | `021`–`022` (`scripts/amiga/sql/`) | — | **Done** local Jun 2026 | **Not executed** | — | Unified finish + `event_*`/`wc_*` totals; honours LB — [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) v2 **Implemented** |
 | Amiga tournament structure (stage types) | L1 | `023` (`scripts/amiga/sql/`) | — | **Done** local slice 1 | **Not executed** | — | `round_robin`\|`knockout` stage enum; fixture scope parity — [`amiga-tournament-structure-policy.md`](../amiga-tournament-structure-policy.md) |
 | Profile graph restoration | L0 | — | — | — | — | — | `player/profile.php` profile visuals restored to Activity-style chart frames; server-origin time axes; peak dashed line; comparison date/games toggle; played-days year picker; top-opponents tall chart; **goals-per-game histogram**; winrate-vs-Elo graph removed |
-| Player games GF/GA filters | L0 | — | — | — | — | — | `player/games.php` — `gf`/`ga` listboxes; distinct goal counts per player |
+| Player games GF/GA/GS filters | L0 | — | — | — | — | — | `player/games.php` — `gf`/`ga` listboxes + `gs` URL filter (total goals in game); chart click-through from H2H histogram |
+| Opponents Goals TG/g column | L0 | — | — | — | — | — | `(GF+GA)/games` per opponent after Ratio on `/player/opponents/goals.php`; read-time from `player_matchup_summary` |
+| Opponents H2H scoreline heatmap | L0 | — | — | — | — | — | Full GF×GA grid per pair; outcome tint + intensity; click → `games.php?gf=&ga=&opponent=` — [`player-opponents-h2h-poster.md`](../player-opponents-h2h-poster.md) |
 | Daily active players chart | L2 | SCH-007 | Yes | **Done** | **Not executed** | — | `server_daily_activity`; post-game via PHP ops at live cutover |
 | All-time busiest players chart (Activity) | L0 | — | — | — | — | — | Top 10 by `playertable.NumberGames` (tie → lowest ID); monthly series from `player_period_games`; was monthly top-10 eras |
 | Activity Graph Roadmap | L0 | — | — | — | — | — | Read-time `ratedresults`/`playertable` |
@@ -31,7 +33,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Header cross-realm player search | — | — | — | — | — | — | `api/player_search.php?realm=all`; realm label per dropdown row; H2H stays online-only |
 | Records two-panel split | L0 | — | — | — | — | — | Peak cache read path |
 | League honours leaderboard (v1) | L0 | — | — | **Proven** | **Not executed** | — | `leaderboards/league-honours.php`; **proven on `kooldb1`** after simul |
-| League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Not executed** | PER-003 at cutover | Same simul as honours; live cron `FinalizeUtcDay` when wired |
+| League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Not executed** | PER-003 at cutover | Activity + points same orphan eligibility (`LEFT JOIN`); re-simul on work after rule change |
 | Status Leagues (Activity + Points) | L0 | — | — | **Proven** | **Not executed** | — | Phase **1** shipped; spec [`status-period-competitions.md`](../status-period-competitions.md) |
 | Status league stack | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | `player_period_league`; PHP ops post-game at live cutover |
 | Player games server-side filters/sort | L0 | — | — | — | — | — | Read-time |
@@ -61,10 +63,10 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Not executed** | — | **31** holders on work DB |
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | Catalog **112**; simul on `kooldb1` |
 | Milestone meta leaderboard totals | L2 | SCH-020 | Yes | **Proven** work | **Not executed** | — | `player_milestone_totals`; meta LB + profile hero; bump via librarian |
-| Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** work | **Not executed** | — | `milestone_definitions.holder_count`; hub catalog + detail; bump via librarian |
+| Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** work | **Not executed** | — | All unlock rows incl. orphans; bump + verify aligned; lobby rebuild only |
 | Stored truth expansion | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | Five tables; **ops simul on `kooldb1`** (not May `kooldb` batch) |
 | Opponents wing stored matchup (SCH-019) | L2 | SCH-019 | Yes | **Done** (work simul 500) | **Not executed** | — | Goals extremes + DDs from summary on work; Steve `kooldb1` next — [`player-opponents-hub.md`](../player-opponents-hub.md) |
-| H2H versus poster + pair detail + moments + charts | — | — | — | — | — | — | Poster + race table + **3×3 moments grid** + **pair charts on H2H** (incl. goals-per-game histogram); **top opponents bar on Profile** — [`player-opponents-h2h-poster.md`](../player-opponents-h2h-poster.md) |
+| H2H versus poster + pair detail + moments + charts | L0 | — | — | — | — | — | Poster + race table (perf rating last) + **3×3 moments grid** + **pair charts on H2H** (cumulative wins · cumulative goals · **total goals histogram** · rating compare · goals-per-game histograms · **scoreline heatmap**); **top opponents bar on Profile** — [`player-opponents-h2h-poster.md`](../player-opponents-h2h-poster.md) |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | **Done** (migrate) | **Not executed** | — | Migration `001` in ops package; live = migrate-work on cutover |
 | Ladder replay sandbox (K32/1600) | L2 | SCH-002 | Partial | **Done** (May) | **Not executed** | — | Core ladder via `scripts/ladder`; website aggregates via ops simul |
 | Records ratio leaders from playertable | L2 | SCH-003 | Yes | **Proven** | **Not executed** | — | [`records-post-game-exception.md`](records-post-game-exception.md) |

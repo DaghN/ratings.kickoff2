@@ -86,6 +86,28 @@ function k2_ops_assert_refresh_target(K2OpsWorkTarget $target): void
     }
 }
 
+function k2_ops_is_signoff_work_profile(string $profile): bool
+{
+    return in_array($profile, ['local-work', 'staging-work'], true);
+}
+
+/**
+ * Sign-off work DBs (ko2unity_work / kooldb1) are filled only via prepare + simul — not batch repair verbs.
+ */
+function k2_ops_reject_signoff_work_batch_repair(string $verb, K2OpsWorkTarget $target): void
+{
+    if (!k2_ops_is_signoff_work_profile($target->profile)) {
+        return;
+    }
+    if (!in_array($verb, ['rebuild-all', 'rebuild-aggregates'], true)) {
+        return;
+    }
+    fwrite(STDERR, "Refusing {$verb} on sign-off work profile {$target->profile} ({$target->workDatabase}).\n");
+    fwrite(STDERR, "Work sign-off: zero-derived → run_ops_sim.php → run_verify_ops_sim.php.\n");
+    fwrite(STDERR, "See docs/work-db-prepare.md §1.5. Batch repair: --target local-dev only.\n");
+    exit(1);
+}
+
 function k2_ops_assert_mutate_work_target(K2OpsWorkTarget $target): void
 {
     if ($target->workDatabase === K2_OPS_PROTECTED_DEV_DATABASE) {

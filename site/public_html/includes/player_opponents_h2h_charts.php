@@ -33,7 +33,8 @@ function player_opponents_render_h2h_matchup_charts(
     int $playerId,
     bool $includeSearch = false,
     ?string $opponentName = null,
-    ?int $opponentId = null
+    ?int $opponentId = null,
+    ?string $playerName = null
 ): void {
     $playerId = max(0, $playerId);
     if ($playerId < 1) {
@@ -42,6 +43,10 @@ function player_opponents_render_h2h_matchup_charts(
 
     $opponentId = $opponentId !== null ? max(0, $opponentId) : 0;
     $opponentName = $opponentName !== null ? trim($opponentName) : '';
+    $playerName = $playerName !== null ? trim($playerName) : '';
+    if ($playerName === '') {
+        $playerName = '#' . $playerId;
+    }
     $h2hHeading = 'Head-to-head';
     if ($opponentName !== '') {
         $h2hHeading .= ' vs ' . $opponentName;
@@ -54,6 +59,18 @@ function player_opponents_render_h2h_matchup_charts(
     if ($opponentName !== '') {
         $goalsHeading .= ' vs ' . $opponentName;
     }
+    $cumulativeGoalsHeading = 'Cumulative goals';
+    if ($opponentName !== '') {
+        $cumulativeGoalsHeading .= ' vs ' . $opponentName;
+    }
+    $totalGoalsHeading = 'Total goals per game';
+    if ($opponentName !== '') {
+        $totalGoalsHeading .= ' vs ' . $opponentName;
+    }
+    $scorelineHeading = 'Scoreline heatmap';
+    if ($opponentName !== '') {
+        $scorelineHeading .= ' vs ' . $opponentName;
+    }
 
     $uid = 'k2-h2h-charts-' . $playerId;
     ?>
@@ -65,6 +82,14 @@ function player_opponents_render_h2h_matchup_charts(
 			<p class="player-head-to-head-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
 			<div class="k2-chart-frame">
 				<canvas aria-label="Head-to-head cumulative wins"></canvas>
+			</div>
+		</div>
+		<h3 class="pm3d-matchups__subtitle player-head-to-head-goals-chart-heading"><?php echo k2_h($cumulativeGoalsHeading); ?></h3>
+		<div class="player-head-to-head-goals-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+			<p class="player-head-to-head-goals-meta pm3d-chart__meta"></p>
+			<p class="player-head-to-head-goals-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="Head-to-head cumulative goals"></canvas>
 			</div>
 		</div>
 		<h3 class="pm3d-matchups__subtitle player-compare-rating-chart-heading"><?php echo k2_h($ratingHeading); ?></h3>
@@ -91,16 +116,63 @@ function player_opponents_render_h2h_matchup_charts(
 		<?php if ($opponentId > 0) { ?>
 		<h3 class="pm3d-matchups__subtitle player-goals-scored-histogram-heading"><?php echo k2_h($goalsHeading); ?></h3>
 		<div
+			class="player-goals-scored-histogram k2-chart-panel"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-id="<?php echo $opponentId; ?>"
+			data-h2h-side="subject"
+		>
+			<p class="k2-chart-block__hint">Goals <?php echo k2_h($playerName); ?> scored in rated games against <?php echo k2_h($opponentName); ?>. Click a bar to filter the games list.</p>
+			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="<?php echo k2_h($playerName); ?> goals scored per game against <?php echo k2_h($opponentName); ?>"></canvas>
+			</div>
+		</div>
+		<div
+			class="player-goals-scored-histogram player-goals-scored-histogram--rival k2-chart-panel"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-id="<?php echo $opponentId; ?>"
+			data-h2h-side="rival"
+		>
+			<p class="k2-chart-block__hint">Goals <?php echo k2_h($opponentName); ?> scored in rated games against <?php echo k2_h($playerName); ?>. Click a bar to filter by goals conceded.</p>
+			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="<?php echo k2_h($opponentName); ?> goals scored per game against <?php echo k2_h($playerName); ?>"></canvas>
+			</div>
+		</div>
+		<h4 class="pm3d-matchups__chart-label player-goals-scored-histogram-grouped-heading">Side by side</h4>
+		<div
 			class="player-goals-scored-histogram player-goals-scored-histogram--h2h-grouped k2-chart-panel"
 			data-player-id="<?php echo $playerId; ?>"
 			data-opponent-id="<?php echo $opponentId; ?>"
 			data-h2h-grouped="1"
 		>
-			<p class="k2-chart-block__hint">Goals per game in rated games against this opponent — your bars (chrome) beside theirs (red). Click a bar to filter the games list.</p>
+			<p class="k2-chart-block__hint"><?php echo k2_h($playerName); ?> (chrome) beside <?php echo k2_h($opponentName); ?> (red) at each goal count. Click a bar to filter the games list.</p>
 			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
 			<div class="k2-chart-frame">
 				<canvas aria-label="Goals scored per game comparison against opponent"></canvas>
 			</div>
+		</div>
+		<h3 class="pm3d-matchups__subtitle player-h2h-total-goals-chart-heading"><?php echo k2_h($totalGoalsHeading); ?></h3>
+		<div
+			class="player-h2h-total-goals-chart k2-chart-panel"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-id="<?php echo $opponentId; ?>"
+		>
+			<p class="player-h2h-total-goals-meta pm3d-chart__meta"></p>
+			<p class="player-h2h-total-goals-chart-status pm3d-chart__status k2-chart-panel__status">Loading total goals per game…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="Total goals per game against opponent"></canvas>
+			</div>
+		</div>
+		<h3 class="pm3d-matchups__subtitle player-h2h-scoreline-heatmap-heading"><?php echo k2_h($scorelineHeading); ?></h3>
+		<div
+			class="player-h2h-scoreline-heatmap"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-id="<?php echo $opponentId; ?>"
+		>
+			<p class="player-h2h-scoreline-heatmap-meta pm3d-chart__meta">Each square is how many times this scoreline happened.</p>
+			<p class="player-h2h-scoreline-heatmap-status pm3d-chart__status k2-chart-panel__status">Loading scoreline heatmap…</p>
+			<div class="h2h-scoreline-heatmap-wrap"></div>
 		</div>
 		<?php } ?>
 		<?php if ($includeSearch) { ?>

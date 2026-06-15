@@ -1,4 +1,4 @@
-﻿@charset "utf-8";
+@charset "utf-8";
 
 /**
  * Kick Off 2 ratings â€” production theme.
@@ -848,6 +848,8 @@ body.k2-site .player-games-month-chart,
 body.k2-site .player-goals-scored-histogram,
 body.k2-site .player-top-opponents-chart,
 body.k2-site .player-head-to-head-chart,
+body.k2-site .player-head-to-head-goals-chart,
+body.k2-site .player-h2h-total-goals-chart,
 body.k2-site .player-compare-rating-chart,
 body.k2-site .player-h2h-opponent-search {
 	box-sizing: border-box;
@@ -930,6 +932,8 @@ body.k2-site .player-games-month-chart canvas,
 body.k2-site .player-goals-scored-histogram canvas,
 body.k2-site .player-top-opponents-chart canvas,
 body.k2-site .player-head-to-head-chart canvas,
+body.k2-site .player-head-to-head-goals-chart canvas,
+body.k2-site .player-h2h-total-goals-chart canvas,
 body.k2-site .player-compare-rating-chart canvas {
 	display: block;
 	max-width: 100%;
@@ -956,6 +960,8 @@ body.k2-site .player-compare-rating-chart canvas {
 	body.k2-site .player-goals-scored-histogram,
 	body.k2-site .player-top-opponents-chart,
 	body.k2-site .player-head-to-head-chart,
+	body.k2-site .player-head-to-head-goals-chart,
+	body.k2-site .player-h2h-total-goals-chart,
 	body.k2-site .player-compare-rating-chart,
 	body.k2-site .server-games-day-chart canvas,
 	body.k2-site .server-games-month-chart canvas,
@@ -973,6 +979,8 @@ body.k2-site .player-compare-rating-chart canvas {
 	body.k2-site .player-goals-scored-histogram canvas,
 	body.k2-site .player-top-opponents-chart canvas,
 	body.k2-site .player-head-to-head-chart canvas,
+	body.k2-site .player-head-to-head-goals-chart canvas,
+	body.k2-site .player-h2h-total-goals-chart canvas,
 	body.k2-site .player-compare-rating-chart canvas,
 	body.k2-site.k2-activity-charts .k2-chart-panel,
 	body.k2-site.k2-activity-charts .k2-chart-frame,
@@ -1020,6 +1028,8 @@ body.k2-site .player-games-month-chart-status,
 body.k2-site .player-goals-scored-histogram-status,
 body.k2-site .player-top-opponents-chart-status,
 body.k2-site .player-head-to-head-chart-status,
+body.k2-site .player-head-to-head-goals-chart-status,
+body.k2-site .player-h2h-total-goals-chart-status,
 body.k2-site .player-compare-rating-chart-status,
 body.k2-site .server-games-day-chart-status,
 body.k2-site .server-games-month-chart-status,

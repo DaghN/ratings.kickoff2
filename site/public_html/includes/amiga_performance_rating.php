@@ -6,6 +6,8 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/performance_rating.php';
+
 /** Full column name for tooltips (header may stay abbreviated). */
 function amiga_perf_rating_column_label(): string
 {
@@ -25,11 +27,11 @@ function amiga_perf_rating_games_list_help(): string
         . 'Requires at least 2 games; omitted for perfect win or loss records.';
 }
 
-const AMIGA_PERFORMANCE_RATING_MIN_GAMES = 2;
+const AMIGA_PERFORMANCE_RATING_MIN_GAMES = PERFORMANCE_RATING_MIN_GAMES;
 
 function amiga_performance_elo_expected(float $playerRating, float $opponentRating): float
 {
-    return 1.0 / (1.0 + 10 ** (($opponentRating - $playerRating) / 400.0));
+    return performance_rating_elo_expected($playerRating, $opponentRating);
 }
 
 /**
@@ -38,51 +40,7 @@ function amiga_performance_elo_expected(float $playerRating, float $opponentRati
  */
 function amiga_solve_performance_rating(array $opponentRatings, array $scores): ?float
 {
-    $n = count($opponentRatings);
-    if ($n !== count($scores) || $n < AMIGA_PERFORMANCE_RATING_MIN_GAMES) {
-        return null;
-    }
-
-    $allWins = true;
-    $allLosses = true;
-    foreach ($scores as $score) {
-        if (abs($score - 1.0) >= 1e-9) {
-            $allWins = false;
-        }
-        if (abs($score) >= 1e-9) {
-            $allLosses = false;
-        }
-    }
-    if ($allWins || $allLosses) {
-        return null;
-    }
-
-    $totalScore = array_sum($scores);
-    $sumExpected = static function (float $rating) use ($opponentRatings): float {
-        $sum = 0.0;
-        foreach ($opponentRatings as $opponentRating) {
-            $sum += amiga_performance_elo_expected($rating, (float) $opponentRating);
-        }
-
-        return $sum;
-    };
-
-    $lo = -800.0;
-    $hi = 4000.0;
-    while ($sumExpected($hi) < $totalScore) {
-        $hi += 400.0;
-    }
-
-    for ($i = 0; $i < 64; $i++) {
-        $mid = ($lo + $hi) / 2.0;
-        if ($sumExpected($mid) < $totalScore) {
-            $lo = $mid;
-        } else {
-            $hi = $mid;
-        }
-    }
-
-    return round(($lo + $hi) / 2.0, 6);
+    return performance_rating_solve($opponentRatings, $scores);
 }
 
 /**
@@ -90,16 +48,5 @@ function amiga_solve_performance_rating(array $opponentRatings, array $scores): 
  */
 function amiga_performance_rating_from_pairs(array $pairs): ?float
 {
-    if (count($pairs) < AMIGA_PERFORMANCE_RATING_MIN_GAMES) {
-        return null;
-    }
-
-    $opponents = [];
-    $scores = [];
-    foreach ($pairs as $pair) {
-        $opponents[] = (float) $pair['opponent'];
-        $scores[] = (float) $pair['score'];
-    }
-
-    return amiga_solve_performance_rating($opponents, $scores);
+    return performance_rating_from_pairs($pairs);
 }

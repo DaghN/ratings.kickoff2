@@ -463,6 +463,10 @@ body.k2-site .k2-h2h2-race__lab {
 	white-space: nowrap;
 }
 
+body.k2-site .k2-h2h2-race__lab.k2-table-helped {
+	cursor: help;
+}
+
 @media (max-width: 640px) {
 	body.k2-site .k2-h2h2-detail {
 		--k2-h2h2-race-max: 100%;
@@ -523,6 +527,21 @@ body.k2-site .k2-h2h2-charts .pm3d-matchups {
 	flex-direction: column;
 	gap: 16px;
 	max-width: 100%;
+}
+
+body.k2-site .k2-h2h2-charts .pm3d-matchups > .player-goals-scored-histogram--rival {
+	margin-top: 20px;
+}
+
+body.k2-site .k2-h2h2-charts .pm3d-matchups__chart-label {
+	margin: 24px 0 8px;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	color: var(--k2-text-secondary, var(--k2-text-muted));
+}
+
+body.k2-site .k2-h2h2-charts .pm3d-matchups > .player-goals-scored-histogram--h2h-grouped {
+	margin-top: 0;
 }
 
 body.k2-site .k2-h2h2-charts .pm3d-matchups__subtitle {

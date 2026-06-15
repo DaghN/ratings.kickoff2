@@ -7,7 +7,7 @@
 **One-line rule:** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; batch `*_rebuild.sql` and `rebuild_website_derived_data_local.ps1` are legacy repair on `ko2unity_db` only — not tasks, not prod.
 
 **Steve runbook (live execution only):** [`site/public_html/ops/docs/post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) — if he opens `ops/README.md` on the server, the top section sends him here.  
-**Simul definition of done:** [`ops-simul-runbook.md`](ops-simul-runbook.md)  
+**Simul definition of done:** [`ops-simul-runbook.md`](ops-simul-runbook.md) · **Work hygiene (agents):** [`work-db-prepare.md`](../work-db-prepare.md) §1.5  
 **Schema DDL:** [`schema-register.md`](schema-register.md) · **Historical batch era:** [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md)
 
 ---

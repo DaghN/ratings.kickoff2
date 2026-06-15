@@ -101,6 +101,7 @@ function individual3_where_clause(
     int $opponentId,
     int $goalsScoredFilter,
     int $goalsConcededFilter,
+    int $goalsSumFilter,
     string $utcDay,
     string &$types,
     array &$params
@@ -156,6 +157,12 @@ function individual3_where_clause(
         $params[] = $goalsConcededFilter;
     }
 
+    if ($goalsSumFilter >= 0) {
+        $where[] = 'r.SumOfGoals = ?';
+        $types .= 'i';
+        $params[] = $goalsSumFilter;
+    }
+
     return implode(' AND ', $where);
 }
 
@@ -193,6 +200,9 @@ function individual3_sort_header(string $key, string $label, string $align, arra
     }
     if (($state['ga'] ?? -1) >= 0) {
         $params['ga'] = $state['ga'];
+    }
+    if (($state['gs'] ?? -1) >= 0) {
+        $params['gs'] = $state['gs'];
     }
 
     $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
@@ -234,6 +244,7 @@ $resultFilter = individual3_valid_result((string) ($_GET['result'] ?? 'all'));
 $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
 $goalsScoredFilter = isset($_GET['gf']) ? (int) $_GET['gf'] : -1;
 $goalsConcededFilter = isset($_GET['ga']) ? (int) $_GET['ga'] : -1;
+$goalsSumFilter = isset($_GET['gs']) ? (int) $_GET['gs'] : -1;
 $utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
 $sortKey = (string) ($_GET['sort'] ?? 'id');
 if ($sortKey === 'for') {
@@ -301,8 +312,19 @@ $validGoalsConceded = [];
 foreach ($goalsConcededRows as $goalsConcededRow) {
     $validGoalsConceded[(int) $goalsConcededRow['goals_against']] = true;
 }
+$goalsSumRows = individual3_query_all(
+    $con,
+    'SELECT SumOfGoals AS goals_sum, COUNT(*) AS games FROM ratedresults WHERE idA = ? OR idB = ? GROUP BY SumOfGoals ORDER BY SumOfGoals ASC',
+    'ii',
+    [$playerId, $playerId]
+);
+$validGoalsSum = [];
+foreach ($goalsSumRows as $goalsSumRow) {
+    $validGoalsSum[(int) $goalsSumRow['goals_sum']] = true;
+}
 $goalsScoredFilter = individual3_valid_goals_filter($goalsScoredFilter, $validGoalsScored);
 $goalsConcededFilter = individual3_valid_goals_filter($goalsConcededFilter, $validGoalsConceded);
+$goalsSumFilter = individual3_valid_goals_filter($goalsSumFilter, $validGoalsSum);
 
 $whereTypes = '';
 $whereParams = [];
@@ -312,6 +334,7 @@ $whereSql = individual3_where_clause(
     $opponentFilter,
     $goalsScoredFilter,
     $goalsConcededFilter,
+    $goalsSumFilter,
     $utcDayFilter,
     $whereTypes,
     $whereParams
@@ -356,6 +379,7 @@ $sortState = [
     'opponent' => $opponentFilter,
     'gf' => $goalsScoredFilter,
     'ga' => $goalsConcededFilter,
+    'gs' => $goalsSumFilter,
     'day' => $utcDayFilter,
 ];
 $shownCount = count($games);
@@ -380,6 +404,9 @@ if ($goalsScoredFilter >= 0) {
 }
 if ($goalsConcededFilter >= 0) {
     $pagerParams['ga'] = $goalsConcededFilter;
+}
+if ($goalsSumFilter >= 0) {
+    $pagerParams['gs'] = $goalsSumFilter;
 }
 $sortedColIndex = k2_player_game_sort_col_index($sortKey);
 
@@ -448,7 +475,7 @@ foreach ($goalsConcededRows as $goalsConcededRow) {
 <div class="k2-player-games-status" data-k2-carry-scroll>
     <?php if ($utcDayFilter !== '') { ?>
     Rated games on <strong><?php echo individual3_h($utcDayFilter); ?></strong> UTC
-    (<a href="<?php echo individual3_h(individual3_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []) + ($goalsScoredFilter >= 0 ? ['gf' => $goalsScoredFilter] : []) + ($goalsConcededFilter >= 0 ? ['ga' => $goalsConcededFilter] : []))); ?>">clear day filter</a>).
+    (<a href="<?php echo individual3_h(individual3_build_url(['id' => $playerId, 'sort' => $sortKey, 'dir' => $sortDirection] + ($resultFilter !== 'all' ? ['result' => $resultFilter] : []) + ($opponentFilter > 0 ? ['opponent' => $opponentFilter] : []) + ($goalsScoredFilter >= 0 ? ['gf' => $goalsScoredFilter] : []) + ($goalsConcededFilter >= 0 ? ['ga' => $goalsConcededFilter] : []) + ($goalsSumFilter >= 0 ? ['gs' => $goalsSumFilter] : []))); ?>">clear day filter</a>).
     <?php } ?>
     Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
     <?php if ($offset > 0) { ?>

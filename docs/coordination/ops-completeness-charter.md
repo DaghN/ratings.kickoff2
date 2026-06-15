@@ -42,6 +42,7 @@
 | Orchestrator | Single documented command replays **games + UTC day ticks** using the **same** module functions as live |
 | Equivalence | After game *N* + all day ticks through that date, derived state matches what live would have produced from the same ground truth |
 | “Simul complete” | Checklist (contract six-value SQL + league awards present + day-close keys + register seed where needed) — see DDR § Verification |
+| **Work hygiene** | **`ko2unity_work` / `kooldb1`:** derived truth filled **only** by prepare + `run_ops_sim.php`. Wrong state → **`zero-derived` → simul again** — not batch repair ([`work-db-prepare.md`](../work-db-prepare.md) §1.5) |
 
 ### 2.3 Documentation & inventory
 

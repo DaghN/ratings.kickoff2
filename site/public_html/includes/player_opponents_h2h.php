@@ -12,6 +12,7 @@ require_once __DIR__ . '/player_opponents_load.php';
 require_once __DIR__ . '/k2_archive_listbox.php';
 require_once __DIR__ . '/player_opponents_h2h_moments.php';
 require_once __DIR__ . '/player_opponents_h2h_charts.php';
+require_once __DIR__ . '/player_h2h_performance_rating.php';
 
 function player_opponents_h2h_parse_opponent_id(mixed $raw, int $playerId): int
 {
@@ -445,7 +446,12 @@ function player_opponents_h2h_pair_detail_live(mysqli $con, int $playerId, int $
         return null;
     }
 
-    return player_opponents_h2h_pair_detail_map_row($row, true);
+    return player_opponents_h2h_pair_detail_attach_perf(
+        $con,
+        $playerId,
+        $opponentId,
+        player_opponents_h2h_pair_detail_map_row($row, true)
+    );
 }
 
 /**
@@ -478,7 +484,33 @@ function player_opponents_h2h_pair_detail_map_row(array $row, bool $extremesStor
         'max_goal_sum' => (int) ($row['max_goal_sum'] ?? 0),
         'min_goal_sum' => (int) ($row['min_goal_sum'] ?? 0),
         'extremes_stored' => $extremesStored,
+        'perf_rating_subject' => null,
+        'perf_rating_opponent' => null,
     ];
+}
+
+/**
+ * @param array<string, mixed> $detail
+ * @return array<string, mixed>
+ */
+function player_opponents_h2h_pair_detail_attach_perf(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    array $detail
+): array {
+    if ((int) ($detail['games'] ?? 0) < PERFORMANCE_RATING_MIN_GAMES) {
+        $detail['perf_rating_subject'] = null;
+        $detail['perf_rating_opponent'] = null;
+
+        return $detail;
+    }
+
+    $perf = player_h2h_pair_performance_ratings($con, $playerId, $opponentId);
+    $detail['perf_rating_subject'] = $perf['subject'];
+    $detail['perf_rating_opponent'] = $perf['opponent'];
+
+    return $detail;
 }
 
 /**
@@ -518,7 +550,35 @@ function player_opponents_h2h_pair_detail_load(mysqli $con, int $playerId, int $
         return player_opponents_h2h_pair_detail_live($con, $playerId, $opponentId);
     }
 
-    return player_opponents_h2h_pair_detail_map_row($row, true);
+    return player_opponents_h2h_pair_detail_attach_perf(
+        $con,
+        $playerId,
+        $opponentId,
+        player_opponents_h2h_pair_detail_map_row($row, true)
+    );
+}
+
+/**
+ * @return 'subject'|'opponent'|'tie'|''
+ */
+function k2_h2h_perf_rating_leader(?int $subject, ?int $opponent): string
+{
+    if ($subject === null && $opponent === null) {
+        return '';
+    }
+    if ($subject === null) {
+        return 'opponent';
+    }
+    if ($opponent === null) {
+        return 'subject';
+    }
+
+    return k2_h2h_race_leader((float) $subject, (float) $opponent, 'higher');
+}
+
+function k2_h2h_perf_rating_display(?int $rating): string
+{
+    return $rating !== null ? k2_fmt_int($rating, '—') : '—';
 }
 
 /**
@@ -584,7 +644,7 @@ function k2_h2h_race_val_html(string $display, string $side, string $leader): st
 }
 
 /**
- * Tie rows colour both sides; 0–0 stays muted unless the row opts in (clean sheets).
+ * Tie rows colour both sides; 0–0 stays muted unless the row opts in (least conceded).
  *
  * @return 'subject'|'opponent'|'tie'|''
  */
@@ -650,16 +710,34 @@ function player_opponents_render_h2h_pair_detail(array $subjectCard, array $oppo
         string $label,
         string $subjectDisplay,
         string $opponentDisplay,
-        string $leader
+        string $leader,
+        string $labelHelp = ''
     ): void {
+        $labAttrs = '';
+        if ($labelHelp !== '') {
+            $labAttrs = ' data-k2-help="' . k2_h($labelHelp) . '" tabindex="0"';
+        }
         ?>
 	<tr class="k2-h2h2-race__row">
 		<td class="<?php echo k2_h(k2_h2h_race_val_class('subject')); ?>"><?php echo k2_h2h_race_val_html($subjectDisplay, 'subject', $leader); ?></td>
-		<th class="k2-h2h2-race__lab" scope="row"><?php echo k2_h($label); ?></th>
+		<th class="k2-h2h2-race__lab" scope="row"<?php echo $labAttrs; ?>><?php echo k2_h($label); ?></th>
 		<td class="<?php echo k2_h(k2_h2h_race_val_class('opponent')); ?>"><?php echo k2_h2h_race_val_html($opponentDisplay, 'opponent', $leader); ?></td>
 	</tr>
         <?php
     };
+
+    $subjectPerf = array_key_exists('perf_rating_subject', $detail)
+        ? $detail['perf_rating_subject']
+        : null;
+    $opponentPerf = array_key_exists('perf_rating_opponent', $detail)
+        ? $detail['perf_rating_opponent']
+        : null;
+    if (!is_int($subjectPerf) && $subjectPerf !== null) {
+        $subjectPerf = null;
+    }
+    if (!is_int($opponentPerf) && $opponentPerf !== null) {
+        $opponentPerf = null;
+    }
 
     $leastConcededSubject = (int) $detail['min_goals_against'];
     $leastConcededOpponent = (int) $detail['min_goals_for'];
@@ -675,8 +753,8 @@ function player_opponents_render_h2h_pair_detail(array $subjectCard, array $oppo
 		<caption class="k2-h2h2-race__caption"><?php echo k2_h($caption); ?></caption>
 		<tbody>
 		<?php
-        $renderRace(
-            'Goals scored',
+    $renderRace(
+        'Goals scored',
             k2_h(k2_fmt_int($goalsFor, '0')),
             k2_h(k2_fmt_int($goalsAgainst, '0')),
             k2_h2h_race_effective_leader(
@@ -722,7 +800,8 @@ function player_opponents_render_h2h_pair_detail(array $subjectCard, array $oppo
         k2_h2h_race_effective_leader(
             k2_h2h_race_leader((float) $leastConcededSubject, (float) $leastConcededOpponent, 'lower'),
             (float) $leastConcededSubject,
-            (float) $leastConcededOpponent
+            (float) $leastConcededOpponent,
+            true
         )
     );
     $renderRace(
@@ -742,9 +821,15 @@ function player_opponents_render_h2h_pair_detail(array $subjectCard, array $oppo
         k2_h2h_race_effective_leader(
             k2_h2h_race_leader((float) $cs, (float) $oppCs, 'higher'),
             (float) $cs,
-            (float) $oppCs,
-            true
+            (float) $oppCs
         )
+    );
+    $renderRace(
+        'Performance rating',
+        k2_h(k2_h2h_perf_rating_display($subjectPerf)),
+        k2_h(k2_h2h_perf_rating_display($opponentPerf)),
+        k2_h2h_perf_rating_leader($subjectPerf, $opponentPerf),
+        performance_rating_h2h_pair_help()
     );
     ?>
 		</tbody>
@@ -1012,7 +1097,8 @@ function player_opponents_render_h2h_panel(
 	        $playerId,
 	        false,
 	        $pair !== null ? (string) $pair['opponent_name'] : null,
-	        $pair !== null ? (int) $pair['opponent_id'] : null
+	        $pair !== null ? (int) $pair['opponent_id'] : null,
+	        $playerName
 	    );
 	} ?>
 </div>

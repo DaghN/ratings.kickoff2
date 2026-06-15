@@ -1,0 +1,275 @@
+/**
+ * H2H scoreline heatmap — full GF×GA grid with outcome tint + count intensity.
+ */
+
+body.k2-site .player-h2h-scoreline-heatmap {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: min(var(--k2-chart-max-width), 100%);
+	min-width: 0;
+	margin-bottom: 16px;
+	padding: 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-page);
+}
+
+body.k2-site .h2h-scoreline-heatmap-wrap {
+	width: 100%;
+	min-width: 0;
+	overflow-x: auto;
+	background: var(--k2-bg-page);
+}
+
+body.k2-site .h2h-scoreline-heatmap {
+	--h2h-sh-base: var(--k2-bg-page);
+	--h2h-sh-cell: 36px;
+	--h2h-sh-cols: 1;
+	--h2h-sh-rows: 1;
+	--h2h-sh-label-col: 28px;
+	--h2h-sh-gap: 2px;
+	width: max-content;
+	min-width: 100%;
+}
+
+body.k2-site .h2h-scoreline-heatmap--scrolls {
+	overflow-x: auto;
+}
+
+body.k2-site .h2h-scoreline-heatmap__plot {
+	width: max-content;
+	max-width: 100%;
+	min-width: 0;
+}
+
+body.k2-site .h2h-scoreline-heatmap__x-footer {
+	display: grid;
+	grid-template-columns: var(--h2h-sh-label-col) repeat(var(--h2h-sh-cols), var(--h2h-sh-cell));
+	column-gap: var(--h2h-sh-gap);
+	row-gap: 6px;
+	margin-top: 4px;
+}
+
+body.k2-site .h2h-scoreline-heatmap__x-ticks {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: subgrid;
+	gap: var(--h2h-sh-gap);
+	align-items: center;
+}
+
+body.k2-site .h2h-scoreline-heatmap__axis-title--x {
+	grid-column: 2 / -1;
+	text-align: center;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--k2-table-negative);
+	margin: 0;
+	width: auto;
+	box-sizing: border-box;
+}
+
+body.k2-site .h2h-scoreline-heatmap__grid-corner {
+	display: block;
+	width: var(--h2h-sh-label-col);
+	height: auto;
+}
+
+body.k2-site .h2h-scoreline-heatmap__tick,
+body.k2-site .h2h-scoreline-heatmap__y-tick {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: clamp(9px, calc(var(--h2h-sh-cell) * 0.82), 11px);
+	line-height: 1;
+	color: var(--k2-text-muted);
+	text-align: center;
+	box-sizing: border-box;
+}
+
+body.k2-site .h2h-scoreline-heatmap__tick {
+	width: var(--h2h-sh-cell);
+	min-height: 1em;
+}
+
+body.k2-site .h2h-scoreline-heatmap__body {
+	display: grid;
+	grid-template-columns: var(--h2h-sh-label-col) 1fr;
+	gap: var(--h2h-sh-gap);
+	align-items: stretch;
+}
+
+body.k2-site .h2h-scoreline-heatmap__y-title {
+	writing-mode: vertical-rl;
+	transform: rotate(180deg);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--k2-chart-chrome, var(--k2-table-positive));
+	text-align: center;
+	justify-self: center;
+	align-self: center;
+	max-height: 100%;
+}
+
+body.k2-site .h2h-scoreline-heatmap__grid {
+	display: grid;
+	grid-template-columns: var(--h2h-sh-label-col) repeat(var(--h2h-sh-cols), var(--h2h-sh-cell));
+	grid-auto-rows: var(--h2h-sh-cell);
+	gap: var(--h2h-sh-gap);
+	align-items: center;
+}
+
+body.k2-site .h2h-scoreline-heatmap__y-tick {
+	width: var(--h2h-sh-label-col);
+	text-align: right;
+	padding-right: 2px;
+	box-sizing: border-box;
+}
+
+body.k2-site .h2h-scoreline-heatmap__cell {
+	display: block;
+	width: var(--h2h-sh-cell);
+	height: var(--h2h-sh-cell);
+	border: 2px solid transparent;
+	border-radius: 2px;
+	box-sizing: border-box;
+	text-decoration: none;
+}
+
+body.k2-site button.h2h-scoreline-heatmap__cell {
+	margin: 0;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+}
+
+body.k2-site .h2h-scoreline-heatmap__cell[data-outcome="win"] {
+	--h2h-sh-hover-ring: var(--k2-pure-chrome, #64b5f6);
+	background: color-mix(in srgb, var(--k2-chart-chrome, #7eb8da) var(--h2h-sh-mix, 30%), var(--h2h-sh-base));
+}
+
+body.k2-site .h2h-scoreline-heatmap__cell[data-outcome="loss"] {
+	--h2h-sh-hover-ring: var(--k2-stat-negative-base, #f06292);
+	background: color-mix(in srgb, var(--k2-table-negative, #e85d6c) var(--h2h-sh-mix, 30%), var(--h2h-sh-base));
+}
+
+body.k2-site .h2h-scoreline-heatmap__cell[data-outcome="draw"] {
+	--h2h-sh-hover-ring: var(--k2-pure-holo, #b388ff);
+	background: color-mix(in srgb, var(--k2-chart-holo, #b388ff) var(--h2h-sh-mix, 30%), var(--h2h-sh-base));
+}
+
+body.k2-site a.h2h-scoreline-heatmap__cell[data-outcome="win"]:hover,
+body.k2-site a.h2h-scoreline-heatmap__cell[data-outcome="win"]:focus-visible,
+body.k2-site a.h2h-scoreline-heatmap__cell[data-outcome="loss"]:hover,
+body.k2-site a.h2h-scoreline-heatmap__cell[data-outcome="loss"]:focus-visible,
+body.k2-site a.h2h-scoreline-heatmap__cell[data-outcome="draw"]:hover,
+body.k2-site a.h2h-scoreline-heatmap__cell[data-outcome="draw"]:focus-visible,
+body.k2-site button.h2h-scoreline-heatmap__cell[data-outcome="win"]:focus-visible,
+body.k2-site button.h2h-scoreline-heatmap__cell[data-outcome="loss"]:focus-visible,
+body.k2-site button.h2h-scoreline-heatmap__cell[data-outcome="draw"]:focus-visible,
+body.k2-site .h2h-scoreline-heatmap__cell--pinned[data-outcome="win"],
+body.k2-site .h2h-scoreline-heatmap__cell--pinned[data-outcome="loss"],
+body.k2-site .h2h-scoreline-heatmap__cell--pinned[data-outcome="draw"] {
+	border-color: var(--h2h-sh-hover-ring);
+	outline: none;
+}
+
+body.k2-site .h2h-scoreline-heatmap__cell[data-outcome="empty"] {
+	background: color-mix(in srgb, var(--k2-bg-hover) 28%, var(--h2h-sh-base));
+}
+
+body.k2-site .player-h2h-scoreline-heatmap-meta {
+	margin: 0 0 10px;
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale {
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-matrix {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 8px 10px;
+	align-items: stretch;
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-gutter {
+	display: grid;
+	grid-template-rows: 16px 16px 1.2em;
+	gap: 6px;
+	align-items: center;
+	padding-top: 0;
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-row-label {
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.1;
+	text-transform: none;
+	letter-spacing: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 7.5rem;
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-row-label--hero {
+	color: var(--k2-chart-chrome, var(--k2-table-positive));
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-row-label--rival {
+	color: var(--k2-table-negative);
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-cols {
+	display: grid;
+	grid-template-columns: repeat(8, minmax(0, 1fr));
+	gap: 6px 4px;
+	min-width: 0;
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-col {
+	display: grid;
+	grid-template-rows: 16px 16px auto;
+	gap: 6px;
+	justify-items: center;
+	min-width: 0;
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-swatch {
+	width: 16px;
+	height: 16px;
+	border-radius: 2px;
+}
+
+body.k2-site .h2h-scoreline-heatmap__scale-count {
+	font-size: clamp(9px, 2vw, 11px);
+	line-height: 1.1;
+	color: var(--k2-text-muted);
+	text-align: center;
+	white-space: nowrap;
+}
+
+body.k2-site .h2h-scoreline-heatmap-wrap::-webkit-scrollbar {
+	height: 6px;
+}
+
+body.k2-site .h2h-scoreline-heatmap-wrap::-webkit-scrollbar-thumb {
+	background: var(--k2-scrollbar-thumb, rgba(255, 255, 255, 0.18));
+	border-radius: 3px;
+}
+
+body.k2-site .k2-table-tooltip .h2h-scoreline-heatmap__tip-hero {
+	color: var(--k2-chart-chrome, var(--k2-pure-chrome));
+	font-weight: 600;
+}
+
+body.k2-site .k2-table-tooltip .h2h-scoreline-heatmap__tip-rival {
+	color: var(--k2-table-negative);
+	font-weight: 600;
+}

@@ -49,7 +49,11 @@ All boundaries use **UTC** (`SET time_zone = '+00:00'` on writers and finalize j
 
 Exactly **one** player per rank 1, 2, 3. No shared gold/silver/bronze.
 
-Apply sort **after** restricting to players with **≥1 rated game** in the period (existing aggregate rows).
+### Eligibility (points and activity)
+
+Players with a row in **`player_period_league`** (points) or **`player_period_games`** (activity) for that period compete — **including `player_id` values with no `playertable` row** (deleted accounts; games still in `ratedresults`). `playertable` is used only for display name fallback (`#id` when missing), not to drop competitors.
+
+Apply sort **after** restricting to players with **≥1 rated game** in the period (aggregate rows above).
 
 ### Points league (`league_kind = points`)
 

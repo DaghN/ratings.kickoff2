@@ -93,10 +93,10 @@ Direct `INSERT INTO player_milestones` only in:
 
 ## Phase 2b — catalog holder counts (complete)
 
-1. `021_milestone_definitions_holder_count.sql` — `holder_count` on catalog + backfill
-2. `k2_milestone_holder_count_bump()` from librarian on new unlock; `k2_milestone_holder_counts_rebuild()` repair
+1. `021_milestone_definitions_holder_count.sql` — `holder_count` column (DDL only)
+2. `k2_milestone_holder_count_bump()` +1 per unlock insert; `k2_milestone_holder_counts_rebuild()` after lobby bulk seed only
 3. `k2_milestone_holder_counts()`, `k2_milestone_definition_hub()` read stored column (fallback live agg)
-4. `k2_milestone_stored_derived_rebuild()` after lobby seed; `milestone_holder_count_parity` in verify
+4. `k2_milestone_stored_derived_rebuild()` after lobby seed; `milestone_holder_count_parity` in verify (all unlock rows)
 
 ---
 
@@ -108,4 +108,4 @@ Direct `INSERT INTO player_milestones` only in:
 | 2026-06 | 3–6 | Helpers, register, day-close, league event + win sync → librarian; live INSERT only in librarian + `ops_seed_lobby` |
 | 2026-06 | 7 | Grep audit clean; `verify_ops_sim` PASS on `ko2unity_work`; contract + MEMORY updated — Phase 1 closed |
 | 2026-06 | P2 | SCH-020 `player_milestone_totals`; bump + rebuild; meta LB + profile reads; parity check PASS on work |
-| 2026-06 | P2b | SCH-021 `holder_count` on catalog; bump + rebuild; hub catalog + detail reads; parity check |
+| 2026-06 | P2b policy | `holder_count` = all unlock rows (orphans kept); verify + bump aligned; no post-simul rebuild; 021 DDL-only |

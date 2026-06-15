@@ -93,14 +93,25 @@ php ops/run_verify_ops_sim.php --target local-work
 | **Exit 0** | No check with severity **`fail`** (warnings allowed) |
 | **Purpose** | **Internal consistency** on work after incremental ops — “did post-game + day ticks leave plausible rows?” |
 
-Checks include: processed vs unprocessed `ratedresults`; contract **six-value** totals vs processed game count; `player_league_award` / finalized `league_period`; league-related milestone key count; informational `perfect_day` / `nightmare_day`; `entered_arena` vs `JoinDate` (prepare seed, not simul); game-sourced milestone row count.
+Checks include: processed vs unprocessed `ratedresults`; contract **six-value** totals vs processed game count; `player_league_award` / finalized `league_period`; league-related milestone key count; informational `perfect_day` / `nightmare_day`; `entered_arena` vs `JoinDate` (prepare seed, not simul); game-sourced milestone row count; **`player_milestone_totals` parity**; **`milestone_definitions.holder_count` parity** (SCH-021 — stored count vs all `player_milestones` rows per key, including orphan earners).
+
+**Holder-count FAIL:** bump drift only — investigate bump path during simul. Fix: **`zero-derived` → simul again** ([`work-db-prepare.md`](../work-db-prepare.md) §1.5). Orphan unlocks (deleted accounts) are **expected** and count toward `holder_count`.
+
+**Orphan diagnostics (read-only):**
+
+```bash
+php ops/run_milestone_orphan_probe.php --target staging-work
+```
+
+Lists unlock rows whose `player_id` is missing from `playertable` (informational) and any `holder_count` drift vs unlock rows.
 
 #### What verify is not
 
 | Misread | Truth |
 |---------|--------|
-| “Run verify to fix the DB” | **No writes** — fix by re-running **prepare + simul** or targeted ops, not verify |
-| “Verify failed → run batch rebuild” | **No.** Mode B (`rebuild_website_derived_data_local.ps1`, `player_milestones_rebuild.sql`, `rebuild-all`, Python ladder batch) is **repair / legacy parity only**, not the happy-path definition of simul complete |
+| “Run verify to fix the DB” | **No writes** — fix by **`zero-derived` → `run_ops_sim.php`** |
+| “Verify failed → run batch rebuild” | **No** on work. Mode B (`rebuild_website_derived_data_local.ps1`, `player_milestones_rebuild.sql`, `rebuild-all`) is **dev repair only** — refused on `local-work` / `staging-work` |
+| “Avoid re-simul — patch work in place” | **Wrong.** Work exists to prove the continuous pipeline; re-simul after a writer fix is the point |
 | “Verify = dev DB parity” | **No** diff against frozen `ko2unity_db`. Parity at depth uses spot SQL, `ab-post-game`, site compare **after** a meaningful simul slice (e.g. Steve **74879**) |
 | “Verify will start a debug simul” | **No** — safe to run without oversight for **mutation**; it only reads |
 
@@ -121,7 +132,7 @@ Expect **league awards FAIL** only when **no** `FinalizeUtcDay` ran or standings
 
 #### After a **meaningful** local chunk or Steve full simul
 
-Treat **FAIL** on six-value or league awards (when history should have closed periods) as **real** — investigate ops code / `FinalizeUtcDay`, not batch rebuild as first resort.
+Treat **FAIL** on six-value or league awards (when history should have closed periods) as **real** — fix ops code, then **`zero-derived` → simul** — not batch rebuild as first resort ([`work-db-prepare.md`](../work-db-prepare.md) §1.5).
 
 Then spot-check ranked9 / garden on work URL; optional `ab-post-game` per DDR.
 
@@ -136,7 +147,7 @@ Full checklist table: [`ops-derived-data-registry.md`](ops-derived-data-registry
 | Dagh visual parity vs frozen local dev | **Acceptable** — two milestone rule fixes (`clean_sheet_spread`, `giant_slayer`) then re-check |
 | **AUD-004 / AUD-005** | **Closed** — [`parity-audit-backlog.md`](parity-audit-backlog.md) |
 
-**Next:** Live-shaped test — [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md); not another full simul unless day-zero (`zero-derived`) resets derived data.
+**Next:** Live-shaped test — [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md). After a **writer rule change**, sync code → **`zero-derived` → full simul** on work — expected, not optional.
 
 ---
 

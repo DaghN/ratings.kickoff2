@@ -11,7 +11,6 @@
  *   php site/public_html/ops/run_prepare.php seed-catalog --target local-dev
  *   php site/public_html/ops/run_prepare.php zero-derived --target local-work
  *   php site/public_html/ops/run_prepare.php seed-lobby --target local-work
- *
  * See docs/work-db-prepare.md and docs/ladder-ops-platform.md §6.6.
  */
 declare(strict_types=1);

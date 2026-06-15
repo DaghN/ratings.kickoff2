@@ -1,16 +1,18 @@
 <?php
 /**
- * Dev runner: league period finalize / awards rebuild on work DB (no dispatch.php).
+ * Dev runner: league period finalize (no dispatch.php).
  *
  *   php site/public_html/ops/run_finalize_league.php finalize-due --target local-work
  *   php site/public_html/ops/run_finalize_league.php finalize-due --target local-work --as-of 2026-05-27T00:00:01Z
- *   php site/public_html/ops/run_finalize_league.php rebuild-all --target local-work
- *   php site/public_html/ops/run_finalize_league.php rebuild-aggregates --target local-work
  *
- * Local Laragon dev DB (ko2unity_db): add --target local-dev (legacy OPERATIONS_QUICK_START path).
+ * Batch repair (REP-012/013) — local-dev / frozen dev only (refused on local-work / staging-work):
+ *   php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev
+ *   php site/public_html/ops/run_finalize_league.php rebuild-aggregates --target local-dev
  *
- * PER-003: finalize-due. REP-012/013: rebuild-all, rebuild-aggregates.
- * See docs/leagues-rules-spec.md and docs/coordination/periodic-register.md.
+ * Work sign-off (ko2unity_work / kooldb1): league awards come from run_ops_sim.php (FinalizeUtcDay), not rebuild-all.
+ * See docs/work-db-prepare.md §1.5.
+ *
+ * PER-003: finalize-due. See docs/leagues-rules-spec.md and docs/coordination/periodic-register.md.
  */
 declare(strict_types=1);
 
@@ -50,6 +52,7 @@ if (!in_array($verb, $allowed, true)) {
 }
 
 $target = k2_ops_load_work_target($targetName);
+k2_ops_reject_signoff_work_batch_repair($verb, $target);
 $allowDevDb = ($targetName === 'local-dev');
 if (!$allowDevDb) {
     k2_ops_assert_mutate_work_target($target);

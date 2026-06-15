@@ -68,6 +68,11 @@ function k2_lb_help_goal_ratio(): string
     return 'Career goals scored divided by career goals conceded.';
 }
 
+function k2_lb_help_total_goals_per_game(): string
+{
+    return 'Average combined goals per rated game against this opponent (your goals plus theirs).';
+}
+
 function k2_lb_help_most_scored(): string
 {
     return 'Most goals scored in one rated game.';

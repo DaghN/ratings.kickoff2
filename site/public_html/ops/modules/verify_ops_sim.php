@@ -197,7 +197,6 @@ SELECT COUNT(*) AS c FROM (
   LEFT JOIN (
     SELECT pm.milestone_key, COUNT(*) AS holders
     FROM player_milestones pm
-    INNER JOIN playertable p ON p.ID = pm.player_id
     GROUP BY pm.milestone_key
   ) h ON h.milestone_key = d.milestone_key
   WHERE d.holder_count <> COALESCE(h.holders, 0)
@@ -211,6 +210,32 @@ SQL
             "mismatch_keys={$holderMismatch}",
             $holderMismatch === 0 ? 'ok' : 'fail'
         );
+        if ($holderMismatch > 0) {
+            $sampleRes = $con->query(
+                <<<'SQL'
+SELECT d.milestone_key, d.holder_count, COALESCE(h.holders, 0) AS actual_holders
+FROM milestone_definitions d
+LEFT JOIN (
+  SELECT pm.milestone_key, COUNT(*) AS holders
+  FROM player_milestones pm
+  GROUP BY pm.milestone_key
+) h ON h.milestone_key = d.milestone_key
+WHERE d.holder_count <> COALESCE(h.holders, 0)
+ORDER BY d.milestone_key
+LIMIT 8
+SQL
+            );
+            if ($sampleRes !== false) {
+                while ($row = $sampleRes->fetch_assoc()) {
+                    k2_ops_log(
+                        '  holder_count drift key=' . $row['milestone_key']
+                        . ' stored=' . $row['holder_count']
+                        . ' actual=' . $row['actual_holders']
+                    );
+                }
+                $sampleRes->free();
+            }
+        }
     }
 
     return $checks;

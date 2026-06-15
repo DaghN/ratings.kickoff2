@@ -212,7 +212,7 @@ Implemented in `includes/ops_bootstrap.php` and work-target profiles (`local-wor
 | **Work DB override** | `ini=ladder-work.ini` → `[database]` in `site/config/ladder-work.ini` (see `.example`). |
 | **Explicit override** | `database=ko2unity_work` on the command line (after ini). |
 | **Protected DBs** | **Refuse** connects to `ko2unity_baseline` and `kooldb2` (reset sources). |
-| **Dev DB guard** | **`ko2unity_db`** is **off-limits by default**. Use **`--target local-dev`** only on intentional verbs (`seed-catalog`, `finalize-due` / `rebuild-all`, …). Full prepare/zero-derived stay **work DB only**. Browse work at **`http://work.ratingskickoff.test/`** ([`LOCAL_DEV.md`](../LOCAL_DEV.md)). |
+| **Dev DB guard** | **`ko2unity_db`** is **off-limits by default**. Use **`--target local-dev`** only for **legacy batch repair** (`rebuild-all`, `seed-catalog`, …). **Sign-off work** (`local-work`, `staging-work`): **prepare + simul only** — [`work-db-prepare.md`](../work-db-prepare.md) §1.5; `rebuild-all` **refused** on work targets. |
 | **Charset / TZ** | `utf8mb4`, `SET time_zone = '+00:00'` (match legacy staging bootstrap). |
 
 **Target DB for sim/post-game development:** `ko2unity_work` locally, `kooldb1` on staging — see §4.

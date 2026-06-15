@@ -45,6 +45,8 @@ Do **not** block PHP ops, contract, schema, replay, index, aggregate-table, or p
 
 **Cutover vocabulary:** Prep is **done** on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; batch `*_rebuild.sql` and `rebuild_website_derived_data_local.ps1` are **legacy repair on `ko2unity_db` only** — not tasks, not prod. Read [`docs/coordination/cutover-readiness.md`](docs/coordination/cutover-readiness.md) before assigning “pending on prod” work.
 
+**Work DB hygiene (`ko2unity_work` / `kooldb1`):** Sign-off = **`zero-derived` → `run_ops_sim.php` → `verify` only.** Wrong derived state after a writer fix → re-simul, not batch repair (`rebuild-all`, ad-hoc SQL, repair verbs). [`docs/work-db-prepare.md`](docs/work-db-prepare.md) §1.5. CLI refuses `rebuild-all` on work targets.
+
 Default question before implementing stats: *What stored table should this value live in, and what does `docs/website-data-contract.md` say for rebuild and post-game?* — not "can we compute it on the fly?" Do not create or cite `PG-00x` / `cpp-snippets/`. Work/staging proof = **ops simul** (`run_ops_sim.php` + verify); batch SQL in `scripts/ladder/sql/archive/` = repair/oracle only.
 
 Use read-time SQL only when it is clearly cheap (single-row lookup, indexed narrow fetch), infrequent (admin-only, one-off), or the value genuinely cannot be precomputed (depends on request-time parameters that are unbounded).

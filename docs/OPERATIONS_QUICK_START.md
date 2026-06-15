@@ -25,15 +25,19 @@
 
 | Path | Command | Use when |
 |------|---------|----------|
-| **Ops simul (authoritative)** | `run_prepare.php` → `run_ops_sim.php` → `run_verify_ops_sim.php` | **`ko2unity_work`**, **`kooldb1`**, prod copy cutover — [`work-db-prepare.md`](work-db-prepare.md) |
+| **Ops simul (authoritative)** | `run_prepare.php` → `run_ops_sim.php` → `run_verify_ops_sim.php` | **`ko2unity_work`**, **`kooldb1`** — [`work-db-prepare.md`](work-db-prepare.md) **§1.5** |
 | **Ladder replay (dev DB)** | `scripts\run_local_replay.ps1` | Elo + `playertable` + `generalstatstable` on **`ko2unity_db`** only |
-| **Batch SQL repair (legacy)** | `scripts\rebuild_website_derived_data_local.ps1` | **`ko2unity_db`** emergency refill of aggregate tables — SQL in `scripts/ladder/sql/archive/batch-2026-05/` |
+| **Batch SQL repair (legacy)** | `scripts\rebuild_website_derived_data_local.ps1` · `run_finalize_league.php rebuild-all --target local-dev` | **`ko2unity_db`** emergency refill — **never** sign-off on work |
 
-| Ops helper | Command |
-|------------|---------|
-| **League awards rebuild** | `php site/public_html/ops/run_finalize_league.php rebuild-all --target local-work` |
-| **Finalize due (daily)** | `php site/public_html/ops/run_finalize_league.php finalize-due --target local-work` |
-| **Play streaks repair** | `php scripts/rebuild_player_play_streaks.php` (not batch `.sql`) |
+**Work DB rule:** wrong derived state on work → **`zero-derived` → `run_ops_sim.php` again**. No batch repair on `local-work` / `staging-work`. Details: [`work-db-prepare.md`](work-db-prepare.md) §1.5.
+
+| Ops helper | Command | Work sign-off? |
+|------------|---------|----------------|
+| **Prod-shaped simul** | `php site/public_html/ops/run_ops_sim.php run --target local-work` | **Yes** |
+| **Verify (read-only)** | `php site/public_html/ops/run_verify_ops_sim.php --target local-work` | **Yes** |
+| **League awards batch repair** | `php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev` | **No** — dev repair only; **refused** on work |
+| **Finalize due (standalone)** | `php site/public_html/ops/run_finalize_league.php finalize-due --target local-work` | Module debug only — not sign-off after a rule change |
+| **Play streaks repair** | `php scripts/rebuild_player_play_streaks.php` | Dev / one-off — not work sign-off |
 
 **Hall of Fame record dates:** ladder replay + post-game contract — see [`staging-post-game-record-defects.md`](staging-post-game-record-defects.md). **Not** the batch website repair script.
 

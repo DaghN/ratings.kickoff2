@@ -31,7 +31,7 @@
 - **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare, `seed-catalog`, `zero-derived`, parity (see §6.6).
 - **Post-game P0–P7 (PHP):** `run_process_game.php` — milestones + play streaks. **Sign-off:** `run_ops_sim.php` + `run_verify_ops_sim.php` ([`cutover-readiness.md`](../../../docs/coordination/cutover-readiness.md)).
 - **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
-- **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` / `rebuild-all` (batch repair); **Steve midnight:** `CMD=FinalizeUtcDay` (league + league milestones + day-close).
+- **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` (debug); **`rebuild-all` / `rebuild-aggregates` = dev repair only** (`--target local-dev`; **refused** on work). **Steve midnight:** `CMD=FinalizeUtcDay` (league + league milestones + day-close).
 - **UTC day tick:** `run_finalize_utc_day.php` — dev runner same as `CMD=FinalizeUtcDay`.
 - **Prod-shaped simul:** `run_ops_sim.php run` — full history or `--until-game-id` (preferred). Low-level: `run_timeline_sim.php`.
 - **After simul (local gate):** `run_verify_ops_sim.php` — six-value + league + milestone smoke SQL.
@@ -78,8 +78,9 @@ Dagh syncs **`site/public_html/`** → server **`public_html/`**. Steve runs all
 
 - **All ladder ops code** → `ops/` only (legacy `staging-scripts/` removed Jun 2026).
 - **No business logic** in `dispatch.php`.
-- **Work / sim DB:** `ko2unity_work` (+ `ladder-work.ini`); **never** `ko2unity_baseline` / `kooldb2`.
-- **Dev DB (`ko2unity_db`):** use `--target local-dev` only for intentional verbs (`seed-catalog`, league finalize); not for full `prepare` / `zero-derived`.
+- **Work / sim DB:** `ko2unity_work` / `kooldb1` — **sign-off = prepare + simul only** ([`work-db-prepare.md`](../../../docs/work-db-prepare.md) §1.5). **Never** `rebuild-all` on work (CLI refuses).
+- **Never** `ko2unity_baseline` / `kooldb2`.
+- **Dev DB (`ko2unity_db`):** `--target local-dev` for legacy batch repair and catalog seed — not work sign-off.
 - **Test modules** before shipping `dispatch.php` (see platform doc §6.6).
 
 ---
@@ -125,31 +126,22 @@ php site/public_html/ops/run_verify_ops_sim.php --target local-work
 
 See [`docs/coordination/ops-simul-runbook.md`](../../../docs/coordination/ops-simul-runbook.md). Archived PHP-vs-Python A/B: `python -m scripts.work_prepare ab-post-game` — [`post-game-php-development.md`](../../../docs/post-game-php-development.md) §9 only.
 
-## Local league finalize (PER-003 on work)
+## Local league finalize (PER-003 — debug, not work sign-off)
 
-Requires `player_period_league` / `player_period_games` from post-game replay (or batch rebuild). After prepare, run post-game sim, then:
+League awards on **work sign-off** come from **`run_ops_sim.php`** (`FinalizeUtcDay` each UTC day). Use standalone finalize only for narrow module debugging:
 
 ```text
 php site/public_html/ops/run_finalize_league.php finalize-due --target local-work
-```
-
-Simulated midnight (timeline prep):
-
-```text
 php site/public_html/ops/run_finalize_league.php finalize-due --target local-work --as-of 2026-05-27T00:00:01Z
 ```
 
-Parity backfill on work (destructive — truncates awards):
+**After a writer rule change:** `zero-derived` → `run_ops_sim.php` — not `finalize-due` or `rebuild-all` on work.
 
-```text
-php site/public_html/ops/run_finalize_league.php rebuild-all --target local-work
-```
-
-Laragon dev DB (`ko2unity_db`) — same verbs with `--target local-dev` (used by `rebuild_website_derived_data_local.ps1`):
+**Batch league repair (frozen dev only — refused on `local-work` / `staging-work`):**
 
 ```text
 php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev
-php site/public_html/ops/run_finalize_league.php finalize-due --target local-dev
+php site/public_html/ops/run_finalize_league.php rebuild-aggregates --target local-dev
 ```
 
 `scripts/finalize_league_periods.php` is a thin delegate to the above (deprecated).

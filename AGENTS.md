@@ -67,6 +67,7 @@ Prod ladder data is written by **Steve** (ground insert per game + periodic jobs
 
 ## Agent traps (grep / register misreads)
 
+- **Work DB = simul only** — `ko2unity_work` / `kooldb1`: **`zero-derived` → `run_ops_sim.php` → `verify`**. No `rebuild-all`, no ad-hoc repair, no “avoid re-simul” patches. [`work-db-prepare.md`](docs/work-db-prepare.md) §1.5.
 - **Cutover prep is done** on `kooldb1` / `ko2unity_work` via **ops simul** — do not assign batch **`REP-xxx`** or `*_rebuild.sql` on prod. Historical log: [`archive/replay-register-2026-05.md`](docs/archive/replay-register-2026-05.md).
 - **`kooldb`** (May 2026) is **frozen** — forward staging work DB = **`kooldb1`**; pristine clone = **`kooldb2`**.
 - **`feature-log.md` “Live cutover = Not executed”** means **Steve go-live scheduled**, not incomplete repo work.

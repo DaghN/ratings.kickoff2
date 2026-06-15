@@ -23,6 +23,34 @@
 
 **Dev** (`ko2unity_db`): daily browser DB — **not** this pipeline.
 
+### 1.5 Work DB hygiene (sign-off — agents read this)
+
+**Purpose of work** (`ko2unity_work` / **`kooldb1`**): take a prod copy → migrate → strip derived → **simul to present day** → verify. That is the **only** way to fill derived truth for cutover sign-off.
+
+**Allowed on sign-off work** (`--target local-work` or `staging-work`):
+
+| Step | Command |
+|------|---------|
+| Day zero | `run_prepare.php migrate-work` · `seed-catalog` · `zero-derived` (or `prepare`) |
+| Prod-shaped fill | `run_ops_sim.php run` (full or `--until-game-id`) |
+| Read-only check | `run_verify_ops_sim.php` · `run_milestone_orphan_probe.php` |
+| Narrow module dev | `run_process_game.php` / `run_timeline_sim.php` **during** ops development — not a substitute for sign-off after a rule change |
+
+**When derived state is wrong after a code fix:** **`zero-derived` → simul again.** Not repair jobs.
+
+**Forbidden on sign-off work** (use `--target local-dev` / frozen `ko2unity_db` for legacy batch repair only):
+
+| Do not run on work | Why |
+|--------------------|-----|
+| `run_finalize_league.php rebuild-all` / `rebuild-aggregates` | **Refused at CLI** — batch league repair, not simul |
+| `rebuild_website_derived_data_local.ps1` | Batch SQL chain — dev repair only |
+| `scripts/ladder/sql/archive/batch-2026-05/*_rebuild.sql` | Legacy repair on frozen dev |
+| Ad-hoc “fix awards / milestones / holder_count” bulk SQL | Patch-in-place defeats the proof run |
+
+**Steve on `kooldb1`:** sync `site/public_html/` → `migrate-work` → `seed-catalog` → `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php`. A full re-simul after a writer fix is **expected**, not a failure of the process.
+
+**Canonical runbook:** [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
+
 ---
 
 ## 2. End state after **prepare** (before simul)
@@ -274,3 +302,4 @@ After cutover: Steve inserts ground → `CMD=ProcessCompletedGame` per game; per
 | 2026-06 | **§4.7 seed lobby** — `entered_arena` from `JoinDate` at end of zero-derived. |
 | 2026-06 | **Prepare platform v2** — `scripts/work_prepare/`, parity command, legacy aliases. |
 | 2026-06 | **§4 signed off** (Dagh). |
+| 2026-06 | **§1.5 work DB hygiene** — sign-off = prepare + simul only; no batch repair on work; CLI refuses `rebuild-all` on work targets. |
