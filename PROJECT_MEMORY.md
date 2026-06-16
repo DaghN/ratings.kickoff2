@@ -83,6 +83,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Games day prev/next** — adjacent-day chevrons omit `#day-games` so carry-scroll keeps viewport position (profile calendar entry still uses hash). |
 | 2026-06 | **Opponents H2H pickers spacing** — doubled gap between search/listbox row and fighter poster cards (`clamp(56px, 8vw, 88px)`). |
 | 2026-06 | **Opponents H2H all-games link** — `games.php?opponent=` now `#matching-games` (anchor above “Showing … matching games”). |
 | 2026-06 | **Played-days** — legend under grid removed; hint = story line per year. |

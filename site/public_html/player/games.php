@@ -127,7 +127,7 @@ function individual3_clear_day_filter_url(array $state): string
     return individual3_games_filter_url($state, null);
 }
 
-function individual3_games_filter_url(array $state, ?string $dayYmd): string
+function individual3_games_filter_url(array $state, ?string $dayYmd, bool $withDayAnchor = true): string
 {
     $params = [
         'id' => $state['player_id'],
@@ -154,7 +154,7 @@ function individual3_games_filter_url(array $state, ?string $dayYmd): string
     }
 
     $url = individual3_build_url($params);
-    if ($dayYmd !== null && $dayYmd !== '') {
+    if ($withDayAnchor && $dayYmd !== null && $dayYmd !== '') {
         $url .= '#day-games';
     }
 
@@ -202,7 +202,7 @@ function individual3_render_day_step(string $dir, ?string $dayYmd, array $state)
 
         return;
     }
-    $href = individual3_games_filter_url($state, $dayYmd);
+    $href = individual3_games_filter_url($state, $dayYmd, false);
     echo '<a class="' . $classes . '" href="' . individual3_h($href) . '" aria-label="' . individual3_h($label) . '">';
     echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
 }
