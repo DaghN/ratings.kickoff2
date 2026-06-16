@@ -12,6 +12,7 @@ PROTECTED_DEV_DATABASE = "ko2unity_db"
 AGGREGATE_TABLES_TRUNCATE: tuple[str, ...] = (
     "player_period_games",
     "player_peak_period_games",
+    "player_activity_participation",
     "server_daily_activity",
     "player_period_league",
     "player_matchup_summary",

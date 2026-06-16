@@ -44,7 +44,8 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 |-------|--------|----------------------|------------------------|-------------------------|
 | `player_period_games` | SCH-004, SCH-006 | PHP ops P4 | `archive/.../player_period_games_rebuild.sql` | Both players × day/week/month/year +1 |
 | `player_peak_period_games` | SCH-006 | PHP ops P4 | `archive/.../player_peak_period_games_rebuild.sql` | After period games; update peak if beaten |
-| `player_play_streaks` | SCH-014 | PHP ops P7 | `scripts/rebuild_player_play_streaks.php` | After period games; day/week streak + HoF if personal best rises |
+| `player_play_streaks` | SCH-014, SCH-023 | PHP ops P7 | `scripts/rebuild_player_play_streaks.php` | After period games; day/week/month/year streak + HoF when personal best rises |
+| `player_activity_participation` | SCH-022 | PHP ops P4b | repair SQL TBD | +1 per `is_new_period`; first/last rated day on new UTC day |
 | `server_daily_activity` | SCH-007 | PHP ops P5 | `archive/.../server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
 | `player_period_league` | SCH-008 | PHP ops P5 | `archive/.../player_period_league_rebuild.sql` | W/D/L/points per period |
 | `league_period` | SCH-009 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only** — finalize closed periods |
@@ -246,38 +247,38 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Lifecycle:** Active.
 
-**Purpose:** Per-player consecutive **rated play** streaks: UTC calendar days and UTC weeks (Monday–Sunday) with at least one rated game in each period. Powers future profile/HoF surfaces; server records on `generalstatstable` (`LongestDailyPlayStreak*`, `LongestWeeklyPlayStreak*`).
+**Purpose:** Per-player consecutive **rated play** streaks: UTC calendar day / week / month / year with at least one rated game in each period. Server records on `generalstatstable` (`LongestDailyPlayStreak*`, `LongestWeeklyPlayStreak*`, `LongestMonthlyPlayStreak*`, `LongestYearlyPlayStreak*`).
 
-**Source truth:** `player_period_games` (day/week `period_start` lists) + `ratedresults` (establishing game id/date).
+**Source truth:** `player_period_games` (`period_start` lists per type) + `ratedresults` (establishing game id/date).
 
-**Grain:** one row per `(player_id, streak_type)` where `streak_type` ∈ `day`, `week`.
+**Grain:** one row per `(player_id, streak_type)` where `streak_type` ∈ `day`, `week`, `month`, `year`.
 
 **Primary key:** `(player_id, streak_type)`.
 
 | Column | Meaning |
 |--------|---------|
 | `current_streak` | Length of the active run (may be stale if player has not played since the run ended — apply alive rule on read) |
-| `current_anchor` | UTC date of last day in the run, or Monday of last week in the run |
+| `current_anchor` | UTC period anchor: day `Y-m-d`, week Monday, month `Y-m-01`, year `Y-01-01` |
 | `current_last_game_id` | `ratedresults.id` — **first** game on `current_anchor` period (not updated by later games the same period) |
 | `best_streak` | Personal best consecutive periods |
+| `best_anchor_start` | First period anchor of the personal-best run (same anchor rules as `current_anchor`) |
 | `best_achieved_at` | `ratedresults.Date` of `best_last_game_id` |
-| `best_last_game_id` | **First** rated game on the **last** day/week of the best run |
+| `best_last_game_id` | **First** rated game on the **last** period of the best run |
 
-**Alive rule (read / display):** UTC “today”. **Day:** `current_anchor` is today or yesterday → show `current_streak`, else **0**. **Week:** `current_anchor` is this week’s Monday or last week’s Monday → show `current_streak`, else **0**.
+**Alive rule (read / display):** UTC “today”. **Day:** today or yesterday. **Week:** this Monday or last Monday. **Month:** this month start or previous month start. **Year:** this year start or previous year start. Else show **0** for current run.
 
-**Full rebuild:** Walk each player’s sorted `player_period_games` day/week `period_start` values; split into consecutive runs (next period = previous + 1 day or + 7 days). Best run = max length; tie on length → earlier `best_achieved_at`. Current run = last run in history (alive applied only at read). Establishing games = `MIN(ratedresults.id)` per `(player, period)`. Then set HoF columns from global best rows.
+**Full rebuild:** Walk sorted `player_period_games` `period_start` per type; split consecutive runs (`k2_play_streak_next_period`). Set HoF columns from global best rows (all four types).
 
-**Post-game rule (per player, after `player_period_games` upsert):**
+**Post-game rule (per player, after P4 `is_new_period`):**
 
-1. **Current:** Same period as `current_anchor` → no length change, do not move `current_last_game_id`. Next period → `current_streak + 1`, new anchor, `current_last_game_id` = this game if first on that period. Gap → ended run; if ended length **>** `best_streak`, update personal best from establishing game on previous anchor; start new run at 1.
-2. **Personal best:** Update only when `best_streak` **strictly increases** (equal length with later date does not replace).
-3. **HoF** (`generalstatstable` id=1): Only if step 2 increased `best_streak`. Beat incumbent when: greater length; or same length and earlier `best_achieved_at`; or same length, same `best_last_game_id`, and this player is `ratedresults.idB` (mutual game).
+0. **Gate:** Run streak logic for a `streak_type` only when P4 reported `is_new_period` for that type (not on every game).
+1. **Current / personal best / HoF:** unchanged semantics — see [`activity-wing-stored-truth-policy.md`](activity-wing-stored-truth-policy.md).
 
-**Parity check:** Rebuild from `player_period_games` must match incremental simulation on a sample of players; HoF daily/weekly equals top `best_streak` from table with tie order above.
+**Parity check:** `k2_play_streak_oracle_mismatches()` / `scripts/oneoff/verify_activity_wing_parity_work.php` on work DB; HoF value = `MAX(best_streak)` per type from table.
 
 **Implementation:** `site/public_html/includes/player_play_streaks.php`; ops post-game P7; local repair `scripts/rebuild_player_play_streaks.php`. Historical handoff: [`archive/play-streaks-staging-handoff.md`](archive/play-streaks-staging-handoff.md).
 
-**UI (read stored truth):** Leaderboards → Streaks [`leaderboards/streaks.php`](../site/public_html/leaderboards/streaks.php) — **Days** / **Weeks** (`best_streak` from `player_play_streaks`). Hall of Fame [`hall-of-fame.php`](../site/public_html/hall-of-fame.php) — **Most days in a row** / **Most weeks in a row** (`generalstatstable` `LongestDailyPlayStreak*` / `LongestWeeklyPlayStreak*`). **Staging verified** May 2026 (Steve; max day 87, week 126).
+**UI (read stored truth):** Leaderboards → Activity [`leaderboards/activity/`](../site/public_html/leaderboards/activity/peaks.php) — **Peaks** · **Participation** · **In a row**. Streaks wing = match results only. Hall of Fame play-streak rows deferred (GST populated).
 
 ---
 
@@ -1076,7 +1077,8 @@ Required updates:
 |----------------|-----------------|
 | `player_period_games` | Increment A and B for day/week/month/year |
 | `player_peak_period_games` | Recheck peaks for the touched player-period rows |
-| `player_play_streaks` | Update day/week current + personal best for A and B; HoF columns if personal best rose — see § `player_play_streaks` |
+| `player_activity_participation` | On each `is_new_period`, increment `active_{type}`; on new UTC day update `first_rated_day` / `last_rated_day` — see [`activity-wing-stored-truth-policy.md`](activity-wing-stored-truth-policy.md) |
+| `player_play_streaks` | Update day/week/month/year when P4 `is_new_period`; HoF columns if personal best rose — see § `player_play_streaks` |
 | `server_daily_activity` | Increment `rated_games`; increment `active_players` only for players newly active that day |
 | `player_period_league` | Upsert A and B W/D/L/GF/GA/GD/points for day/week/month/year |
 | `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — **rated game** (both players) from `ProcessCompletedGame` only; **not** `perfect_day` / `nightmare_day` (`FinalizeUtcDay`); **`entered_arena`** = prepare lobby seed + live register, not replay. League keys: `FinalizeUtcDay` / PER-003. Simul runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). |

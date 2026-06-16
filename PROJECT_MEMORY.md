@@ -83,6 +83,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Activity wing (ops + UI)** — SCH-022–024; P4b/P7 + parity on work (smoke 1000); LB **Activity** wing (Peaks · Participation · In a row); tooltips; peaks→player games (`period` filter, `from=activity-peaks`, chevrons); `rebuild_activity_wing_local.ps1`. Track: [`activity-wing-stored-truth-policy.md`](docs/activity-wing-stored-truth-policy.md). |
+| 2026-06 | **Hall of Fame layout** — single record table; extra chapter-to-table breathing room (`margin-top` on `.server-records-hof`). |
 | 2026-06 | **Games All games filters** — 28px margin above filter block (sub-nav separation; results stay tight below). |
 | 2026-06 | **Hub IA — Games tab** — promoted to hub nav after Milestones (`hub_nav.php`, `$k2HubTabActive = 'games'`); Status **Games →** kept. |
 | 2026-06 | **Games hub intro** — All games chapter line: “searches the full history with filters and sorting”. |

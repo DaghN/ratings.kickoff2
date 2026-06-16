@@ -13,6 +13,7 @@
 | OO-005 | *(removed)* `staging-scripts/…play_streak_100_unlock` | play_streak_100 unlock splice | N/A | **Done** May 2026 | N/A | **Archived** — script deleted Jun 2026 |
 | OO-006 | *(removed)* `staging-scripts/…year_in_heaven_unlock` | year_in_heaven unlock splice | N/A | Handoff | N/A | **Archived** — see `milestones-year-in-heaven-handoff.md` |
 | OO-007 | *(removed)* `staging-scripts/patch_milestone_catalog_copy` | Batch catalog copy patches | N/A | As needed | N/A | **Archived** — use `scripts/oneoff/apply_milestone_catalog_copy_patch.py` + `ops/run_prepare.php seed-catalog` |
+| OO-008 | `scripts/oneoff/verify_activity_wing_parity_work.php` | Activity wing orthogonal parity (participation + streak oracle + HoF) on work DB | Done | — | — | N/A | Wired into `run_verify_ops_sim.php`; smoke 1000 Jun 2026 |
 
 ### Before asking Steve
 

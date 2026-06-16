@@ -25,6 +25,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_goals_distribution.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_ratedresults_games_filters.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_games_from.php';
 
 function individual3_h(string $value): string
 {
@@ -118,16 +119,24 @@ function individual3_has_games_filters_beyond_day(
         || $goalsSumFilter >= 0;
 }
 
-function individual3_games_filter_url(array $state, ?string $dayYmd, bool $withDayAnchor = true): string
+/**
+ * @return array<string, int|string>
+ */
+function individual3_games_filter_params(array $state): array
 {
     $params = [
         'id' => $state['player_id'],
         'sort' => $state['sort'],
         'dir' => $state['dir'],
     ];
-    if ($dayYmd !== null && $dayYmd !== '') {
-        $params['day'] = $dayYmd;
+    if (!empty($state['day'])) {
+        $params['day'] = $state['day'];
     }
+    if (!empty($state['period']) && !empty($state['anchor'])) {
+        $params['period'] = $state['period'];
+        $params['anchor'] = $state['anchor'];
+    }
+    $params = k2_player_games_with_from_param($params, (string) ($state['from'] ?? 'played-days'));
     if ($state['result'] !== 'all') {
         $params['result'] = $state['result'];
     }
@@ -144,6 +153,24 @@ function individual3_games_filter_url(array $state, ?string $dayYmd, bool $withD
         $params['gs'] = $state['gs'];
     }
 
+    return $params;
+}
+
+function individual3_has_period_range_filter(array $state): bool
+{
+    $period = (string) ($state['period'] ?? '');
+
+    return in_array($period, ['week', 'month', 'year'], true) && ($state['anchor'] ?? '') !== '';
+}
+
+function individual3_games_filter_url(array $state, ?string $dayYmd, bool $withDayAnchor = true): string
+{
+    $params = individual3_games_filter_params($state);
+    if ($dayYmd !== null && $dayYmd !== '') {
+        $params['day'] = $dayYmd;
+        unset($params['period'], $params['anchor']);
+    }
+
     $url = individual3_build_url($params);
     if ($withDayAnchor && $dayYmd !== null && $dayYmd !== '') {
         $url .= '#day-games';
@@ -153,25 +180,29 @@ function individual3_games_filter_url(array $state, ?string $dayYmd, bool $withD
 }
 
 /**
- * @return array{prev: ?string, next: ?string} Y-m-d UTC played days from player_period_games.
+ * @return array{prev: ?string, next: ?string} Y-m-d UTC period anchors from player_period_games.
  */
-function individual3_adjacent_played_days(mysqli $con, int $playerId, string $utcDay): array
+function individual3_adjacent_played_periods(mysqli $con, int $playerId, string $periodType, string $anchorYmd): array
 {
+    if (!in_array($periodType, ['day', 'week', 'month', 'year'], true)) {
+        return ['prev' => null, 'next' => null];
+    }
+
     $prevRows = individual3_query_all(
         $con,
         'SELECT DATE_FORMAT(period_start, \'%Y-%m-%d\') AS d FROM player_period_games '
-            . 'WHERE period_type = \'day\' AND player_id = ? AND period_start < ? '
+            . 'WHERE period_type = ? AND player_id = ? AND period_start < ? '
             . 'ORDER BY period_start DESC LIMIT 1',
-        'is',
-        [$playerId, $utcDay]
+        'sis',
+        [$periodType, $playerId, $anchorYmd]
     );
     $nextRows = individual3_query_all(
         $con,
         'SELECT DATE_FORMAT(period_start, \'%Y-%m-%d\') AS d FROM player_period_games '
-            . 'WHERE period_type = \'day\' AND player_id = ? AND period_start > ? '
+            . 'WHERE period_type = ? AND player_id = ? AND period_start > ? '
             . 'ORDER BY period_start ASC LIMIT 1',
-        'is',
-        [$playerId, $utcDay]
+        'sis',
+        [$periodType, $playerId, $anchorYmd]
     );
     $prev = individual3_valid_day((string) ($prevRows[0]['d'] ?? ''));
     $next = individual3_valid_day((string) ($nextRows[0]['d'] ?? ''));
@@ -182,20 +213,56 @@ function individual3_adjacent_played_days(mysqli $con, int $playerId, string $ut
     ];
 }
 
-function individual3_render_day_step(string $dir, ?string $dayYmd, array $state): void
+function individual3_adjacent_played_days(mysqli $con, int $playerId, string $utcDay): array
+{
+    return individual3_adjacent_played_periods($con, $playerId, 'day', $utcDay);
+}
+
+function individual3_played_period_step_label(string $periodType, string $dir): string
+{
+    $noun = match ($periodType) {
+        'week' => 'week',
+        'month' => 'month',
+        'year' => 'year',
+        default => 'day',
+    };
+
+    return ($dir === 'prev' ? 'Previous' : 'Next') . ' played ' . $noun;
+}
+
+function individual3_played_period_step_href(array $state, string $periodType, string $anchorYmd): string
+{
+    if ($periodType === 'day') {
+        return individual3_games_filter_url($state, $anchorYmd, false);
+    }
+
+    $params = individual3_games_filter_params($state);
+    $params['period'] = $periodType;
+    $params['anchor'] = $anchorYmd;
+    unset($params['day']);
+
+    return individual3_build_url($params);
+}
+
+function individual3_render_played_period_step(string $dir, ?string $anchorYmd, array $state, string $periodType): void
 {
     $isPrev = $dir === 'prev';
-    $label = $isPrev ? 'Previous played day' : 'Next played day';
+    $label = individual3_played_period_step_label($periodType, $dir);
     $classes = 'k2-player-games-day-step k2-player-games-day-step--' . $dir;
-    if ($dayYmd === null || $dayYmd === '') {
+    if ($anchorYmd === null || $anchorYmd === '') {
         echo '<span class="' . $classes . ' is-disabled" aria-disabled="true" title="' . individual3_h($label) . '">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
 
         return;
     }
-    $href = individual3_games_filter_url($state, $dayYmd, false);
+    $href = individual3_played_period_step_href($state, $periodType, $anchorYmd);
     echo '<a class="' . $classes . '" href="' . individual3_h($href) . '" aria-label="' . individual3_h($label) . '">';
     echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
+}
+
+function individual3_render_day_step(string $dir, ?string $dayYmd, array $state): void
+{
+    individual3_render_played_period_step($dir, $dayYmd, $state, 'day');
 }
 
 function individual3_valid_goals_filter(int $value, array $validValues): int
@@ -212,7 +279,9 @@ function individual3_where_clause(
     int $goalsSumFilter,
     string $utcDay,
     string &$types,
-    array &$params
+    array &$params,
+    string $periodType = '',
+    string $periodAnchor = ''
 ): string {
     return k2_ratedresults_games_where_clause(
         $playerId,
@@ -223,7 +292,13 @@ function individual3_where_clause(
         $goalsSumFilter,
         $utcDay,
         $types,
-        $params
+        $params,
+        -1,
+        -1,
+        0,
+        '',
+        $periodType,
+        $periodAnchor
     );
 }
 
@@ -242,29 +317,10 @@ function individual3_sort_header(string $key, string $label, string $align, arra
         $classes[] = $state['dir'] === 'desc' ? 'k2-table-sorted-desc' : 'k2-table-sorted-asc';
     }
 
-    $params = [
-        'id' => $state['player_id'],
-        'sort' => $key,
-        'dir' => $nextDir,
-    ];
-    if ($state['result'] !== 'all') {
-        $params['result'] = $state['result'];
-    }
-    if ($state['opponent'] > 0) {
-        $params['opponent'] = $state['opponent'];
-    }
-    if (!empty($state['day'])) {
-        $params['day'] = $state['day'];
-    }
-    if (($state['gf'] ?? -1) >= 0) {
-        $params['gf'] = $state['gf'];
-    }
-    if (($state['ga'] ?? -1) >= 0) {
-        $params['ga'] = $state['ga'];
-    }
-    if (($state['gs'] ?? -1) >= 0) {
-        $params['gs'] = $state['gs'];
-    }
+    $params = individual3_games_filter_params($state);
+    $params['sort'] = $key;
+    $params['dir'] = $nextDir;
+    unset($params['offset']);
 
     $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
     $attrs = [
@@ -306,8 +362,19 @@ $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0
 $goalsScoredFilter = isset($_GET['gf']) ? (int) $_GET['gf'] : -1;
 $goalsConcededFilter = isset($_GET['ga']) ? (int) $_GET['ga'] : -1;
 $goalsSumFilter = isset($_GET['gs']) ? (int) $_GET['gs'] : -1;
+$gamesFrom = k2_player_games_valid_from((string) ($_GET['from'] ?? ''));
 $utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
-if ($utcDayFilter !== '' && !isset($_GET['sort'])) {
+$periodType = k2_ratedresults_games_valid_period_type((string) ($_GET['period'] ?? ''));
+$periodAnchor = individual3_valid_day((string) ($_GET['anchor'] ?? ''));
+if ($utcDayFilter !== '') {
+    $periodType = '';
+    $periodAnchor = '';
+} elseif ($periodType === '' || $periodAnchor === '') {
+    $periodType = '';
+    $periodAnchor = '';
+}
+$hasPeriodRangeFilter = in_array($periodType, ['week', 'month', 'year'], true);
+if (($utcDayFilter !== '' || $hasPeriodRangeFilter) && !isset($_GET['sort'])) {
     $sortKey = 'date';
     $sortDirection = 'desc';
 } else {
@@ -403,7 +470,9 @@ $whereSql = individual3_where_clause(
     $goalsSumFilter,
     $utcDayFilter,
     $whereTypes,
-    $whereParams
+    $whereParams,
+    $periodType,
+    $periodAnchor
 );
 
 $countRows = individual3_query_all(
@@ -428,8 +497,11 @@ $games = individual3_query_all(
 );
 
 $adjacentPlayedDays = ['prev' => null, 'next' => null];
+$adjacentPlayedPeriod = ['prev' => null, 'next' => null];
 if ($utcDayFilter !== '') {
-    $adjacentPlayedDays = individual3_adjacent_played_days($con, $playerId, $utcDayFilter);
+    $adjacentPlayedDays = individual3_adjacent_played_periods($con, $playerId, 'day', $utcDayFilter);
+} elseif ($hasPeriodRangeFilter) {
+    $adjacentPlayedPeriod = individual3_adjacent_played_periods($con, $playerId, $periodType, $periodAnchor);
 }
 
 mysqli_close($con);
@@ -452,34 +524,17 @@ $sortState = [
     'ga' => $goalsConcededFilter,
     'gs' => $goalsSumFilter,
     'day' => $utcDayFilter,
+    'period' => $periodType,
+    'anchor' => $periodAnchor,
+    'from' => $gamesFrom,
 ];
+$gamesBackLink = k2_player_games_from_back_link($gamesFrom, $playerId);
 $shownCount = count($games);
 $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
 $lastShown = $offset + $shownCount;
-$pagerParams = [
-    'id' => $playerId,
-    'sort' => $sortKey,
-    'dir' => $sortDirection,
-];
-if ($resultFilter !== 'all') {
-    $pagerParams['result'] = $resultFilter;
-}
-if ($opponentFilter > 0) {
-    $pagerParams['opponent'] = $opponentFilter;
-}
-if ($utcDayFilter !== '') {
-    $pagerParams['day'] = $utcDayFilter;
-}
-if ($goalsScoredFilter >= 0) {
-    $pagerParams['gf'] = $goalsScoredFilter;
-}
-if ($goalsConcededFilter >= 0) {
-    $pagerParams['ga'] = $goalsConcededFilter;
-}
-if ($goalsSumFilter >= 0) {
-    $pagerParams['gs'] = $goalsSumFilter;
-}
+$pagerParams = individual3_games_filter_params($sortState);
 $sortedColIndex = k2_player_game_sort_col_index($sortKey);
+$hasPeriodGamesView = $utcDayFilter !== '' || $hasPeriodRangeFilter;
 
 $resultChoices = [
     ['value' => 'all', 'label' => 'All results'],
@@ -528,6 +583,12 @@ foreach ($goalsSumRows as $goalsSumRow) {
         <input type="hidden" name="dir" value="<?php echo individual3_h($sortDirection); ?>" />
         <?php if ($utcDayFilter !== '') { ?>
         <input type="hidden" name="day" value="<?php echo individual3_h($utcDayFilter); ?>" />
+        <?php } elseif ($hasPeriodRangeFilter) { ?>
+        <input type="hidden" name="period" value="<?php echo individual3_h($periodType); ?>" />
+        <input type="hidden" name="anchor" value="<?php echo individual3_h($periodAnchor); ?>" />
+        <?php } ?>
+        <?php if ($gamesFrom !== 'played-days') { ?>
+        <input type="hidden" name="from" value="<?php echo individual3_h($gamesFrom); ?>" />
         <?php } ?>
     </div>
     <div class="k2-player-games-controls__fields">
@@ -555,7 +616,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
     </div>
 </form>
 
-<?php if ($utcDayFilter !== '') { ?>
+<?php if ($hasPeriodGamesView) { ?>
 <section class="k2-player-games-day-view">
 <div id="day-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
 <?php } ?>
@@ -573,7 +634,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
         $dayBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
         ?>
     <div class="k2-player-games-day-banner">
-        <a class="k2-link-star k2-player-games-day-banner__back" href="/player/profile.php?id=<?php echo $playerId; ?>#played-days">← Played days</a>
+        <a class="k2-link-star k2-player-games-day-banner__back" href="<?php echo individual3_h($gamesBackLink['href']); ?>"><?php echo individual3_h($gamesBackLink['label']); ?></a>
         <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
         <nav class="k2-player-games-day-steps" aria-label="Adjacent played days">
             <?php individual3_render_day_step('prev', $adjacentPlayedDays['prev'], $sortState); ?>
@@ -592,8 +653,40 @@ foreach ($goalsSumRows as $goalsSumRow) {
             <?php echo individual3_format_utc_day_banner_html($utcDayFilter); ?>.
         </span>
     </div>
+    <?php } elseif ($hasPeriodRangeFilter) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_lib.php';
+        $periodBannerStory = !individual3_has_games_filters_beyond_day(
+            $resultFilter,
+            $opponentFilter,
+            $goalsScoredFilter,
+            $goalsConcededFilter,
+            $goalsSumFilter
+        );
+        $periodBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
+        $periodBannerLabel = k2_lb_activity_peak_period_filter_label($periodType, $periodAnchor);
+        ?>
+    <div class="k2-player-games-day-banner">
+        <a class="k2-link-star k2-player-games-day-banner__back" href="<?php echo individual3_h($gamesBackLink['href']); ?>"><?php echo individual3_h($gamesBackLink['label']); ?></a>
+        <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
+        <nav class="k2-player-games-day-steps" aria-label="Adjacent played <?php echo individual3_h($periodType); ?>s">
+            <?php individual3_render_played_period_step('prev', $adjacentPlayedPeriod['prev'], $sortState, $periodType); ?>
+            <?php individual3_render_played_period_step('next', $adjacentPlayedPeriod['next'], $sortState, $periodType); ?>
+        </nav>
+        <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
+        <span class="k2-player-games-day-banner__lead">
+            <?php if ($periodBannerStory) { ?>
+            <a class="k2-link-star" href="/player/profile.php?id=<?php echo $playerId; ?>"><?php echo individual3_h($name); ?></a>
+            played <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
+            <?php echo $periodBannerGamesWord; ?> in
+            <?php } else { ?>
+            <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
+            matching <?php echo $periodBannerGamesWord; ?> in
+            <?php } ?>
+            <span class="k2-link-star"><?php echo individual3_h($periodBannerLabel); ?></span>.
+        </span>
+    </div>
     <?php } ?>
-    <?php if ($utcDayFilter === '') { ?>
+    <?php if ($utcDayFilter === '' && !$hasPeriodRangeFilter) { ?>
     Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
     <?php } ?>
     <?php if ($offset > 0) { ?>
@@ -654,7 +747,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
 
 </div><!-- .k2-table-wrap -->
 
-<?php if ($utcDayFilter !== '') { ?>
+<?php if ($hasPeriodGamesView) { ?>
 <div class="k2-player-games-day-scroll-pad" aria-hidden="true"></div>
 </section>
 <?php } ?>

@@ -4,7 +4,7 @@
 
 - **All record values** link to the matching Leaderboards wing via `includes/records_hof_links.php`, plus `k2_sort` / `k2_dir` on ranked wings. **Ratio/average rows only** also pass `provisional=0` (same ≥20 pool as HoF eligibility). Count/streak/single-game rows omit that param so leaderboards open with default include toggles **on**. `js/k2-table.js` applies sort on load for `ranked-pages-table` only. Labels stay plain text.
 - **`*GameID` columns** (`MostGoalsScoredInOneGameGameID`, etc.) remain in `generalstatstable` for a future game-record list — not used in HoF links.
-- **Activity peaks** (“most games in one year/month/week/day”): value → `leaderboards/activity-peaks.php#k2-peak-period-{day|week|month|year}` — scrolls that panel into view (`scroll-margin-top` + `activity-mode-toggle.js` ensures Calendar tab is shown).
+| Activity wing (peaks / participation / in a row) | value → `lb-activity` with `k2_sort` on peak column; play-streak day/week → `lb-activity-in-a-row` |
 
 ## `generalstatstable` row `id=1`
 

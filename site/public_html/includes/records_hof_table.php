@@ -1,6 +1,6 @@
 <?php
 /**
- * Hall of Fame record tables — shared column sizing for side-by-side panels.
+ * Hall of Fame record table — shared column sizing for the main record list.
  */
 declare(strict_types=1);
 
@@ -89,7 +89,7 @@ function k2_hof_synced_col_ch_from_samples(array $samples, int $paddingCh, int $
 }
 
 /**
- * Shared column widths from static labels + cells rendered in both HoF tables.
+ * Shared column widths from static labels + cells rendered in the HoF record table.
  *
  * @return array{label: int, value: int, holder: int, date: int, left_half: int, right_half: int}
  */
@@ -122,7 +122,7 @@ function records_hof_sync_compute_widths(array $labels): array
 	];
 }
 
-/** Inline style for .server-records-panels--sync-cols (--k2-hof-*-col-ch vars). */
+/** Inline style for .server-records-hof (--k2-hof-*-col-ch vars). */
 function records_hof_sync_style_attr(array $widths): string
 {
 	return sprintf(
@@ -134,7 +134,7 @@ function records_hof_sync_style_attr(array $widths): string
 	);
 }
 
-/** Shared colgroup for paired HoF tables (table-layout: fixed + CSS vars on the panels root). */
+/** Shared colgroup for HoF record table (table-layout: fixed + CSS vars on .server-records-hof). */
 function records_hof_render_colgroup(): void
 {
 	echo "<colgroup>\n";

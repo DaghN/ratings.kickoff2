@@ -11,12 +11,13 @@
 | Page / include | Current behavior |
 |----------------|------------------|
 | `ranked1`-`ranked5`, `ranked7`, `ranked10`, league honours | `k2-table.js` sort + autorank; `data-k2-anchor-col` for one permanent link-star column per wing; lighter `k2-table-col-sorted` on the active sort column when it differs from the anchor. Optional deep link: `?k2_sort={col}&k2_dir=desc|asc` (Hall of Fame values via `records_hof_links.php`) — applies one client-side sort on init for `ranked-pages-table` only; does not change anchor column. |
+| `leaderboards/activity/*.php` | Activity wing: Peaks · Participation · In a row; calm-stats; tooltips on peak/streak cells; peak counts link to player Games (`includes/player_games_from.php`). |
 | `ranked8` / `peak_period_leaderboards_section.php` | **Calendar** day/week/month/year: calm-stats, Games anchor (col 3), not sortable; **All time / Longevity**: calm-stats + sort + anchor (Games / Days). |
 | `player/wdl.php` (W/D/L) | `k2-table.js` sort; default **Games** desc; `k2-table--calm-stats` + `ranked-pages-table`; **Games** anchor (col 1, link-star); blue/red on W/L/ratios; other columns `k2-table-col-sorted` when active (Jun 2026). |
 | `player/goals.php` (Goals) | Hub Goals LB parity: calm-stats (no blue/red), **Games** anchor (col 1), `lb_column_help` headers/tooltips; Win/Loss margin = `MAX` only on winning/losing games (not signed diffs on all games); Draw sort via `data-k2-sort-value`. |
 | `player/double-digits.php` (DDs) | Hub DD LB parity (`ranked3`): headers/tooltips from `lb_column_help`, calm-stats (no blue/red), **Games** anchor (col 1); column order matches ranked3. |
 | `games/` hub | **Hub tab** after Milestones (`hub_nav.php`). Sub-nav **Recent** \| **Highlights** \| **All games** (`games_hub_nav.php`). **Recent:** `games/recent.php` — 14 day buckets; `k2-table--calm-stats` + `ranked-pages-table`; **TS** column; SSR + JS `k2-table-col-sorted`. **Highlights:** `games/highlights.php` — top 100 boards; compact rows; JS sort column. **All games:** `games/all.php` — full table + **TS**; server sort; PHP `k2-table-col-sorted`; **filters** (Player / Opponent / Score-line / Year); 250-row chevron pager; **Reset filters** accent pill (`k2-player-games-reset`); filter block spaced below sub-nav. Status **Games →** secondary entry retained. |
-| `player/games.php` | Server-side Result/Opponent/Goals scored/Goals conceded/Goal sum filters, URL sort links, 100-row slices, shared row renderer; `k2-table--calm-stats` + `k2-table--player-games` (secondary body, win/loss `.blue`/`.red` kept); PHP marks `k2-table-col-sorted` on active sort column; filters use shared `k2-archive-listbox` + `k2-archive-listbox.js`; **`k2-player-games-reset`** accent pill; day filter banner with played-day chevrons (no “clear day filter”). |
+| `player/games.php` | Server-side Result/Opponent/Goals scored/Goals conceded/Goal sum filters, URL sort links, 100-row slices, shared row renderer; `k2-table--calm-stats` + `k2-table--player-games` (secondary body, win/loss `.blue`/`.red` kept); PHP marks `k2-table-col-sorted` on active sort column; filters use shared `k2-archive-listbox` + `k2-archive-listbox.js`; **`k2-player-games-reset`** accent pill; **day** filter banner with played-day chevrons; **week/month/year** via `period`+`anchor` (Activity peaks drill-down, `from=activity-peaks`, `#day-games` land, played-period chevrons). |
 | `game.php` | Static single-game table with `k2-table.js` header help only; no sorting; **TS** column after Sum. Below the table when a game exists: short “while we wait for browser replay” copy + 16:9 YouTube embed (2024 Online WC final placeholder). |
 | `status.php` | Active LB: sort + Elo anchor; league tables: calm-stats + Pts/Games anchors — **PHP** (`k2_league_table_render.php`) and **JS** (`status-period-competitions.js` inject + `k2TableApplyAnchors`). |
 | `hall-of-fame.php` | HoF record panels: calm-stats; Value column anchor; all values → leaderboard wings + `provisional=0` + `k2_sort`; dates keep `(New!)` / `(Legendary)` markers. |
@@ -116,6 +117,7 @@ Current supported behavior:
 - `data-k2-anchor-col` (0-based column index) for one permanent wing anchor styled as link-star in body cells; optional — omit on tables without an editorial hero column.
 - `data-k2-autorank="true"` for first-column rank renumbering.
 - `data-k2-help` / `data-k2-tooltip-label` for shared header help; help can exist without sorting, and the “Click to sort.” hint appears only on sortable headers. Avoid `data-k2-help` that only repeats the visible column label. Hub wing copy: `site/public_html/includes/lb_column_help.php` (May 2026).
+- `data-k2-help-html="1"` + `data-k2-tooltip-hide-title="1"` for body-cell tooltips (Activity peaks / in-a-row).
 - `aria-sort`, keyboard Enter/Space, and sortable header help behavior.
 - Same-column toggles flip asc/desc via a full re-sort (stable tie order), not DOM reverse only.
 - Deep link / filter persistence: `?k2_sort={col}&k2_dir=desc|asc` on load (`ranked-pages-table` only). Column sort updates the URL via `history.replaceState` and refreshes **Include inactive / provisional** toggle hrefs on the same wing; `k2_lb_filter_toggle_href()` merges sort params server-side. Wing tab links do **not** carry `k2_sort` (column indices differ per page).
@@ -137,6 +139,9 @@ All hub wing tables use class **`ranked-pages-table`**: uniform `8px` horizontal
 | `leaderboards/victims.php` (Victims) | 5 — Victims |
 | `leaderboards/rating.php` (Results) | 2 — Elo |
 | `leaderboards/milestones.php` (Milestones) | 8 — Milestones total |
+| `leaderboards/activity/peaks.php` | 2 — ELO rating |
+| `leaderboards/activity/participation.php` | 2 — ELO rating |
+| `leaderboards/activity/in-a-row.php` | 2 — ELO rating |
 | `league_honours_panel.php` | 4 — Gold |
 | Status active leaderboard | 2 — Elo |
 

@@ -1,15 +1,23 @@
 <?php
 /**
- * Rated play streaks — consecutive UTC days / Mon–Sun weeks with ≥1 rated game.
- * Stored in player_play_streaks; HoF on generalstatstable (LongestDaily/WeeklyPlayStreak*).
+ * Rated play streaks — consecutive UTC day / week / month / year with ≥1 rated game.
+ * Stored in player_play_streaks; HoF on generalstatstable (Longest*PlayStreak*).
  *
- * Establishing game = first rated game on the last day/week of the run (MIN ratedresults.id).
+ * Establishing game = first rated game on the last period of the run (MIN ratedresults.id).
  * Post-game: personal row first, then HoF compare when personal best strictly increases.
  */
 declare(strict_types=1);
 
+/** @var list<string> */
+const K2_PLAY_STREAK_TYPES = ['day', 'week', 'month', 'year'];
+
 /** @var array<string, array{id: int, Date: string}>|null */
 $k2_play_streak_establishing_cache = null;
+
+function k2_play_streak_is_valid_type(string $streakType): bool
+{
+    return in_array($streakType, K2_PLAY_STREAK_TYPES, true);
+}
 
 /** Leaderboard / HoF tooltip copy (UTC rated-play streaks, not result streaks). */
 function k2_play_streak_help_day(): string
@@ -20,6 +28,124 @@ function k2_play_streak_help_day(): string
 function k2_play_streak_help_week(): string
 {
     return 'Your best run of consecutive UTC weeks (Monday–Sunday) with at least one rated game.';
+}
+
+function k2_play_streak_help_month(): string
+{
+    return 'Your best run of consecutive UTC calendar months with at least one rated game.';
+}
+
+function k2_play_streak_help_year(): string
+{
+    return 'Your best run of consecutive UTC calendar years with at least one rated game.';
+}
+
+function k2_play_streak_period_type_label(string $streakType, int $count): string
+{
+    $singular = match ($streakType) {
+        'day' => 'day',
+        'week' => 'week',
+        'month' => 'month',
+        'year' => 'year',
+        default => 'period',
+    };
+
+    return $count === 1 ? $singular : $singular . 's';
+}
+
+function k2_play_streak_last_period_anchor(string $startAnchor, string $streakType, int $length): string
+{
+    if ($length <= 1) {
+        return $startAnchor;
+    }
+
+    $cur = $startAnchor;
+    for ($i = 1; $i < $length; $i++) {
+        $cur = k2_play_streak_next_period($cur, $streakType);
+    }
+
+    return $cur;
+}
+
+function k2_play_streak_format_period_span(string $streakType, string $startAnchor, string $endAnchor): string
+{
+    [$startLabel, $endLabel] = k2_play_streak_period_span_labels($streakType, $startAnchor, $endAnchor);
+    if ($endLabel === null) {
+        return $startLabel;
+    }
+
+    return $startLabel . ' – ' . $endLabel;
+}
+
+/**
+ * @return array{0: string, 1: ?string}
+ */
+function k2_play_streak_period_span_labels(string $streakType, string $startAnchor, string $endAnchor): array
+{
+    require_once __DIR__ . '/peak_month_leaderboard_query.php';
+
+    if ($startAnchor === $endAnchor) {
+        return [k2_format_peak_period($streakType, $startAnchor), null];
+    }
+
+    if ($streakType === 'day') {
+        return [
+            k2_format_peak_period('day', $startAnchor),
+            k2_format_peak_period('day', $endAnchor),
+        ];
+    }
+    if ($streakType === 'week') {
+        $endSun = (new DateTimeImmutable($endAnchor, new DateTimeZone('UTC')))->modify('+6 days')->format('Y-m-d');
+
+        return [
+            k2_format_peak_period('day', $startAnchor),
+            k2_format_peak_period('day', $endSun),
+        ];
+    }
+    if ($streakType === 'month') {
+        return [
+            k2_format_peak_period('month', $startAnchor),
+            k2_format_peak_period('month', $endAnchor),
+        ];
+    }
+    if ($streakType === 'year') {
+        return [
+            k2_format_peak_period('year', $startAnchor),
+            k2_format_peak_period('year', $endAnchor),
+        ];
+    }
+
+    return [$startAnchor, $endAnchor];
+}
+
+function k2_play_streak_link_star_markup(string $text): string
+{
+    return '<span class="k2-link-star">' . htmlspecialchars($text, ENT_QUOTES, 'UTF-8') . '</span>';
+}
+
+function k2_play_streak_format_period_span_html(string $streakType, string $startAnchor, string $endAnchor): string
+{
+    [$startLabel, $endLabel] = k2_play_streak_period_span_labels($streakType, $startAnchor, $endAnchor);
+    if ($endLabel === null) {
+        return k2_play_streak_link_star_markup($startLabel);
+    }
+
+    return k2_play_streak_link_star_markup($startLabel) . ' – ' . k2_play_streak_link_star_markup($endLabel);
+}
+
+function k2_play_streak_best_run_tooltip_html(string $streakType, int $count, string $startAnchor): string
+{
+    if ($count <= 0 || $startAnchor === '') {
+        return '';
+    }
+
+    $endAnchor = k2_play_streak_last_period_anchor($startAnchor, $streakType, $count);
+    $typeLabel = k2_play_streak_period_type_label($streakType, $count);
+    $sentence = k2_play_streak_link_star_markup((string) $count)
+        . ' consecutive UTC calendar ' . $typeLabel . ' with at least one rated game.';
+    $dates = k2_play_streak_format_period_span_html($streakType, $startAnchor, $endAnchor);
+
+    return $sentence . '<br><br>' . $dates;
 }
 
 function k2_play_streak_utc_today(mysqli $con): string
@@ -48,8 +174,40 @@ function k2_play_streak_next_period(string $anchorYmd, string $streakType): stri
     if ($streakType === 'week') {
         return $dt->modify('+7 days')->format('Y-m-d');
     }
+    if ($streakType === 'month') {
+        return $dt->modify('first day of next month')->format('Y-m-d');
+    }
+    if ($streakType === 'year') {
+        return $dt->modify('+1 year')->format('Y-01-01');
+    }
 
     return $dt->modify('+1 day')->format('Y-m-d');
+}
+
+function k2_play_streak_prev_period(string $anchorYmd, string $streakType): string
+{
+    $dt = new DateTimeImmutable($anchorYmd, new DateTimeZone('UTC'));
+    if ($streakType === 'week') {
+        return $dt->modify('-7 days')->format('Y-m-d');
+    }
+    if ($streakType === 'month') {
+        return $dt->modify('first day of previous month')->format('Y-m-d');
+    }
+    if ($streakType === 'year') {
+        return $dt->modify('-1 year')->format('Y-m-d');
+    }
+
+    return $dt->modify('-1 day')->format('Y-m-d');
+}
+
+function k2_play_streak_period_steps_back(string $anchorYmd, string $streakType, int $steps): string
+{
+    $cur = $anchorYmd;
+    for ($i = 0; $i < $steps; $i++) {
+        $cur = k2_play_streak_prev_period($cur, $streakType);
+    }
+
+    return $cur;
 }
 
 function k2_play_streak_prev_day(string $dayYmd): string
@@ -62,6 +220,20 @@ function k2_play_streak_prev_week_monday(string $weekMonday): string
     return (new DateTimeImmutable($weekMonday, new DateTimeZone('UTC')))->modify('-7 days')->format('Y-m-d');
 }
 
+function k2_play_streak_month_start(string $dayYmd): string
+{
+    $dt = new DateTimeImmutable($dayYmd, new DateTimeZone('UTC'));
+
+    return $dt->format('Y-m-01');
+}
+
+function k2_play_streak_year_start(string $dayYmd): string
+{
+    $dt = new DateTimeImmutable($dayYmd, new DateTimeZone('UTC'));
+
+    return $dt->format('Y') . '-01-01';
+}
+
 function k2_play_streak_is_alive(string $streakType, string $anchorYmd, string $utcToday): bool
 {
     if ($anchorYmd === '') {
@@ -70,9 +242,29 @@ function k2_play_streak_is_alive(string $streakType, string $anchorYmd, string $
     if ($streakType === 'day') {
         return $anchorYmd === $utcToday || $anchorYmd === k2_play_streak_prev_day($utcToday);
     }
-    $thisWeek = k2_play_streak_week_monday($utcToday);
+    if ($streakType === 'week') {
+        $thisWeek = k2_play_streak_week_monday($utcToday);
 
-    return $anchorYmd === $thisWeek || $anchorYmd === k2_play_streak_prev_week_monday($thisWeek);
+        return $anchorYmd === $thisWeek || $anchorYmd === k2_play_streak_prev_week_monday($thisWeek);
+    }
+    if ($streakType === 'month') {
+        $thisMonth = k2_play_streak_month_start($utcToday);
+        $prevMonth = (new DateTimeImmutable($thisMonth, new DateTimeZone('UTC')))
+            ->modify('-1 month')
+            ->format('Y-m-d');
+
+        return $anchorYmd === $thisMonth || $anchorYmd === $prevMonth;
+    }
+    if ($streakType === 'year') {
+        $thisYear = k2_play_streak_year_start($utcToday);
+        $prevYear = (new DateTimeImmutable($thisYear, new DateTimeZone('UTC')))
+            ->modify('-1 year')
+            ->format('Y-m-d');
+
+        return $anchorYmd === $thisYear || $anchorYmd === $prevYear;
+    }
+
+    return false;
 }
 
 /** @return int 0 when the stored run is no longer alive */
@@ -105,7 +297,12 @@ function k2_play_streak_load_establishing_cache(mysqli $con): array
     $cache = [];
     $byGame = [];
 
-    foreach (['day' => 'DATE(`Date`)', 'week' => 'DATE_SUB(DATE(`Date`), INTERVAL WEEKDAY(`Date`) DAY)'] as $streakType => $periodExpr) {
+    foreach ([
+        'day' => 'DATE(`Date`)',
+        'week' => 'DATE_SUB(DATE(`Date`), INTERVAL WEEKDAY(`Date`) DAY)',
+        'month' => "DATE_FORMAT(DATE(`Date`), '%Y-%m-01')",
+        'year' => "CONCAT(YEAR(DATE(`Date`)), '-01-01')",
+    ] as $streakType => $periodExpr) {
         $sql = 'SELECT `player_id`, `period_start`, MIN(`game_id`) AS `game_id` FROM ('
             . 'SELECT `idA` AS `player_id`, ' . $periodExpr . ' AS `period_start`, `id` AS `game_id` '
             . 'FROM `ratedresults` WHERE `idA` IS NOT NULL '
@@ -176,11 +373,23 @@ function k2_play_streak_establishing_game(mysqli $con, int $playerId, string $pe
     if ($streakType === 'day') {
         $sql = 'SELECT `id`, `Date` FROM `ratedresults` '
             . 'WHERE (`idA` = ? OR `idB` = ?) AND DATE(`Date`) = ? ORDER BY `id` ASC LIMIT 1';
-    } else {
+    } elseif ($streakType === 'week') {
         $sql = 'SELECT `id`, `Date` FROM `ratedresults` '
             . 'WHERE (`idA` = ? OR `idB` = ?) '
             . 'AND DATE_SUB(DATE(`Date`), INTERVAL WEEKDAY(`Date`) DAY) = ? '
             . 'ORDER BY `id` ASC LIMIT 1';
+    } elseif ($streakType === 'month') {
+        $sql = 'SELECT `id`, `Date` FROM `ratedresults` '
+            . 'WHERE (`idA` = ? OR `idB` = ?) '
+            . "AND DATE_FORMAT(DATE(`Date`), '%Y-%m-01') = ? "
+            . 'ORDER BY `id` ASC LIMIT 1';
+    } elseif ($streakType === 'year') {
+        $sql = 'SELECT `id`, `Date` FROM `ratedresults` '
+            . 'WHERE (`idA` = ? OR `idB` = ?) '
+            . "AND CONCAT(YEAR(DATE(`Date`)), '-01-01') = ? "
+            . 'ORDER BY `id` ASC LIMIT 1';
+    } else {
+        throw new InvalidArgumentException('invalid streak_type for establishing game: ' . $streakType);
     }
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
@@ -208,7 +417,7 @@ function k2_play_streak_load_row(mysqli $con, int $playerId, string $streakType)
 {
     $stmt = $con->prepare(
         'SELECT `player_id`, `streak_type`, `current_streak`, `current_anchor`, `current_last_game_id`, '
-        . '`best_streak`, `best_achieved_at`, `best_last_game_id` '
+        . '`best_streak`, `best_anchor_start`, `best_achieved_at`, `best_last_game_id` '
         . 'FROM `player_play_streaks` WHERE `player_id` = ? AND `streak_type` = ? LIMIT 1'
     );
     if ($stmt === false) {
@@ -235,6 +444,7 @@ function k2_play_streak_default_row(int $playerId, string $streakType): array
         'current_anchor' => null,
         'current_last_game_id' => null,
         'best_streak' => 0,
+        'best_anchor_start' => null,
         'best_achieved_at' => null,
         'best_last_game_id' => null,
     ];
@@ -244,13 +454,18 @@ function k2_play_streak_default_row(int $playerId, string $streakType): array
  * @param array<string, mixed> $row
  * @param array{id: int, Date: string} $establishing
  */
-function k2_play_streak_set_best_from_establishing(array &$row, int $length, array $establishing): bool
-{
+function k2_play_streak_set_best_from_establishing(
+    array &$row,
+    int $length,
+    string $startAnchor,
+    array $establishing
+): bool {
     $best = (int) ($row['best_streak'] ?? 0);
     if ($length <= $best) {
         return false;
     }
     $row['best_streak'] = $length;
+    $row['best_anchor_start'] = $startAnchor;
     $row['best_last_game_id'] = $establishing['id'];
     $row['best_achieved_at'] = $establishing['Date'];
 
@@ -264,19 +479,21 @@ function k2_play_streak_save_row(mysqli $con, array $row): void
 {
     $anchor = $row['current_anchor'];
     $currentGameId = $row['current_last_game_id'];
+    $bestStart = $row['best_anchor_start'] ?? null;
     $bestAt = $row['best_achieved_at'];
     $bestGameId = $row['best_last_game_id'];
 
     $stmt = $con->prepare(
         'INSERT INTO `player_play_streaks` '
         . '(`player_id`, `streak_type`, `current_streak`, `current_anchor`, `current_last_game_id`, '
-        . '`best_streak`, `best_achieved_at`, `best_last_game_id`) '
-        . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?) '
+        . '`best_streak`, `best_anchor_start`, `best_achieved_at`, `best_last_game_id`) '
+        . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) '
         . 'ON DUPLICATE KEY UPDATE '
         . '`current_streak` = VALUES(`current_streak`), '
         . '`current_anchor` = VALUES(`current_anchor`), '
         . '`current_last_game_id` = VALUES(`current_last_game_id`), '
         . '`best_streak` = VALUES(`best_streak`), '
+        . '`best_anchor_start` = VALUES(`best_anchor_start`), '
         . '`best_achieved_at` = VALUES(`best_achieved_at`), '
         . '`best_last_game_id` = VALUES(`best_last_game_id`)'
     );
@@ -289,13 +506,14 @@ function k2_play_streak_save_row(mysqli $con, array $row): void
     $currentStreak = (int) $row['current_streak'];
     $bestStreak = (int) $row['best_streak'];
     $stmt->bind_param(
-        'isisissi',
+        'isisisssi',
         $playerId,
         $streakType,
         $currentStreak,
         $anchor,
         $currentGameId,
         $bestStreak,
+        $bestStart,
         $bestAt,
         $bestGameId
     );
@@ -338,8 +556,8 @@ function k2_play_streak_apply_game(
     int $gameId,
     string $gameDate
 ): bool {
-    if ($streakType !== 'day' && $streakType !== 'week') {
-        throw new InvalidArgumentException('streak_type must be day or week');
+    if (!k2_play_streak_is_valid_type($streakType)) {
+        throw new InvalidArgumentException('streak_type must be day, week, month, or year');
     }
 
     $row = k2_play_streak_load_row($con, $playerId, $streakType) ?? k2_play_streak_default_row($playerId, $streakType);
@@ -354,7 +572,7 @@ function k2_play_streak_apply_game(
         $row['current_streak'] = 1;
         $row['current_anchor'] = $periodAnchor;
         $row['current_last_game_id'] = $gameId;
-        if (k2_play_streak_set_best_from_establishing($row, 1, $establishingThisPeriod)) {
+        if (k2_play_streak_set_best_from_establishing($row, 1, $periodAnchor, $establishingThisPeriod)) {
             $bestChanged = true;
         }
         k2_play_streak_save_row($con, $row);
@@ -384,7 +602,12 @@ function k2_play_streak_apply_game(
         $row['current_streak'] = $newLen;
         $row['current_anchor'] = $periodAnchor;
         $row['current_last_game_id'] = $gameId;
-        if (k2_play_streak_set_best_from_establishing($row, $newLen, $establishingThisPeriod)) {
+        if (k2_play_streak_set_best_from_establishing(
+            $row,
+            $newLen,
+            k2_play_streak_period_steps_back($periodAnchor, $streakType, $newLen - 1),
+            $establishingThisPeriod
+        )) {
             $bestChanged = true;
         }
         k2_play_streak_save_row($con, $row);
@@ -406,7 +629,12 @@ function k2_play_streak_apply_game(
 
     if ($current > (int) $row['best_streak']) {
         $est = k2_play_streak_establishing_game($con, $playerId, $prevAnchor, $streakType);
-        if ($est !== null && k2_play_streak_set_best_from_establishing($row, $current, $est)) {
+        if ($est !== null && k2_play_streak_set_best_from_establishing(
+            $row,
+            $current,
+            k2_play_streak_period_steps_back($prevAnchor, $streakType, $current - 1),
+            $est
+        )) {
             $bestChanged = true;
         }
     }
@@ -414,7 +642,7 @@ function k2_play_streak_apply_game(
     $row['current_streak'] = 1;
     $row['current_anchor'] = $periodAnchor;
     $row['current_last_game_id'] = $gameId;
-    if (k2_play_streak_set_best_from_establishing($row, 1, $establishingThisPeriod)) {
+    if (k2_play_streak_set_best_from_establishing($row, 1, $periodAnchor, $establishingThisPeriod)) {
         $bestChanged = true;
     }
     k2_play_streak_save_row($con, $row);
@@ -494,23 +722,40 @@ function k2_play_streak_game_id_b(mysqli $con, int $gameId): ?int
 
 function k2_play_streak_hof_column_map(string $streakType): array
 {
-    if ($streakType === 'day') {
-        return [
-            'value' => 'LongestDailyPlayStreak',
-            'id' => 'LongestDailyPlayStreakID',
-            'name' => 'LongestDailyPlayStreakName',
-            'date' => 'LongestDailyPlayStreakDate',
-            'game_id' => 'LongestDailyPlayStreakGameID',
-        ];
+    switch ($streakType) {
+        case 'day':
+            return [
+                'value' => 'LongestDailyPlayStreak',
+                'id' => 'LongestDailyPlayStreakID',
+                'name' => 'LongestDailyPlayStreakName',
+                'date' => 'LongestDailyPlayStreakDate',
+                'game_id' => 'LongestDailyPlayStreakGameID',
+            ];
+        case 'month':
+            return [
+                'value' => 'LongestMonthlyPlayStreak',
+                'id' => 'LongestMonthlyPlayStreakID',
+                'name' => 'LongestMonthlyPlayStreakName',
+                'date' => 'LongestMonthlyPlayStreakDate',
+                'game_id' => 'LongestMonthlyPlayStreakGameID',
+            ];
+        case 'year':
+            return [
+                'value' => 'LongestYearlyPlayStreak',
+                'id' => 'LongestYearlyPlayStreakID',
+                'name' => 'LongestYearlyPlayStreakName',
+                'date' => 'LongestYearlyPlayStreakDate',
+                'game_id' => 'LongestYearlyPlayStreakGameID',
+            ];
+        default:
+            return [
+                'value' => 'LongestWeeklyPlayStreak',
+                'id' => 'LongestWeeklyPlayStreakID',
+                'name' => 'LongestWeeklyPlayStreakName',
+                'date' => 'LongestWeeklyPlayStreakDate',
+                'game_id' => 'LongestWeeklyPlayStreakGameID',
+            ];
     }
-
-    return [
-        'value' => 'LongestWeeklyPlayStreak',
-        'id' => 'LongestWeeklyPlayStreakID',
-        'name' => 'LongestWeeklyPlayStreakName',
-        'date' => 'LongestWeeklyPlayStreakDate',
-        'game_id' => 'LongestWeeklyPlayStreakGameID',
-    ];
 }
 
 function k2_play_streak_maybe_update_hof(
@@ -616,6 +861,13 @@ function k2_play_streak_maybe_unlock_milestone_100(
     k2_milestone_insert_game_unlock($con, $playerId, 'play_streak_100', $gameId, $gameDate, 100);
 }
 
+/**
+ * Post-game entry: update both players' play streaks when a period boundary is new.
+ *
+ * @param array<string, string>|null $periodStarts from P4 when ops path
+ * @param array<string, bool>|null $isNewPeriodA
+ * @param array<string, bool>|null $isNewPeriodB
+ */
 function k2_play_streak_after_rated_game(
     mysqli $con,
     int $gameId,
@@ -623,35 +875,52 @@ function k2_play_streak_after_rated_game(
     int $idA,
     int $idB,
     string $nameA,
-    string $nameB
+    string $nameB,
+    ?array $periodStarts = null,
+    ?array $isNewPeriodA = null,
+    ?array $isNewPeriodB = null
 ): void {
-    $dayStart = substr($gameDate, 0, 10);
-    if (strlen($dayStart) < 10) {
-        $res = $con->query('SELECT DATE(' . "'" . $con->real_escape_string($gameDate) . "'" . ') AS d');
-        if ($res) {
-            $r = $res->fetch_assoc();
-            $dayStart = (string) ($r['d'] ?? $dayStart);
-            $res->free();
+    if ($periodStarts === null || $isNewPeriodA === null || $isNewPeriodB === null) {
+        $dayStart = substr($gameDate, 0, 10);
+        if (strlen($dayStart) < 10) {
+            $res = $con->query('SELECT DATE(' . "'" . $con->real_escape_string($gameDate) . "'" . ') AS d');
+            if ($res) {
+                $r = $res->fetch_assoc();
+                $dayStart = (string) ($r['d'] ?? $dayStart);
+                $res->free();
+            }
         }
+        $periodStarts = [
+            'day' => $dayStart,
+            'week' => k2_play_streak_week_monday($dayStart),
+            'month' => k2_play_streak_month_start($dayStart),
+            'year' => k2_play_streak_year_start($dayStart),
+        ];
+        $isNewPeriodA = array_fill_keys(K2_PLAY_STREAK_TYPES, true);
+        $isNewPeriodB = array_fill_keys(K2_PLAY_STREAK_TYPES, true);
     }
-    $weekStart = k2_play_streak_week_monday($dayStart);
 
     foreach (
         [
-            [$idA, $nameA],
-            [$idB, $nameB],
-        ] as [$pid, $pname]
+            [$idA, $nameA, $isNewPeriodA],
+            [$idB, $nameB, $isNewPeriodB],
+        ] as [$pid, $pname, $isNewPeriod]
     ) {
         if ($pid < 1) {
             continue;
         }
-        $dayBest = k2_play_streak_apply_game($con, $pid, 'day', $dayStart, $gameId, $gameDate);
-        $weekBest = k2_play_streak_apply_game($con, $pid, 'week', $weekStart, $gameId, $gameDate);
-        if ($dayBest) {
-            k2_play_streak_maybe_update_hof($con, 'day', $pid, $pname);
-        }
-        if ($weekBest) {
-            k2_play_streak_maybe_update_hof($con, 'week', $pid, $pname);
+        foreach (K2_PLAY_STREAK_TYPES as $streakType) {
+            if (empty($isNewPeriod[$streakType])) {
+                continue;
+            }
+            $anchor = $periodStarts[$streakType] ?? '';
+            if ($anchor === '') {
+                continue;
+            }
+            $bestChanged = k2_play_streak_apply_game($con, $pid, $streakType, $anchor, $gameId, $gameDate);
+            if ($bestChanged) {
+                k2_play_streak_maybe_update_hof($con, $streakType, $pid, $pname);
+            }
         }
     }
 }
@@ -692,6 +961,7 @@ function k2_play_streak_compute_from_periods(
 
     $bestLen = 0;
     $bestEst = null;
+    $bestStart = null;
     foreach ($runs as $oneRun) {
         $len = count($oneRun);
         $lastPeriod = $oneRun[$len - 1];
@@ -702,11 +972,13 @@ function k2_play_streak_compute_from_periods(
         if ($len > $bestLen) {
             $bestLen = $len;
             $bestEst = $est;
+            $bestStart = $oneRun[0];
         } elseif ($len === $bestLen && $bestEst !== null) {
             $estTs = strtotime($est['Date']);
             $bestTs = strtotime($bestEst['Date']);
             if ($estTs !== false && $bestTs !== false && $estTs < $bestTs) {
                 $bestEst = $est;
+                $bestStart = $oneRun[0];
             }
         }
     }
@@ -721,11 +993,75 @@ function k2_play_streak_compute_from_periods(
     $row['current_last_game_id'] = $lastEst['id'] ?? null;
     if ($bestLen > 0 && $bestEst !== null) {
         $row['best_streak'] = $bestLen;
+        $row['best_anchor_start'] = $bestStart;
         $row['best_last_game_id'] = $bestEst['id'];
         $row['best_achieved_at'] = $bestEst['Date'];
     }
 
     return $row;
+}
+
+/**
+ * Compare incremental player_play_streaks rows to period-list oracle (repair / smoke).
+ *
+ * @return list<string> mismatch descriptions; empty = pass
+ */
+function k2_play_streak_oracle_mismatches(mysqli $con, ?int $playerId = null): array
+{
+    $utcToday = k2_play_streak_utc_today($con);
+    $mismatches = [];
+
+    $sql = 'SELECT DISTINCT `player_id` FROM `player_period_games`';
+    if ($playerId !== null) {
+        $sql .= ' WHERE `player_id` = ' . (int) $playerId;
+    }
+    $sql .= ' ORDER BY `player_id` ASC';
+
+    $playersRes = $con->query($sql);
+    if ($playersRes === false) {
+        return ['player list query failed'];
+    }
+
+    while ($pRow = $playersRes->fetch_assoc()) {
+        $pid = (int) $pRow['player_id'];
+        foreach (K2_PLAY_STREAK_TYPES as $streakType) {
+            $stmt = $con->prepare(
+                'SELECT `period_start` FROM `player_period_games` '
+                . 'WHERE `player_id` = ? AND `period_type` = ? ORDER BY `period_start` ASC'
+            );
+            if ($stmt === false) {
+                continue;
+            }
+            $stmt->bind_param('is', $pid, $streakType);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $periods = [];
+            while ($r = $res->fetch_assoc()) {
+                $periods[] = (string) $r['period_start'];
+            }
+            if ($res) {
+                $res->free();
+            }
+            $stmt->close();
+
+            $expected = k2_play_streak_compute_from_periods($con, $pid, $streakType, $periods, $utcToday);
+            $stored = k2_play_streak_load_row($con, $pid, $streakType);
+
+            $expBest = (int) ($expected['best_streak'] ?? 0);
+            $gotBest = $stored ? (int) ($stored['best_streak'] ?? 0) : 0;
+            if ($expBest !== $gotBest) {
+                $mismatches[] = "player {$pid} {$streakType} best_streak expected {$expBest} got {$gotBest}";
+            }
+            $expStart = $expected['best_anchor_start'] ?? null;
+            $gotStart = $stored['best_anchor_start'] ?? null;
+            if ($expBest > 0 && (string) $expStart !== (string) $gotStart) {
+                $mismatches[] = "player {$pid} {$streakType} best_anchor_start expected {$expStart} got {$gotStart}";
+            }
+        }
+    }
+    $playersRes->free();
+
+    return $mismatches;
 }
 
 function k2_play_streak_rebuild_all(mysqli $con): int
@@ -746,8 +1082,8 @@ function k2_play_streak_rebuild_all(mysqli $con): int
     $written = 0;
     while ($pRow = $playersRes->fetch_assoc()) {
         $playerId = (int) $pRow['player_id'];
-        foreach (['day', 'week'] as $streakType) {
-            $periodType = $streakType === 'day' ? 'day' : 'week';
+        foreach (K2_PLAY_STREAK_TYPES as $streakType) {
+            $periodType = $streakType;
             $stmt = $con->prepare(
                 'SELECT `period_start` FROM `player_period_games` '
                 . 'WHERE `player_id` = ? AND `period_type` = ? ORDER BY `period_start` ASC'
@@ -785,7 +1121,7 @@ function k2_play_streak_rebuild_all(mysqli $con): int
 
 function k2_play_streak_rebuild_hof_from_table(mysqli $con): void
 {
-    foreach (['day', 'week'] as $streakType) {
+    foreach (K2_PLAY_STREAK_TYPES as $streakType) {
         $sql = 'SELECT s.`player_id`, s.`best_streak`, s.`best_last_game_id`, s.`best_achieved_at`, '
             . 'p.`Name` AS player_name, r.`idB` '
             . 'FROM `player_play_streaks` s '

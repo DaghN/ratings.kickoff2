@@ -202,6 +202,7 @@ These tables **do not exist** on baseline until **migrate work**. After migrate,
 |-------|--------|
 | `player_period_games` | Status/Activity aggregates |
 | `player_peak_period_games` | Peak panels |
+| `player_activity_participation` | Activity wing participation + longevity (SCH-022) |
 | `server_daily_activity` | Daily chart source |
 | `player_period_league` | League activity slices |
 | `player_matchup_summary` | Matchup aggregates |

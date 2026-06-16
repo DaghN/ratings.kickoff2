@@ -61,6 +61,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestone `play_streak_100` | L2 | SCH-011 | Yes | **Proven** | **Not executed** | — | 0 holders; catalog seeded |
 | Milestones post-game contract | L2 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | PHP ops P6; simul on `kooldb1`; live = dispatch at cutover |
 | Rated play streaks (day/week) | L4 | SCH-014 | Yes | **Proven** | **Not executed** | — | `ranked4` + HoF; **proven on `kooldb1`**; live writer = PHP ops P7 |
+| Activity wing stored truth (participation + streaks) | L4 | SCH-022–024 | partial | **UI + peaks→games** Jun 2026 | **Not executed** | — | LB Activity wing shipped; work smoke 1000; Steve simul — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
 | Milestones `diversity_merchant` per-game DD | L4 | — | Yes | **Proven** | **Not executed** | — | **25** holders; **6615** canonical rows |
 | Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Not executed** | — | **31** holders on work DB |
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | Catalog **112**; simul on `kooldb1` |

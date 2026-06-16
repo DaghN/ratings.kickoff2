@@ -135,6 +135,12 @@ Adds indexes etc. from `ops/sql/migrations/*.sql` to local `ko2unity_db` (via `a
 powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
 ```
 
+**Activity wing only** (SCH-022/023 + participation + play streaks — after `player_period_games` exists):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\rebuild_activity_wing_local.ps1
+```
+
 Contract: `docs/website-data-contract.md`. Refuses non-`ko2unity_db` unless `-AllowNonLocal`.
 
 ---

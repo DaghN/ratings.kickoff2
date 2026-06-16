@@ -20,13 +20,12 @@ function records_hof_lb_target(string $metric): ?array
 {
 	static $map = [
 		'most_games' => ['page' => 'lb-rating', 'sort' => 3, 'dir' => 'desc'],
-		// activity-peaks has several small tables; no k2_sort deep link (calendar panels are not sortable).
-		'peak_year' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
-		'peak_month' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
-		'peak_week' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
-		'peak_day' => ['page' => 'lb-activity-peaks', 'sort' => -1, 'dir' => 'desc'],
-		'play_streak_day' => ['page' => 'lb-streaks', 'sort' => 10, 'dir' => 'desc'],
-		'play_streak_week' => ['page' => 'lb-streaks', 'sort' => 11, 'dir' => 'desc'],
+		'peak_year' => ['page' => 'lb-activity-peaks', 'sort' => 7, 'dir' => 'desc'],
+		'peak_month' => ['page' => 'lb-activity-peaks', 'sort' => 6, 'dir' => 'desc'],
+		'peak_week' => ['page' => 'lb-activity-peaks', 'sort' => 5, 'dir' => 'desc'],
+		'peak_day' => ['page' => 'lb-activity-peaks', 'sort' => 4, 'dir' => 'desc'],
+		'play_streak_day' => ['page' => 'lb-activity-in-a-row', 'sort' => 5, 'dir' => 'desc'],
+		'play_streak_week' => ['page' => 'lb-activity-in-a-row', 'sort' => 6, 'dir' => 'desc'],
 		'most_wins' => ['page' => 'lb-rating', 'sort' => 4, 'dir' => 'desc'],
 		'most_goals' => ['page' => 'lb-goals', 'sort' => 4, 'dir' => 'desc'],
 		'most_dd' => ['page' => 'lb-double-digits', 'sort' => 4, 'dir' => 'desc'],
@@ -121,12 +120,6 @@ function records_hof_lb_href(string $metric): ?string
 	}
 
 	if ($target['sort'] < 0) {
-		if (str_starts_with($metric, 'peak_')) {
-			$period = substr($metric, 5);
-
-			return $target['page'] . '#k2-peak-period-' . rawurlencode($period);
-		}
-
 		return $target['page'];
 	}
 

@@ -109,12 +109,19 @@
 	}
 
 	function showTooltip(header) {
-		var help = trimHelpText(header.getAttribute('data-k2-help'));
-		var title = trimText(header.getAttribute('data-k2-tooltip-label') || header.textContent || header.innerText);
+		var helpRaw = header.getAttribute('data-k2-help') || '';
+		var helpIsHtml = header.getAttribute('data-k2-help-html') === '1';
+		var help = helpIsHtml ? helpRaw : trimHelpText(helpRaw);
+		var hideTitle = header.getAttribute('data-k2-tooltip-hide-title') === '1';
+		var titleLabel = header.getAttribute('data-k2-tooltip-label');
+		var title = hideTitle
+			? ''
+			: trimText(titleLabel || header.textContent || header.innerText);
 		var isSortable = !!header.getAttribute('data-k2-sort') || hasClass(header, SORTABLE_CLASS);
 		var tooltip;
 		var body;
 		var action;
+		var titleEl;
 
 		if (!header.getAttribute('data-k2-sort') && !header.getAttribute('data-k2-help') && !header.getAttribute('data-k2-tooltip-label')) {
 			return;
@@ -123,10 +130,18 @@
 		tooltip = getTooltip();
 		body = tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__body') : null;
 		action = tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__action') : null;
+		titleEl = tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__title') : null;
 
-		setText(tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__title') : null, title);
-		setText(body, help);
+		setText(titleEl, title);
+		if (titleEl) {
+			titleEl.style.display = title ? '' : 'none';
+		}
 		if (body) {
+			if (helpIsHtml) {
+				body.innerHTML = help;
+			} else {
+				setText(body, help);
+			}
 			body.style.display = help ? '' : 'none';
 		}
 		if (action) {
@@ -373,10 +388,10 @@
 		var headers = table.tHead ? table.tHead.getElementsByTagName('th') : [];
 
 		if (isNaN(index) || !headers[index] || !headers[index].getAttribute('data-k2-sort')) {
-			return;
+			return false;
 		}
 
-		setSortState(table, headers[index], direction);
+		return sortTableByIndex(table, index, direction);
 	}
 
 	function syncSortToUrl(columnIndex, direction, table) {
@@ -537,7 +552,7 @@
 		if (isSameColumn) {
 			direction = table._k2SortDirection === 'desc' ? 'asc' : 'desc';
 		} else {
-			direction = 'desc';
+			direction = header.getAttribute('data-k2-sort-first') === 'asc' ? 'asc' : 'desc';
 		}
 
 		sortTableByIndex(table, columnIndex, direction);
@@ -585,11 +600,13 @@
 			initHeaderTooltip(headers[i]);
 			headers[i].addEventListener('click', function () {
 				sortTable(table, this);
+				this.blur();
 			});
 			headers[i].addEventListener('keydown', function (event) {
 				if (event.key === 'Enter' || event.key === ' ') {
 					event.preventDefault();
 					sortTable(table, this);
+					this.blur();
 				}
 			});
 		}

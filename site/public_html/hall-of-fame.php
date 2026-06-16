@@ -317,15 +317,10 @@ $k2HofRecordLabels = [
 records_hof_sync_reset();
 ob_start();
 ?>
-<section class="server-records-panel server-records-panel--activity">
+<section class="server-records-panel server-records-panel--hof">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
 <?php records_hof_render_colgroup(); ?>
-<thead>
-    <tr>
-		<th colspan="4" class="nohovercell k2-table-cell--left">Activity</th>
-    </tr>
-</thead>
 <tbody class="black">
 <?php
 records_render_row(
@@ -432,23 +427,7 @@ records_render_row(
 	null,
 	records_hof_lb_href('most_cs_victims')
 );
-?>
-</tbody>
-</table>
-</div><!-- .k2-table-wrap -->
-</section>
-
-<section class="server-records-panel server-records-panel--performance">
-<div class="k2-table-wrap">
-<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
-<?php records_hof_render_colgroup(); ?>
-<thead>
-    <tr>
-		<th colspan="4" class="nohovercell k2-table-cell--left">Performance</th>
-    </tr>
-</thead>
-<tbody class="black">
-<?php
+records_render_spacer_row();
 
 $hasMostGoalsOneGame = records_has_value($records['MostGoalsScoredInOneGame']);
 records_render_row(
@@ -581,12 +560,12 @@ records_render_row(
 </div><!-- .k2-table-wrap -->
 </section>
 <?php
-$k2HofTablesHtml = ob_get_clean();
+$k2HofTableHtml = ob_get_clean();
 $k2HofSyncWidths = records_hof_sync_compute_widths($k2HofRecordLabels);
 ?>
-<div class="server-records-panels server-records-panels--sync-cols" style="<?php echo htmlspecialchars(records_hof_sync_style_attr($k2HofSyncWidths), ENT_QUOTES, 'UTF-8'); ?>">
-<?php echo $k2HofTablesHtml; ?>
-</div><!-- .server-records-panels -->
+<div class="server-records-hof" style="<?php echo htmlspecialchars(records_hof_sync_style_attr($k2HofSyncWidths), ENT_QUOTES, 'UTF-8'); ?>">
+<?php echo $k2HofTableHtml; ?>
+</div><!-- .server-records-hof -->
 
 
 

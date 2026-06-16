@@ -106,11 +106,11 @@ Wing tabs (left ? right):
 | Rating (current ladder) | `leaderboards/rating.php` |
 | Goals | `leaderboards/goals.php` |
 | DDs & CSs | `leaderboards/double-digits.php` |
-| Streaks | `leaderboards/streaks.php` ? **Days** / **Weeks** from `player_play_streaks.best_streak` (SCH-014 + REP-015; staging verified May 2026) |
+| Streaks | `leaderboards/streaks.php` — match-result streaks only |
 | Victims & Culprits | `leaderboards/victims.php` |
 | League honours | `leaderboards/league-honours.php` |
 | Milestones | `leaderboards/milestones.php` |
-| Activity peaks | `leaderboards/activity-peaks.php` |
+| Activity | `leaderboards/activity/participation.php` · Participation · In a row · Peaks |
 | Peak rating | `leaderboards/peak-rating.php` |
 
 Ordering principle: **classic ladder lenses first** (rating + match stats), then **career / community celebration** (league medals, milestone breadth, busiest-period peaks), then **peak-rating archive** last. Hub default and Status ?Leaderboards ?? still open `leaderboards/rating.php`.
@@ -118,9 +118,9 @@ Ordering principle: **classic ladder lenses first** (rating + match stats), then
 Notes:
 
 - `ranked6.php` / old split is gone. Nav label **Peak rating** = `leaderboards/peak-rating.php` (peak/low/average columns); first tab **Rating** = current order on `leaderboards/rating.php`.
-- Activity peaks = personal busiest day/week/month/year tables (`leaderboards/activity-peaks.php`); not the hub Activity tab (`activity.php`) or Status activity league.
+- Activity wing = personal peaks, participation counts, and rated play streaks (`leaderboards/activity/*`); not the hub Activity tab (`activity.php`) or Status activity league. **Peak counts** drill down to `player/games.php` filtered by UTC period (`from=activity-peaks`).
 - Meta milestone **count** leaderboard (`leaderboards/milestones.php`) complements the **Milestones hub** (`milestones/recent.php`, `milestones/catalog.php`) — encyclopedia + achievers vs sort table.
-- Status uses an active-player window; Leaderboards stay broad by default and expose filters for narrower views (not on Activity peaks wing).
+- Status uses an active-player window; Leaderboards stay broad by default and expose filters for narrower views (not on Activity wing).
 
 ---
 

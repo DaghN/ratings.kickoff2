@@ -137,15 +137,10 @@ $k2HofRecordLabels = [
 records_hof_sync_reset();
 ob_start();
 ?>
-<section class="server-records-panel server-records-panel--activity">
+<section class="server-records-panel server-records-panel--hof">
 <div class="k2-table-wrap">
 <table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
 <?php records_hof_render_colgroup(); ?>
-<thead>
-    <tr>
-		<th colspan="4" class="nohovercell k2-table-cell--left">Career records</th>
-    </tr>
-</thead>
 <tbody class="black">
 <?php
 amiga_records_render_row(
@@ -212,23 +207,7 @@ amiga_records_render_row(
     amiga_records_date_or_dash($records['MostCleanSheetsVictimsDate'] ?? null, amiga_records_has_value($records['MostCleanSheetsVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_cs_victims')
 );
-?>
-</tbody>
-</table>
-</div>
-</section>
-
-<section class="server-records-panel server-records-panel--performance">
-<div class="k2-table-wrap">
-<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
-<?php records_hof_render_colgroup(); ?>
-<thead>
-    <tr>
-		<th colspan="4" class="nohovercell k2-table-cell--left">Peak performance &amp; ratios</th>
-    </tr>
-</thead>
-<tbody class="black">
-<?php
+amiga_records_render_spacer_row();
 $hasMostGoalsOneGame = amiga_records_has_value($records['MostGoalsScoredInOneGame'] ?? 0);
 amiga_records_render_row(
     'Most goals in one game',
@@ -331,12 +310,12 @@ amiga_records_render_row(
 </div>
 </section>
 <?php
-$k2HofTablesHtml = ob_get_clean();
+$k2HofTableHtml = ob_get_clean();
 $k2HofSyncWidths = records_hof_sync_compute_widths($k2HofRecordLabels);
 ?>
-<div class="server-records-panels server-records-panels--sync-cols" style="<?php echo htmlspecialchars(records_hof_sync_style_attr($k2HofSyncWidths), ENT_QUOTES, 'UTF-8'); ?>">
-<?php echo $k2HofTablesHtml; ?>
-</div><!-- .server-records-panels--sync-cols -->
+<div class="server-records-hof" style="<?php echo htmlspecialchars(records_hof_sync_style_attr($k2HofSyncWidths), ENT_QUOTES, 'UTF-8'); ?>">
+<?php echo $k2HofTableHtml; ?>
+</div><!-- .server-records-hof -->
 
 <section class="server-records-panel server-records-panel--honours">
 <div class="k2-table-wrap">

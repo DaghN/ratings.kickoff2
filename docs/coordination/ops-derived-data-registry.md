@@ -41,9 +41,10 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | DDR-008 | `player_matchup_summary` | per_game | matchup | Y | Y | ok | profiles |
 | DDR-009 | `server_period_game_totals`, `server_period_matchups` | per_game | server period | Y | Y | ok | status |
 | DDR-010 | P6 game milestones (~90 keys) | per_game | `milestone_unlock.php` → `post_game_milestones.php` | Y | Y | ok | garden, profiles |
-| DDR-011 | `player_play_streaks` | per_game | `player_play_streaks.php` | Y | Y | ok | streak UI |
+| DDR-011 | `player_play_streaks` | per_game | `player_play_streaks.php` | Y | Y | ok | Activity in-a-row; GST day/week/month/year; `best_anchor_start` (SCH-024) |
 | DDR-012 | `player_milestone_totals` | per_game + day + register | `milestone_unlock.php` bump; `k2_milestone_totals_rebuild()` repair | Y | Y | ok | meta LB, profile hero |
 | DDR-013 | `milestone_definitions.holder_count` | per_game + day + register | `milestone_unlock.php` bump (+1/unlock); `k2_milestone_holder_counts_rebuild()` lobby prepare only | Y | Y | ok | hub catalog, milestone detail |
+| DDR-014 | `player_activity_participation` | per_game | `post_game_period_activity.php` (P4b) | Y | Y | ok | Activity participation wing — slice 1 writer; repair `player_activity_participation_rebuild.sql` |
 
 **Excluded from per-game (by design):** `perfect_day`, `nightmare_day`, `entered_arena`, league medal keys — see below.
 
@@ -130,6 +131,10 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | `game_milestones` | Game-sourced rows | **Warn** if empty after no games |
 | `milestone_totals_parity` | `player_milestone_totals` vs unlock rows | **Fail** if mismatch (SCH-020) |
 | `milestone_holder_count_parity` | `milestone_definitions.holder_count` vs all unlock rows per key | **Fail** if mismatch (SCH-021) |
+| `activity_participation_sum_*` | `SUM(active_*)` vs `player_period_games` row counts | **Fail** if mismatch (DDR-014) |
+| `activity_participation_per_player` | Per-player participation vs period counts | **Fail** if mismatch |
+| `activity_play_streak_oracle` | `best_streak` vs period-list walker | **Fail** if mismatch (DDR-011) |
+| `activity_hof_play_streak_*` | HoF `Longest*PlayStreak` vs `MAX(best_streak)` | **Fail** if mismatch |
 
 Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 

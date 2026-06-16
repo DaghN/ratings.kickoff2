@@ -44,7 +44,7 @@ $res->free();
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
 
-echo "Rebuilding player_play_streaks (UTC day/week from player_period_games)...\n";
+echo "Rebuilding player_play_streaks (UTC day/week/month/year from player_period_games)...\n";
 $written = k2_play_streak_rebuild_all($con);
 echo "Rows written (player × type): {$written}\n";
 
@@ -61,7 +61,9 @@ if ($check) {
 
 $hof = $con->query(
     'SELECT LongestDailyPlayStreak, LongestDailyPlayStreakID, '
-    . 'LongestWeeklyPlayStreak, LongestWeeklyPlayStreakID '
+    . 'LongestWeeklyPlayStreak, LongestWeeklyPlayStreakID, '
+    . 'LongestMonthlyPlayStreak, LongestMonthlyPlayStreakID, '
+    . 'LongestYearlyPlayStreak, LongestYearlyPlayStreakID '
     . 'FROM generalstatstable WHERE id = 1'
 );
 if ($hof) {
@@ -70,6 +72,8 @@ if ($hof) {
     if ($h) {
         echo "HoF daily: {$h['LongestDailyPlayStreak']} (player {$h['LongestDailyPlayStreakID']})\n";
         echo "HoF weekly: {$h['LongestWeeklyPlayStreak']} (player {$h['LongestWeeklyPlayStreakID']})\n";
+        echo "HoF monthly: {$h['LongestMonthlyPlayStreak']} (player {$h['LongestMonthlyPlayStreakID']})\n";
+        echo "HoF yearly: {$h['LongestYearlyPlayStreak']} (player {$h['LongestYearlyPlayStreakID']})\n";
     }
 }
 

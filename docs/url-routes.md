@@ -88,7 +88,10 @@ Hub tab order: Status · Activity · Leaderboards · Milestones · **Games** · 
 | `lb-victims` | `/leaderboards/victims.php` | Victims & Culprits |
 | `lb-league-honours` | `/leaderboards/league-honours.php` | League honours |
 | `lb-milestones` | `/leaderboards/milestones.php` | Milestones (meta LB) |
-| `lb-activity-peaks` | `/leaderboards/activity-peaks.php` | Activity peaks |
+| `lb-activity` | `/leaderboards/activity/participation.php` | Activity (default Participation) |
+| `lb-activity-peaks` | `/leaderboards/activity/peaks.php` | Activity — Peaks (legacy key) |
+| `lb-activity-participation` | `/leaderboards/activity/participation.php` | Activity — Participation |
+| `lb-activity-in-a-row` | `/leaderboards/activity/in-a-row.php` | Activity — In a row |
 | `lb-peak-rating` | `/leaderboards/peak-rating.php` | Peak rating |
 
 ---

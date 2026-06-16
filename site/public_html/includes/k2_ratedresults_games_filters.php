@@ -31,6 +31,35 @@ function k2_ratedresults_games_valid_day(string $value): string
 	return '';
 }
 
+function k2_ratedresults_games_valid_period_type(string $value): string
+{
+	return in_array($value, ['day', 'week', 'month', 'year'], true) ? $value : '';
+}
+
+/**
+ * UTC [start inclusive, end exclusive) bounds for activity period anchors.
+ *
+ * @return array{0: string, 1: string}
+ */
+function k2_ratedresults_games_period_bounds(string $periodType, string $anchorYmd): array
+{
+	$dt = new DateTimeImmutable($anchorYmd, new DateTimeZone('UTC'));
+	if ($periodType === 'day') {
+		return [$anchorYmd, $dt->modify('+1 day')->format('Y-m-d')];
+	}
+	if ($periodType === 'week') {
+		return [$anchorYmd, $dt->modify('+7 days')->format('Y-m-d')];
+	}
+	if ($periodType === 'month') {
+		return [$dt->format('Y-m-d'), $dt->modify('first day of next month')->format('Y-m-d')];
+	}
+	if ($periodType === 'year') {
+		return [$dt->format('Y-01-01'), $dt->modify('+1 year')->format('Y-01-01')];
+	}
+
+	return ['', ''];
+}
+
 function k2_ratedresults_games_valid_year_mode(string $value): string
 {
 	return in_array($value, ['in', 'since', 'until'], true) ? $value : 'in';
@@ -53,7 +82,9 @@ function k2_ratedresults_games_where_clause(
 	int $goalDiffFilter = -1,
 	int $topScoreFilter = -1,
 	int $year = 0,
-	string $yearMode = ''
+	string $yearMode = '',
+	string $periodType = '',
+	string $periodAnchor = ''
 ): string {
 	$where = [];
 	$types = '';
@@ -71,6 +102,18 @@ function k2_ratedresults_games_where_clause(
 		$where[] = 'DATE(r.`Date`) = ?';
 		$types .= 's';
 		$params[] = $utcDay;
+	} elseif ($periodType !== '' && $periodAnchor !== '') {
+		$periodType = k2_ratedresults_games_valid_period_type($periodType);
+		$periodAnchor = k2_ratedresults_games_valid_day($periodAnchor);
+		if ($periodType !== '' && $periodAnchor !== '' && $periodType !== 'day') {
+			[$periodStart, $periodEnd] = k2_ratedresults_games_period_bounds($periodType, $periodAnchor);
+			if ($periodStart !== '' && $periodEnd !== '') {
+				$where[] = 'r.`Date` >= ? AND r.`Date` < ?';
+				$types .= 'ss';
+				$params[] = $periodStart;
+				$params[] = $periodEnd;
+			}
+		}
 	}
 
 	if ($year > 0) {

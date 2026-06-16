@@ -20,7 +20,7 @@ $heroMs = isset($heroMilestoneCounts) && is_array($heroMilestoneCounts) ? $heroM
 $heroMsPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
 $heroProfileHref = $heroMsPlayerId > 0 ? k2_route('player-profile', ['id' => $heroMsPlayerId]) : '';
 $heroLbRatingHref = k2_route('lb-rating');
-$heroLbGamesPeakHref = k2_route('lb-activity-peaks') . '#k2-peak-period-all-time';
+$heroLbGamesPeakHref = k2_route('lb-activity-peaks') . '?' . http_build_query(['k2_sort' => '3', 'k2_dir' => 'desc']);
 $heroMsCatalogTotal = isset($heroMsCatalogTotal) ? (int) $heroMsCatalogTotal : 0;
 $heroRankLinked = $heroDisplay && isset($rank);
 $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);

@@ -222,6 +222,31 @@ function k2_lb_help_rated_span_days(): string
     return 'Days between your first and latest rated games.';
 }
 
+function k2_lb_help_participation_longevity(): string
+{
+    return 'Calendar span from your first rated game through your latest rated game, both days counted (last minus first, plus one). Not the same as active days — you can have gaps in between.';
+}
+
+function k2_lb_help_active_days(): string
+{
+    return 'Distinct UTC calendar days with at least one rated game.';
+}
+
+function k2_lb_help_active_weeks(): string
+{
+    return 'Distinct UTC weeks (Monday–Sunday) with at least one rated game.';
+}
+
+function k2_lb_help_active_months(): string
+{
+    return 'Distinct calendar months with at least one rated game.';
+}
+
+function k2_lb_help_active_years(): string
+{
+    return 'Distinct calendar years with at least one rated game.';
+}
+
 /** Victims & Culprits wing (ranked5) — plain “you” copy; shared tie line on single-game records. */
 function k2_lb_help_victims_wing_tie(): string
 {

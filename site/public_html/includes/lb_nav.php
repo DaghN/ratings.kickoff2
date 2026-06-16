@@ -1,13 +1,13 @@
 <?php
 /**
  * Leaderboard wing tabs — segment track with outline active cell.
- * Set $k2LbWingActive before include: rating | goals | double-digits | streaks | victims | peak-rating | activity-peaks | league-honours | milestones
+ * Set $k2LbWingActive before include: rating | goals | double-digits | streaks | victims | peak-rating | activity | league-honours | milestones
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 
 $k2LbWingActive = $k2LbWingActive ?? 'rating';
-$k2LbShowFilters = $k2LbWingActive !== 'activity-peaks';
+$k2LbShowFilters = $k2LbWingActive !== 'activity';
 $k2LbFilterOpts = k2_lb_filter_opts();
 $k2LbFilterQs = k2_lb_filter_query_string($k2LbFilterOpts);
 $k2LbWingTabs = [
@@ -18,17 +18,17 @@ $k2LbWingTabs = [
 	'victims' => ['href' => k2_route('lb-victims'), 'label' => 'Victims &amp; Culprits'],
 	'league-honours' => ['href' => k2_route('lb-league-honours'), 'label' => 'League honours'],
 	'milestones' => ['href' => k2_route('lb-milestones'), 'label' => 'Milestones'],
-	'activity-peaks' => ['href' => k2_route('lb-activity-peaks'), 'label' => 'Activity peaks'],
+	'activity' => ['href' => k2_route('lb-activity'), 'label' => 'Activity'],
 	'peak-rating' => ['href' => k2_route('lb-peak-rating'), 'label' => 'Peak rating'],
 ];
 $k2HubChapterTitle = 'Leaderboards';
-$k2HubChapterLede = 'Leaderboards for everyone who has ever played online Kick Off 2 — ratings, goals, streaks, victims, league medals, milestones, activity peaks... Sort any column to see who leads a different way.';
+$k2HubChapterLede = 'Leaderboards for everyone who has ever played online Kick Off 2 — ratings, goals, streaks, victims, league medals, milestones, activity... Sort any column to see who leads a different way.';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 <div class="k2-chrome-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Leaderboard view">
 <?php foreach ($k2LbWingTabs as $wingId => $tab) {
-	$tabQs = ($wingId === 'activity-peaks') ? '' : $k2LbFilterQs;
+	$tabQs = ($wingId === 'activity') ? '' : $k2LbFilterQs;
 ?>
 		<a href="<?php echo htmlspecialchars($tab['href'] . $tabQs, ENT_QUOTES, 'UTF-8'); ?>" class="k2-chrome-tabs__tab<?php echo $k2LbWingActive === $wingId ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
 <?php } ?>

@@ -76,6 +76,15 @@ foreach ($step in $steps) {
     Invoke-RebuildSql $step.File $step.Label
 }
 
+$participationSql = Join-Path $RepoRoot 'scripts\ladder\sql\archive\one-off-2026-06\player_activity_participation_rebuild.sql'
+if (Test-Path $participationSql) {
+    Write-Host '-> player_activity_participation (SCH-022 rebuild)' -ForegroundColor Cyan
+    Get-Content -Raw -LiteralPath $participationSql | & $MysqlExe @mysqlArgs
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error 'player_activity_participation rebuild failed.'
+    }
+}
+
 Write-Host 'Running parity checks...' -ForegroundColor Cyan
 
 $globalCounts = Invoke-MysqlQuery @"

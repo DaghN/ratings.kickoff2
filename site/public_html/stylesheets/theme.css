@@ -658,6 +658,17 @@ body.k2-site .k2-games-hub-tabs {
 	max-width: 100%;
 }
 
+body.k2-site .k2-lb-activity-tabs {
+	margin: 0 0 16px;
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-lb-activity-tabs .k2-chrome-tabs__bar {
+	width: fit-content;
+	max-width: 100%;
+}
+
 body.k2-site .k2-games-hub-tabs .k2-chrome-tabs__bar {
 	width: fit-content;
 	max-width: 100%;
@@ -1234,16 +1245,6 @@ body.k2-site .server-peak-period-leaderboard-block .k2-table-wrap {
 	overflow-x: auto;
 }
 
-body.k2-site .server-records-panels {
-	width: fit-content;
-	max-width: var(--k2-max-width);
-	margin-bottom: 16px;
-	display: grid;
-	grid-template-columns: repeat(2, max-content);
-	gap: 16px;
-	align-items: start;
-}
-
 body.k2-site .server-records-panel {
 	min-width: 0;
 }
@@ -1259,42 +1260,38 @@ body.k2-site .server-records-table {
 	width: auto;
 }
 
-/* HoF paired tables: shrink-wrap panels to shared tight ch tracks (PHP --k2-hof-*-col-ch). */
-body.k2-site .server-records-panels--sync-cols {
-	width: fit-content;
-	max-width: 100%;
-	grid-template-columns: repeat(2, max-content);
+/* HoF main record list — single table; ch column sync via PHP --k2-hof-*-col-ch on .server-records-hof */
+body.k2-site .server-records-hof {
+	width: 100%;
+	max-width: var(--k2-max-width);
+	margin-top: 22px;
+	margin-bottom: 16px;
 }
 
-body.k2-site .server-records-panels--sync-cols .server-records-panel {
-	width: fit-content;
-	max-width: 100%;
-}
-
-body.k2-site .server-records-panels--sync-cols .server-records-panel .k2-table-wrap {
+body.k2-site .server-records-hof .server-records-panel .k2-table-wrap {
 	width: fit-content;
 	max-width: 100%;
 	overflow-x: auto;
 }
 
-body.k2-site .server-records-panels--sync-cols .server-records-table {
+body.k2-site .server-records-hof .server-records-table {
 	width: calc(var(--k2-hof-label-col-ch) + var(--k2-hof-value-col-ch) + var(--k2-hof-holder-col-ch) + var(--k2-hof-date-col-ch));
 	table-layout: fixed;
 }
 
-body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--label {
+body.k2-site .server-records-hof .server-records-table .k2-hof-col--label {
 	width: var(--k2-hof-label-col-ch);
 }
 
-body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--value {
+body.k2-site .server-records-hof .server-records-table .k2-hof-col--value {
 	width: var(--k2-hof-value-col-ch);
 }
 
-body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--holder {
+body.k2-site .server-records-hof .server-records-table .k2-hof-col--holder {
 	width: var(--k2-hof-holder-col-ch);
 }
 
-body.k2-site .server-records-panels--sync-cols .server-records-table .k2-hof-col--date {
+body.k2-site .server-records-hof .server-records-table .k2-hof-col--date {
 	width: var(--k2-hof-date-col-ch);
 }
 
@@ -1316,13 +1313,8 @@ body.k2-site .server-period-activity-leaderboards__grid {
 }
 
 @media (max-width: 1024px) {
-	body.k2-site .server-records-panels,
 	body.k2-site .server-period-activity-leaderboards__grid {
 		grid-template-columns: 1fr;
-	}
-
-	body.k2-site .server-records-panels--sync-cols {
-		grid-template-columns: max-content;
 	}
 }
 
@@ -1576,6 +1568,13 @@ body.k2-site .k2-table thead th.k2-table-sortable {
 	cursor: pointer;
 }
 
+body.k2-site .k2-table thead th.k2-table-sortable:focus,
+body.k2-site .k2-table thead th.k2-table-sortable:focus-visible,
+body.k2-site .k2-table thead th.k2-table-helped:focus,
+body.k2-site .k2-table thead th.k2-table-helped:focus-visible {
+	outline: none;
+}
+
 body.k2-site .k2-table thead th.k2-table-helped:not(.k2-table-sortable),
 body.k2-site .k2-table tbody td.k2-table-helped {
 	cursor: help;
@@ -1609,6 +1608,11 @@ body.k2-site .k2-table-tooltip__title {
 body.k2-site .k2-table-tooltip__body {
 	margin-bottom: 6px;
 	white-space: pre-line;
+}
+
+body.k2-site .k2-table-tooltip__body .k2-link-star {
+	color: var(--k2-link-star);
+	font-weight: 600;
 }
 
 body.k2-site .k2-table-tooltip__action {
@@ -1677,6 +1681,20 @@ body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stat
 body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-table-col-sorted {
 	color: var(--k2-text-primary);
 	font-weight: 600;
+}
+
+/* Calm stats body links that should match cell ink (Activity peaks → games), not link-star */
+body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link,
+body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:visited {
+	color: inherit;
+	font-weight: inherit;
+	text-decoration: none;
+}
+
+body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:hover,
+body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:focus-visible {
+	color: var(--k2-text-primary);
+	text-decoration: underline;
 }
 
 /* Colspan empty-state rows (e.g. server3 â€œno gamesâ€) â€” stay calm secondary even when sort col is 0 */

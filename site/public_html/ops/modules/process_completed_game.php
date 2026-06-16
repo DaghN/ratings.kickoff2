@@ -556,7 +556,10 @@ function k2_ops_process_completed_game(
                 $idA,
                 $idB,
                 $names[$idA] ?? '',
-                $names[$idB] ?? ''
+                $names[$idB] ?? '',
+                $periodCounts['periodStarts'],
+                $periodCounts['isNewPeriodA'],
+                $periodCounts['isNewPeriodB']
             );
         }
 

@@ -15,6 +15,7 @@ const K2_OPS_PROTECTED_DEV_DATABASE = 'ko2unity_db';
 const K2_OPS_AGGREGATE_TABLES_TRUNCATE = [
     'player_period_games',
     'player_peak_period_games',
+    'player_activity_participation',
     'server_daily_activity',
     'player_period_league',
     'player_matchup_summary',
