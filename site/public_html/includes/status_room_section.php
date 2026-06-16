@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 
 $room = $k2StatusRoom ?? null;
 $loadError = $k2StatusRoomError ?? null;
@@ -147,7 +148,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-games" aria-labelledby="k2-status-games-title">
 			<div class="k2-status-panel__heading-row">
 				<h2 id="k2-status-games-title" class="k2-panel-heading">Recent games</h2>
-				<a class="k2-link-star k2-status-panel__more" href="/games.php">Games &rarr;</a>
+				<a class="k2-link-star k2-status-panel__more" href="<?php echo htmlspecialchars(k2_route('games-recent'), ENT_QUOTES, 'UTF-8'); ?>">Games &rarr;</a>
 			</div>
 <?php if ($recentGames === []) { ?>
 			<p class="k2-status-panel__empty">—</p>

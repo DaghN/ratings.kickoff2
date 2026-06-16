@@ -4,7 +4,7 @@
 
 **Status:** **v0 shipped** in repo (Recent · Catalog · `milestone.php`). **This doc** tracks **future** hub phases (Story, Charts migration, etc.) — subject to change. **Committed hub routing** lives in [`hub-ia-agreement.md`](hub-ia-agreement.md).
 
-**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones.php?view=catalog`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span). Established rating distribution lives on **Activity** (`activity.php`) only. Activity summary includes **busiest day** (from `server_period_game_totals`); milestone digest panel removed Jun 2026.
+**Hub v2 (repo):** Two sub-nav items — **Recent** (`milestones/recent.php`) tier filter + vertical unlock feed (**100** rows, fixed; each row = date + **three tier-colored links** (player · milestone · event) + muted **rule** column) and **Catalog** (`milestones/catalog.php`) four tier sections (garden headings) + compact cards (no glow); rule text **wraps** with `min-height` for two-line rhythm — **no** `-webkit-line-clamp` / hidden `<br>` pad (that falsely triggered `…`). `entered_arena` first in band; rarity within band. Single-milestone package: **`milestone.php?key=`** (spotlight; **Made it** | **Graphs**; Graphs = **New unlocks per year** + **Cumulative unlocks** for every key, tier chart colors, full ladder span). Established rating distribution lives on **Activity** (`activity.php`) only. Activity summary includes **busiest day** (from `server_period_game_totals`); milestone digest panel removed Jun 2026.
 
 ---
 
@@ -26,7 +26,7 @@ Single **public home** for the milestone system:
 | Item | Choice |
 |------|--------|
 | Top-level tab | **Milestones** — after Leaderboards, before Hall of Fame |
-| Page | `milestones.php` |
+| Page | `milestones/recent.php` (hub default) |
 | HoF achievers | **Removed** from `hall-of-fame.php` — per-key lists on `milestone.php` |
 
 ---
@@ -35,13 +35,12 @@ Single **public home** for the milestone system:
 
 | Sub-tab | URL | Role |
 |---------|-----|------|
-| **Recent** | `milestones.php` | Tier filter = `.k2-ms-recent-tier-filter` segment bar (`data-k2-carry-scroll`, **tier-colored** labels); centred over table; fixed cols (`--k2-ms-recent-col-*`) |
-| **Catalog** | `milestones.php?view=catalog` | Four tier sections (garden headings); `entered_arena` first in its band; rarity within band |
+| **Recent** | `milestones/recent.php` | Tier filter = `.k2-ms-recent-tier-filter` segment bar (`data-k2-carry-scroll`, **tier-colored** labels); centred over table; fixed cols (`--k2-ms-recent-col-*`) |
+| **Catalog** | `milestones/catalog.php` | Four tier sections (garden headings); `entered_arena` first in its band; rarity within band |
 
 Single milestone (no sub-nav tab):
 
 - `milestone.php?key={milestone_key}` — spotlight card; segment **Made it** | **Graphs** (`?panel=graphs`); achievers table + charts in panels; hub sub-nav; segment bars use **`data-k2-carry-scroll`** (same y-lock as hub pills)
-- `milestones.php?key=` → 302 to `milestone.php` (legacy)
 
 ---
 

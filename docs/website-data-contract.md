@@ -570,7 +570,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Lifecycle:** Active (Jun 2026).
 
-**Purpose:** O(1) per-key holder count for milestones hub catalog (`milestones.php?view=catalog`) and milestone detail (`milestone.php?key=`) — avoids live `GROUP BY milestone_key` on `player_milestones` per catalog request.
+**Purpose:** O(1) per-key holder count for milestones hub catalog (`milestones/catalog.php`) and milestone detail (`milestone.php?key=`) — avoids live `GROUP BY milestone_key` on `player_milestones` per catalog request.
 
 **Grain:** one stored count per catalog row (`milestone_key`).
 

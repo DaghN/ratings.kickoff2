@@ -294,7 +294,7 @@ foreach ($yearOptions as $year) {
                 <?php k2_archive_listbox_render('since', 'k2-player-games-since', (string) $sinceYearFilter, $sinceChoices, 'Games from this year onward'); ?>
             </div>
             <?php } ?>
-            <a class="k2-player-games-action" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset</a>
+            <a class="k2-player-games-reset" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset</a>
         </div>
     </form>
 </div>

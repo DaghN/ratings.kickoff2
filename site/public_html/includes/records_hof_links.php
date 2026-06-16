@@ -78,7 +78,7 @@ function records_hof_metric_needs_established_pool(string $metric): bool
 function records_hof_highlights_board(string $metric): ?string
 {
 	static $map = [
-		'most_goals_one_game' => 'most_goals_one_side',
+		'most_goals_one_game' => 'top_score',
 		'biggest_win_margin' => 'biggest_wins',
 		'biggest_draw' => 'biggest_draws',
 		'biggest_sum_goals' => 'most_goals',

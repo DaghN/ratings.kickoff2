@@ -24,6 +24,7 @@ if ($playerId < 1) {
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_goals_distribution.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_ratedresults_games_filters.php';
 
 function individual3_h(string $value): string
 {
@@ -32,7 +33,7 @@ function individual3_h(string $value): string
 
 function individual3_valid_result(string $value): string
 {
-    return in_array($value, ['all', 'win', 'draw', 'loss'], true) ? $value : 'all';
+    return k2_ratedresults_games_valid_result($value);
 }
 
 function individual3_valid_direction(string $value): string
@@ -78,12 +79,7 @@ function individual3_query_all(mysqli $con, string $sql, string $types = '', arr
 
 function individual3_valid_day(string $value): string
 {
-    $value = trim($value);
-    if ($value !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1) {
-        return $value;
-    }
-
-    return '';
+    return k2_ratedresults_games_valid_day($value);
 }
 
 function individual3_format_utc_day_title(string $ymd): string
@@ -120,11 +116,6 @@ function individual3_has_games_filters_beyond_day(
         || $goalsScoredFilter >= 0
         || $goalsConcededFilter >= 0
         || $goalsSumFilter >= 0;
-}
-
-function individual3_clear_day_filter_url(array $state): string
-{
-    return individual3_games_filter_url($state, null);
 }
 
 function individual3_games_filter_url(array $state, ?string $dayYmd, bool $withDayAnchor = true): string
@@ -209,11 +200,7 @@ function individual3_render_day_step(string $dir, ?string $dayYmd, array $state)
 
 function individual3_valid_goals_filter(int $value, array $validValues): int
 {
-    if ($value < 0) {
-        return -1;
-    }
-
-    return isset($validValues[$value]) ? $value : -1;
+    return k2_ratedresults_games_valid_goals_filter($value, $validValues);
 }
 
 function individual3_where_clause(
@@ -227,64 +214,17 @@ function individual3_where_clause(
     string &$types,
     array &$params
 ): string {
-    $where = ['(r.idA = ? OR r.idB = ?)'];
-    $types = 'ii';
-    $params = [$playerId, $playerId];
-
-    if ($utcDay !== '') {
-        $where[] = 'DATE(r.`Date`) = ?';
-        $types .= 's';
-        $params[] = $utcDay;
-    }
-
-    if ($resultFilter === 'win') {
-        $where[] = '((r.idA = ? AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = ? AND ABS(r.ActualScore) < 0.001))';
-        $types .= 'ii';
-        $params[] = $playerId;
-        $params[] = $playerId;
-    } elseif ($resultFilter === 'draw') {
-        $where[] = 'ABS(r.ActualScore - 0.5) < 0.001';
-    } elseif ($resultFilter === 'loss') {
-        $where[] = '((r.idA = ? AND ABS(r.ActualScore) < 0.001) OR (r.idB = ? AND ABS(r.ActualScore - 1.0) < 0.001))';
-        $types .= 'ii';
-        $params[] = $playerId;
-        $params[] = $playerId;
-    }
-
-    if ($opponentId > 0) {
-        $where[] = '((r.idA = ? AND r.idB = ?) OR (r.idB = ? AND r.idA = ?))';
-        $types .= 'iiii';
-        $params[] = $playerId;
-        $params[] = $opponentId;
-        $params[] = $playerId;
-        $params[] = $opponentId;
-    }
-
-    if ($goalsScoredFilter >= 0) {
-        $where[] = '((r.idA = ? AND r.GoalsA = ?) OR (r.idB = ? AND r.GoalsB = ?))';
-        $types .= 'iiii';
-        $params[] = $playerId;
-        $params[] = $goalsScoredFilter;
-        $params[] = $playerId;
-        $params[] = $goalsScoredFilter;
-    }
-
-    if ($goalsConcededFilter >= 0) {
-        $where[] = '((r.idA = ? AND r.GoalsB = ?) OR (r.idB = ? AND r.GoalsA = ?))';
-        $types .= 'iiii';
-        $params[] = $playerId;
-        $params[] = $goalsConcededFilter;
-        $params[] = $playerId;
-        $params[] = $goalsConcededFilter;
-    }
-
-    if ($goalsSumFilter >= 0) {
-        $where[] = 'r.SumOfGoals = ?';
-        $types .= 'i';
-        $params[] = $goalsSumFilter;
-    }
-
-    return implode(' AND ', $where);
+    return k2_ratedresults_games_where_clause(
+        $playerId,
+        $resultFilter,
+        $opponentId,
+        $goalsScoredFilter,
+        $goalsConcededFilter,
+        $goalsSumFilter,
+        $utcDay,
+        $types,
+        $params
+    );
 }
 
 function individual3_sort_header(string $key, string $label, string $align, array $state, string $help, string $tooltipLabel = '', string $extraClass = ''): string
@@ -611,7 +551,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
             <span class="server-period-activity-leaderboard__picker-label">Goal sum</span>
             <?php k2_archive_listbox_render('gs', 'k2-player-games-gs', (string) $goalsSumFilter, $goalsSumChoices, 'Filter by goal sum'); ?>
         </div>
-        <a class="k2-player-games-action" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
+        <a class="k2-player-games-reset" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
     </div>
 </form>
 
@@ -631,7 +571,6 @@ foreach ($goalsSumRows as $goalsSumRow) {
             $goalsSumFilter
         );
         $dayBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
-        $clearDayUrl = individual3_clear_day_filter_url($sortState);
         ?>
     <div class="k2-player-games-day-banner">
         <a class="k2-link-star k2-player-games-day-banner__back" href="/player/profile.php?id=<?php echo $playerId; ?>#played-days">← Played days</a>
@@ -650,10 +589,8 @@ foreach ($goalsSumRows as $goalsSumRow) {
             <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
             matching <?php echo $dayBannerGamesWord; ?> on
             <?php } ?>
-            <?php echo individual3_format_utc_day_banner_html($utcDayFilter); ?> UTC
+            <?php echo individual3_format_utc_day_banner_html($utcDayFilter); ?>.
         </span>
-        <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
-        <a class="k2-link-star k2-player-games-day-banner__clear" href="<?php echo individual3_h($clearDayUrl); ?>">clear day filter</a>
     </div>
     <?php } ?>
     <?php if ($utcDayFilter === '') { ?>

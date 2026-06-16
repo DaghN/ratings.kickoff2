@@ -3,10 +3,12 @@
  * Milestones hub sub-navigation — Recent · Catalog.
  * Set $k2MsHubView before include: recent | catalog | null | '' (detail — neither active).
  */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
+
 $k2MsHubView = $k2MsHubView ?? 'recent';
 $k2MsHubTabs = [
-	'recent' => ['href' => 'milestones.php', 'label' => 'Recent'],
-	'catalog' => ['href' => 'milestones.php?view=catalog', 'label' => 'Catalog'],
+	'recent' => ['href' => k2_route('milestones-recent'), 'label' => 'Recent'],
+	'catalog' => ['href' => k2_route('milestones-catalog'), 'label' => 'Catalog'],
 ];
 ?>
 <div class="k2-chrome-tabs k2-ms-hub-tabs">

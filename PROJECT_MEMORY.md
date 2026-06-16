@@ -26,7 +26,7 @@
 
 - **Activity (`activity.php`):** Charts v2 shipped **local + staging** — `activity-charts-v2.js` + `server_activity_chart_panels.php` ([`activity-charts.md`](docs/activity-charts.md)). Optional L4 polish in feature doc only.
 
-- **Hub IA:** Status · Activity · Leaderboards · Milestones (v0) · HoF · Play & Setup — [`hub-ia-agreement.md`](docs/hub-ia-agreement.md). **URLs (Jun 2026):** semantic paths + `leaderboards/` + `player/` folders; registry [`k2_routes.php`](site/public_html/includes/k2_routes.php) — [`url-routes.md`](docs/url-routes.md).
+- **Hub IA:** Status · Activity · Leaderboards · Milestones · **Games** · HoF · Play & Setup — [`hub-ia-agreement.md`](docs/hub-ia-agreement.md). **Games hub (Jun 2026):** `games/recent.php` + Highlights + **All games** vault (filters, server sort). **URLs:** semantic paths + `games/` + `milestones/` folders; registry [`k2_routes.php`](site/public_html/includes/k2_routes.php) — [`url-routes.md`](docs/url-routes.md).
 
 - **DB performance:** `idx_ratedresults_idA/idB` in ops migration **001** (migrate-work); proven on work DB; live = cutover migrate step.
 
@@ -83,7 +83,21 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Games day prev/next** — adjacent-day chevrons omit `#day-games` so carry-scroll keeps viewport position (profile calendar entry still uses hash). |
+| 2026-06 | **Games All games filters** — 28px margin above filter block (sub-nav separation; results stay tight below). |
+| 2026-06 | **Hub IA — Games tab** — promoted to hub nav after Milestones (`hub_nav.php`, `$k2HubTabActive = 'games'`); Status **Games →** kept. |
+| 2026-06 | **Games hub intro** — All games chapter line: “searches the full history with filters and sorting”. |
+| 2026-06 | **Amiga player games** — Reset uses shared `k2-player-games-reset` accent pill. |
+| 2026-06 | **Player games day banner** — lead sentence ends with period after year; “UTC” suffix removed. |
+| 2026-06 | **Player games day view** — removed “clear day filter”; Reset uses shared `k2-player-games-reset` accent pill (All games + Games tab). |
+| 2026-06 | **Games All games status row** — fixed-width count line + stable chevron column; 60px gap before Reset filters. |
+| 2026-06 | **Games All games player search** — filter autocomplete applies `?player=` (removed duplicate `player-search.js` load; pick URL built at click). |
+| 2026-06 | **Games All games phase 2 filters** — Player (search + rating + A–Z), Opponent (gated; by games + A–Z), Score-line (GD/Sum/TS), Year (in/since/until); `k2_realm_games_all_filters_ui.php` + `k2-realm-games-filters.js`. |
+| 2026-06 | **Games hub sort column highlight** — All games + Recent: PHP `k2-table-col-sorted` via `k2_rated_game_sort_col_index`; Highlights/player games unchanged (JS / existing PHP). |
+| 2026-06 | **Games TS column + All games filter prep** — **TS** on Recent/All/`game.php` full rows; All games `top_score` sort; shared `k2_ratedresults_games_filters.php`; `k2_realm_games_all` WHERE/pager/sanitize; `player-search.js` filter mode; phase 2 filter UI still WIP. |
+| 2026-06 | **Top score (TS)** — Highlights board `top_score` (pill + heading “Top score”); column **TS** + tooltip; HoF `most_goals_one_game` → `board=top_score`; replaces one-side peak / Peak column. |
+| 2026-06 | **Games All games v1** — `games/all.php`: Recent-shaped table, server-side sort (all columns), 250-row pages, Previous/Next + Reset; `includes/k2_realm_games_all.php`; filters deferred. |
+| 2026-06 | **Games hub folder URLs** — `games/recent.php`, `games/highlights.php`, `games/all.php` (placeholder); was single `games.php` + `?view=`; `k2_routes` keys `games-recent` / `games-highlights` / `games-all`; HoF spectacle links via `k2_games_highlights_href()`. |
+| 2026-06 | **Milestones hub folder URLs** — `milestones/recent.php` + `milestones/catalog.php` (was `milestones.php` + `?view=catalog`); `k2_routes` keys `milestones-recent` / `milestones-catalog`; no legacy redirects (pre-public). |
 | 2026-06 | **Opponents H2H pickers spacing** — doubled gap between search/listbox row and fighter poster cards (`clamp(56px, 8vw, 88px)`). |
 | 2026-06 | **Opponents H2H all-games link** — `games.php?opponent=` now `#matching-games` (anchor above “Showing … matching games”). |
 | 2026-06 | **Played-days** — legend under grid removed; hint = story line per year. |

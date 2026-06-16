@@ -1,9 +1,9 @@
 <?php
 /**
- * Hub primary tabs — Status · Activity · Leaderboards · Milestones · Hall of Fame · Play & Setup
- * Set $k2HubTabActive before include: status | activity | leaderboards | milestones | hall-of-fame | join
+ * Hub primary tabs — Status · Activity · Leaderboards · Milestones · Games · Hall of Fame · Play & Setup
+ * Set $k2HubTabActive before include: status | activity | leaderboards | milestones | games | hall-of-fame | join
  *
- * Full match log: games.php (linked from Status recent games — not a hub tab).
+ * Games hub: games/recent.php (Recent · Highlights · All games). Status recent games panel also links Games →.
  * Tint picker: Tint disclosure — Amber · Pitch · Chrome · Holo (closed by default).
  * Peer pill / listbox form / games sort: data-k2-carry-scroll + js/k2-carry-scroll.js (keep window scrollY).
  */
@@ -15,6 +15,7 @@ $k2HubTabs = [
 	'activity' => ['href' => k2_route('activity'), 'label' => 'Activity'],
 	'leaderboards' => ['href' => k2_route('lb-rating'), 'label' => 'Leaderboards'],
 	'milestones' => ['href' => k2_route('milestones'), 'label' => 'Milestones'],
+	'games' => ['href' => k2_route('games'), 'label' => 'Games'],
 	'hall-of-fame' => ['href' => k2_route('hall-of-fame'), 'label' => 'Hall of Fame'],
 	'join' => ['href' => k2_route('join'), 'label' => 'Play & Setup'],
 ];

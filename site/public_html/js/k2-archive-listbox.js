@@ -167,6 +167,9 @@
         if (box.classList.contains('k2-player-opponents-h2h__listbox')) {
             return;
         }
+        if (box.closest('.k2-realm-games-filters')) {
+            return;
+        }
         var btn = trigger(box);
         if (!btn) {
             return;

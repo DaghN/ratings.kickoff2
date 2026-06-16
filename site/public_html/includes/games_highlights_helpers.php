@@ -4,6 +4,7 @@
  */
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 
 const K2_GAMES_HIGHLIGHTS_LIMIT = 100;
 
@@ -22,9 +23,9 @@ const K2_GAMES_HIGHLIGHT_BOARDS = [
 		'heading' => 'Biggest draws',
 		'default_sort_col' => 7,
 	],
-	'most_goals_one_side' => [
-		'label' => 'One-side peak',
-		'heading' => 'Most goals by one side',
+	'top_score' => [
+		'label' => 'Top score',
+		'heading' => 'Top score',
 		'default_sort_col' => 7,
 	],
 	'biggest_wins' => [
@@ -33,11 +34,6 @@ const K2_GAMES_HIGHLIGHT_BOARDS = [
 		'default_sort_col' => 7,
 	],
 ];
-
-function k2_games_hub_valid_view(string $view): string
-{
-	return $view === 'highlights' ? 'highlights' : 'recent';
-}
 
 function k2_games_highlights_valid_board(string $board): string
 {
@@ -50,8 +46,7 @@ function k2_games_highlights_valid_board(string $board): string
  */
 function k2_games_highlights_href(string $board, bool $scrollToAnchor = true): string
 {
-	$url = '/games.php?' . http_build_query([
-		'view' => 'highlights',
+	$url = k2_route('games-highlights', [
 		'board' => k2_games_highlights_valid_board($board),
 	]);
 
@@ -76,7 +71,7 @@ function k2_games_highlights_fetch(mysqli $con, string $board, int $limit = K2_G
 			$sql = $select . ' WHERE ABS(`ActualScore` - 0.5) < 0.001'
 				. ' ORDER BY `SumOfGoals` DESC, `id` ASC LIMIT ' . (int) $limit;
 			break;
-		case 'most_goals_one_side':
+		case 'top_score':
 			$sql = $select . ' ORDER BY GREATEST(`GoalsA`, `GoalsB`) DESC, `SumOfGoals` DESC, `id` ASC LIMIT ' . (int) $limit;
 			break;
 		case 'biggest_wins':
@@ -127,24 +122,24 @@ function k2_games_highlights_show_gd_column(string $board): bool
 {
 	$board = k2_games_highlights_valid_board($board);
 
-	return $board !== 'biggest_draws' && $board !== 'most_goals_one_side';
+	return $board !== 'biggest_draws' && $board !== 'top_score';
 }
 
 function k2_games_highlights_show_sum_column(string $board): bool
 {
 	$board = k2_games_highlights_valid_board($board);
 
-	return $board !== 'most_goals_one_side' && $board !== 'biggest_wins';
+	return $board !== 'top_score' && $board !== 'biggest_wins';
 }
 
-function k2_games_render_highlights_table(array $rows, string $board, bool $showPeakColumn): void
+function k2_games_render_highlights_table(array $rows, string $board, bool $showTsColumn): void
 {
 	$board = k2_games_highlights_valid_board($board);
 	$meta = K2_GAMES_HIGHLIGHT_BOARDS[$board];
 	$defaultSort = (int) $meta['default_sort_col'];
 	$showGdColumn = k2_games_highlights_show_gd_column($board);
 	$showSumColumn = k2_games_highlights_show_sum_column($board);
-	$colspan = 8 + ($showGdColumn ? 1 : 0) + ($showSumColumn ? 1 : 0) + ($showPeakColumn ? 1 : 0);
+	$colspan = 8 + ($showGdColumn ? 1 : 0) + ($showSumColumn ? 1 : 0) + ($showTsColumn ? 1 : 0);
 	?>
 <section class="k2-games-highlights" aria-labelledby="k2-games-highlights-heading">
 	<h2 class="k2-panel-heading" id="k2-games-highlights-heading"><?php echo k2_rated_game_h($meta['heading']); ?></h2>
@@ -166,8 +161,8 @@ function k2_games_render_highlights_table(array $rows, string $board, bool $show
 <?php if ($showSumColumn) { ?>
 		<th data-k2-sort="number" data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players.">Sum</th>
 <?php } ?>
-<?php if ($showPeakColumn) { ?>
-		<th data-k2-sort="number" data-k2-tooltip-label="Peak side" data-k2-help="Higher of Team A or Team B goals in this game.">Peak</th>
+<?php if ($showTsColumn) { ?>
+		<th data-k2-sort="number" data-k2-tooltip-label="Top score" data-k2-help="Top score — the most goals either player scored in this game (e.g. 10 in 10–2).">TS</th>
 <?php } ?>
 		<th class="k2-table-cell--left k2-table-cell--pad-left-lg" data-k2-sort="text" data-k2-help="Game winner. Drawn games show Draw.">Winner</th>
 	</tr>
@@ -182,7 +177,7 @@ function k2_games_render_highlights_table(array $rows, string $board, bool $show
 	<?php echo k2_rated_game_row_html($row, [
 		'id_mode' => 'link',
 		'variant' => 'compact',
-		'show_peak_column' => $showPeakColumn,
+		'show_ts_column' => $showTsColumn,
 		'show_gd_column' => $showGdColumn,
 		'show_sum_column' => $showSumColumn,
 	]); ?>

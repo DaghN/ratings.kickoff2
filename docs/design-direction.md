@@ -200,7 +200,7 @@ Never use pixel/bitmap fonts for readable data.
 Current shared chrome:
 
 - `includes/site_header.php` for wordmark + **realm switcher** (`includes/realm_switcher.php`: Online � Amiga 500, beside wordmark) + cross-realm player search (`realm=all`, per-hit Online/Amiga label). Realm switch uses segment-outline active cell (site tint, not per-realm colours). Wordmark **always** street-sign neon (`text-shadow` layers on `.k2-wordmark__main`, px-capped and pleasant rather than foggy � avoid huge `calc()` blurs); **hover** adds a controlled wider shadow (no unbounded bloom).
-- `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / Hall of Fame / Play & Setup (`games.php` match log off-hub).
+- `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / **Games** / Hall of Fame / Play & Setup (`games/recent.php` hub default; Recent · Highlights · All games sub-nav).
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.
 - `includes/k2_head.php` for shared CSS and early theme boot (`k2-fonts.css` before `theme.css`; no Google Fonts).
@@ -220,7 +220,7 @@ Imagery:
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 - **In-page scrollbars** (`.k2-table-wrap`, archive listbox panels, heatmaps, bracket rails, etc.): thin muted thumb via `--k2-scrollbar-*` tokens in `theme.css` — not OS default gray, not tint accent. Page-level vertical scroll stays native unless we extend tokens to `html` later.
-- **Wide games tables** (`data-k2-scroll-mirror` on `.k2-table-wrap`, `k2-table-scroll-mirror.js`): top horizontal mirror bar synced to the wrap — shown only when the table overflows; bottom native bar remains for users deep in a long list. Shipped on player games (online + Amiga) and hub `games.php` (14-day Recent buckets + Highlights board).
+- **Wide games tables** (`data-k2-scroll-mirror` on `.k2-table-wrap`, `k2-table-scroll-mirror.js`): top horizontal mirror bar synced to the wrap — shown only when the table overflows; bottom native bar remains for users deep in a long list. Shipped on player games (online + Amiga) and hub `games/recent.php` + `games/highlights.php`.
 
 **Surface rhythm (mixed containment):** Not every data block needs the same bordered panel. Use **open page background** when the visual is the content (profile heatmaps: played days/weeks on `--k2-bg-hover` cells). Use **chart panels** (`k2-chart-panel`, `k2-chart-frame`) when Chart.js, toggles, and fixed frames need a reading device � Activity and profile charts share this. Use **light tiles/mosaics** for small stat or story clusters. Alternating open and contained blocks creates scroll rhythm; uniform panel stacks feel generic. Profile contract: [`player-profile-feast.md`](player-profile-feast.md) � Surface rhythm. Do not panel everything for �consistency� unless the module type warrants it.
 
@@ -232,7 +232,7 @@ Imagery:
 |------|---------------|
 | Status hub | `status.php` is the default landing; Phase B v1.2 room grid is shipped in repo. |
 | Leaderboards | `ranked1`-`ranked5`, `ranked7`, `ranked8` use `k2-table.js` for simple sort/autorank. |
-| Games | `games.php` renders 14 sortable day buckets using shared rated-game rows. |
+| Games | `games/recent.php` renders 14 sortable day buckets using shared rated-game rows. |
 | Player profile | `player/profile.php` is the shipped feast layout; **mixed surface rhythm** (open heatmaps + chart panels + light tiles) � see [`player-profile-feast.md`](player-profile-feast.md); gradual copy/UX improvements only. |
 | Player games | `player/games.php` uses server-side Result/Opponent/Goals scored/Goals conceded filters, URL sort links, 100-row slices, and shared row rendering. |
 | Records/Hall of Fame | `hall-of-fame.php` is the Hall of Fame page; `leaderboards/activity-peaks.php` is Activity. |

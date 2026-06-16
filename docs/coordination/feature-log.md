@@ -41,13 +41,15 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Hall of Fame context links | L0 | — | — | — | — | — | ranked wings + `k2_sort` (May 2026) |
 | Player stat `k2-table.js` migration | L0 | — | — | — | — | — | JS only |
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | — | Sort + anchor column (May 2026) |
-| Games tab 14-day buckets | L0 | — | — | — | — | — | **Recent** on `games.php` |
-| Games Highlights (spectacle boards) | L0 | — | — | — | — | — | `games.php?view=highlights` |
+| Games tab 14-day buckets | L0 | — | — | — | — | — | **Recent** on `games/recent.php` |
+| Games Highlights (spectacle boards) | L0 | — | — | — | — | — | `games/highlights.php` |
+| Games All games browse | L0 | — | — | — | — | — | `games/all.php` — filters, server sort, chevron pager, Reset filters pill; hub tab Jun 2026 |
 | Play & Setup page | L0 | — | — | — | — | — | `join.php` |
 | Box art story page | — | — | — | — | — | — | `boxart.php` (+ `boxart_story_section.php`, `boxart-story.css`, `images/boxart/`); KO2 cover history; Status heritage box links to it; PHP/CSS/content only |
 | Hub / Status cosmetics | — | — | — | — | — | — | PHP only |
 | Milestones hub tab (stub) | L0 | — | — | — | — | — | `milestones.php` v0 hub |
-| Hub IA — Games off top nav | — | — | — | — | — | — | `games.php` sub-nav |
+| Hub IA — Games tab | — | — | — | — | — | — | **Jun 2026** — `games/recent.php` hub tab after Milestones; Status **Games →** retained |
+| Hub IA — Games off top nav | — | — | — | — | — | — | Superseded Jun 2026 — Games promoted to hub tab |
 | Status league / performance | L2 | SCH-005, SCH-017 | Yes | **Proven** | **Not executed** | — | Indexes + `player_period_league` |
 | Period activity leaderboards | L2 | SCH-004, SCH-006 | Yes | **Proven** | **Not executed** | — | `player_period_games` / peaks |
 | Profile hero milestones (no peak) | L0 | — | — | — | — | — | Garden hero |

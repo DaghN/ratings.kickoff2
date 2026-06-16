@@ -70,23 +70,69 @@
         }
     }
 
-    function pickActive(root, input, list) {
+    function isFilterMode(root) {
+        return root.getAttribute('data-player-search-mode') === 'filter';
+    }
+
+    function navigatePick(root, p, profilePage) {
+        storeCarryScroll();
+        window.location.href = playerPickHref(root, p, profilePage);
+    }
+
+    function pickActive(root, input, list, profilePage, realm) {
         var items = root._psItems || [];
         var idx = root._psActiveIndex;
         if (idx >= 0 && idx < items.length) {
             var a = items[idx].querySelector('a');
-            if (a && a.href) {
-                window.location.href = a.href;
+            var playerId = a ? a.getAttribute('data-player-id') : '';
+            if (playerId) {
+                navigatePick(root, { id: playerId, realm: realm }, profilePage);
                 return;
             }
         }
         closeList(root, input, list);
     }
 
+    function storeCarryScroll() {
+        if (window.K2CarryScroll && typeof window.K2CarryScroll.store === 'function') {
+            window.K2CarryScroll.store();
+        }
+    }
+
     function playerProfileHref(p, profilePage) {
         var realm = p.realm || 'online';
         var base = PROFILE_BY_REALM[realm] || profilePage;
         return base + '?id=' + encodeURIComponent(p.id);
+    }
+
+    function playerPickHref(root, p, profilePage) {
+        if (!isFilterMode(root)) {
+            return playerProfileHref(p, profilePage);
+        }
+
+        var filterBase = root.getAttribute('data-player-search-filter-href') || '';
+        var filterParam = root.getAttribute('data-player-search-filter-param') || 'player';
+        var path = window.location.pathname;
+        var params = new URLSearchParams(window.location.search);
+
+        if (filterBase !== '') {
+            var qIdx = filterBase.indexOf('?');
+            path = qIdx >= 0 ? filterBase.slice(0, qIdx) : filterBase;
+            if (qIdx >= 0) {
+                params = new URLSearchParams(filterBase.slice(qIdx + 1));
+            }
+        }
+
+        params.set(filterParam, String(p.id));
+        params.delete('offset');
+        if (filterParam === 'player') {
+            params.delete('opponent');
+            params.delete('opponent_via');
+            params.set('player_via', 'search');
+        }
+
+        var query = params.toString();
+        return query ? path + '?' + query : path;
     }
 
     function renderResults(root, input, list, players, profilePage, showRealmLabel) {
@@ -109,7 +155,11 @@
             var a = document.createElement('a');
             a.setAttribute('role', 'option');
             a.setAttribute('id', 'player-search-opt-' + i);
-            a.href = playerProfileHref(p, profilePage);
+            a.setAttribute('data-player-id', String(p.id));
+            a.href = playerPickHref(root, p, profilePage);
+            if (isFilterMode(root)) {
+                a.setAttribute('data-player-search-pick', 'filter');
+            }
             a.tabIndex = -1;
 
             var nameSpan = document.createElement('span');
@@ -226,7 +276,7 @@
                 }
                 if (ev.key === 'Enter') {
                     ev.preventDefault();
-                    pickActive(root, input, list);
+                    pickActive(root, input, list, profilePage, realm);
                     return;
                 }
                 if (ev.key === 'Escape') {
@@ -253,9 +303,15 @@
 
         list.addEventListener('click', function (ev) {
             var a = ev.target && ev.target.closest ? ev.target.closest('a') : null;
-            if (a && a.href) {
-                window.location.href = a.href;
+            if (!a) {
+                return;
             }
+            ev.preventDefault();
+            var playerId = a.getAttribute('data-player-id');
+            if (!playerId) {
+                return;
+            }
+            navigatePick(root, { id: playerId, realm: realm }, profilePage);
         });
     }
 

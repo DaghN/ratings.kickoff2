@@ -1,14 +1,15 @@
 <?php
 /**
- * Games area sub-navigation — Recent · Highlights (not a hub tab).
- * Set $k2GamesHubView before include: recent | highlights.
+ * Games area sub-navigation — Recent · Highlights · All games (Games hub tab).
+ * Set $k2GamesHubView before include: recent | highlights | all.
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 
 $k2GamesHubView = $k2GamesHubView ?? 'recent';
 $k2GamesHubTabs = [
-	'recent' => ['href' => k2_route('games'), 'label' => 'Recent'],
-	'highlights' => ['href' => k2_route('games', ['view' => 'highlights']), 'label' => 'Highlights'],
+	'recent' => ['href' => k2_route('games-recent'), 'label' => 'Recent'],
+	'highlights' => ['href' => k2_route('games-highlights'), 'label' => 'Highlights'],
+	'all' => ['href' => k2_route('games-all'), 'label' => 'All games'],
 ];
 ?>
 <div class="k2-chrome-tabs k2-games-hub-tabs">

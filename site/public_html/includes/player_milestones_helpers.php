@@ -522,15 +522,15 @@ function k2_milestone_recent_tier_param(): ?string
 function k2_milestones_recent_href(?string $tierBand = null): string
 {
     if ($tierBand === null || $tierBand === '') {
-        return k2_route('milestones');
+        return k2_route('milestones-recent');
     }
 
-    return k2_route('milestones', ['tier' => $tierBand]);
+    return k2_route('milestones-recent', ['tier' => $tierBand]);
 }
 
 function k2_milestones_catalog_href(): string
 {
-    return k2_route('milestones', ['view' => 'catalog']);
+    return k2_route('milestones-catalog');
 }
 
 /** @return 'unlockers'|'graphs' */

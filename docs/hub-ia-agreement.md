@@ -8,14 +8,15 @@
 
 ## Current Hub Shape
 
-Six top-level tabs, in this order:
+Seven top-level tabs, in this order:
 
 1. **Status** ? default landing.
 2. **Activity**
 3. **Leaderboards**
 4. **Milestones**
-5. **Hall of Fame**
-6. **Play & Setup** ? join / onboarding (`join.php`), last tab.
+5. **Games** ? match log hub (`games/recent.php` default).
+6. **Hall of Fame**
+7. **Play & Setup** ? join / onboarding (`join.php`), last tab.
 
 Routing:
 
@@ -24,15 +25,18 @@ Routing:
 | Status | `status.php` |
 | Activity | `activity.php` |
 | Leaderboards | `leaderboards/rating.php` default; wings under `leaderboards/` (see Leaderboards contract) |
-| Milestones | `milestones.php` ? **v0 hub** (Recent + Catalog sub-nav); detail `milestone.php?key=` |
+| Milestones | `milestones/recent.php` · **v0 hub** (Recent + Catalog sub-nav); detail `milestone.php?key=` |
+| Games | `games/recent.php` · sub-nav **Recent** (14-day ledger, default) · **Highlights** (`games/highlights.php`) · **All games** (`games/all.php`, full vault with filters + server sort) |
 | Hall of Fame | `hall-of-fame.php` |
 | Play & Setup | `join.php` |
 
-**Not a hub tab:** **Games** ? `games.php`. Sub-nav (Milestones-style): **Recent** (14-day rated ledger, default) ? **Highlights** (`?view=highlights`, all-time top-100 spectacle boards among matches ? biggest wins, most goals, biggest draws, one-side peak; not Hall of Fame single-holder records). Primary entry: Status recent games panel ? **Games ?**. Player **Games** pill: `player/games.php`.
+Secondary entry: Status recent games panel → **Games →** (same hub). Player **Games** pill: `player/games.php`.
 
-Canonical paths live in `includes/k2_routes.php` ([`url-routes.md`](url-routes.md)). All nav and cross-links use root-absolute URLs (`/milestones.php`, not bare `milestones.php`). The hub is page navigation, not a client-side SPA.
+Canonical paths live in `includes/k2_routes.php` ([`url-routes.md`](url-routes.md)). All nav and cross-links use root-absolute URLs (`/milestones/recent.php`, not bare `recent.php`). The hub is page navigation, not a client-side SPA.
 
-Ordering principle: **alive ? pulse ? rank ? shared career ? extremes ? join.** Status answers whether the scene is alive; Activity shows server pulse charts; Leaderboards answers who is better on the ladder; **Milestones** is the public milestone universe (Recent feed + catalog + per-key achievers); Hall of Fame preserves single-holder records; **Play & Setup** (last tab) is how to get online.
+**Sub-hub URL rule:** Internal tabs (Games Recent/Highlights/All, Milestones Recent/Catalog, LB wings, player Opponents pills) = **foldered PHP paths**, not `?view=` on one file. Query params = filters/sort/entity id only. Full rule: [`url-routes.md`](url-routes.md) § Sub-hub navigation.
+
+Ordering principle: **alive ? pulse ? rank ? shared career ? match archive ? extremes ? join.** Status answers whether the scene is alive; Activity shows server pulse charts; Leaderboards answers who is better on the ladder; **Milestones** is the public milestone universe; **Games** is the searchable match log (recent ledger, highlights, full vault); Hall of Fame preserves single-holder records; **Play & Setup** (last tab) is how to get online.
 
 ---
 
@@ -83,7 +87,7 @@ Still open with Steve / prod:
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
 | Tint picker | Closed by default behind **Tint** disclosure (hub + player nav). |
 | Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps scroll on the next page (one-shot `sessionStorage`). Pill clicks store **nav anchor** (`aria-label` + viewport offset) so table/filter height changes do not nudge scroll; restore falls back to raw `y` for listbox/sort/pager. **Listbox filter forms** opt in with `data-k2-carry-scroll` on the `<form>` (`js/k2-carry-scroll.js` stores on listbox `change` before `form.submit()` and on in-form **Reset** links). **Player games** server-sort column links (`.k2-table--player-games`) carry scroll the same way. Online **Previous / Next 100** pager links and **prev/next played-day chevrons** (`.k2-player-games-day-step`) opt in via `data-k2-carry-scroll` on `.k2-player-games-status` (chevron URLs omit `#day-games` so hash does not fight restore). Restore (`k2_carry_scroll_restore.php` in `<head>`) runs after DOM ready; after first apply only scrolls down if the page grows. Stops on success, user scroll input, or 2s. Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
-| Wide games tables | Hub `games.php` (Recent per-day buckets + Highlights) and player games (`player/games.php`, `/amiga/player/games.php`): `data-k2-scroll-mirror` on `.k2-table-wrap` + `k2-table-scroll-mirror.js` — top horizontal bar when the table overflows; syncs `scrollLeft` with the wrap below. |
+| Wide games tables | Hub `games/recent.php` + `games/highlights.php` and player games (`player/games.php`, `/amiga/player/games.php`): `data-k2-scroll-mirror` on `.k2-table-wrap` + `k2-table-scroll-mirror.js` — top horizontal bar when the table overflows; syncs `scrollLeft` with the wrap below. |
 
 The old hub-nav A/B tuning path is removed; segment track + outline active cell is now the fixed product contract.
 
@@ -115,7 +119,7 @@ Notes:
 
 - `ranked6.php` / old split is gone. Nav label **Peak rating** = `leaderboards/peak-rating.php` (peak/low/average columns); first tab **Rating** = current order on `leaderboards/rating.php`.
 - Activity peaks = personal busiest day/week/month/year tables (`leaderboards/activity-peaks.php`); not the hub Activity tab (`activity.php`) or Status activity league.
-- Meta milestone **count** leaderboard (`leaderboards/milestones.php`) complements the **Milestones hub** (`milestones.php`) ? encyclopedia + achievers vs sort table.
+- Meta milestone **count** leaderboard (`leaderboards/milestones.php`) complements the **Milestones hub** (`milestones/recent.php`, `milestones/catalog.php`) — encyclopedia + achievers vs sort table.
 - Status uses an active-player window; Leaderboards stay broad by default and expose filters for narrower views (not on Activity peaks wing).
 
 ---
@@ -124,7 +128,7 @@ Notes:
 
 | Item | Contract |
 |------|----------|
-| Hub tab | `milestones.php` between Leaderboards and Hall of Fame |
+| Hub tab | `milestones/recent.php` between Leaderboards and Games |
 | **Shipped v0** | **Recent** (tier filter + unlock feed) ? **Catalog** (four tier sections) ? **`milestone.php?key=`** (Made it + Graphs) |
 | Build plan (future) | [`docs/milestones-hub-ia.md`](milestones-hub-ia.md) ? Story sub-nav, Charts migration from Activity, etc. |
 | Player garden | `player/milestones.php` (per player) |
@@ -134,12 +138,24 @@ Notes:
 
 ---
 
+## Games hub (shipped Jun 2026)
+
+| Item | Contract |
+|------|----------|
+| Hub tab | `games/recent.php` between **Milestones** and **Hall of Fame**; `$k2HubTabActive = 'games'` in `games_hub_shell_start.inc.php` |
+| Sub-nav | **Recent** (14-day ledger, default) · **Highlights** (spectacle boards) · **All games** (full vault — filters, server sort, 250-row pages) |
+| Chapter | `k2_hub_chapter.inc.php` — Games title + arc lede + three-line mode list (`k2_games_hub_chapter_list_html`) |
+| Secondary entry | Status recent games panel **Games →** (unchanged) |
+| Player games | `player/games.php` — per-player tab, not the hub |
+
+---
+
 ## Activity & Hall of Fame
 
 | Surface | Contract |
 |---------|----------|
 | Activity | `activity.php` ? server pulse: key sentence, fact cards, games/opponents line, charts (includes milestone digest/charts until migrated). |
-| Match log | `games.php` ? **Recent** (14 day buckets) + **Highlights** (top matches by board); **not** a hub tab. |
+| Games hub | `games/recent.php` · `games/highlights.php` · `games/all.php` — hub tab (see Games hub above). |
 | Hall of Fame | `hall-of-fame.php` ? single-holder record extremes only (milestone achievers trial migrates later). |
 
 Do not merge these page bodies into Status unless Dagh explicitly changes the hub strategy.
@@ -176,8 +192,8 @@ Keep this short; it prevents old chat ideas from reappearing as current plans.
 | Earlier idea | Current position |
 |--------------|------------------|
 | Leaderboards as default landing | Status is default. |
-| Hub tab **Games** | Removed May 2026; match log via Status **Games ?** and `games.php`. |
-| Five-tab arc with Games before Leaderboards | Replaced: Status ? Activity ? Leaderboards ? Milestones ? HoF. |
+| Hub tab **Games** | Removed May 2026; **restored Jun 2026** after All games vault shipped — tab between Milestones and HoF; Status **Games →** remains. |
+| Five-tab arc with Games before Leaderboards | Replaced: Status ? Activity ? Leaderboards ? Milestones ? Games ? HoF ? Join. |
 | Milestones hub tab deferred | Tab shipped May 2026; **v0** Recent + Catalog + `milestone.php` live; Story/Charts later. |
 | Single Activity tab | Split into Status + Activity; Activity peaks is a Leaderboards wing. |
 | Live as tab name | Status. |
@@ -187,4 +203,4 @@ Keep this short; it prevents old chat ideas from reappearing as current plans.
 | Full-accent links everywhere | Use `--k2-link-star` / `--k2-link` hierarchy. |
 | Moving server1/server2/server3 bodies into hub panels | Not current plan. |
 
-*Last pruned: Jun 2026 ? Milestones v0 hub (not stub); Status Leagues spec closed (no Phase 1.5 track).*
+*Last pruned: Jun 2026 ? Games hub tab restored (Milestones · Games · HoF); Milestones v0 hub (not stub); Status Leagues spec closed (no Phase 1.5 track).*

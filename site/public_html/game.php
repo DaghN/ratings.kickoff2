@@ -54,6 +54,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
         <th class="k2-table-cell--left">Team B</th>
         <th class="k2-table-cell--pad-left-md" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game. A 7-4 result has Diff 3.">Diff</th>
         <th data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players. A 7-4 result has Sum 11.">Sum</th>
+        <th data-k2-tooltip-label="Top score" data-k2-help="Top score — the most goals either player scored in this game (e.g. 10 in 10–2).">TS</th>
         <th class="k2-table-cell--left k2-table-cell--pad-left-lg" data-k2-help="Game winner. Drawn games show Draw.">Winner</th>
         <th data-k2-help="Team A's Elo rating before this game.">Rating A</th>
         <th data-k2-help="Team B's Elo rating before this game.">Rating B</th>

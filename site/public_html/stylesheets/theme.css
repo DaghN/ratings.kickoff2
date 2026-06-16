@@ -2172,9 +2172,10 @@ body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger {
 body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option--split {
 	display: flex;
 	flex-direction: row;
-	align-items: baseline;
+	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
+	min-height: calc(1.35em + 10px);
 }
 
 body.k2-site .k2-player-games-controls .k2-archive-listbox--meta-options .k2-archive-listbox__panel {
@@ -2314,12 +2315,305 @@ body.k2-site .k2-player-games-filters .k2-player-games-action {
 	font-size: 10px;
 }
 
+/* All games vault filters (`games/all.php`) */
+body.k2-site .k2-realm-games-filters {
+	--k2-realm-games-filter-gap: 20px;
+	--k2-realm-games-picker-width: 12rem;
+	--k2-realm-games-score-width: 5.75rem;
+	--k2-realm-games-year-width: 6.5rem;
+	--k2-realm-games-year-mode-width: 7.7rem;
+	--k2-realm-games-panel-max-width: 18rem;
+	margin-bottom: 12px;
+}
+
+body.k2-site .k2-realm-games-all > .k2-realm-games-filters {
+	margin-top: 28px;
+}
+
+body.k2-site .k2-realm-games-filters__row {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: flex-end;
+	gap: 10px 20px;
+	margin-bottom: 18px;
+}
+
+body.k2-site .k2-realm-games-filters__row--pickers .k2-realm-games-filters__row-label {
+	padding-bottom: 6px;
+}
+
+body.k2-site .k2-realm-games-filters__row-label {
+	flex: 0 0 5.5rem;
+	margin: 0;
+	padding-bottom: 6px;
+	color: var(--k2-text-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-player-games-controls__fields.k2-realm-games-filters__picker-fields,
+body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-player-games-controls__fields.k2-realm-games-filters__score-fields,
+body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-player-games-controls__fields.k2-realm-games-filters__year-fields {
+	display: flex;
+	flex: 0 0 auto;
+	flex-wrap: nowrap;
+	column-gap: var(--k2-realm-games-filter-gap);
+	row-gap: 12px;
+}
+
+body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-realm-games-filters__picker-fields > .k2-player-games-controls__field {
+	flex: 0 0 var(--k2-realm-games-picker-width);
+	width: var(--k2-realm-games-picker-width);
+	min-width: var(--k2-realm-games-picker-width);
+	max-width: var(--k2-realm-games-picker-width);
+}
+
+body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-realm-games-filters__score-fields > .k2-player-games-controls__field {
+	flex: 0 0 var(--k2-realm-games-score-width);
+	width: var(--k2-realm-games-score-width);
+	min-width: var(--k2-realm-games-score-width);
+	max-width: var(--k2-realm-games-score-width);
+}
+
+body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-realm-games-filters__year-fields > .k2-player-games-controls__field:first-child {
+	flex: 0 0 var(--k2-realm-games-year-width);
+	width: var(--k2-realm-games-year-width);
+	min-width: var(--k2-realm-games-year-width);
+	max-width: var(--k2-realm-games-year-width);
+}
+
+body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-realm-games-filters__year-fields > .k2-player-games-controls__field:last-child {
+	flex: 0 0 var(--k2-realm-games-year-mode-width);
+	width: var(--k2-realm-games-year-mode-width);
+	min-width: var(--k2-realm-games-year-mode-width);
+	max-width: var(--k2-realm-games-year-mode-width);
+}
+
+body.k2-site .k2-realm-games-filters__picker-fields,
+body.k2-site .k2-realm-games-filters__score-fields,
+body.k2-site .k2-realm-games-filters__year-fields {
+	margin-bottom: 0;
+	flex: 0 0 auto;
+	min-width: 0;
+}
+
+body.k2-site .k2-realm-games-filters__search-field .player-search {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	width: 100%;
+}
+
+body.k2-site .k2-realm-games-filters .player-search-label {
+	display: block;
+	margin: 0;
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: color-mix(in srgb, var(--k2-text-muted) 88%, transparent);
+	line-height: 1.2;
+	white-space: nowrap;
+}
+
+body.k2-site .k2-realm-games-filters__search-field .player-search-input {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: calc(1.35em + 8px);
+	padding: 4px 10px;
+	font-size: 12px;
+	line-height: 1.35;
+}
+
+body.k2-site .k2-realm-games-filters__search-field .player-search-results {
+	top: 100%;
+	left: 0;
+	right: 0;
+	width: 100%;
+	max-width: none;
+	margin: 2px 0 0;
+}
+
+body.k2-site .k2-realm-games-filters__row--muted {
+	opacity: 0.42;
+}
+
+body.k2-site .k2-realm-games-filters__row--muted .k2-archive-listbox__trigger,
+body.k2-site .k2-realm-games-filters__row--muted .player-search-input {
+	pointer-events: none;
+}
+
+body.k2-site .k2-realm-games-filters__year-mode--idle {
+	opacity: 0.22;
+}
+
+body.k2-site .k2-realm-games-filters__year-mode--idle .player-search-label,
+body.k2-site .k2-realm-games-filters__year-mode--idle .k2-archive-listbox__trigger {
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-realm-games-filters__year-mode--idle .k2-archive-listbox__trigger {
+	pointer-events: none;
+}
+
+body.k2-site .k2-realm-games-filters .k2-player-games-controls__fields {
+	flex-wrap: nowrap;
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox {
+	position: relative;
+	display: block;
+	max-width: none;
+	width: 100%;
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox,
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger {
+	box-sizing: border-box;
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox--meta-options .k2-archive-listbox__panel,
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__panel {
+	left: 0;
+	right: auto;
+	box-sizing: border-box;
+	min-width: 100%;
+	width: max-content;
+	max-width: min(var(--k2-realm-games-panel-max-width), 92vw);
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger {
+	min-height: calc(1.35em + 8px);
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star,
+body.k2-site .k2-realm-games-filters .player-search-input.k2-link-star {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star:hover,
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star:focus-visible {
+	color: var(--k2-link-star-hover);
+}
+
+body.k2-site .k2-archive-listbox__label:empty::before {
+	content: '\00a0';
+}
+
 @media (max-width: 720px) {
-	body.k2-site .k2-player-games-filters .k2-player-games-controls__fields {
+	body.k2-site .k2-realm-games-filters__row--stack-narrow {
 		flex-wrap: wrap;
 	}
 
-	body.k2-site .k2-player-games-filters .k2-player-games-controls__field {
+	body.k2-site .k2-realm-games-filters__row--stack-narrow .k2-realm-games-filters__row-label {
+		flex: 1 1 100%;
+		padding-bottom: 0;
+	}
+
+	body.k2-site .k2-realm-games-filters__row--pickers .k2-realm-games-filters__picker-fields,
+	body.k2-site .k2-realm-games-filters__row--stack-narrow .k2-realm-games-filters__score-fields,
+	body.k2-site .k2-realm-games-filters__row--stack-narrow .k2-realm-games-filters__year-fields {
+		flex-wrap: wrap;
+		row-gap: 14px;
+		width: 100%;
+	}
+
+	body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-realm-games-filters__picker-fields > .k2-player-games-controls__field,
+	body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-realm-games-filters__score-fields > .k2-player-games-controls__field,
+	body.k2-site .k2-player-games-filters.k2-realm-games-filters .k2-realm-games-filters__year-fields > .k2-player-games-controls__field {
+		flex: 1 1 calc(50% - (var(--k2-realm-games-filter-gap) / 2));
+		width: auto;
+		min-width: min(100%, var(--k2-realm-games-picker-width));
+		max-width: none;
+	}
+}
+
+/* All games vault status row (`games/all.php`) */
+body.k2-site .k2-realm-games-all__status {
+	--k2-realm-games-status-text-width: 18rem;
+	--k2-realm-games-status-range-gap: 12px;
+	--k2-realm-games-status-reset-gap: 60px;
+	--k2-realm-games-status-nav-btn-size: 28px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--k2-realm-games-status-reset-gap);
+}
+
+body.k2-site .k2-realm-games-all__status-range {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--k2-realm-games-status-range-gap);
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+body.k2-site .k2-realm-games-all__status-text {
+	flex: 0 0 var(--k2-realm-games-status-text-width);
+	width: var(--k2-realm-games-status-text-width);
+	max-width: 100%;
+	font-variant-numeric: tabular-nums;
+}
+
+body.k2-site .k2-realm-games-all__status-nav {
+	flex: 0 0 auto;
+	gap: calc(var(--k2-realm-games-status-nav-btn-size) / 2);
+	margin-left: calc(-1.8 * var(--k2-realm-games-status-nav-btn-size));
+}
+
+/* Accent fill Reset pill — profile played-days year picker active state; player games + All games */
+body.k2-site a.k2-player-games-reset,
+body.k2-site a.k2-player-games-reset:visited {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	min-height: 28px;
+	padding: 6px 12px;
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 42%, transparent);
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	background: color-mix(in srgb, var(--k2-accent) 14%, var(--k2-bg-elevated));
+	color: var(--k2-segment-active-text);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	box-sizing: border-box;
+	transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+body.k2-site a.k2-player-games-reset:hover,
+body.k2-site a.k2-player-games-reset:focus-visible {
+	color: var(--k2-segment-active-text);
+	border-color: color-mix(in srgb, var(--k2-accent) 55%, transparent);
+	background: color-mix(in srgb, var(--k2-accent) 20%, var(--k2-bg-elevated));
+	text-decoration: none;
+	outline: none;
+}
+
+@media (max-width: 520px) {
+	body.k2-site .k2-realm-games-all__status-range {
+		flex: 1 1 100%;
+	}
+
+	body.k2-site .k2-realm-games-all__status-text {
+		flex: 1 1 auto;
+		width: auto;
+	}
+}
+
+@media (max-width: 720px) {
+	body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__fields {
+		flex-wrap: wrap;
+	}
+
+	body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__field {
 		flex: 1 1 calc(50% - 6px);
 	}
 }
@@ -3957,11 +4251,17 @@ body.k2-site .k2-archive-listbox__panel:focus {
 body.k2-site .k2-archive-listbox__option {
 	margin: 0;
 	padding: 5px 10px;
+	min-height: calc(1.35em + 10px);
+	box-sizing: border-box;
 	cursor: pointer;
 	white-space: nowrap;
 	font-weight: 500;
 	color: var(--k2-text-secondary);
 	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .k2-archive-listbox__option-label:empty::before {
+	content: '\00a0';
 }
 
 body.k2-site .k2-archive-listbox__option:last-child {

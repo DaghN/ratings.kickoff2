@@ -2,7 +2,7 @@
 
  * Carry window scrollY across full-page peer navigation: nav pills, listbox filter
 
- * forms (data-k2-carry-scroll), and server-sort links on player games tables.
+ * forms (data-k2-carry-scroll), and server-sort links on player games / realm All games tables.
 
  * Pill clicks also store nav viewport offset so filter/table height changes do not nudge scroll.
 
@@ -26,13 +26,15 @@
 
 		'nav[data-k2-carry-scroll] a.k2-chrome-tabs__tab';
 
-	var SORT_LINK_SEL = '.k2-table--player-games th.k2-table-sortable a[href]';
+	var SORT_LINK_SEL =
+		'.k2-table--player-games th.k2-table-sortable a[href], ' +
+		'.k2-table--realm-games-all th.k2-table-sortable a[href]';
 
 	var GAMES_ACTION_SEL =
 
 		'[data-k2-carry-scroll] a.k2-player-games-action[href], ' +
 
-		'[data-k2-carry-scroll] a.k2-player-games-day-banner__clear[href], ' +
+		'[data-k2-carry-scroll] a.k2-player-games-reset[href], ' +
 
 		'[data-k2-carry-scroll] a.k2-player-games-day-step[href]';
 

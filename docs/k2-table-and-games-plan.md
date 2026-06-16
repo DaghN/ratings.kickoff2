@@ -15,9 +15,9 @@
 | `player/wdl.php` (W/D/L) | `k2-table.js` sort; default **Games** desc; `k2-table--calm-stats` + `ranked-pages-table`; **Games** anchor (col 1, link-star); blue/red on W/L/ratios; other columns `k2-table-col-sorted` when active (Jun 2026). |
 | `player/goals.php` (Goals) | Hub Goals LB parity: calm-stats (no blue/red), **Games** anchor (col 1), `lb_column_help` headers/tooltips; Win/Loss margin = `MAX` only on winning/losing games (not signed diffs on all games); Draw sort via `data-k2-sort-value`. |
 | `player/double-digits.php` (DDs) | Hub DD LB parity (`ranked3`): headers/tooltips from `lb_column_help`, calm-stats (no blue/red), **Games** anchor (col 1); column order matches ranked3. |
-| `games.php` | Sub-nav **Recent** \| **Highlights** (`games_hub_nav.php`). **Recent:** 14 day buckets; `k2-table--calm-stats` + `ranked-pages-table` body ink; each day table uses `k2-table.js` on all columns, default **ID** desc (SQL still Date desc, id desc for fetch). **Highlights:** server-side top 100 per board (`games_highlights_helpers.php`); `k2-table--calm-stats` + `k2-games-highlights-table` (not `ranked-pages-table` — column widths); compact rows via `k2_rated_game_row` `variant=compact`; board segment + `k2-table.js` autorank on bounded table. |
-| `game.php` | Static single-game table with `k2-table.js` header help only; no sorting. Below the table when a game exists: short “while we wait for browser replay” copy + 16:9 YouTube embed (2024 Online WC final placeholder). |
-| `player/games.php` | Server-side Result/Opponent/Goals scored/Goals conceded filters, URL sort links, 100-row slices, shared row renderer; `k2-table--calm-stats` + `k2-table--player-games` (secondary body, win/loss `.blue`/`.red` kept); PHP marks `k2-table-col-sorted` on active sort column; filters use shared `k2-archive-listbox` + `k2-archive-listbox.js` (same as Status Leagues pickers, Jun 2026); Reset / Previous 100 / Next 100 use quiet action pills. |
+| `games/` hub | **Hub tab** after Milestones (`hub_nav.php`). Sub-nav **Recent** \| **Highlights** \| **All games** (`games_hub_nav.php`). **Recent:** `games/recent.php` — 14 day buckets; `k2-table--calm-stats` + `ranked-pages-table`; **TS** column; SSR + JS `k2-table-col-sorted`. **Highlights:** `games/highlights.php` — top 100 boards; compact rows; JS sort column. **All games:** `games/all.php` — full table + **TS**; server sort; PHP `k2-table-col-sorted`; **filters** (Player / Opponent / Score-line / Year); 250-row chevron pager; **Reset filters** accent pill (`k2-player-games-reset`); filter block spaced below sub-nav. Status **Games →** secondary entry retained. |
+| `player/games.php` | Server-side Result/Opponent/Goals scored/Goals conceded/Goal sum filters, URL sort links, 100-row slices, shared row renderer; `k2-table--calm-stats` + `k2-table--player-games` (secondary body, win/loss `.blue`/`.red` kept); PHP marks `k2-table-col-sorted` on active sort column; filters use shared `k2-archive-listbox` + `k2-archive-listbox.js`; **`k2-player-games-reset`** accent pill; day filter banner with played-day chevrons (no “clear day filter”). |
+| `game.php` | Static single-game table with `k2-table.js` header help only; no sorting; **TS** column after Sum. Below the table when a game exists: short “while we wait for browser replay” copy + 16:9 YouTube embed (2024 Online WC final placeholder). |
 | `status.php` | Active LB: sort + Elo anchor; league tables: calm-stats + Pts/Games anchors — **PHP** (`k2_league_table_render.php`) and **JS** (`status-period-competitions.js` inject + `k2TableApplyAnchors`). |
 | `hall-of-fame.php` | HoF record panels: calm-stats; Value column anchor; all values → leaderboard wings + `provisional=0` + `k2_sort`; dates keep `(New!)` / `(Legendary)` markers. |
 | `activity.php`, `hall-of-fame.php` | Activity summary cards plus static themed tables; no general table JS. |
@@ -53,7 +53,7 @@ Tables opt in explicitly:
 
 ## Games Row Contract
 
-`game.php`, `games.php` (Recent), and `games.php` Highlights share rated-game row rendering through `includes/k2_rated_game_row.php`. Highlights use `variant=compact` (no Elo/adjustment columns; optional **Peak** on one-side board).
+`game.php`, `games/recent.php`, `games/all.php`, and Highlights share rated-game row rendering through `includes/k2_rated_game_row.php`. Highlights use `variant=compact` (no Elo/adjustment columns; **TS** column on top-score board). Full rows (Recent, All, single-game) always include **TS** after Sum.
 
 Canonical row rules:
 
@@ -64,6 +64,7 @@ Canonical row rules:
 - ActualScore comparisons use tolerance.
 - Ratings are rounded.
 - `games.php` uses sortable headers for every visible game-list column; date/Fav ES/adjustment cells provide raw sort values.
+- **TS (top score)** — `max(GoalsA, GoalsB)`; column header **TS**, tooltip label **Top score**. Prose elsewhere keeps *goals scored in a game*; sort/filter param `top_score`.
 - Rating `Diff` displays rounded integer Elo difference; `Fav ES` shows expected score for the higher-rated player.
 - Games-tab keeps header popups on all sortable columns; obvious labels can fall back to the shared `Click to sort.` action while abbreviation/context tooltips stay explicit. `game.php` mirrors only the useful non-sortable header help. Deep Elo explanation lives on `Fav ES` (expected-score formula/examples) and visible `Adjustment` (rating-change math with K = 32).
 - Adjustment cells use the shared adjustment helper.
@@ -83,6 +84,25 @@ Do not fork Games-tab row markup unless the shared renderer is updated too.
 - Shared row renderer: `includes/k2_player_game_row.php`.
 
 Product requirement: keep Result and Opponent narrowing; normal URL flow is the contract.
+
+---
+
+## All Games Contract (phase 2)
+
+`games/all.php` + `includes/k2_realm_games_all.php` + `includes/k2_realm_games_all_filters_ui.php`:
+
+- **Sort:** server-side whitelist incl. `top_score` → `GREATEST(GoalsA, GoalsB)`; default `id` desc.
+- **Pagination:** 250 rows; `offset` param; Reset clears sort, offset, and filters.
+- **Shared WHERE:** `includes/k2_ratedresults_games_filters.php` — also used by `player/games.php`. `player_id = 0` = realm-wide.
+- **Filter UI (four rows):**
+  - **Player** — search (`player-search.js` filter mode) + **Rating** listbox (name, rating meta; sort name → rating) + **A–Z** listbox; realm `playertable` (`Display = 1`).
+  - **Opponent** — muted until `player` set; search (`player_h2h_opponent_search` API) + **By games** + **A–Z** listboxes (H2H opponent set).
+  - **Score-line** — `gd`, `gs`, `ts` listboxes (realm-wide distinct values + game counts).
+  - **Year** — `year` + `year_mode` (`in` \| `since` \| `until`).
+- **URL params:** `player`, `opponent`, `gd`, `gs`, `ts`, `year`, `year_mode`, `sort`, `dir`, `offset`.
+- **JS:** `k2-realm-games-filters.js` + `k2-archive-listbox.js`; form `data-k2-carry-scroll`.
+- Sort/pager links preserve active filter params; filter change drops `offset`.
+- **Active sort column:** PHP `k2-table-col-sorted` via `k2_rated_game_sort_col_index()`.
 
 ---
 

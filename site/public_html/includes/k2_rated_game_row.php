@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared rated-game table row (game.php, Games tab / games.php).
+ * Shared rated-game table row (game.php, Games hub /games/*).
  *
  * @see docs/k2-table-and-games-plan.md Phase 2
  */
@@ -116,6 +116,18 @@ function k2_rated_game_favorite_expected_score(array $game): float
 }
 
 /**
+ * Top score (TS) — most goals either player scored in the game.
+ *
+ * @param array<string, mixed> $game normalized or raw ratedresults row
+ */
+function k2_rated_game_top_score(array $game): int
+{
+    $normalized = isset($game['GoalsA']) ? $game : k2_rated_game_normalize_row($game);
+
+    return max((int) $normalized['GoalsA'], (int) $normalized['GoalsB']);
+}
+
+/**
  * @param array<string, mixed> $game normalized or raw ratedresults row
  */
 function k2_rated_game_date_html(array $game, string $dateFormat = 'display'): string
@@ -145,26 +157,89 @@ function k2_rated_game_id_html(array $game, string $idMode = 'link'): string
 }
 
 /**
+ * 0-based column index for each server-side `sort` key on hub full game rows (Recent default / All games).
+ *
+ * @return array<string, int>
+ */
+function k2_rated_game_hub_sort_col_map(): array
+{
+    return [
+        'id' => 0,
+        'date' => 1,
+        'team_a' => 2,
+        'goals_a' => 3,
+        'goals_b' => 4,
+        'team_b' => 5,
+        'gd' => 6,
+        'sum' => 7,
+        'top_score' => 8,
+        'winner' => 9,
+        'rating_a' => 10,
+        'rating_b' => 11,
+        'elo_diff' => 12,
+        'fav_es' => 13,
+        'adjustment' => 14,
+    ];
+}
+
+function k2_rated_game_sort_col_index(string $sortKey): int
+{
+    $map = k2_rated_game_hub_sort_col_map();
+
+    return $map[$sortKey] ?? 0;
+}
+
+function k2_rated_game_td(
+    string $content,
+    int $colIndex,
+    int $sortedColIndex,
+    string $extraClass = '',
+    int|float|string|null $sortValue = null
+): string {
+    $classes = [];
+    if ($extraClass !== '') {
+        foreach (preg_split('/\s+/', trim($extraClass)) ?: [] as $className) {
+            if ($className !== '') {
+                $classes[] = $className;
+            }
+        }
+    }
+    if ($sortedColIndex >= 0 && $colIndex === $sortedColIndex) {
+        $classes[] = 'k2-table-col-sorted';
+    }
+
+    $attrs = '';
+    if ($classes !== []) {
+        $attrs .= ' class="' . implode(' ', $classes) . '"';
+    }
+    if ($sortValue !== null) {
+        $attrs .= ' data-k2-sort-value="' . k2_rated_game_h((string) $sortValue) . '"';
+    }
+
+    return '<td' . $attrs . '>' . $content . '</td>';
+}
+
+/**
  * Compact row for Games Highlights (no Elo / adjustment columns).
  *
  * @param array<string, mixed> $game normalized or raw ratedresults row
- * @param array{id_mode?: string, date_format?: string, show_peak_column?: bool, show_gd_column?: bool, show_sum_column?: bool} $options
+ * @param array{id_mode?: string, date_format?: string, show_ts_column?: bool, show_gd_column?: bool, show_sum_column?: bool} $options
  */
 function k2_rated_game_row_compact_html(array $row, array $options = []): string
 {
-    $processed = k2_rated_game_is_processed($row);
-    $game = k2_rated_game_normalize_row($row);
-    $idMode = ($options['id_mode'] ?? 'link') === 'plain' ? 'plain' : 'link';
-    $dateFormat = ($options['date_format'] ?? 'display') === 'raw' ? 'raw' : 'display';
-    $showPeak = !empty($options['show_peak_column']);
-    $showGd = ($options['show_gd_column'] ?? true) !== false;
-    $showSum = ($options['show_sum_column'] ?? true) !== false;
+	$processed = k2_rated_game_is_processed($row);
+	$game = k2_rated_game_normalize_row($row);
+	$idMode = ($options['id_mode'] ?? 'link') === 'plain' ? 'plain' : 'link';
+	$dateFormat = ($options['date_format'] ?? 'display') === 'raw' ? 'raw' : 'display';
+	$showTs = !empty($options['show_ts_column']);
+	$showGd = ($options['show_gd_column'] ?? true) !== false;
+	$showSum = ($options['show_sum_column'] ?? true) !== false;
 
-    $idA = $game['idA'];
-    $idB = $game['idB'];
-    $nameA = (string) $game['NameA'];
-    $nameB = (string) $game['NameB'];
-    $peakGoals = max((int) $game['GoalsA'], (int) $game['GoalsB']);
+	$idA = $game['idA'];
+	$idB = $game['idB'];
+	$nameA = (string) $game['NameA'];
+	$nameB = (string) $game['NameB'];
+	$topScore = k2_rated_game_top_score($game);
 
     $gameId = (int) $game['id'];
     $idCell = k2_rated_game_id_html($game, $idMode);
@@ -198,9 +273,9 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
         $row .= '<td>' . $sumGoals . '</td>';
     }
 
-    if ($showPeak) {
-        $row .= '<td data-k2-sort-value="' . $peakGoals . '">' . $peakGoals . '</td>';
-    }
+	if ($showTs) {
+		$row .= '<td data-k2-sort-value="' . $topScore . '">' . $topScore . '</td>';
+	}
 
     $row .= '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . $winnerCell . '</td>';
 
@@ -209,7 +284,7 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
 
 /**
  * @param array<string, mixed> $game normalized or raw ratedresults row
- * @param array{id_mode?: string, date_format?: string, variant?: string, show_peak_column?: bool} $options
+ * @param array{id_mode?: string, date_format?: string, variant?: string, show_ts_column?: bool, sorted_col_index?: int} $options
  */
 function k2_rated_game_row_html(array $row, array $options = []): string
 {
@@ -221,6 +296,7 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     $game = k2_rated_game_normalize_row($row);
     $idMode = ($options['id_mode'] ?? 'link') === 'plain' ? 'plain' : 'link';
     $dateFormat = ($options['date_format'] ?? 'display') === 'raw' ? 'raw' : 'display';
+    $sortedColIndex = (int) ($options['sorted_col_index'] ?? -1);
 
     $idA = $game['idA'];
     $idB = $game['idB'];
@@ -236,9 +312,11 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     $goalDiff = $processed
         ? (int) $game['GoalDifference']
         : abs((int) $game['GoalsA'] - (int) $game['GoalsB']);
+    $goalDiffCell = $goalDiff > 0 ? '+' . $goalDiff : (string) $goalDiff;
     $sumGoals = $processed
         ? (int) $game['SumOfGoals']
         : (int) $game['GoalsA'] + (int) $game['GoalsB'];
+    $topScore = k2_rated_game_top_score($game);
     $dash = k2_fmt_dash();
 
     if ($processed) {
@@ -264,20 +342,21 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     }
 
     return '<tr>'
-        . '<td>' . $idCell . '</td>'
-        . '<td class="k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl" data-k2-sort-value="' . $dateSortValue . '">' . $dateCell . '</td>'
-        . '<td class="k2-table-cell--left">' . $teamA . '</td>'
-        . '<td>' . (int) $game['GoalsA'] . '</td>'
-        . '<td class="k2-table-cell--left">' . (int) $game['GoalsB'] . '</td>'
-        . '<td class="k2-table-cell--left">' . $teamB . '</td>'
-        . '<td>' . $goalDiff . '</td>'
-        . '<td>' . $sumGoals . '</td>'
-        . '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . $winnerCell . '</td>'
-        . '<td>' . $ratingACell . '</td>'
-        . '<td>' . $ratingBCell . '</td>'
-        . '<td>' . $ratingDiffCell . '</td>'
-        . '<td class="k2-table-cell--pad-right-xs" data-k2-sort-value="' . $favoriteExpectedScore . '">' . $esCell . '</td>'
-        . '<td class="k2-table-cell--left" data-k2-sort-value="' . (float) $winnerAdjustment['adj'] . '">' . $adjustmentCell . '</td>'
-        . '<td class="k2-table-cell--left" data-k2-sort-value="' . (float) $loserAdjustment['adj'] . '">' . $adjustmentLoserCell . '</td>'
+        . k2_rated_game_td($idCell, 0, $sortedColIndex)
+        . k2_rated_game_td($dateCell, 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl', $dateSortValue)
+        . k2_rated_game_td($teamA, 2, $sortedColIndex, 'k2-table-cell--left')
+        . k2_rated_game_td((string) (int) $game['GoalsA'], 3, $sortedColIndex)
+        . k2_rated_game_td((string) (int) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left')
+        . k2_rated_game_td($teamB, 5, $sortedColIndex, 'k2-table-cell--left')
+        . k2_rated_game_td($goalDiffCell, 6, $sortedColIndex, '', $goalDiff)
+        . k2_rated_game_td((string) $sumGoals, 7, $sortedColIndex)
+        . k2_rated_game_td((string) $topScore, 8, $sortedColIndex, '', $topScore)
+        . k2_rated_game_td($winnerCell, 9, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-lg')
+        . k2_rated_game_td($ratingACell, 10, $sortedColIndex)
+        . k2_rated_game_td($ratingBCell, 11, $sortedColIndex)
+        . k2_rated_game_td($ratingDiffCell, 12, $sortedColIndex)
+        . k2_rated_game_td($esCell, 13, $sortedColIndex, 'k2-table-cell--pad-right-xs', $favoriteExpectedScore)
+        . k2_rated_game_td($adjustmentCell, 14, $sortedColIndex, 'k2-table-cell--left', (float) $winnerAdjustment['adj'])
+        . k2_rated_game_td($adjustmentLoserCell, 15, $sortedColIndex, 'k2-table-cell--left', (float) $loserAdjustment['adj'])
         . '</tr>';
 }

@@ -16,6 +16,7 @@ Cold start (do **before** coding unless Dagh pasted full context):
 | 4 | Dagh’s message | Today’s goal wins over stale docs |
 | 5 | Feature spec **if** obvious | Work DB / simul → **`docs/work-db-prepare.md`** + **`docs/coordination/ops-simul-runbook.md`**. Post-game PHP → **`docs/post-game-php-development.md`** + `ops/run_process_game.php`. Cutover / prod → **`docs/coordination/cutover-readiness.md`** (not batch REP scripts). Else e.g. `docs/STATUS_PAGE_DATA.md`, `docs/activity-charts.md` |
 | 6 | [`docs/design-direction.md`](docs/design-direction.md) | If UI/theme work |
+| 7 | [`docs/url-routes.md`](docs/url-routes.md) § Sub-hub navigation | If adding hub sub-tabs, player wings, or realm sub-areas |
 
 **Do not** read all of `docs/coordination/` up front. Open [`docs/prod-coordination.md`](docs/prod-coordination.md) only when the task touches **stored ladder truth** or Steve/migration.
 
