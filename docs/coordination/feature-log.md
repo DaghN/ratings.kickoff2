@@ -61,15 +61,15 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestone `play_streak_100` | L2 | SCH-011 | Yes | **Proven** | **Not executed** | — | 0 holders; catalog seeded |
 | Milestones post-game contract | L2 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | PHP ops P6; simul on `kooldb1`; live = dispatch at cutover |
 | Rated play streaks (day/week) | L4 | SCH-014 | Yes | **Proven** | **Not executed** | — | `ranked4` + HoF; **proven on `kooldb1`**; live writer = PHP ops P7 |
-| Activity wing stored truth (participation + streaks) | L4 | SCH-022–025 | Yes | **Done (smoke 1000)** | **Not executed** | — | **Repo track complete** Jun 2026; SCH-025 reached_at on P4b; Steve full simul only outstanding — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
+| Activity wing stored truth (participation + streaks) | L4 | SCH-022–025 | Yes | **Proven** | **Not executed** | — | **`kooldb1` simul signed off** Jun 2026 (participation + play-streak + reached_at verify PASS) — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
 | Result streak boundaries (Streaks LB) | L2 | SCH-026 | Yes | **Done** (ops + UI) | **Not executed** | — | `player_result_streaks`; LB tooltips + games drill-down; date/GD polish Jun 2026 |
 | Milestones `diversity_merchant` per-game DD | L4 | — | Yes | **Proven** | **Not executed** | — | **25** holders; **6615** canonical rows |
 | Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Not executed** | — | **31** holders on work DB |
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | Catalog **112**; simul on `kooldb1` |
-| Milestone meta leaderboard totals | L2 | SCH-020 | Yes | **Proven** work | **Not executed** | — | `player_milestone_totals`; meta LB + profile hero; bump via librarian |
-| Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** work | **Not executed** | — | All unlock rows incl. orphans; bump + verify aligned; lobby rebuild only |
+| Milestone meta leaderboard totals | L2 | SCH-020 | Yes | **Proven** | **Not executed** | — | `player_milestone_totals`; verify `milestone_totals_parity` PASS on `kooldb1` |
+| Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** | **Not executed** | — | All unlock rows incl. orphans; verify `milestone_holder_count_parity` PASS on `kooldb1` |
 | Stored truth expansion | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | Five tables; **ops simul on `kooldb1`** (not May `kooldb` batch) |
-| Opponents wing stored matchup (SCH-019) | L2 | SCH-019 | Yes | **Done** (work simul 500) | **Not executed** | — | Goals extremes + DDs from summary on work; Steve `kooldb1` next — [`player-opponents-hub.md`](../player-opponents-hub.md) |
+| Opponents wing stored matchup (SCH-019) | L2 | SCH-019 | Yes | **Proven** | **Not executed** | — | Full `kooldb1` simul Jun 2026 — [`player-opponents-hub.md`](../player-opponents-hub.md) |
 | H2H versus poster + pair detail + moments + charts | L0 | — | — | — | — | — | Poster + race table (perf rating last) + **3×3 moments grid** + **pair charts on H2H** (cumulative wins · cumulative goals · **total goals histogram** · rating compare · goals-per-game histograms · **scoreline heatmap**); **top opponents bar on Profile** — [`player-opponents-h2h-poster.md`](../player-opponents-h2h-poster.md) |
 | Profile `ratedresults` indexes | L1 | SCH-001 | — | **Done** (migrate) | **Not executed** | — | Migration `001` in ops package; live = migrate-work on cutover |
 | Ladder replay sandbox (K32/1600) | L2 | SCH-002 | Partial | **Done** (May) | **Not executed** | — | Core ladder via `scripts/ladder`; website aggregates via ops simul |

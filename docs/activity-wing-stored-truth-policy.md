@@ -1,6 +1,6 @@
 # Activity wing — stored truth policy (online)
 
-**Status:** **Repo track complete (Jun 2026).** Ops + UI shipped on dev/staging. **Outstanding:** Steve full simul (slice 4) → live cutover. **HoF (Jun 2026):** month/year play-streak rows + participation block shipped; in-a-row → player Games drill-down still deferred.
+**Status:** **Proven on `kooldb1` (Jun 2026).** Ops + UI shipped; Steve full bootstrap + simul + `run_verify_ops_sim` **0 fail** (participation, play-streak HoF, SCH-025 reached_at oracle). **Live cutover** = Steve layer C when scheduled. **HoF:** month/year play-streak rows + participation block shipped; in-a-row → player Games drill-down still deferred.
 **Realm:** Online only (`ko2unity_*` / `kooldb*`) — Amiga defers per [`amiga-realm-vision.md`](amiga-realm-vision.md).  
 **Authority:** Product + ops decisions here; table behaviour merges into [`website-data-contract.md`](website-data-contract.md) at track closure.  
 **Implementation:** [`activity-wing-stored-truth-implementation-plan.md`](activity-wing-stored-truth-implementation-plan.md)
@@ -40,7 +40,7 @@ Support a restructured **Leaderboards → Activity** wing with three celebration
 | A12 | **Orthogonal parity:** After incremental smoke simul on **work**, compare each new stored-truth table to **slow oracle queries** on data already on work (mainly `player_period_games`; `ratedresults` only for narrow spot checks). Two independent paths to the same answer — **not** “rebuild script is definition of correct.” |
 | A13 | **Smoke ladder:** simul `--limit 100` → parity → Dagh OK → `--limit 1000` → parity → Dagh OK → longer/full only if Dagh approves (smokes take time). |
 | A14 | **Milestones:** **out of scope** — no catalog keys, no post-game unlock hooks this burst. |
-| A15 | **Execution order (as shipped):** ops + orthogonal parity on work → smoke ladder → **UI on dev/staging** (Jun 2026) → **Steve full simul** (outstanding) → live cutover. |
+| A15 | **Execution order (as shipped):** ops + orthogonal parity on work → smoke ladder → **UI on dev/staging** (Jun 2026) → **Steve full simul on `kooldb1`** (**done** Jun 2026) → live cutover (Steve). |
 | A16 | **Track closed** Jun 2026 — reopen only if Dagh asks (HoF page rows, in-a-row drill-down, etc.). |
 
 ---

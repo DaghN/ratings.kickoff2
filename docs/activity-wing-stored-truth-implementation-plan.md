@@ -1,8 +1,8 @@
 # Activity wing stored truth — implementation plan
 
-**Status:** **Complete (repo, Jun 2026)** — awaiting Steve simul only  
+**Status:** **Complete + proven on `kooldb1` (Jun 2026)**  
 **Policy:** [`activity-wing-stored-truth-policy.md`](activity-wing-stored-truth-policy.md)  
-**Track owner:** closed; Steve coordinates slice 4.
+**Track owner:** closed.
 
 ---
 
@@ -11,7 +11,7 @@
 ```text
 1. Ops slices 0–3  → DONE (schema, P4b, P7, verify + orthogonal parity on WORK)
 2. Smoke ladder      → DONE (100 + 1000 games, parity PASS)
-3. Steve simul       → OUTSTANDING (Dagh / Steve)
+3. Steve simul       → DONE (`kooldb1` verify 0 fail Jun 2026)
 4. UI slice          → DONE (leaderboards/activity/* + Streaks wing column drop)
 5. Closure           → DONE (docs, feature-log, MEMORY)
 ```
@@ -47,11 +47,11 @@
 
 ## How to use this plan
 
-**Track closed (Jun 2026).** Retained for reference. **Only outstanding:** slice 4 (Steve simul).
+**Track closed (Jun 2026).** Retained for reference. Slice 4 (Steve full simul) **signed off** on `kooldb1`.
 
 - **One slice per session** unless Dagh says otherwise.
 - **Smoke ladder:** `--limit 100` → run parity SQL → **wait for Dagh OK** → `--limit 1000` → parity → **wait for Dagh OK** → longer/full only if Dagh approves.
-- Slices 0–3, 5–6: **done.** Slice 4: **awaiting Steve.**
+- Slices 0–6: **done** (incl. Steve simul slice 4).
 
 ### Environment
 
@@ -75,7 +75,7 @@
 | **1** | P4b: `is_new_period` + participation increment | **Done** |
 | **2** | P7: month/year streaks; gate on `is_new_period`; wire from P4 | **Done** |
 | **3** | Verify module + parity SQL doc; smoke **100 → 1000** ladder | **Done** |
-| **4** | *(external)* Steve full simul | **Outstanding** |
+| **4** | *(external)* Steve full simul | **Done** (`kooldb1` Jun 2026) |
 | **5** | UI: `leaderboards/activity/*`, 3 tables, nav; drop Days/Weeks on Streaks wing | **Done** |
 | **6** | Closure: registers, MEMORY, policy | **Done** |
 
@@ -175,15 +175,15 @@ php site/public_html/ops/run_verify_ops_sim.php --target local-work
 
 **Verified Jun 2026:** orthogonal parity **PASS** (396 day periods, streak oracle 0 mismatches, HoF day=10 week=23 month=6 year=1). `run_verify_ops_sim` activity checks all PASS; `league_awards` **fail** expected on Mode A `replay-to` (no day-close / league finalization).
 
-→ **STOP gate met** — request **Steve simul** (slice 4).
+→ **STOP gate met** — Steve simul (slice 4) requested and **passed** on `kooldb1` (Jun 2026).
 
 ---
 
-## Slice 4 — External (Steve) — **OUTSTANDING**
+## Slice 4 — External (Steve) — **DONE**
 
-Not agent work. Dagh coordinates Steve full simul on work/staging. Repo track does **not** resume until simul is requested or cutover is scheduled.
+Steve full bootstrap + simul on `kooldb1`; `run_verify_ops_sim` **0 fail / 0 warn** (74,865 processed). Participation sums, per-player counts, SCH-025 reached_at oracle, play-streak oracle, and HoF month/year play-streak rows all **PASS**.
 
-UI shipped on dev/staging ahead of simul (Jun 2026); no further UI work planned unless Dagh reopens the track.
+No further repo work unless Dagh reopens the track (e.g. in-a-row drill-down).
 
 ---
 
@@ -217,7 +217,7 @@ Browser on staged + dev; sort columns; tooltips; peak → games drill-down and b
 - [x] `schema-register.md`, `feature-log`, `PROJECT_MEMORY.md`, policy status
 - [x] UI + ops shipped; docs reflect repo track complete
 - [x] HoF Activity block (participation + play-streak month/year + career celebration); SCH-025 `active_*_reached_at` on P4b
-- [ ] Steve simul (slice 4) → live cutover — **only outstanding item**
+- [x] Steve simul (slice 4) on `kooldb1` — **done** Jun 2026; live cutover = Steve layer C
 
 ---
 
@@ -227,7 +227,7 @@ Browser on staged + dev; sort columns; tooltips; peak → games drill-down and b
 |------|------------|
 | Incremental vs oracle drift | Orthogonal parity at 100 and 1000 on **work** |
 | Confusing dev DB fill with parity | Policy A11; proof DB = work only |
-| UI before Steve simul | UI shipped on dev/staging Jun 2026; full simul still required for cutover proof |
+| UI before Steve simul | UI shipped ahead of simul Jun 2026; `kooldb1` full simul now signed off |
 | Long smoke without OK | Ladder stops at 1000 until Dagh approves more |
 | Old `activity-peaks.php` bookmarks | Redirect/shim to `activity.php` |
 | HoF participation tie dates | SCH-025 stores `active_*_reached_at` on P4b; backfill `rebuild_participation_reached.php` after migrate on each DB |

@@ -154,7 +154,7 @@ Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 | Layer diffs | `ab-post-game` (exclude `entered_arena`, day-close as documented) |
 | Site spot | ranked9, garden, status @ checkpoint |
 
-**Steve staging:** **Signed off Jun 2026** — full simul + `run_verify_ops_sim` PASS on `kooldb1`; visual parity vs frozen dev acceptable. **Next:** Live phase — see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Staging sign-off.
+**Steve staging:** **Signed off Jun 2026** — full bootstrap + simul + `run_verify_ops_sim` PASS on `kooldb1` (participation, play-streak, milestone librarian parity included). **Next:** Live phase — see [`ops-simul-runbook.md`](ops-simul-runbook.md) § Staging sign-off.
 
 ---
 

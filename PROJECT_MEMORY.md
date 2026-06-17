@@ -14,9 +14,9 @@
 
 - **Cutover prep (done):** Schema + PHP ops + **simul proven on `kooldb1`** — [`cutover-readiness.md`](docs/coordination/cutover-readiness.md). **Live prod execution** = Steve when scheduled (not repo backlog).
 
-- **Activity wing (Leaderboards):** **Repo track complete (Jun 2026)** — SCH-022–024 ops + LB UI (Peaks · Participation · In a row); work smoke 1000 PASS. **Outstanding:** Steve full simul only. Policy: [`activity-wing-stored-truth-policy.md`](docs/activity-wing-stored-truth-policy.md). **HoF (Jun 2026):** month/year play-streak rows + participation block (read `player_activity_participation`); query batching still optional next slice.
+- **Activity wing (Leaderboards):** **Proven `kooldb1` (Jun 2026)** — SCH-022–025 ops + LB UI (Peaks · Participation · In a row); Steve full bootstrap + simul + verify **0 fail** (participation, play-streak HoF, reached_at oracle). Policy: [`activity-wing-stored-truth-policy.md`](docs/activity-wing-stored-truth-policy.md). **HoF:** month/year play-streak rows + participation block shipped.
 
-- **Result streaks (Streaks LB):** **Shipped Jun 2026** — SCH-026 `player_result_streaks` + post-game writer + verify; LB tooltips/click-through + player-games streak banner. Steve: migrate-work + zero + simul on prod copy.
+- **Result streaks (Streaks LB):** **Shipped Jun 2026** — SCH-026 `player_result_streaks` + post-game writer + verify; LB tooltips/click-through + player-games streak banner. Work smoke PASS; **`kooldb1` proof** when Steve syncs migration `026` + re-simul.
 
 - **Leagues:** **Honours proven `kooldb1`** (`leaderboards/league-honours.php`). Live = `FinalizeUtcDay` when wired.
 
@@ -85,6 +85,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Steve `kooldb1` full re-simul** — bootstrap + simul + `run_verify_ops_sim` **0 fail / 0 warn** (74,865 processed); participation sums, reached_at oracle, play-streak HoF, milestone totals/holder_count parity PASS; orphan-milestone verify fix confirmed. |
 | 2026-06 | **Result streaks UI polish** — tooltip/banner dates `M j, Y`; streak games list newest-first; player games date `M j Y, H:i`; GD `+` on wins. |
 | 2026-06 | **Result streaks slice 4** — Streaks LB tooltips + click-through to player games (`from_game`/`to_game` filter); `lb_result_streaks_lib.php`; back-link `from=result-streaks`. |
 | 2026-06 | **Result streaks slice 2** — `k2_result_streak_after_rated_game()` in `process_completed_game.php`; verify `result_streak_oracle` in `run_verify_ops_sim.php`; work smoke 100 PASS. |
@@ -95,7 +96,7 @@
 | 2026-06 | **LB Elo tooltip** — `k2_lb_help_elo_rating()` now says “We use standard Elo…” (online + Amiga leaderboards). |
 | 2026-06 | **Header cross-realm search fix** — `player-search.js` click/Enter used root `realm=all` instead of per-hit `data-player-realm`; Amiga picks now route to `/amiga/player/profile.php`. |
 | 2026-06 | **Leaderboards wing order** — Rating → Activity → Milestones → League honours → Goals → DDs → Streaks → Victims → Peak rating (`lb_nav.php`). |
-| 2026-06 | **Activity wing — repo track closed** — ops + UI shipped; awaiting **Steve simul** only. HoF play-streak page rows deferred. |
+| 2026-06 | **Activity wing — `kooldb1` proven** — Steve full simul + verify PASS; track closed. |
 | 2026-06 | **Hall of Fame layout** — single record table; extra chapter-to-table breathing room (`margin-top` on `.server-records-hof`). |
 | 2026-06 | **Games All games filters** — 28px margin above filter block (sub-nav separation; results stay tight below). |
 | 2026-06 | **Hub IA — Games tab** — promoted to hub nav after Milestones (`hub_nav.php`, `$k2HubTabActive = 'games'`); Status **Games →** kept. |

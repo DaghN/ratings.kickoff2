@@ -142,8 +142,10 @@ Full checklist table: [`ops-derived-data-registry.md`](ops-derived-data-registry
 
 | Gate | Result |
 |------|--------|
-| Steve full simul on `kooldb1` | **Done** |
-| `run_verify_ops_sim --target staging-work` | **PASS** — 0 fail, 0 warn (74,865 processed; league awards + 20 league keys present) |
+| Steve full simul on `kooldb1` | **Done** (re-confirmed after activity/milestone writer fixes) |
+| `run_verify_ops_sim --target staging-work` | **PASS** — 0 fail, 0 warn (74,865 processed; league awards + 20 league keys) |
+| Activity wing verify | Participation sums, per-player counts, SCH-025 reached_at oracle, play-streak oracle, HoF month/year play-streak rows — **all PASS** |
+| Milestone librarian verify | `milestone_totals_parity` + `milestone_holder_count_parity` — **0 mismatch** (orphan unlock rows included) |
 | Dagh visual parity vs frozen local dev | **Acceptable** — two milestone rule fixes (`clean_sheet_spread`, `giant_slayer`) then re-check |
 | **AUD-004 / AUD-005** | **Closed** — [`parity-audit-backlog.md`](parity-audit-backlog.md) |
 
