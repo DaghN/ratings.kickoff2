@@ -394,8 +394,19 @@
 		return sortTableByIndex(table, index, direction);
 	}
 
+	function getSortScope(table) {
+		var scope = table && table.getAttribute ? table.getAttribute('data-k2-sort-scope') : '';
+		scope = scope ? String(scope).trim() : '';
+		return scope;
+	}
+
+	function sortUrlParamKey(scope, base) {
+		return scope ? base + '_' + scope : base;
+	}
+
 	function syncSortToUrl(columnIndex, direction, table) {
 		var url;
+		var scope;
 
 		if (!table || !hasClass(table, 'ranked-pages-table')) {
 			return;
@@ -406,9 +417,10 @@
 			return;
 		}
 
+		scope = getSortScope(table);
 		url = new URL(window.location.href);
-		url.searchParams.set('k2_sort', String(columnIndex));
-		url.searchParams.set('k2_dir', direction === 'asc' ? 'asc' : 'desc');
+		url.searchParams.set(sortUrlParamKey(scope, 'k2_sort'), String(columnIndex));
+		url.searchParams.set(sortUrlParamKey(scope, 'k2_dir'), direction === 'asc' ? 'asc' : 'desc');
 		window.history.replaceState(null, '', url.pathname + url.search + url.hash);
 		refreshLbFilterToggleHrefs();
 	}
@@ -441,28 +453,34 @@
 		}
 	}
 
-	function getUrlSortParams() {
+	function getUrlSortParams(table) {
 		var params;
 		var sortRaw;
 		var index;
 		var dirRaw;
+		var scope;
+		var sortKey;
+		var dirKey;
 
 		if (!window.URLSearchParams) {
 			return null;
 		}
 
+		scope = getSortScope(table);
+		sortKey = sortUrlParamKey(scope, 'k2_sort');
+		dirKey = sortUrlParamKey(scope, 'k2_dir');
 		params = new URLSearchParams(window.location.search);
-		if (!params.has('k2_sort')) {
+		if (!params.has(sortKey)) {
 			return null;
 		}
 
-		sortRaw = params.get('k2_sort');
+		sortRaw = params.get(sortKey);
 		index = parseInt(sortRaw, 10);
 		if (isNaN(index)) {
 			return null;
 		}
 
-		dirRaw = params.get('k2_dir');
+		dirRaw = params.get(dirKey);
 		return {
 			index: index,
 			direction: dirRaw === 'asc' ? 'asc' : 'desc'
@@ -535,7 +553,7 @@
 	}
 
 	function applyUrlSortState(table) {
-		var urlSort = getUrlSortParams();
+		var urlSort = getUrlSortParams(table);
 
 		if (!urlSort || !hasClass(table, 'ranked-pages-table')) {
 			return false;

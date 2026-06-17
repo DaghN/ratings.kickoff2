@@ -784,7 +784,7 @@ function k2_league_period_render_games_section(
 	</div>
 <?php if ($games !== []) { ?>
 	<div class="k2-table-wrap" data-k2-scroll-mirror>
-		<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--realm-games-all ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc">
+		<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--realm-games-all ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc" data-k2-sort-scope="league-games">
 			<thead>
 				<tr>
 					<th class="k2-table-cell--left" data-k2-sort="number">ID</th>

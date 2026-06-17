@@ -127,7 +127,7 @@ if (!function_exists('k2_status_render_league_table')) {
         }
         $tableAttrs = ' data-k2-anchor-col="9"';
         if ($sortable) {
-            $tableAttrs .= ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="9" data-k2-default-direction="desc"';
+            $tableAttrs .= ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="9" data-k2-default-direction="desc" data-k2-sort-scope="league-standings"';
         }
         ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">
@@ -201,7 +201,7 @@ if (!function_exists('k2_status_render_activity_competition_table')) {
         }
         $tableAttrs = ' data-k2-anchor-col="2"';
         if ($sortable) {
-            $tableAttrs .= ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc"';
+            $tableAttrs .= ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc" data-k2-sort-scope="league-standings"';
         }
         ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">

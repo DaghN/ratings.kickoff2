@@ -157,7 +157,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Body/table data | `--k2-text-primary`, normal weight |
 | Muted helpers/headings | `--k2-text-muted` |
 | Hub page lede (`.k2-hub-page-intro` in `.k2-hub-page-intro-head`) | 13px `--k2-text-muted`, max-width 44rem � Milestones catalog + HoF footnotes above tables; optional `.blue` / `.holo` |
-| Hub section chapter (`.k2-hub-chapter`) | `__title` 1.25rem/600 primary; `__lede` 13px muted; optional `__list` (compact disc bullets, muted+accent `::marker`, same typography) via `$k2HubChapterList` in `includes/k2_hub_chapter.inc.php`. Online hub: Activity, Leaderboards (`lb_nav.php`), Milestones, HoF (rules list). Amiga hub: News (`/amiga/news.php`), Leaderboards (`amiga_lb_nav.php`), Tournaments, Live tournaments, Activity (`/amiga/activity.php`), HoF. |
+| Hub section chapter (`.k2-hub-chapter`) | `__title` 1.25rem/600 **primary** (intentional — sole “where you are” landmark; not accent/glow; Jun 2026 trial reverted); `__lede` 13px muted; optional `__list` (compact disc bullets, muted+accent `::marker`, same typography) via `$k2HubChapterList` in `includes/k2_hub_chapter.inc.php`. Online hub: Activity, Leaderboards (`lb_nav.php`), Milestones, HoF (rules list). Amiga hub: News (`/amiga/news.php`), Leaderboards (`amiga_lb_nav.php`), Tournaments, Live tournaments, Activity (`/amiga/activity.php`), HoF. |
 | Status-style tickers (arc line) | `--k2-text-muted`; key counts `.blue` |
 | Onboarding / long explanatory prose (Play & setup) | `--k2-text-secondary` (14px); page title stays `--k2-text-primary` |
 | Player names / dense table links | `a.k2-link-star`, weight 600; hover/focus underline |
@@ -188,7 +188,7 @@ Do not add one-off hex in page CSS when a token exists.
 | Numbers | tabular numbers or IBM Plex Mono where useful |
 | Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial (self-hosted; preloaded in `k2_fonts_head.php`) |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
-| Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, primary — header step above wing tabs (13px); below Amiga event hero (1.35rem) |
+| Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, **primary** — editorial “you are here” landmark above wing tabs; accent/glow reserved for wordmark, league/H2H destinations, semantic data; pairs with muted `__lede` |
 | Text selection (drag highlight) | `::selection` on `body.k2-site` � `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
 
 Never use pixel/bitmap fonts for readable data.

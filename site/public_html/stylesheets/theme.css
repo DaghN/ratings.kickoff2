@@ -650,6 +650,13 @@ body.k2-site.k2-player-wing .k2-page-nav__up {
 body.k2-site .k2-games-hub {
 	max-width: 1200px;
 	margin: 0 auto;
+	overflow-x: clip;
+	min-width: 0;
+}
+
+body.k2-site .k2-league-period {
+	overflow-x: clip;
+	min-width: 0;
 }
 
 body.k2-site .k2-games-hub-tabs {
@@ -1936,13 +1943,25 @@ body.k2-site .k2-table-wrap {
 	background: var(--k2-bg-surface);
 }
 
+/* Wide games tables — column width before/after scroll-mirror JS wraps the panel */
+body.k2-site .k2-table-wrap[data-k2-scroll-mirror] {
+	width: 100%;
+	min-width: 0;
+}
+
 body.k2-site .k2-table-mirror-group {
-	width: fit-content;
+	width: 100%;
 	max-width: 100%;
+	min-width: 0;
 	margin-bottom: 16px;
+	overflow-x: clip;
+	contain: layout inline-size;
 }
 
 body.k2-site .k2-table-mirror-group .k2-table-wrap {
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
 	margin-bottom: 0;
 	border-top: none;
 	border-top-left-radius: 0;

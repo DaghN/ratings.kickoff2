@@ -85,8 +85,9 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Hub chapter titles** — accent+glow trial **reverted**; keep primary white: sole orientation landmark, avoids link-star/tint collision; lede stays editorial. |
 | 2026-06 | **Streaks LB nav fix** — `leaderboards/streaks.php` used `hub_nav.php` + single `lb_nav.php` (was duplicate wing chrome with Rating active). |
-| 2026-06 | **League period** — sibling cup link (`Activity league →`) beside period chevrons, not in lede prose. |
+| 2026-06 | **League period sort** — scoped `k2_sort` per table (`league-standings` / `league-games`); fixes games table picking standings column on load. |
 | 2026-06 | **League period hub bar** — `hub_nav.php` + tint picker on `league.php`; no active hub pill; `#k2-league-period` anchor unchanged. |
 | 2026-06 | **League period step chevrons** — prev/next period on open/close line (Status bounds); half-pill gap, no label. |
 | 2026-06 | **League period landing anchor** — `#k2-league-period` on title `h1`; hash scroll after layout; carry-scroll restore skipped when URL has hash. |
