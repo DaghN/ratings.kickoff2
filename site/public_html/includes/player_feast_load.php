@@ -6,6 +6,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_profile.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
 
 /**
  * @return array<string, mixed>
@@ -93,6 +94,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         $gid = (int) $def['game_id'];
         $gRes = k2_player_feast_query($con, 'trophy_game_' . $def['key'], "SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB FROM ratedresults WHERE id = $gid LIMIT 1");
         $gRow = $gRes ? mysqli_fetch_assoc($gRes) : null;
+        $gRow = k2_rated_game_row_resolve($con, $gRow);
         if ($gRow === null) {
             continue;
         }

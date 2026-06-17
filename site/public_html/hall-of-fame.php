@@ -338,6 +338,9 @@ if (!$records) {
 	die("generalstatstable row id=1 missing");
 }
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
+k2_player_display_names_patch_hof_records($con, $records);
+
 $newRecordCutoff = strtotime('-1 month');
 $legendaryRecordCutoff = strtotime('-5 years');
 

@@ -32,6 +32,13 @@ $result = mysqli_stmt_get_result($stmt);
 $row = $result ? mysqli_fetch_assoc($result) : null;
 mysqli_free_result($result);
 mysqli_stmt_close($stmt);
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
+if ($row !== null) {
+    $nameMap = k2_player_display_names_for_game_row($con, $row);
+    $row = k2_rated_game_apply_display_names($row, $nameMap);
+}
+
 mysqli_close($con);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';

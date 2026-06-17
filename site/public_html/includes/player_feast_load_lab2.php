@@ -177,6 +177,10 @@ function pl2_load_max_rated_victim(mysqli $con, int $id, int $rank): ?array
     if ($gRes === false || !($gRow = mysqli_fetch_assoc($gRes))) {
         return null;
     }
+    $gRow = k2_rated_game_row_resolve($con, $gRow);
+    if ($gRow === null) {
+        return null;
+    }
     $parsed = pm_parse_highlight_row($gRow, $id);
     $parsed['victim_rating'] = $victimRating;
 

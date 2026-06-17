@@ -80,7 +80,7 @@ Queries using `idA = ? OR idB = ?` use both indexes (index merge). Much faster t
 
 Columns are **PascalCase** in MySQL (`GoalsA`, `HomeWin`, `Date`). Some legacy PHP uses lowercase in SQL (`goalsA`, `homewin`) — MariaDB on Linux often accepts that; **new code should use the real column names** from the table below.
 
-`NameA` / `NameB` are denormalized copies of player names at game time (not a substitute for `playertable`).
+`NameA` / `NameB` are denormalized copies of player names at game time (ground at insert; **not** the site display source after a rename). **UI policy (Jun 2026):** resolve labels from `playertable.Name` by `idA`/`idB`; keep snapshots for audit only. Rename inventory: `scripts/oneoff/player_name_renames_report.php`.
 
 ---
 

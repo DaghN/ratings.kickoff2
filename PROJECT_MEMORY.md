@@ -85,6 +85,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Player display names** — site UI always shows `playertable.Name` (by ID); `ratedresults` snapshots unchanged. Helper `k2_player_display_names.php`; rename report `scripts/oneoff/player_name_renames_report.php`. Search aliases / “formerly known as” deferred. |
 | 2026-06 | **Tint schedule reordered** — midnight slot is now Holo (was Amber); order holo → pitch → chrome → amber. `k2-tint-schedule.js` + `tint-vs-realm.md`. |
 | 2026-06 | **H2H moments v2 shipped** — neutral shells; muted kickers; holo draws; full poster neon on goal digits only. `player-opponents-h2h-moments.css`. |
 | 2026-06 | **Hub chapter titles** — accent+glow trial **reverted**; keep primary white: sole orientation landmark, avoids link-star/tint collision; lede stays editorial. |

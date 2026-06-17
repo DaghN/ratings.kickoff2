@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_ratedresults_games_filters.php';
 
 const K2_REALM_GAMES_ALL_PAGE_SIZE = 250;
@@ -157,6 +158,11 @@ function k2_realm_games_all_query_all(mysqli $con, string $sql, string $types = 
 	}
 
 	mysqli_stmt_close($stmt);
+
+	if ($rows !== [] && array_key_exists('idA', $rows[0]) && array_key_exists('NameA', $rows[0])) {
+		$nameMap = k2_player_display_names_for_rated_rows($con, $rows);
+		$rows = k2_rated_games_apply_display_names($rows, $nameMap);
+	}
 
 	return $rows;
 }
@@ -532,11 +538,7 @@ function k2_realm_games_all_opponent_rows(mysqli $con, int $playerId): array
 
 	return k2_realm_games_all_query_all(
 		$con,
-		'SELECT opponent_id, opponent_name, COUNT(*) AS games FROM ('
-			. 'SELECT idB AS opponent_id, NameB AS opponent_name FROM ratedresults WHERE idA = ? '
-			. 'UNION ALL '
-			. 'SELECT idA AS opponent_id, NameA AS opponent_name FROM ratedresults WHERE idB = ?'
-			. ') AS opponents GROUP BY opponent_id, opponent_name ORDER BY games DESC, opponent_name ASC',
+		k2_player_opponents_grouped_from_ratedresults_sql(),
 		'ii',
 		[$playerId, $playerId]
 	);

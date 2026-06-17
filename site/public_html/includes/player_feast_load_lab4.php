@@ -213,6 +213,7 @@ function player_feast_lab4_max_rated_victim(mysqli $con, int $id): ?array
         . "FROM ratedresults WHERE id = $gid LIMIT 1"
     );
     $gRow = $gRes ? mysqli_fetch_assoc($gRes) : null;
+    $gRow = k2_rated_game_row_resolve($con, $gRow);
     if ($gRow === null) {
         return null;
     }

@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/player_opponents_load.php';
+require_once __DIR__ . '/k2_player_display_names.php';
 
 function player_opponents_dds_ratio_cell(float $ratio): string
 {
@@ -91,32 +92,40 @@ function player_opponents_render_wdl_table_from_rows(array $rows): void
 function player_opponents_render_wdl_table_live(mysqli $con, int $playerId): void
 {
     $playerId = max(0, $playerId);
-    $query = 'SELECT opponentID, opponentname, COUNT(*), SUM(win), SUM(draw), SUM(defeat), AVG(win), AVG(draw), AVG(defeat)
+    $query = 'SELECT opponentID, COUNT(*), SUM(win), SUM(draw), SUM(defeat), AVG(win), AVG(draw), AVG(defeat)
 FROM(
     (
-    SELECT idB AS opponentID, nameB AS opponentname, homewin AS win, draw AS draw, awaywin AS defeat FROM ratedresults
+    SELECT idB AS opponentID, homewin AS win, draw AS draw, awaywin AS defeat FROM ratedresults
     WHERE idA = ' . $playerId . '
     )
     UNION ALL
     (
-    SELECT idA AS opponentID, nameA AS opponentname, awaywin AS win, draw AS draw, homewin AS defeat FROM ratedresults
+    SELECT idA AS opponentID, awaywin AS win, draw AS draw, homewin AS defeat FROM ratedresults
     WHERE idB = ' . $playerId . '
     )
     ) AS derivedtable
-GROUP BY opponentID, opponentname
+GROUP BY opponentID
 ORDER BY COUNT(*) DESC';
 
     $result = k2_query_or_public_error($con, $query, 'player opponents W/D/L table');
-    $rows = [];
+    $opponentIds = [];
+    $rawRows = [];
     while ($row = mysqli_fetch_row($result)) {
-        $games = (int) $row[2];
+        $opponentIds[] = (int) $row[0];
+        $rawRows[] = $row;
+    }
+    $displayNames = k2_player_display_names_load($con, $opponentIds);
+    $rows = [];
+    foreach ($rawRows as $row) {
+        $opponentId = (int) $row[0];
+        $games = (int) $row[1];
         $rows[] = [
-            'opponent_id' => (int) $row[0],
-            'opponent_name' => (string) $row[1],
+            'opponent_id' => $opponentId,
+            'opponent_name' => k2_player_display_name($displayNames, $opponentId),
             'games' => $games,
-            'wins' => (int) $row[3],
-            'draws' => (int) $row[4],
-            'losses' => (int) $row[5],
+            'wins' => (int) $row[2],
+            'draws' => (int) $row[3],
+            'losses' => (int) $row[4],
             'goals_for' => 0,
             'goals_against' => 0,
         ];
@@ -252,40 +261,48 @@ function player_opponents_render_goals_table_from_rows(array $rows, bool $extrem
 function player_opponents_render_goals_table_live(mysqli $con, int $playerId): void
 {
     $playerId = max(0, $playerId);
-    $query = 'SELECT opponentID, opponentname, COUNT(*), SUM(goalsfor), SUM(goalsagainst), AVG(goalsfor), AVG(goalsagainst), MAX(goalsfor), MAX(goalsagainst), MIN(goalsfor), MIN(goalsagainst), MAX(CASE WHEN goalsfor > goalsagainst THEN goalsfor - goalsagainst ELSE NULL END), MAX(CASE WHEN goalsagainst > goalsfor THEN goalsagainst - goalsfor ELSE NULL END), MAX(CASE WHEN draw = 1 THEN goalsfor ELSE NULL END), SUM(draw), MAX(goalsfor+goalsagainst), MIN(goalsfor+goalsagainst)
+    $query = 'SELECT opponentID, COUNT(*), SUM(goalsfor), SUM(goalsagainst), AVG(goalsfor), AVG(goalsagainst), MAX(goalsfor), MAX(goalsagainst), MIN(goalsfor), MIN(goalsagainst), MAX(CASE WHEN goalsfor > goalsagainst THEN goalsfor - goalsagainst ELSE NULL END), MAX(CASE WHEN goalsagainst > goalsfor THEN goalsagainst - goalsfor ELSE NULL END), MAX(CASE WHEN draw = 1 THEN goalsfor ELSE NULL END), SUM(draw), MAX(goalsfor+goalsagainst), MIN(goalsfor+goalsagainst)
 FROM(
     (
-    SELECT idB AS opponentID, nameB AS opponentname, goalsA AS goalsfor, goalsB AS goalsagainst, draw AS draw FROM ratedresults
+    SELECT idB AS opponentID, goalsA AS goalsfor, goalsB AS goalsagainst, draw AS draw FROM ratedresults
     WHERE idA = ' . $playerId . '
     )
     UNION ALL
     (
-    SELECT idA AS opponentID, nameA AS opponentname, goalsB AS goalsfor, goalsA AS goalsagainst, draw AS draw FROM ratedresults
+    SELECT idA AS opponentID, goalsB AS goalsfor, goalsA AS goalsagainst, draw AS draw FROM ratedresults
     WHERE idB = ' . $playerId . '
     )
     ) AS derivedtable
-GROUP BY opponentID, opponentname
+GROUP BY opponentID
 ORDER BY COUNT(*) DESC';
 
     $result = k2_query_or_public_error($con, $query, 'player opponents goals table');
-    $rows = [];
+    $opponentIds = [];
+    $rawRows = [];
     while ($row = mysqli_fetch_row($result)) {
+        $opponentIds[] = (int) $row[0];
+        $rawRows[] = $row;
+    }
+    $displayNames = k2_player_display_names_load($con, $opponentIds);
+    $rows = [];
+    foreach ($rawRows as $row) {
+        $opponentId = (int) $row[0];
         $rows[] = [
-            'opponent_id' => (int) $row[0],
-            'opponent_name' => (string) $row[1],
-            'games' => (int) $row[2],
-            'goals_for' => (int) $row[3],
-            'goals_against' => (int) $row[4],
-            'draws' => (int) $row[14],
-            'max_goals_for' => (int) $row[7],
-            'max_goals_against' => (int) $row[8],
-            'min_goals_for' => (int) $row[9],
-            'min_goals_against' => (int) $row[10],
-            'max_win_margin' => $row[11] !== null && $row[11] !== '' ? (int) $row[11] : null,
-            'max_loss_margin' => $row[12] !== null && $row[12] !== '' ? (int) $row[12] : null,
-            'max_draw_goals' => (int) $row[13],
-            'max_goal_sum' => (int) $row[15],
-            'min_goal_sum' => (int) $row[16],
+            'opponent_id' => $opponentId,
+            'opponent_name' => k2_player_display_name($displayNames, $opponentId),
+            'games' => (int) $row[1],
+            'goals_for' => (int) $row[2],
+            'goals_against' => (int) $row[3],
+            'draws' => (int) $row[13],
+            'max_goals_for' => (int) $row[6],
+            'max_goals_against' => (int) $row[7],
+            'min_goals_for' => (int) $row[8],
+            'min_goals_against' => (int) $row[9],
+            'max_win_margin' => $row[10] !== null && $row[10] !== '' ? (int) $row[10] : null,
+            'max_loss_margin' => $row[11] !== null && $row[11] !== '' ? (int) $row[11] : null,
+            'max_draw_goals' => (int) $row[12],
+            'max_goal_sum' => (int) $row[14],
+            'min_goal_sum' => (int) $row[15],
         ];
     }
 
@@ -374,33 +391,41 @@ function player_opponents_render_dds_table_from_rows(array $rows): void
 function player_opponents_render_dds_table_live(mysqli $con, int $playerId): void
 {
     $playerId = max(0, $playerId);
-    $query = 'SELECT opponentID, opponentname, COUNT(*), SUM(DD), SUM(DDC), SUM(CS), SUM(CSC), AVG(DD), AVG(DDC), AVG(CS), AVG(CSC)
+    $query = 'SELECT opponentID, COUNT(*), SUM(DD), SUM(DDC), SUM(CS), SUM(CSC), AVG(DD), AVG(DDC), AVG(CS), AVG(CSC)
 FROM(
     (
-    SELECT idB AS opponentID, nameB AS opponentname, DDPlayerA AS DD, DDPlayerB AS DDC, CSPlayerA AS CS, CSPlayerB AS CSC FROM ratedresults
+    SELECT idB AS opponentID, DDPlayerA AS DD, DDPlayerB AS DDC, CSPlayerA AS CS, CSPlayerB AS CSC FROM ratedresults
     WHERE idA = ' . $playerId . '
     )
     UNION ALL
     (
-    SELECT idA AS opponentID, nameA AS opponentname, DDPlayerB AS DD, DDPlayerA AS DDC, CSPlayerB AS CS, CSPlayerA AS CSC FROM ratedresults
+    SELECT idA AS opponentID, DDPlayerB AS DD, DDPlayerA AS DDC, CSPlayerB AS CS, CSPlayerA AS CSC FROM ratedresults
     WHERE idB = ' . $playerId . '
     )
     ) AS derivedtable
-GROUP BY opponentID, opponentname
+GROUP BY opponentID
 ORDER BY COUNT(*) DESC';
 
     $result = k2_query_or_public_error($con, $query, 'player opponents DDs table');
-    $rows = [];
+    $opponentIds = [];
+    $rawRows = [];
     while ($row = mysqli_fetch_row($result)) {
-        $games = (int) $row[2];
+        $opponentIds[] = (int) $row[0];
+        $rawRows[] = $row;
+    }
+    $displayNames = k2_player_display_names_load($con, $opponentIds);
+    $rows = [];
+    foreach ($rawRows as $row) {
+        $opponentId = (int) $row[0];
+        $games = (int) $row[1];
         $rows[] = [
-            'opponent_id' => (int) $row[0],
-            'opponent_name' => (string) $row[1],
+            'opponent_id' => $opponentId,
+            'opponent_name' => k2_player_display_name($displayNames, $opponentId),
             'games' => $games,
-            'double_digits' => (int) $row[3],
-            'double_digits_conceded' => (int) $row[4],
-            'clean_sheets' => (int) $row[5],
-            'clean_sheets_conceded' => (int) $row[6],
+            'double_digits' => (int) $row[2],
+            'double_digits_conceded' => (int) $row[3],
+            'clean_sheets' => (int) $row[4],
+            'clean_sheets_conceded' => (int) $row[5],
         ];
     }
 

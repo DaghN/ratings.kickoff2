@@ -385,6 +385,7 @@ function player_feast_lab1_load_max_rated_victim(mysqli $con, int $playerId, int
         . "FROM ratedresults WHERE id = $gameId LIMIT 1"
     );
     $gRow = $gRes ? mysqli_fetch_assoc($gRes) : null;
+    $gRow = k2_rated_game_row_resolve($con, $gRow);
     if ($gRow === null) {
         return null;
     }

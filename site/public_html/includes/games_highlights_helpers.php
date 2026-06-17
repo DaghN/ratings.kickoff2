@@ -95,6 +95,11 @@ function k2_games_highlights_fetch(mysqli $con, string $board, int $limit = K2_G
 	}
 	mysqli_free_result($result);
 
+	if ($rows !== []) {
+		$nameMap = k2_player_display_names_for_rated_rows($con, $rows);
+		$rows = k2_rated_games_apply_display_names($rows, $nameMap);
+	}
+
 	return $rows;
 }
 

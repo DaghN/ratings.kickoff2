@@ -927,8 +927,17 @@ function k2_milestone_achievers(mysqli $con, string $milestoneKey, string $chart
         ORDER BY pm.achieved_at DESC, unlock_rank DESC
     ";
     $result = k2_query_or_public_error($con, $sql, 'milestone achievers');
-    $rows = [];
+    $rawRows = [];
     while ($row = mysqli_fetch_assoc($result)) {
+        $rawRows[] = $row;
+    }
+    $gameRows = array_values(array_filter($rawRows, static fn (array $row): bool => !empty($row['id'])));
+    $nameMap = k2_player_display_names_for_rated_rows($con, $gameRows);
+    $rows = [];
+    foreach ($rawRows as $row) {
+        if (!empty($row['id'])) {
+            $row = k2_rated_game_apply_display_names($row, $nameMap);
+        }
         $playerId = (int) $row['player_id'];
         $cells = k2_milestone_achiever_row_cells($playerId, $row, $milestoneKey, $chartToken);
         $rows[] = [

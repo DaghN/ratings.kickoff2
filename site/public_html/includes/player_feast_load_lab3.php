@@ -97,6 +97,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         $gid = (int) $def['game_id'];
         $gRes = k2_player_feast_query($con, 'trophy_game_lab3_' . $def['key'], "SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB FROM ratedresults WHERE id = $gid LIMIT 1");
         $gRow = $gRes ? mysqli_fetch_assoc($gRes) : null;
+        $gRow = k2_rated_game_row_resolve($con, $gRow);
         if ($gRow === null) {
             continue;
         }
@@ -372,6 +373,7 @@ function player_feast_lab3_load_max_rated_victim(mysqli $con, int $id, int $game
         . "FROM ratedresults WHERE id = $gameId LIMIT 1"
     );
     $row = $res ? mysqli_fetch_assoc($res) : null;
+    $row = k2_rated_game_row_resolve($con, $row);
     if (!$row) {
         return null;
     }

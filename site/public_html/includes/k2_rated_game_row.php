@@ -7,6 +7,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
 
 function k2_rated_game_h(string $value): string
 {

@@ -7,6 +7,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/k2_player_display_names.php';
 
 function k2_status_h(mixed $value): string
 {
@@ -697,19 +698,18 @@ function k2_status_league_from_ratedresults(
 
     $sql = <<<'SQL'
 SELECT
-  pid,
-  MAX(pname) AS pname,
+  sides.pid,
+  COALESCE(p.Name, CONCAT('#', sides.pid)) AS pname,
   COUNT(*) AS played,
-  SUM(w) AS wins,
-  SUM(d) AS draws,
-  SUM(l) AS losses,
-  SUM(gf) AS gf,
-  SUM(ga) AS ga,
-  SUM(pts) AS pts
+  SUM(sides.w) AS wins,
+  SUM(sides.d) AS draws,
+  SUM(sides.l) AS losses,
+  SUM(sides.gf) AS gf,
+  SUM(sides.ga) AS ga,
+  SUM(sides.pts) AS pts
 FROM (
   SELECT
     idA AS pid,
-    NameA AS pname,
     CASE WHEN ActualScore = 1 THEN 1 ELSE 0 END AS w,
     CASE WHEN ActualScore = 0.5 THEN 1 ELSE 0 END AS d,
     CASE WHEN ActualScore = 0 THEN 1 ELSE 0 END AS l,
@@ -721,7 +721,6 @@ FROM (
   UNION ALL
   SELECT
     idB AS pid,
-    NameB AS pname,
     CASE WHEN ActualScore = 0 THEN 1 ELSE 0 END AS w,
     CASE WHEN ActualScore = 0.5 THEN 1 ELSE 0 END AS d,
     CASE WHEN ActualScore = 1 THEN 1 ELSE 0 END AS l,
@@ -731,8 +730,9 @@ FROM (
   FROM ratedresults
   WHERE `Date` >= ? AND `Date` < ?
 ) AS sides
-GROUP BY pid
-ORDER BY pts DESC, (SUM(gf) - SUM(ga)) DESC, SUM(gf) DESC, pname ASC
+LEFT JOIN playertable p ON p.ID = sides.pid
+GROUP BY sides.pid
+ORDER BY pts DESC, (SUM(sides.gf) - SUM(sides.ga)) DESC, SUM(sides.gf) DESC, pname ASC
 SQL;
     $sql .= $limitSql;
 
@@ -1209,6 +1209,26 @@ function k2_status_recent_registrations(mysqli $con, int $limit = 10, ?string &$
     return $out;
 }
 
+function k2_status_rated_games_to_list_items(array $rows): array
+{
+    if ($rows === []) {
+        return [];
+    }
+
+    return array_map(static function (array $row): array {
+        return [
+            'id' => (int) $row['id'],
+            'id_a' => (int) $row['idA'],
+            'id_b' => (int) $row['idB'],
+            'name_a' => (string) $row['NameA'],
+            'name_b' => (string) $row['NameB'],
+            'goals_a' => (int) $row['GoalsA'],
+            'goals_b' => (int) $row['GoalsB'],
+            'at' => (string) $row['Date'],
+        ];
+    }, $rows);
+}
+
 /**
  * Rated games on one UTC calendar day (Status Daily tab list).
  *
@@ -1246,23 +1266,16 @@ function k2_status_rated_games_for_calendar_day(mysqli $con, string $dayYmd, ?st
 
         return null;
     }
-    $out = [];
+    $raw = [];
     while ($row = mysqli_fetch_assoc($r)) {
-        $out[] = [
-            'id' => (int) $row['id'],
-            'id_a' => (int) $row['idA'],
-            'id_b' => (int) $row['idB'],
-            'name_a' => (string) $row['NameA'],
-            'name_b' => (string) $row['NameB'],
-            'goals_a' => (int) $row['GoalsA'],
-            'goals_b' => (int) $row['GoalsB'],
-            'at' => (string) $row['Date'],
-        ];
+        $raw[] = $row;
     }
     mysqli_free_result($r);
     mysqli_stmt_close($stmt);
 
-    return $out;
+    $nameMap = k2_player_display_names_for_rated_rows($con, $raw);
+
+    return k2_status_rated_games_to_list_items(k2_rated_games_apply_display_names($raw, $nameMap));
 }
 
 /** @return list<array{id: int, name_a: string, name_b: string, goals_a: int, goals_b: int, at: string, id_a: int, id_b: int}>|null */
@@ -1278,22 +1291,15 @@ function k2_status_recent_rated_games(mysqli $con, int $limit = 10, ?string &$er
 
         return null;
     }
-    $out = [];
+    $raw = [];
     while ($row = mysqli_fetch_assoc($r)) {
-        $out[] = [
-            'id' => (int) $row['id'],
-            'id_a' => (int) $row['idA'],
-            'id_b' => (int) $row['idB'],
-            'name_a' => (string) $row['NameA'],
-            'name_b' => (string) $row['NameB'],
-            'goals_a' => (int) $row['GoalsA'],
-            'goals_b' => (int) $row['GoalsB'],
-            'at' => (string) $row['Date'],
-        ];
+        $raw[] = $row;
     }
     mysqli_free_result($r);
 
-    return $out;
+    $nameMap = k2_player_display_names_for_rated_rows($con, $raw);
+
+    return k2_status_rated_games_to_list_items(k2_rated_games_apply_display_names($raw, $nameMap));
 }
 
 function k2_status_load_room(mysqli $con, ?string &$error = null): ?array

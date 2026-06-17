@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_routes.php';
+require_once __DIR__ . '/k2_player_display_names.php';
 require_once __DIR__ . '/player_feast_helpers.php';
 
 /**
@@ -38,14 +39,21 @@ function player_opponents_h2h_pair_games_rows(mysqli $con, int $playerId, int $o
         return [];
     }
     $res = $stmt->get_result();
-    $rows = [];
+    $rawRows = [];
     while ($row = $res->fetch_assoc()) {
-        $rows[] = player_opponents_h2h_normalize_game_row($row, $playerId);
+        $rawRows[] = $row;
     }
     if ($res) {
         $res->free();
     }
     $stmt->close();
+
+    $nameMap = k2_player_display_names_for_rated_rows($con, $rawRows);
+    $rows = [];
+    foreach ($rawRows as $row) {
+        $row = k2_rated_game_apply_display_names($row, $nameMap);
+        $rows[] = player_opponents_h2h_normalize_game_row($row, $playerId);
+    }
 
     return $rows;
 }

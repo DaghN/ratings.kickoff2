@@ -22,6 +22,7 @@ if ($playerId < 1) {
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_game_row.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_goals_distribution.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_ratedresults_games_filters.php';
@@ -74,6 +75,11 @@ function individual3_query_all(mysqli $con, string $sql, string $types = '', arr
     }
 
     mysqli_stmt_close($stmt);
+
+    if ($rows !== [] && array_key_exists('idA', $rows[0]) && array_key_exists('NameA', $rows[0])) {
+        $nameMap = k2_player_display_names_for_rated_rows($con, $rows);
+        $rows = k2_rated_games_apply_display_names($rows, $nameMap);
+    }
 
     return $rows;
 }
@@ -454,11 +460,7 @@ if (!isset($sortMap[$sortKey])) {
 
 $opponentRows = individual3_query_all(
     $con,
-    'SELECT opponent_id, opponent_name, COUNT(*) AS games FROM ('
-        . 'SELECT idB AS opponent_id, NameB AS opponent_name FROM ratedresults WHERE idA = ? '
-        . 'UNION ALL '
-        . 'SELECT idA AS opponent_id, NameA AS opponent_name FROM ratedresults WHERE idB = ?'
-        . ') AS opponents GROUP BY opponent_id, opponent_name ORDER BY games DESC, opponent_name ASC',
+    k2_player_opponents_grouped_from_ratedresults_sql(),
     'ii',
     [$playerId, $playerId]
 );

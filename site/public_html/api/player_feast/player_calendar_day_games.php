@@ -27,6 +27,8 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $day)) {
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
@@ -67,8 +69,14 @@ if (!$stmt) {
 $stmt->bind_param('ssii', $startSql, $endSql, $playerId, $playerId);
 $stmt->execute();
 $result = $stmt->get_result();
-$games = [];
+$raw = [];
 while ($row = $result->fetch_assoc()) {
+    $raw[] = $row;
+}
+$stmt->close();
+$nameMap = k2_player_display_names_for_rated_rows($con, $raw);
+$games = [];
+foreach (k2_rated_games_apply_display_names($raw, $nameMap) as $row) {
     $processed = k2_rated_game_is_processed($row);
     $games[] = [
         'id' => (int) $row['id'],
@@ -83,7 +91,6 @@ while ($row = $result->fetch_assoc()) {
         'at' => (string) $row['Date'],
     ];
 }
-$stmt->close();
 mysqli_close($con);
 
 echo json_encode([

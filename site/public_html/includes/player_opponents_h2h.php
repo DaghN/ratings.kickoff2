@@ -9,6 +9,7 @@ require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_routes.php';
 require_once __DIR__ . '/player_opponents_lib.php';
 require_once __DIR__ . '/player_opponents_load.php';
+require_once __DIR__ . '/k2_player_display_names.php';
 require_once __DIR__ . '/k2_archive_listbox.php';
 require_once __DIR__ . '/player_opponents_h2h_moments.php';
 require_once __DIR__ . '/player_opponents_h2h_charts.php';
@@ -168,11 +169,7 @@ function player_opponents_h2h_played_opponents(mysqli $con, int $playerId): arra
 function player_opponents_h2h_played_opponents_live(mysqli $con, int $playerId): array
 {
     $playerId = max(0, $playerId);
-    $sql = 'SELECT opponentID, opponentname, COUNT(*) AS games FROM ('
-        . 'SELECT idB AS opponentID, nameB AS opponentname FROM ratedresults WHERE idA = ? '
-        . 'UNION ALL '
-        . 'SELECT idA AS opponentID, nameA AS opponentname FROM ratedresults WHERE idB = ?'
-        . ') AS sides GROUP BY opponentID, opponentname ORDER BY games DESC, opponentname ASC';
+    $sql = k2_player_opponents_grouped_from_ratedresults_sql();
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -188,8 +185,8 @@ function player_opponents_h2h_played_opponents_live(mysqli $con, int $playerId):
     $rows = [];
     while ($row = $res->fetch_assoc()) {
         $rows[] = [
-            'opponent_id' => (int) $row['opponentID'],
-            'opponent_name' => (string) $row['opponentname'],
+            'opponent_id' => (int) $row['opponent_id'],
+            'opponent_name' => (string) $row['opponent_name'],
             'games' => (int) $row['games'],
         ];
     }
