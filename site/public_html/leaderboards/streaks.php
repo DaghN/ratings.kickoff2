@@ -34,7 +34,7 @@ mysqli_close($con);
 
 <?php
 $k2HubTabActive = 'leaderboards';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 ?>
 
 <?php
