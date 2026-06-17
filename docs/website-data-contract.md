@@ -45,7 +45,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_period_games` | SCH-004, SCH-006 | PHP ops P4 | `archive/.../player_period_games_rebuild.sql` | Both players × day/week/month/year +1 |
 | `player_peak_period_games` | SCH-006 | PHP ops P4 | `archive/.../player_peak_period_games_rebuild.sql` | After period games; update peak if beaten |
 | `player_play_streaks` | SCH-014, SCH-023 | PHP ops P7 | `scripts/rebuild_player_play_streaks.php` | After period games; day/week/month/year streak + HoF when personal best rises |
-| `player_activity_participation` | SCH-022 | PHP ops P4b | repair SQL TBD | +1 per `is_new_period`; first/last rated day on new UTC day |
+| `player_activity_participation` | SCH-022, **SCH-025** | PHP ops P4b | `player_activity_participation_rebuild.sql` + `scripts/rebuild_participation_reached.php` | +1 per `is_new_period`; store `active_*_reached_at` on bump; first/last rated day on new UTC day |
 | `server_daily_activity` | SCH-007 | PHP ops P5 | `archive/.../server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
 | `player_period_league` | SCH-008 | PHP ops P5 | `archive/.../player_period_league_rebuild.sql` | W/D/L/points per period |
 | `league_period` | SCH-009 | `FinalizeUtcDay` | `ops/run_finalize_league.php rebuild-all` | **Periodic only** — finalize closed periods |
@@ -1077,7 +1077,7 @@ Required updates:
 |----------------|-----------------|
 | `player_period_games` | Increment A and B for day/week/month/year |
 | `player_peak_period_games` | Recheck peaks for the touched player-period rows |
-| `player_activity_participation` | On each `is_new_period`, increment `active_{type}`; on new UTC day update `first_rated_day` / `last_rated_day` — see [`activity-wing-stored-truth-policy.md`](activity-wing-stored-truth-policy.md) |
+| `player_activity_participation` | On each `is_new_period`, increment `active_{type}` and set `active_{type}_reached_at` / `reached_game_id` from current game (SCH-025); on new UTC day update `first_rated_day` / `last_rated_day` — see [`activity-wing-stored-truth-policy.md`](activity-wing-stored-truth-policy.md) |
 | `player_play_streaks` | Update day/week/month/year when P4 `is_new_period`; HoF columns if personal best rose — see § `player_play_streaks` |
 | `server_daily_activity` | Increment `rated_games`; increment `active_players` only for players newly active that day |
 | `player_period_league` | Upsert A and B W/D/L/GF/GA/GD/points for day/week/month/year |

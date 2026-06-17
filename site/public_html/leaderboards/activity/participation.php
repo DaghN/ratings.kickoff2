@@ -69,16 +69,21 @@ while ($row = mysqli_fetch_assoc($result)) {
     $lastDay = $row['last_rated_day'] ?? null;
     $longevityDays = k2_db_is_null($row['longevity_days']) ? null : (int) $row['longevity_days'];
     $games = (int) ($row['NumberGames'] ?? 0);
+    $activeDays = (int) ($row['active_days'] ?? 0);
+    $activeWeeks = (int) ($row['active_weeks'] ?? 0);
+    $activeMonths = (int) ($row['active_months'] ?? 0);
+    $activeYears = (int) ($row['active_years'] ?? 0);
+    $playerId = (int) $row['id'];
     ?>
 	<tr>
 		<td></td>
-		<td class="k2-table-cell--left"><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
+		<td class="k2-table-cell--left"><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
 		<td><?php echo k2_fmt_int($row['Rating']); ?></td>
 		<td><?php echo k2_fmt_games_played($games); ?></td>
-		<td><?php echo k2_fmt_int($row['active_days']); ?></td>
-		<td><?php echo k2_fmt_int($row['active_weeks']); ?></td>
-		<td><?php echo k2_fmt_int($row['active_months']); ?></td>
-		<td><?php echo k2_fmt_int($row['active_years']); ?></td>
+		<?php k2_lb_activity_echo_count_td($activeDays, $activeDays > 0 ? k2_lb_activity_participation_period_tie_value($row['active_days_reached_at'] ?? null) : null); ?>
+		<?php k2_lb_activity_echo_count_td($activeWeeks, $activeWeeks > 0 ? k2_lb_activity_participation_period_tie_value($row['active_weeks_reached_at'] ?? null) : null); ?>
+		<?php k2_lb_activity_echo_count_td($activeMonths, $activeMonths > 0 ? k2_lb_activity_participation_period_tie_value($row['active_months_reached_at'] ?? null) : null); ?>
+		<?php k2_lb_activity_echo_count_td($activeYears, $activeYears > 0 ? k2_lb_activity_participation_period_tie_value($row['active_years_reached_at'] ?? null) : null); ?>
 		<td data-k2-sort-value="<?php echo $longevityDays ?? ''; ?>"><?php echo htmlspecialchars(k2_lb_activity_format_longevity($longevityDays), ENT_QUOTES, 'UTF-8'); ?></td>
 		<td class="k2-table-cell--left" data-k2-sort-value="<?php echo htmlspecialchars((string) ($firstDay ?? ''), ENT_QUOTES, 'UTF-8'); ?>"><?php
             echo htmlspecialchars(k2_lb_activity_format_rated_day($firstDay ? (string) $firstDay : null), ENT_QUOTES, 'UTF-8');

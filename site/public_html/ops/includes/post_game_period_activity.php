@@ -16,6 +16,27 @@ const K2_POST_GAME_PARTICIPATION_ACTIVE_COLUMN = [
     'year' => 'active_years',
 ];
 
+/** @var array<string, string> */
+const K2_POST_GAME_PARTICIPATION_REACHED_AT_COLUMN = [
+    'day' => 'active_days_reached_at',
+    'week' => 'active_weeks_reached_at',
+    'month' => 'active_months_reached_at',
+    'year' => 'active_years_reached_at',
+];
+
+/** @var array<string, string> */
+const K2_POST_GAME_PARTICIPATION_REACHED_GAME_ID_COLUMN = [
+    'day' => 'active_days_reached_game_id',
+    'week' => 'active_weeks_reached_game_id',
+    'month' => 'active_months_reached_game_id',
+    'year' => 'active_years_reached_game_id',
+];
+
+function k2_post_game_participation_reached_columns_ready(mysqli $con): bool
+{
+    return k2_ops_column_exists($con, 'player_activity_participation', 'active_years_reached_at');
+}
+
 /**
  * UTC instant for a rated game row (mysqli may return local-shifted Date strings on Windows).
  */
@@ -179,27 +200,62 @@ function k2_post_game_bump_participation_period(
     mysqli $con,
     int $playerId,
     string $periodType,
-    string $dayStart
+    string $dayStart,
+    int $gameId,
+    string $gameDateUtc
 ): void {
     if (!isset(K2_POST_GAME_PARTICIPATION_ACTIVE_COLUMN[$periodType])) {
         throw new InvalidArgumentException('invalid participation period type: ' . $periodType);
     }
 
     $column = K2_POST_GAME_PARTICIPATION_ACTIVE_COLUMN[$periodType];
+    $storeReached = k2_post_game_participation_reached_columns_ready($con);
+    $reachedAtCol = K2_POST_GAME_PARTICIPATION_REACHED_AT_COLUMN[$periodType] ?? null;
+    $reachedGidCol = K2_POST_GAME_PARTICIPATION_REACHED_GAME_ID_COLUMN[$periodType] ?? null;
 
     if ($periodType === 'day') {
-        $stmt = $con->prepare(
-            'INSERT INTO player_activity_participation '
-            . '(player_id, active_days, first_rated_day, last_rated_day) VALUES (?, 1, ?, ?) '
-            . 'ON DUPLICATE KEY UPDATE '
-            . 'active_days = active_days + 1, '
-            . 'first_rated_day = COALESCE(first_rated_day, VALUES(first_rated_day)), '
-            . 'last_rated_day = GREATEST(COALESCE(last_rated_day, VALUES(last_rated_day)), VALUES(last_rated_day))'
-        );
-        if ($stmt === false) {
-            throw new RuntimeException('prepare participation day bump: ' . $con->error);
+        if ($storeReached && $reachedAtCol !== null && $reachedGidCol !== null) {
+            $stmt = $con->prepare(
+                'INSERT INTO player_activity_participation '
+                . '(player_id, active_days, first_rated_day, last_rated_day, '
+                . '`' . $reachedAtCol . '`, `' . $reachedGidCol . '`) '
+                . 'VALUES (?, 1, ?, ?, ?, ?) '
+                . 'ON DUPLICATE KEY UPDATE '
+                . 'active_days = active_days + 1, '
+                . 'first_rated_day = COALESCE(first_rated_day, VALUES(first_rated_day)), '
+                . 'last_rated_day = GREATEST(COALESCE(last_rated_day, VALUES(last_rated_day)), VALUES(last_rated_day)), '
+                . '`' . $reachedAtCol . '` = VALUES(`' . $reachedAtCol . '`), '
+                . '`' . $reachedGidCol . '` = VALUES(`' . $reachedGidCol . '`)'
+            );
+            if ($stmt === false) {
+                throw new RuntimeException('prepare participation day bump: ' . $con->error);
+            }
+            $stmt->bind_param('isssi', $playerId, $dayStart, $dayStart, $gameDateUtc, $gameId);
+        } else {
+            $stmt = $con->prepare(
+                'INSERT INTO player_activity_participation '
+                . '(player_id, active_days, first_rated_day, last_rated_day) VALUES (?, 1, ?, ?) '
+                . 'ON DUPLICATE KEY UPDATE '
+                . 'active_days = active_days + 1, '
+                . 'first_rated_day = COALESCE(first_rated_day, VALUES(first_rated_day)), '
+                . 'last_rated_day = GREATEST(COALESCE(last_rated_day, VALUES(last_rated_day)), VALUES(last_rated_day))'
+            );
+            if ($stmt === false) {
+                throw new RuntimeException('prepare participation day bump: ' . $con->error);
+            }
+            $stmt->bind_param('iss', $playerId, $dayStart, $dayStart);
         }
-        $stmt->bind_param('iss', $playerId, $dayStart, $dayStart);
+    } elseif ($storeReached && $reachedAtCol !== null && $reachedGidCol !== null) {
+        $sql = 'INSERT INTO player_activity_participation (player_id, `' . $column . '`, `'
+            . $reachedAtCol . '`, `' . $reachedGidCol . '`) VALUES (?, 1, ?, ?) '
+            . 'ON DUPLICATE KEY UPDATE `' . $column . '` = `' . $column . '` + 1, `'
+            . $reachedAtCol . '` = VALUES(`' . $reachedAtCol . '`), `'
+            . $reachedGidCol . '` = VALUES(`' . $reachedGidCol . '`)';
+        $stmt = $con->prepare($sql);
+        if ($stmt === false) {
+            throw new RuntimeException('prepare participation bump: ' . $con->error);
+        }
+        $stmt->bind_param('isi', $playerId, $gameDateUtc, $gameId);
     } else {
         $sql = 'INSERT INTO player_activity_participation (player_id, `' . $column . '`) VALUES (?, 1) '
             . 'ON DUPLICATE KEY UPDATE `' . $column . '` = `' . $column . '` + 1';
@@ -278,7 +334,9 @@ function k2_post_game_update_peak_period(
 function k2_post_game_apply_period_activity_for_player(
     mysqli $con,
     int $playerId,
-    array $periodStarts
+    array $periodStarts,
+    int $gameId,
+    string $gameDateUtc
 ): array {
     $dayGames = 0;
     $weekGames = 0;
@@ -304,7 +362,9 @@ function k2_post_game_apply_period_activity_for_player(
                     $con,
                     $playerId,
                     $periodType,
-                    $dayStart !== '' ? $dayStart : (string) $periodStart
+                    $dayStart !== '' ? $dayStart : (string) $periodStart,
+                    $gameId,
+                    $gameDateUtc
                 );
             }
         }
@@ -372,10 +432,12 @@ function k2_post_game_update_period_activity_after_game(
 
     $idA = (int) $game['idA'];
     $idB = (int) $game['idB'];
+    $gameId = (int) ($game['id'] ?? 0);
+    $gameDateUtc = (string) ($game['Date'] ?? '');
     $periodStarts = k2_post_game_period_starts_for_game($game);
 
-    $countsA = k2_post_game_apply_period_activity_for_player($con, $idA, $periodStarts);
-    $countsB = k2_post_game_apply_period_activity_for_player($con, $idB, $periodStarts);
+    $countsA = k2_post_game_apply_period_activity_for_player($con, $idA, $periodStarts, $gameId, $gameDateUtc);
+    $countsB = k2_post_game_apply_period_activity_for_player($con, $idB, $periodStarts, $gameId, $gameDateUtc);
 
     if ($derived !== null) {
         require_once __DIR__ . '/post_game_period_aggregates.php';

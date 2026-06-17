@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 function k2_lb_help_elo_rating(): string
 {
-    return 'Current Elo rating. KOOL uses standard Elo with a fixed K-factor of 32 for every player. Individual game pages show the expected score and rating-change calculation.';
+    return 'Current Elo rating. We use standard Elo with a fixed K-factor of 32 for every player. Individual game pages show the expected score and rating-change calculation.';
 }
 
 function k2_lb_help_games(): string
@@ -225,6 +225,16 @@ function k2_lb_help_rated_span_days(): string
 function k2_lb_help_participation_longevity(): string
 {
     return 'Calendar span from your first rated game through your latest rated game, both days counted (last minus first, plus one). Not the same as active days — you can have gaps in between.';
+}
+
+/** HoF / value-cell tooltip when longevity is shown as a bare day count. */
+function k2_lb_help_longevity_value_count(int $days): string
+{
+    $unit = $days === 1 ? 'day' : 'days';
+
+    return $days . ' calendar ' . $unit
+        . ' from first rated game through latest rated game, both endpoints counted.'
+        . ' Gaps with no rated games still count toward this span (unlike active days).';
 }
 
 function k2_lb_help_active_days(): string

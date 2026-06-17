@@ -30,14 +30,14 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Persistent tint preference | — | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | — | `k2-tint-schedule.js` |
 | Header realm switcher | — | — | — | — | — | — | **Re-shipped Jun 2026** — `realm_switcher.php` beside wordmark; Online ↔ `/status.php`, Amiga 500 ↔ `/amiga/rating.php` |
-| Header cross-realm player search | — | — | — | — | — | — | `api/player_search.php?realm=all`; realm label per dropdown row; H2H stays online-only |
+| Header cross-realm player search | — | — | — | — | — | — | `api/player_search.php?realm=all`; realm label per dropdown row; pick uses per-hit `data-player-realm` (fixed Jun 2026); H2H stays online-only |
 | Records two-panel split | L0 | — | — | — | — | — | Peak cache read path |
 | League honours leaderboard (v1) | L0 | — | — | **Proven** | **Not executed** | — | `leaderboards/league-honours.php`; **proven on `kooldb1`** after simul |
 | League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Not executed** | PER-003 at cutover | Activity + points same orphan eligibility (`LEFT JOIN`); re-simul on work after rule change |
 | Status Leagues (Activity + Points) | L0 | — | — | **Proven** | **Not executed** | — | Phase **1** shipped; spec [`status-period-competitions.md`](../status-period-competitions.md) |
 | Status league stack | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | `player_period_league`; PHP ops post-game at live cutover |
 | Player games server-side filters/sort | L0 | — | — | — | — | — | Read-time |
-| Hall of Fame aggregate read path | L0 | — | — | — | — | — | Peak/period cache |
+| Hall of Fame aggregate read path | L0 | — | — | — | — | — | Peak/period cache + participation (Nth-period ties) + milestones/league read-time (Jun 2026) |
 | Hall of Fame context links | L0 | — | — | — | — | — | ranked wings + `k2_sort` (May 2026) |
 | Player stat `k2-table.js` migration | L0 | — | — | — | — | — | JS only |
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | — | Sort + anchor column (May 2026) |
@@ -61,7 +61,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestone `play_streak_100` | L2 | SCH-011 | Yes | **Proven** | **Not executed** | — | 0 holders; catalog seeded |
 | Milestones post-game contract | L2 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | PHP ops P6; simul on `kooldb1`; live = dispatch at cutover |
 | Rated play streaks (day/week) | L4 | SCH-014 | Yes | **Proven** | **Not executed** | — | `ranked4` + HoF; **proven on `kooldb1`**; live writer = PHP ops P7 |
-| Activity wing stored truth (participation + streaks) | L4 | SCH-022–024 | partial | **UI + peaks→games** Jun 2026 | **Not executed** | — | LB Activity wing shipped; work smoke 1000; Steve simul — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
+| Activity wing stored truth (participation + streaks) | L4 | SCH-022–025 | Yes | **Done (smoke 1000)** | **Not executed** | — | **Repo track complete** Jun 2026; SCH-025 reached_at on P4b; Steve full simul only outstanding — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
 | Milestones `diversity_merchant` per-game DD | L4 | — | Yes | **Proven** | **Not executed** | — | **25** holders; **6615** canonical rows |
 | Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Not executed** | — | **31** holders on work DB |
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | Catalog **112**; simul on `kooldb1` |

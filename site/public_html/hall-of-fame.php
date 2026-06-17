@@ -23,6 +23,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_hof_links.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_hof_table.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_activity_leaders.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_career_leaders.php';
 
 function records_has_value($value): bool
 {
@@ -78,7 +80,7 @@ function records_date_or_dash($dateValue, bool $showDate, int $newRecordCutoff, 
 	return records_add_age_marker($text, $dateValue, $newRecordCutoff, $legendaryRecordCutoff);
 }
 
-function records_render_row(string $label, string $valueHtml, string $holderHtml, string $dateHtml, ?string $labelHelp = null, ?string $valueLbHref = null): void
+function records_render_row(string $label, string $valueHtml, string $holderHtml, string $dateHtml, ?string $labelHelp = null, ?string $valueLbHref = null, ?string $valueHelp = null): void
 {
 	$valueCell = records_hof_lb_value_html($valueHtml, $valueLbHref);
 
@@ -88,7 +90,11 @@ function records_render_row(string $label, string $valueHtml, string $holderHtml
 	} else {
 		echo '        <td>' . $label . "</td>\n";
 	}
-	echo '        <td class="k2-table-cell--right">' . $valueCell . "</td>\n";
+	if ($valueHelp !== null && $valueHelp !== '') {
+		echo '        <td class="k2-table-cell--right k2-table-helped" data-k2-help="' . htmlspecialchars($valueHelp, ENT_QUOTES, 'UTF-8') . '" data-k2-tooltip-hide-title="1" tabindex="0">' . $valueCell . "</td>\n";
+	} else {
+		echo '        <td class="k2-table-cell--right">' . $valueCell . "</td>\n";
+	}
 	echo "        <td>" . $holderHtml . "</td>\n";
 	echo "        <td class=\"k2-table-cell--right\">" . $dateHtml . "</td>\n";
 	echo "    </tr>\n";
@@ -148,6 +154,76 @@ function records_render_peak_period_row(string $label, string $period, ?array $e
 	);
 }
 
+/**
+ * @param array{value: int|null, id: int, name: string} $leader
+ */
+function records_render_play_streak_row(
+	string $label,
+	array $leader,
+	?string $dateValue,
+	int $newRecordCutoff,
+	int $legendaryRecordCutoff,
+	?string $labelHelp,
+	?string $lbHref
+): void {
+	$hasValue = records_has_value($leader['value'] ?? 0);
+	records_render_row(
+		$label,
+		records_value_or_dash($leader['value'] ?? null),
+		$hasValue
+			? records_holder_html('<a href="/player/profile.php?id=' . (int) $leader['id'] . '">' . htmlspecialchars($leader['name'], ENT_QUOTES, 'UTF-8') . '</a>')
+			: '-',
+		records_date_or_dash($dateValue, $hasValue, $newRecordCutoff, $legendaryRecordCutoff),
+		$labelHelp,
+		$lbHref
+	);
+}
+
+/**
+ * @param array{value: int|null, id: int, name: string, first_rated_day: ?string, last_rated_day: ?string} $leader
+ */
+function records_render_participation_longevity_row(array $leader, ?string $labelHelp, ?string $lbHref): void
+{
+	$hasValue = records_has_value($leader['value'] ?? 0);
+	$dayCount = $hasValue ? (int) $leader['value'] : 0;
+	$valueHelp = $hasValue ? k2_lb_help_longevity_value_count($dayCount) : null;
+	records_render_row(
+		'Longest longevity',
+		records_value_or_dash($leader['value'] ?? null),
+		$hasValue
+			? records_holder_html('<a href="/player/profile.php?id=' . (int) $leader['id'] . '">' . htmlspecialchars($leader['name'], ENT_QUOTES, 'UTF-8') . '</a>')
+			: '-',
+		htmlspecialchars(records_participation_longevity_span_html($leader['first_rated_day'] ?? null, $leader['last_rated_day'] ?? null), ENT_QUOTES, 'UTF-8'),
+		$labelHelp,
+		$lbHref,
+		$valueHelp
+	);
+}
+
+/**
+ * @param array{value: int|null, id: int, name: string, record_date: ?string} $leader
+ */
+function records_render_career_hof_row(
+	string $label,
+	array $leader,
+	int $newRecordCutoff,
+	int $legendaryRecordCutoff,
+	?string $labelHelp,
+	?string $lbHref
+): void {
+	$hasValue = records_has_value($leader['value'] ?? 0);
+	records_render_row(
+		$label,
+		records_value_or_dash($leader['value'] ?? null),
+		$hasValue
+			? records_holder_html('<a href="/player/profile.php?id=' . (int) $leader['id'] . '">' . htmlspecialchars($leader['name'], ENT_QUOTES, 'UTF-8') . '</a>')
+			: '-',
+		records_date_or_dash($leader['record_date'] ?? null, $hasValue, $newRecordCutoff, $legendaryRecordCutoff),
+		$labelHelp,
+		$lbHref
+	);
+}
+
 $recordColumns = [
 	'MostGamesPlayed',
 	'MostWins',
@@ -164,6 +240,8 @@ $recordColumns = [
 	'LongestDrawingStreak',
 	'LongestDailyPlayStreak',
 	'LongestWeeklyPlayStreak',
+	'LongestMonthlyPlayStreak',
+	'LongestYearlyPlayStreak',
 	'MostDifferentOpponents',
 	'MostDifferentVictims',
 	'MostDoubleDigitsVictims',
@@ -185,6 +263,8 @@ $recordColumns = [
 	'LongestDrawingStreakID',
 	'LongestDailyPlayStreakID',
 	'LongestWeeklyPlayStreakID',
+	'LongestMonthlyPlayStreakID',
+	'LongestYearlyPlayStreakID',
 	'MostDifferentOpponentsID',
 	'MostDifferentVictimsID',
 	'MostDoubleDigitsVictimsID',
@@ -206,6 +286,8 @@ $recordColumns = [
 	'LongestDrawingStreakName',
 	'LongestDailyPlayStreakName',
 	'LongestWeeklyPlayStreakName',
+	'LongestMonthlyPlayStreakName',
+	'LongestYearlyPlayStreakName',
 	'MostDifferentOpponentsName',
 	'MostDifferentVictimsName',
 	'MostDoubleDigitsVictimsName',
@@ -225,6 +307,8 @@ $recordColumns = [
 	'LongestDrawingStreakDate',
 	'LongestDailyPlayStreakDate',
 	'LongestWeeklyPlayStreakDate',
+	'LongestMonthlyPlayStreakDate',
+	'LongestYearlyPlayStreakDate',
 	'MostDifferentOpponentsDate',
 	'MostDifferentVictimsDate',
 	'MostDoubleDigitsVictimsDate',
@@ -232,6 +316,8 @@ $recordColumns = [
 	'MostGoalsScoredInOneGameGameID',
 	'LongestDailyPlayStreakGameID',
 	'LongestWeeklyPlayStreakGameID',
+	'LongestMonthlyPlayStreakGameID',
+	'LongestYearlyPlayStreakGameID',
 	'BiggestWinDifferenceGameID',
 	'BiggestDrawSumGameID',
 	'BiggestSumOfGoalsGameID',
@@ -258,8 +344,12 @@ $legendaryRecordCutoff = strtotime('-5 years');
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/records_ratio_leaders.php";
 records_load_ratio_leaders($con);
 
+$participationLeaders = records_load_participation_leaders($con);
+
+$careerLeaders = records_load_career_celebration_leaders($con);
+
 $peakPeriodRecords = [];
-include $_SERVER["DOCUMENT_ROOT"] . "/includes/peak_month_leaderboard_query.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/peak_month_leaderboard_query.php';
 foreach (['year', 'month', 'week', 'day'] as $period) {
 	$peakPeriodError = null;
 	$peakPeriodEntries = k2_peak_period_leaderboard_entries($con, $period, 1, $peakPeriodError);
@@ -267,6 +357,7 @@ foreach (['year', 'month', 'week', 'day'] as $period) {
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 
 mysqli_close($con);
 ?>
@@ -290,6 +381,17 @@ $k2HofRecordLabels = [
 	'Most games in one day',
 	'Most days in a row',
 	'Most weeks in a row',
+	'Most months in a row',
+	'Most years in a row',
+	'Most active days',
+	'Most active weeks',
+	'Most active months',
+	'Most active years',
+	'Longest longevity',
+	'Most milestones',
+	'Most league gold',
+	'Most league silver',
+	'Most league bronze',
 	'Most wins',
 	'Most goals',
 	'Most double digits',
@@ -337,27 +439,115 @@ records_render_peak_period_row('Most games in one week', 'week', $peakPeriodReco
 records_render_peak_period_row('Most games in one day', 'day', $peakPeriodRecords['day'], $newRecordCutoff, $legendaryRecordCutoff, records_hof_lb_href('peak_day'));
 records_render_spacer_row();
 
-$hasDailyPlayStreak = records_has_value($records['LongestDailyPlayStreak'] ?? 0);
-records_render_row(
+records_render_play_streak_row(
 	'Most days in a row',
-	records_value_or_dash($records['LongestDailyPlayStreak'] ?? null),
-	$hasDailyPlayStreak
-		? records_holder_html('<a href="/player/profile.php?id=' . (int) $records['LongestDailyPlayStreakID'] . '">' . $records['LongestDailyPlayStreakName'] . '</a>')
-		: '-',
-	records_date_or_dash($records['LongestDailyPlayStreakDate'] ?? null, $hasDailyPlayStreak, $newRecordCutoff, $legendaryRecordCutoff),
+	['value' => (int) ($records['LongestDailyPlayStreak'] ?? 0), 'id' => (int) ($records['LongestDailyPlayStreakID'] ?? 0), 'name' => (string) ($records['LongestDailyPlayStreakName'] ?? '')],
+	$records['LongestDailyPlayStreakDate'] ?? null,
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
 	k2_play_streak_help_day(),
 	records_hof_lb_href('play_streak_day')
 );
-$hasWeeklyPlayStreak = records_has_value($records['LongestWeeklyPlayStreak'] ?? 0);
-records_render_row(
+records_render_play_streak_row(
 	'Most weeks in a row',
-	records_value_or_dash($records['LongestWeeklyPlayStreak'] ?? null),
-	$hasWeeklyPlayStreak
-		? records_holder_html('<a href="/player/profile.php?id=' . (int) $records['LongestWeeklyPlayStreakID'] . '">' . $records['LongestWeeklyPlayStreakName'] . '</a>')
-		: '-',
-	records_date_or_dash($records['LongestWeeklyPlayStreakDate'] ?? null, $hasWeeklyPlayStreak, $newRecordCutoff, $legendaryRecordCutoff),
+	['value' => (int) ($records['LongestWeeklyPlayStreak'] ?? 0), 'id' => (int) ($records['LongestWeeklyPlayStreakID'] ?? 0), 'name' => (string) ($records['LongestWeeklyPlayStreakName'] ?? '')],
+	$records['LongestWeeklyPlayStreakDate'] ?? null,
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
 	k2_play_streak_help_week(),
 	records_hof_lb_href('play_streak_week')
+);
+records_render_play_streak_row(
+	'Most months in a row',
+	['value' => (int) ($records['LongestMonthlyPlayStreak'] ?? 0), 'id' => (int) ($records['LongestMonthlyPlayStreakID'] ?? 0), 'name' => (string) ($records['LongestMonthlyPlayStreakName'] ?? '')],
+	$records['LongestMonthlyPlayStreakDate'] ?? null,
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_play_streak_help_month(),
+	records_hof_lb_href('play_streak_month')
+);
+records_render_play_streak_row(
+	'Most years in a row',
+	['value' => (int) ($records['LongestYearlyPlayStreak'] ?? 0), 'id' => (int) ($records['LongestYearlyPlayStreakID'] ?? 0), 'name' => (string) ($records['LongestYearlyPlayStreakName'] ?? '')],
+	$records['LongestYearlyPlayStreakDate'] ?? null,
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_play_streak_help_year(),
+	records_hof_lb_href('play_streak_year')
+);
+records_render_spacer_row();
+
+records_render_career_hof_row(
+	'Most active days',
+	$participationLeaders['days'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_help_active_days(),
+	records_hof_lb_href('participation_days')
+);
+records_render_career_hof_row(
+	'Most active weeks',
+	$participationLeaders['weeks'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_help_active_weeks(),
+	records_hof_lb_href('participation_weeks')
+);
+records_render_career_hof_row(
+	'Most active months',
+	$participationLeaders['months'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_help_active_months(),
+	records_hof_lb_href('participation_months')
+);
+records_render_career_hof_row(
+	'Most active years',
+	$participationLeaders['years'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_help_active_years(),
+	records_hof_lb_href('participation_years')
+);
+records_render_participation_longevity_row(
+	$participationLeaders['longevity'],
+	k2_lb_help_participation_longevity(),
+	records_hof_lb_href('participation_longevity')
+);
+records_render_spacer_row();
+
+$leagueHonoursOverallView = ['cup' => 'overall', 'grain' => null];
+records_render_career_hof_row(
+	'Most milestones',
+	$careerLeaders['milestones'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_help_milestones_total(),
+	records_hof_lb_href('most_milestones')
+);
+records_render_career_hof_row(
+	'Most league gold',
+	$careerLeaders['league_gold'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_league_honours_gold_help($leagueHonoursOverallView),
+	records_hof_lb_href('league_gold')
+);
+records_render_career_hof_row(
+	'Most league silver',
+	$careerLeaders['league_silver'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_help_league_silver(),
+	records_hof_lb_href('league_silver')
+);
+records_render_career_hof_row(
+	'Most league bronze',
+	$careerLeaders['league_bronze'],
+	$newRecordCutoff,
+	$legendaryRecordCutoff,
+	k2_lb_help_league_bronze(),
+	records_hof_lb_href('league_bronze')
 );
 records_render_spacer_row();
 

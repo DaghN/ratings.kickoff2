@@ -12,17 +12,17 @@ $k2LbFilterOpts = k2_lb_filter_opts();
 $k2LbFilterQs = k2_lb_filter_query_string($k2LbFilterOpts);
 $k2LbWingTabs = [
 	'rating' => ['href' => k2_route('lb-rating'), 'label' => 'Rating'],
+	'activity' => ['href' => k2_route('lb-activity'), 'label' => 'Activity'],
+	'milestones' => ['href' => k2_route('lb-milestones'), 'label' => 'Milestones'],
+	'league-honours' => ['href' => k2_route('lb-league-honours'), 'label' => 'League honours'],
 	'goals' => ['href' => k2_route('lb-goals'), 'label' => 'Goals'],
 	'double-digits' => ['href' => k2_route('lb-double-digits'), 'label' => 'DDs &amp; CSs'],
 	'streaks' => ['href' => k2_route('lb-streaks'), 'label' => 'Streaks'],
 	'victims' => ['href' => k2_route('lb-victims'), 'label' => 'Victims &amp; Culprits'],
-	'league-honours' => ['href' => k2_route('lb-league-honours'), 'label' => 'League honours'],
-	'milestones' => ['href' => k2_route('lb-milestones'), 'label' => 'Milestones'],
-	'activity' => ['href' => k2_route('lb-activity'), 'label' => 'Activity'],
 	'peak-rating' => ['href' => k2_route('lb-peak-rating'), 'label' => 'Peak rating'],
 ];
 $k2HubChapterTitle = 'Leaderboards';
-$k2HubChapterLede = 'Leaderboards for everyone who has ever played online Kick Off 2 — ratings, goals, streaks, victims, league medals, milestones, activity... Sort any column to see who leads a different way.';
+$k2HubChapterLede = 'Leaderboards for everyone who has ever played online Kick Off 2 — ratings and activity, career milestones and league medals, goals, streaks, and victims. Sort any column to see who leads a different way.';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 <div class="k2-chrome-tabs">

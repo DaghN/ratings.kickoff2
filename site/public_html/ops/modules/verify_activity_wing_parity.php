@@ -81,6 +81,23 @@ SQL
         $perPlayerMismatch === 0 ? 'ok' : 'fail'
     );
 
+    if (k2_ops_column_exists($con, 'player_activity_participation', 'active_years_reached_at')) {
+        require_once dirname(__DIR__, 2) . '/includes/lb_activity_lib.php';
+        $reachedMismatches = k2_lb_activity_participation_reached_oracle_mismatches($con);
+        $reachedCount = count($reachedMismatches);
+        $reachedDetail = "oracle_mismatches={$reachedCount}";
+        if ($reachedCount > 0) {
+            $reachedDetail .= ' sample=' . implode('; ', array_slice($reachedMismatches, 0, 3));
+        }
+        $checks[] = k2_ops_verify_check(
+            'activity_participation_reached_oracle',
+            'Participation reached_game_id matches establishing-game oracle (SCH-025)',
+            $reachedCount === 0,
+            $reachedDetail,
+            $reachedCount === 0 ? 'ok' : 'fail'
+        );
+    }
+
     if (!k2_ops_table_exists($con, 'player_play_streaks')) {
         return $checks;
     }

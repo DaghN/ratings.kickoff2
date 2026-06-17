@@ -38,6 +38,7 @@
 | **League awards batch repair** | `php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev` | **No** — dev repair only; **refused** on work |
 | **Finalize due (standalone)** | `php site/public_html/ops/run_finalize_league.php finalize-due --target local-work` | Module debug only — not sign-off after a rule change |
 | **Play streaks repair** | `php scripts/rebuild_player_play_streaks.php` | Dev / one-off — not work sign-off |
+| **Participation reached_at backfill (SCH-025)** | `php scripts/rebuild_participation_reached.php` | After migrate `025` on repair/dev DB — not live post-game path |
 
 **Hall of Fame record dates:** ladder replay + post-game contract — see [`staging-post-game-record-defects.md`](staging-post-game-record-defects.md). **Not** the batch website repair script.
 

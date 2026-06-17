@@ -1,6 +1,5 @@
--- Repair only: rebuild player_activity_participation from player_period_games.
--- Not the smoke-gate definition of correct — orthogonal parity uses this shape as oracle.
--- Destructive: truncates and repopulates. Run only on repair targets (e.g. ko2unity_db).
+-- Repair only: rebuild counts from player_period_games.
+-- SCH-025 reached_at columns: php scripts/rebuild_participation_reached.php after this + migrate 025.
 
 SET time_zone = '+00:00';
 

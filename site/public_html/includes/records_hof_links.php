@@ -24,8 +24,19 @@ function records_hof_lb_target(string $metric): ?array
 		'peak_month' => ['page' => 'lb-activity-peaks', 'sort' => 6, 'dir' => 'desc'],
 		'peak_week' => ['page' => 'lb-activity-peaks', 'sort' => 5, 'dir' => 'desc'],
 		'peak_day' => ['page' => 'lb-activity-peaks', 'sort' => 4, 'dir' => 'desc'],
-		'play_streak_day' => ['page' => 'lb-activity-in-a-row', 'sort' => 5, 'dir' => 'desc'],
-		'play_streak_week' => ['page' => 'lb-activity-in-a-row', 'sort' => 6, 'dir' => 'desc'],
+		'play_streak_day' => ['page' => 'lb-activity-in-a-row', 'sort' => 4, 'dir' => 'desc'],
+		'play_streak_week' => ['page' => 'lb-activity-in-a-row', 'sort' => 5, 'dir' => 'desc'],
+		'play_streak_month' => ['page' => 'lb-activity-in-a-row', 'sort' => 6, 'dir' => 'desc'],
+		'play_streak_year' => ['page' => 'lb-activity-in-a-row', 'sort' => 7, 'dir' => 'desc'],
+		'participation_days' => ['page' => 'lb-activity-participation', 'sort' => 4, 'dir' => 'desc'],
+		'participation_weeks' => ['page' => 'lb-activity-participation', 'sort' => 5, 'dir' => 'desc'],
+		'participation_months' => ['page' => 'lb-activity-participation', 'sort' => 6, 'dir' => 'desc'],
+		'participation_years' => ['page' => 'lb-activity-participation', 'sort' => 7, 'dir' => 'desc'],
+		'participation_longevity' => ['page' => 'lb-activity-participation', 'sort' => 8, 'dir' => 'desc'],
+		'most_milestones' => ['page' => 'lb-milestones', 'sort' => 8, 'dir' => 'desc'],
+		'league_gold' => ['page' => 'lb-league-honours', 'sort' => 4, 'dir' => 'desc'],
+		'league_silver' => ['page' => 'lb-league-honours', 'sort' => 5, 'dir' => 'desc'],
+		'league_bronze' => ['page' => 'lb-league-honours', 'sort' => 6, 'dir' => 'desc'],
 		'most_wins' => ['page' => 'lb-rating', 'sort' => 4, 'dir' => 'desc'],
 		'most_goals' => ['page' => 'lb-goals', 'sort' => 4, 'dir' => 'desc'],
 		'most_dd' => ['page' => 'lb-double-digits', 'sort' => 4, 'dir' => 'desc'],
@@ -102,6 +113,10 @@ function records_hof_lb_query_params(string $metric): array
 	if ($target !== null && $target['sort'] >= 0) {
 		$params['k2_sort'] = (string) $target['sort'];
 		$params['k2_dir'] = $target['dir'];
+	}
+
+	if (in_array($metric, ['league_gold', 'league_silver', 'league_bronze'], true)) {
+		$params['cup'] = 'overall';
 	}
 
 	return $params;

@@ -37,9 +37,10 @@ php site/public_html/ops/run_prepare.php migrate-work --target local-work
 | SCH-019 | `019_player_matchup_summary_opponents_ext.sql` | `player_matchup_summary` goal extremes + DD/CS | Yes | **Done** (migrate + simul to 500 on work) | **Not yet** | Opponents Phase 3 — [`player-opponents-hub.md`](../player-opponents-hub.md) |
 | SCH-020 | `020_player_milestone_totals.sql` | `player_milestone_totals` per-player tier counts | Yes | **Done** (migrate-work + parity on work) | **Not yet** | Meta LB + profile hero; bump via `milestone_unlock.php` — [`milestones-unlock-librarian.md`](../milestones-unlock-librarian.md) |
 | SCH-021 | `021_milestone_definitions_holder_count.sql` | `milestone_definitions.holder_count` catalog aggregate (all unlock rows) | Yes | **Done** (migrate-work + parity on work) | **Not yet** | DDL only; bump per unlock; lobby rebuild after bulk seed — [`milestones-unlock-librarian.md`](../milestones-unlock-librarian.md) |
-| SCH-022 | `022_player_activity_participation.sql` | `player_activity_participation` (Activity wing P4b) | Yes | **Done** (migrate-work Jun 2026) | **Not yet** | [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
+| SCH-022 | `022_player_activity_participation.sql` | `player_activity_participation` (Activity wing P4b) | Yes | **Done** (migrate-work + smoke Jun 2026) | **Not yet** | Repo track complete; live = Steve simul — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
 | SCH-023 | `023_play_streaks_month_year.sql` | `player_play_streaks` month/year + GST `LongestMonthly/YearlyPlayStreak*` | Yes | **Done** (migrate-work Jun 2026) | **Not yet** | HoF page rows deferred; GST cols in ops |
 | SCH-024 | `024_player_play_streaks_best_anchor_start.sql` | `player_play_streaks.best_anchor_start` | Yes | **Done** (migrate-work + smoke 1000 Jun 2026) | **Not yet** | Personal-best run start for In a row tooltips |
+| SCH-025 | `025_player_activity_participation_reached.sql` | `active_*_reached_at` + `active_*_reached_game_id` on participation | Yes | **Done** local dev Jun 2026 | **Not yet** | P4b post-game + HoF/LB tie; backfill `scripts/rebuild_participation_reached.php` |
 
 ### Column legend
 

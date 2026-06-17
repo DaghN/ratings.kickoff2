@@ -14,6 +14,8 @@
 
 - **Cutover prep (done):** Schema + PHP ops + **simul proven on `kooldb1`** — [`cutover-readiness.md`](docs/coordination/cutover-readiness.md). **Live prod execution** = Steve when scheduled (not repo backlog).
 
+- **Activity wing (Leaderboards):** **Repo track complete (Jun 2026)** — SCH-022–024 ops + LB UI (Peaks · Participation · In a row); work smoke 1000 PASS. **Outstanding:** Steve full simul only. Policy: [`activity-wing-stored-truth-policy.md`](docs/activity-wing-stored-truth-policy.md). **HoF (Jun 2026):** month/year play-streak rows + participation block (read `player_activity_participation`); query batching still optional next slice.
+
 - **Rated play streaks:** **Proven `kooldb1`** (`ranked4`, HoF). Live = PHP ops at cutover.
 
 - **Leagues:** **Honours proven `kooldb1`** (`leaderboards/league-honours.php`). Live = `FinalizeUtcDay` when wired.
@@ -83,7 +85,13 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Activity wing (ops + UI)** — SCH-022–024; P4b/P7 + parity on work (smoke 1000); LB **Activity** wing (Peaks · Participation · In a row); tooltips; peaks→player games (`period` filter, `from=activity-peaks`, chevrons); `rebuild_activity_wing_local.ps1`. Track: [`activity-wing-stored-truth-policy.md`](docs/activity-wing-stored-truth-policy.md). |
+| 2026-06 | **SCH-025 participation reached_at** — P4b stores establishing game on `active_*` bump; HoF/LB read stored columns (~28ms vs ~12s); backfill `rebuild_participation_reached.php`; verify oracle in activity wing parity. |
+| 2026-06 | **HoF career celebration** — Most milestones + league gold/silver/bronze (read `player_milestone_totals` / `player_league_totals`; dates from latest unlock/award); `records_career_leaders.php`. |
+| 2026-06 | **HoF Activity rows** — month/year play streaks (GST) + participation leaders (active days/weeks/months/years + longevity) after streak block; LB deep links; `records_activity_leaders.php`. |
+| 2026-06 | **LB Elo tooltip** — `k2_lb_help_elo_rating()` now says “We use standard Elo…” (online + Amiga leaderboards). |
+| 2026-06 | **Header cross-realm search fix** — `player-search.js` click/Enter used root `realm=all` instead of per-hit `data-player-realm`; Amiga picks now route to `/amiga/player/profile.php`. |
+| 2026-06 | **Leaderboards wing order** — Rating → Activity → Milestones → League honours → Goals → DDs → Streaks → Victims → Peak rating (`lb_nav.php`). |
+| 2026-06 | **Activity wing — repo track closed** — ops + UI shipped; awaiting **Steve simul** only. HoF play-streak page rows deferred. |
 | 2026-06 | **Hall of Fame layout** — single record table; extra chapter-to-table breathing room (`margin-top` on `.server-records-hof`). |
 | 2026-06 | **Games All games filters** — 28px margin above filter block (sub-nav separation; results stay tight below). |
 | 2026-06 | **Hub IA — Games tab** — promoted to hub nav after Milestones (`hub_nav.php`, `$k2HubTabActive = 'games'`); Status **Games →** kept. |

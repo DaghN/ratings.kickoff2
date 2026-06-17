@@ -79,6 +79,13 @@
         window.location.href = playerPickHref(root, p, profilePage);
     }
 
+    function playerRealmFromAnchor(a, fallbackRealm) {
+        if (!a) {
+            return fallbackRealm || 'online';
+        }
+        return a.getAttribute('data-player-realm') || fallbackRealm || 'online';
+    }
+
     function pickActive(root, input, list, profilePage, realm) {
         var items = root._psItems || [];
         var idx = root._psActiveIndex;
@@ -86,7 +93,7 @@
             var a = items[idx].querySelector('a');
             var playerId = a ? a.getAttribute('data-player-id') : '';
             if (playerId) {
-                navigatePick(root, { id: playerId, realm: realm }, profilePage);
+                navigatePick(root, { id: playerId, realm: playerRealmFromAnchor(a, realm) }, profilePage);
                 return;
             }
         }
@@ -156,6 +163,7 @@
             a.setAttribute('role', 'option');
             a.setAttribute('id', 'player-search-opt-' + i);
             a.setAttribute('data-player-id', String(p.id));
+            a.setAttribute('data-player-realm', p.realm || 'online');
             a.href = playerPickHref(root, p, profilePage);
             if (isFilterMode(root)) {
                 a.setAttribute('data-player-search-pick', 'filter');
@@ -311,7 +319,7 @@
             if (!playerId) {
                 return;
             }
-            navigatePick(root, { id: playerId, realm: realm }, profilePage);
+            navigatePick(root, { id: playerId, realm: playerRealmFromAnchor(a, realm) }, profilePage);
         });
     }
 

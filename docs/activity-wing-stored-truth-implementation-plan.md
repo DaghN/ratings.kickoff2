@@ -1,26 +1,24 @@
 # Activity wing stored truth — implementation plan
 
-**Status:** Planned  
+**Status:** **Complete (repo, Jun 2026)** — awaiting Steve simul only  
 **Policy:** [`activity-wing-stored-truth-policy.md`](activity-wing-stored-truth-policy.md)  
-**Track owner:** this chat (no starter prompt).
+**Track owner:** closed; Steve coordinates slice 4.
 
 ---
 
 ## Execution order (locked)
 
 ```text
-1. Ops slices 0–3  → schema, P4b, P7, verify + orthogonal parity on WORK
-2. Smoke ladder      → 100 games → parity → OK → 1000 → parity → OK → longer only if Dagh OK
-3. Steve simul       → staging/work (Dagh requests)
-4. Optional          → overnight local full simul (convenience for dev DB — not parity gate)
-5. UI slice          → leaderboards/activity.php + Streaks wing column drop (after Steve simul)
+1. Ops slices 0–3  → DONE (schema, P4b, P7, verify + orthogonal parity on WORK)
+2. Smoke ladder      → DONE (100 + 1000 games, parity PASS)
+3. Steve simul       → OUTSTANDING (Dagh / Steve)
+4. UI slice          → DONE (leaderboards/activity/* + Streaks wing column drop)
+5. Closure           → DONE (docs, feature-log, MEMORY)
 ```
 
-**Out of this burst:** Hall of Fame **page** rows/links (GST + tables populated by ops), milestone catalog/hooks, dev DB (`ko2unity_db`) fill as part of this track.
+**Out of this burst (deferred):** Hall of Fame **page** rows/links for month/year play streaks (GST + tables populated by ops); in-a-row → player Games drill-down.
 
-**In scope (ops):** `player_play_streaks` month/year + **GST `LongestMonthlyPlayStreak*` / `LongestYearlyPlayStreak*`** post-game, same as day/week.
-
-**UI timing:** after Steve simul; UI revisions sync to staged via WinSCP immediately.
+**In scope (ops, done):** `player_play_streaks` month/year + **GST `LongestMonthlyPlayStreak*` / `LongestYearlyPlayStreak*`** post-game, same as day/week.
 
 ---
 
@@ -49,12 +47,11 @@
 
 ## How to use this plan
 
+**Track closed (Jun 2026).** Retained for reference. **Only outstanding:** slice 4 (Steve simul).
+
 - **One slice per session** unless Dagh says otherwise.
 - **Smoke ladder:** `--limit 100` → run parity SQL → **wait for Dagh OK** → `--limit 1000` → parity → **wait for Dagh OK** → longer/full only if Dagh approves.
-- **STOP gate** after slice 3 smoke ladder green → Dagh requests **Steve simul**.
-- **STOP gate** after Steve simul → slice 5 UI.
-- **Docs:** Part A + Part B at end of each ops/UI shipping slice.
-- **Git:** no commit unless Dagh asks.
+- Slices 0–3, 5–6: **done.** Slice 4: **awaiting Steve.**
 
 ### Environment
 
@@ -72,15 +69,15 @@
 
 ## Slice map
 
-| Slice | Deliverable | STOP? |
-|-------|-------------|-------|
-| **0** | SCH-022 participation; SCH-023 enum + **GST month/year streak columns** | migrate OK |
-| **1** | P4b: `is_new_period` + participation increment | spot parity (few games) |
-| **2** | P7: month/year streaks; gate on `is_new_period`; wire from P4 | smoke 100 + parity |
-| **3** | Verify module + parity SQL doc; smoke **100 → 1000** ladder | **OK → Steve** |
-| **4** | *(external)* Steve simul + optional overnight local full simul | **→ UI** |
-| **5** | UI: `leaderboards/activity.php`, 3 tables, nav; drop Days/Weeks on Streaks wing | browser smoke |
-| **6** | Closure: merge `website-data-contract.md`, registers, MEMORY | — |
+| Slice | Deliverable | Status |
+|-------|-------------|--------|
+| **0** | SCH-022 participation; SCH-023 enum + **GST month/year streak columns** | **Done** |
+| **1** | P4b: `is_new_period` + participation increment | **Done** |
+| **2** | P7: month/year streaks; gate on `is_new_period`; wire from P4 | **Done** |
+| **3** | Verify module + parity SQL doc; smoke **100 → 1000** ladder | **Done** |
+| **4** | *(external)* Steve full simul | **Outstanding** |
+| **5** | UI: `leaderboards/activity/*`, 3 tables, nav; drop Days/Weeks on Streaks wing | **Done** |
+| **6** | Closure: registers, MEMORY, policy | **Done** |
 
 **Removed from UI burst:** HoF page slice, milestones slice, dev-DB fill.
 
@@ -182,11 +179,11 @@ php site/public_html/ops/run_verify_ops_sim.php --target local-work
 
 ---
 
-## Slice 4 — External (Steve + optional overnight)
+## Slice 4 — External (Steve) — **OUTSTANDING**
 
-Not agent work. Dagh coordinates Steve simul. Optional overnight full simul on dev/work for UI convenience — **not** required for slice 5 if Steve DB is good.
+Not agent work. Dagh coordinates Steve full simul on work/staging. Repo track does **not** resume until simul is requested or cutover is scheduled.
 
-Agent resumes slice 5 when Dagh confirms Steve simul green.
+UI shipped on dev/staging ahead of simul (Jun 2026); no further UI work planned unless Dagh reopens the track.
 
 ---
 
@@ -215,11 +212,12 @@ Browser on staged + dev; sort columns; tooltips; peak → games drill-down and b
 
 ---
 
-## Slice 6 — Closure
+## Slice 6 — Closure — **DONE**
 
 - [x] `schema-register.md`, `feature-log`, `PROJECT_MEMORY.md`, policy status
-- [ ] Full merge checklist into `website-data-contract.md` (participation + streak columns already documented)
-- [ ] Steve simul (slice 4) → live cutover
+- [x] UI + ops shipped; docs reflect repo track complete
+- [x] HoF Activity block (participation + play-streak month/year + career celebration); SCH-025 `active_*_reached_at` on P4b
+- [ ] Steve simul (slice 4) → live cutover — **only outstanding item**
 
 ---
 
@@ -229,8 +227,7 @@ Browser on staged + dev; sort columns; tooltips; peak → games drill-down and b
 |------|------------|
 | Incremental vs oracle drift | Orthogonal parity at 100 and 1000 on **work** |
 | Confusing dev DB fill with parity | Policy A11; proof DB = work only |
-| UI before Steve simul | STOP gate — Dagh controls slice 5 |
+| UI before Steve simul | UI shipped on dev/staging Jun 2026; full simul still required for cutover proof |
 | Long smoke without OK | Ladder stops at 1000 until Dagh approves more |
 | Old `activity-peaks.php` bookmarks | Redirect/shim to `activity.php` |
-| HoF page not updated yet | GST month/year + tables populated by ops; `hall-of-fame.php` rows = separate HoF pass |
-| Participation HoF later | Counts from `player_activity_participation` at read time — no GST columns |
+| HoF participation tie dates | SCH-025 stores `active_*_reached_at` on P4b; backfill `rebuild_participation_reached.php` after migrate on each DB |

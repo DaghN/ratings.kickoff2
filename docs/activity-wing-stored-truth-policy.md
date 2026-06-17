@@ -1,6 +1,6 @@
 # Activity wing — stored truth policy (online)
 
-**Status:** Ops proven on work (Jun 2026); **UI shipped** on dev/staging (`leaderboards/activity/*`). Steve simul pending.
+**Status:** **Repo track complete (Jun 2026).** Ops + UI shipped on dev/staging. **Outstanding:** Steve full simul (slice 4) → live cutover. **HoF (Jun 2026):** month/year play-streak rows + participation block shipped; in-a-row → player Games drill-down still deferred.
 **Realm:** Online only (`ko2unity_*` / `kooldb*`) — Amiga defers per [`amiga-realm-vision.md`](amiga-realm-vision.md).  
 **Authority:** Product + ops decisions here; table behaviour merges into [`website-data-contract.md`](website-data-contract.md) at track closure.  
 **Implementation:** [`activity-wing-stored-truth-implementation-plan.md`](activity-wing-stored-truth-implementation-plan.md)
@@ -40,8 +40,8 @@ Support a restructured **Leaderboards → Activity** wing with three celebration
 | A12 | **Orthogonal parity:** After incremental smoke simul on **work**, compare each new stored-truth table to **slow oracle queries** on data already on work (mainly `player_period_games`; `ratedresults` only for narrow spot checks). Two independent paths to the same answer — **not** “rebuild script is definition of correct.” |
 | A13 | **Smoke ladder:** simul `--limit 100` → parity → Dagh OK → `--limit 1000` → parity → Dagh OK → longer/full only if Dagh approves (smokes take time). |
 | A14 | **Milestones:** **out of scope** — no catalog keys, no post-game unlock hooks this burst. |
-| A15 | **Execution order:** ops + orthogonal parity on work → smoke ladder → **Steve simul** → optional overnight local full simul (convenience for UI dev DB) → **UI** after Steve simul (WinSCP to staged anytime). |
-| A16 | **This chat** owns the track — no starter prompt / separate agent handoff files unless Dagh asks later. |
+| A15 | **Execution order (as shipped):** ops + orthogonal parity on work → smoke ladder → **UI on dev/staging** (Jun 2026) → **Steve full simul** (outstanding) → live cutover. |
+| A16 | **Track closed** Jun 2026 — reopen only if Dagh asks (HoF page rows, in-a-row drill-down, etc.). |
 
 ---
 
@@ -109,8 +109,12 @@ player_period_games ─────────────────┬──
 | `active_years` | Distinct calendar years with ≥1 rated game |
 | `first_rated_day` | UTC date of first rated game |
 | `last_rated_day` | UTC date of most recent rated game (by game date, not wall clock) |
+| `active_{type}_reached_at` | **SCH-025** — UTC datetime of establishing game when `active_{type}` last incremented (`is_new_period`) |
+| `active_{type}_reached_game_id` | **SCH-025** — `ratedresults.id` for that establishing game (parity oracle) |
 
 **Derived at read (not stored):** `longevity_days = DATEDIFF(last_rated_day, first_rated_day) + 1`.
+
+**HoF / LB tie-break (counts):** `ORDER BY active_{type} DESC, active_{type}_reached_at ASC, player_id ASC` — same establishing-game semantics as play-streak HoF; not calendar `period_start` alone.
 
 **Full rebuild:**
 
@@ -125,8 +129,11 @@ player_period_games ─────────────────┬──
 For each player A/B, after each period upsert:
 
 1. If `is_new_period` for that `period_type`: `active_{type} += 1` (insert row if missing).
-2. If `is_new_period` for `day`: set `first_rated_day` if NULL; set `last_rated_day = GREATEST(last_rated_day, day_start)`.
-3. If not new day but career first game: `first_rated_day` still set when row created (first ever period of any type implies new day).
+2. **SCH-025:** On same bump, set `active_{type}_reached_at = game.Date` (UTC) and `active_{type}_reached_game_id = game.id` (establishing game — current game is first in that period).
+3. If `is_new_period` for `day`: set `first_rated_day` if NULL; set `last_rated_day = GREATEST(last_rated_day, day_start)`.
+4. If not new day but career first game: `first_rated_day` still set when row created (first ever period of any type implies new day).
+
+**Backfill SCH-025 on repair DBs:** `php scripts/rebuild_participation_reached.php` after migrate `025` (oracle parity gate).
 
 **Orthogonal parity (work DB, after incremental simul):**
 
@@ -188,7 +195,7 @@ Peaks + dates remain P4 incremental update. HoF peak rows remain read-time top-1
 | Participation | Player · active days · active weeks · active months · active years · longevity days · (optional first game) |
 | In a row | Player · days · weeks · months · years in a row |
 
-Peak cells include **games + period date** (e.g. `47 · Mar 3, 2019`). **Three segment pages** under `leaderboards/activity/` (**Participation · In a row · Peaks**), not stacked on one URL. Default landing = Participation.
+Peak cells include **games + period date** (e.g. `47 · Mar 3, 2019`). **In a row** sort ties on equal streak length: **earlier `best_achieved_at` ranks higher** (`data-k2-sort-tie-value` — same rule as HoF GST). **Participation** count columns tie on equal totals: **earlier `active_*_reached_at` ranks higher** (stored on P4b `is_new_period` — SCH-025). **Three segment pages** under `leaderboards/activity/` (**Participation · In a row · Peaks**), not stacked on one URL. Default landing = Participation.
 
 ---
 

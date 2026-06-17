@@ -61,20 +61,24 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <?php
 while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) ($row['NumberGames'] ?? 0);
-    $dayMeta = k2_lb_activity_streak_cell_meta((int) $row['streak_days'], $games, $row['streak_days_start'] ?? null, 'day');
-    $weekMeta = k2_lb_activity_streak_cell_meta((int) $row['streak_weeks'], $games, $row['streak_weeks_start'] ?? null, 'week');
-    $monthMeta = k2_lb_activity_streak_cell_meta((int) $row['streak_months'], $games, $row['streak_months_start'] ?? null, 'month');
-    $yearMeta = k2_lb_activity_streak_cell_meta((int) $row['streak_years'], $games, $row['streak_years_start'] ?? null, 'year');
+    $streakDays = (int) ($row['streak_days'] ?? 0);
+    $streakWeeks = (int) ($row['streak_weeks'] ?? 0);
+    $streakMonths = (int) ($row['streak_months'] ?? 0);
+    $streakYears = (int) ($row['streak_years'] ?? 0);
+    $dayMeta = k2_lb_activity_streak_cell_meta($streakDays, $games, $row['streak_days_start'] ?? null, 'day');
+    $weekMeta = k2_lb_activity_streak_cell_meta($streakWeeks, $games, $row['streak_weeks_start'] ?? null, 'week');
+    $monthMeta = k2_lb_activity_streak_cell_meta($streakMonths, $games, $row['streak_months_start'] ?? null, 'month');
+    $yearMeta = k2_lb_activity_streak_cell_meta($streakYears, $games, $row['streak_years_start'] ?? null, 'year');
     ?>
 	<tr>
 		<td></td>
 		<td class="k2-table-cell--left"><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
 		<td><?php echo k2_fmt_int($row['Rating']); ?></td>
 		<td><?php echo k2_fmt_games_played($games); ?></td>
-		<?php k2_lb_activity_echo_tooltip_td($dayMeta); ?>
-		<?php k2_lb_activity_echo_tooltip_td($weekMeta); ?>
-		<?php k2_lb_activity_echo_tooltip_td($monthMeta); ?>
-		<?php k2_lb_activity_echo_tooltip_td($yearMeta); ?>
+		<?php k2_lb_activity_echo_tooltip_td($dayMeta, $streakDays, '', k2_lb_activity_streak_achieved_tie_value($row['streak_days_achieved_at'] ?? null)); ?>
+		<?php k2_lb_activity_echo_tooltip_td($weekMeta, $streakWeeks, '', k2_lb_activity_streak_achieved_tie_value($row['streak_weeks_achieved_at'] ?? null)); ?>
+		<?php k2_lb_activity_echo_tooltip_td($monthMeta, $streakMonths, '', k2_lb_activity_streak_achieved_tie_value($row['streak_months_achieved_at'] ?? null)); ?>
+		<?php k2_lb_activity_echo_tooltip_td($yearMeta, $streakYears, '', k2_lb_activity_streak_achieved_tie_value($row['streak_years_achieved_at'] ?? null)); ?>
 	</tr>
 <?php } ?>
 </tbody>
