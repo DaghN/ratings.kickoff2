@@ -104,7 +104,7 @@ Fixed **3×3 deck** of **scorecard cards** below the race table. All nine slots 
 ### Score identity (locked)
 
 - **Never flip a score.** The scoreline is the stored `NameA GoalsA – GoalsB NameB`; a 0–17 stays 0–17 with the correct names. Names shown in **full**, both sides.
-- **Rivalry colours, not hero angle.** Winner **name** (own chrome/red) + **goals**, **dash**, and **date** use the winner's colour. Beaten **name + goals** are heavily dimmed grey. **Draw:** names, goals, dash, and date all holo (`--k2-pure-holo`). Card border glow follows outcome accent.
+- **Rivalry colours on the scoreline only.** Card shells stay neutral (subtle border, no outcome glow). Winner **name** (own chrome/red) + **goals** use rivalry ink with neon on the winning digit; beaten **name + goals** are heavily dimmed grey. **Dash** and **date** stay muted on decided games. **Draw:** both **names + goals** holo (`--k2-pure-holo`) with neon on goals; **kicker**, **dash**, and **date** muted draw scale.
 
 ### Activation
 
@@ -125,7 +125,7 @@ Read-time: one indexed `ratedresults` pair scan — `player_opponents_h2h_pair_g
 
 - Load + render: `player_opponents_h2h_moments.php`; CSS `player-opponents-h2h-moments.css` (self-contained `k2-h2h2-mcard` scorecards — no `player-feast.css` / emoji).
 - **Scoreline names** — 3-column board (`1fr auto 1fr`); each side stretches full column width; names centre-aligned, `overflow-wrap: break-word` only when genuinely needed (no `text-wrap: pretty` / `anywhere`). Long names (~14 chars) fit one line in the 48rem deck via slight negative letter-spacing.
-- **Outcome accent** per card (`--k2-mc-accent`): the game's **winner owns the card** — subject win = blue, rival win = red, **draw = holo** (`--k2-pure-holo`). Drives border glow (milestone garden `.k2-ms-card.is-unlocked` pattern) and kicker tint. **Hover** — profile-moment style: border lights to full accent + outer glow; extra `box-shadow` ring simulates thicker border without layout jump. **Lit goal numbers** — winner (and both sides on draw) use the same five-layer neon `text-shadow` as race-table leaders.
+- **Scoreline accent** (Jun 2026 v2): subject-win / opponent-win / draw **goals** use full poster race-leader neon `text-shadow` (five layers); lit **names** 82% tint mix, no shadow. Card frame neutral; kickers `--k2-mc-draw`.
 
 ---
 
@@ -227,6 +227,7 @@ Profile keeps **Career rating** + **Games per month** only.
 | Date | Note |
 |------|------|
 | Jun 2026 | Poster contract locked: rank + rating + W/D/L centre; no country; no first/last; appropriately sized (not “compact” mandate); pair detail band scoped as follow-on. |
+| Jun 2026 | **H2H moments v2.** Neutral card shells; muted `--k2-mc-draw` kickers; holo draw scorelines; full poster neon on goal digits only — `player-opponents-h2h-moments.css`. |
 | Jun 2026 | **H2H moments grid shipped.** 3×3 fixed slots, dim inactive, read-time pair scan, duplicate games allowed — `player_opponents_h2h_moments.php`. |
 | Jun 2026 | **Pair detail shipped.** Symmetric stat races below poster (Results · Goals · DDs); goals line removed from poster; leader tint, no mini bars, no win-rate rows — `player_opponents_render_h2h_pair_detail()` + `k2-h2h2-detail` CSS. |
 | Jun 2026 | **Poster v2 shipped.** Promoted lab v2 card design to production H2H tab: mirrored glowing identity cards, bare stage, W/D/L + meter; removed lab v1/v2 sandboxes (lab2 URL redirects). CSS in `player-opponents-h2h-poster.css`. |

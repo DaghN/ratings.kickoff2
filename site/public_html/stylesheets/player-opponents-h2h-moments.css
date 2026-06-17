@@ -1,15 +1,15 @@
 /**
  * Player Opponents — H2H rivalry moments (fixed 3×3 scorecard deck).
  *
- * Each card is a little scoreboard: kicker (what the moment is), the true
- * scoreline (NameA goals – goals NameB, never flipped), and the date. The page
- * Winner name (own chrome/red), goals, dash, and date use winner colour;
- * beaten name and goals are heavily dimmed grey. Draws: holo throughout.
+ * Neutral card shells (no outcome border glow). Rivalry chrome/red lives on the
+ * scoreline only: winner name + goals neon; beaten side muted. Draws: holo on
+ * both names + goals; kicker (--k2-mc-draw), dash, date stay muted draw scale.
  */
 
 body.k2-site .k2-h2h2-moments {
 	--k2-mc-blue: var(--k2-h2h2-blue, var(--k2-pure-chrome));
 	--k2-mc-red: var(--k2-table-negative);
+	--k2-mc-draw: color-mix(in srgb, var(--k2-text-muted) 82%, transparent);
 	width: 100%;
 	max-width: var(--k2-h2h2-marquee-max, 48rem);
 	margin: clamp(36px, 4.8vw, 52px) auto 0;
@@ -26,9 +26,8 @@ body.k2-site .k2-h2h2-moments__grid {
 	gap: clamp(24px, 4vw, 34px);
 }
 
-/* ===== card shell (2px accent border + garden glow + bloom) ===== */
+/* ===== card shell — neutral frame; colour is scoreline-only ===== */
 body.k2-site .k2-h2h2-mcard {
-	--k2-mc-accent: var(--k2-border-strong, var(--k2-border-subtle));
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -44,13 +43,7 @@ body.k2-site .k2-h2h2-mcard {
 }
 
 body.k2-site .k2-h2h2-mcard.is-active {
-	border: 2px solid var(--k2-mc-accent);
-	box-shadow:
-		0 0 12px color-mix(in srgb, var(--k2-mc-accent) 28%, transparent),
-		0 0 28px color-mix(in srgb, var(--k2-mc-accent) 18%, transparent),
-		0 0 52px color-mix(in srgb, var(--k2-mc-accent) 8%, transparent),
-		0 0 20px color-mix(in srgb, var(--k2-mc-accent) 38%, transparent),
-		inset 0 1px 0 color-mix(in srgb, var(--k2-mc-accent) 12%, transparent);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 body.k2-site .k2-h2h2-mcard.is-dim {
@@ -66,16 +59,12 @@ body.k2-site a.k2-h2h2-mcard--link:focus-visible {
 	text-decoration: none;
 }
 
-/* Hover — outer accent ring (reads thicker) + stronger halo; no lift */
 body.k2-site a.k2-h2h2-mcard--link.is-active:hover,
 body.k2-site a.k2-h2h2-mcard--link.is-active:focus-visible {
+	border-color: var(--k2-border-strong);
 	box-shadow:
-		0 0 0 1px color-mix(in srgb, var(--k2-mc-accent) 72%, transparent),
-		0 0 14px color-mix(in srgb, var(--k2-mc-accent) 34%, transparent),
-		0 0 32px color-mix(in srgb, var(--k2-mc-accent) 24%, transparent),
-		0 0 60px color-mix(in srgb, var(--k2-mc-accent) 12%, transparent),
-		0 0 28px color-mix(in srgb, var(--k2-mc-accent) 48%, transparent),
-		inset 0 1px 0 color-mix(in srgb, var(--k2-mc-accent) 16%, transparent);
+		inset 0 1px 0 rgba(255, 255, 255, 0.08),
+		0 0 18px rgba(255, 255, 255, 0.04);
 }
 
 /* ===== kicker (moment label — sentence case, not tag caps) ===== */
@@ -91,11 +80,7 @@ body.k2-site .k2-h2h2-mcard__kicker {
 }
 
 body.k2-site .k2-h2h2-mcard.is-active .k2-h2h2-mcard__kicker {
-	color: color-mix(in srgb, var(--k2-mc-accent) 58%, var(--k2-text-secondary));
-}
-
-body.k2-site .k2-h2h2-mcard.is-drawn.is-active .k2-h2h2-mcard__kicker {
-	color: var(--k2-pure-holo);
+	color: var(--k2-mc-draw);
 }
 
 /* ===== scoreline board ===== */
@@ -138,14 +123,24 @@ body.k2-site .k2-h2h2-mcard__goals {
 	color: var(--k2-text-primary);
 }
 
-body.k2-site .k2-h2h2-mcard__side.is-winner .k2-h2h2-mcard__goals {
-	color: var(--k2-mc-accent);
+body.k2-site .k2-h2h2-mcard__side--subject.is-winner .k2-h2h2-mcard__goals {
+	color: var(--k2-mc-blue);
 	text-shadow:
-		0 0 8px color-mix(in srgb, var(--k2-mc-accent) 92%, transparent),
-		0 0 22px color-mix(in srgb, var(--k2-mc-accent) 72%, transparent),
-		0 0 42px color-mix(in srgb, var(--k2-mc-accent) 52%, transparent),
-		0 0 64px color-mix(in srgb, var(--k2-mc-accent) 34%, transparent),
-		0 0 80px color-mix(in srgb, var(--k2-mc-accent) 22%, transparent);
+		0 0 8px color-mix(in srgb, var(--k2-mc-blue) 92%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-mc-blue) 72%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-mc-blue) 52%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-mc-blue) 34%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-mc-blue) 22%, transparent);
+}
+
+body.k2-site .k2-h2h2-mcard__side--opponent.is-winner .k2-h2h2-mcard__goals {
+	color: var(--k2-mc-red);
+	text-shadow:
+		0 0 8px color-mix(in srgb, var(--k2-mc-red) 92%, transparent),
+		0 0 22px color-mix(in srgb, var(--k2-mc-red) 72%, transparent),
+		0 0 42px color-mix(in srgb, var(--k2-mc-red) 52%, transparent),
+		0 0 64px color-mix(in srgb, var(--k2-mc-red) 34%, transparent),
+		0 0 80px color-mix(in srgb, var(--k2-mc-red) 22%, transparent);
 }
 
 body.k2-site .k2-h2h2-mcard__side--subject.is-winner .k2-h2h2-mcard__name {
@@ -172,20 +167,12 @@ body.k2-site .k2-h2h2-mcard__dash {
 	transform: translateY(6px);
 }
 
-body.k2-site .k2-h2h2-mcard.is-active:not(.is-drawn) .k2-h2h2-mcard__dash {
-	color: var(--k2-mc-accent);
-}
-
 /* ===== date footer ===== */
 body.k2-site .k2-h2h2-mcard__date {
 	font-size: 11px;
 	letter-spacing: 0.04em;
 	color: var(--k2-text-muted);
 	line-height: 1.2;
-}
-
-body.k2-site .k2-h2h2-mcard.is-active:not(.is-drawn) .k2-h2h2-mcard__date {
-	color: color-mix(in srgb, var(--k2-mc-accent) 76%, var(--k2-text-secondary));
 }
 
 /* ===== empty / pending slot ===== */
@@ -208,13 +195,9 @@ body.k2-site .k2-h2h2-mcard__date--empty {
 	font-style: italic;
 }
 
-/* ===== outcome accents — whoever won the game owns the card ===== */
-body.k2-site .k2-h2h2-mcard.is-won-subject { --k2-mc-accent: var(--k2-mc-blue); }
-body.k2-site .k2-h2h2-mcard.is-won-opponent { --k2-mc-accent: var(--k2-mc-red); }
-body.k2-site .k2-h2h2-mcard.is-drawn { --k2-mc-accent: var(--k2-pure-holo); }
-
+/* ===== draws — holo names + goals; kicker/dash/date muted ===== */
 body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__name {
-	color: var(--k2-pure-holo);
+	color: color-mix(in srgb, var(--k2-pure-holo) 82%, var(--k2-text-secondary));
 }
 
 body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__goals {
@@ -229,7 +212,7 @@ body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__goals {
 
 body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__dash,
 body.k2-site .k2-h2h2-mcard.is-drawn .k2-h2h2-mcard__date {
-	color: var(--k2-pure-holo);
+	color: var(--k2-mc-draw);
 }
 
 /* ===== responsive ===== */

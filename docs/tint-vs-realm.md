@@ -15,10 +15,10 @@
 
 | Local hour (visitor) | Tint |
 |----------------------|------|
-| 00:00–05:59 | Amber |
+| 00:00–05:59 | Holo |
 | 06:00–11:59 | Pitch |
 | 12:00–17:59 | Chrome |
-| 18:00–23:59 | Holo |
+| 18:00–23:59 | Amber |
 
 Clock source defaults to **visitor local time**. Set `localStorage['k2-accent-clock']` to `'utc'` to use UTC boundaries instead (no UI yet). Open tabs re-apply at each boundary via `setTimeout`.
 

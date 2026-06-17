@@ -87,7 +87,7 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 - [x] **H2H v1 (Jun 2026):** picker band + pair headline (`includes/player_opponents_h2h.php`, `api/player_h2h_opponent_search.php`, `js/player-opponents-h2h.js`). Games/A–Z use shared **`k2-archive-listbox`** (two-column options: name · N games). No games → text only; no charts yet.
 - [x] **H2H poster v1 (Jun 2026)** — versus poster: diagonal arena, `VS` watermark, dual fighter cards (rank · rating · goals scored), centre W/D/L, full-width rivalry tug-of-war bar, leader glow/"Leads" chip. See [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Implementation (as built).
 - [x] **H2H pair detail (Jun 2026)** — symmetric stat race table below poster; see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Pair detail.
-- [x] **H2H moments grid (Jun 2026)** — 3×3 pair trophy board below race table; see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Pair moments.
+- [x] **H2H moments grid (Jun 2026)** — 3×3 pair trophy board below race table; **v2 (Jun 2026)** neutral shells + scoreline-only neon — see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md) § Pair moments.
 - [x] Move Profile **Matchups** charts (top opponents bar, H2H cumulative, rating compare) onto H2H tab below moments.
 - [x] Remove `player_feast_render_charts()` **Matchups** section from `player/profile.php`.
 - [x] Optional: rivalry one-liner on Profile → `opponents?view=h2h&opponent=…` — **placeholder card** (`player_feast_render_rivalry_teaser`) after Most played opponents; fuller band TBD.

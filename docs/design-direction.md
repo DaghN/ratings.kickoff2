@@ -29,7 +29,7 @@ Use **neon noir statistics** as the shorthand:
 
 **Realm** chooses the ladder universe and data: `online` now, `amiga` later.
 
-**Tint** chooses UI paint: `amber`, `pitch`, `chrome`, `holo`. Without a manual pill pick, tint follows a **six-hour rotation** in the visitor�s local time (amber ? pitch ? chrome ? holo); see [`tint-vs-realm.md`](tint-vs-realm.md). A manual pill choice applies for the **current six-hour window only**, then the schedule resumes. Tint is stored on `html[data-k2-accent]` and must not imply realm.
+**Tint** chooses UI paint: `amber`, `pitch`, `chrome`, `holo`. Without a manual pill pick, tint follows a **six-hour rotation** in the visitor�s local time (holo → pitch → chrome → amber); see [`tint-vs-realm.md`](tint-vs-realm.md). A manual pill choice applies for the **current six-hour window only**, then the schedule resumes. Tint is stored on `html[data-k2-accent]` and must not imply realm.
 
 ```html
 <html data-realm="online" data-k2-accent="amber">

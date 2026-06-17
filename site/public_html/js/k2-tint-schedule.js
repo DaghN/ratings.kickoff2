@@ -1,11 +1,11 @@
 /**
- * Six-hour tint rotation (amber → pitch → chrome → holo) + per-period manual override.
+ * Six-hour tint rotation (holo → pitch → chrome → amber) + per-period manual override.
  * Manual pill choice applies only for the current six-hour window; next period uses schedule again.
  */
 (function (global) {
     'use strict';
 
-    var VALID_ACCENTS = ['amber', 'pitch', 'chrome', 'holo'];
+    var VALID_ACCENTS = ['holo', 'pitch', 'chrome', 'amber'];
     var DEFAULT_ACCENT = 'amber';
     var PERIOD_MS = 6 * 60 * 60 * 1000;
     var ACCENT_KEY = 'k2-accent-tune';
