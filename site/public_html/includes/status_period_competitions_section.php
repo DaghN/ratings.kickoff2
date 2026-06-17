@@ -12,6 +12,26 @@ if (!function_exists('k2_format_period_activity_label')) {
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_period_page.php';
+
+if (!function_exists('k2_status_period_competition_league_col_title')) {
+    function k2_status_period_competition_league_col_title(string $cup, string $period, string $periodStart): void
+    {
+        $label = k2_league_period_cup_label($cup);
+        $href = $periodStart !== ''
+            ? k2_league_period_href($cup, $period, $periodStart)
+            : k2_league_period_landing_href(['cup' => $cup]);
+        ?>
+							<h3 class="k2-panel-heading k2-status-period-competitions__col-title">
+								<a
+									class="k2-link-star k2-status-period-competitions__col-title-link"
+									href="<?php echo k2_status_h($href); ?>"
+									data-competition-league-link="<?php echo k2_status_h($cup); ?>"
+								><?php echo k2_status_h($label); ?> &rarr;</a>
+							</h3>
+<?php
+    }
+}
 
 if (!function_exists('k2_status_period_competition_points_panel_attrs')) {
     /**
@@ -188,6 +208,7 @@ if ($initialPoints !== null) {
         new DateTimeImmutable('@' . $serverNowEpoch)
     );
 }
+$initialLeaguePeriodStart = (string) ($currentKeys[$defaultPeriod] ?? '');
 
 $podiumMedalHtml = [
     '1' => k2_status_league_podium_medal(1),
@@ -282,7 +303,7 @@ $podiumMedalHtml = [
 					<div class="k2-status-period-competitions__pair">
 						<div class="k2-status-period-competitions__col k2-status-period-competitions__col--activity">
 							<div class="k2-status-period-competitions__col-stack">
-							<h3 class="k2-panel-heading k2-status-period-competitions__col-title">Activity league</h3>
+							<?php k2_status_period_competition_league_col_title('activity', $defaultPeriod, $initialLeaguePeriodStart); ?>
 							<div class="k2-status-period-competitions__table-slot" data-competition-activity-body>
 <?php if (!empty($initialActivityError)) { ?>
 								<p class="k2-status-panel__empty">Could not load activity for this period.</p>
@@ -296,7 +317,7 @@ $podiumMedalHtml = [
 						</div>
 						<div class="k2-status-period-competitions__col k2-status-period-competitions__col--points">
 							<div class="k2-status-period-competitions__col-stack">
-							<h3 class="k2-panel-heading k2-status-period-competitions__col-title">Points league</h3>
+							<?php k2_status_period_competition_league_col_title('points', $defaultPeriod, $initialLeaguePeriodStart); ?>
 							<div
 								class="k2-status-period-competitions__table-slot"
 								data-competition-points-body

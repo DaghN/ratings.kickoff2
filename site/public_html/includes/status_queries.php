@@ -244,14 +244,27 @@ function k2_status_format_league_time_left(int $seconds): string
     $days = intdiv($seconds, 86400);
     $hours = intdiv($seconds % 86400, 3600);
     $minutes = intdiv($seconds % 3600, 60);
+    $parts = [];
     if ($days > 0) {
-        return $days . 'd ' . $hours . 'h';
+        $parts[] = $days . ' ' . ($days === 1 ? 'day' : 'days');
+        if ($hours > 0) {
+            $parts[] = $hours . ' ' . ($hours === 1 ? 'hour' : 'hours');
+        }
+
+        return implode(' ', $parts);
     }
     if ($hours > 0) {
-        return $hours . 'h ' . $minutes . 'm';
+        $parts[] = $hours . ' ' . ($hours === 1 ? 'hour' : 'hours');
+        if ($minutes > 0) {
+            $parts[] = $minutes . ' ' . ($minutes === 1 ? 'minute' : 'minutes');
+        }
+
+        return implode(' ', $parts);
     }
 
-    return max(1, $minutes) . 'm';
+    $minutes = max(1, $minutes);
+
+    return $minutes . ' ' . ($minutes === 1 ? 'minute' : 'minutes');
 }
 
 function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $serverNow): string

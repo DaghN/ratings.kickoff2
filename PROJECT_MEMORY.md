@@ -85,6 +85,16 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **League period** — sibling cup link (`Activity league →`) beside period chevrons, not in lede prose. |
+| 2026-06 | **League period hub bar** — `hub_nav.php` + tint picker on `league.php`; no active hub pill; `#k2-league-period` anchor unchanged. |
+| 2026-06 | **League period step chevrons** — prev/next period on open/close line (Status bounds); half-pill gap, no label. |
+| 2026-06 | **League period landing anchor** — `#k2-league-period` on title `h1`; hash scroll after layout; carry-scroll restore skipped when URL has hash. |
+| 2026-06 | **League period URL parse** — `league.php` accepts month (`2023-01`) and year (`2023`) start keys from Status; was Y-m-d only. |
+| 2026-06 | **League period page intro** — hub-chapter title (`Points league · Week 22, 2026`); prose lede with UTC open/close instants + link-star game count (live vs final). |
+| 2026-06 | **League period page upgrade** — Standings + paginated full games table (`k2_rated_game_row`); medals only after period ends. |
+| 2026-06 | **Status league column links** — “Activity league →” / “Points league →” link to `league.php` for active period key; JS syncs href on tab/step/picker. |
+| 2026-06 | **League period page** — removed footer meta line (“Current leagues on Status…”); page ends at standings table. |
+| 2026-06 | **Milestone league source link** — `k2_league_period_href()` now uses `k2_route('league')` (root `/league.php?…`); fixes 404 from `/player/milestones.php` and `/milestones/*`. |
 | 2026-06 | **Steve `kooldb1` full re-simul** — bootstrap + simul + `run_verify_ops_sim` **0 fail / 0 warn** (74,865 processed); participation sums, reached_at oracle, play-streak HoF, milestone totals/holder_count parity PASS; orphan-milestone verify fix confirmed. |
 | 2026-06 | **Result streaks UI polish** — tooltip/banner dates `M j, Y`; streak games list newest-first; player games date `M j Y, H:i`; GD `+` on wins. |
 | 2026-06 | **Result streaks slice 4** — Streaks LB tooltips + click-through to player games (`from_game`/`to_game` filter); `lb_result_streaks_lib.php`; back-link `from=result-streaks`. |

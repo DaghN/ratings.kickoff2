@@ -144,26 +144,195 @@ body.k2-site .k2-ms-meta-hint .k2-ms-meta-hint__unlocked {
 	font-size: 13px;
 }
 
-.k2-league-period {
-	max-width: 52rem;
+body.k2-site .k2-league-period {
+	max-width: 100%;
 }
 
-.k2-league-period__meta {
-	margin: 0 0 8px;
+body.k2-site .k2-league-period__intro {
+	margin-bottom: 18px;
 }
 
-.k2-league-period__games {
-	margin: 0 0 16px;
+body.k2-site .k2-league-period__title {
+	margin: 0 0 18px;
+	font-family: var(--k2-font-display);
+	font-size: 1.35rem;
+	font-weight: 600;
+	line-height: 1.25;
+	color: var(--k2-accent);
+	text-shadow:
+		0 0 10px color-mix(in srgb, var(--k2-accent) 82%, transparent),
+		0 0 24px color-mix(in srgb, var(--k2-accent-glow) 62%, transparent),
+		0 0 40px color-mix(in srgb, var(--k2-accent-glow) 34%, transparent);
+}
+
+body.k2-site .k2-league-period__title-cup,
+body.k2-site .k2-league-period__title-sep,
+body.k2-site .k2-league-period__title-period {
+	color: inherit;
+	font: inherit;
+	text-shadow: inherit;
+}
+
+#k2-league-period {
+	scroll-margin-top: 0;
+}
+
+.k2-league-period__lede p {
+	margin: 0 0 14px;
+	font-family: var(--k2-font-body);
 	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+	max-width: 44rem;
+}
+
+.k2-league-period__lede p:last-child {
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-league-period__lede .blue {
+	font-weight: 600;
+}
+
+.k2-league-period__sibling {
+	font-size: 11px;
+	font-weight: 400;
 	color: var(--k2-text-muted);
 }
 
-.k2-league-period__table {
-	margin-bottom: 16px;
+.k2-league-period__sibling-link {
+	font-size: inherit;
 }
 
-.k2-league-period__footer {
+.k2-league-period__standings {
+	margin-bottom: 12px;
+}
+
+body.k2-site .k2-league-period__standings-head {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	margin: 0 0 10px;
+}
+
+body.k2-site .k2-league-period__standings-nav {
+	display: flex;
+	flex: 0 0 auto;
+	flex-wrap: nowrap;
+	align-items: center;
+	margin-left: 10px;
+}
+
+.k2-league-period__standings-heading {
 	margin: 0;
+	font-size: 13px;
+}
+
+body.k2-site .k2-league-period__standings-nav .k2-league-period__period-steps {
+	--k2-league-period-step-size: 22px;
+	flex: 0 0 auto;
+	gap: calc(var(--k2-league-period-step-size) / 2);
+	margin-left: 0;
+	white-space: nowrap;
+}
+
+body.k2-site .k2-league-period__standings-nav .k2-league-period__sibling {
+	margin-left: 12px;
+	white-space: nowrap;
+}
+
+/* Period + games pager chevrons — tier-pill fill (milestone unlock filter pattern) */
+body.k2-site .k2-league-period .k2-player-games-day-step {
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 42%, transparent);
+}
+
+body.k2-site .k2-league-period a.k2-player-games-day-step:hover,
+body.k2-site .k2-league-period a.k2-player-games-day-step:focus-visible {
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 20%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 52%, transparent);
+}
+
+body.k2-site .k2-league-period .k2-player-games-day-step.is-disabled {
+	opacity: 0.42;
+	background: color-mix(in srgb, var(--k2-accent) 8%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 24%, var(--k2-border-subtle));
+}
+
+body.k2-site .k2-league-period__period-steps .k2-player-games-day-step {
+	width: var(--k2-league-period-step-size);
+	height: var(--k2-league-period-step-size);
+}
+
+body.k2-site .k2-league-period__period-steps .k2-player-games-day-step__chevron {
+	width: 6px;
+	height: 6px;
+	border-bottom-width: 1.5px;
+	border-left-width: 1.5px;
+}
+
+body.k2-site .k2-league-period__period-steps .k2-player-games-day-step--prev .k2-player-games-day-step__chevron {
+	margin-left: 1px;
+}
+
+body.k2-site .k2-league-period__period-steps .k2-player-games-day-step--next .k2-player-games-day-step__chevron {
+	margin-right: 1px;
+}
+
+.k2-league-period__table {
+	margin-bottom: 0;
+}
+
+.k2-league-period__games-section {
+	margin-top: 0;
+}
+
+.k2-league-period__games-heading {
+	margin: 0 0 10px;
+	font-size: 13px;
+}
+
+body.k2-site .k2-league-period__games-status.k2-realm-games-all__status {
+	gap: 0;
+	margin-bottom: 12px;
+}
+
+body.k2-site .k2-league-period__games-status .k2-realm-games-all__status-range {
+	display: grid;
+	grid-template-columns: var(--k2-realm-games-status-text-width) auto;
+	align-items: center;
+	column-gap: var(--k2-realm-games-status-range-gap);
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-league-period__games-status .k2-realm-games-all__status-text {
+	flex: none;
+	width: auto;
+	min-width: 0;
+	max-width: none;
+}
+
+body.k2-site .k2-league-period__games-status .k2-player-games-day-steps.k2-realm-games-all__status-nav {
+	flex: none;
+	gap: calc(var(--k2-realm-games-status-nav-btn-size) / 2);
+	margin-left: 0;
+}
+
+@media (max-width: 520px) {
+	body.k2-site .k2-league-period__games-status .k2-realm-games-all__status-range {
+		display: inline-flex;
+		flex-wrap: wrap;
+		width: auto;
+	}
+
+	body.k2-site .k2-league-period__games-status .k2-realm-games-all__status-text {
+		flex: 1 1 auto;
+		width: auto;
+	}
 }
 
 .k2-lb-ms-tier--pitch { color: var(--k2-pure-pitch); }

@@ -319,6 +319,8 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     $topScore = k2_rated_game_top_score($game);
     $dash = k2_fmt_dash();
 
+    $gameId = (int) $game['id'];
+
     if ($processed) {
         $esCell = k2_rated_game_es_winner_html($game);
         $favoriteExpectedScore = k2_rated_game_favorite_expected_score($game);
@@ -341,7 +343,7 @@ function k2_rated_game_row_html(array $row, array $options = []): string
         $ratingDiffCell = $dash;
     }
 
-    return '<tr>'
+    return '<tr data-k2-sort-tie-value="' . $gameId . '">'
         . k2_rated_game_td($idCell, 0, $sortedColIndex)
         . k2_rated_game_td($dateCell, 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl', $dateSortValue)
         . k2_rated_game_td($teamA, 2, $sortedColIndex, 'k2-table-cell--left')

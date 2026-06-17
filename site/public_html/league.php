@@ -7,6 +7,7 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/k2-table-scroll-mirror.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js'); ?>" defer="defer"></script>
 
 </head>
 
@@ -14,7 +15,10 @@
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
-<div class="k2-page-nav">
+<?php
+$k2HubTabActive = '';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
+?>
 
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
@@ -23,12 +27,31 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_period_page.php';
 $request = k2_league_period_parse_request();
 $loaded = null;
 $queryError = null;
+$games = [];
+$gamesTotal = 0;
+$gamesOffset = 0;
+$gamesLimit = k2_league_period_games_page_size();
+$gamesError = null;
 
 if ($request !== null) {
     $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
     $loaded = k2_league_period_load($con, $request['cup'], $request['period'], $request['start']);
     if ($loaded === null) {
         $queryError = 'invalid_period';
+    } else {
+        $gamesOffset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
+        $gamesTotal = k2_league_period_count_games($con, $request['period'], $request['start'], $gamesError);
+        if ($gamesOffset >= $gamesTotal && $gamesTotal > 0) {
+            $gamesOffset = 0;
+        }
+        $games = k2_league_period_fetch_games(
+            $con,
+            $request['period'],
+            $request['start'],
+            $gamesOffset,
+            $gamesLimit,
+            $gamesError
+        );
     }
     mysqli_close($con);
 }
@@ -36,24 +59,20 @@ if ($request !== null) {
 
 <article class="k2-league-period">
 <?php if ($request === null) { ?>
-	<h1 class="k2-panel-heading">League</h1>
+	<h1 class="k2-hub-chapter__title">League</h1>
 	<p class="k2-ms-meta-hint">Invalid or missing league parameters. Open a league from a milestone card or Status.</p>
 <?php } elseif ($queryError !== null) { ?>
-	<h1 class="k2-panel-heading">League</h1>
+	<h1 class="k2-hub-chapter__title">League</h1>
 	<p class="k2-ms-meta-hint">Could not resolve that league period.</p>
 <?php } else { ?>
-	<h1 class="k2-panel-heading"><?php echo k2_h($loaded['title']); ?></h1>
-	<p class="k2-league-period__meta k2-ms-meta-hint"><?php echo k2_h($loaded['subtitle']); ?></p>
-<?php if ((int) $loaded['total_games'] > 0) { ?>
-	<p class="k2-league-period__games"><?php echo (int) $loaded['total_games']; ?> rated games in this period</p>
-<?php } ?>
-	<div class="k2-league-period__table">
+<?php k2_league_period_render_intro($loaded); ?>
+	<section class="k2-league-period__standings" aria-labelledby="k2-league-period-standings-title">
+<?php k2_league_period_render_standings_header($loaded); ?>
+		<div class="k2-league-period__table">
 <?php k2_league_period_render_table($loaded); ?>
-	</div>
-	<p class="k2-league-period__footer k2-ms-meta-hint">
-		<a href="/status.php">Current leagues on Status</a>
-		· Same standings layout as the Status hub
-	</p>
+		</div>
+	</section>
+<?php k2_league_period_render_games_section($loaded, $games, $gamesTotal, $gamesOffset, $gamesLimit); ?>
 <?php } ?>
 </article>
 

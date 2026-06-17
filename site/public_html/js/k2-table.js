@@ -2,7 +2,7 @@
 	'use strict';
 
 	var TABLE_SELECTOR = 'table[data-k2-table~="sortable"]';
-	var HELP_HEADER_SELECTOR = 'th[data-k2-help], th[data-k2-tooltip-label], td[data-k2-help]';
+	var HELP_HEADER_SELECTOR = '[data-k2-help], [data-k2-tooltip-label]';
 	var SORTABLE_CLASS = 'k2-table-sortable';
 	var HELPED_CLASS = 'k2-table-helped';
 	var SORTED_ASC_CLASS = 'k2-table-sorted-asc';
@@ -558,10 +558,23 @@
 		sortTableByIndex(table, columnIndex, direction);
 	}
 
+	function isHoverOnlyTooltipTarget(header) {
+		if (!header) {
+			return false;
+		}
+		if (header.getAttribute('data-k2-tooltip-hover-only') === '1') {
+			return true;
+		}
+		/* Nav links (chevrons, etc.) — hover + aria-label; focus flash on click is distracting */
+		return header.tagName === 'A' && !!header.getAttribute('href');
+	}
+
 	function initHeaderTooltip(header) {
 		if (header.getAttribute(TOOLTIP_BOUND_ATTR) === 'true') {
 			return;
 		}
+
+		var hoverOnly = isHoverOnlyTooltipTarget(header);
 
 		header.setAttribute(TOOLTIP_BOUND_ATTR, 'true');
 		addClass(header, HELPED_CLASS);
@@ -572,17 +585,24 @@
 		header.addEventListener('mouseleave', function () {
 			hideTooltip(this);
 		});
-		header.addEventListener('focusin', function () {
-			showTooltip(this);
-		});
-		header.addEventListener('focusout', function () {
-			hideTooltip(this);
-		});
+		if (!hoverOnly) {
+			header.addEventListener('focusin', function () {
+				showTooltip(this);
+			});
+			header.addEventListener('focusout', function () {
+				hideTooltip(this);
+			});
+		}
 		header.addEventListener('keydown', function (event) {
 			if (event.key === 'Escape') {
 				hideTooltip(this);
 			}
 		});
+		if (hoverOnly) {
+			header.addEventListener('mousedown', function () {
+				hideTooltip(this);
+			});
+		}
 	}
 
 	function initTable(table) {
@@ -597,7 +617,9 @@
 			addClass(headers[i], SORTABLE_CLASS);
 			headers[i].setAttribute('aria-sort', 'none');
 			headers[i].setAttribute('tabindex', '0');
-			initHeaderTooltip(headers[i]);
+			if (headers[i].getAttribute('data-k2-help') || headers[i].getAttribute('data-k2-tooltip-label')) {
+				initHeaderTooltip(headers[i]);
+			}
 			headers[i].addEventListener('click', function () {
 				sortTable(table, this);
 				this.blur();

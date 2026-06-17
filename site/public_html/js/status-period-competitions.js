@@ -8,6 +8,7 @@
 
     var ACTIVITY_API = 'api/server_period_activity_leaderboard.php';
     var POINTS_API = 'api/status_period_points_league.php';
+    var LEAGUE_PERIOD_ANCHOR = '#k2-league-period';
     var DAY_GAMES_API = 'api/status_period_day_games.php';
     var PERIODS = ['day', 'week', 'month', 'year'];
 
@@ -442,6 +443,33 @@
             return;
         }
         meta.innerHTML = metaHtmlFromPanel(root, slots.points);
+    }
+
+    function leaguePeriodPageHref(cup, period, start) {
+        if (!period || !start) {
+            return '/league.php?cup=' + encodeURIComponent(cup || 'points') + LEAGUE_PERIOD_ANCHOR;
+        }
+        return '/league.php?' + new URLSearchParams({
+            cup: cup,
+            period: period,
+            start: start,
+        }).toString() + LEAGUE_PERIOD_ANCHOR;
+    }
+
+    function updateLeagueColumnLinks(root) {
+        var period = activePeriod(root);
+        var key = root._periodKeys && root._periodKeys[period];
+        if (!key) {
+            return;
+        }
+        var links = root.querySelectorAll('[data-competition-league-link]');
+        for (var i = 0; i < links.length; i++) {
+            var cup = links[i].getAttribute('data-competition-league-link');
+            if (!cup) {
+                continue;
+            }
+            links[i].setAttribute('href', leaguePeriodPageHref(cup, period, key));
+        }
     }
 
     function setStatus(root, message, show) {
@@ -1590,6 +1618,7 @@
         updatePeriodTabs(root, period);
         setArchivePickersVisible(root, period);
         updateStepButtons(root, period);
+        updateLeagueColumnLinks(root);
         syncCompetitionControlsLayout(root.querySelector('.k2-status-period-competitions__controls'));
 
         cancelPendingWarm(root);

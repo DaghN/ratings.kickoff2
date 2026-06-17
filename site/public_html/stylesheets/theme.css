@@ -1001,10 +1001,18 @@ body.k2-site .player-compare-rating-chart canvas {
 	}
 }
 
-/* Profile stat tables â€” vertical stack in shared page column */
+/* Profile stat tables — vertical stack in shared page column */
 body.k2-site .k2-page-nav .k2-table {
 	max-width: 1200px;
 	margin-bottom: 16px;
+}
+
+/* Wide game tables: intrinsic width inside scroll wrap (league period, player games, …) */
+body.k2-site .k2-page-nav .k2-table-wrap .k2-table {
+	max-width: none;
+	width: max-content;
+	min-width: 100%;
+	margin-bottom: 0;
 }
 
 body.k2-site .player-h2h-opponent-search label {
@@ -1708,6 +1716,14 @@ body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-games-day__empty.k2-tabl
 body.k2-site .k2-table.k2-table--league-anchor-cross tbody td.k2-table-anchor-cell,
 body.k2-site .k2-table.k2-table--league-anchor-cross tbody td.k2-table-anchor-cell .blue,
 body.k2-site .k2-table.k2-table--league-anchor-cross tbody td.k2-table-anchor-cell .red {
+	color: var(--k2-league-anchor-ink);
+	font-weight: 600;
+}
+
+/* Sortable league period tables carry ranked-pages-table; beat calm-stats anchor link-star above */
+body.k2-site .k2-table.k2-table--league-anchor-cross.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell,
+body.k2-site .k2-table.k2-table--league-anchor-cross.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .blue,
+body.k2-site .k2-table.k2-table--league-anchor-cross.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .red {
 	color: var(--k2-league-anchor-ink);
 	font-weight: 600;
 }
@@ -4647,6 +4663,11 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	margin: 0 0 7px;
 	font-size: 13px;
 	text-align: center;
+}
+
+.k2-status-period-competitions__col-title-link {
+	display: inline-block;
+	text-decoration: none;
 }
 
 .k2-status-period-competitions__col--activity .k2-status-table__player {
