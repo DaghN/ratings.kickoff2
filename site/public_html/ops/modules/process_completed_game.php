@@ -563,6 +563,17 @@ function k2_ops_process_completed_game(
             );
         }
 
+        require_once dirname(__DIR__, 2) . '/includes/player_result_streaks.php';
+        k2_result_streak_after_rated_game(
+            $con,
+            $gameId,
+            (string) $game['Date'],
+            $idA,
+            $idB,
+            (float) $derived['ActualScore'],
+            $players
+        );
+
         $con->commit();
 
     } catch (Throwable $e) {

@@ -62,6 +62,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestones post-game contract | L2 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | PHP ops P6; simul on `kooldb1`; live = dispatch at cutover |
 | Rated play streaks (day/week) | L4 | SCH-014 | Yes | **Proven** | **Not executed** | — | `ranked4` + HoF; **proven on `kooldb1`**; live writer = PHP ops P7 |
 | Activity wing stored truth (participation + streaks) | L4 | SCH-022–025 | Yes | **Done (smoke 1000)** | **Not executed** | — | **Repo track complete** Jun 2026; SCH-025 reached_at on P4b; Steve full simul only outstanding — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
+| Result streak boundaries (Streaks LB) | L2 | SCH-026 | Yes | **Done** (ops + UI) | **Not executed** | — | `player_result_streaks`; LB tooltips + games drill-down; date/GD polish Jun 2026 |
 | Milestones `diversity_merchant` per-game DD | L4 | — | Yes | **Proven** | **Not executed** | — | **25** holders; **6615** canonical rows |
 | Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Not executed** | — | **31** holders on work DB |
 | Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | Catalog **112**; simul on `kooldb1` |

@@ -45,6 +45,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | DDR-012 | `player_milestone_totals` | per_game + day + register | `milestone_unlock.php` bump; `k2_milestone_totals_rebuild()` repair | Y | Y | ok | meta LB, profile hero |
 | DDR-013 | `milestone_definitions.holder_count` | per_game + day + register | `milestone_unlock.php` bump (+1/unlock); `k2_milestone_holder_counts_rebuild()` lobby prepare only | Y | Y | ok | hub catalog, milestone detail |
 | DDR-014 | `player_activity_participation` | per_game | `post_game_period_activity.php` (P4b) | Y | Y | ok | Activity participation wing — slice 1 writer; repair `player_activity_participation_rebuild.sql` |
+| DDR-015 | `player_result_streaks` | per_game | `player_result_streaks.php` | Y | Y | ok | Streaks LB boundaries; verify `result_streak_oracle`; repair `scripts/rebuild_player_result_streaks.php`; SCH-026 |
 
 **Excluded from per-game (by design):** `perfect_day`, `nightmare_day`, `entered_arena`, league medal keys — see below.
 
@@ -135,6 +136,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | `activity_participation_per_player` | Per-player participation vs period counts | **Fail** if mismatch |
 | `activity_play_streak_oracle` | `best_streak` vs period-list walker | **Fail** if mismatch (DDR-011) |
 | `activity_hof_play_streak_*` | HoF `Longest*PlayStreak` vs `MAX(best_streak)` | **Fail** if mismatch |
+| `result_streak_oracle` | `player_result_streaks` vs chronological walker + `playertable.Longest*` | **Fail** if mismatch (DDR-015) |
 
 Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 

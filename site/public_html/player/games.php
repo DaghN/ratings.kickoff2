@@ -136,6 +136,13 @@ function individual3_games_filter_params(array $state): array
         $params['period'] = $state['period'];
         $params['anchor'] = $state['anchor'];
     }
+    if (!empty($state['from_game']) && !empty($state['to_game'])) {
+        $params['from_game'] = $state['from_game'];
+        $params['to_game'] = $state['to_game'];
+        if (!empty($state['streak'])) {
+            $params['streak'] = $state['streak'];
+        }
+    }
     $params = k2_player_games_with_from_param($params, (string) ($state['from'] ?? 'played-days'));
     if ($state['result'] !== 'all') {
         $params['result'] = $state['result'];
@@ -161,6 +168,14 @@ function individual3_has_period_range_filter(array $state): bool
     $period = (string) ($state['period'] ?? '');
 
     return in_array($period, ['week', 'month', 'year'], true) && ($state['anchor'] ?? '') !== '';
+}
+
+function individual3_has_streak_run_filter(array $state): bool
+{
+    $from = (int) ($state['from_game'] ?? 0);
+    $to = (int) ($state['to_game'] ?? 0);
+
+    return $from > 0 && $to >= $from;
 }
 
 function individual3_games_filter_url(array $state, ?string $dayYmd, bool $withDayAnchor = true): string
@@ -281,7 +296,9 @@ function individual3_where_clause(
     string &$types,
     array &$params,
     string $periodType = '',
-    string $periodAnchor = ''
+    string $periodAnchor = '',
+    int $fromGameId = 0,
+    int $toGameId = 0
 ): string {
     return k2_ratedresults_games_where_clause(
         $playerId,
@@ -298,7 +315,9 @@ function individual3_where_clause(
         0,
         '',
         $periodType,
-        $periodAnchor
+        $periodAnchor,
+        $fromGameId,
+        $toGameId
     );
 }
 
@@ -366,15 +385,40 @@ $gamesFrom = k2_player_games_valid_from((string) ($_GET['from'] ?? ''));
 $utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
 $periodType = k2_ratedresults_games_valid_period_type((string) ($_GET['period'] ?? ''));
 $periodAnchor = individual3_valid_day((string) ($_GET['anchor'] ?? ''));
+$fromGameFilter = k2_ratedresults_games_valid_game_id((int) ($_GET['from_game'] ?? 0));
+$toGameFilter = k2_ratedresults_games_valid_game_id((int) ($_GET['to_game'] ?? 0));
+$streakTypeFilter = k2_ratedresults_games_valid_streak_type((string) ($_GET['streak'] ?? ''));
+$hasStreakRunFilter = false;
+if (
+    $fromGameFilter > 0
+    && $toGameFilter >= $fromGameFilter
+    && k2_ratedresults_games_valid_streak_run($con, $playerId, $fromGameFilter, $toGameFilter)
+) {
+    $hasStreakRunFilter = true;
+    $utcDayFilter = '';
+    $periodType = '';
+    $periodAnchor = '';
+} else {
+    $fromGameFilter = 0;
+    $toGameFilter = 0;
+    $streakTypeFilter = '';
+}
 if ($utcDayFilter !== '') {
     $periodType = '';
     $periodAnchor = '';
+    $fromGameFilter = 0;
+    $toGameFilter = 0;
+    $streakTypeFilter = '';
+    $hasStreakRunFilter = false;
 } elseif ($periodType === '' || $periodAnchor === '') {
     $periodType = '';
     $periodAnchor = '';
 }
 $hasPeriodRangeFilter = in_array($periodType, ['week', 'month', 'year'], true);
 if (($utcDayFilter !== '' || $hasPeriodRangeFilter) && !isset($_GET['sort'])) {
+    $sortKey = 'date';
+    $sortDirection = 'desc';
+} elseif ($hasStreakRunFilter && !isset($_GET['sort'])) {
     $sortKey = 'date';
     $sortDirection = 'desc';
 } else {
@@ -472,7 +516,9 @@ $whereSql = individual3_where_clause(
     $whereTypes,
     $whereParams,
     $periodType,
-    $periodAnchor
+    $periodAnchor,
+    $fromGameFilter,
+    $toGameFilter
 );
 
 $countRows = individual3_query_all(
@@ -486,11 +532,12 @@ if ($offset >= $totalMatches) {
     $offset = 0;
 }
 
+$secondaryIdDir = ($sortKey === 'date' && $sortDirection === 'asc') ? 'ASC' : 'DESC';
 $games = individual3_query_all(
     $con,
     'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.GoalsA, r.GoalsB, r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference, r.NewRatingA '
         . 'FROM ratedresults r WHERE ' . $whereSql
-        . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC'
+        . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id ' . $secondaryIdDir
         . ' LIMIT ' . $limit . ' OFFSET ' . $offset,
     $whereTypes,
     $whereParams
@@ -502,6 +549,19 @@ if ($utcDayFilter !== '') {
     $adjacentPlayedDays = individual3_adjacent_played_periods($con, $playerId, 'day', $utcDayFilter);
 } elseif ($hasPeriodRangeFilter) {
     $adjacentPlayedPeriod = individual3_adjacent_played_periods($con, $playerId, $periodType, $periodAnchor);
+}
+
+$streakRunStartAt = '';
+$streakRunEndAt = '';
+if ($hasStreakRunFilter) {
+    $streakDateRows = individual3_query_all(
+        $con,
+        'SELECT `Date` FROM `ratedresults` WHERE `id` IN (?, ?) ORDER BY `id` ASC',
+        'ii',
+        [$fromGameFilter, $toGameFilter]
+    );
+    $streakRunStartAt = (string) ($streakDateRows[0]['Date'] ?? '');
+    $streakRunEndAt = (string) ($streakDateRows[count($streakDateRows) - 1]['Date'] ?? '');
 }
 
 mysqli_close($con);
@@ -526,6 +586,9 @@ $sortState = [
     'day' => $utcDayFilter,
     'period' => $periodType,
     'anchor' => $periodAnchor,
+    'from_game' => $fromGameFilter,
+    'to_game' => $toGameFilter,
+    'streak' => $streakTypeFilter,
     'from' => $gamesFrom,
 ];
 $gamesBackLink = k2_player_games_from_back_link($gamesFrom, $playerId);
@@ -534,7 +597,7 @@ $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
 $lastShown = $offset + $shownCount;
 $pagerParams = individual3_games_filter_params($sortState);
 $sortedColIndex = k2_player_game_sort_col_index($sortKey);
-$hasPeriodGamesView = $utcDayFilter !== '' || $hasPeriodRangeFilter;
+$hasPeriodGamesView = $utcDayFilter !== '' || $hasPeriodRangeFilter || $hasStreakRunFilter;
 
 $resultChoices = [
     ['value' => 'all', 'label' => 'All results'],
@@ -586,6 +649,12 @@ foreach ($goalsSumRows as $goalsSumRow) {
         <?php } elseif ($hasPeriodRangeFilter) { ?>
         <input type="hidden" name="period" value="<?php echo individual3_h($periodType); ?>" />
         <input type="hidden" name="anchor" value="<?php echo individual3_h($periodAnchor); ?>" />
+        <?php } elseif ($hasStreakRunFilter) { ?>
+        <input type="hidden" name="from_game" value="<?php echo (int) $fromGameFilter; ?>" />
+        <input type="hidden" name="to_game" value="<?php echo (int) $toGameFilter; ?>" />
+        <?php if ($streakTypeFilter !== '') { ?>
+        <input type="hidden" name="streak" value="<?php echo individual3_h($streakTypeFilter); ?>" />
+        <?php } ?>
         <?php } ?>
         <?php if ($gamesFrom !== 'played-days') { ?>
         <input type="hidden" name="from" value="<?php echo individual3_h($gamesFrom); ?>" />
@@ -685,8 +754,41 @@ foreach ($goalsSumRows as $goalsSumRow) {
             <span class="k2-link-star"><?php echo individual3_h($periodBannerLabel); ?></span>.
         </span>
     </div>
+    <?php } elseif ($hasStreakRunFilter) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_result_streaks_lib.php';
+        $streakBannerStory = !individual3_has_games_filters_beyond_day(
+            $resultFilter,
+            $opponentFilter,
+            $goalsScoredFilter,
+            $goalsConcededFilter,
+            $goalsSumFilter
+        );
+        $streakBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
+        $streakLabel = $streakTypeFilter !== ''
+            ? k2_lb_result_streaks_run_label($streakTypeFilter)
+            : 'streak';
+        $streakDateHtml = k2_lb_result_streaks_format_span_html($streakRunStartAt, $streakRunEndAt);
+        ?>
+    <div class="k2-player-games-day-banner">
+        <a class="k2-link-star k2-player-games-day-banner__back" href="<?php echo individual3_h($gamesBackLink['href']); ?>"><?php echo individual3_h($gamesBackLink['label']); ?></a>
+        <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
+        <span class="k2-player-games-day-banner__lead">
+            <?php if ($streakBannerStory) { ?>
+            <a class="k2-link-star" href="/player/profile.php?id=<?php echo $playerId; ?>"><?php echo individual3_h($name); ?></a>
+            played <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
+            <?php echo $streakBannerGamesWord; ?> in this <?php echo individual3_h($streakLabel); ?>
+            <?php } else { ?>
+            <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
+            matching <?php echo $streakBannerGamesWord; ?> in this <?php echo individual3_h($streakLabel); ?>
+            <?php } ?>
+            <?php if ($streakDateHtml !== '') { ?>
+            (<span class="k2-player-games-day-banner__dates"><?php echo $streakDateHtml; ?></span>).
+            <?php } else { ?>.
+            <?php } ?>
+        </span>
+    </div>
     <?php } ?>
-    <?php if ($utcDayFilter === '' && !$hasPeriodRangeFilter) { ?>
+    <?php if ($utcDayFilter === '' && !$hasPeriodRangeFilter && !$hasStreakRunFilter) { ?>
     Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
     <?php } ?>
     <?php if ($offset > 0) { ?>

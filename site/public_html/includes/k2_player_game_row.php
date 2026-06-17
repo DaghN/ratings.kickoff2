@@ -59,7 +59,7 @@ function k2_player_game_date_html(string $date, bool $utcDayView = false): strin
         return k2_player_game_h($dt->format('H:i'));
     }
 
-    return k2_player_game_h($dt->format('M d Y H:i'));
+    return k2_player_game_h($dt->format('M j Y, H:i'));
 }
 
 function k2_player_game_signed_number_html(float $value): string
@@ -110,7 +110,7 @@ function k2_player_game_diff_html(int $goalDifference, bool $isWin, bool $isDraw
         return '<span class="red">' . -$goalDifference . '</span>';
     }
 
-    return '<span class="blue">' . $goalDifference . '</span>';
+    return '<span class="blue">+' . $goalDifference . '</span>';
 }
 
 /** 0-based column index for each server-side `sort` query key on `player/games.php`. */

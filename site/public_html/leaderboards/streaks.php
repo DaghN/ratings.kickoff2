@@ -8,16 +8,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+$con->query("SET time_zone = '+00:00'");
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
-$query = 'SELECT `id`, `Name`, `Rating`, `NumberGames`, '
-    . '`LongestWinningStreak`, `LongestNonLossStreak`, `LongestDrawingStreak`, '
-    . '`LongestNonDrawStreak`, `LongestLosingStreak`, `LongestNonWinStreak` '
-    . 'FROM `playertable` WHERE ' . k2_lb_player_where_sql() . ' '
-    . 'ORDER BY `LongestWinningStreak` DESC, `Rating` DESC';
-$result = k2_query_or_public_error($con, $query, 'ranked4 leaderboard');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_result_streaks_lib.php';
 
+$result = k2_lb_result_streaks_query($con);
+$queryError = $result === false;
 mysqli_close($con);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -38,7 +34,7 @@ mysqli_close($con);
 
 <?php
 $k2HubTabActive = 'leaderboards';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 ?>
 
 <?php
@@ -46,6 +42,9 @@ $k2LbWingActive = 'streaks';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 ?>
 
+<?php if ($queryError) { ?>
+<p class="server-peak-period-leaderboard-status">Could not load streaks.</p>
+<?php } else { ?>
 <div class="k2-table-wrap">
 
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
@@ -67,19 +66,33 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 
 <tbody class="black">
 	<?php
-    while ($row = mysqli_fetch_row($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $playerId = (int) $row['id'];
+        $games = (int) ($row['NumberGames'] ?? 0);
+        $winMeta = k2_lb_result_streaks_cell_meta($playerId, (int) ($row['LongestWinningStreak'] ?? 0), $games, 'win', $row);
+        $undefMeta = k2_lb_result_streaks_cell_meta($playerId, (int) ($row['LongestNonLossStreak'] ?? 0), $games, 'non_loss', $row);
+        $drawMeta = k2_lb_result_streaks_cell_meta($playerId, (int) ($row['LongestDrawingStreak'] ?? 0), $games, 'draw', $row);
+        $decMeta = k2_lb_result_streaks_cell_meta($playerId, (int) ($row['LongestNonDrawStreak'] ?? 0), $games, 'non_draw', $row);
+        $lossMeta = k2_lb_result_streaks_cell_meta($playerId, (int) ($row['LongestLosingStreak'] ?? 0), $games, 'loss', $row);
+        $droughtMeta = k2_lb_result_streaks_cell_meta($playerId, (int) ($row['LongestNonWinStreak'] ?? 0), $games, 'non_win', $row);
+        $aliasWin = k2_lb_result_streaks_sql_alias('win');
+        $aliasUndef = k2_lb_result_streaks_sql_alias('non_loss');
+        $aliasDraw = k2_lb_result_streaks_sql_alias('draw');
+        $aliasDec = k2_lb_result_streaks_sql_alias('non_draw');
+        $aliasLoss = k2_lb_result_streaks_sql_alias('loss');
+        $aliasDrought = k2_lb_result_streaks_sql_alias('non_win');
     ?>
     <tr>
         <td></td>
-        <td class="k2-table-cell--left"><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td><?php echo k2_fmt_int($row[2]); ?></td>
-        <td><?php echo k2_fmt_games_played($row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[4], $row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[5], $row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[6], $row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[7], $row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[8], $row[3]); ?></td>
-        <td><?php echo k2_fmt_count($row[9], $row[3]); ?></td>
+        <td class="k2-table-cell--left"><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
+        <td><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td><?php echo k2_fmt_games_played($games); ?></td>
+        <?php k2_lb_activity_echo_tooltip_td($winMeta, (int) ($row['LongestWinningStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasWin . '_end_at'] ?? null)); ?>
+        <?php k2_lb_activity_echo_tooltip_td($undefMeta, (int) ($row['LongestNonLossStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasUndef . '_end_at'] ?? null)); ?>
+        <?php k2_lb_activity_echo_tooltip_td($drawMeta, (int) ($row['LongestDrawingStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasDraw . '_end_at'] ?? null)); ?>
+        <?php k2_lb_activity_echo_tooltip_td($decMeta, (int) ($row['LongestNonDrawStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasDec . '_end_at'] ?? null)); ?>
+        <?php k2_lb_activity_echo_tooltip_td($lossMeta, (int) ($row['LongestLosingStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasLoss . '_end_at'] ?? null)); ?>
+        <?php k2_lb_activity_echo_tooltip_td($droughtMeta, (int) ($row['LongestNonWinStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasDrought . '_end_at'] ?? null)); ?>
     </tr>
     <?php } ?>
 </tbody>
@@ -87,6 +100,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 </table>
 
 </div><!-- .k2-table-wrap -->
+<?php } ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav_end.php'; ?>
 

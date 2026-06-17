@@ -45,6 +45,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 | `player_period_games` | SCH-004, SCH-006 | PHP ops P4 | `archive/.../player_period_games_rebuild.sql` | Both players × day/week/month/year +1 |
 | `player_peak_period_games` | SCH-006 | PHP ops P4 | `archive/.../player_peak_period_games_rebuild.sql` | After period games; update peak if beaten |
 | `player_play_streaks` | SCH-014, SCH-023 | PHP ops P7 | `scripts/rebuild_player_play_streaks.php` | After period games; day/week/month/year streak + HoF when personal best rises |
+| `player_result_streaks` | SCH-026 | PHP ops P2 | `scripts/rebuild_player_result_streaks.php` | Per-game match-result runs; boundaries for Streaks LB tooltips / games drill-down |
 | `player_activity_participation` | SCH-022, **SCH-025** | PHP ops P4b | `player_activity_participation_rebuild.sql` + `scripts/rebuild_participation_reached.php` | +1 per `is_new_period`; store `active_*_reached_at` on bump; first/last rated day on new UTC day |
 | `server_daily_activity` | SCH-007 | PHP ops P5 | `archive/.../server_daily_activity_rebuild.sql` | +1 game/day; +active if first game that day |
 | `player_period_league` | SCH-008 | PHP ops P5 | `archive/.../player_period_league_rebuild.sql` | W/D/L/points per period |
@@ -279,6 +280,39 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 **Implementation:** `site/public_html/includes/player_play_streaks.php`; ops post-game P7; local repair `scripts/rebuild_player_play_streaks.php`. Historical handoff: [`archive/play-streaks-staging-handoff.md`](archive/play-streaks-staging-handoff.md).
 
 **UI (read stored truth):** Leaderboards → Activity [`leaderboards/activity/`](../site/public_html/leaderboards/activity/peaks.php) — **Peaks** · **Participation** · **In a row**. Streaks wing = match results only. Hall of Fame play-streak rows deferred (GST populated).
+
+---
+
+### `player_result_streaks`
+
+**Lifecycle:** Active (Jun 2026 — schema + rebuild + post-game writer + LB/games UI shipped).
+
+**Purpose:** Per-player **match-result** streak personal bests: consecutive wins, draws, losses, and non-win / non-draw / non-loss runs. Counts remain on `playertable` (`LongestWinningStreak`, …); this table stores **run boundaries** for Leaderboards → Streaks tooltips and player-games drill-down.
+
+**Source truth:** chronological `ratedresults` per player (`Date ASC, id ASC`, `NewRatingA IS NOT NULL`) + `ActualScore` per appearance.
+
+**Grain:** one row per `(player_id, streak_type)` where `streak_type` ∈ `win`, `draw`, `loss`, `non_win`, `non_draw`, `non_loss`.
+
+**Primary key:** `(player_id, streak_type)`.
+
+| Column | Meaning |
+|--------|---------|
+| `best_streak` | Career maximum run length (must match `playertable.Longest*` for that type after ops simul) |
+| `best_start_game_id` / `best_end_game_id` | First / last game in the personal-best run |
+| `best_start_at` / `best_end_at` | UTC `ratedresults.Date` for those games (tooltip span) |
+| `current_run_start_game_id` | Post-game writer: start game id of the active run (slice 2) |
+
+**Tie policy:** first achievement wins — when two runs tie on length, keep the run with the **earlier** `best_end_at`.
+
+**Full rebuild:** `k2_result_streak_rebuild_all()` — walk each player’s rated games, apply same streak rules as `post_game_player_state.php`, write rows where `best_streak > 0`.
+
+**Post-game rule:** After `playertable` streak counters update each rated game (`k2_result_streak_after_rated_game` in `process_completed_game.php`), upsert boundaries when `best_streak` strictly increases; maintain `current_run_start_game_id` for the active run.
+
+**Parity check:** `k2_result_streak_oracle_mismatches()` — stored vs chronological walker; optional `checkPlayertable=true` after ops simul. Repair: `scripts/rebuild_player_result_streaks.php` (dev / oracle only, not work sign-off).
+
+**Implementation:** `site/public_html/includes/player_result_streaks.php`; migration **SCH-026**; zero-derived truncates table.
+
+**UI (read stored truth):** `leaderboards/streaks.php` — hover personal-best date span (`M j, Y`) + click → `player/games.php?from_game=&to_game=&streak=` (default **newest first**). Streak banner uses same date span. Player games table: date `M j Y, H:i`; GD shows `+` on wins. Falls back to count-only cells when table missing.
 
 ---
 
@@ -1079,6 +1113,7 @@ Required updates:
 | `player_peak_period_games` | Recheck peaks for the touched player-period rows |
 | `player_activity_participation` | On each `is_new_period`, increment `active_{type}` and set `active_{type}_reached_at` / `reached_game_id` from current game (SCH-025); on new UTC day update `first_rated_day` / `last_rated_day` — see [`activity-wing-stored-truth-policy.md`](activity-wing-stored-truth-policy.md) |
 | `player_play_streaks` | Update day/week/month/year when P4 `is_new_period`; HoF columns if personal best rose — see § `player_play_streaks` |
+| `player_result_streaks` | Every rated game after playertable write — see § `player_result_streaks` |
 | `server_daily_activity` | Increment `rated_games`; increment `active_players` only for players newly active that day |
 | `player_period_league` | Upsert A and B W/D/L/GF/GA/GD/points for day/week/month/year |
 | `player_milestones` | Idempotent insert on first cross per [`player_milestones`](#player_milestones) § Post-game write contract — **rated game** (both players) from `ProcessCompletedGame` only; **not** `perfect_day` / `nightmare_day` (`FinalizeUtcDay`); **`entered_arena`** = prepare lobby seed + live register, not replay. League keys: `FinalizeUtcDay` / PER-003. Simul runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). |

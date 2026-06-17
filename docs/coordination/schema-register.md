@@ -41,6 +41,7 @@ php site/public_html/ops/run_prepare.php migrate-work --target local-work
 | SCH-023 | `023_play_streaks_month_year.sql` | `player_play_streaks` month/year + GST `LongestMonthly/YearlyPlayStreak*` | Yes | **Done** (migrate-work Jun 2026) | **Not yet** | HoF page rows deferred; GST cols in ops |
 | SCH-024 | `024_player_play_streaks_best_anchor_start.sql` | `player_play_streaks.best_anchor_start` | Yes | **Done** (migrate-work + smoke 1000 Jun 2026) | **Not yet** | Personal-best run start for In a row tooltips |
 | SCH-025 | `025_player_activity_participation_reached.sql` | `active_*_reached_at` + `active_*_reached_game_id` on participation | Yes | **Done** local dev Jun 2026 | **Not yet** | P4b post-game + HoF/LB tie; backfill `scripts/rebuild_participation_reached.php` |
+| SCH-026 | `026_player_result_streaks.sql` | `player_result_streaks` match-result run boundaries | Yes | **Done** smoke 100 Jun 2026 | **Not yet** | Post-game P2 + verify + LB/games UI; repair `scripts/rebuild_player_result_streaks.php` |
 
 ### Column legend
 

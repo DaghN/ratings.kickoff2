@@ -16,7 +16,7 @@
 
 - **Activity wing (Leaderboards):** **Repo track complete (Jun 2026)** — SCH-022–024 ops + LB UI (Peaks · Participation · In a row); work smoke 1000 PASS. **Outstanding:** Steve full simul only. Policy: [`activity-wing-stored-truth-policy.md`](docs/activity-wing-stored-truth-policy.md). **HoF (Jun 2026):** month/year play-streak rows + participation block (read `player_activity_participation`); query batching still optional next slice.
 
-- **Rated play streaks:** **Proven `kooldb1`** (`ranked4`, HoF). Live = PHP ops at cutover.
+- **Result streaks (Streaks LB):** **Shipped Jun 2026** — SCH-026 `player_result_streaks` + post-game writer + verify; LB tooltips/click-through + player-games streak banner. Steve: migrate-work + zero + simul on prod copy.
 
 - **Leagues:** **Honours proven `kooldb1`** (`leaderboards/league-honours.php`). Live = `FinalizeUtcDay` when wired.
 
@@ -85,6 +85,10 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Result streaks UI polish** — tooltip/banner dates `M j, Y`; streak games list newest-first; player games date `M j Y, H:i`; GD `+` on wins. |
+| 2026-06 | **Result streaks slice 4** — Streaks LB tooltips + click-through to player games (`from_game`/`to_game` filter); `lb_result_streaks_lib.php`; back-link `from=result-streaks`. |
+| 2026-06 | **Result streaks slice 2** — `k2_result_streak_after_rated_game()` in `process_completed_game.php`; verify `result_streak_oracle` in `run_verify_ops_sim.php`; work smoke 100 PASS. |
+| 2026-06 | **Result streaks slice 1** — SCH-026 `player_result_streaks` + `player_result_streaks.php` rebuild/oracle; REP-016 `rebuild_player_result_streaks.php`; zero-derived truncate; UI = slice 4. |
 | 2026-06 | **SCH-025 participation reached_at** — P4b stores establishing game on `active_*` bump; HoF/LB read stored columns (~28ms vs ~12s); backfill `rebuild_participation_reached.php`; verify oracle in activity wing parity. |
 | 2026-06 | **HoF career celebration** — Most milestones + league gold/silver/bronze (read `player_milestone_totals` / `player_league_totals`; dates from latest unlock/award); `records_career_leaders.php`. |
 | 2026-06 | **HoF Activity rows** — month/year play streaks (GST) + participation leaders (active days/weeks/months/years + longevity) after streak block; LB deep links; `records_activity_leaders.php`. |

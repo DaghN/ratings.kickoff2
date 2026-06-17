@@ -9,6 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../includes/ops_bootstrap.php';
 require_once __DIR__ . '/../includes/ops_verify_helpers.php';
 require_once __DIR__ . '/verify_activity_wing_parity.php';
+require_once __DIR__ . '/verify_result_streaks_parity.php';
 
 /**
  * @return list<array{id: string, label: string, ok: bool, detail: string, severity: string}>
@@ -241,6 +242,7 @@ SQL
     }
 
     $checks = array_merge($checks, k2_ops_verify_activity_wing_parity($con));
+    $checks = array_merge($checks, k2_ops_verify_result_streaks_parity($con));
 
     return $checks;
 }

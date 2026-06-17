@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/player_result_streaks.php';
+
 function k2_ratedresults_games_valid_result(string $value): string
 {
 	return in_array($value, ['all', 'win', 'draw', 'loss'], true) ? $value : 'all';
@@ -65,6 +67,44 @@ function k2_ratedresults_games_valid_year_mode(string $value): string
 	return in_array($value, ['in', 'since', 'until'], true) ? $value : 'in';
 }
 
+function k2_ratedresults_games_valid_game_id(int $value): int
+{
+	return $value > 0 ? $value : 0;
+}
+
+function k2_ratedresults_games_valid_streak_type(string $value): string
+{
+	return in_array($value, K2_RESULT_STREAK_TYPES, true) ? $value : '';
+}
+
+/**
+ * @return bool both games exist for this player and from <= to
+ */
+function k2_ratedresults_games_valid_streak_run(mysqli $con, int $playerId, int $fromGameId, int $toGameId): bool
+{
+	if ($playerId < 1 || $fromGameId < 1 || $toGameId < 1 || $fromGameId > $toGameId) {
+		return false;
+	}
+
+	$stmt = $con->prepare(
+		'SELECT COUNT(DISTINCT `id`) AS c FROM `ratedresults` '
+		. 'WHERE `id` IN (?, ?) AND (`idA` = ? OR `idB` = ?)'
+	);
+	if ($stmt === false) {
+		return false;
+	}
+	$stmt->bind_param('iiii', $fromGameId, $toGameId, $playerId, $playerId);
+	$stmt->execute();
+	$res = $stmt->get_result();
+	$row = $res ? $res->fetch_assoc() : null;
+	if ($res) {
+		$res->free();
+	}
+	$stmt->close();
+
+	return $row !== null && (int) ($row['c'] ?? 0) === 2;
+}
+
 /**
  * @param-out string $types
  * @param-out list<int|string> $params
@@ -84,7 +124,9 @@ function k2_ratedresults_games_where_clause(
 	int $year = 0,
 	string $yearMode = '',
 	string $periodType = '',
-	string $periodAnchor = ''
+	string $periodAnchor = '',
+	int $fromGameId = 0,
+	int $toGameId = 0
 ): string {
 	$where = [];
 	$types = '';
@@ -102,6 +144,11 @@ function k2_ratedresults_games_where_clause(
 		$where[] = 'DATE(r.`Date`) = ?';
 		$types .= 's';
 		$params[] = $utcDay;
+	} elseif ($fromGameId > 0 && $toGameId >= $fromGameId) {
+		$where[] = 'r.`id` >= ? AND r.`id` <= ?';
+		$types .= 'ii';
+		$params[] = $fromGameId;
+		$params[] = $toGameId;
 	} elseif ($periodType !== '' && $periodAnchor !== '') {
 		$periodType = k2_ratedresults_games_valid_period_type($periodType);
 		$periodAnchor = k2_ratedresults_games_valid_day($periodAnchor);

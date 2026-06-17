@@ -21,6 +21,7 @@ AGGREGATE_TABLES_TRUNCATE: tuple[str, ...] = (
     "player_milestones",
     "player_milestone_totals",
     "player_play_streaks",
+    "player_result_streaks",
     "player_league_award",
     "player_league_totals",
     "player_league_slice_totals",
