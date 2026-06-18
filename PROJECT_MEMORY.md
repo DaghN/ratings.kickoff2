@@ -85,7 +85,8 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Profile Moments** — warm lede; giant-killing card (M03, all ranks) replaces win-streak tile; trophy games unchanged. |
+| 2026-06 | **Profile heatmap section rhythm** — padding breaks (no margin collapse): story→days 24px; days→weeks ~52px; weeks→bursts ~32px. |
+| 2026-06 | **Profile moment scorelines** — Plex Sans 26px/600 (match burst cards; was Exo 2 display). |
 | 2026-06 | **Profile played days** — section heading hidden; heatmap hint continues “The story so far” (anchor + sr-only title kept). |
 | 2026-06 | **Profile “The story so far”** — lab 2 prose band shipped after At a glance (win/play streaks, opponents/victims, best year wins, distinct days); day/week streak 50/50 per page load. |
 | 2026-06 | **Profile played-days → weeks gap** — section margin 18px + calendar bottom padding 16px (between original and tight pass). |
@@ -111,6 +112,7 @@
 | 2026-06 | **Hub chapter titles** — accent+glow trial **reverted**; keep primary white: sole orientation landmark, avoids link-star/tint collision; lede stays editorial. |
 | 2026-06 | **Streaks LB nav fix** — `leaderboards/streaks.php` used `hub_nav.php` + single `lb_nav.php` (was duplicate wing chrome with Rating active). |
 | 2026-06 | **League period sort** — scoped `k2_sort` per table (`league-standings` / `league-games`); fixes games table picking standings column on load. |
+| 2026-06 | **Rating chart API** — `player_rating_history.php` + `player_compare_rating_history.php` omit unprocessed `ratedresults` (`NewRatingA IS NULL`); fixes zero spikes on work/staging simul DBs; tail still from `playertable.Rating`. |
 | 2026-06 | **League period hub bar** — `hub_nav.php` + tint picker on `league.php`; no active hub pill; `#k2-league-period` anchor unchanged. |
 | 2026-06 | **League period step chevrons** — prev/next period on open/close line (Status bounds); half-pill gap, no label. |
 | 2026-06 | **League period landing anchor** — `#k2-league-period` on title `h1`; hash scroll after layout; carry-scroll restore skipped when URL has hash. |

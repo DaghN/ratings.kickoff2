@@ -3,7 +3,8 @@
  * JSON full career rating history for two players (for comparison chart).
  *
  * GET: id (profile player), opponent, realm (default online)
- * Rating after each game = NewRatingA / NewRatingB (same as player_rating_history.php).
+ * Rating after each processed game = NewRatingA / NewRatingB (same as player_rating_history.php).
+ * Unprocessed rows (NewRatingA IS NULL) are omitted.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -64,7 +65,8 @@ function rating_history_for_player(mysqli $con, int $targetId): ?array
     }
 
     $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
-        . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
+        . 'FROM ratedresults WHERE NewRatingA IS NOT NULL AND (idA = ? OR idB = ?) '
+        . 'ORDER BY Date ASC, id ASC';
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {

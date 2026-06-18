@@ -51,11 +51,16 @@
 	font-weight: 600;
 }
 
+.pm3-moment__score,
+.pm3-moment__score a {
+	font-family: var(--k2-font-body);
+	font-size: 26px;
+	font-weight: 600;
+	line-height: 1.1;
+}
+
 .pm3-moment__score {
 	margin: 0;
-	font-family: var(--k2-font-display);
-	font-size: 22px;
-	font-weight: 700;
 }
 
 .pm3-moment__meta {

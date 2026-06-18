@@ -182,14 +182,14 @@
                 ctx.save();
                 ctx.setLineDash([6, 5]);
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = T ? T.amber() : '#ffb74d';
+                ctx.strokeStyle = T ? T.holo() : '#b388ff';
                 ctx.globalAlpha = 0.85;
                 ctx.beginPath();
                 ctx.moveTo(area.left, y);
                 ctx.lineTo(area.right, y);
                 ctx.stroke();
                 ctx.setLineDash([]);
-                ctx.fillStyle = T ? T.amber() : '#ffb74d';
+                ctx.fillStyle = T ? T.holo() : '#b388ff';
                 ctx.font = '600 11px IBM Plex Sans, Verdana, Arial, sans-serif';
                 ctx.textAlign = 'right';
                 var label = 'Peak ' + peakValue;
@@ -220,7 +220,7 @@
                     tension: 0.1,
                     pointRadius: 0,
                     pointHoverRadius: 4
-                }, T.lineStroke(T.pitch(), 0.15))]
+                }, T.lineStroke(T.amber(), 0.15))]
             },
             plugins: [peakLinePlugin(peakValue)],
             options: chartOptions({
@@ -299,7 +299,7 @@
                     tension: 0.1,
                     pointRadius: 0,
                     pointHoverRadius: 4
-                }, T.lineStroke(T.pitch(), 0.15))]
+                }, T.lineStroke(T.amber(), 0.15))]
             },
             plugins: [peakLinePlugin(peakValue)],
             options: chartOptions({

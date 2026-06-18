@@ -3,7 +3,8 @@
  * JSON ELO rating after each game (chronological) for one player.
  *
  * GET: id (required), realm (default online)
- * Online: rating after each game = NewRatingA / NewRatingB on the row.
+ * Online: rating after each processed game = NewRatingA / NewRatingB on the row.
+ * Unprocessed rows (NewRatingA IS NULL) are omitted — same marker as game lists (AUD-006).
  * Amiga: one point per rating event (tournament finalize); rating_after from amiga_rating_events.
  * gameNumber / eventNumber = 1-based index in chronological order.
  */
@@ -97,7 +98,8 @@ if ($realm === 'amiga') {
         . 'ORDER BY t.event_date ASC, t.chrono ASC, e.finalized_at ASC, e.id ASC';
 } else {
     $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
-        . 'FROM ratedresults WHERE idA = ? OR idB = ? ORDER BY Date ASC, id ASC';
+        . 'FROM ratedresults WHERE NewRatingA IS NOT NULL AND (idA = ? OR idB = ?) '
+        . 'ORDER BY Date ASC, id ASC';
 }
 
 $stmt = $con->prepare($sql);

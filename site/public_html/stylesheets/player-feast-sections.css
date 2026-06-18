@@ -79,11 +79,14 @@
 }
 
 .pm3d-section--played-days .pm3d-section__hint {
-	margin-bottom: 8px;
+	margin-top: 0;
+	margin-bottom: 16px;
 }
 
 .pm3d-section--played-days {
-	margin-bottom: 12px;
+	padding-top: 24px;
+	padding-bottom: 20px;
+	margin-bottom: 0;
 }
 
 .pm3d-section--played-days .pm3d-section__content > .pm3-cal--hero {
@@ -141,17 +144,19 @@
 }
 
 .pm3d-section--played-weeks {
+	padding-top: 16px;
+	padding-bottom: 16px;
 	margin-top: 0;
-	margin-bottom: 14px;
+	margin-bottom: 0;
 }
 
 .pm3d-section--played-weeks .pm3d-section__content > .pm3-cal--hero {
-	padding-bottom: 12px;
+	padding-bottom: 16px;
 }
 
 .pm3d-section--played-weeks .pm3d-section__hint {
 	margin-top: 0;
-	margin-bottom: 8px;
+	margin-bottom: 16px;
 }
 
 .pm3d-section__content > .pm3-cal--hero.pm3-cal--weeks {
@@ -159,7 +164,7 @@
 }
 
 .pm3d-section__content > .pm3-cal--hero.pm3-cal--weeks .pm3-cal__years {
-	margin-top: 4px;
+	margin-top: 0;
 }
 
 .pm3-cal--weeks .pm3-cal__cell:not(.pm3-cal__cell--before-join):not(.pm3-cal__cell--future):focus {
@@ -453,6 +458,26 @@ body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list > li:last-chi
 
 .pm3d-section .pm3-moments--mosaic .pm3-moment:nth-child(even) {
 	transform: rotate(0.3deg);
+}
+
+/* Production profile — title dimmer than primary (secondary token is still ~60% primary) */
+body.k2-site .pm3d-section--moments .pm3-moment__label {
+	color: color-mix(in srgb, var(--k2-text-muted) 62%, var(--k2-text-primary));
+	font-weight: 500;
+}
+
+body.k2-site .pm3d-section--moments .pm3-moment__score,
+body.k2-site .pm3d-section--moments .pm3-moment__score a {
+	color: var(--k2-link-star);
+	font-family: var(--k2-font-body);
+	font-size: 26px;
+	font-weight: 600;
+	line-height: 1.1;
+}
+
+body.k2-site .pm3d-section--moments .pm3-moment__score a:hover,
+body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
+	color: var(--k2-link-star);
 }
 
 /* ── Charts: title outside; prod chart card only on content child ── */

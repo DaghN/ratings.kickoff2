@@ -91,7 +91,7 @@ Python Mode A today still batch-finalizes some ladder fields at end; treat Pytho
 
 **Unprocessable ground truth (skip, do not fatal):** `k2_ops_rated_game_skip_reason()` — `idA`/`idB` ≤ 0, same id, missing goals, or already processed (`NewRatingA` set). Logs `[SKIP] ratedresults id=… reason=…` and continues (`replay-to`) or exits 0 (`dispatch.php`). C++ live only rejected **-1**; historical rows with `idA=0` are skipped on PHP replay (see `docs/ratings_cpp.txt` `RatingProcedureUnity` gate).
 
-**Public display before processing:** `k2_rated_game_is_processed()` (`NewRatingA` set) — game lists show scoreline from goals; Elo columns **`-`** until processed ([`parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-006**).
+**Public display before processing:** `k2_rated_game_is_processed()` (`NewRatingA` set) — game lists show scoreline from goals; Elo columns **`-`** until processed; rating history APIs (`player_rating_history.php`, `player_compare_rating_history.php`) **omit** unprocessed rows so charts do not plot NULL as zero ([`parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-006**).
 
 **Parity audit (Jun 2026):** Closed — no critical blockers; see backlog **AUD-001–006**. **Ops pipeline (AUD-004/005):** closed — staging `run_ops_sim` + verify PASS + visual sign-off; **next:** Live phase on `kooldb1` ([`coordination/staging-work-steve-brief.md`](coordination/staging-work-steve-brief.md) §4.4).
 

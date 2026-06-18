@@ -5,7 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
-<link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/player-feast.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-sections.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-sections.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-glance.css" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-story.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-story.css'); ?>" rel="stylesheet" type="text/css" />
