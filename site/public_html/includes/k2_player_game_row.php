@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/k2_routes.php';
 
 function k2_player_game_h(string $value): string
 {
@@ -197,7 +198,7 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
     $adjustmentCell = $processed ? k2_player_game_signed_number_html($adjustment) : $dash;
 
     return '<tr>'
-        . k2_player_game_td('<a href="/game.php?id=' . $game['id'] . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
+        . k2_player_game_td('<a href="' . k2_player_game_h(k2_game_page_url((int) $game['id'])) . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
         . k2_player_game_td(k2_player_game_date_html($game['Date'], $utcDayView), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
         . k2_player_game_td(k2_player_game_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
         . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)

@@ -21,6 +21,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/hub_nav.php";
 
 <?php
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_hof_links.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_hof_table.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/records_activity_leaders.php';
@@ -323,19 +324,16 @@ $recordColumns = [
 	'BiggestSumOfGoalsGameID',
 ];
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-	die("Failed to connect to MySQL: " . mysqli_connect_error());
-}
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 $selectColumns = '`' . implode('`, `', $recordColumns) . '`';
 $query = "SELECT " . $selectColumns . " FROM generalstatstable WHERE id = 1 LIMIT 1";
-$result = mysqli_query($con, $query) or die("SELECT Error: ".mysqli_error($con));
+$result = k2_query_or_public_error($con, $query, 'hall of fame generalstats');
 
 $records = mysqli_fetch_assoc($result);
 if (!$records) {
-	die("generalstatstable row id=1 missing");
+	error_log('hall of fame: generalstatstable row id=1 missing');
+	k2_public_error('Could not load ratings data.');
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';

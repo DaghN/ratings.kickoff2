@@ -2,7 +2,7 @@
 
 UI heading: **Leagues** (paired Activity + Points tables on `status.php`).
 
-**Status:** **Phase 1 shipped** (May–Jun 2026). **Phase 1.5 retired** — optional polish only in [`status-period-competitions-wip.md`](status-period-competitions-wip.md) (no agent handoff). Historical handoff: [`coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md).
+**Status:** **Shipped** (May–Jun 2026) — paired Activity + Points, period nav, Daily games list. No open polish track.
 
 **Pointers:** [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · medals/rules [`leagues-rules-spec.md`](leagues-rules-spec.md)
 
@@ -81,7 +81,8 @@ Mobile: single column, **Activity first**, then Points.
 
 | Date | Note |
 |------|------|
-| 2026-06-05 | **Doc closed** — Phase 1.5 polish track retired; live spec is this file; history in `docs/archive/`. |
+| 2026-06-18 | **Closed** — Phase 1.5 / editorial polish track removed from backlog; WIP diary archived. |
+| 2026-06-05 | **Doc closed** — polish track retired; live spec is this file; history in `docs/archive/`. |
 | 2026-06 | **Daily games list** shipped under league tables when Daily tab active. |
 | 2026-05-30 | Meta/month labels, KOOL listbox, Flatpickr + picker visibility fixes. |
 | 2026-05-27 | **Phase 1 shipped** — paired block, single table slot, prewarm, lock-step, ←/→ + always-visible pickers. |

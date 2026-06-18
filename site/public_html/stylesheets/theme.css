@@ -1905,7 +1905,11 @@ body.k2-site .k2-table thead .filtercell select.table-autofilter {
 	box-shadow: var(--k2-shadow-surface);
 }
 
-/* game.php â€” interim while browser replay ships */
+/* game.php — interim while browser replay ships */
+body.k2-site .k2-game-page-anchor {
+	height: 0;
+}
+
 body.k2-site .k2-game-page__aside {
 	max-width: 42rem;
 	margin: 24px 0 32px;

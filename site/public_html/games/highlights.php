@@ -1,4 +1,5 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/games_highlights_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_helpers.php';
 
@@ -8,12 +9,7 @@ $k2GamesHubView = 'highlights';
 $k2GamesPageTitle = 'Games — Highlights';
 $highlightBoard = k2_games_highlights_valid_board((string) ($_GET['board'] ?? 'most_goals'));
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-	die('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-$con->set_charset('utf8mb4');
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 $highlightRows = k2_games_highlights_fetch($con, $highlightBoard);
 $hubCounts = k2_games_hub_status_counts($con);

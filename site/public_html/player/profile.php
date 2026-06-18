@@ -29,27 +29,23 @@
 <body class="k2-site k2-player-wing player-feast-body">
 
 <?php
-$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-if ($id < 1) {
-    exit();
-}
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+
+$id = k2_positive_int_param('id', 'Invalid player id.');
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-    die('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-$con->set_charset('utf8mb4');
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_blocks.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
 
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
+
 try {
     $pm = player_feast_load_pm($con, $id);
 } catch (RuntimeException $e) {
-    exit();
+    k2_public_error('Player not found.', 404);
 }
 
 player_feast_expose_hero_vars($pm);
@@ -58,8 +54,6 @@ $playerId = (int) $pm['id'];
 $heroMilestoneCounts = $pm['milestone_counts'] ?? null;
 $heroMsCatalogTotal = (int) ($pm['milestone_catalog_total'] ?? 0);
 ?>
-
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero.php'; ?>
 

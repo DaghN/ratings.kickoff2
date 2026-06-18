@@ -13,6 +13,7 @@ if (!function_exists('k2_format_period_activity_label')) {
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_period_page.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 
 if (!function_exists('k2_status_period_competition_league_col_title')) {
     function k2_status_period_competition_league_col_title(string $cup, string $period, string $periodStart): void
@@ -105,7 +106,7 @@ if (!function_exists('k2_status_render_day_games_list')) {
 										<span class="k2-status-score"><?php echo (int) $g['goals_a']; ?>–<?php echo (int) $g['goals_b']; ?></span>
 										<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_b'], $g['name_b']); ?></span>
 									</span>
-									<a class="k2-link-star k2-status-day-games-list__game" href="/game.php?id=<?php echo (int) $g['id']; ?>"><?php echo (int) $g['id']; ?></a>
+									<a class="k2-link-star k2-status-day-games-list__game" href="<?php echo htmlspecialchars(k2_game_page_url((int) $g['id']), ENT_QUOTES, 'UTF-8'); ?>"><?php echo (int) $g['id']; ?></a>
 								</li>
 <?php } ?>
 							</ul>

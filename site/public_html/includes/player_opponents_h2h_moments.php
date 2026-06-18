@@ -95,7 +95,7 @@ function player_opponents_h2h_normalize_game_row(array $row, int $subjectId): ar
 
     return [
         'game_id' => $gameId,
-        'href' => k2_route('game', ['id' => $gameId]),
+        'href' => k2_game_page_url($gameId),
         'date' => $dateRaw,
         'date_label' => $dateTs !== false ? date('j M Y', $dateTs) : $dateRaw,
         'id_a' => $idA,

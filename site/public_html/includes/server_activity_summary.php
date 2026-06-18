@@ -3,16 +3,13 @@
  * Activity tab summary block (PHP + markup).
  * Used by activity.php (Activity hub).
  */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-    die('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 $query = 'SELECT * FROM generalstatstable';
-$result = mysqli_query($con, $query) or die('SELECT Error: ' . mysqli_error($con));
+$result = k2_query_or_public_error($con, $query, 'activity summary generalstats');
 
 $row = mysqli_fetch_row($result);
 

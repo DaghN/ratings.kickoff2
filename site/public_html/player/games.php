@@ -16,10 +16,9 @@
 <body class="k2-site k2-player-wing">
 
 <?php
-$playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-if ($playerId < 1) {
-    exit();
-}
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+
+$playerId = k2_positive_int_param('id', 'Invalid player id.');
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
@@ -51,8 +50,9 @@ function individual3_build_url(array $params): string
 function individual3_query_all(mysqli $con, string $sql, string $types = '', array $params = []): array
 {
     $stmt = mysqli_prepare($con, $sql);
-    if (!$stmt) {
-        die("SELECT Error: " . mysqli_error($con));
+    if ($stmt === false) {
+        error_log('DB player games prepare failed: ' . mysqli_error($con));
+        k2_public_error('Could not load ratings data.');
     }
 
     if ($types !== '') {
@@ -65,8 +65,9 @@ function individual3_query_all(mysqli $con, string $sql, string $types = '', arr
 
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-    if (!$result) {
-        die("SELECT Error: " . mysqli_error($con));
+    if ($result === false) {
+        error_log('DB player games query failed: ' . mysqli_error($con));
+        k2_public_error('Could not load ratings data.');
     }
 
     $rows = [];
@@ -393,20 +394,14 @@ function individual3_sort_header(string $key, string $label, string $align, arra
 
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
-//mysql_connect(localhost,$username,$password);
-//@mysql_select_db($database) or die( "Unable to select database");
-	$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-	if (mysqli_connect_errno())
-  	{
-  		die("Failed to connect to MySQL: " . mysqli_connect_error());
-  	}
-    $con->set_charset('utf8mb4');
-    $con->query("SET time_zone = '+00:00'");
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 $id = $playerId;
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/player_hero_vars.php";
-$name = $Name ?? '';
+if (empty($Name)) {
+    k2_public_error('Player not found.', 404);
+}
+$name = $Name;
 
 $resultFilter = individual3_valid_result((string) ($_GET['result'] ?? 'all'));
 $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;

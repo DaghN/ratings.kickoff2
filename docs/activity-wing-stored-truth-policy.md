@@ -1,6 +1,6 @@
 # Activity wing — stored truth policy (online)
 
-**Status:** **Proven on `kooldb1` (Jun 2026).** Ops + UI shipped; Steve full bootstrap + simul + `run_verify_ops_sim` **0 fail** (participation, play-streak HoF, SCH-025 reached_at oracle). **Live cutover** = Steve layer C when scheduled. **HoF:** month/year play-streak rows + participation block shipped; in-a-row → player Games drill-down still deferred.
+**Status:** **Proven on `kooldb1` (Jun 2026).** Ops + UI shipped; Steve full bootstrap + simul + `run_verify_ops_sim` **0 fail** (participation, play-streak HoF, SCH-025 reached_at oracle). **Live cutover** = Steve layer C when scheduled. **HoF:** month/year play-streak rows + participation block shipped.
 **Realm:** Online only (`ko2unity_*` / `kooldb*`) — Amiga defers per [`amiga-realm-vision.md`](amiga-realm-vision.md).  
 **Authority:** Product + ops decisions here; table behaviour merges into [`website-data-contract.md`](website-data-contract.md) at track closure.  
 **Implementation:** [`activity-wing-stored-truth-implementation-plan.md`](activity-wing-stored-truth-implementation-plan.md)
@@ -41,7 +41,7 @@ Support a restructured **Leaderboards → Activity** wing with three celebration
 | A13 | **Smoke ladder:** simul `--limit 100` → parity → Dagh OK → `--limit 1000` → parity → Dagh OK → longer/full only if Dagh approves (smokes take time). |
 | A14 | **Milestones:** **out of scope** — no catalog keys, no post-game unlock hooks this burst. |
 | A15 | **Execution order (as shipped):** ops + orthogonal parity on work → smoke ladder → **UI on dev/staging** (Jun 2026) → **Steve full simul on `kooldb1`** (**done** Jun 2026) → live cutover (Steve). |
-| A16 | **Track closed** Jun 2026 — reopen only if Dagh asks (HoF page rows, in-a-row drill-down, etc.). |
+| A16 | **Track closed** Jun 2026 — reopen only if Dagh asks. |
 
 ---
 
@@ -58,6 +58,7 @@ Support a restructured **Leaderboards → Activity** wing with three celebration
 | Month/year streaks without `is_new_period` gate | Would run streak load/save on every game; regresses simul. |
 | Dev DB (`ko2unity_db`) fill as parity gate | Separate concern; parity runs on **work** where simul already runs. |
 | Rebuild script output as sign-off truth | Rebuild/repair is optional oracle or batch repair; smoke sign-off = incremental vs SQL oracles on work. |
+| In-a-row counts → player Games drill-down | **Rejected (Jun 2026).** Peaks drill-down only; in-a-row cells stay tooltip-only. |
 
 ---
 

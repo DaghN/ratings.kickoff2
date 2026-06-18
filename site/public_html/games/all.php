@@ -12,12 +12,7 @@ $k2GamesPageTitle = 'Games — All games';
 $state = k2_realm_games_all_request_state();
 $limit = K2_REALM_GAMES_ALL_PAGE_SIZE;
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-	die('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-$con->set_charset('utf8mb4');
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 k2_realm_games_all_sanitize_filters($con, $state);
 

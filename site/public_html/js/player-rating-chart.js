@@ -9,6 +9,7 @@
     var DR = window.K2ChartDateRange;
     var History = window.K2PlayerRatingHistory;
     var PEAK_LINE_ID = 'k2PlayerPeakLine';
+    var GAME_PAGE_ANCHOR = '#k2-game'; /* keep in sync with k2_game_page_anchor_hash() */
 
     function parseGameDate(dateStr) {
         if (!dateStr) {
@@ -416,7 +417,7 @@
                                     return lines;
                                 }
                                 if (pt && pt.gameId) {
-                                    return '/game.php?id=' + pt.gameId;
+                                    return '/game.php?id=' + pt.gameId + GAME_PAGE_ANCHOR;
                                 }
                                 return '';
                             }

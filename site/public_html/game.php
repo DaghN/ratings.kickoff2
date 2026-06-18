@@ -15,20 +15,30 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <?php
+$k2HubTabActive = '';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
+?>
+
+<?php
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-    die('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 $stmt = mysqli_prepare($con, 'SELECT * FROM ratedresults WHERE id = ? LIMIT 1');
+if ($stmt === false) {
+    error_log('DB game page prepare failed: ' . mysqli_error($con));
+    k2_public_error('Could not load ratings data.');
+}
 mysqli_stmt_bind_param($stmt, 'i', $id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
+if ($result === false) {
+    error_log('DB game page query failed: ' . mysqli_error($con));
+    k2_public_error('Could not load ratings data.');
+}
 $row = $result ? mysqli_fetch_assoc($result) : null;
 mysqli_free_result($result);
 mysqli_stmt_close($stmt);
@@ -43,6 +53,8 @@ mysqli_close($con);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 ?>
+
+<div id="k2-game" class="k2-game-page-anchor" tabindex="-1"></div>
 
 <div class="k2-table-wrap">
 
@@ -104,6 +116,20 @@ $k2GameVideoTitle = '2024 Online World Championship final — Blazej vs EternalS
 		</div>
 	</div>
 </section>
+<?php } ?>
+
+<?php if ($row !== null) { ?>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function () {
+	if (location.hash) {
+		return;
+	}
+	var anchor = document.getElementById('k2-game');
+	if (anchor) {
+		anchor.scrollIntoView();
+	}
+});
+</script>
 <?php } ?>
 
 </div><!-- .k2-page-nav -->

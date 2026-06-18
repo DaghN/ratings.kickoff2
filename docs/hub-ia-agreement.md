@@ -50,7 +50,7 @@ Current Status v1.2 includes:
 - Live games from `resulttable`.
 - Rated-games arc/count summary with link to Activity.
 - Active Elo leaderboard, top 20 active players.
-- **Leagues** (points + activity, day/week/month/year) ? **Phase 1 shipped**; optional backlog ? [`docs/status-period-competitions-wip.md`](status-period-competitions-wip.md) only.
+- **Leagues** (points + activity, day/week/month/year) — **shipped** — [`docs/status-period-competitions.md`](status-period-competitions.md).
 - Recent logins.
 - Recent registrations.
 - Recent rated games (with link to full match log on `games.php`).
@@ -203,4 +203,4 @@ Keep this short; it prevents old chat ideas from reappearing as current plans.
 | Full-accent links everywhere | Use `--k2-link-star` / `--k2-link` hierarchy. |
 | Moving server1/server2/server3 bodies into hub panels | Not current plan. |
 
-*Last pruned: Jun 2026 ? Games hub tab restored (Milestones · Games · HoF); Milestones v0 hub (not stub); Status Leagues spec closed (no Phase 1.5 track).*
+*Last pruned: Jun 2026 — Games hub tab restored (Milestones · Games · HoF); Milestones v0 hub (not stub); Status Leagues shipped (no open track).*

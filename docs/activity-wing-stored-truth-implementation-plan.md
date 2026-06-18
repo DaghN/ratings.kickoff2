@@ -16,8 +16,6 @@
 5. Closure           → DONE (docs, feature-log, MEMORY)
 ```
 
-**Out of this burst (deferred):** Hall of Fame **page** rows/links for month/year play streaks (GST + tables populated by ops); in-a-row → player Games drill-down.
-
 **In scope (ops, done):** `player_play_streaks` month/year + **GST `LongestMonthlyPlayStreak*` / `LongestYearlyPlayStreak*`** post-game, same as day/week.
 
 ---
@@ -183,7 +181,7 @@ php site/public_html/ops/run_verify_ops_sim.php --target local-work
 
 Steve full bootstrap + simul on `kooldb1`; `run_verify_ops_sim` **0 fail / 0 warn** (74,865 processed). Participation sums, per-player counts, SCH-025 reached_at oracle, play-streak oracle, and HoF month/year play-streak rows all **PASS**.
 
-No further repo work unless Dagh reopens the track (e.g. in-a-row drill-down).
+No further repo work on this track.
 
 ---
 

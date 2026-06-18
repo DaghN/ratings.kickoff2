@@ -9,6 +9,7 @@
     var ACTIVITY_API = 'api/server_period_activity_leaderboard.php';
     var POINTS_API = 'api/status_period_points_league.php';
     var LEAGUE_PERIOD_ANCHOR = '#k2-league-period';
+    var GAME_PAGE_ANCHOR = '#k2-game'; /* keep in sync with k2_game_page_anchor_hash() */
     var DAY_GAMES_API = 'api/status_period_day_games.php';
     var PERIODS = ['day', 'week', 'month', 'year'];
 
@@ -248,7 +249,7 @@
                 + parseInt(g.id_b, 10) + '">' + escapeHtml(g.name_b || '') + '</a></span>';
             html += '</span>';
             html += '<a class="k2-link-star k2-status-day-games-list__game" href="/game.php?id='
-                + parseInt(g.id, 10) + '">' + parseInt(g.id, 10) + '</a>';
+                + parseInt(g.id, 10) + GAME_PAGE_ANCHOR + '">' + parseInt(g.id, 10) + '</a>';
             html += '</li>';
         }
         html += '</ul>';

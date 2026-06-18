@@ -1,6 +1,6 @@
 # Handoff — Status Leagues Phase 1.5 (archived)
 
-**Retired Jun 2026** — do not paste into new agent chats. Live spec: [`../status-period-competitions.md`](../status-period-competitions.md). Full WIP + backlog: [`status-period-competitions-wip.md`](status-period-competitions-wip.md).
+**Retired Jun 2026** — do not paste into new agent chats. Live spec: [`../status-period-competitions.md`](../status-period-competitions.md). WIP diary: [`status-period-competitions-wip.md`](status-period-competitions-wip.md).
 
 ---
 
@@ -15,7 +15,7 @@
 1. [`PROJECT_MEMORY.md`](../../PROJECT_MEMORY.md)
 2. [`AGENTS.md`](../../AGENTS.md)
 3. [`docs/PROJECT_MAP.md`](../PROJECT_MAP.md)
-4. **This file** + [`docs/status-period-competitions-wip.md`](../status-period-competitions-wip.md) — Phase 1.5 checklist
+4. **This file** + [`status-period-competitions-wip.md`](status-period-competitions-wip.md) — Phase 1.5 checklist (historical)
 5. [`docs/STATUS_PAGE_DATA.md`](../STATUS_PAGE_DATA.md) — Status hub context
 6. [`docs/design-direction.md`](../design-direction.md) — if UI work
 
@@ -40,7 +40,7 @@
 
 ## Your mission: Phase 1.5
 
-Work through the **Phase 1.5 backlog** in [`docs/status-period-competitions-wip.md`](../status-period-competitions-wip.md).
+Work through the **Phase 1.5 backlog** in [`status-period-competitions-wip.md`](status-period-competitions-wip.md) (historical — track closed Jun 2026).
 
 **Dagh priority to include in this slice:** item **6 — Day games list under tables** (rated games for the selected calendar day, below the two league tables when Day tab is active).
 

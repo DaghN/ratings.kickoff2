@@ -135,7 +135,8 @@ function k2_realm_games_all_query_all(mysqli $con, string $sql, string $types = 
 {
 	$stmt = mysqli_prepare($con, $sql);
 	if ($stmt === false) {
-		die('SELECT Error: ' . mysqli_error($con));
+		error_log('DB realm games all prepare failed: ' . mysqli_error($con));
+		k2_public_error('Could not load ratings data.');
 	}
 
 	if ($types !== '') {
@@ -149,7 +150,8 @@ function k2_realm_games_all_query_all(mysqli $con, string $sql, string $types = 
 	mysqli_stmt_execute($stmt);
 	$result = mysqli_stmt_get_result($stmt);
 	if ($result === false) {
-		die('SELECT Error: ' . mysqli_error($con));
+		error_log('DB realm games all query failed: ' . mysqli_error($con));
+		k2_public_error('Could not load ratings data.');
 	}
 
 	$rows = [];

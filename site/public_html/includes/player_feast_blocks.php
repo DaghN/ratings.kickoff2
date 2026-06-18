@@ -3,6 +3,8 @@
  * Player profile feast blocks (player/profile.php Profile tab).
  */
 
+require_once __DIR__ . '/k2_routes.php';
+
 function player_feast_section_open(string $title, ?string $hint = null, ?string $sectionClass = null): void
 {
     $class = 'pm3d-section';
@@ -194,7 +196,7 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag">Giant-killing</span>
 			<h3 class="pm3-moment__label">Best scalp<?php echo isset($maxVictim['victim_rating']) && (int) $maxVictim['victim_rating'] > 0 ? ' · ' . (int) $maxVictim['victim_rating'] . ' Elo' : ''; ?></h3>
 			<p class="pm3-moment__score">
-				<a href="/game.php?id=<?php echo (int) $maxVictim['game_id']; ?>"><?php echo pm_h((string) $maxVictim['score']); ?></a>
+				<a href="<?php echo pm_h(k2_game_page_url((int) $maxVictim['game_id'])); ?>"><?php echo pm_h((string) $maxVictim['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h((string) $maxVictim['outcome_class']); ?>"><?php echo pm_h((string) $maxVictim['outcome']); ?></span>
@@ -209,7 +211,7 @@ function player_feast_render_moments(array $pm): void
 			<span class="pm3-moment__tag"><?php echo pm_h($t['tag']); ?></span>
 			<h3 class="pm3-moment__label"><?php echo pm_h($t['label']); ?></h3>
 			<p class="pm3-moment__score">
-				<a href="/game.php?id=<?php echo (int) $t['game_id']; ?>"><?php echo pm_h($t['score']); ?></a>
+				<a href="<?php echo pm_h(k2_game_page_url((int) $t['game_id'])); ?>"><?php echo pm_h($t['score']); ?></a>
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>

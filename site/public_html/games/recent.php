@@ -1,4 +1,5 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_helpers.php';
 
@@ -8,12 +9,7 @@ $k2GamesHubView = 'recent';
 $k2GamesPageTitle = 'Games — Recent';
 
 $gamesByDay = [];
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
-if (mysqli_connect_errno()) {
-	die('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-$con->set_charset('utf8mb4');
-$con->query("SET time_zone = '+00:00'");
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 
 for ($offset = 0; $offset < 14; $offset++) {
 	$timestamp = strtotime('-' . $offset . ' day');
@@ -26,10 +22,7 @@ for ($offset = 0; $offset < 14; $offset++) {
 
 $query = 'SELECT * FROM `ratedresults` WHERE `Date` >= DATE_SUB(CURDATE(), INTERVAL 13 DAY) '
 	. 'AND `Date` < DATE_ADD(CURDATE(), INTERVAL 1 DAY) ORDER BY `Date` DESC, `id` DESC';
-$result = mysqli_query($con, $query);
-if ($result === false) {
-	die('SELECT Error: ' . mysqli_error($con));
-}
+$result = k2_query_or_public_error($con, $query, 'games recent');
 
 while ($row = mysqli_fetch_assoc($result)) {
 	$timestamp = strtotime((string) ($row['Date'] ?? ''));

@@ -46,7 +46,7 @@
 | Player opponents | `player/opponents/` | `h2h.php`, `wdl.php`, … |
 | Player milestones | `player/milestones/` | `garden.php`, `chronology.php` |
 
-**Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode).
+**Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode). Inbound game links use `k2_game_page_url($id)` → `/game.php?id=` + `#k2-game` so the viewport lands on the game table (hub chrome stays above the fold).
 
 ---
 

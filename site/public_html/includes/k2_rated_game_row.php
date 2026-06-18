@@ -8,6 +8,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_game_rating_adjustment.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 
 function k2_rated_game_h(string $value): string
 {
@@ -165,7 +166,7 @@ function k2_rated_game_id_html(array $game, string $idMode = 'link'): string
         return (string) $id;
     }
 
-    return '<a href="/game.php?id=' . $id . '">' . $id . '</a>';
+    return '<a href="' . k2_rated_game_h(k2_game_page_url($id)) . '">' . $id . '</a>';
 }
 
 /**

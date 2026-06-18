@@ -65,3 +65,14 @@ function k2_route_is_current(string $name): bool
 {
 	return k2_current_page_path() === (K2_ROUTES[$name] ?? '');
 }
+
+/** Scroll target on game.php — table starts at viewport top (hub chrome above). */
+function k2_game_page_anchor_hash(): string
+{
+	return '#k2-game';
+}
+
+function k2_game_page_url(int $gameId): string
+{
+	return k2_route('game', ['id' => $gameId]) . k2_game_page_anchor_hash();
+}

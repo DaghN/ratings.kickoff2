@@ -4,7 +4,7 @@
 **Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
 **v1 content decisions (archive):** [`docs/archive/profile-content-candidates.md`](archive/profile-content-candidates.md).  
 **Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md).  
-**Planned IA (not shipped):** [`player-opponents-hub.md`](player-opponents-hub.md) — Opponents umbrella tab, Profile slimming, optional Career totals expansion.
+**Opponents hub (shipped Jun 2026):** [`player-opponents-hub.md`](player-opponents-hub.md) — Opponents top pill + inner sub-tabs; H2H poster/charts: [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md). Optional Career totals expansion still backlog.
 
 ---
 
@@ -40,7 +40,7 @@
 
 Win rate vs opponent rating was removed from the shipped page and the dormant API/JS were deleted in Jun 2026; do not reintroduce unless a future matchup-lab pass explicitly wants it.
 
-Standalone **rivalry section** (inline charts) was removed; top-opponents bar links into Opponents H2H. **Rivalry placeholder card** removed Jun 2026 — profile ends on the opponents chart.
+Profile ends on the **most played opponents** bar chart; click-through opens **Opponents → Head-to-head**. Standalone rivalry section (inline matchup charts) was removed Jun 2026 — cumulative H2H + rating comparison live on the H2H tab.
 
 ---
 
@@ -93,8 +93,8 @@ Standalone **rivalry section** (inline charts) was removed; top-opponents bar li
 | Pill | File | Role |
 |------|------|------|
 | Games | `player/games.php` | Full match ledger |
-| W/D/L / Goals / DDs | `player/opponents/{wdl,goals,dds}.php` | Per-opponent aggregates under **Opponents** tab |
-| Milestones | `player/milestones/garden.php` | Tier garden (112 cards from catalog + unlock rows); Chronology wing placeholder |
+| Opponents | `player/opponents/*.php` | Inner tabs Head-to-head · W/D/L · Goals · DDs — see [`player-opponents-hub.md`](player-opponents-hub.md) |
+| Milestones | `player/milestones/garden.php` · `player/milestones/chronology.php` | **Garden** — tier garden (112 cards from catalog + unlock rows); **Chronology** — player-filtered Recent feed (tier filter, newest-first) |
 
 Profile does **not** duplicate those tables.
 

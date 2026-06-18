@@ -1,10 +1,14 @@
+# Status — Leagues block (archived WIP diary)
+
+**Archived Jun 2026** — Status Leagues is **shipped**. Live spec: [`../status-period-competitions.md`](../status-period-competitions.md). **Do not** use this file for agent bootstrap, audits, or backlog.
+
+---
+
 # Status — Leagues block (WIP)
 
 UI heading: **Leagues** (paired Activity + Points tables).
 
-**Status:** **Phase 1 shipped** on `status.php` (May 2026). Items below are **optional polish only** — Phase 1.5 agent handoff is **retired** ([`coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md)). Do not treat this file as mandatory next work.
-
-**Operating chat:** Use the Cursor thread where this doc was created for day-to-day decisions; this file is the durable decision log.
+**Status:** **Shipped** on `status.php` (May–Jun 2026). This diary is **historical only**.
 
 **Pointers:** [`STATUS_PAGE_DATA.md`](../STATUS_PAGE_DATA.md) · [`hub-ia-agreement.md`](../hub-ia-agreement.md)
 
@@ -127,6 +131,7 @@ Items 1–5 were deferred from Phase 1 (“not required” above). Item 6 is new
 
 | Date | Note |
 |------|------|
+| 2026-06-18 | **Archived** — live spec is `status-period-competitions.md`; Phase 1.5 polish track closed (not backlog). |
 | 2026-05-30 | **Meta + months** — `League of` (ticker default) + blue label; full month names (`F` not `M`); listbox weight 500. |
 | 2026-05-30 | **Listbox type** — secondary + weight 500; subtle hover mix; background-only selection (`theme.css` + `design-direction.md`). |
 | 2026-05-30 | **Day picker chrome** — Daily trigger uses same listbox box + chevron as week/month/year (no calendar icon); click opens Flatpickr. |

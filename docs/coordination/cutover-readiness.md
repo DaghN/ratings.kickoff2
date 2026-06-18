@@ -101,11 +101,9 @@ Single checklist (details in post-dagh-live-story):
 | Activity wing (participation + in-a-row) | Done | **Proven** | Not executed |
 | League honours `ranked9` | Done | **Proven** | Not executed |
 | Play streaks UI + DB | Done | **Proven** | Not executed |
-| Status leagues Phase 1 | Done | **Proven** | Not executed |
+| Status leagues | Done | **Proven** | Not executed |
 | Milestones v0 + catalog | Done | **Proven** | Not executed |
 | `ratedresults` player indexes | In migration 001 | Via migrate-work on work | Not executed |
-
-Optional product backlog ( **not** cutover blockers): Status Phase 1.5 polish in [`status-period-competitions-wip.md`](../status-period-competitions-wip.md) only — **no** agent bootstrap handoff.
 
 ---
 

@@ -346,7 +346,7 @@ function k2_milestone_source_link_html(array $row): ?string
     if ($kind === 'game' && !empty($row['source_game_id'])) {
         $gid = (int) $row['source_game_id'];
 
-        return '<a href="/game.php?id=' . $gid . '">Game</a>';
+        return '<a href="' . htmlspecialchars(k2_game_page_url($gid), ENT_QUOTES, 'UTF-8') . '">Game</a>';
     }
     if ($kind === 'league') {
         $cup = (string) ($row['source_league_kind'] ?? '');
