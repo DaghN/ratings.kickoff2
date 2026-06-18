@@ -7,7 +7,7 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/player-feast-sections.css" rel="stylesheet" type="text/css" />
-<link href="stylesheets/player-feast-glance.css" rel="stylesheet" type="text/css" />
+<link href="stylesheets/player-feast-glance.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-glance.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="stylesheets/player-feast-personal-bests.css" rel="stylesheet" type="text/css" />
 <link href="stylesheets/player-feast-lab3.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-lab3.css'); ?>" rel="stylesheet" type="text/css" />
 <script src="js/chart.umd.min.js"></script>

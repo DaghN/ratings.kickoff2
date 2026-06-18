@@ -124,7 +124,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Amber chart series (play-texture amber, �) | `T.amber()` ? `--k2-chart-amber` ? `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
 | Pitch / chrome / holo chart series | `T.pitch()` etc. ? `--k2-chart-*` ? `--k2-pure-*` | Full palette ink (no extra softening yet) |
 | H2H pair charts (cumulative wins, rating compare) | `T.h2hSubject*` ? chrome; `T.h2hOpponent*` ? `--k2-table-negative` | Matches poster rivalry band; **not** pitch/chrome profile compare; opponent red is table ink, not `T.magenta()` |
-| H2H goals-per-game histogram | Single: `T.chrome()` / `T.tableNegative()`; grouped adds both | Shared x-axis 0..max of either player’s peak GF; Profile stays single `T.amber()` |
+| H2H goals-per-game histogram | Single: `T.chrome()` / `T.tableNegative()`; grouped adds both | Shared x-axis 0..max of either player’s peak GF; Profile single series also `T.chrome()` |
 | Player name, profile link, Elo highlight span | `a.k2-link-star` / `.k2-link-star` | Tint-following soft accent |
 | Active hub tab, LB wing tab, player sub-nav | `--k2-segment-active-text` | Softer than link-star (72% + secondary) |
 | Active tint pill **label** | same 72/28 as segment (via swatch in mix) | Matches nav |

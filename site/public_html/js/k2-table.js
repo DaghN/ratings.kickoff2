@@ -90,13 +90,18 @@
 		var left;
 		var top;
 		var margin = 8;
+		var align = header.getAttribute('data-k2-tooltip-align') || 'center';
 
 		tooltip.style.left = '0px';
 		tooltip.style.top = '0px';
 		tooltip.hidden = false;
 		tooltipRect = tooltip.getBoundingClientRect();
 
-		left = headerRect.left + (headerRect.width / 2) - (tooltipRect.width / 2);
+		if (align === 'start') {
+			left = headerRect.left;
+		} else {
+			left = headerRect.left + (headerRect.width / 2) - (tooltipRect.width / 2);
+		}
 		left = Math.max(margin, Math.min(left, window.innerWidth - tooltipRect.width - margin));
 		top = headerRect.top - tooltipRect.height - margin;
 

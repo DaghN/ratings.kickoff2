@@ -918,7 +918,7 @@ function player_opponents_render_h2h_poster(
         $opponentName
     );
     ?>
-<section class="k2-h2h2-poster k2-h2h2-poster--mirrored"<?php echo $hasGames ? '' : ' data-empty="1"'; ?>>
+<section class="k2-h2h2-poster k2-h2h2-poster--mirrored" id="h2h-rivalry"<?php echo $hasGames ? '' : ' data-empty="1"'; ?>>
 	<div class="k2-h2h2-marquee">
 		<?php echo k2_h2h_poster_card_html($subjectCard, 'subject'); ?>
 		<div class="k2-h2h2-vs" aria-hidden="true">vs</div>

@@ -7,7 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/player_opponents_lib.php';
 
-function player_feast_render_top_opponents_chart(int $playerId): void
+function player_feast_render_top_opponents_chart(int $playerId, bool $profileFinale = false): void
 {
     $playerId = max(0, $playerId);
     if ($playerId < 1) {
@@ -15,13 +15,15 @@ function player_feast_render_top_opponents_chart(int $playerId): void
     }
 
     $h2hBase = player_opponents_href($playerId, 'h2h');
+    $finaleAttr = $profileFinale ? ' data-profile-finale="1"' : '';
+    $h2hHashAttr = $profileFinale ? ' data-h2h-hash="#h2h-rivalry"' : '';
     ?>
-<div class="pm3d-top-opponents" data-h2h-base="<?php echo k2_h($h2hBase); ?>">
+<div class="pm3d-top-opponents" data-h2h-base="<?php echo k2_h($h2hBase); ?>"<?php echo $h2hHashAttr; ?>>
 	<div
 		class="player-top-opponents-chart k2-chart-panel"
-		data-player-id="<?php echo $playerId; ?>"
+		data-player-id="<?php echo $playerId; ?>"<?php echo $finaleAttr; ?>
 	>
-		<p class="k2-chart-block__hint">Click a bar to open head-to-head on the Opponents tab.</p>
+		<h3 class="k2-panel-heading">Most played opponents</h3>
 		<p class="player-top-opponents-chart-status pm3d-chart__status k2-chart-panel__status">Loading top opponents…</p>
 		<canvas class="player-top-opponents-canvas" aria-label="Most played opponents"></canvas>
 	</div>

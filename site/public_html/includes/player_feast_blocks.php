@@ -495,7 +495,7 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
 	<div class="pm3d-section__content">
 <div class="pm3d-career-charts">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
-		<h3 class="k2-panel-heading">ELO rating</h3>
+		<h3 class="k2-panel-heading" data-k2-help="<?php echo pm_h('Standard Elo rating with a start rating of 1600 and a fixed K-factor of 32.'); ?>" data-k2-tooltip-align="start" tabindex="0">ELO rating</h3>
 		<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
 			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="game">By game #</button>
 			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="date">By date</button>
@@ -516,7 +516,7 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
 	</div>
 	<div class="player-games-month-chart k2-chart-panel" id="games-per-month" data-player-id="<?php echo $playerId; ?>">
 		<h3 class="k2-panel-heading">Games per month</h3>
-		<p class="k2-chart-block__hint">Monthly activity on the same server timeline, including quiet months. Click a bar to view games in that month.</p>
+		<p class="k2-chart-block__hint"><span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s monthly activity on the server timeline, including quiet months.</p>
 		<p class="player-games-month-chart-status pm3d-chart__status k2-chart-panel__status">Loading games per month…</p>
 		<div class="k2-chart-frame">
 			<canvas aria-label="Games per calendar month"></canvas>
@@ -524,7 +524,7 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
 	</div>
 	<div class="player-goals-scored-histogram k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
 		<h3 class="k2-panel-heading">Goals per game</h3>
-		<p class="k2-chart-block__hint">How many rated games you scored exactly 0, 1, 2… goals. Click a bar to filter the games list.</p>
+		<p class="k2-chart-block__hint">How many games <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span> scored exactly 0, 1, 2… goals in.</p>
 		<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
 		<div class="k2-chart-frame">
 			<canvas aria-label="Goals scored per game histogram"></canvas>
@@ -535,56 +535,15 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
 </section>
     <?php
     require_once __DIR__ . '/player_opponents_h2h_charts.php';
-
-    player_feast_section_open(
-        'Most played opponents',
-        'Who you meet most on the ladder — click a bar to open head-to-head.'
-    );
-    player_feast_render_top_opponents_chart($playerId);
-    player_feast_section_close();
-}
-
-/**
- * Placeholder rivalry card — top opponent + link to Opponents H2H (full band TBD).
- */
-function player_feast_render_rivalry_teaser(mysqli $con, int $playerId): void
-{
-    $playerId = max(0, $playerId);
-    if ($playerId <= 0) {
-        return;
-    }
-
-    require_once __DIR__ . '/player_opponents_h2h.php';
-    require_once __DIR__ . '/player_opponents_lib.php';
-
-    $opponents = player_opponents_h2h_played_opponents($con, $playerId);
-    if ($opponents === []) {
-        return;
-    }
-
-    $top = $opponents[0];
-    $opponentId = (int) $top['opponent_id'];
-    $opponentName = (string) $top['opponent_name'];
-    $games = (int) $top['games'];
-    $h2hHref = player_opponents_href($playerId, 'h2h', $opponentId);
-
-    player_feast_section_open(
-        'Rivalry',
-        'Placeholder card — fuller rivalry summary (record, form, all games) will land here.'
-    );
     ?>
-<article class="pm3-rivalry-teaser">
-	<p class="pm3-rivalry-teaser__tag">Placeholder</p>
-	<p class="pm3-rivalry-teaser__lead">
-		Most played opponent:
-		<strong><?php echo pm_h($opponentName); ?></strong>
-		<span class="pm3-rivalry-teaser__meta"><?php echo pm_h(k2_fmt_int($games, '0')); ?> rated games</span>
-	</p>
-	<p class="pm3-rivalry-teaser__note">Future slice: headline W/D/L, recent form, streak, and quick links to head-to-head and all games vs this rival.</p>
-	<p class="pm3-rivalry-teaser__actions">
-		<a class="pm3-rivalry-teaser__link" href="<?php echo pm_h($h2hHref); ?>">Head-to-head vs <?php echo pm_h($opponentName); ?></a>
-	</p>
-</article>
+<section class="pm3d-section pm3d-section--top-opponents" id="top-opponents">
+	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Most played opponents</h2>
+	<p class="pm3d-section__hint">A lot has happened in <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s career on the ladder — and plenty is still to come! Let's not forget that above the ratings and the scorelines, what matters most are the friends and friendly rivalries we picked up along the way!</p>
+	<div class="pm3d-section__content">
     <?php
-    player_feast_section_close();
+    player_feast_render_top_opponents_chart($playerId, true);
+    ?>
+	</div>
+</section>
+    <?php
 }

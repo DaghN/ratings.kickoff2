@@ -7,7 +7,7 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-feast.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-sections.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-sections.css'); ?>" rel="stylesheet" type="text/css" />
-<link href="/stylesheets/player-feast-glance.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/player-feast-glance.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-glance.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-story.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-story.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-personal-bests.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-personal-bests.css'); ?>" rel="stylesheet" type="text/css" />
 <script src="/js/chart.umd.min.js"></script>
@@ -22,6 +22,7 @@
 <script type="text/javascript" src="/js/player-goals-scored-histogram.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-goals-scored-histogram.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-top-opponents-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-top-opponents-chart.js'); ?>" defer="defer"></script>
 <script src="/js/player-feast/player-calendar.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-feast/player-calendar.js'); ?>" defer></script>
+<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
 <script src="/js/player-feast/player-calendar-weeks.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-feast/player-calendar-weeks.js'); ?>" defer></script>
 </head>
 
@@ -74,7 +75,6 @@ player_feast_render_played_weeks($playerId, (string) $pm['first_game_date_ymd'],
 player_feast_render_peak_activity($pm);
 player_feast_render_moments($pm);
 player_feast_render_charts($playerId, (string) $pm['name']);
-player_feast_render_rivalry_teaser($con, $playerId);
 ?>
 
 </div><!-- .k2-page-nav -->

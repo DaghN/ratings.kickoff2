@@ -1,6 +1,6 @@
 /**
  * Goals scored per game — full histogram (0..max). Click bar → games tab gf/ga filter.
- * Profile: single amber series. H2H: two single-series charts + grouped comparison (shared x-axis max).
+ * Profile: single chrome series. H2H: two single-series charts + grouped comparison (shared x-axis max).
  */
 (function () {
     'use strict';
@@ -49,7 +49,7 @@
         if (T && T.barSolid) {
             var barColor;
             if (!isH2h) {
-                barColor = T.amber();
+                barColor = T.chrome ? T.chrome() : T.amber();
             } else if (isRival && T.tableNegative) {
                 barColor = T.tableNegative();
             } else if (T.chrome) {
@@ -61,8 +61,8 @@
         }
         if (!isH2h) {
             return {
-                backgroundColor: 'rgba(255, 183, 77, 0.78)',
-                borderColor: 'rgba(255, 183, 77, 1)',
+                backgroundColor: 'rgba(100, 181, 246, 0.78)',
+                borderColor: 'rgba(100, 181, 246, 1)',
                 borderWidth: 0
             };
         }

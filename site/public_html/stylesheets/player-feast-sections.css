@@ -461,6 +461,11 @@ body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list > li:last-chi
 	margin-bottom: 22px;
 }
 
+.pm3d-section--top-opponents .pm3d-section__hint {
+	margin-top: 0;
+	margin-bottom: 22px;
+}
+
 .pm3d-section .pm3-moments__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -597,6 +602,17 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 }
 
 /* ELO rating By date / By game # — fixed chart amber (matches rating line), not UI tint */
+body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped {
+	cursor: help;
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped:focus,
+body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped:focus-visible {
+	outline: none;
+}
+
 .player-rating-chart .pm3d-rating-toggle__btn.is-active {
 	color: color-mix(in srgb, var(--k2-pure-amber) 72%, var(--k2-text-secondary));
 	background: color-mix(in srgb, var(--k2-pure-amber) 14%, var(--k2-bg-elevated));

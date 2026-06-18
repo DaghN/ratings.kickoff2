@@ -1,5 +1,6 @@
 /**
- * Most-played opponents (horizontal bar). Click selects opponent for head-to-head chart.
+ * Most-played opponents (horizontal bar). Profile finale: uniform H2H red, click → Opponents H2H.
+ * Lab / legacy: click selects opponent for paired matchup charts below.
  */
 (function () {
     'use strict';
@@ -16,6 +17,32 @@
             return name;
         }
         return name.substring(0, MAX_LABEL_LEN - 1) + '\u2026';
+    }
+
+    function isProfileFinale(root) {
+        return root.getAttribute('data-profile-finale') === '1';
+    }
+
+    function uniformBarStyle() {
+        if (T && T.barSolid && T.tableNegative) {
+            return T.barSolid(T.tableNegative(), 0.78);
+        }
+        return {
+            backgroundColor: 'rgba(212, 138, 154, 0.78)',
+            borderColor: 'rgba(212, 138, 154, 1)',
+            borderWidth: 0
+        };
+    }
+
+    function uniformBarColors(count) {
+        var style = uniformBarStyle();
+        var fills = [];
+        var borders = [];
+        for (var i = 0; i < count; i++) {
+            fills.push(style.backgroundColor);
+            borders.push(style.borderColor);
+        }
+        return { fills: fills, borders: borders, borderWidth: style.borderWidth };
     }
 
     function barColors(opponentIds, selectedId) {
@@ -44,16 +71,6 @@
         return colors;
     }
 
-    function isInOpponentList(opponentIds, opponentId) {
-        var id = Number(opponentId);
-        for (var i = 0; i < opponentIds.length; i++) {
-            if (Number(opponentIds[i]) === id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function dispatchSelection(playerId, opponentId, opponentName) {
         document.dispatchEvent(new CustomEvent(EVENT_NAME, {
             detail: {
@@ -76,11 +93,15 @@
         if (!base) {
             return false;
         }
-        if (window.K2CarryScroll && typeof window.K2CarryScroll.store === 'function') {
+        var hash = h2hRoot.getAttribute('data-h2h-hash') || '';
+        if (hash && hash.charAt(0) !== '#') {
+            hash = '#' + hash;
+        }
+        if (!hash && window.K2CarryScroll && typeof window.K2CarryScroll.store === 'function') {
             window.K2CarryScroll.store();
         }
         var sep = base.indexOf('?') >= 0 ? '&' : '?';
-        window.location.href = base + sep + 'opponent=' + encodeURIComponent(String(opponentId));
+        window.location.href = base + sep + 'opponent=' + encodeURIComponent(String(opponentId)) + hash;
         return true;
     }
 
@@ -104,10 +125,11 @@
             return;
         }
 
+        var profileFinale = isProfileFinale(root);
         var canvas = root.querySelector('canvas');
         var status = root.querySelector('.player-top-opponents-chart-status');
         var h2hRoot = h2hNavigateRoot(root);
-        var navRoot = h2hRoot;
+        var navRoot = profileFinale ? h2hRoot : null;
         if (!canvas || typeof Chart === 'undefined') {
             if (status) {
                 status.textContent = 'Chart library failed to load.';
@@ -149,11 +171,27 @@
                     opponentIds.push(o.opponent_id);
                 }
 
-                var selectedId = opponents[0].opponent_id;
-                var initialOpponent = initialOpponentFromH2h(h2hRoot);
+                var selectedId = profileFinale ? null : opponents[0].opponent_id;
+                var initialOpponent = profileFinale ? null : initialOpponentFromH2h(h2hRoot);
                 if (initialOpponent) {
                     selectedId = initialOpponent.id;
                 }
+
+                var barPaint = profileFinale
+                    ? uniformBarColors(opponentIds.length)
+                    : {
+                        fills: barColors(opponentIds, selectedId),
+                        borders: barBorderColors(opponentIds, selectedId),
+                        borderWidth: 1
+                    };
+
+                var maxGames = 0;
+                for (var gi = 0; gi < games.length; gi++) {
+                    if (games[gi] > maxGames) {
+                        maxGames = games[gi];
+                    }
+                }
+
                 var chart = new Chart(canvas, {
                     type: 'bar',
                     data: {
@@ -161,9 +199,9 @@
                         datasets: [{
                             label: 'Games played',
                             data: games,
-                            backgroundColor: barColors(opponentIds, selectedId),
-                            borderColor: barBorderColors(opponentIds, selectedId),
-                            borderWidth: 1
+                            backgroundColor: barPaint.fills,
+                            borderColor: barPaint.borders,
+                            borderWidth: barPaint.borderWidth
                         }]
                     },
                     options: {
@@ -191,7 +229,7 @@
                                         return item.parsed.x + ' games';
                                     },
                                     afterLabel: function () {
-                                        return navRoot
+                                        return navRoot || profileFinale
                                             ? 'Click to open head-to-head'
                                             : 'Click to update matchup charts';
                                     }
@@ -208,7 +246,7 @@
                                         return item.parsed.x + ' games';
                                     },
                                     afterLabel: function () {
-                                        return navRoot
+                                        return navRoot || profileFinale
                                             ? 'Click to open head-to-head'
                                             : 'Click to update matchup charts';
                                     }
@@ -218,9 +256,13 @@
                         scales: {
                             x: {
                                 beginAtZero: true,
+                                bounds: 'data',
+                                max: maxGames,
+                                grace: 0,
                                 ticks: {
                                     color: T.tickColor(),
-                                    precision: 0
+                                    precision: 0,
+                                    max: maxGames
                                 },
                                 grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                             },
@@ -239,10 +281,11 @@
                 });
 
                 function selectOpponent(idx) {
-                    selectedId = opponentIds[idx];
-                    if (navigateH2hOpponent(navRoot, selectedId)) {
+                    if (navRoot || profileFinale) {
+                        navigateH2hOpponent(h2hRoot, opponentIds[idx]);
                         return;
                     }
+                    selectedId = opponentIds[idx];
                     chart.data.datasets[0].backgroundColor = barColors(
                         opponentIds,
                         selectedId
@@ -278,7 +321,9 @@
                         getBody: function (el) {
                             return games[el.index] + ' games';
                         },
-                        hintNavigate: navRoot ? 'open head-to-head' : 'update matchup charts',
+                        hintNavigate: navRoot || profileFinale
+                            ? 'open head-to-head'
+                            : 'update matchup charts',
                         onNavigate: function (el) {
                             selectOpponent(el.index);
                         }
@@ -296,39 +341,38 @@
                     status.textContent = '';
                 }
 
-                function applyHighlight(opponentId) {
-                    var highlightId = isInOpponentList(opponentIds, opponentId)
-                        ? opponentId
-                        : null;
-                    chart.data.datasets[0].backgroundColor = barColors(
-                        opponentIds,
-                        highlightId
-                    );
-                    chart.data.datasets[0].borderColor = barBorderColors(
-                        opponentIds,
-                        highlightId
-                    );
-                    chart.update('none');
-                }
-
-                document.addEventListener(EVENT_NAME, function (e) {
-                    if (!e.detail || String(e.detail.playerId) !== String(playerId)) {
-                        return;
+                if (!profileFinale) {
+                    function applyHighlight(opponentId) {
+                        chart.data.datasets[0].backgroundColor = barColors(
+                            opponentIds,
+                            opponentId
+                        );
+                        chart.data.datasets[0].borderColor = barBorderColors(
+                            opponentIds,
+                            opponentId
+                        );
+                        chart.update('none');
                     }
-                    selectedId = e.detail.opponentId;
-                    applyHighlight(selectedId);
-                });
 
-                var bootOpponent = initialOpponent || {
-                    id: opponents[0].opponent_id,
-                    name: opponents[0].opponent_name
-                };
-                if (initialOpponent || !navRoot) {
-                    dispatchSelection(
-                        playerId,
-                        bootOpponent.id,
-                        bootOpponent.name
-                    );
+                    document.addEventListener(EVENT_NAME, function (e) {
+                        if (!e.detail || String(e.detail.playerId) !== String(playerId)) {
+                            return;
+                        }
+                        selectedId = e.detail.opponentId;
+                        applyHighlight(selectedId);
+                    });
+
+                    var bootOpponent = initialOpponent || {
+                        id: opponents[0].opponent_id,
+                        name: opponents[0].opponent_name
+                    };
+                    if (initialOpponent || !navRoot) {
+                        dispatchSelection(
+                            playerId,
+                            bootOpponent.id,
+                            bootOpponent.name
+                        );
+                    }
                 }
             })
             .catch(function () {

@@ -272,18 +272,18 @@
                                     : (padded.xMax || undefined),
                                 offset: false,
                                 time: {
-                                    unit: 'month',
-                                    round: 'month',
                                     displayFormats: {
+                                        year: 'yyyy',
                                         month: 'MMM yyyy',
-                                        year: 'yyyy'
+                                        day: 'MMM d, yyyy'
                                     }
                                 },
                                 ticks: {
                                     color: T.tickColor(),
                                     maxRotation: 45,
+                                    minRotation: 0,
                                     autoSkip: true,
-                                    maxTicksLimit: 24
+                                    maxTicksLimit: 12
                                 },
                                 grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                             },
