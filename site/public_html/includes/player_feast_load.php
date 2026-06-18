@@ -5,6 +5,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_profile.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load_story.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
 
@@ -39,21 +40,15 @@ function player_feast_load_pm(mysqli $con, int $id): array
     $winPct = $games > 0 && !k2_db_is_null($row['WinRatio'])
         ? round(100 * (float) $row['WinRatio'], 1) : ($games > 0 ? 0.0 : null);
 
-    $monthResult = k2_player_feast_query(
-        $con,
-        'games_this_month',
-        "SELECT COALESCE(SUM(games), 0) AS c FROM player_period_games WHERE period_type='month' AND player_id='$escId' AND period_start = DATE_FORMAT(NOW(), '%Y-%m-01')"
-    );
-    $monthRow = mysqli_fetch_row($monthResult);
-    $gamesThisMonth = (int) $monthRow[0];
-
     $yearResult = k2_player_feast_query(
         $con,
         'games_this_year',
         "SELECT COALESCE(SUM(games), 0) AS c FROM player_period_games WHERE period_type='year' AND player_id='$escId' AND period_start = CONCAT(YEAR(CURDATE()), '-01-01')"
     );
-    $yearRow = mysqli_fetch_row($yearResult);
-    $gamesThisYear = (int) $yearRow[0];
+    $yearRow = $yearResult ? mysqli_fetch_row($yearResult) : null;
+    $gamesThisYear = $yearRow ? (int) $yearRow[0] : 0;
+
+    $daysThisYear = player_feast_load_days_this_year($con, $id);
 
     $trophyDefs = [
         [
@@ -132,7 +127,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         $careerRankOpponents = pm_playertable_career_stat_rank($con, $id, 'DifferentOpponents');
     }
 
-    return [
+    $pm = [
         'id' => $id,
         'name' => (string) $row['Name'],
         'rank' => $rank,
@@ -149,7 +144,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'join_date_ymd' => date('Y-m-d', strtotime((string) $row['JoinDate']) ?: time()),
         'last_game' => date('M j, Y', strtotime((string) $row['LastGame'])),
         'last_login' => date('M j, Y', strtotime((string) $row['LastLogin'])),
-        'games_this_month' => $gamesThisMonth,
+        'days_this_year' => $daysThisYear,
         'games_this_year' => $gamesThisYear,
         'longest_win_streak' => (int) $row['LongestWinningStreak'],
         'biggest_win_margin' => (int) $row['BiggestWinDifference'],
@@ -180,7 +175,11 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'initial' => strtoupper(substr((string) $row['Name'], 0, 1)),
         'rating_raw' => (float) $row['Rating'],
         'peak_raw' => (float) $row['PeakRating'],
-    ];
+    ] + player_feast_load_glance_honours($con, $id, $games);
+
+    $pm['story'] = player_feast_load_story_extras($con, $id);
+
+    return $pm;
 }
 
 /**
@@ -256,6 +255,55 @@ function player_feast_load_busiest_from_ratedresults(mysqli $con, int $id): arra
     return $busiest;
 }
 
+/**
+ * Milestone tier counts + career league medals for the at-a-glance band.
+ *
+ * @return array{milestone_counts: ?array, milestone_catalog_total: int, league_gold: int, league_silver: int, league_bronze: int}
+ */
+function player_feast_load_glance_honours(mysqli $con, int $playerId, int $games): array
+{
+    $out = [
+        'milestone_counts' => null,
+        'milestone_catalog_total' => 0,
+        'league_gold' => 0,
+        'league_silver' => 0,
+        'league_bronze' => 0,
+    ];
+
+    if ($games >= 1) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+        if (k2_milestone_tables_ready($con)) {
+            $out['milestone_catalog_total'] = k2_milestone_catalog_total($con);
+            $out['milestone_counts'] = k2_milestone_player_counts($con, $playerId);
+        }
+    }
+
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
+    if (k2_status_table_exists($con, 'player_league_totals')) {
+        $stmt = $con->prepare(
+            'SELECT `gold`, `silver`, `bronze` FROM `player_league_totals` WHERE `player_id` = ? LIMIT 1'
+        );
+        if ($stmt !== false) {
+            $stmt->bind_param('i', $playerId);
+            if ($stmt->execute()) {
+                $res = $stmt->get_result();
+                $row = $res ? $res->fetch_assoc() : null;
+                if ($res) {
+                    $res->free();
+                }
+                if ($row) {
+                    $out['league_gold'] = (int) $row['gold'];
+                    $out['league_silver'] = (int) $row['silver'];
+                    $out['league_bronze'] = (int) $row['bronze'];
+                }
+            }
+            $stmt->close();
+        }
+    }
+
+    return $out;
+}
+
 /** @param array<string, mixed> $pm */
 function player_feast_expose_hero_vars(array $pm): void
 {
@@ -267,5 +315,27 @@ function player_feast_expose_hero_vars(array $pm): void
     $Display = !empty($pm['display']) ? 1 : 0;
     $Rating = ($Display === 1 && $pm['rating'] !== null) ? (float) $pm['rating'] : null;
     $PeakRating = ($Display === 1 && $pm['peak'] !== null) ? (float) $pm['peak'] : null;
+}
+
+/** Distinct UTC days with at least one rated game in the current calendar year. */
+function player_feast_load_days_this_year(mysqli $con, int $id): int
+{
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
+    if (!k2_status_table_exists($con, 'player_period_games')) {
+        return 0;
+    }
+
+    $escId = (string) (int) $id;
+    $result = k2_player_feast_query(
+        $con,
+        'days_this_year',
+        "SELECT COUNT(*) AS c FROM player_period_games "
+        . "WHERE player_id = '$escId' AND period_type = 'day' AND games > 0 "
+        . "AND period_start >= CONCAT(YEAR(CURDATE()), '-01-01') "
+        . "AND period_start <= CURDATE()"
+    );
+    $row = $result ? mysqli_fetch_row($result) : null;
+
+    return $row ? (int) $row[0] : 0;
 }
 

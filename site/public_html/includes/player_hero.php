@@ -5,7 +5,6 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_wing_up_link.php';
 
 if (empty($Name)) {
 	return;
@@ -25,7 +24,6 @@ $heroMsCatalogTotal = isset($heroMsCatalogTotal) ? (int) $heroMsCatalogTotal : 0
 $heroRankLinked = $heroDisplay && isset($rank);
 $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 ?>
-<?php k2_player_wing_render_leaderboards_up_link(k2_player_wing_leaderboards_href_online()); ?>
 <article class="k2-player-hero k2-player-hero--feast">
 	<div class="k2-player-hero__inner">
 		<div class="k2-player-hero__media">

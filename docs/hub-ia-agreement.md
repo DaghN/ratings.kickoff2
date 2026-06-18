@@ -83,10 +83,10 @@ Still open with Steve / prod:
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |
-| Player pages | Replace hub tabs with player context tabs: Profile, Games, Opponents, Milestones. |
+| Player pages | Replace hub tabs with player context tabs: Profile, Opponents, Milestones, Games. |
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
 | Tint picker | Closed by default behind **Tint** disclosure (hub + player nav). |
-| Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps scroll on the next page (one-shot `sessionStorage`). Pill clicks store **nav anchor** (`aria-label` + viewport offset) so table/filter height changes do not nudge scroll; restore falls back to raw `y` for listbox/sort/pager. **Listbox filter forms** opt in with `data-k2-carry-scroll` on the `<form>` (`js/k2-carry-scroll.js` stores on listbox `change` before `form.submit()` and on in-form **Reset** links). **Player games** server-sort column links (`.k2-table--player-games`) carry scroll the same way. Online **Previous / Next 100** pager links and **prev/next played-day chevrons** (`.k2-player-games-day-step`) opt in via `data-k2-carry-scroll` on `.k2-player-games-status` (chevron URLs omit `#day-games` so hash does not fight restore). Restore (`k2_carry_scroll_restore.php` in `<head>`) runs after DOM ready; after first apply only scrolls down if the page grows. Stops on success, user scroll input, or 2s. Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
+| Peer pill scroll | Hub, leaderboard wing (`lb_nav`), and player pills use `data-k2-carry-scroll`: pill click keeps scroll on the next page (one-shot `sessionStorage`). Pill clicks store **nav anchor** (`aria-label` + viewport offset) so table/filter height changes do not nudge scroll; restore falls back to raw `y` for listbox/sort/pager. **Listbox filter forms** opt in with `data-k2-carry-scroll` on the `<form>` (`js/k2-carry-scroll.js` stores on listbox `change` before `form.submit()` and on in-form **Reset** links). **Player games** server-sort column links (`.k2-table--player-games`) carry scroll the same way. Online page chevrons and **prev/next played-day chevrons** (`.k2-player-games-day-step`) opt in via `data-k2-carry-scroll` on `.k2-player-games-status-stack` (chevron URLs omit `#day-games` so hash does not fight restore). Restore (`k2_carry_scroll_restore.php` in `<head>`) runs after DOM ready; after first apply only scrolls down if the page grows. Stops on success, user scroll input, or 2s. Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav`, content links, and player names load at top as usual. |
 | Wide games tables | Hub `games/recent.php` + `games/highlights.php` and player games (`player/games.php`, `/amiga/player/games.php`): `data-k2-scroll-mirror` on `.k2-table-wrap` + `k2-table-scroll-mirror.js` — top horizontal bar when the table overflows; syncs `scrollLeft` with the wrap below. |
 
 The old hub-nav A/B tuning path is removed; segment track + outline active cell is now the fixed product contract.
@@ -167,9 +167,9 @@ Do not merge these page bodies into Status unless Dagh explicitly changes the hu
 Player pages use the same global header, then player-specific context:
 
 - Hero block.
-- Player nav: Profile, Games, Opponents, Milestones.
+- Player nav: Profile, Opponents, Milestones, Games.
 - `player/profile.php` is the warm profile feast landing.
-- `player/games.php` is the Games history tab with server-side filters/sort/100-row slices.
+- `player/games.php` is the Games history tab with server-side filters/sort/500-row slices.
 - `player/opponents/{h2h,wdl,goals,dds}.php` — Opponents wing inner tabs (path per tab).
 
 Future Amiga/photo/media work belongs on the profile/content track, not in hub IA.

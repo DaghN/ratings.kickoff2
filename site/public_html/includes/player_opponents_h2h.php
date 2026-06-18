@@ -25,6 +25,18 @@ function player_opponents_h2h_parse_opponent_id(mixed $raw, int $playerId): int
     return $opponentId;
 }
 
+function player_opponents_h2h_parse_pick_source(mixed $raw): ?string
+{
+    if (!is_string($raw) || $raw === '') {
+        return null;
+    }
+
+    return match ($raw) {
+        'games', 'alpha', 'search' => $raw,
+        default => null,
+    };
+}
+
 function player_opponents_h2h_pair_games_live(mysqli $con, int $playerId, int $opponentId): int
 {
     $sql = 'SELECT COUNT(*) AS n FROM ratedresults WHERE '
@@ -950,14 +962,17 @@ function k2_h2h_opponent_listbox_render(
     array $rows,
     string $ariaLabel,
     string $placeholder = 'Choose opponent…',
-    string $emptyLabel = 'No opponents yet'
+    string $emptyLabel = 'No opponents yet',
+    bool $showNameInTrigger = true
 ): void {
     $selectedLabel = '';
     $selectedValue = (string) $selectedValue;
-    foreach ($rows as $row) {
-        if ((string) (int) $row['opponent_id'] === $selectedValue) {
-            $selectedLabel = (string) $row['opponent_name'];
-            break;
+    if ($showNameInTrigger) {
+        foreach ($rows as $row) {
+            if ((string) (int) $row['opponent_id'] === $selectedValue) {
+                $selectedLabel = (string) $row['opponent_name'];
+                break;
+            }
         }
     }
 
@@ -969,9 +984,10 @@ function k2_h2h_opponent_listbox_render(
         $labelClass .= ' k2-archive-listbox__label--placeholder';
         $selectedLabel = $hasRows ? $placeholder : $emptyLabel;
     }
+    $hiddenValue = $showNameInTrigger ? $selectedValue : '';
     ?>
 <div class="k2-archive-listbox k2-player-opponents-h2h__listbox" data-k2-archive-listbox>
-    <input type="hidden" id="<?php echo k2_archive_listbox_h($inputId); ?>" class="k2-archive-listbox__value" value="<?php echo k2_archive_listbox_h($selectedValue); ?>" />
+    <input type="hidden" id="<?php echo k2_archive_listbox_h($inputId); ?>" class="k2-archive-listbox__value" value="<?php echo k2_archive_listbox_h($hiddenValue); ?>" />
     <button
         type="button"
         id="<?php echo k2_archive_listbox_h($triggerId); ?>"
@@ -1014,7 +1030,8 @@ function player_opponents_render_h2h_panel(
     int $playerId,
     string $playerName,
     int $selectedOpponentId = 0,
-    bool $defaultToTopOpponent = false
+    bool $defaultToTopOpponent = false,
+    ?string $pickSource = null
 ): void {
     $playerId = max(0, $playerId);
     $playerName = trim($playerName);
@@ -1037,6 +1054,9 @@ function player_opponents_render_h2h_panel(
     $pair = $selectedOpponentId > 0
         ? player_opponents_h2h_resolve_opponent($con, $playerId, $selectedOpponentId)
         : null;
+
+    $gamesShowName = $pickSource === 'games' || $pickSource === 'search';
+    $alphaShowName = $pickSource === 'alpha';
 
     $searchUid = 'k2-h2h-search-' . $playerId;
     ?>
@@ -1077,7 +1097,10 @@ function player_opponents_render_h2h_panel(
 			    'k2-h2h-games-' . $playerId,
 			    (string) $selectedOpponentId,
 			    $played,
-			    'Choose opponent by games played'
+			    'Choose opponent by games played',
+			    'Choose opponent…',
+			    'No opponents yet',
+			    $gamesShowName
 			); ?>
 		</div>
 		<div class="k2-player-opponents-h2h__listbox-wrap">
@@ -1086,7 +1109,10 @@ function player_opponents_render_h2h_panel(
 			    'k2-h2h-alpha-' . $playerId,
 			    (string) $selectedOpponentId,
 			    $byAlpha,
-			    'Choose opponent A to Z'
+			    'Choose opponent A to Z',
+			    'Choose opponent…',
+			    'No opponents yet',
+			    $alphaShowName
 			); ?>
 		</div>
 	</div>

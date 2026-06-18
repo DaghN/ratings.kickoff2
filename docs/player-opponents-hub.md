@@ -46,7 +46,7 @@ Profile · Games · W/D/L · Goals · DDs · Milestones
 ### Online — after (target)
 
 ```
-Profile · Games · Opponents · Milestones
+Profile · Opponents · Milestones · Games
 ```
 
 **Opponents** inner bar (pattern: league-honours subnav, `k2-chrome-tabs`):
@@ -131,7 +131,7 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 
 | Item | Location |
 |------|----------|
-| Top pills | `includes/player_nav.php` — Profile · Games · **Opponents** · Milestones |
+| Top pills | `includes/player_nav.php` — Profile · **Opponents** · Milestones · Games |
 | Opponents shell | `player/opponents/{h2h,wdl,goals,dds}.php` + shared `includes/player_opponents_page.php` |
 | Inner sub-tabs | `includes/player_opponents_nav.php` |
 | Table bodies | `includes/player_opponents_tables.php` + **`includes/player_opponents_load.php`** |

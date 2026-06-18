@@ -72,7 +72,7 @@
 
 .k2-ms-card.is-unlocked {
 	opacity: 1;
-	border: 2px solid var(--k2-ms-accent, var(--k2-pure-pitch));
+	border: 1px solid var(--k2-ms-accent, var(--k2-pure-pitch));
 	box-shadow:
 		0 0 12px color-mix(in srgb, var(--k2-ms-accent) 28%, transparent),
 		0 0 28px color-mix(in srgb, var(--k2-ms-accent) 18%, transparent),
@@ -680,7 +680,7 @@ body.k2-site a.k2-ms-catalog-card.k2-ms-card {
 
 /* Catalog: flat cards at rest; lit border + glow on hover (profile-moment pattern) */
 body.k2-site a.k2-ms-catalog-card.k2-ms-card.is-unlocked {
-	border: 2px solid color-mix(in srgb, var(--k2-ms-accent) 38%, var(--k2-border-subtle));
+	border: 1px solid color-mix(in srgb, var(--k2-ms-accent) 38%, var(--k2-border-subtle));
 	box-shadow: none;
 }
 

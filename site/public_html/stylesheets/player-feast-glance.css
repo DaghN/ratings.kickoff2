@@ -78,10 +78,11 @@
 	width: 48%;
 	font-size: 11px;
 	font-weight: 700;
+	line-height: 1.35;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	text-align: left;
-	vertical-align: top;
+	vertical-align: middle;
 	color: var(--k2-text-muted);
 	border-bottom: 1px solid var(--k2-border-subtle);
 }
@@ -91,7 +92,7 @@
 	font-weight: 600;
 	color: var(--k2-text-primary);
 	border-bottom: 1px solid var(--k2-border-subtle);
-	vertical-align: top;
+	vertical-align: middle;
 	line-height: 1.35;
 }
 
@@ -130,5 +131,80 @@
 .pm3efg-stat-table--career .pm3efg-stat-table__row:last-child .pm3efg-career-stats__num,
 .pm3efg-stat-table--career .pm3efg-stat-table__row:last-child .pm3efg-career-stats__rank {
 	border-bottom: none;
+}
+
+/* ── At-a-glance: Presence · Career · Achievements ── */
+
+.pm3efg-at-a-glance {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	align-items: start;
+	padding: 18px 20px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+	box-shadow: var(--k2-shadow-surface);
+}
+
+.pm3efg-at-a-glance__col {
+	min-width: 0;
+	padding: 0;
+	border: none;
+	background: none;
+}
+
+.pm3efg-at-a-glance__col:not(:first-child) {
+	padding-left: 20px;
+	border-left: 1px solid var(--k2-border-subtle);
+}
+
+@media (max-width: 960px) {
+	.pm3efg-at-a-glance {
+		grid-template-columns: 1fr;
+		gap: 18px;
+	}
+
+	.pm3efg-at-a-glance__col:not(:first-child) {
+		padding-left: 0;
+		padding-top: 18px;
+		border-left: none;
+		border-top: 1px solid var(--k2-border-subtle);
+	}
+}
+
+.pm3efg-stat-table__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	vertical-align: middle;
+}
+
+.pm3efg-at-a-glance .pm3efg-stat-table__label .k2-status-medal__svg {
+	width: 14px;
+}
+
+.pm3efg-tier-sep {
+	color: var(--k2-text-muted);
+	font-weight: 400;
+}
+
+.pm3efg-at-a-glance .k2-lb-ms-tier--pitch {
+	color: var(--k2-pure-pitch);
+	font-weight: 600;
+}
+
+.pm3efg-at-a-glance .k2-lb-ms-tier--chrome {
+	color: var(--k2-pure-chrome);
+	font-weight: 600;
+}
+
+.pm3efg-at-a-glance .k2-lb-ms-tier--amber {
+	color: var(--k2-pure-amber);
+	font-weight: 600;
+}
+
+.pm3efg-at-a-glance .k2-lb-ms-tier--holo {
+	color: var(--k2-ms-holo);
+	font-weight: 600;
 }
 

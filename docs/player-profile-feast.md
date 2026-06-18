@@ -18,27 +18,28 @@
 | Blocks | `includes/player_feast_blocks.php` |
 | Helpers | `includes/player_feast_helpers.php` |
 | Hero | `includes/player_hero.php` (rank, rating, games, milestones when unlocked) |
-| Wing context link | `includes/player_wing_up_link.php` — « Leaderboards (online + Amiga) |
-| Nav pills | `includes/player_nav.php` — Profile · Games · **Opponents** · Milestones |
+| Wing context link | ~~`includes/player_wing_up_link.php`~~ — removed from online + Amiga player heroes (Jun 2026); file retained unused |
+| Nav pills | `includes/player_nav.php` — Profile · **Opponents** · Milestones · Games |
 | Opponents wing | `player/opponents/*.php` — inner tabs Head-to-head · W/D/L · Goals · DDs |
 | Milestones | `player/milestones.php` — tier garden (catalog count from DB, **112** after `year_in_heaven`); all card titles link to `milestone.php?key=` (locked = underline + hover brighten); date line uses unlock-event register; helpers `includes/player_milestones_helpers.php` |
-| CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
-| Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_day_games.php`, `player_calendar_weeks.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
+| CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-story.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
+| Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_day_games.php`, `player_calendar_weeks.php`, `player_calendar_week_games.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
 
 ---
 
 ## Scroll order (as shipped)
 
-1. Site header + **← Leaderboards** context link + **hero** (name → Profile tab; rank + rating → `leaderboards/rating.php` Rating LB; games → Activity peaks career-games sort; **milestones** `{n}/{catalog}` when `NumberGames >= 1` → garden tab; stat links = pointer only, no hover ink)
-2. Feast **pills**
-4. **Presence** + **Career** (at-a-glance; career ranks when `Display = 1`)
-5. **Played days** (UTC calendar; year segment picker; hint = per-year story line e.g. “In 2026, **Dagh** enjoyed **110** days of online Kick Off 2.”; 12 months in one row for the selected year — **first career year** and **current calendar year** always render the full Jan–Dec grid, including months before first play or after today). **Hover:** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played day → **Games** tab `?day=YYYY-MM-DD#day-games` (banner; **prev/next played-day chevrons** use carry-scroll without `#day-games` so scroll position is preserved).
-6. **Played weeks** (52 UTC week tiles per year from first rated game through today; tooltips = week range + game count)
-7. **Personal bests** (busiest day / month / year for this player)
-8. **Moments** (longest win streak + trophy games with links)
-9. **Charts** — Activity-style full-width frames: rating over time / by game # toggle with peak dashed line, games per month, **goals per game** histogram (0..max GF; bar click → games tab `gf` filter).
-10. **Most played opponents** — horizontal bar chart; click a bar opens **Opponents → Head-to-head** for that pairing. Cumulative H2H + rating comparison charts live on the H2H tab — see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md).
-11. **Rivalry (placeholder)** — dashed teaser card after charts: top opponent by games, link to Opponents H2H; fuller record/form/all-games band TBD.
+1. Site header + **hero** (name → Profile tab; rank + rating → Rating LB; games → Activity peaks; milestones `{n}/{catalog}` → garden tab) + **player nav** (6px hero→nav, 12px nav→content on all `k2-player-wing` tabs — `theme.css`)
+4. **At a glance** — three columns × four rows: **Presence** (first/last rated game, days & games this year), **Career** (opponents, games, wins, goals — no DDs, no ranks), **Achievements** (milestones + gold/silver/bronze).
+5. **Story so far** — heading *Let's take a look at **{name}**'s story so far...* (name in link-star); open-background prose ticker: current win streak (≥3), play streak day/week (50/50 per page load), opponents/victims, standout calendar year (games + wins), career distinct days. Omitted when no lines qualify.
+6. **Played days → weeks narrative** — no section headings on production; one warm prose arc: per-year days line ends `…` (“In 2026, **Dagh** enjoyed **110** days of online Kick Off 2…”), days heatmap + year picker, then weeks line continues (“… and since **12 Mar 2019**, **Dagh** has played in no less than **210** different weeks.”) into the weeks heatmap. `#played-days` / `#played-weeks` anchors + sr-only titles kept for back links and a11y.
+7. **Played days detail** — UTC calendar; 12 months in one row for the selected year — **first career year** and **current calendar year** always render the full Jan–Dec grid, including months before first play or after today). **Future** day tiles are ghosted (faint outline) vs empty past days (full empty fill = missed). **Hover:** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played day → **Games** tab `?day=YYYY-MM-DD#day-games` (context banner with **← Played days** + prev/next played-day chevrons; **filter bar hidden**; table only — up to 500 games per page). Day-step chevrons use carry-scroll without `#day-games` on peer URLs.
+8. **Played weeks detail** — all career years at once (52 UTC week tiles per year row). **Current calendar year:** remaining weeks use the same ghosted **future** tiles as played days (vs solid empty = missed). **Hover:** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played week → **Games** tab `?from=played-weeks&period=week&anchor=YYYY-MM-DD#day-games` (banner; prev/next played-week chevrons; **← Played weeks** back link to `#played-weeks`).
+9. **Bursts of activity** — no visible heading; warm hint continues the participation arc (player name in link-star), then three centred busiest cards (day / month / year).
+10. **Moments** (longest win streak + trophy games with links)
+11. **Charts** — Activity-style full-width frames: rating over time / by game # toggle with peak dashed line, games per month, **goals per game** histogram (0..max GF; bar click → games tab `gf` filter).
+12. **Most played opponents** — horizontal bar chart; click a bar opens **Opponents → Head-to-head** for that pairing. Cumulative H2H + rating comparison charts live on the H2H tab — see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md).
+13. **Rivalry (placeholder)** — dashed teaser card after charts: top opponent by games, link to Opponents H2H; fuller record/form/all-games band TBD.
 
 Win rate vs opponent rating was removed from the shipped page and the dormant API/JS were deleted in Jun 2026; do not reintroduce unless a future matchup-lab pass explicitly wants it.
 
@@ -54,7 +55,7 @@ Standalone **rivalry section** (inline charts) was removed; top-opponents bar + 
 
 | Surface | Use when… | Shipped examples |
 |---------|-----------|------------------|
-| **Open background** (`pm3-cal--hero`, no border/surface) | The visual *is* the content; low chrome; accent cells should pop against `--k2-bg-hover` | Played days, played weeks |
+| **Open background** (`pm3-cal--hero`, no border/surface) | The visual *is* the content; low chrome; accent cells should pop against `--k2-bg-hover` | Played days, played weeks, **The story so far** |
 | **Chart panel** (`k2-chart-panel` + `k2-chart-frame`) | Chart.js canvas, toggles, tooltips, fixed frame height; same contract as Activity (`activity.php`) | Rating, games/month, matchup charts |
 | **Light tile / mosaic** | Small stat clusters or story cards; containment without full chart chrome | Presence/career tiles, personal bests, moments |
 
@@ -77,9 +78,10 @@ Standalone **rivalry section** (inline charts) was removed; top-opponents bar + 
 | Hero / career totals | `playertable` |
 | Rank | Computed: count of `display=1` players with higher `rating` |
 | Played days / weeks / games-by-month charts | `player_period_games` via APIs (`player_calendar_days.php`, `player_calendar_weeks.php`, `player_games_by_month.php`) — days/weeks use UTC period keys; graph time axes start at the server origin (**2017-06-09**) for comparability |
+| Story so far | `playertable` (win streak, opponents, victims) + `player_play_streaks` + `player_period_league` (best year wins) + `player_period_games` (distinct days) — load: `player_feast_load_story.php` |
 | Goals per game histogram | Read-time `ratedresults` via `api/player_goals_scored_distribution.php` (same SQL as games tab GF listbox; buckets 0..max) |
 | Top opponents / H2H charts | `player_matchup_summary` via `api/player_top_opponents.php` and related APIs |
-| Personal bests (busiest day/month/year) | `player_peak_period_games` via `player_feast_load_busiest()` (same cache as ranked8 peaks; `ratedresults` fallback only if table missing) |
+| Bursts of activity (busiest day/month/year) | `player_peak_period_games` via `player_feast_load_busiest()` (same cache as ranked8 peaks; `ratedresults` fallback only if table missing) |
 | Moments | `playertable` extreme game IDs + single-row `ratedresults` lookups |
 | Hero milestones / garden | `player_milestones` ⋈ `milestone_definitions` (`player_hero_vars.php` or feast load) |
 | Other charts | `api/player_*.php` — prefer stored tables when listed in [`website-data-contract.md`](website-data-contract.md) |
@@ -118,7 +120,7 @@ Profile does **not** duplicate those tables.
 | Zone | Job | Blocks (human question) |
 |------|-----|-------------------------|
 | **A — Identity** | Who · ladder position · major actor? | **Hero** — rank, rating, games; milestones `{n}/{catalog}` when `NumberGames ≥ 1` |
-| **B — Celebrate** | Still around? Who *is* he? What’s worth remembering? | **Presence** (current relevance) · **Career** (personality in KO2 terms) · **Personal bests** · **Moments** · *planned snippets:* participation line, milestone beat, league beat |
+| **B — Celebrate** | Still around? Who *is* he? What’s worth remembering? | **Presence** (current relevance) · **Career** (personality in KO2 terms) · **Bursts of activity** · **Moments** · *planned snippets:* participation line, milestone beat, league beat |
 | **C — Understand** | Patterns over time · rivals · analyst depth | **Heatmaps** (habit / texture) · **Charts** (rating arc, activity, matchups) |
 
 **Block intent (Dagh map → shipped):**
@@ -126,11 +128,11 @@ Profile does **not** duplicate those tables.
 | Block | Answers |
 |-------|---------|
 | Hero | Rank, strength, volume — “how does he sit on the ladder?” |
-| Presence | Last seen, last game, this month/year — “is he still around?” |
-| Career | Games, wins, goals, DDs, opponents + ranks — “what kind of player?” (not full W/D-L grid) |
+| Presence | First rated game, last rated game, days this year, games this year — “is he still around?” |
+| Career | Games, wins, goals, opponents — “what kind of player?” (not full W/D-L grid; no DDs in at-a-glance) |
 
 **Lab note (Jun 2026):** Production uses `pm3efg-duo` side-by-side stat tables. Lab B1/B2 experiments archived — see [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
-| Personal bests | Busiest day / month / year — another story beat |
+| Bursts of activity | Busiest day / month / year — celebrate volume spikes after participation arc |
 | Moments | Longest win streak + trophy games — specific memorable events |
 | Heatmaps | Played days/weeks — visual life of the ladder; streak motivation |
 | Charts | Rating over time, games/month, top opponents → H2H/compare — competitive depth last |
@@ -144,6 +146,7 @@ Profile does **not** duplicate those tables.
 | Milestones on profile | **Partial** — hero count only; garden stays on Milestones tab |
 | League on profile | **Gap** — stored awards exist; no profile snippet yet |
 | Participation sentence (A04) | **Consider** — may compete with hero fold |
+| Story so far (B06/B07/B08/C12/P02/P05) | **Shipped** Jun 2026 — after At a glance |
 | Rivalry line (M09), milestone/league snippets | **v1 curated** — see backlog |
 
 **Rough decisions now (next content passes — not all shipped):**

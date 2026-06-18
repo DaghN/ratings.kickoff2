@@ -8,7 +8,8 @@
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-sections.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-sections.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-feast-glance.css" rel="stylesheet" type="text/css" />
-<link href="/stylesheets/player-feast-personal-bests.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/player-feast-story.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-story.css'); ?>" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/player-feast-personal-bests.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-personal-bests.css'); ?>" rel="stylesheet" type="text/css" />
 <script src="/js/chart.umd.min.js"></script>
 <script src="/js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="/js/chart-theme.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-theme.js'); ?>"></script>
@@ -52,12 +53,8 @@ try {
 player_feast_expose_hero_vars($pm);
 
 $playerId = (int) $pm['id'];
-$heroMilestoneCounts = null;
-$heroMsCatalogTotal = 0;
-if ((int) $pm['games'] >= 1) {
-	$heroMsCatalogTotal = k2_milestone_catalog_total($con);
-	$heroMilestoneCounts = k2_milestone_player_counts($con, $playerId);
-}
+$heroMilestoneCounts = $pm['milestone_counts'] ?? null;
+$heroMsCatalogTotal = (int) ($pm['milestone_catalog_total'] ?? 0);
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -69,9 +66,10 @@ $k2PlayerTabActive = 'profile';
 $id = $playerId;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
 
-player_feast_render_presence_career_duo($pm);
+    player_feast_render_presence_career_duo($pm);
+player_feast_render_story_lines($pm);
 player_feast_render_played_days($playerId, (string) $pm['first_game_date_ymd'], (string) $pm['name']);
-player_feast_render_played_weeks($playerId, (string) $pm['first_game_date_ymd']);
+player_feast_render_played_weeks($playerId, (string) $pm['first_game_date_ymd'], (string) $pm['name']);
 player_feast_render_peak_activity($pm);
 player_feast_render_moments($pm);
 player_feast_render_charts($playerId);

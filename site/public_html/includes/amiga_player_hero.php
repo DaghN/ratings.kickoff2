@@ -5,7 +5,6 @@
  */
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
-require_once __DIR__ . '/player_wing_up_link.php';
 
 if (empty($Name)) {
     return;
@@ -22,9 +21,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 $gamesHref = $heroPlayerId > 0 ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) : '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
 $heroFlagMeta = $heroCountry !== '' ? k2_amiga_country_flag_meta($heroCountry) : null;
-$lbBackHref = k2_player_wing_leaderboards_href_amiga();
 ?>
-<?php k2_player_wing_render_leaderboards_up_link($lbBackHref); ?>
 <article class="k2-player-hero k2-player-hero--feast">
 	<div class="k2-player-hero__inner">
 		<div class="k2-player-hero__media">

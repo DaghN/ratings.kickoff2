@@ -85,6 +85,24 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Profile story heading** — *Let's take a look at {name}'s story so far...* (replaces generic title). |
+| 2026-06 | **Profile played days** — section heading hidden; heatmap hint continues “The story so far” (anchor + sr-only title kept). |
+| 2026-06 | **Profile “The story so far”** — lab 2 prose band shipped after At a glance (win/play streaks, opponents/victims, best year wins, distinct days); day/week streak 50/50 per page load. |
+| 2026-06 | **Profile played-days → weeks gap** — section margin 18px + calendar bottom padding 16px (between original and tight pass). |
+| 2026-06 | **Milestone garden/catalog cards** — unlocked border back to 1px (glow + title carry tier; spotlight stays 2px). |
+| 2026-06 | **Player nav tab order** — Profile · Opponents · Milestones · Games (`player_nav.php`). |
+| 2026-06 | **Player Games filter anchor** — `#k2-player-games-filters` above filter row; H2H chart clicks land there (min-height scroll pad + hash restore). |
+| 2026-06 | **Opponents H2H filters** — picker sizing matches Games tab; chosen name in picking listbox only (search → games box); search focus red; pickers→hero gap halved. |
+| 2026-06 | **Player Games nav→filters gap** — +16px margin-top on filter bar (28px total with nav bar; drill-down day-view matches). |
+| 2026-06 | **Player Games drill-down chevrons** — half pill width (14px) gap between prev/next in day/period banner. |
+| 2026-06 | **Player Games page chevrons** — status-row page nav shifted right one pill width (player table-meta only). |
+| 2026-06 | **Player Games drill-down chrome** — 500-row pages; split context banner vs table-meta; hide filter bar + reset in day/period/streak drill-down; page chevrons only when drill-down total > 500. |
+| 2026-06 | **Player Games status row** — chevron page nav + **Reset filters** in status row (All games parity); reset removed from filter bar. |
+| 2026-06 | **Player Games filter link-star** — active Result/Opponent/GF/GA/Sum listbox triggers use `k2-link-star` ink (All games parity). |
+| 2026-06 | **Player Games filter blanks** — default Result/Opponent/GF/GA/Sum listboxes show empty trigger + blank first dropdown row (All games parity); `min-height` on player-games triggers so empty state does not collapse. |
+| 2026-06 | **Filter field labels** — shared `--k2-filter-field-label-color` (All games dim style) on player Games + Opponents H2H pickers. |
+| 2026-06 | **Profile played-days future tiles** — ghosted cells (`--future`) vs full empty fill for past missed days; grid kept through year end. |
+| 2026-06 | **Profile played-weeks hint** — “Since {first game date}, {name} has played in {N} different weeks.” (distinct from days copy). |
 | 2026-06 | **Profile played-days copy** — year status line: “enjoyed N days of online Kick Off 2” (was “played on N rated days”). `player-calendar.js`. |
 | 2026-06 | **Header brand spacing** — realm switcher gap beside wordmark doubled (`k2-site-header__brand` 16px → 32px). |
 | 2026-06 | **Player display names** — site UI always shows `playertable.Name` (by ID); `ratedresults` snapshots unchanged. Helper `k2_player_display_names.php`; rename report `scripts/oneoff/player_name_renames_report.php`. Search aliases / “formerly known as” deferred. |

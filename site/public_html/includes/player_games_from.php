@@ -10,7 +10,7 @@ function k2_player_games_valid_from(string $value): string
 {
     $value = trim($value);
 
-    return in_array($value, ['played-days', 'activity-peaks', 'result-streaks'], true) ? $value : 'played-days';
+    return in_array($value, ['played-days', 'played-weeks', 'activity-peaks', 'result-streaks'], true) ? $value : 'played-days';
 }
 
 /**
@@ -28,6 +28,12 @@ function k2_player_games_from_back_link(string $from, int $playerId): array
         return [
             'href' => k2_route('lb-streaks'),
             'label' => '← Streaks',
+        ];
+    }
+    if ($from === 'played-weeks') {
+        return [
+            'href' => '/player/profile.php?id=' . $playerId . '#played-weeks',
+            'label' => '← Played weeks',
         ];
     }
 

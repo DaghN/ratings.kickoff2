@@ -50,7 +50,7 @@
         if (opponentId) {
             url += '&opponent=' + encodeURIComponent(String(opponentId));
         }
-        return url;
+        return url + '#k2-player-games-filters';
     }
 
     function barStyle() {

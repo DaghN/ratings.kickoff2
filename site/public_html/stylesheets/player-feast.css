@@ -253,13 +253,9 @@
 	padding-bottom: 2px;
 }
 
-.pm3-cal--weeks .pm3-cal__cell--before-join,
-.pm3-cal--weeks .pm3-cal__cell--future {
+.pm3-cal--weeks .pm3-cal__cell--before-join {
 	background: transparent;
 	box-shadow: none;
 	opacity: 0.35;
-}
-
-.pm3-cal--weeks .pm3-cal__cell--before-join {
 	visibility: hidden;
 }

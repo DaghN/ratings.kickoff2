@@ -76,8 +76,12 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_opponents_nav.php';
 if ($view === 'h2h') {
     $h2hOpponentId = player_opponents_h2h_parse_opponent_id($_GET['opponent'] ?? null, $id);
     $h2hDefaultOpponent = !array_key_exists('opponent', $_GET);
+    $h2hPickSource = player_opponents_h2h_parse_pick_source($_GET['pick'] ?? null);
+    if ($h2hPickSource === null && ($h2hOpponentId > 0 || $h2hDefaultOpponent)) {
+        $h2hPickSource = 'games';
+    }
     $h2hPlayerName = isset($Name) ? (string) $Name : ('#' . $id);
-    player_opponents_render_h2h_panel($con, $id, $h2hPlayerName, $h2hOpponentId, $h2hDefaultOpponent);
+    player_opponents_render_h2h_panel($con, $id, $h2hPlayerName, $h2hOpponentId, $h2hDefaultOpponent, $h2hPickSource);
 } elseif ($view === 'goals') {
     player_opponents_render_goals_table($con, $id);
 } elseif ($view === 'dds') {

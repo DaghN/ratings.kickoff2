@@ -39,7 +39,8 @@
         return '/player/games.php?id=' + encodeURIComponent(String(playerId))
             + '&gf=' + encodeURIComponent(String(goalsFor))
             + '&ga=' + encodeURIComponent(String(goalsAgainst))
-            + '&opponent=' + encodeURIComponent(String(opponentId));
+            + '&opponent=' + encodeURIComponent(String(opponentId))
+            + '#k2-player-games-filters';
     }
 
     var LEVEL_COUNT = 8;

@@ -26,14 +26,18 @@
         }
     }
 
-    function navigateToOpponent(root, opponentId) {
+    function navigateToOpponent(root, opponentId, pick) {
         var base = root.getAttribute('data-h2h-base') || '';
         if (!base || !opponentId) {
             return;
         }
         var sep = base.indexOf('?') >= 0 ? '&' : '?';
+        var url = base + sep + 'opponent=' + encodeURIComponent(String(opponentId));
+        if (pick) {
+            url += '&pick=' + encodeURIComponent(String(pick));
+        }
         storeCarryScroll();
-        window.location.href = base + sep + 'opponent=' + encodeURIComponent(String(opponentId));
+        window.location.href = url;
     }
 
     function metaLabel(gamesVs) {
@@ -107,7 +111,7 @@
         function selectOpponent(opponentId) {
             input.value = '';
             closeList();
-            navigateToOpponent(root, opponentId);
+            navigateToOpponent(root, opponentId, 'games');
         }
 
         function renderResults(data) {
@@ -174,7 +178,8 @@
                 if (!val) {
                     return;
                 }
-                navigateToOpponent(root, val);
+                var pick = this.id.indexOf('-alpha-') >= 0 ? 'alpha' : 'games';
+                navigateToOpponent(root, val, pick);
             });
         }
     }

@@ -14,6 +14,7 @@
 	--k2-text-primary: #d0d7de;
 	--k2-text-secondary: color-mix(in srgb, var(--k2-text-muted) 40%, var(--k2-text-primary));
 	--k2-text-muted: #8b949e;
+	--k2-filter-field-label-color: color-mix(in srgb, var(--k2-text-muted) 88%, transparent);
 	--k2-border-subtle: rgba(255, 255, 255, 0.07);
 	--k2-border-strong: rgba(255, 255, 255, 0.1);
 
@@ -640,6 +641,14 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 
 body.k2-site.k2-player-wing .k2-page-nav {
 	padding-bottom: 48px;
+}
+
+body.k2-site.k2-player-wing .k2-player-hero {
+	margin-bottom: 6px;
+}
+
+body.k2-site.k2-player-wing .k2-player-nav-bar {
+	margin-bottom: 12px;
 }
 
 body.k2-site.k2-player-wing .k2-page-nav__up {
@@ -2060,9 +2069,14 @@ body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb:hover {
 }
 
 body.k2-site .k2-player-games-controls {
+	margin-top: 16px;
 	margin-bottom: 12px;
 	color: var(--k2-text-muted);
 	font-size: 12px;
+}
+
+body.k2-site.k2-player-wing .k2-player-games-day-view {
+	margin-top: 16px;
 }
 
 body.k2-site .k2-player-games-controls__meta {
@@ -2070,19 +2084,42 @@ body.k2-site .k2-player-games-controls__meta {
 }
 
 body.k2-site .k2-player-games-controls__fields,
-body.k2-site .k2-player-games-status {
+body.k2-site .k2-player-games-status,
+body.k2-site .k2-player-games-status-stack,
+body.k2-site .k2-player-games-table-meta {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
 	gap: 6px 8px;
 }
 
-body.k2-site .k2-player-games-status {
+body.k2-site .k2-player-games-status,
+body.k2-site .k2-player-games-table-meta {
 	align-items: center;
 	margin-bottom: 12px;
 	font-size: 12px;
 	line-height: 1.35;
 	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-player-games-status-stack {
+	display: block;
+	margin-bottom: 12px;
+}
+
+body.k2-site .k2-player-games-context {
+	font-size: 12px;
+	line-height: 1.35;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-player-games-status-stack .k2-player-games-context + .k2-player-games-table-meta {
+	margin-top: 8px;
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-player-games-table-meta .k2-realm-games-all__status-nav {
+	margin-left: calc(-0.8 * var(--k2-realm-games-status-nav-btn-size));
 }
 
 body.k2-site .k2-player-games-day-view {
@@ -2093,6 +2130,23 @@ body.k2-site .k2-player-games-day-view {
 
 body.k2-site .k2-player-games-day-anchor {
 	height: 0;
+}
+
+body.k2-site .k2-player-games-filters-anchor {
+	height: 0;
+	scroll-margin-top: 12px;
+}
+
+body.k2-site .k2-player-games-filter-view {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+body.k2-site .k2-player-games-filter-scroll-pad {
+	flex: 1 1 auto;
+	min-height: 0;
+	pointer-events: none;
 }
 
 body.k2-site .k2-player-games-day-scroll-pad {
@@ -2132,6 +2186,10 @@ body.k2-site .k2-player-games-day-steps {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
+}
+
+body.k2-site .k2-player-games-day-banner .k2-player-games-day-steps {
+	gap: 14px;
 }
 
 body.k2-site .k2-player-games-day-step {
@@ -2199,7 +2257,7 @@ body.k2-site .k2-player-games-controls .server-period-activity-leaderboard__pick
 	font-weight: 600;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	color: var(--k2-text-secondary);
+	color: var(--k2-filter-field-label-color);
 	margin: 0;
 	line-height: 1.2;
 	white-space: nowrap;
@@ -2215,11 +2273,22 @@ body.k2-site .k2-player-games-controls .k2-archive-listbox {
 body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger {
 	width: 100%;
 	max-width: 100%;
+	min-height: calc(1.25em + 8px);
 	padding: 4px 20px 4px 8px;
 	font-size: 11px;
 	line-height: 1.25;
 	gap: 4px;
 	background-position: right 6px center;
+}
+
+body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger.k2-link-star {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
+body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger.k2-link-star:hover,
+body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger.k2-link-star:focus-visible {
+	color: var(--k2-link-star-hover);
 }
 
 body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option--split {
@@ -2466,7 +2535,7 @@ body.k2-site .k2-realm-games-filters .player-search-label {
 	font-weight: 600;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	color: color-mix(in srgb, var(--k2-text-muted) 88%, transparent);
+	color: var(--k2-filter-field-label-color);
 	line-height: 1.2;
 	white-space: nowrap;
 }
@@ -2618,6 +2687,10 @@ body.k2-site .k2-realm-games-all__status-nav {
 	flex: 0 0 auto;
 	gap: calc(var(--k2-realm-games-status-nav-btn-size) / 2);
 	margin-left: calc(-1.8 * var(--k2-realm-games-status-nav-btn-size));
+}
+
+body.k2-site .k2-realm-games-all__status-range:not(:has(.k2-realm-games-all__status-text)) .k2-realm-games-all__status-nav {
+	margin-left: 0;
 }
 
 /* Accent fill Reset pill — profile played-days year picker active state; player games + All games */
@@ -2814,6 +2887,9 @@ body.k2-site .k2-player-opponents-h2h {
 	--k2-h2h2-blue: var(--k2-pure-chrome);
 	--k2-h2h2-chrome-muted: rgba(100, 181, 246, 0.14);
 	--k2-h2h2-chrome-ring: color-mix(in srgb, var(--k2-pure-chrome) 55%, transparent);
+	--k2-h2h2-red: var(--k2-table-negative);
+	--k2-h2h2-red-muted: rgba(240, 98, 146, 0.14);
+	--k2-h2h2-red-ring: color-mix(in srgb, var(--k2-stat-negative-base) 55%, transparent);
 	margin-top: 0;
 }
 
@@ -2827,9 +2903,9 @@ body.k2-site .k2-player-opponents-h2h__pickers {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
-	gap: clamp(12px, 2.5vw, 28px);
+	gap: 6px 8px;
 	margin-top: 0;
-	margin-bottom: clamp(56px, 8vw, 88px);
+	margin-bottom: clamp(28px, 4vw, 44px);
 	color: var(--k2-text-muted);
 	font-size: 12px;
 }
@@ -2839,7 +2915,7 @@ body.k2-site .k2-player-opponents-h2h__listbox-wrap {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	gap: 6px;
+	gap: 3px;
 	flex: 0 1 var(--k2-h2h-picker-width);
 	width: var(--k2-h2h-picker-width);
 	max-width: 100%;
@@ -2854,17 +2930,17 @@ body.k2-site .k2-player-opponents-h2h__listbox-wrap {
 	min-width: min(100%, 9.5rem);
 }
 
-/* H2H picker labels — muted uppercase, slightly larger than games filters */
+/* H2H picker labels — match player Games tab filters */
 body.k2-site .k2-player-opponents-h2h__pickers .player-search-label,
 body.k2-site .k2-player-opponents-h2h__select-label {
 	display: block;
 	margin: 0;
 	flex: 0 0 auto;
-	font-size: 12px;
+	font-size: 10px;
 	font-weight: 600;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	color: var(--k2-text-secondary);
+	color: var(--k2-filter-field-label-color);
 	line-height: 1.2;
 	white-space: nowrap;
 }
@@ -2872,14 +2948,17 @@ body.k2-site .k2-player-opponents-h2h__select-label {
 body.k2-site .k2-player-opponents-h2h__search-input {
 	box-sizing: border-box;
 	width: 100%;
-	padding: 4px 10px;
-	font-size: 13px;
+	min-height: calc(1.25em + 8px);
+	padding: 4px 8px;
+	font-size: 11px;
 	line-height: 1.25;
 }
 
-body.k2-site .k2-player-opponents-h2h__search-input:focus {
-	border-color: var(--k2-pure-chrome);
-	box-shadow: 0 0 0 2px var(--k2-h2h2-chrome-muted);
+body.k2-site .k2-player-opponents-h2h__search-input:focus,
+body.k2-site .k2-player-opponents-h2h__search-input:focus-visible {
+	outline: none;
+	border-color: var(--k2-h2h2-red);
+	box-shadow: 0 0 0 2px var(--k2-h2h2-red-muted);
 }
 
 body.k2-site .k2-player-opponents-h2h__search-results {
@@ -2896,11 +2975,14 @@ body.k2-site .k2-player-opponents-h2h__listbox-wrap .k2-archive-listbox__trigger
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__trigger {
-	padding: 4px 24px 4px 10px;
-	font-size: 13px;
+	width: 100%;
+	max-width: 100%;
+	min-height: calc(1.25em + 8px);
+	padding: 4px 20px 4px 8px;
+	font-size: 11px;
 	line-height: 1.25;
 	gap: 4px;
-	background-position: right 8px center;
+	background-position: right 6px center;
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__label--placeholder {
@@ -2908,12 +2990,18 @@ body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__label--place
 	font-weight: 400;
 }
 
+body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__label:not(.k2-archive-listbox__label--placeholder) {
+	color: var(--k2-table-negative);
+	font-weight: 700;
+}
+
 body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__panel {
-	font-size: 13px;
+	font-size: 11px;
+	line-height: 1.25;
 }
 
 body.k2-site .k2-player-opponents-h2h__listbox .k2-archive-listbox__option {
-	font-size: 13px;
+	font-size: 11px;
 	font-weight: 500;
 }
 

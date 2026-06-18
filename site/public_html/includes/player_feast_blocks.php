@@ -3,10 +3,14 @@
  * Player profile feast blocks (player/profile.php Profile tab).
  */
 
-function player_feast_section_open(string $title, ?string $hint = null): void
+function player_feast_section_open(string $title, ?string $hint = null, ?string $sectionClass = null): void
 {
+    $class = 'pm3d-section';
+    if ($sectionClass !== null && $sectionClass !== '') {
+        $class .= ' ' . $sectionClass;
+    }
     ?>
-<section class="pm3d-section">
+<section class="<?php echo pm_h($class); ?>">
 	<?php if ($title !== '') { ?>
 	<h2 class="k2-panel-heading pm3d-section__title"><?php echo pm_h($title); ?></h2>
 	<?php } ?>
@@ -30,7 +34,7 @@ function player_feast_render_played_days(int $playerId, string $firstGameDateYmd
     $fromAttr = preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd) ? $firstGameDateYmd : date('Y-m-d');
     ?>
 <section class="pm3d-section pm3d-section--played-days" id="played-days">
-	<h2 class="k2-panel-heading pm3d-section__title">Played days</h2>
+	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Played days</h2>
 	<p class="pm3d-section__hint"><span class="pm3-cal__status pm3-muted">Loading played days…</span></p>
 	<div class="pm3d-section__content">
 <div class="pm3-cal pm3-cal--hero pm3-cal--days pm3-cal--year-pick" data-player-id="<?php echo $playerId; ?>" data-player-name="<?php echo pm_h($playerName); ?>" data-first-game-date="<?php echo pm_h($fromAttr); ?>" aria-label="Calendar activity">
@@ -42,18 +46,20 @@ function player_feast_render_played_days(int $playerId, string $firstGameDateYmd
     <?php
 }
 
-function player_feast_render_played_weeks(int $playerId, string $firstGameDateYmd): void
+function player_feast_render_played_weeks(int $playerId, string $firstGameDateYmd, string $playerName = ''): void
 {
     $fromAttr = preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd) ? $firstGameDateYmd : date('Y-m-d');
-    player_feast_section_open('Played weeks', 'UTC weeks with at least one rated game since the first rated game.');
     ?>
-<div class="pm3-cal pm3-cal--hero pm3-cal--weeks" data-player-id="<?php echo $playerId; ?>" data-first-game-date="<?php echo pm_h($fromAttr); ?>" aria-label="Weekly activity since first rated game">
-	<p class="pm3-cal__status pm3-muted">Loading weeks…</p>
+<section class="pm3d-section pm3d-section--played-weeks" id="played-weeks">
+	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Played weeks</h2>
+	<p class="pm3d-section__hint"><span class="pm3-cal__status pm3-muted">Loading played weeks…</span></p>
+	<div class="pm3d-section__content">
+<div class="pm3-cal pm3-cal--hero pm3-cal--weeks" data-player-id="<?php echo $playerId; ?>" data-player-name="<?php echo pm_h($playerName); ?>" data-first-game-date="<?php echo pm_h($fromAttr); ?>" aria-label="Weekly activity since first rated game">
 	<div class="pm3-cal__years"></div>
-	<p class="pm3-cal__legend"><span class="pm3-cal__cell" aria-hidden="true"></span> no rated game · <span class="pm3-cal__cell pm3-cal__cell--play" aria-hidden="true"></span> played</p>
 </div>
+	</div>
+</section>
     <?php
-    player_feast_section_close();
 }
 
 /**
@@ -68,37 +74,63 @@ function player_feast_peak_busiest(array $pm): array
     ];
 }
 
-/** Personal bests — busiest day, month, and year (N11). */
+/** Bursts of activity — busiest day, month, and year (P01). */
+function player_feast_render_busiest_card(string $glyph, string $kind, ?array $peak, string $whenFormatted): void
+{
+    $count = $peak !== null ? (int) $peak['count'] : null;
+    $hasData = $count !== null && $count > 0 && $whenFormatted !== '';
+    ?>
+		<li>
+			<span class="pm3-busiest__glyph" aria-hidden="true"><?php echo pm_h($glyph); ?></span>
+			<span class="pm3-busiest__kind"><?php echo pm_h($kind); ?></span>
+			<strong><?php echo $hasData ? number_format($count) : '—'; ?></strong>
+			<?php if ($hasData) { ?>
+			<span class="pm3-busiest__unit">games</span>
+			<span class="pm3-busiest__when"><?php echo pm_h($whenFormatted); ?></span>
+			<?php } ?>
+		</li>
+    <?php
+}
+
 function player_feast_render_peak_activity(array $pm): void
 {
     $b = player_feast_peak_busiest($pm);
     $bd = $b['day'];
     $bm = $b['month'];
     $by = $b['year'];
-
-    player_feast_section_open('Personal bests', 'Most rated games in a single day, month, and calendar year.');
+    $name = pm_h((string) ($pm['name'] ?? 'This player'));
     ?>
-<div class="pm3-busiest pm3-busiest--inline pm3hij-peak pm3hij-peak--cards">
+<section class="pm3d-section pm3d-section--bursts" id="bursts-of-activity">
+	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Bursts of activity</h2>
+	<p class="pm3d-section__hint">After all that steady play... here are the days, months, and years where <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span> went into overdrive and the games really piled up...</p>
+	<div class="pm3d-section__content">
+<div class="pm3-busiest pm3-busiest--inline pm3hij-peak pm3hij-peak--cards pm3-busiest--bursts">
 	<ol class="pm3-busiest__list">
-		<li>
-			<span class="pm3-busiest__kind">Best day</span>
-			<strong><?php echo $bd ? (int) $bd['count'] : '—'; ?></strong>
-			<em><?php echo $bd ? pm_h(pm2_format_busiest_day((string) $bd['key'])) : ''; ?></em>
-		</li>
-		<li>
-			<span class="pm3-busiest__kind">Best month</span>
-			<strong><?php echo $bm ? (int) $bm['count'] : '—'; ?></strong>
-			<em><?php echo $bm ? pm_h(pm2_format_busiest_month((string) $bm['key'])) : ''; ?></em>
-		</li>
-		<li>
-			<span class="pm3-busiest__kind">Best year</span>
-			<strong><?php echo $by ? (int) $by['count'] : '—'; ?></strong>
-			<em><?php echo $by ? pm_h((string) $by['key']) : ''; ?></em>
-		</li>
+		<?php
+        player_feast_render_busiest_card(
+            '🔥',
+            'Busiest day',
+            $bd,
+            $bd ? pm2_format_busiest_day((string) $bd['key']) : ''
+        );
+    player_feast_render_busiest_card(
+        '🔥',
+        'Busiest month',
+        $bm,
+        $bm ? pm2_format_busiest_month((string) $bm['key']) : ''
+    );
+    player_feast_render_busiest_card(
+        '🔥',
+        'Busiest year',
+        $by,
+        $by ? (string) (int) $by['key'] : ''
+    );
+    ?>
 	</ol>
 </div>
+	</div>
+</section>
     <?php
-    player_feast_section_close();
 }
 
 function player_feast_render_moments(array $pm): void
@@ -145,26 +177,108 @@ function player_feast_render_stat_value(string $value): void
 function player_feast_presence_stat_rows(array $pm): array
 {
     return [
-        ['label' => 'Last seen online', 'value' => (string) $pm['last_login'], 'rank' => null],
-        ['label' => 'Last rated game', 'value' => (string) $pm['last_game'], 'rank' => null],
-        ['label' => 'Games this month', 'value' => (string) (int) $pm['games_this_month'], 'rank' => null],
-        ['label' => 'Games this year', 'value' => (string) (int) $pm['games_this_year'], 'rank' => null],
-        ['label' => 'First rated game', 'value' => (string) $pm['first_game_date'], 'rank' => null],
+        ['label' => 'First rated game', 'value' => (string) $pm['first_game_date']],
+        ['label' => 'Last rated game', 'value' => (string) $pm['last_game']],
+        ['label' => 'Days this year', 'value' => number_format((int) ($pm['days_this_year'] ?? 0))],
+        ['label' => 'Games this year', 'value' => (string) (int) $pm['games_this_year']],
     ];
 }
 
 /**
- * @return array<int, array{label: string, value: string, rank: ?int}>
+ * @return array<int, array{label: string, value: string}>
  */
 function player_feast_career_stat_rows(array $pm): array
 {
     return [
-        ['label' => 'Rated games', 'value' => number_format((int) $pm['games']), 'rank' => $pm['career_rank_games'] ?? null],
-        ['label' => 'Wins', 'value' => number_format((int) $pm['wins']), 'rank' => $pm['career_rank_wins'] ?? null],
-        ['label' => 'Goals scored', 'value' => number_format((int) $pm['goals_for']), 'rank' => $pm['career_rank_goals'] ?? null],
-        ['label' => 'Double digits', 'value' => number_format((int) $pm['double_digits']), 'rank' => $pm['career_rank_double_digits'] ?? null],
-        ['label' => 'Opponents faced', 'value' => number_format((int) $pm['different_opponents']), 'rank' => $pm['career_rank_opponents'] ?? null],
+        ['label' => 'Opponents', 'value' => number_format((int) $pm['different_opponents'])],
+        ['label' => 'Games', 'value' => number_format((int) $pm['games'])],
+        ['label' => 'Wins', 'value' => number_format((int) $pm['wins'])],
+        ['label' => 'Goals', 'value' => number_format((int) $pm['goals_for'])],
     ];
+}
+
+/**
+ * @param array{aspirational: int, dedicated: int, accomplished: int, legendary: int} $counts
+ * @return array<int, array{band: string, count: int, token: string}>
+ */
+function player_feast_glance_milestone_tiers(array $counts): array
+{
+    $rows = [];
+    foreach (K2_MILESTONE_TIER_ORDER as $band) {
+        $countKey = match ($band) {
+            'veteran' => 'dedicated',
+            'key' => 'accomplished',
+            default => $band,
+        };
+        $rows[] = [
+            'band' => $band,
+            'count' => (int) ($counts[$countKey] ?? 0),
+            'token' => K2_MILESTONE_TIER_CHART_TOKEN[$band] ?? 'pitch',
+        ];
+    }
+
+    return $rows;
+}
+
+/** @param array<string, mixed> $pm */
+function player_feast_render_glance_milestones_cell(array $pm): void
+{
+    $counts = $pm['milestone_counts'] ?? null;
+    if (!is_array($counts)) {
+        echo '—';
+
+        return;
+    }
+
+    $tiers = player_feast_glance_milestone_tiers($counts);
+    $parts = [];
+    foreach ($tiers as $i => $tier) {
+        $sep = $i > 0 ? '<span class="pm3efg-tier-sep" aria-hidden="true"> · </span>' : '';
+        $parts[] = $sep . '<span class="k2-lb-ms-tier--' . pm_h($tier['token']) . '">'
+            . (int) $tier['count'] . '</span>';
+    }
+    echo implode('', $parts);
+}
+
+/** Row label with optional league medal icon — plain text like Presence/Career categories. */
+function player_feast_render_glance_category_label(string $label, ?int $medalRank = null): void
+{
+    if ($medalRank === null) {
+        echo pm_h($label);
+
+        return;
+    }
+    ?>
+<span class="pm3efg-stat-table__label"><?php echo k2_status_league_podium_medal($medalRank); ?><span><?php echo pm_h($label); ?></span></span>
+    <?php
+}
+
+/** @param array<string, mixed> $pm */
+function player_feast_render_achievements_table(array $pm): void
+{
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
+    ?>
+<table class="pm3efg-stat-table">
+	<tbody>
+		<tr class="pm3efg-stat-table__row">
+			<th scope="row"><?php player_feast_render_glance_category_label('Milestones'); ?></th>
+			<td><?php player_feast_render_glance_milestones_cell($pm); ?></td>
+		</tr>
+		<tr class="pm3efg-stat-table__row">
+			<th scope="row"><?php player_feast_render_glance_category_label('Gold', 1); ?></th>
+			<td><?php echo (int) ($pm['league_gold'] ?? 0); ?></td>
+		</tr>
+		<tr class="pm3efg-stat-table__row">
+			<th scope="row"><?php player_feast_render_glance_category_label('Silver', 2); ?></th>
+			<td><?php echo (int) ($pm['league_silver'] ?? 0); ?></td>
+		</tr>
+		<tr class="pm3efg-stat-table__row">
+			<th scope="row"><?php player_feast_render_glance_category_label('Bronze', 3); ?></th>
+			<td><?php echo (int) ($pm['league_bronze'] ?? 0); ?></td>
+		</tr>
+	</tbody>
+</table>
+    <?php
 }
 
 /**
@@ -214,23 +328,112 @@ function player_feast_render_career_stats_table(array $rows): void
     <?php
 }
 
-/** Presence + Career side by side (at-a-glance band). */
+/** Presence + Career + Achievements (at-a-glance band). */
 function player_feast_render_presence_career_duo(array $pm): void
 {
     player_feast_section_open('');
     ?>
-<div class="pm3efg-duo pm3efg-duo--g">
-	<div class="pm3efg-duo__panel pm3efg-duo__panel--presence">
+<div class="pm3efg-at-a-glance">
+	<div class="pm3efg-at-a-glance__col pm3efg-at-a-glance__col--presence">
 		<h3 class="pm3efg-duo__panel-title">Presence</h3>
 		<?php player_feast_render_stat_table_rows(player_feast_presence_stat_rows($pm)); ?>
 	</div>
-	<div class="pm3efg-duo__panel pm3efg-duo__panel--career">
+	<div class="pm3efg-at-a-glance__col pm3efg-at-a-glance__col--career">
 		<h3 class="pm3efg-duo__panel-title">Career</h3>
-		<?php player_feast_render_career_stats_table(player_feast_career_stat_rows($pm)); ?>
+		<?php player_feast_render_stat_table_rows(player_feast_career_stat_rows($pm)); ?>
+	</div>
+	<div class="pm3efg-at-a-glance__col pm3efg-at-a-glance__col--achievements">
+		<h3 class="pm3efg-duo__panel-title">Achievements</h3>
+		<?php player_feast_render_achievements_table($pm); ?>
 	</div>
 </div>
     <?php
     player_feast_section_close();
+}
+
+/** One prose line: glyph + sentence with highlighted numbers. */
+function player_feast_story_line(string $glyph, string $html): void
+{
+    ?>
+		<li class="k2-story-line">
+			<span class="k2-story-line__glyph" aria-hidden="true"><?php echo pm_h($glyph); ?></span>
+			<span class="k2-story-line__text"><?php echo $html; ?></span>
+		</li>
+    <?php
+}
+
+/**
+ * Zone B — celebratory career prose (lab 2 "The story so far" on production).
+ * B06 win streak · B07/B08 play streak · C12 victims · P02 best year · P05 distinct days.
+ */
+function player_feast_render_story_lines(array $pm): void
+{
+    $story = $pm['story'] ?? [];
+    $lines = [];
+
+    $winStreak = (int) ($pm['winning_streak'] ?? 0);
+    if ($winStreak >= 3) {
+        $lines[] = ['🔥', 'On a <strong>' . (int) $winStreak . '-game</strong> winning streak right now.'];
+    }
+
+    $streaks = $story['play_streaks'] ?? null;
+    if (is_array($streaks)) {
+        $type = player_feast_story_play_streak_axis();
+        $unit = $type === 'week' ? 'week' : 'day';
+        $s = $streaks[$type] ?? ['current' => 0, 'best' => 0, 'best_date' => ''];
+        if ((int) $s['current'] >= 2) {
+            $lines[] = ['📆', 'Playing <strong>' . (int) $s['current'] . ' ' . $unit . 's</strong> in a row — and counting.'];
+        } elseif ((int) $s['best'] >= 2) {
+            $when = $s['best_date'] !== '' ? ' in ' . pm_h((string) $s['best_date']) : '';
+            $lines[] = ['📆', 'The longest run: <strong>' . (int) $s['best'] . ' ' . $unit . 's</strong> in a row' . $when . '.'];
+        }
+    }
+
+    $opps = (int) ($pm['different_opponents'] ?? 0);
+    $victims = (int) ($pm['different_victims'] ?? 0);
+    if ($opps > 0) {
+        $line = 'Faced <strong>' . number_format($opps) . '</strong> different opponents';
+        if ($victims > 0) {
+            $line .= ' — and beat <strong>' . number_format($victims) . '</strong> of them.';
+        } else {
+            $line .= '.';
+        }
+        $lines[] = ['🌐', $line];
+    }
+
+    $bestYear = $story['best_year'] ?? null;
+    if (is_array($bestYear) && (int) $bestYear['wins'] > 0) {
+        $games = (int) ($bestYear['games'] ?? 0);
+        $wins = (int) $bestYear['wins'];
+        $gameWord = $games === 1 ? 'game' : 'games';
+        $lines[] = ['🏅', 'The standout year was <strong>' . (int) $bestYear['year'] . '</strong> — <strong>'
+            . number_format($games) . '</strong> ' . $gameWord . ' and <strong>'
+            . number_format($wins) . '</strong> wins.'];
+    }
+
+    $distinctDays = (int) ($story['distinct_days'] ?? 0);
+    if ($distinctDays > 0) {
+        $lines[] = ['🗓', 'Showed up to play on <strong>' . number_format($distinctDays) . '</strong> different days.'];
+    }
+
+    if ($lines === []) {
+        return;
+    }
+
+    $name = pm_h((string) ($pm['name'] ?? 'This player'));
+    ?>
+<section class="pm3d-section pm3d-section--story">
+	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Story so far</h2>
+	<div class="pm3d-section__content">
+	<p class="k2-story-intro">Let's take a look at <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s story so far...</p>
+<ul class="k2-story-lines">
+    <?php foreach ($lines as [$glyph, $html]) {
+        player_feast_story_line($glyph, $html);
+    } ?>
+</ul>
+	</div>
+</section>
+    <?php
 }
 
 function player_feast_render_charts(int $playerId): void

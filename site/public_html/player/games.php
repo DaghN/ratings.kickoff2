@@ -286,6 +286,32 @@ function individual3_render_day_step(string $dir, ?string $dayYmd, array $state)
     individual3_render_played_period_step($dir, $dayYmd, $state, 'day');
 }
 
+function individual3_render_page_nav(int $offset, int $limit, int $totalMatches, array $pagerParams): void
+{
+    echo '<nav class="k2-player-games-day-steps k2-realm-games-all__status-nav" aria-label="Page">';
+    if ($offset > 0) {
+        $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)];
+        echo '<a class="k2-player-games-day-step k2-player-games-day-step--prev" href="'
+            . individual3_h(individual3_build_url($prevParams))
+            . '" aria-label="Previous page" title="Previous page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
+    } else {
+        echo '<span class="k2-player-games-day-step k2-player-games-day-step--prev is-disabled" aria-disabled="true" title="Previous page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
+    }
+    if ($offset + $limit < $totalMatches) {
+        $nextParams = $pagerParams + ['offset' => $offset + $limit];
+        echo '<a class="k2-player-games-day-step k2-player-games-day-step--next" href="'
+            . individual3_h(individual3_build_url($nextParams))
+            . '" aria-label="Next page" title="Next page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
+    } else {
+        echo '<span class="k2-player-games-day-step k2-player-games-day-step--next is-disabled" aria-disabled="true" title="Next page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
+    }
+    echo '</nav>';
+}
+
 function individual3_valid_goals_filter(int $value, array $validValues): int
 {
     return k2_ratedresults_games_valid_goals_filter($value, $validValues);
@@ -421,6 +447,14 @@ if ($utcDayFilter !== '') {
     $periodAnchor = '';
 }
 $hasPeriodRangeFilter = in_array($periodType, ['week', 'month', 'year'], true);
+$hasPeriodGamesView = $utcDayFilter !== '' || $hasPeriodRangeFilter || $hasStreakRunFilter;
+$hasFilterLandingView = !$hasPeriodGamesView && individual3_has_games_filters_beyond_day(
+    $resultFilter,
+    $opponentFilter,
+    $goalsScoredFilter,
+    $goalsConcededFilter,
+    $goalsSumFilter
+);
 if (($utcDayFilter !== '' || $hasPeriodRangeFilter) && !isset($_GET['sort'])) {
     $sortKey = 'date';
     $sortDirection = 'desc';
@@ -434,7 +468,7 @@ if (($utcDayFilter !== '' || $hasPeriodRangeFilter) && !isset($_GET['sort'])) {
     }
     $sortDirection = individual3_valid_direction((string) ($_GET['dir'] ?? 'desc'));
 }
-$limit = 100;
+$limit = K2_PLAYER_GAMES_PAGE_SIZE;
 $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
 $playerIdSql = (int) $playerId;
 
@@ -599,15 +633,16 @@ $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
 $lastShown = $offset + $shownCount;
 $pagerParams = individual3_games_filter_params($sortState);
 $sortedColIndex = k2_player_game_sort_col_index($sortKey);
-$hasPeriodGamesView = $utcDayFilter !== '' || $hasPeriodRangeFilter || $hasStreakRunFilter;
+$showDrillDownPager = $hasPeriodGamesView && $totalMatches > $limit;
+$showTableMeta = !$hasPeriodGamesView || $showDrillDownPager;
 
 $resultChoices = [
-    ['value' => 'all', 'label' => 'All results'],
+    ['value' => 'all', 'label' => ''],
     ['value' => 'win', 'label' => 'Wins'],
     ['value' => 'draw', 'label' => 'Draws'],
     ['value' => 'loss', 'label' => 'Losses'],
 ];
-$opponentChoices = [['value' => '0', 'label' => 'All opponents']];
+$opponentChoices = [['value' => '0', 'label' => '', 'meta' => '']];
 foreach ($opponentRows as $opponentRow) {
     $opponentChoices[] = [
         'value' => (string) (int) $opponentRow['opponent_id'],
@@ -615,7 +650,7 @@ foreach ($opponentRows as $opponentRow) {
         'meta' => (string) (int) $opponentRow['games'],
     ];
 }
-$goalsScoredChoices = [['value' => '-1', 'label' => 'All scores']];
+$goalsScoredChoices = [['value' => '-1', 'label' => '', 'meta' => '']];
 foreach ($goalsScoredRows as $goalsScoredRow) {
     $goalsScoredChoices[] = [
         'value' => (string) (int) $goalsScoredRow['goals_for'],
@@ -623,7 +658,7 @@ foreach ($goalsScoredRows as $goalsScoredRow) {
         'meta' => (string) (int) $goalsScoredRow['games'],
     ];
 }
-$goalsConcededChoices = [['value' => '-1', 'label' => 'All scores']];
+$goalsConcededChoices = [['value' => '-1', 'label' => '', 'meta' => '']];
 foreach ($goalsConcededRows as $goalsConcededRow) {
     $goalsConcededChoices[] = [
         'value' => (string) (int) $goalsConcededRow['goals_against'],
@@ -631,7 +666,7 @@ foreach ($goalsConcededRows as $goalsConcededRow) {
         'meta' => (string) (int) $goalsConcededRow['games'],
     ];
 }
-$goalsSumChoices = [['value' => '-1', 'label' => 'All sums']];
+$goalsSumChoices = [['value' => '-1', 'label' => '', 'meta' => '']];
 foreach ($goalsSumRows as $goalsSumRow) {
     $goalsSumChoices[] = [
         'value' => (string) (int) $goalsSumRow['goals_sum'],
@@ -641,6 +676,8 @@ foreach ($goalsSumRows as $goalsSumRow) {
 }
 ?>
 
+<?php if (!$hasPeriodGamesView) { ?>
+<div id="<?php echo K2_PLAYER_GAMES_FILTERS_ANCHOR; ?>" class="k2-player-games-filters-anchor" tabindex="-1"></div>
 <form class="k2-player-games-controls" method="get" action="/player/games.php" data-k2-carry-scroll>
     <div class="k2-player-games-controls__meta">
         <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
@@ -665,27 +702,66 @@ foreach ($goalsSumRows as $goalsSumRow) {
     <div class="k2-player-games-controls__fields">
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Result</span>
-            <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result'); ?>
+            <?php k2_archive_listbox_render(
+                'result',
+                'k2-player-games-result',
+                $resultFilter,
+                $resultChoices,
+                'Filter by result',
+                k2_ratedresults_games_filter_pick_trigger_class($resultFilter, 'all')
+            ); ?>
         </div>
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
-            <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
+            <?php k2_archive_listbox_render(
+                'opponent',
+                'k2-player-games-opponent',
+                (string) $opponentFilter,
+                $opponentChoices,
+                'Filter by opponent',
+                k2_ratedresults_games_filter_pick_trigger_class((string) $opponentFilter, '0')
+            ); ?>
         </div>
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Goals scored</span>
-            <?php k2_archive_listbox_render('gf', 'k2-player-games-gf', (string) $goalsScoredFilter, $goalsScoredChoices, 'Filter by goals scored'); ?>
+            <?php k2_archive_listbox_render(
+                'gf',
+                'k2-player-games-gf',
+                (string) $goalsScoredFilter,
+                $goalsScoredChoices,
+                'Filter by goals scored',
+                k2_ratedresults_games_filter_pick_trigger_class((string) $goalsScoredFilter, '-1')
+            ); ?>
         </div>
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Goals conceded</span>
-            <?php k2_archive_listbox_render('ga', 'k2-player-games-ga', (string) $goalsConcededFilter, $goalsConcededChoices, 'Filter by goals conceded'); ?>
+            <?php k2_archive_listbox_render(
+                'ga',
+                'k2-player-games-ga',
+                (string) $goalsConcededFilter,
+                $goalsConcededChoices,
+                'Filter by goals conceded',
+                k2_ratedresults_games_filter_pick_trigger_class((string) $goalsConcededFilter, '-1')
+            ); ?>
         </div>
         <div class="k2-player-games-controls__field">
             <span class="server-period-activity-leaderboard__picker-label">Goal sum</span>
-            <?php k2_archive_listbox_render('gs', 'k2-player-games-gs', (string) $goalsSumFilter, $goalsSumChoices, 'Filter by goal sum'); ?>
+            <?php k2_archive_listbox_render(
+                'gs',
+                'k2-player-games-gs',
+                (string) $goalsSumFilter,
+                $goalsSumChoices,
+                'Filter by goal sum',
+                k2_ratedresults_games_filter_pick_trigger_class((string) $goalsSumFilter, '-1')
+            ); ?>
         </div>
-        <a class="k2-player-games-reset" href="/player/games.php?id=<?php echo $playerId; ?>">Reset</a>
     </div>
 </form>
+<?php } ?>
+
+<?php if ($hasFilterLandingView) { ?>
+<section class="k2-player-games-filter-view">
+<?php } ?>
 
 <?php if ($hasPeriodGamesView) { ?>
 <section class="k2-player-games-day-view">
@@ -693,7 +769,9 @@ foreach ($goalsSumRows as $goalsSumRow) {
 <?php } ?>
 
 <div id="matching-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
-<div class="k2-player-games-status" data-k2-carry-scroll>
+<div class="k2-player-games-status-stack" data-k2-carry-scroll>
+<?php if ($hasPeriodGamesView) { ?>
+<div class="k2-player-games-context">
     <?php if ($utcDayFilter !== '') {
         $dayBannerStory = !individual3_has_games_filters_beyond_day(
             $resultFilter,
@@ -790,17 +868,21 @@ foreach ($goalsSumRows as $goalsSumRow) {
         </span>
     </div>
     <?php } ?>
-    <?php if ($utcDayFilter === '' && !$hasPeriodRangeFilter && !$hasStreakRunFilter) { ?>
-    Showing <?php echo $firstShown; ?>-<?php echo $lastShown; ?> of <?php echo $totalMatches; ?> matching games.
+</div>
+<?php } ?>
+<?php if ($showTableMeta) { ?>
+<div class="k2-player-games-table-meta k2-realm-games-all__status">
+    <div class="k2-realm-games-all__status-range">
+        <span class="k2-realm-games-all__status-text">
+            Showing <?php echo (int) $firstShown; ?>–<?php echo (int) $lastShown; ?> of <?php echo number_format($totalMatches); ?> matching games.
+        </span>
+        <?php individual3_render_page_nav($offset, $limit, $totalMatches, $pagerParams); ?>
+    </div>
+    <?php if (!$hasPeriodGamesView) { ?>
+    <a class="k2-player-games-reset" href="/player/games.php?id=<?php echo $playerId; ?>">Reset filters</a>
     <?php } ?>
-    <?php if ($offset > 0) { ?>
-    <?php $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)]; ?>
-    <a class="k2-player-games-action" href="<?php echo individual3_h(individual3_build_url($prevParams)); ?>">Previous 100</a>
-    <?php } ?>
-    <?php if ($offset + $limit < $totalMatches) { ?>
-    <?php $nextParams = $pagerParams + ['offset' => $offset + $limit]; ?>
-    <a class="k2-player-games-action" href="<?php echo individual3_h(individual3_build_url($nextParams)); ?>">Next 100</a>
-    <?php } ?>
+</div>
+<?php } ?>
 </div>
 
 <div class="k2-table-wrap" data-k2-scroll-mirror>
@@ -850,6 +932,11 @@ foreach ($goalsSumRows as $goalsSumRow) {
 </table>
 
 </div><!-- .k2-table-wrap -->
+
+<?php if ($hasFilterLandingView) { ?>
+<div class="k2-player-games-filter-scroll-pad" aria-hidden="true"></div>
+</section>
+<?php } ?>
 
 <?php if ($hasPeriodGamesView) { ?>
 <div class="k2-player-games-day-scroll-pad" aria-hidden="true"></div>

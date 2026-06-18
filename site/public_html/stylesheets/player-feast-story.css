@@ -1,0 +1,51 @@
+/**
+ * Player profile — "The story so far" prose band (open background).
+ */
+
+.pm3d-section--story .pm3d-section__content {
+	background: none;
+	border: none;
+	padding: 0;
+}
+
+.pm3d-section--story {
+	margin-bottom: 24px;
+}
+
+.k2-story-intro {
+	margin: 0 0 16px;
+	color: var(--k2-text-muted);
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+.k2-story-lines {
+	list-style: none;
+	margin: 0;
+	padding: 0 0 0 1.35em;
+	display: grid;
+	gap: 8px;
+}
+
+.k2-story-line {
+	display: grid;
+	grid-template-columns: 1.25em 1fr;
+	align-items: baseline;
+	gap: 8px;
+	color: var(--k2-text-muted);
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+.k2-story-line__glyph {
+	text-align: center;
+	font-size: 13px;
+	line-height: 1;
+	opacity: 0.88;
+}
+
+/* Key counts — same ink as played-days hints / Status tickers, not full accent shout */
+.k2-story-line strong {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}

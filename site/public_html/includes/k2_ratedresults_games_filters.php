@@ -9,6 +9,16 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/player_result_streaks.php';
 
+const K2_PLAYER_GAMES_PAGE_SIZE = 500;
+
+/** Hash target: just above player Games filter row (H2H chart deep links). */
+const K2_PLAYER_GAMES_FILTERS_ANCHOR = 'k2-player-games-filters';
+
+function k2_player_games_filters_anchor_fragment(): string
+{
+	return '#' . K2_PLAYER_GAMES_FILTERS_ANCHOR;
+}
+
 function k2_ratedresults_games_valid_result(string $value): string
 {
 	return in_array($value, ['all', 'win', 'draw', 'loss'], true) ? $value : 'all';
@@ -245,4 +255,14 @@ function k2_ratedresults_games_where_clause(
 	}
 
 	return implode(' AND ', $where);
+}
+
+function k2_ratedresults_games_filter_pick_active(string $selectedValue, string $idleValue): bool
+{
+	return (string) $selectedValue !== $idleValue;
+}
+
+function k2_ratedresults_games_filter_pick_trigger_class(string $selectedValue, string $idleValue): string
+{
+	return k2_ratedresults_games_filter_pick_active($selectedValue, $idleValue) ? 'k2-link-star' : '';
 }

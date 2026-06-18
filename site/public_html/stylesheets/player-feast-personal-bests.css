@@ -1,19 +1,47 @@
-/**
- * Personal bests (busiest day / month / year) — three equal cards.
- */
+.pm3d-section--bursts {
+	margin-top: 0;
+}
 
-.pm3hij-peak--cards .pm3-busiest__list strong {
+.pm3d-section--bursts .pm3d-section__hint {
+	margin-top: 0;
+	margin-bottom: 14px;
+}
+
+.pm3-busiest--bursts .pm3-busiest__glyph {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 13px;
+	line-height: 1;
+	opacity: 0.85;
+}
+
+.pm3-busiest--bursts .pm3-busiest__kind {
+	color: var(--k2-text-muted);
+}
+
+.pm3-busiest--bursts .pm3-busiest__unit {
+	display: block;
+	margin-top: 2px;
+	font-size: 13px;
+	line-height: 1.35;
+	color: var(--k2-text-muted);
+}
+
+.pm3-busiest--bursts .pm3-busiest__when {
+	display: block;
+	margin-top: 4px;
+	font-size: 13px;
+	line-height: 1.35;
+	color: var(--k2-text-muted);
+}
+
+/* Numbers — keep centred block + glow from player-feast.css / pm3hij-peak--cards */
+.pm3hij-peak--cards .pm3-busiest--bursts .pm3-busiest__list strong {
 	color: var(--k2-link-star);
 	text-shadow: 0 0 20px var(--k2-accent-glow);
 }
 
-.pm3hij-peak--cards .pm3-busiest__list em {
-	display: block;
-	margin-top: 4px;
-	font-size: 13px;
-}
-
-.pm3hij-peak--cards .pm3-busiest--inline .pm3-busiest__list li {
+.pm3hij-peak--cards .pm3-busiest--bursts.pm3-busiest--inline .pm3-busiest__list li {
 	background: var(--k2-bg-surface);
 	border: 1px solid var(--k2-border-subtle);
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
