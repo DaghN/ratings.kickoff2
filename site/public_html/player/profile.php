@@ -72,7 +72,7 @@ player_feast_render_played_days($playerId, (string) $pm['first_game_date_ymd'], 
 player_feast_render_played_weeks($playerId, (string) $pm['first_game_date_ymd'], (string) $pm['name']);
 player_feast_render_peak_activity($pm);
 player_feast_render_moments($pm);
-player_feast_render_charts($playerId);
+player_feast_render_charts($playerId, (string) $pm['name']);
 player_feast_render_rivalry_teaser($con, $playerId);
 ?>
 

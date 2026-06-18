@@ -72,6 +72,67 @@
         return chartData;
     }
 
+    var START_RATING = 1600;
+    var GAME_AXIS_STEP = 500;
+
+    function gameAxisStep(maxGame, eventMode) {
+        if (eventMode) {
+            if (maxGame <= 20) {
+                return 5;
+            }
+            if (maxGame <= 100) {
+                return 10;
+            }
+            if (maxGame <= 500) {
+                return 50;
+            }
+            return 100;
+        }
+        if (maxGame <= 50) {
+            return 10;
+        }
+        if (maxGame <= 200) {
+            return 50;
+        }
+        if (maxGame <= 1000) {
+            return 100;
+        }
+        return GAME_AXIS_STEP;
+    }
+
+    /** Last x tick label — round step only; omit messy career end (e.g. 3651 → 3500). */
+    function lastLabeledAxisTick(maxGame, step) {
+        if (maxGame <= 0) {
+            return 0;
+        }
+        if (maxGame % step === 0) {
+            return maxGame;
+        }
+        return Math.floor(maxGame / step) * step;
+    }
+
+    function buildNiceAxisTickValues(maxGame, eventMode) {
+        var step = gameAxisStep(maxGame, eventMode);
+        var last = lastLabeledAxisTick(maxGame, step);
+        var ticks = [];
+        var v;
+        for (v = 0; v <= last; v += step) {
+            ticks.push(v);
+        }
+        return ticks;
+    }
+
+    function withGameChartOrigin(chartData, eventMode) {
+        if (eventMode || !chartData.length) {
+            return chartData.slice();
+        }
+        var out = [{ x: 0, y: START_RATING, isOrigin: true }];
+        for (var i = 0; i < chartData.length; i++) {
+            out.push(chartData[i]);
+        }
+        return out;
+    }
+
     function buildGameChartData(points) {
         var chartData = [];
         for (var i = 0; i < points.length; i++) {
@@ -140,12 +201,8 @@
             month: 'short',
             day: 'numeric'
         });
-        var gap = stats.peak - stats.latest;
-        var gapText = gap === 0
-            ? ' (latest rating is peak)'
-            : ' (' + gap + ' below peak now)';
-        summary.innerHTML = 'Peak: <strong>' + stats.peak + '</strong>'
-            + ' <span class="pm3d-chart__summary-note">on ' + peakWhen + gapText + '</span>';
+        summary.innerHTML = 'Peak: <span class="pm3-chart-peak-value">' + stats.peak + '</span>'
+            + ' <span class="pm3d-chart__summary-note">on ' + peakWhen + '.</span>';
         summary.hidden = false;
     }
 
@@ -153,14 +210,10 @@
         if (!summary) {
             return;
         }
-        var gap = stats.peak - stats.latest;
-        var gapText = gap === 0
-            ? ' (latest rating is peak)'
-            : ' (' + gap + ' below peak now)';
         var unitLabel = eventMode ? 'tournaments' : 'rated games';
         var atLabel = eventMode ? 'tournament #' : 'game #';
-        summary.innerHTML = 'Peak: <strong>' + stats.peak + '</strong>'
-            + ' <span class="pm3d-chart__summary-note">at ' + atLabel + stats.peakGame + gapText
+        summary.innerHTML = 'Peak: <span class="pm3-chart-peak-value">' + stats.peak + '</span>'
+            + ' <span class="pm3d-chart__summary-note">at ' + atLabel + stats.peakGame
             + ' &nbsp;&middot;&nbsp; ' + totalGames + ' ' + unitLabel + '</span>';
         summary.hidden = false;
     }
@@ -189,18 +242,6 @@
                 ctx.lineTo(area.right, y);
                 ctx.stroke();
                 ctx.setLineDash([]);
-                ctx.fillStyle = T ? T.holo() : '#b388ff';
-                ctx.font = '600 11px IBM Plex Sans, Verdana, Arial, sans-serif';
-                ctx.textAlign = 'right';
-                var label = 'Peak ' + peakValue;
-                var pad = 4;
-                if (y - 14 < area.top) {
-                    ctx.textBaseline = 'top';
-                    ctx.fillText(label, area.right - 4, y + pad);
-                } else {
-                    ctx.textBaseline = 'bottom';
-                    ctx.fillText(label, area.right - 4, y - pad);
-                }
                 ctx.restore();
             }
         };
@@ -289,12 +330,16 @@
     function createGameChart(canvas, chartData, peakValue, eventMode) {
         var xTitle = eventMode ? 'Tournament number' : 'Rated game number';
         var datasetLabel = eventMode ? 'ELO rating (after tournament)' : 'ELO rating (after game)';
+        var xMax = chartData.length ? chartData[chartData.length - 1].x : 0;
+        var xMin = eventMode && chartData.length ? chartData[0].x : 0;
+        var seriesData = withGameChartOrigin(chartData, eventMode);
+        var tickValues = buildNiceAxisTickValues(xMax, eventMode);
         return createChart(canvas, {
             type: 'line',
             data: {
                 datasets: [Object.assign({
                     label: datasetLabel,
-                    data: chartData,
+                    data: seriesData,
                     fill: true,
                     tension: 0.1,
                     pointRadius: 0,
@@ -314,6 +359,9 @@
                                     return '';
                                 }
                                 var pt = items[0].raw;
+                                if (pt && pt.isOrigin) {
+                                    return 'Game #0 — starting rating';
+                                }
                                 var prefix = eventMode ? 'Tournament #' : 'Game #';
                                 var title = prefix + items[0].parsed.x;
                                 if (eventMode && pt && pt.tournamentName) {
@@ -336,6 +384,9 @@
                                     return '';
                                 }
                                 var pt = items[0].raw;
+                                if (pt && pt.isOrigin) {
+                                    return String(START_RATING) + ' Elo before the first rated game';
+                                }
                                 if (eventMode && pt && pt.tournamentId) {
                                     var lines = ['/amiga/tournament.php?id=' + pt.tournamentId];
                                     if (pt.gamesInEvent > 1) {
@@ -358,16 +409,28 @@
                 scales: {
                     x: {
                         type: 'linear',
+                        bounds: 'data',
+                        min: xMin,
+                        max: xMax,
+                        grace: 0,
                         title: {
                             display: true,
                             text: xTitle,
                             color: T.tickColor()
                         },
+                        afterBuildTicks: function (scale) {
+                            scale.ticks = tickValues.map(function (v) {
+                                return { value: v };
+                            });
+                        },
                         ticks: {
                             color: T.tickColor(),
                             maxRotation: 0,
-                            autoSkip: true,
-                            maxTicksLimit: 14
+                            autoSkip: false,
+                            callback: function (value) {
+                                var n = Number(value);
+                                return tickValues.indexOf(n) >= 0 ? String(n) : '';
+                            }
                         },
                         grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     },
@@ -453,7 +516,7 @@
             gameChartData: [],
             peakValue: null,
             timelineStart: null,
-            activeView: 'date',
+            activeView: 'game',
             eventMode: false
         };
 
@@ -545,7 +608,7 @@
                     state.peakValue,
                     state.timelineStart
                 );
-                setActiveView(root, 'date', state);
+                setActiveView(root, 'game', state);
             })
             .catch(function () {
                 if (status) {

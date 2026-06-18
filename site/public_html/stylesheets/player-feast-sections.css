@@ -419,7 +419,14 @@ body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list > li:last-chi
 
 .pm3d-section--moments .pm3d-section__hint {
 	margin-top: 0;
-	margin-bottom: 14px;
+	margin-bottom: 22px;
+}
+
+/* ── Career charts ── */
+
+.pm3d-section--charts .pm3d-section__hint {
+	margin-top: 0;
+	margin-bottom: 22px;
 }
 
 .pm3d-section .pm3-moments__grid {
@@ -496,9 +503,19 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 	font-size: 1.05em;
 }
 
+.player-rating-chart .pm3d-chart__summary {
+	color: var(--k2-text-muted);
+}
+
 .pm3d-chart__summary-note {
 	color: var(--k2-text-muted);
 	font-size: 0.92em;
+}
+
+/* Fixed chart-amber peak ink (matches rating line / picker — not UI tint link-star) */
+.player-rating-chart .pm3-chart-peak-value {
+	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
+	font-weight: 600;
 }
 
 .pm3d-career-charts {
@@ -537,13 +554,23 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 	cursor: pointer;
 }
 
-.pm3d-rating-toggle__btn:hover {
+.pm3d-rating-toggle__btn:hover:not(.is-active) {
 	color: var(--k2-text-secondary, var(--k2-text-primary));
+	background: rgba(255, 255, 255, 0.05);
 }
 
 .pm3d-rating-toggle__btn.is-active {
 	color: var(--k2-segment-active-text);
 	border-color: var(--k2-segment-active-ring);
+}
+
+/* ELO rating By date / By game # — fixed chart amber (matches rating line), not UI tint */
+.player-rating-chart .pm3d-rating-toggle__btn.is-active {
+	color: color-mix(in srgb, var(--k2-pure-amber) 72%, var(--k2-text-secondary));
+	background: color-mix(in srgb, var(--k2-pure-amber) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-pure-amber) 42%, transparent);
+	box-shadow: none;
+	font-weight: 600;
 }
 
 .pm3d-chart-toolbar {

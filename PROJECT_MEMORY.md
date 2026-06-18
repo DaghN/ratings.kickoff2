@@ -85,6 +85,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Profile charts lede** — warm prose before rating/month/goals panels; he/him; sr-only Career rating title. |
+| 2026-06 | **Profile bonanza moment logic** — 3× ratio gate on primary sum game; H2H fallback (hero outscored same opponent). |
 | 2026-06 | **Profile heatmap section rhythm** — padding breaks (no margin collapse): story→days 24px; days→weeks ~52px; weeks→bursts ~32px. |
 | 2026-06 | **Profile moment scorelines** — Plex Sans 26px/600 (match burst cards; was Exo 2 display). |
 | 2026-06 | **Profile played days** — section heading hidden; heatmap hint continues “The story so far” (anchor + sr-only title kept). |

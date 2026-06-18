@@ -6,6 +6,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_profile.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load_story.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_feast_load_bonanza.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
 
@@ -72,13 +73,6 @@ function player_feast_load_pm(mysqli $con, int $id): array
             'icon' => '🎯',
             'tag' => 'Attack',
         ],
-        [
-            'key' => 'shootout',
-            'label' => 'Total goals bonanza',
-            'game_id' => (int) $row['BiggestSumOfGoalsGameID'],
-            'icon' => '🔥',
-            'tag' => 'Chaos',
-        ],
     ];
 
     $trophies = [];
@@ -95,6 +89,11 @@ function player_feast_load_pm(mysqli $con, int $id): array
         }
         $parsed = pm_parse_highlight_row($gRow, $id);
         $trophies[] = array_merge($def, $parsed);
+    }
+
+    $bonanza = player_feast_load_bonanza_trophy($con, $id, (int) $row['BiggestSumOfGoalsGameID']);
+    if ($bonanza !== null) {
+        $trophies[] = $bonanza;
     }
 
     $peakGap = ($peak !== null && $rating !== null) ? $peak - $rating : 0;

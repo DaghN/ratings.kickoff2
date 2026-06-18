@@ -174,7 +174,7 @@ function player_feast_render_moments(array $pm): void
     ?>
 <section class="pm3d-section pm3d-section--moments" id="moments">
 	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Moments</h2>
-	<p class="pm3d-section__hint">No career page could ever capture every match worth remembering... but here are some of <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s proudest moments...</p>
+	<p class="pm3d-section__hint">No career page could ever capture every match worth remembering... but these ones? Certainly among <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s proudest moments!</p>
 	<div class="pm3d-section__content">
 <div class="pm3-moments pm3-moments--mosaic">
 	<div class="pm3-moments__grid">
@@ -485,26 +485,29 @@ function player_feast_render_story_lines(array $pm): void
     <?php
 }
 
-function player_feast_render_charts(int $playerId): void
+function player_feast_render_charts(int $playerId, string $playerName = ''): void
 {
-    player_feast_section_open('Career rating', 'Rating arc, monthly activity, and goals-per-game spread — toggle the left chart by calendar date or game number.');
+    $name = pm_h($playerName !== '' ? $playerName : 'This player');
     ?>
+<section class="pm3d-section pm3d-section--charts">
+	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Career rating</h2>
+	<p class="pm3d-section__hint">Every career has its ups and downs… the rating charts below capture some of that… but while spanning his whole career, the charts cannot reveal the fact that <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s best days are surely still ahead of him!</p>
+	<div class="pm3d-section__content">
 <div class="pm3d-career-charts">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
 		<h3 class="k2-panel-heading">ELO rating</h3>
-		<p class="k2-chart-block__hint">Calendar view: end-of-day rating from June 9, 2017; game-number view shows every match without calendar gaps.</p>
 		<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
-			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
-			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By game #</button>
+			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="game">By game #</button>
+			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="date">By date</button>
 		</div>
 		<p class="player-rating-chart-status pm3d-chart__status k2-chart-panel__status">Loading rating history…</p>
-		<div class="player-rating-view player-rating-view--date">
+		<div class="player-rating-view player-rating-view--date" hidden>
 			<p class="player-rating-peak-current-summary pm3d-chart__summary" hidden></p>
 			<div class="k2-chart-frame">
 				<canvas class="player-rating-canvas--date" aria-label="ELO rating over time"></canvas>
 			</div>
 		</div>
-		<div class="player-rating-view player-rating-view--game" hidden>
+		<div class="player-rating-view player-rating-view--game">
 			<p class="player-rating-game-peak-current-summary pm3d-chart__summary" hidden></p>
 			<div class="k2-chart-frame">
 				<canvas class="player-rating-canvas--game" aria-label="Rating by game number"></canvas>
@@ -528,9 +531,9 @@ function player_feast_render_charts(int $playerId): void
 		</div>
 	</div>
 </div>
+	</div>
+</section>
     <?php
-    player_feast_section_close();
-
     require_once __DIR__ . '/player_opponents_h2h_charts.php';
 
     player_feast_section_open(
