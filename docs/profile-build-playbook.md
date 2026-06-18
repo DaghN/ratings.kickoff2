@@ -180,7 +180,7 @@ Examples without duo tables:
 
 **Reference:** `player_feast_render_peak_activity()`.
 
-**P02** sits adjacent (ticker), not inside the three-column busiest list unless merged copy-approved.
+**P02** sits adjacent (ticker), not inside the four-card busiest list unless merged copy-approved.
 
 ### 4.6 Open heatmap (`pm3-cal--hero`)
 

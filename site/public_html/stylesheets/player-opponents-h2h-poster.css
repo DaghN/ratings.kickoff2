@@ -402,27 +402,34 @@ body.k2-site .k2-h2h2-all-games {
 
 body.k2-site .k2-h2h2-all-games__link,
 body.k2-site .k2-h2h2-all-games__link:visited {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 32px;
+	padding: 8px 16px;
+	border: 1px solid color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 42%, transparent);
+	border-radius: calc(var(--k2-radius-md) - 2px);
+	background: color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 14%, var(--k2-bg-elevated));
+	box-sizing: border-box;
 	font-family: var(--k2-font-body, inherit);
 	font-size: clamp(11px, 1.45vw, 13px);
-	font-weight: 500;
+	font-weight: 600;
 	letter-spacing: 0.02em;
 	line-height: 1.35;
 	color: var(--k2-h2h2-blue, var(--k2-pure-chrome));
 	text-decoration: none;
-	text-shadow:
-		0 0 6px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 42%, transparent),
-		0 0 14px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 22%, transparent);
+	text-shadow: none;
+	transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
 body.k2-site .k2-h2h2-all-games__link:hover,
 body.k2-site .k2-h2h2-all-games__link:focus-visible {
 	color: var(--k2-h2h2-blue, var(--k2-pure-chrome));
-	text-decoration: underline;
-	text-underline-offset: 0.18em;
-	text-shadow:
-		0 0 8px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 58%, transparent),
-		0 0 18px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 34%, transparent),
-		0 0 32px color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 18%, transparent);
+	border-color: color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 55%, transparent);
+	background: color-mix(in srgb, var(--k2-h2h2-blue, var(--k2-pure-chrome)) 22%, var(--k2-bg-elevated));
+	text-decoration: none;
+	text-shadow: none;
+	outline: none;
 }
 
 /* ===== pair detail: centred stat races ===== */

@@ -134,7 +134,19 @@ function pm2_format_busiest_day(?string $date): string
     return $ts ? date('M j, Y', $ts) : $date;
 }
 
-/** Player Games tab URL for a busiest day / month / year peak. */
+function pm2_format_busiest_week(?string $weekMondayYmd): string
+{
+    if ($weekMondayYmd === null || $weekMondayYmd === '') {
+        return '—';
+    }
+    if (!function_exists('k2_format_calendar_week_label')) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
+    }
+
+    return k2_format_calendar_week_label($weekMondayYmd);
+}
+
+/** Player Games tab URL for a busiest day / week / month / year peak. */
 function player_feast_busiest_games_href(int $playerId, string $periodType, string $key): ?string
 {
     if ($playerId < 1 || $key === '') {
@@ -158,6 +170,13 @@ function player_feast_busiest_games_href(int $playerId, string $periodType, stri
             }
             $params['period'] = 'month';
             $params['anchor'] = $key . '-01';
+            break;
+        case 'week':
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $key)) {
+                return null;
+            }
+            $params['period'] = 'week';
+            $params['anchor'] = $key;
             break;
         case 'year':
             $year = (int) $key;

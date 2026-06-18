@@ -23,14 +23,14 @@ const K2_GAMES_HIGHLIGHT_BOARDS = [
 		'heading' => 'Biggest draws',
 		'default_sort_col' => 7,
 	],
-	'top_score' => [
-		'label' => 'Top score',
-		'heading' => 'Top score',
-		'default_sort_col' => 7,
-	],
 	'biggest_wins' => [
 		'label' => 'Biggest wins',
 		'heading' => 'Biggest wins',
+		'default_sort_col' => 7,
+	],
+	'top_score' => [
+		'label' => 'Top score',
+		'heading' => 'Top score',
 		'default_sort_col' => 7,
 	],
 ];
@@ -148,28 +148,28 @@ function k2_games_render_highlights_table(array $rows, string $board, bool $show
 	?>
 <section class="k2-games-highlights" aria-labelledby="k2-games-highlights-heading">
 	<h2 class="k2-panel-heading" id="k2-games-highlights-heading"><?php echo k2_rated_game_h($meta['heading']); ?></h2>
-	<div class="k2-table-wrap" data-k2-scroll-mirror>
+	<div class="k2-table-wrap">
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-games-highlights-table" data-k2-table="sortable" data-k2-autorank="true"
 	data-k2-default-sort="<?php echo $defaultSort; ?>" data-k2-default-direction="desc">
 <thead>
 	<tr>
-		<th data-k2-sort="number" data-k2-help="Rank in this board. Equal scores tie-break to lower game ID.">#</th>
-		<th data-k2-sort="number" data-k2-help="Rated game ID. Opens the single-game detail page.">ID</th>
-		<th class="k2-table-cell--left k2-table-cell--pad-left-xs" data-k2-sort="number">Date</th>
-		<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Player listed as Team A in the result row.">Team A</th>
-		<th data-k2-sort="number" data-k2-tooltip-label="Goals A" data-k2-help="Goals scored by Team A.">A</th>
-		<th class="k2-table-cell--left" data-k2-sort="number" data-k2-tooltip-label="Goals B" data-k2-help="Goals scored by Team B.">B</th>
-		<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Player listed as Team B in the result row.">Team B</th>
+		<th class="<?php echo k2_games_highlights_col_classes('rank'); ?>" data-k2-sort="number" data-k2-help="Rank in this board. Equal scores tie-break to lower game ID.">#</th>
+		<th class="<?php echo k2_games_highlights_col_classes('id'); ?>" data-k2-sort="number" data-k2-help="Rated game ID. Opens the single-game detail page.">ID</th>
+		<th class="<?php echo k2_games_highlights_col_classes('date', 'k2-table-cell--left k2-table-cell--pad-left-xs'); ?>" data-k2-sort="number">Date</th>
+		<th class="<?php echo k2_games_highlights_col_classes('team-a', 'k2-table-cell--left'); ?>" data-k2-sort="text" data-k2-help="Player listed as Team A in the result row.">Team A</th>
+		<th class="<?php echo k2_games_highlights_col_classes('goals-a'); ?>" data-k2-sort="number" data-k2-tooltip-label="Goals A" data-k2-help="Goals scored by Team A.">A</th>
+		<th class="<?php echo k2_games_highlights_col_classes('goals-b'); ?>" data-k2-sort="number" data-k2-tooltip-label="Goals B" data-k2-help="Goals scored by Team B.">B</th>
+		<th class="<?php echo k2_games_highlights_col_classes('team-b', 'k2-table-cell--left'); ?>" data-k2-sort="text" data-k2-help="Player listed as Team B in the result row.">Team B</th>
 <?php if ($showGdColumn) { ?>
-		<th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game.">GD</th>
+		<th class="<?php echo k2_games_highlights_col_classes('gd', 'k2-table-cell--pad-left-md'); ?>" data-k2-sort="number" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game.">GD</th>
 <?php } ?>
 <?php if ($showSumColumn) { ?>
-		<th data-k2-sort="number" data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players.">Sum</th>
+		<th class="<?php echo k2_games_highlights_col_classes('sum'); ?>" data-k2-sort="number" data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players.">Sum</th>
 <?php } ?>
 <?php if ($showTsColumn) { ?>
-		<th data-k2-sort="number" data-k2-tooltip-label="Top score" data-k2-help="Top score — the most goals either player scored in this game (e.g. 10 in 10–2).">TS</th>
+		<th class="<?php echo k2_games_highlights_col_classes('ts'); ?>" data-k2-sort="number" data-k2-tooltip-label="Top score" data-k2-help="Top score — the most goals either player scored in this game (e.g. 10 in 10–2).">TS</th>
 <?php } ?>
-		<th class="k2-table-cell--left k2-table-cell--pad-left-lg" data-k2-sort="text" data-k2-help="Game winner. Drawn games show Draw.">Winner</th>
+		<th class="<?php echo k2_games_highlights_col_classes('winner', 'k2-table-cell--left k2-table-cell--pad-left-lg'); ?>" data-k2-sort="text" data-k2-help="Game winner. Drawn games show Draw.">Winner</th>
 	</tr>
 </thead>
 <tbody class="black">

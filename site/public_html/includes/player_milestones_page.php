@@ -35,12 +35,9 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero_vars.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
 
-$numberGames = isset($NumberGames) ? (int) $NumberGames : 0;
-$counts = $heroMilestoneCounts ?? null;
 if (!isset($heroMsCatalogTotal) || (int) $heroMsCatalogTotal < 1) {
     $heroMsCatalogTotal = k2_milestone_catalog_total($con);
 }
-$milestoneCatalogTotal = (int) $heroMsCatalogTotal;
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 ?>
@@ -52,10 +49,6 @@ $k2PlayerTabActive = 'milestones';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_nav.php';
-
-$msPlayerName = isset($Name) ? (string) $Name : '';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_wing_chapter.php';
-player_milestones_render_wing_chapter($view, $id, $msPlayerName, $numberGames, $counts, $milestoneCatalogTotal);
 
 if ($view !== 'chronology') {
     $gardenByTier = k2_milestone_garden_by_tier($con, $id);

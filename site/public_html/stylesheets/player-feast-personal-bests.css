@@ -8,14 +8,20 @@
 	margin-bottom: 14px;
 }
 
-/* Full width: three equal tracks; natural-size cards centred in each third */
+/* Full width: four equal tracks; natural-size cards centred in each quarter */
 .pm3-busiest--bursts.pm3-busiest--inline .pm3-busiest__list {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 24px;
 	width: 100%;
 	max-width: none;
 	justify-items: center;
+}
+
+@media (max-width: 900px) {
+	.pm3-busiest--bursts.pm3-busiest--inline .pm3-busiest__list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 
 @media (max-width: 520px) {

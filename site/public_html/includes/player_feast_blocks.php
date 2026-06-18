@@ -63,18 +63,19 @@ function player_feast_render_played_weeks(int $playerId, string $firstGameDateYm
 }
 
 /**
- * @return array{day: ?array, month: ?array, year: ?array}
+ * @return array{day: ?array, week: ?array, month: ?array, year: ?array}
  */
 function player_feast_peak_busiest(array $pm): array
 {
     return [
         'day' => $pm['busiest']['day'] ?? null,
+        'week' => $pm['busiest']['week'] ?? null,
         'month' => $pm['busiest']['month'] ?? null,
         'year' => $pm['busiest']['year'] ?? null,
     ];
 }
 
-/** Bursts of activity — busiest day, month, and year (P01). */
+/** Bursts of activity — busiest day, week, month, and year (P01 + P04). */
 function player_feast_render_busiest_card(
     int $playerId,
     string $periodType,
@@ -118,6 +119,7 @@ function player_feast_render_peak_activity(array $pm): void
 {
     $b = player_feast_peak_busiest($pm);
     $bd = $b['day'];
+    $bw = $b['week'];
     $bm = $b['month'];
     $by = $b['year'];
     $name = pm_h((string) ($pm['name'] ?? 'This player'));
@@ -125,7 +127,7 @@ function player_feast_render_peak_activity(array $pm): void
     ?>
 <section class="pm3d-section pm3d-section--bursts" id="bursts-of-activity">
 	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Bursts of activity</h2>
-	<p class="pm3d-section__hint">After all that steady play... here are the days, months, and years where <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span> went into overdrive and the games really piled up...</p>
+	<p class="pm3d-section__hint">After all that steady play... here are the days, weeks, months, and years where <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span> went into overdrive and the games really piled up...</p>
 	<div class="pm3d-section__content">
 <div class="pm3-busiest pm3-busiest--inline pm3-busiest--bursts">
 	<ol class="pm3-busiest__list">
@@ -138,6 +140,14 @@ function player_feast_render_peak_activity(array $pm): void
             $bd,
             $bd ? pm2_format_busiest_day((string) $bd['key']) : ''
         );
+    player_feast_render_busiest_card(
+        $playerId,
+        'week',
+        '⚡',
+        'Busiest week',
+        $bw,
+        $bw ? pm2_format_busiest_week((string) $bw['key']) : ''
+    );
     player_feast_render_busiest_card(
         $playerId,
         'month',

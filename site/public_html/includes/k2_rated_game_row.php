@@ -14,6 +14,17 @@ function k2_rated_game_h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+/** Games Highlights table — semantic column class (see .k2-games-highlights-col--* in theme.css). */
+function k2_games_highlights_col_classes(string $col, string $extra = ''): string
+{
+    $classes = 'k2-games-highlights-col k2-games-highlights-col--' . $col;
+    if ($extra !== '') {
+        $classes .= ' ' . trim($extra);
+    }
+
+    return $classes;
+}
+
 /**
  * @param array<string, mixed> $row ratedresults assoc row
  * @return array<string, mixed>
@@ -258,27 +269,27 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
         : (int) $game['GoalsA'] + (int) $game['GoalsB'];
 
     $row = '<tr data-k2-sort-tie-value="' . $gameId . '">'
-        . '<td></td>'
-        . '<td class="k2-games-highlights-table__id" data-k2-sort-value="' . $gameId . '">' . $idCell . '</td>'
-        . '<td class="k2-table-cell--left k2-table-cell--pad-left-xs" data-k2-sort-value="' . $dateSortValue . '">' . $dateCell . '</td>'
-        . '<td class="k2-table-cell--left">' . $teamA . '</td>'
-        . '<td>' . (int) $game['GoalsA'] . '</td>'
-        . '<td class="k2-table-cell--left">' . (int) $game['GoalsB'] . '</td>'
-        . '<td class="k2-table-cell--left">' . $teamB . '</td>';
+        . '<td class="' . k2_games_highlights_col_classes('rank') . '"></td>'
+        . '<td class="' . k2_games_highlights_col_classes('id', 'k2-games-highlights-table__id') . '" data-k2-sort-value="' . $gameId . '">' . $idCell . '</td>'
+        . '<td class="' . k2_games_highlights_col_classes('date', 'k2-table-cell--left k2-table-cell--pad-left-xs') . '" data-k2-sort-value="' . $dateSortValue . '">' . $dateCell . '</td>'
+        . '<td class="' . k2_games_highlights_col_classes('team-a', 'k2-table-cell--left') . '">' . $teamA . '</td>'
+        . '<td class="' . k2_games_highlights_col_classes('goals-a') . '">' . (int) $game['GoalsA'] . '</td>'
+        . '<td class="' . k2_games_highlights_col_classes('goals-b') . '">' . (int) $game['GoalsB'] . '</td>'
+        . '<td class="' . k2_games_highlights_col_classes('team-b', 'k2-table-cell--left') . '">' . $teamB . '</td>';
 
     if ($showGd) {
-        $row .= '<td data-k2-sort-value="' . $goalDiff . '">' . $goalDiffCell . '</td>';
+        $row .= '<td class="' . k2_games_highlights_col_classes('gd') . '" data-k2-sort-value="' . $goalDiff . '">' . $goalDiffCell . '</td>';
     }
 
     if ($showSum) {
-        $row .= '<td>' . $sumGoals . '</td>';
+        $row .= '<td class="' . k2_games_highlights_col_classes('sum') . '">' . $sumGoals . '</td>';
     }
 
 	if ($showTs) {
-		$row .= '<td data-k2-sort-value="' . $topScore . '">' . $topScore . '</td>';
+		$row .= '<td class="' . k2_games_highlights_col_classes('ts') . '" data-k2-sort-value="' . $topScore . '">' . $topScore . '</td>';
 	}
 
-    $row .= '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . $winnerCell . '</td>';
+    $row .= '<td class="' . k2_games_highlights_col_classes('winner', 'k2-table-cell--left k2-table-cell--pad-left-lg') . '">' . $winnerCell . '</td>';
 
     return $row . '</tr>';
 }

@@ -81,7 +81,7 @@ No new schema for poster v1.
   - **Mirrored identity cards** — avatar · name · rank · rating in glowing hero-style cards; opponent card mirrored so avatars face the `vs` and **rank sits on the outer (avatar) edge, rating toward centre** on both sides. Whole card links to player profile (garden-style hover lift).
   - **W/D/L hero** — subject **Wins** (blue) · **Draws** (centre) · opponent **Wins** (red, same count as subject losses); each side reads from that fighter’s perspective. Win counts: **full neon stack**, display weight **600**.
   - **Lead meter** — proportional blue / muted / red bar under the counts; **chrome + red segments** get neon box-shadow bloom (draw stays flat).
-  - **All games link** — chrome text link below pair-detail races, above moments deck: `All {N} rated games vs {opponent} →` → `/player/games.php?id=&opponent=`; small type (~11–13px).
+  - **All games link** — chrome filled pill below pair-detail races, above moments deck: `All {N} rated games vs {opponent} →` → `/player/games.php?id=&opponent=`; same 14%/42% chrome fill recipe as tier pills (~11–13px).
   - **Goals removed from poster** — totals and goal depth live in pair-detail race tables only.
   - **0 games** — both cards visible; “No rated games yet” below.
 - Reuses `k2_route('player-profile')`, `k2_h()`, `k2_fmt_int()`, `k2_db_is_null()`, and the same rank query idiom as the hero.

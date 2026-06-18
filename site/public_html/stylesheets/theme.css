@@ -718,21 +718,19 @@ body.k2-site .k2-games-highlights .k2-panel-heading {
 	margin-bottom: 8px;
 }
 
-/* Highlights table â€” not ranked-pages-table (col 2 there is min 9.1em for player names); calm-stats ink via .k2-games-highlights-table in calm-stats block below. */
+/* Highlights table — shrink-wrap (not full-width scroll-mirror like games Recent/All). */
 body.k2-site .k2-games-highlights .k2-table.k2-games-highlights-table {
-	width: auto;
+	width: max-content;
 	max-width: 100%;
 	table-layout: auto;
 }
 
-body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(1),
-body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(1) {
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--rank {
 	width: 2.5em;
 	min-width: 2.5em;
 }
 
-body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(2),
-body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(2),
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--id,
 body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td.k2-games-highlights-table__id {
 	width: 1%;
 	white-space: nowrap;
@@ -740,16 +738,22 @@ body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td.k2-games-h
 	padding-right: 8px;
 }
 
-body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(5),
-body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(5),
-body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(6),
-body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(6),
-body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(8),
-body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(8),
-body.k2-site .k2-games-highlights .k2-games-highlights-table thead th:nth-child(9),
-body.k2-site .k2-games-highlights .k2-games-highlights-table tbody td:nth-child(9) {
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--goals-a,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--goals-b,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--gd,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--sum,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--ts {
 	width: 1%;
 	white-space: nowrap;
+}
+
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--date,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--team-a,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--team-b,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--winner {
+	width: 1%;
+	white-space: nowrap;
+	min-width: 0;
 }
 
 body.k2-site .k2-games-list {

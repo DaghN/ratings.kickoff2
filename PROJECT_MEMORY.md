@@ -85,11 +85,11 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Profile bursts week card** — busiest week (P04) added to bursts row; day · week · month · year; links to Games week filter. |
 | 2026-06 | **Profile story order** — longest play-streak run line now follows distinct-days beat (was second in list). |
 | 2026-06 | **Profile lab cleanup** — removed `individual1-profile-lab1–4.php`, `player_feast_*_lab*`, `player-feast-lab*.css` (16 files); production feast unchanged. |
 | 2026-06 | **Player Milestones Chronology** — reuses hub Recent feed UI; tier filter; newest-first; no player column / no list heading. |
-| 2026-06 | **Player Milestones wing chapters** — Garden + Chronology each get primary title, muted lede, fact meta strip below inner tabs. |
-| 2026-06 | **Player Milestones wings** — `player/milestones/garden.php` + `chronology.php` (placeholder); inner tabs Garden · Chronology; legacy `player/milestones.php` → 302 Garden. |
+| 2026-06 | **Games Highlights tab order** — Most goals → Biggest draws → Biggest wins → Top score (stepchild last). |
 | 2026-06 | **Profile At a glance milestone tooltips** — tier counts link to garden tier anchors; coarse two-tap (preview tooltip → navigate). |
 | 2026-06 | **Profile career + opponents charts** — center 960px chart stack in page column (`player-feast-sections.css`). |
 | 2026-06 | **Profile glance CSS cache-bust** — `player-feast-glance.css` now uses `?v=filemtime` on `profile.php` + lab pages (parity with other feast stylesheets; fixes stale at-a-glance layout/colours on staging). |
