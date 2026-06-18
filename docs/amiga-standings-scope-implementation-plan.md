@@ -23,7 +23,7 @@
 1. User says **“Do slice N”** or **“Continue with the next slice”**.
 2. Agent executes **only that slice** unless user explicitly asks for multiple slices in one session.
 3. Agent runs slice **Verification** before stopping; fix failures before handoff.
-4. Agent writes handoff: `docs/orchestration/agent-handoffs/2026-06-11-0XX-amiga-standings-scope-slice-N.md` (increment `XXX` from last standings-scope handoff; start at **012** if none exist — check folder).
+4. Agent writes handoff: `docs/archive/orchestration/agent-handoffs/2026-06-11-0XX-amiga-standings-scope-slice-N.md` (increment `XXX` from last standings-scope handoff; start at **012** if none exist — check folder).
 5. At **STOP gates**, agent lists exact browser/SQL checks and **waits** for user OK.
 6. **Do not git commit** unless user asks.
 7. After slices that change stored truth: **UPDATE_DOCS** Part A; Part B when schema migration ships (slice 0+).
@@ -308,5 +308,5 @@ Each slice handoff should include:
 
 ## Related
 
-- Starter prompt: [`orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md)
+- Starter prompt: [`archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md)
 - Prior track pattern: [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md)

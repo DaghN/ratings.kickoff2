@@ -47,7 +47,7 @@ Pause the slice and report to Dagh when any of these occur:
 
 ### 2.4 Slice completion report (required every slice)
 
-Post to Dagh (chat or handoff doc under `docs/orchestration/agent-handoffs/`) with:
+Post to Dagh (chat or handoff doc under `docs/archive/orchestration/agent-handoffs/`) with:
 
 ```markdown
 ## Slice N complete — [title]
@@ -387,7 +387,7 @@ Deployable, documented, dead code removed.
 - [x] Remove dead PHP `replay-to` per-game global path
 - [x] Retire old verify parity rule — `verify-rating-events` after Python replay
 - [x] Contract doc status → **Implemented**
-- [x] Final handoff with all verify commands green — [`2026-06-08-027-rating-events-slice-7-ship.md`](orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md)
+- [x] Final handoff with all verify commands green — [`2026-06-08-027-rating-events-slice-7-ship.md`](archive/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md)
 
 ### Exit criteria
 

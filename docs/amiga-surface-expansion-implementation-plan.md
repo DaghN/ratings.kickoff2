@@ -1,7 +1,7 @@
 # Amiga surface expansion — implementation plan (agent slices)
 
 **Status:** **Complete** (Jun 2026, slices 0–8). **Overview:** [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md)  
-**Closure handoff:** [`orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md)
+**Closure handoff:** [`archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md)
 
 **In scope:** Read-path PHP and thin leaderboard pages reusing derived tables from player-universe track (slices 0–14).  
 **Out of scope:** New derived writers, DDL (unless user explicitly expands scope), milestones, match streaks, calendar play streaks, UTC league features, cross-realm H2H, `amiga_player_tournament_slice_totals`, live incremental matchup/generalstats on single-game finalize.
@@ -15,7 +15,7 @@
 1. User says **“Do slice N”** (or **“Continue with the next slice”**).
 2. Agent completes **only that slice** unless user explicitly asks for multiple slices in one session.
 3. Agent runs the slice **Verification** before stopping.
-4. Agent writes handoff: `docs/orchestration/agent-handoffs/2026-06-09-0XX-amiga-surface-expansion-slice-N.md` (increment `XXX`).
+4. Agent writes handoff: `docs/archive/orchestration/agent-handoffs/2026-06-09-0XX-amiga-surface-expansion-slice-N.md` (increment `XXX`).
 5. At **STOP gates**, agent lists browser checks and **waits** for user OK before the next slice.
 6. **Do not git commit** unless the user asks.
 7. **Do not** read or display `amiga_player_stats` streak columns in new PHP.

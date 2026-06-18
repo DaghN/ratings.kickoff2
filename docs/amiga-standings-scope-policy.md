@@ -5,7 +5,7 @@
 
 **Authority:** This doc owns **standings scope taxonomy** and **primary league standings resolution** for honours. Event finish tiers: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Table grain and participation: [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5. Phase derivation rules: [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings.
 
-**Implementation:** [`amiga-standings-scope-implementation-plan.md`](amiga-standings-scope-implementation-plan.md) · starter: [`orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md)
+**Implementation:** [`amiga-standings-scope-implementation-plan.md`](amiga-standings-scope-implementation-plan.md) · starter: [`archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md)
 
 **History:** Track B introduced `scope_type` enum `overall` | `group` | `placement` | `knockout`. Access `Scores.Phase` NULL mapped to `overall`; any labeled round-robin phase mapped to `group` — including single-phase leagues like `League Stage` (Athens XCI) while NULL-phase marathons (Athens XCII) stayed `overall`. Same product primitive, two stored types. Jun 2026 event-finish migration retired `overall_position` on participation but left standings `overall`, worsening vocabulary collision.
 
@@ -141,7 +141,7 @@ Tier B/C wording updated in [`amiga-tournament-honours-rules.md`](amiga-tourname
 |------|---------|
 | `scripts/amiga/sql/020_unify_league_standings_scope.sql` | Enum migration; `UPDATE` rows; `catalog_stats` column rename |
 
-Fresh-install DDL files (`002_tournament_standings.sql`, `004_tournament_catalog_stats.sql`) use `league`/`knockout` + `league_scopes`. Handoffs: `docs/orchestration/agent-handoffs/2026-06-11-012` … `018`.
+Fresh-install DDL files (`002_tournament_standings.sql`, `004_tournament_catalog_stats.sql`) use `league`/`knockout` + `league_scopes`. Handoffs: `docs/archive/orchestration/agent-handoffs/2026-06-11-012` … `018`.
 
 ---
 

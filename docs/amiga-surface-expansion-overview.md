@@ -1,6 +1,6 @@
 # Amiga surface expansion — overview (post player-universe)
 
-**Status:** **Complete** (Jun 2026) — slices 0–8 shipped; see handoff [`orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md). **Purpose:** capture what the player-universe derived-data expansion made possible, what is surfaced, and what remains **potential**.  
+**Status:** **Complete** (Jun 2026) — slices 0–8 shipped; see handoff [`archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md). **Purpose:** capture what the player-universe derived-data expansion made possible, what is surfaced, and what remains **potential**.  
 **Execution:** [`amiga-surface-expansion-implementation-plan.md`](amiga-surface-expansion-implementation-plan.md) (all slices done)
 
 **Authority (data policy):** [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 — store hot-path stats on derived tables at rebuild/finalize; do not aggregate `amiga_games` on profile/leaderboard load.

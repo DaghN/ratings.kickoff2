@@ -5,7 +5,7 @@
 
 **Authority:** This doc owns **module taxonomy**, **structure vs semantics split**, and **legacy backfill rules**. Standings tally primitives: [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md). Honours finish: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Table register: [`amiga-data-contract.md`](amiga-data-contract.md).
 
-**Implementation:** [`amiga-tournament-structure-implementation-plan.md`](amiga-tournament-structure-implementation-plan.md) · starter: [`orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md) · **restart handoff (policy v2):** [`orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)
+**Implementation:** [`amiga-tournament-structure-implementation-plan.md`](amiga-tournament-structure-implementation-plan.md) · starter: [`archive/orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md) · **restart handoff (policy v2):** [`archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)
 
 **History:** Jun 2026 exploration — modules vs structure. Jun 2026 policy v2 — atomic KO **tie** module; bracket **rounds** in structure only; NULL-phase auto-classify **high-confidence RR only**, flag the rest. Jun 2026 policy v2.1 — **stage / fixture / game** chain locked (fixture = one match, one result; universal for live and legacy).
 
@@ -250,7 +250,7 @@ Tiers remain useful as **audit vocabulary**; **import reads handlers only**:
 |-----|----------|
 | [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) | Standings tally layer |
 | [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) | Background |
-| [`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md) | Policy v2 + rollback + resume slices |
+| [`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md) | Policy v2 + rollback + resume slices |
 
 ---
 

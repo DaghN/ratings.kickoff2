@@ -549,4 +549,4 @@ python -m scripts.amiga refinalize-smoke
 php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
 ```
 
-*Handoff: [`docs/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md`](orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md)*
+*Handoff: [`docs/archive/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md`](archive/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md)*

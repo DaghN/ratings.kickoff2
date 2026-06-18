@@ -1,7 +1,7 @@
 # Amiga tournament structure — implementation plan (agent slices)
 
 **Status:** **In progress** — slices 1–2 shipped; slice 3 pilot **superseded by 3b** (policy v2 Jun 2026).  
-**Policy (locked):** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) · **restart:** [`orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)  
+**Policy (locked):** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) · **restart:** [`archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) (standings tally layer — do not re-litigate) · [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) (background; partially superseded)
 
 **In scope:** Collapse `tournament_stages.stage_type` to `round_robin` | `knockout`; align builders, standings fixture resolver, ops PHP; **game-authoritative** legacy fixture materialization; verify CLI; bulk NULL-phase + phase-labeled backfill; optional catalog flags from stages; Steve WC structure reference (later slice).
@@ -17,7 +17,7 @@
 
 **Authority:** policy doc T1–T22. Standings `scope_type` rules remain in standings policy S1–S10.
 
-**Paused work to align:** format-backbone slices A–E + Homburg pilot ([`amiga-format-backbone-orchestration-prompt.md`](amiga-format-backbone-orchestration-prompt.md)) — **do not extend backfill** until slice 1 enum + slice 3 materialize path smoke.
+**Paused work to align:** format-backbone slices A–E + Homburg pilot ([`amiga-format-backbone-orchestration-prompt.md`](archive/orchestration/amiga-format-backbone-orchestration-prompt.md)) — **do not extend backfill** until slice 1 enum + slice 3 materialize path smoke.
 
 ---
 
@@ -26,7 +26,7 @@
 1. User says **“Do slice N”** or **“Continue with the next slice”**.
 2. Agent executes **only that slice** unless user explicitly asks for multiple slices in one session.
 3. Agent runs slice **Verification** before stopping; fix failures before handoff.
-4. Agent writes handoff: `docs/orchestration/agent-handoffs/2026-06-13-0XX-amiga-tournament-structure-slice-N.md` (increment `XXX` from last structure handoff; start at **001** if none exist).
+4. Agent writes handoff: `docs/archive/orchestration/agent-handoffs/2026-06-13-0XX-amiga-tournament-structure-slice-N.md` (increment `XXX` from last structure handoff; start at **001** if none exist).
 5. At **STOP gates**, agent lists exact browser/SQL/CLI checks and **waits** for user OK.
 6. **Do not git commit** unless user asks.
 7. After slices that change stored truth: **UPDATE_DOCS** Part A; Part B when migration `023` ships (slice 1).
@@ -140,7 +140,7 @@ python -m scripts.amiga tournament-structure verify --tournament-id <homburg_id>
 
 ## Slice 3 — Legacy materialize (pilot) — SUPERSEDED
 
-**Do not use.** Original pilot used `not full RR ⇒ knockout` and one event-wide KO stage for Athens IV. Replaced by **slice 3b** per policy v2 ([`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)).
+**Do not use.** Original pilot used `not full RR ⇒ knockout` and one event-wide KO stage for Athens IV. Replaced by **slice 3b** per policy v2 ([`2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)).
 
 If pilot was applied locally to `tournament_id=74`, run:
 
@@ -244,7 +244,7 @@ python -m scripts.amiga tournament-structure materialize-tier-a --apply --rebuil
 
 Materialize **only** `NON_WC_TIER_B_AUTO_MATERIALIZE_IDS` (**41** events). **Not** the 8 parser-fix ids (→ slice **6a**). **Not** WCs (→ **6wc**). **Not** manual review (→ **6b**).
 
-Planning curation: [`2026-06-13-018-amiga-tournament-structure-slice-6-curation.md`](orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md).
+Planning curation: [`2026-06-13-018-amiga-tournament-structure-slice-6-curation.md`](archive/orchestration/agent-handoffs/2026-06-13-018-amiga-tournament-structure-slice-6-curation.md).
 
 ### Tasks
 

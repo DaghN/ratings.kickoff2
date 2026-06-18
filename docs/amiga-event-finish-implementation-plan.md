@@ -23,7 +23,7 @@
 1. User says **“Do slice N”** or **“Continue with the next slice”**.
 2. Agent executes **only that slice** unless user explicitly asks for multiple slices in one session.
 3. Agent runs slice **Verification** before stopping; fix failures before handoff.
-4. Agent writes handoff: `docs/orchestration/agent-handoffs/2026-06-11-0XX-amiga-event-finish-slice-N.md` (increment `XXX` from last event-finish handoff).
+4. Agent writes handoff: `docs/archive/orchestration/agent-handoffs/2026-06-11-0XX-amiga-event-finish-slice-N.md` (increment `XXX` from last event-finish handoff).
 5. At **STOP gates**, agent lists exact browser/SQL checks and **waits** for user OK.
 6. **Do not git commit** unless user asks.
 7. After slices that change stored truth: run **UPDATE_DOCS** Part A; Part B when schema/writers ship (slice 0+).
@@ -86,7 +86,7 @@ Add new columns without dropping `overall_position` yet (safe rollback during mi
 - [x] Column exists: `SHOW COLUMNS FROM amiga_player_tournament_participation LIKE 'event_finish_position'`
 - [x] Existing verify suite still passes (writers unchanged this slice)
 
-**Handoff:** [`orchestration/agent-handoffs/2026-06-11-001-amiga-event-finish-slice-0.md`](orchestration/agent-handoffs/2026-06-11-001-amiga-event-finish-slice-0.md)
+**Handoff:** [`archive/orchestration/agent-handoffs/2026-06-11-001-amiga-event-finish-slice-0.md`](archive/orchestration/agent-handoffs/2026-06-11-001-amiga-event-finish-slice-0.md)
 
 ### Files (expected)
 
@@ -119,7 +119,7 @@ WC and league+cup return partial/NULL here (filled in slices 2–3).
 - [x] `python -m unittest scripts.amiga.test_participation_placement -v` — 14 OK
 - [x] All new tests pass
 
-**Handoff:** [`orchestration/agent-handoffs/2026-06-11-002-amiga-event-finish-slice-1.md`](orchestration/agent-handoffs/2026-06-11-002-amiga-event-finish-slice-1.md)
+**Handoff:** [`archive/orchestration/agent-handoffs/2026-06-11-002-amiga-event-finish-slice-1.md`](archive/orchestration/agent-handoffs/2026-06-11-002-amiga-event-finish-slice-1.md)
 
 ### Files (expected)
 
@@ -146,7 +146,7 @@ League+cup marathons: cup final → 1/2; cup 3rd-place or shared semi bronze; no
 - [x] Unit tests pass — 19 OK
 - [ ] Manual SQL (after slice 5 rebuild): compare old `overall_position` vs new finish for one league+cup id user cares about
 
-**Handoff:** [`orchestration/agent-handoffs/2026-06-11-003-amiga-event-finish-slice-2.md`](orchestration/agent-handoffs/2026-06-11-003-amiga-event-finish-slice-2.md)
+**Handoff:** [`archive/orchestration/agent-handoffs/2026-06-11-003-amiga-event-finish-slice-2.md`](archive/orchestration/agent-handoffs/2026-06-11-003-amiga-event-finish-slice-2.md)
 
 ### STOP GATE A
 
@@ -179,7 +179,7 @@ When writer is wired and rebuild run, report to user:
 - [x] `python -m unittest scripts.amiga.test_tournament_honours -v` — 8 OK
 - [x] `python -m unittest scripts.amiga.test_participation_placement -v` — 19 OK
 
-**Handoff:** [`orchestration/agent-handoffs/2026-06-11-004-amiga-event-finish-slice-3.md`](orchestration/agent-handoffs/2026-06-11-004-amiga-event-finish-slice-3.md)
+**Handoff:** [`archive/orchestration/agent-handoffs/2026-06-11-004-amiga-event-finish-slice-3.md`](archive/orchestration/agent-handoffs/2026-06-11-004-amiga-event-finish-slice-3.md)
 
 ### Files (expected)
 
@@ -205,7 +205,7 @@ Populate deepest main-bracket KO round label per player from standings depth log
 
 - [x] Unit tests pass — 27 placement + 8 honours OK
 
-**Handoff:** [`orchestration/agent-handoffs/2026-06-11-005-amiga-event-finish-slice-4.md`](orchestration/agent-handoffs/2026-06-11-005-amiga-event-finish-slice-4.md)
+**Handoff:** [`archive/orchestration/agent-handoffs/2026-06-11-005-amiga-event-finish-slice-4.md`](archive/orchestration/agent-handoffs/2026-06-11-005-amiga-event-finish-slice-4.md)
 
 ---
 
@@ -231,7 +231,7 @@ Participation rebuild writes `event_finish_position` + `best_knockout_phase`; to
 - [x] `python -m scripts.amiga verify-rating-events` OK
 - [x] Spot SQL: Dagh podiums 16; Copenhagen WC `event_finish_position` NULL, not a finish podium
 
-**Handoff:** [`orchestration/agent-handoffs/2026-06-11-006-amiga-event-finish-slice-5.md`](orchestration/agent-handoffs/2026-06-11-006-amiga-event-finish-slice-5.md)
+**Handoff:** [`archive/orchestration/agent-handoffs/2026-06-11-006-amiga-event-finish-slice-5.md`](archive/orchestration/agent-handoffs/2026-06-11-006-amiga-event-finish-slice-5.md)
 
 ### STOP GATE B
 
@@ -396,5 +396,5 @@ Each slice handoff file should include:
 
 ## Related
 
-- Starter prompt: [`orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md)
+- Starter prompt: [`archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md)
 - Policy: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)

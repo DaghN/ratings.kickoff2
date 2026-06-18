@@ -8,14 +8,14 @@
 
 ## How to use this plan
 
-**Track complete.** Handoffs: `docs/orchestration/agent-handoffs/2026-06-08-037` … `051`. For follow-up work see contract §9 deferred items and [`2026-06-08-051-player-universe-slice-14.md`](orchestration/agent-handoffs/2026-06-08-051-player-universe-slice-14.md).
+**Track complete.** Handoffs: `docs/archive/orchestration/agent-handoffs/2026-06-08-037` … `051`. For follow-up work see contract §9 deferred items and [`2026-06-08-051-player-universe-slice-14.md`](archive/orchestration/agent-handoffs/2026-06-08-051-player-universe-slice-14.md).
 
 Historical execution rules (slices 0–14):
 
 1. User says **“Do slice N”** (or **“Continue with the next slice”**).
 2. Agent completes **only that slice** unless user explicitly asks for multiple slices in one session.
 3. Agent runs the slice **Verification** commands before stopping.
-4. Agent writes a handoff file: `docs/orchestration/agent-handoffs/2026-06-08-0XX-player-universe-slice-N.md` (increment `XXX`).
+4. Agent writes a handoff file: `docs/archive/orchestration/agent-handoffs/2026-06-08-0XX-player-universe-slice-N.md` (increment `XXX`).
 5. At **STOP gates**, agent tells user what to click/check in the browser; **waits** for user OK before the next slice.
 
 **Do not commit** unless the user asks. **Do not** read or display `amiga_player_stats` streak columns in new PHP.
@@ -503,7 +503,7 @@ python -m scripts.amiga verify-player-matchups
 | Online H2H rebuild SQL | `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql` |
 | Online generalstats | `scripts/ladder/server_records.py` |
 | PHP tournament reads | `site/public_html/includes/amiga_tournament_lib.php` |
-| Agent handoff format | `docs/orchestration/agent-handoffs/2026-06-08-023-rating-events-slice-0-schema.md` |
+| Agent handoff format | `docs/archive/orchestration/agent-handoffs/2026-06-08-023-rating-events-slice-0-schema.md` |
 
 ---
 
@@ -567,7 +567,7 @@ python -m scripts.amiga verify-player-participation
 
 **Policy:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md).  
 **Execution:** [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) (slices 0–10).  
-**Starter prompt:** [`orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md).
+**Starter prompt:** [`archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md).
 
 | Milestone | Status |
 |-----------|--------|

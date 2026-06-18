@@ -21,6 +21,7 @@ Planning and audit material kept for history — **not** the live spec for the s
 | `replay-register-2026-05.md` | Full May 2026 REP register + run log |
 | `STAGING_REPLAY-2026-05.md` | May 2026 staging Python ladder one-shot |
 | `session-log-2026-q2.md` | Trimmed `PROJECT_MEMORY.md` Recent log rows (May–Jun 2026) |
+| [`orchestration/`](orchestration/README.md) | **Jun 2026** — archived agent slice handoffs (105), retired starters, `prompt-001`–`022`; live disposition starters stay in `docs/orchestration/agent-handoffs/` |
 | `profile-data-audit-pass2.md` | Pass-2 data map, B1/B2 ranking, feast contract, mock briefs (pre-ship) |
 | `profile-redesign-framing.md` | Audience, JTBD, Steve anchor, tone |
 | `profile-lab-agent-handoff.md` | Multi-agent lab prompts (Jun 2026; lab PHP removed; production feast shipped) |

@@ -23,12 +23,12 @@
 1. User says **“Do slice N”** or **“Continue with the next slice”**.
 2. Agent executes **only that slice** unless user asks for multiple in one session.
 3. Run slice **Verification** before stopping; fix failures before handoff.
-4. Handoff: `docs/orchestration/agent-handoffs/YYYY-MM-DD-NNN-amiga-tournament-medals-unification-slice-N.md`
+4. Handoff: `docs/archive/orchestration/agent-handoffs/YYYY-MM-DD-NNN-amiga-tournament-medals-unification-slice-N.md`
 5. At **STOP gates:** list SQL + browser checks; **wait** for user OK.
 6. **Do not git commit** unless user asks.
 7. Stored-truth slices: **UPDATE_DOCS** Part A same turn; Part B when schema/writers ship.
 
-**Starter prompt:** [`orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md)
+**Starter prompt:** [`archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md)
 
 ---
 
