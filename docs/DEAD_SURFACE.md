@@ -23,6 +23,12 @@
 | `site_header.php` — Online/Amiga realm switcher markup | No Amiga realm UI; tint picker unchanged via `realm-switch.js` |
 | `theme.css` — `.k2-site-header__realm*`, `.k2-realm-switch*` | Orphan after header markup removed |
 | `realm-switch.js` — realm UI + `k2-realm` localStorage | File kept for tint pills only; `theme_boot_head.php` no longer reads realm |
+| `includes/peak_period_leaderboards_section.php` | Activity v1-era preview; zero runtime includes |
+| `includes/period_activity_leaderboards_section.php` | Activity v1-era preview; superseded by stored `player_period_games` + LB UI |
+| `includes/player_wing_up_link.php` | Wing « Leaderboards link folded into `site_header` nav (Jun 2026) |
+| `js/activity-mode-toggle.js` | Unloaded after Activity charts v2; file had zero `src=` refs |
+| `player-feast-sections.css` — `.pm3-rivalry-teaser*` | Rivalry placeholder removed from profile (Jun 2026) |
+| `theme.css` — `.k2-status-bridge*` | Status room grid iteration leftover; markup uses `k2-status-room` panels |
 
 **Deploy:** WinSCP sync `site/public_html/` (JS deletes, `status-realm-lab.php`, `theme.css`). Hard refresh.
 

@@ -69,7 +69,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | **Recent rated games** | `ratedresults` · `Date DESC` | ~10; show player names and score only, no rating deltas; header link `Games →` opens full Games list |
 | **Heritage box** | static image | Box art only; **Play & Setup** is a hub tab. Inset now links to **`boxart.php`** (illustrated box-art history) |
 
-**Not in v1:** games-played-by-period triple tables (`period_activity_leaderboards_section.php` — now backed by `player_period_games`, preview only until deliberately placed); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics; polling (v1.5).
+**Not in v1:** games-played-by-period triple tables (preview includes removed Jun 2026 — data now in `player_period_games` + LB UI when placed); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics; polling (v1.5).
 
 **Display:** Active top 20 may use slightly smaller type if needed for density.
 

@@ -3310,29 +3310,7 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 
 /* Rank + rating glow: stylesheets/player-hero-rank.css (via k2_head.php) */
 
-/* â”€â”€ Status bridge + cards â”€â”€ */
-.k2-status-bridge {
-	max-width: 1200px;
-}
-
-.k2-status-bridge__intro {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	gap: 20px 24px;
-	margin-bottom: 4px;
-}
-
-.k2-status-bridge__intro--heritage-only {
-	justify-content: flex-end;
-	margin-bottom: 0;
-}
-
-.k2-status-bridge__copy {
-	flex: 1 1 280px;
-	min-width: 0;
-}
-
+/* â”€â”€ Status cards + heritage â”€â”€ */
 .k2-heritage-box {
 	flex: 0 0 auto;
 	width: 156px;
@@ -3388,8 +3366,7 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 }
 
 .k2-card__hint,
-.k2-hub-panel__hint,
-.k2-status-bridge__link {
+.k2-hub-panel__hint {
 	margin: 0;
 	font-size: 13px;
 	color: var(--k2-text-muted);

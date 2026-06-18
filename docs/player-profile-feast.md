@@ -17,7 +17,6 @@
 | Blocks | `includes/player_feast_blocks.php` |
 | Helpers | `includes/player_feast_helpers.php` |
 | Hero | `includes/player_hero.php` (rank, rating, games, milestones when unlocked) |
-| Wing context link | ~~`includes/player_wing_up_link.php`~~ — removed from online + Amiga player heroes (Jun 2026); file retained unused |
 | Nav pills | `includes/player_nav.php` — Profile · **Opponents** · Milestones · Games |
 | Opponents wing | `player/opponents/*.php` — inner tabs Head-to-head · W/D/L · Goals · DDs |
 | Milestones | `player/milestones/garden.php` · `player/milestones/chronology.php` — inner wings **Garden** · **Chronology**; Chronology = player-filtered Recent feed (tier filter, newest-first, no player column); tier garden on Garden (`#garden-aspirational` …); helpers `includes/player_milestones_helpers.php`, `includes/player_milestones_lib.php` |
