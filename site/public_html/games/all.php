@@ -60,20 +60,20 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 				</span>
 				<nav class="k2-player-games-day-steps k2-realm-games-all__status-nav" aria-label="Page">
 					<?php if ($offset > 0) { ?>
-					<a class="k2-player-games-day-step k2-player-games-day-step--prev" href="<?php echo k2_realm_games_all_h(k2_realm_games_all_build_url($pagerBase + ['offset' => max(0, $offset - $limit)])); ?>" aria-label="Previous page" title="Previous page">
+					<a class="k2-player-games-day-step k2-player-games-day-step--prev" href="<?php echo k2_realm_games_all_h(k2_realm_games_all_build_url($pagerBase + ['offset' => max(0, $offset - $limit)])); ?>" aria-label="Previous page">
 						<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span>
 					</a>
 					<?php } else { ?>
-					<span class="k2-player-games-day-step k2-player-games-day-step--prev is-disabled" aria-disabled="true" title="Previous page">
+					<span class="k2-player-games-day-step k2-player-games-day-step--prev is-disabled" aria-disabled="true" aria-label="Previous page">
 						<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span>
 					</span>
 					<?php } ?>
 					<?php if ($offset + $limit < $totalMatches) { ?>
-					<a class="k2-player-games-day-step k2-player-games-day-step--next" href="<?php echo k2_realm_games_all_h(k2_realm_games_all_build_url($pagerBase + ['offset' => $offset + $limit])); ?>" aria-label="Next page" title="Next page">
+					<a class="k2-player-games-day-step k2-player-games-day-step--next" href="<?php echo k2_realm_games_all_h(k2_realm_games_all_build_url($pagerBase + ['offset' => $offset + $limit])); ?>" aria-label="Next page">
 						<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span>
 					</a>
 					<?php } else { ?>
-					<span class="k2-player-games-day-step k2-player-games-day-step--next is-disabled" aria-disabled="true" title="Next page">
+					<span class="k2-player-games-day-step k2-player-games-day-step--next is-disabled" aria-disabled="true" aria-label="Next page">
 						<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span>
 					</span>
 					<?php } ?>

@@ -65,22 +65,10 @@ function player_opponents_render_wdl_table_from_rows(array $rows): void
         } else {
             echo '0';
         } ?></td>
-        <td><?php if ($wins != 0) {
-            echo "<span class='blue'>";
-            echo number_format(100 * $winRatio, 1);
-            echo '%';
-        } else {
-            echo '0%';
-        } ?></td>
+        <td><?php echo $wins != 0 ? number_format(100 * $winRatio, 1) . '%' : '0%'; ?></td>
         <td><?php echo number_format(100 * $drawRatio, 1);
         echo '%'; ?></td>
-        <td><?php if ($losses != 0) {
-            echo "<span class='red'>";
-            echo number_format(100 * $lossRatio, 1);
-            echo '%';
-        } else {
-            echo '0%';
-        } ?></td>
+        <td><?php echo $losses != 0 ? number_format(100 * $lossRatio, 1) . '%' : '0%'; ?></td>
     </tr>
     <?php } ?>
 </tbody>

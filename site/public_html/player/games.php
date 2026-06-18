@@ -271,7 +271,7 @@ function individual3_render_played_period_step(string $dir, ?string $anchorYmd, 
     $label = individual3_played_period_step_label($periodType, $dir);
     $classes = 'k2-player-games-day-step k2-player-games-day-step--' . $dir;
     if ($anchorYmd === null || $anchorYmd === '') {
-        echo '<span class="' . $classes . ' is-disabled" aria-disabled="true" title="' . individual3_h($label) . '">';
+        echo '<span class="' . $classes . ' is-disabled" aria-disabled="true" aria-label="' . individual3_h($label) . '">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
 
         return;
@@ -293,20 +293,20 @@ function individual3_render_page_nav(int $offset, int $limit, int $totalMatches,
         $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)];
         echo '<a class="k2-player-games-day-step k2-player-games-day-step--prev" href="'
             . individual3_h(individual3_build_url($prevParams))
-            . '" aria-label="Previous page" title="Previous page">';
+            . '" aria-label="Previous page">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
     } else {
-        echo '<span class="k2-player-games-day-step k2-player-games-day-step--prev is-disabled" aria-disabled="true" title="Previous page">';
+        echo '<span class="k2-player-games-day-step k2-player-games-day-step--prev is-disabled" aria-disabled="true" aria-label="Previous page">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
     }
     if ($offset + $limit < $totalMatches) {
         $nextParams = $pagerParams + ['offset' => $offset + $limit];
         echo '<a class="k2-player-games-day-step k2-player-games-day-step--next" href="'
             . individual3_h(individual3_build_url($nextParams))
-            . '" aria-label="Next page" title="Next page">';
+            . '" aria-label="Next page">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
     } else {
-        echo '<span class="k2-player-games-day-step k2-player-games-day-step--next is-disabled" aria-disabled="true" title="Next page">';
+        echo '<span class="k2-player-games-day-step k2-player-games-day-step--next is-disabled" aria-disabled="true" aria-label="Next page">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
     }
     echo '</nav>';
