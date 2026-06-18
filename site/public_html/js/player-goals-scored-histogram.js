@@ -280,11 +280,6 @@
                     },
                     y: T && T.careerChartYAxisOptions ? T.careerChartYAxisOptions({
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Games',
-                            color: T.tickColor()
-                        },
                         ticks: {
                             color: T.tickColor(),
                             precision: 0
@@ -292,11 +287,6 @@
                         grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     }) : {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Games',
-                            color: T.tickColor()
-                        },
                         ticks: {
                             color: T.tickColor(),
                             precision: 0

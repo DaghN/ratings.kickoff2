@@ -12,6 +12,8 @@
 	var PENDING_CLASS = 'ranked-table-pending';
 	var TOOLTIP_BOUND_ATTR = 'data-k2-tooltip-bound';
 	var TOOLTIP_ID = 'k2-table-tooltip';
+	var COARSE_TAP_SCOPE = 'k2-help-link';
+	var PINNED_HELP_CLASS = 'k2-table-helped--pinned';
 	var activeTooltipHeader = null;
 
 	function addClass(el, className) {
@@ -150,7 +152,23 @@
 			body.style.display = help ? '' : 'none';
 		}
 		if (action) {
-			action.style.display = isSortable ? '' : 'none';
+			var customAction = trimText(header.getAttribute('data-k2-tooltip-action') || '');
+			if (customAction) {
+				setText(action, customAction);
+				action.style.display = '';
+			} else if (isSortable) {
+				setText(action, 'Click to sort.');
+				action.style.display = '';
+			} else {
+				action.style.display = 'none';
+			}
+		}
+
+		var tierAccent = header.getAttribute('data-k2-tooltip-tier');
+		if (tierAccent) {
+			tooltip.setAttribute('data-k2-tooltip-tier', tierAccent);
+		} else {
+			tooltip.removeAttribute('data-k2-tooltip-tier');
 		}
 
 		activeTooltipHeader = header;
@@ -173,6 +191,7 @@
 		if (tooltip) {
 			tooltip.hidden = true;
 			tooltip.setAttribute('aria-hidden', 'true');
+			tooltip.removeAttribute('data-k2-tooltip-tier');
 		}
 	}
 
@@ -567,6 +586,81 @@
 		return sortTableByIndex(table, urlSort.index, urlSort.direction);
 	}
 
+	function isCoarseTapHelpTarget(header) {
+		return header && header.getAttribute('data-k2-coarse-tap') === '1';
+	}
+
+	function coarseTapModule() {
+		return typeof window !== 'undefined' ? window.K2CoarseTap : null;
+	}
+
+	function updateCoarseTooltipAction(header) {
+		var tooltip = document.getElementById(TOOLTIP_ID);
+		var action;
+		var coarseText;
+
+		if (!tooltip) {
+			return;
+		}
+		action = tooltip.querySelector ? tooltip.querySelector('.k2-table-tooltip__action') : null;
+		if (!action) {
+			return;
+		}
+		coarseText = trimText(header.getAttribute('data-k2-tooltip-action-coarse') || '');
+		if (!coarseText) {
+			coarseText = trimText(header.getAttribute('data-k2-tooltip-action') || '');
+			if (coarseText.indexOf('Click ') === 0) {
+				coarseText = 'Tap again to ' + coarseText.slice(6);
+			} else if (coarseText) {
+				coarseText = 'Tap again — ' + coarseText;
+			}
+		}
+		setText(action, coarseText);
+		action.style.display = coarseText ? '' : 'none';
+	}
+
+	function initCoarseTapHelpLink(header) {
+		var CT = coarseTapModule();
+
+		if (!isCoarseTapHelpTarget(header) || !CT || !CT.isCoarsePointer || !CT.handleDomTap) {
+			return;
+		}
+
+		header.addEventListener('click', function (evt) {
+			var href;
+
+			if (!CT.isCoarsePointer()) {
+				return;
+			}
+
+			href = header.getAttribute('href') || '';
+			evt.preventDefault();
+			if (CT.installDismiss) {
+				CT.installDismiss();
+			}
+
+			CT.handleDomTap(COARSE_TAP_SCOPE, href, header, {
+				pinnedClass: PINNED_HELP_CLASS,
+				onDismiss: function () {
+					hideTooltip(header);
+				},
+				onPreview: function () {
+					showTooltip(header);
+					updateCoarseTooltipAction(header);
+				},
+				isActionable: function () {
+					return href !== '';
+				},
+				onConfirm: function () {
+					hideTooltip(header);
+					if (href) {
+						window.location.href = href;
+					}
+				}
+			});
+		});
+	}
+
 	function sortTable(table, header) {
 		var columnIndex = header.cellIndex;
 		var isSameColumn = table._k2SortIndex === columnIndex;
@@ -584,6 +678,12 @@
 	function isHoverOnlyTooltipTarget(header) {
 		if (!header) {
 			return false;
+		}
+		if (isCoarseTapHelpTarget(header)) {
+			var CT = coarseTapModule();
+			if (CT && CT.isCoarsePointer && CT.isCoarsePointer()) {
+				return false;
+			}
 		}
 		if (header.getAttribute('data-k2-tooltip-hover-only') === '1') {
 			return true;
@@ -621,11 +721,12 @@
 				hideTooltip(this);
 			}
 		});
-		if (hoverOnly) {
+		if (hoverOnly && !isCoarseTapHelpTarget(header)) {
 			header.addEventListener('mousedown', function () {
 				hideTooltip(this);
 			});
 		}
+		initCoarseTapHelpLink(header);
 	}
 
 	function initTable(table) {

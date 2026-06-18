@@ -562,6 +562,13 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 	max-width: var(--k2-chart-max-width, 960px);
 }
 
+/* Profile — center the last four chart panels (career stack + top opponents) in the page column */
+.player-feast-body .pm3d-section--charts .pm3d-section__content > .pm3d-career-charts,
+.player-feast-body .pm3d-section--top-opponents .pm3d-section__content > .pm3d-top-opponents {
+	margin-left: auto;
+	margin-right: auto;
+}
+
 .pm3d-career-charts > .player-rating-chart,
 .pm3d-career-charts > .player-games-month-chart {
 	margin: 0;

@@ -39,7 +39,9 @@ const K2_ROUTES = [
 	'player-opponents-wdl' => 'player/opponents/wdl.php',
 	'player-opponents-goals' => 'player/opponents/goals.php',
 	'player-opponents-dds' => 'player/opponents/dds.php',
-	'player-milestones' => 'player/milestones.php',
+	'player-milestones' => 'player/milestones/garden.php', /* default Milestones pill → Garden */
+	'player-milestones-garden' => 'player/milestones/garden.php',
+	'player-milestones-chronology' => 'player/milestones/chronology.php',
 ];
 
 function k2_route(string $name, array $params = []): string

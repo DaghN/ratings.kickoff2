@@ -120,7 +120,7 @@ function player_feast_lab1_load_honours(mysqli $con, int $playerId, array $pm): 
         'latest_medal' => null,
         'career_medals' => null,
         'league_wins' => 0,
-        'garden_href' => 'player/milestones.php?id=' . $playerId,
+        'garden_href' => 'player/milestones/garden.php?id=' . $playerId,
         'honours_href' => 'leaderboards/league-honours.php?cup=overall',
     ];
 

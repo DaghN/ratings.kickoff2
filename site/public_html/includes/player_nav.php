@@ -5,13 +5,14 @@
  * Tint picker on the right (parity with hub_nav.php).
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_opponents_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_lib.php';
 
 $k2PlayerTabActive = $k2PlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
 $k2PlayerTabs = [
 	'profile' => ['href' => k2_route('player-profile', ['id' => $id]), 'label' => 'Profile'],
 	'opponents' => ['href' => player_opponents_default_href($id), 'label' => 'Opponents'],
-	'milestones' => ['href' => k2_route('player-milestones', ['id' => $id]), 'label' => 'Milestones'],
+	'milestones' => ['href' => player_milestones_default_href($id), 'label' => 'Milestones'],
 	'games' => ['href' => k2_route('player-games', ['id' => $id]), 'label' => 'Games'],
 ];
 ?>

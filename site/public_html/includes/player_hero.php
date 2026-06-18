@@ -5,6 +5,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_lib.php';
 
 if (empty($Name)) {
 	return;
@@ -63,7 +64,7 @@ $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 					<span class="k2-player-hero__stat-value"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbGamesPeakHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
 				</div>
 				<?php if ($heroMs !== null && $heroMsPlayerId > 0) {
-					$gardenHref = k2_route('player-milestones', ['id' => $heroMsPlayerId]);
+					$gardenHref = player_milestones_default_href($heroMsPlayerId);
 					$msTotal = (int) $heroMs['total'];
 					?>
 				<div class="k2-player-hero__stat k2-player-hero__stat--milestones">

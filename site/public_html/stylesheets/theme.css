@@ -2844,11 +2844,7 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 }
 
 /* Opponents wing â€” mirror league-honours: 12px hub bar â†’ sub bar; 12px sub bar â†’ table */
-body.k2-site .k2-page-nav--opponents .k2-player-nav-bar {
-	margin-bottom: 0;
-}
-
-body.k2-site .k2-page-nav--opponents .k2-chrome-tabs.k2-player-opponents {
+body.k2-site .k2-chrome-tabs.k2-player-opponents {
 	margin-top: 4px;
 	margin-bottom: 4px;
 }

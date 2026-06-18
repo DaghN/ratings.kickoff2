@@ -1,0 +1,77 @@
+<?php
+/**
+ * Shared Milestones wing page shell. Set $k2PlayerMilestonesView before require
+ * (garden | chronology).
+ */
+declare(strict_types=1);
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_lib.php';
+
+$k2PlayerMilestonesView = player_milestones_parse_view($k2PlayerMilestonesView ?? null);
+$view = $k2PlayerMilestonesView;
+
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="online">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Kick Off 2 ratings</title>
+
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<link href="/stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
+
+</head>
+
+<body class="k2-site k2-player-wing">
+
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
+
+$id = k2_positive_int_param('id', 'Invalid player id.');
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero_vars.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+
+$numberGames = isset($NumberGames) ? (int) $NumberGames : 0;
+$counts = $heroMilestoneCounts ?? null;
+if (!isset($heroMsCatalogTotal) || (int) $heroMsCatalogTotal < 1) {
+    $heroMsCatalogTotal = k2_milestone_catalog_total($con);
+}
+$milestoneCatalogTotal = (int) $heroMsCatalogTotal;
+
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
+?>
+
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero.php'; ?>
+
+<?php
+$k2PlayerTabActive = 'milestones';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_nav.php';
+
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_nav.php';
+
+$msPlayerName = isset($Name) ? (string) $Name : '';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_wing_chapter.php';
+player_milestones_render_wing_chapter($view, $id, $msPlayerName, $numberGames, $counts, $milestoneCatalogTotal);
+
+if ($view !== 'chronology') {
+    $gardenByTier = k2_milestone_garden_by_tier($con, $id);
+    ?>
+<div class="k2-ms-garden">
+    <?php k2_milestone_render_garden($gardenByTier); ?>
+</div>
+    <?php
+}
+
+mysqli_close($con);
+?>
+
+</div><!-- .k2-chrome-tabs.k2-player-milestones -->
+
+</div><!-- .k2-page-nav -->
+
+</body>
+</html>

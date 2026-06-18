@@ -61,7 +61,6 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero_vars.php';
 
-$k2PageNavClass = 'k2-page-nav--opponents';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 
 ?>

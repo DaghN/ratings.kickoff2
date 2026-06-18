@@ -214,6 +214,9 @@
                 if (target.closest('.pm3-cal__cell--pinned')) {
                     return;
                 }
+                if (target.closest('.k2-table-helped--pinned')) {
+                    return;
+                }
                 if (target.closest('canvas')) {
                     return;
                 }

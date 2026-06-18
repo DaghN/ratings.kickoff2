@@ -418,7 +418,7 @@ function player_feast_render_honours(array $pm): void
 		<?php } ?>
 	</ul>
 	<p class="pm3-honours__links">
-		<a href="<?php echo pm_h((string) ($honours['garden_href'] ?? 'player/milestones.php?id=' . $playerId)); ?>">Milestone garden</a>
+		<a href="<?php echo pm_h((string) ($honours['garden_href'] ?? 'player/milestones/garden.php?id=' . $playerId)); ?>">Milestone garden</a>
 		· <a href="<?php echo pm_h((string) ($honours['honours_href'] ?? 'leaderboards/league-honours.php?cup=overall')); ?>">League honours</a>
 	</p>
 </div>

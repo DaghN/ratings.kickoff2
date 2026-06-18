@@ -3,8 +3,75 @@
  * Hero milestone strip: theme.css (.k2-player-hero__milestones*).
  */
 
+body.k2-site .k2-chrome-tabs.k2-player-milestones {
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+
+body.k2-site .k2-player-milestones__nav {
+	width: fit-content;
+	max-width: 100%;
+	margin-bottom: 12px;
+}
+
+body.k2-site .k2-player-milestones__bar {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-ms-chronology {
+	margin-top: 0;
+}
+
+/* Inner-wing chapter — primary title + lede (hub chapter typography, nested under player nav) */
+body.k2-site .k2-player-wing-chapter {
+	margin: 0 0 16px;
+	max-width: 44rem;
+}
+
+body.k2-site .k2-player-wing-chapter__title {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-body);
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.3;
+	letter-spacing: 0.01em;
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .k2-player-wing-chapter__lede {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-body);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-player-wing-chapter__lede:last-child {
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-player-wing-chapter__meta {
+	margin: 0 0 14px;
+	font-family: var(--k2-font-body);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.45;
+	color: var(--k2-text-muted);
+}
+
+body.k2-site .k2-player-wing-chapter__meta .k2-ms-wing-chapter__unlocked {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
 .k2-ms-garden__section {
 	margin-bottom: 28px;
+}
+
+body.k2-site.k2-player-wing .k2-ms-garden__section[id] {
+	scroll-margin-top: 16px;
 }
 
 .k2-ms-garden__heading {

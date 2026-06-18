@@ -247,7 +247,7 @@ function player_feast_render_honours_lab3(array $pm): void
 		<p><strong><?php echo number_format((int) $career['wins']); ?></strong> league win<?php echo (int) $career['wins'] === 1 ? '' : 's'; ?> across daily, weekly, monthly, and yearly races.</p>
 		<a class="pm3-lab3-chip" href="/leaderboards/league-honours.php?cup=overall">League honours</a>
 		<?php } ?>
-		<a class="pm3-lab3-chip" href="/player/milestones.php?id=<?php echo (int) $pm['id']; ?>">Milestone garden</a>
+		<a class="pm3-lab3-chip" href="/player/milestones/garden.php?id=<?php echo (int) $pm['id']; ?>">Milestone garden</a>
 	</div>
 </div>
     <?php

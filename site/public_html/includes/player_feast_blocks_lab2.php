@@ -445,7 +445,7 @@ function player_feast_render_honours(array $pm): void
 			<li><strong><?php echo (int) $ms['last12']; ?></strong> unlocked in the last 12 months</li>
             <?php } ?>
 		</ul>
-		<p class="k2-lab2-honours__link"><a href="/player/milestones.php?id=<?php echo $playerId; ?>">Milestone garden →</a></p>
+		<p class="k2-lab2-honours__link"><a href="/player/milestones/garden.php?id=<?php echo $playerId; ?>">Milestone garden →</a></p>
 	</div>
     <?php } ?>
     <?php if ($hasLeague) {

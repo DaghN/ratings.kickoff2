@@ -85,6 +85,10 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Player Milestones wing chapters** — Garden + Chronology each get primary title, muted lede, fact meta strip below inner tabs. |
+| 2026-06 | **Player Milestones wings** — `player/milestones/garden.php` + `chronology.php` (placeholder); inner tabs Garden · Chronology; legacy `player/milestones.php` → 302 Garden. |
+| 2026-06 | **Profile At a glance milestone tooltips** — tier counts link to garden tier anchors; coarse two-tap (preview tooltip → navigate). |
+| 2026-06 | **Profile career + opponents charts** — center 960px chart stack in page column (`player-feast-sections.css`). |
 | 2026-06 | **Profile glance CSS cache-bust** — `player-feast-glance.css` now uses `?v=filemtime` on `profile.php` + lab pages (parity with other feast stylesheets; fixes stale at-a-glance layout/colours on staging). |
 | 2026-06 | **Profile top-opponents x-axis** — `max` = top opponent games (no nice-number headroom; `grace: 0`). |
 | 2026-06 | **Profile opponents finale lede** — “plenty is still to come!” + “Let's not forget… we picked up along the way.” |

@@ -88,6 +88,23 @@ function k2_milestone_tier_heading_class(string $tierBand): string
     return 'k2-panel-heading k2-ms-garden__heading k2-lb-ms-tier--' . $token;
 }
 
+/** Stable fragment id for a garden tier section (player milestones tab). */
+function k2_milestone_garden_tier_anchor_id(string $tierBand): string
+{
+    return 'garden-' . $tierBand;
+}
+
+function k2_milestone_garden_tier_href(int $playerId, string $tierBand): string
+{
+    $playerId = max(0, $playerId);
+    $base = k2_route('player-milestones-garden', ['id' => $playerId]);
+    if ($playerId < 1 || !in_array($tierBand, K2_MILESTONE_TIER_ORDER, true)) {
+        return $base;
+    }
+
+    return $base . '#' . k2_milestone_garden_tier_anchor_id($tierBand);
+}
+
 /**
  * Sort garden cards: most common milestones first within tier (see garden_order.php).
  *
@@ -528,6 +545,16 @@ function k2_milestones_recent_href(?string $tierBand = null): string
     return k2_route('milestones-recent', ['tier' => $tierBand]);
 }
 
+function player_milestones_chronology_href(int $playerId, ?string $tierBand = null): string
+{
+    $params = ['id' => max(0, $playerId)];
+    if ($tierBand !== null && $tierBand !== '' && in_array($tierBand, K2_MILESTONE_TIER_ORDER, true)) {
+        $params['tier'] = $tierBand;
+    }
+
+    return k2_route('player-milestones-chronology', $params);
+}
+
 function k2_milestones_catalog_href(): string
 {
     return k2_route('milestones-catalog');
@@ -747,6 +774,32 @@ function k2_milestone_definition_hub(mysqli $con, string $milestoneKey): ?array
 }
 
 /**
+ * @param array<string, mixed> $row SQL row with milestone_key, achieved_at, player_id, display_name, …
+ * @return array<string, mixed>
+ */
+function k2_milestone_format_unlock_feed_row(array $row): array
+{
+    $mKey = (string) $row['milestone_key'];
+    $playerId = (int) $row['player_id'];
+    $unlockRow = $row;
+    $unlockRow['milestone_key'] = $mKey;
+
+    return [
+        'milestone_key' => $mKey,
+        'achieved_at' => (string) $row['achieved_at'],
+        'achieved_label' => k2_milestone_format_utc((string) $row['achieved_at']),
+        'player_id' => $playerId,
+        'player_name' => (string) ($row['player_name'] ?? ''),
+        'display_name' => k2_milestone_strip_markdown((string) $row['display_name']),
+        'rule_short' => k2_milestone_strip_markdown((string) $row['rule_short']),
+        'tier_band' => (string) $row['tier_band'],
+        'chart_token' => (string) $row['chart_token'],
+        'detail_href' => k2_milestone_detail_href($mKey),
+        'event_link_html' => k2_milestone_unlock_event_link_html($playerId, $unlockRow),
+    ];
+}
+
+/**
  * Latest server-wide unlocks for the Recent feed.
  *
  * @return array<int, array<string, mixed>>
@@ -787,23 +840,51 @@ function k2_milestone_recent_unlocks(mysqli $con, int $limit = K2_MILESTONE_RECE
     $result = k2_query_or_public_error($con, $sql, 'recent milestone unlocks');
     $rows = [];
     while ($row = mysqli_fetch_assoc($result)) {
-        $mKey = (string) $row['milestone_key'];
-        $playerId = (int) $row['player_id'];
-        $unlockRow = $row;
-        $unlockRow['milestone_key'] = $mKey;
-        $rows[] = [
-            'milestone_key' => $mKey,
-            'achieved_at' => (string) $row['achieved_at'],
-            'achieved_label' => k2_milestone_format_utc((string) $row['achieved_at']),
-            'player_id' => $playerId,
-            'player_name' => (string) $row['player_name'],
-            'display_name' => k2_milestone_strip_markdown((string) $row['display_name']),
-            'rule_short' => k2_milestone_strip_markdown((string) $row['rule_short']),
-            'tier_band' => (string) $row['tier_band'],
-            'chart_token' => (string) $row['chart_token'],
-            'detail_href' => k2_milestone_detail_href($mKey),
-            'event_link_html' => k2_milestone_unlock_event_link_html($playerId, $unlockRow),
-        ];
+        $rows[] = k2_milestone_format_unlock_feed_row($row);
+    }
+
+    return $rows;
+}
+
+/**
+ * One player's unlock timeline (Chronology wing) — oldest first, full career.
+ *
+ * @return array<int, array<string, mixed>>
+ */
+function k2_milestone_player_unlocks(mysqli $con, int $playerId, ?string $tierBand = null): array
+{
+    if (!k2_milestone_tables_ready($con) || $playerId < 1) {
+        return [];
+    }
+    $playerId = (int) $playerId;
+    $tierFilterSql = '';
+    if ($tierBand !== null && in_array($tierBand, K2_MILESTONE_TIER_ORDER, true)) {
+        $tierEsc = mysqli_real_escape_string($con, $tierBand);
+        $tierFilterSql = " AND md.tier_band = '$tierEsc'";
+    }
+    $sql = "
+        SELECT
+            pm.milestone_key,
+            pm.achieved_at,
+            pm.player_id,
+            pm.source_kind,
+            pm.source_game_id,
+            pm.source_league_kind,
+            pm.source_period_type,
+            pm.source_period_start,
+            md.display_name,
+            md.rule_short,
+            md.tier_band,
+            md.chart_token
+        FROM player_milestones pm
+        INNER JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
+        WHERE pm.player_id = $playerId$tierFilterSql
+        ORDER BY pm.achieved_at ASC, pm.milestone_key ASC
+    ";
+    $result = k2_query_or_public_error($con, $sql, 'player milestone unlocks');
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rows[] = k2_milestone_format_unlock_feed_row($row);
     }
 
     return $rows;
@@ -1027,19 +1108,22 @@ function k2_milestone_recent_event_link_html(?string $eventLinkHtml, string $cha
     return $eventLinkHtml;
 }
 
-function k2_milestone_render_recent_tier_filter(?string $activeTier): void
+/**
+ * @param callable(?string): string $hrefForTier null tier = All
+ */
+function k2_milestone_render_unlock_tier_filter(?string $activeTier, callable $hrefForTier, string $ariaLabel): void
 {
     ?>
-<nav class="k2-ms-recent-tier-filter" data-k2-carry-scroll aria-label="Filter recent unlocks by tier">
+<nav class="k2-ms-recent-tier-filter" data-k2-carry-scroll aria-label="<?php echo k2_h($ariaLabel); ?>">
 	<div class="k2-chrome-tabs__bar k2-ms-recent-tier-filter__bar">
-		<a href="<?php echo k2_h(k2_milestones_recent_href()); ?>"
+		<a href="<?php echo k2_h($hrefForTier(null)); ?>"
 			class="k2-chrome-tabs__tab k2-ms-recent-tier-filter__tab k2-ms-recent-tier-filter__tab--all<?php echo $activeTier === null ? ' is-active' : ''; ?>"
 			<?php echo $activeTier === null ? ' aria-current="page"' : ''; ?>>All</a>
     <?php foreach (K2_MILESTONE_TIER_ORDER as $tier) {
         $token = K2_MILESTONE_TIER_CHART_TOKEN[$tier] ?? 'pitch';
         $isActive = $activeTier === $tier;
         ?>
-		<a href="<?php echo k2_h(k2_milestones_recent_href($tier)); ?>"
+		<a href="<?php echo k2_h($hrefForTier($tier)); ?>"
 			class="k2-chrome-tabs__tab k2-ms-recent-tier-filter__tab k2-ms-recent-tier-filter__tab--<?php echo k2_h($token); ?><?php echo $isActive ? ' is-active' : ''; ?>"
 			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo k2_h(k2_milestone_tier_label($tier)); ?></a>
     <?php } ?>
@@ -1048,33 +1132,74 @@ function k2_milestone_render_recent_tier_filter(?string $activeTier): void
     <?php
 }
 
-/**
- * @param array<int, array<string, mixed>> $recentRows
- */
-function k2_milestone_render_recent_feed(array $recentRows, ?string $tierBand = null): void
+function k2_milestone_render_recent_tier_filter(?string $activeTier): void
 {
+    k2_milestone_render_unlock_tier_filter(
+        $activeTier,
+        static fn (?string $tier): string => k2_milestones_recent_href($tier),
+        'Filter recent unlocks by tier'
+    );
+}
+
+function k2_milestone_render_player_chronology_tier_filter(int $playerId, ?string $activeTier): void
+{
+    k2_milestone_render_unlock_tier_filter(
+        $activeTier,
+        static fn (?string $tier): string => player_milestones_chronology_href($playerId, $tier),
+        'Filter unlock timeline by tier'
+    );
+}
+
+/**
+ * @param array<int, array<string, mixed>> $unlockRows
+ * @param array{
+ *   show_heading?: bool,
+ *   show_player?: bool,
+ *   heading?: string,
+ *   heading_id?: string,
+ *   empty_all?: string,
+ *   empty_tier?: string,
+ *   aria_label?: string,
+ *   list_class?: string
+ * } $opts
+ */
+function k2_milestone_render_unlock_feed(array $unlockRows, ?string $tierBand = null, array $opts = []): void
+{
+    $showHeading = $opts['show_heading'] ?? true;
+    $showPlayer = $opts['show_player'] ?? true;
+    $heading = $opts['heading'] ?? 'Recent unlocks';
+    $headingId = $opts['heading_id'] ?? 'k2-ms-recent-list-heading';
+    $emptyAll = $opts['empty_all'] ?? 'No unlocks recorded yet.';
+    $emptyTier = $opts['empty_tier'] ?? 'No recent unlocks in this tier yet.';
+    $ariaLabel = $opts['aria_label'] ?? 'Recent milestone unlocks';
+    $listClass = trim('k2-ms-recent-list' . ($showPlayer ? '' : ' k2-ms-recent-list--no-player') . ' ' . ($opts['list_class'] ?? ''));
+    $sectionLabelAttr = $showHeading
+        ? ' aria-labelledby="' . k2_h($headingId) . '"'
+        : ' aria-label="' . k2_h($ariaLabel) . '"';
     ?>
-<section class="k2-ms-recent-list-block" aria-labelledby="k2-ms-recent-list-heading">
+<section class="k2-ms-recent-list-block"<?php echo $sectionLabelAttr; ?>>
 	<div class="k2-ms-recent-list-inner">
-	<h2 class="k2-panel-heading k2-ms-recent-list__heading" id="k2-ms-recent-list-heading">Recent unlocks</h2>
+    <?php if ($showHeading) { ?>
+	<h2 class="k2-panel-heading k2-ms-recent-list__heading" id="<?php echo k2_h($headingId); ?>"><?php echo k2_h($heading); ?></h2>
+    <?php } ?>
     <?php
-    if ($recentRows === []) {
-        $emptyHint = $tierBand !== null
-            ? 'No recent unlocks in this tier yet.'
-            : 'No unlocks recorded yet.';
+    if ($unlockRows === []) {
+        $emptyHint = $tierBand !== null ? $emptyTier : $emptyAll;
         ?>
 	<p class="k2-ms-meta-hint"><?php echo k2_h($emptyHint); ?></p>
         <?php
     } else {
         ?>
-<ul class="k2-ms-recent-list">
-    <?php foreach ($recentRows as $item) {
+<ul class="<?php echo k2_h($listClass); ?>">
+    <?php foreach ($unlockRows as $item) {
         $token = (string) $item['chart_token'];
         $eventLink = (string) ($item['event_link_html'] ?? '');
         ?>
 	<li class="k2-ms-recent-list__item">
 		<time class="k2-ms-recent-line__when" datetime="<?php echo k2_h((string) $item['achieved_at']); ?>"><?php echo k2_h((string) $item['achieved_label']); ?></time>
+        <?php if ($showPlayer) { ?>
 		<span class="k2-ms-recent-line__player"><?php echo k2_milestone_recent_player_link((int) $item['player_id'], (string) $item['player_name'], $token); ?></span>
+        <?php } ?>
 		<span class="k2-ms-recent-line__feat"><?php echo k2_milestone_recent_tier_link((string) $item['detail_href'], (string) $item['display_name'], $token); ?></span>
 		<span class="k2-ms-recent-line__rule"><?php echo k2_h((string) $item['rule_short']); ?></span>
 		<span class="k2-ms-recent-line__event"><?php
@@ -1094,6 +1219,28 @@ function k2_milestone_render_recent_feed(array $recentRows, ?string $tierBand = 
 	</div>
 </section>
     <?php
+}
+
+/**
+ * @param array<int, array<string, mixed>> $recentRows
+ */
+function k2_milestone_render_recent_feed(array $recentRows, ?string $tierBand = null): void
+{
+    k2_milestone_render_unlock_feed($recentRows, $tierBand);
+}
+
+/**
+ * @param array<int, array<string, mixed>> $unlockRows
+ */
+function k2_milestone_render_player_chronology_feed(array $unlockRows, ?string $tierBand = null): void
+{
+    k2_milestone_render_unlock_feed($unlockRows, $tierBand, [
+        'show_heading' => false,
+        'show_player' => false,
+        'empty_all' => 'No milestones unlocked yet.',
+        'empty_tier' => 'No milestones unlocked in this tier yet.',
+        'aria_label' => 'Milestone unlock timeline',
+    ]);
 }
 
 /**
@@ -1299,7 +1446,7 @@ function k2_milestone_render_garden(array $gardenByTier): void
         }
         $label = k2_milestone_tier_label($tier);
         ?>
-<section class="k2-ms-garden__section" data-tier="<?php echo k2_h($tier); ?>">
+<section class="k2-ms-garden__section" id="<?php echo k2_h(k2_milestone_garden_tier_anchor_id($tier)); ?>" data-tier="<?php echo k2_h($tier); ?>">
 	<h2 class="<?php echo k2_h(k2_milestone_tier_heading_class($tier)); ?>"><?php echo k2_h($label); ?></h2>
 	<ul class="k2-ms-garden__grid">
         <?php foreach ($cards as $card) {

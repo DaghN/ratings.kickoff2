@@ -44,6 +44,7 @@
 | Milestones hub | `milestones/` | `recent.php`, `catalog.php` |
 | Leaderboards | `leaderboards/` | one wing per file |
 | Player opponents | `player/opponents/` | `h2h.php`, `wdl.php`, … |
+| Player milestones | `player/milestones/` | `garden.php`, `chronology.php` |
 
 **Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode).
 
@@ -107,7 +108,11 @@ Hub tab order: Status · Activity · Leaderboards · Milestones · **Games** · 
 | `player-opponents-wdl` | `/player/opponents/wdl.php` |
 | `player-opponents-goals` | `/player/opponents/goals.php` |
 | `player-opponents-dds` | `/player/opponents/dds.php` |
-| `player-milestones` | `/player/milestones.php` |
+| `player-milestones` | `/player/milestones/garden.php` (default Milestones tab — Garden) |
+| `player-milestones-garden` | `/player/milestones/garden.php` |
+| `player-milestones-chronology` | `/player/milestones/chronology.php` |
+
+Legacy `/player/milestones.php?id=` → **302** to Garden (query preserved).
 
 Query `?id=` required on all player tabs.
 

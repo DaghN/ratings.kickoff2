@@ -269,6 +269,14 @@ function player_feast_glance_milestone_tiers(array $counts): array
     return $rows;
 }
 
+function player_feast_glance_milestone_tier_tooltip(int $count, string $band): string
+{
+    $label = strtolower(K2_MILESTONE_TIER_LABELS[$band] ?? $band);
+    $word = $count === 1 ? 'milestone' : 'milestones';
+
+    return $count . ' ' . $label . ' ' . $word;
+}
+
 /** @param array<string, mixed> $pm */
 function player_feast_render_glance_milestones_cell(array $pm): void
 {
@@ -280,11 +288,23 @@ function player_feast_render_glance_milestones_cell(array $pm): void
     }
 
     $tiers = player_feast_glance_milestone_tiers($counts);
+    $playerId = (int) ($pm['id'] ?? 0);
     $parts = [];
     foreach ($tiers as $i => $tier) {
         $sep = $i > 0 ? '<span class="pm3efg-tier-sep" aria-hidden="true"> · </span>' : '';
-        $parts[] = $sep . '<span class="k2-lb-ms-tier--' . pm_h($tier['token']) . '">'
-            . (int) $tier['count'] . '</span>';
+        $count = (int) $tier['count'];
+        $token = pm_h($tier['token']);
+        $help = pm_h(player_feast_glance_milestone_tier_tooltip($count, $tier['band']));
+        $href = pm_h(k2_milestone_garden_tier_href($playerId, $tier['band']));
+        $parts[] = $sep . '<a href="' . $href . '"'
+            . ' class="k2-lb-ms-tier--' . $token . ' pm3efg-tier-count pm3efg-tier-count__link k2-table-helped"'
+            . ' data-k2-coarse-tap="1"'
+            . ' data-k2-tooltip-hide-title="1"'
+            . ' data-k2-help="' . $help . '"'
+            . ' data-k2-tooltip-tier="' . $token . '"'
+            . ' data-k2-tooltip-action="Click to open the milestone garden"'
+            . ' data-k2-tooltip-action-coarse="Tap again to open the milestone garden"'
+            . '>' . $count . '</a>';
     }
     echo implode('', $parts);
 }
@@ -538,7 +558,7 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
     ?>
 <section class="pm3d-section pm3d-section--top-opponents" id="top-opponents">
 	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Most played opponents</h2>
-	<p class="pm3d-section__hint">A lot has happened in <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s career on the ladder — and plenty is still to come! Let's not forget that above the ratings and the scorelines, what matters most are the friends and friendly rivalries we picked up along the way!</p>
+	<p class="pm3d-section__hint">A lot has happened in <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s career on the ladder — and plenty is still to come! Let's not forget that above the ratings and the scorelines, what matters most are the friends and friendly rivalries we picked up along the way...</p>
 	<div class="pm3d-section__content">
     <?php
     player_feast_render_top_opponents_chart($playerId, true);

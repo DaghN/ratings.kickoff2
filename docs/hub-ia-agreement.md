@@ -131,7 +131,7 @@ Notes:
 | Hub tab | `milestones/recent.php` between Leaderboards and Games |
 | **Shipped v0** | **Recent** (tier filter + unlock feed) ? **Catalog** (four tier sections) ? **`milestone.php?key=`** (Made it + Graphs) |
 | Build plan (future) | [`docs/milestones-hub-ia.md`](milestones-hub-ia.md) ? Story sub-nav, Charts migration from Activity, etc. |
-| Player garden | `player/milestones.php` (per player) |
+| Player garden | `player/milestones/garden.php` (per player); Chronology wing `player/milestones/chronology.php` |
 | Meta leaderboard | `leaderboards/milestones.php` (Leaderboards wing) |
 | HoF achievers | **Removed** May 2026 ? per-key lists on `milestone.php`; HoF footer links to Milestones hub |
 | Activity | Established-player charts on `activity.php`; milestone digest removed Jun 2026. Further milestone charts may migrate to hub later. |
