@@ -209,7 +209,7 @@
                     borderWidth: barStyle.borderWidth
                 }]
             },
-            options: chartOptions({
+            options: chartOptions(Object.assign({}, T && T.careerChartGutterOptions ? T.careerChartGutterOptions() : {}, {
                 plugins: {
                     legend: { display: false },
                     tooltip: T.mergeTooltip({
@@ -247,7 +247,19 @@
                         },
                         grid: { display: false }
                     },
-                    y: {
+                    y: T && T.careerChartYAxisOptions ? T.careerChartYAxisOptions({
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Games',
+                            color: T.tickColor()
+                        },
+                        ticks: {
+                            color: T.tickColor(),
+                            precision: 0
+                        },
+                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+                    }) : {
                         beginAtZero: true,
                         title: {
                             display: true,
@@ -283,7 +295,7 @@
                     }
                     canvas.style.cursor = 'pointer';
                 }
-            })
+            }))
         });
         root._k2GoalsHistogramChart = chartInstance;
     }

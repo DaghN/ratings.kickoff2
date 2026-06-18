@@ -110,7 +110,7 @@
                             }
                         }]
                     },
-                    options: chartOptions({
+                    options: chartOptions(Object.assign({}, T && T.careerChartGutterOptions ? T.careerChartGutterOptions() : {}, {
                         plugins: {
                             legend: { display: false },
                             tooltip: T.mergeTooltip({
@@ -155,7 +155,14 @@
                                 },
                                 grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                             },
-                            y: {
+                            y: T && T.careerChartYAxisOptions ? T.careerChartYAxisOptions({
+                                beginAtZero: true,
+                                ticks: {
+                                    color: T.tickColor(),
+                                    precision: 0
+                                },
+                                grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+                            }) : {
                                 beginAtZero: true,
                                 ticks: {
                                     color: T.tickColor(),
@@ -164,7 +171,7 @@
                                 grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                             }
                         }
-                    })
+                    }))
                 });
             })
             .catch(function () {

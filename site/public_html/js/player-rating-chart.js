@@ -168,6 +168,19 @@
         return Object.assign({ responsive: true, maintainAspectRatio: false }, extra || {});
     }
 
+    function withCareerPlotGutter(extra, chartKind) {
+        var gutter = T && T.careerChartGutterOptions ? T.careerChartGutterOptions() : {};
+        return chartOptions(Object.assign({}, gutter, extra || {}), chartKind || 'line');
+    }
+
+    function careerYScale(extra) {
+        var scale = Object.assign({
+            ticks: { color: T.tickColor() },
+            grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+        }, extra || {});
+        return T && T.careerChartYAxisOptions ? T.careerChartYAxisOptions(scale) : scale;
+    }
+
     function createChart(canvas, config, chartKind) {
         if (T && T.createActivityChart) {
             return T.createActivityChart(canvas, config, chartKind || 'line');
@@ -264,7 +277,7 @@
                 }, T.lineStroke(T.amber(), 0.15))]
             },
             plugins: [peakLinePlugin(peakValue)],
-            options: chartOptions({
+            options: withCareerPlotGutter({
                 interaction: { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
                     legend: { display: false },
@@ -318,10 +331,7 @@
                         },
                         grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     },
-                    y: {
-                        ticks: { color: T.tickColor() },
-                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
-                    }
+                    y: careerYScale()
                 }
             }, 'line')
         }, 'line');
@@ -347,7 +357,7 @@
                 }, T.lineStroke(T.amber(), 0.15))]
             },
             plugins: [peakLinePlugin(peakValue)],
-            options: chartOptions({
+            options: withCareerPlotGutter({
                 parsing: false,
                 interaction: { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
@@ -434,10 +444,7 @@
                         },
                         grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     },
-                    y: {
-                        ticks: { color: T.tickColor() },
-                        grid: { color: T.softGrid ? T.softGrid() : T.grid() }
-                    }
+                    y: careerYScale()
                 }
             }, 'line')
         }, 'line');

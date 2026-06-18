@@ -500,6 +500,31 @@
         };
     }
 
+    /** Profile career stack — shared plot gutters (rating, games/month, goals histogram). */
+    var CAREER_CHART_Y_AXIS_WIDTH = 48;
+    var CAREER_CHART_LAYOUT_PADDING = { top: 0, right: 12, bottom: 0, left: 0 };
+
+    function fixedYAxisFit(width) {
+        var w = typeof width === 'number' && width > 0 ? width : CAREER_CHART_Y_AXIS_WIDTH;
+        return {
+            afterFit: function (axis) {
+                axis.width = w;
+            }
+        };
+    }
+
+    function careerChartGutterOptions() {
+        return {
+            layout: {
+                padding: Object.assign({}, CAREER_CHART_LAYOUT_PADDING)
+            }
+        };
+    }
+
+    function careerChartYAxisOptions(scaleOptions) {
+        return Object.assign({}, scaleOptions || {}, fixedYAxisFit(CAREER_CHART_Y_AXIS_WIDTH));
+    }
+
     /**
      * Per-chart options for Activity — does not mutate Chart.defaults.
      * @param {object} userOptions Chart.js options
@@ -785,6 +810,8 @@
         applyTooltipDefaults: applyChartTooltipDefaults,
         activityChartOptions: activityChartOptions,
         createActivityChart: createActivityChart,
+        careerChartGutterOptions: careerChartGutterOptions,
+        careerChartYAxisOptions: careerChartYAxisOptions,
         resizeActivityChart: resizeActivityChart,
         activityBarMotionEnabled: activityBarMotionEnabled,
         isCoarsePointer: isCoarsePointer,
