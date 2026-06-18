@@ -137,8 +137,13 @@
                         scales: {
                             x: {
                                 type: 'time',
-                                min: DR && DR.serverStartMonth ? DR.serverStartMonth() : (padded.xMin || undefined),
-                                max: padded.xMax || (DR ? DR.endOfCurrentMonth() : undefined),
+                                min: DR && DR.profileCareerTimeRange
+                                    ? DR.profileCareerTimeRange().xMin
+                                    : (padded.xMin || undefined),
+                                max: DR && DR.profileCareerTimeRange
+                                    ? DR.profileCareerTimeRange().xMax
+                                    : (padded.xMax || undefined),
+                                offset: false,
                                 time: {
                                     unit: 'month',
                                     round: 'month',

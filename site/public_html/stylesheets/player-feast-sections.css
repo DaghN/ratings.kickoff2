@@ -152,11 +152,14 @@
 
 .pm3d-section--played-weeks .pm3d-section__content > .pm3-cal--hero {
 	padding-bottom: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .pm3d-section--played-weeks .pm3d-section__hint {
 	margin-top: 0;
-	margin-bottom: 16px;
+	margin-bottom: 32px;
 }
 
 .pm3d-section__content > .pm3-cal--hero.pm3-cal--weeks {
@@ -165,6 +168,11 @@
 
 .pm3d-section__content > .pm3-cal--hero.pm3-cal--weeks .pm3-cal__years {
 	margin-top: 0;
+}
+
+.pm3d-section--played-weeks .pm3d-section__content > .pm3-cal--hero.pm3-cal--weeks .pm3-cal__years {
+	width: fit-content;
+	max-width: 100%;
 }
 
 .pm3-cal--weeks .pm3-cal__cell:not(.pm3-cal__cell--before-join):not(.pm3-cal__cell--future):focus {

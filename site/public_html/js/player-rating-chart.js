@@ -260,10 +260,16 @@
         };
     }
 
-    function createDateChart(canvas, chartData, peakValue, timelineStart) {
-        var xMin = DR && DR.serverStartDate
-            ? DR.serverStartDate(timelineStart)
-            : undefined;
+    function createDateChart(canvas, chartData, peakValue, realm) {
+        var timeRange;
+        if (realm === 'online' && DR && DR.profileCareerTimeRange) {
+            timeRange = DR.profileCareerTimeRange();
+        } else {
+            timeRange = {
+                xMin: DR && DR.serverStartDate ? DR.serverStartDate() : undefined,
+                xMax: DR && DR.endOfToday ? DR.endOfToday() : undefined
+            };
+        }
         return createChart(canvas, {
             type: 'line',
             data: {
@@ -313,8 +319,9 @@
                 scales: {
                     x: {
                         type: 'time',
-                        min: xMin,
-                        max: DR ? DR.endOfToday() : undefined,
+                        min: timeRange.xMin,
+                        max: timeRange.xMax,
+                        offset: false,
                         time: {
                             displayFormats: {
                                 year: 'yyyy',
@@ -613,7 +620,7 @@
                     dateCanvas,
                     dateChartData,
                     state.peakValue,
-                    state.timelineStart
+                    realm
                 );
                 setActiveView(root, 'game', state);
             })

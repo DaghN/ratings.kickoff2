@@ -168,15 +168,9 @@
 
 @media (max-width: 960px) {
 	.pm3efg-at-a-glance {
-		grid-template-columns: 1fr;
-		gap: 18px;
-	}
-
-	.pm3efg-at-a-glance__col:not(:first-child) {
-		padding-left: 0;
-		padding-top: 18px;
-		border-left: none;
-		border-top: 1px solid var(--k2-border-subtle);
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		grid-template-columns: repeat(3, minmax(148px, 1fr));
 	}
 }
 

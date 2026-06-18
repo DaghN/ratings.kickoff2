@@ -61,6 +61,17 @@
         return new Date(SERVER_START.getFullYear(), SERVER_START.getMonth(), 1);
     }
 
+    /**
+     * Profile career stack (rating by date + games/month): shared x-axis window.
+     * Data may end earlier (e.g. rating line at today); axis runs through month-end.
+     */
+    function profileCareerTimeRange() {
+        return {
+            xMin: serverStartMonth(),
+            xMax: endOfCurrentMonth()
+        };
+    }
+
     function sameLocalDay(a, b) {
         return a.getFullYear() === b.getFullYear()
             && a.getMonth() === b.getMonth()
@@ -97,9 +108,10 @@
             byMonth[months[i].month] = months[i].games;
         }
 
-        var xMax = endOfCurrentMonth();
+        var range = profileCareerTimeRange();
+        var xMax = range.xMax;
         var chartData = [];
-        var first = serverStartMonth();
+        var first = range.xMin;
         var cursor = new Date(first.getFullYear(), first.getMonth(), 1);
 
         while (cursor.getTime() <= xMax.getTime()) {
@@ -111,8 +123,8 @@
 
         return {
             chartData: chartData,
-            xMin: new Date(first.getFullYear(), first.getMonth(), 1),
-            xMax: xMax
+            xMin: range.xMin,
+            xMax: range.xMax
         };
     }
 
@@ -121,6 +133,7 @@
         parseStartDate: parseStartDate,
         serverStartDate: serverStartDate,
         serverStartMonth: serverStartMonth,
+        profileCareerTimeRange: profileCareerTimeRange,
         endOfCurrentMonth: endOfCurrentMonth,
         endOfToday: endOfToday,
         appendRatingThroughToday: appendRatingThroughToday,
