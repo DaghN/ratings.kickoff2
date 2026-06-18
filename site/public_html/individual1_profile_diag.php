@@ -1,6 +1,6 @@
 <?php
 /**
- * Profile load diagnostics — localhost only. Does not replace individual1.php.
+ * Profile load diagnostics — localhost only.
  *
  * Usage: individual1_profile_diag.php?id=237
  * Optional: &explain=1 for EXPLAIN on the slowest query shapes
@@ -190,7 +190,7 @@ a { color: #64b5f6; }
 <p class="meta">
 	Player <strong><?php echo htmlspecialchars((string) ($pm['name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></strong>
 	(id=<?php echo $id; ?><?php echo $playerGames !== null ? ', ' . $playerGames . ' games' : ''; ?>).
-	<a href="individual1.php?id=<?php echo $id; ?>">Open prod profile</a> ·
+	<a href="player/profile.php?id=<?php echo $id; ?>">Open profile</a> ·
 	<a href="individual1_profile_diag.php?id=<?php echo $id; ?>&explain=1">With EXPLAIN</a>
 </p>
 
@@ -271,6 +271,6 @@ foreach ($queryLog as $q) {
 <?php } ?>
 <?php } ?>
 
-<p class="meta">Prod <code>individual1.php</code> also loads Chart.js and ~10 scripts in <code>&lt;head&gt;</code> before the DB block; this page skips that. Chart API fetches happen after first paint and are not measured here.</p>
+<p class="meta">Production <code>player/profile.php</code> also loads Chart.js and ~10 scripts in <code>&lt;head&gt;</code> before the DB block; this page skips that. Chart API fetches happen after first paint and are not measured here.</p>
 </body>
 </html>

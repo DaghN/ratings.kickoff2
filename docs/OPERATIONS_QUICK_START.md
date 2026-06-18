@@ -154,6 +154,8 @@ Contract: `docs/website-data-contract.md`. Refuses non-`ko2unity_db` unless `-Al
 
 Prefer replay when the job is “recompute from all games in order.”
 
+**Throwaway vs one-off:** Steve one-offs = register OO row + `scripts/oneoff/`. Browser schema probes = `scripts/throwaway_*.php` (manual copy to `public_html`, not default sync). Milestone generators / parity scripts = local toolkit — [`scripts/oneoff/README.md`](../scripts/oneoff/README.md).
+
 ---
 
 ## Staging / Steve — what to sync today
@@ -199,7 +201,8 @@ scripts/ladder/          ← replay engine (Python)
 scripts/run_local_replay.ps1
 scripts/rebuild_website_derived_data_local.ps1   # legacy repair only
 scripts/ladder/sql/archive/batch-2026-05/        # batch SQL (not cutover)
-scripts/oneoff/          ← one-off template
+scripts/oneoff/          ← registered one-offs + local toolkit (see README)
+scripts/throwaway_*.php  ← browser probes only; not default WinSCP sync
 site/public_html/ops/sql/migrations/  ← SCH DDL (synced with ops)
 run_staging_ladder_replay.sh   ← deprecated May 2026 kooldb replay
 docs/coordination/       ← schema + replay registers; contract = behavior

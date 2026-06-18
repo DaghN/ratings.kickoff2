@@ -118,7 +118,7 @@ Steve (2026-06-02): two prod-shaped copies on the staging server. Config paths a
 | `config/ko2unitydb_config1.php` | **`kooldb1`** | **Work** — experiments, replay, schema expand |
 | `config/ko2unitydb_config2.php` | **`kooldb2`** | **Reset copy** — pristine second prod copy; clone source for refreshing `kooldb1` |
 
-**Live staging site PHP:** which file the vhost includes is not recorded here — confirm with Steve (often still default `config/ko2unitydb_config.php` → legacy **`kooldb`** from May 2026 work). WinSCP deploys **PHP only**; DB switching is manual / Steve.
+**Live staging site PHP:** forward work assumes **`config/ko2unitydb_config1.php` → `kooldb1`** (ops simul proof DB). If the vhost still points at legacy `ko2unitydb_config.php` → frozen **`kooldb`**, ask Steve to switch to config1 — WinSCP deploys **PHP only**; DB routing is server config, not repo default.
 
 **Legacy (May 2026):** single staging DB **`kooldb`** — **frozen POC**; historical SCH/REP run log in [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md). **No further work on `kooldb`.** All ops proof uses **`kooldb1`**.
 

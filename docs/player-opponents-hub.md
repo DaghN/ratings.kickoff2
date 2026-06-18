@@ -1,6 +1,6 @@
 # Player Opponents hub — IA plan (online first)
 
-**Status:** Phase 1 shipped locally (Jun 2026) — Opponents top pill + inner sub-tabs + W/D/L · Goals · DDs tables; H2H stub. **Profile unchanged.** Dagh hands-on; no agent-track.
+**Status:** **Shipped Jun 2026** — Opponents top pill + inner sub-tabs (Head-to-head · W/D/L · Goals · DDs); H2H poster, charts, moments, scoreline heatmap. Live spec: [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md). **Profile** keeps career charts; matchup charts on Opponents → H2H.
 
 **Authority:** Dagh’s latest message in chat → this doc → [`player-profile-feast.md`](player-profile-feast.md) (shipped layout) → [`profile-build-playbook.md`](profile-build-playbook.md).
 

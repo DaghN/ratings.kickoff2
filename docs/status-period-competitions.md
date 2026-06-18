@@ -2,7 +2,7 @@
 
 UI heading: **Leagues** (paired Activity + Points tables on `status.php`).
 
-**Status:** **Phase 1 shipped** (May–Jun 2026). **Phase 1.5 active** — handoff [`coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md) · backlog [`status-period-competitions-wip.md`](status-period-competitions-wip.md).
+**Status:** **Phase 1 shipped** (May–Jun 2026). **Phase 1.5 retired** — optional polish only in [`status-period-competitions-wip.md`](status-period-competitions-wip.md) (no agent handoff). Historical handoff: [`coordination/status-period-competitions-phase-1.5-handoff.md`](coordination/status-period-competitions-phase-1.5-handoff.md).
 
 **Pointers:** [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · medals/rules [`leagues-rules-spec.md`](leagues-rules-spec.md)
 

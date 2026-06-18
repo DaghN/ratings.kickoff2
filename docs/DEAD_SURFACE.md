@@ -57,7 +57,7 @@
 | ~~Delete `staging-scripts/` on staging server~~ | **Done** Jun 2026 (local + remote) |
 | `scripts/oneoff/` rows marked Archived in register | Delete script files after grep |
 | Legacy CSS tokens with zero grep hits | Careful pass on `theme.css` only |
-| `body.k2-activity-charts-lab` rules in `theme.css` | Grep — likely orphan after Activity v2 (verify before delete) |
+| ~~`body.k2-activity-charts-lab` rules in `theme.css`~~ | **Done** Jun 2026 — grep found zero hits (Activity v2); row removed from candidates |
 
 ---
 
