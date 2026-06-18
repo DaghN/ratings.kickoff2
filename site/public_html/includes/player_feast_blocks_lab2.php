@@ -380,7 +380,7 @@ function player_feast_render_story_lines(array $pm): void
     // P05 — lifetime presence.
     $distinctDays = (int) ($lab['distinct_days'] ?? 0);
     if ($distinctDays > 0) {
-        $lines[] = ['🗓', 'Showed up to play on <strong>' . number_format($distinctDays) . '</strong> different days.'];
+        $lines[] = ['🗓', 'Showed up to play on <strong>' . number_format($distinctDays) . '</strong> different days!'];
     }
 
     if ($lines === []) {

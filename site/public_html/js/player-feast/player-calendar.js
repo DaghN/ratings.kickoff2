@@ -161,7 +161,14 @@
 		return html;
 	}
 
-	function showTooltipShell(cell, ymd, bodyHtml) {
+	function coarseHintHtml(pinned) {
+		if (!pinned) {
+			return '';
+		}
+		return '<p class="pm3-cal__tip-coarse-hint">Tap again to view games</p>';
+	}
+
+	function showTooltipShell(cell, ymd, bodyHtml, pinned) {
 		var tip = calendarTooltip();
 		var titleEl = tip.querySelector('.k2-table-tooltip__title');
 		var bodyEl = tip.querySelector('.k2-table-tooltip__body');
@@ -170,8 +177,8 @@
 			titleEl.textContent = formatDayTitle(ymd);
 		}
 		if (bodyEl) {
-			bodyEl.innerHTML = bodyHtml;
-			bodyEl.style.display = bodyHtml ? '' : 'none';
+			bodyEl.innerHTML = bodyHtml + coarseHintHtml(pinned);
+			bodyEl.style.display = bodyHtml || pinned ? '' : 'none';
 		}
 		tip.setAttribute('aria-hidden', 'false');
 		positionCalendarTooltip(cell, tip);
@@ -217,22 +224,23 @@
 		return promise;
 	}
 
-	function showDayTooltip(cell, ymd, games, ctx) {
+	function showDayTooltip(cell, ymd, games, ctx, pinned) {
+		pinned = !!pinned;
 		if (ymd > ctx.endYmd) {
-			showTooltipShell(cell, ymd, 'Future day');
+			showTooltipShell(cell, ymd, 'Future day', pinned);
 			return;
 		}
 		if (ymd < ctx.startYmd) {
-			showTooltipShell(cell, ymd, 'Before first rated game');
+			showTooltipShell(cell, ymd, 'Before first rated game', pinned);
 			return;
 		}
 		if (games < 1) {
-			showTooltipShell(cell, ymd, dayTooltipSummary(0));
+			showTooltipShell(cell, ymd, dayTooltipSummary(0), pinned);
 			return;
 		}
 
 		showTooltipShell(cell, ymd, '<p class="pm3-cal__tip-summary">' + dayTooltipSummary(games)
-			+ '</p><p class="pm3-cal__tip-loading">Loading games…</p>');
+			+ '</p><p class="pm3-cal__tip-loading">Loading games…</p>', pinned);
 
 		fetchDayGames(ymd, ctx)
 			.then(function (payload) {
@@ -240,13 +248,13 @@
 					return;
 				}
 				var list = payload.games.slice(0, MAX_TOOLTIP_GAMES);
-				showTooltipShell(cell, ymd, renderDayGamesBody(payload.total, list));
+				showTooltipShell(cell, ymd, renderDayGamesBody(payload.total, list), pinned);
 			})
 			.catch(function () {
 				if (activeTipKey !== ymd) {
 					return;
 				}
-				showTooltipShell(cell, ymd, 'Could not load games for this day.');
+				showTooltipShell(cell, ymd, 'Could not load games for this day.', pinned);
 			});
 	}
 
@@ -268,6 +276,9 @@
 			tip.hidden = true;
 			tip.setAttribute('aria-hidden', 'true');
 		}
+		if (window.K2CoarseTap) {
+			window.K2CoarseTap.clearAllPins();
+		}
 	}
 
 	function installTipDismiss() {
@@ -276,7 +287,12 @@
 		}
 		tipDismissInstalled = true;
 		window.addEventListener('scroll', hideDayTooltip, { passive: true, capture: true });
-		document.addEventListener('touchmove', hideDayTooltip, { passive: true, capture: true });
+		window.addEventListener('k2-coarse-tap-dismiss', hideDayTooltip);
+		if (window.K2CoarseTap && window.K2CoarseTap.isCoarsePointer()) {
+			window.K2CoarseTap.installDismiss();
+		} else {
+			document.addEventListener('touchmove', hideDayTooltip, { passive: true, capture: true });
+		}
 	}
 
 	function bindDayCellTooltip(cell, ymd, games, ctx) {
@@ -286,19 +302,41 @@
 			cell.setAttribute('role', 'button');
 			cell.setAttribute('aria-label', formatDayTitle(ymd) + ', ' + games + ' rated games. Click to view games.');
 		}
-		cell.addEventListener('mouseenter', function () {
-			if (hideTipTimer) {
-				clearTimeout(hideTipTimer);
-				hideTipTimer = null;
-			}
-			showDayTooltip(cell, ymd, games, ctx);
-		});
-		cell.addEventListener('mouseleave', scheduleHideDayTooltip);
-		cell.addEventListener('focus', function () {
-			showDayTooltip(cell, ymd, games, ctx);
-		});
-		cell.addEventListener('blur', hideDayTooltip);
+		if (!window.K2CoarseTap || window.K2CoarseTap.shouldUseHoverTooltips()) {
+			cell.addEventListener('mouseenter', function () {
+				if (hideTipTimer) {
+					clearTimeout(hideTipTimer);
+					hideTipTimer = null;
+				}
+				showDayTooltip(cell, ymd, games, ctx, false);
+			});
+			cell.addEventListener('mouseleave', scheduleHideDayTooltip);
+			cell.addEventListener('focus', function () {
+				showDayTooltip(cell, ymd, games, ctx, false);
+			});
+			cell.addEventListener('blur', hideDayTooltip);
+		}
 		cell.addEventListener('click', function () {
+			var CT = window.K2CoarseTap;
+			if (CT && CT.isCoarsePointer()) {
+				CT.handleDomTap('player-cal-days', ymd, cell, {
+					isActionable: function () {
+						return isPlayableCalendarDay(ymd, games, ctx);
+					},
+					onPreview: function (pinned) {
+						if (hideTipTimer) {
+							clearTimeout(hideTipTimer);
+							hideTipTimer = null;
+						}
+						showDayTooltip(cell, ymd, games, ctx, pinned);
+					},
+					onDismiss: hideDayTooltip,
+					onConfirm: function () {
+						navigateToDayGames(ctx.playerId, ymd);
+					}
+				});
+				return;
+			}
 			if (!isPlayableCalendarDay(ymd, games, ctx)) {
 				return;
 			}

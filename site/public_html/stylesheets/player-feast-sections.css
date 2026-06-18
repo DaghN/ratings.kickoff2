@@ -130,6 +130,17 @@
 	cursor: pointer;
 }
 
+.pm3-cal--days .pm3-cal__cell--pinned.pm3-cal__cell--play {
+	outline: 2px solid var(--k2-segment-active-ring);
+	outline-offset: 1px;
+}
+
+.pm3-cal__tip-coarse-hint {
+	margin: 8px 0 0;
+	font-size: 0.85em;
+	opacity: 0.88;
+}
+
 /* Missed days — softer edge so the grid reads calmer */
 .pm3d-section__content > .pm3-cal--hero.pm3-cal--days .pm3-cal__cell:not(.pm3-cal__cell--play):not(.pm3-cal__cell--future):not(.pm3-cal__cell--pad) {
 	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k2-border-subtle) 38%, transparent);
@@ -182,6 +193,11 @@
 
 .pm3-cal--weeks .pm3-cal__cell--play.pm3-cal__cell--clickable {
 	cursor: pointer;
+}
+
+.pm3-cal--weeks .pm3-cal__cell--pinned.pm3-cal__cell--play {
+	outline: 2px solid var(--k2-segment-active-ring);
+	outline-offset: 1px;
 }
 
 /* Missed weeks — same calm edge as days */

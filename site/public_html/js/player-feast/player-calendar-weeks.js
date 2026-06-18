@@ -193,7 +193,14 @@
 		return html;
 	}
 
-	function showTooltipShell(cell, tipKey, titleText, bodyHtml) {
+	function coarseHintHtml(pinned) {
+		if (!pinned) {
+			return '';
+		}
+		return '<p class="pm3-cal__tip-coarse-hint">Tap again to view games</p>';
+	}
+
+	function showTooltipShell(cell, tipKey, titleText, bodyHtml, pinned) {
 		var tip = calendarTooltip();
 		var titleEl = tip.querySelector('.k2-table-tooltip__title');
 		var bodyEl = tip.querySelector('.k2-table-tooltip__body');
@@ -202,8 +209,8 @@
 			titleEl.textContent = titleText;
 		}
 		if (bodyEl) {
-			bodyEl.innerHTML = bodyHtml;
-			bodyEl.style.display = bodyHtml ? '' : 'none';
+			bodyEl.innerHTML = bodyHtml + coarseHintHtml(pinned);
+			bodyEl.style.display = bodyHtml || pinned ? '' : 'none';
 		}
 		tip.setAttribute('aria-hidden', 'false');
 		positionCalendarTooltip(cell, tip);
@@ -252,6 +259,9 @@
 			tip.hidden = true;
 			tip.setAttribute('aria-hidden', 'true');
 		}
+		if (window.K2CoarseTap) {
+			window.K2CoarseTap.clearAllPins();
+		}
 	}
 
 	function scheduleHideWeekTooltip() {
@@ -267,26 +277,32 @@
 		}
 		tipDismissInstalled = true;
 		window.addEventListener('scroll', hideWeekTooltip, { passive: true, capture: true });
-		document.addEventListener('touchmove', hideWeekTooltip, { passive: true, capture: true });
+		window.addEventListener('k2-coarse-tap-dismiss', hideWeekTooltip);
+		if (window.K2CoarseTap && window.K2CoarseTap.isCoarsePointer()) {
+			window.K2CoarseTap.installDismiss();
+		} else {
+			document.addEventListener('touchmove', hideWeekTooltip, { passive: true, capture: true });
+		}
 	}
 
-	function showWeekTooltip(cell, mondayUtc, mondayYmd, games, ctx) {
+	function showWeekTooltip(cell, mondayUtc, mondayYmd, games, ctx, pinned) {
+		pinned = !!pinned;
 		var title = formatWeekRangeTitle(mondayUtc);
 		if (mondayYmd > ctx.currentMondayYmd) {
-			showTooltipShell(cell, mondayYmd, title, 'Future week');
+			showTooltipShell(cell, mondayYmd, title, 'Future week', pinned);
 			return;
 		}
 		if (mondayYmd < ctx.firstGameMondayYmd) {
-			showTooltipShell(cell, mondayYmd, title, 'Before first rated game');
+			showTooltipShell(cell, mondayYmd, title, 'Before first rated game', pinned);
 			return;
 		}
 		if (games < 1) {
-			showTooltipShell(cell, mondayYmd, title, gamesTooltipSummary(0));
+			showTooltipShell(cell, mondayYmd, title, gamesTooltipSummary(0), pinned);
 			return;
 		}
 
 		showTooltipShell(cell, mondayYmd, title, '<p class="pm3-cal__tip-summary">' + gamesTooltipSummary(games)
-			+ '</p><p class="pm3-cal__tip-loading">Loading games…</p>');
+			+ '</p><p class="pm3-cal__tip-loading">Loading games…</p>', pinned);
 
 		fetchWeekGames(mondayYmd, ctx)
 			.then(function (payload) {
@@ -294,13 +310,13 @@
 					return;
 				}
 				var list = payload.games.slice(0, MAX_TOOLTIP_GAMES);
-				showTooltipShell(cell, mondayYmd, title, renderGamesBody(payload.total, list));
+				showTooltipShell(cell, mondayYmd, title, renderGamesBody(payload.total, list), pinned);
 			})
 			.catch(function () {
 				if (activeTipKey !== mondayYmd) {
 					return;
 				}
-				showTooltipShell(cell, mondayYmd, title, 'Could not load games for this week.');
+				showTooltipShell(cell, mondayYmd, title, 'Could not load games for this week.', pinned);
 			});
 	}
 
@@ -311,19 +327,41 @@
 			cell.setAttribute('role', 'button');
 			cell.setAttribute('aria-label', formatWeekRangeTitle(mondayUtc) + ', ' + games + ' rated games. Click to view games.');
 		}
-		cell.addEventListener('mouseenter', function () {
-			if (hideTipTimer) {
-				clearTimeout(hideTipTimer);
-				hideTipTimer = null;
-			}
-			showWeekTooltip(cell, mondayUtc, mondayYmd, games, ctx);
-		});
-		cell.addEventListener('mouseleave', scheduleHideWeekTooltip);
-		cell.addEventListener('focus', function () {
-			showWeekTooltip(cell, mondayUtc, mondayYmd, games, ctx);
-		});
-		cell.addEventListener('blur', hideWeekTooltip);
+		if (!window.K2CoarseTap || window.K2CoarseTap.shouldUseHoverTooltips()) {
+			cell.addEventListener('mouseenter', function () {
+				if (hideTipTimer) {
+					clearTimeout(hideTipTimer);
+					hideTipTimer = null;
+				}
+				showWeekTooltip(cell, mondayUtc, mondayYmd, games, ctx, false);
+			});
+			cell.addEventListener('mouseleave', scheduleHideWeekTooltip);
+			cell.addEventListener('focus', function () {
+				showWeekTooltip(cell, mondayUtc, mondayYmd, games, ctx, false);
+			});
+			cell.addEventListener('blur', hideWeekTooltip);
+		}
 		cell.addEventListener('click', function () {
+			var CT = window.K2CoarseTap;
+			if (CT && CT.isCoarsePointer()) {
+				CT.handleDomTap('player-cal-weeks', mondayYmd, cell, {
+					isActionable: function () {
+						return isPlayableWeek(mondayYmd, games, ctx);
+					},
+					onPreview: function (pinned) {
+						if (hideTipTimer) {
+							clearTimeout(hideTipTimer);
+							hideTipTimer = null;
+						}
+						showWeekTooltip(cell, mondayUtc, mondayYmd, games, ctx, pinned);
+					},
+					onDismiss: hideWeekTooltip,
+					onConfirm: function () {
+						navigateToWeekGames(ctx.playerId, mondayYmd);
+					}
+				});
+				return;
+			}
 			if (!isPlayableWeek(mondayYmd, games, ctx)) {
 				return;
 			}
@@ -391,7 +429,7 @@
 		var safeName = escapeHtml(playerName || 'This player');
 		status.innerHTML = '... and since ' + escapeHtml(formatSinceDate(firstGameDateYmd)) + ', '
 			+ '<span class="k2-link-star pm3-cal__status-name">' + safeName + '</span> '
-			+ 'has played in no less than <span class="pm3-cal__status-count">' + count + '</span> different ' + weekWord + '.';
+			+ 'has played in no less than <span class="pm3-cal__status-count">' + count + '</span> different ' + weekWord + '...';
 	}
 
 	function initSection(section) {

@@ -232,35 +232,65 @@
                                 grid: { display: false }
                             }
                         },
-                        onClick: function (evt, elements) {
-                            if (!elements.length) {
-                                return;
-                            }
-                            var idx = elements[0].index;
-                            selectedId = opponentIds[idx];
-                            if (navigateH2hOpponent(navRoot, selectedId)) {
-                                return;
-                            }
-                            chart.data.datasets[0].backgroundColor = barColors(
-                                opponentIds,
-                                selectedId
-                            );
-                            chart.data.datasets[0].borderColor = barBorderColors(
-                                opponentIds,
-                                selectedId
-                            );
-                            chart.update('none');
-                            dispatchSelection(
-                                playerId,
-                                selectedId,
-                                fullNames[idx]
-                            );
-                        },
                         onHover: function (evt, elements) {
                             canvas.style.cursor = elements.length ? 'pointer' : 'default';
                         }
                     }
                 });
+
+                function selectOpponent(idx) {
+                    selectedId = opponentIds[idx];
+                    if (navigateH2hOpponent(navRoot, selectedId)) {
+                        return;
+                    }
+                    chart.data.datasets[0].backgroundColor = barColors(
+                        opponentIds,
+                        selectedId
+                    );
+                    chart.data.datasets[0].borderColor = barBorderColors(
+                        opponentIds,
+                        selectedId
+                    );
+                    chart.update('none');
+                    dispatchSelection(
+                        playerId,
+                        selectedId,
+                        fullNames[idx]
+                    );
+                }
+
+                var CT = window.K2CoarseTap;
+                if (CT) {
+                    chart.options.onClick = CT.createChartClickHandler({
+                        scopeId: 'top-opponents-' + playerId,
+                        chart: chart,
+                        canvas: canvas,
+                        getAnchorRect: CT.horizontalBarRect,
+                        pinKey: function (el) {
+                            return String(el.index);
+                        },
+                        isActive: function () {
+                            return true;
+                        },
+                        getTitle: function (el) {
+                            return fullNames[el.index];
+                        },
+                        getBody: function (el) {
+                            return games[el.index] + ' games';
+                        },
+                        hintNavigate: navRoot ? 'open head-to-head' : 'update matchup charts',
+                        onNavigate: function (el) {
+                            selectOpponent(el.index);
+                        }
+                    });
+                } else {
+                    chart.options.onClick = function (evt, elements) {
+                        if (!elements.length) {
+                            return;
+                        }
+                        selectOpponent(elements[0].index);
+                    };
+                }
 
                 if (status) {
                     status.textContent = '';

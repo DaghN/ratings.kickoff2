@@ -234,21 +234,6 @@
                         grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     }
                 },
-                onClick: function (evt, elements) {
-                    var el = pickBarElement(chartInstance, evt, elements);
-                    if (!el) {
-                        return;
-                    }
-                    var idx = el.index;
-                    if (!series.games[idx]) {
-                        return;
-                    }
-                    window.location.href = gamesListUrl(
-                        playerId,
-                        series.goalValues[idx],
-                        opponentId || null
-                    );
-                },
                 onHover: function (evt, elements) {
                     var el = pickBarElement(chartInstance, evt, elements);
                     if (!el || !series.games[el.index]) {
@@ -259,6 +244,55 @@
                 }
             })
         });
+        (function bindClick() {
+            var CT = window.K2CoarseTap;
+            var scopeId = 'h2h-total-goals-' + playerId + '-' + (opponentId || '');
+            if (CT) {
+                chartInstance.options.onClick = CT.createChartClickHandler({
+                    scopeId: scopeId,
+                    chart: chartInstance,
+                    canvas: canvas,
+                    pickElement: pickBarElement,
+                    pinKey: function (el) {
+                        return String(el.index);
+                    },
+                    isActive: function (el) {
+                        return !!series.games[el.index];
+                    },
+                    getTitle: function (el) {
+                        var total = series.goalValues[el.index];
+                        return total + ' goal' + (total === 1 ? '' : 's');
+                    },
+                    getBody: function (el) {
+                        var n = series.games[el.index];
+                        return n + ' game' + (n === 1 ? '' : 's');
+                    },
+                    onNavigate: function (el) {
+                        window.location.href = gamesListUrl(
+                            playerId,
+                            series.goalValues[el.index],
+                            opponentId || null
+                        );
+                    }
+                });
+                return;
+            }
+            chartInstance.options.onClick = function (evt, elements) {
+                var el = pickBarElement(chartInstance, evt, elements);
+                if (!el) {
+                    return;
+                }
+                var idx = el.index;
+                if (!series.games[idx]) {
+                    return;
+                }
+                window.location.href = gamesListUrl(
+                    playerId,
+                    series.goalValues[idx],
+                    opponentId || null
+                );
+            };
+        })();
         root._k2H2hTotalGoalsChart = chartInstance;
     }
 

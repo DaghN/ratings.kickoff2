@@ -462,7 +462,7 @@ function player_feast_render_story_lines(array $pm): void
 
     $distinctDays = (int) ($story['distinct_days'] ?? 0);
     if ($distinctDays > 0) {
-        $lines[] = ['🗓', 'Showed up to play on <strong>' . number_format($distinctDays) . '</strong> different days.'];
+        $lines[] = ['🗓', 'Showed up to play on <strong>' . number_format($distinctDays) . '</strong> different days!'];
     }
 
     if ($lines === []) {
@@ -489,9 +489,9 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
 {
     $name = pm_h($playerName !== '' ? $playerName : 'This player');
     ?>
-<section class="pm3d-section pm3d-section--charts">
+<section class="pm3d-section pm3d-section--charts" id="career-charts">
 	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Career rating</h2>
-	<p class="pm3d-section__hint">Every career has its ups and downs… the rating charts below capture some of that… but while spanning his whole career, the charts cannot reveal the fact that <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s best days are surely still ahead of him!</p>
+	<p class="pm3d-section__hint">Every career has its ups and downs… the charts below capture some of that… but while spanning his whole career, the charts cannot reveal the fact that <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s best days are surely still ahead of him!</p>
 	<div class="pm3d-section__content">
 <div class="pm3d-career-charts">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
@@ -514,9 +514,9 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
 			</div>
 		</div>
 	</div>
-	<div class="player-games-month-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+	<div class="player-games-month-chart k2-chart-panel" id="games-per-month" data-player-id="<?php echo $playerId; ?>">
 		<h3 class="k2-panel-heading">Games per month</h3>
-		<p class="k2-chart-block__hint">Monthly activity on the same server timeline, including quiet months.</p>
+		<p class="k2-chart-block__hint">Monthly activity on the same server timeline, including quiet months. Click a bar to view games in that month.</p>
 		<p class="player-games-month-chart-status pm3d-chart__status k2-chart-panel__status">Loading games per month…</p>
 		<div class="k2-chart-frame">
 			<canvas aria-label="Games per calendar month"></canvas>
