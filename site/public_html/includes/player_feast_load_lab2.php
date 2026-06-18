@@ -21,8 +21,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/league_standings.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_period_page.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
 
-/** M03 rank gate — celebrate giant-killing for non-elite players only. */
-const K2_LAB2_M03_RANK_CUTOFF = 10;
 /** M08 favourite victim needs a real rivalry, not a one-off. */
 const K2_LAB2_FAVE_VICTIM_MIN_WINS = 3;
 
@@ -39,7 +37,7 @@ function player_feast_load_pm_lab2(mysqli $con, int $id): array
         'play_streaks' => pl2_load_play_streaks($con, $id),
         'best_year' => pl2_load_best_year($con, $id),
         'distinct_days' => pl2_load_distinct_days($con, $id),
-        'max_rated_victim' => pl2_load_max_rated_victim($con, $id, (int) $pm['rank']),
+        'max_rated_victim' => $pm['max_rated_victim'] ?? null,
         'favourite_victim' => pl2_load_favourite_victim($con, $id),
         'featured_rival' => pl2_load_featured_rival($con, $id),
         'milestones' => pl2_load_milestone_snippets($con, $id),
@@ -143,48 +141,6 @@ function pl2_load_distinct_days(mysqli $con, int $id): int
     }
 
     return (int) $row['c'];
-}
-
-/**
- * M03 — highest-rated opponent ever beaten (rank-gated for non-elite players).
- *
- * @return array<string, mixed>|null parsed game row + victim_rating, or null when hidden/absent
- */
-function pl2_load_max_rated_victim(mysqli $con, int $id, int $rank): ?array
-{
-    if ($rank > 0 && $rank <= K2_LAB2_M03_RANK_CUTOFF) {
-        return null;
-    }
-    $esc = (string) (int) $id;
-    $res = @mysqli_query(
-        $con,
-        "SELECT HighestRatedVictim, HighestRatedVictimGameID FROM playertable WHERE id = '$esc' LIMIT 1"
-    );
-    if ($res === false || !($row = mysqli_fetch_assoc($res))) {
-        return null;
-    }
-    $gameId = (int) ($row['HighestRatedVictimGameID'] ?? 0);
-    if ($gameId < 1) {
-        return null;
-    }
-    $victimRating = ($row['HighestRatedVictim'] === null) ? null : (int) round((float) $row['HighestRatedVictim']);
-
-    $gRes = @mysqli_query(
-        $con,
-        "SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB "
-        . "FROM ratedresults WHERE id = $gameId LIMIT 1"
-    );
-    if ($gRes === false || !($gRow = mysqli_fetch_assoc($gRes))) {
-        return null;
-    }
-    $gRow = k2_rated_game_row_resolve($con, $gRow);
-    if ($gRow === null) {
-        return null;
-    }
-    $parsed = pm_parse_highlight_row($gRow, $id);
-    $parsed['victim_rating'] = $victimRating;
-
-    return $parsed;
 }
 
 /**

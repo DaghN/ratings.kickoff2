@@ -172,6 +172,12 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'clean_sheets' => (int) $row['CleanSheets'],
         'winning_streak' => (int) $row['WinningStreak'],
         'trophies' => $trophies,
+        'max_rated_victim' => player_feast_load_max_rated_victim(
+            $con,
+            $id,
+            $row['HighestRatedVictim'] ?? null,
+            (int) ($row['HighestRatedVictimGameID'] ?? 0)
+        ),
         'initial' => strtoupper(substr((string) $row['Name'], 0, 1)),
         'rating_raw' => (float) $row['Rating'],
         'peak_raw' => (float) $row['PeakRating'],
@@ -337,5 +343,34 @@ function player_feast_load_days_this_year(mysqli $con, int $id): int
     $row = $result ? mysqli_fetch_row($result) : null;
 
     return $row ? (int) $row[0] : 0;
+}
+
+/**
+ * M03 — highest-rated opponent ever beaten (playertable ground truth + game row).
+ *
+ * @return array<string, mixed>|null
+ */
+function player_feast_load_max_rated_victim(mysqli $con, int $id, mixed $highestRatedVictim, int $gameId): ?array
+{
+    if ($gameId < 1) {
+        return null;
+    }
+    $gRes = k2_player_feast_query(
+        $con,
+        'max_rated_victim',
+        'SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB '
+        . "FROM ratedresults WHERE id = $gameId LIMIT 1"
+    );
+    $gRow = $gRes ? mysqli_fetch_assoc($gRes) : null;
+    $gRow = k2_rated_game_row_resolve($con, $gRow);
+    if ($gRow === null) {
+        return null;
+    }
+    $parsed = pm_parse_highlight_row($gRow, $id);
+    $parsed['victim_rating'] = ($highestRatedVictim === null || k2_db_is_null($highestRatedVictim))
+        ? null
+        : (int) round((float) $highestRatedVictim);
+
+    return $parsed;
 }
 

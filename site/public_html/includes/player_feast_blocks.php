@@ -75,18 +75,40 @@ function player_feast_peak_busiest(array $pm): array
 }
 
 /** Bursts of activity — busiest day, month, and year (P01). */
-function player_feast_render_busiest_card(string $glyph, string $kind, ?array $peak, string $whenFormatted): void
-{
+function player_feast_render_busiest_card(
+    int $playerId,
+    string $periodType,
+    string $glyph,
+    string $kind,
+    ?array $peak,
+    string $whenFormatted
+): void {
     $count = $peak !== null ? (int) $peak['count'] : null;
     $hasData = $count !== null && $count > 0 && $whenFormatted !== '';
+    $href = $hasData && $peak !== null
+        ? player_feast_busiest_games_href($playerId, $periodType, (string) $peak['key'])
+        : null;
+    $ariaLabel = $hasData
+        ? 'View ' . number_format((int) $count) . ' games — ' . $whenFormatted
+        : '';
     ?>
 		<li>
-			<span class="pm3-busiest__glyph" aria-hidden="true"><?php echo pm_h($glyph); ?></span>
-			<span class="pm3-busiest__kind"><?php echo pm_h($kind); ?></span>
-			<strong><?php echo $hasData ? number_format($count) : '—'; ?></strong>
-			<?php if ($hasData) { ?>
-			<span class="pm3-busiest__unit">games</span>
-			<span class="pm3-busiest__when"><?php echo pm_h($whenFormatted); ?></span>
+			<?php if ($href !== null && $href !== '') { ?>
+			<a class="pm3-busiest__card" href="<?php echo pm_h($href); ?>"<?php echo $ariaLabel !== '' ? ' aria-label="' . pm_h($ariaLabel) . '"' : ''; ?>>
+			<?php } else { ?>
+			<div class="pm3-busiest__card pm3-busiest__card--empty">
+			<?php } ?>
+				<span class="pm3-busiest__glyph" aria-hidden="true"><?php echo pm_h($glyph); ?></span>
+				<span class="pm3-busiest__kind"><?php echo pm_h($kind); ?></span>
+				<strong><?php echo $hasData ? number_format($count) : '—'; ?></strong>
+				<?php if ($hasData) { ?>
+				<span class="pm3-busiest__unit">games</span>
+				<span class="pm3-busiest__when"><?php echo pm_h($whenFormatted); ?></span>
+				<?php } ?>
+			<?php if ($href !== null && $href !== '') { ?>
+			</a>
+			<?php } else { ?>
+			</div>
 			<?php } ?>
 		</li>
     <?php
@@ -99,27 +121,34 @@ function player_feast_render_peak_activity(array $pm): void
     $bm = $b['month'];
     $by = $b['year'];
     $name = pm_h((string) ($pm['name'] ?? 'This player'));
+    $playerId = (int) $pm['id'];
     ?>
 <section class="pm3d-section pm3d-section--bursts" id="bursts-of-activity">
 	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Bursts of activity</h2>
 	<p class="pm3d-section__hint">After all that steady play... here are the days, months, and years where <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span> went into overdrive and the games really piled up...</p>
 	<div class="pm3d-section__content">
-<div class="pm3-busiest pm3-busiest--inline pm3hij-peak pm3hij-peak--cards pm3-busiest--bursts">
+<div class="pm3-busiest pm3-busiest--inline pm3-busiest--bursts">
 	<ol class="pm3-busiest__list">
 		<?php
         player_feast_render_busiest_card(
+            $playerId,
+            'day',
             '🔥',
             'Busiest day',
             $bd,
             $bd ? pm2_format_busiest_day((string) $bd['key']) : ''
         );
     player_feast_render_busiest_card(
+        $playerId,
+        'month',
         '🔥',
         'Busiest month',
         $bm,
         $bm ? pm2_format_busiest_month((string) $bm['key']) : ''
     );
     player_feast_render_busiest_card(
+        $playerId,
+        'year',
         '🔥',
         'Busiest year',
         $by,
@@ -135,17 +164,36 @@ function player_feast_render_peak_activity(array $pm): void
 
 function player_feast_render_moments(array $pm): void
 {
-    player_feast_section_open('Moments');
+    $maxVictim = $pm['max_rated_victim'] ?? null;
+    $trophies = is_array($pm['trophies'] ?? null) ? $pm['trophies'] : [];
+    if (!is_array($maxVictim) && $trophies === []) {
+        return;
+    }
+
+    $name = pm_h((string) ($pm['name'] ?? 'This player'));
     ?>
+<section class="pm3d-section pm3d-section--moments" id="moments">
+	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Moments</h2>
+	<p class="pm3d-section__hint">No career page could ever capture every match worth remembering... but here are some of <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span>'s proudest moments...</p>
+	<div class="pm3d-section__content">
 <div class="pm3-moments pm3-moments--mosaic">
 	<div class="pm3-moments__grid">
-		<article class="pm3-moment pm3-moment--streak">
-			<span class="pm3-moment__glyph" aria-hidden="true">🏆</span>
-			<span class="pm3-moment__tag">Streak</span>
-			<h3 class="pm3-moment__label">Longest win run</h3>
-			<p class="pm3-moment__score"><?php echo (int) $pm['longest_win_streak']; ?> wins</p>
+        <?php if (is_array($maxVictim)) { ?>
+		<article class="pm3-moment pm3-moment--giant">
+			<span class="pm3-moment__glyph" aria-hidden="true">🗡️</span>
+			<span class="pm3-moment__tag">Giant-killing</span>
+			<h3 class="pm3-moment__label">Best scalp<?php echo isset($maxVictim['victim_rating']) && (int) $maxVictim['victim_rating'] > 0 ? ' · ' . (int) $maxVictim['victim_rating'] . ' Elo' : ''; ?></h3>
+			<p class="pm3-moment__score">
+				<a href="/game.php?id=<?php echo (int) $maxVictim['game_id']; ?>"><?php echo pm_h((string) $maxVictim['score']); ?></a>
+			</p>
+			<p class="pm3-moment__meta">
+				<span class="<?php echo pm_h((string) $maxVictim['outcome_class']); ?>"><?php echo pm_h((string) $maxVictim['outcome']); ?></span>
+				· vs <a href="/player/profile.php?id=<?php echo (int) $maxVictim['opponent_id']; ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
+				· <?php echo pm_h((string) $maxVictim['date']); ?>
+			</p>
 		</article>
-		<?php foreach ($pm['trophies'] as $t) { ?>
+        <?php } ?>
+        <?php foreach ($trophies as $t) { ?>
 		<article class="pm3-moment">
 			<span class="pm3-moment__glyph" aria-hidden="true"><?php echo $t['icon']; ?></span>
 			<span class="pm3-moment__tag"><?php echo pm_h($t['tag']); ?></span>
@@ -159,11 +207,12 @@ function player_feast_render_moments(array $pm): void
 				· <?php echo pm_h($t['date']); ?>
 			</p>
 		</article>
-		<?php } ?>
+        <?php } ?>
 	</div>
 </div>
+	</div>
+</section>
     <?php
-    player_feast_section_close();
 }
 
 function player_feast_render_stat_value(string $value): void

@@ -780,7 +780,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
             $goalsConcededFilter,
             $goalsSumFilter
         );
-        $dayBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
+        $dayBannerGamesWord = $totalMatches === 1 ? 'game' : 'games';
         ?>
     <div class="k2-player-games-day-banner">
         <a class="k2-link-star k2-player-games-day-banner__back" href="<?php echo individual3_h($gamesBackLink['href']); ?>"><?php echo individual3_h($gamesBackLink['label']); ?></a>
@@ -811,7 +811,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
             $goalsConcededFilter,
             $goalsSumFilter
         );
-        $periodBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
+        $periodBannerGamesWord = $totalMatches === 1 ? 'game' : 'games';
         $periodBannerLabel = k2_lb_activity_peak_period_filter_label($periodType, $periodAnchor);
         ?>
     <div class="k2-player-games-day-banner">
@@ -843,7 +843,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
             $goalsConcededFilter,
             $goalsSumFilter
         );
-        $streakBannerGamesWord = $totalMatches === 1 ? 'rated game' : 'rated games';
+        $streakBannerGamesWord = $totalMatches === 1 ? 'game' : 'games';
         $streakLabel = $streakTypeFilter !== ''
             ? k2_lb_result_streaks_run_label($streakTypeFilter)
             : 'streak';

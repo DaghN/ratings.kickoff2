@@ -35,8 +35,8 @@
 6. **Played days → weeks narrative** — no section headings on production; one warm prose arc: per-year days line ends `…` (“In 2026, **Dagh** enjoyed **110** days of online Kick Off 2…”), days heatmap + year picker, then weeks line continues (“… and since **12 Mar 2019**, **Dagh** has played in no less than **210** different weeks.”) into the weeks heatmap. `#played-days` / `#played-weeks` anchors + sr-only titles kept for back links and a11y.
 7. **Played days detail** — UTC calendar; 12 months in one row for the selected year — **first career year** and **current calendar year** always render the full Jan–Dec grid, including months before first play or after today). **Future** day tiles are ghosted (faint outline) vs empty past days (full empty fill = missed). **Hover:** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played day → **Games** tab `?day=YYYY-MM-DD#day-games` (context banner with **← Played days** + prev/next played-day chevrons; **filter bar hidden**; table only — up to 500 games per page). Day-step chevrons use carry-scroll without `#day-games` on peer URLs.
 8. **Played weeks detail** — all career years at once (52 UTC week tiles per year row). **Current calendar year:** remaining weeks use the same ghosted **future** tiles as played days (vs solid empty = missed). **Hover:** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played week → **Games** tab `?from=played-weeks&period=week&anchor=YYYY-MM-DD#day-games` (banner; prev/next played-week chevrons; **← Played weeks** back link to `#played-weeks`).
-9. **Bursts of activity** — no visible heading; warm hint continues the participation arc (player name in link-star), then three centred busiest cards (day / month / year).
-10. **Moments** (longest win streak + trophy games with links)
+9. **Bursts of activity** — no visible heading; warm hint continues the participation arc; three linked busiest cards (natural size centred in full-width thirds, 6:5 aspect, open bg + hairline border, moment hover on link only, no underline) → Games tab day / month / year filter; **← Bursts of activity** back link on filtered view.
+10. **Moments** — no visible heading; warm lede (*No career page could ever capture every match worth remembering... but here are some of **{name}**'s proudest moments...*); giant-killing card (M03, all ranks) + trophy games with links; win streak card removed (covered in story arc).
 11. **Charts** — Activity-style full-width frames: rating over time / by game # toggle with peak dashed line, games per month, **goals per game** histogram (0..max GF; bar click → games tab `gf` filter).
 12. **Most played opponents** — horizontal bar chart; click a bar opens **Opponents → Head-to-head** for that pairing. Cumulative H2H + rating comparison charts live on the H2H tab — see [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md).
 13. **Rivalry (placeholder)** — dashed teaser card after charts: top opponent by games, link to Opponents H2H; fuller record/form/all-games band TBD.
@@ -133,7 +133,7 @@ Profile does **not** duplicate those tables.
 
 **Lab note (Jun 2026):** Production uses `pm3efg-duo` side-by-side stat tables. Lab B1/B2 experiments archived — see [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
 | Bursts of activity | Busiest day / month / year — celebrate volume spikes after participation arc |
-| Moments | Longest win streak + trophy games — specific memorable events |
+| Moments | Giant-killing + trophy games — specific memorable events |
 | Heatmaps | Played days/weeks — visual life of the ladder; streak motivation |
 | Charts | Rating over time, games/month, top opponents → H2H/compare — competitive depth last |
 
@@ -175,7 +175,7 @@ Profile does **not** duplicate those tables.
 |-------|--------|
 | **Presence** | B06 win streak · B07/B08 play streak (current vs best narrative; day/week; optional rotate on load) |
 | **Career** | C01–C05 tiles — revisit `(#rank)` styling · C12 victims line if not redundant |
-| **Moments** | M03 max rated victim (rank-gated for non-elite) · M08 favourite victim · M09 rivalry line · M12 Games tab opponent filter |
+| **Moments** | M03 max rated victim (all ranks) · M08 favourite victim · M09 rivalry line · M12 Games tab opponent filter |
 | **Peaks** | P02 best-year ticker · **P05 distinct days played** (Profile + site-wide HoF later) |
 | **Milestones** | MS01 latest-unlock card · MS02 holo/amber count · MS04 unlocks last 12 months · MS08 league milestone card |
 | **League** | L01 latest medal (bling) · L02/L07/L08 career medals + honours link · L04 league wins count |

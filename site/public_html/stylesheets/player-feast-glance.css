@@ -106,6 +106,14 @@
 	width: 46%;
 }
 
+.pm3efg-at-a-glance .pm3efg-stat-table__row td {
+	color: var(--k2-text-secondary);
+}
+
+.pm3efg-at-a-glance .pm3efg-stat-table--career .pm3efg-career-stats__num {
+	color: var(--k2-text-secondary);
+}
+
 .pm3efg-stat-table--career .pm3efg-career-stats__num {
 	padding: 8px 10px 8px 0;
 	text-align: left;

@@ -85,7 +85,7 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Profile story heading** — *Let's take a look at {name}'s story so far...* (replaces generic title). |
+| 2026-06 | **Profile Moments** — warm lede; giant-killing card (M03, all ranks) replaces win-streak tile; trophy games unchanged. |
 | 2026-06 | **Profile played days** — section heading hidden; heatmap hint continues “The story so far” (anchor + sr-only title kept). |
 | 2026-06 | **Profile “The story so far”** — lab 2 prose band shipped after At a glance (win/play streaks, opponents/victims, best year wins, distinct days); day/week streak 50/50 per page load. |
 | 2026-06 | **Profile played-days → weeks gap** — section margin 18px + calendar bottom padding 16px (between original and tight pass). |

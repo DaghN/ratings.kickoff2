@@ -134,6 +134,46 @@ function pm2_format_busiest_day(?string $date): string
     return $ts ? date('M j, Y', $ts) : $date;
 }
 
+/** Player Games tab URL for a busiest day / month / year peak. */
+function player_feast_busiest_games_href(int $playerId, string $periodType, string $key): ?string
+{
+    if ($playerId < 1 || $key === '') {
+        return null;
+    }
+
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_games_from.php';
+
+    $params = ['id' => $playerId, 'from' => 'profile-bursts'];
+
+    switch ($periodType) {
+        case 'day':
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $key)) {
+                return null;
+            }
+            $params['day'] = $key;
+            break;
+        case 'month':
+            if (!preg_match('/^\d{4}-\d{2}$/', $key)) {
+                return null;
+            }
+            $params['period'] = 'month';
+            $params['anchor'] = $key . '-01';
+            break;
+        case 'year':
+            $year = (int) $key;
+            if ($year < 1) {
+                return null;
+            }
+            $params['period'] = 'year';
+            $params['anchor'] = sprintf('%04d-01-01', $year);
+            break;
+        default:
+            return null;
+    }
+
+    return k2_player_games_url_with_list_anchor('/player/games.php?' . http_build_query($params));
+}
+
 /**
  * Whole calendar years from first rated game date through today (0 in year one).
  */

@@ -412,6 +412,11 @@ body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list > li:last-chi
 
 /* ── Moments mosaic ── */
 
+.pm3d-section--moments .pm3d-section__hint {
+	margin-top: 0;
+	margin-bottom: 14px;
+}
+
 .pm3d-section .pm3-moments__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
