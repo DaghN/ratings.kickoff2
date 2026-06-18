@@ -314,14 +314,6 @@ $recordColumns = [
 	'MostDifferentVictimsDate',
 	'MostDoubleDigitsVictimsDate',
 	'MostCleanSheetsVictimsDate',
-	'MostGoalsScoredInOneGameGameID',
-	'LongestDailyPlayStreakGameID',
-	'LongestWeeklyPlayStreakGameID',
-	'LongestMonthlyPlayStreakGameID',
-	'LongestYearlyPlayStreakGameID',
-	'BiggestWinDifferenceGameID',
-	'BiggestDrawSumGameID',
-	'BiggestSumOfGoalsGameID',
 ];
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -638,7 +630,7 @@ records_render_row(
 	null,
 	records_hof_lb_href('biggest_win_margin')
 );
-$hasBiggestDraw = records_has_value($records['BiggestDrawSumGameID']);
+$hasBiggestDraw = records_has_value($records['BiggestDrawSum']);
 $biggestDrawScore = $hasBiggestDraw
 	? ((string) ($records['BiggestDrawSum'] / 2) . '-' . (string) ($records['BiggestDrawSum'] / 2))
 	: '-';

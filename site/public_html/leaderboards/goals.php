@@ -58,7 +58,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_win_margin(), ENT_QUOTES, 'UTF-8'); ?>">Max win</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_loss_margin(), ENT_QUOTES, 'UTF-8'); ?>">Max loss</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goal_sum(), ENT_QUOTES, 'UTF-8'); ?>">Max sum</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_biggest_draw(), ENT_QUOTES, 'UTF-8'); ?>">Draw</th>
+        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_biggest_draw(), ENT_QUOTES, 'UTF-8'); ?>">Max draw</th>
     </tr>
 </thead>
 
@@ -117,7 +117,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
 
 <br />
-Draw = biggest draw scoreline (equal goals each side)<br />
+Max draw = biggest draw scoreline (equal goals each side)<br />
 Max sum = most total goals in one game (both sides combined)<br />
 
 
