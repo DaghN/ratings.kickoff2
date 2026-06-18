@@ -847,7 +847,7 @@ function k2_milestone_recent_unlocks(mysqli $con, int $limit = K2_MILESTONE_RECE
 }
 
 /**
- * One player's unlock timeline (Chronology wing) — oldest first, full career.
+ * One player's unlock timeline (Chronology wing) — newest first, full career.
  *
  * @return array<int, array<string, mixed>>
  */
@@ -879,7 +879,7 @@ function k2_milestone_player_unlocks(mysqli $con, int $playerId, ?string $tierBa
         FROM player_milestones pm
         INNER JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
         WHERE pm.player_id = $playerId$tierFilterSql
-        ORDER BY pm.achieved_at ASC, pm.milestone_key ASC
+        ORDER BY pm.achieved_at DESC, pm.milestone_key DESC
     ";
     $result = k2_query_or_public_error($con, $sql, 'player milestone unlocks');
     $rows = [];

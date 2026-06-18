@@ -22,7 +22,7 @@
 
 - **Status Leagues:** Phase **1** shipped. Optional backlog only — [`status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (no agent handoff).
 
-- **Profile:** Feast shipped on **`player/profile.php`**. Optional **lab compare** only (`individual1-profile-lab*.php`) — prompts in [`archive/profile-lab-agent-handoff.md`](docs/archive/profile-lab-agent-handoff.md); live spec [`player-profile-feast.md`](docs/player-profile-feast.md).
+- **Profile:** Feast shipped on **`player/profile.php`** — gradual improvements only; live spec [`player-profile-feast.md`](docs/player-profile-feast.md). Multi-agent lab sandboxes removed Jun 2026 (handoff archived).
 
 - **Design / Status hub:** Phase B v1.2 room grid shipped. Prod live DB read + joshua redirect = **deferred** ([`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md)).
 
@@ -68,7 +68,7 @@
 
 **Dagh**
 
-1. **Profile** — gradual improvements on production feast (lab pages optional) — [`player-profile-feast.md`](docs/player-profile-feast.md) · [`profile-build-playbook.md`](docs/profile-build-playbook.md).
+1. **Profile** — gradual improvements on production feast — [`player-profile-feast.md`](docs/player-profile-feast.md) · [`profile-build-playbook.md`](docs/profile-build-playbook.md).
 2. **Status Leagues** — optional polish only — [`status-period-competitions-wip.md`](docs/status-period-competitions-wip.md) (Phase 1 shipped).
 
 **Steve (when ready)**
@@ -85,6 +85,9 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Profile story order** — longest play-streak run line now follows distinct-days beat (was second in list). |
+| 2026-06 | **Profile lab cleanup** — removed `individual1-profile-lab1–4.php`, `player_feast_*_lab*`, `player-feast-lab*.css` (16 files); production feast unchanged. |
+| 2026-06 | **Player Milestones Chronology** — reuses hub Recent feed UI; tier filter; newest-first; no player column / no list heading. |
 | 2026-06 | **Player Milestones wing chapters** — Garden + Chronology each get primary title, muted lede, fact meta strip below inner tabs. |
 | 2026-06 | **Player Milestones wings** — `player/milestones/garden.php` + `chronology.php` (placeholder); inner tabs Garden · Chronology; legacy `player/milestones.php` → 302 Garden. |
 | 2026-06 | **Profile At a glance milestone tooltips** — tier counts link to garden tier anchors; coarse two-tap (preview tooltip → navigate). |

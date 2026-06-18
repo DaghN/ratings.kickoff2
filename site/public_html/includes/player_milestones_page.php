@@ -64,6 +64,23 @@ if ($view !== 'chronology') {
     <?php k2_milestone_render_garden($gardenByTier); ?>
 </div>
     <?php
+} elseif (k2_milestone_tables_ready($con)) {
+    $chronologyTier = k2_milestone_recent_tier_param();
+    $chronologyUnlocks = k2_milestone_player_unlocks($con, $id, $chronologyTier);
+    ?>
+<div class="k2-ms-chronology-feed k2-ms-recent-feed">
+	<div class="k2-ms-recent-cluster">
+		<?php
+        k2_milestone_render_player_chronology_tier_filter($id, $chronologyTier);
+        k2_milestone_render_player_chronology_feed($chronologyUnlocks, $chronologyTier);
+        ?>
+	</div>
+</div>
+    <?php
+} else {
+    ?>
+<p class="k2-ms-meta-hint">Milestone data is not available on this database yet.</p>
+    <?php
 }
 
 mysqli_close($con);

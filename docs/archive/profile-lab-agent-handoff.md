@@ -1,6 +1,8 @@
 # Profile lab — multi-agent handoff
 
-**Status:** Jun 2026. **Role:** Feeder agent prepares **builder agents** who implement Profile **content v1** on isolated lab URLs. Production `player/profile.php` stays untouched until Dagh merges a winner.
+**Status:** **Archived Jun 2026.** Lab entry pages, `player_feast_*_lab*`, and `player-feast-lab*.css` were **deleted** from the repo; production feast lives on `player/profile.php` only. This file is kept for historical agent prompts and the compare methodology.
+
+**Original role (Jun 2026):** Feeder agent prepares **builder agents** who implement Profile **content v1** on isolated lab URLs. Production `player/profile.php` stayed untouched until Dagh merged a winner.
 
 **Dagh:** Copy one **Builder prompt** § below into a new Cursor chat per agent. Replace `{N}` with the agent number (1, 2, 3, …).
 

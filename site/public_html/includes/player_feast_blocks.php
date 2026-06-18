@@ -445,6 +445,7 @@ function player_feast_render_story_lines(array $pm): void
         $lines[] = ['🔥', 'On a <strong>' . (int) $winStreak . '-game</strong> winning streak right now.'];
     }
 
+    $longestRunLine = null;
     $streaks = $story['play_streaks'] ?? null;
     if (is_array($streaks)) {
         $type = player_feast_story_play_streak_axis();
@@ -454,7 +455,7 @@ function player_feast_render_story_lines(array $pm): void
             $lines[] = ['📆', 'Playing <strong>' . (int) $s['current'] . ' ' . $unit . 's</strong> in a row — and counting.'];
         } elseif ((int) $s['best'] >= 2) {
             $when = $s['best_date'] !== '' ? ' in ' . pm_h((string) $s['best_date']) : '';
-            $lines[] = ['📆', 'The longest run: <strong>' . (int) $s['best'] . ' ' . $unit . 's</strong> in a row' . $when . '.'];
+            $longestRunLine = ['📆', 'The longest run: <strong>' . (int) $s['best'] . ' ' . $unit . 's</strong> in a row' . $when . '.'];
         }
     }
 
@@ -483,6 +484,10 @@ function player_feast_render_story_lines(array $pm): void
     $distinctDays = (int) ($story['distinct_days'] ?? 0);
     if ($distinctDays > 0) {
         $lines[] = ['🗓', 'Showed up to play on <strong>' . number_format($distinctDays) . '</strong> different days!'];
+    }
+
+    if ($longestRunLine !== null) {
+        $lines[] = $longestRunLine;
     }
 
     if ($lines === []) {

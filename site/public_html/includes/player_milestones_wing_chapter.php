@@ -25,9 +25,9 @@ function player_milestones_wing_chapter_lede_html(string $view, int $playerId, s
         : htmlspecialchars($playerName !== '' ? $playerName : 'This player', ENT_QUOTES, 'UTF-8');
 
     if ($view === 'chronology') {
-        return 'Every unlock has a moment. Chronology will walk '
+        return 'Every unlock has a moment. Chronology lists '
             . $nameHtml
-            . '\'s milestones in the order they arrived — a timeline beside the garden\'s map. Until that feed ships, unlocked cards in the garden still show when each feat landed.';
+            . '\'s milestones newest first — tier filter and event links match the site Recent feed, without the player column.';
     }
 
     $catalogHref = htmlspecialchars(k2_route('milestones-catalog'), ENT_QUOTES, 'UTF-8');
@@ -48,7 +48,17 @@ function player_milestones_wing_chapter_meta_html(
     $view = player_milestones_parse_view($view);
 
     if ($view === 'chronology') {
-        return 'Chronological unlock feed — coming soon.';
+        if ($numberGames < 1) {
+            return 'No rated games yet — milestones unlock once you join the ladder.';
+        }
+        if ($counts === null) {
+            return '';
+        }
+        $unlocked = (int) ($counts['total'] ?? 0);
+
+        return '<span class="k2-ms-wing-chapter__unlocked">' . $unlocked . '</span> unlock'
+            . ($unlocked === 1 ? '' : 's')
+            . ' on the timeline.';
     }
 
     if ($numberGames < 1) {

@@ -148,9 +148,7 @@ Query `?id=` required on all player tabs.
 | `milestones.php`, `milestones.php?view=catalog` | `milestones/recent.php`, `milestones/catalog.php` |
 | `ranked1`–`ranked10` | `leaderboards/*` (see table) |
 | `individual1`, `individual2a/b/c`, `individual3`, `individual_milestones` | `player/*` |
-| `join_alt.php`, `server1-charts-lab.php`, `status-realm-lab.php` | removed |
-
-**Kept at root:** `individual1-profile-lab1.php` … `lab4.php` (experiments only).
+| `join_alt.php`, `server1-charts-lab.php`, `status-realm-lab.php`, `individual1-profile-lab1.php` … `lab4.php` | removed |
 
 ---
 

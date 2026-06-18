@@ -1,6 +1,6 @@
 # Profile lab — multi-agent handoff (redirect)
 
-**Optional compare only (Jun 2026)** — production feast is **`player/profile.php`**; lab pages (`individual1-profile-lab*.php`) for layout experiments until you merge a winner.
+**Removed Jun 2026** — lab PHP/CSS deleted; production feast is **`player/profile.php`**.
 
 | Live spec | Path |
 |-----------|------|
@@ -8,4 +8,4 @@
 | Build recipes | [`profile-build-playbook.md`](profile-build-playbook.md) |
 | v1 content decisions | [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md) |
 
-**Full lab handoff + agent prompts:** [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md)
+**Historical lab handoff + agent prompts:** [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md)

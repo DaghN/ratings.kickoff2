@@ -23,6 +23,34 @@ body.k2-site .k2-ms-chronology {
 	margin-top: 0;
 }
 
+body.k2-site .k2-ms-chronology-feed {
+	margin-top: 0;
+}
+
+/* Chronology — same row layout as hub Recent, without the player column */
+body.k2-site .k2-ms-recent-list--no-player {
+	--k2-ms-recent-col-feat: 12.5rem;
+	grid-template-columns:
+		var(--k2-ms-recent-col-when)
+		var(--k2-ms-recent-col-feat)
+		var(--k2-ms-recent-col-rule)
+		var(--k2-ms-recent-col-event);
+}
+
+@supports not (grid-template-columns: subgrid) {
+	body.k2-site .k2-ms-recent-list--no-player .k2-ms-recent-list__item {
+		grid-template-columns:
+			var(--k2-ms-recent-col-when)
+			var(--k2-ms-recent-col-feat)
+			var(--k2-ms-recent-col-rule)
+			var(--k2-ms-recent-col-event);
+	}
+}
+
+body.k2-site .k2-ms-recent-list--no-player .k2-ms-recent-line__player {
+	display: none;
+}
+
 /* Inner-wing chapter — primary title + lede (hub chapter typography, nested under player nav) */
 body.k2-site .k2-player-wing-chapter {
 	margin: 0 0 16px;

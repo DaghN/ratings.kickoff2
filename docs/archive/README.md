@@ -23,7 +23,7 @@ Planning and audit material kept for history — **not** the live spec for the s
 | `session-log-2026-q2.md` | Trimmed `PROJECT_MEMORY.md` Recent log rows (May–Jun 2026) |
 | `profile-data-audit-pass2.md` | Pass-2 data map, B1/B2 ranking, feast contract, mock briefs (pre-ship) |
 | `profile-redesign-framing.md` | Audience, JTBD, Steve anchor, tone |
-| `profile-lab-agent-handoff.md` | Multi-agent lab prompts (Jun 2026; production feast shipped) |
+| `profile-lab-agent-handoff.md` | Multi-agent lab prompts (Jun 2026; lab PHP removed; production feast shipped) |
 | `profile-content-candidates.md` | ~70 profile content candidates; v1 curation complete |
 | `derived-data-refactor-plan.md` | May 2026 refactor plan (executed; live spec is `website-data-contract.md`) |
 | `ladder-engine-plan.md` | Python replay / Elo sandbox intent (May 2026); cutover = ops simul — stub at [`../ladder-engine-plan.md`](../ladder-engine-plan.md) |

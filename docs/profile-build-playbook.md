@@ -2,9 +2,7 @@
 
 **Status:** Jun 2026. **Use this doc when implementing** Profile tab content.
 
-**Production:** `site/public_html/player/profile.php` — edit only when merging a winner.
-
-**Multi-agent lab (archived):** Lab PHP may remain for comparison; handoff in [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
+**Production:** `site/public_html/player/profile.php`.
 
 **Authority chain:** Dagh’s latest message → this playbook → [`player-profile-feast.md`](player-profile-feast.md) (shipped layout + v1 summary) → v1 detail in [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md).
 
@@ -98,11 +96,7 @@ C1  Matchups: M09 line → charts → search (+ M12 links in rivalry/moments)
 | **B1** | Is he still around? | Last seen, last game, games this month/year, win streak, play streak |
 | **B2** | What kind of player? | Games, wins, goals, DDs, opponents (+ ranks if useful), victims line, best-year ticker, distinct days |
 
-**Production today:** `player_feast_render_presence_career_duo()` — two bordered panels, HTML stat tables (`pm3efg-duo`). That is the **shipped reference**, not a layout law.
-
-**Lab builds** (`individual1-profile-lab{N}.php`): **rethink presentation** — split or merge bands, tiles/chips/tickers instead of tables, open background, drop rank column, fewer rows with higher craft. Same facts; no encyclopedia.
-
-**Production merge:** only after Dagh picks a lab winner; until then do not assume duo tables survive.
+**Production today:** `player_feast_render_presence_career_duo()` — two bordered panels, HTML stat tables (`pm3efg-duo`). That is the **shipped reference**, not a layout law. Multi-agent lab sandboxes (`individual1-profile-lab{N}.php`) were removed Jun 2026; historical handoff in [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
 
 ---
 

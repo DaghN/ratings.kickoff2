@@ -3,7 +3,6 @@
 **Status:** Jun 2026 (layout + narrative contract). **Production page:** `player/profile.php?id={player}`.  
 **Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
 **v1 content decisions (archive):** [`docs/archive/profile-content-candidates.md`](archive/profile-content-candidates.md).  
-**Lab handoff (archive):** [`docs/archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md) — optional `individual1-profile-lab{N}.php` previews.  
 **Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md).  
 **Planned IA (not shipped):** [`player-opponents-hub.md`](player-opponents-hub.md) — Opponents umbrella tab, Profile slimming, optional Career totals expansion.
 
@@ -21,7 +20,7 @@
 | Wing context link | ~~`includes/player_wing_up_link.php`~~ — removed from online + Amiga player heroes (Jun 2026); file retained unused |
 | Nav pills | `includes/player_nav.php` — Profile · **Opponents** · Milestones · Games |
 | Opponents wing | `player/opponents/*.php` — inner tabs Head-to-head · W/D/L · Goals · DDs |
-| Milestones | `player/milestones/garden.php` · `player/milestones/chronology.php` — inner wings **Garden** · **Chronology**; per-wing chapter title + lede (`k2_player_wing_chapter.inc.php`, `player_milestones_wing_chapter.php`); tier garden on Garden (`#garden-aspirational` …); helpers `includes/player_milestones_helpers.php`, `includes/player_milestones_lib.php` |
+| Milestones | `player/milestones/garden.php` · `player/milestones/chronology.php` — inner wings **Garden** · **Chronology**; per-wing chapter title + lede; Chronology = player-filtered Recent feed (tier filter, newest-first, no player column); tier garden on Garden (`#garden-aspirational` …); helpers `includes/player_milestones_helpers.php`, `includes/player_milestones_lib.php` |
 | CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-story.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
 | Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_day_games.php`, `player_calendar_weeks.php`, `player_calendar_week_games.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
 
@@ -31,7 +30,7 @@
 
 1. Site header + **hero** (name → Profile tab; rank + rating → Rating LB; games → Activity peaks; milestones `{n}/{catalog}` → garden tab) + **player nav** (6px hero→nav, 12px nav→content on all `k2-player-wing` tabs — `theme.css`)
 4. **At a glance** — three columns × four rows: **Presence** (first/last rated game, days & games this year), **Career** (opponents, games, wins, goals — no DDs, no ranks), **Achievements** (milestones + gold/silver/bronze). Narrow viewports: columns stay side-by-side; panel scrolls horizontally if needed (no vertical stack).
-5. **Story so far** — heading *Let's take a look at **{name}**'s story so far...* (name in link-star); open-background prose ticker: current win streak (≥3), play streak day/week (50/50 per page load), opponents/victims, standout calendar year (games + wins), career distinct days. Omitted when no lines qualify.
+5. **Story so far** — heading *Let's take a look at **{name}**'s story so far...* (name in link-star); open-background prose ticker: current win streak (≥3), active play streak day/week (50/50 per page load), opponents/victims, standout calendar year (games + wins), career distinct days, then longest play-streak run (when no active streak). Omitted when no lines qualify.
 6. **Played days → weeks narrative** — no section headings on production; one warm prose arc: per-year days line ends `…` (“In 2026, **Dagh** enjoyed **110** days of online Kick Off 2…”), days heatmap + year picker, then weeks line continues (“… and since **12 Mar 2019**, **Dagh** has played in no less than **210** different weeks…”) into the weeks heatmap. `#played-days` / `#played-weeks` anchors + sr-only titles kept for back links and a11y. **Played days heatmap:** full page column (`--k2-max-width` 1200px); day cells and inter-cell gaps scale with month column width (`cqi`); gap between month mini-calendars ≈ **1.3×** one cell width (scales with 12 / 6 / 4 column breakpoints); 12 → 6 → 4 month columns at 900px / 600px breakpoints.
 7. **Played days detail** — UTC calendar; 12 months in one row for the selected year — **first career year** and **current calendar year** always render the full Jan–Dec grid, including months before first play or after today). **Future** day tiles are ghosted (faint outline) vs empty past days (full empty fill = missed). **Hover (fine pointer):** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played day → **Games** tab `?day=YYYY-MM-DD#day-games` (context banner with **← Played days** + prev/next played-day chevrons; **filter bar hidden**; table only — up to 500 games per page). **Coarse pointer:** first tap pins tile + external tooltip (“Tap again to view games”); second tap same tile navigates (parity with H2H scoreline heatmap). Day-step chevrons use carry-scroll without `#day-games` on peer URLs.
 8. **Played weeks detail** — all career years at once (52 UTC week tiles per year row). **Current calendar year:** remaining weeks use the same ghosted **future** tiles as played days (vs solid empty = missed). **Hover (fine pointer):** read-only preview (≤8 games, pre-game ratings; “Showing 8 of N” when truncated). **Click** a played week → **Games** tab `?from=played-weeks&period=week&anchor=YYYY-MM-DD#day-games` (banner; prev/next played-week chevrons; **← Played weeks** back link to `#played-weeks`). **Coarse pointer:** same two-tap preview → navigate pattern as played days.
@@ -130,8 +129,6 @@ Profile does **not** duplicate those tables.
 | Hero | Rank, strength, volume — “how does he sit on the ladder?” |
 | Presence | First rated game, last rated game, days this year, games this year — “is he still around?” |
 | Career | Games, wins, goals, opponents — “what kind of player?” (not full W/D-L grid; no DDs in at-a-glance) |
-
-**Lab note (Jun 2026):** Production uses `pm3efg-duo` side-by-side stat tables. Lab B1/B2 experiments archived — see [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
 | Bursts of activity | Busiest day / month / year — celebrate volume spikes after participation arc |
 | Moments | Giant-killing + trophy games — specific memorable events |
 | Heatmaps | Played days/weeks — visual life of the ladder; streak motivation |
