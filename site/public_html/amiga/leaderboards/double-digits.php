@@ -35,7 +35,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
+<?php
+$k2LbAnchorCol = 2;
+$k2LbDefaultSortCol = 4;
+?>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 
 <thead>
     <tr>
@@ -61,18 +65,18 @@ while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
     ?>
     <tr>
-        <td><?php echo $rank; ?></td>
-        <td class="k2-table-cell--left"><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
-        <td><?php echo k2_fmt_int($row['Rating']); ?></td>
-        <td><?php echo k2_fmt_games_played($games); ?></td>
-        <td><?php echo k2_fmt_count($row['DoubleDigits'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['CleanSheets'], $games); ?></td>
-        <td><?php echo k2_fmt_pct_from_ratio($row['DoubleDigitsRatio'], $games); ?></td>
-        <td><?php echo k2_fmt_pct_from_ratio($row['CleanSheetsRatio'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['DoubleDigitsConceded'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['CleanSheetsConceded'], $games); ?></td>
-        <td><?php echo k2_fmt_pct_from_ratio($row['DoubleDigitsConcededRatio'], $games); ?></td>
-        <td><?php echo k2_fmt_pct_from_ratio($row['CleanSheetsConcededRatio'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(0, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo $rank; ?></td>
+        <td<?php echo k2_table_body_td_attr(1, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_table_body_td_attr(3, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_games_played($games); ?></td>
+        <td<?php echo k2_table_body_td_attr(4, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['DoubleDigits'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['CleanSheets'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(6, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_pct_from_ratio($row['DoubleDigitsRatio'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(7, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_pct_from_ratio($row['CleanSheetsRatio'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(8, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['DoubleDigitsConceded'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(9, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['CleanSheetsConceded'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(10, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_pct_from_ratio($row['DoubleDigitsConcededRatio'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(11, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_pct_from_ratio($row['CleanSheetsConcededRatio'], $games); ?></td>
     </tr>
     <?php
     $rank++;

@@ -234,7 +234,9 @@ $k2AmigaHubTabActive = 'tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 ?>
 
-<header id="<?php echo k2_h(AMIGA_TOURNAMENT_PAGE_FRAGMENT); ?>" class="k2-amiga-tournament-hero">
+<div id="<?php echo k2_h(AMIGA_TOURNAMENT_PAGE_FRAGMENT); ?>" class="k2-amiga-tournament-page-anchor" tabindex="-1"></div>
+
+<header class="k2-amiga-tournament-hero">
 
   <h1 class="k2-amiga-tournament-hero__title k2-hub-intro"><?php echo k2_h($tName); ?></h1>
 

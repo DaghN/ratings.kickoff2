@@ -7,7 +7,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
-require_once __DIR__ . '/amiga_tournament_lib.php';
+
+/** Amiga ladder start rating — debut Δ baseline when absent from prior wing snapshot. */
+const AMIGA_RATING_HISTORY_START_RATING = 1600.0;
 
 /** @var list<array<string, mixed>>|null */
 $GLOBALS['_amiga_rating_history_tournaments'] = null;
@@ -103,31 +105,6 @@ function amiga_rating_history_catalog_event(mysqli $con): array
 {
     $catalog = [];
     foreach (amiga_rating_history_tournaments($con) as $tournament) {
-        $catalog[] = [
-            'key' => (string) $tournament['id'],
-            'label' => amiga_rating_history_format_event_label($tournament),
-            'cutoff_tournament_id' => $tournament['id'],
-            'cutoff_event_date' => $tournament['event_date'],
-            'cutoff_chrono' => $tournament['chrono'],
-            'has_finalize_in_period' => true,
-        ];
-    }
-
-    return $catalog;
-}
-
-/**
- * One snapshot per finalized World Cup tournament, in catalog chrono order.
- *
- * @return list<array<string, mixed>>
- */
-function amiga_rating_history_catalog_world_cup(mysqli $con): array
-{
-    $catalog = [];
-    foreach (amiga_rating_history_tournaments($con) as $tournament) {
-        if (!amiga_tournament_is_world_cup_by_name((string) $tournament['name'])) {
-            continue;
-        }
         $catalog[] = [
             'key' => (string) $tournament['id'],
             'label' => amiga_rating_history_format_event_label($tournament),
@@ -381,6 +358,152 @@ function amiga_rating_history_ladder_at_cutoff(
 }
 
 /**
+ * @param list<array{player_id: int, rating_after: float}> $ladder
+ * @return array<int, float>
+ */
+function amiga_rating_history_ladder_rating_map(array $ladder): array
+{
+    $map = [];
+    foreach ($ladder as $row) {
+        $map[(int) $row['player_id']] = (float) $row['rating_after'];
+    }
+
+    return $map;
+}
+
+/**
+ * @param list<array<string, mixed>> $catalog
+ */
+function amiga_rating_history_catalog_entry_by_key(array $catalog, ?string $key): ?array
+{
+    if ($key === null || $key === '') {
+        return null;
+    }
+    foreach ($catalog as $entry) {
+        if ((string) $entry['key'] === $key) {
+            return $entry;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @return array<int, true>
+ */
+function amiga_rating_history_event_participant_ids(mysqli $con, int $tournamentId): array
+{
+    if ($tournamentId < 1) {
+        return [];
+    }
+
+    $stmt = $con->prepare('SELECT DISTINCT player_id FROM amiga_rating_events WHERE tournament_id = ?');
+    if (!$stmt) {
+        throw new RuntimeException('Failed to prepare event participant lookup.');
+    }
+    $stmt->bind_param('i', $tournamentId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    $ids = [];
+    while ($row = $res->fetch_assoc()) {
+        $ids[(int) $row['player_id']] = true;
+    }
+    $stmt->close();
+
+    return $ids;
+}
+
+/**
+ * Wing-step rating change vs previous snapshot in the same wing.
+ *
+ * Event wing: non-participants in the snapshot tournament → 0.
+ * Player debut on ladder (absent from prior wing snapshot, or no prior wing snapshot) → vs 1600.
+ */
+function amiga_rating_history_compute_rating_delta(
+    int $playerId,
+    float $ratingAfter,
+    bool $hasPrevWingSnapshot,
+    array $prevRatingByPlayer,
+    ?array $eventParticipantIds
+): float {
+    if ($hasPrevWingSnapshot && $eventParticipantIds !== null && !isset($eventParticipantIds[$playerId])) {
+        return 0.0;
+    }
+
+    $baseline = ($hasPrevWingSnapshot && isset($prevRatingByPlayer[$playerId]))
+        ? (float) $prevRatingByPlayer[$playerId]
+        : AMIGA_RATING_HISTORY_START_RATING;
+
+    return $ratingAfter - $baseline;
+}
+
+function amiga_rating_history_format_rating_delta_html(float $delta): string
+{
+    $rounded = (int) round($delta);
+    if ($rounded === 0) {
+        return '0';
+    }
+    if ($rounded > 0) {
+        return '<span class="blue">+' . $rounded . '</span>';
+    }
+
+    return '<span class="red">' . $rounded . '</span>';
+}
+
+/**
+ * @param list<array{player_id: int, name: string, country: string, rating_after: float, rank: int}> $ladder
+ * @return list<array{player_id: int, name: string, country: string, rating_after: float, rank: int, rating_delta: float}>
+ */
+function amiga_rating_history_ladder_with_deltas(
+    mysqli $con,
+    string $wing,
+    array $ladder,
+    array $catalog,
+    ?string $prevKey,
+    ?array $entry
+): array {
+    if ($ladder === []) {
+        return [];
+    }
+
+    $hasPrevWingSnapshot = $prevKey !== null && $prevKey !== '';
+    $prevRatingByPlayer = [];
+    if ($hasPrevWingSnapshot) {
+        $prevEntry = amiga_rating_history_catalog_entry_by_key($catalog, $prevKey);
+        if ($prevEntry !== null) {
+            $prevLadder = amiga_rating_history_ladder_at_cutoff(
+                $con,
+                $prevEntry['cutoff_event_date'] !== null ? (string) $prevEntry['cutoff_event_date'] : null,
+                $prevEntry['cutoff_chrono'] !== null ? (float) $prevEntry['cutoff_chrono'] : null,
+                $prevEntry['cutoff_tournament_id'] !== null ? (int) $prevEntry['cutoff_tournament_id'] : null
+            );
+            $prevRatingByPlayer = amiga_rating_history_ladder_rating_map($prevLadder);
+        }
+    }
+
+    $eventParticipantIds = null;
+    if ($wing === 'event' && $entry !== null && $entry['cutoff_tournament_id'] !== null) {
+        $eventParticipantIds = amiga_rating_history_event_participant_ids($con, (int) $entry['cutoff_tournament_id']);
+    }
+
+    $rows = [];
+    foreach ($ladder as $row) {
+        $rows[] = array_merge($row, [
+            'rating_delta' => amiga_rating_history_compute_rating_delta(
+                (int) $row['player_id'],
+                (float) $row['rating_after'],
+                $hasPrevWingSnapshot,
+                $prevRatingByPlayer,
+                $eventParticipantIds
+            ),
+        ]);
+    }
+
+    return $rows;
+}
+
+/**
  * @return list<array<string, mixed>>
  */
 function amiga_rating_history_catalog_for_wing(mysqli $con, string $wing): array
@@ -388,7 +511,6 @@ function amiga_rating_history_catalog_for_wing(mysqli $con, string $wing): array
     return match ($wing) {
         'month' => amiga_rating_history_catalog_month($con),
         'year' => amiga_rating_history_catalog_year($con),
-        'world-cup' => amiga_rating_history_catalog_world_cup($con),
         default => amiga_rating_history_catalog_event($con),
     };
 }
@@ -399,7 +521,6 @@ function amiga_rating_history_normalize_wing(string $wing): string
 
     return match ($wing) {
         'month', 'year' => $wing,
-        'world-cup', 'worldcup', 'world_cup' => 'world-cup',
         default => 'event',
     };
 }
@@ -419,7 +540,7 @@ function amiga_rating_history_page_url(string $wing, string $atKey): string
  *   entry: array<string, mixed>|null,
  *   prev_key: string|null,
  *   next_key: string|null,
- *   ladder: list<array{player_id: int, name: string, country: string, rating_after: float, rank: int}>
+ *   ladder: list<array{player_id: int, name: string, country: string, rating_after: float, rank: int, rating_delta: float}>
  * }
  */
 function amiga_rating_history_resolve_view(mysqli $con, string $wing, ?string $atKey): array
@@ -431,11 +552,19 @@ function amiga_rating_history_resolve_view(mysqli $con, string $wing, ?string $a
 
     $ladder = [];
     if ($entry !== null) {
-        $ladder = amiga_rating_history_ladder_at_cutoff(
+        $ladderRows = amiga_rating_history_ladder_at_cutoff(
             $con,
             $entry['cutoff_event_date'] !== null ? (string) $entry['cutoff_event_date'] : null,
             $entry['cutoff_chrono'] !== null ? (float) $entry['cutoff_chrono'] : null,
             $entry['cutoff_tournament_id'] !== null ? (int) $entry['cutoff_tournament_id'] : null
+        );
+        $ladder = amiga_rating_history_ladder_with_deltas(
+            $con,
+            $wing,
+            $ladderRows,
+            $catalog,
+            $position['prev_key'],
+            $entry
         );
     }
 

@@ -14,6 +14,7 @@ $k2AmigaHubTabActive = 'leaderboards';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_performance_rating.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
@@ -37,7 +38,11 @@ $perfHelp = amiga_perf_rating_column_help();
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="3" data-k2-default-direction="desc">
+<?php
+$k2LbAnchorCol = 2;
+$k2LbDefaultSortCol = 3;
+?>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="3" data-k2-default-direction="desc">
 
 <thead>
     <tr>
@@ -59,18 +64,18 @@ foreach ($perfRows as $row) {
     $eventGames = (int) ($row['event_games'] ?? 0);
     ?>
     <tr>
-        <td><?php echo $rank; ?></td>
-        <td class="k2-table-cell--left"><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
-        <td><?php echo k2_fmt_int($row['Rating']); ?></td>
-        <td><?php echo amiga_profile_tournament_rating_cell($row['performance_rating'] ?? null); ?></td>
-        <td><?php echo k2_fmt_games_played($eventGames); ?></td>
-        <td class="k2-table-cell--left"><?php
+        <td<?php echo k2_table_body_td_attr(0, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo $rank; ?></td>
+        <td<?php echo k2_table_body_td_attr(1, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_table_body_td_attr(3, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($row['performance_rating'] ?? null); ?></td>
+        <td<?php echo k2_table_body_td_attr(4, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_games_played($eventGames); ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--left'); ?>><?php
             echo amiga_tournament_link(
                 (int) ($row['tournament_id'] ?? 0),
                 (string) ($row['tournament_name'] ?? '')
             );
         ?></td>
-        <td class="k2-table-cell--right" data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($row); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
+        <td<?php echo k2_table_body_td_attr(6, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($row); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
     </tr>
     <?php
     $rank++;

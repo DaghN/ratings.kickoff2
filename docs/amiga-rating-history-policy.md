@@ -19,7 +19,7 @@ A **time-travel rating ladder**: at any chosen moment, show who was on the ladde
 
 | Phase | Data | Surface |
 |-------|------|---------|
-| **V1** | `amiga_rating_events` + `tournaments` (compute on read) | History hub tab · Event / Month / Year wings · chevrons + picker · rating + rank only |
+| **V1** | `amiga_rating_events` + `tournaments` (compute on read) | History hub tab · Event / Month / Year wings · chevrons + picker · rating + rank + Δ |
 | **V2** | Sparse cumulative career columns on the event timeline (schema + finalize writers) | Same shell; add LB columns (games, goals, …) incrementally |
 
 V1 does **not** materialize dense snapshot tables (`603 × 600`). Full ladder at moment T = **last `rating_after` per player** among events on or before T, then sort.
@@ -36,8 +36,8 @@ V1 does **not** materialize dense snapshot tables (`603 × 600`). Full ladder at
 
 | # | Decision | Rule |
 |---|----------|------|
-| **H1** | **Columns** | **Rating + rank only** (plus player name / country for display). No games, W-D-L, opp avg in V1. |
-| **H2** | **Wings** | **Event · World Cup · Month · Year** — tabbed sub-navigation on the History page. Each wing has its own snapshot catalog and prev/next chevrons + direct picker (dropdown or equivalent). |
+| **H1** | **Columns** | **Rating + rank + Δ** (plus player name / country for display). Δ = wing-step rating change (see §3.5). No games, W-D-L, opp avg in V1. |
+| **H2** | **Wings** | **Event · Month · Year** — tabbed sub-navigation on the History page. Each wing has its own snapshot catalog and prev/next chevrons + direct picker (dropdown or equivalent). World Cups use **Year** (or **Event**) — no separate WC wing. |
 | **H3** | **Roster rule** | Include **only** players with ≥1 `amiga_rating_events` row on or before the snapshot cutoff. **No** players before their first event; no placeholder rows; no “—”. |
 | **H4** | **Sort / rank** | Sort by exact `rating_after` **DESC** (`decimal(10,6)`), then stable tie-break (`player_id ASC`). **Unique rank** (1…N). Display Elo as **rounded integer** (same as current rating LB); sort uses full precision — display ties are cosmetic only. |
 | **H5** | **Tournament scope** | **Finalized historical tournaments only** (`rating_finalized = 1` / import-complete catalog). No live / open tournament path in V1. |
@@ -64,17 +64,7 @@ Between finalizes, ratings are **flat** (finalize-boundary model). Month/year vi
 
 Chevrons: previous / next **tournament** in chrono order among finalized events.
 
-### 3.2 World Cup wing
-
-| Field | Rule |
-|-------|------|
-| **Moments** | One snapshot per **finalized World Cup** tournament (`amiga_tournament_is_world_cup_by_name`), in catalog chrono order. |
-| **Cutoff** | Through that World Cup inclusive (same as event wing for that tournament). |
-| **Label** | Tournament name + formatted `event_date` (e.g. “World Cup XXIII (Milan) · Nov 2025”). |
-
-Chevrons: previous / next **World Cup** in chrono order. Stepper uses a **fixed-width label slot** so chevrons do not shift between snapshots.
-
-### 3.3 Month wing
+### 3.2 Month wing
 
 | Field | Rule |
 |-------|------|
@@ -85,7 +75,7 @@ Chevrons: previous / next **World Cup** in chrono order. Stepper uses a **fixed-
 
 Chevrons: previous / next **calendar month** in the continuous range (not skip empty months).
 
-### 3.4 Year wing
+### 3.3 Year wing
 
 | Field | Rule |
 |-------|------|
@@ -95,11 +85,22 @@ Chevrons: previous / next **calendar month** in the continuous range (not skip e
 
 Chevrons: previous / next **calendar year** in the continuous range.
 
-### 3.5 URL / state
+### 3.4 URL / state
 
 - Default: latest snapshot in the active wing (current ladder ≈ event wing last tournament).
-- Query params (illustrative): `?wing=event|world-cup|month|year` and `?at=<id>` where `<id>` is wing-specific key (`tournament_id`, `YYYY-MM`, or `YYYY`).
+- Query params (illustrative): `?wing=event|month|year` and `?at=<id>` where `<id>` is wing-specific key (`tournament_id`, `YYYY-MM`, or `YYYY`).
 - Chevrons and picker update URL for bookmarking.
+
+### 3.5 Δ column (wing-step change)
+
+| Field | Rule |
+|-------|------|
+| **Meaning** | Change in displayed Elo vs the **previous snapshot in the same wing** (not “since last event played”). |
+| **First snapshot in wing** | Same as ladder debut — baseline **1600** (everyone on that list is new to the ladder). |
+| **Player debut on ladder** | Absent from previous wing snapshot → baseline **1600** (Amiga start rating). |
+| **Event wing shortcut** | Player did not play in the snapshot tournament → **0** (valid because consecutive event snapshots are consecutive tournaments). |
+| **Month / Year** | Full compare vs previous month/year ladder (no participant shortcut). |
+| **Display** | Rounded integer; `+N` / `-N` with `.blue` / `.red` spans; `0` neutral (same as game adjustment styling). |
 
 ---
 
@@ -140,9 +141,9 @@ Amiga hub:  … | History | …
 
 /amiga/history.php
   H1: Historical ladder  (chapter)
-  Sub-wings: [ Event ] [ World Cup ] [ Month ] [ Year ]
+  Sub-wings: [ Event ] [ Month ] [ Year ]
   ◀  {snapshot label}  ▶     [ picker ▾ ]
-  Table: Rank | Player | Elo | Country (optional)
+  Table: Rank | Player | Elo | Δ | Country
 ```
 
 - Reuse `k2-table` sortable patterns where helpful; default sort = rank (pre-sorted server-side).

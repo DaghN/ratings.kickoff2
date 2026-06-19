@@ -418,6 +418,23 @@
 		return sortTableByIndex(table, index, direction);
 	}
 
+	/** Sort header chrome only — no tbody reorder (SSR order trusted). */
+	function applyDefaultSortHeaderState(table) {
+		var index = parseInt(table.getAttribute('data-k2-default-sort'), 10);
+		var direction = table.getAttribute('data-k2-default-direction') === 'asc' ? 'asc' : 'desc';
+		var headers = table.tHead ? table.tHead.getElementsByTagName('th') : [];
+		var header;
+
+		if (isNaN(index) || !headers[index] || !headers[index].getAttribute('data-k2-sort')) {
+			return;
+		}
+
+		header = headers[index];
+		table._k2SortIndex = index;
+		table._k2SortDirection = direction;
+		setSortState(table, header, direction);
+	}
+
 	function getSortScope(table) {
 		var scope = table && table.getAttribute ? table.getAttribute('data-k2-sort-scope') : '';
 		scope = scope ? String(scope).trim() : '';
@@ -758,8 +775,12 @@
 		}
 
 		applyAnchorColumn(table);
-		if (!applyUrlSortState(table)) {
-			applyDefaultSortState(table);
+		if (table.getAttribute('data-k2-skip-initial-sort') !== '1') {
+			if (!applyUrlSortState(table)) {
+				applyDefaultSortState(table);
+			}
+		} else {
+			applyDefaultSortHeaderState(table);
 		}
 		refreshSortedColumnEmphasis(table);
 		refreshRankColumn(table);

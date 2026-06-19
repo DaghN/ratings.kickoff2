@@ -35,7 +35,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
+<?php
+$k2LbAnchorCol = 2;
+$k2LbDefaultSortCol = 4;
+?>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 
 <thead>
     <tr>
@@ -64,15 +68,15 @@ while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
     ?>
     <tr>
-        <td><?php echo $rank; ?></td>
-        <td class="k2-table-cell--left"><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
-        <td><?php echo k2_fmt_int($row['Rating']); ?></td>
-        <td><?php echo k2_fmt_games_played($games); ?></td>
-        <td><?php echo k2_fmt_count($row['GoalsFor'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['GoalsAgainst'], $games); ?></td>
-        <td><?php echo k2_fmt_decimal($row['AverageGoalsFor'], $games); ?></td>
-        <td><?php echo k2_fmt_decimal($row['AverageGoalsAgainst'], $games); ?></td>
-        <td><?php
+        <td<?php echo k2_table_body_td_attr(0, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo $rank; ?></td>
+        <td<?php echo k2_table_body_td_attr(1, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_table_body_td_attr(3, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_games_played($games); ?></td>
+        <td<?php echo k2_table_body_td_attr(4, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['GoalsFor'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['GoalsAgainst'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(6, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_decimal($row['AverageGoalsFor'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(7, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_decimal($row['AverageGoalsAgainst'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(8, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php
             if (!k2_derived_games_started($games)) {
                 echo k2_fmt_dash();
             } elseif (k2_db_is_null($row['GoalRatio']) || (float) $row['GoalRatio'] == -1.0) {
@@ -81,12 +85,12 @@ while ($row = mysqli_fetch_assoc($result)) {
                 echo k2_fmt_decimal($row['GoalRatio'], $games);
             }
         ?></td>
-        <td><?php echo k2_fmt_count($row['MostGoalsScored'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['MostGoalsConceded'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['BiggestWinDifference'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['BiggestLossDifference'], $games); ?></td>
-        <td><?php echo k2_fmt_count($row['BiggestSumOfGoals'], $games); ?></td>
-        <td><?php
+        <td<?php echo k2_table_body_td_attr(9, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['MostGoalsScored'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(10, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['MostGoalsConceded'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(11, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['BiggestWinDifference'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(12, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['BiggestLossDifference'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(13, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['BiggestSumOfGoals'], $games); ?></td>
+        <td<?php echo k2_table_body_td_attr(14, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php
             if (!k2_derived_games_started($games) || (int) $row['NumberDraws'] === 0) {
                 echo k2_fmt_dash();
             } else {

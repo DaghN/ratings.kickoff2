@@ -22,7 +22,7 @@ const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
     'site.public_html.amiga.ops.fixtures',
 ];
 
-/** Hash target on tournament.php — entry links scroll the hero to the viewport top. */
+/** Hash target on tournament.php — zero-height anchor flush above the hero title. */
 const AMIGA_TOURNAMENT_PAGE_FRAGMENT = 'tournament';
 
 /**

@@ -14,6 +14,7 @@ $k2AmigaHubTabActive = 'leaderboards';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
@@ -41,7 +42,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 <div class="k2-lb-tournament-honours">
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
+<?php
+$k2LbAnchorCol = 2;
+$k2LbDefaultSortCol = 4;
+?>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 
 <thead>
     <tr>
@@ -69,20 +74,20 @@ foreach ($honoursRows as $row) {
     $playerId = (int) $row['player_id'];
     ?>
     <tr>
-        <td><?php echo $rank; ?></td>
-        <td class="k2-table-cell--left"><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
-        <td><?php echo k2_fmt_int($row['rating']); ?></td>
-        <td><?php echo k2_h((string) ($row['country'] ?? '')); ?></td>
-        <td><?php echo (int) $row['tournaments_played']; ?></td>
-        <td><?php echo (int) $row['event_gold']; ?></td>
-        <td><?php echo (int) $row['event_silver']; ?></td>
-        <td><?php echo (int) $row['event_bronze']; ?></td>
-        <td><?php echo (int) $row['event_podiums']; ?></td>
-        <td><?php echo (int) $row['wc_played']; ?></td>
-        <td><?php echo (int) $row['wc_gold']; ?></td>
-        <td><?php echo (int) $row['wc_silver']; ?></td>
-        <td><?php echo (int) $row['wc_bronze']; ?></td>
-        <td><?php echo (int) $row['wc_podiums']; ?></td>
+        <td<?php echo k2_table_body_td_attr(0, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo $rank; ?></td>
+        <td<?php echo k2_table_body_td_attr(1, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_int($row['rating']); ?></td>
+        <td<?php echo k2_table_body_td_attr(3, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_h((string) ($row['country'] ?? '')); ?></td>
+        <td<?php echo k2_table_body_td_attr(4, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['tournaments_played']; ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['event_gold']; ?></td>
+        <td<?php echo k2_table_body_td_attr(6, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['event_silver']; ?></td>
+        <td<?php echo k2_table_body_td_attr(7, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['event_bronze']; ?></td>
+        <td<?php echo k2_table_body_td_attr(8, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['event_podiums']; ?></td>
+        <td<?php echo k2_table_body_td_attr(9, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_played']; ?></td>
+        <td<?php echo k2_table_body_td_attr(10, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_gold']; ?></td>
+        <td<?php echo k2_table_body_td_attr(11, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_silver']; ?></td>
+        <td<?php echo k2_table_body_td_attr(12, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_bronze']; ?></td>
+        <td<?php echo k2_table_body_td_attr(13, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_podiums']; ?></td>
     </tr>
     <?php
     $rank++;

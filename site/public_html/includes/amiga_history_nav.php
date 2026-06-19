@@ -2,7 +2,7 @@
 /**
  * Amiga History page — Event / Month / Year wing tabs.
  *
- * Set $k2AmigaHistoryWingActive before include: event | world-cup | month | year
+ * Set $k2AmigaHistoryWingActive before include: event | month | year
  */
 declare(strict_types=1);
 
@@ -11,7 +11,6 @@ $k2AmigaHistoryAtKey = isset($k2AmigaHistoryAtKey) ? (string) $k2AmigaHistoryAtK
 
 $k2AmigaHistoryWingTabs = [
     'event' => ['label' => 'Event'],
-    'world-cup' => ['label' => 'World Cup'],
     'month' => ['label' => 'Month'],
     'year' => ['label' => 'Year'],
 ];
