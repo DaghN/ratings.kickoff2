@@ -1,8 +1,8 @@
 <?php
 /**
- * Amiga realm hub tabs — News · Leaderboards · Tournaments · Live tournaments · Activity · Hall of Fame.
+ * Amiga realm hub tabs — News · Leaderboards · Tournaments · Live tournaments · Activity · History · Hall of Fame.
  *
- * Set $k2AmigaHubTabActive before include: news | leaderboards | tournaments | live-tournaments | activity | hall-of-fame
+ * Set $k2AmigaHubTabActive before include: news | leaderboards | tournaments | live-tournaments | activity | history | hall-of-fame
  *
  * Leaderboards tab → rating wing under /amiga/leaderboards/ (tournament honours is a sub-wing only).
  * Wing nav on all leaderboard pages (includes/amiga_lb_nav.php). No streaks wing.
@@ -17,6 +17,7 @@ $k2AmigaHubTabs = [
 	'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
 	'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live tournaments'],
 	'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
+	'history' => ['href' => '/amiga/history.php', 'label' => 'History'],
 	'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
 ];
 

@@ -1,6 +1,6 @@
 # Amiga rating history — policy (historical ladder snapshots)
 
-**Status:** **Policy locked** (Jun 2026). **V1:** surface only — no new stored truth. **V2:** sparse cumulative stats at finalize (deferred).  
+**Status:** **V1 implemented** (Jun 2026). **V2:** sparse cumulative stats at finalize (deferred).  
 **Purpose:** Historical **rating ladder** snapshots at chosen moments — browse past leaderboards, later animation / bar-chart race inputs.
 
 **Implementation:** [`amiga-rating-history-implementation-plan.md`](amiga-rating-history-implementation-plan.md)
@@ -37,7 +37,7 @@ V1 does **not** materialize dense snapshot tables (`603 × 600`). Full ladder at
 | # | Decision | Rule |
 |---|----------|------|
 | **H1** | **Columns** | **Rating + rank only** (plus player name / country for display). No games, W-D-L, opp avg in V1. |
-| **H2** | **Three wings** | **Event · Month · Year** — tabbed sub-navigation on the History page. Each wing has its own snapshot catalog and prev/next chevrons + direct picker (dropdown or equivalent). |
+| **H2** | **Wings** | **Event · World Cup · Month · Year** — tabbed sub-navigation on the History page. Each wing has its own snapshot catalog and prev/next chevrons + direct picker (dropdown or equivalent). |
 | **H3** | **Roster rule** | Include **only** players with ≥1 `amiga_rating_events` row on or before the snapshot cutoff. **No** players before their first event; no placeholder rows; no “—”. |
 | **H4** | **Sort / rank** | Sort by exact `rating_after` **DESC** (`decimal(10,6)`), then stable tie-break (`player_id ASC`). **Unique rank** (1…N). Display Elo as **rounded integer** (same as current rating LB); sort uses full precision — display ties are cosmetic only. |
 | **H5** | **Tournament scope** | **Finalized historical tournaments only** (`rating_finalized = 1` / import-complete catalog). No live / open tournament path in V1. |
@@ -47,7 +47,7 @@ V1 does **not** materialize dense snapshot tables (`603 × 600`). Full ladder at
 
 ---
 
-## 3. Snapshot semantics (three wings)
+## 3. Snapshot semantics (wings)
 
 All wings answer: *“What was the rating ladder after the last rating commit on or before this cutoff?”*
 
@@ -64,31 +64,41 @@ Between finalizes, ratings are **flat** (finalize-boundary model). Month/year vi
 
 Chevrons: previous / next **tournament** in chrono order among finalized events.
 
-### 3.2 Month wing
+### 3.2 World Cup wing
 
 | Field | Rule |
 |-------|------|
-| **Moments** | One snapshot per **calendar month** that has ≥1 finalized tournament with `event_date` in that month, **or** optionally every month from first ladder month through last — **implementation default:** only months where at least one finalize occurred (fewer picker entries). |
-| **Cutoff** | Last finalize in that month (max chrono among tournaments with `event_date` in `YYYY-MM`). If multiple tournaments same month, ladder reflects state **after the last one** in chrono order. |
+| **Moments** | One snapshot per **finalized World Cup** tournament (`amiga_tournament_is_world_cup_by_name`), in catalog chrono order. |
+| **Cutoff** | Through that World Cup inclusive (same as event wing for that tournament). |
+| **Label** | Tournament name + formatted `event_date` (e.g. “World Cup XXIII (Milan) · Nov 2025”). |
+
+Chevrons: previous / next **World Cup** in chrono order. Stepper uses a **fixed-width label slot** so chevrons do not shift between snapshots.
+
+### 3.3 Month wing
+
+| Field | Rule |
+|-------|------|
+| **Moments** | **Every calendar month** from first ladder month through last (inclusive), whether or not a tournament finalized in that month. |
+| **Cutoff** | Last finalize with `event_date` on or before the **last day** of that month (chrono max). If no finalize in month, ladder unchanged from prior month — chevrons still advance month by month. |
 | **Label** | “November 2003” (locale-neutral `Month YYYY`). |
-| **Empty months** | Skip — no snapshot row (picker only lists months with at least one finalize). |
+| **Empty months** | **Included** in picker and chevrons; ladder repeats previous state until the next finalize. |
 
-Chevrons: previous / next **month that has a snapshot** in the catalog.
+Chevrons: previous / next **calendar month** in the continuous range (not skip empty months).
 
-### 3.3 Year wing
+### 3.4 Year wing
 
 | Field | Rule |
 |-------|------|
-| **Moments** | One snapshot per **calendar year** with ≥1 finalized tournament. |
-| **Cutoff** | Last finalize in that year (max chrono among tournaments with `YEAR(event_date) = Y`). |
+| **Moments** | **Every calendar year** from first ladder year through last (inclusive), whether or not a tournament finalized in that year. |
+| **Cutoff** | Last finalize with `event_date` on or before **31 Dec** of that year (chrono max). Empty years repeat prior ladder state. |
 | **Label** | “2003”. |
 
-Chevrons: previous / next **year** in the catalog.
+Chevrons: previous / next **calendar year** in the continuous range.
 
-### 3.4 URL / state
+### 3.5 URL / state
 
 - Default: latest snapshot in the active wing (current ladder ≈ event wing last tournament).
-- Query params (illustrative): `?wing=event|month|year` and `?at=<id>` where `<id>` is wing-specific key (`tournament_id`, `YYYY-MM`, or `YYYY`).
+- Query params (illustrative): `?wing=event|world-cup|month|year` and `?at=<id>` where `<id>` is wing-specific key (`tournament_id`, `YYYY-MM`, or `YYYY`).
 - Chevrons and picker update URL for bookmarking.
 
 ---
@@ -130,7 +140,7 @@ Amiga hub:  … | History | …
 
 /amiga/history.php
   H1: Historical ladder  (chapter)
-  Sub-wings: [ Event ] [ Month ] [ Year ]
+  Sub-wings: [ Event ] [ World Cup ] [ Month ] [ Year ]
   ◀  {snapshot label}  ▶     [ picker ▾ ]
   Table: Rank | Player | Elo | Country (optional)
 ```

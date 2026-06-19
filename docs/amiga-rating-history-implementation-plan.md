@@ -1,6 +1,6 @@
 # Amiga rating history — implementation plan (V1 slices)
 
-**Status:** **Ready to execute** (Jun 2026). Policy locked.  
+**Status:** **V1 complete** (Jun 2026). Policy locked.  
 **Policy:** [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md)
 
@@ -72,16 +72,13 @@ Single PHP library: build snapshot catalogs and return ranked ladder rows for an
 
 ### Tasks
 
-- [ ] Create `site/public_html/includes/amiga_rating_history_lib.php`
-- [ ] `amiga_rating_history_finalized_tournaments($con)` — tournaments with `rating_finalized = 1` (or all completed import tournaments with rating events), chrono order
-- [ ] `amiga_rating_history_catalog_event($con)` — list of `{ key: tournament_id, label, sort_key, event_date, chrono }`
-- [ ] `amiga_rating_history_catalog_month($con)` — distinct `YYYY-MM` with ≥1 finalize; each entry points at **last tournament chrono in that month** (store `cutoff_tournament_id` or equivalent)
-- [ ] `amiga_rating_history_catalog_year($con)` — same for `YYYY`
-- [ ] `amiga_rating_history_ladder_at_cutoff($con, $cutoffEventDate, $cutoffChrono, $cutoffTournamentId)` — returns `[{ player_id, name, country, rating_after, rank }, …]`
-  - Use window function `ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC)` filtered to `<= cutoff`, or equivalent grouped subquery
-  - Outer sort: `rating_after DESC`, `player_id ASC`; assign rank
-- [ ] Helpers: `amiga_rating_history_resolve_wing_at($con, $wing, $atKey)` → cutoff + label; default `at` = last catalog entry
-- [ ] Helpers: `amiga_rating_history_prev_next($catalog, $currentKey)` → prev/next keys for chevrons
+- [x] Create `site/public_html/includes/amiga_rating_history_lib.php`
+- [x] `amiga_rating_history_finalized_tournaments($con)` — tournaments with rating events, chrono order
+- [x] `amiga_rating_history_catalog_event($con)` — list of `{ key: tournament_id, label, sort_key, event_date, chrono }`
+- [x] `amiga_rating_history_catalog_month($con)` — **every calendar month** first→last ladder month; cutoff = last finalize on or before month end
+- [x] `amiga_rating_history_catalog_year($con)` — **every calendar year** first→last; cutoff = last finalize on or before 31 Dec
+- [x] `amiga_rating_history_ladder_at_cutoff($con, …)` — `ROW_NUMBER` last row per player; rank assigned
+- [x] Helpers: `amiga_rating_history_resolve_view`, `amiga_rating_history_page_url`, catalog prev/next
 
 ### Verification
 
@@ -105,9 +102,9 @@ SELECT COUNT(DISTINCT player_id) FROM amiga_rating_events;
 -- (pick first finalized tournament id from catalog query)
 ```
 
-- [ ] Last event snapshot player count = distinct players in `amiga_rating_events`
-- [ ] Ranks are unique; sorted by `rating_after` DESC
-- [ ] No player appears before their first event in an early snapshot
+- [x] Last event snapshot player count = distinct players in `amiga_rating_events` (473 local Jun 2026)
+- [x] Ranks are unique; sorted by `rating_after` DESC
+- [x] No player appears before their first event in an early snapshot
 
 ### Files (expected)
 
@@ -124,16 +121,9 @@ Navigable dev surface with Event wing working end-to-end.
 
 ### Tasks
 
-- [ ] `site/public_html/includes/amiga_hub_nav.php` — add `'history' => ['href' => '/amiga/history.php', 'label' => 'History']` (placement: after Leaderboards or before HoF — **default: after Activity**)
-- [ ] `site/public_html/amiga/history.php`:
-  - Hub tab active = `history`
-  - Chapter: “Historical ladder” + short lede (finalize-boundary note)
-  - Sub-wing nav: Event | Month | Year (Month/Year can be disabled or stub until slice 3)
-  - Event wing: chevrons + `<select>` picker populated from catalog
-  - Table: Rank | Player | Elo | Country
-  - `k2_amiga_player_link()` for names
-  - Query params: `wing=event`, `at=<tournament_id>`
-- [ ] Reuse existing table CSS (`k2-table`, calm stats) — match `leaderboards/rating.php` density where sensible
+- [x] `site/public_html/includes/amiga_hub_nav.php` — History tab after Activity
+- [x] `site/public_html/amiga/history.php` — Event / Month / Year wings, chevrons, picker, table
+- [x] `site/public_html/includes/amiga_history_nav.php` — wing tabs + chapter
 
 ### Verification
 
@@ -170,9 +160,9 @@ All three wings complete with independent catalogs and navigation.
 
 ### Verification
 
-- [ ] Each wing reaches first/last snapshot; chevrons disable or hide at ends
-- [ ] Pick a month with 2+ tournaments — compare to Event wing on last tournament of that month (identical table)
-- [ ] Year cutoff matches last event of that year
+- [x] Each wing reaches first/last snapshot; chevrons disable at ends
+- [x] Month with no finalize shows note + unchanged ladder (quiet month probe OK)
+- [x] Year cutoff uses last finalize on or before 31 Dec
 
 ### Files
 
@@ -190,14 +180,9 @@ Ship-ready V1 dev surface; docs reflect reality.
 
 ### Tasks
 
-- [ ] Empty/error states: invalid `at` param → 400 or fallback to latest
-- [ ] `aria-label` on chevrons; accessible picker
-- [ ] Update [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) status → **V1 implemented**
-- [ ] [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4 — new row: Historical ladder | `/amiga/history.php` | `amiga_rating_events` compute | Tier A
-- [ ] [`docs/url-routes.md`](url-routes.md) — `/amiga/history.php`
-- [ ] [`docs/hub-ia-agreement.md`](hub-ia-agreement.md) — one line: History tab (dev; IA TBD)
-- [ ] [`PROJECT_MEMORY.md`](PROJECT_MEMORY.md) Recent log
-- [ ] Optional: [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4 — move “historical ladder” from potential to shipped
+- [x] Empty/error states: invalid `at` falls back to latest in wing
+- [x] `aria-label` on chevrons; accessible picker
+- [x] Policy + plan status updated; player-universe §4; url-routes; MEMORY
 
 ### Verification
 
