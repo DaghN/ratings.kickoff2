@@ -112,14 +112,14 @@ Re-run: `python -m scripts.amiga run --recreate-schema`. Import audit: `data/ami
 
 ## Rating chart timeline
 
-Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN(game_date)` from `amiga_games` (first ladder game, ~Nov 2001) and `meta.granularity = event`. Online still uses June 2017 and per-game points.
+Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN(game_date)` from `amiga_games` (first ladder game, ~Nov 2001) and `meta.granularity = event`. Online still uses June 2017 and per-game points. **By date** x-axis on Amiga profile uses `timelineStart` (month start → today), not the online server origin.
 
 **Chart views** (`player-rating-chart.js`, shared shell with online profile):
 
 | Toggle | Points plotted | Peak / summary |
 |--------|----------------|----------------|
 | **By date** | One per local day — rating after the last event that day | Career peak from event series; latest from end-of-day series (+ today) |
-| **By tournament #** | One point per `amiga_rating_events` row (`rating_after`) | Event index on x-axis; tooltip links to tournament page |
+| **By tournament #** | Origin at tournament #0 (1600 Elo), then one point per `amiga_rating_events` row (`rating_after`) | Event index on x-axis; tooltip links to tournament page |
 
 API returns one point per finalized tournament (not per game). Multi-game tournaments appear as a single step on the tournament # axis.
 

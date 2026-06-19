@@ -149,3 +149,35 @@ function k2_lb_filter_toggle_href(string $param): string
 
     return $page . $qs;
 }
+
+/** DOM id on leaderboard `.k2-table-wrap` — hero stat links land here. */
+function k2_lb_table_anchor_id(): string
+{
+    return 'k2-lb-table';
+}
+
+function k2_lb_table_anchor_hash(): string
+{
+    return '#' . k2_lb_table_anchor_id();
+}
+
+/** Zero-height scroll target immediately above the leaderboard table. */
+function k2_lb_table_anchor_markup(): string
+{
+    return '<div id="' . k2_lb_table_anchor_id() . '" class="k2-lb-table-anchor" tabindex="-1"></div>';
+}
+
+/**
+ * Leaderboard wing URL that scrolls to the table top (profile hero stat links).
+ *
+ * @param array<string, scalar> $query
+ */
+function k2_lb_table_href(string $routeKey, array $query = []): string
+{
+    $path = k2_route($routeKey);
+    if ($query !== []) {
+        $path .= '?' . http_build_query($query);
+    }
+
+    return $path . k2_lb_table_anchor_hash();
+}

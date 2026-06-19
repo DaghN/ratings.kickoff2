@@ -122,7 +122,7 @@ Chart.js 4.4.7 + date-fns adapter
 |---|-------------|-----|-------|--------|
 | 1 | `.server-games-day-chart` | `api/server_games_by_day_recent.php?realm=online` | bar, time day | Status: `.server-games-day-chart-status` |
 | 2 | `.server-games-month-chart` | `api/server_games_by_month.php?realm=online` | bar, time month | `barSolid` pitch |
-| 3 | `.server-games-year-chart` | `api/server_games_by_year.php?realm=online` | stacked bar | YTD + projected remainder; tooltip footer pace |
+| 3 | `.server-games-year-chart` | `api/server_games_by_year.php?realm=online` | stacked bar | YTD + projected remainder; tooltip `afterLabel` ~games/day (YTD for current year); footer pace |
 | 4 | `.server-activity-heatmap` | `api/server_games_by_day_year.php?realm=online` | DOM grid | `.activity-heatmap-wrap` (full chart width); cells from `ResizeObserver`; `overflow-x` only when grid wider than wrap; month row spans weeks per month |
 | 5 | `.server-active-players-month-chart` | `api/server_active_players_by_month.php?realm=online` | bar, time month | `barSolid` chrome |
 | 6 | `.server-daily-active-players-chart` | `api/server_daily_active_players.php?realm=online&source=stored` | line, 30d rolling | Client-side **calendar** 30-day trailing mean (gap days = 0); smooth line (`stepped: false`) |

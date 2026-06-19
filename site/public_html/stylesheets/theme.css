@@ -1960,6 +1960,10 @@ body.k2-site .k2-table-wrap {
 	background: var(--k2-bg-surface);
 }
 
+body.k2-site .k2-lb-table-anchor {
+	height: 0;
+}
+
 /* Wide games tables — column width before/after scroll-mirror JS wraps the panel */
 body.k2-site .k2-table-wrap[data-k2-scroll-mirror] {
 	width: 100%;
@@ -3174,6 +3178,15 @@ body.k2-site .k2-player-opponents-h2h__search-option:focus-visible .player-searc
 	font-size: 28px;
 	font-weight: 700;
 	box-shadow: 0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-accent-glow);
+}
+
+body.k2-site a.k2-player-hero__avatar-link,
+body.k2-site a.k2-player-hero__avatar-link:visited,
+body.k2-site a.k2-player-hero__avatar-link:hover,
+body.k2-site a.k2-player-hero__avatar-link:active,
+body.k2-site a.k2-player-hero__avatar-link:focus {
+	text-decoration: none;
+	cursor: pointer;
 }
 
 .k2-player-hero__stat--country .k2-player-hero__stat-value--country {

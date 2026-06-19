@@ -476,7 +476,7 @@ function player_feast_render_story_lines(array $pm): void
     if ($opps > 0) {
         $line = 'Faced <strong>' . number_format($opps) . '</strong> different opponents';
         if ($victims > 0) {
-            $line .= ' — and beat <strong>' . number_format($victims) . '</strong> of them.';
+            $line .= ' — and beat <strong>' . number_format($victims) . '</strong> of them!';
         } else {
             $line .= '.';
         }

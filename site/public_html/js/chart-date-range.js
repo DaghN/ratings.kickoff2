@@ -72,6 +72,18 @@
         };
     }
 
+    /** Amiga (or other realms): x-axis from ladder / career origin through today. */
+    function careerTimeRangeFromStart(startValue) {
+        var start = parseStartDate(startValue);
+        if (!start) {
+            return { xMin: undefined, xMax: endOfToday() };
+        }
+        return {
+            xMin: new Date(start.getFullYear(), start.getMonth(), 1),
+            xMax: endOfToday()
+        };
+    }
+
     function sameLocalDay(a, b) {
         return a.getFullYear() === b.getFullYear()
             && a.getMonth() === b.getMonth()
@@ -134,6 +146,7 @@
         serverStartDate: serverStartDate,
         serverStartMonth: serverStartMonth,
         profileCareerTimeRange: profileCareerTimeRange,
+        careerTimeRangeFromStart: careerTimeRangeFromStart,
         endOfCurrentMonth: endOfCurrentMonth,
         endOfToday: endOfToday,
         appendRatingThroughToday: appendRatingThroughToday,

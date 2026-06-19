@@ -44,6 +44,24 @@
         return isNaN(d.getTime()) ? null : d;
     }
 
+    function daysInCalendarYear(year) {
+        var y = parseInt(year, 10);
+        if (!y) {
+            return 365;
+        }
+        return (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0)) ? 366 : 365;
+    }
+
+    function gamesPerDayAverageForYear(yr, projection) {
+        var days = yr.is_current
+            ? (projection && projection.days_elapsed) || 0
+            : daysInCalendarYear(yr.year);
+        if (!days) {
+            return null;
+        }
+        return yr.games / days;
+    }
+
     function parseGameDate(dateStr) {
         if (!dateStr) {
             return null;
@@ -280,8 +298,9 @@
                                             return '';
                                         }
                                         return d.toLocaleDateString(undefined, {
+                                            weekday: 'long',
                                             year: 'numeric',
-                                            month: 'short',
+                                            month: 'long',
                                             day: 'numeric'
                                         });
                                     },
@@ -458,6 +477,17 @@
                             legend: { labels: { color: T.textMuted() } },
                             tooltip: T.mergeTooltip({
                                 callbacks: {
+                                    afterLabel: function (ctx) {
+                                        if (ctx.datasetIndex !== 0) {
+                                            return null;
+                                        }
+                                        var yr = years[ctx.dataIndex];
+                                        var avg = gamesPerDayAverageForYear(yr, projection);
+                                        if (avg == null) {
+                                            return null;
+                                        }
+                                        return '~' + avg.toFixed(1) + ' games/day on average';
+                                    },
                                     footer: function (items) {
                                         if (!items.length) {
                                             return '';

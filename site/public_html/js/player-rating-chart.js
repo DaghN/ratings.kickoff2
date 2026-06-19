@@ -123,8 +123,8 @@
         return ticks;
     }
 
-    function withGameChartOrigin(chartData, eventMode) {
-        if (eventMode || !chartData.length) {
+    function withGameChartOrigin(chartData) {
+        if (!chartData.length) {
             return chartData.slice();
         }
         var out = [{ x: 0, y: START_RATING, isOrigin: true }];
@@ -261,10 +261,33 @@
         };
     }
 
-    function createDateChart(canvas, chartData, peakValue, realm) {
+    function amigaDateChartTimeRange(chartData, timelineStart) {
+        if (DR && DR.careerTimeRangeFromStart) {
+            if (timelineStart) {
+                return DR.careerTimeRangeFromStart(timelineStart);
+            }
+            if (chartData.length && chartData[0].x) {
+                var first = chartData[0].x;
+                return DR.careerTimeRangeFromStart(
+                    first.getFullYear() + '-'
+                        + String(first.getMonth() + 1).padStart(2, '0') + '-'
+                        + String(first.getDate()).padStart(2, '0')
+                );
+            }
+            return DR.careerTimeRangeFromStart();
+        }
+        return {
+            xMin: undefined,
+            xMax: DR && DR.endOfToday ? DR.endOfToday() : undefined
+        };
+    }
+
+    function createDateChart(canvas, chartData, peakValue, realm, timelineStart) {
         var timeRange;
         if (realm === 'online' && DR && DR.profileCareerTimeRange) {
             timeRange = DR.profileCareerTimeRange();
+        } else if (realm === 'amiga') {
+            timeRange = amigaDateChartTimeRange(chartData, timelineStart);
         } else {
             timeRange = {
                 xMin: DR && DR.serverStartDate ? DR.serverStartDate() : undefined,
@@ -349,8 +372,8 @@
         var xTitle = eventMode ? 'Tournament number' : 'Rated game number';
         var datasetLabel = eventMode ? 'ELO rating (after tournament)' : 'ELO rating (after game)';
         var xMax = chartData.length ? chartData[chartData.length - 1].x : 0;
-        var xMin = eventMode && chartData.length ? chartData[0].x : 0;
-        var seriesData = withGameChartOrigin(chartData, eventMode);
+        var xMin = 0;
+        var seriesData = withGameChartOrigin(chartData);
         var tickValues = buildNiceAxisTickValues(xMax, eventMode);
         return createChart(canvas, {
             type: 'line',
@@ -378,7 +401,9 @@
                                 }
                                 var pt = items[0].raw;
                                 if (pt && pt.isOrigin) {
-                                    return 'Game #0 — starting rating';
+                                    return (eventMode
+                                        ? 'Tournament #0 — starting rating'
+                                        : 'Game #0 — starting rating');
                                 }
                                 var prefix = eventMode ? 'Tournament #' : 'Game #';
                                 var title = prefix + items[0].parsed.x;
@@ -403,7 +428,10 @@
                                 }
                                 var pt = items[0].raw;
                                 if (pt && pt.isOrigin) {
-                                    return String(START_RATING) + ' Elo before the first rated game';
+                                    var beforeLabel = eventMode
+                                        ? 'before the first tournament'
+                                        : 'before the first rated game';
+                                    return String(START_RATING) + ' Elo ' + beforeLabel;
                                 }
                                 if (eventMode && pt && pt.tournamentId) {
                                     var lines = ['/amiga/tournament.php?id=' + pt.tournamentId];
@@ -621,7 +649,8 @@
                     dateCanvas,
                     dateChartData,
                     state.peakValue,
-                    realm
+                    realm,
+                    state.timelineStart
                 );
                 setActiveView(root, 'game', state);
             })

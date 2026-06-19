@@ -42,6 +42,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <?php if ($queryError) { ?>
 <p class="server-peak-period-leaderboard-status">Could not load activity peaks.</p>
 <?php } else { ?>
+<?php echo k2_lb_table_anchor_markup(); ?>
 <div class="k2-table-wrap">
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 <thead>
