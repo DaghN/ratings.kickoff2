@@ -21,6 +21,8 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 
 `prove` = drop schema → import `koatd.mdb` → full `replay` → verify suite (0 errors = shippable).
 
+**Modular pipeline (planned):** L0 pristine → L1 witness → L2 structure → L3 derived — policy [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md), plan [`docs/amiga-ground-layers-implementation-plan.md`](../../docs/amiga-ground-layers-implementation-plan.md). Future CLIs: `import-pristine`, `import-witness`, `apply-structure`; export profiles A/B/C.
+
 **Import + replay without verify** (mid-slice only):
 
 ```powershell

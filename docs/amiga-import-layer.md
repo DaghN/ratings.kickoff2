@@ -2,7 +2,9 @@
 
 **Purpose:** Define how legacy Microsoft Access (`koatd.mdb`) becomes canonical Amiga **ground truth** in `ko2amiga_db`. Import is the **only** place we normalize, correct, or reinterpret archival data before replay and the website see it.
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (layers + chronology) · [`scripts/amiga/README.md`](../scripts/amiga/README.md) (commands)
+**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (layers + chronology) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L0–L3 modular pipeline) · [`scripts/amiga/README.md`](../scripts/amiga/README.md) (commands)
+
+**Layer:** This doc owns **L1 witness ground** transforms and `import_manifest.json`. **L2** structure = [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). **L3** derived = replay/finalize. **L0** pristine = planned (`import-pristine`).
 
 ---
 
@@ -35,13 +37,24 @@ verify suite (0 errors = shippable)
 
 | Layer | Role |
 |-------|------|
+| **L0 Pristine** | Mechanical `koatd.mdb` → SQL (no corrections) — diff vs KOA drops |
+| **L1 Witness** | This doc — evidence-backed facts + `import_manifest.json` |
+| **L2 Structure** | Stages, fixtures, disposition — [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) |
+| **L3 Derived** | Replay/finalize — ratings, snapshots, matchups, standings rows |
 | **Archival input** | `data/amiga/source/koatd.mdb` — read-only for import |
-| **Import transforms** | Documented rules in `scripts/amiga/` |
-| **Ground truth** | MySQL tables after import (or future live submission) |
-| **Derived truth** | Replay from ground in `game_date, id` order — never reads Access |
 | **Reference truth** | Access `Tables` / `Rankings` — parity tooling only |
 
-Ground truth is **not** “whatever Access says.” It is what we commit to MySQL after import.
+L1 ground is **not** “whatever Access says.” It is what we commit to MySQL after documented transforms.
+
+**Target flow** (implementation: [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md)):
+
+```text
+koatd.mdb → import-pristine (L0, optional)
+         → import-witness (L1)
+         → apply-structure (L2)
+         → replay (L3)
+         → prove verify
+```
 
 ---
 

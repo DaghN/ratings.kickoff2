@@ -14,6 +14,7 @@
 |--------|----------|
 | Access inventory, quirks, chronology | [`amiga-schema-discovery.md`](amiga-schema-discovery.md) |
 | **Import layer** (archival → ground truth) | [`amiga-import-layer.md`](amiga-import-layer.md) |
+| **Ground layers L0–L3** (pristine / witness / structure / derived; community packs) | [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · plan [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md) |
 | Chronology fix | [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) |
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
 | **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
@@ -37,7 +38,9 @@ This document owns **layer definitions**, **table register**, **post-game/replay
 
 Archival Access (`koatd.mdb`) is **input**, not website ground truth. Import applies documented transforms (see [`amiga-import-layer.md`](amiga-import-layer.md)) and writes audit output to `data/amiga/exports/import_manifest.json`.
 
-### 1. Ground truth
+**Modular pipeline (Jun 2026):** Long-term we split **L0** pristine · **L1** witness ground · **L2** structure overlay · **L3** derived product — see [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md). This section’s “ground / derived” vocabulary maps to **L1** and **L3** until DDL bundles and export profiles land.
+
+### 1. Ground truth (L1 witness)
 
 Canonical facts in MySQL after **import** or **future live submission** — never written by replay.
 
@@ -50,7 +53,11 @@ Canonical facts in MySQL after **import** or **future live submission** — neve
 
 Replay may **read** ground truth; it must not invent or overwrite canonical match facts. Replay game order follows § Chronology (`ORDER BY game_date ASC, id ASC`).
 
-### 2. Derived truth
+### 2. Structure overlay (L2)
+
+Stages, fixtures, entrants, lifecycle — **not** per-game Elo. Authority: [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). `amiga_games.phase` is **witness** (koatd label), not structure authority.
+
+### 3. Derived truth (L3)
 
 Computed from ground truth by chronological replay or per-game ops. **Always rebuildable** from canonical games in order.
 
