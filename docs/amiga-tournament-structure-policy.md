@@ -211,13 +211,13 @@ Tiers remain useful as **audit vocabulary**; **import reads handlers only**:
 
 | Data artifact | Role |
 |---------------|------|
-| **Disposition register** | `disposition_register.json` — **603** ids → handler — **bootstrap shipped** |
+| **Disposition register** | `disposition_register.json` — **605** ids → handler |
 | **Pure knockout handler** | `pure_knockout.py` + preview/materialize CLI — **shipped** |
-| Handler dispatch in `run` | Slice 10 — not wired yet |
+| Handler dispatch in `run` / `prove` | **Shipped** (ground layers slice 6) — `apply-structure --from-disposition` after L3 witness |
 
 **Review deliverable:** promote id from `pending_review` → correct handler (or add `structure_spec` slug). Not “bless auto script.”
 
-**Current gap:** handler **dispatch** in `import_access.py` / `run` (slice 10). Register + `pure_knockout` handler shipped; bulk tier CLIs are dev repair only.
+**Dev repair only:** bulk `materialize-tier-a` / `materialize-tier-b-non-wc` CLIs — not the production ritual.
 
 ---
 

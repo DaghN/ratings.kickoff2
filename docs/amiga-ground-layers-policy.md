@@ -1,6 +1,6 @@
 # Amiga ground layers — policy (L0–L5)
 
-**Status:** Locked direction v2 (Jun 2026). DDL bundle slice 1 shipped — see [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md).  
+**Status:** **Implemented** (Jun 2026) — slices 1–8 complete. DDL bundles, modular `prove`, export packs shipped. See [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md).  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md)
 
 **Purpose:** Define the offline Amiga **data pipeline** (L0–L5): what each step contains, how layers depend on each other, what is community-publishable vs ratings.kickoff.com product-only, and how this maps to code/DDL folder names.
@@ -40,7 +40,7 @@ Today `python -m scripts.amiga prove` collapses KOA’s Access file, legacy-deri
 - Module/fixture structure (**L4**)
 - Our optional product layer (**L5**)
 
-**Target:** separate **scripts**, **export profiles**, and **DDL bundles** per concern. `prove` becomes an orchestrator over **L3 → L4 → L5**, not a monolith.
+**Target (shipped Jun 2026):** separate **scripts**, **export profiles**, and **DDL bundles** per concern. `prove` orchestrates **L3 → L4 → L5 → verify**.
 
 ---
 
@@ -129,7 +129,7 @@ Not exported by us. Not versioned in git (local/staging).
 
 ### L3 — Witness ground (`ko2amiga_db` core)
 
-| Tables | `tournaments`, `amiga_players`, `amiga_games` |
+| Tables | `tournaments`, `amiga_players`, `amiga_games`, `amiga_tournament_finish_override` |
 | Data | Goals, players, `tournament_id`, `source_*`, `phase`/`extra` (G6), synthetic `game_date` (G10) |
 | Curated claims | `amiga_tournament_finish_override` (Tier E), catalog overrides, supplements — manifest-audited |
 | Players | From **games scan** + merges (G9); not from `added_players` |
@@ -179,7 +179,7 @@ Not exported by us. Not versioned in git (local/staging).
 | `sql/structure/` | `apply_schema_structure()` | **L4** structure tables |
 | `sql/derived/` | `apply_schema_derived()` | **L5** product tables |
 
-**L1/L2** are separate SQL **dump** artefacts (`import-pristine`, `import-prune` — planned), not these bundle names.
+**L1/L2** are separate SQL **dump** artefacts (`import-pristine`, `import-prune` — shipped Jun 2026), not these bundle names.
 
 ---
 
@@ -196,19 +196,22 @@ Pack A must not require Pack C tables.
 
 ---
 
-## 8. Current repo vs target
+## 8. Shipped CLI map (Jun 2026)
 
-| Topic | Today | Target |
-|-------|-------|--------|
-| L1 script | **`import-pristine`** shipped | `verify-pristine`; optional Mirror pack export |
-| L2 script | **`import-prune`** shipped | `verify-prune`; 3 witness-candidate tables |
-| L3 | `import_access.py` | `import-witness`; `apply_schema_ground()` |
-| L4 | Thin at import; bulk materialize post-import | `apply-structure`; `apply_schema_structure()` |
-| L5 | `replay` / `prove` | `apply_schema_derived()` |
-| Staging export | Single fat dump | Packs Mirror / A / B / C |
-| `prove` | Nuclear monolith | `L3 → L4 → L5 → verify` orchestrator |
+| Layer | CLI | Verify |
+|-------|-----|--------|
+| L1 Mirror | `import-pristine` | `verify-pristine` |
+| L2 Prune | `import-prune` | `verify-prune` |
+| L3 Witness | `import-witness` | `verify-witness` |
+| L4 Structure | `apply-structure --from-disposition` | `verify-structure` |
+| L5 Product | `replay` (via `prove` / `run`) | `prove` verify suite |
+| Orchestrator | `prove` | — |
+| Export packs | `export-pack {mirror\|ground\|structure\|product\|all}` | `verify-export-pack` |
+| Staging browser import | `scripts/export_ko2amiga_db.ps1` | preview URL in [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 
-Structure track ([`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md)) **is L4 work**.
+Community packs live under `data/amiga/exports/packs/`. Pack C archive = `export-pack product`; chunked staging = `export_ko2amiga_db.ps1`.
+
+Structure track ([`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md)) **is L4 work**. Per-tournament materialize CLIs remain dev/repair tools.
 
 ---
 
@@ -224,16 +227,17 @@ Structure track ([`amiga-tournament-structure-policy.md`](amiga-tournament-struc
 
 ---
 
-## 10. Verification (target)
+## 10. Verification
 
 | Layer | Gate |
 |-------|------|
-| L0 vs L1 | Row-level diff all tables |
-| L1 vs L2 | Prune manifest row counts match |
-| L2 vs L3 | Manifest explains every correction/merge/supplement |
-| L3 | `verify-import-manifest`, `verify-chronology`, catalog audits |
-| L4 | `verify-disposition-register`, structure verify CLIs |
-| L5 | Existing `prove` verify suite |
+| L0 vs L1 | `verify-pristine` |
+| L1 vs L2 | `verify-prune` |
+| L2 vs L3 | `verify-import-manifest`, `verify-witness` |
+| L3 | `verify-chronology`, catalog audits |
+| L4 | `verify-disposition-register`, `verify-structure`, `verify-export-pack structure` |
+| L5 | `prove` verify suite |
+| Full loop | `python -m scripts.amiga prove` |
 
 ---
 

@@ -4,7 +4,7 @@
 
 **Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (pipeline **L0–L5**) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
-**Layer:** This doc owns **L3 witness ground** transforms and `import_manifest.json`. **L4** structure = [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). **L5** derived = replay/finalize. **L0** = `koatd.mdb`; **L1** full mirror and **L2** prune = planned (`import-pristine`, `import-prune`) — see policy §4–5.
+**Layer:** This doc owns **L3 witness ground** transforms and `import_manifest.json`. **L4** structure = [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). **L5** derived = replay/finalize. **L0** = `koatd.mdb`; **L1** full mirror and **L2** prune = `import-pristine`, `import-prune` (shipped) — see policy §4–5.
 
 ---
 
@@ -27,7 +27,7 @@ derived truth (ratings, stats, standings)
 verify suite (0 errors = shippable)
 ```
 
-**Holy Amiga loop (Jun 2026):** only supported path from empty → shippable = `prove` (nuclear schema + import + replay + verify). No incremental schema ladder; see [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).
+**Holy Amiga loop (Jun 2026):** only supported path from empty → shippable = `prove` — modular **L3 witness → L4 structure → L5 replay → verify**. No incremental schema ladder; see [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).
 
 **Do not edit `koatd.mdb` as the primary fix** for known Access bugs. Fresh drops from KOA would undo local edits. Corrections belong in the import layer (version-controlled, reproducible).
 
@@ -71,7 +71,7 @@ L0 koatd.mdb
 | [`player_names.py`](../scripts/amiga/player_names.py) | Collapse spacing / case duplicates (`Oliver ST` → `Oliver St`) |
 | [`tournament_names.py`](../scripts/amiga/tournament_names.py) | Map Scores tournament strings to catalog parents (Milan X fragments, cup aliases, WC V KOA Cup → World Cup V) |
 | [`tournament_format.py`](../scripts/amiga/tournament_format.py) | Seed format templates and infer non-exclusive `has_league` / `has_cup` catalog flags from canonical phases |
-| [`tournament_structure/`](../scripts/amiga/tournament_structure/) | Version-controlled structure specs (`StructureSpec` → stages/fixtures); `apply_structure_spec()` hook during import |
+| [`tournament_structure/`](../scripts/amiga/tournament_structure/) | Version-controlled structure specs (`StructureSpec` → stages/fixtures); L4 `apply-structure` / disposition dispatch |
 | [`import_access.py`](../scripts/amiga/import_access.py) | Calendar-first sort, continuous same-day `game_date`, player/tournament insert order |
 
 ### Manual (explicit overrides)

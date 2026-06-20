@@ -49,6 +49,13 @@ from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.import_manifest import default_manifest_path
 from scripts.amiga.verify_witness import verify_witness
+from scripts.amiga.export_packs import (
+    ALL_PACKS,
+    _DEFAULT_PACKS_ROOT,
+    export_all_packs,
+    export_pack,
+)
+from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
 from scripts.amiga.tournament_structure.audit import main as audit_suspicious_marathons_main
@@ -128,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p_prove = sub.add_parser(
         "prove",
-        help="Nuclear reset + replay + verify suite (holy Amiga loop / sign-off)",
+        help="L3 witness → L4 structure → L5 replay → verify (holy Amiga loop / sign-off)",
     )
     p_prove.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
     p_prove.add_argument("--dry-run", action="store_true")
@@ -137,6 +144,11 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=None,
         help="Replay smoke only — not for sign-off",
+    )
+    p_prove.add_argument(
+        "--skip-structure",
+        action="store_true",
+        help="Skip L4 apply-structure (dev only — not sign-off)",
     )
 
     p_pristine = sub.add_parser(
@@ -247,6 +259,40 @@ def main(argv: list[str] | None = None) -> int:
     p_verify_structure = sub.add_parser(
         "verify-structure",
         help="Assert L4 STOP gate: Homburg + pure_rr smoke + pending_review clean",
+    )
+
+    p_export_pack = sub.add_parser(
+        "export-pack",
+        help="Export community pack: mirror | ground | structure | product | all",
+    )
+    p_export_pack.add_argument(
+        "pack",
+        choices=(*ALL_PACKS, "all"),
+        help="Pack profile (all = every pack)",
+    )
+    p_export_pack.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_export_pack.add_argument(
+        "--out-root",
+        type=Path,
+        default=_DEFAULT_PACKS_ROOT,
+        help="Output root (default: data/amiga/exports/packs)",
+    )
+    p_export_pack.add_argument(
+        "--refresh-pristine",
+        action="store_true",
+        help="Re-run import-pristine before mirror pack",
+    )
+
+    p_verify_export_pack = sub.add_parser(
+        "verify-export-pack",
+        help="Verify export pack manifest + STOP gate (structure/product)",
+    )
+    p_verify_export_pack.add_argument("pack", choices=ALL_PACKS)
+    p_verify_export_pack.add_argument("--pack-root", type=Path, default=_DEFAULT_PACKS_ROOT)
+    p_verify_export_pack.add_argument(
+        "--no-live-db",
+        action="store_true",
+        help="Skip row-count parity against ko2amiga_db",
     )
 
     p_parity = sub.add_parser(
@@ -560,11 +606,50 @@ def main(argv: list[str] | None = None) -> int:
         log.info("verify-structure OK")
         return 0
 
+    if args.cmd == "export-pack":
+        if args.pack == "all":
+            results = export_all_packs(
+                out_root=args.out_root,
+                mdb=args.mdb,
+                refresh_pristine=args.refresh_pristine,
+            )
+            for stats in results:
+                log.info(
+                    "export-pack %s OK: %s rows=%s files=%s",
+                    stats["pack"],
+                    stats.get("out_dir"),
+                    stats.get("rows_total", stats.get("table_count", "—")),
+                    len(stats.get("files", [])),
+                )
+        else:
+            stats = export_pack(
+                args.pack,
+                out_root=args.out_root,
+                mdb=args.mdb,
+                refresh_pristine=args.refresh_pristine,
+            )
+            log.info("export-pack %s OK: %s", stats["pack"], stats)
+        return 0
+
+    if args.cmd == "verify-export-pack":
+        errors = verify_export_pack(
+            args.pack,
+            pack_root=args.pack_root,
+            check_live_db=not args.no_live_db,
+        )
+        if errors:
+            for err in errors:
+                log.error("%s", err)
+            return 1
+        log.info("verify-export-pack OK: %s", args.pack)
+        return 0
+
     if args.cmd == "prove":
         return run_prove(
             mdb=args.mdb,
             dry_run=args.dry_run,
             limit=args.limit,
+            skip_structure=args.skip_structure,
         )
 
     if args.cmd == "verify-track-b":

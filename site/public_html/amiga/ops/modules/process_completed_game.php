@@ -594,9 +594,6 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
     if (!$con->query('DELETE FROM amiga_player_event_snapshots')) {
         throw new RuntimeException('DELETE amiga_player_event_snapshots: ' . $con->error);
     }
-    if (!$con->query('DELETE FROM amiga_tournament_finish_override')) {
-        throw new RuntimeException('DELETE amiga_tournament_finish_override: ' . $con->error);
-    }
     if (!$con->query('DELETE FROM amiga_tournament_catalog_stats')) {
         throw new RuntimeException('DELETE amiga_tournament_catalog_stats: ' . $con->error);
     }

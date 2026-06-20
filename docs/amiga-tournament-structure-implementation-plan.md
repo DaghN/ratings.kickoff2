@@ -346,36 +346,20 @@ Document modern WC module graph from Steve’s source (~10 WCs); one `StructureS
 
 ---
 
-## Slice 10 — Import closure (structure apply hook)
+## Slice 10 — Import closure (structure apply hook) — **done** (ground layers slice 6)
 
 ### Goal
 
-**One import command, no follow-up materialize.** Wire tier A + graduated tier B legacy materialize into the same hook that already applies tier D `StructureSpec` during `import_access.py`.
-
-### Prerequisites
-
-- Review track producing durable data: `StructureSpec` entries, register graduations, parser fixes.
-- Slices 5–6 bulk logic proven (tier A + safe tier B).
+**One import command, no follow-up materialize.** Wire disposition register dispatch into `run` / `prove` after L3 witness.
 
 ### Tasks
 
 - [x] `pure_knockout.py` handler + contract doc + preview/materialize CLI
-- [x] `disposition_register.json` bootstrap (603 rows) + generate/verify CLI
-- [ ] `apply_disposition_handlers_for_import(conn)` — dispatch register in `run`
-- [ ] Call from `import_access.py` after games staged (or post-insert), before commit
-- [ ] Standings rebuild for materialized tournaments in same pass
-- [ ] `verify-legacy --sample N` in `run` or post-import smoke
-- [ ] Deprecate separate bulk CLIs as **dev/repair only**, not ritual
+- [x] `disposition_register.json` bootstrap + generate/verify CLI
+- [x] `apply-structure --from-disposition` — dispatch register in `prove` / `run` (L4 after L3)
+- [x] Deprecate separate bulk CLIs as **dev/repair only**, not ritual
 
-### Verification
-
-```powershell
-python -m scripts.amiga run --recreate-schema
-python -m scripts.amiga tournament-structure audit-inventory --json
-# Expect materialized_count ≈ tier A + tier D + graduated tier B; review ids still 0 stages
-```
-
-User confirms fresh import needs **no** manual materialize commands.
+**Verified:** `python -m scripts.amiga prove` green Jun 2026.
 
 ---
 
@@ -383,10 +367,21 @@ User confirms fresh import needs **no** manual materialize commands.
 
 ### Tasks
 
-- [ ] `amiga-data-contract.md` — stage types, legacy materialize, fixture ground truth for imported events
-- [ ] `amiga-tournament-format-vision.md` — pointer to structure policy as authority for stage types
-- [ ] `PROJECT_MEMORY.md`, `feature-log.md` (L1 if migration 023 not already logged)
-- [ ] Mark this plan **Complete** when slices 1–7 **and slice 10 (import closure)** done (slice 8 may trail)
+- [x] `amiga-data-contract.md` — import closure shipped
+- [x] `amiga-tournament-structure-policy.md` §5 — dispatch wired
+- [x] Ground layers slice 8 — cross-doc pass (`amiga-ground-layers-*`, import layer, review queue)
+- [ ] `amiga-tournament-format-vision.md` — optional pointer polish (non-blocking)
+- [x] `PROJECT_MEMORY.md`, `feature-log.md`
+- [x] Structure import closure complete (slice 10 / ground layers slice 6)
+
+### Verification
+
+```powershell
+python -m scripts.amiga prove
+# L3 witness → L4 apply-structure --from-disposition → L5 replay → verify suite
+```
+
+Fresh import needs **no** manual materialize commands.
 
 ---
 
@@ -412,8 +407,8 @@ mysql ko2amiga_db < scripts/amiga/sql/023_unify_stage_types.sql
 python -m scripts.amiga tournament-structure materialize --tournament-id <marathon_id> --dry-run
 python -m scripts.amiga tournament-structure dematerialize --tournament-id 74
 
-# Full replay (if import hook added)
-python -m scripts.amiga replay
+# Full pipeline (import closure shipped)
+python -m scripts.amiga prove
 
 # Format flags (slice 7)
 python -m scripts.amiga verify-tournament-formats

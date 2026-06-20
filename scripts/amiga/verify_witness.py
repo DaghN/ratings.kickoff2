@@ -27,6 +27,13 @@ _L3_GROUND_TABLES = (
     "tournaments",
     "amiga_players",
     "amiga_games",
+    "amiga_tournament_finish_override",
+)
+
+_L3_REQUIRED_NONEMPTY = (
+    "tournaments",
+    "amiga_players",
+    "amiga_games",
 )
 
 
@@ -78,7 +85,7 @@ def verify_witness(*, manifest_path: Path | None = None) -> list[str]:
                 continue
             cur.execute(f"SELECT COUNT(*) AS n FROM `{table}`")
             count = int(cur.fetchone()["n"])
-            if count == 0:
+            if count == 0 and table in _L3_REQUIRED_NONEMPTY:
                 errors.append(f"L3 table {table} is empty")
 
         if manifest_stats:

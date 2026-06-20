@@ -1,6 +1,6 @@
 # Amiga ground layers L0–L5 — implementation plan
 
-**Status:** Slices 1–5 done (Jun 2026). Policy v2 locked. Slice 6+ not started.  
+**Status:** **Track complete** — slices 1–8 done (Jun 2026). Policy v2 locked.  
 **Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
 
 **Goal:** Separate scripts, DDL bundles, and export profiles for **L1 mirror → L2 prune → L3 witness → L4 structure → L5 product**; keep `prove` green throughout migration.
@@ -30,9 +30,9 @@
 | **3** | `import-prune` → **L2** + `prune_manifest.json` | L2 tables only; manifest lists drops | **Done** Jun 2026 |
 | **4** | `import-witness` extract → **L3** + `apply_schema_ground()` | L3 rows + `import_manifest`; no L5 data | **Done** Jun 2026 |
 | **5** | `apply-structure` → **L4** disposition dispatch | Homburg + one `pure_rr` smoke | **Done** Jun 2026 |
-| **6** | `prove` orchestrator: L3 → L4 → L5 → verify | Full verify suite green |
-| **7** | Export packs Mirror / A / B / C | Staging smoke on Pack B |
-| **8** | Docs closure on any drift | Agents cold-start |
+| **6** | `prove` orchestrator: L3 → L4 → L5 → verify | Full verify suite green | **Done** Jun 2026 |
+| **7** | Export packs Mirror / A / B / C | Staging smoke on Pack B | **Done** Jun 2026 |
+| **8** | Docs closure on any drift | Agents cold-start | **Done** Jun 2026 |
 
 ---
 
@@ -85,9 +85,9 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 - Module: [`scripts/amiga/import_access.py`](../scripts/amiga/import_access.py) — `prepare_witness_from_access`, `persist_witness_to_mysql`, `import_witness`
 - Verify: [`scripts/amiga/verify_witness.py`](../scripts/amiga/verify_witness.py) — `python -m scripts.amiga verify-witness`
-- `import_all` = thin wrapper (L3 + L4 structure spec + full schema)
+- `import_all` / `run` delegate to L3 witness + L4 disposition (no inline `apply_structure_spec`)
 - `--recreate-ground` applies L3/L4 DDL only (no L5 derived bundle)
-- Tier E `finish_override` DDL relocation deferred
+- Tier E `finish_override` DDL in `sql/ground/002` (L3 curated; replay preserves rows)
 
 **STOP:** 605 tournaments, 27,418 games, 473 players; L4/L5 empty until replay — verified Jun 2026; `prove` green.
 
@@ -107,27 +107,49 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 6 — Prove orchestrator
+## Slice 6 — Prove orchestrator (done)
+
+**CLI:** `python -m scripts.amiga prove` (unchanged entrypoint)
 
 ```text
-import-witness --recreate-ground   # L3
-apply-structure --from-disposition # L4 (--skip-structure dev only)
+import-witness --recreate-ground   # L3 — import_witness_nuclear()
+apply-structure --from-disposition # L4
 replay                             # L5
 verify suite
 ```
 
-**STOP:** Same verify counts as baseline.
+- `prove.py` orchestrates modular layers; `--skip-structure` dev flag skips L4
+- `import_all` / `run` delegate to L3 witness + L4 disposition (no inline `apply_structure_spec`)
+- Helpers: `import_witness_nuclear()`, `import_witness_reload()` in `import_access.py`
+
+**STOP:** 27,418 games, 4,535 snapshots, 210,960 at-event matchups — verified Jun 2026.
 
 ---
 
-## Slice 7 — Export packs
+## Slice 7 — Export packs (done)
 
-| Pack | Layers |
-|------|--------|
-| **Mirror** | L1 |
-| **A — Ground** | L3 + manifests |
-| **B — Structure** | L3 + L4 |
-| **C — Product** | L3 + L4 + L5 (staging default) |
+**CLI:** `python -m scripts.amiga export-pack {mirror|ground|structure|product|all}`
+
+- Module: [`scripts/amiga/export_packs.py`](../scripts/amiga/export_packs.py)
+- Verify: `python -m scripts.amiga verify-export-pack {pack}`
+- Output: `data/amiga/exports/packs/{pack}/` + `pack_manifest.json`
+- **Mirror** — L1 `L1_mirror.sql` (from `import-pristine`)
+- **ground** (Pack A) — L3 tables + manifests; no L5
+- **structure** (Pack B) — L3 + L4 + disposition register
+- **product** (Pack C) — L3 + L4 + L5 full derived
+- Staging chunked import remains `scripts/export_ko2amiga_db.ps1` (browser-friendly parts)
+
+**STOP:** `verify-export-pack structure` — fixtures + Homburg/pure_rr linked; all packs verified Jun 2026.
+
+---
+
+## Slice 8 — Docs closure (done)
+
+Cross-doc pass after slices 1–7 — agents cold-start from policy + this plan + [`scripts/amiga/README.md`](../scripts/amiga/README.md).
+
+**Updated:** `amiga-ground-layers-policy.md` §8–§10, `amiga-import-layer.md`, `amiga-data-contract.md`, `amiga-tournament-structure-policy.md` §5, `amiga-tournament-structure-review-queue.md`, disposition review starter, `amiga-staging-handoff.md`, `PROJECT_MEMORY.md`.
+
+**Removed stale refs:** “slice 10 dispatch”, monolithic `prove`, L1/L2 “planned”, tier-D-only import structure hook.
 
 ---
 

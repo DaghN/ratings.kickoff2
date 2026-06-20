@@ -1,6 +1,6 @@
 # L3 witness ground DDL
 
-**Tables:** `tournaments` (core columns), `amiga_players`, `amiga_games`.
+**Tables:** `tournaments` (core columns), `amiga_players`, `amiga_games`, `amiga_tournament_finish_override` (Tier E curated claims).
 
 **Apply:** `apply_schema_ground()` — see `scripts/amiga/schema_bundles.py`.
 

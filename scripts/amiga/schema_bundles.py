@@ -12,7 +12,10 @@ import pymysql
 
 _SQL_ROOT = Path(__file__).resolve().parent / "sql"
 
-GROUND_SQL: tuple[Path, ...] = (_SQL_ROOT / "ground" / "001_core.sql",)
+GROUND_SQL: tuple[Path, ...] = (
+    _SQL_ROOT / "ground" / "001_core.sql",
+    _SQL_ROOT / "ground" / "002_tournament_finish_override.sql",
+)
 
 STRUCTURE_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "structure" / "005_tournament_formats.sql",
@@ -28,7 +31,6 @@ DERIVED_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "derived" / "004_tournament_catalog_stats.sql",
     _SQL_ROOT / "derived" / "012_player_matchup_summary.sql",
     _SQL_ROOT / "derived" / "013_generalstats.sql",
-    _SQL_ROOT / "derived" / "019_tournament_finish_override.sql",
     _SQL_ROOT / "derived" / "024_player_snapshots.sql",
     _SQL_ROOT / "derived" / "026_matchup_at_event.sql",
 )
@@ -43,7 +45,6 @@ _DERIVED_DROP_ORDER = (
     "amiga_player_matchup_summary",
     "amiga_player_current",
     "amiga_player_event_snapshots",
-    "amiga_tournament_finish_override",
     "amiga_tournament_catalog_stats",
     "amiga_tournament_standings",
     "amiga_game_ratings",
@@ -58,6 +59,7 @@ _STRUCTURE_DROP_ORDER = (
 )
 
 _GROUND_DROP_ORDER = (
+    "amiga_tournament_finish_override",
     "amiga_games",
     "amiga_players",
     "tournaments",

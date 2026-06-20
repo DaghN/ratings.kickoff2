@@ -93,4 +93,4 @@ pending_review count, ask Dagh which id to start (suggest first pending_review o
 
 ## After review
 
-When `pending_review` → 0 (except deliberate defers), slice 10 wires register dispatch into `run`.
+When `pending_review` → 0 (except deliberate defers), disposition review is complete. **Import dispatch** is already wired (`prove` / `run` → L4 `apply-structure --from-disposition`).

@@ -38,15 +38,15 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **Disposition review** — register **605/605**; **38** `pending_review` (promoted through **284**; **187** deferred split); [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
+- **Amiga realm (Jun 2026):** **Disposition review** — register **605/605**; **44** `pending_review`; [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
 - **Amiga rating history (Jun 2026):** **V1 + animation** — History hub + News races (by tournament + by time); [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
 
 - **Amiga event snapshots (Jun 2026):** **Complete (slices 0–9)** — `amiga_player_event_snapshots` + `amiga_player_current`; legacy four tables retired; holy loop `python -m scripts.amiga prove` green. Policy [`amiga-event-snapshot-policy.md`](docs/amiga-event-snapshot-policy.md).
 
-- **Amiga matchup at event (Jun 2026):** **Complete (slices 0–6)** — `amiga_player_matchup_at_event` + finalize-only network/peaks/H2H; replay tail batches removed (`commit_heavy`, matchup/generalstats/catalog rebuild). Policy [`amiga-matchup-at-event-policy.md`](docs/amiga-matchup-at-event-policy.md). HoF `generalstats` deferred.
+- **Amiga matchup at event (Jun 2026):** **Complete (slices 0–6)** — `amiga_player_matchup_at_event` + finalize-only network/peaks/H2H; replay tail batches removed. Policy [`amiga-matchup-at-event-policy.md`](docs/amiga-matchup-at-event-policy.md). HoF `generalstats` deferred.
 
-- **Amiga ground layers L0–L5 (Jun 2026):** **Slice 5 done** — `apply-structure` / `verify-structure` (L4 disposition dispatch). **Next:** slice 6 `prove` orchestrator split. [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md).
+- **Amiga ground layers L0–L5 (Jun 2026):** **Track complete (slices 1–8)** — modular `prove`, export packs, docs closure. [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md).
 
 ---
 
@@ -92,6 +92,10 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga finish_override L3 relocation** — DDL `sql/ground/002`; Pack ground; replay/zero-derived preserve curated rows. |
+| 2026-06 | **Amiga ground layers slice 8** — docs closure; track **complete** (policy §8 CLI map, cross-doc drift fixed). |
+| 2026-06 | **Amiga ground layers slice 7** — export packs Mirror/ground/structure/product + verify-export-pack. |
+| 2026-06 | **Amiga ground layers slice 6** — `prove` L3→L4→L5 orchestrator; `import_all` modular; verify green. |
 | 2026-06 | **Amiga ground layers slice 5** — `apply-structure` / `verify-structure` (L4 disposition; `prove` green). |
 | 2026-06 | **Amiga ground layers slice 4** — `import-witness` / `verify-witness` (L3 witness extract; `prove` green). |
 | 2026-06 | **Amiga ground layers slice 3** — `import-prune` / `verify-prune` (L2: Scores + Tournament players + Countries). |

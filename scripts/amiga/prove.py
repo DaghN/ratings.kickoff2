@@ -6,7 +6,8 @@ import logging
 from pathlib import Path
 from typing import Callable
 
-from scripts.amiga.import_access import _DEFAULT_MDB, import_all
+from scripts.amiga.apply_structure import run_apply_structure
+from scripts.amiga.import_access import _DEFAULT_MDB, import_witness_nuclear
 from scripts.amiga.replay import run_replay
 from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
@@ -34,24 +35,34 @@ def run_prove(
     mdb: Path = _DEFAULT_MDB,
     dry_run: bool = False,
     limit: int | None = None,
+    skip_structure: bool = False,
 ) -> int:
     """
-    Drop schema, import Access ground truth, replay derived, run verify suite.
+    L3 → L4 → L5 → verify — modular ground-layer orchestrator.
 
     ``limit``: replay smoke only — several verifiers require a full replay; do not use
     ``limit`` for sign-off (use full prove).
+
+    ``skip_structure``: dev-only — skip L4 disposition dispatch (not sign-off).
     """
     if limit is not None:
         log.warning(
             "prove --limit=%s: smoke only; rating-events / event-snapshots need full replay",
             limit,
         )
+    if skip_structure:
+        log.warning("prove --skip-structure: L4 skipped — not sign-off")
 
-    log.info("prove: import --recreate-schema")
-    stats = import_all(mdb=mdb, recreate_schema=True)
-    log.info("prove: import complete %s", stats)
+    log.info("prove: L3 import-witness --recreate-ground")
+    stats = import_witness_nuclear(mdb=mdb)
+    log.info("prove: L3 complete %s", stats)
 
-    log.info("prove: replay")
+    if not skip_structure:
+        log.info("prove: L4 apply-structure --from-disposition")
+        l4 = run_apply_structure(from_disposition=True)
+        log.info("prove: L4 complete %s", l4.to_dict())
+
+    log.info("prove: L5 replay")
     run_replay(dry_run=dry_run, limit=limit)
 
     if dry_run:
@@ -65,5 +76,5 @@ def run_prove(
             log.error("prove failed at %s (exit %s)", name, rc)
             return rc
 
-    log.info("prove OK: nuclear reset + replay + verify suite passed")
+    log.info("prove OK: L3 → L4 → L5 → verify suite passed")
     return 0

@@ -1,4 +1,5 @@
 # Dump ko2amiga_db for staging import (gitignored output).
+# Canonical Pack C archive: python -m scripts.amiga export-pack product
 # Writes one full dump + smaller part files for browser import (avoids gateway timeouts).
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'lib\LaragonMysql.ps1')
@@ -42,7 +43,7 @@ $schemaFile = Join-Path $OutDir 'ko2amiga_01_schema.sql'
 Write-DumpFile $schemaFile @('--no-data', 'ko2amiga_db') + $Tables
 $parts.Add('ko2amiga_01_schema.sql')
 
-# 02–07 — small ground-truth data
+# 02–09 — small ground-truth + structure data
 $templatesFile = Join-Path $OutDir 'ko2amiga_02_format_templates.sql'
 Write-DumpFile $templatesFile @('--no-create-info', 'ko2amiga_db', 'tournament_format_templates')
 $parts.Add('ko2amiga_02_format_templates.sql')
@@ -55,23 +56,28 @@ $playersFile = Join-Path $OutDir 'ko2amiga_04_players.sql'
 Write-DumpFile $playersFile @('--no-create-info', 'ko2amiga_db', 'amiga_players')
 $parts.Add('ko2amiga_04_players.sql')
 
-$entrantsFile = Join-Path $OutDir 'ko2amiga_05_entrants.sql'
+$finishOverridePart = ('ko2amiga_{0:D2}_finish_override.sql' -f 5)
+$finishOverrideFile = Join-Path $OutDir $finishOverridePart
+Write-DumpFile $finishOverrideFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_finish_override')
+$parts.Add($finishOverridePart)
+
+$entrantsFile = Join-Path $OutDir 'ko2amiga_06_entrants.sql'
 Write-DumpFile $entrantsFile @('--no-create-info', 'ko2amiga_db', 'tournament_entrants')
-$parts.Add('ko2amiga_05_entrants.sql')
+$parts.Add('ko2amiga_06_entrants.sql')
 
-$stagesFile = Join-Path $OutDir 'ko2amiga_06_stages.sql'
+$stagesFile = Join-Path $OutDir 'ko2amiga_07_stages.sql'
 Write-DumpFile $stagesFile @('--no-create-info', 'ko2amiga_db', 'tournament_stages')
-$parts.Add('ko2amiga_06_stages.sql')
+$parts.Add('ko2amiga_07_stages.sql')
 
-$stagePlayersFile = Join-Path $OutDir 'ko2amiga_07_stage_players.sql'
+$stagePlayersFile = Join-Path $OutDir 'ko2amiga_08_stage_players.sql'
 Write-DumpFile $stagePlayersFile @('--no-create-info', 'ko2amiga_db', 'tournament_stage_players')
-$parts.Add('ko2amiga_07_stage_players.sql')
+$parts.Add('ko2amiga_08_stage_players.sql')
 
-$fixturesFile = Join-Path $OutDir 'ko2amiga_08_fixtures.sql'
+$fixturesFile = Join-Path $OutDir 'ko2amiga_09_fixtures.sql'
 Write-DumpFile $fixturesFile @('--no-create-info', 'ko2amiga_db', 'tournament_fixtures')
-$parts.Add('ko2amiga_08_fixtures.sql')
+$parts.Add('ko2amiga_09_fixtures.sql')
 
-# 09+ — games + ratings in ~5k row chunks (staging-friendly)
+# 10+ — games + ratings in ~5k row chunks (staging-friendly)
 $chunkSize = 5000
 $maxIdText = (& $MysqlExe -u root -N -B -e 'SELECT COALESCE(MAX(id), 0) FROM ko2amiga_db.amiga_games' 2>&1 | Out-String).Trim()
 if ($maxIdText -notmatch '^\d+$') {
@@ -80,7 +86,7 @@ if ($maxIdText -notmatch '^\d+$') {
 $maxId = [int]$maxIdText
 Write-Host "Chunking games/ratings: max id $maxId (chunk size $chunkSize)"
 
-$idx = 9
+$idx = 10
 for ($start = 1; $start -le $maxId; $start += $chunkSize) {
     $end = [Math]::Min($start + $chunkSize - 1, $maxId)
     $where = "id >= $start AND id <= $end"
@@ -136,12 +142,6 @@ $generalstatsPart = ('ko2amiga_{0:D2}_generalstats.sql' -f $idx)
 $generalstatsFile = Join-Path $OutDir $generalstatsPart
 Write-DumpFile $generalstatsFile @('--no-create-info', 'ko2amiga_db', 'amiga_generalstats')
 $parts.Add($generalstatsPart)
-$idx++
-
-$finishOverridePart = ('ko2amiga_{0:D2}_finish_override.sql' -f $idx)
-$finishOverrideFile = Join-Path $OutDir $finishOverridePart
-Write-DumpFile $finishOverrideFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_finish_override')
-$parts.Add($finishOverridePart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

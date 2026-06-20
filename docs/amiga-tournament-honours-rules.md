@@ -125,7 +125,7 @@ Covers kitchen marathons, single-phase round-robins.
 
 ### Tier E — Curated overrides
 
-`amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) — migration `019`. Overrides win over tiers A–D.
+`amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) — L3 DDL `sql/ground/002_tournament_finish_override.sql`. Overrides win over tiers A–D.
 
 ---
 

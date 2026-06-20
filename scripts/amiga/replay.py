@@ -110,7 +110,6 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
         cur.execute("DELETE FROM amiga_player_matchup_summary")
         cur.execute("DELETE FROM amiga_player_current")
         cur.execute("DELETE FROM amiga_player_event_snapshots")
-        cur.execute("DELETE FROM amiga_tournament_finish_override")
         cur.execute("DELETE FROM amiga_tournament_catalog_stats")
         cur.execute("DELETE FROM amiga_tournament_standings")
         cur.execute("DELETE FROM amiga_game_ratings")

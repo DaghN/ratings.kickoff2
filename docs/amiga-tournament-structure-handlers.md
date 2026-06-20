@@ -37,7 +37,7 @@ Import dispatches `handler` → shared script. **No implicit defaults.**
 python -m scripts.amiga tournament-structure preview-pure-knockout --tournament-id <id>
 ```
 
-**Apply (dev / until import hook):**
+**Apply (dev / single-id repair — bulk via `prove` / `apply-structure`):**
 
 ```powershell
 python -m scripts.amiga tournament-structure materialize-pure-knockout --tournament-id <id> [--replace]
@@ -91,7 +91,7 @@ Skip `notes` on boring bulk marathons. Overwrite bootstrap boilerplate when prom
 
 ## Superseded (interim)
 
-Until slice 10 import hook ships:
+Import closure shipped (ground layers slice 6). Remaining interim artefacts:
 
 - `tier_b_non_wc_register.py` frozensets — migrate into disposition JSON
 - `materialize-tier-a` / `materialize-tier-b-non-wc` bulk CLIs — dev repair only

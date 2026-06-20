@@ -124,6 +124,7 @@ def truncate_l3_structure_data(conn: pymysql.connections.Connection) -> None:
     _truncate_tables(
         conn,
         (
+            "amiga_tournament_finish_override",
             "amiga_games",
             "tournament_fixtures",
             "tournament_stage_players",
@@ -142,7 +143,6 @@ _DERIVED_TRUNCATE_ORDER = (
     "amiga_player_matchup_summary",
     "amiga_player_current",
     "amiga_player_event_snapshots",
-    "amiga_tournament_finish_override",
     "amiga_tournament_catalog_stats",
     "amiga_tournament_standings",
     "amiga_game_ratings",
@@ -490,6 +490,35 @@ def import_witness(*, mdb: Path, recreate_ground: bool) -> dict[str, int]:
     return stats
 
 
+def import_witness_nuclear(*, mdb: Path) -> dict[str, int]:
+    """L3 witness with full L3+L4+L5 schema recreate (prove / run nuclear path)."""
+    cfg = load_amiga_db_config()
+    if cfg.database != "ko2amiga_db":
+        raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
+
+    prepared = prepare_witness_from_access(mdb)
+    mysql = connect_mysql(cfg)
+    apply_schema(mysql, drop_existing=True)
+    truncate_ground_truth(mysql)
+    stats = persist_witness_to_mysql(mysql, prepared, apply_structure=False)
+    mysql.close()
+    return stats
+
+
+def import_witness_reload(*, mdb: Path) -> dict[str, int]:
+    """Incremental L3 witness reload — schema unchanged; clears L3/L4/L5 rows."""
+    cfg = load_amiga_db_config()
+    if cfg.database != "ko2amiga_db":
+        raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
+
+    prepared = prepare_witness_from_access(mdb)
+    mysql = connect_mysql(cfg)
+    truncate_ground_truth(mysql)
+    stats = persist_witness_to_mysql(mysql, prepared, apply_structure=False)
+    mysql.close()
+    return stats
+
+
 def load_access_tournaments(cur: pyodbc.Cursor) -> list[dict]:
     cur.execute("SELECT * FROM [Tournament players]")
     cols = [d[0] for d in cur.description]
@@ -512,17 +541,16 @@ def load_access_tournaments(cur: pyodbc.Cursor) -> list[dict]:
 
 
 def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
-    """Full import path (L3 witness + L4 structure spec hook + full schema)."""
-    cfg = load_amiga_db_config()
-    if cfg.database != "ko2amiga_db":
-        raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
+    """Full import path: L3 witness + L4 disposition (modular pipeline)."""
+    from scripts.amiga.apply_structure import run_apply_structure
 
-    prepared = prepare_witness_from_access(mdb)
-    mysql = connect_mysql(cfg)
-    apply_schema(mysql, drop_existing=recreate_schema)
-    truncate_ground_truth(mysql)
-    stats = persist_witness_to_mysql(mysql, prepared, apply_structure=True)
-    mysql.close()
+    if recreate_schema:
+        stats = import_witness_nuclear(mdb=mdb)
+    else:
+        stats = import_witness_reload(mdb=mdb)
+
+    l4 = run_apply_structure(from_disposition=True)
+    log.info("import: apply-structure %s", l4.to_dict())
     log.warning(
         "Import cleared derived tables and reloaded ground truth only. "
         "Run `python -m scripts.amiga replay` (or `python -m scripts.amiga run`) before serving the website."

@@ -25,11 +25,11 @@ Disposition review pauses on affected parents until the gate in the split starte
 
 | Handler | Count | Action |
 |---------|------:|--------|
-| `pure_rr` | 508 | Assigned — verify spot-check only |
-| `pure_knockout` | 12 | Assigned — preview confirmed |
+| `pure_rr` | 503 | Assigned — verify spot-check only |
+| `pure_knockout` | 11 | Assigned — preview confirmed |
 | `structure_spec` | 24 | Homburg + unsettled multi-stage |
 | `wc_deferred` | 23 | WC track later |
-| **`pending_review`** | **38** | **Review chat — promote handlers** |
+| **`pending_review`** | **44** | **Review chat — promote handlers** |
 
 ```powershell
 python -m scripts.amiga tournament-structure verify-disposition-register --json
@@ -67,7 +67,7 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 
 ### 2026-06-13 — Disposition register bootstrap
 
-- Generated `disposition_register.json` — **603/603** coverage
+- Generated `disposition_register.json` — **605/605** coverage
 - Pure knockout handler + preview CLI shipped
 - **70** `pending_review` to triage
 

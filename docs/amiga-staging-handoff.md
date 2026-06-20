@@ -65,6 +65,8 @@ Spot-check: `/amiga/rating.php`, `/amiga/player/profile.php?id=1`, `/amiga/playe
 
 **Verified Jun 2026:** multi-part browser import on staging (`ratings.kickoff2.com`) — rating, profile, and games spot-checks OK. **Jun 2026 (slice 9):** export tail = `amiga_player_event_snapshots` + `amiga_player_current` (legacy participation/totals/rating_events retired). **Jun 2026 (matchup-at-event):** export also includes `amiga_player_matchup_at_event`. Re-import after sync if player tournament or honours pages were empty.
 
+**Local export paths:** routine staging dump = `scripts\export_ko2amiga_db.ps1` (chunked SQL for browser import). Optional community archive = `python -m scripts.amiga export-pack product` → `data/amiga/exports/packs/product/` (Pack C; see [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) §8).
+
 **Fallback:** Steve Heidi/mysql import of `ko2amiga_db.sql` — only if browser import fails.
 
 ---
