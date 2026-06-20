@@ -46,7 +46,7 @@
 
 - **Amiga matchup at event (Jun 2026):** **Complete (slices 0–6)** — `amiga_player_matchup_at_event` + finalize-only network/peaks/H2H; replay tail batches removed (`commit_heavy`, matchup/generalstats/catalog rebuild). Policy [`amiga-matchup-at-event-policy.md`](docs/amiga-matchup-at-event-policy.md). HoF `generalstats` deferred.
 
-- **Amiga ground layers L0–L3 (Jun 2026):** **Policy + plan locked** — modular pristine / witness / structure / derived; community packs A/B/C; `prove` → orchestrator. **Next:** implementation slice 1 (DDL bundles). [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md) · [`amiga-ground-layers-implementation-plan.md`](docs/amiga-ground-layers-implementation-plan.md).
+- **Amiga ground layers L0–L5 (Jun 2026):** **Policy v2 locked** — L0=koatd, L1 mirror, L2 hard prune, L3 witness, L4 structure, L5 product. Slice 1 DDL bundles done (`schema_bundles`). **Next:** L1 `import-pristine`. [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md).
 
 ---
 
@@ -92,7 +92,8 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Amiga ground layers L0–L3 (slice 0)** — policy + implementation plan: witness vs structure vs derived; community packs; DDL/export split roadmap. |
+| 2026-06 | **Amiga ground layers policy v2** — renumber L0–L5 (koatd/mirror/prune/witness/structure/product); hard L2 prune; doc pass. |
+| 2026-06 | **Amiga ground layers slice 1** — `schema_bundles.py`; DDL split; `prove` green. |
 | 2026-06 | **Amiga PHP live finalize parity** — `finalize_tournament.php` cumulative matchups, at-event persist, incremental network/peaks (mirrors Python replay path). |
 | 2026-06 | **Amiga matchup at event (slices 0–6)** — `amiga_player_matchup_at_event`; network + peaks + H2H at finalize; replay tail batches removed; `prove` green (~210k at-event rows). Policy [`amiga-matchup-at-event-policy.md`](docs/amiga-matchup-at-event-policy.md). |
 | 2026-06 | **Amiga event snapshots slice 9** — docs closure: player-universe §3–§5, data-contract, policy writer path, staging export → snapshots/current; track **complete**. |

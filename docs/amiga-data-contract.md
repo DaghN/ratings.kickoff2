@@ -14,7 +14,7 @@
 |--------|----------|
 | Access inventory, quirks, chronology | [`amiga-schema-discovery.md`](amiga-schema-discovery.md) |
 | **Import layer** (archival → ground truth) | [`amiga-import-layer.md`](amiga-import-layer.md) |
-| **Ground layers L0–L3** (pristine / witness / structure / derived; community packs) | [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · plan [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md) |
+| **Ground layers L0–L5** (koatd → mirror → prune → witness → structure → product) | [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · plan [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md) |
 | Chronology fix | [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) |
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
 | **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
@@ -28,7 +28,7 @@
 | **Where to store player×event derived stats** | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
-| DDL (current) | [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql) |
+| DDL (current) | [`scripts/amiga/schema_bundles.py`](../scripts/amiga/schema_bundles.py) · bundles [`sql/ground/`](../scripts/amiga/sql/ground/), [`structure/`](../scripts/amiga/sql/structure/), [`derived/`](../scripts/amiga/sql/derived/) |
 
 This document owns **layer definitions**, **table register**, **post-game/replay rules**, and **read-path policy**. It does not duplicate Access discovery or page mockups.
 
@@ -36,11 +36,11 @@ This document owns **layer definitions**, **table register**, **post-game/replay
 
 ## Data layers
 
-Archival Access (`koatd.mdb`) is **input**, not website ground truth. Import applies documented transforms (see [`amiga-import-layer.md`](amiga-import-layer.md)) and writes audit output to `data/amiga/exports/import_manifest.json`.
+Archival Access (`koatd.mdb`) is **L0 input**, not website ground truth. Import applies documented transforms (see [`amiga-import-layer.md`](amiga-import-layer.md)) and writes audit output to `data/amiga/exports/import_manifest.json`.
 
-**Modular pipeline (Jun 2026):** Long-term we split **L0** pristine · **L1** witness ground · **L2** structure overlay · **L3** derived product — see [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md). This section’s “ground / derived” vocabulary maps to **L1** and **L3** until DDL bundles and export profiles land.
+**Pipeline (Jun 2026):** **L0** koatd · **L1** full mirror · **L2** prune · **L3** witness · **L4** structure · **L5** product — [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md). This section describes **L3–L5** as stored in `ko2amiga_db`. L1/L2 are dump pipeline steps (not separate production DBs long-term).
 
-### 1. Ground truth (L1 witness)
+### 1. Ground truth (L3 witness)
 
 Canonical facts in MySQL after **import** or **future live submission** — never written by replay.
 
@@ -48,16 +48,17 @@ Canonical facts in MySQL after **import** or **future live submission** — neve
 |------|--------|
 | Tournament catalog | Names, dates, chrono, verbatim Access cup flag, country, format template + league/cup flags |
 | Match results | Players, goals, tournament, phase |
-| Player identity | Name, country (display fields only at import) |
+| Player identity | Name, country — registry from **games scan** + merges; not `added_players` |
+| Curated claims | Tier E finish overrides (`amiga_tournament_finish_override`) — manifest-audited |
 | Provenance | `source_scores_id`, `source_id` where applicable |
 
 Replay may **read** ground truth; it must not invent or overwrite canonical match facts. Replay game order follows § Chronology (`ORDER BY game_date ASC, id ASC`).
 
-### 2. Structure overlay (L2)
+### 2. Structure overlay (L4)
 
 Stages, fixtures, entrants, lifecycle — **not** per-game Elo. Authority: [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). `amiga_games.phase` is **witness** (koatd label), not structure authority.
 
-### 3. Derived truth (L3)
+### 3. Derived truth (L5)
 
 Computed from ground truth by chronological replay or per-game ops. **Always rebuildable** from canonical games in order.
 
@@ -70,9 +71,9 @@ Computed from ground truth by chronological replay or per-game ops. **Always reb
 
 **Rule:** After one new canonical game, derived tables must match what a full replay from empty would produce.
 
-### 3. Reference truth (parity only)
+### 4. Reference truth (parity only — L1 mirror)
 
-Legacy Access precomputes. **Neither ground nor derived.** Used to answer: “Did our engine reproduce what the old system claimed?”
+Legacy Access precomputes. **Neither L3 ground nor L5 derived.** Read from **L1** full mirror or live `.mdb` for parity tooling.
 
 | Source (Access) | Use |
 |-----------------|-----|
@@ -199,13 +200,13 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_player_tournament_totals` | Derived | **Retired slice 8** — honours on `amiga_player_current` | Retired |
 | `amiga_tournament_standings` | Derived | Per-tournament finalize (`rebuild_standings_for_tournament`) or standings rebuild on result entry | Active |
 | `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP catalog refresh per finalize/post-game | Active |
-| `amiga_tournament_finish_override` | Curated | Manual import / ops; read during in-memory participation build (Tier E). Migration `019` | Active |
+| `amiga_tournament_finish_override` | **L3 witness** (curated) | Manual import / ops; Tier E historical claims. Migration `019` (DDL in `sql/derived/` until relocate) | Active |
 | `amiga_player_matchup_at_event` | Derived | Tournament finalize — cumulative directed pair stats as of each participated event. Read: future profile/H2H-as-of-event | **Active** |
 | `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary` from cumulative map); repair: `matchup-rebuild` CLI. Read: `includes/amiga_player_matchup_lib.php` (`amiga_player_top_opponents`) → profile top-opponents block | **Active** |
 | `amiga_generalstats` | Derived | **Deferred** — no replay tail rebuild (HoF slice later). Read: `/amiga/hall-of-fame.php` via `includes/amiga_records_*.php` | Stale until HoF slice |
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
-DDL: [`scripts/amiga/sql/001_core.sql`](../scripts/amiga/sql/001_core.sql), Track B [`002_tournament_standings.sql`](../scripts/amiga/sql/002_tournament_standings.sql), … lifecycle [`008_tournament_lifecycle.sql`](../scripts/amiga/sql/008_tournament_lifecycle.sql), finalize markers [`009_tournament_finalize_markers.sql`](../scripts/amiga/sql/009_tournament_finalize_markers.sql), matchup [`012_player_matchup_summary.sql`](../scripts/amiga/sql/012_player_matchup_summary.sql), **matchup at-event** [`026_matchup_at_event.sql`](../scripts/amiga/sql/026_matchup_at_event.sql), generalstats [`013_generalstats.sql`](../scripts/amiga/sql/013_generalstats.sql), finish override [`019_tournament_finish_override.sql`](../scripts/amiga/sql/019_tournament_finish_override.sql), **snapshots + current** [`024_player_snapshots.sql`](../scripts/amiga/sql/024_player_snapshots.sql), **legacy drop (upgrade)** [`025_drop_legacy_player_tables.sql`](../scripts/amiga/sql/025_drop_legacy_player_tables.sql). Archived incremental `010–023` participation/stats DDL: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove` (recreate bundle in `import_access.py`).
+DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.
 
 ### Tournament format metadata
 

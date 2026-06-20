@@ -12,7 +12,7 @@
 
 Player identity is **name-based** (`Team A` / `Team B`, 477 distinct names). Precomputed ladder state lives in **`Rankings`** (monthly rating grid) and **`added_players`** (rich career aggregates). **`Tables`** and **23× `World Cup * Tables`** (+ a few other named cup tables) store **per-tournament group standings**, not individual match rows.
 
-This maps cleanly to our planned Amiga MySQL layout: **`Scores` → ground-truth games**, **`Tournament players` → tournaments catalog**, everything else either **imported as Amiga-only metadata** or **rebuilt by replay** (Elo, W/D/L, leaderboards).
+This maps to the ground-layer pipeline ([`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)): **L0** = this file; **L1** = full SQL mirror; **L2** prunes legacy-derived tables (`Tables`, `added_players`, `Rankings` grid, …); **L3** = `Scores` + catalog → witness MySQL; **L5** rebuilds Elo and career stats. Parity tooling reads **L1**, not pruned packs.
 
 ---
 
@@ -207,7 +207,7 @@ Separate database (e.g. `ko2amiga_db`), ground vs derived split:
 | `generalstatstable` | Batch rebuild |
 | Period / milestones / leagues | **Subset later** — not v1 |
 
-**Do not import verbatim:** 30+ per-cup Access tables, `added_misc`, import error tables, `Rankings` monthly grid (unless parity tooling needs it — store in `exports/` only).
+**Do not import verbatim into L3 witness:** 30+ per-cup Access tables, `added_misc`, import error tables, `Rankings` monthly grid, `added_players` — retain in **L1 mirror** for parity; **L2 prune** drops them from witness-candidate dumps. See policy §5.
 
 ---
 

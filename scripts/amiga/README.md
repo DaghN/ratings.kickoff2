@@ -21,7 +21,7 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 
 `prove` = drop schema → import `koatd.mdb` → full `replay` → verify suite (0 errors = shippable).
 
-**Modular pipeline (planned):** L0 pristine → L1 witness → L2 structure → L3 derived — policy [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md), plan [`docs/amiga-ground-layers-implementation-plan.md`](../../docs/amiga-ground-layers-implementation-plan.md). Future CLIs: `import-pristine`, `import-witness`, `apply-structure`; export profiles A/B/C.
+**Modular pipeline (L0–L5):** L0 koatd → L1 mirror → L2 prune → L3 witness → L4 structure → L5 product — [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md). DDL bundles `sql/ground|structure|derived` = L3|L4|L5. Planned CLIs: `import-pristine`, `import-prune`, `import-witness`, `apply-structure`.
 
 **Import + replay without verify** (mid-slice only):
 
@@ -201,7 +201,7 @@ PHP live path: `amiga_finalize_tournament` persists snapshots + current after st
 
 Participation **roster = `amiga_games`**; finish from `participation_placement.py` / `includes/amiga_participation_placement.php` → `event_finish_position` per [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) (tiers A–E; Tier E = `amiga_tournament_finish_override`). Phase ranks stay in `amiga_tournament_standings` only.
 
-**Schema (Jun 2026):** nuclear reset only — `python -m scripts.amiga prove`. Fresh DDL bundle: `001`–`013`, `019`, `024`, `025` drop on upgrade in `import_access.apply_schema()`. Archived upgrade files `010`–`023`: [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
+**Schema (Jun 2026):** nuclear reset only — `python -m scripts.amiga prove`. Fresh DDL bundles: `sql/ground/`, `sql/structure/`, `sql/derived/` via `schema_bundles.apply_schema_*` (slice 1). Legacy flat files in `sql/` remain for archaeology. Archived upgrade files `010`–`023`: [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
 
 **Event finish:** `019` (Tier E override table) is in the fresh bundle; `010` has `event_finish_position`.
 

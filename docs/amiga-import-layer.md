@@ -2,9 +2,9 @@
 
 **Purpose:** Define how legacy Microsoft Access (`koatd.mdb`) becomes canonical Amiga **ground truth** in `ko2amiga_db`. Import is the **only** place we normalize, correct, or reinterpret archival data before replay and the website see it.
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (layers + chronology) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L0–L3 modular pipeline) · [`scripts/amiga/README.md`](../scripts/amiga/README.md) (commands)
+**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (pipeline **L0–L5**) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
-**Layer:** This doc owns **L1 witness ground** transforms and `import_manifest.json`. **L2** structure = [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). **L3** derived = replay/finalize. **L0** pristine = planned (`import-pristine`).
+**Layer:** This doc owns **L3 witness ground** transforms and `import_manifest.json`. **L4** structure = [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). **L5** derived = replay/finalize. **L0** = `koatd.mdb`; **L1** full mirror and **L2** prune = planned (`import-pristine`, `import-prune`) — see policy §4–5.
 
 ---
 
@@ -33,28 +33,32 @@ verify suite (0 errors = shippable)
 
 ---
 
-## Layer alignment
+## Layer alignment (pipeline L0–L5)
 
 | Layer | Role |
 |-------|------|
-| **L0 Pristine** | Mechanical `koatd.mdb` → SQL (no corrections) — diff vs KOA drops |
-| **L1 Witness** | This doc — evidence-backed facts + `import_manifest.json` |
-| **L2 Structure** | Stages, fixtures, disposition — [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) |
-| **L3 Derived** | Replay/finalize — ratings, snapshots, matchups, standings rows |
-| **Archival input** | `data/amiga/source/koatd.mdb` — read-only for import |
-| **Reference truth** | Access `Tables` / `Rankings` — parity tooling only |
+| **L0 koatd** | Source file — not produced by import |
+| **L1 Mirror** | Full mechanical Access → SQL (all tables) — parity / KOA diff |
+| **L2 Pruned** | L1 minus legacy-derived tables — hard drop; manifest only |
+| **L3 Witness** | **This doc** — canonical facts + `import_manifest.json` |
+| **L4 Structure** | Stages, fixtures, disposition — [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) |
+| **L5 Product** | Replay/finalize — ratings, snapshots, matchups, standings rows |
 
-L1 ground is **not** “whatever Access says.” It is what we commit to MySQL after documented transforms.
+L3 ground is **not** “whatever Access says.” It is what we commit to MySQL after documented transforms on **L2 witness candidates**.
 
-**Target flow** (implementation: [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md)):
+**Target flow** ([`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md)):
 
 ```text
-koatd.mdb → import-pristine (L0, optional)
-         → import-witness (L1)
-         → apply-structure (L2)
-         → replay (L3)
-         → prove verify
+L0 koatd.mdb
+  → import-pristine (L1, optional mirror export)
+  → import-prune (L2)
+  → import-witness (L3)     ← import_access.py today
+  → apply-structure (L4)
+  → replay (L5)
+  → prove verify
 ```
+
+**Players (G9):** `amiga_players` is built by scanning **all witness games** after in-memory name merges — not from Access `added_players` (pruned at L2). Country may be read from L1 `Rankings` at L3 import without storing the rating grid.
 
 ---
 

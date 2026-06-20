@@ -1,18 +1,21 @@
-# Amiga ground layers L0–L3 — implementation plan
+# Amiga ground layers L0–L5 — implementation plan
 
-**Status:** Not started (Jun 2026).  
+**Status:** Slice 1 done (Jun 2026). Policy **v2** locked + doc pass (slice 0b). Pipeline slices 2+ not started.  
 **Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
 
-**Goal:** Separate scripts, DDL bundles, and export profiles for L0 pristine → L1 witness → L2 structure → L3 derived; keep `prove` green throughout migration.
+**Goal:** Separate scripts, DDL bundles, and export profiles for **L1 mirror → L2 prune → L3 witness → L4 structure → L5 product**; keep `prove` green throughout migration.
+
+**DDL note:** Repo folders `sql/ground|structure|derived` = **L3|L4|L5** MySQL schema — not L1/L2 dumps. See policy §6.
 
 ---
 
 ## Principles while migrating
 
 1. **No big-bang rewrite** — each slice leaves `python -m scripts.amiga prove` green (or documents a temporary orchestrator flag).
-2. **Extract, don’t duplicate** — L1 logic stays in existing modules (`import_corrections.py`, `tournament_names.py`, …); new entrypoints call them.
-3. **DDL split before export split** — community pack is useless if `apply_schema` still creates L3 tables.
-4. **L2 reuses disposition track** — register, handlers, materialize, `fixtures.php`; wire into pipeline, don’t redesign.
+2. **Extract, don’t duplicate** — L3 logic stays in existing modules (`import_corrections.py`, `tournament_names.py`, …); new entrypoints call them.
+3. **DDL split before export split** — community Pack A is useless if `apply_schema` still creates L5 tables.
+4. **L4 reuses disposition track** — register, handlers, materialize, `fixtures.php`; wire into pipeline, don’t redesign.
+5. **L2 = hard prune** — no sidecar tables; prune manifest only.
 
 ---
 
@@ -20,159 +23,131 @@
 
 | Slice | Deliverable | STOP gate |
 |-------|-------------|-----------|
-| **0** | Policy + this plan (docs only) | Dagh OK |
-| **1** | DDL bundles: `sql/ground/`, `sql/structure/`, `sql/derived/` + `apply_schema` refactor | `apply_schema` parity on fresh DB |
-| **2** | `import-pristine` CLI → L0 SQL dump + row counts | Diff vs Access row counts |
-| **3** | `import-witness` CLI (extract from `import_all`) + L1-only recreate | L1 tables + manifest; no L3 rows |
-| **4** | `apply-structure` CLI (disposition dispatch + materialize path) | Homburg + one `pure_rr` smoke |
-| **5** | `prove` orchestrator: `witness → structure → replay → verify` | Full verify suite green |
-| **6** | Export profiles A/B/C in `export_ko2amiga_db.ps1` + `_import/README` | Staging import smoke on pack B |
-| **7** | Docs closure: import-layer, data-contract, README, MEMORY | Agents can cold-start |
+| **0** | Policy v1 docs | Dagh OK — **superseded by v2** |
+| **0b** | Policy v2 (L0–L5) + comprehensive doc pass | Dagh OK | **Done** Jun 2026 |
+| **1** | DDL bundles `sql/ground|structure|derived` + `schema_bundles.py` | `prove` green | **Done** Jun 2026 |
+| **2** | `import-pristine` → **L1** full Access mirror SQL | All tables row-count vs `.mdb` |
+| **3** | `import-prune` → **L2** + `prune_manifest.json` | L2 tables only; manifest lists drops |
+| **4** | `import-witness` extract → **L3** + `apply_schema_ground()` | L3 rows + `import_manifest`; no L5 data |
+| **5** | `apply-structure` → **L4** disposition dispatch | Homburg + one `pure_rr` smoke |
+| **6** | `prove` orchestrator: L3 → L4 → L5 → verify | Full verify suite green |
+| **7** | Export packs Mirror / A / B / C | Staging smoke on Pack B |
+| **8** | Docs closure on any drift | Agents cold-start |
 
 ---
 
-## Slice 1 — DDL bundles
+## Slice 1 — DDL bundles (done)
 
-**Today:** `import_access.apply_schema()` runs `001`–`013`, `019`, `024`, `026` in one loop.
-
-**Target:**
+Maps to **L3 / L4 / L5** schema in `ko2amiga_db`:
 
 ```text
-scripts/amiga/sql/ground/       tournaments, amiga_players, amiga_games (core)
-scripts/amiga/sql/structure/    005–009 templates, stages, fixtures, lifecycle, finalize markers
-scripts/amiga/sql/derived/      002 standings, 004 catalog_stats, 012/026 matchup, 013 generalstats, 024 snapshots, …
+sql/ground/       L3 — tournaments, amiga_players, amiga_games
+sql/structure/    L4 — 005–009 templates, stages, fixtures, lifecycle
+sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 ```
 
-- `apply_schema_ground()`, `apply_schema_structure()`, `apply_schema_derived()` — callable independently.
-- `import_access` / `prove` call all three until slice 5 splits orchestration.
-- Drop order updated per bundle.
+- `apply_schema_ground()`, `apply_schema_structure()`, `apply_schema_derived()`
+- `apply_schema()` = all three (current `prove` path)
 
-**STOP:** Fresh install + existing `prove` unchanged.
+**STOP:** `prove` green — verified Jun 2026.
 
 ---
 
-## Slice 2 — L0 pristine
+## Slice 2 — L1 pristine mirror
 
 **New:** `python -m scripts.amiga import-pristine [--mdb] [--out path]`
 
-- Read Access; write SQL or load scratch DB **without**:
-  - `import_corrections`, supplements, splits
-  - `player_names` merges (or flag `--mechanical-only`)
-- Optional: skip synthetic `game_date` counter (use raw tournament date only) — document in manifest as L0 convention.
+- Export **all** Access user tables → SQL (mechanical)
+- No corrections, merges, supplements, synthetic `game_date` counter (document conventions in `pristine_manifest.json`)
 
-**Output:** `data/amiga/exports/pristine/` or `site/public_html/amiga/_import_pristine/` (gitignored).
+**Output:** `data/amiga/exports/pristine/` (gitignored)
 
-**STOP:** Game/tournament counts match Access; zero manifest overrides.
+**STOP:** Row counts per table match `discover_access_schema.py` inventory.
 
 ---
 
-## Slice 3 — L1 witness
+## Slice 3 — L2 prune
+
+**New:** `python -m scripts.amiga import-prune [--from pristine.sql]`
+
+- Input: L1 dump
+- Output: L2 dump — witness-candidate tables only
+- Emit `prune_manifest.json` — `pruned_from_l1[]` with table, rows, reason
+- **No sidecar** — dropped tables exist only in L1
+
+Default drop list: policy §5 (`Tables`, `added_players`, `Rankings`, WC `* Tables`, …).
+
+**STOP:** L2 contains `Scores` + `Tournament players`; manifest documents every omission.
+
+---
+
+## Slice 4 — L3 witness
 
 **New:** `python -m scripts.amiga import-witness [--recreate-ground]`
 
-- Extract body of current `import_all` **minus** `apply_structure_spec` and **minus** derived truncate side-effects beyond ground FK deps.
-- `apply_schema_ground()` only on recreate (structure/derived tables untouched or absent).
-- Emit `import_manifest.json` (unchanged contract).
+- Read L2 (or `.mdb` until L2 exists)
+- Body of current `import_all`: corrections, merges, supplements, games-first players, synthetic order
+- `apply_schema_ground()` on recreate
+- `import_manifest.json` (existing contract)
+- Include Tier E table DDL in L3 bundle path (`finish_override` lives in `sql/derived/` today — **relocate to `sql/ground/` or witness extension in a later slice**)
 
-**Refactor:** `import_all` becomes thin wrapper or deprecated alias → `import-witness` + `apply-schema-derived` + …
-
-**STOP:** After witness-only import, L3 tables empty or absent; website derived reads empty until replay.
-
----
-
-## Slice 4 — L2 structure
-
-**New:** `python -m scripts.amiga apply-structure [--tournament-id N] [--from-disposition]`
-
-- Load L1 witness DB.
-- `apply_schema_structure()` if needed.
-- Run disposition dispatch (slice 10 from structure track — wire here):
-  - `structure_spec` active specs
-  - `pure_rr` / `pure_knockout` handlers
-  - `pending_review` → skip + log
-- Idempotent per tournament; manifest section `structure_applied`.
-
-**Live path unchanged:** `fixtures.php` / `tournament_builder` write L2 directly on running events.
-
-**STOP:** Tournament with known spec (Homburg) has fixtures + `fixture_id`; `verify-disposition-register` passes.
+**STOP:** L5 tables empty until replay; manifest complete.
 
 ---
 
-## Slice 5 — Prove orchestrator
+## Slice 5 — L4 structure
 
-**New flow:**
+**New:** `python -m scripts.amiga apply-structure [--from-disposition]`
+
+- `apply_schema_structure()` if needed
+- Disposition dispatch (`structure_spec`, `pure_rr`, `pure_knockout`; skip `pending_review`)
+- Live path unchanged: `fixtures.php` writes L4 directly
+
+**STOP:** Known spec tournament has fixtures + `fixture_id`.
+
+---
+
+## Slice 6 — Prove orchestrator
 
 ```text
-import-witness --recreate-ground   # L1
-apply-structure --from-disposition # L2 (optional flag --skip-structure for dev)
-replay                             # L3
+import-witness --recreate-ground   # L3
+apply-structure --from-disposition # L4 (--skip-structure dev only)
+replay                             # L5
 verify suite
 ```
 
-- `prove` = above + nuclear option on derived for sign-off.
-- Flag `--skip-structure` only for dev; not sign-off.
-
-**STOP:** Same verify counts as pre-refactor baseline.
+**STOP:** Same verify counts as baseline.
 
 ---
 
-## Slice 6 — Export profiles
+## Slice 7 — Export packs
 
-**Extend** `scripts/export_ko2amiga_db.ps1`:
-
-| Profile | Tables |
-|---------|--------|
-| **A** | ground only + manifest pointer |
-| **B** | ground + structure |
-| **C** | current full dump (L1+L2+L3) |
-
-Separate manifest JSON per profile or one manifest with `layers: ["witness","structure"]`.
-
-**STOP:** Browser import of pack B on staging without L3 parts; profile pages work for historical events with structure.
+| Pack | Layers |
+|------|--------|
+| **Mirror** | L1 |
+| **A — Ground** | L3 + manifests |
+| **B — Structure** | L3 + L4 |
+| **C — Product** | L3 + L4 + L5 (staging default) |
 
 ---
 
-## Slice 7 — Documentation
+## Suggested execution order
 
-- [`amiga-import-layer.md`](amiga-import-layer.md) — L1 only; link L0/L2
-- [`amiga-data-contract.md`](amiga-data-contract.md) — authority map + table register tagged L1/L2/L3
-- [`scripts/amiga/README.md`](../scripts/amiga/README.md) — new commands
-- [`amiga-staging-handoff.md`](amiga-staging-handoff.md) — pack C default; B for community handoff
-- `PROJECT_MEMORY` + [`feature-log.md`](coordination/feature-log.md)
+**1** (done) → **4** (L3 witness extract) → **6** (orchestrator) → **2** (L1) → **3** (L2) → **5** (L4 wire) → **7** (exports) → **8**.
+
+L1/L2 can parallel after slice 4; L3 extract unblocks `prove` split.
 
 ---
 
-## Risks and mitigations
+## When to propose doc/plan updates
 
-| Risk | Mitigation |
-|------|------------|
-| FK order across bundles | Ground ← structure ← derived; document in `apply_schema_*` |
-| Long prove during migration | Keep monolith path behind `--legacy-prove` until slice 5 |
-| L2 partial backfill | Pack B documents disposition version; `pending_review` count expected |
-| PHP ops expects full schema | Staging stays pack C until community needs B |
+- Transform spans layers (phase patch vs fixture)
+- Disposition promotions change Pack B
+- Tier E / curated claims added
+- KOA interchange format agreed
 
----
-
-## Suggested execution order after slice 0
-
-**Slice 1** (DDL split) → **Slice 3** (witness extract) → **Slice 5** (orchestrator) → **Slice 2** (pristine) → **Slice 4** (structure wire) → **Slice 6** (exports) → **Slice 7**.
-
-Pristine (slice 2) can parallel after slice 1; witness extract is higher priority for community path.
+Do **not** block code on doc rewrites unless G1–G11 conflict.
 
 ---
 
-## When to propose doc/plan updates (standing offer to Dagh)
-
-Agents should **propose** a doc or plan slice when:
-
-- A new transform touches more than one layer (e.g. correction that mutates `phase` vs structure)
-- Disposition register promotions change community pack B semantics
-- Export or import gateway timeout forces pack splitting changes
-- KOA/community agrees on an external interchange format (fold into policy §lobby)
-- `prove` verify suite gains layer-specific gates
-
-Do **not** block implementation slices on doc rewrites unless G1–G8 conflict.
-
----
-
-*Plan Jun 2026 — modular ground layers track.*
+*Plan v2 Jun 2026 — aligns with policy L0–L5.*

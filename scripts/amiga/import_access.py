@@ -51,53 +51,24 @@ from scripts.amiga.tournament_structure.apply import (
 )
 log = logging.getLogger(__name__)
 
-_SQL_TRACK_B = Path(__file__).resolve().parent / "sql" / "002_tournament_standings.sql"
-# 003_knockout_scope.sql — legacy upgrade only; regresses 002 league enum — not in apply_schema.
-_SQL_CATALOG_STATS = Path(__file__).resolve().parent / "sql" / "004_tournament_catalog_stats.sql"
-_SQL_FORMATS = Path(__file__).resolve().parent / "sql" / "005_tournament_formats.sql"
-_SQL_FIXTURES = Path(__file__).resolve().parent / "sql" / "006_tournament_fixtures.sql"
-_SQL_ENTRANTS = Path(__file__).resolve().parent / "sql" / "007_tournament_entrants.sql"
-_SQL_LIFECYCLE = Path(__file__).resolve().parent / "sql" / "008_tournament_lifecycle.sql"
-_SQL_FINALIZE_MARKERS = (
-    Path(__file__).resolve().parent / "sql" / "009_tournament_finalize_markers.sql"
-)
-_SQL_PLAYER_MATCHUP_SUMMARY = (
-    Path(__file__).resolve().parent / "sql" / "012_player_matchup_summary.sql"
-)
-_SQL_GENERALSTATS = Path(__file__).resolve().parent / "sql" / "013_generalstats.sql"
-_SQL_FINISH_OVERRIDE = (
-    Path(__file__).resolve().parent / "sql" / "019_tournament_finish_override.sql"
-)
-_SQL_PLAYER_SNAPSHOTS = Path(__file__).resolve().parent / "sql" / "024_player_snapshots.sql"
-_SQL_MATCHUP_AT_EVENT = (
-    Path(__file__).resolve().parent / "sql" / "026_matchup_at_event.sql"
+from scripts.amiga.schema_bundles import (
+    LEGACY_SQL_KNOCKOUT,
+    LEGACY_SQL_TRACK_B,
+    _AMIGA_TABLES_DROP_ORDER,
+    _split_sql,
+    apply_schema,
+    apply_schema_derived,
+    apply_schema_ground,
+    apply_schema_structure,
 )
 
-_AMIGA_TABLES_DROP_ORDER = (
-    "amiga_generalstats",
-    "amiga_player_matchup_at_event",
-    "amiga_player_matchup_summary",
-    "amiga_player_current",
-    "amiga_player_event_snapshots",
-    "amiga_tournament_finish_override",
-    "amiga_tournament_catalog_stats",
-    "amiga_tournament_standings",
-    "amiga_game_ratings",
-    "amiga_games",
-    "tournament_fixtures",
-    "tournament_stage_players",
-    "tournament_stages",
-    "tournament_entrants",
-    "amiga_players",
-    "ratedresults",
-    "playertable",
-    "tournaments",
-    "tournament_format_templates",
-)
 
 _REPO = Path(__file__).resolve().parents[2]
 _DEFAULT_MDB = _REPO / "data" / "amiga" / "source" / "koatd.mdb"
-_SQL = Path(__file__).resolve().parent / "sql" / "001_core.sql"
+
+# Back-compat aliases for legacy one-off scripts.
+_SQL_TRACK_B = LEGACY_SQL_TRACK_B
+_SQL_KNOCKOUT = LEGACY_SQL_KNOCKOUT
 
 
 @dataclass(frozen=True)
@@ -131,62 +102,6 @@ def connect_mysql(cfg) -> pymysql.connections.Connection:
     with conn.cursor() as cur:
         cur.execute("SET time_zone = '+00:00'")
     return conn
-
-
-def _split_sql(sql: str) -> list[str]:
-    sql = "\n".join(ln for ln in sql.splitlines() if ln.strip() and not ln.strip().startswith("--"))
-    parts: list[str] = []
-    for chunk in sql.split(";"):
-        lines = [ln for ln in chunk.splitlines() if ln.strip()]
-        if lines:
-            parts.append("\n".join(lines))
-    return parts
-
-
-def _is_idempotent_alter_error(exc: pymysql.err.OperationalError) -> bool:
-    if not exc.args:
-        return False
-    code = int(exc.args[0])
-    if code in (1060, 1061, 1826):  # duplicate column/key/foreign-key name
-        return True
-    return code == 1005 and "Duplicate" in str(exc)
-
-
-def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = False) -> None:
-    """Apply fresh-install DDL bundle (001–013, 019, 024). See sql/archive/incremental/."""
-    with conn.cursor() as cur:
-        if drop_existing:
-            cur.execute("SET FOREIGN_KEY_CHECKS = 0")
-            for table in _AMIGA_TABLES_DROP_ORDER:
-                cur.execute(f"DROP TABLE IF EXISTS `{table}`")
-            cur.execute("SET FOREIGN_KEY_CHECKS = 1")
-    for sql_path in (
-        _SQL,
-        _SQL_TRACK_B,
-        _SQL_CATALOG_STATS,
-        _SQL_FORMATS,
-        _SQL_FIXTURES,
-        _SQL_ENTRANTS,
-        _SQL_LIFECYCLE,
-        _SQL_FINALIZE_MARKERS,
-        _SQL_PLAYER_MATCHUP_SUMMARY,
-        _SQL_GENERALSTATS,
-        _SQL_FINISH_OVERRIDE,
-        _SQL_PLAYER_SNAPSHOTS,
-        _SQL_MATCHUP_AT_EVENT,
-    ):
-        sql = sql_path.read_text(encoding="utf-8")
-        with conn.cursor() as cur:
-            for stmt in _split_sql(sql):
-                if stmt.strip().upper().startswith("ALTER TABLE"):
-                    try:
-                        cur.execute(stmt)
-                    except pymysql.err.OperationalError as exc:
-                        if not _is_idempotent_alter_error(exc):
-                            raise
-                else:
-                    cur.execute(stmt)
-    conn.commit()
 
 
 def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
