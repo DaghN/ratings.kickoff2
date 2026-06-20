@@ -98,6 +98,22 @@ function player_goals_scored_distribution_total_games(array $buckets): int
     return $total;
 }
 
+/** @return float|null */
+function player_goals_scored_distribution_avg_goals_per_game(array $buckets): ?float
+{
+    $totalGames = player_goals_scored_distribution_total_games($buckets);
+    if ($totalGames < 1) {
+        return null;
+    }
+
+    $goalSum = 0;
+    foreach ($buckets as $bucket) {
+        $goalSum += (int) $bucket['goals'] * (int) $bucket['games'];
+    }
+
+    return round($goalSum / $totalGames, 2);
+}
+
 /**
  * Sparse rows: total goals per game (SumOfGoals) for one head-to-head pairing.
  *

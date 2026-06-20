@@ -107,6 +107,7 @@ if ($scopeOpponentId !== null) {
 $buckets = player_goals_scored_distribution_buckets($con, $playerId, $scopeOpponentId);
 $maxGoals = $buckets === [] ? 0 : (int) $buckets[count($buckets) - 1]['goals'];
 $totalGames = player_goals_scored_distribution_total_games($buckets);
+$avgGoalsPerGame = player_goals_scored_distribution_avg_goals_per_game($buckets);
 
 mysqli_close($con);
 
@@ -118,5 +119,6 @@ echo json_encode([
     'opponentName' => $opponentName,
     'maxGoals' => $maxGoals,
     'totalGames' => $totalGames,
+    'avgGoalsPerGame' => $avgGoalsPerGame,
     'buckets' => $buckets,
 ]);

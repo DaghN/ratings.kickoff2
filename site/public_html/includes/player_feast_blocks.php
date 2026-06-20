@@ -561,7 +561,7 @@ function player_feast_render_charts(int $playerId, string $playerName = ''): voi
 	</div>
 	<div class="player-goals-scored-histogram k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
 		<h3 class="k2-panel-heading">Goals per game</h3>
-		<p class="k2-chart-block__hint">How many games <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span> scored exactly 0, 1, 2… goals in.</p>
+		<p class="k2-chart-block__hint">How many games he scored exactly 0, 1, 2… goals in.<span class="player-goals-scored-histogram-avg-suffix" hidden> <span class="k2-link-star pm3-cal__status-name"><?php echo $name; ?></span> has averaged <span class="player-goals-scored-histogram-avg-val"></span> goals per game so far.</span></p>
 		<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
 		<div class="k2-chart-frame">
 			<canvas aria-label="Goals scored per game histogram"></canvas>

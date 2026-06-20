@@ -1,6 +1,6 @@
 # Amiga rating history — policy (historical ladder snapshots)
 
-**Status:** **V1 implemented** (Jun 2026). **V2:** sparse cumulative stats at finalize (deferred).  
+**Status:** **V1 implemented** (Jun 2026). **V2:** superseded by [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) (full event snapshots + `amiga_player_current`).  
 **Purpose:** Historical **rating ladder** snapshots at chosen moments — browse past leaderboards, later animation / bar-chart race inputs.
 
 **Implementation:** [`amiga-rating-history-implementation-plan.md`](amiga-rating-history-implementation-plan.md)
@@ -150,34 +150,27 @@ Amiga hub:  … | History | …
 - Link player names → `/amiga/player/profile.php`.
 - Optional footnote: “Ratings commit at tournament finalize; within-month steps reflect event order.”
 
-**Not in V1:** animation player, bar chart race export, comparison to present-day LB side-by-side, API JSON for external tools (can add thin `api/` later if needed).
+**Not in V1:** ~~animation player~~ (shipped V1.1 on News — see below), bar chart race export, comparison to present-day LB side-by-side, API JSON for external tools (race API added for News embed).
+
+### 5.1 Top-10 line race (News tab — V1.1)
+
+- **Route:** `/amiga/news.php` — two animations:
+  - **By tournament** — playhead steps event-by-event (`amiga-top10-rating-race.js`)
+  - **By time** — playhead advances on calendar; straight segments between each player&rsquo;s rating events (`amiga-top10-rating-race-by-time.js`)
+- **Data:** `GET /api/amiga_top10_rating_race.php` — `sortMs` on series points + `timelineStartMs` / `timelineEndMs` in meta
+- **Controls:** Play / pause (starts from first event if at end), speed, scrubber; default view = latest frame, paused.
+- **JS:** `js/amiga-top10-rating-race.js` + Chart.js time scale, straight segments between event ratings, end labels for current top 10.
 
 ---
 
-## 6. V2 intent (deferred — not V1 scope)
+## 6. V2 — event snapshots (authority elsewhere)
 
-### Goal
+**Superseded (Jun 2026).** Full player timeline + present projection:
 
-Store **cumulative career stats as of each event** on the sparse timeline (same grain as `amiga_rating_events` — one row per player per tournament they played).
+- **Policy:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)
+- **Plan:** [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md)
 
-### Approach (preferred)
-
-- **Widen sparse rows** (extend `amiga_rating_events` or sibling `amiga_player_career_snapshots` at same PK) with cumulative fields copied from finalize state: `NumberGames`, goals, W-D-L, `DifferentOpponents`, `AverageOpponentRating`, etc.
-- **Do not** materialize dense `603 × all_players` tables unless profiling demands it.
-- Serving full historical LB with many columns = same “last row per player before cutoff” query on wider rows.
-
-### Rough storage (ballpark)
-
-| Shape | Rows | Size (order of magnitude) |
-|-------|------|---------------------------|
-| Sparse cumulative per event played | ~4,500 | **1–20 MB** depending on column count |
-| Dense every player every tournament | ~100k–180k | **25–150 MB** |
-
-V2 triggers **Part B** migration docs (finalize Python + PHP parity, verify, replay).
-
-### V2 surface
-
-Same History page — add columns wing by wing. No redesign required if V1 shell is sound.
+Summary: `amiga_player_event_snapshots` (canonical, full row per participated event) + `amiga_player_current` (materialized latest). Historical surfaces generalize the V1 read pattern on the wider snapshot rows. Retires `amiga_rating_events`, `amiga_player_stats`, `amiga_player_tournament_participation`, `amiga_player_tournament_totals`.
 
 ---
 

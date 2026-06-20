@@ -39,3 +39,14 @@ foreach ($months as $m) {
 
 $con->close();
 echo "OK\n";
+
+// Race payload smoke (optional argv: race)
+if (in_array('race', $argv ?? [], true)) {
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    $con->set_charset('utf8mb4');
+    $payload = amiga_rating_history_top10_race_payload($con);
+    echo 'race frames=' . $payload['meta']['frameCount']
+        . ' players=' . count($payload['players'])
+        . ' json_bytes=' . strlen(json_encode($payload)) . PHP_EOL;
+    $con->close();
+}

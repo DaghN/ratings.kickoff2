@@ -40,7 +40,9 @@
 
 - **Amiga realm (Jun 2026):** **Disposition review** — register **605/605**; **38** `pending_review` (promoted through **284**; **187** deferred split); [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
-- **Amiga rating history (Jun 2026):** **V1** — History hub tab, `/amiga/history.php`, Event/Month/Year wings, rating+rank+Δ from `amiga_rating_events`; V2 sparse stats deferred — [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
+- **Amiga rating history (Jun 2026):** **V1 + animation** — History hub + News races (by tournament + by time); [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
+
+- **Amiga event snapshots (Jun 2026):** **Design locked** — `amiga_player_event_snapshots` + `amiga_player_current`; full row every finalize; retire four legacy player tables. Policy [`amiga-event-snapshot-policy.md`](docs/amiga-event-snapshot-policy.md) · plan [`amiga-event-snapshot-implementation-plan.md`](docs/amiga-event-snapshot-implementation-plan.md). Implementation next in-thread.
 
 ---
 
@@ -86,9 +88,11 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Profile goals-per-game hint** — “How many games he scored exactly 0, 1, 2… goals in.” + “{name} has averaged X goals per game so far.” after histogram load. |
 | 2026-06 | **Amiga rating history Δ** — ladder debut (incl. first wing snapshot) always vs **1600**, not em dash. |
 | 2026-06 | **Table hygiene (calm-stats)** — `calm-stats` defaults to secondary body ink; `k2_table_helpers.php` SSR anchor/sort classes; Amiga LBs + History use `ranked-pages-table ranked-table-pending` (online LB parity, fixes Elo FOUC). |
-| 2026-06 | **Amiga rating history V1** — History hub tab; `/amiga/history.php`; Event / World Cup / Month / Year wings; archive listbox picker + carry-scroll chevrons; default Elo desc sort; WC stepper fixed label slot; compute-on-read (`amiga_rating_history_lib.php`). |
+| 2026-06 | **Amiga Elo race by time** — News second chart; calendar playhead, straight segments between rating events (`amiga-top10-rating-race-by-time.js`). |
+| 2026-06 | **Amiga top-10 Elo line race** — `/amiga/news.php` + API; by-tournament + by-time variants. |
 | 2026-06 | **Amiga profile rating chart (by tournament #)** — origin point at tournament #0 / 1600 Elo (parity with online game #0). |
 | 2026-06 | **Amiga profile rating chart (by date)** — x-axis now uses API `timelineStart` (~Nov 2001), not online June 2017 origin; `chart-date-range.js` + `player-rating-chart.js`. |
 | 2026-06 | **Player hero avatar link** — avatar → Profile (same href as name); accent ring unchanged. |

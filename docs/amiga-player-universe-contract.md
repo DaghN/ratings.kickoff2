@@ -119,6 +119,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_tournament_totals` + `amiga_player_stats` (Elo) | `event_*` + `wc_*` career blocks | B (shipped) |
 | **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on stats | WC panel; metric → LB deep links | B (shipped) |
 | **Historical rating ladder** | `/amiga/history.php` | `amiga_rating_events` compute-on-read (`amiga_rating_history_lib.php`) | Event / Month / Year wings; Δ vs prior wing snapshot (1600 debut baseline) | A (shipped V1) |
+| **Top-10 Elo line race** | `/amiga/news.php` | `api/amiga_top10_rating_race.php` → same lib | Chart.js animation; dynamic top 10 per event | A (shipped V1.1) |
 | **WC medals block (dedicated)** | profile | `amiga_player_tournament_totals` | honours strip covers summary | B (deferred) |
 
 **Rule:** New PHP must not aggregate `amiga_games` on profile/leaderboard hot paths. Games tab remains the intentional scan surface (paginated, per player).

@@ -175,6 +175,43 @@
         return n + ' game' + (n === 1 ? '' : 's');
     }
 
+    function setProfileAvgSuffix(root, data) {
+        if (root.getAttribute('data-h2h-side') || root.getAttribute('data-h2h-grouped') === '1') {
+            return;
+        }
+
+        var suffix = root.querySelector('.player-goals-scored-histogram-avg-suffix');
+        var avgVal = root.querySelector('.player-goals-scored-histogram-avg-val');
+        if (!suffix || !avgVal) {
+            return;
+        }
+
+        var games = data.totalGames || 0;
+        if (!games) {
+            suffix.hidden = true;
+            avgVal.textContent = '';
+            return;
+        }
+
+        var avg = data.avgGoalsPerGame;
+        if (avg == null && data.buckets && data.buckets.length) {
+            var goalSum = 0;
+            var i;
+            for (i = 0; i < data.buckets.length; i++) {
+                goalSum += data.buckets[i].goals * data.buckets[i].games;
+            }
+            avg = goalSum / games;
+        }
+        if (avg == null) {
+            suffix.hidden = true;
+            avgVal.textContent = '';
+            return;
+        }
+
+        avgVal.textContent = Number(avg).toFixed(2);
+        suffix.hidden = false;
+    }
+
     function bucketsToSeries(buckets) {
         var labels = [];
         var games = [];
@@ -213,12 +250,15 @@
             if (status) {
                 status.textContent = 'No rated games to chart.';
             }
+            setProfileAvgSuffix(root, data || { totalGames: 0, buckets: [] });
             return;
         }
 
         if (status) {
             status.textContent = '';
         }
+
+        setProfileAvgSuffix(root, data || { buckets: buckets, totalGames: 0 });
 
         var series = bucketsToSeries(buckets);
         var barStyle = barStyleForSide(false, false);
