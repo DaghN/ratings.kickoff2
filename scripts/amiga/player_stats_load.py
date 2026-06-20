@@ -1,4 +1,4 @@
-"""Load amiga_player_stats into PlayerState for ops writers."""
+"""Load amiga_player_current into PlayerState for ops/finalize bootstrap."""
 
 from __future__ import annotations
 
@@ -130,12 +130,12 @@ def player_state_from_stats_row(row: dict[str, Any]) -> PlayerState:
 
 
 def _career_source_table(conn) -> str:
-    """Ops writers read ``amiga_player_stats`` only — not ``amiga_player_current`` (website projection)."""
-    return "amiga_player_stats"
+    """Ops bootstrap reads ``amiga_player_current`` (slice 8 — legacy stats retired)."""
+    return "amiga_player_current"
 
 
 def load_player_states(conn) -> dict[int, PlayerState]:
-    """Load career rows from ``amiga_player_stats`` for ops/finalize (not ``amiga_player_current``)."""
+    """Load career rows from ``amiga_player_current`` for ops/finalize bootstrap."""
     table = _career_source_table(conn)
     with conn.cursor() as cur:
         cur.execute(f"SELECT * FROM `{table}`")

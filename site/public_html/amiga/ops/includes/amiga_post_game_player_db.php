@@ -1,7 +1,6 @@
 <?php
 /**
- * amiga_player_stats load/write for per-game post-game. Reads use stats + rating_events,
- * not amiga_player_current (website projection only).
+ * amiga_player_current load/write for per-game post-game and finalize.
  */
 declare(strict_types=1);
 
@@ -32,7 +31,7 @@ function amiga_post_game_db_int(mixed $val, int $default = 0): int
  */
 function amiga_post_game_load_player_ratings(mysqli $con, int $idA, int $idB): array
 {
-    $stmt = $con->prepare('SELECT player_id, Rating FROM amiga_player_stats WHERE player_id IN (?, ?)');
+    $stmt = $con->prepare('SELECT player_id, Rating FROM amiga_player_current WHERE player_id IN (?, ?)');
     if ($stmt === false) {
         throw new RuntimeException('prepare amiga career ratings: ' . $con->error);
     }
@@ -149,7 +148,7 @@ function amiga_post_game_build_network_sets(mysqli $con, int $playerId, int $bef
 }
 
 /**
- * @param array<string, mixed> $row career row fetch_assoc (amiga_player_stats)
+ * @param array<string, mixed> $row career row fetch_assoc (amiga_player_current)
  * @return array<string, mixed>
  */
 function amiga_post_game_player_state_from_db_row(array $row): array
@@ -164,7 +163,7 @@ function amiga_post_game_player_state_from_db_row(array $row): array
  */
 function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGameId): array
 {
-    $stmt = $con->prepare('SELECT * FROM amiga_player_stats WHERE player_id = ? LIMIT 1');
+    $stmt = $con->prepare('SELECT * FROM amiga_player_current WHERE player_id = ? LIMIT 1');
     if ($stmt === false) {
         throw new RuntimeException('prepare amiga career load: ' . $con->error);
     }
@@ -206,7 +205,7 @@ function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGame
  */
 function amiga_ops_career_source_table(mysqli $con): string
 {
-    return 'amiga_player_stats';
+    return 'amiga_player_current';
 }
 
 /**
@@ -239,12 +238,12 @@ function amiga_post_game_player_write(mysqli $con, array $dbRow): void
     $colList = implode(', ', array_map(static fn (string $c): string => "`{$c}`", $cols));
     $placeholders = implode(', ', array_fill(0, count($cols), '?'));
     $updates = implode(', ', array_map(static fn (string $c): string => "`{$c}` = VALUES(`{$c}`)", $cols));
-    $sql = "INSERT INTO amiga_player_stats (player_id, {$colList}) VALUES (?, {$placeholders}) "
+    $sql = "INSERT INTO amiga_player_current (player_id, {$colList}) VALUES (?, {$placeholders}) "
         . "ON DUPLICATE KEY UPDATE {$updates}";
 
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
-        throw new RuntimeException('prepare amiga_player_stats write: ' . $con->error);
+        throw new RuntimeException('prepare amiga_player_current write: ' . $con->error);
     }
 
     $types = 'i';
@@ -271,7 +270,7 @@ function amiga_post_game_player_write(mysqli $con, array $dbRow): void
     }
     call_user_func_array([$stmt, 'bind_param'], $bind);
     if (!$stmt->execute()) {
-        throw new RuntimeException('execute amiga_player_stats write player_id=' . $playerId . ': ' . $stmt->error);
+        throw new RuntimeException('execute amiga_player_current write player_id=' . $playerId . ': ' . $stmt->error);
     }
     $stmt->close();
 }

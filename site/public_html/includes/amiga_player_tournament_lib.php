@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga player tournament participation + career totals read path.
+ * Amiga player tournament participation + career totals read path (snapshots + current).
  */
 declare(strict_types=1);
 
@@ -46,7 +46,7 @@ function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, 
                     FROM amiga_tournament_standings sk
                     WHERE sk.tournament_id = p.tournament_id
                       AND sk.scope_type = \'knockout\') AS knockout_ties
-            FROM amiga_player_tournament_participation p
+            FROM amiga_player_event_snapshots p
             INNER JOIN tournaments t ON t.id = p.tournament_id
             WHERE p.player_id = ?
               AND ' . amiga_tournament_public_visibility_where('t') . '
@@ -231,7 +231,7 @@ function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): ar
                    p.rating_after,
                    p.performance_rating,
                    p.is_winner
-            FROM amiga_player_tournament_participation p
+            FROM amiga_player_event_snapshots p
             INNER JOIN amiga_players pl ON pl.id = p.player_id
             INNER JOIN tournaments t ON t.id = p.tournament_id
             WHERE p.tournament_id = ?
@@ -274,7 +274,7 @@ function amiga_player_perf_rating_row_fetch(
                    p.tournament_name AS name,
                    p.games,
                    p.performance_rating
-            FROM amiga_player_tournament_participation p
+            FROM amiga_player_event_snapshots p
             INNER JOIN tournaments t ON t.id = p.tournament_id
             WHERE p.player_id = ?
               AND p.performance_rating IS NOT NULL
@@ -356,7 +356,7 @@ function amiga_lb_performance_rating_rows(mysqli $con): array
                                     part.games DESC,
                                     part.tournament_id DESC
                        ) AS rn
-                FROM amiga_player_tournament_participation part
+                FROM amiga_player_event_snapshots part
                 INNER JOIN amiga_players pl ON pl.id = part.player_id
                 ' . amiga_player_career_join_sql($con, 'part.player_id') . '
                 INNER JOIN tournaments t ON t.id = part.tournament_id
@@ -404,7 +404,7 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
                    wc_podiums,
                    last_event_date,
                    last_tournament_id
-            FROM amiga_player_tournament_totals
+            FROM amiga_player_current
             WHERE player_id = ?
             LIMIT 1';
     $stmt = mysqli_prepare($con, $sql);
@@ -435,7 +435,7 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
-                   COALESCE(s.Rating, 0) AS rating,
+                   COALESCE(t.Rating, 0) AS rating,
                    t.tournaments_played,
                    t.event_gold,
                    t.event_silver,
@@ -446,9 +446,8 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
                    t.wc_silver,
                    t.wc_bronze,
                    t.wc_podiums
-            FROM amiga_player_tournament_totals t
+            FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
-            LEFT JOIN `' . amiga_player_career_table($con) . '` s ON s.player_id = t.player_id
             WHERE t.tournaments_played > 0
             ORDER BY t.tournaments_played DESC,
                      t.event_gold DESC,

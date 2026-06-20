@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assert tournament finalize rating model invariants (contract § 5.9)."""
+"""Assert tournament finalize rating model invariants (contract § 5.9, slice 8 snapshots)."""
 
 from __future__ import annotations
 
@@ -75,9 +75,9 @@ def verify_rating_events(conn: pymysql.connections.Connection) -> list[str]:
 
         cur.execute(
             """
-            SELECT e.player_id, e.rating_before, e.rating_delta, e.rating_after
-            FROM amiga_rating_events e
-            WHERE ABS(e.rating_after - (e.rating_before + e.rating_delta)) > %s
+            SELECT player_id, rating_before, rating_delta, rating_after
+            FROM amiga_player_event_snapshots
+            WHERE ABS(rating_after - (rating_before + rating_delta)) > %s
             LIMIT 5
             """,
             (_TOLERANCE,),
@@ -85,20 +85,20 @@ def verify_rating_events(conn: pymysql.connections.Connection) -> list[str]:
         bad_identity = cur.fetchall()
         if bad_identity:
             errors.append(
-                f"rating_events where rating_after != rating_before + rating_delta: "
+                f"snapshots where rating_after != rating_before + rating_delta: "
                 f"{len(bad_identity)}+ (first player_id={bad_identity[0]['player_id']})"
             )
 
         cur.execute(
             """
             WITH ordered AS (
-              SELECT e.player_id, e.rating_before, e.rating_after,
+              SELECT s.player_id, s.rating_before, s.rating_after,
                      ROW_NUMBER() OVER (
-                       PARTITION BY e.player_id
-                       ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, e.id ASC
+                       PARTITION BY s.player_id
+                       ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, s.tournament_id ASC
                      ) AS rn
-              FROM amiga_rating_events e
-              INNER JOIN tournaments t ON t.id = e.tournament_id
+              FROM amiga_player_event_snapshots s
+              INNER JOIN tournaments t ON t.id = s.tournament_id
             )
             SELECT o1.player_id, o1.rating_after, o2.rating_before AS next_before
             FROM ordered o1
@@ -112,26 +112,26 @@ def verify_rating_events(conn: pymysql.connections.Connection) -> list[str]:
         chain_breaks = cur.fetchall()
         if chain_breaks:
             errors.append(
-                f"consecutive rating_event chain breaks: {len(chain_breaks)}+ "
+                f"consecutive snapshot rating chain breaks: {len(chain_breaks)}+ "
                 f"(first player_id={chain_breaks[0]['player_id']})"
             )
 
         cur.execute(
             """
             WITH latest AS (
-              SELECT e.player_id, e.rating_after,
+              SELECT s.player_id, s.rating_after,
                      ROW_NUMBER() OVER (
-                       PARTITION BY e.player_id
-                       ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC, e.id DESC
+                       PARTITION BY s.player_id
+                       ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC, s.tournament_id DESC
                      ) AS rn
-              FROM amiga_rating_events e
-              INNER JOIN tournaments t ON t.id = e.tournament_id
+              FROM amiga_player_event_snapshots s
+              INNER JOIN tournaments t ON t.id = s.tournament_id
             )
-            SELECT s.player_id, s.Rating, l.rating_after
-            FROM amiga_player_stats s
-            INNER JOIN latest l ON l.player_id = s.player_id AND l.rn = 1
-            WHERE s.NumberGames > 0
-              AND ABS(s.Rating - l.rating_after) > %s
+            SELECT c.player_id, c.Rating, l.rating_after
+            FROM amiga_player_current c
+            INNER JOIN latest l ON l.player_id = c.player_id AND l.rn = 1
+            WHERE c.NumberGames > 0
+              AND ABS(c.Rating - l.rating_after) > %s
             LIMIT 5
             """,
             (_TOLERANCE,),
@@ -139,7 +139,7 @@ def verify_rating_events(conn: pymysql.connections.Connection) -> list[str]:
         rating_mismatch = cur.fetchall()
         if rating_mismatch:
             errors.append(
-                f"amiga_player_stats.Rating != latest rating_event.rating_after: "
+                f"amiga_player_current.Rating != latest snapshot rating_after: "
                 f"{len(rating_mismatch)}+ (first player_id={rating_mismatch[0]['player_id']})"
             )
 
@@ -172,7 +172,7 @@ def main() -> int:
 
     with _connect(cfg) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) AS n FROM amiga_rating_events")
+            cur.execute("SELECT COUNT(*) AS n FROM amiga_player_event_snapshots")
             events = int(cur.fetchone()["n"])
             cur.execute(
                 """
@@ -185,8 +185,8 @@ def main() -> int:
             finalized = int(cur.fetchone()["n"])
 
     print(
-        f"OK: rating events verified ({finalized} finalized tournaments, "
-        f"{events} rating_event rows)"
+        f"OK: event rating snapshots verified ({finalized} finalized tournaments, "
+        f"{events} snapshot rows with rating block)"
     )
     return 0
 

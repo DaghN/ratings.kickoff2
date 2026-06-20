@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assert player tournament participation + totals invariants (contract §8)."""
+"""Assert snapshot event-local placement + games rollup (slice 8 — legacy participation retired)."""
 
 from __future__ import annotations
 
@@ -29,353 +29,39 @@ def _connect(cfg) -> pymysql.connections.Connection:
 
 def verify_player_participation(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
+    rollup_cols = ("games", "wins", "draws", "losses", "goals_for", "goals_against")
 
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            WHERE NOT EXISTS (
-                SELECT 1
-                FROM amiga_games g
-                WHERE g.tournament_id = p.tournament_id
-                  AND (g.player_a_id = p.player_id OR g.player_b_id = p.player_id)
-            )
-            """
-        )
-        no_games = int(cur.fetchone()["n"])
-        if no_games:
-            cur.execute(
-                """
-                SELECT p.player_id, p.tournament_id
-                FROM amiga_player_tournament_participation p
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM amiga_games g
-                    WHERE g.tournament_id = p.tournament_id
-                      AND (g.player_a_id = p.player_id OR g.player_b_id = p.player_id)
-                )
-                LIMIT %s
-                """,
-                (_SAMPLE_LIMIT,),
-            )
-            sample = cur.fetchall()
-            errors.append(
-                f"participation rows without >=1 game: {no_games} "
-                f"(first player_id={sample[0]['player_id']}, "
-                f"tournament_id={sample[0]['tournament_id']})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM (
-                SELECT DISTINCT g.tournament_id, g.player_a_id AS player_id
-                FROM amiga_games g
-                UNION
-                SELECT DISTINCT g.tournament_id, g.player_b_id AS player_id
-                FROM amiga_games g
-            ) gp
-            WHERE NOT EXISTS (
-                SELECT 1
-                FROM amiga_player_tournament_participation p
-                WHERE p.player_id = gp.player_id
-                  AND p.tournament_id = gp.tournament_id
-            )
-            """
-        )
-        missing_participation = int(cur.fetchone()["n"])
-        if missing_participation:
-            cur.execute(
-                """
-                SELECT gp.player_id, gp.tournament_id
-                FROM (
-                    SELECT DISTINCT g.tournament_id, g.player_a_id AS player_id
-                    FROM amiga_games g
-                    UNION
-                    SELECT DISTINCT g.tournament_id, g.player_b_id AS player_id
-                    FROM amiga_games g
-                ) gp
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM amiga_player_tournament_participation p
-                    WHERE p.player_id = gp.player_id
-                      AND p.tournament_id = gp.tournament_id
-                )
-                LIMIT %s
-                """,
-                (_SAMPLE_LIMIT,),
-            )
-            sample = cur.fetchall()
-            errors.append(
-                f"games roster missing participation: {missing_participation} "
-                f"(first player_id={sample[0]['player_id']}, "
-                f"tournament_id={sample[0]['tournament_id']})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_tournament_standings s
-            WHERE s.scope_type = 'league'
-              AND s.scope_key = ''
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM amiga_player_tournament_participation p
-                  WHERE p.player_id = s.player_id
-                    AND p.tournament_id = s.tournament_id
-              )
-            """
-        )
-        missing_primary_league_participation = int(cur.fetchone()["n"])
-        if missing_primary_league_participation:
-            cur.execute(
-                """
-                SELECT s.player_id, s.tournament_id
-                FROM amiga_tournament_standings s
-                WHERE s.scope_type = 'league'
-                  AND s.scope_key = ''
-                  AND NOT EXISTS (
-                      SELECT 1
-                      FROM amiga_player_tournament_participation p
-                      WHERE p.player_id = s.player_id
-                        AND p.tournament_id = s.tournament_id
-                  )
-                LIMIT %s
-                """,
-                (_SAMPLE_LIMIT,),
-            )
-            sample = cur.fetchall()
-            errors.append(
-                f"primary league standings missing participation: {missing_primary_league_participation} "
-                f"(first player_id={sample[0]['player_id']}, "
-                f"tournament_id={sample[0]['tournament_id']})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            WHERE p.event_finish_position = 0
-            """
-        )
-        zero_finish = int(cur.fetchone()["n"])
-        if zero_finish:
-            errors.append(
-                f"participation rows with event_finish_position = 0: {zero_finish} "
-                "(use NULL for unknown finish)"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            INNER JOIN tournaments t ON t.id = p.tournament_id
-            WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-              AND p.event_finish_position IS NOT NULL
-              AND p.event_finish_position NOT IN (1, 2, 3)
-            """
-        )
-        wc_invalid_finish = int(cur.fetchone()["n"])
-        if wc_invalid_finish:
-            cur.execute(
-                """
-                SELECT p.player_id, p.tournament_id, p.event_finish_position, t.name
-                FROM amiga_player_tournament_participation p
-                INNER JOIN tournaments t ON t.id = p.tournament_id
-                WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
-                  AND p.event_finish_position IS NOT NULL
-                  AND p.event_finish_position NOT IN (1, 2, 3)
-                LIMIT %s
-                """,
-                (_SAMPLE_LIMIT,),
-            )
-            sample = cur.fetchall()
-            row = sample[0]
-            errors.append(
-                f"World Cup participation with non-podium event_finish_position: {wc_invalid_finish} "
-                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
-                f"finish={row['event_finish_position']})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            WHERE p.event_points != (p.wins * 3 + p.draws)
-            """
-        )
-        event_points_mismatch = int(cur.fetchone()["n"])
-        if event_points_mismatch:
-            cur.execute(
-                """
-                SELECT p.player_id, p.tournament_id, p.event_points, p.wins, p.draws
-                FROM amiga_player_tournament_participation p
-                WHERE p.event_points != (p.wins * 3 + p.draws)
-                LIMIT %s
-                """,
-                (_SAMPLE_LIMIT,),
-            )
-            sample = cur.fetchall()
-            row = sample[0]
-            expected = int(row["wins"]) * 3 + int(row["draws"])
-            errors.append(
-                f"participation event_points != wins*3+draws: {event_points_mismatch} "
-                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
-                f"event_points={row['event_points']}, expected={expected})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            WHERE p.games > 0
-              AND (
-                  p.avg_goals_for IS NULL
-                  OR p.avg_goals_against IS NULL
-                  OR ABS(p.avg_goals_for - ROUND(p.goals_for / p.games, 4)) > %s
-                  OR ABS(p.avg_goals_against - ROUND(p.goals_against / p.games, 4)) > %s
-              )
-            """,
-            (_TOLERANCE, _TOLERANCE),
-        )
-        avg_goals_mismatch = int(cur.fetchone()["n"])
-        if avg_goals_mismatch:
-            cur.execute(
-                """
-                SELECT p.player_id, p.tournament_id, p.games, p.goals_for, p.avg_goals_for
-                FROM amiga_player_tournament_participation p
-                WHERE p.games > 0
-                  AND (
-                      p.avg_goals_for IS NULL
-                      OR p.avg_goals_against IS NULL
-                      OR ABS(p.avg_goals_for - ROUND(p.goals_for / p.games, 4)) > %s
-                      OR ABS(p.avg_goals_against - ROUND(p.goals_against / p.games, 4)) > %s
-                  )
-                LIMIT %s
-                """,
-                (_TOLERANCE, _TOLERANCE, _SAMPLE_LIMIT),
-            )
-            sample = cur.fetchall()
-            row = sample[0]
-            errors.append(
-                f"participation avg_goals != goals/games: {avg_goals_mismatch} "
-                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
-                f"goals_for={row['goals_for']}, avg_goals_for={row['avg_goals_for']})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            WHERE p.games = 0
-              AND (p.avg_goals_for IS NOT NULL OR p.avg_goals_against IS NOT NULL)
-            """
-        )
-        avg_goals_when_no_games = int(cur.fetchone()["n"])
-        if avg_goals_when_no_games:
-            errors.append(
-                f"participation avg_goals set when games=0: {avg_goals_when_no_games} rows"
-            )
-
+        mismatch_parts = [
+            f"(s.`{col}` IS NULL) <> (pg.`{col}` IS NULL) "
+            f"OR (s.`{col}` IS NOT NULL AND pg.`{col}` IS NOT NULL AND s.`{col}` <> pg.`{col}`)"
+            for col in rollup_cols
+        ]
         cur.execute(
             f"""
             SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
+            FROM amiga_player_event_snapshots s
             INNER JOIN {_PLAYER_GAMES_ROLLUP_SQL}
-                ON pg.tournament_id = p.tournament_id AND pg.player_id = p.player_id
-            WHERE p.games != pg.games
-               OR p.wins != pg.wins
-               OR p.draws != pg.draws
-               OR p.losses != pg.losses
-               OR p.goals_for != pg.goals_for
-               OR p.goals_against != pg.goals_against
+              ON pg.player_id = s.player_id AND pg.tournament_id = s.tournament_id
+            WHERE {" OR ".join(mismatch_parts)}
             """
         )
-        games_rollup_mismatch = int(cur.fetchone()["n"])
-        if games_rollup_mismatch:
+        rollup_mismatch = int(cur.fetchone()["n"])
+        if rollup_mismatch:
             cur.execute(
                 f"""
-                SELECT p.player_id, p.tournament_id, p.games, pg.games AS expected_games
-                FROM amiga_player_tournament_participation p
+                SELECT s.player_id, s.tournament_id
+                FROM amiga_player_event_snapshots s
                 INNER JOIN {_PLAYER_GAMES_ROLLUP_SQL}
-                    ON pg.tournament_id = p.tournament_id AND pg.player_id = p.player_id
-                WHERE p.games != pg.games
-                   OR p.wins != pg.wins
-                   OR p.draws != pg.draws
-                   OR p.losses != pg.losses
-                   OR p.goals_for != pg.goals_for
-                   OR p.goals_against != pg.goals_against
+                  ON pg.player_id = s.player_id AND pg.tournament_id = s.tournament_id
+                WHERE {" OR ".join(mismatch_parts)}
                 LIMIT %s
                 """,
                 (_SAMPLE_LIMIT,),
             )
             sample = cur.fetchall()
-            row = sample[0]
             errors.append(
-                f"participation volume stats != amiga_games rollup: {games_rollup_mismatch} "
-                f"(first player_id={row['player_id']}, tournament_id={row['tournament_id']}, "
-                f"games={row['games']}, expected={row['expected_games']})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            INNER JOIN amiga_rating_events e
-                ON e.tournament_id = p.tournament_id
-               AND e.player_id = p.player_id
-            WHERE ABS(p.rating_before - e.rating_before) > %s
-               OR ABS(p.rating_delta - e.rating_delta) > %s
-               OR ABS(p.rating_after - e.rating_after) > %s
-               OR p.games != e.games_in_event
-               OR p.games_in_event != e.games_in_event
-               OR p.finalized_at IS NULL
-               OR e.finalized_at IS NULL
-               OR p.finalized_at != e.finalized_at
-               OR (
-                   (p.performance_rating IS NULL) != (e.performance_rating IS NULL)
-               )
-               OR (
-                   p.performance_rating IS NOT NULL
-                   AND e.performance_rating IS NOT NULL
-                   AND ABS(p.performance_rating - e.performance_rating) > %s
-               )
-            """,
-            (_TOLERANCE, _TOLERANCE, _TOLERANCE, _TOLERANCE),
-        )
-        rating_mismatch = int(cur.fetchone()["n"])
-        if rating_mismatch:
-            cur.execute(
-                """
-                SELECT p.player_id, p.tournament_id
-                FROM amiga_player_tournament_participation p
-                INNER JOIN amiga_rating_events e
-                    ON e.tournament_id = p.tournament_id
-                   AND e.player_id = p.player_id
-                WHERE ABS(p.rating_before - e.rating_before) > %s
-                   OR ABS(p.rating_delta - e.rating_delta) > %s
-                   OR ABS(p.rating_after - e.rating_after) > %s
-                   OR p.games != e.games_in_event
-                   OR p.games_in_event != e.games_in_event
-                   OR p.finalized_at IS NULL
-                   OR e.finalized_at IS NULL
-                   OR p.finalized_at != e.finalized_at
-                   OR (
-                       (p.performance_rating IS NULL) != (e.performance_rating IS NULL)
-                   )
-                   OR (
-                       p.performance_rating IS NOT NULL
-                       AND e.performance_rating IS NOT NULL
-                       AND ABS(p.performance_rating - e.performance_rating) > %s
-                   )
-                LIMIT %s
-                """,
-                (_TOLERANCE, _TOLERANCE, _TOLERANCE, _TOLERANCE, _SAMPLE_LIMIT),
-            )
-            sample = cur.fetchall()
-            errors.append(
-                f"participation rating columns != amiga_rating_events: {rating_mismatch} "
+                f"snapshot games rollup mismatch: {rollup_mismatch} "
                 f"(first player_id={sample[0]['player_id']}, "
                 f"tournament_id={sample[0]['tournament_id']})"
             )
@@ -383,187 +69,15 @@ def verify_player_participation(conn: pymysql.connections.Connection) -> list[st
         cur.execute(
             """
             SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            LEFT JOIN amiga_rating_events e
-                ON e.tournament_id = p.tournament_id
-               AND e.player_id = p.player_id
-            WHERE e.id IS NULL
-              AND (
-                  p.rating_before IS NOT NULL
-                  OR p.rating_delta IS NOT NULL
-                  OR p.rating_after IS NOT NULL
-                  OR p.games_in_event != 0
-                  OR p.finalized_at IS NOT NULL
-              )
-            """
+            FROM amiga_player_event_snapshots s
+            WHERE ABS(s.rating_after - (s.rating_before + s.rating_delta)) > %s
+            """,
+            (_TOLERANCE,),
         )
-        orphan_rating = int(cur.fetchone()["n"])
-        if orphan_rating:
+        bad_rating = int(cur.fetchone()["n"])
+        if bad_rating:
             errors.append(
-                f"participation rows with rating fields but no rating_event: {orphan_rating}"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_totals t
-            INNER JOIN (
-                SELECT player_id, COUNT(*) AS participation_count
-                FROM amiga_player_tournament_participation
-                GROUP BY player_id
-            ) p ON p.player_id = t.player_id
-            WHERE t.tournaments_played != p.participation_count
-            """
-        )
-        played_mismatch = int(cur.fetchone()["n"])
-        if played_mismatch:
-            cur.execute(
-                """
-                SELECT t.player_id, t.tournaments_played, p.participation_count
-                FROM amiga_player_tournament_totals t
-                INNER JOIN (
-                    SELECT player_id, COUNT(*) AS participation_count
-                    FROM amiga_player_tournament_participation
-                    GROUP BY player_id
-                ) p ON p.player_id = t.player_id
-                WHERE t.tournaments_played != p.participation_count
-                LIMIT %s
-                """,
-                (_SAMPLE_LIMIT,),
-            )
-            sample = cur.fetchall()
-            row = sample[0]
-            errors.append(
-                f"totals.tournaments_played != participation count: {played_mismatch} players "
-                f"(first player_id={row['player_id']}, "
-                f"totals={row['tournaments_played']}, participation={row['participation_count']})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(DISTINCT player_id) AS n
-            FROM amiga_player_tournament_participation
-            """
-        )
-        players_with_participation = int(cur.fetchone()["n"])
-
-        cur.execute("SELECT COUNT(*) AS n FROM amiga_player_tournament_totals")
-        totals_rows = int(cur.fetchone()["n"])
-        if totals_rows != players_with_participation:
-            errors.append(
-                f"totals row count ({totals_rows}) != players with participation "
-                f"({players_with_participation})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            LEFT JOIN amiga_player_tournament_totals t ON t.player_id = p.player_id
-            WHERE t.player_id IS NULL
-            """
-        )
-        participation_without_totals = int(cur.fetchone()["n"])
-        if participation_without_totals:
-            errors.append(
-                f"participation rows for players missing totals row: "
-                f"{participation_without_totals} rows"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_totals t
-            WHERE NOT EXISTS (
-                SELECT 1
-                FROM amiga_player_tournament_participation p
-                WHERE p.player_id = t.player_id
-            )
-            """
-        )
-        totals_without_participation = int(cur.fetchone()["n"])
-        if totals_without_participation:
-            errors.append(
-                f"totals rows without any participation: {totals_without_participation}"
-            )
-
-        cur.execute("SELECT COUNT(*) AS n FROM amiga_player_tournament_participation")
-        participation_rows = int(cur.fetchone()["n"])
-        cur.execute("SELECT COALESCE(SUM(tournaments_played), 0) AS n FROM amiga_player_tournament_totals")
-        sum_played = int(cur.fetchone()["n"])
-        if participation_rows and sum_played != participation_rows:
-            errors.append(
-                f"SUM(tournaments_played) ({sum_played}) != participation rows ({participation_rows})"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_totals t
-            WHERE t.tournaments_won != t.event_gold
-            """
-        )
-        wins_not_event_gold = int(cur.fetchone()["n"])
-        if wins_not_event_gold:
-            errors.append(
-                f"totals.tournaments_won != event_gold: {wins_not_event_gold} players"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_totals t
-            WHERE t.event_podiums != t.event_gold + t.event_silver + t.event_bronze
-            """
-        )
-        event_podium_sum_mismatch = int(cur.fetchone()["n"])
-        if event_podium_sum_mismatch:
-            errors.append(
-                f"totals.event_podiums != event_gold+silver+bronze: {event_podium_sum_mismatch} players"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_totals t
-            WHERE t.wc_podiums != t.wc_gold + t.wc_silver + t.wc_bronze
-            """
-        )
-        wc_podium_sum_mismatch = int(cur.fetchone()["n"])
-        if wc_podium_sum_mismatch:
-            errors.append(
-                f"totals.wc_podiums != wc_gold+silver+bronze: {wc_podium_sum_mismatch} players"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_totals t
-            WHERE t.wc_gold > t.event_gold
-               OR t.wc_silver > t.event_silver
-               OR t.wc_bronze > t.event_bronze
-               OR t.wc_podiums > t.event_podiums
-            """
-        )
-        wc_subset_violation = int(cur.fetchone()["n"])
-        if wc_subset_violation:
-            errors.append(
-                f"totals wc_* exceeds event_* subset: {wc_subset_violation} players"
-            )
-
-        cur.execute(
-            """
-            SELECT COUNT(*) AS n
-            FROM amiga_player_tournament_participation p
-            WHERE p.is_winner != (
-                CASE WHEN p.event_finish_position = 1 THEN 1 ELSE 0 END
-            )
-            """
-        )
-        is_winner_mismatch = int(cur.fetchone()["n"])
-        if is_winner_mismatch:
-            errors.append(
-                f"participation is_winner != (event_finish_position = 1): {is_winner_mismatch} rows"
+                f"snapshots with invalid rating identity: {bad_rating}"
             )
 
     return errors
@@ -587,15 +101,12 @@ def main() -> int:
 
     with _connect(cfg) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) AS n FROM amiga_player_tournament_participation")
-            participation_rows = int(cur.fetchone()["n"])
-            cur.execute("SELECT COUNT(*) AS n FROM amiga_player_tournament_totals")
-            totals_rows = int(cur.fetchone()["n"])
+            cur.execute(
+                "SELECT COUNT(*) AS n FROM amiga_player_event_snapshots WHERE games > 0"
+            )
+            rows = int(cur.fetchone()["n"])
 
-    print(
-        f"OK: player participation verified ({participation_rows} participation rows, "
-        f"{totals_rows} player totals)"
-    )
+    print(f"OK: snapshot event-local verified ({rows} active snapshot rows)")
     return 0
 
 

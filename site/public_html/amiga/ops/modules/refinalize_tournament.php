@@ -59,14 +59,24 @@ function amiga_ops_reopen_tournaments_batch(mysqli $con, array $tournamentIds): 
         return;
     }
     $idList = implode(',', array_map('intval', $tournamentIds));
-    if (!$con->query("DELETE FROM amiga_rating_events WHERE tournament_id IN ({$idList})")) {
-        throw new RuntimeException('DELETE rating events batch: ' . $con->error);
+    if (!$con->query("DELETE FROM amiga_player_event_snapshots WHERE tournament_id IN ({$idList})")) {
+        throw new RuntimeException('DELETE event snapshots batch: ' . $con->error);
     }
     $sql = 'DELETE r FROM amiga_game_ratings r '
         . 'INNER JOIN amiga_games g ON g.id = r.game_id '
         . "WHERE g.tournament_id IN ({$idList})";
     if (!$con->query($sql)) {
         throw new RuntimeException('DELETE game ratings batch: ' . $con->error);
+    }
+    $currentSql = 'DELETE c FROM amiga_player_current c '
+        . 'WHERE c.player_id IN ('
+        . 'SELECT player_id FROM ('
+        . "SELECT player_a_id AS player_id FROM amiga_games WHERE tournament_id IN ({$idList}) "
+        . 'UNION '
+        . "SELECT player_b_id AS player_id FROM amiga_games WHERE tournament_id IN ({$idList})"
+        . ') roster)';
+    if (!$con->query($currentSql)) {
+        throw new RuntimeException('DELETE player current batch: ' . $con->error);
     }
     if (!$con->query(
         "UPDATE tournaments SET rating_finalized = 0, rating_finalized_at = NULL WHERE id IN ({$idList})"
@@ -137,9 +147,6 @@ function amiga_ops_refinalize_from(mysqli $con, int $tournamentId, bool $dryRun 
     }
 
     amiga_ops_reopen_tournaments_batch($con, $fromIds);
-    if (!$con->query('DELETE FROM amiga_player_stats')) {
-        throw new RuntimeException('DELETE amiga_player_stats: ' . $con->error);
-    }
 
     amiga_ops_rebuild_stats_through_finalized($con, $beforeIds);
 

@@ -139,7 +139,7 @@ function amiga_ops_entry_ratings_before_tournament(
         . 'PARTITION BY e.player_id '
         . 'ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC'
         . ') AS rn '
-        . 'FROM amiga_rating_events e '
+        . 'FROM amiga_player_event_snapshots e '
         . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
         . "WHERE e.player_id IN ({$placeholders}) "
         . 'AND (t.event_date, t.chrono, t.id) < (?, ?, ?)'
@@ -369,7 +369,7 @@ function amiga_ops_recompute_rating_peaks_from_events(
     array $playerIds
 ): void {
     $sql = 'SELECT e.rating_before, e.rating_after '
-        . 'FROM amiga_rating_events e '
+        . 'FROM amiga_player_event_snapshots e '
         . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
         . 'WHERE e.player_id = ? '
         . 'ORDER BY t.event_date ASC, t.chrono ASC, e.finalized_at ASC, e.id ASC';
@@ -418,7 +418,7 @@ function amiga_ops_verify_tournament_finalize(mysqli $con, int $tournamentId): a
 
     $stmt = $con->prepare(
         'SELECT e.player_id, e.rating_before, e.rating_delta, e.rating_after '
-        . 'FROM amiga_rating_events e WHERE e.tournament_id = ?'
+        . 'FROM amiga_player_event_snapshots e WHERE e.tournament_id = ?'
     );
     if ($stmt === false) {
         throw new RuntimeException('prepare verify events: ' . $con->error);
@@ -548,7 +548,7 @@ function amiga_ops_apply_tournament_stats_batch(
     }
 
     $stmt = $con->prepare(
-        'SELECT player_id, rating_after FROM amiga_rating_events WHERE tournament_id = ?'
+        'SELECT player_id, rating_after FROM amiga_player_event_snapshots WHERE tournament_id = ?'
     );
     if ($stmt === false) {
         throw new RuntimeException('prepare rating events for stats batch: ' . $con->error);
@@ -654,6 +654,9 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
     }
 
     amiga_ops_acquire_finalize_lock($con);
+    /** @var array<int, array<string, mixed>> $eventCommitsByPlayer */
+    $eventCommitsByPlayer = [];
+    $ratingEvents = 0;
     try {
         $con->begin_transaction();
 
@@ -687,18 +690,7 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
         amiga_ops_finalize_network_counts_from_rows($players, amiga_ops_load_rated_game_rows_for_finalize($con));
 
         $finalizedAt = gmdate('Y-m-d H:i:s');
-        $eventStmt = $con->prepare(
-            'INSERT INTO amiga_rating_events ('
-            . 'tournament_id, player_id, rating_before, rating_delta, '
-            . 'rating_after, performance_rating, games_in_event, finalized_at'
-            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-        );
-        if ($eventStmt === false) {
-            throw new RuntimeException('prepare rating event insert: ' . $con->error);
-        }
-
         sort($participantIds);
-        $ratingEvents = 0;
         foreach ($participantIds as $pid) {
             if (($gamesInEvent[$pid] ?? 0) === 0) {
                 continue;
@@ -709,32 +701,18 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
             $performanceRating = amiga_performance_rating_from_pairs($perfPairs[$pid] ?? []);
             $players[$pid]['rating'] = $ratingAfter;
             $gamesPlayed = $gamesInEvent[$pid];
-            $eventStmt->bind_param(
-                'iidddddis',
-                $tournamentId,
-                $pid,
-                $ratingBefore,
-                $ratingDelta,
-                $ratingAfter,
-                $performanceRating,
-                $gamesPlayed,
-                $finalizedAt
-            );
-            if (!$eventStmt->execute()) {
-                throw new RuntimeException('execute rating event player_id=' . $pid . ': ' . $eventStmt->error);
-            }
+            $eventCommitsByPlayer[$pid] = [
+                'rating_before' => $ratingBefore,
+                'rating_delta' => $ratingDelta,
+                'rating_after' => $ratingAfter,
+                'performance_rating' => $performanceRating,
+                'games_in_event' => $gamesPlayed,
+                'finalized_at' => $finalizedAt,
+            ];
             $ratingEvents++;
         }
-        $eventStmt->close();
 
         amiga_ops_recompute_rating_peaks_from_events($con, $players, $participantIds);
-
-        foreach ($participantIds as $pid) {
-            if ((int) ($players[$pid]['games'] ?? 0) <= 0) {
-                continue;
-            }
-            amiga_post_game_player_write($con, k2_post_game_player_to_db_row($players[$pid], $pid));
-        }
 
         $flagStmt = $con->prepare(
             'UPDATE tournaments SET rating_finalized = 1, rating_finalized_at = ? WHERE id = ?'
@@ -758,18 +736,22 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
         amiga_ops_release_finalize_lock($con);
     }
 
-    $participation = amiga_ops_participation_refresh_tournament($con, $tournamentId);
+    $participation = amiga_ops_participation_refresh_tournament(
+        $con,
+        $tournamentId,
+        $eventCommitsByPlayer
+    );
     amiga_ops_log(
-        'participation refresh: id=' . $tournamentId
+        'participation build: id=' . $tournamentId
         . ' rows=' . (int) ($participation['participation_rows'] ?? 0)
-        . ' totals_players=' . (int) ($participation['totals_players'] ?? 0)
     );
 
     $snapshotRows = amiga_ops_persist_tournament_event_snapshots(
         $con,
         $tournamentId,
         $players,
-        $participantIds
+        $participantIds,
+        $participation['participation_by_player'] ?? null
     );
     amiga_ops_log(
         'event snapshots: id=' . $tournamentId . ' rows=' . $snapshotRows

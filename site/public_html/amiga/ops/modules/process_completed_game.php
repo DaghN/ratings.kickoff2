@@ -554,10 +554,10 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . '(SELECT COUNT(*) FROM amiga_games) AS games, '
         . '(SELECT COUNT(*) FROM amiga_players) AS players, '
         . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
-        . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats, '
+        . '(SELECT COUNT(*) FROM amiga_player_current) AS current_rows, '
+        . '(SELECT COUNT(*) FROM amiga_player_event_snapshots) AS snapshots, '
         . '(SELECT COUNT(*) FROM amiga_tournament_standings) AS standings, '
         . '(SELECT COUNT(*) FROM amiga_tournament_catalog_stats) AS catalog_stats, '
-        . '(SELECT COUNT(*) FROM amiga_rating_events) AS rating_events, '
         . '(SELECT COUNT(*) FROM tournaments WHERE rating_finalized = 1) AS tournaments_finalized'
     );
     if ($res === false) {
@@ -569,15 +569,33 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         'zero-derived: amiga_games=' . (int) ($row['games'] ?? 0)
         . ' amiga_players=' . (int) ($row['players'] ?? 0)
         . ' clearing ratings=' . (int) ($row['ratings'] ?? 0)
-        . ' stats=' . (int) ($row['stats'] ?? 0)
+        . ' current=' . (int) ($row['current_rows'] ?? 0)
+        . ' snapshots=' . (int) ($row['snapshots'] ?? 0)
         . ' standings=' . (int) ($row['standings'] ?? 0)
         . ' catalog_stats=' . (int) ($row['catalog_stats'] ?? 0)
-        . ' rating_events=' . (int) ($row['rating_events'] ?? 0)
         . ' tournaments_finalized=' . (int) ($row['tournaments_finalized'] ?? 0)
         . ($dryRun ? ' (dry-run)' : '')
     );
     if ($dryRun) {
         return;
+    }
+    if (!$con->query('DELETE FROM amiga_player_matchup_summary')) {
+        throw new RuntimeException('DELETE amiga_player_matchup_summary: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_generalstats WHERE id = 1')) {
+        throw new RuntimeException('DELETE amiga_generalstats: ' . $con->error);
+    }
+    if (!$con->query('INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)')) {
+        throw new RuntimeException('INSERT amiga_generalstats seed: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_player_current')) {
+        throw new RuntimeException('DELETE amiga_player_current: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_player_event_snapshots')) {
+        throw new RuntimeException('DELETE amiga_player_event_snapshots: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_tournament_finish_override')) {
+        throw new RuntimeException('DELETE amiga_tournament_finish_override: ' . $con->error);
     }
     if (!$con->query('DELETE FROM amiga_tournament_catalog_stats')) {
         throw new RuntimeException('DELETE amiga_tournament_catalog_stats: ' . $con->error);
@@ -587,12 +605,6 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
     }
     if (!$con->query('DELETE FROM amiga_game_ratings')) {
         throw new RuntimeException('DELETE amiga_game_ratings: ' . $con->error);
-    }
-    if (!$con->query('DELETE FROM amiga_player_stats')) {
-        throw new RuntimeException('DELETE amiga_player_stats: ' . $con->error);
-    }
-    if (!$con->query('DELETE FROM amiga_rating_events')) {
-        throw new RuntimeException('DELETE amiga_rating_events: ' . $con->error);
     }
     if (!$con->query('UPDATE tournaments SET rating_finalized = 0, rating_finalized_at = NULL')) {
         throw new RuntimeException('UPDATE tournaments rating_finalized reset: ' . $con->error);
@@ -676,7 +688,7 @@ function amiga_ops_derived_coverage(mysqli $con): array
         'SELECT '
         . '(SELECT COUNT(*) FROM amiga_games) AS games, '
         . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
-        . '(SELECT COUNT(*) FROM amiga_player_stats) AS stats'
+        . '(SELECT COUNT(*) FROM amiga_player_current) AS current_rows'
     );
     if ($res === false) {
         throw new RuntimeException('derived coverage: ' . $con->error);
@@ -709,7 +721,7 @@ function amiga_ops_derived_coverage(mysqli $con): array
 
     return [
         'rating_count' => (int) ($row['ratings'] ?? 0),
-        'stats_count' => (int) ($row['stats'] ?? 0),
+        'stats_count' => (int) ($row['current_rows'] ?? 0),
         'game_count' => (int) ($row['games'] ?? 0),
         'standings_count' => (int) ($standingsRow['n'] ?? 0),
         'derived_gap' => amiga_ops_has_derived_gap($con),

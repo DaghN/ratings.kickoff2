@@ -207,7 +207,7 @@ function amiga_ops_participation_rating_events_for_tournament(mysqli $con, int $
     $stmt = $con->prepare(
         'SELECT player_id, rating_before, rating_delta, rating_after,
                 performance_rating, games_in_event, finalized_at
-         FROM amiga_rating_events
+         FROM amiga_player_event_snapshots
          WHERE tournament_id = ?'
     );
     if ($stmt === false) {
@@ -228,6 +228,116 @@ function amiga_ops_participation_rating_events_for_tournament(mysqli $con, int $
     $stmt->close();
 
     return $events;
+}
+
+/**
+ * Build participation-shaped rows in memory (slice 8 — no legacy participation table).
+ *
+ * @param array<int, array<string, mixed>>|null $ratingEventsByPlayer
+ * @return array<int, array<string, mixed>>
+ */
+function amiga_ops_participation_rows_for_tournament(
+    mysqli $con,
+    int $tournamentId,
+    ?array $ratingEventsByPlayer = null,
+): array {
+    if ($tournamentId < 1) {
+        return [];
+    }
+
+    $tournamentStmt = $con->prepare(
+        'SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup
+         FROM tournaments
+         WHERE id = ?
+         LIMIT 1'
+    );
+    if ($tournamentStmt === false) {
+        throw new RuntimeException('prepare participation tournament: ' . $con->error);
+    }
+    $tournamentStmt->bind_param('i', $tournamentId);
+    if (!$tournamentStmt->execute()) {
+        throw new RuntimeException('execute participation tournament: ' . $tournamentStmt->error);
+    }
+    $tres = $tournamentStmt->get_result();
+    $tournament = $tres ? $tres->fetch_assoc() : false;
+    if ($tres) {
+        $tres->free();
+    }
+    $tournamentStmt->close();
+    if ($tournament === false) {
+        return [];
+    }
+
+    $rollups = amiga_ops_participation_games_rollups_for_tournament($con, $tournamentId);
+    if ($rollups === []) {
+        return [];
+    }
+
+    $standingRows = amiga_ops_participation_standing_rows_for_tournament($con, $tournamentId);
+    $finishOverrides = amiga_ops_participation_finish_overrides_for_tournament($con, $tournamentId);
+    if ($ratingEventsByPlayer === null) {
+        $ratingEventsByPlayer = amiga_ops_participation_rating_events_for_tournament($con, $tournamentId);
+    }
+    $playerIds = array_keys($rollups);
+    sort($playerIds, SORT_NUMERIC);
+    $tournamentName = (string) $tournament['name'];
+    $hasLeague = (bool) ((int) ($tournament['has_league'] ?? 0));
+    $hasCup = (bool) ((int) ($tournament['has_cup'] ?? 0));
+    $eventFinishes = amiga_participation_derive_event_finish_position(
+        $standingRows,
+        $tournamentName,
+        $hasLeague,
+        $hasCup,
+        $playerIds,
+        $finishOverrides
+    );
+
+    $rowsByPlayer = [];
+    foreach ($playerIds as $playerId) {
+        $rollup = $rollups[$playerId];
+        $eventFinishPosition = $eventFinishes[$playerId] ?? null;
+        if ($eventFinishPosition !== null) {
+            $eventFinishPosition = (int) $eventFinishPosition;
+        }
+        $bestKnockoutPhase = amiga_participation_derive_best_knockout_phase($standingRows, $playerId);
+        $rating = $ratingEventsByPlayer[$playerId] ?? null;
+        $wins = (int) ($rollup['wins'] ?? 0);
+        $draws = (int) ($rollup['draws'] ?? 0);
+        $games = (int) ($rollup['games'] ?? 0);
+        $goalsFor = (int) ($rollup['goals_for'] ?? 0);
+        $goalsAgainst = (int) ($rollup['goals_against'] ?? 0);
+        $rowsByPlayer[$playerId] = [
+            'player_id' => $playerId,
+            'tournament_id' => $tournamentId,
+            'event_date' => $tournament['event_date'],
+            'event_chrono' => (float) ($tournament['chrono'] ?? 0),
+            'tournament_name' => $tournamentName,
+            'is_cup' => (int) ($tournament['is_cup'] ?? 0),
+            'country' => (string) ($tournament['country'] ?? ''),
+            'has_league' => (int) ($tournament['has_league'] ?? 0),
+            'has_cup' => (int) ($tournament['has_cup'] ?? 0),
+            'event_finish_position' => $eventFinishPosition,
+            'best_knockout_phase' => $bestKnockoutPhase,
+            'event_points' => $wins * 3 + $draws,
+            'games' => $games,
+            'wins' => $wins,
+            'draws' => $draws,
+            'losses' => (int) ($rollup['losses'] ?? 0),
+            'goals_for' => $goalsFor,
+            'goals_against' => $goalsAgainst,
+            'avg_goals_for' => amiga_ops_participation_avg_goals_per_game($goalsFor, $games),
+            'avg_goals_against' => amiga_ops_participation_avg_goals_per_game($goalsAgainst, $games),
+            'rating_before' => $rating['rating_before'] ?? null,
+            'rating_delta' => $rating['rating_delta'] ?? null,
+            'rating_after' => $rating['rating_after'] ?? null,
+            'performance_rating' => $rating['performance_rating'] ?? null,
+            'games_in_event' => (int) ($rating['games_in_event'] ?? 0),
+            'finalized_at' => $rating['finalized_at'] ?? null,
+            'is_winner' => amiga_participation_is_winner($tournamentName, $eventFinishPosition) ? 1 : 0,
+        ];
+    }
+
+    return $rowsByPlayer;
 }
 
 function amiga_ops_participation_replace_tournament(mysqli $con, int $tournamentId): int
@@ -670,18 +780,20 @@ SQL;
 /**
  * @return array{participation_rows: int, totals_players: int}
  */
-function amiga_ops_participation_refresh_tournament(mysqli $con, int $tournamentId): array
-{
+function amiga_ops_participation_refresh_tournament(
+    mysqli $con,
+    int $tournamentId,
+    ?array $ratingEventsByPlayer = null,
+): array {
     if ($tournamentId < 1) {
         return ['participation_rows' => 0, 'totals_players' => 0];
     }
 
-    $playerIds = amiga_ops_participation_player_ids_for_tournament($con, $tournamentId);
-    $participationRows = amiga_ops_participation_replace_tournament($con, $tournamentId);
-    $totalsPlayers = amiga_ops_participation_rebuild_totals_for_players($con, $playerIds);
+    $rows = amiga_ops_participation_rows_for_tournament($con, $tournamentId, $ratingEventsByPlayer);
 
     return [
-        'participation_rows' => $participationRows,
-        'totals_players' => $totalsPlayers,
+        'participation_rows' => count($rows),
+        'totals_players' => count($rows),
+        'participation_by_player' => $rows,
     ];
 }

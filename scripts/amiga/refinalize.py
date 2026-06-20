@@ -10,25 +10,16 @@ import pymysql
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.finalize_tournament import (
     TournamentNotFoundError,
+    _apply_tournament_matchups_batch,
     _apply_tournament_stats_batch,
     _load_player_names,
-    _load_rated_game_rows,
     _load_tournament,
-    _stats_upsert_sql,
-    commit_heavy_player_derived,
     finalize_tournament,
-    recompute_rating_peaks_from_events,
 )
+from scripts.amiga.matchup_cumulative import MatchupCumulative
 from scripts.amiga.player_stats_load import load_player_states
-from scripts.amiga.player_tournament_participation import (
-    rebuild_all_participation,
-    rebuild_all_participation_totals,
-)
-from scripts.amiga.replay import _connect, _stats_row, tournament_ids_for_replay
-from scripts.amiga.tournament_catalog_stats import rebuild_all_catalog_stats
+from scripts.amiga.replay import _connect, tournament_ids_for_replay
 from scripts.amiga.tournament_standings import clear_standings, rebuild_all_standings
-from scripts.ladder.finalize_counts import finalize_network_counts_from_rows
-from scripts.ladder.player_state import PlayerState
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +44,7 @@ def reopen_tournament(
     *,
     dry_run: bool = False,
 ) -> dict[str, Any]:
-    """Clear one tournament's finalize markers and derived rows (not global stats)."""
+    """Clear one tournament's finalize markers and derived rows."""
     tour = _load_tournament(conn, tournament_id)
     if int(tour["rating_finalized"]) != 1:
         log.info("reopen_tournament: id=%s not rating_finalized; no-op", tournament_id)
@@ -66,10 +57,13 @@ def reopen_tournament(
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT player_id FROM amiga_player_tournament_participation
-            WHERE tournament_id = %s
+            SELECT DISTINCT player_id FROM (
+                SELECT player_a_id AS player_id FROM amiga_games WHERE tournament_id = %s
+                UNION
+                SELECT player_b_id AS player_id FROM amiga_games WHERE tournament_id = %s
+            ) roster
             """,
-            (tournament_id,),
+            (tournament_id, tournament_id),
         )
         participant_ids = [int(row["player_id"]) for row in cur.fetchall()]
 
@@ -78,7 +72,7 @@ def reopen_tournament(
             (tournament_id,),
         )
         cur.execute(
-            "DELETE FROM amiga_rating_events WHERE tournament_id = %s",
+            "DELETE FROM amiga_player_matchup_at_event WHERE as_of_tournament_id = %s",
             (tournament_id,),
         )
         cur.execute(
@@ -120,7 +114,7 @@ def _reopen_tournaments_batch(
             tournament_ids,
         )
         cur.execute(
-            f"DELETE FROM amiga_rating_events WHERE tournament_id IN ({placeholders})",
+            f"DELETE FROM amiga_player_matchup_at_event WHERE as_of_tournament_id IN ({placeholders})",
             tournament_ids,
         )
         cur.execute(
@@ -134,11 +128,17 @@ def _reopen_tournaments_batch(
         cur.execute(
             f"""
             DELETE c FROM amiga_player_current c
-            INNER JOIN amiga_player_tournament_participation p
-              ON p.player_id = c.player_id
-            WHERE p.tournament_id IN ({placeholders})
+            WHERE c.player_id IN (
+                SELECT player_id FROM (
+                    SELECT player_a_id AS player_id FROM amiga_games
+                    WHERE tournament_id IN ({placeholders})
+                    UNION
+                    SELECT player_b_id AS player_id FROM amiga_games
+                    WHERE tournament_id IN ({placeholders})
+                ) roster
+            )
             """,
-            tournament_ids,
+            (*tournament_ids, *tournament_ids),
         )
         cur.execute(
             f"""
@@ -150,42 +150,6 @@ def _reopen_tournaments_batch(
         )
 
 
-def rebuild_stats_through_finalized(
-    conn: pymysql.connections.Connection,
-    tournament_ids: list[int],
-) -> None:
-    """
-    Rebuild amiga_player_stats from existing ratings/events for finalized tournaments.
-
-    Used after clearing stats when refinalizing from tournament T forward.
-    """
-    if not tournament_ids:
-        return
-
-    with conn.cursor() as cur:
-        cur.execute("SELECT id, name FROM amiga_players")
-        names = {int(row["id"]): str(row["name"]) for row in cur.fetchall()}
-
-    players: dict[int, PlayerState] = {}
-    for tid in tournament_ids:
-        _apply_tournament_stats_batch(conn, tid, players, names)
-
-    finalize_network_counts_from_rows(players, _load_rated_game_rows(conn))
-    recompute_rating_peaks_from_events(conn, players, set(players.keys()))
-
-    stats_sql = _stats_upsert_sql()
-    stat_rows = [_stats_row(pid, st) for pid, st in players.items() if st.games > 0]
-    with conn.cursor() as cur:
-        if stat_rows:
-            cur.executemany(stats_sql, stat_rows)
-    conn.commit()
-    log.info(
-        "rebuild_stats_through_finalized: tournaments=%s stat_rows=%s",
-        len(tournament_ids),
-        len(stat_rows),
-    )
-
-
 def refinalize_from(
     conn: pymysql.connections.Connection,
     tournament_id: int,
@@ -195,8 +159,8 @@ def refinalize_from(
     """
     Rebuild-forward correction path (contract § 6.3).
 
-    Clears derived state from tournament T onward, rebuilds global stats through T-1,
-    then finalizes T and every later tournament in catalog order.
+    Clears derived state from tournament T onward, then finalizes T and later events.
+    Prefer full ``prove`` for routine repair; this path is for targeted reopen.
     """
     all_ids, before_ids, from_ids = tournaments_from_split(conn, tournament_id)
     tour = _load_tournament(conn, tournament_id)
@@ -216,14 +180,17 @@ def refinalize_from(
         }
 
     _reopen_tournaments_batch(conn, from_ids)
-    with conn.cursor() as cur:
-        cur.execute("DELETE FROM amiga_player_stats")
     conn.commit()
 
-    rebuild_stats_through_finalized(conn, before_ids)
     names = _load_player_names(conn)
-    players: dict[int, PlayerState] = {}
+    players = load_player_states(conn)
+    matchups = MatchupCumulative()
+    honours_by_player: dict[int, dict[str, Any]] = {}
+    prior_career_best: dict[int, dict[str, Any]] = {}
+    event_games: dict[tuple[int, int], int] = {}
+
     for tid in before_ids:
+        _apply_tournament_matchups_batch(conn, tid, matchups)
         _apply_tournament_stats_batch(conn, tid, players, names)
 
     games_total = 0
@@ -233,31 +200,20 @@ def refinalize_from(
             conn,
             tid,
             dry_run=False,
-            defer_heavy_derived=True,
-            persist_player_stats=False,
             players=players,
             names=names,
+            honours_by_player=honours_by_player,
+            prior_career_best=prior_career_best,
+            event_games=event_games,
+            matchups=matchups,
         )
         if result.get("skipped"):
             continue
         games_total += int(result.get("games", 0))
         events_total += int(result.get("rating_events", 0))
 
-    if from_ids:
-        commit_heavy_player_derived(conn, players=players)
-
     clear_standings(conn, dry_run=False)
     rebuild_all_standings(conn, dry_run=False)
-    rebuild_all_catalog_stats(conn, dry_run=False)
-
-    log.info("refinalize_from: rebuilding participation + totals for affected tournaments")
-    rebuild_all_participation(conn, dry_run=False)
-    rebuild_all_participation_totals(conn, dry_run=False)
-
-    from scripts.amiga.rebuild_event_snapshots import rebuild_all_event_snapshots
-
-    log.info("refinalize_from: rebuilding event snapshots + current")
-    rebuild_all_event_snapshots(conn, dry_run=False)
 
     log.info(
         "refinalize_from complete: id=%s games=%s events=%s",

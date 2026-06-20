@@ -5,7 +5,7 @@
  * GET: id (required), realm (default online)
  * Online: rating after each processed game = NewRatingA / NewRatingB on the row.
  * Unprocessed rows (NewRatingA IS NULL) are omitted — same marker as game lists (AUD-006).
- * Amiga: one point per rating event (tournament finalize); rating_after from amiga_rating_events.
+ * Amiga: one point per rating event (tournament finalize); rating_after from amiga_player_event_snapshots.
  * gameNumber / eventNumber = 1-based index in chronological order.
  */
 
@@ -92,12 +92,12 @@ $playerName = $nameRow['Name'];
 $currentRating = (int) round((float) $nameRow['Rating']);
 
 if ($realm === 'amiga') {
-    $sql = 'SELECT e.id, e.tournament_id, e.rating_before, e.rating_delta, e.rating_after, '
-        . 'e.games_in_event, e.finalized_at, t.event_date, t.name AS tournament_name '
-        . 'FROM amiga_rating_events e '
-        . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
-        . 'WHERE e.player_id = ? '
-        . 'ORDER BY t.event_date ASC, t.chrono ASC, e.finalized_at ASC, e.id ASC';
+    $sql = 'SELECT s.tournament_id, s.rating_before, s.rating_delta, s.rating_after, '
+        . 's.games_in_event, s.finalized_at, t.event_date, t.name AS tournament_name '
+        . 'FROM amiga_player_event_snapshots s '
+        . 'INNER JOIN tournaments t ON t.id = s.tournament_id '
+        . 'WHERE s.player_id = ? '
+        . 'ORDER BY t.event_date ASC, t.chrono ASC, s.finalized_at ASC, s.tournament_id ASC';
 } else {
     $sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
         . 'FROM ratedresults WHERE NewRatingA IS NOT NULL AND (idA = ? OR idB = ?) '
@@ -126,7 +126,7 @@ while ($row = $res->fetch_assoc()) {
     $eventNumber++;
     if ($realm === 'amiga') {
         $points[] = [
-            'eventId' => (int) $row['id'],
+            'eventId' => (int) $row['tournament_id'],
             'tournamentId' => (int) $row['tournament_id'],
             'tournamentName' => (string) $row['tournament_name'],
             'eventNumber' => $eventNumber,

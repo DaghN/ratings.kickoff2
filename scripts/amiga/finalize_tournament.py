@@ -1,4 +1,4 @@
-"""Finalize one tournament: frozen Elo batch + rating events commit."""
+"""Finalize one tournament: frozen Elo batch + event snapshots."""
 
 from __future__ import annotations
 
@@ -9,28 +9,31 @@ from typing import Any
 import pymysql
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.honours_totals import empty_honours_totals, increment_honours_totals
 from scripts.amiga.player_stats_load import load_player_states
 from scripts.amiga.performance_rating import performance_rating_from_pairs
-from scripts.amiga.player_tournament_participation import refresh_tournament_participation_stack
+from scripts.amiga.player_tournament_participation import build_participation_rows_for_tournament
 from scripts.amiga.snapshot_persist import persist_tournament_event_snapshots
 from scripts.amiga.replay import (
     _connect,
     _rating_insert_sql,
     _row_to_rating_insert,
-    _stats_row,
 )
-from scripts.ladder.constants import ESTABLISHED_MIN_GAMES, START_RATING
+from scripts.amiga.tournament_catalog_stats import refresh_catalog_stats_for_tournament
+from scripts.amiga.tournament_standings import rebuild_standings_for_tournament
+from scripts.ladder.constants import START_RATING
 from scripts.ladder.engine import apply_game_row
-from scripts.ladder.finalize_counts import finalize_network_counts_from_rows
+from scripts.amiga.matchup_cumulative import (
+    MatchupCumulative,
+    apply_peak_from_event_rating,
+)
+from scripts.amiga.matchup_persist import persist_matchup_at_event, upsert_matchup_summary
 from scripts.ladder.player_state import PlayerState
 
-# Re-exported for batch replay / refinalize orchestration.
 __all__ = [
     "TournamentAlreadyFinalizedError",
     "TournamentNotFoundError",
-    "commit_heavy_player_derived",
     "finalize_tournament",
-    "recompute_rating_peaks_from_events",
     "run_finalize_tournament",
     "verify_tournament_finalize",
 ]
@@ -54,19 +57,6 @@ class TournamentNotFoundError(RuntimeError):
     pass
 
 
-def _stats_upsert_sql() -> str:
-    sample = PlayerState().to_db_row(1)
-    cols = [k for k in sample if k != "ID"]
-    col_list = ", ".join(f"`{c}`" for c in cols)
-    val_list = ", ".join(f"%({c})s" for c in cols)
-    updates = ", ".join(f"`{c}`=VALUES(`{c}`)" for c in cols)
-    return (
-        f"INSERT INTO amiga_player_stats (player_id, {col_list}) "
-        f"VALUES (%(player_id)s, {val_list}) "
-        f"ON DUPLICATE KEY UPDATE {updates}"
-    )
-
-
 def _row_to_rating_insert_finalize(game_id: int, row: dict[str, Any]) -> dict[str, Any]:
     out = _row_to_rating_insert(game_id, row)
     out["new_rating_a"] = None
@@ -77,7 +67,7 @@ def _row_to_rating_insert_finalize(game_id: int, row: dict[str, Any]) -> dict[st
 def _load_tournament(conn: pymysql.connections.Connection, tournament_id: int) -> dict[str, Any]:
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT id, name, rating_finalized FROM tournaments WHERE id = %s LIMIT 1",
+            "SELECT id, name, rating_finalized, event_date, chrono FROM tournaments WHERE id = %s LIMIT 1",
             (tournament_id,),
         )
         row = cur.fetchone()
@@ -100,28 +90,12 @@ def _load_player_names(conn: pymysql.connections.Connection) -> dict[int, str]:
         return {int(row["id"]): str(row["name"]) for row in cur.fetchall()}
 
 
-def _frozen_ratings(
-    participant_ids: set[int],
-    players: dict[int, PlayerState],
-) -> dict[int, float]:
-    frozen: dict[int, float] = {}
-    for pid in participant_ids:
-        st = players.get(pid)
-        frozen[pid] = st.rating if st is not None else START_RATING
-    return frozen
-
-
 def _entry_ratings_before_tournament(
     conn: pymysql.connections.Connection,
     tournament_id: int,
     participant_ids: set[int],
 ) -> dict[int, float]:
-    """
-    Entry Elo for finalize: last committed ``rating_after`` before this event.
-
-    Uses ``amiga_rating_events`` chronology, not career table rows (which can be
-    stale after reopen without rewind).
-    """
+    """Entry Elo: last committed ``rating_after`` before this event (from snapshots)."""
     if not participant_ids:
         return {}
 
@@ -138,14 +112,14 @@ def _entry_ratings_before_tournament(
         sql = f"""
             SELECT player_id, rating_after
             FROM (
-                SELECT e.player_id, e.rating_after,
+                SELECT s.player_id, s.rating_after,
                        ROW_NUMBER() OVER (
-                           PARTITION BY e.player_id
+                           PARTITION BY s.player_id
                            ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC
                        ) AS rn
-                FROM amiga_rating_events e
-                INNER JOIN tournaments t ON t.id = e.tournament_id
-                WHERE e.player_id IN ({placeholders})
+                FROM amiga_player_event_snapshots s
+                INNER JOIN tournaments t ON t.id = s.tournament_id
+                WHERE s.player_id IN ({placeholders})
                   AND (t.event_date, t.chrono, t.id) < (%s, %s, %s)
             ) ranked
             WHERE rn = 1
@@ -167,48 +141,16 @@ def _entry_ratings_before_tournament(
     return frozen
 
 
-def _load_rated_game_rows(conn: pymysql.connections.Connection) -> list[dict[str, Any]]:
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT g.id AS id, g.player_a_id AS idA, g.player_b_id AS idB,
-                   r.actual_score AS ActualScore,
-                   r.dd_player_a AS DDPlayerA, r.dd_player_b AS DDPlayerB,
-                   r.cs_player_a AS CSPlayerA, r.cs_player_b AS CSPlayerB
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            ORDER BY g.game_date ASC, g.id ASC
-            """
-        )
-        return cur.fetchall()
-
-
-def recompute_rating_peaks_from_events(
+def _apply_tournament_matchups_batch(
     conn: pymysql.connections.Connection,
-    players: dict[int, PlayerState],
-    player_ids: set[int],
+    tournament_id: int,
+    matchups: MatchupCumulative,
 ) -> None:
-    """Set PeakRating / LowestRating from amiga_rating_events chronology only."""
-    sql = """
-        SELECT e.rating_before, e.rating_after
-        FROM amiga_rating_events e
-        INNER JOIN tournaments t ON t.id = e.tournament_id
-        WHERE e.player_id = %s
-        ORDER BY t.event_date ASC, t.chrono ASC, e.finalized_at ASC, e.id ASC
-    """
     with conn.cursor() as cur:
-        for pid in player_ids:
-            st = players.get(pid)
-            if st is None or st.games < ESTABLISHED_MIN_GAMES:
-                continue
-            cur.execute(sql, (pid,))
-            events = cur.fetchall()
-            if not events:
-                continue
-            points = [float(events[0]["rating_before"])]
-            points.extend(float(row["rating_after"]) for row in events)
-            st.peak_rating = max(points)
-            st.lowest_rating = min(points)
+        cur.execute(GAME_SELECT_FOR_TOURNAMENT, (tournament_id,))
+        games = cur.fetchall()
+    for game in games:
+        matchups.apply_game(game)
 
 
 def _apply_tournament_stats_batch(
@@ -217,7 +159,7 @@ def _apply_tournament_stats_batch(
     players: dict[int, PlayerState],
     names: dict[int, str],
 ) -> None:
-    """Replay career stats for one already-finalized tournament (ratings/events unchanged)."""
+    """Replay career stats for one finalized tournament (ratings unchanged)."""
     with conn.cursor() as cur:
         cur.execute(GAME_SELECT_FOR_TOURNAMENT, (tournament_id,))
         games = cur.fetchall()
@@ -228,7 +170,7 @@ def _apply_tournament_stats_batch(
     for pid in participant_ids:
         players.setdefault(pid, PlayerState())
 
-    frozen = _frozen_ratings(participant_ids, players)
+    frozen = _entry_ratings_before_tournament(conn, tournament_id, participant_ids)
     for game in games:
         apply_game_row(
             game,
@@ -242,7 +184,7 @@ def _apply_tournament_stats_batch(
         cur.execute(
             """
             SELECT player_id, rating_after
-            FROM amiga_rating_events
+            FROM amiga_player_event_snapshots
             WHERE tournament_id = %s
             """,
             (tournament_id,),
@@ -251,6 +193,52 @@ def _apply_tournament_stats_batch(
             pid = int(row["player_id"])
             if pid in players:
                 players[pid].rating = float(row["rating_after"])
+
+
+def _persist_event_snapshots(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    players: dict[int, PlayerState],
+    participant_ids: set[int],
+    event_commits: dict[int, dict[str, Any]],
+    *,
+    honours_by_player: dict[int, dict[str, Any]] | None = None,
+    prior_career_best: dict[int, dict[str, Any]] | None = None,
+    event_games: dict[tuple[int, int], int] | None = None,
+) -> int:
+    rebuild_standings_for_tournament(conn, tournament_id)
+    refresh_catalog_stats_for_tournament(conn, tournament_id)
+
+    part_rows = build_participation_rows_for_tournament(
+        conn,
+        tournament_id,
+        rating_events_by_player=event_commits,
+    )
+    participation_by_player = {int(row["player_id"]): row for row in part_rows}
+
+    honours_for_event: dict[int, dict[str, Any]] | None = None
+    if honours_by_player is not None:
+        honours_for_event = {}
+        for row in part_rows:
+            pid = int(row["player_id"])
+            tid = int(row["tournament_id"])
+            if event_games is not None:
+                event_games[(pid, tid)] = int(row.get("games") or 0)
+            if pid not in honours_by_player:
+                honours_by_player[pid] = empty_honours_totals()
+            increment_honours_totals(honours_by_player[pid], row)
+            honours_for_event[pid] = dict(honours_by_player[pid])
+
+    return persist_tournament_event_snapshots(
+        conn,
+        tournament_id,
+        players,
+        participant_ids,
+        participation_by_player=participation_by_player,
+        honours_by_player=honours_for_event,
+        prior_career_best=prior_career_best,
+        event_games_by_player_tournament=event_games,
+    )
 
 
 def verify_tournament_finalize(
@@ -262,9 +250,9 @@ def verify_tournament_finalize(
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT e.player_id, e.rating_before, e.rating_delta, e.rating_after
-            FROM amiga_rating_events e
-            WHERE e.tournament_id = %s
+            SELECT player_id, rating_before, rating_delta, rating_after
+            FROM amiga_player_event_snapshots
+            WHERE tournament_id = %s
             """,
             (tournament_id,),
         )
@@ -325,56 +313,22 @@ def verify_tournament_finalize(
     return errors
 
 
-def commit_heavy_player_derived(
-    conn: pymysql.connections.Connection,
-    players: dict[int, PlayerState] | None = None,
-) -> int:
-    """
-    One-pass network counts + peak/nadir for all players after batch finalize replay.
-
-    Live single-tournament finalize runs this inline; batch jobs defer until the end.
-    Pass the shared in-memory ``players`` dict from batch replay (career state accumulated
-    across tournaments); when omitted, loads from ``amiga_player_stats``.
-    """
-    if players is None:
-        players = load_player_states(conn)
-    if not players:
-        log.info("commit_heavy_player_derived: no players to commit")
-        return 0
-
-    finalize_network_counts_from_rows(players, _load_rated_game_rows(conn))
-    recompute_rating_peaks_from_events(conn, players, set(players.keys()))
-
-    stats_sql = _stats_upsert_sql()
-    stat_rows = [_stats_row(pid, st) for pid, st in players.items() if st.games > 0]
-    with conn.cursor() as cur:
-        if stat_rows:
-            cur.executemany(stats_sql, stat_rows)
-    conn.commit()
-    log.info("commit_heavy_player_derived: wrote %s player stat rows", len(stat_rows))
-    return len(stat_rows)
-
-
 def finalize_tournament(
     conn: pymysql.connections.Connection,
     tournament_id: int,
     *,
     dry_run: bool = False,
-    defer_heavy_derived: bool = False,
-    persist_player_stats: bool = True,
     players: dict[int, PlayerState] | None = None,
     names: dict[int, str] | None = None,
+    honours_by_player: dict[int, dict[str, Any]] | None = None,
+    prior_career_best: dict[int, dict[str, Any]] | None = None,
+    event_games: dict[tuple[int, int], int] | None = None,
+    matchups: MatchupCumulative | None = None,
 ) -> dict[str, Any]:
     """
-    Finalize one tournament per amiga-tournament-finalize-rating-contract.md § 5.
+    Finalize one tournament: game ratings + event snapshots + current projection.
 
-    Requires prior tournaments (if any) already finalized when players carry history.
-
-    Batch replay passes a shared ``players`` dict (entry state carried in memory),
-    ``names`` loaded once, ``persist_player_stats=False``, and ``defer_heavy_derived=True``;
-    then ``commit_heavy_player_derived(conn, players)`` once at the end.
-
-    Live ops use defaults: load entry state from DB, persist stats, run heavy derived inline.
+    Batch replay passes shared ``players``, ``matchups``, honours dicts, and prior context.
     """
     tour = _load_tournament(conn, tournament_id)
     if int(tour["rating_finalized"]) == 1:
@@ -393,6 +347,8 @@ def finalize_tournament(
     participant_ids = _participant_ids(games)
     if players is None:
         players = load_player_states(conn)
+    if matchups is None:
+        matchups = MatchupCumulative()
     for pid in participant_ids:
         players.setdefault(pid, PlayerState())
 
@@ -429,14 +385,17 @@ def finalize_tournament(
         }
 
     rating_sql = _rating_insert_sql()
-    stats_sql = _stats_upsert_sql()
     pending_delta: dict[int, float] = {pid: 0.0 for pid in participant_ids}
     games_in_event: dict[int, int] = {pid: 0 for pid in participant_ids}
     perf_pairs: dict[int, list[tuple[float, float]]] = {pid: [] for pid in participant_ids}
     rating_rows: list[dict[str, Any]] = []
+    event_commits: dict[int, dict[str, Any]] = {}
+
+    finalized_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
     with conn.cursor() as cur:
         for game in games:
+            matchups.apply_game(game)
             game_id = int(game["id"])
             row = apply_game_row(
                 game,
@@ -461,19 +420,6 @@ def finalize_tournament(
         if rating_rows:
             cur.executemany(rating_sql, rating_rows)
 
-        if not defer_heavy_derived:
-            finalize_network_counts_from_rows(players, _load_rated_game_rows(conn))
-
-        finalized_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        event_sql = """
-            INSERT INTO amiga_rating_events (
-                tournament_id, player_id, rating_before, rating_delta,
-                rating_after, performance_rating, games_in_event, finalized_at
-            ) VALUES (
-                %(tournament_id)s, %(player_id)s, %(rating_before)s, %(rating_delta)s,
-                %(rating_after)s, %(performance_rating)s, %(games_in_event)s, %(finalized_at)s
-            )
-        """
         for pid in sorted(participant_ids):
             if games_in_event.get(pid, 0) == 0:
                 continue
@@ -482,31 +428,14 @@ def finalize_tournament(
             rating_after = round(rating_before + rating_delta, 6)
             performance_rating = performance_rating_from_pairs(perf_pairs.get(pid, []))
             players[pid].rating = rating_after
-            cur.execute(
-                event_sql,
-                {
-                    "tournament_id": tournament_id,
-                    "player_id": pid,
-                    "rating_before": rating_before,
-                    "rating_delta": rating_delta,
-                    "rating_after": rating_after,
-                    "performance_rating": performance_rating,
-                    "games_in_event": games_in_event[pid],
-                    "finalized_at": finalized_at,
-                },
-            )
-
-        if not defer_heavy_derived:
-            recompute_rating_peaks_from_events(conn, players, participant_ids)
-
-        if persist_player_stats:
-            stat_rows = [
-                _stats_row(pid, players[pid])
-                for pid in participant_ids
-                if players[pid].games > 0
-            ]
-            if stat_rows:
-                cur.executemany(stats_sql, stat_rows)
+            event_commits[pid] = {
+                "rating_before": rating_before,
+                "rating_delta": rating_delta,
+                "rating_after": rating_after,
+                "performance_rating": performance_rating,
+                "games_in_event": games_in_event[pid],
+                "finalized_at": finalized_at,
+            }
 
         cur.execute(
             """
@@ -519,42 +448,57 @@ def finalize_tournament(
 
     conn.commit()
 
-    if not defer_heavy_derived:
-        part_rows, totals_players = refresh_tournament_participation_stack(conn, tournament_id)
-        log.info(
-            "finalize_tournament: participation refresh tournament_id=%s rows=%s totals_players=%s",
-            tournament_id,
-            part_rows,
-            totals_players,
-        )
-        snapshot_rows = persist_tournament_event_snapshots(
-            conn,
-            tournament_id,
-            players,
-            participant_ids,
-        )
-        log.info(
-            "finalize_tournament: event snapshots tournament_id=%s rows=%s",
-            tournament_id,
-            snapshot_rows,
-        )
-        errors = verify_tournament_finalize(conn, tournament_id)
-        if errors:
-            raise RuntimeError(
-                f"finalize_tournament verification failed for tournament_id={tournament_id}: "
-                + "; ".join(errors)
-            )
+    for pid in sorted(participant_ids):
+        if pid not in event_commits:
+            continue
+        matchups.apply_network_to_player_state(pid, players[pid])
+        apply_peak_from_event_rating(players[pid], float(event_commits[pid]["rating_after"]))
 
-    log.info(
-        "finalize_tournament complete: id=%s events=%s",
+    snapshot_rows = _persist_event_snapshots(
+        conn,
         tournament_id,
-        len([pid for pid in participant_ids if games_in_event.get(pid, 0) > 0]),
+        players,
+        participant_ids,
+        event_commits,
+        honours_by_player=honours_by_player,
+        prior_career_best=prior_career_best,
+        event_games=event_games,
     )
+    log.info(
+        "finalize_tournament: event snapshots tournament_id=%s rows=%s",
+        tournament_id,
+        snapshot_rows,
+    )
+
+    matchup_at_event_rows = persist_matchup_at_event(
+        conn,
+        tournament_id,
+        tour["event_date"],
+        int(tour["chrono"]),
+        matchups,
+        participant_ids,
+    )
+    summary_rows = upsert_matchup_summary(conn, matchups, participant_ids)
+    log.info(
+        "finalize_tournament: matchup at_event=%s summary_upserts=%s",
+        matchup_at_event_rows,
+        summary_rows,
+    )
+
+    errors = verify_tournament_finalize(conn, tournament_id)
+    if errors:
+        raise RuntimeError(
+            f"finalize_tournament verification failed for tournament_id={tournament_id}: "
+            + "; ".join(errors)
+        )
+
+    event_count = len(event_commits)
+    log.info("finalize_tournament complete: id=%s events=%s", tournament_id, event_count)
     return {
         "tournament_id": tournament_id,
         "name": tour["name"],
         "games": len(games),
-        "rating_events": len([pid for pid in participant_ids if games_in_event.get(pid, 0) > 0]),
+        "rating_events": event_count,
         "skipped": False,
     }
 

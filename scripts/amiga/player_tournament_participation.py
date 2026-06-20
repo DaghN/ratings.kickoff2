@@ -288,7 +288,7 @@ def _load_rating_events(
             """
             SELECT player_id, rating_before, rating_delta, rating_after,
                    performance_rating, games_in_event, finalized_at
-            FROM amiga_rating_events
+            FROM amiga_player_event_snapshots
             WHERE tournament_id = %s
             """,
             (tournament_id,),
@@ -300,8 +300,10 @@ def _load_rating_events(
 def build_participation_rows_for_tournament(
     conn: pymysql.connections.Connection,
     tournament_id: int,
+    *,
+    rating_events_by_player: dict[int, dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
-    """Build participation insert dicts from games roster + derived placement."""
+    """Build participation-shaped dicts from games roster + derived placement."""
     tournament = _load_tournament(conn, tournament_id)
     if tournament is None:
         return []
@@ -312,7 +314,11 @@ def build_participation_rows_for_tournament(
 
     standing_rows = _load_standing_rows(conn, tournament_id)
     finish_overrides = _load_finish_overrides(conn, tournament_id)
-    rating_events = _load_rating_events(conn, tournament_id)
+    rating_events = (
+        rating_events_by_player
+        if rating_events_by_player is not None
+        else _load_rating_events(conn, tournament_id)
+    )
     player_ids = sorted(rollups.keys())
     tournament_name = str(tournament["name"])
     event_finishes = derive_event_finish_position(

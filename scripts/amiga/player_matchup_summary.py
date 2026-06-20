@@ -20,7 +20,11 @@ INSERT INTO amiga_player_matchup_summary (
     draws,
     losses,
     goals_for,
-    goals_against
+    goals_against,
+    dd_wins,
+    dd_losses,
+    cs_wins,
+    cs_losses
 )
 SELECT
     pid,
@@ -30,7 +34,11 @@ SELECT
     SUM(d) AS draws,
     SUM(l) AS losses,
     SUM(gf) AS goals_for,
-    SUM(ga) AS goals_against
+    SUM(ga) AS goals_against,
+    SUM(dd_w) AS dd_wins,
+    SUM(dd_l) AS dd_losses,
+    SUM(cs_w) AS cs_wins,
+    SUM(cs_l) AS cs_losses
 FROM (
     SELECT
         g.player_a_id AS pid,
@@ -39,7 +47,11 @@ FROM (
         CASE WHEN g.goals_a = g.goals_b THEN 1 ELSE 0 END AS d,
         CASE WHEN g.goals_a < g.goals_b THEN 1 ELSE 0 END AS l,
         g.goals_a AS gf,
-        g.goals_b AS ga
+        g.goals_b AS ga,
+        CASE WHEN g.goals_a >= 10 THEN 1 ELSE 0 END AS dd_w,
+        CASE WHEN g.goals_b >= 10 THEN 1 ELSE 0 END AS dd_l,
+        CASE WHEN g.goals_b = 0 THEN 1 ELSE 0 END AS cs_w,
+        CASE WHEN g.goals_a = 0 THEN 1 ELSE 0 END AS cs_l
     FROM amiga_games g
     UNION ALL
     SELECT
@@ -49,7 +61,11 @@ FROM (
         CASE WHEN g.goals_a = g.goals_b THEN 1 ELSE 0 END AS d,
         CASE WHEN g.goals_b < g.goals_a THEN 1 ELSE 0 END AS l,
         g.goals_b AS gf,
-        g.goals_a AS ga
+        g.goals_a AS ga,
+        CASE WHEN g.goals_b >= 10 THEN 1 ELSE 0 END AS dd_w,
+        CASE WHEN g.goals_a >= 10 THEN 1 ELSE 0 END AS dd_l,
+        CASE WHEN g.goals_a = 0 THEN 1 ELSE 0 END AS cs_w,
+        CASE WHEN g.goals_b = 0 THEN 1 ELSE 0 END AS cs_l
     FROM amiga_games g
 ) AS sides
 GROUP BY pid, oid

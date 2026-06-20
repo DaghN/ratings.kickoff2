@@ -13,6 +13,10 @@ CREATE TABLE IF NOT EXISTS `amiga_player_matchup_summary` (
   `losses` smallint(5) unsigned NOT NULL DEFAULT 0,
   `goals_for` smallint(5) unsigned NOT NULL DEFAULT 0,
   `goals_against` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `dd_wins` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `dd_losses` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `cs_wins` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `cs_losses` smallint(5) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`player_id`, `opponent_id`),
   KEY `idx_matchup_opponent` (`opponent_id`, `player_id`),
   CONSTRAINT `fk_matchup_player`

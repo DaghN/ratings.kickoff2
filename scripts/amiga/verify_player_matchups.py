@@ -247,6 +247,64 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
                 )
                 break
 
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
+        game_count = int(cur.fetchone()["n"])
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_player_matchup_at_event")
+        at_event_rows = int(cur.fetchone()["n"])
+        if game_count > 0 and at_event_rows < 1:
+            errors.append("amiga_player_matchup_at_event is empty but amiga_games has rows")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_matchup_summary s
+            INNER JOIN amiga_player_matchup_at_event e
+              ON e.player_id = s.player_id
+             AND e.opponent_id = s.opponent_id
+            INNER JOIN (
+                SELECT player_id, opponent_id, as_of_tournament_id AS tid
+                FROM (
+                    SELECT player_id, opponent_id, as_of_tournament_id,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY player_id, opponent_id
+                               ORDER BY event_date DESC, event_chrono DESC,
+                                        as_of_tournament_id DESC
+                           ) AS rn
+                    FROM amiga_player_matchup_at_event
+                ) ranked
+                WHERE rn = 1
+            ) latest
+              ON latest.player_id = e.player_id
+             AND latest.opponent_id = e.opponent_id
+             AND latest.tid = e.as_of_tournament_id
+            WHERE s.games <> e.games OR s.wins <> e.wins
+               OR s.draws <> e.draws OR s.losses <> e.losses
+               OR s.goals_for <> e.goals_for OR s.goals_against <> e.goals_against
+            """
+        )
+        if int(cur.fetchone()["n"]):
+            errors.append("summary differs from latest at-event row for at least one pair")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_event_snapshots s
+            INNER JOIN (
+                SELECT player_id, as_of_tournament_id, COUNT(*) AS pair_count
+                FROM amiga_player_matchup_at_event
+                GROUP BY player_id, as_of_tournament_id
+            ) m
+              ON m.player_id = s.player_id
+             AND m.as_of_tournament_id = s.tournament_id
+            WHERE s.DifferentOpponents <> m.pair_count
+            """
+        )
+        if int(cur.fetchone()["n"]):
+            errors.append(
+                "snapshot DifferentOpponents != at-event pair count for at least one row"
+            )
+
     return errors
 
 
@@ -272,12 +330,14 @@ def main() -> int:
             summary_rows = int(cur.fetchone()["n"])
             cur.execute("SELECT COALESCE(SUM(games), 0) AS n FROM amiga_player_matchup_summary")
             games_sum = int(cur.fetchone()["n"])
+            cur.execute("SELECT COUNT(*) AS n FROM amiga_player_matchup_at_event")
+            at_event_rows = int(cur.fetchone()["n"])
             cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
             game_count = int(cur.fetchone()["n"])
 
     print(
-        f"OK: player matchups verified ({summary_rows} directed pairs, "
-        f"SUM(games)={games_sum} = 2×{game_count})"
+        f"OK: player matchups verified ({summary_rows} summary pairs, "
+        f"{at_event_rows} at-event rows, SUM(games)={games_sum} = 2×{game_count})"
     )
     return 0
 

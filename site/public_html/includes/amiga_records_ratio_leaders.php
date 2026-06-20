@@ -97,7 +97,7 @@ function amiga_records_load_ratio_leaders(mysqli $con): void
 }
 
 /**
- * Top World Cup medal holders from amiga_player_tournament_totals.
+ * Top World Cup medal holders from amiga_player_current honours columns.
  *
  * @return array{gold: array<string, mixed>|null, silver: array<string, mixed>|null, bronze: array<string, mixed>|null}
  */
@@ -112,7 +112,7 @@ function amiga_records_wc_totals_leaders(mysqli $con): array
 
     foreach ($specs as $key => $column) {
         $sql = 'SELECT t.player_id, p.name, t.' . $column . ' AS medal_count '
-            . 'FROM amiga_player_tournament_totals t '
+            . 'FROM amiga_player_current t '
             . 'INNER JOIN amiga_players p ON p.id = t.player_id '
             . 'WHERE t.' . $column . ' > 0 '
             . 'ORDER BY t.' . $column . ' DESC, p.name ASC, t.player_id ASC '

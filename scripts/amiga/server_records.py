@@ -72,14 +72,14 @@ def compute_server_aggregates(conn: pymysql.connections.Connection) -> dict[str,
         cs = int(agg["cs"] or 0)
 
         cur.execute(
-            "SELECT COUNT(*) AS n FROM amiga_player_stats WHERE NumberGames >= 1"
+            "SELECT COUNT(*) AS n FROM amiga_player_current WHERE NumberGames >= 1"
         )
         num_players = int(cur.fetchone()["n"])
 
         cur.execute(
             """
             SELECT AVG(DifferentOpponents) AS a
-            FROM amiga_player_stats
+            FROM amiga_player_current
             WHERE DifferentOpponents >= 1
             """
         )
@@ -116,7 +116,7 @@ def _career_holder_patch(
                    DATE_FORMAT(t.event_date, '%%Y-%%m-%%d'),
                    DATE_FORMAT(g.game_date, '%%Y-%%m-%%d')
                ) AS record_date
-        FROM amiga_player_stats s
+        FROM amiga_player_current s
         INNER JOIN amiga_players p ON p.id = s.player_id
         LEFT JOIN amiga_games g ON g.id = s.LastGameGameID
         LEFT JOIN tournaments t ON t.id = g.tournament_id

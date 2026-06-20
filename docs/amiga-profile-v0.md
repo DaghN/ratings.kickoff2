@@ -25,25 +25,25 @@
 
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): **← Leaderboards** context link above panel; rank, rating, games, **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text
 - **Player nav** — Profile · Tournaments · Games (`amiga_player_nav.php`)
-- **Career strip** — `amiga_players` + `amiga_player_stats` (W/D/L, goals, peak, opp avg)
-- **Honours strip** — `amiga_player_tournament_totals` (already loaded): career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
-- **Performance rating** — best event + latest event (participation, games ≥ 2); links to perf LB and tournament history; hidden when no qualifying perf rows
-- **Moments** — trophy games from `amiga_player_stats` `*GameID` pointers (`amiga_player_moments_lib.php`): biggest win, goal festival, peak rating game; score links to games tab with opponent filter; hidden when no resolvable game rows; **no streak card**
-- **Recent tournaments** — `amiga_player_tournament_participation`: finish from **`event_finish_position`** ordinal (all events including WC; NULL → —); **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
-- **Tournament history** — `/amiga/player/tournaments.php`: full participation list (no pagination); sortable table with per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); labeled filter panel (Event: All / World Cups; Location: country pills when applicable) — `.k2-player-tournament-filters` in `theme.css`
+- **Career strip** — `amiga_players` + `amiga_player_current` (W/D/L, goals, peak, opp avg)
+- **Honours strip** — `amiga_player_current` honours columns: career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
+- **Performance rating** — best event + latest event (snapshots, games ≥ 2); links to perf LB and tournament history; hidden when no qualifying perf rows
+- **Moments** — trophy games from `amiga_player_current` `*GameID` pointers (`amiga_player_moments_lib.php`): biggest win, goal festival, peak rating game; score links to games tab with opponent filter; hidden when no resolvable game rows; **no streak card**
+- **Recent tournaments** — `amiga_player_event_snapshots`: finish from **`event_finish_position`** ordinal (all events including WC; NULL → —); **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
+- **Tournament history** — `/amiga/player/tournaments.php`: full snapshot list (no pagination); sortable table with per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); labeled filter panel (Event: All / World Cups; Location: country pills when applicable) — `.k2-player-tournament-filters` in `theme.css`
 - **Top opponents** — `amiga_player_matchup_summary` via `amiga_player_top_opponents()` (W-D-L, goals, games; W-D-L and games link to H2H pair page)
-- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_rating_events` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags); toggle uses `player-feast-sections.css` segment control
+- **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_player_event_snapshots` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags); toggle uses `player-feast-sections.css` segment control
 - **Games tab** — server-side filters: Event pills (All / World Cups), listboxes (result, opponent, tournament, country, year, since year), sort; tournament + phase from `amiga_games` + `tournaments`; per-game frozen `rating_a/b` and `adjustment_a/b` from `amiga_game_ratings` (`new_rating_*` NULL after finalize v1); status line shows game count + **Performance rating** for the filtered set (async JSON — same chess-style rules as event TPR, read-time from `amiga_game_ratings`); no pagination (full list)
 
 ## Data strategy (important)
 
 | Source | Used for | v0 cost |
 |--------|----------|---------|
-| **`amiga_players` + `amiga_player_stats`** | Hero, career strip, rank | 2 queries per page (row + rank) |
-| **`amiga_rating_events` + `tournaments`** | Profile rating chart JSON | 1 query per chart load (~≤1k events max per player) |
+| **`amiga_players` + `amiga_player_current`** | Hero, career strip, rank | 2 queries per page (row + rank) |
+| **`amiga_player_event_snapshots` + `tournaments`** | Profile rating chart JSON | 1 query per chart load (~≤1k events max per player) |
 | **`amiga_games` + `amiga_game_ratings`** (via `amiga_db.php`) | Games list per-match adjustments | 1 query per games page |
 
-**Derived tables in use:** `amiga_game_ratings`, `amiga_player_stats`, `amiga_rating_events`, `amiga_tournament_standings`, `amiga_player_tournament_participation`, `amiga_player_tournament_totals`, `amiga_player_matchup_summary`, `amiga_generalstats` (all rebuilt by `scripts/amiga/replay.py` after tournament finalize). See [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) and [`amiga-data-contract.md`](amiga-data-contract.md).
+**Derived tables in use:** `amiga_game_ratings`, `amiga_player_event_snapshots`, `amiga_player_current`, `amiga_tournament_standings`, `amiga_player_matchup_summary`, `amiga_player_matchup_at_event`, `amiga_generalstats` (HoF table stale until next slice — matchup/network written at finalize). See [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) and [`amiga-data-contract.md`](amiga-data-contract.md).
 
 **Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment — see player-universe contract §4 and [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
 
@@ -52,7 +52,7 @@
 | What | Where | Use on profile |
 |------|--------|----------------|
 | **Phase points** (league table, WC group, etc.) | `amiga_tournament_standings` per scope | Tournament page only — **not** on participation rows |
-| **Event points** (`event_points`) | `amiga_player_tournament_participation` | Tournament history **Pts** column; recent block when one phase = whole event |
+| **Event points** (`event_points`) | `amiga_player_event_snapshots` | Tournament history **Pts** column; recent block when one phase = whole event |
 
 Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row exists for every player with ≥1 game, regardless of standings shape.
 
@@ -69,7 +69,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 
 - `includes/amiga_hub_nav.php` — realm hub tabs
 - `amiga/hall-of-fame.php` — HoF (generalstats + ratio leaders + WC medal panel)
-- `includes/amiga_player_tournament_lib.php` — participation + totals reads
+- `includes/amiga_player_tournament_lib.php` — snapshot + current reads
 - `includes/amiga_player_matchup_lib.php` — top opponents + H2H pair reads
 - `includes/amiga_lb_nav.php`, `includes/amiga_lb_lib.php` — leaderboard wing tabs + shared row helpers
 - `includes/amiga_records_*.php`, `includes/amiga_records_hof_links.php` — HoF panels + metric deep links

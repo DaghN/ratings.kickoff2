@@ -119,15 +119,18 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
 ## 6. Finalize writer (conceptual)
 
 ```text
-1. Load prior career from amiga_player_stats; entry Elo from last rating_events before this event;
-   prior career-best from latest snapshot before this event (not amiga_player_current)
-2. Process tournament games (frozen within-event Elo) → game_ratings rows
-3. Commit rating deltas; update in-memory PlayerState; network counts; peaks; honours rollups
-4. For each participant with games:
-     INSERT full snapshot row
-     UPSERT amiga_player_current from that row (projection only)
-5. Mark tournament rating_finalized
+1. Load prior career from `amiga_player_current` (or empty); entry Elo from last snapshot before this event;
+   prior career-best from latest prior snapshot (not current row alone)
+2. Process tournament games (frozen within-event Elo) → `amiga_game_ratings` rows
+3. Build in-memory event rating commits; update PlayerState; standings + catalog for this event
+4. Build participation-shaped rows in memory; derive network + peaks from cumulative matchups; for each active participant:
+     INSERT full `amiga_player_event_snapshots` row
+     UPSERT `amiga_player_current` from that row
+5. Persist `amiga_player_matchup_at_event` + upsert `amiga_player_matchup_summary` for participants
+6. Mark `tournaments.rating_finalized`
 ```
+
+**Batch replay:** loop finalize only — **no** `commit_heavy_player_derived` or matchup/generalstats/catalog tail batches at end.
 
 **Proof path:** `python -m scripts.amiga prove` — nuclear reset + replay + verify suite. Reopen + single finalize without full rewind is unsafe for derived truth.
 

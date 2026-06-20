@@ -1,6 +1,6 @@
 # Amiga event snapshots — implementation plan
 
-**Status:** **Ready to execute** (Jun 2026).  
+**Status:** **Complete** (Jun 2026).  
 **Policy:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md)
 
@@ -40,8 +40,8 @@ See policy **S1–S11**. Summary: `amiga_player_event_snapshots` + `amiga_player
 | **5** | `verify_event_snapshots.py` | 0 errors local | **done** |
 | **6** | PHP read switch → `amiga_player_current` + helpers | Browser: profile + one LB | **done** |
 | **7** | Generalize `amiga_rating_history_lib.php` → snapshot cutoff (rating first, then columns) | History page parity | **done** |
-| **8** | Retire old tables from schema/import/clear_derived; drop DDL migration `025_drop_legacy_player_tables.sql` | Full replay clean |
-| **9** | Docs closure, MEMORY, feature-log, Part B registers | Dagh OK |
+| **8** | Retire old tables from schema/import/clear_derived; drop DDL migration `025_drop_legacy_player_tables.sql` | Full replay clean | **done** |
+| **9** | Docs closure, MEMORY, feature-log, Part B registers | Dagh OK | **done** |
 
 ---
 
@@ -256,11 +256,11 @@ Remove dual-write; drop retired tables from schema path.
 
 ### Tasks
 
-- [ ] `scripts/amiga/sql/025_drop_legacy_player_tables.sql` — `DROP TABLE` participation, totals, rating_events, player_stats (FK order)
-- [ ] Remove from `import_access` apply bundle (replace 009–011 with 024 in recreate path)
-- [ ] Update `_AMIGA_TABLES_DROP_ORDER`, `clear_derived`, `truncate_ground_truth`
-- [ ] Remove dual-write from finalize
-- [ ] Grep repo for dropped table names
+- [x] `scripts/amiga/sql/025_drop_legacy_player_tables.sql` — `DROP TABLE` participation, totals, rating_events, player_stats (FK order)
+- [x] Remove from `import_access` apply bundle (009 finalize markers + 024; no 010/011/stats in recreate path)
+- [x] Update `_AMIGA_TABLES_DROP_ORDER`, `clear_derived`, `truncate_ground_truth`
+- [x] Remove dual-write from Python finalize + replay; PHP ops finalize/snapshot persist aligned
+- [x] Grep repo — website reads on snapshots/current; verifiers snapshot-based
 
 ### Verification
 
@@ -276,11 +276,11 @@ python -m scripts.amiga prove
 
 ### Tasks
 
-- [ ] `amiga-player-universe-contract.md` §3–§5 register update
-- [ ] `amiga-data-contract.md` table register
-- [ ] `PROJECT_MEMORY.md` — event snapshot track
-- [ ] `docs/coordination/feature-log.md` — L1 entry
-- [ ] Part B: schema register / prod-coordination note if applicable
+- [x] `amiga-player-universe-contract.md` §3–§5 register update
+- [x] `amiga-data-contract.md` table register
+- [x] `PROJECT_MEMORY.md` — event snapshot track
+- [x] `docs/coordination/feature-log.md` — L1 entry
+- [x] Part B: staging export table list (`export_ko2amiga_db.ps1`); `scripts/amiga/README.md`
 
 ---
 

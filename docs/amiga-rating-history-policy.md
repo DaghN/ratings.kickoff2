@@ -20,7 +20,7 @@ A **time-travel rating ladder**: at any chosen moment, show who was on the ladde
 | Phase | Data | Surface |
 |-------|------|---------|
 | **V1** | `amiga_rating_events` + `tournaments` (compute on read) | History hub tab · Event / Month / Year wings · chevrons + picker · rating + rank + Δ |
-| **V2 (slice 7)** | `amiga_player_event_snapshots` at cutoff (same read pattern) | Same shell; rating + race parity with present LB |
+| **V2 (slice 7–9)** | `amiga_player_event_snapshots` + `amiga_player_current` | Same shell; rating + race + profile/LB reads on snapshot/current |
 | **V2+** | Snapshots — extra LB columns (games, goals, …) | Same shell; add columns incrementally |
 
 V1 does **not** materialize dense snapshot tables (`603 × 600`). Full ladder at moment T = **last `rating_after` per player** among events on or before T, then sort.
@@ -204,7 +204,7 @@ Spot SQL + browser checks in implementation plan.
 
 ## 9. Agent policy
 
-- V1 shipped on `amiga_rating_events`; **slice 7 (Jun 2026)** switched historical ladder + News race to **`amiga_player_event_snapshots`** (same ROW_NUMBER cutoff pattern).
+- V1 shipped on `amiga_rating_events`; **slice 7 (Jun 2026)** switched historical ladder + News race to **`amiga_player_event_snapshots`**. **Slice 8–9 (Jun 2026):** legacy tables retired; V2 is sole authority.
 - Read path: `includes/amiga_rating_history_lib.php` — not raw SQL in templates.
 - Register new surface in [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4 when shipped.
 - Animation / “chart race” is a **follow-on** using the same snapshot catalog + sparse extraction.

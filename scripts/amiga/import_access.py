@@ -58,12 +58,8 @@ _SQL_FORMATS = Path(__file__).resolve().parent / "sql" / "005_tournament_formats
 _SQL_FIXTURES = Path(__file__).resolve().parent / "sql" / "006_tournament_fixtures.sql"
 _SQL_ENTRANTS = Path(__file__).resolve().parent / "sql" / "007_tournament_entrants.sql"
 _SQL_LIFECYCLE = Path(__file__).resolve().parent / "sql" / "008_tournament_lifecycle.sql"
-_SQL_RATING_EVENTS = Path(__file__).resolve().parent / "sql" / "009_rating_events.sql"
-_SQL_PLAYER_PARTICIPATION = (
-    Path(__file__).resolve().parent / "sql" / "010_player_tournament_participation.sql"
-)
-_SQL_PLAYER_TOURNAMENT_TOTALS = (
-    Path(__file__).resolve().parent / "sql" / "011_player_tournament_totals.sql"
+_SQL_FINALIZE_MARKERS = (
+    Path(__file__).resolve().parent / "sql" / "009_tournament_finalize_markers.sql"
 )
 _SQL_PLAYER_MATCHUP_SUMMARY = (
     Path(__file__).resolve().parent / "sql" / "012_player_matchup_summary.sql"
@@ -73,20 +69,20 @@ _SQL_FINISH_OVERRIDE = (
     Path(__file__).resolve().parent / "sql" / "019_tournament_finish_override.sql"
 )
 _SQL_PLAYER_SNAPSHOTS = Path(__file__).resolve().parent / "sql" / "024_player_snapshots.sql"
+_SQL_MATCHUP_AT_EVENT = (
+    Path(__file__).resolve().parent / "sql" / "026_matchup_at_event.sql"
+)
 
 _AMIGA_TABLES_DROP_ORDER = (
     "amiga_generalstats",
+    "amiga_player_matchup_at_event",
     "amiga_player_matchup_summary",
     "amiga_player_current",
     "amiga_player_event_snapshots",
-    "amiga_player_tournament_totals",
-    "amiga_player_tournament_participation",
     "amiga_tournament_finish_override",
     "amiga_tournament_catalog_stats",
     "amiga_tournament_standings",
-    "amiga_rating_events",
     "amiga_game_ratings",
-    "amiga_player_stats",
     "amiga_games",
     "tournament_fixtures",
     "tournament_stage_players",
@@ -172,13 +168,12 @@ def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = 
         _SQL_FIXTURES,
         _SQL_ENTRANTS,
         _SQL_LIFECYCLE,
-        _SQL_RATING_EVENTS,
-        _SQL_PLAYER_PARTICIPATION,
-        _SQL_PLAYER_TOURNAMENT_TOTALS,
+        _SQL_FINALIZE_MARKERS,
         _SQL_PLAYER_MATCHUP_SUMMARY,
         _SQL_GENERALSTATS,
         _SQL_FINISH_OVERRIDE,
         _SQL_PLAYER_SNAPSHOTS,
+        _SQL_MATCHUP_AT_EVENT,
     ):
         sql = sql_path.read_text(encoding="utf-8")
         with conn.cursor() as cur:
@@ -204,17 +199,14 @@ def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
         cur.execute("SET FOREIGN_KEY_CHECKS = 0")
         cur.execute("TRUNCATE TABLE amiga_generalstats")
         cur.execute("INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)")
+        cur.execute("TRUNCATE TABLE amiga_player_matchup_at_event")
         cur.execute("TRUNCATE TABLE amiga_player_matchup_summary")
         cur.execute("TRUNCATE TABLE amiga_player_current")
         cur.execute("TRUNCATE TABLE amiga_player_event_snapshots")
-        cur.execute("TRUNCATE TABLE amiga_player_tournament_totals")
-        cur.execute("TRUNCATE TABLE amiga_player_tournament_participation")
         cur.execute("TRUNCATE TABLE amiga_tournament_finish_override")
         cur.execute("TRUNCATE TABLE amiga_tournament_catalog_stats")
         cur.execute("TRUNCATE TABLE amiga_tournament_standings")
-        cur.execute("TRUNCATE TABLE amiga_rating_events")
         cur.execute("TRUNCATE TABLE amiga_game_ratings")
-        cur.execute("TRUNCATE TABLE amiga_player_stats")
         cur.execute("TRUNCATE TABLE amiga_games")
         cur.execute("TRUNCATE TABLE tournament_fixtures")
         cur.execute("TRUNCATE TABLE tournament_stage_players")

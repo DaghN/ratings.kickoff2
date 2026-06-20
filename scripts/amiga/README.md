@@ -58,10 +58,10 @@ python -m scripts.amiga verify-rating-events
 python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
 
-# Full replay (~27k games, ~23s local Jun 2026): shared in-memory players across tournaments;
-# each finalize writes amiga_game_ratings + amiga_rating_events. amiga_player_stats +
-# network counts + peak/nadir once via commit_heavy_player_derived(players). Live
-# finalize-tournament (PHP or Python CLI) loads from DB and persists full stats per event.
+# Full replay (~27k games, ~65s local Jun 2026): shared in-memory players across tournaments;
+# each finalize writes amiga_game_ratings + amiga_player_event_snapshots + amiga_player_current.
+# Network counts + peak/nadir once via commit_heavy_player_derived(players). Live
+# finalize-tournament (PHP or Python CLI) loads from DB and persists full snapshot row per event.
 # Live one-event finalize at catalog tail (full history on disk): ~0.7s local (Jun 2026).
 
 # Partial rebuild smoke (≥500 games in scope; verify-rating-events requires full replay):
@@ -90,11 +90,11 @@ python scripts/amiga/discover_access_schema.py
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Export writes **24 part files** + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Part 24 is `amiga_rating_events`. Sync all of `_import/` via WinSCP.
+Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Tail parts: `amiga_player_event_snapshots`, `amiga_player_current`, standings, catalog, matchup, generalstats, finish override. Sync all of `_import/` via WinSCP.
 
 **Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
 
-- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 24`
+- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm manifest part count matches export
 - **Apply:** same URL with `&apply=1&part=1` (auto-continues)
 - **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`
 
@@ -171,36 +171,35 @@ python -m scripts.amiga verify-tournament-formats
 
 Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-tournament-format-vision.md) §9 · Swiss checklist: [`docs/amiga-format-add-swiss-checklist.md`](../../docs/amiga-format-add-swiss-checklist.md)
 
-**Player universe derived tables** (participation, H2H, server records — contract [`amiga-player-universe-contract.md`](../../docs/amiga-player-universe-contract.md)):
+**Player universe derived tables** (snapshots, current, H2H, server records — contract [`amiga-player-universe-contract.md`](../../docs/amiga-player-universe-contract.md)):
 
 ```powershell
 # Full stack is rebuilt by replay (after standings):
-# participation → totals → matchup_summary → generalstats → catalog_stats
+# snapshots + current → matchup_summary → generalstats → catalog_stats
 
-# Standalone rebuilds (idempotent):
-python -m scripts.amiga performance-rating-rebuild   # after 015 migration; participation-rebuild runs this too
-python -m scripts.amiga participation-rebuild
-python -m scripts.amiga rebuild-event-snapshots   # after participation; snapshots + current
+# Sign-off (preferred):
+python -m scripts.amiga prove
+
+# Standalone repair (idempotent):
+python -m scripts.amiga rebuild-event-snapshots   # snapshots + current from finalized history
 python -m scripts.amiga matchup-rebuild
 python -m scripts.amiga generalstats-rebuild
-
-# Live finalize hook (one tournament; optional --skip-standings):
-python -m scripts.amiga participation-refresh-tournament --tournament-id N
 
 # Parity gates (player universe contract §8):
 python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
-python -m scripts.amiga verify-event-snapshots   # snapshot policy §8
+python -m scripts.amiga verify-event-snapshots
+python -m scripts.amiga verify-rating-events
 
 # WC medal spot-check vs Access (sample tournaments):
 python -m scripts.amiga honours-parity-sample
 ```
 
-PHP live path: `amiga_ops_participation_refresh_tournament` in `finalize_tournament.php` after standings commit.
+PHP live path: `amiga_finalize_tournament` persists snapshots + current after standings commit.
 
 Participation **roster = `amiga_games`**; finish from `participation_placement.py` / `includes/amiga_participation_placement.php` → `event_finish_position` per [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) (tiers A–E; Tier E = `amiga_tournament_finish_override`). Phase ranks stay in `amiga_tournament_standings` only.
 
-**Schema (Jun 2026):** nuclear reset only — `python -m scripts.amiga prove`. Fresh DDL bundle: `001`–`013`, `019`, `024` in `import_access.apply_schema()`. Archived upgrade files `014`–`023`: [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
+**Schema (Jun 2026):** nuclear reset only — `python -m scripts.amiga prove`. Fresh DDL bundle: `001`–`013`, `019`, `024`, `025` drop on upgrade in `import_access.apply_schema()`. Archived upgrade files `010`–`023`: [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
 
 **Event finish:** `019` (Tier E override table) is in the fresh bundle; `010` has `event_finish_position`.
 

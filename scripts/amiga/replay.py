@@ -9,14 +9,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.player_matchup_summary import rebuild_all_matchup_summary
-from scripts.amiga.server_records import rebuild_generalstats
-from scripts.amiga.player_tournament_participation import (
-    rebuild_all_participation,
-    rebuild_all_participation_totals,
-)
-from scripts.amiga.tournament_catalog_stats import rebuild_all_catalog_stats
-from scripts.amiga.tournament_standings import rebuild_all_standings
+from scripts.amiga.matchup_cumulative import MatchupCumulative
 from scripts.ladder.player_state import PlayerState
 
 log = logging.getLogger(__name__)
@@ -113,17 +106,14 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
     with conn.cursor() as cur:
         cur.execute("DELETE FROM amiga_generalstats WHERE id = 1")
         cur.execute("INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)")
+        cur.execute("DELETE FROM amiga_player_matchup_at_event")
         cur.execute("DELETE FROM amiga_player_matchup_summary")
         cur.execute("DELETE FROM amiga_player_current")
         cur.execute("DELETE FROM amiga_player_event_snapshots")
-        cur.execute("DELETE FROM amiga_player_tournament_totals")
-        cur.execute("DELETE FROM amiga_player_tournament_participation")
         cur.execute("DELETE FROM amiga_tournament_finish_override")
         cur.execute("DELETE FROM amiga_tournament_catalog_stats")
         cur.execute("DELETE FROM amiga_tournament_standings")
-        cur.execute("DELETE FROM amiga_rating_events")
         cur.execute("DELETE FROM amiga_game_ratings")
-        cur.execute("DELETE FROM amiga_player_stats")
         cur.execute(
             "UPDATE tournaments SET rating_finalized = 0, rating_finalized_at = NULL"
         )
@@ -180,8 +170,10 @@ def _replay_post_checks(
             """
         )
         unfinalized = int(cur.fetchone()["n"])
-        cur.execute("SELECT COUNT(*) AS n FROM amiga_rating_events")
-        events = int(cur.fetchone()["n"])
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_player_event_snapshots")
+        snapshots = int(cur.fetchone()["n"])
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_player_matchup_at_event")
+        matchup_at_event = int(cur.fetchone()["n"])
 
     if full_rebuild:
         if games != ratings:
@@ -198,10 +190,12 @@ def _replay_post_checks(
         )
 
     log.info(
-        "replay post-checks OK: games=%s ratings=%s rating_events=%s unfinalized_with_games=%s",
+        "replay post-checks OK: games=%s ratings=%s snapshots=%s matchup_at_event=%s "
+        "unfinalized_with_games=%s",
         games,
         ratings,
-        events,
+        snapshots,
+        matchup_at_event,
         unfinalized,
     )
 
@@ -217,10 +211,8 @@ def replay_all(
     """
     from scripts.amiga.finalize_tournament import (
         _load_player_names,
-        commit_heavy_player_derived,
         finalize_tournament,
     )
-    from scripts.ladder.player_state import PlayerState
 
     tournament_ids, games_in_scope = tournament_ids_for_replay(conn, limit_games=limit)
     with conn.cursor() as cur:
@@ -241,7 +233,11 @@ def replay_all(
         return
 
     players: dict[int, PlayerState] = {}
+    matchups = MatchupCumulative()
     names = _load_player_names(conn)
+    honours_by_player: dict[int, dict[str, Any]] = {}
+    prior_career_best: dict[int, dict[str, Any]] = {}
+    event_games: dict[tuple[int, int], int] = {}
     games_processed = 0
     events_total = 0
     for idx, tournament_id in enumerate(tournament_ids, start=1):
@@ -249,10 +245,12 @@ def replay_all(
             conn,
             tournament_id,
             dry_run=False,
-            defer_heavy_derived=True,
-            persist_player_stats=False,
             players=players,
             names=names,
+            honours_by_player=honours_by_player,
+            prior_career_best=prior_career_best,
+            event_games=event_games,
+            matchups=matchups,
         )
         if result.get("skipped"):
             continue
@@ -265,33 +263,6 @@ def replay_all(
                 len(tournament_ids),
                 games_processed,
             )
-
-    if tournament_ids:
-        log.info("committing heavy player derived (network counts + peak/nadir + stats)")
-        commit_heavy_player_derived(conn, players=players)
-
-    log.info("rebuilding tournament standings")
-    rebuild_all_standings(conn, dry_run=False)
-
-    log.info("rebuilding player tournament participation")
-    rebuild_all_participation(conn, dry_run=False)
-
-    log.info("rebuilding player tournament totals")
-    rebuild_all_participation_totals(conn, dry_run=False)
-
-    log.info("rebuilding event snapshots + current")
-    from scripts.amiga.rebuild_event_snapshots import rebuild_all_event_snapshots
-
-    rebuild_all_event_snapshots(conn, dry_run=False)
-
-    log.info("rebuilding player matchup summary")
-    rebuild_all_matchup_summary(conn, dry_run=False)
-
-    log.info("rebuilding amiga generalstats")
-    rebuild_generalstats(conn, dry_run=False)
-
-    log.info("rebuilding tournament catalog stats")
-    rebuild_all_catalog_stats(conn, dry_run=False)
 
     conn.commit()
     _replay_post_checks(conn, full_rebuild=limit is None)

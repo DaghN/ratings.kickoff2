@@ -26,7 +26,7 @@ $con->query("SET time_zone = '+00:00'");
 $honoursRows = amiga_tournament_honours_leaderboard_rows($con);
 
 $playerCount = 0;
-$countRes = mysqli_query($con, 'SELECT COUNT(*) AS n FROM amiga_player_tournament_totals WHERE tournaments_played > 0');
+$countRes = mysqli_query($con, 'SELECT COUNT(*) AS n FROM amiga_player_current WHERE tournaments_played > 0');
 if ($countRes) {
     $countRow = mysqli_fetch_assoc($countRes);
     $playerCount = (int) ($countRow['n'] ?? 0);

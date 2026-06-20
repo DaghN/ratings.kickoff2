@@ -244,7 +244,8 @@ function amiga_ops_persist_tournament_event_snapshots(
     mysqli $con,
     int $tournamentId,
     array $players,
-    array $participantIds
+    array $participantIds,
+    ?array $participationByPlayer = null,
 ): int {
     $activeIds = [];
     foreach ($participantIds as $pid) {
@@ -260,25 +261,19 @@ function amiga_ops_persist_tournament_event_snapshots(
     $placeholders = implode(', ', array_fill(0, count($activeIds), '?'));
     $types = str_repeat('i', count($activeIds));
 
-    $participationByPlayer = [];
-    $stmt = $con->prepare(
-        "SELECT * FROM amiga_player_tournament_participation WHERE tournament_id = ?"
-    );
-    if ($stmt === false) {
-        throw new RuntimeException('prepare participation load: ' . $con->error);
+    if ($participationByPlayer === null) {
+        throw new RuntimeException(
+            'amiga_ops_persist_tournament_event_snapshots requires participation_by_player'
+        );
     }
-    $stmt->bind_param('i', $tournamentId);
-    if (!$stmt->execute()) {
-        throw new RuntimeException('execute participation load: ' . $stmt->error);
-    }
-    $res = $stmt->get_result();
-    while ($res && ($row = $res->fetch_assoc())) {
-        $participationByPlayer[(int) $row['player_id']] = $row;
-    }
-    $stmt->close();
 
     $totalsByPlayer = [];
-    $sql = "SELECT * FROM amiga_player_tournament_totals WHERE player_id IN ({$placeholders})";
+    $sql = "SELECT player_id, tournaments_played, tournaments_won,
+                   event_gold, event_silver, event_bronze, event_podiums,
+                   wc_played, wc_gold, wc_silver, wc_bronze, wc_podiums,
+                   last_event_date, last_tournament_id
+            FROM amiga_player_current
+            WHERE player_id IN ({$placeholders})";
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         throw new RuntimeException('prepare totals load: ' . $con->error);
@@ -295,7 +290,7 @@ function amiga_ops_persist_tournament_event_snapshots(
 
     $priorBest = [];
     $sql = 'SELECT ranked.player_id, ranked.career_best_performance_rating, '
-        . 'ranked.career_best_performance_tournament_id, p.games AS prior_games '
+        . 'ranked.career_best_performance_tournament_id, pg.games AS prior_games '
         . 'FROM ('
         . '  SELECT s.player_id, s.career_best_performance_rating, '
         . '         s.career_best_performance_tournament_id, '
@@ -316,9 +311,9 @@ function amiga_ops_persist_tournament_event_snapshots(
         . '      )'
         . '    )'
         . ') ranked '
-        . 'LEFT JOIN amiga_player_tournament_participation p '
-        . '  ON p.player_id = ranked.player_id '
-        . ' AND p.tournament_id = ranked.career_best_performance_tournament_id '
+        . 'LEFT JOIN amiga_player_event_snapshots pg '
+        . '  ON pg.player_id = ranked.player_id '
+        . ' AND pg.tournament_id = ranked.career_best_performance_tournament_id '
         . 'WHERE ranked.rn = 1';
     $stmt = $con->prepare($sql);
     if ($stmt !== false) {

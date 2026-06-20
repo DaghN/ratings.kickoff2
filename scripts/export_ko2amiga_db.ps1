@@ -17,10 +17,11 @@ $Stamp = Get-Date -Format 'yyyy-MM-dd'
 $Tables = @(
     'tournament_format_templates', 'tournaments', 'amiga_players',
     'tournament_entrants', 'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
-    'amiga_games', 'amiga_game_ratings', 'amiga_player_stats', 'amiga_rating_events',
+    'amiga_games', 'amiga_game_ratings',
+    'amiga_player_event_snapshots', 'amiga_player_current',
+    'amiga_player_matchup_at_event', 'amiga_player_matchup_summary',
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
-    'amiga_player_tournament_participation', 'amiga_player_tournament_totals',
-    'amiga_player_matchup_summary', 'amiga_generalstats', 'amiga_tournament_finish_override'
+    'amiga_generalstats', 'amiga_tournament_finish_override'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -95,10 +96,22 @@ for ($start = 1; $start -le $maxId; $start += $chunkSize) {
     $idx++
 }
 
-$statsPart = ('ko2amiga_{0:D2}_stats.sql' -f $idx)
-$statsFile = Join-Path $OutDir $statsPart
-Write-DumpFile $statsFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_stats')
-$parts.Add($statsPart)
+$snapshotsPart = ('ko2amiga_{0:D2}_event_snapshots.sql' -f $idx)
+$snapshotsFile = Join-Path $OutDir $snapshotsPart
+Write-DumpFile $snapshotsFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_event_snapshots')
+$parts.Add($snapshotsPart)
+$idx++
+
+$currentPart = ('ko2amiga_{0:D2}_player_current.sql' -f $idx)
+$currentFile = Join-Path $OutDir $currentPart
+Write-DumpFile $currentFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_current')
+$parts.Add($currentPart)
+$idx++
+
+$matchupAtEventPart = ('ko2amiga_{0:D2}_matchup_at_event.sql' -f $idx)
+$matchupAtEventFile = Join-Path $OutDir $matchupAtEventPart
+Write-DumpFile $matchupAtEventFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_matchup_at_event')
+$parts.Add($matchupAtEventPart)
 $idx++
 
 $standingsPart = ('ko2amiga_{0:D2}_standings.sql' -f $idx)
@@ -111,18 +124,6 @@ $catalogPart = ('ko2amiga_{0:D2}_catalog_stats.sql' -f $idx)
 $catalogFile = Join-Path $OutDir $catalogPart
 Write-DumpFile $catalogFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_catalog_stats')
 $parts.Add($catalogPart)
-$idx++
-
-$participationPart = ('ko2amiga_{0:D2}_participation.sql' -f $idx)
-$participationFile = Join-Path $OutDir $participationPart
-Write-DumpFile $participationFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_tournament_participation')
-$parts.Add($participationPart)
-$idx++
-
-$totalsPart = ('ko2amiga_{0:D2}_tournament_totals.sql' -f $idx)
-$totalsFile = Join-Path $OutDir $totalsPart
-Write-DumpFile $totalsFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_tournament_totals')
-$parts.Add($totalsPart)
 $idx++
 
 $matchupPart = ('ko2amiga_{0:D2}_matchup_summary.sql' -f $idx)
@@ -141,12 +142,6 @@ $finishOverridePart = ('ko2amiga_{0:D2}_finish_override.sql' -f $idx)
 $finishOverrideFile = Join-Path $OutDir $finishOverridePart
 Write-DumpFile $finishOverrideFile @('--no-create-info', 'ko2amiga_db', 'amiga_tournament_finish_override')
 $parts.Add($finishOverridePart)
-$idx++
-
-$ratingEventsPart = ('ko2amiga_{0:D2}_rating_events.sql' -f $idx)
-$ratingEventsFile = Join-Path $OutDir $ratingEventsPart
-Write-DumpFile $ratingEventsFile @('--no-create-info', 'ko2amiga_db', 'amiga_rating_events')
-$parts.Add($ratingEventsPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

@@ -7,6 +7,7 @@ from typing import Any
 
 import pymysql
 
+from scripts.amiga.honours_totals import honours_from_current_row
 from scripts.amiga.snapshot_row import (
     build_snapshot_from_finalize_parts,
     current_upsert_sql,
@@ -22,7 +23,7 @@ def _prior_career_best_context(
     player_ids: list[int],
     tournament_id: int,
 ) -> dict[int, dict[str, Any]]:
-    """Latest per-player snapshot strictly before ``tournament_id`` (not ``amiga_player_current``)."""
+    """Latest per-player snapshot strictly before ``tournament_id``."""
     if not player_ids:
         return {}
 
@@ -32,7 +33,7 @@ def _prior_career_best_context(
             ranked.player_id,
             ranked.career_best_performance_rating,
             ranked.career_best_performance_tournament_id,
-            p.games AS prior_games
+            pg.games AS prior_games
         FROM (
             SELECT
                 s.player_id,
@@ -55,9 +56,9 @@ def _prior_career_best_context(
                   )
               )
         ) ranked
-        LEFT JOIN amiga_player_tournament_participation p
-            ON p.player_id = ranked.player_id
-           AND p.tournament_id = ranked.career_best_performance_tournament_id
+        LEFT JOIN amiga_player_event_snapshots pg
+            ON pg.player_id = ranked.player_id
+           AND pg.tournament_id = ranked.career_best_performance_tournament_id
         WHERE ranked.rn = 1
     """
     with conn.cursor() as cur:
@@ -77,24 +78,7 @@ def _prior_career_best_context(
     return out
 
 
-def _load_participation_rows(
-    conn: pymysql.connections.Connection,
-    tournament_id: int,
-) -> dict[int, dict[str, Any]]:
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT *
-            FROM amiga_player_tournament_participation
-            WHERE tournament_id = %s
-            """,
-            (tournament_id,),
-        )
-        rows = cur.fetchall()
-    return {int(row["player_id"]): row for row in rows}
-
-
-def _load_totals_rows(
+def _load_honours_from_current(
     conn: pymysql.connections.Connection,
     player_ids: list[int],
 ) -> dict[int, dict[str, Any]]:
@@ -105,14 +89,17 @@ def _load_totals_rows(
     with conn.cursor() as cur:
         cur.execute(
             f"""
-            SELECT *
-            FROM amiga_player_tournament_totals
+            SELECT player_id, tournaments_played, tournaments_won,
+                   event_gold, event_silver, event_bronze, event_podiums,
+                   wc_played, wc_gold, wc_silver, wc_bronze, wc_podiums,
+                   last_event_date, last_tournament_id
+            FROM amiga_player_current
             WHERE player_id IN ({placeholders})
             """,
             player_ids,
         )
         rows = cur.fetchall()
-    return {int(row["player_id"]): row for row in rows}
+    return {int(row["player_id"]): honours_from_current_row(row) for row in rows}
 
 
 def persist_tournament_event_snapshots(
@@ -121,6 +108,7 @@ def persist_tournament_event_snapshots(
     players: dict[int, PlayerState],
     participant_ids: set[int],
     *,
+    participation_by_player: dict[int, dict[str, Any]] | None = None,
     honours_by_player: dict[int, dict[str, Any]] | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games_by_player_tournament: dict[tuple[int, int], int] | None = None,
@@ -128,9 +116,8 @@ def persist_tournament_event_snapshots(
     """
     Write amiga_player_event_snapshots + amiga_player_current for one finalized event.
 
-    Requires participation rows for ``tournament_id``. When ``honours_by_player`` is
-    omitted, loads ``amiga_player_tournament_totals`` (live finalize). When
-    ``prior_career_best`` is omitted, loads from latest prior ``amiga_player_event_snapshots``.
+    Requires in-memory participation rows (slice 8 — legacy participation table retired).
+    When ``honours_by_player`` is omitted, loads honours from ``amiga_player_current``.
     """
     active_ids = sorted(
         pid for pid in participant_ids if players.get(pid) is not None and players[pid].games > 0
@@ -138,11 +125,16 @@ def persist_tournament_event_snapshots(
     if not active_ids:
         return 0
 
-    participation_by_player = _load_participation_rows(conn, tournament_id)
+    if participation_by_player is None:
+        raise ValueError(
+            "persist_tournament_event_snapshots requires participation_by_player "
+            f"(tournament_id={tournament_id})"
+        )
+
     if honours_by_player is not None:
         totals_by_player = honours_by_player
     else:
-        totals_by_player = _load_totals_rows(conn, active_ids)
+        totals_by_player = _load_honours_from_current(conn, active_ids)
 
     if prior_career_best is None:
         prior_best = _prior_career_best_context(conn, active_ids, tournament_id)
@@ -167,10 +159,6 @@ def persist_tournament_event_snapshots(
 
         totals = totals_by_player.get(pid)
         if totals is None:
-            log.warning(
-                "persist_tournament_event_snapshots: missing totals player_id=%s",
-                pid,
-            )
             totals = {
                 "tournaments_played": 0,
                 "tournaments_won": 0,
