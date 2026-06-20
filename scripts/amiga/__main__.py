@@ -11,7 +11,19 @@ from pathlib import Path
 from scripts.amiga.finalize_tournament import run_finalize_tournament
 from scripts.amiga.refinalize import run_refinalize_from, run_reopen_tournament
 from scripts.amiga.refinalize_smoke import main as refinalize_smoke_main
-from scripts.amiga.import_access import _DEFAULT_MDB, import_all
+from scripts.amiga.import_access import _DEFAULT_MDB, import_all, import_witness
+from scripts.amiga.apply_structure import run_apply_structure
+from scripts.amiga.import_pristine import (
+    _DEFAULT_OUT as _PRISTINE_OUT,
+    run_import_pristine,
+    verify_pristine_manifest,
+)
+from scripts.amiga.import_prune import (
+    _DEFAULT_L1_DIR,
+    _DEFAULT_OUT as _PRUNED_OUT,
+    run_import_prune,
+    verify_prune_manifest,
+)
 from scripts.amiga.prove import run_prove
 from scripts.amiga.replay import run_replay
 from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
@@ -35,6 +47,9 @@ from scripts.amiga.verify_player_participation import main as verify_player_part
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
+from scripts.amiga.import_manifest import default_manifest_path
+from scripts.amiga.verify_witness import verify_witness
+from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
 from scripts.amiga.tournament_structure.audit import main as audit_suspicious_marathons_main
 from scripts.amiga.tournament_structure.materialize_legacy import main as tournament_structure_main
@@ -122,6 +137,116 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=None,
         help="Replay smoke only — not for sign-off",
+    )
+
+    p_pristine = sub.add_parser(
+        "import-pristine",
+        help="L1 full mechanical koatd.mdb → SQL mirror (all Access tables)",
+    )
+    p_pristine.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_pristine.add_argument(
+        "--out-dir",
+        type=Path,
+        default=_PRISTINE_OUT,
+        help="Output directory for L1_mirror.sql + pristine_manifest.json",
+    )
+    p_pristine.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="Skip row-count verify against Access after export",
+    )
+
+    p_verify_pristine = sub.add_parser(
+        "verify-pristine",
+        help="Compare pristine_manifest.json row counts to live Access",
+    )
+    p_verify_pristine.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_verify_pristine.add_argument(
+        "--manifest",
+        type=Path,
+        default=_PRISTINE_OUT / "pristine_manifest.json",
+    )
+
+    p_prune = sub.add_parser(
+        "import-prune",
+        help="L2 hard-prune legacy-derived tables from L1 mirror SQL",
+    )
+    p_prune.add_argument(
+        "--l1-dir",
+        type=Path,
+        default=_DEFAULT_L1_DIR,
+        help="Directory with pristine_manifest.json + L1_mirror.sql",
+    )
+    p_prune.add_argument(
+        "--out-dir",
+        type=Path,
+        default=_PRUNED_OUT,
+        help="Output directory for L2_pruned.sql + prune_manifest.json",
+    )
+    p_prune.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="Skip partition verify against L1 manifest",
+    )
+
+    p_verify_prune = sub.add_parser(
+        "verify-prune",
+        help="Verify L2 prune_manifest partitions L1 completely",
+    )
+    p_verify_prune.add_argument(
+        "--l1-manifest",
+        type=Path,
+        default=_DEFAULT_L1_DIR / "pristine_manifest.json",
+    )
+    p_verify_prune.add_argument(
+        "--manifest",
+        type=Path,
+        default=_PRUNED_OUT / "prune_manifest.json",
+    )
+
+    p_witness = sub.add_parser(
+        "import-witness",
+        help="L3 witness import from Access (corrections + ground rows; no L4 disposition)",
+    )
+    p_witness.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_witness.add_argument(
+        "--recreate-ground",
+        action="store_true",
+        help="Drop and recreate L3/L4 DDL (ground + structure bundles; no L5 derived)",
+    )
+
+    p_verify_witness = sub.add_parser(
+        "verify-witness",
+        help="Assert L3 witness rows, empty L4/L5, manifest complete",
+    )
+    p_verify_witness.add_argument(
+        "--manifest",
+        type=Path,
+        default=None,
+        help="import_manifest.json path (default: data/amiga/exports/import_manifest.json)",
+    )
+
+    p_apply_structure = sub.add_parser(
+        "apply-structure",
+        help="L4 structure overlay from disposition register (requires L3 witness)",
+    )
+    p_apply_structure.add_argument(
+        "--from-disposition",
+        action="store_true",
+        help="Dispatch handlers from disposition_register.json (required)",
+    )
+    p_apply_structure.add_argument(
+        "--recreate-structure",
+        action="store_true",
+        help="Drop and recreate L4 DDL bundle before apply",
+    )
+    p_apply_structure.add_argument("--tournament-id", type=int, default=None)
+    p_apply_structure.add_argument("--limit", type=int, default=None)
+    p_apply_structure.add_argument("--dry-run", action="store_true")
+
+    p_verify_structure = sub.add_parser(
+        "verify-structure",
+        help="Assert L4 STOP gate: Homburg + pure_rr smoke + pending_review clean",
     )
 
     p_parity = sub.add_parser(
@@ -349,6 +474,90 @@ def main(argv: list[str] | None = None) -> int:
         stats = import_all(mdb=args.mdb, recreate_schema=True)
         log.info("Import complete: %s", stats)
         run_replay(dry_run=args.dry_run, limit=args.limit)
+        return 0
+
+    if args.cmd == "import-pristine":
+        stats = run_import_pristine(
+            mdb=args.mdb,
+            out_dir=args.out_dir,
+            verify=not args.no_verify,
+        )
+        log.info(
+            "import-pristine OK: tables=%s rows=%s sql=%s manifest=%s",
+            stats["tables"],
+            stats["rows_total"],
+            stats["sql_path"],
+            stats["manifest_path"],
+        )
+        return 0
+
+    if args.cmd == "verify-pristine":
+        errors = verify_pristine_manifest(args.mdb, args.manifest)
+        if errors:
+            for err in errors:
+                log.error("%s", err)
+            return 1
+        log.info("verify-pristine OK: %s", args.manifest)
+        return 0
+
+    if args.cmd == "import-prune":
+        stats = run_import_prune(
+            l1_dir=args.l1_dir,
+            out_dir=args.out_dir,
+            verify=not args.no_verify,
+        )
+        log.info(
+            "import-prune OK: retained=%s pruned=%s rows_kept=%s sql=%s manifest=%s",
+            stats["retained_tables"],
+            stats["pruned_tables"],
+            stats["rows_retained"],
+            stats["sql_path"],
+            stats["manifest_path"],
+        )
+        return 0
+
+    if args.cmd == "verify-prune":
+        errors = verify_prune_manifest(args.l1_manifest, args.manifest)
+        if errors:
+            for err in errors:
+                log.error("%s", err)
+            return 1
+        log.info("verify-prune OK: %s", args.manifest)
+        return 0
+
+    if args.cmd == "import-witness":
+        stats = import_witness(mdb=args.mdb, recreate_ground=args.recreate_ground)
+        log.info("import-witness complete: %s", stats)
+        return 0
+
+    if args.cmd == "verify-witness":
+        manifest = args.manifest or default_manifest_path(Path(__file__).resolve().parents[2])
+        errors = verify_witness(manifest_path=manifest)
+        if errors:
+            for err in errors:
+                log.error("%s", err)
+            return 1
+        log.info("verify-witness OK: %s", manifest)
+        return 0
+
+    if args.cmd == "apply-structure":
+        stats = run_apply_structure(
+            from_disposition=args.from_disposition,
+            recreate_structure=args.recreate_structure,
+            tournament_id=args.tournament_id,
+            limit=args.limit,
+            dry_run=args.dry_run,
+        )
+        log.info("apply-structure complete: %s", stats.to_dict())
+        return 0
+
+    if args.cmd == "verify-structure":
+        errors = verify_structure()
+        if errors:
+            for err in errors:
+                log.error("%s", err)
+            return 1
+        log.info("verify-structure OK")
         return 0
 
     if args.cmd == "prove":

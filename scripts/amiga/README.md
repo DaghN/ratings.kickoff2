@@ -21,7 +21,26 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 
 `prove` = drop schema → import `koatd.mdb` → full `replay` → verify suite (0 errors = shippable).
 
-**Modular pipeline (L0–L5):** L0 koatd → L1 mirror → L2 prune → L3 witness → L4 structure → L5 product — [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md). DDL bundles `sql/ground|structure|derived` = L3|L4|L5. Planned CLIs: `import-pristine`, `import-prune`, `import-witness`, `apply-structure`.
+**Modular pipeline (L0–L5):** [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md). DDL bundles `sql/ground|structure|derived` = L3|L4|L5. **Shipped:** `import-pristine` (L1), `verify-pristine`, `import-prune` (L2), `verify-prune`, `import-witness` (L3), `verify-witness`, `apply-structure` (L4), `verify-structure`. **Planned:** `prove` orchestrator split (slice 6).
+
+```powershell
+# L1 full mechanical mirror (all Access tables → SQL; not sign-off):
+python -m scripts.amiga import-pristine
+python -m scripts.amiga verify-pristine
+
+# L2 hard prune (witness candidates only; drops legacy derived):
+python -m scripts.amiga import-prune
+python -m scripts.amiga verify-prune
+# L1: data/amiga/exports/pristine/  →  L2: data/amiga/exports/pruned/
+
+# L3 witness (corrections + ground rows; no L4 disposition; not sign-off alone):
+python -m scripts.amiga import-witness --recreate-ground
+python -m scripts.amiga verify-witness
+
+# L4 structure (disposition register dispatch; requires L3 first):
+python -m scripts.amiga apply-structure --from-disposition
+python -m scripts.amiga verify-structure
+```
 
 **Import + replay without verify** (mid-slice only):
 

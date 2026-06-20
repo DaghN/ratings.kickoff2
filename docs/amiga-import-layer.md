@@ -50,8 +50,8 @@ L3 ground is **not** “whatever Access says.” It is what we commit to MySQL a
 
 ```text
 L0 koatd.mdb
-  → import-pristine (L1, optional mirror export)
-  → import-prune (L2)
+  → import-pristine (L1)   ← shipped
+  → import-prune (L2)      ← shipped
   → import-witness (L3)     ← import_access.py today
   → apply-structure (L4)
   → replay (L5)

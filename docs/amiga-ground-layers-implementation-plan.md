@@ -1,6 +1,6 @@
 # Amiga ground layers L0–L5 — implementation plan
 
-**Status:** Slice 1 done (Jun 2026). Policy **v2** locked + doc pass (slice 0b). Pipeline slices 2+ not started.  
+**Status:** Slices 1–5 done (Jun 2026). Policy v2 locked. Slice 6+ not started.  
 **Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
 
 **Goal:** Separate scripts, DDL bundles, and export profiles for **L1 mirror → L2 prune → L3 witness → L4 structure → L5 product**; keep `prove` green throughout migration.
@@ -26,10 +26,10 @@
 | **0** | Policy v1 docs | Dagh OK — **superseded by v2** |
 | **0b** | Policy v2 (L0–L5) + comprehensive doc pass | Dagh OK | **Done** Jun 2026 |
 | **1** | DDL bundles `sql/ground|structure|derived` + `schema_bundles.py` | `prove` green | **Done** Jun 2026 |
-| **2** | `import-pristine` → **L1** full Access mirror SQL | All tables row-count vs `.mdb` |
-| **3** | `import-prune` → **L2** + `prune_manifest.json` | L2 tables only; manifest lists drops |
-| **4** | `import-witness` extract → **L3** + `apply_schema_ground()` | L3 rows + `import_manifest`; no L5 data |
-| **5** | `apply-structure` → **L4** disposition dispatch | Homburg + one `pure_rr` smoke |
+| **2** | `import-pristine` → **L1** full Access mirror SQL | All tables row-count vs `.mdb` | **Done** Jun 2026 |
+| **3** | `import-prune` → **L2** + `prune_manifest.json` | L2 tables only; manifest lists drops | **Done** Jun 2026 |
+| **4** | `import-witness` extract → **L3** + `apply_schema_ground()` | L3 rows + `import_manifest`; no L5 data | **Done** Jun 2026 |
+| **5** | `apply-structure` → **L4** disposition dispatch | Homburg + one `pure_rr` smoke | **Done** Jun 2026 |
 | **6** | `prove` orchestrator: L3 → L4 → L5 → verify | Full verify suite green |
 | **7** | Export packs Mirror / A / B / C | Staging smoke on Pack B |
 | **8** | Docs closure on any drift | Agents cold-start |
@@ -53,57 +53,57 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 2 — L1 pristine mirror
+## Slice 2 — L1 pristine mirror (done)
 
-**New:** `python -m scripts.amiga import-pristine [--mdb] [--out path]`
+**CLI:** `python -m scripts.amiga import-pristine [--mdb] [--out-dir]`
 
-- Export **all** Access user tables → SQL (mechanical)
-- No corrections, merges, supplements, synthetic `game_date` counter (document conventions in `pristine_manifest.json`)
+- Module: [`scripts/amiga/import_pristine.py`](../scripts/amiga/import_pristine.py)
+- Output: `data/amiga/exports/pristine/L1_mirror.sql` + `pristine_manifest.json` (gitignored)
+- Verify: `python -m scripts.amiga verify-pristine` (default on export)
 
-**Output:** `data/amiga/exports/pristine/` (gitignored)
-
-**STOP:** Row counts per table match `discover_access_schema.py` inventory.
-
----
-
-## Slice 3 — L2 prune
-
-**New:** `python -m scripts.amiga import-prune [--from pristine.sql]`
-
-- Input: L1 dump
-- Output: L2 dump — witness-candidate tables only
-- Emit `prune_manifest.json` — `pruned_from_l1[]` with table, rows, reason
-- **No sidecar** — dropped tables exist only in L1
-
-Default drop list: policy §5 (`Tables`, `added_players`, `Rankings`, WC `* Tables`, …).
-
-**STOP:** L2 contains `Scores` + `Tournament players`; manifest documents every omission.
+**STOP:** 38 tables exported Jun 2026; `Scores` = 27,408 rows (raw Access, no supplements).
 
 ---
 
-## Slice 4 — L3 witness
+## Slice 3 — L2 prune (done)
 
-**New:** `python -m scripts.amiga import-witness [--recreate-ground]`
+**CLI:** `python -m scripts.amiga import-prune [--l1-dir] [--out-dir]`
 
-- Read L2 (or `.mdb` until L2 exists)
-- Body of current `import_all`: corrections, merges, supplements, games-first players, synthetic order
-- `apply_schema_ground()` on recreate
-- `import_manifest.json` (existing contract)
-- Include Tier E table DDL in L3 bundle path (`finish_override` lives in `sql/derived/` today — **relocate to `sql/ground/` or witness extension in a later slice**)
+- Module: [`scripts/amiga/import_prune.py`](../scripts/amiga/import_prune.py)
+- Input: `data/amiga/exports/pristine/` (L1)
+- Output: `data/amiga/exports/pruned/L2_pruned.sql` + `prune_manifest.json`
+- Retain: `Scores`, `Tournament players`, `Countries`
+- Verify: `python -m scripts.amiga verify-prune`
 
-**STOP:** L5 tables empty until replay; manifest complete.
+**STOP:** 3 tables retained, 35 pruned (Jun 2026); 28,033 rows kept.
 
 ---
 
-## Slice 5 — L4 structure
+## Slice 4 — L3 witness (done)
 
-**New:** `python -m scripts.amiga apply-structure [--from-disposition]`
+**CLI:** `python -m scripts.amiga import-witness [--recreate-ground]`
 
-- `apply_schema_structure()` if needed
-- Disposition dispatch (`structure_spec`, `pure_rr`, `pure_knockout`; skip `pending_review`)
-- Live path unchanged: `fixtures.php` writes L4 directly
+- Module: [`scripts/amiga/import_access.py`](../scripts/amiga/import_access.py) — `prepare_witness_from_access`, `persist_witness_to_mysql`, `import_witness`
+- Verify: [`scripts/amiga/verify_witness.py`](../scripts/amiga/verify_witness.py) — `python -m scripts.amiga verify-witness`
+- `import_all` = thin wrapper (L3 + L4 structure spec + full schema)
+- `--recreate-ground` applies L3/L4 DDL only (no L5 derived bundle)
+- Tier E `finish_override` DDL relocation deferred
 
-**STOP:** Known spec tournament has fixtures + `fixture_id`.
+**STOP:** 605 tournaments, 27,418 games, 473 players; L4/L5 empty until replay — verified Jun 2026; `prove` green.
+
+---
+
+## Slice 5 — L4 structure (done)
+
+**CLI:** `python -m scripts.amiga apply-structure --from-disposition [--recreate-structure] [--tournament-id] [--limit] [--dry-run]`
+
+- Module: [`scripts/amiga/apply_structure.py`](../scripts/amiga/apply_structure.py)
+- Verify: [`scripts/amiga/verify_structure.py`](../scripts/amiga/verify_structure.py) — `python -m scripts.amiga verify-structure`
+- Dispatches `disposition_register.json`: `pure_rr`, `pure_knockout`, `structure_spec` (active registry only); skips `pending_review`, `wc_deferred`, `no_games`
+- Post-L3 path: games already in `amiga_games`; `apply_structure_spec_for_tournament()` added for registry specs
+- Register fix: 6 stale `pure_rr`/`pure_knockout` rows → `pending_review` (Jun 2026)
+
+**STOP:** Homburg id=137 fixtures + all games linked; pure_rr smoke id=1 — verified Jun 2026; `prove` green.
 
 ---
 

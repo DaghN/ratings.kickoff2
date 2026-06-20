@@ -66,8 +66,8 @@
       "notes": "WC track"
     },
     "17": {
-      "handler": "pure_rr",
-      "notes": "Double RR; Sandro T left early — 5 games unplayed (withdrawal)."
+      "handler": "pending_review",
+      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
     },
     "18": {
       "handler": "pure_rr",
@@ -432,8 +432,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "108": {
-      "handler": "pure_rr",
-      "notes": "5p double RR (21g); forum \"Grimstad 1\" = KOA Grimstad II; G E Land\u2013Kjetil M 3\u00d7 (g3176\u201387). Forum: https://ko-gathering.com/forum/viewtopic.php?t=6550&hilit=Grimstad+II"
+      "handler": "pending_review",
+      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
     },
     "109": {
       "handler": "pure_rr",
@@ -697,8 +697,8 @@
       "notes": "4p double-RR league (12g) + 2-leg semis/3rd/final (g6781\u201388)."
     },
     "174": {
-      "handler": "pure_rr",
-      "notes": "22p near-complete single RR (230/231g); James L\u2013Vagelis D unplayed; KOATD NULL phase."
+      "handler": "pending_review",
+      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
     },
     "175": {
       "handler": "pure_rr",
@@ -857,8 +857,8 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "214": {
-      "handler": "pure_rr",
-      "notes": "8p near-complete double RR (50/56g); Luigi F & Gabriele B left early (~18:30, Maurizio L delay) \u2014 6 pairings 1\u00d7 not 2\u00d7; KOATD NULL phase."
+      "handler": "pending_review",
+      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
     },
     "215": {
       "handler": "structure_spec",
@@ -993,8 +993,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "248": {
-      "handler": "pure_knockout",
-      "notes": "7p single-elim cup; QF 2-leg (phase \"Round 1\") + variable-leg semis (Marios\u2013Filippos 3g) + AET final g10166; Antonis T bye to semis (g10155\u2013166). League on id 247."
+      "handler": "pending_review",
+      "notes": "pure_knockout preflight failed \u2014 pending review (register fix Jun 2026)"
     },
     "249": {
       "handler": "pure_rr",
@@ -1125,8 +1125,8 @@
       "notes": "WC track"
     },
     "281": {
-      "handler": "pure_rr",
-      "notes": "7p near-complete single RR (19/21g); Nikos Al missing Kostas Ka & Kostas O; KOATD NULL phase."
+      "handler": "pending_review",
+      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
     },
     "282": {
       "handler": "pure_rr",

@@ -200,8 +200,8 @@ Pack A must not require Pack C tables.
 
 | Topic | Today | Target |
 |-------|-------|--------|
-| L1 script | Does not exist | `import-pristine` (full mirror) |
-| L2 script | Does not exist | `import-prune` + prune manifest |
+| L1 script | **`import-pristine`** shipped | `verify-pristine`; optional Mirror pack export |
+| L2 script | **`import-prune`** shipped | `verify-prune`; 3 witness-candidate tables |
 | L3 | `import_access.py` | `import-witness`; `apply_schema_ground()` |
 | L4 | Thin at import; bulk materialize post-import | `apply-structure`; `apply_schema_structure()` |
 | L5 | `replay` / `prove` | `apply_schema_derived()` |

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Import ground truth from koatd.mdb into ko2amiga_db."""
 
 from __future__ import annotations
@@ -105,32 +105,389 @@ def connect_mysql(cfg) -> pymysql.connections.Connection:
 
 
 def truncate_ground_truth(conn: pymysql.connections.Connection) -> None:
-    """Clear ground tables for a full reload.
+    """Clear L3 ground + L4 structure rows and L5 derived (full import reload)."""
+    truncate_l3_structure_data(conn)
+    truncate_derived_data(conn)
 
-    Also truncates derived tables first (FK dependency). Import does not write
-    derived rows — run ``python -m scripts.amiga replay`` before serving pages.
-    """
+
+def _truncate_tables(conn: pymysql.connections.Connection, tables: tuple[str, ...]) -> None:
     with conn.cursor() as cur:
         cur.execute("SET FOREIGN_KEY_CHECKS = 0")
-        cur.execute("TRUNCATE TABLE amiga_generalstats")
-        cur.execute("INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)")
-        cur.execute("TRUNCATE TABLE amiga_player_matchup_at_event")
-        cur.execute("TRUNCATE TABLE amiga_player_matchup_summary")
-        cur.execute("TRUNCATE TABLE amiga_player_current")
-        cur.execute("TRUNCATE TABLE amiga_player_event_snapshots")
-        cur.execute("TRUNCATE TABLE amiga_tournament_finish_override")
-        cur.execute("TRUNCATE TABLE amiga_tournament_catalog_stats")
-        cur.execute("TRUNCATE TABLE amiga_tournament_standings")
-        cur.execute("TRUNCATE TABLE amiga_game_ratings")
-        cur.execute("TRUNCATE TABLE amiga_games")
-        cur.execute("TRUNCATE TABLE tournament_fixtures")
-        cur.execute("TRUNCATE TABLE tournament_stage_players")
-        cur.execute("TRUNCATE TABLE tournament_stages")
-        cur.execute("TRUNCATE TABLE tournament_entrants")
-        cur.execute("TRUNCATE TABLE amiga_players")
-        cur.execute("TRUNCATE TABLE tournaments")
+        for table in tables:
+            cur.execute(f"TRUNCATE TABLE `{table}`")
         cur.execute("SET FOREIGN_KEY_CHECKS = 1")
     conn.commit()
+
+
+def truncate_l3_structure_data(conn: pymysql.connections.Connection) -> None:
+    """Clear witness ground + structure overlay data (L3/L4 rows)."""
+    _truncate_tables(
+        conn,
+        (
+            "amiga_games",
+            "tournament_fixtures",
+            "tournament_stage_players",
+            "tournament_stages",
+            "tournament_entrants",
+            "amiga_players",
+            "tournaments",
+            "tournament_format_templates",
+        ),
+    )
+
+
+_DERIVED_TRUNCATE_ORDER = (
+    "amiga_generalstats",
+    "amiga_player_matchup_at_event",
+    "amiga_player_matchup_summary",
+    "amiga_player_current",
+    "amiga_player_event_snapshots",
+    "amiga_tournament_finish_override",
+    "amiga_tournament_catalog_stats",
+    "amiga_tournament_standings",
+    "amiga_game_ratings",
+)
+
+
+def truncate_derived_data(conn: pymysql.connections.Connection) -> None:
+    """Clear L5 derived tables when present."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT DATABASE()")
+        db = cur.fetchone()["DATABASE()"]
+        existing: list[str] = []
+        for table in _DERIVED_TRUNCATE_ORDER:
+            cur.execute(
+                """
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = %s AND table_name = %s
+                """,
+                (db, table),
+            )
+            if cur.fetchone():
+                existing.append(table)
+    if not existing:
+        return
+    with conn.cursor() as cur:
+        cur.execute("SET FOREIGN_KEY_CHECKS = 0")
+        for table in existing:
+            cur.execute(f"TRUNCATE TABLE `{table}`")
+        if "amiga_generalstats" in existing:
+            cur.execute("INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)")
+        cur.execute("SET FOREIGN_KEY_CHECKS = 1")
+    conn.commit()
+
+
+def prepare_l3_schema(
+    conn: pymysql.connections.Connection,
+    *,
+    recreate_ground: bool,
+) -> None:
+    """L3 witness path: ground + structure DDL only (no L5 derived bundle)."""
+    if recreate_ground:
+        apply_schema_ground(conn, drop_existing=True)
+        apply_schema_structure(conn, drop_existing=True)
+        truncate_derived_data(conn)
+    else:
+        truncate_l3_structure_data(conn)
+
+
+@dataclass
+class WitnessPrepared:
+    mdb: Path
+    tournaments: list[dict]
+    scores_sorted: list[AccessScore]
+    tour_by_name: dict[str, dict]
+    names: set[str]
+    raw_player_names: set[str]
+    merge_log: list[dict[str, object]]
+    raw_to_canonical: dict[str, str]
+    countries: dict[str, str]
+    catalog_overrides: list[dict[str, str]]
+    catalog_splits: list[dict[str, str | int | float]]
+    score_supplements: list[dict[str, object]]
+    skipped_catalog: list[str]
+    format_by_name: dict
+
+
+def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
+    """L3 in-memory witness load from Access (corrections, merges, chronology)."""
+    acc = connect_access(mdb)
+    acc_cur = acc.cursor()
+    tournaments = load_access_tournaments(acc_cur)
+    catalog_overrides = apply_catalog_corrections(tournaments)
+    skip_catalog = scores_only_catalog_aliases()
+    skipped_catalog = sorted(t["name"] for t in tournaments if t["name"] in skip_catalog)
+    tournaments = [t for t in tournaments if t["name"] not in skip_catalog]
+    if skipped_catalog:
+        log.info(
+            "Skipped %s Access catalog row(s) merged via tournament_names aliases: %s",
+            len(skipped_catalog),
+            skipped_catalog,
+        )
+    if catalog_overrides:
+        log.info("Applied %s catalog override(s) from import_corrections.py", len(catalog_overrides))
+        for entry in catalog_overrides:
+            log.info(
+                "  â†’ %s.%s: %s â†’ %s",
+                entry["tournament"],
+                entry["field"],
+                entry["access"],
+                entry["canonical"],
+            )
+    catalog_splits = apply_catalog_splits(tournaments)
+    if catalog_splits:
+        log.info("Appended %s synthetic catalog split(s) from import_corrections.py", len(catalog_splits))
+        for entry in catalog_splits:
+            log.info("  â†’ %s (parent %s, source_id %s)", entry["tournament"], entry["parent"], entry["source_id"])
+    scores = load_access_scores(acc_cur)
+    scores = merge_supplemental_scores(scores)
+    score_supplements = supplemental_scores_manifest()
+    if score_supplements:
+        log.info(
+            "Appended %s supplemental game(s) from import_corrections.py (%s tournament(s))",
+            len(SUPPLEMENTAL_SCORES),
+            len(score_supplements),
+        )
+        for entry in score_supplements:
+            log.info("  â†’ %s: +%s games", entry["tournament"], entry["games_added"])
+    countries = load_country_by_player(acc_cur)
+    raw_player_names: set[str] = set()
+    for s in scores:
+        raw_player_names.add(s.team_a)
+        raw_player_names.add(s.team_b)
+    raw_to_canonical, merge_log = build_canonical_name_map(scores, countries=countries)
+    apply_name_map(scores, raw_to_canonical)
+    if merge_log:
+        log.info("Merged %s player identity groups (spacing/case duplicates)", len(merge_log))
+        for entry in merge_log:
+            log.info("  â†’ %s <= %s", entry["canonical"], entry["variants"])
+        merge_path = _REPO / "data" / "amiga" / "exports" / "name_merges.json"
+        merge_path.parent.mkdir(parents=True, exist_ok=True)
+        merge_path.write_text(json.dumps(merge_log, indent=2) + "\n", encoding="utf-8")
+    acc.close()
+
+    tour_by_name = {t["name"]: t for t in tournaments}
+    format_by_name = infer_legacy_tournament_formats(tournaments, scores)
+
+    def sort_key(s: AccessScore) -> tuple:
+        parent = resolve_tournament_name(s.raw_tournament)
+        meta = tour_by_name.get(parent, {})
+        chrono = meta.get("chrono")
+        ev = meta.get("event_date")
+        ev_date = ev.date() if isinstance(ev, datetime) else (ev or date(1970, 1, 1))
+        chrono_val = chrono if chrono is not None else 999999.0
+        return (ev_date, chrono_val, s.source_id)
+
+    scores_sorted = sorted(scores, key=sort_key)
+    names = {s.team_a for s in scores_sorted} | {s.team_b for s in scores_sorted}
+
+    return WitnessPrepared(
+        mdb=mdb,
+        tournaments=tournaments,
+        scores_sorted=scores_sorted,
+        tour_by_name=tour_by_name,
+        names=names,
+        raw_player_names=raw_player_names,
+        merge_log=merge_log,
+        raw_to_canonical=raw_to_canonical,
+        countries=countries,
+        catalog_overrides=catalog_overrides,
+        catalog_splits=catalog_splits_manifest(),
+        score_supplements=score_supplements,
+        skipped_catalog=skipped_catalog,
+        format_by_name=format_by_name,
+    )
+
+
+def persist_witness_to_mysql(
+    mysql: pymysql.connections.Connection,
+    prepared: WitnessPrepared,
+    *,
+    apply_structure: bool,
+) -> dict[str, int]:
+    """Write L3 witness rows (+ optional L4 structure spec hook)."""
+    template_ids = seed_format_templates(mysql)
+    legacy_template_id = template_ids[LEGACY_TEMPLATE_SLUG]
+
+    with mysql.cursor() as cur:
+        for t in prepared.tournaments:
+            inferred_format = prepared.format_by_name[t["name"]]
+            cur.execute(
+                """
+                INSERT INTO tournaments
+                  (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count,
+                   format_template_id, has_league, has_cup, lifecycle_status, completed_at)
+                VALUES (%(source_id)s, %(name)s, %(chrono)s, %(event_date)s, %(is_cup)s,
+                        %(country)s, %(equal_teams)s, %(player_count)s,
+                        %(format_template_id)s, %(has_league)s, %(has_cup)s,
+                        'completed', %(completed_at)s)
+                """,
+                {
+                    **t,
+                    "event_date": t["event_date"].date() if isinstance(t["event_date"], datetime) else t["event_date"],
+                    "format_template_id": legacy_template_id,
+                    "has_league": inferred_format.has_league,
+                    "has_cup": inferred_format.has_cup,
+                    "completed_at": (
+                        datetime.combine(
+                            t["event_date"].date() if isinstance(t["event_date"], datetime) else t["event_date"],
+                            datetime.min.time(),
+                        )
+                        if t.get("event_date") is not None
+                        else None
+                    ),
+                },
+            )
+
+    with mysql.cursor() as cur:
+        cur.execute("SELECT id, name FROM tournaments")
+        tour_id_by_name = {row["name"]: int(row["id"]) for row in cur.fetchall()}
+
+    missing_parents: set[str] = set()
+    for s in prepared.scores_sorted:
+        parent = resolve_tournament_name(s.raw_tournament)
+        if parent and parent not in tour_id_by_name:
+            missing_parents.add(parent)
+    if missing_parents:
+        raise SystemExit(f"Tournament catalog missing parents after alias map: {sorted(missing_parents)}")
+
+    variants_by_key: dict[str, list[str]] = {}
+    for raw, canonical in prepared.raw_to_canonical.items():
+        variants_by_key.setdefault(identity_key(canonical), []).append(raw)
+
+    with mysql.cursor() as cur:
+        for name in sorted(prepared.names):
+            variants = variants_by_key.get(identity_key(name), [name])
+            country = canonical_country(name, variants, prepared.countries)
+            cur.execute(
+                "INSERT INTO amiga_players (name, country) VALUES (%s, %s)",
+                (name, country),
+            )
+
+    with mysql.cursor() as cur:
+        cur.execute("SELECT id, name FROM amiga_players")
+        player_id = {row["name"]: int(row["id"]) for row in cur.fetchall()}
+
+    per_day_seq: dict[date, int] = {}
+    game_rows: list[dict] = []
+    for s in prepared.scores_sorted:
+        parent = resolve_tournament_name(s.raw_tournament)
+        meta = prepared.tour_by_name[parent]
+        ev = meta["event_date"]
+        base_day = ev.date() if isinstance(ev, datetime) else ev
+        if base_day is None:
+            base_day = date(1970, 1, 1)
+        seq = per_day_seq.get(base_day, 0)
+        per_day_seq[base_day] = seq + 1
+        game_dt = datetime.combine(base_day, datetime.min.time()) + timedelta(seconds=seq)
+        phase = resolve_phase(s.raw_tournament, s.phase)
+        game_rows.append(
+            {
+                "source_scores_id": s.source_id,
+                "game_date": game_dt.strftime("%Y-%m-%d %H:%M:%S"),
+                "player_a_id": player_id[s.team_a],
+                "player_b_id": player_id[s.team_b],
+                "tournament_id": tour_id_by_name[parent],
+                "phase": phase,
+                "goals_a": s.goals_a,
+                "goals_b": s.goals_b,
+                "extra": s.extra,
+            }
+        )
+
+    structure_result = None
+    if apply_structure:
+        structure_result = apply_structure_spec(
+            mysql,
+            ApplyContext(
+                tour_id_by_name=tour_id_by_name,
+                player_id=player_id,
+                tour_by_name=prepared.tour_by_name,
+                scores=prepared.scores_sorted,
+            ),
+            game_rows,
+        )
+
+    with mysql.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO amiga_games
+              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, fixture_id,
+               phase, goals_a, goals_b, extra)
+            VALUES
+              (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
+               %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
+            """,
+            [
+                {
+                    **row,
+                    "fixture_id": row.get("fixture_id"),
+                }
+                for row in game_rows
+            ],
+        )
+
+    format_audit_failures = audit_tournament_format_flags(mysql)
+    if format_audit_failures:
+        raise SystemExit(f"Tournaments with games but neither format flag set: {format_audit_failures}")
+
+    mysql.commit()
+
+    format_bucket_counts = {
+        "league_only": 0,
+        "cup_only": 0,
+        "league_and_cup": 0,
+        "neither": 0,
+    }
+    for inferred in prepared.format_by_name.values():
+        if inferred.has_league and inferred.has_cup:
+            format_bucket_counts["league_and_cup"] += 1
+        elif inferred.has_league:
+            format_bucket_counts["league_only"] += 1
+        elif inferred.has_cup:
+            format_bucket_counts["cup_only"] += 1
+        else:
+            format_bucket_counts["neither"] += 1
+
+    stats = {
+        "tournaments": len(prepared.tournaments),
+        "games": len(game_rows),
+        "players_raw": len(prepared.raw_player_names),
+        "players_canonical": len(prepared.names),
+        "name_merge_groups": len(prepared.merge_log),
+        **{f"format_{key}": value for key, value in format_bucket_counts.items()},
+    }
+    manifest = build_manifest(
+        mdb=prepared.mdb,
+        stats=stats,
+        name_merges=prepared.merge_log,
+        catalog_overrides=prepared.catalog_overrides,
+        catalog_splits=prepared.catalog_splits,
+        score_supplements=prepared.score_supplements,
+        structure_specs=structure_specs_manifest(structure_result) if structure_result else [],
+    )
+    manifest_path = default_manifest_path(_REPO)
+    write_manifest(manifest_path, manifest)
+    log.info("Wrote import manifest: %s", manifest_path)
+    return stats
+
+
+def import_witness(*, mdb: Path, recreate_ground: bool) -> dict[str, int]:
+    """L3 witness import â€” corrections + ground rows; no L4 disposition; L5 empty."""
+    cfg = load_amiga_db_config()
+    if cfg.database != "ko2amiga_db":
+        raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
+
+    prepared = prepare_witness_from_access(mdb)
+    mysql = connect_mysql(cfg)
+    prepare_l3_schema(mysql, recreate_ground=recreate_ground)
+    stats = persist_witness_to_mysql(mysql, prepared, apply_structure=False)
+    mysql.close()
+    log.warning(
+        "L3 witness import complete â€” derived tables empty. "
+        "Run replay (or apply-structure then replay) before serving the website."
+    )
+    return stats
 
 
 def load_access_tournaments(cur: pyodbc.Cursor) -> list[dict]:
@@ -152,6 +509,25 @@ def load_access_tournaments(cur: pyodbc.Cursor) -> list[dict]:
             }
         )
     return rows
+
+
+def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
+    """Full import path (L3 witness + L4 structure spec hook + full schema)."""
+    cfg = load_amiga_db_config()
+    if cfg.database != "ko2amiga_db":
+        raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
+
+    prepared = prepare_witness_from_access(mdb)
+    mysql = connect_mysql(cfg)
+    apply_schema(mysql, drop_existing=recreate_schema)
+    truncate_ground_truth(mysql)
+    stats = persist_witness_to_mysql(mysql, prepared, apply_structure=True)
+    mysql.close()
+    log.warning(
+        "Import cleared derived tables and reloaded ground truth only. "
+        "Run `python -m scripts.amiga replay` (or `python -m scripts.amiga run`) before serving the website."
+    )
+    return stats
 
 
 def load_access_scores(cur: pyodbc.Cursor) -> list[AccessScore]:
@@ -216,255 +592,3 @@ def merge_supplemental_scores(scores: list[AccessScore]) -> list[AccessScore]:
         existing_ids.add(next_id)
         next_id += 1
     return out
-
-
-def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
-    cfg = load_amiga_db_config()
-    if cfg.database != "ko2amiga_db":
-        raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
-
-    acc = connect_access(mdb)
-    acc_cur = acc.cursor()
-    tournaments = load_access_tournaments(acc_cur)
-    catalog_overrides = apply_catalog_corrections(tournaments)
-    skip_catalog = scores_only_catalog_aliases()
-    skipped_catalog = sorted(t["name"] for t in tournaments if t["name"] in skip_catalog)
-    tournaments = [t for t in tournaments if t["name"] not in skip_catalog]
-    if skipped_catalog:
-        log.info(
-            "Skipped %s Access catalog row(s) merged via tournament_names aliases: %s",
-            len(skipped_catalog),
-            skipped_catalog,
-        )
-    if catalog_overrides:
-        log.info("Applied %s catalog override(s) from import_corrections.py", len(catalog_overrides))
-        for entry in catalog_overrides:
-            log.info(
-                "  → %s.%s: %s → %s",
-                entry["tournament"],
-                entry["field"],
-                entry["access"],
-                entry["canonical"],
-            )
-    catalog_splits = apply_catalog_splits(tournaments)
-    if catalog_splits:
-        log.info("Appended %s synthetic catalog split(s) from import_corrections.py", len(catalog_splits))
-        for entry in catalog_splits:
-            log.info("  → %s (parent %s, source_id %s)", entry["tournament"], entry["parent"], entry["source_id"])
-    scores = load_access_scores(acc_cur)
-    scores = merge_supplemental_scores(scores)
-    score_supplements = supplemental_scores_manifest()
-    if score_supplements:
-        log.info(
-            "Appended %s supplemental game(s) from import_corrections.py (%s tournament(s))",
-            len(SUPPLEMENTAL_SCORES),
-            len(score_supplements),
-        )
-        for entry in score_supplements:
-            log.info("  → %s: +%s games", entry["tournament"], entry["games_added"])
-    countries = load_country_by_player(acc_cur)
-    raw_player_names: set[str] = set()
-    for s in scores:
-        raw_player_names.add(s.team_a)
-        raw_player_names.add(s.team_b)
-    raw_to_canonical, merge_log = build_canonical_name_map(scores, countries=countries)
-    apply_name_map(scores, raw_to_canonical)
-    if merge_log:
-        log.info("Merged %s player identity groups (spacing/case duplicates)", len(merge_log))
-        for entry in merge_log:
-            log.info("  → %s <= %s", entry["canonical"], entry["variants"])
-        merge_path = _REPO / "data" / "amiga" / "exports" / "name_merges.json"
-        merge_path.parent.mkdir(parents=True, exist_ok=True)
-        merge_path.write_text(json.dumps(merge_log, indent=2) + "\n", encoding="utf-8")
-    acc.close()
-
-    mysql = connect_mysql(cfg)
-    apply_schema(mysql, drop_existing=recreate_schema)
-    truncate_ground_truth(mysql)
-    template_ids = seed_format_templates(mysql)
-    legacy_template_id = template_ids[LEGACY_TEMPLATE_SLUG]
-    format_by_name = infer_legacy_tournament_formats(tournaments, scores)
-
-    tour_by_name = {t["name"]: t for t in tournaments}
-    with mysql.cursor() as cur:
-        for t in tournaments:
-            inferred_format = format_by_name[t["name"]]
-            cur.execute(
-                """
-                INSERT INTO tournaments
-                  (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count,
-                   format_template_id, has_league, has_cup, lifecycle_status, completed_at)
-                VALUES (%(source_id)s, %(name)s, %(chrono)s, %(event_date)s, %(is_cup)s,
-                        %(country)s, %(equal_teams)s, %(player_count)s,
-                        %(format_template_id)s, %(has_league)s, %(has_cup)s,
-                        'completed', %(completed_at)s)
-                """,
-                {
-                    **t,
-                    "event_date": t["event_date"].date() if isinstance(t["event_date"], datetime) else t["event_date"],
-                    "format_template_id": legacy_template_id,
-                    "has_league": inferred_format.has_league,
-                    "has_cup": inferred_format.has_cup,
-                    "completed_at": (
-                        datetime.combine(
-                            t["event_date"].date() if isinstance(t["event_date"], datetime) else t["event_date"],
-                            datetime.min.time(),
-                        )
-                        if t.get("event_date") is not None
-                        else None
-                    ),
-                },
-            )
-
-    # Resolve tournament ids (after alias mapping).
-    with mysql.cursor() as cur:
-        cur.execute("SELECT id, name FROM tournaments")
-        tour_id_by_name = {row["name"]: int(row["id"]) for row in cur.fetchall()}
-
-    missing_parents: set[str] = set()
-    for s in scores:
-        parent = resolve_tournament_name(s.raw_tournament)
-        if parent and parent not in tour_id_by_name:
-            missing_parents.add(parent)
-    if missing_parents:
-        raise SystemExit(f"Tournament catalog missing parents after alias map: {sorted(missing_parents)}")
-
-    # Player ids — canonical names after merge map.
-    names: set[str] = set()
-    for s in scores:
-        names.add(s.team_a)
-        names.add(s.team_b)
-
-    variants_by_key: dict[str, list[str]] = {}
-    for raw, canonical in raw_to_canonical.items():
-        variants_by_key.setdefault(identity_key(canonical), []).append(raw)
-
-    with mysql.cursor() as cur:
-        for name in sorted(names):
-            variants = variants_by_key.get(identity_key(name), [name])
-            country = canonical_country(name, variants, countries)
-            cur.execute(
-                "INSERT INTO amiga_players (name, country) VALUES (%s, %s)",
-                (name, country),
-            )
-
-    with mysql.cursor() as cur:
-        cur.execute("SELECT id, name FROM amiga_players")
-        player_id = {row["name"]: int(row["id"]) for row in cur.fetchall()}
-
-    # Chronology: event date, chrono (same-day tie-break), source id.
-    def sort_key(s: AccessScore) -> tuple:
-        parent = resolve_tournament_name(s.raw_tournament)
-        meta = tour_by_name.get(parent, {})
-        chrono = meta.get("chrono")
-        ev = meta.get("event_date")
-        ev_date = ev.date() if isinstance(ev, datetime) else (ev or date(1970, 1, 1))
-        chrono_val = chrono if chrono is not None else 999999.0
-        return (ev_date, chrono_val, s.source_id)
-
-    scores_sorted = sorted(scores, key=sort_key)
-
-    # Synthetic Date: calendar day + 1 second per game across all tournaments on that day.
-    per_day_seq: dict[date, int] = {}
-    game_rows: list[dict] = []
-    for s in scores_sorted:
-        parent = resolve_tournament_name(s.raw_tournament)
-        meta = tour_by_name[parent]
-        ev = meta["event_date"]
-        base_day = ev.date() if isinstance(ev, datetime) else ev
-        if base_day is None:
-            base_day = date(1970, 1, 1)
-        seq = per_day_seq.get(base_day, 0)
-        per_day_seq[base_day] = seq + 1
-        game_dt = datetime.combine(base_day, datetime.min.time()) + timedelta(seconds=seq)
-        phase = resolve_phase(s.raw_tournament, s.phase)
-        game_rows.append(
-            {
-                "source_scores_id": s.source_id,
-                "game_date": game_dt.strftime("%Y-%m-%d %H:%M:%S"),
-                "player_a_id": player_id[s.team_a],
-                "player_b_id": player_id[s.team_b],
-                "tournament_id": tour_id_by_name[parent],
-                "phase": phase,
-                "goals_a": s.goals_a,
-                "goals_b": s.goals_b,
-                "extra": s.extra,
-            }
-        )
-
-    structure_result = apply_structure_spec(
-        mysql,
-        ApplyContext(
-            tour_id_by_name=tour_id_by_name,
-            player_id=player_id,
-            tour_by_name=tour_by_name,
-            scores=scores_sorted,
-        ),
-        game_rows,
-    )
-
-    with mysql.cursor() as cur:
-        cur.executemany(
-            """
-            INSERT INTO amiga_games
-              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, fixture_id,
-               phase, goals_a, goals_b, extra)
-            VALUES
-              (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
-               %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
-            """,
-            [
-                {
-                    **row,
-                    "fixture_id": row.get("fixture_id"),
-                }
-                for row in game_rows
-            ],
-        )
-
-    format_audit_failures = audit_tournament_format_flags(mysql)
-    if format_audit_failures:
-        raise SystemExit(f"Tournaments with games but neither format flag set: {format_audit_failures}")
-
-    mysql.commit()
-    format_bucket_counts = {
-        "league_only": 0,
-        "cup_only": 0,
-        "league_and_cup": 0,
-        "neither": 0,
-    }
-    for inferred in format_by_name.values():
-        if inferred.has_league and inferred.has_cup:
-            format_bucket_counts["league_and_cup"] += 1
-        elif inferred.has_league:
-            format_bucket_counts["league_only"] += 1
-        elif inferred.has_cup:
-            format_bucket_counts["cup_only"] += 1
-        else:
-            format_bucket_counts["neither"] += 1
-    stats = {
-        "tournaments": len(tournaments),
-        "games": len(game_rows),
-        "players_raw": len(raw_player_names),
-        "players_canonical": len(names),
-        "name_merge_groups": len(merge_log),
-        **{f"format_{key}": value for key, value in format_bucket_counts.items()},
-    }
-    manifest = build_manifest(
-        mdb=mdb,
-        stats=stats,
-        name_merges=merge_log,
-        catalog_overrides=catalog_overrides,
-        catalog_splits=catalog_splits_manifest(),
-        score_supplements=score_supplements,
-        structure_specs=structure_specs_manifest(structure_result),
-    )
-    manifest_path = default_manifest_path(_REPO)
-    write_manifest(manifest_path, manifest)
-    log.info("Wrote import manifest: %s", manifest_path)
-    mysql.close()
-    log.warning(
-        "Import cleared derived tables and reloaded ground truth only. "
-        "Run `python -m scripts.amiga replay` (or `python -m scripts.amiga run`) before serving the website."
-    )
-    return stats

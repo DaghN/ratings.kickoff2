@@ -10,7 +10,16 @@ import pymysql
 
 from scripts.amiga.tournament_structure.build import build_tournament_structure
 from scripts.amiga.tournament_structure.link import link_games_to_fixtures
-from scripts.amiga.tournament_structure.registry import active_structure_specs
+from scripts.amiga.tournament_structure.registry import (
+    active_structure_specs,
+    registry_entry_for_catalog,
+)
+from scripts.amiga.tournament_structure.materialize_legacy import (
+    _clear_tournament_structure,
+    _count_existing_stages,
+    _load_games,
+    _load_tournament,
+)
 
 if TYPE_CHECKING:
     from scripts.amiga.import_access import AccessScore
@@ -98,6 +107,93 @@ def apply_structure_spec(
         applied=tuple(applied),
         skipped=tuple(skipped),
         stats_by_name=stats_by_name,
+    )
+
+
+def apply_structure_spec_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    *,
+    replace: bool = True,
+) -> SpecApplyStats:
+    """Apply one active registry spec to games already in ``amiga_games``."""
+    tournament = _load_tournament(conn, tournament_id)
+    catalog_name = str(tournament["name"])
+    entry = registry_entry_for_catalog(catalog_name)
+    if entry is None or entry.status != "active":
+        raise ValueError(
+            f"tournament_id={tournament_id} ({catalog_name!r}) has no active structure spec"
+        )
+    spec = entry.spec
+
+    games = _load_games(conn, tournament_id)
+    if not games:
+        raise ValueError(f"tournament_id={tournament_id} has no games")
+
+    existing = _count_existing_stages(conn, tournament_id)
+    if existing and not replace:
+        raise ValueError(
+            f"tournament_id={tournament_id} already has {existing} stage(s) — pass replace=True"
+        )
+    if existing and replace:
+        _clear_tournament_structure(conn, tournament_id)
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, name FROM amiga_players")
+        player_id = {row["name"]: int(row["id"]) for row in cur.fetchall()}
+
+    game_rows: list[dict] = []
+    for game in games:
+        game_rows.append(
+            {
+                "id": int(game["id"]),
+                "tournament_id": tournament_id,
+                "player_a_id": int(game["player_a_id"]),
+                "player_b_id": int(game["player_b_id"]),
+                "goals_a": int(game["goals_a"]),
+                "goals_b": int(game["goals_b"]),
+                "phase": game.get("phase"),
+                "fixture_id": game.get("fixture_id"),
+            }
+        )
+
+    build = build_tournament_structure(
+        conn,
+        spec,
+        tournament_id=tournament_id,
+        player_id=player_id,
+    )
+    link = link_games_to_fixtures(
+        game_rows,
+        tournament_id=tournament_id,
+        build=build,
+    )
+    if link.orphans:
+        raise SystemExit(
+            f"Structure apply {catalog_name!r}: {link.orphans} game(s) could not be linked to fixtures"
+        )
+
+    with conn.cursor() as cur:
+        for row in game_rows:
+            fixture_id = row.get("fixture_id")
+            if fixture_id is not None:
+                cur.execute(
+                    "UPDATE amiga_games SET fixture_id = %s WHERE id = %s",
+                    (int(fixture_id), int(row["id"])),
+                )
+
+    log.info(
+        "Applied structure %r (id=%s): %s fixtures, %s games linked",
+        catalog_name,
+        tournament_id,
+        build.fixture_count,
+        link.linked,
+    )
+    return SpecApplyStats(
+        catalog_name=catalog_name,
+        fixture_count=build.fixture_count,
+        games_linked=link.linked,
+        orphan_games=link.orphans,
     )
 
 
