@@ -24,7 +24,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $query = 'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.GoalsFor, s.GoalsAgainst, '
     . 's.AverageGoalsFor, s.AverageGoalsAgainst, s.GoalRatio, s.MostGoalsScored, s.MostGoalsConceded, '
     . 's.BiggestWinDifference, s.BiggestLossDifference, s.BiggestDrawSum, s.BiggestSumOfGoals, s.NumberDraws '
-    . amiga_player_base_from_sql() . ' WHERE ' . amiga_lb_player_where_sql() . ' ORDER BY s.GoalsFor DESC, s.Rating DESC';
+    . amiga_player_base_from_sql($con) . ' WHERE ' . amiga_lb_player_where_sql() . ' ORDER BY s.GoalsFor DESC, s.Rating DESC';
 $result = k2_query_or_public_error($con, $query, 'amiga goals leaderboard');
 
 mysqli_close($con);

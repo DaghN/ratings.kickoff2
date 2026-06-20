@@ -134,14 +134,13 @@ import (ground only)  →  python -m scripts.amiga replay
 - **Rating authority:** Python replay + `amiga_rating_events` — never legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Batch rebuild commands:**
+**Batch rebuild commands (sign-off):**
 
 ```bash
-python -m scripts.amiga import --recreate-schema   # ground only; clears derived
-python -m scripts.amiga replay                     # full derived rebuild (~600 tournament finalizes)
-python -m scripts.amiga verify-chronology
-python -m scripts.amiga verify-rating-events       # contract § 5.9 invariants
+python -m scripts.amiga prove   # nuclear reset + replay + verify (only supported path)
 ```
+
+Step-by-step equivalent: `import --recreate-schema` → `replay` → verify CLIs. Wrong derived state → **`prove` again**, not repair jobs. Incremental `import` / manual `014–023` are archived — [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).
 
 Full `replay` (~27k games): **~23s local** (Jun 2026) — each tournament is a real finalize (per-game `amiga_game_ratings` + `amiga_rating_events`); shared in-memory career state across the loop; `amiga_player_stats` + network counts + peak/nadir in one `commit_heavy_player_derived(players)` at the end.
 

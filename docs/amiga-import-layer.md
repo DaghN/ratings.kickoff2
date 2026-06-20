@@ -20,7 +20,12 @@ MySQL ground truth (tournaments, amiga_games, amiga_players)
     │
     ▼  replay / post-game ops
 derived truth (ratings, stats, standings)
+    │
+    ▼  python -m scripts.amiga prove
+verify suite (0 errors = shippable)
 ```
+
+**Holy Amiga loop (Jun 2026):** only supported path from empty → shippable = `prove` (nuclear schema + import + replay + verify). No incremental schema ladder; see [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).
 
 **Do not edit `koatd.mdb` as the primary fix** for known Access bugs. Fresh drops from KOA would undo local edits. Corrections belong in the import layer (version-controlled, reproducible).
 
@@ -97,7 +102,7 @@ python -m scripts.amiga audit-catalog-dates
 python -m scripts.amiga audit-suspicious-marathons
 ```
 
-After a fresh `koatd` drop: `python -m scripts.amiga run --recreate-schema` then verify commands above.
+After a fresh `koatd` drop: `python -m scripts.amiga prove`.
 
 ### Tournament structure specs
 

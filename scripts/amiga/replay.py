@@ -114,8 +114,11 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
         cur.execute("DELETE FROM amiga_generalstats WHERE id = 1")
         cur.execute("INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)")
         cur.execute("DELETE FROM amiga_player_matchup_summary")
+        cur.execute("DELETE FROM amiga_player_current")
+        cur.execute("DELETE FROM amiga_player_event_snapshots")
         cur.execute("DELETE FROM amiga_player_tournament_totals")
         cur.execute("DELETE FROM amiga_player_tournament_participation")
+        cur.execute("DELETE FROM amiga_tournament_finish_override")
         cur.execute("DELETE FROM amiga_tournament_catalog_stats")
         cur.execute("DELETE FROM amiga_tournament_standings")
         cur.execute("DELETE FROM amiga_rating_events")
@@ -275,6 +278,11 @@ def replay_all(
 
     log.info("rebuilding player tournament totals")
     rebuild_all_participation_totals(conn, dry_run=False)
+
+    log.info("rebuilding event snapshots + current")
+    from scripts.amiga.rebuild_event_snapshots import rebuild_all_event_snapshots
+
+    rebuild_all_event_snapshots(conn, dry_run=False)
 
     log.info("rebuilding player matchup summary")
     rebuild_all_matchup_summary(conn, dry_run=False)

@@ -1,6 +1,9 @@
 <?php
 /**
- * Amiga historical rating ladder — snapshot catalogs and compute-on-read ladder.
+ * Amiga historical rating ladder — snapshot catalogs and cutoff reads.
+ *
+ * Historical ladder at cutoff T = last `amiga_player_event_snapshots` row per player
+ * on or before T (policy: amiga-event-snapshot-policy.md §6).
  *
  * @see docs/amiga-rating-history-policy.md
  */
@@ -15,7 +18,7 @@ const AMIGA_RATING_HISTORY_START_RATING = 1600.0;
 $GLOBALS['_amiga_rating_history_tournaments'] = null;
 
 /**
- * Finalized tournaments that have rating events, in catalog chrono order.
+ * Finalized tournaments with event snapshots, in catalog chrono order.
  *
  * @return list<array{id: int, name: string, event_date: string, chrono: float}>
  */
@@ -27,7 +30,8 @@ function amiga_rating_history_tournaments(mysqli $con): array
 
     $sql = 'SELECT DISTINCT t.id, t.name, t.event_date, t.chrono '
         . 'FROM tournaments t '
-        . 'INNER JOIN amiga_rating_events e ON e.tournament_id = t.id '
+        . 'INNER JOIN amiga_player_event_snapshots s ON s.tournament_id = t.id '
+        . 'WHERE t.rating_finalized = 1 '
         . 'ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC';
 
     $res = mysqli_query($con, $sql);
@@ -250,8 +254,8 @@ function amiga_rating_history_cutoff_tournament_on_or_before_date(mysqli $con, s
     $stmt = $con->prepare(
         'SELECT t.id, t.event_date, t.chrono '
         . 'FROM tournaments t '
-        . 'INNER JOIN amiga_rating_events e ON e.tournament_id = t.id '
-        . 'WHERE t.event_date <= ? '
+        . 'INNER JOIN amiga_player_event_snapshots s ON s.tournament_id = t.id '
+        . 'WHERE t.rating_finalized = 1 AND t.event_date <= ? '
         . 'ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC '
         . 'LIMIT 1'
     );
@@ -333,15 +337,15 @@ function amiga_rating_history_ladder_at_cutoff(
     }
 
     $sql = 'SELECT player_id, name, country, rating_after FROM ('
-        . 'SELECT e.player_id, p.name, p.country, e.rating_after, '
+        . 'SELECT s.player_id, p.name, p.country, s.rating_after, '
         . 'ROW_NUMBER() OVER ('
-        . 'PARTITION BY e.player_id '
-        . 'ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC'
+        . 'PARTITION BY s.player_id '
+        . 'ORDER BY s.event_date DESC, s.event_chrono DESC, s.tournament_id DESC'
         . ') AS rn '
-        . 'FROM amiga_rating_events e '
-        . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
-        . 'INNER JOIN amiga_players p ON p.id = e.player_id '
-        . 'WHERE (t.event_date, t.chrono, t.id) <= (?, ?, ?)'
+        . 'FROM amiga_player_event_snapshots s '
+        . 'INNER JOIN amiga_players p ON p.id = s.player_id '
+        . 'WHERE s.rating_after IS NOT NULL '
+        . 'AND (s.event_date, s.event_chrono, s.tournament_id) <= (?, ?, ?)'
         . ') ranked WHERE rn = 1 '
         . 'ORDER BY rating_after DESC, player_id ASC';
 
@@ -410,7 +414,9 @@ function amiga_rating_history_event_participant_ids(mysqli $con, int $tournament
         return [];
     }
 
-    $stmt = $con->prepare('SELECT DISTINCT player_id FROM amiga_rating_events WHERE tournament_id = ?');
+    $stmt = $con->prepare(
+        'SELECT DISTINCT player_id FROM amiga_player_event_snapshots WHERE tournament_id = ?'
+    );
     if (!$stmt) {
         throw new RuntimeException('Failed to prepare event participant lookup.');
     }
@@ -619,11 +625,12 @@ function amiga_rating_history_top10_race_payload(mysqli $con, int $topN = 10): a
         ];
     }
 
-    $sql = 'SELECT e.player_id, e.rating_after, e.tournament_id, p.name, p.country '
-        . 'FROM amiga_rating_events e '
-        . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
-        . 'INNER JOIN amiga_players p ON p.id = e.player_id '
-        . 'ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, e.player_id ASC';
+    $sql = 'SELECT s.player_id, s.rating_after, s.tournament_id, p.name, p.country '
+        . 'FROM amiga_player_event_snapshots s '
+        . 'INNER JOIN tournaments t ON t.id = s.tournament_id '
+        . 'INNER JOIN amiga_players p ON p.id = s.player_id '
+        . 'WHERE s.rating_after IS NOT NULL '
+        . 'ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, s.player_id ASC';
 
     $res = mysqli_query($con, $sql);
     if ($res === false) {

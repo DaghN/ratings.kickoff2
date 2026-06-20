@@ -108,7 +108,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 - Case variants (`Oliver ST` → `Oliver St`, most games wins)
 - Country from `Rankings` when any alias had one
 
-Re-run: `python -m scripts.amiga run --recreate-schema`. Import audit: `data/amiga/exports/import_manifest.json` (see [`amiga-import-layer.md`](amiga-import-layer.md)).
+Re-run: `python -m scripts.amiga prove`. Import audit: `data/amiga/exports/import_manifest.json` (see [`amiga-import-layer.md`](amiga-import-layer.md)).
 
 ## Rating chart timeline
 

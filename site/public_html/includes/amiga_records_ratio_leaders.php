@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga Hall of Fame — ratio/average leaders from amiga_player_stats.
+ * Amiga Hall of Fame — ratio/average leaders from amiga_player_current.
  *
  * Eligible: NumberGames >= k2_established_min_games() (20). Ties: lowest player_id wins.
  */
@@ -37,7 +37,7 @@ function amiga_records_fetch_ratio_leader(
     }
 
     $sql = 'SELECT p.id AS player_id, p.name, s.`' . $column . '` AS metric_value '
-        . amiga_player_base_from_sql()
+        . amiga_player_base_from_sql($con)
         . ' WHERE ' . $where
         . ' ORDER BY s.`' . $column . '` ' . $dir . ', p.id ASC LIMIT 1';
 

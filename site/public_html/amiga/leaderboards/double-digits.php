@@ -24,7 +24,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $query = 'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.DoubleDigits, s.CleanSheets, '
     . 's.DoubleDigitsRatio, s.CleanSheetsRatio, s.DoubleDigitsConceded, s.CleanSheetsConceded, '
     . 's.DoubleDigitsConcededRatio, s.CleanSheetsConcededRatio '
-    . amiga_player_base_from_sql() . ' WHERE ' . amiga_lb_player_where_sql() . ' ORDER BY s.DoubleDigits DESC, s.Rating DESC';
+    . amiga_player_base_from_sql($con) . ' WHERE ' . amiga_lb_player_where_sql() . ' ORDER BY s.DoubleDigits DESC, s.Rating DESC';
 $result = k2_query_or_public_error($con, $query, 'amiga double-digits leaderboard');
 
 mysqli_close($con);

@@ -42,7 +42,7 @@
 
 - **Amiga rating history (Jun 2026):** **V1 + animation** — History hub + News races (by tournament + by time); [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
 
-- **Amiga event snapshots (Jun 2026):** **Design locked** — `amiga_player_event_snapshots` + `amiga_player_current`; full row every finalize; retire four legacy player tables. Policy [`amiga-event-snapshot-policy.md`](docs/amiga-event-snapshot-policy.md) · plan [`amiga-event-snapshot-implementation-plan.md`](docs/amiga-event-snapshot-implementation-plan.md). Implementation next in-thread.
+- **Amiga event snapshots (Jun 2026):** **Slices 0–7 done** — present=`current`, history/race=snapshots, holy loop `prove`. Policy [`amiga-event-snapshot-policy.md`](docs/amiga-event-snapshot-policy.md). **Next:** slice 8 retire legacy tables.
 
 ---
 
@@ -88,6 +88,12 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga event snapshots slice 7** — `amiga_rating_history_lib.php` historical ladder + top-10 race from `amiga_player_event_snapshots`; event-wing top-10 = `amiga_player_current` parity. |
+| 2026-06 | **Amiga holy loop (`prove`)** — nuclear-only path; `prove` = recreate + replay + verify. |
+| 2026-06 | **Amiga event snapshots — ops hygiene** — finalize loads stats + events + prior snapshots; `current` website-only. |
+| 2026-06 | **Amiga event snapshots slice 6** — `amiga_player_current_lib.php`; PHP reads (profile, LBs, HoF ratios, search API) switch to `amiga_player_current`. |
+| 2026-06 | **Amiga event snapshots slice 5** — `verify-event-snapshots` CLI; row counts, current=latest, event-local rollup, rating_events parity, honours, career games; 0 errors on `ko2amiga_db`. |
+| 2026-06 | **Amiga event snapshots slice 4** — `rebuild_event_snapshots.py` + CLI; replay/refinalize wire; backfill `4535` snapshots / `473` current on `ko2amiga_db`. |
 | 2026-06 | **Profile goals-per-game hint** — “How many games he scored exactly 0, 1, 2… goals in.” + “{name} has averaged X goals per game so far.” after histogram load. |
 | 2026-06 | **Amiga rating history Δ** — ladder debut (incl. first wing snapshot) always vs **1600**, not em dash. |
 | 2026-06 | **Table hygiene (calm-stats)** — `calm-stats` defaults to secondary body ink; `k2_table_helpers.php` SSR anchor/sort classes; Amiga LBs + History use `ranked-pages-table ranked-table-pending` (online LB parity, fixes Elo FOUC). |

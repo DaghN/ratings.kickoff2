@@ -1,4 +1,5 @@
 -- Knockout pair scopes (two-player elimination ties).
+-- ARCHIVED from apply_schema (Jun 2026): regresses 002 league|knockout enum — upgrade archaeology only.
 SET time_zone = '+00:00';
 
 ALTER TABLE `amiga_tournament_standings`

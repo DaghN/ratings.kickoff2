@@ -12,6 +12,7 @@ from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.player_stats_load import load_player_states
 from scripts.amiga.performance_rating import performance_rating_from_pairs
 from scripts.amiga.player_tournament_participation import refresh_tournament_participation_stack
+from scripts.amiga.snapshot_persist import persist_tournament_event_snapshots
 from scripts.amiga.replay import (
     _connect,
     _rating_insert_sql,
@@ -107,6 +108,62 @@ def _frozen_ratings(
     for pid in participant_ids:
         st = players.get(pid)
         frozen[pid] = st.rating if st is not None else START_RATING
+    return frozen
+
+
+def _entry_ratings_before_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    participant_ids: set[int],
+) -> dict[int, float]:
+    """
+    Entry Elo for finalize: last committed ``rating_after`` before this event.
+
+    Uses ``amiga_rating_events`` chronology, not career table rows (which can be
+    stale after reopen without rewind).
+    """
+    if not participant_ids:
+        return {}
+
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT event_date, chrono FROM tournaments WHERE id = %s LIMIT 1",
+            (tournament_id,),
+        )
+        tour = cur.fetchone()
+        if tour is None:
+            return {pid: START_RATING for pid in participant_ids}
+
+        placeholders = ", ".join(["%s"] * len(participant_ids))
+        sql = f"""
+            SELECT player_id, rating_after
+            FROM (
+                SELECT e.player_id, e.rating_after,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY e.player_id
+                           ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC
+                       ) AS rn
+                FROM amiga_rating_events e
+                INNER JOIN tournaments t ON t.id = e.tournament_id
+                WHERE e.player_id IN ({placeholders})
+                  AND (t.event_date, t.chrono, t.id) < (%s, %s, %s)
+            ) ranked
+            WHERE rn = 1
+        """
+        cur.execute(
+            sql,
+            (
+                *sorted(participant_ids),
+                tour["event_date"],
+                tour["chrono"],
+                tournament_id,
+            ),
+        )
+        rows = cur.fetchall()
+
+    frozen = {pid: START_RATING for pid in participant_ids}
+    for row in rows:
+        frozen[int(row["player_id"])] = float(row["rating_after"])
     return frozen
 
 
@@ -339,7 +396,7 @@ def finalize_tournament(
     for pid in participant_ids:
         players.setdefault(pid, PlayerState())
 
-    frozen = _frozen_ratings(participant_ids, players)
+    frozen = _entry_ratings_before_tournament(conn, tournament_id, participant_ids)
     log.info(
         "finalize_tournament: id=%s name=%r games=%s participants=%s",
         tournament_id,
@@ -469,6 +526,17 @@ def finalize_tournament(
             tournament_id,
             part_rows,
             totals_players,
+        )
+        snapshot_rows = persist_tournament_event_snapshots(
+            conn,
+            tournament_id,
+            players,
+            participant_ids,
+        )
+        log.info(
+            "finalize_tournament: event snapshots tournament_id=%s rows=%s",
+            tournament_id,
+            snapshot_rows,
         )
         errors = verify_tournament_finalize(conn, tournament_id)
         if errors:

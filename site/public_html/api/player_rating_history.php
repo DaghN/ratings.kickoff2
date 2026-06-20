@@ -56,8 +56,10 @@ $con->set_charset('utf8mb4');
 $con->query("SET time_zone = '+00:00'");
 
 if ($realm === 'amiga') {
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_current_lib.php';
+    $careerTable = amiga_player_career_table($con);
     $nameSql = 'SELECT p.name AS Name, s.Rating FROM amiga_players p '
-        . 'INNER JOIN amiga_player_stats s ON s.player_id = p.id WHERE p.id = ? LIMIT 1';
+        . 'INNER JOIN `' . $careerTable . '` s ON s.player_id = p.id WHERE p.id = ? LIMIT 1';
 } else {
     $nameSql = 'SELECT Name, Rating FROM playertable WHERE ID = ? LIMIT 1';
 }

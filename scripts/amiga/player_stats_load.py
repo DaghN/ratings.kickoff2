@@ -1,4 +1,4 @@
-"""Load amiga_player_stats rows into PlayerState for tournament finalize continuation."""
+"""Load amiga_player_stats into PlayerState for ops writers."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ def _float(row: dict[str, Any], key: str, default: float) -> float:
 
 
 def player_state_from_stats_row(row: dict[str, Any]) -> PlayerState:
-    """Map one amiga_player_stats row to in-memory career state."""
+    """Map one career row (current or legacy stats) to in-memory career state."""
     games = _int(row, "NumberGames")
     st = PlayerState()
     st.rating = _float(row, "Rating", START_RATING)
@@ -129,9 +129,15 @@ def player_state_from_stats_row(row: dict[str, Any]) -> PlayerState:
     return st
 
 
+def _career_source_table(conn) -> str:
+    """Ops writers read ``amiga_player_stats`` only — not ``amiga_player_current`` (website projection)."""
+    return "amiga_player_stats"
+
+
 def load_player_states(conn) -> dict[int, PlayerState]:
-    """Load all persisted career rows; callers add defaults for unseen players."""
+    """Load career rows from ``amiga_player_stats`` for ops/finalize (not ``amiga_player_current``)."""
+    table = _career_source_table(conn)
     with conn.cursor() as cur:
-        cur.execute("SELECT * FROM amiga_player_stats")
+        cur.execute(f"SELECT * FROM `{table}`")
         rows = cur.fetchall()
     return {int(row["player_id"]): player_state_from_stats_row(row) for row in rows}

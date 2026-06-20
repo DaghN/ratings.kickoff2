@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
+require_once __DIR__ . '/amiga_player_current_lib.php';
 
 /**
  * Tournament participation rows for a player (canonical derived source).
@@ -357,7 +358,7 @@ function amiga_lb_performance_rating_rows(mysqli $con): array
                        ) AS rn
                 FROM amiga_player_tournament_participation part
                 INNER JOIN amiga_players pl ON pl.id = part.player_id
-                INNER JOIN amiga_player_stats s ON s.player_id = part.player_id
+                ' . amiga_player_career_join_sql($con, 'part.player_id') . '
                 INNER JOIN tournaments t ON t.id = part.tournament_id
                 WHERE part.performance_rating IS NOT NULL
                   AND part.games >= 2
@@ -423,7 +424,7 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
 }
 
 /**
- * Tournament honours leaderboard rows (totals + Elo from amiga_player_stats).
+ * Tournament honours leaderboard rows (totals + Elo from amiga_player_current).
  *
  * Default SQL order: wc_gold, wc_silver, wc_bronze, event_podiums, event_gold, tournaments_played.
  *
@@ -447,7 +448,7 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
                    t.wc_podiums
             FROM amiga_player_tournament_totals t
             INNER JOIN amiga_players p ON p.id = t.player_id
-            LEFT JOIN amiga_player_stats s ON s.player_id = t.player_id
+            LEFT JOIN `' . amiga_player_career_table($con) . '` s ON s.player_id = t.player_id
             WHERE t.tournaments_played > 0
             ORDER BY t.tournaments_played DESC,
                      t.event_gold DESC,

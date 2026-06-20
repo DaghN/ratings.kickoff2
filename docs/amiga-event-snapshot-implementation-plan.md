@@ -33,13 +33,13 @@ See policy **S1–S11**. Summary: `amiga_player_event_snapshots` + `amiga_player
 | Slice | Deliverable | STOP gate |
 |-------|-------------|-----------|
 | **0** | Policy + this plan + authority cross-links | — **done** |
-| **1** | DDL `024_player_snapshots.sql` (snapshots + current) | Tables exist; `import --recreate-schema` or manual apply |
-| **2** | Python `snapshot_row.py` — build full row from finalize state | Unit smoke from one tournament |
-| **3** | Wire `finalize_tournament.py` + `player_stats_load` from current | One tournament finalize smoke |
-| **4** | Replay / refinalize backfill all snapshots + current | Full replay + verify CLI |
-| **5** | `verify_event_snapshots.py` | 0 errors local |
-| **6** | PHP read switch → `amiga_player_current` + helpers | Browser: profile + one LB |
-| **7** | Generalize `amiga_rating_history_lib.php` → snapshot cutoff (rating first, then columns) | History page parity |
+| **1** | DDL `024_player_snapshots.sql` (snapshots + current) | `prove` / `apply_schema` bundle | **done** |
+| **2** | Python `snapshot_row.py` — build full row from finalize state | Unit smoke from one tournament | **done** |
+| **3** | Wire `finalize_tournament.py` + `player_stats_load` from current | One tournament finalize smoke | **done** |
+| **4** | Replay / refinalize backfill all snapshots + current | Full replay + verify CLI | **done** |
+| **5** | `verify_event_snapshots.py` | 0 errors local | **done** |
+| **6** | PHP read switch → `amiga_player_current` + helpers | Browser: profile + one LB | **done** |
+| **7** | Generalize `amiga_rating_history_lib.php` → snapshot cutoff (rating first, then columns) | History page parity | **done** |
 | **8** | Retire old tables from schema/import/clear_derived; drop DDL migration `025_drop_legacy_player_tables.sql` | Full replay clean |
 | **9** | Docs closure, MEMORY, feature-log, Part B registers | Dagh OK |
 
@@ -71,7 +71,7 @@ Create `amiga_player_event_snapshots` and `amiga_player_current` with **full** c
 
 ### Tasks
 
-- [ ] Add `scripts/amiga/sql/024_player_snapshots.sql`
+- [x] Add `scripts/amiga/sql/024_player_snapshots.sql`
   - **`amiga_player_event_snapshots`**: PK `(player_id, tournament_id)`; indexes per policy §4.1
   - Column sources (copy types from existing DDL):
     - `001_core.sql` → `amiga_player_stats` career columns (on both tables; current uses `player_id` PK)
@@ -80,9 +80,9 @@ Create `amiga_player_event_snapshots` and `amiga_player_current` with **full** c
     - `009_rating_events.sql` → overlap with event-local (dedupe names)
     - Policy §4.5 career-best perf columns
   - **`amiga_player_current`**: same fact columns as snapshot **minus** `tournament_id` / event-only keys; PK `player_id`; optional `last_tournament_id`, `last_event_date`, `last_finalized_at` for debugging
-- [ ] Wire into `import_access.apply_schema()` after `023` (keep legacy tables until slice 8)
-- [ ] Add to `clear_derived` / drop order (snapshots before current; both before legacy if coexisting)
-- [ ] `scripts/amiga/README.md` apply note
+- [x] Wire into `import_access.apply_schema()` after `023` (keep legacy tables until slice 8)
+- [x] Add to `clear_derived` / drop order (snapshots before current; both before legacy if coexisting)
+- [x] `scripts/amiga/README.md` apply note
 
 ### DDL notes
 
@@ -98,7 +98,7 @@ C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe -u root ko2amiga_db < scri
 C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe -u root ko2amiga_db -e "SHOW TABLES LIKE 'amiga_player_%'; DESCRIBE amiga_player_event_snapshots;" 
 ```
 
-- [ ] Both tables exist; row counts 0 before backfill
+- [x] Both tables exist; row counts 0 before backfill
 
 ---
 
@@ -110,20 +110,21 @@ Single module to build dict/SQL row for snapshot + current from finalize context
 
 ### Tasks
 
-- [ ] `scripts/amiga/snapshot_row.py`
-  - `build_event_snapshot_row(player_id, tournament_id, catalog, player_state, event_facts, honours_totals, finalized_at) -> dict`
-  - `career_best_performance_fields(...)` for running max perf rating + tournament id
-  - Reuse `_stats_row` / `PlayerState.to_db_row()` for career block
-- [ ] `snapshot_insert_sql()` / `current_upsert_sql()` helpers
-- [ ] Small smoke: import module; build row from mock or one finalized tournament in DB
+- [x] `scripts/amiga/snapshot_row.py` — `build_event_snapshot_row`, `build_snapshot_from_finalize_parts`, `current_row_from_snapshot`
+- [x] `career_columns_from_player_state` — `PlayerState.to_db_row`
+- [x] `honours_columns_from_totals_row`
+- [x] `career_best_performance_fields` — LB tie-break parity
+- [x] `snapshot_insert_sql()` / `current_upsert_sql()`
+- [x] `scripts/amiga/test_snapshot_row.py` (7 tests)
 
 ### Verification
 
 ```powershell
-python -c "from scripts.amiga.snapshot_row import build_event_snapshot_row; print('ok')"
+python -m unittest scripts.amiga.test_snapshot_row -v
 ```
 
-- [ ] Row dict keys cover policy §4.2–4.5
+- [x] Row dict keys cover policy §4.2–4.5 (137 snapshot columns)
+- [x] 7 unit tests pass
 
 ---
 
@@ -135,22 +136,23 @@ python -c "from scripts.amiga.snapshot_row import build_event_snapshot_row; prin
 
 ### Tasks
 
-- [ ] `player_stats_load.py` → load from `amiga_player_current` (rename conceptually; map columns to `PlayerState`)
-- [ ] `finalize_tournament.py`:
-  - After in-memory finalize, for each participant: `INSERT snapshot`, `UPSERT current`
-  - Transaction with existing game_ratings + tournament finalized marker
-  - Integrate honours totals from participation stack **into snapshot row** (may call existing rollup logic, then copy result onto row)
-- [ ] PHP mirror: `site/public_html/amiga/ops/modules/finalize_tournament.php` if it writes stats/events directly — parity with Python
-- [ ] During transition: optionally **dual-write** legacy + new tables until slice 5 verify passes (prefer dual-write over big-bang if refinalize path is fragile)
+- [x] `player_stats_load.py` → load from `amiga_player_stats` only (not `amiga_player_current`)
+- [x] Entry Elo from last `amiga_rating_events.rating_after` before event (not stale career rating)
+- [x] Prior career-best from prior `amiga_player_event_snapshots` (not `current`)
+- [x] `snapshot_persist.py` + `finalize_tournament.py` — persist after participation refresh
+- [x] PHP: `amiga_event_snapshot_persist.php` + `finalize_tournament.php`; ops reads from stats
+- [x] Dual-write: legacy stats/events/participation + snapshots/current
+- [x] `reopen_tournament` clears snapshot rows for reopened event
 
 ### Verification
 
 ```powershell
-python -m scripts.amiga finalize-tournament --tournament-id <open_id>
+python -m scripts.amiga reopen-tournament --tournament-id=25
+python -m scripts.amiga finalize-tournament --tournament-id=25
 ```
 
-- [ ] Snapshot rows for participants; current updated; rating_finalized set
-- [ ] `current.Rating` matches last snapshot `rating_after` for sample player
+- [x] 37 snapshot rows + 37 current rows for WC XXIII (Milan)
+- [x] `current.Rating` / `NumberGames` match `amiga_player_stats` for all 37 participants
 
 ---
 
@@ -162,19 +164,23 @@ Populate snapshots + current for entire catalog from replay/finalize chain.
 
 ### Tasks
 
-- [ ] `replay.py` or dedicated `rebuild_snapshots.py`: clear snapshots + current; run finalize chain (or refactor `commit_heavy_player_derived` path)
-- [ ] `refinalize.py`: forward cascade uses snapshot/current bootstrap
-- [ ] Row count ≈ `amiga_rating_events` count pre-migration
+- [x] `scripts/amiga/rebuild_event_snapshots.py` — clear + chronological replay; incremental honours; network counts through tournaments-so-far
+- [x] `snapshot_persist.py` — optional in-memory honours/prior-best/event-games (backfill path)
+- [x] `replay.py` — after participation totals, `rebuild_all_event_snapshots`
+- [x] `refinalize.py` — participation rebuild + snapshot rebuild after refinalize-from
+- [x] CLI `python -m scripts.amiga rebuild-event-snapshots`
 
 ### Verification
 
 ```powershell
-python -m scripts.amiga replay
+python -m scripts.amiga rebuild-event-snapshots
 python -m scripts.amiga verify-rating-events
 ```
 
-- [ ] ~4535 snapshot rows; ~473 current rows
-- [ ] Last event wing player count unchanged
+- [x] 4535 snapshot rows; 473 current rows (local `ko2amiga_db` Jun 2026)
+- [x] `current` career rating matches `amiga_player_stats` for all 473 players; 37 rows differ on `NumberGames` only — current matches rated game row count (legacy stats stale)
+- [ ] `verify-rating-events` — pre-existing chain-break on player 9 (unchanged by slice 4)
+- [ ] Slice 5 `verify-event-snapshots` — formal contract checks
 
 ---
 
@@ -186,9 +192,9 @@ python -m scripts.amiga verify-rating-events
 
 ### Tasks
 
-- [ ] `scripts/amiga/verify_event_snapshots.py`
-- [ ] Wire `python -m scripts.amiga verify-event-snapshots`
-- [ ] Checks: current = latest snapshot; career rating chain; event-local games rollup sample; honours rollup sample; no orphan FKs
+- [x] `scripts/amiga/verify_event_snapshots.py`
+- [x] Wire `python -m scripts.amiga verify-event-snapshots`
+- [x] Checks: row counts; FK orphans; current = latest snapshot; event-local vs games rollup + participation; event rating block vs `amiga_rating_events`; current honours vs totals; `NumberGames` vs `amiga_games` count
 
 ### Verification
 
@@ -196,7 +202,8 @@ python -m scripts.amiga verify-rating-events
 python -m scripts.amiga verify-event-snapshots
 ```
 
-- [ ] 0 errors after slice 4 backfill
+- [x] 0 errors after slice 4 backfill (4535 / 473 local Jun 2026)
+- Event rating **chain** across consecutive events: covered by `verify-rating-events` (snapshots copy per-row `amiga_rating_events`; known pre-existing chain break on player 9)
 
 ---
 
@@ -208,14 +215,15 @@ Switch hot paths to `amiga_player_current`.
 
 ### Tasks
 
-- [ ] `includes/amiga_player_current_lib.php` — `amiga_player_current_row($con, $playerId)`, table name constant
-- [ ] Update: `amiga_player_load.php`, `amiga_lb_lib.php`, leaderboards, profile, `api/player_search.php`, `api/player_rating_history.php` (snapshots), ops post-game loaders
-- [ ] Grep: eliminate `amiga_player_stats` reads (except ops migration shims until slice 8)
+- [x] `includes/amiga_player_current_lib.php` — `amiga_player_career_table`, `amiga_player_current_row`, `amiga_player_base_from_sql($con)`
+- [x] Update: `amiga_player_load.php`, `amiga_lb_lib.php`, leaderboards, `amiga_records_ratio_leaders.php`, `amiga_player_moments_lib.php`, `amiga_player_tournament_lib.php`, `api/player_search.php`, `api/player_rating_history.php`, ops post-game reads
+- [x] Grep: no website reads from `amiga_player_stats` (ops dual-write + rebuild DELETE remain until slice 8)
 
 ### Verification
 
-- [ ] Browser: `/amiga/leaderboards/rating.php` order unchanged
-- [ ] Browser: `/amiga/player/profile.php` smoke for one player
+- [x] Top-10 rating LB order identical (`current` vs legacy `stats`)
+- [x] `amiga_player_load(9)` — 901 games, rating 2013 from `amiga_player_current`
+- [ ] Browser smoke on staging (Dagh)
 
 ---
 
@@ -227,15 +235,16 @@ Generalize history lib to use `amiga_player_event_snapshots` (all columns availa
 
 ### Tasks
 
-- [ ] Refactor `amiga_rating_history_lib.php` → `amiga_snapshot_history_lib.php` (or extend in place) — table name + column mapping
-- [ ] `history.php` unchanged UX; optional extra columns behind later ask
-- [ ] `api/amiga_top10_rating_race.php` → snapshot source
-- [ ] Update [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) implementation refs
+- [x] `amiga_rating_history_lib.php` — ladder/cutoff/race reads from `amiga_player_event_snapshots` (not `amiga_rating_events`)
+- [x] `history.php` unchanged UX
+- [x] `api/amiga_top10_rating_race.php` — via lib (snapshot source)
+- [x] Update [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) implementation refs
 
 ### Verification
 
-- [ ] Event wing last step = current rating LB
-- [ ] News race animations still run
+- [x] Event wing last step top-10 = `amiga_player_current` rating LB (`scripts/oneoff/amiga_history_current_parity.php`)
+- [x] Probe + race payload smoke (`amiga_rating_history_probe.php`, `race` argv)
+- [ ] Browser smoke on staging (Dagh)
 
 ---
 
@@ -256,12 +265,10 @@ Remove dual-write; drop retired tables from schema path.
 ### Verification
 
 ```powershell
-python -m scripts.amiga import --recreate-schema
-python -m scripts.amiga replay
-python -m scripts.amiga verify-event-snapshots
+python -m scripts.amiga prove
 ```
 
-- [ ] Full pipeline green on local `ko2amiga_db`
+- [x] Full pipeline green on local `ko2amiga_db` (Jun 2026 holy loop)
 
 ---
 

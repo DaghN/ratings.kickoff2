@@ -24,7 +24,7 @@ if (-not $MysqlExe) {
 & $MysqlExe -u root -e 'CREATE DATABASE IF NOT EXISTS ko2amiga_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;'
 Write-Host 'Database ko2amiga_db ready.'
 
-python -m scripts.amiga run --recreate-schema
+python -m scripts.amiga prove
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 powershell -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\export_ko2amiga_db.ps1')

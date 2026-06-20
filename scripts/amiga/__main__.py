@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI: python -m scripts.amiga import | replay | run"""
+"""CLI: python -m scripts.amiga prove | import | replay | run"""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from scripts.amiga.finalize_tournament import run_finalize_tournament
 from scripts.amiga.refinalize import run_refinalize_from, run_reopen_tournament
 from scripts.amiga.refinalize_smoke import main as refinalize_smoke_main
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all
+from scripts.amiga.prove import run_prove
 from scripts.amiga.replay import run_replay
 from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
 from scripts.amiga.player_matchup_summary import run_matchup_rebuild
@@ -21,6 +22,7 @@ from scripts.amiga.player_tournament_participation import (
     run_participation_rebuild,
     run_participation_refresh_tournament,
 )
+from scripts.amiga.rebuild_event_snapshots import run_rebuild_event_snapshots
 from scripts.amiga.tournament_catalog_stats import run_catalog_stats_rebuild
 from scripts.amiga.tournament_builder import main as tournament_builder_main
 from scripts.amiga.tournament_format import main as tournament_format_main
@@ -31,6 +33,7 @@ from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_player_matchups import main as verify_player_matchups_main
 from scripts.amiga.verify_player_participation import main as verify_player_participation_main
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
+from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
 from scripts.amiga.tournament_structure.audit import main as audit_suspicious_marathons_main
@@ -48,7 +51,16 @@ def main(argv: list[str] | None = None) -> int:
 
     p_import = sub.add_parser("import", help="Load Access ground truth into MySQL")
     p_import.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
-    p_import.add_argument("--recreate-schema", action="store_true", help="Apply 001_core.sql first")
+    p_import.add_argument(
+        "--recreate-schema",
+        action="store_true",
+        help="Drop and recreate DDL (required unless --incremental)",
+    )
+    p_import.add_argument(
+        "--incremental",
+        action="store_true",
+        help="Reload ground truth only — import-layer debug; not sign-off (use prove)",
+    )
 
     p_replay = sub.add_parser(
         "replay",
@@ -91,11 +103,26 @@ def main(argv: list[str] | None = None) -> int:
     p_smoke.add_argument("--game-id", type=int, default=None)
     p_smoke.add_argument("--dry-run", action="store_true")
 
-    p_run = sub.add_parser("run", help="import + replay")
+    p_run = sub.add_parser(
+        "run",
+        help="Nuclear import (--recreate-schema) + replay (use prove for verify suite)",
+    )
     p_run.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
-    p_run.add_argument("--recreate-schema", action="store_true")
     p_run.add_argument("--dry-run", action="store_true")
     p_run.add_argument("--limit", type=int, default=None)
+
+    p_prove = sub.add_parser(
+        "prove",
+        help="Nuclear reset + replay + verify suite (holy Amiga loop / sign-off)",
+    )
+    p_prove.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_prove.add_argument("--dry-run", action="store_true")
+    p_prove.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Replay smoke only — not for sign-off",
+    )
 
     p_parity = sub.add_parser(
         "standings-parity",
@@ -131,6 +158,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "verify-player-participation",
         help="Assert participation + totals parity (player universe contract §8)",
+    )
+
+    sub.add_parser(
+        "verify-event-snapshots",
+        help="Assert event snapshot + current invariants (snapshot policy §8)",
     )
 
     sub.add_parser(
@@ -211,6 +243,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_part_tournament.add_argument("--dry-run", action="store_true")
 
+    p_event_snapshots = sub.add_parser(
+        "rebuild-event-snapshots",
+        help="Rebuild amiga_player_event_snapshots + amiga_player_current from history",
+    )
+    p_event_snapshots.add_argument("--dry-run", action="store_true")
+
     p_matchup = sub.add_parser(
         "matchup-rebuild",
         help="Rebuild amiga_player_matchup_summary from amiga_games",
@@ -252,7 +290,20 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     if args.cmd == "import":
-        stats = import_all(mdb=args.mdb, recreate_schema=args.recreate_schema)
+        if not args.recreate_schema and not args.incremental:
+            log.error(
+                "import requires --recreate-schema or --incremental; "
+                "for sign-off use: python -m scripts.amiga prove"
+            )
+            return 1
+        if args.incremental:
+            log.warning(
+                "incremental import: schema unchanged — not the proof path; use prove"
+            )
+        stats = import_all(
+            mdb=args.mdb,
+            recreate_schema=args.recreate_schema,
+        )
         log.info("Import complete: %s", stats)
         return 0
 
@@ -295,10 +346,17 @@ def main(argv: list[str] | None = None) -> int:
         return refinalize_smoke_main(smoke_argv)
 
     if args.cmd == "run":
-        stats = import_all(mdb=args.mdb, recreate_schema=args.recreate_schema)
+        stats = import_all(mdb=args.mdb, recreate_schema=True)
         log.info("Import complete: %s", stats)
         run_replay(dry_run=args.dry_run, limit=args.limit)
         return 0
+
+    if args.cmd == "prove":
+        return run_prove(
+            mdb=args.mdb,
+            dry_run=args.dry_run,
+            limit=args.limit,
+        )
 
     if args.cmd == "verify-track-b":
         return verify_track_b_main()
@@ -308,6 +366,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-rating-events":
         return verify_rating_events_main()
+
+    if args.cmd == "verify-event-snapshots":
+        return verify_event_snapshots_main()
 
     if args.cmd == "verify-player-participation":
         return verify_player_participation_main()
@@ -386,6 +447,11 @@ def main(argv: list[str] | None = None) -> int:
             part_rows,
             totals_players,
         )
+        return 0
+
+    if args.cmd == "rebuild-event-snapshots":
+        stats = run_rebuild_event_snapshots(dry_run=args.dry_run)
+        log.info("rebuild-event-snapshots complete: %s", stats)
         return 0
 
     if args.cmd == "matchup-rebuild":

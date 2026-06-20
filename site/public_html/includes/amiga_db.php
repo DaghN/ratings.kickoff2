@@ -4,6 +4,8 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/amiga_player_current_lib.php';
+
 /** ORDER BY fragment for game chronology walks (matches replay.py GAME_SELECT). */
 function amiga_game_chronology_order_sql(string $direction = 'ASC'): string
 {
@@ -89,13 +91,4 @@ function amiga_rated_game_load(mysqli $con, int $gameId): ?array
     $stmt->close();
 
     return is_array($row) ? $row : null;
-}
-
-/** Ground + derived player row with playertable-shaped column names. */
-function amiga_player_base_from_sql(): string
-{
-    return <<<'SQL'
-FROM amiga_players p
-INNER JOIN amiga_player_stats s ON s.player_id = p.id
-SQL;
 }

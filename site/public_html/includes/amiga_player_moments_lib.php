@@ -1,8 +1,6 @@
 <?php
 /**
- * Amiga profile moments — trophy games from amiga_player_stats *GameID pointers.
- *
- * Single-game fetches only (no amiga_games table scans).
+ * Amiga profile moments — trophy games from career *GameID pointers (amiga_player_current).
  */
 declare(strict_types=1);
 
@@ -103,21 +101,11 @@ function amiga_player_moments_load(mysqli $con, int $playerId): array
         return [];
     }
 
-    $stmt = $con->prepare(
-        'SELECT BiggestWinGameID, MostGoalsScoredGameID, PeakRatingGameID, PeakRating '
-        . 'FROM amiga_player_stats WHERE player_id = ? LIMIT 1'
-    );
-    if (!$stmt) {
+    $career = amiga_player_current_row($con, $playerId);
+    if ($career === null) {
         return [];
     }
-    $stmt->bind_param('i', $playerId);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $stats = $res ? $res->fetch_assoc() : false;
-    $stmt->close();
-    if ($stats === false) {
-        return [];
-    }
+    $stats = $career;
 
     $peakRating = !k2_db_is_null($stats['PeakRating'] ?? null) && (float) $stats['PeakRating'] > 0
         ? (int) round((float) $stats['PeakRating'])

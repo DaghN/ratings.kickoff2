@@ -19,7 +19,7 @@ function amiga_player_load(mysqli $con, int $id): array
         'SELECT p.id AS ID, p.name AS Name, p.country AS Country, p.display AS Display, '
         . 's.Rating, s.PeakRating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
         . 's.WinRatio, s.GoalsFor, s.GoalsAgainst, s.GoalRatio, s.PeakRatingGameID, s.AverageOpponentRating '
-        . amiga_player_base_from_sql() . ' WHERE p.id = ? LIMIT 1'
+        . amiga_player_base_from_sql($con) . ' WHERE p.id = ? LIMIT 1'
     );
     if (!$stmt) {
         throw new RuntimeException('Player query failed.');
@@ -39,10 +39,7 @@ function amiga_player_load(mysqli $con, int $id): array
         throw new RuntimeException('Player has no rated games.');
     }
 
-    $rankStmt = $con->prepare(
-        'SELECT COUNT(*) + 1 AS r FROM amiga_player_stats WHERE NumberGames > 0 AND Rating > '
-        . '(SELECT Rating FROM amiga_player_stats WHERE player_id = ? LIMIT 1)'
-    );
+    $rankStmt = $con->prepare(amiga_player_career_rating_rank_sql($con));
     if (!$rankStmt) {
         throw new RuntimeException('Rank query failed.');
     }

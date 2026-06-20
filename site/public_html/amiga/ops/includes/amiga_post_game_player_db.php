@@ -1,6 +1,7 @@
 <?php
 /**
- * amiga_player_stats load/write + prior-game network sets for per-game post-game.
+ * amiga_player_stats load/write for per-game post-game. Reads use stats + rating_events,
+ * not amiga_player_current (website projection only).
  */
 declare(strict_types=1);
 
@@ -33,11 +34,11 @@ function amiga_post_game_load_player_ratings(mysqli $con, int $idA, int $idB): a
 {
     $stmt = $con->prepare('SELECT player_id, Rating FROM amiga_player_stats WHERE player_id IN (?, ?)');
     if ($stmt === false) {
-        throw new RuntimeException('prepare amiga_player_stats ratings: ' . $con->error);
+        throw new RuntimeException('prepare amiga career ratings: ' . $con->error);
     }
     $stmt->bind_param('ii', $idA, $idB);
     if (!$stmt->execute()) {
-        throw new RuntimeException('execute amiga_player_stats ratings: ' . $stmt->error);
+        throw new RuntimeException('execute amiga career ratings: ' . $stmt->error);
     }
     $res = $stmt->get_result();
     $ratings = [];
@@ -148,7 +149,7 @@ function amiga_post_game_build_network_sets(mysqli $con, int $playerId, int $bef
 }
 
 /**
- * @param array<string, mixed> $row amiga_player_stats fetch_assoc
+ * @param array<string, mixed> $row career row fetch_assoc (amiga_player_stats)
  * @return array<string, mixed>
  */
 function amiga_post_game_player_state_from_db_row(array $row): array
@@ -165,11 +166,11 @@ function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGame
 {
     $stmt = $con->prepare('SELECT * FROM amiga_player_stats WHERE player_id = ? LIMIT 1');
     if ($stmt === false) {
-        throw new RuntimeException('prepare amiga_player_stats load: ' . $con->error);
+        throw new RuntimeException('prepare amiga career load: ' . $con->error);
     }
     $stmt->bind_param('i', $playerId);
     if (!$stmt->execute()) {
-        throw new RuntimeException('execute amiga_player_stats load: ' . $stmt->error);
+        throw new RuntimeException('execute amiga career load: ' . $stmt->error);
     }
     $res = $stmt->get_result();
     $row = $res ? $res->fetch_assoc() : false;
@@ -201,8 +202,13 @@ function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGame
 }
 
 /**
- * @param array<string, mixed> $dbRow from k2_post_game_player_to_db_row (ID key)
+ * Career read source for finalize bootstrap — stats table only (not website projection).
  */
+function amiga_ops_career_source_table(mysqli $con): string
+{
+    return 'amiga_player_stats';
+}
+
 /**
  * Load all persisted career rows for tournament finalize (no per-game network SQL).
  *
@@ -211,7 +217,8 @@ function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGame
 function amiga_ops_load_player_states_for_finalize(mysqli $con): array
 {
     $players = [];
-    $res = $con->query('SELECT * FROM amiga_player_stats');
+    $table = amiga_ops_career_source_table($con);
+    $res = $con->query("SELECT * FROM `{$table}`");
     if ($res === false) {
         throw new RuntimeException('load player states for finalize: ' . $con->error);
     }

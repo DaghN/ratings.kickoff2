@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/process_completed_game.php';
 require_once __DIR__ . '/../includes/amiga_post_game_participation.php';
+require_once __DIR__ . '/../includes/amiga_event_snapshot_persist.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
 
 const AMIGA_FINALIZE_LOCK_NAME = 'amiga_finalize_tournament';
@@ -91,6 +92,84 @@ function amiga_ops_tournament_participant_ids(array $games): array
     }
 
     return array_keys($ids);
+}
+
+/**
+ * Entry Elo from last committed rating event before this tournament (not career table).
+ *
+ * @param list<int> $participantIds
+ * @return array<int, float>
+ */
+function amiga_ops_entry_ratings_before_tournament(
+    mysqli $con,
+    int $tournamentId,
+    array $participantIds
+): array {
+    if ($participantIds === []) {
+        return [];
+    }
+
+    $stmt = $con->prepare(
+        'SELECT event_date, chrono FROM tournaments WHERE id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare tournament chrono: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute tournament chrono: ' . $con->error);
+    }
+    $res = $stmt->get_result();
+    $tour = $res ? $res->fetch_assoc() : false;
+    $stmt->close();
+    if ($tour === false) {
+        $frozen = [];
+        foreach ($participantIds as $pid) {
+            $frozen[(int) $pid] = K2_POST_GAME_START_RATING;
+        }
+
+        return $frozen;
+    }
+
+    $placeholders = implode(', ', array_fill(0, count($participantIds), '?'));
+    $types = str_repeat('i', count($participantIds)) . 'sdi';
+    $sql = 'SELECT player_id, rating_after FROM ('
+        . 'SELECT e.player_id, e.rating_after, '
+        . 'ROW_NUMBER() OVER ('
+        . 'PARTITION BY e.player_id '
+        . 'ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC'
+        . ') AS rn '
+        . 'FROM amiga_rating_events e '
+        . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
+        . "WHERE e.player_id IN ({$placeholders}) "
+        . 'AND (t.event_date, t.chrono, t.id) < (?, ?, ?)'
+        . ') ranked WHERE rn = 1';
+
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare entry ratings before tournament: ' . $con->error);
+    }
+    $params = array_merge($participantIds, [
+        $tour['event_date'],
+        (float) $tour['chrono'],
+        $tournamentId,
+    ]);
+    $stmt->bind_param($types, ...$params);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute entry ratings before tournament: ' . $con->error);
+    }
+    $res = $stmt->get_result();
+
+    $frozen = [];
+    foreach ($participantIds as $pid) {
+        $frozen[(int) $pid] = K2_POST_GAME_START_RATING;
+    }
+    while ($res && ($row = $res->fetch_assoc())) {
+        $frozen[(int) $row['player_id']] = (float) $row['rating_after'];
+    }
+    $stmt->close();
+
+    return $frozen;
 }
 
 /**
@@ -548,7 +627,7 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
             $players[$pid] = k2_post_game_player_state_new();
         }
     }
-    $frozen = amiga_ops_frozen_ratings($participantIds, $players);
+    $frozen = amiga_ops_entry_ratings_before_tournament($con, $tournamentId, $participantIds);
 
     amiga_ops_log(
         'finalize-tournament: id=' . $tournamentId
@@ -684,6 +763,16 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
         'participation refresh: id=' . $tournamentId
         . ' rows=' . (int) ($participation['participation_rows'] ?? 0)
         . ' totals_players=' . (int) ($participation['totals_players'] ?? 0)
+    );
+
+    $snapshotRows = amiga_ops_persist_tournament_event_snapshots(
+        $con,
+        $tournamentId,
+        $players,
+        $participantIds
+    );
+    amiga_ops_log(
+        'event snapshots: id=' . $tournamentId . ' rows=' . $snapshotRows
     );
 
     $errors = amiga_ops_verify_tournament_finalize($con, $tournamentId);

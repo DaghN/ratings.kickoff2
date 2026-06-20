@@ -25,7 +25,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 
 $query = 'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
     . 's.WinRatio, s.DrawRatio, s.LossRatio, s.AverageOpponentRating, p.country AS Country '
-    . amiga_player_base_from_sql() . ' WHERE ' . amiga_lb_player_where_sql() . ' ORDER BY s.Rating DESC';
+    . amiga_player_base_from_sql($con) . ' WHERE ' . amiga_lb_player_where_sql() . ' ORDER BY s.Rating DESC';
 $result = k2_query_or_public_error($con, $query, 'amiga rating leaderboard');
 
 $gameCount = 0;

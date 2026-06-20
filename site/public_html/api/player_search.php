@@ -58,10 +58,12 @@ function ko2_escape_like($s)
 function ko2_player_search_rows(mysqli $con, string $pattern, int $limit, string $realmId, bool $onlineDisplayFilter): array
 {
     if ($realmId === 'amiga') {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_current_lib.php';
+        $careerTable = amiga_player_career_table($con);
         $where = 'p.name IS NOT NULL AND p.name <> \'\' AND LOWER(p.name) LIKE LOWER(?) ESCAPE \'\\\\\''
             . ' AND s.NumberGames > 0';
         $sql = 'SELECT p.id AS ID, p.name AS Name, ROUND(s.Rating) AS ratingRounded '
-            . 'FROM amiga_players p INNER JOIN amiga_player_stats s ON s.player_id = p.id WHERE '
+            . 'FROM amiga_players p INNER JOIN `' . $careerTable . '` s ON s.player_id = p.id WHERE '
             . $where . ' ORDER BY p.name ASC LIMIT ?';
     } else {
         $where = 'Name IS NOT NULL AND Name <> \'\' AND LOWER(Name) LIKE LOWER(?) ESCAPE \'\\\\\'';

@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga leaderboard wings — shared read-path SQL (amiga_player_stats only).
+ * Amiga leaderboard wings — shared read-path SQL (amiga_player_current).
  */
 declare(strict_types=1);
 

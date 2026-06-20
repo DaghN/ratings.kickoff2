@@ -9,6 +9,26 @@ Phase A0+ tooling for the offline Access source (`data/amiga/source/koatd.mdb`).
 
 ## Commands (repo root)
 
+**Sign-off / daily dev (only supported path):**
+
+```powershell
+# Nuclear reset + replay + verify (holy Amiga loop):
+python -m scripts.amiga prove
+
+# One-shot local build + staging export:
+powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
+```
+
+`prove` = drop schema → import `koatd.mdb` → full `replay` → verify suite (0 errors = shippable).
+
+**Import + replay without verify** (mid-slice only):
+
+```powershell
+python -m scripts.amiga run
+```
+
+**Not for sign-off:** `import --incremental` reloads ground truth on an existing schema (import-layer debugging only). Manual `mysql < 014…023` is archived — see [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
+
 ```powershell
 # Finalize one tournament (frozen Elo — see docs/amiga-tournament-finalize-rating-contract.md):
 python -m scripts.amiga finalize-tournament --tournament-id=N
@@ -18,14 +38,14 @@ python -m scripts.amiga reopen-tournament --tournament-id=T
 python -m scripts.amiga refinalize-from --tournament-id=T
 python -m scripts.amiga refinalize-smoke
 
-# One-shot local build (create DB, import, Elo replay)
-powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
-
-# Or step by step (import alone clears derived tables — always replay before browsing):
+# Step by step (same as prove without verify):
 python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
 python -m scripts.amiga verify-chronology
 python -m scripts.amiga verify-rating-events
+python -m scripts.amiga verify-event-snapshots
+python -m scripts.amiga verify-player-participation
+python -m scripts.amiga verify-player-matchups
 python -m scripts.amiga verify-import-manifest
 python -m scripts.amiga verify-tournament-formats
 python -m scripts.amiga fixtures verify
@@ -160,6 +180,7 @@ Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-
 # Standalone rebuilds (idempotent):
 python -m scripts.amiga performance-rating-rebuild   # after 015 migration; participation-rebuild runs this too
 python -m scripts.amiga participation-rebuild
+python -m scripts.amiga rebuild-event-snapshots   # after participation; snapshots + current
 python -m scripts.amiga matchup-rebuild
 python -m scripts.amiga generalstats-rebuild
 
@@ -169,6 +190,7 @@ python -m scripts.amiga participation-refresh-tournament --tournament-id N
 # Parity gates (player universe contract §8):
 python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
+python -m scripts.amiga verify-event-snapshots   # snapshot policy §8
 
 # WC medal spot-check vs Access (sample tournaments):
 python -m scripts.amiga honours-parity-sample
@@ -178,11 +200,15 @@ PHP live path: `amiga_ops_participation_refresh_tournament` in `finalize_tournam
 
 Participation **roster = `amiga_games`**; finish from `participation_placement.py` / `includes/amiga_participation_placement.php` → `event_finish_position` per [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) (tiers A–E; Tier E = `amiga_tournament_finish_override`). Phase ranks stay in `amiga_tournament_standings` only.
 
-**Event finish migrations (Jun 2026):** apply `017` → `018` → `019` on existing DBs, then `participation-rebuild`. Fresh installs: `010` includes `event_finish_position` (no `overall_position`).
+**Schema (Jun 2026):** nuclear reset only — `python -m scripts.amiga prove`. Fresh DDL bundle: `001`–`013`, `019`, `024` in `import_access.apply_schema()`. Archived upgrade files `014`–`023`: [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
 
-**Standings scope migration (Jun 2026 — complete):** apply `020` after `019` on existing DBs (`overall`+`group` → `league`; `group_scopes` → `league_scopes`). Fresh installs: `002`/`004` already use `league` enum. Policy: [`docs/amiga-standings-scope-policy.md`](../docs/amiga-standings-scope-policy.md). After migrate: full `python -m scripts.amiga replay` + verify suite. Parity CLI may still use `overall`/`group` as Access comparison labels (`standings_parity.py`).
+**Event finish:** `019` (Tier E override table) is in the fresh bundle; `010` has `event_finish_position`.
 
-**Tournament medals v2 (Jun 2026 — complete):** apply `021` → `021b` → `022` after `020` on existing DBs, then `participation-rebuild`. Totals use `event_*` / `wc_*` from `event_finish_position`; `is_winner` = finish 1; participation has no `wc_medal`. Policy: [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) v2 **Implemented**. Plan: [`docs/amiga-tournament-medals-unification-implementation-plan.md`](../docs/amiga-tournament-medals-unification-implementation-plan.md).
+**Standings scope:** `002`/`004` use `league`|`knockout` enum ( `003` retired from bundle).
+
+**Tournament medals v2:** `010`/`011` end-state columns; policy [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) v2.
+
+**Event snapshots:** `024` in fresh bundle. Policy: [`docs/amiga-event-snapshot-policy.md`](../docs/amiga-event-snapshot-policy.md).
 
 **Tournament structure (Jun 2026):** Disposition register **603/603** — [`amiga-tournament-structure-handlers.md`](../docs/amiga-tournament-structure-handlers.md). Review: [`disposition-REVIEW-STARTER`](../docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
@@ -202,30 +228,13 @@ python -m scripts.amiga standings-rebuild --tournament-id <id>
 
 Read surfaces: profile recent tournaments + top opponents; `/amiga/player/tournaments.php` (full history, `event_points`, Perf. rating — [`amiga-performance-rating.md`](../../docs/amiga-performance-rating.md)); `/amiga/hall-of-fame.php`; `/amiga/leaderboards/tournament-honours.php`.
 
-**Participation columns (Jun 2026):** `event_points` + W-D-L from `amiga_games` rollup; phase league points only in `amiga_tournament_standings`. See contract §5.2.1. Existing DBs: apply `014` before rebuild if the table still has a `points` column.
+**Participation columns (Jun 2026):** `event_points` + W-D-L from `amiga_games` rollup; phase league points only in `amiga_tournament_standings`. See contract §5.2.1.
 
 **Tournament fixtures foundation** (internal ops only; public builder UI deferred):
 
 ```powershell
-mysql ko2amiga_db < scripts/amiga/sql/006_tournament_fixtures.sql
-mysql ko2amiga_db < scripts/amiga/sql/007_tournament_entrants.sql
-mysql ko2amiga_db < scripts/amiga/sql/008_tournament_lifecycle.sql
-mysql ko2amiga_db < scripts/amiga/sql/009_rating_events.sql
-mysql ko2amiga_db < scripts/amiga/sql/010_player_tournament_participation.sql
-mysql ko2amiga_db < scripts/amiga/sql/011_player_tournament_totals.sql
-mysql ko2amiga_db < scripts/amiga/sql/012_player_matchup_summary.sql
-mysql ko2amiga_db < scripts/amiga/sql/013_generalstats.sql
-mysql ko2amiga_db < scripts/amiga/sql/014_participation_event_points.sql
-mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
-mysql ko2amiga_db < scripts/amiga/sql/016_participation_avg_goals.sql
-mysql ko2amiga_db < scripts/amiga/sql/017_event_finish_position.sql
-mysql ko2amiga_db < scripts/amiga/sql/018_drop_overall_position.sql
-mysql ko2amiga_db < scripts/amiga/sql/019_tournament_finish_override.sql
-mysql ko2amiga_db < scripts/amiga/sql/020_unify_league_standings_scope.sql
-mysql ko2amiga_db < scripts/amiga/sql/021_tournament_medals_totals.sql
-mysql ko2amiga_db < scripts/amiga/sql/021b_wc_finish_backfill.sql
-mysql ko2amiga_db < scripts/amiga/sql/022_drop_wc_medal.sql
-mysql ko2amiga_db < scripts/amiga/sql/023_unify_stage_types.sql
+# Schema + derived rebuild: use prove (not manual mysql ladder).
+python -m scripts.amiga prove
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle

@@ -31,7 +31,7 @@ Amiga player derived truth is a **sparse timeline**: one complete row per `(play
 | **S1** | **Canonical grain** | `(player_id, tournament_id)` where the player had ≥1 game in that tournament |
 | **S2** | **Full row** | Store the **complete** player fact row at finalize — career stats, event-local facts, honours rollups, rating commit fields, game-ID pointers, ratios. **No column cherry-picking** per surface |
 | **S3** | **Table names** | `amiga_player_event_snapshots` (timeline) · `amiga_player_current` (present projection). **Retire** `amiga_player_stats`, `amiga_rating_events`, `amiga_player_tournament_participation`, `amiga_player_tournament_totals` after migration |
-| **S4** | **Current is projection** | `amiga_player_current` is updated atomically when a new snapshot row is written. Verify: current row = latest snapshot row per player. Snapshots win on conflict |
+| **S4** | **Current is projection** | `amiga_player_current` is updated atomically when a new snapshot row is written. Verify: current row = latest snapshot row per player. Snapshots win on conflict. **Ops/finalize must not read `current` for inputs** — only write it as output; website reads are the consumer |
 | **S5** | **Non-participants** | Players who did not play in event *E* get **no** new snapshot row; their state at cutoff *E* is their **last prior** snapshot |
 | **S6** | **Historical read pattern** | At cutoff *T*: per `player_id`, take the snapshot row with maximum tournament chrono ≤ *T*; sort/filter for the surface |
 | **S7** | **Present read pattern** | `SELECT … FROM amiga_player_current` (or PHP helper). Optional speed test later; separate current table is allowed for ergonomics even if “latest from snapshots” is fast enough |
@@ -119,14 +119,17 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
 ## 6. Finalize writer (conceptual)
 
 ```text
-1. Load prior state per participant from amiga_player_current (or START_RATING / empty)
+1. Load prior career from amiga_player_stats; entry Elo from last rating_events before this event;
+   prior career-best from latest snapshot before this event (not amiga_player_current)
 2. Process tournament games (frozen within-event Elo) → game_ratings rows
 3. Commit rating deltas; update in-memory PlayerState; network counts; peaks; honours rollups
 4. For each participant with games:
      INSERT full snapshot row
-     UPSERT amiga_player_current from that row
+     UPSERT amiga_player_current from that row (projection only)
 5. Mark tournament rating_finalized
 ```
+
+**Proof path:** `python -m scripts.amiga prove` — nuclear reset + replay + verify suite. Reopen + single finalize without full rewind is unsafe for derived truth.
 
 Refinalize tournament *T*: rewrite snapshot(s) at *T*, then **forward-recalculate** snapshots for later events for affected players (inherent to cumulative truth — not introduced by this design).
 
