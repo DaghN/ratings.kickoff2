@@ -9,6 +9,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/process_completed_game.php';
 require_once __DIR__ . '/../includes/amiga_post_game_participation.php';
 require_once __DIR__ . '/../includes/amiga_event_snapshot_persist.php';
+require_once __DIR__ . '/../includes/amiga_matchup_cumulative.php';
+require_once __DIR__ . '/../includes/amiga_matchup_persist.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
 
 const AMIGA_FINALIZE_LOCK_NAME = 'amiga_finalize_tournament';
@@ -30,7 +32,7 @@ class AmigaFinalizeLockException extends RuntimeException
  */
 function amiga_ops_load_tournament_row(mysqli $con, int $tournamentId): array
 {
-    $stmt = $con->prepare('SELECT id, name, rating_finalized FROM tournaments WHERE id = ? LIMIT 1');
+    $stmt = $con->prepare('SELECT id, name, rating_finalized, event_date, chrono FROM tournaments WHERE id = ? LIMIT 1');
     if ($stmt === false) {
         throw new RuntimeException('prepare load tournament: ' . $con->error);
     }
@@ -256,157 +258,35 @@ function amiga_ops_write_game_ratings_finalize(mysqli $con, array $row): void
 }
 
 /**
- * @return list<array<string, mixed>>
+ * @param list<array<string, mixed>> $games
  */
-function amiga_ops_load_rated_game_rows_for_finalize(mysqli $con): array
-{
-    $sql = 'SELECT g.id AS id, g.player_a_id AS idA, g.player_b_id AS idB, '
-        . 'r.actual_score AS ActualScore, r.dd_player_a AS DDPlayerA, r.dd_player_b AS DDPlayerB, '
-        . 'r.cs_player_a AS CSPlayerA, r.cs_player_b AS CSPlayerB '
-        . 'FROM amiga_games g '
-        . 'INNER JOIN amiga_game_ratings r ON r.game_id = g.id '
-        . 'ORDER BY g.game_date ASC, g.id ASC';
-    $res = $con->query($sql);
-    if ($res === false) {
-        throw new RuntimeException('load rated game rows: ' . $con->error);
-    }
-    $rows = [];
-    while ($row = $res->fetch_assoc()) {
-        $rows[] = $row;
-    }
-    $res->free();
-
-    return $rows;
-}
-
-/**
- * @param array<int, array<string, mixed>> $players
- * @param list<array<string, mixed>> $gameRows
- */
-function amiga_ops_finalize_network_counts_from_rows(array &$players, array $gameRows): void
-{
-    /** @var array<int, array<string, array<int, true>>> $buckets */
-    $buckets = [];
-
-    foreach ($gameRows as $g) {
-        $idA = (int) $g['idA'];
-        $idB = (int) $g['idB'];
-        $score = (float) $g['ActualScore'];
-        $ddA = (int) ($g['DDPlayerA'] ?? 0);
-        $ddB = (int) ($g['DDPlayerB'] ?? 0);
-        $csA = (int) ($g['CSPlayerA'] ?? 0);
-        $csB = (int) ($g['CSPlayerB'] ?? 0);
-
-        foreach ([$idA, $idB] as $pid) {
-            if (!isset($buckets[$pid])) {
-                $buckets[$pid] = [
-                    'opponents' => [],
-                    'victims' => [],
-                    'culprits' => [],
-                    'dd_victims' => [],
-                    'dd_culprits' => [],
-                    'cs_victims' => [],
-                    'cs_culprits' => [],
-                ];
-            }
-        }
-
-        $buckets[$idA]['opponents'][$idB] = true;
-        $buckets[$idB]['opponents'][$idA] = true;
-
-        if ($score === 1.0) {
-            $buckets[$idA]['victims'][$idB] = true;
-            $buckets[$idB]['culprits'][$idA] = true;
-        } elseif ($score === 0.0) {
-            $buckets[$idB]['victims'][$idA] = true;
-            $buckets[$idA]['culprits'][$idB] = true;
-        }
-
-        if ($ddA === 1) {
-            $buckets[$idA]['dd_victims'][$idB] = true;
-            $buckets[$idB]['dd_culprits'][$idA] = true;
-        }
-        if ($ddB === 1) {
-            $buckets[$idB]['dd_victims'][$idA] = true;
-            $buckets[$idA]['dd_culprits'][$idB] = true;
-        }
-        if ($csA === 1) {
-            $buckets[$idA]['cs_victims'][$idB] = true;
-            $buckets[$idB]['cs_culprits'][$idA] = true;
-        }
-        if ($csB === 1) {
-            $buckets[$idB]['cs_victims'][$idA] = true;
-            $buckets[$idA]['cs_culprits'][$idB] = true;
-        }
-    }
-
-    foreach ($players as $pid => $st) {
-        if ((int) ($st['games'] ?? 0) <= 0) {
-            continue;
-        }
-        $b = $buckets[$pid] ?? null;
-        if ($b === null) {
-            continue;
-        }
-        $st['different_opponents'] = count($b['opponents']);
-        $st['different_victims'] = count($b['victims']);
-        $st['different_culprits'] = count($b['culprits']);
-        $st['double_digits_victims'] = count($b['dd_victims']);
-        $st['double_digits_culprits'] = count($b['dd_culprits']);
-        $st['clean_sheets_victims'] = count($b['cs_victims']);
-        $st['clean_sheets_culprits'] = count($b['cs_culprits']);
-        $players[$pid] = $st;
-    }
-}
-
-/**
- * @param list<int> $playerIds
- * @param array<int, array<string, mixed>> $players
- */
-function amiga_ops_recompute_rating_peaks_from_events(
+function amiga_ops_apply_tournament_matchups_batch(
     mysqli $con,
-    array &$players,
-    array $playerIds
+    int $tournamentId,
+    AmigaMatchupCumulative $matchups
 ): void {
-    $sql = 'SELECT e.rating_before, e.rating_after '
-        . 'FROM amiga_player_event_snapshots e '
-        . 'INNER JOIN tournaments t ON t.id = e.tournament_id '
-        . 'WHERE e.player_id = ? '
-        . 'ORDER BY t.event_date ASC, t.chrono ASC, e.finalized_at ASC, e.id ASC';
-    $stmt = $con->prepare($sql);
-    if ($stmt === false) {
-        throw new RuntimeException('prepare rating peaks: ' . $con->error);
+    $games = amiga_ops_load_tournament_games_for_finalize($con, $tournamentId);
+    foreach ($games as $game) {
+        $matchups->applyGame($game);
     }
+}
 
-    foreach ($playerIds as $pid) {
-        $st = $players[$pid] ?? null;
-        if ($st === null || (int) ($st['games'] ?? 0) < K2_POST_GAME_ESTABLISHED_MIN_GAMES) {
-            continue;
-        }
-        $stmt->bind_param('i', $pid);
-        if (!$stmt->execute()) {
-            throw new RuntimeException('execute rating peaks player_id=' . $pid . ': ' . $stmt->error);
-        }
-        $res = $stmt->get_result();
-        $events = [];
-        if ($res) {
-            while ($row = $res->fetch_assoc()) {
-                $events[] = $row;
-            }
-            $res->free();
-        }
-        if ($events === []) {
-            continue;
-        }
-        $points = [(float) $events[0]['rating_before']];
-        foreach ($events as $row) {
-            $points[] = (float) $row['rating_after'];
-        }
-        $st['peak_rating'] = max($points);
-        $st['lowest_rating'] = min($points);
-        $players[$pid] = $st;
+/**
+ * Warm in-memory career + matchup state through already-finalized tournaments (refinalize).
+ *
+ * @param list<int> $tournamentIds
+ * @param array<int, array<string, mixed>> $players
+ */
+function amiga_ops_warm_state_through_finalized(
+    mysqli $con,
+    array $tournamentIds,
+    AmigaMatchupCumulative $matchups,
+    array &$players
+): void {
+    foreach ($tournamentIds as $tournamentId) {
+        amiga_ops_apply_tournament_matchups_batch($con, (int) $tournamentId, $matchups);
+        amiga_ops_apply_tournament_stats_batch($con, (int) $tournamentId, $players);
     }
-    $stmt->close();
 }
 
 /**
@@ -568,31 +448,6 @@ function amiga_ops_apply_tournament_stats_batch(
 }
 
 /**
- * @param list<int> $tournamentIds
- */
-function amiga_ops_rebuild_stats_through_finalized(mysqli $con, array $tournamentIds): void
-{
-    if ($tournamentIds === []) {
-        return;
-    }
-
-    $players = [];
-    foreach ($tournamentIds as $tournamentId) {
-        amiga_ops_apply_tournament_stats_batch($con, $tournamentId, $players);
-    }
-
-    amiga_ops_finalize_network_counts_from_rows($players, amiga_ops_load_rated_game_rows_for_finalize($con));
-    amiga_ops_recompute_rating_peaks_from_events($con, $players, array_keys($players));
-
-    foreach ($players as $pid => $st) {
-        if ((int) ($st['games'] ?? 0) <= 0) {
-            continue;
-        }
-        amiga_post_game_player_write($con, k2_post_game_player_to_db_row($st, (int) $pid));
-    }
-}
-
-/**
  * Finalize one tournament per amiga-tournament-finalize-rating-contract.md § 5.
  *
  * @return array{
@@ -604,8 +459,13 @@ function amiga_ops_rebuild_stats_through_finalized(mysqli $con, array $tournamen
  *   dry_run?: bool
  * }
  */
-function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun = false): array
-{
+function amiga_finalize_tournament(
+    mysqli $con,
+    int $tournamentId,
+    bool $dryRun = false,
+    ?AmigaMatchupCumulative $matchups = null,
+    ?array &$players = null,
+): array {
     $tour = amiga_ops_load_tournament_row($con, $tournamentId);
     if ((int) ($tour['rating_finalized'] ?? 0) === 1) {
         throw new AmigaTournamentAlreadyFinalizedException(
@@ -621,11 +481,17 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
     }
 
     $participantIds = amiga_ops_tournament_participant_ids($games);
-    $players = amiga_ops_load_player_states_for_finalize($con);
+    if ($players === null) {
+        $players = amiga_ops_load_player_states_for_finalize($con);
+    }
     foreach ($participantIds as $pid) {
         if (!isset($players[$pid])) {
             $players[$pid] = k2_post_game_player_state_new();
         }
+    }
+    if ($matchups === null) {
+        $matchups = new AmigaMatchupCumulative();
+        $matchups->loadFromSummary($con, $participantIds);
     }
     $frozen = amiga_ops_entry_ratings_before_tournament($con, $tournamentId, $participantIds);
 
@@ -668,6 +534,7 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
         $perfPairs = array_fill_keys($participantIds, []);
 
         foreach ($games as $game) {
+            $matchups->applyGame($game);
             $gameId = (int) $game['id'];
             $derived = amiga_ops_compute_game_ratings_frozen($game, $frozen);
             amiga_ops_apply_player_stats_for_game($con, $game, $derived, $players, false, false);
@@ -686,8 +553,6 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
 
             amiga_ops_write_game_ratings_finalize($con, $derived);
         }
-
-        amiga_ops_finalize_network_counts_from_rows($players, amiga_ops_load_rated_game_rows_for_finalize($con));
 
         $finalizedAt = gmdate('Y-m-d H:i:s');
         sort($participantIds);
@@ -712,8 +577,6 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
             $ratingEvents++;
         }
 
-        amiga_ops_recompute_rating_peaks_from_events($con, $players, $participantIds);
-
         $flagStmt = $con->prepare(
             'UPDATE tournaments SET rating_finalized = 1, rating_finalized_at = ? WHERE id = ?'
         );
@@ -736,6 +599,17 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
         amiga_ops_release_finalize_lock($con);
     }
 
+    foreach ($participantIds as $pid) {
+        if (!isset($eventCommitsByPlayer[$pid])) {
+            continue;
+        }
+        $matchups->applyNetworkToPlayerState($pid, $players[$pid]);
+        amiga_matchup_apply_peak_from_event_rating(
+            $players[$pid],
+            (float) $eventCommitsByPlayer[$pid]['rating_after']
+        );
+    }
+
     $participation = amiga_ops_participation_refresh_tournament(
         $con,
         $tournamentId,
@@ -755,6 +629,23 @@ function amiga_finalize_tournament(mysqli $con, int $tournamentId, bool $dryRun 
     );
     amiga_ops_log(
         'event snapshots: id=' . $tournamentId . ' rows=' . $snapshotRows
+    );
+
+    $eventDate = (string) $tour['event_date'];
+    $eventChrono = (int) $tour['chrono'];
+    $atEventRows = amiga_ops_persist_matchup_at_event(
+        $con,
+        $tournamentId,
+        $eventDate,
+        $eventChrono,
+        $matchups,
+        $participantIds
+    );
+    $summaryRows = amiga_ops_upsert_matchup_summary($con, $matchups, $participantIds);
+    amiga_ops_log(
+        'matchup at_event: id=' . $tournamentId
+        . ' rows=' . $atEventRows
+        . ' summary_upserts=' . $summaryRows
     );
 
     $errors = amiga_ops_verify_tournament_finalize($con, $tournamentId);

@@ -349,6 +349,7 @@ def finalize_tournament(
         players = load_player_states(conn)
     if matchups is None:
         matchups = MatchupCumulative()
+        matchups.load_from_summary(conn, participant_ids)
     for pid in participant_ids:
         players.setdefault(pid, PlayerState())
 

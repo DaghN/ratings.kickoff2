@@ -62,6 +62,11 @@ function amiga_ops_reopen_tournaments_batch(mysqli $con, array $tournamentIds): 
     if (!$con->query("DELETE FROM amiga_player_event_snapshots WHERE tournament_id IN ({$idList})")) {
         throw new RuntimeException('DELETE event snapshots batch: ' . $con->error);
     }
+    if (!$con->query(
+        "DELETE FROM amiga_player_matchup_at_event WHERE as_of_tournament_id IN ({$idList})"
+    )) {
+        throw new RuntimeException('DELETE matchup at-event batch: ' . $con->error);
+    }
     $sql = 'DELETE r FROM amiga_game_ratings r '
         . 'INNER JOIN amiga_games g ON g.id = r.game_id '
         . "WHERE g.tournament_id IN ({$idList})";
@@ -148,12 +153,14 @@ function amiga_ops_refinalize_from(mysqli $con, int $tournamentId, bool $dryRun 
 
     amiga_ops_reopen_tournaments_batch($con, $fromIds);
 
-    amiga_ops_rebuild_stats_through_finalized($con, $beforeIds);
+    $players = amiga_ops_load_player_states_for_finalize($con);
+    $matchups = new AmigaMatchupCumulative();
+    amiga_ops_warm_state_through_finalized($con, $beforeIds, $matchups, $players);
 
     $gamesTotal = 0;
     $eventsTotal = 0;
     foreach ($fromIds as $tid) {
-        $result = amiga_finalize_tournament($con, $tid, false);
+        $result = amiga_finalize_tournament($con, $tid, false, $matchups, $players);
         if (!empty($result['skipped'])) {
             continue;
         }

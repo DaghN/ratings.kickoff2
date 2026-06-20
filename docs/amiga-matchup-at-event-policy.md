@@ -98,7 +98,7 @@ At cutoff T: pair rows where `event_date/chrono ≤ T`, take latest row per `(pl
 |-------|--------|
 | `amiga_generalstats` / HoF timeline | Later slice |
 | Online `player_matchup_summary` | Unchanged; per-game post-game |
-| PHP ops parity | Follow Python finalize in same slice where practical |
+| PHP ops parity | **Done** Jun 2026 — `finalize_tournament.php` mirrors cumulative matchup + network/peaks |
 
 ---
 

@@ -144,7 +144,7 @@ Step-by-step equivalent: `import --recreate-schema` → `replay` → verify CLIs
 
 Full `replay` (~27k games): **~180s local** (Jun 2026) — each tournament finalize writes `amiga_game_ratings`, snapshots/current, matchup at-event + summary, and network/peaks from cumulative pairs. No end-of-replay tail batches.
 
-Live `finalize-tournament` (PHP or Python CLI), with full history already on disk: **~0.7s local** for one tail-end event (Jun 2026 benchmark — e.g. World Cup XXIII, 331 games, after ~601 prior tournaments). PHP path still rescan-based until ops parity slice.
+Live `finalize-tournament` (PHP or Python CLI): warms cumulative matchups from `amiga_player_matchup_summary`, applies event games, derives network/peaks at finalize — no full-history rescan.
 
 `replay --limit N` finalizes tournaments until **≥ N games** are covered (not N tournaments).
 

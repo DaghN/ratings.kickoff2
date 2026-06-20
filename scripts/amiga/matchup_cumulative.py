@@ -104,6 +104,39 @@ class MatchupCumulative:
     def pairs_for_player(self, player_id: int) -> dict[int, PairTotals]:
         return self.pairs.get(player_id, {})
 
+    def load_from_summary(
+        self,
+        conn: pymysql.connections.Connection,
+        player_ids: set[int],
+    ) -> None:
+        """Warm cumulative state from present summary (live finalize path)."""
+        if not player_ids:
+            return
+        placeholders = ", ".join(["%s"] * len(player_ids))
+        sql = f"""
+            SELECT player_id, opponent_id, games, wins, draws, losses,
+                   goals_for, goals_against, dd_wins, dd_losses, cs_wins, cs_losses
+            FROM amiga_player_matchup_summary
+            WHERE player_id IN ({placeholders})
+        """
+        with conn.cursor() as cur:
+            cur.execute(sql, tuple(sorted(player_ids)))
+            for row in cur.fetchall():
+                pid = int(row["player_id"])
+                oid = int(row["opponent_id"])
+                self.pairs.setdefault(pid, {})[oid] = PairTotals(
+                    games=int(row["games"]),
+                    wins=int(row["wins"]),
+                    draws=int(row["draws"]),
+                    losses=int(row["losses"]),
+                    goals_for=int(row["goals_for"]),
+                    goals_against=int(row["goals_against"]),
+                    dd_wins=int(row["dd_wins"]),
+                    dd_losses=int(row["dd_losses"]),
+                    cs_wins=int(row["cs_wins"]),
+                    cs_losses=int(row["cs_losses"]),
+                )
+
     def network_counts(self, player_id: int) -> dict[str, int]:
         pairs = self.pairs_for_player(player_id)
         return {
