@@ -1,14 +1,18 @@
 <?php
 /**
- * Amiga realm hub tabs — News · Leaderboards · Tournaments · Live tournaments · Activity · History · Hall of Fame.
+ * Amiga realm hub tabs — News · Leaderboards · Tournaments · Live tournaments · Activity · Hall of Fame.
  *
- * Set $k2AmigaHubTabActive before include: news | leaderboards | tournaments | live-tournaments | activity | history | hall-of-fame
+ * Set $k2AmigaHubTabActive before include: news | leaderboards | tournaments | live-tournaments | activity | hall-of-fame
  *
  * Leaderboards tab → rating wing under /amiga/leaderboards/ (tournament honours is a sub-wing only).
  * Wing nav on all leaderboard pages (includes/amiga_lb_nav.php). No streaks wing.
  *
  * Tint picker matches online hub (realm-neutral). Peer pill scroll: data-k2-carry-scroll.
  */
+declare(strict_types=1);
+
+require_once __DIR__ . '/amiga_snapshot_url.php';
+
 $k2AmigaHubTabActive = $k2AmigaHubTabActive ?? '';
 
 $k2AmigaHubTabs = [
@@ -17,17 +21,17 @@ $k2AmigaHubTabs = [
 	'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
 	'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live tournaments'],
 	'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
-	'history' => ['href' => '/amiga/history.php', 'label' => 'History'],
 	'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
 ];
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';
 ?>
+<?php include __DIR__ . '/amiga_snapshot_chrome.inc.php'; ?>
 <div class="k2-hub-bar">
 	<nav class="k2-hub-tabs k2-nav-pills" data-k2-carry-scroll aria-label="Amiga 500 hub">
 		<div class="k2-hub-tabs__links">
 <?php foreach ($k2AmigaHubTabs as $hubTabId => $tab) {
-	$hrefEsc = htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8');
+	$hrefEsc = htmlspecialchars(amiga_url_with_context($tab['href']), ENT_QUOTES, 'UTF-8');
 	$labelEsc = htmlspecialchars($tab['label'], ENT_QUOTES, 'UTF-8');
 	$activeClass = $k2AmigaHubTabActive === $hubTabId ? ' is-active' : '';
 ?>

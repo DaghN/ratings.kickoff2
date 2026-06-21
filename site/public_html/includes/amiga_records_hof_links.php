@@ -7,6 +7,8 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/amiga_snapshot_url.php';
+
 /**
  * @return array{wing: string, sort: int, dir: 'asc'|'desc'}|null
  */
@@ -25,8 +27,8 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'most_cs_victims' => ['wing' => 'victims', 'sort' => 7, 'dir' => 'desc'],
         'most_goals_one_game' => ['wing' => 'goals', 'sort' => 9, 'dir' => 'desc'],
         'biggest_win_margin' => ['wing' => 'goals', 'sort' => 11, 'dir' => 'desc'],
-        'biggest_draw' => ['wing' => 'goals', 'sort' => 13, 'dir' => 'desc'],
-        'biggest_sum_goals' => ['wing' => 'goals', 'sort' => 14, 'dir' => 'desc'],
+        'biggest_draw' => ['wing' => 'goals', 'sort' => 14, 'dir' => 'desc'],
+        'biggest_sum_goals' => ['wing' => 'goals', 'sort' => 13, 'dir' => 'desc'],
         'peak_rating' => ['wing' => 'peak-rating', 'sort' => 4, 'dir' => 'desc'],
         'attack_avg' => ['wing' => 'goals', 'sort' => 6, 'dir' => 'desc'],
         'defense_avg' => ['wing' => 'goals', 'sort' => 7, 'dir' => 'asc'],
@@ -67,8 +69,11 @@ function amiga_records_hof_lb_href(string $metric): ?string
         return null;
     }
 
-    return amiga_records_hof_lb_wing_path($target['wing']) . '?' . http_build_query([
-        'k2_sort' => (string) $target['sort'],
-        'k2_dir' => $target['dir'],
-    ]);
+    return amiga_url_with_context(
+        amiga_records_hof_lb_wing_path($target['wing']),
+        [
+            'k2_sort' => (string) $target['sort'],
+            'k2_dir' => $target['dir'],
+        ]
+    );
 }

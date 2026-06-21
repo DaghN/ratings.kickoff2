@@ -7,7 +7,7 @@
 
 **Authority:** Rating timeline = [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · layers = [`amiga-data-contract.md`](amiga-data-contract.md) · player surfaces = [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)
 
-**Hub placement (dev):** dedicated **History** tab on the Amiga hub (`/amiga/history.php`) — temporary navigation for building the feature. Product IA may later fold “present vs history” under Leaderboards; do not block V1 on that redesign.
+**Hub placement:** **History tab removed Jun 2026.** Rating-at-cutoff uses **Leaderboards → Rating** with time-travel `?as=`; legacy `/amiga/history.php` redirects there. Rating history lib + snapshot ladder remain for time-travel chrome and LB parity.
 
 ---
 

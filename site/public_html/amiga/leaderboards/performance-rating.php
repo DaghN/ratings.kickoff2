@@ -15,6 +15,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_performance_rating.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
@@ -23,7 +24,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
-$perfRows = amiga_lb_performance_rating_rows($con);
+$ctx = amiga_lb_context($con);
+$perfRows = amiga_lb_performance_rating_rows($con, $ctx);
 mysqli_close($con);
 
 $k2AmigaLbWingActive = 'performance-rating';

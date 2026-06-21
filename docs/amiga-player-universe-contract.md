@@ -120,7 +120,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Performance rating LB** | `/amiga/leaderboards/performance-rating.php` | `amiga_player_event_snapshots` | best event per player | B (shipped) |
 | **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_current` honours + `Rating` | `event_*` + `wc_*` | B (shipped) |
 | **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on current | WC panel; metric → LB deep links | B (shipped) |
-| **Historical rating ladder** | `/amiga/history.php` | `amiga_player_event_snapshots` cutoff reads (`amiga_rating_history_lib.php`) | Event / Month / Year wings; Δ vs prior wing snapshot (1600 debut baseline) | A (slice 7) |
+| **Historical rating ladder** | `/amiga/leaderboards/rating.php?as=` (legacy `/amiga/history.php` → redirect) | `amiga_player_event_snapshots` cutoff reads | Time-travel ribbon; Δ column not on LB wing (History page retired Jun 2026) | A (slice 7) |
 | **Top-10 Elo line race** | `/amiga/news.php` | `api/amiga_top10_rating_race.php` → same lib | Chart.js animation; dynamic top 10 per event | A (shipped V1.1) |
 | **WC medals block (dedicated)** | profile | `amiga_player_current` honours | honours strip covers summary | B (deferred) |
 

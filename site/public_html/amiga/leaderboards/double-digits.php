@@ -15,17 +15,22 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+$ctx = amiga_lb_context($con);
 
-$query = 'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.DoubleDigits, s.CleanSheets, '
+$result = amiga_lb_query_career(
+    $con,
+    $ctx,
+    'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.DoubleDigits, s.CleanSheets, '
     . 's.DoubleDigitsRatio, s.CleanSheetsRatio, s.DoubleDigitsConceded, s.CleanSheetsConceded, '
-    . 's.DoubleDigitsConcededRatio, s.CleanSheetsConcededRatio '
-    . amiga_player_base_from_sql($con) . ' WHERE ' . amiga_lb_player_where_sql() . ' ORDER BY s.DoubleDigits DESC, s.Rating DESC';
-$result = k2_query_or_public_error($con, $query, 'amiga double-digits leaderboard');
+    . 's.DoubleDigitsConcededRatio, s.CleanSheetsConcededRatio ',
+    'ORDER BY s.DoubleDigits DESC, s.Rating DESC'
+);
 
 mysqli_close($con);
 

@@ -62,6 +62,8 @@
 
 - **Amiga ground layers L0–L5 (Jun 2026):** **Track complete (slices 1–8)** — modular `prove`, export packs, docs closure. [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md).
 
+- **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
+
 ---
 
 ## Deep reference (read on demand)
@@ -106,7 +108,16 @@
 
 | When | What |
 |------|------|
-| 2026-06 | **Amiga stored id/date Phase D** — `verify_php_finalize_parity.py` (T24 reopen+finalize PHP vs Python); prior-snapshot carry in persist; P7 closed; `prove` green. |
+| 2026-06 | **Amiga time travel chrome v2** — header Present day \| Time travel segment; ribbon above hub (one row: wings + stepper + picker); entry/exit links removed. |
+| 2026-06 | **Amiga History tab removed** — hub tab + ladder page retired; `/amiga/history.php` 301 → rating LB (`as=` preserved). |
+| 2026-06 | **Amiga HoF** — removed World Cup medals panel; tournament honours stay on LB wing only. |
+| 2026-06 | **Amiga time travel slice 5** — History on shared `as=` + chrome; legacy wing/at → canonical URL. |
+| 2026-06 | **Amiga time travel slice 4** — HoF reads realm snapshots at cutoff; LB deep links carry `as=`. |
+| 2026-06 | **Amiga time travel entry default** — inactive **Time travel** link opens first calendar year (`year:` wing), not latest event. |
+| 2026-06 | **Amiga time travel slice 3** — all eight LB wings read `amiga_player_event_snapshots` at cutoff; probe top-10 history parity OK. |
+| 2026-06 | **Amiga time travel slice 2** — ribbon chrome + hub/player link propagation; entry link; profile unwired note. |
+| 2026-06 | **Amiga time travel slice 1** — snapshot context + URL helpers + shared `as=` resolution; probe OK. |
+| 2026-06 | **Amiga time travel policy** — global `as=` lens locked; phase 1 = LB + HoF (profile deferred). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md) |
 | 2026-06 | **Amiga stored id/date Phase C** — `verify_stored_id_date_pairs.py` (rise FK pairing, honours_last, last participation, career-best replay); wired in `prove`; P4–P6 closed. |
 | 2026-06 | **Amiga stored id/date Phase B** — `verify_hof_holder_projection.py` (career `_holder_record_date`, game SQL oracle + GameID dates, ratio dual oracle); wired in `prove`; manifest P2/P3 closed. |
 | 2026-06 | **Amiga SCH-030 career HoF rise dates** — `030_career_rise_dates` DDL; `career_rise.py` + PHP lib; snapshot persist + realm projection; `verify-hof-geo-year` career oracle (18 HoF dates); unit tests; `prove` green; export refreshed. |

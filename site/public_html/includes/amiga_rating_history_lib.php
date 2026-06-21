@@ -544,12 +544,168 @@ function amiga_rating_history_normalize_wing(string $wing): string
     };
 }
 
+// --- Time travel shared catalog / cutoff resolution (amiga-time-travel-policy.md) ---
+
+/**
+ * Parse canonical `as` param: `year:2003`, `month:2003-11`, `event:589`.
+ *
+ * @return array{wing: string, key: string}|null
+ */
+function amiga_snapshot_parse_as_param(string $as): ?array
+{
+    $as = trim($as);
+    if ($as === '' || !preg_match('/^(year|month|event):(.+)$/i', $as, $matches)) {
+        return null;
+    }
+
+    $wing = amiga_rating_history_normalize_wing($matches[1]);
+    $key = trim($matches[2]);
+    if ($key === '') {
+        return null;
+    }
+
+    if ($wing === 'month' && !preg_match('/^\d{4}-\d{2}$/', $key)) {
+        return null;
+    }
+    if ($wing === 'year' && !preg_match('/^\d{4}$/', $key)) {
+        return null;
+    }
+    if ($wing === 'event' && !ctype_digit($key)) {
+        return null;
+    }
+
+    return ['wing' => $wing, 'key' => $key];
+}
+
+function amiga_snapshot_format_as_param(string $wing, string $key): string
+{
+    return amiga_rating_history_normalize_wing($wing) . ':' . $key;
+}
+
+/**
+ * Resolve wing catalog position without loading a ladder (time travel context).
+ *
+ * @return array{
+ *   wing: string,
+ *   key: string,
+ *   catalog: list<array<string, mixed>>,
+ *   entry: array<string, mixed>|null,
+ *   prev_key: string|null,
+ *   next_key: string|null
+ * }|null
+ */
+function amiga_snapshot_resolve_catalog_view(mysqli $con, string $wing, ?string $atKey): ?array
+{
+    $wing = amiga_rating_history_normalize_wing($wing);
+    $catalog = amiga_rating_history_catalog_for_wing($con, $wing);
+    if ($catalog === []) {
+        return null;
+    }
+
+    $position = amiga_rating_history_catalog_position($catalog, $atKey);
+    $entry = $position['entry'];
+    if ($entry === null || $entry['cutoff_tournament_id'] === null) {
+        return null;
+    }
+
+    $resolvedKey = (string) $entry['key'];
+
+    return [
+        'wing' => $wing,
+        'key' => $resolvedKey,
+        'catalog' => $catalog,
+        'entry' => $entry,
+        'prev_key' => $position['prev_key'],
+        'next_key' => $position['next_key'],
+    ];
+}
+
+/**
+ * @param array<string, mixed>|null $entry
+ * @return array{
+ *   wing: string,
+ *   key: string,
+ *   tournament_id: int,
+ *   event_date: string,
+ *   chrono: float,
+ *   label: string
+ * }|null
+ */
+function amiga_snapshot_cutoff_from_catalog_entry(?array $entry, string $wing, string $key): ?array
+{
+    if ($entry === null || $entry['cutoff_tournament_id'] === null) {
+        return null;
+    }
+
+    return [
+        'wing' => amiga_rating_history_normalize_wing($wing),
+        'key' => $key,
+        'tournament_id' => (int) $entry['cutoff_tournament_id'],
+        'event_date' => (string) $entry['cutoff_event_date'],
+        'chrono' => (float) $entry['cutoff_chrono'],
+        'label' => (string) ($entry['label'] ?? $key),
+    ];
+}
+
+/**
+ * Resolve full catalog view from canonical `as` param.
+ *
+ * @return array{
+ *   wing: string,
+ *   key: string,
+ *   catalog: list<array<string, mixed>>,
+ *   entry: array<string, mixed>|null,
+ *   prev_key: string|null,
+ *   next_key: string|null
+ * }|null
+ */
+function amiga_snapshot_resolve_as(mysqli $con, string $asParam): ?array
+{
+    $parsed = amiga_snapshot_parse_as_param($asParam);
+    if ($parsed === null) {
+        return null;
+    }
+
+    return amiga_snapshot_resolve_catalog_view($con, $parsed['wing'], $parsed['key']);
+}
+
 function amiga_rating_history_page_url(string $wing, string $atKey): string
 {
-    return '/amiga/history.php?' . http_build_query([
-        'wing' => amiga_rating_history_normalize_wing($wing),
-        'at' => $atKey,
-    ]);
+    return '/amiga/leaderboards/rating.php?as=' . rawurlencode(
+        amiga_snapshot_format_as_param(amiga_rating_history_normalize_wing($wing), $atKey)
+    );
+}
+
+/** Latest finalized event — default event-wing `as=` param (`event:{id}`). */
+function amiga_snapshot_default_event_as_param(mysqli $con): ?string
+{
+    $catalog = amiga_rating_history_catalog_event($con);
+    if ($catalog === []) {
+        return null;
+    }
+
+    $last = $catalog[count($catalog) - 1];
+
+    return amiga_snapshot_format_as_param('event', (string) $last['key']);
+}
+
+/**
+ * @return array{
+ *   wing: string,
+ *   catalog: list<array<string, mixed>>,
+ *   entry: array<string, mixed>|null,
+ *   prev_key: string|null,
+ *   next_key: string|null,
+ *   ladder: list<array{player_id: int, name: string, country: string, rating_after: float, rank: int, rating_delta: float}>
+ * }
+ */
+function amiga_rating_history_resolve_from_context(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    if (!$ctx->isActive()) {
+        return amiga_rating_history_resolve_view($con, 'event', null);
+    }
+
+    return amiga_rating_history_resolve_view($con, $ctx->wing(), $ctx->key());
 }
 
 /**

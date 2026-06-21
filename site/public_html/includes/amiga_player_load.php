@@ -74,7 +74,9 @@ function amiga_player_load(mysqli $con, int $id): array
 
 function k2_amiga_player_link(int $id, string $name): string
 {
-    $href = k2_amiga_route('amiga-player-profile', ['id' => $id]);
+    require_once __DIR__ . '/amiga_snapshot_url.php';
+    $href = amiga_url_with_context('/amiga/player/profile.php', ['id' => $id]);
+
     return '<a class="k2-link-star" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
         . k2_h($name) . '</a>';
 }

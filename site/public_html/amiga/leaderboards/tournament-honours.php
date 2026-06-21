@@ -17,21 +17,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
+$ctx = amiga_lb_context($con);
 
-$honoursRows = amiga_tournament_honours_leaderboard_rows($con);
-
-$playerCount = 0;
-$countRes = mysqli_query($con, 'SELECT COUNT(*) AS n FROM amiga_player_current WHERE tournaments_played > 0');
-if ($countRes) {
-    $countRow = mysqli_fetch_assoc($countRes);
-    $playerCount = (int) ($countRow['n'] ?? 0);
-    mysqli_free_result($countRes);
-}
+$honoursRows = amiga_tournament_honours_leaderboard_rows($con, $ctx);
+$playerCount = amiga_lb_honours_player_count($con, $ctx);
 
 mysqli_close($con);
 

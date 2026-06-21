@@ -16,6 +16,10 @@ $k2PageNavClass = isset($k2PageNavClass) ? trim((string) $k2PageNavClass) : '';
 			</a>
 		</h1>
 		<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/realm_switcher_nav.php'; ?>
+		<?php
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_time_mode_nav.php';
+		amiga_time_mode_nav_render();
+		?>
 	</div>
 	<div class="k2-site-header__links k2-site-header__search">
 		<?php $playerSearchInHeader = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_search_bar.php'; ?>

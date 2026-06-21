@@ -17,141 +17,36 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_records_common.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_records_hof_links.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_records_ratio_leaders.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_realm_snapshot_read_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 
-$recordColumns = [
-    'MostGamesPlayed',
-    'MostWins',
-    'MostGoalsScored',
-    'MostDoubleDigits',
-    'MostCleanSheets',
-    'MostDifferentOpponents',
-    'MostDifferentVictims',
-    'MostDoubleDigitsVictims',
-    'MostCleanSheetsVictims',
-    'MostGoalsScoredInOneGame',
-    'BiggestWinDifference',
-    'BiggestDrawSum',
-    'BiggestSumOfGoals',
-    'BiggestPeakRating',
-    'MostGamesPlayedID',
-    'MostWinsID',
-    'MostGoalsScoredID',
-    'MostDoubleDigitsID',
-    'MostCleanSheetsID',
-    'MostDifferentOpponentsID',
-    'MostDifferentVictimsID',
-    'MostDoubleDigitsVictimsID',
-    'MostCleanSheetsVictimsID',
-    'MostGoalsScoredInOneGameID',
-    'BiggestWinDifferenceID',
-    'BiggestDrawSumIDA',
-    'BiggestDrawSumIDB',
-    'BiggestSumOfGoalsIDA',
-    'BiggestSumOfGoalsIDB',
-    'BiggestPeakRatingID',
-    'MostGamesPlayedName',
-    'MostWinsName',
-    'MostGoalsScoredName',
-    'MostDoubleDigitsName',
-    'MostCleanSheetsName',
-    'MostDifferentOpponentsName',
-    'MostDifferentVictimsName',
-    'MostDoubleDigitsVictimsName',
-    'MostCleanSheetsVictimsName',
-    'MostGoalsScoredInOneGameName',
-    'BiggestWinDifferenceName',
-    'BiggestDrawSumNameA',
-    'BiggestDrawSumNameB',
-    'BiggestSumOfGoalsNameA',
-    'BiggestSumOfGoalsNameB',
-    'BiggestPeakRatingName',
-    'MostGamesPlayedDate',
-    'MostWinsDate',
-    'MostGoalsScoredDate',
-    'MostDoubleDigitsDate',
-    'MostCleanSheetsDate',
-    'MostDifferentOpponentsDate',
-    'MostDifferentVictimsDate',
-    'MostDoubleDigitsVictimsDate',
-    'MostCleanSheetsVictimsDate',
-    'MostGoalsScoredInOneGameDate',
-    'BiggestWinDifferenceDate',
-    'BiggestDrawSumDate',
-    'BiggestSumOfGoalsDate',
-    'BiggestPeakRatingDate',
-    'BiggestWinRatio',
-    'BiggestWinRatioID',
-    'BiggestWinRatioName',
-    'BiggestGoalsForAverage',
-    'BiggestGoalsForAverageID',
-    'BiggestGoalsForAverageName',
-    'SmallestGoalsAgainstAverage',
-    'SmallestGoalsAgainstAverageID',
-    'SmallestGoalsAgainstAverageName',
-    'BiggestGoalRatio',
-    'BiggestGoalRatioID',
-    'BiggestGoalRatioName',
-    'BiggestDoubleDigitsRatio',
-    'BiggestDoubleDigitsRatioID',
-    'BiggestDoubleDigitsRatioName',
-    'BiggestCleanSheetsRatio',
-    'BiggestCleanSheetsRatioID',
-    'BiggestCleanSheetsRatioName',
-    'GamesPlayed',
-    'MostGamesInOneYear',
-    'MostTournamentsInOneYear',
-    'MostTournamentsPlayed',
-    'MostTournamentWins',
-    'MostWcPlayed',
-    'MostCountriesPlayedIn',
-    'MostOpponentCountriesFaced',
-    'MostOpponentCountriesBeaten',
-    'MostGamesInOneYearID',
-    'MostTournamentsInOneYearID',
-    'MostTournamentsPlayedID',
-    'MostTournamentWinsID',
-    'MostWcPlayedID',
-    'MostCountriesPlayedInID',
-    'MostOpponentCountriesFacedID',
-    'MostOpponentCountriesBeatenID',
-    'MostGamesInOneYearName',
-    'MostTournamentsInOneYearName',
-    'MostTournamentsPlayedName',
-    'MostTournamentWinsName',
-    'MostWcPlayedName',
-    'MostCountriesPlayedInName',
-    'MostOpponentCountriesFacedName',
-    'MostOpponentCountriesBeatenName',
-    'MostGamesInOneYearDate',
-    'MostTournamentsInOneYearDate',
-    'MostTournamentsPlayedDate',
-    'MostTournamentWinsDate',
-    'MostWcPlayedDate',
-    'MostCountriesPlayedInDate',
-    'MostOpponentCountriesFacedDate',
-    'MostOpponentCountriesBeatenDate',
-];
+$ctx = amiga_snapshot_context_from_request($con);
+$GLOBALS['_amiga_snapshot_context'] = $ctx;
 
-$selectColumns = '`' . implode('`, `', $recordColumns) . '`';
-$query = 'SELECT ' . $selectColumns . ' FROM amiga_generalstats WHERE id = 1 LIMIT 1';
-$result = k2_query_or_public_error($con, $query, 'amiga generalstats');
-$records = mysqli_fetch_assoc($result);
-mysqli_free_result($result);
+$recordColumns = amiga_hof_record_column_names();
+$records = amiga_hof_records_load($con, $ctx);
 if (!$records) {
     mysqli_close($con);
     http_response_code(503);
     exit('Hall of Fame data is not available yet. Run python -m scripts.amiga replay.');
 }
 
-$newRecordCutoff = strtotime('-1 month');
-$legendaryRecordCutoff = strtotime('-5 years');
+$hofAsOf = time();
+if ($ctx->isActive()) {
+    $hofCutoff = $ctx->cutoff();
+    if ($hofCutoff !== null && ($hofCutoff['event_date'] ?? '') !== '') {
+        $hofAsOfTs = strtotime((string) $hofCutoff['event_date'] . ' 23:59:59');
+        if ($hofAsOfTs !== false) {
+            $hofAsOf = $hofAsOfTs;
+        }
+    }
+}
+[$newRecordCutoff, $legendaryRecordCutoff] = amiga_records_age_cutoffs_from($hofAsOf);
 
-$wcLeaders = amiga_records_wc_totals_leaders($con);
 mysqli_close($con);
 ?>
 
@@ -431,39 +326,6 @@ $k2HofSyncWidths = records_hof_sync_compute_widths($k2HofRecordLabels);
 <div class="server-records-hof" style="<?php echo htmlspecialchars(records_hof_sync_style_attr($k2HofSyncWidths), ENT_QUOTES, 'UTF-8'); ?>">
 <?php echo $k2HofTableHtml; ?>
 </div><!-- .server-records-hof -->
-
-<section class="server-records-panel server-records-panel--honours">
-<div class="k2-table-wrap">
-<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
-<thead>
-    <tr>
-		<th colspan="3" class="nohovercell k2-table-cell--left">World Cup medals <span style="font-weight:normal;font-size:0.9em">(<a class="k2-link-star" href="/amiga/leaderboards/tournament-honours.php">full leaderboard</a>)</span></th>
-    </tr>
-    <tr>
-        <th class="k2-table-cell--left">Medal</th>
-        <th class="k2-table-cell--right">Count</th>
-        <th class="k2-table-cell--left">Player</th>
-    </tr>
-</thead>
-<tbody class="black">
-<?php
-$medalLabels = ['gold' => 'Gold', 'silver' => 'Silver', 'bronze' => 'Bronze'];
-foreach ($medalLabels as $key => $label) {
-    $leader = $wcLeaders[$key] ?? null;
-    if ($leader === null) {
-        echo '    <tr><td>' . $label . '</td><td class="k2-table-cell--right">-</td><td>-</td></tr>' . "\n";
-        continue;
-    }
-    echo '    <tr><td>' . $label . '</td><td class="k2-table-cell--right">'
-        . (int) $leader['medal_count'] . '</td><td>'
-        . amiga_records_holder_html(amiga_records_profile_link((int) $leader['player_id'], (string) $leader['name']))
-        . "</td></tr>\n";
-}
-?>
-</tbody>
-</table>
-</div>
-</section>
 
 </div><!-- .k2-page-nav -->
 

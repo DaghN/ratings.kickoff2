@@ -28,6 +28,21 @@ function amiga_records_percent_or_dash($value): string
     return amiga_records_has_value($value) ? number_format(100 * (float) $value, 1) . '%' : '-';
 }
 
+/**
+ * Unix cutoffs for (New!) and (Legendary) date markers.
+ *
+ * @return array{0: int, 1: int} [newRecordCutoff, legendaryRecordCutoff]
+ */
+function amiga_records_age_cutoffs_from(?int $asOfTimestamp = null): array
+{
+    $asOf = $asOfTimestamp ?? time();
+
+    return [
+        (int) strtotime('-1 month', $asOf),
+        (int) strtotime('-5 years', $asOf),
+    ];
+}
+
 function amiga_records_add_age_marker(string $text, $dateValue, int $newRecordCutoff, int $legendaryRecordCutoff): string
 {
     $timestamp = strtotime((string) $dateValue);

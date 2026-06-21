@@ -8,6 +8,7 @@ require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_current_lib.php';
+require_once __DIR__ . '/amiga_snapshot_context.php';
 
 /**
  * Tournament participation rows for a player (canonical derived source).
@@ -327,8 +328,14 @@ function amiga_player_perf_rating_highlight(mysqli $con, int $playerId): array
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_performance_rating_rows(mysqli $con): array
+function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
 {
+    if ($ctx !== null && $ctx->isActive()) {
+        require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+
+        return amiga_lb_performance_rating_rows_at_cutoff($con, $ctx);
+    }
+
     $sql = 'SELECT ranked.player_id,
                    ranked.player_name,
                    ranked.Rating,
@@ -430,8 +437,14 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
  *
  * @return list<array<string, mixed>>
  */
-function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
+function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
 {
+    if ($ctx !== null && $ctx->isActive()) {
+        require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+
+        return amiga_lb_honours_rows_at_cutoff($con, $ctx);
+    }
+
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
@@ -472,8 +485,14 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
  *
  * @return list<array<string, mixed>>
  */
-function amiga_calendar_geo_leaderboard_rows(mysqli $con): array
+function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
 {
+    if ($ctx !== null && $ctx->isActive()) {
+        require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+
+        return amiga_lb_calendar_geo_rows_at_cutoff($con, $ctx);
+    }
+
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,

@@ -97,7 +97,7 @@ The old hub-nav A/B tuning path is removed; segment track + outline active cell 
 
 Leaderboards are comprehensive by default, not the same as Status' active top-20 slice.
 
-**Section chapter (Jun 2026):** `includes/k2_hub_chapter.inc.php` — title + lede above sub-nav. Online: **Online activity** chapter title on `activity.php` (hub tab label still **Activity**), Leaderboards (`lb_nav.php`), Milestones (hub chapter lede; catalog count on Catalog view intro), HoF. Amiga: Leaderboards (`amiga_lb_nav.php`), Tournaments, Live tournaments, **History** (dev surface — historical rating ladder; IA may merge with Leaderboards later), HoF. Wing carry-scroll unchanged.
+**Section chapter (Jun 2026):** `includes/k2_hub_chapter.inc.php` — title + lede above sub-nav. Online: **Online activity** chapter title on `activity.php` (hub tab label still **Activity**), Leaderboards (`lb_nav.php`), Milestones (hub chapter lede; catalog count on Catalog view intro), HoF. Amiga: Leaderboards (`amiga_lb_nav.php`), Tournaments, Live tournaments, HoF. **Time travel (phase 1 shipped Jun 2026):** header **Present day | Time travel** (Amiga only); when active, one-row ribbon **above** hub nav (`Year | Month | Event` + stepper + picker) — [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md). Wired: all eight Amiga LB wings, HoF. Present-only when unwired: player profile, games/tournaments/news. Legacy `/amiga/history.php` redirects to rating LB. Wing carry-scroll unchanged.
 
 Wing tabs (left → right):
 

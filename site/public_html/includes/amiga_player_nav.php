@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_routes.php';
+require_once __DIR__ . '/amiga_snapshot_url.php';
 
 $k2AmigaPlayerTabActive = $k2AmigaPlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
@@ -15,6 +16,7 @@ $k2AmigaPlayerTabs = [
     'games' => ['href' => k2_amiga_route('amiga-player-games', ['id' => $id]), 'label' => 'Games'],
 ];
 ?>
+<?php include __DIR__ . '/amiga_snapshot_chrome.inc.php'; ?>
 <div class="k2-player-nav-bar">
 	<nav class="k2-player-nav k2-nav-pills" data-k2-carry-scroll aria-label="Player sections">
 		<div class="k2-player-nav__links">

@@ -133,7 +133,7 @@ Query `?id=` required on all player tabs.
 
 **Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php` → player games; `/amiga/player-tournaments.php` → tournaments. `/amiga/games.php` is reserved for a future realm-wide match log.
 
-**Not under `player/`:** `/amiga/h2h.php` (pair page), `/amiga/tournament.php`, `/amiga/history.php` (historical ladder), hub pages under `/amiga/`.
+**Not under `player/`:** `/amiga/h2h.php` (pair page), `/amiga/tournament.php`, `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/`.
 
 ---
 

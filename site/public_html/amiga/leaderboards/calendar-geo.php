@@ -17,12 +17,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
-$rows = amiga_calendar_geo_leaderboard_rows($con);
+$ctx = amiga_lb_context($con);
+$rows = amiga_calendar_geo_leaderboard_rows($con, $ctx);
 mysqli_close($con);
 
 $k2AmigaLbWingActive = 'calendar-geo';
