@@ -29,7 +29,7 @@
 | **M4** | **WC below podium** — `event_finish_position` stays **NULL** until a future holistic WC rank job (4th, 5th, …). **Out of scope for v2.** |
 | **M5** | **Drop `wc_medal`** on participation after backfill (migration `022`). Display labels (gold/silver/bronze) derived from `event_finish_position` when `is_world_cup`. |
 | **M6** | **Reject `cup_gold` / `cup_silver` / `cup_bronze`** career columns — wrong product model (Access `is_cup` flag). Replace with **`event_gold` / `event_silver` / `event_bronze`** (all tournaments). |
-| **M7** | **Stored career counters** on `amiga_player_tournament_totals`: `event_gold`, `event_silver`, `event_bronze`, `event_podiums`, `wc_played`, `wc_gold`, `wc_silver`, `wc_bronze`, `wc_podiums`, plus `tournaments_played`. |
+| **M7** | **Stored career counters** on `amiga_player_event_snapshots` (per finalize) and `amiga_player_current` (present): `event_gold`, `event_silver`, `event_bronze`, `event_podiums`, `wc_played`, `wc_gold`, `wc_silver`, `wc_bronze`, `wc_podiums`, plus `tournaments_played`. Incremental writer: `honours_totals.py` / PHP finalize persist. |
 | **M8** | **`tournaments_won`** = `event_gold` (synonym; keep column for compatibility). |
 | **M9** | **`is_winner`** on participation = `event_finish_position = 1` (all tournaments). |
 | **M10** | **No `league_position` / `group_position`** on participation — phase tables in `amiga_tournament_standings` only. |
@@ -54,12 +54,13 @@ amiga_games (ground)
        │
        ├─► amiga_tournament_standings (phase truth per scope)
        │
-       └─► amiga_player_tournament_participation (player × tournament)
+       └─► amiga_player_event_snapshots (player × tournament — participated events)
                  event_finish_position  ← canonical holistic finish (1/2/3/4+/NULL)
                  best_knockout_phase    ← display / diagnostics
                  is_winner              ← event_finish_position = 1
+                 honours block (running career rollups at this cutoff)
                        │
-                       └─► amiga_player_tournament_totals (career rollups)
+                       └─► amiga_player_current (latest snapshot per player)
                              tournaments_played
                              event_gold / event_silver / event_bronze / event_podiums
                              wc_played
@@ -129,23 +130,29 @@ Covers kitchen marathons, single-phase round-robins.
 
 ---
 
-## 4. Career rollups (`amiga_player_tournament_totals`)
+## 4. Career rollups (`amiga_player_current` honours block)
 
-### 4.1 Participation → totals
+**Writer:** tournament finalize increments running totals (`honours_totals.increment_honours_totals`); persisted on each snapshot row and upserted to `amiga_player_current`. **Read path:** profile, honours LB, calendar LB — `amiga_player_current` (present) or latest snapshot at cutoff (time travel).
 
-| Column | SQL rule |
-|--------|----------|
-| `tournaments_played` | `COUNT(*)` participation rows |
-| `wc_played` | `COUNT(*)` WHERE `amiga_tournament_is_world_cup(tournament_name)` |
-| `event_gold` | `COUNT(*)` WHERE `event_finish_position = 1` |
-| `event_silver` | `COUNT(*)` WHERE `event_finish_position = 2` |
-| `event_bronze` | `COUNT(*)` WHERE `event_finish_position = 3` |
-| `event_podiums` | `COUNT(*)` WHERE `event_finish_position <= 3` |
-| `wc_gold` | `COUNT(*)` WHERE `event_finish_position = 1` AND World Cup |
-| `wc_silver` | `COUNT(*)` WHERE `event_finish_position = 2` AND World Cup |
-| `wc_bronze` | `COUNT(*)` WHERE `event_finish_position = 3` AND World Cup |
-| `wc_podiums` | `COUNT(*)` WHERE `event_finish_position <= 3` AND World Cup |
+**Repair oracle:** `amiga_player_tournament_totals` (batch `COUNT(*)` from participation-shaped rows) remains for ops verify/rebuild only — **not** website read path after snapshot slice 8 ([`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)).
+
+### 4.1 Per-event finalize → running honours
+
+| Column | Rule at each participated finalize |
+|--------|-------------------------------------|
+| `tournaments_played` | prior + 1 |
+| `wc_played` | prior + 1 when `amiga_tournament_is_world_cup(tournament_name)` |
+| `event_gold` | prior + 1 when `event_finish_position = 1` |
+| `event_silver` | prior + 1 when `event_finish_position = 2` |
+| `event_bronze` | prior + 1 when `event_finish_position = 3` |
+| `event_podiums` | prior + 1 when `event_finish_position <= 3` |
+| `wc_gold` | prior + 1 when finish = 1 AND World Cup |
+| `wc_silver` | prior + 1 when finish = 2 AND World Cup |
+| `wc_bronze` | prior + 1 when finish = 3 AND World Cup |
+| `wc_podiums` | prior + 1 when finish ≤ 3 AND World Cup |
 | `tournaments_won` | Same as `event_gold` |
+
+Batch oracle (repair table): same semantics via `COUNT(*)` / `SUM(CASE…)` over participation-shaped rows — see `player_tournament_participation.py` totals rebuild.
 
 ### 4.2 Verify invariants
 
@@ -178,7 +185,7 @@ Unchanged from v1 — deepest main-bracket KO round label for display when numer
 | Profile recent tournaments | `event_finish_position` ordinal (1st/2nd/3rd) or — (WC included) |
 | `/amiga/player/tournaments.php` | Same — Finish column uses ordinals for all events including WC |
 | `/amiga/tournament.php` WC event stats | Medal column word derived from finish tier (Gold/Silver/Bronze); finish is canonical |
-| Tournament honours LB | `event_*` + `wc_*` blocks from totals — **shipped** slice 7 |
+| Tournament honours LB | `event_*` + `wc_*` from `amiga_player_current` — **shipped** slice 7; snapshot path for time travel |
 
 Points / `event_points` suffix rules unchanged (contract §5.2.1).
 

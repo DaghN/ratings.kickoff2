@@ -42,8 +42,7 @@ function amiga_player_career_rating_rank_sql(mysqli $con): string
 {
     $table = amiga_player_career_table($con);
 
-    return 'SELECT COUNT(*) + 1 AS r FROM `' . $table . '` WHERE NumberGames > 0 AND Rating > '
-        . '(SELECT Rating FROM `' . $table . '` WHERE player_id = ? LIMIT 1)';
+    return 'SELECT elo_rank AS r FROM `' . $table . '` WHERE player_id = ? AND NumberGames > 0 LIMIT 1';
 }
 
 /**

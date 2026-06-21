@@ -10,6 +10,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
 require_once __DIR__ . '/../includes/amiga_honours_totals_lib.php';
 require_once __DIR__ . '/../includes/amiga_career_rise_lib.php';
+require_once __DIR__ . '/amiga_elo_rank_lib.php';
 require_once dirname(__DIR__, 3) . '/ops/includes/post_game_player_state.php';
 
 /**
@@ -251,6 +252,8 @@ function amiga_ops_current_row_from_snapshot(array $snapshot): array
         $current[$col] = $snapshot[$col] ?? null;
     }
 
+    $current['elo_rank'] = $snapshot['elo_rank'] ?? null;
+
     return $current;
 }
 
@@ -276,6 +279,7 @@ function amiga_ops_build_event_snapshot_row(
     $snapshot = array_merge($snapshot, $honours);
     $snapshot['career_best_performance_rating'] = $careerBestPerformanceRating;
     $snapshot['career_best_performance_tournament_id'] = $careerBestPerformanceTournamentId;
+    $snapshot['elo_rank'] = null;
 
     return $snapshot;
 }
@@ -456,6 +460,11 @@ function amiga_ops_persist_tournament_event_snapshots(
     $written = 0;
     $playerCountries = amiga_geo_year_load_player_countries($con);
     $geoTracker = amiga_geo_year_tracker_through_tournament($con, $tournamentId);
+    $snapshotBatch = [];
+    $currentBatch = [];
+    $eventDate = null;
+    $eventChrono = 0.0;
+
     foreach ($activeIds as $pid) {
         $participation = $participationByPlayer[$pid] ?? null;
         if ($participation === null) {
@@ -508,12 +517,42 @@ function amiga_ops_persist_tournament_event_snapshots(
         }
         $geoScalars = $geoTracker->scalarsFor($pid, $playerCountries[$pid] ?? null);
         $snapshot = amiga_ops_apply_geo_year_to_snapshot($snapshot, $geoScalars);
-        $current = amiga_ops_current_row_from_snapshot($snapshot);
+        $snapshotBatch[] = $snapshot;
+        $currentBatch[] = amiga_ops_current_row_from_snapshot($snapshot);
 
+        if ($eventDate === null) {
+            $eventDate = $participation['event_date'] ?? null;
+            $eventChrono = (float) ($participation['event_chrono'] ?? 0.0);
+        }
+    }
+
+    if ($snapshotBatch === []) {
+        return 0;
+    }
+
+    $ratings = amiga_ops_load_career_ratings_through_tournament($con, $tournamentId, $players, $activeIds);
+    $ranks = amiga_ops_assign_elo_ranks($ratings);
+    foreach ($snapshotBatch as $idx => $snapshot) {
+        $pid = (int) $snapshot['player_id'];
+        $rank = $ranks[$pid] ?? null;
+        $snapshotBatch[$idx]['elo_rank'] = $rank;
+        $currentBatch[$idx]['elo_rank'] = $rank;
+    }
+
+    foreach ($snapshotBatch as $idx => $snapshot) {
         amiga_ops_upsert_row($con, 'amiga_player_event_snapshots', $snapshot, ['player_id', 'tournament_id']);
-        amiga_ops_upsert_row($con, 'amiga_player_current', $current, ['player_id']);
+        amiga_ops_upsert_row($con, 'amiga_player_current', $currentBatch[$idx], ['player_id']);
         $written++;
     }
+
+    amiga_ops_persist_elo_ranks_at_tournament(
+        $con,
+        $tournamentId,
+        $eventDate,
+        $eventChrono,
+        $ranks,
+        $participantIds
+    );
 
     return $written;
 }

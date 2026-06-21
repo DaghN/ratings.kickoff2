@@ -67,6 +67,37 @@ function amiga_snapshot_request_path(): string
     return is_string($path) && $path !== '' ? $path : '/amiga/leaderboards/rating.php';
 }
 
+/**
+ * When building a URL for the current page path, carry stable query params (`id`, filters, …).
+ * Time-travel keys are always stripped; table sort is merged when paths match.
+ *
+ * @param array<string, scalar|null> $query
+ * @return array<string, scalar|null>
+ */
+function amiga_snapshot_merge_request_query_for_path(string $targetPath, array $query): array
+{
+    $targetPathOnly = k2_table_path_only($targetPath);
+    $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    if (is_string($currentPath) && $currentPath !== '' && $targetPathOnly === $currentPath) {
+        /** @var array<string, scalar|null> $carry */
+        $carry = [];
+        foreach ($_GET as $name => $value) {
+            if (!is_string($name) || $name === '' || is_array($value)) {
+                continue;
+            }
+            if (in_array($name, ['as', 'wing', 'at'], true)) {
+                continue;
+            }
+            $carry[$name] = $value;
+        }
+        $query = array_merge($carry, $query);
+    }
+
+    unset($query['as'], $query['wing'], $query['at']);
+
+    return k2_table_merge_sort_query_for_path($targetPath, $query);
+}
+
 /** Whether `as=` (or resolvable legacy wing/at) is active on this request. */
 function amiga_snapshot_time_travel_active_from_request(): bool
 {
@@ -111,7 +142,7 @@ function amiga_url_present(string $path, array $extraQuery = []): string
 
     unset($query['as'], $query['wing'], $query['at']);
 
-    $query = k2_table_merge_sort_query_for_path($pathPart, $query);
+    $query = amiga_snapshot_merge_request_query_for_path($pathPart, $query);
 
     if ($query === []) {
         return $pathPart;
@@ -148,10 +179,10 @@ function amiga_url_with_as_param(string $path, string $asParam, array $extraQuer
         $query[$name] = $value;
     }
 
+    $query = amiga_snapshot_merge_request_query_for_path($pathPart, $query);
+
     $query['as'] = $asParam;
     unset($query['wing'], $query['at']);
-
-    $query = k2_table_merge_sort_query_for_path($pathPart, $query);
 
     return $pathPart . '?' . http_build_query($query);
 }

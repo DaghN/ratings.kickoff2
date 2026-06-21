@@ -7,7 +7,7 @@ from typing import Any
 
 import pymysql
 
-from scripts.amiga.matchup_cumulative import MatchupCumulative, PairTotals
+from scripts.amiga.matchup_cumulative import MatchupCumulative
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +18,15 @@ _PAIR_COLS = (
     "losses",
     "goals_for",
     "goals_against",
+    "max_goals_for",
+    "max_goals_against",
+    "min_goals_for",
+    "min_goals_against",
+    "max_win_margin",
+    "max_loss_margin",
+    "max_draw_goals",
+    "max_goal_sum",
+    "min_goal_sum",
     "dd_wins",
     "dd_losses",
     "cs_wins",

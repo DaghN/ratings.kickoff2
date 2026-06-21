@@ -102,6 +102,23 @@ if (str_contains($exitUrl, 'as=')) {
     fwrite(STDERR, "url present fail: {$exitUrl}\n");
     exit(1);
 }
+$_SERVER['REQUEST_URI'] = '/amiga/player/opponents/wdl.php?id=386&as=year%3A2003&k2_sort=1&k2_dir=desc';
+$_GET = ['id' => '386', 'as' => 'year:2003', 'k2_sort' => '1', 'k2_dir' => 'desc'];
+$playerPresent = amiga_url_present('/amiga/player/opponents/wdl.php');
+if (!str_contains($playerPresent, 'id=386')) {
+    fwrite(STDERR, "player present url lost id: {$playerPresent}\n");
+    exit(1);
+}
+if (str_contains($playerPresent, 'as=')) {
+    fwrite(STDERR, "player present url kept as=: {$playerPresent}\n");
+    exit(1);
+}
+if (!str_contains($playerPresent, 'k2_sort=1')) {
+    fwrite(STDERR, "player present url lost sort: {$playerPresent}\n");
+    exit(1);
+}
+$_SERVER['REQUEST_URI'] = '/amiga/leaderboards/rating.php';
+$_GET = ['as' => 'event:' . $lastId];
 $enterUrl = amiga_url_with_as_param('/amiga/leaderboards/rating.php', 'event:' . $lastId);
 if (!str_contains($enterUrl, 'as=event%3A' . $lastId) && !str_contains($enterUrl, 'as=event:' . $lastId)) {
     fwrite(STDERR, "url with as param fail: {$enterUrl}\n");
@@ -113,6 +130,125 @@ if (!str_contains($monthUrl, 'as=month%3A2008-06') && !str_contains($monthUrl, '
     exit(1);
 }
 echo "url_helpers_ok\n";
+
+require __DIR__ . '/../../site/public_html/includes/amiga_hub_nav_lib.php';
+$presentTabs = amiga_hub_tabs_for_nav(false);
+$travelTabs = amiga_hub_tabs_for_nav(true);
+if (!isset($presentTabs['news'], $presentTabs['live-tournaments'])) {
+    fwrite(STDERR, "present hub missing news or live-tournaments\n");
+    exit(1);
+}
+if (isset($travelTabs['news']) || isset($travelTabs['live-tournaments']) || isset($travelTabs['tournaments'])) {
+    fwrite(STDERR, "time-travel hub should omit present-only / collection tabs\n");
+    exit(1);
+}
+if (!isset($travelTabs['leaderboards'], $travelTabs['activity'], $travelTabs['hall-of-fame'])) {
+    fwrite(STDERR, "time-travel hub missing snapshot tabs\n");
+    exit(1);
+}
+if (count($travelTabs) !== 3) {
+    fwrite(STDERR, "time-travel hub should have exactly 3 tabs\n");
+    exit(1);
+}
+$presentKeys = array_keys($presentTabs);
+if ($presentKeys[array_key_last($presentKeys)] !== 'live-tournaments') {
+    fwrite(STDERR, "live-tournaments should be last present hub tab\n");
+    exit(1);
+}
+if (amiga_time_mode_nav_time_travel_target_path('/amiga/news.php') !== '/amiga/leaderboards/rating.php') {
+    fwrite(STDERR, "TT entry from news should be rating LB\n");
+    exit(1);
+}
+echo "hub_nav_ia_ok\n";
+
+require __DIR__ . '/../../site/public_html/includes/amiga_player_load.php';
+$_GET = [];
+amiga_snapshot_context_reset();
+$heroPresent = amiga_player_load($con, 386);
+$_GET['as'] = 'year:2003';
+amiga_snapshot_context_reset();
+$hero2003 = amiga_player_load($con, 386);
+if ((int) ($heroPresent['rating'] ?? 0) === (int) ($hero2003['rating'] ?? 0)
+    && (int) ($heroPresent['games'] ?? 0) === (int) ($hero2003['games'] ?? 0)) {
+    fwrite(STDERR, "player hero snapshot should differ at year:2003 vs present\n");
+    exit(1);
+}
+if ((int) ($hero2003['games'] ?? 0) < 1) {
+    fwrite(STDERR, "player hero snapshot missing games at year:2003\n");
+    exit(1);
+}
+echo 'player_hero_snapshot_ok rating_present=' . ($heroPresent['rating'] ?? 'null')
+    . ' rating_2003=' . ($hero2003['rating'] ?? 'null') . PHP_EOL;
+
+$_GET['as'] = 'year:2001';
+amiga_snapshot_context_reset();
+$preDebut = amiga_player_load($con, 73);
+if (($preDebut['at_cutoff'] ?? true) !== false) {
+    fwrite(STDERR, "player 73 at year:2001 should be pre-debut\n");
+    exit(1);
+}
+if ($preDebut['rating'] !== null || $preDebut['games'] !== null || $preDebut['rank'] !== null) {
+    fwrite(STDERR, "pre-debut hero stats should be null\n");
+    exit(1);
+}
+echo "player_pre_debut_ok\n";
+
+$firstAs = amiga_player_first_snapshot_as_param($con, 73);
+if ($firstAs === null || !str_starts_with($firstAs, 'event:')) {
+    fwrite(STDERR, "player 73 missing first snapshot as param\n");
+    exit(1);
+}
+$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73';
+$_GET = ['id' => '73'];
+amiga_snapshot_context_reset();
+require __DIR__ . '/../../site/public_html/includes/amiga_time_mode_nav.php';
+$ttHref = amiga_time_mode_nav_time_travel_href('/amiga/player/profile.php');
+if (!str_contains($ttHref, 'id=73')) {
+    fwrite(STDERR, "player TT href lost id: {$ttHref}\n");
+    exit(1);
+}
+if (!str_contains($ttHref, 'as=event%3A') && !str_contains($ttHref, 'as=event:')) {
+    fwrite(STDERR, "player TT href should use first event as=: {$ttHref}\n");
+    exit(1);
+}
+echo 'player_tt_entry=' . $ttHref . PHP_EOL;
+
+require_once __DIR__ . '/../../site/public_html/includes/amiga_player_event_stepper_lib.php';
+$realmEvents = amiga_rating_history_catalog_event($con);
+$played73 = amiga_player_participated_event_keys($con, 73);
+if (count($played73) < 2) {
+    fwrite(STDERR, "player 73 needs at least 2 played events for stepper test\n");
+    exit(1);
+}
+$firstPlayed = $played73[0];
+$secondPlayed = $played73[1];
+$realmFirst = amiga_rating_history_catalog_position($realmEvents, $firstPlayed);
+$playerSteps = amiga_player_event_wing_step_keys($con, 73, $realmEvents, $firstPlayed);
+if ($playerSteps['next_key'] !== $secondPlayed) {
+    fwrite(STDERR, "player stepper next expected {$secondPlayed}, got " . ($playerSteps['next_key'] ?? 'null') . "\n");
+    exit(1);
+}
+if ($playerSteps['prev_key'] !== $realmFirst['prev_key']) {
+    fwrite(STDERR, "player stepper prev at debut should be realm prev\n");
+    exit(1);
+}
+$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73&as=event%3A' . $firstPlayed;
+$_GET = ['id' => '73', 'as' => 'event:' . $firstPlayed];
+amiga_snapshot_context_reset();
+$ctxPlayerEvent = amiga_snapshot_context_from_request($con);
+if ($ctxPlayerEvent->nextKey() !== $secondPlayed) {
+    fwrite(STDERR, "context player event next mismatch\n");
+    exit(1);
+}
+$_SERVER['REQUEST_URI'] = '/amiga/leaderboards/rating.php?as=event%3A' . $firstPlayed;
+$_GET = ['as' => 'event:' . $firstPlayed];
+amiga_snapshot_context_reset();
+$ctxHubEvent = amiga_snapshot_context_from_request($con);
+if ($ctxHubEvent->nextKey() !== $realmFirst['next_key']) {
+    fwrite(STDERR, "hub event next should stay realm-global\n");
+    exit(1);
+}
+echo "player_event_stepper_ok\n";
 
 $_GET['as'] = 'year:2010';
 amiga_snapshot_context_reset();

@@ -10,7 +10,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
+require_once __DIR__ . '/amiga_hub_nav_lib.php';
 require_once __DIR__ . '/amiga_rating_history_lib.php';
+require_once __DIR__ . '/amiga_player_snapshot_lib.php';
 
 function amiga_time_mode_nav_should_show(): bool
 {
@@ -27,12 +29,10 @@ function amiga_time_mode_nav_should_show(): bool
 function amiga_time_mode_nav_time_travel_href(string $path): ?string
 {
     $asParam = null;
-    if (amiga_snapshot_time_travel_active_from_request()) {
-        $ctx = amiga_snapshot_context_peek();
-        if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive()) {
-            $asParam = $ctx->asParam();
-        } elseif (isset($_GET['as'])) {
-            $asParam = trim((string) $_GET['as']);
+    if (isset($_GET['as'])) {
+        $as = trim((string) $_GET['as']);
+        if ($as !== '' && amiga_snapshot_parse_as_param($as) !== null) {
+            $asParam = $as;
         }
     }
 
@@ -51,14 +51,25 @@ function amiga_time_mode_nav_time_travel_href(string $path): ?string
             return null;
         }
         $con->set_charset('utf8mb4');
-        $asParam = amiga_snapshot_latest_as_param($con);
+        $asParam = null;
+        if (amiga_player_wing_request_path($path)) {
+            $playerId = amiga_player_wing_id_from_request();
+            if ($playerId > 0) {
+                $asParam = amiga_player_first_snapshot_as_param($con, $playerId);
+            }
+        }
+        if ($asParam === null || $asParam === '') {
+            $asParam = amiga_snapshot_latest_as_param($con);
+        }
         $con->close();
         if ($asParam === null) {
             return null;
         }
     }
 
-    return amiga_url_with_as_param($path, $asParam);
+    $targetPath = amiga_time_mode_nav_time_travel_target_path($path);
+
+    return amiga_url_with_as_param($targetPath, $asParam);
 }
 
 function amiga_time_mode_nav_render(): void

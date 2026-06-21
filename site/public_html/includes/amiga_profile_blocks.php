@@ -77,9 +77,9 @@ function amiga_profile_career_wc_honours_label(array $totals): string
 }
 
 /**
- * Career tournament honours from amiga_player_tournament_totals (no extra query).
+ * Career tournament honours from amiga_player_current honours columns (no extra query).
  *
- * @param array<string, mixed> $totals from amiga_player_tournament_totals_row()
+ * @param array<string, mixed> $totals from amiga_player_tournament_totals_row() (reads current)
  */
 function amiga_profile_render_honours(array $totals, int $playerId): void
 {
@@ -573,67 +573,6 @@ function ordinal_suffix(int $n): string
         3 => 'rd',
         default => 'th',
     };
-}
-
-/**
- * @param list<array<string, mixed>> $opponents from amiga_player_top_opponents()
- */
-function amiga_profile_render_top_opponents(array $opponents, int $playerId = 0): void
-{
-    if ($opponents === []) {
-        return;
-    }
-    ?>
-<section class="k2-amiga-profile-opponents" style="padding:0 1.25rem 1.5rem">
-	<h3 class="k2-panel-heading">Top opponents</h3>
-	<table class="k2-table k2-table--numeric-default k2-table--calm-stats" style="width:100%;max-width:42rem">
-		<thead>
-			<tr>
-				<th class="k2-table-cell--left">Opponent</th>
-				<th>W – D – L</th>
-				<th data-k2-help="Goals scored and conceded in rated games between these players.">Goals</th>
-				<th>Games</th>
-			</tr>
-		</thead>
-		<tbody>
-		<?php foreach ($opponents as $row) {
-            $opponentId = (int) ($row['opponent_id'] ?? 0);
-            $opponentName = (string) ($row['opponent_name'] ?? '');
-            $wins = (int) ($row['wins'] ?? 0);
-            $draws = (int) ($row['draws'] ?? 0);
-            $losses = (int) ($row['losses'] ?? 0);
-            $games = (int) ($row['games'] ?? 0);
-            $goalsFor = (int) ($row['goals_for'] ?? 0);
-            $goalsAgainst = (int) ($row['goals_against'] ?? 0);
-            $h2hHref = $playerId > 0 && $opponentId > 0
-                ? amiga_player_h2h_href($playerId, $opponentId)
-                : '';
-            ?>
-			<tr>
-				<td class="k2-table-cell--left"><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
-				<td style="font-variant-numeric:tabular-nums"><?php
-                    if ($h2hHref !== '') {
-                        echo '<a class="k2-link-star" href="' . htmlspecialchars($h2hHref, ENT_QUOTES, 'UTF-8') . '">';
-                    }
-                    echo $wins . ' – ' . $draws . ' – ' . $losses;
-                    if ($h2hHref !== '') {
-                        echo '</a>';
-                    }
-                ?></td>
-				<td style="font-variant-numeric:tabular-nums"><?php echo $goalsFor . ' – ' . $goalsAgainst; ?></td>
-				<td style="font-variant-numeric:tabular-nums"><?php
-                    if ($h2hHref !== '') {
-                        echo '<a class="k2-link-star" href="' . htmlspecialchars($h2hHref, ENT_QUOTES, 'UTF-8') . '">' . $games . '</a>';
-                    } else {
-                        echo $games;
-                    }
-                ?></td>
-			</tr>
-		<?php } ?>
-		</tbody>
-	</table>
-</section>
-    <?php
 }
 
 function amiga_profile_render_rating_chart(int $playerId): void

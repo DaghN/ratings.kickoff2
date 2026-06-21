@@ -95,6 +95,7 @@ Mirrors today’s `amiga_player_tournament_totals`:
 Fields needed for leaderboards that are **running career extrema** (not plain cumulative), computed during finalize and stored on each snapshot:
 
 - `career_best_performance_rating` + `career_best_performance_tournament_id` (and any columns needed to render performance-rating LB historically)
+- `elo_rank` — career rating ladder position after this event (LB sort: `Rating DESC`, `player_id ASC`); also mirrored on `amiga_player_elo_rank_at_event` for **every** player with games > 0 each finalize (supports time-travel hero + future rank chart API)
 
 Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **default is include, not exclude**.
 

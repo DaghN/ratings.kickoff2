@@ -1,6 +1,7 @@
 <?php
 /**
- * Amiga realm hub tabs — News · Leaderboards · Tournaments · Live tournaments · Activity · Hall of Fame.
+ * Amiga realm hub tabs — present: News · … · Live tournaments (last).
+ * Time travel: Leaderboards · Activity · Hall of Fame only (T13b).
  *
  * Set $k2AmigaHubTabActive before include: news | leaderboards | tournaments | live-tournaments | activity | hall-of-fame
  *
@@ -12,21 +13,13 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_url.php';
+require_once __DIR__ . '/amiga_hub_nav_lib.php';
 
 $k2AmigaHubTabActive = $k2AmigaHubTabActive ?? '';
-
-$k2AmigaHubTabs = [
-	'news' => ['href' => '/amiga/news.php', 'label' => 'News'],
-	'leaderboards' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Leaderboards'],
-	'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
-	'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live tournaments'],
-	'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
-	'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
-];
+$k2AmigaHubTabs = amiga_hub_tabs_for_nav(amiga_snapshot_time_travel_active_from_request());
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_accent_pills.inc.php';
 ?>
-<?php include __DIR__ . '/amiga_snapshot_chrome.inc.php'; ?>
 <div class="k2-hub-bar">
 	<nav class="k2-hub-tabs k2-nav-pills" data-k2-carry-scroll aria-label="Amiga 500 hub">
 		<div class="k2-hub-tabs__links">

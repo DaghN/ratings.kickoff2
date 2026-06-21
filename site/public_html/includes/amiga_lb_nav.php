@@ -46,3 +46,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 <?php } ?>
 	</nav>
 </div>
+<?php
+require_once __DIR__ . '/lb_player_filters.php';
+echo k2_lb_table_anchor_markup();
+?>

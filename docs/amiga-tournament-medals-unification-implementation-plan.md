@@ -269,7 +269,7 @@ UI per user spec: Player · Elo · Country · Events (`tournaments_played`) · e
 
 ### Tasks
 
-- [x] `amiga_tournament_honours_leaderboard_rows()` — JOIN `amiga_player_stats` for Elo; select v2 totals columns
+- [x] `amiga_tournament_honours_leaderboard_rows()` — `amiga_player_current` for Elo + v2 honours columns (migrated from `amiga_player_tournament_totals` + `amiga_player_stats` at snapshot slice 8)
 - [x] `tournament-honours.php` — table headers, medal SVG headers, sort indices
 - [x] `lb_column_help.php` — help strings for event vs WC columns
 - [x] CSS: reuse `.k2-lb-honours-medal-th` pattern (`.k2-lb-tournament-honours`)

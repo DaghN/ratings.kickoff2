@@ -13,6 +13,7 @@ from scripts.amiga.generalstats_columns import (
     GEO_YEAR_PLAYER_COLUMNS,
     RECORD_RISE_PLAYER_COLUMNS,
 )
+from scripts.amiga.elo_rank import assign_elo_ranks
 from scripts.amiga.player_tournament_participation import _PLAYER_GAMES_ROLLUP_SQL
 from scripts.amiga.snapshot_row import (
     CAREER_COLUMNS,
@@ -115,6 +116,146 @@ def _current_latest_mismatch_sql() -> str:
         INNER JOIN latest l ON l.player_id = c.player_id AND l.rn = 1
         WHERE {where}
     """
+
+
+def _elo_rank_oracle_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> dict[int, int]:
+    """Expected career elo_rank after tournament finalize (LB sort)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT x.player_id, x.Rating
+            FROM (
+                SELECT
+                    s.player_id,
+                    s.Rating,
+                    s.NumberGames,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY s.player_id
+                        ORDER BY s.event_date DESC, s.event_chrono DESC, s.tournament_id DESC
+                    ) AS rn
+                FROM amiga_player_event_snapshots s
+                INNER JOIN tournaments tc ON tc.id = %s
+                WHERE (
+                    s.event_date < tc.event_date
+                    OR (s.event_date = tc.event_date AND s.event_chrono < tc.chrono)
+                    OR (
+                        s.event_date = tc.event_date
+                        AND s.event_chrono = tc.chrono
+                        AND s.tournament_id <= tc.id
+                    )
+                )
+            ) x
+            WHERE x.rn = 1 AND x.NumberGames > 0
+            """,
+            (tournament_id,),
+        )
+        rows = cur.fetchall()
+
+    ratings = {
+        int(row["player_id"]): float(row["Rating"])
+        for row in rows
+        if row.get("Rating") is not None
+    }
+    return assign_elo_ranks(ratings)
+
+
+def _verify_elo_ranks(conn: pymysql.connections.Connection) -> list[str]:
+    errors: list[str] = []
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_event_snapshots
+            WHERE NumberGames > 0 AND elo_rank IS NULL
+            """
+        )
+        null_snapshot = int(cur.fetchone()["n"])
+        if null_snapshot:
+            errors.append(f"snapshot rows with games>0 but NULL elo_rank: {null_snapshot}")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_current
+            WHERE NumberGames > 0 AND elo_rank IS NULL
+            """
+        )
+        null_current = int(cur.fetchone()["n"])
+        if null_current:
+            errors.append(f"current rows with games>0 but NULL elo_rank: {null_current}")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_event_snapshots s
+            INNER JOIN amiga_player_elo_rank_at_event r
+                ON r.player_id = s.player_id AND r.tournament_id = s.tournament_id
+            WHERE s.elo_rank IS NOT NULL AND s.elo_rank <> r.elo_rank
+            """
+        )
+        snap_rank_mismatch = int(cur.fetchone()["n"])
+        if snap_rank_mismatch:
+            errors.append(
+                f"snapshot.elo_rank != elo_rank_at_event for same key: {snap_rank_mismatch}"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_current c
+            INNER JOIN (
+                SELECT er.player_id, er.elo_rank,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY er.player_id
+                        ORDER BY er.event_date DESC, er.event_chrono DESC, er.tournament_id DESC
+                    ) AS rn
+                FROM amiga_player_elo_rank_at_event er
+            ) latest ON latest.player_id = c.player_id AND latest.rn = 1
+            WHERE c.NumberGames > 0 AND c.elo_rank <> latest.elo_rank
+            """
+        )
+        current_rank_mismatch = int(cur.fetchone()["n"])
+        if current_rank_mismatch:
+            errors.append(
+                f"current.elo_rank != latest elo_rank_at_event: {current_rank_mismatch}"
+            )
+
+        cur.execute(
+            """
+            SELECT id FROM tournaments
+            WHERE rating_finalized = 1
+            ORDER BY event_date ASC, chrono ASC, id ASC
+            """
+        )
+        tour_ids = [int(row["id"]) for row in cur.fetchall()]
+
+    if not tour_ids:
+        return errors
+
+    sample_ids = [tour_ids[0], tour_ids[len(tour_ids) // 2], tour_ids[-1]]
+    for tid in sample_ids:
+        expected = _elo_rank_oracle_for_tournament(conn, tid)
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT player_id, elo_rank
+                FROM amiga_player_elo_rank_at_event
+                WHERE tournament_id = %s
+                """,
+                (tid,),
+            )
+            stored = {int(row["player_id"]): int(row["elo_rank"]) for row in cur.fetchall()}
+        if stored != expected:
+            diff_pids = sorted(set(stored) ^ set(expected))[:3]
+            errors.append(
+                f"elo_rank oracle mismatch tournament_id={tid} "
+                f"(sample player_ids={diff_pids})"
+            )
+
+    return errors
 
 
 def verify_event_snapshots(conn: pymysql.connections.Connection) -> list[str]:
@@ -294,6 +435,8 @@ def verify_event_snapshots(conn: pymysql.connections.Connection) -> list[str]:
                 f"(first player_id={sample[0]['player_id']}, "
                 f"current={sample[0]['current_games']}, games={sample[0]['rated_games']})"
             )
+
+    errors.extend(_verify_elo_ranks(conn))
 
     return errors
 

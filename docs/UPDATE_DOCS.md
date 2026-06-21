@@ -41,7 +41,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Play & setup / join page | `docs/join-play-setup.md` |
 | Visual identity / theme | `docs/design-direction.md` |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |
-| Amiga realm (import, profile, staging) | `docs/amiga-schema-discovery.md`, `docs/amiga-profile-v0.md`, `docs/amiga-staging-handoff.md` |
+| **Amiga Opponents wing** | [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) (port online H2H/WDL/Goals/DDs; incremental slices) |
 | Amiga ground layers / community packs | `docs/amiga-ground-layers-policy.md`, `docs/amiga-ground-layers-implementation-plan.md` (L0–L5) |
 | Amiga event finish / honours / podiums | `docs/amiga-tournament-honours-rules.md`, `docs/amiga-event-finish-implementation-plan.md`, `docs/amiga-player-universe-contract.md` §5.2–§6 |
 | Hall of Fame record C++ / staging defects | `docs/coordination/records-post-game-exception.md`, `docs/staging-post-game-record-defects.md` (when records behavior changes) |

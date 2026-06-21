@@ -11,7 +11,7 @@
 
 ## 1. Executive summary
 
-Rebuild/finalize maintains rich rows in `amiga_player_tournament_participation`, `amiga_player_tournament_totals`, `amiga_player_matchup_summary`, and full career columns on `amiga_player_stats`. **Surface expansion (slices 0–8)** shipped read-path UI on profile, tournament pages, seven leaderboard wings, HoF deep links, and H2H pair page — see [`amiga-profile-v0.md`](amiga-profile-v0.md) and [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4.
+Rebuild/finalize maintains rich rows in `amiga_player_event_snapshots` + `amiga_player_current` (career + per-event facts, including honours rollups), `amiga_player_matchup_at_event`, and realm snapshots on `amiga_generalstats`. Legacy `amiga_player_tournament_participation`, `amiga_player_tournament_totals`, and `amiga_player_stats` were retired at snapshot slice 8 ([`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)). **Surface expansion (slices 0–8)** shipped read-path UI on profile, tournament pages, seven leaderboard wings, HoF deep links, and H2H pair page — see [`amiga-profile-v0.md`](amiga-profile-v0.md) and [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4.
 
 **Richest surfaces:** `/amiga/player-tournaments.php` (full event history); `/amiga/profile.php` (honours, perf, moments, recent tournaments, top opponents + H2H); `/amiga/tournament.php?view=event-stats`.
 
@@ -56,9 +56,9 @@ Items below need **no new derived tables** and **no new rebuild writers** unless
 
 | | |
 |---|---|
-| **Source** | `amiga_player_tournament_totals` |
-| **Ready fields** | `wc_gold/silver/bronze`, `tournaments_won`, `podiums`, `cup_gold/silver/bronze`, `last_event_date`, `tournaments_played` |
-| **Note** | `profile.php` already calls `amiga_player_tournament_totals_row()` but only uses `tournaments_played` for the history link count |
+| **Source** | `amiga_player_current` honours columns (via `amiga_player_tournament_totals_row()`) |
+| **Ready fields** | `wc_gold/silver/bronze`, `tournaments_won`, `event_podiums`, `event_gold/silver/bronze`, `last_event_date`, `tournaments_played` |
+| **Note** | `profile.php` calls `amiga_player_tournament_totals_row()` — helper name is legacy; reads `amiga_player_current` |
 | **Contract** | §4 marks “WC medals on profile” deferred — data plumbing is done |
 
 ### 3.2 Tier A leaderboard wings (pages only)
@@ -109,9 +109,9 @@ Items below need **no new derived tables** and **no new rebuild writers** unless
 
 | | |
 |---|---|
-| **Source** | `amiga_player_tournament_totals` — `cup_*`, `podiums` already written |
-| **Today** | Honours LB shows WC medals, tournaments won, tournaments played |
-| **Gap** | Cup specialists and podium counts have no sortable home |
+| **Source** | `amiga_player_current` — `event_*`, `wc_*`, `event_podiums`, `tournaments_played` |
+| **Today** | Honours LB shipped — event + WC medal columns, podiums, events played |
+| **Gap** | *(closed Jun 2026 — was cup/podium sortable home pre–v2)* |
 
 ### 3.8 Tournament history filters (partial)
 

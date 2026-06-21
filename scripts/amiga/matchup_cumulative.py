@@ -5,7 +5,21 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+import pymysql
+
 from scripts.ladder.player_state import PlayerState
+
+_EXTREME_COLS = (
+    "max_goals_for",
+    "max_goals_against",
+    "min_goals_for",
+    "min_goals_against",
+    "max_win_margin",
+    "max_loss_margin",
+    "max_draw_goals",
+    "max_goal_sum",
+    "min_goal_sum",
+)
 
 
 @dataclass
@@ -16,13 +30,22 @@ class PairTotals:
     losses: int = 0
     goals_for: int = 0
     goals_against: int = 0
+    max_goals_for: int = 0
+    max_goals_against: int = 0
+    min_goals_for: int = 0
+    min_goals_against: int = 0
+    max_win_margin: int | None = None
+    max_loss_margin: int | None = None
+    max_draw_goals: int | None = None
+    max_goal_sum: int = 0
+    min_goal_sum: int = 0
     dd_wins: int = 0
     dd_losses: int = 0
     cs_wins: int = 0
     cs_losses: int = 0
 
     def to_row(self, player_id: int, opponent_id: int) -> dict[str, Any]:
-        return {
+        row = {
             "player_id": player_id,
             "opponent_id": opponent_id,
             "games": self.games,
@@ -36,6 +59,52 @@ class PairTotals:
             "cs_wins": self.cs_wins,
             "cs_losses": self.cs_losses,
         }
+        for col in _EXTREME_COLS:
+            row[col] = getattr(self, col)
+        return row
+
+
+def _apply_directed_outcome(totals: PairTotals, w: int, d: int, l: int, gf: int, ga: int) -> None:
+    """Update directed pair counters for one game (online SCH-019 semantics)."""
+    gs = gf + ga
+    totals.games += 1
+    totals.wins += w
+    totals.draws += d
+    totals.losses += l
+    totals.goals_for += gf
+    totals.goals_against += ga
+
+    if totals.games == 1:
+        totals.max_goals_for = gf
+        totals.max_goals_against = ga
+        totals.min_goals_for = gf
+        totals.min_goals_against = ga
+        totals.max_goal_sum = gs
+        totals.min_goal_sum = gs
+        totals.max_win_margin = (gf - ga) if w else None
+        totals.max_loss_margin = (ga - gf) if l else None
+        totals.max_draw_goals = gf if d else None
+        return
+
+    totals.max_goals_for = max(totals.max_goals_for, gf)
+    totals.max_goals_against = max(totals.max_goals_against, ga)
+    totals.min_goals_for = min(totals.min_goals_for, gf)
+    totals.min_goals_against = min(totals.min_goals_against, ga)
+    totals.max_goal_sum = max(totals.max_goal_sum, gs)
+    totals.min_goal_sum = min(totals.min_goal_sum, gs)
+    if w:
+        margin = gf - ga
+        prev = totals.max_win_margin if totals.max_win_margin is not None else 0
+        totals.max_win_margin = max(prev, margin)
+    if l:
+        margin = ga - gf
+        prev = totals.max_loss_margin if totals.max_loss_margin is not None else 0
+        totals.max_loss_margin = max(prev, margin)
+    if d:
+        if totals.max_draw_goals is None:
+            totals.max_draw_goals = gf
+        else:
+            totals.max_draw_goals = max(totals.max_draw_goals, gf)
 
 
 @dataclass
@@ -70,12 +139,7 @@ class MatchupCumulative:
         cs_b = goals_a == 0
 
         pa = self._pair(id_a, id_b)
-        pa.games += 1
-        pa.wins += w_a
-        pa.draws += d_a
-        pa.losses += l_a
-        pa.goals_for += goals_a
-        pa.goals_against += goals_b
+        _apply_directed_outcome(pa, w_a, d_a, l_a, goals_a, goals_b)
         if dd_a:
             pa.dd_wins += 1
         if dd_b:
@@ -86,12 +150,7 @@ class MatchupCumulative:
             pa.cs_losses += 1
 
         pb = self._pair(id_b, id_a)
-        pb.games += 1
-        pb.wins += w_b
-        pb.draws += d_b
-        pb.losses += l_b
-        pb.goals_for += goals_b
-        pb.goals_against += goals_a
+        _apply_directed_outcome(pb, w_b, d_b, l_b, goals_b, goals_a)
         if dd_b:
             pb.dd_wins += 1
         if dd_a:
@@ -115,7 +174,11 @@ class MatchupCumulative:
         placeholders = ", ".join(["%s"] * len(player_ids))
         sql = f"""
             SELECT player_id, opponent_id, games, wins, draws, losses,
-                   goals_for, goals_against, dd_wins, dd_losses, cs_wins, cs_losses
+                   goals_for, goals_against,
+                   max_goals_for, max_goals_against, min_goals_for, min_goals_against,
+                   max_win_margin, max_loss_margin, max_draw_goals,
+                   max_goal_sum, min_goal_sum,
+                   dd_wins, dd_losses, cs_wins, cs_losses
             FROM amiga_player_matchup_summary
             WHERE player_id IN ({placeholders})
         """
@@ -131,6 +194,27 @@ class MatchupCumulative:
                     losses=int(row["losses"]),
                     goals_for=int(row["goals_for"]),
                     goals_against=int(row["goals_against"]),
+                    max_goals_for=int(row["max_goals_for"]),
+                    max_goals_against=int(row["max_goals_against"]),
+                    min_goals_for=int(row["min_goals_for"]),
+                    min_goals_against=int(row["min_goals_against"]),
+                    max_win_margin=(
+                        int(row["max_win_margin"])
+                        if row["max_win_margin"] is not None
+                        else None
+                    ),
+                    max_loss_margin=(
+                        int(row["max_loss_margin"])
+                        if row["max_loss_margin"] is not None
+                        else None
+                    ),
+                    max_draw_goals=(
+                        int(row["max_draw_goals"])
+                        if row["max_draw_goals"] is not None
+                        else None
+                    ),
+                    max_goal_sum=int(row["max_goal_sum"]),
+                    min_goal_sum=int(row["min_goal_sum"]),
                     dd_wins=int(row["dd_wins"]),
                     dd_losses=int(row["dd_losses"]),
                     cs_wins=int(row["cs_wins"]),

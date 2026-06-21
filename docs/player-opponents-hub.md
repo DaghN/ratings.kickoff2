@@ -57,9 +57,9 @@ W/D/L · Goals · DDs · Head-to-head
 
 ### Amiga — later (target rhyme)
 
-Today: `Profile · Tournaments · Games` + top opponents table on Profile → `/amiga/h2h.php`.
+Today: `Profile · Tournaments · Games` (no Opponents pill yet).
 
-Target: add **Opponents** (opponent list + H2H); move inline top-opponents off Profile. Keep **Tournaments** top-level (realm-specific).
+Target: add **Opponents** under `amiga/player/opponents/*` (rhyme online `player/opponents/`). Keep **Tournaments** top-level (realm-specific).
 
 ```
 Profile · Tournaments · Games · Opponents   (order TBD)
@@ -103,8 +103,9 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 
 ### Amiga — after online proves out
 
-- [ ] `amiga_player_nav.php` + Opponents tab; relocate `amiga_profile_render_top_opponents()` off Profile.
-- [ ] Wire existing `amiga/h2h.php` into Head-to-head sub-tab or keep as deep link from opponent rows.
+- [x] Opponents pill + inner sub-tabs — see [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) (shell shipped Jun 2026).
+- [x] Wire W/D/L · Goals · DDs tables from stored matchup (+ snapshot read lib) — Jun 2026.
+- [ ] H2H rivalry wing (poster, picker, charts).
 
 ---
 

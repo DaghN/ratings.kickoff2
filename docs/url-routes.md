@@ -128,12 +128,16 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-profile` | `/amiga/player/profile.php` |
 | `amiga-player-games` | `/amiga/player/games.php` |
 | `amiga-player-tournaments` | `/amiga/player/tournaments.php` |
+| `amiga-player-opponents-h2h` | `/amiga/player/opponents/h2h.php` (default Opponents tab) |
+| `amiga-player-opponents-wdl` | `/amiga/player/opponents/wdl.php` |
+| `amiga-player-opponents-goals` | `/amiga/player/opponents/goals.php` |
+| `amiga-player-opponents-dds` | `/amiga/player/opponents/dds.php` |
 
 Query `?id=` required on all player tabs.
 
 **Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php` → player games; `/amiga/player-tournaments.php` → tournaments. `/amiga/games.php` is reserved for a future realm-wide match log.
 
-**Not under `player/`:** `/amiga/h2h.php` (pair page), `/amiga/tournament.php`, `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/`.
+**Not under `player/`:** `/amiga/tournament.php`, `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/`. Player Opponents wings: `amiga/player/opponents/*`.
 
 ---
 

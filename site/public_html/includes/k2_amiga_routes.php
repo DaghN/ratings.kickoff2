@@ -14,6 +14,10 @@ const K2_AMIGA_ROUTES = [
 	'amiga-player-profile' => 'amiga/player/profile.php',
 	'amiga-player-games' => 'amiga/player/games.php',
 	'amiga-player-tournaments' => 'amiga/player/tournaments.php',
+	'amiga-player-opponents-h2h' => 'amiga/player/opponents/h2h.php',
+	'amiga-player-opponents-wdl' => 'amiga/player/opponents/wdl.php',
+	'amiga-player-opponents-goals' => 'amiga/player/opponents/goals.php',
+	'amiga-player-opponents-dds' => 'amiga/player/opponents/dds.php',
 ];
 
 function k2_amiga_route(string $name, array $params = []): string

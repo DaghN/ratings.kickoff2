@@ -19,7 +19,7 @@
 | **Time travel on** | URL carries `as=`; one shared cutoff drives all wired read paths |
 | **UI name** | **Time travel** — header **Present day | Time travel**; snapshot label in stepper between chevrons |
 | **Granularity** | **Year · Month · Event** — tab order in chrome (coarse → fine) |
-| **Rollout** | **Incremental** — each surface opts in; unwired pages stay present until promoted |
+| **Rollout** | **Incremental** — each surface opts in; **present-only hub tabs hidden** under time travel (T13) |
 
 There is **no** per-page “Current | Historical” split. One chrome control, one cutoff, navigation preserves context.
 
@@ -33,14 +33,22 @@ There is **no** per-page “Current | Historical” split. One chrome control, o
 | **T2** | **URL is authority** | Active time travel = `as` query param present and valid. Bookmarkable, shareable, back-button safe. No session-only primary state |
 | **T3** | **Present by default** | Absent or invalid `as` → present reads; pages unchanged visually except optional “Enter time travel” entry |
 | **T4** | **Link propagation** | When `as` is active, **all Amiga internal links** append the same param (hub tabs, LB wings, player pills, HoF links). Infrastructure ships with phase 1 |
-| **T5** | **Incremental surfaces** | Pages without a snapshot read path **ignore** time travel and show present data. Optional ribbon note on unwired pages: “This section still shows present-day data” |
+| **T5** | **Incremental surfaces** | Player/archive pages wire cutoff reads in slices. **Transitional:** unwired player blocks may show present data with an optional note until wired — **not** for present-only hub tabs (T13) |
 | **T6** | **No new routes fork** | Same PHP paths (`/amiga/leaderboards/rating.php`, `/amiga/player/profile.php`, …) — not a parallel `/amiga/history/…` tree |
 | **T7** | **Commit boundary** | Cutoffs align with **tournament finalize** semantics (same as rating history V1). Month/year = last finalize on or before period end; empty periods repeat prior state |
 | **T8** | **Wing tab order** | Chrome tabs: **Year · Month · Event** (coarse-to-fine browsing) |
 | **T9** | **History tab removed** | **Jun 2026:** dedicated History hub tab and ladder page retired. Rating at cutoff lives on `/amiga/leaderboards/rating.php?as=`. Legacy `/amiga/history.php` 301 → rating LB (preserves `as=` / `wing`+`at`). |
-| **T10** | **Excluded realms** | Online hub, Amiga ops, live tournaments, import tooling — **ignore** `as`; never enter time travel chrome |
+| **T10** | **Excluded realms** | Online hub, Amiga **ops**, import tooling — **ignore** `as`; never enter time travel chrome |
 | **T11** | **Streaks** | No time-travel surfaces for match streaks (Amiga product policy — non-authoritative columns) |
-| **T12** | **Profile deferred** | Player profile is **not** in phase 1 — treat as **unshipped** for time travel until a dedicated profile + time-travel slice. Links may carry `as=`; page stays present-only |
+| **T12** | **Profile blocks deferred** | Hero rank/rating/games at cutoff **shipped** (`amiga_player_snapshot_lib.php`). Remaining profile career blocks — phase 2+ |
+| **T13** | **Present-only hub tabs** | **News** (present realm landing), **Live tournaments** (last tab in present order), and future editorial hubs (e.g. **Misc**) appear **only** in Present day hub nav. When `as=` is active, **omit** them from the hub bar. Direct requests to those paths **drop `as=`** (302 to present URL). |
+| **T14** | **Time-travel entry** | Header **Time travel** from a present-only hub page lands on **`/amiga/leaderboards/rating.php`** with active `as=` (default first calendar year when none set). From wired hub/LB pages, entry keeps the current path + `as=`. |
+| **T14b** | **Player-wing entry** | Header **Time travel** from a **player wing** (`/amiga/player/…`) with no active `as=` lands on the **same player path** with `as=` = that player’s **first rated event snapshot** (`event:ID`). Realm picker stays the **full catalog** (earlier years still selectable). |
+| **T15** | **Uniform lens** | **Hub (time travel):** only snapshot-worthy tabs (T13b); all derived stats at cutoff. **Player wings:** hero, games, tournaments, opponents, profile — everything at cutoff when wired; preserve `as=` on links. No silent present-day numbers on wired surfaces. |
+| **T13b** | **Snapshot-only time-travel hub** | When `as=` is active, hub bar = **Leaderboards · Activity · Hall of Fame** only. **Tournaments** hub tab and future **Games** hub tab are **present-only** (hidden from bar). Historical tournament browse: player tournament list, `tournament.php` detail, deep links — not hub catalog index. |
+| **T16** | **No silent exit** | Links from active time travel must **preserve `as=`** on a cutoff-aware page, or **explicitly** open present-only content (T13 editorial redirect, labelled present-only link). Never drop `as=` without user intent. |
+| **T17** | **Pre-debut at cutoff** | Valid `amiga_players` row with **no snapshot ≤ cutoff** (or zero games at cutoff): page **loads** (no 404). Hero rank · rating · games show **—** + muted note *Not on the ladder at this cutoff.* Wired tables may be empty; unwired blocks may still show present data with transitional note (T5). |
+| **T18** | **Player event stepper** | On `/amiga/player/…` with **Event** wing: chevrons step **this player’s participated tournaments** (`NumberGames > 0`). **Forward** from pre-debut → first played event. **Back** at first played event → one **realm** tournament at a time. Picker stays **full realm catalog**; played events get **lickstar accent**. Hub / LB keep realm-global stepping. Year / Month unchanged. |
 
 ---
 
@@ -88,32 +96,56 @@ Same behaviour as rating history pilot: prev/next step within active wing; jump 
 
 | Surface | Present source | Time travel source | Notes |
 |---------|----------------|-------------------|--------|
-| **Leaderboards** (all wings) | `amiga_player_current` | Last `amiga_player_event_snapshots` row per player ≤ cutoff | Sort wing metric on snapshot row |
+| **Leaderboards** (all wings) | `amiga_player_current` | Last `amiga_player_event_snapshots` row per player ≤ cutoff | Sort wing metric on snapshot row; **rank column** = enumerate sorted result in PHP (not `elo_rank` column) |
 | **Hall of Fame** | `amiga_generalstats` | `amiga_realm_snapshots` at cutoff | Full row incl. ratio leaders |
+| **Opponents** W/D/L · Goals · DDs | `amiga_player_matchup_summary` | Latest `amiga_player_matchup_at_event` per opponent ≤ cutoff | `amiga_matchup_snapshot_lib.php`; H2H wing still placeholder |
 
-### 4.2 Phase 1 — present-only (explicit defer)
+### 4.2 Present-only hub (editorial + catalog collections)
+
+| Surface | Rule |
+|---------|------|
+| **News** | Present realm **landing** — invitations, reports, interviews, editorial (T13) |
+| **Live tournaments** (+ live tournament detail) | Contemporary sign-ups / in-progress — last hub tab in present order |
+| **Tournaments** (hub index) | Present hub tab; **hidden** under time travel (T13b). Filtered index/detail reachable via deep links + `as=` when wired |
+| **Games** (future hub) | Present hub tab when shipped; **hidden** under time travel (T13b). Realm highlights live in Activity / records first |
+| **Misc** (future) | Editorial oddments — present-only when shipped |
+
+Direct `?as=` on **editorial** paths (News, live tournaments) → redirect strips time travel.
+
+### 4.3 Player wings (time-travel lens — wire at cutoff)
+
+Player pills stay visible under time travel. Target **T15** + **T16**:
+
+| Surface | Rule |
+|---------|--------|
+| **Hero** | Rank · rating · games at cutoff from snapshot + `amiga_player_elo_rank_at_event`; **—** + note when pre-debut (T17) | **Shipped** — `amiga_player_snapshot_lib.php` · `amiga_elo_rank_lib.php` |
+| **Hero → games** | `amiga/player/games.php` — hero-viewport game table (not a generic vault clone); filters including opponent narrow the set; list ≤ cutoff when wired |
+| **Tournaments** (player) | Participation list ≤ cutoff |
+| **Opponents** tables | Shipped — `amiga_matchup_snapshot_lib.php` |
+| **Profile** blocks | Career / honours at cutoff — phase 2+ |
+
+### 4.4 Transitional defer (visible but not yet at cutoff)
 
 | Surface | Reason |
 |---------|--------|
-| **Player profile** (entire page) | Profile v0 treated as **unshipped** for time travel; substantial future work before snapshot reads — **phase 2+** |
-| Games / game detail | Ground truth |
-| Tournaments index / detail | Catalog; filter deferred |
-| Activity | Not built |
-| News / rating races | Animation specialty; phase 2+ |
-| **`/amiga/h2h.php`** | Exists but minimal; phase 2+ |
-| Live tournaments | N/A |
+| **Player profile** (blocks) | Hero/career snapshot reads — hero **shipped**; career blocks phase 2+ |
+| **Hero → games** | Ground-truth filter ≤ cutoff deferred |
+| **Player tournaments** | Participation filter ≤ cutoff deferred |
+| **Activity** (hub) | Charts not at cutoff yet |
+| **Opponents H2H** | Poster/picker/charts not shipped |
+| Hub **tournaments.php** with `?as=` | May show present until catalog filter ships; tab hidden regardless (T13b) |
 
-### 4.3 Later phases (registry)
+### 4.5 Later phases (registry)
 
 | Surface | Time travel source |
 |---------|-------------------|
 | **Player profile** — hero / career / honours | Player snapshot at cutoff |
-| **Player profile** — top opponents | `amiga_player_matchup_at_event` at cutoff |
-| Profile — moments, recent tournaments, rating chart, perf highlight | Mixed; wire when profile slice defines behaviour |
-| H2H pair page | `amiga_player_matchup_at_event` directed pair |
-| Opponents tables (if split from profile) | Matchup at-event for player |
+| **Hero → games** | Filtered `amiga_games` ≤ cutoff (hero table + filters) |
+| **Player tournaments** | Participation ≤ cutoff |
+| **Opponents H2H** (poster · moments · charts) | Pair games ≤ cutoff + stored pair row |
+| Profile — moments, rating chart, perf highlight | Mixed; wire per slice |
 | Activity / server aggregates | `amiga_realm_snapshots` aggregate columns |
-| Tournaments / games lists | Filter ground truth ≤ cutoff |
+| Hub tournaments index (optional) | Filter catalog ≤ cutoff — tab may stay hidden (T13b) |
 | Rating chart overlay | Optional vertical marker at cutoff |
 
 ---
@@ -122,9 +154,11 @@ Same behaviour as rating history pilot: prev/next step within active wing; jump 
 
 ### 5.1 Time travel chrome
 
-**Header (Amiga only):** segment beside realm switcher — **Present day | Time travel**. Present strips `as=` on the current path; Time travel sets default `as=` (first calendar year) or keeps active `as=`.
+**Header (Amiga only):** segment beside realm switcher — **Present day | Time travel**. Present strips `as=` on the current path (carrying stable query params — `id`, table sort). **Time travel** sets default `as=` (first calendar year on hub/LB) or keeps active `as=`; from present-only hub pages targets **rating LB** (T14). From **player wings**, default `as=` = player’s first rated event (T14b).
 
-**Ribbon (when `as=` active):** compact bar **above** hub or player nav — one row: **Year | Month | Event** segments · chevrons + snapshot label · listbox picker. No separate title line; no entry link below hub; no exit link (Present day segment replaces it).
+**Hub bar (when `as=` active):** **Leaderboards · Activity · Hall of Fame** only (T13b). Present-day order: **News · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments** (last). News, Live tournaments, Tournaments, and future Games hub tab are **hidden** under time travel.
+
+**Ribbon (when `as=` active):** compact bar **directly below** the site header (wordmark + Present day | Time travel), at the top of `k2-page-nav` — **above** hub tabs, player hero, and player pills. One row: **Year | Month | Event** · chevrons + snapshot label · listbox picker. On **player wings**, Event chevrons follow **player tournaments** (T18); Event picker accents played tournaments.
 
 **Table sort carry:** same-path ribbon navigation preserves active `k2_sort` / `k2_dir` (PHP hrefs + picker; JS refreshes ribbon after column sort). Cross-page links (hub tabs, other wings) do not carry sort indices.
 
@@ -134,9 +168,33 @@ When inactive: header segment only; no ribbon below/above nav.
 
 Use **time travel** / **as of** / **present** consistently. Avoid mixing "historical", "snapshot", "archive" in user-facing chrome.
 
-### 5.3 Unwired sections
+### 5.3 Player wings vs hub (T15)
 
-When `as` is active on a page **not yet wired** (including profile in phase 1): show **present-day data** only; optional muted ribbon or page note: “This section still shows present-day data.”
+| Lens | Scope |
+|------|--------|
+| **Hub time travel** | Snapshot realm: LBs, Activity, HoF (T13b) |
+| **Player wings** | Full player story at cutoff: hero, **hero → games**, tournaments, opponents, profile |
+
+**Hero → games** = `amiga/player/games.php` hero-viewport table (deliberate viewpoint from the subject). Opponent (and other filters) narrow that list; not a separate “opponent games” page.
+
+### 5.4 Unwired player sections (transitional)
+
+Player/archive pages still wiring cutoff reads may show present-day blocks briefly; prefer **wire in clusters** (hero + games tab, etc.) over permanent mixed pages. Optional muted note until wired — target **T15** (no silent mix).
+
+### 5.5 Hub tab matrix
+
+| Tab | Present hub | Time-travel hub |
+|-----|-------------|-----------------|
+| News | Yes (landing) | **Hidden** (T13) |
+| Leaderboards | Yes | Yes (T13b) |
+| Tournaments | Yes | **Hidden** (T13b) — player / detail deep links when wired |
+| Activity | Yes | Yes (T13b) |
+| Hall of Fame | Yes | Yes (T13b) |
+| Live tournaments | Yes (last) | **Hidden** (T13) |
+| Games (future hub) | Yes (when shipped) | **Hidden** (T13b) |
+| Misc (future) | Yes | **Hidden** (T13) |
+
+Implementation: `includes/amiga_hub_nav_lib.php` · `amiga_snapshot_redirect_present_only_page()`.
 
 ---
 
@@ -144,6 +202,9 @@ When `as` is active on a page **not yet wired** (including profile in phase 1): 
 
 | Module | Role |
 |--------|------|
+| `includes/amiga_player_event_stepper_lib.php` | Player Event chevrons + picker accents (T18) |
+| `includes/amiga_player_snapshot_lib.php` | Hero + `amiga_player_load()` at cutoff |
+| `includes/amiga_elo_rank_lib.php` | Persisted `elo_rank` reads (present + time travel) |
 | `includes/amiga_snapshot_context.php` | Parse `as`, resolve cutoff, `is_active()`, `cutoff()`, `label()`, `query_suffix()` |
 | `includes/amiga_snapshot_url.php` (or helpers on context) | `amiga_url_with_context($path, $query)` |
 | `includes/amiga_snapshot_chrome.php` | Ribbon HTML; included from Amiga layout |
@@ -171,11 +232,16 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Check | Expect |
 |-------|--------|
 | Present mode | With no `as`, byte-identical behaviour to pre-time-travel pages (regression) |
-| Link carry | Hub → LB → HoF preserves `as`; profile URL may carry `as` but page stays present |
+| Link carry | Hub → LB → HoF preserves `as=`; present-only hub pages strip `as=` |
+| Enter time travel from News | Lands on rating LB with `as=` (T14) |
+| Enter time travel from player profile | Same path + `as=` = player first event (T14b) |
+| Player before debut at cutoff | Hero — / — / — + note; no 404 (T17) |
+| Player event chevrons | Step played tournaments; picker accents (T18) |
+| Hub nav under `as=` | Leaderboards · Activity · HoF only; no Tournaments tab (T13b) |
+| Profile with `as` active | Present-day data until wired (T12); target T15 |
+| Exit to present | Drops `as=`; returns to current tables; keeps `id` / sort params |
 | LB rating at event X | Matches rating wing at same cutoff (snapshot ladder oracle) |
 | HoF at year Y | Holder fields match `amiga_realm_snapshots` row at resolved cutoff |
-| Profile with `as` active | Present-day data only (phase 1); optional unwired note |
-| Exit to present | Drops param; returns to current tables |
 
 ---
 
@@ -194,6 +260,6 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 
 ## 10. Agent policy
 
-- Phase 1 scope: **leaderboards, HoF** + **infrastructure** — see implementation plan. **No profile snapshot reads in phase 1.**
-- Do not wire games/tournament catalogs or profile until explicitly scheduled in §4.3.
+- **T13b–T18** hub IA + player pre-debut + player event stepper: snapshot-only time-travel bar; player wings at cutoff; smart player TT entry; no silent `as=` exit.
+- Do not wire games/tournament catalogs or profile until explicitly scheduled in §4.4.
 - After phase 1 ship: UPDATE_DOCS Part A; feature-log row; cross-link from `amiga-data-contract.md` authority map.

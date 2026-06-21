@@ -193,7 +193,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_players` | Ground | Import / submission / internal `players create` CLI | Active |
 | `amiga_games` | Ground | Import / submission | Active |
 | `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit | Active |
-| `amiga_player_event_snapshots` | Derived | Tournament finalize / `replay` — sparse timeline (event-local + career + honours + rating block + geo/year scalars + **HoF rise dates** per [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)) | **Active** |
+| `amiga_player_event_snapshots` | Derived | Tournament finalize / `replay` — sparse timeline (event-local + career + honours + rating block + **`elo_rank`** + geo/year scalars + **HoF rise dates** per [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)) | **Active** |
+| `amiga_player_elo_rank_at_event` | Derived | Tournament finalize / `replay` — one row per (player, tournament) with ladder rank after that event (all players with games > 0; supports TT hero + rank-over-time chart) | **Active** |
 | `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours + geo/year scalars + rise dates) | **Active** |
 | `amiga_rating_events` | Derived | **Retired slice 8** — replaced by snapshot event rating block | Retired |
 | `amiga_player_stats` | Derived | **Retired slice 8** — replaced by `amiga_player_current` | Retired |
@@ -202,8 +203,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_tournament_standings` | Derived | Per-tournament finalize (`rebuild_standings_for_tournament`) or standings rebuild on result entry | Active |
 | `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP catalog refresh per finalize/post-game | Active |
 | `amiga_tournament_finish_override` | **L3 witness** (curated) | Manual import / ops; Tier E historical claims. DDL `sql/ground/002_tournament_finish_override.sql` | Active |
-| `amiga_player_matchup_at_event` | Derived | Tournament finalize — cumulative directed pair stats as of each participated event. Read: future profile/H2H-as-of-event | **Active** |
-| `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary` from cumulative map); repair: `matchup-rebuild` CLI. Read: `includes/amiga_player_matchup_lib.php` (`amiga_player_top_opponents`) → profile top-opponents block | **Active** |
+| `amiga_player_matchup_at_event` | Derived | Tournament finalize — cumulative directed pair stats (+ SCH-031 extremes) as of each participated event. Read: future Opponents wing at cutoff | **Active** |
+| `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary`); repair: `matchup-rebuild` CLI. SCH-031 goal extremes. Read: future Opponents wing | **Active** |
 | `amiga_realm_snapshots` | Derived | Tournament finalize / `replay` — full `amiga_generalstats` payload per finalized event. Policy [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) | **Active** |
 | `amiga_generalstats` | Derived | Tournament finalize / `replay` — present projection (latest realm snapshot). Ratio leaders on row. Read: `/amiga/hall-of-fame.php`. Repair: `generalstats-rebuild` oracle only | **Active** |
 | `reference_*` (optional) | Reference | Parity tooling only | — |

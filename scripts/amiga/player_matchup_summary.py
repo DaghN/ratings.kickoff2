@@ -21,6 +21,15 @@ INSERT INTO amiga_player_matchup_summary (
     losses,
     goals_for,
     goals_against,
+    max_goals_for,
+    max_goals_against,
+    min_goals_for,
+    min_goals_against,
+    max_win_margin,
+    max_loss_margin,
+    max_draw_goals,
+    max_goal_sum,
+    min_goal_sum,
     dd_wins,
     dd_losses,
     cs_wins,
@@ -35,6 +44,15 @@ SELECT
     SUM(l) AS losses,
     SUM(gf) AS goals_for,
     SUM(ga) AS goals_against,
+    MAX(gf) AS max_goals_for,
+    MAX(ga) AS max_goals_against,
+    MIN(gf) AS min_goals_for,
+    MIN(ga) AS min_goals_against,
+    MAX(CASE WHEN w > 0 THEN gf - ga END) AS max_win_margin,
+    MAX(CASE WHEN l > 0 THEN ga - gf END) AS max_loss_margin,
+    MAX(CASE WHEN d > 0 THEN gf END) AS max_draw_goals,
+    MAX(gf + ga) AS max_goal_sum,
+    MIN(gf + ga) AS min_goal_sum,
     SUM(dd_w) AS dd_wins,
     SUM(dd_l) AS dd_losses,
     SUM(cs_w) AS cs_wins,
@@ -69,6 +87,42 @@ FROM (
     FROM amiga_games g
 ) AS sides
 GROUP BY pid, oid
+"""
+
+_PAIR_EXTREMES_ORACLE_SQL = """
+SELECT
+    MAX(gf) AS max_goals_for,
+    MAX(ga) AS max_goals_against,
+    MIN(gf) AS min_goals_for,
+    MIN(ga) AS min_goals_against,
+    MAX(CASE WHEN w > 0 THEN gf - ga END) AS max_win_margin,
+    MAX(CASE WHEN l > 0 THEN ga - gf END) AS max_loss_margin,
+    MAX(CASE WHEN d > 0 THEN gf END) AS max_draw_goals,
+    MAX(gf + ga) AS max_goal_sum,
+    MIN(gf + ga) AS min_goal_sum
+FROM (
+    SELECT
+        CASE WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s THEN g.goals_a
+             WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s THEN g.goals_b
+        END AS gf,
+        CASE WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s THEN g.goals_b
+             WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s THEN g.goals_a
+        END AS ga,
+        CASE
+            WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s AND g.goals_a > g.goals_b THEN 1
+            WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s AND g.goals_b > g.goals_a THEN 1
+            ELSE 0
+        END AS w,
+        CASE WHEN g.goals_a = g.goals_b THEN 1 ELSE 0 END AS d,
+        CASE
+            WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s AND g.goals_a < g.goals_b THEN 1
+            WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s AND g.goals_b < g.goals_a THEN 1
+            ELSE 0
+        END AS l
+    FROM amiga_games g
+    WHERE (g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s)
+       OR (g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s)
+) AS directed
 """
 
 

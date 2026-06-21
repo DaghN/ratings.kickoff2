@@ -391,7 +391,9 @@ function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ct
 }
 
 /**
- * Career tournament rollups for one player (hero / honours — future slices).
+ * Career tournament honours rollups for one player (profile, honours LB).
+ *
+ * Reads honours columns from amiga_player_current (name kept for call-site stability).
  *
  * @return array<string, mixed>|null
  */

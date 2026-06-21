@@ -96,10 +96,13 @@ _CAREER_BEST_COLUMNS: tuple[str, ...] = (
     "career_best_performance_tournament_id",
 )
 
+_ELO_RANK_COLUMNS: tuple[str, ...] = ("elo_rank",)
+
 SNAPSHOT_COLUMNS: tuple[str, ...] = (
     _SNAPSHOT_KEY_COLUMNS
     + EVENT_LOCAL_COLUMNS
     + CAREER_COLUMNS
+    + _ELO_RANK_COLUMNS
     + HONOURS_SNAPSHOT_COLUMNS
     + _CAREER_BEST_COLUMNS
     + GEO_YEAR_PLAYER_COLUMNS
@@ -116,6 +119,7 @@ CURRENT_COLUMNS: tuple[str, ...] = (
     ("player_id",)
     + CURRENT_META_COLUMNS
     + CAREER_COLUMNS
+    + _ELO_RANK_COLUMNS
     + HONOURS_CURRENT_COLUMNS
     + _CAREER_BEST_COLUMNS
     + GEO_YEAR_PLAYER_COLUMNS
@@ -145,7 +149,7 @@ def career_columns_from_player_state(player_id: int, state: PlayerState) -> dict
 
 
 def honours_columns_from_totals_row(totals: dict[str, Any]) -> dict[str, Any]:
-    """Map amiga_player_tournament_totals row to snapshot honours block."""
+    """Map honours totals dict (increment_honours_totals shape) to snapshot honours block."""
     row: dict[str, Any] = {
         "tournaments_played": int(totals.get("tournaments_played") or 0),
         "tournaments_won": int(totals.get("tournaments_won") or 0),
@@ -260,6 +264,8 @@ def build_event_snapshot_row(
     for key in CAREER_RISE_PLAYER_COLUMNS:
         row[key] = rise.get(key)
 
+    row["elo_rank"] = None
+
     missing = [col for col in SNAPSHOT_COLUMNS if col not in row]
     if missing:
         raise ValueError(f"snapshot row missing columns: {missing}")
@@ -278,6 +284,8 @@ def current_row_from_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
 
     for key in CAREER_COLUMNS:
         row[key] = snapshot[key]
+
+    row["elo_rank"] = snapshot.get("elo_rank")
 
     for key in HONOURS_CURRENT_COLUMNS:
         row[key] = snapshot[key]

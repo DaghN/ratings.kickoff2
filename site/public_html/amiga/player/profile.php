@@ -30,7 +30,6 @@ $con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_matchup_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 
@@ -43,7 +42,6 @@ try {
 }
 
 $recentTournaments = amiga_player_recent_tournaments($con, $id, 5);
-$topOpponents = amiga_player_top_opponents($con, $id, 10);
 $tournamentTotals = amiga_player_tournament_totals_row($con, $id);
 $perfHighlight = amiga_player_perf_rating_highlight($con, $id);
 $profileMoments = amiga_player_moments_load($con, $id);
@@ -52,13 +50,7 @@ $totalTournaments = $tournamentTotals !== null
     : count($recentTournaments);
 mysqli_close($con);
 
-$Name = $pm['name'];
-$Rating = $pm['rating'];
-$NumberGames = $pm['games'];
-$Display = $pm['display'] ? 1 : 0;
-$rank = $pm['rank'];
-$Country = $pm['country'];
-$playerId = $pm['id'];
+amiga_player_publish_hero_context($pm);
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -76,7 +68,6 @@ if ($tournamentTotals !== null) {
 amiga_profile_render_perf_rating_highlight($perfHighlight, $playerId);
 amiga_profile_render_moments($profileMoments, $playerId);
 amiga_profile_render_recent_tournaments($recentTournaments, $playerId, $totalTournaments);
-amiga_profile_render_top_opponents($topOpponents, $playerId);
 amiga_profile_render_rating_chart($playerId);
 ?>
 

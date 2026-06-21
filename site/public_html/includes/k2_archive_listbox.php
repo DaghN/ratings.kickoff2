@@ -11,7 +11,7 @@ function k2_archive_listbox_h(string $value): string
 }
 
 /**
- * @param array<int, array{value: string, label: string, meta?: string}> $choices
+ * @param array<int, array{value: string, label: string, meta?: string, accent?: bool}> $choices
  */
 function k2_archive_listbox_render(
     string $inputName,
@@ -23,10 +23,13 @@ function k2_archive_listbox_render(
     string $fixedTriggerLabel = ''
 ): void {
     $hasMetaOptions = false;
+    $hasAccentOptions = false;
     foreach ($choices as $choice) {
         if (array_key_exists('meta', $choice) && (string) $choice['meta'] !== '') {
             $hasMetaOptions = true;
-            break;
+        }
+        if (!empty($choice['accent'])) {
+            $hasAccentOptions = true;
         }
     }
 
@@ -51,7 +54,7 @@ function k2_archive_listbox_render(
         $triggerClass .= ' ' . $triggerExtraClass;
     }
     $boxClass = 'k2-archive-listbox';
-    if ($hasMetaOptions || $fixedTriggerLabel !== '') {
+    if ($hasMetaOptions || $hasAccentOptions || $fixedTriggerLabel !== '') {
         $boxClass .= ' k2-archive-listbox--meta-options';
     }
     ?>
@@ -68,11 +71,15 @@ function k2_archive_listbox_render(
     $meta = array_key_exists('meta', $choice) ? (string) $choice['meta'] : '';
     $sel = $value === $selectedValue;
     $optClass = 'k2-archive-listbox__option';
-    if ($hasMetaOptions || $fixedTriggerLabel !== '') {
+    if ($hasMetaOptions || $hasAccentOptions || $fixedTriggerLabel !== '') {
         $optClass .= ' k2-archive-listbox__option--split';
     }
     if ($sel) {
         $optClass .= ' is-selected';
+    }
+    $labelClass = 'k2-archive-listbox__option-label';
+    if (!empty($choice['accent'])) {
+        $labelClass .= ' k2-link-star';
     }
     $triggerLabelAttr = '';
     if ($fixedTriggerLabel !== '' && $value === '-1') {
@@ -81,8 +88,8 @@ function k2_archive_listbox_render(
     $metaAttr = $meta !== '' ? ' data-option-meta="' . k2_archive_listbox_h($meta) . '"' : '';
     ?>
         <li class="<?php echo k2_archive_listbox_h($optClass); ?>" role="option" data-value="<?php echo k2_archive_listbox_h($value); ?>" aria-selected="<?php echo $sel ? 'true' : 'false'; ?>"<?php echo $triggerLabelAttr . $metaAttr; ?>>
-<?php if ($hasMetaOptions || $fixedTriggerLabel !== '') { ?>
-            <span class="k2-archive-listbox__option-label"><?php echo k2_archive_listbox_h($label); ?></span>
+<?php if ($hasMetaOptions || $hasAccentOptions || $fixedTriggerLabel !== '') { ?>
+            <span class="<?php echo k2_archive_listbox_h($labelClass); ?>"><?php echo k2_archive_listbox_h($label); ?></span>
 <?php if ($meta !== '') { ?>
             <span class="k2-archive-listbox__option-meta"><?php echo k2_archive_listbox_h($meta); ?></span>
 <?php } ?>

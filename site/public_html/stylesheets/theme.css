@@ -2510,6 +2510,11 @@ body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option-label
 	font-variant-numeric: tabular-nums;
 }
 
+body.k2-site .k2-archive-listbox__option-label.k2-link-star {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
 body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option-meta {
 	flex: 0 0 auto;
 	white-space: nowrap;

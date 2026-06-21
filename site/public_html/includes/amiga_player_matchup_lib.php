@@ -51,11 +51,6 @@ function amiga_player_top_opponents(mysqli $con, int $playerId, int $limit = 10)
     return $rows;
 }
 
-function amiga_player_h2h_href(int $playerId, int $opponentId): string
-{
-    return '/amiga/h2h.php?id1=' . max(0, $playerId) . '&id2=' . max(0, $opponentId);
-}
-
 /**
  * @return array{id: int, name: string, country: string}|null
  */

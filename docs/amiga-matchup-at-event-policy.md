@@ -27,7 +27,7 @@ Amiga head-to-head truth moves from **end-of-replay bulk SQL** to **tournament f
 |---|----------|------|
 | **M1** | **Cumulative, not event-local** | Each at-event row is **all-time vs that opponent through end of E**, not games within E only |
 | **M2** | **Sparse participants** | Write at-event rows only for **players with ≥1 game in E**; one row per opponent they have **ever** faced through E |
-| **M3** | **Present = summary** | Hot reads (profile top opponents, `h2h.php`) keep `amiga_player_matchup_summary`; no live scan of `amiga_games` |
+| **M3** | **Present = summary** | Hot reads (future Opponents wing) use `amiga_player_matchup_summary`; no live scan of `amiga_games` |
 | **M4** | **Network from pairs** | `different_opponents` = pair count; `different_victims` = pairs with `wins > 0`; culprits/DD/CS variants per column rules in §4 |
 | **M5** | **No end-of-replay batch** | `replay` / `prove` must not call `matchup-rebuild` or network rescan; finalize writes everything |
 | **M6** | **Peaks incremental** | `PeakRating` / `LowestRating` updated at each finalize from `rating_after` (no `commit_heavy` patch) |
@@ -43,6 +43,7 @@ Directed `(player_id → opponent_id)`:
 | Column | Meaning |
 |--------|---------|
 | `games`, `wins`, `draws`, `losses`, `goals_for`, `goals_against` | Cumulative vs opponent through E |
+| `max_goals_for`, `max_goals_against`, `min_goals_for`, `min_goals_against`, `max_win_margin`, `max_loss_margin`, `max_draw_goals`, `max_goal_sum`, `min_goal_sum` | Cumulative goal extremes through E (SCH-031) |
 | `dd_wins` | Games subject scored ≥10 vs opponent |
 | `dd_losses` | Games opponent scored ≥10 vs subject |
 | `cs_wins` | Games subject clean sheet vs opponent (`goals_against = 0`) |

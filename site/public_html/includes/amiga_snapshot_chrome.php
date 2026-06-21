@@ -2,7 +2,7 @@
 /**
  * Amiga time travel — ribbon above hub/player nav (Year · Month · Event + stepper + picker).
  *
- * Include via amiga_snapshot_chrome.inc.php before hub or player nav.
+ * Include via site_header.php (top of k2-page-nav on Amiga pages).
  * Present | Time travel mode lives in header (amiga_time_mode_nav.php).
  *
  * @see docs/amiga-time-travel-policy.md
@@ -37,23 +37,35 @@ function amiga_snapshot_chrome_should_skip(): bool
 
 /**
  * @param list<array<string, mixed>> $catalog
+ * @param array<string, true>|null $accentKeys event keys to highlight (player participated)
  */
 function amiga_snapshot_chrome_render_picker(
     string $path,
     string $wing,
     string $currentAs,
-    array $catalog
+    array $catalog,
+    ?array $accentKeys = null
 ): void {
     $choices = [];
     foreach ($catalog as $item) {
-        $choices[] = [
-            'value' => amiga_snapshot_format_as_param($wing, (string) $item['key']),
+        $key = (string) $item['key'];
+        $choice = [
+            'value' => amiga_snapshot_format_as_param($wing, $key),
             'label' => (string) $item['label'],
         ];
+        if ($accentKeys !== null && isset($accentKeys[$key])) {
+            $choice['accent'] = true;
+        }
+        $choices[] = $choice;
     }
+    // Picker shows newest first; catalog stays chrono-asc for stepper prev/next.
+    $choices = array_reverse($choices);
     ?>
 <form class="k2-player-games-controls k2-amiga-history__picker" method="get" action="<?php echo k2_h($path); ?>" data-k2-carry-scroll>
     <?php
+    foreach (amiga_snapshot_chrome_carry_query_params($path) as $carryName => $carryValue) {
+        echo '<input type="hidden" name="' . k2_h($carryName) . '" value="' . k2_h((string) $carryValue) . '" />';
+    }
     foreach (k2_table_sort_query_params() as $sortName => $sortValue) {
         echo '<input type="hidden" name="' . k2_h($sortName) . '" value="' . k2_h((string) $sortValue) . '" />';
     }
@@ -66,6 +78,29 @@ function amiga_snapshot_chrome_render_picker(
     ); ?>
 </form>
     <?php
+}
+
+function amiga_snapshot_chrome_carry_query_params(string $path): array
+{
+    $targetPathOnly = k2_table_path_only($path);
+    $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    if (!is_string($currentPath) || $currentPath === '' || $targetPathOnly !== $currentPath) {
+        return [];
+    }
+
+    /** @var array<string, scalar> $carry */
+    $carry = [];
+    foreach ($_GET as $name => $value) {
+        if (!is_string($name) || $name === '' || is_array($value)) {
+            continue;
+        }
+        if (in_array($name, ['as', 'wing', 'at'], true)) {
+            continue;
+        }
+        $carry[$name] = $value;
+    }
+
+    return $carry;
 }
 
 function amiga_snapshot_chrome_render_stepper(
@@ -139,7 +174,7 @@ function amiga_snapshot_chrome_render_wing_tabs(
     echo '</div></nav>';
 }
 
-function amiga_snapshot_chrome_render_active(AmigaSnapshotContext $ctx, string $path): void
+function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $ctx, string $path): void
 {
     $wing = $ctx->wing();
     $currentAs = (string) $ctx->asParam();
@@ -153,6 +188,17 @@ function amiga_snapshot_chrome_render_active(AmigaSnapshotContext $ctx, string $
     $nextAs = null;
     if ($ctx->nextKey() !== null && $ctx->nextKey() !== '') {
         $nextAs = amiga_snapshot_format_as_param($wing, $ctx->nextKey());
+    }
+
+    $pickerAccentKeys = null;
+    if ($wing === 'event') {
+        require_once __DIR__ . '/amiga_player_event_stepper_lib.php';
+        if (amiga_player_event_stepper_applies($path)) {
+            $playerId = isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
+            if ($playerId > 0) {
+                $pickerAccentKeys = amiga_player_participated_event_key_set($con, $playerId);
+            }
+        }
     }
 
     $wings = [
@@ -174,7 +220,7 @@ function amiga_snapshot_chrome_render_active(AmigaSnapshotContext $ctx, string $
                 $ctx->entry()
             );
             if ($catalog !== [] && $currentAs !== '') {
-                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog);
+                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
             }
             ?>
         </div>
@@ -226,7 +272,7 @@ function amiga_snapshot_chrome_render(): void
     try {
         $ctx = amiga_snapshot_context_from_request($con);
         if ($ctx->isActive()) {
-            amiga_snapshot_chrome_render_active($ctx, $path);
+            amiga_snapshot_chrome_render_active($con, $ctx, $path);
         }
     } catch (Throwable) {
         // Public pages must not break when DB unavailable.

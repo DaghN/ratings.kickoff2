@@ -41,13 +41,7 @@ try {
     exit('Player not found.');
 }
 
-$id = $playerId;
-$Name = $pm['name'];
-$Rating = $pm['rating'];
-$NumberGames = $pm['games'];
-$Display = $pm['display'] ? 1 : 0;
-$rank = $pm['rank'];
-$Country = $pm['country'];
+amiga_player_publish_hero_context($pm);
 $name = $Name;
 
 $gameFilters = amiga_player_games_filters_from_request($con, $playerId, $_GET);

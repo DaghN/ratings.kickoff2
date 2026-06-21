@@ -7,6 +7,11 @@ from typing import Any
 
 import pymysql
 
+from scripts.amiga.elo_rank import (
+    assign_elo_ranks,
+    load_career_ratings_through_tournament,
+    persist_elo_ranks_at_tournament,
+)
 from scripts.amiga.honours_totals import (
     empty_honours_totals,
     honours_from_snapshot_row,
@@ -196,10 +201,31 @@ def persist_tournament_event_snapshots(
     if not snapshot_rows:
         return 0
 
+    ratings = load_career_ratings_through_tournament(conn, tournament_id, players, active_ids)
+    ranks = assign_elo_ranks(ratings)
+    for snap in snapshot_rows:
+        pid = int(snap["player_id"])
+        snap["elo_rank"] = ranks.get(pid)
+    for cur in current_rows:
+        pid = int(cur["player_id"])
+        cur["elo_rank"] = ranks.get(pid)
+
+    event_date = snapshot_rows[0].get("event_date")
+    event_chrono = float(snapshot_rows[0].get("event_chrono") or 0.0)
+
     with conn.cursor() as cur:
         cur.executemany(snapshot_sql, snapshot_rows)
         cur.executemany(current_sql, current_rows)
     conn.commit()
+
+    persist_elo_ranks_at_tournament(
+        conn,
+        tournament_id,
+        event_date,
+        event_chrono,
+        ranks,
+        participant_ids=participant_ids,
+    )
 
     log.info(
         "persist_tournament_event_snapshots: tournament_id=%s snapshots=%s",

@@ -76,8 +76,65 @@ def _int_field(row: dict, key: str) -> int:
     return int(value or 0)
 
 
+_PAIR_EXTREMES_ORACLE_SQL = """
+SELECT
+    MAX(gf) AS max_goals_for,
+    MAX(ga) AS max_goals_against,
+    MIN(gf) AS min_goals_for,
+    MIN(ga) AS min_goals_against,
+    MAX(CASE WHEN w > 0 THEN gf - ga END) AS max_win_margin,
+    MAX(CASE WHEN l > 0 THEN ga - gf END) AS max_loss_margin,
+    MAX(CASE WHEN d > 0 THEN gf END) AS max_draw_goals,
+    MAX(gf + ga) AS max_goal_sum,
+    MIN(gf + ga) AS min_goal_sum
+FROM (
+    SELECT
+        CASE WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s THEN g.goals_a
+             WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s THEN g.goals_b
+        END AS gf,
+        CASE WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s THEN g.goals_b
+             WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s THEN g.goals_a
+        END AS ga,
+        CASE
+            WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s AND g.goals_a > g.goals_b THEN 1
+            WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s AND g.goals_b > g.goals_a THEN 1
+            ELSE 0
+        END AS w,
+        CASE WHEN g.goals_a = g.goals_b THEN 1 ELSE 0 END AS d,
+        CASE
+            WHEN g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s AND g.goals_a < g.goals_b THEN 1
+            WHEN g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s AND g.goals_b < g.goals_a THEN 1
+            ELSE 0
+        END AS l
+    FROM amiga_games g
+    WHERE (g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s)
+       OR (g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s)
+) AS directed
+"""
+
+
+def _nullable_int_equal(got: object, expected: object) -> bool:
+    if got is None and expected is None:
+        return True
+    if got is None or expected is None:
+        return False
+    return int(got) == int(expected)
+
+
 def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
+
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'amiga_player_matchup_summary'
+              AND COLUMN_NAME = 'max_goals_for'
+            """
+        )
+        if int(cur.fetchone()["n"]) < 1:
+            errors.append("amiga_player_matchup_summary missing SCH-031 column max_goals_for")
 
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
@@ -220,7 +277,10 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
         cur.execute(
             """
             SELECT player_id, opponent_id, games, wins, draws, losses,
-                   goals_for, goals_against
+                   goals_for, goals_against,
+                   max_goals_for, max_goals_against, min_goals_for, min_goals_against,
+                   max_win_margin, max_loss_margin, max_draw_goals,
+                   max_goal_sum, min_goal_sum
             FROM amiga_player_matchup_summary
             ORDER BY games DESC, player_id ASC, opponent_id ASC
             LIMIT %s
@@ -238,6 +298,11 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
                 {"player_id": player_id, "opponent_id": opponent_id},
             )
             expected = cur.fetchone()
+            cur.execute(
+                _PAIR_EXTREMES_ORACLE_SQL,
+                {"player_id": player_id, "opponent_id": opponent_id},
+            )
+            expected_ext = cur.fetchone()
         for field in ("games", "wins", "draws", "losses", "goals_for", "goals_against"):
             if _int_field(row, field) != _int_field(expected, field):
                 errors.append(
@@ -246,6 +311,32 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
                     f"raw_games={_int_field(expected, field)}"
                 )
                 break
+        else:
+            for field in (
+                "max_goals_for",
+                "max_goals_against",
+                "min_goals_for",
+                "min_goals_against",
+                "max_goal_sum",
+                "min_goal_sum",
+            ):
+                if _int_field(row, field) != _int_field(expected_ext, field):
+                    errors.append(
+                        f"extremes spot-check mismatch player_id={player_id} "
+                        f"opponent_id={opponent_id} field={field}: "
+                        f"summary={_int_field(row, field)} "
+                        f"oracle={_int_field(expected_ext, field)}"
+                    )
+                    break
+            else:
+                for field in ("max_win_margin", "max_loss_margin", "max_draw_goals"):
+                    if not _nullable_int_equal(row.get(field), expected_ext.get(field)):
+                        errors.append(
+                            f"extremes spot-check mismatch player_id={player_id} "
+                            f"opponent_id={opponent_id} field={field}: "
+                            f"summary={row.get(field)!r} oracle={expected_ext.get(field)!r}"
+                        )
+                        break
 
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
@@ -281,6 +372,15 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
             WHERE s.games <> e.games OR s.wins <> e.wins
                OR s.draws <> e.draws OR s.losses <> e.losses
                OR s.goals_for <> e.goals_for OR s.goals_against <> e.goals_against
+               OR s.max_goals_for <> e.max_goals_for
+               OR s.max_goals_against <> e.max_goals_against
+               OR s.min_goals_for <> e.min_goals_for
+               OR s.min_goals_against <> e.min_goals_against
+               OR NOT (s.max_win_margin <=> e.max_win_margin)
+               OR NOT (s.max_loss_margin <=> e.max_loss_margin)
+               OR NOT (s.max_draw_goals <=> e.max_draw_goals)
+               OR s.max_goal_sum <> e.max_goal_sum
+               OR s.min_goal_sum <> e.min_goal_sum
             """
         )
         if int(cur.fetchone()["n"]):

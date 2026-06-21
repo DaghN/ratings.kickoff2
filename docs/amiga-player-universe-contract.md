@@ -103,7 +103,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 
 | Surface | Route / entry | Primary read | Secondary | Tier |
 |---------|---------------|--------------|-----------|------|
-| **Hero + rank** | `/amiga/player/profile.php` | `amiga_player_current` + rank subquery | `amiga_players` | A (shipped) |
+| **Hero + rank** | `/amiga/player/profile.php` | `amiga_player_current.elo_rank` | `amiga_player_elo_rank_at_event` at cutoff | A (shipped) |
 | **Career strip** | profile | `amiga_player_current` | — | A (shipped) |
 | **Honours strip** | profile | `amiga_player_current` honours columns | WC medals, wins, podiums | B (shipped) |
 | **Performance rating highlight** | profile | `amiga_player_event_snapshots` | best + latest event | B (shipped) |
@@ -115,7 +115,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Games list** | `/amiga/player/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |
 | **Single game** | `/amiga/game.php` | `amiga_games` + `amiga_game_ratings` | 1 row by `id` | A (shipped) |
 | **Top opponents** | profile | `amiga_player_matchup_summary` | goals column; H2H links | B (shipped) |
-| **H2H pair page** | `/amiga/h2h.php` | `amiga_player_matchup_summary` | directed pair summary | B (shipped) |
+| **H2H / Opponents wing** | `amiga/player/opponents/*` (not shipped) | `amiga_player_matchup_summary` | directed pair + tables | B (data ready; UI deferred) |
 | **Tier A LB wings** | `/amiga/leaderboards/rating.php`, `goals.php`, … | `amiga_player_current` | `amiga_lb_nav.php` | A (shipped) |
 | **Performance rating LB** | `/amiga/leaderboards/performance-rating.php` | `amiga_player_event_snapshots` | best event per player | B (shipped) |
 | **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_current` honours + `Rating` | `event_*` + `wc_*` | B (shipped) |
@@ -390,7 +390,8 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 | Column | Meaning |
 |--------|---------|
 | `games`, `wins`, `draws`, `losses`, `goals_for`, `goals_against` | Subject player perspective |
-| `dd_wins`, `dd_losses`, `cs_wins`, `cs_losses` | Double-dummy / clean-sheet pair extremes (summary + at-event) |
+| `max_goals_for`, `max_goals_against`, `min_goals_for`, `min_goals_against`, `max_win_margin`, `max_loss_margin`, `max_draw_goals`, `max_goal_sum`, `min_goal_sum` | Per-pair goal extremes (SCH-031 / online SCH-019 parity) — nullable margins/draw peak until qualifying game exists |
+| `dd_wins`, `dd_losses`, `cs_wins`, `cs_losses` | Double-dummy / clean-sheet pair counts (summary + at-event) |
 
 **Source:** `amiga_games` (both perspectives), accumulated in memory during replay/finalize.
 
@@ -615,7 +616,7 @@ python -m scripts.amiga verify-player-matchups
 | Access field | Amiga authority (target) |
 |--------------|-------------------------|
 | `won`, `drawn`, `lost`, `gfor`, `gagainst` | `amiga_player_current` |
-| `rankpos` | rank query on `amiga_player_current.Rating` |
+| `rankpos` | `amiga_player_current.elo_rank` (present); `amiga_player_elo_rank_at_event` at cutoff |
 | `goldmedals`, `silvermedals`, `bronzemedals` | `amiga_player_current.wc_*` |
 | `biggestwin`, `biggestdefeat` | `amiga_player_current` extremes |
 | `lasttournament` | `amiga_player_current.last_tournament_id` |

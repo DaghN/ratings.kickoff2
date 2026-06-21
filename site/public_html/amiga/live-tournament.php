@@ -1,3 +1,9 @@
+<?php
+declare(strict_types=1);
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav_lib.php';
+amiga_snapshot_redirect_present_only_page();
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="amiga">
 <head>

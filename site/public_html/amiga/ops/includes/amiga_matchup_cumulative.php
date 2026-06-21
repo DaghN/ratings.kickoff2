@@ -14,6 +14,15 @@ declare(strict_types=1);
  *   losses: int,
  *   goals_for: int,
  *   goals_against: int,
+ *   max_goals_for: int,
+ *   max_goals_against: int,
+ *   min_goals_for: int,
+ *   min_goals_against: int,
+ *   max_win_margin: int|null,
+ *   max_loss_margin: int|null,
+ *   max_draw_goals: int|null,
+ *   max_goal_sum: int,
+ *   min_goal_sum: int,
  *   dd_wins: int,
  *   dd_losses: int,
  *   cs_wins: int,
@@ -28,24 +37,93 @@ final class AmigaMatchupCumulative
     /**
      * @return PairTotals
      */
+    private function emptyPairTotals(): array
+    {
+        return [
+            'games' => 0,
+            'wins' => 0,
+            'draws' => 0,
+            'losses' => 0,
+            'goals_for' => 0,
+            'goals_against' => 0,
+            'max_goals_for' => 0,
+            'max_goals_against' => 0,
+            'min_goals_for' => 0,
+            'min_goals_against' => 0,
+            'max_win_margin' => null,
+            'max_loss_margin' => null,
+            'max_draw_goals' => null,
+            'max_goal_sum' => 0,
+            'min_goal_sum' => 0,
+            'dd_wins' => 0,
+            'dd_losses' => 0,
+            'cs_wins' => 0,
+            'cs_losses' => 0,
+        ];
+    }
+
+    /**
+     * @return PairTotals
+     */
     private function pair(int $playerId, int $opponentId): array
     {
         if (!isset($this->pairs[$playerId][$opponentId])) {
-            $this->pairs[$playerId][$opponentId] = [
-                'games' => 0,
-                'wins' => 0,
-                'draws' => 0,
-                'losses' => 0,
-                'goals_for' => 0,
-                'goals_against' => 0,
-                'dd_wins' => 0,
-                'dd_losses' => 0,
-                'cs_wins' => 0,
-                'cs_losses' => 0,
-            ];
+            $this->pairs[$playerId][$opponentId] = $this->emptyPairTotals();
         }
 
         return $this->pairs[$playerId][$opponentId];
+    }
+
+    /**
+     * @param PairTotals $totals
+     */
+    private function applyDirectedOutcome(array &$totals, int $w, int $d, int $l, int $gf, int $ga): void
+    {
+        $gs = $gf + $ga;
+        $totals['games']++;
+        $totals['wins'] += $w;
+        $totals['draws'] += $d;
+        $totals['losses'] += $l;
+        $totals['goals_for'] += $gf;
+        $totals['goals_against'] += $ga;
+
+        if ($totals['games'] === 1) {
+            $totals['max_goals_for'] = $gf;
+            $totals['max_goals_against'] = $ga;
+            $totals['min_goals_for'] = $gf;
+            $totals['min_goals_against'] = $ga;
+            $totals['max_goal_sum'] = $gs;
+            $totals['min_goal_sum'] = $gs;
+            $totals['max_win_margin'] = $w > 0 ? $gf - $ga : null;
+            $totals['max_loss_margin'] = $l > 0 ? $ga - $gf : null;
+            $totals['max_draw_goals'] = $d > 0 ? $gf : null;
+
+            return;
+        }
+
+        $totals['max_goals_for'] = max($totals['max_goals_for'], $gf);
+        $totals['max_goals_against'] = max($totals['max_goals_against'], $ga);
+        $totals['min_goals_for'] = min($totals['min_goals_for'], $gf);
+        $totals['min_goals_against'] = min($totals['min_goals_against'], $ga);
+        $totals['max_goal_sum'] = max($totals['max_goal_sum'], $gs);
+        $totals['min_goal_sum'] = min($totals['min_goal_sum'], $gs);
+        if ($w > 0) {
+            $margin = $gf - $ga;
+            $prev = $totals['max_win_margin'] ?? 0;
+            $totals['max_win_margin'] = max($prev, $margin);
+        }
+        if ($l > 0) {
+            $margin = $ga - $gf;
+            $prev = $totals['max_loss_margin'] ?? 0;
+            $totals['max_loss_margin'] = max($prev, $margin);
+        }
+        if ($d > 0) {
+            if ($totals['max_draw_goals'] === null) {
+                $totals['max_draw_goals'] = $gf;
+            } else {
+                $totals['max_draw_goals'] = max($totals['max_draw_goals'], $gf);
+            }
+        }
     }
 
     /**
@@ -72,12 +150,7 @@ final class AmigaMatchupCumulative
         $csB = $goalsA === 0;
 
         $pa = $this->pair($idA, $idB);
-        $pa['games']++;
-        $pa['wins'] += $wA;
-        $pa['draws'] += $dA;
-        $pa['losses'] += $lA;
-        $pa['goals_for'] += $goalsA;
-        $pa['goals_against'] += $goalsB;
+        $this->applyDirectedOutcome($pa, $wA, $dA, $lA, $goalsA, $goalsB);
         if ($ddA) {
             $pa['dd_wins']++;
         }
@@ -93,12 +166,7 @@ final class AmigaMatchupCumulative
         $this->pairs[$idA][$idB] = $pa;
 
         $pb = $this->pair($idB, $idA);
-        $pb['games']++;
-        $pb['wins'] += $wB;
-        $pb['draws'] += $dB;
-        $pb['losses'] += $lB;
-        $pb['goals_for'] += $goalsB;
-        $pb['goals_against'] += $goalsA;
+        $this->applyDirectedOutcome($pb, $wB, $dB, $lB, $goalsB, $goalsA);
         if ($ddB) {
             $pb['dd_wins']++;
         }
@@ -191,7 +259,7 @@ final class AmigaMatchupCumulative
 
     /**
      * @param PairTotals $totals
-     * @return array<string, int>
+     * @return array<string, int|null>
      */
     public function pairToRow(int $playerId, int $opponentId, array $totals): array
     {
@@ -204,6 +272,15 @@ final class AmigaMatchupCumulative
             'losses' => $totals['losses'],
             'goals_for' => $totals['goals_for'],
             'goals_against' => $totals['goals_against'],
+            'max_goals_for' => $totals['max_goals_for'],
+            'max_goals_against' => $totals['max_goals_against'],
+            'min_goals_for' => $totals['min_goals_for'],
+            'min_goals_against' => $totals['min_goals_against'],
+            'max_win_margin' => $totals['max_win_margin'],
+            'max_loss_margin' => $totals['max_loss_margin'],
+            'max_draw_goals' => $totals['max_draw_goals'],
+            'max_goal_sum' => $totals['max_goal_sum'],
+            'min_goal_sum' => $totals['min_goal_sum'],
             'dd_wins' => $totals['dd_wins'],
             'dd_losses' => $totals['dd_losses'],
             'cs_wins' => $totals['cs_wins'],
@@ -223,6 +300,8 @@ final class AmigaMatchupCumulative
         $placeholders = implode(', ', array_fill(0, count($playerIds), '?'));
         $types = str_repeat('i', count($playerIds));
         $sql = 'SELECT player_id, opponent_id, games, wins, draws, losses, goals_for, goals_against, '
+            . 'max_goals_for, max_goals_against, min_goals_for, min_goals_against, '
+            . 'max_win_margin, max_loss_margin, max_draw_goals, max_goal_sum, min_goal_sum, '
             . 'dd_wins, dd_losses, cs_wins, cs_losses '
             . "FROM amiga_player_matchup_summary WHERE player_id IN ({$placeholders})";
         $stmt = $con->prepare($sql);
@@ -244,6 +323,15 @@ final class AmigaMatchupCumulative
                 'losses' => (int) $row['losses'],
                 'goals_for' => (int) $row['goals_for'],
                 'goals_against' => (int) $row['goals_against'],
+                'max_goals_for' => (int) $row['max_goals_for'],
+                'max_goals_against' => (int) $row['max_goals_against'],
+                'min_goals_for' => (int) $row['min_goals_for'],
+                'min_goals_against' => (int) $row['min_goals_against'],
+                'max_win_margin' => $row['max_win_margin'] !== null ? (int) $row['max_win_margin'] : null,
+                'max_loss_margin' => $row['max_loss_margin'] !== null ? (int) $row['max_loss_margin'] : null,
+                'max_draw_goals' => $row['max_draw_goals'] !== null ? (int) $row['max_draw_goals'] : null,
+                'max_goal_sum' => (int) $row['max_goal_sum'],
+                'min_goal_sum' => (int) $row['min_goal_sum'],
                 'dd_wins' => (int) $row['dd_wins'],
                 'dd_losses' => (int) $row['dd_losses'],
                 'cs_wins' => (int) $row['cs_wins'],
