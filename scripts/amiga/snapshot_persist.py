@@ -8,6 +8,7 @@ from typing import Any
 import pymysql
 
 from scripts.amiga.honours_totals import honours_from_current_row
+from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
 from scripts.amiga.snapshot_row import (
     build_snapshot_from_finalize_parts,
     current_upsert_sql,
@@ -112,6 +113,8 @@ def persist_tournament_event_snapshots(
     honours_by_player: dict[int, dict[str, Any]] | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games_by_player_tournament: dict[tuple[int, int], int] | None = None,
+    geo_year: PlayerGeoYearTracker | None = None,
+    player_countries: dict[int, str | None] | None = None,
 ) -> int:
     """
     Write amiga_player_event_snapshots + amiga_player_current for one finalized event.
@@ -140,6 +143,9 @@ def persist_tournament_event_snapshots(
         prior_best = _prior_career_best_context(conn, active_ids, tournament_id)
     else:
         prior_best = prior_career_best
+
+    if player_countries is None:
+        player_countries = load_player_countries(conn)
 
     snapshot_sql = snapshot_insert_sql()
     current_sql = current_upsert_sql()
@@ -192,6 +198,11 @@ def persist_tournament_event_snapshots(
             prior_career_best_performance_rating=prior.get("prior_rating"),
             prior_career_best_performance_tournament_id=prior_tid,
             prior_career_best_games=prior_games,
+            geo_year_scalars=(
+                geo_year.scalars_for(pid, (player_countries or {}).get(pid))
+                if geo_year is not None
+                else None
+            ),
         )
         snapshot_rows.append(snapshot)
         current_rows.append(current)

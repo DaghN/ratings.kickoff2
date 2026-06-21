@@ -33,6 +33,14 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'goal_ratio' => ['wing' => 'goals', 'sort' => 8, 'dir' => 'desc'],
         'dd_ratio' => ['wing' => 'double-digits', 'sort' => 6, 'dir' => 'desc'],
         'cs_ratio' => ['wing' => 'double-digits', 'sort' => 7, 'dir' => 'desc'],
+        'most_games_in_year' => ['wing' => 'calendar-geo', 'sort' => 4, 'dir' => 'desc'],
+        'most_tournaments_in_year' => ['wing' => 'calendar-geo', 'sort' => 6, 'dir' => 'desc'],
+        'most_tournaments_played' => ['wing' => 'calendar-geo', 'sort' => 11, 'dir' => 'desc'],
+        'most_tournament_wins' => ['wing' => 'calendar-geo', 'sort' => 12, 'dir' => 'desc'],
+        'most_wc_played' => ['wing' => 'calendar-geo', 'sort' => 13, 'dir' => 'desc'],
+        'most_countries_played_in' => ['wing' => 'calendar-geo', 'sort' => 8, 'dir' => 'desc'],
+        'most_opponent_countries_faced' => ['wing' => 'calendar-geo', 'sort' => 9, 'dir' => 'desc'],
+        'most_opponent_countries_beaten' => ['wing' => 'calendar-geo', 'sort' => 10, 'dir' => 'desc'],
     ];
 
     return $map[$metric] ?? null;
@@ -46,6 +54,7 @@ function amiga_records_hof_lb_wing_path(string $wing): string
         'double-digits' => '/amiga/leaderboards/double-digits.php',
         'victims' => '/amiga/leaderboards/victims.php',
         'peak-rating' => '/amiga/leaderboards/peak-rating.php',
+        'calendar-geo' => '/amiga/leaderboards/calendar-geo.php',
     ];
 
     return $paths[$wing] ?? '/amiga/leaderboards/rating.php';

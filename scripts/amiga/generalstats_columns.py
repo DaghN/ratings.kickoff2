@@ -37,6 +37,14 @@ RECORD_HOLDER_VALUE_COLUMNS: tuple[str, ...] = (
     "MostCleanSheetsVictims",
     "BiggestRatingAscent",
     "BiggestPeakRating",
+    "MostGamesInOneYear",
+    "MostTournamentsInOneYear",
+    "MostTournamentsPlayed",
+    "MostTournamentWins",
+    "MostWcPlayed",
+    "MostCountriesPlayedIn",
+    "MostOpponentCountriesFaced",
+    "MostOpponentCountriesBeaten",
 )
 
 RECORD_HOLDER_ID_COLUMNS: tuple[str, ...] = (
@@ -57,6 +65,14 @@ RECORD_HOLDER_ID_COLUMNS: tuple[str, ...] = (
     "MostCleanSheetsVictimsID",
     "BiggestRatingAscentID",
     "BiggestPeakRatingID",
+    "MostGamesInOneYearID",
+    "MostTournamentsInOneYearID",
+    "MostTournamentsPlayedID",
+    "MostTournamentWinsID",
+    "MostWcPlayedID",
+    "MostCountriesPlayedInID",
+    "MostOpponentCountriesFacedID",
+    "MostOpponentCountriesBeatenID",
 )
 
 RECORD_HOLDER_NAME_COLUMNS: tuple[str, ...] = (
@@ -77,6 +93,14 @@ RECORD_HOLDER_NAME_COLUMNS: tuple[str, ...] = (
     "MostCleanSheetsVictimsName",
     "BiggestRatingAscentName",
     "BiggestPeakRatingName",
+    "MostGamesInOneYearName",
+    "MostTournamentsInOneYearName",
+    "MostTournamentsPlayedName",
+    "MostTournamentWinsName",
+    "MostWcPlayedName",
+    "MostCountriesPlayedInName",
+    "MostOpponentCountriesFacedName",
+    "MostOpponentCountriesBeatenName",
 )
 
 RECORD_HOLDER_DATE_COLUMNS: tuple[str, ...] = (
@@ -95,6 +119,25 @@ RECORD_HOLDER_DATE_COLUMNS: tuple[str, ...] = (
     "MostCleanSheetsVictimsDate",
     "BiggestRatingAscentDate",
     "BiggestPeakRatingDate",
+    "MostGamesInOneYearDate",
+    "MostTournamentsInOneYearDate",
+    "MostTournamentsPlayedDate",
+    "MostTournamentWinsDate",
+    "MostWcPlayedDate",
+    "MostCountriesPlayedInDate",
+    "MostOpponentCountriesFacedDate",
+    "MostOpponentCountriesBeatenDate",
+)
+
+# Per-player geo/year columns on snapshots + current.
+GEO_YEAR_PLAYER_COLUMNS: tuple[str, ...] = (
+    "peak_year_games",
+    "peak_year_games_year",
+    "peak_year_tournaments",
+    "peak_year_tournaments_year",
+    "countries_played_in",
+    "opponent_countries_faced",
+    "opponent_countries_beaten",
 )
 
 RECORD_HOLDER_GAME_ID_COLUMNS: tuple[str, ...] = (

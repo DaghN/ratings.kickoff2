@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+from scripts.amiga.generalstats_columns import GEO_YEAR_PLAYER_COLUMNS
 from scripts.ladder.player_state import PlayerState
 
 # Catalog + keys (snapshot only).
@@ -89,6 +90,7 @@ SNAPSHOT_COLUMNS: tuple[str, ...] = (
     + CAREER_COLUMNS
     + HONOURS_SNAPSHOT_COLUMNS
     + _CAREER_BEST_COLUMNS
+    + GEO_YEAR_PLAYER_COLUMNS
 )
 
 CURRENT_META_COLUMNS: tuple[str, ...] = (
@@ -103,6 +105,7 @@ CURRENT_COLUMNS: tuple[str, ...] = (
     + CAREER_COLUMNS
     + HONOURS_CURRENT_COLUMNS
     + _CAREER_BEST_COLUMNS
+    + GEO_YEAR_PLAYER_COLUMNS
 )
 
 _PARTICIPATION_TO_SNAPSHOT_EVENT: tuple[str, ...] = (
@@ -193,6 +196,7 @@ def build_event_snapshot_row(
     honours: dict[str, Any],
     career_best_performance_rating: float | None,
     career_best_performance_tournament_id: int | None,
+    geo_year_scalars: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Assemble one ``amiga_player_event_snapshots`` insert dict.
@@ -215,6 +219,19 @@ def build_event_snapshot_row(
 
     row["career_best_performance_rating"] = career_best_performance_rating
     row["career_best_performance_tournament_id"] = career_best_performance_tournament_id
+
+    if geo_year_scalars is None:
+        geo_year_scalars = {
+            "peak_year_games": 0,
+            "peak_year_games_year": None,
+            "peak_year_tournaments": 0,
+            "peak_year_tournaments_year": None,
+            "countries_played_in": 0,
+            "opponent_countries_faced": 0,
+            "opponent_countries_beaten": 0,
+        }
+    for key in GEO_YEAR_PLAYER_COLUMNS:
+        row[key] = geo_year_scalars.get(key)
 
     missing = [col for col in SNAPSHOT_COLUMNS if col not in row]
     if missing:
@@ -242,6 +259,9 @@ def current_row_from_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
     row["career_best_performance_tournament_id"] = snapshot.get(
         "career_best_performance_tournament_id"
     )
+
+    for key in GEO_YEAR_PLAYER_COLUMNS:
+        row[key] = snapshot.get(key)
 
     missing = [col for col in CURRENT_COLUMNS if col not in row]
     if missing:
@@ -294,6 +314,7 @@ def build_snapshot_from_finalize_parts(
     prior_career_best_performance_rating: float | None = None,
     prior_career_best_performance_tournament_id: int | None = None,
     prior_career_best_games: int = 0,
+    geo_year_scalars: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """
   Convenience for finalize: participation + PlayerState + totals → (snapshot, current).
@@ -321,5 +342,6 @@ def build_snapshot_from_finalize_parts(
         honours=honours,
         career_best_performance_rating=best_rating,
         career_best_performance_tournament_id=best_tid,
+        geo_year_scalars=geo_year_scalars,
     )
     return snapshot, current_row_from_snapshot(snapshot)

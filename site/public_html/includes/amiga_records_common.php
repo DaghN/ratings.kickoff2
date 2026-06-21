@@ -96,6 +96,25 @@ function amiga_records_render_row(
     records_hof_sync_track($valueCell, $holderHtml, $dateHtml);
 }
 
+function amiga_records_peak_year_or_dash($dateValue, bool $showDate, int $newRecordCutoff, int $legendaryRecordCutoff): string
+{
+    if (!$showDate || $dateValue === null || $dateValue === '') {
+        return '-';
+    }
+    $text = (string) $dateValue;
+    if (preg_match('/^(\d{4})-12-31$/', $text, $m)) {
+        $text = $m[1];
+    } else {
+        $timestamp = strtotime($text);
+        if ($timestamp === false) {
+            return '-';
+        }
+        $text = date('Y', $timestamp);
+    }
+
+    return amiga_records_add_age_marker($text, $dateValue, $newRecordCutoff, $legendaryRecordCutoff);
+}
+
 function amiga_records_render_spacer_row(): void
 {
     echo "    <tr class=\"k2-table-row--spacer\">\n";

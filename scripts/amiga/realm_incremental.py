@@ -15,7 +15,7 @@ from scripts.amiga.server_records import (
     _aggregate_patch,
     _fmt_date,
 )
-from scripts.ladder.player_state import PlayerState
+from scripts.amiga.player_geo_year import year_period_end
 
 # Career holder value column on player row -> generalstats prefix.
 _CAREER_ROW_PREFIXES: list[tuple[str, str]] = [
@@ -23,6 +23,28 @@ _CAREER_ROW_PREFIXES: list[tuple[str, str]] = [
     for _prefix, value_col, prefix in _CAREER_HOLDERS
     if prefix != "BiggestPeakRating"
 ]
+
+_HOLDER_DATE_FIELD: dict[str, str] = {
+    "MostGamesInOneYear": "peak_year_games_year",
+    "MostTournamentsInOneYear": "peak_year_tournaments_year",
+    "MostTournamentsPlayed": "honours_last_event_date",
+    "MostTournamentWins": "honours_last_event_date",
+    "MostWcPlayed": "honours_last_event_date",
+    "MostCountriesPlayedIn": "honours_last_event_date",
+    "MostOpponentCountriesFaced": "honours_last_event_date",
+    "MostOpponentCountriesBeaten": "honours_last_event_date",
+}
+
+
+def _holder_record_date(prefix: str, row: dict[str, Any]) -> str | None:
+    field = _HOLDER_DATE_FIELD.get(prefix)
+    if field in ("peak_year_games_year", "peak_year_tournaments_year"):
+        return year_period_end(row.get(field))
+    if field == "honours_last_event_date":
+        return _fmt_date(row.get("honours_last_event_date") or row.get("last_event_date"))
+    if field:
+        return _fmt_date(row.get(field))
+    return _fmt_date(row.get("record_date"))
 
 
 def empty_prior_payload() -> dict[str, Any]:
@@ -327,7 +349,7 @@ def _career_holders_from_player_rows(
         patch[prefix] = best_value
         patch[f"{prefix}ID"] = best_id
         patch[f"{prefix}Name"] = best_row["player_name"]
-        patch[f"{prefix}Date"] = _fmt_date(best_row.get("record_date"))
+        patch[f"{prefix}Date"] = _holder_record_date(prefix, best_row)
     return patch
 
 
@@ -759,16 +781,14 @@ def build_generalstats_payload_incremental(
         delta = tournament_game_aggregate_delta(conn, tournament_id)
         event_candidates = _single_game_candidates_from_tournament(conn, tournament_id)
 
-    if players is not None:
-        player_rows = player_rows_from_states(conn, players, names or {})
-    else:
-        player_rows = fetch_player_current_rows(conn)
+    # Geo/honours holder columns live on amiga_player_current (persisted before realm row).
+    holder_rows = fetch_player_current_rows(conn)
     # Aggregate player stats from SQL (matches oracle / DECIMAL storage), not Python AVG.
     num_players, diff_opp_avg = _player_count_stats_sql_present(conn)
     patch: dict[str, Any] = {}
     patch.update(_merge_game_aggregates(prior_payload, delta, num_players=num_players, diff_opp_avg=diff_opp_avg))
-    patch.update(_career_holders_from_player_rows(player_rows))
-    patch.update(_ratio_leaders_from_player_rows(player_rows))
+    patch.update(_career_holders_from_player_rows(holder_rows))
+    patch.update(_ratio_leaders_from_player_rows(holder_rows))
     patch.update(_merge_single_game_records(prior_payload, event_candidates))
 
     return {col: patch.get(col) for col in GENERALSTATS_PAYLOAD_COLUMNS}

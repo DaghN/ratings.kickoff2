@@ -204,6 +204,24 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
         ['DoubleDigitsVictims', 'MostDoubleDigitsVictims'],
         ['CleanSheetsVictims', 'MostCleanSheetsVictims'],
         ['BiggestRatingAscent', 'BiggestRatingAscent'],
+        ['peak_year_games', 'MostGamesInOneYear'],
+        ['peak_year_tournaments', 'MostTournamentsInOneYear'],
+        ['tournaments_played', 'MostTournamentsPlayed'],
+        ['event_gold', 'MostTournamentWins'],
+        ['wc_played', 'MostWcPlayed'],
+        ['countries_played_in', 'MostCountriesPlayedIn'],
+        ['opponent_countries_faced', 'MostOpponentCountriesFaced'],
+        ['opponent_countries_beaten', 'MostOpponentCountriesBeaten'],
+    ];
+    $dateFields = [
+        'MostGamesInOneYear' => 'peak_year_games_year',
+        'MostTournamentsInOneYear' => 'peak_year_tournaments_year',
+        'MostTournamentsPlayed' => 'honours_last_event_date',
+        'MostTournamentWins' => 'honours_last_event_date',
+        'MostWcPlayed' => 'honours_last_event_date',
+        'MostCountriesPlayedIn' => 'honours_last_event_date',
+        'MostOpponentCountriesFaced' => 'honours_last_event_date',
+        'MostOpponentCountriesBeaten' => 'honours_last_event_date',
     ];
     $patch = [];
     foreach ($holders as [$valueCol, $prefix]) {
@@ -224,6 +242,7 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
                     'id' => $pid,
                     'name' => (string) $row['player_name'],
                     'date' => $row['record_date'] ?? null,
+                    'row' => $row,
                 ];
             }
         }
@@ -233,7 +252,15 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
         $patch[$prefix] = $best['value'];
         $patch[$prefix . 'ID'] = $best['id'];
         $patch[$prefix . 'Name'] = $best['name'];
-        $patch[$prefix . 'Date'] = $best['date'] !== null ? (string) $best['date'] : null;
+        $dateField = $dateFields[$prefix] ?? null;
+        if ($dateField === 'peak_year_games_year' || $dateField === 'peak_year_tournaments_year') {
+            $year = $best['row'][$dateField] ?? null;
+            $patch[$prefix . 'Date'] = $year !== null ? ((int) $year) . '-12-31' : null;
+        } elseif ($dateField !== null) {
+            $patch[$prefix . 'Date'] = $best['row'][$dateField] !== null ? (string) $best['row'][$dateField] : null;
+        } else {
+            $patch[$prefix . 'Date'] = $best['date'] !== null ? (string) $best['date'] : null;
+        }
     }
 
     return $patch;

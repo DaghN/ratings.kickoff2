@@ -11,6 +11,7 @@ require_once __DIR__ . '/../includes/amiga_post_game_participation.php';
 require_once __DIR__ . '/../includes/amiga_event_snapshot_persist.php';
 require_once __DIR__ . '/../includes/amiga_matchup_cumulative.php';
 require_once __DIR__ . '/../includes/amiga_matchup_persist.php';
+require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
 require_once __DIR__ . '/../includes/amiga_realm_snapshot_lib.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
 
@@ -33,7 +34,7 @@ class AmigaFinalizeLockException extends RuntimeException
  */
 function amiga_ops_load_tournament_row(mysqli $con, int $tournamentId): array
 {
-    $stmt = $con->prepare('SELECT id, name, rating_finalized, event_date, chrono FROM tournaments WHERE id = ? LIMIT 1');
+    $stmt = $con->prepare('SELECT id, name, rating_finalized, event_date, chrono, country FROM tournaments WHERE id = ? LIMIT 1');
     if ($stmt === false) {
         throw new RuntimeException('prepare load tournament: ' . $con->error);
     }

@@ -34,6 +34,14 @@ _CAREER_HOLDERS: list[tuple[str, str, str]] = [
     ("MostCleanSheetsVictims", "CleanSheetsVictims", "MostCleanSheetsVictims"),
     ("BiggestRatingAscent", "BiggestRatingAscent", "BiggestRatingAscent"),
     ("BiggestPeakRating", "PeakRating", "BiggestPeakRating"),
+    ("MostGamesInOneYear", "peak_year_games", "MostGamesInOneYear"),
+    ("MostTournamentsInOneYear", "peak_year_tournaments", "MostTournamentsInOneYear"),
+    ("MostTournamentsPlayed", "tournaments_played", "MostTournamentsPlayed"),
+    ("MostTournamentWins", "event_gold", "MostTournamentWins"),
+    ("MostWcPlayed", "wc_played", "MostWcPlayed"),
+    ("MostCountriesPlayedIn", "countries_played_in", "MostCountriesPlayedIn"),
+    ("MostOpponentCountriesFaced", "opponent_countries_faced", "MostOpponentCountriesFaced"),
+    ("MostOpponentCountriesBeaten", "opponent_countries_beaten", "MostOpponentCountriesBeaten"),
 ]
 
 _RATIO_LEADERS: list[tuple[str, str, str, str]] = [

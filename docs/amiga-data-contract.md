@@ -192,8 +192,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_players` | Ground | Import / submission / internal `players create` CLI | Active |
 | `amiga_games` | Ground | Import / submission | Active |
 | `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit | Active |
-| `amiga_player_event_snapshots` | Derived | Tournament finalize / `replay` — sparse timeline (event-local + career + honours + rating block) | **Active** |
-| `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours) | **Active** |
+| `amiga_player_event_snapshots` | Derived | Tournament finalize / `replay` — sparse timeline (event-local + career + honours + rating block + geo/year scalars per [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md)) | **Active** |
+| `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours + geo/year scalars) | **Active** |
 | `amiga_rating_events` | Derived | **Retired slice 8** — replaced by snapshot event rating block | Retired |
 | `amiga_player_stats` | Derived | **Retired slice 8** — replaced by `amiga_player_current` | Retired |
 | `amiga_player_tournament_participation` | Derived | **Retired slice 8** — event-local block on snapshots | Retired |

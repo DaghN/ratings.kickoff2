@@ -30,6 +30,7 @@ from scripts.amiga.matchup_cumulative import (
 from scripts.amiga.matchup_persist import persist_matchup_at_event, upsert_matchup_summary
 from scripts.amiga.realm_persist import persist_realm_snapshot_for_tournament
 from scripts.amiga.generalstats_columns import GENERALSTATS_PAYLOAD_COLUMNS
+from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
 from scripts.ladder.player_state import PlayerState
 
 __all__ = [
@@ -69,7 +70,7 @@ def _row_to_rating_insert_finalize(game_id: int, row: dict[str, Any]) -> dict[st
 def _load_tournament(conn: pymysql.connections.Connection, tournament_id: int) -> dict[str, Any]:
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT id, name, rating_finalized, event_date, chrono FROM tournaments WHERE id = %s LIMIT 1",
+            "SELECT id, name, rating_finalized, event_date, chrono, country FROM tournaments WHERE id = %s LIMIT 1",
             (tournament_id,),
         )
         row = cur.fetchone()
@@ -207,6 +208,8 @@ def _persist_event_snapshots(
     honours_by_player: dict[int, dict[str, Any]] | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games: dict[tuple[int, int], int] | None = None,
+    geo_year: PlayerGeoYearTracker | None = None,
+    player_countries: dict[int, str | None] | None = None,
 ) -> int:
     rebuild_standings_for_tournament(conn, tournament_id)
     refresh_catalog_stats_for_tournament(conn, tournament_id)
@@ -240,6 +243,8 @@ def _persist_event_snapshots(
         honours_by_player=honours_for_event,
         prior_career_best=prior_career_best,
         event_games_by_player_tournament=event_games,
+        geo_year=geo_year,
+        player_countries=player_countries,
     )
 
 
@@ -327,6 +332,8 @@ def finalize_tournament(
     event_games: dict[tuple[int, int], int] | None = None,
     matchups: MatchupCumulative | None = None,
     prior_realm_payload: dict[str, Any] | None = None,
+    geo_year: PlayerGeoYearTracker | None = None,
+    player_countries: dict[int, str | None] | None = None,
 ) -> dict[str, Any]:
     """
     Finalize one tournament: game ratings + event snapshots + current projection.
@@ -367,6 +374,10 @@ def finalize_tournament(
 
     if names is None:
         names = _load_player_names(conn)
+    if player_countries is None:
+        player_countries = load_player_countries(conn)
+    if geo_year is None:
+        geo_year = PlayerGeoYearTracker()
 
     if dry_run:
         sample = apply_game_row(
@@ -460,6 +471,15 @@ def finalize_tournament(
         matchups.apply_network_to_player_state(pid, players[pid])
         apply_peak_from_event_rating(players[pid], float(event_commits[pid]["rating_after"]))
 
+    geo_year.apply_tournament(
+        event_date=tour.get("event_date"),
+        host_country=tour.get("country"),
+        games=games,
+        games_in_event=games_in_event,
+        participant_ids=participant_ids,
+        player_countries=player_countries,
+    )
+
     snapshot_rows = _persist_event_snapshots(
         conn,
         tournament_id,
@@ -469,6 +489,8 @@ def finalize_tournament(
         honours_by_player=honours_by_player,
         prior_career_best=prior_career_best,
         event_games=event_games,
+        geo_year=geo_year,
+        player_countries=player_countries,
     )
     log.info(
         "finalize_tournament: event snapshots tournament_id=%s rows=%s",

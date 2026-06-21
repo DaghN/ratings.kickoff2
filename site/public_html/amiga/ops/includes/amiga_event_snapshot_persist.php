@@ -7,6 +7,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
 require_once dirname(__DIR__, 3) . '/ops/includes/post_game_player_state.php';
 
 /**
@@ -42,6 +43,22 @@ function amiga_ops_snapshot_participation_columns(): array
         'games_in_event',
         'is_winner',
         'best_knockout_phase',
+    ];
+}
+
+/**
+ * @return list<string>
+ */
+function amiga_ops_snapshot_geo_year_columns(): array
+{
+    return [
+        'peak_year_games',
+        'peak_year_games_year',
+        'peak_year_tournaments',
+        'peak_year_tournaments_year',
+        'countries_played_in',
+        'opponent_countries_faced',
+        'opponent_countries_beaten',
     ];
 }
 
@@ -207,6 +224,10 @@ function amiga_ops_current_row_from_snapshot(array $snapshot): array
     $current['career_best_performance_rating'] = $snapshot['career_best_performance_rating'] ?? null;
     $current['career_best_performance_tournament_id'] = $snapshot['career_best_performance_tournament_id'] ?? null;
 
+    foreach (amiga_ops_snapshot_geo_year_columns() as $col) {
+        $current[$col] = $snapshot[$col] ?? 0;
+    }
+
     return $current;
 }
 
@@ -232,6 +253,24 @@ function amiga_ops_build_event_snapshot_row(
     $snapshot = array_merge($snapshot, $honours);
     $snapshot['career_best_performance_rating'] = $careerBestPerformanceRating;
     $snapshot['career_best_performance_tournament_id'] = $careerBestPerformanceTournamentId;
+
+    return $snapshot;
+}
+
+/**
+ * @param array<string, mixed> $snapshot
+ * @param array<string, mixed> $geoScalars
+ * @return array<string, mixed>
+ */
+function amiga_ops_apply_geo_year_to_snapshot(array $snapshot, array $geoScalars): array
+{
+    foreach (amiga_ops_snapshot_geo_year_columns() as $col) {
+        if (array_key_exists($col, $geoScalars)) {
+            $snapshot[$col] = $geoScalars[$col];
+            continue;
+        }
+        $snapshot[$col] = str_ends_with($col, '_year') ? null : 0;
+    }
 
     return $snapshot;
 }
@@ -337,6 +376,8 @@ function amiga_ops_persist_tournament_event_snapshots(
     }
 
     $written = 0;
+    $playerCountries = amiga_geo_year_load_player_countries($con);
+    $geoTracker = amiga_geo_year_tracker_through_tournament($con, $tournamentId);
     foreach ($activeIds as $pid) {
         $participation = $participationByPlayer[$pid] ?? null;
         if ($participation === null) {
@@ -382,6 +423,8 @@ function amiga_ops_persist_tournament_event_snapshots(
             $bestRating,
             $bestTid
         );
+        $geoScalars = $geoTracker->scalarsFor($pid, $playerCountries[$pid] ?? null);
+        $snapshot = amiga_ops_apply_geo_year_to_snapshot($snapshot, $geoScalars);
         $current = amiga_ops_current_row_from_snapshot($snapshot);
 
         amiga_ops_upsert_row($con, 'amiga_player_event_snapshots', $snapshot, ['player_id', 'tournament_id']);

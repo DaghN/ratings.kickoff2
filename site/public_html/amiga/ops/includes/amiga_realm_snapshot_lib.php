@@ -501,6 +501,14 @@ function amiga_realm_build_generalstats_payload_oracle(mysqli $con, int $tournam
         ['MostDoubleDigitsVictims', 'DoubleDigitsVictims', 'MostDoubleDigitsVictims'],
         ['MostCleanSheetsVictims', 'CleanSheetsVictims', 'MostCleanSheetsVictims'],
         ['BiggestRatingAscent', 'BiggestRatingAscent', 'BiggestRatingAscent'],
+        ['peak_year_games', 'peak_year_games', 'MostGamesInOneYear'],
+        ['peak_year_tournaments', 'peak_year_tournaments', 'MostTournamentsInOneYear'],
+        ['tournaments_played', 'tournaments_played', 'MostTournamentsPlayed'],
+        ['event_gold', 'event_gold', 'MostTournamentWins'],
+        ['wc_played', 'wc_played', 'MostWcPlayed'],
+        ['countries_played_in', 'countries_played_in', 'MostCountriesPlayedIn'],
+        ['opponent_countries_faced', 'opponent_countries_faced', 'MostOpponentCountriesFaced'],
+        ['opponent_countries_beaten', 'opponent_countries_beaten', 'MostOpponentCountriesBeaten'],
     ];
     foreach ($careerHolders as [$_, $valueCol, $prefix]) {
         $patch = array_merge(

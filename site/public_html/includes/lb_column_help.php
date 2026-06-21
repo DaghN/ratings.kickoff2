@@ -388,3 +388,28 @@ function k2_lb_help_amiga_wc_podiums(): string
 {
     return 'World Cup top-three finishes (gold + silver + bronze).';
 }
+
+function k2_lb_help_amiga_peak_year_games(): string
+{
+    return 'Most rated games in a single calendar year (by tournament date).';
+}
+
+function k2_lb_help_amiga_peak_year_tournaments(): string
+{
+    return 'Most tournaments played in a single calendar year.';
+}
+
+function k2_lb_help_amiga_countries_played_in(): string
+{
+    return 'Distinct host countries of tournaments you entered, including your own country when set.';
+}
+
+function k2_lb_help_amiga_opponent_countries_faced(): string
+{
+    return 'Distinct opponent countries you faced, including your own country when set.';
+}
+
+function k2_lb_help_amiga_opponent_countries_beaten(): string
+{
+    return 'Distinct opponent countries where you have at least one win.';
+}

@@ -466,3 +466,43 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con): array
 
     return $rows;
 }
+
+/**
+ * Calendar-year + geography leaderboard rows from amiga_player_current.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_calendar_geo_leaderboard_rows(mysqli $con): array
+{
+    $sql = 'SELECT t.player_id,
+                   p.name AS player_name,
+                   p.country,
+                   COALESCE(t.Rating, 0) AS rating,
+                   t.peak_year_games,
+                   t.peak_year_games_year,
+                   t.peak_year_tournaments,
+                   t.peak_year_tournaments_year,
+                   t.countries_played_in,
+                   t.opponent_countries_faced,
+                   t.opponent_countries_beaten,
+                   t.tournaments_played,
+                   t.event_gold,
+                   t.wc_played
+            FROM amiga_player_current t
+            INNER JOIN amiga_players p ON p.id = t.player_id
+            WHERE t.NumberGames > 0
+            ORDER BY t.peak_year_games DESC,
+                     t.peak_year_games_year ASC,
+                     t.player_id ASC';
+    $result = mysqli_query($con, $sql);
+    if (!$result) {
+        return [];
+    }
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rows[] = $row;
+    }
+    mysqli_free_result($result);
+
+    return $rows;
+}

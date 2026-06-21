@@ -1,0 +1,91 @@
+-- HoF tournament / calendar-year / geography expansion (SCH-028).
+-- Policy: docs/amiga-hof-tournament-geo-policy.md
+-- Apply after 027: mysql ko2amiga_db < scripts/amiga/sql/derived/028_hof_tournament_geo.sql
+
+SET time_zone = '+00:00';
+
+ALTER TABLE `amiga_player_event_snapshots`
+  ADD COLUMN `peak_year_games` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `peak_year_games_year` smallint(5) unsigned DEFAULT NULL,
+  ADD COLUMN `peak_year_tournaments` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `peak_year_tournaments_year` smallint(5) unsigned DEFAULT NULL,
+  ADD COLUMN `countries_played_in` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `opponent_countries_faced` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `opponent_countries_beaten` smallint(5) unsigned NOT NULL DEFAULT 0;
+
+ALTER TABLE `amiga_player_current`
+  ADD COLUMN `peak_year_games` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `peak_year_games_year` smallint(5) unsigned DEFAULT NULL,
+  ADD COLUMN `peak_year_tournaments` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `peak_year_tournaments_year` smallint(5) unsigned DEFAULT NULL,
+  ADD COLUMN `countries_played_in` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `opponent_countries_faced` smallint(5) unsigned NOT NULL DEFAULT 0,
+  ADD COLUMN `opponent_countries_beaten` smallint(5) unsigned NOT NULL DEFAULT 0;
+
+ALTER TABLE `amiga_generalstats`
+  ADD COLUMN `MostGamesInOneYear` int(11) DEFAULT NULL,
+  ADD COLUMN `MostGamesInOneYearID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostGamesInOneYearName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostGamesInOneYearDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYear` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYearID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYearName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYearDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayed` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayedID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayedName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayedDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostTournamentWins` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentWinsID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentWinsName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostTournamentWinsDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostWcPlayed` int(11) DEFAULT NULL,
+  ADD COLUMN `MostWcPlayedID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostWcPlayedName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostWcPlayedDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedIn` int(11) DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedInID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedInName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedInDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFaced` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFacedID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFacedName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFacedDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeaten` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeatenID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeatenName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeatenDate` mediumtext DEFAULT NULL;
+
+ALTER TABLE `amiga_realm_snapshots`
+  ADD COLUMN `MostGamesInOneYear` int(11) DEFAULT NULL,
+  ADD COLUMN `MostGamesInOneYearID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostGamesInOneYearName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostGamesInOneYearDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYear` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYearID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYearName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsInOneYearDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayed` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayedID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayedName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostTournamentsPlayedDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostTournamentWins` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentWinsID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostTournamentWinsName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostTournamentWinsDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostWcPlayed` int(11) DEFAULT NULL,
+  ADD COLUMN `MostWcPlayedID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostWcPlayedName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostWcPlayedDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedIn` int(11) DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedInID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedInName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostCountriesPlayedInDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFaced` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFacedID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFacedName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesFacedDate` mediumtext DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeaten` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeatenID` int(11) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeatenName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `MostOpponentCountriesBeatenDate` mediumtext DEFAULT NULL;

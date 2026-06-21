@@ -47,6 +47,7 @@ from scripts.amiga.verify_player_participation import main as verify_player_part
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
 from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_main
+from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.import_manifest import default_manifest_path
 from scripts.amiga.verify_witness import verify_witness
@@ -340,6 +341,10 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "verify-realm-snapshots",
         help="Assert realm snapshot + generalstats invariants (realm-snapshot policy §7)",
+    )
+    sub.add_parser(
+        "verify-hof-geo-year",
+        help="Assert geo/year player scalars + HoF holders (hof-tournament-geo policy)",
     )
 
     sub.add_parser(
@@ -672,6 +677,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-realm-snapshots":
         return verify_realm_snapshots_main()
+
+    if args.cmd == "verify-hof-geo-year":
+        return verify_hof_geo_year_main()
 
     if args.cmd == "verify-player-participation":
         return verify_player_participation_main()

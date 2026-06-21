@@ -103,6 +103,38 @@ $recordColumns = [
     'BiggestCleanSheetsRatioID',
     'BiggestCleanSheetsRatioName',
     'GamesPlayed',
+    'MostGamesInOneYear',
+    'MostTournamentsInOneYear',
+    'MostTournamentsPlayed',
+    'MostTournamentWins',
+    'MostWcPlayed',
+    'MostCountriesPlayedIn',
+    'MostOpponentCountriesFaced',
+    'MostOpponentCountriesBeaten',
+    'MostGamesInOneYearID',
+    'MostTournamentsInOneYearID',
+    'MostTournamentsPlayedID',
+    'MostTournamentWinsID',
+    'MostWcPlayedID',
+    'MostCountriesPlayedInID',
+    'MostOpponentCountriesFacedID',
+    'MostOpponentCountriesBeatenID',
+    'MostGamesInOneYearName',
+    'MostTournamentsInOneYearName',
+    'MostTournamentsPlayedName',
+    'MostTournamentWinsName',
+    'MostWcPlayedName',
+    'MostCountriesPlayedInName',
+    'MostOpponentCountriesFacedName',
+    'MostOpponentCountriesBeatenName',
+    'MostGamesInOneYearDate',
+    'MostTournamentsInOneYearDate',
+    'MostTournamentsPlayedDate',
+    'MostTournamentWinsDate',
+    'MostWcPlayedDate',
+    'MostCountriesPlayedInDate',
+    'MostOpponentCountriesFacedDate',
+    'MostOpponentCountriesBeatenDate',
 ];
 
 $selectColumns = '`' . implode('`, `', $recordColumns) . '`';
@@ -149,6 +181,14 @@ $k2HofRecordLabels = [
     'Highest winning frequency',
     'Highest double digit frequency',
     'Highest clean sheet frequency',
+    'Most games in one year',
+    'Most tournaments in one year',
+    'Most tournaments (career)',
+    'Most tournament wins',
+    'Most World Cups played',
+    'Most countries played in',
+    'Most opponent countries faced',
+    'Most opponent countries beaten',
 ];
 
 records_hof_sync_reset();
@@ -320,6 +360,64 @@ amiga_records_render_row(
     amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestCleanSheetsRatioID'] ?? 0), (string) ($records['BiggestCleanSheetsRatioName'] ?? ''))),
     '-',
     amiga_records_hof_lb_href('cs_ratio')
+);
+amiga_records_render_spacer_row();
+amiga_records_render_row(
+    'Most games in one year',
+    amiga_records_value_or_dash($records['MostGamesInOneYear'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostGamesInOneYearID'] ?? 0), (string) ($records['MostGamesInOneYearName'] ?? ''))),
+    amiga_records_peak_year_or_dash($records['MostGamesInOneYearDate'] ?? null, amiga_records_has_value($records['MostGamesInOneYear'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_games_in_year')
+);
+amiga_records_render_row(
+    'Most tournaments in one year',
+    amiga_records_value_or_dash($records['MostTournamentsInOneYear'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostTournamentsInOneYearID'] ?? 0), (string) ($records['MostTournamentsInOneYearName'] ?? ''))),
+    amiga_records_peak_year_or_dash($records['MostTournamentsInOneYearDate'] ?? null, amiga_records_has_value($records['MostTournamentsInOneYear'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_tournaments_in_year')
+);
+amiga_records_render_row(
+    'Most tournaments (career)',
+    amiga_records_value_or_dash($records['MostTournamentsPlayed'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostTournamentsPlayedID'] ?? 0), (string) ($records['MostTournamentsPlayedName'] ?? ''))),
+    amiga_records_date_or_dash($records['MostTournamentsPlayedDate'] ?? null, amiga_records_has_value($records['MostTournamentsPlayed'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_tournaments_played')
+);
+amiga_records_render_row(
+    'Most tournament wins',
+    amiga_records_value_or_dash($records['MostTournamentWins'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostTournamentWinsID'] ?? 0), (string) ($records['MostTournamentWinsName'] ?? ''))),
+    amiga_records_date_or_dash($records['MostTournamentWinsDate'] ?? null, amiga_records_has_value($records['MostTournamentWins'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_tournament_wins')
+);
+amiga_records_render_row(
+    'Most World Cups played',
+    amiga_records_value_or_dash($records['MostWcPlayed'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostWcPlayedID'] ?? 0), (string) ($records['MostWcPlayedName'] ?? ''))),
+    amiga_records_date_or_dash($records['MostWcPlayedDate'] ?? null, amiga_records_has_value($records['MostWcPlayed'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_wc_played')
+);
+amiga_records_render_spacer_row();
+amiga_records_render_row(
+    'Most countries played in',
+    amiga_records_value_or_dash($records['MostCountriesPlayedIn'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostCountriesPlayedInID'] ?? 0), (string) ($records['MostCountriesPlayedInName'] ?? ''))),
+    amiga_records_date_or_dash($records['MostCountriesPlayedInDate'] ?? null, amiga_records_has_value($records['MostCountriesPlayedIn'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_countries_played_in')
+);
+amiga_records_render_row(
+    'Most opponent countries faced',
+    amiga_records_value_or_dash($records['MostOpponentCountriesFaced'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostOpponentCountriesFacedID'] ?? 0), (string) ($records['MostOpponentCountriesFacedName'] ?? ''))),
+    amiga_records_date_or_dash($records['MostOpponentCountriesFacedDate'] ?? null, amiga_records_has_value($records['MostOpponentCountriesFaced'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_opponent_countries_faced')
+);
+amiga_records_render_row(
+    'Most opponent countries beaten',
+    amiga_records_value_or_dash($records['MostOpponentCountriesBeaten'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostOpponentCountriesBeatenID'] ?? 0), (string) ($records['MostOpponentCountriesBeatenName'] ?? ''))),
+    amiga_records_date_or_dash($records['MostOpponentCountriesBeatenDate'] ?? null, amiga_records_has_value($records['MostOpponentCountriesBeaten'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_opponent_countries_beaten')
 );
 ?>
 </tbody>

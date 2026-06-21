@@ -214,6 +214,7 @@ def replay_all(
         _load_player_names,
         finalize_tournament,
     )
+    from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
 
     tournament_ids, games_in_scope = tournament_ids_for_replay(conn, limit_games=limit)
     with conn.cursor() as cur:
@@ -236,6 +237,8 @@ def replay_all(
     players: dict[int, PlayerState] = {}
     matchups = MatchupCumulative()
     names = _load_player_names(conn)
+    player_countries = load_player_countries(conn)
+    geo_year = PlayerGeoYearTracker()
     honours_by_player: dict[int, dict[str, Any]] = {}
     prior_career_best: dict[int, dict[str, Any]] = {}
     event_games: dict[tuple[int, int], int] = {}
@@ -254,6 +257,8 @@ def replay_all(
             event_games=event_games,
             matchups=matchups,
             prior_realm_payload=prior_realm_payload,
+            geo_year=geo_year,
+            player_countries=player_countries,
         )
         if result.get("skipped"):
             continue

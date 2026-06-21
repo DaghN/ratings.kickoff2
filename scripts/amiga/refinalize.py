@@ -17,6 +17,7 @@ from scripts.amiga.finalize_tournament import (
     finalize_tournament,
 )
 from scripts.amiga.matchup_cumulative import MatchupCumulative
+from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
 from scripts.amiga.player_stats_load import load_player_states
 from scripts.amiga.realm_incremental import empty_prior_payload, load_prior_realm_payload
 from scripts.amiga.replay import _connect, tournament_ids_for_replay
@@ -192,6 +193,8 @@ def refinalize_from(
     conn.commit()
 
     names = _load_player_names(conn)
+    player_countries = load_player_countries(conn)
+    geo_year = PlayerGeoYearTracker()
     players = load_player_states(conn)
     matchups = MatchupCumulative()
     honours_by_player: dict[int, dict[str, Any]] = {}
@@ -219,6 +222,8 @@ def refinalize_from(
             event_games=event_games,
             matchups=matchups,
             prior_realm_payload=prior_realm_payload,
+            geo_year=geo_year,
+            player_countries=player_countries,
         )
         if result.get("skipped"):
             continue

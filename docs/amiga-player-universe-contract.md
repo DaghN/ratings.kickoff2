@@ -413,6 +413,8 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 
 **Include (Tier B):** most games, wins, goals, DDs, CSs, victims/culprits, biggest win margin, biggest draw, highest sum of goals, highest peak rating in a game, ratio leaders pointers.
 
+**Include (Tier C — Jun 2026):** calendar-year peaks (`peak_year_games`, `peak_year_tournaments`), career honours (`tournaments_played`, `event_gold`, `wc_played`), geography counts (`countries_played_in`, `opponent_countries_faced`, `opponent_countries_beaten`). Policy [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md).
+
 **Exclude:** longest match streaks, longest play-day/week streaks.
 
 **Writer:** `scripts/amiga/server_records.py` — **realm snapshot track** ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md)): full row at each tournament finalize → `amiga_realm_snapshots` + `amiga_generalstats`. Ratio leaders persisted on row (not live SQL). Repair: `generalstats-rebuild` CLI oracle only.
