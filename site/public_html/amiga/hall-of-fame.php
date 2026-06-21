@@ -84,6 +84,24 @@ $recordColumns = [
     'BiggestDrawSumDate',
     'BiggestSumOfGoalsDate',
     'BiggestPeakRatingDate',
+    'BiggestWinRatio',
+    'BiggestWinRatioID',
+    'BiggestWinRatioName',
+    'BiggestGoalsForAverage',
+    'BiggestGoalsForAverageID',
+    'BiggestGoalsForAverageName',
+    'SmallestGoalsAgainstAverage',
+    'SmallestGoalsAgainstAverageID',
+    'SmallestGoalsAgainstAverageName',
+    'BiggestGoalRatio',
+    'BiggestGoalRatioID',
+    'BiggestGoalRatioName',
+    'BiggestDoubleDigitsRatio',
+    'BiggestDoubleDigitsRatioID',
+    'BiggestDoubleDigitsRatioName',
+    'BiggestCleanSheetsRatio',
+    'BiggestCleanSheetsRatioID',
+    'BiggestCleanSheetsRatioName',
     'GamesPlayed',
 ];
 
@@ -101,7 +119,6 @@ if (!$records) {
 $newRecordCutoff = strtotime('-1 month');
 $legendaryRecordCutoff = strtotime('-5 years');
 
-amiga_records_load_ratio_leaders($con);
 $wcLeaders = amiga_records_wc_totals_leaders($con);
 mysqli_close($con);
 ?>
@@ -263,44 +280,44 @@ amiga_records_render_row(
 amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Best attack average',
-    amiga_records_fixed_or_dash($BiggestGoalsForAverage ?? null, 2),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestGoalsForAverageID ?? 0), (string) ($BiggestGoalsForAverageName ?? ''))),
+    amiga_records_fixed_or_dash($records['BiggestGoalsForAverage'] ?? null, 2),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestGoalsForAverageID'] ?? 0), (string) ($records['BiggestGoalsForAverageName'] ?? ''))),
     '-',
     amiga_records_hof_lb_href('attack_avg')
 );
 amiga_records_render_row(
     'Best defense average',
-    amiga_records_fixed_or_dash($SmallestGoalsAgainstAverage ?? null, 2),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($SmallestGoalsAgainstAverageID ?? 0), (string) ($SmallestGoalsAgainstAverageName ?? ''))),
+    amiga_records_fixed_or_dash($records['SmallestGoalsAgainstAverage'] ?? null, 2),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['SmallestGoalsAgainstAverageID'] ?? 0), (string) ($records['SmallestGoalsAgainstAverageName'] ?? ''))),
     '-',
     amiga_records_hof_lb_href('defense_avg')
 );
 amiga_records_render_row(
     'Best goal ratio',
-    amiga_records_fixed_or_dash($BiggestGoalRatio ?? null, 2),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestGoalRatioID ?? 0), (string) ($BiggestGoalRatioName ?? ''))),
+    amiga_records_fixed_or_dash($records['BiggestGoalRatio'] ?? null, 2),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestGoalRatioID'] ?? 0), (string) ($records['BiggestGoalRatioName'] ?? ''))),
     '-',
     amiga_records_hof_lb_href('goal_ratio')
 );
 amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Highest winning frequency',
-    amiga_records_percent_or_dash($BiggestWinRatio ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestWinRatioID ?? 0), (string) ($BiggestWinRatioName ?? ''))),
+    amiga_records_percent_or_dash($records['BiggestWinRatio'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestWinRatioID'] ?? 0), (string) ($records['BiggestWinRatioName'] ?? ''))),
     '-',
     amiga_records_hof_lb_href('win_ratio')
 );
 amiga_records_render_row(
     'Highest double digit frequency',
-    amiga_records_percent_or_dash($BiggestDoubleDigitsRatio ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestDoubleDigitsRatioID ?? 0), (string) ($BiggestDoubleDigitsRatioName ?? ''))),
+    amiga_records_percent_or_dash($records['BiggestDoubleDigitsRatio'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestDoubleDigitsRatioID'] ?? 0), (string) ($records['BiggestDoubleDigitsRatioName'] ?? ''))),
     '-',
     amiga_records_hof_lb_href('dd_ratio')
 );
 amiga_records_render_row(
     'Highest clean sheet frequency',
-    amiga_records_percent_or_dash($BiggestCleanSheetsRatio ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($BiggestCleanSheetsRatioID ?? 0), (string) ($BiggestCleanSheetsRatioName ?? ''))),
+    amiga_records_percent_or_dash($records['BiggestCleanSheetsRatio'] ?? null),
+    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestCleanSheetsRatioID'] ?? 0), (string) ($records['BiggestCleanSheetsRatioName'] ?? ''))),
     '-',
     amiga_records_hof_lb_href('cs_ratio')
 );

@@ -22,7 +22,7 @@ $Tables = @(
     'amiga_player_event_snapshots', 'amiga_player_current',
     'amiga_player_matchup_at_event', 'amiga_player_matchup_summary',
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
-    'amiga_generalstats', 'amiga_tournament_finish_override'
+    'amiga_generalstats', 'amiga_realm_snapshots', 'amiga_tournament_finish_override'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -142,6 +142,12 @@ $generalstatsPart = ('ko2amiga_{0:D2}_generalstats.sql' -f $idx)
 $generalstatsFile = Join-Path $OutDir $generalstatsPart
 Write-DumpFile $generalstatsFile @('--no-create-info', 'ko2amiga_db', 'amiga_generalstats')
 $parts.Add($generalstatsPart)
+$idx++
+
+$realmSnapshotsPart = ('ko2amiga_{0:D2}_realm_snapshots.sql' -f $idx)
+$realmSnapshotsFile = Join-Path $OutDir $realmSnapshotsPart
+Write-DumpFile $realmSnapshotsFile @('--no-create-info', 'ko2amiga_db', 'amiga_realm_snapshots')
+$parts.Add($realmSnapshotsPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

@@ -1,11 +1,35 @@
--- Server-wide hall-of-fame row (Amiga realm). Streak columns omitted per player-universe contract.
--- Apply after 012: mysql ko2amiga_db < scripts/amiga/sql/013_generalstats.sql
--- Populate: slice 11+ rebuild.
+-- Realm timeline: full amiga_generalstats payload per finalized tournament.
+-- Policy: docs/amiga-realm-snapshot-policy.md
+-- Apply after 026: mysql ko2amiga_db < scripts/amiga/sql/027_realm_snapshots.sql
 
 SET time_zone = '+00:00';
 
-CREATE TABLE IF NOT EXISTS `amiga_generalstats` (
-  `id` tinyint(4) NOT NULL,
+ALTER TABLE `amiga_generalstats`
+  ADD COLUMN `BiggestWinRatio` decimal(5,4) DEFAULT NULL,
+  ADD COLUMN `BiggestWinRatioID` int(11) DEFAULT NULL,
+  ADD COLUMN `BiggestWinRatioName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `BiggestGoalsForAverage` decimal(6,4) DEFAULT NULL,
+  ADD COLUMN `BiggestGoalsForAverageID` int(11) DEFAULT NULL,
+  ADD COLUMN `BiggestGoalsForAverageName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `SmallestGoalsAgainstAverage` decimal(6,4) DEFAULT NULL,
+  ADD COLUMN `SmallestGoalsAgainstAverageID` int(11) DEFAULT NULL,
+  ADD COLUMN `SmallestGoalsAgainstAverageName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `BiggestGoalRatio` decimal(7,4) DEFAULT NULL,
+  ADD COLUMN `BiggestGoalRatioID` int(11) DEFAULT NULL,
+  ADD COLUMN `BiggestGoalRatioName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `BiggestDoubleDigitsRatio` decimal(5,4) DEFAULT NULL,
+  ADD COLUMN `BiggestDoubleDigitsRatioID` int(11) DEFAULT NULL,
+  ADD COLUMN `BiggestDoubleDigitsRatioName` varchar(50) DEFAULT NULL,
+  ADD COLUMN `BiggestCleanSheetsRatio` decimal(5,4) DEFAULT NULL,
+  ADD COLUMN `BiggestCleanSheetsRatioID` int(11) DEFAULT NULL,
+  ADD COLUMN `BiggestCleanSheetsRatioName` varchar(50) DEFAULT NULL;
+
+CREATE TABLE IF NOT EXISTS `amiga_realm_snapshots` (
+  `tournament_id` int(11) NOT NULL,
+  `event_date` date DEFAULT NULL,
+  `event_chrono` double DEFAULT NULL,
+  `tournament_name` varchar(50) NOT NULL,
+  `finalized_at` datetime NOT NULL,
   `NumberOfPlayers` int(11) DEFAULT NULL,
   `DifferentOpponentsAverage` decimal(10,5) DEFAULT NULL,
   `GamesPlayed` int(11) DEFAULT NULL,
@@ -106,7 +130,8 @@ CREATE TABLE IF NOT EXISTS `amiga_generalstats` (
   `BiggestCleanSheetsRatio` decimal(5,4) DEFAULT NULL,
   `BiggestCleanSheetsRatioID` int(11) DEFAULT NULL,
   `BiggestCleanSheetsRatioName` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`tournament_id`),
+  KEY `idx_realm_snapshots_chrono` (`event_date`, `event_chrono`, `tournament_id`),
+  CONSTRAINT `fk_realm_snapshots_tournament`
+    FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT IGNORE INTO `amiga_generalstats` (`id`) VALUES (1);

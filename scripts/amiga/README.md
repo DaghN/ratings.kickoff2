@@ -116,7 +116,7 @@ python scripts/amiga/discover_access_schema.py
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Tail parts: `amiga_player_event_snapshots`, `amiga_player_current`, standings, catalog, matchup, generalstats, finish override. Sync all of `_import/` via WinSCP.
+Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Tail parts: snapshots, current, matchup at-event, standings, catalog, matchup summary, `amiga_generalstats`, **`amiga_realm_snapshots`**, finish override. Sync all of `_import/` via WinSCP.
 
 **Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
 
@@ -206,10 +206,14 @@ Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-
 # Sign-off (preferred):
 python -m scripts.amiga prove
 
+# Realm snapshots: incremental at each finalize (prior row + tournament delta).
+# Full rescan oracle — repair / verify only:
+python -m scripts.amiga generalstats-rebuild
+python -m scripts.amiga verify-realm-snapshots
+
 # Standalone repair (idempotent):
 python -m scripts.amiga rebuild-event-snapshots   # snapshots + current from finalized history
 python -m scripts.amiga matchup-rebuild
-python -m scripts.amiga generalstats-rebuild
 
 # Parity gates (player universe contract §8):
 python -m scripts.amiga verify-player-participation

@@ -203,7 +203,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_tournament_finish_override` | **L3 witness** (curated) | Manual import / ops; Tier E historical claims. DDL `sql/ground/002_tournament_finish_override.sql` | Active |
 | `amiga_player_matchup_at_event` | Derived | Tournament finalize — cumulative directed pair stats as of each participated event. Read: future profile/H2H-as-of-event | **Active** |
 | `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary` from cumulative map); repair: `matchup-rebuild` CLI. Read: `includes/amiga_player_matchup_lib.php` (`amiga_player_top_opponents`) → profile top-opponents block | **Active** |
-| `amiga_generalstats` | Derived | **Deferred** — no replay tail rebuild (HoF slice later). Read: `/amiga/hall-of-fame.php` via `includes/amiga_records_*.php` | Stale until HoF slice |
+| `amiga_realm_snapshots` | Derived | Tournament finalize / `replay` — full `amiga_generalstats` payload per finalized event. Policy [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) | **Active** |
+| `amiga_generalstats` | Derived | Tournament finalize / `replay` — present projection (latest realm snapshot). Ratio leaders on row. Read: `/amiga/hall-of-fame.php`. Repair: `generalstats-rebuild` oracle only | **Active** |
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
 DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.

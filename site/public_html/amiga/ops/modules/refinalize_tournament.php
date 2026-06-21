@@ -67,6 +67,9 @@ function amiga_ops_reopen_tournaments_batch(mysqli $con, array $tournamentIds): 
     )) {
         throw new RuntimeException('DELETE matchup at-event batch: ' . $con->error);
     }
+    if (!$con->query("DELETE FROM amiga_realm_snapshots WHERE tournament_id IN ({$idList})")) {
+        throw new RuntimeException('DELETE realm snapshots batch: ' . $con->error);
+    }
     $sql = 'DELETE r FROM amiga_game_ratings r '
         . 'INNER JOIN amiga_games g ON g.id = r.game_id '
         . "WHERE g.tournament_id IN ({$idList})";

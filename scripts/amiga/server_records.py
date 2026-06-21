@@ -9,8 +9,18 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.generalstats_columns import GENERALSTATS_PAYLOAD_COLUMNS
+from scripts.amiga.realm_cutoff import (
+    RealmCutoff,
+    cutoff_params,
+    game_cutoff_sql,
+    latest_finalized_tournament_id,
+    load_realm_cutoff,
+)
 
 log = logging.getLogger(__name__)
+
+ESTABLISHED_MIN_GAMES = 20
 
 _CAREER_HOLDERS: list[tuple[str, str, str]] = [
     ("MostGamesPlayed", "NumberGames", "MostGamesPlayed"),
@@ -24,6 +34,15 @@ _CAREER_HOLDERS: list[tuple[str, str, str]] = [
     ("MostCleanSheetsVictims", "CleanSheetsVictims", "MostCleanSheetsVictims"),
     ("BiggestRatingAscent", "BiggestRatingAscent", "BiggestRatingAscent"),
     ("BiggestPeakRating", "PeakRating", "BiggestPeakRating"),
+]
+
+_RATIO_LEADERS: list[tuple[str, str, str, str]] = [
+    ("BiggestWinRatio", "WinRatio", "DESC", ""),
+    ("BiggestGoalsForAverage", "AverageGoalsFor", "DESC", ""),
+    ("SmallestGoalsAgainstAverage", "AverageGoalsAgainst", "ASC", ""),
+    ("BiggestGoalRatio", "GoalRatio", "DESC", "lp.GoalRatio > -1"),
+    ("BiggestDoubleDigitsRatio", "DoubleDigitsRatio", "DESC", ""),
+    ("BiggestCleanSheetsRatio", "CleanSheetsRatio", "DESC", ""),
 ]
 
 
@@ -50,7 +69,176 @@ def _fmt_date(value: Any) -> str | None:
     return str(value)
 
 
-def compute_server_aggregates(conn: pymysql.connections.Connection) -> dict[str, Any]:
+def _latest_player_snapshots_sql(*, alias: str = "lp") -> str:
+    cutoff_clause = game_cutoff_sql("t_cut")
+    return f"""
+        SELECT s.*, p.name AS player_name
+        FROM (
+            SELECT s_inner.*,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY s_inner.player_id
+                       ORDER BY s_inner.event_date DESC, s_inner.event_chrono DESC,
+                                s_inner.tournament_id DESC
+                   ) AS rn
+            FROM amiga_player_event_snapshots s_inner
+            INNER JOIN tournaments t_cut ON t_cut.id = s_inner.tournament_id
+            WHERE {cutoff_clause}
+        ) s
+        INNER JOIN amiga_players p ON p.id = s.player_id
+        WHERE s.rn = 1
+    """
+
+
+def _load_cutoff_player_rows(
+    conn: pymysql.connections.Connection,
+    cutoff: RealmCutoff,
+) -> list[dict[str, Any]]:
+    """One fetch of latest player rows at cutoff (tier-1 oracle path)."""
+    params = cutoff_params(cutoff)
+    sql = f"""
+        WITH latest_lp AS (
+            SELECT s_inner.*,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY s_inner.player_id
+                       ORDER BY s_inner.event_date DESC, s_inner.event_chrono DESC,
+                                s_inner.tournament_id DESC
+                   ) AS rn
+            FROM amiga_player_event_snapshots s_inner
+            INNER JOIN tournaments t_cut ON t_cut.id = s_inner.tournament_id
+            WHERE {game_cutoff_sql("t_cut")}
+        )
+        SELECT lp.*, p.name AS player_name,
+               COALESCE(
+                   DATE_FORMAT(t.event_date, '%%Y-%%m-%%d'),
+                   DATE_FORMAT(g.game_date, '%%Y-%%m-%%d')
+               ) AS record_date
+        FROM latest_lp lp
+        INNER JOIN amiga_players p ON p.id = lp.player_id
+        LEFT JOIN amiga_games g ON g.id = lp.LastGameGameID
+        LEFT JOIN tournaments t ON t.id = g.tournament_id
+        WHERE lp.rn = 1
+    """
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return list(cur.fetchall())
+
+
+def _compute_game_aggregates_at_cutoff(
+    conn: pymysql.connections.Connection,
+    cutoff: RealmCutoff | None,
+) -> dict[str, int]:
+    if cutoff is None:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT COUNT(*) AS games,
+                       SUM(CASE WHEN r.actual_score = 0.5 THEN 1 ELSE 0 END) AS draws,
+                       COALESCE(SUM(r.sum_of_goals), 0) AS goals,
+                       COALESCE(SUM(r.dd_player_a + r.dd_player_b), 0) AS dd,
+                       COALESCE(SUM(r.cs_player_a + r.cs_player_b), 0) AS cs
+                FROM amiga_games g
+                INNER JOIN amiga_game_ratings r ON r.game_id = g.id
+                """
+            )
+            agg = cur.fetchone()
+    else:
+        params = cutoff_params(cutoff)
+        cutoff_where = game_cutoff_sql("t")
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""
+                SELECT COUNT(*) AS games,
+                       SUM(CASE WHEN r.actual_score = 0.5 THEN 1 ELSE 0 END) AS draws,
+                       COALESCE(SUM(r.sum_of_goals), 0) AS goals,
+                       COALESCE(SUM(r.dd_player_a + r.dd_player_b), 0) AS dd,
+                       COALESCE(SUM(r.cs_player_a + r.cs_player_b), 0) AS cs
+                FROM amiga_games g
+                INNER JOIN amiga_game_ratings r ON r.game_id = g.id
+                INNER JOIN tournaments t ON t.id = g.tournament_id
+                WHERE {cutoff_where}
+                """,
+                params,
+            )
+            agg = cur.fetchone()
+    return {
+        "games": int(agg["games"] or 0),
+        "draws": int(agg["draws"] or 0),
+        "goals": int(agg["goals"] or 0),
+        "dd": int(agg["dd"] or 0),
+        "cs": int(agg["cs"] or 0),
+    }
+
+
+def compute_server_aggregates(
+    conn: pymysql.connections.Connection,
+    *,
+    as_of_tournament_id: int | None = None,
+) -> dict[str, Any]:
+    if as_of_tournament_id is None:
+        return _compute_server_aggregates_present(conn)
+
+    cutoff = load_realm_cutoff(conn, as_of_tournament_id)
+    params = cutoff_params(cutoff)
+    cutoff_where = game_cutoff_sql("t")
+
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT COUNT(*) AS games,
+                   SUM(CASE WHEN r.actual_score = 0.5 THEN 1 ELSE 0 END) AS draws,
+                   COALESCE(SUM(r.sum_of_goals), 0) AS goals,
+                   COALESCE(SUM(r.dd_player_a + r.dd_player_b), 0) AS dd,
+                   COALESCE(SUM(r.cs_player_a + r.cs_player_b), 0) AS cs
+            FROM amiga_games g
+            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
+            INNER JOIN tournaments t ON t.id = g.tournament_id
+            WHERE {cutoff_where}
+            """,
+            params,
+        )
+        agg = cur.fetchone()
+        games = int(agg["games"] or 0)
+        draws = int(agg["draws"] or 0)
+        decided = games - draws
+        goals = int(agg["goals"] or 0)
+        dd = int(agg["dd"] or 0)
+        cs = int(agg["cs"] or 0)
+
+        cur.execute(
+            f"""
+            SELECT COUNT(*) AS n
+            FROM ({_latest_player_snapshots_sql()}) lp
+            WHERE lp.NumberGames >= 1
+            """,
+            params,
+        )
+        num_players = int(cur.fetchone()["n"])
+
+        cur.execute(
+            f"""
+            SELECT AVG(lp.DifferentOpponents) AS a
+            FROM ({_latest_player_snapshots_sql()}) lp
+            WHERE lp.DifferentOpponents >= 1
+            """,
+            params,
+        )
+        diff_opp_avg = cur.fetchone()["a"]
+
+    return _aggregate_patch(
+        games=games,
+        draws=draws,
+        decided=decided,
+        goals=goals,
+        dd=dd,
+        cs=cs,
+        num_players=num_players,
+        diff_opp_avg=diff_opp_avg,
+    )
+
+
+def _compute_server_aggregates_present(
+    conn: pymysql.connections.Connection,
+) -> dict[str, Any]:
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -85,21 +273,44 @@ def compute_server_aggregates(conn: pymysql.connections.Connection) -> dict[str,
         )
         diff_opp_avg = cur.fetchone()["a"]
 
+    return _aggregate_patch(
+        games=games,
+        draws=draws,
+        decided=decided,
+        goals=goals,
+        dd=dd,
+        cs=cs,
+        num_players=num_players,
+        diff_opp_avg=diff_opp_avg,
+    )
+
+
+def _aggregate_patch(
+    *,
+    games: int,
+    draws: int,
+    decided: int,
+    goals: int,
+    dd: int,
+    cs: int,
+    num_players: int,
+    diff_opp_avg: Any,
+) -> dict[str, Any]:
     return {
         "NumberOfPlayers": num_players,
         "DifferentOpponentsAverage": diff_opp_avg,
         "GamesPlayed": games,
-        "GamesPlayedAverage": (2 * games / num_players) if num_players else None,
+        "GamesPlayedAverage": round(2 * games / num_players, 3) if num_players else None,
         "NumberOfDecidedGames": decided,
         "NumberOfDraws": draws,
-        "DecidedGamesRatio": (decided / games) if games else None,
-        "DrawsRatio": (draws / games) if games else None,
+        "DecidedGamesRatio": round(decided / games, 8) if games else None,
+        "DrawsRatio": round(draws / games, 8) if games else None,
         "GoalsScored": goals,
-        "GoalsPerGameAverage": (goals / games) if games else None,
+        "GoalsPerGameAverage": round(goals / games, 7) if games else None,
         "DoubleDigits": dd,
         "CleanSheets": cs,
-        "DoubleDigitsRatio": (dd / games) if games else None,
-        "CleanSheetsRatio": (cs / games) if games else None,
+        "DoubleDigitsRatio": round(dd / games, 8) if games else None,
+        "CleanSheetsRatio": round(cs / games, 8) if games else None,
     }
 
 
@@ -108,25 +319,46 @@ def _career_holder_patch(
     *,
     value_col: str,
     prefix: str,
+    cutoff: RealmCutoff | None = None,
 ) -> dict[str, Any]:
-    sql = f"""
-        SELECT s.player_id, p.name,
-               s.{value_col} AS record_value,
-               COALESCE(
-                   DATE_FORMAT(t.event_date, '%%Y-%%m-%%d'),
-                   DATE_FORMAT(g.game_date, '%%Y-%%m-%%d')
-               ) AS record_date
-        FROM amiga_player_current s
-        INNER JOIN amiga_players p ON p.id = s.player_id
-        LEFT JOIN amiga_games g ON g.id = s.LastGameGameID
-        LEFT JOIN tournaments t ON t.id = g.tournament_id
-        WHERE s.{value_col} IS NOT NULL
-          AND s.{value_col} > 0
-        ORDER BY s.{value_col} DESC, s.player_id ASC
-        LIMIT 1
-    """
+    if cutoff is None:
+        sql = f"""
+            SELECT s.player_id, p.name,
+                   s.{value_col} AS record_value,
+                   COALESCE(
+                       DATE_FORMAT(t.event_date, '%%Y-%%m-%%d'),
+                       DATE_FORMAT(g.game_date, '%%Y-%%m-%%d')
+                   ) AS record_date
+            FROM amiga_player_current s
+            INNER JOIN amiga_players p ON p.id = s.player_id
+            LEFT JOIN amiga_games g ON g.id = s.LastGameGameID
+            LEFT JOIN tournaments t ON t.id = g.tournament_id
+            WHERE s.{value_col} IS NOT NULL
+              AND s.{value_col} > 0
+            ORDER BY s.{value_col} DESC, s.player_id ASC
+            LIMIT 1
+        """
+        params: tuple[Any, ...] = ()
+    else:
+        params = cutoff_params(cutoff)
+        sql = f"""
+            SELECT lp.player_id, lp.player_name AS name,
+                   lp.{value_col} AS record_value,
+                   COALESCE(
+                       DATE_FORMAT(t.event_date, '%%Y-%%m-%%d'),
+                       DATE_FORMAT(g.game_date, '%%Y-%%m-%%d')
+                   ) AS record_date
+            FROM ({_latest_player_snapshots_sql()}) lp
+            LEFT JOIN amiga_games g ON g.id = lp.LastGameGameID
+            LEFT JOIN tournaments t ON t.id = g.tournament_id
+            WHERE lp.{value_col} IS NOT NULL
+              AND lp.{value_col} > 0
+            ORDER BY lp.{value_col} DESC, lp.player_id ASC
+            LIMIT 1
+        """
+
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(sql, params)
         row = cur.fetchone()
     if not row:
         return {}
@@ -139,11 +371,25 @@ def _career_holder_patch(
 
 
 def _game_event_date_sql() -> str:
-    return "COALESCE(DATE_FORMAT(t.event_date, '%Y-%m-%d'), DATE_FORMAT(g.game_date, '%Y-%m-%d'))"
+    return (
+        "COALESCE(DATE_FORMAT(t.event_date, '%%Y-%%m-%%d'), "
+        "DATE_FORMAT(g.game_date, '%%Y-%%m-%%d'))"
+    )
 
 
-def _most_goals_one_game_patch(conn: pymysql.connections.Connection) -> dict[str, Any]:
+def _game_cutoff_and_clause(cutoff: RealmCutoff | None) -> tuple[str, tuple[Any, ...]]:
+    if cutoff is None:
+        return "", ()
+    return f" AND {game_cutoff_sql('tg')}", cutoff_params(cutoff)
+
+
+def _most_goals_one_game_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    cutoff: RealmCutoff | None = None,
+) -> dict[str, Any]:
     date_expr = _game_event_date_sql()
+    extra, params = _game_cutoff_and_clause(cutoff)
     sql = f"""
         SELECT game_id, player_id, player_name, goals, record_date
         FROM (
@@ -152,17 +398,21 @@ def _most_goals_one_game_patch(conn: pymysql.connections.Connection) -> dict[str
             FROM amiga_games g
             INNER JOIN amiga_players pa ON pa.id = g.player_a_id
             LEFT JOIN tournaments t ON t.id = g.tournament_id
+            INNER JOIN tournaments tg ON tg.id = g.tournament_id
+            WHERE 1=1{extra}
             UNION ALL
             SELECT g.id, g.player_b_id, pb.name, g.goals_b, {date_expr}
             FROM amiga_games g
             INNER JOIN amiga_players pb ON pb.id = g.player_b_id
             LEFT JOIN tournaments t ON t.id = g.tournament_id
+            INNER JOIN tournaments tg ON tg.id = g.tournament_id
+            WHERE 1=1{extra}
         ) sides
         ORDER BY goals DESC, game_id ASC
         LIMIT 1
     """
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(sql, (*params, *params) if params else ())
         row = cur.fetchone()
     if not row:
         return {}
@@ -175,8 +425,13 @@ def _most_goals_one_game_patch(conn: pymysql.connections.Connection) -> dict[str
     }
 
 
-def _biggest_win_margin_patch(conn: pymysql.connections.Connection) -> dict[str, Any]:
+def _biggest_win_margin_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    cutoff: RealmCutoff | None = None,
+) -> dict[str, Any]:
     date_expr = _game_event_date_sql()
+    extra, params = _game_cutoff_and_clause(cutoff)
     sql = f"""
         SELECT g.id AS game_id,
                r.goal_difference AS margin,
@@ -194,13 +449,14 @@ def _biggest_win_margin_patch(conn: pymysql.connections.Connection) -> dict[str,
         INNER JOIN amiga_players pa ON pa.id = g.player_a_id
         INNER JOIN amiga_players pb ON pb.id = g.player_b_id
         LEFT JOIN tournaments t ON t.id = g.tournament_id
+        INNER JOIN tournaments tg ON tg.id = g.tournament_id
         WHERE r.actual_score IN (0.0, 1.0)
-          AND r.goal_difference IS NOT NULL
+          AND r.goal_difference IS NOT NULL{extra}
         ORDER BY r.goal_difference DESC, g.id ASC
         LIMIT 1
     """
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(sql, params)
         row = cur.fetchone()
     if not row or row["player_id"] is None:
         return {}
@@ -213,8 +469,13 @@ def _biggest_win_margin_patch(conn: pymysql.connections.Connection) -> dict[str,
     }
 
 
-def _biggest_draw_sum_patch(conn: pymysql.connections.Connection) -> dict[str, Any]:
+def _biggest_draw_sum_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    cutoff: RealmCutoff | None = None,
+) -> dict[str, Any]:
     date_expr = _game_event_date_sql()
+    extra, params = _game_cutoff_and_clause(cutoff)
     sql = f"""
         SELECT g.id AS game_id,
                (g.goals_a + g.goals_b) AS draw_sum,
@@ -226,12 +487,13 @@ def _biggest_draw_sum_patch(conn: pymysql.connections.Connection) -> dict[str, A
         INNER JOIN amiga_players pa ON pa.id = g.player_a_id
         INNER JOIN amiga_players pb ON pb.id = g.player_b_id
         LEFT JOIN tournaments t ON t.id = g.tournament_id
-        WHERE r.actual_score = 0.5
+        INNER JOIN tournaments tg ON tg.id = g.tournament_id
+        WHERE r.actual_score = 0.5{extra}
         ORDER BY draw_sum DESC, g.id ASC
         LIMIT 1
     """
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(sql, params)
         row = cur.fetchone()
     if not row:
         return {}
@@ -246,8 +508,13 @@ def _biggest_draw_sum_patch(conn: pymysql.connections.Connection) -> dict[str, A
     }
 
 
-def _biggest_sum_goals_patch(conn: pymysql.connections.Connection) -> dict[str, Any]:
+def _biggest_sum_goals_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    cutoff: RealmCutoff | None = None,
+) -> dict[str, Any]:
     date_expr = _game_event_date_sql()
+    extra, params = _game_cutoff_and_clause(cutoff)
     sql = f"""
         SELECT g.id AS game_id,
                COALESCE(r.sum_of_goals, g.goals_a + g.goals_b) AS goal_sum,
@@ -259,11 +526,13 @@ def _biggest_sum_goals_patch(conn: pymysql.connections.Connection) -> dict[str, 
         INNER JOIN amiga_players pa ON pa.id = g.player_a_id
         INNER JOIN amiga_players pb ON pb.id = g.player_b_id
         LEFT JOIN tournaments t ON t.id = g.tournament_id
+        INNER JOIN tournaments tg ON tg.id = g.tournament_id
+        WHERE 1=1{extra}
         ORDER BY goal_sum DESC, g.id ASC
         LIMIT 1
     """
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(sql, params)
         row = cur.fetchone()
     if not row:
         return {}
@@ -278,9 +547,13 @@ def _biggest_sum_goals_patch(conn: pymysql.connections.Connection) -> dict[str, 
     }
 
 
-def _biggest_peak_in_game_patch(conn: pymysql.connections.Connection) -> dict[str, Any]:
-    """Highest post-game rating seen in any single game (both players)."""
+def _biggest_peak_in_game_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    cutoff: RealmCutoff | None = None,
+) -> dict[str, Any]:
     date_expr = _game_event_date_sql()
+    extra, params = _game_cutoff_and_clause(cutoff)
     sql = f"""
         SELECT game_id, player_id, player_name, peak_rating, record_date
         FROM (
@@ -291,7 +564,8 @@ def _biggest_peak_in_game_patch(conn: pymysql.connections.Connection) -> dict[st
             INNER JOIN amiga_game_ratings r ON r.game_id = g.id
             INNER JOIN amiga_players pa ON pa.id = g.player_a_id
             LEFT JOIN tournaments t ON t.id = g.tournament_id
-            WHERE r.rating_a IS NOT NULL AND r.adjustment_a IS NOT NULL
+            INNER JOIN tournaments tg ON tg.id = g.tournament_id
+            WHERE r.rating_a IS NOT NULL AND r.adjustment_a IS NOT NULL{extra}
             UNION ALL
             SELECT g.id, g.player_b_id, pb.name,
                    COALESCE(r.new_rating_b, r.rating_b + r.adjustment_b),
@@ -300,13 +574,14 @@ def _biggest_peak_in_game_patch(conn: pymysql.connections.Connection) -> dict[st
             INNER JOIN amiga_game_ratings r ON r.game_id = g.id
             INNER JOIN amiga_players pb ON pb.id = g.player_b_id
             LEFT JOIN tournaments t ON t.id = g.tournament_id
-            WHERE r.rating_b IS NOT NULL AND r.adjustment_b IS NOT NULL
+            INNER JOIN tournaments tg ON tg.id = g.tournament_id
+            WHERE r.rating_b IS NOT NULL AND r.adjustment_b IS NOT NULL{extra}
         ) peaks
         ORDER BY peak_rating DESC, game_id ASC
         LIMIT 1
     """
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(sql, (*params, *params) if params else ())
         row = cur.fetchone()
     if not row:
         return {}
@@ -318,20 +593,154 @@ def _biggest_peak_in_game_patch(conn: pymysql.connections.Connection) -> dict[st
     }
 
 
-def compute_record_holder_patch(conn: pymysql.connections.Connection) -> dict[str, Any]:
+def compute_record_holder_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    as_of_tournament_id: int | None = None,
+) -> dict[str, Any]:
+    cutoff = (
+        load_realm_cutoff(conn, as_of_tournament_id)
+        if as_of_tournament_id is not None
+        else None
+    )
     patch: dict[str, Any] = {}
-    for prefix, value_col, patch_prefix in _CAREER_HOLDERS:
+    for _prefix, value_col, patch_prefix in _CAREER_HOLDERS:
         if patch_prefix == "BiggestPeakRating":
-            peak_patch = _biggest_peak_in_game_patch(conn)
+            peak_patch = _biggest_peak_in_game_patch(conn, cutoff=cutoff)
             if peak_patch:
                 patch.update(peak_patch)
             continue
-        patch.update(_career_holder_patch(conn, value_col=value_col, prefix=patch_prefix))
-    patch.update(_most_goals_one_game_patch(conn))
-    patch.update(_biggest_win_margin_patch(conn))
-    patch.update(_biggest_draw_sum_patch(conn))
-    patch.update(_biggest_sum_goals_patch(conn))
+        patch.update(
+            _career_holder_patch(
+                conn,
+                value_col=value_col,
+                prefix=patch_prefix,
+                cutoff=cutoff,
+            )
+        )
+    patch.update(_most_goals_one_game_patch(conn, cutoff=cutoff))
+    patch.update(_biggest_win_margin_patch(conn, cutoff=cutoff))
+    patch.update(_biggest_draw_sum_patch(conn, cutoff=cutoff))
+    patch.update(_biggest_sum_goals_patch(conn, cutoff=cutoff))
     return patch
+
+
+def compute_ratio_leader_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    as_of_tournament_id: int | None = None,
+) -> dict[str, Any]:
+    cutoff = (
+        load_realm_cutoff(conn, as_of_tournament_id)
+        if as_of_tournament_id is not None
+        else None
+    )
+    patch: dict[str, Any] = {}
+    for prefix, column, direction, extra_where in _RATIO_LEADERS:
+        patch.update(
+            _ratio_leader_patch(
+                conn,
+                prefix=prefix,
+                column=column,
+                direction=direction,
+                extra_where=extra_where,
+                cutoff=cutoff,
+            )
+        )
+    return patch
+
+
+def _ratio_leader_patch(
+    conn: pymysql.connections.Connection,
+    *,
+    prefix: str,
+    column: str,
+    direction: str,
+    extra_where: str,
+    cutoff: RealmCutoff | None,
+) -> dict[str, Any]:
+    dir_sql = "DESC" if direction.upper() == "DESC" else "ASC"
+    if cutoff is None:
+        sql = f"""
+            SELECT s.player_id, p.name, s.`{column}` AS metric_value
+            FROM amiga_player_current s
+            INNER JOIN amiga_players p ON p.id = s.player_id
+            WHERE s.NumberGames >= %s
+              AND s.`{column}` IS NOT NULL
+              {f'AND ({extra_where.replace("lp.", "s.")})' if extra_where else ''}
+            ORDER BY s.`{column}` {dir_sql}, s.player_id ASC
+            LIMIT 1
+        """
+        params: tuple[Any, ...] = (ESTABLISHED_MIN_GAMES,)
+    else:
+        extra = f"AND ({extra_where})" if extra_where else ""
+        sql = f"""
+            SELECT lp.player_id, lp.player_name AS name, lp.`{column}` AS metric_value
+            FROM ({_latest_player_snapshots_sql()}) lp
+            WHERE lp.NumberGames >= %s
+              AND lp.`{column}` IS NOT NULL
+              {extra}
+            ORDER BY lp.`{column}` {dir_sql}, lp.player_id ASC
+            LIMIT 1
+        """
+        params = (*cutoff_params(cutoff), ESTABLISHED_MIN_GAMES)
+
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        row = cur.fetchone()
+    if not row:
+        return {}
+    return {
+        prefix: row["metric_value"],
+        f"{prefix}ID": int(row["player_id"]),
+        f"{prefix}Name": row["name"],
+    }
+
+
+def build_generalstats_payload(
+    conn: pymysql.connections.Connection,
+    *,
+    as_of_tournament_id: int | None = None,
+) -> dict[str, Any]:
+    """Full-history rescan oracle (verify / generalstats-rebuild)."""
+    from scripts.amiga.realm_incremental import (
+        _career_holders_from_player_rows,
+        _player_count_stats_sql_cutoff,
+        _player_count_stats_sql_present,
+        _ratio_leaders_from_player_rows,
+        fetch_player_current_rows,
+    )
+
+    cutoff = (
+        load_realm_cutoff(conn, as_of_tournament_id)
+        if as_of_tournament_id is not None
+        else None
+    )
+    game_totals = _compute_game_aggregates_at_cutoff(conn, cutoff)
+    if cutoff is None:
+        player_rows = fetch_player_current_rows(conn)
+        num_players, diff_opp_avg = _player_count_stats_sql_present(conn)
+    else:
+        player_rows = _load_cutoff_player_rows(conn, cutoff)
+        num_players, diff_opp_avg = _player_count_stats_sql_cutoff(conn, cutoff)
+    patch: dict[str, Any] = _aggregate_patch(
+        games=game_totals["games"],
+        draws=game_totals["draws"],
+        decided=game_totals["games"] - game_totals["draws"],
+        goals=game_totals["goals"],
+        dd=game_totals["dd"],
+        cs=game_totals["cs"],
+        num_players=num_players,
+        diff_opp_avg=diff_opp_avg,
+    )
+    patch.update(_career_holders_from_player_rows(player_rows))
+    patch.update(_ratio_leaders_from_player_rows(player_rows))
+    patch.update(_most_goals_one_game_patch(conn, cutoff=cutoff))
+    patch.update(_biggest_win_margin_patch(conn, cutoff=cutoff))
+    patch.update(_biggest_draw_sum_patch(conn, cutoff=cutoff))
+    patch.update(_biggest_sum_goals_patch(conn, cutoff=cutoff))
+    patch.update(_biggest_peak_in_game_patch(conn, cutoff=cutoff))
+    return {col: patch.get(col) for col in GENERALSTATS_PAYLOAD_COLUMNS}
 
 
 def write_generalstats_row(
@@ -356,90 +765,7 @@ def clear_generalstats(conn: pymysql.connections.Connection, *, dry_run: bool = 
     log.info("clear_generalstats: row id=1 present=%s", n > 0)
     if dry_run or n == 0:
         return
-    nullables = [
-        "NumberOfPlayers",
-        "DifferentOpponentsAverage",
-        "GamesPlayed",
-        "GamesPlayedAverage",
-        "NumberOfDecidedGames",
-        "NumberOfDraws",
-        "DecidedGamesRatio",
-        "DrawsRatio",
-        "GoalsScored",
-        "GoalsPerGameAverage",
-        "DoubleDigits",
-        "CleanSheets",
-        "DoubleDigitsRatio",
-        "CleanSheetsRatio",
-        "MostGamesPlayed",
-        "MostWins",
-        "MostGoalsScored",
-        "MostGoalsScoredInOneGame",
-        "BiggestWinDifference",
-        "BiggestDrawSum",
-        "BiggestSumOfGoals",
-        "MostDoubleDigits",
-        "MostCleanSheets",
-        "MostDifferentOpponents",
-        "MostDifferentVictims",
-        "MostDoubleDigitsVictims",
-        "MostCleanSheetsVictims",
-        "BiggestRatingAscent",
-        "BiggestPeakRating",
-        "MostGamesPlayedID",
-        "MostWinsID",
-        "MostGoalsScoredID",
-        "MostGoalsScoredInOneGameID",
-        "BiggestWinDifferenceID",
-        "BiggestDrawSumIDA",
-        "BiggestDrawSumIDB",
-        "BiggestSumOfGoalsIDA",
-        "BiggestSumOfGoalsIDB",
-        "MostDoubleDigitsID",
-        "MostCleanSheetsID",
-        "MostDifferentOpponentsID",
-        "MostDifferentVictimsID",
-        "MostDoubleDigitsVictimsID",
-        "MostCleanSheetsVictimsID",
-        "BiggestRatingAscentID",
-        "BiggestPeakRatingID",
-        "MostGamesPlayedName",
-        "MostWinsName",
-        "MostGoalsScoredName",
-        "MostGoalsScoredInOneGameName",
-        "BiggestWinDifferenceName",
-        "BiggestDrawSumNameA",
-        "BiggestDrawSumNameB",
-        "BiggestSumOfGoalsNameA",
-        "BiggestSumOfGoalsNameB",
-        "MostDoubleDigitsName",
-        "MostCleanSheetsName",
-        "MostDifferentOpponentsName",
-        "MostDifferentVictimsName",
-        "MostDoubleDigitsVictimsName",
-        "MostCleanSheetsVictimsName",
-        "BiggestRatingAscentName",
-        "BiggestPeakRatingName",
-        "MostGamesPlayedDate",
-        "MostWinsDate",
-        "MostGoalsScoredDate",
-        "MostGoalsScoredInOneGameDate",
-        "BiggestWinDifferenceDate",
-        "BiggestDrawSumDate",
-        "BiggestSumOfGoalsDate",
-        "MostDoubleDigitsDate",
-        "MostCleanSheetsDate",
-        "MostDifferentOpponentsDate",
-        "MostDifferentVictimsDate",
-        "MostDoubleDigitsVictimsDate",
-        "MostCleanSheetsVictimsDate",
-        "BiggestRatingAscentDate",
-        "BiggestPeakRatingDate",
-        "MostGoalsScoredInOneGameGameID",
-        "BiggestWinDifferenceGameID",
-        "BiggestDrawSumGameID",
-        "BiggestSumOfGoalsGameID",
-    ]
+    nullables = list(GENERALSTATS_PAYLOAD_COLUMNS)
     sets = ", ".join(f"`{col}` = NULL" for col in nullables)
     with conn.cursor() as cur:
         cur.execute(f"UPDATE amiga_generalstats SET {sets} WHERE id = 1")
@@ -450,6 +776,7 @@ def rebuild_generalstats(
     conn: pymysql.connections.Connection,
     *,
     dry_run: bool = False,
+    as_of_tournament_id: int | None = None,
 ) -> dict[str, Any]:
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_generalstats WHERE id = 1")
@@ -459,13 +786,19 @@ def rebuild_generalstats(
     if dry_run:
         return {"dry_run": True}
 
+    if as_of_tournament_id is None:
+        as_of_tournament_id = latest_finalized_tournament_id(conn)
+
     clear_generalstats(conn, dry_run=False)
-    patch = compute_server_aggregates(conn)
-    patch.update(compute_record_holder_patch(conn))
+    if as_of_tournament_id is None:
+        patch: dict[str, Any] = {}
+    else:
+        patch = build_generalstats_payload(conn, as_of_tournament_id=as_of_tournament_id)
     write_generalstats_row(conn, patch)
     conn.commit()
     log.info(
-        "rebuild_generalstats: GamesPlayed=%s MostGamesPlayed=%s",
+        "rebuild_generalstats: tournament_id=%s GamesPlayed=%s MostGamesPlayed=%s",
+        as_of_tournament_id,
         patch.get("GamesPlayed"),
         patch.get("MostGamesPlayed"),
     )

@@ -1,0 +1,169 @@
+"""Column manifests for amiga_generalstats and amiga_realm_snapshots (realm-snapshot policy)."""
+
+from __future__ import annotations
+
+# Realm-wide aggregates (not per-player record holders).
+GENERALSTATS_AGGREGATE_COLUMNS: tuple[str, ...] = (
+    "NumberOfPlayers",
+    "DifferentOpponentsAverage",
+    "GamesPlayed",
+    "GamesPlayedAverage",
+    "NumberOfDecidedGames",
+    "NumberOfDraws",
+    "DecidedGamesRatio",
+    "DrawsRatio",
+    "GoalsScored",
+    "GoalsPerGameAverage",
+    "DoubleDigits",
+    "CleanSheets",
+    "DoubleDigitsRatio",
+    "CleanSheetsRatio",
+)
+
+# Career / single-game record holder value columns.
+RECORD_HOLDER_VALUE_COLUMNS: tuple[str, ...] = (
+    "MostGamesPlayed",
+    "MostWins",
+    "MostGoalsScored",
+    "MostGoalsScoredInOneGame",
+    "BiggestWinDifference",
+    "BiggestDrawSum",
+    "BiggestSumOfGoals",
+    "MostDoubleDigits",
+    "MostCleanSheets",
+    "MostDifferentOpponents",
+    "MostDifferentVictims",
+    "MostDoubleDigitsVictims",
+    "MostCleanSheetsVictims",
+    "BiggestRatingAscent",
+    "BiggestPeakRating",
+)
+
+RECORD_HOLDER_ID_COLUMNS: tuple[str, ...] = (
+    "MostGamesPlayedID",
+    "MostWinsID",
+    "MostGoalsScoredID",
+    "MostGoalsScoredInOneGameID",
+    "BiggestWinDifferenceID",
+    "BiggestDrawSumIDA",
+    "BiggestDrawSumIDB",
+    "BiggestSumOfGoalsIDA",
+    "BiggestSumOfGoalsIDB",
+    "MostDoubleDigitsID",
+    "MostCleanSheetsID",
+    "MostDifferentOpponentsID",
+    "MostDifferentVictimsID",
+    "MostDoubleDigitsVictimsID",
+    "MostCleanSheetsVictimsID",
+    "BiggestRatingAscentID",
+    "BiggestPeakRatingID",
+)
+
+RECORD_HOLDER_NAME_COLUMNS: tuple[str, ...] = (
+    "MostGamesPlayedName",
+    "MostWinsName",
+    "MostGoalsScoredName",
+    "MostGoalsScoredInOneGameName",
+    "BiggestWinDifferenceName",
+    "BiggestDrawSumNameA",
+    "BiggestDrawSumNameB",
+    "BiggestSumOfGoalsNameA",
+    "BiggestSumOfGoalsNameB",
+    "MostDoubleDigitsName",
+    "MostCleanSheetsName",
+    "MostDifferentOpponentsName",
+    "MostDifferentVictimsName",
+    "MostDoubleDigitsVictimsName",
+    "MostCleanSheetsVictimsName",
+    "BiggestRatingAscentName",
+    "BiggestPeakRatingName",
+)
+
+RECORD_HOLDER_DATE_COLUMNS: tuple[str, ...] = (
+    "MostGamesPlayedDate",
+    "MostWinsDate",
+    "MostGoalsScoredDate",
+    "MostGoalsScoredInOneGameDate",
+    "BiggestWinDifferenceDate",
+    "BiggestDrawSumDate",
+    "BiggestSumOfGoalsDate",
+    "MostDoubleDigitsDate",
+    "MostCleanSheetsDate",
+    "MostDifferentOpponentsDate",
+    "MostDifferentVictimsDate",
+    "MostDoubleDigitsVictimsDate",
+    "MostCleanSheetsVictimsDate",
+    "BiggestRatingAscentDate",
+    "BiggestPeakRatingDate",
+)
+
+RECORD_HOLDER_GAME_ID_COLUMNS: tuple[str, ...] = (
+    "MostGoalsScoredInOneGameGameID",
+    "BiggestWinDifferenceGameID",
+    "BiggestDrawSumGameID",
+    "BiggestSumOfGoalsGameID",
+)
+
+# Ratio / average leaders (value + holder id + name each).
+RATIO_LEADER_VALUE_COLUMNS: tuple[str, ...] = (
+    "BiggestWinRatio",
+    "BiggestGoalsForAverage",
+    "SmallestGoalsAgainstAverage",
+    "BiggestGoalRatio",
+    "BiggestDoubleDigitsRatio",
+    "BiggestCleanSheetsRatio",
+)
+
+RATIO_LEADER_ID_COLUMNS: tuple[str, ...] = (
+    "BiggestWinRatioID",
+    "BiggestGoalsForAverageID",
+    "SmallestGoalsAgainstAverageID",
+    "BiggestGoalRatioID",
+    "BiggestDoubleDigitsRatioID",
+    "BiggestCleanSheetsRatioID",
+)
+
+RATIO_LEADER_NAME_COLUMNS: tuple[str, ...] = (
+    "BiggestWinRatioName",
+    "BiggestGoalsForAverageName",
+    "SmallestGoalsAgainstAverageName",
+    "BiggestGoalRatioName",
+    "BiggestDoubleDigitsRatioName",
+    "BiggestCleanSheetsRatioName",
+)
+
+RATIO_LEADER_COLUMNS: tuple[str, ...] = (
+    RATIO_LEADER_VALUE_COLUMNS
+    + RATIO_LEADER_ID_COLUMNS
+    + RATIO_LEADER_NAME_COLUMNS
+)
+
+RECORD_HOLDER_COLUMNS: tuple[str, ...] = (
+    RECORD_HOLDER_VALUE_COLUMNS
+    + RECORD_HOLDER_ID_COLUMNS
+    + RECORD_HOLDER_NAME_COLUMNS
+    + RECORD_HOLDER_DATE_COLUMNS
+    + RECORD_HOLDER_GAME_ID_COLUMNS
+)
+
+# All non-id columns on amiga_generalstats (present projection).
+GENERALSTATS_PAYLOAD_COLUMNS: tuple[str, ...] = (
+    GENERALSTATS_AGGREGATE_COLUMNS
+    + RECORD_HOLDER_COLUMNS
+    + RATIO_LEADER_COLUMNS
+)
+
+REALM_SNAPSHOT_KEY_COLUMNS: tuple[str, ...] = (
+    "tournament_id",
+    "event_date",
+    "event_chrono",
+    "tournament_name",
+    "finalized_at",
+)
+
+# Payload mirrored on amiga_realm_snapshots (= generalstats without id).
+REALM_SNAPSHOT_PAYLOAD_COLUMNS: tuple[str, ...] = GENERALSTATS_PAYLOAD_COLUMNS
+
+REALM_SNAPSHOT_COLUMNS: tuple[str, ...] = (
+    REALM_SNAPSHOT_KEY_COLUMNS + REALM_SNAPSHOT_PAYLOAD_COLUMNS
+)

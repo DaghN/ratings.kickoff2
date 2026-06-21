@@ -11,6 +11,7 @@ require_once __DIR__ . '/../includes/amiga_post_game_participation.php';
 require_once __DIR__ . '/../includes/amiga_event_snapshot_persist.php';
 require_once __DIR__ . '/../includes/amiga_matchup_cumulative.php';
 require_once __DIR__ . '/../includes/amiga_matchup_persist.php';
+require_once __DIR__ . '/../includes/amiga_realm_snapshot_lib.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
 
 const AMIGA_FINALIZE_LOCK_NAME = 'amiga_finalize_tournament';
@@ -647,6 +648,9 @@ function amiga_finalize_tournament(
         . ' rows=' . $atEventRows
         . ' summary_upserts=' . $summaryRows
     );
+
+    amiga_realm_persist_snapshot_for_tournament($con, $tournamentId, $finalizedAt);
+    amiga_ops_log('realm snapshot: id=' . $tournamentId);
 
     $errors = amiga_ops_verify_tournament_finalize($con, $tournamentId);
     if ($errors !== []) {

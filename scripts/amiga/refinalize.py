@@ -18,6 +18,7 @@ from scripts.amiga.finalize_tournament import (
 )
 from scripts.amiga.matchup_cumulative import MatchupCumulative
 from scripts.amiga.player_stats_load import load_player_states
+from scripts.amiga.realm_incremental import empty_prior_payload, load_prior_realm_payload
 from scripts.amiga.replay import _connect, tournament_ids_for_replay
 from scripts.amiga.tournament_standings import clear_standings, rebuild_all_standings
 
@@ -76,6 +77,10 @@ def reopen_tournament(
             (tournament_id,),
         )
         cur.execute(
+            "DELETE FROM amiga_realm_snapshots WHERE tournament_id = %s",
+            (tournament_id,),
+        )
+        cur.execute(
             """
             DELETE r FROM amiga_game_ratings r
             INNER JOIN amiga_games g ON g.id = r.game_id
@@ -115,6 +120,10 @@ def _reopen_tournaments_batch(
         )
         cur.execute(
             f"DELETE FROM amiga_player_matchup_at_event WHERE as_of_tournament_id IN ({placeholders})",
+            tournament_ids,
+        )
+        cur.execute(
+            f"DELETE FROM amiga_realm_snapshots WHERE tournament_id IN ({placeholders})",
             tournament_ids,
         )
         cur.execute(
@@ -195,6 +204,9 @@ def refinalize_from(
 
     games_total = 0
     events_total = 0
+    prior_realm_payload = (
+        load_prior_realm_payload(conn, from_ids[0]) if from_ids else empty_prior_payload()
+    )
     for tid in from_ids:
         result = finalize_tournament(
             conn,
@@ -206,9 +218,11 @@ def refinalize_from(
             prior_career_best=prior_career_best,
             event_games=event_games,
             matchups=matchups,
+            prior_realm_payload=prior_realm_payload,
         )
         if result.get("skipped"):
             continue
+        prior_realm_payload = result.get("realm_payload") or prior_realm_payload
         games_total += int(result.get("games", 0))
         events_total += int(result.get("rating_events", 0))
 

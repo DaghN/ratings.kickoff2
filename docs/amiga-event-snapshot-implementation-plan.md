@@ -6,7 +6,7 @@
 
 **Execution:** Slices **in order in this chat** (no separate starter prompts). Dagh says **“slice N”** or **“continue”** between slices if desired.
 
-**Out of scope for this plan:** historical HoF (`amiga_realm_snapshots`), historical H2H, git commit unless Dagh asks, staging export unless needed for verify.
+**Out of scope for this plan:** realm snapshots — [`amiga-realm-snapshot-implementation-plan.md`](amiga-realm-snapshot-implementation-plan.md); historical H2H; git commit unless Dagh asks; staging export unless needed for verify.
 
 **Migration:** **L1+** — new DDL, finalize/replay writers, read-path switch → **Part B** at wrap-up.
 

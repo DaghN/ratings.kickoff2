@@ -1,6 +1,9 @@
 <?php
 /**
- * Amiga Hall of Fame — ratio/average leaders from amiga_player_current.
+ * Amiga Hall of Fame — ratio/average leader SQL helpers.
+ *
+ * **Present authority:** `amiga_generalstats` (persisted at tournament finalize).
+ * These functions remain for historical cutoff reads and repair oracles.
  *
  * Eligible: NumberGames >= k2_established_min_games() (20). Ties: lowest player_id wins.
  */

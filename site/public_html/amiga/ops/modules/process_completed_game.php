@@ -556,6 +556,8 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . '(SELECT COUNT(*) FROM amiga_game_ratings) AS ratings, '
         . '(SELECT COUNT(*) FROM amiga_player_current) AS current_rows, '
         . '(SELECT COUNT(*) FROM amiga_player_event_snapshots) AS snapshots, '
+        . '(SELECT COUNT(*) FROM amiga_realm_snapshots) AS realm_snapshots, '
+        . '(SELECT COUNT(*) FROM amiga_player_matchup_at_event) AS matchup_at_event, '
         . '(SELECT COUNT(*) FROM amiga_tournament_standings) AS standings, '
         . '(SELECT COUNT(*) FROM amiga_tournament_catalog_stats) AS catalog_stats, '
         . '(SELECT COUNT(*) FROM tournaments WHERE rating_finalized = 1) AS tournaments_finalized'
@@ -571,6 +573,8 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
         . ' clearing ratings=' . (int) ($row['ratings'] ?? 0)
         . ' current=' . (int) ($row['current_rows'] ?? 0)
         . ' snapshots=' . (int) ($row['snapshots'] ?? 0)
+        . ' realm_snapshots=' . (int) ($row['realm_snapshots'] ?? 0)
+        . ' matchup_at_event=' . (int) ($row['matchup_at_event'] ?? 0)
         . ' standings=' . (int) ($row['standings'] ?? 0)
         . ' catalog_stats=' . (int) ($row['catalog_stats'] ?? 0)
         . ' tournaments_finalized=' . (int) ($row['tournaments_finalized'] ?? 0)
@@ -579,14 +583,20 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
     if ($dryRun) {
         return;
     }
-    if (!$con->query('DELETE FROM amiga_player_matchup_summary')) {
-        throw new RuntimeException('DELETE amiga_player_matchup_summary: ' . $con->error);
-    }
     if (!$con->query('DELETE FROM amiga_generalstats WHERE id = 1')) {
         throw new RuntimeException('DELETE amiga_generalstats: ' . $con->error);
     }
     if (!$con->query('INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)')) {
         throw new RuntimeException('INSERT amiga_generalstats seed: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_realm_snapshots')) {
+        throw new RuntimeException('DELETE amiga_realm_snapshots: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_player_matchup_at_event')) {
+        throw new RuntimeException('DELETE amiga_player_matchup_at_event: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_player_matchup_summary')) {
+        throw new RuntimeException('DELETE amiga_player_matchup_summary: ' . $con->error);
     }
     if (!$con->query('DELETE FROM amiga_player_current')) {
         throw new RuntimeException('DELETE amiga_player_current: ' . $con->error);

@@ -28,6 +28,8 @@ from scripts.amiga.matchup_cumulative import (
     apply_peak_from_event_rating,
 )
 from scripts.amiga.matchup_persist import persist_matchup_at_event, upsert_matchup_summary
+from scripts.amiga.realm_persist import persist_realm_snapshot_for_tournament
+from scripts.amiga.generalstats_columns import GENERALSTATS_PAYLOAD_COLUMNS
 from scripts.ladder.player_state import PlayerState
 
 __all__ = [
@@ -324,6 +326,7 @@ def finalize_tournament(
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games: dict[tuple[int, int], int] | None = None,
     matchups: MatchupCumulative | None = None,
+    prior_realm_payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Finalize one tournament: game ratings + event snapshots + current projection.
@@ -390,6 +393,7 @@ def finalize_tournament(
     games_in_event: dict[int, int] = {pid: 0 for pid in participant_ids}
     perf_pairs: dict[int, list[tuple[float, float]]] = {pid: [] for pid in participant_ids}
     rating_rows: list[dict[str, Any]] = []
+    ratings_by_game_id: dict[int, dict[str, Any]] = {}
     event_commits: dict[int, dict[str, Any]] = {}
 
     finalized_at = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -417,6 +421,7 @@ def finalize_tournament(
             perf_pairs[id_a].append((rating_b, score_a))
             perf_pairs[id_b].append((rating_a, 1.0 - score_a))
             rating_rows.append(_row_to_rating_insert_finalize(game_id, row))
+            ratings_by_game_id[game_id] = _row_to_rating_insert(game_id, row)
 
         if rating_rows:
             cur.executemany(rating_sql, rating_rows)
@@ -486,6 +491,32 @@ def finalize_tournament(
         summary_rows,
     )
 
+    persist_realm_snapshot_for_tournament(
+        conn,
+        tournament_id,
+        finalized_at=finalized_at,
+        commit=True,
+        prior_payload=prior_realm_payload,
+        players=players,
+        names=names,
+        games=games,
+        ratings_by_game_id=ratings_by_game_id,
+        event_date=tour["event_date"],
+    )
+    log.info("finalize_tournament: realm snapshot tournament_id=%s", tournament_id)
+
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT * FROM amiga_realm_snapshots WHERE tournament_id = %s LIMIT 1",
+            (tournament_id,),
+        )
+        realm_row = cur.fetchone()
+    realm_payload = (
+        {col: realm_row.get(col) for col in GENERALSTATS_PAYLOAD_COLUMNS}
+        if realm_row
+        else {}
+    )
+
     errors = verify_tournament_finalize(conn, tournament_id)
     if errors:
         raise RuntimeError(
@@ -501,6 +532,7 @@ def finalize_tournament(
         "games": len(games),
         "rating_events": event_count,
         "skipped": False,
+        "realm_payload": realm_payload,
     }
 
 

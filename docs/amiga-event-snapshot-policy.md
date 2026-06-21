@@ -38,7 +38,7 @@ Amiga player derived truth is a **sparse timeline**: one complete row per `(play
 | **S8** | **New fields** | Any new player fact added to the product → add column(s) to **both** snapshot and current schemas; finalize writer always populates them. No “current-only” columns |
 | **S9** | **Commit boundary** | Unchanged: only **tournament finalize** writes snapshots/current (plus full replay rebuild). Per-game ops write `amiga_game_ratings` only |
 | **S10** | **Streak columns** | **Stored** on snapshot/current for engine parity (`PlayerState`); **not displayed** in Amiga product (existing policy) |
-| **S11** | **Separate grains (unchanged)** | Per-game (`amiga_game_ratings`), phase standings (`amiga_tournament_standings`), H2H (`amiga_player_matchup_summary`), realm records (`amiga_generalstats`) stay at their own grains. Realm timeline (HoF-as-of) = **later slice** (`amiga_realm_snapshots` or equivalent) |
+| **S11** | **Separate grains (unchanged)** | Per-game (`amiga_game_ratings`), phase standings (`amiga_tournament_standings`), H2H (`amiga_player_matchup_summary`), realm (`amiga_generalstats` + `amiga_realm_snapshots` per [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md)) |
 
 ---
 
@@ -110,7 +110,7 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
 | Player tournament history | snapshots `WHERE player_id = ?` ORDER BY chrono | same (replaces participation table) |
 | Tournament event stats | snapshots `WHERE tournament_id = ?` | cutoff ≤ that event |
 | History hub / races | — | snapshots + catalogs (generalize V1 lib) |
-| HoF | `amiga_generalstats` | deferred: realm snapshots |
+| HoF | `amiga_generalstats` (ratio leaders on row) | [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) → `amiga_realm_snapshots` at cutoff (historical UI follow-on) |
 
 **PHP rule:** hot paths use `amiga_player_current` or snapshot helpers — **not** retired table names after migration.
 
@@ -127,7 +127,8 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
      INSERT full `amiga_player_event_snapshots` row
      UPSERT `amiga_player_current` from that row
 5. Persist `amiga_player_matchup_at_event` + upsert `amiga_player_matchup_summary` for participants
-6. Mark `tournaments.rating_finalized`
+6. Persist realm snapshot + `amiga_generalstats` ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md))
+7. Mark `tournaments.rating_finalized`
 ```
 
 **Batch replay:** loop finalize only — **no** `commit_heavy_player_derived` or matchup/generalstats/catalog tail batches at end.
@@ -169,7 +170,7 @@ Refinalize tournament *T*: rewrite snapshot(s) at *T*, then **forward-recalculat
 
 | Topic | Notes |
 |-------|--------|
-| `amiga_realm_snapshots` / historical HoF | Follow-on; same tournament-commit pattern |
+| Historical HoF **UI** wings | Storage: [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md); UI follow-on |
 | Historical H2H | Different grain |
 | Dense every-player-every-tournament table | Not needed |
 | Online `kooldb*` | Separate realm |

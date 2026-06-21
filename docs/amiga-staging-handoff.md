@@ -63,7 +63,7 @@ Local dry-run (same paths, `ratingskickoff.test`): preview URL above with local 
 
 Spot-check: `/amiga/rating.php`, `/amiga/player/profile.php?id=1`, `/amiga/player/games.php?id=1` (legacy `/amiga/profile.php` and `/amiga/games.php` redirect).
 
-**Verified Jun 2026:** multi-part browser import on staging (`ratings.kickoff2.com`) — rating, profile, and games spot-checks OK. **Jun 2026 (slice 9):** export tail = `amiga_player_event_snapshots` + `amiga_player_current` (legacy participation/totals/rating_events retired). **Jun 2026 (matchup-at-event):** export also includes `amiga_player_matchup_at_event`. Re-import after sync if player tournament or honours pages were empty.
+**Verified Jun 2026:** multi-part browser import on staging (`ratings.kickoff2.com`) — rating, profile, and games spot-checks OK. **Jun 2026 (slice 9):** export tail = `amiga_player_event_snapshots` + `amiga_player_current` (legacy participation/totals/rating_events retired). **Jun 2026 (matchup-at-event):** export also includes `amiga_player_matchup_at_event`. **Jun 2026 (realm snapshots):** export tail adds `amiga_realm_snapshots` + ratio columns on `amiga_generalstats` (~605 rows). Re-import after sync if player tournament, honours, or HoF pages were empty/stale.
 
 **Local export paths:** routine staging dump = `scripts\export_ko2amiga_db.ps1` (chunked SQL for browser import). Optional community archive = `python -m scripts.amiga export-pack product` → `data/amiga/exports/packs/product/` (Pack C; see [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) §8).
 

@@ -10,6 +10,7 @@ from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.matchup_cumulative import MatchupCumulative
+from scripts.amiga.realm_incremental import empty_prior_payload
 from scripts.ladder.player_state import PlayerState
 
 log = logging.getLogger(__name__)
@@ -106,6 +107,7 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
     with conn.cursor() as cur:
         cur.execute("DELETE FROM amiga_generalstats WHERE id = 1")
         cur.execute("INSERT IGNORE INTO amiga_generalstats (id) VALUES (1)")
+        cur.execute("DELETE FROM amiga_realm_snapshots")
         cur.execute("DELETE FROM amiga_player_matchup_at_event")
         cur.execute("DELETE FROM amiga_player_matchup_summary")
         cur.execute("DELETE FROM amiga_player_current")
@@ -237,6 +239,7 @@ def replay_all(
     honours_by_player: dict[int, dict[str, Any]] = {}
     prior_career_best: dict[int, dict[str, Any]] = {}
     event_games: dict[tuple[int, int], int] = {}
+    prior_realm_payload: dict[str, Any] = empty_prior_payload()
     games_processed = 0
     events_total = 0
     for idx, tournament_id in enumerate(tournament_ids, start=1):
@@ -250,9 +253,11 @@ def replay_all(
             prior_career_best=prior_career_best,
             event_games=event_games,
             matchups=matchups,
+            prior_realm_payload=prior_realm_payload,
         )
         if result.get("skipped"):
             continue
+        prior_realm_payload = result.get("realm_payload") or prior_realm_payload
         games_processed += int(result.get("games", 0))
         events_total += int(result.get("rating_events", 0))
         if idx % 50 == 0 or idx == len(tournament_ids):

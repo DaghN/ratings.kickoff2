@@ -23,7 +23,7 @@ function amiga_ops_print_help(): void
 {
     fwrite(STDOUT, "Usage: php run_process_game.php <verb> [options]\n");
     fwrite(STDOUT, "Verbs:\n");
-    fwrite(STDOUT, "  zero-derived          Clear ratings + stats + standings + rating events (ground kept)\n");
+    fwrite(STDOUT, "  zero-derived          Clear derived tables incl. realm snapshots (ground kept)\n");
     fwrite(STDOUT, "  finalize-tournament   Batch finalize one tournament (frozen Elo + rating events)\n");
     fwrite(STDOUT, "  reopen-tournament     Clear one tournament's finalize markers + derived rows\n");
     fwrite(STDOUT, "  refinalize-from       Rebuild-forward from tournament T through later events\n");

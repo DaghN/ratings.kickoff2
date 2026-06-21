@@ -415,7 +415,7 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 
 **Exclude:** longest match streaks, longest play-day/week streaks.
 
-**Writer:** port `scripts/ladder/server_records.py` logic to `scripts/amiga/server_records.py`; run at end of full `replay` and after live finalize (or batch nightly).
+**Writer:** `scripts/amiga/server_records.py` — **realm snapshot track** ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md)): full row at each tournament finalize → `amiga_realm_snapshots` + `amiga_generalstats`. Ratio leaders persisted on row (not live SQL). Repair: `generalstats-rebuild` CLI oracle only.
 
 ---
 
@@ -471,10 +471,11 @@ Global `amiga_player_current.Rating` and snapshot event rating block commit at *
      → amiga_player_event_snapshots + amiga_player_current (per finalize)
      → network counts + peaks from cumulative matchups (per finalize)
      → amiga_player_matchup_at_event + amiga_player_matchup_summary (per finalize)
+     → amiga_realm_snapshots + amiga_generalstats (incremental realm row per finalize)
      → in-memory PlayerState + MatchupCumulative carry forward
 ```
 
-No post-replay tail batches for matchup, network, or catalog. **`generalstats` / HoF** rebuild deferred (separate slice).
+No post-replay tail batches for matchup, network, catalog, or realm. **`generalstats-rebuild`** = repair oracle only ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) R10).
 
 Steps 2 are idempotent. They must not mutate ground truth.
 
@@ -483,7 +484,7 @@ Steps 2 are idempotent. They must not mutate ground truth.
 | Action | Updates |
 |--------|---------|
 | Result entry | `amiga_games`, standings for touched tournament |
-| Finalize tournament | game ratings, snapshots + current, matchup at-event + summary, network + peaks on career block |
+| Finalize tournament | game ratings, snapshots + current, matchup at-event + summary, network + peaks on career block, realm snapshot + `amiga_generalstats` |
 | Standings-only correction | standings → refinalize-from tournament *T* forward (`prove` preferred) |
 
 ### Parity gates (add to verify suite)
@@ -513,6 +514,7 @@ python -m scripts.amiga verify-chronology
 python -m scripts.amiga verify-rating-events
 python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
+python -m scripts.amiga verify-realm-snapshots
 ```
 
 **Surface expansion (slices 0–8, Jun 2026):** **Complete** — Tier A LB wings, profile honours/perf/moments, H2H, event-stats tab, honours LB polish. Handoff: [`archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md). Overview deferred items: [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
