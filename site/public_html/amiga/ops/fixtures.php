@@ -2334,8 +2334,8 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
     $playerBId = (int) $fixture['player_b_id'];
     if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
         throw new RuntimeException(
-            'Tournament is rating-finalized. Reopen and refinalize before entering more results: '
-            . '`python -m scripts.amiga refinalize-from --tournament-id=' . $tournamentId . '`'
+            'Tournament is rating-finalized. Run full derived rebuild before entering more results: '
+            . '`python -m scripts.amiga prove`'
         );
     }
     amiga_fixture_require_running_lifecycle($con, $tournamentId);
@@ -2710,7 +2710,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $skipReason = (string) $processed['skip_reason'];
                 if ($skipReason === 'tournament_finalized_missing_rating') {
                     $skipMessage = 'Created game #' . $gameId
-                        . ', but tournament is finalized without ratings — run refinalize repair.';
+                        . ', but tournament is finalized without ratings — run `python -m scripts.amiga prove`.';
                 } else {
                     $skipMessage = 'Created game #' . $gameId
                         . ', but standings update skipped: ' . $skipReason;
@@ -3737,9 +3737,8 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
     <?php if ($tournamentRatingFinalized) { ?>
       <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
         This league is <strong>rating-finalized</strong> — global ladder ratings are committed.
-        Ground-truth score edits require
-        <code>python -m scripts.amiga refinalize-from --tournament-id=<?php echo (int) $tournamentId; ?></code>
-        (rebuilds this event and all later tournaments).
+        Ground-truth score edits on a finalized league require a full derived rebuild:
+        <code>python -m scripts.amiga prove</code>
       </p>
     <?php } ?>
     <?php if ($tournamentUnratedGameCount > 0) { ?>

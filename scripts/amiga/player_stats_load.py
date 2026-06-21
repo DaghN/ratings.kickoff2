@@ -1,9 +1,11 @@
-"""Load amiga_player_current into PlayerState for ops/finalize bootstrap."""
+"""Load prior event snapshots into PlayerState for ops/finalize bootstrap (S4)."""
 
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
+
+import pymysql
 
 from scripts.ladder.constants import START_RATING
 from scripts.ladder.player_state import PlayerState, SENTINEL_LEAST_GOALS, SENTINEL_LOWEST_RATING
@@ -129,15 +131,60 @@ def player_state_from_stats_row(row: dict[str, Any]) -> PlayerState:
     return st
 
 
-def _career_source_table(conn) -> str:
-    """Ops bootstrap reads ``amiga_player_current`` (slice 8 — legacy stats retired)."""
-    return "amiga_player_current"
+def load_prior_snapshot_rows_before_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    player_ids: list[int],
+) -> dict[int, dict[str, Any]]:
+    """Latest participated snapshot per player strictly before ``tournament_id``."""
+    if not player_ids:
+        return {}
 
-
-def load_player_states(conn) -> dict[int, PlayerState]:
-    """Load career rows from ``amiga_player_current`` for ops/finalize bootstrap."""
-    table = _career_source_table(conn)
+    placeholders = ", ".join(["%s"] * len(player_ids))
     with conn.cursor() as cur:
-        cur.execute(f"SELECT * FROM `{table}`")
+        cur.execute(
+            f"""
+            SELECT ranked.*
+            FROM (
+                SELECT s_inner.*,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY s_inner.player_id
+                           ORDER BY s_inner.event_date DESC, s_inner.event_chrono DESC,
+                                    s_inner.tournament_id DESC
+                       ) AS rn
+                FROM amiga_player_event_snapshots s_inner
+                INNER JOIN tournaments tc ON tc.id = %s
+                WHERE s_inner.player_id IN ({placeholders})
+                  AND (
+                    s_inner.event_date < tc.event_date
+                    OR (s_inner.event_date = tc.event_date AND s_inner.event_chrono < tc.chrono)
+                    OR (
+                      s_inner.event_date = tc.event_date
+                      AND s_inner.event_chrono = tc.chrono
+                      AND s_inner.tournament_id < tc.id
+                    )
+                  )
+            ) ranked
+            WHERE ranked.rn = 1
+            """,
+            (tournament_id, *player_ids),
+        )
         rows = cur.fetchall()
-    return {int(row["player_id"]): player_state_from_stats_row(row) for row in rows}
+
+    out: dict[int, dict[str, Any]] = {}
+    for row in rows:
+        clean = dict(row)
+        clean.pop("rn", None)
+        out[int(clean["player_id"])] = clean
+    return out
+
+
+def load_player_states_before_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    participant_ids: set[int] | list[int],
+) -> dict[int, PlayerState]:
+    """Bootstrap in-memory career state from prior snapshots (S4 — not ``amiga_player_current``)."""
+    ids = sorted({int(pid) for pid in participant_ids})
+    rows = load_prior_snapshot_rows_before_tournament(conn, tournament_id, ids)
+    return {pid: player_state_from_stats_row(row) for pid, row in rows.items()}

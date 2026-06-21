@@ -455,6 +455,7 @@
 
 		if (!window.history || !window.history.replaceState || !window.URLSearchParams) {
 			refreshLbFilterToggleHrefs();
+			refreshTimeTravelRibbonHrefs();
 			return;
 		}
 
@@ -464,6 +465,79 @@
 		url.searchParams.set(sortUrlParamKey(scope, 'k2_dir'), direction === 'asc' ? 'asc' : 'desc');
 		window.history.replaceState(null, '', url.pathname + url.search + url.hash);
 		refreshLbFilterToggleHrefs();
+		refreshTimeTravelRibbonHrefs();
+	}
+
+	function applySortParamsToUrl(target, current) {
+		if (current.searchParams.has('k2_sort')) {
+			target.searchParams.set('k2_sort', current.searchParams.get('k2_sort'));
+			target.searchParams.set('k2_dir', current.searchParams.get('k2_dir') || 'desc');
+		} else {
+			target.searchParams.delete('k2_sort');
+			target.searchParams.delete('k2_dir');
+		}
+	}
+
+	function syncTimeTravelPickerSortFields(form, current) {
+		var sortInput = form.querySelector('input[name="k2_sort"]');
+		var dirInput = form.querySelector('input[name="k2_dir"]');
+		if (current.searchParams.has('k2_sort')) {
+			if (!sortInput) {
+				sortInput = document.createElement('input');
+				sortInput.type = 'hidden';
+				sortInput.name = 'k2_sort';
+				form.insertBefore(sortInput, form.firstChild);
+			}
+			if (!dirInput) {
+				dirInput = document.createElement('input');
+				dirInput.type = 'hidden';
+				dirInput.name = 'k2_dir';
+				form.insertBefore(dirInput, form.firstChild);
+			}
+			sortInput.value = current.searchParams.get('k2_sort');
+			dirInput.value = current.searchParams.get('k2_dir') || 'desc';
+			return;
+		}
+		if (sortInput) {
+			sortInput.parentNode.removeChild(sortInput);
+		}
+		if (dirInput) {
+			dirInput.parentNode.removeChild(dirInput);
+		}
+	}
+
+	function refreshTimeTravelRibbonHrefs() {
+		var ribbon = document.querySelector('[data-k2-preserve-table-sort="1"]');
+		var current;
+		var links;
+		var i;
+		var link;
+		var target;
+		var form;
+
+		if (!ribbon || !window.URLSearchParams) {
+			return;
+		}
+
+		current = new URL(window.location.href);
+		links = ribbon.querySelectorAll('a[href]');
+		for (i = 0; i < links.length; i++) {
+			link = links[i];
+			if (!link.href) {
+				continue;
+			}
+			target = new URL(link.href, window.location.href);
+			if (target.pathname !== current.pathname) {
+				continue;
+			}
+			applySortParamsToUrl(target, current);
+			link.href = target.pathname + target.search + target.hash;
+		}
+
+		form = ribbon.querySelector('.k2-amiga-history__picker');
+		if (form) {
+			syncTimeTravelPickerSortFields(form, current);
+		}
 	}
 
 	function refreshLbFilterToggleHrefs() {
@@ -786,6 +860,7 @@
 		refreshRankColumn(table);
 		if (hasClass(table, 'ranked-pages-table')) {
 			refreshLbFilterToggleHrefs();
+			refreshTimeTravelRibbonHrefs();
 		}
 		removeClass(table, PENDING_CLASS);
 	}

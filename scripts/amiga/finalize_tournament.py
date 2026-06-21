@@ -10,7 +10,7 @@ import pymysql
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.honours_totals import empty_honours_totals, increment_honours_totals
-from scripts.amiga.player_stats_load import load_player_states
+from scripts.amiga.player_stats_load import load_player_states_before_tournament
 from scripts.amiga.performance_rating import performance_rating_from_pairs
 from scripts.amiga.player_tournament_participation import build_participation_rows_for_tournament
 from scripts.amiga.snapshot_persist import persist_tournament_event_snapshots
@@ -248,9 +248,93 @@ def _persist_event_snapshots(
     )
 
 
+def _rated_games_through_tournament_sql() -> str:
+    return """
+        SELECT sides.player_id, COUNT(*) AS rated_games
+        FROM (
+            SELECT g.id, g.player_a_id AS player_id, g.tournament_id
+            FROM amiga_games g
+            UNION ALL
+            SELECT g.id, g.player_b_id AS player_id, g.tournament_id
+            FROM amiga_games g
+        ) sides
+        INNER JOIN tournaments t ON t.id = sides.tournament_id
+        INNER JOIN tournaments tc ON tc.id = %s
+        WHERE (
+            t.event_date < tc.event_date
+            OR (t.event_date = tc.event_date AND t.chrono < tc.chrono)
+            OR (
+                t.event_date = tc.event_date
+                AND t.chrono = tc.chrono
+                AND t.id <= tc.id
+            )
+        )
+        GROUP BY sides.player_id
+    """
+
+
+def _career_games_snapshot_mismatch_errors(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> list[str]:
+    """Snapshot cumulative games must match rated games through this event."""
+    errors: list[str] = []
+    games_through = _rated_games_through_tournament_sql()
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT s.player_id, s.NumberGames AS snapshot_games, g.rated_games
+            FROM amiga_player_event_snapshots s
+            INNER JOIN ({games_through}) g ON g.player_id = s.player_id
+            WHERE s.tournament_id = %s
+              AND s.NumberGames <> g.rated_games
+            LIMIT 5
+            """,
+            (tournament_id, tournament_id),
+        )
+        for row in cur.fetchall():
+            errors.append(
+                "player_id="
+                f"{int(row['player_id'])} snapshot.NumberGames="
+                f"{int(row['snapshot_games'])} != rated_games={int(row['rated_games'])}"
+            )
+    return errors
+
+
+def _career_games_current_mismatch_errors(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> list[str]:
+    """Present row must match rated games through this event (live finalize only)."""
+    errors: list[str] = []
+    games_through = _rated_games_through_tournament_sql()
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT c.player_id, c.NumberGames AS current_games, g.rated_games
+            FROM amiga_player_current c
+            INNER JOIN amiga_player_event_snapshots s
+                ON s.player_id = c.player_id AND s.tournament_id = %s
+            INNER JOIN ({games_through}) g ON g.player_id = c.player_id
+            WHERE c.NumberGames <> g.rated_games
+            LIMIT 5
+            """,
+            (tournament_id, tournament_id),
+        )
+        for row in cur.fetchall():
+            errors.append(
+                "player_id="
+                f"{int(row['player_id'])} current.NumberGames="
+                f"{int(row['current_games'])} != rated_games={int(row['rated_games'])}"
+            )
+    return errors
+
+
 def verify_tournament_finalize(
     conn: pymysql.connections.Connection,
     tournament_id: int,
+    *,
+    check_current_career_games: bool = True,
 ) -> list[str]:
     """Return human-readable errors for contract checks on one tournament."""
     errors: list[str] = []
@@ -317,6 +401,10 @@ def verify_tournament_finalize(
                 f"player_id={pid} sum(adjustments)={summed} != rating_delta={rd}"
             )
 
+    errors.extend(_career_games_snapshot_mismatch_errors(conn, tournament_id))
+    if check_current_career_games:
+        errors.extend(_career_games_current_mismatch_errors(conn, tournament_id))
+
     return errors
 
 
@@ -356,12 +444,15 @@ def finalize_tournament(
 
     participant_ids = _participant_ids(games)
     if players is None:
-        players = load_player_states(conn)
+        players = load_player_states_before_tournament(conn, tournament_id, participant_ids)
     if matchups is None:
         matchups = MatchupCumulative()
         matchups.load_from_summary(conn, participant_ids)
     for pid in participant_ids:
         players.setdefault(pid, PlayerState())
+
+    if names is None:
+        names = _load_player_names(conn)
 
     frozen = _entry_ratings_before_tournament(conn, tournament_id, participant_ids)
     log.info(
@@ -372,8 +463,6 @@ def finalize_tournament(
         len(participant_ids),
     )
 
-    if names is None:
-        names = _load_player_names(conn)
     if player_countries is None:
         player_countries = load_player_countries(conn)
     if geo_year is None:

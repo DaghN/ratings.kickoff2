@@ -9,8 +9,6 @@ import sys
 from pathlib import Path
 
 from scripts.amiga.finalize_tournament import run_finalize_tournament
-from scripts.amiga.refinalize import run_refinalize_from, run_reopen_tournament
-from scripts.amiga.refinalize_smoke import main as refinalize_smoke_main
 from scripts.amiga.import_access import _DEFAULT_MDB, import_all, import_witness
 from scripts.amiga.apply_structure import run_apply_structure
 from scripts.amiga.import_pristine import (
@@ -50,7 +48,6 @@ from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
 from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
-from scripts.amiga.verify_php_finalize_parity import main as verify_php_finalize_parity_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.import_manifest import default_manifest_path
 from scripts.amiga.verify_witness import verify_witness
@@ -107,28 +104,6 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_finalize.add_argument("--tournament-id", type=int, required=True)
     p_finalize.add_argument("--dry-run", action="store_true")
-
-    p_reopen = sub.add_parser(
-        "reopen-tournament",
-        help="Clear finalize markers + T derived rows (requires refinalize-from for global stats)",
-    )
-    p_reopen.add_argument("--tournament-id", type=int, required=True)
-    p_reopen.add_argument("--dry-run", action="store_true")
-
-    p_refinalize = sub.add_parser(
-        "refinalize-from",
-        help="Rebuild-forward: refinalize tournament T and all later tournaments",
-    )
-    p_refinalize.add_argument("--tournament-id", type=int, required=True)
-    p_refinalize.add_argument("--dry-run", action="store_true")
-
-    p_smoke = sub.add_parser(
-        "refinalize-smoke",
-        help="Smoke test: tweak one goal + refinalize-from (default: last tournament)",
-    )
-    p_smoke.add_argument("--tournament-id", type=int, default=None)
-    p_smoke.add_argument("--game-id", type=int, default=None)
-    p_smoke.add_argument("--dry-run", action="store_true")
 
     p_run = sub.add_parser(
         "run",
@@ -357,10 +332,6 @@ def main(argv: list[str] | None = None) -> int:
         "verify-stored-id-date-pairs",
         help="Assert rise/honours id-date pairing + career-best replay (stored-field semantics Phase C)",
     )
-    sub.add_parser(
-        "verify-php-finalize-parity",
-        help="PHP reopen+finalize vs Python oracle on Alkis rise anchor T24 (stored-field semantics Phase D)",
-    )
 
     sub.add_parser(
         "verify-player-matchups",
@@ -515,32 +486,6 @@ def main(argv: list[str] | None = None) -> int:
         )
         log.info("finalize-tournament complete: %s", result)
         return 0
-
-    if args.cmd == "reopen-tournament":
-        result = run_reopen_tournament(
-            tournament_id=args.tournament_id,
-            dry_run=args.dry_run,
-        )
-        log.info("reopen-tournament complete: %s", result)
-        return 0
-
-    if args.cmd == "refinalize-from":
-        result = run_refinalize_from(
-            tournament_id=args.tournament_id,
-            dry_run=args.dry_run,
-        )
-        log.info("refinalize-from complete: %s", result)
-        return 0
-
-    if args.cmd == "refinalize-smoke":
-        smoke_argv = []
-        if args.tournament_id is not None:
-            smoke_argv.extend(["--tournament-id", str(args.tournament_id)])
-        if args.game_id is not None:
-            smoke_argv.extend(["--game-id", str(args.game_id)])
-        if args.dry_run:
-            smoke_argv.append("--dry-run")
-        return refinalize_smoke_main(smoke_argv)
 
     if args.cmd == "run":
         stats = import_all(mdb=args.mdb, recreate_schema=True)
@@ -701,9 +646,6 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-stored-id-date-pairs":
         return verify_stored_id_date_pairs_main()
-
-    if args.cmd == "verify-php-finalize-parity":
-        return verify_php_finalize_parity_main()
 
     if args.cmd == "verify-player-participation":
         return verify_player_participation_main()

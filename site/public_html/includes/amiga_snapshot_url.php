@@ -7,6 +7,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/k2_table_helpers.php';
 
 /**
  * @param array<string, scalar|null> $extraQuery
@@ -110,6 +111,8 @@ function amiga_url_present(string $path, array $extraQuery = []): string
 
     unset($query['as'], $query['wing'], $query['at']);
 
+    $query = k2_table_merge_sort_query_for_path($pathPart, $query);
+
     if ($query === []) {
         return $pathPart;
     }
@@ -147,6 +150,8 @@ function amiga_url_with_as_param(string $path, string $asParam, array $extraQuer
 
     $query['as'] = $asParam;
     unset($query['wing'], $query['at']);
+
+    $query = k2_table_merge_sort_query_for_path($pathPart, $query);
 
     return $pathPart . '?' . http_build_query($query);
 }

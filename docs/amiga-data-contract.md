@@ -226,7 +226,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 | Snapshot persist | `snapshot_persist.py` · `amiga_event_snapshot_persist.php` |
 | HoF `*Date` projection | `realm_incremental.py` · `amiga_realm_incremental_lib.php` from holder’s `*_last_rise_event_date` |
 
-`honours_last_event_date` / `honours_last_tournament_id` stay **last participation** only. Year-peak HoF dates unchanged (`peak_year_*_year`). Legacy career HoF rows (`MostGamesPlayed`, …) use rise dates per SCH-030 (not `record_date`). Verify: `verify-hof-geo-year` + `verify-hof-holder-projection` + `verify-stored-id-date-pairs` + `verify-php-finalize-parity` in `prove`. Policy: [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) D1–D13. **Broader id/date guardrails:** [`amiga-stored-field-semantics-plan.md`](amiga-stored-field-semantics-plan.md) (phases A–D) · manifest [`amiga-stored-field-semantics.md`](amiga-stored-field-semantics.md).
+`honours_last_event_date` / `honours_last_tournament_id` stay **last participation** only. Year-peak HoF dates unchanged (`peak_year_*_year`). Legacy career HoF rows (`MostGamesPlayed`, …) use rise dates per SCH-030 (not `record_date`). Verify: `verify-hof-geo-year` + `verify-hof-holder-projection` + `verify-stored-id-date-pairs` in `prove`. Policy: [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) D1–D13. **Broader id/date guardrails:** [`amiga-stored-field-semantics-plan.md`](amiga-stored-field-semantics-plan.md) (phases A–C) · manifest [`amiga-stored-field-semantics.md`](amiga-stored-field-semantics.md).
 
 ### Tournament format metadata
 
@@ -357,9 +357,9 @@ Do not “fix” these by importing Access snapshots as truth. Re-run: `python -
 - **Import:** ground truth only — see `scripts/amiga/import_access.py` and [`amiga-import-layer.md`](amiga-import-layer.md). Corrections to legacy Access belong in the import layer (`import_corrections.py`, `player_names.py`, `tournament_names.py`, `tournament_format.py`), not in edited `koatd.mdb`. `import_corrections.py` also appends **supplemental Scores** when Access has a tournament catalog row but no game rows (currently Rodenbach II, +10 games → **27,418** ground-truth games from Access **27,408**). Each import writes `data/amiga/exports/import_manifest.json`. A full import **truncates** derived player tables (`amiga_game_ratings`, snapshots, current — FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga prove` for full rebuild, or `run` for import + replay without verify.
 - **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
 - **Live result entry:** browser `/amiga/ops/fixtures.php` or `fixtures record-result` — ground + standings rebuild only while tournament is open.
-- **Finalize:** `php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=T` or `python -m scripts.amiga finalize-tournament --tournament-id=T`.
+- **Finalize:** `php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=T` or `python -m scripts.amiga finalize-tournament --tournament-id=T`. Ops bootstrap reads **prior snapshots** only (S4); `amiga_player_current` is write + website read. Post-finalize verify rejects cumulative `NumberGames` ≠ rated game count through the event.
 - **Batch rebuild:** `python -m scripts.amiga prove` (preferred) or `replay` then verify suite. PHP `replay-to` removed.
-- **Corrections:** `reopen-tournament` + `refinalize-from` (rebuild-forward through later tournaments).
+- **Corrections / derived repair:** `python -m scripts.amiga prove` only — reopen/refinalize retired Jun 2026 ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)).
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders
 - **Match streaks:** never ship UI or APIs that display `*Streak` / `Longest*Streak` on Amiga — see § Match streaks

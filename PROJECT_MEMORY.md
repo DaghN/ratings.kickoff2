@@ -108,6 +108,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga time travel sort carry** — `k2_sort`/`k2_dir` preserved on same-path chevron/picker/granularity nav; JS ribbon refresh on column sort. |
 | 2026-06 | **Amiga time travel chrome v2** — header Present day \| Time travel segment; ribbon above hub (one row: wings + stepper + picker); entry/exit links removed. |
 | 2026-06 | **Amiga History tab removed** — hub tab + ladder page retired; `/amiga/history.php` 301 → rating LB (`as=` preserved). |
 | 2026-06 | **Amiga HoF** — removed World Cup medals panel; tournament honours stay on LB wing only. |
@@ -141,7 +142,9 @@
 | 2026-06 | **Amiga finish_override L3 relocation** — DDL `sql/ground/002`; Pack ground; replay/zero-derived preserve curated rows. |
 | 2026-06 | **Amiga ground layers slice 8** — docs closure; track **complete** (policy §8 CLI map, cross-doc drift fixed). |
 | 2026-06 | **Amiga ground layers slice 7** — export packs Mirror/ground/structure/product + verify-export-pack. |
-| 2026-06 | **Amiga ground layers slice 6** — `prove` L3→L4→L5 orchestrator; `import_all` modular; verify green. |
+| 2026-06 | **Amiga finalize S4 alignment** — ops bootstrap prior career + honours carry from latest snapshot before event (not `amiga_player_current`); Python + PHP + snapshot persist; policy §6 fixed. |
+| 2026-06 | **Amiga refinalize retired** — removed reopen/refinalize/warm-through/verify-php-finalize-parity; derived repair = `prove` only; archive [`retired-amiga-refinalize-2026-06.md`](docs/archive/retired-amiga-refinalize-2026-06.md). |
+| 2026-06 | **Amiga finalize warm-through guard** — superseded by refinalize retirement; career-games oracle kept in finalize verify. |
 | 2026-06 | **Amiga ground layers slice 5** — `apply-structure` / `verify-structure` (L4 disposition; `prove` green). |
 | 2026-06 | **Amiga ground layers slice 4** — `import-witness` / `verify-witness` (L3 witness extract; `prove` green). |
 | 2026-06 | **Amiga ground layers slice 3** — `import-prune` / `verify-prune` (L2: Scores + Tournament players + Countries). |

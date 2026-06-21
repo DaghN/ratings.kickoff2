@@ -201,31 +201,24 @@ function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGame
 }
 
 /**
- * Career read source for finalize bootstrap — stats table only (not website projection).
- */
-function amiga_ops_career_source_table(mysqli $con): string
-{
-    return 'amiga_player_current';
-}
-
-/**
- * Load all persisted career rows for tournament finalize (no per-game network SQL).
+ * Bootstrap in-memory career state from prior snapshots (S4 — not amiga_player_current).
  *
+ * @param list<int> $participantIds
  * @return array<int, array<string, mixed>>
  */
-function amiga_ops_load_player_states_for_finalize(mysqli $con): array
-{
+function amiga_ops_load_player_states_for_finalize(
+    mysqli $con,
+    int $tournamentId,
+    array $participantIds,
+): array {
+    require_once __DIR__ . '/amiga_event_snapshot_persist.php';
+
     $players = [];
-    $table = amiga_ops_career_source_table($con);
-    $res = $con->query("SELECT * FROM `{$table}`");
-    if ($res === false) {
-        throw new RuntimeException('load player states for finalize: ' . $con->error);
-    }
-    while ($row = $res->fetch_assoc()) {
-        $pid = (int) $row['player_id'];
+    foreach (
+        amiga_ops_load_prior_snapshot_rows_before_tournament($con, $tournamentId, $participantIds) as $pid => $row
+    ) {
         $players[$pid] = amiga_post_game_player_state_from_db_row($row);
     }
-    $res->free();
 
     return $players;
 }

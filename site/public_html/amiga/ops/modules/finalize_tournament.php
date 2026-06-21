@@ -273,29 +273,91 @@ function amiga_ops_apply_tournament_matchups_batch(
     }
 }
 
-/**
- * Warm in-memory career + matchup state through already-finalized tournaments (refinalize).
- *
- * @param list<int> $tournamentIds
- * @param array<int, array<string, mixed>> $players
- */
-function amiga_ops_warm_state_through_finalized(
-    mysqli $con,
-    array $tournamentIds,
-    AmigaMatchupCumulative $matchups,
-    array &$players
-): void {
-    foreach ($tournamentIds as $tournamentId) {
-        amiga_ops_apply_tournament_matchups_batch($con, (int) $tournamentId, $matchups);
-        amiga_ops_apply_tournament_stats_batch($con, (int) $tournamentId, $players);
-    }
+function amiga_ops_rated_games_through_tournament_sql(): string
+{
+    return 'SELECT sides.player_id, COUNT(*) AS rated_games '
+        . 'FROM ('
+        . '  SELECT g.id, g.player_a_id AS player_id, g.tournament_id FROM amiga_games g '
+        . '  UNION ALL '
+        . '  SELECT g.id, g.player_b_id AS player_id, g.tournament_id FROM amiga_games g'
+        . ') sides '
+        . 'INNER JOIN tournaments t ON t.id = sides.tournament_id '
+        . 'INNER JOIN tournaments tc ON tc.id = ? '
+        . 'WHERE ('
+        . '  t.event_date < tc.event_date '
+        . '  OR (t.event_date = tc.event_date AND t.chrono < tc.chrono) '
+        . '  OR (t.event_date = tc.event_date AND t.chrono = tc.chrono AND t.id <= tc.id)'
+        . ') '
+        . 'GROUP BY sides.player_id';
 }
 
 /**
  * @return list<string>
  */
-function amiga_ops_verify_tournament_finalize(mysqli $con, int $tournamentId): array
+function amiga_ops_career_games_snapshot_mismatch_errors(mysqli $con, int $tournamentId): array
 {
+    $errors = [];
+    $gamesThrough = amiga_ops_rated_games_through_tournament_sql();
+
+    $stmt = $con->prepare(
+        'SELECT s.player_id, s.NumberGames AS snapshot_games, g.rated_games '
+        . 'FROM amiga_player_event_snapshots s '
+        . "INNER JOIN ({$gamesThrough}) g ON g.player_id = s.player_id "
+        . 'WHERE s.tournament_id = ? AND s.NumberGames <> g.rated_games LIMIT 5'
+    );
+    if ($stmt !== false) {
+        $stmt->bind_param('ii', $tournamentId, $tournamentId);
+        if ($stmt->execute()) {
+            $res = $stmt->get_result();
+            while ($res && ($row = $res->fetch_assoc())) {
+                $errors[] = 'player_id=' . (int) $row['player_id']
+                    . ' snapshot.NumberGames=' . (int) $row['snapshot_games']
+                    . ' != rated_games=' . (int) $row['rated_games'];
+            }
+            $stmt->close();
+        }
+    }
+
+    return $errors;
+}
+
+function amiga_ops_career_games_current_mismatch_errors(mysqli $con, int $tournamentId): array
+{
+    $errors = [];
+    $gamesThrough = amiga_ops_rated_games_through_tournament_sql();
+
+    $stmt = $con->prepare(
+        'SELECT c.player_id, c.NumberGames AS current_games, g.rated_games '
+        . 'FROM amiga_player_current c '
+        . 'INNER JOIN amiga_player_event_snapshots s '
+        . 'ON s.player_id = c.player_id AND s.tournament_id = ? '
+        . "INNER JOIN ({$gamesThrough}) g ON g.player_id = c.player_id "
+        . 'WHERE c.NumberGames <> g.rated_games LIMIT 5'
+    );
+    if ($stmt !== false) {
+        $stmt->bind_param('ii', $tournamentId, $tournamentId);
+        if ($stmt->execute()) {
+            $res = $stmt->get_result();
+            while ($res && ($row = $res->fetch_assoc())) {
+                $errors[] = 'player_id=' . (int) $row['player_id']
+                    . ' current.NumberGames=' . (int) $row['current_games']
+                    . ' != rated_games=' . (int) $row['rated_games'];
+            }
+            $stmt->close();
+        }
+    }
+
+    return $errors;
+}
+
+/**
+ * @return list<string>
+ */
+function amiga_ops_verify_tournament_finalize(
+    mysqli $con,
+    int $tournamentId,
+    bool $checkCurrentCareerGames = true
+): array {
     $errors = [];
 
     $stmt = $con->prepare(
@@ -377,6 +439,15 @@ function amiga_ops_verify_tournament_finalize(mysqli $con, int $tournamentId): a
         $summed = round($deltaByPlayer[$pid] ?? 0.0, 6);
         if (abs($summed - $rd) > 1e-5) {
             $errors[] = "player_id={$pid} sum(adjustments)={$summed} != rating_delta={$rd}";
+        }
+    }
+
+    foreach (amiga_ops_career_games_snapshot_mismatch_errors($con, $tournamentId) as $err) {
+        $errors[] = $err;
+    }
+    if ($checkCurrentCareerGames) {
+        foreach (amiga_ops_career_games_current_mismatch_errors($con, $tournamentId) as $err) {
+            $errors[] = $err;
         }
     }
 
@@ -484,7 +555,7 @@ function amiga_finalize_tournament(
 
     $participantIds = amiga_ops_tournament_participant_ids($games);
     if ($players === null) {
-        $players = amiga_ops_load_player_states_for_finalize($con);
+        $players = amiga_ops_load_player_states_for_finalize($con, $tournamentId, $participantIds);
     }
     foreach ($participantIds as $pid) {
         if (!isset($players[$pid])) {

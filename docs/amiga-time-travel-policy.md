@@ -126,6 +126,8 @@ Same behaviour as rating history pilot: prev/next step within active wing; jump 
 
 **Ribbon (when `as=` active):** compact bar **above** hub or player nav — one row: **Year | Month | Event** segments · chevrons + snapshot label · listbox picker. No separate title line; no entry link below hub; no exit link (Present day segment replaces it).
 
+**Table sort carry:** same-path ribbon navigation preserves active `k2_sort` / `k2_dir` (PHP hrefs + picker; JS refreshes ribbon after column sort). Cross-page links (hub tabs, other wings) do not carry sort indices.
+
 When inactive: header segment only; no ribbon below/above nav.
 
 ### 5.2 Copy rules

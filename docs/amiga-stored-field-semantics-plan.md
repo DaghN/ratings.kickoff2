@@ -42,9 +42,9 @@ Use these labels in the manifest — same idea as SCH-029 D1–D10:
 | **A** | Manifest + backlog | `docs/amiga-stored-field-semantics.md` — table of id/date fields on snapshots, current, realm snapshots, `generalstats`; column: meaning, Python writer, PHP writer, verify coverage (yes/no/planned); ranked **unverified backlog** | **Done** — Jun 2026 |
 | **B** | Holder projection verify | Extend or add `verify_*` — every career HoF `*ID` / `*Date` on `generalstats` + latest realm vs holder row canonical source (generalize SCH-029 eight rows + older `server_records` holders) | **Done** — Jun 2026 (`verify_hof_holder_projection.py` in `prove`) |
 | **C** | Id/date pairing + manifest gaps | Invariant: non-null `*_tournament_id` ↔ consistent `*_event_date` (and tournament exists); close top manifest **no** rows with unit tests or verify slices | **Done** — Jun 2026 (`verify_stored_id_date_pairs.py` in `prove`) |
-| **D** | PHP parity smoke (optional) | `verify-php-finalize-parity` — fixed tournament **reopen+finalize** (Python oracle vs PHP snapshot/HoF columns); in `prove` | **Done** — Jun 2026 (Athens XCII / T24 / Alkis rise) |
+| **D** | PHP parity smoke (optional) | ~~`verify-php-finalize-parity`~~ — **retired** with refinalize (Jun 2026) | **Retired** — use `prove` |
 
-**Suggested v1 sign-off:** Phases **A + B** first. **C** when B is green. **D** when PHP finalize is routine on staging.
+**Suggested v1 sign-off:** Phases **A + B + C** in `prove`.
 
 ---
 

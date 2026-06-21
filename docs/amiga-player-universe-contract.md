@@ -487,7 +487,7 @@ Steps 2 are idempotent. They must not mutate ground truth.
 |--------|---------|
 | Result entry | `amiga_games`, standings for touched tournament |
 | Finalize tournament | game ratings, snapshots + current, matchup at-event + summary, network + peaks on career block, realm snapshot + `amiga_generalstats` |
-| Standings-only correction | standings → refinalize-from tournament *T* forward (`prove` preferred) |
+| Standings-only correction | standings rebuild + `python -m scripts.amiga prove` if ratings/snapshots affected |
 
 ### Parity gates (add to verify suite)
 

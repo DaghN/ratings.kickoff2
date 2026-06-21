@@ -149,7 +149,9 @@ def verify_rating_events(conn: pymysql.connections.Connection) -> list[str]:
         finalized_ids = [int(row["id"]) for row in cur.fetchall()]
 
     for tournament_id in finalized_ids:
-        errors.extend(verify_tournament_finalize(conn, tournament_id))
+        errors.extend(
+            verify_tournament_finalize(conn, tournament_id, check_current_career_games=False)
+        )
 
     return errors
 

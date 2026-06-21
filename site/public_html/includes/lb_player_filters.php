@@ -65,21 +65,9 @@ function k2_lb_player_where_sql_for_alias(string $alias, ?array $opts = null): s
  */
 function k2_lb_sort_query_params(): array
 {
-    if (!isset($_GET['k2_sort'])) {
-        return [];
-    }
+    require_once __DIR__ . '/k2_table_helpers.php';
 
-    $sort = filter_var($_GET['k2_sort'], FILTER_VALIDATE_INT);
-    if ($sort === false || $sort < 0) {
-        return [];
-    }
-
-    $dir = isset($_GET['k2_dir']) && $_GET['k2_dir'] === 'asc' ? 'asc' : 'desc';
-
-    return [
-        'k2_sort' => (string) $sort,
-        'k2_dir' => $dir,
-    ];
+    return k2_table_sort_query_params();
 }
 
 /**

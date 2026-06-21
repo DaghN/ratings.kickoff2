@@ -119,8 +119,8 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
 ## 6. Finalize writer (conceptual)
 
 ```text
-1. Load prior career from `amiga_player_current` (or empty); entry Elo from last snapshot before this event;
-   prior career-best from latest prior snapshot (not current row alone)
+1. Load prior career from latest snapshot strictly before this event (empty for debutants);
+   entry Elo from last snapshot before this event; prior career-best from same prior snapshot
 2. Process tournament games (frozen within-event Elo) → `amiga_game_ratings` rows
 3. Build in-memory event rating commits; update PlayerState; standings + catalog for this event
 4. Build participation-shaped rows in memory; derive network + peaks from cumulative matchups; for each active participant:
@@ -133,9 +133,7 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
 
 **Batch replay:** loop finalize only — **no** `commit_heavy_player_derived` or matchup/generalstats/catalog tail batches at end.
 
-**Proof path:** `python -m scripts.amiga prove` — nuclear reset + replay + verify suite. Reopen + single finalize without full rewind is unsafe for derived truth.
-
-Refinalize tournament *T*: rewrite snapshot(s) at *T*, then **forward-recalculate** snapshots for later events for affected players (inherent to cumulative truth — not introduced by this design).
+**Proof path:** `python -m scripts.amiga prove` — nuclear reset + replay + verify suite. Partial derived repair (reopen + single finalize) is **retired** — unsafe for cumulative truth ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)).
 
 ---
 

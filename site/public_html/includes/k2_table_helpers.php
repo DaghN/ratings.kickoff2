@@ -47,3 +47,60 @@ function k2_table_body_td_attr(int $colIndex, int $anchorCol, int $defaultSortCo
 
     return $class === '' ? '' : ' class="' . k2_h($class) . '"';
 }
+
+/** Optional ranked-table sort from query string (`k2_sort` / `k2_dir`, 0-based column index). */
+function k2_table_sort_query_params(): array
+{
+    if (!isset($_GET['k2_sort'])) {
+        return [];
+    }
+
+    $sort = filter_var($_GET['k2_sort'], FILTER_VALIDATE_INT);
+    if ($sort === false || $sort < 0) {
+        return [];
+    }
+
+    $dir = isset($_GET['k2_dir']) && $_GET['k2_dir'] === 'asc' ? 'asc' : 'desc';
+
+    return [
+        'k2_sort' => (string) $sort,
+        'k2_dir' => $dir,
+    ];
+}
+
+function k2_table_path_only(string $path): string
+{
+    $qPos = strpos($path, '?');
+
+    return $qPos !== false ? substr($path, 0, $qPos) : $path;
+}
+
+/**
+ * Carry active table sort onto same-path navigation (time-travel chevrons, etc.).
+ *
+ * @param array<string, scalar|null> $query
+ * @return array<string, scalar|null>
+ */
+function k2_table_merge_sort_query_for_path(string $targetPath, array $query): array
+{
+    $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    if (!is_string($currentPath) || $currentPath === '') {
+        return $query;
+    }
+    if (k2_table_path_only($targetPath) !== $currentPath) {
+        return $query;
+    }
+
+    return array_merge($query, k2_table_sort_query_params());
+}
+
+/** Default sort column for SSR when URL carries k2_sort on this request. */
+function k2_table_default_sort_col_from_request(int $fallback): int
+{
+    $params = k2_table_sort_query_params();
+    if ($params === []) {
+        return $fallback;
+    }
+
+    return (int) $params['k2_sort'];
+}

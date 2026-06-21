@@ -468,12 +468,10 @@ Shared Elo: continue `scripts/ladder/elo.py` / `post_game_elo.php` for formula; 
 - [x] Profile chart update (one point per rating event)
 - [x] Game page: show `adjustment_*` and frozen `rating_*` from `amiga_game_ratings`
 
-### Slice 6 — Corrections & refinalize
+### Slice 6 — Corrections (retired Jun 2026)
 
-- [x] `reopen-tournament --tournament-id=T` (Python + PHP CLI)
-- [x] `refinalize-from --tournament-id=T` rebuild-forward through later tournaments
 - [x] Fixtures ops guardrails when `rating_finalized`
-- [x] Smoke: `python scripts/amiga/refinalize_smoke.py`
+- [x] ~~`reopen-tournament` / `refinalize-from`~~ — **removed**; repair = `prove` only — [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
 
 ### Slice 5 — Optional enhancements
 
@@ -542,10 +540,7 @@ This contract reflects alignment (Jun 2026) on:
 **Verification (oracle):**
 
 ```powershell
-python -m scripts.amiga replay
-python -m scripts.amiga verify-chronology
-python -m scripts.amiga verify-rating-events
-python -m scripts.amiga refinalize-smoke
+python -m scripts.amiga prove
 php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
 ```
 
