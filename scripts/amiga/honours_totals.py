@@ -137,3 +137,11 @@ def honours_from_current_row(row: dict[str, Any]) -> dict[str, Any]:
         out[f"{metric}_last_rise_tournament_id"] = row.get(f"{metric}_last_rise_tournament_id")
         out[f"{metric}_last_rise_event_date"] = row.get(f"{metric}_last_rise_event_date")
     return out
+
+
+def honours_from_snapshot_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Map prior ``amiga_player_event_snapshots`` honours block to totals dict shape."""
+    mapped = dict(row)
+    mapped["last_event_date"] = row.get("honours_last_event_date")
+    mapped["last_tournament_id"] = row.get("honours_last_tournament_id")
+    return honours_from_current_row(mapped)

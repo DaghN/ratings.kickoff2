@@ -44,6 +44,16 @@ class RealmHolderDateTests(unittest.TestCase):
         self.assertEqual(patch["MostTournamentWinsID"], 14)
         self.assertEqual(patch["MostTournamentWinsDate"], "2025-09-20")
 
+    def test_most_games_played_uses_career_rise_date(self) -> None:
+        row = {
+            "player_id": 5,
+            "player_name": "Leader",
+            "NumberGames": 500,
+            "number_games_last_rise_event_date": date(2015, 7, 10),
+            "last_event_date": date(2024, 12, 1),
+        }
+        self.assertEqual(_holder_record_date("MostGamesPlayed", row), "2015-07-10")
+
 
 if __name__ == "__main__":
     unittest.main()

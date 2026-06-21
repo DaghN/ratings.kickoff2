@@ -5,6 +5,13 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+from scripts.amiga.career_rise import (
+    CAREER_RISE_PLAYER_COLUMNS,
+    apply_career_rise_fields,
+    career_rise_from_row,
+    empty_career_rise_state,
+    prior_career_values_from_row,
+)
 from scripts.amiga.generalstats_columns import (
     GEO_RISE_PLAYER_COLUMNS,
     GEO_YEAR_PLAYER_COLUMNS,
@@ -207,6 +214,7 @@ def build_event_snapshot_row(
     career_best_performance_rating: float | None,
     career_best_performance_tournament_id: int | None,
     geo_year_scalars: dict[str, Any] | None = None,
+    career_rise: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Assemble one ``amiga_player_event_snapshots`` insert dict.
@@ -248,6 +256,9 @@ def build_event_snapshot_row(
         row[key] = geo_year_scalars.get(key)
     for key in HONOURS_RISE_PLAYER_COLUMNS:
         row[key] = honours.get(key)
+    rise = career_rise if career_rise is not None else empty_career_rise_state()
+    for key in CAREER_RISE_PLAYER_COLUMNS:
+        row[key] = rise.get(key)
 
     missing = [col for col in SNAPSHOT_COLUMNS if col not in row]
     if missing:
@@ -334,6 +345,7 @@ def build_snapshot_from_finalize_parts(
     prior_career_best_performance_tournament_id: int | None = None,
     prior_career_best_games: int = 0,
     geo_year_scalars: dict[str, Any] | None = None,
+    prior_career_row: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """
   Convenience for finalize: participation + PlayerState + totals → (snapshot, current).
@@ -347,6 +359,15 @@ def build_snapshot_from_finalize_parts(
 
     career = career_columns_from_player_state(player_id, player_state)
     honours = honours_columns_from_totals_row(honours_totals)
+    prior_career = prior_career_values_from_row(prior_career_row or {})
+    rise_state = career_rise_from_row(prior_career_row or {})
+    career_rise = apply_career_rise_fields(
+        rise_state,
+        prior_career,
+        career,
+        tournament_id=tournament_id,
+        event_date=participation.get("event_date"),
+    )
     best_rating, best_tid = career_best_performance_fields(
         performance_rating=perf,
         tournament_id=tournament_id,
@@ -362,5 +383,6 @@ def build_snapshot_from_finalize_parts(
         career_best_performance_rating=best_rating,
         career_best_performance_tournament_id=best_tid,
         geo_year_scalars=geo_year_scalars,
+        career_rise=career_rise,
     )
     return snapshot, current_row_from_snapshot(snapshot)

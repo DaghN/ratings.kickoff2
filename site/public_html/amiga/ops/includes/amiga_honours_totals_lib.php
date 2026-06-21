@@ -173,3 +173,16 @@ function amiga_honours_totals_from_current_row(array $row): array
 
     return $out;
 }
+
+/**
+ * @param array<string, mixed> $row
+ * @return array<string, mixed>
+ */
+function amiga_honours_totals_from_snapshot_row(array $row): array
+{
+    $mapped = $row;
+    $mapped['last_event_date'] = $row['honours_last_event_date'] ?? null;
+    $mapped['last_tournament_id'] = $row['honours_last_tournament_id'] ?? null;
+
+    return amiga_honours_totals_from_current_row($mapped);
+}

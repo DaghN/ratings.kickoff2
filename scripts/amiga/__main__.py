@@ -48,6 +48,9 @@ from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
 from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_main
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
+from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
+from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
+from scripts.amiga.verify_php_finalize_parity import main as verify_php_finalize_parity_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.import_manifest import default_manifest_path
 from scripts.amiga.verify_witness import verify_witness
@@ -345,6 +348,18 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "verify-hof-geo-year",
         help="Assert geo/year player scalars + HoF holders (hof-tournament-geo policy)",
+    )
+    sub.add_parser(
+        "verify-hof-holder-projection",
+        help="Assert HoF holder projection vs independent oracles (stored-field semantics Phase B)",
+    )
+    sub.add_parser(
+        "verify-stored-id-date-pairs",
+        help="Assert rise/honours id-date pairing + career-best replay (stored-field semantics Phase C)",
+    )
+    sub.add_parser(
+        "verify-php-finalize-parity",
+        help="PHP reopen+finalize vs Python oracle on Alkis rise anchor T24 (stored-field semantics Phase D)",
     )
 
     sub.add_parser(
@@ -680,6 +695,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-hof-geo-year":
         return verify_hof_geo_year_main()
+
+    if args.cmd == "verify-hof-holder-projection":
+        return verify_hof_holder_projection_main()
+
+    if args.cmd == "verify-stored-id-date-pairs":
+        return verify_stored_id_date_pairs_main()
+
+    if args.cmd == "verify-php-finalize-parity":
+        return verify_php_finalize_parity_main()
 
     if args.cmd == "verify-player-participation":
         return verify_player_participation_main()

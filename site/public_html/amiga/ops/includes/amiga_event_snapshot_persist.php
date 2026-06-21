@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
 require_once __DIR__ . '/../includes/amiga_honours_totals_lib.php';
+require_once __DIR__ . '/../includes/amiga_career_rise_lib.php';
 require_once dirname(__DIR__, 3) . '/ops/includes/post_game_player_state.php';
 
 /**
@@ -68,7 +69,11 @@ function amiga_ops_snapshot_geo_year_columns(): array
  */
 function amiga_ops_snapshot_rise_columns(): array
 {
-    return array_merge(amiga_honours_rise_player_columns(), amiga_geo_rise_player_columns());
+    return array_merge(
+        amiga_honours_rise_player_columns(),
+        amiga_geo_rise_player_columns(),
+        amiga_career_rise_player_columns(),
+    );
 }
 
 /**
@@ -297,6 +302,70 @@ function amiga_ops_apply_geo_year_to_snapshot(array $snapshot, array $geoScalars
 }
 
 /**
+ * @param list<int> $playerIds
+ * @return array<int, array<string, mixed>>
+ */
+function amiga_ops_load_prior_snapshot_carry_before_tournament(
+    mysqli $con,
+    int $tournamentId,
+    array $playerIds,
+): array {
+    if ($playerIds === []) {
+        return [];
+    }
+    $placeholders = implode(', ', array_fill(0, count($playerIds), '?'));
+    $types = str_repeat('i', count($playerIds));
+    $careerValueCols = array_map(
+        static fn (array $spec): string => $spec[0],
+        AMIGA_CAREER_RISE_SPECS,
+    );
+    $careerColsSql = implode(', ', array_map(static fn (string $c): string => "s.`{$c}`", $careerValueCols));
+    $riseCols = implode(', ', array_map(static fn (string $c): string => "s.`{$c}`", amiga_ops_snapshot_rise_columns()));
+    $sql = 'SELECT s.player_id, s.tournaments_played, s.tournaments_won, '
+        . 's.event_gold, s.event_silver, s.event_bronze, s.event_podiums, '
+        . 's.wc_played, s.wc_gold, s.wc_silver, s.wc_bronze, s.wc_podiums, '
+        . 's.honours_last_event_date, s.honours_last_tournament_id, '
+        . $careerColsSql . ', ' . $riseCols . ' '
+        . 'FROM ('
+        . '  SELECT s_inner.*, '
+        . '         ROW_NUMBER() OVER ('
+        . '           PARTITION BY s_inner.player_id '
+        . '           ORDER BY s_inner.event_date DESC, s_inner.event_chrono DESC, s_inner.tournament_id DESC'
+        . '         ) AS rn '
+        . '  FROM amiga_player_event_snapshots s_inner '
+        . '  INNER JOIN tournaments tc ON tc.id = ? '
+        . "  WHERE s_inner.player_id IN ({$placeholders}) "
+        . '    AND ('
+        . '      s_inner.event_date < tc.event_date '
+        . '      OR (s_inner.event_date = tc.event_date AND s_inner.event_chrono < tc.chrono) '
+        . '      OR ('
+        . '        s_inner.event_date = tc.event_date '
+        . '        AND s_inner.event_chrono = tc.chrono '
+        . '        AND s_inner.tournament_id < tc.id'
+        . '      )'
+        . '    )'
+        . ') s WHERE s.rn = 1';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare prior snapshot carry: ' . $con->error);
+    }
+    $bindTypes = 'i' . $types;
+    $bindParams = array_merge([$tournamentId], $playerIds);
+    $stmt->bind_param($bindTypes, ...$bindParams);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute prior snapshot carry: ' . $stmt->error);
+    }
+    $out = [];
+    $res = $stmt->get_result();
+    while ($res && ($row = $res->fetch_assoc())) {
+        $out[(int) $row['player_id']] = $row;
+    }
+    $stmt->close();
+
+    return $out;
+}
+
+/**
  * @param array<int, array<string, mixed>> $players
  * @param list<int> $participantIds
  */
@@ -328,11 +397,18 @@ function amiga_ops_persist_tournament_event_snapshots(
     }
 
     $totalsByPlayer = [];
-    $riseCols = implode(', ', amiga_honours_rise_player_columns());
+    $carryByPlayer = [];
+    $careerValueCols = array_map(
+        static fn (array $spec): string => $spec[0],
+        AMIGA_CAREER_RISE_SPECS,
+    );
+    $careerColsSql = implode(', ', array_map(static fn (string $c): string => "`{$c}`", $careerValueCols));
+    $riseCols = implode(', ', amiga_ops_snapshot_rise_columns());
     $sql = "SELECT player_id, tournaments_played, tournaments_won,
                    event_gold, event_silver, event_bronze, event_podiums,
                    wc_played, wc_gold, wc_silver, wc_bronze, wc_podiums,
                    last_event_date, last_tournament_id,
+                   {$careerColsSql},
                    {$riseCols}
             FROM amiga_player_current
             WHERE player_id IN ({$placeholders})";
@@ -346,9 +422,24 @@ function amiga_ops_persist_tournament_event_snapshots(
     }
     $res = $stmt->get_result();
     while ($res && ($row = $res->fetch_assoc())) {
-        $totalsByPlayer[(int) $row['player_id']] = amiga_honours_totals_from_current_row($row);
+        $pid = (int) $row['player_id'];
+        $carryByPlayer[$pid] = $row;
+        $totalsByPlayer[$pid] = amiga_honours_totals_from_current_row($row);
     }
     $stmt->close();
+
+    $missingIds = array_values(array_filter(
+        $activeIds,
+        static fn (int $pid): bool => !isset($carryByPlayer[$pid])
+    ));
+    if ($missingIds !== []) {
+        foreach (amiga_ops_load_prior_snapshot_carry_before_tournament($con, $tournamentId, $missingIds) as $pid => $row) {
+            $carryByPlayer[$pid] = $row;
+            if (!isset($totalsByPlayer[$pid])) {
+                $totalsByPlayer[$pid] = amiga_honours_totals_from_snapshot_row($row);
+            }
+        }
+    }
 
     $priorBest = [];
     $sql = 'SELECT ranked.player_id, ranked.career_best_performance_rating, '
@@ -432,6 +523,15 @@ function amiga_ops_persist_tournament_event_snapshots(
         $careerDbRow = k2_post_game_player_to_db_row($players[$pid], $pid);
         unset($careerDbRow['ID']);
 
+        $carry = $carryByPlayer[$pid] ?? [];
+        $careerRise = amiga_career_apply_rise_fields(
+            amiga_career_rise_from_row($carry),
+            amiga_career_prior_values_from_row($carry),
+            $careerDbRow,
+            $tournamentId,
+            $participation['event_date'] ?? null,
+        );
+
         $snapshot = amiga_ops_build_event_snapshot_row(
             $participation,
             $careerDbRow,
@@ -439,6 +539,9 @@ function amiga_ops_persist_tournament_event_snapshots(
             $bestRating,
             $bestTid
         );
+        foreach ($careerRise as $col => $val) {
+            $snapshot[$col] = $val;
+        }
         $geoScalars = $geoTracker->scalarsFor($pid, $playerCountries[$pid] ?? null);
         $snapshot = amiga_ops_apply_geo_year_to_snapshot($snapshot, $geoScalars);
         $current = amiga_ops_current_row_from_snapshot($snapshot);

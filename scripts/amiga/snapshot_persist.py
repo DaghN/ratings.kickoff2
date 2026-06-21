@@ -7,7 +7,12 @@ from typing import Any
 
 import pymysql
 
-from scripts.amiga.honours_totals import empty_honours_totals, honours_from_current_row
+from scripts.amiga.career_rise import CAREER_RISE_PLAYER_COLUMNS, CAREER_RISE_VALUE_COLUMNS
+from scripts.amiga.honours_totals import (
+    empty_honours_totals,
+    honours_from_current_row,
+    honours_from_snapshot_row,
+)
 from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
 from scripts.amiga.snapshot_row import (
     build_snapshot_from_finalize_parts,
@@ -79,7 +84,7 @@ def _prior_career_best_context(
     return out
 
 
-def _load_honours_from_current(
+def _load_snapshot_carry_from_current(
     conn: pymysql.connections.Connection,
     player_ids: list[int],
 ) -> dict[int, dict[str, Any]]:
@@ -87,6 +92,8 @@ def _load_honours_from_current(
         return {}
 
     placeholders = ", ".join(["%s"] * len(player_ids))
+    career_cols = ", ".join(f"`{c}`" for c in CAREER_RISE_VALUE_COLUMNS)
+    rise_cols = ", ".join(CAREER_RISE_PLAYER_COLUMNS)
     with conn.cursor() as cur:
         cur.execute(
             f"""
@@ -99,14 +106,80 @@ def _load_honours_from_current(
                    event_gold_last_rise_tournament_id,
                    event_gold_last_rise_event_date,
                    wc_played_last_rise_tournament_id,
-                   wc_played_last_rise_event_date
+                   wc_played_last_rise_event_date,
+                   {career_cols},
+                   {rise_cols}
             FROM amiga_player_current
             WHERE player_id IN ({placeholders})
             """,
             player_ids,
         )
         rows = cur.fetchall()
-    return {int(row["player_id"]): honours_from_current_row(row) for row in rows}
+    return {int(row["player_id"]): dict(row) for row in rows}
+
+
+def _load_prior_snapshot_carry_before_tournament(
+    conn: pymysql.connections.Connection,
+    player_ids: list[int],
+    tournament_id: int,
+) -> dict[int, dict[str, Any]]:
+    if not player_ids:
+        return {}
+
+    placeholders = ", ".join(["%s"] * len(player_ids))
+    career_cols = ", ".join(f"s.`{c}`" for c in CAREER_RISE_VALUE_COLUMNS)
+    rise_cols = ", ".join(f"s.`{c}`" for c in CAREER_RISE_PLAYER_COLUMNS)
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT s.player_id, s.tournaments_played, s.tournaments_won,
+                   s.event_gold, s.event_silver, s.event_bronze, s.event_podiums,
+                   s.wc_played, s.wc_gold, s.wc_silver, s.wc_bronze, s.wc_podiums,
+                   s.honours_last_event_date, s.honours_last_tournament_id,
+                   s.tournaments_played_last_rise_tournament_id,
+                   s.tournaments_played_last_rise_event_date,
+                   s.event_gold_last_rise_tournament_id,
+                   s.event_gold_last_rise_event_date,
+                   s.wc_played_last_rise_tournament_id,
+                   s.wc_played_last_rise_event_date,
+                   {career_cols},
+                   {rise_cols}
+            FROM (
+                SELECT s_inner.*,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY s_inner.player_id
+                           ORDER BY s_inner.event_date DESC, s_inner.event_chrono DESC,
+                                    s_inner.tournament_id DESC
+                       ) AS rn
+                FROM amiga_player_event_snapshots s_inner
+                INNER JOIN tournaments tc ON tc.id = %s
+                WHERE s_inner.player_id IN ({placeholders})
+                  AND (
+                    s_inner.event_date < tc.event_date
+                    OR (s_inner.event_date = tc.event_date AND s_inner.event_chrono < tc.chrono)
+                    OR (
+                      s_inner.event_date = tc.event_date
+                      AND s_inner.event_chrono = tc.chrono
+                      AND s_inner.tournament_id < tc.id
+                    )
+                  )
+            ) s
+            WHERE s.rn = 1
+            """,
+            (tournament_id, *player_ids),
+        )
+        rows = cur.fetchall()
+    return {int(row["player_id"]): dict(row) for row in rows}
+
+
+def _load_honours_from_current(
+    conn: pymysql.connections.Connection,
+    player_ids: list[int],
+) -> dict[int, dict[str, Any]]:
+    return {
+        pid: honours_from_current_row(row)
+        for pid, row in _load_snapshot_carry_from_current(conn, player_ids).items()
+    }
 
 
 def persist_tournament_event_snapshots(
@@ -144,6 +217,20 @@ def persist_tournament_event_snapshots(
         totals_by_player = honours_by_player
     else:
         totals_by_player = _load_honours_from_current(conn, active_ids)
+
+    carry_by_player = _load_snapshot_carry_from_current(conn, active_ids)
+    missing_carry = [pid for pid in active_ids if pid not in carry_by_player]
+    if missing_carry:
+        carry_by_player.update(
+            _load_prior_snapshot_carry_before_tournament(conn, missing_carry, tournament_id)
+        )
+
+    if honours_by_player is None:
+        missing_honours = [pid for pid in active_ids if pid not in totals_by_player]
+        for pid, row in _load_prior_snapshot_carry_before_tournament(
+            conn, missing_honours, tournament_id
+        ).items():
+            totals_by_player[pid] = honours_from_snapshot_row(row)
 
     if prior_career_best is None:
         prior_best = _prior_career_best_context(conn, active_ids, tournament_id)
@@ -197,6 +284,7 @@ def persist_tournament_event_snapshots(
                 if geo_year is not None
                 else None
             ),
+            prior_career_row=carry_by_player.get(pid),
         )
         snapshot_rows.append(snapshot)
         current_rows.append(current)

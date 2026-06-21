@@ -6,6 +6,7 @@ from typing import Any
 
 import pymysql
 
+from scripts.amiga.career_rise import HOF_PREFIX_TO_CAREER_RISE_DATE
 from scripts.amiga.generalstats_columns import GENERALSTATS_PAYLOAD_COLUMNS
 from scripts.amiga.realm_cutoff import RealmCutoff, cutoff_params, game_cutoff_sql, load_realm_cutoff
 from scripts.amiga.server_records import (
@@ -33,6 +34,7 @@ _HOLDER_DATE_FIELD: dict[str, str] = {
     "MostCountriesPlayedIn": "countries_played_in_last_rise_event_date",
     "MostOpponentCountriesFaced": "opponent_countries_faced_last_rise_event_date",
     "MostOpponentCountriesBeaten": "opponent_countries_beaten_last_rise_event_date",
+    **HOF_PREFIX_TO_CAREER_RISE_DATE,
 }
 
 

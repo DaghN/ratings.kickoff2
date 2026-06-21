@@ -279,7 +279,7 @@ function amiga_geo_year_tracker_through_tournament(mysqli $con, int $throughTour
     $stmt = $con->prepare(
         'SELECT tc.event_date, tc.chrono, tc.id, tc.country
          FROM tournaments tc
-         WHERE tc.rating_finalized = 1
+         WHERE (tc.rating_finalized = 1 OR tc.id = ?)
            AND (tc.event_date, tc.chrono, tc.id) <= (
                SELECT t.event_date, t.chrono, t.id FROM tournaments t WHERE t.id = ? LIMIT 1
            )
@@ -288,7 +288,7 @@ function amiga_geo_year_tracker_through_tournament(mysqli $con, int $throughTour
     if ($stmt === false) {
         throw new RuntimeException('prepare geo tracker tournaments: ' . $con->error);
     }
-    $stmt->bind_param('i', $throughTournamentId);
+    $stmt->bind_param('ii', $throughTournamentId, $throughTournamentId);
     if (!$stmt->execute()) {
         throw new RuntimeException('execute geo tracker tournaments: ' . $con->error);
     }

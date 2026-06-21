@@ -31,6 +31,29 @@ Example: Alkis P’s 58th tournament win was **2025-09-20** (Athens XCII); HoF s
 | **D9** | Tie on value (holder selection) unchanged — strict `>`, then lowest `player_id` (H11). Date comes from the **winning holder’s** rise fields, not from tie-break logic. |
 | **D10** | Writer boundary unchanged — tournament finalize + full replay only (H12). PHP ops finalize must mirror Python. |
 
+### SCH-030 — legacy career cumulative holders (Jun 2026)
+
+| # | Rule |
+|---|------|
+| **D11** | Ten legacy career HoF rows (`MostGamesPlayed` … `BiggestRatingAscent`) use **rise-style** `*Date` = holder’s `*_last_rise_event_date` at finalize — same D2/D3/D8 grain as SCH-029 honours/geo rows. **Not** `record_date` / last-game date. |
+| **D12** | Rise fields co-stored on `amiga_player_event_snapshots` + `amiga_player_current` per metric (`number_games_last_rise_*`, …). Writer: `career_rise.py` / `amiga_career_rise_lib.php` at event finalize when career scalar strictly increases. |
+| **D13** | Realm / `amiga_generalstats` projection uses `HOF_PREFIX_TO_CAREER_RISE_DATE` map (mirrors honours/geo `_HOLDER_DATE_FIELD`). |
+
+Per-metric storage (SCH-030 DDL `030_career_rise_dates.sql` — 20 columns × snapshots + current):
+
+| HoF row | Value column | Rise fields |
+|---------|--------------|-------------|
+| MostGamesPlayed | `NumberGames` | `number_games_last_rise_tournament_id`, `number_games_last_rise_event_date` |
+| MostWins | `NumberWins` | `number_wins_last_rise_*` |
+| MostGoalsScored | `GoalsFor` | `goals_for_last_rise_*` |
+| MostDoubleDigits | `DoubleDigits` | `double_digits_last_rise_*` |
+| MostCleanSheets | `CleanSheets` | `clean_sheets_last_rise_*` |
+| MostDifferentOpponents | `DifferentOpponents` | `different_opponents_last_rise_*` |
+| MostDifferentVictims | `DifferentVictims` | `different_victims_last_rise_*` |
+| MostDoubleDigitsVictims | `DoubleDigitsVictims` | `double_digits_victims_last_rise_*` |
+| MostCleanSheetsVictims | `CleanSheetsVictims` | `clean_sheets_victims_last_rise_*` |
+| BiggestRatingAscent | `BiggestRatingAscent` | `biggest_rating_ascent_last_rise_*` |
+
 ---
 
 ## Per-metric storage (new columns on snapshots + current)
@@ -109,11 +132,12 @@ Extend `verify-hof-geo-year` (or sibling verify) to assert:
 ## Out of scope
 
 - Changing year-peak display from calendar year to event date
-- Retrofitting legacy career HoF rows (`MostGamesPlayed`, etc.) — still use `LastGameGameID` date path unless a separate track
 - Streak / play-day records (excluded from Amiga HoF per universe contract)
 
 ---
 
-## Schema id
+## Schema ids
 
 **SCH-029** — `029_hof_record_rise_dates.sql` (12 new columns × snapshots + current = 24 columns; no `generalstats` DDL — holder dates already exist).
+
+**SCH-030** — `030_career_rise_dates.sql` (20 new columns × snapshots + current = 40 columns; no `generalstats` DDL).

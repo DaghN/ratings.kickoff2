@@ -12,6 +12,13 @@ from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.finalize_tournament import GAME_SELECT_FOR_TOURNAMENT
+from scripts.amiga.career_rise import (
+    CAREER_RISE_PLAYER_COLUMNS,
+    CAREER_RISE_SPECS,
+    apply_career_rise_fields,
+    empty_career_rise_state,
+    prior_career_values_from_row,
+)
 from scripts.amiga.generalstats_columns import (
     GEO_RISE_PLAYER_COLUMNS,
     HONOURS_RISE_PLAYER_COLUMNS,
@@ -36,7 +43,7 @@ _GEO_YEAR_COLUMNS = (
     "opponent_countries_beaten",
 )
 
-_HOF_PREFIXES = tuple(prefix for _v, _c, prefix in _CAREER_HOLDERS if prefix in {
+_HOF_GEO_HONOURS_PREFIXES = tuple(prefix for _v, _c, prefix in _CAREER_HOLDERS if prefix in {
     "MostGamesInOneYear",
     "MostTournamentsInOneYear",
     "MostTournamentsPlayed",
@@ -46,6 +53,8 @@ _HOF_PREFIXES = tuple(prefix for _v, _c, prefix in _CAREER_HOLDERS if prefix in 
     "MostOpponentCountriesFaced",
     "MostOpponentCountriesBeaten",
 })
+_CAREER_RISE_HOF_PREFIXES = tuple(spec[2] for spec in CAREER_RISE_SPECS)
+_HOF_PREFIXES = _HOF_GEO_HONOURS_PREFIXES + _CAREER_RISE_HOF_PREFIXES
 
 
 def _norm_date(value: Any) -> str | None:
@@ -165,9 +174,41 @@ def _oracle_geo_by_player(conn: pymysql.connections.Connection) -> dict[int, dic
     return out
 
 
+def _oracle_career_rise_by_player(conn: pymysql.connections.Connection) -> dict[int, dict[str, Any]]:
+    rise_by_player: dict[int, dict[str, Any]] = {}
+    career_by_player: dict[int, dict[str, int | float]] = {}
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT s.*, t.event_date
+            FROM amiga_player_event_snapshots s
+            INNER JOIN tournaments t ON t.id = s.tournament_id
+            WHERE t.rating_finalized = 1
+            ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, s.player_id ASC
+            """
+        )
+        rows = cur.fetchall()
+
+    for row in rows:
+        pid = int(row["player_id"])
+        prior_career = career_by_player.get(pid, prior_career_values_from_row({}))
+        rise_state = rise_by_player.get(pid, empty_career_rise_state())
+        new_career = prior_career_values_from_row(row)
+        rise_by_player[pid] = apply_career_rise_fields(
+            rise_state,
+            prior_career,
+            new_career,
+            tournament_id=int(row["tournament_id"]),
+            event_date=row.get("event_date"),
+        )
+        career_by_player[pid] = new_career
+    return rise_by_player
+
+
 def _expected_rise_fields(
     honours_oracle: dict[int, dict[str, Any]],
     geo_oracle: dict[int, dict[str, int | None]],
+    career_rise_oracle: dict[int, dict[str, Any]],
     player_id: int,
 ) -> dict[str, Any]:
     expected: dict[str, Any] = {}
@@ -177,6 +218,9 @@ def _expected_rise_fields(
     geo = geo_oracle.get(player_id, {})
     for col in GEO_RISE_PLAYER_COLUMNS:
         expected[col] = geo.get(col) if geo else None
+    career = career_rise_oracle.get(player_id, {})
+    for col in CAREER_RISE_PLAYER_COLUMNS:
+        expected[col] = career.get(col)
     return expected
 
 
@@ -212,6 +256,7 @@ def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
 
     honours_oracle = _oracle_honours_by_player(conn)
     geo_oracle = _oracle_geo_by_player(conn)
+    career_rise_oracle = _oracle_career_rise_by_player(conn)
 
     with conn.cursor() as cur:
         cur.execute(
@@ -244,10 +289,10 @@ def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
         )
         rise_current = {int(row["player_id"]): row for row in cur.fetchall()}
 
-    rise_pids = set(rise_current) | set(honours_oracle) | set(geo_oracle)
+    rise_pids = set(rise_current) | set(honours_oracle) | set(geo_oracle) | set(career_rise_oracle)
     for pid in sorted(rise_pids):
         stored = rise_current.get(pid, {})
-        expected = _expected_rise_fields(honours_oracle, geo_oracle, pid)
+        expected = _expected_rise_fields(honours_oracle, geo_oracle, career_rise_oracle, pid)
         for col in RECORD_RISE_PLAYER_COLUMNS:
             stored_val = stored.get(col) if stored else None
             exp_val = expected.get(col)

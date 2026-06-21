@@ -213,14 +213,19 @@ DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/
 
 Twelve nullable columns on **`amiga_player_event_snapshots`** and **`amiga_player_current`** (identical set): per metric `{metric}_last_rise_tournament_id` + `{metric}_last_rise_event_date` for `tournaments_played`, `event_gold`, `wc_played`, `countries_played_in`, `opponent_countries_faced`, `opponent_countries_beaten`. DDL: `sql/derived/029_hof_record_rise_dates.sql`.
 
+### Career cumulative rise dates (SCH-030)
+
+Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_player_current`** (identical set): per career scalar `{prefix}_last_rise_tournament_id` + `{prefix}_last_rise_event_date` for `number_games`, `number_wins`, `goals_for`, `double_digits`, `clean_sheets`, `different_opponents`, `different_victims`, `double_digits_victims`, `clean_sheets_victims`, `biggest_rating_ascent`. DDL: `sql/derived/030_career_rise_dates.sql`.
+
 | Writer | Path |
 |--------|------|
 | Honours rise | `scripts/amiga/honours_totals.py` · `site/public_html/amiga/ops/includes/amiga_honours_totals_lib.php` |
 | Geo rise | `scripts/amiga/player_geo_year.py` · `site/public_html/amiga/ops/includes/amiga_player_geo_year_lib.php` |
+| Career rise | `scripts/amiga/career_rise.py` · `site/public_html/amiga/ops/includes/amiga_career_rise_lib.php` |
 | Snapshot persist | `snapshot_persist.py` · `amiga_event_snapshot_persist.php` |
 | HoF `*Date` projection | `realm_incremental.py` · `amiga_realm_incremental_lib.php` from holder’s `*_last_rise_event_date` |
 
-`honours_last_event_date` / `honours_last_tournament_id` stay **last participation** only. Year-peak HoF dates unchanged (`peak_year_*_year`). Verify: `verify-hof-geo-year` in `prove` (rise oracle + Alkis regression). Policy: [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md).
+`honours_last_event_date` / `honours_last_tournament_id` stay **last participation** only. Year-peak HoF dates unchanged (`peak_year_*_year`). Legacy career HoF rows (`MostGamesPlayed`, …) use rise dates per SCH-030 (not `record_date`). Verify: `verify-hof-geo-year` + `verify-hof-holder-projection` + `verify-stored-id-date-pairs` + `verify-php-finalize-parity` in `prove`. Policy: [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) D1–D13. **Broader id/date guardrails:** [`amiga-stored-field-semantics-plan.md`](amiga-stored-field-semantics-plan.md) (phases A–D) · manifest [`amiga-stored-field-semantics.md`](amiga-stored-field-semantics.md).
 
 ### Tournament format metadata
 

@@ -149,6 +149,8 @@ HONOURS_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
     "wc_played_last_rise_event_date",
 )
 
+from scripts.amiga.career_rise import CAREER_RISE_PLAYER_COLUMNS  # noqa: E402
+
 GEO_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
     "countries_played_in_last_rise_tournament_id",
     "countries_played_in_last_rise_event_date",
@@ -159,7 +161,7 @@ GEO_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
 )
 
 RECORD_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
-    HONOURS_RISE_PLAYER_COLUMNS + GEO_RISE_PLAYER_COLUMNS
+    HONOURS_RISE_PLAYER_COLUMNS + GEO_RISE_PLAYER_COLUMNS + CAREER_RISE_PLAYER_COLUMNS
 )
 
 RECORD_HOLDER_GAME_ID_COLUMNS: tuple[str, ...] = (

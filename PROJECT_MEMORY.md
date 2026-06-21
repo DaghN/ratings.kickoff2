@@ -52,6 +52,14 @@
 
 - **Amiga HoF record rise dates (Jun 2026):** **Complete (SCH-029, slices 0–8)** — per-metric `*_last_rise_*` on snapshots/current; HoF `*Date` from rise not participation; Python + PHP finalize parity; `verify-hof-geo-year` date oracle. [`amiga-hof-record-date-policy.md`](docs/amiga-hof-record-date-policy.md).
 
+- **Amiga career HoF rise dates (Jun 2026):** **Complete (SCH-030)** — ten legacy career rows (`MostGamesPlayed` … `BiggestRatingAscent`) get `*_last_rise_*` on snapshots/current; HoF `*Date` from event where scalar last rose; `verify-hof-geo-year` extended (32 rise cols + 18 HoF dates); `prove` green. Plan [`amiga-hof-career-rise-implementation-plan.md`](docs/amiga-hof-career-rise-implementation-plan.md).
+
+- **Amiga stored id/date semantics Phase B (Jun 2026):** **Complete** — `verify_hof_holder_projection` in `prove` (career source-field dates, game-anchored + ratio oracles). Manifest [`amiga-stored-field-semantics.md`](docs/amiga-stored-field-semantics.md); plan [`amiga-stored-field-semantics-plan.md`](docs/amiga-stored-field-semantics-plan.md).
+
+- **Amiga stored id/date semantics Phase C (Jun 2026):** **Complete** — `verify_stored_id_date_pairs` in `prove` (rise FK pairing, honours_last / last participation, career-best replay).
+
+- **Amiga stored id/date semantics Phase D (Jun 2026):** **Complete** — `verify_php_finalize_parity` in `prove` (Athens XCII / T24 reopen+finalize; PHP vs Python on snapshots, realm, generalstats, current); prior-snapshot carry fallback in Python + PHP persist; geo tracker includes in-flight tournament. Plan [`amiga-stored-field-semantics-plan.md`](docs/amiga-stored-field-semantics-plan.md) **A–D done**.
+
 - **Amiga ground layers L0–L5 (Jun 2026):** **Track complete (slices 1–8)** — modular `prove`, export packs, docs closure. [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md).
 
 ---
@@ -98,6 +106,12 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga stored id/date Phase D** — `verify_php_finalize_parity.py` (T24 reopen+finalize PHP vs Python); prior-snapshot carry in persist; P7 closed; `prove` green. |
+| 2026-06 | **Amiga stored id/date Phase C** — `verify_stored_id_date_pairs.py` (rise FK pairing, honours_last, last participation, career-best replay); wired in `prove`; P4–P6 closed. |
+| 2026-06 | **Amiga stored id/date Phase B** — `verify_hof_holder_projection.py` (career `_holder_record_date`, game SQL oracle + GameID dates, ratio dual oracle); wired in `prove`; manifest P2/P3 closed. |
+| 2026-06 | **Amiga SCH-030 career HoF rise dates** — `030_career_rise_dates` DDL; `career_rise.py` + PHP lib; snapshot persist + realm projection; `verify-hof-geo-year` career oracle (18 HoF dates); unit tests; `prove` green; export refreshed. |
+| 2026-06 | **Amiga stored id/date semantics Phase A** — manifest + ranked backlog in [`amiga-stored-field-semantics.md`](docs/amiga-stored-field-semantics.md). |
+| 2026-06 | **Amiga stored id/date semantics plan** — decision doc for manifest + verify phases A–D (fallback after SCH-029); [`amiga-stored-field-semantics-plan.md`](docs/amiga-stored-field-semantics-plan.md). |
 | 2026-06 | **Amiga HoF record dates slice 8 (track complete)** — docs closure; `export_ko2amiga_db.ps1`; SCH-029 shipped. Also fixed PHP `finalize_tournament` `bind_param` typo blocking refinalize. |
 | 2026-06 | **Amiga HoF record dates slice 7** — PHP `amiga_honours_totals_lib.php` + geo rise tracking + snapshot persist increment/copy rise cols (mirrors Python slices 2–4). |
 | 2026-06 | **Amiga HoF record dates slice 6** — `verify_hof_geo_year.py` rise oracle + HoF `*Date` checks + Alkis regression; full `prove` green (~5.7 min). |

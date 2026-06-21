@@ -222,6 +222,16 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
         'MostCountriesPlayedIn' => 'countries_played_in_last_rise_event_date',
         'MostOpponentCountriesFaced' => 'opponent_countries_faced_last_rise_event_date',
         'MostOpponentCountriesBeaten' => 'opponent_countries_beaten_last_rise_event_date',
+        'MostGamesPlayed' => 'number_games_last_rise_event_date',
+        'MostWins' => 'number_wins_last_rise_event_date',
+        'MostGoalsScored' => 'goals_for_last_rise_event_date',
+        'MostDoubleDigits' => 'double_digits_last_rise_event_date',
+        'MostCleanSheets' => 'clean_sheets_last_rise_event_date',
+        'MostDifferentOpponents' => 'different_opponents_last_rise_event_date',
+        'MostDifferentVictims' => 'different_victims_last_rise_event_date',
+        'MostDoubleDigitsVictims' => 'double_digits_victims_last_rise_event_date',
+        'MostCleanSheetsVictims' => 'clean_sheets_victims_last_rise_event_date',
+        'BiggestRatingAscent' => 'biggest_rating_ascent_last_rise_event_date',
     ];
     $patch = [];
     foreach ($holders as [$valueCol, $prefix]) {
