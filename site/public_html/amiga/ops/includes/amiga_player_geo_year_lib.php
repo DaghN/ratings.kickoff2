@@ -6,6 +6,41 @@
  */
 declare(strict_types=1);
 
+/** @var list<string> */
+const AMIGA_GEO_RISE_METRICS = [
+    'countries_played_in',
+    'opponent_countries_faced',
+    'opponent_countries_beaten',
+];
+
+/**
+ * @return list<string>
+ */
+function amiga_geo_rise_player_columns(): array
+{
+    $cols = [];
+    foreach (AMIGA_GEO_RISE_METRICS as $metric) {
+        $cols[] = "{$metric}_last_rise_tournament_id";
+        $cols[] = "{$metric}_last_rise_event_date";
+    }
+
+    return $cols;
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function amiga_geo_empty_rise_fields(): array
+{
+    $out = [];
+    foreach (AMIGA_GEO_RISE_METRICS as $metric) {
+        $out["{$metric}_last_rise_tournament_id"] = null;
+        $out["{$metric}_last_rise_event_date"] = null;
+    }
+
+    return $out;
+}
+
 final class AmigaPlayerGeoYearTracker
 {
     /** @var array<int, array<int, array{games: int, tournaments: int}>> */
@@ -19,6 +54,12 @@ final class AmigaPlayerGeoYearTracker
 
     /** @var array<int, array<string, true>> */
     private array $opponentBeaten = [];
+
+    /** @var array<int, array<string, int|null>> */
+    private array $riseTournamentId = [];
+
+    /** @var array<int, array<string, mixed>> */
+    private array $riseEventDate = [];
 
     public static function normalizeCountry(?string $value): ?string
     {
@@ -49,6 +90,7 @@ final class AmigaPlayerGeoYearTracker
      * @param array<int, ?string> $playerCountries
      */
     public function applyTournament(
+        int $tournamentId,
         ?string $eventDate,
         ?string $hostCountry,
         array $games,
@@ -56,6 +98,23 @@ final class AmigaPlayerGeoYearTracker
         array $participantIds,
         array $playerCountries,
     ): void {
+        $affected = [];
+        foreach ($participantIds as $pid) {
+            $pid = (int) $pid;
+            if ((int) ($gamesInEvent[$pid] ?? 0) > 0) {
+                $affected[$pid] = true;
+            }
+        }
+        foreach ($games as $game) {
+            $affected[(int) $game['idA']] = true;
+            $affected[(int) $game['idB']] = true;
+        }
+
+        $priorCounts = [];
+        foreach (array_keys($affected) as $pid) {
+            $priorCounts[$pid] = $this->displayGeoCounts($pid, $playerCountries[$pid] ?? null);
+        }
+
         $year = self::calendarYear($eventDate);
         $host = self::normalizeCountry($hostCountry);
 
@@ -102,20 +161,27 @@ final class AmigaPlayerGeoYearTracker
                 $this->opponentBeaten[$idB][$countryA] = true;
             }
         }
+
+        foreach (array_keys($affected) as $pid) {
+            $after = $this->displayGeoCounts($pid, $playerCountries[$pid] ?? null);
+            $before = $priorCounts[$pid];
+            foreach (AMIGA_GEO_RISE_METRICS as $metric) {
+                if ($after[$metric] > $before[$metric]) {
+                    $this->riseTournamentId[$pid][$metric] = $tournamentId;
+                    $this->riseEventDate[$pid][$metric] = $eventDate;
+                }
+            }
+        }
     }
 
     /**
      * @return array{
-     *   peak_year_games: int,
-     *   peak_year_games_year: ?int,
-     *   peak_year_tournaments: int,
-     *   peak_year_tournaments_year: ?int,
      *   countries_played_in: int,
      *   opponent_countries_faced: int,
      *   opponent_countries_beaten: int
      * }
      */
-    public function scalarsFor(int $playerId, ?string $ownCountry): array
+    private function displayGeoCounts(int $playerId, ?string $ownCountry): array
     {
         $own = self::normalizeCountry($ownCountry);
         $host = $this->hostCountries[$playerId] ?? [];
@@ -125,18 +191,38 @@ final class AmigaPlayerGeoYearTracker
             $faced[$own] = true;
         }
 
-        [$peakGames, $peakGamesYear] = $this->peakFor($playerId, 'games');
-        [$peakEvents, $peakEventsYear] = $this->peakFor($playerId, 'tournaments');
-
         return [
-            'peak_year_games' => $peakGames,
-            'peak_year_games_year' => $peakGamesYear,
-            'peak_year_tournaments' => $peakEvents,
-            'peak_year_tournaments_year' => $peakEventsYear,
             'countries_played_in' => count($host),
             'opponent_countries_faced' => count($faced),
             'opponent_countries_beaten' => count($this->opponentBeaten[$playerId] ?? []),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function scalarsFor(int $playerId, ?string $ownCountry): array
+    {
+        $counts = $this->displayGeoCounts($playerId, $ownCountry);
+        [$peakGames, $peakGamesYear] = $this->peakFor($playerId, 'games');
+        [$peakEvents, $peakEventsYear] = $this->peakFor($playerId, 'tournaments');
+
+        $out = [
+            'peak_year_games' => $peakGames,
+            'peak_year_games_year' => $peakGamesYear,
+            'peak_year_tournaments' => $peakEvents,
+            'peak_year_tournaments_year' => $peakEventsYear,
+            'countries_played_in' => $counts['countries_played_in'],
+            'opponent_countries_faced' => $counts['opponent_countries_faced'],
+            'opponent_countries_beaten' => $counts['opponent_countries_beaten'],
+        ] + amiga_geo_empty_rise_fields();
+
+        foreach (AMIGA_GEO_RISE_METRICS as $metric) {
+            $out["{$metric}_last_rise_tournament_id"] = $this->riseTournamentId[$playerId][$metric] ?? null;
+            $out["{$metric}_last_rise_event_date"] = $this->riseEventDate[$playerId][$metric] ?? null;
+        }
+
+        return $out;
     }
 
     /**
@@ -260,6 +346,7 @@ function amiga_geo_year_tracker_through_tournament(mysqli $con, int $throughTour
             }
         }
         $tracker->applyTournament(
+            $tid,
             $tour['event_date'] !== null ? (string) $tour['event_date'] : null,
             $tour['country'] !== null ? (string) $tour['country'] : null,
             $games,

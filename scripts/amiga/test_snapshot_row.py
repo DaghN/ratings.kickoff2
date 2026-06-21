@@ -196,12 +196,34 @@ class SnapshotRowBuildTests(unittest.TestCase):
                 "wc_podiums": 0,
                 "last_event_date": "2000-01-01",
                 "last_tournament_id": 1,
+                "tournaments_played_last_rise_tournament_id": 1,
+                "tournaments_played_last_rise_event_date": "2000-01-01",
+                "event_gold_last_rise_tournament_id": 1,
+                "event_gold_last_rise_event_date": "2000-01-01",
+            },
+            geo_year_scalars={
+                "peak_year_games": 3,
+                "peak_year_games_year": 2000,
+                "peak_year_tournaments": 1,
+                "peak_year_tournaments_year": 2000,
+                "countries_played_in": 2,
+                "opponent_countries_faced": 1,
+                "opponent_countries_beaten": 0,
+                "countries_played_in_last_rise_tournament_id": 1,
+                "countries_played_in_last_rise_event_date": "2000-01-01",
+                "opponent_countries_faced_last_rise_tournament_id": None,
+                "opponent_countries_faced_last_rise_event_date": None,
+                "opponent_countries_beaten_last_rise_tournament_id": None,
+                "opponent_countries_beaten_last_rise_event_date": None,
             },
         )
 
         self.assertEqual(snapshot["event_gold"], 1)
+        self.assertEqual(snapshot["event_gold_last_rise_tournament_id"], 1)
+        self.assertEqual(snapshot["countries_played_in_last_rise_event_date"], "2000-01-01")
         self.assertEqual(current["player_id"], 2)
         self.assertEqual(current["career_best_performance_tournament_id"], 1)
+        self.assertEqual(current["event_gold_last_rise_tournament_id"], 1)
 
 
 class SnapshotSqlTests(unittest.TestCase):

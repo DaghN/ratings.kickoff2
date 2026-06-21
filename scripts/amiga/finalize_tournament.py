@@ -472,6 +472,7 @@ def finalize_tournament(
         apply_peak_from_event_rating(players[pid], float(event_commits[pid]["rating_after"]))
 
     geo_year.apply_tournament(
+        tournament_id=tournament_id,
         event_date=tour.get("event_date"),
         host_country=tour.get("country"),
         games=games,

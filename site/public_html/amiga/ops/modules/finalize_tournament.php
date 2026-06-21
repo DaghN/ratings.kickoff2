@@ -232,7 +232,7 @@ function amiga_ops_write_game_ratings_finalize(mysqli $con, array $row): void
 
     $gameId = (int) $row['game_id'];
     $stmt->bind_param(
-        'iddddddddiiiiiiiii',
+        'iddddddddiiiiiiiiii',
         $gameId,
         $row['rating_a'],
         $row['rating_b'],

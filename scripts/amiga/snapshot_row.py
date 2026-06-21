@@ -5,7 +5,12 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from scripts.amiga.generalstats_columns import GEO_YEAR_PLAYER_COLUMNS
+from scripts.amiga.generalstats_columns import (
+    GEO_RISE_PLAYER_COLUMNS,
+    GEO_YEAR_PLAYER_COLUMNS,
+    HONOURS_RISE_PLAYER_COLUMNS,
+    RECORD_RISE_PLAYER_COLUMNS,
+)
 from scripts.ladder.player_state import PlayerState
 
 # Catalog + keys (snapshot only).
@@ -91,6 +96,7 @@ SNAPSHOT_COLUMNS: tuple[str, ...] = (
     + HONOURS_SNAPSHOT_COLUMNS
     + _CAREER_BEST_COLUMNS
     + GEO_YEAR_PLAYER_COLUMNS
+    + RECORD_RISE_PLAYER_COLUMNS
 )
 
 CURRENT_META_COLUMNS: tuple[str, ...] = (
@@ -106,6 +112,7 @@ CURRENT_COLUMNS: tuple[str, ...] = (
     + HONOURS_CURRENT_COLUMNS
     + _CAREER_BEST_COLUMNS
     + GEO_YEAR_PLAYER_COLUMNS
+    + RECORD_RISE_PLAYER_COLUMNS
 )
 
 _PARTICIPATION_TO_SNAPSHOT_EVENT: tuple[str, ...] = (
@@ -132,7 +139,7 @@ def career_columns_from_player_state(player_id: int, state: PlayerState) -> dict
 
 def honours_columns_from_totals_row(totals: dict[str, Any]) -> dict[str, Any]:
     """Map amiga_player_tournament_totals row to snapshot honours block."""
-    return {
+    row: dict[str, Any] = {
         "tournaments_played": int(totals.get("tournaments_played") or 0),
         "tournaments_won": int(totals.get("tournaments_won") or 0),
         "event_gold": int(totals.get("event_gold") or 0),
@@ -147,6 +154,9 @@ def honours_columns_from_totals_row(totals: dict[str, Any]) -> dict[str, Any]:
         "honours_last_event_date": totals.get("last_event_date"),
         "honours_last_tournament_id": totals.get("last_tournament_id"),
     }
+    for key in HONOURS_RISE_PLAYER_COLUMNS:
+        row[key] = totals.get(key)
+    return row
 
 
 def _perf_qualifies(performance_rating: float | None, games: int) -> bool:
@@ -230,8 +240,14 @@ def build_event_snapshot_row(
             "opponent_countries_faced": 0,
             "opponent_countries_beaten": 0,
         }
+        for key in GEO_RISE_PLAYER_COLUMNS:
+            geo_year_scalars[key] = None
     for key in GEO_YEAR_PLAYER_COLUMNS:
         row[key] = geo_year_scalars.get(key)
+    for key in GEO_RISE_PLAYER_COLUMNS:
+        row[key] = geo_year_scalars.get(key)
+    for key in HONOURS_RISE_PLAYER_COLUMNS:
+        row[key] = honours.get(key)
 
     missing = [col for col in SNAPSHOT_COLUMNS if col not in row]
     if missing:
@@ -261,6 +277,9 @@ def current_row_from_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
     )
 
     for key in GEO_YEAR_PLAYER_COLUMNS:
+        row[key] = snapshot.get(key)
+
+    for key in RECORD_RISE_PLAYER_COLUMNS:
         row[key] = snapshot.get(key)
 
     missing = [col for col in CURRENT_COLUMNS if col not in row]

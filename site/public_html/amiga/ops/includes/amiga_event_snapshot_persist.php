@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
+require_once __DIR__ . '/../includes/amiga_honours_totals_lib.php';
 require_once dirname(__DIR__, 3) . '/ops/includes/post_game_player_state.php';
 
 /**
@@ -65,6 +66,14 @@ function amiga_ops_snapshot_geo_year_columns(): array
 /**
  * @return list<string>
  */
+function amiga_ops_snapshot_rise_columns(): array
+{
+    return array_merge(amiga_honours_rise_player_columns(), amiga_geo_rise_player_columns());
+}
+
+/**
+ * @return list<string>
+ */
 function amiga_ops_snapshot_honours_columns(): array
 {
     return [
@@ -90,7 +99,7 @@ function amiga_ops_snapshot_honours_columns(): array
  */
 function amiga_ops_honours_columns_from_totals_row(array $totals): array
 {
-    return [
+    $row = [
         'tournaments_played' => (int) ($totals['tournaments_played'] ?? 0),
         'tournaments_won' => (int) ($totals['tournaments_won'] ?? 0),
         'event_gold' => (int) ($totals['event_gold'] ?? 0),
@@ -105,6 +114,11 @@ function amiga_ops_honours_columns_from_totals_row(array $totals): array
         'honours_last_event_date' => $totals['last_event_date'] ?? null,
         'honours_last_tournament_id' => $totals['last_tournament_id'] ?? null,
     ];
+    foreach (amiga_honours_rise_player_columns() as $col) {
+        $row[$col] = $totals[$col] ?? null;
+    }
+
+    return $row;
 }
 
 function amiga_ops_perf_qualifies(?float $performanceRating, int $games): bool
@@ -228,6 +242,10 @@ function amiga_ops_current_row_from_snapshot(array $snapshot): array
         $current[$col] = $snapshot[$col] ?? 0;
     }
 
+    foreach (amiga_ops_snapshot_rise_columns() as $col) {
+        $current[$col] = $snapshot[$col] ?? null;
+    }
+
     return $current;
 }
 
@@ -271,6 +289,9 @@ function amiga_ops_apply_geo_year_to_snapshot(array $snapshot, array $geoScalars
         }
         $snapshot[$col] = str_ends_with($col, '_year') ? null : 0;
     }
+    foreach (amiga_geo_rise_player_columns() as $col) {
+        $snapshot[$col] = $geoScalars[$col] ?? null;
+    }
 
     return $snapshot;
 }
@@ -307,10 +328,12 @@ function amiga_ops_persist_tournament_event_snapshots(
     }
 
     $totalsByPlayer = [];
+    $riseCols = implode(', ', amiga_honours_rise_player_columns());
     $sql = "SELECT player_id, tournaments_played, tournaments_won,
                    event_gold, event_silver, event_bronze, event_podiums,
                    wc_played, wc_gold, wc_silver, wc_bronze, wc_podiums,
-                   last_event_date, last_tournament_id
+                   last_event_date, last_tournament_id,
+                   {$riseCols}
             FROM amiga_player_current
             WHERE player_id IN ({$placeholders})";
     $stmt = $con->prepare($sql);
@@ -323,7 +346,7 @@ function amiga_ops_persist_tournament_event_snapshots(
     }
     $res = $stmt->get_result();
     while ($res && ($row = $res->fetch_assoc())) {
-        $totalsByPlayer[(int) $row['player_id']] = $row;
+        $totalsByPlayer[(int) $row['player_id']] = amiga_honours_totals_from_current_row($row);
     }
     $stmt->close();
 
@@ -384,21 +407,14 @@ function amiga_ops_persist_tournament_event_snapshots(
             continue;
         }
 
-        $totals = $totalsByPlayer[$pid] ?? [
-            'tournaments_played' => 0,
-            'tournaments_won' => 0,
-            'event_gold' => 0,
-            'event_silver' => 0,
-            'event_bronze' => 0,
-            'event_podiums' => 0,
-            'wc_played' => 0,
-            'wc_gold' => 0,
-            'wc_silver' => 0,
-            'wc_bronze' => 0,
-            'wc_podiums' => 0,
-            'last_event_date' => $participation['event_date'] ?? null,
-            'last_tournament_id' => $tournamentId,
-        ];
+        $totals = $totalsByPlayer[$pid] ?? amiga_honours_empty_totals();
+        if (!isset($totalsByPlayer[$pid])) {
+            $totals['last_event_date'] = $participation['event_date'] ?? null;
+            $totals['last_tournament_id'] = $tournamentId;
+        }
+
+        $eventTotals = $totals;
+        amiga_honours_increment_totals($eventTotals, $participation);
 
         $prior = $priorBest[$pid] ?? ['rating' => null, 'tournament_id' => null, 'games' => 0];
         $perf = $participation['performance_rating'] !== null
@@ -419,7 +435,7 @@ function amiga_ops_persist_tournament_event_snapshots(
         $snapshot = amiga_ops_build_event_snapshot_row(
             $participation,
             $careerDbRow,
-            amiga_ops_honours_columns_from_totals_row($totals),
+            amiga_ops_honours_columns_from_totals_row($eventTotals),
             $bestRating,
             $bestTid
         );

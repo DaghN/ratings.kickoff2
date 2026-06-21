@@ -216,12 +216,12 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
     $dateFields = [
         'MostGamesInOneYear' => 'peak_year_games_year',
         'MostTournamentsInOneYear' => 'peak_year_tournaments_year',
-        'MostTournamentsPlayed' => 'honours_last_event_date',
-        'MostTournamentWins' => 'honours_last_event_date',
-        'MostWcPlayed' => 'honours_last_event_date',
-        'MostCountriesPlayedIn' => 'honours_last_event_date',
-        'MostOpponentCountriesFaced' => 'honours_last_event_date',
-        'MostOpponentCountriesBeaten' => 'honours_last_event_date',
+        'MostTournamentsPlayed' => 'tournaments_played_last_rise_event_date',
+        'MostTournamentWins' => 'event_gold_last_rise_event_date',
+        'MostWcPlayed' => 'wc_played_last_rise_event_date',
+        'MostCountriesPlayedIn' => 'countries_played_in_last_rise_event_date',
+        'MostOpponentCountriesFaced' => 'opponent_countries_faced_last_rise_event_date',
+        'MostOpponentCountriesBeaten' => 'opponent_countries_beaten_last_rise_event_date',
     ];
     $patch = [];
     foreach ($holders as [$valueCol, $prefix]) {

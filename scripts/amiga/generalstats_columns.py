@@ -140,6 +140,28 @@ GEO_YEAR_PLAYER_COLUMNS: tuple[str, ...] = (
     "opponent_countries_beaten",
 )
 
+HONOURS_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
+    "tournaments_played_last_rise_tournament_id",
+    "tournaments_played_last_rise_event_date",
+    "event_gold_last_rise_tournament_id",
+    "event_gold_last_rise_event_date",
+    "wc_played_last_rise_tournament_id",
+    "wc_played_last_rise_event_date",
+)
+
+GEO_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
+    "countries_played_in_last_rise_tournament_id",
+    "countries_played_in_last_rise_event_date",
+    "opponent_countries_faced_last_rise_tournament_id",
+    "opponent_countries_faced_last_rise_event_date",
+    "opponent_countries_beaten_last_rise_tournament_id",
+    "opponent_countries_beaten_last_rise_event_date",
+)
+
+RECORD_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
+    HONOURS_RISE_PLAYER_COLUMNS + GEO_RISE_PLAYER_COLUMNS
+)
+
 RECORD_HOLDER_GAME_ID_COLUMNS: tuple[str, ...] = (
     "MostGoalsScoredInOneGameGameID",
     "BiggestWinDifferenceGameID",

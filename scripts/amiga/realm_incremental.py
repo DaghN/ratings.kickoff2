@@ -27,12 +27,12 @@ _CAREER_ROW_PREFIXES: list[tuple[str, str]] = [
 _HOLDER_DATE_FIELD: dict[str, str] = {
     "MostGamesInOneYear": "peak_year_games_year",
     "MostTournamentsInOneYear": "peak_year_tournaments_year",
-    "MostTournamentsPlayed": "honours_last_event_date",
-    "MostTournamentWins": "honours_last_event_date",
-    "MostWcPlayed": "honours_last_event_date",
-    "MostCountriesPlayedIn": "honours_last_event_date",
-    "MostOpponentCountriesFaced": "honours_last_event_date",
-    "MostOpponentCountriesBeaten": "honours_last_event_date",
+    "MostTournamentsPlayed": "tournaments_played_last_rise_event_date",
+    "MostTournamentWins": "event_gold_last_rise_event_date",
+    "MostWcPlayed": "wc_played_last_rise_event_date",
+    "MostCountriesPlayedIn": "countries_played_in_last_rise_event_date",
+    "MostOpponentCountriesFaced": "opponent_countries_faced_last_rise_event_date",
+    "MostOpponentCountriesBeaten": "opponent_countries_beaten_last_rise_event_date",
 }
 
 
@@ -40,8 +40,6 @@ def _holder_record_date(prefix: str, row: dict[str, Any]) -> str | None:
     field = _HOLDER_DATE_FIELD.get(prefix)
     if field in ("peak_year_games_year", "peak_year_tournaments_year"):
         return year_period_end(row.get(field))
-    if field == "honours_last_event_date":
-        return _fmt_date(row.get("honours_last_event_date") or row.get("last_event_date"))
     if field:
         return _fmt_date(row.get(field))
     return _fmt_date(row.get("record_date"))

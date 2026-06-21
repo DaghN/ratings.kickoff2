@@ -6,6 +6,13 @@ from collections import defaultdict
 from datetime import date, datetime
 from typing import Any
 
+# Geography metrics tracked for HoF last-rise dates (policy: amiga-hof-record-date-policy.md).
+GEO_RISE_METRICS: tuple[str, ...] = (
+    "countries_played_in",
+    "opponent_countries_faced",
+    "opponent_countries_beaten",
+)
+
 
 def normalize_country(value: Any) -> str | None:
     if value is None:
@@ -33,6 +40,14 @@ def year_period_end(year: int | None) -> str | None:
     return f"{int(year)}-12-31"
 
 
+def _empty_rise_fields() -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for metric in GEO_RISE_METRICS:
+        out[f"{metric}_last_rise_tournament_id"] = None
+        out[f"{metric}_last_rise_event_date"] = None
+    return out
+
+
 class PlayerGeoYearTracker:
     """Incremental year buckets + geography sets carried across tournament finalize."""
 
@@ -43,11 +58,13 @@ class PlayerGeoYearTracker:
         self._host_countries: dict[int, set[str]] = defaultdict(set)
         self._opponent_faced: dict[int, set[str]] = defaultdict(set)
         self._opponent_beaten: dict[int, set[str]] = defaultdict(set)
-        self._last_event_date: dict[int, Any] = {}
+        self._rise_tournament_id: dict[int, dict[str, int | None]] = defaultdict(dict)
+        self._rise_event_date: dict[int, dict[str, Any]] = defaultdict(dict)
 
     def apply_tournament(
         self,
         *,
+        tournament_id: int,
         event_date: Any,
         host_country: Any,
         games: list[dict[str, Any]],
@@ -55,6 +72,19 @@ class PlayerGeoYearTracker:
         participant_ids: set[int],
         player_countries: dict[int, str | None],
     ) -> None:
+        affected: set[int] = set()
+        for pid in participant_ids:
+            if int(games_in_event.get(pid, 0) or 0) > 0:
+                affected.add(int(pid))
+        for game in games:
+            affected.add(int(game["idA"]))
+            affected.add(int(game["idB"]))
+
+        prior_counts = {
+            pid: self._display_geo_counts(pid, player_countries.get(pid))
+            for pid in affected
+        }
+
         year = calendar_year(event_date)
         host = normalize_country(host_country)
 
@@ -72,8 +102,6 @@ class PlayerGeoYearTracker:
                 bucket = self._year_buckets[pid][year]
                 bucket["games"] += games_n
                 bucket["tournaments"] += 1
-            if event_date is not None:
-                self._last_event_date[pid] = event_date
 
         for game in games:
             id_a = int(game["idA"])
@@ -93,25 +121,51 @@ class PlayerGeoYearTracker:
             elif goals_b > goals_a and country_a:
                 self._opponent_beaten[id_b].add(country_a)
 
-    def scalars_for(self, player_id: int, own_country: Any) -> dict[str, Any]:
-        own = normalize_country(own_country)
-        host = set(self._host_countries.get(player_id, set()))
-        faced = set(self._opponent_faced.get(player_id, set()))
-        if own:
-            host.add(own)
-            faced.add(own)
+        for pid in affected:
+            after = self._display_geo_counts(pid, player_countries.get(pid))
+            before = prior_counts[pid]
+            for metric in GEO_RISE_METRICS:
+                if after[metric] > before[metric]:
+                    self._rise_tournament_id[pid][metric] = int(tournament_id)
+                    self._rise_event_date[pid][metric] = event_date
 
+    def scalars_for(self, player_id: int, own_country: Any) -> dict[str, Any]:
+        counts = self._display_geo_counts(player_id, own_country)
         peak_games, peak_games_year = self._peak_for(player_id, "games")
         peak_events, peak_events_year = self._peak_for(player_id, "tournaments")
 
-        return {
+        out: dict[str, Any] = {
             "peak_year_games": peak_games,
             "peak_year_games_year": peak_games_year,
             "peak_year_tournaments": peak_events,
             "peak_year_tournaments_year": peak_events_year,
+            "countries_played_in": counts["countries_played_in"],
+            "opponent_countries_faced": counts["opponent_countries_faced"],
+            "opponent_countries_beaten": counts["opponent_countries_beaten"],
+            **_empty_rise_fields(),
+        }
+        for metric in GEO_RISE_METRICS:
+            out[f"{metric}_last_rise_tournament_id"] = self._rise_tournament_id.get(
+                player_id, {}
+            ).get(metric)
+            out[f"{metric}_last_rise_event_date"] = self._rise_event_date.get(
+                player_id, {}
+            ).get(metric)
+        return out
+
+    def _display_geo_counts(self, player_id: int, own_country: Any) -> dict[str, int]:
+        """Counts matching ``scalars_for`` display (own country seeded when set)."""
+        own = normalize_country(own_country)
+        host = set(self._host_countries.get(player_id, set()))
+        faced = set(self._opponent_faced.get(player_id, set()))
+        beaten = set(self._opponent_beaten.get(player_id, set()))
+        if own:
+            host.add(own)
+            faced.add(own)
+        return {
             "countries_played_in": len(host),
             "opponent_countries_faced": len(faced),
-            "opponent_countries_beaten": len(self._opponent_beaten.get(player_id, set())),
+            "opponent_countries_beaten": len(beaten),
         }
 
     def _peak_for(self, player_id: int, key: str) -> tuple[int, int | None]:

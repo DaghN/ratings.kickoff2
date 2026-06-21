@@ -7,7 +7,7 @@ from typing import Any
 
 import pymysql
 
-from scripts.amiga.honours_totals import honours_from_current_row
+from scripts.amiga.honours_totals import empty_honours_totals, honours_from_current_row
 from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
 from scripts.amiga.snapshot_row import (
     build_snapshot_from_finalize_parts,
@@ -93,7 +93,13 @@ def _load_honours_from_current(
             SELECT player_id, tournaments_played, tournaments_won,
                    event_gold, event_silver, event_bronze, event_podiums,
                    wc_played, wc_gold, wc_silver, wc_bronze, wc_podiums,
-                   last_event_date, last_tournament_id
+                   last_event_date, last_tournament_id,
+                   tournaments_played_last_rise_tournament_id,
+                   tournaments_played_last_rise_event_date,
+                   event_gold_last_rise_tournament_id,
+                   event_gold_last_rise_event_date,
+                   wc_played_last_rise_tournament_id,
+                   wc_played_last_rise_event_date
             FROM amiga_player_current
             WHERE player_id IN ({placeholders})
             """,
@@ -165,21 +171,9 @@ def persist_tournament_event_snapshots(
 
         totals = totals_by_player.get(pid)
         if totals is None:
-            totals = {
-                "tournaments_played": 0,
-                "tournaments_won": 0,
-                "event_gold": 0,
-                "event_silver": 0,
-                "event_bronze": 0,
-                "event_podiums": 0,
-                "wc_played": 0,
-                "wc_gold": 0,
-                "wc_silver": 0,
-                "wc_bronze": 0,
-                "wc_podiums": 0,
-                "last_event_date": participation.get("event_date"),
-                "last_tournament_id": tournament_id,
-            }
+            totals = empty_honours_totals()
+            totals["last_event_date"] = participation.get("event_date")
+            totals["last_tournament_id"] = tournament_id
 
         prior = prior_best.get(pid, {})
         prior_tid = prior.get("prior_tournament_id")

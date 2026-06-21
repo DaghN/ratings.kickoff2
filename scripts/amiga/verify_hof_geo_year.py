@@ -1,21 +1,30 @@
 #!/usr/bin/env python3
-"""Verify geo/year player scalars and HoF holders (policy: amiga-hof-tournament-geo-policy.md)."""
+"""Verify geo/year player scalars, rise dates, and HoF holders (policy: amiga-hof-tournament-geo-policy.md)."""
 
 from __future__ import annotations
 
 import sys
+from datetime import date, datetime
+from typing import Any
 
 import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.finalize_tournament import GAME_SELECT_FOR_TOURNAMENT
-from scripts.amiga.generalstats_columns import GENERALSTATS_PAYLOAD_COLUMNS
+from scripts.amiga.generalstats_columns import (
+    GEO_RISE_PLAYER_COLUMNS,
+    HONOURS_RISE_PLAYER_COLUMNS,
+    RECORD_RISE_PLAYER_COLUMNS,
+)
+from scripts.amiga.honours_totals import empty_honours_totals, increment_honours_totals
 from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
 from scripts.amiga.realm_incremental import _career_holders_from_player_rows
-from scripts.amiga.realm_incremental import _career_holders_from_player_rows
-from scripts.amiga.server_records import _CAREER_HOLDERS, _load_cutoff_player_rows
 from scripts.amiga.realm_cutoff import latest_finalized_tournament_id, load_realm_cutoff
+from scripts.amiga.server_records import _CAREER_HOLDERS, _load_cutoff_player_rows
+
+_ALKIS_PLAYER_ID = 14
+_ALKIS_EVENT_GOLD_RISE_DATE = "2025-09-20"
 
 _GEO_YEAR_COLUMNS = (
     "peak_year_games",
@@ -39,6 +48,25 @@ _HOF_PREFIXES = tuple(prefix for _v, _c, prefix in _CAREER_HOLDERS if prefix in 
 })
 
 
+def _norm_date(value: Any) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.strftime("%Y-%m-%d")
+    if isinstance(value, date):
+        return value.isoformat()
+    text = str(value).strip()
+    if not text:
+        return None
+    return text[:10]
+
+
+def _norm_tid(value: Any) -> int | None:
+    if value is None:
+        return None
+    return int(value)
+
+
 def _connect() -> pymysql.connections.Connection:
     cfg = load_amiga_db_config()
     conn = pymysql.connect(
@@ -56,10 +84,7 @@ def _connect() -> pymysql.connections.Connection:
     return conn
 
 
-def _oracle_geo_by_player(conn: pymysql.connections.Connection) -> dict[int, dict[str, int | None]]:
-    player_countries = load_player_countries(conn)
-    tracker = PlayerGeoYearTracker()
-
+def _finalized_tournament_ids(conn: pymysql.connections.Connection) -> list[int]:
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -68,7 +93,36 @@ def _oracle_geo_by_player(conn: pymysql.connections.Connection) -> dict[int, dic
             ORDER BY event_date ASC, chrono ASC, id ASC
             """
         )
-        tournament_ids = [int(row["id"]) for row in cur.fetchall()]
+        return [int(row["id"]) for row in cur.fetchall()]
+
+
+def _oracle_honours_by_player(conn: pymysql.connections.Connection) -> dict[int, dict[str, Any]]:
+    totals_by_player: dict[int, dict[str, Any]] = {}
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT s.player_id, s.tournament_id, s.event_date, s.tournament_name,
+                   s.event_finish_position, s.is_winner
+            FROM amiga_player_event_snapshots s
+            INNER JOIN tournaments t ON t.id = s.tournament_id
+            WHERE t.rating_finalized = 1
+            ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, s.player_id ASC
+            """
+        )
+        rows = cur.fetchall()
+
+    for row in rows:
+        pid = int(row["player_id"])
+        if pid not in totals_by_player:
+            totals_by_player[pid] = empty_honours_totals()
+        increment_honours_totals(totals_by_player[pid], row)
+    return totals_by_player
+
+
+def _oracle_geo_by_player(conn: pymysql.connections.Connection) -> dict[int, dict[str, int | None]]:
+    player_countries = load_player_countries(conn)
+    tracker = PlayerGeoYearTracker()
+    tournament_ids = _finalized_tournament_ids(conn)
 
     for tournament_id in tournament_ids:
         with conn.cursor() as cur:
@@ -92,6 +146,7 @@ def _oracle_geo_by_player(conn: pymysql.connections.Connection) -> dict[int, dic
         games_in_event = {int(r["player_id"]): int(r["games_in_event"] or 0) for r in snap_rows}
         participant_ids = set(games_in_event.keys())
         tracker.apply_tournament(
+            tournament_id=tournament_id,
             event_date=tour["event_date"] if tour else None,
             host_country=tour["country"] if tour else None,
             games=games,
@@ -110,10 +165,54 @@ def _oracle_geo_by_player(conn: pymysql.connections.Connection) -> dict[int, dic
     return out
 
 
+def _expected_rise_fields(
+    honours_oracle: dict[int, dict[str, Any]],
+    geo_oracle: dict[int, dict[str, int | None]],
+    player_id: int,
+) -> dict[str, Any]:
+    expected: dict[str, Any] = {}
+    honours = honours_oracle.get(player_id, empty_honours_totals())
+    for col in HONOURS_RISE_PLAYER_COLUMNS:
+        expected[col] = honours.get(col)
+    geo = geo_oracle.get(player_id, {})
+    for col in GEO_RISE_PLAYER_COLUMNS:
+        expected[col] = geo.get(col) if geo else None
+    return expected
+
+
+def _alkis_regression_checks(
+    honours_oracle: dict[int, dict[str, Any]],
+    gst: dict[str, Any],
+) -> list[str]:
+    errors: list[str] = []
+    alkis = honours_oracle.get(_ALKIS_PLAYER_ID)
+    if alkis is None:
+        return errors
+
+    rise_date = _norm_date(alkis.get("event_gold_last_rise_event_date"))
+    if int(alkis.get("event_gold") or 0) >= 58 and rise_date != _ALKIS_EVENT_GOLD_RISE_DATE:
+        errors.append(
+            f"Alkis regression player_id={_ALKIS_PLAYER_ID}: "
+            f"event_gold_last_rise_event_date oracle={rise_date!r} "
+            f"expected {_ALKIS_EVENT_GOLD_RISE_DATE!r}"
+        )
+
+    if int(gst.get("MostTournamentWinsID") or 0) == _ALKIS_PLAYER_ID:
+        gst_date = _norm_date(gst.get("MostTournamentWinsDate"))
+        if gst_date != _ALKIS_EVENT_GOLD_RISE_DATE:
+            errors.append(
+                f"Alkis regression: MostTournamentWinsDate gst={gst_date!r} "
+                f"expected {_ALKIS_EVENT_GOLD_RISE_DATE!r}"
+            )
+    return errors
+
+
 def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
 
-    oracle = _oracle_geo_by_player(conn)
+    honours_oracle = _oracle_honours_by_player(conn)
+    geo_oracle = _oracle_geo_by_player(conn)
+
     with conn.cursor() as cur:
         cur.execute(
             "SELECT player_id, "
@@ -124,7 +223,7 @@ def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
 
     for row in current_rows:
         pid = int(row["player_id"])
-        expected = oracle.get(pid, {col: 0 if not col.endswith("_year") else None for col in _GEO_YEAR_COLUMNS})
+        expected = geo_oracle.get(pid, {col: 0 if not col.endswith("_year") else None for col in _GEO_YEAR_COLUMNS})
         for col in _GEO_YEAR_COLUMNS:
             stored = row.get(col)
             exp = expected.get(col)
@@ -136,6 +235,32 @@ def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
             else:
                 if int(stored or 0) != int(exp or 0):
                     errors.append(f"player_id={pid} {col}: stored={stored!r} oracle={exp!r}")
+
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT player_id, "
+            + ", ".join(RECORD_RISE_PLAYER_COLUMNS)
+            + " FROM amiga_player_current"
+        )
+        rise_current = {int(row["player_id"]): row for row in cur.fetchall()}
+
+    rise_pids = set(rise_current) | set(honours_oracle) | set(geo_oracle)
+    for pid in sorted(rise_pids):
+        stored = rise_current.get(pid, {})
+        expected = _expected_rise_fields(honours_oracle, geo_oracle, pid)
+        for col in RECORD_RISE_PLAYER_COLUMNS:
+            stored_val = stored.get(col) if stored else None
+            exp_val = expected.get(col)
+            if col.endswith("_event_date"):
+                if _norm_date(stored_val) != _norm_date(exp_val):
+                    errors.append(
+                        f"player_id={pid} {col}: stored={stored_val!r} oracle={exp_val!r}"
+                    )
+            else:
+                if _norm_tid(stored_val) != _norm_tid(exp_val):
+                    errors.append(
+                        f"player_id={pid} {col}: stored={stored_val!r} oracle={exp_val!r}"
+                    )
 
     latest_tid = latest_finalized_tournament_id(conn)
     if latest_tid is None:
@@ -151,6 +276,7 @@ def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
     for prefix in _HOF_PREFIXES:
         value_key = prefix
         id_key = f"{prefix}ID"
+        date_key = f"{prefix}Date"
         if holder_patch.get(value_key) != gst.get(value_key):
             errors.append(
                 f"generalstats {value_key}: stored={gst.get(value_key)!r} "
@@ -161,6 +287,13 @@ def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
                 f"generalstats {id_key}: stored={gst.get(id_key)!r} "
                 f"oracle={holder_patch.get(id_key)!r}"
             )
+        if _norm_date(holder_patch.get(date_key)) != _norm_date(gst.get(date_key)):
+            errors.append(
+                f"generalstats {date_key}: stored={gst.get(date_key)!r} "
+                f"oracle={holder_patch.get(date_key)!r}"
+            )
+
+    errors.extend(_alkis_regression_checks(honours_oracle, gst))
 
     with conn.cursor() as cur:
         cur.execute(

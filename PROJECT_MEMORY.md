@@ -50,6 +50,8 @@
 
 - **Amiga HoF calendar-year + geography (Jun 2026):** **Complete** — eight new HoF rows + Calendar & geo LB wing; SCH-028 on snapshots/current + `generalstats`; `verify-hof-geo-year` in `prove`. Policy [`amiga-hof-tournament-geo-policy.md`](docs/amiga-hof-tournament-geo-policy.md).
 
+- **Amiga HoF record rise dates (Jun 2026):** **Complete (SCH-029, slices 0–8)** — per-metric `*_last_rise_*` on snapshots/current; HoF `*Date` from rise not participation; Python + PHP finalize parity; `verify-hof-geo-year` date oracle. [`amiga-hof-record-date-policy.md`](docs/amiga-hof-record-date-policy.md).
+
 - **Amiga ground layers L0–L5 (Jun 2026):** **Track complete (slices 1–8)** — modular `prove`, export packs, docs closure. [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md).
 
 ---
@@ -96,6 +98,15 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga HoF record dates slice 8 (track complete)** — docs closure; `export_ko2amiga_db.ps1`; SCH-029 shipped. Also fixed PHP `finalize_tournament` `bind_param` typo blocking refinalize. |
+| 2026-06 | **Amiga HoF record dates slice 7** — PHP `amiga_honours_totals_lib.php` + geo rise tracking + snapshot persist increment/copy rise cols (mirrors Python slices 2–4). |
+| 2026-06 | **Amiga HoF record dates slice 6** — `verify_hof_geo_year.py` rise oracle + HoF `*Date` checks + Alkis regression; full `prove` green (~5.7 min). |
+| 2026-06 | **Amiga HoF record dates slice 5** — realm holder `*Date` from `*_last_rise_event_date` (Python + PHP); `test_realm_holder_dates.py`. |
+| 2026-06 | **Amiga HoF record dates slice 4** — rise columns on `SNAPSHOT_COLUMNS`/`CURRENT_COLUMNS`; honours + geo rise wired through persist; verify current parity. |
+| 2026-06 | **Amiga HoF record dates slice 3** — `player_geo_year.py` geo last-rise id/date in `scalars_for`; `GEO_RISE_METRICS`; tests extended. |
+| 2026-06 | **Amiga HoF record dates slice 2** — `honours_totals.py` per-metric last-rise id/date; `test_honours_rise_dates.py`. Snapshot wire slice 4+. |
+| 2026-06 | **Amiga HoF record dates slice 1** — SCH-029 DDL (`029_hof_record_rise_dates.sql`); 12 last-rise cols on snapshots + current; `schema_bundles.py`. Writers slice 2+. |
+| 2026-06 | **Amiga HoF record dates (planned)** — policy + sliced plan: per-metric `*_last_rise_tournament_id` + `*_last_rise_event_date` at finalize (SCH-029); fixes SCH-028 `honours_last_event_date` misuse. [`amiga-hof-record-date-policy.md`](docs/amiga-hof-record-date-policy.md) |
 | 2026-06 | **Amiga HoF calendar-year + geography** — SCH-028; eight HoF rows + Calendar & geo LB; `player_geo_year` tracker; `verify-hof-geo-year`; PHP finalize parity; `prove` green. |
 | 2026-06 | **Amiga realm snapshots slice 8** — export `amiga_realm_snapshots`; docs closure; track complete; `prove` green. |
 | 2026-06 | **Amiga PHP ops realm parity** — `zero-derived` + refinalize reopen batch clear `amiga_realm_snapshots` / `matchup_at_event` (matches Python). |

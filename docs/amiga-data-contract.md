@@ -192,8 +192,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_players` | Ground | Import / submission / internal `players create` CLI | Active |
 | `amiga_games` | Ground | Import / submission | Active |
 | `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit | Active |
-| `amiga_player_event_snapshots` | Derived | Tournament finalize / `replay` — sparse timeline (event-local + career + honours + rating block + geo/year scalars per [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md)) | **Active** |
-| `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours + geo/year scalars) | **Active** |
+| `amiga_player_event_snapshots` | Derived | Tournament finalize / `replay` — sparse timeline (event-local + career + honours + rating block + geo/year scalars + **HoF rise dates** per [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)) | **Active** |
+| `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours + geo/year scalars + rise dates) | **Active** |
 | `amiga_rating_events` | Derived | **Retired slice 8** — replaced by snapshot event rating block | Retired |
 | `amiga_player_stats` | Derived | **Retired slice 8** — replaced by `amiga_player_current` | Retired |
 | `amiga_player_tournament_participation` | Derived | **Retired slice 8** — event-local block on snapshots | Retired |
@@ -208,6 +208,19 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
 DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.
+
+### HoF record rise dates (SCH-029)
+
+Twelve nullable columns on **`amiga_player_event_snapshots`** and **`amiga_player_current`** (identical set): per metric `{metric}_last_rise_tournament_id` + `{metric}_last_rise_event_date` for `tournaments_played`, `event_gold`, `wc_played`, `countries_played_in`, `opponent_countries_faced`, `opponent_countries_beaten`. DDL: `sql/derived/029_hof_record_rise_dates.sql`.
+
+| Writer | Path |
+|--------|------|
+| Honours rise | `scripts/amiga/honours_totals.py` · `site/public_html/amiga/ops/includes/amiga_honours_totals_lib.php` |
+| Geo rise | `scripts/amiga/player_geo_year.py` · `site/public_html/amiga/ops/includes/amiga_player_geo_year_lib.php` |
+| Snapshot persist | `snapshot_persist.py` · `amiga_event_snapshot_persist.php` |
+| HoF `*Date` projection | `realm_incremental.py` · `amiga_realm_incremental_lib.php` from holder’s `*_last_rise_event_date` |
+
+`honours_last_event_date` / `honours_last_tournament_id` stay **last participation** only. Year-peak HoF dates unchanged (`peak_year_*_year`). Verify: `verify-hof-geo-year` in `prove` (rise oracle + Alkis regression). Policy: [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md).
 
 ### Tournament format metadata
 

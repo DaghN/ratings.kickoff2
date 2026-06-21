@@ -38,4 +38,4 @@
 | Most opponent countries faced | `MostOpponentCountriesFaced` | `opponent_countries_faced` |
 | Most opponent countries beaten | `MostOpponentCountriesBeaten` | `opponent_countries_beaten` |
 
-Date column: year peaks → calendar year; career honours → `honours_last_event_date`; geography → last event date when count rose.
+Date column: year peaks → calendar year (`peak_year_*_year`); career honours + geography → **per-metric last-rise** `tournament_id` + `event_date` on player rows (SCH-029) — [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md). `honours_last_event_date` remains last participation only (not HoF record dates).

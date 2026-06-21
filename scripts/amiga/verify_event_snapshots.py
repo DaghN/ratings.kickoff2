@@ -9,6 +9,10 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.generalstats_columns import (
+    GEO_YEAR_PLAYER_COLUMNS,
+    RECORD_RISE_PLAYER_COLUMNS,
+)
 from scripts.amiga.player_tournament_participation import _PLAYER_GAMES_ROLLUP_SQL
 from scripts.amiga.snapshot_row import (
     CAREER_COLUMNS,
@@ -99,6 +103,10 @@ def _current_latest_mismatch_sql() -> str:
             "career_best_performance_tournament_id",
         )
     )
+    for col in GEO_YEAR_PLAYER_COLUMNS:
+        clauses.append(_null_safe_neq(f"c.`{col}`", f"l.`{col}`", col))
+    for col in RECORD_RISE_PLAYER_COLUMNS:
+        clauses.append(_null_safe_neq(f"c.`{col}`", f"l.`{col}`", col))
     where = " OR ".join(clauses)
     return f"""
         {_LATEST_SNAPSHOT_CTE}

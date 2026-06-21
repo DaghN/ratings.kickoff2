@@ -1,6 +1,6 @@
 # Amiga HoF tournament / calendar-year / geography — implementation plan
 
-**Status:** Complete (Jun 2026)  
+**Status:** Complete (Jun 2026) — **date fix track:** [`amiga-hof-record-date-implementation-plan.md`](amiga-hof-record-date-implementation-plan.md)  
 **Policy:** [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md)
 
 ---
