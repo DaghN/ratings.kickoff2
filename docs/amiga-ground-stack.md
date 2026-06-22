@@ -143,7 +143,7 @@ Jun 2026 slices 1–8 shipped modular L3→L4→L5 `prove` and L1/L2 export CLIs
 
 **Next implementation track** (see plan slices 9–11):
 
-1. L2 — emit `witness_player_identity`; drop `Countries` retain; update `verify-prune`.
+1. L2 — emit `witness_player_identity`; drop `Countries` retain; update `verify-prune`. **Done (slice 9).**
 2. L3 — `prepare_witness_from_l2` (or equivalent); remove `.mdb` from `prove` / `import-witness`.
 3. Verify — L2→L3 boundary gates (row counts, nationality join coverage).
 

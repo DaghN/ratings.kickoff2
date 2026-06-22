@@ -36,7 +36,7 @@ python -m scripts.amiga verify-pristine
 python -m scripts.amiga import-prune
 python -m scripts.amiga verify-prune
 # L1: data/amiga/exports/pristine/  →  L2: data/amiga/exports/pruned/
-# Target L2 tables: Scores, Tournament players, witness_player_identity (not Countries, not full Rankings)
+# Target L2 tables: Scores, Tournament players, witness_player_identity (slice 9 shipped)
 
 # L3 witness (corrections + ground rows; input = L2 — target; today still .mdb until slice 10):
 python -m scripts.amiga import-witness --recreate-ground

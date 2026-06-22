@@ -530,8 +530,9 @@ def main(argv: list[str] | None = None) -> int:
             verify=not args.no_verify,
         )
         log.info(
-            "import-prune OK: retained=%s pruned=%s rows_kept=%s sql=%s manifest=%s",
+            "import-prune OK: retained=%s identity_rows=%s pruned=%s rows_kept=%s sql=%s manifest=%s",
             stats["retained_tables"],
+            stats.get("witness_identity_rows"),
             stats["pruned_tables"],
             stats["rows_retained"],
             stats["sql_path"],

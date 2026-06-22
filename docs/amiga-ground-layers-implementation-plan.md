@@ -34,7 +34,7 @@
 | **6** | `prove` orchestrator: L3 → L4 → L5 → verify | Full verify suite green | **Done** Jun 2026 |
 | **7** | Export packs Mirror / A / B / C | Staging smoke on Pack B | **Done** Jun 2026 |
 | **8** | Docs closure on any drift | Agents cold-start | **Done** Jun 2026 |
-| **9** | L2 `witness_player_identity`; drop `Countries` retain; `extracted_from_l1` in manifest | `verify-prune` green | **Next** |
+| **9** | L2 `witness_player_identity`; drop `Countries` retain; `extracted_from_l1` in manifest | `verify-prune` green | **Done** Jun 2026 |
 | **10** | L3 from L2 only (`prepare_witness_from_l2`); `prove` L1→L2→L3→L4→L5; remove `.mdb` from witness path | `prove` green; no pyodbc in L3 | **Planned** |
 | **11** | L2→L3 boundary verify + docs/code closure | Parity gate + stack doc §7 gap closed | **Planned** |
 
@@ -69,7 +69,22 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 3 — L2 prune (done — **superseded by slice 9**)
+## Slice 9 — L2 realign (done)
+
+**CLI:** `python -m scripts.amiga import-prune` · `verify-prune`
+
+- Module: [`scripts/amiga/import_prune.py`](../scripts/amiga/import_prune.py)
+- Retain: `Scores`, `Tournament players`
+- Extract L1 `Rankings` → **`witness_player_identity`** (`player`, `country`)
+- Drop: `Countries`, full `Rankings` grid, all other L1 tables
+- Manifest: `extracted_from_l1` + `pruned_from_l1` with Rankings note
+- Tests: [`scripts/amiga/test_import_prune.py`](../scripts/amiga/test_import_prune.py)
+
+**STOP:** 2 access tables + 465 identity rows; 36 pruned; `verify-prune` green — Jun 2026.
+
+---
+
+## Slice 3 — L2 prune (superseded by slice 9)
 
 **CLI:** `python -m scripts.amiga import-prune [--l1-dir] [--out-dir]`
 
@@ -174,7 +189,7 @@ Cross-doc pass after slices 1–7 — agents cold-start from policy + this plan 
 
 **Historical (slices 1–8):** 1 → 4 → 6 → 2 → 3 → 5 → 7 → 8 (L1/L2 added after L3 extract — created the L0→L3 gap).
 
-**Forward (strict stack):** **9** (L2 realign) → **10** (L3 from L2 + `prove` full chain) → **11** (L2→L3 verify + closure).
+**Forward (strict stack):** **10** (L3 from L2 + `prove` full chain) → **11** (L2→L3 verify + closure). Slice **9** done.
 
 ---
 

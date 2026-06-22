@@ -60,7 +60,7 @@
 
 - **Amiga stored id/date semantics Phase D (Jun 2026):** **Complete** — `verify_php_finalize_parity` in `prove` (Athens XCII / T24 reopen+finalize; PHP vs Python on snapshots, realm, generalstats, current); prior-snapshot carry fallback in Python + PHP persist; geo tracker includes in-flight tournament. Plan [`amiga-stored-field-semantics-plan.md`](docs/amiga-stored-field-semantics-plan.md) **A–D done**.
 
-- **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–8** shipped (modular L3→L5 `prove`, export packs). **Policy v3 + strict stack** locked — [`amiga-ground-stack.md`](docs/amiga-ground-stack.md); **slices 9–11** (L2 `witness_player_identity`, L3 from L2, full-chain `prove`) **next**. [`amiga-ground-layers-policy.md`](docs/amiga-ground-layers-policy.md).
+- **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–8** shipped; **slice 9** done (`witness_player_identity`, `verify-prune`). **Slice 10 next** — L3 from L2 only. [`amiga-ground-stack.md`](docs/amiga-ground-stack.md).
 
 - **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 
@@ -111,7 +111,8 @@
 
 | When | Note |
 |------|------|
-| 2026-06 | **Amiga strict ground stack (policy v3)** — [`amiga-ground-stack.md`](docs/amiga-ground-stack.md): L0→L5 chain only; L2 `witness_player_identity`; no L0→L3; drop `Countries` from L2; slices 9–11 planned. Policy + import-layer + plan + schema-discovery updated. |
+| 2026-06 | **Amiga ground slice 9** — L2 `witness_player_identity` from L1 Rankings; drop `Countries`; `extracted_from_l1` manifest; `verify-prune` + unit tests; `prove` still green. |
+| 2026-06 | **Amiga strict ground stack (policy v3)** — [`amiga-ground-stack.md`](docs/amiga-ground-stack.md): L0→L5 chain only; no L0→L3; slices 10–11 planned. |
 *(Newest first. ~30 rows max. Older rows: [`docs/archive/session-log-2026-q2.md`](docs/archive/session-log-2026-q2.md).)*
 
 | When | What |
