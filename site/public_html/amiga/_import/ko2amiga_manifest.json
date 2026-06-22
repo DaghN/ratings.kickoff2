@@ -1,5 +1,5 @@
 {
-    "generated":  "2026-06-21 13:33:05",
+    "generated":  "2026-06-22 14:59:20",
     "parts":  [
                   "ko2amiga_01_schema.sql",
                   "ko2amiga_02_format_templates.sql",
@@ -29,6 +29,8 @@
                   "ko2amiga_26_catalog_stats.sql",
                   "ko2amiga_27_matchup_summary.sql",
                   "ko2amiga_28_generalstats.sql",
-                  "ko2amiga_29_realm_snapshots.sql"
+                  "ko2amiga_29_realm_snapshots.sql",
+                  "ko2amiga_30_slice_totals.sql",
+                  "ko2amiga_31_slice_at_event.sql"
               ]
 }

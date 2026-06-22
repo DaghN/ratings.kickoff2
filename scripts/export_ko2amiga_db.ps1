@@ -22,7 +22,8 @@ $Tables = @(
     'amiga_player_event_snapshots', 'amiga_player_current',
     'amiga_player_matchup_at_event', 'amiga_player_matchup_summary',
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
-    'amiga_generalstats', 'amiga_realm_snapshots', 'amiga_tournament_finish_override'
+    'amiga_generalstats', 'amiga_realm_snapshots', 'amiga_tournament_finish_override',
+    'amiga_player_slice_totals', 'amiga_player_slice_at_event'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -148,6 +149,18 @@ $realmSnapshotsPart = ('ko2amiga_{0:D2}_realm_snapshots.sql' -f $idx)
 $realmSnapshotsFile = Join-Path $OutDir $realmSnapshotsPart
 Write-DumpFile $realmSnapshotsFile @('--no-create-info', 'ko2amiga_db', 'amiga_realm_snapshots')
 $parts.Add($realmSnapshotsPart)
+$idx++
+
+$sliceTotalsPart = ('ko2amiga_{0:D2}_slice_totals.sql' -f $idx)
+$sliceTotalsFile = Join-Path $OutDir $sliceTotalsPart
+Write-DumpFile $sliceTotalsFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_slice_totals')
+$parts.Add($sliceTotalsPart)
+$idx++
+
+$sliceAtEventPart = ('ko2amiga_{0:D2}_slice_at_event.sql' -f $idx)
+$sliceAtEventFile = Join-Path $OutDir $sliceAtEventPart
+Write-DumpFile $sliceAtEventFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_slice_at_event')
+$parts.Add($sliceAtEventPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

@@ -1,6 +1,6 @@
 # Amiga World Cups leaderboard — policy
 
-**Status:** **Slice 1 shipped** (Jun 2026) — honours sub-wing + TT + LB nav. **Next:** slice 2 (Results) · slice 3 (Goals + extract WC from tournament honours).
+**Status:** **V1 shipped** (Jun 2026) — Honours · Results · Goals wings; WC extracted from tournament honours + calendar-geo; slice tables + TT; fresh `prove` + staging export **2026-06-22**.
 
 **Parent:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)
 
