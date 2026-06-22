@@ -25,6 +25,40 @@ const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
 /** Hash target on tournament.php — zero-height anchor flush above the hero title. */
 const AMIGA_TOURNAMENT_PAGE_FRAGMENT = 'tournament';
 
+function amiga_tournament_page_request_path(?string $path = null): bool
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    require_once __DIR__ . '/amiga_snapshot_url.php';
+    $path ??= amiga_snapshot_request_path();
+
+    return k2_table_path_only($path) === '/amiga/tournament.php';
+}
+
+function amiga_tournament_id_from_request(): int
+{
+    return isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
+}
+
+/** `as=event:ID` when tournament is in the realm event catalog (T14c time-travel entry). */
+function amiga_tournament_snapshot_as_param(mysqli $con, int $tournamentId): ?string
+{
+    if ($tournamentId < 1) {
+        return null;
+    }
+    require_once __DIR__ . '/amiga_rating_history_lib.php';
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+
+    $entry = amiga_rating_history_catalog_entry_by_key(
+        amiga_rating_history_catalog_event($con),
+        (string) $tournamentId,
+    );
+    if ($entry === null) {
+        return null;
+    }
+
+    return amiga_snapshot_format_as_param('event', (string) $tournamentId);
+}
+
 /**
  * SQL fragment: tournaments visible on public pages.
  */

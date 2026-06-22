@@ -235,6 +235,20 @@ if (!str_contains($ttHref, 'as=event%3A') && !str_contains($ttHref, 'as=event:')
 }
 echo 'player_tt_entry=' . $ttHref . PHP_EOL;
 
+$_SERVER['REQUEST_URI'] = '/amiga/tournament.php?id=5&view=event-stats';
+$_GET = ['id' => '5', 'view' => 'event-stats'];
+amiga_snapshot_context_reset();
+$tournamentTtHref = amiga_time_mode_nav_time_travel_href('/amiga/tournament.php');
+if (!str_contains($tournamentTtHref, 'id=5')) {
+    fwrite(STDERR, "tournament TT href lost id: {$tournamentTtHref}\n");
+    exit(1);
+}
+if (!str_contains($tournamentTtHref, 'as=event%3A5') && !str_contains($tournamentTtHref, 'as=event:5')) {
+    fwrite(STDERR, "tournament TT href should use event as= for catalog id: {$tournamentTtHref}\n");
+    exit(1);
+}
+echo 'tournament_tt_entry=' . $tournamentTtHref . PHP_EOL;
+
 $accent73 = amiga_player_participated_event_key_set($con, 73);
 if (count($accent73) < 2) {
     fwrite(STDERR, "player 73 needs picker accent keys for stepper test\n");

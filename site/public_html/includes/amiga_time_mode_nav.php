@@ -13,6 +13,7 @@ require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/amiga_hub_nav_lib.php';
 require_once __DIR__ . '/amiga_rating_history_lib.php';
 require_once __DIR__ . '/amiga_player_snapshot_lib.php';
+require_once __DIR__ . '/amiga_tournament_lib.php';
 
 function amiga_time_mode_nav_should_show(): bool
 {
@@ -56,6 +57,11 @@ function amiga_time_mode_nav_time_travel_href(string $path): ?string
             $playerId = amiga_player_wing_id_from_request();
             if ($playerId > 0) {
                 $asParam = amiga_player_first_snapshot_as_param($con, $playerId);
+            }
+        } elseif (amiga_tournament_page_request_path($path)) {
+            $tournamentId = amiga_tournament_id_from_request();
+            if ($tournamentId > 0) {
+                $asParam = amiga_tournament_snapshot_as_param($con, $tournamentId);
             }
         }
         if ($asParam === null || $asParam === '') {
