@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_player_current_lib.php';
-require_once __DIR__ . '/amiga_tournament_lib.php';
+require_once __DIR__ . '/amiga_player_slice_lib.php';
 
 /**
  * FROM + JOIN latest snapshot row per player on or before cutoff (alias ``s``).
@@ -223,6 +223,9 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
         return [];
     }
 
+    $sliceJoin = amiga_slice_at_cutoff_join_sql();
+    $sliceKey = amiga_slice_key_world_cup();
+
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
@@ -232,11 +235,7 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
                    t.event_silver,
                    t.event_bronze,
                    t.event_podiums,
-                   t.wc_played,
-                   t.wc_gold,
-                   t.wc_silver,
-                   t.wc_bronze,
-                   t.wc_podiums
+                   ' . amiga_slice_wc_lb_select_sql('wcs') . '
             FROM (
                 SELECT x.* FROM (
                     SELECT snap.*,
@@ -250,10 +249,11 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
                 WHERE x.rn = 1 AND x.tournaments_played > 0
             ) t
             INNER JOIN amiga_players p ON p.id = t.player_id
+            ' . $sliceJoin['sql'] . '
             ORDER BY t.tournaments_played DESC,
                      t.event_gold DESC,
                      t.event_podiums DESC,
-                     t.wc_gold DESC,
+                     COALESCE(wcs.gold, 0) DESC,
                      t.player_id ASC';
 
     $stmt = $con->prepare($sql);
@@ -263,7 +263,16 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param(
+        'sddisddi',
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $sliceKey,
+        $eventDate,
+        $chrono,
+        $tournamentId
+    );
     if (!$stmt->execute()) {
         $stmt->close();
 
@@ -292,6 +301,9 @@ function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext 
         return [];
     }
 
+    $sliceJoin = amiga_slice_at_cutoff_join_sql();
+    $sliceKey = amiga_slice_key_world_cup();
+
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
@@ -305,7 +317,7 @@ function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext 
                    t.opponent_countries_beaten,
                    t.tournaments_played,
                    t.event_gold,
-                   t.wc_played
+                   COALESCE(wcs.tournaments_played, 0) AS wc_played
             FROM (
                 SELECT x.* FROM (
                     SELECT snap.*,
@@ -319,6 +331,7 @@ function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext 
                 WHERE x.rn = 1 AND x.NumberGames > 0
             ) t
             INNER JOIN amiga_players p ON p.id = t.player_id
+            ' . $sliceJoin['sql'] . '
             ORDER BY t.peak_year_games DESC,
                      t.peak_year_games_year ASC,
                      t.player_id ASC';
@@ -330,7 +343,16 @@ function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext 
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param(
+        'sddisddi',
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $sliceKey,
+        $eventDate,
+        $chrono,
+        $tournamentId
+    );
     if (!$stmt->execute()) {
         $stmt->close();
 

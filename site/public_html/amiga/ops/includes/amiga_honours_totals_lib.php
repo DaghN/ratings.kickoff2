@@ -10,7 +10,6 @@ declare(strict_types=1);
 const AMIGA_HONOURS_RISE_METRICS = [
     'tournaments_played',
     'event_gold',
-    'wc_played',
 ];
 
 /**
@@ -66,11 +65,6 @@ function amiga_honours_empty_totals(): array
         'event_silver' => 0,
         'event_bronze' => 0,
         'event_podiums' => 0,
-        'wc_played' => 0,
-        'wc_gold' => 0,
-        'wc_silver' => 0,
-        'wc_bronze' => 0,
-        'wc_podiums' => 0,
         'last_event_date' => null,
         'last_tournament_id' => null,
     ] + amiga_honours_empty_rise_fields();
@@ -89,7 +83,6 @@ function amiga_honours_increment_totals(array &$totals, array $participation): v
 {
     $priorTournamentsPlayed = (int) ($totals['tournaments_played'] ?? 0);
     $priorEventGold = (int) ($totals['event_gold'] ?? 0);
-    $priorWcPlayed = (int) ($totals['wc_played'] ?? 0);
 
     $totals['tournaments_played'] = $priorTournamentsPlayed + 1;
 
@@ -114,21 +107,6 @@ function amiga_honours_increment_totals(array &$totals, array $participation): v
         $totals['event_podiums'] = (int) ($totals['event_podiums'] ?? 0) + 1;
     }
 
-    $tournamentName = (string) ($participation['tournament_name'] ?? '');
-    if (amiga_honours_is_world_cup_tournament($tournamentName)) {
-        $totals['wc_played'] = (int) ($totals['wc_played'] ?? 0) + 1;
-        if ($pos === 1) {
-            $totals['wc_gold'] = (int) ($totals['wc_gold'] ?? 0) + 1;
-        } elseif ($pos === 2) {
-            $totals['wc_silver'] = (int) ($totals['wc_silver'] ?? 0) + 1;
-        } elseif ($pos === 3) {
-            $totals['wc_bronze'] = (int) ($totals['wc_bronze'] ?? 0) + 1;
-        }
-        if ($pos !== null && $pos <= 3) {
-            $totals['wc_podiums'] = (int) ($totals['wc_podiums'] ?? 0) + 1;
-        }
-    }
-
     $tournamentId = (int) $participation['tournament_id'];
     $eventDate = $participation['event_date'] ?? null;
     $totals['last_event_date'] = $eventDate;
@@ -140,38 +118,6 @@ function amiga_honours_increment_totals(array &$totals, array $participation): v
     if ((int) $totals['event_gold'] > $priorEventGold) {
         amiga_honours_set_last_rise($totals, 'event_gold', $tournamentId, $eventDate);
     }
-    if ((int) $totals['wc_played'] > $priorWcPlayed) {
-        amiga_honours_set_last_rise($totals, 'wc_played', $tournamentId, $eventDate);
-    }
-}
-
-/**
- * @param array<string, mixed> $row
- * @return array<string, mixed>
- */
-function amiga_honours_totals_from_current_row(array $row): array
-{
-    $out = [
-        'tournaments_played' => (int) ($row['tournaments_played'] ?? 0),
-        'tournaments_won' => (int) ($row['tournaments_won'] ?? 0),
-        'event_gold' => (int) ($row['event_gold'] ?? 0),
-        'event_silver' => (int) ($row['event_silver'] ?? 0),
-        'event_bronze' => (int) ($row['event_bronze'] ?? 0),
-        'event_podiums' => (int) ($row['event_podiums'] ?? 0),
-        'wc_played' => (int) ($row['wc_played'] ?? 0),
-        'wc_gold' => (int) ($row['wc_gold'] ?? 0),
-        'wc_silver' => (int) ($row['wc_silver'] ?? 0),
-        'wc_bronze' => (int) ($row['wc_bronze'] ?? 0),
-        'wc_podiums' => (int) ($row['wc_podiums'] ?? 0),
-        'last_event_date' => $row['last_event_date'] ?? null,
-        'last_tournament_id' => $row['last_tournament_id'] ?? null,
-    ];
-    foreach (AMIGA_HONOURS_RISE_METRICS as $metric) {
-        $out["{$metric}_last_rise_tournament_id"] = $row["{$metric}_last_rise_tournament_id"] ?? null;
-        $out["{$metric}_last_rise_event_date"] = $row["{$metric}_last_rise_event_date"] ?? null;
-    }
-
-    return $out;
 }
 
 /**
@@ -180,9 +126,32 @@ function amiga_honours_totals_from_current_row(array $row): array
  */
 function amiga_honours_totals_from_snapshot_row(array $row): array
 {
-    $mapped = $row;
-    $mapped['last_event_date'] = $row['honours_last_event_date'] ?? null;
-    $mapped['last_tournament_id'] = $row['honours_last_tournament_id'] ?? null;
+    $mapped = [
+        'tournaments_played' => (int) ($row['tournaments_played'] ?? 0),
+        'tournaments_won' => (int) ($row['tournaments_won'] ?? 0),
+        'event_gold' => (int) ($row['event_gold'] ?? 0),
+        'event_silver' => (int) ($row['event_silver'] ?? 0),
+        'event_bronze' => (int) ($row['event_bronze'] ?? 0),
+        'event_podiums' => (int) ($row['event_podiums'] ?? 0),
+        'last_event_date' => $row['honours_last_event_date'] ?? $row['last_event_date'] ?? null,
+        'last_tournament_id' => $row['honours_last_tournament_id'] ?? $row['last_tournament_id'] ?? null,
+    ];
+    foreach (amiga_honours_rise_player_columns() as $col) {
+        $mapped[$col] = $row[$col] ?? null;
+    }
 
-    return amiga_honours_totals_from_current_row($mapped);
+    return $mapped;
+}
+
+/**
+ * @param array<string, mixed> $row
+ * @return array<string, mixed>
+ */
+function amiga_honours_totals_from_current_row(array $row): array
+{
+    $mapped = amiga_honours_totals_from_snapshot_row($row);
+    $mapped['last_event_date'] = $row['last_event_date'] ?? null;
+    $mapped['last_tournament_id'] = $row['last_tournament_id'] ?? null;
+
+    return $mapped;
 }

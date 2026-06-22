@@ -29,7 +29,7 @@
 | **M4** | **WC below podium** — `event_finish_position` stays **NULL** until a future holistic WC rank job (4th, 5th, …). **Out of scope for v2.** |
 | **M5** | **Drop `wc_medal`** on participation after backfill (migration `022`). Display labels (gold/silver/bronze) derived from `event_finish_position` when `is_world_cup`. |
 | **M6** | **Reject `cup_gold` / `cup_silver` / `cup_bronze`** career columns — wrong product model (Access `is_cup` flag). Replace with **`event_gold` / `event_silver` / `event_bronze`** (all tournaments). |
-| **M7** | **Stored career counters** on `amiga_player_event_snapshots` (per finalize) and `amiga_player_current` (present): `event_gold`, `event_silver`, `event_bronze`, `event_podiums`, `wc_played`, `wc_gold`, `wc_silver`, `wc_bronze`, `wc_podiums`, plus `tournaments_played`. Incremental writer: `honours_totals.py` / PHP finalize persist. |
+| **M7** | **Stored career counters** on `amiga_player_event_snapshots` (per finalize) and `amiga_player_current` (present): `event_gold`, `event_silver`, `event_bronze`, `event_podiums`, plus `tournaments_played`. **WC subset (`wc_*`)** → migrating to **`amiga_player_slice_*`** ([`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md)); honours block keeps all-events only. Incremental writer: `honours_totals.py` / PHP finalize persist (WC increments move to slice writer). |
 | **M8** | **`tournaments_won`** = `event_gold` (synonym; keep column for compatibility). |
 | **M9** | **`is_winner`** on participation = `event_finish_position = 1` (all tournaments). |
 | **M10** | **No `league_position` / `group_position`** on participation — phase tables in `amiga_tournament_standings` only. |

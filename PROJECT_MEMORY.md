@@ -67,6 +67,8 @@
 - **Amiga time travel (Jun 2026):** **T13–T18** — snapshot-only TT hub; player-wing TT entry = first event (`T14b`); pre-debut hero **—** + note (`T17`); **player Event chevrons** + picker accents (`T18`). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 - **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs tables shipped** — `amiga_matchup_snapshot_lib.php` (present + at-event); time travel wired. H2H rivalry wing still placeholder. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md).
 
+- **Amiga World Cups LB (Jun 2026):** **Slice 0 complete** — `amiga_player_slice_{totals,at_event}` (`slice_key=world_cup`); `wc_*` retired from honours block; finalize Python+PHP; `verify-player-slice` in `prove`; LB UI slice 1+. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md).
+
 ---
 
 ## Deep reference (read on demand)
@@ -111,6 +113,8 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga World Cups LB slice 0** — SCH-033 `amiga_player_slice_{totals,at_event}`; `wc_*` dropped from snapshots/current; writers `slice_totals.py` + PHP; readers JOIN slice (honours LB, calendar-geo, realm `MostWcPlayed`); `verify-player-slice` in `prove` green. |
+| 2026-06 | **Amiga World Cups LB policy** — slice tables + folder sub-wings; extract WC from tournament honours; V1 podium/results/goals; [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md). |
 | 2026-06 | **Amiga hero games date** — player games tab shows event day only (`Aug 4 2013`), no time. |
 | 2026-06 | **Amiga tournament games player filter** — dropdown sorted A–Z by name (`amiga_tournament_game_player_choices`). |
 | 2026-06 | **Opponents tables Games links** — W/D/L · Goals · DDs `Games` column → hero games tab `?opponent=` (online + Amiga; Amiga carries `as=`). |

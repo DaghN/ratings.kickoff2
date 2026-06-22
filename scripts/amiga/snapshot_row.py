@@ -63,11 +63,6 @@ HONOURS_SNAPSHOT_COLUMNS: tuple[str, ...] = (
     "event_silver",
     "event_bronze",
     "event_podiums",
-    "wc_played",
-    "wc_gold",
-    "wc_silver",
-    "wc_bronze",
-    "wc_podiums",
     "honours_last_event_date",
     "honours_last_tournament_id",
 )
@@ -79,11 +74,6 @@ HONOURS_CURRENT_COLUMNS: tuple[str, ...] = (
     "event_silver",
     "event_bronze",
     "event_podiums",
-    "wc_played",
-    "wc_gold",
-    "wc_silver",
-    "wc_bronze",
-    "wc_podiums",
 )
 
 _CAREER_SAMPLE = PlayerState().to_db_row(0)
@@ -157,11 +147,6 @@ def honours_columns_from_totals_row(totals: dict[str, Any]) -> dict[str, Any]:
         "event_silver": int(totals.get("event_silver") or 0),
         "event_bronze": int(totals.get("event_bronze") or 0),
         "event_podiums": int(totals.get("event_podiums") or 0),
-        "wc_played": int(totals.get("wc_played") or 0),
-        "wc_gold": int(totals.get("wc_gold") or 0),
-        "wc_silver": int(totals.get("wc_silver") or 0),
-        "wc_bronze": int(totals.get("wc_bronze") or 0),
-        "wc_podiums": int(totals.get("wc_podiums") or 0),
         "honours_last_event_date": totals.get("last_event_date"),
         "honours_last_tournament_id": totals.get("last_tournament_id"),
     }

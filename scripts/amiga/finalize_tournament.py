@@ -10,6 +10,11 @@ import pymysql
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.honours_totals import empty_honours_totals, increment_honours_totals
+from scripts.amiga.slice_persist import (
+    load_prior_world_cup_slices,
+    persist_world_cup_slices_at_tournament,
+)
+from scripts.amiga.slice_totals import empty_world_cup_slice, increment_world_cup_slice
 from scripts.amiga.player_stats_load import load_player_states_before_tournament
 from scripts.amiga.performance_rating import performance_rating_from_pairs
 from scripts.amiga.player_tournament_participation import build_participation_rows_for_tournament
@@ -206,6 +211,7 @@ def _persist_event_snapshots(
     event_commits: dict[int, dict[str, Any]],
     *,
     honours_by_player: dict[int, dict[str, Any]] | None = None,
+    slice_by_player: dict[int, dict[str, Any]] | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games: dict[tuple[int, int], int] | None = None,
     geo_year: PlayerGeoYearTracker | None = None,
@@ -234,7 +240,23 @@ def _persist_event_snapshots(
             increment_honours_totals(honours_by_player[pid], row)
             honours_for_event[pid] = dict(honours_by_player[pid])
 
-    return persist_tournament_event_snapshots(
+    participant_pids = [int(row["player_id"]) for row in part_rows]
+    if slice_by_player is not None:
+        slice_accum: dict[int, dict[str, Any]] = slice_by_player
+    else:
+        slice_accum = load_prior_world_cup_slices(conn, tournament_id, participant_pids)
+    slice_for_event: dict[int, dict[str, Any]] = {}
+    for row in part_rows:
+        pid = int(row["player_id"])
+        tid = int(row["tournament_id"])
+        if event_games is not None and honours_by_player is None:
+            event_games[(pid, tid)] = int(row.get("games") or 0)
+        if pid not in slice_accum:
+            slice_accum[pid] = empty_world_cup_slice()
+        increment_world_cup_slice(slice_accum[pid], row)
+        slice_for_event[pid] = dict(slice_accum[pid])
+
+    snapshot_rows = persist_tournament_event_snapshots(
         conn,
         tournament_id,
         players,
@@ -246,6 +268,26 @@ def _persist_event_snapshots(
         geo_year=geo_year,
         player_countries=player_countries,
     )
+
+    if slice_for_event:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT event_date, chrono FROM tournaments WHERE id = %s LIMIT 1",
+                (tournament_id,),
+            )
+            tour = cur.fetchone()
+        event_date = tour.get("event_date") if tour else None
+        event_chrono = float(tour.get("chrono") or 0.0) if tour else 0.0
+        persist_world_cup_slices_at_tournament(
+            conn,
+            tournament_id,
+            event_date,
+            event_chrono,
+            slice_for_event,
+            participant_ids=participant_ids,
+        )
+
+    return snapshot_rows
 
 
 def _rated_games_through_tournament_sql() -> str:
@@ -416,6 +458,7 @@ def finalize_tournament(
     players: dict[int, PlayerState] | None = None,
     names: dict[int, str] | None = None,
     honours_by_player: dict[int, dict[str, Any]] | None = None,
+    slice_by_player: dict[int, dict[str, Any]] | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games: dict[tuple[int, int], int] | None = None,
     matchups: MatchupCumulative | None = None,
@@ -577,6 +620,7 @@ def finalize_tournament(
         participant_ids,
         event_commits,
         honours_by_player=honours_by_player,
+        slice_by_player=slice_by_player,
         prior_career_best=prior_career_best,
         event_games=event_games,
         geo_year=geo_year,

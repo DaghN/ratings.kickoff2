@@ -364,9 +364,7 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 | `tournaments_won` | Same as `event_gold` (`event_finish_position = 1`) |
 | `event_gold` / `event_silver` / `event_bronze` | Holistic finish 1 / 2 / 3 across **all** tournaments |
 | `event_podiums` | `event_gold + event_silver + event_bronze` |
-| `wc_played` | increment on World Cup events (`amiga_tournament_is_world_cup`) |
-| `wc_gold` / `wc_silver` / `wc_bronze` | WC subset: finish 1 / 2 / 3 |
-| `wc_podiums` | `wc_gold + wc_silver + wc_bronze` |
+| ~~`wc_*`~~ | **Retired slice 0** — [`amiga_player_slice_totals`](amiga-world-cups-leaderboard-policy.md) / [`amiga_player_slice_at_event`](amiga-world-cups-leaderboard-policy.md) (`slice_key = 'world_cup'`); not on honours block |
 | `last_event_date` | MAX `event_date` |
 | `last_tournament_id` | tournament id at max chrono/date |
 
@@ -374,7 +372,9 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 
 **Writer:** running honours totals in finalize (`honours_totals.py` / `amiga_ops_persist_tournament_event_snapshots`); batch replay carries `honours_by_player` across tournaments in memory.
 
-**Optional later:** `amiga_player_tournament_slice_totals` (`player_id`, `slice_key`) — e.g. `world_cup`, `kitchen`, `milan` — if honours UI needs slice tabs like online `player_league_slice_totals`. Defer until honours wing design is fixed.
+**World Cup slice (locked Jun 2026):** [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) — `amiga_player_slice_totals` + `amiga_player_slice_at_event` (`slice_key = 'world_cup'`); honours + WC game stats; TT via at-event timeline. V1 LB sub-wings Honours · Results · Goals.
+
+**Optional later:** additional `slice_key` values (`kitchen`, `milan`, …) on the same tables when product asks.
 
 ### 5.4 Head-to-head — `amiga_player_matchup_summary` + `amiga_player_matchup_at_event`
 

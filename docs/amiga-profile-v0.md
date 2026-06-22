@@ -9,7 +9,8 @@
 | Hub nav | News · Leaderboards · Tournaments · Live tournaments · Activity · Hall of Fame (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
 | Leaderboard wings | `/amiga/leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `performance-rating.php` — via `amiga_lb_nav.php` (`/amiga/rating.php` → 302) |
-| Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` |
+| Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events; WC block **extracts** to World Cups wing when shipped) |
+| World Cups LB (planned) | `/amiga/leaderboards/world-cups/honours.php` · `results.php` · `goals.php` — [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) |
 | Hall of Fame | `/amiga/hall-of-fame.php` |
 | Profile | `/amiga/player/profile.php?id={amiga_players.id}` |
 | Tournament history | `/amiga/player/tournaments.php?id={amiga_players.id}` |

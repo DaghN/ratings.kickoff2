@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
 require_once __DIR__ . '/../includes/amiga_honours_totals_lib.php';
+require_once __DIR__ . '/amiga_slice_totals_lib.php';
+require_once __DIR__ . '/amiga_slice_persist_lib.php';
 require_once __DIR__ . '/../includes/amiga_career_rise_lib.php';
 require_once __DIR__ . '/amiga_elo_rank_lib.php';
 require_once dirname(__DIR__, 3) . '/ops/includes/post_game_player_state.php';
@@ -89,11 +91,6 @@ function amiga_ops_snapshot_honours_columns(): array
         'event_silver',
         'event_bronze',
         'event_podiums',
-        'wc_played',
-        'wc_gold',
-        'wc_silver',
-        'wc_bronze',
-        'wc_podiums',
         'honours_last_event_date',
         'honours_last_tournament_id',
     ];
@@ -112,11 +109,6 @@ function amiga_ops_honours_columns_from_totals_row(array $totals): array
         'event_silver' => (int) ($totals['event_silver'] ?? 0),
         'event_bronze' => (int) ($totals['event_bronze'] ?? 0),
         'event_podiums' => (int) ($totals['event_podiums'] ?? 0),
-        'wc_played' => (int) ($totals['wc_played'] ?? 0),
-        'wc_gold' => (int) ($totals['wc_gold'] ?? 0),
-        'wc_silver' => (int) ($totals['wc_silver'] ?? 0),
-        'wc_bronze' => (int) ($totals['wc_bronze'] ?? 0),
-        'wc_podiums' => (int) ($totals['wc_podiums'] ?? 0),
         'honours_last_event_date' => $totals['last_event_date'] ?? null,
         'honours_last_tournament_id' => $totals['last_tournament_id'] ?? null,
     ];
@@ -465,6 +457,9 @@ function amiga_ops_persist_tournament_event_snapshots(
     $eventDate = null;
     $eventChrono = 0.0;
 
+    $priorSlices = amiga_ops_load_prior_world_cup_slices($con, $tournamentId, $activeIds);
+    $sliceByPlayer = [];
+
     foreach ($activeIds as $pid) {
         $participation = $participationByPlayer[$pid] ?? null;
         if ($participation === null) {
@@ -479,6 +474,10 @@ function amiga_ops_persist_tournament_event_snapshots(
 
         $eventTotals = $totals;
         amiga_honours_increment_totals($eventTotals, $participation);
+
+        $sliceTotals = $priorSlices[$pid] ?? amiga_slice_empty_world_cup();
+        amiga_slice_increment_world_cup($sliceTotals, $participation);
+        $sliceByPlayer[$pid] = $sliceTotals;
 
         $prior = $priorBest[$pid] ?? ['rating' => null, 'tournament_id' => null, 'games' => 0];
         $perf = $participation['performance_rating'] !== null
@@ -553,6 +552,8 @@ function amiga_ops_persist_tournament_event_snapshots(
         $ranks,
         $participantIds
     );
+
+    amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
 
     return $written;
 }

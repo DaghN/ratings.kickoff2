@@ -47,6 +47,7 @@ from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_
 from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_main
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
+from scripts.amiga.verify_player_slice import main as verify_player_slice_main
 from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.import_manifest import default_manifest_path
@@ -331,6 +332,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "verify-stored-id-date-pairs",
         help="Assert rise/honours id-date pairing + career-best replay (stored-field semantics Phase C)",
+    )
+
+    sub.add_parser(
+        "verify-player-slice",
+        help="Assert world_cup slice tables vs WC participation/game oracles",
     )
 
     sub.add_parser(
@@ -649,6 +655,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-player-participation":
         return verify_player_participation_main()
+
+    if args.cmd == "verify-player-slice":
+        return verify_player_slice_main()
 
     if args.cmd == "verify-player-matchups":
         return verify_player_matchups_main()

@@ -63,44 +63,17 @@ class HonoursRiseDatesTests(unittest.TestCase):
         self.assertEqual(totals["event_gold_last_rise_tournament_id"], 12)
         self.assertEqual(totals["event_gold_last_rise_event_date"], date(2021, 3, 1))
 
-    def test_wc_played_rise_only_on_world_cup_name(self) -> None:
-        totals = empty_honours_totals()
-        increment_honours_totals(
-            totals,
-            _participation(
-                tournament_id=20,
-                event_date=date(2022, 6, 1),
-                tournament_name="Athens XC",
-                event_finish_position=4,
-            ),
-        )
-        self.assertIsNone(totals["wc_played_last_rise_tournament_id"])
-
-        increment_honours_totals(
-            totals,
-            _participation(
-                tournament_id=21,
-                event_date=date(2022, 11, 1),
-                tournament_name="World Cup XXII (Nottingham)",
-                event_finish_position=8,
-            ),
-        )
-        self.assertEqual(totals["wc_played"], 1)
-        self.assertEqual(totals["wc_played_last_rise_tournament_id"], 21)
-        self.assertEqual(totals["wc_played_last_rise_event_date"], date(2022, 11, 1))
-
     def test_participation_without_metric_rise_preserves_prior_rise(self) -> None:
-        """Alkis pattern: 58th win then later WC without winning — gold rise stays at win event."""
+        """Gold rise stays at win event when a later non-win participation follows."""
         totals = empty_honours_totals()
-        for tid, edate in ((24, date(2025, 9, 20)),):
-            increment_honours_totals(
-                totals,
-                _participation(
-                    tournament_id=tid,
-                    event_date=edate,
-                    event_finish_position=1,
-                ),
-            )
+        increment_honours_totals(
+            totals,
+            _participation(
+                tournament_id=24,
+                event_date=date(2025, 9, 20),
+                event_finish_position=1,
+            ),
+        )
         self.assertEqual(totals["event_gold"], 1)
         win_tid = totals["event_gold_last_rise_tournament_id"]
         win_date = totals["event_gold_last_rise_event_date"]
@@ -118,13 +91,11 @@ class HonoursRiseDatesTests(unittest.TestCase):
         self.assertEqual(totals["event_gold_last_rise_tournament_id"], win_tid)
         self.assertEqual(totals["event_gold_last_rise_event_date"], win_date)
         self.assertEqual(totals["last_event_date"], date(2025, 11, 1))
-        self.assertEqual(totals["wc_played_last_rise_tournament_id"], 25)
 
     def test_honours_from_current_row_carries_rise_fields(self) -> None:
         row = {
             "tournaments_played": 3,
             "event_gold": 2,
-            "wc_played": 1,
             "last_event_date": date(2024, 1, 1),
             "last_tournament_id": 99,
             "event_gold_last_rise_tournament_id": 42,

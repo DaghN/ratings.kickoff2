@@ -38,7 +38,7 @@ _CAREER_HOLDERS: list[tuple[str, str, str]] = [
     ("MostTournamentsInOneYear", "peak_year_tournaments", "MostTournamentsInOneYear"),
     ("MostTournamentsPlayed", "tournaments_played", "MostTournamentsPlayed"),
     ("MostTournamentWins", "event_gold", "MostTournamentWins"),
-    ("MostWcPlayed", "wc_played", "MostWcPlayed"),
+    ("MostWcPlayed", "wc_slice_tournaments_played", "MostWcPlayed"),
     ("MostCountriesPlayedIn", "countries_played_in", "MostCountriesPlayedIn"),
     ("MostOpponentCountriesFaced", "opponent_countries_faced", "MostOpponentCountriesFaced"),
     ("MostOpponentCountriesBeaten", "opponent_countries_beaten", "MostOpponentCountriesBeaten"),
@@ -116,18 +116,38 @@ def _load_cutoff_player_rows(
             WHERE {game_cutoff_sql("t_cut")}
         )
         SELECT lp.*, p.name AS player_name,
+               COALESCE(wcs.tournaments_played, 0) AS wc_slice_tournaments_played,
+               wcs.tournaments_played_last_rise_event_date
+                   AS wc_slice_tournaments_played_last_rise_event_date,
                COALESCE(
                    DATE_FORMAT(t.event_date, '%%Y-%%m-%%d'),
                    DATE_FORMAT(g.game_date, '%%Y-%%m-%%d')
                ) AS record_date
         FROM latest_lp lp
         INNER JOIN amiga_players p ON p.id = lp.player_id
+        LEFT JOIN (
+            SELECT x.player_id, x.tournaments_played, x.tournaments_played_last_rise_event_date
+            FROM (
+                SELECT s.*,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY s.player_id
+                           ORDER BY s.event_date DESC, s.event_chrono DESC,
+                                    s.as_of_tournament_id DESC
+                       ) AS rn
+                FROM amiga_player_slice_at_event s
+                INNER JOIN tournaments t_cut ON t_cut.id = %s
+                WHERE s.slice_key = 'world_cup'
+                  AND (s.event_date, s.event_chrono, s.as_of_tournament_id)
+                      <= (t_cut.event_date, t_cut.chrono, t_cut.id)
+            ) x
+            WHERE x.rn = 1
+        ) wcs ON wcs.player_id = lp.player_id
         LEFT JOIN amiga_games g ON g.id = lp.LastGameGameID
         LEFT JOIN tournaments t ON t.id = g.tournament_id
         WHERE lp.rn = 1
     """
     with conn.cursor() as cur:
-        cur.execute(sql, params)
+        cur.execute(sql, params + (cutoff.tournament_id,))
         return list(cur.fetchall())
 
 

@@ -222,6 +222,64 @@ function amiga_realm_career_holder_patch(
     ];
 }
 
+/**
+ * Most World Cups played — from slice at cutoff (not honours block).
+ *
+ * @param array{event_date: string, chrono: float|int, tournament_id: int} $cutoff
+ * @return array<string, mixed>
+ */
+function amiga_realm_wc_slice_holder_patch(mysqli $con, array $cutoff): array
+{
+    $latestSql = amiga_realm_latest_player_snapshots_sql();
+    $sql = "
+        SELECT lp.player_id, lp.player_name AS name,
+               wcs.tournaments_played AS record_value,
+               wcs.tournaments_played_last_rise_event_date AS record_date
+        FROM ({$latestSql}) lp
+        INNER JOIN (
+            SELECT x.player_id, x.tournaments_played, x.tournaments_played_last_rise_event_date
+            FROM (
+                SELECT s.*,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY s.player_id
+                           ORDER BY s.event_date DESC, s.event_chrono DESC, s.as_of_tournament_id DESC
+                       ) AS rn
+                FROM amiga_player_slice_at_event s
+                INNER JOIN tournaments t_cut ON t_cut.id = ?
+                WHERE s.slice_key = 'world_cup'
+                  AND (s.event_date, s.event_chrono, s.as_of_tournament_id)
+                      <= (t_cut.event_date, t_cut.chrono, t_cut.id)
+            ) x
+            WHERE x.rn = 1 AND x.tournaments_played > 0
+        ) wcs ON wcs.player_id = lp.player_id
+        ORDER BY wcs.tournaments_played DESC, lp.player_id ASC
+        LIMIT 1
+    ";
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare wc slice holder: ' . $con->error);
+    }
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = (int) $cutoff['tournament_id'];
+    $stmt->bind_param('sddi', $eventDate, $chrono, $tournamentId, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute wc slice holder: ' . $con->error);
+    }
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if ($row === null) {
+        return [];
+    }
+
+    return [
+        'MostWcPlayed' => $row['record_value'],
+        'MostWcPlayedID' => (int) $row['player_id'],
+        'MostWcPlayedName' => (string) $row['name'],
+        'MostWcPlayedDate' => $row['record_date'] !== null ? (string) $row['record_date'] : null,
+    ];
+}
+
 function amiga_realm_game_event_date_sql(): string
 {
     return "COALESCE(DATE_FORMAT(t.event_date, '%Y-%m-%d'), DATE_FORMAT(g.game_date, '%Y-%m-%d'))";
@@ -505,7 +563,6 @@ function amiga_realm_build_generalstats_payload_oracle(mysqli $con, int $tournam
         ['peak_year_tournaments', 'peak_year_tournaments', 'MostTournamentsInOneYear'],
         ['tournaments_played', 'tournaments_played', 'MostTournamentsPlayed'],
         ['event_gold', 'event_gold', 'MostTournamentWins'],
-        ['wc_played', 'wc_played', 'MostWcPlayed'],
         ['countries_played_in', 'countries_played_in', 'MostCountriesPlayedIn'],
         ['opponent_countries_faced', 'opponent_countries_faced', 'MostOpponentCountriesFaced'],
         ['opponent_countries_beaten', 'opponent_countries_beaten', 'MostOpponentCountriesBeaten'],
@@ -516,6 +573,7 @@ function amiga_realm_build_generalstats_payload_oracle(mysqli $con, int $tournam
             amiga_realm_career_holder_patch($con, $cutoff, $valueCol, $prefix)
         );
     }
+    $patch = array_merge($patch, amiga_realm_wc_slice_holder_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_biggest_peak_in_game_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_most_goals_one_game_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_biggest_win_margin_patch($con, $cutoff));

@@ -474,6 +474,8 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
         return amiga_lb_honours_rows_at_cutoff($con, $ctx);
     }
 
+    require_once __DIR__ . '/amiga_player_slice_lib.php';
+
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
@@ -483,18 +485,15 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
                    t.event_silver,
                    t.event_bronze,
                    t.event_podiums,
-                   t.wc_played,
-                   t.wc_gold,
-                   t.wc_silver,
-                   t.wc_bronze,
-                   t.wc_podiums
+                   ' . amiga_slice_wc_lb_select_sql('wcs') . '
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
+            ' . amiga_slice_present_join_sql('t.player_id') . '
             WHERE t.tournaments_played > 0
             ORDER BY t.tournaments_played DESC,
                      t.event_gold DESC,
                      t.event_podiums DESC,
-                     t.wc_gold DESC,
+                     COALESCE(wcs.gold, 0) DESC,
                      t.player_id ASC';
     $result = mysqli_query($con, $sql);
     if (!$result) {
@@ -522,6 +521,8 @@ function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext 
         return amiga_lb_calendar_geo_rows_at_cutoff($con, $ctx);
     }
 
+    require_once __DIR__ . '/amiga_player_slice_lib.php';
+
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
@@ -535,9 +536,10 @@ function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext 
                    t.opponent_countries_beaten,
                    t.tournaments_played,
                    t.event_gold,
-                   t.wc_played
+                   COALESCE(wcs.tournaments_played, 0) AS wc_played
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
+            ' . amiga_slice_present_join_sql('t.player_id') . '
             WHERE t.NumberGames > 0
             ORDER BY t.peak_year_games DESC,
                      t.peak_year_games_year ASC,

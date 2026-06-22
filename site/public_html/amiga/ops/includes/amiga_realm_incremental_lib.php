@@ -167,9 +167,14 @@ function amiga_realm_fetch_player_current_rows(mysqli $con): array
 {
     $sql = "
         SELECT s.*, p.name AS player_name,
+               COALESCE(wcs.tournaments_played, 0) AS wc_slice_tournaments_played,
+               wcs.tournaments_played_last_rise_event_date
+                   AS wc_slice_tournaments_played_last_rise_event_date,
                COALESCE(DATE_FORMAT(t.event_date, '%Y-%m-%d'), DATE_FORMAT(g.game_date, '%Y-%m-%d')) AS record_date
         FROM amiga_player_current s
         INNER JOIN amiga_players p ON p.id = s.player_id
+        LEFT JOIN amiga_player_slice_totals wcs
+            ON wcs.player_id = s.player_id AND wcs.slice_key = 'world_cup'
         LEFT JOIN amiga_games g ON g.id = s.LastGameGameID
         LEFT JOIN tournaments t ON t.id = g.tournament_id
         WHERE s.NumberGames >= 1
@@ -208,7 +213,7 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
         ['peak_year_tournaments', 'MostTournamentsInOneYear'],
         ['tournaments_played', 'MostTournamentsPlayed'],
         ['event_gold', 'MostTournamentWins'],
-        ['wc_played', 'MostWcPlayed'],
+        ['wc_slice_tournaments_played', 'MostWcPlayed'],
         ['countries_played_in', 'MostCountriesPlayedIn'],
         ['opponent_countries_faced', 'MostOpponentCountriesFaced'],
         ['opponent_countries_beaten', 'MostOpponentCountriesBeaten'],
@@ -218,7 +223,7 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
         'MostTournamentsInOneYear' => 'peak_year_tournaments_year',
         'MostTournamentsPlayed' => 'tournaments_played_last_rise_event_date',
         'MostTournamentWins' => 'event_gold_last_rise_event_date',
-        'MostWcPlayed' => 'wc_played_last_rise_event_date',
+        'MostWcPlayed' => 'wc_slice_tournaments_played_last_rise_event_date',
         'MostCountriesPlayedIn' => 'countries_played_in_last_rise_event_date',
         'MostOpponentCountriesFaced' => 'opponent_countries_faced_last_rise_event_date',
         'MostOpponentCountriesBeaten' => 'opponent_countries_beaten_last_rise_event_date',

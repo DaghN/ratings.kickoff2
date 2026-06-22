@@ -195,7 +195,9 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_game_ratings` | Derived | Tournament finalize (`finalize_tournament` / `replay`) — per-game facts, not global rating commit | Active |
 | `amiga_player_event_snapshots` | Derived | Tournament finalize / `replay` — sparse timeline (event-local + career + honours + rating block + **`elo_rank`** + geo/year scalars + **HoF rise dates** per [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)) | **Active** |
 | `amiga_player_elo_rank_at_event` | Derived | Tournament finalize / `replay` — one row per (player, tournament) with ladder rank after that event (all players with games > 0; supports TT hero + rank-over-time chart) | **Active** |
-| `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours + geo/year scalars + rise dates) | **Active** |
+| `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours + geo/year scalars + rise dates); **no `wc_*`** (WC → slice tables) | **Active** |
+| `amiga_player_slice_totals` | Derived | Tournament finalize / `replay` — present WC career stats per player (`slice_key = 'world_cup'`). Policy [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) | **Active** |
+| `amiga_player_slice_at_event` | Derived | Tournament finalize / `replay` — WC slice timeline at each participated event (sparse: only players with `tournaments_played > 0`) | **Active** |
 | `amiga_rating_events` | Derived | **Retired slice 8** — replaced by snapshot event rating block | Retired |
 | `amiga_player_stats` | Derived | **Retired slice 8** — replaced by `amiga_player_current` | Retired |
 | `amiga_player_tournament_participation` | Derived | **Retired slice 8** — event-local block on snapshots | Retired |
@@ -213,7 +215,7 @@ DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/
 
 ### HoF record rise dates (SCH-029)
 
-Twelve nullable columns on **`amiga_player_event_snapshots`** and **`amiga_player_current`** (identical set): per metric `{metric}_last_rise_tournament_id` + `{metric}_last_rise_event_date` for `tournaments_played`, `event_gold`, `wc_played`, `countries_played_in`, `opponent_countries_faced`, `opponent_countries_beaten`. DDL: `sql/derived/029_hof_record_rise_dates.sql`.
+Ten nullable columns on **`amiga_player_event_snapshots`** and **`amiga_player_current`** (identical set): per metric `{metric}_last_rise_tournament_id` + `{metric}_last_rise_event_date` for `tournaments_played`, `event_gold`, `countries_played_in`, `opponent_countries_faced`, `opponent_countries_beaten`. **`wc_played` rise retired** — `tournaments_played_last_rise_*` on **`amiga_player_slice_*`** (SCH-033). DDL: `sql/derived/029_hof_record_rise_dates.sql`.
 
 ### Career cumulative rise dates (SCH-030)
 

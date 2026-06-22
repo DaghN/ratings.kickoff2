@@ -145,8 +145,6 @@ HONOURS_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
     "tournaments_played_last_rise_event_date",
     "event_gold_last_rise_tournament_id",
     "event_gold_last_rise_event_date",
-    "wc_played_last_rise_tournament_id",
-    "wc_played_last_rise_event_date",
 )
 
 from scripts.amiga.career_rise import CAREER_RISE_PLAYER_COLUMNS  # noqa: E402

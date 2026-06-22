@@ -110,6 +110,8 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
         cur.execute("DELETE FROM amiga_realm_snapshots")
         cur.execute("DELETE FROM amiga_player_matchup_at_event")
         cur.execute("DELETE FROM amiga_player_matchup_summary")
+        cur.execute("DELETE FROM amiga_player_slice_at_event")
+        cur.execute("DELETE FROM amiga_player_slice_totals")
         cur.execute("DELETE FROM amiga_player_current")
         cur.execute("DELETE FROM amiga_player_event_snapshots")
         cur.execute("DELETE FROM amiga_tournament_catalog_stats")
@@ -240,6 +242,7 @@ def replay_all(
     player_countries = load_player_countries(conn)
     geo_year = PlayerGeoYearTracker()
     honours_by_player: dict[int, dict[str, Any]] = {}
+    slice_by_player: dict[int, dict[str, Any]] = {}
     prior_career_best: dict[int, dict[str, Any]] = {}
     event_games: dict[tuple[int, int], int] = {}
     prior_realm_payload: dict[str, Any] = empty_prior_payload()
@@ -253,6 +256,7 @@ def replay_all(
             players=players,
             names=names,
             honours_by_player=honours_by_player,
+            slice_by_player=slice_by_player,
             prior_career_best=prior_career_best,
             event_games=event_games,
             matchups=matchups,
