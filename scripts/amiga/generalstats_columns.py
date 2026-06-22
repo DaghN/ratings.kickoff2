@@ -211,10 +211,9 @@ RECORD_HOLDER_COLUMNS: tuple[str, ...] = (
     + RECORD_HOLDER_GAME_ID_COLUMNS
 )
 
-# All non-id columns on amiga_generalstats (present projection).
+# HoF record book only — community headline aggregates live on amiga_community_*.
 GENERALSTATS_PAYLOAD_COLUMNS: tuple[str, ...] = (
-    GENERALSTATS_AGGREGATE_COLUMNS
-    + RECORD_HOLDER_COLUMNS
+    RECORD_HOLDER_COLUMNS
     + RATIO_LEADER_COLUMNS
 )
 

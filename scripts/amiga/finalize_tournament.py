@@ -33,6 +33,7 @@ from scripts.amiga.matchup_cumulative import (
     apply_peak_from_event_rating,
 )
 from scripts.amiga.matchup_persist import persist_matchup_at_event, upsert_matchup_summary
+from scripts.amiga.community_persist import persist_community_for_tournament
 from scripts.amiga.realm_persist import persist_realm_snapshot_for_tournament
 from scripts.amiga.generalstats_columns import GENERALSTATS_PAYLOAD_COLUMNS
 from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
@@ -646,6 +647,14 @@ def finalize_tournament(
         matchup_at_event_rows,
         summary_rows,
     )
+
+    persist_community_for_tournament(
+        conn,
+        tournament_id,
+        finalized_at=finalized_at,
+        commit=False,
+    )
+    log.info("finalize_tournament: community stats tournament_id=%s", tournament_id)
 
     persist_realm_snapshot_for_tournament(
         conn,

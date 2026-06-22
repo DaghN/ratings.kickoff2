@@ -1,7 +1,7 @@
 # Amiga ground stack — strict layer chain (L0–L5)
 
-**Status:** **Policy locked** (Jun 2026) — strict L2→L3 path **shipped** (slice 10); slice **11** adds L2→L3 boundary verify (see §7).  
-**Authority:** This doc states **engineering intent** for the koatd pipeline. When it conflicts with older “prove skips L1/L2” wording, **this doc wins** until code catches up.  
+**Status:** **Policy locked** (Jun 2026) — strict L0→L5 stack **shipped** (slices 1–11).  
+**Authority:** This doc states **engineering intent** for the koatd pipeline. When it conflicts with older archived wording (e.g. “prove skips L1/L2”), **this doc wins**. Strict stack **shipped** slices 1–11 (Jun 2026).  
 **Parent:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md)
 
 ---
@@ -142,8 +142,8 @@ Exact CLI flags are implementation detail; **S1–S3** are the contract.
 | Track | Status |
 |-------|--------|
 | L2 `witness_player_identity`; drop `Countries` | **Done** (slice 9) |
-| L3 from L2 only; `prove` L1→L5; no `.mdb` on witness path | **Done** (slice 10) — `import_l2_witness.py`, `prepare_witness_from_l2` |
-| L2→L3 boundary verify (row counts, nationality join coverage) | **Next** (slice 11) |
+| L3 from L2 only; `prove` L1→L5; no `.mdb` on witness path | **Done** (slice 10) |
+| L2→L3 boundary verify (`verify-l2-l3`) | **Done** (slice 11) |
 
 `prepare_witness_from_access(mdb)` remains for **legacy audit** only — not used by `prove` or `import-witness`.
 

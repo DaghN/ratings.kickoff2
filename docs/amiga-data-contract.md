@@ -26,6 +26,7 @@
 | **Historical rating ladder snapshots** (V1 shipped) | [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) · plan [`amiga-rating-history-implementation-plan.md`](amiga-rating-history-implementation-plan.md) |
 | **Event snapshots** (canonical player timeline + `amiga_player_current`) | [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · plan [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md) |
 | **Time travel** (realm-wide `as=` lens; phase 1 **shipped** — LB 8 wings, HoF) | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · plan [`amiga-time-travel-implementation-plan.md`](amiga-time-travel-implementation-plan.md) · smoke [`scripts/oneoff/amiga_time_travel_smoke.php`](../scripts/oneoff/amiga_time_travel_smoke.php) |
+| **Community stats** (realm-wide Activity aggregates; separate from HoF) | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · plan [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) |
 | **Where to store player×event derived stats** | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
@@ -208,8 +209,11 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_tournament_finish_override` | **L3 witness** (curated) | Manual import / ops; Tier E historical claims. DDL `sql/ground/002_tournament_finish_override.sql` | Active |
 | `amiga_player_matchup_at_event` | Derived | Tournament finalize — cumulative directed pair stats (+ SCH-031 extremes) as of each participated event. Read: future Opponents wing at cutoff | **Active** |
 | `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary`); repair: `matchup-rebuild` CLI. SCH-031 goal extremes. Read: future Opponents wing | **Active** |
-| `amiga_realm_snapshots` | Derived | Tournament finalize / `replay` — full `amiga_generalstats` payload per finalized event. Policy [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) | **Active** |
+| `amiga_realm_snapshots` | Derived | Tournament finalize / `replay` — full HoF record-book payload per finalized event. Policy [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md). Realm headline totals on community stats (`035` dropped legacy aggregate cols) | **Active** |
 | `amiga_generalstats` | Derived | Tournament finalize / `replay` — present projection (latest realm snapshot). Ratio leaders on row. Read: `/amiga/hall-of-fame.php`. Repair: `generalstats-rebuild` oracle only | **Active** |
+| `amiga_community_stats` | Derived | Tournament finalize / `replay` — present headline community scalars (`id = 1`). Policy [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | **Active** |
+| `amiga_community_stats_snapshots` | Derived | Tournament finalize / `replay` — headline scalars per finalized `tournament_id` | **Active** |
+| `amiga_community_stat_facts` | Derived | Tournament finalize / `replay` — period × slice × metric facts per `tournament_id` | **Active** |
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
 DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.

@@ -146,7 +146,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | **Player profile** — hero / career / honours | Player snapshot at cutoff |
 | **Opponents H2H** (poster · moments · charts) | Pair games ≤ cutoff + stored pair row |
 | Profile — moments, rating chart, perf highlight | Mixed; wire per slice |
-| Activity / server aggregates | `amiga_realm_snapshots` aggregate columns |
+| Activity / server aggregates | `amiga_community_stats` (+ snapshots at cutoff) |
 | Hub tournaments index (optional) | Filter catalog ≤ cutoff — tab may stay hidden (T13b) |
 | Rating chart overlay | Optional vertical marker at cutoff |
 

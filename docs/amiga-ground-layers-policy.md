@@ -1,6 +1,6 @@
 # Amiga ground layers — policy (L0–L5)
 
-**Status:** **Policy v3** (Jun 2026) — strict stack **locked** in [`amiga-ground-stack.md`](amiga-ground-stack.md). Slices 1–10 shipped; **slice 11** — L2→L3 boundary verify.  
+**Status:** **Policy v3** (Jun 2026) — strict stack **locked** and **shipped** (slices 1–11).  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md)
 
 **Purpose:** Define the offline Amiga **data pipeline** (L0–L5): what each step contains, how layers depend on each other, what is community-publishable vs ratings.kickoff.com product-only, and how this maps to code/DDL folder names.
@@ -220,10 +220,10 @@ Pack A must not require Pack C tables.
 |-------|-----|--------|
 | L1 Mirror | `import-pristine` | `verify-pristine` |
 | L2 Prune | `import-prune` | `verify-prune` |
-| L3 Witness | `import-witness` | `verify-witness` |
+| L3 Witness | `import-witness` | `verify-witness`, `verify-l2-l3` |
 | L4 Structure | `apply-structure --from-disposition` | `verify-structure` |
 | L5 Product | `replay` | `prove` verify suite |
-| Orchestrator | `prove` | full chain L1→L5 → verify (target) |
+| Orchestrator | `prove` | full chain L1→L5 → verify (includes `verify-l2-l3`) |
 | Export packs | `export-pack {mirror\|ground\|structure\|product\|all}` | `verify-export-pack` |
 | Staging browser import | `scripts/export_ko2amiga_db.ps1` | preview URL in [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 
@@ -252,11 +252,11 @@ Structure track ([`amiga-tournament-structure-policy.md`](amiga-tournament-struc
 |-------|------|
 | L0 vs L1 | `verify-pristine` |
 | L1 vs L2 | `verify-prune` (partition, extracts, no rating columns) |
-| L2 vs L3 | `verify-witness` + planned L2→L3 input parity (slice 11) |
+| L2 vs L3 | `verify-l2-l3` (manifest lineage, re-prepare parity, nationality oracle) + `verify-witness` |
 | L3 | `verify-chronology`, `verify-import-manifest`, catalog audits |
 | L4 | `verify-disposition-register`, `verify-structure`, `verify-export-pack structure` |
 | L5 | `prove` verify suite |
-| Full loop | `python -m scripts.amiga prove` (target: L1→L5, no `.mdb` in L3) |
+| Full loop | `python -m scripts.amiga prove` — L1→L5, no `.mdb` on L3 witness path |
 
 ---
 

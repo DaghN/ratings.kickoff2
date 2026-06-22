@@ -40,6 +40,8 @@ DERIVED_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "derived" / "031_matchup_summary_opponents_ext.sql",
     _SQL_ROOT / "derived" / "032_elo_rank.sql",
     _SQL_ROOT / "derived" / "033_player_slice.sql",
+    _SQL_ROOT / "derived" / "034_community_stats.sql",
+    _SQL_ROOT / "derived" / "035_drop_realm_aggregate_columns.sql",
 )
 
 # Legacy flat paths (archaeology / one-off scripts — not apply_schema).
@@ -47,6 +49,9 @@ LEGACY_SQL_TRACK_B = _SQL_ROOT / "002_tournament_standings.sql"
 LEGACY_SQL_KNOCKOUT = _SQL_ROOT / "003_knockout_scope.sql"
 
 _DERIVED_DROP_ORDER = (
+    "amiga_community_stat_facts",
+    "amiga_community_stats_snapshots",
+    "amiga_community_stats",
     "amiga_player_slice_at_event",
     "amiga_player_slice_totals",
     "amiga_generalstats",

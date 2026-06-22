@@ -583,6 +583,18 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
     if ($dryRun) {
         return;
     }
+    if (!$con->query('DELETE FROM amiga_community_stat_facts')) {
+        throw new RuntimeException('DELETE amiga_community_stat_facts: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_community_stats_snapshots')) {
+        throw new RuntimeException('DELETE amiga_community_stats_snapshots: ' . $con->error);
+    }
+    if (!$con->query('DELETE FROM amiga_community_stats WHERE id = 1')) {
+        throw new RuntimeException('DELETE amiga_community_stats: ' . $con->error);
+    }
+    if (!$con->query('INSERT IGNORE INTO amiga_community_stats (id) VALUES (1)')) {
+        throw new RuntimeException('INSERT amiga_community_stats seed: ' . $con->error);
+    }
     if (!$con->query('DELETE FROM amiga_generalstats WHERE id = 1')) {
         throw new RuntimeException('DELETE amiga_generalstats: ' . $con->error);
     }

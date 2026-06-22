@@ -2,7 +2,7 @@
 
 **Kick Off 2 ratings site · May 2026**
 
-**Status:** **Shipped v0** (May–Jun 2026) — 112 keys, tier bands in seed + catalog, profile garden + `leaderboards/milestones.php` + hub stub live.
+**Status:** **Shipped v0** (May–Jun 2026) — **112/112** keys (rebuild + PHP ops P6); profile garden; Leaderboards **Milestones** wing (`leaderboards/milestones.php`); hub **Recent** + **Catalog** + `milestone.php`.
 
 **Related:** [`milestones-project.md`](milestones-project.md) (phases) · archived brainstorm in [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md)
 
@@ -84,29 +84,34 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 
 ---
 
-## 6. Meta-leaderboard (plan)
+## 6. Meta-leaderboard
+
+**Shipped:** Leaderboards wing **`leaderboards/milestones.php`** (`k2_route('lb-milestones')`) — `k2_milestone_meta_leaderboard_rows()` reads **`player_milestone_totals`** when available (SCH-020).
+
+**Columns:** Player · ELO · Games · per-tier counts (Aspirational · Dedicated · Accomplished · Legendary) · **Milestones** (total).
 
 **Default sort:**
 
 1. **Total** milestones unlocked (descending)
 2. Tie-break, in order (mimics league boards: common periods first, rare last):
    - Count of **Aspirational** (`pitch`) unlocks
-   - Count of **Veteran** (`chrome`) unlocks
-   - Count of **Key** (`amber`) unlocks
+   - Count of **Dedicated** (`chrome`) unlocks
+   - Count of **Accomplished** (`amber`) unlocks
    - Count of **Legendary** (`holo`) unlocks
 
-**TBD:** separate “Key completion %” (amber unlocked / amber defined) — interesting but not required for v1.
+**Deferred (optional):** separate sort or wing for **Accomplished completion %** (amber unlocked ÷ amber defined in catalog, e.g. 14/20) — not the same as the shipped tier-count columns.
 
 ---
 
-## 7. Data & catalog (unchanged baseline; plan hooks)
+## 7. Data & catalog
 
-| Item | Plan |
-|------|------|
+| Item | State |
+|------|--------|
 | `player_milestones` | One row per player per `milestone_key`; `achieved_at` UTC |
 | Unlock event link + context | [`milestones-unlock-event-ui.md`](milestones-unlock-event-ui.md) · catalog [`milestones-catalog.md`](milestones-catalog.md) + `data/milestone_garden_links.json` |
-| `milestone_definitions` (Phase 3) | SCH-011; **112** rows from [`data/milestones_definitions_seed.json`](../data/milestones_definitions_seed.json) |
-| `player_milestones` unlock rows | **22 key types** after rebuild wave 1 (2 game + 20 league); ~88 TODO — [`milestones-facilitation.md`](milestones-facilitation.md) |
+| `milestone_definitions` | SCH-011; **112** rows from [`site/public_html/ops/data/milestones_definitions_seed.json`](../site/public_html/ops/data/milestones_definitions_seed.json) |
+| `player_milestones` unlock rules | **112/112** keys — all rebuild waves done; forward path PHP ops P6 + `FinalizeUtcDay` + register — [`milestones-facilitation.md`](milestones-facilitation.md) |
+| `player_milestone_totals` | SCH-020; per-player tier counts for meta LB + profile hero |
 
 ---
 
@@ -115,22 +120,25 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | Topic | State |
 |-------|--------|
 | Final milestone list | **112 keys** — [`milestones-catalog.md`](milestones-catalog.md) (generated) |
-| Exact Key (~15–20) keys | **20 accomplished band** — locked in curated list |
+| Exact Accomplished band keys | **20** — locked in curated list |
 | League rules (podium vs winner, win totals) | **Locked** — [`leagues-rules-spec.md`](leagues-rules-spec.md) |
-| Profile layout for milestones | Integrate when profile rethought |
-| Key completion % leaderboard | TBD |
-| Hub tab route | **`milestones.php`** stub (May 2026); full hub WIP — [`milestones-hub-ia.md`](milestones-hub-ia.md) |
+| Profile layout for milestones | Gradual integration — garden + chronology shipped; deeper profile pass optional |
+| Accomplished completion % wing | **Deferred** — optional; meta LB ships tier **counts** today |
+| Hub future phases | Story feed, chart migration — [`milestones-hub-ia.md`](milestones-hub-ia.md) |
 
-**Shipped v0 URLs (May 2026, local):** hub stub `milestones.php` · garden `player/milestones.php?id={player}` · meta-leaderboard `leaderboards/milestones.php` · profile hero milestones on all player tabs (`player_hero.php`) · trial achiever list on `hall-of-fame.php` (Double Digit Merchant only; migrates when hub ready).
-
----
-
-## 9. Phase 3 entry (implementation)
-
-1. **`milestone_definitions`** — SCH-011 + seed load (done locally May 2026).
-2. **Rebuild waves** — see [`milestones-facilitation.md`](milestones-facilitation.md); league wave done.
-3. **Hub wireframe** — four tier sections + garden states (Phase 4).
+**Shipped URLs:** hub default `milestones/recent.php` · catalog `milestones/catalog.php` · per-key `milestone.php?key=` · garden `player/milestones.php?id={player}` · chronology `player/milestones/chronology.php?id={player}` · meta LB `leaderboards/milestones.php` · profile hero on all player tabs.
 
 ---
 
-*Plan recorded May 2026. Phase 2 definition complete; Phase 3 data contract in progress.*
+## 9. Implementation status (Jun 2026)
+
+1. **`milestone_definitions`** — SCH-011 + seed load — **done**.
+2. **Rebuild waves** — all waves — **done** ([`milestones-facilitation.md`](milestones-facilitation.md)).
+3. **UI + hub v2** — garden, meta LB, Recent, Catalog, `milestone.php` — **done**.
+4. **Forward post-game** — PHP ops P6 — **done** on work (`kooldb1` simul); prod C++ until Steve cutover.
+
+Phase map: [`milestones-project.md`](milestones-project.md).
+
+---
+
+*Plan recorded May 2026. Phases 1–4 v0 complete Jun 2026.*

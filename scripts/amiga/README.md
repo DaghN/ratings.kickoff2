@@ -19,9 +19,9 @@ python -m scripts.amiga prove
 powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 ```
 
-`prove` = L1 `import-pristine` → L2 `import-prune` → L3 `import-witness` → L4 `apply-structure` → L5 `replay` → verify suite (strict stack — slice 10).
+`prove` = L1 `import-pristine` → L2 `import-prune` → L3 `import-witness` → L4 `apply-structure` → L5 `replay` → verify suite (strict stack, slices 1–11 complete).
 
-**Strict stack policy:** [`docs/amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) (v3). **Next:** slice 11 — L2→L3 boundary verify.
+**Strict stack policy:** [`docs/amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) (v3).
 
 **Modular pipeline (L0–L5):** DDL bundles `sql/ground|structure|derived` = L3|L4|L5. L1/L2 = SQL dumps under `data/amiga/exports/`.
 
@@ -34,12 +34,13 @@ python -m scripts.amiga verify-pristine
 python -m scripts.amiga import-prune
 python -m scripts.amiga verify-prune
 # L1: data/amiga/exports/pristine/  →  L2: data/amiga/exports/pruned/
-# Target L2 tables: Scores, Tournament players, witness_player_identity (slice 9 shipped)
+# L2 tables: Scores, Tournament players, witness_player_identity
 
 # L3 witness (corrections + ground rows; input = L2_pruned.sql):
 python -m scripts.amiga import-witness --recreate-ground
 # Optional: --l2-dir data/amiga/exports/pruned
 python -m scripts.amiga verify-witness
+python -m scripts.amiga verify-l2-l3
 
 # L4 structure (disposition register dispatch; requires L3 first):
 python -m scripts.amiga apply-structure --from-disposition
@@ -66,7 +67,7 @@ python -m scripts.amiga finalize-tournament --tournament-id=N
 # Corrections / derived repair (full rebuild):
 python -m scripts.amiga prove
 
-# Step by step (same as prove without verify):
+# Step by step (same as prove without verify; --recreate-schema runs L1→L2→L3→L4):
 python -m scripts.amiga import --recreate-schema
 python -m scripts.amiga replay
 python -m scripts.amiga verify-chronology
@@ -75,6 +76,7 @@ python -m scripts.amiga verify-event-snapshots
 python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
 python -m scripts.amiga verify-import-manifest
+python -m scripts.amiga verify-l2-l3
 python -m scripts.amiga verify-tournament-formats
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga audit-catalog-dates
@@ -212,6 +214,8 @@ python -m scripts.amiga prove
 # Full rescan oracle — repair / verify only:
 python -m scripts.amiga generalstats-rebuild
 python -m scripts.amiga verify-realm-snapshots
+python -m scripts.amiga verify-community-stats
+python -m scripts.amiga verify-php-community-parity
 
 # Standalone repair (idempotent):
 python -m scripts.amiga rebuild-event-snapshots   # snapshots + current from finalized history

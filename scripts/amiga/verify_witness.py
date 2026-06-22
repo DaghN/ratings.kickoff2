@@ -136,10 +136,10 @@ def verify_witness(*, manifest_path: Path | None = None) -> list[str]:
             cur.execute(f"SELECT COUNT(*) AS n FROM `{table}`")
             count = int(cur.fetchone()["n"])
             if table == "amiga_generalstats" and count == 1:
-                cur.execute("SELECT GamesPlayed FROM amiga_generalstats WHERE id = 1")
+                cur.execute("SELECT GamesPlayed FROM amiga_community_stats WHERE id = 1")
                 row = cur.fetchone()
                 if row and int(row.get("GamesPlayed") or 0) != 0:
-                    errors.append("amiga_generalstats.GamesPlayed should be 0 before replay")
+                    errors.append("amiga_community_stats.GamesPlayed should be 0 before replay")
                 continue
             if count != 0:
                 errors.append(f"L5 table {table} has {count} rows (witness expects 0)")

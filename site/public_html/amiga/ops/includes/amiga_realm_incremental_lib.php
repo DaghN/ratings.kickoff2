@@ -563,12 +563,10 @@ function amiga_realm_merge_single_game_records(array $prior, array $candidates):
 function amiga_realm_build_generalstats_payload_incremental(mysqli $con, int $tournamentId): array
 {
     $prior = amiga_realm_load_prior_payload($con, $tournamentId);
-    $delta = amiga_realm_tournament_game_delta($con, $tournamentId);
-    [$numPlayers, $diffOppAvg] = amiga_realm_player_count_stats_present($con);
+    $cutoff = amiga_realm_load_cutoff($con, $tournamentId);
     $playerRows = amiga_realm_fetch_player_current_rows($con);
 
-    $patch = amiga_realm_merge_game_aggregates($prior, $delta, $numPlayers, $diffOppAvg);
-    $patch = array_merge($patch, amiga_realm_career_holders_from_rows($playerRows));
+    $patch = amiga_realm_career_holders_from_rows($playerRows);
     $patch = array_merge($patch, amiga_realm_ratio_leaders_from_rows($playerRows));
     $patch = array_merge(
         $patch,

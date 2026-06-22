@@ -60,7 +60,7 @@
 
 - **Amiga stored id/date semantics Phase D (Jun 2026):** **Complete** — `verify_php_finalize_parity` in `prove` (Athens XCII / T24 reopen+finalize; PHP vs Python on snapshots, realm, generalstats, current); prior-snapshot carry fallback in Python + PHP persist; geo tracker includes in-flight tournament. Plan [`amiga-stored-field-semantics-plan.md`](docs/amiga-stored-field-semantics-plan.md) **A–D done**.
 
-- **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–10** shipped (`prove` L1→L5 from L2; `import_l2_witness.py`). **Slice 11 next** — L2→L3 boundary verify. [`amiga-ground-stack.md`](docs/amiga-ground-stack.md).
+- **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–11 complete** — strict stack shipped (`prove` L1→L5, `verify-l2-l3`). [`amiga-ground-stack.md`](docs/amiga-ground-stack.md).
 
 - **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 
@@ -68,6 +68,8 @@
 - **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs tables shipped** — `amiga_matchup_snapshot_lib.php` (present + at-event); time travel wired. H2H rivalry wing still placeholder. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md).
 
 - **Amiga World Cups LB (Jun 2026):** **V1 shipped** — Honours · Results · Goals wing; WC extracted from tournament honours + calendar-geo; slice tables + TT. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md).
+
+- **Amiga community stats (Jun 2026):** **Shipped** — `amiga_community_stats` + snapshots + facts; Activity summary; aggregate cols **dropped** from realm/HoF tables (`035`); multi-event + PHP build parity in `prove`. [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md).
 
 ---
 
@@ -111,9 +113,15 @@
 
 | When | Note |
 |------|------|
-| 2026-06 | **Amiga ground slice 10** — L3 from L2 only (`import_l2_witness.py`, `prepare_witness_from_l2`); `prove` full L1→L5; no `.mdb` on witness path; `prove` green (~6 min). |
+| 2026-06 | **Milestones docs drift fix** — `milestones-product-spec.md` + `milestones-project.md`: 112/112 keys shipped (removed stale wave-1 ~88 TODO); meta LB wing + hub v2 marked done; Accomplished **%** wing noted as deferred (counts ship today). |
+| 2026-06 | **Amiga community stats legacy cleanup** — DDL `035` drops 14 aggregate cols from `amiga_generalstats` / `amiga_realm_snapshots`; HoF payload = record book only; `verify-community-stats` multi-event oracle + `verify-php-community-parity` in `prove`; PHP active_players year-key fix. |
+| 2026-06 | **Amiga community stats shipped** — DDL `034`, finalize writers, facts v1 registry, Activity summary, `verify-community-stats` in `prove` (605 snapshots). |
+| 2026-06 | **Amiga community stats policy** — locked hybrid storage (headline snapshots + fact table); [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md). |
+| 2026-06 | **Amiga ground stack doc sweep** — closed stale “planned/gap/target” refs; slices 1–11 consistent across policy, stack, import-layer, README. |
+| 2026-06 | **Amiga ground slice 11** — `verify-l2-l3` boundary gate (L2 lineage, re-prepare parity, nationality oracle); wired into `prove`; strict stack track **complete**. |
+| 2026-06 | **Amiga ground slice 10** — L3 from L2 only (`import_l2_witness.py`, `prepare_witness_from_l2`); `prove` full L1→L5; no `.mdb` on witness path. |
 | 2026-06 | **Amiga ground slice 9** — L2 `witness_player_identity` from L1 Rankings; drop `Countries`; `extracted_from_l1` manifest; `verify-prune` + unit tests. |
-| 2026-06 | **Amiga strict ground stack (policy v3)** — [`amiga-ground-stack.md`](docs/amiga-ground-stack.md): L0→L5 chain only; no L0→L3; slices 10–11 planned. |
+| 2026-06 | **Amiga strict ground stack (policy v3)** — [`amiga-ground-stack.md`](docs/amiga-ground-stack.md): L0→L5 chain; slices 1–11 **complete** (Jun 2026). |
 *(Newest first. ~30 rows max. Older rows: [`docs/archive/session-log-2026-q2.md`](docs/archive/session-log-2026-q2.md).)*
 
 | When | What |

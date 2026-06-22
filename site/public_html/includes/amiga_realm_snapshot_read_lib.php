@@ -95,7 +95,6 @@ function amiga_hof_record_column_names(): array
         'BiggestCleanSheetsRatio',
         'BiggestCleanSheetsRatioID',
         'BiggestCleanSheetsRatioName',
-        'GamesPlayed',
         'MostGamesInOneYear',
         'MostTournamentsInOneYear',
         'MostTournamentsPlayed',

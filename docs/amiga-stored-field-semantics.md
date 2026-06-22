@@ -121,7 +121,7 @@ Read: `/amiga/hall-of-fame.php` — **must not** compute record dates at read ti
 
 ### 3.4 Realm-wide aggregates (no holder ids/dates)
 
-`GamesPlayed`, `GoalsScored`, ratios, etc. — **partial** via `verify_realm_snapshots` aggregate checks.
+`GamesPlayed`, `GoalsScored`, ratios, etc. — on **`amiga_community_stats`** / snapshots; **`verify-community-stats`** + **`verify-php-community-parity`** in `prove`. Dropped from `amiga_generalstats` / realm snapshots (`035`).
 
 ---
 

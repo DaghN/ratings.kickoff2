@@ -18,7 +18,7 @@ Amiga **realm-wide** derived truth is a **sparse timeline**: one **complete** `a
 | **`amiga_realm_snapshots`** | `tournament_id` (one row per finalized event) | **Canonical authority** — full realm / HoF state after that event |
 | **`amiga_generalstats`** | `id = 1` | **Materialized present** — latest realm snapshot row; not independently editable |
 
-**Full row rule:** each snapshot stores the **entire** `amiga_generalstats` column set — realm aggregates (`GamesPlayed`, `GoalsScored`, …) **and** all record-holder fields (career extremes, single-game records, ratio leaders). **No cherry-picking** by surface (“HoF only” vs “stats only”).
+**Full row rule:** each snapshot stores the **entire** HoF / record-book column set on `amiga_generalstats` (career extremes, single-game records, ratio leaders). Realm-wide headline totals (`GamesPlayed`, `GoalsScored`, …) live on [`amiga_community_stats`](amiga-community-stats-policy.md) — not on realm snapshot rows (since `035`).
 
 **Finalize rule (no exceptions):** after player snapshots and matchup commits for tournament *E*, compute realm state through end of *E*, `INSERT` full row into `amiga_realm_snapshots`, `UPDATE` `amiga_generalstats` from that row — **same transaction** as other finalize derived writes where practical.
 
@@ -29,7 +29,7 @@ Amiga **realm-wide** derived truth is a **sparse timeline**: one **complete** `a
 | # | Decision | Rule |
 |---|----------|------|
 | **R1** | **Canonical grain** | One row per **finalized** `tournament_id` (chrono order follows tournament catalog) |
-| **R2** | **Full row** | Snapshot row = **complete** `amiga_generalstats` payload (every data column on that table). Aggregates and record holders are one blob — enables historical realm stats *and* historical HoF from the same cutoff |
+| **R2** | **Full row** | Snapshot row = **complete** HoF record-book payload (every data column on `amiga_generalstats` after `035`). Record holders are one blob per cutoff — enables historical HoF from the same cutoff. Realm headline totals = community stats tables |
 | **R3** | **Table names** | `amiga_realm_snapshots` (timeline) · `amiga_generalstats` (present projection, unchanged name) |
 | **R4** | **Current is projection** | `amiga_generalstats` id=1 is updated atomically when a new realm snapshot is written. Verify: `generalstats.*` = latest realm snapshot row (column-wise). **Finalize must not read `generalstats` for inputs** — only write it as output; website reads are the consumer |
 | **R5** | **Commit boundary** | Tournament finalize only (plus full replay rebuild). Per-game ops do not touch realm snapshots |
@@ -95,7 +95,7 @@ Index: `(event_date, event_chrono, tournament_id)`.
 | Hall of Fame main panel | `amiga_generalstats` | `amiga_realm_snapshots` + cutoff helper (later UI slice) |
 | Ratio leader rows on HoF | `amiga_generalstats` (not live SQL) | realm snapshot at cutoff |
 | WC medals panel (3 rows) | `amiga_player_current` honours | unchanged (R11) |
-| Future realm activity / stats charts | — | realm snapshot aggregates at cutoff |
+| Future realm activity / stats charts | — | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) — **not** realm snapshot aggregate cols after migration |
 
 **PHP rule:** present HoF hot path reads `amiga_generalstats` only — **not** `amiga_records_load_ratio_leaders()` against `amiga_player_current` after cutover.
 
@@ -154,6 +154,7 @@ Index: `(event_date, event_chrono, tournament_id)`.
 | WC medals in realm row | R11 — separate decision |
 | Online `generalstatstable` | Separate realm |
 | Per-game incremental generalstats | Amiga commits at finalize only |
+| **Community stats / Activity aggregates** | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) — separate tables; headline cols on realm row are legacy until migration |
 
 ---
 

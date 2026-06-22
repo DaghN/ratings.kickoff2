@@ -1,6 +1,6 @@
 # Amiga ground layers L0–L5 — implementation plan
 
-**Status:** Slices **1–10** done (Jun 2026). **Slice 11** — L2→L3 boundary verify + closure — **next**; policy v3 + [`amiga-ground-stack.md`](amiga-ground-stack.md) locked.  
+**Status:** Slices **1–11** done (Jun 2026). Strict stack **complete**; policy v3 + [`amiga-ground-stack.md`](amiga-ground-stack.md) locked.  
 **Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · **stack intent:** [`amiga-ground-stack.md`](amiga-ground-stack.md)
 
 **Goal:** **Strict inferential chain** — each layer reads only the previous layer’s output. Separate scripts, DDL bundles, and export profiles for **L1 → L2 → L3 → L4 → L5**; keep `prove` green throughout.
@@ -36,7 +36,7 @@
 | **8** | Docs closure on any drift | Agents cold-start | **Done** Jun 2026 |
 | **9** | L2 `witness_player_identity`; drop `Countries` retain; `extracted_from_l1` in manifest | `verify-prune` green | **Done** Jun 2026 |
 | **10** | L3 from L2 only (`prepare_witness_from_l2`); `prove` L1→L2→L3→L4→L5; remove `.mdb` from witness path | `prove` green; no pyodbc in L3 | **Done** Jun 2026 |
-| **11** | L2→L3 boundary verify + docs/code closure | Parity gate + stack doc §7 gap closed | **Planned** |
+| **11** | L2→L3 boundary verify (`verify-l2-l3`) + docs/code closure | `prove` green; manifest L2 lineage | **Done** Jun 2026 |
 
 ---
 
@@ -98,7 +98,20 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 3 — L2 prune (superseded by slice 9)
+## Slice 11 — L2→L3 boundary verify (done)
+
+**CLI:** `python -m scripts.amiga verify-l2-l3 [--l2-dir] [--manifest]`
+
+- Module: [`scripts/amiga/verify_l2_l3_boundary.py`](../scripts/amiga/verify_l2_l3_boundary.py)
+- Gates: manifest `source.layer == L2`; L2 path matches; re-prepare parity (`prepare_witness_from_l2` vs manifest stats vs MySQL); nationality join oracle
+- Wired into `prove` verify suite; `verify-import-manifest` rejects non-L2 lineage
+- Tests: [`scripts/amiga/test_verify_l2_l3_boundary.py`](../scripts/amiga/test_verify_l2_l3_boundary.py)
+
+**STOP:** 27,408 L2 scores + 10 supplements → 27,418 games; 465/473 players with L2 identity country — Jun 2026.
+
+---
+
+## Slice 3 — L2 prune (historical — superseded by slice 9)
 
 **CLI:** `python -m scripts.amiga import-prune [--l1-dir] [--out-dir]`
 
@@ -109,7 +122,7 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 - **Target (slice 9):** retain `Scores`, `Tournament players`; emit **`witness_player_identity`** from L1 `Rankings`; **drop `Countries`**
 - Verify: `python -m scripts.amiga verify-prune`
 
-**STOP (Jun 2026):** 3 tables retained, 35 pruned; 28,033 rows kept. **Does not yet match policy v3** — slice 9 realigns L2.
+**STOP (Jun 2026, pre–slice 9):** 3 tables retained (`Scores`, `Tournament players`, `Countries`), 35 pruned. Superseded by slice 9 (`witness_player_identity`, no `Countries`).
 
 ---
 
@@ -118,7 +131,7 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 **CLI:** `python -m scripts.amiga import-witness [--l2-dir] [--recreate-ground]`
 
 - Module: [`scripts/amiga/import_access.py`](../scripts/amiga/import_access.py) — `prepare_witness_from_l2` (slice 10); `prepare_witness_from_access` legacy audit only
-- Verify: [`scripts/amiga/verify_witness.py`](../scripts/amiga/verify_witness.py) — `python -m scripts.amiga verify-witness`
+- Verify: [`scripts/amiga/verify_witness.py`](../scripts/amiga/verify_witness.py), [`scripts/amiga/verify_l2_l3_boundary.py`](../scripts/amiga/verify_l2_l3_boundary.py)
 - `import_all` / `run` delegate to L3 witness + L4 disposition (no inline `apply_structure_spec`)
 - `--recreate-ground` applies L3/L4 DDL only (no L5 derived bundle)
 - Tier E `finish_override` DDL in `sql/ground/002` (L3 curated; replay preserves rows)
@@ -192,7 +205,7 @@ Cross-doc pass after slices 1–7 — agents cold-start from policy + this plan 
 
 **Historical (slices 1–8):** 1 → 4 → 6 → 2 → 3 → 5 → 7 → 8 (L1/L2 added after L3 extract — created the L0→L3 gap).
 
-**Forward (strict stack):** **11** (L2→L3 boundary verify + closure). Slices **9–10** done.
+**Forward (strict stack):** **complete** (slices 9–11). Maintenance = disposition review + community witness content.
 
 ---
 
@@ -207,4 +220,4 @@ Do **not** block code on doc rewrites unless G1–G11 conflict.
 
 ---
 
-*Plan v3 Jun 2026 — slices 9–11 strict stack; see [`amiga-ground-stack.md`](amiga-ground-stack.md).*
+*Plan v4 Jun 2026 — strict L0→L5 chain complete (slices 1–11).*

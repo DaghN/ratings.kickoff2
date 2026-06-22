@@ -41,6 +41,9 @@ def main() -> int:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         if manifest.get("manifest_version") != 1:
             errors.append(f"unexpected manifest_version: {manifest.get('manifest_version')}")
+        source = manifest.get("source")
+        if not isinstance(source, dict) or source.get("layer") != "L2":
+            errors.append("manifest source.layer must be 'L2' (re-run import-witness from L2)")
         overrides = manifest.get("transforms", {}).get("catalog_overrides", [])
         for access_name, canonical_name in TOURNAMENT_NAME_OVERRIDES.items():
             match = [

@@ -50,6 +50,7 @@ from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder
 from scripts.amiga.verify_player_slice import main as verify_player_slice_main
 from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
+from scripts.amiga.verify_l2_l3_boundary import main as verify_l2_l3_boundary_main
 from scripts.amiga.import_manifest import default_manifest_path
 from scripts.amiga.verify_witness import verify_witness
 from scripts.amiga.export_packs import (
@@ -246,6 +247,23 @@ def main(argv: list[str] | None = None) -> int:
         help="import_manifest.json path (default: data/amiga/exports/import_manifest.json)",
     )
 
+    p_verify_l2_l3 = sub.add_parser(
+        "verify-l2-l3",
+        help="L2 pruned SQL ↔ L3 witness boundary (manifest lineage, re-prepare parity, nationality)",
+    )
+    p_verify_l2_l3.add_argument(
+        "--l2-dir",
+        type=Path,
+        default=_PRUNED_OUT,
+        help="Directory with L2_pruned.sql",
+    )
+    p_verify_l2_l3.add_argument(
+        "--manifest",
+        type=Path,
+        default=None,
+        help="import_manifest.json path (default: data/amiga/exports/import_manifest.json)",
+    )
+
     p_apply_structure = sub.add_parser(
         "apply-structure",
         help="L4 structure overlay from disposition register (requires L3 witness)",
@@ -347,6 +365,10 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "verify-realm-snapshots",
         help="Assert realm snapshot + generalstats invariants (realm-snapshot policy §7)",
+    )
+    sub.add_parser(
+        "verify-community-stats",
+        help="Assert community stats snapshots + facts (community-stats policy §11)",
     )
     sub.add_parser(
         "verify-hof-geo-year",
@@ -598,6 +620,10 @@ def main(argv: list[str] | None = None) -> int:
         log.info("verify-witness OK: %s", manifest)
         return 0
 
+    if args.cmd == "verify-l2-l3":
+        manifest = args.manifest or default_manifest_path(Path(__file__).resolve().parents[2])
+        return verify_l2_l3_boundary_main(["--l2-dir", str(args.l2_dir), "--manifest", str(manifest)])
+
     if args.cmd == "apply-structure":
         stats = run_apply_structure(
             from_disposition=args.from_disposition,
@@ -681,6 +707,11 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-realm-snapshots":
         return verify_realm_snapshots_main()
+
+    if args.cmd == "verify-community-stats":
+        from scripts.amiga.verify_community_stats import main as verify_community_stats_main
+
+        return verify_community_stats_main()
 
     if args.cmd == "verify-hof-geo-year":
         return verify_hof_geo_year_main()

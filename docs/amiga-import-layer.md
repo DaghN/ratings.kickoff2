@@ -22,7 +22,7 @@ L0 koatd.mdb
   → prove verify
 ```
 
-**Shipped (slice 10):** `import-witness` calls `prepare_witness_from_l2` — parses `data/amiga/exports/pruned/L2_pruned.sql`. `prepare_witness_from_access(mdb)` is legacy audit only.
+**Shipped:** `import-witness` → `prepare_witness_from_l2` (L2 SQL). Boundary gate: `verify-l2-l3` (slice 11). `prepare_witness_from_access(mdb)` is legacy audit only.
 
 ```
 L2 pruned witness SQL
@@ -61,13 +61,13 @@ verify suite (0 errors = shippable)
 
 L3 ground is **not** “whatever Access says.” It is what we commit to MySQL after documented transforms on **L2 witness inputs**.
 
-**Strict flow:** [`amiga-ground-stack.md`](amiga-ground-stack.md) · plan slices 9–11 in [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md).
+**Strict flow (complete):** [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md) (slices 1–11).
 
 ```text
 L0 koatd.mdb
   → import-pristine (L1)
   → import-prune (L2)      witness SQL + witness_player_identity
-  → import-witness (L3)     import_access.py — target: L2 input only
+  → import-witness (L3)     import_access.py — L2 input only
   → apply-structure (L4)
   → replay (L5)
   → prove verify

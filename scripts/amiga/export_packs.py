@@ -59,6 +59,9 @@ L5_TABLES: tuple[str, ...] = (
     "amiga_tournament_catalog_stats",
     "amiga_generalstats",
     "amiga_realm_snapshots",
+    "amiga_community_stats",
+    "amiga_community_stats_snapshots",
+    "amiga_community_stat_facts",
 )
 
 PACK_TABLES: dict[str, tuple[str, ...]] = {

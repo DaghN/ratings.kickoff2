@@ -42,10 +42,13 @@ class GeneralstatsRebuildTests(unittest.TestCase):
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM amiga_generalstats WHERE id = 1")
                 row = cur.fetchone()
+                cur.execute("SELECT GamesPlayed FROM amiga_community_stats WHERE id = 1")
+                community = cur.fetchone()
 
             self.assertIsNotNone(row)
-            self.assertEqual(int(row["GamesPlayed"]), game_count)
-            self.assertEqual(int(patch["GamesPlayed"]), game_count)
+            self.assertIsNotNone(community)
+            self.assertEqual(int(community["GamesPlayed"]), game_count)
+            self.assertNotIn("GamesPlayed", row)
             self.assertGreater(int(row["MostGamesPlayed"] or 0), 0)
             self.assertIsNotNone(row["MostGamesPlayedName"])
             self.assertIsNone(row.get("LongestWinningStreak"))

@@ -774,7 +774,6 @@ def build_generalstats_payload_incremental(
         prior_payload = load_prior_realm_payload(conn, tournament_id)
 
     if games is not None and ratings_by_game_id is not None:
-        delta = tournament_game_aggregate_delta_from_memory(games, ratings_by_game_id)
         event_date_str = str(event_date) if event_date is not None else None
         event_candidates = _single_game_candidates_from_memory(
             games,
@@ -783,15 +782,11 @@ def build_generalstats_payload_incremental(
             event_date_str,
         )
     else:
-        delta = tournament_game_aggregate_delta(conn, tournament_id)
         event_candidates = _single_game_candidates_from_tournament(conn, tournament_id)
 
     # Geo/honours holder columns live on amiga_player_current (persisted before realm row).
     holder_rows = fetch_player_current_rows(conn)
-    # Aggregate player stats from SQL (matches oracle / DECIMAL storage), not Python AVG.
-    num_players, diff_opp_avg = _player_count_stats_sql_present(conn)
     patch: dict[str, Any] = {}
-    patch.update(_merge_game_aggregates(prior_payload, delta, num_players=num_players, diff_opp_avg=diff_opp_avg))
     patch.update(_career_holders_from_player_rows(holder_rows))
     patch.update(_ratio_leaders_from_player_rows(holder_rows))
     patch.update(_merge_single_game_records(prior_payload, event_candidates))

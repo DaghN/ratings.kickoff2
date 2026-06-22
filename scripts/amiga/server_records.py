@@ -202,115 +202,17 @@ def compute_server_aggregates(
     *,
     as_of_tournament_id: int | None = None,
 ) -> dict[str, Any]:
-    if as_of_tournament_id is None:
-        return _compute_server_aggregates_present(conn)
+    from scripts.amiga.community_stats import compute_community_headline_aggregates
 
-    cutoff = load_realm_cutoff(conn, as_of_tournament_id)
-    params = cutoff_params(cutoff)
-    cutoff_where = game_cutoff_sql("t")
-
-    with conn.cursor() as cur:
-        cur.execute(
-            f"""
-            SELECT COUNT(*) AS games,
-                   SUM(CASE WHEN r.actual_score = 0.5 THEN 1 ELSE 0 END) AS draws,
-                   COALESCE(SUM(r.sum_of_goals), 0) AS goals,
-                   COALESCE(SUM(r.dd_player_a + r.dd_player_b), 0) AS dd,
-                   COALESCE(SUM(r.cs_player_a + r.cs_player_b), 0) AS cs
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            INNER JOIN tournaments t ON t.id = g.tournament_id
-            WHERE {cutoff_where}
-            """,
-            params,
-        )
-        agg = cur.fetchone()
-        games = int(agg["games"] or 0)
-        draws = int(agg["draws"] or 0)
-        decided = games - draws
-        goals = int(agg["goals"] or 0)
-        dd = int(agg["dd"] or 0)
-        cs = int(agg["cs"] or 0)
-
-        cur.execute(
-            f"""
-            SELECT COUNT(*) AS n
-            FROM ({_latest_player_snapshots_sql()}) lp
-            WHERE lp.NumberGames >= 1
-            """,
-            params,
-        )
-        num_players = int(cur.fetchone()["n"])
-
-        cur.execute(
-            f"""
-            SELECT AVG(lp.DifferentOpponents) AS a
-            FROM ({_latest_player_snapshots_sql()}) lp
-            WHERE lp.DifferentOpponents >= 1
-            """,
-            params,
-        )
-        diff_opp_avg = cur.fetchone()["a"]
-
-    return _aggregate_patch(
-        games=games,
-        draws=draws,
-        decided=decided,
-        goals=goals,
-        dd=dd,
-        cs=cs,
-        num_players=num_players,
-        diff_opp_avg=diff_opp_avg,
+    return compute_community_headline_aggregates(
+        conn, as_of_tournament_id=as_of_tournament_id
     )
 
 
 def _compute_server_aggregates_present(
     conn: pymysql.connections.Connection,
 ) -> dict[str, Any]:
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT COUNT(*) AS games,
-                   SUM(CASE WHEN r.actual_score = 0.5 THEN 1 ELSE 0 END) AS draws,
-                   COALESCE(SUM(r.sum_of_goals), 0) AS goals,
-                   COALESCE(SUM(r.dd_player_a + r.dd_player_b), 0) AS dd,
-                   COALESCE(SUM(r.cs_player_a + r.cs_player_b), 0) AS cs
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            """
-        )
-        agg = cur.fetchone()
-        games = int(agg["games"] or 0)
-        draws = int(agg["draws"] or 0)
-        decided = games - draws
-        goals = int(agg["goals"] or 0)
-        dd = int(agg["dd"] or 0)
-        cs = int(agg["cs"] or 0)
-
-        cur.execute(
-            "SELECT COUNT(*) AS n FROM amiga_player_current WHERE NumberGames >= 1"
-        )
-        num_players = int(cur.fetchone()["n"])
-
-        cur.execute(
-            """
-            SELECT AVG(DifferentOpponents) AS a
-            FROM amiga_player_current
-            WHERE DifferentOpponents >= 1
-            """
-        )
-        diff_opp_avg = cur.fetchone()["a"]
-
-    return _aggregate_patch(
-        games=games,
-        draws=draws,
-        decided=decided,
-        goals=goals,
-        dd=dd,
-        cs=cs,
-        num_players=num_players,
-        diff_opp_avg=diff_opp_avg,
-    )
+    return compute_server_aggregates(conn)
 
 
 def _aggregate_patch(
@@ -324,22 +226,18 @@ def _aggregate_patch(
     num_players: int,
     diff_opp_avg: Any,
 ) -> dict[str, Any]:
-    return {
-        "NumberOfPlayers": num_players,
-        "DifferentOpponentsAverage": diff_opp_avg,
-        "GamesPlayed": games,
-        "GamesPlayedAverage": round(2 * games / num_players, 3) if num_players else None,
-        "NumberOfDecidedGames": decided,
-        "NumberOfDraws": draws,
-        "DecidedGamesRatio": round(decided / games, 8) if games else None,
-        "DrawsRatio": round(draws / games, 8) if games else None,
-        "GoalsScored": goals,
-        "GoalsPerGameAverage": round(goals / games, 7) if games else None,
-        "DoubleDigits": dd,
-        "CleanSheets": cs,
-        "DoubleDigitsRatio": round(dd / games, 8) if games else None,
-        "CleanSheetsRatio": round(cs / games, 8) if games else None,
-    }
+    from scripts.amiga.community_stats import aggregate_patch
+
+    return aggregate_patch(
+        games=games,
+        draws=draws,
+        decided=decided,
+        goals=goals,
+        dd=dd,
+        cs=cs,
+        num_players=num_players,
+        diff_opp_avg=diff_opp_avg,
+    )
 
 
 def _career_holder_patch(
@@ -744,23 +642,11 @@ def build_generalstats_payload(
         if as_of_tournament_id is not None
         else None
     )
-    game_totals = _compute_game_aggregates_at_cutoff(conn, cutoff)
     if cutoff is None:
         player_rows = fetch_player_current_rows(conn)
-        num_players, diff_opp_avg = _player_count_stats_sql_present(conn)
     else:
         player_rows = _load_cutoff_player_rows(conn, cutoff)
-        num_players, diff_opp_avg = _player_count_stats_sql_cutoff(conn, cutoff)
-    patch: dict[str, Any] = _aggregate_patch(
-        games=game_totals["games"],
-        draws=game_totals["draws"],
-        decided=game_totals["games"] - game_totals["draws"],
-        goals=game_totals["goals"],
-        dd=game_totals["dd"],
-        cs=game_totals["cs"],
-        num_players=num_players,
-        diff_opp_avg=diff_opp_avg,
-    )
+    patch: dict[str, Any] = {}
     patch.update(_career_holders_from_player_rows(player_rows))
     patch.update(_ratio_leaders_from_player_rows(player_rows))
     patch.update(_most_goals_one_game_patch(conn, cutoff=cutoff))

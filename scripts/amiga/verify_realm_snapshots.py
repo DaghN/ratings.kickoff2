@@ -76,15 +76,6 @@ def verify_realm_snapshots(conn: pymysql.connections.Connection) -> list[str]:
 
         cur.execute(
             """
-            SELECT COUNT(*) AS n
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            """
-        )
-        rated_games = int(cur.fetchone()["n"])
-
-        cur.execute(
-            """
             SELECT s.tournament_id
             FROM amiga_realm_snapshots s
             LEFT JOIN tournaments t ON t.id = s.tournament_id
@@ -118,20 +109,6 @@ def verify_realm_snapshots(conn: pymysql.connections.Connection) -> list[str]:
 
         cur.execute(
             """
-            SELECT s.GamesPlayed
-            FROM amiga_realm_snapshots s
-            INNER JOIN tournaments t ON t.id = s.tournament_id
-            ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC
-            LIMIT 1
-            """
-        )
-        latest_row = cur.fetchone()
-        latest_games_played = (
-            int(latest_row["GamesPlayed"]) if latest_row and latest_row["GamesPlayed"] is not None else None
-        )
-
-        cur.execute(
-            """
             SELECT t.id AS tournament_id
             FROM tournaments t
             WHERE t.rating_finalized = 1
@@ -161,11 +138,6 @@ def verify_realm_snapshots(conn: pymysql.connections.Connection) -> list[str]:
         errors.append(
             f"amiga_generalstats id=1 differs from latest realm snapshot on "
             f"{present_mismatch} column comparison(s)"
-        )
-
-    if latest_games_played is not None and latest_games_played != rated_games:
-        errors.append(
-            f"latest realm GamesPlayed={latest_games_played} != rated game count {rated_games}"
         )
 
     if missing_snapshots:
@@ -229,13 +201,13 @@ def main() -> int:
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) AS n FROM amiga_realm_snapshots")
             snapshots = int(cur.fetchone()["n"])
-            cur.execute("SELECT GamesPlayed FROM amiga_generalstats WHERE id = 1")
+            cur.execute("SELECT MostGamesPlayed FROM amiga_generalstats WHERE id = 1")
             row = cur.fetchone()
-            games = row.get("GamesPlayed") if row else None
+            most_games = row.get("MostGamesPlayed") if row else None
 
     print(
         f"OK: realm snapshots verified ({snapshots} rows; "
-        f"present GamesPlayed={games})"
+        f"present MostGamesPlayed={most_games})"
     )
     return 0
 

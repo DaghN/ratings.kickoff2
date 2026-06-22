@@ -22,7 +22,9 @@ $Tables = @(
     'amiga_player_event_snapshots', 'amiga_player_current',
     'amiga_player_matchup_at_event', 'amiga_player_matchup_summary',
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
-    'amiga_generalstats', 'amiga_realm_snapshots', 'amiga_tournament_finish_override',
+    'amiga_generalstats', 'amiga_realm_snapshots',
+    'amiga_community_stats', 'amiga_community_stats_snapshots', 'amiga_community_stat_facts',
+    'amiga_tournament_finish_override',
     'amiga_player_slice_totals', 'amiga_player_slice_at_event'
 )
 
@@ -149,6 +151,24 @@ $realmSnapshotsPart = ('ko2amiga_{0:D2}_realm_snapshots.sql' -f $idx)
 $realmSnapshotsFile = Join-Path $OutDir $realmSnapshotsPart
 Write-DumpFile $realmSnapshotsFile @('--no-create-info', 'ko2amiga_db', 'amiga_realm_snapshots')
 $parts.Add($realmSnapshotsPart)
+$idx++
+
+$communityStatsPart = ('ko2amiga_{0:D2}_community_stats.sql' -f $idx)
+$communityStatsFile = Join-Path $OutDir $communityStatsPart
+Write-DumpFile $communityStatsFile @('--no-create-info', 'ko2amiga_db', 'amiga_community_stats')
+$parts.Add($communityStatsPart)
+$idx++
+
+$communitySnapshotsPart = ('ko2amiga_{0:D2}_community_stats_snapshots.sql' -f $idx)
+$communitySnapshotsFile = Join-Path $OutDir $communitySnapshotsPart
+Write-DumpFile $communitySnapshotsFile @('--no-create-info', 'ko2amiga_db', 'amiga_community_stats_snapshots')
+$parts.Add($communitySnapshotsPart)
+$idx++
+
+$communityFactsPart = ('ko2amiga_{0:D2}_community_stat_facts.sql' -f $idx)
+$communityFactsFile = Join-Path $OutDir $communityFactsPart
+Write-DumpFile $communityFactsFile @('--no-create-info', 'ko2amiga_db', 'amiga_community_stat_facts')
+$parts.Add($communityFactsPart)
 $idx++
 
 $sliceTotalsPart = ('ko2amiga_{0:D2}_slice_totals.sql' -f $idx)

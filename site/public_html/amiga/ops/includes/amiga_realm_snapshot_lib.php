@@ -546,7 +546,7 @@ function amiga_realm_ratio_leader_patch(
 function amiga_realm_build_generalstats_payload_oracle(mysqli $con, int $tournamentId): array
 {
     $cutoff = amiga_realm_load_cutoff($con, $tournamentId);
-    $patch = amiga_realm_compute_server_aggregates($con, $cutoff);
+    $patch = [];
 
     $careerHolders = [
         ['MostGamesPlayed', 'NumberGames', 'MostGamesPlayed'],

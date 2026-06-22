@@ -19,14 +19,14 @@ class GeneralstatsColumnManifestTests(unittest.TestCase):
         self.assertEqual(len(GENERALSTATS_AGGREGATE_COLUMNS), 14)
         self.assertEqual(len(RATIO_LEADER_COLUMNS), 18)
         self.assertEqual(len(RECORD_HOLDER_COLUMNS), 100)
-        self.assertEqual(len(GENERALSTATS_PAYLOAD_COLUMNS), 132)
+        self.assertEqual(len(GENERALSTATS_PAYLOAD_COLUMNS), 118)
 
     def test_realm_snapshot_payload_matches_generalstats(self) -> None:
         self.assertEqual(
             REALM_SNAPSHOT_PAYLOAD_COLUMNS,
             GENERALSTATS_PAYLOAD_COLUMNS,
         )
-        self.assertEqual(len(REALM_SNAPSHOT_COLUMNS), 137)
+        self.assertEqual(len(REALM_SNAPSHOT_COLUMNS), 123)
 
     def test_no_duplicate_column_names(self) -> None:
         for label, columns in (
