@@ -3039,6 +3039,13 @@ body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td:not(
 	color: var(--k2-text-secondary);
 }
 
+/* Amiga hero games: short event-day dates — shrink date col, drop legacy datetime gap before Team A. */
+body.k2-site[data-realm="amiga"] .k2-table--player-games .k2-amiga-player-games-date {
+	white-space: nowrap;
+	width: 1%;
+	padding-right: 8px;
+}
+
 body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted {
 	color: var(--k2-text-primary);
 	font-weight: 600;

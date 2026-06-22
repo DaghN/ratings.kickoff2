@@ -34,6 +34,21 @@ function amiga_player_game_sort_col_index(string $sortKey): int
     return $map[$sortKey] ?? 0;
 }
 
+/** Event day only — Amiga `game_date` is synthetic; time within the day is not shown. */
+function amiga_player_game_date_html(string $date): string
+{
+    $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('UTC'));
+    if ($dt === false) {
+        $ts = strtotime($date);
+        if ($ts === false) {
+            return k2_h($date);
+        }
+        $dt = (new DateTimeImmutable('@' . $ts))->setTimezone(new DateTimeZone('UTC'));
+    }
+
+    return k2_h($dt->format('M j Y'));
+}
+
 /**
  * @param array<string, mixed> $row ratedresults row (+ optional tournament_name)
  */
@@ -106,7 +121,7 @@ function amiga_player_game_row_html(
 
     return '<tr>'
         . k2_player_game_td(amiga_rated_game_id_html((int) $game['id']), 0, $sortedColIndex)
-        . k2_player_game_td(k2_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
+        . k2_player_game_td(amiga_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date')
         . k2_player_game_td(k2_amiga_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
         . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)
         . k2_player_game_td((string) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left')

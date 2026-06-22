@@ -302,3 +302,74 @@ function amiga_snapshot_latest_as_param(mysqli $con): ?string
 
     return amiga_snapshot_format_as_param('year', (string) $first['key']);
 }
+
+/**
+ * SQL AND fragment: event chrono tuple on or before snapshot cutoff.
+ *
+ * @param array{event_date: string, chrono: float|int, tournament_id: int} $cutoff
+ */
+function amiga_snapshot_event_tuple_cutoff_and_sql(
+    array $cutoff,
+    string &$types,
+    array &$params,
+    string $dateCol,
+    string $chronoCol,
+    string $idCol,
+): string {
+    $types .= 'sdi';
+    $params[] = (string) $cutoff['event_date'];
+    $params[] = (float) $cutoff['chrono'];
+    $params[] = (int) $cutoff['tournament_id'];
+
+    return " AND ({$dateCol}, {$chronoCol}, {$idCol}) <= (?, ?, ?)";
+}
+
+/**
+ * SQL AND for tournaments alias `t` (event_date, chrono, id) at active snapshot cutoff.
+ *
+ * @return string empty when context inactive
+ */
+function amiga_snapshot_tournament_cutoff_and_sql(
+    ?AmigaSnapshotContext $ctx,
+    string &$types,
+    array &$params,
+    string $dateCol = 't.event_date',
+    string $chronoCol = 't.chrono',
+    string $idCol = 't.id',
+): string {
+    $ctx ??= amiga_snapshot_context_peek();
+    if (!$ctx instanceof AmigaSnapshotContext || !$ctx->isActive()) {
+        return '';
+    }
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        return '';
+    }
+
+    return amiga_snapshot_event_tuple_cutoff_and_sql(
+        $cutoff,
+        $types,
+        $params,
+        $dateCol,
+        $chronoCol,
+        $idCol,
+    );
+}
+
+/**
+ * SQL AND for rated-games subquery alias `r` (needs tournament_event_date, tournament_chrono, tournament_id).
+ */
+function amiga_snapshot_rated_game_cutoff_and_sql(
+    ?AmigaSnapshotContext $ctx,
+    string &$types,
+    array &$params,
+): string {
+    return amiga_snapshot_tournament_cutoff_and_sql(
+        $ctx,
+        $types,
+        $params,
+        'r.tournament_event_date',
+        'r.tournament_chrono',
+        'r.tournament_id',
+    );
+}

@@ -609,6 +609,11 @@ function amiga_tournament_game_player_choices(mysqli $con, int $tournamentId): a
         ];
     }
 
+    usort(
+        $choices,
+        static fn(array $a, array $b): int => strcasecmp($a['player_name'], $b['player_name'])
+    );
+
     return $choices;
 }
 

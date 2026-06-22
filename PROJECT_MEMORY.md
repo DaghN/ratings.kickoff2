@@ -111,6 +111,11 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga hero games date** — player games tab shows event day only (`Aug 4 2013`), no time. |
+| 2026-06 | **Amiga tournament games player filter** — dropdown sorted A–Z by name (`amiga_tournament_game_player_choices`). |
+| 2026-06 | **Opponents tables Games links** — W/D/L · Goals · DDs `Games` column → hero games tab `?opponent=` (online + Amiga; Amiga carries `as=`). |
+| 2026-06 | **Amiga TT player games + tournaments** — hero games tab + tournament history filter ≤ snapshot cutoff; perf API parity; probe `scripts/oneoff/amiga_player_wing_cutoff_probe.php`. |
+| 2026-06 | **Amiga player nav order** — hero universe pills: Profile · Opponents · Tournaments · Games (`amiga_player_nav.php`). |
 | 2026-06 | **Amiga elo_rank (SCH-032)** — `elo_rank` on snapshots/current + `amiga_player_elo_rank_at_event` (~173k rows / ~8 MB local); finalize Python+PHP; **hero UI** (all player wings) reads persisted rank; LB tables still sort+enumerate; `prove` green. |
 | 2026-06 | **Amiga TT T18** — player Event chevrons step played tournaments; realm back before debut; picker lickstar accents; `amiga_player_event_stepper_lib.php`. |
 | 2026-06 | **Amiga TT T14b/T17** — player-wing TT entry = first event snapshot; pre-debut cutoff loads with hero — + note (no 404); `amiga_player_publish_hero_context()`. |

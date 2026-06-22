@@ -19,12 +19,12 @@
 | Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
 | Tournament event stats | `/amiga/tournament.php?id={tournaments.id}&view=event-stats` — participation roster (all phases); includes **Perf. rating** column |
-| Tournament games | `/amiga/tournament.php?id={tournaments.id}&view=games` — all games in event; player filter dropdown |
+| Tournament games | `/amiga/tournament.php?id={tournaments.id}&view=games` — all games in event; player filter dropdown (A–Z) |
 
 ## What v0 shows
 
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; games → player games tab; **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text; pre-debut at cutoff → — + note (T17)
-- **Player nav** — Profile · Tournaments · Opponents · Games (`amiga_player_nav.php`)
+- **Player nav** — Profile · Opponents · Tournaments · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_current` (W/D/L, goals, peak, opp avg)
 - **Honours strip** — `amiga_player_current` honours columns: career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
 - **Performance rating** — best event + latest event (snapshots, games ≥ 2); links to perf LB and tournament history; hidden when no qualifying perf rows

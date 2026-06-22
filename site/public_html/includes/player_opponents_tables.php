@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/player_opponents_load.php';
+require_once __DIR__ . '/player_opponents_lib.php';
 require_once __DIR__ . '/k2_player_display_names.php';
 
 function player_opponents_dds_ratio_cell(float $ratio): string
@@ -18,7 +19,7 @@ function player_opponents_dds_ratio_cell(float $ratio): string
 /**
  * @param list<array<string, mixed>> $rows
  */
-function player_opponents_render_wdl_table_from_rows(array $rows): void
+function player_opponents_render_wdl_table_from_rows(array $rows, int $playerId): void
 {
     ?>
 <div class="k2-table-wrap">
@@ -49,7 +50,7 @@ function player_opponents_render_wdl_table_from_rows(array $rows): void
 	    ?>
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_player_link($opponentId, $opponentName); ?></td>
-        <td><?php echo $games; ?></td>
+        <td><?php echo player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($wins != 0) {
             echo "<span class='blue'>";
             echo $wins;
@@ -119,7 +120,7 @@ ORDER BY COUNT(*) DESC';
         ];
     }
 
-    player_opponents_render_wdl_table_from_rows($rows);
+    player_opponents_render_wdl_table_from_rows($rows, $playerId);
 }
 
 function player_opponents_render_wdl_table(mysqli $con, int $playerId): void
@@ -131,13 +132,13 @@ function player_opponents_render_wdl_table(mysqli $con, int $playerId): void
         return;
     }
 
-    player_opponents_render_wdl_table_from_rows($rows);
+    player_opponents_render_wdl_table_from_rows($rows, $playerId);
 }
 
 /**
  * @param list<array<string, mixed>> $rows
  */
-function player_opponents_render_goals_table_from_rows(array $rows, bool $extremesStored): void
+function player_opponents_render_goals_table_from_rows(array $rows, bool $extremesStored, int $playerId): void
 {
     ?>
 <div class="k2-table-wrap">
@@ -204,7 +205,7 @@ function player_opponents_render_goals_table_from_rows(array $rows, bool $extrem
 	    ?>
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_player_link($opponentId, $opponentName); ?></td>
-        <td><?php echo $games; ?></td>
+        <td><?php echo player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($goalsFor != 0) {
             echo "<span class='blue'>";
             echo $goalsFor;
@@ -294,7 +295,7 @@ ORDER BY COUNT(*) DESC';
         ];
     }
 
-    player_opponents_render_goals_table_from_rows($rows, true);
+    player_opponents_render_goals_table_from_rows($rows, true, $playerId);
 }
 
 function player_opponents_render_goals_table(mysqli $con, int $playerId): void
@@ -306,13 +307,13 @@ function player_opponents_render_goals_table(mysqli $con, int $playerId): void
         return;
     }
 
-    player_opponents_render_goals_table_from_rows($rows, true);
+    player_opponents_render_goals_table_from_rows($rows, true, $playerId);
 }
 
 /**
  * @param list<array<string, mixed>> $rows
  */
-function player_opponents_render_dds_table_from_rows(array $rows): void
+function player_opponents_render_dds_table_from_rows(array $rows, int $playerId): void
 {
     ?>
 <div class="k2-table-wrap">
@@ -347,7 +348,7 @@ function player_opponents_render_dds_table_from_rows(array $rows): void
 	    ?>
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_player_link($opponentId, $opponentName); ?></td>
-        <td><?php echo $games; ?></td>
+        <td><?php echo player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($doubleDigits != 0) {
             echo "<span class='blue'>";
             echo $doubleDigits;
@@ -417,7 +418,7 @@ ORDER BY COUNT(*) DESC';
         ];
     }
 
-    player_opponents_render_dds_table_from_rows($rows);
+    player_opponents_render_dds_table_from_rows($rows, $playerId);
 }
 
 function player_opponents_render_dds_table(mysqli $con, int $playerId): void
@@ -429,5 +430,5 @@ function player_opponents_render_dds_table(mysqli $con, int $playerId): void
         return;
     }
 
-    player_opponents_render_dds_table_from_rows($rows);
+    player_opponents_render_dds_table_from_rows($rows, $playerId);
 }

@@ -18,8 +18,31 @@ require_once __DIR__ . '/amiga_snapshot_context.php';
  *
  * @return list<array<string, mixed>>
  */
-function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, ?int $limit = null): array
-{
+function amiga_player_tournament_participation_rows(
+    mysqli $con,
+    int $playerId,
+    ?int $limit = null,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+
+    $types = 'i';
+    $params = [$playerId];
+    $cutoffSql = '';
+    if ($ctx->isActive()) {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff !== null) {
+            $cutoffSql = amiga_snapshot_event_tuple_cutoff_and_sql(
+                $cutoff,
+                $types,
+                $params,
+                'p.event_date',
+                'p.event_chrono',
+                'p.tournament_id',
+            );
+        }
+    }
+
     $sql = 'SELECT p.tournament_id AS id,
                    p.tournament_name AS name,
                    p.event_date,
@@ -50,7 +73,7 @@ function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, 
             FROM amiga_player_event_snapshots p
             INNER JOIN tournaments t ON t.id = p.tournament_id
             WHERE p.player_id = ?
-              AND ' . amiga_tournament_public_visibility_where('t') . '
+              AND ' . amiga_tournament_public_visibility_where('t') . $cutoffSql . '
             ORDER BY COALESCE(p.event_chrono, 999999) DESC,
                      COALESCE(p.event_date, \'1970-01-01\') DESC,
                      p.tournament_id DESC';
@@ -62,7 +85,11 @@ function amiga_player_tournament_participation_rows(mysqli $con, int $playerId, 
     if ($stmt === false) {
         return [];
     }
-    mysqli_stmt_bind_param($stmt, 'i', $playerId);
+    $refs = [];
+    foreach ($params as $key => $value) {
+        $refs[$key] = &$params[$key];
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$refs);
     mysqli_stmt_execute($stmt);
     $res = mysqli_stmt_get_result($stmt);
     $rows = [];

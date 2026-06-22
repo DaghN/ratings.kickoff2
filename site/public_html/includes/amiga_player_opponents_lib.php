@@ -71,3 +71,25 @@ function amiga_player_opponents_view_label(string $view): string
         default => 'Head-to-head',
     };
 }
+
+/** Hero games tab filtered to one opponent (carries active `as=` when time travelling). */
+function amiga_player_opponents_games_filtered_href(int $playerId, int $opponentId): string
+{
+    require_once __DIR__ . '/amiga_player_games_lib.php';
+
+    return amiga_games_build_url([
+        'id' => max(0, $playerId),
+        'opponent' => max(0, $opponentId),
+    ]) . '#matching-games';
+}
+
+function amiga_player_opponents_games_cell_html(int $playerId, int $opponentId, int $games): string
+{
+    if ($games <= 0 || $playerId <= 0 || $opponentId <= 0) {
+        return (string) $games;
+    }
+
+    return '<a class="k2-link-star" href="'
+        . htmlspecialchars(amiga_player_opponents_games_filtered_href($playerId, $opponentId), ENT_QUOTES, 'UTF-8')
+        . '">' . $games . '</a>';
+}

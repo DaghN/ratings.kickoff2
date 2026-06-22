@@ -69,3 +69,23 @@ function player_opponents_view_label(string $view): string
         default => 'Head-to-head',
     };
 }
+
+/** Hero games tab filtered to one opponent (online). */
+function player_opponents_games_filtered_href(int $playerId, int $opponentId): string
+{
+    return k2_route('player-games', [
+        'id' => max(0, $playerId),
+        'opponent' => max(0, $opponentId),
+    ]) . '#matching-games';
+}
+
+function player_opponents_games_cell_html(int $playerId, int $opponentId, int $games): string
+{
+    if ($games <= 0 || $playerId <= 0 || $opponentId <= 0) {
+        return (string) $games;
+    }
+
+    return '<a class="k2-link-star" href="'
+        . htmlspecialchars(player_opponents_games_filtered_href($playerId, $opponentId), ENT_QUOTES, 'UTF-8')
+        . '">' . $games . '</a>';
+}

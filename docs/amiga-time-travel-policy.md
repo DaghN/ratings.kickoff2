@@ -102,6 +102,8 @@ Same behaviour as rating history pilot: prev/next step within active wing; jump 
 | **Leaderboards** (all wings) | `amiga_player_current` | Last `amiga_player_event_snapshots` row per player ≤ cutoff | Sort wing metric on snapshot row; **rank column** = enumerate sorted result in PHP (not `elo_rank` column) |
 | **Hall of Fame** | `amiga_generalstats` | `amiga_realm_snapshots` at cutoff | Full row incl. ratio leaders |
 | **Opponents** W/D/L · Goals · DDs | `amiga_player_matchup_summary` | Latest `amiga_player_matchup_at_event` per opponent ≤ cutoff | `amiga_matchup_snapshot_lib.php`; H2H wing still placeholder |
+| **Hero → games** | All rated `amiga_games` for player | Games in tournaments with chrono tuple ≤ cutoff | `amiga_snapshot_rated_game_cutoff_and_sql()` on rated-games subquery |
+| **Player tournaments** | All `amiga_player_event_snapshots` rows | Snapshot rows with event tuple ≤ cutoff | `amiga_player_tournament_participation_rows()` |
 
 ### 4.2 Present-only hub (editorial + catalog collections)
 
@@ -122,8 +124,8 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | Surface | Rule |
 |---------|--------|
 | **Hero** | Rank · rating · games at cutoff from snapshot + `amiga_player_elo_rank_at_event`; **—** + note when pre-debut (T17) | **Shipped** — `amiga_player_snapshot_lib.php` · `amiga_elo_rank_lib.php` |
-| **Hero → games** | `amiga/player/games.php` — hero-viewport game table (not a generic vault clone); filters including opponent narrow the set; list ≤ cutoff when wired |
-| **Tournaments** (player) | Participation list ≤ cutoff |
+| **Hero → games** | `amiga/player/games.php` — hero-viewport game table; filters narrow the set; list ≤ cutoff; **date column = event day only** (`M j Y`) | **Shipped** Jun 2026 |
+| **Tournaments** (player) | Participation list ≤ cutoff | **Shipped** Jun 2026 |
 | **`tournament.php` detail** | Ribbon + `as=` on entry redirects and in-page nav (**shipped** Jun 2026); standings/stats body still present-day until wired (§4.4) |
 | **Opponents** tables | Shipped — `amiga_matchup_snapshot_lib.php` |
 | **Profile** blocks | Career / honours at cutoff — phase 2+ |
@@ -133,8 +135,6 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | Surface | Reason |
 |---------|--------|
 | **Player profile** (blocks) | Hero/career snapshot reads — hero **shipped**; career blocks phase 2+ |
-| **Hero → games** | Ground-truth filter ≤ cutoff deferred |
-| **Player tournaments** | Participation filter ≤ cutoff deferred |
 | **Activity** (hub) | Charts not at cutoff yet |
 | **Opponents H2H** | Poster/picker/charts not shipped |
 | Hub **tournaments.php** with `?as=` | May show present until catalog filter ships; tab hidden regardless (T13b) |
@@ -144,8 +144,6 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | Surface | Time travel source |
 |---------|-------------------|
 | **Player profile** — hero / career / honours | Player snapshot at cutoff |
-| **Hero → games** | Filtered `amiga_games` ≤ cutoff (hero table + filters) |
-| **Player tournaments** | Participation ≤ cutoff |
 | **Opponents H2H** (poster · moments · charts) | Pair games ≤ cutoff + stored pair row |
 | Profile — moments, rating chart, perf highlight | Mixed; wire per slice |
 | Activity / server aggregates | `amiga_realm_snapshots` aggregate columns |

@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_routes.php';
+require_once __DIR__ . '/amiga_snapshot_context.php';
 
 function amiga_games_h(string $value): string
 {
@@ -94,15 +95,21 @@ function amiga_games_valid_country_filter(string $value, array $countryOptions):
 }
 
 /** @return list<int> */
-function amiga_player_games_year_options(mysqli $con, int $playerId): array
+function amiga_player_games_year_options(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): array
 {
+    $ctx ??= amiga_snapshot_context_peek();
+    $cutoffTypes = 'ii';
+    $cutoffParams = [$playerId, $playerId];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $cutoffTypes, $cutoffParams);
     $rows = amiga_games_query_all(
         $con,
         'SELECT DISTINCT YEAR(g.game_date) AS yr FROM amiga_games g '
-            . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) AND g.game_date IS NOT NULL '
-            . 'ORDER BY yr ASC',
-        'ii',
-        [$playerId, $playerId]
+            . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+            . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) AND g.game_date IS NOT NULL'
+            . $cutoffSql
+            . ' ORDER BY yr ASC',
+        $cutoffTypes,
+        $cutoffParams
     );
     $years = [];
     foreach ($rows as $row) {
@@ -142,14 +149,19 @@ function amiga_games_valid_since_year(int $value, array $yearOptions): int
  *     year: int
  * }
  */
-function amiga_player_games_filters_from_request(mysqli $con, int $playerId, array $query): array
-{
+function amiga_player_games_filters_from_request(
+    mysqli $con,
+    int $playerId,
+    array $query,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
+    $ctx ??= amiga_snapshot_context_peek();
     $resultFilter = amiga_games_valid_result((string) ($query['result'] ?? 'all'));
     $opponentFilter = isset($query['opponent']) ? max(0, (int) $query['opponent']) : 0;
     $tournamentFilter = isset($query['tournament']) ? max(0, (int) $query['tournament']) : 0;
     $eventFilter = amiga_games_valid_event_filter((string) ($query['filter'] ?? 'all'));
     $utcDayFilter = amiga_games_valid_day((string) ($query['day'] ?? ''));
-    $yearOptions = amiga_player_games_year_options($con, $playerId);
+    $yearOptions = amiga_player_games_year_options($con, $playerId, $ctx);
     $sinceYear = amiga_games_valid_since_year(
         isset($query['since']) ? (int) $query['since'] : 0,
         $yearOptions
@@ -160,15 +172,25 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
     );
 
     if ($opponentFilter > 0) {
+        $branchATypes = 'i';
+        $branchAParams = [$playerId];
+        $branchACutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchATypes, $branchAParams);
+        $branchBTypes = 'i';
+        $branchBParams = [$playerId];
+        $branchBCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchBTypes, $branchBParams);
         $opponentRows = amiga_games_query_all(
             $con,
             'SELECT opponent_id FROM ('
-                . 'SELECT g.player_b_id AS opponent_id FROM amiga_games g WHERE g.player_a_id = ? '
+                . 'SELECT g.player_b_id AS opponent_id FROM amiga_games g '
+                . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+                . 'WHERE g.player_a_id = ?' . $branchACutoffSql . ' '
                 . 'UNION ALL '
-                . 'SELECT g.player_a_id AS opponent_id FROM amiga_games g WHERE g.player_b_id = ?'
+                . 'SELECT g.player_a_id AS opponent_id FROM amiga_games g '
+                . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+                . 'WHERE g.player_b_id = ?' . $branchBCutoffSql
                 . ') AS opponents WHERE opponent_id = ? LIMIT 1',
-            'iii',
-            [$playerId, $playerId, $opponentFilter]
+            $branchATypes . $branchBTypes . 'i',
+            array_merge($branchAParams, $branchBParams, [$opponentFilter])
         );
         if ($opponentRows === []) {
             $opponentFilter = 0;
@@ -178,6 +200,7 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
     $countryMetaTypes = 'ii';
     $countryMetaParams = [$playerId, $playerId];
     $countryMetaSql = amiga_games_tournament_meta_and_sql($eventFilter, '', $countryMetaTypes, $countryMetaParams);
+    $countryCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $countryMetaTypes, $countryMetaParams);
     $countryRowList = amiga_games_query_all(
         $con,
         'SELECT DISTINCT t.country AS country FROM amiga_games g '
@@ -185,6 +208,7 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
             . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) '
             . 'AND t.country IS NOT NULL AND TRIM(t.country) <> \'\''
             . $countryMetaSql
+            . $countryCutoffSql
             . ' ORDER BY country ASC',
         $countryMetaTypes,
         $countryMetaParams
@@ -207,12 +231,14 @@ function amiga_player_games_filters_from_request(mysqli $con, int $playerId, arr
             $checkTypes,
             $checkParams
         );
+        $checkCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $checkTypes, $checkParams);
         $tournamentRows = amiga_games_query_all(
             $con,
             'SELECT g.tournament_id FROM amiga_games g '
                 . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
                 . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) AND g.tournament_id = ?'
                 . $checkMetaSql
+                . $checkCutoffSql
                 . ' LIMIT 1',
             $checkTypes,
             $checkParams
@@ -297,7 +323,8 @@ function amiga_games_where_clause(
     int $sinceYear,
     int $yearFilter,
     string &$types,
-    array &$params
+    array &$params,
+    ?AmigaSnapshotContext $ctx = null,
 ): string {
     $where = ['(r.idA = ? OR r.idB = ?)'];
     $types = 'ii';
@@ -360,7 +387,10 @@ function amiga_games_where_clause(
         $params[] = $yearFilter;
     }
 
-    return implode(' AND ', $where);
+    $whereSql = implode(' AND ', $where);
+    $whereSql .= amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+
+    return $whereSql;
 }
 
 /**

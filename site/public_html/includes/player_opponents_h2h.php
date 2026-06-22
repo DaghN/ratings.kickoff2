@@ -866,7 +866,7 @@ function player_opponents_render_h2h_all_games_link(array $subjectCard, array $o
         return;
     }
 
-    $href = '/player/games.php?id=' . $subjectId . '&opponent=' . $opponentId . '#matching-games';
+    $href = player_opponents_games_filtered_href($subjectId, $opponentId);
     $label = sprintf(
         'All %s rated games vs %s →',
         k2_fmt_int($games, '0'),

@@ -23,6 +23,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_games_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_performance_rating.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
@@ -41,10 +42,12 @@ try {
     exit('Player not found.');
 }
 
+$ctx = amiga_snapshot_context_peek();
+
 amiga_player_publish_hero_context($pm);
 $name = $Name;
 
-$gameFilters = amiga_player_games_filters_from_request($con, $playerId, $_GET);
+$gameFilters = amiga_player_games_filters_from_request($con, $playerId, $_GET, $ctx);
 $resultFilter = $gameFilters['result'];
 $opponentFilter = $gameFilters['opponent'];
 $tournamentFilter = $gameFilters['tournament'];
@@ -53,7 +56,7 @@ $countryFilter = $gameFilters['country'];
 $utcDayFilter = $gameFilters['day'];
 $sinceYearFilter = $gameFilters['since'];
 $yearFilter = $gameFilters['year'];
-$yearOptions = amiga_player_games_year_options($con, $playerId);
+$yearOptions = amiga_player_games_year_options($con, $playerId, $ctx);
 $sortKey = (string) ($_GET['sort'] ?? 'id');
 if ($sortKey === 'for') {
     $sortKey = 'goals_for';
@@ -85,21 +88,32 @@ if (!isset($sortMap[$sortKey])) {
 
 $fromSql = amiga_rated_games_from_sql();
 
+$branchATypes = 'i';
+$branchAParams = [$playerId];
+$branchACutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchATypes, $branchAParams);
+$branchBTypes = 'i';
+$branchBParams = [$playerId];
+$branchBCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchBTypes, $branchBParams);
 $opponentRows = amiga_games_query_all(
     $con,
     'SELECT opponent_id, opponent_name, COUNT(*) AS games FROM ('
         . 'SELECT g.player_b_id AS opponent_id, pb.name AS opponent_name FROM amiga_games g '
-        . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id WHERE g.player_a_id = ? '
+        . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id '
+        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE g.player_a_id = ?' . $branchACutoffSql . ' '
         . 'UNION ALL '
         . 'SELECT g.player_a_id AS opponent_id, pa.name AS opponent_name FROM amiga_games g '
-        . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id WHERE g.player_b_id = ?'
+        . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id '
+        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE g.player_b_id = ?' . $branchBCutoffSql
         . ') AS opponents GROUP BY opponent_id, opponent_name ORDER BY games DESC, opponent_name ASC',
-    'ii',
-    [$playerId, $playerId]
+    $branchATypes . $branchBTypes,
+    array_merge($branchAParams, $branchBParams)
 );
 $countryMetaTypes = 'ii';
 $countryMetaParams = [$playerId, $playerId];
 $countryMetaSql = amiga_games_tournament_meta_and_sql($eventFilter, '', $countryMetaTypes, $countryMetaParams);
+$countryCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $countryMetaTypes, $countryMetaParams);
 $countryRowList = amiga_games_query_all(
     $con,
     'SELECT DISTINCT t.country AS country FROM amiga_games g '
@@ -107,6 +121,7 @@ $countryRowList = amiga_games_query_all(
         . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) '
         . 'AND t.country IS NOT NULL AND TRIM(t.country) <> \'\''
         . $countryMetaSql
+        . $countryCutoffSql
         . ' ORDER BY country ASC',
     $countryMetaTypes,
     $countryMetaParams
@@ -124,12 +139,14 @@ $tournamentMetaSql = amiga_games_tournament_meta_and_sql(
     $tournamentMetaTypes,
     $tournamentMetaParams
 );
+$tournamentCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $tournamentMetaTypes, $tournamentMetaParams);
 $tournamentRows = amiga_games_query_all(
     $con,
     'SELECT g.tournament_id, t.name AS tournament_name, COUNT(*) AS games FROM amiga_games g '
         . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
         . 'WHERE g.player_a_id = ? OR g.player_b_id = ?'
         . $tournamentMetaSql
+        . $tournamentCutoffSql
         . ' GROUP BY g.tournament_id, t.name, t.event_date, t.chrono '
         . 'ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC',
     $tournamentMetaTypes,
@@ -148,7 +165,8 @@ $whereSql = amiga_games_where_clause(
     $sinceYearFilter,
     $yearFilter,
     $whereTypes,
-    $whereParams
+    $whereParams,
+    $ctx
 );
 
 $countRows = amiga_games_query_all(
@@ -293,6 +311,8 @@ foreach ($yearOptions as $year) {
     </form>
 </div>
 
+<div id="matching-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
+
 <div class="k2-player-games-status">
     <?php if ($utcDayFilter !== '') { ?>
     Rated games on <strong><?php echo amiga_games_h($utcDayFilter); ?></strong> UTC
@@ -323,7 +343,7 @@ foreach ($yearOptions as $year) {
 <thead>
 <tr>
     <?php echo amiga_games_sort_header('id', 'ID', 'left', $sortState, 'Rated game ID.'); ?>
-    <?php echo amiga_games_sort_header('date', 'Date', 'left', $sortState, 'Synthetic event date (tournament day + order within event).', 'Date', 'k2-table-cell--pad-left-xs'); ?>
+    <?php echo amiga_games_sort_header('date', 'Date', 'left', $sortState, 'Synthetic event date (tournament day + order within event).', 'Date', 'k2-table-cell--pad-left-xs k2-amiga-player-games-date'); ?>
     <?php echo amiga_games_sort_header('team_a', 'Team A', 'right', $sortState, 'Player listed as Team A in the original game record.'); ?>
     <th></th>
     <th></th>

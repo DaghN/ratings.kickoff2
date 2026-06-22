@@ -8,6 +8,7 @@ require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_opponents_load.php';
+require_once __DIR__ . '/amiga_player_opponents_lib.php';
 
 function amiga_player_opponents_dds_ratio_cell(float $ratio): string
 {
@@ -17,7 +18,7 @@ function amiga_player_opponents_dds_ratio_cell(float $ratio): string
 /**
  * @param list<array<string, mixed>> $rows
  */
-function amiga_player_opponents_render_wdl_table_from_rows(array $rows): void
+function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $playerId): void
 {
     ?>
 <div class="k2-table-wrap">
@@ -48,7 +49,7 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows): void
 	    ?>
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
-        <td><?php echo $games; ?></td>
+        <td><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($wins != 0) {
             echo "<span class='blue'>";
             echo $wins;
@@ -79,14 +80,15 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows): void
 function amiga_player_opponents_render_wdl_table(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): void
 {
     amiga_player_opponents_render_wdl_table_from_rows(
-        amiga_player_opponents_matchup_rows($con, $playerId, $ctx)
+        amiga_player_opponents_matchup_rows($con, $playerId, $ctx),
+        $playerId
     );
 }
 
 /**
  * @param list<array<string, mixed>> $rows
  */
-function amiga_player_opponents_render_goals_table_from_rows(array $rows): void
+function amiga_player_opponents_render_goals_table_from_rows(array $rows, int $playerId): void
 {
     ?>
 <div class="k2-table-wrap">
@@ -138,7 +140,7 @@ function amiga_player_opponents_render_goals_table_from_rows(array $rows): void
 	    ?>
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
-        <td><?php echo $games; ?></td>
+        <td><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($goalsFor != 0) {
             echo "<span class='blue'>";
             echo $goalsFor;
@@ -183,14 +185,15 @@ function amiga_player_opponents_render_goals_table_from_rows(array $rows): void
 function amiga_player_opponents_render_goals_table(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): void
 {
     amiga_player_opponents_render_goals_table_from_rows(
-        amiga_player_opponents_matchup_rows($con, $playerId, $ctx)
+        amiga_player_opponents_matchup_rows($con, $playerId, $ctx),
+        $playerId
     );
 }
 
 /**
  * @param list<array<string, mixed>> $rows
  */
-function amiga_player_opponents_render_dds_table_from_rows(array $rows): void
+function amiga_player_opponents_render_dds_table_from_rows(array $rows, int $playerId): void
 {
     ?>
 <div class="k2-table-wrap">
@@ -225,7 +228,7 @@ function amiga_player_opponents_render_dds_table_from_rows(array $rows): void
 	    ?>
     <tr>
         <td class="k2-table-cell--left"><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
-        <td><?php echo $games; ?></td>
+        <td><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($doubleDigits != 0) {
             echo "<span class='blue'>";
             echo $doubleDigits;
@@ -257,6 +260,7 @@ function amiga_player_opponents_render_dds_table_from_rows(array $rows): void
 function amiga_player_opponents_render_dds_table(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): void
 {
     amiga_player_opponents_render_dds_table_from_rows(
-        amiga_player_opponents_matchup_rows($con, $playerId, $ctx)
+        amiga_player_opponents_matchup_rows($con, $playerId, $ctx),
+        $playerId
     );
 }

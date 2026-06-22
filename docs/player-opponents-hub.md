@@ -136,6 +136,7 @@ Work in slices. Dagh steers order; any slice can pause for taste calls.
 | Opponents shell | `player/opponents/{h2h,wdl,goals,dds}.php` + shared `includes/player_opponents_page.php` |
 | Inner sub-tabs | `includes/player_opponents_nav.php` |
 | Table bodies | `includes/player_opponents_tables.php` + **`includes/player_opponents_load.php`** |
+| Games column drill-down | `player_opponents_games_filtered_href()` → `/player/games.php?id=&opponent=#matching-games` |
 | H2H tab | `includes/player_opponents_h2h.php` · `api/player_h2h_opponent_search.php` · `js/player-opponents-h2h.js` |
 | Profile matchup block | `includes/player_feast_blocks.php` → charts still on Profile until Phase 2 charts slice |
 | Routes | `includes/k2_routes.php` — `player-opponents` + `player-opponents-{h2h,wdl,goals,dds}` |

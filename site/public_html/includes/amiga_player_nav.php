@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga player pills — Profile · Tournaments · Opponents · Games.
+ * Amiga player pills — Profile · Opponents · Tournaments · Games.
  * Set $k2AmigaPlayerTabActive and $id before include.
  */
 declare(strict_types=1);
@@ -13,8 +13,8 @@ $k2AmigaPlayerTabActive = $k2AmigaPlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
 $k2AmigaPlayerTabs = [
     'profile' => ['href' => k2_amiga_route('amiga-player-profile', ['id' => $id]), 'label' => 'Profile'],
-    'tournaments' => ['href' => k2_amiga_route('amiga-player-tournaments', ['id' => $id]), 'label' => 'Tournaments'],
     'opponents' => ['href' => amiga_player_opponents_default_href($id), 'label' => 'Opponents'],
+    'tournaments' => ['href' => k2_amiga_route('amiga-player-tournaments', ['id' => $id]), 'label' => 'Tournaments'],
     'games' => ['href' => k2_amiga_route('amiga-player-games', ['id' => $id]), 'label' => 'Games'],
 ];
 ?>

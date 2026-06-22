@@ -9,6 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/amiga_db.php';
 require_once __DIR__ . '/amiga_player_games_lib.php';
 require_once __DIR__ . '/amiga_performance_rating.php';
+require_once __DIR__ . '/amiga_snapshot_context.php';
 
 /**
  * @param array<string, mixed> $query GET params (id, filters — sort/dir ignored)
@@ -21,7 +22,8 @@ require_once __DIR__ . '/amiga_performance_rating.php';
  */
 function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, array $query): array
 {
-    $filters = amiga_player_games_filters_from_request($con, $playerId, $query);
+    $ctx = amiga_snapshot_context_from_request($con);
+    $filters = amiga_player_games_filters_from_request($con, $playerId, $query, $ctx);
 
     $whereTypes = '';
     $whereParams = [];
@@ -36,7 +38,8 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
         $filters['since'],
         $filters['year'],
         $whereTypes,
-        $whereParams
+        $whereParams,
+        $ctx
     );
 
     $rows = amiga_games_query_all(
