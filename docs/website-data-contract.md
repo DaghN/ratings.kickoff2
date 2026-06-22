@@ -697,7 +697,8 @@ Period-burst keys (`hot_day`, `marathon_day`, `absurd_day`, `ultra_day_30`, `gri
 | **PHP ops (repo)** | `ProcessCompletedGame` + P6 milestone modules — cutover target. |
 | **Rebuild** | `player_milestones_rebuild.sql`: first game where running max of `NewRating` ≥ threshold; also `INNER JOIN playertable … PeakRating >= thresh`. |
 | **Legacy replay verify** | On `ko2unity_db` after replay: holder counts and first-unlock games match first `NewRating >= threshold` for all four keys; `PeakRating` join excludes **no** players. |
-| **When § Career peak and nadir ships** | Remove `PeakRating` join from rebuild SQL. Live post-game must use post-game **`Rating`**, not `PeakRating`, or players with `Rating >= 1700` before game 20 would miss unlocks. |
+| **Live post-game (ops simul)** | **Shipped** — `k2_post_game_milestones_rating_clubs()` uses post-game **`Rating`** cross (games 1–19 allowed). |
+| **Batch rebuild (deferred)** | Remove redundant `PeakRating` join from `player_milestones_rebuild.sql` on next regen — DDR-052; not blocking cutover (holy path = ops simul). |
 | **Catalog scope** | Only the four keys in the table above are in the 112-key catalog/rebuild. `club_1900` / `elite_altitude` remain ideas-only. |
 
 Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post-game-cutover-checklist.md).

@@ -6,7 +6,7 @@
 
 **Execution:** Slices **in order**. Run each slice **Verification** before continuing. **Do not git commit** unless Dagh asks.
 
-**Out of scope for this plan:** full Activity chart panel port (online parity), `community-stats-rebuild` repair CLI, new fact grains beyond v1 registry (spec pass before charts).
+**Out of scope for this plan:** full Activity chart panel port (online parity), `community-stats-rebuild` repair CLI, new fact grains beyond v1 registry (spec pass before charts). **Hygiene backlog:** [`amiga-community-stats-hygiene-shortlist.md`](amiga-community-stats-hygiene-shortlist.md).
 
 **Migration:** **L1+** — new DDL, finalize/replay writers, verify in `prove` → **Part B** at slice 9 wrap-up.
 

@@ -30,7 +30,7 @@
 | Area | Legacy (today) | Target (contract) |
 |------|----------------|-------------------|
 | Career peak / nadir | From game 1; peak only on rating **gain** in that game | **Unset until 20 games**; at game 20 set **both** from post-game **`Rating`**; game 21+ max/min of **`Rating`** every game |
-| `club_*` milestones | *(no live writer)*; rebuild uses `PeakRating` join | Post-game: first **`Rating` ≥ threshold** (any game #, including &lt; 20); rebuild: drop `PeakRating` join when peak-at-20 replay ships |
+| `club_*` milestones | *(no live writer on prod C++ today)*; batch rebuild still joins `PeakRating` | **PHP ops shipped:** first **`Rating` ≥ threshold** on crossing game; batch SQL join removal **deferred** (DDR-052) |
 | Personal record pointers | `>=` on margin | **`>`** — first holder keeps on tie |
 | HoF records | `>=` on many fields | **`>`**; stop writing ratio leader cols to `generalstatstable` |
 | `player_milestones` (most keys) | Not in prod C++ | Full writer per contract M1–M7 |
@@ -49,12 +49,11 @@
 
 ---
 
-## Rating club — rebuild status (May 2026)
+## Rating club — status (Jun 2026)
 
-- **Prod C++:** does **not** insert `player_milestones` (any key). New games do not unlock milestones until live writer or rebuild.
-- **REP-008 SQL:** `player_milestones_rebuild.sql` — four keys only (`club_1700`, `1800`, `2000`, `2300`). Uses first `NewRating` cross + `playertable.PeakRating >= thresh`.
-- **Local replay verify:** counts and first-unlock **games** match “first `NewRating >= threshold`” for all four keys; `PeakRating` join excludes **no one** on legacy peak data.
-- **After peak-at-20 replay:** remove `PeakRating` join in rebuild; align live post-game with **`Rating`** only (or provisional players with `Rating >= 1700` and `PeakRating` still unset would miss `club_*`).
+- **Prod C++:** does **not** insert `player_milestones` (any key). New games do not unlock milestones until PHP ops cutover.
+- **PHP ops (shipped):** `k2_post_game_milestones_rating_clubs()` — first cross on post-game **`Rating`**; proven on work via ops simul P6.
+- **Batch repair SQL (deferred):** `player_milestones_rebuild.sql` still has redundant `PeakRating >= thresh` join (line 168). Regen when touching batch repair — not holy-path blocking. See DDR-052 + discrepancy register.
 
 `club_1900` / `elite_altitude`: ideas/probes only — **not** in 112-key catalog or rebuild.
 

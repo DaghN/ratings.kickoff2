@@ -58,7 +58,7 @@
 
 - **Amiga stored id/date semantics Phase C (Jun 2026):** **Complete** — `verify_stored_id_date_pairs` in `prove` (rise FK pairing, honours_last / last participation, career-best replay).
 
-- **Amiga stored id/date semantics Phase D (Jun 2026):** **Complete** — `verify_php_finalize_parity` in `prove` (Athens XCII / T24 reopen+finalize; PHP vs Python on snapshots, realm, generalstats, current); prior-snapshot carry fallback in Python + PHP persist; geo tracker includes in-flight tournament. Plan [`amiga-stored-field-semantics-plan.md`](docs/amiga-stored-field-semantics-plan.md) **A–D done**.
+- **Amiga stored id/date semantics Phase D (Jun 2026):** **Retired with refinalize** — `verify-php-finalize-parity` removed Jun 2026 ([`archive/retired-amiga-refinalize-2026-06.md`](docs/archive/retired-amiga-refinalize-2026-06.md)); derived repair = `prove` only. Phases A–C (`verify-hof-holder-projection`, `verify-stored-id-date-pairs`, manifest) remain in `prove`.
 
 - **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–11 complete** — strict stack shipped (`prove` L1→L5, `verify-l2-l3`). [`amiga-ground-stack.md`](docs/amiga-ground-stack.md).
 
@@ -113,8 +113,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06 | **Post-game parity register sweep** — `post-game-contract-vs-oracle-discrepancies.md`: closed false Opens (`play_streak_100`, P7 verify); split `club_*` live Fixed vs batch Deferred; layer 7 superseded by `verify_activity_wing_parity`; DDR-052 + cutover checklist aligned. |
 | 2026-06 | **Milestones docs drift fix** — `milestones-product-spec.md` + `milestones-project.md`: 112/112 keys shipped (removed stale wave-1 ~88 TODO); meta LB wing + hub v2 marked done; Accomplished **%** wing noted as deferred (counts ship today). |
-| 2026-06 | **Amiga community stats legacy cleanup** — DDL `035` drops 14 aggregate cols from `amiga_generalstats` / `amiga_realm_snapshots`; HoF payload = record book only; `verify-community-stats` multi-event oracle + `verify-php-community-parity` in `prove`; PHP active_players year-key fix. |
+| 2026-06 | **Amiga community stats hygiene shortlist** — recentering doc before new fact grains; clarifies refinalize/`verify-php-finalize-parity` retirement. [`amiga-community-stats-hygiene-shortlist.md`](docs/amiga-community-stats-hygiene-shortlist.md). |
 | 2026-06 | **Amiga community stats shipped** — DDL `034`, finalize writers, facts v1 registry, Activity summary, `verify-community-stats` in `prove` (605 snapshots). |
 | 2026-06 | **Amiga community stats policy** — locked hybrid storage (headline snapshots + fact table); [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md). |
 | 2026-06 | **Amiga ground stack doc sweep** — closed stale “planned/gap/target” refs; slices 1–11 consistent across policy, stack, import-layer, README. |

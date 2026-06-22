@@ -81,7 +81,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 |----|----------|-------|------|
 | DDR-050 | Full `player_milestones` | `player_milestones_rebuild.sql` | Parity / repair |
 | DDR-051 | Website aggregates | `rebuild_website_derived_data_local.ps1` | Mode B shortcut |
-| DDR-052 | `club_*` SQL | rebuild SQL | PeakRating join — open |
+| DDR-052 | `club_*` SQL | rebuild SQL | **Deferred** — remove redundant `PeakRating` join on regen; live P6 uses `Rating` only ([`post-game-contract-vs-oracle-discrepancies.md`](post-game-contract-vs-oracle-discrepancies.md)) |
 
 ---
 
@@ -96,7 +96,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | Source | Status |
 |--------|--------|
 | Contract § Post-game derived-data | Mapped DDR-001–011, 020–025 |
-| Discrepancy register | Linked; `club_*` = DDR-052 open |
+| Discrepancy register | Linked; `club_*` live **Fixed**; batch SQL = DDR-052 **Deferred** |
 | `ops_dispatch.php` | `ProcessCompletedGame`, `FinalizeUtcDay`, `ProcessPlayerRegistered` |
 | `process_completed_game.php` chain | Matches DDR-001–011 |
 | Prepare §4.5 / §4.7 | Truncates + lobby seed |

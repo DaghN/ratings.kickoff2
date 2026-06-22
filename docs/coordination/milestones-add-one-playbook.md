@@ -133,7 +133,7 @@ Historical May 2026 `kooldb` batch path: [`../archive/milestones-staging-cutover
 | `milestone_key` | `play_streak_100` |
 | `display_name` | **100 days** |
 | `rule_short` | **100 consecutive UTC days with a rated game** |
-| Rule | First time `player_period_games` day streak reaches 100; establishing game = `MIN(id)` on day 100 of the run |
+| Rule | First cross of **100** consecutive UTC days with ≥1 rated game; unlock on the **game that extends** the day streak to 100 (`player_play_streaks.php` when `$newLen === 100`) |
 | Depends | `player_period_games` (day rows); play streaks proven on **`kooldb1`** after ops simul |
 
 ---

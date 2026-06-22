@@ -132,10 +132,10 @@ Read: `/amiga/hall-of-fame.php` — **must not** compute record dates at read ti
 | `verify_hof_geo_year` | Geo/year scalars; 32 rise columns on current; 18 HoF rows value/ID/**Date**; realm vs `generalstats`; Alkis regression |
 | `verify_hof_holder_projection` | All career holders `*Date` = `_holder_record_date` on holder row; game-anchored rows vs SQL game oracle + `*GameID` date; ratio leaders vs player-row + SQL oracle; realm vs `generalstats` |
 | `verify_stored_id_date_pairs` | Rise id/date null symmetry + FK + `tournaments.event_date` on current + snapshots; honours_last on snapshots; `last_*` participation on current; career-best replay + FK |
-| `verify_php_finalize_parity` | T24 reopen+finalize: PHP vs Python on snapshots, realm, generalstats, current (parity columns incl. rise + HoF slice) |
+| ~~`verify_php_finalize_parity`~~ | **Retired Jun 2026** with refinalize — [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md). Community PHP **build** parity = `verify-php-community-parity` |
 | `verify_realm_snapshots` | Snapshot count; `generalstats` = latest realm row; **full payload** oracle via `build_generalstats_payload` (self-consistent) |
 | `verify_event_snapshots` | Snapshot/current row counts; latest snapshot parity (incl. rise + career cols); participation rollups |
-| `test_honours_rise_dates`, `test_career_rise_dates`, `test_player_geo_year`, `test_realm_holder_dates`, `test_hof_holder_projection`, `test_stored_id_date_pairs`, `test_php_finalize_parity` | Unit tests for increment / projection helpers |
+| `test_honours_rise_dates`, `test_career_rise_dates`, `test_player_geo_year`, `test_realm_holder_dates`, `test_hof_holder_projection`, `test_stored_id_date_pairs` | Unit tests for increment / projection helpers |
 
 ---
 
@@ -151,7 +151,7 @@ Priority = risk if projection or pairing is wrong **and** `prove` stays green.
 | **P4** | ~~Global id/date pairing: rise `*_tournament_id` ↔ `*_event_date` ↔ `tournaments.id`~~ | **done** | **Phase C** — `verify_stored_id_date_pairs` |
 | **P5** | ~~`honours_last_*` / `last_*` participation consistency~~ | **done** | **Phase C** — same module |
 | **P6** | ~~`career_best_performance_tournament_id` FK + replay oracle~~ | **done** | **Phase C** — same module |
-| **P7** | ~~PHP reopen+finalize vs Python on fixed tournament (rise + HoF slice)~~ | **done** | **Phase D** — `verify_php_finalize_parity` in `prove` (T24) |
+| **P7** | ~~PHP reopen+finalize vs Python on fixed tournament (rise + HoF slice)~~ | **retired** | **Jun 2026** — removed with refinalize; use full `prove` ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)) |
 
 ---
 
@@ -165,7 +165,7 @@ New stored id/date field → add a row here → ship `test_*` or `verify_*` befo
 
 | When | What |
 |------|------|
-| 2026-06 | Phase D — `verify_php_finalize_parity` in `prove`; P7 closed (T24 reopen+finalize PHP vs Python) |
+| 2026-06 | Phase D — `verify-php-finalize-parity` **retired** with refinalize; repair = `prove` only |
 | 2026-06 | Phase C — `verify_stored_id_date_pairs` in `prove`; P4–P6 closed |
 | 2026-06 | Phase B — `verify_hof_holder_projection` in `prove`; game + ratio + career source-field checks |
 | 2026-06 | SCH-030 — ten career HoF rows moved to rise-style dates; verify index updated |
