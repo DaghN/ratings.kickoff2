@@ -77,12 +77,29 @@ function amiga_rating_history_date_bounds(mysqli $con): ?array
 /**
  * @param array{id: int, name: string, event_date: string, chrono: float} $tournament
  */
-function amiga_rating_history_format_event_label(array $tournament): string
+function amiga_rating_history_format_event_date_picker_label(array $tournament): string
 {
     $date = DateTimeImmutable::createFromFormat('!Y-m-d', $tournament['event_date']);
-    $datePart = $date instanceof DateTimeImmutable ? $date->format('M Y') : $tournament['event_date'];
 
-    return $tournament['name'] . ' · ' . $datePart;
+    return $date instanceof DateTimeImmutable ? $date->format('M Y') : $tournament['event_date'];
+}
+
+/**
+ * @param array{id: int, name: string, event_date: string, chrono: float} $tournament
+ */
+function amiga_rating_history_format_event_date_label(array $tournament): string
+{
+    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $tournament['event_date']);
+
+    return $date instanceof DateTimeImmutable ? $date->format('M j, Y') : $tournament['event_date'];
+}
+
+/**
+ * @param array{id: int, name: string, event_date: string, chrono: float} $tournament
+ */
+function amiga_rating_history_format_event_label(array $tournament): string
+{
+    return $tournament['name'] . ' · ' . amiga_rating_history_format_event_date_label($tournament);
 }
 
 function amiga_rating_history_format_month_label(string $yearMonth): string
@@ -112,6 +129,9 @@ function amiga_rating_history_event_sort_ms(string $eventDate, float $chrono, in
  * @return list<array{
  *   key: string,
  *   label: string,
+ *   tournament_name: string,
+ *   event_date_label: string,
+ *   event_date_picker_label: string,
  *   cutoff_tournament_id: int|null,
  *   cutoff_event_date: string|null,
  *   cutoff_chrono: float|null,
@@ -125,6 +145,9 @@ function amiga_rating_history_catalog_event(mysqli $con): array
         $catalog[] = [
             'key' => (string) $tournament['id'],
             'label' => amiga_rating_history_format_event_label($tournament),
+            'tournament_name' => $tournament['name'],
+            'event_date_label' => amiga_rating_history_format_event_date_label($tournament),
+            'event_date_picker_label' => amiga_rating_history_format_event_date_picker_label($tournament),
             'cutoff_tournament_id' => $tournament['id'],
             'cutoff_event_date' => $tournament['event_date'],
             'cutoff_chrono' => $tournament['chrono'],

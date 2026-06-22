@@ -219,7 +219,7 @@ $isWorldCupEvent = amiga_tournament_is_world_cup($tournament);
 
 $hasStagesTab = $isWorldCupEvent && ($hasLeagueStandingsNav || $hasBracket);
 
-$stagesEntryUrl = amiga_tournament_stages_entry_url($id, $showLeagueTableTab, $leagueLabeledScopes, $hasBracket);
+$stagesEntryUrl = amiga_tournament_href(amiga_tournament_stages_entry_url($id, $showLeagueTableTab, $leagueLabeledScopes, $hasBracket));
 
 $isStagesContentView = $pageView === 'stages' || ($pageView === 'standings' && !$isWorldCupEvent);
 
@@ -275,7 +275,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
               return;
           }
           ?>
-      <a href="<?php echo k2_h(amiga_tournament_event_stats_url($id)); ?>" class="k2-player-nav__btn<?php echo $eventStatsActive ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_event_stats_url($id))); ?>" class="k2-player-nav__btn<?php echo $eventStatsActive ? ' is-active' : ''; ?>"<?php
 
           echo $eventStatsActive ? ' aria-current="page"' : '';
 
@@ -297,7 +297,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           if ($showLeagueTableTab) {
               $leagueTableActive = $scopeType === 'league' && $scopeKey === '' && $pageView === 'stages';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_standings_nav_url($id, 'league', '', $isWorldCupEvent)); ?>" class="k2-player-nav__btn<?php echo $leagueTableActive ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', '', $isWorldCupEvent))); ?>" class="k2-player-nav__btn<?php echo $leagueTableActive ? ' is-active' : ''; ?>"<?php
               echo $leagueTableActive ? ' aria-current="page"' : '';
               ?>>League table</a>
               <?php
@@ -305,7 +305,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           foreach ($leagueLabeledScopes as $lk) {
               $active = $scopeType === 'league' && $scopeKey === $lk && $pageView === 'stages';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_standings_nav_url($id, 'league', $lk, $isWorldCupEvent)); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', $lk, $isWorldCupEvent))); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
               echo $active ? ' aria-current="page"' : '';
               ?>><?php echo k2_h($lk); ?></a>
               <?php
@@ -313,7 +313,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           if ($hasBracket) {
               $bracketScopeKey = $knockoutScopes[0] ?? '';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey, $isWorldCupEvent)); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'stages' ? ' is-active' : ''; ?>">Bracket</a>
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey, $isWorldCupEvent))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'stages' ? ' is-active' : ''; ?>">Bracket</a>
               <?php
           }
       };
@@ -331,7 +331,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           if ($hasGamesTab) {
               $gamesActive = $pageView === 'games';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_games_url($id)); ?>" class="k2-player-nav__btn<?php echo $gamesActive ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_games_url($id))); ?>" class="k2-player-nav__btn<?php echo $gamesActive ? ' is-active' : ''; ?>"<?php
               echo $gamesActive ? ' aria-current="page"' : '';
               ?>>Games</a>
               <?php
@@ -340,7 +340,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           if ($showLeagueTableTab) {
               $leagueTableActive = $scopeType === 'league' && $scopeKey === '' && $pageView === 'standings';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_standings_nav_url($id, 'league', '', false)); ?>" class="k2-player-nav__btn<?php echo $leagueTableActive ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', '', false))); ?>" class="k2-player-nav__btn<?php echo $leagueTableActive ? ' is-active' : ''; ?>"<?php
               echo $leagueTableActive ? ' aria-current="page"' : '';
               ?>>League table</a>
               <?php
@@ -348,7 +348,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           foreach ($leagueLabeledScopes as $lk) {
               $active = $scopeType === 'league' && $scopeKey === $lk && $pageView === 'standings';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_standings_nav_url($id, 'league', $lk, false)); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', $lk, false))); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
               echo $active ? ' aria-current="page"' : '';
               ?>><?php echo k2_h($lk); ?></a>
               <?php
@@ -356,13 +356,13 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           if ($hasBracket) {
               $bracketScopeKey = $knockoutScopes[0] ?? '';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey, false)); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'standings' ? ' is-active' : ''; ?>">Bracket</a>
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey, false))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'standings' ? ' is-active' : ''; ?>">Bracket</a>
               <?php
           }
           if ($hasGamesTab) {
               $gamesActive = $pageView === 'games';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_games_url($id)); ?>" class="k2-player-nav__btn<?php echo $gamesActive ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_games_url($id))); ?>" class="k2-player-nav__btn<?php echo $gamesActive ? ' is-active' : ''; ?>"<?php
               echo $gamesActive ? ' aria-current="page"' : '';
               ?>>Games</a>
               <?php
@@ -435,6 +435,14 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       <input type="hidden" name="view" value="games" />
 
+      <?php
+      require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_url.php';
+      $tournamentGamesAsParam = amiga_snapshot_propagate_as_param();
+      if ($tournamentGamesAsParam !== null) {
+          echo '<input type="hidden" name="as" value="' . k2_h($tournamentGamesAsParam) . '" />';
+      }
+      ?>
+
     </div>
 
     <div class="k2-player-games-controls__fields">
@@ -459,7 +467,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       </div>
 
-      <a class="k2-player-games-action" href="<?php echo k2_h(amiga_tournament_games_url($id)); ?>">Reset</a>
+      <a class="k2-player-games-action" href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_games_url($id))); ?>">Reset</a>
 
     </div>
 

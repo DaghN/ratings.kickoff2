@@ -31,6 +31,22 @@
         return qs(box, '.k2-archive-listbox__label');
     }
 
+    function triggerMetaEl(box) {
+        return qs(box, '.k2-archive-listbox__trigger-meta');
+    }
+
+    function optionMetaText(opt) {
+        if (!opt) {
+            return '';
+        }
+        var meta = opt.getAttribute('data-option-meta');
+        if (meta) {
+            return meta;
+        }
+        var metaNode = opt.querySelector('.k2-archive-listbox__option-meta');
+        return metaNode && metaNode.textContent ? metaNode.textContent : '';
+    }
+
     function options(box) {
         var list = panel(box);
         return list ? list.querySelectorAll('[role="option"]') : [];
@@ -170,6 +186,9 @@
         if (box.closest('.k2-realm-games-filters')) {
             return;
         }
+        if (box.closest('.k2-amiga-history__picker')) {
+            return;
+        }
         var btn = trigger(box);
         if (!btn) {
             return;
@@ -233,6 +252,30 @@
             return nameEl.textContent;
         }
         return opt.textContent || '';
+    }
+
+    function optionIsAccented(opt) {
+        if (!opt) {
+            return false;
+        }
+        if (opt.getAttribute('data-option-accent') === '1') {
+            return true;
+        }
+        var labelNode = splitOptionLabelNode(opt);
+        return !!(labelNode && labelNode.classList.contains('k2-link-star'));
+    }
+
+    function syncTriggerAccent(box) {
+        var btn = trigger(box);
+        if (!btn) {
+            return;
+        }
+        var accented = optionIsAccented(findOption(box, getValue(box)));
+        btn.classList.toggle('k2-link-star', accented);
+        var metaEl = triggerMetaEl(box);
+        if (metaEl) {
+            metaEl.classList.toggle('k2-link-star', accented);
+        }
     }
 
     function markSelected(box, value) {
@@ -524,7 +567,12 @@
         if (lbl) {
             lbl.textContent = text;
         }
+        var metaEl = triggerMetaEl(box);
+        if (metaEl) {
+            metaEl.textContent = optionMetaText(findOption(box, value));
+        }
         markSelected(box, value);
+        syncTriggerAccent(box);
         syncTriggerWidth(box);
         if (!silent) {
             if (input) {

@@ -51,8 +51,13 @@ function amiga_snapshot_chrome_render_picker(
         $key = (string) $item['key'];
         $choice = [
             'value' => amiga_snapshot_format_as_param($wing, $key),
-            'label' => (string) $item['label'],
+            'label' => $wing === 'event'
+                ? (string) ($item['tournament_name'] ?? $item['label'])
+                : (string) $item['label'],
         ];
+        if ($wing === 'event') {
+            $choice['meta'] = (string) ($item['event_date_picker_label'] ?? '');
+        }
         if ($accentKeys !== null && isset($accentKeys[$key])) {
             $choice['accent'] = true;
         }
@@ -75,6 +80,9 @@ function amiga_snapshot_chrome_render_picker(
         $currentAs,
         $choices,
         'Choose snapshot',
+        '',
+        '',
+        $wing === 'event',
     ); ?>
 </form>
     <?php
@@ -108,7 +116,8 @@ function amiga_snapshot_chrome_render_stepper(
     string $wing,
     ?string $prevAs,
     ?string $nextAs,
-    ?array $entry
+    ?array $entry,
+    ?string $currentAs = null,
 ): void {
     $label = $entry !== null ? (string) ($entry['label'] ?? '—') : '—';
     $stepperClass = 'k2-amiga-history__stepper k2-player-games-day-steps';
@@ -125,14 +134,19 @@ function amiga_snapshot_chrome_render_stepper(
         echo '<span class="k2-player-games-day-step k2-player-games-day-step--prev is-disabled" aria-disabled="true" aria-label="Previous snapshot">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
     }
-    global $k2AmigaSnapshotChromeEventTournamentLink;
     $tournamentId = ($wing === 'event' && $entry !== null && $entry['cutoff_tournament_id'] !== null)
         ? (int) $entry['cutoff_tournament_id']
         : 0;
-    if (!empty($k2AmigaSnapshotChromeEventTournamentLink) && $tournamentId > 0) {
+    if ($tournamentId > 0) {
         require_once __DIR__ . '/amiga_tournament_lib.php';
-        $tournamentHref = amiga_tournament_url($tournamentId) . '#' . AMIGA_TOURNAMENT_PAGE_FRAGMENT;
-        echo '<a class="k2-amiga-history__label" href="' . k2_h($tournamentHref) . '">' . k2_h($label) . '</a>';
+        $tournamentPath = amiga_tournament_url($tournamentId);
+        if ($currentAs !== null && $currentAs !== '') {
+            $tournamentHref = amiga_url_with_as_param($tournamentPath, $currentAs);
+        } else {
+            $tournamentHref = amiga_url_with_context($tournamentPath);
+        }
+        $tournamentHref .= '#' . AMIGA_TOURNAMENT_PAGE_FRAGMENT;
+        echo '<a class="k2-amiga-history__label k2-amiga-history__label--link" href="' . k2_h($tournamentHref) . '">' . k2_h($label) . '</a>';
     } else {
         echo '<span class="k2-amiga-history__label">' . k2_h($label) . '</span>';
     }
@@ -174,6 +188,27 @@ function amiga_snapshot_chrome_render_wing_tabs(
     echo '</div></nav>';
 }
 
+function amiga_snapshot_chrome_event_layout_style(array $catalog): string
+{
+    $maxStepperChars = 20;
+    $maxNameChars = 12;
+    foreach ($catalog as $item) {
+        $maxStepperChars = max($maxStepperChars, mb_strlen((string) ($item['label'] ?? '')));
+        $maxNameChars = max($maxNameChars, mb_strlen((string) ($item['tournament_name'] ?? '')));
+    }
+
+    $stepperRem = min(28.0, max(16.0, $maxStepperChars * 0.5 + 3.0));
+    // Picker: name column + fixed date column — do not size meta as if it were another full name.
+    $nameRem = min(14.0, max(6.5, $maxNameChars * 0.4));
+    $pickerRem = min(19.0, max(13.0, $nameRem + 4.5 + 0.25));
+
+    return sprintf(
+        '--k2-amiga-tt-stepper-width:%.1frem;--k2-amiga-tt-picker-width:%.1frem',
+        $stepperRem,
+        $pickerRem
+    );
+}
+
 function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $ctx, string $path): void
 {
     $wing = $ctx->wing();
@@ -194,9 +229,15 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
     if ($wing === 'event') {
         require_once __DIR__ . '/amiga_player_event_stepper_lib.php';
         if (amiga_player_event_stepper_applies($path)) {
-            $playerId = isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
-            if ($playerId > 0) {
-                $pickerAccentKeys = amiga_player_participated_event_key_set($con, $playerId);
+            $pickerPlayerId = isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
+            if ($pickerPlayerId < 1) {
+                global $playerId;
+                if (isset($playerId) && (int) $playerId > 0) {
+                    $pickerPlayerId = (int) $playerId;
+                }
+            }
+            if ($pickerPlayerId > 0) {
+                $pickerAccentKeys = amiga_player_participated_event_key_set($con, $pickerPlayerId);
             }
         }
     }
@@ -206,8 +247,14 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
         ['wing' => 'month', 'label' => 'Month'],
         ['wing' => 'event', 'label' => 'Event'],
     ];
+    $sectionClass = 'k2-amiga-time-travel k2-amiga-time-travel--active';
+    $sectionStyle = '';
+    if ($wing === 'event') {
+        $sectionClass .= ' k2-amiga-time-travel--event-wing';
+        $sectionStyle = amiga_snapshot_chrome_event_layout_style($catalog);
+    }
     ?>
-<section class="k2-amiga-time-travel k2-amiga-time-travel--active" aria-label="Time travel controls" data-k2-preserve-table-sort="1">
+<section class="<?php echo k2_h($sectionClass); ?>"<?php echo $sectionStyle !== '' ? ' style="' . k2_h($sectionStyle) . '"' : ''; ?> aria-label="Time travel controls" data-k2-preserve-table-sort="1">
     <div class="k2-amiga-time-travel__bar">
         <?php amiga_snapshot_chrome_render_wing_tabs($path, $wing, $wings, $cutoff); ?>
         <div class="k2-amiga-history__controls k2-amiga-time-travel__controls">
@@ -217,7 +264,8 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
                 $wing,
                 $prevAs,
                 $nextAs,
-                $ctx->entry()
+                $ctx->entry(),
+                $currentAs,
             );
             if ($catalog !== [] && $currentAs !== '') {
                 amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);

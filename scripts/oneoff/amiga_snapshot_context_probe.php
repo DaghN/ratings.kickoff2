@@ -97,6 +97,13 @@ if (!str_contains($url, 'as=event%3A' . $lastId) && !str_contains($url, 'as=even
     fwrite(STDERR, "url with context fail: {$url}\n");
     exit(1);
 }
+require __DIR__ . '/../../site/public_html/includes/amiga_tournament_lib.php';
+$tournamentUrl = amiga_url_with_context(amiga_tournament_url((int) $lastId));
+if (!str_contains($tournamentUrl, 'tournament.php')
+    || (!str_contains($tournamentUrl, 'as=event%3A' . $lastId) && !str_contains($tournamentUrl, 'as=event:' . $lastId))) {
+    fwrite(STDERR, "tournament url with context fail: {$tournamentUrl}\n");
+    exit(1);
+}
 $exitUrl = amiga_url_present('/amiga/leaderboards/rating.php?sort=rating');
 if (str_contains($exitUrl, 'as=')) {
     fwrite(STDERR, "url present fail: {$exitUrl}\n");
@@ -159,6 +166,21 @@ if (amiga_time_mode_nav_time_travel_target_path('/amiga/news.php') !== '/amiga/l
     fwrite(STDERR, "TT entry from news should be rating LB\n");
     exit(1);
 }
+$_GET['as'] = 'event:' . $lastId;
+amiga_snapshot_context_reset();
+$realmHomeTt = amiga_realm_home_href();
+if (!str_contains($realmHomeTt, '/amiga/leaderboards/rating.php')
+    || (!str_contains($realmHomeTt, 'as=event%3A' . $lastId) && !str_contains($realmHomeTt, 'as=event:' . $lastId))) {
+    fwrite(STDERR, "realm home in TT should be rating LB with as=: {$realmHomeTt}\n");
+    exit(1);
+}
+$_GET = [];
+amiga_snapshot_context_reset();
+if (amiga_realm_home_href() !== '/amiga/news.php') {
+    fwrite(STDERR, "realm home in present should be news\n");
+    exit(1);
+}
+echo "realm_home_href_ok\n";
 echo "hub_nav_ia_ok\n";
 
 require __DIR__ . '/../../site/public_html/includes/amiga_player_load.php';
@@ -213,7 +235,12 @@ if (!str_contains($ttHref, 'as=event%3A') && !str_contains($ttHref, 'as=event:')
 }
 echo 'player_tt_entry=' . $ttHref . PHP_EOL;
 
-require_once __DIR__ . '/../../site/public_html/includes/amiga_player_event_stepper_lib.php';
+$accent73 = amiga_player_participated_event_key_set($con, 73);
+if (count($accent73) < 2) {
+    fwrite(STDERR, "player 73 needs picker accent keys for stepper test\n");
+    exit(1);
+}
+echo 'player_picker_accent_count=' . count($accent73) . PHP_EOL;
 $realmEvents = amiga_rating_history_catalog_event($con);
 $played73 = amiga_player_participated_event_keys($con, 73);
 if (count($played73) < 2) {

@@ -489,6 +489,14 @@ function amiga_tournament_url(int $id, string $scopeType = 'league', string $sco
     return '/amiga/tournament.php?' . http_build_query($params);
 }
 
+/** Preserve active `as=` when building tournament page links (T16). */
+function amiga_tournament_href(string $tournamentUrl): string
+{
+    require_once __DIR__ . '/amiga_snapshot_url.php';
+
+    return amiga_url_with_context($tournamentUrl);
+}
+
 /**
  * Default Stages sub-view for World Cups (first group table, else league table, else bracket).
  *
@@ -645,12 +653,12 @@ function amiga_tournament_apply_entry_redirects(
 
     if ($canonicalScope['redirect'] && !in_array($pageView, ['event-stats', 'games'], true)) {
         header(
-            'Location: ' . amiga_tournament_url(
+            'Location: ' . amiga_tournament_href(amiga_tournament_url(
                 $id,
                 $canonicalScope['scope_type'],
                 $canonicalScope['scope_key'],
                 $isWorldCup ? 'stages' : null,
-            ),
+            )),
             true,
             302,
         );
@@ -665,12 +673,12 @@ function amiga_tournament_apply_entry_redirects(
             && ($hasStageParams || $viewParam === 'standings')
         ) {
             header(
-                'Location: ' . amiga_tournament_url(
+                'Location: ' . amiga_tournament_href(amiga_tournament_url(
                     $id,
                     $canonicalScope['scope_type'],
                     $canonicalScope['scope_key'],
                     'stages',
-                ),
+                )),
                 true,
                 302,
             );
@@ -678,7 +686,7 @@ function amiga_tournament_apply_entry_redirects(
         }
 
         if (!isset($query['view']) && !isset($query['scope']) && !isset($query['scope_key'])) {
-            header('Location: ' . amiga_tournament_event_stats_url($id), true, 302);
+            header('Location: ' . amiga_tournament_href(amiga_tournament_event_stats_url($id)), true, 302);
             exit;
         }
     }
@@ -686,7 +694,7 @@ function amiga_tournament_apply_entry_redirects(
 
 function amiga_tournament_link(int $id, string $name, string $fragment = AMIGA_TOURNAMENT_PAGE_FRAGMENT): string
 {
-    $href = amiga_tournament_url($id);
+    $href = amiga_tournament_href(amiga_tournament_url($id));
     if ($fragment !== '') {
         $href .= '#' . ltrim($fragment, '#');
     }

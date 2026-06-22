@@ -64,6 +64,16 @@ function amiga_hub_time_travel_entry_path(): string
     return K2_AMIGA_HUB_TIME_TRAVEL_ENTRY_PATH;
 }
 
+/** Amiga realm home — News in present mode; rating LB with active `as=` in time travel. */
+function amiga_realm_home_href(): string
+{
+    if (!amiga_snapshot_time_travel_active_from_request()) {
+        return '/amiga/news.php';
+    }
+
+    return amiga_url_with_context(amiga_hub_time_travel_entry_path());
+}
+
 /**
  * @return array<string, array{href: string, label: string}>
  */

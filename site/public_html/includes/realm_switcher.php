@@ -18,4 +18,10 @@ if (!isset($k2RealmChoices)) {
 	];
 }
 
+if ($k2CurrentRealm === 'amiga') {
+	require_once __DIR__ . '/amiga_hub_nav_lib.php';
+	$amigaHomeHref = amiga_realm_home_href();
+	$k2RealmChoices['amiga']['href'] = $amigaHomeHref;
+}
+
 $k2RealmHomeHref = $k2RealmChoices[$k2CurrentRealm]['href'] ?? $k2RealmChoices['online']['href'];
