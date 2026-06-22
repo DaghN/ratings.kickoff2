@@ -37,9 +37,9 @@ This document owns **layer definitions**, **table register**, **post-game/replay
 
 ## Data layers
 
-Archival Access (`koatd.mdb`) is **L0 input**, not website ground truth. Import applies documented transforms (see [`amiga-import-layer.md`](amiga-import-layer.md)) and writes audit output to `data/amiga/exports/import_manifest.json`.
+Archival Access (`koatd.mdb`) is **L0 input**, not website ground truth. **L3 import** reads **L2 pruned witness SQL** only (strict stack — [`amiga-ground-stack.md`](amiga-ground-stack.md)). Import applies documented transforms (see [`amiga-import-layer.md`](amiga-import-layer.md)) and writes audit output to `data/amiga/exports/import_manifest.json`.
 
-**Pipeline (Jun 2026):** **L0** koatd · **L1** full mirror · **L2** prune · **L3** witness · **L4** structure · **L5** product — [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md). This section describes **L3–L5** as stored in `ko2amiga_db`. L1/L2 are dump pipeline steps (not separate production DBs long-term).
+**Pipeline:** **L0** koatd · **L1** full mirror · **L2** prune + `witness_player_identity` · **L3** witness · **L4** structure · **L5** product — [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md). This section describes **L3–L5** as stored in `ko2amiga_db`.
 
 ### 1. Ground truth (L3 witness)
 
@@ -49,7 +49,8 @@ Canonical facts in MySQL after **import** or **future live submission** — neve
 |------|--------|
 | Tournament catalog | Names, dates, chrono, verbatim Access cup flag, country, format template + league/cup flags |
 | Match results | Players, goals, tournament, phase |
-| Player identity | Name, country — registry from **games scan** + merges; not `added_players` |
+| Player identity | Name, country — registry from **L2 games scan** + merges; nationality from L2 **`witness_player_identity`**; not `added_players` |
+| Tournament host country | From L2 `Tournament players`; L3 WC overrides in `import_corrections.py` |
 | Curated claims | Tier E finish overrides (`amiga_tournament_finish_override`) — manifest-audited |
 | Provenance | `source_scores_id`, `source_id` where applicable |
 

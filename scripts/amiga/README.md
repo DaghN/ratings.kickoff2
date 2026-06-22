@@ -19,21 +19,26 @@ python -m scripts.amiga prove
 powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 ```
 
-`prove` = L3 `import-witness` → L4 `apply-structure` → L5 `replay` → verify suite (0 errors = shippable).
+`prove` = **target:** L1 `import-pristine` → L2 `import-prune` → L3 `import-witness` → L4 `apply-structure` → L5 `replay` → verify suite.
 
-**Modular pipeline (L0–L5):** [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md). DDL bundles `sql/ground|structure|derived` = L3|L4|L5. **Shipped:** L1–L7 including export packs.
+**Strict stack policy:** [`docs/amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) (v3).
+
+**Implementation gap (Jun 2026):** shipped `prove` still reads `koatd.mdb` at L3 (`prepare_witness_from_access`). Slices **9–11** remove this — see stack doc §7 and [`docs/amiga-ground-layers-implementation-plan.md`](../../docs/amiga-ground-layers-implementation-plan.md).
+
+**Modular pipeline (L0–L5):** DDL bundles `sql/ground|structure|derived` = L3|L4|L5. L1/L2 = SQL dumps under `data/amiga/exports/`.
 
 ```powershell
 # L1 full mechanical mirror (all Access tables → SQL; not sign-off):
 python -m scripts.amiga import-pristine
 python -m scripts.amiga verify-pristine
 
-# L2 hard prune (witness candidates only; drops legacy derived):
+# L2 hard prune (witness candidates; witness_player_identity from Rankings):
 python -m scripts.amiga import-prune
 python -m scripts.amiga verify-prune
 # L1: data/amiga/exports/pristine/  →  L2: data/amiga/exports/pruned/
+# Target L2 tables: Scores, Tournament players, witness_player_identity (not Countries, not full Rankings)
 
-# L3 witness (corrections + ground rows; no L4 disposition; not sign-off alone):
+# L3 witness (corrections + ground rows; input = L2 — target; today still .mdb until slice 10):
 python -m scripts.amiga import-witness --recreate-ground
 python -m scripts.amiga verify-witness
 

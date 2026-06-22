@@ -12,7 +12,7 @@
 
 Player identity is **name-based** (`Team A` / `Team B`, 477 distinct names). Precomputed ladder state lives in **`Rankings`** (monthly rating grid) and **`added_players`** (rich career aggregates). **`Tables`** and **23× `World Cup * Tables`** (+ a few other named cup tables) store **per-tournament group standings**, not individual match rows.
 
-This maps to the ground-layer pipeline ([`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)): **L0** = this file; **L1** = full SQL mirror; **L2** prunes legacy-derived tables (`Tables`, `added_players`, `Rankings` grid, …); **L3** = `Scores` + catalog → witness MySQL; **L5** rebuilds Elo and career stats. Parity tooling reads **L1**, not pruned packs.
+This maps to the ground-layer pipeline ([`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md), [`amiga-ground-stack.md`](amiga-ground-stack.md)): **L0** = this file; **L1** = full SQL mirror; **L2** prunes legacy-derived tables and extracts **`witness_player_identity`** (`player` + `country` from `Rankings`); **L3** = `Scores` + catalog → witness MySQL; **L5** rebuilds Elo and career stats. Parity tooling reads **L1**, not L2/L3 packs.
 
 ---
 
@@ -27,7 +27,7 @@ This maps to the ground-layer pipeline ([`amiga-ground-layers-policy.md`](amiga-
 | **`added_players`** | 465 | Derived career stats (medals, rank points, extremes, …) |
 | **`World Cup I` … `XXIII Tables`** | 47–91 each | Per–World Cup group/bracket standings |
 | **`Milan Tables`**, **`Norw Champs Tables`**, etc. | 8–16 | Other named event standings |
-| **`Countries`** | 21 | Country name list |
+| **`Countries`** | 21 | Country name list (Access UI lookup — **not** player nationality; re-derive distinct nationalities from player rows at L3+) |
 | **`added_misc`** | 1 | Wide scratch row (`s00`…`s45`) — ignore for v1 |
 | **`Paste Errors`**, **`Scores$_ImportErrors`** | 2–10 | Import artefacts — ignore |
 
@@ -126,7 +126,7 @@ These are **presentation snapshots** for specific World Cups / Milan / Norwegian
 |--------|--------|
 | `R` | Rank order |
 | `Player` | Name |
-| `Country` | Text |
+| `Country` | Text | Player nationality (KOA label) — **extracted at L2** to `witness_player_identity`; not the rating grid |
 | `FirstPlayed` | Encoded period `RMMYY` (e.g. `R0503` = May 2003) |
 | `Activity` | Activity score (not game count) |
 | `Address` | Free text |
@@ -207,7 +207,7 @@ Separate database (e.g. `ko2amiga_db`), ground vs derived split:
 | `generalstatstable` | Batch rebuild |
 | Period / milestones / leagues | **Subset later** — not v1 |
 
-**Do not import verbatim into L3 witness:** 30+ per-cup Access tables, `added_misc`, import error tables, `Rankings` monthly grid, `added_players` — retain in **L1 mirror** for parity; **L2 prune** drops them from witness-candidate dumps. See policy §5.
+**Do not import verbatim into L3 witness:** 30+ per-cup Access tables, `added_misc`, import error tables, full `Rankings` grid, `added_players`, `Countries` — retain in **L1 mirror** for parity; **L2** drops or extracts (see policy §5 and [`amiga-ground-stack.md`](amiga-ground-stack.md) §4).
 
 ---
 

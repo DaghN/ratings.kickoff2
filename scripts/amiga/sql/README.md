@@ -12,4 +12,4 @@
 
 Flat files in this directory remain for archaeology. New DDL → appropriate bundle.
 
-Policy: [`docs/amiga-ground-layers-policy.md`](../../../docs/amiga-ground-layers-policy.md)
+Policy: [`docs/amiga-ground-layers-policy.md`](../../../docs/amiga-ground-layers-policy.md) · stack intent: [`docs/amiga-ground-stack.md`](../../../docs/amiga-ground-stack.md)

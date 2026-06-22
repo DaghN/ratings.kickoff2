@@ -1,9 +1,9 @@
 # Amiga ground layers L0–L5 — implementation plan
 
-**Status:** **Track complete** — slices 1–8 done (Jun 2026). Policy v2 locked.  
-**Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
+**Status:** Slices **1–8** done (Jun 2026). **Slices 9–11** — strict stack (L2→L3, no L0→L3) — **next**; policy v3 + [`amiga-ground-stack.md`](amiga-ground-stack.md) locked.  
+**Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · **stack intent:** [`amiga-ground-stack.md`](amiga-ground-stack.md)
 
-**Goal:** Separate scripts, DDL bundles, and export profiles for **L1 mirror → L2 prune → L3 witness → L4 structure → L5 product**; keep `prove` green throughout migration.
+**Goal:** **Strict inferential chain** — each layer reads only the previous layer’s output. Separate scripts, DDL bundles, and export profiles for **L1 → L2 → L3 → L4 → L5**; keep `prove` green throughout.
 
 **DDL note:** Repo folders `sql/ground|structure|derived` = **L3|L4|L5** MySQL schema — not L1/L2 dumps. See policy §6.
 
@@ -12,10 +12,11 @@
 ## Principles while migrating
 
 1. **No big-bang rewrite** — each slice leaves `python -m scripts.amiga prove` green (or documents a temporary orchestrator flag).
-2. **Extract, don’t duplicate** — L3 logic stays in existing modules (`import_corrections.py`, `tournament_names.py`, …); new entrypoints call them.
-3. **DDL split before export split** — community Pack A is useless if `apply_schema` still creates L5 tables.
-4. **L4 reuses disposition track** — register, handlers, materialize, `fixtures.php`; wire into pipeline, don’t redesign.
-5. **L2 = hard prune** — no sidecar tables; prune manifest only.
+2. **Strict chain (G12)** — L3 reads **L2 only**; no `koatd.mdb` in `import-witness` / `prove` after slice 10. See [`amiga-ground-stack.md`](amiga-ground-stack.md).
+3. **Extract, don’t duplicate** — L3 transform logic stays in existing modules; new entrypoints call them. **Prune rules live only in L2** (`import_prune.py`).
+4. **DDL split before export split** — community Pack A is useless if `apply_schema` still creates L5 tables.
+5. **L4 reuses disposition track** — register, handlers, materialize, `fixtures.php`; wire into pipeline, don’t redesign.
+6. **L2 = hard prune + identity extract** — `witness_player_identity` from L1 `Rankings`; drop `Countries`; no full `Rankings` grid in L2.
 
 ---
 
@@ -33,6 +34,9 @@
 | **6** | `prove` orchestrator: L3 → L4 → L5 → verify | Full verify suite green | **Done** Jun 2026 |
 | **7** | Export packs Mirror / A / B / C | Staging smoke on Pack B | **Done** Jun 2026 |
 | **8** | Docs closure on any drift | Agents cold-start | **Done** Jun 2026 |
+| **9** | L2 `witness_player_identity`; drop `Countries` retain; `extracted_from_l1` in manifest | `verify-prune` green | **Next** |
+| **10** | L3 from L2 only (`prepare_witness_from_l2`); `prove` L1→L2→L3→L4→L5; remove `.mdb` from witness path | `prove` green; no pyodbc in L3 | **Planned** |
+| **11** | L2→L3 boundary verify + docs/code closure | Parity gate + stack doc §7 gap closed | **Planned** |
 
 ---
 
@@ -65,25 +69,26 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 3 — L2 prune (done)
+## Slice 3 — L2 prune (done — **superseded by slice 9**)
 
 **CLI:** `python -m scripts.amiga import-prune [--l1-dir] [--out-dir]`
 
 - Module: [`scripts/amiga/import_prune.py`](../scripts/amiga/import_prune.py)
 - Input: `data/amiga/exports/pristine/` (L1)
 - Output: `data/amiga/exports/pruned/L2_pruned.sql` + `prune_manifest.json`
-- Retain: `Scores`, `Tournament players`, `Countries`
+- **Shipped Jun 2026:** retained `Scores`, `Tournament players`, `Countries` (3 tables)
+- **Target (slice 9):** retain `Scores`, `Tournament players`; emit **`witness_player_identity`** from L1 `Rankings`; **drop `Countries`**
 - Verify: `python -m scripts.amiga verify-prune`
 
-**STOP:** 3 tables retained, 35 pruned (Jun 2026); 28,033 rows kept.
+**STOP (Jun 2026):** 3 tables retained, 35 pruned; 28,033 rows kept. **Does not yet match policy v3** — slice 9 realigns L2.
 
 ---
 
-## Slice 4 — L3 witness (done)
+## Slice 4 — L3 witness (done — **L2 input in slice 10**)
 
 **CLI:** `python -m scripts.amiga import-witness [--recreate-ground]`
 
-- Module: [`scripts/amiga/import_access.py`](../scripts/amiga/import_access.py) — `prepare_witness_from_access`, `persist_witness_to_mysql`, `import_witness`
+- Module: [`scripts/amiga/import_access.py`](../scripts/amiga/import_access.py) — today `prepare_witness_from_access` (**L0** — violates G12); target `prepare_witness_from_l2`
 - Verify: [`scripts/amiga/verify_witness.py`](../scripts/amiga/verify_witness.py) — `python -m scripts.amiga verify-witness`
 - `import_all` / `run` delegate to L3 witness + L4 disposition (no inline `apply_structure_spec`)
 - `--recreate-ground` applies L3/L4 DDL only (no L5 derived bundle)
@@ -107,22 +112,34 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 6 — Prove orchestrator (done)
+## Slice 6 — Prove orchestrator (done — **full chain in slice 10**)
 
-**CLI:** `python -m scripts.amiga prove` (unchanged entrypoint)
+**CLI:** `python -m scripts.amiga prove`
+
+**Shipped (Jun 2026):**
 
 ```text
-import-witness --recreate-ground   # L3 — import_witness_nuclear()
+import-witness --recreate-ground   # L3 — reads .mdb today (gap)
 apply-structure --from-disposition # L4
 replay                             # L5
 verify suite
 ```
 
-- `prove.py` orchestrates modular layers; `--skip-structure` dev flag skips L4
-- `import_all` / `run` delegate to L3 witness + L4 disposition (no inline `apply_structure_spec`)
-- Helpers: `import_witness_nuclear()`, `import_witness_reload()` in `import_access.py`
+**Target (slice 10):**
 
-**STOP:** 27,418 games, 4,535 snapshots, 210,960 at-event matchups — verified Jun 2026.
+```text
+import-pristine                    # L0 → L1
+import-prune                       # L1 → L2
+import-witness --recreate-ground   # L2 → L3
+apply-structure --from-disposition # L4
+replay                             # L5
+verify suite
+```
+
+- `prove.py` orchestrates layers; `--skip-structure` dev flag skips L4
+- Helpers: `import_witness_nuclear()`, `import_witness_reload()` in `import_access.py` — to be rewired to L2 input
+
+**STOP (Jun 2026):** 27,418 games, 4,535 snapshots, 210,960 at-event matchups — verified with L0→L3 shortcut.
 
 ---
 
@@ -155,9 +172,9 @@ Cross-doc pass after slices 1–7 — agents cold-start from policy + this plan 
 
 ## Suggested execution order
 
-**1** (done) → **4** (L3 witness extract) → **6** (orchestrator) → **2** (L1) → **3** (L2) → **5** (L4 wire) → **7** (exports) → **8**.
+**Historical (slices 1–8):** 1 → 4 → 6 → 2 → 3 → 5 → 7 → 8 (L1/L2 added after L3 extract — created the L0→L3 gap).
 
-L1/L2 can parallel after slice 4; L3 extract unblocks `prove` split.
+**Forward (strict stack):** **9** (L2 realign) → **10** (L3 from L2 + `prove` full chain) → **11** (L2→L3 verify + closure).
 
 ---
 
@@ -172,4 +189,4 @@ Do **not** block code on doc rewrites unless G1–G11 conflict.
 
 ---
 
-*Plan v2 Jun 2026 — aligns with policy L0–L5.*
+*Plan v3 Jun 2026 — slices 9–11 strict stack; see [`amiga-ground-stack.md`](amiga-ground-stack.md).*
