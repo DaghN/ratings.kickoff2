@@ -389,6 +389,41 @@ function k2_lb_help_amiga_wc_podiums(): string
     return 'World Cup top-three finishes (gold + silver + bronze).';
 }
 
+function k2_lb_help_wins(): string
+{
+    return 'Rated wins in World Cup games.';
+}
+
+function k2_lb_help_draws(): string
+{
+    return 'Rated draws in World Cup games.';
+}
+
+function k2_lb_help_losses(): string
+{
+    return 'Rated losses in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_match_points(): string
+{
+    return 'Match points from World Cup games only — 3 for a win, 1 for a draw, 0 for a loss.';
+}
+
+function k2_lb_help_amiga_wc_points_per_game(): string
+{
+    return 'Match points per World Cup game (Pts ÷ games).';
+}
+
+function k2_lb_help_amiga_wc_goal_difference(): string
+{
+    return 'Goals for minus goals against in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_goal_difference_per_game(): string
+{
+    return 'Goal difference per World Cup game (GD ÷ games).';
+}
+
 function k2_lb_help_amiga_peak_year_games(): string
 {
     return 'Most rated games in a single calendar year (by tournament date).';

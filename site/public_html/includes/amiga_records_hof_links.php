@@ -37,9 +37,9 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'cs_ratio' => ['wing' => 'double-digits', 'sort' => 7, 'dir' => 'desc'],
         'most_games_in_year' => ['wing' => 'calendar-geo', 'sort' => 4, 'dir' => 'desc'],
         'most_tournaments_in_year' => ['wing' => 'calendar-geo', 'sort' => 6, 'dir' => 'desc'],
-        'most_tournaments_played' => ['wing' => 'calendar-geo', 'sort' => 11, 'dir' => 'desc'],
-        'most_tournament_wins' => ['wing' => 'calendar-geo', 'sort' => 12, 'dir' => 'desc'],
-        'most_wc_played' => ['wing' => 'calendar-geo', 'sort' => 13, 'dir' => 'desc'],
+        'most_tournaments_played' => ['wing' => 'tournament-honours', 'sort' => 4, 'dir' => 'desc'],
+        'most_tournament_wins' => ['wing' => 'tournament-honours', 'sort' => 5, 'dir' => 'desc'],
+        'most_wc_played' => ['wing' => 'world-cups', 'sort' => 4, 'dir' => 'desc'],
         'most_countries_played_in' => ['wing' => 'calendar-geo', 'sort' => 8, 'dir' => 'desc'],
         'most_opponent_countries_faced' => ['wing' => 'calendar-geo', 'sort' => 9, 'dir' => 'desc'],
         'most_opponent_countries_beaten' => ['wing' => 'calendar-geo', 'sort' => 10, 'dir' => 'desc'],
@@ -57,6 +57,8 @@ function amiga_records_hof_lb_wing_path(string $wing): string
         'victims' => '/amiga/leaderboards/victims.php',
         'peak-rating' => '/amiga/leaderboards/peak-rating.php',
         'calendar-geo' => '/amiga/leaderboards/calendar-geo.php',
+        'tournament-honours' => '/amiga/leaderboards/tournament-honours.php',
+        'world-cups' => '/amiga/leaderboards/world-cups/honours.php',
     ];
 
     return $paths[$wing] ?? '/amiga/leaderboards/rating.php';

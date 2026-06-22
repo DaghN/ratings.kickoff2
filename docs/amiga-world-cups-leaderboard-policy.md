@@ -1,6 +1,6 @@
 # Amiga World Cups leaderboard — policy
 
-**Status:** **Slice 0 shipped** (Jun 2026) — DDL + replay writers + `wc_*` retired from honours block; `prove` green. **Next:** slice 1 (LB UI + nav).
+**Status:** **Slice 1 shipped** (Jun 2026) — honours sub-wing + TT + LB nav. **Next:** slice 2 (Results) · slice 3 (Goals + extract WC from tournament honours).
 
 **Parent:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)
 
@@ -280,10 +280,10 @@ Adding V2 does **not** require a second storage model — only columns, writers,
 | Slice | Deliverable |
 |-------|-------------|
 | **0** | DDL + backfill from replay + drop `wc_*` from honours block + `prove` verify | **Done** Jun 2026 |
-| **1** | Read libs + honours sub-wing + TT + `amiga_lb_nav` tab |
-| **2** | Results sub-wing |
-| **3** | Goals sub-wing + tournament honours extract |
-| **4** | Calendar/geo + generalstats reader migration; export refresh |
+| **1** | Read libs + honours sub-wing + TT + `amiga_lb_nav` tab | **Done** Jun 2026 |
+| **2** | Results sub-wing | **Done** Jun 2026 |
+| **3** | Goals sub-wing + tournament honours extract | **Done** Jun 2026 |
+| **4** | Calendar/geo reader cleanup; export refresh |
 
 Add [`amiga-world-cups-leaderboard-implementation-plan.md`](amiga-world-cups-leaderboard-implementation-plan.md) when slice 0 is scheduled.
 

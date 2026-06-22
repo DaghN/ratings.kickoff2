@@ -262,7 +262,7 @@ function amiga_realm_wc_slice_holder_patch(mysqli $con, array $cutoff): array
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = (int) $cutoff['tournament_id'];
-    $stmt->bind_param('sddi', $eventDate, $chrono, $tournamentId, $tournamentId);
+    $stmt->bind_param('i', $tournamentId);
     if (!$stmt->execute()) {
         throw new RuntimeException('execute wc slice holder: ' . $con->error);
     }

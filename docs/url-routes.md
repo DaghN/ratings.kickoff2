@@ -132,6 +132,10 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-wdl` | `/amiga/player/opponents/wdl.php` |
 | `amiga-player-opponents-goals` | `/amiga/player/opponents/goals.php` |
 | `amiga-player-opponents-dds` | `/amiga/player/opponents/dds.php` |
+| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (World Cups default — Honours) |
+| `amiga-lb-world-cups-honours` | `/amiga/leaderboards/world-cups/honours.php` |
+| `amiga-lb-world-cups-results` | `/amiga/leaderboards/world-cups/results.php` (slice 2) |
+| `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` (slice 3) |
 
 Query `?id=` required on all player tabs.
 

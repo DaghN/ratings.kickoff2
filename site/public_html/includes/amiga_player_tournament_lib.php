@@ -426,22 +426,21 @@ function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ct
  */
 function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
 {
-    $sql = 'SELECT player_id,
-                   tournaments_played,
-                   tournaments_won,
-                   event_gold,
-                   event_silver,
-                   event_bronze,
-                   event_podiums,
-                   wc_played,
-                   wc_gold,
-                   wc_silver,
-                   wc_bronze,
-                   wc_podiums,
-                   last_event_date,
-                   last_tournament_id
-            FROM amiga_player_current
-            WHERE player_id = ?
+    require_once __DIR__ . '/amiga_player_slice_lib.php';
+
+    $sql = 'SELECT t.player_id,
+                   t.tournaments_played,
+                   t.tournaments_won,
+                   t.event_gold,
+                   t.event_silver,
+                   t.event_bronze,
+                   t.event_podiums,
+                   ' . amiga_slice_wc_lb_select_sql('wcs') . ',
+                   t.last_event_date,
+                   t.last_tournament_id
+            FROM amiga_player_current t
+            ' . amiga_slice_present_join_sql('t.player_id') . '
+            WHERE t.player_id = ?
             LIMIT 1';
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -460,9 +459,9 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
 }
 
 /**
- * Tournament honours leaderboard rows (totals + Elo from amiga_player_current).
+ * Tournament honours leaderboard rows (all-events honours + Elo).
  *
- * Default SQL order: wc_gold, wc_silver, wc_bronze, event_podiums, event_gold, tournaments_played.
+ * Default SQL order: tournaments_played, event_gold, event_podiums.
  *
  * @return list<array<string, mixed>>
  */
@@ -474,8 +473,6 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
         return amiga_lb_honours_rows_at_cutoff($con, $ctx);
     }
 
-    require_once __DIR__ . '/amiga_player_slice_lib.php';
-
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
@@ -484,16 +481,13 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
                    t.event_gold,
                    t.event_silver,
                    t.event_bronze,
-                   t.event_podiums,
-                   ' . amiga_slice_wc_lb_select_sql('wcs') . '
+                   t.event_podiums
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
-            ' . amiga_slice_present_join_sql('t.player_id') . '
             WHERE t.tournaments_played > 0
             ORDER BY t.tournaments_played DESC,
                      t.event_gold DESC,
                      t.event_podiums DESC,
-                     COALESCE(wcs.gold, 0) DESC,
                      t.player_id ASC';
     $result = mysqli_query($con, $sql);
     if (!$result) {
@@ -521,8 +515,6 @@ function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext 
         return amiga_lb_calendar_geo_rows_at_cutoff($con, $ctx);
     }
 
-    require_once __DIR__ . '/amiga_player_slice_lib.php';
-
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
                    p.country,
@@ -533,13 +525,9 @@ function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext 
                    t.peak_year_tournaments_year,
                    t.countries_played_in,
                    t.opponent_countries_faced,
-                   t.opponent_countries_beaten,
-                   t.tournaments_played,
-                   t.event_gold,
-                   COALESCE(wcs.tournaments_played, 0) AS wc_played
+                   t.opponent_countries_beaten
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
-            ' . amiga_slice_present_join_sql('t.player_id') . '
             WHERE t.NumberGames > 0
             ORDER BY t.peak_year_games DESC,
                      t.peak_year_games_year ASC,

@@ -50,5 +50,5 @@ function amiga_slice_at_cutoff_join_sql(): array
         . '  WHERE x.rn = 1'
         . ') wcs ON wcs.player_id = t.player_id';
 
-    return ['sql' => $sql, 'types' => 'sddi'];
+    return ['sql' => $sql, 'types' => 'ssdi'];
 }

@@ -20,6 +20,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -55,11 +56,6 @@ $k2LbDefaultSortCol = 4;
         <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Event silver" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_event_silver(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(2); ?><span class="visually-hidden">Event silver</span></th>
         <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="Event bronze" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_event_bronze(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(3); ?><span class="visually-hidden">Event bronze</span></th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_event_podiums(), ENT_QUOTES, 'UTF-8'); ?>">Podiums</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_played(), ENT_QUOTES, 'UTF-8'); ?>">WCs</th>
-        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="WC gold" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_gold(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(1); ?><span class="visually-hidden">WC gold</span></th>
-        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="WC silver" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_silver(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(2); ?><span class="visually-hidden">WC silver</span></th>
-        <th class="k2-lb-honours-medal-th" data-k2-sort="number" data-k2-tooltip-label="WC bronze" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_bronze(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(3); ?><span class="visually-hidden">WC bronze</span></th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_podiums(), ENT_QUOTES, 'UTF-8'); ?>">WC pod.</th>
     </tr>
 </thead>
 
@@ -79,11 +75,6 @@ foreach ($honoursRows as $row) {
         <td<?php echo k2_table_body_td_attr(6, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['event_silver']; ?></td>
         <td<?php echo k2_table_body_td_attr(7, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['event_bronze']; ?></td>
         <td<?php echo k2_table_body_td_attr(8, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['event_podiums']; ?></td>
-        <td<?php echo k2_table_body_td_attr(9, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_played']; ?></td>
-        <td<?php echo k2_table_body_td_attr(10, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_gold']; ?></td>
-        <td<?php echo k2_table_body_td_attr(11, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_silver']; ?></td>
-        <td<?php echo k2_table_body_td_attr(12, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_bronze']; ?></td>
-        <td<?php echo k2_table_body_td_attr(13, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $row['wc_podiums']; ?></td>
     </tr>
     <?php
     $rank++;
@@ -96,7 +87,7 @@ foreach ($honoursRows as $row) {
 </div>
 </div>
 
-<p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one tournament.</p>
+<p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one tournament. World Cup honours: <a class="k2-link-star" href="<?php echo htmlspecialchars(amiga_url_with_context('/amiga/leaderboards/world-cups/honours.php'), ENT_QUOTES, 'UTF-8'); ?>">World Cups leaderboard</a>.</p>
 
 </div><!-- .k2-page-nav -->
 

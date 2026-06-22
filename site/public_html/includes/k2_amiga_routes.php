@@ -18,6 +18,10 @@ const K2_AMIGA_ROUTES = [
 	'amiga-player-opponents-wdl' => 'amiga/player/opponents/wdl.php',
 	'amiga-player-opponents-goals' => 'amiga/player/opponents/goals.php',
 	'amiga-player-opponents-dds' => 'amiga/player/opponents/dds.php',
+	'amiga-lb-world-cups' => 'amiga/leaderboards/world-cups/honours.php',
+	'amiga-lb-world-cups-honours' => 'amiga/leaderboards/world-cups/honours.php',
+	'amiga-lb-world-cups-results' => 'amiga/leaderboards/world-cups/results.php',
+	'amiga-lb-world-cups-goals' => 'amiga/leaderboards/world-cups/goals.php',
 ];
 
 function k2_amiga_route(string $name, array $params = []): string
