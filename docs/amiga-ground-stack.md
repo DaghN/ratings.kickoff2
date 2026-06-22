@@ -1,6 +1,6 @@
 # Amiga ground stack — strict layer chain (L0–L5)
 
-**Status:** **Policy locked** (Jun 2026) — implementation **in progress** (code still has an L0→L3 shortcut; see §7).  
+**Status:** **Policy locked** (Jun 2026) — strict L2→L3 path **shipped** (slice 10); slice **11** adds L2→L3 boundary verify (see §7).  
 **Authority:** This doc states **engineering intent** for the koatd pipeline. When it conflicts with older “prove skips L1/L2” wording, **this doc wins** until code catches up.  
 **Parent:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md)
 
@@ -137,17 +137,15 @@ Exact CLI flags are implementation detail; **S1–S3** are the contract.
 
 ---
 
-## 7. Implementation gap (honest status)
+## 7. Implementation status
 
-Jun 2026 slices 1–8 shipped modular L3→L4→L5 `prove` and L1/L2 export CLIs, but **L3 still reads `koatd.mdb` directly** (`prepare_witness_from_access`). That violates **S1** and duplicates L2 prune semantics in import code.
+| Track | Status |
+|-------|--------|
+| L2 `witness_player_identity`; drop `Countries` | **Done** (slice 9) |
+| L3 from L2 only; `prove` L1→L5; no `.mdb` on witness path | **Done** (slice 10) — `import_l2_witness.py`, `prepare_witness_from_l2` |
+| L2→L3 boundary verify (row counts, nationality join coverage) | **Next** (slice 11) |
 
-**Next implementation track** (see plan slices 9–11):
-
-1. L2 — emit `witness_player_identity`; drop `Countries` retain; update `verify-prune`. **Done (slice 9).**
-2. L3 — `prepare_witness_from_l2` (or equivalent); remove `.mdb` from `prove` / `import-witness`.
-3. Verify — L2→L3 boundary gates (row counts, nationality join coverage).
-
-Until that lands, treat **this document** as target policy; [`scripts/amiga/README.md`](../scripts/amiga/README.md) notes the temporary shortcut.
+`prepare_witness_from_access(mdb)` remains for **legacy audit** only — not used by `prove` or `import-witness`.
 
 ---
 

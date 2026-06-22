@@ -33,7 +33,8 @@ def source_metadata(mdb: Path) -> dict[str, Any]:
 
 def build_manifest(
     *,
-    mdb: Path,
+    mdb: Path | None = None,
+    source: dict[str, Any] | None = None,
     stats: dict[str, int],
     name_merges: list[dict[str, object]],
     catalog_overrides: list[dict[str, str]],
@@ -41,10 +42,14 @@ def build_manifest(
     score_supplements: list[dict[str, str | int]] | None = None,
     structure_specs: list[dict[str, object]] | None = None,
 ) -> dict[str, Any]:
+    if source is None:
+        if mdb is None:
+            raise ValueError("build_manifest requires source= or mdb=")
+        source = source_metadata(mdb)
     return {
         "manifest_version": MANIFEST_VERSION,
         "generated_at_utc": datetime.now(tz=timezone.utc).isoformat(),
-        "source": source_metadata(mdb),
+        "source": source,
         "stats": stats,
         "transforms": {
             "name_merges": name_merges,

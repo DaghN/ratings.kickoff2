@@ -25,6 +25,7 @@ from scripts.amiga.import_corrections import (
 from scripts.amiga.import_manifest import (
     build_manifest,
     default_manifest_path,
+    source_metadata,
     write_manifest,
 )
 from scripts.amiga.player_names import (
@@ -65,6 +66,7 @@ from scripts.amiga.schema_bundles import (
 
 _REPO = Path(__file__).resolve().parents[2]
 _DEFAULT_MDB = _REPO / "data" / "amiga" / "source" / "koatd.mdb"
+_DEFAULT_L2_DIR = _REPO / "data" / "amiga" / "exports" / "pruned"
 
 # Back-compat aliases for legacy one-off scripts.
 _SQL_TRACK_B = LEGACY_SQL_TRACK_B
@@ -193,7 +195,7 @@ def prepare_l3_schema(
 
 @dataclass
 class WitnessPrepared:
-    mdb: Path
+    source: dict[str, object]
     tournaments: list[dict]
     scores_sorted: list[AccessScore]
     tour_by_name: dict[str, dict]
@@ -209,11 +211,14 @@ class WitnessPrepared:
     format_by_name: dict
 
 
-def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
-    """L3 in-memory witness load from Access (corrections, merges, chronology)."""
-    acc = connect_access(mdb)
-    acc_cur = acc.cursor()
-    tournaments = load_access_tournaments(acc_cur)
+def _prepare_witness_core(
+    *,
+    source: dict[str, object],
+    tournaments: list[dict],
+    scores: list[AccessScore],
+    countries: dict[str, str],
+) -> WitnessPrepared:
+    """L3 transforms on witness inputs (L2 SQL or legacy Access load)."""
     catalog_overrides = apply_catalog_corrections(tournaments)
     skip_catalog = scores_only_catalog_aliases()
     skipped_catalog = sorted(t["name"] for t in tournaments if t["name"] in skip_catalog)
@@ -228,7 +233,7 @@ def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
         log.info("Applied %s catalog override(s) from import_corrections.py", len(catalog_overrides))
         for entry in catalog_overrides:
             log.info(
-                "  â†’ %s.%s: %s â†’ %s",
+                "  → %s.%s: %s → %s",
                 entry["tournament"],
                 entry["field"],
                 entry["access"],
@@ -238,8 +243,7 @@ def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
     if catalog_splits:
         log.info("Appended %s synthetic catalog split(s) from import_corrections.py", len(catalog_splits))
         for entry in catalog_splits:
-            log.info("  â†’ %s (parent %s, source_id %s)", entry["tournament"], entry["parent"], entry["source_id"])
-    scores = load_access_scores(acc_cur)
+            log.info("  → %s (parent %s, source_id %s)", entry["tournament"], entry["parent"], entry["source_id"])
     scores = merge_supplemental_scores(scores)
     score_supplements = supplemental_scores_manifest()
     if score_supplements:
@@ -249,8 +253,7 @@ def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
             len(score_supplements),
         )
         for entry in score_supplements:
-            log.info("  â†’ %s: +%s games", entry["tournament"], entry["games_added"])
-    countries = load_country_by_player(acc_cur)
+            log.info("  → %s: +%s games", entry["tournament"], entry["games_added"])
     raw_player_names: set[str] = set()
     for s in scores:
         raw_player_names.add(s.team_a)
@@ -260,11 +263,10 @@ def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
     if merge_log:
         log.info("Merged %s player identity groups (spacing/case duplicates)", len(merge_log))
         for entry in merge_log:
-            log.info("  â†’ %s <= %s", entry["canonical"], entry["variants"])
+            log.info("  → %s <= %s", entry["canonical"], entry["variants"])
         merge_path = _REPO / "data" / "amiga" / "exports" / "name_merges.json"
         merge_path.parent.mkdir(parents=True, exist_ok=True)
         merge_path.write_text(json.dumps(merge_log, indent=2) + "\n", encoding="utf-8")
-    acc.close()
 
     tour_by_name = {t["name"]: t for t in tournaments}
     format_by_name = infer_legacy_tournament_formats(tournaments, scores)
@@ -282,7 +284,7 @@ def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
     names = {s.team_a for s in scores_sorted} | {s.team_b for s in scores_sorted}
 
     return WitnessPrepared(
-        mdb=mdb,
+        source=source,
         tournaments=tournaments,
         scores_sorted=scores_sorted,
         tour_by_name=tour_by_name,
@@ -296,6 +298,35 @@ def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
         score_supplements=score_supplements,
         skipped_catalog=skipped_catalog,
         format_by_name=format_by_name,
+    )
+
+
+def prepare_witness_from_l2(l2_dir: Path) -> WitnessPrepared:
+    """L3 in-memory witness load from L2 pruned SQL (strict stack)."""
+    from scripts.amiga.import_l2_witness import load_l2_witness_inputs
+
+    source, tournaments, scores, countries = load_l2_witness_inputs(l2_dir)
+    return _prepare_witness_core(
+        source=source,
+        tournaments=tournaments,
+        scores=scores,
+        countries=countries,
+    )
+
+
+def prepare_witness_from_access(mdb: Path) -> WitnessPrepared:
+    """Legacy Access load — audit/dev only; not used by prove (G12)."""
+    acc = connect_access(mdb)
+    acc_cur = acc.cursor()
+    tournaments = load_access_tournaments(acc_cur)
+    scores = load_access_scores(acc_cur)
+    countries = load_country_by_player(acc_cur)
+    acc.close()
+    return _prepare_witness_core(
+        source=source_metadata(mdb),
+        tournaments=tournaments,
+        scores=scores,
+        countries=countries,
     )
 
 
@@ -458,7 +489,7 @@ def persist_witness_to_mysql(
         **{f"format_{key}": value for key, value in format_bucket_counts.items()},
     }
     manifest = build_manifest(
-        mdb=prepared.mdb,
+        source=prepared.source,
         stats=stats,
         name_merges=prepared.merge_log,
         catalog_overrides=prepared.catalog_overrides,
@@ -472,13 +503,13 @@ def persist_witness_to_mysql(
     return stats
 
 
-def import_witness(*, mdb: Path, recreate_ground: bool) -> dict[str, int]:
+def import_witness(*, l2_dir: Path = _DEFAULT_L2_DIR, recreate_ground: bool) -> dict[str, int]:
     """L3 witness import â€” corrections + ground rows; no L4 disposition; L5 empty."""
     cfg = load_amiga_db_config()
     if cfg.database != "ko2amiga_db":
         raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
 
-    prepared = prepare_witness_from_access(mdb)
+    prepared = prepare_witness_from_l2(l2_dir)
     mysql = connect_mysql(cfg)
     prepare_l3_schema(mysql, recreate_ground=recreate_ground)
     stats = persist_witness_to_mysql(mysql, prepared, apply_structure=False)
@@ -490,13 +521,13 @@ def import_witness(*, mdb: Path, recreate_ground: bool) -> dict[str, int]:
     return stats
 
 
-def import_witness_nuclear(*, mdb: Path) -> dict[str, int]:
+def import_witness_nuclear(*, l2_dir: Path = _DEFAULT_L2_DIR) -> dict[str, int]:
     """L3 witness with full L3+L4+L5 schema recreate (prove / run nuclear path)."""
     cfg = load_amiga_db_config()
     if cfg.database != "ko2amiga_db":
         raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
 
-    prepared = prepare_witness_from_access(mdb)
+    prepared = prepare_witness_from_l2(l2_dir)
     mysql = connect_mysql(cfg)
     apply_schema(mysql, drop_existing=True)
     truncate_ground_truth(mysql)
@@ -505,13 +536,13 @@ def import_witness_nuclear(*, mdb: Path) -> dict[str, int]:
     return stats
 
 
-def import_witness_reload(*, mdb: Path) -> dict[str, int]:
+def import_witness_reload(*, l2_dir: Path = _DEFAULT_L2_DIR) -> dict[str, int]:
     """Incremental L3 witness reload — schema unchanged; clears L3/L4/L5 rows."""
     cfg = load_amiga_db_config()
     if cfg.database != "ko2amiga_db":
         raise SystemExit(f"Refusing import: expected database ko2amiga_db, got {cfg.database!r}")
 
-    prepared = prepare_witness_from_access(mdb)
+    prepared = prepare_witness_from_l2(l2_dir)
     mysql = connect_mysql(cfg)
     truncate_ground_truth(mysql)
     stats = persist_witness_to_mysql(mysql, prepared, apply_structure=False)
@@ -540,14 +571,24 @@ def load_access_tournaments(cur: pyodbc.Cursor) -> list[dict]:
     return rows
 
 
-def import_all(*, mdb: Path, recreate_schema: bool) -> dict[str, int]:
-    """Full import path: L3 witness + L4 disposition (modular pipeline)."""
+def import_all(
+    *,
+    mdb: Path,
+    l1_dir: Path,
+    l2_dir: Path,
+    recreate_schema: bool,
+) -> dict[str, int]:
+    """Full import path: L1→L2→L3 witness + L4 disposition."""
     from scripts.amiga.apply_structure import run_apply_structure
+    from scripts.amiga.import_prune import run_import_prune
+    from scripts.amiga.import_pristine import run_import_pristine
 
     if recreate_schema:
-        stats = import_witness_nuclear(mdb=mdb)
+        run_import_pristine(mdb=mdb, out_dir=l1_dir)
+        run_import_prune(l1_dir=l1_dir, out_dir=l2_dir)
+        stats = import_witness_nuclear(l2_dir=l2_dir)
     else:
-        stats = import_witness_reload(mdb=mdb)
+        stats = import_witness_reload(l2_dir=l2_dir)
 
     l4 = run_apply_structure(from_disposition=True)
     log.info("import: apply-structure %s", l4.to_dict())

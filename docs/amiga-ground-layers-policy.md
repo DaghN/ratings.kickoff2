@@ -1,6 +1,6 @@
 # Amiga ground layers — policy (L0–L5)
 
-**Status:** **Policy v3** (Jun 2026) — strict stack **locked** in [`amiga-ground-stack.md`](amiga-ground-stack.md). Slices 1–8 shipped; **slices 9–11** wire L2→L3 and remove L0→L3 (code gap documented in stack doc §7).  
+**Status:** **Policy v3** (Jun 2026) — strict stack **locked** in [`amiga-ground-stack.md`](amiga-ground-stack.md). Slices 1–10 shipped; **slice 11** — L2→L3 boundary verify.  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md)
 
 **Purpose:** Define the offline Amiga **data pipeline** (L0–L5): what each step contains, how layers depend on each other, what is community-publishable vs ratings.kickoff.com product-only, and how this maps to code/DDL folder names.
@@ -43,7 +43,7 @@ KOA’s Access file mixes source facts, legacy precomputes, evidence-based corre
 - Module/fixture structure (**L4**)
 - Our optional product layer (**L5**)
 
-**Target orchestrator:** `prove` runs the **full strict chain** when starting from L0: **L1 → L2 → L3 → L4 → L5 → verify** (see [`amiga-ground-stack.md`](amiga-ground-stack.md) §6). **Temporary gap:** shipped code still reads L0 at L3 — see stack doc §7.
+**Orchestrator:** `prove` runs the **full strict chain** from L0: **L1 → L2 → L3 → L4 → L5 → verify** (see [`amiga-ground-stack.md`](amiga-ground-stack.md) §6). Shipped slice 10.
 
 ---
 
@@ -197,7 +197,7 @@ Not exported by us. Not versioned in git (local/staging).
 
 **L1/L2** are separate SQL **dump** artefacts (`import-pristine`, `import-prune`), not these bundle names.
 
-**Agent trap:** `prepare_witness_from_access(mdb)` in shipped code violates **G12** — target is `prepare_witness_from_l2` (plan slice 10).
+**Agent trap:** `prove` / `import-witness` must use `prepare_witness_from_l2` — not `prepare_witness_from_access(mdb)` (legacy audit only).
 
 ---
 

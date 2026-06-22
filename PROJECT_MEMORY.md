@@ -60,7 +60,7 @@
 
 - **Amiga stored id/date semantics Phase D (Jun 2026):** **Complete** — `verify_php_finalize_parity` in `prove` (Athens XCII / T24 reopen+finalize; PHP vs Python on snapshots, realm, generalstats, current); prior-snapshot carry fallback in Python + PHP persist; geo tracker includes in-flight tournament. Plan [`amiga-stored-field-semantics-plan.md`](docs/amiga-stored-field-semantics-plan.md) **A–D done**.
 
-- **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–8** shipped; **slice 9** done (`witness_player_identity`, `verify-prune`). **Slice 10 next** — L3 from L2 only. [`amiga-ground-stack.md`](docs/amiga-ground-stack.md).
+- **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–10** shipped (`prove` L1→L5 from L2; `import_l2_witness.py`). **Slice 11 next** — L2→L3 boundary verify. [`amiga-ground-stack.md`](docs/amiga-ground-stack.md).
 
 - **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 
@@ -111,7 +111,8 @@
 
 | When | Note |
 |------|------|
-| 2026-06 | **Amiga ground slice 9** — L2 `witness_player_identity` from L1 Rankings; drop `Countries`; `extracted_from_l1` manifest; `verify-prune` + unit tests; `prove` still green. |
+| 2026-06 | **Amiga ground slice 10** — L3 from L2 only (`import_l2_witness.py`, `prepare_witness_from_l2`); `prove` full L1→L5; no `.mdb` on witness path; `prove` green (~6 min). |
+| 2026-06 | **Amiga ground slice 9** — L2 `witness_player_identity` from L1 Rankings; drop `Countries`; `extracted_from_l1` manifest; `verify-prune` + unit tests. |
 | 2026-06 | **Amiga strict ground stack (policy v3)** — [`amiga-ground-stack.md`](docs/amiga-ground-stack.md): L0→L5 chain only; no L0→L3; slices 10–11 planned. |
 *(Newest first. ~30 rows max. Older rows: [`docs/archive/session-log-2026-q2.md`](docs/archive/session-log-2026-q2.md).)*
 

@@ -22,7 +22,7 @@ L0 koatd.mdb
   → prove verify
 ```
 
-**Temporary gap:** shipped `import-witness` still calls `prepare_witness_from_access(mdb)`. See [`amiga-ground-stack.md`](amiga-ground-stack.md) §7.
+**Shipped (slice 10):** `import-witness` calls `prepare_witness_from_l2` — parses `data/amiga/exports/pruned/L2_pruned.sql`. `prepare_witness_from_access(mdb)` is legacy audit only.
 
 ```
 L2 pruned witness SQL

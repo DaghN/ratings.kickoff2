@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from scripts.amiga.finalize_tournament import run_finalize_tournament
-from scripts.amiga.import_access import _DEFAULT_MDB, import_all, import_witness
+from scripts.amiga.import_access import _DEFAULT_L2_DIR, _DEFAULT_MDB, import_all, import_witness
 from scripts.amiga.apply_structure import run_apply_structure
 from scripts.amiga.import_pristine import (
     _DEFAULT_OUT as _PRISTINE_OUT,
@@ -77,6 +77,18 @@ def main(argv: list[str] | None = None) -> int:
     p_import = sub.add_parser("import", help="Load Access ground truth into MySQL")
     p_import.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
     p_import.add_argument(
+        "--l1-dir",
+        type=Path,
+        default=_PRISTINE_OUT,
+        help="L1 export directory (used with --recreate-schema)",
+    )
+    p_import.add_argument(
+        "--l2-dir",
+        type=Path,
+        default=_PRUNED_OUT,
+        help="L2 pruned witness directory",
+    )
+    p_import.add_argument(
         "--recreate-schema",
         action="store_true",
         help="Drop and recreate DDL (required unless --incremental)",
@@ -111,14 +123,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Nuclear import (--recreate-schema) + replay (use prove for verify suite)",
     )
     p_run.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_run.add_argument("--l1-dir", type=Path, default=_PRISTINE_OUT)
+    p_run.add_argument("--l2-dir", type=Path, default=_PRUNED_OUT)
     p_run.add_argument("--dry-run", action="store_true")
     p_run.add_argument("--limit", type=int, default=None)
 
     p_prove = sub.add_parser(
         "prove",
-        help="L3 witness → L4 structure → L5 replay → verify (holy Amiga loop / sign-off)",
+        help="L1→L2→L3 witness → L4 structure → L5 replay → verify (holy Amiga loop / sign-off)",
     )
-    p_prove.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_prove.add_argument("--mdb", type=Path, default=_DEFAULT_MDB, help="L0 koatd for L1 import-pristine")
+    p_prove.add_argument("--l1-dir", type=Path, default=_PRISTINE_OUT)
+    p_prove.add_argument("--l2-dir", type=Path, default=_PRUNED_OUT)
     p_prove.add_argument("--dry-run", action="store_true")
     p_prove.add_argument(
         "--limit",
@@ -130,6 +146,12 @@ def main(argv: list[str] | None = None) -> int:
         "--skip-structure",
         action="store_true",
         help="Skip L4 apply-structure (dev only — not sign-off)",
+    )
+
+    p_prove.add_argument(
+        "--skip-l1-l2",
+        action="store_true",
+        help="Skip L1/L2 rebuild — use existing L2 SQL (dev only; not full sign-off)",
     )
 
     p_pristine = sub.add_parser(
@@ -199,9 +221,14 @@ def main(argv: list[str] | None = None) -> int:
 
     p_witness = sub.add_parser(
         "import-witness",
-        help="L3 witness import from Access (corrections + ground rows; no L4 disposition)",
+        help="L3 witness import from L2 SQL (corrections + ground rows; no L4 disposition)",
     )
-    p_witness.add_argument("--mdb", type=Path, default=_DEFAULT_MDB)
+    p_witness.add_argument(
+        "--l2-dir",
+        type=Path,
+        default=_DEFAULT_L2_DIR,
+        help="Directory with L2_pruned.sql + prune_manifest.json",
+    )
     p_witness.add_argument(
         "--recreate-ground",
         action="store_true",
@@ -476,6 +503,8 @@ def main(argv: list[str] | None = None) -> int:
             )
         stats = import_all(
             mdb=args.mdb,
+            l1_dir=args.l1_dir,
+            l2_dir=args.l2_dir,
             recreate_schema=args.recreate_schema,
         )
         log.info("Import complete: %s", stats)
@@ -494,7 +523,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "run":
-        stats = import_all(mdb=args.mdb, recreate_schema=True)
+        stats = import_all(
+            mdb=args.mdb,
+            l1_dir=args.l1_dir,
+            l2_dir=args.l2_dir,
+            recreate_schema=True,
+        )
         log.info("Import complete: %s", stats)
         run_replay(dry_run=args.dry_run, limit=args.limit)
         return 0
@@ -550,7 +584,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "import-witness":
-        stats = import_witness(mdb=args.mdb, recreate_ground=args.recreate_ground)
+        stats = import_witness(l2_dir=args.l2_dir, recreate_ground=args.recreate_ground)
         log.info("import-witness complete: %s", stats)
         return 0
 
@@ -625,9 +659,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "prove":
         return run_prove(
             mdb=args.mdb,
+            l1_dir=args.l1_dir,
+            l2_dir=args.l2_dir,
             dry_run=args.dry_run,
             limit=args.limit,
             skip_structure=args.skip_structure,
+            skip_l1_l2=args.skip_l1_l2,
         )
 
     if args.cmd == "verify-track-b":

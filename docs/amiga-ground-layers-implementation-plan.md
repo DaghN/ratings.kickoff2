@@ -1,6 +1,6 @@
 # Amiga ground layers L0–L5 — implementation plan
 
-**Status:** Slices **1–8** done (Jun 2026). **Slices 9–11** — strict stack (L2→L3, no L0→L3) — **next**; policy v3 + [`amiga-ground-stack.md`](amiga-ground-stack.md) locked.  
+**Status:** Slices **1–10** done (Jun 2026). **Slice 11** — L2→L3 boundary verify + closure — **next**; policy v3 + [`amiga-ground-stack.md`](amiga-ground-stack.md) locked.  
 **Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · **stack intent:** [`amiga-ground-stack.md`](amiga-ground-stack.md)
 
 **Goal:** **Strict inferential chain** — each layer reads only the previous layer’s output. Separate scripts, DDL bundles, and export profiles for **L1 → L2 → L3 → L4 → L5**; keep `prove` green throughout.
@@ -35,7 +35,7 @@
 | **7** | Export packs Mirror / A / B / C | Staging smoke on Pack B | **Done** Jun 2026 |
 | **8** | Docs closure on any drift | Agents cold-start | **Done** Jun 2026 |
 | **9** | L2 `witness_player_identity`; drop `Countries` retain; `extracted_from_l1` in manifest | `verify-prune` green | **Done** Jun 2026 |
-| **10** | L3 from L2 only (`prepare_witness_from_l2`); `prove` L1→L2→L3→L4→L5; remove `.mdb` from witness path | `prove` green; no pyodbc in L3 | **Planned** |
+| **10** | L3 from L2 only (`prepare_witness_from_l2`); `prove` L1→L2→L3→L4→L5; remove `.mdb` from witness path | `prove` green; no pyodbc in L3 | **Done** Jun 2026 |
 | **11** | L2→L3 boundary verify + docs/code closure | Parity gate + stack doc §7 gap closed | **Planned** |
 
 ---
@@ -84,6 +84,20 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
+## Slice 10 — L3 from L2 only (done)
+
+**CLI:** `python -m scripts.amiga import-witness [--l2-dir] [--recreate-ground]` · `prove` (full L1→L5 chain)
+
+- Module: [`scripts/amiga/import_l2_witness.py`](../scripts/amiga/import_l2_witness.py) — parses `L2_pruned.sql` (`Scores`, `Tournament players`, `witness_player_identity`)
+- `prepare_witness_from_l2(l2_dir)` in [`import_access.py`](../scripts/amiga/import_access.py); `prepare_witness_from_access(mdb)` retained for legacy audit only
+- `import_witness` / `import_witness_nuclear` / `prove` default to `data/amiga/exports/pruned/` — no `.mdb` on witness path
+- `build_manifest(source=…)` records L2 layer metadata; `--l1-dir` / `--l2-dir` / `--skip-l1-l2` on `prove`
+- Tests: [`scripts/amiga/test_import_l2_witness.py`](../scripts/amiga/test_import_l2_witness.py)
+
+**STOP:** 605 tournaments, 27,418 games, 473 players; full `prove` green (~6 min) — Jun 2026.
+
+---
+
 ## Slice 3 — L2 prune (superseded by slice 9)
 
 **CLI:** `python -m scripts.amiga import-prune [--l1-dir] [--out-dir]`
@@ -99,11 +113,11 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 4 — L3 witness (done — **L2 input in slice 10**)
+## Slice 4 — L3 witness (done)
 
-**CLI:** `python -m scripts.amiga import-witness [--recreate-ground]`
+**CLI:** `python -m scripts.amiga import-witness [--l2-dir] [--recreate-ground]`
 
-- Module: [`scripts/amiga/import_access.py`](../scripts/amiga/import_access.py) — today `prepare_witness_from_access` (**L0** — violates G12); target `prepare_witness_from_l2`
+- Module: [`scripts/amiga/import_access.py`](../scripts/amiga/import_access.py) — `prepare_witness_from_l2` (slice 10); `prepare_witness_from_access` legacy audit only
 - Verify: [`scripts/amiga/verify_witness.py`](../scripts/amiga/verify_witness.py) — `python -m scripts.amiga verify-witness`
 - `import_all` / `run` delegate to L3 witness + L4 disposition (no inline `apply_structure_spec`)
 - `--recreate-ground` applies L3/L4 DDL only (no L5 derived bundle)
@@ -127,20 +141,9 @@ sql/derived/      L5 — ratings, standings, snapshots, matchups, …
 
 ---
 
-## Slice 6 — Prove orchestrator (done — **full chain in slice 10**)
+## Slice 6 — Prove orchestrator (done)
 
-**CLI:** `python -m scripts.amiga prove`
-
-**Shipped (Jun 2026):**
-
-```text
-import-witness --recreate-ground   # L3 — reads .mdb today (gap)
-apply-structure --from-disposition # L4
-replay                             # L5
-verify suite
-```
-
-**Target (slice 10):**
+**CLI:** `python -m scripts.amiga prove [--l1-dir] [--l2-dir] [--skip-l1-l2] [--skip-structure]`
 
 ```text
 import-pristine                    # L0 → L1
@@ -151,10 +154,10 @@ replay                             # L5
 verify suite
 ```
 
-- `prove.py` orchestrates layers; `--skip-structure` dev flag skips L4
-- Helpers: `import_witness_nuclear()`, `import_witness_reload()` in `import_access.py` — to be rewired to L2 input
+- `prove.py` orchestrates full strict chain (slice 10); `--skip-l1-l2` reuses existing L2
+- Helpers: `import_witness_nuclear()`, `import_witness_reload()` read L2 via `prepare_witness_from_l2`
 
-**STOP (Jun 2026):** 27,418 games, 4,535 snapshots, 210,960 at-event matchups — verified with L0→L3 shortcut.
+**STOP (Jun 2026):** 27,418 games, 4,535 snapshots, 210,960 at-event matchups — full L1→L5 chain verified.
 
 ---
 
@@ -189,7 +192,7 @@ Cross-doc pass after slices 1–7 — agents cold-start from policy + this plan 
 
 **Historical (slices 1–8):** 1 → 4 → 6 → 2 → 3 → 5 → 7 → 8 (L1/L2 added after L3 extract — created the L0→L3 gap).
 
-**Forward (strict stack):** **10** (L3 from L2 + `prove` full chain) → **11** (L2→L3 verify + closure). Slice **9** done.
+**Forward (strict stack):** **11** (L2→L3 boundary verify + closure). Slices **9–10** done.
 
 ---
 

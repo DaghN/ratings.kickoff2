@@ -7,7 +7,9 @@ from pathlib import Path
 from typing import Callable
 
 from scripts.amiga.apply_structure import run_apply_structure
-from scripts.amiga.import_access import _DEFAULT_MDB, import_witness_nuclear
+from scripts.amiga.import_access import _DEFAULT_L2_DIR, _DEFAULT_MDB, import_witness_nuclear
+from scripts.amiga.import_prune import run_import_prune
+from scripts.amiga.import_pristine import _DEFAULT_OUT as _DEFAULT_L1_OUT, run_import_pristine
 from scripts.amiga.replay import run_replay
 from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
@@ -43,12 +45,17 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
 def run_prove(
     *,
     mdb: Path = _DEFAULT_MDB,
+    l1_dir: Path = _DEFAULT_L1_OUT,
+    l2_dir: Path = _DEFAULT_L2_DIR,
     dry_run: bool = False,
     limit: int | None = None,
     skip_structure: bool = False,
+    skip_l1_l2: bool = False,
 ) -> int:
     """
-    L3 → L4 → L5 → verify — modular ground-layer orchestrator.
+    L1 → L2 → L3 → L4 → L5 → verify — strict ground-layer orchestrator.
+
+    ``skip_l1_l2``: use existing L2 artefact (dev only — full sign-off runs L0→L1→L2).
 
     ``limit``: replay smoke only — several verifiers require a full replay; do not use
     ``limit`` for sign-off (use full prove).
@@ -62,9 +69,17 @@ def run_prove(
         )
     if skip_structure:
         log.warning("prove --skip-structure: L4 skipped — not sign-off")
+    if skip_l1_l2:
+        log.warning("prove --skip-l1-l2: using existing L2 — not full L0 sign-off")
 
-    log.info("prove: L3 import-witness --recreate-ground")
-    stats = import_witness_nuclear(mdb=mdb)
+    if not skip_l1_l2:
+        log.info("prove: L1 import-pristine")
+        run_import_pristine(mdb=mdb, out_dir=l1_dir)
+        log.info("prove: L2 import-prune")
+        run_import_prune(l1_dir=l1_dir, out_dir=l2_dir)
+
+    log.info("prove: L3 import-witness --recreate-ground (from L2)")
+    stats = import_witness_nuclear(l2_dir=l2_dir)
     log.info("prove: L3 complete %s", stats)
 
     if not skip_structure:
@@ -86,5 +101,5 @@ def run_prove(
             log.error("prove failed at %s (exit %s)", name, rc)
             return rc
 
-    log.info("prove OK: L3 → L4 → L5 → verify suite passed")
+    log.info("prove OK: L1 → L2 → L3 → L4 → L5 → verify suite passed")
     return 0
