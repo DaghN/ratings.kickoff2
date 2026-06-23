@@ -335,18 +335,18 @@ Optional in slice 5 or 9.
 
 ### P0 — Verify-only hardening
 
-| # | Item | Deliverable |
-|---|------|-------------|
-| 1 | **Stronger `verify-community-stats` SQL guards** | Every snapshot has facts; no orphan facts; timeline cols match `tournaments` |
-| 2 | **Registry parity unit test** | Python `COMMUNITY_HEADLINE_COLUMNS` == PHP registry |
-| 3 | **`verify-php-community-parity` fail if PHP missing** | Optional `AMIGA_REQUIRE_PHP=1` on dev |
+| # | Item | Deliverable | Status |
+|---|------|-------------|--------|
+| 1 | **Stronger `verify-community-stats` SQL guards** | Every snapshot has facts; no orphan facts; timeline cols match `tournaments` | **Done** Jun 2026 |
+| 2 | **Registry parity unit test** | Python `COMMUNITY_HEADLINE_COLUMNS` == PHP registry | **Done** — `test_community_registry_parity.py` |
+| 3 | **`verify-php-community-parity` fail if PHP missing** | Optional `AMIGA_REQUIRE_PHP=1` on dev | **Done** |
 
 ### P1 — Optional code hygiene
 
-| # | Item |
-|---|------|
-| 4 | Dead bulk helpers in Python modules (optional delete pass) |
-| 5 | `amiga_community_facts_query()` when chart APIs ship |
+| # | Item | Status |
+|---|------|--------|
+| 4 | Dead bulk helpers in Python modules (optional delete pass) | **Done** Jun 2026 — `community_stats`, `server_records`, `realm_incremental` |
+| 5 | `amiga_community_facts_query()` when chart APIs ship | Open |
 
 ### Rejected
 

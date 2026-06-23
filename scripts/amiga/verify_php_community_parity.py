@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -129,10 +130,20 @@ def verify_php_community_parity(conn: pymysql.connections.Connection, php: Path)
     return errors
 
 
+def _php_required() -> bool:
+    return os.environ.get("AMIGA_REQUIRE_PHP", "").strip().lower() in ("1", "true", "yes")
+
+
 def main(argv: list[str] | None = None) -> int:
     _ = argv
     php = _find_php()
     if php is None:
+        if _php_required():
+            print(
+                "FAIL: PHP CLI not found (AMIGA_REQUIRE_PHP=1)",
+                file=sys.stderr,
+            )
+            return 1
         print("SKIP: PHP CLI not found (Laragon path)", file=sys.stderr)
         return 0
 

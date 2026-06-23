@@ -208,7 +208,9 @@ python -m scripts.amiga prove
 # Verify only (read-only oracles — do not write derived tables):
 python -m scripts.amiga verify-realm-snapshots
 python -m scripts.amiga verify-community-stats
-python -m scripts.amiga verify-php-community-parity
+python -m scripts.amiga.verify_php_community_parity
+# Optional dev gate when PHP must be present: $env:AMIGA_REQUIRE_PHP=1
+python -m unittest scripts.amiga.test_community_registry_parity -v
 
 # Derived write policy: docs/amiga-derived-write-policy.md
 # Wrong derived state → prove again (no batch *-rebuild CLIs).

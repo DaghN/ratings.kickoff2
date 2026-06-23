@@ -13,7 +13,6 @@ from scripts.amiga.server_records import (
     ESTABLISHED_MIN_GAMES,
     _CAREER_HOLDERS,
     _RATIO_LEADERS,
-    _aggregate_patch,
     _fmt_date,
 )
 from scripts.amiga.player_geo_year import year_period_end
@@ -132,31 +131,6 @@ def tournament_game_aggregate_delta_from_memory(
         "dd": dd,
         "cs": cs,
     }
-
-
-def _merge_game_aggregates(
-    prior: dict[str, Any],
-    delta: dict[str, int],
-    *,
-    num_players: int,
-    diff_opp_avg: Any,
-) -> dict[str, Any]:
-    games = int(prior.get("GamesPlayed") or 0) + delta["games"]
-    draws = int(prior.get("NumberOfDraws") or 0) + delta["draws"]
-    decided = games - draws
-    goals = int(prior.get("GoalsScored") or 0) + delta["goals"]
-    dd = int(prior.get("DoubleDigits") or 0) + delta["dd"]
-    cs = int(prior.get("CleanSheets") or 0) + delta["cs"]
-    return _aggregate_patch(
-        games=games,
-        draws=draws,
-        decided=decided,
-        goals=goals,
-        dd=dd,
-        cs=cs,
-        num_players=num_players,
-        diff_opp_avg=diff_opp_avg,
-    )
 
 
 def _player_count_stats(player_rows: list[dict[str, Any]]) -> tuple[int, Any]:

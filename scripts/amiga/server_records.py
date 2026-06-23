@@ -150,52 +150,6 @@ def _load_cutoff_player_rows(
         return list(cur.fetchall())
 
 
-def _compute_game_aggregates_at_cutoff(
-    conn: pymysql.connections.Connection,
-    cutoff: RealmCutoff | None,
-) -> dict[str, int]:
-    if cutoff is None:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT COUNT(*) AS games,
-                       SUM(CASE WHEN r.actual_score = 0.5 THEN 1 ELSE 0 END) AS draws,
-                       COALESCE(SUM(r.sum_of_goals), 0) AS goals,
-                       COALESCE(SUM(r.dd_player_a + r.dd_player_b), 0) AS dd,
-                       COALESCE(SUM(r.cs_player_a + r.cs_player_b), 0) AS cs
-                FROM amiga_games g
-                INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-                """
-            )
-            agg = cur.fetchone()
-    else:
-        params = cutoff_params(cutoff)
-        cutoff_where = game_cutoff_sql("t")
-        with conn.cursor() as cur:
-            cur.execute(
-                f"""
-                SELECT COUNT(*) AS games,
-                       SUM(CASE WHEN r.actual_score = 0.5 THEN 1 ELSE 0 END) AS draws,
-                       COALESCE(SUM(r.sum_of_goals), 0) AS goals,
-                       COALESCE(SUM(r.dd_player_a + r.dd_player_b), 0) AS dd,
-                       COALESCE(SUM(r.cs_player_a + r.cs_player_b), 0) AS cs
-                FROM amiga_games g
-                INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-                INNER JOIN tournaments t ON t.id = g.tournament_id
-                WHERE {cutoff_where}
-                """,
-                params,
-            )
-            agg = cur.fetchone()
-    return {
-        "games": int(agg["games"] or 0),
-        "draws": int(agg["draws"] or 0),
-        "goals": int(agg["goals"] or 0),
-        "dd": int(agg["dd"] or 0),
-        "cs": int(agg["cs"] or 0),
-    }
-
-
 def compute_server_aggregates(
     conn: pymysql.connections.Connection,
     *,
@@ -205,37 +159,6 @@ def compute_server_aggregates(
 
     return compute_community_headline_aggregates(
         conn, as_of_tournament_id=as_of_tournament_id
-    )
-
-
-def _compute_server_aggregates_present(
-    conn: pymysql.connections.Connection,
-) -> dict[str, Any]:
-    return compute_server_aggregates(conn)
-
-
-def _aggregate_patch(
-    *,
-    games: int,
-    draws: int,
-    decided: int,
-    goals: int,
-    dd: int,
-    cs: int,
-    num_players: int,
-    diff_opp_avg: Any,
-) -> dict[str, Any]:
-    from scripts.amiga.community_stats import aggregate_patch
-
-    return aggregate_patch(
-        games=games,
-        draws=draws,
-        decided=decided,
-        goals=goals,
-        dd=dd,
-        cs=cs,
-        num_players=num_players,
-        diff_opp_avg=diff_opp_avg,
     )
 
 

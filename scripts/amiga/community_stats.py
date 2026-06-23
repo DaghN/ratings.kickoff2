@@ -7,11 +7,7 @@ from typing import Any
 
 import pymysql
 
-from scripts.amiga.community_stats_columns import (
-    COMMUNITY_HEADLINE_COLUMNS,
-    COMMUNITY_SNAPSHOT_KEY_COLUMNS,
-)
-from scripts.amiga.generalstats_columns import GENERALSTATS_AGGREGATE_COLUMNS
+from scripts.amiga.community_stats_columns import COMMUNITY_HEADLINE_COLUMNS
 from scripts.amiga.realm_cutoff import (
     RealmCutoff,
     cutoff_params,
@@ -195,13 +191,3 @@ def build_community_headline_row(
     if missing:
         raise RuntimeError(f"community headline missing columns: {missing}")
     return row
-
-
-def headline_only_patch(patch: dict[str, Any]) -> dict[str, Any]:
-    return {col: patch.get(col) for col in GENERALSTATS_AGGREGATE_COLUMNS}
-
-
-def assert_headline_columns(row: dict[str, Any]) -> None:
-    missing = [c for c in COMMUNITY_SNAPSHOT_KEY_COLUMNS + COMMUNITY_HEADLINE_COLUMNS if c not in row]
-    if missing:
-        raise RuntimeError(f"community snapshot row missing: {missing[:5]}")
