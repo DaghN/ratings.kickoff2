@@ -14,7 +14,7 @@ $k2AmigaWorldCupsPageTitle = $k2AmigaWorldCupsPageTitle ?? 'World Cups';
 $k2AmigaWorldCupsChapterLede = $k2AmigaWorldCupsChapterLede ?? '';
 $k2AmigaWorldCupsEnqueueTableJs = $k2AmigaWorldCupsEnqueueTableJs ?? false;
 $k2AmigaWorldCupsEnqueueScrollMirror = $k2AmigaWorldCupsEnqueueScrollMirror ?? false;
-if ($k2AmigaWorldCupsEnqueueTableJs && $k2AmigaWorldCupsHubView === 'players') {
+if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['players', 'stats'], true)) {
     $k2AmigaWorldCupsEnqueueScrollMirror = true;
 }
 if ($k2AmigaWorldCupsEnqueueTableJs) {
@@ -38,11 +38,7 @@ $k2HubChapterLede = $k2AmigaWorldCupsChapterLede;
 <?php
 if ($k2AmigaWorldCupsEnqueueTableJs) {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
-    k2_table_js_enqueue();
-    if ($k2AmigaWorldCupsEnqueueScrollMirror) {
-        $mirrorV = (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js');
-        echo '<script type="text/javascript" src="/js/k2-table-scroll-mirror.js?v=' . $mirrorV . '" defer="defer"></script>';
-    }
+    k2_table_sortable_assets_enqueue($k2AmigaWorldCupsEnqueueScrollMirror);
 }
 ?>
 </head>

@@ -1982,23 +1982,16 @@ body.k2-site .k2-lb-table-anchor {
 	height: 0;
 }
 
-/* Wide games tables — column width before/after scroll-mirror JS wraps the panel */
-body.k2-site .k2-table-wrap[data-k2-scroll-mirror] {
-	width: 100%;
-	min-width: 0;
-}
-
+/* Scroll mirror — inline-block shrink-wrap; --active only shows the top mirror bar */
 body.k2-site .k2-table-mirror-group {
-	width: 100%;
+	display: inline-block;
 	max-width: 100%;
 	min-width: 0;
 	margin-bottom: 16px;
-	overflow-x: clip;
-	contain: layout inline-size;
+	vertical-align: top;
 }
 
 body.k2-site .k2-table-mirror-group .k2-table-wrap {
-	width: 100%;
 	max-width: 100%;
 	min-width: 0;
 	margin-bottom: 0;
@@ -2011,7 +2004,7 @@ body.k2-site .k2-table-scroll-mirror {
 	display: none;
 	overflow-x: auto;
 	overflow-y: hidden;
-	width: 100%;
+	width: auto;
 	max-width: 100%;
 	min-height: calc(var(--k2-scrollbar-size) + 2px);
 	border: 1px solid var(--k2-border-subtle);

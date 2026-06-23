@@ -253,12 +253,9 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_WC_STATS_DEFAULT_SORT_COL);
     $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
     $tableClass = 'k2-table k2-table--numeric-default k2-table--calm-stats k2-table--world-cup-stats k2-table--world-cup-stats-' . preg_replace('/[^a-z0-9-]/', '', $view) . ' ranked-table-pending';
-    $useScrollMirror = $view === 'goals';
-    $wrapClass = 'k2-table-wrap';
-    $wrapMirrorAttr = $useScrollMirror ? ' data-k2-scroll-mirror' : '';
     ?>
 <div class="k2-amiga-world-cups-stats-table">
-<div class="<?php echo $wrapClass; ?>"<?php echo $wrapMirrorAttr; ?>>
+<?php k2_table_wrap_open(true); ?>
 <table class="<?php echo $tableClass; ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo AMIGA_WC_STATS_ANCHOR_COL; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>" data-k2-skip-initial-sort="1">
 	<thead>
 		<tr>

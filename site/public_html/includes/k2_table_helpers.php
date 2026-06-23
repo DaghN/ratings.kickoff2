@@ -171,3 +171,41 @@ function k2_table_js_enqueue(): void
     $v = (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js');
     echo '<script type="text/javascript" src="/js/k2-table.js?v=' . $v . '" defer="defer"></script>';
 }
+
+/** Whether {@see k2_table_scroll_mirror_enqueue()} already emitted the script tag this request. */
+function k2_table_scroll_mirror_is_enqueued(): bool
+{
+    return !empty($GLOBALS['_k2_table_scroll_mirror_enqueued']);
+}
+
+/** Emit k2-table-scroll-mirror.js once per request (overflow-driven top scrollbar). */
+function k2_table_scroll_mirror_enqueue(): void
+{
+    if (k2_table_scroll_mirror_is_enqueued()) {
+        return;
+    }
+
+    $GLOBALS['_k2_table_scroll_mirror_enqueued'] = true;
+    $v = (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js');
+    echo '<script type="text/javascript" src="/js/k2-table-scroll-mirror.js?v=' . $v . '" defer="defer"></script>';
+}
+
+/** k2-table.js plus optional scroll mirror (markup: {@see k2_table_wrap_open()}). */
+function k2_table_sortable_assets_enqueue(bool $scrollMirror = false): void
+{
+    k2_table_js_enqueue();
+    if ($scrollMirror) {
+        k2_table_scroll_mirror_enqueue();
+    }
+}
+
+/** Open a .k2-table-wrap panel; pass true when scroll mirror may be needed on overflow. */
+function k2_table_wrap_open(bool $scrollMirror = false): void
+{
+    if ($scrollMirror) {
+        echo '<div class="k2-table-wrap" data-k2-scroll-mirror>';
+        return;
+    }
+
+    echo '<div class="k2-table-wrap">';
+}

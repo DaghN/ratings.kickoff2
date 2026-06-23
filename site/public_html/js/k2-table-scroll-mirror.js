@@ -1,6 +1,7 @@
 /**
  * Top horizontal scrollbar mirror for wide .k2-table-wrap panels.
  * Mark the wrap with data-k2-scroll-mirror; syncs scrollLeft with the table wrap below.
+ * Layout: panel always shrink-wraps (fit-content); --active only toggles the top mirror bar.
  */
 (function () {
 	'use strict';
@@ -62,15 +63,23 @@
 		}
 
 		function updateMetrics() {
-			var scrollWidth = table.scrollWidth;
+			var scrollWidth = wrap.scrollWidth;
 			var clientWidth = wrap.clientWidth;
+
+			// Skip until the wrap has a real layout box (avoids false overflow during cloak / font load).
+			if (clientWidth < 1) {
+				return;
+			}
+
 			sizer.style.width = scrollWidth + 'px';
 
 			if (scrollWidth > clientWidth + 1) {
 				group.classList.add(GROUP_ACTIVE_CLASS);
+				mirror.style.width = clientWidth + 'px';
 				mirror.scrollLeft = wrap.scrollLeft;
 			} else {
 				group.classList.remove(GROUP_ACTIVE_CLASS);
+				mirror.style.width = '';
 				mirror.scrollLeft = 0;
 				wrap.scrollLeft = 0;
 			}

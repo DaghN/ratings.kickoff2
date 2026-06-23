@@ -8,7 +8,6 @@ $k2AmigaWorldCupsStatsView = 'goals';
 $k2AmigaWorldCupsPageTitle = 'World Cups — Tournament stats — Goals';
 $k2AmigaWorldCupsChapterLede = 'One row per World Cup — scoring volume, texture, and goal peaks.';
 $k2AmigaWorldCupsEnqueueTableJs = true;
-$k2AmigaWorldCupsEnqueueScrollMirror = true;
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_shell_start.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cup_stats_wing_body.inc.php';

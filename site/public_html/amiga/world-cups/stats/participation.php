@@ -8,7 +8,6 @@ $k2AmigaWorldCupsStatsView = 'participation';
 $k2AmigaWorldCupsPageTitle = 'World Cups — Tournament stats — Participation';
 $k2AmigaWorldCupsChapterLede = 'One row per World Cup — field size, workload, and phase split.';
 $k2AmigaWorldCupsEnqueueTableJs = true;
-$k2AmigaWorldCupsEnqueueScrollMirror = false;
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_shell_start.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cup_stats_wing_body.inc.php';

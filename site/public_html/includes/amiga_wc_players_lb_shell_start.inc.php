@@ -16,11 +16,7 @@ $k2AmigaWcLbView = $k2AmigaWcPlayersView;
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php echo htmlspecialchars($k2AmigaWcPlayersPageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_js_enqueue(); ?>
-<?php
-$mirrorV = (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js');
-echo '<script type="text/javascript" src="/js/k2-table-scroll-mirror.js?v=' . $mirrorV . '" defer="defer"></script>';
-?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_sortable_assets_enqueue(true); ?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
