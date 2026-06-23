@@ -1,6 +1,6 @@
 <?php
 /**
- * Per-player career state during replay (mirrors scripts/ladder/player_state.py).
+ * Per-player career state during replay (mirrors scripts/k2_rating_core/player_state.py).
  */
 declare(strict_types=1);
 

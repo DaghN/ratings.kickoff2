@@ -1,6 +1,6 @@
 <?php
 /**
- * Post-game formula defaults — keep aligned with scripts/ladder/constants.py.
+ * Post-game formula defaults — keep aligned with scripts/k2_rating_core/constants.py.
  */
 declare(strict_types=1);
 
@@ -13,7 +13,7 @@ const K2_POST_GAME_WINNER_ID_DRAW = -1;
 /** Career peak/nadir — contract § Career peak and nadir (matches K2_ESTABLISHED_MIN_GAMES). */
 const K2_POST_GAME_ESTABLISHED_MIN_GAMES = 20;
 
-/** Personal extreme sentinels (scripts/ladder/constants.py / replay-v1 §5.2). */
+/** Personal extreme sentinels (scripts/k2_rating_core/constants.py / replay-v1 §5.2). */
 const K2_POST_GAME_SENTINEL_LEAST_GOALS = 50;
 const K2_POST_GAME_SENTINEL_LOWEST_RATING = 5000.0;
 const K2_POST_GAME_SENTINEL_GOAL_RATIO = -1.0;

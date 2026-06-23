@@ -10,7 +10,7 @@ Planning and audit material kept for history — **not** the live spec for the s
 |------|------------|
 | **`kooldb`** | Single staging DB; batch `*_rebuild.sql` era — **frozen, historical logs only** |
 | **`staging-scripts/`** | Removed Jun 2026 — inventory [`staging-scripts-inventory.md`](staging-scripts-inventory.md) |
-| **`run_staging_ladder_replay.sh`** | May 2026 Python replay on `kooldb` — [`STAGING_REPLAY-2026-05.md`](STAGING_REPLAY-2026-05.md) |
+| **`run_staging_ladder_replay.sh`** | May 2026 Python replay on `kooldb` — **retired Jun 2026**; full copy [`run_staging_ladder_replay.sh`](run_staging_ladder_replay.sh) · [`STAGING_REPLAY-2026-05.md`](STAGING_REPLAY-2026-05.md) |
 
 **Forward proof DB:** **`kooldb1`** / local **`ko2unity_work`** — ops simul, not batch REP marathon.
 

@@ -114,4 +114,4 @@ Each game, `SELECT … MAX(WinRatio) …` (etc.) and overwrites ratio leader col
 3. After fix: `>` everywhere; streaks use `Longest*StreakA`; keep booleans for network counts.
 4. Rebuild `generalstatstable` from replay or one-time SQL backfill after deploy.
 
-**Python contract:** `scripts/ladder/server_records.py` — strict `>`, career longest for streaks, `new_cs_victim` / `new_opponent` gates for network rows. Check: `python -m scripts.ladder.golden_record_checks`.
+**Library contract:** `scripts/k2_rating_core/server_records.py` — strict `>`, career longest for streaks, `new_cs_victim` / `new_opponent` gates for network rows. **Historical check script:** `docs/archive/ladder-retired-2026-06/golden_record_checks.py`.

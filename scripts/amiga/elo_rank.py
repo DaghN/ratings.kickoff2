@@ -6,7 +6,7 @@ from typing import Any
 
 import pymysql
 
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 ELO_RANK_AT_EVENT_COLUMNS: tuple[str, ...] = (
     "player_id",

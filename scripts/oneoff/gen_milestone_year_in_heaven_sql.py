@@ -18,10 +18,10 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from scripts.ladder.config import load_db_config  # noqa: E402
-from scripts.ladder.engine import connect  # noqa: E402
+from scripts.k2_rating_core.config import load_db_config  # noqa: E402
+from scripts.k2_rating_core.connection import connect  # noqa: E402
 
-OUT = _REPO / "scripts" / "ladder" / "sql" / "archive" / "batch-2026-05" / "player_milestones_rebuild_year_in_heaven.sql"
+OUT = _REPO / "docs" / "archive" / "batch-rebuild-sql-2026-05" / "player_milestones_rebuild_year_in_heaven.sql"
 KEY = "year_in_heaven"
 WEEKS_PER_YEAR = 52
 

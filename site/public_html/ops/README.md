@@ -29,6 +29,9 @@
 ## Today
 
 - **Prepare (PHP):** `run_prepare.php` + `modules/prepare_work.php` — full prepare, `seed-catalog`, `zero-derived`, parity (see §6.6).
+
+**Legacy Python:** `python -m scripts.work_prepare` — **retired Jun 2026** (stub → use `run_prepare.php`). Archived modules: `docs/archive/work-prepare-retired-2026-06/`.
+
 - **Post-game P0–P7 (PHP):** `run_process_game.php` — milestones + play streaks. **Sign-off:** `run_ops_sim.php` + `run_verify_ops_sim.php` ([`cutover-readiness.md`](../../../docs/coordination/cutover-readiness.md)).
 - **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
 - **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` (debug); **`rebuild-all` / `rebuild-aggregates` = dev repair only** (`--target local-dev`; **refused** on work). **Steve midnight:** `CMD=FinalizeUtcDay` (league + league milestones + day-close).
@@ -108,7 +111,7 @@ php site/public_html/ops/run_prepare.php seed-catalog --target local-work
 php site/public_html/ops/run_prepare.php seed-catalog --target local-dev
 ```
 
-Legacy Python: `python -m scripts.work_prepare` (kept for reference).
+Legacy Python: `python -m scripts.work_prepare` — **retired** (slice 3); use `run_prepare.php` above.
 
 ## Local sim (post-game PHP)
 

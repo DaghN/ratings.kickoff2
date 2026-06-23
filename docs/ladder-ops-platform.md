@@ -234,7 +234,7 @@ Implement and prove modules **before** wiring Steve’s entry point.
 |-------|-----|
 | **Module development** | Build `k2_ops_*` in `modules/`; test via a **temporary** dev runner in the **same slice** (e.g. `ops/run_dev.php` that only `require`s bootstrap + one module) **or** a one-line CLI wrapper documented in the slice — **not** committed as permanent surface unless agreed. |
 | **After module works** | Add `dispatch.php` routing to that module; delete or stop using the dev runner in the same or follow-up slice. |
-| **Full history sim** | Until `CMD=ReplayChronological` ships: Python `python -m scripts.ladder run --target sandbox` on work DB. |
+| **Full history sim** | `php ops/run_ops_sim.php run --target local-work` (or `staging-work`) — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). |
 
 **Anti-pattern:** shipping `dispatch.php` with stub modules “for later” (see premature stub removed Jun 2026).
 
@@ -251,7 +251,7 @@ Implement and prove modules **before** wiring Steve’s entry point.
 
 ## 7. Target `ops/` tree (summary)
 
-See §6.2 for the full tree. **Local sim (today):** Python replay on work DB — `python -m scripts.ladder run --target sandbox` ([`scripts/ladder/README.md`](../scripts/ladder/README.md)). **After `dispatch.php` ships:** same `CMD=` habit from `public_html/` against `ko2unity_work` / `ladder-work.ini`.
+See §6.2 for the full tree. **Local sim (today):** `php ops/run_ops_sim.php run` on work DB ([`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md)). **Live:** `dispatch.php` `CMD=ProcessCompletedGame` / `FinalizeUtcDay` against `ko2unity_work` / `ladder-work.ini`.
 
 ---
 

@@ -107,7 +107,7 @@ When stored truth is right: schema in `ops/sql/migrations/`, fill history via **
 | Post-game PHP | `ops/run_process_game.php` · `ops/dispatch.php` |
 | Steve bootstrap → live | [`ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 | Website derived fill (happy path) | `ops/run_ops_sim.php` — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md) |
-| Website derived rebuild (dev repair) | `scripts/rebuild_website_derived_data_local.ps1` — **deprecated** for cutover |
+| Website derived rebuild (retired dev repair) | [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | Legacy C++ (historical only) | [`ratings_cpp.txt`](ratings_cpp.txt) |
 | Post-game rules | [`website-data-contract.md`](website-data-contract.md) |
 | Records cutover notes | [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |

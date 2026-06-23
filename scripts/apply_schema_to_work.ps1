@@ -1,5 +1,5 @@
 # Migrate work — apply schema/migrations to ko2unity_work only (never baseline or dev).
-# Preferred: scripts\prepare_local_work_db.ps1 or python -m scripts.work_prepare migrate-work
+# Preferred: scripts\prepare_local_work_db.ps1 or php site/public_html/ops/run_prepare.php migrate-work --target local-work
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\apply_schema_to_work.ps1
 
 $ErrorActionPreference = 'Stop'

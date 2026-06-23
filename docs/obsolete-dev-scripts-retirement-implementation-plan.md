@@ -1,6 +1,6 @@
 # Obsolete dev scripts — implementation plan
 
-**Status:** **Ready to execute** — policy locked in [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).  
+**Status:** **Complete** (Jun 2026) — all slices 0–6 done. Policy: [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).  
 **Rule:** **§5 retirement gate in the policy doc is mandatory for every file** — no folder-level deletes without per-file gates.
 
 ---
@@ -26,7 +26,7 @@
 | **2** | Ladder CLI + wrappers retired/stubbed | Medium — ensure Amiga imports untouched |
 | **3** | `work_prepare` oracle trim; `refresh_local_work_db.ps1` → PHP | Low–medium |
 | **4** | Extract `k2_rating_core`; repoint Amiga imports | **High** — run `prove` |
-| **5** | Doc sweep + misleading runbook removal | Low |
+| **5** | Doc sweep + misleading runbook removal | Low | **Done** |
 | **6** | Closure checklist + MEMORY | Low |
 
 **STOP gates:** After slice 2, 3, 4 — run Amiga `prove` if any `scripts.ladder` file changed. After slice 4 — **mandatory** full `prove`.
@@ -75,15 +75,18 @@ Use **policy §5 gate** per row. Status column updated during execution.
 
 | Path | Holy online? | Holy Amiga? | Gate | Status |
 |------|--------------|-------------|------|--------|
-| `scripts/rebuild_website_derived_data_local.ps1` | No | No | | ☐ |
-| `scripts/ladder/sql/archive/batch-2026-05/` (entire dir → `docs/archive/...`) | No | No | | ☐ |
-| `scripts/ladder/sql/archive/one-off-2026-06/` (audit SQL only) | No | No | | ☐ |
-| `scripts/run_local_replay.ps1` | No | No | | ☐ |
-| `run_staging_ladder_replay.sh` | No | No | | ☐ |
+| `scripts/rebuild_website_derived_data_local.ps1` | No | No | G1–G7 | **Done** |
+| `scripts/ladder/sql/archive/batch-2026-05/` (entire dir → `docs/archive/...`) | No | No | G1–G7 | **Done** |
+| `scripts/ladder/sql/archive/one-off-2026-06/` (audit SQL only) | No | No | G1–G7 | **Done** |
+| `scripts/run_local_replay.ps1` | No | No | G1–G7 | **Done** |
+| `run_staging_ladder_replay.sh` | No | No | G1–G7 | **Done** |
+| `scripts/ladder/__main__.py` | No | No | G1–G7 | **Done** |
 | `scripts/reset_local_work_db.ps1` (deprecated forwarder) | No | No | | ☐ |
-| `scripts/rebuild_activity_wing_local.ps1` | No | No | | ☐ |
-| `scripts/work_prepare/ab_post_game.py` | No | No | | ☐ |
-| `scripts/work_prepare/ab_*.py` (oracle modules) | No | No | per file | ☐ |
+| `scripts/rebuild_activity_wing_local.ps1` | No | No | G1–G7 | **Done** |
+| `scripts/work_prepare/ab_post_game.py` | No | No | G1–G7 | **Done** (archived) |
+| `scripts/work_prepare/ab_*.py` (oracle modules) | No | No | per file | **Done** |
+| `scripts/work_prepare/__main__.py` + retired CLI modules | No | No | G1–G7 | **Done** (`paths.py` kept) |
+| `scripts/refresh_local_work_db.ps1` → PHP | No | No | G1–G7 | **Done** |
 
 ### Tier A — Stub after library extract (slice 2–4)
 
@@ -251,10 +254,10 @@ Update or archive pointers in (minimum list):
 
 ## 8. Slice 6 — Closure
 
-- [ ] Policy doc §7 checklist all **Done**
-- [ ] `PROJECT_MEMORY.md` — one line: retirement track complete
-- [ ] Optional: `docs/DEAD_SURFACE.md` row per retired path
-- [ ] Confirm with Dagh: frozen `ko2unity_db` recovery = re-import dump, not replay scripts
+- [x] Policy doc §7 checklist all **Done**
+- [x] `PROJECT_MEMORY.md` — retirement track complete
+- [x] `docs/DEAD_SURFACE.md` — row per retired path
+- [x] Frozen `ko2unity_db` recovery = re-import dump (policy §9)
 
 ---
 

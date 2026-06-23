@@ -4,6 +4,8 @@
 
 **Ladder ops (Steve, staging deploy, sim):** [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) — sync **`site/public_html/`** (includes **`ops/`**); DB names in [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md).
 
+**Retired dev scripts (Jun 2026):** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) — do not use batch rebuild or Python ladder CLI for fill/sign-off.
+
 **Local two URLs:** dev **`http://ratingskickoff.test/`** · work **`http://work.ratingskickoff.test/`** — setup: `scripts\setup_laragon_work_site.ps1` ([`LOCAL_DEV.md`](LOCAL_DEV.md)).
 
 ---
@@ -13,21 +15,20 @@
 | Question | Answer |
 |----------|--------|
 | **Work DB / staging proof path?** | **Yes** — prepare + **`php ops/run_ops_sim.php run`** — [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) |
-| **Local Elo / GST replay (`ko2unity_db`)?** | `scripts\run_local_replay.ps1` — core ladder only |
-| **Website aggregates on dev DB (repair)?** | `scripts\rebuild_website_derived_data_local.ps1` — **deprecated**; prefer simul on `ko2unity_work` |
+| **Fill derived on work / staging?** | `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php` — [`work-db-prepare.md`](work-db-prepare.md) §1.5 |
+| **Frozen dev DB (`ko2unity_db`) recovery?** | Re-import May dump (`data/README.md`) — not retired batch/replay CLIs |
 | **Steve prod cutover?** | [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 | **Schema migrations?** | `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
 | **Amiga staging DB refresh?** | Agent **runs** `scripts\export_ko2amiga_db.ps1` when Dagh asks to export to staged → tells him **ready for sync + import** → **preview** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` → **apply** `&apply=1` on `ratings.kickoff2.com` — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 
 ---
 
-## Three paths (do not confuse)
+## Two paths (do not confuse)
 
 | Path | Command | Use when |
 |------|---------|----------|
 | **Ops simul (authoritative)** | `run_prepare.php` → `run_ops_sim.php` → `run_verify_ops_sim.php` | **`ko2unity_work`**, **`kooldb1`** — [`work-db-prepare.md`](work-db-prepare.md) **§1.5** |
-| **Ladder replay (dev DB)** | `scripts\run_local_replay.ps1` | Elo + `playertable` + `generalstatstable` on **`ko2unity_db`** only |
-| **Batch SQL repair (legacy)** | `scripts\rebuild_website_derived_data_local.ps1` · `run_finalize_league.php rebuild-all --target local-dev` | **`ko2unity_db`** emergency refill — **never** sign-off on work |
+| **League awards dev repair** | `php site/public_html/ops/run_finalize_league.php rebuild-all --target local-dev` | **`ko2unity_db`** emergency only — **refused** on work |
 
 **Work DB rule:** wrong derived state on work → **`zero-derived` → `run_ops_sim.php` again**. No batch repair on `local-work` / `staging-work`. Details: [`work-db-prepare.md`](work-db-prepare.md) §1.5.
 
@@ -40,31 +41,7 @@
 | **Play streaks repair** | `php scripts/rebuild_player_play_streaks.php` | Dev / one-off — not work sign-off |
 | **Participation reached_at backfill (SCH-025)** | `php scripts/rebuild_participation_reached.php` | After migrate `025` on repair/dev DB — not live post-game path |
 
-**Hall of Fame record dates:** ladder replay + post-game contract — see [`staging-post-game-record-defects.md`](staging-post-game-record-defects.md). **Not** the batch website repair script.
-
----
-
-## Local replay (“push button”)
-
-**Once per machine:** Laragon **Start All**, `pip install -r scripts/ladder/requirements.txt`, `site/config/ko2unitydb_config.php` pointing at `ko2unity_db`.
-
-From repo root:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1
-```
-
-Dry-run first (no writes):
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1 -DryRun
-```
-
-**~3–5 min**, ~74k games. **Recovery:** re-import dump (`data/README.md`) if you need a clean slate.
-
-**After replay (optional):** `python -m scripts.ladder.golden_record_checks` — Hall of Fame date regression matrix ([`docs/staging-post-game-record-defects.md`](staging-post-game-record-defects.md)).
-
-**Manual equivalent:** `python -m scripts.ladder run --target local` — full options in `scripts/ladder/README.md`. Staging **`kooldb1`** (work DB; legacy name `kooldb` may still exist) requires `--target staging`; production would need a separately reviewed wrapper.
+**Hall of Fame record dates:** PHP ops post-game contract — see [`staging-post-game-record-defects.md`](staging-post-game-record-defects.md).
 
 ---
 
@@ -95,24 +72,22 @@ php site/public_html/ops/run_verify_ops_sim.php --target local-work
 
 Steve on staging: `--target staging-work` (see `ops/config/work-targets.ini`). Full runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
 
-Legacy: `python -m scripts.ladder run --target sandbox` — batch tail only; **not** cutover sign-off.
-
 Copy `site/config/ladder-work.ini.example` → `ladder-work.ini` first. **Never** refresh/migrate/zero on `ko2unity_baseline`.
 
 ---
 
-## Updating replay
+## Updating post-game / Elo formulas
 
 | Change | Where |
 |--------|--------|
-| Elo K, start rating | `scripts/ladder/constants.py`, `elo.py` |
-| Per-game row fields | `scripts/ladder/engine.py`, `outcome.py` |
-| Player career stats | `scripts/ladder/player_state.py`, `finalize_counts.py` |
-| Server row `generalstatstable` | `scripts/ladder/generalstats.py` |
-| What gets reset | `scripts/ladder/engine.py` (`reset_universe`), `docs/replay-v1-scope-and-reset.md` |
+| Elo K, start rating | `scripts/k2_rating_core/constants.py`, `elo.py` — PHP mirrors in `ops/includes/post_game_*.php` |
+| Per-game row fields | `scripts/k2_rating_core/apply_game.py`, `outcome.py` |
+| Player career stats | `scripts/k2_rating_core/player_state.py` |
+| Server row `generalstatstable` | `ops/includes/post_game_server_records.php` |
+| What gets cleared at day zero | `ops/run_prepare.php` zero-derived + [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) |
 | New column needs backfill | Above + `ops/sql/migrations/` + [`cutover-readiness.md`](coordination/cutover-readiness.md) |
 
-After code changes: `run_local_replay.ps1` on local; then staging (below).
+After code changes: **re-simul on work** (`zero-derived` → `run_ops_sim.php` → verify).
 
 ---
 
@@ -130,19 +105,7 @@ Adds indexes etc. from `ops/sql/migrations/*.sql` to local `ko2unity_db` (via `a
 
 **Preferred:** ops simul on **`ko2unity_work`** (see [Work DB](#work-db-prod-sandbox--local) above).
 
-**Legacy repair on `ko2unity_db` only** (batch SQL in `scripts/ladder/sql/archive/batch-2026-05/`):
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
-```
-
-**Activity wing only** (SCH-022/023 + participation + play streaks — after `player_period_games` exists):
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\rebuild_activity_wing_local.ps1
-```
-
-Contract: `docs/website-data-contract.md`. Refuses non-`ko2unity_db` unless `-AllowNonLocal`.
+**Contract:** `docs/website-data-contract.md`. **Retired dev batch chain:** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).
 
 ---
 
@@ -152,7 +115,7 @@ Contract: `docs/website-data-contract.md`. Refuses non-`ko2unity_db` unless `-Al
 2. Register in `docs/coordination/one-off-register.md`
 3. `python scripts/oneoff/my_job.py --dry-run` then without `--dry-run`
 
-Prefer replay when the job is “recompute from all games in order.”
+Prefer ops simul when the job is “recompute from all games in order.”
 
 **Throwaway vs one-off:** Steve one-offs = register OO row + `scripts/oneoff/`. Browser schema probes = `scripts/throwaway_*.php` (manual copy to `public_html`, not default sync). Milestone generators / parity scripts = local toolkit — [`scripts/oneoff/README.md`](../scripts/oneoff/README.md).
 
@@ -169,7 +132,7 @@ Prefer replay when the job is “recompute from all games in order.”
 | Verify | `php ops/run_verify_ops_sim.php --target staging-work` |
 | Live cutover (when scheduled) | [`post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 
-**Legacy (May 2026, frozen `kooldb` only):** `run_staging_ladder_replay.sh` + `scripts/ladder/` — historical record [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md). **Not** the cutover recipe.
+**Historical May 2026 staging one-shot:** [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md). **Not** the cutover recipe.
 
 **Cutover email template:** [`coordination/cutover-packet-template.md`](coordination/cutover-packet-template.md)
 
@@ -198,17 +161,16 @@ Full handoff: [`amiga-staging-handoff.md`](amiga-staging-handoff.md) · scripts:
 ## Folder map (real files)
 
 ```text
-scripts/ladder/          ← replay engine (Python)
-scripts/run_local_replay.ps1
-scripts/rebuild_website_derived_data_local.ps1   # legacy repair only
-scripts/ladder/sql/archive/batch-2026-05/        # batch SQL (not cutover)
-scripts/oneoff/          ← registered one-offs + local toolkit (see README)
-scripts/throwaway_*.php  ← browser probes only; not default WinSCP sync
+site/public_html/ops/           ← holy ops (prepare, simul, verify, post-game)
+scripts/k2_rating_core/         ← shared Elo library (Amiga + PHP mirror reference)
+scripts/amiga/                  ← Amiga holy ops (prove)
+scripts/oneoff/                 ← registered one-offs + local toolkit (see README)
+scripts/throwaway_*.php         ← browser probes only; not default WinSCP sync
 site/public_html/ops/sql/migrations/  ← SCH DDL (synced with ops)
-run_staging_ladder_replay.sh   ← deprecated May 2026 kooldb replay
-docs/coordination/       ← schema + replay registers; contract = behavior
-docs/prod-coordination.md      ← hub when coordinating prod
-docs/OPERATIONS_QUICK_START.md ← this file
+docs/coordination/              ← schema + replay registers; contract = behavior
+docs/prod-coordination.md       ← hub when coordinating prod
+docs/OPERATIONS_QUICK_START.md  ← this file
+docs/obsolete-dev-scripts-retirement-policy.md  ← retired dev CLIs
 ```
 
 ---

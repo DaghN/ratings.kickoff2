@@ -6,6 +6,6 @@
 
 **Historical register (May 2026 batch rebuilds on legacy `kooldb`, run log, milestone row counts):** [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md)
 
-**Repair-only SQL** (local dev): `scripts/ladder/sql/archive/batch-2026-05/*_rebuild.sql` via `rebuild_website_derived_data_local.ps1` — not cutover path.
+**Repair-only SQL** (archived): `docs/archive/batch-rebuild-sql-2026-05/*_rebuild.sql` — not cutover path. See [`obsolete-dev-scripts-retirement-policy.md`](../obsolete-dev-scripts-retirement-policy.md).
 
-**Core ladder Elo replay** (playertable / generalstats baseline): [`replay-v1-scope-and-reset.md`](../replay-v1-scope-and-reset.md) · `python -m scripts.ladder run` — separate from website aggregate simul.
+**Core ladder column manifest** (historical): [`replay-v1-scope-and-reset.md`](../replay-v1-scope-and-reset.md) — holy fill = ops simul.

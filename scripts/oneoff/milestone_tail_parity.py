@@ -10,8 +10,8 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from scripts.oneoff.milestone_tail_gen_check import TAIL_KEYS, probe_tail  # noqa: E402
-from scripts.ladder.config import load_db_config  # noqa: E402
-from scripts.ladder.engine import connect  # noqa: E402
+from scripts.k2_rating_core.config import load_db_config  # noqa: E402
+from scripts.k2_rating_core.connection import connect  # noqa: E402
 
 
 def main() -> None:

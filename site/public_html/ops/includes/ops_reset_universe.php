@@ -1,6 +1,6 @@
 <?php
 /**
- * Zero-derived core ladder reset — mirrors scripts/ladder/engine.py reset_universe().
+ * Zero-derived core ladder reset — mirrors archived scripts/ladder/engine.py reset_universe(); authority = this PHP file.
  */
 declare(strict_types=1);
 

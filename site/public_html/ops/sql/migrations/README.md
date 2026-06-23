@@ -20,4 +20,4 @@ Files are applied in **sorted filename order**, re-run every time (must be **ide
 3. **Commit** the `.sql` file (allowlisted in repo `.gitignore`; WinSCP + git backup must match disk).
 4. Run `migrate-work` on `ko2unity_work` (or full `prepare`).
 
-**Not here:** Batch rebuild SQL → `scripts/ladder/sql/archive/batch-2026-05/` (repair only). Catalog seed → `data/` + `seed-catalog`. GST DDL → `../generalstatstable.sql` (sync with `scripts/ladder/sql/generalstatstable.sql`).
+**Not here:** Batch rebuild SQL → `docs/archive/batch-rebuild-sql-2026-05/` (retired; audit only). Catalog seed → `data/` + `seed-catalog`. GST DDL → `../generalstatstable.sql` (sync with `scripts/ladder/sql/generalstatstable.sql`).

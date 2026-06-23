@@ -18,7 +18,7 @@ This is the **canonical** way to fill derived data so the result matches **daily
 | `entered_arena` | **`zero-derived`** lobby seed (`JoinDate`) — **not** timeline sim |
 | New accounts after cutover | Live `ProcessPlayerRegistered` — validate at go-live |
 
-**Not** the definition of done: Mode B batch (`rebuild_website_derived_data_local.ps1`, `player_milestones_rebuild.sql`, `rebuild-all`) except as **repair**.
+**Not** the definition of done: Mode B batch (archived repair SQL, `rebuild-all`) except as **historical repair** — [`obsolete-dev-scripts-retirement-policy.md`](../obsolete-dev-scripts-retirement-policy.md).
 
 ---
 
@@ -110,7 +110,7 @@ Lists unlock rows whose `player_id` is missing from `playertable` (informational
 | Misread | Truth |
 |---------|--------|
 | “Run verify to fix the DB” | **No writes** — fix by **`zero-derived` → `run_ops_sim.php`** |
-| “Verify failed → run batch rebuild” | **No** on work. Mode B (`rebuild_website_derived_data_local.ps1`, `player_milestones_rebuild.sql`, `rebuild-all`) is **dev repair only** — refused on `local-work` / `staging-work` |
+| “Verify failed → run batch rebuild” | **No** on work. Mode B (archived batch SQL, `rebuild-all`) is **retired dev repair** — refused on `local-work` / `staging-work` |
 | “Avoid re-simul — patch work in place” | **Wrong.** Work exists to prove the continuous pipeline; re-simul after a writer fix is the point |
 | “Verify = dev DB parity” | **No** diff against frozen `ko2unity_db`. Parity at depth uses spot SQL, `ab-post-game`, site compare **after** a meaningful simul slice (e.g. Steve **74879**) |
 | “Verify will start a debug simul” | **No** — safe to run without oversight for **mutation**; it only reads |

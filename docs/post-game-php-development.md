@@ -23,7 +23,7 @@
 |------|--------|------------|
 | **1 — Must match** | [`website-data-contract.md`](website-data-contract.md) (+ [`records-post-game-exception.md`](coordination/records-post-game-exception.md) for GST records) | **Correctness:** column meanings, processing order, tie policy **targets** (`>` on HoF and, when shipped, playertable personal extremes), UTC, incremental post-game rules. |
 | **2 — Structural inspiration** | [`ratings_cpp.txt`](ratings_cpp.txt) (`RatingProcedureUnity` per-game block) | **What prod does today:** which fields get updated per game, rough sequencing (ratedresults → playertable → generalstatstable), formulas that are not spelled out elsewhere. |
-| **3 — Parity oracle (batch)** | `scripts/ladder/` (`elo.py`, `outcome.py`, `player_state.py`, `server_records.py`, …) | **Checkpoint diffs** — oracle must be updated when contract changes (see [`post-game-contract-vs-oracle-discrepancies.md`](coordination/post-game-contract-vs-oracle-discrepancies.md)). **Do not** copy replay loop structure (memory + batch finalize). |
+| **3 — Formula library** | `scripts/k2_rating_core/` (`elo.py`, `outcome.py`, `player_state.py`, `server_records.py`, …) | **Checkpoint diffs** when contract changes (see [`post-game-contract-vs-oracle-discrepancies.md`](coordination/post-game-contract-vs-oracle-discrepancies.md)). **Do not** copy archived replay loop structure (memory + batch finalize). |
 
 **When sources disagree:** **Contract wins.** Update PHP ops and Python oracle together. C++ / old oracle behaviour is legacy only. Prod target is **PHP post-game**, not extending C++ ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2).
 
@@ -63,9 +63,9 @@ Ground truth is **already in** `ratedresults` when post-game runs (Steve insert 
 
 ### 2.1 PHP sim = live shape
 
-| | **PHP (target)** | **Python `ladder run` (reference batch replay)** |
+| | **PHP (target)** | **Archived Python batch replay (historical)** |
 |--|------------------|--------------------------------------------------|
-| Unit of work | One `k2_ops_process_completed_game` per game | Loop in memory; batch DB writes |
+| Unit of work | One `k2_ops_process_completed_game` per game | Loop in memory; batch DB writes (retired CLI) |
 | `playertable` | Updated and **committed each game** | Updated in RAM; one bulk write at end |
 | Network distinct counts | Increment from **bounded** DB checks or flags — **no** `finalize_network_counts` after N games | `finalize_network_counts_from_rows` **once** after full slice |
 | GST server totals | **Increment** row `id=1` from this game — **no** `SELECT SUM(…) FROM ratedresults` per game | `compute_server_aggregates()` **once** at end (full scan OK there) |
@@ -80,10 +80,10 @@ From [`work-db-prepare.md`](work-db-prepare.md) §5:
 | Mode | Use for PHP post-game dev |
 |------|---------------------------|
 | **A — Game-only** | **Yes** — N× `process_completed_game`, same as live. |
-| **B — Batch website rebuild** | Parity for **aggregate tables** only when PHP does not own them yet — **not** a substitute for Mode A. |
+| **B — Batch website rebuild** | **Retired** — archived repair SQL only; see [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | **C — Timeline** | `run_ops_sim.php` / `run_timeline_sim.php` — post-game + **`FinalizeUtcDay`** per UTC day. **`entered_arena`:** prepare lobby seed (§4.7), not timeline. Runbook: [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **Mode A** (`replay-to` alone) is **not** ops-complete — use Mode C. |
 
-Python Mode A today still batch-finalizes some ladder fields at end; treat Python as **oracle for checkpoints**, not as the PHP loop structure.
+Archived Python batch replay still batch-finalizes some ladder fields at end; treat it as **historical oracle for checkpoints**, not as the PHP loop structure.
 
 ### 2.3 P6 milestones — in scope vs out of scope (Jun 2026)
 
@@ -145,7 +145,7 @@ While implementing a phase, **look for** SQL that is correct but **heavy on the 
 - Use facilitators to avoid per-game commit / simul shape (§2).
 - Reintroduce full-history scans “just once per game” (still forbidden in §3).
 
-**Authority for new stored fields:** [`website-data-contract.md`](website-data-contract.md) post-game rule + parity; structural hint from [`ratings_cpp.txt`](ratings_cpp.txt) or `scripts/ladder/` as today.
+**Authority for new stored fields:** [`website-data-contract.md`](website-data-contract.md) post-game rule + parity; structural hint from [`ratings_cpp.txt`](ratings_cpp.txt) or `scripts/k2_rating_core/` as today.
 
 ---
 
@@ -211,9 +211,9 @@ Work browse: `http://work.ratingskickoff.test/` → work DB ([`LOCAL_DEV.md`](LO
 | Command | Role |
 |---------|------|
 | `run_prepare.php prepare` | Refresh → migrate → seed catalog → zero derived |
-| `run_process_game.php` (planned) | Per-game derived writer |
-| `ladder run` | Python batch replay — parity reference, not PHP loop template |
-| `rebuild_website_derived_data_local.ps1` | Mode B REP — **not** per-game |
+| `run_process_game.php` | Per-game derived writer |
+| `run_ops_sim.php` | Prod-shaped full-history fill — **sign-off** |
+| Retired dev CLIs | [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) — not per-game |
 
 ---
 
@@ -326,7 +326,7 @@ Per game, after `ratedresults` + `playertable` for A/B are updated in the **same
 3. **Holders:** apply `k2_post_game_update_server_records_after_game` from current `playertable` state for A/B; strict `>` only ([`records-post-game-exception.md`](coordination/records-post-game-exception.md)).
 4. **Write** patch back to id=1.
 
-Reference (batch end-of-replay only): `scripts/ladder/generalstats.py`, `server_records.py`.
+Reference (library): `scripts/k2_rating_core/server_records.py` — PHP mirror in `post_game_server_records.php`.
 
 ---
 

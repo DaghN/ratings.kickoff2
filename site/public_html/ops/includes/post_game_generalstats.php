@@ -21,7 +21,7 @@ function k2_post_game_gst_int(array $row, string $col): int
 }
 
 /**
- * Increment server-wide aggregates (mirrors scripts/ladder/generalstats.py numerators).
+ * Increment server-wide aggregates (mirrors archived scripts/ladder/generalstats.py numerators).
  *
  * @param array<string, mixed> $gstRow current generalstatstable id=1
  * @param array<string, mixed> $derived ratedresults derived for this game

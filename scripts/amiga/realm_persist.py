@@ -13,7 +13,7 @@ from scripts.amiga.generalstats_columns import (
 )
 from scripts.amiga.realm_cutoff import load_realm_cutoff
 from scripts.amiga.realm_incremental import build_generalstats_payload_incremental
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 
 def build_realm_row(

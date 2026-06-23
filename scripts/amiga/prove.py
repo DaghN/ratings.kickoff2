@@ -43,7 +43,7 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-hof-holder-projection", verify_hof_holder_projection_main),
     ("verify-stored-id-date-pairs", verify_stored_id_date_pairs_main),
     ("verify-import-manifest", verify_import_manifest_main),
-    ("verify-l2-l3", verify_l2_l3_boundary_main),
+    ("verify-l2-l3", lambda: verify_l2_l3_boundary_main([])),
     ("verify-tournament-formats", lambda: verify_tournament_formats_main([])),
 ]
 

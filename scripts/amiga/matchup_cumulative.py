@@ -7,7 +7,7 @@ from typing import Any
 
 import pymysql
 
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 _EXTREME_COLS = (
     "max_goals_for",

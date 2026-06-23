@@ -36,7 +36,7 @@ SIDES = """
     FROM ratedresults
 """
 
-OUT = Path(__file__).resolve().parents[1] / "ladder" / "sql" / "archive" / "batch-2026-05" / "player_milestones_rebuild_exists.sql"
+OUT = Path(__file__).resolve().parents[2] / "docs" / "archive" / "batch-rebuild-sql-2026-05" / "player_milestones_rebuild_exists.sql"
 
 
 def main() -> None:

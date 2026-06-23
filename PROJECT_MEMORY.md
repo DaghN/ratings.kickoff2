@@ -73,7 +73,7 @@
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
-- **Obsolete dev scripts retirement (Jun 2026):** **Policy + plan locked** — batch rebuild + `scripts.ladder run` era to retire; holy ops investigation confirms **online = PHP only**, **Amiga = `scripts.amiga prove`** (library imports from `scripts.ladder`, not `ladder run`). **Not executed yet.** [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · [`obsolete-dev-scripts-retirement-implementation-plan.md`](docs/obsolete-dev-scripts-retirement-implementation-plan.md).
+- **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
 ---
 
@@ -84,7 +84,7 @@
 | Live post-game (legacy prod only) | `docs/ratings_cpp.txt` — historical; cutover = PHP ops |
 | Ladder ops / PHP post-game | `docs/ladder-ops-platform.md` §2 · `docs/post-game-php-development.md` |
 | Per-game table | `docs/ratedresults-schema.md` |
-| Replay / Elo sandbox (legacy) | `docs/replay-v1-scope-and-reset.md` · retirement track [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) |
+| Replay / Elo formulas (library) | `scripts/k2_rating_core/` · historical column manifest [`replay-v1-scope-and-reset.md`](docs/replay-v1-scope-and-reset.md) |
 | Profile layout / charts | `docs/player-profile-feast.md` |
 | Activity charts (plan + registry) | `docs/activity-charts.md` |
 | Status hub spec | `docs/STATUS_PAGE_DATA.md` |
@@ -117,6 +117,12 @@
 
 | When | Note |
 |------|------|
+| 2026-06 | **Obsolete dev scripts slice 6 (closure)** — track complete; policy §7 all Done; `DEAD_SURFACE.md` retired-script inventory; frozen `ko2unity_db` = re-import only. |
+| 2026-06 | **Obsolete dev scripts slice 5** — doc sweep: `OPERATIONS_QUICK_START`, `work-db-prepare`, `website-data-contract`, runbooks/coordination docs → holy ops + retirement policy; `replay-v1` historical banner; exit grep clean outside policy/archive. |
+| 2026-06 | **Obsolete dev scripts slice 4** — `scripts/k2_rating_core/` (apply_game, player_state, elo, …); Amiga holy imports repointed; ladder replay code → `docs/archive/ladder-retired-2026-06/`; `prove` L5 green + verifiers (fixed `verify-l2-l3` argv in prove). |
+| 2026-06 | **Obsolete dev scripts slice 3** — `work_prepare` CLI stubbed; 19 modules → `docs/archive/work-prepare-retired-2026-06/`; `refresh_local_work_db.ps1` → PHP `run_prepare.php refresh-work`; `paths.py` kept for Amiga export. |
+| 2026-06 | **Obsolete dev scripts slice 2** — retired `python -m scripts.ladder run` CLI, `run_local_replay.ps1`, `run_staging_ladder_replay.sh` (archived); `scripts/ladder/README.md` → library-only. Amiga imports unchanged. |
+| 2026-06 | **Obsolete dev scripts slice 1** — stubbed `rebuild_website_derived_data_local.ps1`, `rebuild_activity_wing_local.ps1`, `rebuild_player_period_games_local.ps1`; batch SQL → `docs/archive/batch-rebuild-sql-2026-05/`; one-off SQL → `docs/archive/batch-rebuild-sql-one-off-2026-06/`. |
 | 2026-06 | **Obsolete dev scripts retirement** — policy + implementation plan; holy ops audit: online ops never exec Python; Amiga `prove` imports `scripts.ladder` library only (`player_state`, `apply_game_row`, `constants`, `config`). Per-file retirement gate mandatory before delete. |
 | 2026-06 | **Post-game parity register sweep** — `post-game-contract-vs-oracle-discrepancies.md`: closed false Opens (`play_streak_100`, P7 verify); split `club_*` live Fixed vs batch Deferred; layer 7 superseded by `verify_activity_wing_parity`; DDR-052 + cutover checklist aligned. |
 | 2026-06 | **Milestones docs drift fix** — `milestones-product-spec.md` + `milestones-project.md`: 112/112 keys shipped (removed stale wave-1 ~88 TODO); meta LB wing + hub v2 marked done; Accomplished **%** wing noted as deferred (counts ship today). |
@@ -286,7 +292,7 @@
 | Legacy reference | https://joshua.kickoff2.net/ratings/ |
 | Local site | `http://ratingskickoff.test` — **`docs/LOCAL_DEV.md`** |
 | Staging DB | MariaDB 10.11 · **`kooldb1`** / **`kooldb2`** via `config1`/`config2` · legacy **`kooldb`** frozen · **no live game writes** on staging copies |
-| Local DB | `ko2unity_db` frozen · dump `data/dumps/` · derived fill = work simul (not `run_local_replay` — retiring) |
+| Local DB | `ko2unity_db` frozen · dump `data/dumps/` · derived fill = work simul — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) |
 | Ops cheatsheet | **`docs/OPERATIONS_QUICK_START.md`** |
 | Prod coordination | **`docs/prod-coordination.md`** · **`docs/coordination/`** |
 | Config | `site/config/ko2unitydb_config.php` — **never commit** |

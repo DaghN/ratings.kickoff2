@@ -4,7 +4,7 @@
 
 **Authority after fix:** [`docs/website-data-contract.md`](website-data-contract.md) · exact C++ lines: [`docs/coordination/post-game-record-bugs-exact.md`](coordination/post-game-record-bugs-exact.md) · Steve handoff: [`docs/coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md)
 
-**Python parity (correct targets):** `scripts/ladder/server_records.py` + full replay. Automated checks: `python -m scripts.ladder.golden_record_checks`
+**Library parity (correct targets):** `scripts/k2_rating_core/server_records.py`. Automated checks: archived `docs/archive/ladder-retired-2026-06/golden_record_checks.py` (historical).
 
 ---
 
@@ -52,15 +52,9 @@ Expect **wrong** column values in the table above if GST has not been replayed s
 
 ### After revised C++ + backfill
 
-1. **History:** one full ladder replay on target DB (`bash run_staging_ladder_replay.sh` on staging; prod needs reviewed wrapper) **or** one-shot GST backfill Steve agrees.
+1. **History:** ops simul on target DB (`run_ops_sim.php` on work/staging) **or** one-shot GST backfill Steve agrees.
 2. **Future games:** fixed post-game only maintains GST incrementally.
-3. **Automated:**
-
-```powershell
-python -m scripts.ladder.golden_record_checks
-```
-
-Exit **0** = all golden value + date checks pass. Any `bad_contains` date in output = defect still present.
+3. **Automated:** archived golden record checks in `docs/archive/ladder-retired-2026-06/golden_record_checks.py` (historical).
 
 ### UI smoke
 
@@ -79,7 +73,7 @@ Open **Hall of Fame** → streak / victims / opponents rows → dates must match
 
 | Command | What it fixes |
 |---------|----------------|
-| `scripts/run_local_replay.ps1` | Elo + `ratedresults` + `playertable` + **GST row id=1** (Python PG-004 semantics) |
-| `scripts/rebuild_website_derived_data_local.ps1` | Status/Activity aggregate tables only — **not** Hall of Fame GST |
+| `php ops/run_ops_sim.php` | Full derived fill including **GST row id=1** (PHP PG-004 semantics) |
+| Retired dev batch CLIs | Aggregate tables only — **not** Hall of Fame GST — see retirement policy |
 
 See [`docs/OPERATIONS_QUICK_START.md`](OPERATIONS_QUICK_START.md) — **Two rebuild paths**.

@@ -1,27 +1,19 @@
-# Legacy wrapper. Prefer scripts\rebuild_website_derived_data_local.ps1.
-# Kept so old notes still lead to the one canonical website-derived-data rebuild.
+# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 1.
+# Legacy wrapper for rebuild_website_derived_data_local.ps1 (also retired).
+#
+# Policy: docs/obsolete-dev-scripts-retirement-policy.md
 
-param(
-    [string]$Database = 'ko2unity_db',
-    [string]$User = 'root',
-    [string]$Password = '',
-    [switch]$AllowNonLocal
-)
+param()
 
 $ErrorActionPreference = 'Stop'
-$Canonical = Join-Path $PSScriptRoot 'rebuild_website_derived_data_local.ps1'
+Write-Host @'
 
-Write-Host 'This wrapper is superseded by scripts\rebuild_website_derived_data_local.ps1.' -ForegroundColor Yellow
+[RETIRED] scripts/rebuild_player_period_games_local.ps1
 
-$args = @('-ExecutionPolicy', 'Bypass', '-File', $Canonical, '-Database', $Database, '-User', $User)
-if ($Password -ne '') {
-    $args += @('-Password', $Password)
-}
-if ($AllowNonLocal) {
-    $args += '-AllowNonLocal'
-}
+Batch period-game rebuild was part of the retired dev repair chain.
+Use holy ops simul on work DB instead.
 
-powershell @args
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-}
+See docs/obsolete-dev-scripts-retirement-policy.md
+
+'@ -ForegroundColor Yellow
+exit 1

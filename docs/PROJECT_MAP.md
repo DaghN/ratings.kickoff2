@@ -19,16 +19,14 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `site/public_html/` | **The website** — PHP pages, `api/`, `stylesheets/`, `js/`, `fonts/` |
 | `site/public_html/ops/` | **Server operations** — `dispatch.php`, modules, SQL mirrors; [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | `docs/self-hosted-assets.md` | **CDN audit** — what is self-hosted vs external (fonts, JS, YouTube embed) |
-| `docs/DEAD_SURFACE.md` | **Removed / kept** runtime files and one-shot scripts (trim pass) |
+| `docs/DEAD_SURFACE.md` | **Removed / kept** runtime files; **§ Retired dev scripts** inventory (Jun 2026 track complete) |
 | `site/config/` | DB config — `ko2unitydb_config.php` router; `*.local.php` gitignored |
 | `site/public_html/amiga/` | **Amiga realm** — leaderboard, profile, staging SQL dump path |
 | `scripts/amiga/` | **Amiga import + replay** — Access → `ko2amiga_db` |
-| `scripts/ladder/` | **Python replay** — recalc Elo/stats from all games |
-| `scripts/run_local_replay.ps1` | One-command local replay |
+| `scripts/k2_rating_core/` | **Shared Elo library** — Amiga `prove` + PHP mirror reference |
+| `scripts/ladder/` | **Deprecated shim** + GST DDL — see [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | `docs/coordination/cutover-readiness.md` | **Prep done vs live cutover** — read before schema/replay registers |
-| `scripts/rebuild_website_derived_data_local.ps1` | **Dev repair only** — batch rebuild; cutover uses `ops/run_ops_sim.php` |
 | `site/public_html/ops/sql/migrations/` | Canonical SCH DDL (indexes, tables); see `ops-schema-migrations.md` |
-| `run_staging_ladder_replay.sh` | Steve runs on staging server |
 | `docs/` | Specs, coordination, agent playbooks |
 | `data/dumps/` | Local SQL dump (gitignored) |
 | `README.md` | Repo entry — links to agents, ops, brief |
@@ -44,7 +42,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | **Taste** | UI/copy/scope disputes | `PROJECT_BRIEF.md`, `docs/design-direction.md` |
 | **Now** | Every session | `PROJECT_MEMORY.md` |
 | **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, **`docs/activity-charts.md`** (Activity `activity.php` charts), **`docs/milestones-README.md`** (milestones entry → `milestones-catalog.md`), `docs/player-profile-feast.md`, **`docs/player-opponents-hub.md`** (online Opponents IA), **`docs/amiga-opponents-wing-policy.md`** (Amiga Opponents port — cold start), **`docs/amiga-world-cups-leaderboard-policy.md`** (Amiga WC LB slice + sub-wings), **`docs/amiga-community-stats-policy.md`** (Amiga Activity / realm-wide aggregates), **`docs/amiga-derived-write-policy.md`** (prove-only derived writes), **`docs/amiga-community-stats-implementation-plan.md`** (community stats v1 + Phase 2 verify hygiene), **`docs/amiga-ground-stack.md`** / **`docs/amiga-ground-layers-policy.md`** (Amiga L0–L5 strict stack), **`docs/amiga-profile-v0.md`** / **`docs/amiga-event-finish-implementation-plan.md`** (event finish migration) / **`docs/amiga-staging-handoff.md`**, **`docs/amiga-rating-history-policy.md`** (historical ladder), `docs/hub-ia-agreement.md` |
-| **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` |
+| **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` · **retired scripts:** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | **Ladder ops platform** | Steve boundary, `ops/`, sim | [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
@@ -90,7 +88,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | PHP site + `ops/` | WinSCP sync `site/public_html/` | Prod deploy agreed |
 | Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
 | Website derived history | `ops/run_ops_sim.php` | Steve on prod copy / live (cutover) |
-| Core ladder Elo replay | `scripts/ladder` | Optional / legacy baseline |
+| Shared rating formulas (library) | `scripts/k2_rating_core/` | Amiga `prove`; PHP ops mirrors in `ops/includes/post_game_*.php` |
 | After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → `dispatch_request.php` or `ops/dispatch.php` | Steve insert + HTTP/CLI call (agreed Jun 2026) |
 
 Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Cutover runtime:** PHP `ops/dispatch.php` ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2). **Prod today:** legacy C++ until Steve switches — agents implement PHP ops + contract, not C++ extensions. Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
@@ -100,22 +98,21 @@ Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **C
 ## Essential commands
 
 ```powershell
-# Local replay (dev DB ko2unity_db)
-powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1
+# Cutover / work sign-off (ko2unity_work / kooldb1)
+php site/public_html/ops/run_prepare.php migrate-work --target local-work
+php site/public_html/ops/run_prepare.php seed-catalog --target local-work
+php site/public_html/ops/run_prepare.php zero-derived --target local-work
+php site/public_html/ops/run_ops_sim.php run --target local-work
+php site/public_html/ops/run_verify_ops_sim.php --target local-work
 
-# Prod-shaped sandbox: prepare v2 then simul (work-db-prepare.md)
+# Or: full prepare + parity
 powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
-# python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini
 
 # Local schema (dev DB)
 powershell -ExecutionPolicy Bypass -File schema\apply_local.ps1
-
-# Work DB: prod-shaped simul (preferred — see work-db-prepare.md)
-php site/public_html/ops/run_ops_sim.php run --target local-work
-
-# Dev repair only: batch SQL rebuild chain (not cutover path)
-# powershell -ExecutionPolicy Bypass -File scripts\rebuild_website_derived_data_local.ps1
 ```
+
+**Holy ops only:** see [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md). Frozen **`ko2unity_db`** → re-import dump, not retired dev scripts.
 
 ---
 

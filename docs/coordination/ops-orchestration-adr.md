@@ -118,7 +118,7 @@ foreach game in chronological order:
 
 **Vehicle:** Extend [`run_timeline_sim.php`](../../site/public_html/ops/run_timeline_sim.php) / `timeline_sim.php` **or** new `run_ops_sim.php` — same internal functions as `dispatch.php`.
 
-**Batch** (`player_milestones_rebuild.sql`, `rebuild_website_derived_data_local.ps1`, `rebuild-all`) — **repair and parity only**; labelled in runbooks.
+**Batch** (archived `*_rebuild.sql`, retired dev batch PS1, `rebuild-all`) — **repair and parity only**; labelled in runbooks.
 
 **Simul:** `entered_arena` comes from **prepare seed lobby** ([`work-db-prepare.md`](../work-db-prepare.md) §4.7) — not interleaved in timeline sim. **Live:** `ProcessPlayerRegistered` for new accounts.
 

@@ -16,10 +16,10 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from scripts.ladder.config import load_db_config
-from scripts.ladder.elo import compute_elo
-from scripts.ladder.engine import connect
-from scripts.ladder.outcome import outcome_from_goals
+from scripts.k2_rating_core.config import load_db_config
+from scripts.k2_rating_core.elo import compute_elo
+from scripts.k2_rating_core.connection import connect
+from scripts.k2_rating_core.outcome import outcome_from_goals
 
 _DEFAULT_INI = _REPO / "site/config/ladder-work.ini"
 

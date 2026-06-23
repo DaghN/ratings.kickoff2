@@ -23,7 +23,7 @@ from scripts.amiga.snapshot_row import (
     current_upsert_sql,
     snapshot_insert_sql,
 )
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 log = logging.getLogger(__name__)
 

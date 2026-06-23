@@ -178,11 +178,11 @@ Dump file: **`data/dumps/ko2unity_db-2026-05-20.sql`** (HeidiSQL export from **`
 | `ratedresults` | Yes | ~74,870 games |
 | `playertable` | Yes | 475 rows; still has **`KungFu*`** columns (pre–column-drop snapshot) |
 | `resulttable` | Yes | Wide match log (~81k rows): **live/shelved games** for hub Status (`docs/STATUS_PAGE_DATA.md`). Not used by ladder chart APIs. |
-| **`generalstatstable`** | **Not in `.sql` file** | After import, **`python -m scripts.ladder run --target local`** (or staging replay) can create row `id=1` for headline totals. Original dump note still applies if you skip replay. |
+| **`generalstatstable`** | **Not in `.sql` file** | Row `id=1` is created/filled by **PHP ops simul** or post-game on work DB. Frozen dev `ko2unity_db`: re-import dump or use work sandbox — not retired replay CLIs ([`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md)). |
 
 **Hub Status page:** same DB as legacy [joshua status.php](https://joshua.kickoff2.net/status.php) — build locally without a separate API; see **`docs/STATUS_PAGE_DATA.md`**. `IsOnline` / in-progress games are stale on local and staging (no live writes); prod only for “tonight” truth.
 
-Python replay v1 can defer server stats; rebuild `generalstatstable` later or re-import when a complete dump exists.
+PHP ops simul can fill `generalstatstable`; rebuild later via work DB prepare + simul if needed.
 
 ---
 

@@ -1,6 +1,10 @@
-# Replay v1 — locked scope & reset manifest (P0)
+# Replay v1 — locked scope & reset manifest (historical)
 
-**Status:** **P1 implemented** (`scripts/ladder/`, May 2026). Verified on local **`ko2unity_db`**: 74,870 games replayed; 0 NULL `NewRating*`; draws `WinnerID = -1` (9,053).
+> **Jun 2026 — historical reference only.** Dev Python replay CLI and batch rebuild are **retired** — [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).  
+> **Authoritative fill path:** `php ops/run_ops_sim.php` after migrate + seed + zero — [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).  
+> **Formula library:** `scripts/k2_rating_core/` (shared with Amiga; PHP ops mirrors).
+
+**Status:** **P1 implemented** (May 2026; library now `scripts/k2_rating_core/`). Verified on local **`ko2unity_db`**: 74,870 games replayed; 0 NULL `NewRating*`; draws `WinnerID = -1` (9,053).
 
 **Authority:** Python replay intent in `docs/ladder-engine-plan.md` (redirect → [`archive/ladder-engine-plan.md`](archive/ladder-engine-plan.md)). If this doc and that plan disagree on v1 scope, **this doc wins** until Dagh says otherwise. **Website aggregates / cutover:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), not replay alone.
 
@@ -24,7 +28,7 @@ Recalculate **Elo and core per-game rating columns** from fixed game facts in ch
 | **`ActualScore` from goals** | A win `1`, draw `0.5`, B win `0` | If `GoalsA > GoalsB` → 1; equal → 0.5; else 0. |
 | **`WinnerID` from goals** | A win → `idA`; B win → `idB`; draw → **`-1`** (matches C++ and current DB — see `docs/ratedresults-schema.md`). Recompute on replay; do not read pre-reset values as input. |
 | **Replay order** | `ORDER BY Date ASC, id ASC` | Same as charts / `docs/ladder-engine-plan.md`. |
-| **`generalstatstable`** | **Batch rebuild** | DDL `scripts/ladder/sql/generalstatstable.sql`; reset NULLs row `id=1`; filled at end of replay (not per-game). |
+| **`generalstatstable`** | **Per-game via PHP ops** | DDL `scripts/ladder/sql/generalstatstable.sql`; live = `ProcessCompletedGame` + simul |
 | **`resulttable`** | **Untouched** | Legacy / unrated rows; not part of online replay v1. |
 
 ---
@@ -139,13 +143,13 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 | `LastGame` | This game’s `Date` |
 | `LastGameGameID` | This game’s `id` |
 
-**v2 replay (`scripts/ladder/` May 2026)** also rebuilds: extremes, streaks, opponent/victim/culprit counts, rating career fields, all `*GameID` / `*VictimID` / `*CulpritID` pointers, and `Display=1` when `NumberGames >= 1` (not `RecentAverageRating` — column dropped **SCH-016**). **`generalstatstable`** row `id=1` is ensured (CREATE + seed if missing), cleared on reset, and rebuilt from final `ratedresults` + `playertable`.
+**Full replay (May 2026; library now `k2_rating_core`)** also rebuilds: extremes, streaks, opponent/victim/culprit counts, rating career fields, all `*GameID` / `*VictimID` / `*CulpritID` pointers, and `Display=1` when `NumberGames >= 1` (not `RecentAverageRating` — column dropped **SCH-016**). **`generalstatstable`** row `id=1` is ensured (CREATE + seed if missing), cleared on reset, and rebuilt from final `ratedresults` + `playertable`.
 
 ---
 
 ## 7. Safety & verification (local, before first real reset)
 
-**Work DB / staging website aggregates:** use **[`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)** — `ops/run_ops_sim.php` on **`kooldb1`** / **`ko2unity_work`**. **Not** [`STAGING_REPLAY.md`](STAGING_REPLAY.md) (May 2026 archive stub). This checklist is for **local dev** `ko2unity_db` core ladder replay only.
+**Work DB / staging website aggregates:** use **[`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)** — `ops/run_ops_sim.php` on **`kooldb1`** / **`ko2unity_work`**. **Not** [`STAGING_REPLAY.md`](STAGING_REPLAY.md) (May 2026 archive stub). Historical checklist for frozen `ko2unity_db` — recovery today = re-import dump.
 
 1. **Target DB:** confirm `SELECT DATABASE()` → **`ko2unity_db`**.
 2. **Row counts (before):** `SELECT COUNT(*) FROM ratedresults` → expect **~74,870** locally.
@@ -169,10 +173,10 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 
 | Piece | Location |
 |-------|----------|
-| CLI | `python -m scripts.ladder` — `reset`, `replay`, `run` |
-| Code | `scripts/ladder/` (`engine.py`, `outcome.py`, `elo.py`) |
-| Config | `ko2unitydb_config.php` (same as PHP). Sandbox → `ladder-work.ini` + `--target sandbox` |
-| Usage | `scripts/ladder/README.md` |
+| CLI (retired) | See retirement policy — holy path = PHP ops simul |
+| Code (library) | `scripts/k2_rating_core/` — archived replay loop in `docs/archive/ladder-retired-2026-06/` |
+| Config | `ko2unitydb_config.php` (same as PHP). Sandbox → `ladder-work.ini` + work target |
+| Usage | `scripts/k2_rating_core/README.md` |
 | Website aggregates on work/staging | [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) — ops simul, not this CLI |
 
 **Verified (2026-05-21, local):** `run` ~198s; top rating spot-check (e.g. game `id=10` → 1616 / 1584). **May 2026 staging one-shot record:** [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md) — historical only.

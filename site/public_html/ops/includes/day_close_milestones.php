@@ -5,7 +5,7 @@ declare(strict_types=1);
  * UTC day-close milestones: perfect_day, nightmare_day.
  *
  * @see docs/website-data-contract.md § player_milestones
- * @see scripts/ladder/milestone_sim.py _finalize_day
+ * @see docs/archive/ladder-retired-2026-06/milestone_sim.py _finalize_day
  */
 
 require_once dirname(__DIR__, 2) . '/includes/milestone_unlock.php';

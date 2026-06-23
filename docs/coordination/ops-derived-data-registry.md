@@ -80,7 +80,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | ID | Artifact | Batch | When |
 |----|----------|-------|------|
 | DDR-050 | Full `player_milestones` | `player_milestones_rebuild.sql` | Parity / repair |
-| DDR-051 | Website aggregates | `rebuild_website_derived_data_local.ps1` | Mode B shortcut |
+| DDR-051 | Website aggregates | Retired dev batch PS1 | Mode B shortcut (archived) |
 | DDR-052 | `club_*` SQL | rebuild SQL | **Deferred** — remove redundant `PeakRating` join on regen; live P6 uses `Rating` only ([`post-game-contract-vs-oracle-discrepancies.md`](post-game-contract-vs-oracle-discrepancies.md)) |
 
 ---

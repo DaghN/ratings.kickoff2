@@ -12,8 +12,8 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from scripts.ladder.config import load_db_config  # noqa: E402
-from scripts.ladder.engine import connect  # noqa: E402
+from scripts.k2_rating_core.config import load_db_config  # noqa: E402
+from scripts.k2_rating_core.connection import connect  # noqa: E402
 from scripts.oneoff.milestone_unlock_counts import (  # noqa: E402
     clean_sheet_spread_count,
     dd_distinct_opponents_count,
@@ -72,7 +72,7 @@ def probe_tail(cur) -> dict[str, int]:
 
 
 def main() -> None:
-    sql = (_REPO / "scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild_tail.sql").read_text()
+    sql = (_REPO / "docs/archive/batch-rebuild-sql-2026-05/player_milestones_rebuild_tail.sql").read_text()
     gen = Counter(re.findall(r"VALUES \(\d+, '([^']+)'", sql))
     con = connect(load_db_config(), dry_run=False)
     cur = con.cursor()

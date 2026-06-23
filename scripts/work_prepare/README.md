@@ -1,36 +1,38 @@
-# Work DB prepare — platform v2 (legacy Python)
+# Work DB prepare — Python package (retired CLI)
 
-Canonical doc: [`docs/work-db-prepare.md`](../../docs/work-db-prepare.md)  
-Standards: [`docs/OPS_STANDARDS.md`](../../docs/OPS_STANDARDS.md)
+**Status:** **CLI retired Jun 2026** (obsolete dev scripts retirement, slice 3).
 
-**Preferred (PHP, no dispatch.php):** [`site/public_html/ops/run_prepare.php`](../../site/public_html/ops/run_prepare.php)
+**Canonical prepare path (PHP only):**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
+powershell -ExecutionPolicy Bypass -File scripts\refresh_local_work_db.ps1
+
 php site/public_html/ops/run_prepare.php prepare --target local-work
+php site/public_html/ops/run_prepare.php refresh-work --target local-work
+php site/public_html/ops/run_prepare.php zero-derived --target local-work
 php site/public_html/ops/run_prepare.php parity --target local-work
 ```
 
-**Legacy Python CLI** (kept for reference; same verbs):
+Docs: [`docs/work-db-prepare.md`](../../docs/work-db-prepare.md) · [`site/public_html/ops/README.md`](../../site/public_html/ops/README.md)
 
-```powershell
-python -m scripts.work_prepare prepare --target local-work
-python -m scripts.work_prepare parity --target local-work
+---
 
-# Archived — PHP vs Python A/B only (not cutover sign-off)
-# python -m scripts.work_prepare ab-post-game --target local-work --limit 100
-```
+## What remains in this folder
 
-**Sign-off:** `php site/public_html/ops/run_ops_sim.php` + `run_verify_ops_sim.php` — [`docs/coordination/cutover-readiness.md`](../../docs/coordination/cutover-readiness.md). **`ab-post-game`:** [`docs/post-game-php-development.md`](../docs/post-game-php-development.md) §9 (archived).
+| File | Role |
+|------|------|
+| `paths.py` | Laragon `mysql` / `mysqldump` discovery — **used by `scripts.amiga.export_packs`** |
+| `__main__.py` | Retired CLI stub (exit 1 → use PHP) |
 
-Optional config: copy `site/config/work-targets.ini.example` → `work-targets.ini`.
+---
 
-**Legacy scripts** (kept for parity reference):
+## Archived (Jun 2026)
 
-| Legacy | v2 |
-|--------|-----|
-| `reset_local_work_db.ps1` | `refresh-work` |
-| `apply_schema_to_work.ps1` | `migrate-work` |
-| `python -m scripts.ladder reset --target sandbox` | `zero-derived` |
+Full Python prepare implementation + PHP-vs-Python A/B oracle:
 
-Requires: Laragon MySQL + PHP; Python only if using legacy CLI or ladder sim.
+[`docs/archive/work-prepare-retired-2026-06/`](../../docs/archive/work-prepare-retired-2026-06/)
+
+Includes `ab-post-game` (spawned retired `scripts.ladder run`) — historical only.
+
+**Sign-off:** `run_ops_sim.php` + `run_verify_ops_sim.php` — [`docs/coordination/cutover-readiness.md`](../../docs/coordination/cutover-readiness.md).

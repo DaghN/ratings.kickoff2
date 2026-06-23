@@ -7,8 +7,8 @@ from typing import Any
 
 import pymysql
 
-from scripts.ladder.constants import START_RATING
-from scripts.ladder.player_state import PlayerState, SENTINEL_LEAST_GOALS, SENTINEL_LOWEST_RATING
+from scripts.k2_rating_core.constants import START_RATING
+from scripts.k2_rating_core.player_state import PlayerState, SENTINEL_LEAST_GOALS, SENTINEL_LOWEST_RATING
 
 
 def _int(row: dict[str, Any], key: str, default: int = 0) -> int:

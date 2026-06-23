@@ -11,7 +11,7 @@ from pymysql.cursors import DictCursor
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.matchup_cumulative import MatchupCumulative
 from scripts.amiga.realm_incremental import empty_prior_payload
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 log = logging.getLogger(__name__)
 

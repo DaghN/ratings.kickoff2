@@ -1,13 +1,11 @@
-# Batch rebuild SQL — May 2026 (archived)
+# Batch rebuild SQL — moved (Jun 2026)
 
-**Not used for cutover or `kooldb1` ops simul.**
+**This folder is empty by design.** SQL files were archived during obsolete dev scripts retirement (slice 1).
 
-| Use | Command |
-|-----|---------|
-| **Happy path** | `php site/public_html/ops/run_ops_sim.php run` — [`docs/coordination/ops-simul-runbook.md`](../../../../docs/coordination/ops-simul-runbook.md) |
-| **Dev repair (`ko2unity_db`)** | `scripts/rebuild_website_derived_data_local.ps1` (reads this folder) |
-| **Python ladder `run` tail** | `period_aggregates.py`, `period_activity.py`, `milestones.py` (oracle / repair only) |
+| | Location |
+|---|----------|
+| **Batch repair SQL (May 2026)** | [`docs/archive/batch-rebuild-sql-2026-05/`](../../../../docs/archive/batch-rebuild-sql-2026-05/) |
+| **Retirement policy** | [`docs/obsolete-dev-scripts-retirement-policy.md`](../../../../docs/obsolete-dev-scripts-retirement-policy.md) |
+| **Happy path (fill derived)** | `php site/public_html/ops/run_ops_sim.php run` — [`docs/coordination/ops-simul-runbook.md`](../../../../docs/coordination/ops-simul-runbook.md) |
 
-**Deleted Jun 2026 (never executed):** `league_period_awards_rebuild.sql`, `player_league_slice_totals_rebuild.sql`, `player_play_streaks_rebuild.sql`, `server_daily_activity_rebuild_raw.sql` — league/streaks use PHP ops instead.
-
-**Regenerate milestone splices:** `scripts/oneoff/gen_milestone_*.py` → writes here.
+Do not restore batch fill as a runbook step. Historical audit only.

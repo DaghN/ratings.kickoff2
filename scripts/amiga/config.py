@@ -1,10 +1,10 @@
-"""Load ko2amiga_db credentials (mirrors scripts/ladder/config.py)."""
+"""Load ko2amiga_db credentials (mirrors scripts/k2_rating_core/config.py)."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from scripts.ladder.config import DbConfig, _parse_php_config
+from scripts.k2_rating_core.config import DbConfig, _parse_php_config
 
 _REPO = Path(__file__).resolve().parents[2]
 _LOCAL = _REPO / "site" / "config" / "ko2amiga_config.local.php"

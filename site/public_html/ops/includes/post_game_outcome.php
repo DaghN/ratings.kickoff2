@@ -1,6 +1,6 @@
 <?php
 /**
- * Match outcome from goals (mirrors scripts/ladder/outcome.py).
+ * Match outcome from goals (mirrors scripts/k2_rating_core/outcome.py).
  */
 declare(strict_types=1);
 

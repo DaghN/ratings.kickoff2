@@ -26,8 +26,8 @@ from scripts.amiga.replay import (
 )
 from scripts.amiga.tournament_catalog_stats import refresh_catalog_stats_for_tournament
 from scripts.amiga.tournament_standings import rebuild_standings_for_tournament
-from scripts.ladder.constants import START_RATING
-from scripts.ladder.engine import apply_game_row
+from scripts.k2_rating_core.constants import START_RATING
+from scripts.k2_rating_core.apply_game import apply_game_row
 from scripts.amiga.matchup_cumulative import (
     MatchupCumulative,
     apply_peak_from_event_rating,
@@ -37,7 +37,7 @@ from scripts.amiga.community_persist import persist_community_for_tournament
 from scripts.amiga.realm_persist import persist_realm_snapshot_for_tournament
 from scripts.amiga.generalstats_columns import GENERALSTATS_PAYLOAD_COLUMNS
 from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 __all__ = [
     "TournamentAlreadyFinalizedError",

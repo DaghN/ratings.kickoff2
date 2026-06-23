@@ -19,7 +19,7 @@
 | HoF `generalstatstable` | [`records-post-game-exception.md`](records-post-game-exception.md) |
 | PHP post-game + cutover | [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2, [`post-game-register.md`](post-game-register.md), `ops/run_process_game.php` |
 | Legacy C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) — field order reference only |
-| Core ladder Elo replay (dev/sandbox) | `scripts/run_local_replay.ps1` · `python -m scripts.ladder run` — **not** website aggregate cutover |
+| Core ladder column manifest (historical) | [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) — holy fill = ops simul |
 | Website aggregates (work/staging/prod copy) | [`cutover-readiness.md`](cutover-readiness.md) — `ops/run_ops_sim.php` + `run_verify_ops_sim.php` |
 | Historical May staging one-shot | [`STAGING_REPLAY.md`](../STAGING_REPLAY.md) → archive stub only |
 
@@ -62,9 +62,9 @@
 ## Cutover sequence (minimal)
 
 1. Staging: schema (if any) + **dry-run** new post-game on test game(s).
-2. Staging: **full ladder replay** + `rebuild_website_derived_data_local.ps1` (or prod equivalents).
+2. Staging: **`migrate-work` → `seed-catalog` → `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php`**.
 3. Parity: contract § **Global validation checklist** + milestone sanity scripts.
-4. Prod: `migrate-work` → `seed-catalog` → `zero-derived` → **ops simul** → enable **PHP** `dispatch.php` on live games; retire C++ derived writer.
+4. Prod: same prepare + simul on prod copy, then enable **PHP** `dispatch.php` on live games; retire C++ derived writer.
 5. Site: `ranked5` tooltips/footer if personal `>` shipped; profile peak/nadir tooltips when ready.
 6. **feature-log** + **MEMORY** — Prod live / done date.
 

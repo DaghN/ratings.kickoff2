@@ -2,7 +2,7 @@
 /**
  * player_period_games + player_peak_period_games (P4) + player_activity_participation (P4b).
  *
- * Period bucketing (UTC) — same rules as archived batch SQL in sql/archive/batch-2026-05/.
+ * Period bucketing (UTC) — same rules as archived batch SQL in docs/archive/batch-rebuild-sql-2026-05/.
  */
 declare(strict_types=1);
 

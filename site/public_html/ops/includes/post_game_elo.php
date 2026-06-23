@@ -1,6 +1,6 @@
 <?php
 /**
- * Elo adjustment (mirrors scripts/ladder/elo.py).
+ * Elo adjustment (mirrors scripts/k2_rating_core/elo.py).
  */
 declare(strict_types=1);
 

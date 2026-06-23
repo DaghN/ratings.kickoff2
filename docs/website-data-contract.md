@@ -24,12 +24,12 @@ Deployment status is tracked elsewhere:
 
 Those registers link here for behavior; they do **not** duplicate post-game rules.
 
-**One-line cutover rule (agents):** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; batch `*_rebuild.sql` and `rebuild_website_derived_data_local.ps1` are legacy repair on `ko2unity_db` only — not tasks, not prod.
+**One-line cutover rule (agents):** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; retired dev batch/replay CLIs are **not** tasks or prod — [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).
 
 ### Agent policy (post-game)
 
-- **Fill derived tables (happy path):** **`ops/run_ops_sim.php`** after migrate + seed + zero — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **Not** prod cutover via each `scripts/ladder/sql/archive/batch-2026-05/*_rebuild.sql`.
-- **Dev repair only:** [`scripts/rebuild_website_derived_data_local.ps1`](../scripts/rebuild_website_derived_data_local.ps1) — deprecated for cutover; batch SQL chain.
+- **Fill derived tables (happy path):** **`ops/run_ops_sim.php`** after migrate + seed + zero — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
+- **Dev repair (retired):** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) — frozen `ko2unity_db` → re-import dump.
 - **Behaviour authority:** This document’s **Post-game rule** sections — implemented in **PHP ops** (`ops/run_process_game.php`, `ops/dispatch.php`).
 - **Prod live games (today):** Legacy **C++** still runs until Steve cutover — **do not extend C++**; do not block website/staging work on “C++ pending.”
 - **Prod cutover:** Steve inserts ground truth → `dispatch.php CMD=ProcessCompletedGame` (+ `FinalizeUtcDay`) — same rules as here. Guide: [`post-game-php-development.md`](post-game-php-development.md), [`ladder-ops-platform.md`](ladder-ops-platform.md).
@@ -38,7 +38,7 @@ Those registers link here for behavior; they do **not** duplicate post-game rule
 
 ### Derived data index
 
-**Full history fill (happy path):** `ops/run_ops_sim.php` after migrate + seed + zero. **Batch repair column** = legacy `ko2unity_db` only (`scripts/ladder/sql/archive/batch-2026-05/`).
+**Full history fill (happy path):** `ops/run_ops_sim.php` after migrate + seed + zero. **Batch repair column** = archived SQL in `docs/archive/batch-rebuild-sql-2026-05/` (repair only).
 
 | Table | Schema | Ops simul / post-game | Batch repair (legacy) | Post-game (contract §) |
 |-------|--------|----------------------|------------------------|-------------------------|
@@ -138,7 +138,7 @@ Schema reference: `docs/playertable-schema.md`.
 
 ### Behavior authority: the chronological event engine
 
-The conceptual source of truth for all derived data is a chronological replay of `ratedresults` in `Date ASC, id ASC` order, applying one post-game function per game. This is the **event engine** (`scripts/ladder/engine.py` — `apply_game_row()` + `update_server_records_after_game()`).
+The conceptual source of truth for all derived data is a chronological replay of `ratedresults` in `Date ASC, id ASC` order, applying one post-game function per game. **Implementation:** PHP **`k2_ops_process_completed_game`** (`ops/includes/post_game_*.php`). **Formula library (Amiga + mirror reference):** `scripts/k2_rating_core/` (`apply_game_row`, `update_server_records_after_game`).
 
 After a full replay, the database must be identical to one that was maintained by a correct live post-game script from an empty state. This property — **rebuild is simulation of live** — is what keeps the post-game contract crisp and testable.
 
@@ -174,11 +174,10 @@ Current aggregate tables do not need to move into the event engine because they 
 2. `php ops/run_ops_sim.php run` then `php ops/run_verify_ops_sim.php`.
 3. Sign-off = verify **0 fail** — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
 
-**Dev DB `ko2unity_db` only (legacy repair):**
+**Dev DB `ko2unity_db` only (frozen):**
 
-1. Schema via `ops/sql/migrations/` if needed.
-2. `scripts/run_local_replay.ps1` — Elo + `playertable` + `generalstatstable`.
-3. Optional emergency aggregate refill: `scripts/rebuild_website_derived_data_local.ps1` (batch SQL in `scripts/ladder/sql/archive/batch-2026-05/`).
+1. Re-import May dump if derived state is wrong (`data/README.md`).
+2. Do **not** use retired dev replay/batch CLIs — [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).
 
 Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
@@ -211,7 +210,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Parity check:** For each `period_type`, `SUM(games)` must equal `COUNT(*) FROM ratedresults * 2`.
 
-**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_period_games_rebuild.sql`.
+**Implementation:** `docs/archive/batch-rebuild-sql-2026-05/player_period_games_rebuild.sql`.
 
 ---
 
@@ -240,7 +239,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Parity check:** Every cache row must match the best row in `player_period_games` for that `(period_type, player_id)`.
 
-**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_peak_period_games_rebuild.sql`.
+**Implementation:** `docs/archive/batch-rebuild-sql-2026-05/player_peak_period_games_rebuild.sql`.
 
 ---
 
@@ -340,7 +339,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Parity check:** `SUM(rated_games)` must equal `COUNT(*) FROM ratedresults`.
 
-**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/server_daily_activity_rebuild.sql` (batch repair); live = post-game + `player_period_games`.
+**Implementation:** `docs/archive/batch-rebuild-sql-2026-05/server_daily_activity_rebuild.sql` (batch repair); live = post-game + `player_period_games`.
 
 ---
 
@@ -376,7 +375,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Parity check:** `SUM(played) / 2` for each period type must equal `COUNT(*) FROM ratedresults`.
 
-**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/player_period_league_rebuild.sql`.
+**Implementation:** `docs/archive/batch-rebuild-sql-2026-05/player_period_league_rebuild.sql`.
 
 ---
 
@@ -565,11 +564,11 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 | Chronological | 16 keys | `gen_milestone_chrono_sql.py` → `player_milestones_rebuild_chrono.sql` (first cross; `peace_streak` in streaks batch) |
 | Tail playertable + matchup | 30 keys | `gen_milestone_tail_sql.py` → `player_milestones_rebuild_tail.sql` (first cross; `diversity_merchant` = per-game DD vs 5 opponents) |
 
-**Full rebuild:** `scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — run **after** league awards in `scripts/rebuild_website_derived_data_local.ps1`. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **112** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL). Per-key catalog: [`milestones-catalog.md`](milestones-catalog.md).
+**Full rebuild (archived repair SQL):** `docs/archive/batch-rebuild-sql-2026-05/player_milestones_rebuild.sql` spliced with exists + streaks + chrono + tail + period SQL — **not** holy path; use ops simul. Regenerate SQL: `scripts/oneoff/gen_milestone_*.py` (see [`milestones-facilitation.md`](milestones-facilitation.md)). Local parity: **112** distinct `milestone_key` values; `python scripts/oneoff/milestone_v0_sanity_check.py` (UI helpers vs SQL). Per-key catalog: [`milestones-catalog.md`](milestones-catalog.md).
 
 **Schema:** SCH-011 (`milestone_definitions`), SCH-012 + SCH-013 (`player_milestones` + `source_kind` including `lobby`).
 
-**Live write path (Jun 2026):** All incremental unlocks on the holy ops path go through **`includes/milestone_unlock.php`** — `k2_milestone_unlock_insert()`. On successful insert, **`k2_milestone_totals_bump()`** maintains **`player_milestone_totals`** (SCH-020) and **`k2_milestone_holder_count_bump()`** maintains **`milestone_definitions.holder_count`** (SCH-021). Detectors (post-game rules, `FinalizeUtcDay`, register) call the librarian; no direct `INSERT INTO player_milestones` elsewhere on live dispatch. Exceptions: prepare lobby seed (`ops_seed_lobby.php` + stored derived rebuild), batch repair SQL under `scripts/ladder/sql/archive/`. Track doc: [`milestones-unlock-librarian.md`](milestones-unlock-librarian.md).
+**Live write path (Jun 2026):** All incremental unlocks on the holy ops path go through **`includes/milestone_unlock.php`** — `k2_milestone_unlock_insert()`. On successful insert, **`k2_milestone_totals_bump()`** maintains **`player_milestone_totals`** (SCH-020) and **`k2_milestone_holder_count_bump()`** maintains **`milestone_definitions.holder_count`** (SCH-021). Detectors (post-game rules, `FinalizeUtcDay`, register) call the librarian; no direct `INSERT INTO player_milestones` elsewhere on live dispatch. Exceptions: prepare lobby seed (`ops_seed_lobby.php` + stored derived rebuild), archived batch repair SQL in `docs/archive/batch-rebuild-sql-2026-05/`. Track doc: [`milestones-unlock-librarian.md`](milestones-unlock-librarian.md).
 
 ---
 
@@ -707,7 +706,7 @@ Cutover index: [`coordination/post-game-cutover-checklist.md`](coordination/post
 
 **Streak keys:** In-memory counters during post-game (win resets loss/draw streaks, etc.). Unlock when **current** streak **equals** threshold on this game (`win_hat_trick` only on a win, `cold_streak` on a loss, `peace_streak` on a draw, `win_drought` when `non_win_streak === 10`). `ten_wins` = 10th career win on this game.
 
-**Exceptions (not in `ProcessCompletedGame`):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. **Live/post-game PHP:** `FinalizeUtcDay` — `site/public_html/ops/includes/day_close_milestones.php` (ops simul + Steve midnight dispatch). Not per-game post-game. Historical surgical SQL on frozen `kooldb`: `scripts/ladder/sql/archive/one-off-2026-06/player_milestones_fix_day_close.sql` (audit only).
+**Exceptions (not in `ProcessCompletedGame`):** `perfect_day` / `nightmare_day` — first UTC day with ≥5 rated games and all W / all L; `achieved_at` = next UTC midnight. **Live/post-game PHP:** `FinalizeUtcDay` — `site/public_html/ops/includes/day_close_milestones.php` (ops simul + Steve midnight dispatch). Not per-game post-game. Historical surgical SQL on frozen `kooldb`: `docs/archive/batch-rebuild-sql-one-off-2026-06/player_milestones_fix_day_close.sql` (audit only).
 
 **Tail highlights (post-update `playertable` or per-game):**
 
@@ -811,7 +810,7 @@ Staging/local: **full backfill** via rebuild + ops simul is enough for UI until 
 | Catalog | N rows in `milestone_definitions` (111 after `play_streak_100`); distinct keys in `player_milestones` ≤ N (may be N−1 if no holder yet) |
 | `dd_merchant_10` | Achiever list count = `COUNT(*) FROM player_milestones WHERE milestone_key = 'dd_merchant_10'` |
 
-**Implementation (rebuild):** `scripts/ladder/sql/archive/batch-2026-05/player_milestones_rebuild.sql` + generated splice files.
+**Implementation (rebuild):** `docs/archive/batch-rebuild-sql-2026-05/player_milestones_rebuild.sql` + generated splice files.
 
 ---
 
@@ -886,7 +885,7 @@ Union both player perspectives from **processed** `ratedresults` (derived flags 
 - **Sums:** `games`, `wins`, `draws`, `losses`, `goals_for`, `goals_against`, `double_digits`, `double_digits_conceded`, `clean_sheets`, `clean_sheets_conceded` — same as core rebuild plus `SUM` of directed DD/CS flags.
 - **Extremes:** `MAX`/`MIN` on directed `gf`/`ga`; `MAX(CASE WHEN win THEN win_margin END)` / `MAX(CASE WHEN loss THEN loss_margin END)`; `MAX(CASE WHEN draw THEN gf END)`; `MAX(gs)` / `MIN(gs)`.
 
-**Repair SQL (legacy, not cutover authority):** extend `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql` when batch parity is needed — after SCH-019 lands.
+**Repair SQL (legacy, not cutover authority):** extend `docs/archive/batch-rebuild-sql-2026-05/player_matchup_summary_rebuild.sql` when batch parity is needed — after SCH-019 lands.
 
 #### Post-game rule (P5 — `k2_post_game_upsert_matchup_summary`)
 
@@ -959,7 +958,7 @@ Extend `scripts/work_prepare/ab_period_aggregates.py` P5 parity keys to include 
 
 **Parity check:** `SUM(rated_games)` for day rows must equal `COUNT(*) FROM ratedresults`.
 
-**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/server_period_game_totals_rebuild.sql`.
+**Implementation:** `docs/archive/batch-rebuild-sql-2026-05/server_period_game_totals_rebuild.sql`.
 
 ---
 
@@ -989,7 +988,7 @@ Extend `scripts/work_prepare/ab_period_aggregates.py` P5 parity keys to include 
 
 **Parity check:** `SUM(games)` for day rows must equal `COUNT(*) FROM ratedresults`. Monthly `COUNT(*)` rows should match raw UTC distinct-pair counts.
 
-**Implementation:** `scripts/ladder/sql/archive/batch-2026-05/server_period_matchups_rebuild.sql`.
+**Implementation:** `docs/archive/batch-rebuild-sql-2026-05/server_period_matchups_rebuild.sql`.
 
 ---
 
@@ -1019,7 +1018,7 @@ Records such as `MostGamesPlayed`, `MostWins`, `MostGoalsScored`, `MostDoubleDig
 
 **Record date:** The UTC `ratedresults.Date` of the game where the record was first set or strictly broken.
 
-**Rebuild:** Chronological replay through all games in `Date ASC, id ASC` order, applying the tie policy at each game. Implementation: `scripts/ladder/server_records.py` (`_try_int_max`, `_try_float_max`, `_try_pair_max` — all use strict `>`).
+**Rebuild:** Chronological replay through all games in `Date ASC, id ASC` order, applying the tie policy at each game. **PHP:** `k2_post_game_server_records()` in `ops/includes/post_game_server_records.php`. **Library reference:** `scripts/k2_rating_core/server_records.py` (`_try_int_max`, `_try_float_max`, `_try_pair_max` — all use strict `>`).
 
 **Post-game rule:** After a new game, for each applicable record column, compare the new value with the stored record value. Update only if new value **strictly exceeds** the stored value. This is a **behavior change** from the legacy C++ code which uses `>=` (see records exception doc).
 
@@ -1039,7 +1038,7 @@ Two different mechanisms share “victim/culprit” naming on `playertable`. Do 
 
 ##### Distinct-opponent counts
 
-`DifferentVictims`, `DifferentCulprits`, `DoubleDigitsVictims`, `CleanSheetsVictims`, and similar columns count **unique opponents** who ever met a condition (beaten, DD’d, shut out, etc.). Replay rebuild: `scripts/ladder/finalize_counts.py` (`finalize_network_counts_from_rows`) walks all `ratedresults` and fills sets — not the personal-record pointer logic below.
+`DifferentVictims`, `DifferentCulprits`, `DoubleDigitsVictims`, `CleanSheetsVictims`, and similar columns count **unique opponents** who ever met a condition (beaten, DD’d, shut out, etc.). **PHP ops** maintains these incrementally per game. **Library reference (archived batch):** `docs/archive/ladder-retired-2026-06/finalize_counts.py` (`finalize_network_counts_from_rows`) — not the live post-game path.
 
 The **server-wide** record pointers (e.g. `MostCleanSheetsVictimsS`) in `generalstatstable` update only when a player's distinct victim count **increases** (new opponent added to the set). A later game that does not add a new distinct victim must not touch the server record, even if the player's count still ties the server record.
 

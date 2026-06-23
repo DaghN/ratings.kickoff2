@@ -1,6 +1,6 @@
 # Obsolete dev scripts — retirement policy
 
-**Status:** **Locked intent** (Jun 2026) — investigation complete; **execution not started** until implementation plan slices are checked off.  
+**Status:** **Complete** (Jun 2026) — slices 1–6 executed; holy ops unchanged.  
 **Companion:** [`obsolete-dev-scripts-retirement-implementation-plan.md`](obsolete-dev-scripts-retirement-implementation-plan.md)  
 **Audience:** Dagh, Cursor agents.
 
@@ -197,25 +197,24 @@ G7. Sign-off
 |------|--------|-------|
 | Policy + investigation (this doc) | **Done** | Jun 2026 |
 | Implementation plan written | **Done** | companion doc |
-| Phase 1 — batch rebuild nuclear | **Not started** | |
-| Phase 2 — ladder CLI + wrappers | **Not started** | |
-| Phase 3 — work_prepare trim + refresh PS1 → PHP | **Not started** | |
-| Phase 4 — extract `k2_rating_core` | **Not started** | |
-| Phase 5 — doc sweep | **Not started** | |
-| Phase 6 — closure (MEMORY, PROJECT_MAP, OPERATIONS_QUICK_START) | **Not started** | |
+| Phase 1 — batch rebuild nuclear | **Done** | Jun 2026 slice 1 |
+| Phase 2 — ladder CLI + wrappers | **Done** | Jun 2026 slice 2 |
+| Phase 3 — work_prepare trim + refresh PS1 → PHP | **Done** | Jun 2026 slice 3 |
+| Phase 4 — extract `k2_rating_core` | **Done** | Jun 2026 slice 4 |
+| Phase 5 — doc sweep | **Done** | Jun 2026 slice 5 |
+| Phase 6 — closure (MEMORY, DEAD_SURFACE) | **Done** | Jun 2026 slice 6 |
 
 ---
 
-## 8. Related docs to update during sweep
+## 8. Related docs (sweep complete)
 
-- [`PROJECT_MAP.md`](PROJECT_MAP.md) — essential commands table
-- [`OPERATIONS_QUICK_START.md`](OPERATIONS_QUICK_START.md)
-- [`work-db-prepare.md`](work-db-prepare.md) — §1 simul row still mentions ladder run
-- [`website-data-contract.md`](website-data-contract.md) — event engine = `engine.py` drift
-- [`post-game-php-development.md`](post-game-php-development.md) — rank-3 Python oracle
-- [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) — historical; archive pointer
-- [`coordination/post-game-cutover-checklist.md`](coordination/post-game-cutover-checklist.md)
-- [`scripts/ladder/README.md`](../scripts/ladder/README.md)
+- [`PROJECT_MAP.md`](PROJECT_MAP.md) · [`OPERATIONS_QUICK_START.md`](OPERATIONS_QUICK_START.md) · [`work-db-prepare.md`](work-db-prepare.md) · [`website-data-contract.md`](website-data-contract.md) · [`DEAD_SURFACE.md`](DEAD_SURFACE.md) § Retired dev scripts
+
+---
+
+## 9. Recovery reference (frozen `ko2unity_db`)
+
+**Confirmed (Jun 2026):** Wrong derived state on the **frozen dev** DB → **re-import** the May dump (`data/dumps/`, `data/README.md`). Do **not** run retired replay or batch CLIs. Work/sign-off DBs → holy ops only (§2).
 
 ---
 

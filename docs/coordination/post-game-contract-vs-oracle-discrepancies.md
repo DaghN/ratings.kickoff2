@@ -78,7 +78,7 @@ Use this list before prod cutover. Do not treat “Python passed yesterday” as
 | **League win-count keys** (4) | On finalize | `k2_league_sync_win_milestones()` | **N/A per game** |
 | `entered_arena` | On register (`lobby`); simul via prepare seed | `ProcessPlayerRegistered` (live); **prepare §4.7** `seed-lobby` (work) | **N/A per game** |
 | `club_*` **live post-game** | First post-game **`Rating`** `>=` threshold (any game #) | `k2_post_game_milestones_rating_clubs()` — `preGameRating < thresh && newRating >= thresh` | **Fixed** — ops simul P6 |
-| `club_*` **batch rebuild SQL** | First `NewRating` cross; no `PeakRating` join once peak-at-20 replay ships | `player_milestones_rebuild.sql` line 168: `INNER JOIN … PeakRating >= thresh` | **Deferred** — DDR-052; repair-only (`rebuild_website_derived_data_local.ps1`); holy path = ops simul, not this SQL |
+| `club_*` **batch rebuild SQL** | First `NewRating` cross; no `PeakRating` join once peak-at-20 replay ships | `player_milestones_rebuild.sql` line 168: `INNER JOIN … PeakRating >= thresh` | **Deferred** — DDR-052; archived repair SQL only; holy path = ops simul |
 | `play_streak_100` **live + contract** | Unlock on game that **extends** UTC day streak to **100** | PHP `k2_play_streak_after_rated_game()` → `$newLen === 100`; contract § chrono; Python `simulate_play_streak_100_milestones()` | **Fixed** — 0 holders on current data; rebuild SQL empty until someone hits 100 days |
 
 ---

@@ -33,7 +33,7 @@
 | Per game | `CMD=ProcessCompletedGame` after each ground-truth insert; exit codes per [`ops-dispatch.md`](ops-dispatch.md) |
 | Per UTC day | **One** scheduled call: `CMD=FinalizeUtcDay` (planned — see ADR); internal steps in fixed order |
 | Register | `CMD=ProcessPlayerRegistered` on new account (lobby milestone) |
-| No batch on happy path | `player_milestones_rebuild.sql`, `rebuild-all`, `rebuild_website_derived_data_local.ps1` are **parity / repair** only |
+| No batch on happy path | Archived `*_rebuild.sql`, `rebuild-all`, retired dev batch PS1 are **parity / repair** only |
 
 ### 2.2 Simul (work / staging)
 

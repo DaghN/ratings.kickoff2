@@ -18,7 +18,7 @@ from scripts.amiga.generalstats_columns import (
     HONOURS_RISE_PLAYER_COLUMNS,
     RECORD_RISE_PLAYER_COLUMNS,
 )
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 # Catalog + keys (snapshot only).
 _SNAPSHOT_KEY_COLUMNS: tuple[str, ...] = (

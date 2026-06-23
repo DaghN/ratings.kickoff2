@@ -1,108 +1,58 @@
-"""CLI: python -m scripts.work_prepare <verb> --target local-work [--dry-run]"""
+"""CLI retired Jun 2026 — work DB prepare is PHP only.
+
+Canonical: php site/public_html/ops/run_prepare.php
+Policy: docs/obsolete-dev-scripts-retirement-policy.md
+"""
 
 from __future__ import annotations
 
 import argparse
-import logging
 import sys
-from pathlib import Path
 
-_REPO = Path(__file__).resolve().parents[2]
-if str(_REPO) not in sys.path:
-    sys.path.insert(0, str(_REPO))
+_RETIRED_MSG = """
+[RETIRED] python -m scripts.work_prepare {verb}
 
-from scripts.work_prepare.ab_post_game import main_ab_post_game, register_ab_post_game_parser
-from scripts.work_prepare.migrate import migrate_work
-from scripts.work_prepare.parity import print_parity_report, run_parity_checks
-from scripts.work_prepare.prepare import prepare_fast, prepare_full
-from scripts.work_prepare.refresh import refresh_work
-from scripts.work_prepare.seed_catalog import seed_milestone_definitions
-from scripts.work_prepare.seed_lobby import seed_lobby_milestones
-from scripts.work_prepare.targets import load_target
-from scripts.work_prepare.zero_derived import zero_derived
+Work DB prepare moved to PHP ops (no Python, no scripts.ladder run).
 
+  php site/public_html/ops/run_prepare.php prepare --target local-work
+  php site/public_html/ops/run_prepare.php refresh-work --target local-work
+  php site/public_html/ops/run_prepare.php migrate-work --target local-work
+  php site/public_html/ops/run_prepare.php seed-catalog --target local-work
+  php site/public_html/ops/run_prepare.php zero-derived --target local-work
+  php site/public_html/ops/run_prepare.php parity --target local-work
 
-def _common_parent() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(add_help=False)
-    p.add_argument(
-        "--target",
-        default="local-work",
-        help="Profile: local-work (default), staging-work (see work-targets.ini.example)",
-    )
-    p.add_argument("--dry-run", action="store_true", help="Log only; no writes")
-    p.add_argument("-v", "--verbose", action="store_true")
-    return p
+  powershell -File scripts/prepare_local_work_db.ps1
+  powershell -File scripts/refresh_local_work_db.ps1
+
+Archived Python modules: docs/archive/work-prepare-retired-2026-06/
+Policy: docs/obsolete-dev-scripts-retirement-policy.md
+""".strip()
+
+_VERBS = (
+    "prepare",
+    "refresh-work",
+    "migrate-work",
+    "seed-catalog",
+    "zero-derived",
+    "seed-lobby",
+    "parity",
+    "ab-post-game",
+)
 
 
 def main() -> None:
-    common = _common_parent()
     parser = argparse.ArgumentParser(
-        description="Work DB prepare platform v2 (docs/work-db-prepare.md).",
-        parents=[common],
+        description="[RETIRED] Work prepare CLI — use php site/public_html/ops/run_prepare.php"
     )
-    sub = parser.add_subparsers(dest="verb", required=True)
-
-    p_prepare = sub.add_parser(
-        "prepare",
-        parents=[common],
-        help="prepare=orchestrator; refresh/migrate/seed/zero-derived",
-    )
-    p_prepare.add_argument(
-        "--full",
-        action="store_true",
-        help="refresh → migrate → zero derived (default for prepare)",
-    )
-    p_prepare.add_argument(
-        "--zero-only",
-        action="store_true",
-        help="zero derived without refresh/migrate",
-    )
-
-    for name, help_text in (
-        ("refresh-work", "clone baseline → work"),
-        ("migrate-work", "schema/migrations on work"),
-        ("seed-catalog", "milestone_definitions seed"),
-        ("zero-derived", "§4 zero derived + aggregate truncates + seed lobby"),
-        ("seed-lobby", "entered_arena from playertable.JoinDate"),
-        ("parity", "read-only ground-truth / day-zero checks"),
-    ):
-        sub.add_parser(name, parents=[common], help=help_text)
-
-    register_ab_post_game_parser(sub, parents=[common])
-
-    args = parser.parse_args()
-
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(levelname)s %(message)s",
-    )
-
-    if args.verb == "ab-post-game":
-        sys.exit(main_ab_post_game(args))
-
-    target = load_target(args.target)
-
-    if args.verb == "prepare":
-        if args.zero_only:
-            prepare_fast(target, dry_run=args.dry_run)
-        else:
-            prepare_full(target, dry_run=args.dry_run)
-        if not args.dry_run:
-            sys.exit(print_parity_report(run_parity_checks(target)))
-        return
-
-    if args.verb == "refresh-work":
-        refresh_work(target, dry_run=args.dry_run)
-    elif args.verb == "migrate-work":
-        migrate_work(target, dry_run=args.dry_run)
-    elif args.verb == "seed-catalog":
-        seed_milestone_definitions(target, dry_run=args.dry_run)
-    elif args.verb == "zero-derived":
-        zero_derived(target, dry_run=args.dry_run)
-    elif args.verb == "seed-lobby":
-        seed_lobby_milestones(target, dry_run=args.dry_run)
-    elif args.verb == "parity":
-        sys.exit(print_parity_report(run_parity_checks(target)))
+    parser.add_argument("verb", nargs="?", choices=_VERBS, default="prepare")
+    parser.add_argument("--target", default="local-work", help=argparse.SUPPRESS)
+    parser.add_argument("--dry-run", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--zero-only", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--full", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("-v", "--verbose", action="store_true", help=argparse.SUPPRESS)
+    args, _unknown = parser.parse_known_args()
+    print(_RETIRED_MSG.format(verb=args.verb), file=sys.stderr)
+    sys.exit(1)
 
 
 if __name__ == "__main__":

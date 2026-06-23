@@ -1,40 +1,21 @@
-# Full ladder replay on local ko2unity_db (~74k games).
-# Usage: powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1
-#        powershell -ExecutionPolicy Bypass -File scripts\run_local_replay.ps1 -DryRun
+# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 2.
+# Was: full ladder replay on frozen ko2unity_db via python -m scripts.ladder run
+#
+# Policy: docs/obsolete-dev-scripts-retirement-policy.md
 
-param(
-    [switch]$DryRun
-)
+param()
 
 $ErrorActionPreference = 'Stop'
-$RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
+Write-Host @'
 
-Push-Location $RepoRoot
-try {
-    $req = Join-Path $RepoRoot 'scripts\ladder\requirements.txt'
-    if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
-        Write-Error 'python not on PATH. Install Python 3 and Laragon MySQL (docs/LOCAL_DEV.md).'
-    }
+[RETIRED] scripts/run_local_replay.ps1
 
-    Write-Host 'Checking pymysql...' -ForegroundColor Cyan
-    python -m pip install -q -r $req
+Dev Elo replay on ko2unity_db is not a supported path. Frozen dev should not be
+replay-mutated. Fill derived truth on work DB via holy ops simul.
 
-    $args = @('-m', 'scripts.ladder', 'run', '--target', 'local')
-    if ($DryRun) {
-        $args += '--dry-run'
-        Write-Host 'DRY RUN — no database writes' -ForegroundColor Yellow
-    } else {
-        Write-Host 'Full replay — writes to database in ko2unitydb_config.php' -ForegroundColor Cyan
-    }
+  php site/public_html/ops/run_ops_sim.php run --target local-work
 
-    python @args
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Replay failed (exit $LASTEXITCODE)."
-    }
-    Write-Host '[OK] Replay finished.' -ForegroundColor Green
-    if (-not $DryRun) {
-        Write-Host 'Spot-check: http://ratingskickoff.test/player/profile.php?id=237' -ForegroundColor Cyan
-    }
-} finally {
-    Pop-Location
-}
+See docs/obsolete-dev-scripts-retirement-policy.md
+
+'@ -ForegroundColor Yellow
+exit 1

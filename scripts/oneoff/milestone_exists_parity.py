@@ -9,8 +9,8 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from scripts.ladder.engine import connect  # noqa: E402
-from scripts.ladder.config import load_db_config  # noqa: E402
+from scripts.k2_rating_core.connection import connect  # noqa: E402
+from scripts.k2_rating_core.config import load_db_config  # noqa: E402
 from scripts.oneoff.milestone_unlock_counts import (  # noqa: E402
     ratedresults_exists_counts,
 )

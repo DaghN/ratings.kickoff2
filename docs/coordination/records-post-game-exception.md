@@ -138,15 +138,14 @@ Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_p
 
 ## Replay (Python — already implements correct behavior)
 
-- `scripts/ladder/server_records.py` — `_try_int_max`, `_try_float_max`, `_try_pair_max` all use strict `>`.
-- `scripts/ladder/engine.py` — connection pinned to `SET time_zone = '+00:00'`.
-- `scripts/ladder/generalstats.py` — does not write ratio leader fields.
+- `scripts/k2_rating_core/server_records.py` — `_try_int_max`, `_try_float_max`, `_try_pair_max` all use strict `>`.
+- PHP ops mirrors in `ops/includes/post_game_server_records.php`.
 
 ---
 
 ## Golden record validation
 
-After replay or C++ deployment, verify with `python -m scripts.ladder.golden_record_checks`:
+After ops simul or C++ deployment, verify GST dates against contract (historical automated matrix: `docs/archive/ladder-retired-2026-06/golden_record_checks.py`):
 
 - `LongestDrawingStreak = 5 / j1mpst3r / 2020-06-13 23:25:53 UTC` (not overwritten by later ties)
 - `MostCleanSheetsVictims = 76 / FieryPhoenix / 2026-01-30 13:22:21 UTC` (not drifted to last game)
@@ -322,17 +321,17 @@ if (CleanSheetsVictimsA > MostCleanSheetsVictimsS && MostCleanSheetsVictimsBoole
 
 Keep the boolean; do **not** drop it and compare on every game. Do **not** use `>=`.
 
-Python replay already gates on `st.game_flags.new_cs_victim` with strict `>` in `server_records.py`.
+Python replay already gates on `st.game_flags.new_cs_victim` with strict `>` in `k2_rating_core/server_records.py`.
 
 ### Golden checks
 
-`python -m scripts.ladder.golden_record_checks` — Fiery CS victims date must contain `2026-01-30`, must **not** contain `2026-03-13`.
+Archived `docs/archive/ladder-retired-2026-06/golden_record_checks.py` — Fiery CS victims date must contain `2026-01-30`, must **not** contain `2026-03-13`.
 
 ---
 
 ### Golden checks (streak + victims)
 
-`python -m scripts.ladder.golden_record_checks` — Gianni LWS/LNLS dates; Fiery CS victims date; see checks in script.
+Archived golden record checks script — Gianni LWS/LNLS dates; Fiery CS victims date; see checks in `docs/archive/ladder-retired-2026-06/golden_record_checks.py`.
 
 ---
 

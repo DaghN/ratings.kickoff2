@@ -1,6 +1,6 @@
 <?php
 /**
- * Prepare / zero-derived constants — keep aligned with scripts/ladder/constants.py
+ * Prepare / zero-derived constants — keep aligned with scripts/k2_rating_core/constants.py
  * and docs/work-db-prepare.md §4.
  */
 declare(strict_types=1);

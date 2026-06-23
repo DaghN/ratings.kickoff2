@@ -18,7 +18,7 @@ from scripts.amiga.snapshot_row import (
     honours_columns_from_totals_row,
     snapshot_insert_sql,
 )
-from scripts.ladder.player_state import PlayerState
+from scripts.k2_rating_core.player_state import PlayerState
 
 
 class CareerBestPerformanceTests(unittest.TestCase):

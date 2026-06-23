@@ -1,75 +1,58 @@
-"""CLI: python -m scripts.ladder [reset|replay|run] [--target local|sandbox|staging] [--dry-run] [--limit N]"""
+"""CLI retired Jun 2026 — scripts.ladder is a library package only.
+
+Online fill: php site/public_html/ops/run_ops_sim.php run
+Amiga fill:   python -m scripts.amiga prove
+Policy:       docs/obsolete-dev-scripts-retirement-policy.md
+"""
 
 from __future__ import annotations
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
-# Allow `python -m scripts.ladder` from repo root
-_REPO = Path(__file__).resolve().parents[2]
-if str(_REPO) not in sys.path:
-    sys.path.insert(0, str(_REPO))
+_RETIRED_MSG = """
+[RETIRED] python -m scripts.ladder {command}
 
-from scripts.ladder.config import load_db_config
-from scripts.ladder.engine import connect, replay_all, reset_universe, run_full
+Full-memory ladder replay (reset / replay / run) was dev-era tooling.
+It is not holy ops and must not fill work DB or staging sign-off databases.
+
+  Online (ko2unity_work / kooldb1):
+    php site/public_html/ops/run_prepare.php zero-derived --target local-work
+    php site/public_html/ops/run_ops_sim.php run --target local-work
+    php site/public_html/ops/run_verify_ops_sim.php --target local-work
+
+  Amiga (ko2amiga_db):
+    python -m scripts.amiga prove
+
+  Policy: docs/obsolete-dev-scripts-retirement-policy.md
+""".strip()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="KO2 online ladder replay v1 (local/staging targets). See docs/replay-v1-scope-and-reset.md."
+        description="[RETIRED] Ladder replay CLI — see docs/obsolete-dev-scripts-retirement-policy.md"
     )
     parser.add_argument(
         "command",
+        nargs="?",
         choices=("reset", "replay", "run"),
-        help="reset=clear derived; replay=chronological Elo; run=reset then replay",
+        default="run",
+        help="All verbs retired (Jun 2026)",
     )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Log actions and sample math; no UPDATE/COMMIT",
-    )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        default=None,
-        metavar="N",
-        help="Replay only first N games (after reset on run)",
-    )
-    parser.add_argument(
-        "--ini",
-        type=Path,
-        default=None,
-        help="Optional ladder.ini override (default: ko2unitydb_config.php)",
-    )
+    parser.add_argument("--dry-run", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--limit", type=int, default=None, metavar="N", help=argparse.SUPPRESS)
+    parser.add_argument("--ini", type=Path, default=None, help=argparse.SUPPRESS)
     parser.add_argument(
         "--target",
         choices=("local", "sandbox", "staging"),
         default=None,
-        help="local=ko2unity_db (dev); sandbox=ko2unity_work (use --ini ladder-work.ini); staging=kooldb.",
+        help=argparse.SUPPRESS,
     )
-    parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("-v", "--verbose", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
-
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(levelname)s %(message)s",
-    )
-
-    cfg = load_db_config(args.ini)
-    if args.command == "run":
-        run_full(cfg, dry_run=args.dry_run, limit=args.limit, target=args.target)
-        return
-
-    conn = connect(cfg, dry_run=args.dry_run, target=args.target)
-    try:
-        if args.command == "reset":
-            reset_universe(conn, dry_run=args.dry_run)
-        else:
-            replay_all(conn, dry_run=args.dry_run, limit=args.limit)
-    finally:
-        conn.close()
+    print(_RETIRED_MSG.format(command=args.command), file=sys.stderr)
+    sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 <?php
 /**
- * Server hall-of-fame state during replay (mirrors scripts/ladder/server_records.py).
+ * Server hall-of-fame state during replay (mirrors scripts/k2_rating_core/server_records.py).
  */
 declare(strict_types=1);
 

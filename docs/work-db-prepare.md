@@ -1,6 +1,6 @@
 # Work DB — prepare, zero derived, and simul modes
 
-**Status:** **Prepare platform v2 shipped** (Jun 2026) — `scripts/work_prepare/`, `prepare_local_work_db.ps1`. Legacy scripts kept for parity reference.  
+**Status:** **Prepare platform v2 shipped** (Jun 2026) — PHP `run_prepare.php` + `prepare_local_work_db.ps1`. Retired Python prepare CLI: [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).  
 **Audience:** Dagh, Steve, Cursor agents.
 
 **Canonical for:** `ko2unity_work` (local) · **`kooldb1`** (staging work) · pristine copies **`ko2unity_baseline`** / **`kooldb2`**.
@@ -13,11 +13,11 @@
 
 | Term | Meaning | Local today | Avoid calling it |
 |------|---------|-------------|------------------|
-| **Refresh work** | Drop/recreate work DB and **clone from baseline** (full MySQL copy). Restores prod ground truth **and** prod-derived values in core tables. | `refresh_local_work_db.ps1` or `work_prepare refresh-work` | “Reset work DB” |
-| **Migrate work** | Apply `ops/sql/migrations/` to work only (indexes, KungFu drop, tables). | `ops/run_prepare.php migrate-work` or `work_prepare migrate-work` | “Expand” alone (informal OK in chat) |
-| **Seed catalog** | Load `milestone_definitions` reference rows (not unlocks). | `work_prepare seed-catalog` | — |
-| **Zero derived** | Clear **derived** columns/tables to **day-zero pre-game** state. Ground truth rows stay; facts on `ratedresults` stay. | `python -m scripts.work_prepare zero-derived` (§4.3 + §4.5 truncates) | “Reset” without qualifier |
-| **Simul** | Re-execute derived writers over history (umbrella term). See §3 modes. | `python -m scripts.ladder run --target sandbox` (game-only today) | Assuming simul = only ladder replay |
+| **Refresh work** | Drop/recreate work DB and **clone from baseline** (full MySQL copy). Restores prod ground truth **and** prod-derived values in core tables. | `refresh_local_work_db.ps1` → PHP `run_prepare.php refresh-work` | “Reset work DB” |
+| **Migrate work** | Apply `ops/sql/migrations/` to work only (indexes, KungFu drop, tables). | `ops/run_prepare.php migrate-work` | “Expand” alone (informal OK in chat) |
+| **Seed catalog** | Load `milestone_definitions` reference rows (not unlocks). | `run_prepare.php seed-catalog` | — |
+| **Zero derived** | Clear **derived** columns/tables to **day-zero pre-game** state. Ground truth rows stay; facts on `ratedresults` stay. | `run_prepare.php zero-derived` (§4.3 + §4.5 truncates) | “Reset” without qualifier |
+| **Simul** | Re-execute derived writers over history (umbrella term). See §3 modes. | `php ops/run_ops_sim.php run` | Assuming simul = only core Elo replay |
 
 **Baseline** (`ko2unity_baseline` / `kooldb2`): frozen prod import — **never** migrate, replay, or zero derived. Only a **clone source** for refresh work.
 
@@ -43,8 +43,7 @@
 | Do not run on work | Why |
 |--------------------|-----|
 | `run_finalize_league.php rebuild-all` / `rebuild-aggregates` | **Refused at CLI** — batch league repair, not simul |
-| `rebuild_website_derived_data_local.ps1` | Batch SQL chain — dev repair only |
-| `scripts/ladder/sql/archive/batch-2026-05/*_rebuild.sql` | Legacy repair on frozen dev |
+| Retired dev batch SQL chain | See [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | Ad-hoc “fix awards / milestones / holder_count” bulk SQL | Patch-in-place defeats the proof run |
 
 **Steve on `kooldb1`:** sync `site/public_html/` → `migrate-work` → `seed-catalog` → `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php`. A full re-simul after a writer fix is **expected**, not a failure of the process.
@@ -109,21 +108,15 @@ powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1 -Zero
 powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1 -DryRun
 ```
 
-**CLI (preferred):** `php site/public_html/ops/run_prepare.php prepare --target local-work` (add `--zero-only` or `--dry-run`). Legacy: `python -m scripts.work_prepare`. See [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) and [`OPS_STANDARDS.md`](OPS_STANDARDS.md).
+**CLI (preferred):** `php site/public_html/ops/run_prepare.php prepare --target local-work` (add `--zero-only` or `--dry-run`). See [`site/public_html/ops/README.md`](../site/public_html/ops/README.md) and [`OPS_STANDARDS.md`](OPS_STANDARDS.md).
 
 Optional: `site/config/work-targets.ini` from `work-targets.ini.example` (staging-work profile).
 
 **Never** refresh/migrate/zero on **`ko2unity_baseline`** / **`kooldb2`**.
 
-### 3.4 Legacy manual path (parity reference only)
+### 3.4 Legacy manual path (historical)
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\refresh_local_work_db.ps1   # was reset_local_work_db.ps1
-powershell -ExecutionPolicy Bypass -File scripts\apply_schema_to_work.ps1
-python -m scripts.ladder reset --target sandbox --ini site/config/ladder-work.ini   # no §4.5 truncates
-```
-
-Retire legacy entry points after parity + one operational smoke (§9).
+Superseded by PHP `run_prepare.php` verbs. See [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).
 
 ### 3.5 Parity checklist (v2 vs legacy)
 
@@ -143,9 +136,9 @@ After **full prepare**, `php site/public_html/ops/run_prepare.php parity --targe
 | `player_milestones_lobby_seeded` | `entered_arena` rows = playertable with valid `JoinDate`; no other keys |
 | `player_period_games_empty` / `server_daily_activity_empty` | 0 rows (or table missing before migrate) |
 
-Compare to legacy path: same counts; legacy **without** v2 `zero-derived` may leave §4.5 tables non-empty if previously simul’d.
+Compare to historical path: v2 `zero-derived` clears §4.5 tables; legacy shortcuts may leave stale aggregate rows.
 
-**Operational smoke (before deleting legacy):** `python -m scripts.ladder run --target sandbox --ini site/config/ladder-work.ini` (or batch rebuild) on work after prepare v2 — same sanity as today.
+**Operational smoke:** `zero-derived` → `run_ops_sim.php run` → `run_verify_ops_sim.php` on work after prepare.
 
 ---
 
@@ -153,7 +146,7 @@ Compare to legacy path: same counts; legacy **without** v2 `zero-derived` may le
 
 **Intent:** After zero derived, every **derived** cell is empty or at contract default as if **no rated game had been processed** — but all match **facts** remain in `ratedresults`.
 
-**Sign-off:** Dagh — full §4 accepted as contract. **Implemented in v2:** `scripts/work_prepare/zero_derived.py` (core + §4.5 truncates).
+**Sign-off:** Dagh — full §4 accepted as contract. **Implemented:** PHP `run_prepare.php zero-derived` (core + §4.5 truncates).
 
 **Authority for column lists:** [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core five tables) · [`ground-truth-manifest.md`](ground-truth-manifest.md) · [`website-data-contract.md`](website-data-contract.md).
 
@@ -183,7 +176,7 @@ Compare to legacy path: same counts; legacy **without** v2 `zero-derived` may le
 | `playertable` | `Rating = 1600`; NULL career derived; sentinels per replay §5.2 |
 | `generalstatstable` | Ensure row `id=1`; NULL/clear all data columns (whole table derived) |
 
-**CLI:** `python -m scripts.work_prepare zero-derived` (preferred) or `scripts.ladder reset` on work via `ladder-work.ini`.
+**CLI:** `php site/public_html/ops/run_prepare.php zero-derived --target local-work`.
 
 ### 4.4 Schema cleanup via migrate (not zero derived)
 
@@ -237,10 +230,10 @@ Runs at end of **zero derived** (full and fast prepare). Idempotent. Not produce
 
 | Layer | Contract | Implementation |
 |-------|----------|----------------|
-| Core ladder (`reset_universe`) | §4.3 | `scripts/work_prepare/zero_derived.py` → `scripts/ladder/engine.py` |
-| Aggregate truncates (§4.5) | TRUNCATE at day zero | Same module — skips missing tables |
-| Lobby seed (§4.7) | `entered_arena` from `JoinDate` | `seed_lobby` / end of `zero_derived` |
-| Full prepare orchestrator | Refresh → migrate → seed catalog → zero derived | `prepare_local_work_db.ps1` / `work_prepare prepare` |
+| Core ladder day-zero | §4.3 | PHP `run_prepare.php zero-derived` |
+| Aggregate truncates (§4.5) | TRUNCATE at day zero | Same — skips missing tables |
+| Lobby seed (§4.7) | `entered_arena` from `JoinDate` | Bundled in `zero-derived` / `prepare` |
+| Full prepare orchestrator | Refresh → migrate → seed catalog → zero derived | `prepare_local_work_db.ps1` / `run_prepare.php prepare` |
 
 **Seed catalog:** `prepare` runs `seed-catalog` after migrate (112 rows from `site/public_html/ops/data/milestones_definitions_seed.json`). **Seed lobby:** `zero-derived` inserts `entered_arena` for every player with valid `JoinDate`. Other `player_milestones` unlock rows stay empty until simul.
 
@@ -255,12 +248,12 @@ Runs at end of **zero derived** (full and fast prepare). Idempotent. Not produce
 | Mode | What runs | When to use |
 |------|-----------|-------------|
 | **A — Game-only** | Per-game processor × N in `Date, id` order (Elo, career, GST batch at end of run) | Ladder parity, post-game module dev |
-| **B — Game + batch website rebuild** | Mode A, then truncate/rebuild aggregate SQL + league/milestone rebuild scripts | Fast local/staging when periodic logic is not under test |
+| **B — Game + batch website rebuild** | Mode A, then truncate/rebuild aggregate SQL + league/milestone rebuild scripts | **Retired** — repair archive only; see retirement policy |
 | **C — Timeline** | Mode A **plus** `FinalizeUtcDay` at each UTC day boundary | **Prod-shaped simul** — league, league milestones, day-close |
 
-**Today:** Mode A ≈ `php ops/run_process_game.php replay-to` (or legacy Python ladder). Mode B ≈ `rebuild_website_derived_data_local.ps1` (repair only). Mode C ≈ **`php ops/run_timeline_sim.php run`** — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **`entered_arena`:** prepare §4.7 only, not Mode C loop.
+**Today:** Mode A ≈ `php ops/run_process_game.php replay-to`. Mode B ≈ archived batch repair (not sign-off). Mode C ≈ **`php ops/run_ops_sim.php run`** (or `run_timeline_sim.php`) — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md). **`entered_arena`:** prepare §4.7 only, not Mode C loop.
 
-`ladder run` **includes** zero derived at start — equivalent to prepare step 3 + Mode A in one command.
+`run_ops_sim.php` assumes **zero derived** at start — equivalent to prepare step 4 + Mode C in one command.
 
 ### 5.2 Target equivalence
 
@@ -290,8 +283,7 @@ After cutover: Steve inserts ground → `CMD=ProcessCompletedGame` per game; per
 |------|-----|
 | One-time sandbox create | `scripts/setup_local_prod_sandbox.ps1`, `data/README.md` |
 | Verify DB roles | `scripts/verify_local_databases.ps1` |
-| Website batch rebuild | `scripts/rebuild_website_derived_data_local.ps1` (dev default; work needs `-AllowNonLocal`) |
-| Local dev replay | `scripts/run_local_replay.ps1` → `ko2unity_db` |
+| Retired dev fill scripts | [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 
 ---
 

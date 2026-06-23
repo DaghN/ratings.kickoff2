@@ -32,6 +32,27 @@
 
 **Deploy:** WinSCP sync `site/public_html/` (JS deletes, `status-realm-lab.php`, `theme.css`). Hard refresh.
 
+---
+
+## Retired dev scripts (Jun 2026)
+
+**Track:** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) — **complete**. Stubs exit 1 and print the holy-path pointer. **Do not** restore as runbook steps.
+
+| Path | Was | Use instead |
+|------|-----|-------------|
+| `scripts/rebuild_website_derived_data_local.ps1` | Batch SQL chain on `ko2unity_db` | Work: `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php` |
+| `scripts/rebuild_activity_wing_local.ps1` | Activity-wing batch slice | Same (ops simul) |
+| `scripts/rebuild_player_period_games_local.ps1` | Period-games batch slice | Same |
+| `scripts/run_local_replay.ps1` | Python ladder `run` on dev DB | Work simul; dev DB → re-import dump |
+| `run_staging_ladder_replay.sh` (root stub) | Staging one-shot replay | Archived: `docs/archive/run_staging_ladder_replay.sh` |
+| `python -m scripts.ladder run` / `reset` / `replay` | Full-memory replay CLI | `run_ops_sim.php` (online) · `scripts.amiga prove` (Amiga) |
+| `python -m scripts.work_prepare` | Legacy prepare / A/B oracle | `php ops/run_prepare.php` verbs |
+| `scripts/ladder/sql/archive/batch-2026-05/` (stub README) | Batch `*_rebuild.sql` | Archived: `docs/archive/batch-rebuild-sql-2026-05/` |
+| `scripts/ladder/` replay modules | `engine.py`, `milestones.py`, … | Archived: `docs/archive/ladder-retired-2026-06/` · library: `scripts/k2_rating_core/` |
+| `scripts/work_prepare/` (except `paths.py`) | Prepare / zero / ab oracle | Archived: `docs/archive/work-prepare-retired-2026-06/` |
+
+**Kept (not dead):** `scripts/k2_rating_core/` · `scripts/amiga/` · `scripts/prepare_local_work_db.ps1` · `scripts/refresh_local_work_db.ps1` (→ PHP) · `scripts/ladder/sql/generalstatstable.sql` · `scripts/ladder/__init__.py` (shim).
+
 **Re-shipped Jun 2026:** header realm switcher (`includes/realm_switcher.php`, `.k2-realm-switch*` in `theme.css`) and cross-realm header search (`realm=all` API). Tint picker still via `realm-switch.js` only.
 
 ---
