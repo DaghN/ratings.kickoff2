@@ -119,7 +119,7 @@
 
 | When | Note |
 |------|------|
-| 2026-06-23 | **Amiga scroll mirror rollout** — shared `k2_table_wrap_open` / `k2_table_sortable_assets_enqueue`; all Amiga LB wings + WC table shells. |
+| 2026-06-23 | **WC table CSS consolidation** — `.k2-hub-sortable-table` shell; dropped duplicate wing CSS; tournament stats on `ranked-pages-table` + `k2-table--world-cup-stats` overrides. |
 | 2026-06-23 | **Scroll mirror layout** — panel shrink-wraps until overflow; full width only under `.k2-table-mirror-group--active`; WC stats mirror on all views. |
 | 2026-06-23 | **Amiga WC player stats layout** — removed `.k2-amiga-wc-players-table` horizontal padding + footnote inset; tables align with tournament-stats tabs (full 1200px). |
 | 2026-06-23 | **Amiga WC player stats V2 UI** — five sub-wings on hub + LB dual surface; enriched Goals + DDs & CSs + Opponents; `amiga_wc_players_table.php` + routes. |

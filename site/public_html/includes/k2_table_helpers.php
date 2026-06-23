@@ -209,3 +209,20 @@ function k2_table_wrap_open(bool $scrollMirror = false): void
 
     echo '<div class="k2-table-wrap">';
 }
+
+/** Outer shell for sortable hub/LB tables (max-width cap; layout uses .k2-page-nav wrap rules). */
+function k2_hub_sortable_table_shell_open(string $extraClass = '', bool $scrollMirror = true): void
+{
+    $classes = ['k2-hub-sortable-table'];
+    $extraClass = trim($extraClass);
+    if ($extraClass !== '') {
+        $classes[] = $extraClass;
+    }
+    echo '<div class="' . k2_h(implode(' ', $classes)) . '">';
+    k2_table_wrap_open($scrollMirror);
+}
+
+function k2_hub_sortable_table_shell_close(): void
+{
+    echo '</div></div>';
+}

@@ -1040,12 +1040,13 @@ body.k2-site .k2-page-nav .k2-table {
 	margin-bottom: 16px;
 }
 
-/* Wide game tables: intrinsic width inside scroll wrap (league period, player games, …) */
+/* Wide game tables: intrinsic width inside scroll wrap (league period, player games, hub sortable tables, …) */
 body.k2-site .k2-page-nav .k2-table-wrap .k2-table {
 	max-width: none;
 	width: max-content;
 	min-width: 100%;
 	margin-bottom: 0;
+	table-layout: auto;
 }
 
 body.k2-site .player-h2h-opponent-search label {
@@ -1554,6 +1555,20 @@ body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table thead th:nt
 body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table tbody td:nth-child(2) {
 	width: auto;
 	min-width: 0;
+}
+
+/* World Cup event stats (anchor col 0 = tournament name — not hub Rank/Player widths). */
+body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table thead th:nth-child(1),
+body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table tbody td:nth-child(1),
+body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table thead th:nth-child(2),
+body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table tbody td:nth-child(2) {
+	width: auto;
+	min-width: 0;
+}
+
+body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table thead th:first-child,
+body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table tbody td:first-child {
+	white-space: nowrap;
 }
 
 /* Single-game pages (col 2 = Date; ranked-pages-table default col 2 is Player min 9.1em). */
@@ -2091,49 +2106,9 @@ body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb:hover {
 	background: var(--k2-scrollbar-thumb-hover);
 }
 
-/* World Cup stats wing — natural width on narrow tables; Goals wing uses scroll mirror when wide */
-body.k2-site .k2-amiga-world-cups-stats-table {
+/* Hub sortable data tables — width cap inside .k2-page-nav (WC wings share one shell). */
+body.k2-site .k2-hub-sortable-table {
 	max-width: var(--k2-max-width);
-}
-
-body.k2-site .k2-amiga-world-cups-stats-table .k2-table-mirror-group {
-	max-width: 100%;
-}
-
-/* Same table-width habit as .k2-page-nav sortable tables (tournaments list, player games, …). */
-body.k2-site .k2-amiga-world-cups-stats-table .k2-table-wrap .k2-table.k2-table--world-cup-stats {
-	width: max-content;
-	min-width: 100%;
-	max-width: none;
-	margin-bottom: 0;
-	table-layout: auto;
-}
-
-body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats thead th:first-child,
-body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats tbody td:first-child {
-	white-space: nowrap;
-}
-
-/* Match hub leaderboards: hide until k2-table.js finishes (ranked-table-pending). */
-html.ranked-js body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats.ranked-table-pending {
-	visibility: hidden;
-}
-
-/* World Cup player stats wing — wide tables use scroll mirror (hub + LB dual surface) */
-body.k2-site .k2-amiga-wc-players-table {
-	max-width: var(--k2-max-width);
-}
-
-body.k2-site .k2-amiga-wc-players-table .k2-table-mirror-group {
-	max-width: 100%;
-}
-
-body.k2-site .k2-amiga-wc-players-table .k2-table-wrap .k2-table {
-	width: max-content;
-	min-width: 100%;
-	max-width: none;
-	margin-bottom: 0;
-	table-layout: auto;
 }
 
 body.k2-site .k2-player-games-controls {

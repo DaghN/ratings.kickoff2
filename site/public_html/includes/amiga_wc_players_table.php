@@ -21,13 +21,12 @@ const AMIGA_WC_PLAYERS_VIEWS = ['honours', 'results', 'goals', 'dds', 'opponents
 
 function amiga_wc_players_table_shell_open(string $viewClass): void
 {
-    echo '<div class="k2-amiga-wc-players-table ' . k2_h($viewClass) . '">';
-    k2_table_wrap_open(true);
+    k2_hub_sortable_table_shell_open($viewClass);
 }
 
 function amiga_wc_players_table_shell_close(): void
 {
-    echo '</div></div>';
+    k2_hub_sortable_table_shell_close();
 }
 
 /**

@@ -392,7 +392,7 @@ Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared
 
 **Geography intl (shipped Jun 2026):** `international_games` (rated games where both nations set and differ) + `international_game_share`; DDL `038`. **Blowout rate:** stored `blowout_rate` in same migration.
 
-**Layout (Jun 2026):** Goals wing = scroll mirror (`width: 100%`); narrow wings = standard `k2-table-wrap` with `min-width: 100%` table (same habit as tournaments list). Sortable tables use **`ranked-table-pending`** + scoped cloak until `k2-table.js` init — same pattern as hub leaderboards, unlike the first WC stats cut which painted during JS anchor/sort setup.
+**Layout (Jun 2026):** Shared hub shell `.k2-hub-sortable-table` + global `.k2-page-nav .k2-table-wrap` width rules + overflow-driven scroll mirror. Tournament tables use `ranked-pages-table` + `k2-table--world-cup-stats` column overrides (not hub Rank/Player widths).
 
 **Podium v2 (backlog):** full placement table from standings — site-unique collection view.
 
