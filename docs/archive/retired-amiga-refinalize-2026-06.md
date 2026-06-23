@@ -8,6 +8,7 @@
 - PHP verbs: `reopen-tournament`, `refinalize-from`
 - Modules: `scripts/amiga/refinalize.py`, `refinalize_smoke.py`, `site/public_html/amiga/ops/modules/refinalize_tournament.php`
 - Prove step: `verify-php-finalize-parity` (mutated DB via reopen+finalize)
+- Batch derived repair CLIs (Jun 2026): `generalstats-rebuild`, `matchup-rebuild`, `participation-rebuild`, `catalog-stats-rebuild`, `performance-rating-rebuild`, `rebuild-event-snapshots` — see [`amiga-derived-write-policy.md`](../amiga-derived-write-policy.md)
 - Finalize warm-through guard (only existed to paper over bare finalize after reopen)
 
 ## Why

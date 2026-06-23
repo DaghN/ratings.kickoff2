@@ -1,4 +1,4 @@
-"""Tests for amiga_generalstats rebuild."""
+"""Stored-state smoke tests for amiga_generalstats (read-only; no batch rebuild)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,8 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.server_records import rebuild_generalstats
+from scripts.amiga.realm_cutoff import latest_finalized_tournament_id
+from scripts.amiga.server_records import build_generalstats_payload
 
 
 def _connect() -> pymysql.connections.Connection:
@@ -27,8 +28,8 @@ def _connect() -> pymysql.connections.Connection:
     return conn
 
 
-class GeneralstatsRebuildTests(unittest.TestCase):
-    def test_rebuild_populates_row(self) -> None:
+class GeneralstatsStoredStateTests(unittest.TestCase):
+    def test_present_row_populated_after_replay(self) -> None:
         conn = _connect()
         try:
             with conn.cursor() as cur:
@@ -37,7 +38,9 @@ class GeneralstatsRebuildTests(unittest.TestCase):
             if game_count == 0:
                 self.skipTest("no amiga_games — run replay first")
 
-            patch = rebuild_generalstats(conn, dry_run=False)
+            tid = latest_finalized_tournament_id(conn)
+            if tid is None:
+                self.skipTest("no finalized tournaments")
 
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM amiga_generalstats WHERE id = 1")
@@ -45,12 +48,15 @@ class GeneralstatsRebuildTests(unittest.TestCase):
                 cur.execute("SELECT GamesPlayed FROM amiga_community_stats WHERE id = 1")
                 community = cur.fetchone()
 
+            oracle = build_generalstats_payload(conn, as_of_tournament_id=tid)
+
             self.assertIsNotNone(row)
             self.assertIsNotNone(community)
             self.assertEqual(int(community["GamesPlayed"]), game_count)
             self.assertNotIn("GamesPlayed", row)
             self.assertGreater(int(row["MostGamesPlayed"] or 0), 0)
             self.assertIsNotNone(row["MostGamesPlayedName"])
+            self.assertEqual(row["MostGamesPlayed"], oracle.get("MostGamesPlayed"))
             self.assertIsNone(row.get("LongestWinningStreak"))
         finally:
             conn.close()

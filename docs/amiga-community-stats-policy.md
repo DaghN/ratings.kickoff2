@@ -42,7 +42,7 @@ They are **not** Hall of Fame record holders, **not** player career rows, and **
 | **C9** | **Metric registry** | `metric_key` values come from a **code registry** (Python + PHP manifest), not ad-hoc strings in writers. Policy defines **shape**, not the metric catalog |
 | **C10** | **Slice axes** | `slice_type` + `slice_key` identify breakdown dimensions (host country, player nationality, realm-wide within a slice family, event class, …). Registry in implementation plan; policy locks the **column pattern** only |
 | **C11** | **Period buckets** | `period_type` + `period_key` identify time grouping. Calendar **year** uses `YEAR(tournaments.event_date)` — same rule as [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) **H1** (NULL `event_date` excluded). Additional period types (e.g. month) require an explicit policy addendum |
-| **C12** | **Stored-truth reads** | Activity hub, APIs, and time-travel surfaces read **materialized** community tables. Raw game scans acceptable only for throwaway probes or rebuild oracles |
+| **C12** | **Stored-truth reads** | Activity hub, APIs, and time-travel surfaces read **materialized** community tables. Raw game scans acceptable only for throwaway probes or **verify** oracles (not batch writers) |
 | **C13** | **No metric v1 list in policy** | Which charts and metrics ship first is **implementation plan** scope, not this document |
 
 ---
@@ -156,7 +156,7 @@ New axes require policy addendum if they change counting rules or period semanti
 5. UPDATE amiga_community_stats id=1 from headline snapshot row E
 ```
 
-**Batch replay:** each tournament finalize performs steps 2–5 — no end-of-replay-only community rebuild on the sign-off path. A **repair oracle** CLI may full-recompute for parity (same class as `generalstats-rebuild` today).
+**Batch replay:** each tournament finalize performs steps 2–5 — no end-of-replay-only community rebuild on the sign-off path. Wrong derived state → **`prove`** ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)).
 
 **Refinalize tournament *T*:** rewrite community snapshot and facts at *T*, recompute forward anchors for later tournaments (same class of problem as realm snapshot refinalize).
 

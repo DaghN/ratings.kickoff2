@@ -25,15 +25,7 @@ from scripts.amiga.import_prune import (
 from scripts.amiga.prove import run_prove
 from scripts.amiga.replay import run_replay
 from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
-from scripts.amiga.player_matchup_summary import run_matchup_rebuild
-from scripts.amiga.server_records import run_generalstats_rebuild
-from scripts.amiga.performance_rating import run_performance_rating_rebuild
-from scripts.amiga.player_tournament_participation import (
-    run_participation_rebuild,
-    run_participation_refresh_tournament,
-)
-from scripts.amiga.rebuild_event_snapshots import run_rebuild_event_snapshots
-from scripts.amiga.tournament_catalog_stats import run_catalog_stats_rebuild
+from scripts.amiga.player_tournament_participation import run_participation_refresh_tournament
 from scripts.amiga.tournament_builder import main as tournament_builder_main
 from scripts.amiga.tournament_format import main as tournament_format_main
 from scripts.amiga.tournament_fixtures import main as tournament_fixtures_main
@@ -435,25 +427,6 @@ def main(argv: list[str] | None = None) -> int:
     p_marathons.add_argument("--min-players", type=int, default=4)
     p_marathons.add_argument("--out", type=Path, default=None)
 
-    p_catalog = sub.add_parser(
-        "catalog-stats-rebuild",
-        help="Rebuild amiga_tournament_catalog_stats (tournament index aggregates)",
-    )
-    p_catalog.add_argument("--dry-run", action="store_true")
-
-    p_performance = sub.add_parser(
-        "performance-rating-rebuild",
-        help="Recompute amiga_rating_events.performance_rating from amiga_game_ratings",
-    )
-    p_performance.add_argument("--tournament-id", type=int, default=None)
-    p_performance.add_argument("--dry-run", action="store_true")
-
-    p_participation = sub.add_parser(
-        "participation-rebuild",
-        help="Rebuild amiga_player_tournament_participation + totals from standings",
-    )
-    p_participation.add_argument("--dry-run", action="store_true")
-
     p_part_tournament = sub.add_parser(
         "participation-refresh-tournament",
         help="Incremental participation + totals for one tournament (live finalize hook)",
@@ -465,24 +438,6 @@ def main(argv: list[str] | None = None) -> int:
         help="Standings/catalog already refreshed (PHP finalize path)",
     )
     p_part_tournament.add_argument("--dry-run", action="store_true")
-
-    p_event_snapshots = sub.add_parser(
-        "rebuild-event-snapshots",
-        help="Rebuild amiga_player_event_snapshots + amiga_player_current from history",
-    )
-    p_event_snapshots.add_argument("--dry-run", action="store_true")
-
-    p_matchup = sub.add_parser(
-        "matchup-rebuild",
-        help="Rebuild amiga_player_matchup_summary from amiga_games",
-    )
-    p_matchup.add_argument("--dry-run", action="store_true")
-
-    p_generalstats = sub.add_parser(
-        "generalstats-rebuild",
-        help="Rebuild amiga_generalstats row id=1 (server hall-of-fame)",
-    )
-    p_generalstats.add_argument("--dry-run", action="store_true")
 
     p_honours = sub.add_parser(
         "honours-parity-sample",
@@ -769,27 +724,6 @@ def main(argv: list[str] | None = None) -> int:
             marathon_argv.extend(["--out", str(args.out)])
         return audit_suspicious_marathons_main(marathon_argv)
 
-    if args.cmd == "catalog-stats-rebuild":
-        run_catalog_stats_rebuild(dry_run=args.dry_run)
-        return 0
-
-    if args.cmd == "performance-rating-rebuild":
-        updated = run_performance_rating_rebuild(
-            tournament_id=args.tournament_id,
-            dry_run=args.dry_run,
-        )
-        log.info("performance-rating-rebuild complete: rating_events=%s", updated)
-        return 0
-
-    if args.cmd == "participation-rebuild":
-        participation_rows, totals_rows = run_participation_rebuild(dry_run=args.dry_run)
-        log.info(
-            "participation-rebuild complete: participation=%s totals=%s",
-            participation_rows,
-            totals_rows,
-        )
-        return 0
-
     if args.cmd == "participation-refresh-tournament":
         part_rows, totals_players = run_participation_refresh_tournament(
             args.tournament_id,
@@ -802,21 +736,6 @@ def main(argv: list[str] | None = None) -> int:
             part_rows,
             totals_players,
         )
-        return 0
-
-    if args.cmd == "rebuild-event-snapshots":
-        stats = run_rebuild_event_snapshots(dry_run=args.dry_run)
-        log.info("rebuild-event-snapshots complete: %s", stats)
-        return 0
-
-    if args.cmd == "matchup-rebuild":
-        rows = run_matchup_rebuild(dry_run=args.dry_run)
-        log.info("matchup-rebuild complete: rows=%s", rows)
-        return 0
-
-    if args.cmd == "generalstats-rebuild":
-        patch = run_generalstats_rebuild(dry_run=args.dry_run)
-        log.info("generalstats-rebuild complete: GamesPlayed=%s", patch.get("GamesPlayed"))
         return 0
 
     if args.cmd == "honours-parity-sample":

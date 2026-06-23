@@ -145,13 +145,13 @@ import (ground only)  →  python -m scripts.amiga replay
 - **Rating authority:** Python replay + `amiga_player_event_snapshots` event rating columns — never legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Batch rebuild commands (sign-off):**
+**Derived sign-off (L5 + verify):**
 
 ```bash
 python -m scripts.amiga prove   # nuclear reset + replay + verify (only supported path)
 ```
 
-Step-by-step equivalent: `import --recreate-schema` → `replay` → verify CLIs. Wrong derived state → **`prove` again**, not repair jobs. Incremental `import` / manual `014–023` are archived — [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).
+Step-by-step equivalent: `import --recreate-schema` → `replay` → verify CLIs. Wrong derived state → **`prove` again**, not repair jobs. **Derived write policy:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Incremental `import` / manual `014–023` are archived — [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).
 
 Full `replay` (~27k games): **~180s local** (Jun 2026) — each tournament finalize writes `amiga_game_ratings`, snapshots/current, matchup at-event + summary, and network/peaks from cumulative pairs. No end-of-replay tail batches.
 
@@ -205,12 +205,12 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_player_tournament_participation` | Derived | **Retired slice 8** — event-local block on snapshots | Retired |
 | `amiga_player_tournament_totals` | Derived | **Retired slice 8** — honours on `amiga_player_current` | Retired |
 | `amiga_tournament_standings` | Derived | Per-tournament finalize (`rebuild_standings_for_tournament`) or standings rebuild on result entry | Active |
-| `amiga_tournament_catalog_stats` | Derived | Replay / `catalog-stats-rebuild` (batch); PHP catalog refresh per finalize/post-game | Active |
+| `amiga_tournament_catalog_stats` | Derived | Tournament finalize / `replay` (`refresh_catalog_stats_for_tournament`) | Active |
 | `amiga_tournament_finish_override` | **L3 witness** (curated) | Manual import / ops; Tier E historical claims. DDL `sql/ground/002_tournament_finish_override.sql` | Active |
 | `amiga_player_matchup_at_event` | Derived | Tournament finalize — cumulative directed pair stats (+ SCH-031 extremes) as of each participated event. Read: future Opponents wing at cutoff | **Active** |
-| `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary`); repair: `matchup-rebuild` CLI. SCH-031 goal extremes. Read: future Opponents wing | **Active** |
+| `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary`); SCH-031 goal extremes. Read: future Opponents wing | **Active** |
 | `amiga_realm_snapshots` | Derived | Tournament finalize / `replay` — full HoF record-book payload per finalized event. Policy [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md). Realm headline totals on community stats (`035` dropped legacy aggregate cols) | **Active** |
-| `amiga_generalstats` | Derived | Tournament finalize / `replay` — present projection (latest realm snapshot). Ratio leaders on row. Read: `/amiga/hall-of-fame.php`. Repair: `generalstats-rebuild` oracle only | **Active** |
+| `amiga_generalstats` | Derived | Tournament finalize / `replay` — present projection (latest realm snapshot). Ratio leaders on row. Read: `/amiga/hall-of-fame.php` | **Active** |
 | `amiga_community_stats` | Derived | Tournament finalize / `replay` — present headline community scalars (`id = 1`). Policy [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | **Active** |
 | `amiga_community_stats_snapshots` | Derived | Tournament finalize / `replay` — headline scalars per finalized `tournament_id` | **Active** |
 | `amiga_community_stat_facts` | Derived | Tournament finalize / `replay` — period × slice × metric facts per `tournament_id` | **Active** |
@@ -309,7 +309,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
   - `players create --name TEXT [--country TEXT] [--dry-run]` — insert one ground-truth player row (`display=1` by default). Refuses identity/exact collisions. Does **not** create `tournament_entrants`; register entrants separately via `fixtures add-entrant` or atomically via `fixtures onboard-newcomer`.
 - Player creation for live events can be separate (`players create`) or combined with entrant registration (`fixtures onboard-newcomer`). `fixtures replace-entrant` still refuses to create players.
 
-**Tournament index (`/amiga/tournaments.php`):** read **`amiga_tournament_catalog_stats`** only — one row per tournament (`game_count`, `standing_players`, `league_scopes`, `knockout_ties`). Do **not** aggregate `amiga_games` × `amiga_tournament_standings` at page load (cartesian explosion). Rebuild: `python -m scripts.amiga catalog-stats-rebuild` or full `replay`.
+**Tournament index (`/amiga/tournaments.php`):** read **`amiga_tournament_catalog_stats`** only — one row per tournament (`game_count`, `standing_players`, `league_scopes`, `knockout_ties`). Do **not** aggregate `amiga_games` × `amiga_tournament_standings` at page load (cartesian explosion). Populated by tournament finalize / `replay`.
 
 ### Tournament standings rules (Track B v1)
 

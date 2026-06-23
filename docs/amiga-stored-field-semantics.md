@@ -165,7 +165,7 @@ New stored id/date field → add a row here → ship `test_*` or `verify_*` befo
 
 | When | What |
 |------|------|
-| 2026-06 | Phase D — `verify-php-finalize-parity` **retired** with refinalize; repair = `prove` only |
+| 2026-06 | Phase D — `verify-php-finalize-parity` **retired** with refinalize; batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); corrections = `prove` only |
 | 2026-06 | Phase C — `verify_stored_id_date_pairs` in `prove`; P4–P6 closed |
 | 2026-06 | Phase B — `verify_hof_holder_projection` in `prove`; game + ratio + career source-field checks |
 | 2026-06 | SCH-030 — ten career HoF rows moved to rise-style dates; verify index updated |

@@ -1,6 +1,6 @@
 -- Tournament index aggregates for /amiga/tournaments.php (derived; no hot-path scans).
 -- Apply after 003: mysql ko2amiga_db < scripts/amiga/sql/004_tournament_catalog_stats.sql
--- Populate: python -m scripts.amiga replay  (or catalog-stats-rebuild)
+-- Populate: python -m scripts.amiga prove  (or replay)
 
 SET time_zone = '+00:00';
 

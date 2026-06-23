@@ -1,6 +1,7 @@
 # Amiga standings scope unification — implementation plan (agent slices)
 
 **Status:** **Complete** — slices 0–7 shipped Jun 2026.  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Slice notes may name removed commands historically; **corrections = `prove` only**.  
 **Policy (locked):** [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) Tier B/C
 
@@ -172,7 +173,7 @@ Implement `resolve_primary_league_standings()` per policy §3; wire Tier B/C; PH
 - [ ] `derive_event_finish_position()` routing uses resolver
 - [ ] PHP: `amiga_participation_overall_positions()` → resolver or rename `amiga_participation_primary_league_positions()`
 - [ ] Unit tests: NULL-phase league; single `League Stage`; multi-scope pick largest; Athens 22-style group-only league+cup Tier B spot case
-- [ ] `python -m scripts.amiga participation-rebuild`
+- [x] ~~`participation-rebuild`~~ — retired Jun 2026; slice used historical CLI; corrections = `prove`
 
 ### Verification
 
@@ -227,7 +228,7 @@ Tooling speaks `league`; guards prevent regression.
 
 ### Verification
 
-- [x] `python -m scripts.amiga catalog-stats-rebuild`
+- [x] ~~`catalog-stats-rebuild`~~ (retired Jun 2026) — historical slice 5
 - [x] `python -m scripts.amiga verify-player-participation`
 
 ---
@@ -288,7 +289,7 @@ Policy **Implemented**; registers updated.
 | DB | `ko2amiga_db` |
 | MySQL | `C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe` |
 | PHP CLI | `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe` |
-| Rebuild participation | `python -m scripts.amiga participation-rebuild` |
+| Corrections | `python -m scripts.amiga prove` |
 | Full replay | `python -m scripts.amiga replay` |
 
 ---

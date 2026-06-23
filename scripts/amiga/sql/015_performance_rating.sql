@@ -1,7 +1,6 @@
 -- Event performance rating (chess-style TPR) on rating events + participation denorm.
 -- Apply: mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
--- Backfill: python -m scripts.amiga performance-rating-rebuild
---            python -m scripts.amiga participation-rebuild
+-- Backfill: python -m scripts.amiga prove
 
 SET time_zone = '+00:00';
 

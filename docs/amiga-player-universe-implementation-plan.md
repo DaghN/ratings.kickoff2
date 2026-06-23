@@ -1,6 +1,7 @@
 # Amiga player universe — implementation plan (agent slices)
 
 **Status:** Complete (Jun 2026). Slices 0–14 shipped; STOP gates A–G passed (E/F/G signed off by owner).  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Slice notes may name removed commands historically; **corrections = `prove` only**.  
 **Contract (authority):** [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)  
 **Out of scope for this track:** online-style milestones, match streaks, calendar play streaks, UTC league honours, Tier C activity (`player_period_games`), leaderboard wings Tier A (separate track in [`amiga-realm-vision.md`](amiga-realm-vision.md) §7 Phase A).
 
@@ -194,7 +195,7 @@ Slice 1.
   2. `rebuild_all_participation_totals`
   3. (keep existing `rebuild_all_catalog_stats`)
 - [x] `clear_derived` already clears new tables (slice 0)
-- [x] `python -m scripts.amiga participation-rebuild` CLI (optional alias) mirroring `catalog-stats-rebuild`
+- [x] ~~`participation-rebuild`~~ CLI (retired Jun 2026) — historical slice 2 deliverable
 
 ### Verification — **STOP GATE A**
 
@@ -373,7 +374,7 @@ python -m scripts.amiga verify-player-participation
 - [x] Wire schema + `clear_derived` + drop order
 - [x] `scripts/amiga/player_matchup_summary.py` — port pattern from `scripts/ladder/sql/archive/batch-2026-05/player_matchup_summary_rebuild.sql` using `amiga_games`
 - [x] `replay.py`: after participation totals, `rebuild_all_matchup_summary`
-- [x] CLI `matchup-rebuild`
+- [x] ~~CLI `matchup-rebuild`~~ (retired Jun 2026)
 
 ### Verification
 
@@ -553,7 +554,7 @@ Shipped after player-universe slice 14 closure (tournament history page + WC dis
 ```powershell
 # On DBs that already have participation with `points` column:
 mysql ko2amiga_db < scripts/amiga/sql/014_participation_event_points.sql
-python -m scripts.amiga participation-rebuild
+python -m scripts.amiga prove
 python -m scripts.amiga verify-player-participation
 ```
 

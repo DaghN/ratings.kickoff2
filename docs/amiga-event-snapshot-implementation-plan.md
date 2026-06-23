@@ -1,6 +1,7 @@
 # Amiga event snapshots — implementation plan
 
 **Status:** **Complete** (Jun 2026).  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Slice notes may name removed commands historically; **corrections = `prove` only**.  
 **Policy:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md)
 
@@ -164,16 +165,16 @@ Populate snapshots + current for entire catalog from replay/finalize chain.
 
 ### Tasks
 
-- [x] `scripts/amiga/rebuild_event_snapshots.py` — clear + chronological replay; incremental honours; network counts through tournaments-so-far
+- [x] `rebuild_event_snapshots.py` — historical bulk path (module + CLI retired Jun 2026; finalize loop is sign-off)
 - [x] `snapshot_persist.py` — optional in-memory honours/prior-best/event-games (backfill path)
-- [x] `replay.py` — after participation totals, `rebuild_all_event_snapshots`
-- [x] `refinalize.py` — participation rebuild + snapshot rebuild after refinalize-from
-- [x] CLI `python -m scripts.amiga rebuild-event-snapshots`
+- [x] `replay.py` — finalize persists event snapshots per tournament (no tail batch)
+- [x] ~~`refinalize.py`~~ — refinalize track retired Jun 2026
+- [x] ~~CLI `rebuild-event-snapshots`~~ — retired Jun 2026
 
 ### Verification
 
 ```powershell
-python -m scripts.amiga rebuild-event-snapshots
+python -m scripts.amiga prove
 python -m scripts.amiga verify-rating-events
 ```
 

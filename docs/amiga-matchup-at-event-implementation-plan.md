@@ -1,9 +1,10 @@
 # Amiga cumulative matchup at event — implementation plan
 
 **Status:** Complete (slices 0–6, Jun 2026).  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). **Corrections = `prove` only**.  
 **Policy:** [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md)
 
-**Goal:** Finalize-only pairwise + network truth; remove replay tail batches (`commit_heavy` network, `matchup-rebuild`, `catalog-stats-rebuild`, `generalstats` rebuild).
+**Goal:** Finalize-only pairwise + network truth; remove replay tail batches (`commit_heavy` network, bulk `*-rebuild` CLIs — all retired Jun 2026).
 
 ---
 
@@ -53,7 +54,7 @@ Remove from `replay.py` / `refinalize.py`:
 - `rebuild_all_catalog_stats`
 - `rebuild_generalstats` (HoF later)
 
-Keep `matchup-rebuild` CLI as **repair oracle** only (document as non-sign-off).
+Verify oracles only — no batch matchup writer CLI ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)).
 
 ---
 

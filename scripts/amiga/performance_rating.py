@@ -152,30 +152,3 @@ def backfill_performance_ratings(
     conn.commit()
     log.info("backfill_performance_ratings: updated %s rating events", len(updates))
     return len(updates)
-
-
-def run_performance_rating_rebuild(
-    *,
-    tournament_id: int | None = None,
-    dry_run: bool = False,
-) -> int:
-    cfg = load_amiga_db_config()
-    conn = pymysql.connect(
-        host=cfg.host,
-        port=cfg.port,
-        user=cfg.user,
-        password=cfg.password,
-        database=cfg.database,
-        charset="utf8mb4",
-        cursorclass=DictCursor,
-    )
-    try:
-        with conn.cursor() as cur:
-            cur.execute("SET time_zone = '+00:00'")
-        return backfill_performance_ratings(
-            conn,
-            tournament_id=tournament_id,
-            dry_run=dry_run,
-        )
-    finally:
-        conn.close()

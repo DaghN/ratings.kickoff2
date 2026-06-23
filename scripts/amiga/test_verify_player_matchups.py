@@ -35,7 +35,7 @@ class VerifyPlayerMatchupsTests(unittest.TestCase):
                 cur.execute("SELECT COUNT(*) AS n FROM amiga_player_matchup_summary")
                 row_count = int(cur.fetchone()["n"])
             if row_count == 0:
-                self.skipTest("matchup summary empty — run replay or matchup-rebuild first")
+                self.skipTest("matchup summary empty — run prove or replay first")
 
             errors = verify_player_matchups(conn)
             self.assertEqual(errors, [], errors)

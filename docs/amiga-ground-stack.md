@@ -125,6 +125,8 @@ replay              # L3 (+ L4) → L5
 verify suite
 ```
 
+**L5 derived writes:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) — `prove` / finalize only; batch `*-rebuild` CLIs retired Jun 2026.
+
 Entry from a **promoted** artefact (future):
 
 ```text

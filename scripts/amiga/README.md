@@ -64,7 +64,7 @@ python -m scripts.amiga run
 # Finalize one tournament (frozen Elo — see docs/amiga-tournament-finalize-rating-contract.md):
 python -m scripts.amiga finalize-tournament --tournament-id=N
 
-# Corrections / derived repair (full rebuild):
+# Corrections / derived state (full L1→L5 loop):
 python -m scripts.amiga prove
 
 # Step by step (same as prove without verify; --recreate-schema runs L1→L2→L3→L4):
@@ -81,12 +81,7 @@ python -m scripts.amiga verify-tournament-formats
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga audit-catalog-dates
 
-# Batch derived rebuild + verify (oracle):
-python -m scripts.amiga replay
-python -m scripts.amiga verify-chronology
-python -m scripts.amiga verify-rating-events
-python -m scripts.amiga verify-player-participation
-python -m scripts.amiga verify-player-matchups
+# Derived write policy (no batch *-rebuild CLIs): docs/amiga-derived-write-policy.md
 
 # Full replay (~27k games, ~65s local Jun 2026): shared in-memory players across tournaments;
 # each finalize writes amiga_game_ratings + amiga_player_event_snapshots + amiga_player_current.
@@ -156,7 +151,7 @@ python -m scripts.amiga replay   # Elo + standings
 
 ```powershell
 mysql ko2amiga_db < scripts/amiga/sql/004_tournament_catalog_stats.sql
-python -m scripts.amiga catalog-stats-rebuild   # or full replay
+python -m scripts.amiga prove   # catalog stats written at each finalize
 ```
 
 **Tournament format foundation** (legacy imports + future format templates):
@@ -207,19 +202,16 @@ Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-
 # Full stack is rebuilt by replay (after standings):
 # snapshots + current → matchup_summary → generalstats → catalog_stats
 
-# Sign-off (preferred):
+# Sign-off (only supported derived write path):
 python -m scripts.amiga prove
 
-# Realm snapshots: incremental at each finalize (prior row + tournament delta).
-# Full rescan oracle — repair / verify only:
-python -m scripts.amiga generalstats-rebuild
+# Verify only (read-only oracles — do not write derived tables):
 python -m scripts.amiga verify-realm-snapshots
 python -m scripts.amiga verify-community-stats
 python -m scripts.amiga verify-php-community-parity
 
-# Standalone repair (idempotent):
-python -m scripts.amiga rebuild-event-snapshots   # snapshots + current from finalized history
-python -m scripts.amiga matchup-rebuild
+# Derived write policy: docs/amiga-derived-write-policy.md
+# Wrong derived state → prove again (no batch *-rebuild CLIs).
 
 # Parity gates (player universe contract §8):
 python -m scripts.amiga verify-player-participation

@@ -29,7 +29,7 @@ Amiga head-to-head truth moves from **end-of-replay bulk SQL** to **tournament f
 | **M2** | **Sparse participants** | Write at-event rows only for **players with ≥1 game in E**; one row per opponent they have **ever** faced through E |
 | **M3** | **Present = summary** | Hot reads (future Opponents wing) use `amiga_player_matchup_summary`; no live scan of `amiga_games` |
 | **M4** | **Network from pairs** | `different_opponents` = pair count; `different_victims` = pairs with `wins > 0`; culprits/DD/CS variants per column rules in §4 |
-| **M5** | **No end-of-replay batch** | `replay` / `prove` must not call `matchup-rebuild` or network rescan; finalize writes everything |
+| **M5** | **No end-of-replay batch** | `replay` / `prove` must not call bulk derived repair CLIs; finalize writes everything ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)) |
 | **M6** | **Peaks incremental** | `PeakRating` / `LowestRating` updated at each finalize from `rating_after` (no `commit_heavy` patch) |
 | **M7** | **HoF deferred** | `amiga_generalstats` end-of-replay rebuild removed from holy loop until realm-snapshot slice |
 | **M8** | **Catalog per finalize** | `amiga_tournament_catalog_stats` already refreshed per tournament; drop `rebuild_all_catalog_stats` tail |

@@ -346,7 +346,7 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 
 **Verify (`verify-player-participation`):** snapshot event-local games rollup vs `amiga_games`; rating identity on snapshots.
 
-**Sign-off:** `python -m scripts.amiga prove` — not legacy `participation-rebuild`.
+**Sign-off:** `python -m scripts.amiga prove` only — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md).
 
 **Read-path rule:** Profile tournament blocks and “events played” APIs read **`amiga_player_event_snapshots`**. Rating chart uses the same table’s event rating block.
 
@@ -398,7 +398,7 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 **Writer (Jun 2026):**
 
 - **Tournament finalize:** `MatchupCumulative` applies games in event; `persist_matchup_at_event` + `upsert_matchup_summary`; network scalars on snapshots/current derived from pair counts (not per-game sets, not end-of-replay rescan).
-- **Repair oracle:** `matchup-rebuild` CLI — bulk SQL from games; **not** sign-off path.
+- **Verify:** `verify-player-matchups` in `prove` — read-only oracle; no batch writer CLI.
 
 **Policy:** [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md).
 
@@ -418,7 +418,7 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 
 **Exclude:** longest match streaks, longest play-day/week streaks.
 
-**Writer:** `scripts/amiga/server_records.py` — **realm snapshot track** ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md)): full row at each tournament finalize → `amiga_realm_snapshots` + `amiga_generalstats`. Ratio leaders persisted on row (not live SQL). Repair: `generalstats-rebuild` CLI oracle only.
+**Writer:** `scripts/amiga/server_records.py` — **realm snapshot track** ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md)): full row at each tournament finalize → `amiga_realm_snapshots` + `amiga_generalstats`. Ratio leaders persisted on row (not live SQL). Verify: `build_generalstats_payload` in `verify-realm-snapshots` only.
 
 ---
 
@@ -478,7 +478,7 @@ Global `amiga_player_current.Rating` and snapshot event rating block commit at *
      → in-memory PlayerState + MatchupCumulative carry forward
 ```
 
-No post-replay tail batches for matchup, network, catalog, or realm. **`generalstats-rebuild`** = repair oracle only ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) R10).
+No post-replay tail batches for matchup, network, catalog, or realm. Corrections = **`prove`** ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)).
 
 Steps 2 are idempotent. They must not mutate ground truth.
 
@@ -550,8 +550,8 @@ Python modules:
 | `scripts/amiga/player_tournament_participation.py` | games-driven rebuild + WC medal refresh + live finalize hook |
 | `scripts/amiga/matchup_cumulative.py` | in-memory pair totals + network derive |
 | `scripts/amiga/matchup_persist.py` | at-event persist + summary upsert |
-| `scripts/amiga/player_matchup_summary.py` | bulk H2H rebuild (repair oracle) |
-| `scripts/amiga/server_records.py` | `amiga_generalstats` rebuild |
+| `scripts/amiga/player_matchup_summary.py` | H2H upsert at finalize + verify oracle helpers |
+| `scripts/amiga/server_records.py` | HoF payload oracle + realm persist helpers |
 | `scripts/amiga/verify_player_participation.py` | participation + totals parity |
 | `scripts/amiga/verify_player_matchups.py` | H2H parity |
 | `scripts/amiga/replay.py` | tournament-order finalize loop (no tail batches) |
@@ -589,8 +589,8 @@ Merged into [`amiga-data-contract.md`](amiga-data-contract.md) table register (J
 |-------|-------|--------|--------|
 | `amiga_player_event_snapshots` | Derived | `replay` / `finalize_tournament` | **Active** |
 | `amiga_player_current` | Derived | same (present projection) | **Active** |
-| `amiga_player_matchup_summary` | Derived | `replay` / `matchup-rebuild` | **Active** |
-| `amiga_generalstats` | Derived | `replay` / `generalstats-rebuild` | **Active** |
+| `amiga_player_matchup_summary` | Derived | `replay` / finalize | **Active** |
+| `amiga_generalstats` | Derived | `replay` / finalize | **Active** |
 | `amiga_player_tournament_participation` | Derived | — | **Retired** slice 8 |
 | `amiga_player_tournament_totals` | Derived | — | **Retired** slice 8 |
 | `amiga_player_stats` | Derived | — | **Retired** slice 8 |

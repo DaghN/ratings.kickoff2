@@ -182,11 +182,3 @@ def rebuild_all_matchup_summary(
         )
     log.info("amiga_player_matchup_summary: %s rows, SUM(games)=%s", written, games_sum)
     return written
-
-
-def run_matchup_rebuild(*, dry_run: bool = False) -> int:
-    conn = _connect()
-    try:
-        return rebuild_all_matchup_summary(conn, dry_run=dry_run)
-    finally:
-        conn.close()

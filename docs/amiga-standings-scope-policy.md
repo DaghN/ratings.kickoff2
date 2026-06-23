@@ -129,7 +129,7 @@ Tier B/C wording updated in [`amiga-tournament-honours-rules.md`](amiga-tourname
 | Athens XCII (24) | One `league` scope, `scope_key = ''`; 5 rows |
 | Athens XCI (22) | `league` + `League Stage`; no `overall`/`group` types |
 | Row counts | 5544 `league` + 2320 `knockout` post-replay (7864 total; was overall+group+knockout) |
-| `participation-rebuild` | `event_finish_position` unchanged for spot ids 22, 24, 544 |
+| `verify-player-participation` after `prove` | `event_finish_position` unchanged for spot ids 22, 24, 544 |
 | Full verify suite | Pass after slice 6 |
 | Browser | `/amiga/tournament.php?id=24` and `id=22` sane tabs/standings |
 

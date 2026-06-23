@@ -1,4 +1,4 @@
-"""Rebuild amiga_generalstats row id=1 (server hall-of-fame, no streak records)."""
+"""Realm / HoF record oracle and persist helpers (verify + finalize path)."""
 
 from __future__ import annotations
 
@@ -14,7 +14,6 @@ from scripts.amiga.realm_cutoff import (
     RealmCutoff,
     cutoff_params,
     game_cutoff_sql,
-    latest_finalized_tournament_id,
     load_realm_cutoff,
 )
 
@@ -628,7 +627,7 @@ def build_generalstats_payload(
     *,
     as_of_tournament_id: int | None = None,
 ) -> dict[str, Any]:
-    """Full-history rescan oracle (verify / generalstats-rebuild)."""
+    """Full-history rescan oracle (verify only — see amiga-derived-write-policy.md)."""
     from scripts.amiga.realm_incremental import (
         _career_holders_from_player_rows,
         _player_count_stats_sql_cutoff,
@@ -670,58 +669,3 @@ def write_generalstats_row(
             list(patch.values()),
         )
     log.info("amiga_generalstats id=1 updated (%s fields)", len(patch))
-
-
-def clear_generalstats(conn: pymysql.connections.Connection, *, dry_run: bool = False) -> None:
-    with conn.cursor() as cur:
-        cur.execute("SELECT COUNT(*) AS n FROM amiga_generalstats WHERE id = 1")
-        n = int(cur.fetchone()["n"])
-    log.info("clear_generalstats: row id=1 present=%s", n > 0)
-    if dry_run or n == 0:
-        return
-    nullables = list(GENERALSTATS_PAYLOAD_COLUMNS)
-    sets = ", ".join(f"`{col}` = NULL" for col in nullables)
-    with conn.cursor() as cur:
-        cur.execute(f"UPDATE amiga_generalstats SET {sets} WHERE id = 1")
-    conn.commit()
-
-
-def rebuild_generalstats(
-    conn: pymysql.connections.Connection,
-    *,
-    dry_run: bool = False,
-    as_of_tournament_id: int | None = None,
-) -> dict[str, Any]:
-    with conn.cursor() as cur:
-        cur.execute("SELECT COUNT(*) AS n FROM amiga_generalstats WHERE id = 1")
-        if int(cur.fetchone()["n"]) == 0:
-            raise RuntimeError("amiga_generalstats has no id=1 row — apply 013_generalstats.sql")
-
-    if dry_run:
-        return {"dry_run": True}
-
-    if as_of_tournament_id is None:
-        as_of_tournament_id = latest_finalized_tournament_id(conn)
-
-    clear_generalstats(conn, dry_run=False)
-    if as_of_tournament_id is None:
-        patch: dict[str, Any] = {}
-    else:
-        patch = build_generalstats_payload(conn, as_of_tournament_id=as_of_tournament_id)
-    write_generalstats_row(conn, patch)
-    conn.commit()
-    log.info(
-        "rebuild_generalstats: tournament_id=%s GamesPlayed=%s MostGamesPlayed=%s",
-        as_of_tournament_id,
-        patch.get("GamesPlayed"),
-        patch.get("MostGamesPlayed"),
-    )
-    return patch
-
-
-def run_generalstats_rebuild(*, dry_run: bool = False) -> dict[str, Any]:
-    conn = _connect()
-    try:
-        return rebuild_generalstats(conn, dry_run=dry_run)
-    finally:
-        conn.close()

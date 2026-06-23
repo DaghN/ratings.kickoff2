@@ -702,15 +702,3 @@ def run_participation_refresh_tournament(
     finally:
         conn.close()
 
-
-def run_participation_rebuild(*, dry_run: bool = False) -> tuple[int, int]:
-    conn = _connect()
-    try:
-        if not dry_run:
-            backfill_performance_ratings(conn)
-        participation_rows = rebuild_all_participation(conn, dry_run=dry_run)
-        totals_rows = rebuild_all_participation_totals(conn, dry_run=dry_run)
-        return participation_rows, totals_rows
-    finally:
-        conn.close()
-

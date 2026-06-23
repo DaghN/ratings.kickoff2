@@ -65,10 +65,11 @@ Do **not** store on `amiga_tournament_standings` (phase-scoped, multiple rows pe
 **Writer order:**
 
 1. `finalize_tournament` — after per-game `amiga_game_ratings`, before/with rating event insert (Python + PHP ops)
-2. `performance-rating-rebuild` — recompute all events from stored game rows (migration / repair)
-3. `participation-rebuild` — copies from `amiga_rating_events` (runs backfill first on full rebuild)
+2. Full **`replay`** / **`prove`** — same finalize loop for all events (no batch repair CLI)
 
 **Verify:** `verify-player-participation` — participation `performance_rating` must match `amiga_rating_events` when either side is non-NULL.
+
+**Derived writes:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md).
 
 ---
 
@@ -91,8 +92,7 @@ When the games tab filters to a **single tournament**, the list perf should matc
 
 ```powershell
 mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
-python -m scripts.amiga performance-rating-rebuild
-python -m scripts.amiga participation-rebuild
+python -m scripts.amiga prove
 python -m scripts.amiga verify-player-participation
 ```
 

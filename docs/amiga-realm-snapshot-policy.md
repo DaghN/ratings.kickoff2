@@ -37,7 +37,7 @@ Amiga **realm-wide** derived truth is a **sparse timeline**: one **complete** `a
 | **R7** | **No streak records** | Amiga product omits match-streak and play-streak HoF columns — unchanged from [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.5 |
 | **R8** | **Tie policy** | Career / single-game record beats: **strict `>`** on value to replace holder; equal value → **lowest `player_id` wins**. Ratio leaders: same eligible pool (`NumberGames >= k2_established_min_games()`), order by metric then `player_id ASC` |
 | **R9** | **Compute scope at finalize** | Realm row at event *E* = scan **all rated games and player state through chrono ≤ *E*** (same semantic as batch `server_records.py` today, scoped to cutoff). Incremental carry-forward optimizations allowed if verify proves parity |
-| **R10** | **No replay tail batch** | `python -m scripts.amiga prove` must not depend on post-replay `generalstats-rebuild`. CLI remains **repair oracle** only |
+| **R10** | **No replay tail batch** | `python -m scripts.amiga prove` must not depend on post-replay batch derived writers. Corrections = full `prove` ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)) |
 | **R11** | **WC medals panel** | World Cup gold/silver/bronze leaders on `/amiga/hall-of-fame.php` stay **out of** `amiga_generalstats` / realm snapshots until a separate decision — honours live on player snapshots/current today |
 
 ---
@@ -128,9 +128,8 @@ Index: `(event_date, event_chrono, tournament_id)`.
 |-------|--------|
 | Row count | `COUNT(realm_snapshots)` = count of finalized tournaments in chrono replay |
 | Present parity | `amiga_generalstats` = latest realm snapshot row (all columns) |
-| Batch oracle | One-shot `generalstats-rebuild` after full history **matches** finalize-built present row (repair CLI only) |
+| Verify oracle | `verify-realm-snapshots` — `build_generalstats_payload` matches present row (read-only) |
 | HoF page | Present holders match pre-migration order within tie policy |
-| Aggregates | `GamesPlayed` on latest snapshot = `COUNT(amiga_games)` with ratings |
 
 ---
 

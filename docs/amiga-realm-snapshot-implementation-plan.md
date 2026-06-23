@@ -1,6 +1,7 @@
 # Amiga realm snapshots — implementation plan
 
 **Status:** **Complete** (Jun 2026) — slices **0–8** done; local `prove` green (~5.4 min).  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Slice notes may name removed commands historically; **corrections = `prove` only**.  
 **Policy:** [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)
 
@@ -107,7 +108,7 @@ One function builds the full realm row dict at a tournament cutoff.
   - `build_realm_row` / `persist_realm_snapshot_for_tournament`
   - `compute_server_aggregates`, record holders, ratio leaders at cutoff
 - [x] Unit tests: `test_realm_row.py`, `test_generalstats_columns.py`
-- [x] `generalstats-rebuild` calls `build_generalstats_payload` at latest finalized tournament (repair oracle)
+- [x] `build_generalstats_payload` oracle at latest finalized tournament (verify-realm-snapshots; `generalstats-rebuild` CLI retired Jun 2026)
 
 ### Verification
 
@@ -149,8 +150,8 @@ Full replay produces one realm snapshot per finalized tournament; holy loop does
 
 - [x] Confirm `replay.py` finalize loop persists realm rows (slice 3)
 - [x] No post-loop `run_generalstats_rebuild` on `prove` sign-off path
-- [x] `refinalize.py` — deletes realm snapshots on reopen batch; forward replay rebuilds
-- [x] `generalstats-rebuild` documented as **repair oracle** in `scripts/amiga/README.md`
+- [x] `refinalize.py` — historical (refinalize track retired Jun 2026)
+- [x] Verify oracle documented in `scripts/amiga/README.md` (`generalstats-rebuild` CLI retired Jun 2026)
 
 ### Verification
 

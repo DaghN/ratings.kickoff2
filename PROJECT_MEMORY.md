@@ -58,7 +58,7 @@
 
 - **Amiga stored id/date semantics Phase C (Jun 2026):** **Complete** — `verify_stored_id_date_pairs` in `prove` (rise FK pairing, honours_last / last participation, career-best replay).
 
-- **Amiga stored id/date semantics Phase D (Jun 2026):** **Retired with refinalize** — `verify-php-finalize-parity` removed Jun 2026 ([`archive/retired-amiga-refinalize-2026-06.md`](docs/archive/retired-amiga-refinalize-2026-06.md)); derived repair = `prove` only. Phases A–C (`verify-hof-holder-projection`, `verify-stored-id-date-pairs`, manifest) remain in `prove`.
+- **Amiga stored id/date semantics Phase D (Jun 2026):** **Retired with refinalize** — `verify-php-finalize-parity` removed Jun 2026 ([`archive/retired-amiga-refinalize-2026-06.md`](docs/archive/retired-amiga-refinalize-2026-06.md)); batch `*-rebuild` CLIs retired same era ([`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md)). Phases A–C (`verify-hof-holder-projection`, `verify-stored-id-date-pairs`, manifest) remain in `prove`.
 
 - **Amiga ground layers L0–L5 (Jun 2026):** Slices **1–11 complete** — strict stack shipped (`prove` L1→L5, `verify-l2-l3`). [`amiga-ground-stack.md`](docs/amiga-ground-stack.md).
 
@@ -70,6 +70,8 @@
 - **Amiga World Cups LB (Jun 2026):** **V1 shipped** — Honours · Results · Goals wing; WC extracted from tournament honours + calendar-geo; slice tables + TT. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md).
 
 - **Amiga community stats (Jun 2026):** **Shipped** — `amiga_community_stats` + snapshots + facts; Activity summary; aggregate cols **dropped** from realm/HoF tables (`035`); multi-event + PHP build parity in `prove`. [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md).
+
+- **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
 ---
 
@@ -115,7 +117,9 @@
 |------|------|
 | 2026-06 | **Post-game parity register sweep** — `post-game-contract-vs-oracle-discrepancies.md`: closed false Opens (`play_streak_100`, P7 verify); split `club_*` live Fixed vs batch Deferred; layer 7 superseded by `verify_activity_wing_parity`; DDR-052 + cutover checklist aligned. |
 | 2026-06 | **Milestones docs drift fix** — `milestones-product-spec.md` + `milestones-project.md`: 112/112 keys shipped (removed stale wave-1 ~88 TODO); meta LB wing + hub v2 marked done; Accomplished **%** wing noted as deferred (counts ship today). |
-| 2026-06 | **Amiga community stats hygiene shortlist** — recentering doc before new fact grains; clarifies refinalize/`verify-php-finalize-parity` retirement. [`amiga-community-stats-hygiene-shortlist.md`](docs/amiga-community-stats-hygiene-shortlist.md). |
+| 2026-06 | **Amiga derived-write doc sweep** — live specs/runbooks aligned to prove-only; archive handoffs left historical. Full `prove` green post-CLI retirement. |
+| 2026-06 | **Amiga derived-write Phase 2** — live docs sweep: implementation plans + policy runbooks → `prove` only; SQL header comments updated. |
+| 2026-06 | **Amiga derived-write policy** — retired batch `*-rebuild` CLIs; prove-only corrections. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md). |
 | 2026-06 | **Amiga community stats shipped** — DDL `034`, finalize writers, facts v1 registry, Activity summary, `verify-community-stats` in `prove` (605 snapshots). |
 | 2026-06 | **Amiga community stats policy** — locked hybrid storage (headline snapshots + fact table); [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md). |
 | 2026-06 | **Amiga ground stack doc sweep** — closed stale “planned/gap/target” refs; slices 1–11 consistent across policy, stack, import-layer, README. |

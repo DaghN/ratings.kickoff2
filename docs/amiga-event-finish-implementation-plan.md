@@ -1,10 +1,11 @@
 # Amiga event finish migration — implementation plan (agent slices)
 
 **Status:** **Complete** (Jun 2026) — all slices 0–10 shipped.  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Slice notes may name removed commands historically; **corrections = `prove` only**.  
 **Policy (locked):** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)  
 **Parent track:** [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md) § Event finish migration
 
-**In scope:** Replace legacy `overall_position` with `event_finish_position`, fix honours derivation (podiums, cup medals, wins), populate `best_knockout_phase`, PHP/Python writer parity, UI read paths, verify + rebuild.
+**In scope:** Replace legacy `overall_position` with `event_finish_position`, fix honours derivation (podiums, cup medals, wins), populate `best_knockout_phase`, PHP/Python writer parity, UI read paths, verify + finalize/replay path.
 
 **Out of scope (defer unless user expands):**
 
@@ -222,7 +223,7 @@ Participation rebuild writes `event_finish_position` + `best_knockout_phase`; to
 - [x] `_TOTALS_AGG_SELECT`: podiums, cup_*, tournaments_won per honours rules §4
 - [x] `participation_is_winner` uses new rules
 - [x] `refresh_wc_medals` after participation (unchanged order)
-- [x] Run `python -m scripts.amiga participation-rebuild` — 4517 rows
+- [x] Historical: `participation-rebuild` — 4517 rows (CLI retired Jun 2026)
 
 ### Verification
 
@@ -258,7 +259,7 @@ Live/post-game path matches Python derivation.
 ### Verification
 
 - [x] PHP syntax lint on touched files
-- [x] Python verify suite still passes after another `participation-rebuild`
+- [x] Python verify suite still passes after historical `participation-rebuild` (CLI retired Jun 2026)
 
 ### Files (expected)
 
@@ -308,7 +309,7 @@ Remove legacy column and all code references.
 - [x] Migration `018_drop_overall_position.sql` (or append to 017 if not yet deployed — prefer new file)
 - [x] Remove from `010`, writers, PHP, tests, verify
 - [x] Grep repo for `overall_position` — zero product references (orchestration archives OK)
-- [x] `participation-rebuild` full pass
+- [x] Historical `participation-rebuild` full pass (CLI retired Jun 2026)
 
 ### Verification
 
@@ -376,8 +377,8 @@ Mark policy implemented; registers updated.
 | DB | `ko2amiga_db` |
 | MySQL (Dagh Windows) | `C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe` |
 | PHP CLI | `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe` |
-| Rebuild | `python -m scripts.amiga participation-rebuild` |
-| Full replay | `python -m scripts.amiga replay` (~23s) — only if participation verify fails mysteriously |
+| Corrections | `python -m scripts.amiga prove` |
+| Full replay | `python -m scripts.amiga replay` (~23s) — same finalize loop as prove L5 |
 
 ---
 

@@ -206,7 +206,7 @@ Points / `event_points` suffix rules unchanged (contract §5.2.1).
 | `021b_wc_finish_backfill.sql` | WC participation: `wc_medal` → `event_finish_position` 1/2/3 | **Shipped** slice 2 |
 | `022_drop_wc_medal.sql` | Drop `wc_medal` from participation | **Shipped** slice 6 |
 
-**Rebuild after v2:** `python -m scripts.amiga participation-rebuild` · `verify-player-participation`
+**Corrections after v2 migrations:** `python -m scripts.amiga prove` · `verify-player-participation` ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md))
 
 ---
 

@@ -88,7 +88,7 @@ L0  koatd.mdb
 | **G9** | **Players are games-first in L3** | `amiga_players` built by scanning **all witness games** (from L2 `Scores`) after in-memory name merges — **not** imported from `added_players`. **Nationality** enriched from L2 `witness_player_identity` by name join — **not** from L0/L1 `Rankings` at import time. Missing identity row → empty `country` until L3 correction. |
 | **G10** | **Epistemic gaps are explicit** | Synthetic `game_date` / within-day order is a **replay convention** (manifest), not an Access historical fact. |
 | **G11** | **Sign-off anchor** | Reproducible from **published layer artefacts** at the chosen stop (L2 SQL + prune manifest, or L3 SQL + `import_manifest`, + L4 when present) — **not** from a local `.mdb` path alone. Full L0→L5 sign-off runs the strict chain (stack doc §6). |
-| **G12** | **Strict chain — no side doors** | No `L0 → L3`, no `L1 → L3`, no reading `koatd.mdb` inside `import-witness` / `prove` except the L0→L1 step. Prune semantics live **only** in L2. |
+| **G12** | **Strict chain — no side doors** | No `L0 → L3`, no `L1 → L3`, no reading `koatd.mdb` inside `import-witness` / `prove` except the L0→L1 step. Prune semantics live **only** in L2. L5 derived writes: [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (`prove` only; no batch `*-rebuild` CLIs). |
 
 ---
 

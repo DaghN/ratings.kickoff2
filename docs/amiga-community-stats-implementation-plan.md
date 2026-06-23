@@ -6,7 +6,7 @@
 
 **Execution:** Slices **in order**. Run each slice **Verification** before continuing. **Do not git commit** unless Dagh asks.
 
-**Out of scope for this plan:** full Activity chart panel port (online parity), `community-stats-rebuild` repair CLI, new fact grains beyond v1 registry (spec pass before charts). **Hygiene backlog:** [`amiga-community-stats-hygiene-shortlist.md`](amiga-community-stats-hygiene-shortlist.md).
+**Out of scope for this plan:** full Activity chart panel port (online parity), new fact grains beyond v1 registry (spec pass before charts). **Derived writes:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). **Hygiene:** [`amiga-community-stats-hygiene-shortlist.md`](amiga-community-stats-hygiene-shortlist.md).
 
 **Migration:** **L1+** — new DDL, finalize/replay writers, verify in `prove` → **Part B** at slice 9 wrap-up.
 
@@ -220,7 +220,7 @@ Realm / HoF row no longer independently computes aggregates; copies community he
 ### Tasks
 
 - [ ] `realm_incremental.py` / `build_generalstats_payload` — aggregate block from `build_community_headline_row` (not second SQL scan)
-- [ ] `server_records.compute_server_aggregates` — thin wrapper → community module (repair oracle uses same path)
+- [ ] `server_records.compute_server_aggregates` — thin wrapper → community module (verify oracle uses same path)
 - [ ] `verify_community_stats` remains green; `verify_realm_snapshots` unchanged
 
 ### Verification
@@ -279,13 +279,13 @@ Track complete; staging path includes new tables.
 
 ### Tasks
 
-- [ ] `scripts/export_ko2amiga_db.ps1` — add community tables (part file after realm snapshots or grouped)
-- [ ] `scripts/amiga/export_packs.py` manifest
-- [ ] `scripts/amiga/README.md` — verify-community-stats, repair oracle note
-- [ ] `amiga-data-contract.md` — Planned → Active
-- [ ] `amiga-community-stats-policy.md` — link plan; status implemented
-- [ ] `PROJECT_MEMORY.md`, `feature-log.md`
-- [ ] Part B: Amiga L1 register note in `feature-log` (DDL `034`)
+- [x] `scripts/export_ko2amiga_db.ps1` — community tables in export parts
+- [x] `scripts/amiga/export_packs.py` manifest (if applicable)
+- [x] `scripts/amiga/README.md` — verify-community-stats + derived-write policy link
+- [x] `amiga-data-contract.md` — Active + derived-write policy
+- [x] `amiga-community-stats-policy.md` — implemented
+- [x] `PROJECT_MEMORY.md`, `feature-log.md`
+- [x] Part B: DDL `034` in feature-log
 
 ### Verification
 
@@ -296,9 +296,9 @@ python -m scripts.amiga verify-community-stats
 
 ---
 
-## Repair oracle (non-sign-off)
+## Retired repair CLI (non-sign-off)
 
-- [ ] `python -m scripts.amiga community-stats-rebuild` — full recompute present + all snapshots + facts from games; compare to finalize-built state. **Not** on `prove` path (same class as `generalstats-rebuild`).
+- [x] ~~`community-stats-rebuild`~~ — **rejected** Jun 2026 ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)); verify oracles only.
 
 Optional in slice 5 or 9.
 
@@ -309,7 +309,7 @@ Optional in slice 5 or 9.
 | Risk | Mitigation |
 |------|------------|
 | Fact row explosion | v1 registry bounded; sparse non-zero rows only; index on `(tournament_id, period_type, period_key, slice_type)` |
-| Refinalize forward pass | Same as realm snapshots — recompute community at *T* and forward |
+| Refinalize forward pass | **Retired** Jun 2026 — full `prove` only ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)) |
 | PHP/Python drift on facts | Shared test vectors; slice 7 gate |
 | Dual-write period confusion | Slice 5 explicit gate; slice 6 removes duplicate compute |
 | Export part count | Add one SQL part; update `ko2amiga_manifest.json` template |

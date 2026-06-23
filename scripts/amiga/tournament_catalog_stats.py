@@ -128,11 +128,3 @@ def refresh_catalog_stats_for_tournament(
     with conn.cursor() as cur:
         cur.execute(_CATALOG_REFRESH_ONE_SQL, params)
     conn.commit()
-
-
-def run_catalog_stats_rebuild(*, dry_run: bool = False) -> int:
-    conn = _connect()
-    try:
-        return rebuild_all_catalog_stats(conn, dry_run=dry_run)
-    finally:
-        conn.close()

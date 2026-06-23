@@ -1,6 +1,7 @@
 # Amiga tournament medals unification — implementation plan (v2)
 
 **Status:** **Complete** (Jun 2026) — slices 0–8 shipped locally on `ko2amiga_db`.  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Slice notes may name removed commands historically; **corrections = `prove` only**.  
 **Policy (locked):** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) **v2**  
 **Supersedes:** v1 honours rollups + event-finish locked decisions E6–E9 ([`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) remains historical)
 
@@ -51,7 +52,7 @@
 | **1** | Tier D: WC podium → `event_finish_position` 1/2/3 (Python + tests) | Unit tests ✓ |
 | **2** | Backfill SQL: existing WC rows from `wc_medal` → finish 1/2/3 | SQL: 0 WC medal rows with NULL finish at 1/2/3 ✓ |
 | **3** | Totals aggregation + `is_winner` single-path (Python + PHP) | Unit tests ✓ |
-| **4** | `participation-rebuild` + verify extensions | **A** — verify + Alkis P spot SQL ✓ (await user OK) |
+| **4** | Full participation verify + extensions | **A** — verify + Alkis P spot SQL ✓ (historical: `participation-rebuild`; CLI retired Jun 2026) |
 | **5** | Read paths: profile, player-tournaments, libs (one finish source) | **B** — browser profile + history ✓ (await user OK) |
 | **6** | DDL `022` — drop `wc_medal`; remove writer/read references | Grep clean |
 | **7** | Tournament honours LB (columns + medal headers + Elo) | **C** — browser honours LB ✓ |
@@ -66,7 +67,7 @@
 | DB | `ko2amiga_db` |
 | MySQL | `C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe` |
 | PHP | `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe` |
-| Rebuild | `python -m scripts.amiga participation-rebuild` |
+| Corrections | `python -m scripts.amiga prove` |
 | Verify suite | `verify-chronology`, `verify-rating-events`, `verify-player-participation`, `verify-player-matchups` |
 
 **Spot-check player:** Alkis P — expect `event_gold = 58`, `wc_gold = 2` after slice 4 (approximate; confirm SQL in slice 4).
@@ -186,7 +187,7 @@ All totals match v2 invariants on full dataset.
 
 ### Tasks
 
-- [x] `python -m scripts.amiga participation-rebuild`
+- [x] Historical: `participation-rebuild` full pass (CLI retired Jun 2026)
 - [x] Extend `verify_player_participation.py`:
   - `event_podiums = event_gold + event_silver + event_bronze`
   - `wc_podiums = wc_gold + wc_silver + wc_bronze`
@@ -256,7 +257,7 @@ Remove duplicate authority column from participation.
 rg "wc_medal" --glob "*.{py,php}" 
 # expect zero or comments only
 python -m scripts.amiga verify-player-participation
-python -m scripts.amiga participation-rebuild
+# Historical slice 6 used participation-rebuild (CLI retired Jun 2026)
 ```
 
 ---
