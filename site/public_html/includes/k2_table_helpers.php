@@ -105,6 +105,49 @@ function k2_table_default_sort_col_from_request(int $fallback): int
     return (int) $params['k2_sort'];
 }
 
+/** Default sort direction for SSR when URL carries k2_dir on this request. */
+function k2_table_default_sort_dir_from_request(string $fallback = 'desc'): string
+{
+    $params = k2_table_sort_query_params();
+
+    return $params === [] ? $fallback : $params['k2_dir'];
+}
+
+/**
+ * Sortable header classes for first paint (matches k2-table.js after init).
+ *
+ * @param 'asc'|'desc' $defaultDir
+ */
+function k2_table_sortable_th_classes(int $colIndex, int $defaultSortCol, string $defaultDir = 'desc', string $extraClass = ''): string
+{
+    $classes = [];
+    foreach (preg_split('/\s+/', trim($extraClass)) ?: [] as $part) {
+        if ($part !== '') {
+            $classes[] = $part;
+        }
+    }
+    $classes[] = 'k2-table-sortable';
+    if ($colIndex === $defaultSortCol) {
+        $classes[] = $defaultDir === 'asc' ? 'k2-table-sorted-asc' : 'k2-table-sorted-desc';
+    }
+
+    return implode(' ', $classes);
+}
+
+/**
+ * Sortable <th> attributes for SSR (class, aria-sort, tabindex).
+ *
+ * @param 'asc'|'desc' $defaultDir
+ */
+function k2_table_sortable_th_attr(int $colIndex, int $defaultSortCol, string $defaultDir = 'desc', string $extraClass = ''): string
+{
+    $class = k2_table_sortable_th_classes($colIndex, $defaultSortCol, $defaultDir, $extraClass);
+    $isActive = $colIndex === $defaultSortCol;
+    $aria = $isActive ? ($defaultDir === 'desc' ? 'descending' : 'ascending') : 'none';
+
+    return ' class="' . k2_h($class) . '" aria-sort="' . $aria . '" tabindex="0"';
+}
+
 /** Whether {@see k2_table_js_enqueue()} already emitted the script tag this request. */
 function k2_table_js_is_enqueued(): bool
 {

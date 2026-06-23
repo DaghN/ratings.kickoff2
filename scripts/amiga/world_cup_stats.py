@@ -165,6 +165,7 @@ def build_world_cup_stats_row(
     high_scoring = 0
     low_scoring = 0
     blowouts = 0
+    international_games = 0
     knockout_games = 0
     group_games = 0
     players: set[int] = set()
@@ -242,6 +243,8 @@ def build_world_cup_stats_row(
             cb = country_token(row["country_b"])
             if ca and cb:
                 nationality_pairs.add(tuple(sorted((ca, cb))))
+                if ca != cb:
+                    international_games += 1
             pairs.add(canonical_pair(metrics.player_a_id, metrics.player_b_id))
 
     decided = rated_games - draws
@@ -297,6 +300,7 @@ def build_world_cup_stats_row(
         "clean_sheet_rate": rate(cs_slots, rated_games),
         "high_scoring_rate": rate(high_scoring, rated_games),
         "low_scoring_rate": rate(low_scoring, rated_games),
+        "blowout_rate": rate(blowouts, rated_games),
         "distinct_players": distinct_players,
         "distinct_player_nationalities": len(nationalities),
         "max_games_one_player": max_games,
@@ -308,6 +312,8 @@ def build_world_cup_stats_row(
         "distinct_guest_players": len(guest_players),
         "guest_player_share": guest_share,
         "distinct_opponent_countries_pairs": len(nationality_pairs),
+        "international_games": international_games,
+        "international_game_share": rate(international_games, rated_games),
         "highest_goal_sum": highest_sum if rated_games else None,
         "highest_goal_sum_game_id": highest_sum_game_id,
         "lowest_goal_sum": lowest_sum,

@@ -1,6 +1,6 @@
 # Amiga World Cups leaderboard — policy
 
-**Status:** **V1 shipped** (Jun 2026) — Honours · Results · Goals wings; WC extracted from tournament honours + calendar-geo; slice tables + TT; fresh `prove` + staging export **2026-06-22**.
+**Status:** **V2 shipped** (Jun 2026-23) — five sub-wings Honours · Results · Goals · DDs & CSs · Opponents; dual surface hub + LB; slice `039` + `prove` green.
 
 **Parent:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)
 
@@ -21,7 +21,7 @@ Add a **World Cups** leaderboard wing family under **Amiga → Leaderboards** �
 | **Time travel** | Wired on first ship — read slice timeline at cutoff; no present-only backfill |
 | **V2+** | Same infrastructure — e.g. DDs / CSs sub-wings, 4th / 5–8 / silver-cup finishes when finish taxonomy exists |
 
-This is the **first version** of WC player leaderboards. **Canonical UI home** moves to **World Cups hub wing 3** when that hub ships — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH8–WCH9; this doc remains the **data + column** contract. Infrastructure is built to grow (more columns, more sub-wings) without rethinking storage or TT.
+This is the **first version** of WC player leaderboards. **UI:** Honours · Results · Goals render on **two navigation surfaces** with one shared body — **Leaderboards → World Cups** (`/amiga/leaderboards/world-cups/*`) and **World Cups hub → Player stats** (`/amiga/world-cups/players/*`) — per [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH8–WCH9. This doc remains the **data + column** contract.
 
 ---
 
@@ -134,7 +134,7 @@ Three layers — same idea as matchup pairs and career honours, but scoped to Wo
 | `tournaments_played_last_rise_tournament_id` | Last WC where `tournaments_played` increased |
 | `tournaments_played_last_rise_event_date` | Matching date |
 
-V2 may add `dd_wins`, `cs_wins`, … on the same rows without schema rethink.
+V2 may add goal extremes, DD/CS, and opponent network columns on the same rows without schema rethink — see [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md).
 
 ### 4.4 Honours block consolidation (same track)
 
@@ -186,19 +186,19 @@ V2 may add `dd_wins`, `cs_wins`, … on the same rows without schema rethink.
 
 ## 6. Read paths
 
-### 6.1 Leaderboards
+### 6.1 Leaderboards (dual surface with hub wing 3)
 
-| Sub-wing | Path | Primary columns | Default sort |
-|----------|------|-----------------|--------------|
-| **Honours** | `world-cups/honours.php` | WCs, gold, silver, bronze, podiums | gold ↓ |
-| **Results** | `world-cups/results.php` | WCs, games, W, D, L, Pts, Pts/g | Pts ↓ |
-| **Goals** | `world-cups/goals.php` | GF, GA, GD, GF/g, GA/g, GD/g | GF ↓ (or GD — implementer choice; document in plan) |
+| Sub-wing | Hub path | LB path | Primary columns | Default sort |
+|----------|----------|---------|-----------------|--------------|
+| **Honours** | `world-cups/players/honours.php` | `leaderboards/world-cups/honours.php` | WCs, gold, silver, bronze, podiums | gold ↓ |
+| **Results** | `world-cups/players/results.php` | `leaderboards/world-cups/results.php` | WCs, games, W, D, L, Pts, Pts/g | Pts ↓ |
+| **Goals** | `world-cups/players/goals.php` | `leaderboards/world-cups/goals.php` | GF, GA, GD, GF/g, GA/g, GD/g | GF ↓ |
 
 Shared leading columns: Rank, Player, Elo (from snapshot/current at cutoff — same as other LB wings), Country.
 
-**Lib:** `includes/amiga_wc_lb_lib.php` (name TBD) + `includes/amiga_slice_snapshot_lib.php` (present + `amiga_lb_slice_rows_at_cutoff()` mirroring honours TT SQL).
+**Lib:** `includes/amiga_wc_lb_lib.php` (read) + **`includes/amiga_wc_players_wing_body.inc.php`** + **`includes/amiga_wc_players_table.php`** (render). Hub and LB pages differ only in chrome/nav URLs.
 
-**Nav:** `includes/amiga_wc_lb_nav.php` inner segment bar; top-level entry in `includes/amiga_lb_nav.php` (`world-cups` wing id).
+**Nav:** `includes/amiga_wc_lb_nav.php` (LB inner tabs) · `includes/amiga_world_cups_players_nav.php` (hub inner tabs); top-level LB entry in `includes/amiga_lb_nav.php` (`world-cups` wing id).
 
 ### 6.2 Time travel
 
@@ -215,16 +215,20 @@ Shared leading columns: Rank, Player, Elo (from snapshot/current at cutoff — s
 
 ## 7. URL and routing
 
-Folder under leaderboards (no query `view`):
+Folder routes on **both** surfaces (no query `view`); shared table body (WCH9):
 
 | Route key (register in `k2_amiga_routes.php`) | Path |
 |-----------------------------------------------|------|
-| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (default) |
+| `amiga-world-cups-players` | `/amiga/world-cups/players/honours.php` (hub default) |
+| `amiga-world-cups-players-honours` | `/amiga/world-cups/players/honours.php` |
+| `amiga-world-cups-players-results` | `/amiga/world-cups/players/results.php` |
+| `amiga-world-cups-players-goals` | `/amiga/world-cups/players/goals.php` |
+| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (LB default) |
 | `amiga-lb-world-cups-honours` | `/amiga/leaderboards/world-cups/honours.php` |
 | `amiga-lb-world-cups-results` | `/amiga/leaderboards/world-cups/results.php` |
 | `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` |
 
-Optional: `world-cups/index.php` → 302 honours.
+Optional: each folder’s `index.php` → 302 honours on that surface.
 
 Document in [`url-routes.md`](url-routes.md) when slice 0 ships.
 
@@ -240,17 +244,19 @@ Document in [`url-routes.md`](url-routes.md) when slice 0 ships.
 - Time travel on all three
 - Column help strings + calm-stats table styling per [`design-direction.md`](design-direction.md)
 
-### V2+ (explicitly deferred — same home)
+### V2+ (this track — [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md))
 
 | Topic | Notes |
 |-------|--------|
-| **Medals 4th / 5–8 / silver cup** | Needs WC finish taxonomy + writer; new slice columns + honours sub-wing columns |
-| **DDs & CSs** | New sub-wing; add columns to slice row; mirror career DD LB shape |
-| **Victims / culprits / peaks** | Optional further sub-wings |
-| **HoF rows** | New records once slice columns exist |
+| **Five sub-wings** | Honours · Results · Goals (enriched) · **DDs & CSs** · **Opponents** |
+| **Goals texture** | Ratio, Max GF … Max draw on slice row |
+| **DDs & CSs** | Full generic double-digits column set (WC-scoped) |
+| **Opponents** | Opp. countries, Opp. beaten, Opponents, Victims, DD victims, CS victims |
+| **Medals 4th / 5–8 / silver cup** | Separate — needs WC finish taxonomy ([`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) M4) |
+| **HoF rows** | After V2 LB proves surface |
 | **Player profile WC strip** | Optional; reads same `slice_totals` |
 
-Adding V2 does **not** require a second storage model — only columns, writers, verify oracles, and PHP sub-wings.
+Adding V2 does **not** require a second storage model — only columns, writers, verify oracles, and PHP sub-wings. **Authoritative column list:** [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) §5.
 
 ---
 
@@ -307,3 +313,4 @@ Add [`amiga-world-cups-leaderboard-implementation-plan.md`](amiga-world-cups-lea
 | When | What |
 |------|------|
 | 2026-06 | Policy locked — slice tables, folder sub-wings, consolidate `wc_*` off honours block, V1 podium + results + goals |
+| 2026-06-23 | **Dual surface** — hub wing 3 + LB wing share `amiga_wc_players_wing_body.inc.php`; no LB→hub redirect |

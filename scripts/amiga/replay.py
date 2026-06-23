@@ -222,6 +222,7 @@ def replay_all(
         finalize_tournament,
     )
     from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
+    from scripts.amiga.slice_game_stats import WorldCupSliceTracker
 
     tournament_ids, games_in_scope = tournament_ids_for_replay(conn, limit_games=limit)
     with conn.cursor() as cur:
@@ -248,6 +249,7 @@ def replay_all(
     geo_year = PlayerGeoYearTracker()
     honours_by_player: dict[int, dict[str, Any]] = {}
     slice_by_player: dict[int, dict[str, Any]] = {}
+    slice_trackers: dict[int, WorldCupSliceTracker] = {}
     prior_career_best: dict[int, dict[str, Any]] = {}
     event_games: dict[tuple[int, int], int] = {}
     prior_realm_payload: dict[str, Any] = empty_prior_payload()
@@ -262,6 +264,7 @@ def replay_all(
             names=names,
             honours_by_player=honours_by_player,
             slice_by_player=slice_by_player,
+            slice_trackers=slice_trackers,
             prior_career_best=prior_career_best,
             event_games=event_games,
             matchups=matchups,

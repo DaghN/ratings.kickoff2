@@ -24,9 +24,11 @@ _DECIMAL_COLUMNS = frozenset(
         "clean_sheet_rate",
         "high_scoring_rate",
         "low_scoring_rate",
+        "blowout_rate",
         "avg_games_per_player",
         "avg_opponents_per_player",
         "guest_player_share",
+        "international_game_share",
         "share_of_year_games",
     }
 )

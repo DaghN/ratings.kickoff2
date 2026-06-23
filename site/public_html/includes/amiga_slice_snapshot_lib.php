@@ -10,6 +10,48 @@ require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_player_slice_lib.php';
 
 /**
+ * V2 slice stat columns (present on totals + at_event).
+ *
+ * @return list<string>
+ */
+function amiga_lb_wc_slice_v2_column_names(): array
+{
+    return [
+        'goal_ratio',
+        'most_goals_scored',
+        'most_goals_conceded',
+        'biggest_win_difference',
+        'biggest_loss_difference',
+        'biggest_sum_of_goals',
+        'biggest_draw_sum',
+        'double_digits',
+        'clean_sheets',
+        'double_digits_ratio',
+        'clean_sheets_ratio',
+        'double_digits_conceded',
+        'clean_sheets_conceded',
+        'double_digits_conceded_ratio',
+        'clean_sheets_conceded_ratio',
+        'opponent_countries_faced',
+        'opponent_countries_beaten',
+        'different_opponents',
+        'different_victims',
+        'double_digits_victims',
+        'clean_sheets_victims',
+    ];
+}
+
+function amiga_lb_wc_slice_v2_select_sql(string $alias): string
+{
+    $parts = [];
+    foreach (amiga_lb_wc_slice_v2_column_names() as $col) {
+        $parts[] = "{$alias}.{$col}";
+    }
+
+    return implode(",\n                   ", $parts);
+}
+
+/**
  * Present-day WC slice stats for LB wings (eligibility: tournaments_played > 0).
  *
  * @return list<array<string, mixed>>
@@ -29,7 +71,8 @@ function amiga_lb_wc_slice_rows_present(mysqli $con): array
                    wcs.losses,
                    wcs.goals_for,
                    wcs.goals_against,
-                   wcs.points
+                   wcs.points,
+                   ' . amiga_lb_wc_slice_v2_select_sql('wcs') . '
             FROM amiga_player_slice_totals wcs
             WHERE wcs.slice_key = ?
               AND wcs.tournaments_played > 0
@@ -91,7 +134,8 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
                    wcs.losses,
                    wcs.goals_for,
                    wcs.goals_against,
-                   wcs.points
+                   wcs.points,
+                   ' . amiga_lb_wc_slice_v2_select_sql('wcs') . '
             FROM (
                 SELECT x.player_id,
                        x.tournaments_played,
@@ -105,7 +149,8 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
                        x.losses,
                        x.goals_for,
                        x.goals_against,
-                       x.points
+                       x.points,
+                       ' . str_replace('wcs.', 'x.', amiga_lb_wc_slice_v2_select_sql('x')) . '
                 FROM (
                     SELECT s.*,
                            ROW_NUMBER() OVER (

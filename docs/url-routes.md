@@ -143,10 +143,16 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-world-cups-players-honours` | `/amiga/world-cups/players/honours.php` |
 | `amiga-world-cups-players-results` | `/amiga/world-cups/players/results.php` |
 | `amiga-world-cups-players-goals` | `/amiga/world-cups/players/goals.php` |
-| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (LB entry — legacy until wing 3 wired) |
+| `amiga-world-cups-players-dds` | `/amiga/world-cups/players/dds.php` |
+| `amiga-world-cups-players-opponents` | `/amiga/world-cups/players/opponents.php` |
+| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (LB entry — **same table body** as hub player stats) |
 | `amiga-lb-world-cups-honours` | `/amiga/leaderboards/world-cups/honours.php` |
-| `amiga-lb-world-cups-results` | `/amiga/leaderboards/world-cups/results.php` (slice 2) |
-| `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` (slice 3) |
+| `amiga-lb-world-cups-results` | `/amiga/leaderboards/world-cups/results.php` |
+| `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` |
+| `amiga-lb-world-cups-dds` | `/amiga/leaderboards/world-cups/dds.php` |
+| `amiga-lb-world-cups-opponents` | `/amiga/leaderboards/world-cups/opponents.php` |
+
+**Player stats dual surface:** hub `world-cups/players/*` and LB `leaderboards/world-cups/*` share `includes/amiga_wc_players_wing_body.inc.php` — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH9.
 
 Query `?id=` required on all player tabs.
 

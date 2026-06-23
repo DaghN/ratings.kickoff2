@@ -383,14 +383,16 @@ Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared
 | Sub-wing | Path | Stat columns (after anchor) |
 |----------|------|-----------------------------|
 | **Goals** | `stats/index.php` | Goals, G/G, High + High %, Low + Low %, Blowouts + Blowout %, Draw %, Max/Min sum, Max draw, Max margin, Max player goals (peaks link to game) |
-| **DDs & CSs** | `stats/dds.php` | DD slots + DD %, CS slots + CS % |
-| **Participation** | `stats/participation.php` | 1st WC, Year %, Matchups, G/player, Opp/player, Champ g, Group, KO |
-| **Geography** | `stats/geography.php` | Nations, Host players, Guests, Guest %, Nation pairs — **step 2:** Intl games + Intl % |
+| **DDs & CSs** | `stats/dds.php` | DDs + DD %, CSs + CS % |
+| **Participation** | `stats/participation.php` | Players → **1st WC** → Games, Matchups, G/player, Opp/player, Champ g, Group, KO, **Year %** |
+| **Geography** | `stats/geography.php` | Nations, Guests, Host players, Guest %, Nation pairs, **Intl games**, **Intl %** |
 | **Podium** | `stats/podium.php` | Gold, Silver, Bronze |
 
 **UI omit (still stored):** `draws`, `decided_games`, `decided_rate`, `max_games_one_player`, identity host/city/date cols.
 
-**Geography step 2 (backlog):** persist `international_games` (rated games where both nations set and differ) + `international_game_share`; writer + verify + DDL bump.
+**Geography intl (shipped Jun 2026):** `international_games` (rated games where both nations set and differ) + `international_game_share`; DDL `038`. **Blowout rate:** stored `blowout_rate` in same migration.
+
+**Layout (Jun 2026):** Goals wing = scroll mirror (`width: 100%`); narrow wings = standard `k2-table-wrap` with `min-width: 100%` table (same habit as tournaments list). Sortable tables use **`ranked-table-pending`** + scoped cloak until `k2-table.js` init — same pattern as hub leaderboards, unlike the first WC stats cut which painted during JS anchor/sort setup.
 
 **Podium v2 (backlog):** full placement table from standings — site-unique collection view.
 

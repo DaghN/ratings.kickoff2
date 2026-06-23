@@ -14,7 +14,9 @@ from scripts.amiga.slice_persist import (
     load_prior_world_cup_slices,
     persist_world_cup_slices_at_tournament,
 )
+from scripts.amiga.slice_game_stats import WorldCupSliceTracker, apply_world_cup_tournament_games
 from scripts.amiga.slice_totals import empty_world_cup_slice, increment_world_cup_slice
+from scripts.amiga.tournament_honours import is_world_cup_tournament
 from scripts.amiga.player_stats_load import load_player_states_before_tournament
 from scripts.amiga.performance_rating import performance_rating_from_pairs
 from scripts.amiga.player_tournament_participation import build_participation_rows_for_tournament
@@ -214,6 +216,9 @@ def _persist_event_snapshots(
     *,
     honours_by_player: dict[int, dict[str, Any]] | None = None,
     slice_by_player: dict[int, dict[str, Any]] | None = None,
+    slice_trackers: dict[int, WorldCupSliceTracker] | None = None,
+    tournament_games: list[dict[str, Any]] | None = None,
+    tournament_name: str | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games: dict[tuple[int, int], int] | None = None,
     geo_year: PlayerGeoYearTracker | None = None,
@@ -257,6 +262,25 @@ def _persist_event_snapshots(
             slice_accum[pid] = empty_world_cup_slice()
         increment_world_cup_slice(slice_accum[pid], row)
         slice_for_event[pid] = dict(slice_accum[pid])
+
+    if (
+        tournament_games
+        and tournament_name
+        and is_world_cup_tournament(tournament_name)
+        and slice_trackers is not None
+        and player_countries is not None
+    ):
+        participating = {int(row["player_id"]) for row in part_rows}
+        apply_world_cup_tournament_games(
+            slice_accum,
+            slice_trackers,
+            tournament_games,
+            player_countries,
+            participating,
+        )
+        for pid in participating:
+            if pid in slice_accum:
+                slice_for_event[pid] = dict(slice_accum[pid])
 
     snapshot_rows = persist_tournament_event_snapshots(
         conn,
@@ -461,6 +485,7 @@ def finalize_tournament(
     names: dict[int, str] | None = None,
     honours_by_player: dict[int, dict[str, Any]] | None = None,
     slice_by_player: dict[int, dict[str, Any]] | None = None,
+    slice_trackers: dict[int, WorldCupSliceTracker] | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games: dict[tuple[int, int], int] | None = None,
     matchups: MatchupCumulative | None = None,
@@ -623,6 +648,9 @@ def finalize_tournament(
         event_commits,
         honours_by_player=honours_by_player,
         slice_by_player=slice_by_player,
+        slice_trackers=slice_trackers,
+        tournament_games=games,
+        tournament_name=str(tour.get("name") or ""),
         prior_career_best=prior_career_best,
         event_games=event_games,
         geo_year=geo_year,

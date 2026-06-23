@@ -4,7 +4,7 @@
  *
  * Set $k2AmigaWorldCupsHubView: events | stats | players
  * Optional: $k2AmigaWorldCupsPageTitle, $k2AmigaWorldCupsChapterLede
- * When $k2AmigaWorldCupsHubView === 'players', set $k2AmigaWorldCupsPlayersView: honours | results | goals
+ * When $k2AmigaWorldCupsHubView === 'players', set $k2AmigaWorldCupsPlayersView: honours | results | goals | dds | opponents
  * When $k2AmigaWorldCupsHubView === 'stats', set $k2AmigaWorldCupsStatsView: goals | dds | participation | geography | podium
  */
 declare(strict_types=1);
@@ -14,6 +14,12 @@ $k2AmigaWorldCupsPageTitle = $k2AmigaWorldCupsPageTitle ?? 'World Cups';
 $k2AmigaWorldCupsChapterLede = $k2AmigaWorldCupsChapterLede ?? '';
 $k2AmigaWorldCupsEnqueueTableJs = $k2AmigaWorldCupsEnqueueTableJs ?? false;
 $k2AmigaWorldCupsEnqueueScrollMirror = $k2AmigaWorldCupsEnqueueScrollMirror ?? false;
+if ($k2AmigaWorldCupsEnqueueTableJs && $k2AmigaWorldCupsHubView === 'players') {
+    $k2AmigaWorldCupsEnqueueScrollMirror = true;
+}
+if ($k2AmigaWorldCupsEnqueueTableJs) {
+    $k2RankedCloak = true;
+}
 
 $k2AmigaWorldCupsChapterTitles = [
     'events' => 'World Cups',

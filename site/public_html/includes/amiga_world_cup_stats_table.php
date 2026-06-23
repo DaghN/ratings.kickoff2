@@ -121,7 +121,7 @@ function amiga_world_cup_stats_anchor_columns(): array
             'label' => 'Games',
             'sort' => 'number',
             'align' => '',
-            'help' => 'Rated games in this World Cup.',
+            'help' => 'Games in this World Cup.',
             'render' => static function (array $row, array $nameMap): string {
                 unset($nameMap);
 
@@ -138,18 +138,15 @@ function amiga_world_cup_stats_view_columns(): array
 {
     return [
         'goals' => [
-            ['label' => 'Goals', 'sort' => 'number', 'help' => 'Total goals in rated games.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['goals'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'G/G', 'sort' => 'number', 'help' => 'Goals per rated game.', 'render' => static fn (array $row, array $m) => k2_fmt_decimal($row['goals_per_game'] ?? null, amiga_world_cup_stats_games($row), 2)],
+            ['label' => 'Goals', 'sort' => 'number', 'help' => 'Total goals in games.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['goals'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'G/G', 'sort' => 'number', 'help' => 'Goals per game.', 'render' => static fn (array $row, array $m) => k2_fmt_decimal($row['goals_per_game'] ?? null, amiga_world_cup_stats_games($row), 2)],
             ['label' => 'High', 'sort' => 'number', 'help' => 'Games with ten or more goals scored (both sides).', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['high_scoring_games'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'High %', 'sort' => 'number', 'help' => 'High-scoring games as a share of rated games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['high_scoring_rate'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'High %', 'sort' => 'number', 'help' => 'High-scoring games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['high_scoring_rate'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Low', 'sort' => 'number', 'help' => 'Games with three or fewer total goals.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['low_scoring_games'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'Low %', 'sort' => 'number', 'help' => 'Low-scoring games as a share of rated games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['low_scoring_rate'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Low %', 'sort' => 'number', 'help' => 'Low-scoring games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['low_scoring_rate'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Blowouts', 'sort' => 'number', 'help' => 'Games with a winning margin of five goals or more.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['blowout_games'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'Blowout %', 'sort' => 'number', 'help' => 'Blowout games as a share of rated games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio(
-                amiga_world_cup_stats_games($row) > 0 ? ((int) ($row['blowout_games'] ?? 0)) / amiga_world_cup_stats_games($row) : null,
-                amiga_world_cup_stats_games($row),
-            )],
-            ['label' => 'Draw %', 'sort' => 'number', 'help' => 'Draws as a share of rated games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['draw_rate'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Blowout %', 'sort' => 'number', 'help' => 'Blowout games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['blowout_rate'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Draw %', 'sort' => 'number', 'help' => 'Draws as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['draw_rate'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Max sum', 'sort' => 'number', 'help' => 'Highest total goals in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
                 isset($row['highest_goal_sum']) ? (int) $row['highest_goal_sum'] : null,
                 isset($row['highest_goal_sum_game_id']) ? (int) $row['highest_goal_sum_game_id'] : null,
@@ -172,27 +169,29 @@ function amiga_world_cup_stats_view_columns(): array
             )],
         ],
         'dds' => [
-            ['label' => 'DD slots', 'sort' => 'number', 'help' => 'Double-digit participant slots across all games.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['double_digit_slots'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'DD %', 'sort' => 'number', 'help' => 'DD slots per rated game.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['double_digit_rate'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'CS slots', 'sort' => 'number', 'help' => 'Clean-sheet participant slots across all games.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['clean_sheet_slots'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'CS %', 'sort' => 'number', 'help' => 'CS slots per rated game.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['clean_sheet_rate'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'DDs', 'sort' => 'number', 'help' => 'Times a player scored ten or more goals in a game (each player counts separately; up to two per game).', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['double_digit_slots'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'DD %', 'sort' => 'number', 'help' => 'Double digits per game (total DDs ÷ games).', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['double_digit_rate'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'CSs', 'sort' => 'number', 'help' => 'Times a player held the opponent scoreless in a game (each player counts separately; up to two per game).', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['clean_sheet_slots'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'CS %', 'sort' => 'number', 'help' => 'Clean sheets per game (total CSs ÷ games).', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['clean_sheet_rate'] ?? null, amiga_world_cup_stats_games($row))],
         ],
         'participation' => [
             ['label' => '1st WC', 'sort' => 'number', 'help' => 'Players appearing in their first World Cup.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['first_time_wc_players'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'Year %', 'sort' => 'number', 'help' => 'This World Cup as a share of all rated games in the calendar year.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['share_of_year_games'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Matchups', 'sort' => 'number', 'help' => 'Unique player pairings in this World Cup.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_opponent_pairs'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'G/player', 'sort' => 'number', 'help' => 'Average rated games per participant.', 'render' => static fn (array $row, array $m) => k2_fmt_decimal($row['avg_games_per_player'] ?? null, amiga_world_cup_stats_games($row), 2)],
+            ['label' => 'G/player', 'sort' => 'number', 'help' => 'Average games per participant.', 'render' => static fn (array $row, array $m) => k2_fmt_decimal($row['avg_games_per_player'] ?? null, amiga_world_cup_stats_games($row), 2)],
             ['label' => 'Opp/player', 'sort' => 'number', 'help' => 'Average distinct opponents per participant.', 'render' => static fn (array $row, array $m) => k2_fmt_decimal($row['avg_opponents_per_player'] ?? null, amiga_world_cup_stats_games($row), 2)],
-            ['label' => 'Champ g', 'sort' => 'number', 'help' => 'Rated games played by the gold medalist.', 'render' => static fn (array $row, array $m) => k2_fmt_optional_int($row['champion_game_count'] ?? null)],
-            ['label' => 'Group', 'sort' => 'number', 'help' => 'Rated games in group or league phases.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['group_games'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'KO', 'sort' => 'number', 'help' => 'Rated games in knockout phases.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['knockout_games'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Champ g', 'sort' => 'number', 'help' => 'Games played by the gold medalist.', 'render' => static fn (array $row, array $m) => k2_fmt_optional_int($row['champion_game_count'] ?? null)],
+            ['label' => 'Group', 'sort' => 'number', 'help' => 'Games in group or league phases.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['group_games'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'KO', 'sort' => 'number', 'help' => 'Games in knockout phases.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['knockout_games'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Year %', 'sort' => 'number', 'help' => 'This World Cup as a share of all games in the calendar year.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['share_of_year_games'] ?? null, amiga_world_cup_stats_games($row))],
         ],
         'geography' => [
             ['label' => 'Nations', 'sort' => 'number', 'help' => 'Distinct player nationalities in this World Cup.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_player_nationalities'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'Host players', 'sort' => 'number', 'help' => 'Distinct players from the host country.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_host_country_players'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'Guests', 'sort' => 'number', 'help' => 'Distinct players not from the host country.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_guest_players'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Guests', 'sort' => 'number', 'help' => 'Players not from the host country.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_guest_players'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Host players', 'sort' => 'number', 'help' => 'Players from the host country.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_host_country_players'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Guest %', 'sort' => 'number', 'help' => 'Guest players as a share of all participants.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['guest_player_share'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Nation pairs', 'sort' => 'number', 'help' => 'Distinct nationality pairings that met in a game.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_opponent_countries_pairs'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Intl games', 'sort' => 'number', 'help' => 'Games where both players have nationality set and they differ.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['international_games'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Intl %', 'sort' => 'number', 'help' => 'International games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['international_game_share'] ?? null, amiga_world_cup_stats_games($row))],
         ],
         'podium' => [
             ['label' => 'Gold', 'sort' => 'text', 'align' => 'left', 'help' => '', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_podium_cell((int) ($row['gold_player_id'] ?? 0), $m)],
@@ -200,6 +199,41 @@ function amiga_world_cup_stats_view_columns(): array
             ['label' => 'Bronze', 'sort' => 'text', 'align' => 'left', 'help' => '', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_podium_cell((int) ($row['bronze_player_id'] ?? 0), $m)],
         ],
     ];
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_world_cup_stats_columns_for_view(string $view): array
+{
+    $views = amiga_world_cup_stats_view_columns();
+    $statCols = $views[$view] ?? $views['goals'];
+    $anchorCols = amiga_world_cup_stats_anchor_columns();
+
+    if ($view !== 'participation') {
+        return array_merge($anchorCols, $statCols);
+    }
+
+    $firstWcCol = null;
+    $restStats = [];
+    foreach ($statCols as $col) {
+        if (($col['label'] ?? '') === '1st WC') {
+            $firstWcCol = $col;
+        } else {
+            $restStats[] = $col;
+        }
+    }
+
+    if ($firstWcCol === null) {
+        return array_merge($anchorCols, $statCols);
+    }
+
+    return array_merge(
+        array_slice($anchorCols, 0, 3),
+        [$firstWcCol],
+        [$anchorCols[3]],
+        $restStats,
+    );
 }
 
 /**
@@ -213,29 +247,30 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
         $view = 'goals';
     }
 
-    $anchorCols = amiga_world_cup_stats_anchor_columns();
-    $statCols = $views[$view];
-    $allCols = array_merge($anchorCols, $statCols);
+    $allCols = amiga_world_cup_stats_columns_for_view($view);
     $colCount = count($allCols);
 
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_WC_STATS_DEFAULT_SORT_COL);
-    $tableClass = 'k2-table k2-table--numeric-default k2-table--calm-stats k2-table--world-cup-stats k2-table--world-cup-stats-' . preg_replace('/[^a-z0-9-]/', '', $view);
+    $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $tableClass = 'k2-table k2-table--numeric-default k2-table--calm-stats k2-table--world-cup-stats k2-table--world-cup-stats-' . preg_replace('/[^a-z0-9-]/', '', $view) . ' ranked-table-pending';
     $useScrollMirror = $view === 'goals';
-    $wrapClass = 'k2-table-wrap' . ($useScrollMirror ? '' : ' k2-table-wrap--natural-width');
+    $wrapClass = 'k2-table-wrap';
     $wrapMirrorAttr = $useScrollMirror ? ' data-k2-scroll-mirror' : '';
     ?>
 <div class="k2-amiga-world-cups-stats-table">
 <div class="<?php echo $wrapClass; ?>"<?php echo $wrapMirrorAttr; ?>>
-<table class="<?php echo $tableClass; ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo AMIGA_WC_STATS_ANCHOR_COL; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="desc">
+<table class="<?php echo $tableClass; ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo AMIGA_WC_STATS_ANCHOR_COL; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>" data-k2-skip-initial-sort="1">
 	<thead>
 		<tr>
-<?php foreach ($allCols as $col) {
+<?php foreach ($allCols as $colIndex => $col) {
     $align = $col['align'] ?? '';
-    $thClass = $align === 'left' ? ' class="k2-table-cell--left"' : ($align === 'right' ? ' class="k2-table-cell--right"' : '');
+    $thExtra = $align === 'left' ? 'k2-table-cell--left' : ($align === 'right' ? 'k2-table-cell--right' : '');
+    $thSortAttr = k2_table_sortable_th_attr($colIndex, $defaultSortCol, $defaultSortDir, $thExtra);
     $help = trim((string) ($col['help'] ?? ''));
     $helpAttr = $help !== '' ? ' data-k2-help="' . k2_h($help) . '"' : '';
+    $thLabel = k2_h($col['label']);
     ?>
-			<th<?php echo $thClass; ?> data-k2-sort="<?php echo k2_h($col['sort']); ?>"<?php echo $helpAttr; ?>><?php echo k2_h($col['label']); ?></th>
+			<th<?php echo $thSortAttr; ?> data-k2-sort="<?php echo k2_h($col['sort']); ?>"<?php echo $helpAttr; ?>><?php echo $thLabel; ?></th>
 <?php } ?>
 		</tr>
 	</thead>

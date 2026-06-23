@@ -10,6 +10,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
 require_once __DIR__ . '/../includes/amiga_honours_totals_lib.php';
 require_once __DIR__ . '/amiga_slice_totals_lib.php';
+require_once __DIR__ . '/amiga_slice_game_stats_lib.php';
 require_once __DIR__ . '/amiga_slice_persist_lib.php';
 require_once __DIR__ . '/../includes/amiga_career_rise_lib.php';
 require_once __DIR__ . '/amiga_elo_rank_lib.php';
@@ -527,6 +528,15 @@ function amiga_ops_persist_tournament_event_snapshots(
 
     if ($snapshotBatch === []) {
         return 0;
+    }
+
+    $tournamentName = '';
+    foreach ($participationByPlayer as $participation) {
+        $tournamentName = (string) ($participation['tournament_name'] ?? '');
+        break;
+    }
+    if (amiga_honours_is_world_cup_tournament($tournamentName)) {
+        amiga_slice_apply_v2_through_tournament($con, $tournamentId, $sliceByPlayer, $playerCountries);
     }
 
     $ratings = amiga_ops_load_career_ratings_through_tournament($con, $tournamentId, $players, $activeIds);

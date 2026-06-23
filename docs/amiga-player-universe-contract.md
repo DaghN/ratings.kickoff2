@@ -372,7 +372,7 @@ Participation was refined **after slice 14** (tournament history UI + WC data fi
 
 **Writer:** running honours totals in finalize (`honours_totals.py` / `amiga_ops_persist_tournament_event_snapshots`); batch replay carries `honours_by_player` across tournaments in memory.
 
-**World Cup slice (locked Jun 2026):** [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) — `amiga_player_slice_totals` + `amiga_player_slice_at_event` (`slice_key = 'world_cup'`); honours + WC game stats; TT via at-event timeline. V1 LB sub-wings Honours · Results · Goals.
+**World Cup slice (locked Jun 2026):** [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) — `amiga_player_slice_totals` + `amiga_player_slice_at_event` (`slice_key = 'world_cup'`); honours + WC game stats; TT via at-event timeline. V1 sub-wings Honours · Results · Goals on **hub wing 3 and LB World Cups** (shared `amiga_wc_players_wing_body.inc.php`). **V2 expansion** (goals texture, DDs & CSs, Opponents): [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md).
 
 **Optional later:** additional `slice_key` values (`kitchen`, `milan`, …) on the same tables when product asks.
 

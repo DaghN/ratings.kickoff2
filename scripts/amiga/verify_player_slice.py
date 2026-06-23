@@ -9,9 +9,20 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.slice_columns import SLICE_KEY_WORLD_CUP
+from scripts.amiga.player_geo_year import load_player_countries
+from scripts.amiga.slice_columns import SLICE_KEY_WORLD_CUP, SLICE_STAT_COLUMNS_V2
+from scripts.amiga.slice_game_stats import build_v2_oracle_for_player
 
 _WC_NAME_RE = r"^World Cup[[:space:]]+[^[:space:]]"
+_FLOAT_COLS = frozenset(
+    {
+        "goal_ratio",
+        "double_digits_ratio",
+        "clean_sheets_ratio",
+        "double_digits_conceded_ratio",
+        "clean_sheets_conceded_ratio",
+    }
+)
 
 
 def _connect() -> pymysql.connections.Connection:
@@ -116,6 +127,44 @@ def _load_slice_totals(conn: pymysql.connections.Connection) -> dict[int, dict[s
     }
 
 
+def _load_wc_games(conn: pymysql.connections.Connection) -> list[dict]:
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT g.player_a_id AS idA, g.player_b_id AS idB,
+                   g.goals_a AS GoalsA, g.goals_b AS GoalsB
+            FROM amiga_games g
+            INNER JOIN tournaments t ON t.id = g.tournament_id
+            WHERE t.name REGEXP %s
+            ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, g.id ASC
+            """,
+            (_WC_NAME_RE,),
+        )
+        return list(cur.fetchall())
+
+
+def _load_slice_v2(conn: pymysql.connections.Connection) -> dict[int, dict]:
+    cols = ", ".join(SLICE_STAT_COLUMNS_V2)
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT player_id, {cols}
+            FROM amiga_player_slice_totals
+            WHERE slice_key = %s AND tournaments_played > 0
+            """,
+            (SLICE_KEY_WORLD_CUP,),
+        )
+        return {int(r["player_id"]): r for r in cur.fetchall()}
+
+
+def _float_close(a: object, b: object, tol: float = 1e-4) -> bool:
+    if a is None and b is None:
+        return True
+    if a is None or b is None:
+        return False
+    return abs(float(a) - float(b)) <= tol
+
+
 def _check_totals_oracle(conn: pymysql.connections.Connection, errors: list[str]) -> None:
     oracle = _load_oracle_totals(conn)
     stored = _load_slice_totals(conn)
@@ -147,6 +196,35 @@ def _check_totals_oracle(conn: pymysql.connections.Connection, errors: list[str]
             errors.append(f"player_id={pid} points != 3*wins+draws")
 
 
+def _check_v2_oracle(conn: pymysql.connections.Connection, errors: list[str]) -> None:
+    v1_oracle = _load_oracle_totals(conn)
+    stored_v2 = _load_slice_v2(conn)
+    if not stored_v2:
+        return
+
+    games = _load_wc_games(conn)
+    player_countries = load_player_countries(conn)
+
+    for pid, row in stored_v2.items():
+        v1 = v1_oracle.get(pid)
+        if v1 is None:
+            errors.append(f"player_id={pid} has V2 slice but no V1 oracle")
+            continue
+        expected = build_v2_oracle_for_player(v1, games, player_countries, pid)
+        for col in SLICE_STAT_COLUMNS_V2:
+            stored_val = row.get(col)
+            expected_val = expected.get(col)
+            if col in _FLOAT_COLS:
+                if not _float_close(stored_val, expected_val):
+                    errors.append(
+                        f"player_id={pid} {col}: stored={stored_val!r} oracle={expected_val!r}"
+                    )
+            elif int(stored_val or 0) != int(expected_val or 0):
+                errors.append(
+                    f"player_id={pid} {col}: stored={stored_val} oracle={expected_val}"
+                )
+
+
 def _check_at_event_matches_latest_participation(
     conn: pymysql.connections.Connection,
     errors: list[str],
@@ -155,7 +233,8 @@ def _check_at_event_matches_latest_participation(
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT t.player_id, t.tournaments_played, t.gold, t.games, t.points
+            SELECT t.player_id, t.tournaments_played, t.gold, t.games, t.points,
+                   t.double_digits, t.different_opponents
             FROM amiga_player_slice_totals t
             WHERE t.slice_key = %s AND t.tournaments_played > 0
             """,
@@ -167,7 +246,8 @@ def _check_at_event_matches_latest_participation(
             pid = int(row["player_id"])
             cur.execute(
                 """
-                SELECT x.tournaments_played, x.gold, x.games, x.points
+                SELECT x.tournaments_played, x.gold, x.games, x.points,
+                       x.double_digits, x.different_opponents
                 FROM (
                     SELECT s.*,
                            ROW_NUMBER() OVER (
@@ -186,7 +266,10 @@ def _check_at_event_matches_latest_participation(
             if latest is None:
                 errors.append(f"player_id={pid} has slice_totals but no slice_at_event row")
                 continue
-            for col in ("tournaments_played", "gold", "games", "points"):
+            for col in (
+                "tournaments_played", "gold", "games", "points",
+                "double_digits", "different_opponents",
+            ):
                 if int(row[col] or 0) != int(latest[col] or 0):
                     errors.append(
                         f"player_id={pid} totals vs latest at_event {col}: "
@@ -199,6 +282,7 @@ def main() -> int:
     errors: list[str] = []
     try:
         _check_totals_oracle(conn, errors)
+        _check_v2_oracle(conn, errors)
         _check_at_event_matches_latest_participation(conn, errors)
     finally:
         conn.close()

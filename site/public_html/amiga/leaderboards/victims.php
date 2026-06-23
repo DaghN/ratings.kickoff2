@@ -29,7 +29,7 @@ $result = amiga_lb_query_career(
     'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.DifferentOpponents, s.DifferentVictims, '
     . 's.DoubleDigitsVictims, s.CleanSheetsVictims, s.MostGoalsConcededVictims, s.BiggestLossVictims, '
     . 's.DifferentCulprits, s.DoubleDigitsCulprits, s.CleanSheetsCulprits, s.MostGoalsScoredCulprits, s.BiggestWinCulprits ',
-    'ORDER BY s.DifferentVictims DESC, s.Rating DESC'
+    'ORDER BY s.DifferentOpponents DESC, s.Rating DESC'
 );
 
 mysqli_close($con);
@@ -42,9 +42,9 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 
 <?php
 $k2LbAnchorCol = 2;
-$k2LbDefaultSortCol = 5;
+$k2LbDefaultSortCol = 4;
 ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="5" data-k2-default-direction="desc">
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 
 <thead>
     <tr>

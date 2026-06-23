@@ -67,11 +67,11 @@
 - **Amiga time travel (Jun 2026):** **T13–T18** — snapshot-only TT hub; player-wing TT entry = first event (`T14b`); pre-debut hero **—** + note (`T17`); **player Event chevrons** + picker accents (`T18`). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 - **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs tables shipped** — `amiga_matchup_snapshot_lib.php` (present + at-event); time travel wired. H2H rivalry wing still placeholder. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md).
 
-- **Amiga World Cups LB (Jun 2026):** **V1 shipped** — Honours · Results · Goals wing; WC extracted from tournament honours + calendar-geo; slice tables + TT. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md).
+- **Amiga World Cups LB (Jun 2026):** **V2 UI shipped** — five sub-wings (Honours · Results · Goals · DDs & CSs · Opponents); **dual surface** hub + LB via `amiga_wc_players_table.php`. Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
 
 - **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **UI:** Activity community wings + WC year charts TBD; per-WC table on World Cups hub wing 2 **shipped**.
 
-- **Amiga World Cups hub (Jun 2026):** **Wing 2 shipped** — five stats sub-wings (Goals · DDs & CSs · Participation · Geography · Podium); geography intl-games step 2 TBD. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
+- **Amiga World Cups hub (Jun 2026):** **Wing 2 + wing 3 shipped** — tournament stats (five sub-wings) + **player stats** (shared with LB). Wing 1 events list TBD. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
@@ -119,6 +119,11 @@
 
 | When | Note |
 |------|------|
+| 2026-06-23 | **Amiga WC player stats V2 UI** — five sub-wings on hub + LB dual surface; enriched Goals + DDs & CSs + Opponents; `amiga_wc_players_table.php` + routes. |
+| 2026-06-23 | **Amiga WC player slice V2 writers** — `039` DDL; `WorldCupSliceTracker` + finalize/replay; PHP `amiga_slice_game_stats_lib.php`; `verify-player-slice` V2 oracles; **`prove` green** (~21 min). |
+| 2026-06-23 | **Amiga WC player slice V2 policy** — five sub-wings (Goals enrich + DDs & CSs + Opponents); DDL/writer/verify contract — [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md). |
+| 2026-06-23 | **Amiga WC player stats dual surface** — hub wing 3 + LB World Cups share `amiga_wc_players_wing_body.inc.php` / `amiga_wc_players_table.php`; policy WCH8–WCH9 amended (no LB→hub redirect). |
+| 2026-06 | **Amiga WC stats blowout + intl columns** — DDL `038` + writers + UI (Goals Blowout %, Geography Intl games/Intl %). **`prove` green** (~21 min, 23 WC rows, full verify suite). |
 | 2026-06 | **Amiga TT tournament browse sync** — on `tournament.php` + Event wing, chevrons/picker follow cutoff `id`; 302 when `id` ≠ `as=event:{id}`. |
 | 2026-06 | **Amiga time travel toggle tooltip** — present-mode **Time travel** hover shows warning + side-effects copy via `data-k2-help`; `k2_table_js_enqueue()` dedupes script load. |
 | 2026-06 | **Amiga per-WC stats table spec — curation pass 1** — [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md): must-have + nice = ship set; guest/host player counts; Q-WC-003 / `share_of_year_games` clarified. |
@@ -132,6 +137,7 @@
 | 2026-06 | **Post-game parity register sweep** — `post-game-contract-vs-oracle-discrepancies.md`: closed false Opens (`play_streak_100`, P7 verify); split `club_*` live Fixed vs batch Deferred; layer 7 superseded by `verify_activity_wing_parity`; DDR-052 + cutover checklist aligned. |
 | 2026-06 | **Milestones docs drift fix** — `milestones-product-spec.md` + `milestones-project.md`: 112/112 keys shipped (removed stale wave-1 ~88 TODO); meta LB wing + hub v2 marked done; Accomplished **%** wing noted as deferred (counts ship today). |
 | 2026-06 | **Amiga WC stats sub-wings** — Goals · DDs & CSs · Participation · Geography · Podium under `/amiga/world-cups/stats/`; shared anchor cols; `stats.php` → Goals. [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md) §3.13 |
+| 2026-06 | **Amiga WC stats load shift fix** — `ranked-table-pending` + scoped cloak (site leaderboard pattern); revert bespoke shrink-wrap; `min-width: 100%` table width like tournaments list. |
 | 2026-06 | **Amiga World Cups hub wing 2** — sortable tournament stats from `amiga_world_cup_stats_read_lib.php` + TT cutoff. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md) |
 | 2026-06 | **Amiga World Cups hub shell** — hub tab (2nd after News); `/amiga/world-cups/` three wings + player sub-nav; Activity moved after Tournaments. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md) |
 | 2026-06 | **Amiga community stats v2 + WC table writers** — DDL `036`/`037`; registry v2 facts + headline extensions; `amiga_world_cup_stats` (23 rows); Python + PHP finalize; `verify-world-cup-stats` + PHP parity in `prove` green (~21 min). Charts deferred. |

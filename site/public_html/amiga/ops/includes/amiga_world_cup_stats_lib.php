@@ -50,6 +50,7 @@ function amiga_world_cup_stats_column_names(): array
         'clean_sheet_rate',
         'high_scoring_rate',
         'low_scoring_rate',
+        'blowout_rate',
         'distinct_players',
         'distinct_player_nationalities',
         'max_games_one_player',
@@ -61,6 +62,8 @@ function amiga_world_cup_stats_column_names(): array
         'distinct_guest_players',
         'guest_player_share',
         'distinct_opponent_countries_pairs',
+        'international_games',
+        'international_game_share',
         'highest_goal_sum',
         'highest_goal_sum_game_id',
         'lowest_goal_sum',
@@ -313,6 +316,7 @@ function amiga_world_cup_build_stats_row(
     $highScoring = 0;
     $lowScoring = 0;
     $blowouts = 0;
+    $internationalGames = 0;
     $knockoutGames = 0;
     $groupGames = 0;
     /** @var array<int, true> $players */
@@ -417,6 +421,9 @@ function amiga_world_cup_build_stats_row(
             $sorted = [$ca, $cb];
             sort($sorted, SORT_STRING);
             $nationalityPairs[implode("\0", $sorted)] = true;
+            if ($ca !== $cb) {
+                $internationalGames++;
+            }
         }
 
         [$pairA, $pairB] = amiga_community_canonical_pair(
@@ -498,6 +505,7 @@ function amiga_world_cup_build_stats_row(
         'clean_sheet_rate' => amiga_community_rate($csSlots, $ratedGames),
         'high_scoring_rate' => amiga_community_rate($highScoring, $ratedGames),
         'low_scoring_rate' => amiga_community_rate($lowScoring, $ratedGames),
+        'blowout_rate' => amiga_community_rate($blowouts, $ratedGames),
         'distinct_players' => $distinctPlayers,
         'distinct_player_nationalities' => count($nationalities),
         'max_games_one_player' => $maxGames,
@@ -509,6 +517,8 @@ function amiga_world_cup_build_stats_row(
         'distinct_guest_players' => count($guestPlayers),
         'guest_player_share' => $guestShare,
         'distinct_opponent_countries_pairs' => count($nationalityPairs),
+        'international_games' => $internationalGames,
+        'international_game_share' => amiga_community_rate($internationalGames, $ratedGames),
         'highest_goal_sum' => $ratedGames > 0 ? $highestSum : null,
         'highest_goal_sum_game_id' => $highestSumGameId,
         'lowest_goal_sum' => $lowestSum,
