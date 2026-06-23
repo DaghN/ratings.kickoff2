@@ -19,8 +19,10 @@ $con->set_charset('utf8mb4');
 $con->query("SET time_zone = '+00:00'");
 
 $cutoff = amiga_realm_load_cutoff($con, $tournamentId);
+$scan = amiga_community_build_realm_scan($con, $tournamentId);
 $headline = amiga_realm_compute_server_aggregates($con, $cutoff);
-$facts = amiga_community_build_facts_at_cutoff($con, $tournamentId);
+$headline = array_merge($headline, amiga_community_headline_extensions_from_scan($scan));
+$facts = $scan['facts'];
 
 echo json_encode(
     ['tournament_id' => $tournamentId, 'headline' => $headline, 'facts' => $facts],

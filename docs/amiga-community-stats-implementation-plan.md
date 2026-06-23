@@ -1,6 +1,6 @@
 # Amiga community stats — implementation plan
 
-**Status:** **Complete** (Jun 2026) — slices **1–10** done; `verify-community-stats` + `verify-php-community-parity` in `prove` (605 snapshots local). Legacy aggregate cols dropped from HoF tables (`035`).  
+**Status:** **V1 complete** (Jun 2026) · **V2 writers complete** (Jun 2026-23) — registry v2 + headline extensions (`036`) + `verify-world-cup-stats`; `prove` green (~21 min). Charts/UI **not** started. Per-WC table: [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) (`037`, separate module).  
 **Policy:** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) (HoF — separate grain)
 

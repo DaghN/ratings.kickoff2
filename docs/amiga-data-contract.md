@@ -211,9 +211,10 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_player_matchup_summary` | Derived | Tournament finalize (`upsert_matchup_summary`); SCH-031 goal extremes. Read: future Opponents wing | **Active** |
 | `amiga_realm_snapshots` | Derived | Tournament finalize / `replay` — full HoF record-book payload per finalized event. Policy [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md). Realm headline totals on community stats (`035` dropped legacy aggregate cols) | **Active** |
 | `amiga_generalstats` | Derived | Tournament finalize / `replay` — present projection (latest realm snapshot). Ratio leaders on row. Read: `/amiga/hall-of-fame.php` | **Active** |
-| `amiga_community_stats` | Derived | Tournament finalize / `replay` — present headline community scalars (`id = 1`). Policy [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | **Active** |
-| `amiga_community_stats_snapshots` | Derived | Tournament finalize / `replay` — headline scalars per finalized `tournament_id` | **Active** |
-| `amiga_community_stat_facts` | Derived | Tournament finalize / `replay` — period × slice × metric facts per `tournament_id` | **Active** |
+| `amiga_community_stats` | Derived | Tournament finalize / `replay` — present headline community scalars (`id = 1`); v2 extension cols (`036`: tournaments finalized, host countries, WC games, pairs, debuts). Policy [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | **Active** |
+| `amiga_community_stats_snapshots` | Derived | Tournament finalize / `replay` — headline scalars per finalized `tournament_id` (includes v2 extension cols) | **Active** |
+| `amiga_community_stat_facts` | Derived | Tournament finalize / `replay` — period × slice × metric facts per `tournament_id` (v1 + v2 registry grains) | **Active** |
+| `amiga_world_cup_stats` | Derived | Tournament finalize / `replay` — one wide row per World Cup `tournament_id`. Policy [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md). DDL `037` | **Active** |
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
 DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.

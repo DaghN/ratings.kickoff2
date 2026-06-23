@@ -8,7 +8,7 @@ from typing import Any
 import pymysql
 
 from scripts.amiga.community_stat_facts import (
-    build_community_facts_at_cutoff,
+    build_community_realm_scan,
     fact_row_values,
 )
 from scripts.amiga.community_stats import build_community_headline_row
@@ -90,12 +90,14 @@ def persist_community_for_tournament(
     finalized_at: datetime | None = None,
     commit: bool = True,
 ) -> dict[str, Any]:
+    scan = build_community_realm_scan(conn, tournament_id)
     row = build_community_headline_row(
         conn,
         as_of_tournament_id=tournament_id,
         finalized_at=finalized_at,
+        realm_scan=scan,
     )
-    facts = build_community_facts_at_cutoff(conn, tournament_id)
+    facts = scan.facts
     persist_community_headline(conn, row, commit=False)
     fact_count = persist_community_facts(conn, tournament_id, facts, commit=False)
     if commit:

@@ -69,7 +69,7 @@
 
 - **Amiga World Cups LB (Jun 2026):** **V1 shipped** — Honours · Results · Goals wing; WC extracted from tournament honours + calendar-geo; slice tables + TT. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md).
 
-- **Amiga community stats (Jun 2026):** **Shipped** — `amiga_community_stats` + snapshots + facts; Activity summary; aggregate cols **dropped** from realm/HoF tables (`035`); multi-event + PHP build parity in `prove`. **V2 product:** question-first catalog — [`amiga-community-stats-catalog-plan.md`](docs/amiga-community-stats-catalog-plan.md) (step 3 done, **46 ship**); registry v2 next. **Per-WC table spec** (curated v1): [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md). [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md).
+- **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2 (46 catalog grains), headline extensions (`036`), `verify-world-cup-stats` + PHP parity in `prove` green. **Per-WC table** `amiga_world_cup_stats` (`037`, 23 WC rows). Charts/UI **not** started. [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md) · [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md).
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
@@ -127,6 +127,7 @@
 | 2026-06 | **Obsolete dev scripts retirement** — policy + implementation plan; holy ops audit: online ops never exec Python; Amiga `prove` imports `scripts.ladder` library only (`player_state`, `apply_game_row`, `constants`, `config`). Per-file retirement gate mandatory before delete. |
 | 2026-06 | **Post-game parity register sweep** — `post-game-contract-vs-oracle-discrepancies.md`: closed false Opens (`play_streak_100`, P7 verify); split `club_*` live Fixed vs batch Deferred; layer 7 superseded by `verify_activity_wing_parity`; DDR-052 + cutover checklist aligned. |
 | 2026-06 | **Milestones docs drift fix** — `milestones-product-spec.md` + `milestones-project.md`: 112/112 keys shipped (removed stale wave-1 ~88 TODO); meta LB wing + hub v2 marked done; Accomplished **%** wing noted as deferred (counts ship today). |
+| 2026-06 | **Amiga community stats v2 + WC table writers** — DDL `036`/`037`; registry v2 facts + headline extensions; `amiga_world_cup_stats` (23 rows); Python + PHP finalize; `verify-world-cup-stats` + PHP parity in `prove` green (~21 min). Charts deferred. |
 | 2026-06 | **Amiga community stats catalog step 3** — Dagh curation: **46 ship**, 2 later, 28 cut; per-WC table + histogram UX backlog noted. |
 | 2026-06 | **Amiga community stats catalog step 2** — dedupe (73 active, 3 cut), storage S0–S7 refined, 9 writer clusters; question catalog updated. |
 | 2026-06 | **Amiga community stats question catalog** — 76 brainstorm rows (6 wings); [`amiga-community-stats-question-catalog.md`](docs/amiga-community-stats-question-catalog.md); curation pending. |

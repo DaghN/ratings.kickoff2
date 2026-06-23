@@ -586,6 +586,9 @@ function amiga_ops_zero_derived(mysqli $con, bool $dryRun = false): void
     if (!$con->query('DELETE FROM amiga_community_stat_facts')) {
         throw new RuntimeException('DELETE amiga_community_stat_facts: ' . $con->error);
     }
+    if (!$con->query('DELETE FROM amiga_world_cup_stats')) {
+        throw new RuntimeException('DELETE amiga_world_cup_stats: ' . $con->error);
+    }
     if (!$con->query('DELETE FROM amiga_community_stats_snapshots')) {
         throw new RuntimeException('DELETE amiga_community_stats_snapshots: ' . $con->error);
     }

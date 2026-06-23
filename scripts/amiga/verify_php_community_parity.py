@@ -13,7 +13,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.community_stat_facts import build_community_facts_at_cutoff
-from scripts.amiga.community_stats import compute_community_headline_aggregates
+from scripts.amiga.community_stats import build_community_headline_row
 from scripts.amiga.community_stats_columns import COMMUNITY_HEADLINE_COLUMNS
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.verify_community_stats import (
@@ -102,7 +102,7 @@ def verify_php_community_parity(conn: pymysql.connections.Connection, php: Path)
             errors.append(str(exc))
             continue
 
-        py_headline = compute_community_headline_aggregates(
+        py_headline = build_community_headline_row(
             conn, as_of_tournament_id=tid
         )
         php_headline = php_payload.get("headline") or {}

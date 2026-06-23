@@ -45,6 +45,17 @@ def cutoff_params(cutoff: RealmCutoff) -> tuple[Any, Any, int]:
     return (cutoff.event_date, cutoff.chrono, cutoff.tournament_id)
 
 
+def tournament_cutoff_params(cutoff: RealmCutoff) -> tuple[Any, Any, Any, Any, int]:
+    """Five placeholders for event_date/chrono/id inclusive cutoff WHERE clauses."""
+    return (
+        cutoff.event_date,
+        cutoff.event_date,
+        cutoff.chrono,
+        cutoff.chrono,
+        cutoff.tournament_id,
+    )
+
+
 def game_cutoff_sql(alias: str = "t") -> str:
     return f"({alias}.event_date, {alias}.chrono, {alias}.id) <= (%s, %s, %s)"
 

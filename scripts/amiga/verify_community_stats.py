@@ -9,7 +9,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.community_stat_facts import build_community_facts_at_cutoff
-from scripts.amiga.community_stats import compute_community_headline_aggregates
+from scripts.amiga.community_stats import build_community_headline_row
 from scripts.amiga.community_stats_columns import COMMUNITY_HEADLINE_COLUMNS
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.realm_cutoff import latest_finalized_tournament_id
@@ -110,7 +110,7 @@ def _verify_oracle_at_tournament(
             errors.append(f"missing community snapshot for tournament_id={tournament_id}")
             return
 
-        oracle_headline = compute_community_headline_aggregates(
+        oracle_headline = build_community_headline_row(
             conn, as_of_tournament_id=tournament_id
         )
         for col in COMMUNITY_HEADLINE_COLUMNS:

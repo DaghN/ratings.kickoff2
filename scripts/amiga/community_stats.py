@@ -7,7 +7,12 @@ from typing import Any
 
 import pymysql
 
-from scripts.amiga.community_stats_columns import COMMUNITY_HEADLINE_COLUMNS
+from scripts.amiga.community_stats_columns import (
+    COMMUNITY_HEADLINE_BASE_COLUMNS,
+    COMMUNITY_HEADLINE_COLUMNS,
+    COMMUNITY_HEADLINE_EXTENSION_COLUMNS,
+)
+from scripts.amiga.community_stat_facts import CommunityRealmScan
 from scripts.amiga.realm_cutoff import (
     RealmCutoff,
     cutoff_params,
@@ -158,16 +163,33 @@ def compute_community_headline_aggregates(
     )
 
 
+def headline_extensions_from_scan(scan: CommunityRealmScan) -> dict[str, Any]:
+    return {
+        "TournamentsFinalized": scan.tournaments_finalized,
+        "DistinctHostCountries": scan.distinct_host_countries,
+        "WcGamesPlayed": scan.wc_games_played,
+        "DistinctOpponentPairs": scan.distinct_opponent_pairs,
+        "PlayersDebuted": scan.players_debuted,
+    }
+
+
 def build_community_headline_row(
     conn: pymysql.connections.Connection,
     *,
     as_of_tournament_id: int,
     finalized_at: datetime | None = None,
+    realm_scan: CommunityRealmScan | None = None,
 ) -> dict[str, Any]:
     cutoff = load_realm_cutoff(conn, as_of_tournament_id)
     headline = compute_community_headline_aggregates(
         conn, as_of_tournament_id=as_of_tournament_id
     )
+    if realm_scan is not None:
+        headline.update(headline_extensions_from_scan(realm_scan))
+    else:
+        from scripts.amiga.community_stat_facts import build_community_realm_scan
+
+        headline.update(headline_extensions_from_scan(build_community_realm_scan(conn, as_of_tournament_id)))
     if finalized_at is None:
         with conn.cursor() as cur:
             cur.execute(

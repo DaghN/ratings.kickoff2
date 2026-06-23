@@ -107,6 +107,7 @@ def clear_derived(conn: pymysql.connections.Connection, *, dry_run: bool) -> Non
     with conn.cursor() as cur:
         cur.execute("DELETE FROM amiga_community_stat_facts")
         cur.execute("DELETE FROM amiga_community_stats_snapshots")
+        cur.execute("DELETE FROM amiga_world_cup_stats")
         cur.execute("DELETE FROM amiga_community_stats WHERE id = 1")
         cur.execute("INSERT IGNORE INTO amiga_community_stats (id) VALUES (1)")
         cur.execute("DELETE FROM amiga_generalstats WHERE id = 1")

@@ -3,37 +3,51 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Any
 
 import pymysql
 
+from scripts.amiga.community_game_metrics import (
+    canonical_pair,
+    country_token,
+    rated_game_metrics_from_row,
+    year_key,
+)
 from scripts.amiga.community_stat_registry import (
     ALL_TIME_PERIOD_KEY,
+    FACT_SPECS,
+    PER_GAME_FACT_SPECS,
     REALM_SLICE_KEY,
-    V1_FACT_SPECS,
+    WORLD_CUP_SLICE_KEY,
     CommunityFactSpec,
 )
 from scripts.amiga.community_stats_columns import COMMUNITY_FACT_COLUMNS
-from scripts.amiga.realm_cutoff import cutoff_params, game_cutoff_sql, load_realm_cutoff
+from scripts.amiga.realm_cutoff import cutoff_params, game_cutoff_sql, load_realm_cutoff, tournament_cutoff_params
+from scripts.amiga.tournament_honours import is_world_cup_tournament
 
 
-def _country_token(value: Any) -> str | None:
-    if value is None:
-        return None
-    text = str(value).strip()
-    return text if text else None
-
-
-def _year_key(event_date: Any) -> str | None:
-    if event_date is None:
-        return None
-    return str(event_date.year)
+@dataclass
+class CommunityRealmScan:
+    facts: list[dict[str, Any]]
+    tournaments_finalized: int
+    distinct_host_countries: int
+    wc_games_played: int
+    distinct_opponent_pairs: int
+    players_debuted: int
 
 
 class _FactAccum:
     def __init__(self) -> None:
         self._values: dict[tuple[str, str, str, str, str, str], float] = defaultdict(float)
-        self._active_players: dict[tuple[str, str], set[int]] = defaultdict(set)
+        self._active_players: dict[tuple[str, str, str], set[int]] = defaultdict(set)
+        self._nationalities_by_year: dict[str, set[str]] = defaultdict(set)
+        self._nationalities_wc_by_year: dict[str, set[str]] = defaultdict(set)
+        self._host_countries_by_year: dict[str, set[str]] = defaultdict(set)
+        self._pairs_by_year: dict[str, set[tuple[int, int]]] = defaultdict(set)
+        self._pairs_cumulative: set[tuple[int, int]] = set()
+        self._debut_year_by_player: dict[int, str] = {}
+        self._wc_games_played: int = 0
 
     def _key(
         self,
@@ -50,68 +64,174 @@ class _FactAccum:
             spec.count_basis,
         )
 
+    def _bump(self, spec: CommunityFactSpec, period_key: str, slice_key: str, delta: float) -> None:
+        if delta == 0:
+            return
+        self._values[self._key(spec, period_key, slice_key)] += delta
+
     def add_game(
         self,
         *,
         year: str | None,
         host_country: str | None,
-        player_a_id: int,
-        player_b_id: int,
         country_a: str | None,
         country_b: str | None,
+        player_a_id: int,
+        player_b_id: int,
         goals_a: int,
         goals_b: int,
-        sum_of_goals: int,
+        metrics: Any,
+        is_wc: bool,
     ) -> None:
         if year is not None:
-            for spec in V1_FACT_SPECS:
+            for spec in PER_GAME_FACT_SPECS:
                 if spec.period_type != "year":
                     continue
                 if spec.slice_type == "realm":
                     if spec.metric_key == "games":
-                        self._values[self._key(spec, year, REALM_SLICE_KEY)] += 1
+                        self._bump(spec, year, REALM_SLICE_KEY, 1)
                     elif spec.metric_key == "goals":
-                        self._values[self._key(spec, year, REALM_SLICE_KEY)] += sum_of_goals
-                    elif spec.metric_key == "active_players":
-                        self._active_players[(spec.period_type, year)].add(player_a_id)
-                        self._active_players[(spec.period_type, year)].add(player_b_id)
+                        self._bump(spec, year, REALM_SLICE_KEY, metrics.sum_of_goals)
+                    elif spec.metric_key == "draws" and metrics.is_draw:
+                        self._bump(spec, year, REALM_SLICE_KEY, 1)
+                    elif spec.metric_key == "double_digits":
+                        self._bump(spec, year, REALM_SLICE_KEY, metrics.dd_slots)
+                    elif spec.metric_key == "clean_sheets":
+                        self._bump(spec, year, REALM_SLICE_KEY, metrics.cs_slots)
+                    elif spec.metric_key == "high_scoring_games" and metrics.is_high_scoring:
+                        self._bump(spec, year, REALM_SLICE_KEY, 1)
                 elif spec.slice_type == "host_country" and host_country is not None:
                     if spec.metric_key == "games":
-                        self._values[self._key(spec, year, host_country)] += 1
+                        self._bump(spec, year, host_country, 1)
+                    elif spec.metric_key == "goals":
+                        self._bump(spec, year, host_country, goals_a + goals_b)
                 elif spec.slice_type == "player_nationality":
-                    for country, player_id, goals in (
-                        (country_a, player_a_id, goals_a),
-                        (country_b, player_b_id, goals_b),
-                    ):
+                    for country, goals in ((country_a, goals_a), (country_b, goals_b)):
                         if country is None:
                             continue
                         if spec.metric_key == "games":
-                            self._values[self._key(spec, year, country)] += 1
+                            self._bump(spec, year, country, 1)
                         elif spec.metric_key == "goals":
-                            self._values[self._key(spec, year, country)] += goals
+                            self._bump(spec, year, country, goals)
+                elif spec.slice_type == "world_cup" and is_wc:
+                    if spec.metric_key == "games":
+                        self._bump(spec, year, WORLD_CUP_SLICE_KEY, 1)
+                    elif spec.metric_key == "goals":
+                        self._bump(spec, year, WORLD_CUP_SLICE_KEY, metrics.sum_of_goals)
 
-        for spec in V1_FACT_SPECS:
+            for country in (country_a, country_b):
+                if country is not None:
+                    self._nationalities_by_year[year].add(country)
+            if is_wc:
+                for country in (country_a, country_b):
+                    if country is not None:
+                        self._nationalities_wc_by_year[year].add(country)
+
+            pair = canonical_pair(player_a_id, player_b_id)
+            self._pairs_by_year[year].add(pair)
+            self._pairs_cumulative.add(pair)
+
+            for player_id in (player_a_id, player_b_id):
+                if player_id not in self._debut_year_by_player:
+                    self._debut_year_by_player[player_id] = year
+
+            self._active_players[("year", year, "realm")].add(player_a_id)
+            self._active_players[("year", year, "realm")].add(player_b_id)
+            if is_wc:
+                self._active_players[("year", year, "world_cup")].add(player_a_id)
+                self._active_players[("year", year, "world_cup")].add(player_b_id)
+
+        if is_wc:
+            self._wc_games_played += 1
+
+        for spec in PER_GAME_FACT_SPECS:
             if spec.period_type != "all_time":
                 continue
             if spec.slice_type == "host_country" and host_country is not None:
                 if spec.metric_key == "games":
-                    self._values[self._key(spec, ALL_TIME_PERIOD_KEY, host_country)] += 1
+                    self._bump(spec, ALL_TIME_PERIOD_KEY, host_country, 1)
+                elif spec.metric_key == "goals":
+                    self._bump(spec, ALL_TIME_PERIOD_KEY, host_country, goals_a + goals_b)
             elif spec.slice_type == "player_nationality":
-                for country in (country_a, country_b):
+                for country, goals in ((country_a, goals_a), (country_b, goals_b)):
                     if country is None:
                         continue
                     if spec.metric_key == "games":
-                        self._values[
-                            self._key(spec, ALL_TIME_PERIOD_KEY, country)
-                        ] += 1
+                        self._bump(spec, ALL_TIME_PERIOD_KEY, country, 1)
+                    elif spec.metric_key == "goals":
+                        self._bump(spec, ALL_TIME_PERIOD_KEY, country, goals)
 
-    def rows(self, tournament_id: int) -> list[dict[str, Any]]:
-        out: list[dict[str, Any]] = []
+    def add_tournament_year(self, year: str, host_country: str | None) -> None:
+        for spec in FACT_SPECS:
+            if spec.period_type == "year" and spec.slice_type == "realm" and spec.metric_key == "tournaments":
+                self._bump(spec, year, REALM_SLICE_KEY, 1)
+            if (
+                spec.period_type == "year"
+                and spec.slice_type == "host_country"
+                and spec.metric_key == "tournaments"
+                and host_country is not None
+            ):
+                self._bump(spec, year, host_country, 1)
+        if host_country is not None:
+            self._host_countries_by_year[year].add(host_country)
+
+    def add_all_time_tournament(self, host_country: str | None) -> None:
+        if host_country is None:
+            return
+        for spec in FACT_SPECS:
+            if (
+                spec.period_type == "all_time"
+                and spec.slice_type == "host_country"
+                and spec.metric_key == "tournaments"
+            ):
+                self._bump(spec, ALL_TIME_PERIOD_KEY, host_country, 1)
+
+    def finalize_rows(self, tournament_id: int) -> CommunityRealmScan:
+        for (period_type, period_key, slice_kind), players in self._active_players.items():
+            if not players:
+                continue
+            slice_type = "realm" if slice_kind == "realm" else "world_cup"
+            slice_key = REALM_SLICE_KEY if slice_type == "realm" else WORLD_CUP_SLICE_KEY
+            self._values[
+                (period_type, period_key, slice_type, slice_key, "active_players", "game")
+            ] = float(len(players))
+
+        for year, countries in self._nationalities_by_year.items():
+            if countries:
+                self._values[
+                    ("year", year, "realm", REALM_SLICE_KEY, "distinct_nationalities", "game")
+                ] = float(len(countries))
+        for year, countries in self._nationalities_wc_by_year.items():
+            if countries:
+                self._values[
+                    ("year", year, "world_cup", WORLD_CUP_SLICE_KEY, "distinct_nationalities", "game")
+                ] = float(len(countries))
+        for year, countries in self._host_countries_by_year.items():
+            if countries:
+                self._values[
+                    ("year", year, "realm", REALM_SLICE_KEY, "distinct_host_countries", "game")
+                ] = float(len(countries))
+        for year, pairs in self._pairs_by_year.items():
+            if pairs:
+                self._values[
+                    ("year", year, "realm", REALM_SLICE_KEY, "distinct_pairs", "game")
+                ] = float(len(pairs))
+
+        debut_counts: dict[str, int] = defaultdict(int)
+        for debut_year in self._debut_year_by_player.values():
+            debut_counts[debut_year] += 1
+        for year, count in debut_counts.items():
+            if count:
+                self._values[
+                    ("year", year, "realm", REALM_SLICE_KEY, "player_debuts", "game")
+                ] = float(count)
+
+        facts: list[dict[str, Any]] = []
         for key, value in self._values.items():
             if value == 0:
                 continue
             period_type, period_key, slice_type, slice_key, metric_key, count_basis = key
-            out.append(
+            facts.append(
                 {
                     "tournament_id": tournament_id,
                     "period_type": period_type,
@@ -123,36 +243,57 @@ class _FactAccum:
                     "value": value,
                 }
             )
-        for (period_type, period_key), players in self._active_players.items():
-            if not players:
-                continue
-            out.append(
-                {
-                    "tournament_id": tournament_id,
-                    "period_type": period_type,
-                    "period_key": period_key,
-                    "slice_type": "realm",
-                    "slice_key": REALM_SLICE_KEY,
-                    "metric_key": "active_players",
-                    "count_basis": "game",
-                    "value": float(len(players)),
-                }
-            )
-        return out
+
+        return CommunityRealmScan(
+            facts=facts,
+            tournaments_finalized=0,
+            distinct_host_countries=0,
+            wc_games_played=self._wc_games_played,
+            distinct_opponent_pairs=len(self._pairs_cumulative),
+            players_debuted=len(self._debut_year_by_player),
+        )
 
 
-def build_community_facts_at_cutoff(
+def _load_tournaments_at_cutoff(
+    conn: pymysql.connections.Connection,
+    cutoff: Any,
+) -> tuple[int, int]:
+    params = tournament_cutoff_params(cutoff)
+    sql = """
+        SELECT t.event_date, t.country
+        FROM tournaments t
+        WHERE t.rating_finalized = 1
+          AND (
+            t.event_date < %s
+            OR (t.event_date = %s AND (t.chrono < %s OR (t.chrono = %s AND t.id <= %s)))
+          )
+        ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC
+        """
+    host_countries: set[str] = set()
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        rows = cur.fetchall()
+    for row in rows:
+        host = country_token(row.get("country"))
+        if host is not None:
+            host_countries.add(host)
+    return len(rows), len(host_countries)
+
+
+def build_community_realm_scan(
     conn: pymysql.connections.Connection,
     as_of_tournament_id: int,
-) -> list[dict[str, Any]]:
+) -> CommunityRealmScan:
     cutoff = load_realm_cutoff(conn, as_of_tournament_id)
     params = cutoff_params(cutoff)
+    tour_params = tournament_cutoff_params(cutoff)
     cutoff_where = game_cutoff_sql("t")
     sql = f"""
-        SELECT g.player_a_id, g.player_b_id, g.goals_a, g.goals_b,
-               t.event_date, t.country AS host_country,
+        SELECT g.id AS game_id, g.player_a_id, g.player_b_id, g.goals_a, g.goals_b, g.phase,
+               t.event_date, t.country AS host_country, t.name AS tournament_name,
                pa.country AS country_a, pb.country AS country_b,
-               r.sum_of_goals
+               r.sum_of_goals, r.actual_score,
+               r.dd_player_a, r.dd_player_b, r.cs_player_a, r.cs_player_b
         FROM amiga_games g
         INNER JOIN amiga_game_ratings r ON r.game_id = g.id
         INNER JOIN tournaments t ON t.id = g.tournament_id
@@ -165,18 +306,55 @@ def build_community_facts_at_cutoff(
     with conn.cursor() as cur:
         cur.execute(sql, params)
         for row in cur.fetchall():
+            year = year_key(row["event_date"])
+            host_country = country_token(row["host_country"])
+            metrics = rated_game_metrics_from_row(row)
+            is_wc = is_world_cup_tournament(str(row.get("tournament_name") or ""))
             accum.add_game(
-                year=_year_key(row["event_date"]),
-                host_country=_country_token(row["host_country"]),
+                year=year,
+                host_country=host_country,
+                country_a=country_token(row["country_a"]),
+                country_b=country_token(row["country_b"]),
                 player_a_id=int(row["player_a_id"]),
                 player_b_id=int(row["player_b_id"]),
-                country_a=_country_token(row["country_a"]),
-                country_b=_country_token(row["country_b"]),
                 goals_a=int(row["goals_a"]),
                 goals_b=int(row["goals_b"]),
-                sum_of_goals=int(row["sum_of_goals"] or 0),
+                metrics=metrics,
+                is_wc=is_wc,
             )
-    return accum.rows(as_of_tournament_id)
+
+        cur.execute(
+            """
+            SELECT t.event_date, t.country
+            FROM tournaments t
+            WHERE t.rating_finalized = 1
+              AND (
+                t.event_date < %s
+                OR (t.event_date = %s AND (t.chrono < %s OR (t.chrono = %s AND t.id <= %s)))
+              )
+            ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC
+            """,
+            tour_params,
+        )
+        for row in cur.fetchall():
+            year = year_key(row["event_date"])
+            host = country_token(row.get("country"))
+            if year is not None:
+                accum.add_tournament_year(year, host)
+            accum.add_all_time_tournament(host)
+
+    scan = accum.finalize_rows(as_of_tournament_id)
+    tour_count, host_count = _load_tournaments_at_cutoff(conn, cutoff)
+    scan.tournaments_finalized = tour_count
+    scan.distinct_host_countries = host_count
+    return scan
+
+
+def build_community_facts_at_cutoff(
+    conn: pymysql.connections.Connection,
+    as_of_tournament_id: int,
+) -> list[dict[str, Any]]:
+    return build_community_realm_scan(conn, as_of_tournament_id).facts
 
 
 def fact_row_values(row: dict[str, Any]) -> list[Any]:

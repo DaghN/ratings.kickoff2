@@ -4,8 +4,21 @@ from __future__ import annotations
 
 from scripts.amiga.generalstats_columns import GENERALSTATS_AGGREGATE_COLUMNS
 
-# Headline payload = same 14 realm aggregate scalars as legacy generalstats block.
-COMMUNITY_HEADLINE_COLUMNS: tuple[str, ...] = GENERALSTATS_AGGREGATE_COLUMNS
+# Legacy 14 realm aggregate scalars (v1).
+COMMUNITY_HEADLINE_BASE_COLUMNS: tuple[str, ...] = GENERALSTATS_AGGREGATE_COLUMNS
+
+# v2 extension scalars (question catalog step 3).
+COMMUNITY_HEADLINE_EXTENSION_COLUMNS: tuple[str, ...] = (
+    "TournamentsFinalized",
+    "DistinctHostCountries",
+    "WcGamesPlayed",
+    "DistinctOpponentPairs",
+    "PlayersDebuted",
+)
+
+COMMUNITY_HEADLINE_COLUMNS: tuple[str, ...] = (
+    COMMUNITY_HEADLINE_BASE_COLUMNS + COMMUNITY_HEADLINE_EXTENSION_COLUMNS
+)
 
 COMMUNITY_SNAPSHOT_KEY_COLUMNS: tuple[str, ...] = (
     "tournament_id",

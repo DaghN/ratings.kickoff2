@@ -1,11 +1,12 @@
 <?php
 /**
- * V1 community stat fact registry (mirrors scripts/amiga/community_stat_registry.py).
+ * Community stat fact registry (mirrors scripts/amiga/community_stat_registry.py).
  */
 declare(strict_types=1);
 
 const AMIGA_COMMUNITY_REALM_SLICE_KEY = '*';
 const AMIGA_COMMUNITY_ALL_TIME_PERIOD_KEY = '*';
+const AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY = '*';
 
 /** @return list<string> */
 function amiga_community_headline_column_names(): array
@@ -25,5 +26,22 @@ function amiga_community_headline_column_names(): array
         'CleanSheets',
         'DoubleDigitsRatio',
         'CleanSheetsRatio',
+        'TournamentsFinalized',
+        'DistinctHostCountries',
+        'WcGamesPlayed',
+        'DistinctOpponentPairs',
+        'PlayersDebuted',
+    ];
+}
+
+/** @return list<string> */
+function amiga_community_headline_extension_column_names(): array
+{
+    return [
+        'TournamentsFinalized',
+        'DistinctHostCountries',
+        'WcGamesPlayed',
+        'DistinctOpponentPairs',
+        'PlayersDebuted',
     ];
 }

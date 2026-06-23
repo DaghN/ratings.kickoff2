@@ -20,6 +20,7 @@ from scripts.amiga.verify_player_participation import main as verify_player_part
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_main
 from scripts.amiga.verify_community_stats import main as verify_community_stats_main
+from scripts.amiga.verify_world_cup_stats import main as verify_world_cup_stats_main
 from scripts.amiga.verify_php_community_parity import main as verify_php_community_parity_main
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
@@ -38,6 +39,7 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-player-slice", verify_player_slice_main),
     ("verify-realm-snapshots", verify_realm_snapshots_main),
     ("verify-community-stats", verify_community_stats_main),
+    ("verify-world-cup-stats", verify_world_cup_stats_main),
     ("verify-php-community-parity", verify_php_community_parity_main),
     ("verify-hof-geo-year", verify_hof_geo_year_main),
     ("verify-hof-holder-projection", verify_hof_holder_projection_main),
