@@ -19,6 +19,7 @@ Planning and audit material kept for history — **not** the live spec for the s
 | File | Contents |
 |------|----------|
 | `retired-amiga-refinalize-2026-06.md` | Refinalize + batch `*-rebuild` CLI retirement (Jun 2026) |
+| `amiga-community-stats-hygiene-shortlist-2026-06.md` | Hygiene shortlist snapshot — live backlog in implementation plan § Phase 2 |
 | `replay-register-2026-05.md` | Full May 2026 REP register + run log |
 | `STAGING_REPLAY-2026-05.md` | May 2026 staging Python ladder one-shot |
 | `session-log-2026-q2.md` | Trimmed `PROJECT_MEMORY.md` Recent log rows (May–Jun 2026) |

@@ -1,8 +1,14 @@
+# Amiga community stats — hygiene shortlist (archived)
+
+**Archived:** Jun 2026 — merged into [`../amiga-community-stats-implementation-plan.md`](../amiga-community-stats-implementation-plan.md) § **Phase 2 — Verify hygiene**.
+
+---
+
 # Amiga community stats — hygiene shortlist (recentering)
 
 **Purpose:** Checklist before adding **new fact grains** or chart read paths on `amiga_community_*`.
 
-**Authority:** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (prove-only writes).
+**Authority:** [`amiga-community-stats-policy.md`](../amiga-community-stats-policy.md) · [`amiga-derived-write-policy.md`](../amiga-derived-write-policy.md) (prove-only writes).
 
 **Repair / corrections:** `python -m scripts.amiga prove` only.
 
@@ -23,7 +29,7 @@
 
 ## `verify_php_finalize_parity` — intentional absence
 
-Retired with refinalize (Jun 2026). See [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md). Community PHP confidence = `verify-php-community-parity` (build-only).
+Retired with refinalize (Jun 2026). See [`retired-amiga-refinalize-2026-06.md`](retired-amiga-refinalize-2026-06.md). Community PHP confidence = `verify-php-community-parity` (build-only).
 
 ---
 
@@ -41,13 +47,13 @@ Retired with refinalize (Jun 2026). See [`archive/retired-amiga-refinalize-2026-
 
 | # | Item |
 |---|------|
-| 4 | Realm/community implementation plans: mark batch rebuild tasks retired | **Done** Jun 2026 — live docs sweep ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)) |
+| 4 | Realm/community implementation plans: mark batch rebuild tasks retired | **Done** Jun 2026 — live docs sweep ([`amiga-derived-write-policy.md`](../amiga-derived-write-policy.md)) |
 | 5 | Dead bulk helpers in Python modules (optional delete pass) |
 | 6 | `amiga_community_facts_query()` when chart APIs ship |
 
 ### Explicitly rejected
 
-- Batch `community-stats-rebuild` or any derived repair CLI — see [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)
+- Batch `community-stats-rebuild` or any derived repair CLI — see [`amiga-derived-write-policy.md`](../amiga-derived-write-policy.md)
 - Restoring refinalize / `verify_php_finalize_parity`
 
 ---

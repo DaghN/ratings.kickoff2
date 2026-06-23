@@ -6,7 +6,7 @@
 
 **Execution:** Slices **in order**. Run each slice **Verification** before continuing. **Do not git commit** unless Dagh asks.
 
-**Out of scope for this plan:** full Activity chart panel port (online parity), new fact grains beyond v1 registry (spec pass before charts). **Derived writes:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). **Hygiene:** [`amiga-community-stats-hygiene-shortlist.md`](amiga-community-stats-hygiene-shortlist.md).
+**Out of scope for this plan:** full Activity chart panel port (online parity), new fact grains beyond v1 registry (spec pass before charts). **Derived writes:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). **Follow-on verify hygiene:** § Phase 2 below (before new fact grains).
 
 **Migration:** **L1+** — new DDL, finalize/replay writers, verify in `prove` → **Part B** at slice 9 wrap-up.
 
@@ -316,13 +316,56 @@ Optional in slice 5 or 9.
 
 ---
 
-## Follow-on (not numbered)
+## Phase 2 — Verify hygiene (before new grains)
+
+**When:** Before adding new `amiga_community_stat_facts` grains or chart read paths. **No new derived writers** — verify-only ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)).
+
+### Baseline (do not re-litigate)
+
+| Area | Gate |
+|------|------|
+| Python holy loop | `replay` → `persist_community_for_tournament` each finalize |
+| Stored headline + facts | `verify-community-stats` in `prove` (multi-event oracle) |
+| PHP **build** math | `verify-php-community-parity` (sample tournaments + T24) |
+| HoF vs community split | `035` — aggregates off realm/HoF tables |
+| Activity present + TT headline | `amiga_activity_summary.php` → `amiga_community_headline_load` |
+| Export | `export_ko2amiga_db.ps1` dumps all three community tables |
+
+`verify-php-finalize-parity` intentionally absent (retired with refinalize) — [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md).
+
+### P0 — Verify-only hardening
+
+| # | Item | Deliverable |
+|---|------|-------------|
+| 1 | **Stronger `verify-community-stats` SQL guards** | Every snapshot has facts; no orphan facts; timeline cols match `tournaments` |
+| 2 | **Registry parity unit test** | Python `COMMUNITY_HEADLINE_COLUMNS` == PHP registry |
+| 3 | **`verify-php-community-parity` fail if PHP missing** | Optional `AMIGA_REQUIRE_PHP=1` on dev |
+
+### P1 — Optional code hygiene
+
+| # | Item |
+|---|------|
+| 4 | Dead bulk helpers in Python modules (optional delete pass) |
+| 5 | `amiga_community_facts_query()` when chart APIs ship |
+
+### Rejected
+
+- `community-stats-rebuild` or any batch derived repair CLI — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)
+- Restoring refinalize / `verify_php_finalize_parity`
+
+**Sign-off:** `python -m scripts.amiga prove`
+
+*Former standalone shortlist archived Jun 2026 — [`archive/amiga-community-stats-hygiene-shortlist-2026-06.md`](archive/amiga-community-stats-hygiene-shortlist-2026-06.md).*
+
+---
+
+## Follow-on product (not numbered)
 
 | Topic | When |
 |-------|------|
 | Activity chart APIs (`api/amiga_community_*.php`) | After summary block ships |
 | `slice_type = world_cup` facts | Product slice |
-| Drop aggregate cols from `amiga_realm_snapshots` | Separate DDL track after Activity fully on community tables |
+| Drop aggregate cols from `amiga_realm_snapshots` | Done (`035`) — row kept for history |
 | Historical community charts in TT hub | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) follow-on |
 
 *Track initiated Jun 2026 — implements [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md).*

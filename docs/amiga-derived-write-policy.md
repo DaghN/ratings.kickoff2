@@ -70,4 +70,4 @@ These touch **one tournament** or **structure**, not cumulative derived repair a
 
 **Live docs sweep (Jun 2026):** Authority specs + implementation plans updated; `docs/archive/**` left as historical slice context.
 
-*See also:* [`amiga-community-stats-hygiene-shortlist.md`](amiga-community-stats-hygiene-shortlist.md)
+*See also:* [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) § Phase 2 (verify hygiene before new grains)
