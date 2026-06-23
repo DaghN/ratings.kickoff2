@@ -119,6 +119,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-23 | **Amiga WC player stats layout** — removed `.k2-amiga-wc-players-table` horizontal padding + footnote inset; tables align with tournament-stats tabs (full 1200px). |
 | 2026-06-23 | **Amiga WC player stats V2 UI** — five sub-wings on hub + LB dual surface; enriched Goals + DDs & CSs + Opponents; `amiga_wc_players_table.php` + routes. |
 | 2026-06-23 | **Amiga WC player slice V2 writers** — `039` DDL; `WorldCupSliceTracker` + finalize/replay; PHP `amiga_slice_game_stats_lib.php`; `verify-player-slice` V2 oracles; **`prove` green** (~21 min). |
 | 2026-06-23 | **Amiga WC player slice V2 policy** — five sub-wings (Goals enrich + DDs & CSs + Opponents); DDL/writer/verify contract — [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md). |

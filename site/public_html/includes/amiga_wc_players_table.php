@@ -77,7 +77,7 @@ function amiga_wc_players_render_honours(array $rows, int $playerCount): void
 </tbody>
 </table>
 <?php amiga_wc_players_table_shell_close(); ?>
-<p class="k2-amiga-wc-players-footnote" style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup.</p>
+<p class="k2-amiga-wc-players-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup.</p>
     <?php
 }
 
@@ -135,7 +135,7 @@ function amiga_wc_players_render_results(array $rows, int $playerCount): void
 </tbody>
 </table>
 <?php amiga_wc_players_table_shell_close(); ?>
-<p class="k2-amiga-wc-players-footnote" style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. Match points: 3 for a win, 1 for a draw.</p>
+<p class="k2-amiga-wc-players-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. Match points: 3 for a win, 1 for a draw.</p>
     <?php
 }
 
@@ -225,7 +225,7 @@ function amiga_wc_players_render_goals(array $rows, int $playerCount): void
 </tbody>
 </table>
 <?php amiga_wc_players_table_shell_close(); ?>
-<p class="k2-amiga-wc-players-footnote" style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. Max draw = biggest draw scoreline (equal goals each side). Max sum = most total goals in one game (both sides combined).</p>
+<p class="k2-amiga-wc-players-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. Max draw = biggest draw scoreline (equal goals each side). Max sum = most total goals in one game (both sides combined).</p>
     <?php
 }
 
@@ -285,7 +285,7 @@ function amiga_wc_players_render_dds(array $rows, int $playerCount): void
 </tbody>
 </table>
 <?php amiga_wc_players_table_shell_close(); ?>
-<p class="k2-amiga-wc-players-footnote" style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. World Cup rated games only.</p>
+<p class="k2-amiga-wc-players-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. World Cup rated games only.</p>
     <?php
 }
 
@@ -341,7 +341,7 @@ function amiga_wc_players_render_opponents(array $rows, int $playerCount): void
 </tbody>
 </table>
 <?php amiga_wc_players_table_shell_close(); ?>
-<p class="k2-amiga-wc-players-footnote" style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. Geography and network counts are World Cup games only.</p>
+<p class="k2-amiga-wc-players-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one World Cup. Geography and network counts are World Cup games only.</p>
     <?php
 }
 

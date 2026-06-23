@@ -2129,7 +2129,6 @@ html.ranked-js body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table-
 /* World Cup player stats wing — wide tables use scroll mirror (hub + LB dual surface) */
 body.k2-site .k2-amiga-wc-players-table {
 	max-width: var(--k2-max-width);
-	padding: 0 1.25rem;
 }
 
 body.k2-site .k2-amiga-wc-players-table .k2-table-mirror-group {
