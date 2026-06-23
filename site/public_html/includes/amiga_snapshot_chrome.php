@@ -108,6 +108,14 @@ function amiga_snapshot_chrome_carry_query_params(string $path): array
         $carry[$name] = $value;
     }
 
+    if (amiga_tournament_page_request_path($path)) {
+        $asRaw = isset($_GET['as']) ? trim((string) $_GET['as']) : '';
+        $parsed = $asRaw !== '' ? amiga_snapshot_parse_as_param($asRaw) : null;
+        if ($parsed !== null && $parsed['wing'] === 'event') {
+            $carry['id'] = $parsed['key'];
+        }
+    }
+
     return $carry;
 }
 
@@ -126,7 +134,7 @@ function amiga_snapshot_chrome_render_stepper(
     }
     echo '<nav class="' . $stepperClass . '" data-k2-carry-scroll aria-label="Time travel snapshot">';
     if ($prevAs !== null) {
-        $href = amiga_url_with_as_param($path, $prevAs);
+        $href = amiga_snapshot_chrome_nav_href($path, $prevAs, $wing);
         echo '<a class="k2-player-games-day-step k2-player-games-day-step--prev" href="'
             . k2_h($href) . '" aria-label="Previous snapshot">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
@@ -151,7 +159,7 @@ function amiga_snapshot_chrome_render_stepper(
         echo '<span class="k2-amiga-history__label">' . k2_h($label) . '</span>';
     }
     if ($nextAs !== null) {
-        $href = amiga_url_with_as_param($path, $nextAs);
+        $href = amiga_snapshot_chrome_nav_href($path, $nextAs, $wing);
         echo '<a class="k2-player-games-day-step k2-player-games-day-step--next" href="'
             . k2_h($href) . '" aria-label="Next snapshot">';
         echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';

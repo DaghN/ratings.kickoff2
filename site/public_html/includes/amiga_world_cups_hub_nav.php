@@ -1,0 +1,40 @@
+<?php
+/**
+ * World Cups hub sub-navigation — Events · Tournament stats · Player stats.
+ *
+ * Set $k2AmigaWorldCupsHubView before include: events | stats | players
+ *
+ * @see docs/amiga-world-cups-hub-policy.md
+ */
+declare(strict_types=1);
+
+require_once __DIR__ . '/k2_amiga_routes.php';
+
+$k2AmigaWorldCupsHubView = $k2AmigaWorldCupsHubView ?? 'events';
+
+$k2AmigaWorldCupsHubTabs = [
+    'events' => [
+        'href' => k2_amiga_route('amiga-world-cups'),
+        'label' => 'World Cups',
+    ],
+    'stats' => [
+        'href' => k2_amiga_route('amiga-world-cups-stats'),
+        'label' => 'Tournament stats',
+    ],
+    'players' => [
+        'href' => k2_amiga_route('amiga-world-cups-players'),
+        'label' => 'Player stats',
+    ],
+];
+?>
+<div class="k2-chrome-tabs k2-amiga-world-cups-hub-tabs">
+	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="World Cups">
+<?php foreach ($k2AmigaWorldCupsHubTabs as $viewId => $tab) {
+    $isActive = $k2AmigaWorldCupsHubView === $viewId;
+    ?>
+		<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>"
+			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
+			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo $tab['label']; ?></a>
+<?php } ?>
+	</nav>
+</div>

@@ -46,7 +46,7 @@ There is **no** per-page “Current | Historical” split. One chrome control, o
 | **T14b** | **Player-wing entry** | Header **Time travel** from a **player wing** (`/amiga/player/…`) with no active `as=` lands on the **same player path** with `as=` = that player’s **first rated event snapshot** (`event:ID`). Realm picker stays the **full catalog** (earlier years still selectable). |
 | **T14c** | **Tournament-page entry** | Header **Time travel** from **`/amiga/tournament.php?id={N}`** (present, no `as=`) lands on the **same tournament path** with `as=event:N` when tournament `N` is in the realm event catalog; else falls back to T14 (first calendar year). **Live tournament** pages remain present-only (T13). |
 | **T15** | **Uniform lens** | **Hub (time travel):** only snapshot-worthy tabs (T13b); all derived stats at cutoff. **Player wings:** hero, games, tournaments, opponents, profile — everything at cutoff when wired; preserve `as=` on links. No silent present-day numbers on wired surfaces. |
-| **T13b** | **Snapshot-only time-travel hub** | When `as=` is active, hub bar = **Leaderboards · Activity · Hall of Fame** only. **Tournaments** hub tab and future **Games** hub tab are **present-only** (hidden from bar). Historical tournament browse: player tournament list, `tournament.php` detail, deep links — not hub catalog index. |
+| **T13b** | **Snapshot-only time-travel hub** | When `as=` is active, hub bar = **Leaderboards · World Cups · Activity · Hall of Fame** only. **Tournaments** hub tab and future **Games** hub tab are **present-only** (hidden from bar). Historical tournament browse: player tournament list, `tournament.php` detail, deep links — not hub catalog index. |
 | **T16** | **No silent exit** | Links from active time travel must **preserve `as=`** on a cutoff-aware page, or **explicitly** open present-only content (T13 editorial redirect, labelled present-only link). Never drop `as=` without user intent. |
 | **T17** | **Pre-debut at cutoff** | Valid `amiga_players` row with **no snapshot ≤ cutoff** (or zero games at cutoff): page **loads** (no 404). Hero rank · rating · games show **—** + muted note *Not on the ladder at this cutoff.* Wired tables may be empty; unwired blocks may still show present data with transitional note (T5). |
 | **T18** | **Player event stepper** | On `/amiga/player/…` with **Event** wing: chevrons step **this player’s participated tournaments** (`NumberGames > 0`). **Forward** from pre-debut → first played event. **Back** at first played event → one **realm** tournament at a time. Picker stays **full realm catalog**; played events get **linkstar accent** (name + date in open panel and closed trigger when selected). Hub / LB keep realm-global stepping. Year / Month unchanged. |
@@ -156,7 +156,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 
 ### 5.1 Time travel chrome
 
-**Header (Amiga only):** segment beside realm switcher — **Present day | Time travel**. Present strips `as=` on the current path (carrying stable query params — `id`, table sort). **Time travel** sets default `as=` (first calendar year on hub/LB) or keeps active `as=`; from present-only hub pages targets **rating LB** (T14). From **player wings**, default `as=` = player’s first rated event (T14b). From **`tournament.php`** with catalog `id`, default `as=event:id` (T14c). **Wordmark** and **Amiga 500** realm pill use **News** in present mode; in time travel they return to **rating LB** with the active `as=` (realm home without exiting the lens).
+**Header (Amiga only):** segment beside realm switcher — **Present day | Time travel**. Present strips `as=` on the current path (carrying stable query params — `id`, table sort). **Time travel** sets default `as=` (first calendar year on hub/LB) or keeps active `as=`; from present-only hub pages targets **rating LB** (T14). From **player wings**, default `as=` = player’s first rated event (T14b). From **`tournament.php`** with catalog `id`, default `as=event:id` (T14c). **Wordmark** and **Amiga 500** realm pill use **News** in present mode; in time travel they return to **rating LB** with the active `as=` (realm home without exiting the lens). In **present** mode only, hover **Time travel** for a `data-k2-help` tooltip (`amiga_time_mode_nav_time_travel_help_text()` — warning copy + side-effects punchline).
 
 **Hub bar (when `as=` active):** **Leaderboards · Activity · Hall of Fame** only (T13b). Present-day order: **News · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments** (last). News, Live tournaments, Tournaments, and future Games hub tab are **hidden** under time travel.
 
@@ -174,6 +174,7 @@ Applies when Event granularity is active (`as=event:…`). Ribbon `<section>` ge
 |------|---------|-------------------|
 | **Stepper label** | Tournament name + event date | `M j, Y` (e.g. `Nov 14, 2006`); primary white link (`k2-amiga-history__label--link`), **not** linkstar |
 | **Stepper link** | `/amiga/tournament.php?id={cutoff_tournament_id}#tournament` | Active `as=` via `amiga_url_with_as_param()` in `amiga_snapshot_chrome_render_stepper()`. User stays in time travel on the tournament page (T16) |
+| **Event wing on `tournament.php`** | Chevrons, picker, and mismatched bookmarks | **`id` tracks cutoff event** — `amiga_snapshot_chrome_nav_href()` + picker carry + `amiga_tournament_apply_time_travel_event_id_redirect()` keep the tournament detail in sync with `as=event:{id}` (Jun 2026) |
 | **Picker closed** | Tournament name · date | Name left, date **right-aligned** in a fixed-width box; date `M Y`. Width = catalog longest name + fixed date column (not `name+date` char sum) |
 | **Picker open** | Full realm catalog (newest first) | Panel width **matches** closed trigger; each row name left · date right. On **player wings** (T18), played events: linkstar on **name and date** |
 
@@ -281,6 +282,7 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Player before debut at cutoff | Hero — / — / — + note; no 404 (T17) |
 | Player event chevrons | Step played tournaments; picker linkstar on played name + date (T18) |
 | Event stepper → tournament | Link lands on `tournament.php` with same `as=`; WC redirects keep `as=` |
+| Event wing on tournament.php | Chevrons / picker / `as=event:` change `id` to cutoff tournament (302 when mismatched) |
 | Event picker layout | Catalog-fixed width; closed date right-aligned; open panel = trigger width |
 | Hub nav under `as=` | Leaderboards · Activity · HoF only; no Tournaments tab (T13b) |
 | Profile with `as` active | Present-day data until wired (T12); target T15 |
@@ -300,6 +302,12 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Big-bang all pages before ship | Blocks launch; incremental registry is intentional |
 | Dense day-level picker | Finalize boundary is event-level; month/year sufficient |
 | Partial profile in phase 1 | Profile has substantial future work; half-wired page adds confusion |
+
+### Future (not scheduled)
+
+| Idea | Notes |
+|------|--------|
+| **Present-mode tournament stepper** | Hub **Tournaments** tab is a long flat list; Event-wing time-travel chevrons + picker are the best tournament browse UX today. A similar stepper on the present hub tab (no `as=` lens) is a plausible follow-on — out of scope until scheduled. |
 
 ---
 

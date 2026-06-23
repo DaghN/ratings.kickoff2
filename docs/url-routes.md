@@ -132,7 +132,18 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-wdl` | `/amiga/player/opponents/wdl.php` |
 | `amiga-player-opponents-goals` | `/amiga/player/opponents/goals.php` |
 | `amiga-player-opponents-dds` | `/amiga/player/opponents/dds.php` |
-| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (World Cups default — Honours) |
+| `amiga-world-cups` | `/amiga/world-cups/` (Events default — `index.php`) |
+| `amiga-world-cups-stats` | `/amiga/world-cups/stats/` (Goals default — `index.php`; `stats.php` 302) |
+| `amiga-world-cups-stats-goals` | `/amiga/world-cups/stats/index.php` |
+| `amiga-world-cups-stats-dds` | `/amiga/world-cups/stats/dds.php` |
+| `amiga-world-cups-stats-participation` | `/amiga/world-cups/stats/participation.php` |
+| `amiga-world-cups-stats-geography` | `/amiga/world-cups/stats/geography.php` |
+| `amiga-world-cups-stats-podium` | `/amiga/world-cups/stats/podium.php` |
+| `amiga-world-cups-players` | `/amiga/world-cups/players/honours.php` (Player stats default) |
+| `amiga-world-cups-players-honours` | `/amiga/world-cups/players/honours.php` |
+| `amiga-world-cups-players-results` | `/amiga/world-cups/players/results.php` |
+| `amiga-world-cups-players-goals` | `/amiga/world-cups/players/goals.php` |
+| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (LB entry — legacy until wing 3 wired) |
 | `amiga-lb-world-cups-honours` | `/amiga/leaderboards/world-cups/honours.php` |
 | `amiga-lb-world-cups-results` | `/amiga/leaderboards/world-cups/results.php` (slice 2) |
 | `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` (slice 3) |
@@ -141,7 +152,11 @@ Query `?id=` required on all player tabs.
 
 **Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php` → player games; `/amiga/player-tournaments.php` → tournaments. `/amiga/games.php` is reserved for a future realm-wide match log.
 
-**Not under `player/`:** `/amiga/tournament.php`, `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/`. Player Opponents wings: `amiga/player/opponents/*`.
+**Not under `player/`:** `/amiga/tournament.php`, `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents wings: `amiga/player/opponents/*`.
+
+### Amiga hub tabs (present order)
+
+News · **World Cups** (`/amiga/world-cups/`) · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Activity · Hall of Fame.
 
 ---
 

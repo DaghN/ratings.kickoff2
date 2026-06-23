@@ -396,6 +396,10 @@ body.k2-site a.k2-realm-switch__btn.is-active:hover {
 	text-decoration: none;
 }
 
+body.k2-site a.k2-realm-switch__btn.k2-table-helped {
+	cursor: help;
+}
+
 @media (max-width: 760px) {
 	.k2-realm-switch {
 		flex-basis: 100%;
@@ -2092,6 +2096,36 @@ body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar-thumb:hover,
 body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar-thumb:hover,
 body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb:hover {
 	background: var(--k2-scrollbar-thumb-hover);
+}
+
+/* World Cup stats wing — natural width on narrow tables; Goals wing uses scroll mirror when wide */
+body.k2-site .k2-amiga-world-cups-stats-table {
+	max-width: var(--k2-max-width);
+}
+
+body.k2-site .k2-amiga-world-cups-stats-table .k2-table-mirror-group {
+	max-width: 100%;
+}
+
+body.k2-site .k2-amiga-world-cups-stats-table .k2-table-wrap--natural-width {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats {
+	width: max-content;
+	max-width: none;
+	table-layout: auto;
+}
+
+body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats thead th,
+body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats tbody td {
+	width: auto;
+}
+
+body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats thead th:first-child,
+body.k2-site .k2-amiga-world-cups-stats-table .k2-table.k2-table--world-cup-stats tbody td:first-child {
+	white-space: nowrap;
 }
 
 body.k2-site .k2-player-games-controls {

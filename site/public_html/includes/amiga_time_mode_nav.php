@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/k2_table_helpers.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/amiga_hub_nav_lib.php';
 require_once __DIR__ . '/amiga_rating_history_lib.php';
@@ -78,6 +79,11 @@ function amiga_time_mode_nav_time_travel_href(string $path): ?string
     return amiga_url_with_as_param($targetPath, $asParam);
 }
 
+function amiga_time_mode_nav_time_travel_help_text(): string
+{
+    return 'WARNING! You will be taken back in time and see the world and its data as they were at that moment in time. Side effects may include outdated Elo, missing players, lost wins, and nostalgia.';
+}
+
 function amiga_time_mode_nav_render(): void
 {
     if (!amiga_time_mode_nav_should_show()) {
@@ -96,12 +102,20 @@ function amiga_time_mode_nav_render(): void
     $travelClass = $timeTravelActive ? ' is-active' : '';
     $presentAria = !$timeTravelActive ? ' aria-current="page"' : '';
     $travelAria = $timeTravelActive ? ' aria-current="page"' : '';
+    $travelHelpAttrs = '';
+    if (!$timeTravelActive) {
+        $travelHelpAttrs = ' data-k2-help="' . k2_h(amiga_time_mode_nav_time_travel_help_text())
+            . '" data-k2-tooltip-hide-title="1"';
+    }
     ?>
 <nav class="k2-realm-switch k2-amiga-time-mode" aria-label="Amiga time mode">
 	<div class="k2-realm-switch__track" role="group" aria-label="Present day or time travel">
 		<a href="<?php echo k2_h($presentHref); ?>" class="k2-realm-switch__btn<?php echo $presentClass; ?>"<?php echo $presentAria; ?>>Present day</a>
-		<a href="<?php echo k2_h($timeTravelHref); ?>" class="k2-realm-switch__btn<?php echo $travelClass; ?>"<?php echo $travelAria; ?>>Time travel</a>
+		<a href="<?php echo k2_h($timeTravelHref); ?>" class="k2-realm-switch__btn<?php echo $travelClass; ?>"<?php echo $travelAria; ?><?php echo $travelHelpAttrs; ?>>Time travel</a>
 	</div>
 </nav>
     <?php
+    if (!$timeTravelActive) {
+        k2_table_js_enqueue();
+    }
 }

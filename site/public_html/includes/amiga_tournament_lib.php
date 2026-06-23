@@ -677,6 +677,55 @@ function amiga_tournament_standings_nav_url(
 }
 
 /**
+ * When time travel Event wing is active, keep `id` aligned with `as=event:{id}`.
+ *
+ * @param array<string, mixed> $query
+ */
+function amiga_tournament_apply_time_travel_event_id_redirect(array $query): void
+{
+    require_once __DIR__ . '/amiga_snapshot_url.php';
+
+    if (!amiga_tournament_page_request_path()) {
+        return;
+    }
+
+    $asRaw = isset($query['as']) ? trim((string) $query['as']) : '';
+    if ($asRaw === '') {
+        return;
+    }
+
+    $parsed = amiga_snapshot_parse_as_param($asRaw);
+    if ($parsed === null || $parsed['wing'] !== 'event') {
+        return;
+    }
+
+    $eventId = (int) $parsed['key'];
+    if ($eventId < 1) {
+        return;
+    }
+
+    $pageId = isset($query['id']) ? (int) $query['id'] : 0;
+    if ($pageId === $eventId) {
+        return;
+    }
+
+    $scopeType = isset($query['scope']) ? (string) $query['scope'] : 'league';
+    $scopeKey = isset($query['scope_key']) ? (string) $query['scope_key'] : '';
+    $viewRaw = (string) ($query['view'] ?? '');
+    $view = in_array($viewRaw, ['event-stats', 'standings', 'stages', 'games'], true) ? $viewRaw : null;
+
+    header(
+        'Location: ' . amiga_url_with_as_param(
+            amiga_tournament_url($eventId, $scopeType, $scopeKey, $view),
+            $asRaw,
+        ),
+        true,
+        302,
+    );
+    exit;
+}
+
+/**
  * 302 redirects before HTML — legacy scope canonicalization; World Cup bare ``?id=`` → event stats.
  *
  * @param array{scope_type: string, scope_key: string, redirect: bool} $canonicalScope

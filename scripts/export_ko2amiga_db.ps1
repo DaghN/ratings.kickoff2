@@ -24,6 +24,7 @@ $Tables = @(
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
     'amiga_generalstats', 'amiga_realm_snapshots',
     'amiga_community_stats', 'amiga_community_stats_snapshots', 'amiga_community_stat_facts',
+    'amiga_world_cup_stats',
     'amiga_tournament_finish_override',
     'amiga_player_slice_totals', 'amiga_player_slice_at_event'
 )
@@ -169,6 +170,12 @@ $communityFactsPart = ('ko2amiga_{0:D2}_community_stat_facts.sql' -f $idx)
 $communityFactsFile = Join-Path $OutDir $communityFactsPart
 Write-DumpFile $communityFactsFile @('--no-create-info', 'ko2amiga_db', 'amiga_community_stat_facts')
 $parts.Add($communityFactsPart)
+$idx++
+
+$worldCupStatsPart = ('ko2amiga_{0:D2}_world_cup_stats.sql' -f $idx)
+$worldCupStatsFile = Join-Path $OutDir $worldCupStatsPart
+Write-DumpFile $worldCupStatsFile @('--no-create-info', 'ko2amiga_db', 'amiga_world_cup_stats')
+$parts.Add($worldCupStatsPart)
 $idx++
 
 $sliceTotalsPart = ('ko2amiga_{0:D2}_slice_totals.sql' -f $idx)

@@ -21,7 +21,7 @@ Add a **World Cups** leaderboard wing family under **Amiga → Leaderboards** �
 | **Time travel** | Wired on first ship — read slice timeline at cutoff; no present-only backfill |
 | **V2+** | Same infrastructure — e.g. DDs / CSs sub-wings, 4th / 5–8 / silver-cup finishes when finish taxonomy exists |
 
-This is the **first version** of a WC “hub” inside Leaderboards. Infrastructure is built to grow (more columns, more sub-wings) without rethinking storage or TT.
+This is the **first version** of WC player leaderboards. **Canonical UI home** moves to **World Cups hub wing 3** when that hub ships — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH8–WCH9; this doc remains the **data + column** contract. Infrastructure is built to grow (more columns, more sub-wings) without rethinking storage or TT.
 
 ---
 

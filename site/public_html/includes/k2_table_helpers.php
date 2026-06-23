@@ -104,3 +104,27 @@ function k2_table_default_sort_col_from_request(int $fallback): int
 
     return (int) $params['k2_sort'];
 }
+
+/** Whether {@see k2_table_js_enqueue()} already emitted the script tag this request. */
+function k2_table_js_is_enqueued(): bool
+{
+    return !empty($GLOBALS['_k2_table_js_enqueued']);
+}
+
+/** Mark k2-table.js as loaded (e.g. when a page enqueues it in head before site_header). */
+function k2_table_js_mark_enqueued(): void
+{
+    $GLOBALS['_k2_table_js_enqueued'] = true;
+}
+
+/** Emit k2-table.js once per request (sortable tables + data-k2-help tooltips). */
+function k2_table_js_enqueue(): void
+{
+    if (k2_table_js_is_enqueued()) {
+        return;
+    }
+
+    k2_table_js_mark_enqueued();
+    $v = (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js');
+    echo '<script type="text/javascript" src="/js/k2-table.js?v=' . $v . '" defer="defer"></script>';
+}

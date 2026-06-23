@@ -196,3 +196,24 @@ function amiga_url_with_as(string $path, string $wing, string $key, array $extra
 {
     return amiga_url_with_as_param($path, amiga_snapshot_format_as_param($wing, $key), $extraQuery);
 }
+
+/**
+ * Ribbon navigation href — on `tournament.php` in Event wing, follow the cutoff event id
+ * (chevrons, picker, wing tab → event) instead of keeping a stale `id`.
+ */
+function amiga_snapshot_chrome_nav_href(string $path, string $asParam, string $wing): string
+{
+    if ($wing === 'event' && amiga_tournament_page_request_path($path)) {
+        $parsed = amiga_snapshot_parse_as_param($asParam);
+        if ($parsed !== null && $parsed['wing'] === 'event') {
+            $eventId = (int) $parsed['key'];
+            if ($eventId > 0) {
+                require_once __DIR__ . '/amiga_tournament_lib.php';
+
+                return amiga_url_with_as_param(amiga_tournament_url($eventId), $asParam);
+            }
+        }
+    }
+
+    return amiga_url_with_as_param($path, $asParam);
+}

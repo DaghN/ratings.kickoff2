@@ -48,15 +48,17 @@ Several WC questions were **cut** from the Activity chart catalog in favour of t
 
 **Shipped** community WC charts (**Q-WC-001**–**003**, **006**–**007**, **011**) stay: realm-year volume and share trends. This table **does not replace** them; it **absorbs** event-local metrics cut from charts.
 
-### UI placement (recommendation — not locked)
+### UI placement (locked Jun 2026)
 
-| Option | Pros | Cons |
-|--------|------|------|
-| **A — Activity → World Cups sub-wing → “By tournament” table** (recommended) | Sits beside WC year charts; same mental “realm WC story” | Activity hub grows |
-| **B — Leaderboards → World Cups → “Tournaments” tab** | Near player WC LB | Mixes player ranking with event facts |
-| **C — Dedicated `/amiga/world-cups/` hub** | Clean IA if WC product expands | New top-level area |
+**Canonical home:** **Amiga → World Cups hub → Tournament stats wing** — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH6.
 
-**Recommendation:** **A** — table as primary panel under Activity **World Cups** sub-wing, with sortable columns and links to `tournament.php` and community year charts. Player WC LB stays under Leaderboards.
+| Option | Status |
+|--------|--------|
+| **A — Activity → World Cups sub-wing** | **Superseded** |
+| **B — Leaderboards → World Cups tab** | **Superseded** for event table (player LB → hub wing 3) |
+| **C — Dedicated `/amiga/world-cups/` hub** | **Locked** — wing 2 hosts this table |
+
+Realm **year-level** WC charts (**Q-WC-001**–**003**, **006**–**007**, **011**) remain on **Activity**. Wing 2 may link to them.
 
 ### Implementation timing
 
@@ -313,7 +315,7 @@ Ranks are **across all WCs** — stable once later WCs exist. Prefer **read-time
 | `pctile_goals_per_game` | Percentile vs all WCs? | derived rate | tournament | read-time | N | N | defer |
 | `z_score_goals_per_game` | Standardized vs historical mean? | derived rate | tournament | read-time | N | N | defer |
 | `era_decade` | 1990s / 2000s / … bucket? | identity | tournament | derive | N | N | **cut** |
-| `vs_prev_wc_delta_gpg` | Change in goals/game vs previous WC? | derived rate | tournament | read-time | N | N | nice |
+| `vs_prev_wc_delta_gpg` | Change in goals/game vs previous WC? | derived rate | tournament | read-time | N | N | **cut** |
 | `vs_prev_wc_delta_games` | Change in game count vs previous WC? | volume | tournament | read-time | N | N | **cut** |
 
 **TT note:** Ranks at cutoff use only WCs ≤ cutoff (recompute or store per-era snapshot — prefer recompute at read for v1).
@@ -371,7 +373,28 @@ Useful when two events share a year or when WC is small fraction of annual volum
 | `standing_entrants` | Same as `distinct_players` in practice |
 | `era_decade` | Cut |
 | `vs_prev_wc_delta_games` | Cut |
+| `vs_prev_wc_delta_gpg` | Cut — sequential WC deltas are noise; sort columns or Activity year charts instead (Dagh Jun 2026) |
 
+
+### 3.13 UI sub-wings (shipped Jun 2026)
+
+Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared anchor (**Tournament · Year · Players · Games**), count/rate pairs on the same table, horizontal scroll per table.
+
+| Sub-wing | Path | Stat columns (after anchor) |
+|----------|------|-----------------------------|
+| **Goals** | `stats/index.php` | Goals, G/G, High + High %, Low + Low %, Blowouts + Blowout %, Draw %, Max/Min sum, Max draw, Max margin, Max player goals (peaks link to game) |
+| **DDs & CSs** | `stats/dds.php` | DD slots + DD %, CS slots + CS % |
+| **Participation** | `stats/participation.php` | 1st WC, Year %, Matchups, G/player, Opp/player, Champ g, Group, KO |
+| **Geography** | `stats/geography.php` | Nations, Host players, Guests, Guest %, Nation pairs — **step 2:** Intl games + Intl % |
+| **Podium** | `stats/podium.php` | Gold, Silver, Bronze |
+
+**UI omit (still stored):** `draws`, `decided_games`, `decided_rate`, `max_games_one_player`, identity host/city/date cols.
+
+**Geography step 2 (backlog):** persist `international_games` (rated games where both nations set and differ) + `international_game_share`; writer + verify + DDL bump.
+
+**Podium v2 (backlog):** full placement table from standings — site-unique collection view.
+
+---
 
 ## 4. Rejected / wrong grain
 
