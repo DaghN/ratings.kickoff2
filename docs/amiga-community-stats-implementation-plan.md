@@ -359,12 +359,23 @@ Optional in slice 5 or 9.
 
 ---
 
+## Phase 3 — Question catalog & v2 registry (product)
+
+**Status:** **Active** (Jun 2026) — method locked; catalog brainstorm **done** (76 rows).  
+**Plan:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)  
+**Living artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — step **3** done (**46 ship**); step **4** registry v2 next
+
+Question-first pass: curate charts-by-question → derive minimal stored truth → then writers, verify, chart APIs. **No new finalize grains** until catalog step 3 (Dagh priority sign-off).
+
+---
+
 ## Follow-on product (not numbered)
 
 | Topic | When |
 |-------|------|
-| Activity chart APIs (`api/amiga_community_*.php`) | After summary block ships |
-| `slice_type = world_cup` facts | Product slice |
+| Question catalog + registry v2 | **Phase 3** — [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) |
+| Activity chart APIs (`api/amiga_community_*.php`) | After registry v2 sign-off |
+| `slice_type = world_cup` facts | Catalog / registry v2 |
 | Drop aggregate cols from `amiga_realm_snapshots` | Done (`035`) — row kept for history |
 | Historical community charts in TT hub | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) follow-on |
 

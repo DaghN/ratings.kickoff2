@@ -69,7 +69,7 @@
 
 - **Amiga World Cups LB (Jun 2026):** **V1 shipped** — Honours · Results · Goals wing; WC extracted from tournament honours + calendar-geo; slice tables + TT. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md).
 
-- **Amiga community stats (Jun 2026):** **Shipped** — `amiga_community_stats` + snapshots + facts; Activity summary; aggregate cols **dropped** from realm/HoF tables (`035`); multi-event + PHP build parity in `prove`. [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md).
+- **Amiga community stats (Jun 2026):** **Shipped** — `amiga_community_stats` + snapshots + facts; Activity summary; aggregate cols **dropped** from realm/HoF tables (`035`); multi-event + PHP build parity in `prove`. **V2 product:** question-first catalog — [`amiga-community-stats-catalog-plan.md`](docs/amiga-community-stats-catalog-plan.md) (step 3 done, **46 ship**); registry v2 next. **Per-WC table spec** (curated v1): [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md). [`amiga-community-stats-policy.md`](docs/amiga-community-stats-policy.md).
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
@@ -117,6 +117,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06 | **Amiga per-WC stats table spec — curation pass 1** — [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md): must-have + nice = ship set; guest/host player counts; Q-WC-003 / `share_of_year_games` clarified. |
 | 2026-06 | **Obsolete dev scripts slice 6 (closure)** — track complete; policy §7 all Done; `DEAD_SURFACE.md` retired-script inventory; frozen `ko2unity_db` = re-import only. |
 | 2026-06 | **Obsolete dev scripts slice 5** — doc sweep: `OPERATIONS_QUICK_START`, `work-db-prepare`, `website-data-contract`, runbooks/coordination docs → holy ops + retirement policy; `replay-v1` historical banner; exit grep clean outside policy/archive. |
 | 2026-06 | **Obsolete dev scripts slice 4** — `scripts/k2_rating_core/` (apply_game, player_state, elo, …); Amiga holy imports repointed; ladder replay code → `docs/archive/ladder-retired-2026-06/`; `prove` L5 green + verifiers (fixed `verify-l2-l3` argv in prove). |
@@ -126,6 +127,10 @@
 | 2026-06 | **Obsolete dev scripts retirement** — policy + implementation plan; holy ops audit: online ops never exec Python; Amiga `prove` imports `scripts.ladder` library only (`player_state`, `apply_game_row`, `constants`, `config`). Per-file retirement gate mandatory before delete. |
 | 2026-06 | **Post-game parity register sweep** — `post-game-contract-vs-oracle-discrepancies.md`: closed false Opens (`play_streak_100`, P7 verify); split `club_*` live Fixed vs batch Deferred; layer 7 superseded by `verify_activity_wing_parity`; DDR-052 + cutover checklist aligned. |
 | 2026-06 | **Milestones docs drift fix** — `milestones-product-spec.md` + `milestones-project.md`: 112/112 keys shipped (removed stale wave-1 ~88 TODO); meta LB wing + hub v2 marked done; Accomplished **%** wing noted as deferred (counts ship today). |
+| 2026-06 | **Amiga community stats catalog step 3** — Dagh curation: **46 ship**, 2 later, 28 cut; per-WC table + histogram UX backlog noted. |
+| 2026-06 | **Amiga community stats catalog step 2** — dedupe (73 active, 3 cut), storage S0–S7 refined, 9 writer clusters; question catalog updated. |
+| 2026-06 | **Amiga community stats question catalog** — 76 brainstorm rows (6 wings); [`amiga-community-stats-question-catalog.md`](docs/amiga-community-stats-question-catalog.md); curation pending. |
+| 2026-06 | **Amiga community stats v2 catalog plan** — question-first method, lens taxonomy (L1–L4), storage classes S0–S7, wings IA; [`amiga-community-stats-catalog-plan.md`](docs/amiga-community-stats-catalog-plan.md). |
 | 2026-06 | **Amiga community stats Phase 2 hygiene** — stronger `verify-community-stats` SQL guards; `test_community_registry_parity`; `AMIGA_REQUIRE_PHP=1` gate; dead aggregate helpers removed. |
 | 2026-06 | **Amiga community stats hygiene shortlist** — archived; P0 backlog → implementation plan § Phase 2. |
 | 2026-06 | **Amiga derived-write Phase 2** — live docs sweep: implementation plans + policy runbooks → `prove` only; SQL header comments updated. |

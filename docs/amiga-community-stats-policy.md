@@ -1,7 +1,7 @@
 # Amiga community stats — foundational policy
 
 **Status:** **Locked** (Jun 2026) — **implemented** (slices 1–9).  
-**Implementation plan:** [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md)
+**Implementation plan:** [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) (v1 complete) · **V2 product plan:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)
 
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) (HoF / record book — separate grain) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) (player timeline)
 
@@ -231,4 +231,5 @@ Wire into `python -m scripts.amiga prove` when implementation ships.
 | [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) | Calendar year definition (H1) reused for community period buckets |
 | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) | Cutoff reads for historical community charts |
 | [`activity-charts.md`](activity-charts.md) | Online Activity — pattern reference only |
+| [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) | V2 question-first catalog method (product; not policy shape) |
 | [`amiga-realm-vision.md`](amiga-realm-vision.md) | Hub IA; Activity tab placeholder |

@@ -26,7 +26,7 @@
 | **Historical rating ladder snapshots** (V1 shipped) | [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) · plan [`amiga-rating-history-implementation-plan.md`](amiga-rating-history-implementation-plan.md) |
 | **Event snapshots** (canonical player timeline + `amiga_player_current`) | [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · plan [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md) |
 | **Time travel** (realm-wide `as=` lens; phase 1 **shipped** — LB 8 wings, HoF) | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · plan [`amiga-time-travel-implementation-plan.md`](amiga-time-travel-implementation-plan.md) · smoke [`scripts/oneoff/amiga_time_travel_smoke.php`](../scripts/oneoff/amiga_time_travel_smoke.php) |
-| **Community stats** (realm-wide Activity aggregates; separate from HoF) | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · plan [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) |
+| **Community stats** (realm-wide Activity aggregates; separate from HoF) | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · v1 [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) · v2 catalog [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) |
 | **Where to store player×event derived stats** | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | Import + replay commands | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
