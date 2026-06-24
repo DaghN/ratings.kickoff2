@@ -8,13 +8,22 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 
-/** Table class bundle for full-page ranked leaderboards (cloak + calm stats). */
-function k2_table_ranked_leaderboard_class(string $extra = '', bool $pending = true): string
+/** Sortable ranked table bundle (cloak + calm stats); auto column widths. */
+function k2_table_ranked_sortable_class(string $extra = '', bool $pending = true): string
 {
     $class = 'k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table';
     if ($pending) {
         $class .= ' ranked-table-pending';
     }
+    $extra = trim($extra);
+
+    return $extra !== '' ? $class . ' ' . $extra : $class;
+}
+
+/** Hub leaderboard wings: sortable bundle + Rank (col 1) / Player (col 2) min-widths. */
+function k2_table_ranked_leaderboard_class(string $extra = '', bool $pending = true): string
+{
+    $class = k2_table_ranked_sortable_class('k2-table--hub-rank-player-cols', $pending);
     $extra = trim($extra);
 
     return $extra !== '' ? $class . ' ' . $extra : $class;

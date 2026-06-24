@@ -123,6 +123,7 @@ if (!function_exists('k2_status_render_league_table')) {
             $tableClass .= ' k2-status-table--podium';
         }
         if ($sortable) {
+            // Status league tables: sortable + cloak only — not hub Rank/Player column widths.
             $tableClass .= ' ranked-pages-table ranked-table-pending';
         }
         $tableAttrs = ' data-k2-anchor-col="9"';
@@ -197,6 +198,7 @@ if (!function_exists('k2_status_render_activity_competition_table')) {
             $tableClass .= ' k2-status-table--podium';
         }
         if ($sortable) {
+            // Status league tables: sortable + cloak only — not hub Rank/Player column widths.
             $tableClass .= ' ranked-pages-table ranked-table-pending';
         }
         $tableAttrs = ' data-k2-anchor-col="2"';

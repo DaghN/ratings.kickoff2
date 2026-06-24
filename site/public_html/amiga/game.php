@@ -29,7 +29,7 @@ $row = $id > 0 ? amiga_rated_game_load($con, $id) : null;
 <?php if ($row === null) { ?>
 <p>Game not found.</p>
 <?php } else { ?>
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--single-game ranked-pages-table">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--single-game', false)); ?>">
 
 <thead>
 	<tr>

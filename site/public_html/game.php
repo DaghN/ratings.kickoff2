@@ -52,6 +52,7 @@ if ($row !== null) {
 mysqli_close($con);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 ?>
 
 <div id="k2-game" class="k2-game-page-anchor" tabindex="-1"></div>
@@ -61,7 +62,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 <?php if ($row === null) { ?>
 <p>Game not found.</p>
 <?php } else { ?>
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class('', false)); ?>">
 
 <thead>
 	<tr>

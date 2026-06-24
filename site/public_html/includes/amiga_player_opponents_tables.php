@@ -9,6 +9,7 @@ require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_opponents_load.php';
 require_once __DIR__ . '/amiga_player_opponents_lib.php';
+require_once __DIR__ . '/k2_table_helpers.php';
 
 function amiga_player_opponents_dds_ratio_cell(float $ratio): string
 {
@@ -22,7 +23,7 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
 {
     ?>
 <div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table k2-table--opponent-matchup" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class()); ?>" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
 <thead>
     <tr>
         <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
@@ -92,7 +93,7 @@ function amiga_player_opponents_render_goals_table_from_rows(array $rows, int $p
 {
     ?>
 <div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table k2-table--opponent-matchup" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class()); ?>" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
 <thead>
     <tr>
         <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
@@ -197,7 +198,7 @@ function amiga_player_opponents_render_dds_table_from_rows(array $rows, int $pla
 {
     ?>
 <div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table k2-table--opponent-matchup" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class()); ?>" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
 <thead>
     <tr>
         <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>

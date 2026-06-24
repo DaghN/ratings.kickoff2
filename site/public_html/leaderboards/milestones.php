@@ -24,6 +24,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 $leaderRows = k2_milestone_meta_leaderboard_rows($con);
 mysqli_close($con);
 
@@ -34,7 +35,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 <?php echo k2_lb_table_anchor_markup(); ?>
 <div class="k2-table-wrap">
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="8" data-k2-default-direction="desc">
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="8" data-k2-default-direction="desc">
 
 <thead>
     <tr>

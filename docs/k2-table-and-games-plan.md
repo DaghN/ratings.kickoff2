@@ -126,7 +126,9 @@ Do not grow this into a generic table framework unless a real repeated need appe
 
 ### Leaderboard column layout
 
-All hub wing tables use class **`ranked-pages-table`**: uniform `8px` horizontal cell padding in `theme.css`; **no** per-column `k2-table-cell--pad-left-*` on headers (legacy header-only pads widened whole columns when labels were renamed). Optional future refactor: shared PHP column registry + responsive short/long labels via CSS, not table-by-table padding tweaks. Profile opponent tables (`individual2a/b/c`) still use pad utilities for now.
+**PHP helpers (`k2_table_helpers.php`):** `k2_table_ranked_sortable_class()` — sortable bundle (`ranked-pages-table`, cloak, calm-stats, auto column widths). `k2_table_ranked_leaderboard_class()` — adds **`k2-table--hub-rank-player-cols`** (Rank col 1 = 2.7em, Player col 2 min 9.1em) for hub LB wings only. Status league tables, games hub, tournament stats, opponents, etc. use the sortable helper without hub cols.
+
+All hub wing tables use **`ranked-pages-table`**: uniform `8px` horizontal cell padding in `theme.css`; **no** per-column `k2-table-cell--pad-left-*` on headers (legacy header-only pads widened whole columns when labels were renamed). Optional future refactor: shared PHP column registry + responsive short/long labels via CSS, not table-by-table padding tweaks. Profile opponent tables (`individual2a/b/c`) still use pad utilities for now.
 
 ### Anchor column map (0-based `data-k2-anchor-col`)
 

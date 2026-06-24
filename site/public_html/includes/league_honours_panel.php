@@ -10,6 +10,7 @@ if (!function_exists('k2_lb_league_honours_parse_view')) {
 require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/k2_table_helpers.php';
 
 $honoursView = $honoursView ?? k2_lb_league_honours_parse_view();
 $honoursRows = $honoursRows ?? [];
@@ -82,7 +83,7 @@ foreach ($cupTabs as $cupId => $label) {
 <?php } ?>
 
 	<div class="k2-table-wrap">
-		<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
+		<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 			<thead>
 				<tr>
 					<th data-k2-sort="number">#</th>

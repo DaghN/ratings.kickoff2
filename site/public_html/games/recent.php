@@ -2,6 +2,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
@@ -51,7 +52,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 		<h2 class="k2-panel-heading k2-games-day__heading"><?php echo $day['label']; ?></h2>
 		<div class="k2-table-wrap" data-k2-scroll-mirror>
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats ranked-pages-table" data-k2-table="sortable" data-k2-default-sort="0" data-k2-default-direction="desc">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class('', false)); ?>" data-k2-table="sortable" data-k2-default-sort="0" data-k2-default-direction="desc">
 
 <thead>
 	<tr>

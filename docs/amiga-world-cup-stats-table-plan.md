@@ -392,7 +392,7 @@ Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared
 
 **Geography intl (shipped Jun 2026):** `international_games` (rated games where both nations set and differ) + `international_game_share`; DDL `038`. **Blowout rate:** stored `blowout_rate` in same migration.
 
-**Layout (Jun 2026):** Global `.k2-page-nav .k2-table-wrap` width rules + overflow-driven scroll mirror (`k2_table_wrap_open(true)`). Tournament tables use `ranked-pages-table` + `k2-table--world-cup-stats` column overrides (not hub Rank/Player widths).
+**Layout (Jun 2026):** Global `.k2-page-nav .k2-table-wrap` width rules + overflow-driven scroll mirror (`k2_table_wrap_open(true)`). Tournament stats tables use `k2_table_ranked_sortable_class()` (auto column widths); hub Rank/Player min-widths are opt-in via `k2-table--hub-rank-player-cols` only.
 
 **Podium v2 (backlog):** full placement table from standings — site-unique collection view.
 

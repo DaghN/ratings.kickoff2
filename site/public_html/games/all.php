@@ -3,6 +3,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_realm_games_all.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_realm_games_all_filters_ui.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
@@ -79,7 +80,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 
 		<div class="k2-table-wrap" data-k2-scroll-mirror>
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--realm-games-all ranked-pages-table">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--realm-games-all', false)); ?>">
 
 <thead>
 	<tr>

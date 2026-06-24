@@ -1533,37 +1533,16 @@ body.k2-site .k2-table thead tr:last-child th {
 	border-bottom: 1px solid color-mix(in srgb, var(--k2-accent) 40%, transparent);
 }
 
-body.k2-site .k2-table.ranked-pages-table thead th:nth-child(1),
-body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(1) {
+/* Hub LB wings only: Rank (col 1) + Player (col 2) min-widths — opt-in via k2-table--hub-rank-player-cols */
+body.k2-site .k2-table.k2-table--hub-rank-player-cols.ranked-pages-table thead th:nth-child(1),
+body.k2-site .k2-table.k2-table--hub-rank-player-cols.ranked-pages-table tbody td:nth-child(1) {
 	width: 2.7em;
 	min-width: 2.7em;
 }
 
-body.k2-site .k2-table.ranked-pages-table thead th:nth-child(2),
-body.k2-site .k2-table.ranked-pages-table tbody td:nth-child(2) {
+body.k2-site .k2-table.k2-table--hub-rank-player-cols.ranked-pages-table thead th:nth-child(2),
+body.k2-site .k2-table.k2-table--hub-rank-player-cols.ranked-pages-table tbody td:nth-child(2) {
 	min-width: 9.1em;
-}
-
-/* Player matchup tables (Opponent col 1, Games col 2): not hub Rank/Player â€” normal Games width */
-body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table thead th:nth-child(1),
-body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table tbody td:nth-child(1) {
-	width: auto;
-	min-width: 9.1em;
-}
-
-body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table thead th:nth-child(2),
-body.k2-site .k2-table.k2-table--opponent-matchup.ranked-pages-table tbody td:nth-child(2) {
-	width: auto;
-	min-width: 0;
-}
-
-/* World Cup event stats (anchor col 0 = tournament name — not hub Rank/Player widths). */
-body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table thead th:nth-child(1),
-body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table tbody td:nth-child(1),
-body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table thead th:nth-child(2),
-body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table tbody td:nth-child(2) {
-	width: auto;
-	min-width: 0;
 }
 
 body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table thead th:first-child,
@@ -1571,11 +1550,8 @@ body.k2-site .k2-table.k2-table--world-cup-stats.ranked-pages-table tbody td:fir
 	white-space: nowrap;
 }
 
-/* Single-game pages (col 2 = Date; ranked-pages-table default col 2 is Player min 9.1em). */
 body.k2-site .k2-table.k2-table--single-game.ranked-pages-table thead th:nth-child(2),
 body.k2-site .k2-table.k2-table--single-game.ranked-pages-table tbody td:nth-child(2) {
-	width: auto;
-	min-width: 0;
 	white-space: nowrap;
 }
 

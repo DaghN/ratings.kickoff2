@@ -12,6 +12,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_ratedresults_games_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 
 const K2_LEAGUE_PERIOD_GAMES_PAGE_SIZE = 250;
 const K2_LEAGUE_PERIOD_ANCHOR_ID = 'k2-league-period';
@@ -784,7 +785,7 @@ function k2_league_period_render_games_section(
 	</div>
 <?php if ($games !== []) { ?>
 	<div class="k2-table-wrap" data-k2-scroll-mirror>
-		<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--realm-games-all ranked-pages-table ranked-table-pending" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc" data-k2-sort-scope="league-games">
+		<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--realm-games-all')); ?>" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc" data-k2-sort-scope="league-games">
 			<thead>
 				<tr>
 					<th class="k2-table-cell--left" data-k2-sort="number">ID</th>

@@ -506,7 +506,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
     $anchorCol = AMIGA_TOURNAMENT_EVENT_STATS_ANCHOR_COL;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_EVENT_STATS_DEFAULT_SORT_COL);
     $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
-    $tableClass = k2_table_ranked_leaderboard_class('k2-table--tournament-event-stats');
+    $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-event-stats');
     ?>
 <?php k2_table_wrap_open(true); ?>
 <table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>" data-k2-skip-initial-sort="1">
