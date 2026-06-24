@@ -88,7 +88,6 @@ while ($row = mysqli_fetch_assoc($result)) {
 <?php k2_table_wrap_close(); ?>
 <?php } ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav_end.php'; ?>
 
 </div><!-- .k2-page-nav -->
 </body>

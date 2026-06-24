@@ -1,0 +1,40 @@
+---
+description: Windows — agent Write tool saves UTF-16; use StrReplace or PowerShell UTF-8 instead
+alwaysApply: true
+---
+
+# UTF-8 on Windows (agent file writes)
+
+**Dagh's machine:** Windows + PowerShell 5.1. **Known Cursor bug:** the agent **`Write` tool** often saves **UTF-16 LE** (null byte between every character). `.editorconfig` / `files.encoding` do **not** fix this — the agent write path bypasses them.
+
+## Do
+
+- **Edit existing files with `StrReplace`** — preserves UTF-8 on files that are already UTF-8.
+- **New files or full rewrites:** use PowerShell, not `Write`:
+
+```powershell
+[System.IO.File]::WriteAllText($path, $content, (New-Object System.Text.UTF8Encoding $false))
+```
+
+- **Never** use `Out-File`, `Set-Content` (no `-Encoding`), or `>` redirection for source files — PS 5.1 defaults to UTF-16.
+
+## Do not
+
+- Do **not** use **`Write`** to create `.php`, `.js`, `.css`, `.md`, or `.inc.php` files, or to dump a whole file body in one call.
+- Do **not** burn a session debugging CSS/PHP/layout when the real fault may be encoding — check first (below).
+
+## Spot it (10 seconds)
+
+- File ~**2x expected size**; hex starts with `XX 00 XX 00` (not `3C 3F 70 68` for `<?ph`).
+- Cursor shows **"Binary file is not supported"** on a text file.
+- PHP **dumps raw source** into the page / layout collapses after an agent edit.
+
+## Fix it (one command, then continue the real task)
+
+```powershell
+$p = "path\to\file.ext"
+$t = [System.IO.File]::ReadAllText($p, [System.Text.Encoding]::Unicode)
+[System.IO.File]::WriteAllText($p, $t, (New-Object System.Text.UTF8Encoding $false))
+```
+
+If the file was never UTF-16, read as UTF-8 instead of `Unicode`. Verify: first bytes should have **no** nulls between ASCII letters.

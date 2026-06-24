@@ -120,7 +120,8 @@
 
 | When | Note |
 |------|------|
-| 2026-06-24 | **Page nav spacing (planning)** — policy + implementation plan locked ([`nav-spacing-policy.md`](docs/nav-spacing-policy.md), [`nav-spacing-implementation-plan.md`](docs/nav-spacing-implementation-plan.md)): uniform `--k2-nav-gap` 12px, bottom-only ownership, delete `:has()` in Phase 2; CSS not shipped yet. |
+| 2026-06-24 | **Page nav spacing Phase 2** -- bottom-only `--k2-nav-gap` everywhere; deleted `:has()` spacing + dead bar+table rule; token aliases removed; `lb_nav_end.php` dropped; Games + Amiga WC hub shells close `.k2-page-nav`. Option A (12px, no 16px hub exception). |
+| 2026-06-24 | **Page nav spacing Phase 1** -- `--k2-nav-gap` + wing `.k2-chrome-tabs` 4px->12px in `theme.css`; plain LB wings (Milestones, Rating, Amiga LB) fixed. |
 | 2026-06-24 | **Amiga present hub tab order** — News · Leaderboards · World Cups · Activity · HoF · Tournaments · Live tournaments; TT block (LB · WC · Activity · HoF) contiguous after News. |
 | 2026-06-24 | **Amiga WC stats Goals columns** — renamed Max margin → Max win, Max player goals → Max GF; peak order: Max draw · Max win · Max GF · Max sum · Min sum. |
 | 2026-06-24 | **Amiga TT stamp motion (2a shipped)** — toggle `k2_tt_entry=1` (panel fade + 32 cps typewriter); wing `k2_tt_entry=wing` (32 cps + 1100ms LED opacity fade); sync JS after stamp; clickable cursor (`localStorage`). |

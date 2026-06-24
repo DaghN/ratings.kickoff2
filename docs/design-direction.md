@@ -210,7 +210,7 @@ Current shared chrome:
 Navigation pattern:
 
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
-- **Page nav vertical spacing** — locked intent, implementation pending: [`nav-spacing-policy.md`](nav-spacing-policy.md) + [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). Target: single **`--k2-nav-gap` (12px)**; each nav layer owns **`margin-bottom`** only; content never **`margin-top`**. Today’s CSS still uses mixed 4px/12px/16px and `:has(+ …)` lists until Phase 1–2 ship.
+- **Page nav vertical spacing** -- Phase 1 + Phase 2 shipped (Jun 2026): [`nav-spacing-policy.md`](nav-spacing-policy.md) + [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). Single **`--k2-nav-gap` (12px)**; each nav layer owns **`margin-bottom`** only; content never **`margin-top`** for chrome spacing; `:has(+ …)` spacing lists removed.
 - Hub and player nav no longer support A/B style overrides; the preview/tuning scaffolding has been pruned.
 - Tint picker: compact right-anchored **Tint** disclosure pill (current swatch dot when closed); four swatch choices open to its left; closed by default; segment-outline active choice; inactive swatches dimmed (`k2_tint_picker.php`, `k2-tint-toggle.js`).
 - Secondary actions can use quiet rounded pills when they act like controls rather than content links (e.g. Player Games `Reset` / pager actions); Status Leagues keeps period tabs separate from its spacious prev/picker/next stepper.

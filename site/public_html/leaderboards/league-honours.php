@@ -54,7 +54,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/league_honours_panel.php';
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav_end.php'; ?>
 
 </div>
 

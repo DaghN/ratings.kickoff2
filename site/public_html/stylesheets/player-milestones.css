@@ -4,13 +4,14 @@
  */
 
 body.k2-site .k2-chrome-tabs.k2-player-milestones {
-	margin-bottom: 4px;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 body.k2-site .k2-player-milestones__nav {
 	width: fit-content;
 	max-width: 100%;
-	margin-bottom: var(--k2-subnav-to-content-gap);
+	margin-bottom: var(--k2-nav-gap);
 }
 
 body.k2-site .k2-player-milestones__bar {
@@ -412,7 +413,8 @@ body.k2-site .k2-league-period__games-status .k2-player-games-day-steps.k2-realm
 
 /* Shrink-wrap segment track — do not stretch to page width */
 .k2-ms-hub-tabs {
-	margin-bottom: 16px;
+	margin-top: 0;
+	margin-bottom: var(--k2-nav-gap);
 	width: fit-content;
 	max-width: 100%;
 }
@@ -864,7 +866,8 @@ body.k2-site .k2-ms-detail-page .k2-ms-achievers-table.k2-table--calm-stats tbod
 
 /* Milestone detail page */
 .k2-ms-detail-page .k2-ms-hub-tabs {
-	margin-bottom: 16px;
+	margin-top: 0;
+	margin-bottom: var(--k2-nav-gap);
 }
 
 .k2-ms-detail-panel-tabs {

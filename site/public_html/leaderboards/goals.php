@@ -116,7 +116,6 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <?php k2_table_wrap_close(); ?><!-- .k2-table-wrap -->
 
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
 
 <br />
 Max draw = biggest draw scoreline (equal goals each side)<br />

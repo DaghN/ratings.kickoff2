@@ -55,9 +55,8 @@
 	--k2-shadow-surface: 0 8px 32px rgba(0, 0, 0, 0.35);
 	--k2-max-width: 1200px;
 	--k2-chart-max-width: 960px;
-	/* Wing ribbon → compact sub-nav segment; sub-nav → table/panel */
-	--k2-wing-to-subnav-gap: 12px;
-	--k2-subnav-to-content-gap: 12px;
+	/* Page chrome nav stack -- see docs/nav-spacing-policy.md */
+	--k2-nav-gap: 12px;
 	/* Hub chapter intro → first body block (HoF table, etc.) */
 	--k2-hub-chapter-to-content-gap: 22px;
 	/* Shared by .k2-table-tooltip and Chart.js (chart-theme.js) */
@@ -195,7 +194,7 @@ body.k2-site .k2-hub-page-intro {
 /* Hub section chapter â€” compact title + curator lede above wing/sub-nav (not browser-default h1 scale) */
 body.k2-site .k2-hub-chapter {
 	max-width: var(--k2-max-width);
-	margin: 0 0 10px;
+	margin: 0 0 var(--k2-nav-gap);
 }
 
 body.k2-site .k2-hub-chapter__title {
@@ -666,10 +665,6 @@ body.k2-site.k2-player-wing .k2-player-hero {
 	margin-bottom: 6px;
 }
 
-body.k2-site.k2-player-wing .k2-player-nav-bar {
-	margin-bottom: 12px;
-}
-
 body.k2-site.k2-player-wing .k2-page-nav__up {
 	margin: 0 0 6px;
 	padding: 2px 1.25rem 0;
@@ -687,23 +682,14 @@ body.k2-site .k2-league-period {
 	min-width: 0;
 }
 
-body.k2-site .k2-games-hub-tabs {
-	margin-bottom: 16px;
-	width: fit-content;
-	max-width: 100%;
-}
-
-body.k2-site .k2-lb-activity-tabs {
-	margin-bottom: 16px;
-	width: fit-content;
-	max-width: 100%;
-}
-
+body.k2-site .k2-games-hub-tabs,
+body.k2-site .k2-lb-activity-tabs,
 body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs {
-	margin-bottom: var(--k2-subnav-to-content-gap);
+	margin-top: 0;
+	margin-bottom: var(--k2-nav-gap);
 	width: fit-content;
 	max-width: 100%;
 }
@@ -3224,19 +3210,13 @@ body.k2-site .k2-table.k2-table--player-matchup.k2-table--calm-stats tbody td.k2
 }
 
 
-.k2-chrome-tabs__bar + .k2-table-wrap {
-	margin-top: var(--k2-subnav-to-content-gap);
-	border-top: 1px solid var(--k2-border-subtle);
-	border-top-left-radius: var(--k2-radius-md);
-	border-top-right-radius: var(--k2-radius-md);
-}
 
 /* â”€â”€ Player sub-nav â”€â”€ */
 .k2-player-nav-bar {
 	width: 100%;
 	max-width: 100%;
 	min-width: 0;
-	margin: 0 0 20px;
+	margin: 0 0 var(--k2-nav-gap);
 	box-sizing: border-box;
 }
 
@@ -3305,15 +3285,16 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	text-decoration: none;
 }
 
-/* Opponents wing — sub bar → table (wing → sub bar: --k2-wing-to-subnav-gap) */
+/* Opponents wing — inner nav owns gap to table (Pattern B wrapper) */
 body.k2-site .k2-chrome-tabs.k2-player-opponents {
-	margin-bottom: 4px;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 body.k2-site .k2-player-opponents__nav {
 	width: fit-content;
 	max-width: 100%;
-	margin-bottom: var(--k2-subnav-to-content-gap);
+	margin-bottom: var(--k2-nav-gap);
 }
 
 body.k2-site .k2-player-opponents__bar {
@@ -3323,9 +3304,6 @@ body.k2-site .k2-player-opponents__bar {
 
 body.k2-site .k2-player-opponents > .k2-table-wrap {
 	margin-top: 0;
-	border-top: 1px solid var(--k2-border-subtle);
-	border-top-left-radius: var(--k2-radius-md);
-	border-top-right-radius: var(--k2-radius-md);
 }
 
 body.k2-site .k2-player-opponents__h2h-placeholder {
@@ -4498,7 +4476,8 @@ body.k2-site button.k2-status-period-competitions__period-btn.is-active {
 }
 
 body.k2-site .k2-lb-league-honours {
-	margin-top: var(--k2-wing-to-subnav-gap);
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 body.k2-site .k2-lb-league-honours__subnav {
@@ -4506,7 +4485,7 @@ body.k2-site .k2-lb-league-honours__subnav {
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 10px;
-	margin-bottom: var(--k2-subnav-to-content-gap);
+	margin-bottom: var(--k2-nav-gap);
 	width: fit-content;
 	max-width: 100%;
 }
@@ -4523,9 +4502,6 @@ body.k2-site .k2-lb-league-honours__bar {
 
 .k2-lb-league-honours > .k2-table-wrap {
 	margin-top: 0;
-	border-top: 1px solid var(--k2-border-subtle);
-	border-top-left-radius: var(--k2-radius-md);
-	border-top-right-radius: var(--k2-radius-md);
 }
 
 .k2-lb-league-honours .k2-lb-honours-medal-th {
@@ -5593,7 +5569,7 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	justify-content: space-between;
 	gap: 10px 16px;
 	max-width: var(--k2-max-width);
-	margin: 16px 0 var(--k2-wing-to-subnav-gap);
+	margin: 16px 0 var(--k2-nav-gap);
 }
 
 /* Hub tabs → first body block: bar bottom margin is the only gap (Activity, HoF time travel, WC wing tabs). */
@@ -5789,35 +5765,9 @@ body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	text-decoration: none;
 }
 
-/* â”€â”€ Wing ribbon → inner sub-nav (12px) â”€â”€ */
-body.k2-site .k2-chrome-tabs:has(+ .k2-lb-league-honours),
-body.k2-site .k2-chrome-tabs:has(+ .k2-chrome-tabs.k2-lb-activity-tabs),
-body.k2-site .k2-chrome-tabs:has(+ .k2-chrome-tabs.k2-lb-wc-tabs),
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-players-tabs),
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs),
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs) {
-	margin-bottom: 0;
-}
-
-body.k2-site .k2-player-nav-bar:has(+ .k2-chrome-tabs.k2-player-opponents),
-body.k2-site .k2-player-nav-bar:has(+ .k2-chrome-tabs.k2-player-milestones) {
-	margin-bottom: 0;
-}
-
-body.k2-site .k2-chrome-tabs.k2-lb-activity-tabs,
-body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs,
-body.k2-site .k2-chrome-tabs.k2-player-opponents,
-body.k2-site .k2-chrome-tabs.k2-player-milestones {
-	margin-top: var(--k2-wing-to-subnav-gap);
-}
-
-/* â”€â”€ Leaderboard wing tabs (segment track + outline active) â”€â”€ */
 .k2-chrome-tabs {
 	max-width: 1200px;
-	margin-bottom: 4px;
+	margin-bottom: var(--k2-nav-gap);
 }
 
 .k2-chrome-tabs__bar {
