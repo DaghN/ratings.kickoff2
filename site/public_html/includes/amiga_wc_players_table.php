@@ -19,14 +19,14 @@ require_once __DIR__ . '/amiga_wc_lb_lib.php';
 /** @var list<string> */
 const AMIGA_WC_PLAYERS_VIEWS = ['honours', 'results', 'goals', 'dds', 'opponents'];
 
-function amiga_wc_players_table_shell_open(string $viewClass): void
+function amiga_wc_players_table_shell_open(): void
 {
-    k2_hub_sortable_table_shell_open($viewClass);
+    k2_table_wrap_open(true);
 }
 
 function amiga_wc_players_table_shell_close(): void
 {
-    k2_hub_sortable_table_shell_close();
+    k2_table_wrap_close();
 }
 
 /**
@@ -37,7 +37,7 @@ function amiga_wc_players_render_honours(array $rows, int $playerCount): void
     $k2LbAnchorCol = 2;
     $k2LbDefaultSortCol = 5;
     ?>
-<?php amiga_wc_players_table_shell_open('k2-lb-world-cups-honours'); ?>
+<?php amiga_wc_players_table_shell_open(); ?>
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="5" data-k2-default-direction="desc">
 <thead>
     <tr>
@@ -88,7 +88,7 @@ function amiga_wc_players_render_results(array $rows, int $playerCount): void
     $k2LbAnchorCol = 2;
     $k2LbDefaultSortCol = 9;
     ?>
-<?php amiga_wc_players_table_shell_open('k2-lb-world-cups-results'); ?>
+<?php amiga_wc_players_table_shell_open(); ?>
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="9" data-k2-default-direction="desc">
 <thead>
     <tr>
@@ -146,7 +146,7 @@ function amiga_wc_players_render_goals(array $rows, int $playerCount): void
     $k2LbAnchorCol = 2;
     $k2LbDefaultSortCol = 5;
     ?>
-<?php amiga_wc_players_table_shell_open('k2-lb-world-cups-goals'); ?>
+<?php amiga_wc_players_table_shell_open(); ?>
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="5" data-k2-default-direction="desc">
 <thead>
     <tr>
@@ -236,7 +236,7 @@ function amiga_wc_players_render_dds(array $rows, int $playerCount): void
     $k2LbAnchorCol = 2;
     $k2LbDefaultSortCol = 5;
     ?>
-<?php amiga_wc_players_table_shell_open('k2-lb-world-cups-dds'); ?>
+<?php amiga_wc_players_table_shell_open(); ?>
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="5" data-k2-default-direction="desc">
 <thead>
     <tr>
@@ -296,7 +296,7 @@ function amiga_wc_players_render_opponents(array $rows, int $playerCount): void
     $k2LbAnchorCol = 2;
     $k2LbDefaultSortCol = 7;
 ?>
-<?php amiga_wc_players_table_shell_open('k2-lb-world-cups-opponents'); ?>
+<?php amiga_wc_players_table_shell_open(); ?>
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="7" data-k2-default-direction="desc">
 <thead>
     <tr>

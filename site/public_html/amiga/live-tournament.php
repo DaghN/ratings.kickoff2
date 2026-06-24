@@ -60,7 +60,7 @@ if (!empty($tournament['started_at'])) {
 }
 ?>
 
-<p style="padding:0.5rem 1.25rem 0;margin:0">
+<p class="k2-amiga-tournament-back">
   <a class="k2-link-star" href="/amiga/live-tournaments.php">← Live tournaments</a>
 </p>
 

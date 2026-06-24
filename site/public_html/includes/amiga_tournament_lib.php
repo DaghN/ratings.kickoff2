@@ -1512,7 +1512,7 @@ function amiga_tournament_render_games_table(array $rows): void
     $showPhaseColumn = amiga_tournament_games_show_phase_column($rows);
     $colCount = $showPhaseColumn ? 5 : 4;
     ?>
-<div class="k2-table-wrap" style="margin:0 1.25rem">
+<div class="k2-table-wrap">
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--tournament-games" data-k2-table="sortable" data-k2-anchor-col="2" data-k2-default-sort="0" data-k2-default-direction="asc">
 	<thead>
 		<tr>

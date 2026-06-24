@@ -2106,11 +2106,6 @@ body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb:hover {
 	background: var(--k2-scrollbar-thumb-hover);
 }
 
-/* Hub sortable data tables — width cap inside .k2-page-nav (WC wings share one shell). */
-body.k2-site .k2-hub-sortable-table {
-	max-width: var(--k2-max-width);
-}
-
 body.k2-site .k2-player-games-controls {
 	margin-top: 16px;
 	margin-bottom: 12px;

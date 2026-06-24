@@ -77,7 +77,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 </table>
 </div>
 
-<p class="k2-amiga-live-view__ops-note" style="padding:0 1.25rem 1rem;color:var(--k2-text-secondary)">
+<p class="k2-amiga-live-view__ops-note k2-amiga-tournament-footnote" style="padding-bottom:1rem">
   Operators: fixture management and result entry use the internal
   <a href="/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot">fixture manager</a> (password required).
 </p>

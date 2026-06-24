@@ -58,11 +58,11 @@ if ($tournamentPageId >= 1) {
 
 <title>Amiga tournament standings</title>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
 
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_js_enqueue(); ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_sortable_assets_enqueue(true); ?>
 
 <script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 
@@ -429,7 +429,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
       ?>
 
-  <form class="k2-player-games-controls" method="get" action="/amiga/tournament.php" data-k2-carry-scroll style="margin:0 1.25rem 0.75rem">
+  <form class="k2-player-games-controls" method="get" action="/amiga/tournament.php" data-k2-carry-scroll>
 
     <div class="k2-player-games-controls__meta">
 
@@ -475,7 +475,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
   </form>
 
-  <p style="margin:0 1.25rem 0.75rem;color:var(--k2-text-secondary)"><?php
+  <p class="k2-amiga-tournament-lede"><?php
 
       echo (int) count($tournamentGamesRows) . ' game' . (count($tournamentGamesRows) === 1 ? '' : 's');
 
@@ -499,7 +499,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <section class="k2-amiga-tournament-event-stats" aria-label="Event stats">
 
-  <p style="margin:0 1.25rem 0.75rem;color:var(--k2-text-secondary)">Per-player totals across all phases in this event.</p>
+  <p class="k2-amiga-tournament-lede">Per-player totals across all phases in this event.</p>
 
   <?php if ($eventStatsRows === []) { ?>
 
@@ -545,13 +545,13 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <section class="k2-amiga-tournament-fixture" aria-labelledby="k2-amiga-fixture-heading">
 
-  <h2 id="k2-amiga-fixture-heading" class="k2-panel-heading" style="margin:0 1.25rem 0.75rem"><?php
+  <h2 id="k2-amiga-fixture-heading" class="k2-panel-heading"><?php
 
       echo k2_h($knockoutScopeLabels[$scopeKey] ?? $scopeLabel);
 
   ?></h2>
 
-  <div class="k2-table-wrap" style="margin:0 1.25rem">
+  <div class="k2-table-wrap">
 
     <p style="margin:0 0 0.75rem;line-height:1.5">
 
@@ -751,7 +751,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php if ($isKnockoutView) { ?>
 
-<p style="padding:0 1.25rem 0;color:var(--k2-text-secondary)">
+<p class="k2-amiga-tournament-footnote">
 
   Per-leg scores above; aggregate table below. Winner by total goal difference (penalties in <code>extra</code> when aggregate is tied).
 

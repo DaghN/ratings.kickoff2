@@ -101,7 +101,7 @@ if ($typeFilter !== '') {
 </table>
 </div>
 
-<p style="padding:0 1.25rem 1rem;color:var(--k2-text-secondary)">
+<p class="k2-amiga-tournament-footnote" style="padding-bottom:1rem">
     <?php echo count($rows); ?> tournament<?php echo count($rows) === 1 ? '' : 's'; ?><?php
 
         echo $typeFilter !== '' ? ' (filtered)' : '';

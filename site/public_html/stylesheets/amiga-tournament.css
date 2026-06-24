@@ -6,7 +6,7 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 }
 
 .k2-amiga-tournament-hero {
-	margin: 0 1.25rem 1rem;
+	margin: 0 0 16px;
 	padding: 1rem 1.25rem;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-lg);
@@ -55,10 +55,6 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 	color: var(--k2-text-secondary);
 }
 
-.k2-amiga-tournament-nav {
-	margin: 0 1.25rem 1rem;
-}
-
 .k2-amiga-tournament-stages-nav {
 	margin-top: -0.35rem;
 	padding-left: 0.65rem;
@@ -73,8 +69,23 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 	padding: 0 0 2rem;
 }
 
+.k2-amiga-tournament-lede {
+	margin: 0 0 0.75rem;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-tournament-footnote {
+	margin: 0;
+	padding: 0;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-tournament-back {
+	margin: 0 0 0.75rem;
+}
+
 .k2-amiga-tournament-empty {
-	margin: 0 1.25rem 1rem;
+	margin: 0 0 1rem;
 	padding: 0.85rem 1rem;
 	border: 1px dashed var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
@@ -85,7 +96,7 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 /* ── Knockout bracket ── */
 
 .k2-amiga-bracket {
-	margin: 0 1.25rem 1.5rem;
+	margin: 0 0 1.5rem;
 	padding: 1rem 1.25rem;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-lg);
@@ -207,7 +218,11 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 }
 
 .k2-amiga-tournament-fixture {
-	margin: 0 1.25rem 1.25rem;
+	margin: 0 0 1.25rem;
+}
+
+.k2-amiga-tournament-fixture .k2-panel-heading {
+	margin: 0 0 0.75rem;
 }
 
 .k2-amiga-tournament-fixture .k2-table-wrap {
@@ -260,7 +275,7 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 }
 
 .k2-amiga-live-view__section .k2-panel-heading {
-	margin: 0 1.25rem 0.75rem;
+	margin: 0 0 0.75rem;
 }
 
 .k2-amiga-live-view__stage-type {
@@ -290,7 +305,7 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 
 /* Live tournament ops (fixture manager) — minimal forms inside site chrome */
 .k2-amiga-live-ops {
-	margin: 0 1.25rem 1.25rem;
+	margin: 0 0 1.25rem;
 }
 
 .k2-amiga-live-ops .k2-amiga-live-ops__section {
