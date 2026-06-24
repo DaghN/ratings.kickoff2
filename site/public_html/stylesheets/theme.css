@@ -54,6 +54,9 @@
 	--k2-shadow-surface: 0 8px 32px rgba(0, 0, 0, 0.35);
 	--k2-max-width: 1200px;
 	--k2-chart-max-width: 960px;
+	/* Wing ribbon → compact sub-nav segment; sub-nav → table/panel */
+	--k2-wing-to-subnav-gap: 12px;
+	--k2-subnav-to-content-gap: 12px;
 	/* Shared by .k2-table-tooltip and Chart.js (chart-theme.js) */
 	--k2-tooltip-surface: color-mix(in srgb, var(--k2-bg-elevated) 94%, #000);
 	--k2-tooltip-border: color-mix(in srgb, var(--k2-accent) 36%, var(--k2-border-strong));
@@ -688,17 +691,24 @@ body.k2-site .k2-games-hub-tabs {
 }
 
 body.k2-site .k2-lb-activity-tabs {
-	margin: 0 0 16px;
+	margin-bottom: 16px;
 	width: fit-content;
 	max-width: 100%;
 }
 
-body.k2-site .k2-lb-activity-tabs .k2-chrome-tabs__bar {
+body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs {
+	margin-bottom: var(--k2-subnav-to-content-gap);
 	width: fit-content;
 	max-width: 100%;
 }
 
-body.k2-site .k2-games-hub-tabs .k2-chrome-tabs__bar {
+body.k2-site .k2-lb-activity-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-games-hub-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs .k2-chrome-tabs__bar {
 	width: fit-content;
 	max-width: 100%;
 }
@@ -1986,6 +1996,9 @@ body.k2-site .k2-table-mirror-group .k2-table-wrap {
 	max-width: 100%;
 	min-width: 0;
 	margin-bottom: 0;
+}
+
+body.k2-site .k2-table-mirror-group--active .k2-table-wrap {
 	border-top: none;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
@@ -3128,16 +3141,15 @@ body.k2-site a.k2-player-nav__btn.is-active:hover {
 	text-decoration: none;
 }
 
-/* Opponents wing â€” mirror league-honours: 12px hub bar â†’ sub bar; 12px sub bar â†’ table */
+/* Opponents wing — sub bar → table (wing → sub bar: --k2-wing-to-subnav-gap) */
 body.k2-site .k2-chrome-tabs.k2-player-opponents {
-	margin-top: 4px;
 	margin-bottom: 4px;
 }
 
 body.k2-site .k2-player-opponents__nav {
 	width: fit-content;
 	max-width: 100%;
-	margin-bottom: 12px;
+	margin-bottom: var(--k2-subnav-to-content-gap);
 }
 
 body.k2-site .k2-player-opponents__bar {
@@ -4321,8 +4333,8 @@ body.k2-site button.k2-status-period-competitions__period-btn.is-active {
 	font-weight: 600;
 }
 
-.k2-chrome-tabs > .k2-lb-league-honours {
-	margin-top: 12px;
+body.k2-site .k2-lb-league-honours {
+	margin-top: var(--k2-wing-to-subnav-gap);
 }
 
 body.k2-site .k2-lb-league-honours__subnav {
@@ -4330,7 +4342,7 @@ body.k2-site .k2-lb-league-honours__subnav {
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 10px;
-	margin-bottom: 12px;
+	margin-bottom: var(--k2-subnav-to-content-gap);
 	width: fit-content;
 	max-width: 100%;
 }
@@ -5543,6 +5555,29 @@ body.k2-site a.k2-hub-tabs__btn.is-active:hover {
 	color: var(--k2-segment-active-text);
 	background: transparent;
 	text-decoration: none;
+}
+
+/* â”€â”€ Wing ribbon → inner sub-nav (12px) â”€â”€ */
+body.k2-site .k2-chrome-tabs:has(+ .k2-lb-league-honours),
+body.k2-site .k2-chrome-tabs:has(+ .k2-chrome-tabs.k2-lb-activity-tabs),
+body.k2-site .k2-chrome-tabs:has(+ .k2-chrome-tabs.k2-lb-wc-tabs),
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-players-tabs),
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs) {
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-player-nav-bar:has(+ .k2-chrome-tabs.k2-player-opponents),
+body.k2-site .k2-player-nav-bar:has(+ .k2-chrome-tabs.k2-player-milestones) {
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-chrome-tabs.k2-lb-activity-tabs,
+body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs,
+body.k2-site .k2-chrome-tabs.k2-player-opponents,
+body.k2-site .k2-chrome-tabs.k2-player-milestones {
+	margin-top: var(--k2-wing-to-subnav-gap);
 }
 
 /* â”€â”€ Leaderboard wing tabs (segment track + outline active) â”€â”€ */

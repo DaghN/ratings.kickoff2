@@ -4,14 +4,13 @@
  */
 
 body.k2-site .k2-chrome-tabs.k2-player-milestones {
-	margin-top: 4px;
 	margin-bottom: 4px;
 }
 
 body.k2-site .k2-player-milestones__nav {
 	width: fit-content;
 	max-width: 100%;
-	margin-bottom: 12px;
+	margin-bottom: var(--k2-subnav-to-content-gap);
 }
 
 body.k2-site .k2-player-milestones__bar {

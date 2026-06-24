@@ -209,6 +209,7 @@ Current shared chrome:
 Navigation pattern:
 
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
+- **Inner sub-nav** (compact segment below a wing ribbon): **12px** gap from wing (`--k2-wing-to-subnav-gap`) and **12px** to table/panel (`--k2-subnav-to-content-gap`) — `theme.css` `:has(+ …)` rules; league honours, activity, player Opponents/Milestones, Amiga WC LB + hub player/stats tabs.
 - Hub and player nav no longer support A/B style overrides; the preview/tuning scaffolding has been pruned.
 - Tint picker: compact right-anchored **Tint** disclosure pill (current swatch dot when closed); four swatch choices open to its left; closed by default; segment-outline active choice; inactive swatches dimmed (`k2_tint_picker.php`, `k2-tint-toggle.js`).
 - Secondary actions can use quiet rounded pills when they act like controls rather than content links (e.g. Player Games `Reset` / pager actions); Status Leagues keeps period tabs separate from its spacious prev/picker/next stepper.
