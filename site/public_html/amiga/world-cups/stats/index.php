@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 
 $query = $_SERVER['QUERY_STRING'] ?? '';
-$target = k2_amiga_route('amiga-world-cups-stats-goals');
+$target = k2_amiga_route('amiga-world-cups-stats');
 if ($query !== '') {
     $target .= (str_contains($target, '?') ? '&' : '?') . $query;
 }

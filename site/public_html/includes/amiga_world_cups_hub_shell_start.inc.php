@@ -6,7 +6,7 @@
  * Optional: $k2AmigaWorldCupsPageTitle, $k2AmigaWorldCupsChapterLede
  * When $k2AmigaWorldCupsHubView === 'players', set $k2AmigaWorldCupsPlayersView: honours | results | goals | dds | opponents
  * When $k2AmigaWorldCupsHubView === 'countries', set $k2AmigaWorldCupsCountriesView: honours | results | goals | dds | opponents
- * When $k2AmigaWorldCupsHubView === 'stats', set $k2AmigaWorldCupsStatsView: goals | dds | participation | geography | podium
+ * When $k2AmigaWorldCupsHubView === 'stats', set $k2AmigaWorldCupsStatsView: participation | goals | dds | geography | podium
  */
 declare(strict_types=1);
 

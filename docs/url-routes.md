@@ -134,7 +134,7 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-dds` | `/amiga/player/opponents/dds.php` |
 | `amiga-world-cups` | `/amiga/world-cups/chronology/index.php` (Chronology default; `/amiga/world-cups/` 302) |
 | `amiga-world-cups-chronology` | `/amiga/world-cups/chronology/index.php` |
-| `amiga-world-cups-stats` | `/amiga/world-cups/stats/goals.php` (Goals default; `stats.php` + `stats/index.php` 302) |
+| `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` (Participation default; `stats.php` + `stats/index.php` 302) |
 | `amiga-world-cups-stats-goals` | `/amiga/world-cups/stats/goals.php` |
 | `amiga-world-cups-stats-dds` | `/amiga/world-cups/stats/dds.php` |
 | `amiga-world-cups-stats-participation` | `/amiga/world-cups/stats/participation.php` |
@@ -165,7 +165,7 @@ Query `?id=` required on all player tabs.
 
 ### Amiga hub tabs (present order)
 
-News · **World Cups** (`/amiga/world-cups/chronology/`) · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Activity · Hall of Fame.
+News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology/`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Activity · Hall of Fame.
 
 ---
 

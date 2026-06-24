@@ -11,7 +11,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cup_stats_table.
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 
-$k2AmigaWorldCupsStatsView = $k2AmigaWorldCupsStatsView ?? 'goals';
+$k2AmigaWorldCupsStatsView = $k2AmigaWorldCupsStatsView ?? 'participation';
 
 include __DIR__ . '/../../config/ko2amiga_config.php';
 

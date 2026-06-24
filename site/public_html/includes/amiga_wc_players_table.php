@@ -208,7 +208,13 @@ function amiga_wc_players_render_goals(array $rows, int $playerCount): void
         <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_count($row['most_goals_scored'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_count($row['most_goals_conceded'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(14, $lbSort); ?>><?php echo k2_fmt_count($row['biggest_win_difference'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(15, $lbSort); ?>><?php echo k2_fmt_count($row['biggest_loss_difference'] ?? 0, $games); ?></td>
+        <td<?php echo k2_lb_td(15, $lbSort); ?>><?php
+            if (!k2_derived_games_started($games) || (int) ($row['losses'] ?? 0) === 0) {
+                echo k2_fmt_dash();
+            } else {
+                echo k2_fmt_count($row['biggest_loss_difference'] ?? 0, $games);
+            }
+        ?></td>
         <td<?php echo k2_lb_td(16, $lbSort); ?>><?php echo k2_fmt_count($row['biggest_sum_of_goals'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(17, $lbSort); ?>><?php
             if (!k2_derived_games_started($games) || (int) ($row['draws'] ?? 0) === 0) {

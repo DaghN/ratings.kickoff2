@@ -32,17 +32,17 @@ Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Acti
 | # | Decision | Rule |
 |---|----------|------|
 | **WCH1** | **Top-level hub tab** | **World Cups** is its own Amiga hub tab — not only a Leaderboards wing. |
-| **WCH2** | **Present hub order** | **News · World Cups · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments** (last). **News** remains present landing. World Cups is **second** — signature events lane before generic ladder. |
+| **WCH2** | **Present hub order** | **News · Leaderboards · World Cups · Activity · Hall of Fame · Tournaments · Live tournaments** (last). **News** remains present landing. **Leaderboards · World Cups · Activity · Hall of Fame** are contiguous in present order — same sequence as the time-travel hub bar (T13b). Tournaments + Live tournaments stay present-only editorial ops at the end. |
 | **WCH3** | **Foldered sub-hub** | List/aggregate wings under `/amiga/world-cups/` — segment sub-nav (not `?view=` **on hub pages**). Per-tournament drill-down stays on **`tournament.php`** (`view=` = entity section — [`url-routes.md`](url-routes.md)). |
 | **WCH4** | **Four wings** | **Chronology · Tournament stats · Player stats · Country stats** — player + country stats = **five sub-wings** each ([`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md), [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)); **both shipped** |
-| **WCH5** | **Default wing** | `/amiga/world-cups/chronology/` — **Chronology** (`chronology/index.php`); `/amiga/world-cups/` 302 to chronology. Tournament stats Goals default = `stats/goals.php` (`stats/index.php` 302). |
+| **WCH5** | **Default wing** | `/amiga/world-cups/chronology/` — **Chronology** (`chronology/index.php`); `/amiga/world-cups/` 302 to chronology. Tournament stats Participation default = `stats/participation.php` (`stats/index.php` + `stats.php` 302). |
 | **WCH6** | **Event stats home** | Sortable **`amiga_world_cup_stats`** table lives on **wing 2** — **not** under Activity. |
 | **WCH7** | **Activity WC charts** | Shipped community **year** WC charts (**Q-WC-001**–**003**, **006**–**007**, **011**) stay on **Activity** (realm pulse). Wing 2 may **link** to them (“Realm trends in Activity →”). |
 | **WCH8** | **Player stats — one implementation** | Honours · Results · Goals · DDs & CSs · Opponents tables live in **`includes/amiga_wc_players_wing_body.inc.php`** + **`amiga_wc_players_table.php`**. **No forked SQL or duplicate table markup.** |
 | **WCH9** | **Dual entry, identical content** | **Leaderboards → World Cups** and **World Cups hub → Player stats** both render the **same** five sub-wings (full tables, not a thin pointer). Each surface keeps its own hub/LB chrome and sub-nav URLs; body is shared. |
 | **WCH10** | **Milestones analogue** | Same pattern as Milestones hub + `leaderboards/milestones.php`: **one product**, two navigation homes — not two divergent leaderboards. |
 | **WCH11** | **Time travel** | Wings **2** and **3** respect `as=` from first UI ship. Wing **1** event list = tournaments finalized on or before cutoff; per-event stats rows are **intrinsic** (fixed at finalize — see WC table plan § time travel). |
-| **WCH12** | **TT hub bar** | When `as=` active, World Cups tab **included** in time-travel hub bar (snapshot-worthy). Present-only tabs still **News**, **Live tournaments** per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) T13. **Proposed TT order:** **Leaderboards · World Cups · Activity · Hall of Fame** (amend T13b when wing ships). |
+| **WCH12** | **TT hub bar** | When `as=` active, World Cups tab **included** in time-travel hub bar (snapshot-worthy). Present-only tabs still **News**, **Tournaments**, **Live tournaments** per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) T13/T13b. **TT order:** **Leaderboards · World Cups · Activity · Hall of Fame** — matches present order after News (WCH2). |
 | **WCH13** | **WC detection** | `amiga_tournament_is_world_cup()` / name `^World Cup\s+\S` — same as slice, honours, writers. |
 | **WCH14** | **No new stored truth** | This hub is **read surfaces** only unless a future slice adds columns — writers already finalized. |
 | **WCH15** | **One tournament URL** | **No** parallel `/amiga/world-cups/event.php`. Every WC (and every tournament) deep-links to **`/amiga/tournament.php?id={tournament_id}`** — use existing `view=` modes (`event-stats`, `stages`, `games`). Build `amiga_tournament_event_stats_url()` / `amiga_tournament_href()` — do not invent new paths per event. |
@@ -92,7 +92,7 @@ Wing 1 is the **WC catalog index** only. It does **not** host a second copy of t
 
 | Element | Rule |
 |---------|------|
-| **Sub-wings** | **Goals** (default) · **DDs & CSs** · **Participation** · **Geography** · **Podium** — inner nav under Tournament stats |
+| **Sub-wings** | **Participation · Goals · DDs & CSs · Geography · Podium** — inner nav under Tournament stats (**Participation** default landing) |
 | **Anchor columns** | Every table: **Tournament** (link) · **Year** · **Players** · **Games** — no date/host/city on stats tables |
 | **Row key** | `tournament_id` |
 | **Links** | Tournament → `tournament.php?id=&view=event-stats` (WCH15); goal peaks → clickable value → `game.php?id=` |
@@ -166,7 +166,7 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 |-----------|------|------|
 | `amiga-world-cups` | `/amiga/world-cups/chronology/index.php` → Chronology default | 1 |
 | `amiga-world-cups-chronology` | `/amiga/world-cups/chronology/index.php` | 1 (list only) |
-| `amiga-world-cups-stats` | `/amiga/world-cups/stats/goals.php` | 2 |
+| `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` | 2 |
 | `amiga-world-cups-players` | `/amiga/world-cups/players/honours.php` | 3 default |
 | `amiga-world-cups-players-honours` | `…/players/honours.php` | 3 |
 | `amiga-world-cups-players-results` | `…/players/results.php` | 3 |
@@ -237,7 +237,7 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 | WC stats table under **Activity → World Cups** sub-wing | **Superseded** — wing 2 of this hub ([`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) Option A) |
 | WC player stats **only** under Leaderboards | **Dual home** — hub wing 3 + LB wing; one shared body (WCH8–WCH9) |
 | LB 302 → hub player paths | **Rejected** — both URL trees stay; shared partial only |
-| World Cups as **first** tab after News vs second | **Locked second** (WCH2) — after News, before Leaderboards |
+| World Cups tab position after News | **Jun 2026-24:** **third** — after Leaderboards (supersedes “locked second before Leaderboards”); present order aligns TT curated block |
 | Separate **`world-cups/event.php`** per WC | **Rejected** — `tournament.php?id=&view=event-stats` only (WCH15) |
 
 ---

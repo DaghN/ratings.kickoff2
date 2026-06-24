@@ -8,9 +8,13 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_routes.php';
 
-$k2AmigaWorldCupsStatsView = $k2AmigaWorldCupsStatsView ?? 'goals';
+$k2AmigaWorldCupsStatsView = $k2AmigaWorldCupsStatsView ?? 'participation';
 
 $k2AmigaWorldCupsStatsTabs = [
+    'participation' => [
+        'href' => k2_amiga_route('amiga-world-cups-stats-participation'),
+        'label' => 'Participation',
+    ],
     'goals' => [
         'href' => k2_amiga_route('amiga-world-cups-stats-goals'),
         'label' => 'Goals',
@@ -18,10 +22,6 @@ $k2AmigaWorldCupsStatsTabs = [
     'dds' => [
         'href' => k2_amiga_route('amiga-world-cups-stats-dds'),
         'label' => 'DDs &amp; CSs',
-    ],
-    'participation' => [
-        'href' => k2_amiga_route('amiga-world-cups-stats-participation'),
-        'label' => 'Participation',
     ],
     'geography' => [
         'href' => k2_amiga_route('amiga-world-cups-stats-geography'),

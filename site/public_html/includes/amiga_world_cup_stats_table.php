@@ -18,7 +18,7 @@ const AMIGA_WC_STATS_ANCHOR_COL = 0;
 const AMIGA_WC_STATS_DEFAULT_SORT_COL = 1;
 
 /** @var list<string> */
-const AMIGA_WC_STATS_VIEWS = ['goals', 'dds', 'participation', 'geography', 'podium'];
+const AMIGA_WC_STATS_VIEWS = ['participation', 'goals', 'dds', 'geography', 'podium'];
 
 function amiga_world_cup_stats_tournament_link(int $tournamentId, string $name): string
 {
@@ -145,6 +145,37 @@ function amiga_world_cup_stats_anchor_columns(): array
 }
 
 /**
+ * Per-game goal peak columns (shared on DDs & CSs wing).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_world_cup_stats_peak_columns(): array
+{
+    return [
+        ['label' => 'Max draw', 'sort' => 'number', 'help' => 'Highest total goals in a drawn game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+            isset($row['highest_scoring_draw_sum']) ? (int) $row['highest_scoring_draw_sum'] : null,
+            isset($row['highest_scoring_draw_game_id']) ? (int) $row['highest_scoring_draw_game_id'] : null,
+        )],
+        ['label' => 'Max win', 'sort' => 'number', 'help' => 'Largest win by goal margin in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+            isset($row['biggest_margin']) ? (int) $row['biggest_margin'] : null,
+            isset($row['biggest_margin_game_id']) ? (int) $row['biggest_margin_game_id'] : null,
+        )],
+        ['label' => 'Max GF', 'sort' => 'number', 'tooltip_label' => 'Max goals for', 'help' => 'Most goals scored by one player in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+            isset($row['most_goals_one_player_game']) ? (int) $row['most_goals_one_player_game'] : null,
+            isset($row['most_goals_one_player_game_id']) ? (int) $row['most_goals_one_player_game_id'] : null,
+        )],
+        ['label' => 'Max sum', 'sort' => 'number', 'help' => 'Highest total goals in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+            isset($row['highest_goal_sum']) ? (int) $row['highest_goal_sum'] : null,
+            isset($row['highest_goal_sum_game_id']) ? (int) $row['highest_goal_sum_game_id'] : null,
+        )],
+        ['label' => 'Min sum', 'sort' => 'number', 'help' => 'Lowest total goals in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+            isset($row['lowest_goal_sum']) ? (int) $row['lowest_goal_sum'] : null,
+            isset($row['lowest_goal_sum_game_id']) ? (int) $row['lowest_goal_sum_game_id'] : null,
+        )],
+    ];
+}
+
+/**
  * @return array<string, list<array<string, mixed>>>
  */
 function amiga_world_cup_stats_view_columns(): array
@@ -160,33 +191,13 @@ function amiga_world_cup_stats_view_columns(): array
             ['label' => 'Blowouts', 'sort' => 'number', 'help' => 'Games with a winning margin of five goals or more.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['blowout_games'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Blowout %', 'sort' => 'number', 'help' => 'Blowout games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['blowout_rate'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Draw %', 'sort' => 'number', 'help' => 'Draws as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['draw_rate'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'Max draw', 'sort' => 'number', 'help' => 'Highest total goals in a drawn game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['highest_scoring_draw_sum']) ? (int) $row['highest_scoring_draw_sum'] : null,
-                isset($row['highest_scoring_draw_game_id']) ? (int) $row['highest_scoring_draw_game_id'] : null,
-            )],
-            ['label' => 'Max win', 'sort' => 'number', 'help' => 'Largest win by goal margin in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['biggest_margin']) ? (int) $row['biggest_margin'] : null,
-                isset($row['biggest_margin_game_id']) ? (int) $row['biggest_margin_game_id'] : null,
-            )],
-            ['label' => 'Max GF', 'sort' => 'number', 'tooltip_label' => 'Max goals for', 'help' => 'Most goals scored by one player in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['most_goals_one_player_game']) ? (int) $row['most_goals_one_player_game'] : null,
-                isset($row['most_goals_one_player_game_id']) ? (int) $row['most_goals_one_player_game_id'] : null,
-            )],
-            ['label' => 'Max sum', 'sort' => 'number', 'help' => 'Highest total goals in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['highest_goal_sum']) ? (int) $row['highest_goal_sum'] : null,
-                isset($row['highest_goal_sum_game_id']) ? (int) $row['highest_goal_sum_game_id'] : null,
-            )],
-            ['label' => 'Min sum', 'sort' => 'number', 'help' => 'Lowest total goals in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['lowest_goal_sum']) ? (int) $row['lowest_goal_sum'] : null,
-                isset($row['lowest_goal_sum_game_id']) ? (int) $row['lowest_goal_sum_game_id'] : null,
-            )],
         ],
-        'dds' => [
+        'dds' => array_merge([
             ['label' => 'DDs', 'sort' => 'number', 'help' => 'Times a player scored ten or more goals in a game (each player counts separately; up to two per game).', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['double_digit_slots'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'DD %', 'sort' => 'number', 'help' => 'Double digits per game (total DDs ÷ games).', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['double_digit_rate'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'CSs', 'sort' => 'number', 'help' => 'Times a player held the opponent scoreless in a game (each player counts separately; up to two per game).', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['clean_sheet_slots'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'CS %', 'sort' => 'number', 'help' => 'Clean sheets per game (total CSs ÷ games).', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['clean_sheet_rate'] ?? null, amiga_world_cup_stats_games($row))],
-        ],
+        ], amiga_world_cup_stats_peak_columns()),
         'participation' => [
             ['label' => '1st WC', 'sort' => 'number', 'help' => 'Players appearing in their first World Cup.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['first_time_wc_players'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Matchups', 'sort' => 'number', 'help' => 'Unique player pairings in this World Cup.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_opponent_pairs'] ?? null, amiga_world_cup_stats_games($row))],
@@ -220,7 +231,7 @@ function amiga_world_cup_stats_view_columns(): array
 function amiga_world_cup_stats_columns_for_view(string $view): array
 {
     $views = amiga_world_cup_stats_view_columns();
-    $statCols = $views[$view] ?? $views['goals'];
+    $statCols = $views[$view] ?? $views['participation'];
     $anchorCols = amiga_world_cup_stats_anchor_columns();
 
     if ($view !== 'participation') {
@@ -257,7 +268,7 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
 {
     $views = amiga_world_cup_stats_view_columns();
     if (!isset($views[$view])) {
-        $view = 'goals';
+        $view = 'participation';
     }
 
     $allCols = amiga_world_cup_stats_columns_for_view($view);

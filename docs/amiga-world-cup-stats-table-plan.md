@@ -382,9 +382,9 @@ Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared
 
 | Sub-wing | Path | Stat columns (after anchor) |
 |----------|------|-----------------------------|
-| **Goals** | `stats/index.php` | Goals, G/G, High + High %, Low + Low %, Blowouts + Blowout %, Draw %, Max/Min sum, Max draw, Max margin, Max player goals (peaks link to game) |
-| **DDs & CSs** | `stats/dds.php` | DDs + DD %, CSs + CS % |
 | **Participation** | `stats/participation.php` | Players → **1st WC** → Games, Matchups, G/player, Opp/player, Champ g, Group, KO, **Year %** |
+| **Goals** | `stats/goals.php` | Goals, G/G, High + High %, Low + Low %, Blowouts + Blowout %, Draw % |
+| **DDs & CSs** | `stats/dds.php` | DDs + DD %, CSs + CS %, Max draw · Max win · Max GF · Max sum · Min sum (peaks link to game) |
 | **Geography** | `stats/geography.php` | Nations, Guests, Host players, Guest %, Nation pairs, **Intl games**, **Intl %** |
 | **Podium** | `stats/podium.php` | Gold, Silver, Bronze |
 

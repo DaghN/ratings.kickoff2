@@ -192,7 +192,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 
 **Header (Amiga only):** segment beside realm switcher — **Present day | Time travel** (`data-k2-carry-scroll` on nav — same scroll lock as hub pills). **Present day** always → **`/amiga/news.php`** (T19). **Time travel** from present → **`/amiga/leaderboards/rating.php?as=year:{first}`**; when already in the lens → rating LB with **active `as=`** (same as wordmark / realm home). In-lens time stepping uses the **ribbon**, not the toggle. In **present** mode only, hover **Time travel** for a `data-k2-help` tooltip (`amiga_time_mode_nav_time_travel_help_text()` — warning copy + side-effects punchline). `amiga_url_present()` strips `as=` on links — **not** used by the mode toggle.
 
-**Hub bar (when `as=` active):** **Leaderboards · World Cups · Activity · Hall of Fame** only (T13b). Present-day order: **News · World Cups · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments** (last). News, Live tournaments, Tournaments, and future Games hub tab are **hidden** under time travel.
+**Hub bar (when `as=` active):** **Leaderboards · World Cups · Activity · Hall of Fame** only (T13b). Present-day order: **News · Leaderboards · World Cups · Activity · Hall of Fame · Tournaments · Live tournaments** (last). News, Live tournaments, Tournaments, and future Games hub tab are **hidden** under time travel.
 
 **Ribbon (when `as=` active):** compact bar at the top of `k2-page-nav` — **below the temporal stamp**, **above** hub tabs, player hero, and player pills. One row (no wrap): **Year | Month | Event** wing tabs · chevrons + snapshot label · listbox picker. Year/Month wings: label only in stepper. **Event wing:** full layout contract in §5.1.1 (stepper link, picker widths, date formats, linkstar accents on player wings).
 
@@ -267,9 +267,10 @@ Player/archive pages still wiring cutoff reads may show present-day blocks brief
 |-----|-------------|-----------------|
 | News | Yes (landing) | **Hidden** (T13) |
 | Leaderboards | Yes | Yes (T13b) |
-| Tournaments | Yes | **Hidden** (T13b) — player / detail deep links when wired |
+| World Cups | Yes | Yes (T13b) |
 | Activity | Yes | Yes (T13b) |
 | Hall of Fame | Yes | Yes (T13b) |
+| Tournaments | Yes | **Hidden** (T13b) — player / detail deep links when wired |
 | Live tournaments | Yes (last) | **Hidden** (T13) |
 | Games (future hub) | Yes (when shipped) | **Hidden** (T13b) |
 | Misc (future) | Yes | **Hidden** (T13) |
