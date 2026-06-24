@@ -5,8 +5,7 @@
 <title>Amiga player games</title>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_js_enqueue(); ?>
-<script type="text/javascript" src="/js/k2-table-scroll-mirror.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js'); ?>" defer="defer"></script>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 <script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
 </head>
@@ -336,7 +335,7 @@ foreach ($yearOptions as $year) {
     <span class="k2-player-games-status__perf" title="<?php echo amiga_games_h(amiga_perf_rating_games_list_help()); ?>">· Performance rating <span class="k2-player-games-status__perf-value">…</span></span>
 </div>
 
-<div class="k2-table-wrap" data-k2-scroll-mirror>
+<?php k2_table_wrap_open(true); ?>
 
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-games">
 
@@ -376,7 +375,7 @@ foreach ($yearOptions as $year) {
 
 </table>
 
-</div><!-- .k2-table-wrap -->
+<?php k2_table_wrap_close(); ?><!-- .k2-table-wrap -->
 
 </div><!-- .k2-page-nav -->
 <?php mysqli_close($con); ?>

@@ -5,7 +5,7 @@
 <title>Kick Off 2 ratings</title>
 
 <?php $k2RankedCloak = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_lb_sortable_table_head.inc.php'; ?>
 <script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
 
 </head>
@@ -39,7 +39,7 @@ $k2LbWingActive = 'victims';
 include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 ?>
 
-<div class="k2-table-wrap">
+<?php k2_table_wrap_open(true); ?>
 
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 
@@ -97,7 +97,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 </table>
 
-</div><!-- .k2-table-wrap -->
+<?php k2_table_wrap_close(); ?><!-- .k2-table-wrap -->
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav_end.php"; ?>
 

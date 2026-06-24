@@ -37,8 +37,8 @@ $k2HubChapterLede = $k2AmigaWorldCupsChapterLede;
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <?php
 if ($k2AmigaWorldCupsEnqueueTableJs) {
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
-    k2_table_sortable_assets_enqueue($k2AmigaWorldCupsEnqueueScrollMirror);
+    $k2SortableTableScrollMirror = $k2AmigaWorldCupsEnqueueScrollMirror;
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php';
 }
 ?>
 </head>

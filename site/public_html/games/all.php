@@ -78,7 +78,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 			<a class="k2-player-games-reset" href="<?php echo k2_realm_games_all_h(k2_realm_games_all_build_url([])); ?>">Reset filters</a>
 		</div>
 
-		<div class="k2-table-wrap" data-k2-scroll-mirror>
+		<?php k2_table_wrap_open(true); ?>
 
 <table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--realm-games-all', false)); ?>">
 
@@ -139,6 +139,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 
 </table>
 
-		</div>
+		<?php k2_table_wrap_close(); ?>
 	</div>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_end.inc.php'; ?>

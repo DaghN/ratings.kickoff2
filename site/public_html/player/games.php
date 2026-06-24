@@ -4,9 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Kick Off 2 ratings</title>
 
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
-<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
-<script type="text/javascript" src="/js/k2-table-scroll-mirror.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table-scroll-mirror.js'); ?>" defer="defer"></script>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 <script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
@@ -880,7 +879,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
 <?php } ?>
 </div>
 
-<div class="k2-table-wrap" data-k2-scroll-mirror>
+<?php k2_table_wrap_open(true); ?>
 
 <table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-games">
 
@@ -926,7 +925,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
 
 </table>
 
-</div><!-- .k2-table-wrap -->
+<?php k2_table_wrap_close(); ?><!-- .k2-table-wrap -->
 
 <?php if ($hasFilterLandingView) { ?>
 <div class="k2-player-games-filter-scroll-pad" aria-hidden="true"></div>

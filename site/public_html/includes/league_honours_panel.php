@@ -82,7 +82,7 @@ foreach ($cupTabs as $cupId => $label) {
 	<p class="muted">League honours data is not available on this database yet.</p>
 <?php } ?>
 
-	<div class="k2-table-wrap">
+<?php k2_table_wrap_open(true); ?>
 		<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 			<thead>
 				<tr>
@@ -111,5 +111,5 @@ foreach ($cupTabs as $cupId => $label) {
 <?php } ?>
 			</tbody>
 		</table>
-	</div>
+	<?php k2_table_wrap_close(); ?>
 </div>

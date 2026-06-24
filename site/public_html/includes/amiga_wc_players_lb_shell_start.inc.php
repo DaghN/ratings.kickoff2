@@ -16,7 +16,7 @@ $k2AmigaWcLbView = $k2AmigaWcPlayersView;
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php echo htmlspecialchars($k2AmigaWcPlayersPageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_sortable_assets_enqueue(true); ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>

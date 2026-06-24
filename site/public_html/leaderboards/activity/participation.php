@@ -4,8 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Kick Off 2 ratings — Activity participation</title>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
-<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_lb_sortable_table_head.inc.php'; ?>
 <script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
 
 </head>
@@ -46,7 +46,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <?php } elseif ($queryError) { ?>
 <p class="server-peak-period-leaderboard-status">Could not load activity participation.</p>
 <?php } else { ?>
-<div class="k2-table-wrap">
+<?php k2_table_wrap_open(true); ?>
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
 <thead>
 	<tr>
@@ -96,7 +96,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 <?php } ?>
 </tbody>
 </table>
-</div>
+<?php k2_table_wrap_close(); ?>
 <?php } ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav_end.php'; ?>

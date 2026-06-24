@@ -50,7 +50,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 <?php foreach ($gamesByDay as $day) { ?>
 	<div class="k2-games-day">
 		<h2 class="k2-panel-heading k2-games-day__heading"><?php echo $day['label']; ?></h2>
-		<div class="k2-table-wrap" data-k2-scroll-mirror>
+		<?php k2_table_wrap_open(true); ?>
 
 <table class="<?php echo k2_h(k2_table_ranked_sortable_class('', false)); ?>" data-k2-table="sortable" data-k2-default-sort="0" data-k2-default-direction="desc">
 
@@ -89,7 +89,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 
 </table>
 
-		</div>
+		<?php k2_table_wrap_close(); ?>
 	</div>
 <?php } ?>
 	</div>

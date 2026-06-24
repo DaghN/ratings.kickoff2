@@ -199,7 +199,8 @@ function k2_table_scroll_mirror_enqueue(): void
     echo '<script type="text/javascript" src="/js/k2-table-scroll-mirror.js?v=' . $v . '" defer="defer"></script>';
 }
 
-/** k2-table.js plus optional scroll mirror (markup: {@see k2_table_wrap_open()}). */
+/** k2-table.js plus optional scroll mirror (markup: {@see k2_table_wrap_open()}).
+ *  Head assets: {@see includes/k2_sortable_table_assets_head.inc.php} or online LB {@see includes/k2_lb_sortable_table_head.inc.php}. */
 function k2_table_sortable_assets_enqueue(bool $scrollMirror = false): void
 {
     k2_table_js_enqueue();

@@ -119,6 +119,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-23 | **k2-table scroll mirror rollout** — shared `k2_sortable_table_assets_head.inc.php` + `k2_lb_sortable_table_head.inc.php`; online hub LBs + league honours + games/league/player-games migrated to `k2_table_wrap_open(true)`; Amiga LBs/WC shells use shared head include. |
 | 2026-06-23 | **k2-table column widths** — hub Rank/Player min-widths opt-in via `k2-table--hub-rank-player-cols`; `k2_table_ranked_sortable_class()` + `k2_table_ranked_leaderboard_class()`; online LBs migrated to helper; status league tables excluded. |
 | 2026-06-23 | **Amiga tournament page layout** — dropped legacy `1.25rem` horizontal gutters; hero/nav/bracket span full `.k2-page-nav` column (fixes nav overflow). |
 | 2026-06-23 | **Amiga tournament event-stats table** — ranked cloak + `ranked-table-pending` + SSR sort/anchor cells; anchor col 0 (Player); scroll mirror; `tournament.php` `$k2RankedCloak`. |

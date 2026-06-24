@@ -784,7 +784,7 @@ function k2_league_period_render_games_section(
 		</div>
 	</div>
 <?php if ($games !== []) { ?>
-	<div class="k2-table-wrap" data-k2-scroll-mirror>
+	<?php k2_table_wrap_open(true); ?>
 		<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--realm-games-all')); ?>" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc" data-k2-sort-scope="league-games">
 			<thead>
 				<tr>
@@ -812,7 +812,7 @@ function k2_league_period_render_games_section(
 <?php } ?>
 			</tbody>
 		</table>
-	</div>
+	<?php k2_table_wrap_close(); ?>
 <?php } ?>
 </section>
 <?php

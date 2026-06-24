@@ -6,7 +6,7 @@
 
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_lb_sortable_table_head.inc.php'; ?>
 <script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
 
 </head>
@@ -33,7 +33,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 ?>
 
 <?php echo k2_lb_table_anchor_markup(); ?>
-<div class="k2-table-wrap">
+<?php k2_table_wrap_open(true); ?>
 
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="8" data-k2-default-direction="desc">
 
@@ -75,7 +75,7 @@ foreach ($leaderRows as $row) {
 
 </table>
 
-</div><!-- .k2-table-wrap -->
+<?php k2_table_wrap_close(); ?><!-- .k2-table-wrap -->
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav_end.php'; ?>
 
