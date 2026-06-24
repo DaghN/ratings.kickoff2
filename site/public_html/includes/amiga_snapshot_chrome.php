@@ -180,6 +180,7 @@ function amiga_snapshot_chrome_render_wing_tabs(
     array $wings,
     ?array $cutoff
 ): void {
+    require_once __DIR__ . '/amiga_time_travel_stamp.php';
     echo '<nav class="k2-realm-switch k2-amiga-time-travel__wings" data-k2-carry-scroll aria-label="Time travel granularity">';
     echo '<div class="k2-realm-switch__track" role="group">';
     foreach ($wings as $tab) {
@@ -188,7 +189,8 @@ function amiga_snapshot_chrome_render_wing_tabs(
         if ($key === null) {
             continue;
         }
-        $href = amiga_url_with_as($path, $wingId, $key);
+        $extraQuery = $activeWing !== $wingId ? amiga_time_travel_stamp_arrival_entry_query() : [];
+        $href = amiga_url_with_as($path, $wingId, $key, $extraQuery);
         $activeClass = $activeWing === $wingId ? ' is-active' : '';
         $ariaCurrent = $activeWing === $wingId ? ' aria-current="page"' : '';
         echo '<a href="' . k2_h($href) . '" class="k2-realm-switch__btn' . $activeClass . '"' . $ariaCurrent . '>'

@@ -131,6 +131,16 @@ function amiga_time_travel_stamp_arrival_pending_from_request(): bool
     return isset($_GET['k2_tt_entry']) && (string) $_GET['k2_tt_entry'] === '1';
 }
 
+/**
+ * One-shot stamp arrival animation (toggle entry or ribbon wing change).
+ *
+ * @return array{k2_tt_entry: string}
+ */
+function amiga_time_travel_stamp_arrival_entry_query(): array
+{
+    return ['k2_tt_entry' => '1'];
+}
+
 function amiga_time_travel_stamp_js_enqueue(): void
 {
     static $done = false;

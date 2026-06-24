@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_table_helpers.php';
+require_once __DIR__ . '/amiga_time_travel_stamp.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/amiga_hub_nav_lib.php';
 
@@ -51,7 +52,7 @@ function amiga_time_mode_nav_time_travel_href(?string $path = null): ?string
         return null;
     }
 
-    return amiga_url_with_as_param(amiga_hub_time_travel_entry_path(), $asParam, ['k2_tt_entry' => '1']);
+    return amiga_url_with_as_param(amiga_hub_time_travel_entry_path(), $asParam, amiga_time_travel_stamp_arrival_entry_query());
 }
 
 function amiga_time_mode_nav_time_travel_help_text(): string

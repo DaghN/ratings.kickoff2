@@ -181,7 +181,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 | **Kicker** | `››` prompt + wing label: **YEAR END REACHED** · **MONTH END REACHED** · **TEMPORAL LINK ESTABLISHED** (event) |
 | **LED date** | From cutoff `event_date`: year wing → `Y`; month → `MM · Y`; event → `DD · MM · YYYY` |
 | **Typography** | DSEG7 Classic for LED segments only — display exception per [`design-direction.md`](design-direction.md) § Typography |
-| **Motion** | **Ambient:** blinking `_` cursor whenever stamp visible (`prefers-reduced-motion` → static). Click the cursor to pause/resume blink — preference stored in **`localStorage`** for this browser on this site (until toggled again or site data cleared; not synced across devices). Hover tooltip follows the pointer near the `_`. **Arrival (tier 1):** present-mode **Time travel** href carries one-shot `k2_tt_entry=1`; stamp hidden from first paint, then panel fade-in + kicker typewriter. |
+| **Motion** | **Ambient:** blinking `_` cursor (click to pause/resume; `localStorage`). **Arrival:** fade-in + kicker typewriter on **toggle entry** and **ribbon wing change** (Year · Month · Event tabs only) via one-shot `k2_tt_entry=1`; stepper/picker/hub nav/direct URL do not trigger. Hover tooltip follows pointer near `_`. |
 | **A11y** | `aria-label` plain English: *As of {j F Y}*; decorative kicker/LED `aria-hidden` |
 
 **Rejected in this slice:** event name line under the stamp (redundant with ribbon stepper); animated segment rollover; hub-only stamp scope (stamp must follow the lens everywhere).

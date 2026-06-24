@@ -211,6 +211,28 @@ if (amiga_hub_present_entry_path() !== '/amiga/news.php') {
     exit(1);
 }
 echo "mode_toggle_hrefs_ok\n";
+require_once __DIR__ . '/../../site/public_html/includes/amiga_time_travel_stamp.php';
+$_GET['as'] = 'year:2001';
+amiga_snapshot_context_reset();
+$wingCtx = amiga_snapshot_context_from_request($con);
+$wingCutoff = $wingCtx->cutoff();
+$monthKey = amiga_snapshot_wing_key_from_cutoff($wingCutoff, 'month');
+if ($monthKey === null) {
+    fwrite(STDERR, "wing tab probe: month key missing\n");
+    exit(1);
+}
+$monthWingHref = amiga_url_with_as('/amiga/leaderboards/rating.php', 'month', $monthKey, amiga_time_travel_stamp_arrival_entry_query());
+if (!str_contains($monthWingHref, 'k2_tt_entry=1')) {
+    fwrite(STDERR, "wing tab change should carry k2_tt_entry=1: {$monthWingHref}\n");
+    exit(1);
+}
+$yearKey = amiga_snapshot_wing_key_from_cutoff($wingCutoff, 'year');
+$yearWingHref = amiga_url_with_as('/amiga/leaderboards/rating.php', 'year', (string) $yearKey, []);
+if (str_contains($yearWingHref, 'k2_tt_entry=')) {
+    fwrite(STDERR, "same-wing tab should not carry k2_tt_entry: {$yearWingHref}\n");
+    exit(1);
+}
+echo "wing_tab_arrival_ok\n";
 $presentKeys = array_keys($presentTabs);
 if ($presentKeys[array_key_last($presentKeys)] !== 'live-tournaments') {
     fwrite(STDERR, "live-tournaments should be last present hub tab\n");
