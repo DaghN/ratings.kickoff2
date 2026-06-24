@@ -2,9 +2,10 @@
 /**
  * World Cups hub chrome — open through <main> (sub-nav included).
  *
- * Set $k2AmigaWorldCupsHubView: events | stats | players
+ * Set $k2AmigaWorldCupsHubView: events | stats | players | countries
  * Optional: $k2AmigaWorldCupsPageTitle, $k2AmigaWorldCupsChapterLede
  * When $k2AmigaWorldCupsHubView === 'players', set $k2AmigaWorldCupsPlayersView: honours | results | goals | dds | opponents
+ * When $k2AmigaWorldCupsHubView === 'countries', set $k2AmigaWorldCupsCountriesView: honours | results | goals | dds | opponents
  * When $k2AmigaWorldCupsHubView === 'stats', set $k2AmigaWorldCupsStatsView: goals | dds | participation | geography | podium
  */
 declare(strict_types=1);
@@ -14,7 +15,7 @@ $k2AmigaWorldCupsPageTitle = $k2AmigaWorldCupsPageTitle ?? 'World Cups';
 $k2AmigaWorldCupsChapterLede = $k2AmigaWorldCupsChapterLede ?? '';
 $k2AmigaWorldCupsEnqueueTableJs = $k2AmigaWorldCupsEnqueueTableJs ?? false;
 $k2AmigaWorldCupsEnqueueScrollMirror = $k2AmigaWorldCupsEnqueueScrollMirror ?? false;
-if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['players', 'stats'], true)) {
+if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['players', 'stats', 'countries'], true)) {
     $k2AmigaWorldCupsEnqueueScrollMirror = true;
 }
 if ($k2AmigaWorldCupsEnqueueTableJs) {
@@ -25,6 +26,7 @@ $k2AmigaWorldCupsChapterTitles = [
     'events' => 'World Cups',
     'stats' => 'World Cups — Tournament stats',
     'players' => 'World Cups — Player stats',
+    'countries' => 'World Cups — Country stats',
 ];
 $k2HubChapterTitle = $k2AmigaWorldCupsChapterTitles[$k2AmigaWorldCupsHubView] ?? 'World Cups';
 $k2HubChapterLede = $k2AmigaWorldCupsChapterLede;
@@ -52,6 +54,9 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_nav.php';
 if ($k2AmigaWorldCupsHubView === 'players') {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_players_nav.php';
+}
+if ($k2AmigaWorldCupsHubView === 'countries') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_countries_nav.php';
 }
 if ($k2AmigaWorldCupsHubView === 'stats') {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_stats_nav.php';

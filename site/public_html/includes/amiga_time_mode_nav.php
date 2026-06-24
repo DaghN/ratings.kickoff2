@@ -108,7 +108,7 @@ function amiga_time_mode_nav_render(): void
             . '" data-k2-tooltip-hide-title="1"';
     }
     ?>
-<nav class="k2-realm-switch k2-amiga-time-mode" aria-label="Amiga time mode">
+<nav class="k2-realm-switch k2-amiga-time-mode" data-k2-carry-scroll aria-label="Amiga time mode">
 	<div class="k2-realm-switch__track" role="group" aria-label="Present day or time travel">
 		<a href="<?php echo k2_h($presentHref); ?>" class="k2-realm-switch__btn<?php echo $presentClass; ?>"<?php echo $presentAria; ?>>Present day</a>
 		<a href="<?php echo k2_h($timeTravelHref); ?>" class="k2-realm-switch__btn<?php echo $travelClass; ?>"<?php echo $travelAria; ?><?php echo $travelHelpAttrs; ?>>Time travel</a>

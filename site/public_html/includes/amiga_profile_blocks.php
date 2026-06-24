@@ -13,6 +13,7 @@ require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_player_tournament_lib.php';
 require_once __DIR__ . '/amiga_participation_placement.php';
 require_once __DIR__ . '/k2_table_helpers.php';
+require_once __DIR__ . '/k2_amiga_country_flag.php';
 
 const AMIGA_TOURNAMENT_EVENT_STATS_ANCHOR_COL = 0;
 const AMIGA_TOURNAMENT_EVENT_STATS_DEFAULT_SORT_COL = 10;
@@ -522,7 +523,7 @@ function amiga_tournament_index_render_table(array $rows): void
     <tr>
         <th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
         <th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
-        <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Games</th>
         <th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Players</th>
         <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Format</th>
@@ -540,6 +541,7 @@ function amiga_tournament_index_render_table(array $rows): void
     $hasStandings = (int) ($row['standing_rows'] ?? 0) > 0;
     $kind = amiga_tournament_index_format_kind($row);
     $formatLabel = amiga_tournament_index_format_label($kind);
+    $hostCountry = (string) ($row['country'] ?? '');
     ?>
     <tr>
         <td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
@@ -553,7 +555,7 @@ function amiga_tournament_index_render_table(array $rows): void
                 echo k2_h((string) $row['name']);
             }
         ?></td>
-        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($hostCountry); ?>"><?php echo k2_amiga_country_table_cell_or_dash($hostCountry); ?></td>
         <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo $games; ?></td>
         <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo $hasStandings ? (string) $players : '—'; ?></td>
         <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>>

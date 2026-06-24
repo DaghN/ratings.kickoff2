@@ -20,6 +20,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_flag.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -40,7 +41,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
         <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
         <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_elo_rating(), ENT_QUOTES, 'UTF-8'); ?>">Elo</th>
-        <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_lb_th(3, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_peak_year_games(), ENT_QUOTES, 'UTF-8'); ?>">Peak yr games</th>
         <th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number">Year</th>
         <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_peak_year_tournaments(), ENT_QUOTES, 'UTF-8'); ?>">Peak yr events</th>
@@ -60,7 +61,7 @@ foreach ($rows as $row) {
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['rating']); ?></td>
-        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_h((string) ($row['country'] ?? '')); ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h((string) ($row['country'] ?? '')); ?>"><?php echo k2_amiga_country_table_cell((string) ($row['country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo (int) $row['peak_year_games']; ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo $row['peak_year_games_year'] !== null ? (int) $row['peak_year_games_year'] : '—'; ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo (int) $row['peak_year_tournaments']; ?></td>

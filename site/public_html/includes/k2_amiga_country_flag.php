@@ -71,3 +71,25 @@ function k2_amiga_country_flag_img(string $country, array $opts = []): string
         . ' width="28" height="21" decoding="async" loading="lazy"'
         . ' alt="' . htmlspecialchars($meta['label'], ENT_QUOTES, 'UTF-8') . '"' . $classAttr . '>';
 }
+
+/** Flag image for table cells; falls back to escaped country name when unmapped. */
+function k2_amiga_country_table_cell(string $country): string
+{
+    $flag = k2_amiga_country_flag_img($country, ['decorative' => false]);
+    if ($flag !== '') {
+        return $flag;
+    }
+
+    return k2_h($country);
+}
+
+/** Flag cell; em dash when country is empty (e.g. tournament host unknown). */
+function k2_amiga_country_table_cell_or_dash(string $country): string
+{
+    $country = trim($country);
+    if ($country === '') {
+        return '—';
+    }
+
+    return k2_amiga_country_table_cell($country);
+}

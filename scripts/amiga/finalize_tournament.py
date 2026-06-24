@@ -14,6 +14,7 @@ from scripts.amiga.slice_persist import (
     load_prior_world_cup_slices,
     persist_world_cup_slices_at_tournament,
 )
+from scripts.amiga.country_slice_game_stats import CountryWorldCupSliceTracker
 from scripts.amiga.slice_game_stats import WorldCupSliceTracker, apply_world_cup_tournament_games
 from scripts.amiga.slice_totals import empty_world_cup_slice, increment_world_cup_slice
 from scripts.amiga.tournament_honours import is_world_cup_tournament
@@ -486,6 +487,7 @@ def finalize_tournament(
     honours_by_player: dict[int, dict[str, Any]] | None = None,
     slice_by_player: dict[int, dict[str, Any]] | None = None,
     slice_trackers: dict[int, WorldCupSliceTracker] | None = None,
+    country_trackers: dict[str, CountryWorldCupSliceTracker] | None = None,
     prior_career_best: dict[int, dict[str, Any]] | None = None,
     event_games: dict[tuple[int, int], int] | None = None,
     matchups: MatchupCumulative | None = None,
@@ -692,6 +694,23 @@ def finalize_tournament(
         commit=False,
     ):
         log.info("finalize_tournament: world cup stats tournament_id=%s", tournament_id)
+
+    if is_world_cup_tournament(str(tour.get("name") or "")):
+        from scripts.amiga.country_slice_compute import rebuild_country_slices_at_world_cup_finalize
+        if country_trackers is None:
+            country_trackers = {}
+        rebuild_country_slices_at_world_cup_finalize(
+            conn,
+            tournament_id=tournament_id,
+            event_date=tour.get("event_date"),
+            event_chrono=float(tour.get("chrono") or 0.0),
+            player_countries=player_countries,
+            tournament_games=games,
+            ratings_by_game_id=ratings_by_game_id,
+            country_trackers=country_trackers,
+            commit=False,
+        )
+        log.info("finalize_tournament: country slice tournament_id=%s", tournament_id)
 
     persist_realm_snapshot_for_tournament(
         conn,

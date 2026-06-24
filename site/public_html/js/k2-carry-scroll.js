@@ -24,7 +24,9 @@
 
 		'nav[data-k2-carry-scroll] a.k2-player-nav__btn, ' +
 
-		'nav[data-k2-carry-scroll] a.k2-chrome-tabs__tab';
+		'nav[data-k2-carry-scroll] a.k2-chrome-tabs__tab, ' +
+
+		'nav[data-k2-carry-scroll] a.k2-realm-switch__btn';
 
 	var SORT_LINK_SEL =
 		'.k2-table--player-games th.k2-table-sortable a[href], ' +

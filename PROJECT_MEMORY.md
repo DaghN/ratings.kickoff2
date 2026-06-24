@@ -119,9 +119,15 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Amiga country flags rollout** — centered flags on LB Rating, Calendar-geo, Tournament honours + tournament catalog (`amiga_tournament_index_render_table`); `k2_amiga_country_table_cell_or_dash()` for empty host. |
+| 2026-06-24 | **WC player stats country flags** — Country col on five player LB tables: centered flags via `k2_amiga_country_table_cell()` (+ shared helper in `k2_amiga_country_flag.php`); `data-k2-sort-value` for text sort. |
+| 2026-06-24 | **WC country column center** — Country (flag) col on all five hub tables: `k2-table-cell--center` in `theme.css` + `amiga_wc_countries_table.php`. |
+| 2026-06-24 | **WC country stats tooltips** — nation-grain column help on all five hub tables (`lb_column_help.php`); header tweaks (Entries, Realm %, etc.). |
 | 2026-06-24 | **Amiga WC country stats policy** — wing 4 Country stats locked: five sub-wings, `amiga_country_slice_*`, roll-up rules, perf rating + avg opp rating on Results; hub policy + PROJECT_MAP updated. |
 | 2026-06-24 | **Amiga WC country stats implementation plan** — CS-0–CS-7 slices, reference files, STOP gates ([`amiga-world-cups-country-slice-implementation-plan.md`](docs/amiga-world-cups-country-slice-implementation-plan.md)). |
 | 2026-06-24 | **skip-initial-sort SQL parity** — Activity Participation `ORDER BY active_days DESC`; league honours zero-fallback matches gold-first order (WC player LBs fixed earlier via per-view slice order). |
+| 2026-06-24 | **Header realm switcher carry-scroll** — Online · Amiga 500 nav: `data-k2-carry-scroll` on `realm_switcher_nav.php` (reuses `k2-realm-switch__btn` pill selector). |
+| 2026-06-24 | **Amiga time mode carry-scroll** — header **Present day | Time travel** + ribbon Year/Month/Event wings: `data-k2-carry-scroll` on nav; `k2-realm-switch__btn` in `k2-carry-scroll.js` pill selector. |
 | 2026-06-24 | **WC player LB default sort** — per-wing SQL `ORDER BY` via `amiga_lb_wc_slice_order_sql()` + `amiga_wc_lb_rows_for_view()` (fixes skip-initial-sort header/body mismatch on Results/Goals/DDs/Opponents). |
 | 2026-06-24 | **Amiga time travel tooltip** — present-mode hover help: side-effects list order → lost wins before missing players (`amiga_time_mode_nav_time_travel_help_text()`). |
 | 2026-06-24 | **K2 hub LB `$lbSort` fix** — Amiga 8 LB wings + online Activity 3 wings: missing `k2_lb_table_sort_state()` after SSR migration (`scripts/fix_lb_sort_state.py`). |

@@ -1,6 +1,6 @@
 # Amiga World Cups — country slice implementation plan
 
-**Status:** **Planned** (Jun 2026-24) — policy locked; **no code shipped**.
+**Status:** **Complete** (Jun 2026-24) — CS-1–CS-7 shipped; `verify-country-slice` green on replay.
 
 **Policy:** [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)  
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · [`amiga-data-contract.md`](amiga-data-contract.md)

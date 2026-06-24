@@ -12,6 +12,7 @@ require_once __DIR__ . '/../includes/amiga_honours_totals_lib.php';
 require_once __DIR__ . '/amiga_slice_totals_lib.php';
 require_once __DIR__ . '/amiga_slice_game_stats_lib.php';
 require_once __DIR__ . '/amiga_slice_persist_lib.php';
+require_once __DIR__ . '/amiga_country_slice_compute_lib.php';
 require_once __DIR__ . '/../includes/amiga_career_rise_lib.php';
 require_once __DIR__ . '/amiga_elo_rank_lib.php';
 require_once dirname(__DIR__, 3) . '/ops/includes/post_game_player_state.php';
@@ -564,6 +565,16 @@ function amiga_ops_persist_tournament_event_snapshots(
     );
 
     amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
+
+    if (amiga_honours_is_world_cup_tournament($tournamentName)) {
+        amiga_country_slice_rebuild_at_world_cup_finalize(
+            $con,
+            $tournamentId,
+            $eventDate,
+            $eventChrono,
+            $playerCountries
+        );
+    }
 
     return $written;
 }

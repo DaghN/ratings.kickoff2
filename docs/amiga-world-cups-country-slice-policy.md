@@ -1,6 +1,6 @@
 # Amiga World Cups — country slice (WC career by nation)
 
-**Status:** **Policy locked** (Jun 2026-24) — product + storage contract only; **not implemented** (no DDL / writers / UI).
+**Status:** **Policy locked** (Jun 2026-24) — **shipped** Jun 2026-24 (DDL `040`, Python + PHP writers, hub wing 4 UI, `verify-country-slice` in `prove`).
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)
 

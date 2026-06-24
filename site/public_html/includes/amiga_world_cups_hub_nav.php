@@ -25,6 +25,10 @@ $k2AmigaWorldCupsHubTabs = [
         'href' => k2_amiga_route('amiga-world-cups-players'),
         'label' => 'Player stats',
     ],
+    'countries' => [
+        'href' => k2_amiga_route('amiga-world-cups-countries'),
+        'label' => 'Country stats',
+    ],
 ];
 ?>
 <div class="k2-chrome-tabs k2-amiga-world-cups-hub-tabs">

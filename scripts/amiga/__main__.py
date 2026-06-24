@@ -40,6 +40,7 @@ from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
 from scripts.amiga.verify_player_slice import main as verify_player_slice_main
+from scripts.amiga.verify_country_slice import main as verify_country_slice_main
 from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.verify_l2_l3_boundary import main as verify_l2_l3_boundary_main
@@ -381,6 +382,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     sub.add_parser(
+        "verify-country-slice",
+        help="Assert world_cup country slice tables vs compute oracle",
+    )
+
+    sub.add_parser(
         "verify-player-matchups",
         help="Assert H2H summary parity vs amiga_games (player universe contract §8)",
     )
@@ -682,6 +688,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-player-slice":
         return verify_player_slice_main()
+
+    if args.cmd == "verify-country-slice":
+        return verify_country_slice_main()
 
     if args.cmd == "verify-player-matchups":
         return verify_player_matchups_main()

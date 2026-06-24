@@ -179,8 +179,8 @@ function amiga_snapshot_chrome_render_wing_tabs(
     array $wings,
     ?array $cutoff
 ): void {
-    echo '<nav class="k2-realm-switch k2-amiga-time-travel__wings" aria-label="Time travel granularity">';
-    echo '<div class="k2-realm-switch__track" data-k2-carry-scroll role="group">';
+    echo '<nav class="k2-realm-switch k2-amiga-time-travel__wings" data-k2-carry-scroll aria-label="Time travel granularity">';
+    echo '<div class="k2-realm-switch__track" role="group">';
     foreach ($wings as $tab) {
         $wingId = $tab['wing'];
         $key = amiga_snapshot_wing_key_from_cutoff($cutoff, $wingId);

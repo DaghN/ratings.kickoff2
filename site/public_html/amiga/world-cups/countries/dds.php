@@ -1,0 +1,14 @@
+<?php
+declare(strict_types=1);
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav_lib.php';
+
+$k2AmigaWorldCupsHubView = 'countries';
+$k2AmigaWorldCupsCountriesView = 'dds';
+$k2AmigaWorldCupsPageTitle = 'World Cups — Country stats — DDs & CSs';
+$k2AmigaWorldCupsChapterLede = 'Double digits and clean sheets summed across each nation\'s World Cup players.';
+$k2AmigaWorldCupsEnqueueTableJs = true;
+
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_shell_start.inc.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_countries_wing_body.inc.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_shell_end.inc.php';

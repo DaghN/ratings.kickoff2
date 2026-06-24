@@ -200,6 +200,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_player_current` | Derived | Tournament finalize / `replay` — present projection (career + honours + geo/year scalars + rise dates); **no `wc_*`** (WC → slice tables) | **Active** |
 | `amiga_player_slice_totals` | Derived | Tournament finalize / `replay` — present WC career stats per player (`slice_key = 'world_cup'`). V1 honours/results sums + **V2** goal texture, DD/CS, network/geo (`039`). Policy [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · V2 [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) | **Active** |
 | `amiga_player_slice_at_event` | Derived | Tournament finalize / `replay` — WC slice timeline at each participated event (sparse: only players with `tournaments_played > 0`); same V1+V2 column set as totals | **Active** |
+| `amiga_country_slice_totals` | Derived | Tournament finalize / `replay` — present WC career stats per nation (`slice_key = 'world_cup'`). Policy [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md). DDL `040` | **Active** |
+| `amiga_country_slice_at_event` | Derived | Tournament finalize / `replay` — country WC slice timeline at each WC finalize cutoff (eligible nations: ≥1 WC player) | **Active** |
 | `amiga_rating_events` | Derived | **Retired slice 8** — replaced by snapshot event rating block | Retired |
 | `amiga_player_stats` | Derived | **Retired slice 8** — replaced by `amiga_player_current` | Retired |
 | `amiga_player_tournament_participation` | Derived | **Retired slice 8** — event-local block on snapshots | Retired |
