@@ -17,14 +17,29 @@ function player_opponents_dds_ratio_cell(float $ratio): string
     return $ratio == 0.0 ? '0%' : number_format(100 * $ratio, 1) . '%';
 }
 
+const PLAYER_OPPONENTS_TABLE_ANCHOR_COL = 1;
+const PLAYER_OPPONENTS_TABLE_DEFAULT_SORT_COL = 1;
+
+/** @return array{anchor: int, sort_col: int, sort_dir: string, class: string} */
+function player_opponents_table_sort_state(): array
+{
+    return [
+        'anchor' => PLAYER_OPPONENTS_TABLE_ANCHOR_COL,
+        'sort_col' => k2_table_default_sort_col_from_request(PLAYER_OPPONENTS_TABLE_DEFAULT_SORT_COL),
+        'sort_dir' => k2_table_default_sort_dir_from_request('desc'),
+        'class' => k2_table_ranked_sortable_class('k2-table--player-matchup'),
+    ];
+}
+
 /**
  * @param list<array<string, mixed>> $rows
  */
 function player_opponents_render_wdl_table_from_rows(array $rows, int $playerId): void
 {
+    $sort = player_opponents_table_sort_state();
     ?>
-<div class="k2-table-wrap">
-<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--player-matchup')); ?>" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($sort['class']); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $sort['anchor']; ?>" data-k2-default-sort="<?php echo $sort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($sort['sort_dir']); ?>">
 <thead>
     <tr>
         <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
@@ -75,7 +90,7 @@ function player_opponents_render_wdl_table_from_rows(array $rows, int $playerId)
     <?php } ?>
 </tbody>
 </table>
-</div>
+<?php k2_table_wrap_close(); ?>
     <?php
 }
 
@@ -141,9 +156,10 @@ function player_opponents_render_wdl_table(mysqli $con, int $playerId): void
  */
 function player_opponents_render_goals_table_from_rows(array $rows, bool $extremesStored, int $playerId): void
 {
+    $sort = player_opponents_table_sort_state();
     ?>
-<div class="k2-table-wrap">
-<table class="<?php echo k2_h(k2_table_ranked_sortable_class()); ?>" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($sort['class']); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $sort['anchor']; ?>" data-k2-default-sort="<?php echo $sort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($sort['sort_dir']); ?>">
 <thead>
     <tr>
         <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
@@ -244,7 +260,7 @@ function player_opponents_render_goals_table_from_rows(array $rows, bool $extrem
     <?php } ?>
 </tbody>
 </table>
-</div>
+<?php k2_table_wrap_close(); ?>
     <?php
 }
 
@@ -316,9 +332,10 @@ function player_opponents_render_goals_table(mysqli $con, int $playerId): void
  */
 function player_opponents_render_dds_table_from_rows(array $rows, int $playerId): void
 {
+    $sort = player_opponents_table_sort_state();
     ?>
-<div class="k2-table-wrap">
-<table class="<?php echo k2_h(k2_table_ranked_sortable_class()); ?>" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="1" data-k2-default-direction="desc">
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($sort['class']); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $sort['anchor']; ?>" data-k2-default-sort="<?php echo $sort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($sort['sort_dir']); ?>">
 <thead>
     <tr>
         <th class="k2-table-cell--left" data-k2-sort="text">Opponent</th>
@@ -374,7 +391,7 @@ function player_opponents_render_dds_table_from_rows(array $rows, int $playerId)
     <?php } ?>
 </tbody>
 </table>
-</div>
+<?php k2_table_wrap_close(); ?>
     <?php
 }
 

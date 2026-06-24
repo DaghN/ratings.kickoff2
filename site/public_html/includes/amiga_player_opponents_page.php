@@ -36,11 +36,21 @@ $viewLabel = amiga_player_opponents_view_label($view);
 
 <title>Amiga player opponents</title>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php
+$k2AmigaPlayerOpponentsLedgerTable = in_array($view, ['wdl', 'goals', 'dds'], true);
+if ($k2AmigaPlayerOpponentsLedgerTable) {
+    $k2RankedCloak = true;
+}
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
+?>
 
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
 
+<?php if ($k2AmigaPlayerOpponentsLedgerTable) { ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
+<?php } else { ?>
 <script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<?php } ?>
 
 </head>
 

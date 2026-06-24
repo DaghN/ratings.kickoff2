@@ -21,7 +21,13 @@ $view = $k2PlayerOpponentsView;
 
 <title>Kick Off 2 ratings</title>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php
+$k2PlayerOpponentsLedgerTable = in_array($view, ['wdl', 'goals', 'dds'], true);
+if ($k2PlayerOpponentsLedgerTable) {
+    $k2RankedCloak = true;
+}
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
+?>
 
 <?php if ($view === 'h2h') { ?>
 <link rel="stylesheet" href="/stylesheets/player-opponents-h2h-poster.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-opponents-h2h-poster.css'); ?>" />
@@ -42,7 +48,11 @@ $view = $k2PlayerOpponentsView;
 <script type="text/javascript" src="/js/player-goals-scored-histogram.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-goals-scored-histogram.js'); ?>" defer="defer"></script>
 <?php } ?>
 
+<?php if ($k2PlayerOpponentsLedgerTable) { ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
+<?php } else { ?>
 <script type="text/javascript" src="/js/k2-table.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-table.js'); ?>" defer="defer"></script>
+<?php } ?>
 
 </head>
 
