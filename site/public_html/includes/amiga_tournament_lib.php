@@ -15,6 +15,8 @@ const AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES = ['completed', 'archived'];
  * Local overrides: $amigaPublicLiveTournamentIds in ko2amiga_config.local.php (gitignored).
  */
 const AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS = [];
+const AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL = 0;
+const AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 1;
 
 /** Prefixes in tournaments.format_overrides.generated_by for fixture-backed generated events. */
 const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
@@ -180,6 +182,73 @@ function amiga_live_tournament_index_rows(mysqli $con): array
     mysqli_stmt_close($stmt);
 
     return $rows;
+}
+
+function amiga_live_tournament_index_date_sort_value(array $row): string
+{
+    $sortDate = $row['started_at'] ?? $row['event_date'] ?? null;
+    if ($sortDate === null || $sortDate === '') {
+        return '0';
+    }
+    $ts = strtotime((string) $sortDate);
+
+    return (string) ($ts !== false ? $ts : 0);
+}
+
+/**
+ * Live tournament index table (/amiga/live-tournaments.php).
+ *
+ * @param list<array<string, mixed>> $rows from amiga_live_tournament_index_rows()
+ */
+function amiga_live_tournament_index_render_table(array $rows, bool $allowlistConfigured): void
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    $anchorCol = AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL;
+    $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL);
+    $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $tableClass = k2_table_ranked_sortable_class('k2-table--live-tournament-index');
+    $skipInitialSort = $defaultSortCol === AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
+    ?>
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
+<thead>
+  <tr>
+    <th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
+    <th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Date</th>
+    <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Country</th>
+    <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Status</th>
+    <th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Played</th>
+    <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Scheduled</th>
+    <th<?php echo k2_table_sortable_th_attr(6, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Fixtures</th>
+  </tr>
+</thead>
+<tbody>
+<?php if ($rows === []) { ?>
+  <tr>
+    <td colspan="7" class="k2-table-cell--left" style="color:var(--k2-text-secondary)"><?php
+        if (!$allowlistConfigured) {
+            echo 'No live events are published for public viewing yet.';
+        } else {
+            echo 'No running live events match the current public allowlist.';
+        }
+    ?></td>
+  </tr>
+<?php } ?>
+<?php foreach ($rows as $row) { ?>
+  <tr>
+    <td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo amiga_live_tournament_link((int) $row['id'], (string) $row['name']); ?></td>
+    <td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo amiga_live_tournament_index_date_sort_value($row); ?>"><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '—'; ?></td>
+    <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
+    <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><span class="k2-amiga-tournament-badge"><?php echo k2_h((string) $row['lifecycle_status']); ?></span></td>
+    <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo (int) ($row['played_count'] ?? 0); ?></td>
+    <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol); ?>><?php echo (int) ($row['scheduled_count'] ?? 0); ?></td>
+    <td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol); ?>><?php echo (int) ($row['fixture_count'] ?? 0); ?></td>
+  </tr>
+<?php } ?>
+</tbody>
+</table>
+<?php k2_table_wrap_close(); ?>
+    <?php
 }
 
 /**
@@ -866,6 +935,18 @@ function amiga_tournament_index_matches_filter(array $row, string $filter): bool
     }
 
     return true;
+}
+
+/** Filter pill href for /amiga/tournaments.php (carries active k2_sort when set). */
+function amiga_tournament_index_filter_url(string $typeFilter = ''): string
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    $params = array_merge(
+        $typeFilter !== '' ? ['type' => $typeFilter] : [],
+        k2_table_sort_query_params(),
+    );
+
+    return $params === [] ? '/amiga/tournaments.php' : '/amiga/tournaments.php?' . http_build_query($params);
 }
 
 /**

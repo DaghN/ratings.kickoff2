@@ -3,9 +3,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Amiga tournaments</title>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_js_enqueue(); ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -43,63 +43,16 @@ if ($typeFilter !== '') {
   <h1 class="k2-hub-chapter__title">Tournaments</h1>
   <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav k2-hub-chapter__nav" data-k2-carry-scroll aria-label="Filter by format">
     <div class="k2-player-nav__links">
-      <a href="?" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
-      <a href="?type=world-cup" class="k2-player-nav__btn<?php echo $typeFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
-      <a href="?type=league" class="k2-player-nav__btn<?php echo $typeFilter === 'league' ? ' is-active' : ''; ?>">Leagues</a>
-      <a href="?type=cup" class="k2-player-nav__btn<?php echo $typeFilter === 'cup' ? ' is-active' : ''; ?>">Cups</a>
-      <a href="?type=league-cup" class="k2-player-nav__btn<?php echo $typeFilter === 'league-cup' ? ' is-active' : ''; ?>">League + cup</a>
+      <a href="<?php echo k2_h(amiga_tournament_index_filter_url()); ?>" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
+      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('world-cup')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
+      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('league')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'league' ? ' is-active' : ''; ?>">Leagues</a>
+      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('cup')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'cup' ? ' is-active' : ''; ?>">Cups</a>
+      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('league-cup')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'league-cup' ? ' is-active' : ''; ?>">League + cup</a>
     </div>
   </nav>
 </header>
 
-<div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="false">
-<thead>
-    <tr>
-        <th class="k2-table-cell--right" data-k2-sort="number">Date</th>
-        <th class="k2-table-cell--left" data-k2-sort="text">Tournament</th>
-        <th data-k2-sort="text">Country</th>
-        <th data-k2-sort="number">Games</th>
-        <th data-k2-sort="number">Players</th>
-        <th class="k2-table-cell--left" data-k2-sort="text">Format</th>
-    </tr>
-</thead>
-<tbody class="black">
-<?php if ($rows === []) { ?>
-    <tr>
-        <td colspan="6" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No tournaments match this filter.</td>
-    </tr>
-<?php } ?>
-<?php foreach ($rows as $row) {
-    $games = (int) $row['game_count'];
-    $players = (int) $row['standing_players'];
-    $hasStandings = (int) ($row['standing_rows'] ?? 0) > 0;
-    $kind = amiga_tournament_index_format_kind($row);
-    $formatLabel = amiga_tournament_index_format_label($kind);
-    ?>
-    <tr>
-        <td class="k2-table-cell--right" data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
-            'event_date' => $row['event_date'] ?? null,
-            'event_chrono' => $row['chrono'] ?? null,
-        ]); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
-        <td class="k2-table-cell--left"><?php
-            if ($hasStandings) {
-                echo amiga_tournament_link((int) $row['id'], (string) $row['name']);
-            } else {
-                echo k2_h((string) $row['name']);
-            }
-        ?></td>
-        <td><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
-        <td><?php echo $games; ?></td>
-        <td><?php echo $hasStandings ? (string) $players : '—'; ?></td>
-        <td class="k2-table-cell--left">
-            <span class="k2-amiga-tournament-format"><?php echo k2_h($formatLabel); ?></span>
-        </td>
-    </tr>
-<?php } ?>
-</tbody>
-</table>
-</div>
+<?php amiga_tournament_index_render_table($rows); ?>
 
 <p class="k2-amiga-tournament-footnote" style="padding-bottom:1rem">
     <?php echo count($rows); ?> tournament<?php echo count($rows) === 1 ? '' : 's'; ?><?php

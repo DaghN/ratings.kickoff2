@@ -232,7 +232,7 @@ Imagery:
 | Area | Current truth |
 |------|---------------|
 | Status hub | `status.php` is the default landing; Phase B v1.2 room grid is shipped in repo. |
-| Leaderboards | `ranked1`-`ranked5`, `ranked7`, `ranked8` use `k2-table.js` for simple sort/autorank. |
+| Leaderboards | `leaderboards/*.php` (legacy doc ids `ranked1`–`ranked10`) use `k2-table.js` for simple sort/autorank. See [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). |
 | Games | `games/recent.php` renders 14 sortable day buckets using shared rated-game rows. |
 | Player profile | `player/profile.php` is the shipped feast layout; **mixed surface rhythm** (open heatmaps + chart panels + light tiles) � see [`player-profile-feast.md`](player-profile-feast.md); gradual copy/UX improvements only. |
 | Player games | `player/games.php` uses server-side Result/Opponent/Goals scored/Goals conceded filters, URL sort links, 100-row slices, and shared row rendering. |

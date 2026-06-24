@@ -9,9 +9,9 @@ amiga_snapshot_redirect_present_only_page();
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Amiga — Live tournaments</title>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_js_enqueue(); ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -37,45 +37,7 @@ $k2HubChapterTitle = 'Live tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 
-<div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats" data-k2-table="sortable" data-k2-autorank="false">
-<thead>
-  <tr>
-    <th class="k2-table-cell--left" data-k2-sort="text">Tournament</th>
-    <th data-k2-sort="text">Date</th>
-    <th data-k2-sort="text">Country</th>
-    <th data-k2-sort="text">Status</th>
-    <th data-k2-sort="number">Played</th>
-    <th data-k2-sort="number">Scheduled</th>
-    <th data-k2-sort="number">Fixtures</th>
-  </tr>
-</thead>
-<tbody>
-<?php if ($liveRows === []) { ?>
-  <tr>
-    <td colspan="7" class="k2-table-cell--left" style="color:var(--k2-text-secondary)"><?php
-        if (!$allowlistConfigured) {
-            echo 'No live events are published for public viewing yet.';
-        } else {
-            echo 'No running live events match the current public allowlist.';
-        }
-    ?></td>
-  </tr>
-<?php } ?>
-<?php foreach ($liveRows as $row) { ?>
-  <tr>
-    <td class="k2-table-cell--left"><?php echo amiga_live_tournament_link((int) $row['id'], (string) $row['name']); ?></td>
-    <td><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '—'; ?></td>
-    <td><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
-    <td><span class="k2-amiga-tournament-badge"><?php echo k2_h((string) $row['lifecycle_status']); ?></span></td>
-    <td><?php echo (int) ($row['played_count'] ?? 0); ?></td>
-    <td><?php echo (int) ($row['scheduled_count'] ?? 0); ?></td>
-    <td><?php echo (int) ($row['fixture_count'] ?? 0); ?></td>
-  </tr>
-<?php } ?>
-</tbody>
-</table>
-</div>
+<?php amiga_live_tournament_index_render_table($liveRows, $allowlistConfigured); ?>
 
 <p class="k2-amiga-live-view__ops-note k2-amiga-tournament-footnote" style="padding-bottom:1rem">
   Operators: fixture management and result entry use the internal

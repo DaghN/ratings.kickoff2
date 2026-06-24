@@ -16,6 +16,10 @@ require_once __DIR__ . '/k2_table_helpers.php';
 
 const AMIGA_TOURNAMENT_EVENT_STATS_ANCHOR_COL = 0;
 const AMIGA_TOURNAMENT_EVENT_STATS_DEFAULT_SORT_COL = 10;
+const AMIGA_PLAYER_TOURNAMENT_HISTORY_ANCHOR_COL = 1;
+const AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL = 0;
+const AMIGA_TOURNAMENT_INDEX_ANCHOR_COL = 1;
+const AMIGA_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 0;
 
 /**
  * @param array<string, mixed> $pm from amiga_player_load()
@@ -430,28 +434,33 @@ function amiga_profile_tournament_avg_goals_cell(mixed $avgGoals, int $games): s
  */
 function amiga_profile_render_tournament_history_table(array $tournaments): void
 {
+    $anchorCol = AMIGA_PLAYER_TOURNAMENT_HISTORY_ANCHOR_COL;
+    $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL);
+    $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $tableClass = k2_table_ranked_sortable_class('k2-table--player-tournaments');
+    $skipInitialSort = $defaultSortCol === AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
     ?>
-<div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-tournaments" data-k2-table="sortable" data-k2-anchor-col="1" data-k2-default-sort="0" data-k2-default-direction="desc">
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
 	<thead>
 		<tr>
-			<th class="k2-table-cell--right" data-k2-sort="number">Date</th>
-			<th class="k2-table-cell--left" data-k2-sort="text">Tournament</th>
-			<th data-k2-sort="number">Games</th>
-			<th data-k2-sort="number" data-k2-help="Wins in this event (all phases).">W</th>
-			<th data-k2-sort="number" data-k2-help="Draws in this event (all phases).">D</th>
-			<th data-k2-sort="number" data-k2-help="Losses in this event (all phases).">L</th>
-			<th data-k2-sort="number" data-k2-help="Goals scored in this event (all phases).">GF</th>
-			<th data-k2-sort="number" data-k2-help="Goals conceded in this event (all phases).">GA</th>
-			<th data-k2-sort="number">GD</th>
-			<th data-k2-sort="number" data-k2-help="Average goals scored per game in this event.">GF/g</th>
-			<th data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
-			<th data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
-			<th data-k2-sort="text">Finish</th>
-			<th data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
-			<th data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adj.</th>
-			<th data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
-			<th data-k2-sort="number" data-k2-tooltip-label="<?php echo htmlspecialchars(amiga_perf_rating_column_label(), ENT_QUOTES, 'UTF-8'); ?>" data-k2-help="<?php echo htmlspecialchars(amiga_perf_rating_column_help(), ENT_QUOTES, 'UTF-8'); ?>">Perf. rating</th>
+			<th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
+			<th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
+			<th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Games</th>
+			<th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Wins in this event (all phases).">W</th>
+			<th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Draws in this event (all phases).">D</th>
+			<th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Losses in this event (all phases).">L</th>
+			<th<?php echo k2_table_sortable_th_attr(6, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Goals scored in this event (all phases).">GF</th>
+			<th<?php echo k2_table_sortable_th_attr(7, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Goals conceded in this event (all phases).">GA</th>
+			<th<?php echo k2_table_sortable_th_attr(8, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">GD</th>
+			<th<?php echo k2_table_sortable_th_attr(9, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Average goals scored per game in this event.">GF/g</th>
+			<th<?php echo k2_table_sortable_th_attr(10, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
+			<th<?php echo k2_table_sortable_th_attr(11, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
+			<th<?php echo k2_table_sortable_th_attr(12, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Finish</th>
+			<th<?php echo k2_table_sortable_th_attr(13, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
+			<th<?php echo k2_table_sortable_th_attr(14, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adj.</th>
+			<th<?php echo k2_table_sortable_th_attr(15, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
+			<th<?php echo k2_table_sortable_th_attr(16, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-tooltip-label="<?php echo htmlspecialchars(amiga_perf_rating_column_label(), ENT_QUOTES, 'UTF-8'); ?>" data-k2-help="<?php echo htmlspecialchars(amiga_perf_rating_column_help(), ENT_QUOTES, 'UTF-8'); ?>">Perf. rating</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -467,30 +476,94 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
         $finishRank = amiga_profile_tournament_finish_rank_label($t);
         ?>
 		<tr>
-			<td class="k2-table-cell--right" data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($t); ?>"><?php echo amiga_profile_format_event_date($t['event_date'] ?? null); ?></td>
-			<td class="k2-table-cell--left"><?php
+			<td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($t); ?>"><?php echo amiga_profile_format_event_date($t['event_date'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
                 echo amiga_tournament_link((int) $t['id'], (string) $t['name']);
             ?></td>
-			<td><?php echo k2_fmt_games_played($games); ?></td>
-			<td><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
-			<td><?php echo amiga_profile_tournament_wdl_cell($draws, 'draw'); ?></td>
-			<td><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
-			<td><?php echo $goalsFor; ?></td>
-			<td><?php echo $goalsAgainst; ?></td>
-			<td><?php echo $goalDiff > 0 ? '+' . $goalDiff : (string) $goalDiff; ?></td>
-			<td><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_for'] ?? null, $games); ?></td>
-			<td><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_against'] ?? null, $games); ?></td>
-			<td><?php echo $points; ?></td>
-			<td><?php echo htmlspecialchars($finishRank, ENT_QUOTES, 'UTF-8'); ?></td>
-			<td><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>
-			<td><?php echo amiga_profile_tournament_rating_delta_cell($t['rating_delta'] ?? null); ?></td>
-			<td><?php echo amiga_profile_tournament_rating_cell($t['rating_after'] ?? null); ?></td>
-			<td><?php echo amiga_profile_tournament_rating_cell($t['performance_rating'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo k2_fmt_games_played($games); ?></td>
+			<td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
+			<td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($draws, 'draw'); ?></td>
+			<td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
+			<td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol); ?>><?php echo $goalsFor; ?></td>
+			<td<?php echo k2_table_body_td_attr(7, $anchorCol, $defaultSortCol); ?>><?php echo $goalsAgainst; ?></td>
+			<td<?php echo k2_table_body_td_attr(8, $anchorCol, $defaultSortCol); ?>><?php echo $goalDiff > 0 ? '+' . $goalDiff : (string) $goalDiff; ?></td>
+			<td<?php echo k2_table_body_td_attr(9, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_for'] ?? null, $games); ?></td>
+			<td<?php echo k2_table_body_td_attr(10, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_against'] ?? null, $games); ?></td>
+			<td<?php echo k2_table_body_td_attr(11, $anchorCol, $defaultSortCol); ?>><?php echo $points; ?></td>
+			<td<?php echo k2_table_body_td_attr(12, $anchorCol, $defaultSortCol); ?>><?php echo htmlspecialchars($finishRank, ENT_QUOTES, 'UTF-8'); ?></td>
+			<td<?php echo k2_table_body_td_attr(13, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(14, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_delta_cell($t['rating_delta'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(15, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_after'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(16, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['performance_rating'] ?? null); ?></td>
 		</tr>
 	<?php } ?>
 	</tbody>
 </table>
-</div>
+<?php k2_table_wrap_close(); ?>
+    <?php
+}
+
+/**
+ * Tournament catalog index table (/amiga/tournaments.php).
+ *
+ * @param list<array<string, mixed>> $rows from amiga_tournament_index_rows()
+ */
+function amiga_tournament_index_render_table(array $rows): void
+{
+    $anchorCol = AMIGA_TOURNAMENT_INDEX_ANCHOR_COL;
+    $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_INDEX_DEFAULT_SORT_COL);
+    $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-index');
+    $skipInitialSort = $defaultSortCol === AMIGA_TOURNAMENT_INDEX_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
+    ?>
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
+<thead>
+    <tr>
+        <th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
+        <th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
+        <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Games</th>
+        <th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Players</th>
+        <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Format</th>
+    </tr>
+</thead>
+<tbody class="black">
+<?php if ($rows === []) { ?>
+    <tr>
+        <td colspan="6" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No tournaments match this filter.</td>
+    </tr>
+<?php } ?>
+<?php foreach ($rows as $row) {
+    $games = (int) $row['game_count'];
+    $players = (int) $row['standing_players'];
+    $hasStandings = (int) ($row['standing_rows'] ?? 0) > 0;
+    $kind = amiga_tournament_index_format_kind($row);
+    $formatLabel = amiga_tournament_index_format_label($kind);
+    ?>
+    <tr>
+        <td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
+            'event_date' => $row['event_date'] ?? null,
+            'event_chrono' => $row['chrono'] ?? null,
+        ]); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
+        <td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
+            if ($hasStandings) {
+                echo amiga_tournament_link((int) $row['id'], (string) $row['name']);
+            } else {
+                echo k2_h((string) $row['name']);
+            }
+        ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
+        <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo $games; ?></td>
+        <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo $hasStandings ? (string) $players : '—'; ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>>
+            <span class="k2-amiga-tournament-format"><?php echo k2_h($formatLabel); ?></span>
+        </td>
+    </tr>
+<?php } ?>
+</tbody>
+</table>
+<?php k2_table_wrap_close(); ?>
     <?php
 }
 

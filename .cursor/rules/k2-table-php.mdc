@@ -1,0 +1,29 @@
+---
+description: K2 sortable tables — read checklist and copy a reference before editing PHP table markup
+globs: site/public_html/**/*.php
+alwaysApply: false
+---
+
+# K2 table PHP edits
+
+When this file matches, you are likely touching **table markup or page head assets**.
+
+## Before coding
+
+1. **Read** [`docs/k2-table-implementation-checklist.md`](docs/k2-table-implementation-checklist.md).
+2. **Open** the closest §1 reference file (same scenario: hub LB, filter pills, player ledger, server games, etc.).
+3. **Run** (optional) `python scripts/audit_k2_table_compliance.py` to see backlog status.
+
+## Do not
+
+- Add a new full-page **sortable** table with only `k2_table_js_enqueue()` — use `$k2RankedCloak` + `k2_sortable_table_assets_head.inc.php` (or `k2_lb_sortable_table_head.inc.php` for hub LBs).
+- Inline `<div class="k2-table-wrap">` on wide sortable tables — use `k2_table_wrap_open(true)` / `k2_table_wrap_close()`.
+- Hand-roll `ranked-pages-table` classes — use `k2_table_ranked_sortable_class()` / `k2_table_ranked_leaderboard_class()`.
+
+## Wide sortable + filter reload (Jun 2026 stack)
+
+- SSR: `k2_table_sortable_th_attr()` + `k2_table_body_td_attr()` on every column.
+- `data-k2-skip-initial-sort="1"` when SQL row order matches default sort.
+- Filter/pill URLs: merge `k2_table_sort_query_params()`.
+
+Contract: [`docs/k2-table-and-games-plan.md`](docs/k2-table-and-games-plan.md).

@@ -14,7 +14,7 @@ Cold start (do **before** coding unless Dagh pasted full context):
 | 2 | [`AGENTS.md`](AGENTS.md) | Agent rituals, authority, and finish rules |
 | 3 | [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) | What repo is; where code and docs live |
 | 4 | Dagh’s message | Today’s goal wins over stale docs |
-| 5 | Feature spec **if** obvious | Work DB / simul → **`docs/work-db-prepare.md`** + **`docs/coordination/ops-simul-runbook.md`**. Post-game PHP → **`docs/post-game-php-development.md`** + `ops/run_process_game.php`. Cutover / prod → **`docs/coordination/cutover-readiness.md`** (not batch REP scripts). Amiga L0–L5 pipeline → **`docs/amiga-ground-stack.md`** + **`docs/amiga-ground-layers-policy.md`** + **`docs/amiga-derived-write-policy.md`**. Else e.g. `docs/STATUS_PAGE_DATA.md`, `docs/activity-charts.md` |
+| 5 | Feature spec **if** obvious | Work DB / simul → **`docs/work-db-prepare.md`** + **`docs/coordination/ops-simul-runbook.md`**. Post-game PHP → **`docs/post-game-php-development.md`** + `ops/run_process_game.php`. Cutover / prod → **`docs/coordination/cutover-readiness.md`** (not batch REP scripts). Amiga L0–L5 pipeline → **`docs/amiga-ground-stack.md`** + **`docs/amiga-ground-layers-policy.md`** + **`docs/amiga-derived-write-policy.md`**. **Tables (sortable / wide / filter reload):** **`docs/k2-table-implementation-checklist.md`** then grep a reference from §1 — **do not** bare `k2_table_js_enqueue()` on new sortable pages. Else e.g. `docs/STATUS_PAGE_DATA.md`, `docs/activity-charts.md` |
 | 6 | [`docs/design-direction.md`](docs/design-direction.md) | If UI/theme work |
 | 7 | [`docs/url-routes.md`](docs/url-routes.md) § Sub-hub navigation | If adding hub sub-tabs, player wings, or realm sub-areas |
 
@@ -68,6 +68,7 @@ Prod ladder data is written by **Steve** (ground insert per game + periodic jobs
 
 ## Agent traps (grep / register misreads)
 
+- **K2 sortable tables** — read [`k2-table-implementation-checklist.md`](docs/k2-table-implementation-checklist.md), open §1 reference, copy stack; run `python scripts/audit_k2_table_compliance.py` before ship. **Never** bare `k2_table_js_enqueue()` on full-page sortable tables.
 - **Retired dev scripts** — track **complete** (Jun 2026). Stubs/archives only — inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md). Holy online fill = PHP ops; Amiga = `prove`. Policy: [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md).
 - **Work DB = simul only** — `ko2unity_work` / `kooldb1`: **`zero-derived` → `run_ops_sim.php` → `verify`**. No `rebuild-all`, no ad-hoc repair, no “avoid re-simul” patches. [`work-db-prepare.md`](docs/work-db-prepare.md) §1.5.
 - **Cutover prep is done** on `kooldb1` / `ko2unity_work` via **ops simul** — do not assign batch **`REP-xxx`** or `*_rebuild.sql` on prod. Historical log: [`archive/replay-register-2026-05.md`](docs/archive/replay-register-2026-05.md).

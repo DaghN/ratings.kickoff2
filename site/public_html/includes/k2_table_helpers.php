@@ -2,6 +2,10 @@
 /**
  * Shared k2-table markup helpers (ranked leaderboards, history ladder, …).
  *
+ * Before adding or refactoring a sortable table, read docs/k2-table-implementation-checklist.md
+ * and copy the nearest reference implementation (do not bare k2_table_js_enqueue() on full pages).
+ *
+ * @see docs/k2-table-implementation-checklist.md
  * @see js/k2-table.js — client sort re-applies the same body cell classes.
  */
 declare(strict_types=1);

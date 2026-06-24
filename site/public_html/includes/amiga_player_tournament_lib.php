@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/k2_table_helpers.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_current_lib.php';
@@ -222,7 +223,7 @@ function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'al
         $params['country'] = $country;
     }
 
-    return k2_amiga_route('amiga-player-tournaments', $params);
+    return k2_amiga_route('amiga-player-tournaments', array_merge($params, k2_table_sort_query_params()));
 }
 
 /**

@@ -119,6 +119,11 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **K2 table compliance** — `scripts/audit_k2_table_compliance.py` + `.cursor/rules/k2-table-php.mdc`; games hub shell `$k2RankedCloak`; plan doc audit + backlog section. |
+| 2026-06-24 | **K2 table agent checklist** — `docs/k2-table-implementation-checklist.md`; bootstrap triggers in AGENTS + kool-workspace; reference-by-scenario table (stop bare `k2_table_js_enqueue` sortable pages). |
+| 2026-06-24 | **Amiga live tournaments index** — `/amiga/live-tournaments.php`: cloak + sortable assets; `amiga_live_tournament_index_render_table()` SSR sort/anchor; default Date desc; Tournament anchor col 0. |
+| 2026-06-24 | **Amiga tournament catalog index** — `/amiga/tournaments.php`: `$k2RankedCloak` + sortable assets; `amiga_tournament_index_render_table()` SSR sort/anchor; filter pills carry `k2_sort`. |
+| 2026-06-24 | **Amiga player tournament history table** — `$k2RankedCloak` + sortable assets head; SSR sort/anchor + `skip-initial-sort` on default Date desc; scroll mirror; filter pills carry `k2_sort`. |
 | 2026-06-23 | **Opponents ledger tables (both realms)** — W/D/L · Goals · DDs: `$k2RankedCloak` + `k2_sortable_table_assets_head.inc.php` on ledger views; `k2_table_wrap_open(true)` + `k2-table--player-matchup` on all three; URL `k2_sort` on table attrs. |
 | 2026-06-23 | **k2-table scroll mirror rollout** — shared `k2_sortable_table_assets_head.inc.php` + `k2_lb_sortable_table_head.inc.php`; online hub LBs + league honours + games/league/player-games migrated to `k2_table_wrap_open(true)`; Amiga LBs/WC shells use shared head include. |
 | 2026-06-23 | **k2-table column widths** — hub Rank/Player min-widths opt-in via `k2-table--hub-rank-player-cols`; `k2_table_ranked_sortable_class()` + `k2_table_ranked_leaderboard_class()`; online LBs migrated to helper; status league tables excluded. |
