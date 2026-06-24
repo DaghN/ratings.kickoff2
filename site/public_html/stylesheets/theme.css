@@ -698,6 +698,7 @@ body.k2-site .k2-lb-activity-tabs {
 
 body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs {
 	margin-bottom: var(--k2-subnav-to-content-gap);
 	width: fit-content;
@@ -708,6 +709,7 @@ body.k2-site .k2-lb-activity-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-games-hub-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs .k2-chrome-tabs__bar {
 	width: fit-content;
 	max-width: 100%;
@@ -5566,6 +5568,7 @@ body.k2-site .k2-chrome-tabs:has(+ .k2-lb-league-honours),
 body.k2-site .k2-chrome-tabs:has(+ .k2-chrome-tabs.k2-lb-activity-tabs),
 body.k2-site .k2-chrome-tabs:has(+ .k2-chrome-tabs.k2-lb-wc-tabs),
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-players-tabs),
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs),
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs:has(+ .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs) {
 	margin-bottom: 0;
 }
@@ -5578,6 +5581,7 @@ body.k2-site .k2-player-nav-bar:has(+ .k2-chrome-tabs.k2-player-milestones) {
 body.k2-site .k2-chrome-tabs.k2-lb-activity-tabs,
 body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs,
 body.k2-site .k2-chrome-tabs.k2-player-opponents,
 body.k2-site .k2-chrome-tabs.k2-player-milestones {

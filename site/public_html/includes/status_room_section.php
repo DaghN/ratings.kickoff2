@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 
 $room = $k2StatusRoom ?? null;
@@ -103,7 +104,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<tr>
 							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Rank within this visible leaderboard. Rank updates when the table is sorted.">#</th>
 							<th class="k2-status-table__player" data-k2-sort="text">Player</th>
-							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Current Elo rating. This leaderboard includes all active online players in the past year. The complete leaderboards are in the leaderboards section.">Elo</th>
+							<th class="k2-status-table__num k2-table-cell--center" data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(k2_lb_help_elo_rating_status()); ?>>Elo</th>
 							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Games played (career).">Games</th>
 						</tr>
 					</thead>

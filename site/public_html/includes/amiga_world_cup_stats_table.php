@@ -12,6 +12,7 @@ require_once __DIR__ . '/k2_player_display_names.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
+require_once __DIR__ . '/k2_amiga_country_flag.php';
 
 const AMIGA_WC_STATS_ANCHOR_COL = 0;
 const AMIGA_WC_STATS_DEFAULT_SORT_COL = 1;
@@ -103,6 +104,18 @@ function amiga_world_cup_stats_anchor_columns(): array
                 unset($nameMap);
 
                 return k2_fmt_optional_int($row['calendar_year'] ?? null);
+            },
+        ],
+        [
+            'label' => 'Country',
+            'sort' => 'text',
+            'align' => 'center',
+            'help' => 'Host nation.',
+            'sort_value' => static fn (array $row): string => (string) ($row['host_country'] ?? ''),
+            'render' => static function (array $row, array $nameMap): string {
+                unset($nameMap);
+
+                return k2_amiga_country_table_cell_or_dash((string) ($row['host_country'] ?? ''));
             },
         ],
         [
@@ -229,9 +242,9 @@ function amiga_world_cup_stats_columns_for_view(string $view): array
     }
 
     return array_merge(
-        array_slice($anchorCols, 0, 3),
+        array_slice($anchorCols, 0, 4),
         [$firstWcCol],
-        [$anchorCols[3]],
+        [$anchorCols[4]],
         $restStats,
     );
 }
@@ -261,7 +274,7 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
 		<tr>
 <?php foreach ($allCols as $colIndex => $col) {
     $align = $col['align'] ?? '';
-    $thExtra = $align === 'left' ? 'k2-table-cell--left' : ($align === 'right' ? 'k2-table-cell--right' : '');
+    $thExtra = $align === 'left' ? 'k2-table-cell--left' : ($align === 'right' ? 'k2-table-cell--right' : ($align === 'center' ? 'k2-table-cell--center' : ''));
     $thSortAttr = k2_table_sortable_th_attr($colIndex, $defaultSortCol, $defaultSortDir, $thExtra);
     $help = trim((string) ($col['help'] ?? ''));
     $helpAttr = $help !== '' ? ' data-k2-help="' . k2_h($help) . '"' : '';
@@ -285,7 +298,7 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
 <?php
         foreach ($allCols as $colIndex => $col) {
             $align = $col['align'] ?? '';
-            $tdClass = $align === 'left' ? 'k2-table-cell--left' : ($align === 'right' ? 'k2-table-cell--right' : '');
+            $tdClass = $align === 'left' ? 'k2-table-cell--left' : ($align === 'right' ? 'k2-table-cell--right' : ($align === 'center' ? 'k2-table-cell--center' : ''));
             $tdAttr = k2_table_body_td_attr($colIndex, $anchorCol, $defaultSortCol, $tdClass);
             $sortValue = '';
             if (isset($col['sort_value']) && is_callable($col['sort_value'])) {

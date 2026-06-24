@@ -9,7 +9,27 @@ declare(strict_types=1);
 
 function k2_lb_help_elo_rating(): string
 {
-    return 'Current Elo rating. We use standard Elo with a fixed K-factor of 32 for every player. Individual game pages show the expected score and rating-change calculation.';
+    return 'We use standard Elo with a fixed K-factor of 32 for every player. Individual game pages show the expected score and rating-change calculation.';
+}
+
+function k2_lb_elo_column_tooltip_label(): string
+{
+    return 'Elo rating';
+}
+
+/** data-k2-tooltip-label + data-k2-help for career/snapshot Elo columns (header text: Elo). */
+function k2_lb_elo_column_help_attrs(?string $helpBody = null): string
+{
+    $body = $helpBody ?? k2_lb_help_elo_rating();
+
+    return ' data-k2-tooltip-label="' . htmlspecialchars(k2_lb_elo_column_tooltip_label(), ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-k2-help="' . htmlspecialchars($body, ENT_QUOTES, 'UTF-8') . '"';
+}
+
+function k2_lb_help_elo_rating_status(): string
+{
+    return k2_lb_help_elo_rating()
+        . ' This leaderboard includes all active online players in the past year. The complete leaderboards are in the leaderboards section.';
 }
 
 function k2_lb_help_games(): string
@@ -412,6 +432,11 @@ function k2_lb_help_amiga_wc_match_points(): string
 function k2_lb_help_amiga_wc_points_per_game(): string
 {
     return 'Match points per World Cup game (Pts ÷ games).';
+}
+
+function k2_lb_help_amiga_wc_win_rate(): string
+{
+    return 'Draws count as half a win: (wins + half of draws) divided by games.';
 }
 
 function k2_lb_help_amiga_wc_goal_difference(): string

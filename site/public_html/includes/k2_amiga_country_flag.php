@@ -93,3 +93,17 @@ function k2_amiga_country_table_cell_or_dash(string $country): string
 
     return k2_amiga_country_table_cell($country);
 }
+
+/**
+ * Player country column body — centered flag + sort value for k2-table text sort.
+ *
+ * @return string opening <td ...> through cell contents (caller closes </td>)
+ */
+function k2_lb_td_country_open(int $colIndex, array $sort, string $country): string
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+
+    return '<td' . k2_lb_td($colIndex, $sort, 'k2-table-cell--center')
+        . ' data-k2-sort-value="' . k2_h($country) . '">'
+        . k2_amiga_country_table_cell($country);
+}

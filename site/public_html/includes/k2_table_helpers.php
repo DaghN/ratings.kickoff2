@@ -250,6 +250,18 @@ function k2_lb_th(int $colIndex, array $sort, string $extraClass = ''): string
     return k2_table_sortable_th_attr($colIndex, $sort['sort_col'], $sort['sort_dir'], $extraClass);
 }
 
+/** Career Elo column <th> attrs — centered header (see k2_lb_elo_column_help_attrs for tooltip). */
+function k2_lb_th_elo(int $colIndex, array $sort): string
+{
+    return k2_lb_th($colIndex, $sort, 'k2-table-cell--center');
+}
+
+/** Player nationality column <th> attrs — centered (flags in body via k2_amiga_country_table_cell). */
+function k2_lb_th_country(int $colIndex, array $sort): string
+{
+    return k2_lb_th($colIndex, $sort, 'k2-table-cell--center');
+}
+
 /** Hub LB body <td> attrs (wraps k2_table_body_td_attr). */
 function k2_lb_td(int $colIndex, array $sort, string $extraClass = ''): string
 {

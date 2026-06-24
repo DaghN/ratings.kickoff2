@@ -209,3 +209,13 @@ function amiga_wc_lb_goals_per_game(int $goals, int $games): ?float
 
     return $goals / $games;
 }
+
+/** Draws as half a win: (wins + 0.5 × draws) ÷ games. */
+function amiga_wc_lb_win_rate(int $wins, int $draws, int $games): ?float
+{
+    if ($games <= 0) {
+        return null;
+    }
+
+    return ($wins + 0.5 * $draws) / $games;
+}

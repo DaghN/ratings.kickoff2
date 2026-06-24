@@ -51,7 +51,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 	<tr>
 		<th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">#</th>
 		<th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
-		<th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number">ELO rating</th>
+		<th<?php echo k2_lb_th_elo(2, $lbSort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
 		<th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
 		<th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_play_streak_help_day(), ENT_QUOTES, 'UTF-8'); ?>">Days</th>
 		<th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_play_streak_help_week(), ENT_QUOTES, 'UTF-8'); ?>">Weeks</th>

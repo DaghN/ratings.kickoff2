@@ -119,6 +119,12 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Amiga Opponents Elo + Country** — W/D/L, Goals, DDs ledger tables: opponent Elo + flag before Games; read path joins `amiga_player_current` / event snapshot rating + `p.country`. |
+| 2026-06-24 | **WC player Results Win rate** — col after Pts/g; `(wins + 0.5×draws)/games` via `amiga_wc_lb_win_rate()` at render (same pattern as Pts/g). |
+| 2026-06-24 | **WC country stats sub-nav** — `k2-amiga-world-cups-countries-tabs` added to existing WC wing-tab CSS selectors (parity with players/stats). |
+| 2026-06-24 | **WC tournament stats host flag** — Country (host nation) column after Year on all five wing-2 tables; `host_country` + `k2_amiga_country_table_cell_or_dash()`. |
+| 2026-06-24 | **Amiga LB Country column (Goals→Perf.)** — centered Country (flag) after Elo on Goals, DDs, Victims, Peak, Performance wings; `k2_lb_th_country()` / `k2_lb_td_country_open()`; perf rating SQL adds `pl.country`. |
+| 2026-06-24 | **Career Elo column unify** — header `Elo` (centered th), tooltip title `Elo rating` via `k2_lb_th_elo` + `k2_lb_elo_column_help_attrs()` across hub LBs, WC players, status board; event/game/Perf. cols unchanged. |
 | 2026-06-24 | **Amiga country flags rollout** — centered flags on LB Rating, Calendar-geo, Tournament honours + tournament catalog (`amiga_tournament_index_render_table`); `k2_amiga_country_table_cell_or_dash()` for empty host. |
 | 2026-06-24 | **WC player stats country flags** — Country col on five player LB tables: centered flags via `k2_amiga_country_table_cell()` (+ shared helper in `k2_amiga_country_flag.php`); `data-k2-sort-value` for text sort. |
 | 2026-06-24 | **WC country column center** — Country (flag) col on all five hub tables: `k2-table-cell--center` in `theme.css` + `amiga_wc_countries_table.php`. |

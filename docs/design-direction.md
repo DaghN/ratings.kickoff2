@@ -168,7 +168,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Player games (`player/games.php`, `k2-table--player-games`) | Calm secondary body; **keep** `.blue`/`.red` on Result/Diff/Adjustment; active sort column ? primary 600 (PHP `k2-table-col-sorted`); sorted editorial cells ? weight 700 on `.blue`/`.red` (trial) |
 | Player matchup W/D/L (`individual2a`, `k2-table--player-matchup`) | Calm-stats; **Games** anchor; `.blue`/`.red` editorial; bolder when sort column (700) |
 | Player Goals + DDs matchup (`individual2b/c`) | Hub LB parity (`ranked2` / `ranked3`); calm-stats, no editorial blue/red; **Games** anchor; `lb_column_help` headers/tooltips |
-| Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` ? `--k2-link-star`, weight 600; permanent. **Online hub leaderboards:** ELO rating (col 2) on every wing; default sort stays each wing's hero stat. Status active board: league-anchor-cross on Pts/Games only. |
+| Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` ? `--k2-link-star`, weight 600; permanent. **Online hub leaderboards:** **Elo** (col 2, centered header; tooltip title **Elo rating**) on every wing; default sort stays each wing's hero stat. Status active board: league-anchor-cross on Pts/Games only. |
 | Status **league** anchors (Pts / Games) | `k2-table--league-anchor-cross` ? `--k2-league-anchor-ink` (85% pure + primary, same recipe as link-star): **chrome** when tint is amber or pitch; **pitch** when tint is chrome or holo � not `--k2-accent`. |
 | Calm LB active sort (not anchor) | `k2-table--calm-stats` + `k2-table-col-sorted` ? `--k2-text-primary`, weight 600 (tunable; avoids faux link-star) |
 | **Calm-stats default body** (Jun 2026) | All `k2-table--calm-stats` body cells ? `--k2-text-secondary` unless anchor or sorted; ranked leaderboards also use `ranked-pages-table ranked-table-pending` + `$k2RankedCloak`; anchor/sort classes server-rendered via `k2_table_helpers.php` on first paint |
@@ -219,6 +219,8 @@ Imagery:
 - No repeating site-wide decorative banner.
 - Use imagery where it earns its place, e.g. Status heritage box or future Amiga photos.
 - **Amiga player hero:** country as fourth hero stat (label + flag under Rank/Rating/Games); `k2_amiga_country_flag.php` + `img/flags/amiga/`.
+- **Amiga leaderboards (player rows):** Country column after Elo (col 3) — centered flag via `k2_lb_th_country()` / `k2_lb_td_country_open()` on Rating, Calendar-geo, Tournament honours, Goals, DDs, Victims, Peak, Performance.
+- **World Cups tournament stats (wing 2):** Host Country column after Year — centered flag from `host_country` via `k2_amiga_country_table_cell_or_dash()` on Goals, DDs, Participation, Geography, Podium tables.
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 - **In-page scrollbars** (`.k2-table-wrap`, archive listbox panels, heatmaps, bracket rails, etc.): thin muted thumb via `--k2-scrollbar-*` tokens in `theme.css` — not OS default gray, not tint accent. Page-level vertical scroll stays native unless we extend tokens to `html` later.
