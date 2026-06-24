@@ -42,7 +42,7 @@ if (!amiga_snapshot_time_travel_active_from_request()) {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 }
 ?>
-<div class="k2-chrome-tabs">
+<div class="k2-chrome-tabs k2-amiga-lb-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Amiga leaderboard view">
 <?php foreach ($k2AmigaLbWingTabs as $wingId => $tab) {
     $hrefEsc = htmlspecialchars(amiga_url_with_context($tab['href']), ENT_QUOTES, 'UTF-8');

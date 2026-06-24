@@ -39,18 +39,14 @@ if ($typeFilter !== '') {
 }
 ?>
 
-<header class="k2-hub-chapter">
-  <h1 class="k2-hub-chapter__title">Tournaments</h1>
-  <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav k2-hub-chapter__nav" data-k2-carry-scroll aria-label="Filter by format">
-    <div class="k2-player-nav__links">
-      <a href="<?php echo k2_h(amiga_tournament_index_filter_url()); ?>" class="k2-player-nav__btn<?php echo $typeFilter === '' ? ' is-active' : ''; ?>">All</a>
-      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('world-cup')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
-      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('league')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'league' ? ' is-active' : ''; ?>">Leagues</a>
-      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('cup')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'cup' ? ' is-active' : ''; ?>">Cups</a>
-      <a href="<?php echo k2_h(amiga_tournament_index_filter_url('league-cup')); ?>" class="k2-player-nav__btn<?php echo $typeFilter === 'league-cup' ? ' is-active' : ''; ?>">League + cup</a>
-    </div>
-  </nav>
-</header>
+<?php
+$k2HubChapterTitle = 'Tournaments';
+$k2HubChapterLede = 'Every rated tournament in the Amiga realm.';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+
+$k2AmigaTournamentIndexFilter = $typeFilter;
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_index_nav.php';
+?>
 
 <?php amiga_tournament_index_render_table($rows); ?>
 

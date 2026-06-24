@@ -72,7 +72,8 @@ Spacing migration must sweep **margin-bottom** on every block that separates nav
 | Sub-nav chrome (activity, games hub, ms hub, WC, player opponents/milestones) | mixed 12/16px + `margin-top` lists | `margin-bottom: var(--k2-nav-gap)` or N6 exception; **`margin-top: 0`** |
 | `.k2-lb-league-honours` panel | bespoke `margin-top` + subnav `margin-bottom` | drop panel `margin-top`; subnav `margin-bottom: var(--k2-nav-gap)` |
 | `.k2-player-nav-bar` | **20px** default; **12px** on `body.k2-player-wing` | **20->12px** or documented exception (N10) |
-| Amiga tournament nav | reuses `.k2-player-nav-bar` outside `k2-player-wing` | **12px** via shared `.k2-player-nav-bar` rule (N10) |
+| Amiga tournament detail nav | reuses `.k2-player-nav-bar` on `tournament.php` | **12px** via shared `.k2-player-nav-bar` rule (N10) |
+| Amiga tournaments index filter | `.k2-chrome-tabs.k2-amiga-tournament-index-tabs` | segment width + `--k2-nav-gap` (same block as games/WC hub tabs) |
 
 ---
 
@@ -102,6 +103,7 @@ Grep pass on nav-like blocks in `theme.css`. **Token-only** swaps (12px → `var
 | `.k2-amiga-tournament-hero` | `margin-bottom: 16px` | Content hero card, not nav layer |
 | Panel-internal controls | various | Status period tabs, ms detail panel tabs, tier filters — out of scope |
 | Pattern A/B wrapper markup | — | P3.2 deferred; spacing already correct via CSS |
+| Online LB wing (`.k2-chrome-tabs` without scope class) | full-width bar | Filter toggles on right (`__filters`); **Amiga** LB uses `.k2-amiga-lb-tabs` segment width instead |
 
 ### Visual smoke (optional — confirm token-only paths)
 

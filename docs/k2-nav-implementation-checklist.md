@@ -20,7 +20,8 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 | LB League honours | `includes/league_honours_leaderboard.php` (panel markup) | `leaderboards/league-honours.php` | Pattern **C**: wing + `.k2-lb-league-honours` panel; subnav inside panel |
 | Games hub sub-nav | `includes/games_hub_nav.php` | `games/recent.php` + `games_hub_shell_*.inc.php` | `.k2-games-hub-tabs` |
 | Milestones hub sub-nav | `includes/milestones_hub_nav.php` | `milestones/recent.php` + `milestones_hub_shell_*.inc.php` | `.k2-ms-hub-tabs` in `player-milestones.css` |
-| Amiga LB wing | `includes/amiga_lb_nav.php` | `amiga/leaderboards/rating.php` | Same segment track as online LB |
+| Amiga LB wing | `includes/amiga_lb_nav.php` | `amiga/leaderboards/rating.php` | `.k2-chrome-tabs.k2-amiga-lb-tabs` (segment width; online LB stays full-width for filters) |
+| Amiga tournaments index filter | `includes/amiga_tournament_index_nav.php` | `amiga/tournaments.php` | `.k2-chrome-tabs.k2-amiga-tournament-index-tabs` |
 | Amiga WC hub wing | `includes/amiga_world_cups_hub_nav.php` | `amiga/world-cups/` shell | `.k2-amiga-world-cups-hub-tabs` |
 | Amiga WC inner tabs | `amiga_world_cups_players_nav.php`, `_countries_nav.php`, `_stats_nav.php` | WC players/countries/stats views | Stacked `.k2-chrome-tabs` siblings |
 | Player profile nav | `includes/player_nav.php` | `player/*.php` with `body.k2-player-wing` | `.k2-player-nav-bar` |

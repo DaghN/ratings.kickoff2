@@ -61,10 +61,6 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 	border-left: 2px solid var(--k2-border-subtle);
 }
 
-.k2-amiga-tournament-nav .k2-player-nav__links {
-	flex-wrap: wrap;
-}
-
 .k2-amiga-tournament-body {
 	padding: 0 0 2rem;
 }

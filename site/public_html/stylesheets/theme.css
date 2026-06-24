@@ -685,6 +685,9 @@ body.k2-site .k2-league-period {
 body.k2-site .k2-games-hub-tabs,
 body.k2-site .k2-lb-activity-tabs,
 body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs {
@@ -697,6 +700,9 @@ body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs {
 body.k2-site .k2-lb-activity-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-games-hub-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs .k2-chrome-tabs__bar {
