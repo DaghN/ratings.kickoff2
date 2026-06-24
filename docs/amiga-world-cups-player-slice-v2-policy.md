@@ -8,6 +8,8 @@
 
 **Supersedes:** scattered V2 bullets in LB policy §8 only for **player-slice column + wing** scope — honours/results V1 unchanged.
 
+**Sibling:** [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) — nation-grain WC stats (hub wing 4).
+
 ---
 
 ## 1. Executive summary

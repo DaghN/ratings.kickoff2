@@ -1,8 +1,8 @@
 # Amiga World Cups hub — policy
 
-**Status:** **Wing 2 + wing 3 shipped** (Jun 2026-23) — five tournament-stats sub-wings from `amiga_world_cup_stats`; **Player stats** (Honours · Results · Goals · DDs & CSs · Opponents) shared with Leaderboards → World Cups via `amiga_wc_players_wing_body.inc.php`. Wing 1 list + **`tournament.php` event-stats enrichment** TBD.
+**Status:** **Wing 2 + wing 3 shipped** (Jun 2026-23) — five tournament-stats sub-wings from `amiga_world_cup_stats`; **Player stats** (Honours · Results · Goals · DDs & CSs · Opponents) shared with Leaderboards → World Cups via `amiga_wc_players_wing_body.inc.php`. **Wing 4 — Country stats** — policy locked, not implemented ([`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)). Wing 1 list + **`tournament.php` event-stats enrichment** TBD.
 
-**Parent:** [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md)
+**Parent:** [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)
 
 **Related:** [`url-routes.md`](url-routes.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`design-direction.md`](design-direction.md) · [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md)
 
@@ -12,15 +12,16 @@
 
 ## 1. Executive summary
 
-Promote **World Cups** from a single Leaderboards wing into a **dedicated Amiga hub tab** — a small **universe** with three foldered wings:
+Promote **World Cups** from a single Leaderboards wing into a **dedicated Amiga hub tab** — a small **universe** with four foldered wings:
 
 | Wing | Label (product) | Grain | Primary data |
 |------|-----------------|-------|--------------|
 | **1 — Events** | **World Cups** (default) | One WC tournament | WC **list** on hub; per-event detail on **`tournament.php`** |
 | **2 — Tournament stats** | **Tournament stats** | One row per WC | `amiga_world_cup_stats` |
 | **3 — Player stats** | **Player stats** | Player × WC career | `amiga_player_slice_*` (`slice_key = 'world_cup'`) |
+| **4 — Country stats** | **Country stats** | Nation × WC career | `amiga_country_slice_*` (`slice_key = 'world_cup'`) — **policy only** |
 
-**Mental model:** *Which World Cups happened?* → *How wild was each one?* → *Who dominated across them?*
+**Mental model:** *Which World Cups happened?* → *How wild was each one?* → *Who dominated?* → *Which nations dominated?*
 
 Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Activity** — they answer a different question (*how much WC activity in year Y across the whole realm?*).
 
@@ -33,7 +34,7 @@ Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Acti
 | **WCH1** | **Top-level hub tab** | **World Cups** is its own Amiga hub tab — not only a Leaderboards wing. |
 | **WCH2** | **Present hub order** | **News · World Cups · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments** (last). **News** remains present landing. World Cups is **second** — signature events lane before generic ladder. |
 | **WCH3** | **Foldered sub-hub** | List/aggregate wings under `/amiga/world-cups/` — segment sub-nav (not `?view=` **on hub pages**). Per-tournament drill-down stays on **`tournament.php`** (`view=` = entity section — [`url-routes.md`](url-routes.md)). |
-| **WCH4** | **Three wings** | **Events · Tournament stats · Player stats** — player stats = **five sub-wings** at V2 ([`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md)); v1 shipped three |
+| **WCH4** | **Four wings** | **Events · Tournament stats · Player stats · Country stats** — player + country stats = **five sub-wings** each ([`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md), [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)); player V2 shipped; country **policy only** |
 | **WCH5** | **Default wing** | `/amiga/world-cups/` → **Events** (`index.php` or `events.php`); folder index may 302 to default. |
 | **WCH6** | **Event stats home** | Sortable **`amiga_world_cup_stats`** table lives on **wing 2** — **not** under Activity. |
 | **WCH7** | **Activity WC charts** | Shipped community **year** WC charts (**Q-WC-001**–**003**, **006**–**007**, **011**) stay on **Activity** (realm pulse). Wing 2 may **link** to them (“Realm trends in Activity →”). |
@@ -119,6 +120,19 @@ Column layout per sub-wing: [`amiga-world-cup-stats-table-plan.md`](amiga-world-
 
 **Dual surface:** Hub wing 3 and Leaderboards → World Cups are **the same tables** in different chrome (WCH9). Sub-nav on each surface links within that surface’s URL tree; cross-links optional in copy only.
 
+### 4.4 Wing 4 — Country stats
+
+**Question:** *Which nations dominated World Cups?*
+
+| Element | Rule |
+|---------|------|
+| **Status** | **Policy locked** — [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md); DDL / writers / UI **not shipped** |
+| **Sub-wings** | **Honours · Results · Goals · DDs & CSs · Opponents** — same names as player stats |
+| **Paths** | `/amiga/world-cups/countries/honours.php` (default), `results.php`, `goals.php`, `dds.php`, `opponents.php` (proposed) |
+| **Grain** | One row per `country_token` (`Unknown` for blank nationality) |
+| **Read lib** | `amiga_country_slice_*` at cutoff — when implemented |
+| **LB mirror** | **Hub only** for v1 — no Leaderboards → Countries wing unless product revises |
+
 ---
 
 ## 5. Boundaries with neighbouring surfaces
@@ -139,6 +153,7 @@ Column layout per sub-wing: [`amiga-world-cup-stats-table-plan.md`](amiga-world-
 | WC games in year 2005? | Activity chart | `amiga_community_stat_facts` (`world_cup` / year) |
 | Draw rate at World Cup XVII? | WC hub wing 2 | `amiga_world_cup_stats.draw_rate` |
 | Most WC career goals? | WC hub wing 3 | `amiga_player_slice_totals` |
+| Most WC career goals by Italy? | WC hub wing 4 | `amiga_country_slice_totals` (when shipped) |
 | Who won World Cup XXIII? | `tournament.php` (stages / bracket) | Standings + `gold_player_id` on stats row |
 
 ---
@@ -172,6 +187,7 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 | **1 — Events** | List tournaments where WC finalized **on or before** cutoff tuple. |
 | **2 — Tournament stats** | Rows for WCs in scope at cutoff; column values **do not change** with later `as=` (event-intrinsic). Table may **hide** WCs after cutoff. |
 | **3 — Player stats** | `amiga_player_slice_at_event` at cutoff — same as current WC LB (WC11). |
+| **4 — Country stats** | `amiga_country_slice_at_event` at cutoff — same pattern as wing 3 (when shipped). |
 
 **Link propagation:** All internal WC hub links append `as=` when active (T4).
 
@@ -198,8 +214,9 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 | **3** | Hub tab + shell + sub-nav; wing 1 **list** (intro + table → `tournament.php?view=event-stats`) | Phase 1 read lib |
 | **4** | Enrich **`tournament.php`** `view=event-stats` for WCs (`amiga_world_cup_stats` headline block + existing player table) | Phase 1–3 |
 | **5** | Activity cross-links; LB chapter lede; TT hub bar amend | Phases 1–3 |
+| **6** | Wing **4** — country slice DDL + writers + hub UI | [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) |
 
-**Out of scope v1:** New writers beyond slice V1, WC HoF rows, histogram UX from community catalog. **Slice V2** (goals texture, DDs, Opponents) — [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md).
+**Out of scope v1:** New writers beyond slice V1, WC HoF rows, histogram UX from community catalog. **Slice V2** (goals texture, DDs, Opponents) — [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md). **Country slice** — policy locked Jun 2026-24; implementation = Phase 6.
 
 ---
 
@@ -227,7 +244,7 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 
 ## 12. Agent checklist (new chat)
 
-1. Read this file + [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) (columns) + [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (player wing rules). **Slice V2:** [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md).
+1. Read this file + [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) (columns) + [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (player wing rules). **Slice V2:** [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md). **Country slice:** [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md).
 2. Do **not** put `amiga_world_cup_stats` table on Activity.
 3. Do **not** add `world-cups/event.php` — WC rows link to `amiga_tournament_event_stats_url()`.
 4. Reuse slice read libs + **`amiga_wc_players_wing_body.inc.php`** for wing 3 and LB — no forked SQL or table markup.

@@ -71,7 +71,7 @@
 
 - **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **UI:** Activity community wings + WC year charts TBD; per-WC table on World Cups hub wing 2 **shipped**.
 
-- **Amiga World Cups hub (Jun 2026):** **Wing 2 + wing 3 shipped** — tournament stats (five sub-wings) + **player stats** (shared with LB). Wing 1 events list TBD. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
+- **Amiga World Cups hub (Jun 2026):** **Wing 2 + wing 3 shipped** — tournament stats (five sub-wings) + **player stats** (shared with LB). **Wing 4 country stats** — policy locked Jun 2026-24 ([`amiga-world-cups-country-slice-policy.md`](docs/amiga-world-cups-country-slice-policy.md)); implementation TBD. Wing 1 events list TBD. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
@@ -119,6 +119,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Amiga WC country stats policy** — wing 4 Country stats locked: five sub-wings, `amiga_country_slice_*`, roll-up rules, perf rating + avg opp rating on Results; hub policy + PROJECT_MAP updated. |
+| 2026-06-24 | **Amiga WC country stats implementation plan** — CS-0–CS-7 slices, reference files, STOP gates ([`amiga-world-cups-country-slice-implementation-plan.md`](docs/amiga-world-cups-country-slice-implementation-plan.md)). |
 | 2026-06-24 | **skip-initial-sort SQL parity** — Activity Participation `ORDER BY active_days DESC`; league honours zero-fallback matches gold-first order (WC player LBs fixed earlier via per-view slice order). |
 | 2026-06-24 | **WC player LB default sort** — per-wing SQL `ORDER BY` via `amiga_lb_wc_slice_order_sql()` + `amiga_wc_lb_rows_for_view()` (fixes skip-initial-sort header/body mismatch on Results/Goals/DDs/Opponents). |
 | 2026-06-24 | **Amiga time travel tooltip** — present-mode hover help: side-effects list order → lost wins before missing players (`amiga_time_mode_nav_time_travel_help_text()`). |
