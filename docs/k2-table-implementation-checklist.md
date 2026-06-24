@@ -53,7 +53,7 @@ Online hub LB wings may use `k2_lb_sortable_table_head.inc.php` instead of the g
 5. `<?php $lbSort = k2_lb_table_sort_state($defaultSortCol); ?>` immediately before `<table>` (hub LBs — required for `k2_lb_th` / `k2_lb_td` and table `data-k2-*` attrs).
 6. Every `<th>`: hub LBs use `k2_lb_th($col, $lbSort, $extraClass)`; other wide tables use `k2_table_sortable_th_attr(...)`.
 7. Every body `<td>`: hub LBs use `k2_lb_td($col, $lbSort, $extraClass)`; other wide tables use `k2_table_body_td_attr(...)`.
-8. `data-k2-skip-initial-sort="1"` when **SQL row order already matches** default sort (avoids reorder flash). Omit when user may pass `k2_sort` for a non-default column on first paint.
+8. `data-k2-skip-initial-sort="1"` when **SQL row order already matches** default sort (avoids reorder flash). **Never** set skip when PHP row order uses a different `ORDER BY` than the wing’s default column (WC player sub-wings: per-view order in `amiga_lb_wc_slice_order_sql()`).
 9. Filter / pill / chevron URLs: `array_merge($params, k2_table_sort_query_params())` or `k2_table_merge_sort_query_for_path()`.
 
 ### Anchor column

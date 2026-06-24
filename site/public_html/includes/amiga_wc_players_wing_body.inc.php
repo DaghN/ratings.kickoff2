@@ -22,11 +22,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $con->query("SET time_zone = '+00:00'");
 $ctx = amiga_lb_context($con);
 
-if ($k2AmigaWcPlayersView === 'honours') {
-    $rows = amiga_wc_honours_leaderboard_rows($con, $ctx);
-} else {
-    $rows = amiga_wc_lb_base_rows($con, $ctx);
-}
+$rows = amiga_wc_lb_rows_for_view($con, $ctx, $k2AmigaWcPlayersView);
 $playerCount = amiga_wc_honours_player_count($con, $ctx);
 
 mysqli_close($con);

@@ -196,7 +196,9 @@ V2 may add goal extremes, DD/CS, and opponent network columns on the same rows w
 
 Shared leading columns: Rank, Player, Elo (from snapshot/current at cutoff — same as other LB wings), Country.
 
-**Lib:** `includes/amiga_wc_lb_lib.php` (read) + **`includes/amiga_wc_players_wing_body.inc.php`** + **`includes/amiga_wc_players_table.php`** (render). Hub and LB pages differ only in chrome/nav URLs.
+**Lib:** `includes/amiga_wc_lb_lib.php` (`amiga_wc_lb_rows_for_view`) + `includes/amiga_slice_snapshot_lib.php` (`amiga_lb_wc_slice_order_sql` per sub-wing) + **`includes/amiga_wc_players_wing_body.inc.php`** + **`includes/amiga_wc_players_table.php`** (render). Hub and LB pages differ only in chrome/nav URLs.
+
+**Row order:** SQL `ORDER BY` must match each wing’s default sort when using `data-k2-skip-initial-sort` (Pts ↓, GF ↓, etc.) — not honours order on every wing.
 
 **Nav:** `includes/amiga_wc_lb_nav.php` (LB inner tabs) · `includes/amiga_world_cups_players_nav.php` (hub inner tabs); top-level LB entry in `includes/amiga_lb_nav.php` (`world-cups` wing id).
 

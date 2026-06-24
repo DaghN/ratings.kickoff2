@@ -152,17 +152,27 @@ function amiga_wc_lb_attach_player_meta_at_cutoff(
  *
  * @return list<array<string, mixed>>
  */
-function amiga_wc_honours_leaderboard_rows(mysqli $con, AmigaSnapshotContext $ctx): array
+function amiga_wc_lb_rows_for_view(mysqli $con, AmigaSnapshotContext $ctx, string $view): array
 {
+    $allowed = ['honours', 'results', 'goals', 'dds', 'opponents'];
+    if (!in_array($view, $allowed, true)) {
+        $view = 'honours';
+    }
+
     if ($ctx->isActive()) {
-        $sliceRows = amiga_lb_wc_slice_rows_at_cutoff($con, $ctx);
+        $sliceRows = amiga_lb_wc_slice_rows_at_cutoff($con, $ctx, $view);
 
         return amiga_wc_lb_attach_player_meta_at_cutoff($con, $ctx, $sliceRows);
     }
 
-    $sliceRows = amiga_lb_wc_slice_rows_present($con);
+    $sliceRows = amiga_lb_wc_slice_rows_present($con, $view);
 
     return amiga_wc_lb_attach_player_meta_present($con, $sliceRows);
+}
+
+function amiga_wc_honours_leaderboard_rows(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    return amiga_wc_lb_rows_for_view($con, $ctx, 'honours');
 }
 
 function amiga_wc_honours_player_count(mysqli $con, AmigaSnapshotContext $ctx): int
@@ -175,6 +185,7 @@ function amiga_wc_honours_player_count(mysqli $con, AmigaSnapshotContext $ctx): 
  *
  * @return list<array<string, mixed>>
  */
+/** @deprecated Use amiga_wc_lb_rows_for_view() with the active sub-wing id. */
 function amiga_wc_lb_base_rows(mysqli $con, AmigaSnapshotContext $ctx): array
 {
     return amiga_wc_honours_leaderboard_rows($con, $ctx);

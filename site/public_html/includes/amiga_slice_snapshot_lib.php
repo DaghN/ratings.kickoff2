@@ -52,11 +52,36 @@ function amiga_lb_wc_slice_v2_select_sql(string $alias): string
 }
 
 /**
+ * ORDER BY clause for WC player LB sub-wings (must match default sort + skip-initial-sort).
+ *
+ * @see docs/amiga-world-cups-leaderboard-policy.md §6.1
+ */
+function amiga_lb_wc_slice_order_sql(string $view, string $alias = 'wcs'): string
+{
+    $a = $alias;
+    $player = "{$a}.player_id ASC";
+
+    switch ($view) {
+        case 'results':
+            return "{$a}.points DESC, {$a}.games DESC, {$a}.wins DESC, {$player}";
+        case 'goals':
+            return "{$a}.goals_for DESC, {$a}.games DESC, {$player}";
+        case 'dds':
+            return "{$a}.double_digits DESC, {$a}.games DESC, {$player}";
+        case 'opponents':
+            return "{$a}.different_opponents DESC, {$a}.games DESC, {$player}";
+        case 'honours':
+        default:
+            return "{$a}.gold DESC, {$a}.silver DESC, {$a}.bronze DESC, {$a}.podiums DESC, {$a}.tournaments_played DESC, {$player}";
+    }
+}
+
+/**
  * Present-day WC slice stats for LB wings (eligibility: tournaments_played > 0).
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_wc_slice_rows_present(mysqli $con): array
+function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours'): array
 {
     $sliceKey = amiga_slice_key_world_cup();
     $sql = 'SELECT wcs.player_id,
@@ -76,12 +101,8 @@ function amiga_lb_wc_slice_rows_present(mysqli $con): array
             FROM amiga_player_slice_totals wcs
             WHERE wcs.slice_key = ?
               AND wcs.tournaments_played > 0
-            ORDER BY wcs.gold DESC,
-                     wcs.silver DESC,
-                     wcs.bronze DESC,
-                     wcs.podiums DESC,
-                     wcs.tournaments_played DESC,
-                     wcs.player_id ASC';
+            ORDER BY ' . amiga_lb_wc_slice_order_sql($view) . '
+';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         return [];
@@ -110,10 +131,10 @@ function amiga_lb_wc_slice_rows_present(mysqli $con): array
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx): array
+function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx, string $view = 'honours'): array
 {
     if (!$ctx->isActive()) {
-        return amiga_lb_wc_slice_rows_present($con);
+        return amiga_lb_wc_slice_rows_present($con, $view);
     }
 
     $cutoff = $ctx->cutoff();
@@ -163,12 +184,8 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
                 ) x
                 WHERE x.rn = 1 AND x.tournaments_played > 0
             ) wcs
-            ORDER BY wcs.gold DESC,
-                     wcs.silver DESC,
-                     wcs.bronze DESC,
-                     wcs.podiums DESC,
-                     wcs.tournaments_played DESC,
-                     wcs.player_id ASC';
+            ORDER BY ' . amiga_lb_wc_slice_order_sql($view) . '
+';
 
     $stmt = $con->prepare($sql);
     if ($stmt === false) {

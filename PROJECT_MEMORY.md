@@ -119,6 +119,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **skip-initial-sort SQL parity** — Activity Participation `ORDER BY active_days DESC`; league honours zero-fallback matches gold-first order (WC player LBs fixed earlier via per-view slice order). |
+| 2026-06-24 | **WC player LB default sort** — per-wing SQL `ORDER BY` via `amiga_lb_wc_slice_order_sql()` + `amiga_wc_lb_rows_for_view()` (fixes skip-initial-sort header/body mismatch on Results/Goals/DDs/Opponents). |
 | 2026-06-24 | **Amiga time travel tooltip** — present-mode hover help: side-effects list order → lost wins before missing players (`amiga_time_mode_nav_time_travel_help_text()`). |
 | 2026-06-24 | **K2 hub LB `$lbSort` fix** — Amiga 8 LB wings + online Activity 3 wings: missing `k2_lb_table_sort_state()` after SSR migration (`scripts/fix_lb_sort_state.py`). |
 | 2026-06-24 | **K2 table follow-ups** — hub LB wings Tier B→A (`k2_lb_th`/`k2_lb_td` SSR on 18 pages + WC players + league honours); Amiga `tournament.php` standings + games → `amiga_tournament_lib` render helpers; `audit_k2_table_compliance.py` PASS (0 Tier C); `amiga-profile-v0` + `amiga-player-universe-contract` k2-table notes. |

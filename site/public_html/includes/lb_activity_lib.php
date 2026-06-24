@@ -575,7 +575,7 @@ function k2_lb_activity_query_participation(mysqli $con)
         . 'FROM `playertable` p '
         . 'LEFT JOIN `player_activity_participation` a ON a.`player_id` = p.`id` '
         . 'WHERE ' . $where . ' '
-        . 'ORDER BY p.`id` ASC';
+        . 'ORDER BY COALESCE(a.`active_days`, 0) DESC, p.`Rating` DESC';
 
     return $con->query($sql);
 }

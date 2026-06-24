@@ -217,7 +217,7 @@ function k2_lb_league_honours_rows_overall_zeros(mysqli $con, ?string &$error = 
     $where = k2_lb_player_where_sql_for_alias('p');
     $sql = 'SELECT p.ID AS id, p.Name AS name, p.Rating AS rating, p.NumberGames AS games, '
         . '0 AS gold, 0 AS silver, 0 AS bronze, 0 AS podiums '
-        . 'FROM playertable p WHERE ' . $where . ' ORDER BY p.Name ASC';
+        . 'FROM playertable p WHERE ' . $where . ' ORDER BY gold DESC, podiums DESC, p.Name ASC';
 
     return k2_lb_league_honours_fetch_players($con, $sql, $error);
 }
