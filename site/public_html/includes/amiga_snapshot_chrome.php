@@ -108,6 +108,7 @@ function amiga_snapshot_chrome_carry_query_params(string $path): array
         $carry[$name] = $value;
     }
 
+    require_once __DIR__ . '/amiga_tournament_lib.php';
     if (amiga_tournament_page_request_path($path)) {
         $asRaw = isset($_GET['as']) ? trim((string) $_GET['as']) : '';
         $parsed = $asRaw !== '' ? amiga_snapshot_parse_as_param($asRaw) : null;

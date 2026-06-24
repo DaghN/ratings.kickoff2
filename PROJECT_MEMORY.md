@@ -119,6 +119,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Amiga TT layout fix** — `amiga_snapshot_chrome_carry_query_params()` now requires `amiga_tournament_lib.php` before `amiga_tournament_page_request_path()`; silent Throwable had aborted picker mid-form (hub/table swallowed inside unclosed form). T19 toggle redo still pending. |
 | 2026-06-24 | **Amiga TT snapshot chevrons** — tier-pill fill on stepper prev/next (14% elevated tint + 42% border; matches milestone tier filter). |
 | 2026-06-24 | **WC events catalog column order** — Country (host flag) before Tournament on `/amiga/world-cups/` wing 1. |
 | 2026-06-24 | **Amiga TT atmospheric chrome — docs** — policy §5.0 product intent (stamp + ribbon stack, chapter suppression, Δ column); design-direction + hub-ia cross-links. |
