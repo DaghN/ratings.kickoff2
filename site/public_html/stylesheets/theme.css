@@ -2515,10 +2515,105 @@ body.k2-site .k2-amiga-tt-stamp__sep {
 	transform: translateY(-0.04em);
 }
 
-body.k2-site .k2-amiga-tt-stamp__cursor {
+body.k2-site button.k2-amiga-tt-stamp__cursor {
+	display: inline;
 	margin-left: 0.12em;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font: inherit;
 	font-weight: 400;
+	line-height: inherit;
+	letter-spacing: inherit;
+	color: inherit;
+	vertical-align: baseline;
+	cursor: pointer;
 	opacity: 0.82;
+	animation: k2-tt-stamp-cursor-blink 1.05s step-end infinite;
+}
+
+body.k2-site button.k2-amiga-tt-stamp__cursor:hover {
+	opacity: 1;
+}
+
+body.k2-site .k2-amiga-tt-stamp__cursor-tip {
+	max-width: min(240px, calc(100vw - 24px));
+	white-space: nowrap;
+}
+
+body.k2-site .k2-amiga-tt-stamp__cursor-tip .k2-table-tooltip__body {
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-amiga-tt-stamp--cursor-static button.k2-amiga-tt-stamp__cursor {
+	animation: none;
+	opacity: 0.82;
+}
+
+/* Toggle entry: hidden from first paint until JS runs arrival (see k2-amiga-tt-stamp.js) */
+body.k2-site .k2-amiga-tt-stamp--arrival-pending,
+html.k2-tt-arrival-pending body.k2-site .k2-amiga-tt-stamp {
+	opacity: 0;
+	transform: translateY(5px);
+}
+
+body.k2-site .k2-amiga-tt-stamp--arrival-pending .k2-amiga-tt-stamp__kicker-text,
+html.k2-tt-arrival-pending body.k2-site .k2-amiga-tt-stamp__kicker-text {
+	visibility: hidden;
+}
+
+body.k2-site .k2-amiga-tt-stamp--arrival-pending.k2-amiga-tt-stamp--arrival,
+body.k2-site .k2-amiga-tt-stamp--arrival {
+	animation: k2-tt-stamp-arrive 320ms ease-out forwards;
+}
+
+body.k2-site .k2-amiga-tt-stamp--arrival-pending.k2-amiga-tt-stamp--arrival .k2-amiga-tt-stamp__kicker-text {
+	visibility: visible;
+}
+
+@keyframes k2-tt-stamp-cursor-blink {
+	0%,
+	49% {
+		opacity: 0.82;
+	}
+	50%,
+	100% {
+		opacity: 0.12;
+	}
+}
+
+@keyframes k2-tt-stamp-arrive {
+	from {
+		opacity: 0;
+		transform: translateY(5px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body.k2-site button.k2-amiga-tt-stamp__cursor {
+		animation: none;
+		opacity: 0.82;
+	}
+
+	body.k2-site .k2-amiga-tt-stamp--arrival-pending,
+	html.k2-tt-arrival-pending body.k2-site .k2-amiga-tt-stamp {
+		opacity: 1;
+		transform: none;
+	}
+
+	body.k2-site .k2-amiga-tt-stamp--arrival-pending .k2-amiga-tt-stamp__kicker-text,
+	html.k2-tt-arrival-pending body.k2-site .k2-amiga-tt-stamp__kicker-text {
+		visibility: visible;
+	}
+
+	body.k2-site .k2-amiga-tt-stamp--arrival-pending.k2-amiga-tt-stamp--arrival,
+	body.k2-site .k2-amiga-tt-stamp--arrival {
+		animation: none;
+	}
 }
 
 body.k2-site .k2-player-games-day-step {

@@ -85,6 +85,16 @@ function amiga_time_travel_stamp_a11y_label(string $eventDateYmd): string
     return 'As of ' . $date->format('j F Y');
 }
 
+function amiga_time_travel_stamp_cursor_help_blinking(): string
+{
+    return 'Click to pause cursor blink';
+}
+
+function amiga_time_travel_stamp_cursor_help_static(): string
+{
+    return 'Click to resume cursor blink';
+}
+
 /**
  * @return array{
  *   wing: string,
@@ -116,6 +126,23 @@ function amiga_time_travel_stamp_view(?AmigaSnapshotContext $ctx = null): ?array
     ];
 }
 
+function amiga_time_travel_stamp_arrival_pending_from_request(): bool
+{
+    return isset($_GET['k2_tt_entry']) && (string) $_GET['k2_tt_entry'] === '1';
+}
+
+function amiga_time_travel_stamp_js_enqueue(): void
+{
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+    $path = $_SERVER['DOCUMENT_ROOT'] . '/js/k2-amiga-tt-stamp.js';
+    $v = is_file($path) ? (int) filemtime($path) : 0;
+    echo '<script type="text/javascript" src="/js/k2-amiga-tt-stamp.js?v=' . $v . '" defer="defer"></script>' . "\n";
+}
+
 function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
 {
     $view = amiga_time_travel_stamp_view($ctx);
@@ -124,9 +151,13 @@ function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
     }
 
     $wingClass = ' k2-amiga-tt-stamp--' . preg_replace('/[^a-z0-9-]/', '', $view['wing']);
+    $arrivalPending = amiga_time_travel_stamp_arrival_pending_from_request();
+    $pendingClass = $arrivalPending ? ' k2-amiga-tt-stamp--arrival-pending' : '';
+    $kickerText = $arrivalPending ? '' : $view['kicker'];
+    $cursorHelp = amiga_time_travel_stamp_cursor_help_blinking();
     ?>
-<aside class="k2-amiga-tt-stamp<?php echo k2_h($wingClass); ?>" aria-label="<?php echo k2_h($view['a11y']); ?>">
-	<p class="k2-amiga-tt-stamp__kicker" aria-hidden="true"><span class="k2-amiga-tt-stamp__prompt">&rsaquo;&rsaquo;</span> <?php echo k2_h($view['kicker']); ?></p>
+<aside class="k2-amiga-tt-stamp<?php echo k2_h($wingClass . $pendingClass); ?>" aria-label="<?php echo k2_h($view['a11y']); ?>">
+	<p class="k2-amiga-tt-stamp__kicker" aria-hidden="true"><span class="k2-amiga-tt-stamp__prompt">&rsaquo;&rsaquo;</span> <span class="k2-amiga-tt-stamp__kicker-text" data-k2-tt-kicker-text="<?php echo k2_h($view['kicker']); ?>"><?php echo k2_h($kickerText); ?></span></p>
 	<p class="k2-amiga-tt-stamp__clock" aria-hidden="true"><?php
     foreach ($view['led'] as $part) {
         if ($part['sep']) {
@@ -135,7 +166,7 @@ function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
             echo '<span class="k2-amiga-tt-stamp__segment">' . k2_h($part['text']) . '</span>';
         }
     }
-    ?><span class="k2-amiga-tt-stamp__cursor">_</span></p>
+    ?><button type="button" class="k2-amiga-tt-stamp__cursor" aria-label="<?php echo k2_h($cursorHelp); ?>" aria-pressed="true">_</button></p>
 </aside>
     <?php
 }

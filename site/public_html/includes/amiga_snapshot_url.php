@@ -85,7 +85,7 @@ function amiga_snapshot_merge_request_query_for_path(string $targetPath, array $
             if (!is_string($name) || $name === '' || is_array($value)) {
                 continue;
             }
-            if (in_array($name, ['as', 'wing', 'at'], true)) {
+            if (in_array($name, ['as', 'wing', 'at', 'k2_tt_entry'], true)) {
                 continue;
             }
             $carry[$name] = $value;

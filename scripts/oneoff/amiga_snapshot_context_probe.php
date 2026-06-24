@@ -190,12 +190,20 @@ if (str_contains($tournamentTtHref, 'id=')) {
     fwrite(STDERR, "TT entry should not carry tournament id: {$tournamentTtHref}\n");
     exit(1);
 }
+if (!str_contains($tournamentTtHref, 'k2_tt_entry=1')) {
+    fwrite(STDERR, "TT entry from present should carry k2_tt_entry=1: {$tournamentTtHref}\n");
+    exit(1);
+}
 $_GET['as'] = 'event:' . $lastId;
 amiga_snapshot_context_reset();
 $ttInLens = amiga_time_mode_nav_time_travel_href();
 if (!str_contains($ttInLens, '/amiga/leaderboards/rating.php')
     || (!str_contains($ttInLens, 'as=event%3A' . $lastId) && !str_contains($ttInLens, 'as=event:' . $lastId))) {
     fwrite(STDERR, "TT toggle in lens should be rating LB with active as=: {$ttInLens}\n");
+    exit(1);
+}
+if (str_contains($ttInLens, 'k2_tt_entry=')) {
+    fwrite(STDERR, "TT toggle in lens should not carry k2_tt_entry: {$ttInLens}\n");
     exit(1);
 }
 if (amiga_hub_present_entry_path() !== '/amiga/news.php') {

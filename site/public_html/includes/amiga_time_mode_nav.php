@@ -51,7 +51,7 @@ function amiga_time_mode_nav_time_travel_href(?string $path = null): ?string
         return null;
     }
 
-    return amiga_url_with_as_param(amiga_hub_time_travel_entry_path(), $asParam);
+    return amiga_url_with_as_param(amiga_hub_time_travel_entry_path(), $asParam, ['k2_tt_entry' => '1']);
 }
 
 function amiga_time_mode_nav_time_travel_help_text(): string

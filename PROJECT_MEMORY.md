@@ -121,6 +121,7 @@
 |------|------|
 | 2026-06-24 | **Amiga present hub tab order** — News · Leaderboards · World Cups · Activity · HoF · Tournaments · Live tournaments; TT block (LB · WC · Activity · HoF) contiguous after News. |
 | 2026-06-24 | **Amiga WC stats Goals columns** — renamed Max margin → Max win, Max player goals → Max GF; peak order: Max draw · Max win · Max GF · Max sum · Min sum. |
+| 2026-06-24 | **Amiga TT stamp motion (2a)** — toggle arrival + anti-flash pending; clickable `_` cursor (pause/resume blink, `localStorage`). |
 | 2026-06-24 | **Amiga TT event-wing layout fix** — `amiga_snapshot_chrome_nav_href()` now requires `amiga_tournament_lib.php` before `amiga_tournament_page_request_path()`; Event wing stepper chevrons hit undefined function (same silent-abort pattern as carry-query fix). |
 | 2026-06-24 | **Amiga TT docs sweep (T19)** — policy §5.1/§8/§10, implementation plan slices 2/6, data-contract, design-direction, hub-ia, MEMORY, PHP comments aligned to fixed toggle homes; World Cups in TT hub bar copy. |
 | 2026-06-24 | **Amiga TT T19 toggle homes** — Present day → News; Time travel from present → rating LB + first year; in-lens toggle → rating LB + active `as=`; retired T14b/T14c contextual entry. |
