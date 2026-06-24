@@ -2254,6 +2254,26 @@ body.k2-site .k2-amiga-history__stepper {
 	gap: 0.75rem;
 }
 
+/* Snapshot stepper chevrons — tier-pill fill (milestone unlock filter pattern) */
+body.k2-site .k2-amiga-history__stepper .k2-player-games-day-step {
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 42%, transparent);
+}
+
+body.k2-site .k2-amiga-history__stepper a.k2-player-games-day-step:hover,
+body.k2-site .k2-amiga-history__stepper a.k2-player-games-day-step:focus-visible {
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 20%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 52%, transparent);
+}
+
+body.k2-site .k2-amiga-history__stepper .k2-player-games-day-step.is-disabled {
+	opacity: 0.42;
+	background: color-mix(in srgb, var(--k2-accent) 8%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 24%, var(--k2-border-subtle));
+}
+
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__stepper--fixed-label {
 	flex: 0 0 var(--k2-amiga-tt-stepper-width, 20rem);
 	width: var(--k2-amiga-tt-stepper-width, 20rem);
