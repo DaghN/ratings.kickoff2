@@ -45,17 +45,18 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <?php } else { ?>
 <?php echo k2_lb_table_anchor_markup(); ?>
 <?php k2_table_wrap_open(true); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
+<?php $lbSort = k2_lb_table_sort_state(4); ?>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
 <thead>
 	<tr>
-		<th data-k2-sort="number">#</th>
-		<th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-		<th data-k2-sort="number">ELO rating</th>
-		<th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
-		<th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('day'), ENT_QUOTES, 'UTF-8'); ?>">Peak day</th>
-		<th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('week'), ENT_QUOTES, 'UTF-8'); ?>">Peak week</th>
-		<th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('month'), ENT_QUOTES, 'UTF-8'); ?>">Peak month</th>
-		<th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('year'), ENT_QUOTES, 'UTF-8'); ?>">Peak year</th>
+		<th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">#</th>
+		<th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
+		<th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number">ELO rating</th>
+		<th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+		<th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('day'), ENT_QUOTES, 'UTF-8'); ?>">Peak day</th>
+		<th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('week'), ENT_QUOTES, 'UTF-8'); ?>">Peak week</th>
+		<th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('month'), ENT_QUOTES, 'UTF-8'); ?>">Peak month</th>
+		<th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_activity_peak_help('year'), ENT_QUOTES, 'UTF-8'); ?>">Peak year</th>
 	</tr>
 </thead>
 <tbody class="black">
@@ -72,10 +73,10 @@ while ($row = mysqli_fetch_assoc($result)) {
     $peakYearMeta = k2_lb_activity_peak_cell_meta((int) $row['id'], $peakYearGames, $games, 'year', $row['peak_year_key'] ?? null);
     ?>
 	<tr>
-		<td></td>
-		<td class="k2-table-cell--left"><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
-		<td><?php echo k2_fmt_int($row['Rating']); ?></td>
-		<td><?php echo k2_fmt_games_played($games); ?></td>
+		<td<?php echo k2_lb_td(0, $lbSort); ?>></td>
+		<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
+		<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+		<td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
 		<?php k2_lb_activity_echo_tooltip_td($peakDayMeta, $peakDayGames); ?>
 		<?php k2_lb_activity_echo_tooltip_td($peakWeekMeta, $peakWeekGames); ?>
 		<?php k2_lb_activity_echo_tooltip_td($peakMonthMeta, $peakMonthGames); ?>

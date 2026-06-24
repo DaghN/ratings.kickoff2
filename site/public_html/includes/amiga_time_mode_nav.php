@@ -81,7 +81,7 @@ function amiga_time_mode_nav_time_travel_href(string $path): ?string
 
 function amiga_time_mode_nav_time_travel_help_text(): string
 {
-    return 'WARNING! You will be taken back in time and see the world and its data as they were at that moment in time. Side effects may include outdated Elo, missing players, lost wins, and nostalgia.';
+    return 'WARNING! You will be taken back in time and see the world and its data as they were at that moment in time. Side effects may include outdated Elo, lost wins, missing players, and nostalgia.';
 }
 
 function amiga_time_mode_nav_render(): void

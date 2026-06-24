@@ -213,23 +213,17 @@ Run: `python scripts/audit_k2_table_compliance.py` (exit 1 while Tier C remains)
 | Tier | Meaning |
 |------|---------|
 | **A** | Full Jun 2026 wide-table stack (helpers + SSR th/td + mirror + cloak on page/shell) |
-| **B** | Acceptable legacy (hub LBs, parent-owned head, opponents ledger without SSR th) |
+| **B** | Acceptable legacy (parent-owned head, opponents ledger without SSR th, league period include) |
 | **exception** | Documented special case (highlights compact, status league, milestones digest) |
 | **C** | Migrate or document |
 
-**Open Tier C (Jun 2026):**
+**Open Tier C (Jun 2026):** none — `python scripts/audit_k2_table_compliance.py` PASS.
 
-| File | Issue |
-|------|--------|
-| `amiga/tournament.php` (~L646) | Knockout **standings** table — legacy inline sortable; no ranked helper / mirror |
+**Tier B (acceptable):** player Opponents ledger includes (`player_opponents_tables.php`, `amiga_player_opponents_tables.php` — cloak on parent; SSR th optional), `k2_league_period_page.php`, games hub Recent day buckets.
 
-**Mixed file (contains Tier A + legacy):**
+**Hub leaderboard wings (online + Amiga):** `$k2RankedCloak` + `k2_lb_sortable_table_head.inc.php`; `k2_lb_table_sort_state()` + `k2_lb_th()` / `k2_lb_td()` SSR on all columns; `k2_table_skip_initial_sort_attr()` when SQL order matches default.
 
-| File | Legacy surface |
-|------|----------------|
-| `includes/amiga_tournament_lib.php` | `amiga_tournament_render_games_table()` — games list under tournament.php filters |
-
-**Optional future (Tier B → A):** hub `leaderboards/*.php` — add SSR `k2_table_sortable_th_attr` / body attrs (cloak already covers flash).
+**Amiga tournament.php tables:** `amiga_tournament_render_standings_table()`, `amiga_tournament_render_games_table()`, `amiga_tournament_render_event_stats_table()` — Tier A stack in `amiga_tournament_lib.php` / `amiga_profile_blocks.php`.
 
 When a slice clears backlog: re-run audit, update this section, checklist §1 if a new archetype shipped.
 
@@ -253,6 +247,7 @@ When a slice clears backlog: re-run audit, update this section, checklist §1 if
 | 2026-06-23 | Scroll mirror + shared sortable head includes; hub LBs + games/league/player-games migrated to `k2_table_wrap_open(true)`. |
 | 2026-06-23 | Opponents ledger (both realms), Amiga tournament surfaces, catalog/live indexes — cloak + SSR sort stack. |
 | 2026-06-24 | Agent checklist + `scripts/audit_k2_table_compliance.py` + `.cursor/rules/k2-table-php.mdc`; games hub shell `$k2RankedCloak`. |
+| 2026-06-24 | Hub LB wings Tier B→A (`k2_lb_th` / `k2_lb_td` SSR); Amiga `tournament.php` standings + games tables migrated; audit PASS (0 Tier C). |
 
 ---
 

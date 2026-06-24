@@ -40,29 +40,26 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 
 <?php k2_table_wrap_open(true); ?>
 
-<?php
-$k2LbAnchorCol = 2;
-$k2LbDefaultSortCol = 4;
-?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="4" data-k2-default-direction="desc">
+<?php $lbSort = k2_lb_table_sort_state(4); ?>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
 
 <thead>
     <tr>
-        <th data-k2-sort="number">#</th>
-        <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number">ELO rating</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Goals for" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_scored(), ENT_QUOTES, 'UTF-8'); ?>">GF</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Goals against" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_conceded(), ENT_QUOTES, 'UTF-8'); ?>">GA</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Goals scored per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_scored_avg(), ENT_QUOTES, 'UTF-8'); ?>">GF/g</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Goals conceded per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_conceded_avg(), ENT_QUOTES, 'UTF-8'); ?>">GA/g</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goal_ratio(), ENT_QUOTES, 'UTF-8'); ?>">Ratio</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_most_scored(), ENT_QUOTES, 'UTF-8'); ?>">Max GF</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_most_conceded(), ENT_QUOTES, 'UTF-8'); ?>">Max GA</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_win_margin(), ENT_QUOTES, 'UTF-8'); ?>">Max win</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_loss_margin(), ENT_QUOTES, 'UTF-8'); ?>">Max loss</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goal_sum(), ENT_QUOTES, 'UTF-8'); ?>">Max sum</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_biggest_draw(), ENT_QUOTES, 'UTF-8'); ?>">Max draw</th>
+        <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">#</th>
+        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
+        <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number">ELO rating</th>
+        <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Goals for" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_scored(), ENT_QUOTES, 'UTF-8'); ?>">GF</th>
+        <th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Goals against" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_conceded(), ENT_QUOTES, 'UTF-8'); ?>">GA</th>
+        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Goals scored per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_scored_avg(), ENT_QUOTES, 'UTF-8'); ?>">GF/g</th>
+        <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Goals conceded per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_conceded_avg(), ENT_QUOTES, 'UTF-8'); ?>">GA/g</th>
+        <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goal_ratio(), ENT_QUOTES, 'UTF-8'); ?>">Ratio</th>
+        <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_most_scored(), ENT_QUOTES, 'UTF-8'); ?>">Max GF</th>
+        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_most_conceded(), ENT_QUOTES, 'UTF-8'); ?>">Max GA</th>
+        <th<?php echo k2_lb_th(11, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_win_margin(), ENT_QUOTES, 'UTF-8'); ?>">Max win</th>
+        <th<?php echo k2_lb_th(12, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_loss_margin(), ENT_QUOTES, 'UTF-8'); ?>">Max loss</th>
+        <th<?php echo k2_lb_th(13, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goal_sum(), ENT_QUOTES, 'UTF-8'); ?>">Max sum</th>
+        <th<?php echo k2_lb_th(14, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_biggest_draw(), ENT_QUOTES, 'UTF-8'); ?>">Max draw</th>
     </tr>
 </thead>
 
@@ -73,15 +70,15 @@ while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
     ?>
     <tr>
-        <td<?php echo k2_table_body_td_attr(0, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_table_body_td_attr(1, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
-        <td<?php echo k2_table_body_td_attr(2, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
-        <td<?php echo k2_table_body_td_attr(3, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_table_body_td_attr(4, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['GoalsFor'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(5, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['GoalsAgainst'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(6, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_decimal($row['AverageGoalsFor'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(7, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_decimal($row['AverageGoalsAgainst'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(8, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php
+        <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($row['GoalsFor'], $games); ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['GoalsAgainst'], $games); ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_decimal($row['AverageGoalsFor'], $games); ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_decimal($row['AverageGoalsAgainst'], $games); ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php
             if (!k2_derived_games_started($games)) {
                 echo k2_fmt_dash();
             } elseif (k2_db_is_null($row['GoalRatio']) || (float) $row['GoalRatio'] == -1.0) {
@@ -90,12 +87,12 @@ while ($row = mysqli_fetch_assoc($result)) {
                 echo k2_fmt_decimal($row['GoalRatio'], $games);
             }
         ?></td>
-        <td<?php echo k2_table_body_td_attr(9, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['MostGoalsScored'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(10, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['MostGoalsConceded'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(11, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['BiggestWinDifference'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(12, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['BiggestLossDifference'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(13, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['BiggestSumOfGoals'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(14, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php
+        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_count($row['MostGoalsScored'], $games); ?></td>
+        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_count($row['MostGoalsConceded'], $games); ?></td>
+        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestWinDifference'], $games); ?></td>
+        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestLossDifference'], $games); ?></td>
+        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestSumOfGoals'], $games); ?></td>
+        <td<?php echo k2_lb_td(14, $lbSort); ?>><?php
             if (!k2_derived_games_started($games) || (int) $row['NumberDraws'] === 0) {
                 echo k2_fmt_dash();
             } else {

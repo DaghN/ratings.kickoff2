@@ -31,7 +31,7 @@
 - **Performance rating** — best event + latest event (snapshots, games ≥ 2); links to perf LB and tournament history; hidden when no qualifying perf rows
 - **Moments** — trophy games from `amiga_player_current` `*GameID` pointers (`amiga_player_moments_lib.php`): biggest win, goal festival, peak rating game; score links to games tab with opponent filter; hidden when no resolvable game rows; **no streak card**
 - **Recent tournaments** — `amiga_player_event_snapshots`: finish from **`event_finish_position`** ordinal (all events including WC; NULL → —); **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
-- **Tournament history** — `/amiga/player/tournaments.php`: full snapshot list (no pagination); sortable table with per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); labeled filter panel (Event: All / World Cups; Location: country pills when applicable) — `.k2-player-tournament-filters` in `theme.css`
+- **Tournament history** — `/amiga/player/tournaments.php`: full snapshot list (no pagination); sortable wide table (`amiga_profile_render_tournament_history_table()` — Jun 2026 k2-table stack: cloak + SSR th/td + mirror; filter URLs merge `k2_table_sort_query_params()`); per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); labeled filter panel (Event: All / World Cups; Location: country pills when applicable) — `.k2-player-tournament-filters` in `theme.css`
 - **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_player_event_snapshots` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags); toggle uses `player-feast-sections.css` segment control
 - **Games tab** — server-side filters: Event pills (All / World Cups), listboxes (result, opponent, tournament, country, year, since year), sort; tournament + phase from `amiga_games` + `tournaments`; per-game frozen `rating_a/b` and `adjustment_a/b` from `amiga_game_ratings` (`new_rating_*` NULL after finalize v1); status line shows game count + **Performance rating** for the filtered set (async JSON — same chess-style rules as event TPR, read-time from `amiga_game_ratings`); no pagination (full list)
 
@@ -46,7 +46,7 @@
 
 **Derived tables in use:** `amiga_game_ratings`, `amiga_player_event_snapshots`, `amiga_player_current`, `amiga_tournament_standings`, `amiga_player_matchup_summary`, `amiga_player_matchup_at_event`, `amiga_generalstats` (HoF table stale until next slice — matchup/network written at finalize). See [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) and [`amiga-data-contract.md`](amiga-data-contract.md).
 
-**Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment, **Opponents wing** — [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md). See also [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
+**Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment. **Opponents wing** shipped (`amiga/player/opponents/*` — W/D/L · Goals · DDs live; H2H placeholder) — sortable ledger via `amiga_player_opponents_tables.php` (cloak on parent page; Tier B). Wide-table stack: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). See also [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
 
 ### Participation points (read carefully)
 
@@ -75,6 +75,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 - `includes/amiga_matchup_snapshot_lib.php`, `includes/amiga_player_opponents_load.php`, `includes/amiga_player_opponents_tables.php`
 - `includes/amiga_player_opponents_lib.php`, `includes/amiga_player_opponents_nav.php`, `includes/amiga_player_opponents_page.php`
 - `amiga/player/opponents/{h2h,wdl,goals,dds}.php` — Opponents wing (W/D/L · Goals · DDs live; H2H placeholder)
+- `includes/k2_lb_sortable_table_head.inc.php`, `includes/k2_table_helpers.php` — hub LB + wide sortable tables ([`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md))
 - `includes/amiga_lb_nav.php`, `includes/amiga_lb_lib.php` — leaderboard wing tabs + shared row helpers
 - `includes/amiga_records_*.php`, `includes/amiga_records_hof_links.php` — HoF panels + metric deep links
 - `amiga/leaderboards/*.php` — rating, goals, DDs, victims, peak, perf rating, tournament honours
@@ -131,7 +132,7 @@ API returns one point per finalized tournament (not per game). Multi-game tourna
 ## Tournament pages (cups + leagues)
 
 - **Index** — `/amiga/tournaments.php` — Cup/League badges, optional All/Cups/Leagues filter; cup links with knockouts jump to `#bracket`
-- **Standings** — `/amiga/tournament.php?id=` — hero (name, date, country meta), section nav (League table / phase tabs / Bracket / **Event stats**); **Perf. rating** on event-stats; World Cups open on event-stats by default (`stylesheets/amiga-tournament.css`)
+- **Standings** — `/amiga/tournament.php?id=` — hero (name, date, country meta), section nav (League table / phase tabs / Bracket / **Event stats** / **Games**); standings, event-stats roster, and games list use Jun 2026 k2-table render helpers in `amiga_tournament_lib.php` / `amiga_profile_blocks.php` (cloak + SSR th/td + mirror); **Perf. rating** on event-stats; World Cups open on event-stats by default (`stylesheets/amiga-tournament.css`)
 - **Bracket** — phase-grouped columns (Quarter → Semi → Final; placement finals/brackets below); click aggregate score for leg-by-leg tie detail (`scope=knockout&scope_key=…`); `extra` penalties on leg rows
 - **League marathons** — e.g. London XXIII: overall table only, no empty bracket shell
 

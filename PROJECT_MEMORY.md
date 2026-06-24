@@ -119,6 +119,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Amiga time travel tooltip** — present-mode hover help: side-effects list order → lost wins before missing players (`amiga_time_mode_nav_time_travel_help_text()`). |
+| 2026-06-24 | **K2 hub LB `$lbSort` fix** — Amiga 8 LB wings + online Activity 3 wings: missing `k2_lb_table_sort_state()` after SSR migration (`scripts/fix_lb_sort_state.py`). |
+| 2026-06-24 | **K2 table follow-ups** — hub LB wings Tier B→A (`k2_lb_th`/`k2_lb_td` SSR on 18 pages + WC players + league honours); Amiga `tournament.php` standings + games → `amiga_tournament_lib` render helpers; `audit_k2_table_compliance.py` PASS (0 Tier C); `amiga-profile-v0` + `amiga-player-universe-contract` k2-table notes. |
 | 2026-06-24 | **K2 table compliance** — `scripts/audit_k2_table_compliance.py` + `.cursor/rules/k2-table-php.mdc`; games hub shell `$k2RankedCloak`; plan doc audit + backlog section. |
 | 2026-06-24 | **K2 table agent checklist** — `docs/k2-table-implementation-checklist.md`; bootstrap triggers in AGENTS + kool-workspace; reference-by-scenario table (stop bare `k2_table_js_enqueue` sortable pages). |
 | 2026-06-24 | **Amiga live tournaments index** — `/amiga/live-tournaments.php`: cloak + sortable assets; `amiga_live_tournament_index_render_table()` SSR sort/anchor; default Date desc; Tournament anchor col 0. |

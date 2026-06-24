@@ -17,6 +17,9 @@ const AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES = ['completed', 'archived'];
 const AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS = [];
 const AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL = 0;
 const AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 1;
+const AMIGA_TOURNAMENT_STANDINGS_ANCHOR_COL = 1;
+const AMIGA_TOURNAMENT_STANDINGS_DEFAULT_SORT_COL = 0;
+const AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL = 0;
 
 /** Prefixes in tournaments.format_overrides.generated_by for fixture-backed generated events. */
 const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
@@ -1586,24 +1589,102 @@ function amiga_tournament_games_show_phase_column(array $rows): bool
 }
 
 /**
+ * Phase / knockout standings table on tournament.php.
+ *
+ * @param list<array<string, mixed>> $rows from amiga_tournament_standings_rows()
+ */
+function amiga_tournament_render_standings_table(array $rows, bool $isKnockoutView): void
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    $anchorCol = AMIGA_TOURNAMENT_STANDINGS_ANCHOR_COL;
+    $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_STANDINGS_DEFAULT_SORT_COL);
+    $defaultSortDir = k2_table_default_sort_dir_from_request('asc');
+    $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-standings');
+    $skipInitialSort = $defaultSortCol === AMIGA_TOURNAMENT_STANDINGS_DEFAULT_SORT_COL
+        && $defaultSortDir === 'asc'
+        && k2_table_sort_query_params() === [];
+    $colCount = $isKnockoutView ? 9 : 10;
+    ?>
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
+<thead>
+    <tr>
+        <th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number"><?php echo $isKnockoutView ? ' ' : 'Pos'; ?></th>
+        <th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
+        <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">G</th>
+        <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">W</th>
+        <th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">D</th>
+        <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">L</th>
+        <th<?php echo k2_table_sortable_th_attr(6, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">GF</th>
+        <th<?php echo k2_table_sortable_th_attr(7, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">GA</th>
+        <th<?php echo k2_table_sortable_th_attr(8, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">GD</th>
+        <?php if (!$isKnockoutView) { ?>
+        <th<?php echo k2_table_sortable_th_attr(9, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Pts</th>
+        <?php } ?>
+    </tr>
+</thead>
+<tbody class="black">
+<?php if ($rows === []) { ?>
+    <tr>
+        <td colspan="<?php echo $colCount; ?>" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No standings rows for this scope.</td>
+    </tr>
+<?php } ?>
+<?php foreach ($rows as $row) {
+    $gd = (int) $row['goals_for'] - (int) $row['goals_against'];
+    $posLabel = $isKnockoutView
+        ? ((int) $row['position'] === 1 ? 'W' : 'L')
+        : (string) (int) $row['position'];
+    ?>
+    <tr>
+        <td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol); ?>><?php echo k2_h($posLabel); ?></td>
+        <td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
+            echo k2_amiga_player_link((int) $row['player_id'], (string) $row['player_name']);
+        ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['games']; ?></td>
+        <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['wins']; ?></td>
+        <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['draws']; ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['losses']; ?></td>
+        <td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['goals_for']; ?></td>
+        <td<?php echo k2_table_body_td_attr(7, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['goals_against']; ?></td>
+        <td<?php echo k2_table_body_td_attr(8, $anchorCol, $defaultSortCol); ?>><?php echo $gd > 0 ? '+' . $gd : (string) $gd; ?></td>
+        <?php if (!$isKnockoutView) { ?>
+        <td<?php echo k2_table_body_td_attr(9, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['points']; ?></td>
+        <?php } ?>
+    </tr>
+<?php } ?>
+</tbody>
+</table>
+<?php k2_table_wrap_close(); ?>
+    <?php
+}
+
+/**
  * @param list<array<string, mixed>> $rows from amiga_tournament_games_rows()
  */
 function amiga_tournament_render_games_table(array $rows): void
 {
+    require_once __DIR__ . '/k2_table_helpers.php';
     $showPhaseColumn = amiga_tournament_games_show_phase_column($rows);
     $colCount = $showPhaseColumn ? 5 : 4;
+    $anchorCol = $showPhaseColumn ? 2 : 1;
+    $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL);
+    $defaultSortDir = k2_table_default_sort_dir_from_request('asc');
+    $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-games');
+    $skipInitialSort = $defaultSortCol === AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL
+        && $defaultSortDir === 'asc'
+        && k2_table_sort_query_params() === [];
     ?>
-<div class="k2-table-wrap">
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--tournament-games" data-k2-table="sortable" data-k2-anchor-col="2" data-k2-default-sort="0" data-k2-default-direction="asc">
+<?php k2_table_wrap_open(true); ?>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
 	<thead>
 		<tr>
-			<th class="k2-table-cell--left" data-k2-sort="number">#</th>
+			<th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">#</th>
 			<?php if ($showPhaseColumn) { ?>
-			<th class="k2-table-cell--left" data-k2-sort="text">Phase</th>
+			<th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Phase</th>
 			<?php } ?>
-			<th class="k2-table-cell--left" data-k2-sort="text">Player A</th>
-			<th data-k2-sort="text">Score</th>
-			<th class="k2-table-cell--left" data-k2-sort="text">Player B</th>
+			<th<?php echo k2_table_sortable_th_attr($showPhaseColumn ? 2 : 1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player A</th>
+			<th<?php echo k2_table_sortable_th_attr($showPhaseColumn ? 3 : 2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Score</th>
+			<th<?php echo k2_table_sortable_th_attr($showPhaseColumn ? 4 : 3, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player B</th>
 		</tr>
 	</thead>
 	<tbody class="black">
@@ -1614,26 +1695,28 @@ function amiga_tournament_render_games_table(array $rows): void
 	<?php } ?>
 	<?php foreach ($rows as $idx => $row) {
         $phase = trim((string) ($row['phase'] ?? ''));
+        $scoreCol = $showPhaseColumn ? 3 : 2;
+        $playerBCol = $showPhaseColumn ? 4 : 3;
         ?>
 		<tr>
-			<td class="k2-table-cell--left"><?php echo (int) ($idx + 1); ?></td>
+			<td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo (int) ($idx + 1); ?></td>
 			<?php if ($showPhaseColumn) { ?>
-			<td class="k2-table-cell--left"><?php echo k2_h($phase); ?></td>
+			<td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_h($phase); ?></td>
 			<?php } ?>
-			<td class="k2-table-cell--left"><?php
+			<td<?php echo k2_table_body_td_attr($anchorCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
                 echo k2_amiga_player_link((int) $row['player_a_id'], (string) $row['player_a_name']);
             ?></td>
-			<td><?php
+			<td<?php echo k2_table_body_td_attr($scoreCol, $anchorCol, $defaultSortCol); ?>><?php
                 echo (int) $row['goals_a'] . ' – ' . (int) $row['goals_b'];
                 echo amiga_tournament_format_game_extra(isset($row['extra']) ? (string) $row['extra'] : null);
             ?></td>
-			<td class="k2-table-cell--left"><?php
+			<td<?php echo k2_table_body_td_attr($playerBCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
                 echo k2_amiga_player_link((int) $row['player_b_id'], (string) $row['player_b_name']);
             ?></td>
 		</tr>
 	<?php } ?>
 	</tbody>
 </table>
-</div>
+<?php k2_table_wrap_close(); ?>
     <?php
 }

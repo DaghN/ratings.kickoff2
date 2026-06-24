@@ -11,14 +11,15 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 
 | Scenario | Reference include / page | Notes |
 |----------|-------------------------|--------|
-| Hub leaderboard wing (Rank + Player cols) | `includes/k2_lb_sortable_table_head.inc.php` + any `leaderboards/rating.php` | `$k2RankedCloak`; hub min-width cols |
-| Hub LB body | `leaderboards/rating.php` table markup | `k2_table_ranked_leaderboard_class()` |
+| Hub leaderboard wing (Rank + Player cols) | `includes/k2_lb_sortable_table_head.inc.php` + any `leaderboards/rating.php` | `$k2RankedCloak`; `k2_lb_table_sort_state()` + `k2_lb_th()` / `k2_lb_td()` SSR |
+| Hub LB body | `leaderboards/rating.php` table markup | `k2_table_ranked_leaderboard_class()`; all columns via `k2_lb_th` / `k2_lb_td` |
 | Wide sortable + filter pills (full page reload) | `amiga/tournaments.php` + `amiga_tournament_index_render_table()` in `amiga_profile_blocks.php` | Filter URLs merge `k2_table_sort_query_params()` |
 | Player wing ledger (W/D/L · Goals · DDs) | `includes/player_opponents_tables.php` + `player_opponents_page.php` | Ledger-only cloak/assets; H2H unchanged |
 | Player games (server sort + filters + pager) | `player/games.php` + `includes/k2_player_game_row.php` | **Server** sort — not `k2-table.js` sort |
 | Realm games vault | `games/all.php` + `includes/k2_realm_games_all.php` | Server sort + 250-row pager |
 | Games hub Recent (client sort, day buckets) | `games/recent.php` | Sortable + calm-stats |
 | Tournament event stats (wide, SSR order = SQL) | `amiga_tournament_render_event_stats_table()` in `amiga_profile_blocks.php` | `data-k2-skip-initial-sort="1"` when SSR order matches default |
+| Tournament standings + games (Amiga) | `amiga_tournament_render_standings_table()` / `amiga_tournament_render_games_table()` in `amiga_tournament_lib.php` | Page cloak on `amiga/tournament.php`; dynamic anchor col on games table |
 | Amiga WC stats / players LB | `includes/amiga_world_cup_stats_table.php`, `includes/amiga_wc_players_table.php` | Shell: `amiga_wc_*_lb_shell_start.inc.php` |
 | League period games | `includes/k2_league_period_page.php` | Mirror + sortable |
 | Static / header-help only | `game.php` | No sortable bundle |
@@ -49,10 +50,11 @@ Online hub LB wings may use `k2_lb_sortable_table_head.inc.php` instead of the g
 2. `$defaultSortCol = k2_table_default_sort_col_from_request(...)`; same for dir.
 3. `$tableClass = k2_table_ranked_sortable_class('k2-table--your-modifier')` (hub LBs: `k2_table_ranked_leaderboard_class()`).
 4. `k2_table_wrap_open(true)` / `k2_table_wrap_close()` when table may overflow horizontally.
-5. Every `<th>`: `k2_table_sortable_th_attr($col, $defaultSortCol, $defaultSortDir, $extraClass)`.
-6. Every body `<td>`: `k2_table_body_td_attr($col, $anchorCol, $defaultSortCol, $extraClass)`.
-7. `data-k2-skip-initial-sort="1"` when **SQL row order already matches** default sort (avoids reorder flash). Omit when user may pass `k2_sort` for a non-default column on first paint.
-8. Filter / pill / chevron URLs: `array_merge($params, k2_table_sort_query_params())` or `k2_table_merge_sort_query_for_path()`.
+5. `<?php $lbSort = k2_lb_table_sort_state($defaultSortCol); ?>` immediately before `<table>` (hub LBs — required for `k2_lb_th` / `k2_lb_td` and table `data-k2-*` attrs).
+6. Every `<th>`: hub LBs use `k2_lb_th($col, $lbSort, $extraClass)`; other wide tables use `k2_table_sortable_th_attr(...)`.
+7. Every body `<td>`: hub LBs use `k2_lb_td($col, $lbSort, $extraClass)`; other wide tables use `k2_table_body_td_attr(...)`.
+8. `data-k2-skip-initial-sort="1"` when **SQL row order already matches** default sort (avoids reorder flash). Omit when user may pass `k2_sort` for a non-default column on first paint.
+9. Filter / pill / chevron URLs: `array_merge($params, k2_table_sort_query_params())` or `k2_table_merge_sort_query_for_path()`.
 
 ### Anchor column
 

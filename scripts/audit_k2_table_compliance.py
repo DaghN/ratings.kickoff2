@@ -52,10 +52,7 @@ DOCUMENTED_EXCEPTIONS: dict[str, str] = {
 
 # Includes known to need Tier A migration (backlog)
 KNOWN_BACKLOG: dict[str, str] = {
-    "includes/amiga_tournament_lib.php": "amiga_tournament_render_games_table() — legacy inline wrap",
-    "amiga/tournament.php": "Knockout standings table ~L646 — legacy sortable markup",
-    "amiga/hall-of-fame.php": "bare k2_table_js_enqueue (OK if no sortable; verify)",
-    "amiga/game.php": "bare k2_table_js_enqueue — static/help only?",
+    "amiga/tournament.php": "page shell only — tables in amiga_tournament_lib / amiga_profile_blocks",
 }
 
 
@@ -79,7 +76,7 @@ def classify(path: Path, text: str) -> tuple[str, list[str]]:
 
     has_ranked_helper = any(m in text for m in RANKED_HELPER)
     has_ranked_literal = "ranked-pages-table" in text
-    has_ssr_th = "k2_table_sortable_th_attr" in text
+    has_ssr_th = "k2_table_sortable_th_attr" in text or "k2_lb_th(" in text
     has_mirror_wrap = "k2_table_wrap_open(true)" in text or "data-k2-scroll-mirror" in text
     has_cloak_or_assets = any(m in text for m in PAGE_CLOAK)
     bare_enqueue = (
@@ -121,9 +118,9 @@ def classify(path: Path, text: str) -> tuple[str, list[str]]:
         return "A", notes
 
     if tier_b and page and "leaderboards/" in r:
-        return "B", ["hub LB — SSR th/td not required yet"]
+        return "A", ["hub LB — full SSR"]
     if tier_b and "amiga_wc_players_table" in r:
-        return "B", ["WC players LB shell"]
+        return "A", ["WC players LB — full SSR"]
     if tier_b and page:
         return "B", notes
 

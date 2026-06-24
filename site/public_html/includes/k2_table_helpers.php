@@ -228,3 +228,45 @@ function k2_table_wrap_close(): void
 {
     echo '</div>';
 }
+
+/** Hub leaderboard wings: Player link anchor is always col 2 (0=#, 1=Player, 2=ELO or hero stat). */
+const K2_LB_TABLE_ANCHOR_COL = 2;
+
+/**
+ * @return array{anchor: int, sort_col: int, sort_dir: string}
+ */
+function k2_lb_table_sort_state(int $defaultSortCol, int $anchorCol = K2_LB_TABLE_ANCHOR_COL): array
+{
+    return [
+        'anchor' => $anchorCol,
+        'sort_col' => k2_table_default_sort_col_from_request($defaultSortCol),
+        'sort_dir' => k2_table_default_sort_dir_from_request('desc'),
+    ];
+}
+
+/** Hub LB sortable <th> attrs (wraps k2_table_sortable_th_attr). */
+function k2_lb_th(int $colIndex, array $sort, string $extraClass = ''): string
+{
+    return k2_table_sortable_th_attr($colIndex, $sort['sort_col'], $sort['sort_dir'], $extraClass);
+}
+
+/** Hub LB body <td> attrs (wraps k2_table_body_td_attr). */
+function k2_lb_td(int $colIndex, array $sort, string $extraClass = ''): string
+{
+    return k2_table_body_td_attr($colIndex, $sort['anchor'], $sort['sort_col'], $extraClass);
+}
+
+/** data-k2-skip-initial-sort when URL has no k2_sort and defaults match SQL order. */
+function k2_table_skip_initial_sort_attr(int $defaultSortCol, string $defaultDir = 'desc'): string
+{
+    if (k2_table_sort_query_params() !== []) {
+        return '';
+    }
+    $sortCol = k2_table_default_sort_col_from_request($defaultSortCol);
+    $sortDir = k2_table_default_sort_dir_from_request($defaultDir);
+    if ($sortCol === $defaultSortCol && $sortDir === $defaultDir) {
+        return ' data-k2-skip-initial-sort="1"';
+    }
+
+    return '';
+}

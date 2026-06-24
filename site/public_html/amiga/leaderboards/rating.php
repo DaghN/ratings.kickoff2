@@ -42,24 +42,21 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 
 <?php k2_table_wrap_open(true); ?>
 
-<?php
-$k2LbAnchorCol = 2;
-$k2LbDefaultSortCol = 2;
-?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="2" data-k2-default-sort="2" data-k2-default-direction="desc">
+<?php $lbSort = k2_lb_table_sort_state(2); ?>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(2); ?>>
 
 <thead>
     <tr>
-        <th data-k2-sort="number">Rank</th>
-        <th class="k2-table-cell--left" data-k2-sort="text">Player</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_elo_rating(), ENT_QUOTES, 'UTF-8'); ?>">Elo</th>
-        <th data-k2-sort="text">Country</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
-        <th data-k2-sort="number">Wins</th>
-        <th data-k2-sort="number">Draws</th>
-        <th data-k2-sort="number">Losses</th>
-        <th data-k2-sort="number">Win %</th>
-        <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opp. avg.</th>
+        <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
+        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
+        <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_elo_rating(), ENT_QUOTES, 'UTF-8'); ?>">Elo</th>
+        <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number">Wins</th>
+        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number">Draws</th>
+        <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number">Losses</th>
+        <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number">Win %</th>
+        <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opp. avg.</th>
     </tr>
 </thead>
 
@@ -70,16 +67,16 @@ while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
     ?>
     <tr>
-        <td<?php echo k2_table_body_td_attr(0, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo (int) $rank; ?></td>
-        <td<?php echo k2_table_body_td_attr(1, $k2LbAnchorCol, $k2LbDefaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
-        <td<?php echo k2_table_body_td_attr(2, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
-        <td<?php echo k2_table_body_td_attr(3, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_h($row['Country']); ?></td>
-        <td<?php echo k2_table_body_td_attr(4, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_table_body_td_attr(5, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['NumberWins'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(6, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['NumberDraws'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(7, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_count($row['NumberLosses'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(8, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_pct_from_ratio($row['WinRatio'], $games); ?></td>
-        <td<?php echo k2_table_body_td_attr(9, $k2LbAnchorCol, $k2LbDefaultSortCol); ?>><?php echo k2_fmt_lb_stat($row['AverageOpponentRating'], $games); ?></td>
+        <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo (int) $rank; ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link((int) $row['ID'], (string) $row['Name']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_h($row['Country']); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['NumberWins'], $games); ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_count($row['NumberDraws'], $games); ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_count($row['NumberLosses'], $games); ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['WinRatio'], $games); ?></td>
+        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['AverageOpponentRating'], $games); ?></td>
     </tr>
     <?php
     $rank++;
