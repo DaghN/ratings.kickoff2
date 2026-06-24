@@ -181,12 +181,12 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 | **Kicker** | `››` prompt + wing label: **YEAR END REACHED** · **MONTH END REACHED** · **TEMPORAL LINK ESTABLISHED** (event) |
 | **LED date** | From cutoff `event_date`: year wing → `Y`; month → `MM · Y`; event → `DD · MM · YYYY` |
 | **Typography** | DSEG7 Classic for LED segments only — display exception per [`design-direction.md`](design-direction.md) § Typography |
-| **Motion** | **Ambient:** blinking `_` cursor (click to pause/resume; `localStorage`). **Arrival:** fade-in + kicker typewriter on **toggle entry** and **ribbon wing change** (Year · Month · Event tabs only) via one-shot `k2_tt_entry=1`; stepper/picker/hub nav/direct URL do not trigger. Hover tooltip follows pointer near `_`. |
+| **Motion** | **Ambient:** blinking `_` cursor (click to pause/resume; `localStorage`). **Toggle entry** (`k2_tt_entry=1`): whole panel fade-in + kicker typewriter. **Wing tab change** (`k2_tt_entry=wing`): kicker typewriter + **LED clock opacity fade** (1100ms; no panel rise). **Typewriter:** fixed **32 cps** for toggle and wing (`TYPEWRITER_CPS` in `k2-amiga-tt-stamp.js`). Stepper/picker/hub nav/direct URL do not trigger. Hover tooltip follows pointer near `_`. **Load:** stamp JS sync after markup. |
 | **A11y** | `aria-label` plain English: *As of {j F Y}*; decorative kicker/LED `aria-hidden` |
 
 **Rejected in this slice:** event name line under the stamp (redundant with ribbon stepper); animated segment rollover; hub-only stamp scope (stamp must follow the lens everywhere).
 
-**Key files:** `includes/amiga_time_travel_stamp.php` · `js/k2-amiga-tt-stamp.js` · `includes/amiga_snapshot_chrome.php` (render order) · `stylesheets/theme.css` (`.k2-amiga-tt-stamp`) · `stylesheets/k2-fonts.css` (DSEG7 `@font-face`).
+**Key files:** `includes/amiga_time_travel_stamp.php` (`amiga_time_travel_stamp_arrival_entry_query()` · `amiga_time_travel_stamp_wing_arrival_entry_query()`) · `js/k2-amiga-tt-stamp.js` (sync-loaded after stamp markup) · `includes/amiga_snapshot_chrome.php` (wing tabs + render order) · `stylesheets/theme.css` (`.k2-amiga-tt-stamp`, `k2-tt-stamp-led-fade`) · `stylesheets/k2-fonts.css` (DSEG7 `@font-face`).
 
 ### 5.1 Time travel chrome
 
@@ -327,6 +327,8 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Event wing on tournament.php | Chevrons / picker / `as=event:` change `id` to cutoff tournament (302 when mismatched) |
 | Event picker layout | Catalog-fixed width; closed date right-aligned; open panel = trigger width |
 | Temporal stamp | Visible on hub + player wings + tournament detail with `as=`; kicker matches wing; LED date matches cutoff |
+| Stamp toggle arrival | One-shot `k2_tt_entry=1` from present → time travel; panel fade + 32 cps kicker typewriter; param stripped from URL |
+| Stamp wing arrival | Year · Month · Event tabs append one-shot `k2_tt_entry=wing`; 32 cps kicker + 1100ms LED opacity fade (no panel rise); stepper/picker do not trigger |
 | Hub chapters under `as=` | Snapshot hub tabs omit `k2-hub-chapter`; present day keeps chapters |
 | Rating LB Δ under `as=` | Column after Elo; wing-step delta; tooltip title **Rating change** |
 | Hub nav under `as=` | Leaderboards · World Cups · Activity · HoF only (T13b) |

@@ -126,13 +126,28 @@ function amiga_time_travel_stamp_view(?AmigaSnapshotContext $ctx = null): ?array
     ];
 }
 
+function amiga_time_travel_stamp_arrival_mode_from_request(): ?string
+{
+    if (!isset($_GET['k2_tt_entry'])) {
+        return null;
+    }
+    $raw = (string) $_GET['k2_tt_entry'];
+    if ($raw === '1') {
+        return 'toggle';
+    }
+    if ($raw === 'wing') {
+        return 'wing';
+    }
+    return null;
+}
+
 function amiga_time_travel_stamp_arrival_pending_from_request(): bool
 {
-    return isset($_GET['k2_tt_entry']) && (string) $_GET['k2_tt_entry'] === '1';
+    return amiga_time_travel_stamp_arrival_mode_from_request() === 'toggle';
 }
 
 /**
- * One-shot stamp arrival animation (toggle entry or ribbon wing change).
+ * One-shot stamp arrival on Present to Time travel toggle (fade + typewriter).
  *
  * @return array{k2_tt_entry: string}
  */
@@ -141,7 +156,17 @@ function amiga_time_travel_stamp_arrival_entry_query(): array
     return ['k2_tt_entry' => '1'];
 }
 
-function amiga_time_travel_stamp_js_enqueue(): void
+/**
+ * One-shot kicker typewriter on ribbon wing tab change (no panel fade).
+ *
+ * @return array{k2_tt_entry: string}
+ */
+function amiga_time_travel_stamp_wing_arrival_entry_query(): array
+{
+    return ['k2_tt_entry' => 'wing'];
+}
+
+function amiga_time_travel_stamp_js_enqueue(bool $defer = true): void
 {
     static $done = false;
     if ($done) {
@@ -150,7 +175,8 @@ function amiga_time_travel_stamp_js_enqueue(): void
     $done = true;
     $path = $_SERVER['DOCUMENT_ROOT'] . '/js/k2-amiga-tt-stamp.js';
     $v = is_file($path) ? (int) filemtime($path) : 0;
-    echo '<script type="text/javascript" src="/js/k2-amiga-tt-stamp.js?v=' . $v . '" defer="defer"></script>' . "\n";
+    $deferAttr = $defer ? ' defer="defer"' : '';
+    echo '<script type="text/javascript" src="/js/k2-amiga-tt-stamp.js?v=' . $v . '"' . $deferAttr . '></script>' . "\n";
 }
 
 function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
@@ -161,12 +187,16 @@ function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
     }
 
     $wingClass = ' k2-amiga-tt-stamp--' . preg_replace('/[^a-z0-9-]/', '', $view['wing']);
-    $arrivalPending = amiga_time_travel_stamp_arrival_pending_from_request();
+    $arrivalMode = amiga_time_travel_stamp_arrival_mode_from_request();
+    $arrivalPending = $arrivalMode === 'toggle';
+    $ledFadePending = $arrivalMode === 'wing';
+    $kickerTypewriter = $arrivalMode !== null;
     $pendingClass = $arrivalPending ? ' k2-amiga-tt-stamp--arrival-pending' : '';
-    $kickerText = $arrivalPending ? '' : $view['kicker'];
+    $ledFadeClass = $ledFadePending ? ' k2-amiga-tt-stamp--led-fade-pending' : '';
+    $kickerText = $kickerTypewriter ? '' : $view['kicker'];
     $cursorHelp = amiga_time_travel_stamp_cursor_help_blinking();
     ?>
-<aside class="k2-amiga-tt-stamp<?php echo k2_h($wingClass . $pendingClass); ?>" aria-label="<?php echo k2_h($view['a11y']); ?>">
+<aside class="k2-amiga-tt-stamp<?php echo k2_h($wingClass . $pendingClass . $ledFadeClass); ?>" aria-label="<?php echo k2_h($view['a11y']); ?>">
 	<p class="k2-amiga-tt-stamp__kicker" aria-hidden="true"><span class="k2-amiga-tt-stamp__prompt">&rsaquo;&rsaquo;</span> <span class="k2-amiga-tt-stamp__kicker-text" data-k2-tt-kicker-text="<?php echo k2_h($view['kicker']); ?>"><?php echo k2_h($kickerText); ?></span></p>
 	<p class="k2-amiga-tt-stamp__clock" aria-hidden="true"><?php
     foreach ($view['led'] as $part) {
@@ -179,4 +209,5 @@ function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
     ?><button type="button" class="k2-amiga-tt-stamp__cursor" aria-label="<?php echo k2_h($cursorHelp); ?>" aria-pressed="true">_</button></p>
 </aside>
     <?php
+    amiga_time_travel_stamp_js_enqueue(false);
 }

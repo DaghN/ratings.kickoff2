@@ -8,6 +8,8 @@
 
     var ENTRY_PARAM = 'k2_tt_entry';
     var ARRIVE_ANIMATION = 'k2-tt-stamp-arrive';
+    var LED_ARRIVE_ANIMATION = 'k2-tt-stamp-led-fade';
+    var TYPEWRITER_CPS = 32;
     var CURSOR_BLINK_KEY = 'k2-tt-stamp-cursor-blink';
     var CURSOR_TIP_ID = 'k2-tt-stamp-cursor-tooltip';
     var CURSOR_HELP_ON = 'Click to pause cursor blink';
@@ -35,14 +37,16 @@
     function consumeArrivalFromUrl() {
         try {
             var params = new URLSearchParams(global.location.search);
-            if (params.get(ENTRY_PARAM) !== '1') {
+            var raw = params.get(ENTRY_PARAM);
+            if (raw !== '1' && raw !== 'wing') {
                 return false;
             }
+            var mode = raw === 'wing' ? 'wing' : 'toggle';
             params.delete(ENTRY_PARAM);
             var qs = params.toString();
             var next = global.location.pathname + (qs ? '?' + qs : '') + global.location.hash;
             global.history.replaceState(null, '', next);
-            return true;
+            return mode;
         } catch (e) {
             return false;
         }
@@ -58,14 +62,14 @@
         }
     }
 
-    function typewriter(el, text, maxMs) {
+    function typewriter(el, text) {
         if (!el || text === '') {
             return;
         }
         if ((el.textContent || '').trim() !== '') {
             return;
         }
-        var delay = Math.min(36, Math.max(14, Math.floor(maxMs / text.length)));
+        var delay = 1000 / TYPEWRITER_CPS;
         var i = 0;
         function tick() {
             if (i >= text.length) {
@@ -288,6 +292,38 @@
         });
     }
 
+    function finishLedArrivalClasses(stamp) {
+        stamp.classList.remove('k2-amiga-tt-stamp--led-fade-pending', 'k2-amiga-tt-stamp--led-arrival');
+    }
+
+    function runWingArrival(stamp) {
+        var kickerEl = stamp.querySelector('.k2-amiga-tt-stamp__kicker-text');
+        var clockEl = stamp.querySelector('.k2-amiga-tt-stamp__clock');
+        var full = kickerEl ? (kickerEl.getAttribute('data-k2-tt-kicker-text') || '').trim() : '';
+
+        if (prefersReducedMotion()) {
+            finishLedArrivalClasses(stamp);
+            restoreKickerText(kickerEl);
+            return;
+        }
+
+        typewriter(kickerEl, full);
+
+        if (!clockEl) {
+            finishLedArrivalClasses(stamp);
+            return;
+        }
+
+        stamp.classList.add('k2-amiga-tt-stamp--led-arrival');
+
+        clockEl.addEventListener('animationend', function (event) {
+            if (event.target !== clockEl || event.animationName !== LED_ARRIVE_ANIMATION) {
+                return;
+            }
+            finishLedArrivalClasses(stamp);
+        }, { once: true });
+    }
+
     function runToggleArrival(stamp) {
         var kickerEl = stamp.querySelector('.k2-amiga-tt-stamp__kicker-text');
         var full = kickerEl ? (kickerEl.getAttribute('data-k2-tt-kicker-text') || '').trim() : '';
@@ -307,7 +343,7 @@
             finishArrivalClasses(stamp);
         }, { once: true });
 
-        typewriter(kickerEl, full, 650);
+        typewriter(kickerEl, full);
     }
 
     function initStamp() {
@@ -321,8 +357,10 @@
         }
         stamp.dataset.k2TtStampInit = '1';
         bindCursorToggle(stamp);
-        if (arrival) {
+        if (arrival === 'toggle') {
             runToggleArrival(stamp);
+        } else if (arrival === 'wing') {
+            runWingArrival(stamp);
         }
     }
 
@@ -330,9 +368,5 @@
         hideCursorTooltip(activeCursorButton());
     }, true);
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initStamp);
-    } else {
-        initStamp();
-    }
+    initStamp();
 }(window));

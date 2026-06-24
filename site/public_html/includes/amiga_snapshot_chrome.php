@@ -189,7 +189,7 @@ function amiga_snapshot_chrome_render_wing_tabs(
         if ($key === null) {
             continue;
         }
-        $extraQuery = $activeWing !== $wingId ? amiga_time_travel_stamp_arrival_entry_query() : [];
+        $extraQuery = $activeWing !== $wingId ? amiga_time_travel_stamp_wing_arrival_entry_query() : [];
         $href = amiga_url_with_as($path, $wingId, $key, $extraQuery);
         $activeClass = $activeWing === $wingId ? ' is-active' : '';
         $ariaCurrent = $activeWing === $wingId ? ' aria-current="page"' : '';

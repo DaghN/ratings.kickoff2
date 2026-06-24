@@ -221,9 +221,9 @@ if ($monthKey === null) {
     fwrite(STDERR, "wing tab probe: month key missing\n");
     exit(1);
 }
-$monthWingHref = amiga_url_with_as('/amiga/leaderboards/rating.php', 'month', $monthKey, amiga_time_travel_stamp_arrival_entry_query());
-if (!str_contains($monthWingHref, 'k2_tt_entry=1')) {
-    fwrite(STDERR, "wing tab change should carry k2_tt_entry=1: {$monthWingHref}\n");
+$monthWingHref = amiga_url_with_as('/amiga/leaderboards/rating.php', 'month', $monthKey, amiga_time_travel_stamp_wing_arrival_entry_query());
+if (!str_contains($monthWingHref, 'k2_tt_entry=wing')) {
+    fwrite(STDERR, "wing tab change should carry k2_tt_entry=wing: {$monthWingHref}\n");
     exit(1);
 }
 $yearKey = amiga_snapshot_wing_key_from_cutoff($wingCutoff, 'year');

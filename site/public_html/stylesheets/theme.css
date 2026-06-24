@@ -2571,6 +2571,15 @@ body.k2-site .k2-amiga-tt-stamp--arrival-pending.k2-amiga-tt-stamp--arrival .k2-
 	visibility: visible;
 }
 
+/* Wing change: fade the LED clock only (opacity; no panel rise) */
+body.k2-site .k2-amiga-tt-stamp--led-fade-pending .k2-amiga-tt-stamp__clock {
+	opacity: 0;
+}
+
+body.k2-site .k2-amiga-tt-stamp--led-fade-pending.k2-amiga-tt-stamp--led-arrival .k2-amiga-tt-stamp__clock {
+	animation: k2-tt-stamp-led-fade 1100ms ease-out forwards;
+}
+
 @keyframes k2-tt-stamp-cursor-blink {
 	0%,
 	49% {
@@ -2593,6 +2602,15 @@ body.k2-site .k2-amiga-tt-stamp--arrival-pending.k2-amiga-tt-stamp--arrival .k2-
 	}
 }
 
+@keyframes k2-tt-stamp-led-fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	body.k2-site button.k2-amiga-tt-stamp__cursor {
 		animation: none;
@@ -2612,6 +2630,14 @@ body.k2-site .k2-amiga-tt-stamp--arrival-pending.k2-amiga-tt-stamp--arrival .k2-
 
 	body.k2-site .k2-amiga-tt-stamp--arrival-pending.k2-amiga-tt-stamp--arrival,
 	body.k2-site .k2-amiga-tt-stamp--arrival {
+		animation: none;
+	}
+
+	body.k2-site .k2-amiga-tt-stamp--led-fade-pending .k2-amiga-tt-stamp__clock {
+		opacity: 1;
+	}
+
+	body.k2-site .k2-amiga-tt-stamp--led-fade-pending.k2-amiga-tt-stamp--led-arrival .k2-amiga-tt-stamp__clock {
 		animation: none;
 	}
 }

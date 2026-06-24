@@ -29,7 +29,6 @@ if (is_string($k2ReqPath)
 		$dseg7Ver = (int) filemtime($dseg7Path);
 		echo '<link rel="preload" href="/fonts/dseg7-classic-regular.woff2?v=' . $dseg7Ver . '" as="font" type="font/woff2" crossorigin="anonymous" />' . "\n";
 	}
-	amiga_time_travel_stamp_js_enqueue();
 }
 ?>
 <?php if (!empty($k2RankedCloak)) {

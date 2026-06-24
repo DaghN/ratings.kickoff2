@@ -274,10 +274,10 @@ Shipped after phase 1 data lens was green — UX polish, **L0**, no Part B:
 | Hub chapter suppression under `as=` | **Done** | Leaderboards, World Cups, Activity, HoF |
 | Present-mode TT entry tooltip | **Done** | `amiga_time_mode_nav_time_travel_help_text()` |
 | **T19** fixed mode-toggle homes | **Done** | Present → News; Time travel → rating LB + `as=`; ribbon for in-lens time |
-| Temporal stamp motion (phase 2a) | **Done** | Toggle + wing-tab arrival; clickable cursor blink |
+| Temporal stamp motion (phase 2a) | **Done** | Toggle `k2_tt_entry=1` (panel fade + 32 cps typewriter); wing tabs `k2_tt_entry=wing` (32 cps + 1100ms LED opacity fade); clickable cursor; sync JS after stamp markup |
 | Rating LB Δ column | **Done** | Wing-step delta when `as=`; `amiga_lb_rating_delta_*` |
 
-**Verification:** browser — stamp + ribbon stack on `?as=year:2004`; present mode unchanged; Δ column on rating LB only.
+**Verification:** browser — stamp + ribbon stack on `?as=year:2004`; present mode unchanged; Δ column on rating LB only; toggle entry panel fade; wing tab LED-only fade + equal typewriter speed (32 cps).
 
 ---
 
