@@ -40,7 +40,7 @@
 
 - **Amiga realm (Jun 2026):** **Disposition review** — register **605/605**; **44** `pending_review`; [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
-- **Amiga rating history (Jun 2026):** **V1 + animation** — History hub + News races (by tournament + by time); [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
+- **Amiga rating history (Jun 2026):** **V1** — History hub + time-travel rating LB; News tab = blank placeholder; [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
 
 - **Amiga event snapshots (Jun 2026):** **Complete (slices 0–9)** — `amiga_player_event_snapshots` + `amiga_player_current`; legacy four tables retired; holy loop `python -m scripts.amiga prove` green. Policy [`amiga-event-snapshot-policy.md`](docs/amiga-event-snapshot-policy.md).
 
@@ -71,7 +71,7 @@
 
 - **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **UI:** Activity community wings + WC year charts TBD; per-WC table on World Cups hub wing 2 **shipped**.
 
-- **Amiga World Cups hub (Jun 2026):** **Wing 2 + wing 3 shipped** — tournament stats (five sub-wings) + **player stats** (shared with LB). **Wing 4 country stats** — policy locked Jun 2026-24 ([`amiga-world-cups-country-slice-policy.md`](docs/amiga-world-cups-country-slice-policy.md)); implementation TBD. Wing 1 events list TBD. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
+- **Amiga World Cups hub (Jun 2026):** **Wings 1–4 shipped** — **events catalog** (sortable table, podium flag+name cols) + tournament stats (five sub-wings) + **player stats** + **country stats** (shared with LB where applicable). [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
@@ -119,6 +119,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **WC country Opponents column order** — Countries faced + Countries beaten moved after CS victims (parity with player Opponents wing). |
+| 2026-06-24 | **WC hub wing 1 events table** — `/amiga/world-cups/` sortable catalog (tournaments-index cols minus Format; gold/silver/bronze medal headers + flag+name podium cells from `amiga_world_cup_stats`). |
 | 2026-06-24 | **Amiga Opponents Elo + Country** — W/D/L, Goals, DDs ledger tables: opponent Elo + flag before Games; read path joins `amiga_player_current` / event snapshot rating + `p.country`. |
 | 2026-06-24 | **WC player Results Win rate** — col after Pts/g; `(wins + 0.5×draws)/games` via `amiga_wc_lb_win_rate()` at render (same pattern as Pts/g). |
 | 2026-06-24 | **WC country stats sub-nav** — `k2-amiga-world-cups-countries-tabs` added to existing WC wing-tab CSS selectors (parity with players/stats). |
@@ -165,6 +167,7 @@
 | 2026-06 | **Obsolete dev scripts slice 6 (closure)** — track complete; policy §7 all Done; `DEAD_SURFACE.md` retired-script inventory; frozen `ko2unity_db` = re-import only. |
 | 2026-06 | **Obsolete dev scripts slice 5** — doc sweep: `OPERATIONS_QUICK_START`, `work-db-prepare`, `website-data-contract`, runbooks/coordination docs → holy ops + retirement policy; `replay-v1` historical banner; exit grep clean outside policy/archive. |
 | 2026-06 | **Obsolete dev scripts slice 4** — `scripts/k2_rating_core/` (apply_game, player_state, elo, …); Amiga holy imports repointed; ladder replay code → `docs/archive/ladder-retired-2026-06/`; `prove` L5 green + verifiers (fixed `verify-l2-l3` argv in prove). |
+| 2026-06-24 | **Amiga News tab blank** — removed top-10 Elo line race charts, API, JS, race-only CSS/lib; `/amiga/news.php` = header only (realm landing unchanged). |
 | 2026-06 | **Obsolete dev scripts slice 3** — `work_prepare` CLI stubbed; 19 modules → `docs/archive/work-prepare-retired-2026-06/`; `refresh_local_work_db.ps1` → PHP `run_prepare.php refresh-work`; `paths.py` kept for Amiga export. |
 | 2026-06 | **Obsolete dev scripts slice 2** — retired `python -m scripts.ladder run` CLI, `run_local_replay.ps1`, `run_staging_ladder_replay.sh` (archived); `scripts/ladder/README.md` → library-only. Amiga imports unchanged. |
 | 2026-06 | **Obsolete dev scripts slice 1** — stubbed `rebuild_website_derived_data_local.ps1`, `rebuild_activity_wing_local.ps1`, `rebuild_player_period_games_local.ps1`; batch SQL → `docs/archive/batch-rebuild-sql-2026-05/`; one-off SQL → `docs/archive/batch-rebuild-sql-one-off-2026-06/`. |

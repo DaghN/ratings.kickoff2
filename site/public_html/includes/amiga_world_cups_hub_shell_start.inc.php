@@ -15,7 +15,7 @@ $k2AmigaWorldCupsPageTitle = $k2AmigaWorldCupsPageTitle ?? 'World Cups';
 $k2AmigaWorldCupsChapterLede = $k2AmigaWorldCupsChapterLede ?? '';
 $k2AmigaWorldCupsEnqueueTableJs = $k2AmigaWorldCupsEnqueueTableJs ?? false;
 $k2AmigaWorldCupsEnqueueScrollMirror = $k2AmigaWorldCupsEnqueueScrollMirror ?? false;
-if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['players', 'stats', 'countries'], true)) {
+if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['events', 'players', 'stats', 'countries'], true)) {
     $k2AmigaWorldCupsEnqueueScrollMirror = true;
 }
 if ($k2AmigaWorldCupsEnqueueTableJs) {

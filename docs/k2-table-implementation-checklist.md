@@ -21,6 +21,7 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 | Tournament event stats (wide, SSR order = SQL) | `amiga_tournament_render_event_stats_table()` in `amiga_profile_blocks.php` | `data-k2-skip-initial-sort="1"` when SSR order matches default |
 | Tournament standings + games (Amiga) | `amiga_tournament_render_standings_table()` / `amiga_tournament_render_games_table()` in `amiga_tournament_lib.php` | Page cloak on `amiga/tournament.php`; dynamic anchor col on games table |
 | Amiga WC stats / players LB | `includes/amiga_world_cup_stats_table.php`, `includes/amiga_wc_players_table.php` | Shell: `amiga_wc_*_lb_shell_start.inc.php` |
+| Amiga WC hub events catalog | `includes/amiga_world_cups_events_table.php` + `amiga/world-cups/index.php` | Tournaments-index columns minus Format; medal SVG headers; podium = flag + player link |
 | League period games | `includes/k2_league_period_page.php` | Mirror + sortable |
 | Static / header-help only | `game.php` | No sortable bundle |
 | Status league (compact, no mirror) | `includes/k2_league_table_render.php` | Calm-stats; not hub LB |

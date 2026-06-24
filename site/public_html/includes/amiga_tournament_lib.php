@@ -1098,6 +1098,38 @@ function amiga_tournament_player_names(mysqli $con, array $playerIds): array
     return $out;
 }
 
+/**
+ * @param list<int> $playerIds
+ * @return array<int, string>
+ */
+function amiga_tournament_player_countries(mysqli $con, array $playerIds): array
+{
+    $playerIds = array_values(array_unique(array_filter($playerIds, static fn (int $id): bool => $id > 0)));
+    if ($playerIds === []) {
+        return [];
+    }
+    $placeholders = implode(',', array_fill(0, count($playerIds), '?'));
+    $types = str_repeat('i', count($playerIds));
+    $sql = 'SELECT id, country FROM amiga_players WHERE id IN (' . $placeholders . ')';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$playerIds);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $out = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $out[(int) $row['id']] = (string) ($row['country'] ?? '');
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $out;
+}
+
 /** Link phase to group table or knockout pair for this fixture. */
 function amiga_tournament_phase_link(
     mysqli $con,

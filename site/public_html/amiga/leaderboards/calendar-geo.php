@@ -42,13 +42,13 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
         <th<?php echo k2_lb_th_elo(2, $lbSort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
         <th<?php echo k2_lb_th(3, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
-        <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_peak_year_games(), ENT_QUOTES, 'UTF-8'); ?>">Peak yr games</th>
+        <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_peak_year_games(), ENT_QUOTES, 'UTF-8'); ?>">Peak games</th>
         <th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number">Year</th>
-        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_peak_year_tournaments(), ENT_QUOTES, 'UTF-8'); ?>">Peak yr events</th>
+        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_peak_year_tournaments(), ENT_QUOTES, 'UTF-8'); ?>">Peak events</th>
         <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number">Year</th>
-        <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_countries_played_in(), ENT_QUOTES, 'UTF-8'); ?>">Hosts</th>
-        <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_opponent_countries_faced(), ENT_QUOTES, 'UTF-8'); ?>">Opp. countries</th>
-        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_opponent_countries_beaten(), ENT_QUOTES, 'UTF-8'); ?>">Opp. beaten</th>
+        <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_countries_played_in(), ENT_QUOTES, 'UTF-8'); ?>">Host countries</th>
+        <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_opponent_countries_faced(), ENT_QUOTES, 'UTF-8'); ?>">Countries faced</th>
+        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_opponent_countries_beaten(), ENT_QUOTES, 'UTF-8'); ?>">Countries beaten</th>
     </tr>
 </thead>
 <tbody class="black">

@@ -151,16 +151,11 @@ Amiga hub:  … | History | …
 - Link player names → `/amiga/player/profile.php`.
 - Optional footnote: “Ratings commit at tournament finalize; within-month steps reflect event order.”
 
-**Not in V1:** ~~animation player~~ (shipped V1.1 on News — see below), bar chart race export, comparison to present-day LB side-by-side, API JSON for external tools (race API added for News embed).
+**Not in V1:** animation player, bar chart race export, comparison to present-day LB side-by-side, API JSON for external tools.
 
-### 5.1 Top-10 line race (News tab — V1.1)
+### 5.1 News tab (realm landing)
 
-- **Route:** `/amiga/news.php` — two animations:
-  - **By tournament** — playhead steps event-by-event (`amiga-top10-rating-race.js`)
-  - **By time** — playhead advances on calendar; straight segments between each player&rsquo;s rating events (`amiga-top10-rating-race-by-time.js`)
-- **Data:** `GET /api/amiga_top10_rating_race.php` — `sortMs` on series points + `timelineStartMs` / `timelineEndMs` in meta
-- **Controls:** Play / pause (starts from first event if at end), speed, scrubber; default view = latest frame, paused.
-- **JS:** `js/amiga-top10-rating-race.js` + Chart.js time scale, straight segments between event ratings, end labels for current top 10.
+- **Route:** `/amiga/news.php` — blank placeholder under hub chapter **News** (realm default in present mode). Former top-10 Elo line race charts **removed Jun 2026-24**.
 
 ---
 
@@ -204,7 +199,6 @@ Spot SQL + browser checks in implementation plan.
 
 ## 9. Agent policy
 
-- V1 shipped on `amiga_rating_events`; **slice 7 (Jun 2026)** switched historical ladder + News race to **`amiga_player_event_snapshots`**. **Slice 8–9 (Jun 2026):** legacy tables retired; V2 is sole authority.
+- V1 shipped on `amiga_rating_events`; **slice 7 (Jun 2026)** switched historical ladder to **`amiga_player_event_snapshots`**. **Slice 8–9 (Jun 2026):** legacy tables retired; V2 is sole authority.
 - Read path: `includes/amiga_rating_history_lib.php` — not raw SQL in templates.
 - Register new surface in [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4 when shipped.
-- Animation / “chart race” is a **follow-on** using the same snapshot catalog + sparse extraction.

@@ -253,7 +253,7 @@ Document in [`url-routes.md`](url-routes.md) when slice 0 ships.
 | **Five sub-wings** | Honours · Results · Goals (enriched) · **DDs & CSs** · **Opponents** |
 | **Goals texture** | Ratio, Max GF … Max draw on slice row |
 | **DDs & CSs** | Full generic double-digits column set (WC-scoped) |
-| **Opponents** | Opp. countries, Opp. beaten, Opponents, Victims, DD victims, CS victims |
+| **Opponents** | Opponents, Victims, DD victims, CS victims, Countries faced, Countries beaten |
 | **Medals 4th / 5–8 / silver cup** | Separate — needs WC finish taxonomy ([`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) M4) |
 | **HoF rows** | After V2 LB proves surface |
 | **Player profile WC strip** | Optional; reads same `slice_totals` |

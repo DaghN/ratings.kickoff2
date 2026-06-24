@@ -1,6 +1,6 @@
 # Amiga World Cups hub — policy
 
-**Status:** **Wings 2–4 shipped** (Jun 2026-24) — tournament stats (`amiga_world_cup_stats`); **Player stats** + **Country stats** (five sub-wings each) on hub; player + country bodies shared with Leaderboards player wing only (no LB Countries mirror). Wing 1 list + **`tournament.php` event-stats enrichment** TBD.
+**Status:** **Wings 1–4 shipped** (Jun 2026-24) — **events catalog** (`amiga_world_cups_events_table.php`); tournament stats (`amiga_world_cup_stats`); **Player stats** + **Country stats** (five sub-wings each) on hub; player + country bodies shared with Leaderboards player wing only (no LB Countries mirror). **`tournament.php` event-stats enrichment** TBD.
 
 **Parent:** [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)
 
@@ -76,7 +76,7 @@ Wing 1 is the **WC catalog index** only. It does **not** host a second copy of t
 | Element | v1 | v2+ |
 |---------|----|-----|
 | **Intro** | Short chapter lede (`k2_hub_chapter.inc.php`) — what a World Cup is in this realm | Optional era copy, COVID note |
-| **List** | Sortable table — one row per WC: year, name, host, `rated_games`, `goals_per_game`, podium names/links | Filters by decade / host nation |
+| **List** | Sortable table — one row per WC: date, name, host flag, games, players, podium (flag + linked name per medal) | Filters by decade / host nation |
 | **Row link** | **`/amiga/tournament.php?id={tournament_id}&view=event-stats`** — via `amiga_tournament_event_stats_url($id)` + `amiga_tournament_href()` (preserves `as=`). Optional `#tournament` anchor for scroll. **Default WC landing tab** — already first in WC tournament nav. | Same URL; richer tab content |
 | **Per-event richness** | **Enrich `tournament.php`** — especially **`view=event-stats`** (realm row from `amiga_world_cup_stats` + existing per-player event stats). Bracket / stages / games = other `view=` tabs on the **same** `id`. | Extrema game links, podium narrative on existing tabs |
 

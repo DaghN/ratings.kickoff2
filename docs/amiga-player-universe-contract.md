@@ -122,7 +122,6 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_current` honours + `Rating` | `event_*` + `wc_*` | B (shipped) |
 | **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on current | WC panel; metric → LB deep links | B (shipped) |
 | **Historical rating ladder** | `/amiga/leaderboards/rating.php?as=` (legacy `/amiga/history.php` → redirect) | `amiga_player_event_snapshots` cutoff reads | Time-travel ribbon; Δ column not on LB wing (History page retired Jun 2026) | A (slice 7) |
-| **Top-10 Elo line race** | `/amiga/news.php` | `api/amiga_top10_rating_race.php` → same lib | Chart.js animation; dynamic top 10 per event | A (shipped V1.1) |
 | **WC medals block (dedicated)** | profile | `amiga_player_current` honours | honours strip covers summary | B (deferred) |
 
 **Rule:** New PHP must not aggregate `amiga_games` on profile/leaderboard hot paths. Games tab remains the intentional scan surface (paginated, per player). Sortable wide tables: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md).
