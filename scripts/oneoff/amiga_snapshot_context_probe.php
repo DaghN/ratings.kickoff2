@@ -225,6 +225,22 @@ if (amiga_realm_home_href() !== '/amiga/news.php') {
 echo "realm_home_href_ok\n";
 echo "hub_nav_ia_ok\n";
 
+require __DIR__ . '/../../site/public_html/includes/amiga_snapshot_chrome.php';
+$_GET['as'] = 'event:' . $lastId;
+amiga_snapshot_context_reset();
+$GLOBALS['_amiga_snapshot_chrome_rendered'] = false;
+ob_start();
+amiga_snapshot_chrome_render();
+$eventChromeOut = ob_get_clean();
+if (!str_contains($eventChromeOut, 'k2-amiga-time-travel--event-wing')
+    || substr_count($eventChromeOut, '<form') !== substr_count($eventChromeOut, '</form>')
+    || !str_contains($eventChromeOut, 'k2-archive-listbox')
+    || !str_contains($eventChromeOut, 'k2-amiga-history__stepper--fixed-label')) {
+    fwrite(STDERR, "event wing chrome render incomplete\n");
+    exit(1);
+}
+echo "event_wing_chrome_ok\n";
+
 require __DIR__ . '/../../site/public_html/includes/amiga_player_load.php';
 $_GET = [];
 amiga_snapshot_context_reset();

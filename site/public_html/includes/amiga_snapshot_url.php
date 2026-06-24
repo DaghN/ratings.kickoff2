@@ -204,14 +204,15 @@ function amiga_url_with_as(string $path, string $wing, string $key, array $extra
  */
 function amiga_snapshot_chrome_nav_href(string $path, string $asParam, string $wing): string
 {
-    if ($wing === 'event' && amiga_tournament_page_request_path($path)) {
-        $parsed = amiga_snapshot_parse_as_param($asParam);
-        if ($parsed !== null && $parsed['wing'] === 'event') {
-            $eventId = (int) $parsed['key'];
-            if ($eventId > 0) {
-                require_once __DIR__ . '/amiga_tournament_lib.php';
-
-                return amiga_url_with_as_param(amiga_tournament_url($eventId), $asParam);
+    if ($wing === 'event') {
+        require_once __DIR__ . '/amiga_tournament_lib.php';
+        if (amiga_tournament_page_request_path($path)) {
+            $parsed = amiga_snapshot_parse_as_param($asParam);
+            if ($parsed !== null && $parsed['wing'] === 'event') {
+                $eventId = (int) $parsed['key'];
+                if ($eventId > 0) {
+                    return amiga_url_with_as_param(amiga_tournament_url($eventId), $asParam);
+                }
             }
         }
     }
