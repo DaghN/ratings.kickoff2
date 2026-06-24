@@ -47,7 +47,7 @@
 
 ## Locked decisions (do not re-open without user)
 
-See policy **T1–T12**. Summary: global `as=` lens; URL authority; incremental surfaces; Year · Month · Event chrome; present default; link propagation ships in phase 1; **profile excluded from phase 1**.
+See policy **T1–T19**. Summary: global `as=` lens; URL authority; incremental surfaces; Year · Month · Event chrome; present default; link propagation ships in phase 1; **profile excluded from phase 1**; **T19** fixed mode-toggle homes.
 
 ---
 
@@ -111,7 +111,7 @@ Users can turn time travel on/off; navigation preserves `as` on wired pages.
 - [x] Create `site/public_html/includes/amiga_snapshot_chrome.php`
   - Ribbon when active (policy §5.1)
   - Wing tabs Year · Month · Event; chevrons; picker (extract from `history.php`)
-  - Exit to present link
+- [x] Header **Present day | Time travel** in `amiga_time_mode_nav.php` (later **T19**: fixed homes — Present → News; Time travel → rating LB + `as=`)
 - [x] Include chrome from a single Amiga layout hook after `amiga_hub_nav.php` on hub pages
 - [x] Include chrome after `amiga_player_nav.php` on player wings
 - [x] Hub entry when inactive: **Time travel** link → first year `as=year:{yyyy}`
@@ -127,7 +127,7 @@ Users can turn time travel on/off; navigation preserves `as` on wired pages.
 - Enable `?as=year:2010` on `/amiga/leaderboards/rating.php`
 - Click HoF hub tab → URL still has same `as`
 - Click player name → profile URL carries `as` but profile shows present data
-- Exit to present → param gone
+- **Present day** toggle → `/amiga/news.php` (T19); `amiga_url_present()` still strips `as=` on generic exit links
 
 ---
 
@@ -231,7 +231,7 @@ No duplicate cutoff systems; history pilot uses shared context.
 | 3 | Navigate HoF — holders change / param kept | smoke step 3 |
 | 4 | Switch LB wings — tables reflect cutoff / param kept | smoke step 4 |
 | 5 | Click player from LB — profile present-only note; URL keeps `as` | smoke step 5 (URL); browser for note |
-| 6 | Exit to present — ribbon gone, tables match step 1 | smoke step 6; browser for ribbon |
+| 6 | **Present day** toggle → News; present LB unchanged | smoke step 6 (`amiga_url_present` helper); browser for toggle + ribbon |
 
 **Also run:** `php scripts/oneoff/amiga_snapshot_context_probe.php` (context + LB + HoF + History oracles).
 
@@ -273,6 +273,7 @@ Shipped after phase 1 data lens was green — UX polish, **L0**, no Part B:
 | Temporal stamp (DSEG7 LED + kicker) | **Done** | `amiga_time_travel_stamp.php`; above ribbon on all TT surfaces |
 | Hub chapter suppression under `as=` | **Done** | Leaderboards, World Cups, Activity, HoF |
 | Present-mode TT entry tooltip | **Done** | `amiga_time_mode_nav_time_travel_help_text()` |
+| **T19** fixed mode-toggle homes | **Done** | Present → News; Time travel → rating LB + `as=`; ribbon for in-lens time |
 | Rating LB Δ column | **Done** | Wing-step delta when `as=`; `amiga_lb_rating_delta_*` |
 
 **Verification:** browser — stamp + ribbon stack on `?as=year:2004`; present mode unchanged; Δ column on rating LB only.

@@ -24,7 +24,7 @@ function amiga_player_wing_id_from_request(): int
     return isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
 }
 
-/** First rated snapshot for one player — `as=event:ID` for time-travel entry (T14b). */
+/** First rated snapshot for one player — `as=event:ID` (T18 player Event stepper; not mode toggle — T19). */
 function amiga_player_first_snapshot_as_param(mysqli $con, int $playerId): ?string
 {
     if ($playerId < 1) {

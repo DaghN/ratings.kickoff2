@@ -153,17 +153,59 @@ if (!isset($travelTabs['leaderboards'], $travelTabs['activity'], $travelTabs['ha
     fwrite(STDERR, "time-travel hub missing snapshot tabs\n");
     exit(1);
 }
-if (count($travelTabs) !== 3) {
-    fwrite(STDERR, "time-travel hub should have exactly 3 tabs\n");
+if (count($travelTabs) !== count(K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS)) {
+    fwrite(STDERR, "time-travel hub tab count mismatch\n");
     exit(1);
 }
+require __DIR__ . '/../../site/public_html/includes/amiga_time_mode_nav.php';
+$_GET = [];
+amiga_snapshot_context_reset();
+$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73';
+$ttFromPlayer = amiga_time_mode_nav_time_travel_href();
+if (!str_contains($ttFromPlayer, '/amiga/leaderboards/rating.php')) {
+    fwrite(STDERR, "TT entry from player should be rating LB: {$ttFromPlayer}\n");
+    exit(1);
+}
+if (!str_contains($ttFromPlayer, 'as=year%3A') && !str_contains($ttFromPlayer, 'as=year:')) {
+    fwrite(STDERR, "TT entry should use first calendar year: {$ttFromPlayer}\n");
+    exit(1);
+}
+if (str_contains($ttFromPlayer, 'id=')) {
+    fwrite(STDERR, "TT entry should not carry page id: {$ttFromPlayer}\n");
+    exit(1);
+}
+$_SERVER['REQUEST_URI'] = '/amiga/tournament.php?id=5&view=event-stats';
+$_GET = ['id' => '5', 'view' => 'event-stats'];
+amiga_snapshot_context_reset();
+$tournamentTtHref = amiga_time_mode_nav_time_travel_href();
+if (!str_contains($tournamentTtHref, '/amiga/leaderboards/rating.php')) {
+    fwrite(STDERR, "TT entry from tournament should be rating LB: {$tournamentTtHref}\n");
+    exit(1);
+}
+if (!str_contains($tournamentTtHref, 'as=year%3A') && !str_contains($tournamentTtHref, 'as=year:')) {
+    fwrite(STDERR, "TT entry from tournament should use first calendar year: {$tournamentTtHref}\n");
+    exit(1);
+}
+if (str_contains($tournamentTtHref, 'id=')) {
+    fwrite(STDERR, "TT entry should not carry tournament id: {$tournamentTtHref}\n");
+    exit(1);
+}
+$_GET['as'] = 'event:' . $lastId;
+amiga_snapshot_context_reset();
+$ttInLens = amiga_time_mode_nav_time_travel_href();
+if (!str_contains($ttInLens, '/amiga/leaderboards/rating.php')
+    || (!str_contains($ttInLens, 'as=event%3A' . $lastId) && !str_contains($ttInLens, 'as=event:' . $lastId))) {
+    fwrite(STDERR, "TT toggle in lens should be rating LB with active as=: {$ttInLens}\n");
+    exit(1);
+}
+if (amiga_hub_present_entry_path() !== '/amiga/news.php') {
+    fwrite(STDERR, "present toggle target should be news\n");
+    exit(1);
+}
+echo "mode_toggle_hrefs_ok\n";
 $presentKeys = array_keys($presentTabs);
 if ($presentKeys[array_key_last($presentKeys)] !== 'live-tournaments') {
     fwrite(STDERR, "live-tournaments should be last present hub tab\n");
-    exit(1);
-}
-if (amiga_time_mode_nav_time_travel_target_path('/amiga/news.php') !== '/amiga/leaderboards/rating.php') {
-    fwrite(STDERR, "TT entry from news should be rating LB\n");
     exit(1);
 }
 $_GET['as'] = 'event:' . $lastId;
@@ -220,34 +262,7 @@ if ($firstAs === null || !str_starts_with($firstAs, 'event:')) {
     fwrite(STDERR, "player 73 missing first snapshot as param\n");
     exit(1);
 }
-$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73';
-$_GET = ['id' => '73'];
-amiga_snapshot_context_reset();
-require __DIR__ . '/../../site/public_html/includes/amiga_time_mode_nav.php';
-$ttHref = amiga_time_mode_nav_time_travel_href('/amiga/player/profile.php');
-if (!str_contains($ttHref, 'id=73')) {
-    fwrite(STDERR, "player TT href lost id: {$ttHref}\n");
-    exit(1);
-}
-if (!str_contains($ttHref, 'as=event%3A') && !str_contains($ttHref, 'as=event:')) {
-    fwrite(STDERR, "player TT href should use first event as=: {$ttHref}\n");
-    exit(1);
-}
-echo 'player_tt_entry=' . $ttHref . PHP_EOL;
-
-$_SERVER['REQUEST_URI'] = '/amiga/tournament.php?id=5&view=event-stats';
-$_GET = ['id' => '5', 'view' => 'event-stats'];
-amiga_snapshot_context_reset();
-$tournamentTtHref = amiga_time_mode_nav_time_travel_href('/amiga/tournament.php');
-if (!str_contains($tournamentTtHref, 'id=5')) {
-    fwrite(STDERR, "tournament TT href lost id: {$tournamentTtHref}\n");
-    exit(1);
-}
-if (!str_contains($tournamentTtHref, 'as=event%3A5') && !str_contains($tournamentTtHref, 'as=event:5')) {
-    fwrite(STDERR, "tournament TT href should use event as= for catalog id: {$tournamentTtHref}\n");
-    exit(1);
-}
-echo 'tournament_tt_entry=' . $tournamentTtHref . PHP_EOL;
+echo 'player_first_snapshot=' . $firstAs . PHP_EOL;
 
 $accent73 = amiga_player_participated_event_key_set($con, 73);
 if (count($accent73) < 2) {

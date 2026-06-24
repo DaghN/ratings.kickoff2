@@ -117,6 +117,7 @@ function amiga_snapshot_time_travel_active_from_request(): bool
 }
 
 /** Exit time travel — same path without `as`, `wing`, or `at`. */
+/** Strip `as` / legacy wing params from a path — URL helper (not the mode toggle; toggle → News per T19). */
 function amiga_url_present(string $path, array $extraQuery = []): string
 {
     $pathPart = $path;

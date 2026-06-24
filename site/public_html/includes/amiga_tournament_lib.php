@@ -44,7 +44,7 @@ function amiga_tournament_id_from_request(): int
     return isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
 }
 
-/** `as=event:ID` when tournament is in the realm event catalog (T14c time-travel entry). */
+/** `as=event:ID` when tournament is in the realm event catalog (event ribbon on `tournament.php` — §5.1.1; not mode toggle — T19). */
 function amiga_tournament_snapshot_as_param(mysqli $con, int $tournamentId): ?string
 {
     if ($tournamentId < 1) {

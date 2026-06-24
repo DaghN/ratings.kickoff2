@@ -64,7 +64,7 @@
 
 - **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 
-- **Amiga time travel (Jun 2026):** **T13–T18** — snapshot-only TT hub; player-wing TT entry = first event (`T14b`); pre-debut hero **—** + note (`T17`); **player Event chevrons** + picker accents (`T18`). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
+- **Amiga time travel (Jun 2026):** **T13–T19** — snapshot-only TT hub; **T19** fixed mode-toggle homes (Present → News; Time travel → rating LB + `as=`); pre-debut hero **—** + note (`T17`); **player Event chevrons** + picker accents (`T18`). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 - **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs tables shipped** — `amiga_matchup_snapshot_lib.php` (present + at-event); time travel wired. H2H rivalry wing still placeholder. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md).
 
 - **Amiga World Cups LB (Jun 2026):** **V2 UI shipped** — five sub-wings (Honours · Results · Goals · DDs & CSs · Opponents); **dual surface** hub + LB via `amiga_wc_players_table.php`. Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
@@ -119,7 +119,9 @@
 
 | When | Note |
 |------|------|
-| 2026-06-24 | **Amiga TT layout fix** — `amiga_snapshot_chrome_carry_query_params()` now requires `amiga_tournament_lib.php` before `amiga_tournament_page_request_path()`; silent Throwable had aborted picker mid-form (hub/table swallowed inside unclosed form). T19 toggle redo still pending. |
+| 2026-06-24 | **Amiga TT docs sweep (T19)** — policy §5.1/§8/§10, implementation plan slices 2/6, data-contract, design-direction, hub-ia, MEMORY, PHP comments aligned to fixed toggle homes; World Cups in TT hub bar copy. |
+| 2026-06-24 | **Amiga TT T19 toggle homes** — Present day → News; Time travel from present → rating LB + first year; in-lens toggle → rating LB + active `as=`; retired T14b/T14c contextual entry. |
+| 2026-06-24 | **Amiga TT layout fix** — `amiga_snapshot_chrome_carry_query_params()` requires `amiga_tournament_lib.php`; silent Throwable had aborted picker mid-form. |
 | 2026-06-24 | **Amiga TT snapshot chevrons** — tier-pill fill on stepper prev/next (14% elevated tint + 42% border; matches milestone tier filter). |
 | 2026-06-24 | **WC events catalog column order** — Country (host flag) before Tournament on `/amiga/world-cups/` wing 1. |
 | 2026-06-24 | **Amiga TT atmospheric chrome — docs** — policy §5.0 product intent (stamp + ribbon stack, chapter suppression, Δ column); design-direction + hub-ia cross-links. |
@@ -219,7 +221,7 @@
 | 2026-06 | **Amiga player nav order** — hero universe pills: Profile · Opponents · Tournaments · Games (`amiga_player_nav.php`). |
 | 2026-06 | **Amiga elo_rank (SCH-032)** — `elo_rank` on snapshots/current + `amiga_player_elo_rank_at_event` (~173k rows / ~8 MB local); finalize Python+PHP; **hero UI** (all player wings) reads persisted rank; LB tables still sort+enumerate; `prove` green. |
 | 2026-06 | **Amiga TT T18** — player Event chevrons step played tournaments; realm back before debut; picker lickstar accents; `amiga_player_event_stepper_lib.php`. |
-| 2026-06 | **Amiga TT T14b/T17** — player-wing TT entry = first event snapshot; pre-debut cutoff loads with hero — + note (no 404); `amiga_player_publish_hero_context()`. |
+| 2026-06 | **Amiga TT T14b/T17** — *(T14b toggle entry superseded T19)* pre-debut cutoff loads with hero — + note (no 404); `amiga_player_publish_hero_context()`; first-event `as=` still used by T18 stepper. |
 | 2026-06 | **Amiga time travel picker** — Year/Month dropdown lists newest first (catalog order unchanged for stepper). |
 | 2026-06 | **Amiga player hero at cutoff** — `amiga_player_snapshot_lib.php`; `amiga_player_load()` branches on `as=`; hero games link → player games tab. |
 | 2026-06 | **Amiga time travel T13–T15** — editorial hub tabs hidden; News landing; `amiga_hub_nav_lib.php`. |
@@ -334,7 +336,7 @@
 | 2026-06 | **Profile career chart alignment (B+C)** — `profileCareerTimeRange()` (Jun 2017 month → month-end); rating by date axis only; `offset: false` on month bars. |
 | 2026-06 | **Profile career chart gutters (slice A)** — shared 48px y-axis + 12px right padding via `chart-theme.js` (rating, games/month, goals). |
 | 2026-06 | **Amiga time travel realm home** — wordmark + Amiga 500 toggle keep active `as=` and land on rating LB (not News) when in time travel. |
-| 2026-06 | **Amiga TT T14c** — Present→Time travel from `tournament.php?id=N` uses `as=event:N` (catalog); player first event (T14b) and year default unchanged. |
+| 2026-06 | **Amiga TT T14c** — *(toggle entry superseded T19)* `amiga_tournament_snapshot_as_param()` retained for event ribbon on `tournament.php` (§5.1.1). |
 | 2026-06 | **Profile bonanza moment logic** — 3× ratio gate on primary sum game; global highest-`SumOfGoals` fallback where ratio passes (replaced H2H win vs same opponent). |
 | 2026-06 | **Profile heatmap section rhythm** — padding breaks (no margin collapse): story→days 24px; days→weeks ~52px; weeks→bursts ~32px. |
 

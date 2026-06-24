@@ -111,7 +111,7 @@ if (!str_contains($playerHref, 'id=42')) {
 }
 $pass('5', 'profile URL carries as= (page stays present-only in phase 1)');
 
-// Step 6 — Exit to present drops as=.
+// Step 6 — amiga_url_present() strips as= on same path (toggle exit → News is T19; tested in context probe).
 $exitRating = amiga_url_present('/amiga/leaderboards/rating.php');
 if (str_contains($exitRating, 'as=')) {
     $fail('6', "exit URL still has as=: {$exitRating}");

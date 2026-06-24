@@ -27,7 +27,10 @@ const K2_AMIGA_HUB_EDITORIAL_PRESENT_ONLY_PATHS = [
     '/amiga/live-tournament.php',
 ];
 
-/** Default historical hub entry when entering time travel from a present-only page. */
+/** Present-mode realm home — header **Present day** toggle target (T19). */
+const K2_AMIGA_HUB_PRESENT_ENTRY_PATH = '/amiga/news.php';
+
+/** Time-travel realm home — header **Time travel** toggle target from present (T19). */
 const K2_AMIGA_HUB_TIME_TRAVEL_ENTRY_PATH = '/amiga/leaderboards/rating.php';
 
 /**
@@ -65,6 +68,11 @@ function amiga_hub_time_travel_entry_path(): string
     return K2_AMIGA_HUB_TIME_TRAVEL_ENTRY_PATH;
 }
 
+function amiga_hub_present_entry_path(): string
+{
+    return K2_AMIGA_HUB_PRESENT_ENTRY_PATH;
+}
+
 /** Amiga realm home — News in present mode; rating LB with active `as=` in time travel. */
 function amiga_realm_home_href(): string
 {
@@ -93,16 +101,6 @@ function amiga_hub_tabs_for_nav(bool $timeTravelActive): array
     }
 
     return $filtered;
-}
-
-/** Target path for the header Time travel link (rating LB when on present-only pages). */
-function amiga_time_mode_nav_time_travel_target_path(string $requestPath): string
-{
-    if (amiga_hub_is_present_only_path($requestPath)) {
-        return amiga_hub_time_travel_entry_path();
-    }
-
-    return k2_table_path_only($requestPath);
 }
 
 /**
