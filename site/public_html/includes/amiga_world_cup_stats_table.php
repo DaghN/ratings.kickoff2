@@ -160,6 +160,18 @@ function amiga_world_cup_stats_view_columns(): array
             ['label' => 'Blowouts', 'sort' => 'number', 'help' => 'Games with a winning margin of five goals or more.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['blowout_games'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Blowout %', 'sort' => 'number', 'help' => 'Blowout games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['blowout_rate'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Draw %', 'sort' => 'number', 'help' => 'Draws as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['draw_rate'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Max draw', 'sort' => 'number', 'help' => 'Highest total goals in a drawn game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+                isset($row['highest_scoring_draw_sum']) ? (int) $row['highest_scoring_draw_sum'] : null,
+                isset($row['highest_scoring_draw_game_id']) ? (int) $row['highest_scoring_draw_game_id'] : null,
+            )],
+            ['label' => 'Max win', 'sort' => 'number', 'help' => 'Largest win by goal margin in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+                isset($row['biggest_margin']) ? (int) $row['biggest_margin'] : null,
+                isset($row['biggest_margin_game_id']) ? (int) $row['biggest_margin_game_id'] : null,
+            )],
+            ['label' => 'Max GF', 'sort' => 'number', 'tooltip_label' => 'Max goals for', 'help' => 'Most goals scored by one player in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
+                isset($row['most_goals_one_player_game']) ? (int) $row['most_goals_one_player_game'] : null,
+                isset($row['most_goals_one_player_game_id']) ? (int) $row['most_goals_one_player_game_id'] : null,
+            )],
             ['label' => 'Max sum', 'sort' => 'number', 'help' => 'Highest total goals in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
                 isset($row['highest_goal_sum']) ? (int) $row['highest_goal_sum'] : null,
                 isset($row['highest_goal_sum_game_id']) ? (int) $row['highest_goal_sum_game_id'] : null,
@@ -167,18 +179,6 @@ function amiga_world_cup_stats_view_columns(): array
             ['label' => 'Min sum', 'sort' => 'number', 'help' => 'Lowest total goals in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
                 isset($row['lowest_goal_sum']) ? (int) $row['lowest_goal_sum'] : null,
                 isset($row['lowest_goal_sum_game_id']) ? (int) $row['lowest_goal_sum_game_id'] : null,
-            )],
-            ['label' => 'Max draw', 'sort' => 'number', 'help' => 'Highest total goals in a drawn game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['highest_scoring_draw_sum']) ? (int) $row['highest_scoring_draw_sum'] : null,
-                isset($row['highest_scoring_draw_game_id']) ? (int) $row['highest_scoring_draw_game_id'] : null,
-            )],
-            ['label' => 'Max margin', 'sort' => 'number', 'help' => 'Largest winning margin in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['biggest_margin']) ? (int) $row['biggest_margin'] : null,
-                isset($row['biggest_margin_game_id']) ? (int) $row['biggest_margin_game_id'] : null,
-            )],
-            ['label' => 'Max player goals', 'sort' => 'number', 'help' => 'Most goals scored by one player in a single game.', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_peak_cell(
-                isset($row['most_goals_one_player_game']) ? (int) $row['most_goals_one_player_game'] : null,
-                isset($row['most_goals_one_player_game_id']) ? (int) $row['most_goals_one_player_game_id'] : null,
             )],
         ],
         'dds' => [
@@ -278,9 +278,11 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
     $thSortAttr = k2_table_sortable_th_attr($colIndex, $defaultSortCol, $defaultSortDir, $thExtra);
     $help = trim((string) ($col['help'] ?? ''));
     $helpAttr = $help !== '' ? ' data-k2-help="' . k2_h($help) . '"' : '';
+    $tooltipLabel = trim((string) ($col['tooltip_label'] ?? ''));
+    $tooltipLabelAttr = $tooltipLabel !== '' ? ' data-k2-tooltip-label="' . k2_h($tooltipLabel) . '"' : '';
     $thLabel = k2_h($col['label']);
     ?>
-			<th<?php echo $thSortAttr; ?> data-k2-sort="<?php echo k2_h($col['sort']); ?>"<?php echo $helpAttr; ?>><?php echo $thLabel; ?></th>
+			<th<?php echo $thSortAttr; ?> data-k2-sort="<?php echo k2_h($col['sort']); ?>"<?php echo $helpAttr; ?><?php echo $tooltipLabelAttr; ?>><?php echo $thLabel; ?></th>
 <?php } ?>
 		</tr>
 	</thead>

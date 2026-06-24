@@ -16,7 +16,7 @@ Promote **World Cups** from a single Leaderboards wing into a **dedicated Amiga 
 
 | Wing | Label (product) | Grain | Primary data |
 |------|-----------------|-------|--------------|
-| **1 — Events** | **World Cups** (default) | One WC tournament | WC **list** on hub; per-event detail on **`tournament.php`** |
+| **1 — Chronology** | **Chronology** (default) | One WC tournament | WC **list** on hub; per-event detail on **`tournament.php`** |
 | **2 — Tournament stats** | **Tournament stats** | One row per WC | `amiga_world_cup_stats` |
 | **3 — Player stats** | **Player stats** | Player × WC career | `amiga_player_slice_*` (`slice_key = 'world_cup'`) |
 | **4 — Country stats** | **Country stats** | Nation × WC career | `amiga_country_slice_*` (`slice_key = 'world_cup'`) — **shipped** [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) |
@@ -34,8 +34,8 @@ Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Acti
 | **WCH1** | **Top-level hub tab** | **World Cups** is its own Amiga hub tab — not only a Leaderboards wing. |
 | **WCH2** | **Present hub order** | **News · World Cups · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments** (last). **News** remains present landing. World Cups is **second** — signature events lane before generic ladder. |
 | **WCH3** | **Foldered sub-hub** | List/aggregate wings under `/amiga/world-cups/` — segment sub-nav (not `?view=` **on hub pages**). Per-tournament drill-down stays on **`tournament.php`** (`view=` = entity section — [`url-routes.md`](url-routes.md)). |
-| **WCH4** | **Four wings** | **Events · Tournament stats · Player stats · Country stats** — player + country stats = **five sub-wings** each ([`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md), [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)); **both shipped** |
-| **WCH5** | **Default wing** | `/amiga/world-cups/` → **Events** (`index.php` or `events.php`); folder index may 302 to default. |
+| **WCH4** | **Four wings** | **Chronology · Tournament stats · Player stats · Country stats** — player + country stats = **five sub-wings** each ([`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md), [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)); **both shipped** |
+| **WCH5** | **Default wing** | `/amiga/world-cups/chronology/` — **Chronology** (`chronology/index.php`); `/amiga/world-cups/` 302 to chronology. Tournament stats Goals default = `stats/goals.php` (`stats/index.php` 302). |
 | **WCH6** | **Event stats home** | Sortable **`amiga_world_cup_stats`** table lives on **wing 2** — **not** under Activity. |
 | **WCH7** | **Activity WC charts** | Shipped community **year** WC charts (**Q-WC-001**–**003**, **006**–**007**, **011**) stay on **Activity** (realm pulse). Wing 2 may **link** to them (“Realm trends in Activity →”). |
 | **WCH8** | **Player stats — one implementation** | Honours · Results · Goals · DDs & CSs · Opponents tables live in **`includes/amiga_wc_players_wing_body.inc.php`** + **`amiga_wc_players_table.php`**. **No forked SQL or duplicate table markup.** |
@@ -67,7 +67,7 @@ Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Acti
 
 ## 4. Wing contracts
 
-### 4.1 Wing 1 — Events (default)
+### 4.1 Wing 1 — Chronology (default)
 
 **Question:** *Which World Cups have we played, and where is each one?*
 
@@ -164,9 +164,9 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 
 | Route key | Path | Wing |
 |-----------|------|------|
-| `amiga-world-cups` | `/amiga/world-cups/` → Events default | 1 |
-| `amiga-world-cups-events` | `/amiga/world-cups/index.php` | 1 (list only) |
-| `amiga-world-cups-stats` | `/amiga/world-cups/stats.php` | 2 |
+| `amiga-world-cups` | `/amiga/world-cups/chronology/index.php` → Chronology default | 1 |
+| `amiga-world-cups-chronology` | `/amiga/world-cups/chronology/index.php` | 1 (list only) |
+| `amiga-world-cups-stats` | `/amiga/world-cups/stats/goals.php` | 2 |
 | `amiga-world-cups-players` | `/amiga/world-cups/players/honours.php` | 3 default |
 | `amiga-world-cups-players-honours` | `…/players/honours.php` | 3 |
 | `amiga-world-cups-players-results` | `…/players/results.php` | 3 |

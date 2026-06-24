@@ -2,7 +2,7 @@
 /**
  * World Cups hub chrome — open through <main> (sub-nav included).
  *
- * Set $k2AmigaWorldCupsHubView: events | stats | players | countries
+ * Set $k2AmigaWorldCupsHubView: chronology | stats | players | countries
  * Optional: $k2AmigaWorldCupsPageTitle, $k2AmigaWorldCupsChapterLede
  * When $k2AmigaWorldCupsHubView === 'players', set $k2AmigaWorldCupsPlayersView: honours | results | goals | dds | opponents
  * When $k2AmigaWorldCupsHubView === 'countries', set $k2AmigaWorldCupsCountriesView: honours | results | goals | dds | opponents
@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_url.php';
 
-$k2AmigaWorldCupsHubView = $k2AmigaWorldCupsHubView ?? 'events';
+$k2AmigaWorldCupsHubView = $k2AmigaWorldCupsHubView ?? 'chronology';
 $k2AmigaWorldCupsPageTitle = $k2AmigaWorldCupsPageTitle ?? 'World Cups';
 $k2AmigaWorldCupsChapterLede = $k2AmigaWorldCupsChapterLede ?? '';
 $k2AmigaWorldCupsEnqueueTableJs = $k2AmigaWorldCupsEnqueueTableJs ?? false;
 $k2AmigaWorldCupsEnqueueScrollMirror = $k2AmigaWorldCupsEnqueueScrollMirror ?? false;
-if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['events', 'players', 'stats', 'countries'], true)) {
+if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['chronology', 'players', 'stats', 'countries'], true)) {
     $k2AmigaWorldCupsEnqueueScrollMirror = true;
 }
 if ($k2AmigaWorldCupsEnqueueTableJs) {
@@ -25,7 +25,7 @@ if ($k2AmigaWorldCupsEnqueueTableJs) {
 }
 
 $k2AmigaWorldCupsChapterTitles = [
-    'events' => 'World Cups',
+    'chronology' => 'World Cups — Chronology',
     'stats' => 'World Cups — Tournament stats',
     'players' => 'World Cups — Player stats',
     'countries' => 'World Cups — Country stats',

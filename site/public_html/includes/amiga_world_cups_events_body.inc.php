@@ -2,7 +2,7 @@
 /**
  * Load World Cup events and render wing 1 catalog table.
  *
- * Requires hub shell already opened ($k2AmigaWorldCupsHubView = events).
+ * Requires hub shell already opened ($k2AmigaWorldCupsHubView = chronology).
  */
 declare(strict_types=1);
 
