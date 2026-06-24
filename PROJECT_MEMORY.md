@@ -90,7 +90,7 @@
 | Profile layout / charts | `docs/player-profile-feast.md` |
 | Activity charts (plan + registry) | `docs/activity-charts.md` |
 | Status hub spec | `docs/STATUS_PAGE_DATA.md` |
-| Page nav spacing (chrome gaps) | `docs/nav-spacing-policy.md` · `docs/nav-spacing-implementation-plan.md` |
+| Page nav spacing (chrome gaps) | `docs/nav-spacing-policy.md` · `docs/k2-nav-implementation-checklist.md` (agents) |
 | Cutover readiness (prep vs live) | `docs/coordination/cutover-readiness.md` |
 | Schema DDL status | `docs/coordination/schema-register.md` |
 | `player_milestones` row-count timeline | `docs/archive/replay-register-2026-05.md` § Milestone unlock row counts |
@@ -120,6 +120,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **UTF-16 sweep** -- converted nav docs + `amiga_tt_stamp_html_probe.php` to UTF-8; repo scan clean (no UTF-16); 5 UTF-8-BOM files left (harmless). Rule: `.cursor/rules/utf8-windows.mdc`. |
+| 2026-06-24 | **K2 nav agent checklist** -- `docs/k2-nav-implementation-checklist.md`; wired into AGENTS.md + kool-workspace (page chrome nav tasks). |
+| 2026-06-24 | **Page nav spacing Phase 3** -- grep audit; tokenized remaining nav-like 12px holdouts; neutralized legacy `.k2-hub-tabs` margin; deleted dead `.k2-chrome-tabs > .server-peak-period-leaderboards` rule; audit table in `nav-spacing-policy.md`. |
 | 2026-06-24 | **Page nav spacing Phase 2** -- bottom-only `--k2-nav-gap` everywhere; deleted `:has()` spacing + dead bar+table rule; token aliases removed; `lb_nav_end.php` dropped; Games + Amiga WC hub shells close `.k2-page-nav`. Option A (12px, no 16px hub exception). |
 | 2026-06-24 | **Page nav spacing Phase 1** -- `--k2-nav-gap` + wing `.k2-chrome-tabs` 4px->12px in `theme.css`; plain LB wings (Milestones, Rating, Amiga LB) fixed. |
 | 2026-06-24 | **Amiga present hub tab order** — News · Leaderboards · World Cups · Activity · HoF · Tournaments · Live tournaments; TT block (LB · WC · Activity · HoF) contiguous after News. |

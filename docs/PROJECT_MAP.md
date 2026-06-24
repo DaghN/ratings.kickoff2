@@ -29,6 +29,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `site/public_html/ops/sql/migrations/` | Canonical SCH DDL (indexes, tables); see `ops-schema-migrations.md` |
 | `docs/` | Specs, coordination, agent playbooks |
 | `docs/k2-table-implementation-checklist.md` | **K2 tables** — mandatory before new/refactored sortable tables; run `scripts/audit_k2_table_compliance.py` for backlog |
+| `docs/k2-nav-implementation-checklist.md` | **K2 page chrome nav** — mandatory before new wing/sub-nav/hub shell; spacing in `nav-spacing-policy.md` |
 | `data/dumps/` | Local SQL dump (gitignored) |
 | `README.md` | Repo entry — links to agents, ops, brief |
 | `PROJECT_BRIEF.md` | Product taste / north star |

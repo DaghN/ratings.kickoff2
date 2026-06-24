@@ -1,88 +1,32 @@
 # Page nav spacing -- implementation plan
 
-**Status:** Phase 1 shipped (Jun 2026). **Phase 2 shipped (Jun 2026).** Phase 3 optional polish only.
-**Policy:** [`nav-spacing-policy.md`](nav-spacing-policy.md)
+**Status:** Phases 1-3 shipped (Jun 2026). Track complete.
+**Policy:** [`nav-spacing-policy.md`](nav-spacing-policy.md) (Phase 3 audit table lives there).
+**Agents:** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) -- read before new wing/sub-nav/hub shell.
 **Primary file:** `site/public_html/stylesheets/theme.css`
-**Cosmetics track:** Part B migration **not** required.
-
----
-
-## Product gate (Option A -- shipped)
-
-Uniform **12px** (`--k2-nav-gap`) everywhere. No `--k2-hub-subnav-gap: 16px` exception after smoke (Games, Milestones hub, LB Activity sub-tabs all at 12px).
 
 ---
 
 ## Phase 1 -- Spin (shipped)
 
-- [x] **P1.1** Add `--k2-nav-gap: 12px` to `:root` in `theme.css`.
-- [x] **P1.2** `.k2-chrome-tabs { margin-bottom: var(--k2-nav-gap); }` (was 4px).
-- [x] **P1.3** Leave `:has()` lists in place for Phase 1 (removed in Phase 2).
-- [x] **P1.4** Doc pointers in `design-direction.md`.
-- [x] **P1.5** Smoke: plain LB wing-to-table >= 12px (Milestones).
-
----
+- [x] `--k2-nav-gap: 12px` + wing `.k2-chrome-tabs` 4px->12px
 
 ## Phase 2 -- Language (shipped)
 
-### P2.A -- CSS spacing sweep
+- [x] Bottom-only model; delete `:has()` lists + dead bar+table rule; token aliases removed
+- [x] Markup: drop `lb_nav_end.php`; close `.k2-page-nav` on Games + Amiga WC shells
 
-- [x] **P2.A.1** Hub bar: `margin: 16px 0 var(--k2-nav-gap)`.
-- [x] **P2.A.2** Hub chapter: `margin-bottom: var(--k2-nav-gap)` (was 10px).
-- [x] **P2.A.3** Sub-nav layers: `margin-top: 0; margin-bottom: var(--k2-nav-gap)` (Games, Activity, WC, player inner nav, ms-hub tabs).
-- [x] **P2.A.4** Player nav `.k2-player-nav-bar`: `margin-bottom: var(--k2-nav-gap)` (was 20px).
-- [x] **P2.A.5** Delete `:has(+ …)` spacing blocks and parallel `margin-top` lists.
-- [x] **P2.A.6** Delete dead `.k2-chrome-tabs__bar + .k2-table-wrap` rule.
-- [x] **P2.A.7** Remove defensive border-top reassertions on honours/opponents table wraps.
-- [x] **P2.A.8** Drop token aliases; single `--k2-nav-gap` spine.
-- [x] **P2.A.9** Pattern B wrappers (player opponents/milestones): `margin-bottom: 0`; inner nav owns gap.
+## Phase 3 -- Polish (shipped Jun 2026)
 
-### P2.B -- Markup / shell
+- [x] Grep/token audit; dead rules removed; exceptions documented in policy
 
-- [x] **P2.B1** Removed `lb_nav_end.php` include from 11 LB pages; deleted include file.
-- [x] **P2.B2** Close `.k2-page-nav` in `games_hub_shell_end.inc.php` and `amiga_world_cups_hub_shell_end.inc.php` (parity with Milestones shell).
+## Agent onboarding (Jun 2026)
 
-### P2.C -- Amiga parity
-
-- [x] **P2.C1** No Amiga-only spacing overrides added.
-- [x] **P2.C2** Smoke on local test: LB Milestones 12px wing-to-table; League honours wing-to-panel 12px, subnav-to-table 12px.
-
-### P2.D -- Docs
-
-- [x] **P2.D1** Policy + design-direction + MEMORY updated.
+- [x] [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) -- reference includes, spacing rules, shell checklist
+- [x] Wired into `AGENTS.md`, `kool-workspace.mdc`, `PROJECT_MAP.md`
 
 ---
 
-## Phase 3 -- Optional polish (not started)
+## Smoke URLs (full stack)
 
-- [ ] **P3.1** Grep repo for nav-related ad-hoc `margin-bottom: 4px|16px|20px` on chrome classes.
-- [ ] **P3.2** Pattern A/B wrapper unification only if future markup work wants it.
-
----
-
-## Smoke URLs (Phase 2)
-
-| URL | Check |
-|-----|-------|
-| `/leaderboards/milestones.php` | Wing to table **12px** |
-| `/leaderboards/league-honours.php` | Wing to honours **12px**; pills to table **12px** |
-| `/leaderboards/activity/participation.php` | Wing to activity tabs **12px**; tabs to table **12px** |
-| `/games/recent.php` | Hub sub-nav to content **12px** |
-| `/amiga/leaderboards/rating.php` | Amiga plain LB wing **12px** |
-| Amiga WC inner tab page | Hub tab stack **12px** between layers |
-| Player opponents WDL | Player nav to inner tabs **12px**; tabs to table **12px** |
-
----
-
-## Files touched (Phase 2)
-
-| File | Phase |
-|------|-------|
-| `site/public_html/stylesheets/theme.css` | 2 |
-| `site/public_html/stylesheets/player-milestones.css` | 2 |
-| `site/public_html/includes/games_hub_shell_end.inc.php` | 2 |
-| `site/public_html/includes/amiga_world_cups_hub_shell_end.inc.php` | 2 |
-| `site/public_html/leaderboards/**/*.php` (11) | 2 |
-| `docs/nav-spacing-policy.md` | 2 |
-| `docs/design-direction.md` | 1-2 |
-| `PROJECT_MEMORY.md` | 1-2 |
+See policy Phase 3 audit + Phase 2 paths (Milestones, League honours, Activity, Games, Amiga LB, WC, player opponents WDL).
