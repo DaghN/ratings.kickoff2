@@ -90,6 +90,7 @@
 | Profile layout / charts | `docs/player-profile-feast.md` |
 | Activity charts (plan + registry) | `docs/activity-charts.md` |
 | Status hub spec | `docs/STATUS_PAGE_DATA.md` |
+| Page nav spacing (chrome gaps) | `docs/nav-spacing-policy.md` · `docs/nav-spacing-implementation-plan.md` |
 | Cutover readiness (prep vs live) | `docs/coordination/cutover-readiness.md` |
 | Schema DDL status | `docs/coordination/schema-register.md` |
 | `player_milestones` row-count timeline | `docs/archive/replay-register-2026-05.md` § Milestone unlock row counts |
@@ -119,6 +120,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Page nav spacing (planning)** — policy + implementation plan locked ([`nav-spacing-policy.md`](docs/nav-spacing-policy.md), [`nav-spacing-implementation-plan.md`](docs/nav-spacing-implementation-plan.md)): uniform `--k2-nav-gap` 12px, bottom-only ownership, delete `:has()` in Phase 2; CSS not shipped yet. |
 | 2026-06-24 | **Amiga present hub tab order** — News · Leaderboards · World Cups · Activity · HoF · Tournaments · Live tournaments; TT block (LB · WC · Activity · HoF) contiguous after News. |
 | 2026-06-24 | **Amiga WC stats Goals columns** — renamed Max margin → Max win, Max player goals → Max GF; peak order: Max draw · Max win · Max GF · Max sum · Min sum. |
 | 2026-06-24 | **Amiga TT stamp motion (2a shipped)** — toggle `k2_tt_entry=1` (panel fade + 32 cps typewriter); wing `k2_tt_entry=wing` (32 cps + 1100ms LED opacity fade); sync JS after stamp; clickable cursor (`localStorage`). |
