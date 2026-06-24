@@ -47,6 +47,7 @@
 	--k2-font-body: "IBM Plex Sans", Verdana, Arial, sans-serif;
 	--k2-font-display: "Exo 2", "IBM Plex Sans", sans-serif;
 	--k2-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+	--k2-font-segment: "DSEG7 Classic", "IBM Plex Mono", ui-monospace, monospace;
 
 	--k2-radius-sm: 4px;
 	--k2-radius-md: 8px;
@@ -57,6 +58,8 @@
 	/* Wing ribbon → compact sub-nav segment; sub-nav → table/panel */
 	--k2-wing-to-subnav-gap: 12px;
 	--k2-subnav-to-content-gap: 12px;
+	/* Hub chapter intro → first body block (HoF table, etc.) */
+	--k2-hub-chapter-to-content-gap: 22px;
 	/* Shared by .k2-table-tooltip and Chart.js (chart-theme.js) */
 	--k2-tooltip-surface: color-mix(in srgb, var(--k2-bg-elevated) 94%, #000);
 	--k2-tooltip-border: color-mix(in srgb, var(--k2-accent) 36%, var(--k2-border-strong));
@@ -1318,8 +1321,12 @@ body.k2-site .server-records-table {
 body.k2-site .server-records-hof {
 	width: 100%;
 	max-width: var(--k2-max-width);
-	margin-top: 22px;
+	margin-top: 0;
 	margin-bottom: 16px;
+}
+
+body.k2-site .k2-hub-chapter + .server-records-hof {
+	margin-top: var(--k2-hub-chapter-to-content-gap);
 }
 
 body.k2-site .server-records-hof .server-records-panel .k2-table-wrap {
@@ -2401,7 +2408,97 @@ body.k2-site .k2-amiga-time-travel__wings {
 body.k2-site .k2-amiga-time-travel__unwired {
 	margin: 0.5rem 0 0;
 	font-size: 0.88rem;
-	color: var(--k2-text-secondary);
+	color: var(--k2-text-muted);
+}
+
+/* Time travel temporal stamp — LED transmission below wordmark, above snapshot ribbon */
+body.k2-site .k2-page-nav > .k2-amiga-tt-stamp {
+	margin: 0 0 0.65rem;
+	max-width: 100%;
+}
+
+body.k2-site .k2-amiga-tt-stamp {
+	--k2-tt-stamp-glow: color-mix(in srgb, var(--k2-accent) 55%, transparent);
+	position: relative;
+	max-width: var(--k2-max-width);
+	margin: 0 0 0.65rem;
+	padding: 0.85rem 1.1rem 0.95rem;
+	overflow: hidden;
+	border: 1px solid color-mix(in srgb, var(--k2-border-subtle) 90%, var(--k2-accent) 10%);
+	border-top: 2px solid color-mix(in srgb, var(--k2-accent) 72%, transparent);
+	border-radius: var(--k2-radius-lg);
+	background:
+		linear-gradient(180deg,
+			color-mix(in srgb, var(--k2-accent) 10%, transparent) 0%,
+			transparent 42%),
+		linear-gradient(165deg, var(--k2-bg-elevated) 0%, var(--k2-bg-surface) 72%);
+	box-shadow:
+		inset 0 1px 0 color-mix(in srgb, var(--k2-text-primary) 6%, transparent),
+		0 10px 28px color-mix(in srgb, var(--k2-bg-page) 55%, transparent);
+}
+
+body.k2-site .k2-amiga-tt-stamp::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: repeating-linear-gradient(
+		180deg,
+		color-mix(in srgb, var(--k2-accent) 4%, transparent) 0,
+		color-mix(in srgb, var(--k2-accent) 4%, transparent) 1px,
+		transparent 1px,
+		transparent 3px
+	);
+	opacity: 0.35;
+	mix-blend-mode: soft-light;
+}
+
+body.k2-site .k2-amiga-tt-stamp__kicker {
+	position: relative;
+	margin: 0 0 0.35rem;
+	font-family: var(--k2-font-mono);
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.35;
+	letter-spacing: 0.14em;
+	color: color-mix(in srgb, var(--k2-accent) 78%, var(--k2-text-secondary));
+}
+
+body.k2-site .k2-amiga-tt-stamp__prompt {
+	color: color-mix(in srgb, var(--k2-accent) 92%, var(--k2-text-primary));
+}
+
+body.k2-site .k2-amiga-tt-stamp__clock {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.08em 0.18em;
+	margin: 0;
+	font-family: var(--k2-font-segment);
+	font-size: clamp(2rem, 5.4vw, 3.35rem);
+	font-weight: 400;
+	line-height: 1;
+	letter-spacing: 0.06em;
+	color: color-mix(in srgb, var(--k2-accent) 88%, var(--k2-text-primary));
+	text-shadow:
+		0 0 12px var(--k2-tt-stamp-glow),
+		0 0 28px color-mix(in srgb, var(--k2-accent) 18%, transparent);
+}
+
+body.k2-site .k2-amiga-tt-stamp__segment {
+	font-variant-numeric: tabular-nums;
+}
+
+body.k2-site .k2-amiga-tt-stamp__sep {
+	opacity: 0.72;
+	transform: translateY(-0.04em);
+}
+
+body.k2-site .k2-amiga-tt-stamp__cursor {
+	margin-left: 0.12em;
+	font-weight: 400;
+	opacity: 0.82;
 }
 
 body.k2-site .k2-player-games-day-step {
@@ -2987,7 +3084,7 @@ body.k2-site .k2-table.k2-table--player-matchup.k2-table--calm-stats tbody td.k2
 
 
 .k2-chrome-tabs__bar + .k2-table-wrap {
-	margin-top: 12px;
+	margin-top: var(--k2-subnav-to-content-gap);
 	border-top: 1px solid var(--k2-border-subtle);
 	border-top-left-radius: var(--k2-radius-md);
 	border-top-right-radius: var(--k2-radius-md);
@@ -5355,7 +5452,12 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	justify-content: space-between;
 	gap: 10px 16px;
 	max-width: var(--k2-max-width);
-	margin: 16px 0 12px;
+	margin: 16px 0 var(--k2-wing-to-subnav-gap);
+}
+
+/* Hub tabs → first body block: bar bottom margin is the only gap (Activity, HoF time travel, WC wing tabs). */
+body.k2-site .k2-hub-bar + :where(.server-records-hof, .server-activity-summary, .k2-chrome-tabs, .k2-amiga-world-cups-hub) {
+	margin-top: 0;
 }
 
 .k2-hub-bar .k2-hub-tabs {

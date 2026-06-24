@@ -395,3 +395,57 @@ function amiga_lb_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx):
 
     return $rows;
 }
+
+/**
+ * Wing-step Elo change vs previous snapshot in the active wing (time travel rating LB).
+ *
+ * @return array<int, float> player_id => rating_delta
+ */
+function amiga_lb_rating_delta_map(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    if (!$ctx->isActive()) {
+        return [];
+    }
+
+    require_once __DIR__ . '/amiga_rating_history_lib.php';
+
+    $view = amiga_rating_history_resolve_from_context($con, $ctx);
+    $map = [];
+    foreach ($view['ladder'] as $row) {
+        $map[(int) $row['player_id']] = (float) $row['rating_delta'];
+    }
+
+    return $map;
+}
+
+function amiga_lb_rating_delta_cell(?float $delta): string
+{
+    if ($delta === null) {
+        return k2_fmt_dash();
+    }
+
+    $rounded = (int) round($delta);
+    if ($rounded === 0) {
+        return k2_fmt_dash();
+    }
+
+    if ($rounded > 0) {
+        return '<span class="blue">+' . $rounded . '</span>';
+    }
+
+    return '<span class="red">' . $rounded . '</span>';
+}
+
+function amiga_lb_rating_delta_sort_value(?float $delta): string
+{
+    if ($delta === null) {
+        return '';
+    }
+
+    $rounded = (int) round($delta);
+    if ($rounded === 0) {
+        return '';
+    }
+
+    return (string) $rounded;
+}

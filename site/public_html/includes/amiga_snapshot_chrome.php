@@ -261,6 +261,9 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
         $sectionClass .= ' k2-amiga-time-travel--event-wing';
         $sectionStyle = amiga_snapshot_chrome_event_layout_style($catalog);
     }
+
+    require_once __DIR__ . '/amiga_time_travel_stamp.php';
+    amiga_time_travel_stamp_render($ctx);
     ?>
 <section class="<?php echo k2_h($sectionClass); ?>"<?php echo $sectionStyle !== '' ? ' style="' . k2_h($sectionStyle) . '"' : ''; ?> aria-label="Time travel controls" data-k2-preserve-table-sort="1">
     <div class="k2-amiga-time-travel__bar">

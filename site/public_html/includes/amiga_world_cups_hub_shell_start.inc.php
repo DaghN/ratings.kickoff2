@@ -10,6 +10,8 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/amiga_snapshot_url.php';
+
 $k2AmigaWorldCupsHubView = $k2AmigaWorldCupsHubView ?? 'events';
 $k2AmigaWorldCupsPageTitle = $k2AmigaWorldCupsPageTitle ?? 'World Cups';
 $k2AmigaWorldCupsChapterLede = $k2AmigaWorldCupsChapterLede ?? '';
@@ -50,7 +52,9 @@ if ($k2AmigaWorldCupsEnqueueTableJs) {
 <?php
 $k2AmigaHubTabActive = 'world-cups';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+if (!amiga_snapshot_time_travel_active_from_request()) {
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+}
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_nav.php';
 if ($k2AmigaWorldCupsHubView === 'players') {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_players_nav.php';

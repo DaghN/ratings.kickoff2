@@ -262,6 +262,23 @@ No duplicate cutoff systems; history pilot uses shared context.
 
 ---
 
+## Post phase 1 — atmospheric chrome (Jun 2026)
+
+**Policy intent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) **§5.0** (product intent + locked display rules).
+
+Shipped after phase 1 data lens was green — UX polish, **L0**, no Part B:
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Temporal stamp (DSEG7 LED + kicker) | **Done** | `amiga_time_travel_stamp.php`; above ribbon on all TT surfaces |
+| Hub chapter suppression under `as=` | **Done** | Leaderboards, World Cups, Activity, HoF |
+| Present-mode TT entry tooltip | **Done** | `amiga_time_mode_nav_time_travel_help_text()` |
+| Rating LB Δ column | **Done** | Wing-step delta when `as=`; `amiga_lb_rating_delta_*` |
+
+**Verification:** browser — stamp + ribbon stack on `?as=year:2004`; present mode unchanged; Δ column on rating LB only.
+
+---
+
 ## Phase 2 preview (not this plan)
 
 - **Player profile** — hero, career, honours, top opponents at cutoff (when profile slice ships)

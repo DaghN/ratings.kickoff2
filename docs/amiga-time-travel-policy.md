@@ -154,17 +154,56 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 
 ## 5. Chrome and IA
 
+### 5.0 Chrome — product intent (Jun 2026)
+
+Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link propagation. Browsing still felt like *the same page with different numbers* — correct but not *felt*. The **atmospheric chrome stack** records what we shipped to fix that.
+
+| Layer | Role | Intent |
+|-------|------|--------|
+| **Entry warning** | Present-mode hover on header **Time travel** | Playful side-effects copy (`amiga_time_mode_nav_time_travel_help_text()`) — sets tone *before* the lens activates; honest about outdated stats without blocking exploration |
+| **Temporal stamp** | LED date banner above the ribbon | Persistent **when** cue — “you are here in time” separate from navigation controls; sci-fi terminal mood (mono kicker + DSEG7 segments + blinking `_`) |
+| **Snapshot ribbon** | Year · Month · Event stepper + picker | Functional **how you move** through time — unchanged phase-1 contract (§5.1) |
+| **Hub chapter suppression** | Omit `k2-hub-chapter` on snapshot hub tabs when `as=` active | Stamp + ribbon own the landmark; avoid duplicating “where you are” with present-day section titles |
+| **Rating LB Δ column** | Wing-step Elo change after Elo when `as=` active | Data companion to the stamp — “what moved since the previous step in this mode” |
+
+**What success looks like**
+
+- Time travel reads as a **mode**, not a hidden filter — even on pages the visitor already knows (rating LB, player hero, tournament detail).
+- The stamp answers **when** at a glance; the ribbon answers **how to step**; tables answer **who was on top then**.
+- Present day stays unchanged: no stamp, no ribbon, hub chapters remain.
+
+**Temporal stamp — locked display rules (v1 static)**
+
+| Rule | Detail |
+|------|--------|
+| **Placement** | Top of `k2-page-nav`: below wordmark / header mode toggle, **above** snapshot ribbon — on every Amiga page with active time travel (same surfaces as snapshot chrome; ops/import excluded) |
+| **Kicker** | `››` prompt + wing label: **YEAR END REACHED** · **MONTH END REACHED** · **TEMPORAL LINK ESTABLISHED** (event) |
+| **LED date** | From cutoff `event_date`: year wing → `Y`; month → `MM · Y`; event → `DD · MM · YYYY` |
+| **Typography** | DSEG7 Classic for LED segments only — display exception per [`design-direction.md`](design-direction.md) § Typography |
+| **Motion** | v1 static segments; terminal `_` cursor only (no live clock tick) |
+| **A11y** | `aria-label` plain English: *As of {j F Y}*; decorative kicker/LED `aria-hidden` |
+
+**Rejected in this slice:** event name line under the stamp (redundant with ribbon stepper); animated segment rollover; hub-only stamp scope (stamp must follow the lens everywhere).
+
+**Key files:** `includes/amiga_time_travel_stamp.php` · `includes/amiga_snapshot_chrome.php` (render order) · `stylesheets/theme.css` (`.k2-amiga-tt-stamp`) · `stylesheets/k2-fonts.css` (DSEG7 `@font-face`).
+
 ### 5.1 Time travel chrome
 
 **Header (Amiga only):** segment beside realm switcher — **Present day | Time travel** (`data-k2-carry-scroll` on nav — same scroll lock as hub pills). Present strips `as=` on the current path (carrying stable query params — `id`, table sort). **Time travel** sets default `as=` (first calendar year on hub/LB) or keeps active `as=`; from present-only hub pages targets **rating LB** (T14). From **player wings**, default `as=` = player’s first rated event (T14b). From **`tournament.php`** with catalog `id`, default `as=event:id` (T14c). **Wordmark** and **Amiga 500** realm pill use **News** in present mode; in time travel they return to **rating LB** with the active `as=` (realm home without exiting the lens). In **present** mode only, hover **Time travel** for a `data-k2-help` tooltip (`amiga_time_mode_nav_time_travel_help_text()` — warning copy + side-effects punchline).
 
 **Hub bar (when `as=` active):** **Leaderboards · Activity · Hall of Fame** only (T13b). Present-day order: **News · Leaderboards · Tournaments · Activity · Hall of Fame · Live tournaments** (last). News, Live tournaments, Tournaments, and future Games hub tab are **hidden** under time travel.
 
-**Ribbon (when `as=` active):** compact bar **directly below** the site header (wordmark + Present day | Time travel), at the top of `k2-page-nav` — **above** hub tabs, player hero, and player pills. One row (no wrap): **Year | Month | Event** wing tabs · chevrons + snapshot label · listbox picker. Year/Month wings: label only in stepper. **Event wing:** full layout contract in §5.1.1 (stepper link, picker widths, date formats, linkstar accents on player wings).
+**Ribbon (when `as=` active):** compact bar at the top of `k2-page-nav` — **below the temporal stamp**, **above** hub tabs, player hero, and player pills. One row (no wrap): **Year | Month | Event** wing tabs · chevrons + snapshot label · listbox picker. Year/Month wings: label only in stepper. **Event wing:** full layout contract in §5.1.1 (stepper link, picker widths, date formats, linkstar accents on player wings).
 
 **Table sort carry:** same-path ribbon navigation preserves active `k2_sort` / `k2_dir` (PHP hrefs + picker; JS refreshes ribbon after column sort). Cross-page links (hub tabs, other wings) do not carry sort indices.
 
 When inactive: header segment only; no ribbon below/above nav.
+
+**Hub chapter headers (when `as=` active):** omit `k2-hub-chapter` title + lede on snapshot hub tabs — Leaderboards (`amiga_lb_nav.php`), World Cups hub shell, Activity, Hall of Fame. Present day keeps section intros.
+
+**Temporal stamp (when `as=` active, v1 static):** see §5.0 for product intent. Implementation: shared `.k2-amiga-tt-stamp` in `k2-page-nav`, **below wordmark / above snapshot ribbon** on every Amiga page with active time travel. Render: `amiga_time_travel_stamp_render($ctx)` from `amiga_snapshot_chrome_render_active()`; helper in `includes/amiga_time_travel_stamp.php`.
+
+**Rating LB Δ column (when `as=` active):** Leaderboards → Rating only — extra **Δ** column after Elo; wing-step change vs previous snapshot in the active wing (same rules as [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) §3.5). `amiga_lb_rating_delta_map()` + cell helpers in `amiga_lb_snapshot_lib.php`. Column tooltip: title **Rating change**; body *Change in Elo rating since the previous snapshot in the chosen mode (year, month, or event).* — `k2_lb_amiga_rating_delta_column_help_attrs()`.
 
 #### 5.1.1 Event ribbon layout (shipped Jun 2026)
 
@@ -249,6 +288,7 @@ Implementation: `includes/amiga_hub_nav_lib.php` · `amiga_snapshot_redirect_pre
 | `includes/amiga_snapshot_url.php` (or helpers on context) | `amiga_url_with_context($path, $query)` |
 | `includes/amiga_snapshot_chrome.php` | Ribbon HTML; Event wing layout vars; stepper tournament link |
 | `includes/amiga_time_mode_nav.php` | Header Present day \| Time travel; entry defaults T14 / T14b / T14c |
+| `includes/amiga_time_travel_stamp.php` | Hub temporal stamp (LED date + kicker) when `as=` active |
 | `includes/amiga_tournament_lib.php` | `amiga_tournament_href()`; `amiga_tournament_snapshot_as_param()` (T14c) |
 | `includes/k2_archive_listbox.php` | Shared listbox; Event picker `triggerShowsMeta` + split rows |
 | Generalized catalog | Extend `amiga_rating_history_lib.php` or thin wrapper — **do not** duplicate cutoff SQL |
@@ -284,6 +324,9 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Event stepper → tournament | Link lands on `tournament.php` with same `as=`; WC redirects keep `as=` |
 | Event wing on tournament.php | Chevrons / picker / `as=event:` change `id` to cutoff tournament (302 when mismatched) |
 | Event picker layout | Catalog-fixed width; closed date right-aligned; open panel = trigger width |
+| Temporal stamp | Visible on hub + player wings + tournament detail with `as=`; kicker matches wing; LED date matches cutoff |
+| Hub chapters under `as=` | Snapshot hub tabs omit `k2-hub-chapter`; present day keeps chapters |
+| Rating LB Δ under `as=` | Column after Elo; wing-step delta; tooltip title **Rating change** |
 | Hub nav under `as=` | Leaderboards · Activity · HoF only; no Tournaments tab (T13b) |
 | Profile with `as` active | Present-day data until wired (T12); target T15 |
 | Exit to present | Drops `as=`; returns to current tables; keeps `id` / sort params |

@@ -73,3 +73,11 @@
   src: url("../fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
 }
 
+@font-face {
+  font-family: "DSEG7 Classic";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/dseg7-classic-regular.woff2") format("woff2");
+}
+

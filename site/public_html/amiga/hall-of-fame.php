@@ -51,8 +51,10 @@ mysqli_close($con);
 ?>
 
 <?php
-$k2HubChapterTitle = 'Hall of Fame';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+if (!$ctx->isActive()) {
+    $k2HubChapterTitle = 'Hall of Fame';
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+}
 
 // Static row labels — keep in sync with amiga_records_render_row calls below (shared col 1 width).
 $k2HofRecordLabels = [

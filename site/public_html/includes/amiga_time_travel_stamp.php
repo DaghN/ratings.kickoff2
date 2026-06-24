@@ -1,0 +1,141 @@
+<?php
+/**
+ * Amiga time travel - temporal stamp in snapshot chrome (v1 static).
+ *
+ * @see docs/amiga-time-travel-policy.md
+ */
+declare(strict_types=1);
+
+require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/amiga_snapshot_url.php';
+require_once __DIR__ . '/amiga_snapshot_context.php';
+
+function amiga_time_travel_stamp_context(): ?AmigaSnapshotContext
+{
+    $existing = $GLOBALS['_amiga_snapshot_context'] ?? null;
+    if ($existing instanceof AmigaSnapshotContext && $existing->isActive()) {
+        return $existing;
+    }
+
+    if (!amiga_snapshot_time_travel_active_from_request()) {
+        return null;
+    }
+
+    if ($existing instanceof AmigaSnapshotContext) {
+        return null;
+    }
+
+    require_once __DIR__ . '/amiga_db.php';
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
+
+    $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+    $ctx = amiga_snapshot_context_from_request($con);
+    mysqli_close($con);
+
+    return $ctx->isActive() ? $ctx : null;
+}
+
+/**
+ * @return list<array{text: string, sep: bool}>
+ */
+function amiga_time_travel_stamp_led_parts(string $eventDateYmd, string $wing): array
+{
+    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $eventDateYmd);
+    if (!$date instanceof DateTimeImmutable) {
+        return [['text' => $eventDateYmd, 'sep' => false]];
+    }
+
+    if ($wing === 'year') {
+        return [['text' => $date->format('Y'), 'sep' => false]];
+    }
+
+    if ($wing === 'month') {
+        return [
+            ['text' => $date->format('m'), 'sep' => false],
+            ['text' => "\xC2\xB7", 'sep' => true],
+            ['text' => $date->format('Y'), 'sep' => false],
+        ];
+    }
+
+    return [
+        ['text' => $date->format('d'), 'sep' => false],
+        ['text' => "\xC2\xB7", 'sep' => true],
+        ['text' => $date->format('m'), 'sep' => false],
+        ['text' => "\xC2\xB7", 'sep' => true],
+        ['text' => $date->format('Y'), 'sep' => false],
+    ];
+}
+
+function amiga_time_travel_stamp_kicker(string $wing): string
+{
+    return match ($wing) {
+        'month' => 'MONTH END REACHED',
+        'year' => 'YEAR END REACHED',
+        default => 'TEMPORAL LINK ESTABLISHED',
+    };
+}
+
+function amiga_time_travel_stamp_a11y_label(string $eventDateYmd): string
+{
+    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $eventDateYmd);
+    if (!$date instanceof DateTimeImmutable) {
+        return 'As of ' . $eventDateYmd;
+    }
+
+    return 'As of ' . $date->format('j F Y');
+}
+
+/**
+ * @return array{
+ *   wing: string,
+ *   kicker: string,
+ *   led: list<array{text: string, sep: bool}>,
+ *   a11y: string
+ * }|null
+ */
+function amiga_time_travel_stamp_view(?AmigaSnapshotContext $ctx = null): ?array
+{
+    $ctx ??= amiga_time_travel_stamp_context();
+    if ($ctx === null) {
+        return null;
+    }
+
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null || ($cutoff['event_date'] ?? '') === '') {
+        return null;
+    }
+
+    $wing = $ctx->wing();
+    $eventDate = (string) $cutoff['event_date'];
+
+    return [
+        'wing' => $wing,
+        'kicker' => amiga_time_travel_stamp_kicker($wing),
+        'led' => amiga_time_travel_stamp_led_parts($eventDate, $wing),
+        'a11y' => amiga_time_travel_stamp_a11y_label($eventDate),
+    ];
+}
+
+function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
+{
+    $view = amiga_time_travel_stamp_view($ctx);
+    if ($view === null) {
+        return;
+    }
+
+    $wingClass = ' k2-amiga-tt-stamp--' . preg_replace('/[^a-z0-9-]/', '', $view['wing']);
+    ?>
+<aside class="k2-amiga-tt-stamp<?php echo k2_h($wingClass); ?>" aria-label="<?php echo k2_h($view['a11y']); ?>">
+	<p class="k2-amiga-tt-stamp__kicker" aria-hidden="true"><span class="k2-amiga-tt-stamp__prompt">&rsaquo;&rsaquo;</span> <?php echo k2_h($view['kicker']); ?></p>
+	<p class="k2-amiga-tt-stamp__clock" aria-hidden="true"><?php
+    foreach ($view['led'] as $part) {
+        if ($part['sep']) {
+            echo '<span class="k2-amiga-tt-stamp__sep">' . k2_h($part['text']) . '</span>';
+        } else {
+            echo '<span class="k2-amiga-tt-stamp__segment">' . k2_h($part['text']) . '</span>';
+        }
+    }
+    ?><span class="k2-amiga-tt-stamp__cursor">_</span></p>
+</aside>
+    <?php
+}

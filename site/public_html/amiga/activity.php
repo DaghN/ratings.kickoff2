@@ -11,11 +11,16 @@
 <?php
 $k2AmigaHubTabActive = 'activity';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
-?>
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_url.php';
+if (!amiga_snapshot_time_travel_active_from_request()) {
+?>
 <header class="k2-hub-chapter">
   <h1 class="k2-hub-chapter__title">Activity</h1>
 </header>
+<?php
+}
+?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_activity_summary.php'; ?>
 

@@ -189,7 +189,8 @@ Do not add one-off hex in page CSS when a token exists.
 | Numbers | tabular numbers or IBM Plex Mono where useful |
 | Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial (self-hosted; preloaded in `k2_fonts_head.php`) |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
-| Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, **primary** — editorial “you are here” landmark above wing tabs; accent/glow reserved for wordmark, league/H2H destinations, semantic data; pairs with muted `__lede` |
+| Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, **primary** — editorial “you are here” landmark above wing tabs; accent/glow reserved for wordmark, league/H2H destinations, semantic data; pairs with muted `__lede`. **Amiga time travel:** snapshot hub tabs **omit** chapter block when `as=` active — temporal stamp + ribbon replace it ([`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0). |
+| Amiga time-travel LED stamp | **DSEG7 Classic** (`fonts/dseg7-classic-regular.woff2`) — **display-only** on `.k2-amiga-tt-stamp__segment`; never for body/table/chart text. Mono kicker uses IBM Plex Mono. Policy + intent: [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0. |
 | Text selection (drag highlight) | `::selection` on `body.k2-site` � `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
 
 Never use pixel/bitmap fonts for readable data.
@@ -224,7 +225,7 @@ Imagery:
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 - **In-page scrollbars** (`.k2-table-wrap`, archive listbox panels, heatmaps, bracket rails, etc.): thin muted thumb via `--k2-scrollbar-*` tokens in `theme.css` — not OS default gray, not tint accent. Page-level vertical scroll stays native unless we extend tokens to `html` later.
-- **Wide games tables** (`data-k2-scroll-mirror` on `.k2-table-wrap`, `k2-table-scroll-mirror.js`): top horizontal mirror bar synced to the wrap — shown only when the table overflows; bottom native bar remains for users deep in a long list. Shipped on player games (online + Amiga) and hub `games/recent.php` + `games/highlights.php`.
+- **Amiga time travel chrome (when `as=` active):** header **Present day | Time travel** → **temporal stamp** (LED date + kicker) → **snapshot ribbon** (Year · Month · Event) → hub/player content. Present mode: no stamp/ribbon; hub chapters stay. Intent + locked rules: [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0.
 
 **Surface rhythm (mixed containment):** Not every data block needs the same bordered panel. Use **open page background** when the visual is the content (profile heatmaps: played days/weeks on `--k2-bg-hover` cells). Use **chart panels** (`k2-chart-panel`, `k2-chart-frame`) when Chart.js, toggles, and fixed frames need a reading device � Activity and profile charts share this. Use **light tiles/mosaics** for small stat or story clusters. Alternating open and contained blocks creates scroll rhythm; uniform panel stacks feel generic. Profile contract: [`player-profile-feast.md`](player-profile-feast.md) � Surface rhythm. Do not panel everything for �consistency� unless the module type warrants it.
 

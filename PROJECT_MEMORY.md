@@ -119,6 +119,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Amiga TT atmospheric chrome — docs** — policy §5.0 product intent (stamp + ribbon stack, chapter suppression, Δ column); design-direction + hub-ia cross-links. |
+| 2026-06-24 | **Amiga TT tooltip polish** — side-effects order: lost bragging rights before missing holy shields (plain text; linkstar on WARNING! reverted — colour clash). |
+| 2026-06-24 | **Amiga TT hub chapters** — hide `k2-hub-chapter` title/lede on Leaderboards, World Cups, Activity, HoF when `as=` active; present day unchanged. |
 | 2026-06-24 | **WC country Opponents column order** — Countries faced + Countries beaten moved after CS victims (parity with player Opponents wing). |
 | 2026-06-24 | **WC hub wing 1 events table** — `/amiga/world-cups/` sortable catalog (tournaments-index cols minus Format; gold/silver/bronze medal headers + flag+name podium cells from `amiga_world_cup_stats`). |
 | 2026-06-24 | **Amiga Opponents Elo + Country** — W/D/L, Goals, DDs ledger tables: opponent Elo + flag before Games; read path joins `amiga_player_current` / event snapshot rating + `p.country`. |
@@ -126,6 +129,7 @@
 | 2026-06-24 | **WC country stats sub-nav** — `k2-amiga-world-cups-countries-tabs` added to existing WC wing-tab CSS selectors (parity with players/stats). |
 | 2026-06-24 | **WC tournament stats host flag** — Country (host nation) column after Year on all five wing-2 tables; `host_country` + `k2_amiga_country_table_cell_or_dash()`. |
 | 2026-06-24 | **Amiga LB Country column (Goals→Perf.)** — centered Country (flag) after Elo on Goals, DDs, Victims, Peak, Performance wings; `k2_lb_th_country()` / `k2_lb_td_country_open()`; perf rating SQL adds `pl.country`. |
+| 2026-06-24 | **Rating LB Δ tooltip** — title `Rating change` + body naming chosen mode (year/month/event); `k2_lb_amiga_rating_delta_column_help_attrs()` (replaces wing jargon). |
 | 2026-06-24 | **Career Elo column unify** — header `Elo` (centered th), tooltip title `Elo rating` via `k2_lb_th_elo` + `k2_lb_elo_column_help_attrs()` across hub LBs, WC players, status board; event/game/Perf. cols unchanged. |
 | 2026-06-24 | **Amiga country flags rollout** — centered flags on LB Rating, Calendar-geo, Tournament honours + tournament catalog (`amiga_tournament_index_render_table`); `k2_amiga_country_table_cell_or_dash()` for empty host. |
 | 2026-06-24 | **WC player stats country flags** — Country col on five player LB tables: centered flags via `k2_amiga_country_table_cell()` (+ shared helper in `k2_amiga_country_flag.php`); `data-k2-sort-value` for text sort. |
@@ -138,6 +142,8 @@
 | 2026-06-24 | **Amiga time mode carry-scroll** — header **Present day | Time travel** + ribbon Year/Month/Event wings: `data-k2-carry-scroll` on nav; `k2-realm-switch__btn` in `k2-carry-scroll.js` pill selector. |
 | 2026-06-24 | **WC player LB default sort** — per-wing SQL `ORDER BY` via `amiga_lb_wc_slice_order_sql()` + `amiga_wc_lb_rows_for_view()` (fixes skip-initial-sort header/body mismatch on Results/Goals/DDs/Opponents). |
 | 2026-06-24 | **Amiga time travel tooltip** — present-mode hover help: side-effects list order → lost wins before missing players (`amiga_time_mode_nav_time_travel_help_text()`). |
+| 2026-06-24 | **Amiga rating LB time-travel Δ column** — Rating wing with `?as=`: wing-step Elo delta vs previous snapshot (Δ after Elo; blue + / red − / dash for 0). |
+| 2026-06-24 | **Amiga time travel tooltip copy** — side-effects punchline expanded: lost bragging rights, acute nostalgia, rematch-everyone-from-2003 (`amiga_time_mode_nav_time_travel_help_text()`). |
 | 2026-06-24 | **K2 hub LB `$lbSort` fix** — Amiga 8 LB wings + online Activity 3 wings: missing `k2_lb_table_sort_state()` after SSR migration (`scripts/fix_lb_sort_state.py`). |
 | 2026-06-24 | **K2 table follow-ups** — hub LB wings Tier B→A (`k2_lb_th`/`k2_lb_td` SSR on 18 pages + WC players + league honours); Amiga `tournament.php` standings + games → `amiga_tournament_lib` render helpers; `audit_k2_table_compliance.py` PASS (0 Tier C); `amiga-profile-v0` + `amiga-player-universe-contract` k2-table notes. |
 | 2026-06-24 | **K2 table compliance** — `scripts/audit_k2_table_compliance.py` + `.cursor/rules/k2-table-php.mdc`; games hub shell `$k2RankedCloak`; plan doc audit + backlog section. |

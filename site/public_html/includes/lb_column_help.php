@@ -526,6 +526,23 @@ function k2_lb_help_amiga_wc_country_losses(): string
     return 'Losses by nationals in World Cup games (summed across all players from this country).';
 }
 
+function k2_lb_amiga_rating_delta_tooltip_label(): string
+{
+    return 'Rating change';
+}
+
+function k2_lb_help_amiga_rating_delta(): string
+{
+    return 'Change in Elo rating since the previous snapshot in the chosen mode (year, month, or event).';
+}
+
+/** data-k2-tooltip-label + data-k2-help for time-travel Δ column (header text: Δ). */
+function k2_lb_amiga_rating_delta_column_help_attrs(): string
+{
+    return ' data-k2-tooltip-label="' . htmlspecialchars(k2_lb_amiga_rating_delta_tooltip_label(), ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-k2-help="' . htmlspecialchars(k2_lb_help_amiga_rating_delta(), ENT_QUOTES, 'UTF-8') . '"';
+}
+
 function k2_lb_help_amiga_wc_country_points(): string
 {
     return 'Match points from national World Cup games - 3 for a win, 1 for a draw, 0 for a loss.';
