@@ -73,6 +73,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero_vars.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_wing_hub_nav.inc.php';
+
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_hero.php'; ?>

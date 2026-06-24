@@ -120,6 +120,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Player wing hub bar** -- realm hub nav on all online + Amiga player pages (`player_wing_hub_nav.inc.php` / `amiga_player_wing_hub_nav.inc.php`); tint picker moved off player nav to hub bar; hero anchor landing = later slice. |
 | 2026-06-24 | **Amiga segment sub-navs** -- LB wing (`.k2-amiga-lb-tabs`), WC hub tabs, tournaments index filter (new `amiga_tournament_index_nav.php`); online LB stays full-width for filters. |
 | 2026-06-24 | **UTF-16 sweep** -- converted nav docs + `amiga_tt_stamp_html_probe.php` to UTF-8; repo scan clean (no UTF-16); 5 UTF-8-BOM files left (harmless). Rule: `.cursor/rules/utf8-windows.mdc`. |
 | 2026-06-24 | **K2 nav agent checklist** -- `docs/k2-nav-implementation-checklist.md`; wired into AGENTS.md + kool-workspace (page chrome nav tasks). |

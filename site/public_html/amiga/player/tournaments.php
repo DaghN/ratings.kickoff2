@@ -70,6 +70,8 @@ amiga_player_publish_hero_context($pm);
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_wing_hub_nav.inc.php'; ?>
+
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
 <?php

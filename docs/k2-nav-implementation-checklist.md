@@ -25,6 +25,8 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 | Amiga WC hub wing | `includes/amiga_world_cups_hub_nav.php` | `amiga/world-cups/` shell | `.k2-amiga-world-cups-hub-tabs` |
 | Amiga WC inner tabs | `amiga_world_cups_players_nav.php`, `_countries_nav.php`, `_stats_nav.php` | WC players/countries/stats views | Stacked `.k2-chrome-tabs` siblings |
 | Player profile nav | `includes/player_nav.php` | `player/*.php` with `body.k2-player-wing` | `.k2-player-nav-bar` |
+| Player wing hub bar | `includes/player_wing_hub_nav.inc.php` | Online player shells after `site_header.php` | `.k2-hub-bar` (no active tab); tint on hub only |
+| Amiga player wing hub bar | `includes/amiga_player_wing_hub_nav.inc.php` | Amiga player shells after `site_header.php` | Same; TT ribbon still from `site_header` above hub |
 | Player opponents sub-nav | `includes/player_opponents_nav.php` | `includes/player_opponents_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-opponents` |
 | Player milestones sub-nav | `includes/player_milestones_nav.php` | `includes/player_milestones_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-milestones` |
 | Amiga player nav | `includes/amiga_player_nav.php` | Amiga player pages | Reuse `.k2-player-nav-bar` grammar |

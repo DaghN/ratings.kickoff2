@@ -191,6 +191,8 @@ $games = amiga_games_query_all(
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_wing_hub_nav.inc.php'; ?>
+
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
 <?php

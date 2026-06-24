@@ -391,6 +391,8 @@ function individual3_sort_header(string $key, string $label, string $align, arra
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/includes/site_header.php"; ?>
 
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_wing_hub_nav.inc.php'; ?>
+
 <?php 
 include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);

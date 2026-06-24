@@ -2,7 +2,7 @@
 /**
  * Player feast pills — Profile · Opponents · Milestones · Games
  * Set $k2PlayerTabActive and $id before include.
- * Tint picker on the right (parity with hub_nav.php).
+ * Tint picker: hub bar via player_wing_hub_nav.inc.php (not here).
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_opponents_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_lib.php';
@@ -23,9 +23,5 @@ $k2PlayerTabs = [
 			<a href="<?php echo $tab['href']; ?>" class="k2-player-nav__btn<?php echo $k2PlayerTabActive === $tabId ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
 <?php } ?>
 		</div>
-		<div class="k2-player-nav__tune k2-nav-tune">
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_tint_picker.php'; ?>
-		</div>
 	</nav>
 </div>
-<script type="text/javascript" src="/js/k2-tint-toggle.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-tint-toggle.js'); ?>" defer="defer"></script>

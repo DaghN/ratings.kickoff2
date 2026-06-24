@@ -42,6 +42,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.ph
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_wing_hub_nav.inc.php';
+
 try {
     $pm = player_feast_load_pm($con, $id);
 } catch (RuntimeException $e) {
