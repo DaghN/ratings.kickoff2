@@ -320,18 +320,18 @@ function k2_realm_games_all_active_search_input_class(string $baseClass, bool $a
  * } $state
  * @param list<array{id: int, name: string, rating: int}> $players
  * @param list<array{opponent_id: int, opponent_name: string, games: int}> $opponentRows
- * @param list<array{value: int, games: int}> $gdRows
- * @param list<array{value: int, games: int}> $sumRows
- * @param list<array{value: int, games: int}> $tsRows
+ * @param array{
+ *     gd: list<array{value: string, label: string, meta: string}>,
+ *     gs: list<array{value: string, label: string, meta: string}>,
+ *     ts: list<array{value: string, label: string, meta: string}>
+ * } $scoreLineChoices
  * @param list<int> $years
  */
 function k2_realm_games_all_render_filters(
 	array $state,
 	array $players,
 	array $opponentRows,
-	array $gdRows,
-	array $sumRows,
-	array $tsRows,
+	array $scoreLineChoices,
 	array $years
 ): void {
 	$playerId = $state['player'];
@@ -349,10 +349,7 @@ function k2_realm_games_all_render_filters(
 
 	$filterBase = k2_realm_games_all_build_url(k2_realm_games_all_query_params($state, false));
 	$opponentRowHidden = $playerId <= 0;
-	$yearModeFieldClass = 'k2-player-games-controls__field';
-	if ($state['year'] <= 0) {
-		$yearModeFieldClass .= ' k2-realm-games-filters__year-mode--idle';
-	}
+	$yearModeFieldHidden = $state['year'] <= 0;
 	$searchUid = 'k2-realm-games-player-search';
 	$opponentSearchUid = 'k2-realm-games-opponent-search';
 	$playerSearchInputClass = k2_realm_games_all_active_search_input_class(
@@ -512,7 +509,7 @@ function k2_realm_games_all_render_filters(
 					'gd',
 					'k2-realm-games-gd',
 					(string) $state['gd'],
-					k2_realm_games_all_gd_choices($gdRows),
+					$scoreLineChoices['gd'],
 					'Filter by goal difference',
 					'',
 					'',
@@ -526,7 +523,7 @@ function k2_realm_games_all_render_filters(
 					'gs',
 					'k2-realm-games-gs',
 					(string) $state['gs'],
-					k2_realm_games_all_score_choices($sumRows),
+					$scoreLineChoices['gs'],
 					'Filter by goal sum',
 					'',
 					'',
@@ -540,7 +537,7 @@ function k2_realm_games_all_render_filters(
 					'ts',
 					'k2-realm-games-ts',
 					(string) $state['ts'],
-					k2_realm_games_all_score_choices($tsRows),
+					$scoreLineChoices['ts'],
 					'Filter by top score',
 					'',
 					'',
@@ -568,19 +565,19 @@ function k2_realm_games_all_render_filters(
 					'0'
 				); ?>
 			</div>
-			<div class="<?php echo k2_realm_games_all_h($yearModeFieldClass); ?>">
+			<div class="k2-player-games-controls__field"<?php echo $yearModeFieldHidden ? ' hidden' : ''; ?>>
 				<span class="player-search-label">Mode</span>
 				<?php k2_archive_listbox_render(
-					'year_mode',
+					$yearModeFieldHidden ? '' : 'year_mode',
 					'k2-realm-games-year-mode',
 					$state['year_mode'],
 					k2_realm_games_all_year_mode_choices(),
 					'Year filter mode',
-					$state['year'] <= 0 ? 'is-disabled' : '',
+					'',
 					'',
 					false,
 					null,
-					$state['year'] > 0
+					true
 				); ?>
 			</div>
 		</div>

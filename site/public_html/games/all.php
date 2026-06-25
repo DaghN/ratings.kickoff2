@@ -2,6 +2,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_realm_games_all.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_realm_games_all_filters_ui.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_realm_games_filter_facets.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 
@@ -19,9 +20,8 @@ k2_realm_games_all_sanitize_filters($con, $state);
 
 $realmPlayers = k2_realm_games_all_fetch_players($con);
 $opponentRows = $state['player'] > 0 ? k2_realm_games_all_opponent_rows($con, $state['player']) : [];
-$gdRows = k2_realm_games_all_fetch_score_values($con, 'GoalDifference');
-$sumRows = k2_realm_games_all_fetch_score_values($con, 'SumOfGoals');
-$tsRows = k2_realm_games_all_fetch_score_values($con, 'GREATEST(GoalsA, GoalsB)');
+$scoreLineFacets = k2_realm_games_load_score_line_filter_facets($con, $state);
+$scoreLineChoices = k2_realm_games_score_line_facet_choices($scoreLineFacets, $state);
 $yearRows = k2_realm_games_all_fetch_years($con);
 
 $totalMatches = k2_realm_games_all_count($con, $state);
@@ -48,7 +48,7 @@ $sortedColIndex = k2_rated_game_sort_col_index($state['sort']);
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 ?>
 	<div class="k2-realm-games-all">
-		<?php k2_realm_games_all_render_filters($state, $realmPlayers, $opponentRows, $gdRows, $sumRows, $tsRows, $yearRows); ?>
+		<?php k2_realm_games_all_render_filters($state, $realmPlayers, $opponentRows, $scoreLineChoices, $yearRows); ?>
 		<div class="k2-player-games-status k2-realm-games-all__status" data-k2-carry-scroll>
 			<div class="k2-realm-games-all__status-range">
 				<span class="k2-realm-games-all__status-text">

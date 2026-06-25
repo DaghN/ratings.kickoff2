@@ -874,6 +874,35 @@
 		}
 	}
 
+	function revealRemainingPendingTables() {
+		var pending = document.querySelectorAll
+			? document.querySelectorAll('table.ranked-pages-table.' + PENDING_CLASS)
+			: [];
+		var i;
+
+		for (i = 0; i < pending.length; i++) {
+			removeClass(pending[i], PENDING_CLASS);
+		}
+	}
+
+	/** Server-sorted ranked tables: reveal after anchor/tooltip init (and scroll mirror when present). */
+	function scheduleServerRankedTableReveal() {
+		function revealWhenReady() {
+			if (document.fonts && document.fonts.ready) {
+				document.fonts.ready.then(revealRemainingPendingTables).catch(revealRemainingPendingTables);
+				return;
+			}
+			revealRemainingPendingTables();
+		}
+
+		if (document.querySelector('.k2-table-wrap[data-k2-scroll-mirror]')) {
+			window.k2TableRevealPendingRankedTables = revealWhenReady;
+			return;
+		}
+
+		revealWhenReady();
+	}
+
 	function init() {
 		var tables = document.querySelectorAll ? document.querySelectorAll(TABLE_SELECTOR) : [];
 		var helpHeaders = document.querySelectorAll ? document.querySelectorAll(HELP_HEADER_SELECTOR) : [];
@@ -893,6 +922,8 @@
 			window.addEventListener('resize', repositionTooltip);
 			window.addEventListener('scroll', repositionTooltip, true);
 		}
+
+		scheduleServerRankedTableReveal();
 	}
 
 	window.k2TableApplyAnchors = function (root) {

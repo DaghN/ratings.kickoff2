@@ -120,6 +120,18 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Amiga player Games filter layout** — natural wrap (10px gap), no equal-width grid columns. |
+| 2026-06-25 | **Amiga player Games scope segment** — All games / World Cup in `k2-chrome-tabs` bar (filter URLs, segment chrome). |
+| 2026-06-25 | **Amiga player Games filters chrome** — drop bordered `k2-player-tournament-filters` panel; scope + listboxes inline like online. |
+| 2026-06-25 | **Amiga player Games listbox UX** — port online idle/link-star/ghost-width/panel=trigger; opponent+tournament meta counts in panel. |
+| 2026-06-25 | **Amiga player Games table flash** — `ranked-table-pending` + reveal after scroll mirror / fonts (`k2-table.js` server-sort hook); ID anchor SSR. |
+| 2026-06-25 | **Amiga player Games scope pills** — drop Event row label; pills **All games** / **World Cup**. |
+| 2026-06-25 | **Games All listbox panel width** — ghost-sized pickers shrink-wrap trigger; panels match trigger (not field/18rem); flex `align-self: flex-start`. |
+| 2026-06-25 | **Games All faceted score-line counts** — GD / Sum / TS listbox meta reflects other active filters; absolute GD; shared `k2_games_filter_facet_helpers.php`. |
+| 2026-06-25 | **Games All year mode reset** — hide Mode field with `!important` (flex overrode `[hidden]`); ignore/clear `year_mode` when year unset; omit from form when hidden. |
+| 2026-06-25 | **Games All year mode** — Mode field hidden until year set; listbox toggle-close keeps link-star accent (blur + CSS). |
+| 2026-06-25 | **Player Games faceted counts fix** — do not clear filters on empty intersection (Draw + SUM 7 → 0 rows); career-wide validation only. |
+| 2026-06-25 | **Player Games faceted filter counts** — listbox `meta` counts reflect other active filters; numeric gaps kept between extremes; `k2_player_games_filter_facets.php`. |
 | 2026-06-25 | **Player Games goal filters** — filter row labels GF / GA / GD / SUM; new hero-signed **GD** listbox (`gd` param, `+N`/`−N`/`0` labels); shared WHERE in `k2_ratedresults_games_filters.php`. |
 | 2026-06-25 | **Adjustment tooltip copy** — drop “now” from Elo rating-change help on game + games list pages (online + Amiga). |
 | 2026-06-25 | **Amiga rating LB Δ header** — flat-top Δ on `th.k2-table-col-delta` (12px/500). |

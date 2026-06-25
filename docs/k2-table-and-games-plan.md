@@ -107,6 +107,7 @@ Do not fork Games-tab row markup unless the shared renderer is updated too.
 - Result filter: All / Win / Draw / Loss.
 - Opponent filter: All / opponent list for this player.
 - Goal filters: **GF** / **GA** / **GD** / **SUM** listboxes (`gf`, `ga`, `gd`, `gs`); GF/GA/SUM idle `-1`; **GD** is hero-signed (`GoalsA−GoalsB` or reverse) with `+N` / `−N` / `0` labels and empty-string idle (so `gd=0` is valid).
+- **Faceted counts:** each listbox `meta` count reflects all *other* active filters (that dimension omitted). Numeric facets fill interior zero gaps between min/max values with games; tail zeros omitted. Filters are only cleared when a value never appears in the player's career — empty intersections (e.g. Draw + SUM 7) stay selected and return 0 rows. Implementation: `includes/k2_player_games_filter_facets.php`.
 - Sort state in `sort` + `dir` query params; default **`id` desc** (newest games first; avoids highlighting Date on first paint).
 - Filter listboxes: `$idleValue` on `k2_archive_listbox_render()` (`all` / `0` / `-1` / `''` per filter); empty idle labels in choice arrays.
 - 500-row slices with chevron page nav when more rows exist (plain Games tab; drill-down only when total > 500).
@@ -126,11 +127,11 @@ Product requirement: keep Result and Opponent narrowing; normal URL flow is the 
 - **Filter UI (four rows):**
   - **Player** — search (`player-search.js` filter mode) + **Rating** listbox (name, rating meta; sort name → rating) + **A–Z** listbox; realm `playertable` (`Display = 1`).
   - **Opponent** — hidden until `player` set; search (`player_h2h_opponent_search` API) + **By games** + **A–Z** listboxes (H2H opponent set).
-  - **Score-line** — `gd`, `gs`, `ts` listboxes (realm-wide distinct values + game counts).
+  - **Score-line** — `gd`, `gs`, `ts` listboxes (realm-wide distinct values + game counts). **Faceted counts (Jun 2026):** each listbox `meta` reflects other active filters (player, opponent, year, sibling score-line filters); absolute `GoalDifference` for GD; interior zero gaps kept. `k2_realm_games_filter_facets.php`.
   - **Year** — `year` + `year_mode` (`in` \| `since` \| `until`).
 - **URL params:** `player`, `opponent`, `gd`, `gs`, `ts`, `year`, `year_mode`, `sort`, `dir`, `offset`.
 - **JS:** `k2-realm-games-filters.js` + `k2-archive-listbox.js`; form `data-k2-carry-scroll`.
-- **Filter listbox contract (Jun 2026):** `k2_archive_listbox_render(..., $idleValue)` — empty trigger at idle, link-star when active; JS reads `data-k2-listbox-idle-value`. Year mode uses `$accentActive` when year is set (coupled picker).
+- **Filter listbox contract (Jun 2026):** `k2_archive_listbox_render(..., $idleValue)` — empty trigger at idle, link-star when active; JS reads `data-k2-listbox-idle-value`. **Year mode** row hidden until year chosen (`hidden`, like Opponent row); when visible, `$accentActive` (always accented).
 - Sort/pager links preserve active filter params; filter change drops `offset`.
 - **Active sort column:** PHP `k2-table-col-sorted` via `k2_rated_game_sort_col_index()`.
 
@@ -158,7 +159,9 @@ Do not grow this into a generic table framework unless a real repeated need appe
 
 **PHP helpers (`k2_table_helpers.php`):** `k2_table_ranked_sortable_class()` — sortable bundle (`ranked-pages-table`, cloak, calm-stats, auto column widths). `k2_table_ranked_leaderboard_class()` — adds **`k2-table--hub-rank-player-cols`** (Rank col 1 = 2.7em, Player col 2 min 9.1em) for hub LB wings only. Status league tables, games hub, tournament stats, opponents, etc. use the sortable helper without hub cols.
 
-**Scroll mirror (overflow top bar):** `js/k2-table-scroll-mirror.js` activates only when a wrapped table’s `scrollWidth > clientWidth`. Head: `includes/k2_sortable_table_assets_head.inc.php` (mirror on by default; `$k2SortableTableScrollMirror = false` to opt out). Online hub LBs: `includes/k2_lb_sortable_table_head.inc.php`. Markup: `k2_table_wrap_open(true)` / `k2_table_wrap_close()`. Wide tables (hub LBs both realms, games hub Recent/All, league period games, player games, **player Opponents W/D/L · Goals · DDs**, **Amiga player tournament history**, **Amiga tournament catalog index**, **Amiga live tournaments index**, Amiga WC stats/players, tournament event-stats) use mirror; compact/narrow tables (status league, highlights) do not.
+**Scroll mirror (overflow top bar):** `js/k2-table-scroll-mirror.js` activates only when a wrapped table’s `scrollWidth > clientWidth`. Head: `includes/k2_sortable_table_assets_head.inc.php` (mirror on by default; `$k2SortableTableScrollMirror = false` to opt out). Online hub LBs: `includes/k2_lb_sortable_table_head.inc.php`. Markup: `k2_table_wrap_open(true)` / `k2_table_wrap_close()`. Wide tables (hub LBs both realms, games hub Recent/All, league period games, player games, **player Opponents W/D/L · Goals · DDs**, **Amiga player tournament history**, **Amiga player Games**, **Amiga tournament catalog index**, **Amiga live tournaments index**, Amiga WC stats/players, tournament event-stats) use mirror; compact/narrow tables (status league, highlights) do not.
+
+**Server-sorted game tables** (`player/games.php`, `games/all.php`, **`amiga/player/games.php`**): `$k2RankedCloak` + `k2_table_ranked_sortable_class(...)` with **`ranked-table-pending`** (default); no `data-k2-table="sortable"`. `k2-table.js` reveals remaining pending tables after anchor/tooltip init; when a scroll mirror wrap is present, reveal runs after mirror init (+ `document.fonts.ready` when available) so column widths and mirror chrome settle before first paint.
 
 **Player Opponents ledger (W/D/L · Goals · DDs):** Both realms — `$k2RankedCloak` + sortable assets on ledger views only (H2H unchanged); `player_opponents_table_sort_state()` / Amiga twin; anchor col 1 (Games drill-down); `k2-table--player-matchup` on all three tables.
 

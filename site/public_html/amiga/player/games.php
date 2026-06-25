@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Amiga player games</title>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 <script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
@@ -26,6 +26,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_performance_rating.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 
 include __DIR__ . '/../../../config/ko2amiga_config.php';
@@ -218,34 +219,37 @@ $gamesUrlState = $sortState;
 $sortedColIndex = amiga_player_game_sort_col_index($sortKey);
 
 $resultChoices = [
-    ['value' => 'all', 'label' => 'All results'],
-    ['value' => 'win', 'label' => 'Win'],
-    ['value' => 'draw', 'label' => 'Draw'],
-    ['value' => 'loss', 'label' => 'Loss'],
+    ['value' => 'all', 'label' => '', 'meta' => ''],
+    ['value' => 'win', 'label' => 'Win', 'meta' => ''],
+    ['value' => 'draw', 'label' => 'Draw', 'meta' => ''],
+    ['value' => 'loss', 'label' => 'Loss', 'meta' => ''],
 ];
-$opponentChoices = [['value' => '0', 'label' => 'All opponents']];
+$opponentChoices = [['value' => '0', 'label' => '', 'meta' => '']];
 foreach ($opponentRows as $opponentRow) {
     $opponentChoices[] = [
         'value' => (string) (int) $opponentRow['opponent_id'],
-        'label' => (string) $opponentRow['opponent_name'] . ' (' . (int) $opponentRow['games'] . ')',
+        'label' => (string) $opponentRow['opponent_name'],
+        'meta' => (string) (int) $opponentRow['games'],
     ];
 }
-$tournamentChoices = [['value' => '0', 'label' => 'All tournaments']];
+$tournamentChoices = [['value' => '0', 'label' => '', 'meta' => '']];
 foreach ($tournamentRows as $tournamentRow) {
     $tournamentChoices[] = [
         'value' => (string) (int) $tournamentRow['tournament_id'],
-        'label' => (string) $tournamentRow['tournament_name'] . ' (' . (int) $tournamentRow['games'] . ')',
+        'label' => (string) $tournamentRow['tournament_name'],
+        'meta' => (string) (int) $tournamentRow['games'],
     ];
 }
-$countryChoices = [['value' => '', 'label' => 'All countries']];
+$countryChoices = [['value' => '', 'label' => '', 'meta' => '']];
 foreach ($countryOptions as $countryName) {
     $countryChoices[] = [
         'value' => $countryName,
         'label' => $countryName,
+        'meta' => '',
     ];
 }
-$sinceChoices = [['value' => '0', 'label' => 'Any time']];
-$yearChoices = [['value' => '0', 'label' => 'All years']];
+$sinceChoices = [['value' => '0', 'label' => '', 'meta' => '']];
+$yearChoices = [['value' => '0', 'label' => '', 'meta' => '']];
 foreach ($yearOptions as $year) {
     $sinceChoices[] = [
         'value' => (string) $year,
@@ -258,12 +262,11 @@ foreach ($yearOptions as $year) {
 }
 ?>
 
-<div class="k2-player-tournament-filters k2-player-games-filters">
-    <div class="k2-player-tournament-filters__row">
-        <span class="server-period-activity-leaderboard__picker-label">Event</span>
-        <nav class="k2-player-tournament-filters__pills" data-k2-carry-scroll aria-label="Filter events">
-            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'all')); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>">All</a>
-            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'world-cup')); ?>" class="k2-player-nav__btn<?php echo $eventFilter === 'world-cup' ? ' is-active' : ''; ?>">World Cups</a>
+<div class="k2-player-games-filters">
+    <div class="k2-chrome-tabs k2-amiga-player-games-scope-tabs">
+        <nav class="k2-chrome-tabs__bar" data-k2-carry-scroll role="tablist" aria-label="Game scope">
+            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'all')); ?>" class="k2-chrome-tabs__tab<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>"<?php echo $eventFilter === 'all' ? ' aria-current="true"' : ''; ?>>All games</a>
+            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'world-cup')); ?>" class="k2-chrome-tabs__tab<?php echo $eventFilter === 'world-cup' ? ' is-active' : ''; ?>"<?php echo $eventFilter === 'world-cup' ? ' aria-current="true"' : ''; ?>>World Cup</a>
         </nav>
     </div>
     <form class="k2-player-games-controls" method="get" action="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games')); ?>" data-k2-carry-scroll>
@@ -281,30 +284,30 @@ foreach ($yearOptions as $year) {
         <div class="k2-player-games-controls__fields">
             <div class="k2-player-games-controls__field">
                 <span class="server-period-activity-leaderboard__picker-label">Result</span>
-                <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result'); ?>
+                <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result', '', '', false, 'all'); ?>
             </div>
             <div class="k2-player-games-controls__field">
                 <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
-                <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent'); ?>
+                <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent', '', '', false, '0'); ?>
             </div>
             <div class="k2-player-games-controls__field">
                 <span class="server-period-activity-leaderboard__picker-label">Tournament</span>
-                <?php k2_archive_listbox_render('tournament', 'k2-player-games-tournament', (string) $tournamentFilter, $tournamentChoices, 'Filter by tournament'); ?>
+                <?php k2_archive_listbox_render('tournament', 'k2-player-games-tournament', (string) $tournamentFilter, $tournamentChoices, 'Filter by tournament', '', '', false, '0'); ?>
             </div>
             <?php if ($countryOptions !== []) { ?>
             <div class="k2-player-games-controls__field">
-                <span class="server-period-activity-leaderboard__picker-label">Country</span>
-                <?php k2_archive_listbox_render('country', 'k2-player-games-country', $countryFilter, $countryChoices, 'Filter by country'); ?>
+                <span class="server-period-activity-leaderboard__picker-label">Host country</span>
+                <?php k2_archive_listbox_render('country', 'k2-player-games-country', $countryFilter, $countryChoices, 'Filter by host country', '', '', false, ''); ?>
             </div>
             <?php } ?>
             <?php if ($yearOptions !== []) { ?>
             <div class="k2-player-games-controls__field">
                 <span class="server-period-activity-leaderboard__picker-label">Year</span>
-                <?php k2_archive_listbox_render('year', 'k2-player-games-year', (string) $yearFilter, $yearChoices, 'Games from this calendar year'); ?>
+                <?php k2_archive_listbox_render('year', 'k2-player-games-year', (string) $yearFilter, $yearChoices, 'Games from this calendar year', '', '', false, '0'); ?>
             </div>
             <div class="k2-player-games-controls__field">
                 <span class="server-period-activity-leaderboard__picker-label">Since</span>
-                <?php k2_archive_listbox_render('since', 'k2-player-games-since', (string) $sinceYearFilter, $sinceChoices, 'Games from this year onward'); ?>
+                <?php k2_archive_listbox_render('since', 'k2-player-games-since', (string) $sinceYearFilter, $sinceChoices, 'Games from this year onward', '', '', false, '0'); ?>
             </div>
             <?php } ?>
             <a class="k2-player-games-reset" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset</a>
@@ -339,7 +342,7 @@ foreach ($yearOptions as $year) {
 
 <?php k2_table_wrap_open(true); ?>
 
-<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--player-games">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--player-games')); ?>" data-k2-anchor-col="0">
 
 <thead>
 <tr>

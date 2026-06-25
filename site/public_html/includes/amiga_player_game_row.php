@@ -49,6 +49,9 @@ function amiga_player_game_date_html(string $date): string
     return k2_h($dt->format('M j Y'));
 }
 
+/** ID column — game link anchor for calm-stats emphasis on first paint. */
+const AMIGA_PLAYER_GAMES_ANCHOR_COL = 0;
+
 /**
  * @param array<string, mixed> $row ratedresults row (+ optional tournament_name)
  */
@@ -119,24 +122,26 @@ function amiga_player_game_row_html(
         $phaseCell = $phase !== '' ? k2_h($phase) : $dash;
     }
 
+    $anchorCol = AMIGA_PLAYER_GAMES_ANCHOR_COL;
+
     return '<tr>'
-        . k2_player_game_td(amiga_rated_game_id_html((int) $game['id']), 0, $sortedColIndex)
-        . k2_player_game_td(amiga_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date')
-        . k2_player_game_td(k2_amiga_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
-        . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)
-        . k2_player_game_td((string) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left')
-        . k2_player_game_td(k2_amiga_player_link($game['idB'], $game['NameB']), 5, $sortedColIndex, 'k2-table-cell--left')
-        . k2_player_game_td($tournamentCell, 6, $sortedColIndex, 'k2-table-cell--left')
-        . k2_player_game_td($phaseCell, 7, $sortedColIndex, 'k2-table-cell--left')
-        . k2_player_game_td($resultCell, 8, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xl')
-        . k2_player_game_td(k2_amiga_player_link($opponentId, $opponentName), 9, $sortedColIndex, 'k2-table-cell--left')
-        . k2_player_game_td((string) $goalsFor, 10, $sortedColIndex)
-        . k2_player_game_td((string) $goalsAgainst, 11, $sortedColIndex)
-        . k2_player_game_td($diffCell, 12, $sortedColIndex)
-        . k2_player_game_td($sumCell, 13, $sortedColIndex)
-        . k2_player_game_td($playerRatingCell, 14, $sortedColIndex)
-        . k2_player_game_td($opponentRatingCell, 15, $sortedColIndex)
-        . k2_player_game_td($esCell, 16, $sortedColIndex)
-        . k2_player_game_td($adjustmentCell, 17, $sortedColIndex)
+        . k2_player_game_td(amiga_rated_game_id_html((int) $game['id']), 0, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td(amiga_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date', $anchorCol)
+        . k2_player_game_td(k2_amiga_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td((string) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
+        . k2_player_game_td(k2_amiga_player_link($game['idB'], $game['NameB']), 5, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
+        . k2_player_game_td($tournamentCell, 6, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
+        . k2_player_game_td($phaseCell, 7, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
+        . k2_player_game_td($resultCell, 8, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xl', $anchorCol)
+        . k2_player_game_td(k2_amiga_player_link($opponentId, $opponentName), 9, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
+        . k2_player_game_td((string) $goalsFor, 10, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td((string) $goalsAgainst, 11, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($diffCell, 12, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($sumCell, 13, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($playerRatingCell, 14, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($opponentRatingCell, 15, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($esCell, 16, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($adjustmentCell, 17, $sortedColIndex, '', $anchorCol)
         . '</tr>';
 }

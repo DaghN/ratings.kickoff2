@@ -130,6 +130,11 @@ function k2_archive_listbox_render(
         }
     }
 
+    if ($idleValue !== null && (string) $selectedValue === (string) $idleValue) {
+        $selectedLabel = '';
+        $selectedMeta = '';
+    }
+
     $listboxId = $inputId . '-listbox';
     $triggerClass = 'k2-archive-listbox__trigger server-period-activity-leaderboard__input';
     if ($triggerExtraClass !== '') {

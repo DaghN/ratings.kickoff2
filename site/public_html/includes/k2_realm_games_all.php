@@ -109,7 +109,9 @@ function k2_realm_games_all_request_state(): array
 	}
 
 	$year = isset($_GET['year']) ? max(0, (int) $_GET['year']) : 0;
-	$yearMode = k2_ratedresults_games_valid_year_mode((string) ($_GET['year_mode'] ?? 'in'));
+	$yearMode = $year > 0
+		? k2_ratedresults_games_valid_year_mode((string) ($_GET['year_mode'] ?? 'in'))
+		: 'in';
 
 	$sortKey = k2_realm_games_all_valid_sort((string) ($_GET['sort'] ?? 'id'));
 	$sortDirection = k2_realm_games_all_valid_direction((string) ($_GET['dir'] ?? 'desc'));
@@ -288,7 +290,11 @@ function k2_realm_games_all_sanitize_filters(mysqli $con, array &$state): void
 		$state['year'] = 0;
 	}
 
-	$state['year_mode'] = k2_ratedresults_games_valid_year_mode($state['year_mode']);
+	if ($state['year'] <= 0) {
+		$state['year_mode'] = 'in';
+	} else {
+		$state['year_mode'] = k2_ratedresults_games_valid_year_mode($state['year_mode']);
+	}
 }
 
 /**

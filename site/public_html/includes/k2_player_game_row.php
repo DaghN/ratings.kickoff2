@@ -137,13 +137,15 @@ function k2_player_game_sort_col_index(string $sortKey): int
     return $map[$sortKey] ?? 0;
 }
 
-function k2_player_game_td(string $content, int $colIndex, int $sortedColIndex, string $extraClass = ''): string
+function k2_player_game_td(string $content, int $colIndex, int $sortedColIndex, string $extraClass = '', int $anchorCol = -1): string
 {
     $classes = [];
     if ($extraClass !== '') {
         $classes[] = $extraClass;
     }
-    if ($colIndex === $sortedColIndex) {
+    if ($anchorCol >= 0 && $colIndex === $anchorCol) {
+        $classes[] = 'k2-table-anchor-cell';
+    } elseif ($colIndex === $sortedColIndex) {
         $classes[] = 'k2-table-col-sorted';
     }
     $classAttr = $classes !== [] ? ' class="' . implode(' ', $classes) . '"' : '';

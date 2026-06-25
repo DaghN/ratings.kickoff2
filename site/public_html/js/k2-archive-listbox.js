@@ -738,7 +738,7 @@
                 e.stopPropagation();
                 var listEl = panel(box);
                 if (listEl && !listEl.hidden) {
-                    close(box, { keepTriggerFocus: true });
+                    close(box);
                 } else {
                     open(box, { focusPanel: false });
                     restoreTriggerFocus(box, false);

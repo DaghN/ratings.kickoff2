@@ -684,6 +684,7 @@ body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-player-games-scope-tabs,
 body.k2-site .k2-chrome-tabs.k2-player-wing-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
@@ -700,6 +701,7 @@ body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-player-games-scope-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-player-wing-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs .k2-chrome-tabs__bar,
@@ -2734,6 +2736,12 @@ body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger.k2-link-star
 	color: var(--k2-link-star-hover);
 }
 
+body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger.k2-link-star:focus:not(:focus-visible),
+body.k2-site .k2-player-games-controls .k2-archive-listbox__trigger.k2-link-star:focus:hover:not(:focus-visible) {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
 body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option--split {
 	display: flex;
 	flex-direction: row;
@@ -2843,12 +2851,18 @@ body.k2-site .k2-player-tournament-filters__pills {
 	background: transparent;
 }
 
-body.k2-site .k2-player-games-filters.k2-player-tournament-filters {
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) {
+	display: flex;
+	flex-direction: column;
 	gap: 6px;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+	margin: 0 0 12px;
 }
 
-body.k2-site .k2-player-games-filters .k2-player-tournament-filters__row {
-	gap: 4px 6px;
+body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-games-scope-tabs {
+	margin-bottom: 0;
 }
 
 body.k2-site .k2-player-games-filters .k2-player-games-controls {
@@ -2856,21 +2870,54 @@ body.k2-site .k2-player-games-filters .k2-player-games-controls {
 	width: 100%;
 }
 
-/* Amiga games tab â€” stacked labels; equal-width filter columns on laptop */
-body.k2-site .k2-player-games-filters .k2-player-games-controls__fields {
-	flex-wrap: nowrap;
-	gap: 6px;
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__fields {
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 10px;
 }
 
-body.k2-site .k2-player-games-filters .k2-player-games-controls__field {
-	flex: 1 1 0;
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__field {
+	flex: 0 0 auto;
+	align-items: flex-start;
 }
 
-body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox {
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-reset {
+	align-self: flex-end;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls .k2-archive-listbox--ghost-sized {
+	display: inline-block;
+	width: auto;
+	max-width: 100%;
+	vertical-align: bottom;
+	align-self: flex-start;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__field > .k2-archive-listbox--ghost-sized {
+	width: auto !important;
+	max-width: 100% !important;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__panel {
+	left: 0;
+	right: auto;
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__trigger.k2-link-star:focus:not(:focus-visible),
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__trigger.k2-link-star:focus:hover:not(:focus-visible) {
+	color: var(--k2-link-star);
+	font-weight: 600;
+}
+
+body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox:not(.k2-archive-listbox--ghost-sized) {
 	max-width: none;
 }
 
-body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox,
+body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox:not(.k2-archive-listbox--ghost-sized),
 body.k2-site .k2-player-games-filters .k2-player-games-controls .k2-archive-listbox__trigger {
 	width: 100% !important;
 	max-width: 100% !important;
@@ -2892,7 +2939,6 @@ body.k2-site .k2-realm-games-filters {
 	--k2-realm-games-score-width: 5.75rem;
 	--k2-realm-games-year-width: 6.5rem;
 	--k2-realm-games-year-mode-width: 7.7rem;
-	--k2-realm-games-panel-max-width: 18rem;
 	margin-bottom: var(--k2-nav-gap);
 }
 
@@ -2909,6 +2955,10 @@ body.k2-site .k2-realm-games-filters__row {
 }
 
 body.k2-site .k2-realm-games-filters__row[hidden] {
+	display: none !important;
+}
+
+body.k2-site .k2-realm-games-filters .k2-player-games-controls__field[hidden] {
 	display: none !important;
 }
 
@@ -3010,50 +3060,46 @@ body.k2-site .k2-realm-games-filters__search-field .player-search-results {
 	margin: 2px 0 0;
 }
 
-body.k2-site .k2-realm-games-filters__year-mode--idle {
-	opacity: 0.22;
-}
-
-body.k2-site .k2-realm-games-filters__year-mode--idle .player-search-label,
-body.k2-site .k2-realm-games-filters__year-mode--idle .k2-archive-listbox__trigger {
-	color: var(--k2-text-muted);
-}
-
-body.k2-site .k2-realm-games-filters__year-mode--idle .k2-archive-listbox__trigger {
-	pointer-events: none;
-}
-
 body.k2-site .k2-realm-games-filters .k2-player-games-controls__fields {
 	flex-wrap: nowrap;
 }
 
-body.k2-site .k2-realm-games-filters .k2-archive-listbox {
+body.k2-site .k2-realm-games-filters .k2-archive-listbox:not(.k2-archive-listbox--ghost-sized) {
 	position: relative;
 	display: block;
-	max-width: none;
 	width: 100%;
+	max-width: 100%;
 }
 
-body.k2-site .k2-realm-games-filters .k2-archive-listbox,
+body.k2-site .k2-realm-games-filters .k2-archive-listbox--ghost-sized {
+	position: relative;
+	display: inline-block;
+	width: auto;
+	max-width: 100%;
+	vertical-align: bottom;
+	align-self: flex-start;
+}
+
+body.k2-site .k2-realm-games-filters .k2-player-games-controls__field > .k2-archive-listbox--ghost-sized {
+	width: auto !important;
+	max-width: 100% !important;
+}
+
 body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger {
 	box-sizing: border-box;
 	width: 100% !important;
 	max-width: 100% !important;
 	min-width: 0 !important;
+	min-height: calc(1.35em + 8px);
 }
 
-body.k2-site .k2-realm-games-filters .k2-archive-listbox--meta-options .k2-archive-listbox__panel,
 body.k2-site .k2-realm-games-filters .k2-archive-listbox__panel {
 	left: 0;
 	right: auto;
 	box-sizing: border-box;
-	min-width: 100%;
-	width: max-content;
-	max-width: min(var(--k2-realm-games-panel-max-width), 92vw);
-}
-
-body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger {
-	min-height: calc(1.35em + 8px);
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
 }
 
 body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star,
@@ -3065,6 +3111,12 @@ body.k2-site .k2-realm-games-filters .player-search-input.k2-link-star {
 body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star:hover,
 body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star:focus-visible {
 	color: var(--k2-link-star-hover);
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star:focus:not(:focus-visible),
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__trigger.k2-link-star:focus:hover:not(:focus-visible) {
+	color: var(--k2-link-star);
+	font-weight: 600;
 }
 
 body.k2-site .k2-archive-listbox__label:empty::before {
@@ -3233,16 +3285,6 @@ body.k2-site a.k2-player-games-reset:focus-visible {
 	body.k2-site .k2-realm-games-all__status-text {
 		flex: 1 1 auto;
 		width: auto;
-	}
-}
-
-@media (max-width: 720px) {
-	body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__fields {
-		flex-wrap: wrap;
-	}
-
-	body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__field {
-		flex: 1 1 calc(50% - 6px);
 	}
 }
 
@@ -4917,6 +4959,15 @@ body.k2-site .k2-archive-listbox__panel {
 	font-weight: 400;
 	line-height: 1.35;
 	color: var(--k2-text-secondary);
+}
+
+/* All games vault — dropdown panel matches trigger, not global 22em max-content default */
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__panel {
+	left: 0;
+	right: auto;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
 }
 
 body.k2-site .k2-archive-listbox__panel:focus {

@@ -139,6 +139,28 @@
         });
     }
 
+    function initYearModeCoupling(form) {
+        var yearInput = form.querySelector('#k2-realm-games-year');
+        var modeInput = form.querySelector('#k2-realm-games-year-mode');
+        if (!yearInput || !modeInput) {
+            return;
+        }
+
+        yearInput.addEventListener('change', function () {
+            if (String(this.value) !== '0') {
+                modeInput.setAttribute('name', 'year_mode');
+                return;
+            }
+
+            modeInput.value = 'in';
+            modeInput.removeAttribute('name');
+            var modeBox = modeInput.closest('[data-k2-archive-listbox]');
+            if (modeBox && window.K2ArchiveListbox && typeof window.K2ArchiveListbox.setValue === 'function') {
+                window.K2ArchiveListbox.setValue(modeBox, 'in', 'Just this year', true);
+            }
+        });
+    }
+
     function metaLabel(gamesVs) {
         if (gamesVs > 0) {
             return gamesVs + ' game' + (gamesVs === 1 ? '' : 's');
@@ -254,6 +276,7 @@
 
     function initForm(form) {
         initListboxes(form);
+        initYearModeCoupling(form);
         initPlayerPickers(form);
         initOpponentPickers(form);
         initOpponentSearch(form);

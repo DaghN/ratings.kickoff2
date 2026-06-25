@@ -115,5 +115,9 @@
 		for (var i = 0; i < wraps.length; i++) {
 			initWrap(wraps[i]);
 		}
+		if (window.k2TableRevealPendingRankedTables) {
+			window.k2TableRevealPendingRankedTables();
+			window.k2TableRevealPendingRankedTables = null;
+		}
 	});
 })();
