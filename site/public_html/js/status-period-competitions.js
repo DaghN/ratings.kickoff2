@@ -10,6 +10,7 @@
     var POINTS_API = 'api/status_period_points_league.php';
     var LEAGUE_PERIOD_ANCHOR = '#k2-league-period';
     var GAME_PAGE_ANCHOR = '#k2-game'; /* keep in sync with k2_game_page_anchor_hash() */
+    var PLAYER_PROFILE_ANCHOR = '#player'; /* keep in sync with K2_PLAYER_PAGE_FRAGMENT */
     var DAY_GAMES_API = 'api/status_period_day_games.php';
     var PERIODS = ['day', 'week', 'month', 'year'];
 
@@ -243,10 +244,10 @@
             html += '<span class="k2-status-recency-list__when">' + escapeHtml(formatDayGameTime(g.at)) + '</span>';
             html += '<span class="k2-status-match">';
             html += '<span class="k2-status-match__side"><a class="k2-link-star" href="/player/profile.php?id='
-                + parseInt(g.id_a, 10) + '">' + escapeHtml(g.name_a || '') + '</a></span>';
+                + parseInt(g.id_a, 10) + PLAYER_PROFILE_ANCHOR + '">' + escapeHtml(g.name_a || '') + '</a></span>';
             html += '<span class="k2-status-score">' + parseInt(g.goals_a, 10) + '–' + parseInt(g.goals_b, 10) + '</span>';
             html += '<span class="k2-status-match__side"><a class="k2-link-star" href="/player/profile.php?id='
-                + parseInt(g.id_b, 10) + '">' + escapeHtml(g.name_b || '') + '</a></span>';
+                + parseInt(g.id_b, 10) + PLAYER_PROFILE_ANCHOR + '">' + escapeHtml(g.name_b || '') + '</a></span>';
             html += '</span>';
             html += '<a class="k2-link-star k2-status-day-games-list__game" href="/game.php?id='
                 + parseInt(g.id, 10) + GAME_PAGE_ANCHOR + '">' + parseInt(g.id, 10) + '</a>';
@@ -1305,7 +1306,7 @@
             var rank = e.rank;
             html += '<tr>';
             html += '<td class="k2-status-table__num">' + rank + '</td>';
-            html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + e.player_id + '">'
+            html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + e.player_id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(e.player_name) + '</a></td>';
             html += '<td class="k2-status-table__num">' + e.games + '</td>';
             if (showMedals) {
@@ -1347,7 +1348,7 @@
             var gd = row.gd;
             html += '<tr>';
             html += '<td class="k2-status-table__num">' + rank + '</td>';
-            html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + row.id + '">'
+            html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + row.id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(row.name) + '</a></td>';
             html += '<td class="k2-status-table__num">' + row.played + '</td>';
             html += '<td class="k2-status-table__num">' + row.wins + '</td>';

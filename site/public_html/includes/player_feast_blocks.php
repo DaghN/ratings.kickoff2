@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/k2_routes.php';
+require_once __DIR__ . '/k2_safety.php';
 
 function player_feast_section_open(string $title, ?string $hint = null, ?string $sectionClass = null): void
 {
@@ -200,7 +201,7 @@ function player_feast_render_moments(array $pm): void
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h((string) $maxVictim['outcome_class']); ?>"><?php echo pm_h((string) $maxVictim['outcome']); ?></span>
-				· vs <a href="/player/profile.php?id=<?php echo (int) $maxVictim['opponent_id']; ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
+				· vs <a href="<?php echo pm_h(k2_player_profile_href((int) $maxVictim['opponent_id'])); ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
 				· <?php echo pm_h((string) $maxVictim['date']); ?>
 			</p>
 		</article>
@@ -215,7 +216,7 @@ function player_feast_render_moments(array $pm): void
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
-				· vs <a href="/player/profile.php?id=<?php echo (int) $t['opponent_id']; ?>"><?php echo pm_h($t['opponent_name']); ?></a>
+				· vs <a href="<?php echo pm_h(k2_player_profile_href((int) $t['opponent_id'])); ?>"><?php echo pm_h($t['opponent_name']); ?></a>
 				· <?php echo pm_h($t['date']); ?>
 			</p>
 		</article>

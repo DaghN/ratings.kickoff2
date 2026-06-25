@@ -380,7 +380,7 @@ function k2_h2h_poster_card_html(array $card, string $side): string
     $rating = ($display && isset($card['rating']) && !k2_db_is_null($card['rating']))
         ? k2_fmt_int($card['rating'], '—')
         : '—';
-    $href = $pid > 0 ? k2_route('player-profile', ['id' => $pid]) : '';
+    $href = $pid > 0 ? k2_player_profile_href($pid) : '';
 
     $rankStat = '<div class="k2-h2h2-card__stat"><dt>Rank</dt><dd>' . k2_h($rank) . '</dd></div>';
     $ratingStat = '<div class="k2-h2h2-card__stat"><dt>Rating</dt><dd>' . k2_h($rating) . '</dd></div>';

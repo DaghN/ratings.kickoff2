@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_routes.php';
+require_once __DIR__ . '/k2_safety.php';
 
 function k2_player_games_valid_from(string $value): string
 {
@@ -32,25 +33,25 @@ function k2_player_games_from_back_link(string $from, int $playerId): array
     }
     if ($from === 'played-weeks') {
         return [
-            'href' => '/player/profile.php?id=' . $playerId . '#played-weeks',
+            'href' => k2_player_profile_href($playerId, 'played-weeks'),
             'label' => '← Played weeks',
         ];
     }
     if ($from === 'profile-bursts') {
         return [
-            'href' => '/player/profile.php?id=' . $playerId . '#bursts-of-activity',
+            'href' => k2_player_profile_href($playerId, 'bursts-of-activity'),
             'label' => '← Bursts of activity',
         ];
     }
     if ($from === 'profile-games-chart') {
         return [
-            'href' => '/player/profile.php?id=' . $playerId . '#games-per-month',
+            'href' => k2_player_profile_href($playerId, 'games-per-month'),
             'label' => '← Games per month',
         ];
     }
 
     return [
-        'href' => '/player/profile.php?id=' . $playerId . '#played-days',
+        'href' => k2_player_profile_href($playerId, 'played-days'),
         'label' => '← Played days',
     ];
 }

@@ -78,9 +78,23 @@ function k2_query_or_public_error(mysqli $con, string $query, string $context = 
 	return $result;
 }
 
-function k2_player_link(int|string $id, mixed $name): string
+/** Hash target immediately above `.k2-player-hero` on all player-wing pages (inbound links only). */
+const K2_PLAYER_PAGE_FRAGMENT = 'player';
+
+function k2_player_profile_href(int $id, string $fragment = K2_PLAYER_PAGE_FRAGMENT): string
 {
-	return '<a class="k2-link-star" href="/player/profile.php?id=' . (int) $id . '">' . k2_h($name) . '</a>';
+	require_once __DIR__ . '/k2_routes.php';
+	$href = k2_route('player-profile', ['id' => $id]);
+	if ($fragment !== '') {
+		$href .= '#' . ltrim($fragment, '#');
+	}
+
+	return $href;
+}
+
+function k2_player_link(int|string $id, mixed $name, string $fragment = K2_PLAYER_PAGE_FRAGMENT): string
+{
+	return '<a class="k2-link-star" href="' . k2_h(k2_player_profile_href((int) $id, $fragment)) . '">' . k2_h($name) . '</a>';
 }
 
 /**

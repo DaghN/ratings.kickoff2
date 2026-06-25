@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 
 function k2_league_table_sort_value_attr(bool $sortable, int|float|string $value): string
 {
@@ -18,7 +19,7 @@ function k2_league_table_sort_value_attr(bool $sortable, int|float|string $value
 if (!function_exists('k2_status_player_link')) {
     function k2_status_player_link(int $id, string $name): string
     {
-        return '<a class="k2-link-star" href="/player/profile.php?id=' . (int) $id . '">' . k2_status_h($name) . '</a>';
+        return '<a class="k2-link-star" href="' . k2_h(k2_player_profile_href($id)) . '">' . k2_status_h($name) . '</a>';
     }
 }
 

@@ -7,6 +7,7 @@
     var DEBOUNCE_MS = 200;
     var MIN_CHARS = 2;
     var API_PATH = '/api/player_search.php';
+    var PLAYER_PROFILE_FRAGMENT = 'player';
     var PROFILE_BY_REALM = {
         online: '/player/profile.php',
         amiga: '/amiga/player/profile.php'
@@ -109,7 +110,7 @@
     function playerProfileHref(p, profilePage) {
         var realm = p.realm || 'online';
         var base = PROFILE_BY_REALM[realm] || profilePage;
-        return base + '?id=' + encodeURIComponent(p.id);
+        return base + '?id=' + encodeURIComponent(p.id) + '#' + PLAYER_PROFILE_FRAGMENT;
     }
 
     function playerPickHref(root, p, profilePage) {

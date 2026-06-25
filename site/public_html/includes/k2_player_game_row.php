@@ -15,7 +15,7 @@ function k2_player_game_h(string $value): string
 
 function k2_player_game_player_link(int $id, string $name): string
 {
-    return '<a href="/player/profile.php?id=' . $id . '">' . k2_player_game_h($name) . '</a>';
+    return '<a href="' . k2_h(k2_player_profile_href($id)) . '">' . k2_player_game_h($name) . '</a>';
 }
 
 /**

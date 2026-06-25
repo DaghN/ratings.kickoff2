@@ -18,13 +18,14 @@ $heroGames = isset($NumberGames) && !k2_db_is_null($NumberGames) ? (int) $Number
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroMs = isset($heroMilestoneCounts) && is_array($heroMilestoneCounts) ? $heroMilestoneCounts : null;
 $heroMsPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
-$heroProfileHref = $heroMsPlayerId > 0 ? k2_route('player-profile', ['id' => $heroMsPlayerId]) : '';
+$heroProfileHref = $heroMsPlayerId > 0 ? k2_player_profile_href($heroMsPlayerId) : '';
 $heroLbRatingHref = k2_lb_table_href('lb-rating');
 $heroLbGamesPeakHref = k2_lb_table_href('lb-activity-peaks', ['k2_sort' => '3', 'k2_dir' => 'desc']);
 $heroLbMilestonesHref = k2_lb_table_href('lb-milestones');
 $heroRankLinked = $heroDisplay && isset($rank);
 $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 ?>
+<div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
 <article class="k2-player-hero k2-player-hero--feast">
 	<div class="k2-player-hero__inner">
 		<div class="k2-player-hero__media"><?php

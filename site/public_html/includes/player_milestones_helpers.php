@@ -922,8 +922,8 @@ function k2_milestone_game_match_html(int $playerId, array $game, string $chartT
     $nameA = (string) $game['NameA'];
     $nameB = (string) $game['NameB'];
     if ($chartToken !== '') {
-        $teamA = k2_milestone_tier_link('/player/profile.php?id=' . $idA, $nameA, $chartToken);
-        $teamB = k2_milestone_tier_link('/player/profile.php?id=' . $idB, $nameB, $chartToken);
+        $teamA = k2_milestone_tier_link(k2_player_profile_href($idA), $nameA, $chartToken);
+        $teamB = k2_milestone_tier_link(k2_player_profile_href($idB), $nameB, $chartToken);
     } else {
         $teamA = k2_player_link($idA, $nameA);
         $teamB = k2_player_link($idB, $nameB);
@@ -1070,7 +1070,7 @@ function k2_milestone_recent_tier_link(string $href, string $label, string $char
 
 function k2_milestone_recent_player_link(int $playerId, string $playerName, string $chartToken): string
 {
-    return k2_milestone_recent_tier_link('/player/profile.php?id=' . $playerId, $playerName, $chartToken);
+    return k2_milestone_recent_tier_link(k2_player_profile_href($playerId), $playerName, $chartToken);
 }
 
 /**
@@ -1348,7 +1348,7 @@ function k2_milestone_render_achievers_table(array $achievers, array $options = 
         $playerId = (int) $ach['player_id'];
         $playerName = (string) $ach['player_name'];
         $playerCell = $chartToken !== ''
-            ? k2_milestone_tier_link('/player/profile.php?id=' . $playerId, $playerName, $chartToken)
+            ? k2_milestone_tier_link(k2_player_profile_href($playerId), $playerName, $chartToken)
             : k2_player_link($playerId, $playerName);
         ?>
 		<tr data-k2-sort-tie-value="<?php echo $unlockRank; ?>">

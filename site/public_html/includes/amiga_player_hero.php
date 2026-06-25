@@ -6,6 +6,7 @@
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
+require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_lb_lib.php';
 
 if (empty($Name)) {
@@ -24,7 +25,7 @@ $heroGames = $heroPreDebut
 $heroRank = $heroPreDebut ? '—' : ($heroDisplay && isset($rank) && !k2_db_is_null($rank) ? '#' . (int) $rank : '—');
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
-$heroProfileHref = $heroPlayerId > 0 ? k2_amiga_route('amiga-player-profile', ['id' => $heroPlayerId]) : '';
+$heroProfileHref = $heroPlayerId > 0 ? k2_amiga_player_profile_href($heroPlayerId) : '';
 $heroGamesHref = $heroPlayerId > 0 ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) : '';
 $heroLbRatingHref = amiga_lb_table_href('/amiga/leaderboards/rating.php');
 $heroRankLinked = !$heroPreDebut && $heroDisplay && isset($rank) && !k2_db_is_null($rank);
@@ -33,6 +34,7 @@ $heroGamesLinked = !$heroPreDebut && $heroGamesHref !== '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
 $heroFlagMeta = $heroCountry !== '' ? k2_amiga_country_flag_meta($heroCountry) : null;
 ?>
+<div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
 <article class="k2-player-hero k2-player-hero--feast">
 	<div class="k2-player-hero__inner">
 		<div class="k2-player-hero__media"><?php

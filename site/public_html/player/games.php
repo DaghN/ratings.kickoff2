@@ -788,7 +788,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
         <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
         <span class="k2-player-games-day-banner__lead">
             <?php if ($dayBannerStory) { ?>
-            <a class="k2-link-star" href="/player/profile.php?id=<?php echo $playerId; ?>"><?php echo individual3_h($name); ?></a>
+            <a class="k2-link-star" href="<?php echo k2_h(k2_player_profile_href($playerId)); ?>"><?php echo individual3_h($name); ?></a>
             played <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
             <?php echo $dayBannerGamesWord; ?> on
             <?php } else { ?>
@@ -820,7 +820,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
         <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
         <span class="k2-player-games-day-banner__lead">
             <?php if ($periodBannerStory) { ?>
-            <a class="k2-link-star" href="/player/profile.php?id=<?php echo $playerId; ?>"><?php echo individual3_h($name); ?></a>
+            <a class="k2-link-star" href="<?php echo k2_h(k2_player_profile_href($playerId)); ?>"><?php echo individual3_h($name); ?></a>
             played <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
             <?php echo $periodBannerGamesWord; ?> in
             <?php } else { ?>
@@ -850,7 +850,7 @@ foreach ($goalsSumRows as $goalsSumRow) {
         <span class="k2-player-games-day-banner__sep" aria-hidden="true">·</span>
         <span class="k2-player-games-day-banner__lead">
             <?php if ($streakBannerStory) { ?>
-            <a class="k2-link-star" href="/player/profile.php?id=<?php echo $playerId; ?>"><?php echo individual3_h($name); ?></a>
+            <a class="k2-link-star" href="<?php echo k2_h(k2_player_profile_href($playerId)); ?>"><?php echo individual3_h($name); ?></a>
             played <span class="k2-link-star k2-player-games-day-banner__count"><?php echo $totalMatches; ?></span>
             <?php echo $streakBannerGamesWord; ?> in this <?php echo individual3_h($streakLabel); ?>
             <?php } else { ?>

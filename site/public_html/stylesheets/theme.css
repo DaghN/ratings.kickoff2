@@ -3574,6 +3574,11 @@ body.k2-site .k2-player-opponents-h2h__search-option:focus-visible .player-searc
 }
 
 /* â”€â”€ Player hero scaffold â”€â”€ */
+body.k2-site .k2-player-page-anchor {
+	height: 0;
+	scroll-margin-top: 12px;
+}
+
 .k2-player-hero {
 	position: relative;
 	overflow: hidden;
