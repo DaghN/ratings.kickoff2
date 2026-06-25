@@ -47,9 +47,8 @@
         return el;
     }
 
-    function buildCompareTooltipTitle(items, isGame, eventMode) {
+    function buildCompareTooltipTitle(items, isGame, eventMode, hoverMs) {
         var pt;
-        var d;
         if (!items.length) {
             return '';
         }
@@ -62,15 +61,10 @@
             }
             return (eventMode ? 'Tournament #' : 'Game #') + items[0].parsed.x;
         }
-        d = new Date(items[0].parsed.x);
-        if (isNaN(d.getTime())) {
-            return '';
+        if (DR && DR.formatCompareDateTooltipTitle) {
+            return DR.formatCompareDateTooltipTitle(hoverMs);
         }
-        return d.toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        return '';
     }
 
     function formatCompareGameTooltipHtml(item, eventMode) {
@@ -111,16 +105,34 @@
         return function (context) {
             var tooltipEl = getOrCreateCompareRatingTooltip();
             var tooltip = context.tooltip;
-            if (!tooltip || tooltip.opacity === 0) {
+            var chart = context.chart;
+            var points;
+            var title;
+            var resolved;
+            if (!tooltip) {
                 tooltipEl.hidden = true;
                 return;
             }
-            var points = tooltip.dataPoints || [];
-            if (!points.length) {
-                tooltipEl.hidden = true;
-                return;
+            if (!isGame && DR && DR.resolveCompareRatingDateTooltipItems) {
+                resolved = DR.resolveCompareRatingDateTooltipItems(chart, tooltip.caretX);
+                points = resolved.items;
+                if (!points.length) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                title = buildCompareTooltipTitle(points, false, eventMode, resolved.hoverMs);
+            } else {
+                if (tooltip.opacity === 0) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                points = tooltip.dataPoints || [];
+                if (!points.length) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                title = buildCompareTooltipTitle(points, isGame, eventMode, null);
             }
-            var title = buildCompareTooltipTitle(points, isGame, eventMode);
             var bodyHtml = points.map(function (item) {
                 var line = isGame
                     ? formatCompareGameTooltipHtml(item, eventMode)
@@ -289,7 +301,16 @@
             if (x === null) {
                 continue;
             }
-            chartData.push({ x: x, y: points[i].rating });
+            chartData.push({
+                x: x,
+                y: points[i].rating,
+                date: points[i].date,
+                gameNumber: points[i].gameNumber,
+                eventNumber: points[i].eventNumber,
+                tournamentId: points[i].tournamentId,
+                tournamentName: points[i].tournamentName,
+                gameId: points[i].gameId
+            });
         }
         return chartData;
     }
@@ -445,6 +466,7 @@
         }
 
         var eventStepped = !isGame && cfg.eventMode;
+        var datePointHitRadius = isGame ? 0 : 12;
 
         return createChart(canvas, {
             type: 'line',
@@ -458,6 +480,7 @@
                         borderWidth: 2,
                         pointRadius: 0,
                         pointHoverRadius: 4,
+                        pointHitRadius: datePointHitRadius,
                         fill: false,
                         stepped: eventStepped,
                         tension: eventStepped ? 0 : 0.1
@@ -470,6 +493,7 @@
                         borderWidth: 2,
                         pointRadius: 0,
                         pointHoverRadius: 4,
+                        pointHitRadius: datePointHitRadius,
                         fill: false,
                         stepped: eventStepped,
                         tension: eventStepped ? 0 : 0.1
@@ -477,7 +501,9 @@
                 ]
             },
             options: chartOptions({
-                interaction: { mode: 'index', intersect: false },
+                interaction: isGame
+                    ? { mode: 'index', intersect: false }
+                    : { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
                     legend: {
                         labels: { color: T.textPrimary() }
@@ -485,7 +511,10 @@
                     tooltip: T.mergeTooltip({
                         enabled: false,
                         external: bindCompareRatingExternalTooltip(isGame, eventMode)
-                    })
+                    }),
+                    k2CompareDateTooltipBridge: (!isGame && DR && DR.compareDateTooltipBridgePlugin)
+                        ? DR.compareDateTooltipBridgePlugin()
+                        : undefined
                 },
                 scales: {
                     x: xScale,

@@ -140,6 +140,217 @@
         };
     }
 
+    function pad2(n) {
+        return String(n).padStart(2, '0');
+    }
+
+    function pointXMs(x) {
+        if (x instanceof Date) {
+            return x.getTime();
+        }
+        var d = new Date(x);
+        return isNaN(d.getTime()) ? NaN : d.getTime();
+    }
+
+    function calendarDateKeyFromMs(ms) {
+        var d = new Date(ms);
+        if (isNaN(d.getTime())) {
+            return '';
+        }
+        return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    }
+
+    function formatCompareDateTooltipTitle(hoverMs) {
+        if (hoverMs == null || isNaN(hoverMs)) {
+            return '';
+        }
+        var d = new Date(hoverMs);
+        if (isNaN(d.getTime())) {
+            return '';
+        }
+        return d.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    /**
+     * H2H compare-by-date external tooltip: one stepped value per dataset at hover x.
+     * Same calendar day with multiple finalizes → latest event that day; else last point at/before hover.
+     *
+     * @param {Object} chart Chart.js instance
+     * @param {number} caretX canvas x of hover
+     * @param {Object} opts
+     * @param {function(*):boolean} opts.acceptDatasetPoint
+     * @param {function(*):string} opts.dayKeyFromPoint
+     * @param {function(*):number} opts.orderFromPoint
+     * @param {function(Object, *, *, Object, number, number):Object} opts.buildTooltipItem
+     * @return {{hoverMs: number, items: Array<Object>}}
+     */
+    function resolveCompareDateTooltipItems(chart, caretX, opts) {
+        var empty = { hoverMs: NaN, items: [] };
+        if (!chart || !opts || caretX == null) {
+            return empty;
+        }
+        var area = chart.chartArea;
+        if (!area || caretX < area.left || caretX > area.right) {
+            return empty;
+        }
+        var xScale = chart.scales && chart.scales.x;
+        if (!xScale || typeof xScale.getValueForPixel !== 'function') {
+            return empty;
+        }
+        var hoverValue = xScale.getValueForPixel(caretX);
+        var hoverMs = pointXMs(hoverValue);
+        if (isNaN(hoverMs)) {
+            return empty;
+        }
+        var hoverDayKey = calendarDateKeyFromMs(hoverMs);
+        var items = [];
+        var ds;
+        for (ds = 0; ds < chart.data.datasets.length; ds++) {
+            var dataset = chart.data.datasets[ds];
+            var meta = chart.getDatasetMeta(ds);
+            if (!meta || meta.hidden) {
+                continue;
+            }
+            var bestSameDay = null;
+            var bestAtOrBefore = null;
+            var i;
+            for (i = 0; i < meta.data.length; i++) {
+                var element = meta.data[i];
+                var pt = dataset.data[i];
+                if (!element || !opts.acceptDatasetPoint(pt)) {
+                    continue;
+                }
+                var xMs = pointXMs(pt.x);
+                if (isNaN(xMs)) {
+                    continue;
+                }
+                var dayKey = opts.dayKeyFromPoint(pt);
+                var order = opts.orderFromPoint(pt);
+                var candidate = { pt: pt, xMs: xMs, order: order, index: i, element: element };
+
+                if (dayKey === hoverDayKey) {
+                    if (!bestSameDay || xMs > bestSameDay.xMs
+                        || (xMs === bestSameDay.xMs && order > bestSameDay.order)) {
+                        bestSameDay = candidate;
+                    }
+                }
+                if (xMs <= hoverMs) {
+                    if (!bestAtOrBefore || xMs > bestAtOrBefore.xMs
+                        || (xMs === bestAtOrBefore.xMs && order > bestAtOrBefore.order)) {
+                        bestAtOrBefore = candidate;
+                    }
+                }
+            }
+            var chosen = bestSameDay || bestAtOrBefore;
+            if (chosen) {
+                items.push(opts.buildTooltipItem(
+                    chart,
+                    chosen.pt,
+                    chosen.element,
+                    dataset,
+                    ds,
+                    chosen.index
+                ));
+            }
+        }
+        return { hoverMs: hoverMs, items: items };
+    }
+
+    /**
+     * @return {{hoverMs: number, items: Array<Object>}}
+     */
+    function resolveCompareRankDateTooltipItems(chart, caretX) {
+        return resolveCompareDateTooltipItems(chart, caretX, {
+            acceptDatasetPoint: function (pt) {
+                return !!(pt && !pt.clipped && pt.y != null && pt.raw);
+            },
+            dayKeyFromPoint: function (pt) {
+                if (pt.raw && pt.raw.eventDate) {
+                    return String(pt.raw.eventDate).substring(0, 10);
+                }
+                return calendarDateKeyFromMs(pointXMs(pt.x));
+            },
+            orderFromPoint: function (pt) {
+                var r = pt.raw || {};
+                return (Number(r.eventChrono) || 0) * 1000000 + (Number(r.tournamentId) || 0);
+            },
+            buildTooltipItem: function (chart, pt, element, dataset, datasetIndex, index) {
+                return {
+                    chart: chart,
+                    dataset: dataset,
+                    datasetIndex: datasetIndex,
+                    index: index,
+                    parsed: { x: pointXMs(pt.x), y: pt.y },
+                    raw: pt,
+                    formattedValue: String(pt.y),
+                    element: element
+                };
+            }
+        });
+    }
+
+    /**
+     * @return {{hoverMs: number, items: Array<Object>}}
+     */
+    function resolveCompareRatingDateTooltipItems(chart, caretX) {
+        return resolveCompareDateTooltipItems(chart, caretX, {
+            acceptDatasetPoint: function (pt) {
+                return !!(pt && pt.y != null && pt.x != null);
+            },
+            dayKeyFromPoint: function (pt) {
+                if (pt.date) {
+                    return String(pt.date).substring(0, 10);
+                }
+                return calendarDateKeyFromMs(pointXMs(pt.x));
+            },
+            orderFromPoint: function (pt) {
+                return (Number(pt.eventNumber) || Number(pt.gameNumber) || 0) * 1000000
+                    + (Number(pt.tournamentId) || Number(pt.gameId) || 0);
+            },
+            buildTooltipItem: function (chart, pt, element, dataset, datasetIndex, index) {
+                return {
+                    chart: chart,
+                    dataset: dataset,
+                    datasetIndex: datasetIndex,
+                    index: index,
+                    parsed: { x: pointXMs(pt.x), y: pt.y },
+                    raw: pt,
+                    formattedValue: String(pt.y),
+                    element: element
+                };
+            }
+        });
+    }
+
+    function compareDateTooltipBridgePlugin() {
+        return {
+            id: 'k2CompareDateTooltipBridge',
+            afterEvent: function (chart, args) {
+                var event = args.event;
+                if (!chart.tooltip || typeof chart.tooltip.update !== 'function') {
+                    return;
+                }
+                if (event.type === 'mouseout' || event.type === 'mouseleave') {
+                    return;
+                }
+                if (event.type !== 'mousemove' && event.type !== 'touchmove') {
+                    return;
+                }
+                var area = chart.chartArea;
+                if (!area
+                    || event.x < area.left || event.x > area.right
+                    || event.y < area.top || event.y > area.bottom) {
+                    return;
+                }
+                chart.tooltip.update(true);
+            }
+        };
+    }
+
     global.K2ChartDateRange = {
         monthToDate: monthToDate,
         parseStartDate: parseStartDate,
@@ -150,6 +361,11 @@
         endOfCurrentMonth: endOfCurrentMonth,
         endOfToday: endOfToday,
         appendRatingThroughToday: appendRatingThroughToday,
-        padGamesPerMonth: padGamesPerMonth
+        padGamesPerMonth: padGamesPerMonth,
+        formatCompareDateTooltipTitle: formatCompareDateTooltipTitle,
+        resolveCompareDateTooltipItems: resolveCompareDateTooltipItems,
+        resolveCompareRankDateTooltipItems: resolveCompareRankDateTooltipItems,
+        resolveCompareRatingDateTooltipItems: resolveCompareRatingDateTooltipItems,
+        compareDateTooltipBridgePlugin: compareDateTooltipBridgePlugin
     };
 }(typeof window !== 'undefined' ? window : this));

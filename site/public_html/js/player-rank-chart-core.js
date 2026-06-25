@@ -529,18 +529,11 @@
         return el;
     }
 
-    function buildCompareRankTooltipTitle(items) {
-        if (!items.length) {
-            return '';
+    function buildCompareRankTooltipTitle(hoverMs) {
+        if (DR && DR.formatCompareDateTooltipTitle) {
+            return DR.formatCompareDateTooltipTitle(hoverMs);
         }
-        var d = new Date(items[0].parsed.x);
-        if (isNaN(d.getTime()) && items[0].raw && items[0].raw.raw) {
-            d = parseEventDate(items[0].raw.raw.eventDate);
-        }
-        if (!d || isNaN(d.getTime())) {
-            return '';
-        }
-        return formatTooltipDate(d);
+        return '';
     }
 
     function formatCompareRankTooltipRowHtml(item) {
@@ -572,18 +565,35 @@
         return function (context) {
             var tooltipEl = getOrCreateCompareRankHtmlTooltip();
             var tooltip = context.tooltip;
-            if (!tooltip || tooltip.opacity === 0) {
+            var chart = context.chart;
+            var resolved;
+            var points;
+            if (!tooltip) {
                 tooltipEl.hidden = true;
                 return;
             }
-            var points = (tooltip.dataPoints || []).filter(function (item) {
-                return item.raw && !item.raw.clipped && item.raw.y != null;
-            });
-            if (!points.length) {
-                tooltipEl.hidden = true;
-                return;
+            if (DR && DR.resolveCompareRankDateTooltipItems) {
+                resolved = DR.resolveCompareRankDateTooltipItems(chart, tooltip.caretX);
+                points = resolved.items;
+                if (!points.length) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+            } else {
+                if (tooltip.opacity === 0) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                points = (tooltip.dataPoints || []).filter(function (item) {
+                    return item.raw && !item.raw.clipped && item.raw.y != null;
+                });
+                if (!points.length) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                resolved = { hoverMs: points[0].parsed.x };
             }
-            var title = buildCompareRankTooltipTitle(points);
+            var title = buildCompareRankTooltipTitle(resolved.hoverMs);
             var bodyHtml = points.map(function (item) {
                 var line = formatCompareRankTooltipRowHtml(item);
                 var swatch = swatchColorForRankItem(item, theme);

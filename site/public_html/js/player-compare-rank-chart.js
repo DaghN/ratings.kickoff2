@@ -7,6 +7,7 @@
 
     var Core = window.K2PlayerRankChartCore;
     var T = window.K2ChartTheme;
+    var DR = window.K2ChartDateRange;
     var CTX = window.K2PlayerOpponentsH2hContext;
     var API_PATH = '/api/player_compare_rank_history.php';
     var EVENT_NAME = 'kool-opponent-selected';
@@ -91,6 +92,7 @@
                         tension: 0,
                         pointRadius: 0,
                         pointHoverRadius: 4,
+                        pointHitRadius: 12,
                         borderColor: T.h2hSubjectBorder(),
                         backgroundColor: T.h2hSubjectFill(0.1),
                         borderWidth: 2,
@@ -104,6 +106,7 @@
                         tension: 0,
                         pointRadius: 0,
                         pointHoverRadius: 4,
+                        pointHitRadius: 12,
                         borderColor: T.h2hOpponentBorder(),
                         backgroundColor: T.h2hOpponentFill(0.1),
                         borderWidth: 2,
@@ -112,7 +115,7 @@
                 ]
             },
             options: Core.withCareerPlotGutter({
-                interaction: { mode: 'x', intersect: false },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
                     legend: {
                         labels: { color: T.textPrimary() }
@@ -123,7 +126,10 @@
                         filter: function (item) {
                             return item.raw && !item.raw.clipped && item.raw.y != null;
                         }
-                    })
+                    }),
+                    k2CompareDateTooltipBridge: (DR && DR.compareDateTooltipBridgePlugin)
+                        ? DR.compareDateTooltipBridgePlugin()
+                        : undefined
                 },
                 scales: {
                     x: Core.buildTimeXScale(timeRange),

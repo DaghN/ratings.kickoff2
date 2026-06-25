@@ -75,6 +75,8 @@
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
+- **Amiga Countries hub (Jun 2026):** **Policy locked** — hub tab + index (player count sort) + country roster (flag per row, WC entries tooltips, TT); read-time from `amiga_player_current` / snapshots; v2 country vs country deferred. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
+
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
 ---
@@ -122,7 +124,7 @@
 |------|------|
 | 2026-06-25 | **H2H wins + cumulative goals charts — game #0 origin** — prepend `(0, 0)` and x-axis `min: 0` so single-game pairings draw a line segment (Amiga + online). |
 | 2026-06-25 | **Amiga chart peak copy — tournament anchor** — rank + rating peak summaries (profile solo, H2H compare) append `, after {tournament name}` from stored `*_tournament_id`; rating API `peak` via `amiga_player_rating_peak_summary()`. |
-| 2026-06-25 | **Amiga H2H rank compare tooltip fix** — `player-compare-rank-chart.js` uses Chart.js `interaction.mode: 'x'` (not `index`) so tooltips pair both players at the same calendar date; `index` was pairing Fabio’s late points with Darren’s much-earlier rows (`#254 of 398` vs correct `#304 of 473`). |
+| 2026-06-25 | **H2H compare-by-date tooltips** — shared resolver in `chart-date-range.js`: one stepped value per player at hover x (not Chart.js `index`/`nearest` hits); title = cursor date; rank + rating By date. |
 | 2026-06-25 | **Amiga profile rank chart grid** — `rankChartGrid()` (stronger than softGrid) so Y rank bands read at a glance. |
 | 2026-06-25 | **Amiga H2H rank compare — HTML tooltips** — bold chrome/red rank ink (`#N of L (P%)`) per player + tournament on each line; shared date title. |
 | 2026-06-25 | **Amiga H2H rating compare — tournament # tooltips** — **By tournament #** shows shared index in title; each player’s label carries their own tournament + date + rating (not hero-only in title). |
