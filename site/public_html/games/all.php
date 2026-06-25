@@ -118,7 +118,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 			'Adjustment',
 			'left',
 			$state,
-			"The expected score and actual score are now used to calculate the rating change:\n\nRating change = 32 * (actual score - expected score)\n\nExample:\n\n200 Elo difference -> expected score 0.76 ->\n\nA win would gain 7.7 rating points.\nA draw would lose 8.3 rating points.\nA loss would lose 24.3 rating points.\n\nA favorite's expected win gives a small rating gain; an underdog win beats expectation a lot and gains more. The two players win or lose the opposite amount.",
+			"The expected score and actual score are used to calculate the rating change:\n\nRating change = 32 * (actual score - expected score)\n\nExample:\n\n200 Elo difference -> expected score 0.76 ->\n\nA win would gain 7.7 rating points.\nA draw would lose 8.3 rating points.\nA loss would lose 24.3 rating points.\n\nA favorite's expected win gives a small rating gain; an underdog win beats expectation a lot and gains more. The two players win or lose the opposite amount.",
 			'Adjustment'
 		); ?>
 		<th class="k2-table-cell--left"><span class="visually-hidden">Adjustment lost</span></th>

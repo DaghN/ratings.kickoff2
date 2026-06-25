@@ -120,6 +120,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Adjustment tooltip copy** — drop “now” from Elo rating-change help on game + games list pages (online + Amiga). |
 | 2026-06-25 | **Amiga rating LB Δ header** — flat-top Δ on `th.k2-table-col-delta` (12px/500). |
 | 2026-06-25 | **Amiga rating LB WC Δ** — present-day `/amiga/leaderboards/rating.php` shows Δ since start of last World Cup; time-travel wing Δ unchanged — [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md) §3.6. |
 | 2026-06-25 | **Amiga TT LED field sep (period trial)** — `AMIGA_TT_STAMP_LED_FIELD_SEP` = `.`; `k2-amiga-tt-stamp--sep-period` pads zero-width DSEG7 period. |
