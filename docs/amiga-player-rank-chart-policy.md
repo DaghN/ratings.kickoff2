@@ -3,7 +3,9 @@
 **Status:** **Implemented** (Jun 2026) — slices 1–5 + **post-ship tweak session** (Jun 2026) complete local.  
 **Purpose:** Career **Elo rank over time** on Amiga player profile — one player, event-step timeline, rich scale/window controls. Complements the existing **rating** chart (skill signal); rank = position among the full historical ladder.
 
-**Non-goals (v1):** H2H rank compare · online realm · **in-chart X-axis date trim / zoom** (full community timeline only — see §5.1) · smart default-picker algorithm · milestone annotations · explanatory copy blocks · percentile range slider (presets only).
+**Non-goals (v1 solo):** online realm · **in-chart X-axis date trim / zoom** (full community timeline only — see §5.1) · smart default-picker algorithm · milestone annotations · explanatory copy blocks · percentile range slider (presets only) · **canvas peak reference line** (dashed Y marker — rating chart only; rank uses text summary §5.9).
+
+**H2H compare:** [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) — policy locked Jun 2026; not implemented yet.
 
 **Authority:** Rank persistence = [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · data contract = [`amiga-data-contract.md`](amiga-data-contract.md) · profile shell = [`amiga-profile-v0.md`](amiga-profile-v0.md) · time travel = [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · rating chart (parallel) = [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md)
 
@@ -32,7 +34,7 @@ A **solo** rank-over-time line chart on `/amiga/player/profile.php`:
 - **Line:** stepped only (rank constant between finalize points)
 - **Time travel:** truncate series at `?as=` cutoff (same habit as hero rank)
 
-H2H rank overlay deferred.
+**H2H compare** (separate doc): dual-line chart on Opponents H2H — union **Career** default · **dual peak text lines** (one per player).
 
 ---
 
@@ -56,7 +58,8 @@ H2H rank overlay deferred.
 | **R14** | **Realm** | **Amiga only** v1 |
 | **R15** | **Time travel** | Points with `(event_date, chrono, tournament_id) > cutoff` omitted; pre-debut → empty chart + status (align hero pre-debut) |
 | **R16** | **Copy / annotations** | **Minimal** — in-band tooltips only; **no** status text when a band/window has zero in-range points (empty chart with axes); pre-debut / no history still use status line |
-| **R17** | **Placement** | Profile page, exact block TBD; mirror `k2-chart-panel` / toolbar patterns from rating chart |
+| **R17** | **Placement** | Profile page; mirror `k2-chart-panel` / toolbar patterns from rating chart |
+| **R18** | **Peak display** | **Text summary only** under toolbar — `Peak: #N on …` / `Peak: P% on …` (§5.9). **No** dashed horizontal peak line drawn on the chart canvas (unlike rating chart `peakLinePlugin`). |
 
 ---
 
@@ -210,9 +213,21 @@ Required per point:
 
 **Exclude from v1:** milestone callouts, “first top 10” labels, philosophy blurbs.
 
-### 5.9 Summary strip
+### 5.9 Peak summary (text only)
 
-**Peak line** (mirrors rating chart): `Peak: #N on MMM d, yyyy.` in **linear** scale; `Peak: P% on …` in **percentile** scale. Best = lowest rank / highest percentile over the loaded series (TT-truncated when active). **Ties:** first chronological attainment (`>` / `<`, not `>=` / `<=`). Updates when scale toggles; independent of Y-window band (Top 20 etc.).
+**Under the toolbar** — same rhythm as the rating chart **copy**, not its canvas overlay:
+
+| Scale | Format |
+|-------|--------|
+| **Linear** | `Peak: #N on MMM d, yyyy.` |
+| **Percentile** | `Peak: P% on MMM d, yyyy.` |
+
+- **Best** = lowest rank / highest percentile over the loaded series (TT-truncated when active).
+- **Ties:** first chronological attainment (`>` / `<`, not `>=` / `<=`).
+- Updates when scale toggles; independent of Y-window band (Top 20 etc.).
+- Styled with `pm3d-chart__summary` + `pm3-chart-peak-value` (amber peak ink).
+
+**Not in v1:** dashed horizontal peak reference line on the plot (rating chart draws one; rank chart does **not** — see R18).
 
 ---
 
@@ -229,7 +244,7 @@ Required per point:
 
 **Tier 2 — deferred**
 
-- Log rank scale · Connected line toggle · smart default picker · X date-range · percentile slider · H2H compare · ladder-step X-axis · career band extended to #1 when best > 20
+- Log rank scale · Connected line toggle · smart default picker · X date-range · percentile slider · ladder-step X-axis · career band extended to #1 when best > 20
 
 Mirror segment-control styling from `player-feast-sections.css` / `pm3d-rating-toggle` where practical. Toolbar uses **`data-range-mode`** on `.player-rank-chart__toolbar` (`linear` | `percentile`) so only the matching window row is visible (CSS — not `hidden` on individual toggles alone).
 
@@ -281,7 +296,7 @@ Time travel: profile `?as=year:2003` — truncated series; hero rank matches las
 
 | Item | Notes |
 |------|-------|
-| H2H rank compare | Separate policy; band union rules; after solo v1 ships |
+| H2H rank compare | [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) — policy locked Jun 2026; union Career default; dual peak text lines |
 | Online realm | After Amiga parity proof |
 | X-axis date-range zoom | **Not planned for Amiga v1** — product default is **full community timeline** only (§5.1). Sparse finalize cadence (~600 events / ~25 years); Y **Career** is not an X trim. Revisit only with much denser series (e.g. online daily play). |
 | Percentile slider (Option B) | After presets feel good |

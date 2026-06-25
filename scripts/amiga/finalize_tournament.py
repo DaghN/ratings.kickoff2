@@ -630,7 +630,9 @@ def finalize_tournament(
         if pid not in event_commits:
             continue
         matchups.apply_network_to_player_state(pid, players[pid])
-        apply_peak_from_event_rating(players[pid], float(event_commits[pid]["rating_after"]))
+        apply_peak_from_event_rating(
+            players[pid], float(event_commits[pid]["rating_after"]), tournament_id
+        )
 
     geo_year.apply_tournament(
         tournament_id=tournament_id,

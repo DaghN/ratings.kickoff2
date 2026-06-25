@@ -51,7 +51,7 @@ function amiga_player_load_present(mysqli $con, int $id): array
     $stmt = $con->prepare(
         'SELECT p.id AS ID, p.name AS Name, p.country AS Country, p.display AS Display, '
         . 's.Rating, s.elo_rank, s.PeakRating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
-        . 's.WinRatio, s.GoalsFor, s.GoalsAgainst, s.GoalRatio, s.PeakRatingGameID, s.AverageOpponentRating '
+        . 's.WinRatio, s.GoalsFor, s.GoalsAgainst, s.GoalRatio, s.peak_rating_tournament_id, s.AverageOpponentRating '
         . amiga_player_base_from_sql($con) . ' WHERE p.id = ? LIMIT 1'
     );
     if (!$stmt) {

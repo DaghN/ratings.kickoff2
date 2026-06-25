@@ -76,14 +76,25 @@ HONOURS_CURRENT_COLUMNS: tuple[str, ...] = (
     "event_podiums",
 )
 
+_AMIGA_DROP_CAREER_GAME_IDS: frozenset[str] = frozenset(
+    {"PeakRatingGameID", "LowestRatingGameID"}
+)
+
 _CAREER_SAMPLE = PlayerState().to_db_row(0)
 CAREER_COLUMNS: tuple[str, ...] = tuple(
-    key for key in _CAREER_SAMPLE if key != "ID"
+    key
+    for key in _CAREER_SAMPLE
+    if key != "ID" and key not in _AMIGA_DROP_CAREER_GAME_IDS
 )
 
 _CAREER_BEST_COLUMNS: tuple[str, ...] = (
     "career_best_performance_rating",
     "career_best_performance_tournament_id",
+)
+
+_RATING_EVENT_ANCHOR_COLUMNS: tuple[str, ...] = (
+    "peak_rating_tournament_id",
+    "lowest_rating_tournament_id",
 )
 
 _ELO_RANK_COLUMNS: tuple[str, ...] = ("elo_rank",)
@@ -95,6 +106,7 @@ SNAPSHOT_COLUMNS: tuple[str, ...] = (
     + _ELO_RANK_COLUMNS
     + HONOURS_SNAPSHOT_COLUMNS
     + _CAREER_BEST_COLUMNS
+    + _RATING_EVENT_ANCHOR_COLUMNS
     + GEO_YEAR_PLAYER_COLUMNS
     + RECORD_RISE_PLAYER_COLUMNS
 )
@@ -112,6 +124,7 @@ CURRENT_COLUMNS: tuple[str, ...] = (
     + _ELO_RANK_COLUMNS
     + HONOURS_CURRENT_COLUMNS
     + _CAREER_BEST_COLUMNS
+    + _RATING_EVENT_ANCHOR_COLUMNS
     + GEO_YEAR_PLAYER_COLUMNS
     + RECORD_RISE_PLAYER_COLUMNS
 )
@@ -132,9 +145,13 @@ _PARTICIPATION_TO_SNAPSHOT_EVENT: tuple[str, ...] = (
 
 
 def career_columns_from_player_state(player_id: int, state: PlayerState) -> dict[str, Any]:
-    """Career block — same shape as amiga_player_stats / PlayerState.to_db_row."""
+    """Career block — Amiga snapshot/current columns from PlayerState."""
     row = state.to_db_row(player_id)
     row.pop("ID", None)
+    for key in _AMIGA_DROP_CAREER_GAME_IDS:
+        row.pop(key, None)
+    row["peak_rating_tournament_id"] = state.peak_rating_tournament_id
+    row["lowest_rating_tournament_id"] = state.lowest_rating_tournament_id
     return row
 
 
@@ -216,7 +233,7 @@ def build_event_snapshot_row(
         if key in participation:
             row[key] = participation[key]
 
-    for key in CAREER_COLUMNS:
+    for key in CAREER_COLUMNS + _RATING_EVENT_ANCHOR_COLUMNS:
         if key in career:
             row[key] = career[key]
 
@@ -267,7 +284,7 @@ def current_row_from_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
         "last_finalized_at": snapshot.get("finalized_at"),
     }
 
-    for key in CAREER_COLUMNS:
+    for key in CAREER_COLUMNS + _RATING_EVENT_ANCHOR_COLUMNS:
         row[key] = snapshot[key]
 
     row["elo_rank"] = snapshot.get("elo_rank")

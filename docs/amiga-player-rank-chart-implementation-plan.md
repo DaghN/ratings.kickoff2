@@ -276,6 +276,51 @@ After slices 1–5 landed, a polish pass aligned toolbar, clip semantics, and do
 - **CSS:** `player-feast-sections.css` window visibility rules; profile cache-bust via `filemtime`.
 - **Related:** `player-rating-chart.js` `readInitialView()` respects markup — Amiga profile opens **By date**.
 - **X-axis locked:** full community timeline from first Amiga tournament (`timelineStart`) — not player career; Y **Career** ≠ X trim; no in-chart date zoom — see policy §5.1 / R3.
+- **Peak text summary (solo):** `Peak: #N` / `Peak: P%` + date under toolbar — **no** dashed canvas peak line (R18).
+
+---
+
+## H2H compare slices (post-solo)
+
+**Policy:** [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md)  
+**Surface:** `/amiga/player/opponents/h2h.php` — after **Rating comparison** in `player_opponents_h2h_charts.php`.
+
+| Slice | Deliverable | STOP gate |
+|-------|-------------|-----------|
+| **6a** | Shared rank core refactor (`player-rank-chart-core.js`) | Solo chart still passes smoke — **done** |
+| **6b** | `player_compare_rank_history.php` + lib helper | curl JSON dual payload + `timelineStart` — **done** |
+| **6c** | H2H markup + script enqueue | Panel renders; waiting state — **done** |
+| **6d** | `player-compare-rank-chart.js` — dual stepped lines, union Career default, band union, **dual peak text lines** | Fabio #109 vs Darren #84 smoke — **done** |
+| **6e** | TT + QA + opponents wing doc closure | `?as=` on fetch; dual peak text; legend chrome/red — **done** |
+
+### Slice 6b — compare API
+
+- [x] `GET /api/player_compare_rank_history.php?realm=amiga&id=&opponent=` (+ `as=`)
+- [x] Reuse `amiga_player_rank_history_payload()` per side; shared `timelineStart`
+- [x] Errors mirror compare-rating API
+
+### Slice 6d — chart behaviour (locked)
+
+- [x] Default: Linear · **Career** Y = **union** of both players (H2H policy §3.1)
+- [x] X: full community timeline (solo R3) — not player career span
+- [x] Two stepped series: `T.h2hSubject*` / `T.h2hOpponent*`; legend on
+- [x] Toolbar: same scale/window controls as solo; Top K empty only when **neither** player in band
+- [x] **Dual peak text** — two `Peak:` summary lines (solo §5.9 format per player; chrome + red peak ink); updates on scale toggle; **no** dashed peak line on canvas
+- [x] Hint: “End-of-day rank after each tournament day.” · Heading: “Rank comparison vs {opponent}”
+- [x] Load on `kool-opponent-selected`; `K2PlayerOpponentsH2hContext` for `realm` + `as=`
+
+### H2H file checklist
+
+| File | Slice |
+|------|-------|
+| `docs/amiga-player-rank-chart-h2h-policy.md` | policy |
+| `js/player-rank-chart-core.js` | 6a |
+| `api/player_compare_rank_history.php` | 6b |
+| `includes/amiga_player_rank_history_lib.php` (compare payload) | 6b |
+| `includes/player_opponents_h2h_charts.php` (markup) | 6c |
+| `includes/amiga_player_opponents_page.php` (scripts) | 6c |
+| `js/player-compare-rank-chart.js` | 6d |
+| `js/player-rank-chart.js` (uses core) | 6a, 3–4 |
 
 ---
 
@@ -283,7 +328,8 @@ After slices 1–5 landed, a polish pass aligned toolbar, clip semantics, and do
 
 | Doc | When |
 |-----|------|
-| [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md) | Product rules |
+| [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) | H2H compare rules |
+| [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md) | Solo product rules |
 | [`amiga-profile-v0.md`](amiga-profile-v0.md) | Profile surface register |
 | [`design-direction.md`](design-direction.md) | Chart palette |
 | [`player-profile-feast.md`](player-profile-feast.md) | Surface rhythm |

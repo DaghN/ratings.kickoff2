@@ -681,7 +681,8 @@ function amiga_finalize_tournament(
         $matchups->applyNetworkToPlayerState($pid, $players[$pid]);
         amiga_matchup_apply_peak_from_event_rating(
             $players[$pid],
-            (float) $eventCommitsByPlayer[$pid]['rating_after']
+            (float) $eventCommitsByPlayer[$pid]['rating_after'],
+            $tournamentId
         );
     }
 

@@ -486,27 +486,6 @@ function amiga_lb_rating_delta_sort_value(?float $delta): string
 }
 
 /**
- * Scalar subquery: first tournament day when career PeakRating was first reached.
- * Amiga commits rating at event finalize — not per-game (PeakRatingGameID is online-era).
- */
-function amiga_lb_peak_rating_date_scalar_sql(string $peakRatingColumn = 's.PeakRating', ?string $cutoffTupleSql = null): string
-{
-    $cutoffFilter = $cutoffTupleSql !== null
-        ? ' AND (snap.event_date, snap.event_chrono, snap.tournament_id) <= ' . $cutoffTupleSql . ' '
-        : ' ';
-
-    return '(SELECT t.event_date FROM amiga_player_event_snapshots snap '
-        . 'INNER JOIN tournaments t ON t.id = snap.tournament_id '
-        . 'WHERE snap.player_id = p.id '
-        . 'AND ' . $peakRatingColumn . ' IS NOT NULL AND ' . $peakRatingColumn . ' > 0 '
-        . 'AND snap.PeakRating IS NOT NULL '
-        . 'AND ABS(snap.PeakRating - ' . $peakRatingColumn . ') < 0.001 '
-        . $cutoffFilter
-        . 'ORDER BY snap.event_date ASC, snap.event_chrono ASC, snap.tournament_id ASC '
-        . 'LIMIT 1) AS peak_rating_date';
-}
-
-/**
  * Peak-rating wing — rating stats from snapshot/current; peak rank from dense timeline (TT-safe).
  *
  * @return mysqli_result
@@ -518,9 +497,10 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
 
     if (!$ctx->isActive()) {
         $sql = $selectBase
-            . amiga_lb_peak_rating_date_scalar_sql('s.PeakRating') . ', s.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
+            . 'tpr.event_date AS peak_rating_date, s.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
             . 'FROM amiga_players p '
             . 'INNER JOIN amiga_player_current s ON s.player_id = p.id '
+            . 'LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
             . 'LEFT JOIN tournaments tpke ON tpke.id = s.peak_elo_rank_tournament_id '
             . 'WHERE ' . amiga_lb_player_where_sql() . ' '
             . 'ORDER BY s.PeakRating DESC, s.Rating DESC';
@@ -534,8 +514,9 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
     }
 
     $sql = $selectBase
-        . amiga_lb_peak_rating_date_scalar_sql('s.PeakRating', '(?, ?, ?)') . ', er.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
+        . 'tpr.event_date AS peak_rating_date, er.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
         . amiga_lb_snapshot_from_sql('s')
+        . ' LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
         . ' LEFT JOIN ('
         . '    SELECT x.player_id, x.peak_elo_rank, x.peak_elo_rank_tournament_id FROM ('
         . '        SELECT er.player_id, er.peak_elo_rank, er.peak_elo_rank_tournament_id,'
@@ -559,7 +540,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('sdisdi', $eventDate, $chrono, $tournamentId, $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
     if (!$stmt->execute()) {
         throw new RuntimeException('execute amiga peak rating lb snapshot: ' . $stmt->error);
     }

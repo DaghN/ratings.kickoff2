@@ -345,17 +345,41 @@ final class AmigaMatchupCumulative
 /**
  * @param array<string, mixed> $st
  */
-function amiga_matchup_apply_peak_from_event_rating(array &$st, float $ratingAfter): void
-{
+function amiga_matchup_apply_peak_from_event_rating(
+    array &$st,
+    float $ratingAfter,
+    int $tournamentId
+): void {
     if ((int) ($st['games'] ?? 0) <= 0) {
         return;
     }
-    $peak = (float) ($st['peak_rating'] ?? 0);
-    $low = (float) ($st['lowest_rating'] ?? 0);
-    if ($peak <= 0 || $ratingAfter > $peak) {
+    $priorPeak = (float) ($st['peak_rating'] ?? 0);
+    if ($priorPeak <= 0 || $ratingAfter > $priorPeak) {
         $st['peak_rating'] = $ratingAfter;
     }
-    if ($low <= 0 || $ratingAfter < $low) {
+    $priorPeakTid = isset($st['peak_rating_tournament_id'])
+        ? ($st['peak_rating_tournament_id'] !== null ? (int) $st['peak_rating_tournament_id'] : null)
+        : null;
+    if ($priorPeak <= 0 || $ratingAfter > $priorPeak + 1e-9) {
+        $st['peak_rating_tournament_id'] = $tournamentId;
+    } elseif ($priorPeakTid === null && $priorPeak > 0) {
+        $st['peak_rating_tournament_id'] = $tournamentId;
+    } else {
+        $st['peak_rating_tournament_id'] = $priorPeakTid;
+    }
+
+    $priorLow = (float) ($st['lowest_rating'] ?? 0);
+    if ($priorLow <= 0 || $ratingAfter < $priorLow) {
         $st['lowest_rating'] = $ratingAfter;
+    }
+    $priorLowTid = isset($st['lowest_rating_tournament_id'])
+        ? ($st['lowest_rating_tournament_id'] !== null ? (int) $st['lowest_rating_tournament_id'] : null)
+        : null;
+    if ($priorLow <= 0 || $ratingAfter < $priorLow - 1e-9) {
+        $st['lowest_rating_tournament_id'] = $tournamentId;
+    } elseif ($priorLowTid === null && $priorLow > 0) {
+        $st['lowest_rating_tournament_id'] = $tournamentId;
+    } else {
+        $st['lowest_rating_tournament_id'] = $priorLowTid;
     }
 }

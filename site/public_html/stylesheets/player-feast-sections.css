@@ -544,7 +544,8 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 	color: var(--k2-text-muted);
 }
 
-.player-rank-chart .pm3d-chart__summary {
+.player-rank-chart .pm3d-chart__summary,
+.player-compare-rank-chart .pm3d-chart__summary {
 	color: var(--k2-text-muted);
 }
 
@@ -558,6 +559,16 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 .player-rank-chart .pm3-chart-peak-value {
 	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
 	font-weight: 600;
+}
+
+.player-compare-rank-chart .pm3-chart-peak-value--subject {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
+	font-weight: 700;
+}
+
+.player-compare-rank-chart .pm3-chart-peak-value--opponent {
+	color: color-mix(in srgb, var(--k2-table-negative) 85%, var(--k2-text-primary));
+	font-weight: 700;
 }
 
 .pm3d-career-charts {
@@ -650,25 +661,28 @@ body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped:focus-visible {
 	margin: 0;
 }
 
-body.k2-site .player-rank-chart__toolbar {
+body.k2-site .player-rank-chart__toolbar,
+body.k2-site .player-compare-rank-chart__toolbar {
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 8px;
 }
 
-body.k2-site .player-rank-chart__toolbar-row {
+body.k2-site .player-rank-chart__toolbar-row,
+body.k2-site .player-compare-rank-chart__toolbar-row {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px 16px;
 }
 
-/* Range controls: one band set visible per scale (see data-range-mode on toolbar). */
-body.k2-site .player-rank-chart__toolbar[data-range-mode="linear"] .player-rank-chart__percentile-window {
+body.k2-site .player-rank-chart__toolbar[data-range-mode="linear"] .player-rank-chart__percentile-window,
+body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="linear"] .player-compare-rank-chart__percentile-window {
 	display: none !important;
 }
 
-body.k2-site .player-rank-chart__toolbar[data-range-mode="percentile"] .player-rank-chart__window {
+body.k2-site .player-rank-chart__toolbar[data-range-mode="percentile"] .player-rank-chart__window,
+body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="percentile"] .player-compare-rank-chart__window {
 	display: none !important;
 }
 

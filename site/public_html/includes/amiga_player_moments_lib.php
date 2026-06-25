@@ -91,7 +91,7 @@ function amiga_player_moment_games_href(int $playerId, int $opponentId, int $gam
 }
 
 /**
- * Trophy moments for profile (biggest win, most goals, peak rating game).
+ * Trophy moments for profile (biggest win, most goals, peak rating event).
  *
  * @return list<array<string, mixed>>
  */
@@ -110,6 +110,7 @@ function amiga_player_moments_load(mysqli $con, int $playerId): array
     $peakRating = !k2_db_is_null($stats['PeakRating'] ?? null) && (float) $stats['PeakRating'] > 0
         ? (int) round((float) $stats['PeakRating'])
         : null;
+    $peakTournamentId = (int) ($stats['peak_rating_tournament_id'] ?? 0);
 
     $defs = [
         [
@@ -119,6 +120,7 @@ function amiga_player_moments_load(mysqli $con, int $playerId): array
             'icon' => '⚡',
             'tag' => 'Margin',
             'peak_rating' => null,
+            'tournament_id' => 0,
         ],
         [
             'key' => 'goal_festival',
@@ -127,14 +129,16 @@ function amiga_player_moments_load(mysqli $con, int $playerId): array
             'icon' => '🎯',
             'tag' => 'Attack',
             'peak_rating' => null,
+            'tournament_id' => 0,
         ],
         [
             'key' => 'peak_rating',
-            'label' => 'Peak rating game',
-            'game_id' => (int) ($stats['PeakRatingGameID'] ?? 0),
+            'label' => 'Peak rating',
+            'game_id' => 0,
             'icon' => '★',
             'tag' => 'Peak',
             'peak_rating' => $peakRating,
+            'tournament_id' => $peakTournamentId,
         ],
     ];
 
@@ -146,13 +150,33 @@ function amiga_player_moments_load(mysqli $con, int $playerId): array
     }
     $gamesById = amiga_player_moment_fetch_games($con, $gameIds, $playerId);
 
+    $peakTournament = null;
+    if ($peakTournamentId > 0) {
+        require_once __DIR__ . '/amiga_tournament_lib.php';
+        $peakTournament = amiga_tournament_load($con, $peakTournamentId, false);
+    }
+
     $moments = [];
     foreach ($defs as $def) {
+        if (($def['key'] ?? '') === 'peak_rating') {
+            if ($peakRating === null || $peakTournament === null) {
+                continue;
+            }
+            $eventDate = (string) ($peakTournament['event_date'] ?? '');
+            $dateTs = strtotime($eventDate);
+            $moments[] = array_merge($def, [
+                'tournament_name' => (string) ($peakTournament['name'] ?? ''),
+                'date' => $dateTs !== false ? date('M j, Y', $dateTs) : $eventDate,
+                'is_event' => true,
+            ]);
+            continue;
+        }
+
         $gameId = (int) $def['game_id'];
         if ($gameId < 1 || !isset($gamesById[$gameId])) {
             continue;
         }
-        $moments[] = array_merge($def, $gamesById[$gameId]);
+        $moments[] = array_merge($def, $gamesById[$gameId], ['is_event' => false]);
     }
 
     return $moments;

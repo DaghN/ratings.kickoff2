@@ -58,6 +58,10 @@ function player_opponents_render_h2h_matchup_charts(
     if ($opponentName !== '') {
         $ratingHeading .= ' vs ' . $opponentName;
     }
+    $rankHeading = 'Rank comparison';
+    if ($opponentName !== '') {
+        $rankHeading .= ' vs ' . $opponentName;
+    }
     $goalsHeading = 'Goals per game';
     if ($opponentName !== '') {
         $goalsHeading .= ' vs ' . $opponentName;
@@ -117,6 +121,43 @@ function player_opponents_render_h2h_matchup_charts(
 				</div>
 			</div>
 		</div>
+		<?php if ($realm === 'amiga') { ?>
+		<h3 class="pm3d-matchups__subtitle player-compare-rank-chart-heading"><?php echo k2_h($rankHeading); ?></h3>
+		<div class="player-compare-rank-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
+			<p class="k2-chart-block__hint">End-of-day rank after each tournament day.</p>
+			<div class="pm3d-chart-toolbar player-compare-rank-chart__toolbar" data-range-mode="linear">
+				<div class="player-compare-rank-chart__toolbar-row">
+					<div class="pm3d-rating-toggle player-compare-rank-chart__scale" role="tablist" aria-label="Rank comparison scale">
+						<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-scale="linear">Linear</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-scale="percentile">Percentile</button>
+					</div>
+				</div>
+				<div class="player-compare-rank-chart__toolbar-row player-compare-rank-chart__range-row">
+					<div class="pm3d-rating-toggle player-compare-rank-chart__window" role="tablist" aria-label="Rank comparison Y window">
+						<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-window="career">Career</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top20">Top 20</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top50">Top 50</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top100">Top 100</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="community">Full ladder</button>
+					</div>
+					<div class="pm3d-rating-toggle player-compare-rank-chart__percentile-window" role="tablist" aria-label="Percentile Y window">
+						<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-pwindow="career">Career</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p95">95–100</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p90">90–100</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p80">80–100</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p50">50–100</button>
+						<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="community">Full ladder</button>
+					</div>
+				</div>
+			</div>
+			<p class="player-compare-rank-peak-subject pm3d-chart__summary" hidden></p>
+			<p class="player-compare-rank-peak-opponent pm3d-chart__summary" hidden></p>
+			<p class="player-compare-rank-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
+			<div class="k2-chart-frame">
+				<canvas class="player-compare-rank-canvas" aria-label="Rank comparison by calendar date"></canvas>
+			</div>
+		</div>
+		<?php } ?>
 		<?php if ($opponentId > 0) { ?>
 		<h3 class="pm3d-matchups__subtitle player-goals-scored-histogram-heading"><?php echo k2_h($goalsHeading); ?></h3>
 		<div

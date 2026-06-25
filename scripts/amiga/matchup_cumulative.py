@@ -244,11 +244,33 @@ class MatchupCumulative:
         st.clean_sheets_culprits = counts["clean_sheets_culprits"]
 
 
-def apply_peak_from_event_rating(st: PlayerState, rating_after: float) -> None:
+def apply_peak_from_event_rating(
+    st: PlayerState, rating_after: float, tournament_id: int
+) -> None:
     """Incremental peak/nadir from finalize event rating (policy M6)."""
+    from scripts.amiga.peak_rating_event import (
+        compute_lowest_rating_tournament_id,
+        compute_peak_rating_tournament_id,
+    )
+
     if st.games <= 0:
         return
-    if st.peak_rating <= 0 or rating_after > st.peak_rating:
+    prior_peak = st.peak_rating
+    if prior_peak <= 0 or rating_after > prior_peak:
         st.peak_rating = rating_after
-    if st.lowest_rating <= 0 or rating_after < st.lowest_rating:
+    st.peak_rating_tournament_id = compute_peak_rating_tournament_id(
+        rating_after,
+        tournament_id,
+        prior_peak,
+        st.peak_rating_tournament_id,
+    )
+
+    prior_low = st.lowest_rating
+    if prior_low <= 0 or rating_after < prior_low:
         st.lowest_rating = rating_after
+    st.lowest_rating_tournament_id = compute_lowest_rating_tournament_id(
+        rating_after,
+        tournament_id,
+        prior_low,
+        st.lowest_rating_tournament_id,
+    )

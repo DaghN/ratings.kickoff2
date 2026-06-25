@@ -50,7 +50,9 @@ Metrics: `tournaments_played`, `event_gold`, `wc_played`, `countries_played_in`,
 | Field(s) | Class | Meaning | Py writer | PHP writer | Verify |
 |----------|-------|---------|-----------|------------|--------|
 | `LastGameGameID`, `LastWinGameID`, `LastDrawGameID`, `LastLossGameID` | game-anchor | Game id for last overall / W / D / L | `PlayerState` / post-game | `k2_post_game_player_state` | **partial** — career column parity current vs latest snapshot |
-| `PeakRatingGameID`, `LowestRatingGameID`, `MostGoalsScoredGameID`, … (see `PlayerState.to_db_row`) | game-anchor | Game where career extreme was set/refreshed | same | same | **partial** — column parity only |
+| `PeakRatingGameID`, `LowestRatingGameID` | **retired Amiga Jun 2026** — use `peak_rating_tournament_id` / `lowest_rating_tournament_id` (SCH-042/043) |
+| `peak_rating_tournament_id`, `lowest_rating_tournament_id` | rise-like event anchor | Tournament where career peak/nadir rating was first reached at finalize | `apply_peak_from_event_rating` | PHP finalize | **yes** — `verify_event_snapshots` rating anchor oracle |
+| `MostGoalsScoredGameID`, … (other career game ids) | game-anchor | Game where career extreme was set/refreshed | same | same | **partial** — column parity only |
 | `career_best_performance_tournament_id` (+ rating) | game-anchor | Tournament where best perf rating (≥2 games) was set | `snapshot_row.career_best_performance_fields` | `amiga_event_snapshot_persist` | **yes** — `verify_stored_id_date_pairs` (FK + replay oracle) |
 
 *No stored dates on these career game-id columns — dates come from joined `amiga_games` / tournament when projected to HoF.*
@@ -165,6 +167,7 @@ New stored id/date field → add a row here → ship `test_*` or `verify_*` befo
 
 | When | What |
 |------|------|
+| 2026-06 | **SCH-042/043** — `peak_rating_tournament_id` / `lowest_rating_tournament_id`; dropped Amiga `PeakRatingGameID` / `LowestRatingGameID` |
 | 2026-06 | Phase D — `verify-php-finalize-parity` **retired** with refinalize; batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); corrections = `prove` only |
 | 2026-06 | Phase C — `verify_stored_id_date_pairs` in `prove`; P4–P6 closed |
 | 2026-06 | Phase B — `verify_hof_holder_projection` in `prove`; game + ratio + career source-field checks |

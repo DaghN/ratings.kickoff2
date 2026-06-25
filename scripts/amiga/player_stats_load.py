@@ -99,8 +99,6 @@ def player_state_from_stats_row(row: dict[str, Any]) -> PlayerState:
         ("last_win_game_id", "LastWinGameID"),
         ("last_draw_game_id", "LastDrawGameID"),
         ("last_loss_game_id", "LastLossGameID"),
-        ("lowest_rating_game_id", "LowestRatingGameID"),
-        ("peak_rating_game_id", "PeakRatingGameID"),
         ("most_goals_scored_game_id", "MostGoalsScoredGameID"),
         ("least_goals_scored_game_id", "LeastGoalsScoredGameID"),
         ("most_goals_conceded_game_id", "MostGoalsConcededGameID"),
@@ -118,7 +116,14 @@ def player_state_from_stats_row(row: dict[str, Any]) -> PlayerState:
             setattr(st, attr, int(val))
 
     for attr, col in (
-        ("most_goals_scored_victim_id", "MostGoalsScoredVictimID"),
+        ("peak_rating_tournament_id", "peak_rating_tournament_id"),
+        ("lowest_rating_tournament_id", "lowest_rating_tournament_id"),
+    ):
+        val = row.get(col)
+        if val is not None:
+            setattr(st, attr, int(val))
+
+    for attr, col in (
         ("least_goals_conceded_victim_id", "LeastGoalsConcededVictimID"),
         ("biggest_win_victim_id", "BiggestWinVictimID"),
         ("most_goals_conceded_culprit_id", "MostGoalsConcededCulpritID"),

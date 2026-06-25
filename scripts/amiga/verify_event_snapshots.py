@@ -18,6 +18,11 @@ from scripts.amiga.player_tournament_participation import _PLAYER_GAMES_ROLLUP_S
 from scripts.amiga.snapshot_row import (
     CAREER_COLUMNS,
     HONOURS_CURRENT_COLUMNS,
+    _RATING_EVENT_ANCHOR_COLUMNS,
+)
+from scripts.amiga.peak_rating_event import (
+    compute_lowest_rating_tournament_id,
+    compute_peak_rating_tournament_id,
 )
 
 _TOLERANCE = 1e-5
@@ -104,6 +109,8 @@ def _current_latest_mismatch_sql() -> str:
             "career_best_performance_tournament_id",
         )
     )
+    for col in _RATING_EVENT_ANCHOR_COLUMNS:
+        clauses.append(_null_safe_neq(f"c.`{col}`", f"l.`{col}`", col))
     for col in GEO_YEAR_PLAYER_COLUMNS:
         clauses.append(_null_safe_neq(f"c.`{col}`", f"l.`{col}`", col))
     for col in RECORD_RISE_PLAYER_COLUMNS:
@@ -379,6 +386,104 @@ def _verify_peak_elo_ranks(conn: pymysql.connections.Connection) -> list[str]:
     return errors
 
 
+def _verify_rating_event_anchors(conn: pymysql.connections.Connection) -> list[str]:
+    errors: list[str] = []
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_current
+            WHERE NumberGames > 0 AND PeakRating > 0 AND peak_rating_tournament_id IS NULL
+            """
+        )
+        null_peak_tid = int(cur.fetchone()["n"])
+        if null_peak_tid:
+            errors.append(
+                f"current rows with PeakRating>0 but NULL peak_rating_tournament_id: {null_peak_tid}"
+            )
+
+        for col in ("peak_rating_tournament_id", "lowest_rating_tournament_id"):
+            cur.execute(
+                f"""
+                SELECT COUNT(*) AS n
+                FROM amiga_player_current c
+                LEFT JOIN tournaments t ON t.id = c.{col}
+                WHERE c.{col} IS NOT NULL AND t.id IS NULL
+                """
+            )
+            orphan = int(cur.fetchone()["n"])
+            if orphan:
+                errors.append(f"current {col} orphan FK: {orphan}")
+
+        cur.execute(
+            """
+            SELECT player_id, tournament_id, rating_after, PeakRating, LowestRating,
+                peak_rating_tournament_id, lowest_rating_tournament_id
+            FROM amiga_player_event_snapshots
+            ORDER BY player_id ASC, event_date ASC, event_chrono ASC, tournament_id ASC
+            """
+        )
+        all_rows = cur.fetchall()
+
+    mismatches = 0
+    current_player: int | None = None
+    running_peak: float = 0.0
+    running_peak_tid: int | None = None
+    running_low: float = 0.0
+    running_low_tid: int | None = None
+    for row in all_rows:
+        pid = int(row["player_id"])
+        tid = int(row["tournament_id"])
+        if pid != current_player:
+            current_player = pid
+            running_peak = 0.0
+            running_peak_tid = None
+            running_low = 0.0
+            running_low_tid = None
+
+        rating_after = row.get("rating_after")
+        if rating_after is None:
+            continue
+        rating_after = float(rating_after)
+
+        exp_peak_tid = compute_peak_rating_tournament_id(
+            rating_after, tid, running_peak, running_peak_tid
+        )
+        exp_low_tid = compute_lowest_rating_tournament_id(
+            rating_after, tid, running_low, running_low_tid
+        )
+        stored_peak_tid = row.get("peak_rating_tournament_id")
+        stored_low_tid = row.get("lowest_rating_tournament_id")
+        if (None if stored_peak_tid is None else int(stored_peak_tid)) != exp_peak_tid:
+            mismatches += 1
+            if mismatches <= _SAMPLE_LIMIT:
+                errors.append(
+                    f"peak_rating_tournament_id mismatch player_id={pid} tournament_id={tid} "
+                    f"stored={stored_peak_tid} expected={exp_peak_tid}"
+                )
+        if (None if stored_low_tid is None else int(stored_low_tid)) != exp_low_tid:
+            mismatches += 1
+            if mismatches <= _SAMPLE_LIMIT:
+                errors.append(
+                    f"lowest_rating_tournament_id mismatch player_id={pid} tournament_id={tid} "
+                    f"stored={stored_low_tid} expected={exp_low_tid}"
+                )
+
+        peak_val = row.get("PeakRating")
+        if peak_val is not None:
+            running_peak = float(peak_val)
+            running_peak_tid = exp_peak_tid
+        low_val = row.get("LowestRating")
+        if low_val is not None:
+            running_low = float(low_val)
+            running_low_tid = exp_low_tid
+
+    if mismatches > _SAMPLE_LIMIT:
+        errors.append(f"rating event anchor timeline mismatches: {mismatches}")
+
+    return errors
+
+
 def verify_event_snapshots(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
 
@@ -559,6 +664,7 @@ def verify_event_snapshots(conn: pymysql.connections.Connection) -> list[str]:
 
     errors.extend(_verify_elo_ranks(conn))
     errors.extend(_verify_peak_elo_ranks(conn))
+    errors.extend(_verify_rating_event_anchors(conn))
 
     return errors
 

@@ -237,6 +237,8 @@ function amiga_ops_current_row_from_snapshot(array $snapshot): array
 
     $current['career_best_performance_rating'] = $snapshot['career_best_performance_rating'] ?? null;
     $current['career_best_performance_tournament_id'] = $snapshot['career_best_performance_tournament_id'] ?? null;
+    $current['peak_rating_tournament_id'] = $snapshot['peak_rating_tournament_id'] ?? null;
+    $current['lowest_rating_tournament_id'] = $snapshot['lowest_rating_tournament_id'] ?? null;
 
     foreach (amiga_ops_snapshot_geo_year_columns() as $col) {
         $current[$col] = $snapshot[$col] ?? 0;
@@ -495,7 +497,9 @@ function amiga_ops_persist_tournament_event_snapshots(
         );
 
         $careerDbRow = k2_post_game_player_to_db_row($players[$pid], $pid);
-        unset($careerDbRow['ID']);
+        unset($careerDbRow['ID'], $careerDbRow['PeakRatingGameID'], $careerDbRow['LowestRatingGameID']);
+        $careerDbRow['peak_rating_tournament_id'] = $players[$pid]['peak_rating_tournament_id'] ?? null;
+        $careerDbRow['lowest_rating_tournament_id'] = $players[$pid]['lowest_rating_tournament_id'] ?? null;
 
         $carry = $carryByPlayer[$pid] ?? [];
         $careerRise = amiga_career_apply_rise_fields(

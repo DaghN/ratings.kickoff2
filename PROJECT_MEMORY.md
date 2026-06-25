@@ -120,11 +120,15 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Amiga H2H rank chart toolbar alignment** — `player-opponents-h2h-poster.css` exception: rank compare toolbar column + `flex-start` (poster’s generic `.pm3d-chart-toolbar` center rule was overriding feast-sections). |
 | 2026-06-25 | **Amiga profile rank chart grid** — `rankChartGrid()` (stronger than softGrid) so Y rank bands read at a glance. |
-| 2026-06-25 | **Amiga peak-rating LB dates** — **Peak date** (first snapshot event matching PeakRating) + **Peak rank date** (`peak_elo_rank_tournament_id`); not `PeakRatingGameID` (online per-game). |
+| 2026-06-25 | **Amiga peak rating event anchors (SCH-042/043)** — `peak_rating_tournament_id` + `lowest_rating_tournament_id` on snapshots/current; dropped `PeakRatingGameID`/`LowestRatingGameID` (online-only); LB peak date from stored id; profile peak moment = event. |
+| 2026-06-25 | **Amiga peak-rating LB dates** — **Peak date** via `peak_rating_tournament_id` + **Peak rank date** via `peak_elo_rank_tournament_id`. |
 | 2026-06-25 | **Amiga peak Elo rank (SCH-041)** — `peak_elo_rank` + `peak_elo_rank_tournament_id` on timeline + `current`; writer in `elo_rank.py` / ops PHP; verify in `prove`; **Peak rank** column on peak-rating LB (TT via dense timeline). |
 | 2026-06-25 | **Amiga profile rank chart — X-axis locked** — full timeline from first Amiga tournament (`timelineStart` on `amiga_games`) → today; no in-chart zoom; Y **Career** is not an X trim (sparse ~600 finalize points / ~25 years). |
-| 2026-06-25 | **Amiga profile rank chart peak summary** — `Peak: #N` (linear) or `Peak: P%` (percentile) + date; first attainment on ties; mirrors rating chart strip. |
+| 2026-06-25 | **Amiga H2H rank comparison chart shipped** — `player_compare_rank_history.php` + `player-compare-rank-chart.js` on `h2h.php`; union Career Y; dual peak text; shared `player-rank-chart-core.js`. |
+| 2026-06-25 | **Amiga H2H rank chart — policy locked** — [`amiga-player-rank-chart-h2h-policy.md`](docs/amiga-player-rank-chart-h2h-policy.md): union **Career** Y default, full X timeline, chrome/red dual lines, **dual peak text lines** (no dashed canvas peak overlay); slices 6a–6e in implementation plan. |
+| 2026-06-25 | **Amiga rank chart peak copy** — text `Peak:` summary under toolbar (profile solo); **not** a drawn peak line on the chart (R18). |
 | 2026-06-25 | **Amiga profile rank chart hint** — sub-heading under **Elo rank**: “End-of-day rank after each tournament day.” (`k2-chart-block__hint`). |
 | 2026-06-25 | **Amiga profile rank chart — post-ship tweak session** — Linear · Percentile only (log dropped); toolbar `data-range-mode` + Career-first band order; stepped-only line; transition edge-clip + empty-band axes (no status); percentile Career meta; Y-axis tick colour fix; policy/plan/profile-v0 updated. |
 | 2026-06-25 | **Amiga profile rating chart default** — `player-rating-chart.js` respects markup initial tab; Amiga profile opens **By date** (online profile still **By game #**). |

@@ -25,6 +25,7 @@ if ($k2AmigaPlayerOpponentsLedgerTable) {
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
 ?>
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/player-feast-sections.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-feast-sections.css'); ?>" rel="stylesheet" type="text/css" />
 <?php if ($view === 'h2h') { ?>
 <link rel="stylesheet" href="/stylesheets/player-opponents-h2h-poster.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-opponents-h2h-poster.css'); ?>" />
 <link rel="stylesheet" href="/stylesheets/player-opponents-h2h-moments.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-opponents-h2h-moments.css'); ?>" />
@@ -42,6 +43,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
 <script type="text/javascript" src="/js/player-h2h-total-goals-histogram.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-h2h-total-goals-histogram.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-h2h-scoreline-heatmap.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-h2h-scoreline-heatmap.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-compare-rating-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-compare-rating-chart.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-rank-chart-core.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rank-chart-core.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-compare-rank-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-compare-rank-chart.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-goals-scored-histogram.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-goals-scored-histogram.js'); ?>" defer="defer"></script>
 <?php } elseif ($k2AmigaPlayerOpponentsLedgerTable) { ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>

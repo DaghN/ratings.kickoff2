@@ -243,6 +243,7 @@ function amiga_profile_render_moments(array $moments, int $playerId = 0): void
 	<div class="pm3-moments pm3-moments--mosaic">
 		<div class="pm3-moments__grid">
 		<?php foreach ($moments as $moment) {
+            $isEvent = !empty($moment['is_event']);
             $opponentId = (int) ($moment['opponent_id'] ?? 0);
             $gamesHref = amiga_player_moment_games_href($playerId, $opponentId, (int) ($moment['game_id'] ?? 0));
             $peakRating = $moment['peak_rating'] ?? null;
@@ -251,6 +252,18 @@ function amiga_profile_render_moments(array $moments, int $playerId = 0): void
 				<span class="pm3-moment__glyph" aria-hidden="true"><?php echo k2_h((string) ($moment['icon'] ?? '')); ?></span>
 				<span class="pm3-moment__tag"><?php echo k2_h((string) ($moment['tag'] ?? '')); ?></span>
 				<h3 class="pm3-moment__label"><?php echo k2_h((string) ($moment['label'] ?? '')); ?></h3>
+				<?php if ($isEvent) { ?>
+				<p class="pm3-moment__score">
+					<?php echo $peakRating !== null ? 'Peak ' . (int) $peakRating : k2_h((string) ($moment['score'] ?? '')); ?>
+				</p>
+				<p class="pm3-moment__meta"><?php
+                    echo amiga_tournament_link(
+                        (int) ($moment['tournament_id'] ?? 0),
+                        (string) ($moment['tournament_name'] ?? '')
+                    );
+                    echo ' · ' . k2_h((string) ($moment['date'] ?? ''));
+                ?></p>
+				<?php } else { ?>
 				<p class="pm3-moment__score">
 					<a class="k2-link-star" href="<?php echo k2_h($gamesHref); ?>"><?php echo k2_h((string) ($moment['score'] ?? '')); ?></a>
 				</p>
@@ -263,6 +276,7 @@ function amiga_profile_render_moments(array $moments, int $playerId = 0): void
                 ?></span>
 					· vs <?php echo k2_amiga_player_link($opponentId, (string) ($moment['opponent_name'] ?? '')); ?>
 					· <?php echo k2_h((string) ($moment['date'] ?? '')); ?></p>
+				<?php } ?>
 			</article>
 		<?php } ?>
 		</div>

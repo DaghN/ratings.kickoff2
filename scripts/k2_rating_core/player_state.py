@@ -127,6 +127,8 @@ class PlayerState:
     last_loss_game_id: int | None = None
     lowest_rating_game_id: int | None = None
     peak_rating_game_id: int | None = None
+    peak_rating_tournament_id: int | None = None
+    lowest_rating_tournament_id: int | None = None
     most_goals_scored_game_id: int | None = None
     least_goals_scored_game_id: int | None = None
     most_goals_conceded_game_id: int | None = None

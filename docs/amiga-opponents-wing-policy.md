@@ -81,7 +81,8 @@ Written at **tournament finalize** (incremental `MatchupCumulative`) and verifie
 | Cumulative H2H / goals charts | filtered `amiga_games` | Online APIs are `realm=online` only today |
 | Scoreline heatmap, histograms | filtered pair games | Same |
 | Pair **performance rating** | `amiga_game_ratings` per game | Computable read-time; not on summary row |
-| **Rating comparison** chart | event-step (`amiga_rating_events` / snapshots) | **Not** a straight copy of online per-game chart — product decision per slice |
+| **Rating comparison** chart | event-step (`amiga_rating_events` / snapshots) | **Shipped** Jun 2026 |
+| **Rank comparison** chart | `amiga_player_elo_rank_at_event` (dual series) | **Shipped** Jun 2026 — [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) |
 
 ### 4.4 Amiga APIs to build (none exist for H2H depth)
 
@@ -133,6 +134,7 @@ D. ~~H2H tab: picker + poster + pair detail (stored; hero from snapshot)~~ **Don
 E. ~~Goals extremes — DDL + finalize~~ **Done (SCH-031 Jun 2026)**
 F. ~~H2H moments + charts (game-filtered; Amiga API branches)~~ **Done Jun 2026**
 G. ~~Hero → games cutoff + hero games tab filter parity under active `as=`~~ **Done Jun 2026** (+ player tournaments list ≤ cutoff)
+H. ~~**H2H rank comparison chart**~~ **Done Jun 2026** — union Career default; dual peak text; [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md)
 ```
 
 Reorder or split if analysis shows a smaller safe step.

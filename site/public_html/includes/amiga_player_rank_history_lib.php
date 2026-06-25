@@ -231,3 +231,34 @@ function amiga_player_rank_history_payload(
         'timelineStart' => $timelineStart,
     ];
 }
+
+/**
+ * @return array{
+ *   player: array<string, mixed>,
+ *   opponent: array<string, mixed>,
+ *   timelineStart: string|null
+ * }|null
+ */
+function amiga_player_rank_history_compare_payload(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    ?AmigaSnapshotContext $ctx = null,
+): ?array {
+    if ($playerId < 1 || $opponentId < 1 || $playerId === $opponentId) {
+        return null;
+    }
+
+    $ctx = $ctx ?? AmigaSnapshotContext::present();
+    $player = amiga_player_rank_history_payload($con, $playerId, $ctx);
+    $opponent = amiga_player_rank_history_payload($con, $opponentId, $ctx);
+    if ($player === null || $opponent === null) {
+        return null;
+    }
+
+    return [
+        'player' => $player,
+        'opponent' => $opponent,
+        'timelineStart' => amiga_player_rating_timeline_start($con),
+    ];
+}

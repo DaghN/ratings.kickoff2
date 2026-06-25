@@ -155,7 +155,17 @@ function amiga_post_game_player_state_from_db_row(array $row): array
 {
     $row['ID'] = (int) $row['player_id'];
 
-    return k2_post_game_player_state_from_db_row($row);
+    $st = k2_post_game_player_state_from_db_row($row);
+    if (array_key_exists('peak_rating_tournament_id', $row)) {
+        $st['peak_rating_tournament_id'] = $row['peak_rating_tournament_id'] !== null
+            ? (int) $row['peak_rating_tournament_id'] : null;
+    }
+    if (array_key_exists('lowest_rating_tournament_id', $row)) {
+        $st['lowest_rating_tournament_id'] = $row['lowest_rating_tournament_id'] !== null
+            ? (int) $row['lowest_rating_tournament_id'] : null;
+    }
+
+    return $st;
 }
 
 /**
