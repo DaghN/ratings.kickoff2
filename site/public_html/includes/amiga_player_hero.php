@@ -22,13 +22,16 @@ $heroRating = $heroPreDebut
 $heroGames = $heroPreDebut
     ? '—'
     : (isset($NumberGames) && !k2_db_is_null($NumberGames) ? (int) $NumberGames : 0);
-$heroRank = $heroPreDebut ? '—' : ($heroDisplay && isset($rank) && !k2_db_is_null($rank) ? '#' . (int) $rank : '—');
+$heroRankNum = (!$heroPreDebut && isset($rank) && !k2_db_is_null($rank) && (int) $rank > 0)
+    ? (int) $rank
+    : null;
+$heroRank = $heroRankNum !== null ? '#' . $heroRankNum : '—';
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
 $heroProfileHref = $heroPlayerId > 0 ? k2_amiga_player_profile_href($heroPlayerId) : '';
 $heroGamesHref = $heroPlayerId > 0 ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) : '';
 $heroLbRatingHref = amiga_lb_table_href('/amiga/leaderboards/rating.php');
-$heroRankLinked = !$heroPreDebut && $heroDisplay && isset($rank) && !k2_db_is_null($rank);
+$heroRankLinked = !$heroPreDebut && $heroDisplay && $heroRankNum !== null;
 $heroRatingLinked = !$heroPreDebut && $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 $heroGamesLinked = !$heroPreDebut && $heroGamesHref !== '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
@@ -57,7 +60,7 @@ $heroFlagMeta = $heroCountry !== '' ? k2_amiga_country_flag_meta($heroCountry) :
 					<span class="k2-player-hero__stat-label">Rank</span>
 					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--rank"><?php
 						if ($heroRankLinked) {
-							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbRatingHref, ENT_QUOTES, 'UTF-8'); ?>">#<?php echo (int) $rank; ?></a><?php
+							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbRatingHref, ENT_QUOTES, 'UTF-8'); ?>">#<?php echo $heroRankNum; ?></a><?php
 						} else {
 							echo $heroRank;
 						}

@@ -120,6 +120,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Amiga profile rank chart — implementation plan** — [`docs/amiga-player-rank-chart-implementation-plan.md`](docs/amiga-player-rank-chart-implementation-plan.md): slices 1–5 (API → shell → chart core → controls → TT); mandatory chart platform contract from rating/Activity patterns. |
+| 2026-06-25 | **Amiga profile rank chart — policy locked** — [`docs/amiga-player-rank-chart-policy.md`](docs/amiga-player-rank-chart-policy.md): `elo_rank_at_event` all finalizes, date X, linear/log/percentile + bands, connected/stepped, TT, minimal copy; solo v1 only. |
+| 2026-06-25 | **Amiga staging export — elo_rank timeline** — `export_ko2amiga_db.ps1` now dumps `amiga_player_elo_rank_at_event`; hero rank 0 → — in TT/present load. Re-import staging for time-travel rank on profile/H2H. |
 | 2026-06-25 | **H2H scoreline heatmap axes + scale** — rectangular grid (hero GF rows × rival GA cols, not forced square); intensity legend uses min(8, peak) buckets so low-count pairings no longer show junk ranges like `1–0`. Online + Amiga. |
 | 2026-06-25 | **Amiga Opponents H2H slice F** — moments grid + full chart stack (cumulative W/goals, rating compare by date/tournament #, goals histograms, total-goals + scoreline heatmap); `amiga_player_h2h_pair_lib.php` + `?realm=amiga` on H2H chart APIs; `player-opponents-h2h-chart-context.js`. |
 | 2026-06-25 | **Amiga Opponents H2H slice D** — poster + search/by-games/A–Z pickers + pair-detail races + all-games link; stored `matchup_summary` / `matchup_at_event` + read-time pair perf; `player_h2h_opponent_search.php?realm=amiga`. |

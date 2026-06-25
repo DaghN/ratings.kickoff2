@@ -218,6 +218,6 @@ function amiga_player_row_from_snapshot(array $playerRow, array $snap, int $rank
         'goals_against' => (int) ($snap['GoalsAgainst'] ?? 0),
         'goal_ratio' => !k2_db_is_null($snap['GoalRatio'] ?? null) ? (float) $snap['GoalRatio'] : null,
         'opp_avg' => !k2_db_is_null($snap['AverageOpponentRating'] ?? null) ? (float) $snap['AverageOpponentRating'] : null,
-        'rank' => $rank,
+        'rank' => amiga_player_normalize_elo_rank($rank),
     ];
 }

@@ -19,7 +19,7 @@ $Tables = @(
     'tournament_format_templates', 'tournaments', 'amiga_players',
     'tournament_entrants', 'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
     'amiga_games', 'amiga_game_ratings',
-    'amiga_player_event_snapshots', 'amiga_player_current',
+    'amiga_player_event_snapshots', 'amiga_player_current', 'amiga_player_elo_rank_at_event',
     'amiga_player_matchup_at_event', 'amiga_player_matchup_summary',
     'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
     'amiga_generalstats', 'amiga_realm_snapshots',
@@ -116,6 +116,12 @@ $currentPart = ('ko2amiga_{0:D2}_player_current.sql' -f $idx)
 $currentFile = Join-Path $OutDir $currentPart
 Write-DumpFile $currentFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_current')
 $parts.Add($currentPart)
+$idx++
+
+$eloRankAtEventPart = ('ko2amiga_{0:D2}_elo_rank_at_event.sql' -f $idx)
+$eloRankAtEventFile = Join-Path $OutDir $eloRankAtEventPart
+Write-DumpFile $eloRankAtEventFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_elo_rank_at_event')
+$parts.Add($eloRankAtEventPart)
 $idx++
 
 $matchupAtEventPart = ('ko2amiga_{0:D2}_matchup_at_event.sql' -f $idx)

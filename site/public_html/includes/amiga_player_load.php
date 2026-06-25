@@ -12,6 +12,17 @@ require_once __DIR__ . '/amiga_player_current_lib.php';
 require_once __DIR__ . '/amiga_player_snapshot_lib.php';
 require_once __DIR__ . '/amiga_elo_rank_lib.php';
 
+/** Persisted career rank for display; 0 / missing → null (show —). */
+function amiga_player_normalize_elo_rank(mixed $rank): ?int
+{
+    if ($rank === null || k2_db_is_null($rank)) {
+        return null;
+    }
+    $n = (int) $rank;
+
+    return $n > 0 ? $n : null;
+}
+
 /**
  * @return array<string, mixed>
  */
@@ -81,7 +92,7 @@ function amiga_player_load_present(mysqli $con, int $id): array
         'goals_against' => (int) ($row['GoalsAgainst'] ?? 0),
         'goal_ratio' => !k2_db_is_null($row['GoalRatio']) ? (float) $row['GoalRatio'] : null,
         'opp_avg' => !k2_db_is_null($row['AverageOpponentRating']) ? (float) $row['AverageOpponentRating'] : null,
-        'rank' => (int) ($row['elo_rank'] ?? 0),
+        'rank' => amiga_player_normalize_elo_rank($row['elo_rank'] ?? null),
     ];
 }
 
@@ -139,7 +150,7 @@ function amiga_player_publish_hero_context(array $pm): void
     } else {
         $Rating = $pm['rating'] ?? null;
         $NumberGames = $pm['games'] ?? null;
-        $rank = $pm['rank'] ?? null;
+        $rank = amiga_player_normalize_elo_rank($pm['rank'] ?? null);
     }
 }
 
