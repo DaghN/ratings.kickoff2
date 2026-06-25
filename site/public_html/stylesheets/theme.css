@@ -2496,9 +2496,9 @@ body.k2-site .k2-amiga-tt-stamp__segment {
 	font-variant-numeric: tabular-nums;
 }
 
-body.k2-site .k2-amiga-tt-stamp__sep {
-	opacity: 0.72;
-	transform: translateY(-0.04em);
+/* DSEG7 period has zero advance width — pad so date fields do not collide. */
+body.k2-site .k2-amiga-tt-stamp--sep-period .k2-amiga-tt-stamp__sep {
+	padding-inline: 0.14em;
 }
 
 body.k2-site button.k2-amiga-tt-stamp__cursor {

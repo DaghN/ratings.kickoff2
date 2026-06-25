@@ -10,6 +10,17 @@ require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 
+/** DSEG7 LED field separator between date parts — try `:` then `.` (policy §5 LED date). */
+const AMIGA_TT_STAMP_LED_FIELD_SEP = '.';
+
+/**
+ * @return array{text: string, sep: true}
+ */
+function amiga_time_travel_stamp_led_sep_part(): array
+{
+    return ['text' => AMIGA_TT_STAMP_LED_FIELD_SEP, 'sep' => true];
+}
+
 function amiga_time_travel_stamp_context(): ?AmigaSnapshotContext
 {
     $existing = $GLOBALS['_amiga_snapshot_context'] ?? null;
@@ -52,16 +63,16 @@ function amiga_time_travel_stamp_led_parts(string $eventDateYmd, string $wing): 
     if ($wing === 'month') {
         return [
             ['text' => $date->format('m'), 'sep' => false],
-            ['text' => "\xC2\xB7", 'sep' => true],
+            amiga_time_travel_stamp_led_sep_part(),
             ['text' => $date->format('Y'), 'sep' => false],
         ];
     }
 
     return [
         ['text' => $date->format('d'), 'sep' => false],
-        ['text' => "\xC2\xB7", 'sep' => true],
+        amiga_time_travel_stamp_led_sep_part(),
         ['text' => $date->format('m'), 'sep' => false],
-        ['text' => "\xC2\xB7", 'sep' => true],
+        amiga_time_travel_stamp_led_sep_part(),
         ['text' => $date->format('Y'), 'sep' => false],
     ];
 }
@@ -193,10 +204,11 @@ function amiga_time_travel_stamp_render(?AmigaSnapshotContext $ctx = null): void
     $kickerTypewriter = $arrivalMode !== null;
     $pendingClass = $arrivalPending ? ' k2-amiga-tt-stamp--arrival-pending' : '';
     $ledFadeClass = $ledFadePending ? ' k2-amiga-tt-stamp--led-fade-pending' : '';
+    $sepPeriodClass = AMIGA_TT_STAMP_LED_FIELD_SEP === '.' ? ' k2-amiga-tt-stamp--sep-period' : '';
     $kickerText = $kickerTypewriter ? '' : $view['kicker'];
     $cursorHelp = amiga_time_travel_stamp_cursor_help_blinking();
     ?>
-<aside class="k2-amiga-tt-stamp<?php echo k2_h($wingClass . $pendingClass . $ledFadeClass); ?>" aria-label="<?php echo k2_h($view['a11y']); ?>">
+<aside class="k2-amiga-tt-stamp<?php echo k2_h($wingClass . $pendingClass . $ledFadeClass . $sepPeriodClass); ?>" aria-label="<?php echo k2_h($view['a11y']); ?>">
 	<p class="k2-amiga-tt-stamp__kicker" aria-hidden="true"><span class="k2-amiga-tt-stamp__prompt">&rsaquo;&rsaquo;</span> <span class="k2-amiga-tt-stamp__kicker-text" data-k2-tt-kicker-text="<?php echo k2_h($view['kicker']); ?>"><?php echo k2_h($kickerText); ?></span></p>
 	<p class="k2-amiga-tt-stamp__clock" aria-hidden="true"><?php
     foreach ($view['led'] as $part) {

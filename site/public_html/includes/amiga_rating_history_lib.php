@@ -56,6 +56,65 @@ function amiga_rating_history_tournaments(mysqli $con): array
 }
 
 /**
+ * Last finalized World Cup in catalog chrono order, or null when none.
+ *
+ * @return array{id: int, name: string, event_date: string, chrono: float}|null
+ */
+function amiga_rating_history_last_world_cup_tournament(mysqli $con): ?array
+{
+    require_once __DIR__ . '/amiga_tournament_lib.php';
+
+    $last = null;
+    foreach (amiga_rating_history_tournaments($con) as $tournament) {
+        if (amiga_tournament_is_world_cup($tournament)) {
+            $last = $tournament;
+        }
+    }
+
+    return $last;
+}
+
+/**
+ * Tournament immediately before the given id in catalog chrono order.
+ *
+ * @return array{id: int, name: string, event_date: string, chrono: float}|null
+ */
+function amiga_rating_history_tournament_before(mysqli $con, int $tournamentId): ?array
+{
+    $prev = null;
+    foreach (amiga_rating_history_tournaments($con) as $tournament) {
+        if ($tournament['id'] === $tournamentId) {
+            return $prev;
+        }
+        $prev = $tournament;
+    }
+
+    return null;
+}
+
+/**
+ * Each player's Elo immediately before the given tournament's rating commits.
+ *
+ * @return array<int, float> player_id => rating
+ */
+function amiga_rating_history_baseline_rating_before_tournament(mysqli $con, array $tournament): array
+{
+    $prev = amiga_rating_history_tournament_before($con, (int) $tournament['id']);
+    if ($prev === null) {
+        return [];
+    }
+
+    $ladder = amiga_rating_history_ladder_at_cutoff(
+        $con,
+        $prev['event_date'],
+        $prev['chrono'],
+        $prev['id']
+    );
+
+    return amiga_rating_history_ladder_rating_map($ladder);
+}
+
+/**
  * @return array{min_date: string, max_date: string}|null
  */
 function amiga_rating_history_date_bounds(mysqli $con): ?array

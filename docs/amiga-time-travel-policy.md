@@ -179,7 +179,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 |------|--------|
 | **Placement** | Top of `k2-page-nav`: below wordmark / header mode toggle, **above** snapshot ribbon — on every Amiga page with active time travel (same surfaces as snapshot chrome; ops/import excluded) |
 | **Kicker** | `››` prompt + wing label: **YEAR END REACHED** · **MONTH END REACHED** · **TEMPORAL LINK ESTABLISHED** (event) |
-| **LED date** | From cutoff `event_date`: year wing → `Y`; month → `MM · Y`; event → `DD · MM · YYYY` |
+| **LED date** | From cutoff `event_date`: year wing → `Y`; month → `MM . Y`; event → `DD . MM . YYYY` (DSEG7 `.` separator; swap `AMIGA_TT_STAMP_LED_FIELD_SEP` in stamp PHP to try `:`) |
 | **Typography** | DSEG7 Classic for LED segments only — display exception per [`design-direction.md`](design-direction.md) § Typography |
 | **Motion** | **Ambient:** blinking `_` cursor (click to pause/resume; `localStorage`). **Toggle entry** (`k2_tt_entry=1`): whole panel fade-in + kicker typewriter. **Wing tab change** (`k2_tt_entry=wing`): kicker typewriter + **LED clock opacity fade** (1100ms; no panel rise). **Typewriter:** fixed **32 cps** for toggle and wing (`TYPEWRITER_CPS` in `k2-amiga-tt-stamp.js`). Stepper/picker/hub nav/direct URL do not trigger. Hover tooltip follows pointer near `_`. **Load:** stamp JS sync after markup. |
 | **A11y** | `aria-label` plain English: *As of {j F Y}*; decorative kicker/LED `aria-hidden` |

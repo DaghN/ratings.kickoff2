@@ -36,13 +36,27 @@ $result = amiga_lb_query_career(
 $gameCount = amiga_lb_games_count($con, $ctx);
 
 $showRatingDelta = $ctx->isActive();
-$deltaByPlayer = $showRatingDelta ? amiga_lb_rating_delta_map($con, $ctx) : [];
+$showWcStartDelta = !$showRatingDelta;
+if ($showRatingDelta) {
+    $deltaByPlayer = amiga_lb_rating_delta_map($con, $ctx);
+} elseif ($showWcStartDelta) {
+    $deltaByPlayer = amiga_lb_wc_start_rating_delta_map($con);
+    if ($deltaByPlayer === []) {
+        $showWcStartDelta = false;
+    }
+} else {
+    $deltaByPlayer = [];
+}
+$showDeltaColumn = $showRatingDelta || $showWcStartDelta;
+$deltaColumnHelpAttrs = $showRatingDelta
+    ? k2_lb_amiga_rating_delta_column_help_attrs()
+    : k2_lb_amiga_wc_start_rating_delta_column_help_attrs();
 
 mysqli_close($con);
 
 $colElo = 2;
-$colOffset = $showRatingDelta ? 1 : 0;
-$colDelta = $showRatingDelta ? 3 : null;
+$colOffset = $showDeltaColumn ? 1 : 0;
+$colDelta = $showDeltaColumn ? 3 : null;
 $colCountry = 3 + $colOffset;
 $colGames = 4 + $colOffset;
 $colWins = 5 + $colOffset;
@@ -65,8 +79,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
         <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
         <th<?php echo k2_lb_th_elo($colElo, $lbSort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
-<?php if ($showRatingDelta) { ?>
-        <th<?php echo k2_lb_th($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="number"<?php echo k2_lb_amiga_rating_delta_column_help_attrs(); ?>>&#916;</th>
+<?php if ($showDeltaColumn) { ?>
+        <th<?php echo k2_lb_th($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="number"<?php echo $deltaColumnHelpAttrs; ?>>&#916;</th>
 <?php } ?>
         <th<?php echo k2_lb_th_country($colCountry, $lbSort); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_lb_th($colGames, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
@@ -84,13 +98,13 @@ $rank = 1;
 while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
     $playerId = (int) $row['ID'];
-    $delta = $showRatingDelta ? ($deltaByPlayer[$playerId] ?? null) : null;
+    $delta = $showDeltaColumn ? ($deltaByPlayer[$playerId] ?? null) : null;
     ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo (int) $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($playerId, (string) $row['Name']); ?></td>
         <td<?php echo k2_lb_td($colElo, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
-<?php if ($showRatingDelta) { ?>
+<?php if ($showDeltaColumn) { ?>
         <td<?php echo k2_lb_td($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h(amiga_lb_rating_delta_sort_value($delta)); ?>"><?php echo amiga_lb_rating_delta_cell($delta); ?></td>
 <?php } ?>
         <td<?php echo k2_lb_td($colCountry, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h((string) ($row['Country'] ?? '')); ?>"><?php echo k2_amiga_country_table_cell((string) ($row['Country'] ?? '')); ?></td>

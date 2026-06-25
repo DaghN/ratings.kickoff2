@@ -418,6 +418,41 @@ function amiga_lb_rating_delta_map(mysqli $con, AmigaSnapshotContext $ctx): arra
     return $map;
 }
 
+/**
+ * Present-day rating LB: Elo change since start of the most recent World Cup.
+ *
+ * Baseline = rating after the tournament before that World Cup; players absent
+ * from that ladder snapshot use AMIGA_RATING_HISTORY_START_RATING (1600).
+ *
+ * @return array<int, float> player_id => rating_delta
+ */
+function amiga_lb_wc_start_rating_delta_map(mysqli $con): array
+{
+    require_once __DIR__ . '/amiga_rating_history_lib.php';
+
+    $lastWc = amiga_rating_history_last_world_cup_tournament($con);
+    if ($lastWc === null) {
+        return [];
+    }
+
+    $baselineByPlayer = amiga_rating_history_baseline_rating_before_tournament($con, $lastWc);
+
+    $sql = 'SELECT p.id AS player_id, s.Rating AS rating '
+        . amiga_player_base_from_sql($con)
+        . ' WHERE s.NumberGames > 0';
+    $result = k2_query_or_public_error($con, $sql, 'amiga wc start rating delta');
+
+    $map = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $playerId = (int) $row['player_id'];
+        $baseline = $baselineByPlayer[$playerId] ?? AMIGA_RATING_HISTORY_START_RATING;
+        $map[$playerId] = (float) $row['rating'] - $baseline;
+    }
+    mysqli_free_result($result);
+
+    return $map;
+}
+
 function amiga_lb_rating_delta_cell(?float $delta): string
 {
     if ($delta === null) {

@@ -103,6 +103,19 @@ Chevrons: previous / next **calendar year** in the continuous range.
 | **Month / Year** | Full compare vs previous month/year ladder (no participant shortcut). |
 | **Display** | Rounded integer; `+N` / `-N` with `.blue` / `.red` spans; `0` neutral (same as game adjustment styling). |
 
+### 3.6 Δ column (present day — since last World Cup start)
+
+**Surface:** `/amiga/leaderboards/rating.php` when **not** in time travel (`as=` absent).
+
+| Field | Rule |
+|-------|------|
+| **Meaning** | Change in displayed Elo vs each player’s rating **at the start of the most recent World Cup** (before that tournament’s rating commits). |
+| **Last World Cup** | Last finalized catalog tournament whose name matches `amiga_tournament_is_world_cup()` (chrono order). |
+| **Baseline** | `rating_after` from the ladder snapshot **after the tournament immediately before** that World Cup. |
+| **Player absent from that baseline ladder** | Baseline **1600** (Amiga start rating — e.g. debuted during or after that World Cup). |
+| **Display** | Same Δ column chrome as §3.5 (header, sort, blue/red, em dash for 0). Tooltip: change since start of most recent World Cup. |
+| **Time travel** | Unchanged — wing-step Δ from §3.5 when `as=` is active. |
+
 ---
 
 ## 4. Data model (V1 — read only)
