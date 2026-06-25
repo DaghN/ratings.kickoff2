@@ -104,10 +104,11 @@ Do not fork Games-tab row markup unless the shared renderer is updated too.
 
 `player/games.php` is intentionally server-side now:
 
-- Result filter: All / Wins / Draws / Losses.
+- Result filter: All / Win / Draw / Loss.
 - Opponent filter: All / opponent list for this player.
+- Goal filters: **GF** / **GA** / **GD** / **SUM** listboxes (`gf`, `ga`, `gd`, `gs`); GF/GA/SUM idle `-1`; **GD** is hero-signed (`GoalsA−GoalsB` or reverse) with `+N` / `−N` / `0` labels and empty-string idle (so `gd=0` is valid).
 - Sort state in `sort` + `dir` query params; default **`id` desc** (newest games first; avoids highlighting Date on first paint).
-- Filter listboxes: `$idleValue` on `k2_archive_listbox_render()` (`all` / `0` / `-1` per filter); empty idle labels in choice arrays.
+- Filter listboxes: `$idleValue` on `k2_archive_listbox_render()` (`all` / `0` / `-1` / `''` per filter); empty idle labels in choice arrays.
 - 500-row slices with chevron page nav when more rows exist (plain Games tab; drill-down only when total > 500).
 - Shared row renderer: `includes/k2_player_game_row.php`.
 

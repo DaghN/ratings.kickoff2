@@ -189,6 +189,9 @@
         if (box.closest('.k2-amiga-history__picker')) {
             return;
         }
+        if (box.classList.contains('k2-archive-listbox--ghost-sized')) {
+            return;
+        }
         var btn = trigger(box);
         if (!btn) {
             return;

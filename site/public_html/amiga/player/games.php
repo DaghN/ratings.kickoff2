@@ -219,9 +219,9 @@ $sortedColIndex = amiga_player_game_sort_col_index($sortKey);
 
 $resultChoices = [
     ['value' => 'all', 'label' => 'All results'],
-    ['value' => 'win', 'label' => 'Wins'],
-    ['value' => 'draw', 'label' => 'Draws'],
-    ['value' => 'loss', 'label' => 'Losses'],
+    ['value' => 'win', 'label' => 'Win'],
+    ['value' => 'draw', 'label' => 'Draw'],
+    ['value' => 'loss', 'label' => 'Loss'],
 ];
 $opponentChoices = [['value' => '0', 'label' => 'All opponents']];
 foreach ($opponentRows as $opponentRow) {

@@ -116,13 +116,15 @@ function individual3_has_games_filters_beyond_day(
     int $opponentFilter,
     int $goalsScoredFilter,
     int $goalsConcededFilter,
-    int $goalsSumFilter
+    int $goalsSumFilter,
+    ?int $heroGoalDiffFilter = null
 ): bool {
     return $resultFilter !== 'all'
         || $opponentFilter > 0
         || $goalsScoredFilter >= 0
         || $goalsConcededFilter >= 0
-        || $goalsSumFilter >= 0;
+        || $goalsSumFilter >= 0
+        || $heroGoalDiffFilter !== null;
 }
 
 /**
@@ -164,6 +166,9 @@ function individual3_games_filter_params(array $state): array
     }
     if (($state['gs'] ?? -1) >= 0) {
         $params['gs'] = $state['gs'];
+    }
+    if (array_key_exists('gd', $state) && $state['gd'] !== null) {
+        $params['gd'] = $state['gd'];
     }
 
     return $params;
@@ -330,7 +335,8 @@ function individual3_where_clause(
     string $periodType = '',
     string $periodAnchor = '',
     int $fromGameId = 0,
-    int $toGameId = 0
+    int $toGameId = 0,
+    ?int $heroGoalDiffFilter = null
 ): string {
     return k2_ratedresults_games_where_clause(
         $playerId,
@@ -349,7 +355,8 @@ function individual3_where_clause(
         $periodType,
         $periodAnchor,
         $fromGameId,
-        $toGameId
+        $toGameId,
+        $heroGoalDiffFilter
     );
 }
 
@@ -409,6 +416,7 @@ $opponentFilter = isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0
 $goalsScoredFilter = isset($_GET['gf']) ? (int) $_GET['gf'] : -1;
 $goalsConcededFilter = isset($_GET['ga']) ? (int) $_GET['ga'] : -1;
 $goalsSumFilter = isset($_GET['gs']) ? (int) $_GET['gs'] : -1;
+$heroGoalDiffFilter = isset($_GET['gd']) && $_GET['gd'] !== '' ? (int) $_GET['gd'] : null;
 $gamesFrom = k2_player_games_valid_from((string) ($_GET['from'] ?? ''));
 $utcDayFilter = individual3_valid_day((string) ($_GET['day'] ?? ''));
 $periodType = k2_ratedresults_games_valid_period_type((string) ($_GET['period'] ?? ''));
@@ -449,7 +457,8 @@ $hasFilterLandingView = !$hasPeriodGamesView && individual3_has_games_filters_be
     $opponentFilter,
     $goalsScoredFilter,
     $goalsConcededFilter,
-    $goalsSumFilter
+    $goalsSumFilter,
+    $heroGoalDiffFilter
 );
 if (($utcDayFilter !== '' || $hasPeriodRangeFilter) && !isset($_GET['sort'])) {
     $sortKey = 'date';
@@ -531,9 +540,24 @@ $validGoalsSum = [];
 foreach ($goalsSumRows as $goalsSumRow) {
     $validGoalsSum[(int) $goalsSumRow['goals_sum']] = true;
 }
+$heroGoalDiffRows = individual3_query_all(
+    $con,
+    'SELECT hero_gd, COUNT(*) AS games FROM ('
+        . 'SELECT (GoalsA - GoalsB) AS hero_gd FROM ratedresults WHERE idA = ? '
+        . 'UNION ALL '
+        . 'SELECT (GoalsB - GoalsA) AS hero_gd FROM ratedresults WHERE idB = ?'
+        . ') AS goals GROUP BY hero_gd ORDER BY hero_gd DESC',
+    'ii',
+    [$playerId, $playerId]
+);
+$validHeroGoalDiff = [];
+foreach ($heroGoalDiffRows as $heroGoalDiffRow) {
+    $validHeroGoalDiff[(int) $heroGoalDiffRow['hero_gd']] = true;
+}
 $goalsScoredFilter = individual3_valid_goals_filter($goalsScoredFilter, $validGoalsScored);
 $goalsConcededFilter = individual3_valid_goals_filter($goalsConcededFilter, $validGoalsConceded);
 $goalsSumFilter = individual3_valid_goals_filter($goalsSumFilter, $validGoalsSum);
+$heroGoalDiffFilter = k2_ratedresults_games_valid_hero_gd_filter($heroGoalDiffFilter, $validHeroGoalDiff);
 
 $whereTypes = '';
 $whereParams = [];
@@ -550,7 +574,8 @@ $whereSql = individual3_where_clause(
     $periodType,
     $periodAnchor,
     $fromGameFilter,
-    $toGameFilter
+    $toGameFilter,
+    $heroGoalDiffFilter
 );
 
 $countRows = individual3_query_all(
@@ -615,6 +640,7 @@ $sortState = [
     'gf' => $goalsScoredFilter,
     'ga' => $goalsConcededFilter,
     'gs' => $goalsSumFilter,
+    'gd' => $heroGoalDiffFilter,
     'day' => $utcDayFilter,
     'period' => $periodType,
     'anchor' => $periodAnchor,
@@ -634,9 +660,9 @@ $showTableMeta = !$hasPeriodGamesView || $showDrillDownPager;
 
 $resultChoices = [
     ['value' => 'all', 'label' => ''],
-    ['value' => 'win', 'label' => 'Wins'],
-    ['value' => 'draw', 'label' => 'Draws'],
-    ['value' => 'loss', 'label' => 'Losses'],
+    ['value' => 'win', 'label' => 'Win'],
+    ['value' => 'draw', 'label' => 'Draw'],
+    ['value' => 'loss', 'label' => 'Loss'],
 ];
 $opponentChoices = [['value' => '0', 'label' => '', 'meta' => '']];
 foreach ($opponentRows as $opponentRow) {
@@ -668,6 +694,15 @@ foreach ($goalsSumRows as $goalsSumRow) {
         'value' => (string) (int) $goalsSumRow['goals_sum'],
         'label' => (string) (int) $goalsSumRow['goals_sum'],
         'meta' => (string) (int) $goalsSumRow['games'],
+    ];
+}
+$heroGoalDiffChoices = [['value' => '', 'label' => '', 'meta' => '']];
+foreach ($heroGoalDiffRows as $heroGoalDiffRow) {
+    $heroGd = (int) $heroGoalDiffRow['hero_gd'];
+    $heroGoalDiffChoices[] = [
+        'value' => (string) $heroGd,
+        'label' => k2_player_games_hero_gd_label($heroGd),
+        'meta' => (string) (int) $heroGoalDiffRow['games'],
     ];
 }
 ?>
@@ -725,13 +760,13 @@ foreach ($goalsSumRows as $goalsSumRow) {
             ); ?>
         </div>
         <div class="k2-player-games-controls__field">
-            <span class="server-period-activity-leaderboard__picker-label">Goals scored</span>
+            <span class="server-period-activity-leaderboard__picker-label">GF</span>
             <?php k2_archive_listbox_render(
                 'gf',
                 'k2-player-games-gf',
                 (string) $goalsScoredFilter,
                 $goalsScoredChoices,
-                'Filter by goals scored',
+                'Filter by goals for',
                 '',
                 '',
                 false,
@@ -739,13 +774,13 @@ foreach ($goalsSumRows as $goalsSumRow) {
             ); ?>
         </div>
         <div class="k2-player-games-controls__field">
-            <span class="server-period-activity-leaderboard__picker-label">Goals conceded</span>
+            <span class="server-period-activity-leaderboard__picker-label">GA</span>
             <?php k2_archive_listbox_render(
                 'ga',
                 'k2-player-games-ga',
                 (string) $goalsConcededFilter,
                 $goalsConcededChoices,
-                'Filter by goals conceded',
+                'Filter by goals against',
                 '',
                 '',
                 false,
@@ -753,7 +788,21 @@ foreach ($goalsSumRows as $goalsSumRow) {
             ); ?>
         </div>
         <div class="k2-player-games-controls__field">
-            <span class="server-period-activity-leaderboard__picker-label">Goal sum</span>
+            <span class="server-period-activity-leaderboard__picker-label">GD</span>
+            <?php k2_archive_listbox_render(
+                'gd',
+                'k2-player-games-gd',
+                $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : '',
+                $heroGoalDiffChoices,
+                'Filter by goal difference',
+                '',
+                '',
+                false,
+                ''
+            ); ?>
+        </div>
+        <div class="k2-player-games-controls__field">
+            <span class="server-period-activity-leaderboard__picker-label">SUM</span>
             <?php k2_archive_listbox_render(
                 'gs',
                 'k2-player-games-gs',
@@ -789,7 +838,8 @@ foreach ($goalsSumRows as $goalsSumRow) {
             $opponentFilter,
             $goalsScoredFilter,
             $goalsConcededFilter,
-            $goalsSumFilter
+            $goalsSumFilter,
+            $heroGoalDiffFilter
         );
         $dayBannerGamesWord = $totalMatches === 1 ? 'game' : 'games';
         ?>
@@ -820,7 +870,8 @@ foreach ($goalsSumRows as $goalsSumRow) {
             $opponentFilter,
             $goalsScoredFilter,
             $goalsConcededFilter,
-            $goalsSumFilter
+            $goalsSumFilter,
+            $heroGoalDiffFilter
         );
         $periodBannerGamesWord = $totalMatches === 1 ? 'game' : 'games';
         $periodBannerLabel = k2_lb_activity_peak_period_filter_label($periodType, $periodAnchor);
@@ -852,7 +903,8 @@ foreach ($goalsSumRows as $goalsSumRow) {
             $opponentFilter,
             $goalsScoredFilter,
             $goalsConcededFilter,
-            $goalsSumFilter
+            $goalsSumFilter,
+            $heroGoalDiffFilter
         );
         $streakBannerGamesWord = $totalMatches === 1 ? 'game' : 'games';
         $streakLabel = $streakTypeFilter !== ''

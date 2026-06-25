@@ -3071,6 +3071,65 @@ body.k2-site .k2-archive-listbox__label:empty::before {
 	content: '\00a0';
 }
 
+/* Ghost sizer — first-paint trigger width from longest option (SSR, no JS measure) */
+body.k2-site .k2-archive-listbox--ghost-sized {
+	display: inline-block;
+	max-width: 100%;
+	vertical-align: middle;
+}
+
+body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__size-anchor {
+	display: inline-grid;
+	grid-template-columns: minmax(0, max-content);
+	max-width: 100%;
+	vertical-align: top;
+}
+
+body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__width-sizer {
+	grid-area: 1 / 1;
+	visibility: hidden;
+	overflow: hidden;
+	height: 0;
+	white-space: nowrap;
+	box-sizing: border-box;
+	padding: 4px 24px 4px 8px;
+	border: 1px solid transparent;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__width-sizer--accent {
+	font-weight: 600;
+}
+
+body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__width-sizer--split {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 0;
+}
+
+body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__size-anchor > .k2-archive-listbox__trigger {
+	grid-area: 1 / 1;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+}
+
+body.k2-site .k2-player-games-controls .k2-archive-listbox--ghost-sized .k2-archive-listbox__width-sizer {
+	padding: 4px 20px 4px 8px;
+	font-size: 11px;
+	line-height: 1.25;
+}
+
+body.k2-site .k2-realm-games-filters .k2-archive-listbox--ghost-sized .k2-archive-listbox__width-sizer {
+	padding: 4px 24px 4px 8px;
+	font-size: 12px;
+	line-height: 1.35;
+}
+
 @media (max-width: 720px) {
 	body.k2-site .k2-realm-games-filters__row--stack-narrow {
 		flex-wrap: wrap;

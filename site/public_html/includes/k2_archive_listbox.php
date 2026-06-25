@@ -11,6 +11,77 @@ function k2_archive_listbox_h(string $value): string
 }
 
 /**
+ * @param array{value?: string, label?: string, meta?: string} $choice
+ */
+function k2_archive_listbox_choice_trigger_label(array $choice, string $fixedTriggerLabel): string
+{
+    $value = (string) ($choice['value'] ?? '');
+    if ($fixedTriggerLabel !== '' && $value === '-1') {
+        return $fixedTriggerLabel;
+    }
+
+    return (string) ($choice['label'] ?? '');
+}
+
+/**
+ * Pick the row whose text should set first-paint width (ghost sizer).
+ *
+ * @param array<int, array{value: string, label: string, meta?: string, accent?: bool}> $choices
+ * @return array{label: string, meta: string, split: bool}
+ */
+function k2_archive_listbox_pick_sizer_row(
+    array $choices,
+    string $selectedLabel,
+    string $selectedMeta,
+    bool $split,
+    bool $triggerShowsMeta,
+    string $fixedTriggerLabel
+): array {
+    $bestLabel = '';
+    $bestMeta = '';
+    $bestScore = -1;
+
+    /** @var list<array{label: string, meta: string}> $candidates */
+    $candidates = [];
+    foreach ($choices as $choice) {
+        $candidates[] = [
+            'label' => k2_archive_listbox_choice_trigger_label($choice, $fixedTriggerLabel),
+            'meta' => array_key_exists('meta', $choice) ? (string) $choice['meta'] : '',
+        ];
+    }
+    if ($selectedLabel !== '' || ($triggerShowsMeta && $selectedMeta !== '')) {
+        $candidates[] = [
+            'label' => $selectedLabel,
+            'meta' => $triggerShowsMeta ? $selectedMeta : '',
+        ];
+    }
+
+    foreach ($candidates as $row) {
+        if ($split) {
+            $score = mb_strlen($row['label']) + mb_strlen($row['meta']);
+        } else {
+            $score = mb_strlen($row['label']);
+        }
+        if ($score > $bestScore) {
+            $bestScore = $score;
+            $bestLabel = $row['label'];
+            $bestMeta = $row['meta'];
+        }
+    }
+
+    if ($bestScore <= 0) {
+        $bestLabel = "\xc2\xa0";
+        $bestMeta = '';
+    }
+
+    return [
+        'label' => $bestLabel,
+        'meta' => $bestMeta,
+        'split' => $split,
+    ];
+}
+
+/**
  * @param array<int, array{value: string, label: string, meta?: string, accent?: bool}> $choices
  * @param ?string $idleValue When set, closed trigger is empty at this value and uses link-star when selected differs.
  * @param bool $accentActive When true, closed trigger always uses link-star (e.g. coupled year-mode picker).
@@ -82,9 +153,42 @@ function k2_archive_listbox_render(
     if ($accentActive) {
         $boxAttrs .= ' data-k2-listbox-accent-active="1"';
     }
+    $useSplitOptions = $hasMetaOptions || $hasAccentOptions || $fixedTriggerLabel !== '';
+    $sizerRow = k2_archive_listbox_pick_sizer_row(
+        $choices,
+        $selectedLabel,
+        $selectedMeta,
+        $useSplitOptions,
+        $triggerShowsMeta && $hasMetaOptions,
+        $fixedTriggerLabel
+    );
+    $useGhostSizer = $choices !== [];
+    if ($useGhostSizer) {
+        $boxClass .= ' k2-archive-listbox--ghost-sized';
+    }
+    $sizerClass = 'k2-archive-listbox__width-sizer';
+    if ($sizerRow['split']) {
+        $sizerClass .= ' k2-archive-listbox__width-sizer--split';
+    }
+    if ($filterPickAccent || $accentActive) {
+        $sizerClass .= ' k2-archive-listbox__width-sizer--accent';
+    }
     ?>
 <div class="<?php echo k2_archive_listbox_h($boxClass); ?>" <?php echo $boxAttrs; ?>>
     <input type="hidden" id="<?php echo k2_archive_listbox_h($inputId); ?>" name="<?php echo k2_archive_listbox_h($inputName); ?>" class="k2-archive-listbox__value" value="<?php echo k2_archive_listbox_h($selectedValue); ?>" />
+<?php if ($useGhostSizer) { ?>
+    <div class="k2-archive-listbox__size-anchor">
+        <span class="<?php echo k2_archive_listbox_h($sizerClass); ?>" aria-hidden="true">
+<?php if ($sizerRow['split']) { ?>
+            <span class="k2-archive-listbox__option-label"><?php echo k2_archive_listbox_h($sizerRow['label']); ?></span>
+<?php if ($sizerRow['meta'] !== '') { ?>
+            <span class="k2-archive-listbox__option-meta"><?php echo k2_archive_listbox_h($sizerRow['meta']); ?></span>
+<?php } ?>
+<?php } else { ?>
+            <?php echo k2_archive_listbox_h($sizerRow['label']); ?>
+<?php } ?>
+        </span>
+<?php } ?>
     <button type="button" class="<?php echo k2_archive_listbox_h($triggerClass); ?>" aria-label="<?php echo k2_archive_listbox_h($ariaLabel); ?>" aria-haspopup="listbox" aria-expanded="false" aria-controls="<?php echo k2_archive_listbox_h($listboxId); ?>">
         <span class="k2-archive-listbox__label"><?php echo k2_archive_listbox_h($selectedLabel); ?></span>
 <?php if ($triggerShowsMeta && $hasMetaOptions) { ?>
@@ -92,6 +196,9 @@ function k2_archive_listbox_render(
 <?php } ?>
         <span class="k2-archive-listbox__chevron" aria-hidden="true"></span>
     </button>
+<?php if ($useGhostSizer) { ?>
+    </div>
+<?php } ?>
     <ul id="<?php echo k2_archive_listbox_h($listboxId); ?>" class="k2-archive-listbox__panel" role="listbox" tabindex="-1" hidden="hidden">
 <?php foreach ($choices as $choice) {
     $value = (string) $choice['value'];

@@ -33,6 +33,28 @@ function k2_ratedresults_games_valid_goals_filter(int $value, array $validValues
 	return isset($validValues[$value]) ? $value : -1;
 }
 
+/** Hero-signed goal difference label for player games filters (+N / −N / 0). */
+function k2_player_games_hero_gd_label(int $gd): string
+{
+	if ($gd > 0) {
+		return '+' . $gd;
+	}
+	if ($gd < 0) {
+		return (string) $gd;
+	}
+
+	return '0';
+}
+
+function k2_ratedresults_games_valid_hero_gd_filter(?int $value, array $validValues): ?int
+{
+	if ($value === null) {
+		return null;
+	}
+
+	return isset($validValues[$value]) ? $value : null;
+}
+
 function k2_ratedresults_games_valid_day(string $value): string
 {
 	$value = trim($value);
@@ -136,7 +158,8 @@ function k2_ratedresults_games_where_clause(
 	string $periodType = '',
 	string $periodAnchor = '',
 	int $fromGameId = 0,
-	int $toGameId = 0
+	int $toGameId = 0,
+	?int $heroGoalDiffFilter = null
 ): string {
 	$where = [];
 	$types = '';
@@ -233,6 +256,15 @@ function k2_ratedresults_games_where_clause(
 			$params[] = $goalsConcededFilter;
 			$params[] = $playerId;
 			$params[] = $goalsConcededFilter;
+		}
+
+		if ($heroGoalDiffFilter !== null) {
+			$where[] = '((r.idA = ? AND (r.GoalsA - r.GoalsB) = ?) OR (r.idB = ? AND (r.GoalsB - r.GoalsA) = ?))';
+			$types .= 'iiii';
+			$params[] = $playerId;
+			$params[] = $heroGoalDiffFilter;
+			$params[] = $playerId;
+			$params[] = $heroGoalDiffFilter;
 		}
 	}
 
