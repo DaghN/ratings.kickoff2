@@ -53,7 +53,9 @@ FROM (
         t.name AS tournament_name,
         t.country AS tournament_country,
         t.event_date AS tournament_event_date,
-        t.chrono AS tournament_chrono
+        t.chrono AS tournament_chrono,
+        pa.country AS country_a,
+        pb.country AS country_b
     FROM amiga_games g
     INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id
     INNER JOIN amiga_players pa ON pa.id = g.player_a_id

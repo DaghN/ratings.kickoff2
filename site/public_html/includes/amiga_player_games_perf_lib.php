@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_db.php';
 require_once __DIR__ . '/amiga_player_games_lib.php';
+require_once __DIR__ . '/amiga_player_games_filter_facets.php';
 require_once __DIR__ . '/amiga_performance_rating.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 
@@ -24,6 +25,7 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
 {
     $ctx = amiga_snapshot_context_from_request($con);
     $filters = amiga_player_games_filters_from_request($con, $playerId, $query, $ctx);
+    amiga_player_games_validate_filters_career_wide($con, $playerId, $filters, $ctx);
 
     $whereTypes = '';
     $whereParams = [];
@@ -34,9 +36,15 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
         $filters['tournament'],
         $filters['event'],
         $filters['country'],
+        $filters['opp_country'],
         $filters['day'],
         $filters['since'],
+        $filters['until'],
         $filters['year'],
+        $filters['gf'],
+        $filters['ga'],
+        $filters['gs'],
+        $filters['gd'],
         $whereTypes,
         $whereParams,
         $ctx

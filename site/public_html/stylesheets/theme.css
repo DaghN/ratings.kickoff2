@@ -2870,6 +2870,19 @@ body.k2-site .k2-player-games-filters .k2-player-games-controls {
 	width: 100%;
 }
 
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-amiga-player-games-filter-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-amiga-player-games-filter-row {
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 10px;
+}
+
 body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__fields {
 	flex-wrap: wrap;
 	align-items: flex-end;
@@ -2881,8 +2894,8 @@ body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-ga
 	align-items: flex-start;
 }
 
-body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-reset {
-	align-self: flex-end;
+body.k2-site .k2-player-games-status__reset-sep {
+	color: var(--k2-text-muted);
 }
 
 body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls .k2-archive-listbox--ghost-sized {

@@ -110,10 +110,50 @@ Do not fork Games-tab row markup unless the shared renderer is updated too.
 - **Faceted counts:** each listbox `meta` count reflects all *other* active filters (that dimension omitted). Numeric facets fill interior zero gaps between min/max values with games; tail zeros omitted. Filters are only cleared when a value never appears in the player's career — empty intersections (e.g. Draw + SUM 7) stay selected and return 0 rows. Implementation: `includes/k2_player_games_filter_facets.php`.
 - Sort state in `sort` + `dir` query params; default **`id` desc** (newest games first; avoids highlighting Date on first paint).
 - Filter listboxes: `$idleValue` on `k2_archive_listbox_render()` (`all` / `0` / `-1` / `''` per filter); empty idle labels in choice arrays.
+- **Reset filters:** accent pill `k2-player-games-reset` — label **Reset filters**; on plain filter view lives in **`k2-player-games-table-meta`** row (below status stack, with pager when applicable). `data-k2-carry-scroll` on status stack.
 - 500-row slices with chevron page nav when more rows exist (plain Games tab; drill-down only when total > 500).
 - Shared row renderer: `includes/k2_player_game_row.php`.
 
 Product requirement: keep Result and Opponent narrowing; normal URL flow is the contract.
+
+---
+
+## Amiga Player Games Contract
+
+`amiga/player/games.php` + `includes/amiga_player_games_lib.php` + `includes/amiga_player_games_filter_facets.php`:
+
+- **Scope segment (filter URLs, not wing nav):** `k2-chrome-tabs` — **All games** / **World Cup** (`filter=world-cup`; REGEXP on tournament name).
+- **Filter UI (three rows, natural wrap, 10px gap):**
+  - **Row 1** — opponent, tournament, host country (`country`), opponent country (`opp_country`).
+  - **Row 2** — year (calendar year only), since (`YEAR >= Y`), until (through end of calendar year Y inclusive — `Date < Y+1-01-01`, same semantics as Games All `year_mode=until`).
+  - **Row 3** — result, GF, GA, GD (hero-signed `+N` / `−N` / `0`), sum (`gs`).
+- **Faceted counts:** same omit-self rules as online Player Games (`k2_games_filter_facet_helpers.php`); career-wide validation only — empty intersections stay selected. Year/since/until meta uses histogram + cumulative counts for since/until.
+- **Listbox UX:** idle empty trigger + link-star when active; ghost-width trigger; panel width = trigger (not full field). Host/opponent country + hero GD use **empty-string idle** (`''`); see [shared listbox idle contract](#games-filter-listbox-idle-contract) below.
+- **Status line:** game count + async **Performance rating** (`api/amiga_player_games_perf_rating.php`) + **· Reset filters** pill (`k2-player-games-reset`, `data-k2-carry-scroll` on status row).
+- **Sort:** server-side; default `id` desc; full list (no pagination).
+- **Time travel:** cutoff via `amiga_snapshot_context`; perf API + facets honour `as=`.
+- **URL params (when active):** `id`, `filter`, `opponent`, `tournament`, `country`, `opp_country`, `year`, `since`, `until`, `result`, `gf`, `ga`, `gd`, `gs`, `sort`, `dir`, `day` (deep links).
+
+---
+
+## Games filter listbox idle contract
+
+Shared: `includes/k2_archive_listbox.php`, `js/k2-archive-listbox.js`, `js/individual3-filters.js` (player + Amiga player) / `js/k2-realm-games-filters.js` (All games).
+
+| Idle token | Used for |
+|------------|----------|
+| `'all'` | Result (player + Amiga player) |
+| `'0'` | Opponent, tournament, year, since, until; Games All player/opponent/year pickers |
+| `'-1'` | GF, GA, sum (`gs`); Games All GD / sum / TS |
+| `''` (empty string) | Host country, opponent country (Amiga player); hero GD (online + Amiga player) |
+
+**Clearing a filter:** user picks the blank first panel row (empty label). PHP choice arrays use `label => ''` for idle rows.
+
+**JS (Jun 2026):** `commit()` and panel click must treat **empty string as a valid value** when it is the idle token — do not use `!value` / `value === ''` guards that block commit. Keyboard select uses the same path.
+
+**Accent:** when `$idleValue` is set, closed trigger is empty at idle; `k2-link-star` when `selectedValue !== idleValue`.
+
+**Width:** `k2-archive-listbox--ghost-sized` — SSR width from longest option row; no JS measure snap on player-games-style filters.
 
 ---
 
@@ -132,6 +172,7 @@ Product requirement: keep Result and Opponent narrowing; normal URL flow is the 
 - **URL params:** `player`, `opponent`, `gd`, `gs`, `ts`, `year`, `year_mode`, `sort`, `dir`, `offset`.
 - **JS:** `k2-realm-games-filters.js` + `k2-archive-listbox.js`; form `data-k2-carry-scroll`.
 - **Filter listbox contract (Jun 2026):** `k2_archive_listbox_render(..., $idleValue)` — empty trigger at idle, link-star when active; JS reads `data-k2-listbox-idle-value`. **Year mode** row hidden until year chosen (`hidden`, like Opponent row); when visible, `$accentActive` (always accented).
+- **Reset filters:** accent pill in status row (`k2-realm-games-all__status`); `data-k2-carry-scroll`.
 - Sort/pager links preserve active filter params; filter change drops `offset`.
 - **Active sort column:** PHP `k2-table-col-sorted` via `k2_rated_game_sort_col_index()`.
 

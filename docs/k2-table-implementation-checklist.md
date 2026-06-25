@@ -16,6 +16,7 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 | Wide sortable + filter pills (full page reload) | `amiga/tournaments.php` + `amiga_tournament_index_render_table()` in `amiga_profile_blocks.php` | Filter URLs merge `k2_table_sort_query_params()` |
 | Player wing ledger (W/D/L · Goals · DDs) | `includes/player_opponents_tables.php` + `player_opponents_page.php` | Ledger-only cloak/assets; H2H unchanged |
 | Player games (server sort + filters + pager) | `player/games.php` + `includes/k2_player_game_row.php` | **Server** sort — not `k2-table.js` sort |
+| Amiga player games (server sort + filters, full list) | `amiga/player/games.php` + `includes/amiga_player_game_row.php` | Faceted listboxes; see [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md) § Amiga Player Games |
 | Realm games vault | `games/all.php` + `includes/k2_realm_games_all.php` | Server sort + 250-row pager |
 | Games hub Recent (client sort, day buckets) | `games/recent.php` | Sortable + calm-stats |
 | Tournament event stats (wide, SSR order = SQL) | `amiga_tournament_render_event_stats_table()` in `amiga_profile_blocks.php` | `data-k2-skip-initial-sort="1"` when SSR order matches default |

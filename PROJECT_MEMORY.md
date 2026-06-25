@@ -120,6 +120,10 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Games filter listbox empty idle fix** — `k2-archive-listbox.js` commits `''` idle (host/opp country, hero GD on player + Amiga games); was blocked by falsy guards. |
+| 2026-06-25 | **Amiga player Games Reset filters** — status line after perf rating (· Reset filters); carry-scroll on status row. |
+| 2026-06-25 | **Amiga UAE flag** — `UAE` → `ae.svg` in `k2_amiga_country_flag.php` (tournament host country, e.g. Dubai I). |
+| 2026-06-25 | **Amiga player Games expanded filters** — three-row layout: opponent/tournament/host+opp country; year/since/until (until inclusive); result/GF/GA/GD/sum; faceted omit-self counts (`amiga_player_games_filter_facets.php`). |
 | 2026-06-25 | **Amiga player Games filter layout** — natural wrap (10px gap), no equal-width grid columns. |
 | 2026-06-25 | **Amiga player Games scope segment** — All games / World Cup in `k2-chrome-tabs` bar (filter URLs, segment chrome). |
 | 2026-06-25 | **Amiga player Games filters chrome** — drop bordered `k2-player-tournament-filters` panel; scope + listboxes inline like online. |

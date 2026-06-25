@@ -32,6 +32,7 @@ function k2_amiga_country_flag_meta(string $country): ?array
         'Portugal' => ['code' => 'pt', 'label' => 'Portugal'],
         'N. Ireland' => ['code' => 'gb-nir', 'label' => 'Northern Ireland'],
         'Hong Kong' => ['code' => 'hk', 'label' => 'Hong Kong'],
+        'UAE' => ['code' => 'ae', 'label' => 'United Arab Emirates'],
     ];
 
     $country = trim($country);

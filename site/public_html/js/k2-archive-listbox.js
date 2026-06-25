@@ -560,7 +560,7 @@
     }
 
     function commit(box, value, label, silent) {
-        if (!box || value == null || value === '') {
+        if (!box || value == null) {
             return;
         }
         var text = label || labelForValue(box, value);
@@ -664,10 +664,10 @@
             return;
         }
         e.preventDefault();
-        var value = li.getAttribute('data-value');
-        if (!value) {
+        if (!li.hasAttribute('data-value')) {
             return;
         }
+        var value = li.getAttribute('data-value');
         commit(box, value, optionTriggerLabel(li) || li.textContent || value, false);
         close(box);
         restoreTriggerFocus(box, false);

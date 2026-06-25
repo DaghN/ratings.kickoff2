@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/k2_ratedresults_games_filters.php';
 
 function amiga_games_h(string $value): string
 {
@@ -94,6 +95,14 @@ function amiga_games_valid_country_filter(string $value, array $countryOptions):
     return $value;
 }
 
+/** Hero-relative opponent country expression on rated-games alias `r`. */
+function amiga_games_hero_opponent_country_sql(int $playerId): string
+{
+    $playerIdSql = (int) $playerId;
+
+    return "CASE WHEN r.idA = $playerIdSql THEN r.country_b ELSE r.country_a END";
+}
+
 /** @return list<int> */
 function amiga_player_games_year_options(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): array
 {
@@ -135,6 +144,14 @@ function amiga_games_valid_since_year(int $value, array $yearOptions): int
 }
 
 /**
+ * @param list<int> $yearOptions
+ */
+function amiga_games_valid_until_year(int $value, array $yearOptions): int
+{
+    return amiga_games_valid_since_year($value, $yearOptions);
+}
+
+/**
  * Normalized games-tab filters from a GET array (games.php + perf API).
  *
  * @param array<string, mixed> $query
@@ -144,9 +161,15 @@ function amiga_games_valid_since_year(int $value, array $yearOptions): int
  *     tournament: int,
  *     event: string,
  *     country: string,
+ *     opp_country: string,
  *     day: string,
  *     since: int,
- *     year: int
+ *     until: int,
+ *     year: int,
+ *     gf: int,
+ *     ga: int,
+ *     gs: int,
+ *     gd: ?int
  * }
  */
 function amiga_player_games_filters_from_request(
@@ -166,87 +189,20 @@ function amiga_player_games_filters_from_request(
         isset($query['since']) ? (int) $query['since'] : 0,
         $yearOptions
     );
+    $untilYear = amiga_games_valid_until_year(
+        isset($query['until']) ? (int) $query['until'] : 0,
+        $yearOptions
+    );
     $yearFilter = amiga_games_valid_since_year(
         isset($query['year']) ? (int) $query['year'] : 0,
         $yearOptions
     );
-
-    if ($opponentFilter > 0) {
-        $branchATypes = 'i';
-        $branchAParams = [$playerId];
-        $branchACutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchATypes, $branchAParams);
-        $branchBTypes = 'i';
-        $branchBParams = [$playerId];
-        $branchBCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchBTypes, $branchBParams);
-        $opponentRows = amiga_games_query_all(
-            $con,
-            'SELECT opponent_id FROM ('
-                . 'SELECT g.player_b_id AS opponent_id FROM amiga_games g '
-                . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-                . 'WHERE g.player_a_id = ?' . $branchACutoffSql . ' '
-                . 'UNION ALL '
-                . 'SELECT g.player_a_id AS opponent_id FROM amiga_games g '
-                . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-                . 'WHERE g.player_b_id = ?' . $branchBCutoffSql
-                . ') AS opponents WHERE opponent_id = ? LIMIT 1',
-            $branchATypes . $branchBTypes . 'i',
-            array_merge($branchAParams, $branchBParams, [$opponentFilter])
-        );
-        if ($opponentRows === []) {
-            $opponentFilter = 0;
-        }
-    }
-
-    $countryMetaTypes = 'ii';
-    $countryMetaParams = [$playerId, $playerId];
-    $countryMetaSql = amiga_games_tournament_meta_and_sql($eventFilter, '', $countryMetaTypes, $countryMetaParams);
-    $countryCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $countryMetaTypes, $countryMetaParams);
-    $countryRowList = amiga_games_query_all(
-        $con,
-        'SELECT DISTINCT t.country AS country FROM amiga_games g '
-            . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-            . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) '
-            . 'AND t.country IS NOT NULL AND TRIM(t.country) <> \'\''
-            . $countryMetaSql
-            . $countryCutoffSql
-            . ' ORDER BY country ASC',
-        $countryMetaTypes,
-        $countryMetaParams
-    );
-    $countryOptions = [];
-    foreach ($countryRowList as $countryRow) {
-        $countryOptions[] = (string) $countryRow['country'];
-    }
-    $countryFilter = amiga_games_valid_country_filter(
-        isset($query['country']) && is_string($query['country']) ? $query['country'] : '',
-        $countryOptions
-    );
-
-    if ($tournamentFilter > 0) {
-        $checkTypes = 'iii';
-        $checkParams = [$playerId, $playerId, $tournamentFilter];
-        $checkMetaSql = amiga_games_tournament_meta_and_sql(
-            $eventFilter,
-            $countryFilter,
-            $checkTypes,
-            $checkParams
-        );
-        $checkCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $checkTypes, $checkParams);
-        $tournamentRows = amiga_games_query_all(
-            $con,
-            'SELECT g.tournament_id FROM amiga_games g '
-                . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-                . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) AND g.tournament_id = ?'
-                . $checkMetaSql
-                . $checkCutoffSql
-                . ' LIMIT 1',
-            $checkTypes,
-            $checkParams
-        );
-        if ($tournamentRows === []) {
-            $tournamentFilter = 0;
-        }
-    }
+    $goalsScoredFilter = isset($query['gf']) ? (int) $query['gf'] : -1;
+    $goalsConcededFilter = isset($query['ga']) ? (int) $query['ga'] : -1;
+    $goalsSumFilter = isset($query['gs']) ? (int) $query['gs'] : -1;
+    $heroGoalDiffFilter = isset($query['gd']) && $query['gd'] !== '' ? (int) $query['gd'] : null;
+    $countryFilter = isset($query['country']) && is_string($query['country']) ? trim($query['country']) : '';
+    $oppCountryFilter = isset($query['opp_country']) && is_string($query['opp_country']) ? trim($query['opp_country']) : '';
 
     return [
         'result' => $resultFilter,
@@ -254,9 +210,15 @@ function amiga_player_games_filters_from_request(
         'tournament' => $tournamentFilter,
         'event' => $eventFilter,
         'country' => $countryFilter,
+        'opp_country' => $oppCountryFilter,
         'day' => $utcDayFilter,
         'since' => $sinceYear,
+        'until' => $untilYear,
         'year' => $yearFilter,
+        'gf' => $goalsScoredFilter,
+        'ga' => $goalsConcededFilter,
+        'gs' => $goalsSumFilter,
+        'gd' => $heroGoalDiffFilter,
     ];
 }
 
@@ -287,14 +249,32 @@ function amiga_games_active_url_params(array $state): array
     if (!empty($state['country'])) {
         $params['country'] = (string) $state['country'];
     }
+    if (!empty($state['opp_country'])) {
+        $params['opp_country'] = (string) $state['opp_country'];
+    }
     if (!empty($state['day'])) {
         $params['day'] = (string) $state['day'];
     }
     if ((int) ($state['since'] ?? 0) > 0) {
         $params['since'] = (int) $state['since'];
     }
+    if ((int) ($state['until'] ?? 0) > 0) {
+        $params['until'] = (int) $state['until'];
+    }
     if ((int) ($state['year'] ?? 0) > 0) {
         $params['year'] = (int) $state['year'];
+    }
+    if ((int) ($state['gf'] ?? -1) >= 0) {
+        $params['gf'] = (int) $state['gf'];
+    }
+    if ((int) ($state['ga'] ?? -1) >= 0) {
+        $params['ga'] = (int) $state['ga'];
+    }
+    if ((int) ($state['gs'] ?? -1) >= 0) {
+        $params['gs'] = (int) $state['gs'];
+    }
+    if (array_key_exists('gd', $state) && $state['gd'] !== null) {
+        $params['gd'] = (int) $state['gd'];
     }
 
     return $params;
@@ -319,9 +299,15 @@ function amiga_games_where_clause(
     int $tournamentId,
     string $eventFilter,
     string $countryFilter,
+    string $oppCountryFilter,
     string $utcDay,
     int $sinceYear,
+    int $untilYear,
     int $yearFilter,
+    int $goalsScoredFilter,
+    int $goalsConcededFilter,
+    int $goalsSumFilter,
+    ?int $heroGoalDiffFilter,
     string &$types,
     array &$params,
     ?AmigaSnapshotContext $ctx = null,
@@ -375,16 +361,61 @@ function amiga_games_where_clause(
         $params[] = $countryFilter;
     }
 
+    if ($oppCountryFilter !== '') {
+        $where[] = amiga_games_hero_opponent_country_sql($playerId) . ' = ?';
+        $types .= 's';
+        $params[] = $oppCountryFilter;
+    }
+
     if ($sinceYear > 0) {
         $where[] = 'YEAR(r.`Date`) >= ?';
         $types .= 'i';
         $params[] = $sinceYear;
     }
 
+    if ($untilYear > 0) {
+        $where[] = 'r.`Date` < ?';
+        $types .= 's';
+        $params[] = sprintf('%04d-01-01', $untilYear + 1);
+    }
+
     if ($yearFilter > 0) {
         $where[] = 'YEAR(r.`Date`) = ?';
         $types .= 'i';
         $params[] = $yearFilter;
+    }
+
+    if ($goalsScoredFilter >= 0) {
+        $where[] = '((r.idA = ? AND r.GoalsA = ?) OR (r.idB = ? AND r.GoalsB = ?))';
+        $types .= 'iiii';
+        $params[] = $playerId;
+        $params[] = $goalsScoredFilter;
+        $params[] = $playerId;
+        $params[] = $goalsScoredFilter;
+    }
+
+    if ($goalsConcededFilter >= 0) {
+        $where[] = '((r.idA = ? AND r.GoalsB = ?) OR (r.idB = ? AND r.GoalsA = ?))';
+        $types .= 'iiii';
+        $params[] = $playerId;
+        $params[] = $goalsConcededFilter;
+        $params[] = $playerId;
+        $params[] = $goalsConcededFilter;
+    }
+
+    if ($heroGoalDiffFilter !== null) {
+        $where[] = '((r.idA = ? AND (r.GoalsA - r.GoalsB) = ?) OR (r.idB = ? AND (r.GoalsB - r.GoalsA) = ?))';
+        $types .= 'iiii';
+        $params[] = $playerId;
+        $params[] = $heroGoalDiffFilter;
+        $params[] = $playerId;
+        $params[] = $heroGoalDiffFilter;
+    }
+
+    if ($goalsSumFilter >= 0) {
+        $where[] = 'r.SumOfGoals = ?';
+        $types .= 'i';
+        $params[] = $goalsSumFilter;
     }
 
     $whereSql = implode(' AND ', $where);

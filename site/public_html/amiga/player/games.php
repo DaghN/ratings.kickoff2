@@ -22,6 +22,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_games_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_games_filter_facets.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_performance_rating.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_game_row.php';
@@ -48,15 +49,27 @@ amiga_player_publish_hero_context($pm);
 $name = $Name;
 
 $gameFilters = amiga_player_games_filters_from_request($con, $playerId, $_GET, $ctx);
+amiga_player_games_validate_filters_career_wide($con, $playerId, $gameFilters, $ctx);
 $resultFilter = $gameFilters['result'];
 $opponentFilter = $gameFilters['opponent'];
 $tournamentFilter = $gameFilters['tournament'];
 $eventFilter = $gameFilters['event'];
 $countryFilter = $gameFilters['country'];
+$oppCountryFilter = $gameFilters['opp_country'];
 $utcDayFilter = $gameFilters['day'];
 $sinceYearFilter = $gameFilters['since'];
+$untilYearFilter = $gameFilters['until'];
 $yearFilter = $gameFilters['year'];
-$yearOptions = amiga_player_games_year_options($con, $playerId, $ctx);
+$goalsScoredFilter = $gameFilters['gf'];
+$goalsConcededFilter = $gameFilters['ga'];
+$goalsSumFilter = $gameFilters['gs'];
+$heroGoalDiffFilter = $gameFilters['gd'];
+$filterContext = amiga_player_games_filter_context($gameFilters);
+$filterFacets = amiga_player_games_load_filter_facets($con, $playerId, $filterContext, $ctx);
+$filterChoices = amiga_player_games_facet_listbox_choices($con, $filterFacets, $filterContext);
+$showHostCountryFilter = count($filterChoices['country']) > 1 || $countryFilter !== '';
+$showOppCountryFilter = count($filterChoices['opp_country']) > 1 || $oppCountryFilter !== '';
+$showYearFilters = count($filterChoices['year']) > 1 || $yearFilter > 0 || $sinceYearFilter > 0 || $untilYearFilter > 0;
 $sortKey = (string) ($_GET['sort'] ?? 'id');
 if ($sortKey === 'for') {
     $sortKey = 'goals_for';
@@ -88,70 +101,6 @@ if (!isset($sortMap[$sortKey])) {
 
 $fromSql = amiga_rated_games_from_sql();
 
-$branchATypes = 'i';
-$branchAParams = [$playerId];
-$branchACutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchATypes, $branchAParams);
-$branchBTypes = 'i';
-$branchBParams = [$playerId];
-$branchBCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $branchBTypes, $branchBParams);
-$opponentRows = amiga_games_query_all(
-    $con,
-    'SELECT opponent_id, opponent_name, COUNT(*) AS games FROM ('
-        . 'SELECT g.player_b_id AS opponent_id, pb.name AS opponent_name FROM amiga_games g '
-        . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id '
-        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-        . 'WHERE g.player_a_id = ?' . $branchACutoffSql . ' '
-        . 'UNION ALL '
-        . 'SELECT g.player_a_id AS opponent_id, pa.name AS opponent_name FROM amiga_games g '
-        . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id '
-        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-        . 'WHERE g.player_b_id = ?' . $branchBCutoffSql
-        . ') AS opponents GROUP BY opponent_id, opponent_name ORDER BY games DESC, opponent_name ASC',
-    $branchATypes . $branchBTypes,
-    array_merge($branchAParams, $branchBParams)
-);
-$countryMetaTypes = 'ii';
-$countryMetaParams = [$playerId, $playerId];
-$countryMetaSql = amiga_games_tournament_meta_and_sql($eventFilter, '', $countryMetaTypes, $countryMetaParams);
-$countryCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $countryMetaTypes, $countryMetaParams);
-$countryRowList = amiga_games_query_all(
-    $con,
-    'SELECT DISTINCT t.country AS country FROM amiga_games g '
-        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-        . 'WHERE (g.player_a_id = ? OR g.player_b_id = ?) '
-        . 'AND t.country IS NOT NULL AND TRIM(t.country) <> \'\''
-        . $countryMetaSql
-        . $countryCutoffSql
-        . ' ORDER BY country ASC',
-    $countryMetaTypes,
-    $countryMetaParams
-);
-$countryOptions = [];
-foreach ($countryRowList as $countryRow) {
-    $countryOptions[] = (string) $countryRow['country'];
-}
-
-$tournamentMetaTypes = 'ii';
-$tournamentMetaParams = [$playerId, $playerId];
-$tournamentMetaSql = amiga_games_tournament_meta_and_sql(
-    $eventFilter,
-    $countryFilter,
-    $tournamentMetaTypes,
-    $tournamentMetaParams
-);
-$tournamentCutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $tournamentMetaTypes, $tournamentMetaParams);
-$tournamentRows = amiga_games_query_all(
-    $con,
-    'SELECT g.tournament_id, t.name AS tournament_name, COUNT(*) AS games FROM amiga_games g '
-        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-        . 'WHERE g.player_a_id = ? OR g.player_b_id = ?'
-        . $tournamentMetaSql
-        . $tournamentCutoffSql
-        . ' GROUP BY g.tournament_id, t.name, t.event_date, t.chrono '
-        . 'ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC',
-    $tournamentMetaTypes,
-    $tournamentMetaParams
-);
 $whereTypes = '';
 $whereParams = [];
 $whereSql = amiga_games_where_clause(
@@ -161,9 +110,15 @@ $whereSql = amiga_games_where_clause(
     $tournamentFilter,
     $eventFilter,
     $countryFilter,
+    $oppCountryFilter,
     $utcDayFilter,
     $sinceYearFilter,
+    $untilYearFilter,
     $yearFilter,
+    $goalsScoredFilter,
+    $goalsConcededFilter,
+    $goalsSumFilter,
+    $heroGoalDiffFilter,
     $whereTypes,
     $whereParams,
     $ctx
@@ -211,55 +166,32 @@ $sortState = [
     'tournament' => $tournamentFilter,
     'event' => $eventFilter,
     'country' => $countryFilter,
+    'opp_country' => $oppCountryFilter,
     'day' => $utcDayFilter,
     'since' => $sinceYearFilter,
+    'until' => $untilYearFilter,
     'year' => $yearFilter,
+    'gf' => $goalsScoredFilter,
+    'ga' => $goalsConcededFilter,
+    'gs' => $goalsSumFilter,
+    'gd' => $heroGoalDiffFilter,
 ];
 $gamesUrlState = $sortState;
 $sortedColIndex = amiga_player_game_sort_col_index($sortKey);
 
-$resultChoices = [
-    ['value' => 'all', 'label' => '', 'meta' => ''],
-    ['value' => 'win', 'label' => 'Win', 'meta' => ''],
-    ['value' => 'draw', 'label' => 'Draw', 'meta' => ''],
-    ['value' => 'loss', 'label' => 'Loss', 'meta' => ''],
-];
-$opponentChoices = [['value' => '0', 'label' => '', 'meta' => '']];
-foreach ($opponentRows as $opponentRow) {
-    $opponentChoices[] = [
-        'value' => (string) (int) $opponentRow['opponent_id'],
-        'label' => (string) $opponentRow['opponent_name'],
-        'meta' => (string) (int) $opponentRow['games'],
-    ];
-}
-$tournamentChoices = [['value' => '0', 'label' => '', 'meta' => '']];
-foreach ($tournamentRows as $tournamentRow) {
-    $tournamentChoices[] = [
-        'value' => (string) (int) $tournamentRow['tournament_id'],
-        'label' => (string) $tournamentRow['tournament_name'],
-        'meta' => (string) (int) $tournamentRow['games'],
-    ];
-}
-$countryChoices = [['value' => '', 'label' => '', 'meta' => '']];
-foreach ($countryOptions as $countryName) {
-    $countryChoices[] = [
-        'value' => $countryName,
-        'label' => $countryName,
-        'meta' => '',
-    ];
-}
-$sinceChoices = [['value' => '0', 'label' => '', 'meta' => '']];
-$yearChoices = [['value' => '0', 'label' => '', 'meta' => '']];
-foreach ($yearOptions as $year) {
-    $sinceChoices[] = [
-        'value' => (string) $year,
-        'label' => (string) $year,
-    ];
-    $yearChoices[] = [
-        'value' => (string) $year,
-        'label' => (string) $year,
-    ];
-}
+$resultChoices = $filterChoices['result'];
+$opponentChoices = $filterChoices['opponent'];
+$tournamentChoices = $filterChoices['tournament'];
+$countryChoices = $filterChoices['country'];
+$oppCountryChoices = $filterChoices['opp_country'];
+$yearChoices = $filterChoices['year'];
+$sinceChoices = $filterChoices['since'];
+$untilChoices = $filterChoices['until'];
+$goalsScoredChoices = $filterChoices['gf'];
+$goalsConcededChoices = $filterChoices['ga'];
+$goalsSumChoices = $filterChoices['gs'];
+$heroGoalDiffChoices = $filterChoices['gd'];
+$gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : '';
 ?>
 
 <div class="k2-player-games-filters">
@@ -281,43 +213,74 @@ foreach ($yearOptions as $year) {
             <input type="hidden" name="day" value="<?php echo amiga_games_h($utcDayFilter); ?>" />
             <?php } ?>
         </div>
-        <div class="k2-player-games-controls__fields">
-            <div class="k2-player-games-controls__field">
-                <span class="server-period-activity-leaderboard__picker-label">Result</span>
-                <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result', '', '', false, 'all'); ?>
+        <div class="k2-amiga-player-games-filter-rows">
+            <div class="k2-player-games-controls__fields k2-amiga-player-games-filter-row">
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
+                    <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent', '', '', false, '0'); ?>
+                </div>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Tournament</span>
+                    <?php k2_archive_listbox_render('tournament', 'k2-player-games-tournament', (string) $tournamentFilter, $tournamentChoices, 'Filter by tournament', '', '', false, '0'); ?>
+                </div>
+                <?php if ($showHostCountryFilter) { ?>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Host country</span>
+                    <?php k2_archive_listbox_render('country', 'k2-player-games-country', $countryFilter, $countryChoices, 'Filter by host country', '', '', false, ''); ?>
+                </div>
+                <?php } ?>
+                <?php if ($showOppCountryFilter) { ?>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Opponent country</span>
+                    <?php k2_archive_listbox_render('opp_country', 'k2-player-games-opp-country', $oppCountryFilter, $oppCountryChoices, 'Filter by opponent country', '', '', false, ''); ?>
+                </div>
+                <?php } ?>
             </div>
-            <div class="k2-player-games-controls__field">
-                <span class="server-period-activity-leaderboard__picker-label">Opponent</span>
-                <?php k2_archive_listbox_render('opponent', 'k2-player-games-opponent', (string) $opponentFilter, $opponentChoices, 'Filter by opponent', '', '', false, '0'); ?>
-            </div>
-            <div class="k2-player-games-controls__field">
-                <span class="server-period-activity-leaderboard__picker-label">Tournament</span>
-                <?php k2_archive_listbox_render('tournament', 'k2-player-games-tournament', (string) $tournamentFilter, $tournamentChoices, 'Filter by tournament', '', '', false, '0'); ?>
-            </div>
-            <?php if ($countryOptions !== []) { ?>
-            <div class="k2-player-games-controls__field">
-                <span class="server-period-activity-leaderboard__picker-label">Host country</span>
-                <?php k2_archive_listbox_render('country', 'k2-player-games-country', $countryFilter, $countryChoices, 'Filter by host country', '', '', false, ''); ?>
+            <?php if ($showYearFilters) { ?>
+            <div class="k2-player-games-controls__fields k2-amiga-player-games-filter-row">
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Year</span>
+                    <?php k2_archive_listbox_render('year', 'k2-player-games-year', (string) $yearFilter, $yearChoices, 'Games from this calendar year', '', '', false, '0'); ?>
+                </div>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Since</span>
+                    <?php k2_archive_listbox_render('since', 'k2-player-games-since', (string) $sinceYearFilter, $sinceChoices, 'Games from this year onward', '', '', false, '0'); ?>
+                </div>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Until</span>
+                    <?php k2_archive_listbox_render('until', 'k2-player-games-until', (string) $untilYearFilter, $untilChoices, 'Games through this calendar year', '', '', false, '0'); ?>
+                </div>
             </div>
             <?php } ?>
-            <?php if ($yearOptions !== []) { ?>
-            <div class="k2-player-games-controls__field">
-                <span class="server-period-activity-leaderboard__picker-label">Year</span>
-                <?php k2_archive_listbox_render('year', 'k2-player-games-year', (string) $yearFilter, $yearChoices, 'Games from this calendar year', '', '', false, '0'); ?>
+            <div class="k2-player-games-controls__fields k2-amiga-player-games-filter-row">
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Result</span>
+                    <?php k2_archive_listbox_render('result', 'k2-player-games-result', $resultFilter, $resultChoices, 'Filter by result', '', '', false, 'all'); ?>
+                </div>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">GF</span>
+                    <?php k2_archive_listbox_render('gf', 'k2-player-games-gf', (string) $goalsScoredFilter, $goalsScoredChoices, 'Filter by goals for', '', '', false, '-1'); ?>
+                </div>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">GA</span>
+                    <?php k2_archive_listbox_render('ga', 'k2-player-games-ga', (string) $goalsConcededFilter, $goalsConcededChoices, 'Filter by goals against', '', '', false, '-1'); ?>
+                </div>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">GD</span>
+                    <?php k2_archive_listbox_render('gd', 'k2-player-games-gd', $gdListboxValue, $heroGoalDiffChoices, 'Filter by goal difference', '', '', false, ''); ?>
+                </div>
+                <div class="k2-player-games-controls__field">
+                    <span class="server-period-activity-leaderboard__picker-label">Sum</span>
+                    <?php k2_archive_listbox_render('gs', 'k2-player-games-gs', (string) $goalsSumFilter, $goalsSumChoices, 'Filter by total goals', '', '', false, '-1'); ?>
+                </div>
             </div>
-            <div class="k2-player-games-controls__field">
-                <span class="server-period-activity-leaderboard__picker-label">Since</span>
-                <?php k2_archive_listbox_render('since', 'k2-player-games-since', (string) $sinceYearFilter, $sinceChoices, 'Games from this year onward', '', '', false, '0'); ?>
-            </div>
-            <?php } ?>
-            <a class="k2-player-games-reset" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset</a>
         </div>
     </form>
 </div>
 
 <div id="matching-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
 
-<div class="k2-player-games-status">
+<div class="k2-player-games-status" data-k2-carry-scroll>
     <?php if ($utcDayFilter !== '') { ?>
     Rated games on <strong><?php echo amiga_games_h($utcDayFilter); ?></strong> UTC
     (<a href="<?php echo amiga_games_h(amiga_games_build_url(amiga_games_active_url_params(array_merge($gamesUrlState, ['day' => ''])))); ?>">clear day filter</a>).
@@ -328,16 +291,22 @@ foreach ($yearOptions as $year) {
         || $tournamentFilter > 0
         || $eventFilter !== 'all'
         || $countryFilter !== ''
+        || $oppCountryFilter !== ''
         || $utcDayFilter !== ''
         || $sinceYearFilter > 0
-        || $yearFilter > 0;
+        || $untilYearFilter > 0
+        || $yearFilter > 0
+        || $goalsScoredFilter >= 0
+        || $goalsConcededFilter >= 0
+        || $goalsSumFilter >= 0
+        || $heroGoalDiffFilter !== null;
     if ($gamesListFiltered) {
         echo (int) $totalMatches . ' matching game' . ($totalMatches === 1 ? '' : 's');
     } else {
         echo (int) $totalMatches . ' official game' . ($totalMatches === 1 ? '' : 's');
     }
     ?>
-    <span class="k2-player-games-status__perf" title="<?php echo amiga_games_h(amiga_perf_rating_games_list_help()); ?>">· Performance rating <span class="k2-player-games-status__perf-value">…</span></span>
+    <span class="k2-player-games-status__perf" title="<?php echo amiga_games_h(amiga_perf_rating_games_list_help()); ?>">· Performance rating <span class="k2-player-games-status__perf-value">…</span></span><span class="k2-player-games-status__reset-sep" aria-hidden="true"> · </span><a class="k2-player-games-reset" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset filters</a>
 </div>
 
 <?php k2_table_wrap_open(true); ?>
