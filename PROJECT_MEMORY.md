@@ -120,9 +120,14 @@
 
 | When | Note |
 |------|------|
-| 2026-06-25 | **Amiga H2H rank chart toolbar alignment** — `player-opponents-h2h-poster.css` exception: rank compare toolbar column + `flex-start` (poster’s generic `.pm3d-chart-toolbar` center rule was overriding feast-sections). |
+| 2026-06-25 | **H2H wins + cumulative goals charts — game #0 origin** — prepend `(0, 0)` and x-axis `min: 0` so single-game pairings draw a line segment (Amiga + online). |
+| 2026-06-25 | **Amiga chart peak copy — tournament anchor** — rank + rating peak summaries (profile solo, H2H compare) append `, after {tournament name}` from stored `*_tournament_id`; rating API `peak` via `amiga_player_rating_peak_summary()`. |
+| 2026-06-25 | **Amiga H2H rank compare tooltip fix** — `player-compare-rank-chart.js` uses Chart.js `interaction.mode: 'x'` (not `index`) so tooltips pair both players at the same calendar date; `index` was pairing Fabio’s late points with Darren’s much-earlier rows (`#254 of 398` vs correct `#304 of 473`). |
 | 2026-06-25 | **Amiga profile rank chart grid** — `rankChartGrid()` (stronger than softGrid) so Y rank bands read at a glance. |
-| 2026-06-25 | **Amiga peak rating event anchors (SCH-042/043)** — `peak_rating_tournament_id` + `lowest_rating_tournament_id` on snapshots/current; dropped `PeakRatingGameID`/`LowestRatingGameID` (online-only); LB peak date from stored id; profile peak moment = event. |
+| 2026-06-25 | **Amiga H2H rank compare — HTML tooltips** — bold chrome/red rank ink (`#N of L (P%)`) per player + tournament on each line; shared date title. |
+| 2026-06-25 | **Amiga H2H rating compare — tournament # tooltips** — **By tournament #** shows shared index in title; each player’s label carries their own tournament + date + rating (not hero-only in title). |
+| 2026-06-25 | **Amiga H2H rating compare — date tail fix** — `player-compare-rating-chart.js` now applies `appendRatingThroughToday` for event granularity (parity with solo profile); stepped lines on Amiga **By date** so inactive players (e.g. Darren G last event 2009) extend flat to today instead of clustering on the left. |
+| 2026-06-25 | **Amiga rank chart peak summary** — profile + H2H read `peak` from API (`peak_elo_rank` + tournament date); not client history scan. |
 | 2026-06-25 | **Amiga peak-rating LB dates** — **Peak date** via `peak_rating_tournament_id` + **Peak rank date** via `peak_elo_rank_tournament_id`. |
 | 2026-06-25 | **Amiga peak Elo rank (SCH-041)** — `peak_elo_rank` + `peak_elo_rank_tournament_id` on timeline + `current`; writer in `elo_rank.py` / ops PHP; verify in `prove`; **Peak rank** column on peak-rating LB (TT via dense timeline). |
 | 2026-06-25 | **Amiga profile rank chart — X-axis locked** — full timeline from first Amiga tournament (`timelineStart` on `amiga_games`) → today; no in-chart zoom; Y **Career** is not an X trim (sparse ~600 finalize points / ~25 years). |

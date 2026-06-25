@@ -111,6 +111,10 @@ function player_opponents_render_h2h_matchup_charts(
 			</div>
 			<p class="player-compare-rating-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
 			<div class="player-compare-rating-view player-compare-rating-view--date">
+				<?php if ($realm === 'amiga') { ?>
+				<p class="player-compare-rating-peak-subject pm3d-chart__summary" hidden></p>
+				<p class="player-compare-rating-peak-opponent pm3d-chart__summary" hidden></p>
+				<?php } ?>
 				<div class="k2-chart-frame">
 					<canvas class="player-compare-rating-canvas--date" aria-label="Rating comparison by calendar date"></canvas>
 				</div>

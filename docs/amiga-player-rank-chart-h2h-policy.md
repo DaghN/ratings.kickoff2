@@ -39,7 +39,7 @@ Port the **profile solo rank chart** to Opponents **Head-to-head** as a **two-pl
 | **H3** | **API** | `GET /api/player_compare_rank_history.php?realm=amiga&id={hero}&opponent={rival}` (+ optional `as=`). Dual payload mirroring `player_compare_rating_history.php` shape: `player`, `opponent`, shared `timelineStart`, per-player `points` + `meta` |
 | **H4** | **X-axis** | Inherit solo **R3** / §5.1 — full Amiga timeline; each line starts at that player's first finalize; empty calendar before debut is OK |
 | **H5** | **Default on load** | Linear scale · **Career** Y window — where **Career = union** of both players' career bands (§3.1), not hero-only solo semantics |
-| **H6** | **Peak summary (text)** | **Two** lines under toolbar — one per player, same format as solo §5.9 (`Peak: #N …` / `Peak: P% …` + date; first attainment on ties). Subject line uses chrome peak ink; opponent uses red ink (match line colours). **No** dashed peak line on the chart canvas |
+| **H6** | **Peak summary (text)** | **Two** lines under toolbar — one per player, same format as solo §5.9 (`Peak: #N …` / `Peak: P% …` + date + `, after {tournament}`; first attainment on ties). Subject line uses chrome peak ink; opponent uses red ink (match line colours). **No** dashed peak line on the chart canvas |
 | **H7** | **Toolbar** | Same scale + window controls as solo (Linear · Percentile; contextual window rows via `data-range-mode`) |
 | **H8** | **Line style** | Stepped only; same transition edge-clip as solo (§solo R6) — applied **per series** |
 | **H9** | **Ceiling** | `max(ladderSize)` over **both** truncated series (union of displayed points) |

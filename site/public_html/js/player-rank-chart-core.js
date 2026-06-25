@@ -357,6 +357,26 @@
         });
     }
 
+    function escapeHtml(text) {
+        if (text == null || text === '') {
+            return '';
+        }
+
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function peakAfterClause(tournamentName) {
+        if (!tournamentName) {
+            return '';
+        }
+
+        return ', after ' + escapeHtml(tournamentName);
+    }
+
     function peakPointFromHistory(points, scale) {
         if (!points.length) {
             return null;
@@ -390,7 +410,26 @@
             summary.hidden = true;
             return;
         }
-        var peak = peakPointFromHistory(points, scale);
+
+        var peak = null;
+        var stored = opts.peak;
+        if (stored && stored.eloRank > 0 && stored.eventDate) {
+            var storedDate = parseEventDate(stored.eventDate);
+            if (storedDate) {
+                peak = {
+                    point: {
+                        eventDate: stored.eventDate,
+                        tournamentName: stored.tournamentName || ''
+                    },
+                    display: scale === 'percentile'
+                        ? (stored.percentile != null ? stored.percentile + '%' : null)
+                        : '#' + stored.eloRank
+                };
+            }
+        }
+        if (!peak || peak.display == null) {
+            peak = peakPointFromHistory(points, scale);
+        }
         if (!peak) {
             summary.hidden = true;
             return;
@@ -400,9 +439,11 @@
             summary.hidden = true;
             return;
         }
+        var tournamentName = peak.point.tournamentName || '';
         var valueClass = opts.peakValueClass || 'pm3-chart-peak-value';
         var rankHtml = '<span class="' + valueClass + '">' + peak.display + '</span>';
-        var whenHtml = ' <span class="pm3d-chart__summary-note">on ' + formatTooltipDate(whenDate) + '.</span>';
+        var whenHtml = ' <span class="pm3d-chart__summary-note">on ' + formatTooltipDate(whenDate)
+            + peakAfterClause(tournamentName) + '.</span>';
         if (opts.namePrefix) {
             summary.innerHTML = opts.namePrefix + ' peak: ' + rankHtml + whenHtml;
         } else {
@@ -451,6 +492,120 @@
         };
     }
 
+    var COMPARE_RANK_HTML_TOOLTIP_ID = 'k2-compare-rank-html-tooltip';
+
+    function playerRankSeriesShortName(datasetLabel) {
+        if (!datasetLabel) {
+            return 'Player';
+        }
+        return datasetLabel.replace(/\s+rank$/i, '');
+    }
+
+    function rankTooltipClassForDatasetIndex(datasetIndex) {
+        return datasetIndex === 0
+            ? 'pm3-chart-tooltip-rating--subject'
+            : 'pm3-chart-tooltip-rating--opponent';
+    }
+
+    function formatRankTooltipValueHtml(raw, datasetIndex) {
+        var rankPart = '#' + raw.eloRank;
+        var suffix = ' of ' + raw.ladderSize + ' (' + raw.percentile + '%)';
+        return '<span class="' + rankTooltipClassForDatasetIndex(datasetIndex) + '">'
+            + escapeHtml(rankPart) + '</span>'
+            + escapeHtml(suffix);
+    }
+
+    function getOrCreateCompareRankHtmlTooltip() {
+        var el = document.getElementById(COMPARE_RANK_HTML_TOOLTIP_ID);
+        if (el) {
+            return el;
+        }
+        el = document.createElement('div');
+        el.id = COMPARE_RANK_HTML_TOOLTIP_ID;
+        el.className = 'k2-chart-html-tooltip';
+        el.setAttribute('role', 'tooltip');
+        el.hidden = true;
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function buildCompareRankTooltipTitle(items) {
+        if (!items.length) {
+            return '';
+        }
+        var d = new Date(items[0].parsed.x);
+        if (isNaN(d.getTime()) && items[0].raw && items[0].raw.raw) {
+            d = parseEventDate(items[0].raw.raw.eventDate);
+        }
+        if (!d || isNaN(d.getTime())) {
+            return '';
+        }
+        return formatTooltipDate(d);
+    }
+
+    function formatCompareRankTooltipRowHtml(item) {
+        var wrap = item.raw;
+        var raw = wrap && wrap.raw;
+        if (!raw) {
+            return '';
+        }
+        var name = escapeHtml(playerRankSeriesShortName(item.dataset && item.dataset.label));
+        var rankHtml = formatRankTooltipValueHtml(raw, item.datasetIndex);
+        return name + ': ' + rankHtml;
+    }
+
+    function swatchColorForRankItem(item, theme) {
+        var ds = item.dataset || {};
+        var color = ds.borderColor;
+        if (typeof color === 'function') {
+            color = color(item);
+        }
+        if (!color || color === 'transparent') {
+            color = item.datasetIndex === 0
+                ? theme.h2hSubjectBorder()
+                : theme.h2hOpponentBorder();
+        }
+        return color;
+    }
+
+    function bindCompareRankExternalTooltip(theme) {
+        return function (context) {
+            var tooltipEl = getOrCreateCompareRankHtmlTooltip();
+            var tooltip = context.tooltip;
+            if (!tooltip || tooltip.opacity === 0) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var points = (tooltip.dataPoints || []).filter(function (item) {
+                return item.raw && !item.raw.clipped && item.raw.y != null;
+            });
+            if (!points.length) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var title = buildCompareRankTooltipTitle(points);
+            var bodyHtml = points.map(function (item) {
+                var line = formatCompareRankTooltipRowHtml(item);
+                var swatch = swatchColorForRankItem(item, theme);
+                return '<div class="k2-chart-html-tooltip__row">'
+                    + '<span class="k2-chart-html-tooltip__swatch" style="background:'
+                    + escapeHtml(swatch) + '"></span>'
+                    + '<span class="k2-chart-html-tooltip__text">' + line + '</span>'
+                    + '</div>';
+            }).join('');
+            tooltipEl.innerHTML = '<div class="k2-chart-html-tooltip__title">'
+                + escapeHtml(title) + '</div>'
+                + '<div class="k2-chart-html-tooltip__body">' + bodyHtml + '</div>';
+            tooltipEl.hidden = false;
+
+            var canvas = context.chart.canvas;
+            var rect = canvas.getBoundingClientRect();
+            tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
+            tooltipEl.style.top = (rect.top + tooltip.caretY) + 'px';
+            tooltipEl.style.opacity = '1';
+        };
+    }
+
     function buildTimeXScale(timeRange) {
         return {
             type: 'time',
@@ -490,10 +645,13 @@
         formatTooltipDate: formatTooltipDate,
         peakPointFromHistory: peakPointFromHistory,
         renderPeakSummary: renderPeakSummary,
+        escapeHtml: escapeHtml,
+        peakAfterClause: peakAfterClause,
         withCareerPlotGutter: withCareerPlotGutter,
         createChart: createChart,
         buildTimeXScale: buildTimeXScale,
         buildRankTooltipCallbacks: buildRankTooltipCallbacks,
+        bindCompareRankExternalTooltip: bindCompareRankExternalTooltip,
         rankTooltipLabel: rankTooltipLabel
     };
 }(typeof window !== 'undefined' ? window : this));

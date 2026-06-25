@@ -27,6 +27,28 @@
         return new Chart(canvas, config);
     }
 
+    function withH2hChartOrigin(chartData) {
+        if (!chartData.length) {
+            return chartData.slice();
+        }
+        var out = [{ x: 0, y: 0, isOrigin: true }];
+        for (var i = 0; i < chartData.length; i++) {
+            out.push(chartData[i]);
+        }
+        return out;
+    }
+
+    function h2hGameTooltipTitle(items) {
+        if (!items.length) {
+            return '';
+        }
+        var raw = items[0].raw;
+        if (raw && raw.isOrigin) {
+            return 'Before first game';
+        }
+        return 'After game ' + items[0].parsed.x;
+    }
+
     function initRoot(root) {
         var playerId = root.getAttribute('data-player-id');
         if (!playerId) {
@@ -107,6 +129,8 @@
                         playerData.push({ x: n, y: points[i].player_wins });
                         opponentData.push({ x: n, y: points[i].opponent_wins });
                     }
+                    playerData = withH2hChartOrigin(playerData);
+                    opponentData = withH2hChartOrigin(opponentData);
 
                     setMeta(formatH2hMeta(data));
                     if (data.opponentName) {
@@ -155,19 +179,14 @@
                                 },
                                 tooltip: T.mergeTooltip({
                                     callbacks: {
-                                        title: function (items) {
-                                            if (!items.length) {
-                                                return '';
-                                            }
-                                            return 'After game ' + items[0].parsed.x;
-                                        }
+                                        title: h2hGameTooltipTitle
                                     }
                                 })
                             },
                             scales: {
                                 x: {
                                     type: 'linear',
-                                    min: 1,
+                                    min: 0,
                                     title: {
                                         display: true,
                                         text: 'Head-to-head game #',

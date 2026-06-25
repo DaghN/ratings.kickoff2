@@ -112,12 +112,18 @@
                 ]
             },
             options: Core.withCareerPlotGutter({
-                interaction: { mode: 'index', intersect: false },
+                interaction: { mode: 'x', intersect: false },
                 plugins: {
                     legend: {
                         labels: { color: T.textPrimary() }
                     },
-                    tooltip: T.mergeTooltip(Core.buildRankTooltipCallbacks())
+                    tooltip: T.mergeTooltip({
+                        enabled: false,
+                        external: Core.bindCompareRankExternalTooltip(T),
+                        filter: function (item) {
+                            return item.raw && !item.raw.clipped && item.raw.y != null;
+                        }
+                    })
                 },
                 scales: {
                     x: Core.buildTimeXScale(timeRange),
@@ -163,11 +169,13 @@
         var mergedMeta = Core.mergeCompareMeta(player.meta, opponent.meta);
         Core.renderPeakSummary(subjectSummary, playerPoints, state.scale, {
             namePrefix: player.playerName || 'Player',
-            peakValueClass: 'pm3-chart-peak-value pm3-chart-peak-value--subject'
+            peakValueClass: 'pm3-chart-peak-value pm3-chart-peak-value--subject',
+            peak: player.peak
         });
         Core.renderPeakSummary(opponentSummary, opponentPoints, state.scale, {
             namePrefix: opponent.playerName || state.opponentName || 'Opponent',
-            peakValueClass: 'pm3-chart-peak-value pm3-chart-peak-value--opponent'
+            peakValueClass: 'pm3-chart-peak-value pm3-chart-peak-value--opponent',
+            peak: opponent.peak
         });
 
         state.chart = buildCompareChart(

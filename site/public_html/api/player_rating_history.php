@@ -152,7 +152,10 @@ while ($row = $res->fetch_assoc()) {
 $stmt->close();
 
 $timelineStart = null;
+$peak = null;
 if ($realm === 'amiga') {
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_h2h_pair_lib.php';
+    $peak = amiga_player_rating_peak_summary($con, $playerId);
     $minRes = $con->query('SELECT MIN(game_date) AS d FROM amiga_games');
     if ($minRes) {
         $minRow = $minRes->fetch_assoc();
@@ -174,6 +177,9 @@ $payload = [
 ];
 if ($realm === 'amiga') {
     $payload['meta'] = ['granularity' => 'event'];
+    if ($peak !== null) {
+        $payload['peak'] = $peak;
+    }
 }
 if ($timelineStart !== null) {
     $payload['timelineStart'] = $timelineStart;

@@ -12,6 +12,140 @@
     var EVENT_NAME = 'kool-opponent-selected';
     var CTX = window.K2PlayerOpponentsH2hContext;
     var START_RATING = 1600;
+    var HTML_TOOLTIP_ID = 'k2-compare-rating-html-tooltip';
+
+    function escapeHtml(text) {
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function ratingClassForDatasetIndex(datasetIndex) {
+        return datasetIndex === 0
+            ? 'pm3-chart-tooltip-rating--subject'
+            : 'pm3-chart-tooltip-rating--opponent';
+    }
+
+    function formatRatingHtml(value, datasetIndex) {
+        return '<span class="' + ratingClassForDatasetIndex(datasetIndex) + '">'
+            + escapeHtml(value) + '</span>';
+    }
+
+    function getOrCreateCompareRatingTooltip() {
+        var el = document.getElementById(HTML_TOOLTIP_ID);
+        if (el) {
+            return el;
+        }
+        el = document.createElement('div');
+        el.id = HTML_TOOLTIP_ID;
+        el.className = 'k2-chart-html-tooltip';
+        el.setAttribute('role', 'tooltip');
+        el.hidden = true;
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function buildCompareTooltipTitle(items, isGame, eventMode) {
+        var pt;
+        var d;
+        if (!items.length) {
+            return '';
+        }
+        if (isGame) {
+            pt = items[0].raw || {};
+            if (pt.isOrigin) {
+                return eventMode
+                    ? 'Tournament #0 — starting rating'
+                    : 'Game #0 — starting rating';
+            }
+            return (eventMode ? 'Tournament #' : 'Game #') + items[0].parsed.x;
+        }
+        d = new Date(items[0].parsed.x);
+        if (isNaN(d.getTime())) {
+            return '';
+        }
+        return d.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    function formatCompareGameTooltipHtml(item, eventMode) {
+        var pt = item.raw || {};
+        var name = escapeHtml(playerSeriesShortName(item.dataset && item.dataset.label));
+        var ratingHtml = formatRatingHtml(item.formattedValue, item.datasetIndex);
+        if (pt.isOrigin) {
+            return name + ': ' + ratingHtml;
+        }
+        var line = name;
+        if (eventMode && pt.tournamentName) {
+            line += ' \u2014 ' + escapeHtml(pt.tournamentName);
+        }
+        if (pt.date) {
+            line += ' \u00b7 ' + escapeHtml(String(pt.date).substring(0, 10));
+        }
+        return line + ': ' + ratingHtml;
+    }
+
+    function formatCompareDateTooltipHtml(item) {
+        var name = escapeHtml(playerSeriesShortName(item.dataset && item.dataset.label));
+        return name + ': ' + formatRatingHtml(item.formattedValue, item.datasetIndex);
+    }
+
+    function swatchColorForItem(item) {
+        var ds = item.dataset || {};
+        var color = ds.borderColor;
+        if (typeof color === 'function') {
+            color = color(item);
+        }
+        if (!color || color === 'transparent') {
+            color = item.datasetIndex === 0 ? T.h2hSubjectBorder() : T.h2hOpponentBorder();
+        }
+        return color;
+    }
+
+    function bindCompareRatingExternalTooltip(isGame, eventMode) {
+        return function (context) {
+            var tooltipEl = getOrCreateCompareRatingTooltip();
+            var tooltip = context.tooltip;
+            if (!tooltip || tooltip.opacity === 0) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var points = tooltip.dataPoints || [];
+            if (!points.length) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var title = buildCompareTooltipTitle(points, isGame, eventMode);
+            var bodyHtml = points.map(function (item) {
+                var line = isGame
+                    ? formatCompareGameTooltipHtml(item, eventMode)
+                    : formatCompareDateTooltipHtml(item);
+                var swatch = swatchColorForItem(item);
+                return '<div class="k2-chart-html-tooltip__row">'
+                    + '<span class="k2-chart-html-tooltip__swatch" style="background:'
+                    + escapeHtml(swatch) + '"></span>'
+                    + '<span class="k2-chart-html-tooltip__text">' + line + '</span>'
+                    + '</div>';
+            }).join('');
+            tooltipEl.innerHTML = '<div class="k2-chart-html-tooltip__title">'
+                + escapeHtml(title) + '</div>'
+                + '<div class="k2-chart-html-tooltip__body">' + bodyHtml + '</div>';
+            tooltipEl.hidden = false;
+
+            var canvas = context.chart.canvas;
+            var rect = canvas.getBoundingClientRect();
+            var left = rect.left + tooltip.caretX;
+            var top = rect.top + tooltip.caretY;
+            tooltipEl.style.left = left + 'px';
+            tooltipEl.style.top = top + 'px';
+            tooltipEl.style.opacity = '1';
+        };
+    }
 
     function fetchJson(url) {
         return fetch(url, { credentials: 'same-origin' }).then(function (r) {
@@ -113,6 +247,41 @@
         return isNaN(d.getTime()) ? null : d;
     }
 
+    function peakAfterClause(tournamentName) {
+        var Core = window.K2PlayerRankChartCore;
+        if (Core && Core.peakAfterClause) {
+            return Core.peakAfterClause(tournamentName);
+        }
+        if (!tournamentName) {
+            return '';
+        }
+        return ', after ' + escapeHtml(tournamentName);
+    }
+
+    function renderRatingPeakSummary(summary, peak, namePrefix, valueClass) {
+        if (!summary) {
+            return;
+        }
+        if (!peak || peak.rating <= 0 || !peak.eventDate) {
+            summary.hidden = true;
+            return;
+        }
+        var whenDate = parseGameDate(peak.eventDate);
+        if (!whenDate) {
+            summary.hidden = true;
+            return;
+        }
+        var when = whenDate.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+        summary.innerHTML = namePrefix + ' peak: <span class="' + valueClass + '">' + peak.rating + '</span>'
+            + ' <span class="pm3d-chart__summary-note">on ' + when
+            + peakAfterClause(peak.tournamentName) + '.</span>';
+        summary.hidden = false;
+    }
+
     function pointsToChartData(points) {
         var chartData = [];
         for (var i = 0; i < points.length; i++) {
@@ -123,6 +292,13 @@
             chartData.push({ x: x, y: points[i].rating });
         }
         return chartData;
+    }
+
+    function playerSeriesShortName(datasetLabel) {
+        if (!datasetLabel) {
+            return 'Player';
+        }
+        return datasetLabel.replace(/\s+rating$/i, '');
     }
 
     function pointsToGameData(points, eventMode) {
@@ -268,6 +444,8 @@
             };
         }
 
+        var eventStepped = !isGame && cfg.eventMode;
+
         return createChart(canvas, {
             type: 'line',
             data: {
@@ -281,7 +459,8 @@
                         pointRadius: 0,
                         pointHoverRadius: 4,
                         fill: false,
-                        tension: 0.1
+                        stepped: eventStepped,
+                        tension: eventStepped ? 0 : 0.1
                     },
                     {
                         label: (cfg.opponent.playerName || cfg.opponentName || 'Opponent') + ' rating',
@@ -292,7 +471,8 @@
                         pointRadius: 0,
                         pointHoverRadius: 4,
                         fill: false,
-                        tension: 0.1
+                        stepped: eventStepped,
+                        tension: eventStepped ? 0 : 0.1
                     }
                 ]
             },
@@ -303,41 +483,8 @@
                         labels: { color: T.textPrimary() }
                     },
                     tooltip: T.mergeTooltip({
-                        callbacks: {
-                            title: function (items) {
-                                var d;
-                                var pt;
-                                if (!items.length) {
-                                    return '';
-                                }
-                                if (isGame) {
-                                    pt = items[0].raw || {};
-                                    if (pt.isOrigin) {
-                                        return eventMode
-                                            ? 'Tournament #0 — starting rating'
-                                            : 'Game #0 — starting rating';
-                                    }
-                                    var prefix = eventMode ? 'Tournament #' : 'Game #';
-                                    var title = prefix + items[0].parsed.x;
-                                    if (eventMode && pt.tournamentName) {
-                                        title += ' — ' + pt.tournamentName;
-                                    }
-                                    if (pt.date) {
-                                        title += ' · ' + String(pt.date).substring(0, 10);
-                                    }
-                                    return title;
-                                }
-                                d = new Date(items[0].parsed.x);
-                                if (isNaN(d.getTime())) {
-                                    return '';
-                                }
-                                return d.toLocaleDateString(undefined, {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                });
-                            }
-                        }
+                        enabled: false,
+                        external: bindCompareRatingExternalTooltip(isGame, eventMode)
                     })
                 },
                 scales: {
@@ -361,6 +508,8 @@
         var gameCanvas = root.querySelector('.player-compare-rating-canvas--game');
         var status = root.querySelector('.player-compare-rating-chart-status');
         var toolbarMeta = root.querySelector('.player-compare-rating-toolbar-meta');
+        var subjectPeakSummary = root.querySelector('.player-compare-rating-peak-subject');
+        var opponentPeakSummary = root.querySelector('.player-compare-rating-peak-opponent');
         var toggle = root.querySelector('.pm3d-rating-toggle');
         var state = {
             dateChart: null,
@@ -421,7 +570,7 @@
                     var playerGameData = pointsToGameData(player.points || [], eventMode);
                     var opponentGameData = pointsToGameData(opponent.points || [], eventMode);
 
-                    if (!eventMode && DR && DR.appendRatingThroughToday) {
+                    if (DR && DR.appendRatingThroughToday) {
                         var playerRating = typeof player.currentRating === 'number'
                             ? player.currentRating
                             : (playerDateData.length ? playerDateData[playerDateData.length - 1].y : null);
@@ -445,6 +594,12 @@
                             state.gameChart.destroy();
                             state.gameChart = null;
                         }
+                        if (subjectPeakSummary) {
+                            subjectPeakSummary.hidden = true;
+                        }
+                        if (opponentPeakSummary) {
+                            opponentPeakSummary.hidden = true;
+                        }
                         if (status) {
                             status.textContent = 'No rated games to chart.';
                         }
@@ -453,6 +608,28 @@
 
                     setHeading(opponent.playerName || opponentName);
                     setToolbarMeta(formatToolbarGamesLine(player, opponent, eventMode));
+
+                    if (state.realm === 'amiga') {
+                        renderRatingPeakSummary(
+                            subjectPeakSummary,
+                            player.peak,
+                            player.playerName || 'Player',
+                            'pm3-chart-peak-value pm3-chart-peak-value--subject'
+                        );
+                        renderRatingPeakSummary(
+                            opponentPeakSummary,
+                            opponent.peak,
+                            opponent.playerName || opponentName || 'Opponent',
+                            'pm3-chart-peak-value pm3-chart-peak-value--opponent'
+                        );
+                    } else {
+                        if (subjectPeakSummary) {
+                            subjectPeakSummary.hidden = true;
+                        }
+                        if (opponentPeakSummary) {
+                            opponentPeakSummary.hidden = true;
+                        }
+                    }
 
                     if (status) {
                         status.textContent = '';

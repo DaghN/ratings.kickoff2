@@ -97,7 +97,9 @@
             return;
         }
 
-        Core.renderPeakSummary(summary, points, state.scale);
+        Core.renderPeakSummary(summary, points, state.scale, {
+            peak: state.data.peak
+        });
 
         state.chart = buildChart(canvas, points, meta, state.data.timelineStart, state);
         if (status) {

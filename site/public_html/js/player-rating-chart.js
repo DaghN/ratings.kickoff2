@@ -206,6 +206,20 @@
         return out;
     }
 
+    function peakAfterClause(tournamentName) {
+        var Core = window.K2PlayerRankChartCore;
+        if (Core && Core.peakAfterClause) {
+            return Core.peakAfterClause(tournamentName);
+        }
+        if (!tournamentName) {
+            return '';
+        }
+        return ', after ' + String(tournamentName)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
     function renderDateSummary(summary, stats) {
         if (!summary) {
             return;
@@ -216,7 +230,8 @@
             day: 'numeric'
         });
         summary.innerHTML = 'Peak: <span class="pm3-chart-peak-value">' + stats.peak + '</span>'
-            + ' <span class="pm3d-chart__summary-note">on ' + peakWhen + '.</span>';
+            + ' <span class="pm3d-chart__summary-note">on ' + peakWhen
+            + peakAfterClause(stats.tournamentName) + '.</span>';
         summary.hidden = false;
     }
 
@@ -639,7 +654,18 @@
 
                 state.gameChartData = buildGameChartData(points);
 
-                if (careerPeakStats) {
+                if (state.eventMode && data.peak && data.peak.rating > 0 && data.peak.eventDate) {
+                    var storedPeakDate = parseGameDate(data.peak.eventDate);
+                    if (storedPeakDate) {
+                        state.peakValue = data.peak.rating;
+                        renderDateSummary(dateSummary, {
+                            peak: data.peak.rating,
+                            peakDate: storedPeakDate,
+                            tournamentName: data.peak.tournamentName || '',
+                            latest: dateChartData[dateChartData.length - 1].y
+                        });
+                    }
+                } else if (careerPeakStats) {
                     state.peakValue = careerPeakStats.peak;
                     renderDateSummary(dateSummary, {
                         peak: careerPeakStats.peak,

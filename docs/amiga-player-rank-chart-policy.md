@@ -219,11 +219,11 @@ Required per point:
 
 | Scale | Format |
 |-------|--------|
-| **Linear** | `Peak: #N on MMM d, yyyy.` |
-| **Percentile** | `Peak: P% on MMM d, yyyy.` |
+| **Linear** | `Peak: #N on MMM d, yyyy, after {tournament name}.` |
+| **Percentile** | `Peak: P% on MMM d, yyyy, after {tournament name}.` |
 
-- **Best** = lowest rank / highest percentile over the loaded series (TT-truncated when active).
-- **Ties:** first chronological attainment (`>` / `<`, not `>=` / `<=`).
+- **Best** = stored **`peak_elo_rank`** + **`peak_elo_rank_tournament_id`** → event date + tournament name (SCH-041; API field `peak.tournamentName`). Percentile at peak = ladder size at that event.
+- **Ties:** first attainment enforced at finalize (not recomputed client-side).
 - Updates when scale toggles; independent of Y-window band (Top 20 etc.).
 - Styled with `pm3d-chart__summary` + `pm3-chart-peak-value` (amber peak ink).
 

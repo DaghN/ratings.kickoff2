@@ -20,6 +20,123 @@ function amiga_player_rank_percentile(int $eloRank, int $ladderSize): float
 }
 
 /**
+ * Career peak rank summary from stored finalize truth (SCH-041).
+ *
+ * @return array{eloRank: int, eventDate: string, percentile: float, tournamentName: string}|null
+ */
+function amiga_player_rank_peak_summary(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null,
+): ?array {
+    if ($playerId < 1) {
+        return null;
+    }
+
+    $ctx = $ctx ?? AmigaSnapshotContext::present();
+    $peakRank = null;
+    $peakTournamentId = null;
+    $eventDate = null;
+
+    if ($ctx->isActive()) {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff === null) {
+            return null;
+        }
+        $sql = 'SELECT x.peak_elo_rank, x.peak_elo_rank_tournament_id, t.event_date, t.name AS tournament_name '
+            . 'FROM ('
+            . '  SELECT er.peak_elo_rank, er.peak_elo_rank_tournament_id, '
+            . '    ROW_NUMBER() OVER ('
+            . '      ORDER BY er.event_date DESC, er.event_chrono DESC, er.tournament_id DESC'
+            . '    ) AS rn '
+            . '  FROM amiga_player_elo_rank_at_event er '
+            . '  WHERE er.player_id = ? '
+            . '    AND (er.event_date, er.event_chrono, er.tournament_id) <= (?, ?, ?) '
+            . ') x '
+            . 'LEFT JOIN tournaments t ON t.id = x.peak_elo_rank_tournament_id '
+            . 'WHERE x.rn = 1';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            return null;
+        }
+        $eventDateParam = $cutoff['event_date'];
+        $chrono = $cutoff['chrono'];
+        $tournamentId = $cutoff['tournament_id'];
+        $stmt->bind_param('isdi', $playerId, $eventDateParam, $chrono, $tournamentId);
+    } else {
+        $careerTable = amiga_player_career_table($con);
+        $sql = 'SELECT c.peak_elo_rank, c.peak_elo_rank_tournament_id, t.event_date, t.name AS tournament_name '
+            . 'FROM `' . $careerTable . '` c '
+            . 'LEFT JOIN tournaments t ON t.id = c.peak_elo_rank_tournament_id '
+            . 'WHERE c.player_id = ? AND c.NumberGames > 0 LIMIT 1';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            return null;
+        }
+        $stmt->bind_param('i', $playerId);
+    }
+
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return null;
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : false;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    if ($row === false || $row === null) {
+        return null;
+    }
+
+    $peakRank = (int) ($row['peak_elo_rank'] ?? 0);
+    $peakTournamentId = $row['peak_elo_rank_tournament_id'] !== null
+        ? (int) $row['peak_elo_rank_tournament_id'] : null;
+    $eventDate = (string) ($row['event_date'] ?? '');
+
+    if ($peakRank < 1 || $peakTournamentId === null || $peakTournamentId < 1 || $eventDate === '') {
+        return null;
+    }
+
+    $tournamentName = trim((string) ($row['tournament_name'] ?? ''));
+
+    $ladderStmt = $con->prepare(
+        'SELECT COUNT(*) AS ladder_size FROM amiga_player_elo_rank_at_event WHERE tournament_id = ?'
+    );
+    if (!$ladderStmt) {
+        return null;
+    }
+    $ladderStmt->bind_param('i', $peakTournamentId);
+    if (!$ladderStmt->execute()) {
+        $ladderStmt->close();
+
+        return null;
+    }
+    $ladderRes = $ladderStmt->get_result();
+    $ladderRow = $ladderRes ? $ladderRes->fetch_assoc() : false;
+    if ($ladderRes) {
+        $ladderRes->free();
+    }
+    $ladderStmt->close();
+
+    $ladderSize = $ladderRow !== false && $ladderRow !== null
+        ? (int) ($ladderRow['ladder_size'] ?? 0) : 0;
+    if ($ladderSize < 1) {
+        return null;
+    }
+
+    return [
+        'eloRank' => $peakRank,
+        'eventDate' => $eventDate,
+        'percentile' => amiga_player_rank_percentile($peakRank, $ladderSize),
+        'tournamentName' => $tournamentName,
+    ];
+}
+
+/**
  * @return list<array{
  *   tournamentId: int,
  *   eventDate: string,
@@ -176,6 +293,7 @@ function amiga_player_rank_history_meta(array $points, bool $cutoffActive): arra
  *   currentRank: int|null,
  *   points: list<array<string, mixed>>,
  *   meta: array<string, mixed>,
+ *   peak: array{eloRank: int, eventDate: string, percentile: float}|null,
  *   timelineStart: string|null
  * }|null
  */
@@ -228,6 +346,7 @@ function amiga_player_rank_history_payload(
         'currentRank' => $currentRank,
         'points' => $points,
         'meta' => $meta,
+        'peak' => amiga_player_rank_peak_summary($con, $playerId, $ctx),
         'timelineStart' => $timelineStart,
     ];
 }

@@ -77,4 +77,8 @@ if ($payload['timelineStart'] !== null) {
     $response['timelineStart'] = $payload['timelineStart'];
 }
 
+if ($payload['peak'] !== null) {
+    $response['peak'] = $payload['peak'];
+}
+
 echo json_encode($response);

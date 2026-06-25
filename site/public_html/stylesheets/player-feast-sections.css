@@ -549,6 +549,10 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 	color: var(--k2-text-muted);
 }
 
+.player-compare-rating-chart .pm3d-chart__summary {
+	color: var(--k2-text-muted);
+}
+
 .pm3d-chart__summary-note {
 	color: var(--k2-text-muted);
 	font-size: 0.92em;
@@ -567,6 +571,71 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 }
 
 .player-compare-rank-chart .pm3-chart-peak-value--opponent {
+	color: color-mix(in srgb, var(--k2-table-negative) 85%, var(--k2-text-primary));
+	font-weight: 700;
+}
+
+.player-compare-rating-chart .pm3-chart-peak-value--subject {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
+	font-weight: 700;
+}
+
+.player-compare-rating-chart .pm3-chart-peak-value--opponent {
+	color: color-mix(in srgb, var(--k2-table-negative) 85%, var(--k2-text-primary));
+	font-weight: 700;
+}
+
+body.k2-site .k2-chart-html-tooltip {
+	position: fixed;
+	z-index: 1000;
+	max-width: min(420px, calc(100vw - 24px));
+	padding: 8px 10px;
+	border: 1px solid var(--k2-tooltip-border);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-tooltip-surface);
+	box-shadow: var(--k2-shadow-surface);
+	color: var(--k2-tooltip-body);
+	font-size: 12px;
+	line-height: 1.35;
+	pointer-events: none;
+	transform: translate(-50%, calc(-100% - 8px));
+}
+
+body.k2-site .k2-chart-html-tooltip[hidden] {
+	display: none;
+}
+
+body.k2-site .k2-chart-html-tooltip__title {
+	margin-bottom: 4px;
+	color: var(--k2-tooltip-title);
+	font-weight: 600;
+}
+
+body.k2-site .k2-chart-html-tooltip__body {
+	display: grid;
+	gap: 4px;
+}
+
+body.k2-site .k2-chart-html-tooltip__row {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+body.k2-site .k2-chart-html-tooltip__swatch {
+	flex: 0 0 10px;
+	width: 10px;
+	height: 10px;
+	margin-top: 3px;
+	border-radius: 2px;
+}
+
+body.k2-site .k2-chart-html-tooltip .pm3-chart-tooltip-rating--subject {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
+	font-weight: 700;
+}
+
+body.k2-site .k2-chart-html-tooltip .pm3-chart-tooltip-rating--opponent {
 	color: color-mix(in srgb, var(--k2-table-negative) 85%, var(--k2-text-primary));
 	font-weight: 700;
 }

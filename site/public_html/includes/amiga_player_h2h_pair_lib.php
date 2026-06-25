@@ -373,7 +373,98 @@ function amiga_player_h2h_scoreline_heatmap_payload(
 }
 
 /**
- * @return array{playerId: int, playerName: string|null, currentRating: ?int, points: list<array<string, mixed>>}|null
+ * Career peak rating summary from stored finalize truth (SCH-042).
+ *
+ * @return array{rating: int, eventDate: string, tournamentName: string}|null
+ */
+function amiga_player_rating_peak_summary(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null,
+): ?array {
+    if ($playerId < 1) {
+        return null;
+    }
+
+    $ctx = amiga_player_h2h_ctx($ctx);
+    $peakRating = null;
+    $peakTournamentId = null;
+    $eventDate = null;
+
+    if ($ctx->isActive()) {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff === null) {
+            return null;
+        }
+        $sql = 'SELECT x.PeakRating, x.peak_rating_tournament_id, t.event_date, t.name AS tournament_name '
+            . 'FROM ('
+            . '  SELECT s.PeakRating, s.peak_rating_tournament_id, '
+            . '    ROW_NUMBER() OVER ('
+            . '      ORDER BY t2.event_date DESC, t2.chrono DESC, s.tournament_id DESC'
+            . '    ) AS rn '
+            . '  FROM amiga_player_event_snapshots s '
+            . '  INNER JOIN tournaments t2 ON t2.id = s.tournament_id '
+            . '  WHERE s.player_id = ? '
+            . '    AND (t2.event_date, t2.chrono, t2.id) <= (?, ?, ?) '
+            . ') x '
+            . 'LEFT JOIN tournaments t ON t.id = x.peak_rating_tournament_id '
+            . 'WHERE x.rn = 1';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            return null;
+        }
+        $eventDateParam = $cutoff['event_date'];
+        $chrono = $cutoff['chrono'];
+        $tournamentId = $cutoff['tournament_id'];
+        $stmt->bind_param('isdi', $playerId, $eventDateParam, $chrono, $tournamentId);
+    } else {
+        $careerTable = amiga_player_career_table($con);
+        $sql = 'SELECT c.PeakRating, c.peak_rating_tournament_id, t.event_date, t.name AS tournament_name '
+            . 'FROM `' . $careerTable . '` c '
+            . 'LEFT JOIN tournaments t ON t.id = c.peak_rating_tournament_id '
+            . 'WHERE c.player_id = ? AND c.NumberGames > 0 LIMIT 1';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            return null;
+        }
+        $stmt->bind_param('i', $playerId);
+    }
+
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return null;
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : false;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    if ($row === false || $row === null) {
+        return null;
+    }
+
+    $rawPeak = $row['PeakRating'] ?? null;
+    $peakRating = ($rawPeak !== null && $rawPeak !== '' && (float) $rawPeak > 0) ? (float) $rawPeak : 0.0;
+    $peakTournamentId = $row['peak_rating_tournament_id'] !== null
+        ? (int) $row['peak_rating_tournament_id'] : null;
+    $eventDate = (string) ($row['event_date'] ?? '');
+
+    if ($peakRating <= 0 || $peakTournamentId === null || $peakTournamentId < 1 || $eventDate === '') {
+        return null;
+    }
+
+    return [
+        'rating' => (int) round($peakRating),
+        'eventDate' => $eventDate,
+        'tournamentName' => trim((string) ($row['tournament_name'] ?? '')),
+    ];
+}
+
+/**
+ * @return array{playerId: int, playerName: string|null, currentRating: ?int, points: list<array<string, mixed>>, peak: array{rating: int, eventDate: string, tournamentName: string}|null}|null
  */
 function amiga_player_rating_history_payload(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): ?array
 {
@@ -468,6 +559,7 @@ function amiga_player_rating_history_payload(mysqli $con, int $playerId, ?AmigaS
         'playerName' => (string) $nameRow['Name'],
         'currentRating' => $currentRating,
         'points' => $points,
+        'peak' => amiga_player_rating_peak_summary($con, $playerId, $ctx),
     ];
 }
 
