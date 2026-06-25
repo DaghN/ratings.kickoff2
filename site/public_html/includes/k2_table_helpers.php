@@ -262,6 +262,12 @@ function k2_lb_th_country(int $colIndex, array $sort): string
     return k2_lb_th($colIndex, $sort, 'k2-table-cell--center');
 }
 
+/** Rating change (Δ) column <th> attrs — centered flat-top Δ styling via k2-table-col-delta. */
+function k2_lb_th_delta(int $colIndex, array $sort): string
+{
+    return k2_lb_th($colIndex, $sort, 'k2-table-cell--center k2-table-col-delta');
+}
+
 /** Hub LB body <td> attrs (wraps k2_table_body_td_attr). */
 function k2_lb_td(int $colIndex, array $sort, string $extraClass = ''): string
 {

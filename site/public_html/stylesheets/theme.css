@@ -1538,6 +1538,13 @@ body.k2-site .k2-table thead tr:last-child th {
 	border-bottom: 1px solid color-mix(in srgb, var(--k2-accent) 40%, transparent);
 }
 
+/* Amiga rating LB Δ header — flat-top Greek capital delta (Δ). */
+body.k2-site .k2-table thead th.k2-table-col-delta {
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0;
+}
+
 /* Hub LB wings only: Rank (col 1) + Player (col 2) min-widths — opt-in via k2-table--hub-rank-player-cols */
 body.k2-site .k2-table.k2-table--hub-rank-player-cols.ranked-pages-table thead th:nth-child(1),
 body.k2-site .k2-table.k2-table--hub-rank-player-cols.ranked-pages-table tbody td:nth-child(1) {

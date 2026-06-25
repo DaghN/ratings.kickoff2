@@ -187,6 +187,7 @@ Do not add one-off hex in page CSS when a token exists.
 |-----|-----------------|
 | Body, tables, chart labels | IBM Plex Sans (self-hosted `fonts/`, `k2-fonts.css`) |
 | Numbers | tabular numbers or IBM Plex Mono where useful |
+| Amiga rating LB Δ column header | Flat-top **Δ** on `th.k2-table-col-delta` — 12px/500 (Plex Sans) |
 | Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial (self-hosted; preloaded in `k2_fonts_head.php`) |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
 | Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, **primary** — editorial “you are here” landmark above wing tabs; accent/glow reserved for wordmark, league/H2H destinations, semantic data; pairs with muted `__lede`. **Amiga time travel:** snapshot hub tabs **omit** chapter block when `as=` active — temporal stamp + ribbon replace it ([`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0). |
