@@ -13,7 +13,7 @@
 
 Rebuild/finalize maintains rich rows in `amiga_player_event_snapshots` + `amiga_player_current` (career + per-event facts, including honours rollups), `amiga_player_matchup_at_event`, and realm snapshots on `amiga_generalstats`. Legacy `amiga_player_tournament_participation`, `amiga_player_tournament_totals`, and `amiga_player_stats` were retired at snapshot slice 8 ([`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)). **Surface expansion (slices 0–8)** shipped read-path UI on profile, tournament pages, seven leaderboard wings, HoF deep links, and H2H pair page — see [`amiga-profile-v0.md`](amiga-profile-v0.md) and [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4.
 
-**Richest surfaces:** `/amiga/player-tournaments.php` (full event history); `/amiga/profile.php` (honours, perf, moments, recent tournaments, top opponents + H2H); `/amiga/tournament.php?view=event-stats`.
+**Richest surfaces:** `/amiga/player-tournaments.php` (full event history); `/amiga/profile.php` (honours, perf, moments, recent tournaments, top opponents + H2H); `/amiga/tournament/event-stats.php`.
 
 **Remaining work** is **§4 Potential** only (new tables, tournament games tab, slice totals, activity charts, etc.) — not “hidden data on existing tables.”
 
@@ -85,9 +85,9 @@ Items below need **no new derived tables** and **no new rebuild writers** unless
 | | |
 |---|---|
 | **Source** | `amiga_player_tournament_participation` indexed by `(tournament_id, player_id)` |
-| **Shipped** | `/amiga/tournament.php?view=event-stats` — participation roster per event: W-D-L, GF/GA/GD, GF/g, GA/g, Pts, Rating, Adj., New rating, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); WC **Medal** column (not group rank) |
-| **Also** | Standings tab(s) from `amiga_tournament_standings`; World Cups default to event-stats tab (Jun 2026) |
-| **Also** | **Games** tab (`?view=games`) — scoped `amiga_games` read via `idx_amiga_games_tournament`; player filter from participation roster |
+| **Shipped** | `/amiga/tournament/event-stats.php` — participation roster per event: W-D-L, GF/GA/GD, GF/g, GA/g, Pts, Rating, Adj., New rating, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); WC **Medal** column (not group rank) |
+| **Also** | Standings tab(s) from `amiga_tournament_standings`; foldered tabs under `amiga/tournament/` (Jun 2026) |
+| **Also** | **Games** tab (`games.php`) — scoped `amiga_games` read via `idx_amiga_games_tournament`; player filter from participation roster |
 
 ### 3.5 Performance rating as discovery
 

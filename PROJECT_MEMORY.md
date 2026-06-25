@@ -120,6 +120,12 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Header search + Amiga time travel** — `player-search.js` carries active `as=` on Amiga profile picks (T16); Online picks unchanged. |
+| 2026-06-25 | **Amiga tournament folder URLs** — `amiga/tournament/{event-stats,standings,stages,games}.php?id=`; shared `includes/amiga_tournament_page.php`; legacy `tournament.php?view=` 302; `index.php` redirect-only (not a nav tab). |
+| 2026-06-25 | **Amiga tournament default tab** — all events open on **Event stats** (leftmost); ordinary standings nav uses `standings.php` (WC → `stages.php`). |
+| 2026-06-25 | **Amiga profile rank chart slice 5 (TT closure)** — hero rank = last chart point at cutoff (probe + browser #237 @ 2003); pre-debut empty state; URL `as` fallback in JS. |
+| 2026-06-25 | **Amiga profile rank chart slices 2–4** — profile panel + `player-rank-chart.js` (controls + Chart.js); Fabio #109 smoke 489 pts. |
+| 2026-06-25 | **Amiga profile rank chart slice 1** — `amiga_player_rank_history_lib.php` + `api/player_rank_history.php` + `player-rank-history.js`; rank-at-event series + TT `as=`; probe `scripts/oneoff/amiga_rank_history_probe.php`. |
 | 2026-06-25 | **Amiga profile rank chart — implementation plan** — [`docs/amiga-player-rank-chart-implementation-plan.md`](docs/amiga-player-rank-chart-implementation-plan.md): slices 1–5 (API → shell → chart core → controls → TT); mandatory chart platform contract from rating/Activity patterns. |
 | 2026-06-25 | **Amiga profile rank chart — policy locked** — [`docs/amiga-player-rank-chart-policy.md`](docs/amiga-player-rank-chart-policy.md): `elo_rank_at_event` all finalizes, date X, linear/log/percentile + bands, connected/stepped, TT, minimal copy; solo v1 only. |
 | 2026-06-25 | **Amiga staging export — elo_rank timeline** — `export_ko2amiga_db.ps1` now dumps `amiga_player_elo_rank_at_event`; hero rank 0 → — in TT/present load. Re-import staging for time-travel rank on profile/H2H. |

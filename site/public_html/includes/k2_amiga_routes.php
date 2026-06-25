@@ -11,6 +11,10 @@ require_once __DIR__ . '/amiga_snapshot_url.php';
 /** @var array<string, string> */
 const K2_AMIGA_ROUTES = [
 	'amiga-game' => 'amiga/game.php',
+	'amiga-tournament-event-stats' => 'amiga/tournament/event-stats.php',
+	'amiga-tournament-standings' => 'amiga/tournament/standings.php',
+	'amiga-tournament-stages' => 'amiga/tournament/stages.php',
+	'amiga-tournament-games' => 'amiga/tournament/games.php',
 	'amiga-player-profile' => 'amiga/player/profile.php',
 	'amiga-player-games' => 'amiga/player/games.php',
 	'amiga-player-tournaments' => 'amiga/player/tournaments.php',

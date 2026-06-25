@@ -107,10 +107,23 @@
         }
     }
 
+    function activeAmigaAsParam() {
+        var asParam = new URLSearchParams(window.location.search).get('as');
+        return asParam ? String(asParam) : '';
+    }
+
     function playerProfileHref(p, profilePage) {
         var realm = p.realm || 'online';
         var base = PROFILE_BY_REALM[realm] || profilePage;
-        return base + '?id=' + encodeURIComponent(p.id) + '#' + PLAYER_PROFILE_FRAGMENT;
+        var params = new URLSearchParams();
+        params.set('id', String(p.id));
+        if (realm === 'amiga') {
+            var asParam = activeAmigaAsParam();
+            if (asParam !== '') {
+                params.set('as', asParam);
+            }
+        }
+        return base + '?' + params.toString() + '#' + PLAYER_PROFILE_FRAGMENT;
     }
 
     function playerPickHref(root, p, profilePage) {

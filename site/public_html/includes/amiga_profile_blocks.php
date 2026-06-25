@@ -693,3 +693,48 @@ function amiga_profile_render_rating_chart(int $playerId): void
 </section>
     <?php
 }
+
+function amiga_profile_render_rank_chart(int $playerId): void
+{
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+    $asAttr = '';
+    $asParam = amiga_snapshot_as_param_from_request();
+    if ($asParam !== null && $asParam !== '') {
+        $asAttr = ' data-as="' . htmlspecialchars($asParam, ENT_QUOTES, 'UTF-8') . '"';
+    }
+    ?>
+<section class="k2-amiga-profile-chart" style="padding:0 1.25rem 2rem">
+	<div class="player-rank-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
+		<h3 class="k2-panel-heading">Elo rank</h3>
+		<div class="pm3d-chart-toolbar">
+			<div class="pm3d-rating-toggle player-rank-chart__scale" role="tablist" aria-label="Rank chart scale">
+				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-scale="linear">Linear</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-scale="log">Log</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-scale="percentile">Percentile</button>
+			</div>
+			<div class="pm3d-rating-toggle player-rank-chart__window" role="tablist" aria-label="Rank chart Y window">
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top20">Top 20</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top50">Top 50</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top100">Top 100</button>
+				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-window="career">Career</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="community">Full ladder</button>
+			</div>
+			<div class="pm3d-rating-toggle player-rank-chart__percentile-window" role="tablist" aria-label="Percentile Y window" hidden>
+				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-pwindow="full">Full</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p50">50–100</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p90">90–100</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p95">95–100</button>
+			</div>
+			<div class="pm3d-rating-toggle player-rank-chart__line" role="tablist" aria-label="Rank chart line style">
+				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line="connected">Connected</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line="stepped">Stepped</button>
+			</div>
+		</div>
+		<p class="player-rank-chart-status pm3d-chart__status k2-chart-panel__status">Loading rank history…</p>
+		<div class="k2-chart-frame">
+			<canvas class="player-rank-canvas" aria-label="Elo rank over time"></canvas>
+		</div>
+	</div>
+</section>
+    <?php
+}

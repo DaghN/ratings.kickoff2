@@ -31,7 +31,7 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 | Player opponents sub-nav | `includes/player_opponents_nav.php` | `includes/player_opponents_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-opponents` |
 | Player milestones sub-nav | `includes/player_milestones_nav.php` | `includes/player_milestones_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-milestones` |
 | Amiga player nav | `includes/amiga_player_nav.php` | Amiga player pages | `.k2-chrome-tabs.k2-player-wing-tabs` (see row above) |
-| Amiga tournament nav | `amiga/tournament.php` markup + `amiga-tournament.css` | Tournament + stages | `.k2-player-nav-bar` + `.k2-amiga-tournament-stages-nav` |
+| Amiga tournament nav | `includes/amiga_tournament_page.php` markup + `amiga-tournament.css` | `amiga/tournament/*.php` | `.k2-player-nav-bar` + `.k2-amiga-tournament-stages-nav` |
 | Hub shell (`.k2-page-nav` close) | `includes/milestones_hub_shell_end.inc.php` | Compare `games_hub_shell_end.inc.php`, `amiga_world_cups_hub_shell_end.inc.php` | One `</div><!-- .k2-page-nav -->` before `</body>` |
 
 If unsure: **grep** the nearest neighbour for `k2-chrome-tabs`, `k2-hub-bar`, or `k2-player-nav-bar` in `site/public_html/` and open that include.

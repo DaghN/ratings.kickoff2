@@ -19,8 +19,8 @@
 | Single game | `/amiga/game.php?id={amiga_games.id}` |
 | Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
-| Tournament event stats | `/amiga/tournament.php?id={tournaments.id}&view=event-stats` — participation roster (all phases); includes **Perf. rating** column |
-| Tournament games | `/amiga/tournament.php?id={tournaments.id}&view=games` — all games in event; player filter dropdown (A–Z) |
+| Tournament event stats | `/amiga/tournament/event-stats.php?id={tournaments.id}` — participation roster (all phases); includes **Perf. rating** column |
+| Tournament games | `/amiga/tournament/games.php?id={tournaments.id}` — all games in event; player filter dropdown (A–Z) |
 
 ## What v0 shows
 
@@ -33,7 +33,7 @@
 - **Recent tournaments** — `amiga_player_event_snapshots`: finish from **`event_finish_position`** ordinal (all events including WC; NULL → —); **`event_points` suffix only for single-phase events** (not league+cup marathons, not WCs — see contract §5.2.1); compact **Winner** badge and **Perf** when games ≥ 2
 - **Tournament history** — `/amiga/player/tournaments.php`: full snapshot list (no pagination); sortable wide table (`amiga_profile_render_tournament_history_table()` — Jun 2026 k2-table stack: cloak + SSR th/td + mirror; filter URLs merge `k2_table_sort_query_params()`); per-event W-D-L, **F** / **A** totals, **GF/g** / **GA/g** averages, **`event_points` (Pts)**, rating before/delta/after, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); labeled filter panel (Event: All / World Cups; Location: country pills when applicable) — `.k2-player-tournament-filters` in `theme.css`
 - **Rating chart** — `api/player_rating_history.php?realm=amiga&id=` reads `amiga_player_event_snapshots` (one point per finalized tournament); [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js): **By date** = end-of-day rating after tournament days; **By tournament #** = event series (no within-tournament zigzags); toggle uses `player-feast-sections.css` segment control
-- **Rank chart** — **policy locked, plan ready** — [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md) · [`amiga-player-rank-chart-implementation-plan.md`](amiga-player-rank-chart-implementation-plan.md): `amiga_player_elo_rank_at_event` (all global finalizes after debut); linear/log/percentile scales; linear bands Top 20/50/100 · career · whole community; connected/stepped; Amiga profile solo only; TT `?as=`; minimal copy v1
+- **Rank chart** — **shipped** (slices 1–5) — profile panel below rating · `GET /api/player_rank_history.php?realm=amiga&id=` (+ `&as=` TT) · `player-rank-chart.js` · probe `scripts/oneoff/amiga_rank_history_tt_parity.php` · [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md)
 - **Games tab** — server-side filters: scope segment (**All games** / **World Cup**, `k2-chrome-tabs` filter bar), three filter rows — (1) opponent, tournament, host country, opponent country; (2) year, since, until (through end of calendar year, inclusive); (3) result, GF, GA, GD (hero-signed), sum — with faceted omit-self listbox counts (`amiga_player_games_filter_facets.php`); online-style idle triggers (empty + link-star when active), ghost-width listboxes, panel matches trigger; sort; **k2-table cloak** + `ranked-table-pending` + scroll-mirror reveal (Jun 2026); ID anchor SSR; tournament + phase from `amiga_games` + `tournaments`; per-game frozen `rating_a/b` and `adjustment_a/b` from `amiga_game_ratings` (`new_rating_*` NULL after finalize v1); status line: game count · **Performance rating** (async JSON) · **Reset filters** pill (`data-k2-carry-scroll`); no pagination (full list). Contract: [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md) § Amiga Player Games.
 
 ## Data strategy (important)
@@ -135,7 +135,7 @@ API returns one point per finalized tournament (not per game). Multi-game tourna
 ## Tournament pages (cups + leagues)
 
 - **Index** — `/amiga/tournaments.php` — Cup/League badges, optional All/Cups/Leagues filter; cup links with knockouts jump to `#bracket`
-- **Standings** — `/amiga/tournament.php?id=` — hero (name, date, country meta), section nav (League table / phase tabs / Bracket / **Event stats** / **Games**); standings, event-stats roster, and games list use Jun 2026 k2-table render helpers in `amiga_tournament_lib.php` / `amiga_profile_blocks.php` (cloak + SSR th/td + mirror); **Perf. rating** on event-stats; World Cups open on event-stats by default (`stylesheets/amiga-tournament.css`)
+- **Tournament detail** — `/amiga/tournament/event-stats.php?id=` (default) · `standings.php` · `stages.php` (WC) · `games.php` — hero + section nav (**Event stats** first); legacy `/amiga/tournament.php?id=` 302s to event-stats; phase scope via `?scope=` / `?scope_key=`; k2-table helpers in `amiga_tournament_lib.php` / `amiga_profile_blocks.php`
 - **Bracket** — phase-grouped columns (Quarter → Semi → Final; placement finals/brackets below); click aggregate score for leg-by-leg tie detail (`scope=knockout&scope_key=…`); `extra` penalties on leg rows
 - **League marathons** — e.g. London XXIII: overall table only, no empty bracket shell
 

@@ -12,6 +12,8 @@
 <script src="/js/chart-date-range.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-date-range.js'); ?>"></script>
 <script type="text/javascript" src="/js/player-rating-history.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rating-history.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/player-rating-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rating-chart.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-rank-history.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rank-history.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/player-rank-chart.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-rank-chart.js'); ?>" defer="defer"></script>
 </head>
 <body class="k2-site k2-player-wing player-feast-body">
 
@@ -71,6 +73,7 @@ amiga_profile_render_perf_rating_highlight($perfHighlight, $playerId);
 amiga_profile_render_moments($profileMoments, $playerId);
 amiga_profile_render_recent_tournaments($recentTournaments, $playerId, $totalTournaments);
 amiga_profile_render_rating_chart($playerId);
+amiga_profile_render_rank_chart($playerId);
 ?>
 
 </div><!-- .k2-page-nav -->

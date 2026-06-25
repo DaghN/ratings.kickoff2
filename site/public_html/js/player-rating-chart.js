@@ -434,7 +434,7 @@
                                     return String(START_RATING) + ' Elo ' + beforeLabel;
                                 }
                                 if (eventMode && pt && pt.tournamentId) {
-                                    var lines = ['/amiga/tournament.php?id=' + pt.tournamentId];
+                                    var lines = ['/amiga/tournament/event-stats.php?id=' + pt.tournamentId];
                                     if (pt.gamesInEvent > 1) {
                                         lines.push(pt.gamesInEvent + ' games in event');
                                     }

@@ -161,7 +161,22 @@ Query `?id=` required on all player tabs.
 
 **Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php` → player games; `/amiga/player-tournaments.php` → tournaments. `/amiga/games.php` is reserved for a future realm-wide match log.
 
-**Not under `player/`:** `/amiga/tournament.php`, `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents wings: `amiga/player/opponents/*`.
+**Not under `player/`:** `/amiga/tournament/` (per-event detail — foldered tabs below), `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents wings: `amiga/player/opponents/*`.
+
+### Amiga tournament detail (`amiga/tournament/`)
+
+Per-event pages use **foldered tabs** (not `?view=`). Entity id stays in query; phase scope uses `scope` / `scope_key` filters.
+
+| Route key | Path | Tab |
+|-----------|------|-----|
+| `amiga-tournament-event-stats` | `/amiga/tournament/event-stats.php` | Event stats (default landing) |
+| `amiga-tournament-standings` | `/amiga/tournament/standings.php` | League table / groups / bracket (ordinary events) |
+| `amiga-tournament-stages` | `/amiga/tournament/stages.php` | Stages + sub-nav (World Cups) |
+| `amiga-tournament-games` | `/amiga/tournament/games.php` | Games |
+
+Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?scope_key=` on standings/stages.
+
+**Entry redirects (302, query preserved):** `/amiga/tournament.php` (legacy `?view=`) → folder path; `/amiga/tournament/index.php` → `event-stats.php`. Nav hrefs use named files only — **not** bare `index.php` as a tab target (same habit as WC stats `participation.php`, Games `recent.php`).
 
 ### Amiga hub tabs (present order)
 

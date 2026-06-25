@@ -33,7 +33,7 @@ Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Acti
 |---|----------|------|
 | **WCH1** | **Top-level hub tab** | **World Cups** is its own Amiga hub tab — not only a Leaderboards wing. |
 | **WCH2** | **Present hub order** | **News · Leaderboards · World Cups · Activity · Hall of Fame · Tournaments · Live tournaments** (last). **News** remains present landing. **Leaderboards · World Cups · Activity · Hall of Fame** are contiguous in present order — same sequence as the time-travel hub bar (T13b). Tournaments + Live tournaments stay present-only editorial ops at the end. |
-| **WCH3** | **Foldered sub-hub** | List/aggregate wings under `/amiga/world-cups/` — segment sub-nav (not `?view=` **on hub pages**). Per-tournament drill-down stays on **`tournament.php`** (`view=` = entity section — [`url-routes.md`](url-routes.md)). |
+| **WCH3** | **Foldered sub-hub** | List/aggregate wings under `/amiga/world-cups/` — segment sub-nav (not `?view=` on hub pages). Per-tournament drill-down under **`/amiga/tournament/`** foldered tabs ([`url-routes.md`](url-routes.md)). |
 | **WCH4** | **Four wings** | **Chronology · Tournament stats · Player stats · Country stats** — player + country stats = **five sub-wings** each ([`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md), [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)); **both shipped** |
 | **WCH5** | **Default wing** | `/amiga/world-cups/chronology/` — **Chronology** (`chronology/index.php`); `/amiga/world-cups/` 302 to chronology. Tournament stats Participation default = `stats/participation.php` (`stats/index.php` + `stats.php` 302). |
 | **WCH6** | **Event stats home** | Sortable **`amiga_world_cup_stats`** table lives on **wing 2** — **not** under Activity. |
@@ -45,7 +45,7 @@ Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Acti
 | **WCH12** | **TT hub bar** | When `as=` active, World Cups tab **included** in time-travel hub bar (snapshot-worthy). Present-only tabs still **News**, **Tournaments**, **Live tournaments** per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) T13/T13b. **TT order:** **Leaderboards · World Cups · Activity · Hall of Fame** — matches present order after News (WCH2). |
 | **WCH13** | **WC detection** | `amiga_tournament_is_world_cup()` / name `^World Cup\s+\S` — same as slice, honours, writers. |
 | **WCH14** | **No new stored truth** | This hub is **read surfaces** only unless a future slice adds columns — writers already finalized. |
-| **WCH15** | **One tournament URL** | **No** parallel `/amiga/world-cups/event.php`. Every WC (and every tournament) deep-links to **`/amiga/tournament.php?id={tournament_id}`** — use existing `view=` modes (`event-stats`, `stages`, `games`). Build `amiga_tournament_event_stats_url()` / `amiga_tournament_href()` — do not invent new paths per event. |
+| **WCH15** | **One tournament folder** | **No** parallel `/amiga/world-cups/event.php`. Every WC (and every tournament) deep-links to **`/amiga/tournament/event-stats.php?id={tournament_id}`** (default tab). Other tabs = sibling PHP files under `tournament/` — build URLs via `amiga_tournament_event_stats_url()` / `amiga_tournament_href()`; legacy `/amiga/tournament.php?view=` 302s to folder paths. |
 
 ---
 

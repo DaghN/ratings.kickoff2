@@ -1,6 +1,6 @@
 # Amiga player rank chart — implementation plan
 
-**Status:** Ready to execute (Jun 2026). Policy locked.  
+**Status:** Ready to execute (Jun 2026). **Slices 1–5 complete** local Jun 2026.  
 **Policy:** [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md)
 
 **In scope (v1):** Solo rank-over-time chart on `/amiga/player/profile.php` · JSON API · scale/window/line controls · time travel · Amiga only.
@@ -67,10 +67,10 @@ Do not re-open without user. Full semantics in policy §2–§7.
 |-------|-------------|-----------|
 | **0** | Policy + this plan | User alignment — **done** |
 | **1** | Read lib + JSON API + history loader JS | curl/JSON + row counts |
-| **2** | Profile PHP shell + `theme.css` selector | Panel renders; scripts enqueue |
-| **3** | Chart.js core (linear career + whole community, connected, inverted Y) | Fabio #109 + Darren #84 smoke |
-| **4** | Full controls (all scales/windows/line toggle) + empty-band states | Policy §6 toolbar complete |
-| **5** | Time travel + QA closure + docs | Hero rank = last point at cutoff |
+| **2** | Profile PHP shell + `theme.css` selector | Panel renders; scripts enqueue — **done** |
+| **3** | Chart.js core (linear career + whole community, connected, inverted Y) | Fabio #109 + Darren #84 smoke — **done** |
+| **4** | Full controls (all scales/windows/line toggle) + empty-band states | Policy §6 toolbar complete — **done** |
+| **5** | Time travel + QA closure + docs | Hero rank = last point at cutoff — **done** |
 
 ---
 
@@ -82,18 +82,18 @@ Server returns rank-at-event series; client loader mirrors `player-rating-histor
 
 ### Tasks
 
-- [ ] Create `site/public_html/includes/amiga_player_rank_history_lib.php`
+- [x] Create `site/public_html/includes/amiga_player_rank_history_lib.php`
   - `amiga_player_rank_history_points($con, int $playerId, ?AmigaSnapshotContext $ctx): array`
   - Query `amiga_player_elo_rank_at_event` JOIN `tournaments` for name
   - Order: `event_date ASC`, `event_chrono ASC`, `tournament_id ASC`
   - TT: omit rows `>` cutoff (same tuple order as `amiga_player_elo_rank_at_cutoff`)
   - Per point: `tournamentId`, `eventDate`, `eloRank`, `ladderSize` (count rows for `tournament_id`), `percentile` (policy R8), `tournamentName`
   - `meta`: `careerBestRank`, `careerWorstRank`, `ceiling`, `cutoffActive`, `timelineStart` (first point date or null)
-- [ ] Create `site/public_html/api/player_rank_history.php`
+- [x] Create `site/public_html/api/player_rank_history.php`
   - `GET realm=amiga&id=` required; `as=` optional (wire from profile TT when present)
   - Reuse Amiga DB bootstrap pattern from `player_rating_history.php`
   - JSON shape per policy §4
-- [ ] Create `site/public_html/js/player-rank-history.js`
+- [x] Create `site/public_html/js/player-rank-history.js`
   - `K2PlayerRankHistory.load(playerId, realm, options)` → fetch API
   - Pass through `as` from page when `document` / root `data-as` if needed
 
@@ -110,10 +110,10 @@ SELECT COUNT(*) FROM amiga_player_elo_rank_at_event WHERE player_id = 109;
 -- Expect API points.length match (present mode)
 ```
 
-- [ ] Fabio #109: ~489 points; `meta.careerBestRank=1`, `careerWorstRank` ≈ 135
-- [ ] Darren #84: points present; worst rank > best rank
-- [ ] Invalid id → 400; unknown player → empty/error consistent with rating API
-- [ ] `percentile` matches `100 * (ladderSize - eloRank + 1) / ladderSize` spot-check
+- [x] Fabio #109: ~489 points; `meta.careerBestRank=1`, `careerWorstRank` ≈ 135
+- [x] Darren #84: points present; worst rank > best rank
+- [x] Invalid id → 400; unknown player → `player_not_found` JSON (same family as rating API)
+- [x] `percentile` matches `100 * (ladderSize - eloRank + 1) / ladderSize` spot-check
 
 ### Files
 
@@ -131,22 +131,22 @@ Empty chart panel on profile with correct chrome and script tags.
 
 ### Tasks
 
-- [ ] `amiga_profile_render_rank_chart(int $playerId)` in [`amiga_profile_blocks.php`](../site/public_html/includes/amiga_profile_blocks.php)
+- [x] `amiga_profile_render_rank_chart(int $playerId)` in [`amiga_profile_blocks.php`](../site/public_html/includes/amiga_profile_blocks.php)
   - Mirror rating block: section wrapper, `.player-rank-chart.k2-chart-panel`, `data-player-id`, `data-realm="amiga"`
   - `h3.k2-panel-heading` — **Elo rank**
   - `.pm3d-chart-toolbar` placeholder rows for toggles (slice 4 fills behaviour)
   - Status + `.k2-chart-frame` + canvas `aria-label="Elo rank over time"`
   - **No** hint paragraph
-- [ ] Call from [`amiga/player/profile.php`](../site/public_html/amiga/player/profile.php) below rating chart
-- [ ] Enqueue scripts (after existing chart stack): `player-rank-history.js`, `player-rank-chart.js` with `filemtime` cache-bust
-- [ ] Add `body.k2-site .player-rank-chart` to panel selector list in [`theme.css`](../site/public_html/stylesheets/theme.css)
-- [ ] Optional: `.player-feast-body .k2-chart-frame` rules already apply if class structure matches rating chart
+- [x] Call from [`amiga/player/profile.php`](../site/public_html/amiga/player/profile.php) below rating chart
+- [x] Enqueue scripts (after existing chart stack): `player-rank-history.js`, `player-rank-chart.js` with `filemtime` cache-bust
+- [x] Add `body.k2-site .player-rank-chart` to panel selector list in [`theme.css`](../site/public_html/stylesheets/theme.css)
+- [x] Optional: `.player-feast-body .k2-chart-frame` rules already apply if class structure matches rating chart
 
 ### Verification
 
-- [ ] Profile loads without JS errors when chart init is stub/no-op
-- [ ] Panel shows 960px max width, bordered surface, 271px frame
-- [ ] View source: script order correct
+- [x] Profile loads without JS errors when chart init is stub/no-op
+- [x] Panel shows 960px max width, bordered surface, 271px frame
+- [x] View source: script order correct
 
 ---
 
@@ -158,7 +158,7 @@ One working chart: **Linear · Career · Connected** (policy default).
 
 ### Tasks
 
-- [ ] Create `site/public_html/js/player-rank-chart.js`
+- [x] Create `site/public_html/js/player-rank-chart.js`
   - Init on `.player-rank-chart` roots (same pattern as rating chart `initRoot`)
   - Load via `K2PlayerRankHistory`
   - Build `{ x: Date, y: rank | null, raw: {...} }` per point
@@ -171,10 +171,10 @@ One working chart: **Linear · Career · Connected** (policy default).
 
 ### Verification (browser)
 
-- [ ] Fabio #109 — Career: visible climb; not a flat hairline at top for whole career
-- [ ] Darren #84 — Career: drift ~57 → ~300 readable
-- [ ] Tooltip shows event-local N (e.g. `#135 of 177` early Fabio)
-- [ ] Resize window — canvas not stretched/blurry (frame contract)
+- [x] Fabio #109 — Career: visible climb; not a flat hairline at top for whole career
+- [x] Darren #84 — Career: drift ~57 → ~300 readable
+- [x] Tooltip shows event-local N (e.g. `#135 of 177` early Fabio)
+- [x] Resize window — canvas not stretched/blurry (frame contract)
 
 ---
 
@@ -186,17 +186,17 @@ Full policy §6 toolbar.
 
 ### Tasks
 
-- [ ] **Scale toggle:** Linear · Log · Percentile (`data-scale`)
-- [ ] **Window toggle** (contextual):
+- [x] **Scale toggle:** Linear · Log · Percentile (`data-scale`)
+- [x] **Window toggle** (contextual):
   - Linear: Top 20 · Top 50 · Top 100 · Career · Whole community
   - Log: hide or static label “Full ladder” (whole-community domain only)
   - Percentile: Full · 50–100 · 90–100 · 95–100
-- [ ] **Line toggle:** Connected · Stepped
-- [ ] Rebuild chart on any control change; preserve `careerChartYAxisOptions`
-- [ ] **Band clip (linear Top K):** `y: null` when `eloRank > K`; empty status when never in band
-- [ ] **Log:** transform ticks via callback; domain 1…ceiling on log scale
-- [ ] **Percentile:** y = precomputed percentile; axis per preset; #1 at top (high percentile at top)
-- [ ] Hide/disable invalid window buttons when scale changes
+- [x] **Line toggle:** Connected · Stepped
+- [x] Rebuild chart on any control change; preserve `careerChartYAxisOptions`
+- [x] **Band clip (linear Top K):** `y: null` when `eloRank > K`; empty status when never in band
+- [x] **Log:** transform ticks via callback; domain 1…ceiling on log scale
+- [x] **Percentile:** y = precomputed percentile; axis per preset; #1 at top (high percentile at top)
+- [x] Hide/disable invalid window buttons when scale changes
 
 ### Verification
 
@@ -216,16 +216,16 @@ TT parity with hero; docs updated.
 
 ### Tasks
 
-- [ ] API + loader: honour profile `?as=` (pass from PHP `data-as` or URL on fetch)
-- [ ] Truncated series; recompute `meta.ceiling` / career min/max on client or trust server meta
-- [ ] Pre-debut cutoff: empty chart + muted status (no `#0`)
-- [ ] Spot-check: last chart point `eloRank` = hero rank at same cutoff
-- [ ] **UPDATE_DOCS** Part A: MEMORY, policy status → implemented, `amiga-profile-v0.md`, `feature-log.md`
+- [x] API + loader: honour profile `?as=` (pass from PHP `data-as` or URL on fetch)
+- [x] Truncated series; recompute `meta.ceiling` / career min/max on client or trust server meta
+- [x] Pre-debut cutoff: empty chart + muted status (no `#0`)
+- [x] Spot-check: last chart point `eloRank` = hero rank at same cutoff
+- [x] **UPDATE_DOCS** Part A: MEMORY, policy status → implemented, `amiga-profile-v0.md`, `feature-log.md`
 
 ### Verification
 
-- [ ] `/amiga/player/profile.php?id=237&as=year:2003` — rank chart truncated; hero `#N` matches last point
-- [ ] Present mode: last point rank = `amiga_player_current.elo_rank`
+- [x] `/amiga/player/profile.php?id=237&as=year:2003` — rank chart truncated; hero `#N` matches last point
+- [x] Present mode: last point rank = `amiga_player_current.elo_rank`
 
 ---
 

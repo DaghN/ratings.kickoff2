@@ -1,6 +1,6 @@
 # Amiga player rank chart — policy (profile solo)
 
-**Status:** **Policy locked** (Jun 2026). Implementation not started.  
+**Status:** **Implemented** (Jun 2026) — solo profile chart slices 1–5 complete local.  
 **Purpose:** Career **Elo rank over time** on Amiga player profile — one player, event-step timeline, rich scale/window controls. Complements the existing **rating** chart (skill signal); rank = position among the full historical ladder.
 
 **Non-goals (v1):** H2H rank compare · online realm · X-axis date-range zoom · smart default-picker algorithm · milestone annotations · explanatory copy blocks · percentile range slider (presets only).
@@ -262,6 +262,8 @@ Time travel: profile `?as=year:2003` — truncated series; hero rank matches las
 | Stored truth | No new tables v1 — read `amiga_player_elo_rank_at_event` only |
 
 **Files to add (expected):** `api/player_rank_history.php` · `includes/amiga_player_rank_history_lib.php` · `js/player-rank-history.js` · `js/player-rank-chart.js` · profile block include.
+
+**Slice 1 shipped:** lib + API + `K2PlayerRankHistory` loader (`player-rank-history.js`). **Slices 2–5 shipped** — profile panel + `player-rank-chart.js` + TT parity.
 
 ---
 

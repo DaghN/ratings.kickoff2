@@ -99,7 +99,7 @@ if (!str_contains($url, 'as=event%3A' . $lastId) && !str_contains($url, 'as=even
 }
 require __DIR__ . '/../../site/public_html/includes/amiga_tournament_lib.php';
 $tournamentUrl = amiga_url_with_context(amiga_tournament_url((int) $lastId));
-if (!str_contains($tournamentUrl, 'tournament.php')
+if (!str_contains($tournamentUrl, 'tournament/event-stats.php')
     || (!str_contains($tournamentUrl, 'as=event%3A' . $lastId) && !str_contains($tournamentUrl, 'as=event:' . $lastId))) {
     fwrite(STDERR, "tournament url with context fail: {$tournamentUrl}\n");
     exit(1);
@@ -174,8 +174,8 @@ if (str_contains($ttFromPlayer, 'id=')) {
     fwrite(STDERR, "TT entry should not carry page id: {$ttFromPlayer}\n");
     exit(1);
 }
-$_SERVER['REQUEST_URI'] = '/amiga/tournament.php?id=5&view=event-stats';
-$_GET = ['id' => '5', 'view' => 'event-stats'];
+$_SERVER['REQUEST_URI'] = '/amiga/tournament/event-stats.php?id=5';
+$_GET = ['id' => '5'];
 amiga_snapshot_context_reset();
 $tournamentTtHref = amiga_time_mode_nav_time_travel_href();
 if (!str_contains($tournamentTtHref, '/amiga/leaderboards/rating.php')) {

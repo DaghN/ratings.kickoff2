@@ -570,6 +570,7 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 }
 
 .pm3d-career-charts > .player-rating-chart,
+.pm3d-career-charts > .player-rank-chart,
 .pm3d-career-charts > .player-games-month-chart {
 	margin: 0;
 	min-width: 0;
