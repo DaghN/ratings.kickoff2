@@ -9,6 +9,7 @@
 
     var API_PATH = '/api/player_head_to_head.php';
     var EVENT_NAME = 'kool-opponent-selected';
+    var CTX = window.K2PlayerOpponentsH2hContext;
 
     function chartOptions(extra) {
         if (T && T.activityChartOptions) {
@@ -76,7 +77,8 @@
             setMeta('');
 
             var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-                + '&opponent=' + encodeURIComponent(opponentId) + '&realm=online';
+                + '&opponent=' + encodeURIComponent(opponentId)
+                + (CTX ? CTX.apiSuffix(root) : '&realm=online');
 
             fetch(url, { credentials: 'same-origin' })
                 .then(function (r) {

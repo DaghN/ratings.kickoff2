@@ -1,6 +1,6 @@
 # Amiga Opponents wing — policy
 
-**Status:** **In progress** (Jun 2026) — **SCH-031** goal extremes shipped; **Opponents IA shell** shipped; **W/D/L · Goals · DDs tables** wired with time travel (`amiga_matchup_snapshot_lib.php`). H2H rivalry wing still placeholder.  
+**Status:** **In progress** (Jun 2026) — **SCH-031** goal extremes shipped; **Opponents IA shell** shipped; **W/D/L · Goals · DDs tables** wired with time travel (`amiga_matchup_snapshot_lib.php`). **H2H slices D+F shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php` (event-step rating compare; chart APIs `?realm=amiga`).  
 **No implementation plan yet** — work incrementally; add a plan or slice handoff only when a concrete slice is about to ship.
 
 **Parent:** [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-data-contract.md`](amiga-data-contract.md)
@@ -129,9 +129,9 @@ This track is **policy + incremental slices**, not a monolithic plan.
 A. ~~amiga_matchup_snapshot_lib.php~~ **Done Jun 2026**
 B. ~~Opponents pill + shell + W/D/L tab~~ **Done Jun 2026** (+ Goals + DDs same slice)
 C. ~~DDs tab + Goals tab core columns~~ **Done Jun 2026**
-D. H2H tab: picker + poster + pair detail (stored; hero from snapshot)
+D. ~~H2H tab: picker + poster + pair detail (stored; hero from snapshot)~~ **Done Jun 2026**
 E. ~~Goals extremes — DDL + finalize~~ **Done (SCH-031 Jun 2026)**
-F. H2H moments + charts (game-filtered; Amiga API branches)
+F. ~~H2H moments + charts (game-filtered; Amiga API branches)~~ **Done Jun 2026**
 G. ~~Hero → games cutoff + hero games tab filter parity under active `as=`~~ **Done Jun 2026** (+ player tournaments list ≤ cutoff)
 ```
 
@@ -179,6 +179,7 @@ Reorder or split if analysis shows a smaller safe step.
 
 | Date | Note |
 |------|------|
+| Jun 2026 | **H2H slice D** — `amiga_player_opponents_h2h.php` + `amiga_player_matchup_directed_opponent_row()`; poster/pickers/pair races/all-games link; time travel via stored at-event rows; search API `realm=amiga`. |
 | Jun 2026 | **Opponents Games column links** — W/D/L · Goals · DDs `Games` counts link to hero games tab filtered by opponent (`as=` preserved). |
 | Jun 2026 | **Hero games + tournaments cutoff** — `amiga_snapshot_*_cutoff_and_sql()`; games tab + perf API + player tournament list ≤ cutoff under `as=`. |
 | Jun 2026 | **Opponents tables** — `amiga_matchup_snapshot_lib.php` + W/D/L · Goals · DDs wings (stored + `as=`); H2H still placeholder. |

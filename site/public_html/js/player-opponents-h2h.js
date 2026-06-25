@@ -137,8 +137,10 @@
                 return;
             }
 
+            var realm = root.getAttribute('data-realm') || 'online';
             var url = API_PATH + '?player_id=' + encodeURIComponent(playerId)
-                + '&q=' + encodeURIComponent(q);
+                + '&q=' + encodeURIComponent(q)
+                + '&realm=' + encodeURIComponent(realm);
 
             fetch(url, { credentials: 'same-origin' })
                 .then(function (res) {

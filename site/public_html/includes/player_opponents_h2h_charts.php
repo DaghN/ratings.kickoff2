@@ -36,7 +36,8 @@ function player_opponents_render_h2h_matchup_charts(
     bool $includeSearch = false,
     ?string $opponentName = null,
     ?int $opponentId = null,
-    ?string $playerName = null
+    ?string $playerName = null,
+    string $realm = 'online'
 ): void {
     $playerId = max(0, $playerId);
     if ($playerId < 1) {
@@ -75,8 +76,9 @@ function player_opponents_render_h2h_matchup_charts(
     }
 
     $uid = 'k2-h2h-charts-' . $playerId;
+    $gameToggleLabel = $realm === 'amiga' ? 'By tournament #' : 'By games played';
     ?>
-<section class="k2-h2h2-charts" aria-label="Matchup charts">
+<section class="k2-h2h2-charts" aria-label="Matchup charts" data-chart-realm="<?php echo k2_h($realm); ?>">
 	<div class="pm3d-matchups">
 		<h3 class="pm3d-matchups__subtitle player-head-to-head-chart-heading"><?php echo k2_h($h2hHeading); ?></h3>
 		<div class="player-head-to-head-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
@@ -99,7 +101,7 @@ function player_opponents_render_h2h_matchup_charts(
 			<div class="pm3d-chart-toolbar">
 				<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating comparison chart view">
 					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
-					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By games played</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game"><?php echo k2_h($gameToggleLabel); ?></button>
 				</div>
 				<p class="player-compare-rating-toolbar-meta pm3d-chart__opponent"></p>
 			</div>

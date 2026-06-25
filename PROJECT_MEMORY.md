@@ -65,7 +65,7 @@
 - **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 
 - **Amiga time travel (Jun 2026):** **T13–T19** — snapshot-only TT hub; **T19** fixed mode-toggle homes (Present → News; Time travel → rating LB + `as=`); pre-debut hero **—** + note (`T17`); **player Event chevrons** + picker accents (`T18`). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
-- **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs tables shipped** — `amiga_matchup_snapshot_lib.php` (present + at-event); time travel wired. H2H rivalry wing still placeholder. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md).
+- **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs + H2H (slices D+F) shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php`; Amiga `realm=` API branches + event-step rating compare. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md).
 
 - **Amiga World Cups LB (Jun 2026):** **V2 UI shipped** — five sub-wings (Honours · Results · Goals · DDs & CSs · Opponents); **dual surface** hub + LB via `amiga_wc_players_table.php`. Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
 
@@ -120,6 +120,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **H2H scoreline heatmap axes + scale** — rectangular grid (hero GF rows × rival GA cols, not forced square); intensity legend uses min(8, peak) buckets so low-count pairings no longer show junk ranges like `1–0`. Online + Amiga. |
+| 2026-06-25 | **Amiga Opponents H2H slice F** — moments grid + full chart stack (cumulative W/goals, rating compare by date/tournament #, goals histograms, total-goals + scoreline heatmap); `amiga_player_h2h_pair_lib.php` + `?realm=amiga` on H2H chart APIs; `player-opponents-h2h-chart-context.js`. |
+| 2026-06-25 | **Amiga Opponents H2H slice D** — poster + search/by-games/A–Z pickers + pair-detail races + all-games link; stored `matchup_summary` / `matchup_at_event` + read-time pair perf; `player_h2h_opponent_search.php?realm=amiga`. |
 | 2026-06-25 | **Games filter listbox empty idle fix** — `k2-archive-listbox.js` commits `''` idle (host/opp country, hero GD on player + Amiga games); was blocked by falsy guards. |
 | 2026-06-25 | **Amiga player Games Reset filters** — status line after perf rating (· Reset filters); carry-scroll on status row. |
 | 2026-06-25 | **Amiga UAE flag** — `UAE` → `ae.svg` in `k2_amiga_country_flag.php` (tournament host country, e.g. Dubai I). |

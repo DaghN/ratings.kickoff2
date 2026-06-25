@@ -233,7 +233,7 @@ function player_h2h_scoreline_rows(mysqli $con, int $playerId, int $opponentId):
 }
 
 /**
- * Square heatmap axis: max goals scored by either player in this pairing (0…N both axes).
+ * Scoreline heatmap axes: hero GF (rows) and rival GA (columns) each 0…pair max on that axis.
  *
  * @return array{max_goals_for: int, max_goals_against: int, grid_axis_max: int, cells: list<array{goals_for: int, goals_against: int, games: int, outcome: string}>}
  */
@@ -277,12 +277,10 @@ function player_h2h_scoreline_heatmap_payload(mysqli $con, int $playerId, int $o
         ];
     }
 
-    $axisMax = max($pairMaxGoalsFor, $pairMaxGoalsAgainst);
-
     return [
-        'max_goals_for' => $axisMax,
-        'max_goals_against' => $axisMax,
-        'grid_axis_max' => $axisMax,
+        'max_goals_for' => $pairMaxGoalsFor,
+        'max_goals_against' => $pairMaxGoalsAgainst,
+        'grid_axis_max' => max($pairMaxGoalsFor, $pairMaxGoalsAgainst),
         'cells' => $cells,
     ];
 }

@@ -40,12 +40,111 @@ if (strlen($qRaw) < 2) {
     exit;
 }
 
+$realm = isset($_GET['realm']) ? strtolower(trim((string) $_GET['realm'])) : 'online';
+
 function k2_h2h_search_escape_like(string $s): string
 {
     return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $s);
 }
 
+function k2_h2h_search_sort_results(array &$played, array &$others, int $limit): void
+{
+    usort(
+        $played,
+        static function (array $a, array $b): int {
+            $byGames = $b['games_vs'] <=> $a['games_vs'];
+            if ($byGames !== 0) {
+                return $byGames;
+            }
+
+            return strcasecmp($a['name'], $b['name']);
+        }
+    );
+
+    usort(
+        $others,
+        static function (array $a, array $b): int {
+            return strcasecmp($a['name'], $b['name']);
+        }
+    );
+
+    $played = array_slice($played, 0, $limit);
+    $others = array_slice($others, 0, max(0, $limit - count($played)));
+}
+
 $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
+$pattern = '%' . k2_h2h_search_escape_like($qRaw) . '%';
+$fetchLimit = min(60, max($limit * 3, $limit));
+
+if ($realm === 'amiga') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_h2h.php';
+
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    if ($con->connect_errno) {
+        http_response_code(500);
+        echo json_encode(['error' => 'db']);
+        exit;
+    }
+
+    $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+
+    $ctx = amiga_snapshot_context_from_request($con);
+    $gamesByOpponent = [];
+    foreach (amiga_player_opponents_h2h_played_opponents($con, $playerId, $ctx) as $row) {
+        $gamesByOpponent[(int) $row['opponent_id']] = (int) $row['games'];
+    }
+
+    $sql = 'SELECT p.id AS id, p.name AS name FROM amiga_players p '
+        . 'WHERE p.display = 1 AND p.name IS NOT NULL AND p.name <> \'\' '
+        . 'AND p.id <> ? AND LOWER(p.name) LIKE LOWER(?) ESCAPE \'\\\\\' '
+        . 'ORDER BY p.name ASC LIMIT ?';
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        $con->close();
+        http_response_code(500);
+        echo json_encode(['error' => 'query']);
+        exit;
+    }
+    $stmt->bind_param('isi', $playerId, $pattern, $fetchLimit);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        $con->close();
+        http_response_code(500);
+        echo json_encode(['error' => 'query']);
+        exit;
+    }
+
+    $res = $stmt->get_result();
+    $played = [];
+    $others = [];
+    while ($row = $res->fetch_assoc()) {
+        $oid = (int) $row['id'];
+        $gamesVs = $gamesByOpponent[$oid] ?? 0;
+        $item = [
+            'id' => $oid,
+            'name' => (string) $row['name'],
+            'games_vs' => $gamesVs,
+        ];
+        if ($gamesVs > 0) {
+            $played[] = $item;
+        } else {
+            $others[] = $item;
+        }
+    }
+    $stmt->close();
+    $con->close();
+
+    k2_h2h_search_sort_results($played, $others, $limit);
+    echo json_encode([
+        'played' => $played,
+        'others' => $others,
+    ]);
+    exit;
+}
+
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
 $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
@@ -130,27 +229,7 @@ while ($row = $res->fetch_assoc()) {
 $stmt->close();
 $con->close();
 
-usort(
-    $played,
-    static function (array $a, array $b): int {
-        $byGames = $b['games_vs'] <=> $a['games_vs'];
-        if ($byGames !== 0) {
-            return $byGames;
-        }
-
-        return strcasecmp($a['name'], $b['name']);
-    }
-);
-
-usort(
-    $others,
-    static function (array $a, array $b): int {
-        return strcasecmp($a['name'], $b['name']);
-    }
-);
-
-$played = array_slice($played, 0, $limit);
-$others = array_slice($others, 0, max(0, $limit - count($played)));
+k2_h2h_search_sort_results($played, $others, $limit);
 
 echo json_encode([
     'played' => $played,

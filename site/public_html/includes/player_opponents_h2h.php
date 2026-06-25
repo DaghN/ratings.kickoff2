@@ -380,7 +380,10 @@ function k2_h2h_poster_card_html(array $card, string $side): string
     $rating = ($display && isset($card['rating']) && !k2_db_is_null($card['rating']))
         ? k2_fmt_int($card['rating'], '—')
         : '—';
-    $href = $pid > 0 ? k2_player_profile_href($pid) : '';
+    $href = (string) ($card['profile_href'] ?? '');
+    if ($href === '' && $pid > 0) {
+        $href = k2_player_profile_href($pid);
+    }
 
     $rankStat = '<div class="k2-h2h2-card__stat"><dt>Rank</dt><dd>' . k2_h($rank) . '</dd></div>';
     $ratingStat = '<div class="k2-h2h2-card__stat"><dt>Rating</dt><dd>' . k2_h($rating) . '</dd></div>';
@@ -866,7 +869,10 @@ function player_opponents_render_h2h_all_games_link(array $subjectCard, array $o
         return;
     }
 
-    $href = player_opponents_games_filtered_href($subjectId, $opponentId);
+    $href = (string) ($subjectCard['games_href'] ?? '');
+    if ($href === '') {
+        $href = player_opponents_games_filtered_href($subjectId, $opponentId);
+    }
     $label = sprintf(
         'All %s rated games vs %s →',
         k2_fmt_int($games, '0'),

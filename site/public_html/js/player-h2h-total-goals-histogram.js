@@ -9,6 +9,7 @@
 
     var API_PATH = '/api/player_h2h_total_goals_distribution.php';
     var EVENT_NAME = 'kool-opponent-selected';
+    var CTX = window.K2PlayerOpponentsH2hContext;
 
     function chartOptions(extra) {
         if (T && T.activityChartOptions) {
@@ -44,7 +45,13 @@
         return null;
     }
 
-    function gamesListUrl(playerId, totalGoals, opponentId) {
+    function gamesListUrl(playerId, totalGoals, opponentId, ctxEl) {
+        if (CTX) {
+            return CTX.gamesListUrl(ctxEl, playerId, {
+                gs: totalGoals,
+                opponent: opponentId || null
+            });
+        }
         var url = '/player/games.php?id=' + encodeURIComponent(String(playerId))
             + '&gs=' + encodeURIComponent(String(totalGoals));
         if (opponentId) {
@@ -289,7 +296,8 @@
                 window.location.href = gamesListUrl(
                     playerId,
                     series.goalValues[idx],
-                    opponentId || null
+                    opponentId || null,
+                    root
                 );
             };
         })();
@@ -319,7 +327,8 @@
             }
 
             var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-                + '&opponent=' + encodeURIComponent(opponentId) + '&realm=online';
+                + '&opponent=' + encodeURIComponent(opponentId)
+                + (CTX ? CTX.apiSuffix(root) : '&realm=online');
 
             fetch(url, { credentials: 'same-origin' })
                 .then(function (r) {

@@ -7,35 +7,54 @@
 
     var API_PATH = '/api/player_h2h_scoreline_heatmap.php';
     var EVENT_NAME = 'kool-opponent-selected';
+    var CTX = window.K2PlayerOpponentsH2hContext;
     var TIP_ID = 'k2-h2h-scoreline-heatmap-tooltip';
     var META_HINT = 'Each square is how many times this scoreline happened.';
     var LABEL_COL = 28;
     var GAP = 2;
     var CELL_SIZE = 36;
 
-    function pairingAxisMax(cells, gridAxisMax) {
-        if (typeof gridAxisMax === 'number' && gridAxisMax >= 0) {
-            return gridAxisMax;
-        }
-        var max = 0;
-        var i;
-        for (i = 0; i < cells.length; i++) {
-            var cell = cells[i];
-            if (cell.goals_for > max) {
-                max = cell.goals_for;
+    function axisLimits(cells, data) {
+        var maxGf = typeof data.maxGoalsFor === 'number' ? data.maxGoalsFor : -1;
+        var maxGa = typeof data.maxGoalsAgainst === 'number' ? data.maxGoalsAgainst : -1;
+        if (maxGf < 0 || maxGa < 0) {
+            maxGf = 0;
+            maxGa = 0;
+            var i;
+            for (i = 0; i < cells.length; i++) {
+                if (cells[i].goals_for > maxGf) {
+                    maxGf = cells[i].goals_for;
+                }
+                if (cells[i].goals_against > maxGa) {
+                    maxGa = cells[i].goals_against;
+                }
             }
-            if (cell.goals_against > max) {
-                max = cell.goals_against;
-            }
         }
-        return max;
+        return { maxGf: maxGf, maxGa: maxGa };
+    }
+
+    function effectiveLevelCount(peak) {
+        if (peak <= 0) {
+            return 0;
+        }
+        if (peak <= 1) {
+            return 1;
+        }
+        return Math.min(LEVEL_COUNT, peak);
     }
 
     function cellKey(gf, ga) {
         return gf + ':' + ga;
     }
 
-    function gamesListUrl(playerId, goalsFor, goalsAgainst, opponentId) {
+    function gamesListUrl(playerId, goalsFor, goalsAgainst, opponentId, ctxEl) {
+        if (CTX) {
+            return CTX.gamesListUrl(ctxEl, playerId, {
+                gf: goalsFor,
+                ga: goalsAgainst,
+                opponent: opponentId
+            });
+        }
         return '/player/games.php?id=' + encodeURIComponent(String(playerId))
             + '&gf=' + encodeURIComponent(String(goalsFor))
             + '&ga=' + encodeURIComponent(String(goalsAgainst))
@@ -50,34 +69,48 @@
         if (count <= 0) {
             return 0;
         }
-        if (maxCount <= 1) {
-            return LEVEL_COUNT;
+        var levels = effectiveLevelCount(maxCount);
+        if (levels <= 1) {
+            return 1;
         }
-        var level = Math.ceil((count / maxCount) * LEVEL_COUNT);
+        var level = Math.ceil((count / maxCount) * levels);
         if (level < 1) {
             level = 1;
         }
-        if (level > LEVEL_COUNT) {
-            level = LEVEL_COUNT;
+        if (level > levels) {
+            level = levels;
         }
         return level;
     }
 
-    function levelToMixPercent(level) {
+    function levelToMixPercent(level, levelCount) {
         if (level <= 0) {
             return 0;
         }
-        if (level >= LEVEL_COUNT) {
+        levelCount = levelCount || LEVEL_COUNT;
+        if (levelCount <= 1) {
+            return 100;
+        }
+        if (level >= levelCount) {
             return 100;
         }
         var span = 100 - MIX_MIN;
 
-        return Math.round(MIX_MIN + ((level - 1) / (LEVEL_COUNT - 1)) * span);
+        return Math.round(MIX_MIN + ((level - 1) / (levelCount - 1)) * span);
     }
 
-    function countRangeLabel(level, peak) {
-        var lo = level === 1 ? 1 : Math.floor(((level - 1) / LEVEL_COUNT) * peak) + 1;
-        var hi = level === LEVEL_COUNT ? peak : Math.floor((level / LEVEL_COUNT) * peak);
+    function countRangeLabel(level, peak, levelCount) {
+        if (peak <= 0 || levelCount <= 0) {
+            return '';
+        }
+        if (levelCount <= 1 || peak <= 1) {
+            return level === 1 ? '1' : '';
+        }
+        var lo = level === 1 ? 1 : Math.floor(((level - 1) / levelCount) * peak) + 1;
+        var hi = level === levelCount ? peak : Math.floor((level / levelCount) * peak);
+        if (lo > hi) {
+            return '';
+        }
         if (lo === hi) {
             return String(lo);
         }
@@ -85,6 +118,11 @@
     }
 
     function appendIntensityScale(container, peak, playerName, opponentName) {
+        var levelCount = effectiveLevelCount(peak);
+        if (levelCount <= 0) {
+            return;
+        }
+
         var scale = document.createElement('div');
         scale.className = 'h2h-scoreline-heatmap__scale';
 
@@ -115,25 +153,25 @@
         cols.className = 'h2h-scoreline-heatmap__scale-cols';
 
         var level;
-        for (level = 1; level <= LEVEL_COUNT; level++) {
+        for (level = 1; level <= levelCount; level++) {
             var col = document.createElement('div');
             col.className = 'h2h-scoreline-heatmap__scale-col';
 
             var winSwatch = document.createElement('span');
             winSwatch.className = 'h2h-scoreline-heatmap__cell h2h-scoreline-heatmap__scale-swatch';
             winSwatch.setAttribute('data-outcome', 'win');
-            winSwatch.style.setProperty('--h2h-sh-mix', levelToMixPercent(level) + '%');
+            winSwatch.style.setProperty('--h2h-sh-mix', levelToMixPercent(level, levelCount) + '%');
             winSwatch.setAttribute('aria-hidden', 'true');
 
             var lossSwatch = document.createElement('span');
             lossSwatch.className = 'h2h-scoreline-heatmap__cell h2h-scoreline-heatmap__scale-swatch';
             lossSwatch.setAttribute('data-outcome', 'loss');
-            lossSwatch.style.setProperty('--h2h-sh-mix', levelToMixPercent(level) + '%');
+            lossSwatch.style.setProperty('--h2h-sh-mix', levelToMixPercent(level, levelCount) + '%');
             lossSwatch.setAttribute('aria-hidden', 'true');
 
             var countLabel = document.createElement('span');
             countLabel.className = 'h2h-scoreline-heatmap__scale-count';
-            countLabel.textContent = countRangeLabel(level, peak);
+            countLabel.textContent = countRangeLabel(level, peak, levelCount);
 
             col.appendChild(winSwatch);
             col.appendChild(lossSwatch);
@@ -249,8 +287,8 @@
         clearPinnedCell();
     }
 
-    function bindActiveCell(cell, playerName, opponentName, playerId, opponentId, gf, ga, games) {
-        var href = gamesListUrl(playerId, gf, ga, opponentId);
+    function bindActiveCell(cell, playerName, opponentName, playerId, opponentId, gf, ga, games, ctxEl) {
+        var href = gamesListUrl(playerId, gf, ga, opponentId, ctxEl);
         var coarse = isCoarsePointer();
 
         if (coarse) {
@@ -378,9 +416,9 @@
         var playerId = root.getAttribute('data-player-id');
         var opponentId = root.getAttribute('data-opponent-id') || '';
         var cells = data.cells || [];
-        var axisMax = pairingAxisMax(cells, data.gridAxisMax);
-        var maxGf = axisMax;
-        var maxGa = axisMax;
+        var limits = axisLimits(cells, data);
+        var maxGf = limits.maxGf;
+        var maxGa = limits.maxGa;
 
         if (!wrap) {
             return;
@@ -410,6 +448,7 @@
 
         var lookup = buildLookup(cells);
         var peak = maxGames(cells);
+        var levelCount = effectiveLevelCount(peak);
         var playerName = data.playerName || 'You';
         var opponentName = data.opponentName || 'Opponent';
         var gf;
@@ -455,11 +494,11 @@
                 cell.setAttribute('aria-label', playerName + ' ' + gf + '-' + ga + ' ' + opponentName + ', ' + games + ' games');
 
                 if (games > 0) {
-                    cell.style.setProperty('--h2h-sh-mix', levelToMixPercent(level) + '%');
+                    cell.style.setProperty('--h2h-sh-mix', levelToMixPercent(level, levelCount) + '%');
                 }
 
                 if (hit && games > 0) {
-                    bindActiveCell(cell, playerName, opponentName, playerId, opponentId, gf, ga, games);
+                    bindActiveCell(cell, playerName, opponentName, playerId, opponentId, gf, ga, games, root);
                 }
 
                 cell.setAttribute('data-gf', String(gf));
@@ -546,7 +585,8 @@
             }
 
             var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-                + '&opponent=' + encodeURIComponent(opponentId) + '&realm=online';
+                + '&opponent=' + encodeURIComponent(opponentId)
+                + (CTX ? CTX.apiSuffix(root) : '&realm=online');
 
             fetch(url, { credentials: 'same-origin' })
                 .then(function (r) {

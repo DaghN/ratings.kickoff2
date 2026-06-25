@@ -46,7 +46,7 @@
 
 **Derived tables in use:** `amiga_game_ratings`, `amiga_player_event_snapshots`, `amiga_player_current`, `amiga_tournament_standings`, `amiga_player_matchup_summary`, `amiga_player_matchup_at_event`, `amiga_generalstats` (HoF table stale until next slice — matchup/network written at finalize). See [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) and [`amiga-data-contract.md`](amiga-data-contract.md).
 
-**Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment. **Opponents wing** shipped (`amiga/player/opponents/*` — W/D/L · Goals · DDs live; H2H placeholder) — sortable ledger via `amiga_player_opponents_tables.php` (cloak on parent page; Tier B). Wide-table stack: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). See also [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
+**Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment. **Opponents wing** shipped (`amiga/player/opponents/*` — W/D/L · Goals · DDs + **full H2H** poster/pair detail/moments/charts) — sortable ledger via `amiga_player_opponents_tables.php` (cloak on parent page; Tier B). Wide-table stack: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). See also [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
 
 ### Participation points (read carefully)
 
@@ -74,7 +74,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 - `includes/amiga_player_matchup_lib.php` — directed pair reads (H2H poster, future slice)
 - `includes/amiga_matchup_snapshot_lib.php`, `includes/amiga_player_opponents_load.php`, `includes/amiga_player_opponents_tables.php`
 - `includes/amiga_player_opponents_lib.php`, `includes/amiga_player_opponents_nav.php`, `includes/amiga_player_opponents_page.php`
-- `amiga/player/opponents/{h2h,wdl,goals,dds}.php` — Opponents wing (W/D/L · Goals · DDs live; H2H placeholder)
+- `amiga/player/opponents/{h2h,wdl,goals,dds}.php` — Opponents wing (W/D/L · Goals · DDs + full H2H poster/pair detail/moments/charts)
 - `includes/k2_lb_sortable_table_head.inc.php`, `includes/k2_table_helpers.php` — hub LB + wide sortable tables ([`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md))
 - `includes/amiga_lb_nav.php`, `includes/amiga_lb_lib.php` — leaderboard wing tabs + shared row helpers
 - `includes/amiga_records_*.php`, `includes/amiga_records_hof_links.php` — HoF panels + metric deep links

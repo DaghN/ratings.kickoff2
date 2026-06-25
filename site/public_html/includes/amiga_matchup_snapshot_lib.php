@@ -149,3 +149,91 @@ function amiga_player_matchup_opponent_rows(mysqli $con, int $playerId, ?AmigaSn
 
     return $rows;
 }
+
+/**
+ * One directed pair row (present summary or latest at-event row at cutoff).
+ *
+ * @return array<string, mixed>|null null when pair absent or query failure
+ */
+function amiga_player_matchup_directed_opponent_row(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    ?AmigaSnapshotContext $ctx = null
+): ?array {
+    if ($playerId < 1 || $opponentId < 1) {
+        return null;
+    }
+
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $select = 'SELECT ' . implode(', ', amiga_matchup_opponents_select_columns($ctx->isActive()));
+
+    if (!$ctx->isActive()) {
+        $sql = $select
+            . ' FROM amiga_player_matchup_summary m'
+            . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id'
+            . ' LEFT JOIN amiga_player_current c ON c.player_id = m.opponent_id'
+            . ' WHERE m.player_id = ? AND m.opponent_id = ?'
+            . ' LIMIT 1';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            return null;
+        }
+        $stmt->bind_param('ii', $playerId, $opponentId);
+    } else {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff === null) {
+            return null;
+        }
+        $sql = $select
+            . " FROM (\n"
+            . "    SELECT x.* FROM (\n"
+            . "        SELECT m.*,\n"
+            . "            ROW_NUMBER() OVER (\n"
+            . "                PARTITION BY m.player_id, m.opponent_id\n"
+            . "                ORDER BY m.event_date DESC, m.event_chrono DESC, m.as_of_tournament_id DESC\n"
+            . "            ) AS rn\n"
+            . "        FROM amiga_player_matchup_at_event m\n"
+            . "        WHERE m.player_id = ? AND m.opponent_id = ?\n"
+            . "          AND (m.event_date, m.event_chrono, m.as_of_tournament_id) <= (?, ?, ?)\n"
+            . "    ) x\n"
+            . "    WHERE x.rn = 1\n"
+            . ") m"
+            . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id'
+            . ' ' . amiga_matchup_opponents_rating_at_cutoff_join_sql()
+            . ' LIMIT 1';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            return null;
+        }
+        $eventDate = $cutoff['event_date'];
+        $chrono = $cutoff['chrono'];
+        $tournamentId = $cutoff['tournament_id'];
+        $stmt->bind_param(
+            'iisdisdi',
+            $playerId,
+            $opponentId,
+            $eventDate,
+            $chrono,
+            $tournamentId,
+            $eventDate,
+            $chrono,
+            $tournamentId
+        );
+    }
+
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return null;
+    }
+
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    return $row !== null ? $row : null;
+}

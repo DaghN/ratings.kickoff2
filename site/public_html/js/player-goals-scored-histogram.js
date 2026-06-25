@@ -8,6 +8,7 @@
     var T = window.K2ChartTheme;
 
     var API_PATH = '/api/player_goals_scored_distribution.php';
+    var CTX = window.K2PlayerOpponentsH2hContext;
 
     function chartOptions(extra) {
         if (T && T.activityChartOptions) {
@@ -25,7 +26,15 @@
         return new Chart(canvas, config);
     }
 
-    function gamesListUrl(playerId, goals, opponentId, goalParam) {
+    function gamesListUrl(playerId, goals, opponentId, goalParam, ctxEl) {
+        if (CTX) {
+            var params = {};
+            params[goalParam || 'gf'] = goals;
+            if (opponentId) {
+                params.opponent = opponentId;
+            }
+            return CTX.gamesListUrl(ctxEl, playerId, params);
+        }
         var url = '/player/games.php?id=' + encodeURIComponent(String(playerId))
             + '&' + goalParam + '=' + encodeURIComponent(String(goals));
         if (opponentId) {
@@ -110,8 +119,9 @@
         return padded;
     }
 
-    function fetchDistribution(apiPlayerId, apiOpponentId) {
-        var url = API_PATH + '?id=' + encodeURIComponent(String(apiPlayerId)) + '&realm=online';
+    function fetchDistribution(apiPlayerId, apiOpponentId, ctxEl) {
+        var url = API_PATH + '?id=' + encodeURIComponent(String(apiPlayerId))
+            + (CTX ? CTX.apiSuffix(ctxEl || document.documentElement) : '&realm=online');
         if (apiOpponentId) {
             url += '&opponent=' + encodeURIComponent(String(apiOpponentId));
         }
@@ -361,7 +371,8 @@
                     playerId,
                     series.goalValues[el.index],
                     null,
-                    'gf'
+                    'gf',
+                    root
                 );
             },
             directClick: function (evt, elements) {
@@ -376,7 +387,8 @@
                     playerId,
                     series.goalValues[idx],
                     null,
-                    'gf'
+                    'gf',
+                    root
                 );
             }
         });
@@ -519,7 +531,8 @@
                     playerId,
                     series.goalValues[el.index],
                     opponentId || null,
-                    goalParam
+                    goalParam,
+                    root
                 );
             },
             directClick: function (evt, elements) {
@@ -534,7 +547,8 @@
                     playerId,
                     series.goalValues[idx],
                     opponentId || null,
-                    goalParam
+                    goalParam,
+                    root
                 );
             }
         });
@@ -715,7 +729,8 @@
                     playerId,
                     goalValues[idx],
                     opponentId || null,
-                    datasetIndex === 1 ? 'ga' : 'gf'
+                    datasetIndex === 1 ? 'ga' : 'gf',
+                    root
                 );
             },
             directClick: function (evt, elements) {
@@ -733,7 +748,8 @@
                     playerId,
                     goalValues[idx],
                     opponentId || null,
-                    datasetIndex === 1 ? 'ga' : 'gf'
+                    datasetIndex === 1 ? 'ga' : 'gf',
+                    root
                 );
             }
         });
@@ -792,8 +808,8 @@
         }
 
         Promise.all([
-            fetchDistribution(playerId, opponentId),
-            fetchDistribution(opponentId, playerId)
+            fetchDistribution(playerId, opponentId, matchups),
+            fetchDistribution(opponentId, playerId, matchups)
         ])
             .then(function (results) {
                 var subjectData = results[0];

@@ -17,7 +17,7 @@ $realm = isset($_GET['realm']) ? strtolower(trim((string) $_GET['realm'])) : 'on
 $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $opponentId = isset($_GET['opponent']) ? (int) $_GET['opponent'] : 0;
 
-if ($realm !== 'online') {
+if ($realm !== 'online' && $realm !== 'amiga') {
     echo json_encode([
         'realm' => $realm,
         'playerId' => $playerId,
@@ -43,6 +43,52 @@ if ($playerId < 1 || $opponentId < 1) {
 if ($playerId === $opponentId) {
     http_response_code(400);
     echo json_encode(['error' => 'same_player']);
+    exit;
+}
+
+if ($realm === 'amiga') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_matchup_lib.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_h2h_pair_lib.php';
+
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    if ($con->connect_errno) {
+        http_response_code(500);
+        echo json_encode(['error' => 'db_connect_failed']);
+        exit;
+    }
+    $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+
+    $ctx = amiga_snapshot_context_from_request($con);
+    $playerIdentity = amiga_player_identity_row($con, $playerId);
+    $opponentIdentity = amiga_player_identity_row($con, $opponentId);
+    if ($playerIdentity === null || $opponentIdentity === null) {
+        mysqli_close($con);
+        echo json_encode(['error' => 'player_not_found']);
+        exit;
+    }
+
+    $payload = amiga_player_h2h_scoreline_heatmap_payload($con, $playerId, $opponentId, $ctx);
+    $totalGames = 0;
+    foreach ($payload['cells'] as $cell) {
+        $totalGames += (int) $cell['games'];
+    }
+    mysqli_close($con);
+
+    echo json_encode([
+        'realm' => $realm,
+        'playerId' => $playerId,
+        'opponentId' => $opponentId,
+        'playerName' => (string) $playerIdentity['name'],
+        'opponentName' => (string) $opponentIdentity['name'],
+        'maxGoalsFor' => (int) $payload['max_goals_for'],
+        'maxGoalsAgainst' => (int) $payload['max_goals_against'],
+        'gridAxisMax' => (int) ($payload['grid_axis_max'] ?? 0),
+        'totalGames' => $totalGames,
+        'cells' => $payload['cells'],
+    ]);
     exit;
 }
 
