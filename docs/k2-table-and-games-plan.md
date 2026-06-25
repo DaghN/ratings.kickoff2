@@ -107,6 +107,7 @@ Do not fork Games-tab row markup unless the shared renderer is updated too.
 - Result filter: All / Wins / Draws / Losses.
 - Opponent filter: All / opponent list for this player.
 - Sort state in `sort` + `dir` query params; default **`id` desc** (newest games first; avoids highlighting Date on first paint).
+- Filter listboxes: `$idleValue` on `k2_archive_listbox_render()` (`all` / `0` / `-1` per filter); empty idle labels in choice arrays.
 - 500-row slices with chevron page nav when more rows exist (plain Games tab; drill-down only when total > 500).
 - Shared row renderer: `includes/k2_player_game_row.php`.
 
@@ -123,11 +124,12 @@ Product requirement: keep Result and Opponent narrowing; normal URL flow is the 
 - **Shared WHERE:** `includes/k2_ratedresults_games_filters.php` — also used by `player/games.php`. `player_id = 0` = realm-wide.
 - **Filter UI (four rows):**
   - **Player** — search (`player-search.js` filter mode) + **Rating** listbox (name, rating meta; sort name → rating) + **A–Z** listbox; realm `playertable` (`Display = 1`).
-  - **Opponent** — muted until `player` set; search (`player_h2h_opponent_search` API) + **By games** + **A–Z** listboxes (H2H opponent set).
+  - **Opponent** — hidden until `player` set; search (`player_h2h_opponent_search` API) + **By games** + **A–Z** listboxes (H2H opponent set).
   - **Score-line** — `gd`, `gs`, `ts` listboxes (realm-wide distinct values + game counts).
   - **Year** — `year` + `year_mode` (`in` \| `since` \| `until`).
 - **URL params:** `player`, `opponent`, `gd`, `gs`, `ts`, `year`, `year_mode`, `sort`, `dir`, `offset`.
 - **JS:** `k2-realm-games-filters.js` + `k2-archive-listbox.js`; form `data-k2-carry-scroll`.
+- **Filter listbox contract (Jun 2026):** `k2_archive_listbox_render(..., $idleValue)` — empty trigger at idle, link-star when active; JS reads `data-k2-listbox-idle-value`. Year mode uses `$accentActive` when year is set (coupled picker).
 - Sort/pager links preserve active filter params; filter change drops `offset`.
 - **Active sort column:** PHP `k2-table-col-sorted` via `k2_rated_game_sort_col_index()`.
 

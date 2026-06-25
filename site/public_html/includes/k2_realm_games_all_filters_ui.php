@@ -298,21 +298,6 @@ function k2_realm_games_all_listbox_selected_id(int $entityId, string $via, stri
 	return $entityId > 0 && $via === $expectedVia ? (string) $entityId : '0';
 }
 
-function k2_realm_games_all_listbox_is_active(string $selectedValue): bool
-{
-	return $selectedValue !== '' && $selectedValue !== '0' && $selectedValue !== '-1';
-}
-
-function k2_realm_games_all_active_pick_trigger_class(bool $active, string $extraClass = ''): string
-{
-	$classes = trim($extraClass);
-	if ($active) {
-		$classes = trim($classes . ' k2-link-star');
-	}
-
-	return $classes;
-}
-
 function k2_realm_games_all_active_search_input_class(string $baseClass, bool $active): string
 {
 	return $active ? trim($baseClass . ' k2-link-star') : $baseClass;
@@ -363,10 +348,7 @@ function k2_realm_games_all_render_filters(
 	$opponentAlphaSelected = k2_realm_games_all_listbox_selected_id($opponentId, $opponentVia, 'alpha');
 
 	$filterBase = k2_realm_games_all_build_url(k2_realm_games_all_query_params($state, false));
-	$opponentRowClass = 'k2-realm-games-filters__row k2-realm-games-filters__row--pickers';
-	if ($playerId <= 0) {
-		$opponentRowClass .= ' k2-realm-games-filters__row--muted';
-	}
+	$opponentRowHidden = $playerId <= 0;
 	$yearModeFieldClass = 'k2-player-games-controls__field';
 	if ($state['year'] <= 0) {
 		$yearModeFieldClass .= ' k2-realm-games-filters__year-mode--idle';
@@ -444,10 +426,10 @@ function k2_realm_games_all_render_filters(
 					$playerRatingSelected,
 					k2_realm_games_all_player_rating_choices($players),
 					'Choose player by rating list',
-					k2_realm_games_all_active_pick_trigger_class(
-						k2_realm_games_all_listbox_is_active($playerRatingSelected),
-						'k2-realm-games-filters__player-pick'
-					)
+					'k2-realm-games-filters__player-pick',
+					'',
+					false,
+					'0'
 				); ?>
 			</div>
 			<div class="k2-player-games-controls__field">
@@ -458,22 +440,22 @@ function k2_realm_games_all_render_filters(
 					$playerAlphaSelected,
 					k2_realm_games_all_player_alpha_choices($players),
 					'Choose player A to Z',
-					k2_realm_games_all_active_pick_trigger_class(
-						k2_realm_games_all_listbox_is_active($playerAlphaSelected)
-					)
+					'',
+					'',
+					false,
+					'0'
 				); ?>
 			</div>
 		</div>
 	</div>
 
-	<div class="<?php echo k2_realm_games_all_h($opponentRowClass); ?>" data-k2-realm-games-opponent-row>
+	<div class="k2-realm-games-filters__row k2-realm-games-filters__row--pickers" data-k2-realm-games-opponent-row<?php echo $opponentRowHidden ? ' hidden' : ''; ?>>
 		<span class="k2-realm-games-filters__row-label">Opponent</span>
 		<div class="k2-player-games-controls__fields k2-realm-games-filters__picker-fields">
 			<div
 				class="k2-player-games-controls__field k2-realm-games-filters__search-field k2-realm-games-filters__opponent-search"
 				data-k2-realm-games-opponent-search
 				data-player-id="<?php echo (int) $playerId; ?>"
-				<?php echo $playerId > 0 ? '' : ' hidden'; ?>
 			>
 				<div class="player-search" role="search">
 					<label class="player-search-label" for="<?php echo k2_realm_games_all_h($opponentSearchUid); ?>">Search</label>
@@ -486,7 +468,6 @@ function k2_realm_games_all_render_filters(
 						spellcheck="false"
 						placeholder="Opponent name…"
 						value="<?php echo k2_realm_games_all_h($opponentSearchName); ?>"
-						<?php echo $playerId > 0 ? '' : ' disabled="disabled"'; ?>
 					/>
 					<ul class="player-search-results" role="listbox" hidden></ul>
 				</div>
@@ -499,10 +480,10 @@ function k2_realm_games_all_render_filters(
 					$opponentGamesSelected,
 					k2_realm_games_all_opponent_games_choices($opponentRows),
 					'Choose opponent by games played',
-					k2_realm_games_all_active_pick_trigger_class(
-						k2_realm_games_all_listbox_is_active($opponentGamesSelected),
-						'k2-realm-games-filters__opponent-pick' . ($playerId > 0 ? '' : ' is-disabled')
-					)
+					'k2-realm-games-filters__opponent-pick',
+					'',
+					false,
+					'0'
 				); ?>
 			</div>
 			<div class="k2-player-games-controls__field">
@@ -513,10 +494,10 @@ function k2_realm_games_all_render_filters(
 					$opponentAlphaSelected,
 					k2_realm_games_all_opponent_alpha_choices($opponentRows),
 					'Choose opponent A to Z',
-					k2_realm_games_all_active_pick_trigger_class(
-						k2_realm_games_all_listbox_is_active($opponentAlphaSelected),
-						'k2-realm-games-filters__opponent-pick' . ($playerId > 0 ? '' : ' is-disabled')
-					)
+					'k2-realm-games-filters__opponent-pick',
+					'',
+					false,
+					'0'
 				); ?>
 			</div>
 		</div>
@@ -533,7 +514,10 @@ function k2_realm_games_all_render_filters(
 					(string) $state['gd'],
 					k2_realm_games_all_gd_choices($gdRows),
 					'Filter by goal difference',
-					k2_realm_games_all_active_pick_trigger_class($state['gd'] >= 0)
+					'',
+					'',
+					false,
+					'-1'
 				); ?>
 			</div>
 			<div class="k2-player-games-controls__field">
@@ -544,7 +528,10 @@ function k2_realm_games_all_render_filters(
 					(string) $state['gs'],
 					k2_realm_games_all_score_choices($sumRows),
 					'Filter by goal sum',
-					k2_realm_games_all_active_pick_trigger_class($state['gs'] >= 0)
+					'',
+					'',
+					false,
+					'-1'
 				); ?>
 			</div>
 			<div class="k2-player-games-controls__field">
@@ -555,7 +542,10 @@ function k2_realm_games_all_render_filters(
 					(string) $state['ts'],
 					k2_realm_games_all_score_choices($tsRows),
 					'Filter by top score',
-					k2_realm_games_all_active_pick_trigger_class($state['ts'] >= 0)
+					'',
+					'',
+					false,
+					'-1'
 				); ?>
 			</div>
 		</div>
@@ -572,7 +562,10 @@ function k2_realm_games_all_render_filters(
 					(string) $state['year'],
 					k2_realm_games_all_year_choices($years),
 					'Filter by year',
-					k2_realm_games_all_active_pick_trigger_class($state['year'] > 0)
+					'',
+					'',
+					false,
+					'0'
 				); ?>
 			</div>
 			<div class="<?php echo k2_realm_games_all_h($yearModeFieldClass); ?>">
@@ -583,10 +576,11 @@ function k2_realm_games_all_render_filters(
 					$state['year_mode'],
 					k2_realm_games_all_year_mode_choices(),
 					'Year filter mode',
-					k2_realm_games_all_active_pick_trigger_class(
-						$state['year'] > 0,
-						$state['year'] <= 0 ? 'is-disabled' : ''
-					)
+					$state['year'] <= 0 ? 'is-disabled' : '',
+					'',
+					false,
+					null,
+					$state['year'] > 0
 				); ?>
 			</div>
 		</div>

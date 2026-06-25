@@ -12,6 +12,8 @@ function k2_archive_listbox_h(string $value): string
 
 /**
  * @param array<int, array{value: string, label: string, meta?: string, accent?: bool}> $choices
+ * @param ?string $idleValue When set, closed trigger is empty at this value and uses link-star when selected differs.
+ * @param bool $accentActive When true, closed trigger always uses link-star (e.g. coupled year-mode picker).
  */
 function k2_archive_listbox_render(
     string $inputName,
@@ -21,7 +23,9 @@ function k2_archive_listbox_render(
     string $ariaLabel,
     string $triggerExtraClass = '',
     string $fixedTriggerLabel = '',
-    bool $triggerShowsMeta = false
+    bool $triggerShowsMeta = false,
+    ?string $idleValue = null,
+    bool $accentActive = false
 ): void {
     $hasMetaOptions = false;
     $hasAccentOptions = false;
@@ -40,15 +44,17 @@ function k2_archive_listbox_render(
     if ($fixedTriggerLabel !== '' && ($selectedValue === '-1' || $selectedValue === '')) {
         $selectedLabel = $fixedTriggerLabel;
     } else {
+        $foundMatch = false;
         foreach ($choices as $choice) {
             if ((string) $choice['value'] === $selectedValue) {
                 $selectedLabel = (string) $choice['label'];
                 $selectedMeta = array_key_exists('meta', $choice) ? (string) $choice['meta'] : '';
                 $selectedAccent = !empty($choice['accent']);
+                $foundMatch = true;
                 break;
             }
         }
-        if ($selectedLabel === '' && $selectedValue !== '') {
+        if (!$foundMatch && $selectedLabel === '' && $selectedValue !== '') {
             $selectedLabel = $selectedValue;
         }
     }
@@ -61,15 +67,23 @@ function k2_archive_listbox_render(
     if ($triggerShowsMeta && $hasMetaOptions) {
         $triggerClass .= ' k2-archive-listbox__trigger--split';
     }
-    if ($selectedAccent) {
+    $filterPickAccent = $idleValue !== null && (string) $selectedValue !== (string) $idleValue;
+    if ($filterPickAccent || $accentActive || ($idleValue === null && $selectedAccent)) {
         $triggerClass .= ' k2-link-star';
     }
     $boxClass = 'k2-archive-listbox';
     if ($hasMetaOptions || $hasAccentOptions || $fixedTriggerLabel !== '') {
         $boxClass .= ' k2-archive-listbox--meta-options';
     }
+    $boxAttrs = 'data-k2-archive-listbox';
+    if ($idleValue !== null) {
+        $boxAttrs .= ' data-k2-listbox-idle-value="' . k2_archive_listbox_h($idleValue) . '"';
+    }
+    if ($accentActive) {
+        $boxAttrs .= ' data-k2-listbox-accent-active="1"';
+    }
     ?>
-<div class="<?php echo k2_archive_listbox_h($boxClass); ?>" data-k2-archive-listbox>
+<div class="<?php echo k2_archive_listbox_h($boxClass); ?>" <?php echo $boxAttrs; ?>>
     <input type="hidden" id="<?php echo k2_archive_listbox_h($inputId); ?>" name="<?php echo k2_archive_listbox_h($inputName); ?>" class="k2-archive-listbox__value" value="<?php echo k2_archive_listbox_h($selectedValue); ?>" />
     <button type="button" class="<?php echo k2_archive_listbox_h($triggerClass); ?>" aria-label="<?php echo k2_archive_listbox_h($ariaLabel); ?>" aria-haspopup="listbox" aria-expanded="false" aria-controls="<?php echo k2_archive_listbox_h($listboxId); ?>">
         <span class="k2-archive-listbox__label"><?php echo k2_archive_listbox_h($selectedLabel); ?></span>

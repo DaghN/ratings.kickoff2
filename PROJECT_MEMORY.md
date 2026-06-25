@@ -124,6 +124,8 @@
 | 2026-06-25 | **Amiga rating LB Δ header** — flat-top Δ on `th.k2-table-col-delta` (12px/500). |
 | 2026-06-25 | **Amiga rating LB WC Δ** — present-day `/amiga/leaderboards/rating.php` shows Δ since start of last World Cup; time-travel wing Δ unchanged — [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md) §3.6. |
 | 2026-06-25 | **Amiga TT LED field sep (period trial)** — `AMIGA_TT_STAMP_LED_FIELD_SEP` = `.`; `k2-amiga-tt-stamp--sep-period` pads zero-width DSEG7 period. |
+| 2026-06-25 | **Games All opponent row** — hidden until player chosen; `[hidden]` + `.k2-realm-games-filters__row[hidden]{display:none}` (flex row CSS was overriding HTML hidden). |
+| 2026-06-25 | **Games filter listboxes (slice 1)** — canonical idle/accent on `k2_archive_listbox_render($idleValue)` + JS `data-k2-listbox-idle-value`; PHP empty-label fix; online player games + games/all migrated; Amiga player games next. |
 | 2026-06-25 | **Profile stat ink** — online hero: all four stats link-star + glow; at-a-glance value cells link-star (Achievements Milestones row tier colors unchanged); Amiga hero Games matches rank/rating. |
 | 2026-06-24 | **Player wing segment tabs** -- Profile/Opponents/… bar → `.k2-chrome-tabs.k2-player-wing-tabs` (fit-content); tournament detail nav stays full-width `.k2-player-nav-bar`. |
 | 2026-06-24 | **Entity hero stack gap** -- `.k2-player-hero` + `.k2-amiga-tournament-hero` use `--k2-nav-gap` (was 6px / 16px); policy N1 = page-chrome stack layers, not nav-only. |

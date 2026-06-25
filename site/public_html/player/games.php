@@ -704,7 +704,10 @@ foreach ($goalsSumRows as $goalsSumRow) {
                 $resultFilter,
                 $resultChoices,
                 'Filter by result',
-                k2_ratedresults_games_filter_pick_trigger_class($resultFilter, 'all')
+                '',
+                '',
+                false,
+                'all'
             ); ?>
         </div>
         <div class="k2-player-games-controls__field">
@@ -715,7 +718,10 @@ foreach ($goalsSumRows as $goalsSumRow) {
                 (string) $opponentFilter,
                 $opponentChoices,
                 'Filter by opponent',
-                k2_ratedresults_games_filter_pick_trigger_class((string) $opponentFilter, '0')
+                '',
+                '',
+                false,
+                '0'
             ); ?>
         </div>
         <div class="k2-player-games-controls__field">
@@ -726,7 +732,10 @@ foreach ($goalsSumRows as $goalsSumRow) {
                 (string) $goalsScoredFilter,
                 $goalsScoredChoices,
                 'Filter by goals scored',
-                k2_ratedresults_games_filter_pick_trigger_class((string) $goalsScoredFilter, '-1')
+                '',
+                '',
+                false,
+                '-1'
             ); ?>
         </div>
         <div class="k2-player-games-controls__field">
@@ -737,7 +746,10 @@ foreach ($goalsSumRows as $goalsSumRow) {
                 (string) $goalsConcededFilter,
                 $goalsConcededChoices,
                 'Filter by goals conceded',
-                k2_ratedresults_games_filter_pick_trigger_class((string) $goalsConcededFilter, '-1')
+                '',
+                '',
+                false,
+                '-1'
             ); ?>
         </div>
         <div class="k2-player-games-controls__field">
@@ -748,7 +760,10 @@ foreach ($goalsSumRows as $goalsSumRow) {
                 (string) $goalsSumFilter,
                 $goalsSumChoices,
                 'Filter by goal sum',
-                k2_ratedresults_games_filter_pick_trigger_class((string) $goalsSumFilter, '-1')
+                '',
+                '',
+                false,
+                '-1'
             ); ?>
         </div>
     </div>

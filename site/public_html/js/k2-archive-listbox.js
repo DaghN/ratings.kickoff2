@@ -270,7 +270,14 @@
         if (!btn) {
             return;
         }
-        var accented = optionIsAccented(findOption(box, getValue(box)));
+        var accented;
+        if (box.hasAttribute('data-k2-listbox-idle-value')) {
+            accented = String(getValue(box)) !== String(box.getAttribute('data-k2-listbox-idle-value'));
+        } else if (box.getAttribute('data-k2-listbox-accent-active') === '1') {
+            accented = true;
+        } else {
+            accented = optionIsAccented(findOption(box, getValue(box)));
+        }
         btn.classList.toggle('k2-link-star', accented);
         var metaEl = triggerMetaEl(box);
         if (metaEl) {

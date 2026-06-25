@@ -2908,6 +2908,10 @@ body.k2-site .k2-realm-games-filters__row {
 	margin-bottom: 18px;
 }
 
+body.k2-site .k2-realm-games-filters__row[hidden] {
+	display: none !important;
+}
+
 body.k2-site .k2-realm-games-filters__row--pickers .k2-realm-games-filters__row-label {
 	padding-bottom: 6px;
 }
@@ -3004,15 +3008,6 @@ body.k2-site .k2-realm-games-filters__search-field .player-search-results {
 	width: 100%;
 	max-width: none;
 	margin: 2px 0 0;
-}
-
-body.k2-site .k2-realm-games-filters__row--muted {
-	opacity: 0.42;
-}
-
-body.k2-site .k2-realm-games-filters__row--muted .k2-archive-listbox__trigger,
-body.k2-site .k2-realm-games-filters__row--muted .player-search-input {
-	pointer-events: none;
 }
 
 body.k2-site .k2-realm-games-filters__year-mode--idle {
