@@ -120,6 +120,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Profile stat ink** — online hero: all four stats link-star + glow; at-a-glance value cells link-star (Achievements Milestones row tier colors unchanged); Amiga hero Games matches rank/rating. |
 | 2026-06-24 | **Player wing segment tabs** -- Profile/Opponents/… bar → `.k2-chrome-tabs.k2-player-wing-tabs` (fit-content); tournament detail nav stays full-width `.k2-player-nav-bar`. |
 | 2026-06-24 | **Entity hero stack gap** -- `.k2-player-hero` + `.k2-amiga-tournament-hero` use `--k2-nav-gap` (was 6px / 16px); policy N1 = page-chrome stack layers, not nav-only. |
 | 2026-06-24 | **Player wing hub bar** -- realm hub nav on all online + Amiga player pages (`player_wing_hub_nav.inc.php` / `amiga_player_wing_hub_nav.inc.php`); tint picker moved off player nav to hub bar; hero anchor landing = later slice. |

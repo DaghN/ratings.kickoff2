@@ -65,7 +65,7 @@ $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 				</div>
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Games</span>
-					<span class="k2-player-hero__stat-value"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbGamesPeakHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbGamesPeakHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
 				</div>
 				<?php if ($heroMs !== null && $heroMsPlayerId > 0) {
 					$msTotal = (int) $heroMs['total'];

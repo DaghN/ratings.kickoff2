@@ -73,7 +73,7 @@ $heroFlagMeta = $heroCountry !== '' ? k2_amiga_country_flag_meta($heroCountry) :
 				</div>
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Games</span>
-					<span class="k2-player-hero__stat-value"><?php
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php
 						if ($heroGamesLinked) {
 							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroGamesHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a><?php
 						} else {

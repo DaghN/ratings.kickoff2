@@ -107,7 +107,7 @@
 }
 
 .pm3efg-at-a-glance .pm3efg-stat-table__row td {
-	color: var(--k2-text-secondary);
+	color: var(--k2-link-star);
 }
 
 .pm3efg-at-a-glance .pm3efg-stat-table--career .pm3efg-career-stats__num {

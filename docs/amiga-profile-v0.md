@@ -24,7 +24,7 @@
 
 ## What v0 shows
 
-- **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; games → player games tab; **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text; pre-debut at cutoff → — + note (T17)
+- **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; games → player games tab; rank · rating · games stat values use link-star + glow (country column stays muted); **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text; pre-debut at cutoff → — + note (T17)
 - **Player nav** — Profile · Opponents · Tournaments · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_current` (W/D/L, goals, peak, opp avg)
 - **Honours strip** — `amiga_player_current` honours columns: career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
