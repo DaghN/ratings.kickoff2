@@ -706,6 +706,7 @@ function amiga_profile_render_rank_chart(int $playerId): void
 <section class="k2-amiga-profile-chart" style="padding:0 1.25rem 2rem">
 	<div class="player-rank-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rank</h3>
+		<p class="k2-chart-block__hint">End-of-day rank after each tournament day.</p>
 		<div class="pm3d-chart-toolbar player-rank-chart__toolbar" data-range-mode="linear">
 			<div class="player-rank-chart__toolbar-row">
 				<div class="pm3d-rating-toggle player-rank-chart__scale" role="tablist" aria-label="Rank chart scale">
@@ -731,6 +732,7 @@ function amiga_profile_render_rank_chart(int $playerId): void
 				</div>
 			</div>
 		</div>
+		<p class="player-rank-peak-summary pm3d-chart__summary" hidden></p>
 		<p class="player-rank-chart-status pm3d-chart__status k2-chart-panel__status">Loading rank history…</p>
 		<div class="k2-chart-frame">
 			<canvas class="player-rank-canvas" aria-label="Elo rank over time"></canvas>

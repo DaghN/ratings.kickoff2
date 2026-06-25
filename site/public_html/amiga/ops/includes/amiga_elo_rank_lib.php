@@ -99,6 +99,54 @@ function amiga_ops_load_career_ratings_through_tournament(
 }
 
 /**
+ * @param list<int> $playerIds
+ * @return array<int, array{peak: ?int, tournament_id: ?int}>
+ */
+function amiga_ops_load_prior_peak_elo_ranks(mysqli $con, array $playerIds): array
+{
+    if ($playerIds === []) {
+        return [];
+    }
+
+    $ids = implode(', ', array_map('intval', $playerIds));
+    $sql = 'SELECT player_id, peak_elo_rank, peak_elo_rank_tournament_id '
+        . 'FROM amiga_player_current WHERE player_id IN (' . $ids . ')';
+    $res = $con->query($sql);
+    if ($res === false) {
+        throw new RuntimeException('load prior peak elo ranks: ' . $con->error);
+    }
+
+    $out = [];
+    while ($row = $res->fetch_assoc()) {
+        $pid = (int) $row['player_id'];
+        $out[$pid] = [
+            'peak' => $row['peak_elo_rank'] !== null ? (int) $row['peak_elo_rank'] : null,
+            'tournament_id' => $row['peak_elo_rank_tournament_id'] !== null
+                ? (int) $row['peak_elo_rank_tournament_id'] : null,
+        ];
+    }
+    $res->free();
+
+    return $out;
+}
+
+function amiga_ops_compute_peak_elo_rank(
+    int $rank,
+    int $tournamentId,
+    ?int $priorPeak,
+    ?int $priorPeakTournamentId
+): array {
+    if ($priorPeak === null || $rank < $priorPeak) {
+        return ['peak' => $rank, 'tournament_id' => $tournamentId];
+    }
+    if ($priorPeakTournamentId === null) {
+        return ['peak' => $priorPeak, 'tournament_id' => $tournamentId];
+    }
+
+    return ['peak' => $priorPeak, 'tournament_id' => $priorPeakTournamentId];
+}
+
+/**
  * @param array<int, int> $ranks
  * @param list<int> $participantIds
  */
@@ -114,53 +162,64 @@ function amiga_ops_persist_elo_ranks_at_tournament(
         return;
     }
 
-    $participantSet = [];
-    foreach ($participantIds as $pid) {
-        $participantSet[(int) $pid] = true;
-    }
+    unset($participantIds);
+
+    $playerIds = array_map('intval', array_keys($ranks));
+    $priorPeaks = amiga_ops_load_prior_peak_elo_ranks($con, $playerIds);
 
     $sql = 'INSERT INTO amiga_player_elo_rank_at_event '
-        . '(player_id, tournament_id, event_date, event_chrono, elo_rank) '
-        . 'VALUES (?, ?, ?, ?, ?) '
+        . '(player_id, tournament_id, event_date, event_chrono, elo_rank, peak_elo_rank, peak_elo_rank_tournament_id) '
+        . 'VALUES (?, ?, ?, ?, ?, ?, ?) '
         . 'ON DUPLICATE KEY UPDATE event_date = VALUES(event_date), '
-        . 'event_chrono = VALUES(event_chrono), elo_rank = VALUES(elo_rank)';
+        . 'event_chrono = VALUES(event_chrono), elo_rank = VALUES(elo_rank), '
+        . 'peak_elo_rank = VALUES(peak_elo_rank), '
+        . 'peak_elo_rank_tournament_id = VALUES(peak_elo_rank_tournament_id)';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         throw new RuntimeException('prepare elo_rank_at_event: ' . $con->error);
     }
 
+    $currentUpdates = [];
     foreach ($ranks as $playerId => $rank) {
         $pid = (int) $playerId;
         $r = (int) $rank;
-        $stmt->bind_param('iisdi', $pid, $tournamentId, $eventDate, $eventChrono, $r);
+        $prior = $priorPeaks[$pid] ?? ['peak' => null, 'tournament_id' => null];
+        $peak = amiga_ops_compute_peak_elo_rank(
+            $r,
+            $tournamentId,
+            $prior['peak'],
+            $prior['tournament_id']
+        );
+        $peakRank = (int) $peak['peak'];
+        $peakTournamentId = (int) $peak['tournament_id'];
+        $stmt->bind_param('iisdiii', $pid, $tournamentId, $eventDate, $eventChrono, $r, $peakRank, $peakTournamentId);
         if (!$stmt->execute()) {
             throw new RuntimeException('execute elo_rank_at_event: ' . $stmt->error);
         }
+        $currentUpdates[$pid] = [$r, $peakRank, $peakTournamentId];
     }
     $stmt->close();
 
-    $nonParticipants = [];
-    foreach ($ranks as $playerId => $rank) {
-        $pid = (int) $playerId;
-        if (!isset($participantSet[$pid])) {
-            $nonParticipants[$pid] = (int) $rank;
-        }
-    }
-
-    if ($nonParticipants === []) {
+    if ($currentUpdates === []) {
         return;
     }
 
-    $caseParts = [];
+    $caseRank = [];
+    $casePeak = [];
+    $casePeakTid = [];
     $ids = [];
-    foreach ($nonParticipants as $pid => $rank) {
-        $caseParts[] = 'WHEN ' . $pid . ' THEN ' . $rank;
+    foreach ($currentUpdates as $pid => $vals) {
+        $caseRank[] = 'WHEN ' . $pid . ' THEN ' . $vals[0];
+        $casePeak[] = 'WHEN ' . $pid . ' THEN ' . $vals[1];
+        $casePeakTid[] = 'WHEN ' . $pid . ' THEN ' . $vals[2];
         $ids[] = (string) $pid;
     }
-    $updateSql = 'UPDATE amiga_player_current SET elo_rank = CASE player_id '
-        . implode(' ', $caseParts)
-        . ' END WHERE player_id IN (' . implode(', ', $ids) . ')';
+    $updateSql = 'UPDATE amiga_player_current SET '
+        . 'elo_rank = CASE player_id ' . implode(' ', $caseRank) . ' END, '
+        . 'peak_elo_rank = CASE player_id ' . implode(' ', $casePeak) . ' END, '
+        . 'peak_elo_rank_tournament_id = CASE player_id ' . implode(' ', $casePeakTid) . ' END '
+        . 'WHERE player_id IN (' . implode(', ', $ids) . ')';
     if (!$con->query($updateSql)) {
-        throw new RuntimeException('update current elo_rank for non-participants: ' . $con->error);
+        throw new RuntimeException('update current elo rank + peak: ' . $con->error);
     }
 }

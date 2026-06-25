@@ -5,7 +5,7 @@
 
 **In scope (v1):** Solo rank-over-time chart on `/amiga/player/profile.php` · JSON API · scale/window controls · stepped line · time travel · Amiga only.
 
-**Out of scope (v1):** H2H rank compare · online realm · X date-range zoom · smart default algorithm · milestone annotations · explainer copy · percentile slider · new DB tables · git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" unless Dagh asks.
+**Out of scope (v1):** H2H rank compare · online realm · in-chart X date trim/zoom (full community `timelineStart` → today only) · smart default algorithm · milestone annotations · explainer copy · percentile slider · new DB tables · git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" unless Dagh asks.
 
 **Migration:** **L0** — read `amiga_player_elo_rank_at_event` only; **no Part B**.
 
@@ -30,7 +30,7 @@ Rank chart **must** match existing site chart conventions — do not invent para
 | Max width | `--k2-chart-max-width` (960px) | Panel + frame cap |
 | Frame height | `--k2-chart-frame-height` (271px default) | `.k2-chart-frame` fixed height; Chart.js `responsive: true`, `maintainAspectRatio: false` **inside frame** |
 | Canvas sizing | [`activity-charts.md`](activity-charts.md) | **No** `width: 100% !important` / `aspect-ratio` hacks on `<canvas>` |
-| Heading | [`design-direction.md`](design-direction.md) | `h3.k2-panel-heading` — e.g. **Elo rank**; **no** `k2-chart-block__hint` in v1 |
+| Heading | [`design-direction.md`](design-direction.md) | `h3.k2-panel-heading` — **Elo rank**; `k2-chart-block__hint` — end-of-day rank after each tournament day |
 | Status line | `player-feast-sections.css` | `pm3d-chart__status k2-chart-panel__status` |
 | Segment toggles | `pm3d-rating-toggle` / `pm3d-chart-toolbar` | Scale · window (contextual via `data-range-mode`); active = `.is-active` + `--k2-segment-active-*` |
 | Colours | `js/chart-theme.js` | Solo line: `T.lineStroke(T.amber(), 0.15)` — **same as rating chart**; not `linkStar()`, not pitch/chrome, not H2H red |
@@ -55,7 +55,9 @@ Rank chart **must** match existing site chart conventions — do not invent para
 
 Do not re-open without user. Full semantics in policy §2–§7.
 
-**Defaults on first load:** Linear scale · **Career** window · stepped line.
+**Defaults on first load:** Linear scale · **Career** Y window · stepped line · **full X** from community `timelineStart` (not player debut).
+
+**X-axis (locked Jun 2026):** Full Amiga ladder timeline only — `timelineStart` = first tournament day on `amiga_games` → end of today (or TT cutoff). **Not** player career span; Y toolbar **Career** does **not** trim X. No in-chart date zoom — sparse ~600 finalize points / ~25 years; product is happy with full X only.
 
 **Data:** `amiga_player_elo_rank_at_event` — all global finalizes after debut (~489 points Fabio #109 vs ~39 participation snapshots).
 
@@ -88,7 +90,8 @@ Server returns rank-at-event series; client loader mirrors `player-rating-histor
   - Order: `event_date ASC`, `event_chrono ASC`, `tournament_id ASC`
   - TT: omit rows `>` cutoff (same tuple order as `amiga_player_elo_rank_at_cutoff`)
   - Per point: `tournamentId`, `eventDate`, `eloRank`, `ladderSize` (count rows for `tournament_id`), `percentile` (policy R8), `tournamentName`
-  - `meta`: `careerBestRank`, `careerWorstRank`, `careerBestPercentile`, `careerWorstPercentile`, `ceiling`, `cutoffActive`, `timelineStart` (first point date or null)
+  - `meta`: `careerBestRank`, `careerWorstRank`, `careerBestPercentile`, `careerWorstPercentile`, `ceiling`, `cutoffActive`
+  - `timelineStart`: community ladder origin (`amiga_player_rating_timeline_start()` → `MIN(game_date)` on `amiga_games`) — chart X min, **not** first player rank point
 - [x] Create `site/public_html/api/player_rank_history.php`
   - `GET realm=amiga&id=` required; `as=` optional (wire from profile TT when present)
   - Reuse Amiga DB bootstrap pattern from `player_rating_history.php`
@@ -134,9 +137,9 @@ Empty chart panel on profile with correct chrome and script tags.
 - [x] `amiga_profile_render_rank_chart(int $playerId)` in [`amiga_profile_blocks.php`](../site/public_html/includes/amiga_profile_blocks.php)
   - Mirror rating block: section wrapper, `.player-rank-chart.k2-chart-panel`, `data-player-id`, `data-realm="amiga"`
   - `h3.k2-panel-heading` — **Elo rank**
+  - `p.k2-chart-block__hint` — end-of-day rank after each tournament day
   - `.pm3d-chart-toolbar` placeholder rows for toggles (slice 4 fills behaviour)
   - Status + `.k2-chart-frame` + canvas `aria-label="Elo rank over time"`
-  - **No** hint paragraph
 - [x] Call from [`amiga/player/profile.php`](../site/public_html/amiga/player/profile.php) below rating chart
 - [x] Enqueue scripts (after existing chart stack): `player-rank-history.js`, `player-rank-chart.js` with `filemtime` cache-bust
 - [x] Add `body.k2-site .player-rank-chart` to panel selector list in [`theme.css`](../site/public_html/stylesheets/theme.css)
@@ -162,7 +165,7 @@ One working chart: **Linear · Career · Stepped** (policy default).
   - Init on `.player-rank-chart` roots (same pattern as rating chart `initRoot`)
   - Load via `K2PlayerRankHistory`
   - Build `{ x: Date, y: rank | null, raw: {...} }` per point
-  - X: time scale; range from `meta.timelineStart` month start through end of current month (reuse `K2ChartDateRange.profileCareerTimeRange()` if compatible, else first point → last point + padding)
+  - X: time scale; **`timelineStart` month start → end of today** (`K2ChartDateRange.careerTimeRangeFromStart`) — community origin, not player debut; TT caps `xMax` at last point
   - Y: **inverted** linear rank — Career window (policy R13 padding)
   - Dataset: `T.lineStroke(T.amber(), 0.15)`, connected, `spanGaps: false`
   - Tooltip: date, tournament name, `#rank of N`, percentile one decimal
@@ -272,6 +275,7 @@ After slices 1–5 landed, a polish pass aligned toolbar, clip semantics, and do
 - **API meta:** `careerBestPercentile` / `careerWorstPercentile` for percentile Career window.
 - **CSS:** `player-feast-sections.css` window visibility rules; profile cache-bust via `filemtime`.
 - **Related:** `player-rating-chart.js` `readInitialView()` respects markup — Amiga profile opens **By date**.
+- **X-axis locked:** full community timeline from first Amiga tournament (`timelineStart`) — not player career; Y **Career** ≠ X trim; no in-chart date zoom — see policy §5.1 / R3.
 
 ---
 

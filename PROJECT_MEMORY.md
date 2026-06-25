@@ -120,6 +120,12 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Amiga profile rank chart grid** — `rankChartGrid()` (stronger than softGrid) so Y rank bands read at a glance. |
+| 2026-06-25 | **Amiga peak-rating LB dates** — **Peak date** (first snapshot event matching PeakRating) + **Peak rank date** (`peak_elo_rank_tournament_id`); not `PeakRatingGameID` (online per-game). |
+| 2026-06-25 | **Amiga peak Elo rank (SCH-041)** — `peak_elo_rank` + `peak_elo_rank_tournament_id` on timeline + `current`; writer in `elo_rank.py` / ops PHP; verify in `prove`; **Peak rank** column on peak-rating LB (TT via dense timeline). |
+| 2026-06-25 | **Amiga profile rank chart — X-axis locked** — full timeline from first Amiga tournament (`timelineStart` on `amiga_games`) → today; no in-chart zoom; Y **Career** is not an X trim (sparse ~600 finalize points / ~25 years). |
+| 2026-06-25 | **Amiga profile rank chart peak summary** — `Peak: #N` (linear) or `Peak: P%` (percentile) + date; first attainment on ties; mirrors rating chart strip. |
+| 2026-06-25 | **Amiga profile rank chart hint** — sub-heading under **Elo rank**: “End-of-day rank after each tournament day.” (`k2-chart-block__hint`). |
 | 2026-06-25 | **Amiga profile rank chart — post-ship tweak session** — Linear · Percentile only (log dropped); toolbar `data-range-mode` + Career-first band order; stepped-only line; transition edge-clip + empty-band axes (no status); percentile Career meta; Y-axis tick colour fix; policy/plan/profile-v0 updated. |
 | 2026-06-25 | **Amiga profile rating chart default** — `player-rating-chart.js` respects markup initial tab; Amiga profile opens **By date** (online profile still **By game #**). |
 | 2026-06-25 | **Header search + Amiga time travel** — `player-search.js` carries active `as=` on Amiga profile picks (T16); Online picks unchanged. |

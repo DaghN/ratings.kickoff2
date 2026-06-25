@@ -194,6 +194,15 @@ function k2_fmt_peak_rating(mixed $val, string $empty = '-'): string
 	return (string) (int) round((float) $val);
 }
 
+function k2_fmt_peak_elo_rank(mixed $val, string $empty = '—'): string
+{
+	if (k2_db_is_null($val) || (int) $val < 1) {
+		return $empty;
+	}
+
+	return '#' . (int) $val;
+}
+
 function k2_fmt_nadir_rating(mixed $val, float $sentinel = 5000.0, string $empty = '-'): string
 {
 	if (k2_db_is_null($val) || (float) $val >= $sentinel) {

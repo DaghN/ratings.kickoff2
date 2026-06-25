@@ -484,3 +484,90 @@ function amiga_lb_rating_delta_sort_value(?float $delta): string
 
     return (string) $rounded;
 }
+
+/**
+ * Scalar subquery: first tournament day when career PeakRating was first reached.
+ * Amiga commits rating at event finalize — not per-game (PeakRatingGameID is online-era).
+ */
+function amiga_lb_peak_rating_date_scalar_sql(string $peakRatingColumn = 's.PeakRating', ?string $cutoffTupleSql = null): string
+{
+    $cutoffFilter = $cutoffTupleSql !== null
+        ? ' AND (snap.event_date, snap.event_chrono, snap.tournament_id) <= ' . $cutoffTupleSql . ' '
+        : ' ';
+
+    return '(SELECT t.event_date FROM amiga_player_event_snapshots snap '
+        . 'INNER JOIN tournaments t ON t.id = snap.tournament_id '
+        . 'WHERE snap.player_id = p.id '
+        . 'AND ' . $peakRatingColumn . ' IS NOT NULL AND ' . $peakRatingColumn . ' > 0 '
+        . 'AND snap.PeakRating IS NOT NULL '
+        . 'AND ABS(snap.PeakRating - ' . $peakRatingColumn . ') < 0.001 '
+        . $cutoffFilter
+        . 'ORDER BY snap.event_date ASC, snap.event_chrono ASC, snap.tournament_id ASC '
+        . 'LIMIT 1) AS peak_rating_date';
+}
+
+/**
+ * Peak-rating wing — rating stats from snapshot/current; peak rank from dense timeline (TT-safe).
+ *
+ * @return mysqli_result
+ */
+function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mysqli_result
+{
+    $selectBase = 'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, '
+        . 's.PeakRating, s.LowestRating, s.AverageOpponentRating, s.HighestRatedVictim, s.LowestRatedCulprit, ';
+
+    if (!$ctx->isActive()) {
+        $sql = $selectBase
+            . amiga_lb_peak_rating_date_scalar_sql('s.PeakRating') . ', s.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
+            . 'FROM amiga_players p '
+            . 'INNER JOIN amiga_player_current s ON s.player_id = p.id '
+            . 'LEFT JOIN tournaments tpke ON tpke.id = s.peak_elo_rank_tournament_id '
+            . 'WHERE ' . amiga_lb_player_where_sql() . ' '
+            . 'ORDER BY s.PeakRating DESC, s.Rating DESC';
+
+        return k2_query_or_public_error($con, $sql, 'amiga peak rating leaderboard');
+    }
+
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        throw new RuntimeException('Active time travel context missing cutoff.');
+    }
+
+    $sql = $selectBase
+        . amiga_lb_peak_rating_date_scalar_sql('s.PeakRating', '(?, ?, ?)') . ', er.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
+        . amiga_lb_snapshot_from_sql('s')
+        . ' LEFT JOIN ('
+        . '    SELECT x.player_id, x.peak_elo_rank, x.peak_elo_rank_tournament_id FROM ('
+        . '        SELECT er.player_id, er.peak_elo_rank, er.peak_elo_rank_tournament_id,'
+        . '            ROW_NUMBER() OVER ('
+        . '                PARTITION BY er.player_id'
+        . '                ORDER BY er.event_date DESC, er.event_chrono DESC, er.tournament_id DESC'
+        . '            ) AS rn'
+        . '        FROM amiga_player_elo_rank_at_event er'
+        . '        WHERE (er.event_date, er.event_chrono, er.tournament_id) <= (?, ?, ?)'
+        . '    ) x WHERE x.rn = 1'
+        . ') er ON er.player_id = p.id '
+        . 'LEFT JOIN tournaments tpke ON tpke.id = er.peak_elo_rank_tournament_id '
+        . 'WHERE ' . amiga_lb_player_where_sql() . ' '
+        . 'ORDER BY s.PeakRating DESC, s.Rating DESC';
+
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga peak rating lb snapshot: ' . $con->error);
+    }
+
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = $cutoff['tournament_id'];
+    $stmt->bind_param('sdisdi', $eventDate, $chrono, $tournamentId, $eventDate, $chrono, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga peak rating lb snapshot: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    if ($result === false) {
+        throw new RuntimeException('result amiga peak rating lb snapshot: ' . $stmt->error);
+    }
+    $stmt->close();
+
+    return $result;
+}

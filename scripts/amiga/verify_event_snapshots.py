@@ -13,7 +13,7 @@ from scripts.amiga.generalstats_columns import (
     GEO_YEAR_PLAYER_COLUMNS,
     RECORD_RISE_PLAYER_COLUMNS,
 )
-from scripts.amiga.elo_rank import assign_elo_ranks
+from scripts.amiga.elo_rank import assign_elo_ranks, compute_peak_elo_rank
 from scripts.amiga.player_tournament_participation import _PLAYER_GAMES_ROLLUP_SQL
 from scripts.amiga.snapshot_row import (
     CAREER_COLUMNS,
@@ -258,6 +258,127 @@ def _verify_elo_ranks(conn: pymysql.connections.Connection) -> list[str]:
     return errors
 
 
+def _verify_peak_elo_ranks(conn: pymysql.connections.Connection) -> list[str]:
+    errors: list[str] = []
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_current
+            WHERE NumberGames > 0 AND peak_elo_rank IS NULL
+            """
+        )
+        null_current = int(cur.fetchone()["n"])
+        if null_current:
+            errors.append(f"current rows with games>0 but NULL peak_elo_rank: {null_current}")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_elo_rank_at_event
+            WHERE peak_elo_rank IS NULL
+            """
+        )
+        null_timeline = int(cur.fetchone()["n"])
+        if null_timeline:
+            errors.append(f"elo_rank_at_event rows with NULL peak_elo_rank: {null_timeline}")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_current c
+            INNER JOIN (
+                SELECT er.player_id, er.peak_elo_rank, er.peak_elo_rank_tournament_id,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY er.player_id
+                        ORDER BY er.event_date DESC, er.event_chrono DESC, er.tournament_id DESC
+                    ) AS rn
+                FROM amiga_player_elo_rank_at_event er
+            ) latest ON latest.player_id = c.player_id AND latest.rn = 1
+            WHERE c.NumberGames > 0 AND (
+                c.peak_elo_rank <> latest.peak_elo_rank
+                OR NOT (c.peak_elo_rank_tournament_id <=> latest.peak_elo_rank_tournament_id)
+            )
+            """
+        )
+        current_peak_mismatch = int(cur.fetchone()["n"])
+        if current_peak_mismatch:
+            errors.append(
+                f"current peak_elo_rank != latest timeline row: {current_peak_mismatch}"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_current c
+            LEFT JOIN tournaments t ON t.id = c.peak_elo_rank_tournament_id
+            WHERE c.peak_elo_rank_tournament_id IS NOT NULL AND t.id IS NULL
+            """
+        )
+        orphan_current_tid = int(cur.fetchone()["n"])
+        if orphan_current_tid:
+            errors.append(
+                f"current peak_elo_rank_tournament_id orphan FK: {orphan_current_tid}"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM amiga_player_elo_rank_at_event er
+            LEFT JOIN tournaments t ON t.id = er.peak_elo_rank_tournament_id
+            WHERE er.peak_elo_rank_tournament_id IS NOT NULL AND t.id IS NULL
+            """
+        )
+        orphan_timeline_tid = int(cur.fetchone()["n"])
+        if orphan_timeline_tid:
+            errors.append(
+                f"timeline peak_elo_rank_tournament_id orphan FK: {orphan_timeline_tid}"
+            )
+
+        cur.execute(
+            """
+            SELECT player_id, tournament_id, elo_rank, peak_elo_rank, peak_elo_rank_tournament_id
+            FROM amiga_player_elo_rank_at_event
+            ORDER BY player_id ASC, event_date ASC, event_chrono ASC, tournament_id ASC
+            """
+        )
+        all_rows = cur.fetchall()
+
+    mismatches = 0
+    current_player: int | None = None
+    running_peak: int | None = None
+    running_tid: int | None = None
+    for row in all_rows:
+        pid = int(row["player_id"])
+        if pid != current_player:
+            current_player = pid
+            running_peak = None
+            running_tid = None
+
+        rank = int(row["elo_rank"])
+        tid = int(row["tournament_id"])
+        exp_peak, exp_tid = compute_peak_elo_rank(rank, tid, running_peak, running_tid)
+        stored_peak = row.get("peak_elo_rank")
+        stored_tid = row.get("peak_elo_rank_tournament_id")
+        if (
+            stored_peak is None
+            or int(stored_peak) != exp_peak
+            or (None if stored_tid is None else int(stored_tid)) != exp_tid
+        ):
+            mismatches += 1
+            if mismatches <= _SAMPLE_LIMIT:
+                errors.append(
+                    f"peak_elo_rank oracle mismatch player_id={pid} tournament_id={tid} "
+                    f"stored=({stored_peak},{stored_tid}) expected=({exp_peak},{exp_tid})"
+                )
+        running_peak, running_tid = exp_peak, exp_tid
+
+    if mismatches > _SAMPLE_LIMIT:
+        errors.append(f"peak_elo_rank timeline oracle mismatches: {mismatches}")
+
+    return errors
+
+
 def verify_event_snapshots(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
 
@@ -437,6 +558,7 @@ def verify_event_snapshots(conn: pymysql.connections.Connection) -> list[str]:
             )
 
     errors.extend(_verify_elo_ranks(conn))
+    errors.extend(_verify_peak_elo_ranks(conn))
 
     return errors
 

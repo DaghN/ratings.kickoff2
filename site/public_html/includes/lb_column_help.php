@@ -42,6 +42,21 @@ function k2_lb_help_peak(): string
     return 'Your career high Elo after 20 rated games. Dash (—) until then.';
 }
 
+function k2_lb_help_peak_elo_rank(): string
+{
+    return 'Your best career ladder rank (lowest rank number). First attainment wins on ties.';
+}
+
+function k2_lb_help_peak_rating_date(): string
+{
+    return 'Tournament day when your peak rating was first reached (event finalize, not per-game).';
+}
+
+function k2_lb_help_peak_elo_rank_date(): string
+{
+    return 'Tournament day when your peak rank was first reached.';
+}
+
 function k2_lb_help_nadir(): string
 {
     return 'Your career low Elo after 20 rated games. Dash (—) until then.';

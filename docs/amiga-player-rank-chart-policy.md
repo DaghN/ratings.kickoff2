@@ -3,7 +3,7 @@
 **Status:** **Implemented** (Jun 2026) — slices 1–5 + **post-ship tweak session** (Jun 2026) complete local.  
 **Purpose:** Career **Elo rank over time** on Amiga player profile — one player, event-step timeline, rich scale/window controls. Complements the existing **rating** chart (skill signal); rank = position among the full historical ladder.
 
-**Non-goals (v1):** H2H rank compare · online realm · X-axis date-range zoom · smart default-picker algorithm · milestone annotations · explanatory copy blocks · percentile range slider (presets only).
+**Non-goals (v1):** H2H rank compare · online realm · **in-chart X-axis date trim / zoom** (full community timeline only — see §5.1) · smart default-picker algorithm · milestone annotations · explanatory copy blocks · percentile range slider (presets only).
 
 **Authority:** Rank persistence = [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · data contract = [`amiga-data-contract.md`](amiga-data-contract.md) · profile shell = [`amiga-profile-v0.md`](amiga-profile-v0.md) · time travel = [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · rating chart (parallel) = [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md)
 
@@ -27,8 +27,8 @@
 
 A **solo** rank-over-time line chart on `/amiga/player/profile.php`:
 
-- **X:** calendar **date** (one point per global finalize after player ladder debut)
-- **Y:** user picks **scale type** (linear rank · percentile) and **window** (scale-dependent)
+- **X:** calendar **date** — **full community timeline** from the **first tournament in Amiga ladder history** through today (see §5.1). **Not** trimmed to this player’s debut or to the Y **Career** window.
+- **Y:** user picks **scale type** (linear rank · percentile) and **window** (**Career** = personal Y band only — rank/percentile padding; **does not** change X)
 - **Line:** stepped only (rank constant between finalize points)
 - **Time travel:** truncate series at `?as=` cutoff (same habit as hero rank)
 
@@ -42,7 +42,7 @@ H2H rank overlay deferred.
 |---|----------|------|
 | **R1** | **Data source** | `amiga_player_elo_rank_at_event` only — **not** participation-only `amiga_player_event_snapshots` rows |
 | **R2** | **Point density** | One point per **global finalize** after the player first appears on the ladder (`NumberGames > 0`) |
-| **R3** | **X-axis** | **By date** only in v1 (no “by ladder step” toggle yet) |
+| **R3** | **X-axis** | **By date** only · **full community timeline** — `timelineStart` (first tournament day on `amiga_games`, shared with Amiga rating chart) through end of today. **Not** this player’s career span: a 2010 debut still sees X from ~2001; the line starts at their first finalize. **No** in-chart date trim/zoom (product default locked Jun 2026 — ~600 sparse finalize points over ~25 years). |
 | **R4** | **Scale types** | **Linear rank** · **Percentile** — primary control (log rank **dropped** Jun 2026 — redundant with linear + percentile) |
 | **R5** | **Linear Y windows** | Career · Top 20 · Top 50 · Top 100 · **Full ladder** (whole community) |
 | **R6** | **Band clip (linear / percentile)** | Out-of-window points hidden from tooltips; stepped line **clips at window edge on enter/exit only** (no flat run along edge while out of window) |
@@ -121,7 +121,8 @@ Optional: `as=` passthrough when profile is time-travelled (same param family as
     "careerWorstPercentile": 24.3,
     "ceiling": 473,
     "cutoffActive": false
-  }
+  },
+  "timelineStart": "2001-11-03"
 }
 ```
 
@@ -131,6 +132,7 @@ Optional: `as=` passthrough when profile is time-travelled (same param family as
 | `meta.ceiling` | `max(ladderSize)` over returned `points` |
 | `meta.careerBestRank` / `careerWorstRank` | Min/max `eloRank` over returned `points` |
 | `meta.careerBestPercentile` / `careerWorstPercentile` | Max/min `percentile` over returned `points` (percentile **Career** window) |
+| `timelineStart` | `MIN(game_date)` on `amiga_games` — **community** ladder origin (first tournament day in ground data) for chart **X min** (month start); same helper as Amiga rating chart. **Not** this player’s first rank point and **not** the Y **Career** window. |
 
 Errors: same family as `player_rating_history.php` (`invalid_id`, `player_not_found`, empty `points` when pre-debut at cutoff).
 
@@ -138,12 +140,24 @@ Errors: same family as `player_rating_history.php` (`invalid_id`, `player_not_fo
 
 ## 5. Chart semantics
 
-### 5.1 X-axis — by date
+### 5.1 X-axis — full community timeline (by date)
 
-- Time scale at finalize `event_date` (tie-break `event_chrono`, `tournament_id` for ordering — not for X position).
-- Calendar gaps are real (no participation ≠ flat rank — rank points still exist on those dates).
+**Product decision (locked Jun 2026):** Ship the rank chart with **one X range only** — the **full** calendar axis from the **first tournament in Amiga ladder history** through today (or time-travel cutoff). **No** in-chart date trim, pan, or zoom. We are **happy with this default**: Amiga rank history is sparse (~one finalize point per player, ~600 global events over ~25 years). The calendar already reads clearly without shrinking X (unlike dense daily-play sites).
 
-**Deferred:** “By ladder step” index · draggable date-range trim.
+**Do not confuse with Y “Career”:** The toolbar **Career** control is a **Y-window** (personal rank or percentile band + padding). It improves legibility of this player’s ups and downs. It **does not** narrow the X-axis. X is always the whole Amiga timeline.
+
+**What sets X min / max**
+
+| Bound | Source |
+|-------|--------|
+| **X min** | API `timelineStart` = `MIN(game_date)` on **`amiga_games`** — first tournament day in the ground dataset (~Nov 2001); month start via `K2ChartDateRange.careerTimeRangeFromStart()` (helper name is historical — value is **community** origin, not player career) |
+| **X max** | End of today (present) or last returned finalize date when time travel is active |
+
+**Line vs axis:** Rank **points** begin at this player’s first global finalize after debut. The **X-axis frame** still spans the full community timeline — empty calendar to the left of their first point is intentional context.
+
+**Points:** One x-position per global finalize after the player appears on the ladder (`event_date`; ordering tie-break `event_chrono`, `tournament_id`). Calendar gaps are real (no participation ≠ flat rank — rank points still exist on those dates).
+
+**Deferred (not v1):** “By ladder step” index · user-controlled X date-range trim (revisit only if a realm gains much denser series, e.g. daily online play).
 
 ### 5.2 Scale type × Y window matrix
 
@@ -159,7 +173,9 @@ Changing scale **resets or maps** the window control to valid options for that s
 - `y_min = 1`, `y_max = ceiling` (§2 R12).
 - Tooltip: `#135 of 177` — event-local **N**, not today’s ladder size.
 
-### 5.4 Linear — career (personal range)
+### 5.4 Linear — career (personal Y range only)
+
+**Y window only** — does not affect X (§5.1).
 
 - `y_min = career_best − pad`, `y_max = career_worst + pad`, clamped to `[1, ceiling]`.
 - Padding §2 R13. **Future refinement (not v1):** if career best is 18, optionally extend band to #1; v1 uses simple min/max + pad only.
@@ -194,18 +210,20 @@ Required per point:
 
 **Exclude from v1:** milestone callouts, “first top 10” labels, philosophy blurbs.
 
-### 5.9 Summary strip (optional, minimal)
+### 5.9 Summary strip
 
-If present: **Best · Current · Worst** rank (integers only). No dates in v1 unless trivial from existing peak pattern on rating chart.
+**Peak line** (mirrors rating chart): `Peak: #N on MMM d, yyyy.` in **linear** scale; `Peak: P% on …` in **percentile** scale. Best = lowest rank / highest percentile over the loaded series (TT-truncated when active). **Ties:** first chronological attainment (`>` / `<`, not `>=` / `<=`). Updates when scale toggles; independent of Y-window band (Top 20 etc.).
 
 ---
 
 ## 6. UI controls (toolbar)
 
+**Heading hint:** `k2-chart-block__hint` — “End-of-day rank after each tournament day.” (matches rating chart lede pattern.)
+
 **Tier 1 — always visible**
 
 1. Scale: Linear · Percentile  
-2. Y window (contextual):  
+2. Y window (contextual — **does not trim X**; full timeline §5.1):  
    - Linear → Career · Top 20 · Top 50 · Top 100 · Full ladder  
    - Percentile → Career · 95–100 · 90–100 · 80–100 · 50–100 · Full ladder  
 
@@ -265,7 +283,7 @@ Time travel: profile `?as=year:2003` — truncated series; hero rank matches las
 |------|-------|
 | H2H rank compare | Separate policy; band union rules; after solo v1 ships |
 | Online realm | After Amiga parity proof |
-| X-axis date-range zoom | User-controlled trim; ceiling rule already supports it |
+| X-axis date-range zoom | **Not planned for Amiga v1** — product default is **full community timeline** only (§5.1). Sparse finalize cadence (~600 events / ~25 years); Y **Career** is not an X trim. Revisit only with much denser series (e.g. online daily play). |
 | Percentile slider (Option B) | After presets feel good |
 | Career Y refinement | Extend band to #1 when career best > K |
 | Copy / annotation pass | Deliberate later pass — avoid clutter during dev |

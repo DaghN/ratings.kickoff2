@@ -799,6 +799,8 @@
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },
         grid: function () { return 'rgba(255, 255, 255, 0.08)'; },
         softGrid: function () { return 'rgba(255, 255, 255, 0.045)'; },
+        /** Profile rank chart — stronger than softGrid so Y band lines (#1, Top 20, etc.) read at a glance. */
+        rankChartGrid: function () { return 'rgba(255, 255, 255, 0.12)'; },
         fill: function (color, alpha) {
             return colorToRgba(color, alpha, color);
         },

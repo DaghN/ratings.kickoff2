@@ -46,10 +46,17 @@
         return chartOptions(Object.assign({}, gutter, extra || {}), chartKind || 'line');
     }
 
+    function rankChartGridColor() {
+        if (T && T.rankChartGrid) {
+            return T.rankChartGrid();
+        }
+        return T && T.grid ? T.grid() : 'rgba(255, 255, 255, 0.08)';
+    }
+
     function careerYScale(extra) {
         var base = {
             ticks: { color: T.tickColor() },
-            grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+            grid: { color: rankChartGridColor() }
         };
         var extraScale = extra || {};
         var scale = Object.assign({}, base, extraScale);
@@ -277,6 +284,49 @@
         });
     }
 
+    function peakPointFromHistory(points, scale) {
+        if (!points.length) {
+            return null;
+        }
+        var bestIdx = 0;
+        var bestVal = scale === 'percentile' ? points[0].percentile : points[0].eloRank;
+        for (var i = 1; i < points.length; i++) {
+            var v = scale === 'percentile' ? points[i].percentile : points[i].eloRank;
+            if (scale === 'percentile') {
+                if (v > bestVal) {
+                    bestVal = v;
+                    bestIdx = i;
+                }
+            } else if (v < bestVal) {
+                bestVal = v;
+                bestIdx = i;
+            }
+        }
+        return {
+            point: points[bestIdx],
+            display: scale === 'percentile' ? bestVal + '%' : '#' + bestVal
+        };
+    }
+
+    function renderPeakSummary(summary, points, scale) {
+        if (!summary) {
+            return;
+        }
+        var peak = peakPointFromHistory(points, scale);
+        if (!peak) {
+            summary.hidden = true;
+            return;
+        }
+        var whenDate = parseEventDate(peak.point.eventDate);
+        if (!whenDate) {
+            summary.hidden = true;
+            return;
+        }
+        summary.innerHTML = 'Peak: <span class="pm3-chart-peak-value">' + peak.display + '</span>'
+            + ' <span class="pm3d-chart__summary-note">on ' + formatTooltipDate(whenDate) + '.</span>';
+        summary.hidden = false;
+    }
+
     function buildChart(canvas, points, meta, timelineStart, state) {
         var domain = computeDomain(state.scale, state.linearWindow, state.percentileWindow, meta);
         var series = buildSeries(points, state.scale, domain);
@@ -349,7 +399,7 @@
                                 autoSkip: true,
                                 maxTicksLimit: 12
                             },
-                            grid: { color: T.softGrid ? T.softGrid() : T.grid() }
+                            grid: { color: rankChartGridColor() }
                         },
                         y: Object.assign({ title: { display: false } }, yAxisConfig(state.scale, domain))
                     }
@@ -385,6 +435,7 @@
     function renderChart(root, state) {
         var canvas = root.querySelector('.player-rank-canvas');
         var status = root.querySelector('.player-rank-chart-status');
+        var summary = root.querySelector('.player-rank-peak-summary');
         var frame = root.querySelector('.k2-chart-frame');
         if (!canvas || !state.data) {
             return;
@@ -395,6 +446,9 @@
         var points = state.data.points || [];
         var meta = state.data.meta || {};
         if (!points.length) {
+            if (summary) {
+                summary.hidden = true;
+            }
             if (status) {
                 status.textContent = meta.cutoffActive
                     ? 'Not on the ladder at this date.'
@@ -405,6 +459,8 @@
             }
             return;
         }
+
+        renderPeakSummary(summary, points, state.scale);
 
         var built = buildChart(canvas, points, meta, state.data.timelineStart, state);
         state.chart = built.chart;
