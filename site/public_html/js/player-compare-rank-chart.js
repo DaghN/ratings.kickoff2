@@ -91,13 +91,13 @@
                         stepped: true,
                         tension: 0,
                         pointRadius: 0,
-                        pointHoverRadius: 4,
+                        pointHoverRadius: 5,
                         pointHitRadius: 12,
                         borderColor: T.h2hSubjectBorder(),
                         backgroundColor: T.h2hSubjectFill(0.1),
                         borderWidth: 2,
                         fill: false
-                    }),
+                    }, T.h2hSubjectPointHover ? T.h2hSubjectPointHover() : {}),
                     Object.assign({
                         label: (opponentName || 'Opponent') + ' rank',
                         data: opponentData,
@@ -105,13 +105,13 @@
                         stepped: true,
                         tension: 0,
                         pointRadius: 0,
-                        pointHoverRadius: 4,
+                        pointHoverRadius: 5,
                         pointHitRadius: 12,
                         borderColor: T.h2hOpponentBorder(),
                         backgroundColor: T.h2hOpponentFill(0.1),
                         borderWidth: 2,
                         fill: false
-                    })
+                    }, T.h2hOpponentPointHover ? T.h2hOpponentPointHover() : {})
                 ]
             },
             options: Core.withCareerPlotGutter({

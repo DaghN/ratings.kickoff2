@@ -13,6 +13,106 @@
     var CTX = window.K2PlayerOpponentsH2hContext;
     var START_RATING = 1600;
     var HTML_TOOLTIP_ID = 'k2-compare-rating-html-tooltip';
+    var RATING_DATE_HOVER_RADIUS = 5;
+
+    function clearCompareRatingDateHoverMarkers(chart) {
+        if (!chart || !chart.$k2CompareRatingDateHover) {
+            return;
+        }
+        chart.$k2CompareRatingDateHover = null;
+    }
+
+    function ratingDateHoverMarkersFromPoints(points) {
+        return points.map(function (item) {
+            return {
+                y: item.markerY != null ? Number(item.markerY) : Number(item.parsed.y),
+                color: item.datasetIndex === 0 ? T.h2hSubjectBorder() : T.h2hOpponentBorder()
+            };
+        });
+    }
+
+    function compareRatingHoverPlugin() {
+        return {
+            id: 'k2CompareRatingHover',
+            afterDraw: function (chart) {
+                drawCompareRatingDateHoverMarkers(chart);
+            },
+            afterEvent: function (chart, args) {
+                var event = args.event;
+                if (!chart.tooltip || typeof chart.tooltip.update !== 'function') {
+                    return;
+                }
+                if (event.type === 'mouseout' || event.type === 'mouseleave') {
+                    clearCompareRatingDateHoverMarkers(chart);
+                    if (typeof chart.setActiveElements === 'function') {
+                        chart.setActiveElements([]);
+                    }
+                    chart.draw();
+                    return;
+                }
+                if (event.type !== 'mousemove' && event.type !== 'touchmove') {
+                    return;
+                }
+                var area = chart.chartArea;
+                if (!area
+                    || event.x < area.left || event.x > area.right
+                    || event.y < area.top || event.y > area.bottom) {
+                    clearCompareRatingDateHoverMarkers(chart);
+                    chart.draw();
+                    return;
+                }
+                chart.tooltip.update(true);
+            }
+        };
+    }
+
+    function drawCompareRatingDateHoverMarkers(chart) {
+        var state = chart.$k2CompareRatingDateHover;
+        var ctx = chart.ctx;
+        var yScale = chart.scales.y;
+        var i;
+        var marker;
+        var py;
+        if (!state || !state.markers || !state.markers.length || !ctx || !yScale) {
+            return;
+        }
+        for (i = 0; i < state.markers.length; i++) {
+            marker = state.markers[i];
+            py = yScale.getPixelForValue(marker.y);
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(state.caretX, py, RATING_DATE_HOVER_RADIUS, 0, Math.PI * 2);
+            ctx.fillStyle = marker.color;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = marker.color;
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    function syncCompareRatingDateHoverMarkers(chart, caretX, points) {
+        if (!chart || !points || !points.length) {
+            clearCompareRatingDateHoverMarkers(chart);
+            return;
+        }
+        chart.$k2CompareRatingDateHover = {
+            caretX: caretX,
+            markers: ratingDateHoverMarkersFromPoints(points)
+        };
+        if (typeof chart.setActiveElements === 'function') {
+            chart.setActiveElements([]);
+        }
+        if (!chart.$k2RatingHoverRedraw) {
+            chart.$k2RatingHoverRedraw = true;
+            requestAnimationFrame(function () {
+                chart.$k2RatingHoverRedraw = false;
+                if (chart && !chart.destroyed) {
+                    chart.draw();
+                }
+            });
+        }
+    }
 
     function escapeHtml(text) {
         return String(text)
@@ -47,19 +147,22 @@
         return el;
     }
 
-    function buildCompareTooltipTitle(items, isGame, eventMode, hoverMs) {
+    function buildCompareTooltipTitle(items, isGame, eventMode, hoverMs, hoverX) {
         var pt;
         if (!items.length) {
             return '';
         }
         if (isGame) {
             pt = items[0].raw || {};
-            if (pt.isOrigin) {
+            var idx = hoverX != null && isFinite(hoverX)
+                ? Math.max(0, Math.floor(hoverX + 1e-6))
+                : items[0].parsed.x;
+            if (pt.isOrigin && idx <= 0) {
                 return eventMode
                     ? 'Tournament #0 — starting rating'
                     : 'Game #0 — starting rating';
             }
-            return (eventMode ? 'Tournament #' : 'Game #') + items[0].parsed.x;
+            return (eventMode ? 'Tournament #' : 'Game #') + idx;
         }
         if (DR && DR.formatCompareDateTooltipTitle) {
             return DR.formatCompareDateTooltipTitle(hoverMs);
@@ -101,7 +204,7 @@
         return color;
     }
 
-    function bindCompareRatingExternalTooltip(isGame, eventMode) {
+    function bindCompareRatingExternalTooltip(isGame, eventMode, lineStyle) {
         return function (context) {
             var tooltipEl = getOrCreateCompareRatingTooltip();
             var tooltip = context.tooltip;
@@ -109,6 +212,7 @@
             var points;
             var title;
             var resolved;
+            var stepped = lineStyle === 'stepped';
             if (!tooltip) {
                 tooltipEl.hidden = true;
                 return;
@@ -117,21 +221,57 @@
                 resolved = DR.resolveCompareRatingDateTooltipItems(chart, tooltip.caretX);
                 points = resolved.items;
                 if (!points.length) {
+                    if (typeof chart.setActiveElements === 'function') {
+                        chart.setActiveElements([]);
+                    }
+                    clearCompareRatingDateHoverMarkers(chart);
+                    if (!chart.$k2RatingHoverRedraw) {
+                        chart.$k2RatingHoverRedraw = true;
+                        requestAnimationFrame(function () {
+                            chart.$k2RatingHoverRedraw = false;
+                            if (chart && !chart.destroyed) {
+                                chart.draw();
+                            }
+                        });
+                    }
                     tooltipEl.hidden = true;
                     return;
                 }
-                title = buildCompareTooltipTitle(points, false, eventMode, resolved.hoverMs);
+                title = buildCompareTooltipTitle(points, false, eventMode, resolved.hoverMs, null);
+            } else if (isGame && DR && DR.resolveCompareRatingGameTooltipItems) {
+                resolved = DR.resolveCompareRatingGameTooltipItems(chart, tooltip.caretX, stepped);
+                points = resolved.items;
+                if (!points.length) {
+                    if (typeof chart.setActiveElements === 'function') {
+                        chart.setActiveElements([]);
+                    }
+                    clearCompareRatingDateHoverMarkers(chart);
+                    if (!chart.$k2RatingHoverRedraw) {
+                        chart.$k2RatingHoverRedraw = true;
+                        requestAnimationFrame(function () {
+                            chart.$k2RatingHoverRedraw = false;
+                            if (chart && !chart.destroyed) {
+                                chart.draw();
+                            }
+                        });
+                    }
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                title = buildCompareTooltipTitle(points, true, eventMode, null, resolved.hoverX);
             } else {
                 if (tooltip.opacity === 0) {
+                    clearCompareRatingDateHoverMarkers(chart);
                     tooltipEl.hidden = true;
                     return;
                 }
                 points = tooltip.dataPoints || [];
                 if (!points.length) {
+                    clearCompareRatingDateHoverMarkers(chart);
                     tooltipEl.hidden = true;
                     return;
                 }
-                title = buildCompareTooltipTitle(points, isGame, eventMode, null);
+                title = buildCompareTooltipTitle(points, isGame, eventMode, null, null);
             }
             var bodyHtml = points.map(function (item) {
                 var line = isGame
@@ -149,10 +289,24 @@
                 + '<div class="k2-chart-html-tooltip__body">' + bodyHtml + '</div>';
             tooltipEl.hidden = false;
 
+            var caretX = tooltip.caretX;
+            var caretY = tooltip.caretY;
+            if (points.length) {
+                syncCompareRatingDateHoverMarkers(chart, caretX, points);
+                if (DR.compareDateTooltipHigherAnchorPixelY) {
+                    var anchorPixelY = DR.compareDateTooltipHigherAnchorPixelY(chart, points);
+                    if (anchorPixelY != null) {
+                        caretY = anchorPixelY;
+                    }
+                }
+            } else {
+                clearCompareRatingDateHoverMarkers(chart);
+            }
+
             var canvas = context.chart.canvas;
             var rect = canvas.getBoundingClientRect();
-            var left = rect.left + tooltip.caretX;
-            var top = rect.top + tooltip.caretY;
+            var left = rect.left + caretX;
+            var top = rect.top + caretY;
             tooltipEl.style.left = left + 'px';
             tooltipEl.style.top = top + 'px';
             tooltipEl.style.opacity = '1';
@@ -166,16 +320,6 @@
             }
             return r.json();
         });
-    }
-
-    function formatToolbarGamesLine(player, opponent, eventMode) {
-        var playerName = player.playerName || 'Player';
-        var opponentName = opponent.playerName || 'Opponent';
-        var playerCount = player.points ? player.points.length : 0;
-        var opponentCount = opponent.points ? opponent.points.length : 0;
-        var unit = eventMode ? 'events' : 'games';
-        return playerCount + ' ' + playerName + ' ' + unit + ' \u00b7 '
-            + opponentCount + ' ' + opponentName + ' ' + unit;
     }
 
     function historyIsEventGranularity(data, realm) {
@@ -354,9 +498,9 @@
         return Object.assign({ responsive: true, maintainAspectRatio: false }, extra || {});
     }
 
-    function createChart(canvas, config) {
+    function createChart(canvas, config, chartKind) {
         if (T && T.createActivityChart) {
-            return T.createActivityChart(canvas, config, 'line');
+            return T.createActivityChart(canvas, config, chartKind || 'line');
         }
         return new Chart(canvas, config);
     }
@@ -364,13 +508,21 @@
     function setActiveView(root, view, state) {
         var dateView = root.querySelector('.player-compare-rating-view--date');
         var gameView = root.querySelector('.player-compare-rating-view--game');
-        var buttons = root.querySelectorAll('.pm3d-rating-toggle__btn');
+        var viewToggle = root.querySelector('.player-compare-rating-chart__view');
+        var lineStyleToggle = root.querySelector('.player-compare-rating-chart__line-style');
+        var viewButtons = viewToggle
+            ? viewToggle.querySelectorAll('.pm3d-rating-toggle__btn[data-view]')
+            : [];
         var activeChart;
-        for (var i = 0; i < buttons.length; i++) {
-            var btn = buttons[i];
+        var i;
+        for (i = 0; i < viewButtons.length; i++) {
+            var btn = viewButtons[i];
             var active = btn.getAttribute('data-view') === view;
             btn.classList.toggle('is-active', active);
             btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+        if (lineStyleToggle) {
+            lineStyleToggle.hidden = false;
         }
         if (dateView) {
             dateView.hidden = view !== 'date';
@@ -378,12 +530,65 @@
         if (gameView) {
             gameView.hidden = view !== 'game';
         }
-        if (view === 'game' && !state.gameChart && state.latestConfig) {
-            state.gameChart = renderChart(state.gameCanvas, state.latestConfig, 'game');
+        if (view === 'date' && state.latestConfig) {
+            refreshDateChart(state);
+        } else if (view === 'game' && state.latestConfig) {
+            refreshGameChart(state);
         }
         activeChart = view === 'game' ? state.gameChart : state.dateChart;
         if (activeChart && typeof activeChart.resize === 'function') {
             activeChart.resize();
+        }
+    }
+
+    function setLineStyleToggle(root, style) {
+        var lineStyleToggle = root.querySelector('.player-compare-rating-chart__line-style');
+        if (!lineStyleToggle) {
+            return;
+        }
+        var buttons = lineStyleToggle.querySelectorAll('.pm3d-rating-toggle__btn[data-line-style]');
+        for (var i = 0; i < buttons.length; i++) {
+            var btn = buttons[i];
+            var active = btn.getAttribute('data-line-style') === style;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+    }
+
+    function refreshDateChart(state) {
+        if (!state.latestConfig || !state.dateCanvas) {
+            return;
+        }
+        if (state.dateChart) {
+            state.dateChart.destroy();
+            state.dateChart = null;
+        }
+        state.dateChart = renderChart(state.dateCanvas, state.latestConfig, 'date');
+    }
+
+    function refreshGameChart(state) {
+        if (!state.latestConfig || !state.gameCanvas) {
+            return;
+        }
+        if (state.gameChart) {
+            state.gameChart.destroy();
+            state.gameChart = null;
+        }
+        state.gameChart = renderChart(state.gameCanvas, state.latestConfig, 'game');
+    }
+
+    function refreshInactiveChart(state) {
+        if (!state.latestConfig) {
+            return;
+        }
+        if (state.activeView === 'game') {
+            if (state.dateChart) {
+                state.dateChart.destroy();
+                state.dateChart = null;
+            }
+        } else if (state.gameChart) {
+            state.gameChart.destroy();
+            state.gameChart = null;
         }
     }
 
@@ -465,10 +670,9 @@
             };
         }
 
-        var eventStepped = !isGame && cfg.eventMode;
-        var datePointHitRadius = isGame ? 0 : 12;
-
-        return createChart(canvas, {
+        var lineStyle = cfg.lineStyle || cfg.dateLineStyle || 'smooth';
+        var lineStepped = lineStyle === 'stepped';
+        var chartConfig = {
             type: 'line',
             data: {
                 datasets: [
@@ -479,11 +683,11 @@
                         backgroundColor: T.h2hSubjectFill(0.1),
                         borderWidth: 2,
                         pointRadius: 0,
-                        pointHoverRadius: 4,
-                        pointHitRadius: datePointHitRadius,
+                        pointHoverRadius: 0,
+                        pointHitRadius: 12,
                         fill: false,
-                        stepped: eventStepped,
-                        tension: eventStepped ? 0 : 0.1
+                        stepped: lineStepped,
+                        tension: lineStepped ? 0 : 0.1
                     },
                     {
                         label: (cfg.opponent.playerName || cfg.opponentName || 'Opponent') + ' rating',
@@ -492,29 +696,24 @@
                         backgroundColor: T.h2hOpponentFill(0.1),
                         borderWidth: 2,
                         pointRadius: 0,
-                        pointHoverRadius: 4,
-                        pointHitRadius: datePointHitRadius,
+                        pointHoverRadius: 0,
+                        pointHitRadius: 12,
                         fill: false,
-                        stepped: eventStepped,
-                        tension: eventStepped ? 0 : 0.1
+                        stepped: lineStepped,
+                        tension: lineStepped ? 0 : 0.1
                     }
                 ]
             },
             options: chartOptions({
-                interaction: isGame
-                    ? { mode: 'index', intersect: false }
-                    : { mode: 'nearest', axis: 'x', intersect: false },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
                     legend: {
                         labels: { color: T.textPrimary() }
                     },
                     tooltip: T.mergeTooltip({
                         enabled: false,
-                        external: bindCompareRatingExternalTooltip(isGame, eventMode)
-                    }),
-                    k2CompareDateTooltipBridge: (!isGame && DR && DR.compareDateTooltipBridgePlugin)
-                        ? DR.compareDateTooltipBridgePlugin()
-                        : undefined
+                        external: bindCompareRatingExternalTooltip(isGame, eventMode, lineStyle)
+                    })
                 },
                 scales: {
                     x: xScale,
@@ -523,8 +722,11 @@
                         grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     }
                 }
-            }, 'line')
-        }, 'line');
+            }, 'line'),
+            plugins: [compareRatingHoverPlugin()]
+        };
+
+        return createChart(canvas, chartConfig, 'line');
     }
 
     function initRoot(root) {
@@ -536,10 +738,10 @@
         var dateCanvas = root.querySelector('.player-compare-rating-canvas--date');
         var gameCanvas = root.querySelector('.player-compare-rating-canvas--game');
         var status = root.querySelector('.player-compare-rating-chart-status');
-        var toolbarMeta = root.querySelector('.player-compare-rating-toolbar-meta');
         var subjectPeakSummary = root.querySelector('.player-compare-rating-peak-subject');
         var opponentPeakSummary = root.querySelector('.player-compare-rating-peak-opponent');
-        var toggle = root.querySelector('.pm3d-rating-toggle');
+        var viewToggle = root.querySelector('.player-compare-rating-chart__view');
+        var lineStyleToggle = root.querySelector('.player-compare-rating-chart__line-style');
         var state = {
             dateChart: null,
             gameChart: null,
@@ -547,6 +749,7 @@
             gameCanvas: gameCanvas,
             latestConfig: null,
             activeView: 'date',
+            lineStyle: 'smooth',
             realm: CTX ? CTX.realmFrom(root) : 'online'
         };
 
@@ -555,12 +758,6 @@
                 status.textContent = 'Chart library failed to load.';
             }
             return;
-        }
-
-        function setToolbarMeta(text) {
-            if (toolbarMeta) {
-                toolbarMeta.textContent = text || '';
-            }
         }
 
         function setHeading(opponentLabel) {
@@ -582,7 +779,6 @@
             if (status) {
                 status.textContent = 'Loading rating comparison…';
             }
-            setToolbarMeta('');
 
             var compareUrl = API_PATH + '?id=' + encodeURIComponent(playerId)
                 + '&opponent=' + encodeURIComponent(opponentId)
@@ -636,7 +832,6 @@
                     }
 
                     setHeading(opponent.playerName || opponentName);
-                    setToolbarMeta(formatToolbarGamesLine(player, opponent, eventMode));
 
                     if (state.realm === 'amiga') {
                         renderRatingPeakSummary(
@@ -682,6 +877,7 @@
                         playerGameData: playerGameData,
                         opponentGameData: opponentGameData,
                         eventMode: eventMode,
+                        lineStyle: state.lineStyle,
                         realm: state.realm,
                         timelineStart: timelineStart
                     };
@@ -710,11 +906,11 @@
             }
         }
 
-        if (toggle) {
-            toggle.addEventListener('click', function (evt) {
-                var btn = evt.target.closest('.pm3d-rating-toggle__btn');
+        if (viewToggle) {
+            viewToggle.addEventListener('click', function (evt) {
+                var btn = evt.target.closest('.pm3d-rating-toggle__btn[data-view]');
                 var view;
-                if (!btn || !root.contains(btn)) {
+                if (!btn || !viewToggle.contains(btn)) {
                     return;
                 }
                 view = btn.getAttribute('data-view');
@@ -723,6 +919,31 @@
                 }
                 state.activeView = view;
                 setActiveView(root, view, state);
+            });
+        }
+
+        if (lineStyleToggle) {
+            lineStyleToggle.addEventListener('click', function (evt) {
+                var btn = evt.target.closest('.pm3d-rating-toggle__btn[data-line-style]');
+                var style;
+                if (!btn || !lineStyleToggle.contains(btn)) {
+                    return;
+                }
+                style = btn.getAttribute('data-line-style');
+                if (!style || style === state.lineStyle) {
+                    return;
+                }
+                state.lineStyle = style;
+                setLineStyleToggle(root, style);
+                if (state.latestConfig) {
+                    state.latestConfig.lineStyle = style;
+                    if (state.activeView === 'game') {
+                        refreshGameChart(state);
+                    } else {
+                        refreshDateChart(state);
+                    }
+                    refreshInactiveChart(state);
+                }
             });
         }
     }

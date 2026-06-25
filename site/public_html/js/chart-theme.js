@@ -794,6 +794,23 @@
         /** H2H pair charts: opponent = table-negative red (not T.magenta()). */
         h2hOpponentBorder: function () { return this.tableNegative(); },
         h2hOpponentFill: function (alpha) { return this.fill(this.tableNegative(), alpha == null ? 0.12 : alpha); },
+        /** H2H compare hover dots — match line ink (chrome / table-negative). */
+        h2hSubjectPointHover: function () {
+            var color = this.h2hSubjectBorder();
+            return {
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: color,
+                pointHoverBorderWidth: 2
+            };
+        },
+        h2hOpponentPointHover: function () {
+            var color = this.h2hOpponentBorder();
+            return {
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: color,
+                pointHoverBorderWidth: 2
+            };
+        },
         textPrimary: function () { return cssVar('--k2-text-primary', '#d0d7de'); },
         textSecondary: function () { return cssVar('--k2-text-secondary', '#a8b3bf'); },
         textMuted: function () { return cssVar('--k2-text-muted', '#8b949e'); },

@@ -576,6 +576,9 @@
                 resolved = DR.resolveCompareRankDateTooltipItems(chart, tooltip.caretX);
                 points = resolved.items;
                 if (!points.length) {
+                    if (typeof chart.setActiveElements === 'function') {
+                        chart.setActiveElements([]);
+                    }
                     tooltipEl.hidden = true;
                     return;
                 }
@@ -588,6 +591,9 @@
                     return item.raw && !item.raw.clipped && item.raw.y != null;
                 });
                 if (!points.length) {
+                    if (typeof chart.setActiveElements === 'function') {
+                        chart.setActiveElements([]);
+                    }
                     tooltipEl.hidden = true;
                     return;
                 }
@@ -607,6 +613,13 @@
                 + escapeHtml(title) + '</div>'
                 + '<div class="k2-chart-html-tooltip__body">' + bodyHtml + '</div>';
             tooltipEl.hidden = false;
+
+            if (DR && points.length && typeof chart.setActiveElements === 'function') {
+                chart.setActiveElements(
+                    DR.compareDateTooltipActiveElements(points),
+                    { x: tooltip.caretX, y: tooltip.caretY }
+                );
+            }
 
             var canvas = context.chart.canvas;
             var rect = canvas.getBoundingClientRect();

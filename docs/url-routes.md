@@ -180,7 +180,14 @@ Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?s
 
 ### Amiga hub tabs (present order)
 
-News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology/`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Activity · Hall of Fame.
+News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology/`) · **Countries** (`/amiga/countries/index.php`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · **Countries** · Activity · Hall of Fame.
+
+| Route key | Path |
+|-----------|------|
+| `amiga-countries` | `/amiga/countries/index.php` |
+| `amiga-countries-roster` | `/amiga/countries/roster.php?country={token}` |
+
+Policy: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
 
 ---
 

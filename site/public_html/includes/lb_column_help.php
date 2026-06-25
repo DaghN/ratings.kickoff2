@@ -607,6 +607,16 @@ function k2_lb_help_amiga_wc_country_participations(): string
         . 'seven players from the same country in the same event counts 7.';
 }
 
+function k2_lb_help_amiga_countries_wc_entries_index(): string
+{
+    return k2_lb_help_amiga_wc_country_participations();
+}
+
+function k2_lb_help_amiga_countries_games_per_player(): string
+{
+    return 'Career rated games divided by the number of distinct players from this country.';
+}
+
 function k2_lb_help_amiga_wc_country_participations_per_player(): string
 {
     return 'WC participations divided by the number of distinct players from this country.';

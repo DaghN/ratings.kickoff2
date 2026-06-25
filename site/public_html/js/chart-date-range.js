@@ -176,6 +176,143 @@
     }
 
     /**
+     * Stepped or connected rating on a linear x-axis at hoverX.
+     * @param {Array<Object>} data sorted by x
+     * @param {number} hoverX
+     * @param {boolean} stepped
+     * @return {number|null}
+     */
+    function ratingYAtLinearIndex(data, hoverX, stepped) {
+        if (!data || !data.length || !isFinite(hoverX)) {
+            return null;
+        }
+        var last = null;
+        var next = null;
+        var i;
+        for (i = 0; i < data.length; i++) {
+            var pt = data[i];
+            if (!pt || pt.y == null || pt.x == null) {
+                continue;
+            }
+            var px = Number(pt.x);
+            if (!isFinite(px)) {
+                continue;
+            }
+            if (px <= hoverX) {
+                last = pt;
+            }
+            if (px >= hoverX && !next) {
+                next = pt;
+            }
+        }
+        if (!last) {
+            return next ? Number(next.y) : null;
+        }
+        if (stepped || !next || last.x === next.x || Number(last.x) === hoverX) {
+            return Number(last.y);
+        }
+        var t = (hoverX - Number(last.x)) / (Number(next.x) - Number(last.x));
+        return Number(last.y) + t * (Number(next.y) - Number(last.y));
+    }
+
+    /**
+     * H2H compare on linear x (game # / tournament #): one value per dataset at hover x.
+     *
+     * @return {{hoverX: number, items: Array<Object>}}
+     */
+    function resolveCompareIndexTooltipItems(chart, caretX, opts) {
+        var empty = { hoverX: NaN, items: [] };
+        if (!chart || !opts || caretX == null) {
+            return empty;
+        }
+        var area = chart.chartArea;
+        if (!area || caretX < area.left || caretX > area.right) {
+            return empty;
+        }
+        var xScale = chart.scales && chart.scales.x;
+        if (!xScale || typeof xScale.getValueForPixel !== 'function') {
+            return empty;
+        }
+        var hoverX = Number(xScale.getValueForPixel(caretX));
+        if (!isFinite(hoverX)) {
+            return empty;
+        }
+        var items = [];
+        var ds;
+        for (ds = 0; ds < chart.data.datasets.length; ds++) {
+            var dataset = chart.data.datasets[ds];
+            var meta = chart.getDatasetMeta(ds);
+            if (!meta || meta.hidden) {
+                continue;
+            }
+            var best = null;
+            var i;
+            for (i = 0; i < meta.data.length; i++) {
+                var pt = dataset.data[i];
+                if (!pt || !opts.acceptDatasetPoint(pt)) {
+                    continue;
+                }
+                var px = Number(pt.x);
+                if (!isFinite(px) || px > hoverX) {
+                    continue;
+                }
+                var order = opts.orderFromPoint(pt);
+                if (!best || px > best.px || (px === best.px && order > best.order)) {
+                    best = {
+                        pt: pt,
+                        px: px,
+                        order: order,
+                        index: i,
+                        element: meta.data[i]
+                    };
+                }
+            }
+            if (best) {
+                items.push(opts.buildTooltipItem(
+                    chart,
+                    best.pt,
+                    best.element,
+                    dataset,
+                    ds,
+                    best.index,
+                    hoverX
+                ));
+            }
+        }
+        return { hoverX: hoverX, items: items };
+    }
+
+    /**
+     * @return {{hoverX: number, items: Array<Object>}}
+     */
+    function resolveCompareRatingGameTooltipItems(chart, caretX, stepped) {
+        return resolveCompareIndexTooltipItems(chart, caretX, {
+            acceptDatasetPoint: function (pt) {
+                return !!(pt && pt.y != null && pt.x != null);
+            },
+            orderFromPoint: function (pt) {
+                return (Number(pt.eventNumber) || Number(pt.gameNumber) || 0) * 1000000
+                    + (Number(pt.tournamentId) || Number(pt.gameId) || 0);
+            },
+            buildTooltipItem: function (chart, pt, element, dataset, datasetIndex, index, hoverX) {
+                var lineY = ratingYAtLinearIndex(dataset.data, hoverX, stepped);
+                var displayY = lineY != null ? lineY : pt.y;
+                return {
+                    chart: chart,
+                    dataset: dataset,
+                    datasetIndex: datasetIndex,
+                    index: index,
+                    parsed: { x: Number(pt.x), y: displayY },
+                    raw: pt,
+                    formattedValue: String(Math.round(displayY)),
+                    element: element,
+                    markerY: displayY
+                };
+            }
+        });
+    }
+
+    /**
      * H2H compare-by-date external tooltip: one stepped value per dataset at hover x.
      * Same calendar day with multiple finalizes → latest event that day; else last point at/before hover.
      *
@@ -326,6 +463,48 @@
         });
     }
 
+    function compareDateTooltipActiveElements(points) {
+        var out = [];
+        var i;
+        for (i = 0; i < points.length; i++) {
+            out.push({
+                datasetIndex: points[i].datasetIndex,
+                index: points[i].index
+            });
+        }
+        return out;
+    }
+
+    function compareDateTooltipHigherAnchorY(points) {
+        if (!points || !points.length) {
+            return null;
+        }
+        var anchor = points[0];
+        var i;
+        for (i = 1; i < points.length; i++) {
+            if (Number(points[i].parsed.y) > Number(anchor.parsed.y)) {
+                anchor = points[i];
+            }
+        }
+        return anchor.element ? anchor.element.y : null;
+    }
+
+    /** Canvas Y for tooltip anchor — from line value, not stored point pixel (rating by-date). */
+    function compareDateTooltipHigherAnchorPixelY(chart, points) {
+        if (!points || !points.length || !chart || !chart.scales || !chart.scales.y) {
+            return null;
+        }
+        var yScale = chart.scales.y;
+        var best = points[0];
+        var i;
+        for (i = 1; i < points.length; i++) {
+            if (Number(points[i].parsed.y) > Number(best.parsed.y)) {
+                best = points[i];
+            }
+        }
+        return yScale.getPixelForValue(best.parsed.y);
+    }
+
     function compareDateTooltipBridgePlugin() {
         return {
             id: 'k2CompareDateTooltipBridge',
@@ -335,6 +514,13 @@
                     return;
                 }
                 if (event.type === 'mouseout' || event.type === 'mouseleave') {
+                    if (typeof chart.setActiveElements === 'function') {
+                        chart.setActiveElements([]);
+                    }
+                    if (chart.$k2CompareRatingDateHover) {
+                        chart.$k2CompareRatingDateHover = null;
+                        chart.draw();
+                    }
                     return;
                 }
                 if (event.type !== 'mousemove' && event.type !== 'touchmove') {
@@ -366,6 +552,12 @@
         resolveCompareDateTooltipItems: resolveCompareDateTooltipItems,
         resolveCompareRankDateTooltipItems: resolveCompareRankDateTooltipItems,
         resolveCompareRatingDateTooltipItems: resolveCompareRatingDateTooltipItems,
+        resolveCompareRatingGameTooltipItems: resolveCompareRatingGameTooltipItems,
+        resolveCompareIndexTooltipItems: resolveCompareIndexTooltipItems,
+        ratingYAtLinearIndex: ratingYAtLinearIndex,
+        compareDateTooltipActiveElements: compareDateTooltipActiveElements,
+        compareDateTooltipHigherAnchorY: compareDateTooltipHigherAnchorY,
+        compareDateTooltipHigherAnchorPixelY: compareDateTooltipHigherAnchorPixelY,
         compareDateTooltipBridgePlugin: compareDateTooltipBridgePlugin
     };
 }(typeof window !== 'undefined' ? window : this));

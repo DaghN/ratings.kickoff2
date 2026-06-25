@@ -103,11 +103,14 @@ function player_opponents_render_h2h_matchup_charts(
 		<h3 class="pm3d-matchups__subtitle player-compare-rating-chart-heading"><?php echo k2_h($ratingHeading); ?></h3>
 		<div class="player-compare-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>">
 			<div class="pm3d-chart-toolbar">
-				<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating comparison chart view">
+				<div class="pm3d-rating-toggle player-compare-rating-chart__view" role="tablist" aria-label="Rating comparison chart view">
 					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
 					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game"><?php echo k2_h($gameToggleLabel); ?></button>
 				</div>
-				<p class="player-compare-rating-toolbar-meta pm3d-chart__opponent"></p>
+				<div class="pm3d-rating-toggle player-compare-rating-chart__line-style" role="tablist" aria-label="Rating line style">
+					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line-style="smooth">Connected</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line-style="stepped">Stepwise</button>
+				</div>
 			</div>
 			<p class="player-compare-rating-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>
 			<div class="player-compare-rating-view player-compare-rating-view--date">

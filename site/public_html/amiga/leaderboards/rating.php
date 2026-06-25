@@ -107,7 +107,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 <?php if ($showDeltaColumn) { ?>
         <td<?php echo k2_lb_td($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h(amiga_lb_rating_delta_sort_value($delta)); ?>"><?php echo amiga_lb_rating_delta_cell($delta); ?></td>
 <?php } ?>
-        <td<?php echo k2_lb_td($colCountry, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h((string) ($row['Country'] ?? '')); ?>"><?php echo k2_amiga_country_table_cell((string) ($row['Country'] ?? '')); ?></td>
+        <td<?php echo k2_lb_td($colCountry, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h((string) ($row['Country'] ?? '')); ?>"><?php echo k2_amiga_country_table_cell((string) ($row['Country'] ?? ''), true); ?></td>
         <td<?php echo k2_lb_td($colGames, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td($colWins, $lbSort); ?>><?php echo k2_fmt_count($row['NumberWins'], $games); ?></td>
         <td<?php echo k2_lb_td($colDraws, $lbSort); ?>><?php echo k2_fmt_count($row['NumberDraws'], $games); ?></td>

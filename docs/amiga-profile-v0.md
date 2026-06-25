@@ -65,8 +65,8 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 
 ## Hub navigation (v0)
 
-- **`includes/amiga_hub_nav.php`** — segment tabs: **News** (`/amiga/news.php`, realm default), **Leaderboards** (`/amiga/leaderboards/rating.php`), **Tournaments**, **Live tournaments**, **Activity** (`/amiga/activity.php`, placeholder), **Hall of Fame**. Tournament honours is a leaderboard sub-wing only (no top-level hub tab). Included on hub-level pages only (not player profile/games). Tint picker matches online hub.
-- Set `$k2AmigaHubTabActive` before include: `leaderboards` | `tournaments` | `live-tournaments` | `hall-of-fame`.
+- **`includes/amiga_hub_nav.php`** — segment tabs: **News** (realm default), **Leaderboards**, **World Cups**, **Countries**, **Activity**, **Hall of Fame**, **Tournaments**, **Live tournaments**. Tournament honours is a leaderboard sub-wing only. Included on hub-level pages only (not player profile/games).
+- Set `$k2AmigaHubTabActive` before include: `leaderboards` | `world-cups` | `countries` | `activity` | `tournaments` | `live-tournaments` | `hall-of-fame`.
 
 ## Files
 

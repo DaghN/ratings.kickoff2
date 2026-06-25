@@ -1,12 +1,12 @@
 # Amiga Countries hub — policy
 
-**Status:** **Policy locked** (Jun 2026) — not yet implemented.
+**Status:** **Shipped** (Jun 2026) — slices CH-1–CH-6.
 
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 country token)
 
 **Related:** [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) (WC-only nation roll-ups — sibling surface) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`url-routes.md`](url-routes.md) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md)
 
-**Implementation plan:** TBD — add [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) before slice 0.
+**Implementation plan:** [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) — slices CH-1–CH-6.
 
 ---
 

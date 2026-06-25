@@ -91,12 +91,14 @@ $heroFlagMeta = $heroCountry !== '' ? k2_amiga_country_flag_meta($heroCountry) :
 					<span class="k2-player-hero__stat-label">Country</span>
 					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--country"><?php
                     if ($heroFlagMeta !== null) {
-                        ?><span class="k2-player-hero__country-flag"><?php
+                        require_once __DIR__ . '/amiga_countries_lib.php';
+                        $heroCountryHref = k2_amiga_country_roster_href($heroCountry);
+                        ?><a class="k2-country-roster-link k2-player-hero__country-link" href="<?php echo htmlspecialchars($heroCountryHref, ENT_QUOTES, 'UTF-8'); ?>" aria-label="Players from <?php echo htmlspecialchars($heroFlagMeta['label'], ENT_QUOTES, 'UTF-8'); ?>"><span class="k2-player-hero__country-flag"><?php
                         echo k2_amiga_country_flag_img($heroCountry, [
                             'class' => 'k2-player-hero__country-flag-img',
                             'decorative' => false,
                         ]);
-                        ?></span><?php
+                        ?></span></a><?php
                     } else {
                         echo htmlspecialchars($heroCountry, ENT_QUOTES, 'UTF-8');
                     }

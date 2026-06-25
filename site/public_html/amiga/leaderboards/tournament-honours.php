@@ -67,7 +67,7 @@ foreach ($honoursRows as $row) {
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($playerId, (string) $row['player_name']); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['rating']); ?></td>
-        <td<?php echo k2_lb_td(3, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h((string) ($row['country'] ?? '')); ?>"><?php echo k2_amiga_country_table_cell((string) ($row['country'] ?? '')); ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h((string) ($row['country'] ?? '')); ?>"><?php echo k2_amiga_country_table_cell((string) ($row['country'] ?? ''), true); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo (int) $row['tournaments_played']; ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo (int) $row['event_gold']; ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo (int) $row['event_silver']; ?></td>

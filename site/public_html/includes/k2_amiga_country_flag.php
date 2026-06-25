@@ -74,14 +74,30 @@ function k2_amiga_country_flag_img(string $country, array $opts = []): string
 }
 
 /** Flag image for table cells; falls back to escaped country name when unmapped. */
-function k2_amiga_country_table_cell(string $country): string
+function k2_amiga_country_table_cell(string $country, bool $link = false): string
 {
+    $country = trim($country);
     $flag = k2_amiga_country_flag_img($country, ['decorative' => false]);
     if ($flag !== '') {
-        return $flag;
+        $inner = $flag;
+    } else {
+        $inner = $country !== '' ? k2_h($country) : '';
     }
 
-    return k2_h($country);
+    if ($inner === '') {
+        return '';
+    }
+
+    if ($link && $country !== '') {
+        require_once __DIR__ . '/amiga_countries_lib.php';
+        $meta = k2_amiga_country_flag_meta($country);
+        $label = $meta !== null ? $meta['label'] : $country;
+        $href = k2_amiga_country_roster_href($country);
+
+        return '<a class="k2-country-roster-link" href="' . k2_h($href) . '" aria-label="Players from ' . k2_h($label) . '">' . $inner . '</a>';
+    }
+
+    return $inner;
 }
 
 /** Flag cell; em dash when country is empty (e.g. tournament host unknown). */
@@ -100,11 +116,11 @@ function k2_amiga_country_table_cell_or_dash(string $country): string
  *
  * @return string opening <td ...> through cell contents (caller closes </td>)
  */
-function k2_lb_td_country_open(int $colIndex, array $sort, string $country): string
+function k2_lb_td_country_open(int $colIndex, array $sort, string $country, bool $link = true): string
 {
     require_once __DIR__ . '/k2_table_helpers.php';
 
     return '<td' . k2_lb_td($colIndex, $sort, 'k2-table-cell--center')
         . ' data-k2-sort-value="' . k2_h($country) . '">'
-        . k2_amiga_country_table_cell($country);
+        . k2_amiga_country_table_cell($country, $link);
 }

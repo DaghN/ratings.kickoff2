@@ -3773,6 +3773,56 @@ body.k2-site a.k2-player-hero__avatar-link:focus {
 	object-fit: cover;
 }
 
+.k2-country-hero {
+	margin: 0 1.25rem var(--k2-nav-gap);
+	padding: 16px 18px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-surface-raised);
+}
+
+.k2-country-hero__inner {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.k2-country-hero__flag img {
+	display: block;
+	width: 56px;
+	height: 42px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: 2px;
+	object-fit: cover;
+}
+
+.k2-country-hero__title {
+	margin: 0 0 6px;
+	font-family: var(--k2-font-display);
+	font-size: 22px;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-country-hero__summary {
+	margin: 0;
+	font-size: 14px;
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site a.k2-country-roster-link,
+body.k2-site a.k2-country-roster-link:visited,
+body.k2-site a.k2-country-roster-link:hover,
+body.k2-site a.k2-country-roster-link:active,
+body.k2-site a.k2-country-roster-link:focus {
+	text-decoration: none;
+	color: inherit;
+}
+
+body.k2-site a.k2-player-hero__country-link:hover .k2-player-hero__country-flag {
+	box-shadow: 0 0 0 1px var(--k2-link-star);
+}
+
 .k2-player-hero__name {
 	margin: 0 0 12px;
 	font-family: var(--k2-font-display);
