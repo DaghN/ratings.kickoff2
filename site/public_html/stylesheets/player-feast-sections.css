@@ -645,6 +645,28 @@ body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped:focus-visible {
 	margin: 0;
 }
 
+body.k2-site .player-rank-chart__toolbar {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+body.k2-site .player-rank-chart__toolbar-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 16px;
+}
+
+/* Range controls: one band set visible per scale (see data-range-mode on toolbar). */
+body.k2-site .player-rank-chart__toolbar[data-range-mode="linear"] .player-rank-chart__percentile-window {
+	display: none !important;
+}
+
+body.k2-site .player-rank-chart__toolbar[data-range-mode="percentile"] .player-rank-chart__window {
+	display: none !important;
+}
+
 .pm3d-matchups,
 .pm3d-top-opponents {
 	display: flex;

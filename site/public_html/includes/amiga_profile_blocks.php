@@ -706,28 +706,29 @@ function amiga_profile_render_rank_chart(int $playerId): void
 <section class="k2-amiga-profile-chart" style="padding:0 1.25rem 2rem">
 	<div class="player-rank-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rank</h3>
-		<div class="pm3d-chart-toolbar">
-			<div class="pm3d-rating-toggle player-rank-chart__scale" role="tablist" aria-label="Rank chart scale">
-				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-scale="linear">Linear</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-scale="log">Log</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-scale="percentile">Percentile</button>
+		<div class="pm3d-chart-toolbar player-rank-chart__toolbar" data-range-mode="linear">
+			<div class="player-rank-chart__toolbar-row">
+				<div class="pm3d-rating-toggle player-rank-chart__scale" role="tablist" aria-label="Rank chart scale">
+					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-scale="linear">Linear</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-scale="percentile">Percentile</button>
+				</div>
 			</div>
-			<div class="pm3d-rating-toggle player-rank-chart__window" role="tablist" aria-label="Rank chart Y window">
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top20">Top 20</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top50">Top 50</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top100">Top 100</button>
-				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-window="career">Career</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="community">Full ladder</button>
-			</div>
-			<div class="pm3d-rating-toggle player-rank-chart__percentile-window" role="tablist" aria-label="Percentile Y window" hidden>
-				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-pwindow="full">Full</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p50">50–100</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p90">90–100</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p95">95–100</button>
-			</div>
-			<div class="pm3d-rating-toggle player-rank-chart__line" role="tablist" aria-label="Rank chart line style">
-				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line="connected">Connected</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line="stepped">Stepped</button>
+			<div class="player-rank-chart__toolbar-row player-rank-chart__range-row">
+				<div class="pm3d-rating-toggle player-rank-chart__window" role="tablist" aria-label="Rank chart Y window">
+					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-window="career">Career</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top20">Top 20</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top50">Top 50</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="top100">Top 100</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-window="community">Full ladder</button>
+				</div>
+				<div class="pm3d-rating-toggle player-rank-chart__percentile-window" role="tablist" aria-label="Percentile Y window">
+					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-pwindow="career">Career</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p95">95–100</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p90">90–100</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p80">80–100</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="p50">50–100</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-pwindow="community">Full ladder</button>
+				</div>
 			</div>
 		</div>
 		<p class="player-rank-chart-status pm3d-chart__status k2-chart-panel__status">Loading rank history…</p>

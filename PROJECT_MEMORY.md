@@ -120,6 +120,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-25 | **Amiga profile rank chart — post-ship tweak session** — Linear · Percentile only (log dropped); toolbar `data-range-mode` + Career-first band order; stepped-only line; transition edge-clip + empty-band axes (no status); percentile Career meta; Y-axis tick colour fix; policy/plan/profile-v0 updated. |
+| 2026-06-25 | **Amiga profile rating chart default** — `player-rating-chart.js` respects markup initial tab; Amiga profile opens **By date** (online profile still **By game #**). |
 | 2026-06-25 | **Header search + Amiga time travel** — `player-search.js` carries active `as=` on Amiga profile picks (T16); Online picks unchanged. |
 | 2026-06-25 | **Amiga tournament folder URLs** — `amiga/tournament/{event-stats,standings,stages,games}.php?id=`; shared `includes/amiga_tournament_page.php`; legacy `tournament.php?view=` 302; `index.php` redirect-only (not a nav tab). |
 | 2026-06-25 | **Amiga tournament default tab** — all events open on **Event stats** (leftmost); ordinary standings nav uses `standings.php` (WC → `stages.php`). |

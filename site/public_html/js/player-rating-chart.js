@@ -486,6 +486,21 @@
         }, 'line');
     }
 
+    function readInitialView(root) {
+        var toggle = root.querySelector('.pm3d-rating-toggle');
+        if (!toggle) {
+            return 'game';
+        }
+        var activeBtn = toggle.querySelector('.pm3d-rating-toggle__btn.is-active[data-view]');
+        if (activeBtn) {
+            var view = activeBtn.getAttribute('data-view');
+            if (view === 'date' || view === 'game') {
+                return view;
+            }
+        }
+        return 'game';
+    }
+
     function setActiveView(root, view, state) {
         var dateView = root.querySelector('.player-rating-view--date');
         var gameView = root.querySelector('.player-rating-view--game');
@@ -553,13 +568,15 @@
             status.textContent = 'Loading rating history…';
         }
 
+        var initialView = readInitialView(root);
+
         var state = {
             dateChart: null,
             gameChart: null,
             gameChartData: [],
             peakValue: null,
             timelineStart: null,
-            activeView: 'game',
+            activeView: initialView,
             eventMode: false
         };
 
@@ -652,7 +669,7 @@
                     realm,
                     state.timelineStart
                 );
-                setActiveView(root, 'game', state);
+                setActiveView(root, state.activeView, state);
             })
             .catch(function () {
                 if (status) {

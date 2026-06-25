@@ -114,6 +114,8 @@ function amiga_player_rank_history_points(
  * @return array{
  *   careerBestRank: int|null,
  *   careerWorstRank: int|null,
+ *   careerBestPercentile: float|null,
+ *   careerWorstPercentile: float|null,
  *   ceiling: int|null,
  *   cutoffActive: bool
  * }
@@ -124,6 +126,8 @@ function amiga_player_rank_history_meta(array $points, bool $cutoffActive): arra
         return [
             'careerBestRank' => null,
             'careerWorstRank' => null,
+            'careerBestPercentile' => null,
+            'careerWorstPercentile' => null,
             'ceiling' => null,
             'cutoffActive' => $cutoffActive,
         ];
@@ -132,14 +136,23 @@ function amiga_player_rank_history_meta(array $points, bool $cutoffActive): arra
     $best = $points[0]['eloRank'];
     $worst = $points[0]['eloRank'];
     $ceiling = $points[0]['ladderSize'];
+    $bestPercentile = (float) $points[0]['percentile'];
+    $worstPercentile = (float) $points[0]['percentile'];
 
     foreach ($points as $point) {
         $rank = $point['eloRank'];
+        $percentile = (float) $point['percentile'];
         if ($rank < $best) {
             $best = $rank;
         }
         if ($rank > $worst) {
             $worst = $rank;
+        }
+        if ($percentile > $bestPercentile) {
+            $bestPercentile = $percentile;
+        }
+        if ($percentile < $worstPercentile) {
+            $worstPercentile = $percentile;
         }
         if ($point['ladderSize'] > $ceiling) {
             $ceiling = $point['ladderSize'];
@@ -149,6 +162,8 @@ function amiga_player_rank_history_meta(array $points, bool $cutoffActive): arra
     return [
         'careerBestRank' => $best,
         'careerWorstRank' => $worst,
+        'careerBestPercentile' => $bestPercentile,
+        'careerWorstPercentile' => $worstPercentile,
         'ceiling' => $ceiling,
         'cutoffActive' => $cutoffActive,
     ];

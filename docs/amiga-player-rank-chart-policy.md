@@ -1,6 +1,6 @@
 # Amiga player rank chart — policy (profile solo)
 
-**Status:** **Implemented** (Jun 2026) — solo profile chart slices 1–5 complete local.  
+**Status:** **Implemented** (Jun 2026) — slices 1–5 + **post-ship tweak session** (Jun 2026) complete local.  
 **Purpose:** Career **Elo rank over time** on Amiga player profile — one player, event-step timeline, rich scale/window controls. Complements the existing **rating** chart (skill signal); rank = position among the full historical ladder.
 
 **Non-goals (v1):** H2H rank compare · online realm · X-axis date-range zoom · smart default-picker algorithm · milestone annotations · explanatory copy blocks · percentile range slider (presets only).
@@ -28,8 +28,8 @@
 A **solo** rank-over-time line chart on `/amiga/player/profile.php`:
 
 - **X:** calendar **date** (one point per global finalize after player ladder debut)
-- **Y:** user picks **scale type** (linear rank · log rank · percentile) and **window** (scale-dependent)
-- **Line:** connected (default) or stepped (toggle)
+- **Y:** user picks **scale type** (linear rank · percentile) and **window** (scale-dependent)
+- **Line:** stepped only (rank constant between finalize points)
 - **Time travel:** truncate series at `?as=` cutoff (same habit as hero rank)
 
 H2H rank overlay deferred.
@@ -43,21 +43,20 @@ H2H rank overlay deferred.
 | **R1** | **Data source** | `amiga_player_elo_rank_at_event` only — **not** participation-only `amiga_player_event_snapshots` rows |
 | **R2** | **Point density** | One point per **global finalize** after the player first appears on the ladder (`NumberGames > 0`) |
 | **R3** | **X-axis** | **By date** only in v1 (no “by ladder step” toggle yet) |
-| **R4** | **Scale types** | **Linear rank** · **Log rank** · **Percentile** — peer primary control |
-| **R5** | **Linear Y windows** | Top 20 · Top 50 · Top 100 · **Career** (personal range) · **Whole community** |
-| **R6** | **Band clip (linear)** | Outside selected band → **no line** (`null` y, `spanGaps: false`); line **starts** at first in-band point |
-| **R7** | **Log Y domain** | **Whole-community ceiling** only in v1 (`1 … max ladder_size` over displayed series) |
-| **R8** | **Percentile formula** | `100 × (N − rank + 1) / N` where `N = ladder_size` at that event (higher = better) |
-| **R9** | **Percentile Y window** | Presets only v1: **Full (0–100)** · **50–100** · **90–100** · **95–100**; custom slider = later |
-| **R10** | **Line interpolation** | **Connected** default · **Stepped** toggle |
-| **R11** | **Y direction** | Rank **#1 at top** (inverted axis on linear/log rank) |
-| **R12** | **Ceiling** | `Y_max = max(ladder_size)` over the **displayed** series (supports future date trim) |
-| **R13** | **Career window padding** | `y_min = career_best − pad`, `y_max = career_worst + pad`, clamp to `[1, ceiling]`; `pad = max(5, min(20, round(0.05 × span)))` |
-| **R14** | **Default on load** | Linear · **Career** window · Connected — no smart algorithm in v1 |
-| **R15** | **Realm** | **Amiga only** v1 |
-| **R16** | **Time travel** | Points with `(event_date, chrono, tournament_id) > cutoff` omitted; pre-debut → empty chart + status (align hero pre-debut) |
-| **R17** | **Copy / annotations** | **Minimal** — tooltips + empty-band status only; no milestone markers or explainer paragraphs in v1 |
-| **R18** | **Placement** | Profile page, exact block TBD; mirror `k2-chart-panel` / toolbar patterns from rating chart |
+| **R4** | **Scale types** | **Linear rank** · **Percentile** — primary control (log rank **dropped** Jun 2026 — redundant with linear + percentile) |
+| **R5** | **Linear Y windows** | Career · Top 20 · Top 50 · Top 100 · **Full ladder** (whole community) |
+| **R6** | **Band clip (linear / percentile)** | Out-of-window points hidden from tooltips; stepped line **clips at window edge on enter/exit only** (no flat run along edge while out of window) |
+| **R7** | **Percentile formula** | `100 × (N − rank + 1) / N` where `N = ladder_size` at that event (higher = better) |
+| **R8** | **Percentile Y window** | Presets: **Career** · **95–100** · **90–100** · **80–100** · **50–100** · **Full ladder**; custom slider = later |
+| **R9** | **Line interpolation** | **Stepped** only — rank constant between finalize points |
+| **R10** | **Y direction** | Rank **#1 at top** on linear; percentile rises upward (higher percentile at top) |
+| **R11** | **Ceiling** | `Y_max = max(ladder_size)` over the **displayed** series (supports future date trim) |
+| **R12** | **Career window padding** | Rank: `y_min = career_best − pad`, `y_max = career_worst + pad`, clamp to `[1, ceiling]`; percentile career uses same % padding habit; `pad = max(5, min(20, round(0.05 × span)))` on rank span |
+| **R13** | **Default on load** | Linear · **Career** window — no smart algorithm in v1 |
+| **R14** | **Realm** | **Amiga only** v1 |
+| **R15** | **Time travel** | Points with `(event_date, chrono, tournament_id) > cutoff` omitted; pre-debut → empty chart + status (align hero pre-debut) |
+| **R16** | **Copy / annotations** | **Minimal** — in-band tooltips only; **no** status text when a band/window has zero in-range points (empty chart with axes); pre-debut / no history still use status line |
+| **R17** | **Placement** | Profile page, exact block TBD; mirror `k2-chart-panel` / toolbar patterns from rating chart |
 
 ---
 
@@ -72,7 +71,7 @@ H2H rank overlay deferred.
 | `player_id` | Filter |
 | `tournament_id` | Identity + TT ordering |
 | `event_date`, `event_chrono` | X-axis + cutoff |
-| `elo_rank` | Y (linear / log input) |
+| `elo_rank` | Y (linear rank input) |
 | (derived) `ladder_size` | Count of rows for same `tournament_id` in this table — **N** for tooltip and percentile |
 
 **Why not snapshots alone:** participation snapshots omit finalizes where the player did not play; rank still changes. Example (local): Fabio #109 — **39** snapshot rows vs **489** rank-at-event rows.
@@ -118,6 +117,8 @@ Optional: `as=` passthrough when profile is time-travelled (same param family as
   "meta": {
     "careerBestRank": 1,
     "careerWorstRank": 135,
+    "careerBestPercentile": 100.0,
+    "careerWorstPercentile": 24.3,
     "ceiling": 473,
     "cutoffActive": false
   }
@@ -129,6 +130,7 @@ Optional: `as=` passthrough when profile is time-travelled (same param family as
 | `percentile` | Precomputed server-side from §2 R8 (client may recompute for sanity) |
 | `meta.ceiling` | `max(ladderSize)` over returned `points` |
 | `meta.careerBestRank` / `careerWorstRank` | Min/max `eloRank` over returned `points` |
+| `meta.careerBestPercentile` / `careerWorstPercentile` | Max/min `percentile` over returned `points` (percentile **Career** window) |
 
 Errors: same family as `player_rating_history.php` (`invalid_id`, `player_not_found`, empty `points` when pre-debut at cutoff).
 
@@ -147,9 +149,8 @@ Errors: same family as `player_rating_history.php` (`invalid_id`, `player_not_fo
 
 | Scale | Y window options (v1) | Domain |
 |-------|----------------------|--------|
-| **Linear rank** | Top 20 · Top 50 · Top 100 · Career · Whole community | See §5.3–§5.4 |
-| **Log rank** | *(none — implicit whole community)* | `log(1) … log(ceiling)`; display tick labels as rank integers at powers / nice steps |
-| **Percentile** | Full · 50–100 · 90–100 · 95–100 | Linear 0–100 (or selected preset sub-range); **#1 at top** = high percentile at top |
+| **Linear rank** | Career · Top 20 · Top 50 · Top 100 · Full ladder | See §5.3–§5.5 |
+| **Percentile** | Career · 95–100 · 90–100 · 80–100 · 50–100 · Full ladder | Linear 0–100 (or selected preset / career sub-range); higher percentile at top |
 
 Changing scale **resets or maps** the window control to valid options for that scale (no “Top 20” under percentile).
 
@@ -166,31 +167,24 @@ Changing scale **resets or maps** the window control to valid options for that s
 ### 5.5 Linear — Top K bands (20 / 50 / 100)
 
 - Display domain: `1 … K` (inverted).
-- Plot: `null` when `elo_rank > K`; first visible segment starts at first point with `elo_rank ≤ K`.
-- **Empty state:** player never ≤ K — status text e.g. `Not in top 20 at any recorded event` (no fake line).
+- Plot: out-of-band points participate in **edge clip** only (§2 R6); first in-band segment starts at first point with `elo_rank ≤ K`.
+- **Empty band:** player never ≤ K — render **empty chart** (axes + grid, no line, **no** status copy).
 
-### 5.6 Log rank
-
-- Transform: `y = log(rank)` for rank ≥ 1.
-- Domain: **1 … ceiling** only (whole-community max **N** over series) — v1 simplification §2 R7.
-- Same point series as linear; only axis transform changes.
-
-### 5.7 Percentile
+### 5.6 Percentile
 
 - `y = 100 × (N − rank + 1) / N`.
-- **Full:** 0–100 (or 100–0 if inverted to match #1-at-top — pick one convention in implementation and keep tooltips consistent).
-- **Presets:** clamp axis to sub-range; line clipped at preset bounds if needed.
+- **Career:** personal percentile span + padding (from `meta.careerBestPercentile` / `careerWorstPercentile`).
+- **Presets / Full ladder:** clamp axis to sub-range; same edge-clip habit as linear when out of preset.
 
-### 5.8 Line style
+### 5.7 Line style
 
 | Mode | Chart.js / behaviour |
 |------|---------------------|
-| **Connected** (default) | `stepped: false`; optional light `tension` to match rating chart |
-| **Stepped** | `stepped: true` — rank constant between finalize points |
+| **Stepped** | `stepped: true` — rank constant between finalize points; edge clip on band/window exit (§2 R6) |
 
-No claim of intra-event rank movement in either mode.
+No claim of intra-event rank movement.
 
-### 5.9 Tooltips (v1)
+### 5.8 Tooltips (v1)
 
 Required per point:
 
@@ -200,7 +194,7 @@ Required per point:
 
 **Exclude from v1:** milestone callouts, “first top 10” labels, philosophy blurbs.
 
-### 5.10 Summary strip (optional, minimal)
+### 5.9 Summary strip (optional, minimal)
 
 If present: **Best · Current · Worst** rank (integers only). No dates in v1 unless trivial from existing peak pattern on rating chart.
 
@@ -210,18 +204,16 @@ If present: **Best · Current · Worst** rank (integers only). No dates in v1 un
 
 **Tier 1 — always visible**
 
-1. Scale: Linear · Log · Percentile  
+1. Scale: Linear · Percentile  
 2. Y window (contextual):  
-   - Linear → Top 20 · Top 50 · Top 100 · Career · Whole community  
-   - Log → *(hidden or single label “Full ladder”)*  
-   - Percentile → Full · 50–100 · 90–100 · 95–100  
-3. Line: Connected · Stepped  
+   - Linear → Career · Top 20 · Top 50 · Top 100 · Full ladder  
+   - Percentile → Career · 95–100 · 90–100 · 80–100 · 50–100 · Full ladder  
 
 **Tier 2 — deferred**
 
-- Smart default picker · X date-range · percentile slider · H2H compare · ladder-step X-axis · career band extended to #1 when best > 20
+- Log rank scale · Connected line toggle · smart default picker · X date-range · percentile slider · H2H compare · ladder-step X-axis · career band extended to #1 when best > 20
 
-Mirror segment-control styling from `player-feast-sections.css` / `pm3d-rating-toggle` where practical.
+Mirror segment-control styling from `player-feast-sections.css` / `pm3d-rating-toggle` where practical. Toolbar uses **`data-range-mode`** on `.player-rank-chart__toolbar` (`linear` | `percentile`) so only the matching window row is visible (CSS — not `hidden` on individual toggles alone).
 
 ---
 
@@ -243,9 +235,9 @@ Use local `ko2amiga_db` after `prove` / export.
 
 | Player | ID | Check |
 |--------|-----|-------|
-| **Fabio F** | 109 | Whole community: early ~#135 of ~177; elite plateau; Top 20 line starts once ≤20; Log spans full ceiling; percentile Full shows ~24% → ~100% |
-| **Darren G** | 84 | Career: ~#57–#308 readable; Top 20 empty state; recent flat ~#304; percentile Full ~36% stable recent years |
-| **Never top 100** | TBD id | Top 20 / Top 50 empty status, not a crash |
+| **Fabio F** | 109 | Full ladder: early ~#135 of ~177; elite plateau; Top 20 band once ≤20; percentile Career shows personal % span |
+| **Darren G** | 84 | Career: ~#57–#308 readable; Top 20 → **empty chart** (no status text); percentile Career ~36% span |
+| **Never top 100** | TBD id | Top 20 / Top 50 → empty chart with axes, not a crash |
 
 Time travel: profile `?as=year:2003` — truncated series; hero rank matches last point.
 

@@ -1,5 +1,5 @@
 /**
- * Amiga profile career rank chart — date X, linear / log / percentile Y.
+ * Amiga profile career rank chart — date X, linear / percentile Y.
  * Expects K2PlayerRankHistory, K2ChartTheme, K2ChartDateRange, Chart.js + date adapter.
  */
 (function () {
@@ -16,10 +16,11 @@
     };
 
     var PERCENTILE_RANGES = {
-        full: [0, 100],
-        p50: [50, 100],
+        p95: [95, 100],
         p90: [90, 100],
-        p95: [95, 100]
+        p80: [80, 100],
+        p50: [50, 100],
+        community: [0, 100]
     };
 
     function parseEventDate(dateStr) {
@@ -46,10 +47,15 @@
     }
 
     function careerYScale(extra) {
-        var scale = Object.assign({
+        var base = {
             ticks: { color: T.tickColor() },
             grid: { color: T.softGrid ? T.softGrid() : T.grid() }
-        }, extra || {});
+        };
+        var extraScale = extra || {};
+        var scale = Object.assign({}, base, extraScale);
+        if (extraScale.ticks) {
+            scale.ticks = Object.assign({}, base.ticks, extraScale.ticks);
+        }
         return T && T.careerChartYAxisOptions ? T.careerChartYAxisOptions(scale) : scale;
     }
 
@@ -91,16 +97,35 @@
         return range;
     }
 
+    function percentileCareerPadding(best, worst) {
+        var span = Math.max(0, best - worst);
+        var pad = Math.round(0.05 * span);
+        if (pad < 2) {
+            pad = 2;
+        }
+        if (pad > 10) {
+            pad = 10;
+        }
+        return pad;
+    }
+
     function computeDomain(scale, linearWindow, percentileWindow, meta) {
         var ceiling = meta && meta.ceiling ? meta.ceiling : 1;
         var best = meta && meta.careerBestRank ? meta.careerBestRank : 1;
         var worst = meta && meta.careerWorstRank ? meta.careerWorstRank : ceiling;
 
-        if (scale === 'log') {
-            return { kind: 'log', min: 1, max: ceiling, ceiling: ceiling };
-        }
         if (scale === 'percentile') {
-            var pr = PERCENTILE_RANGES[percentileWindow] || PERCENTILE_RANGES.full;
+            if (percentileWindow === 'career') {
+                var bestPct = meta && meta.careerBestPercentile != null ? meta.careerBestPercentile : 100;
+                var worstPct = meta && meta.careerWorstPercentile != null ? meta.careerWorstPercentile : 0;
+                var pctPad = percentileCareerPadding(bestPct, worstPct);
+                return {
+                    kind: 'percentile',
+                    min: Math.max(0, worstPct - pctPad),
+                    max: Math.min(100, bestPct + pctPad)
+                };
+            }
+            var pr = PERCENTILE_RANGES[percentileWindow] || PERCENTILE_RANGES.community;
             return { kind: 'percentile', min: pr[0], max: pr[1] };
         }
 
@@ -127,92 +152,91 @@
         return { kind: 'linear', min: 1, max: ceiling, band: null };
     }
 
-    function plotY(scale, domain, point) {
+    function plotPointStatus(scale, domain, point) {
         var rank = point.eloRank;
         var pct = point.percentile;
 
         if (scale === 'linear') {
             if (domain.band && rank > domain.band) {
-                return null;
+                return { inRange: false, clipY: domain.max };
             }
-            return rank;
+            if (rank < domain.min) {
+                return { inRange: false, clipY: domain.min };
+            }
+            if (rank > domain.max) {
+                return { inRange: false, clipY: domain.max };
+            }
+            return { inRange: true, y: rank };
         }
-        if (scale === 'log') {
-            return rank > 0 ? Math.log(rank) : null;
+        if (pct < domain.min) {
+            return { inRange: false, clipY: domain.min };
         }
-        if (pct < domain.min || pct > domain.max) {
-            return null;
+        if (pct > domain.max) {
+            return { inRange: false, clipY: domain.max };
         }
-        return pct;
+        return { inRange: true, y: pct };
+    }
+
+    function pushSeriesPoint(out, x, y, clipped, raw) {
+        out.push({
+            x: x,
+            y: y,
+            clipped: clipped,
+            raw: raw
+        });
     }
 
     function buildSeries(points, scale, domain) {
         var out = [];
+        var outOfRangeStreak = false;
+        var lastClipY = null;
+
         for (var i = 0; i < points.length; i++) {
             var pt = points[i];
             var x = parseEventDate(pt.eventDate);
             if (x === null) {
                 continue;
             }
-            out.push({
-                x: x,
-                y: plotY(scale, domain, pt),
-                raw: pt
-            });
+
+            var status = plotPointStatus(scale, domain, pt);
+
+            if (status.inRange) {
+                if (outOfRangeStreak && lastClipY != null) {
+                    pushSeriesPoint(out, x, lastClipY, true, pt);
+                }
+                outOfRangeStreak = false;
+                lastClipY = null;
+                pushSeriesPoint(out, x, status.y, false, pt);
+                continue;
+            }
+
+            if (status.clipY == null) {
+                continue;
+            }
+
+            if (!outOfRangeStreak) {
+                pushSeriesPoint(out, x, status.clipY, true, pt);
+                outOfRangeStreak = true;
+                lastClipY = status.clipY;
+                continue;
+            }
+
+            pushSeriesPoint(out, x, null, true, pt);
         }
+
         return out;
     }
 
     function hasPlottedPoints(series) {
         for (var i = 0; i < series.length; i++) {
-            if (series[i].y != null && !isNaN(series[i].y)) {
+            if (!series[i].clipped && series[i].y != null && !isNaN(series[i].y)) {
                 return true;
             }
         }
         return false;
     }
 
-    function emptyBandMessage(scale, linearWindow) {
-        if (scale !== 'linear' || !BAND_LABELS[linearWindow]) {
-            return 'No rank data in this view.';
-        }
-        return 'Not in top ' + BAND_LABELS[linearWindow] + ' at any recorded event.';
-    }
-
-    function logTickRanks(maxRank) {
-        var candidates = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
-        var ticks = [];
-        for (var i = 0; i < candidates.length; i++) {
-            if (candidates[i] <= maxRank) {
-                ticks.push(candidates[i]);
-            }
-        }
-        if (ticks.length === 0 || ticks[ticks.length - 1] !== maxRank) {
-            ticks.push(maxRank);
-        }
-        return ticks;
-    }
-
     function yAxisConfig(scale, domain) {
-        if (scale === 'log') {
-            var maxRank = domain.max;
-            var logTicks = logTickRanks(maxRank);
-            return careerYScale({
-                reverse: true,
-                min: 0,
-                max: Math.log(maxRank),
-                ticks: {
-                    callback: function () {
-                        return '';
-                    }
-                },
-                afterBuildTicks: function (axis) {
-                    axis.ticks = logTicks.map(function (rank) {
-                        return { value: Math.log(rank), label: String(rank) };
-                    });
-                }
-            });
-        }
         if (scale === 'percentile') {
             return careerYScale({
                 reverse: false,
@@ -256,16 +280,12 @@
     function buildChart(canvas, points, meta, timelineStart, state) {
         var domain = computeDomain(state.scale, state.linearWindow, state.percentileWindow, meta);
         var series = buildSeries(points, state.scale, domain);
-        var stepped = state.line === 'stepped';
-
-        if (!hasPlottedPoints(series)) {
-            return { empty: true, message: emptyBandMessage(state.scale, state.linearWindow) };
-        }
-
+        var stepped = true;
+        var chartData = hasPlottedPoints(series) ? series : [];
         var timeRange = rankChartTimeRange(points, timelineStart, meta && meta.cutoffActive);
         var dataset = Object.assign({
             label: 'Elo rank',
-            data: series,
+            data: chartData,
             spanGaps: false,
             stepped: stepped,
             tension: stepped ? 0 : 0.1,
@@ -274,7 +294,6 @@
         }, T.lineStroke(T.amber(), 0.15));
 
         return {
-            empty: false,
             chart: createChart(canvas, {
                 type: 'line',
                 data: { datasets: [dataset] },
@@ -283,6 +302,9 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: T.mergeTooltip({
+                            filter: function (item) {
+                                return item.raw && !item.raw.clipped && item.raw.y != null;
+                            },
                             callbacks: {
                                 title: function (items) {
                                     if (!items.length || !items[0].raw || !items[0].raw.raw) {
@@ -347,13 +369,9 @@
     }
 
     function syncToolbarVisibility(root, state) {
-        var linearWindow = root.querySelector('.player-rank-chart__window');
-        var percentileWindow = root.querySelector('.player-rank-chart__percentile-window');
-        if (linearWindow) {
-            linearWindow.hidden = state.scale !== 'linear';
-        }
-        if (percentileWindow) {
-            percentileWindow.hidden = state.scale !== 'percentile';
+        var toolbar = root.querySelector('.player-rank-chart__toolbar');
+        if (toolbar) {
+            toolbar.setAttribute('data-range-mode', state.scale);
         }
     }
 
@@ -389,16 +407,6 @@
         }
 
         var built = buildChart(canvas, points, meta, state.data.timelineStart, state);
-        if (built.empty) {
-            if (status) {
-                status.textContent = built.message;
-            }
-            if (frame) {
-                frame.hidden = true;
-            }
-            return;
-        }
-
         state.chart = built.chart;
         if (status) {
             status.textContent = '';
@@ -424,8 +432,7 @@
         var state = {
             scale: 'linear',
             linearWindow: 'career',
-            percentileWindow: 'full',
-            line: 'connected',
+            percentileWindow: 'career',
             data: null,
             chart: null
         };
@@ -460,7 +467,6 @@
         });
         bindToggle('.player-rank-chart__window', 'data-window', 'linearWindow');
         bindToggle('.player-rank-chart__percentile-window', 'data-pwindow', 'percentileWindow');
-        bindToggle('.player-rank-chart__line', 'data-line', 'line');
 
         var asParam = root.getAttribute('data-as') || '';
         if (!asParam && typeof URLSearchParams !== 'undefined') {

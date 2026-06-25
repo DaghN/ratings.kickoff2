@@ -1,9 +1,9 @@
 # Amiga player rank chart — implementation plan
 
-**Status:** Ready to execute (Jun 2026). **Slices 1–5 complete** local Jun 2026.  
+**Status:** Ready to execute (Jun 2026). **Slices 1–5 complete** local Jun 2026 + **post-ship tweak session** (Jun 2026).  
 **Policy:** [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md)
 
-**In scope (v1):** Solo rank-over-time chart on `/amiga/player/profile.php` · JSON API · scale/window/line controls · time travel · Amiga only.
+**In scope (v1):** Solo rank-over-time chart on `/amiga/player/profile.php` · JSON API · scale/window controls · stepped line · time travel · Amiga only.
 
 **Out of scope (v1):** H2H rank compare · online realm · X date-range zoom · smart default algorithm · milestone annotations · explainer copy · percentile slider · new DB tables · git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" unless Dagh asks.
 
@@ -32,16 +32,16 @@ Rank chart **must** match existing site chart conventions — do not invent para
 | Canvas sizing | [`activity-charts.md`](activity-charts.md) | **No** `width: 100% !important` / `aspect-ratio` hacks on `<canvas>` |
 | Heading | [`design-direction.md`](design-direction.md) | `h3.k2-panel-heading` — e.g. **Elo rank**; **no** `k2-chart-block__hint` in v1 |
 | Status line | `player-feast-sections.css` | `pm3d-chart__status k2-chart-panel__status` |
-| Segment toggles | `pm3d-rating-toggle` / `pm3d-chart-toolbar` | Scale · window · line style; active = `.is-active` + `--k2-segment-active-*` |
+| Segment toggles | `pm3d-rating-toggle` / `pm3d-chart-toolbar` | Scale · window (contextual via `data-range-mode`); active = `.is-active` + `--k2-segment-active-*` |
 | Colours | `js/chart-theme.js` | Solo line: `T.lineStroke(T.amber(), 0.15)` — **same as rating chart**; not `linkStar()`, not pitch/chrome, not H2H red |
 | Tooltips | `T.mergeTooltip()` | Dark tooltips aligned with `.k2-table-tooltip` |
 | Axes | `T.tickColor()`, `T.softGrid()` | Muted ticks; soft grid |
 | Plot gutter | `T.careerChartGutterOptions()` | Left padding so Y labels do not jump when band/scale changes |
 | Y-axis width | `T.careerChartYAxisOptions()` | **Required** on every chart rebuild (band toggles change tick label width) |
 | Chart init | `T.createActivityChart()` + `T.activityChartOptions(..., { chartKind: 'line' })` | Same path as [`player-rating-chart.js`](../site/public_html/js/player-rating-chart.js) |
-| Line defaults | `player-rating-chart.js` | `tension: 0.1`, `pointRadius: 0`, `pointHoverRadius: 4` when connected |
+| Line defaults | `player-rank-chart.js` | **Stepped only** (`stepped: true`); `tension: 0`, `pointRadius: 0`, `pointHoverRadius: 4` |
 | Script load order | [`amiga/player/profile.php`](../site/public_html/amiga/player/profile.php) | `chart.umd` → adapter → `chart-theme.js` → `chart-date-range.js` → `player-rank-history.js` → `player-rank-chart.js` (defer) |
-| Copy minimalism | Policy R17 | Tooltips + empty-band status only; defer peak line / summary strip unless trivial |
+| Copy minimalism | Policy R16 | Tooltips only; empty band = empty chart (axes, no status); pre-debut / no history use status line |
 
 **Reference implementations (copy structure, not logic):**
 
@@ -55,7 +55,7 @@ Rank chart **must** match existing site chart conventions — do not invent para
 
 Do not re-open without user. Full semantics in policy §2–§7.
 
-**Defaults on first load:** Linear scale · **Career** window · Connected line.
+**Defaults on first load:** Linear scale · **Career** window · stepped line.
 
 **Data:** `amiga_player_elo_rank_at_event` — all global finalizes after debut (~489 points Fabio #109 vs ~39 participation snapshots).
 
@@ -69,7 +69,7 @@ Do not re-open without user. Full semantics in policy §2–§7.
 | **1** | Read lib + JSON API + history loader JS | curl/JSON + row counts |
 | **2** | Profile PHP shell + `theme.css` selector | Panel renders; scripts enqueue — **done** |
 | **3** | Chart.js core (linear career + whole community, connected, inverted Y) | Fabio #109 + Darren #84 smoke — **done** |
-| **4** | Full controls (all scales/windows/line toggle) + empty-band states | Policy §6 toolbar complete — **done** |
+| **4** | Full controls (Linear/Percentile scales + windows) + empty-band UX | Policy §6 toolbar complete — **done** |
 | **5** | Time travel + QA closure + docs | Hero rank = last point at cutoff — **done** |
 
 ---
@@ -88,7 +88,7 @@ Server returns rank-at-event series; client loader mirrors `player-rating-histor
   - Order: `event_date ASC`, `event_chrono ASC`, `tournament_id ASC`
   - TT: omit rows `>` cutoff (same tuple order as `amiga_player_elo_rank_at_cutoff`)
   - Per point: `tournamentId`, `eventDate`, `eloRank`, `ladderSize` (count rows for `tournament_id`), `percentile` (policy R8), `tournamentName`
-  - `meta`: `careerBestRank`, `careerWorstRank`, `ceiling`, `cutoffActive`, `timelineStart` (first point date or null)
+  - `meta`: `careerBestRank`, `careerWorstRank`, `careerBestPercentile`, `careerWorstPercentile`, `ceiling`, `cutoffActive`, `timelineStart` (first point date or null)
 - [x] Create `site/public_html/api/player_rank_history.php`
   - `GET realm=amiga&id=` required; `as=` optional (wire from profile TT when present)
   - Reuse Amiga DB bootstrap pattern from `player_rating_history.php`
@@ -154,7 +154,7 @@ Empty chart panel on profile with correct chrome and script tags.
 
 ### Goal
 
-One working chart: **Linear · Career · Connected** (policy default).
+One working chart: **Linear · Career · Stepped** (policy default).
 
 ### Tasks
 
@@ -178,33 +178,33 @@ One working chart: **Linear · Career · Connected** (policy default).
 
 ---
 
-## Slice 4 — Controls (scales, windows, line style)
+## Slice 4 — Controls (scales, windows)
 
 ### Goal
 
-Full policy §6 toolbar.
+Full policy §6 toolbar (Linear · Percentile; stepped line only).
 
 ### Tasks
 
-- [x] **Scale toggle:** Linear · Log · Percentile (`data-scale`)
-- [x] **Window toggle** (contextual):
-  - Linear: Top 20 · Top 50 · Top 100 · Career · Whole community
-  - Log: hide or static label “Full ladder” (whole-community domain only)
-  - Percentile: Full · 50–100 · 90–100 · 95–100
-- [x] **Line toggle:** Connected · Stepped
+- [x] **Scale toggle:** Linear · Percentile (`data-scale`) — log **removed** Jun 2026
+- [x] **Window toggle** (contextual via `data-range-mode`):
+  - Linear: Career · Top 20 · Top 50 · Top 100 · Full ladder
+  - Percentile: Career · 95–100 · 90–100 · 80–100 · 50–100 · Full ladder
+- [x] **Line:** stepped only (connected toggle removed Jun 2026)
 - [x] Rebuild chart on any control change; preserve `careerChartYAxisOptions`
-- [x] **Band clip (linear Top K):** `y: null` when `eloRank > K`; empty status when never in band
-- [x] **Log:** transform ticks via callback; domain 1…ceiling on log scale
-- [x] **Percentile:** y = precomputed percentile; axis per preset; #1 at top (high percentile at top)
-- [x] Hide/disable invalid window buttons when scale changes
+- [x] **Band clip (linear Top K):** edge clip on enter/exit only; **empty chart** (axes only) when never in band — no status copy
+- [x] **Edge clip:** out-of-window stepped segments clip at band edge (transition-only; `null` gaps while out of window — no flat edge run)
+- [x] **Percentile:** y = precomputed percentile; axis per preset; Career window from `meta.careerBestPercentile` / `careerWorstPercentile`
+- [x] Hide invalid window groups when scale changes (`data-range-mode` CSS)
+- [x] Y-axis tick colour: deep-merge `ticks` in `careerYScale()` so custom callbacks keep `T.tickColor()`
 
 ### Verification
 
 | Player | Check |
 |--------|-------|
-| Fabio #109 | Whole community shows early rank; Top 20 line starts at first ≤20; Log readable full span; Percentile Full ~24% → ~100% |
-| Darren #84 | Top 20 → empty status; Career + Whole community OK; Percentile Full stable ~36% recent |
-| Never top 20 | Pick from QA list in policy §8 — status not crash |
+| Fabio #109 | Full ladder shows early rank; Top 20 band from first ≤20; percentile Career shows personal % span |
+| Darren #84 | Top 20 → **empty chart** (axes, no status); Career + Full ladder OK; Percentile Full stable ~36% recent |
+| Never top 20 | Pick from QA list in policy §8 — empty chart, not crash |
 
 ---
 
@@ -241,6 +241,7 @@ TT parity with hero; docs updated.
 | `includes/amiga_profile_blocks.php` (rank render) | 2 |
 | `amiga/player/profile.php` | 2 |
 | `stylesheets/theme.css` | 2 |
+| `stylesheets/player-feast-sections.css` | 2, 4 |
 | `js/player-rank-chart.js` | 3–4 |
 
 Optional later: `scripts/oneoff/amiga_rank_history_probe.php` for CLI JSON smoke.
@@ -253,9 +254,24 @@ From policy §8 — run after slice 4–5.
 
 | ID | Name | Role |
 |----|------|------|
-| 109 | Fabio F | Elite arc; band clip; log; percentile |
+| 109 | Fabio F | Elite arc; band clip; percentile |
 | 84 | Darren G | Mid-table drift; Top 20 empty |
-| TBD | never ≤ top 100 | Empty-band status |
+| TBD | never ≤ top 100 | Empty-band chart (axes only) |
+
+---
+
+## Post-ship tweak session (Jun 2026)
+
+After slices 1–5 landed, a polish pass aligned toolbar, clip semantics, and docs:
+
+- **Toolbar:** scale order Linear · Percentile · ~~Log~~ (log dropped); contextual window rows via `data-range-mode`; Career default on both scales; linear band order Career → Top 20/50/100 → Full ladder; percentile presets + Career (personal % span from API meta).
+- **Line:** stepped only — connected toggle removed from markup + JS.
+- **Clip:** transition-only edge anchors; `null` gaps while out of window (fixes misleading horizontal runs along plot edge).
+- **Empty band:** render axes/grid with no line — **no** “Not in top N…” status text.
+- **Y-axis:** tick colour preserved when scale callbacks override defaults (`careerYScale` deep-merge).
+- **API meta:** `careerBestPercentile` / `careerWorstPercentile` for percentile Career window.
+- **CSS:** `player-feast-sections.css` window visibility rules; profile cache-bust via `filemtime`.
+- **Related:** `player-rating-chart.js` `readInitialView()` respects markup — Amiga profile opens **By date**.
 
 ---
 
