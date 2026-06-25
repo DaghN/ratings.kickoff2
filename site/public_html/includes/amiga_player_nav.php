@@ -2,7 +2,7 @@
 /**
  * Amiga player pills — Profile · Opponents · Tournaments · Games.
  * Set $k2AmigaPlayerTabActive and $id before include.
- * Tint picker: hub bar via amiga_player_wing_hub_nav.inc.php (not here).
+ * Segment bar: .k2-chrome-tabs.k2-player-wing-tabs (tint picker on hub bar only).
  */
 declare(strict_types=1);
 
@@ -19,12 +19,14 @@ $k2AmigaPlayerTabs = [
     'games' => ['href' => k2_amiga_route('amiga-player-games', ['id' => $id]), 'label' => 'Games'],
 ];
 ?>
-<div class="k2-player-nav-bar">
-	<nav class="k2-player-nav k2-nav-pills" data-k2-carry-scroll aria-label="Player sections">
-		<div class="k2-player-nav__links">
-<?php foreach ($k2AmigaPlayerTabs as $tabId => $tab) { ?>
-			<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>" class="k2-player-nav__btn<?php echo $k2AmigaPlayerTabActive === $tabId ? ' is-active' : ''; ?>"><?php echo htmlspecialchars($tab['label'], ENT_QUOTES, 'UTF-8'); ?></a>
+<div class="k2-chrome-tabs k2-player-wing-tabs">
+	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Player sections">
+<?php foreach ($k2AmigaPlayerTabs as $tabId => $tab) {
+    $isActive = $k2AmigaPlayerTabActive === $tabId;
+    ?>
+		<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>"
+			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
+			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo htmlspecialchars($tab['label'], ENT_QUOTES, 'UTF-8'); ?></a>
 <?php } ?>
-		</div>
 	</nav>
 </div>

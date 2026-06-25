@@ -6,7 +6,7 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 }
 
 .k2-amiga-tournament-hero {
-	margin: 0 0 16px;
+	margin: 0 0 var(--k2-nav-gap);
 	padding: 1rem 1.25rem;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-lg);

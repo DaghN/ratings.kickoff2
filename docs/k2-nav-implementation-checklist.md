@@ -24,12 +24,13 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 | Amiga tournaments index filter | `includes/amiga_tournament_index_nav.php` | `amiga/tournaments.php` | `.k2-chrome-tabs.k2-amiga-tournament-index-tabs` |
 | Amiga WC hub wing | `includes/amiga_world_cups_hub_nav.php` | `amiga/world-cups/` shell | `.k2-amiga-world-cups-hub-tabs` |
 | Amiga WC inner tabs | `amiga_world_cups_players_nav.php`, `_countries_nav.php`, `_stats_nav.php` | WC players/countries/stats views | Stacked `.k2-chrome-tabs` siblings |
-| Player profile nav | `includes/player_nav.php` | `player/*.php` with `body.k2-player-wing` | `.k2-player-nav-bar` |
+| Player profile nav | `includes/player_nav.php` | `player/*.php` with `body.k2-player-wing` | `.k2-chrome-tabs.k2-player-wing-tabs` (segment width; `.k2-player-nav-bar` stays full-width on tournament detail) |
+| Amiga player profile nav | `includes/amiga_player_nav.php` | `amiga/player/*.php` | Same segment grammar |
 | Player wing hub bar | `includes/player_wing_hub_nav.inc.php` | Online player shells after `site_header.php` | `.k2-hub-bar` (no active tab); tint on hub only |
 | Amiga player wing hub bar | `includes/amiga_player_wing_hub_nav.inc.php` | Amiga player shells after `site_header.php` | Same; TT ribbon still from `site_header` above hub |
 | Player opponents sub-nav | `includes/player_opponents_nav.php` | `includes/player_opponents_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-opponents` |
 | Player milestones sub-nav | `includes/player_milestones_nav.php` | `includes/player_milestones_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-milestones` |
-| Amiga player nav | `includes/amiga_player_nav.php` | Amiga player pages | Reuse `.k2-player-nav-bar` grammar |
+| Amiga player nav | `includes/amiga_player_nav.php` | Amiga player pages | `.k2-chrome-tabs.k2-player-wing-tabs` (see row above) |
 | Amiga tournament nav | `amiga/tournament.php` markup + `amiga-tournament.css` | Tournament + stages | `.k2-player-nav-bar` + `.k2-amiga-tournament-stages-nav` |
 | Hub shell (`.k2-page-nav` close) | `includes/milestones_hub_shell_end.inc.php` | Compare `games_hub_shell_end.inc.php`, `amiga_world_cups_hub_shell_end.inc.php` | One `</div><!-- .k2-page-nav -->` before `</body>` |
 

@@ -120,6 +120,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-24 | **Player wing segment tabs** -- Profile/Opponents/… bar → `.k2-chrome-tabs.k2-player-wing-tabs` (fit-content); tournament detail nav stays full-width `.k2-player-nav-bar`. |
+| 2026-06-24 | **Entity hero stack gap** -- `.k2-player-hero` + `.k2-amiga-tournament-hero` use `--k2-nav-gap` (was 6px / 16px); policy N1 = page-chrome stack layers, not nav-only. |
 | 2026-06-24 | **Player wing hub bar** -- realm hub nav on all online + Amiga player pages (`player_wing_hub_nav.inc.php` / `amiga_player_wing_hub_nav.inc.php`); tint picker moved off player nav to hub bar; hero anchor landing = later slice. |
 | 2026-06-24 | **Amiga segment sub-navs** -- LB wing (`.k2-amiga-lb-tabs`), WC hub tabs, tournaments index filter (new `amiga_tournament_index_nav.php`); online LB stays full-width for filters. |
 | 2026-06-24 | **UTF-16 sweep** -- converted nav docs + `amiga_tt_stamp_html_probe.php` to UTF-8; repo scan clean (no UTF-16); 5 UTF-8-BOM files left (harmless). Rule: `.cursor/rules/utf8-windows.mdc`. |

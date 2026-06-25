@@ -2,7 +2,7 @@
 /**
  * Player feast pills — Profile · Opponents · Milestones · Games
  * Set $k2PlayerTabActive and $id before include.
- * Tint picker: hub bar via player_wing_hub_nav.inc.php (not here).
+ * Segment bar: .k2-chrome-tabs.k2-player-wing-tabs (tint picker on hub bar only).
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_opponents_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_lib.php';
@@ -16,12 +16,14 @@ $k2PlayerTabs = [
 	'games' => ['href' => k2_route('player-games', ['id' => $id]), 'label' => 'Games'],
 ];
 ?>
-<div class="k2-player-nav-bar">
-	<nav class="k2-player-nav k2-nav-pills" data-k2-carry-scroll aria-label="Player sections">
-		<div class="k2-player-nav__links">
-<?php foreach ($k2PlayerTabs as $tabId => $tab) { ?>
-			<a href="<?php echo $tab['href']; ?>" class="k2-player-nav__btn<?php echo $k2PlayerTabActive === $tabId ? ' is-active' : ''; ?>"><?php echo $tab['label']; ?></a>
+<div class="k2-chrome-tabs k2-player-wing-tabs">
+	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Player sections">
+<?php foreach ($k2PlayerTabs as $tabId => $tab) {
+	$isActive = $k2PlayerTabActive === $tabId;
+	?>
+		<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>"
+			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
+			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo $tab['label']; ?></a>
 <?php } ?>
-		</div>
 	</nav>
 </div>

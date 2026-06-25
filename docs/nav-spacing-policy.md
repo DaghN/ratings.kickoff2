@@ -20,7 +20,7 @@ This policy locks the **target model** and **scope** for a one-time fix that poi
 
 | ID | Decision |
 |----|----------|
-| N1 | **Uniform gap:** `--k2-nav-gap: 12px` is the standard vertical space **below any page-chrome nav layer** until the next nav layer or content. |
+| N1 | **Uniform gap:** `--k2-nav-gap: 12px` is the standard vertical space **below any page-chrome stack layer** (nav rows, entity hero cards, chapter blocks) until the next stack layer or content. |
 | N2 | **Bottom-only ownership:** Each nav layer owns `margin-bottom: var(--k2-nav-gap)`. **Content never sets `margin-top`** for chrome spacing. Sub-layers never use `margin-top` for stack spacing. |
 | N3 | **No `:has()` spacing switches:** Inter-nav and nav-to-content gaps are the same value under N1, so conditional zeroing (`:has(+ sub-nav)`) is unnecessary in the end state. Delete those lists in Phase 2 -- do not extend them. |
 | N4 | **Cards with gaps, not nav caps:** Tables and panels stay bordered cards with visible air above them. Retire the dead "bar + table wrap" rule and defensive border-top reassertions tied to a never-shipped "cap" look. Scroll-mirror active state may still need local border fixes -- verify visually after retirement. |
@@ -41,6 +41,8 @@ Applies to blocks inside `.k2-page-nav` opened by `includes/site_header.php`:
 [Amiga time-travel stamp when active]
 .k2-hub-bar              -> primary hub tabs
 .k2-hub-chapter          -> section title + lede (block bottom joins stack)
+.k2-player-hero          -> player entity card (online + Amiga player wing)
+.k2-amiga-tournament-hero -> tournament entity card (Amiga tournament detail)
 .k2-chrome-tabs          -> wing ribbon (Rating | Activity | ...)
 [optional sub-nav]        -> second segment row OR honours panel OR player inner nav
 content                   -> .k2-table-wrap, charts, panels, <main> body
@@ -72,8 +74,10 @@ Spacing migration must sweep **margin-bottom** on every block that separates nav
 | Sub-nav chrome (activity, games hub, ms hub, WC, player opponents/milestones) | mixed 12/16px + `margin-top` lists | `margin-bottom: var(--k2-nav-gap)` or N6 exception; **`margin-top: 0`** |
 | `.k2-lb-league-honours` panel | bespoke `margin-top` + subnav `margin-bottom` | drop panel `margin-top`; subnav `margin-bottom: var(--k2-nav-gap)` |
 | `.k2-player-nav-bar` | **20px** default; **12px** on `body.k2-player-wing` | **20->12px** or documented exception (N10) |
+| `.k2-player-hero` / `.k2-amiga-tournament-hero` | player wing **6px**; tournament **16px** | **`margin-bottom: var(--k2-nav-gap)`** (entity heroes in chrome stack) |
 | Amiga tournament detail nav | reuses `.k2-player-nav-bar` on `tournament.php` | **12px** via shared `.k2-player-nav-bar` rule (N10) |
 | Amiga tournaments index filter | `.k2-chrome-tabs.k2-amiga-tournament-index-tabs` | segment width + `--k2-nav-gap` (same block as games/WC hub tabs) |
+| Player wing top tabs | `.k2-chrome-tabs.k2-player-wing-tabs` | segment width; tournament detail keeps full-width `.k2-player-nav-bar` |
 
 ---
 
@@ -100,7 +104,6 @@ Grep pass on nav-like blocks in `theme.css`. **Token-only** swaps (12px → `var
 | `.k2-hub-bar` top margin | `16px` | Header-to-hub rhythm, not `--k2-nav-gap` |
 | `.k2-hub-chapter-to-content-gap` | `22px` | HoF-only editorial gap; out of nav stack v1 |
 | `.k2-page-nav .k2-table` | `margin-bottom: 16px` | Profile multi-table stack spacing, not page chrome |
-| `.k2-amiga-tournament-hero` | `margin-bottom: 16px` | Content hero card, not nav layer |
 | Panel-internal controls | various | Status period tabs, ms detail panel tabs, tier filters — out of scope |
 | Pattern A/B wrapper markup | — | P3.2 deferred; spacing already correct via CSS |
 | Online LB wing (`.k2-chrome-tabs` without scope class) | full-width bar | Filter toggles on right (`__filters`); **Amiga** LB uses `.k2-amiga-lb-tabs` segment width instead |
