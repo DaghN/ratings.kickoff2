@@ -62,7 +62,9 @@ a main-tab navigation re-acquires the handle and always raises; toggling resumes
   focus (it does **not** raise itself — the FAB pings on every navigation).
 
 The FAB reflects `state.playing` via the `is-playing` class (reuses the existing LED
-animation in `k2-jukebox.css`).
+animation in `k2-jukebox.css`). Hover help uses the shared **`k2-table-tooltip`**
+(`data-k2-help` on the FAB + `k2_table_js_enqueue()` from `k2_jukebox.php`) — not native
+`title` — including dynamic **Playing: …** copy when a track is active.
 
 ## Tint in the popup
 

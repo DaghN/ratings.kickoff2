@@ -121,7 +121,11 @@
 		}
 		if (btn) {
 			btn.setAttribute("aria-pressed", playing ? "true" : "false");
-			btn.setAttribute("title", playing && title ? "Playing: " + title : "Open Amiga jukebox");
+			btn.setAttribute(
+				"data-k2-help",
+				playing && title ? "Playing: " + title : "Open Amiga jukebox"
+			);
+			btn.removeAttribute("title");
 		}
 	}
 

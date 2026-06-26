@@ -3,18 +3,15 @@
  * World Cups hub chrome — open through <main> (sub-nav included).
  *
  * Set $k2AmigaWorldCupsHubView: chronology | stats | players | countries
- * Optional: $k2AmigaWorldCupsPageTitle, $k2AmigaWorldCupsChapterLede
+ * Optional: $k2AmigaWorldCupsPageTitle
  * When $k2AmigaWorldCupsHubView === 'players', set $k2AmigaWorldCupsPlayersView: honours | results | goals | dds | opponents
  * When $k2AmigaWorldCupsHubView === 'countries', set $k2AmigaWorldCupsCountriesView: honours | results | goals | dds | opponents
- * When $k2AmigaWorldCupsHubView === 'stats', set $k2AmigaWorldCupsStatsView: participation | goals | dds | geography | podium
+ * When $k2AmigaWorldCupsHubView === 'stats', set $k2AmigaWorldCupsStatsView: participation | goals | dds | geography
  */
 declare(strict_types=1);
 
-require_once __DIR__ . '/amiga_snapshot_url.php';
-
 $k2AmigaWorldCupsHubView = $k2AmigaWorldCupsHubView ?? 'chronology';
 $k2AmigaWorldCupsPageTitle = $k2AmigaWorldCupsPageTitle ?? 'World Cups';
-$k2AmigaWorldCupsChapterLede = $k2AmigaWorldCupsChapterLede ?? '';
 $k2AmigaWorldCupsEnqueueTableJs = $k2AmigaWorldCupsEnqueueTableJs ?? false;
 $k2AmigaWorldCupsEnqueueScrollMirror = $k2AmigaWorldCupsEnqueueScrollMirror ?? false;
 if ($k2AmigaWorldCupsEnqueueTableJs && in_array($k2AmigaWorldCupsHubView, ['chronology', 'players', 'stats', 'countries'], true)) {
@@ -24,14 +21,6 @@ if ($k2AmigaWorldCupsEnqueueTableJs) {
     $k2RankedCloak = true;
 }
 
-$k2AmigaWorldCupsChapterTitles = [
-    'chronology' => 'World Cups — Chronology',
-    'stats' => 'World Cups — Tournament stats',
-    'players' => 'World Cups — Player stats',
-    'countries' => 'World Cups — Country stats',
-];
-$k2HubChapterTitle = $k2AmigaWorldCupsChapterTitles[$k2AmigaWorldCupsHubView] ?? 'World Cups';
-$k2HubChapterLede = $k2AmigaWorldCupsChapterLede;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="amiga">
@@ -52,9 +41,6 @@ if ($k2AmigaWorldCupsEnqueueTableJs) {
 <?php
 $k2AmigaHubTabActive = 'world-cups';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
-if (!amiga_snapshot_time_travel_active_from_request()) {
-    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
-}
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_nav.php';
 if ($k2AmigaWorldCupsHubView === 'players') {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_players_nav.php';

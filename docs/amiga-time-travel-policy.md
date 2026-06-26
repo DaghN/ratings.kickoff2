@@ -201,7 +201,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 
 When inactive: header segment only; no ribbon below/above nav.
 
-**Hub chapter headers (when `as=` active):** omit `k2-hub-chapter` title + lede on snapshot hub tabs — Leaderboards (`amiga_lb_nav.php`), World Cups hub shell, **Countries** (`amiga/countries/*`), Activity, Hall of Fame. Present day keeps section intros.
+**Hub chapter headers (when `as=` active):** omit `k2-hub-chapter` title + lede on snapshot hub tabs — Leaderboards (`amiga_lb_nav.php`), World Cups hub shell, **Countries** (`amiga/countries/*`), Activity, Hall of Fame. **Leaderboards + World Cups:** no chapter in present day either (Jun 2026).
 
 **Temporal stamp (when `as=` active, v1 static):** see §5.0 for product intent. Implementation: shared `.k2-amiga-tt-stamp` in `k2-page-nav`, **below wordmark / above snapshot ribbon** on every Amiga page with active time travel. Render: `amiga_time_travel_stamp_render($ctx)` from `amiga_snapshot_chrome_render_active()`; helper in `includes/amiga_time_travel_stamp.php`.
 

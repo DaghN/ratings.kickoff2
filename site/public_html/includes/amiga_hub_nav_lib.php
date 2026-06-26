@@ -41,7 +41,7 @@ function amiga_hub_all_tabs(): array
     return [
         'news' => ['href' => '/amiga/news.php', 'label' => 'News'],
         'leaderboards' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Leaderboards'],
-        'world-cups' => ['href' => '/amiga/world-cups/chronology/index.php', 'label' => 'World Cups'],
+        'world-cups' => ['href' => '/amiga/world-cups/chronology.php', 'label' => 'World Cups'],
         'countries' => ['href' => '/amiga/countries/index.php', 'label' => 'Countries'],
         'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
         'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],

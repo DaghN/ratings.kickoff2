@@ -2427,6 +2427,9 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-arc
 }
 
 body.k2-site .k2-amiga-time-travel {
+	/* Snapshot picker panel must stack above .k2-hub-bar (1210), below header (1300). */
+	position: relative;
+	z-index: 1220;
 	margin: 0 0 0.75rem;
 	padding: 0.65rem 0.85rem;
 	border: 1px solid color-mix(in srgb, var(--k2-border-subtle) 80%, transparent);

@@ -6,7 +6,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav_lib.php';
 $k2AmigaWorldCupsHubView = 'stats';
 $k2AmigaWorldCupsStatsView = 'participation';
 $k2AmigaWorldCupsPageTitle = 'World Cups — Tournament stats — Participation';
-$k2AmigaWorldCupsChapterLede = 'One row per World Cup — field size, workload, and phase split.';
 $k2AmigaWorldCupsEnqueueTableJs = true;
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_shell_start.inc.php';

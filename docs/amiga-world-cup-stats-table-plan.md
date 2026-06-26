@@ -378,7 +378,7 @@ Useful when two events share a year or when WC is small fraction of annual volum
 
 ### 3.13 UI sub-wings (shipped Jun 2026)
 
-Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared anchor (**Tournament · Year · Players · Games**), count/rate pairs on the same table, horizontal scroll per table.
+Wing 2 uses **four sortable tables** under `/amiga/world-cups/stats/` — shared anchor (**Tournament · Year · Players · Games**), count/rate pairs on the same table, horizontal scroll per table.
 
 | Sub-wing | Path | Stat columns (after anchor) |
 |----------|------|-----------------------------|
@@ -386,7 +386,8 @@ Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared
 | **Goals** | `stats/goals.php` | Goals, G/G, High + High %, Low + Low %, Blowouts + Blowout %, Draw % |
 | **DDs & CSs** | `stats/dds.php` | DDs + DD %, CSs + CS %, Max draw · Max win · Max GF · Max sum · Min sum (peaks link to game) |
 | **Geography** | `stats/geography.php` | Nations, Guests, Host players, Guest %, Nation pairs, **Intl games**, **Intl %** |
-| **Podium** | `stats/podium.php` | Gold, Silver, Bronze |
+
+**Retired (Jun 2026):** `stats/podium.php` — gold/silver/bronze duplicated Chronology; URL **302 → chronology**. Medal columns remain on wing 1 catalog (`amiga_world_cups_events_table.php`). Stored `gold_player_id` / `silver_player_id` / `bronze_player_id` unchanged.
 
 **UI omit (still stored):** `draws`, `decided_games`, `decided_rate`, `max_games_one_player`, identity host/city/date cols.
 
@@ -394,7 +395,7 @@ Wing 2 uses **five sortable tables** under `/amiga/world-cups/stats/` — shared
 
 **Layout (Jun 2026):** Global `.k2-page-nav .k2-table-wrap` width rules + overflow-driven scroll mirror (`k2_table_wrap_open(true)`). Tournament stats tables use `k2_table_ranked_sortable_class()` (auto column widths); hub Rank/Player min-widths are opt-in via `k2-table--hub-rank-player-cols` only.
 
-**Podium v2 (backlog):** full placement table from standings — site-unique collection view.
+**Podium v2 (backlog):** full placement table from standings (4th+ etc.) — only if distinct from Chronology medal columns.
 
 ---
 

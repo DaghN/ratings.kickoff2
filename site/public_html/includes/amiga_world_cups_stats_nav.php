@@ -2,7 +2,7 @@
 /**
  * World Cups hub — Tournament stats inner segments.
  *
- * Set $k2AmigaWorldCupsStatsView before include: goals | dds | participation | geography | podium
+ * Set $k2AmigaWorldCupsStatsView before include: goals | dds | participation | geography
  */
 declare(strict_types=1);
 
@@ -26,10 +26,6 @@ $k2AmigaWorldCupsStatsTabs = [
     'geography' => [
         'href' => k2_amiga_route('amiga-world-cups-stats-geography'),
         'label' => 'Geography',
-    ],
-    'podium' => [
-        'href' => k2_amiga_route('amiga-world-cups-stats-podium'),
-        'label' => 'Podium',
     ],
 ];
 ?>

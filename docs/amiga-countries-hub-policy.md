@@ -87,9 +87,9 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 ### 3.2 Country roster
 
 **Path:** `/amiga/countries/roster.php?country={token}`  
-**Sub-nav:** None for v1 (single table). Optional return link to index in chapter area.
+**Sub-nav:** None for v1 (single table). Hero carries country name + summary; no chapter block above hero.
 
-**Scroll anchor:** Zero-height `#k2-country-roster` immediately above the country hero — off-page roster links (hub tab, index flags, profile flags) append this hash so the hero lands in viewport (skips chapter).
+**Scroll anchor:** Zero-height `#k2-country-roster` immediately above the country hero — off-page roster links append this hash so the hero lands in viewport.
 
 **Country hero:** Large flag (when mapped), country name, optional compact summary line (player count · total games · WC entries · medal totals) — derived from same aggregates as index row for this token.
 

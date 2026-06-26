@@ -8,9 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_table_helpers.php';
-require_once __DIR__ . '/k2_player_display_names.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
-require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 
@@ -18,24 +16,13 @@ const AMIGA_WC_STATS_ANCHOR_COL = 0;
 const AMIGA_WC_STATS_DEFAULT_SORT_COL = 1;
 
 /** @var list<string> */
-const AMIGA_WC_STATS_VIEWS = ['participation', 'goals', 'dds', 'geography', 'podium'];
+const AMIGA_WC_STATS_VIEWS = ['participation', 'goals', 'dds', 'geography'];
 
 function amiga_world_cup_stats_tournament_link(int $tournamentId, string $name): string
 {
     $href = amiga_tournament_href(amiga_tournament_event_stats_url($tournamentId));
 
     return '<a href="' . k2_h($href) . '">' . k2_h($name) . '</a>';
-}
-
-function amiga_world_cup_stats_podium_cell(int $playerId, array $nameMap): string
-{
-    if ($playerId < 1) {
-        return k2_fmt_dash();
-    }
-
-    $name = k2_player_display_name($nameMap, $playerId);
-
-    return k2_amiga_player_link($playerId, $name);
 }
 
 function amiga_world_cup_stats_peak_cell(?int $metric, ?int $gameId): string
@@ -216,11 +203,6 @@ function amiga_world_cup_stats_view_columns(): array
             ['label' => 'Nation pairs', 'sort' => 'number', 'help' => 'Distinct nationality pairings that met in a game.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_opponent_countries_pairs'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Intl games', 'sort' => 'number', 'help' => 'Games where both players have nationality set and they differ.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['international_games'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Intl %', 'sort' => 'number', 'help' => 'International games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['international_game_share'] ?? null, amiga_world_cup_stats_games($row))],
-        ],
-        'podium' => [
-            ['label' => 'Gold', 'sort' => 'text', 'align' => 'left', 'help' => '', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_podium_cell((int) ($row['gold_player_id'] ?? 0), $m)],
-            ['label' => 'Silver', 'sort' => 'text', 'align' => 'left', 'help' => '', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_podium_cell((int) ($row['silver_player_id'] ?? 0), $m)],
-            ['label' => 'Bronze', 'sort' => 'text', 'align' => 'left', 'help' => '', 'render' => static fn (array $row, array $m) => amiga_world_cup_stats_podium_cell((int) ($row['bronze_player_id'] ?? 0), $m)],
         ],
     ];
 }

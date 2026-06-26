@@ -14,7 +14,7 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 |----------|-------------------|-------------------|---------|
 | Online hub primary tabs | `includes/hub_nav.php` | Any online hub page after `site_header.php` | `.k2-hub-bar` > `.k2-hub-tabs` |
 | Amiga hub primary tabs | `includes/amiga_hub_nav.php` | Amiga hub pages | Same; TT stamp may precede bar |
-| Amiga Countries hub (single table, no sub-nav) | `amiga/countries/index.php`, `roster.php` | Hub tab only — chapter via `k2_hub_chapter.inc.php` | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| Amiga Countries hub (single table, no sub-nav) | `amiga/countries/index.php`, `roster.php` | Hub tab only — chapter on **index** only; roster = hero + table | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | Hub chapter (title + lede) | `includes/k2_hub_chapter.inc.php` | LB wing, Games/Milestones hub, WC hub | Set `$k2HubChapterTitle` / `$k2HubChapterLede` before include |
 | Online LB wing ribbon | `includes/lb_nav.php` | `leaderboards/rating.php` | Pattern **A**: wing closes; content is **sibling** |
 | LB Activity sub-nav | `includes/lb_activity_nav.php` | `leaderboards/activity/peaks.php` | Pattern **B**: wing + sub-nav **siblings**; sub-nav owns gap to table |

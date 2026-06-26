@@ -7,7 +7,6 @@ $k2AmigaWorldCupsHubView = 'players';
 $k2AmigaWorldCupsPlayersView = 'dds';
 $k2AmigaWcPlayersView = 'dds';
 $k2AmigaWorldCupsPageTitle = 'World Cups — Player stats — DDs & CSs';
-$k2AmigaWorldCupsChapterLede = 'Double digits and clean sheets across every player\'s World Cup career.';
 $k2AmigaWorldCupsEnqueueTableJs = true;
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_shell_start.inc.php';

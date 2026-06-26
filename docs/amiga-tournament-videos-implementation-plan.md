@@ -249,7 +249,7 @@ Chronology + Tournaments hub **Has videos** filter.
 
 ```text
 Browser:
-/amiga/world-cups/chronology/ — WC rows with video show indicator
+/amiga/world-cups/chronology.php — WC rows with video show indicator
 /amiga/tournaments.php?filter=has-videos — only tournaments with manifest rows; count in footnote
 Click through to Videos tab works with as= preserved
 ```

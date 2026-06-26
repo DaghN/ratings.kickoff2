@@ -11,7 +11,9 @@ declare(strict_types=1);
 		type="button"
 		class="k2-jukebox__toggle"
 		data-k2-jukebox-launch
-		title="Open Amiga jukebox"
+		data-k2-help="Open Amiga jukebox"
+		data-k2-tooltip-hide-title="1"
+		data-k2-tooltip-hover-only="1"
 		aria-label="Open Amiga jukebox"
 	>
 		<svg class="k2-jukebox__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -22,3 +24,7 @@ declare(strict_types=1);
 		</svg>
 	</button>
 </div>
+<?php
+require_once __DIR__ . '/k2_table_helpers.php';
+k2_table_js_enqueue();
+?>

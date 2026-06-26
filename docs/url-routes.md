@@ -132,14 +132,14 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-wdl` | `/amiga/player/opponents/wdl.php` |
 | `amiga-player-opponents-goals` | `/amiga/player/opponents/goals.php` |
 | `amiga-player-opponents-dds` | `/amiga/player/opponents/dds.php` |
-| `amiga-world-cups` | `/amiga/world-cups/chronology/index.php` (Chronology default; `/amiga/world-cups/` 302) |
-| `amiga-world-cups-chronology` | `/amiga/world-cups/chronology/index.php` |
+| `amiga-world-cups` | `/amiga/world-cups/chronology.php` (Chronology default; `/amiga/world-cups/` 302) |
+| `amiga-world-cups-chronology` | `/amiga/world-cups/chronology.php` (`chronology/index.php` 302 legacy) |
 | `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` (Participation default; `stats.php` + `stats/index.php` 302) |
 | `amiga-world-cups-stats-goals` | `/amiga/world-cups/stats/goals.php` |
 | `amiga-world-cups-stats-dds` | `/amiga/world-cups/stats/dds.php` |
 | `amiga-world-cups-stats-participation` | `/amiga/world-cups/stats/participation.php` |
 | `amiga-world-cups-stats-geography` | `/amiga/world-cups/stats/geography.php` |
-| `amiga-world-cups-stats-podium` | `/amiga/world-cups/stats/podium.php` |
+| `amiga-world-cups-stats-podium` | `/amiga/world-cups/stats/podium.php` → **302** Chronology (retired Jun 2026) |
 | `amiga-world-cups-players` | `/amiga/world-cups/players/honours.php` (Player stats default) |
 | `amiga-world-cups-players-honours` | `/amiga/world-cups/players/honours.php` |
 | `amiga-world-cups-players-results` | `/amiga/world-cups/players/results.php` |
@@ -181,7 +181,7 @@ Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?s
 
 ### Amiga hub tabs (present order)
 
-News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology/`) · **Countries** (`/amiga/countries/index.php`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · **Countries** · Activity · Hall of Fame.
+News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · **Countries** (`/amiga/countries/index.php`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · **Countries** · Activity · Hall of Fame.
 
 | Route key | Path |
 |-----------|------|
