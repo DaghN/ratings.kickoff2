@@ -122,6 +122,10 @@
 
 | When | Note |
 |------|------|
+| 2026-06-26 | **Jukebox site-wide + nav resume** — player on all themed pages; localStorage saves track/time/playing across navigations and auto-resumes on load. |
+| 2026-06-26 | **Amiga jukebox v1** — opt-in floating player on Amiga realm (`k2_jukebox.php`, 18-track MP3 playlist under `/audio/amiga/`); floppy FAB, panel transport, shuffle, localStorage prefs. |
+| 2026-06-26 | **Amiga chart TT x-axis fix** — profile rank `rankChartTimeRange` treated flat points array as nested series (xMax never capped); rating charts read `Core` before `player-rank-chart-core.js` loaded. Cutoff x-range now in `chart-date-range.js` (`rankPointsTimeRange` / `ratingChartTimeRange`). |
+| 2026-06-26 | **Amiga rating charts + time travel** — profile Elo chart + H2H rating compare filter snapshot points at cutoff, skip flat line to today, cap date x-axis at last cutoff event. |
 | 2026-06-26 | **Amiga TT tournament list links** — Event wing `amiga_tournament_href()` now sets `as=event:{clicked id}` so player tournament rows open the chosen event (not ribbon cutoff via redirect). |
 | 2026-06-26 | **Amiga peak-rating LB time travel fix** — TT query had two cutoff `(?, ?, ?)` clauses but only three bind params; table was empty / execute failed. Smoke step **4b** added. |
 | 2026-06-25 | **H2H rating compare line style** — Stepwise first in toolbar + default (was Connected); online + Amiga. |

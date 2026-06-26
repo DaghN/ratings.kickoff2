@@ -276,7 +276,10 @@
         };
     }
 
-    function amigaDateChartTimeRange(chartData, timelineStart) {
+    function amigaDateChartTimeRange(chartData, timelineStart, cutoffActive) {
+        if (DR && DR.ratingChartTimeRange) {
+            return DR.ratingChartTimeRange(chartData, timelineStart, cutoffActive);
+        }
         if (DR && DR.careerTimeRangeFromStart) {
             if (timelineStart) {
                 return DR.careerTimeRangeFromStart(timelineStart);
@@ -297,12 +300,12 @@
         };
     }
 
-    function createDateChart(canvas, chartData, peakValue, realm, timelineStart) {
+    function createDateChart(canvas, chartData, peakValue, realm, timelineStart, cutoffActive) {
         var timeRange;
         if (realm === 'online' && DR && DR.profileCareerTimeRange) {
             timeRange = DR.profileCareerTimeRange();
         } else if (realm === 'amiga') {
-            timeRange = amigaDateChartTimeRange(chartData, timelineStart);
+            timeRange = amigaDateChartTimeRange(chartData, timelineStart, cutoffActive);
         } else {
             timeRange = {
                 xMin: DR && DR.serverStartDate ? DR.serverStartDate() : undefined,
@@ -614,17 +617,26 @@
             || (document.documentElement && document.documentElement.getAttribute('data-realm'))
             || 'online';
 
-        History.load(playerId, realm)
+        var asParam = root.getAttribute('data-as') || '';
+        if (!asParam && typeof URLSearchParams !== 'undefined') {
+            asParam = new URLSearchParams(window.location.search).get('as') || '';
+        }
+        var loadOpts = asParam ? { as: asParam } : {};
+
+        History.load(playerId, realm, loadOpts)
             .then(function (data) {
                 state.timelineStart = data.timelineStart || null;
                 state.eventMode = historyIsEventGranularity(data, realm);
+                var cutoffActive = !!(data.meta && data.meta.cutoffActive);
 
                 var points = data.points || [];
                 if (!points.length) {
                     if (status) {
-                        status.textContent = state.eventMode
-                            ? 'No rating events to chart.'
-                            : 'No rated games to chart.';
+                        status.textContent = cutoffActive
+                            ? 'Not on the ladder at this date.'
+                            : (state.eventMode
+                                ? 'No rating events to chart.'
+                                : 'No rated games to chart.');
                     }
                     if (toggle) {
                         toggle.hidden = true;
@@ -648,7 +660,7 @@
                 var currentRating = typeof data.currentRating === 'number'
                     ? data.currentRating
                     : dateChartData[dateChartData.length - 1].y;
-                if (DR && DR.appendRatingThroughToday) {
+                if (!cutoffActive && DR && DR.appendRatingThroughToday) {
                     dateChartData = DR.appendRatingThroughToday(dateChartData, currentRating);
                 }
 
@@ -693,7 +705,8 @@
                     dateChartData,
                     state.peakValue,
                     realm,
-                    state.timelineStart
+                    state.timelineStart,
+                    cutoffActive
                 );
                 setActiveView(root, state.activeView, state);
             })

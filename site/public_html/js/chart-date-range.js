@@ -84,6 +84,104 @@
         };
     }
 
+    function endOfDay(d) {
+        if (!(d instanceof Date) || isNaN(d.getTime())) {
+            return null;
+        }
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+    }
+
+    function maxEventDateFromPoints(points, dateField) {
+        var field = dateField || 'eventDate';
+        if (!points || !points.length) {
+            return null;
+        }
+        var maxD = null;
+        for (var i = 0; i < points.length; i++) {
+            var raw = points[i][field];
+            if (raw == null && field === 'eventDate') {
+                raw = points[i].date;
+            }
+            var d = parseStartDate(raw);
+            if (!d) {
+                continue;
+            }
+            if (!maxD || d.getTime() > maxD.getTime()) {
+                maxD = d;
+            }
+        }
+        return maxD;
+    }
+
+    function maxChartPointDate(chartData) {
+        if (!chartData || !chartData.length) {
+            return null;
+        }
+        var maxX = null;
+        for (var i = 0; i < chartData.length; i++) {
+            var xVal = chartData[i].x;
+            if (xVal instanceof Date && !isNaN(xVal.getTime())) {
+                if (!maxX || xVal.getTime() > maxX.getTime()) {
+                    maxX = xVal;
+                }
+            }
+        }
+        return maxX;
+    }
+
+    /**
+     * Community timeline origin through today, or through cutoff day when time travel is active.
+     */
+    function careerTimeRangeWithCutoff(timelineStart, cutoffActive, cutoffDate) {
+        var range = careerTimeRangeFromStart(timelineStart);
+        if (!cutoffActive || !cutoffDate) {
+            return range;
+        }
+        var d = cutoffDate instanceof Date ? cutoffDate : parseStartDate(cutoffDate);
+        var end = endOfDay(d);
+        if (end) {
+            range.xMax = end;
+        }
+        return range;
+    }
+
+    function normalizeRankPointsList(pointsList) {
+        if (!Array.isArray(pointsList) || !pointsList.length) {
+            return [];
+        }
+        if (Array.isArray(pointsList[0])) {
+            var points = pointsList[0] || [];
+            for (var p = 1; p < pointsList.length; p++) {
+                if ((pointsList[p] || []).length > points.length) {
+                    points = pointsList[p];
+                }
+            }
+            return points;
+        }
+        return pointsList;
+    }
+
+    function rankPointsTimeRange(pointsList, timelineStart, cutoffActive) {
+        var points = normalizeRankPointsList(pointsList);
+        var cutoffDate = cutoffActive ? maxEventDateFromPoints(points, 'eventDate') : null;
+        return careerTimeRangeWithCutoff(timelineStart, cutoffActive, cutoffDate);
+    }
+
+    function ratingChartTimeRange(chartData, timelineStart, cutoffActive) {
+        var cutoffDate = cutoffActive ? maxChartPointDate(chartData) : null;
+        if (timelineStart) {
+            return careerTimeRangeWithCutoff(timelineStart, cutoffActive, cutoffDate);
+        }
+        if (chartData && chartData.length && chartData[0].x instanceof Date) {
+            var first = chartData[0].x;
+            var startStr = first.getFullYear() + '-'
+                + String(first.getMonth() + 1).padStart(2, '0') + '-'
+                + String(first.getDate()).padStart(2, '0');
+            return careerTimeRangeWithCutoff(startStr, cutoffActive, cutoffDate);
+        }
+        return careerTimeRangeWithCutoff(null, cutoffActive, cutoffDate);
+    }
+
     function sameLocalDay(a, b) {
         return a.getFullYear() === b.getFullYear()
             && a.getMonth() === b.getMonth()
@@ -544,6 +642,13 @@
         serverStartMonth: serverStartMonth,
         profileCareerTimeRange: profileCareerTimeRange,
         careerTimeRangeFromStart: careerTimeRangeFromStart,
+        careerTimeRangeWithCutoff: careerTimeRangeWithCutoff,
+        endOfDay: endOfDay,
+        maxEventDateFromPoints: maxEventDateFromPoints,
+        maxChartPointDate: maxChartPointDate,
+        normalizeRankPointsList: normalizeRankPointsList,
+        rankPointsTimeRange: rankPointsTimeRange,
+        ratingChartTimeRange: ratingChartTimeRange,
         endOfCurrentMonth: endOfCurrentMonth,
         endOfToday: endOfToday,
         appendRatingThroughToday: appendRatingThroughToday,

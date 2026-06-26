@@ -14,6 +14,10 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 <?php include $k2DocRoot . '/includes/favicon_head.php'; ?>
 <script type="text/javascript" src="/js/k2-carry-scroll.js?v=<?php echo (int) @filemtime($k2DocRoot . '/js/k2-carry-scroll.js'); ?>"></script>
 <?php
+$k2JukeboxCssPath = $k2DocRoot . '/stylesheets/k2-jukebox.css';
+if (is_file($k2JukeboxCssPath)) {
+	echo '<link href="/stylesheets/k2-jukebox.css?v=' . (int) filemtime($k2JukeboxCssPath) . '" rel="stylesheet" type="text/css" />' . "\n";
+}
 $k2ReqPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 if (is_string($k2ReqPath)
 	&& str_contains($k2ReqPath, '/amiga/')

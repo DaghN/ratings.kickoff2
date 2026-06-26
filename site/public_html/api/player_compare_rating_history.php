@@ -74,7 +74,10 @@ if ($realm === 'amiga') {
         'opponentId' => $opponentId,
         'player' => $player,
         'opponent' => $opponent,
-        'meta' => ['granularity' => 'event'],
+        'meta' => [
+            'granularity' => 'event',
+            'cutoffActive' => $ctx->isActive(),
+        ],
     ];
     if ($timelineStart !== null) {
         $payload['timelineStart'] = $timelineStart;

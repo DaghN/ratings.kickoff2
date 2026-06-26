@@ -149,17 +149,10 @@
     }
 
     function rankChartTimeRange(pointsList, timelineStart, cutoffActive) {
-        var points = pointsList;
-        if (Array.isArray(pointsList)) {
-            points = pointsList[0] || [];
-            if (pointsList.length > 1) {
-                for (var p = 1; p < pointsList.length; p++) {
-                    if ((pointsList[p] || []).length > points.length) {
-                        points = pointsList[p];
-                    }
-                }
-            }
+        if (DR && DR.rankPointsTimeRange) {
+            return DR.rankPointsTimeRange(pointsList, timelineStart, cutoffActive);
         }
+        var points = normalizeRankPointsListFallback(pointsList);
         var range;
         if (DR && DR.careerTimeRangeFromStart) {
             range = DR.careerTimeRangeFromStart(timelineStart);
@@ -176,6 +169,35 @@
             }
         }
         return range;
+    }
+
+    function normalizeRankPointsListFallback(pointsList) {
+        if (DR && DR.normalizeRankPointsList) {
+            return DR.normalizeRankPointsList(pointsList);
+        }
+        if (!Array.isArray(pointsList) || !pointsList.length) {
+            return [];
+        }
+        if (Array.isArray(pointsList[0])) {
+            return pointsList[0] || [];
+        }
+        return pointsList;
+    }
+
+    function ratingChartTimeRange(chartData, timelineStart, cutoffActive) {
+        if (DR && DR.ratingChartTimeRange) {
+            return DR.ratingChartTimeRange(chartData, timelineStart, cutoffActive);
+        }
+        if (DR && DR.careerTimeRangeFromStart) {
+            if (timelineStart) {
+                return DR.careerTimeRangeFromStart(timelineStart);
+            }
+            return DR.careerTimeRangeFromStart();
+        }
+        return {
+            xMin: undefined,
+            xMax: DR && DR.endOfToday ? DR.endOfToday() : undefined
+        };
     }
 
     function computeDomain(scale, linearWindow, percentileWindow, meta) {
@@ -729,6 +751,7 @@
         anyPlottedSeries: anyPlottedSeries,
         compareBandHasAnyPlayer: compareBandHasAnyPlayer,
         rankChartTimeRange: rankChartTimeRange,
+        ratingChartTimeRange: ratingChartTimeRange,
         yAxisConfig: yAxisConfig,
         formatTooltipDate: formatTooltipDate,
         peakPointFromHistory: peakPointFromHistory,

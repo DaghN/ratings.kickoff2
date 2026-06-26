@@ -25,6 +25,7 @@ $k2PageNavClass = isset($k2PageNavClass) ? trim((string) $k2PageNavClass) : '';
 		<?php $playerSearchInHeader = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/player_search_bar.php'; ?>
 	</div>
 </header>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_jukebox.php'; ?>
 <script type="text/javascript" src="/js/player-search.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/player-search.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/realm-switch.js" defer="defer"></script>
 <div class="k2-page-nav<?php echo $k2PageNavClass !== '' ? ' ' . htmlspecialchars($k2PageNavClass, ENT_QUOTES, 'UTF-8') : ''; ?>">

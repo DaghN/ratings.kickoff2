@@ -8,12 +8,16 @@
     var API_PATH = '/api/player_rating_history.php';
     var cache = {};
 
-    function cacheKey(playerId, realm) {
-        return String(playerId) + ':' + (realm || 'online');
+    function cacheKey(playerId, realm, asParam) {
+        return String(playerId) + ':' + (realm || 'online') + ':' + (asParam || '');
     }
 
-    function load(playerId, realm) {
-        var key = cacheKey(playerId, realm || 'online');
+    function load(playerId, realm, options) {
+        var opts = options || {};
+        var realmVal = realm || 'online';
+        var asParam = opts.as != null ? String(opts.as) : '';
+        var key = cacheKey(playerId, realmVal, asParam);
+
         if (cache[key] && cache[key].data) {
             return Promise.resolve(cache[key].data);
         }
@@ -22,7 +26,10 @@
         }
 
         var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-            + '&realm=' + encodeURIComponent(realm || 'online');
+            + '&realm=' + encodeURIComponent(realmVal);
+        if (asParam !== '') {
+            url += '&as=' + encodeURIComponent(asParam);
+        }
 
         var promise = fetch(url, { credentials: 'same-origin' })
             .then(function (r) {

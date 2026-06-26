@@ -125,7 +125,7 @@ Re-run: `python -m scripts.amiga prove`. Import audit: `data/amiga/exports/impor
 
 ## Rating chart timeline
 
-Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN(game_date)` from `amiga_games` (first ladder game, ~Nov 2001) and `meta.granularity = event`. Online still uses June 2017 and per-game points. **By date** x-axis on Amiga profile uses `timelineStart` (month start → today), not the online server origin.
+Amiga `api/player_rating_history.php?realm=amiga` returns `timelineStart` = `MIN(game_date)` from `amiga_games` (first ladder game, ~Nov 2001) and `meta.granularity = event`. Optional `as=` filters snapshot points ≤ cutoff and sets `meta.cutoffActive`; date x-axis ends at the last cutoff event (no flat line to today). Online still uses June 2017 and per-game points. **By date** x-axis on Amiga profile uses `timelineStart` (month start → today in present mode), not the online server origin.
 
 **Chart views** (`player-rating-chart.js`, shared shell with online profile). **Default tab** comes from page markup: Amiga profile = **By date**; online profile = **By game #**.
 

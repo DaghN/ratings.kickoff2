@@ -389,7 +389,10 @@
         return ticks;
     }
 
-    function amigaDateChartTimeRange(chartData, timelineStart) {
+    function amigaDateChartTimeRange(chartData, timelineStart, cutoffActive) {
+        if (DR && DR.ratingChartTimeRange) {
+            return DR.ratingChartTimeRange(chartData, timelineStart, cutoffActive);
+        }
         if (DR && DR.careerTimeRangeFromStart) {
             if (timelineStart) {
                 return DR.careerTimeRangeFromStart(timelineStart);
@@ -670,7 +673,8 @@
             if (cfg.realm === 'online' && DR && DR.profileCareerTimeRange) {
                 timeRange = DR.profileCareerTimeRange();
             } else if (cfg.realm === 'amiga') {
-                timeRange = amigaDateChartTimeRange(playerData, cfg.timelineStart);
+                var dateSeries = playerData.concat(opponentData);
+                timeRange = amigaDateChartTimeRange(dateSeries, cfg.timelineStart, cfg.cutoffActive);
             } else {
                 timeRange = {
                     xMin: DR && DR.serverStartDate ? DR.serverStartDate() : undefined,
@@ -824,12 +828,13 @@
                     var opponent = data.opponent || {};
                     var eventMode = historyIsEventGranularity(data, state.realm);
                     var timelineStart = data.timelineStart || null;
+                    var cutoffActive = !!(data.meta && data.meta.cutoffActive);
                     var playerDateData = pointsToChartData(player.points || []);
                     var opponentDateData = pointsToChartData(opponent.points || []);
                     var playerGameData = pointsToGameData(player.points || [], eventMode);
                     var opponentGameData = pointsToGameData(opponent.points || [], eventMode);
 
-                    if (DR && DR.appendRatingThroughToday) {
+                    if (!cutoffActive && DR && DR.appendRatingThroughToday) {
                         var playerRating = typeof player.currentRating === 'number'
                             ? player.currentRating
                             : (playerDateData.length ? playerDateData[playerDateData.length - 1].y : null);
@@ -913,7 +918,8 @@
                         eventMode: eventMode,
                         lineStyle: state.lineStyle,
                         realm: state.realm,
-                        timelineStart: timelineStart
+                        timelineStart: timelineStart,
+                        cutoffActive: cutoffActive
                     };
                     state.dateChart = renderChart(dateCanvas, state.latestConfig, 'date');
                     setActiveView(root, state.activeView, state);

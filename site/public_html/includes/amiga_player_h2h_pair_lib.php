@@ -560,6 +560,10 @@ function amiga_player_rating_history_payload(mysqli $con, int $playerId, ?AmigaS
         'currentRating' => $currentRating,
         'points' => $points,
         'peak' => amiga_player_rating_peak_summary($con, $playerId, $ctx),
+        'meta' => [
+            'granularity' => 'event',
+            'cutoffActive' => $ctx->isActive(),
+        ],
     ];
 }
 

@@ -129,6 +129,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | **Tournaments** (player) | Participation list ≤ cutoff | **Shipped** Jun 2026 |
 | **`tournament.php` detail** | Ribbon + `as=` on entry redirects and in-page nav (**shipped** Jun 2026); standings/stats body still present-day until wired (§4.4) |
 | **Opponents** tables | Shipped — `amiga_matchup_snapshot_lib.php` |
+| **Profile rating chart** | Snapshot events ≤ cutoff; date x-axis ends at cutoff (`amiga_player_rating_history_payload`) | **Shipped** Jun 2026 |
 | **Profile** blocks | Career / honours at cutoff — phase 2+ |
 
 ### 4.4 Transitional defer (visible but not yet at cutoff)
@@ -137,7 +138,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 |---------|--------|
 | **Player profile** (blocks) | Hero/career snapshot reads — hero **shipped**; career blocks phase 2+ |
 | **Activity** (hub) | Charts not at cutoff yet |
-| **Opponents H2H** | Poster/picker/charts not shipped |
+| **Opponents H2H** | Poster/picker/moments shipped; rank compare at cutoff shipped; rating compare date axis at cutoff **shipped** Jun 2026 |
 | Hub **tournaments.php** with `?as=` | May show present until catalog filter ships; tab hidden regardless (T13b) |
 
 ### 4.5 Later phases (registry)

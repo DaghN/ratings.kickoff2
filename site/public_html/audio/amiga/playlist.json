@@ -1,0 +1,23 @@
+{
+  "title": "Amiga Jukebox",
+  "tracks": [
+    {"id": "xenon-2-intro", "title": "Intro", "game": "Xenon 2: Megablast", "file": "tracks/xenon-2-intro.mp3"},
+    {"id": "turrican-2-final-fight", "title": "The Final Fight", "game": "Turrican II", "file": "tracks/turrican-2-final-fight.mp3"},
+    {"id": "shadow-beast-intro", "title": "Intro", "game": "Shadow of the Beast", "file": "tracks/shadow-beast-intro.mp3"},
+    {"id": "shadow-beast-castle", "title": "To The Castle", "game": "Shadow of the Beast", "file": "tracks/shadow-beast-castle.mp3"},
+    {"id": "lotus-intro", "title": "Intro", "game": "Lotus Esprit Turbo Challenge", "file": "tracks/lotus-intro.mp3"},
+    {"id": "lotus-2-intro", "title": "Intro", "game": "Lotus Esprit Turbo Challenge 2", "file": "tracks/lotus-2-intro.mp3"},
+    {"id": "lotus-music-02", "title": "Track 02", "game": "Lotus Esprit Turbo Challenge", "file": "tracks/lotus-music-02.mp3"},
+    {"id": "lotus-music-04", "title": "Track 04", "game": "Lotus Esprit Turbo Challenge", "file": "tracks/lotus-music-04.mp3"},
+    {"id": "ik-plus", "title": "Theme", "game": "International Karate +", "file": "tracks/ik-plus.mp3"},
+    {"id": "swiv-intro", "title": "Intro", "game": "SWIV", "file": "tracks/swiv-intro.mp3"},
+    {"id": "alien-breed", "title": "Theme", "game": "Alien Breed", "file": "tracks/alien-breed.mp3"},
+    {"id": "battle-squadron-intro", "title": "Intro", "game": "Battle Squadron", "file": "tracks/battle-squadron-intro.mp3"},
+    {"id": "battle-squadron-game", "title": "In Game", "game": "Battle Squadron", "file": "tracks/battle-squadron-game.mp3"},
+    {"id": "battle-squadron-high-score", "title": "High Score", "game": "Battle Squadron", "file": "tracks/battle-squadron-high-score.mp3"},
+    {"id": "cannon-fodder-intro", "title": "Intro", "game": "Cannon Fodder", "file": "tracks/cannon-fodder-intro.mp3"},
+    {"id": "super-cars-2-intro", "title": "Intro", "game": "Super Cars II", "file": "tracks/super-cars-2-intro.mp3"},
+    {"id": "super-cars-2-option", "title": "Options", "game": "Super Cars II", "file": "tracks/super-cars-2-option.mp3"},
+    {"id": "giana-sisters-menu", "title": "Menu Theme", "game": "The Great Giana Sisters", "file": "tracks/giana-sisters-menu.mp3"}
+  ]
+}
