@@ -77,7 +77,7 @@
 
 - **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + roster (flag per row, WC entries tooltips, TT); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
 
-- **Amiga tournament videos (Jun 2026):** **TV-1 done** — harvest tooling + **`data/amiga/tournament_videos/review.csv`** (336 rows); **STOP for Dagh CSV review** before TV-2 manifest. [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md) · [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
+- **Amiga tournament videos (Jun 2026):** **TV-1 review nearly complete** — **`review.csv`**: **205/205** match rows with `game_id_guess`; **76** verified. **STOP for final sign-off** before TV-2 manifest. [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md) · [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -124,14 +124,18 @@
 
 | When | Note |
 |------|------|
+| 2026-06-26 | **Amiga flag → roster sweep** — `k2_amiga_country_table_cell()` defaults linked; host + podium + roster hero/rows included (**CH9**). |
+| 2026-06-26 | **Turbo hash-anchor docs** — `k2-turbo-page-init-checklist.md` § Hash anchor landing. |
 | 2026-06-26 | **WC Chronology table — quiet Date sort** — default `event_date` desc unchanged; `data-k2-quiet-sort-cols="0"` + k2-table.js so Date never gets active-sort header/body emphasis; other columns highlight normally. |
+| 2026-06-26 | **Amiga tournament videos — TV-1 chat review batch 3** — Dagh resolved final 14 escalations (Gloucester I Cup UKC 2002, Sheffield 2003, UKC08, Tommaso=Lorenzo C, duplicates excluded); **205/205** match rows have `game_id_guess`. |
+| 2026-06-26 | **Amiga tournament videos — TV-1 game_id resolver** — `resolve_games.py` (dual-leg ≥20 min rule); **182→205** match rows linked. |
 | 2026-06-26 | **Amiga tournament videos — TV-1 harvest** — `scripts/amiga/tournament_videos/` (yt-dlp + forum t=15358 + enrich); **`data/amiga/tournament_videos/review.csv`** (336 rows, 0 duplicate IDs); relation_group hints on 2010 dual-URL bullets. **STOP:** Dagh CSV review before TV-2. |
 | 2026-06-26 | **Amiga tournament videos — implementation plan** — [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md): slices TV-1–TV-6, manifest paths, harvest/build/validate scripts, PHP Videos tab pilot on WC XXIII. |
 | 2026-06-26 | **Amiga tournament videos — policy doc** — [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md): Videos tab, manifest model, six-source harvest, dedupe-by-youtube-id, Chronology + Has videos filter; implementation not started. |
 | 2026-06-26 | **Jukebox Turbo Drive** — Hotwired Turbo + `data-turbo-permanent` jukebox for gapless cross-page playback; `k2-turbo-boot.js` + `k2:page-ready` bridge. |
 | 2026-06-26 | **Jukebox vs tint picker fix** — Turbo nav no longer leaves duplicate `#k2-jukebox-root` in `<body>`; hub bar `z-index: 1210` keeps Tint clickable above open jukebox panel. |
 | 2026-06-26 | **Turbo filter listbox re-init** — `individual3-filters.js`, `k2-realm-games-filters.js`, `status-period-competitions.js` hook `k2PageReady` so archive listbox filters work after in-page navigation. |
-| 2026-06-26 | **Turbo carry-scroll restore** — `k2_carry_scroll_restore.php` re-runs on `turbo:load` so pill/filter/sort scroll lock works with in-page navigation (store half was already fine). |
+| 2026-06-26 | **Turbo carry-scroll flash + blank + header search — root-cause fix (v6)** — restore scrollY synchronously on `turbo:render` (pre-paint) and set `Turbo.navigator.currentVisit.scrolled=true` to suppress Turbo's scroll-to-top; **removed body-visibility cloak entirely** (it caused the blank-page delay while the flash leaked when restore completed early). No more flash or blank on LB **and** hub wing changes; nav anchor offset preserved. Header search dropdown was behind `.k2-hub-bar` (z-index 1210) — gave `.k2-site-header` its own stacking context (`position:relative; z-index:1300`). |
 | 2026-06-26 | **Jukebox site-wide + nav resume** — player on all themed pages; localStorage saves track/time/playing across navigations and auto-resumes on load. |
 | 2026-06-26 | **Amiga jukebox v1** — opt-in floating player on Amiga realm (`k2_jukebox.php`, 18-track MP3 playlist under `/audio/amiga/`); floppy FAB, panel transport, shuffle, localStorage prefs. |
 | 2026-06-26 | **Amiga chart TT x-axis fix** — profile rank `rankChartTimeRange` treated flat points array as nested series (xMax never capped); rating charts read `Core` before `player-rank-chart-core.js` loaded. Cutoff x-range now in `chart-date-range.js` (`rankPointsTimeRange` / `ratingChartTimeRange`). |
@@ -217,7 +221,7 @@
 | 2026-06-24 | **Amiga TT snapshot chevrons** — tier-pill fill on stepper prev/next (14% elevated tint + 42% border; matches milestone tier filter). |
 | 2026-06-24 | **WC events catalog column order** — Country (host flag) before Tournament on `/amiga/world-cups/` wing 1. |
 | 2026-06-24 | **Amiga TT atmospheric chrome — docs** — policy §5.0 product intent (stamp + ribbon stack, chapter suppression, Δ column); design-direction + hub-ia cross-links. |
-| 2026-06-24 | **Amiga TT tooltip polish** — side-effects order: lost bragging rights before missing holy shields (plain text; linkstar on WARNING! reverted — colour clash). |
+| 2026-06-26 | **Amiga staging export — WC country slice** — `export_ko2amiga_db.ps1` now includes `amiga_country_slice_{totals,at_event}` (parts 37–38); fixes empty WC hub wing 4 country sub-wings on staging. |
 | 2026-06-24 | **Amiga TT hub chapters** — hide `k2-hub-chapter` title/lede on Leaderboards, World Cups, Activity, HoF when `as=` active; present day unchanged. |
 | 2026-06-24 | **WC country Opponents column order** — Countries faced + Countries beaten moved after CS victims (parity with player Opponents wing). |
 | 2026-06-24 | **WC hub wing 1 events table** — `/amiga/world-cups/` sortable catalog (tournaments-index cols minus Format; gold/silver/bronze medal headers + flag+name podium cells from `amiga_world_cup_stats`). |

@@ -15,12 +15,7 @@ require_once __DIR__ . '/amiga_countries_lib.php';
 
 function amiga_countries_index_linked_flag(string $countryToken): string
 {
-    $inner = k2_amiga_country_table_cell($countryToken);
-    $meta = k2_amiga_country_flag_meta($countryToken);
-    $label = $meta !== null ? $meta['label'] : $countryToken;
-    $href = k2_amiga_country_roster_href($countryToken);
-
-    return '<a class="k2-country-roster-link" href="' . k2_h($href) . '" aria-label="Players from ' . k2_h($label) . '">' . $inner . '</a>';
+    return k2_amiga_country_table_cell($countryToken);
 }
 
 /**

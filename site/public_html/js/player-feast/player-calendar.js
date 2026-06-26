@@ -511,6 +511,11 @@
 	}
 
 	function initSection(section) {
+		if (section.getAttribute('data-pm3-cal-bound') === '1') {
+			return;
+		}
+		section.setAttribute('data-pm3-cal-bound', '1');
+
 		var playerId = parseInt(section.getAttribute('data-player-id'), 10);
 		if (!playerId) {
 			return;
@@ -560,7 +565,15 @@
 			});
 	}
 
-	document.addEventListener('DOMContentLoaded', function () {
+	function bootCalendar() {
 		document.querySelectorAll('.pm3-cal--days[data-player-id]').forEach(initSection);
-	});
+	}
+
+	(window.k2OnPageReady || function (fn) {
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', fn);
+		} else {
+			fn();
+		}
+	})(bootCalendar);
 })();

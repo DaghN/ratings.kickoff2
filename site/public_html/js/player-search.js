@@ -346,6 +346,17 @@
         }
     });
 
+    document.addEventListener('turbo:before-cache', function () {
+        var roots = document.querySelectorAll('.player-search[data-ps-initialized]');
+        for (var i = 0; i < roots.length; i++) {
+            if (roots[i]._psAbort) {
+                roots[i]._psAbort.abort();
+                roots[i]._psAbort = null;
+            }
+            roots[i].removeAttribute('data-ps-initialized');
+        }
+    });
+
     function boot() {
         var roots = document.querySelectorAll('.player-search[data-player-search-realm]');
         for (var i = 0; i < roots.length; i++) {
@@ -353,9 +364,15 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
-    } else {
-        boot();
+    if (window.k2PageReady) {
+        window.k2PageReady(boot);
     }
+
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(boot);
 })();

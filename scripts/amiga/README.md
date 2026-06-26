@@ -115,7 +115,7 @@ python scripts/amiga/discover_access_schema.py
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 ```
 
-Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). Tail parts: snapshots, current, matchup at-event, standings, catalog, matchup summary, `amiga_generalstats`, **`amiga_realm_snapshots`**, finish override. Sync all of `_import/` via WinSCP.
+Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). **38 parts** (Jun 2026-26): ground + structure through games/ratings chunks, then derived tail — snapshots, current, elo rank, matchup at-event, standings, catalog, matchup summary, generalstats, realm snapshots, community stats (+ snapshots + facts), world cup stats, player slice (+ at-event), **country slice (+ at-event)**. Audit: `python scripts/oneoff/audit_ko2amiga_export_tables.py`. Sync all of `_import/` via WinSCP.
 
 **Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
 

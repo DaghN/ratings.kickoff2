@@ -263,6 +263,10 @@ body.k2-site .k2-hub-chapter__nav {
 	margin: 0 auto;
 	padding: 18px 0 14px;
 	border-bottom: 1px solid var(--k2-border-subtle);
+	/* Own stacking context above hub bar (1210) + jukebox (1200) so the header search
+	   dropdown is never painted behind page chrome below it. */
+	position: relative;
+	z-index: 1300;
 }
 
 .k2-wordmark {
@@ -1999,6 +2003,11 @@ body.k2-site .k2-table-wrap {
 
 body.k2-site .k2-lb-table-anchor {
 	height: 0;
+}
+
+body.k2-site .k2-countries-scroll-anchor {
+	height: 0;
+	scroll-margin-top: 12px;
 }
 
 /* Scroll mirror — inline-block shrink-wrap; --active only shows the top mirror bar */

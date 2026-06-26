@@ -7,6 +7,10 @@
 	var API = '/api/amiga_player_games_perf_rating.php';
 
 	function onReady(fn) {
+		if (typeof window.k2OnPageReady === 'function') {
+			window.k2OnPageReady(fn);
+			return;
+		}
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', fn);
 			return;

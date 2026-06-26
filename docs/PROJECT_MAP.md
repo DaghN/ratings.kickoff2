@@ -30,6 +30,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `docs/` | Specs, coordination, agent playbooks |
 | `docs/k2-table-implementation-checklist.md` | **K2 tables** — mandatory before new/refactored sortable tables; run `scripts/audit_k2_table_compliance.py` for backlog |
 | `docs/k2-nav-implementation-checklist.md` | **K2 page chrome nav** — mandatory before new wing/sub-nav/hub shell; spacing in `nav-spacing-policy.md` |
+| `docs/k2-turbo-page-init-checklist.md` | **Turbo page JS boot** — mandatory before new/edited widget/chart/filter scripts; `k2OnPageReady` + idempotent guards; **§ Hash anchor landing** for `#fragment` mid-page links under Turbo |
 | `data/dumps/` | Local SQL dump (gitignored) |
 | `README.md` | Repo entry — links to agents, ops, brief |
 | `PROJECT_BRIEF.md` | Product taste / north star |

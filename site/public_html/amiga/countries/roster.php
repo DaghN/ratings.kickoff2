@@ -54,6 +54,8 @@ $k2HubChapterLede = 'Players from ' . htmlspecialchars($countryToken, ENT_QUOTES
     . ' · <a href="' . htmlspecialchars(amiga_countries_wc_stats_href_for_token($countryToken), ENT_QUOTES, 'UTF-8') . '">World Cup country stats</a>';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 
+echo k2_amiga_country_roster_anchor_markup();
+
 $k2CountryHeroToken = $countryToken;
 $k2CountryHeroSummary = $summaryRow;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_hero.php';

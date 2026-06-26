@@ -26,7 +26,8 @@ $Tables = @(
     'amiga_community_stats', 'amiga_community_stats_snapshots', 'amiga_community_stat_facts',
     'amiga_world_cup_stats',
     'amiga_tournament_finish_override',
-    'amiga_player_slice_totals', 'amiga_player_slice_at_event'
+    'amiga_player_slice_totals', 'amiga_player_slice_at_event',
+    'amiga_country_slice_totals', 'amiga_country_slice_at_event'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -194,6 +195,18 @@ $sliceAtEventPart = ('ko2amiga_{0:D2}_slice_at_event.sql' -f $idx)
 $sliceAtEventFile = Join-Path $OutDir $sliceAtEventPart
 Write-DumpFile $sliceAtEventFile @('--no-create-info', 'ko2amiga_db', 'amiga_player_slice_at_event')
 $parts.Add($sliceAtEventPart)
+$idx++
+
+$countrySliceTotalsPart = ('ko2amiga_{0:D2}_country_slice_totals.sql' -f $idx)
+$countrySliceTotalsFile = Join-Path $OutDir $countrySliceTotalsPart
+Write-DumpFile $countrySliceTotalsFile @('--no-create-info', 'ko2amiga_db', 'amiga_country_slice_totals')
+$parts.Add($countrySliceTotalsPart)
+$idx++
+
+$countrySliceAtEventPart = ('ko2amiga_{0:D2}_country_slice_at_event.sql' -f $idx)
+$countrySliceAtEventFile = Join-Path $OutDir $countrySliceAtEventPart
+Write-DumpFile $countrySliceAtEventFile @('--no-create-info', 'ko2amiga_db', 'amiga_country_slice_at_event')
+$parts.Add($countrySliceAtEventPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

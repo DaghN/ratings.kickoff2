@@ -11,3 +11,5 @@ html.k2-turbo-navigating .k2-chrome-tabs__tab,
 html.k2-turbo-navigating .k2-realm-switch__btn {
 	transition: none !important;
 }
+
+/* Carry-scroll restore runs synchronously on turbo:render (pre-paint) — no body cloak needed. */

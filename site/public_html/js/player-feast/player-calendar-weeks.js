@@ -433,6 +433,11 @@
 	}
 
 	function initSection(section) {
+		if (section.getAttribute('data-pm3-cal-bound') === '1') {
+			return;
+		}
+		section.setAttribute('data-pm3-cal-bound', '1');
+
 		var playerId = parseInt(section.getAttribute('data-player-id'), 10);
 		var firstGameDate = section.getAttribute('data-first-game-date') || '';
 		if (!playerId || !/^\d{4}-\d{2}-\d{2}$/.test(firstGameDate)) {
@@ -496,7 +501,15 @@
 			});
 	}
 
-	document.addEventListener('DOMContentLoaded', function () {
+	function bootCalendarWeeks() {
 		document.querySelectorAll('.pm3-cal--weeks[data-player-id]').forEach(initSection);
-	});
+	}
+
+	(window.k2OnPageReady || function (fn) {
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', fn);
+		} else {
+			fn();
+		}
+	})(bootCalendarWeeks);
 })();

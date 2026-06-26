@@ -38,6 +38,11 @@
     }
 
     function initRoot(root) {
+        if (root.getAttribute('data-k2-h2h-search-bound') === '1') {
+            return;
+        }
+        root.setAttribute('data-k2-h2h-search-bound', '1');
+
         var playerId = root.getAttribute('data-player-id');
         var input = root.querySelector('.player-h2h-search-input');
         var list = root.querySelector('.player-h2h-search-results');
@@ -156,9 +161,11 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
-    } else {
-        boot();
-    }
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(boot);
 })();

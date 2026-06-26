@@ -43,15 +43,15 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | **CH6** | **Roster eligibility** | All nationals with `NumberGames > 0` at cutoff, sorted **rating descending** (default). |
 | **CH7** | **Index default sort** | **Player count descending** (largest nations first). |
 | **CH8** | **Roster default sort** | **Rating descending** (strongest first). |
-| **CH9** | **Flag links** | Flag and country name on the index both link to the country roster. Site-wide nationality flags (profile hero, LB country column, WC **player** tables) link to the same roster URL when wired — **not** tournament **host** country cells. |
-| **CH10** | **Roster flag column** | **One flag per roster row** — same country flag repeated on every player row (visual rhythm; “lovely flags repeated”). |
+| **CH9** | **Flag links** | **Every Amiga country flag** (mapped or text fallback in a flag cell) links to that country’s roster with `#k2-country-roster` — nationality columns, **host** columns, WC podium nationality flags, profile hero, LB/WC tables, countries index, **and roster page hero + per-row flag column** (same-page link still uses hash). Implement via `k2_amiga_country_table_cell()` / `k2_amiga_country_table_cell_or_dash()` (default `$link = true`). **Not** filter listbox labels or plain text without a flag cell. |
+| **CH10** | **Roster flag column** | **One flag per roster row** — same country flag repeated on every player row; **each flag links** to that roster (`#k2-country-roster`). |
 | **CH11** | **Medal columns UI** | Reuse Status/Leagues podium medal glyphs: `k2_status_league_podium_medal(1|2|3)` in `<th>` (`k2-lb-honours-medal-th`), **integer counts** in `<td>`. Same pattern as [`amiga_wc_players_table.php`](../site/public_html/includes/amiga_wc_players_table.php). |
 | **CH12** | **WC entries label** | UI label **WC entries** on both surfaces; tooltips **must** clarify the two grains (§5.2). |
 | **CH13** | **Games / player** | Index column **Games / player** = `games ÷ players`; display **one decimal** (e.g. `58.3`). |
 | **CH14** | **Rank on roster** | **Global** `elo_rank` at cutoff — not rank-within-country. |
 | **CH15** | **Last event** | **Name** (link to tournament) + **date** from player’s last participation at cutoff: present → `amiga_player_current.last_tournament_id` + `last_event_date`; time travel → snapshot row’s `tournament_id` + `event_date` (that row is last event ≤ cutoff). |
 | **CH16** | **Time travel** | Both index and roster **must** honour `as=` from slice 1 — same cutoff tuple as leaderboards (`AmigaSnapshotContext`). |
-| **CH17** | **Host vs nationality** | Roster/index = **player nationality**. Tournament **host** country (where an event was held) stays on tournament/games filters — do not route host flags to country roster. |
+| **CH17** | **Host vs nationality (data only)** | Roster roll-ups and index eligibility use **player nationality**. Tournament **host** country is a separate field on events — but **both** host and nationality **flags** link to the same country roster URL for that token (**CH9**). Host/opponent **filter listboxes** on player games stay text-only. |
 | **CH18** | **Cross-links** | Roster page → WC country stats for that token when row exists. WC country index row → country roster. Optional one-line on index lede. |
 | **CH19** | **V2 — Country vs country** | Nation-pair compare page (texture similar to player H2H) — **deferred**; note in policy only; no v1 URLs or stubs. |
 | **CH20** | **LB country filter** | **Out of scope** for this track. |
@@ -88,6 +88,8 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 
 **Path:** `/amiga/countries/roster.php?country={token}`  
 **Sub-nav:** None for v1 (single table). Optional return link to index in chapter area.
+
+**Scroll anchor:** Zero-height `#k2-country-roster` immediately above the country hero — off-page roster links (hub tab, index flags, profile flags) append this hash so the hero lands in viewport (skips chapter).
 
 **Country hero:** Large flag (when mapped), country name, optional compact summary line (player count · total games · WC entries · medal totals) — derived from same aggregates as index row for this token.
 
@@ -180,13 +182,12 @@ V1 may **verify** index WC columns against WC country slice at present for parit
 | Entry | Behaviour |
 |-------|-----------|
 | **Hub tab Countries** | → `/amiga/countries/index.php` |
-| **Index flag / name** | → `/amiga/countries/roster.php?country={token}` |
-| **Profile hero flag** | → roster (when wired) |
-| **LB country column flag** | → roster (when wired) |
-| **WC player table country cell** | → roster (when wired) |
-| **Tournament host country** | **No link** to roster (**CH17**) |
+| **Any country flag cell** | → `/amiga/countries/roster.php?country={token}#k2-country-roster` via `k2_amiga_country_table_cell()` (**CH9**) |
+| **Index country name** (text link) | → same roster URL + hash |
+| **Roster hero + row flags** | → same roster URL + hash (same country; scrolls to hero) |
+| **WC podium nationality flag** | → roster for that player’s country token |
 
-All Amiga links carry `as=` via `amiga_url_with_context()` / `k2_amiga_route()` when time travel active.
+All Amiga links carry `as=` via `amiga_url_with_context()` / `k2_amiga_route()` when time travel active. **Turbo hash landing:** off-page roster links append `#k2-country-roster`; scroll timing is handled site-wide — see [`k2-turbo-page-init-checklist.md`](k2-turbo-page-init-checklist.md) § Hash anchor landing (do not add page-local scroll JS).
 
 **Route keys (proposed):**
 
@@ -268,7 +269,6 @@ See [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — same cutoff
 | Index aggregates | Spot-check Denmark: player count, sum games, sum `wc_played`, sum medals vs manual SQL |
 | WC entries parity | Index `WC entries` = sum of roster column for same country at present |
 | Time travel | Same country at early `as=` — roster shrinks; index row counts drop |
-| Flag links | Profile + LB + index → roster with `as=` preserved |
-| Host country | Tournament catalog host flag does **not** link to roster |
+| Flag links | Profile + LB + index + host columns + podium + roster → roster with `as=` preserved |
 
 No `prove` gate for v1 read-only aggregation unless stored tables added later.

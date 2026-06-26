@@ -25,6 +25,19 @@
 		document.addEventListener("k2:page-ready", fn);
 	};
 
+	/** First load + every Turbo visit — init must be idempotent per root element. */
+	window.k2OnPageReady = function (fn) {
+		if (typeof fn !== "function") {
+			return;
+		}
+		window.k2PageReady(fn);
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", fn);
+			return;
+		}
+		fn();
+	};
+
 	function dispatchPageReady() {
 		document.dispatchEvent(new CustomEvent("k2:page-ready", { bubbles: true }));
 	}

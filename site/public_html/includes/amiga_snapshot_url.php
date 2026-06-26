@@ -14,6 +14,13 @@ require_once __DIR__ . '/k2_table_helpers.php';
  */
 function amiga_url_with_context(string $path, array $extraQuery = [], ?AmigaSnapshotContext $ctx = null): string
 {
+    $hash = '';
+    $hashPos = strpos($path, '#');
+    if ($hashPos !== false) {
+        $hash = substr($path, $hashPos);
+        $path = substr($path, 0, $hashPos);
+    }
+
     $pathPart = $path;
     /** @var array<string, scalar|null> $query */
     $query = [];
@@ -48,10 +55,10 @@ function amiga_url_with_context(string $path, array $extraQuery = [], ?AmigaSnap
     }
 
     if ($query === []) {
-        return $pathPart;
+        return $pathPart . $hash;
     }
 
-    return $pathPart . '?' . http_build_query($query);
+    return $pathPart . '?' . http_build_query($query) . $hash;
 }
 
 /** Current request path for time-travel link building (honours $k2AmigaSnapshotChromePath). */

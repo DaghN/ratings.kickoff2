@@ -96,7 +96,13 @@
 		syncToggleButtons();
 	}
 
+	var tintInitialized = false;
+
 	function firstInit() {
+		if (tintInitialized) {
+			return;
+		}
+		tintInitialized = true;
 		init();
 	}
 
@@ -104,9 +110,14 @@
 		window.k2PageReady(boot);
 	}
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', firstInit);
-	} else {
+	(window.k2OnPageReady || function (fn) {
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', fn);
+		} else {
+			fn();
+		}
+	})(function () {
 		firstInit();
-	}
+		boot();
+	});
 })();

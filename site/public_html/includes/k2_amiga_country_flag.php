@@ -1,7 +1,9 @@
 <?php
 /**
- * Amiga player country → bundled flag SVG (flag-icons 4x3, MIT).
- * Keys match amiga_players.country display strings from Access import.
+ * Amiga country flags → country roster links.
+ *
+ * Default: k2_amiga_country_table_cell() and _or_dash() wrap flags in roster href + #k2-country-roster.
+ * @see docs/amiga-countries-hub-policy.md CH9
  */
 require_once __DIR__ . '/k2_safety.php';
 
@@ -74,7 +76,7 @@ function k2_amiga_country_flag_img(string $country, array $opts = []): string
 }
 
 /** Flag image for table cells; falls back to escaped country name when unmapped. */
-function k2_amiga_country_table_cell(string $country, bool $link = false): string
+function k2_amiga_country_table_cell(string $country, bool $link = true): string
 {
     $country = trim($country);
     $flag = k2_amiga_country_flag_img($country, ['decorative' => false]);
@@ -100,15 +102,15 @@ function k2_amiga_country_table_cell(string $country, bool $link = false): strin
     return $inner;
 }
 
-/** Flag cell; em dash when country is empty (e.g. tournament host unknown). */
-function k2_amiga_country_table_cell_or_dash(string $country): string
+/** Flag cell; em dash when country is empty (e.g. host unknown). */
+function k2_amiga_country_table_cell_or_dash(string $country, bool $link = true): string
 {
     $country = trim($country);
     if ($country === '') {
         return '—';
     }
 
-    return k2_amiga_country_table_cell($country);
+    return k2_amiga_country_table_cell($country, $link);
 }
 
 /**

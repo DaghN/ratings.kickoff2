@@ -115,7 +115,13 @@
         syncAccentButtons();
     }
 
+    var realmSwitchInitialized = false;
+
     function firstInit() {
+        if (realmSwitchInitialized) {
+            return;
+        }
+        realmSwitchInitialized = true;
         init();
     }
 
@@ -123,9 +129,14 @@
         window.k2PageReady(boot);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', firstInit);
-    } else {
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(function () {
         firstInit();
-    }
+        boot();
+    });
 })();

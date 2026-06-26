@@ -1874,7 +1874,13 @@
         drain(0);
     }
 
-    document.addEventListener('DOMContentLoaded', boot);
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(boot);
 
     global.K2ActivityChartsV2 = {
         panels: PANELS,

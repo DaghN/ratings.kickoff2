@@ -771,6 +771,11 @@
     }
 
     function initStandalone(root) {
+        if (root.getAttribute('data-k2-chart-bound') === '1') {
+            return;
+        }
+        root.setAttribute('data-k2-chart-bound', '1');
+
         var playerId = root.getAttribute('data-player-id');
         if (!playerId) {
             return;
@@ -788,6 +793,11 @@
     }
 
     function initH2hMatchups(matchups) {
+        if (matchups.getAttribute('data-k2-chart-bound') === '1') {
+            return true;
+        }
+        matchups.setAttribute('data-k2-chart-bound', '1');
+
         var subjectRoot = matchups.querySelector('.player-goals-scored-histogram[data-h2h-side="subject"]');
         var rivalRoot = matchups.querySelector('.player-goals-scored-histogram[data-h2h-side="rival"]');
         var groupedRoot = matchups.querySelector('.player-goals-scored-histogram[data-h2h-grouped="1"]');
@@ -875,9 +885,11 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
-    } else {
-        boot();
-    }
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(boot);
 })();

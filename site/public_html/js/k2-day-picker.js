@@ -1,6 +1,6 @@
 /**
  * Standalone day picker — flatpickr + K2 archive listboxes (Status league panel parity).
- * Auto-inits [data-k2-day-picker] on DOMContentLoaded.
+ * Auto-inits [data-k2-day-picker] on each page visit (Turbo-aware via k2OnPageReady).
  */
 (function () {
     'use strict';
@@ -380,11 +380,13 @@
         initOne: initDayPicker,
     };
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-            initAll(document);
-        });
-    } else {
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(function () {
         initAll(document);
-    }
+    });
 }());

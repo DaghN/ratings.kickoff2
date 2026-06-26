@@ -1808,13 +1808,15 @@
         }
     }
 
+    var metaRefreshInterval = null;
+
     function init() {
         var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
         for (var i = 0; i < roots.length; i++) {
             initRoot(roots[i]);
         }
-        if (roots.length) {
-            window.setInterval(refreshMeta, 30000);
+        if (roots.length && metaRefreshInterval == null) {
+            metaRefreshInterval = window.setInterval(refreshMeta, 30000);
         }
     }
 
@@ -1822,13 +1824,11 @@
         init();
     }
 
-    if (window.k2PageReady) {
-        window.k2PageReady(boot);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
-    } else {
-        boot();
-    }
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(boot);
 })();

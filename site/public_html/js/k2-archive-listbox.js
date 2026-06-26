@@ -901,7 +901,25 @@
         }
     }
 
-    if (typeof window !== 'undefined' && window.k2PageReady) {
-        window.k2PageReady(dismissStaleOpenListbox);
+    function onPageReadyListbox() {
+        dismissStaleOpenListbox();
+        init(document);
+    }
+
+    if (typeof window !== 'undefined') {
+        if (typeof window.k2OnPageReady === 'function') {
+            window.k2OnPageReady(onPageReadyListbox);
+        } else if (typeof window.k2PageReady === 'function') {
+            window.k2PageReady(onPageReadyListbox);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', onPageReadyListbox);
+            } else {
+                onPageReadyListbox();
+            }
+        } else if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', onPageReadyListbox);
+        } else {
+            onPageReadyListbox();
+        }
     }
 }(typeof window !== 'undefined' ? window : this));

@@ -68,6 +68,7 @@ CSV_COLUMNS = [
     "player_a_id_guess",
     "player_b_guess",
     "player_b_id_guess",
+    "game_id_guess",
     "source",
     "source_channel",
     "source_playlist",

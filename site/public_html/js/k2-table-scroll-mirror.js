@@ -13,6 +13,10 @@
 	var SIZER_CLASS = 'k2-table-scroll-mirror__sizer';
 
 	function onReady(fn) {
+		if (typeof window.k2OnPageReady === 'function') {
+			window.k2OnPageReady(fn);
+			return;
+		}
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', fn);
 			return;

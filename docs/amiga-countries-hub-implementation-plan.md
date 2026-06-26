@@ -204,18 +204,18 @@ Nationality flags become entry points to roster (**CH9**).
 
 ### Tasks
 
-- [x] **`k2_amiga_country_flag.php`:**
-  - Add optional `'link' => true` (or `'href' => …`) to `k2_amiga_country_flag_img()` / `k2_amiga_country_table_cell()`.
-  - When linked, wrap in `<a>` with accessible label *Players from {label}*; use `k2_amiga_country_roster_href()`.
-- [x] **`amiga_player_hero.php`:** wrap country flag (and optionally country text when unmapped) in roster link.
-- [x] **Amiga LB wings** using `k2_lb_td_country_open` / `k2_amiga_country_table_cell` for **player nationality** column — enable link opt (rating, goals, peak, perf, victims, DD, calendar-geo, tournament honours, WC player tables).
-- [x] **Do not change:** `k2_amiga_country_table_cell_or_dash` on **host** country columns (`amiga_world_cups_events_table.php`, tournament history host col, event-stats host) unless product explicitly asks (**CH17**).
+- [x] **`k2_amiga_country_flag.php`:** `k2_amiga_country_table_cell()` / `_or_dash()` default **`$link = true`**; wrap with `k2_amiga_country_roster_href()` + accessible *Players from {label}*.
+- [x] **`amiga_player_hero.php`:** country flag → roster link.
+- [x] **Amiga LB / WC / profile host columns** — all flag cells via table_cell helpers (linked).
+- [x] **WC chronology podium** nationality flags → roster for that country token.
+- [x] **Roster hero + roster table flag column** — linked (same-page `#k2-country-roster`).
 
 ### Verification
 
-- Profile hero flag → Denmark roster with `as=` preserved when TT active.
-- LB rating page country cell → roster.
-- Tournament events catalog host flag → **no** roster link.
+- Any flag on profile, LB, WC events/stats, profile tournament tables → country roster at hero anchor.
+- Host-country flag on WC chronology → roster for host token.
+- Podium nationality flag → roster (player name link unchanged).
+- Roster page flags → same roster URL + hash.
 
 ---
 

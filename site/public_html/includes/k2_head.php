@@ -26,6 +26,10 @@ if (is_file($k2TurboPath)) {
 if (is_file($k2TurboBootPath)) {
 	echo '<script type="text/javascript" src="/js/k2-turbo-boot.js?v=' . (int) filemtime($k2TurboBootPath) . '" defer="defer"></script>' . "\n";
 }
+$k2PlayerSearchPath = $k2DocRoot . '/js/player-search.js';
+if (is_file($k2PlayerSearchPath)) {
+	echo '<script type="text/javascript" src="/js/player-search.js?v=' . (int) filemtime($k2PlayerSearchPath) . '" defer="defer"></script>' . "\n";
+}
 $k2JukeboxCssPath = $k2DocRoot . '/stylesheets/k2-jukebox.css';
 $k2JukeboxJsPath = $k2DocRoot . '/js/k2-jukebox.js';
 if (is_file($k2JukeboxCssPath)) {

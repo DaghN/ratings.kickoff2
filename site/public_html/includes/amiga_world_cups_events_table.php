@@ -59,7 +59,7 @@ function amiga_world_cups_events_podium_cell(int $playerId, array $nameMap, arra
 
     $name = k2_player_display_name($nameMap, $playerId);
     $country = trim($countryMap[$playerId] ?? '');
-    $flag = $country !== '' ? k2_amiga_country_flag_img($country) : '';
+    $flag = $country !== '' ? k2_amiga_country_table_cell($country) : '';
     $link = k2_amiga_player_link($playerId, $name);
     if ($flag === '') {
         return $link;

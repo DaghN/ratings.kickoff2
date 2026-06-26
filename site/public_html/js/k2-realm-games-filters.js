@@ -9,6 +9,13 @@
     var MIN_CHARS = 2;
 
     function onReady(fn) {
+        if (typeof window.k2OnPageReady === 'function') {
+            window.k2OnPageReady(fn);
+            return;
+        }
+        if (typeof window.k2PageReady === 'function') {
+            window.k2PageReady(fn);
+        }
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fn);
             return;
@@ -294,10 +301,6 @@
         for (var i = 0; i < forms.length; i++) {
             initForm(forms[i]);
         }
-    }
-
-    if (window.k2PageReady) {
-        window.k2PageReady(boot);
     }
 
     onReady(boot);

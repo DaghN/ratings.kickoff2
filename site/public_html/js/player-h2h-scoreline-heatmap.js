@@ -563,6 +563,11 @@
     }
 
     function initRoot(root) {
+        if (root.getAttribute('data-k2-chart-bound') === '1') {
+            return;
+        }
+        root.setAttribute('data-k2-chart-bound', '1');
+
         var playerId = root.getAttribute('data-player-id');
         if (!playerId) {
             return;
@@ -633,9 +638,11 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
-    } else {
-        boot();
-    }
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(boot);
 })();

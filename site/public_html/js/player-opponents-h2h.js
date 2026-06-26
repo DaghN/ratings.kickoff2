@@ -187,6 +187,11 @@
     }
 
     function initRoot(root) {
+        if (root.getAttribute('data-k2-h2h-bound') === '1') {
+            return;
+        }
+        root.setAttribute('data-k2-h2h-bound', '1');
+
         initSearch(root);
         initListboxes(root);
     }
@@ -198,9 +203,11 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
-    } else {
-        boot();
-    }
+    (window.k2OnPageReady || function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
+        }
+    })(boot);
 }());

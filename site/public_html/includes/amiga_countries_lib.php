@@ -15,15 +15,38 @@ require_once __DIR__ . '/k2_amiga_routes.php';
 
 const AMIGA_COUNTRIES_UNKNOWN_TOKEN = 'Unknown';
 
+/** Country roster hero scroll target — keep in sync with k2_amiga_country_roster_href(). */
+const K2_AMIGA_COUNTRY_ROSTER_FRAGMENT = 'k2-country-roster';
+
+function k2_amiga_country_roster_anchor_id(): string
+{
+    return K2_AMIGA_COUNTRY_ROSTER_FRAGMENT;
+}
+
+function k2_amiga_country_roster_anchor_hash(): string
+{
+    return '#' . k2_amiga_country_roster_anchor_id();
+}
+
+function k2_amiga_country_roster_anchor_markup(): string
+{
+    return '<div id="' . k2_amiga_country_roster_anchor_id() . '" class="k2-countries-scroll-anchor" tabindex="-1"></div>';
+}
+
 function amiga_countries_token_sql(string $playerAlias = 'p'): string
 {
     return 'CASE WHEN TRIM(' . $playerAlias . '.country) IS NULL OR TRIM(' . $playerAlias . '.country) = \'\' '
         . 'THEN \'' . AMIGA_COUNTRIES_UNKNOWN_TOKEN . '\' ELSE TRIM(' . $playerAlias . '.country) END';
 }
 
-function k2_amiga_country_roster_href(string $countryToken): string
+function k2_amiga_country_roster_href(string $countryToken, bool $scrollToHero = true): string
 {
-    return k2_amiga_route('amiga-countries-roster', ['country' => $countryToken]);
+    $href = k2_amiga_route('amiga-countries-roster', ['country' => $countryToken]);
+    if ($scrollToHero) {
+        $href .= k2_amiga_country_roster_anchor_hash();
+    }
+
+    return $href;
 }
 
 function amiga_countries_normalize_country_param(string $raw): string
