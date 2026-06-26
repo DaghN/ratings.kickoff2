@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../site/public_html/includes/amiga_snapshot_context.php';
 require __DIR__ . '/../../site/public_html/includes/amiga_snapshot_url.php';
+require __DIR__ . '/../../site/public_html/includes/amiga_lb_lib.php';
 require __DIR__ . '/../../site/public_html/includes/amiga_lb_snapshot_lib.php';
 require __DIR__ . '/../../site/public_html/includes/amiga_realm_snapshot_read_lib.php';
 include __DIR__ . '/../../site/config/ko2amiga_config.php';
@@ -99,6 +100,18 @@ if (!str_contains($goalsHref, 'as=year%3A2003') && !str_contains($goalsHref, 'as
     $fail('4', "goals wing link lost as=: {$goalsHref}");
 }
 $pass('4', "goals={$goals2003Count} geo=" . count($geo2003));
+
+$peak2003 = amiga_lb_query_peak_rating($con, $ctx2003);
+$peak2003Count = $peak2003->num_rows;
+mysqli_free_result($peak2003);
+if ($peak2003Count < 1) {
+    $fail('4b', 'peak-rating LB empty at year:2003');
+}
+$peakHref = amiga_url_with_context('/amiga/leaderboards/peak-rating.php');
+if (!str_contains($peakHref, 'as=year%3A2003') && !str_contains($peakHref, 'as=year:2003')) {
+    $fail('4b', "peak-rating wing link lost as=: {$peakHref}");
+}
+$pass('4b', "peak-rating={$peak2003Count}");
 
 // Step 5 — Player link carries as=; profile unwired (URL only — no page fetch).
 $GLOBALS['_amiga_snapshot_context'] = $ctx2003;

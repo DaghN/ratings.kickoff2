@@ -108,8 +108,8 @@ function player_opponents_render_h2h_matchup_charts(
 					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game"><?php echo k2_h($gameToggleLabel); ?></button>
 				</div>
 				<div class="pm3d-rating-toggle player-compare-rating-chart__line-style" role="tablist" aria-label="Rating line style">
-					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line-style="smooth">Connected</button>
-					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line-style="stepped">Stepwise</button>
+					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line-style="stepped">Stepwise</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line-style="smooth">Connected</button>
 				</div>
 			</div>
 			<p class="player-compare-rating-chart-status pm3d-chart__status k2-chart-panel__status">Waiting for opponent…</p>

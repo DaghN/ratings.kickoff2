@@ -220,6 +220,17 @@
 
         syncToolbarVisibility(root, state);
 
+        if (T && T.registerChartHtmlTooltipScrollDismiss) {
+            T.registerChartHtmlTooltipScrollDismiss(function () {
+                if (state.chart && !state.chart.destroyed) {
+                    if (T.clearChartTooltipHover) {
+                        T.clearChartTooltipHover(state.chart);
+                    }
+                    state.chart.draw();
+                }
+            });
+        }
+
         function bindToggle(selector, attr, key, onChange) {
             var group = root.querySelector(selector);
             if (!group) {

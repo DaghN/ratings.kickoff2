@@ -4,7 +4,7 @@
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)
 
-**Related:** [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H6–H8 country tokens) · [`amiga-performance-rating.md`](amiga-performance-rating.md) (TPR formula) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) (network semantics) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 (stored truth) · **Implementation:** [`amiga-world-cups-country-slice-implementation-plan.md`](amiga-world-cups-country-slice-implementation-plan.md)
+**Related:** [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H6–H8 country tokens) · [`amiga-performance-rating.md`](amiga-performance-rating.md) (TPR formula) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) (network semantics) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 (stored truth) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) (career roster by nationality — sibling surface) · **Implementation:** [`amiga-world-cups-country-slice-implementation-plan.md`](amiga-world-cups-country-slice-implementation-plan.md)
 
 ---
 
@@ -340,7 +340,7 @@ Use `k2_amiga_country_flag.php` when `country_token` maps; **`Unknown`** — tex
 
 | Topic | Notes |
 |-------|--------|
-| Leaderboards → Countries dual surface | Hub only (**WCCS21**) |
+| Leaderboards → Countries dual surface | Hub only (**WCCS21**) — **not** the career **Countries** hub tab ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md)) |
 | Medals/podium/pts per participation | Rejected (**WCCS19**) |
 | Representation rate | Rejected |
 | Single-WC peaks / top national player | Rejected |

@@ -122,6 +122,11 @@
 
 | When | Note |
 |------|------|
+| 2026-06-26 | **Amiga peak-rating LB time travel fix** — TT query had two cutoff `(?, ?, ?)` clauses but only three bind params; table was empty / execute failed. Smoke step **4b** added. |
+| 2026-06-25 | **H2H rating compare line style** — Stepwise first in toolbar + default (was Connected); online + Amiga. |
+| 2026-06-25 | **Rank chart #1 headroom** — linear Y extends slightly below #1 for hover/grid clearance; `afterBuildTicks` keeps the #1 grid line when auto ticks skip it. Solo + H2H compare. |
+| 2026-06-25 | **H2H rating compare By # tooltips** — event date uses site `M j, Y` locale format (not ISO `YYYY-MM-DD`); comma before date instead of middle dot. |
+| 2026-06-25 | **H2H compare chart tooltips — scroll dismiss** — rank + rating HTML tooltips hide on page scroll; chart hover state + rating date hover dots cleared via `K2ChartTheme.registerChartHtmlTooltipScrollDismiss`. |
 | 2026-06-25 | **H2H wins + cumulative goals charts — game #0 origin** — prepend `(0, 0)` and x-axis `min: 0` so single-game pairings draw a line segment (Amiga + online). |
 | 2026-06-25 | **Amiga chart peak copy — tournament anchor** — rank + rating peak summaries (profile solo, H2H compare) append `, after {tournament name}` from stored `*_tournament_id`; rating API `peak` via `amiga_player_rating_peak_summary()`. |
 | 2026-06-25 | **H2H rating By tournament # hover + line style** — shared index resolver (`resolveCompareRatingGameTooltipItems`); custom hover dots + tooltip follow cursor; Connected/Stepwise applies to both By date and By tournament #. |
@@ -181,12 +186,13 @@
 | 2026-06-24 | **Entity hero stack gap** -- `.k2-player-hero` + `.k2-amiga-tournament-hero` use `--k2-nav-gap` (was 6px / 16px); policy N1 = page-chrome stack layers, not nav-only. |
 | 2026-06-24 | **Player wing hub bar** -- realm hub nav on all online + Amiga player pages (`player_wing_hub_nav.inc.php` / `amiga_player_wing_hub_nav.inc.php`); tint picker moved off player nav to hub bar; hero anchor landing = later slice. |
 | 2026-06-24 | **Amiga segment sub-navs** -- LB wing (`.k2-amiga-lb-tabs`), WC hub tabs, tournaments index filter (new `amiga_tournament_index_nav.php`); online LB stays full-width for filters. |
+| 2026-06-25 | **Amiga Countries hub docs sweep** — policy/plan marked complete; `amiga-profile-v0`, `url-routes`, `amiga-time-travel-policy` (TT tab + matrix), WC hub/country-slice cross-links, k2-table/k2-nav checklists, surface-expansion inventory, UPDATE_DOCS + AGENTS cold-start. |
 | 2026-06-24 | **UTF-16 sweep** -- converted nav docs + `amiga_tt_stamp_html_probe.php` to UTF-8; repo scan clean (no UTF-16); 5 UTF-8-BOM files left (harmless). Rule: `.cursor/rules/utf8-windows.mdc`. |
 | 2026-06-24 | **K2 nav agent checklist** -- `docs/k2-nav-implementation-checklist.md`; wired into AGENTS.md + kool-workspace (page chrome nav tasks). |
 | 2026-06-24 | **Page nav spacing Phase 3** -- grep audit; tokenized remaining nav-like 12px holdouts; neutralized legacy `.k2-hub-tabs` margin; deleted dead `.k2-chrome-tabs > .server-peak-period-leaderboards` rule; audit table in `nav-spacing-policy.md`. |
 | 2026-06-24 | **Page nav spacing Phase 2** -- bottom-only `--k2-nav-gap` everywhere; deleted `:has()` spacing + dead bar+table rule; token aliases removed; `lb_nav_end.php` dropped; Games + Amiga WC hub shells close `.k2-page-nav`. Option A (12px, no 16px hub exception). |
 | 2026-06-24 | **Page nav spacing Phase 1** -- `--k2-nav-gap` + wing `.k2-chrome-tabs` 4px->12px in `theme.css`; plain LB wings (Milestones, Rating, Amiga LB) fixed. |
-| 2026-06-24 | **Amiga present hub tab order** — News · Leaderboards · World Cups · Activity · HoF · Tournaments · Live tournaments; TT block (LB · WC · Activity · HoF) contiguous after News. |
+| 2026-06-24 | **Amiga present hub tab order** — News · Leaderboards · World Cups · **Countries** · Activity · HoF · Tournaments · Live tournaments; TT block (LB · WC · **Countries** · Activity · HoF) contiguous after News. |
 | 2026-06-24 | **Amiga WC stats Goals columns** — renamed Max margin → Max win, Max player goals → Max GF; peak order: Max draw · Max win · Max GF · Max sum · Min sum. |
 | 2026-06-24 | **Amiga TT stamp motion (2a shipped)** — toggle `k2_tt_entry=1` (panel fade + 32 cps typewriter); wing `k2_tt_entry=wing` (32 cps + 1100ms LED opacity fade); sync JS after stamp; clickable cursor (`localStorage`). |
 | 2026-06-24 | **Amiga TT event-wing layout fix** — `amiga_snapshot_chrome_nav_href()` now requires `amiga_tournament_lib.php` before `amiga_tournament_page_request_path()`; Event wing stepper chevrons hit undefined function (same silent-abort pattern as carry-query fix). |

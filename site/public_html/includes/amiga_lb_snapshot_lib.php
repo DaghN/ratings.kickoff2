@@ -540,7 +540,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param('sdisdi', $eventDate, $chrono, $tournamentId, $eventDate, $chrono, $tournamentId);
     if (!$stmt->execute()) {
         throw new RuntimeException('execute amiga peak rating lb snapshot: ' . $stmt->error);
     }

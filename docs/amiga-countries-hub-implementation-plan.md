@@ -5,7 +5,7 @@
 **Policy:** [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md)
 
-**Execution:** Slices **in order**. Run each slice **Verification** before continuing. **Do not git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>"** unless Dagh asks.
+**Execution:** Slices **in order**. Run each slice **Verification** before continuing. **Do not git commit** unless Dagh asks.
 
 **Migration:** **L0** — read-time PHP only; no DDL, no finalize writers, no Part B registers.
 
@@ -90,12 +90,12 @@ Navigation and data primitives exist before any page HTML.
 
 ### Tasks
 
-- [ ] **`k2_amiga_routes.php`:** add `amiga-countries` → `amiga/countries/index.php`, `amiga-countries-roster` → `amiga/countries/roster.php`.
-- [ ] **`k2_amiga_country_roster_href(string $countryToken, array $extra = []): string`** — build via `k2_amiga_route('amiga-countries-roster', ['country' => $token] + $extra)`; preserve `as=` through `k2_amiga_route` / `amiga_url_with_context`.
-- [ ] **`amiga_hub_nav_lib.php`:**
+- [x] **`k2_amiga_routes.php`:** add `amiga-countries` → `amiga/countries/index.php`, `amiga-countries-roster` → `amiga/countries/roster.php`.
+- [x] **`k2_amiga_country_roster_href(string $countryToken, array $extra = []): string`** — build via `k2_amiga_route('amiga-countries-roster', ['country' => $token] + $extra)`; preserve `as=` through `k2_amiga_route` / `amiga_url_with_context`.
+- [x] **`amiga_hub_nav_lib.php`:**
   - Add `'countries' => ['href' => '/amiga/countries/index.php', 'label' => 'Countries']` **after** `world-cups`, **before** `activity` in `amiga_hub_all_tabs()`.
   - Append `'countries'` to `K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS`.
-- [ ] **`includes/amiga_countries_lib.php`** (new):
+- [x] **`includes/amiga_countries_lib.php`** (new):
   - `amiga_countries_token_sql(string $playerAlias = 'p'): string` — delegate to or copy `amiga_country_slice_token_sql()` expression (**Unknown** bucket).
   - `amiga_countries_player_rows(mysqli $con, AmigaSnapshotContext $ctx): array` — all players with `NumberGames > 0` at cutoff; each row: `player_id`, `player_name`, `country_token`, `rating`, `elo_rank`, `number_games`, `wc_played`, `wc_gold`, `wc_silver`, `wc_bronze`, `last_tournament_id`, `last_event_date`, `last_tournament_name` (JOIN `tournaments` on last event id).
   - Present: `amiga_player_base_from_sql()` + `amiga_player_current` honours cols (`wc_*`, `last_*`).
@@ -122,17 +122,17 @@ Navigation and data primitives exist before any page HTML.
 
 ### Tasks
 
-- [ ] **`amiga/countries/index.php`:**
+- [x] **`amiga/countries/index.php`:**
   - Standard Amiga page shell: `site_header`, `$k2AmigaHubTabActive = 'countries'`, `amiga_hub_nav.php`.
   - `k2_hub_chapter.inc.php`: title *Countries*, lede per policy §3.1.
   - DB connect, `amiga_lb_context($con)`, load player rows → index rows, close DB.
-- [ ] **`includes/amiga_countries_index_table.php`** (new render):
+- [x] **`includes/amiga_countries_index_table.php`** (new render):
   - Full k2-table stack (`$k2RankedCloak`, sortable assets).
   - Columns: Rank (autorank) · Flag (link) · Country (link) · Players · Games · Games/player (1 decimal) · WC entries · Gold · Silver · Bronze.
   - Medal `<th>`: `k2_status_league_podium_medal(1|2|3)` + `k2-lb-honours-medal-th`.
   - Default sort col **Players**, direction **desc** (`k2_lb_table_sort_state()` anchor on country name col).
   - Flag + name cells link via `k2_amiga_country_roster_href()`.
-- [ ] **`lb_column_help.php`:** add `k2_lb_help_amiga_countries_wc_entries_index()` for country-sum grain tooltip.
+- [x] **`lb_column_help.php`:** add `k2_lb_help_amiga_countries_wc_entries_index()` for country-sum grain tooltip.
 
 ### Verification
 
@@ -169,20 +169,20 @@ HAVING country_token = 'Denmark';
 
 ### Tasks
 
-- [ ] **`amiga/countries/roster.php`:**
+- [x] **`amiga/countries/roster.php`:**
   - Require `country` query param; invalid/empty → 404 or redirect to index.
   - Same hub shell; chapter title *{country} roster* (or *Players from {country}*).
   - Optional breadcrumb / link back to index in lede area.
-- [ ] **`includes/amiga_country_hero.php`** (new):
+- [x] **`includes/amiga_country_hero.php`** (new):
   - Large flag (when mapped), country name.
   - Summary line from index aggregates for this token: N players · X games · Y WC entries · medal totals (compact).
   - Mirror feast hero spacing where sensible — country-only, no avatar.
-- [ ] **`includes/amiga_countries_roster_table.php`** (new render):
+- [x] **`includes/amiga_countries_roster_table.php`** (new render):
   - Columns: Flag (every row, same country) · Player · Rating · Rank · Games · WC entries · Gold · Silver · Bronze · Last event (link) · Last event date.
   - Default sort: Rating desc.
   - Player → `k2_amiga_player_profile_href`; last event → tournament standings route.
   - Rank: global `elo_rank`; em dash when null/unranked.
-- [ ] **`lb_column_help.php`:** roster WC entries tooltip (`k2_lb_help_amiga_wc_played` or dedicated roster string per policy §4).
+- [x] **`lb_column_help.php`:** roster WC entries tooltip (`k2_lb_help_amiga_wc_played` or dedicated roster string per policy §4).
 
 ### Verification
 
@@ -204,12 +204,12 @@ Nationality flags become entry points to roster (**CH9**).
 
 ### Tasks
 
-- [ ] **`k2_amiga_country_flag.php`:**
+- [x] **`k2_amiga_country_flag.php`:**
   - Add optional `'link' => true` (or `'href' => …`) to `k2_amiga_country_flag_img()` / `k2_amiga_country_table_cell()`.
   - When linked, wrap in `<a>` with accessible label *Players from {label}*; use `k2_amiga_country_roster_href()`.
-- [ ] **`amiga_player_hero.php`:** wrap country flag (and optionally country text when unmapped) in roster link.
-- [ ] **Amiga LB wings** using `k2_lb_td_country_open` / `k2_amiga_country_table_cell` for **player nationality** column — enable link opt (rating, goals, peak, perf, victims, DD, calendar-geo, tournament honours, WC player tables).
-- [ ] **Do not change:** `k2_amiga_country_table_cell_or_dash` on **host** country columns (`amiga_world_cups_events_table.php`, tournament history host col, event-stats host) unless product explicitly asks (**CH17**).
+- [x] **`amiga_player_hero.php`:** wrap country flag (and optionally country text when unmapped) in roster link.
+- [x] **Amiga LB wings** using `k2_lb_td_country_open` / `k2_amiga_country_table_cell` for **player nationality** column — enable link opt (rating, goals, peak, perf, victims, DD, calendar-geo, tournament honours, WC player tables).
+- [x] **Do not change:** `k2_amiga_country_table_cell_or_dash` on **host** country columns (`amiga_world_cups_events_table.php`, tournament history host col, event-stats host) unless product explicitly asks (**CH17**).
 
 ### Verification
 
@@ -227,10 +227,10 @@ Sibling surfaces connect; WC entries help complete on both tables.
 
 ### Tasks
 
-- [ ] **Roster page:** one-line link to WC country honours when `amiga_country_slice_totals` row exists for token (`slice_key = 'world_cup'`, honours metrics) — e.g. *World Cup country stats →*.
-- [ ] **`amiga_wc_countries_table.php`:** country name/flag cell links to career roster (index of WC hub wing 4 — do not conflate products).
-- [ ] Confirm index + roster both use WC entries tooltips (distinct help strings).
-- [ ] Index lede optional: mention World Cups country stats as related surface.
+- [x] **Roster page:** one-line link to WC country honours when `amiga_country_slice_totals` row exists for token (`slice_key = 'world_cup'`, honours metrics) — e.g. *World Cup country stats →*.
+- [x] **`amiga_wc_countries_table.php`:** country name/flag cell links to career roster (index of WC hub wing 4 — do not conflate products).
+- [x] Confirm index + roster both use WC entries tooltips (distinct help strings).
+- [x] Index lede optional: mention World Cups country stats as related surface.
 
 ### Verification
 
@@ -240,20 +240,9 @@ Sibling surfaces connect; WC entries help complete on both tables.
 
 ---
 
-## CH-6 — Docs closure
+## 6 — Docs closure
 
-### Tasks
-
-- [ ] **`docs/url-routes.md`** — Amiga Countries hub routes.
-- [ ] **`docs/amiga-profile-v0.md`** — hub nav table includes Countries tab.
-- [ ] **`docs/amiga-countries-hub-policy.md`** — status → **In progress** / **Shipped** when done; link plan at top.
-- [ ] **`PROJECT_MEMORY.md`** + **`feature-log.md`** — ship line.
-- [ ] Run `python scripts/audit_k2_table_compliance.py` — fix any FAIL on new pages.
-
-### Verification
-
-- Docs reflect shipped URLs and hub tab order.
-- No Part B migration registers (L0 read-only).
+**Status:** Complete (Jun 2026-25) — doc sweep aligned policy, plan, profile-v0, url-routes, time-travel policy, WC cross-links, k2 checklists, surface-expansion, UPDATE_DOCS, AGENTS, MEMORY, feature-log.
 
 ---
 

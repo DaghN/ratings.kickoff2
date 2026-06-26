@@ -323,6 +323,44 @@
         }
     }
 
+    var htmlTooltipScrollDismissInstalled = false;
+    var htmlTooltipScrollDismissHandlers = [];
+
+    function hideAllHtmlChartTooltips() {
+        var tips = document.querySelectorAll('.k2-chart-html-tooltip');
+        var i;
+        for (i = 0; i < tips.length; i++) {
+            tips[i].hidden = true;
+            tips[i].style.opacity = '0';
+        }
+    }
+
+    function clearChartTooltipHover(chart) {
+        activityBarClearHoverState(chart);
+    }
+
+    function installHtmlChartTooltipScrollDismiss() {
+        if (htmlTooltipScrollDismissInstalled) {
+            return;
+        }
+        htmlTooltipScrollDismissInstalled = true;
+        window.addEventListener('scroll', function () {
+            hideAllHtmlChartTooltips();
+            var i;
+            for (i = 0; i < htmlTooltipScrollDismissHandlers.length; i++) {
+                htmlTooltipScrollDismissHandlers[i]();
+            }
+        }, { passive: true, capture: true });
+    }
+
+    function registerChartHtmlTooltipScrollDismiss(handler) {
+        if (typeof handler !== 'function') {
+            return;
+        }
+        htmlTooltipScrollDismissHandlers.push(handler);
+        installHtmlChartTooltipScrollDismiss();
+    }
+
     function activityBarPointY(pt) {
         if (pt === null || pt === undefined) {
             return 0;
@@ -834,7 +872,10 @@
         resizeActivityChart: resizeActivityChart,
         activityBarMotionEnabled: activityBarMotionEnabled,
         isCoarsePointer: isCoarsePointer,
-        prefersReducedMotion: prefersReducedMotion
+        prefersReducedMotion: prefersReducedMotion,
+        hideAllHtmlChartTooltips: hideAllHtmlChartTooltips,
+        clearChartTooltipHover: clearChartTooltipHover,
+        registerChartHtmlTooltipScrollDismiss: registerChartHtmlTooltipScrollDismiss
     };
 
     applyChartTooltipDefaults();

@@ -6,7 +6,8 @@
 
 | Page | Path |
 |------|------|
-| Hub nav | News · Leaderboards · Tournaments · Live tournaments · Activity · Hall of Fame (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
+| Hub nav | News · Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · Tournaments · Live tournaments (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
+| **Countries hub** | `/amiga/countries/index.php` (index) · `/amiga/countries/roster.php?country={token}` (roster) — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
 | Leaderboard wings | `/amiga/leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `performance-rating.php` — via `amiga_lb_nav.php` (`/amiga/rating.php` → 302) |
 | Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events medals; WC → World Cups wing) |
@@ -24,7 +25,7 @@
 
 ## What v0 shows
 
-- **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; games → player games tab; rank · rating · games stat values use link-star + glow (country column stays muted); **country** (fourth stat column — label + flag when mapped); unmapped country strings show as stat text; pre-debut at cutoff → — + note (T17)
+- **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; games → player games tab; rank · rating · games stat values use link-star + glow; **country** (fourth stat column — label + flag when mapped; **flag links to country roster**); unmapped country strings show as stat text; pre-debut at cutoff → — + note (T17)
 - **Player nav** — Profile · Opponents · Tournaments · Games (`amiga_player_nav.php`)
 - **Career strip** — `amiga_players` + `amiga_player_current` (W/D/L, goals, peak, opp avg)
 - **Honours strip** — `amiga_player_current` honours columns: career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
@@ -71,6 +72,9 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 ## Files
 
 - `includes/amiga_hub_nav.php` — realm hub tabs
+- `amiga/countries/index.php`, `amiga/countries/roster.php` — Countries hub (career roster by nationality)
+- `includes/amiga_countries_lib.php`, `includes/amiga_countries_index_table.php`, `includes/amiga_countries_roster_table.php`, `includes/amiga_country_hero.php`
+- `includes/k2_amiga_country_flag.php` — flag SVG map + optional roster link on nationality cells
 - `amiga/hall-of-fame.php` — HoF (generalstats + ratio leaders + WC medal panel)
 - `includes/amiga_player_tournament_lib.php` — snapshot + current reads
 - `includes/amiga_player_matchup_lib.php` — directed pair reads (H2H poster, future slice)

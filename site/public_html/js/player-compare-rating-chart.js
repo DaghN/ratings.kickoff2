@@ -22,6 +22,19 @@
         chart.$k2CompareRatingDateHover = null;
     }
 
+    function dismissCompareRatingCharts(state) {
+        [state.dateChart, state.gameChart].forEach(function (chart) {
+            if (!chart || chart.destroyed) {
+                return;
+            }
+            clearCompareRatingDateHoverMarkers(chart);
+            if (T && T.clearChartTooltipHover) {
+                T.clearChartTooltipHover(chart);
+            }
+            chart.draw();
+        });
+    }
+
     function ratingDateHoverMarkersFromPoints(points) {
         return points.map(function (item) {
             return {
@@ -182,7 +195,10 @@
             line += ' \u2014 ' + escapeHtml(pt.tournamentName);
         }
         if (pt.date) {
-            line += ' \u00b7 ' + escapeHtml(String(pt.date).substring(0, 10));
+            var dateLabel = formatSiteEventDate(pt.date);
+            if (dateLabel) {
+                line += ', ' + dateLabel;
+            }
         }
         return line + ': ' + ratingHtml;
     }
@@ -401,6 +417,18 @@
         var normalized = String(dateStr).trim().replace(' ', 'T');
         var d = new Date(normalized);
         return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatSiteEventDate(dateStr) {
+        var d = parseGameDate(dateStr);
+        if (!d) {
+            return escapeHtml(String(dateStr || '').substring(0, 10));
+        }
+        return escapeHtml(d.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        }));
     }
 
     function peakAfterClause(tournamentName) {
@@ -670,7 +698,7 @@
             };
         }
 
-        var lineStyle = cfg.lineStyle || cfg.dateLineStyle || 'smooth';
+        var lineStyle = cfg.lineStyle || cfg.dateLineStyle || 'stepped';
         var lineStepped = lineStyle === 'stepped';
         var chartConfig = {
             type: 'line',
@@ -749,7 +777,7 @@
             gameCanvas: gameCanvas,
             latestConfig: null,
             activeView: 'date',
-            lineStyle: 'smooth',
+            lineStyle: 'stepped',
             realm: CTX ? CTX.realmFrom(root) : 'online'
         };
 
@@ -758,6 +786,12 @@
                 status.textContent = 'Chart library failed to load.';
             }
             return;
+        }
+
+        if (T && T.registerChartHtmlTooltipScrollDismiss) {
+            T.registerChartHtmlTooltipScrollDismiss(function () {
+                dismissCompareRatingCharts(state);
+            });
         }
 
         function setHeading(opponentLabel) {

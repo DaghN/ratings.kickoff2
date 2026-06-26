@@ -4,7 +4,7 @@
 
 **Parent:** [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)
 
-**Related:** [`url-routes.md`](url-routes.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`design-direction.md`](design-direction.md) · [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md)
+**Related:** [`url-routes.md`](url-routes.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`design-direction.md`](design-direction.md) · [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) (career nationality roster — cross-link from WC country stats)
 
 **Supersedes:** [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) § UI placement Option **A** (Activity sub-wing) — event-grain WC stats live under this hub wing 2 instead.
 

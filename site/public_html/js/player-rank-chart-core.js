@@ -61,6 +61,9 @@
         if (extraScale.ticks) {
             scale.ticks = Object.assign({}, base.ticks, extraScale.ticks);
         }
+        if (extraScale.grid) {
+            scale.grid = Object.assign({}, base.grid, extraScale.grid);
+        }
         return T && T.careerChartYAxisOptions ? T.careerChartYAxisOptions(scale) : scale;
     }
 
@@ -81,6 +84,56 @@
             pad = 20;
         }
         return pad;
+    }
+
+    /**
+     * Inverted rank Y: domain.min is often #1 at the top edge — extend axis below 1
+     * so the #1 grid line and hover dots are not clipped (display only; clip logic
+     * still uses domain.min).
+     */
+    function linearRankAxisMin(domain) {
+        if (!domain || domain.min > 1) {
+            return domain ? domain.min : 1;
+        }
+        var span = Math.max(domain.max - domain.min, 1);
+        var headroom = Math.round(0.05 * span);
+        if (headroom < 1) {
+            headroom = 1;
+        }
+        if (headroom > 4) {
+            headroom = 4;
+        }
+        return domain.min - headroom;
+    }
+
+    function linearRankAxisTickHidden(value) {
+        return value < 1;
+    }
+
+    function linearRankAfterBuildTicks(domain) {
+        return function (scale) {
+            var ticks = [];
+            var i;
+            var v;
+            var hasOne = false;
+            for (i = 0; i < scale.ticks.length; i++) {
+                v = scale.ticks[i].value;
+                if (v < 1) {
+                    continue;
+                }
+                ticks.push({ value: v });
+                if (Math.abs(v - 1) < 0.001) {
+                    hasOne = true;
+                }
+            }
+            if (domain.min <= 1 && scale.max >= 1 && !hasOne) {
+                ticks.unshift({ value: 1 });
+                ticks.sort(function (a, b) {
+                    return a.value - b.value;
+                });
+            }
+            scale.ticks = ticks;
+        };
     }
 
     function percentileCareerPadding(best, worst) {
@@ -338,12 +391,24 @@
         }
         return careerYScale({
             reverse: true,
-            min: domain.min,
+            min: linearRankAxisMin(domain),
             max: domain.max,
+            afterBuildTicks: linearRankAfterBuildTicks(domain),
             ticks: {
                 stepSize: undefined,
                 callback: function (v) {
+                    if (linearRankAxisTickHidden(v)) {
+                        return '';
+                    }
                     return '#' + Math.round(v);
+                }
+            },
+            grid: {
+                color: function (context) {
+                    if (context.tick && linearRankAxisTickHidden(context.tick.value)) {
+                        return 'transparent';
+                    }
+                    return rankChartGridColor();
                 }
             }
         });

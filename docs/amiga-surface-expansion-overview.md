@@ -42,6 +42,9 @@ generalstats + ratio leaders →     HoF ✓ + LB deep links ✓
 
 performance_rating           →     history + event-stats columns ✓
                                    profile highlight + perf LB wing ✓
+
+amiga_players.country        →     Countries hub ✓ (index + roster; flag links; TT)
+                                   WC country stats ✓ (WC-only roll-ups — sibling)
 ```
 
 ---
@@ -144,6 +147,7 @@ Not “blocked forever”; treat as **medium bets** or **parallel tracks** unles
 
 | Idea | Why potential, not ready |
 |------|---------------------------|
+| **Country vs country compare** | v2 — nation-pair page (H2H analogue); policy note in [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) §9 |
 | **`amiga_player_tournament_slice_totals`** | Phase-native honours (group vs event); new table + writer |
 | **Tournament games tab** | Scoped `amiga_games` scan allowed but new surface; composite index TBD |
 | **WC holistic `event_finish_position`** | Policy locked — [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md); medals + shared semi bronze first; numeric WC finish deferred to import job |

@@ -27,6 +27,8 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 
 **Explicitly out of scope for this track:** leaderboard country filter (`?country=` on Rating/Goals wings) — separate future project.
 
+**Not the same as:** L1 Access **`Countries`** lookup table (ground pipeline — [`amiga-ground-stack.md`](amiga-ground-stack.md)); WC **Country stats** wing (WC-only metrics — [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)).
+
 ---
 
 ## 2. Locked product decisions
