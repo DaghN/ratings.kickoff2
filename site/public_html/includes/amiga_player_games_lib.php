@@ -469,8 +469,10 @@ function amiga_games_sort_header(string $key, string $label, string $align, arra
     $attrs = [
         'class="' . implode(' ', $classes) . '"',
         'aria-sort="' . $aria . '"',
-        'data-k2-help="' . amiga_games_h($help) . '"',
     ];
+    if ($help !== '') {
+        $attrs[] = 'data-k2-help="' . amiga_games_h($help) . '"';
+    }
     if ($tooltipLabel !== '') {
         $attrs[] = 'data-k2-tooltip-label="' . amiga_games_h($tooltipLabel) . '"';
     }

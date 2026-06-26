@@ -172,7 +172,8 @@ function amiga_countries_normalize_player_row(array $row): array
 {
     $row['player_id'] = (int) ($row['player_id'] ?? 0);
     $row['country_token'] = (string) ($row['country_token'] ?? '');
-    $row['rating'] = (int) round((float) ($row['rating'] ?? 0));
+    $row['rating_sort'] = (float) ($row['rating'] ?? 0);
+    $row['rating'] = (int) round($row['rating_sort']);
     $row['elo_rank'] = amiga_player_normalize_elo_rank($row['elo_rank'] ?? null);
     $row['number_games'] = (int) ($row['number_games'] ?? 0);
     $row['wc_played'] = (int) ($row['wc_played'] ?? 0);
@@ -306,7 +307,7 @@ function amiga_countries_roster_rows(array $playerRows, string $countryToken): a
     }
 
     usort($rows, static function (array $a, array $b): int {
-        $cmp = $b['rating'] <=> $a['rating'];
+        $cmp = $b['rating_sort'] <=> $a['rating_sort'];
         if ($cmp !== 0) {
             return $cmp;
         }

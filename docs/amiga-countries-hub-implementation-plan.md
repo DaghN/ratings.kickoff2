@@ -175,8 +175,8 @@ HAVING country_token = 'Denmark';
   - Optional breadcrumb / link back to index in lede area.
 - [x] **`includes/amiga_country_hero.php`** (new):
   - Large flag (when mapped), country name.
-  - Summary line from index aggregates for this token: N players · X games · Y WC entries · medal totals (compact).
-  - Mirror feast hero spacing where sensible — country-only, no avatar.
+  - Summary stats in player-hero feast layout: labeled row (Players · Games · WC entries · Gold · Silver · Bronze) from index aggregates for this token; rectangular flag in media slot (not circular avatar).
+  - Mirror feast hero spacing — country-only, no initial letter avatar.
 - [x] **`includes/amiga_countries_roster_table.php`** (new render):
   - Columns: Flag (every row, same country) · Player · Rating · Rank · Games · WC entries · Gold · Silver · Bronze · Last event (link) · Last event date.
   - Default sort: Rating desc.

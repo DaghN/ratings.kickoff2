@@ -124,6 +124,12 @@
 
 | When | Note |
 |------|------|
+| 2026-06-27 | **WC country honours — WC entries column** — Honours sub-wing now shows **WC entries** (`wc_participations`) after WCs; same stored field + tooltip as Countries index. |
+| 2026-06-27 | **Amiga game.php header cleanup** — dropped tooltips on Date, A/B goals, Tournament, GD, Winner; goal margin column renamed Diff → GD. |
+| 2026-06-26 | **WC Chronology table — flag cell spacing** — +2px top/bottom padding on `k2-table--world-cups-events` body cells (7px vs default 5px). |
+| 2026-06-26 | **Countries roster sort — float rating** — roster order + k2-table Elo sort use full `Rating`; display stays rounded; fixes tied-Elo rows (e.g. Jon G above Ben G at year:2018). |
+| 2026-06-26 | **Countries roster hero — option 1 layout** — player-feast grid (flag left 72×54, name + stats right); plain Gold/Silver/Bronze labels; dropped 1st/2nd/3rd + gradient medal typography in hero. |
+| 2026-06-26 | **Countries roster hero — feast styling** — country hero mirrors player feast shell: rectangular flag in media slot (accent frame + glow), link-star name, labeled stat row (Players · Games · WC entries · medals). |
 | 2026-06-26 | **Jukebox FAB tooltip** — launcher hover uses shared `k2-table-tooltip` (`data-k2-help` + `k2_table_js_enqueue()`); dynamic **Playing: …** via launcher JS; native `title` removed. |
 | 2026-06-26 | **Countries roster — drop chapter block** — removed title + lede above country hero on `roster.php` (hero already names country; 404 path keeps minimal chapter). |
 | 2026-06-26 | **Amiga LB — drop chapter block (present)** — removed `k2_hub_chapter.inc.php` from `amiga_lb_nav.php` (Leaderboards title + placeholder lede; TT already skipped). |

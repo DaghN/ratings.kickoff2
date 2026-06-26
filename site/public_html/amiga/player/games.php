@@ -316,7 +316,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
 <thead>
 <tr>
     <?php echo amiga_games_sort_header('id', 'ID', 'left', $sortState, 'Rated game ID.'); ?>
-    <?php echo amiga_games_sort_header('date', 'Date', 'left', $sortState, 'Synthetic event date (tournament day + order within event).', 'Date', 'k2-table-cell--pad-left-xs k2-amiga-player-games-date'); ?>
+    <?php echo amiga_games_sort_header('date', 'Date', 'left', $sortState, '', '', 'k2-table-cell--pad-left-xs k2-amiga-player-games-date'); ?>
     <?php echo amiga_games_sort_header('team_a', 'Team A', 'right', $sortState, 'Player listed as Team A in the original game record.'); ?>
     <th></th>
     <th></th>

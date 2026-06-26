@@ -14,6 +14,7 @@ require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_profile_blocks.php';
 require_once __DIR__ . '/amiga_world_cup_stats_table.php';
+require_once __DIR__ . '/amiga_wc_podium_th.php';
 
 const AMIGA_WORLD_CUPS_EVENTS_ANCHOR_COL = 2;
 const AMIGA_WORLD_CUPS_EVENTS_DEFAULT_SORT_COL = 0;
@@ -29,22 +30,10 @@ function amiga_world_cups_events_sort_col_for_emphasis(int $colIndex, int $activ
     return $activeSortCol;
 }
 
+/** @deprecated Use amiga_wc_podium_th_markup() — kept for call sites in this file. */
 function amiga_world_cups_events_podium_th(int $place): string
 {
-    static $meta = [
-        1 => ['variant' => 'gold', 'rank' => '1st', 'label' => 'Gold', 'aria' => 'Gold medalist'],
-        2 => ['variant' => 'silver', 'rank' => '2nd', 'label' => 'Silver', 'aria' => 'Silver medalist'],
-        3 => ['variant' => 'bronze', 'rank' => '3rd', 'label' => 'Bronze', 'aria' => 'Bronze medalist'],
-    ];
-    if (!isset($meta[$place])) {
-        return '';
-    }
-    $m = $meta[$place];
-
-    return '<span class="k2-amiga-wc-podium-th k2-amiga-wc-podium-th--' . k2_h($m['variant']) . '" role="img" aria-label="' . k2_h($m['aria']) . '">'
-        . '<span class="k2-amiga-wc-podium-th__rank" aria-hidden="true">' . k2_h($m['rank']) . '</span>'
-        . '<span class="k2-amiga-wc-podium-th__metal">' . k2_h($m['label']) . '</span>'
-        . '</span>';
+    return amiga_wc_podium_th_markup($place);
 }
 
 /**
@@ -103,7 +92,7 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
         <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
         <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center'); ?> data-k2-sort="number">Players</th>
         <th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center'); ?> data-k2-sort="number">Games</th>
-        <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-amiga-wc-podium-th-cell'); ?> data-k2-sort="text" data-k2-tooltip-label="Gold"><?php echo amiga_world_cups_events_podium_th(1); ?></th>
+        <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-amiga-wc-podium-th-cell k2-wc-events-podium-pad-start'); ?> data-k2-sort="text" data-k2-tooltip-label="Gold"><?php echo amiga_world_cups_events_podium_th(1); ?></th>
         <th<?php echo k2_table_sortable_th_attr(6, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-amiga-wc-podium-th-cell'); ?> data-k2-sort="text" data-k2-tooltip-label="Silver"><?php echo amiga_world_cups_events_podium_th(2); ?></th>
         <th<?php echo k2_table_sortable_th_attr(7, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-amiga-wc-podium-th-cell'); ?> data-k2-sort="text" data-k2-tooltip-label="Bronze"><?php echo amiga_world_cups_events_podium_th(3); ?></th>
     </tr>
@@ -137,7 +126,7 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
         ?></td>
         <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?>><?php echo $players > 0 ? (string) $players : '—'; ?></td>
         <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?>><?php echo $games; ?></td>
-        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($goldId, $nameMap)); ?>"><?php echo amiga_world_cups_events_podium_cell($goldId, $nameMap, $countryMap); ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left k2-wc-events-podium-pad-start'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($goldId, $nameMap)); ?>"><?php echo amiga_world_cups_events_podium_cell($goldId, $nameMap, $countryMap); ?></td>
         <td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($silverId, $nameMap)); ?>"><?php echo amiga_world_cups_events_podium_cell($silverId, $nameMap, $countryMap); ?></td>
         <td<?php echo k2_table_body_td_attr(7, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($bronzeId, $nameMap)); ?>"><?php echo amiga_world_cups_events_podium_cell($bronzeId, $nameMap, $countryMap); ?></td>
     </tr>

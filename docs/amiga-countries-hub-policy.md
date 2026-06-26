@@ -42,7 +42,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | **CH5** | **Index row eligibility** | One row per country token with **≥1 national** where `NumberGames > 0` at the active cutoff (present or time travel). |
 | **CH6** | **Roster eligibility** | All nationals with `NumberGames > 0` at cutoff, sorted **rating descending** (default). |
 | **CH7** | **Index default sort** | **Player count descending** (largest nations first). |
-| **CH8** | **Roster default sort** | **Rating descending** (strongest first). |
+| **CH8** | **Roster default sort** | **Float `Rating` descending** (strongest first); display still `ROUND(Rating)`; tiebreak `player_id` ASC. |
 | **CH9** | **Flag links** | **Every Amiga country flag** (mapped or text fallback in a flag cell) links to that country’s roster with `#k2-country-roster` — nationality columns, **host** columns, WC podium nationality flags, profile hero, LB/WC tables, countries index, **and roster page hero + per-row flag column** (same-page link still uses hash). Implement via `k2_amiga_country_table_cell()` / `k2_amiga_country_table_cell_or_dash()` (default `$link = true`). **Not** filter listbox labels or plain text without a flag cell. |
 | **CH10** | **Roster flag column** | **One flag per roster row** — same country flag repeated on every player row; **each flag links** to that roster (`#k2-country-roster`). |
 | **CH11** | **Medal columns UI** | Reuse Status/Leagues podium medal glyphs: `k2_status_league_podium_medal(1|2|3)` in `<th>` (`k2-lb-honours-medal-th`), **integer counts** in `<td>`. Same pattern as [`amiga_wc_players_table.php`](../site/public_html/includes/amiga_wc_players_table.php). |
@@ -91,7 +91,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 
 **Scroll anchor:** Zero-height `#k2-country-roster` immediately above the country hero — off-page roster links append this hash so the hero lands in viewport.
 
-**Country hero:** Large flag (when mapped), country name, optional compact summary line (player count · total games · WC entries · medal totals) — derived from same aggregates as index row for this token.
+**Country hero:** Player-feast grid — flag left (72×54, vertically centred), name + stat row right; plain labels for Players · Games · WC entries; **gradient podium metal labels** for Gold · Silver · Bronze (no 1st/2nd/3rd rank line). Chronology table keeps full rank + metal stack.
 
 | # | Column | Definition |
 |---|--------|------------|
@@ -107,7 +107,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | 10 | **Last event** | Tournament name → tournament page |
 | 11 | **Last event date** | `last_event_date` (present) or snapshot `event_date` (TT) |
 
-**Default sort:** Rating descending (**CH8**).
+**Default sort:** Float rating descending (**CH8**); Elo column `data-k2-sort-value` uses full precision so client re-sort matches server order.
 
 ---
 

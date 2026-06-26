@@ -3792,41 +3792,157 @@ body.k2-site a.k2-player-hero__avatar-link:focus {
 	object-fit: cover;
 }
 
-.k2-country-hero {
-	margin: 0 1.25rem var(--k2-nav-gap);
-	padding: 16px 18px;
+.k2-country-hero--feast {
+	position: relative;
+	overflow: hidden;
+	margin-bottom: var(--k2-nav-gap);
+	padding: 0;
 	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-surface-raised);
+	border-radius: var(--k2-radius-lg);
+	background: var(--k2-bg-surface);
+	box-shadow: var(--k2-shadow-surface);
 }
 
-.k2-country-hero__inner {
-	display: flex;
+.k2-country-hero--feast .k2-country-hero__inner {
+	--k2-player-hero-avatar-air: 32px;
+	display: grid;
+	grid-template-columns: auto 1fr;
 	align-items: center;
-	gap: 16px;
+	column-gap: var(--k2-player-hero-avatar-air);
+	row-gap: 20px;
+	padding: 20px;
+	padding-left: var(--k2-player-hero-avatar-air);
 }
 
-.k2-country-hero__flag img {
+.k2-country-hero__media {
+	flex-shrink: 0;
+	line-height: 0;
+	align-self: start;
+	margin-top: 3px;
+}
+
+.k2-country-hero__body {
+	min-width: 0;
+	margin-top: -7px;
+}
+
+.k2-country-hero__flag {
 	display: block;
-	width: 56px;
-	height: 42px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: 2px;
+	width: 124px;
+	height: 93px;
+	border-radius: calc(var(--k2-radius-sm) / 2);
+	overflow: hidden;
+}
+
+.k2-country-hero__flag-img {
+	display: block;
+	width: 100%;
+	height: 100%;
 	object-fit: cover;
 }
 
-.k2-country-hero__title {
-	margin: 0 0 6px;
+.k2-country-hero__flag--text {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
 	font-family: var(--k2-font-display);
-	font-size: 22px;
+	font-size: 13px;
 	font-weight: 600;
-	color: var(--k2-text-primary);
+	line-height: 1.2;
+	text-align: center;
+	color: var(--k2-accent);
+	background: var(--k2-bg-elevated);
 }
 
-.k2-country-hero__summary {
-	margin: 0;
-	font-size: 14px;
-	color: var(--k2-text-secondary);
+body.k2-site a.k2-country-hero__flag-link,
+body.k2-site a.k2-country-hero__flag-link:visited,
+body.k2-site a.k2-country-hero__flag-link:hover,
+body.k2-site a.k2-country-hero__flag-link:active,
+body.k2-site a.k2-country-hero__flag-link:focus {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.k2-country-hero__name {
+	margin: 0 0 12px;
+	font-family: var(--k2-font-display);
+	font-size: 32px;
+	font-weight: 600;
+	color: var(--k2-link-star);
+}
+
+.k2-country-hero--feast .k2-player-hero__stat {
+	align-items: center;
+}
+
+.k2-country-hero--feast .k2-player-hero__stat-label {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+
+.k2-country-hero--feast .k2-player-hero__stat-value {
+	justify-content: center;
+	width: 100%;
+}
+
+.k2-country-hero__stat--medal {
+	min-width: 3rem;
+}
+
+.k2-country-hero__stat--medal-lead {
+	margin-left: 20px;
+}
+
+.k2-country-hero__medal-label {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	width: 100%;
+	min-height: calc(11px * 1.25);
+}
+
+.k2-country-hero--feast .k2-amiga-wc-podium-th--metal-only {
+	display: inline-flex;
+	align-items: flex-end;
+	line-height: 1.25;
+}
+
+.k2-country-hero--feast .k2-amiga-wc-podium-th--metal-only .k2-amiga-wc-podium-th__metal {
+	font-size: 11px;
+	line-height: 1.25;
+}
+
+.k2-country-hero__medal-value {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	width: 100%;
+	min-height: var(--k2-player-hero-value-min-h);
+	font-family: var(--k2-font-display);
+	font-size: var(--k2-player-hero-value-size);
+	font-weight: 700;
+	line-height: var(--k2-player-hero-value-line);
+	font-variant-numeric: tabular-nums;
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+}
+
+.k2-country-hero__medal-value--gold {
+	background-image: linear-gradient(165deg, #fff9e6 0%, #ffe566 36%, #d4af37 70%, #8b6914 100%);
+	filter: drop-shadow(0 1px 2px rgba(92, 69, 8, 0.45));
+}
+
+.k2-country-hero__medal-value--silver {
+	background-image: linear-gradient(165deg, #ffffff 0%, #eef2f6 34%, #b8c4ce 68%, #6b7a86 100%);
+	filter: drop-shadow(0 1px 2px rgba(61, 72, 82, 0.4));
+}
+
+.k2-country-hero__medal-value--bronze {
+	background-image: linear-gradient(165deg, #ffe8d6 0%, #e8a87c 36%, #cd7f32 70%, #7a4a1f 100%);
+	filter: drop-shadow(0 1px 2px rgba(74, 44, 18, 0.4));
 }
 
 body.k2-site a.k2-country-roster-link,
@@ -4714,12 +4830,44 @@ body.k2-site .k2-lb-league-honours__bar {
 	width: 20px;
 }
 
+body.k2-site .k2-table thead th.k2-lb-honours-medal-th {
+	text-align: center;
+	vertical-align: middle;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+
+body.k2-site .k2-table thead th.k2-lb-honours-medal-th .k2-status-medal__svg {
+	width: 20px;
+}
+
+body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table th.k2-countries-roster-medal-pad-start,
+body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table td.k2-countries-roster-medal-pad-start {
+	padding-left: 11px;
+}
+
+body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table th.k2-countries-roster-medal-pad-end,
+body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table td.k2-countries-roster-medal-pad-end {
+	padding-right: 11px;
+}
+
 .k2-table--world-cups-events-wrap .k2-amiga-wc-podium-th-cell {
 	text-align: center;
 	vertical-align: middle;
 	padding-left: 8px;
 	padding-right: 8px;
 	min-width: 4.75rem;
+}
+
+/* Chronology — extra vertical cell padding so stacked row flags are less cramped */
+body.k2-site .k2-table.k2-table--world-cups-events tbody td {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+body.k2-site .k2-table.k2-table--world-cups-events.ranked-pages-table th.k2-wc-events-podium-pad-start,
+body.k2-site .k2-table.k2-table--world-cups-events.ranked-pages-table td.k2-wc-events-podium-pad-start {
+	padding-left: 20px;
 }
 
 .k2-amiga-wc-podium-th {

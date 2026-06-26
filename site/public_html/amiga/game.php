@@ -34,16 +34,16 @@ $row = $id > 0 ? amiga_rated_game_load($con, $id) : null;
 <thead>
 	<tr>
         <th class="k2-table-cell--left">ID</th>
-        <th class="k2-table-cell--left k2-table-cell--pad-left-xs" data-k2-help="Synthetic event date (tournament day + order within event).">Date</th>
+        <th class="k2-table-cell--left k2-table-cell--pad-left-xs">Date</th>
         <th class="k2-table-cell--left">Team A</th>
-        <th data-k2-tooltip-label="Goals A" data-k2-help="Goals scored by Team A."></th>
-        <th data-k2-tooltip-label="Goals B" data-k2-help="Goals scored by Team B."></th>
+        <th></th>
+        <th></th>
         <th class="k2-table-cell--left">Team B</th>
-        <th class="k2-table-cell--left" data-k2-help="Offline tournament or event.">Tournament</th>
+        <th class="k2-table-cell--left">Tournament</th>
         <th class="k2-table-cell--left" data-k2-help="Bracket phase when recorded (group, final, etc.).">Phase</th>
-        <th class="k2-table-cell--pad-left-md" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game. A 7-4 result has Diff 3.">Diff</th>
+        <th class="k2-table-cell--pad-left-md">GD</th>
         <th data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players. A 7-4 result has Sum 11.">Sum</th>
-        <th class="k2-table-cell--left k2-table-cell--pad-left-lg" data-k2-help="Game winner. Drawn games show Draw.">Winner</th>
+        <th class="k2-table-cell--left k2-table-cell--pad-left-lg">Winner</th>
         <th data-k2-help="Team A's Elo rating before this game.">Rating A</th>
         <th data-k2-help="Team B's Elo rating before this game.">Rating B</th>
         <th data-k2-tooltip-label="Elo difference" data-k2-help="Absolute pre-game Elo rating difference between the two players.">Diff</th>

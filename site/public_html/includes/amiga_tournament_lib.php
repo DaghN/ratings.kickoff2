@@ -1871,8 +1871,8 @@ function amiga_tournament_render_games_table(array $rows): void
 			<th<?php echo k2_table_sortable_th_attr($phaseCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Phase</th>
 			<?php } ?>
 			<th<?php echo k2_table_sortable_th_attr($teamACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="text">Player A</th>
-			<th<?php echo k2_table_sortable_th_attr($goalsACol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Goals scored by Player A.">A</th>
-			<th<?php echo k2_table_sortable_th_attr($goalsBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number" title="Goals scored by Player B.">B</th>
+			<th<?php echo k2_table_sortable_th_attr($goalsACol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">A</th>
+			<th<?php echo k2_table_sortable_th_attr($goalsBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">B</th>
 			<th<?php echo k2_table_sortable_th_attr($teamBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player B</th>
 			<th<?php echo k2_table_sortable_th_attr($gdCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" title="Goal margin. A 7-4 game has GD 3.">GD</th>
 			<th<?php echo k2_table_sortable_th_attr($sumCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Total goals by both players. A 7-4 game has Sum 11.">Sum</th>

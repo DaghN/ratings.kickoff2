@@ -113,6 +113,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 | Slice column | UI label | Definition |
 |--------------|----------|------------|
 | `tournaments_with_nation` | WCs | Distinct WC tournaments with ≥1 national participant |
+| `wc_participations` | WC entries | Σ per-WC headcount of nationals (same grain as Countries index **WC entries**) |
 | `gold` | Gold | Sum of nationals’ WC `gold` |
 | `silver` | Silver | Sum of nationals’ WC `silver` |
 | `bronze` | Bronze | Sum of nationals’ WC `bronze` |
