@@ -122,6 +122,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-26 | **Amiga TT tournament list links** — Event wing `amiga_tournament_href()` now sets `as=event:{clicked id}` so player tournament rows open the chosen event (not ribbon cutoff via redirect). |
 | 2026-06-26 | **Amiga peak-rating LB time travel fix** — TT query had two cutoff `(?, ?, ?)` clauses but only three bind params; table was empty / execute failed. Smoke step **4b** added. |
 | 2026-06-25 | **H2H rating compare line style** — Stepwise first in toolbar + default (was Connected); online + Amiga. |
 | 2026-06-25 | **Rank chart #1 headroom** — linear Y extends slightly below #1 for hover/grid clearance; `afterBuildTicks` keeps the #1 grid line when auto ticks skip it. Solo + H2H compare. |

@@ -1,11 +1,40 @@
 <?php
 declare(strict_types=1);
 
+$_GET = ['id' => '354', 'as' => 'event:94'];
+$_SERVER['REQUEST_URI'] = '/amiga/player/tournaments.php?id=354&as=event%3A94';
+
+require __DIR__ . '/../../site/config/ko2amiga_config.php';
+require_once __DIR__ . '/../../site/public_html/includes/amiga_snapshot_context.php';
+require __DIR__ . '/../../site/public_html/includes/amiga_tournament_lib.php';
+
+$con = mysqli_connect($dbhost, $username, $password, $database, $dbportnum ?? 3306);
+if (!$con instanceof mysqli) {
+    fwrite(STDERR, "db connect failed\n");
+    exit(1);
+}
+amiga_snapshot_context_from_request($con);
+$ctx = amiga_snapshot_context_peek();
+if (!$ctx instanceof AmigaSnapshotContext || !$ctx->isActive() || $ctx->wing() !== 'event') {
+    fwrite(STDERR, "expected active event wing context\n");
+    exit(1);
+}
+
+$otherId = 5;
+$listHref = amiga_tournament_href(amiga_tournament_event_stats_url($otherId));
+if (!preg_match('/[?&]id=' . $otherId . '(?:&|$)/', $listHref)) {
+    fwrite(STDERR, "tournament href missing id={$otherId}: {$listHref}\n");
+    exit(1);
+}
+if (!str_contains($listHref, 'as=event%3A' . $otherId) && !str_contains($listHref, 'as=event:' . $otherId)) {
+    fwrite(STDERR, "event wing list link should align as=event:{$otherId} not snapshot: {$listHref}\n");
+    exit(1);
+}
+
 $_GET = ['id' => '5', 'as' => 'event:5'];
 $_SERVER['REQUEST_URI'] = '/amiga/tournament.php?id=5&as=event%3A5';
-
-require __DIR__ . '/../../site/public_html/includes/amiga_tournament_lib.php';
-require __DIR__ . '/../../site/public_html/includes/amiga_snapshot_url.php';
+amiga_snapshot_context_reset();
+amiga_snapshot_context_from_request($con);
 
 $href = amiga_tournament_href(amiga_tournament_event_stats_url(5));
 if (!str_contains($href, 'as=event')) {

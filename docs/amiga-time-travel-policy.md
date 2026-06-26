@@ -227,7 +227,7 @@ Applies when Event granularity is active (`as=event:…`). Ribbon `<section>` ge
 
 **Closed trigger layout:** CSS grid `minmax(0, 1fr) auto` with `0.4rem` gap — date sits at the right edge of the catalog-width box; short names leave space between text and date (intentional).
 
-**`tournament.php` link carry:** `amiga_tournament_href()` wraps tournament URLs with `amiga_url_with_context()`. Used for WC entry **302 redirects**, section nav tabs, `amiga_tournament_link()`, and games-filter hidden `as` — so `as=` is not stripped on first paint or tab change.
+**`tournament.php` link carry:** `amiga_tournament_href()` wraps tournament URLs with active `as=`. **Event wing:** sets `as=event:{id}` for the **linked** tournament (player list, profile, games column — avoids redirect to ribbon cutoff). **Year/Month wing:** preserves current cutoff. Chevron/picker on `tournament.php` still sync `id` via `amiga_snapshot_chrome_nav_href()` + `amiga_tournament_apply_time_travel_event_id_redirect()` when picker submits a stale hidden `id`.
 
 **Key files**
 

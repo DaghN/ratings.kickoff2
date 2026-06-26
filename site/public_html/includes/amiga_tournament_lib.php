@@ -627,10 +627,42 @@ function amiga_tournament_url(int $id, string $scopeType = 'league', string $sco
     return amiga_tournament_path_for_view($view) . '?' . http_build_query($params);
 }
 
-/** Preserve active `as=` when building tournament page links (T16). */
+/** Tournament id from a tournament page URL query string (`id=`). */
+function amiga_tournament_id_from_url(string $tournamentUrl): int
+{
+    $qPos = strpos($tournamentUrl, '?');
+    if ($qPos === false) {
+        return 0;
+    }
+    /** @var array<string, mixed> $params */
+    $params = [];
+    parse_str(substr($tournamentUrl, $qPos + 1), $params);
+
+    return isset($params['id']) ? max(0, (int) $params['id']) : 0;
+}
+
+/**
+ * Preserve active `as=` when building tournament page links (T16).
+ *
+ * Event wing: align `as=event:{id}` with the linked tournament so list/deep links
+ * are not rewritten by `amiga_tournament_apply_time_travel_event_id_redirect()` (picker/chevron
+ * sync still uses that redirect + `amiga_snapshot_chrome_nav_href()`).
+ */
 function amiga_tournament_href(string $tournamentUrl): string
 {
     require_once __DIR__ . '/amiga_snapshot_url.php';
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+
+    $ctx = amiga_snapshot_context_peek();
+    if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive() && $ctx->wing() === 'event') {
+        $tournamentId = amiga_tournament_id_from_url($tournamentUrl);
+        if ($tournamentId > 0) {
+            return amiga_url_with_as_param(
+                $tournamentUrl,
+                amiga_snapshot_format_as_param('event', (string) $tournamentId),
+            );
+        }
+    }
 
     return amiga_url_with_context($tournamentUrl);
 }
