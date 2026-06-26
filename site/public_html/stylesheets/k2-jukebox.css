@@ -1,6 +1,6 @@
 /* Amiga realm jukebox — fixed floating player */
 
-body.k2-site .k2-jukebox {
+.k2-jukebox {
 	--k2-jukebox-width: min(360px, calc(100vw - 28px));
 	--k2-jukebox-inset: 14px;
 	--k2-jukebox-toggle-size: 52px;
@@ -13,24 +13,33 @@ body.k2-site .k2-jukebox {
 	align-items: flex-end;
 	justify-content: flex-end;
 	gap: 10px;
+	font-family: var(--k2-font-body);
 	font-size: 12px;
+	line-height: 1.5;
 	color: var(--k2-text-secondary);
 	pointer-events: none;
 }
 
-body.k2-site .k2-jukebox.is-open {
+.k2-jukebox button,
+.k2-jukebox input,
+.k2-jukebox label {
+	font: inherit;
+}
+
+.k2-jukebox.is-open {
 	top: var(--k2-jukebox-inset);
 }
 
-body.k2-site .k2-jukebox__toggle,
-body.k2-site .k2-jukebox__panel {
+.k2-jukebox__toggle,
+.k2-jukebox__panel {
 	pointer-events: auto;
 }
 
-body.k2-site .k2-jukebox__toggle {
+.k2-jukebox__toggle {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	box-sizing: border-box;
 	width: var(--k2-jukebox-toggle-size);
 	height: var(--k2-jukebox-toggle-size);
 	flex-shrink: 0;
@@ -42,43 +51,45 @@ body.k2-site .k2-jukebox__toggle {
 	color: color-mix(in srgb, var(--k2-accent) 78%, var(--k2-text-primary));
 	box-shadow: var(--k2-shadow-surface);
 	cursor: pointer;
-	transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
 	-webkit-appearance: none;
 	appearance: none;
 }
 
-body.k2-site .k2-jukebox__toggle:hover,
-body.k2-site .k2-jukebox__toggle:focus-visible {
-	border-color: var(--k2-segment-active-ring);
+.k2-jukebox__toggle:hover,
+.k2-jukebox__toggle:focus-visible {
+	border-width: 2px;
+	border-color: color-mix(in srgb, var(--k2-accent) 78%, var(--k2-text-primary));
 	color: var(--k2-segment-active-text);
-	transform: translateY(-1px);
+	box-shadow:
+		0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-accent-glow),
+		var(--k2-shadow-surface);
 	outline: none;
 }
 
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__toggle {
+.k2-jukebox.is-playing .k2-jukebox__toggle {
 	border-color: color-mix(in srgb, var(--k2-accent) 62%, var(--k2-segment-active-ring));
 	box-shadow: 0 0 0 1px color-mix(in srgb, var(--k2-accent) 18%, transparent), var(--k2-shadow-surface);
 }
 
-body.k2-site .k2-jukebox.is-open .k2-jukebox__toggle {
+.k2-jukebox.is-open .k2-jukebox__toggle {
 	color: var(--k2-segment-active-text);
 	border-color: var(--k2-segment-active-ring);
 }
 
-body.k2-site .k2-jukebox__toggle-icon {
+.k2-jukebox__toggle-icon {
 	display: block;
 	width: 22px;
 	height: 22px;
 }
 
-body.k2-site .k2-jukebox__toggle-led {
+.k2-jukebox__toggle-led {
 	fill: none;
 	stroke: currentColor;
 	stroke-width: 1.4;
 	stroke-linecap: round;
 }
 
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__toggle-led {
+.k2-jukebox.is-playing .k2-jukebox__toggle-led {
 	animation: k2-jukebox-led 1.4s ease-in-out infinite;
 }
 
@@ -88,13 +99,13 @@ body.k2-site .k2-jukebox.is-playing .k2-jukebox__toggle-led {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	body.k2-site .k2-jukebox.is-playing .k2-jukebox__toggle-led {
+	.k2-jukebox.is-playing .k2-jukebox__toggle-led {
 		animation: none;
 		opacity: 0.85;
 	}
 }
 
-body.k2-site .k2-jukebox__panel {
+.k2-jukebox__panel {
 	width: var(--k2-jukebox-width);
 	max-height: min(72vh, 560px);
 	display: flex;
@@ -108,15 +119,18 @@ body.k2-site .k2-jukebox__panel {
 	backdrop-filter: blur(10px);
 	overflow: hidden;
 	transform-origin: bottom right;
+}
+
+.k2-jukebox.is-panel-opening .k2-jukebox__panel {
 	animation: k2-jukebox-panel-in 0.22s ease;
 }
 
-body.k2-site .k2-jukebox.is-open .k2-jukebox__panel {
+.k2-jukebox.is-open .k2-jukebox__panel {
 	flex: 1 1 0;
 	max-height: none;
 }
 
-body.k2-site .k2-jukebox__panel[hidden] {
+.k2-jukebox__panel[hidden] {
 	display: none;
 }
 
@@ -132,12 +146,12 @@ body.k2-site .k2-jukebox__panel[hidden] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	body.k2-site .k2-jukebox__panel {
+	.k2-jukebox.is-panel-opening .k2-jukebox__panel {
 		animation: none;
 	}
 }
 
-body.k2-site .k2-jukebox__head {
+.k2-jukebox__head {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
@@ -147,14 +161,14 @@ body.k2-site .k2-jukebox__head {
 	flex-shrink: 0;
 }
 
-body.k2-site .k2-jukebox__brand {
+.k2-jukebox__brand {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 	min-width: 0;
 }
 
-body.k2-site .k2-jukebox__kicker {
+.k2-jukebox__kicker {
 	font-size: 10px;
 	font-weight: 700;
 	letter-spacing: 0.08em;
@@ -162,7 +176,7 @@ body.k2-site .k2-jukebox__kicker {
 	color: color-mix(in srgb, var(--k2-accent) 70%, var(--k2-text-muted));
 }
 
-body.k2-site .k2-jukebox__now-title {
+.k2-jukebox__now-title {
 	font-size: 15px;
 	font-weight: 650;
 	color: var(--k2-text-primary);
@@ -172,7 +186,7 @@ body.k2-site .k2-jukebox__now-title {
 	text-overflow: ellipsis;
 }
 
-body.k2-site .k2-jukebox__now-game {
+.k2-jukebox__now-game {
 	font-size: 11px;
 	color: var(--k2-text-muted);
 	white-space: nowrap;
@@ -180,7 +194,7 @@ body.k2-site .k2-jukebox__now-game {
 	text-overflow: ellipsis;
 }
 
-body.k2-site .k2-jukebox__hide {
+.k2-jukebox__hide {
 	flex-shrink: 0;
 	margin: 0;
 	padding: 4px 9px;
@@ -198,14 +212,14 @@ body.k2-site .k2-jukebox__hide {
 	transition: color 0.15s, border-color 0.15s;
 }
 
-body.k2-site .k2-jukebox__hide:hover,
-body.k2-site .k2-jukebox__hide:focus-visible {
+.k2-jukebox__hide:hover,
+.k2-jukebox__hide:focus-visible {
 	color: var(--k2-text-secondary);
 	border-color: var(--k2-border-strong);
 	outline: none;
 }
 
-body.k2-site .k2-jukebox__vu {
+.k2-jukebox__vu {
 	display: flex;
 	align-items: flex-end;
 	justify-content: center;
@@ -216,7 +230,7 @@ body.k2-site .k2-jukebox__vu {
 	overflow: hidden;
 }
 
-body.k2-site .k2-jukebox__vu-bar {
+.k2-jukebox__vu-bar {
 	display: block;
 	width: 4px;
 	height: 22px;
@@ -227,11 +241,11 @@ body.k2-site .k2-jukebox__vu-bar {
 	transform: scaleY(0.28);
 }
 
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(1) { animation: k2-jukebox-vu 0.9s ease-in-out infinite; }
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(2) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.12s; }
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(3) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.24s; }
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(4) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.08s; }
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(5) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.18s; }
+.k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(1) { animation: k2-jukebox-vu 0.9s ease-in-out infinite; }
+.k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(2) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.12s; }
+.k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(3) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.24s; }
+.k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(4) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.08s; }
+.k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(5) { animation: k2-jukebox-vu 0.9s ease-in-out infinite 0.18s; }
 
 @keyframes k2-jukebox-vu {
 	0%, 100% {
@@ -245,29 +259,29 @@ body.k2-site .k2-jukebox.is-playing .k2-jukebox__vu-bar:nth-child(5) { animation
 }
 
 @media (prefers-reduced-motion: reduce) {
-	body.k2-site .k2-jukebox.is-playing .k2-jukebox__vu-bar {
+	.k2-jukebox.is-playing .k2-jukebox__vu-bar {
 		animation: none;
 		transform: scaleY(0.55);
 		background: color-mix(in srgb, var(--k2-accent) 45%, var(--k2-border-subtle));
 	}
 }
 
-body.k2-site .k2-jukebox__transport {
+.k2-jukebox__transport {
 	display: grid;
 	grid-template-columns: auto auto minmax(0, 1fr);
 	align-items: center;
 	gap: 8px;
-	padding: 0 12px 8px;
+	padding: 0 12px 12px;
 	flex-shrink: 0;
 }
 
-body.k2-site .k2-jukebox__controls {
+.k2-jukebox__controls {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
 }
 
-body.k2-site .k2-jukebox__btn {
+.k2-jukebox__btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -285,27 +299,27 @@ body.k2-site .k2-jukebox__btn {
 	transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-body.k2-site .k2-jukebox__btn:hover,
-body.k2-site .k2-jukebox__btn:focus-visible {
+.k2-jukebox__btn:hover,
+.k2-jukebox__btn:focus-visible {
 	color: var(--k2-segment-active-text);
 	border-color: var(--k2-segment-active-ring);
 	outline: none;
 }
 
-body.k2-site .k2-jukebox__btn.is-active {
+.k2-jukebox__btn.is-active {
 	color: var(--k2-segment-active-text);
 	border-color: var(--k2-segment-active-ring);
 	background: color-mix(in srgb, var(--k2-accent) 8%, transparent);
 }
 
-body.k2-site .k2-jukebox__btn--play {
+.k2-jukebox__btn--play {
 	width: 36px;
 	height: 36px;
 	color: color-mix(in srgb, var(--k2-accent) 80%, var(--k2-text-primary));
 	border-color: color-mix(in srgb, var(--k2-accent) 40%, var(--k2-border-subtle));
 }
 
-body.k2-site .k2-jukebox__btn-icon--play {
+.k2-jukebox__btn-icon--play {
 	display: block;
 	width: 0;
 	height: 0;
@@ -315,7 +329,7 @@ body.k2-site .k2-jukebox__btn-icon--play {
 	margin-left: 2px;
 }
 
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__btn-icon--play {
+.k2-jukebox.is-playing .k2-jukebox__btn-icon--play {
 	width: 10px;
 	height: 12px;
 	border: 0;
@@ -323,8 +337,8 @@ body.k2-site .k2-jukebox.is-playing .k2-jukebox__btn-icon--play {
 	position: relative;
 }
 
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__btn-icon--play::before,
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__btn-icon--play::after {
+.k2-jukebox.is-playing .k2-jukebox__btn-icon--play::before,
+.k2-jukebox.is-playing .k2-jukebox__btn-icon--play::after {
 	content: "";
 	position: absolute;
 	top: 0;
@@ -333,15 +347,15 @@ body.k2-site .k2-jukebox.is-playing .k2-jukebox__btn-icon--play::after {
 	background: currentColor;
 }
 
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__btn-icon--play::before {
+.k2-jukebox.is-playing .k2-jukebox__btn-icon--play::before {
 	left: 1px;
 }
 
-body.k2-site .k2-jukebox.is-playing .k2-jukebox__btn-icon--play::after {
+.k2-jukebox.is-playing .k2-jukebox__btn-icon--play::after {
 	right: 1px;
 }
 
-body.k2-site .k2-jukebox__btn-icon--prev {
+.k2-jukebox__btn-icon--prev {
 	display: block;
 	width: 0;
 	height: 0;
@@ -352,7 +366,7 @@ body.k2-site .k2-jukebox__btn-icon--prev {
 	box-shadow: -5px 0 0 -1px currentColor;
 }
 
-body.k2-site .k2-jukebox__btn-icon--next {
+.k2-jukebox__btn-icon--next {
 	display: block;
 	width: 0;
 	height: 0;
@@ -363,7 +377,7 @@ body.k2-site .k2-jukebox__btn-icon--next {
 	box-shadow: 5px 0 0 -1px currentColor;
 }
 
-body.k2-site .k2-jukebox__shuffle {
+.k2-jukebox__shuffle {
 	display: inline-flex;
 	align-items: center;
 	margin: 0;
@@ -383,20 +397,20 @@ body.k2-site .k2-jukebox__shuffle {
 	transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-body.k2-site .k2-jukebox__shuffle:hover,
-body.k2-site .k2-jukebox__shuffle:focus-visible {
+.k2-jukebox__shuffle:hover,
+.k2-jukebox__shuffle:focus-visible {
 	color: var(--k2-text-secondary);
 	border-color: var(--k2-border-strong);
 	outline: none;
 }
 
-body.k2-site .k2-jukebox__shuffle.is-active {
+.k2-jukebox__shuffle.is-active {
 	color: var(--k2-segment-active-text);
 	border-color: var(--k2-segment-active-ring);
 	background: color-mix(in srgb, var(--k2-accent) 8%, transparent);
 }
 
-body.k2-site .k2-jukebox__volume-wrap {
+.k2-jukebox__volume-wrap {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	align-items: center;
@@ -404,25 +418,25 @@ body.k2-site .k2-jukebox__volume-wrap {
 	min-width: 0;
 }
 
-body.k2-site .k2-jukebox__volume-label {
+.k2-jukebox__volume-label {
 	font-size: 10px;
 	font-weight: 600;
 	color: var(--k2-text-muted);
 }
 
-body.k2-site .k2-jukebox__volume {
+.k2-jukebox__volume {
 	width: 100%;
 	min-width: 0;
 	margin: 0;
 	accent-color: var(--k2-accent);
 }
 
-body.k2-site .k2-jukebox__progress-wrap {
+.k2-jukebox__progress-wrap {
 	padding: 0 12px 8px;
 	flex-shrink: 0;
 }
 
-body.k2-site .k2-jukebox__progress {
+.k2-jukebox__progress {
 	position: relative;
 	height: 6px;
 	margin: 0;
@@ -434,12 +448,12 @@ body.k2-site .k2-jukebox__progress {
 	overflow: hidden;
 }
 
-body.k2-site .k2-jukebox__progress:focus-visible {
+.k2-jukebox__progress:focus-visible {
 	outline: 2px solid color-mix(in srgb, var(--k2-accent) 50%, transparent);
 	outline-offset: 2px;
 }
 
-body.k2-site .k2-jukebox__progress-fill {
+.k2-jukebox__progress-fill {
 	display: block;
 	height: 100%;
 	width: 0;
@@ -452,7 +466,7 @@ body.k2-site .k2-jukebox__progress-fill {
 	transition: width 0.08s linear;
 }
 
-body.k2-site .k2-jukebox__times {
+.k2-jukebox__times {
 	display: flex;
 	justify-content: space-between;
 	margin-top: 4px;
@@ -461,40 +475,41 @@ body.k2-site .k2-jukebox__times {
 	color: var(--k2-text-muted);
 }
 
-body.k2-site .k2-jukebox__tracks-wrap {
+.k2-jukebox__tracks-wrap {
 	flex: 1 1 auto;
 	min-height: 0;
+	margin-top: 6px;
 	overflow: auto;
 	border-top: 1px solid var(--k2-border-subtle);
 	scrollbar-width: thin;
 	scrollbar-color: var(--k2-scrollbar-thumb) var(--k2-scrollbar-track);
 }
 
-body.k2-site .k2-jukebox__tracks-wrap::-webkit-scrollbar {
+.k2-jukebox__tracks-wrap::-webkit-scrollbar {
 	width: var(--k2-scrollbar-size);
 	height: var(--k2-scrollbar-size);
 }
 
-body.k2-site .k2-jukebox__tracks-wrap::-webkit-scrollbar-track {
+.k2-jukebox__tracks-wrap::-webkit-scrollbar-track {
 	background: var(--k2-scrollbar-track);
 }
 
-body.k2-site .k2-jukebox__tracks-wrap::-webkit-scrollbar-thumb {
+.k2-jukebox__tracks-wrap::-webkit-scrollbar-thumb {
 	background: var(--k2-scrollbar-thumb);
 	border-radius: var(--k2-radius-sm);
 }
 
-body.k2-site .k2-jukebox__tracks-wrap::-webkit-scrollbar-thumb:hover {
+.k2-jukebox__tracks-wrap::-webkit-scrollbar-thumb:hover {
 	background: var(--k2-scrollbar-thumb-hover);
 }
 
-body.k2-site .k2-jukebox__tracks {
+.k2-jukebox__tracks {
 	margin: 0;
-	padding: 6px;
+	padding: 8px 6px 6px;
 	list-style: none;
 }
 
-body.k2-site .k2-jukebox__track {
+.k2-jukebox__track {
 	display: grid;
 	grid-template-columns: 28px 1fr auto;
 	align-items: center;
@@ -505,35 +520,35 @@ body.k2-site .k2-jukebox__track {
 	transition: background 0.12s ease, color 0.12s ease;
 }
 
-body.k2-site .k2-jukebox__track:hover,
-body.k2-site .k2-jukebox__track:focus-visible {
+.k2-jukebox__track:hover,
+.k2-jukebox__track:focus-visible {
 	background: color-mix(in srgb, var(--k2-accent) 6%, transparent);
 	outline: none;
 }
 
-body.k2-site .k2-jukebox__track.is-active {
+.k2-jukebox__track.is-active {
 	background: color-mix(in srgb, var(--k2-accent) 10%, transparent);
 }
 
-body.k2-site .k2-jukebox__track-index {
+.k2-jukebox__track-index {
 	font-size: 10px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 	color: var(--k2-text-muted);
 }
 
-body.k2-site .k2-jukebox__track.is-active .k2-jukebox__track-index {
+.k2-jukebox__track.is-active .k2-jukebox__track-index {
 	color: color-mix(in srgb, var(--k2-accent) 75%, var(--k2-text-secondary));
 }
 
-body.k2-site .k2-jukebox__track-meta {
+.k2-jukebox__track-meta {
 	display: flex;
 	flex-direction: column;
 	gap: 1px;
 	min-width: 0;
 }
 
-body.k2-site .k2-jukebox__track-title {
+.k2-jukebox__track-title {
 	font-size: 12px;
 	font-weight: 600;
 	color: var(--k2-text-primary);
@@ -542,7 +557,7 @@ body.k2-site .k2-jukebox__track-title {
 	text-overflow: ellipsis;
 }
 
-body.k2-site .k2-jukebox__track-game {
+.k2-jukebox__track-game {
 	font-size: 10px;
 	color: var(--k2-text-muted);
 	white-space: nowrap;
@@ -550,7 +565,7 @@ body.k2-site .k2-jukebox__track-game {
 	text-overflow: ellipsis;
 }
 
-body.k2-site .k2-jukebox__track-play {
+.k2-jukebox__track-play {
 	width: 8px;
 	height: 8px;
 	border-radius: 1px;
@@ -560,12 +575,12 @@ body.k2-site .k2-jukebox__track-play {
 	transition: opacity 0.12s, transform 0.12s;
 }
 
-body.k2-site .k2-jukebox__track.is-active .k2-jukebox__track-play {
+.k2-jukebox__track.is-active .k2-jukebox__track-play {
 	opacity: 1;
 	transform: scale(1);
 }
 
-body.k2-site .k2-jukebox__track--empty {
+.k2-jukebox__track--empty {
 	display: block;
 	padding: 16px 12px;
 	color: var(--k2-text-muted);
@@ -573,11 +588,11 @@ body.k2-site .k2-jukebox__track--empty {
 }
 
 @media (max-width: 520px) {
-	body.k2-site .k2-jukebox {
+	.k2-jukebox {
 		--k2-jukebox-inset: 10px;
 	}
 
-	body.k2-site .k2-jukebox__transport {
+	.k2-jukebox__transport {
 		grid-template-columns: auto auto minmax(56px, 1fr);
 		gap: 6px;
 	}

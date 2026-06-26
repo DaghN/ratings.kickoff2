@@ -89,13 +89,16 @@
     function init() {
         applyResolvedAccent();
         scheduleNextPeriodTick();
-
-        document.querySelectorAll('.k2-tint-menu__choice').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                setAccentTune(btn.getAttribute('data-k2-accent') || '');
-            });
-        });
+        syncAccentButtons();
     }
+
+    document.addEventListener('click', function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-tint-menu__choice') : null;
+        if (!btn) {
+            return;
+        }
+        setAccentTune(btn.getAttribute('data-k2-accent') || '');
+    });
 
     window.addEventListener('storage', function (ev) {
         if (ev.key === ACCENT_KEY || ev.key === PERIOD_KEY) {
@@ -108,9 +111,21 @@
         }
     });
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
+    function boot() {
+        syncAccentButtons();
+    }
+
+    function firstInit() {
         init();
+    }
+
+    if (window.k2PageReady) {
+        window.k2PageReady(boot);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', firstInit);
+    } else {
+        firstInit();
     }
 })();

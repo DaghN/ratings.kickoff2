@@ -81,20 +81,32 @@
 			setOpen(false);
 		}
 		syncToggleButtons();
+	}
 
-		document.addEventListener('click', function (ev) {
-			var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-tint-menu__toggle') : null;
-			if (!btn) {
-				return;
-			}
-			setOpen(!isOpen());
-			syncToggleButtons();
-		});
+	document.addEventListener('click', function (ev) {
+		var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-tint-menu__toggle') : null;
+		if (!btn) {
+			return;
+		}
+		setOpen(!isOpen());
+		syncToggleButtons();
+	});
+
+	function boot() {
+		syncToggleButtons();
+	}
+
+	function firstInit() {
+		init();
+	}
+
+	if (window.k2PageReady) {
+		window.k2PageReady(boot);
 	}
 
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', init);
+		document.addEventListener('DOMContentLoaded', firstInit);
 	} else {
-		init();
+		firstInit();
 	}
 })();

@@ -39,6 +39,10 @@
 	}
 
 	function onReady(fn) {
+		if (typeof window.k2PageReady === 'function') {
+			window.k2PageReady(fn);
+			return;
+		}
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', fn);
 			return;

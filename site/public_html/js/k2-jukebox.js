@@ -1,10 +1,15 @@
 /**
- * Site jukebox — opt-in HTML5 player; persists playback across page loads.
+ * Site jukebox — opt-in HTML5 player; Turbo-permanent for gapless cross-page playback.
  */
 (function () {
 	"use strict";
 
-	var ROOT_SEL = "[data-k2-jukebox]";
+	if (window.__k2JukeboxReady) {
+		return;
+	}
+	window.__k2JukeboxReady = true;
+
+	var ROOT_SEL = "#k2-jukebox-root";
 	var STORAGE_PREFIX = "k2-jukebox-";
 	var PLAYLIST_URL = "/audio/amiga/playlist.json";
 
@@ -37,7 +42,6 @@
 	var shuffleOrder = [];
 	var shufflePos = 0;
 	var panelOpen = false;
-	var lastTimeSaveMs = 0;
 
 	function readStorage(key, fallback) {
 		try {
@@ -56,20 +60,6 @@
 		}
 	}
 
-	function wasPlayingStored() {
-		return readStorage("playing", "0") === "1";
-	}
-
-	function savePlaybackState() {
-		if (!audio) {
-			return;
-		}
-		writeStorage("playing", audio.paused ? "0" : "1");
-		if (isFinite(audio.currentTime)) {
-			writeStorage("current-time", String(audio.currentTime));
-		}
-	}
-
 	function attemptPlay() {
 		if (!audio) {
 			return;
@@ -78,7 +68,6 @@
 		if (playPromise && playPromise.catch) {
 			playPromise.catch(function () {
 				setPlayingUi(false);
-				writeStorage("playing", "0");
 			});
 		}
 	}
@@ -101,10 +90,11 @@
 		}
 	}
 
-	function setPanelOpen(open) {
-		panelOpen = open;
+	function syncPanelUi(open) {
 		root.classList.toggle("is-open", open);
-		toggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+		if (toggleBtn) {
+			toggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+		}
 		if (panel) {
 			if (open) {
 				panel.removeAttribute("hidden");
@@ -112,7 +102,52 @@
 				panel.setAttribute("hidden", "hidden");
 			}
 		}
+	}
+
+	function setPanelOpen(open, opts) {
+		opts = opts || {};
+		var animate = opts.animate === true;
+		var wasOpen = panelOpen;
+		panelOpen = open;
+		syncPanelUi(open);
+		if (open && animate && !wasOpen) {
+			root.classList.add("is-panel-opening");
+			window.setTimeout(function () {
+				root.classList.remove("is-panel-opening");
+			}, 280);
+		}
 		writeStorage("panel-open", open ? "1" : "0");
+	}
+
+	function stabilizeAfterTurbo() {
+		root.classList.remove("is-panel-opening");
+		syncPanelUi(panelOpen);
+		if (audio) {
+			setPlayingUi(!audio.paused);
+			updateProgress();
+		}
+	}
+
+	function mountOutsideBodySwap() {
+		if (root.parentElement !== document.documentElement) {
+			document.documentElement.appendChild(root);
+		}
+	}
+
+	function stubIncomingJukebox(newBody) {
+		if (!newBody) {
+			return;
+		}
+		var incoming = newBody.querySelector("#k2-jukebox-root");
+		if (!incoming) {
+			return;
+		}
+		var stub = document.createElement("div");
+		stub.id = "k2-jukebox-root";
+		stub.setAttribute("data-turbo-permanent", "");
+		stub.setAttribute("data-k2-jukebox", "");
+		stub.setAttribute("aria-hidden", "true");
+		incoming.replaceWith(stub);
 	}
 
 	function buildShuffleOrder() {
@@ -143,7 +178,6 @@
 		}
 		shuffleBtn.classList.toggle("is-active", shuffleOn);
 		shuffleBtn.setAttribute("aria-pressed", shuffleOn ? "true" : "false");
-		shuffleBtn.setAttribute("title", shuffleOn ? "Shuffle on" : "Shuffle off");
 		shuffleBtn.setAttribute("aria-label", shuffleOn ? "Shuffle on — click to play in order" : "Shuffle off — click to shuffle playback");
 	}
 
@@ -219,42 +253,33 @@
 		return idx;
 	}
 
-	function loadTrack(index, autoplay, seekTime) {
+	function loadTrack(index, autoplay) {
 		index = resolveIndex(index);
 		if (index < 0 || !audio) {
 			return;
 		}
 		var track = tracks[index];
 		var url = "/audio/amiga/" + track.file;
+		var sameTrack = currentIndex === index && audio.src && audio.src.indexOf(track.file) !== -1;
 		currentIndex = index;
 		writeStorage("track-index", String(index));
 		writeStorage("track-id", track.id);
-		if (seekTime == null) {
-			writeStorage("current-time", "0");
-		}
 		highlightTrack(index);
 		updateNowPlaying(track);
-
-		function applySeekAndPlay() {
-			if (seekTime != null && isFinite(seekTime) && seekTime > 0) {
-				try {
-					var maxTime = isFinite(audio.duration) ? audio.duration : seekTime;
-					audio.currentTime = Math.min(seekTime, maxTime);
-				} catch (e) {
-					/* ignore seek errors */
-				}
-			}
-			updateProgress();
-			if (autoplay) {
+		if (sameTrack) {
+			if (autoplay && audio.paused) {
 				attemptPlay();
-			} else {
-				savePlaybackState();
 			}
+			return;
 		}
-
 		audio.src = url;
 		audio.load();
-		audio.addEventListener("loadedmetadata", applySeekAndPlay, { once: true });
+		if (autoplay) {
+			audio.addEventListener("canplay", function onCanPlay() {
+				audio.removeEventListener("canplay", onCanPlay);
+				attemptPlay();
+			});
+		}
 	}
 
 	function togglePlay() {
@@ -342,7 +367,6 @@
 		ratio = Math.max(0, Math.min(1, ratio));
 		audio.currentTime = ratio * audio.duration;
 		updateProgress();
-		savePlaybackState();
 	}
 
 	function restorePreferences() {
@@ -363,7 +387,9 @@
 			volumeInput.value = String(Math.round(vol * 100));
 		}
 		if (readStorage("panel-open", "0") === "1") {
-			setPanelOpen(true);
+			setPanelOpen(true, { animate: false });
+		} else {
+			setPanelOpen(false);
 		}
 	}
 
@@ -386,22 +412,19 @@
 		}
 		idx = resolveIndex(idx);
 		if (idx >= 0) {
-			var resume = wasPlayingStored();
-			var seekTime = null;
-			if (resume) {
-				seekTime = parseFloat(readStorage("current-time", "0"));
-				if (!isFinite(seekTime) || seekTime < 0) {
-					seekTime = 0;
-				}
+			loadTrack(idx, false);
+			updateProgress();
+			if (!audio.paused) {
+				setPlayingUi(true);
 			}
-			loadTrack(idx, resume, resume ? seekTime : null);
 		}
 	}
 
 	function bindEvents() {
 		if (toggleBtn) {
 			toggleBtn.addEventListener("click", function () {
-				setPanelOpen(!panelOpen);
+				var nextOpen = !panelOpen;
+				setPanelOpen(nextOpen, { animate: nextOpen });
 			});
 		}
 		if (hideBtn) {
@@ -462,44 +485,37 @@
 		if (audio) {
 			audio.addEventListener("play", function () {
 				setPlayingUi(true);
-				writeStorage("playing", "1");
 			});
 			audio.addEventListener("pause", function () {
 				setPlayingUi(false);
-				writeStorage("playing", "0");
-				savePlaybackState();
 			});
-			audio.addEventListener("timeupdate", function () {
-				updateProgress();
-				var now = Date.now();
-				if (now - lastTimeSaveMs >= 1500) {
-					lastTimeSaveMs = now;
-					savePlaybackState();
-				}
-			});
+			audio.addEventListener("timeupdate", updateProgress);
 			audio.addEventListener("loadedmetadata", updateProgress);
 			audio.addEventListener("ended", function () {
 				loadTrack(nextIndex(1), true);
 			});
 		}
-		window.addEventListener("pagehide", savePlaybackState);
-		window.addEventListener("pageshow", function (ev) {
-			if (ev.persisted && audio && wasPlayingStored()) {
-				attemptPlay();
-			}
-		});
 		document.addEventListener("keydown", function (ev) {
 			if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA" || ev.target.isContentEditable)) {
 				return;
 			}
 			if (ev.key === "m" && ev.altKey) {
 				ev.preventDefault();
-				setPanelOpen(!panelOpen);
+				var nextOpen = !panelOpen;
+				setPanelOpen(nextOpen, { animate: nextOpen });
 			}
 		});
+
+		document.addEventListener("turbo:before-render", function (ev) {
+			var detail = ev.detail || {};
+			stubIncomingJukebox(detail.newBody);
+		});
+
+		document.addEventListener("turbo:render", stabilizeAfterTurbo);
 	}
 
 	function init() {
+		mountOutsideBodySwap();
 		restorePreferences();
 		bindEvents();
 		fetch(PLAYLIST_URL, { credentials: "same-origin" })

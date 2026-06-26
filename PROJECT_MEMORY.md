@@ -77,6 +77,8 @@
 
 - **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + roster (flag per row, WC entries tooltips, TT); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
 
+- **Amiga tournament videos (Jun 2026):** **Planning** — policy + [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md) (TV-0 done); next **TV-1** harvest → `review.csv`. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
+
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
 ---
@@ -122,6 +124,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-26 | **Amiga tournament videos — implementation plan** — [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md): slices TV-1–TV-6, manifest paths, harvest/build/validate scripts, PHP Videos tab pilot on WC XXIII. |
+| 2026-06-26 | **Amiga tournament videos — policy doc** — [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md): Videos tab, manifest model, six-source harvest, dedupe-by-youtube-id, Chronology + Has videos filter; implementation not started. |
+| 2026-06-26 | **Jukebox Turbo Drive** — Hotwired Turbo + `data-turbo-permanent` jukebox for gapless cross-page playback; `k2-turbo-boot.js` + `k2:page-ready` bridge. |
 | 2026-06-26 | **Jukebox site-wide + nav resume** — player on all themed pages; localStorage saves track/time/playing across navigations and auto-resumes on load. |
 | 2026-06-26 | **Amiga jukebox v1** — opt-in floating player on Amiga realm (`k2_jukebox.php`, 18-track MP3 playlist under `/audio/amiga/`); floppy FAB, panel transport, shuffle, localStorage prefs. |
 | 2026-06-26 | **Amiga chart TT x-axis fix** — profile rank `rankChartTimeRange` treated flat points array as nested series (xMax never capped); rating charts read `Core` before `player-rank-chart-core.js` loaded. Cutoff x-range now in `chart-date-range.js` (`rankPointsTimeRange` / `ratingChartTimeRange`). |

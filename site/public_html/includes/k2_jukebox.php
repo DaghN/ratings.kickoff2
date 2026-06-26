@@ -3,11 +3,8 @@
  * Site jukebox — floating opt-in player (all themed pages).
  */
 declare(strict_types=1);
-
-$k2JukeboxDocRoot = $_SERVER['DOCUMENT_ROOT'];
-$k2JukeboxJsVer = (int) @filemtime($k2JukeboxDocRoot . '/js/k2-jukebox.js');
 ?>
-<div class="k2-jukebox" data-k2-jukebox aria-live="polite">
+<div class="k2-jukebox" id="k2-jukebox-root" data-turbo-permanent data-k2-jukebox aria-live="polite">
 	<div class="k2-jukebox__panel" id="k2-jukebox-panel" hidden>
 		<div class="k2-jukebox__head">
 			<div class="k2-jukebox__brand">
@@ -53,7 +50,7 @@ $k2JukeboxJsVer = (int) @filemtime($k2JukeboxDocRoot . '/js/k2-jukebox.js');
 					<span class="k2-jukebox__btn-icon k2-jukebox__btn-icon--next" aria-hidden="true"></span>
 				</button>
 			</div>
-			<button type="button" class="k2-jukebox__shuffle" aria-label="Shuffle playback order" aria-pressed="false" title="Shuffle off">
+			<button type="button" class="k2-jukebox__shuffle" aria-label="Shuffle playback order" aria-pressed="false">
 				Shuffle
 			</button>
 			<div class="k2-jukebox__volume-wrap">
@@ -79,7 +76,6 @@ $k2JukeboxJsVer = (int) @filemtime($k2JukeboxDocRoot . '/js/k2-jukebox.js');
 		aria-expanded="false"
 		aria-controls="k2-jukebox-panel"
 		aria-label="Open Amiga jukebox"
-		title="Amiga jukebox (Alt+M)"
 	>
 		<svg class="k2-jukebox__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 			<rect x="5" y="4" width="14" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -90,4 +86,3 @@ $k2JukeboxJsVer = (int) @filemtime($k2JukeboxDocRoot . '/js/k2-jukebox.js');
 	</button>
 	<audio class="k2-jukebox__audio" preload="metadata"></audio>
 </div>
-<script type="text/javascript" src="/js/k2-jukebox.js?v=<?php echo $k2JukeboxJsVer; ?>" defer="defer"></script>

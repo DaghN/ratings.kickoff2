@@ -14,9 +14,25 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 <?php include $k2DocRoot . '/includes/favicon_head.php'; ?>
 <script type="text/javascript" src="/js/k2-carry-scroll.js?v=<?php echo (int) @filemtime($k2DocRoot . '/js/k2-carry-scroll.js'); ?>"></script>
 <?php
+$k2TurboPath = $k2DocRoot . '/js/turbo.es2017-umd.js';
+$k2TurboBootPath = $k2DocRoot . '/js/k2-turbo-boot.js';
+$k2TurboCssPath = $k2DocRoot . '/stylesheets/k2-turbo.css';
+if (is_file($k2TurboCssPath)) {
+	echo '<link href="/stylesheets/k2-turbo.css?v=' . (int) filemtime($k2TurboCssPath) . '" rel="stylesheet" type="text/css" />' . "\n";
+}
+if (is_file($k2TurboPath)) {
+	echo '<script type="text/javascript" src="/js/turbo.es2017-umd.js?v=' . (int) filemtime($k2TurboPath) . '" defer="defer"></script>' . "\n";
+}
+if (is_file($k2TurboBootPath)) {
+	echo '<script type="text/javascript" src="/js/k2-turbo-boot.js?v=' . (int) filemtime($k2TurboBootPath) . '" defer="defer"></script>' . "\n";
+}
 $k2JukeboxCssPath = $k2DocRoot . '/stylesheets/k2-jukebox.css';
+$k2JukeboxJsPath = $k2DocRoot . '/js/k2-jukebox.js';
 if (is_file($k2JukeboxCssPath)) {
 	echo '<link href="/stylesheets/k2-jukebox.css?v=' . (int) filemtime($k2JukeboxCssPath) . '" rel="stylesheet" type="text/css" />' . "\n";
+}
+if (is_file($k2JukeboxJsPath)) {
+	echo '<script type="text/javascript" src="/js/k2-jukebox.js?v=' . (int) filemtime($k2JukeboxJsPath) . '" defer="defer"></script>' . "\n";
 }
 $k2ReqPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 if (is_string($k2ReqPath)

@@ -310,12 +310,6 @@
             }
         });
 
-        document.addEventListener('click', function (ev) {
-            if (!root.contains(ev.target)) {
-                closeList(root, input, list);
-            }
-        });
-
         list.addEventListener('mousedown', function (ev) {
             var t = ev.target;
             if (t && t.closest && t.closest('a')) {
@@ -336,6 +330,21 @@
             navigatePick(root, { id: playerId, realm: playerRealmFromAnchor(a, realm) }, profilePage);
         });
     }
+
+    document.addEventListener('click', function (ev) {
+        var roots = document.querySelectorAll('.player-search[data-player-search-realm][data-ps-initialized="1"]');
+        for (var i = 0; i < roots.length; i++) {
+            var root = roots[i];
+            if (root.contains(ev.target)) {
+                continue;
+            }
+            var input = root.querySelector('.player-search-input');
+            var list = root.querySelector('.player-search-results');
+            if (input && list) {
+                closeList(root, input, list);
+            }
+        }
+    });
 
     function boot() {
         var roots = document.querySelectorAll('.player-search[data-player-search-realm]');
