@@ -216,6 +216,8 @@
 
 
 
+	function runCarryScrollRestore() {
+
 	try {
 
 		if (hashTargetId() !== '') {
@@ -611,6 +613,16 @@
 		/* ignore */
 
 	}
+
+	}
+
+
+
+	window.K2CarryScrollRestore = runCarryScrollRestore;
+
+	runCarryScrollRestore();
+
+	document.addEventListener('turbo:load', runCarryScrollRestore);
 
 })();
 

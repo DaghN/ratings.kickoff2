@@ -5741,6 +5741,8 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 }
 
 .k2-hub-bar {
+	position: relative;
+	z-index: 1210;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;

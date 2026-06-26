@@ -1,5 +1,11 @@
 /* Amiga realm jukebox — fixed floating player */
 
+/* Turbo may leave a bare placeholder in <body>; real player lives on <html>. */
+#k2-jukebox-root:not(.k2-jukebox) {
+	display: none !important;
+	pointer-events: none !important;
+}
+
 .k2-jukebox {
 	--k2-jukebox-width: min(360px, calc(100vw - 28px));
 	--k2-jukebox-inset: 14px;

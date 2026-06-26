@@ -275,6 +275,13 @@
     }
 
     function initForm(form) {
+        if (form._k2RealmGamesFiltersBound) {
+            if (typeof window.K2ArchiveListbox !== 'undefined') {
+                window.K2ArchiveListbox.init(form);
+            }
+            return;
+        }
+        form._k2RealmGamesFiltersBound = true;
         initListboxes(form);
         initYearModeCoupling(form);
         initPlayerPickers(form);
@@ -282,10 +289,16 @@
         initOpponentSearch(form);
     }
 
-    onReady(function () {
+    function boot() {
         var forms = document.querySelectorAll('.k2-realm-games-filters__form');
         for (var i = 0; i < forms.length; i++) {
             initForm(forms[i]);
         }
-    });
+    }
+
+    if (window.k2PageReady) {
+        window.k2PageReady(boot);
+    }
+
+    onReady(boot);
 }());

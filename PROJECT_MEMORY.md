@@ -77,7 +77,7 @@
 
 - **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + roster (flag per row, WC entries tooltips, TT); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
 
-- **Amiga tournament videos (Jun 2026):** **Planning** — policy + [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md) (TV-0 done); next **TV-1** harvest → `review.csv`. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
+- **Amiga tournament videos (Jun 2026):** **TV-1 done** — harvest tooling + **`data/amiga/tournament_videos/review.csv`** (336 rows); **STOP for Dagh CSV review** before TV-2 manifest. [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md) · [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -124,9 +124,14 @@
 
 | When | Note |
 |------|------|
+| 2026-06-26 | **WC Chronology table — quiet Date sort** — default `event_date` desc unchanged; `data-k2-quiet-sort-cols="0"` + k2-table.js so Date never gets active-sort header/body emphasis; other columns highlight normally. |
+| 2026-06-26 | **Amiga tournament videos — TV-1 harvest** — `scripts/amiga/tournament_videos/` (yt-dlp + forum t=15358 + enrich); **`data/amiga/tournament_videos/review.csv`** (336 rows, 0 duplicate IDs); relation_group hints on 2010 dual-URL bullets. **STOP:** Dagh CSV review before TV-2. |
 | 2026-06-26 | **Amiga tournament videos — implementation plan** — [`amiga-tournament-videos-implementation-plan.md`](docs/amiga-tournament-videos-implementation-plan.md): slices TV-1–TV-6, manifest paths, harvest/build/validate scripts, PHP Videos tab pilot on WC XXIII. |
 | 2026-06-26 | **Amiga tournament videos — policy doc** — [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md): Videos tab, manifest model, six-source harvest, dedupe-by-youtube-id, Chronology + Has videos filter; implementation not started. |
 | 2026-06-26 | **Jukebox Turbo Drive** — Hotwired Turbo + `data-turbo-permanent` jukebox for gapless cross-page playback; `k2-turbo-boot.js` + `k2:page-ready` bridge. |
+| 2026-06-26 | **Jukebox vs tint picker fix** — Turbo nav no longer leaves duplicate `#k2-jukebox-root` in `<body>`; hub bar `z-index: 1210` keeps Tint clickable above open jukebox panel. |
+| 2026-06-26 | **Turbo filter listbox re-init** — `individual3-filters.js`, `k2-realm-games-filters.js`, `status-period-competitions.js` hook `k2PageReady` so archive listbox filters work after in-page navigation. |
+| 2026-06-26 | **Turbo carry-scroll restore** — `k2_carry_scroll_restore.php` re-runs on `turbo:load` so pill/filter/sort scroll lock works with in-page navigation (store half was already fine). |
 | 2026-06-26 | **Jukebox site-wide + nav resume** — player on all themed pages; localStorage saves track/time/playing across navigations and auto-resumes on load. |
 | 2026-06-26 | **Amiga jukebox v1** — opt-in floating player on Amiga realm (`k2_jukebox.php`, 18-track MP3 playlist under `/audio/amiga/`); floppy FAB, panel transport, shuffle, localStorage prefs. |
 | 2026-06-26 | **Amiga chart TT x-axis fix** — profile rank `rankChartTimeRange` treated flat points array as nested series (xMax never capped); rating charts read `Core` before `player-rank-chart-core.js` loaded. Cutoff x-range now in `chart-date-range.js` (`rankPointsTimeRange` / `ratingChartTimeRange`). |

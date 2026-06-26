@@ -1,6 +1,6 @@
 # Amiga tournament videos — implementation plan
 
-**Status:** **Planned (Jun 2026)** — policy locked; **Slice TV-0 done** (policy + this plan). **No code shipped yet.**
+**Status:** **Planned (Jun 2026)** — policy locked; **Slice TV-0 done** (policy + this plan). **TV-1 done** (harvest tooling + `review.csv`). **STOP before TV-2** — Dagh reviews CSV.
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 
@@ -109,7 +109,7 @@ Automate catalog union from all sources into a **review queue**. No PHP yet.
 
 ### Tasks
 
-- [ ] **`scripts/amiga/tournament_videos/`** package (or `scripts/amiga/harvest_tournament_videos.py`):
+- [x] **`scripts/amiga/tournament_videos/`** package (or `scripts/amiga/harvest_tournament_videos.py`):
   - **Forum parser** — fetch t=15358; extract section headers (event names), match lines (players, score, stage), all YouTube IDs + WMV URLs per bullet.
   - **YouTube harvesters** — flat list `{id, title, duration_sec?}` from:
     - `@KO2CV_TV/videos`
@@ -118,7 +118,7 @@ Automate catalog union from all sources into a **review queue**. No PHP yet.
     - Playlist `PL_BZxDPPd88YKbQHLod_1EFHPa2iJSIQY`
   - Prefer **yt-dlp** `--flat-playlist` when SSL works; fallback documented in script README (browser export / manual JSON drop into `raw/`).
   - **WMV probe** (optional) — HEAD request ko-gathering / kickoffworld URLs from forum; emit `external_url` rows without `youtube_id`.
-- [ ] **`scripts/amiga/tournament_videos/enrich.py`** (or single module):
+- [x] **`scripts/amiga/tournament_videos/enrich.py`** (or single module):
   - Guess `year`, `kind`, `stage`, `leg`, `score`, `player_a_guess`, `player_b_guess`, `guessed_tournament_id` from title + forum context.
   - Load WC catalog from MySQL (`tournaments` where WC) for year→id map.
   - Load `amiga_players` for name resolution hints.
@@ -126,13 +126,13 @@ Automate catalog union from all sources into a **review queue**. No PHP yet.
   - Set `featured_final: true` when ID appears in WC finals playlist (offline WC years only).
   - **Relation hints:** when forum lists 2+ YouTube IDs under one bullet → shared `relation_group`, default `relation: uncertain`.
   - When title patterns suggest stream (`Part\d`, `KOA WC20\d\d`, `Day \d`, duration > 3600s) → `kind: stream`.
-- [ ] **Output:** `data/amiga/tournament_videos/review.csv` with columns:
+- [x] **Output:** `data/amiga/tournament_videos/review.csv` with columns:
 
   `youtube_id, title, duration_sec, guessed_tournament_id, tournament_guess_label, year, kind, stage, leg, score, player_a_guess, player_a_id_guess, player_b_guess, player_b_id_guess, source, source_channel, source_playlist, relation_group, relation, featured_final, confidence, verified, notes, external_url`
 
   (Fix column names — player_a_id_guess / player_b_id_guess as integers or empty.)
 
-- [ ] **`scripts/amiga/tournament_videos/README.md`** — how to run, SSL workaround, re-harvest cadence.
+- [x] **`scripts/amiga/tournament_videos/README.md`** — how to run, SSL workaround, re-harvest cadence.
 
 ### Verification
 

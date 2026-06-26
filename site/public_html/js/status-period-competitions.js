@@ -1731,6 +1731,14 @@
     }
 
     function initRoot(root) {
+        if (root._k2StatusPeriodCompetitionsBound) {
+            if (typeof window.K2ArchiveListbox !== 'undefined') {
+                window.K2ArchiveListbox.init(root);
+            }
+            return;
+        }
+        root._k2StatusPeriodCompetitionsBound = true;
+
         if (!root.getAttribute('data-browser-loaded-epoch')) {
             root.setAttribute('data-browser-loaded-epoch', String(Math.floor(Date.now() / 1000)));
         }
@@ -1810,9 +1818,17 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
+    function boot() {
         init();
+    }
+
+    if (window.k2PageReady) {
+        window.k2PageReady(boot);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
     }
 })();

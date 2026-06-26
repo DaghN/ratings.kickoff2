@@ -891,4 +891,17 @@
         setTriggerWidthPx: setTriggerWidthPx,
         formatLabel: null,
     };
+
+    function dismissStaleOpenListbox() {
+        if (OPEN && !OPEN.isConnected) {
+            OPEN = null;
+        }
+        if (OPEN) {
+            close(OPEN);
+        }
+    }
+
+    if (typeof window !== 'undefined' && window.k2PageReady) {
+        window.k2PageReady(dismissStaleOpenListbox);
+    }
 }(typeof window !== 'undefined' ? window : this));

@@ -318,6 +318,33 @@
 		return isNaN(index) ? -1 : index;
 	}
 
+	/** Column indices that sort but never get active-sort header/body emphasis (comma-separated). */
+	function isQuietSortCol(table, index) {
+		var raw;
+		var parts;
+		var i;
+		var idx;
+
+		if (index === undefined || index === null || index < 0) {
+			return false;
+		}
+
+		raw = table.getAttribute('data-k2-quiet-sort-cols');
+		if (!raw) {
+			return false;
+		}
+
+		parts = String(raw).split(',');
+		for (i = 0; i < parts.length; i++) {
+			idx = parseInt(parts[i], 10);
+			if (!isNaN(idx) && idx === index) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	function clearColumnBodyClass(table, className) {
 		var bodies = table.tBodies || [];
 		var i;
@@ -383,6 +410,9 @@
 		if (anchorIndex >= 0 && sortIndex === anchorIndex) {
 			return;
 		}
+		if (isQuietSortCol(table, sortIndex)) {
+			return;
+		}
 
 		bodies = table.tBodies || [];
 		for (i = 0; i < bodies.length; i++) {
@@ -405,8 +435,10 @@
 		table._k2SortDirection = direction;
 
 		clearSortState(table);
-		addClass(header, direction === 'desc' ? SORTED_DESC_CLASS : SORTED_ASC_CLASS);
 		header.setAttribute('aria-sort', direction === 'desc' ? 'descending' : 'ascending');
+		if (!isQuietSortCol(table, header.cellIndex)) {
+			addClass(header, direction === 'desc' ? SORTED_DESC_CLASS : SORTED_ASC_CLASS);
+		}
 		refreshSortedColumnEmphasis(table);
 	}
 

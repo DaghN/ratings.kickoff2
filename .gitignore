@@ -54,3 +54,6 @@ site/public_html/.cache/
 site/public_html/.usermin/
 **/dwsync.xml
 **/_notes/
+
+data/amiga/tournament_videos/raw/
+

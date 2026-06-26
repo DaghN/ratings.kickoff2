@@ -22,7 +22,7 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 | Tournament event stats (wide, SSR order = SQL) | `amiga_tournament_render_event_stats_table()` in `amiga_profile_blocks.php` | `data-k2-skip-initial-sort="1"` when SSR order matches default |
 | Tournament standings + games (Amiga) | `amiga_tournament_render_standings_table()` / `amiga_tournament_render_games_table()` in `amiga_tournament_lib.php` | Page cloak on `amiga/tournament.php`; dynamic anchor col on games table |
 | Amiga WC stats / players LB | `includes/amiga_world_cup_stats_table.php`, `includes/amiga_wc_players_table.php` | Shell: `amiga_wc_*_lb_shell_start.inc.php` |
-| Amiga WC hub events catalog | `includes/amiga_world_cups_events_table.php` + `amiga/world-cups/chronology/index.php` | Tournaments-index columns minus Format; medal SVG headers; podium = flag + player link |
+| Amiga WC hub events catalog | `includes/amiga_world_cups_events_table.php` + `amiga/world-cups/chronology/index.php` | Tournaments-index columns minus Format; medal SVG headers; podium = flag + player link; **Date** default sort with `data-k2-quiet-sort-cols="0"` (no active-sort emphasis) |
 | Amiga Countries hub (index + roster) | `includes/amiga_countries_index_table.php`, `includes/amiga_countries_roster_table.php` + `amiga/countries/index.php`, `roster.php` | Medal SVG headers; flag per roster row; default sort players DESC / rating DESC — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | League period games | `includes/k2_league_period_page.php` | Mirror + sortable |
 | Static / header-help only | `game.php` | No sortable bundle |
@@ -57,7 +57,8 @@ Online hub LB wings may use `k2_lb_sortable_table_head.inc.php` instead of the g
 6. Every `<th>`: hub LBs use `k2_lb_th($col, $lbSort, $extraClass)`; other wide tables use `k2_table_sortable_th_attr(...)`.
 7. Every body `<td>`: hub LBs use `k2_lb_td($col, $lbSort, $extraClass)`; other wide tables use `k2_table_body_td_attr(...)`.
 8. `data-k2-skip-initial-sort="1"` when **SQL row order already matches** default sort (avoids reorder flash). **Never** set skip when PHP row order uses a different `ORDER BY` than the wing’s default column (WC player sub-wings: per-view order in `amiga_lb_wc_slice_order_sql()`).
-9. Filter / pill / chevron URLs: `array_merge($params, k2_table_sort_query_params())` or `k2_table_merge_sort_query_for_path()`.
+9. `data-k2-quiet-sort-cols="0,…"` when a column is the default sort but must **not** show active-sort header/body emphasis (WC Chronology **Date** only, so far). Sort still works; other columns highlight normally.
+10. Filter / pill / chevron URLs: `array_merge($params, k2_table_sort_query_params())` or `k2_table_merge_sort_query_for_path()`.
 
 ### Anchor column
 

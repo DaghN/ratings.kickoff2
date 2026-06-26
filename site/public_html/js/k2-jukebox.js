@@ -120,6 +120,7 @@
 	}
 
 	function stabilizeAfterTurbo() {
+		purgeBodyJukeboxDupes();
 		root.classList.remove("is-panel-opening");
 		syncPanelUi(panelOpen);
 		if (audio) {
@@ -132,22 +133,26 @@
 		if (root.parentElement !== document.documentElement) {
 			document.documentElement.appendChild(root);
 		}
+		purgeBodyJukeboxDupes();
 	}
 
-	function stubIncomingJukebox(newBody) {
+	function removeIncomingJukebox(newBody) {
 		if (!newBody) {
 			return;
 		}
 		var incoming = newBody.querySelector("#k2-jukebox-root");
-		if (!incoming) {
+		if (incoming) {
+			incoming.remove();
+		}
+	}
+
+	function purgeBodyJukeboxDupes() {
+		if (!root || root.parentElement === document.body) {
 			return;
 		}
-		var stub = document.createElement("div");
-		stub.id = "k2-jukebox-root";
-		stub.setAttribute("data-turbo-permanent", "");
-		stub.setAttribute("data-k2-jukebox", "");
-		stub.setAttribute("aria-hidden", "true");
-		incoming.replaceWith(stub);
+		document.body.querySelectorAll("#k2-jukebox-root").forEach(function (el) {
+			el.remove();
+		});
 	}
 
 	function buildShuffleOrder() {
@@ -508,7 +513,7 @@
 
 		document.addEventListener("turbo:before-render", function (ev) {
 			var detail = ev.detail || {};
-			stubIncomingJukebox(detail.newBody);
+			removeIncomingJukebox(detail.newBody);
 		});
 
 		document.addEventListener("turbo:render", stabilizeAfterTurbo);

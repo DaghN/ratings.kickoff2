@@ -6,7 +6,7 @@
  * and copy the nearest reference implementation (do not bare k2_table_js_enqueue() on full pages).
  *
  * @see docs/k2-table-implementation-checklist.md
- * @see js/k2-table.js — client sort re-applies the same body cell classes.
+ * @see js/k2-table.js — client sort re-applies the same body cell classes; `data-k2-quiet-sort-cols` suppresses active-sort emphasis on listed columns.
  */
 declare(strict_types=1);
 

@@ -76,7 +76,7 @@ Wing 1 is the **WC catalog index** only. It does **not** host a second copy of t
 | Element | v1 | v2+ |
 |---------|----|-----|
 | **Intro** | Short chapter lede (`k2_hub_chapter.inc.php`) — what a World Cup is in this realm | Optional era copy, COVID note |
-| **List** | Sortable table — one row per WC: date, host flag, name, games, players, podium (flag + linked name per medal) | Filters by decade / host nation |
+| **List** | Sortable table — one row per WC: date, host flag, name, games, players, podium (flag + linked name per medal). **Date** is default sort (`event_date` desc) but uses `data-k2-quiet-sort-cols="0"` — no active-sort highlight (chronology reads as plain columns). | Filters by decade / host nation |
 | **Row link** | **`/amiga/tournament.php?id={tournament_id}&view=event-stats`** — via `amiga_tournament_event_stats_url($id)` + `amiga_tournament_href()` (preserves `as=`). Optional `#tournament` anchor for scroll. **Default WC landing tab** — already first in WC tournament nav. | Same URL; richer tab content |
 | **Per-event richness** | **Enrich `tournament.php`** — especially **`view=event-stats`** (realm row from `amiga_world_cup_stats` + existing per-player event stats). Bracket / stages / games = other `view=` tabs on the **same** `id`. | Extrema game links, podium narrative on existing tabs |
 
