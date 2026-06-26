@@ -34,6 +34,7 @@ function amiga_tournament_path_for_view(?string $view): string
 {
     return match ($view) {
         'games' => '/amiga/tournament/games.php',
+        'videos' => '/amiga/tournament/videos.php',
         'stages' => '/amiga/tournament/stages.php',
         'standings' => '/amiga/tournament/standings.php',
         'event-stats', null => '/amiga/tournament/event-stats.php',
@@ -49,6 +50,7 @@ function amiga_tournament_view_from_request(?string $path = null): ?string
     return match (k2_table_path_only($path ?? amiga_snapshot_request_path())) {
         '/amiga/tournament/event-stats.php' => 'event-stats',
         '/amiga/tournament/games.php' => 'games',
+        '/amiga/tournament/videos.php' => 'videos',
         '/amiga/tournament/stages.php' => 'stages',
         '/amiga/tournament/standings.php' => 'standings',
         default => null,
@@ -706,6 +708,11 @@ function amiga_tournament_games_url(int $id, int $playerFilter = 0): string
     return amiga_tournament_path_for_view('games') . '?' . http_build_query($params);
 }
 
+function amiga_tournament_videos_url(int $id): string
+{
+    return amiga_tournament_path_for_view('videos') . '?' . http_build_query(['id' => $id]);
+}
+
 /** Indexed lookup on ``amiga_games.tournament_id`` (`idx_amiga_games_tournament`). */
 function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
 {
@@ -766,22 +773,24 @@ function amiga_tournament_games_rows(mysqli $con, int $tournamentId, int $player
 
     require_once __DIR__ . '/amiga_db.php';
 
-    $sql = 'SELECT g.id, g.source_scores_id, g.game_date, g.player_a_id, g.player_b_id,
-                   g.goals_a, g.goals_b, g.extra, g.phase,
-                   pa.name AS player_a_name, pb.name AS player_b_name
-            FROM amiga_games g
-            INNER JOIN amiga_players pa ON pa.id = g.player_a_id
-            INNER JOIN amiga_players pb ON pb.id = g.player_b_id
-            WHERE g.tournament_id = ?';
+    // Rich ratedresults-shaped source (Elo, expected score, adjustments, player nationalities)
+    // — same view that backs amiga/game.php and amiga/player/games.php.
+    $sql = 'SELECT r.id, r.`Date`, r.idA, r.NameA, r.idB, r.NameB, r.phase,
+                   r.GoalsA, r.GoalsB, r.RatingA, r.RatingB, r.RatingDifference,
+                   r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB,
+                   r.NewRatingA, r.NewRatingB, r.SumOfGoals, r.GoalDifference,
+                   r.country_a, r.country_b '
+        . amiga_rated_games_from_sql()
+        . ' WHERE r.tournament_id = ?';
     $types = 'i';
     $params = [$tournamentId];
     if ($playerFilter > 0) {
-        $sql .= ' AND (g.player_a_id = ? OR g.player_b_id = ?)';
+        $sql .= ' AND (r.idA = ? OR r.idB = ?)';
         $types .= 'ii';
         $params[] = $playerFilter;
         $params[] = $playerFilter;
     }
-    $sql .= ' ORDER BY ' . amiga_game_chronology_order_sql('ASC');
+    $sql .= ' ORDER BY r.`Date` ASC, r.id ASC';
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -850,7 +859,7 @@ function amiga_tournament_apply_time_travel_event_id_redirect(array $query): voi
     $view = amiga_tournament_view_from_request();
     if ($view === null) {
         $viewRaw = (string) ($query['view'] ?? '');
-        $view = in_array($viewRaw, ['event-stats', 'standings', 'stages', 'games'], true) ? $viewRaw : 'event-stats';
+        $view = in_array($viewRaw, ['event-stats', 'standings', 'stages', 'games', 'videos'], true) ? $viewRaw : 'event-stats';
     }
 
     header(
@@ -876,7 +885,7 @@ function amiga_tournament_legacy_view_redirect(array $query): void
     $scopeKey = isset($query['scope_key']) ? (string) $query['scope_key'] : '';
     $viewRaw = (string) ($query['view'] ?? '');
     $view = match ($viewRaw) {
-        'event-stats', 'games', 'stages', 'standings' => $viewRaw,
+        'event-stats', 'games', 'stages', 'standings', 'videos' => $viewRaw,
         default => 'event-stats',
     };
     $carry = $query;
@@ -903,7 +912,7 @@ function amiga_tournament_apply_entry_redirects(
 ): void {
     $isWorldCup = $tournament !== null && amiga_tournament_is_world_cup($tournament);
 
-    if ($canonicalScope['redirect'] && !in_array($pageView, ['event-stats', 'games'], true)) {
+    if ($canonicalScope['redirect'] && !in_array($pageView, ['event-stats', 'games', 'videos'], true)) {
         header(
             'Location: ' . amiga_tournament_href(amiga_tournament_url(
                 $id,
@@ -1715,6 +1724,31 @@ function amiga_tournament_games_show_phase_column(array $rows): bool
 }
 
 /**
+ * Show player flags only when the event spans at least two countries.
+ * A single-nation event (common in legacy Amiga data) would otherwise show a
+ * column of identical flags — noise, not flavor.
+ *
+ * @param list<array<string, mixed>> $rows
+ */
+function amiga_tournament_games_show_flags(array $rows): bool
+{
+    $countries = [];
+    foreach ($rows as $row) {
+        foreach ([(string) ($row['country_a'] ?? ''), (string) ($row['country_b'] ?? '')] as $country) {
+            $country = trim($country);
+            if ($country !== '') {
+                $countries[$country] = true;
+            }
+            if (count($countries) >= 2) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Phase / knockout standings table on tournament.php.
  *
  * @param list<array<string, mixed>> $rows from amiga_tournament_standings_rows()
@@ -1790,12 +1824,40 @@ function amiga_tournament_render_standings_table(array $rows, bool $isKnockoutVi
 function amiga_tournament_render_games_table(array $rows): void
 {
     require_once __DIR__ . '/k2_table_helpers.php';
-    $showPhaseColumn = amiga_tournament_games_show_phase_column($rows);
-    $colCount = $showPhaseColumn ? 5 : 4;
-    $anchorCol = $showPhaseColumn ? 2 : 1;
+    require_once __DIR__ . '/k2_rated_game_row.php';
+    require_once __DIR__ . '/k2_player_game_row.php';
+    require_once __DIR__ . '/amiga_rated_game_row.php';
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+    require_once __DIR__ . '/amiga_player_load.php';
+
+    $showPhase = amiga_tournament_games_show_phase_column($rows);
+    $showFlags = amiga_tournament_games_show_flags($rows);
+
+    // Column index plan. Flags live inside the player cells, so they add no columns;
+    // the layout stays index-stable whether or not flags are shown.
+    $col = 0;
+    $idCol = $col++;
+    $phaseCol = $showPhase ? $col++ : -1;
+    $teamACol = $col++;
+    $goalsACol = $col++;
+    $goalsBCol = $col++;
+    $teamBCol = $col++;
+    $gdCol = $col++;
+    $sumCol = $col++;
+    $tsCol = $col++;
+    $ratingACol = $col++;
+    $ratingBCol = $col++;
+    $eloDiffCol = $col++;
+    $favEsCol = $col++;
+    $adjWinCol = $col++;
+    $adjLoseCol = $col++;
+    $colCount = $col;
+
+    $anchorCol = $idCol;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL);
     $defaultSortDir = k2_table_default_sort_dir_from_request('asc');
     $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-games');
+    // No date/order column — rows arrive in event chronology; preserve that on first paint.
     $skipInitialSort = $defaultSortCol === AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL
         && $defaultSortDir === 'asc'
         && k2_table_sort_query_params() === [];
@@ -1804,13 +1866,23 @@ function amiga_tournament_render_games_table(array $rows): void
 <table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
 	<thead>
 		<tr>
-			<th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">#</th>
-			<?php if ($showPhaseColumn) { ?>
-			<th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Phase</th>
+			<th<?php echo k2_table_sortable_th_attr($idCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">ID</th>
+			<?php if ($showPhase) { ?>
+			<th<?php echo k2_table_sortable_th_attr($phaseCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Phase</th>
 			<?php } ?>
-			<th<?php echo k2_table_sortable_th_attr($showPhaseColumn ? 2 : 1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player A</th>
-			<th<?php echo k2_table_sortable_th_attr($showPhaseColumn ? 3 : 2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Score</th>
-			<th<?php echo k2_table_sortable_th_attr($showPhaseColumn ? 4 : 3, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player B</th>
+			<th<?php echo k2_table_sortable_th_attr($teamACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="text">Player A</th>
+			<th<?php echo k2_table_sortable_th_attr($goalsACol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Goals scored by Player A.">A</th>
+			<th<?php echo k2_table_sortable_th_attr($goalsBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number" title="Goals scored by Player B.">B</th>
+			<th<?php echo k2_table_sortable_th_attr($teamBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player B</th>
+			<th<?php echo k2_table_sortable_th_attr($gdCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" title="Goal margin. A 7-4 game has GD 3.">GD</th>
+			<th<?php echo k2_table_sortable_th_attr($sumCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Total goals by both players. A 7-4 game has Sum 11.">Sum</th>
+			<th<?php echo k2_table_sortable_th_attr($tsCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Top score — most goals either player scored (e.g. 10 in 10-2).">TS</th>
+			<th<?php echo k2_table_sortable_th_attr($ratingACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" title="Player A's Elo rating before this game.">Rating A</th>
+			<th<?php echo k2_table_sortable_th_attr($ratingBCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Player B's Elo rating before this game.">Rating B</th>
+			<th<?php echo k2_table_sortable_th_attr($eloDiffCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Absolute pre-game Elo rating gap between the two players.">Elo Diff</th>
+			<th<?php echo k2_table_sortable_th_attr($favEsCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-right-xs'); ?> data-k2-sort="number" title="Favorite's expected score from the rating gap: 1 / (1 + 10^(-diff/400)).">Fav ES</th>
+			<th<?php echo k2_table_sortable_th_attr($adjWinCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number" title="Rating points won/lost: 32 * (actual score - expected score).">Adjustment</th>
+			<th class="k2-table-cell--left"><span class="visually-hidden">Adjustment lost</span></th>
 		</tr>
 	</thead>
 	<tbody class="black">
@@ -1819,26 +1891,80 @@ function amiga_tournament_render_games_table(array $rows): void
 			<td colspan="<?php echo (int) $colCount; ?>" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No games match this filter.</td>
 		</tr>
 	<?php } ?>
-	<?php foreach ($rows as $idx => $row) {
+	<?php foreach ($rows as $row) {
+        $processed = k2_rated_game_is_processed($row);
+        $game = k2_player_game_normalize_row($row);
         $phase = trim((string) ($row['phase'] ?? ''));
-        $scoreCol = $showPhaseColumn ? 3 : 2;
-        $playerBCol = $showPhaseColumn ? 4 : 3;
+        $countryA = trim((string) ($row['country_a'] ?? ''));
+        $countryB = trim((string) ($row['country_b'] ?? ''));
+        $dash = k2_fmt_dash();
+
+        $goalsA = (int) $game['GoalsA'];
+        $goalsB = (int) $game['GoalsB'];
+        if ($processed) {
+            $aWin = k2_rated_game_is_a_win($game);
+            $bWin = k2_rated_game_is_b_win($game);
+        } else {
+            $aWin = $goalsA > $goalsB;
+            $bWin = $goalsB > $goalsA;
+        }
+
+        $goalDiff = $processed ? (int) $game['GoalDifference'] : abs($goalsA - $goalsB);
+        $sumGoals = $processed ? (int) $game['SumOfGoals'] : $goalsA + $goalsB;
+        $topScore = max($goalsA, $goalsB);
+
+        if ($processed) {
+            $esCell = k2_rated_game_es_winner_html($game);
+            $favEs = k2_rated_game_favorite_expected_score($game);
+            $winnerAdj = k2_game_rating_adjustment_pick($game, 'winner');
+            $loserAdj = k2_game_rating_adjustment_pick($game, 'loser');
+            $adjWinCell = amiga_rated_game_adjustment_html($game, 'winner');
+            $adjLoseCell = amiga_rated_game_adjustment_html($game, 'loser');
+            $ratingACell = (string) (int) round((float) $game['RatingA']);
+            $ratingBCell = (string) (int) round((float) $game['RatingB']);
+            $eloDiffCell = number_format(abs((float) ($row['RatingDifference'] ?? 0)), 0);
+        } else {
+            $esCell = $dash;
+            $favEs = -1.0;
+            $winnerAdj = ['adj' => 0.0];
+            $loserAdj = ['adj' => 0.0];
+            $adjWinCell = $dash;
+            $adjLoseCell = $dash;
+            $ratingACell = $dash;
+            $ratingBCell = $dash;
+            $eloDiffCell = $dash;
+        }
+
+        $flagA = $showFlags && $countryA !== '' ? k2_amiga_country_flag_link($countryA, ['class' => 'k2-amiga-tgame-flag']) : '';
+        $flagB = $showFlags && $countryB !== '' ? k2_amiga_country_flag_link($countryB, ['class' => 'k2-amiga-tgame-flag']) : '';
+        $teamACell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--a">' . $flagA
+            . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']) . '</span>';
+        $teamBCell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--b">'
+            . k2_amiga_player_link((int) $game['idB'], (string) $game['NameB']) . $flagB . '</span>';
+
+        $goalsAClass = $aWin ? 'k2-amiga-tgame-goal--win' : '';
+        $goalsBClass = 'k2-table-cell--left' . ($bWin ? ' k2-amiga-tgame-goal--win' : '');
+        $goalsACell = $aWin ? '<span class="blue">' . $goalsA . '</span>' : (string) $goalsA;
+        $goalsBCell = $bWin ? '<span class="blue">' . $goalsB . '</span>' : (string) $goalsB;
         ?>
-		<tr>
-			<td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo (int) ($idx + 1); ?></td>
-			<?php if ($showPhaseColumn) { ?>
-			<td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_h($phase); ?></td>
+		<tr data-k2-sort-tie-value="<?php echo (int) $game['id']; ?>">
+			<td<?php echo k2_table_body_td_attr($idCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo amiga_rated_game_id_html((int) $game['id']); ?></td>
+			<?php if ($showPhase) { ?>
+			<td<?php echo k2_table_body_td_attr($phaseCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo $phase !== '' ? k2_h($phase) : $dash; ?></td>
 			<?php } ?>
-			<td<?php echo k2_table_body_td_attr($anchorCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
-                echo k2_amiga_player_link((int) $row['player_a_id'], (string) $row['player_a_name']);
-            ?></td>
-			<td<?php echo k2_table_body_td_attr($scoreCol, $anchorCol, $defaultSortCol); ?>><?php
-                echo (int) $row['goals_a'] . ' – ' . (int) $row['goals_b'];
-                echo amiga_tournament_format_game_extra(isset($row['extra']) ? (string) $row['extra'] : null);
-            ?></td>
-			<td<?php echo k2_table_body_td_attr($playerBCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
-                echo k2_amiga_player_link((int) $row['player_b_id'], (string) $row['player_b_name']);
-            ?></td>
+			<td<?php echo k2_table_body_td_attr($teamACol, $anchorCol, $defaultSortCol, 'k2-table-cell--right k2-amiga-tgame-team k2-amiga-tgame-team--a'); ?>><?php echo $teamACell; ?></td>
+			<td<?php echo k2_table_body_td_attr($goalsACol, $anchorCol, $defaultSortCol, $goalsAClass); ?>><?php echo $goalsACell; ?></td>
+			<td<?php echo k2_table_body_td_attr($goalsBCol, $anchorCol, $defaultSortCol, $goalsBClass); ?>><?php echo $goalsBCell; ?></td>
+			<td<?php echo k2_table_body_td_attr($teamBCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left k2-amiga-tgame-team k2-amiga-tgame-team--b'); ?>><?php echo $teamBCell; ?></td>
+			<td<?php echo k2_table_body_td_attr($gdCol, $anchorCol, $defaultSortCol, 'k2-table-cell--pad-left-md'); ?> data-k2-sort-value="<?php echo $goalDiff; ?>"><?php echo $goalDiff; ?></td>
+			<td<?php echo k2_table_body_td_attr($sumCol, $anchorCol, $defaultSortCol); ?>><?php echo $sumGoals; ?></td>
+			<td<?php echo k2_table_body_td_attr($tsCol, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo $topScore; ?>"><?php echo $topScore; ?></td>
+			<td<?php echo k2_table_body_td_attr($ratingACol, $anchorCol, $defaultSortCol, 'k2-table-cell--pad-left-md'); ?>><?php echo $ratingACell; ?></td>
+			<td<?php echo k2_table_body_td_attr($ratingBCol, $anchorCol, $defaultSortCol); ?>><?php echo $ratingBCell; ?></td>
+			<td<?php echo k2_table_body_td_attr($eloDiffCol, $anchorCol, $defaultSortCol); ?>><?php echo $eloDiffCell; ?></td>
+			<td<?php echo k2_table_body_td_attr($favEsCol, $anchorCol, $defaultSortCol, 'k2-table-cell--pad-right-xs'); ?> data-k2-sort-value="<?php echo $favEs; ?>"><?php echo $esCell; ?></td>
+			<td<?php echo k2_table_body_td_attr($adjWinCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo (float) $winnerAdj['adj']; ?>"><?php echo $adjWinCell; ?></td>
+			<td<?php echo k2_table_body_td_attr($adjLoseCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo (float) $loserAdj['adj']; ?>"><?php echo $adjLoseCell; ?></td>
 		</tr>
 	<?php } ?>
 	</tbody>

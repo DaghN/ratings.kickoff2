@@ -15,6 +15,7 @@ const K2_AMIGA_ROUTES = [
 	'amiga-tournament-standings' => 'amiga/tournament/standings.php',
 	'amiga-tournament-stages' => 'amiga/tournament/stages.php',
 	'amiga-tournament-games' => 'amiga/tournament/games.php',
+	'amiga-tournament-videos' => 'amiga/tournament/videos.php',
 	'amiga-player-profile' => 'amiga/player/profile.php',
 	'amiga-player-games' => 'amiga/player/games.php',
 	'amiga-player-tournaments' => 'amiga/player/tournaments.php',

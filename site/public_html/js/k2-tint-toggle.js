@@ -83,6 +83,20 @@
 		syncToggleButtons();
 	}
 
+	function boot() {
+		syncToggleButtons();
+	}
+
+	// Turbo Drive re-evaluates this body script on every in-page navigation.
+	// Bind the document click listener + first init only ONCE per document, or each
+	// visit would stack another toggle handler and clicks would fire an even number of
+	// times (the picker appears dead). See docs/k2-turbo-page-init-checklist.md.
+	if (window.__k2TintToggleBound) {
+		boot();
+		return;
+	}
+	window.__k2TintToggleBound = true;
+
 	document.addEventListener('click', function (ev) {
 		var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-tint-menu__toggle') : null;
 		if (!btn) {
@@ -91,20 +105,6 @@
 		setOpen(!isOpen());
 		syncToggleButtons();
 	});
-
-	function boot() {
-		syncToggleButtons();
-	}
-
-	var tintInitialized = false;
-
-	function firstInit() {
-		if (tintInitialized) {
-			return;
-		}
-		tintInitialized = true;
-		init();
-	}
 
 	if (window.k2PageReady) {
 		window.k2PageReady(boot);
@@ -117,7 +117,7 @@
 			fn();
 		}
 	})(function () {
-		firstInit();
+		init();
 		boot();
 	});
 })();

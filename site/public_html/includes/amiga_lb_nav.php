@@ -3,7 +3,7 @@
  * Amiga leaderboard wing tabs (Tier A career stats + tournament honours).
  *
  * Set $k2AmigaLbWingActive before include:
- * rating | goals | double-digits | victims | peak-rating | performance-rating | tournament-honours | world-cups | calendar-geo
+ * rating | world-cups | tournament-honours | calendar-geo | goals | double-digits | victims | peak-rating | performance-rating
  *
  * No streaks wing (unknown within-day play order; amiga-data-contract.md).
  */
@@ -16,13 +16,13 @@ $k2AmigaLbWingActive = $k2AmigaLbWingActive ?? 'rating';
 
 $k2AmigaLbWingTabs = [
     'rating' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Rating'],
-    'tournament-honours' => [
-        'href' => '/amiga/leaderboards/tournament-honours.php',
-        'label' => 'Tournament honours',
-    ],
     'world-cups' => [
         'href' => '/amiga/leaderboards/world-cups/honours.php',
         'label' => 'World Cups',
+    ],
+    'tournament-honours' => [
+        'href' => '/amiga/leaderboards/tournament-honours.php',
+        'label' => 'Tournament honours',
     ],
     'calendar-geo' => [
         'href' => '/amiga/leaderboards/calendar-geo.php',

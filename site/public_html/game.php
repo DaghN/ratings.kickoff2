@@ -86,7 +86,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 </thead>
 
 <tbody class="black">
-	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'plain']); ?>
+	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'plain', 'highlight_winner_goal' => true]); ?>
 </tbody>
 
 </table>

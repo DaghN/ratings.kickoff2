@@ -6,7 +6,7 @@
 
  * Pill clicks also store nav viewport offset so filter/table height changes do not nudge scroll.
 
- * Restore: k2_carry_scroll_restore.php in <head> (turbo:load after Turbo scroll + first load).
+ * Restore: k2_carry_scroll_restore.php in <head> (pre-paint cloak on full-page load).
 
  */
 

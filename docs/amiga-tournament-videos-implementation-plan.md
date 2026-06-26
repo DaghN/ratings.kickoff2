@@ -1,6 +1,6 @@
 # Amiga tournament videos — implementation plan
 
-**Status:** **Planned (Jun 2026)** — policy locked; **Slice TV-0 done** (policy + this plan). **TV-1 done** (harvest tooling + `review.csv`). **STOP before TV-2** — Dagh reviews CSV.
+**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-2 manifest v1** (277 videos; pragmatic `verified` flag per row). **TV-4** discovery surfaces next (Chronology clip indicator + Has videos filter). Future: admin bulk-verify page (video + proposed game_id side-by-side).
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 
@@ -27,10 +27,11 @@
 ## How to use this plan
 
 1. Execute slices **TV-1 → TV-6** in order (**TV-0** = policy + plan — done).
-2. **STOP** after TV-2 until Dagh signs off `review.csv` (ambiguous rows, relation groups, Greek Champs mapping).
-3. **STOP** if manifest JSON fails schema validation or references unknown `tournament_id` / `player_*_id`.
-4. **STOP** if Videos tab appears on tournaments with zero manifest rows, or is missing when rows exist.
-5. One slice per session; handoff note in chat + MEMORY line when a slice completes.
+2. **CSV review:** fix wrong `game_id` / tournament mappings as found (chat or future bulk-verify UI). Full `verified=Y` on every row is **not** a ship blocker — manifest carries `verified: true|false` per row.
+3. **Future:** dedicated bulk-verify page — embed + proposed `game.php` link side-by-side (Dagh Jun 2026).
+4. **STOP** if manifest JSON fails schema validation or references unknown `tournament_id` / `player_*_id`.
+5. **STOP** if Videos tab appears on tournaments with zero manifest rows, or is missing when rows exist.
+6. One slice per session; handoff note in chat + MEMORY line when a slice completes.
 6. After **TV-6**: UPDATE_DOCS Part A (`url-routes.md`, policy status, MEMORY, feature-log row).
 
 ---
@@ -149,36 +150,20 @@ python -m scripts.amiga.tournament_videos.harvest
 
 ---
 
-## TV-2 — Verified manifest JSON
+## TV-2 — Manifest JSON
 
 ### Goal
 
-Turn signed-off CSV into shipped manifest.
+Turn `review.csv` into shipped manifest (pragmatic v1: all non-`excluded` rows with `guessed_tournament_id`).
 
 ### Tasks
 
-- [ ] **`scripts/amiga/tournament_videos/build_manifest.py`**:
-  - Read `review.csv` where `verified` truthy.
-  - Validate `youtube_id` unique; required fields per `kind`.
-  - Resolve `player_a_id` / `player_b_id` from guess columns or re-run name matcher against `ko2amiga_db`.
-  - Reject row if `tournament_id` unknown (unless `kind: excluded`).
-  - Write `site/public_html/data/amiga/tournament_videos.json`:
-
-    ```json
-    {
-      "schema_version": 1,
-      "updated_at": "2026-06-26",
-      "videos": [ … ]
-    }
-    ```
-
-- [ ] **`scripts/amiga/tournament_videos/validate_manifest.py`** — CI-friendly checks:
-  - Unique `youtube_id`
-  - FK spot-check: all `tournament_id` exist; all player ids exist
-  - Each `relation_group` has at most one `relation: canonical` (warn if zero or many)
-  - No `kind: match` with both players null unless `notes` explains
-
-- [ ] Create empty `site/public_html/data/` directory if missing; add `.gitkeep` only if needed.
+- [x] **`scripts/amiga/tournament_videos/build_manifest.py`**:
+  - Default: all mapped rows (`kind != excluded`, `guessed_tournament_id` set).
+  - Optional `--verified-only` for strict gate.
+  - Writes `site/public_html/data/amiga/tournament_videos.json` with per-row `verified` from CSV.
+  - `game_id_guess` → `game_ids` array in JSON.
+- [x] **`scripts/amiga/tournament_videos/validate_manifest.py`** — unique IDs, FK spot-check, one canonical per relation group.
 
 ### Verification
 
@@ -201,27 +186,28 @@ Read manifest on tournament pages; ship **Videos** tab for WC XXIII (id 25) firs
 
 ### Tasks
 
-- [ ] **`includes/amiga_tournament_videos_lib.php`** (new):
+- [x] **`includes/amiga_tournament_videos_lib.php`** (new):
   - `amiga_tournament_videos_manifest(): array` — load JSON once per request (static cache).
   - `amiga_tournament_videos_for_id(int $tournamentId): array` — rows for tournament, excluding `kind: excluded`; sort by `sort` then stage order.
   - `amiga_tournament_has_videos(int $tournamentId): bool`
   - `amiga_tournament_videos_grouped(array $rows): array` — keys: `final`, `knockout`, `side`, `ceremony`, `coverage` per policy §9.1.
   - `amiga_tournament_video_embed_url(string $youtubeId): string` — nocookie embed URL.
   - `amiga_tournament_video_thumb_url(string $youtubeId): string` — `i.ytimg.com/vi/{id}/hqdefault.jpg`.
-- [ ] **`includes/k2_amiga_routes.php`:** add `amiga-tournament-videos` → `amiga/tournament/videos.php`.
-- [ ] **`includes/amiga_tournament_lib.php`:** add `amiga_tournament_videos_url(int $id): string` helper (mirror `amiga_tournament_games_url`).
-- [ ] **`amiga/tournament/videos.php`** — set `$k2AmigaTournamentView = 'videos'`; include `amiga_tournament_page.php`.
-- [ ] **`includes/amiga_tournament_page.php`:**
+- [x] **`includes/k2_amiga_routes.php`:** add `amiga-tournament-videos` → `amiga/tournament/videos.php`.
+- [x] **`includes/amiga_tournament_lib.php`:** add `amiga_tournament_videos_url(int $id): string` helper (mirror `amiga_tournament_games_url`).
+- [x] **`amiga/tournament/videos.php`** — set `$k2AmigaTournamentView = 'videos'`; include `amiga_tournament_page.php`.
+- [x] **`includes/amiga_tournament_page.php`:**
   - When `amiga_tournament_has_videos($id)` → add **Videos** pill (after Event stats or before Games — match WC nav order).
   - When `$pageView === 'videos'` → render body via new include.
-- [ ] **`includes/amiga_tournament_videos_body.inc.php`** (new):
+- [x] **`includes/amiga_tournament_videos_body.inc.php`** (new):
   - Sections per grouped rows.
   - Match row: title, linked players (`k2_player_link` / Amiga profile href), score if set.
   - **Canonical** embed: lazy iframe (click thumbnail → load iframe) — reuse/adapt `k2-game-page__video` classes or add `amiga-tournament-videos.css`.
   - **Alternates:** list under “Also available” with link to YouTube; optional second lazy embed.
   - **Streams:** label “Long coverage”; link-first default (embed on click).
-- [ ] **`stylesheets/amiga-tournament-videos.css`** — minimal; enqueue from videos view only.
-- [ ] **Legacy redirect:** if any `?view=videos` bookmark — 302 to folder path (optional, same as other tournament tabs).
+- [x] **`stylesheets/amiga-tournament-videos.css`** — minimal; enqueue from videos view only.
+- [x] **`js/amiga-tournament-videos.js`** — lazy embed on thumbnail click; `k2:page-ready` hook for Turbo.
+- [x] **Legacy redirect:** `?view=videos` → folder path (via `amiga_tournament_lib.php` view map).
 
 ### Verification
 

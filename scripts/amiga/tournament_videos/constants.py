@@ -8,6 +8,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = REPO_ROOT / "data" / "amiga" / "tournament_videos"
 RAW_DIR = DATA_DIR / "raw"
 REVIEW_CSV = DATA_DIR / "review.csv"
+MANIFEST_JSON = REPO_ROOT / "site" / "public_html" / "data" / "amiga" / "tournament_videos.json"
 
 FORUM_URL = "https://ko-gathering.com/forum/viewtopic.php?t=15358"
 WC_FINALS_PLAYLIST_ID = "PL_BZxDPPd88YKbQHLod_1EFHPa2iJSIQY"

@@ -11,6 +11,21 @@ require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 
+/** Event day only — Amiga `game_date` is synthetic; time within the day is not shown. */
+function amiga_player_game_date_html(string $date): string
+{
+    $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('UTC'));
+    if ($dt === false) {
+        $ts = strtotime($date);
+        if ($ts === false) {
+            return k2_h($date);
+        }
+        $dt = (new DateTimeImmutable('@' . $ts))->setTimezone(new DateTimeZone('UTC'));
+    }
+
+    return k2_h($dt->format('M j Y'));
+}
+
 function amiga_rated_game_id_html(int $gameId, string $idMode = 'link'): string
 {
     if ($idMode === 'plain' || $gameId < 1) {
@@ -135,12 +150,17 @@ function amiga_rated_game_row_html(array $row, array $options = [], ?mysqli $con
         $ratingDiffCell = $dash;
     }
 
+    $goalsA = (int) $game['GoalsA'];
+    $goalsB = (int) $game['GoalsB'];
+    $goalsACell = k2_rated_game_goal_cell_html($goalsA, $goalsB);
+    $goalsBCell = k2_rated_game_goal_cell_html($goalsB, $goalsA);
+
     return '<tr>'
         . '<td>' . amiga_rated_game_id_html((int) $game['id'], $idMode) . '</td>'
-        . '<td class="k2-table-cell--left k2-table-cell--pad-left-xs">' . k2_player_game_date_html($game['Date']) . '</td>'
+        . '<td class="k2-table-cell--left k2-table-cell--pad-left-xs">' . amiga_player_game_date_html($game['Date']) . '</td>'
         . '<td class="k2-table-cell--left">' . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']) . '</td>'
-        . '<td>' . (int) $game['GoalsA'] . '</td>'
-        . '<td class="k2-table-cell--left">' . (int) $game['GoalsB'] . '</td>'
+        . '<td>' . $goalsACell . '</td>'
+        . '<td class="k2-table-cell--left">' . $goalsBCell . '</td>'
         . '<td class="k2-table-cell--left">' . k2_amiga_player_link((int) $game['idB'], (string) $game['NameB']) . '</td>'
         . '<td class="k2-table-cell--left">' . amiga_rated_game_tournament_cell($row) . '</td>'
         . '<td class="k2-table-cell--left">' . amiga_rated_game_phase_cell($row, $con) . '</td>'

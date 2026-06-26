@@ -579,7 +579,7 @@ function k2_league_period_fetch_games(
     [$start, $end] = $range;
     $offset = max(0, $offset);
     $limit = max(1, min(500, $limit));
-    $sql = 'SELECT * FROM ratedresults WHERE `Date` >= ? AND `Date` < ? ORDER BY `Date` DESC, `id` DESC LIMIT ? OFFSET ?';
+    $sql = 'SELECT * FROM ratedresults WHERE `Date` >= ? AND `Date` < ? ORDER BY `id` DESC LIMIT ? OFFSET ?';
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
         $error = mysqli_error($con);
@@ -785,19 +785,18 @@ function k2_league_period_render_games_section(
 	</div>
 <?php if ($games !== []) { ?>
 	<?php k2_table_wrap_open(true); ?>
-		<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--realm-games-all')); ?>" data-k2-table="sortable" data-k2-default-sort="1" data-k2-default-direction="desc" data-k2-sort-scope="league-games">
+		<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--realm-games-all')); ?>" data-k2-table="sortable" data-k2-default-sort="0" data-k2-default-direction="desc" data-k2-sort-scope="league-games">
 			<thead>
 				<tr>
 					<th class="k2-table-cell--left" data-k2-sort="number">ID</th>
 					<th class="k2-table-cell--left k2-table-cell--pad-left-xs" data-k2-sort="number">Date</th>
-					<th class="k2-table-cell--left" data-k2-sort="text">Team A</th>
+					<th class="k2-table-cell--right" data-k2-sort="text">Team A</th>
 					<th data-k2-sort="number">A</th>
 					<th class="k2-table-cell--left" data-k2-sort="number">B</th>
 					<th class="k2-table-cell--left" data-k2-sort="text">Team B</th>
 					<th class="k2-table-cell--pad-left-md" data-k2-sort="number">GD</th>
 					<th data-k2-sort="number">Sum</th>
 					<th data-k2-sort="number">TS</th>
-					<th class="k2-table-cell--left k2-table-cell--pad-left-lg" data-k2-sort="text">Winner</th>
 					<th data-k2-sort="number">Rating A</th>
 					<th data-k2-sort="number">Rating B</th>
 					<th data-k2-sort="number">Elo Diff</th>
@@ -808,7 +807,7 @@ function k2_league_period_render_games_section(
 			</thead>
 			<tbody class="black">
 <?php foreach ($games as $row) { ?>
-				<?php echo k2_rated_game_row_html($row, ['id_mode' => 'link']); ?>
+				<?php echo k2_rated_game_row_html($row, ['id_mode' => 'link', 'show_winner' => false, 'highlight_winner_goal' => true, 'team_a_align' => 'right']); ?>
 <?php } ?>
 			</tbody>
 		</table>

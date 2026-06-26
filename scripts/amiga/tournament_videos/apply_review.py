@@ -7,6 +7,7 @@ from collections import defaultdict
 
 from scripts.amiga.tournament_videos.constants import CSV_COLUMNS, REVIEW_CSV
 from scripts.amiga.tournament_videos.game_match import load_tournament_games, match_game
+from scripts.amiga.tournament_videos.manual_rows import merge_manual_rows
 
 GREEK_TID = 499
 GREEK_LABEL = "Athens LXXVIII"
@@ -282,8 +283,17 @@ ROW_PATCHES: dict[str, dict[str, str]] = {
     },
     "947VFBRpXlk": {
         "score": "3-3",
+        "relation_group": "wc2008-george-rodolfo-silver",
+        "relation": "alternate_recording",
         "verified": "Y",
-        "notes": "14216: goals 3-3 FT; amiga_games.extra=4-5 e.t. (filename 4-5 is AET)",
+        "notes": "ko2cv duplicate; canonical=ckj8ZR43Y9k; 14216 FT 3-3, extra=4-5 e.t.",
+    },
+    "ckj8ZR43Y9k": {
+        "score": "3-3",
+        "relation_group": "wc2008-george-rodolfo-silver",
+        "relation": "canonical",
+        "verified": "Y",
+        "notes": "14216 FT 3-3; amiga_games.extra=4-5 e.t.",
     },
     "l9TEWoZoZnI": {
         "guessed_tournament_id": str(WC_2009),
@@ -339,6 +349,18 @@ ROW_PATCHES: dict[str, dict[str, str]] = {
         "score": "4-3",
         "game_id_guess": "11345",
         "verified": "Y",
+    },
+    "C5vvlrDmazU": {
+        "guessed_tournament_id": "244",
+        "tournament_guess_label": "Reading XIII",
+        "year": "2007",
+        "player_a_guess": "Alkis P",
+        "player_a_id_guess": "14",
+        "player_b_guess": "Gianni T",
+        "player_b_id_guess": "149",
+        "score": "3-3",
+        "game_id_guess": "10065",
+        "notes": "UKC07 title; game is Reading XIII 2007 league (not WC VII Rome)",
     },
     "MfAz4uCl090": {
         "kind": "excluded",
@@ -549,6 +571,7 @@ def bulk_game_match(rows: list[dict[str, str]]) -> tuple[int, list[str]]:
 
 def apply_all() -> int:
     rows = _load_rows()
+    added = merge_manual_rows(rows)
     apply_excludes(rows)
     apply_row_corrections(rows)
     apply_core_verified(rows)
@@ -565,6 +588,8 @@ def apply_all() -> int:
     )
 
     print(f"Wrote {REVIEW_CSV}")
+    if added:
+        print(f"  manual rows added: {added}")
     print(f"  verified={verified}/{len(rows)}")
     print(f"  game_id_guess={game_ids} (match rows linked: {match_with_gid}/{match_rows})")
     if failures:

@@ -43,7 +43,7 @@ $shownCount = count($games);
 $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
 $lastShown = $offset + $shownCount;
 $pagerBase = k2_realm_games_all_pager_params($state);
-$sortedColIndex = k2_rated_game_sort_col_index($state['sort']);
+$sortedColIndex = k2_rated_game_sort_col_index($state['sort'], false);
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 ?>
@@ -86,9 +86,9 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 	<tr>
 		<?php echo k2_realm_games_all_sort_header('id', 'ID', 'left', $state, 'Rated game ID. Opens the single-game detail page.'); ?>
 		<?php echo k2_realm_games_all_sort_header('date', 'Date', 'left', $state, 'UTC date and time the rated game was played.', 'Date', 'k2-table-cell--pad-left-xs'); ?>
-		<?php echo k2_realm_games_all_sort_header('team_a', 'Team A', 'left', $state, 'Player listed as Team A in the result row.'); ?>
+		<?php echo k2_realm_games_all_sort_header('team_a', 'Team A', 'right', $state, 'Player listed as Team A in the result row.', '', 'k2-table-cell--right'); ?>
 		<?php echo k2_realm_games_all_sort_header('goals_a', 'A', 'right', $state, 'Goals scored by Team A.', 'Goals A'); ?>
-		<?php echo k2_realm_games_all_sort_header('goals_b', 'B', 'right', $state, 'Goals scored by Team B.', 'Goals B'); ?>
+		<?php echo k2_realm_games_all_sort_header('goals_b', 'B', 'left', $state, 'Goals scored by Team B.', 'Goals B'); ?>
 		<?php echo k2_realm_games_all_sort_header('team_b', 'Team B', 'left', $state, 'Player listed as Team B in the result row.'); ?>
 		<?php echo k2_realm_games_all_sort_header('gd', 'GD', 'right', $state, 'Absolute goal margin in the game. A 7-4 result has GD 3.', 'Goal difference', 'k2-table-cell--pad-left-md'); ?>
 		<?php echo k2_realm_games_all_sort_header('sum', 'Sum', 'right', $state, 'Total goals scored by both players. A 7-4 result has Sum 11.', 'Goal sum'); ?>
@@ -100,7 +100,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 			'Top score — the most goals either player scored in this game (e.g. 10 in 10–2).',
 			'Top score'
 		); ?>
-		<?php echo k2_realm_games_all_sort_header('winner', 'Winner', 'left', $state, 'Game winner. Drawn games show Draw.', 'Winner', 'k2-table-cell--pad-left-lg'); ?>
 		<?php echo k2_realm_games_all_sort_header('rating_a', 'Rating A', 'right', $state, 'Team A\'s Elo rating before this game.'); ?>
 		<?php echo k2_realm_games_all_sort_header('rating_b', 'Rating B', 'right', $state, 'Team B\'s Elo rating before this game.'); ?>
 		<?php echo k2_realm_games_all_sort_header('elo_diff', 'Elo Diff', 'right', $state, 'Absolute pre-game Elo rating difference between the two players. Larger gaps mean a stronger favorite.'); ?>
@@ -128,11 +127,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 <tbody class="black">
 <?php if ($games === []) { ?>
 	<tr>
-		<td colspan="16" class="k2-games-day__empty k2-table-cell--left">No games match these filters.</td>
+		<td colspan="15" class="k2-games-day__empty k2-table-cell--left">No games match these filters.</td>
 	</tr>
 <?php } else { ?>
 <?php foreach ($games as $row) { ?>
-	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'link', 'sorted_col_index' => $sortedColIndex]); ?>
+	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'link', 'sorted_col_index' => $sortedColIndex, 'show_winner' => false, 'highlight_winner_goal' => true, 'team_a_align' => 'right']); ?>
 <?php } ?>
 <?php } ?>
 </tbody>

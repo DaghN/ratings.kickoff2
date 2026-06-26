@@ -173,8 +173,9 @@ Per-event pages use **foldered tabs** (not `?view=`). Entity id stays in query; 
 | `amiga-tournament-standings` | `/amiga/tournament/standings.php` | League table / groups / bracket (ordinary events) |
 | `amiga-tournament-stages` | `/amiga/tournament/stages.php` | Stages + sub-nav (World Cups) |
 | `amiga-tournament-games` | `/amiga/tournament/games.php` | Games |
+| `amiga-tournament-videos` | `/amiga/tournament/videos.php` | Videos (when manifest has rows for `id`) |
 
-Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?scope_key=` on standings/stages.
+Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?scope_key=` on standings/stages. **Videos tab** appears only when `amiga_tournament_has_videos($id)` — grouped sections (final, knockout, side, ceremony, coverage); lazy YouTube embed.
 
 **Entry redirects (302, query preserved):** `/amiga/tournament.php` (legacy `?view=`) → folder path; `/amiga/tournament/index.php` → `event-stats.php`. Nav hrefs use named files only — **not** bare `index.php` as a tab target (same habit as WC stats `participation.php`, Games `recent.php`).
 

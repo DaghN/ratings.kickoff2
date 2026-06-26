@@ -316,12 +316,21 @@
 
         stamp.classList.add('k2-amiga-tt-stamp--led-arrival');
 
-        clockEl.addEventListener('animationend', function (event) {
+        function onLedEnd(event) {
             if (event.target !== clockEl || event.animationName !== LED_ARRIVE_ANIMATION) {
                 return;
             }
+            clockEl.removeEventListener('animationend', onLedEnd);
             finishLedArrivalClasses(stamp);
-        }, { once: true });
+        }
+        clockEl.addEventListener('animationend', onLedEnd);
+
+        // Fallback: guarantee the LED clock un-hides even if animationend is missed under
+        // Turbo's render/script timing (1100ms animation + buffer).
+        global.setTimeout(function () {
+            clockEl.removeEventListener('animationend', onLedEnd);
+            finishLedArrivalClasses(stamp);
+        }, 1500);
     }
 
     function runToggleArrival(stamp) {
@@ -336,12 +345,21 @@
 
         stamp.classList.add('k2-amiga-tt-stamp--arrival');
 
-        stamp.addEventListener('animationend', function (event) {
+        function onArriveEnd(event) {
             if (event.animationName !== ARRIVE_ANIMATION) {
                 return;
             }
+            stamp.removeEventListener('animationend', onArriveEnd);
             finishArrivalClasses(stamp);
-        }, { once: true });
+        }
+        stamp.addEventListener('animationend', onArriveEnd);
+
+        // Fallback: guarantee the cloak releases even if animationend is missed under
+        // Turbo's render/script timing (320ms animation + buffer).
+        global.setTimeout(function () {
+            stamp.removeEventListener('animationend', onArriveEnd);
+            finishArrivalClasses(stamp);
+        }, 700);
 
         typewriter(kickerEl, full);
     }
@@ -361,18 +379,52 @@
             runToggleArrival(stamp);
         } else if (arrival === 'wing') {
             runWingArrival(stamp);
+        } else {
+            // No arrival animation this visit — make sure a stale cloak (e.g. a
+            // k2-tt-arrival-pending class left on <html> by an interrupted toggle, which
+            // persists across Turbo navigations) can never keep the stamp hidden.
+            clearArrivalPending(stamp);
         }
     }
 
-    global.addEventListener('scroll', function () {
-        hideCursorTooltip(activeCursorButton());
-    }, true);
-
-    (global.k2OnPageReady || function (fn) {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', fn);
-        } else {
-            fn();
+    function settleStampForCache() {
+        var stamp = stampRoot();
+        if (stamp) {
+            stamp.classList.remove(
+                'k2-amiga-tt-stamp--arrival-pending',
+                'k2-amiga-tt-stamp--arrival',
+                'k2-amiga-tt-stamp--led-fade-pending',
+                'k2-amiga-tt-stamp--led-arrival'
+            );
+            restoreKickerText(stamp.querySelector('.k2-amiga-tt-stamp__kicker-text'));
+            stamp.dataset.k2TtStampInit = '';
         }
-    })(initStamp);
+        clearArrivalPending(stamp);
+    }
+
+    // Turbo Drive re-evaluates this body script on every in-page navigation. Register the
+    // global listeners + page-ready hook only ONCE per document so they cannot stack.
+    if (!global.__k2TtStampBound) {
+        global.__k2TtStampBound = true;
+
+        global.addEventListener('scroll', function () {
+            hideCursorTooltip(activeCursorButton());
+        }, true);
+
+        // Settle transient arrival classes before Turbo snapshots the page, so a cached
+        // snapshot never freezes the stamp in its hidden (cloaked) state.
+        document.addEventListener('turbo:before-cache', settleStampForCache);
+
+        (global.k2OnPageReady || function (fn) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', fn);
+            } else {
+                fn();
+            }
+        })(initStamp);
+    } else {
+        // Re-evaluated under Turbo: init the freshly swapped stamp for this visit. The
+        // once-registered k2:page-ready hook also runs initStamp (idempotent).
+        initStamp();
+    }
 }(window));

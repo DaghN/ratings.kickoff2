@@ -1,5 +1,9 @@
 /**
- * Site jukebox — opt-in HTML5 player; Turbo-permanent for gapless cross-page playback.
+ * Amiga jukebox — standalone popup-window player.
+ *
+ * Runs inside /jukebox.php, opened in its own window by js/k2-jukebox-launcher.js so
+ * playback survives full-page navigation in the main tab (no SPA / Turbo needed).
+ * Broadcasts now-playing state to the main tab FAB over BroadcastChannel.
  */
 (function () {
 	"use strict";
@@ -9,19 +13,16 @@
 	}
 	window.__k2JukeboxReady = true;
 
-	var ROOT_SEL = "#k2-jukebox-root";
 	var STORAGE_PREFIX = "k2-jukebox-";
 	var PLAYLIST_URL = "/audio/amiga/playlist.json";
+	var CHANNEL_NAME = "k2-jukebox";
 
-	var root = document.querySelector(ROOT_SEL);
+	var root = document.querySelector("#k2-jukebox-root");
 	if (!root) {
 		return;
 	}
 
 	var audio = root.querySelector(".k2-jukebox__audio");
-	var panel = root.querySelector(".k2-jukebox__panel");
-	var toggleBtn = root.querySelector(".k2-jukebox__toggle");
-	var hideBtn = root.querySelector(".k2-jukebox__hide");
 	var trackList = root.querySelector(".k2-jukebox__tracks");
 	var nowTitle = root.querySelector(".k2-jukebox__now-title");
 	var nowGame = root.querySelector(".k2-jukebox__now-game");
@@ -34,14 +35,21 @@
 	var progressFill = root.querySelector(".k2-jukebox__progress-fill");
 	var timeCurrent = root.querySelector(".k2-jukebox__time-current");
 	var timeTotal = root.querySelector(".k2-jukebox__time-total");
-	var vuBars = root.querySelectorAll(".k2-jukebox__vu-bar");
+	var closeBtn = root.querySelector(".k2-jukebox__close");
 
 	var tracks = [];
 	var currentIndex = -1;
 	var shuffleOn = false;
 	var shuffleOrder = [];
 	var shufflePos = 0;
-	var panelOpen = false;
+	var lastSavedTime = -1;
+
+	var channel = null;
+	try {
+		channel = new BroadcastChannel(CHANNEL_NAME);
+	} catch (e) {
+		channel = null;
+	}
 
 	function readStorage(key, fallback) {
 		try {
@@ -55,6 +63,23 @@
 	function writeStorage(key, value) {
 		try {
 			localStorage.setItem(STORAGE_PREFIX + key, value);
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	function broadcastState() {
+		if (!channel) {
+			return;
+		}
+		var track = currentIndex >= 0 ? tracks[currentIndex] : null;
+		try {
+			channel.postMessage({
+				type: "state",
+				playing: audio ? !audio.paused : false,
+				title: track ? track.title : "",
+				game: track ? track.game : ""
+			});
 		} catch (e) {
 			/* ignore */
 		}
@@ -83,76 +108,12 @@
 
 	function setPlayingUi(playing) {
 		root.classList.toggle("is-playing", playing);
-		toggleBtn.setAttribute("aria-pressed", playing ? "true" : "false");
 		if (playBtn) {
 			playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
 			playBtn.setAttribute("aria-pressed", playing ? "true" : "false");
 		}
-	}
-
-	function syncPanelUi(open) {
-		root.classList.toggle("is-open", open);
-		if (toggleBtn) {
-			toggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
-		}
-		if (panel) {
-			if (open) {
-				panel.removeAttribute("hidden");
-			} else {
-				panel.setAttribute("hidden", "hidden");
-			}
-		}
-	}
-
-	function setPanelOpen(open, opts) {
-		opts = opts || {};
-		var animate = opts.animate === true;
-		var wasOpen = panelOpen;
-		panelOpen = open;
-		syncPanelUi(open);
-		if (open && animate && !wasOpen) {
-			root.classList.add("is-panel-opening");
-			window.setTimeout(function () {
-				root.classList.remove("is-panel-opening");
-			}, 280);
-		}
-		writeStorage("panel-open", open ? "1" : "0");
-	}
-
-	function stabilizeAfterTurbo() {
-		purgeBodyJukeboxDupes();
-		root.classList.remove("is-panel-opening");
-		syncPanelUi(panelOpen);
-		if (audio) {
-			setPlayingUi(!audio.paused);
-			updateProgress();
-		}
-	}
-
-	function mountOutsideBodySwap() {
-		if (root.parentElement !== document.documentElement) {
-			document.documentElement.appendChild(root);
-		}
-		purgeBodyJukeboxDupes();
-	}
-
-	function removeIncomingJukebox(newBody) {
-		if (!newBody) {
-			return;
-		}
-		var incoming = newBody.querySelector("#k2-jukebox-root");
-		if (incoming) {
-			incoming.remove();
-		}
-	}
-
-	function purgeBodyJukeboxDupes() {
-		if (!root || root.parentElement === document.body) {
-			return;
-		}
-		document.body.querySelectorAll("#k2-jukebox-root").forEach(function (el) {
-			el.remove();
-		});
+		writeStorage("playing", playing ? "1" : "0");
+		broadcastState();
 	}
 
 	function buildShuffleOrder() {
@@ -201,8 +162,8 @@
 			}
 		}
 		var active = rows[index];
-		if (active && panelOpen) {
-			active.scrollIntoView({ block: "nearest", behavior: "smooth" });
+		if (active) {
+			active.scrollIntoView({ block: "nearest" });
 		}
 	}
 
@@ -258,7 +219,7 @@
 		return idx;
 	}
 
-	function loadTrack(index, autoplay) {
+	function loadTrack(index, autoplay, resumeAt) {
 		index = resolveIndex(index);
 		if (index < 0 || !audio) {
 			return;
@@ -271,6 +232,7 @@
 		writeStorage("track-id", track.id);
 		highlightTrack(index);
 		updateNowPlaying(track);
+		broadcastState();
 		if (sameTrack) {
 			if (autoplay && audio.paused) {
 				attemptPlay();
@@ -279,10 +241,20 @@
 		}
 		audio.src = url;
 		audio.load();
-		if (autoplay) {
+		var startAt = typeof resumeAt === "number" && resumeAt > 0 ? resumeAt : 0;
+		if (startAt > 0 || autoplay) {
 			audio.addEventListener("canplay", function onCanPlay() {
 				audio.removeEventListener("canplay", onCanPlay);
-				attemptPlay();
+				if (startAt > 0) {
+					try {
+						audio.currentTime = startAt;
+					} catch (e) {
+						/* ignore */
+					}
+				}
+				if (autoplay) {
+					attemptPlay();
+				}
 			});
 		}
 	}
@@ -300,6 +272,14 @@
 		} else {
 			audio.pause();
 		}
+	}
+
+	function escapeHtml(str) {
+		return String(str)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;");
 	}
 
 	function renderTrackList() {
@@ -336,14 +316,6 @@
 		}
 	}
 
-	function escapeHtml(str) {
-		return String(str)
-			.replace(/&/g, "&amp;")
-			.replace(/</g, "&lt;")
-			.replace(/>/g, "&gt;")
-			.replace(/"/g, "&quot;");
-	}
-
 	function updateProgress() {
 		if (!audio || !progressFill) {
 			return;
@@ -360,6 +332,11 @@
 		progressFill.style.width = pct + "%";
 		if (progressBar) {
 			progressBar.setAttribute("aria-valuenow", String(Math.round(pct)));
+		}
+		var whole = Math.floor(cur);
+		if (whole !== lastSavedTime) {
+			lastSavedTime = whole;
+			writeStorage("track-time", String(whole));
 		}
 	}
 
@@ -391,11 +368,6 @@
 		if (volumeInput) {
 			volumeInput.value = String(Math.round(vol * 100));
 		}
-		if (readStorage("panel-open", "0") === "1") {
-			setPanelOpen(true, { animate: false });
-		} else {
-			setPanelOpen(false);
-		}
 	}
 
 	function restoreTrackIndex() {
@@ -416,25 +388,29 @@
 			}
 		}
 		idx = resolveIndex(idx);
-		if (idx >= 0) {
-			loadTrack(idx, false);
-			updateProgress();
-			if (!audio.paused) {
-				setPlayingUi(true);
-			}
+		if (idx < 0) {
+			idx = tracks.length ? 0 : -1;
 		}
+		if (idx < 0) {
+			return;
+		}
+		var resumeAt = parseInt(readStorage("track-time", "0"), 10);
+		if (!isFinite(resumeAt) || resumeAt < 0) {
+			resumeAt = 0;
+		}
+		/* The window was opened by a user gesture, so try to start playing right away. */
+		loadTrack(idx, true, resumeAt);
+		updateProgress();
 	}
 
 	function bindEvents() {
-		if (toggleBtn) {
-			toggleBtn.addEventListener("click", function () {
-				var nextOpen = !panelOpen;
-				setPanelOpen(nextOpen, { animate: nextOpen });
-			});
-		}
-		if (hideBtn) {
-			hideBtn.addEventListener("click", function () {
-				setPanelOpen(false);
+		if (closeBtn) {
+			closeBtn.addEventListener("click", function () {
+				try {
+					window.close();
+				} catch (e) {
+					/* ignore */
+				}
 			});
 		}
 		if (playBtn) {
@@ -500,29 +476,54 @@
 				loadTrack(nextIndex(1), true);
 			});
 		}
-		document.addEventListener("keydown", function (ev) {
-			if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA" || ev.target.isContentEditable)) {
-				return;
-			}
-			if (ev.key === "m" && ev.altKey) {
-				ev.preventDefault();
-				var nextOpen = !panelOpen;
-				setPanelOpen(nextOpen, { animate: nextOpen });
-			}
-		});
-
-		document.addEventListener("turbo:before-render", function (ev) {
-			var detail = ev.detail || {};
-			removeIncomingJukebox(detail.newBody);
-		});
-
-		document.addEventListener("turbo:render", stabilizeAfterTurbo);
 	}
 
+	function broadcastFocus(focused) {
+		if (!channel) {
+			return;
+		}
+		try {
+			channel.postMessage({ type: focused ? "focus" : "blur" });
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	if (channel) {
+		channel.addEventListener("message", function (ev) {
+			var data = ev.data || {};
+			if (data.type === "ping") {
+				/* Report state only — do NOT raise the window. The main tab pings on
+				   every page load; focusing here would steal focus on each navigation. */
+				broadcastState();
+				broadcastFocus(document.hasFocus());
+			}
+		});
+	}
+
+	/* Let the launcher track whether this window is in front so the FAB can toggle
+	   it forward/behind instead of only ever raising it. */
+	window.addEventListener("focus", function () {
+		broadcastFocus(true);
+	});
+	window.addEventListener("blur", function () {
+		broadcastFocus(false);
+	});
+
+	window.addEventListener("pagehide", function () {
+		if (channel) {
+			try {
+				channel.postMessage({ type: "closed" });
+			} catch (e) {
+				/* ignore */
+			}
+		}
+	});
+
 	function init() {
-		mountOutsideBodySwap();
 		restorePreferences();
 		bindEvents();
+		broadcastFocus(document.hasFocus());
 		fetch(PLAYLIST_URL, { credentials: "same-origin" })
 			.then(function (res) {
 				if (!res.ok) {

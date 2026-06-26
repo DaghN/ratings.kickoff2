@@ -233,6 +233,18 @@
         return days[d.getUTCDay()] + ' ' + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
     }
 
+    function formatStatusScoreHtml(goalsA, goalsB) {
+        goalsA = parseInt(goalsA, 10);
+        goalsB = parseInt(goalsB, 10);
+        var aCell = goalsA > goalsB
+            ? '<strong class="blue">' + goalsA + '</strong>'
+            : String(goalsA);
+        var bCell = goalsB > goalsA
+            ? '<strong class="blue">' + goalsB + '</strong>'
+            : String(goalsB);
+        return aCell + '–' + bCell;
+    }
+
     function renderDayGamesHtml(games) {
         if (!games || !games.length) {
             return '<p class="k2-status-panel__empty">—</p>';
@@ -245,7 +257,7 @@
             html += '<span class="k2-status-match">';
             html += '<span class="k2-status-match__side"><a class="k2-link-star" href="/player/profile.php?id='
                 + parseInt(g.id_a, 10) + PLAYER_PROFILE_ANCHOR + '">' + escapeHtml(g.name_a || '') + '</a></span>';
-            html += '<span class="k2-status-score">' + parseInt(g.goals_a, 10) + '–' + parseInt(g.goals_b, 10) + '</span>';
+            html += '<span class="k2-status-score">' + formatStatusScoreHtml(g.goals_a, g.goals_b) + '</span>';
             html += '<span class="k2-status-match__side"><a class="k2-link-star" href="/player/profile.php?id='
                 + parseInt(g.id_b, 10) + PLAYER_PROFILE_ANCHOR + '">' + escapeHtml(g.name_b || '') + '</a></span>';
             html += '</span>';

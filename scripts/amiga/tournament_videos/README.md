@@ -37,10 +37,24 @@ Fallback: export flat playlists manually into `data/amiga/tournament_videos/raw/
 
 ## Re-harvest cadence
 
-Re-run when Steve or community uploads new tournament footage, or after forum index edits. **TV-2** (`build_manifest.py`) reads Dagh-verified CSV rows only — do not skip CSV review.
+Re-run when Steve or community uploads new tournament footage, or after forum index edits. Then `python -m scripts.amiga.tournament_videos.build_manifest`.
 
-## Human review (TV-2 gate)
+## Manifest build (TV-2)
 
-Edit `review.csv`: set `verified=Y`, fix `guessed_tournament_id`, `relation` / `relation_group`, Greek Champs 2011, Milan I 2003, Online WC 2024 (`kind=excluded`).
+```powershell
+python -m scripts.amiga.tournament_videos.build_manifest
+python -m scripts.amiga.tournament_videos.validate_manifest
+```
 
-Policy: [`docs/amiga-tournament-videos-policy.md`](../../../docs/amiga-tournament-videos-policy.md)
+Default includes all mapped rows; `--verified-only` if you want strict CSV gate. Manifest `verified` mirrors CSV (`Y` → true).
+
+## Manual additions
+
+Dagh-supplied URLs not from harvest → edit `scripts/amiga/tournament_videos/manual_rows.py`, then:
+
+```powershell
+python -m scripts.amiga.tournament_videos.apply_review
+python -m scripts.amiga.tournament_videos.build_manifest
+```
+
+Fix wrong mappings in chat or via future bulk-verify page. Policy: [`docs/amiga-tournament-videos-policy.md`](../../../docs/amiga-tournament-videos-policy.md)

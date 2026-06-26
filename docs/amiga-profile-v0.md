@@ -9,7 +9,7 @@
 | Hub nav | News · Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · Tournaments · Live tournaments (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
 | **Countries hub** | `/amiga/countries/index.php` (index) · `/amiga/countries/roster.php?country={token}` (roster) — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
-| Leaderboard wings | `/amiga/leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `performance-rating.php` — via `amiga_lb_nav.php` (`/amiga/rating.php` → 302) |
+| Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · World Cups · Tournament honours · Calendar &amp; geography · Goals · DDs &amp; CSs · Victims · Peak · Perf. rating |
 | Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events medals; WC → World Cups wing) |
 | World Cups LB | `/amiga/leaderboards/world-cups/honours.php` (+ Results · Goals slices 2–3) — [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) |
 | Hall of Fame | `/amiga/hall-of-fame.php` |
@@ -20,7 +20,7 @@
 | Single game | `/amiga/game.php?id={amiga_games.id}` |
 | Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
-| Tournament event stats | `/amiga/tournament/event-stats.php?id={tournaments.id}` — participation roster (all phases); includes **Perf. rating** column |
+| Tournament event stats | `/amiga/tournament/event-stats.php?id={tournaments.id}` — participation roster (all phases); **Country** flag column + **Perf. rating** |
 | Tournament games | `/amiga/tournament/games.php?id={tournaments.id}` — all games in event; player filter dropdown (A–Z) |
 
 ## What v0 shows

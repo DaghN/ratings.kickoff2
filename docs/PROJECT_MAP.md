@@ -30,7 +30,8 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `docs/` | Specs, coordination, agent playbooks |
 | `docs/k2-table-implementation-checklist.md` | **K2 tables** — mandatory before new/refactored sortable tables; run `scripts/audit_k2_table_compliance.py` for backlog |
 | `docs/k2-nav-implementation-checklist.md` | **K2 page chrome nav** — mandatory before new wing/sub-nav/hub shell; spacing in `nav-spacing-policy.md` |
-| `docs/k2-turbo-page-init-checklist.md` | **Turbo page JS boot** — mandatory before new/edited widget/chart/filter scripts; `k2OnPageReady` + idempotent guards; **§ Hash anchor landing** for `#fragment` mid-page links under Turbo |
+| `docs/k2-jukebox-popup.md` | **Gapless audio = popup window** (Turbo removed Jun 2026); FAB launcher + `BroadcastChannel`; centred window + raise/behind toggle |
+| `docs/k2-turbo-page-init-checklist.md` | **Historical (Turbo removed Jun 2026).** Page JS boot now plain full loads — prefer `k2OnPageReady` (shim `js/k2-page-boot.js`) + idempotent guards. Carry-scroll / `#fragment` hash landing live in `includes/k2_carry_scroll_restore.php` (pre-paint cloak) |
 | `data/dumps/` | Local SQL dump (gitignored) |
 | `README.md` | Repo entry — links to agents, ops, brief |
 | `PROJECT_BRIEF.md` | Product taste / north star |

@@ -766,7 +766,11 @@ body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlight
 body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--goals-b,
 body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--gd,
 body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--sum,
-body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--ts {
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--ts,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--rating-a,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--rating-b,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--elo-diff,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--fav-es {
 	width: 1%;
 	white-space: nowrap;
 }
@@ -774,7 +778,8 @@ body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlight
 body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--date,
 body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--team-a,
 body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--team-b,
-body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--winner {
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--adjustment,
+body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlights-col--adjustment-lost {
 	width: 1%;
 	white-space: nowrap;
 	min-width: 0;
@@ -1642,7 +1647,9 @@ body.k2-site .k2-table tbody td.k2-table-helped {
 
 body.k2-site .k2-table-tooltip {
 	position: fixed;
-	z-index: 1000;
+	/* Topmost transient layer — above hub bar (1210), header (1300) and jukebox FAB
+	   (1400) so help tooltips (e.g. the Time travel toggle) never hide under chrome. */
+	z-index: 1500;
 	max-width: min(420px, calc(100vw - 24px));
 	padding: 8px 10px;
 	border: 1px solid var(--k2-tooltip-border);

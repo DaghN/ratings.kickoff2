@@ -199,12 +199,21 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
     $esCell = $processed ? number_format(100 * $expectedScore, 1) . '%' : $dash;
     $adjustmentCell = $processed ? k2_player_game_signed_number_html($adjustment) : $dash;
 
+    $goalsA = (int) $game['GoalsA'];
+    $goalsB = (int) $game['GoalsB'];
+    $goalsACell = $goalsA > $goalsB
+        ? '<strong class="blue">' . $goalsA . '</strong>'
+        : (string) $goalsA;
+    $goalsBCell = $goalsB > $goalsA
+        ? '<strong class="blue">' . $goalsB . '</strong>'
+        : (string) $goalsB;
+
     return '<tr>'
         . k2_player_game_td('<a href="' . k2_player_game_h(k2_game_page_url((int) $game['id'])) . '">' . $game['id'] . '</a>', 0, $sortedColIndex)
         . k2_player_game_td(k2_player_game_date_html($game['Date'], $utcDayView), 1, $sortedColIndex, 'k2-table-cell--pad-left-xs k2-table-cell--pad-right-xl')
         . k2_player_game_td(k2_player_game_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex)
-        . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex)
-        . k2_player_game_td((string) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left')
+        . k2_player_game_td($goalsACell, 3, $sortedColIndex)
+        . k2_player_game_td($goalsBCell, 4, $sortedColIndex, 'k2-table-cell--left')
         . k2_player_game_td(k2_player_game_player_link($game['idB'], $game['NameB']), 5, $sortedColIndex, 'k2-table-cell--left')
         . k2_player_game_td($resultCell, 6, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xl')
         . k2_player_game_td(k2_player_game_player_link($opponentId, $opponentName), 7, $sortedColIndex, 'k2-table-cell--left')

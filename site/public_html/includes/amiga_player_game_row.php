@@ -34,21 +34,6 @@ function amiga_player_game_sort_col_index(string $sortKey): int
     return $map[$sortKey] ?? 0;
 }
 
-/** Event day only — Amiga `game_date` is synthetic; time within the day is not shown. */
-function amiga_player_game_date_html(string $date): string
-{
-    $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('UTC'));
-    if ($dt === false) {
-        $ts = strtotime($date);
-        if ($ts === false) {
-            return k2_h($date);
-        }
-        $dt = (new DateTimeImmutable('@' . $ts))->setTimezone(new DateTimeZone('UTC'));
-    }
-
-    return k2_h($dt->format('M j Y'));
-}
-
 /** ID column — game link anchor for calm-stats emphasis on first paint. */
 const AMIGA_PLAYER_GAMES_ANCHOR_COL = 0;
 
@@ -122,14 +107,23 @@ function amiga_player_game_row_html(
         $phaseCell = $phase !== '' ? k2_h($phase) : $dash;
     }
 
+    $goalsA = (int) $game['GoalsA'];
+    $goalsB = (int) $game['GoalsB'];
+    $goalsACell = $goalsA > $goalsB
+        ? '<strong class="blue">' . $goalsA . '</strong>'
+        : (string) $goalsA;
+    $goalsBCell = $goalsB > $goalsA
+        ? '<strong class="blue">' . $goalsB . '</strong>'
+        : (string) $goalsB;
+
     $anchorCol = AMIGA_PLAYER_GAMES_ANCHOR_COL;
 
     return '<tr>'
         . k2_player_game_td(amiga_rated_game_id_html((int) $game['id']), 0, $sortedColIndex, '', $anchorCol)
         . k2_player_game_td(amiga_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date', $anchorCol)
         . k2_player_game_td(k2_amiga_player_link($game['idA'], $game['NameA']), 2, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td((string) $game['GoalsA'], 3, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td((string) $game['GoalsB'], 4, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
+        . k2_player_game_td($goalsACell, 3, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($goalsBCell, 4, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
         . k2_player_game_td(k2_amiga_player_link($game['idB'], $game['NameB']), 5, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
         . k2_player_game_td($tournamentCell, 6, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
         . k2_player_game_td($phaseCell, 7, $sortedColIndex, 'k2-table-cell--left', $anchorCol)

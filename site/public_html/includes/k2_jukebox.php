@@ -1,80 +1,17 @@
 <?php
 /**
- * Site jukebox — floating opt-in player (all themed pages).
+ * Site jukebox launcher — floating FAB that opens the standalone player window
+ * (/jukebox.php) so audio plays gaplessly across full-page navigation.
+ * Player UI + audio live in the popup window; wiring in js/k2-jukebox-launcher.js.
  */
 declare(strict_types=1);
 ?>
-<div class="k2-jukebox" id="k2-jukebox-root" data-turbo-permanent data-k2-jukebox aria-live="polite">
-	<div class="k2-jukebox__panel" id="k2-jukebox-panel" hidden>
-		<div class="k2-jukebox__head">
-			<div class="k2-jukebox__brand">
-				<span class="k2-jukebox__kicker">Amiga Jukebox</span>
-				<div class="k2-jukebox__now-title">Choose a track</div>
-				<div class="k2-jukebox__now-game">Amiga classics</div>
-			</div>
-			<button type="button" class="k2-jukebox__hide" aria-label="Hide jukebox panel">Hide</button>
-		</div>
-		<div class="k2-jukebox__vu" aria-hidden="true">
-			<span class="k2-jukebox__vu-bar"></span>
-			<span class="k2-jukebox__vu-bar"></span>
-			<span class="k2-jukebox__vu-bar"></span>
-			<span class="k2-jukebox__vu-bar"></span>
-			<span class="k2-jukebox__vu-bar"></span>
-		</div>
-		<div class="k2-jukebox__progress-wrap">
-			<div
-				class="k2-jukebox__progress"
-				role="slider"
-				tabindex="0"
-				aria-label="Seek"
-				aria-valuemin="0"
-				aria-valuemax="100"
-				aria-valuenow="0"
-			>
-				<span class="k2-jukebox__progress-fill"></span>
-			</div>
-			<div class="k2-jukebox__times">
-				<span class="k2-jukebox__time-current">0:00</span>
-				<span class="k2-jukebox__time-total">0:00</span>
-			</div>
-		</div>
-		<div class="k2-jukebox__transport">
-			<div class="k2-jukebox__controls">
-				<button type="button" class="k2-jukebox__btn k2-jukebox__prev" aria-label="Previous track">
-					<span class="k2-jukebox__btn-icon k2-jukebox__btn-icon--prev" aria-hidden="true"></span>
-				</button>
-				<button type="button" class="k2-jukebox__btn k2-jukebox__btn--play k2-jukebox__play" aria-label="Play" aria-pressed="false">
-					<span class="k2-jukebox__btn-icon k2-jukebox__btn-icon--play" aria-hidden="true"></span>
-				</button>
-				<button type="button" class="k2-jukebox__btn k2-jukebox__next" aria-label="Next track">
-					<span class="k2-jukebox__btn-icon k2-jukebox__btn-icon--next" aria-hidden="true"></span>
-				</button>
-			</div>
-			<button type="button" class="k2-jukebox__shuffle" aria-label="Shuffle playback order" aria-pressed="false">
-				Shuffle
-			</button>
-			<div class="k2-jukebox__volume-wrap">
-				<label class="k2-jukebox__volume-label" for="k2-jukebox-volume">Vol</label>
-				<input
-					type="range"
-					class="k2-jukebox__volume"
-					id="k2-jukebox-volume"
-					min="0"
-					max="100"
-					value="72"
-					aria-label="Volume"
-				/>
-			</div>
-		</div>
-		<div class="k2-jukebox__tracks-wrap">
-			<ul class="k2-jukebox__tracks" role="listbox" aria-label="Amiga jukebox playlist"></ul>
-		</div>
-	</div>
+<div class="k2-jukebox k2-jukebox--launcher" id="k2-jukebox-root" data-k2-jukebox aria-live="polite">
 	<button
 		type="button"
 		class="k2-jukebox__toggle"
-		aria-expanded="false"
-		aria-controls="k2-jukebox-panel"
+		data-k2-jukebox-launch
+		title="Open Amiga jukebox"
 		aria-label="Open Amiga jukebox"
 	>
 		<svg class="k2-jukebox__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -84,5 +21,4 @@ declare(strict_types=1);
 			<line class="k2-jukebox__toggle-led" x1="8" y1="17.5" x2="13" y2="17.5"/>
 		</svg>
 	</button>
-	<audio class="k2-jukebox__audio" preload="metadata"></audio>
 </div>

@@ -61,7 +61,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 					<span class="k2-status-live-list__time"><?php echo k2_status_h(k2_status_short_time($g['start'])); ?></span>
 					<span class="k2-status-match">
 						<span class="k2-status-match__side"><?php echo k2_status_player_link_or_name($g['id_a'], $g['name_a']); ?></span>
-						<span class="k2-status-score"><?php echo (int) $g['score_a']; ?>–<?php echo (int) $g['score_b']; ?></span>
+						<span class="k2-status-score"><?php echo k2_status_score_html((int) $g['score_a'], (int) $g['score_b']); ?></span>
 						<span class="k2-status-match__side"><?php echo k2_status_player_link_or_name($g['id_b'], $g['name_b']); ?></span>
 					</span>
 					<span class="k2-status-live-list__meta">
@@ -160,7 +160,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 					<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_short_time($g['at'])); ?></span>
 					<span class="k2-status-match">
 						<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_a'], $g['name_a']); ?></span>
-						<span class="k2-status-score"><?php echo (int) $g['goals_a']; ?>–<?php echo (int) $g['goals_b']; ?></span>
+						<span class="k2-status-score"><?php echo k2_status_score_html((int) $g['goals_a'], (int) $g['goals_b']); ?></span>
 						<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_b'], $g['name_b']); ?></span>
 					</span>
 				</li>

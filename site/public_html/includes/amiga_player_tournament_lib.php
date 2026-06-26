@@ -239,6 +239,7 @@ function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): ar
 
     $sql = 'SELECT p.player_id,
                    pl.name AS player_name,
+                   pl.country AS player_country,
                    p.tournament_id,
                    p.tournament_name AS name,
                    p.is_cup,

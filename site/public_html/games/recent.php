@@ -58,14 +58,13 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 	<tr>
 		<th class="k2-table-cell--left" data-k2-sort="number" data-k2-help="Rated game ID. Opens the single-game detail page.">ID</th>
 		<th class="k2-table-cell--left k2-table-cell--pad-left-xs" data-k2-sort="number">Date</th>
-		<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Player listed as Team A in the result row.">Team A</th>
+		<th class="k2-table-cell--right" data-k2-sort="text" data-k2-help="Player listed as Team A in the result row.">Team A</th>
 		<th data-k2-sort="number" data-k2-tooltip-label="Goals A" data-k2-help="Goals scored by Team A.">A</th>
 		<th class="k2-table-cell--left" data-k2-sort="number" data-k2-tooltip-label="Goals B" data-k2-help="Goals scored by Team B.">B</th>
 		<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Player listed as Team B in the result row.">Team B</th>
 		<th class="k2-table-cell--pad-left-md" data-k2-sort="number" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game. A 7-4 result has GD 3.">GD</th>
 		<th data-k2-sort="number" data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players. A 7-4 result has Sum 11.">Sum</th>
 		<th data-k2-sort="number" data-k2-tooltip-label="Top score" data-k2-help="Top score — the most goals either player scored in this game (e.g. 10 in 10–2).">TS</th>
-		<th class="k2-table-cell--left k2-table-cell--pad-left-lg" data-k2-sort="text" data-k2-help="Game winner. Drawn games show Draw.">Winner</th>
 		<th data-k2-sort="number" data-k2-help="Team A's Elo rating before this game.">Rating A</th>
 		<th data-k2-sort="number" data-k2-help="Team B's Elo rating before this game.">Rating B</th>
 		<th data-k2-sort="number" data-k2-help="Absolute pre-game Elo rating difference between the two players. Larger gaps mean a stronger favorite.">Elo Diff</th>
@@ -78,11 +77,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 <tbody class="black">
 <?php if ($day['rows'] === []) { ?>
 	<tr>
-		<td colspan="16" class="k2-games-day__empty k2-table-cell--left">No rated games on this day.</td>
+		<td colspan="15" class="k2-games-day__empty k2-table-cell--left">No rated games on this day.</td>
 	</tr>
 <?php } else { ?>
 <?php foreach ($day['rows'] as $row) { ?>
-	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'link', 'sorted_col_index' => 0]); ?>
+	<?php echo k2_rated_game_row_html($row, ['id_mode' => 'link', 'sorted_col_index' => 0, 'show_winner' => false, 'highlight_winner_goal' => true, 'team_a_align' => 'right']); ?>
 <?php } ?>
 <?php } ?>
 </tbody>

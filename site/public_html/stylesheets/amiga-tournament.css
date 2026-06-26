@@ -957,3 +957,31 @@ body.k2-site .k2-amiga-organizer-results__undo:focus-visible {
 	font-weight: 600;
 	color: var(--k2-segment-active-text);
 }
+
+/* Tournament Games table — mirrored scoreboard around the two goal columns. */
+.k2-amiga-tgame-side {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+.k2-table--tournament-games .k2-amiga-tgame-team--a {
+	text-align: right;
+}
+
+.k2-table--tournament-games .k2-amiga-tgame-team--a .k2-amiga-tgame-side {
+	justify-content: flex-end;
+}
+
+.k2-amiga-tgame-flag {
+	width: 1.45em;
+	height: auto;
+	flex: 0 0 auto;
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.28);
+}
+
+/* Winning side's goal: bold; colour comes from the inline .blue span (var(--k2-table-positive)). */
+.k2-table--tournament-games .k2-amiga-tgame-goal--win {
+	font-weight: 700;
+}

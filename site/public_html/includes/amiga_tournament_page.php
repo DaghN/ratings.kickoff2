@@ -56,6 +56,7 @@ if ($tournamentPageId >= 1) {
 echo match ($tournamentPageView) {
     'event-stats' => ' — Event stats',
     'games' => ' — Games',
+    'videos' => ' — Videos',
     'stages' => ' — Stages',
     'standings' => ' — Standings',
     default => '',
@@ -66,6 +67,10 @@ echo match ($tournamentPageView) {
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
+
+<?php if ($tournamentPageView === 'videos') { ?>
+<link href="/stylesheets/amiga-tournament-videos.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament-videos.css'); ?>" rel="stylesheet" type="text/css" />
+<?php } ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 
@@ -228,6 +233,26 @@ $hasStagesTab = $isWorldCupEvent && ($hasLeagueStandingsNav || $hasBracket);
 
 $stagesEntryUrl = amiga_tournament_href(amiga_tournament_stages_entry_url($id, $showLeagueTableTab, $leagueLabeledScopes, $hasBracket));
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_videos_lib.php';
+
+$hasVideosTab = amiga_tournament_has_videos($id);
+
+$tournamentVideosRows = [];
+
+$tournamentVideosGrouped = [];
+
+$tournamentVideoPlayerNames = [];
+
+if ($hasVideosTab) {
+
+    $tournamentVideosRows = amiga_tournament_videos_for_id($id);
+
+    $tournamentVideosGrouped = amiga_tournament_videos_grouped($tournamentVideosRows);
+
+    $tournamentVideoPlayerNames = amiga_tournament_videos_player_names($con, $tournamentVideosRows);
+
+}
+
 $isStagesContentView = $pageView === 'stages' || ($pageView === 'standings' && !$isWorldCupEvent);
 
 mysqli_close($con);
@@ -267,7 +292,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 
 
-<?php if ($hasLeagueStandingsNav || $hasBracket || $hasGamesTab || $eventStatsRows !== []) { ?>
+<?php if ($hasLeagueStandingsNav || $hasBracket || $hasGamesTab || $hasVideosTab || $eventStatsRows !== []) { ?>
 
 <nav class="k2-amiga-tournament-nav k2-player-nav-bar" data-k2-carry-scroll aria-label="Tournament sections">
 
@@ -325,8 +350,21 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           }
       };
 
+      $videosNav = static function () use ($id, $pageView, $hasVideosTab): void {
+          if (!$hasVideosTab) {
+              return;
+          }
+          $videosActive = $pageView === 'videos';
+          ?>
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_videos_url($id))); ?>" class="k2-player-nav__btn<?php echo $videosActive ? ' is-active' : ''; ?>"<?php
+          echo $videosActive ? ' aria-current="page"' : '';
+      ?>>Videos</a>
+      <?php
+      };
+
       if ($isWorldCupEvent) {
           $eventStatsNav();
+          $videosNav();
           if ($hasStagesTab) {
               $stagesActive = $pageView === 'stages';
               ?>
@@ -345,6 +383,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
           }
       } else {
           $eventStatsNav();
+          $videosNav();
           if ($showLeagueTableTab) {
               $leagueTableActive = $scopeType === 'league' && $scopeKey === '' && $pageView === 'standings';
               ?>
@@ -408,7 +447,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <div class="k2-amiga-tournament-body">
 
-<?php if ($pageView === 'games') { ?>
+<?php if ($pageView === 'videos') { ?>
+
+<?php include __DIR__ . '/amiga_tournament_videos_body.inc.php'; ?>
+
+<?php } elseif ($pageView === 'games') { ?>
 
 <section class="k2-amiga-tournament-games" aria-label="Games">
 
@@ -528,6 +571,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php if ($isKnockoutView && $knockoutFixture !== []) {
 
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
     $winnerId = $knockoutWinner !== null ? ($knockoutWinner['winner_id'] ?? null) : null;
     $loserId = $knockoutWinner !== null ? ($knockoutWinner['loser_id'] ?? null) : null;
     $winnerUnresolved = $knockoutWinner !== null && !empty($knockoutWinner['unresolved']);
@@ -602,8 +646,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
           <td><?php
 
-              echo (int) $leg['goals_a'] . ' – ' . (int) $leg['goals_b'];
-
+              echo k2_rated_game_scoreline_html((int) $leg['goals_a'], (int) $leg['goals_b']);
               echo amiga_tournament_format_game_extra(isset($leg['extra']) ? (string) $leg['extra'] : null);
 
           ?></td>

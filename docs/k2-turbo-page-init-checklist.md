@@ -1,10 +1,19 @@
 # K2 Turbo page-init checklist
 
+> **HISTORICAL (Turbo removed Jun 2026).** Turbo Drive was removed; the site uses normal
+> full-page navigation again. Gapless music is now a **popup window** — see
+> [`k2-jukebox-popup.md`](k2-jukebox-popup.md). The `k2OnPageReady` / `k2PageReady` /
+> `k2:page-ready` API still exists via the tiny shim `js/k2-page-boot.js` (runs once per
+> full load), so the boot patterns below remain a safe, recommended convention even though
+> there is no longer an in-page navigation that re-executes body scripts. The Turbo-specific
+> hazards (body-script re-exec, snapshot/cache cloak races, `turbo:*` events) **no longer
+> apply**. Keep this file for context; do not reintroduce Turbo without revisiting it.
+
 **For agents — read before adding or editing page JavaScript that initializes widgets on load.**
 
-Turbo Drive (`turbo.es2017-umd.js` + `k2-turbo-boot.js`) intercepts same-origin link clicks so the **jukebox `<audio>` stays alive** for gapless cross-page playback. Most site JS was written for full page reloads; Turbo breaks the old boot pattern unless you follow this contract.
+~~Turbo Drive (`turbo.es2017-umd.js` + `k2-turbo-boot.js`) intercepts same-origin link clicks so the **jukebox `<audio>` stays alive** for gapless cross-page playback.~~ (Removed Jun 2026.) Most site JS was written for full page reloads; the `k2OnPageReady` boot pattern below is still the recommended convention.
 
-**Do not add bare `DOMContentLoaded` boot on new page scripts.**
+**Prefer `k2OnPageReady` / `k2PageReady` over bare `DOMContentLoaded` for new page scripts** (idempotent, future-proof).
 
 ---
 
@@ -23,7 +32,7 @@ Symptoms after the first in-page click: dead filters, blank charts, search boxes
 
 ### 1) Boot on every visit
 
-`k2-turbo-boot.js` defines `window.k2OnPageReady(fn)` — first load **and** every `turbo:load` (via `k2:page-ready`).
+`k2-page-boot.js` defines `window.k2OnPageReady(fn)` — runs once per full page load (dispatches `k2:page-ready`). ~~(Turbo-era: also re-ran on every `turbo:load`.)~~
 
 ```javascript
 function boot() {
@@ -71,9 +80,10 @@ Existing charts use `data-k2-chart-bound` on the widget root.
 |------|---------|
 | **Sortable tables** | `k2-table.js` uses `k2PageReady` only (no immediate boot) — see [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md) |
 | **Archive listboxes** | Central re-init in `k2-archive-listbox.js` (`onPageReadyListbox` → `init(document)`); filter scripts still need form-level guards |
-| **Jukebox** | `data-turbo-permanent` on `#k2-jukebox-root`; boots once on `<html>` |
-| **Carry-scroll restore** | `k2_carry_scroll_restore.php` + `k2-carry-scroll.js` — restore scrollY **synchronously on `turbo:render`** (pre-paint) and set `Turbo.navigator.currentVisit.scrolled = true` to suppress Turbo's scroll-to-top. **No body-visibility cloak** (cloak = blank-page delay; restoring on `turbo:load` = wordmark flash because Turbo already painted at top). Anchor (`viewportOffset` of `nav[data-k2-carry-scroll]`) keeps the nav row visually stable; light downward-only re-assert on rAF / `fonts.ready` / `k2:page-ready` for late layout growth. **Hash landing links** are a separate path — see [§ Hash anchor landing](#hash-anchor-landing-turbo--carry-scroll) below |
-| **Document/window listeners** | Register **once** (global click, scroll). Never per boot without a guard |
+| **Jukebox** | Now a **popup window** (no in-page persistence needed) — `k2-jukebox-launcher.js` FAB + `jukebox.php`; see [`k2-jukebox-popup.md`](k2-jukebox-popup.md) |
+| **Carry-scroll restore** | `k2_carry_scroll_restore.php` + `k2-carry-scroll.js`. **Current (post-Turbo, full-page nav):** a **pre-paint body cloak** (`html.k2-carry-cloak body{visibility:hidden}`) engages **only when** a carry payload or `#hash` target is pending, the scroll is applied inside a rAF loop the moment the document is tall enough (or the DOM is fully parsed), then the page reveals — `html` paints `--k2-bg-page` so the hold is a solid theme colour, not white. Hard 700 ms timeout + `load` listener guarantee it can never stay hidden. ~~(Turbo-era: restore on `turbo:render` + `currentVisit.scrolled=true`, no cloak.)~~ |
+| **Document/window listeners** | Register **once** (global click, scroll). Never per boot without a guard. **Body scripts re-run in full on every Turbo visit** — module-scope `document.addEventListener` / `window.addEventListener` / `setTimeout` chains stack one copy per navigation unless guarded with a `window.__flag`. Symptom: a toggle handler fires an even number of times and the control looks dead (see `k2-tint-toggle.js`, `realm-switch.js`, `k2-amiga-tt-stamp.js`, Jun 2026) |
+| **CSS-animation cloaks** | If a class hides an element until `animationend` removes it, add a **fallback timeout** + clear the class on `turbo:before-cache`. Turbo's async body-script + snapshot timing can drop the `animationend`, freezing the cloak (see TT LED stamp, `k2-amiga-tt-stamp.js`) |
 | **`setInterval` in boot** | Guard globally — see `metaRefreshInterval` in `status-period-competitions.js` |
 
 ---
@@ -82,7 +92,7 @@ Existing charts use `data-k2-chart-bound` on the widget root.
 
 | Scenario | File |
 |----------|------|
-| Turbo boot + bridge | `js/k2-turbo-boot.js` |
+| Page-ready boot shim | `js/k2-page-boot.js` (replaced deleted `k2-turbo-boot.js`) |
 | Simple widget + data-attribute guard | `js/player-search.js` |
 | Chart + fetch + guard | `js/player-rating-chart.js` |
 | Form filters + listbox | `js/individual3-filters.js`, `js/k2-realm-games-filters.js` |
@@ -96,16 +106,10 @@ Existing charts use `data-k2-chart-bound` on the widget root.
 
 - [ ] Boot uses `k2OnPageReady` (not bare `DOMContentLoaded` only).
 - [ ] Each widget root has an idempotent guard.
-- [ ] No duplicate `setInterval` / duplicate document listeners per Turbo visit.
-- [ ] Manual test: hard refresh → use widget → Turbo-nav away and back → widget still works.
-- [ ] **Hash entry links:** Turbo-nav from another page → lands at `#fragment`, not page top (see [§ Hash anchor landing](#hash-anchor-landing-turbo--carry-scroll)).
-- [ ] With jukebox playing: Turbo-nav across two pages — audio stays gapless.
-
----
-
-## Escape hatch (rare)
-
-`data-turbo="false"` on a link forces a full reload. Use only when a third-party script cannot be made Turbo-safe. Breaks gapless jukebox across that click — avoid for hub/player nav.
+- [ ] No duplicate `setInterval` / duplicate global document listeners (still good hygiene; the `window.__flag` guards are harmless on full loads).
+- [ ] Manual test: hard refresh → use widget → navigate away and back → widget still works.
+- [ ] **Hash entry links:** navigate from another page → lands at `#fragment`, not page top (see [§ Hash anchor landing](#hash-anchor-landing-turbo--carry-scroll)).
+- [ ] Gapless music is now a **popup window** ([`k2-jukebox-popup.md`](k2-jukebox-popup.md)) — navigation no longer needs to preserve the `<audio>`.
 
 ---
 
@@ -124,15 +128,19 @@ Existing charts use `data-k2-chart-bound` on the widget root.
 
 Do **not** point a hub tab at a drill-down URL just to scroll — hub tabs stay on the hub index; table/flag links append the hash.
 
-### The Turbo trap (symptom: lands at page top)
+### Why it can land at page top (current, post-Turbo)
 
-On **Turbo in-page navigation** (click from another page):
+On a normal full-page load, the browser paints the **top** of the page (wordmark) before
+page JS can scroll to the `#fragment`. Restoring after paint = a visible jump from top to
+target. The fix is the **pre-paint cloak** in `k2_carry_scroll_restore.php`: hold body
+`visibility:hidden` until the target exists / page is tall enough, scroll, then reveal —
+so the visitor never sees the top.
 
-1. Turbo may run `performScroll()` **before** `window.location.hash` is applied.
-2. If the target id is not in the live DOM yet, Turbo calls `scrollToTop()` (scrollY = 0).
-3. A full reload with `#fragment` in the URL often works — so agents wrongly blame PHP/href and miss Turbo timing.
+**Do not** fix this with bare `DOMContentLoaded` scroll snippets in page scripts — extend
+`k2_carry_scroll_restore.php` instead (it owns the cloak + scroll timing).
 
-**Do not** fix this with bare `DOMContentLoaded` scroll snippets or `data-turbo="false"` on hub/table links unless you accept breaking gapless jukebox.
+~~(Turbo-era trap: Turbo ran `performScroll()` before `location.hash` applied and called
+`scrollToTop()` if the id was not yet in the DOM. No longer applies.)~~
 
 ### Site infrastructure (use this — do not reinvent)
 
@@ -140,9 +148,9 @@ All hash landing is centralized in **`includes/k2_carry_scroll_restore.php`** (i
 
 | Mechanism | Purpose |
 |-----------|---------|
-| `hashTargetId()` | Reads `location.hash` or pending hash from click |
-| Click capture on `a[href*="#"]` | Stores `k2:pendingHashScroll` **before** Turbo rewrites history; clears carry-scroll payload |
-| `beginHashScrollWatch()` | Suppresses Turbo scroll-to-top (`currentVisit.scrolled = true`); scrolls with `scroll-margin-top`; re-runs on `turbo:load`, `k2:page-ready`, `ResizeObserver` (~3.5s) for ranked-table cloak reveal |
+| `hashTargetId()` | Reads `location.hash` or pending hash stored from a click |
+| Click capture on `a[href*="#"]` | Stores `k2:pendingHashScroll` before navigation; clears any carry-scroll payload |
+| Pre-paint cloak + rAF scroll | Cloaks body, scrolls to the target (honouring `scroll-margin-top`) once it exists / page is tall enough, then reveals; hard 700 ms + `load` safety nets |
 | Carry-scroll restore | **Skipped** when a hash target is active — hash wins |
 
 **`amiga_url_with_context()`** (and callers that append `#fragment` after it) must **preserve the hash** through query rewriting — do not strip `#…` when adding `as=`.
@@ -186,15 +194,14 @@ Policy pointers: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md
 - [ ] SSR emits `<div id="…" class="…-scroll-anchor" tabindex="-1">` **above** the visible block (not on the hub tab URL).
 - [ ] Off-page links use a PHP href helper that appends `#fragment` (default on).
 - [ ] Hub tab / wing tab URLs stay hash-free unless the hash target is **on that same page**.
-- [ ] Did **not** add a one-off scroll script — `k2_carry_scroll_restore.php` owns Turbo timing.
-- [ ] Manual test: **hard refresh** with hash URL → lands correctly.
-- [ ] Manual test: **Turbo click** from another page (e.g. countries index → Denmark roster) → lands at hero/table, not page top.
-- [ ] With jukebox playing: hash link still gapless (no `data-turbo="false"`).
+- [ ] Did **not** add a one-off scroll script — `k2_carry_scroll_restore.php` owns the cloak + scroll timing.
+- [ ] Manual test: **hard refresh** with hash URL → lands correctly, no top flash.
+- [ ] Manual test: **click** from another page (e.g. countries index → Denmark roster) → lands at hero/table, not page top.
 
 ### When changing hash scroll behaviour
 
-Edit **`k2_carry_scroll_restore.php` only** unless you are adding a new fragment family (new constant + markup + CSS class). Do not duplicate pending-hash or `turbo:load` retry logic in page scripts.
+Edit **`k2_carry_scroll_restore.php` only** unless you are adding a new fragment family (new constant + markup + CSS class). Do not duplicate pending-hash or cloak/scroll logic in page scripts.
 
 ---
 
-**Related:** jukebox + Turbo ship note in `PROJECT_MEMORY.md` (2026-06-26). Gapless playback **requires** keeping one `<audio>` alive; there is no zero-gap alternative without SPA-style navigation. Hash anchor landing (Jun 2026): Amiga Countries roster `#k2-country-roster` — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) §6.
+**Related:** jukebox popup ship note in `PROJECT_MEMORY.md` (2026-06-26) + [`k2-jukebox-popup.md`](k2-jukebox-popup.md). Gapless playback now lives in a **separate popup window** (no SPA / Turbo). Hash anchor landing (Jun 2026): Amiga Countries roster `#k2-country-roster` — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) §6.

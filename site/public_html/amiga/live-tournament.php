@@ -19,6 +19,7 @@ amiga_snapshot_redirect_present_only_page();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -149,7 +150,7 @@ if (!empty($tournament['started_at'])) {
           ?></td>
           <td><?php
               if ($status === 'played' && $fixture['game_id'] !== null) {
-                  echo (int) $fixture['goals_a'] . ' – ' . (int) $fixture['goals_b'];
+                  echo k2_rated_game_scoreline_html((int) $fixture['goals_a'], (int) $fixture['goals_b']);
                   echo amiga_tournament_format_game_extra(
                       isset($fixture['extra']) ? (string) $fixture['extra'] : null
                   );

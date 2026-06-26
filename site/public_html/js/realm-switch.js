@@ -92,6 +92,20 @@
         syncAccentButtons();
     }
 
+    function boot() {
+        syncAccentButtons();
+    }
+
+    // Turbo Drive re-evaluates this body script on every in-page navigation. Bind the
+    // global listeners + schedule timer + first init only ONCE per document; otherwise
+    // each visit stacks another click/storage handler and another setTimeout chain.
+    // See docs/k2-turbo-page-init-checklist.md.
+    if (window.__k2RealmSwitchBound) {
+        boot();
+        return;
+    }
+    window.__k2RealmSwitchBound = true;
+
     document.addEventListener('click', function (ev) {
         var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-tint-menu__choice') : null;
         if (!btn) {
@@ -111,20 +125,6 @@
         }
     });
 
-    function boot() {
-        syncAccentButtons();
-    }
-
-    var realmSwitchInitialized = false;
-
-    function firstInit() {
-        if (realmSwitchInitialized) {
-            return;
-        }
-        realmSwitchInitialized = true;
-        init();
-    }
-
     if (window.k2PageReady) {
         window.k2PageReady(boot);
     }
@@ -136,7 +136,7 @@
             fn();
         }
     })(function () {
-        firstInit();
+        init();
         boot();
     });
 })();

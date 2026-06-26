@@ -373,6 +373,14 @@ function k2_status_short_time(?string $datetime): string
     return $ts === false ? '—' : date('D H:i', $ts);
 }
 
+/** Scoreline for status recency lists — winning side blue + bold. */
+function k2_status_score_html(int $goalsA, int $goalsB): string
+{
+    require_once __DIR__ . '/k2_rated_game_row.php';
+
+    return k2_rated_game_scoreline_html($goalsA, $goalsB);
+}
+
 /** Time remaining in the current half (HalfCountdown ticks; 50 ticks per second; 5:00 per half). */
 function k2_status_format_half_countdown(int $ticks): string
 {

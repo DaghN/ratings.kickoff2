@@ -149,6 +149,14 @@
 			+ ' <span class="pm3-cal__tip-rating k2-link-star">(' + escapeHtml(formatRating(rating)) + ')</span>';
 	}
 
+	function formatWinningGoalCell(goals, opponentGoals) {
+		goals = parseInt(goals, 10);
+		opponentGoals = parseInt(opponentGoals, 10);
+		return goals > opponentGoals
+			? '<strong class="blue">' + goals + '</strong>'
+			: String(goals);
+	}
+
 	function renderGamesList(games) {
 		if (!games.length) {
 			return '<p class="pm3-cal__tip-empty">No rated games</p>';
@@ -163,10 +171,10 @@
 			html += renderPlayerSide(g.name_a, g.rating_a);
 			html += '</span>';
 			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__goals pm3-cal-day-games-list__goals--a">'
-				+ parseInt(g.goals_a, 10) + '</span>';
+				+ formatWinningGoalCell(g.goals_a, g.goals_b) + '</span>';
 			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__score-sep" aria-hidden="true">–</span>';
 			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__goals pm3-cal-day-games-list__goals--b">'
-				+ parseInt(g.goals_b, 10) + '</span>';
+				+ formatWinningGoalCell(g.goals_b, g.goals_a) + '</span>';
 			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__side pm3-cal-day-games-list__side--b">';
 			html += renderPlayerSide(g.name_b, g.rating_b);
 			html += '</span>';

@@ -22,10 +22,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_start.inc.php';
 ?>
 	<div id="<?php echo K2_GAMES_HIGHLIGHTS_ANCHOR; ?>" class="k2-games-highlights-cluster">
 		<?php k2_games_render_highlights_board_filter($highlightBoard); ?>
-		<?php k2_games_render_highlights_table(
-			$highlightRows,
-			$highlightBoard,
-			$highlightBoard === 'top_score'
-		); ?>
+		<?php k2_games_render_highlights_table($highlightRows, $highlightBoard); ?>
 	</div>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_shell_end.inc.php'; ?>

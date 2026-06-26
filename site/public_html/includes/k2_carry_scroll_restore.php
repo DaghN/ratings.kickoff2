@@ -1,25 +1,30 @@
 <?php
-
 /**
  * One-shot restore of scrollY after carry-scroll navigation (see js/k2-carry-scroll.js).
  *
- * URL hash landing under Turbo: see docs/k2-turbo-page-init-checklist.md § Hash anchor landing.
- * Do not add page-local hash scroll scripts — extend this file instead.
+ * Full-page navigation only (Turbo removed Jun 2026). The flash problem: the browser
+ * paints the top of the page (wordmark) before our JS can scroll down. Fix: when — and
+ * ONLY when — a carry payload or URL-hash target is pending, cloak the page body before
+ * first paint, apply the scroll the moment the document is tall enough (inside rAF, before
+ * paint), then reveal. A hard timeout guarantees the page can never stay cloaked.
  *
- * Turbo in-page visits: restore happens on turbo:render (before paint) and we suppress
- * Turbo's own scroll-to-top via currentVisit.scrolled, so there is no wordmark flash and
- * no body-hiding cloak. Full-page loads (first load, non-Turbo search picks) restore after
- * layout. Pill navigation may carry a nav anchor (viewport offset) so header/filter height
- * changes do not reclamp scroll. URL hash targets win: carry restore is skipped.
+ * Normal navigations (no pending restore) are never cloaked and behave exactly as default.
+ *
+ * URL hash landing: do not add page-local hash scroll scripts — extend this file instead.
  */
-
 ?>
-
+<style>
+html.k2-carry-cloak body { visibility: hidden !important; }
+</style>
 <script>
 (function () {
 	var KEY = 'k2:carryScrollY';
 	var PENDING_HASH_KEY = 'k2:pendingHashScroll';
+	var MAX_CLOAK_MS = 700;
 	var APPLY_EPS = 3;
+	var startTime = Date.now();
+
+	/* ---------- intent (read synchronously, before paint) ---------- */
 
 	function hashTargetId() {
 		var hash = window.location.hash;
@@ -48,91 +53,6 @@
 			/* ignore */
 		}
 	}
-
-	function scrollHeightNow() {
-		var docEl = document.documentElement;
-		var body = document.body;
-		return Math.max(
-			docEl ? docEl.scrollHeight : 0,
-			body ? body.scrollHeight : 0
-		);
-	}
-
-	function maxScrollTop() {
-		return Math.max(0, scrollHeightNow() - (window.innerHeight || 0));
-	}
-
-	function ensureMinScrollHeight(y) {
-		var needed = y + (window.innerHeight || 0);
-		if (scrollHeightNow() >= needed) {
-			return;
-		}
-		document.documentElement.style.minHeight = needed + 'px';
-	}
-
-	/* ---- URL hash target scroll (robust against late-growing content) ---- */
-
-	function scrollToHashTarget() {
-		var hashId = hashTargetId();
-		var el;
-		var rect;
-		var cs;
-		var marginTop;
-		var top;
-
-		if (!hashId) {
-			return false;
-		}
-		el = document.getElementById(hashId);
-		if (!el) {
-			return false;
-		}
-		rect = el.getBoundingClientRect();
-		cs = window.getComputedStyle(el);
-		marginTop = parseFloat(cs.scrollMarginTop) || 0;
-		top = Math.max(0, rect.top + window.scrollY - marginTop);
-		ensureMinScrollHeight(top);
-		window.scrollTo(0, Math.min(top, maxScrollTop()));
-		return true;
-	}
-
-	function beginHashScrollWatch() {
-		if (hashTargetId() === '') {
-			return;
-		}
-		clearKey();
-		suppressTurboScrollToTop();
-
-		function attempt() {
-			if (scrollToHashTarget()) {
-				clearPendingHash();
-			}
-		}
-
-		function schedule() {
-			if (typeof requestAnimationFrame === 'function') {
-				requestAnimationFrame(function () {
-					requestAnimationFrame(attempt);
-				});
-			} else {
-				attempt();
-			}
-		}
-
-		schedule();
-		window.addEventListener('load', attempt, { once: true });
-		document.addEventListener('k2:page-ready', attempt, { once: true });
-
-		if (typeof ResizeObserver !== 'undefined') {
-			var ro = new ResizeObserver(attempt);
-			ro.observe(document.documentElement);
-			setTimeout(function () {
-				ro.disconnect();
-			}, 3500);
-		}
-	}
-
-	/* ---- Carry-scroll payload ---- */
 
 	function readPayload() {
 		var raw;
@@ -173,6 +93,73 @@
 		}
 	}
 
+	var hashId = hashTargetId();
+	var payload = hashId ? null : readPayload();
+	var hasPending = !!hashId || !!payload;
+
+	/* ---------- cloak ---------- */
+
+	var cloaked = false;
+
+	function cloak() {
+		if (!hasPending || cloaked) {
+			return;
+		}
+		document.documentElement.classList.add('k2-carry-cloak');
+		cloaked = true;
+	}
+
+	function reveal() {
+		if (!cloaked) {
+			return;
+		}
+		document.documentElement.classList.remove('k2-carry-cloak');
+		cloaked = false;
+	}
+
+	function setManualScrollRestoration() {
+		try {
+			if ('scrollRestoration' in history) {
+				history.scrollRestoration = 'manual';
+			}
+		} catch (eHist) {
+			/* ignore */
+		}
+	}
+
+	if (hasPending) {
+		setManualScrollRestoration();
+		cloak();
+		if (payload) {
+			clearKey();
+		}
+	}
+
+	/* ---------- geometry ---------- */
+
+	function scrollHeightNow() {
+		var docEl = document.documentElement;
+		var body = document.body;
+		return Math.max(
+			docEl ? docEl.scrollHeight : 0,
+			body ? body.scrollHeight : 0
+		);
+	}
+
+	function maxScrollTop() {
+		return Math.max(0, scrollHeightNow() - (window.innerHeight || 0));
+	}
+
+	function ensureMinScrollHeight(y) {
+		var needed = y + (window.innerHeight || 0);
+		if (scrollHeightNow() >= needed) {
+			return;
+		}
+		document.documentElement.style.minHeight = needed + 'px';
+	}
+
+	/* ---------- carry target ---------- */
+
 	function findAnchorNav(anchor) {
 		if (!anchor || !anchor.label) {
 			return null;
@@ -187,21 +174,21 @@
 	}
 
 	/* Keep the carried nav at the same viewport offset; fall back to raw stored Y. */
-	function resolveTargetY(payload) {
-		if (payload.anchor && typeof payload.anchor.viewportOffset === 'number') {
-			var nav = findAnchorNav(payload.anchor);
+	function resolveTargetY(p) {
+		if (p.anchor && typeof p.anchor.viewportOffset === 'number') {
+			var nav = findAnchorNav(p.anchor);
 			if (nav) {
 				var docTop = nav.getBoundingClientRect().top + window.scrollY;
-				var t = docTop - payload.anchor.viewportOffset;
+				var t = docTop - p.anchor.viewportOffset;
 				if (t >= 0) {
 					return t;
 				}
 			}
 		}
-		return payload.y;
+		return p.y;
 	}
 
-	function applyScroll(payload) {
+	function applyCarry() {
 		var target = resolveTargetY(payload);
 		ensureMinScrollHeight(target);
 		var clamped = Math.min(target, maxScrollTop());
@@ -209,21 +196,33 @@
 		return clamped;
 	}
 
-	function setManualScrollRestoration() {
-		try {
-			if ('scrollRestoration' in history) {
-				history.scrollRestoration = 'manual';
-			}
-		} catch (eHist) {
-			/* ignore */
+	function carryReady() {
+		if (!document.body) {
+			return false;
 		}
+		return maxScrollTop() >= resolveTargetY(payload) - 1;
 	}
 
-	/* Late layout (fonts, ranked-table reveal) can grow the page after first apply.
-	   Re-assert downward only, and stop if the user starts scrolling. */
-	function scheduleReassert(payload, appliedTop) {
+	/* ---------- hash target ---------- */
+
+	function scrollToHashTarget() {
+		var el = hashId ? document.getElementById(hashId) : null;
+		if (!el) {
+			return false;
+		}
+		var rect = el.getBoundingClientRect();
+		var cs = window.getComputedStyle(el);
+		var marginTop = parseFloat(cs.scrollMarginTop) || 0;
+		var top = Math.max(0, rect.top + window.scrollY - marginTop);
+		ensureMinScrollHeight(top);
+		window.scrollTo(0, Math.min(top, maxScrollTop()));
+		return true;
+	}
+
+	/* ---------- late-layout reassert (downward, stops on user scroll) ---------- */
+
+	function scheduleReassert(reapply) {
 		var cancelled = false;
-		var floorTop = appliedTop;
 
 		function onUserScroll() {
 			cancelled = true;
@@ -236,100 +235,116 @@
 		window.addEventListener('touchmove', onUserScroll, { passive: true });
 		window.addEventListener('keydown', onUserScroll);
 
-		function reassert() {
+		function step() {
 			if (cancelled) {
 				return;
 			}
-			var target = resolveTargetY(payload);
-			ensureMinScrollHeight(target);
-			var clamped = Math.min(target, maxScrollTop());
-			if (clamped - window.scrollY > APPLY_EPS && clamped >= floorTop - APPLY_EPS) {
-				window.scrollTo(0, clamped);
-				floorTop = clamped;
-			}
+			reapply();
 		}
 
 		var raf = (typeof requestAnimationFrame === 'function')
 			? requestAnimationFrame
 			: function (f) { setTimeout(f, 16); };
 		raf(function () {
-			reassert();
-			raf(reassert);
+			step();
+			raf(step);
 		});
 		if (document.fonts && document.fonts.ready) {
-			document.fonts.ready.then(reassert).catch(function () {});
+			document.fonts.ready.then(step).catch(function () {});
 		}
 		document.addEventListener('k2:page-ready', function onPR() {
 			document.removeEventListener('k2:page-ready', onPR);
-			reassert();
+			step();
 		});
 		setTimeout(function () {
 			cancelled = true;
 		}, 2000);
 	}
 
-	function suppressTurboScrollToTop() {
+	function reassertCarry() {
+		var prev = window.scrollY;
+		var target = resolveTargetY(payload);
+		ensureMinScrollHeight(target);
+		var clamped = Math.min(target, maxScrollTop());
+		/* Only nudge downward toward target; never yank back up past the user. */
+		if (clamped - prev > APPLY_EPS) {
+			window.scrollTo(0, clamped);
+		}
+	}
+
+	/* ---------- main pre-paint loop ---------- */
+
+	function finishCarry() {
+		applyCarry();
+		reveal();
+		scheduleReassert(reassertCarry);
+	}
+
+	function finishHash() {
+		scrollToHashTarget();
+		clearPendingHash();
+		reveal();
+		scheduleReassert(function () { scrollToHashTarget(); });
+	}
+
+	function tick() {
 		try {
-			if (window.Turbo && window.Turbo.navigator && window.Turbo.navigator.currentVisit) {
-				window.Turbo.navigator.currentVisit.scrolled = true;
+			var domReady = document.readyState !== 'loading';
+			if (hashId) {
+				if (document.body && document.getElementById(hashId)) {
+					finishHash();
+					return;
+				}
+				/* Full DOM parsed and target still absent — nothing to land on. */
+				if (domReady) {
+					clearPendingHash();
+					reveal();
+					return;
+				}
+			} else if (payload) {
+				/* Reveal the instant the page is tall enough (often before first paint),
+				   or as soon as the DOM is fully parsed (height is final — handles a
+				   deep offset carried onto a shorter destination page). */
+				if (carryReady() || domReady) {
+					finishCarry();
+					return;
+				}
 			}
-		} catch (eTurbo) {
-			/* ignore */
+		} catch (eTick) {
+			/* fall through to timeout safety */
 		}
+		if (Date.now() - startTime > MAX_CLOAK_MS) {
+			try {
+				if (hashId) {
+					finishHash();
+				} else if (payload) {
+					finishCarry();
+				}
+			} catch (eFin) {
+				reveal();
+			}
+			reveal();
+			return;
+		}
+		requestAnimationFrame(tick);
 	}
 
-	/* Turbo in-page render: synchronous, pre-paint. No cloak needed. */
-	function restoreOnRender() {
-		if (hashTargetId() !== '') {
-			beginHashScrollWatch();
-			return;
-		}
-		var payload = readPayload();
-		if (!payload) {
-			return;
-		}
-		clearKey();
-		suppressTurboScrollToTop();
-		setManualScrollRestoration();
-		var applied = applyScroll(payload);
-		scheduleReassert(payload, applied);
-	}
-
-	/* Full-page load (first load, non-Turbo search picks): restore after layout. */
-	function restoreOnFullLoad() {
-		if (hashTargetId() !== '') {
-			beginHashScrollWatch();
-			return;
-		}
-		var payload = readPayload();
-		if (!payload) {
-			return;
-		}
-		clearKey();
-		setManualScrollRestoration();
-		function go() {
-			var applied = applyScroll(payload);
-			scheduleReassert(payload, applied);
-		}
-		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', go, { once: true });
+	if (hasPending) {
+		if (typeof requestAnimationFrame === 'function') {
+			requestAnimationFrame(tick);
 		} else {
-			go();
+			document.addEventListener('DOMContentLoaded', tick);
 		}
+		/* Absolute safety nets so the page can never stay hidden. */
+		window.addEventListener('load', reveal, { once: true });
+		setTimeout(reveal, MAX_CLOAK_MS + 200);
 	}
 
-	window.K2CarryScrollRestore = restoreOnFullLoad;
+	/* ---------- remember hash targets before navigation ---------- */
 
-	document.addEventListener('turbo:render', restoreOnRender);
-
-	/* Turbo may scroll to top before location.hash is applied; re-run after visit completes. */
-	document.addEventListener('turbo:load', beginHashScrollWatch);
-
-	/* Remember hash targets before Turbo rewrites history (turbo:render can run first). */
 	document.addEventListener('click', function (ev) {
 		var link;
 		var url;
-
 		if (ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) {
 			return;
 		}
@@ -355,7 +370,5 @@
 			/* ignore */
 		}
 	}, true);
-
-	restoreOnFullLoad();
 })();
 </script>

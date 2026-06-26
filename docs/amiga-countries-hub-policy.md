@@ -187,7 +187,7 @@ V1 may **verify** index WC columns against WC country slice at present for parit
 | **Roster hero + row flags** | → same roster URL + hash (same country; scrolls to hero) |
 | **WC podium nationality flag** | → roster for that player’s country token |
 
-All Amiga links carry `as=` via `amiga_url_with_context()` / `k2_amiga_route()` when time travel active. **Turbo hash landing:** off-page roster links append `#k2-country-roster`; scroll timing is handled site-wide — see [`k2-turbo-page-init-checklist.md`](k2-turbo-page-init-checklist.md) § Hash anchor landing (do not add page-local scroll JS).
+All Amiga links carry `as=` via `amiga_url_with_context()` / `k2_amiga_route()` when time travel active. **Hash landing:** off-page roster links append `#k2-country-roster`; scroll timing is handled site-wide by `includes/k2_carry_scroll_restore.php` (pre-paint cloak) — see [`k2-turbo-page-init-checklist.md`](k2-turbo-page-init-checklist.md) § Hash anchor landing (do not add page-local scroll JS).
 
 **Route keys (proposed):**
 
