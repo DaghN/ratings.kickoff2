@@ -127,7 +127,7 @@
                             legend: {
                                 labels: { color: T.textSecondary() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -144,7 +144,7 @@
                                         return n + (n === 1 ? ' unlock' : ' unlocks');
                                     }
                                 }
-                            }
+                            })
                         },
                         scales: {
                             x: {

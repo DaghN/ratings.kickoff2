@@ -113,6 +113,7 @@ function amiga_tournament_videos_render_wc_games_table(
       $goalsACell = $aWin ? '<span class="blue">' . $goalsA . '</span>' : (string) $goalsA;
       $goalsBCell = $bWin ? '<span class="blue">' . $goalsB . '</span>' : (string) $goalsB;
       $spotlightLabel = amiga_tournament_videos_wc_game_spotlight_label($entry);
+      $spotlightHtml = amiga_tournament_videos_wc_game_caption_html($entry);
       $isActive = $highlightRow
           && $spotlightGameId === (int) $entry['game_id']
           && $spotlightYoutube === (string) $entry['youtube_id'];
@@ -138,6 +139,7 @@ function amiga_tournament_videos_render_wc_games_table(
               $isActive,
               (int) $entry['game_id'],
               0,
+              $spotlightHtml,
           );
       ?></td>
     </tr>
@@ -209,7 +211,7 @@ function amiga_tournament_videos_render_wc_extras_table(
     <?php
 }
 
-function amiga_tournament_videos_render_spotlight(string $youtubeId, string $label, int $startSec = 0, string $indexUrl = ''): void
+function amiga_tournament_videos_render_spotlight(string $youtubeId, string $label, int $startSec = 0, string $indexUrl = '', string $labelHtml = ''): void
 {
     $hasVideo = $youtubeId !== '';
     $embedUrl = $hasVideo ? amiga_tournament_video_embed_url($youtubeId, $startSec) : '';
@@ -220,9 +222,9 @@ function amiga_tournament_videos_render_spotlight(string $youtubeId, string $lab
     echo $hasVideo ? '' : ' hidden';
 ?>>
   <div class="k2-tournament-videos__spotlight-head">
-    <p class="k2-tournament-videos__spotlight-label"><?php echo k2_h($label); ?></p>
-    <a class="k2-tournament-videos__back" data-k2-tv-back="1" href="<?php echo k2_h($backHref); ?>">&#8593; All videos</a>
+    <div class="k2-tournament-videos__spotlight-label"><?php echo $labelHtml !== '' ? $labelHtml : k2_h($label); ?></div>
   </div>
+  <div class="k2-tournament-videos__player-row">
   <div class="k2-game-page__video-wrap">
     <div class="k2-game-page__video">
       <iframe
@@ -237,6 +239,8 @@ function amiga_tournament_videos_render_spotlight(string $youtubeId, string $lab
         allowfullscreen
       ></iframe>
     </div>
+  </div>
+  <a class="k2-tournament-videos__back" data-k2-tv-back="1" href="<?php echo k2_h($backHref); ?>">&#8593; All videos</a>
   </div>
 </div>
     <?php

@@ -962,6 +962,18 @@
 		scheduleServerRankedTableReveal();
 	}
 
+	function initHelpTooltipsInRoot(root) {
+		var scope = root && root.querySelectorAll ? root : document;
+		var helpHeaders = scope.querySelectorAll ? scope.querySelectorAll(HELP_HEADER_SELECTOR) : [];
+		var i;
+
+		for (i = 0; i < helpHeaders.length; i++) {
+			initHeaderTooltip(helpHeaders[i]);
+		}
+	}
+
+	window.k2TableInitHelpTooltips = initHelpTooltipsInRoot;
+
 	window.k2TableApplyAnchors = function (root) {
 		var tables;
 		var i;

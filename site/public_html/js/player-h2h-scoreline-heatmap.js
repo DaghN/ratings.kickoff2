@@ -138,12 +138,10 @@
         var heroLabel = document.createElement('span');
         heroLabel.className = 'h2h-scoreline-heatmap__scale-row-label h2h-scoreline-heatmap__scale-row-label--hero';
         heroLabel.textContent = heroWinLabel;
-        heroLabel.setAttribute('title', heroWinLabel);
 
         var rivalLabel = document.createElement('span');
         rivalLabel.className = 'h2h-scoreline-heatmap__scale-row-label h2h-scoreline-heatmap__scale-row-label--rival';
         rivalLabel.textContent = rivalWinLabel;
-        rivalLabel.setAttribute('title', rivalWinLabel);
 
         gutter.appendChild(heroLabel);
         gutter.appendChild(rivalLabel);

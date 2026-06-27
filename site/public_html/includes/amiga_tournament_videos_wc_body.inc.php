@@ -46,10 +46,17 @@ $hasExtrasWing = $tournamentVideosExtrasRows !== [];
   ); ?>
   <?php } ?>
 
-  <?php amiga_tournament_videos_render_spotlight(
+  <?php
+  $tournamentVideosSpotlightLabelHtml = ($tournamentVideosWing === 'games'
+      && is_array($tournamentVideosSpotlight)
+      && (int) ($tournamentVideosSpotlight['game_id'] ?? 0) > 0)
+      ? amiga_tournament_videos_wc_game_caption_html($tournamentVideosSpotlight)
+      : '';
+  amiga_tournament_videos_render_spotlight(
       $tournamentVideosSpotlightYoutube,
       $tournamentVideosSpotlightLabel,
       $tournamentVideosSpotlightStartSec,
       $tournamentVideosIndexUrl,
+      $tournamentVideosSpotlightLabelHtml,
   ); ?>
 </section>

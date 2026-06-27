@@ -1277,8 +1277,8 @@ function amiga_tournament_phase_link(
         return htmlspecialchars($phase, ENT_QUOTES, 'UTF-8');
     }
     $href = amiga_tournament_url($tournamentId, $scope['scope_type'], $scope['scope_key']);
-    $title = $scope['scope_type'] === 'knockout' ? 'Elimination tie' : 'Phase standings';
-    return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '" title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '">'
+    $help = $scope['scope_type'] === 'knockout' ? 'Elimination tie' : 'Phase standings';
+    return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '" data-k2-help="' . htmlspecialchars($help, ENT_QUOTES, 'UTF-8') . '" data-k2-tooltip-hide-title="1">'
         . htmlspecialchars($phase, ENT_QUOTES, 'UTF-8') . '</a>';
 }
 

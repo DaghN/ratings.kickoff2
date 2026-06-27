@@ -17,8 +17,13 @@ Tier C — straggler (needs migration or documented exception):
 Tooltip — native title on table headers (Jun 2026):
   No `<th ... title=` for column help; use data-k2-help per docs/k2-tooltip-policy.md.
 
-Exit code 1 when any Tier C files remain (excluding documented exceptions)
-or when any th-title violations remain.
+Tooltip policy (T1) — broader pass:
+  No native `title=` on site-owned help surfaces (th/td/dt/a/button/span);
+  iframe `title` on video embeds allowed (cross-origin player — see k2-tooltip-policy.md);
+  Chart.js should use chart-theme mergeTooltip.
+
+Exit code 1 when any Tier C files remain (excluding documented exceptions),
+any th-title violations remain, or any tooltip-policy violations remain.
 """
 from __future__ import annotations
 
@@ -68,6 +73,56 @@ TH_TITLE_PHP_LINE = re.compile(
     r"|title\s*=\s*\"[^\"]*\"[^>]*>\s*[^<]+\s*</th>",
     re.IGNORECASE,
 )
+
+JS_ROOT = PHP_ROOT / "js"
+
+# Native title= on HTML attrs (exclude data-k2-tooltip-hide-title via negative lookbehind).
+TITLE_ATTR = re.compile(r"(?<![\w-])title\s*=", re.IGNORECASE)
+
+PHP_TITLE_LINE_SKIP = (
+    re.compile(r"data-k2-tooltip-hide-title", re.I),
+    re.compile(r"['\"]title['\"]\s*=>"),
+    re.compile(r"\$[\w]*title\s*=", re.I),
+    re.compile(r"\$row\['title'\]"),
+    re.compile(r"\$video\['title'\]"),
+    re.compile(r"\$alt\['title'\]"),
+    re.compile(r"<iframe\b", re.I),
+    re.compile(r"<title\b", re.I),
+    re.compile(r"k2-tournament-videos__title", re.I),
+)
+
+PHP_TITLE_FILE_EXCEPTIONS: dict[str, str] = {
+    "includes/join_page_section.php": "video embed iframe title",
+    "game.php": "video embed iframe title",
+    "includes/amiga_tournament_videos_body.inc.php": "video embed iframe title",
+    "includes/amiga_tournament_videos_wc_render.inc.php": "video embed iframe title",
+}
+
+JS_TITLE_SET = re.compile(
+    r"\.setAttribute\s*\(\s*['\"]title['\"]|(?<![\w])\.title\s*=",
+    re.I,
+)
+
+JS_TITLE_LINE_SKIP = (
+    re.compile(r"//"),
+    re.compile(r"k2-table-tooltip__title", re.I),
+    re.compile(r"__title", re.I),
+    re.compile(r"axis-title", re.I),
+    re.compile(r"y-title", re.I),
+    re.compile(r"chart-tooltip-rating", re.I),
+)
+
+JS_TITLE_FILE_EXCEPTIONS: dict[str, str] = {
+    "js/amiga-tournament-videos.js": "video embed iframe.title (mountEmbed)",
+}
+
+CHART_TOOLTIP_RAW = re.compile(r"\btooltip\s*:\s*\{")
+CHART_MERGE = "mergeTooltip"
+
+CHART_FILE_EXCEPTIONS: dict[str, str] = {
+    "js/chart-theme.js": "defines mergeTooltip",
+    "js/player-rank-chart-core.js": "custom k2-chart-html-tooltip widget",
+}
 
 
 def rel(path: Path) -> str:
@@ -194,6 +249,103 @@ def audit_th_titles() -> list[tuple[str, list[str]]]:
     return rows
 
 
+def _line_skipped(line: str, patterns: tuple[re.Pattern[str], ...]) -> bool:
+    return any(p.search(line) for p in patterns)
+
+
+def find_php_title_attr_violations(path: Path, text: str) -> list[str]:
+    r = rel(path)
+    if r in PHP_TITLE_FILE_EXCEPTIONS:
+        return []
+
+    violations: list[str] = []
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if stripped.startswith("//") or stripped.startswith("#"):
+            continue
+        if stripped.startswith("*") and "title" not in stripped.lower():
+            continue
+        if not TITLE_ATTR.search(line):
+            continue
+        if _line_skipped(line, PHP_TITLE_LINE_SKIP):
+            continue
+        if TH_TITLE_LINE.search(line):
+            continue
+        violations.append(
+            f"line {line_no}: native title= — use data-k2-help (docs/k2-tooltip-policy.md T1)"
+        )
+    return violations
+
+
+def audit_php_title_attrs() -> list[tuple[str, list[str]]]:
+    rows: list[tuple[str, list[str]]] = []
+    for path in sorted(PHP_ROOT.rglob("*.php")):
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            print(f"skip {path}: {exc}", file=sys.stderr)
+            continue
+        hits = find_php_title_attr_violations(path, text)
+        if hits:
+            rows.append((rel(path), hits))
+    return rows
+
+
+def find_js_title_violations(path: Path, text: str) -> list[str]:
+    r = rel(path)
+    if r in JS_TITLE_FILE_EXCEPTIONS:
+        return []
+
+    violations: list[str] = []
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        if not JS_TITLE_SET.search(line):
+            continue
+        if _line_skipped(line, JS_TITLE_LINE_SKIP):
+            continue
+        violations.append(
+            f"line {line_no}: native .title / setAttribute('title') — use K2 tooltip pattern"
+        )
+    return violations
+
+
+def audit_js_titles() -> list[tuple[str, list[str]]]:
+    rows: list[tuple[str, list[str]]] = []
+    if not JS_ROOT.is_dir():
+        return rows
+    for path in sorted(JS_ROOT.rglob("*.js")):
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            print(f"skip {path}: {exc}", file=sys.stderr)
+            continue
+        hits = find_js_title_violations(path, text)
+        if hits:
+            rows.append((rel(path), hits))
+    return rows
+
+
+def audit_chart_tooltips() -> list[tuple[str, str]]:
+    rows: list[tuple[str, str]] = []
+    if not JS_ROOT.is_dir():
+        return rows
+    for path in sorted(JS_ROOT.rglob("*.js")):
+        r = rel(path)
+        if r in CHART_FILE_EXCEPTIONS:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            print(f"skip {path}: {exc}", file=sys.stderr)
+            continue
+        if "new Chart(" not in text:
+            continue
+        if CHART_MERGE in text:
+            continue
+        if CHART_TOOLTIP_RAW.search(text):
+            rows.append((r, "Chart.js tooltip: { without mergeTooltip — use chart-theme.js"))
+    return rows
+
+
 def main() -> int:
     rows: list[tuple[str, str, str, str]] = []
 
@@ -234,6 +386,9 @@ def main() -> int:
 
     tier_c = tiers.get("C", [])
     th_title_rows = audit_th_titles()
+    php_title_rows = audit_php_title_attrs()
+    js_title_rows = audit_js_titles()
+    chart_tooltip_rows = audit_chart_tooltips()
 
     if th_title_rows:
         print("## Tooltip — <th title=…> violations — {0}".format(len(th_title_rows)))
@@ -241,6 +396,27 @@ def main() -> int:
             for hit in hits:
                 print(f"  {r}: {hit}")
         print("  Fix: docs/k2-tooltip-policy.md (data-k2-help, not title on <th>)")
+        print()
+
+    if php_title_rows:
+        print("## Tooltip — PHP title=… violations — {0}".format(len(php_title_rows)))
+        for r, hits in php_title_rows:
+            for hit in hits:
+                print(f"  {r}: {hit}")
+        print("  Fix: docs/k2-tooltip-policy.md T1 (data-k2-help); embed iframe title allowed per § Cross-origin embeds")
+        print()
+
+    if js_title_rows:
+        print("## Tooltip — JS native title violations — {0}".format(len(js_title_rows)))
+        for r, hits in js_title_rows:
+            for hit in hits:
+                print(f"  {r}: {hit}")
+        print()
+
+    if chart_tooltip_rows:
+        print("## Tooltip — Chart.js without mergeTooltip — {0}".format(len(chart_tooltip_rows)))
+        for r, note in chart_tooltip_rows:
+            print(f"  {r}: {note}")
         print()
 
     if tier_c:
@@ -251,7 +427,19 @@ def main() -> int:
         print(f"FAIL: {len(th_title_rows)} file(s) with native title on <th>. See docs/k2-tooltip-policy.md.")
         return 1
 
-    print("PASS: no Tier C sortable files; no <th title=…> violations.")
+    if php_title_rows:
+        print(f"FAIL: {len(php_title_rows)} file(s) with native title= help. See docs/k2-tooltip-policy.md.")
+        return 1
+
+    if js_title_rows:
+        print(f"FAIL: {len(js_title_rows)} JS file(s) with native title. See docs/k2-tooltip-policy.md.")
+        return 1
+
+    if chart_tooltip_rows:
+        print(f"FAIL: {len(chart_tooltip_rows)} Chart.js file(s) missing mergeTooltip.")
+        return 1
+
+    print("PASS: no Tier C sortable files; no tooltip-policy violations.")
     return 0
 
 

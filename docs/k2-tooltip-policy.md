@@ -19,13 +19,20 @@ The site uses one dark tooltip look (`.k2-table-tooltip` in `theme.css`, tokens 
 
 | ID | Decision |
 |----|----------|
-| T1 | **No native `title` for user-visible column/cell/control help** on tables and interactive chrome. Use K2 tooltip patterns below. |
+| T1 | **No native `title` on site-owned chrome** — tables, controls, links, column help, etc. Supplemental hover copy → `data-k2-help` + K2 tooltip (or Chart.js merge). |
 | T2 | **Table headers and body cells** → `data-k2-help` (+ optional `data-k2-tooltip-label`) wired by `js/k2-table.js`. Enqueue via `k2_sortable_table_assets_head.inc.php`, `k2_lb_sortable_table_head.inc.php`, or `k2_table_js_enqueue()` on static header-help pages. |
 | T3 | **Hub leaderboard column copy** → shared helpers in `includes/lb_column_help.php` (`k2_lb_help_*()`), not one-off inline strings. |
 | T4 | **Chart.js hovers** → `js/chart-theme.js` (`mergeTooltip()` / `applyTooltipDefaults()`); colours from `--k2-tooltip-*` (same surface as table tooltips). |
 | T5 | **Custom DOM widgets** (calendar day, heatmap cell, jukebox FAB, time-travel stamp, coarse-tap pin) → build/position an element with class `k2-table-tooltip` (+ `__title` / `__body` children). Copy the nearest reference JS file; do not invent a new bubble style. |
 | T6 | **Supplemental copy only** — abbreviations, formulas, unfamiliar rules, hidden context. Do not tooltip text that only repeats the visible label; sortable headers may rely on shared **Click to sort.** when no extra explanation is needed. |
-| T7 | **Exceptions (allowed `title`)** — iframe/embed `title` (YouTube player accessibility), decorative `aria-hidden` chrome, and non-interactive metadata where no styled tooltip is product-intent. When in doubt, use `data-k2-help` instead. |
+
+---
+
+## Cross-origin embeds (YouTube and similar)
+
+Tooltips **inside** an embedded player (YouTube controls, progress bar, etc.) are rendered by the third-party iframe. K2 **cannot** restyle them.
+
+**Policy:** do **not** remove or avoid `title` on the iframe element to chase K2 parity. Keep a descriptive iframe `title` (and visible caption/h3/prose where the page already has it). Site-owned help **around** the player — caption Elo links, games-table Rating headers — still follows T1–T6.
 
 ---
 
@@ -41,6 +48,9 @@ The site uses one dark tooltip look (`.k2-table-tooltip` in `theme.css`, tokens 
 | Hall of Fame label/value cells | `hall-of-fame.php` | `k2-table-helped` + `data-k2-help` |
 | Chart panel hover | `js/chart-theme.js`, `docs/activity-charts.md` | `T.mergeTooltip(...)` |
 | Non-table control (FAB, mode toggle) | `includes/k2_jukebox.php`, `includes/amiga_time_mode_nav.php` | `data-k2-help` + `k2_table_js_enqueue()` |
+| Amiga player games status-line perf rating | `amiga/player/games.php` | `data-k2-help` + `data-k2-tooltip-label` on `.k2-player-games-status__perf`; sortable table assets in head |
+| WC Videos spotlight caption Elo links | `amiga_tournament_videos_lib.php` → `amiga_tournament_videos_wc_game_caption_html()` | `data-k2-help` on `.k2-tournament-videos__rating-link`; re-bind via `k2TableInitHelpTooltips()` after in-session caption swap |
+| Embedded video iframe | `game.php`, `amiga_tournament_videos_*.inc.php`, `join_page_section.php`, `amiga-tournament-videos.js` | iframe `title` kept; player-internal tooltips out of scope (see § Cross-origin embeds) |
 | Player calendar day hover | `js/player-feast/player-calendar.js` | Programmatic `.k2-table-tooltip` |
 | H2H scoreline heatmap cell | `js/player-h2h-scoreline-heatmap.js` | Programmatic `.k2-table-tooltip` |
 
@@ -95,7 +105,7 @@ Body-cell tooltips (peaks, streaks, HoF values):
 
 ## Audit
 
-`python scripts/audit_k2_table_compliance.py` reports **Tier C** sortable-table stack gaps and **`title` on `<th>`** violations. Fix or add a documented exception before ship.
+`python scripts/audit_k2_table_compliance.py` reports **Tier C** sortable-table stack gaps, **`<th title=…>`** violations, and a **broader tooltip pass** (PHP `title=` on site-owned help surfaces, JS native `title`, Chart.js without `mergeTooltip`). iframe `title` on video embeds is allowlisted — see § Cross-origin embeds.
 
 ---
 

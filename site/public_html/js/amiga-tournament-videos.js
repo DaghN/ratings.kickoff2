@@ -114,6 +114,13 @@
   // src navigation, which hijacks the browser Back button (Back steps inside the
   // iframe with no URL change / no popstate). A freshly created iframe's first
   // load replaces its own initial blank entry, so node replacement adds nothing.
+  function bindSpotlightCaptionTooltips(labelEl) {
+    if (!labelEl || typeof window.k2TableInitHelpTooltips !== "function") {
+      return;
+    }
+    window.k2TableInitHelpTooltips(labelEl);
+  }
+
   function mountEmbed(root, src, title) {
     var mount = videoMount(root);
     if (!mount) {
@@ -212,7 +219,13 @@
     showSpotlightBox(root);
     mountEmbed(root, embedUrl(yt, startSec, autoplay), title);
     if (labelEl) {
-      labelEl.textContent = link.getAttribute("data-spotlight-label") || title;
+      var captionHtml = link.getAttribute("data-spotlight-html");
+      if (captionHtml) {
+        labelEl.innerHTML = captionHtml;
+        bindSpotlightCaptionTooltips(labelEl);
+      } else {
+        labelEl.textContent = link.getAttribute("data-spotlight-label") || title;
+      }
     }
     setActive(link);
     lastWatchedState = { v: yt, game: link.getAttribute("data-game-id") || "" };

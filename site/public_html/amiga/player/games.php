@@ -306,7 +306,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
         echo (int) $totalMatches . ' official game' . ($totalMatches === 1 ? '' : 's');
     }
     ?>
-    <span class="k2-player-games-status__perf" title="<?php echo amiga_games_h(amiga_perf_rating_games_list_help()); ?>">· Performance rating <span class="k2-player-games-status__perf-value">…</span></span><span class="k2-player-games-status__reset-sep" aria-hidden="true"> · </span><a class="k2-player-games-reset" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset filters</a>
+    <span class="k2-player-games-status__perf" data-k2-help="<?php echo amiga_games_h(amiga_perf_rating_games_list_help()); ?>" data-k2-tooltip-label="<?php echo amiga_games_h(amiga_perf_rating_column_label()); ?>" tabindex="0">· Performance rating <span class="k2-player-games-status__perf-value">…</span></span><span class="k2-player-games-status__reset-sep" aria-hidden="true"> · </span><a class="k2-player-games-reset" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset filters</a>
 </div>
 
 <?php k2_table_wrap_open(true); ?>

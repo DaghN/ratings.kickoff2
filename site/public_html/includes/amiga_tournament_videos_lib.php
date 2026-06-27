@@ -666,6 +666,115 @@ function amiga_tournament_videos_extra_spotlight_label(array $video): string
     return $title . ' · ' . $duration;
 }
 
+/** Game date for the spotlight caption — full month, day, year (`June 17, 2025`). */
+function amiga_tournament_videos_wc_game_caption_date_html(string $date): string
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+
+    $date = trim($date);
+    if ($date === '') {
+        return k2_fmt_dash();
+    }
+
+    $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('UTC'));
+    if ($dt === false) {
+        $ts = strtotime($date);
+        if ($ts === false) {
+            return k2_h($date);
+        }
+        $dt = (new DateTimeImmutable('@' . $ts))->setTimezone(new DateTimeZone('UTC'));
+    }
+
+    return k2_h($dt->format('F j, Y'));
+}
+
+/** Tooltip body for pre-game Elo links in the WC spotlight caption (above the player). */
+function amiga_tournament_videos_spotlight_rating_help(string $side): string
+{
+    return $side === 'b'
+        ? "Team B's Elo rating before this game. Opens the rating leaderboard."
+        : "Team A's Elo rating before this game. Opens the rating leaderboard.";
+}
+
+/**
+ * Headerless one-row scoreboard shown above the spotlight player (game videos only).
+ * Mirrors the index Games row cell treatments (linked id, winner goal in blue,
+ * per-side flags when country data exists) minus the rating columns and play button;
+ * each player's pre-game Elo is appended in parentheses as a link to the top of the
+ * Amiga 500 rating leaderboard table; game date (`F j, Y`) in the rightmost column.
+ * Returns '' for entries without a game row.
+ *
+ * @param array{game_id?: int, game?: array<string, mixed>}|array<string, mixed> $entry
+ */
+function amiga_tournament_videos_wc_game_caption_html(array $entry): string
+{
+    require_once __DIR__ . '/k2_player_game_row.php';
+    require_once __DIR__ . '/k2_rated_game_row.php';
+    require_once __DIR__ . '/amiga_rated_game_row.php';
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+    require_once __DIR__ . '/amiga_snapshot_url.php';
+    require_once __DIR__ . '/lb_player_filters.php';
+
+    $gameRow = $entry['game'] ?? [];
+    if (!is_array($gameRow) || $gameRow === []) {
+        return '';
+    }
+
+    $game = k2_player_game_normalize_row($gameRow);
+    $processed = k2_rated_game_is_processed($gameRow);
+    $phase = trim((string) ($gameRow['phase'] ?? ''));
+    $countryA = trim((string) ($gameRow['country_a'] ?? ''));
+    $countryB = trim((string) ($gameRow['country_b'] ?? ''));
+    $goalsA = (int) $game['GoalsA'];
+    $goalsB = (int) $game['GoalsB'];
+    if ($processed) {
+        $aWin = k2_rated_game_is_a_win($game);
+        $bWin = k2_rated_game_is_b_win($game);
+    } else {
+        $aWin = $goalsA > $goalsB;
+        $bWin = $goalsB > $goalsA;
+    }
+
+    // All rating links land on the top of the rating leaderboard table.
+    $ratingLbHref = amiga_url_with_context('/amiga/leaderboards/rating.php') . k2_lb_table_anchor_hash();
+    $ratingHtml = static function (float $rating, string $side) use ($processed, $ratingLbHref): string {
+        if (!$processed) {
+            return '';
+        }
+
+        return ' <span class="k2-tournament-videos__rating">(<a class="k2-tournament-videos__rating-link" href="'
+            . k2_h($ratingLbHref) . '" data-k2-help="' . k2_h(amiga_tournament_videos_spotlight_rating_help($side))
+            . '" data-k2-tooltip-hide-title="1">' . k2_h((string) (int) round($rating)) . '</a>)</span>';
+    };
+
+    $flagA = $countryA !== '' ? k2_amiga_country_flag_link($countryA, ['class' => 'k2-amiga-tgame-flag']) : '';
+    $flagB = $countryB !== '' ? k2_amiga_country_flag_link($countryB, ['class' => 'k2-amiga-tgame-flag']) : '';
+    $teamACell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--a">' . $flagA
+        . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA'])
+        . $ratingHtml((float) $game['RatingA'], 'a') . '</span>';
+    $teamBCell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--b">'
+        . k2_amiga_player_link((int) $game['idB'], (string) $game['NameB'])
+        . $ratingHtml((float) $game['RatingB'], 'b') . $flagB . '</span>';
+
+    $goalsAClass = $aWin ? 'k2-amiga-tgame-goal--win' : '';
+    $goalsBClass = 'k2-table-cell--left' . ($bWin ? ' k2-amiga-tgame-goal--win' : '');
+    $goalsACell = $aWin ? '<span class="blue">' . $goalsA . '</span>' : (string) $goalsA;
+    $goalsBCell = $bWin ? '<span class="blue">' . $goalsB . '</span>' : (string) $goalsB;
+    $phaseTd = $phase !== '' ? '<td class="k2-table-cell--left">' . k2_h($phase) . '</td>' : '';
+
+    return '<table class="k2-table k2-table--tournament-games k2-tournament-videos__caption-table">'
+        . '<tbody class="black"><tr>'
+        . '<td class="k2-table-cell--left">' . amiga_rated_game_id_html((int) $game['id']) . '</td>'
+        . $phaseTd
+        . '<td class="k2-table-cell--right k2-amiga-tgame-team k2-amiga-tgame-team--a">' . $teamACell . '</td>'
+        . '<td class="' . k2_h($goalsAClass) . '">' . $goalsACell . '</td>'
+        . '<td class="' . k2_h($goalsBClass) . '">' . $goalsBCell . '</td>'
+        . '<td class="k2-table-cell--left k2-amiga-tgame-team k2-amiga-tgame-team--b">' . $teamBCell . '</td>'
+        . '<td class="k2-table-cell--left k2-tournament-videos__caption-date">'
+        . amiga_tournament_videos_wc_game_caption_date_html((string) $game['Date']) . '</td>'
+        . '</tr></tbody></table>';
+}
+
 function amiga_tournament_videos_play_button_html(
     int $tournamentId,
     string $wing,
@@ -674,6 +783,7 @@ function amiga_tournament_videos_play_button_html(
     bool $isActive,
     ?int $gameId = null,
     int $startSec = 0,
+    string $spotlightHtml = '',
 ): string {
     require_once __DIR__ . '/amiga_tournament_lib.php';
 
@@ -692,6 +802,9 @@ function amiga_tournament_videos_play_button_html(
         . ' data-youtube-id="' . k2_h($youtubeId) . '"'
         . ' data-spotlight-label="' . k2_h($spotlightLabel) . '"'
         . ' aria-label="' . k2_h('Play video: ' . $spotlightLabel) . '"';
+    if ($spotlightHtml !== '') {
+        $attrs .= ' data-spotlight-html="' . k2_h($spotlightHtml) . '"';
+    }
     if ($gameId !== null && $gameId > 0) {
         $attrs .= ' data-game-id="' . (int) $gameId . '"';
     }

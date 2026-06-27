@@ -308,23 +308,25 @@ function amiga_profile_render_perf_rating_highlight(array $highlight, int $playe
     }
 
     $help = amiga_perf_rating_column_help();
+    $helpAttr = htmlspecialchars($help, ENT_QUOTES, 'UTF-8');
     $showRecent = $recent !== null && (
         $best === null
         || (int) ($recent['tournament_id'] ?? 0) !== (int) ($best['tournament_id'] ?? 0)
     );
+    k2_table_js_enqueue();
     ?>
 <section class="k2-amiga-profile-perf-rating" style="padding:0 1.25rem 1.5rem">
 	<h3 class="k2-panel-heading">Performance rating</h3>
 	<dl class="k2-amiga-profile-dl" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:0.75rem 1.25rem;margin:0">
 		<?php if ($best !== null) { ?>
-		<div><dt style="opacity:0.75;font-size:0.85rem" title="<?php echo htmlspecialchars($help, ENT_QUOTES, 'UTF-8'); ?>">Best event</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
+		<div><dt style="opacity:0.75;font-size:0.85rem" class="k2-table-helped" data-k2-help="<?php echo $helpAttr; ?>" data-k2-tooltip-label="Best event" tabindex="0">Best event</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
             echo amiga_profile_tournament_rating_cell($best['performance_rating'] ?? null);
             echo ' · ';
             echo amiga_tournament_link((int) ($best['tournament_id'] ?? 0), (string) ($best['name'] ?? ''));
         ?></dd></div>
 		<?php } ?>
 		<?php if ($showRecent) { ?>
-		<div><dt style="opacity:0.75;font-size:0.85rem" title="<?php echo htmlspecialchars($help, ENT_QUOTES, 'UTF-8'); ?>">Latest event</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
+		<div><dt style="opacity:0.75;font-size:0.85rem" class="k2-table-helped" data-k2-help="<?php echo $helpAttr; ?>" data-k2-tooltip-label="Latest event" tabindex="0">Latest event</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
             echo amiga_profile_tournament_rating_cell($recent['performance_rating'] ?? null);
             echo ' · ';
             echo amiga_tournament_link((int) ($recent['tournament_id'] ?? 0), (string) ($recent['name'] ?? ''));

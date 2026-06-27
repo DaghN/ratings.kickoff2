@@ -241,6 +241,7 @@ Shareable (hashless) URLs and in-session navigation on WC **Games / Atmosphere**
 - [x] **`amiga_tournament_videos_play_button_html()`** — real `href` deep links; keep button UX.
 - [x] **`js/amiga-tournament-videos.js`** — in-page swap + `pushState` + `popstate` (Back §2.4); no Turbo. **URL is the single source of truth** (flagless `renderFromUrl`); clips mounted by **iframe node replacement**, not `src` reassignment — see §2.3 ⚠️ (YouTube embeds pollute session history and hijack Back otherwise).
 - [x] **`docs/url-routes.md`** — query params `v`, `game`, `wing`, future `t`.
+- [x] **Spotlight caption (game videos)** — `amiga_tournament_videos_wc_game_caption_html()` renders a headerless `k2-table--tournament-games` row above the player (linked id · [Phase] · A *(pre-game Elo)* · A · B · Player B *(pre-game Elo)* · flags), Elo linking to the rating LB table top; carried in `data-spotlight-html` for in-session `innerHTML` swap; Atmosphere keeps text caption. Policy §2.3.
 
 ### Tasks (Phase B — deferred)
 
@@ -258,7 +259,8 @@ Switch clips (A→B while watching): replaceState → Back once → index (no cy
 Index after Back: last-watched row stays highlighted + scrolled into view (find next leg)
 "↑ All videos" link (in label row) → index, NO centred highlight, hero pinned to viewport top (global nav above)
 Browser Back (distinct from "All videos") → index, last-watched row highlighted + centred
-Viewport fit: short window / high zoom → player shrinks to fit height (≤ viewport), centred; 4rem cap = label+gaps only, NOT jukebox FAB
+Viewport fit: player fills viewport height when scrolled (chrome vars: 0.75rem top, ~2.5rem caption, 0.15rem caption↔video, 0.5rem bottom); width min(vh-cap×16/9, 100vw−2rem); NOT jukebox FAB
+Caption: transparent bg + no row hover; 0.75rem caption↔viewport top; caption rests on video (0.15rem); left edge tracks player. "↑ All videos" anchored to player top-right corner (gutter)
 ```
 
 ---

@@ -41,7 +41,8 @@ function amiga_tournament_render_bracket_rounds(array $rounds, string $activeSco
                 </div>
                 <a class="k2-amiga-bracket__score<?php echo $unresolved ? ' is-unresolved' : ''; ?>"
                    href="<?php echo k2_h($tie['url']); ?>"
-                   title="<?php echo k2_h($round['phase']); ?> — leg detail"><?php
+                   data-k2-help="<?php echo k2_h($round['phase'] . ' — leg detail'); ?>"
+                   data-k2-tooltip-hide-title="1"><?php
                     echo k2_h((string) $tie['score']);
                 ?></a>
                 <div class="k2-amiga-bracket__slot<?php echo $winnerId === $bId ? ' is-winner' : ($winnerId === $aId && !$unresolved ? ' is-loser' : ''); ?>">

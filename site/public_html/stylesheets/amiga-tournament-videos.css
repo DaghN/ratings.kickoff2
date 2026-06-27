@@ -2,9 +2,23 @@ body.k2-site .k2-tournament-videos--wc .k2-table-wrap {
 	margin-bottom: var(--k2-nav-gap);
 }
 
+/* Spotlight vertical rhythm when scrolled to the player:
+   small gap caption↔viewport top (scroll-margin-top),
+   caption sits close on the video (head margin-bottom),
+   player fills remaining height, small gap below (padding-bottom). */
 body.k2-site .k2-tournament-videos__spotlight {
-	max-width: 52rem;
-	scroll-margin-top: 1.25rem;
+	--k2-tv-spotlight-top: 0.75rem;
+	--k2-tv-spotlight-caption: 1.35rem; /* one tight caption row (line-height 1.2) */
+	--k2-tv-spotlight-caption-gap: 5px;
+	--k2-tv-spotlight-bottom: 0.5rem;
+	--k2-tv-spotlight-chrome: calc(
+		var(--k2-tv-spotlight-top)
+		+ var(--k2-tv-spotlight-caption)
+		+ var(--k2-tv-spotlight-caption-gap)
+		+ var(--k2-tv-spotlight-bottom)
+	);
+	scroll-margin-top: var(--k2-tv-spotlight-top);
+	padding-bottom: var(--k2-tv-spotlight-bottom);
 }
 
 body.k2-site .k2-tournament-videos__spotlight--empty,
@@ -14,16 +28,77 @@ body.k2-site .k2-tournament-videos__spotlight[hidden] {
 
 body.k2-site .k2-tournament-videos__spotlight-head {
 	display: flex;
-	align-items: baseline;
+	align-items: flex-end;
 	justify-content: space-between;
 	gap: 1rem;
-	margin: 0 0 0.65rem;
+	/* Same width as the player box below; left-aligned with the index table. */
+	width: min(100%, calc((100svh - var(--k2-tv-spotlight-chrome)) * 16 / 9));
+	margin: 0 0 var(--k2-tv-spotlight-caption-gap);
 }
 
 body.k2-site .k2-tournament-videos__spotlight-label {
 	margin: 0;
-	font-size: 0.95rem;
+	min-width: 0;
 	color: var(--k2-text-secondary);
+}
+
+/* Spotlight caption (game videos): headerless one-row scoreboard mirroring the
+   index Games row — linked id, per-side flags, winner goal in blue, pre-game
+   Elo in parentheses linking to the rating leaderboard table. */
+body.k2-site .k2-tournament-videos__spotlight .k2-tournament-videos__caption-table {
+	margin: 0; /* override .k2-page-nav .k2-table { margin-bottom: 16px } */
+	font-size: 0.95rem;
+	line-height: 1.2;
+}
+
+/* Caption sits on the page backdrop (no surface fill, no row hover). */
+body.k2-site .k2-tournament-videos__caption-table tbody tr,
+body.k2-site .k2-tournament-videos__caption-table tbody tr:hover {
+	background: transparent;
+}
+
+body.k2-site .k2-tournament-videos__caption-table tbody td {
+	padding: 0 0.55rem;
+	border-bottom: 0;
+	line-height: 1.2;
+	vertical-align: bottom;
+}
+
+body.k2-site .k2-tournament-videos__caption-table tbody td:first-child {
+	padding-left: 0;
+}
+
+body.k2-site .k2-tournament-videos__caption-date {
+	padding-left: 1rem;
+	color: var(--k2-text-secondary);
+	white-space: nowrap;
+}
+
+body.k2-site .k2-tournament-videos__rating {
+	color: var(--k2-text-secondary);
+	font-weight: 400;
+}
+
+body.k2-site .k2-tournament-videos__rating-link {
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-tournament-videos__rating-link:hover,
+body.k2-site .k2-tournament-videos__rating-link:focus-visible {
+	color: var(--k2-accent);
+	text-decoration: underline;
+}
+
+/* "↑ All videos" — flex sibling to the right of the player, top-aligned. */
+body.k2-site .k2-tournament-videos__rating-link.k2-table-helped {
+	cursor: help;
+}
+
+body.k2-site .k2-tournament-videos__player-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.7rem;
+	width: 100%;
 }
 
 body.k2-site .k2-tournament-videos__back {
@@ -40,16 +115,26 @@ body.k2-site .k2-tournament-videos__back:focus-visible {
 }
 
 /* Keep the 16:9 player within the viewport height (incl. high browser zoom or
-   short windows). Cap the bordered wrap so the box hugs the video — no side
-   letterboxing — and centre it within the spotlight. Scoped to this page so the
-   shared .k2-game-page__video rule (game.php) is untouched.
-   The subtraction only accounts for the chrome ABOVE the player when scrolled to
-   it (label row + scroll-margin + gap) — it does NOT reserve space for the fixed
-   jukebox FAB (that floats over content and never consumes layout), so the player
-   keeps maximum real estate. */
+   short windows). Cap width from available viewport height minus spotlight
+   chrome (caption + gaps) so the player fills the viewport with only a small
+   margin below — left-aligned with the index table (no centering / 100vw bleed). */
 body.k2-site .k2-tournament-videos__spotlight .k2-game-page__video-wrap {
-	width: min(100%, calc((100svh - 4rem) * 16 / 9));
-	margin-inline: auto;
+	position: relative;
+	flex: 0 1 auto;
+	min-width: 0;
+	width: min(
+		calc((100svh - var(--k2-tv-spotlight-chrome)) * 16 / 9),
+		calc(100% - 5.5rem)
+	);
+	margin-inline: 0;
+}
+
+body.k2-site .k2-tournament-videos__spotlight .k2-game-page__video {
+	width: 100%;
+	height: auto;
+	max-height: calc(100svh - var(--k2-tv-spotlight-chrome));
+	overflow: hidden;
+	border-radius: var(--k2-radius-md);
 }
 
 body.k2-site .k2-table--tournament-videos-games tbody tr.is-active,

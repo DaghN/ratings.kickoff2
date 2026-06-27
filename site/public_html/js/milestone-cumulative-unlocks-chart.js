@@ -137,7 +137,7 @@
                             legend: {
                                 labels: { color: T.textSecondary() }
                             },
-                            tooltip: {
+                            tooltip: T.mergeTooltip({
                                 callbacks: {
                                     title: function (items) {
                                         if (!items.length) {
@@ -157,7 +157,7 @@
                                         return 'Total unlocks: ' + item.parsed.y;
                                     }
                                 }
-                            }
+                            })
                         },
                         scales: {
                             x: {
