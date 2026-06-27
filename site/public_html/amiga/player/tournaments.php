@@ -62,9 +62,8 @@ $listSummary = amiga_player_tournaments_list_summary(
     $countryFilter,
     $allTournamentRows !== [],
 );
+amiga_player_publish_hero_context($pm, $con);
 mysqli_close($con);
-
-amiga_player_publish_hero_context($pm);
 
 ?>
 

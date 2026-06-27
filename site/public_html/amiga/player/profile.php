@@ -51,9 +51,8 @@ $profileMoments = amiga_player_moments_load($con, $id);
 $totalTournaments = $tournamentTotals !== null
     ? (int) ($tournamentTotals['tournaments_played'] ?? 0)
     : count($recentTournaments);
+amiga_player_publish_hero_context($pm, $con);
 mysqli_close($con);
-
-amiga_player_publish_hero_context($pm);
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>

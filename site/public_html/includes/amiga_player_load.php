@@ -132,9 +132,10 @@ function amiga_player_load_at_cutoff(mysqli $con, int $id, AmigaSnapshotContext 
  *
  * @param array<string, mixed> $pm
  */
-function amiga_player_publish_hero_context(array $pm): void
+function amiga_player_publish_hero_context(array $pm, ?mysqli $con = null): void
 {
     global $id, $Name, $Rating, $NumberGames, $rank, $Country, $Display, $playerId, $k2AmigaPlayerPreDebut;
+    global $k2AmigaPlayerHeroWcGold, $k2AmigaPlayerHeroWcSilver, $k2AmigaPlayerHeroWcBronze;
 
     $id = (int) $pm['id'];
     $playerId = $id;
@@ -151,6 +152,17 @@ function amiga_player_publish_hero_context(array $pm): void
         $Rating = $pm['rating'] ?? null;
         $NumberGames = $pm['games'] ?? null;
         $rank = amiga_player_normalize_elo_rank($pm['rank'] ?? null);
+    }
+
+    $k2AmigaPlayerHeroWcGold = 0;
+    $k2AmigaPlayerHeroWcSilver = 0;
+    $k2AmigaPlayerHeroWcBronze = 0;
+    if ($con !== null && !$k2AmigaPlayerPreDebut) {
+        require_once __DIR__ . '/amiga_player_slice_lib.php';
+        $wcMedals = amiga_player_wc_medal_counts($con, $id);
+        $k2AmigaPlayerHeroWcGold = (int) ($wcMedals['wc_gold'] ?? 0);
+        $k2AmigaPlayerHeroWcSilver = (int) ($wcMedals['wc_silver'] ?? 0);
+        $k2AmigaPlayerHeroWcBronze = (int) ($wcMedals['wc_bronze'] ?? 0);
     }
 }
 

@@ -60,18 +60,22 @@ function k2_amiga_country_flag_img(string $country, array $opts = []): string
         return '';
     }
 
-    $class = isset($opts['class']) ? trim((string) $opts['class']) : '';
+    $customClass = isset($opts['class']) ? trim((string) $opts['class']) : '';
     $decorative = !isset($opts['decorative']) || (bool) $opts['decorative'];
     $src = k2_amiga_country_flag_src($meta['code']);
-    $classAttr = $class !== '' ? ' class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '"' : '';
+    $smallFlag = $customClass === '';
+    $imgClass = $smallFlag ? 'k2-amiga-country-flag-img' : $customClass;
+    $width = $smallFlag ? 20 : 28;
+    $height = $smallFlag ? 15 : 21;
+    $classAttr = ' class="' . htmlspecialchars($imgClass, ENT_QUOTES, 'UTF-8') . '"';
 
     if ($decorative) {
         return '<img src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '"'
-            . ' width="28" height="21" decoding="async" loading="lazy" alt="" aria-hidden="true"' . $classAttr . '>';
+            . ' width="' . $width . '" height="' . $height . '" decoding="async" loading="lazy" alt="" aria-hidden="true"' . $classAttr . '>';
     }
 
     return '<img src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '"'
-        . ' width="28" height="21" decoding="async" loading="lazy"'
+        . ' width="' . $width . '" height="' . $height . '" decoding="async" loading="lazy"'
         . ' alt="' . htmlspecialchars($meta['label'], ENT_QUOTES, 'UTF-8') . '"' . $classAttr . '>';
 }
 
@@ -134,6 +138,24 @@ function k2_amiga_country_table_cell_or_dash(string $country, bool $link = true)
     }
 
     return k2_amiga_country_table_cell($country, $link);
+}
+
+/** Leaderboard Player column — nationality flag + profile link (no separate Country column). */
+function k2_amiga_lb_player_cell(int $playerId, string $name, string $country = ''): string
+{
+    require_once __DIR__ . '/amiga_player_load.php';
+
+    $link = k2_amiga_player_link($playerId, $name);
+    $country = trim($country);
+    if ($country === '') {
+        return $link;
+    }
+    $flag = k2_amiga_country_table_cell($country, true);
+    if ($flag === '') {
+        return $link;
+    }
+
+    return '<span class="k2-amiga-wc-podium-player">' . $flag . $link . '</span>';
 }
 
 /**

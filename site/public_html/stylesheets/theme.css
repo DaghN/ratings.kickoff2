@@ -3781,30 +3781,50 @@ body.k2-site a.k2-player-hero__avatar-link:focus {
 	cursor: pointer;
 }
 
+.k2-amiga-country-flag-img {
+	display: block;
+	width: 20px;
+	height: 15px;
+	border-radius: 2px;
+	vertical-align: top;
+}
+
+/* Block img in centered cells — inline-block link so text-align: center takes effect. */
+body.k2-site .k2-table td.k2-table-cell--center > a.k2-country-roster-link {
+	display: inline-block;
+	line-height: 0;
+}
+
 .k2-player-hero__stat--country .k2-player-hero__stat-value--country {
 	padding: 0;
-	font-size: 14px;
 	font-weight: 500;
 	color: var(--k2-text-secondary);
 	align-items: flex-end;
 }
 
+.k2-player-hero__stat--country {
+	margin-left: 14px;
+}
+
+.k2-player-hero__country-link {
+	display: block;
+	line-height: 0;
+	/* 18px flag in 24px value row — lift to match numeral ink, not line-box bottom */
+	margin-bottom: 4px;
+}
+
 .k2-player-hero__country-flag {
 	display: block;
-	width: 26px;
+	width: 24px;
 	height: 18px;
-	margin-bottom: 3px;
-	border: 1px solid var(--k2-border-subtle);
 	border-radius: 2px;
 	overflow: hidden;
 	line-height: 0;
 }
 
-.k2-player-hero__country-flag-img {
-	display: block;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+.k2-player-hero__country-flag .k2-amiga-country-flag-img {
+	width: 24px;
+	height: 18px;
 }
 
 .k2-country-hero--feast {
@@ -3845,7 +3865,7 @@ body.k2-site a.k2-player-hero__avatar-link:focus {
 	display: block;
 	width: 124px;
 	height: 93px;
-	border-radius: calc(var(--k2-radius-sm) / 2);
+	border-radius: var(--k2-radius-sm);
 	overflow: hidden;
 }
 
@@ -3925,6 +3945,17 @@ body.k2-site a.k2-country-hero__flag-link:focus {
 }
 
 .k2-country-hero--feast .k2-amiga-wc-podium-th--metal-only .k2-amiga-wc-podium-th__metal {
+	font-size: 11px;
+	line-height: 1.25;
+}
+
+.k2-player-hero--feast .k2-amiga-wc-podium-th--metal-only {
+	display: inline-flex;
+	align-items: flex-end;
+	line-height: 1.25;
+}
+
+.k2-player-hero--feast .k2-amiga-wc-podium-th--metal-only .k2-amiga-wc-podium-th__metal {
 	font-size: 11px;
 	line-height: 1.25;
 }
@@ -4050,6 +4081,20 @@ body.k2-site a.k2-player-hero__stat-link:focus {
 
 .k2-player-hero__stat-value--milestones {
 	padding: 0;
+}
+
+.k2-player-hero--feast .k2-player-hero__stat {
+	align-items: center;
+}
+
+.k2-player-hero--feast .k2-player-hero__stat-label {
+	width: 100%;
+	text-align: center;
+}
+
+.k2-player-hero--feast .k2-player-hero__stat-value {
+	justify-content: center;
+	width: 100%;
 }
 
 body.k2-site a.k2-player-hero__milestones,

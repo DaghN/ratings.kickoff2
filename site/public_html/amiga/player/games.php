@@ -45,7 +45,7 @@ try {
 
 $ctx = amiga_snapshot_context_peek();
 
-amiga_player_publish_hero_context($pm);
+amiga_player_publish_hero_context($pm, $con);
 $name = $Name;
 
 $gameFilters = amiga_player_games_filters_from_request($con, $playerId, $_GET, $ctx);

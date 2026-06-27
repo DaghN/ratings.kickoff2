@@ -81,7 +81,7 @@ try {
     exit('Player not found.');
 }
 
-amiga_player_publish_hero_context($pm);
+amiga_player_publish_hero_context($pm, $con);
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_wing_hub_nav.inc.php';
