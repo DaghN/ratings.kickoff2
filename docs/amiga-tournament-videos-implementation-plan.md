@@ -232,15 +232,15 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l site/public_html/include
 
 ### Goal
 
-Shareable URLs and in-session navigation on WC **Games / Atmosphere** wings: `v=` playback, optional `game=` for row identity, Back → index without resetting player, cold index → default final + active final row.
+Shareable (hashless) URLs and in-session navigation on WC **Games / Atmosphere** wings: `v=` playback, optional `game=` for row identity, cold index = table only (no default clip), simple `pushState` / `popstate` Back. Cold deep links scroll to the player via the server-declared carry-scroll target, seed an index entry beneath the clip (so Back returns to the list), expose an "↑ All videos" link, and cap the player to the viewport height.
 
 ### Tasks (Phase A)
 
-- [ ] **`amiga_tournament_videos_url()`** — accept optional `v`, `game`, hash target; document in `url-routes.md`.
-- [ ] **`amiga_tournament_page.php`** — read `v` / `game` / `wing` from request; set spotlight + active row per policy §2.2.
-- [ ] **`amiga_tournament_videos_play_button_html()`** — real `href` deep links; keep button UX.
-- [ ] **`js/amiga-tournament-videos.js`** — in-page swap + `pushState` / `replaceState` + `popstate` (Back §2.4); no Turbo.
-- [ ] **`docs/url-routes.md`** — query params `v`, `game`, `wing`, future `t`.
+- [x] **`amiga_tournament_videos_url()`** — accept optional `v`, `game`, `t`, hash target; document in `url-routes.md`.
+- [x] **`amiga_tournament_page.php`** — read `v` / `game` / `wing` from request; set spotlight + active row per policy §2.2.
+- [x] **`amiga_tournament_videos_play_button_html()`** — real `href` deep links; keep button UX.
+- [x] **`js/amiga-tournament-videos.js`** — in-page swap + `pushState` + `popstate` (Back §2.4); no Turbo. **URL is the single source of truth** (flagless `renderFromUrl`); clips mounted by **iframe node replacement**, not `src` reassignment — see §2.3 ⚠️ (YouTube embeds pollute session history and hijack Back otherwise).
+- [x] **`docs/url-routes.md`** — query params `v`, `game`, `wing`, future `t`.
 
 ### Tasks (Phase B — deferred)
 
@@ -249,9 +249,16 @@ Shareable URLs and in-session navigation on WC **Games / Atmosphere** wings: `v=
 ### Verification
 
 ```text
-Cold: videos.php?id=25 → final in player + final row active
-Share: …&v=…&game=…#k2-tournament-video-player → correct row + embed
-Back from clip → index scroll; player + row unchanged
+Cold: videos.php?id=25 → table only (no player, no row highlight)
+Share (hashless): …&v=…&game=… → correct row + embed, scrolls to player (server target, no flash)
+Cold Back: deep link → Back once → index (seeded entry; never leaves the site)
+Cold scroll-up + pick another + Back → index (switch replaceState; still one Back to list)
+In-session: pick clip → autoplay; Back once → index (player hidden, iframe node removed)
+Switch clips (A→B while watching): replaceState → Back once → index (no cycling)  ← stack capped [index, clip]
+Index after Back: last-watched row stays highlighted + scrolled into view (find next leg)
+"↑ All videos" link (in label row) → index, NO centred highlight, hero pinned to viewport top (global nav above)
+Browser Back (distinct from "All videos") → index, last-watched row highlighted + centred
+Viewport fit: short window / high zoom → player shrinks to fit height (≤ viewport), centred; 4rem cap = label+gaps only, NOT jukebox FAB
 ```
 
 ---

@@ -64,6 +64,14 @@ echo match ($tournamentPageView) {
 
 ?></title>
 
+<?php
+// Cold/full loads of a video deep link (?v=…) should land on the player. Declare
+// the pre-paint scroll target for k2_carry_scroll_restore.php (handles hashless
+// shared links and reloads); in-session picks scroll via amiga-tournament-videos.js.
+$k2ScrollTargetId = ($tournamentPageView === 'videos' && isset($_GET['v']) && (string) $_GET['v'] !== '')
+    ? 'k2-tournament-video-player'
+    : '';
+?>
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
@@ -256,6 +264,12 @@ $tournamentVideosSpotlightLabel = '';
 
 $tournamentVideosSpotlightYoutube = '';
 
+$tournamentVideosSpotlightStartSec = 0;
+
+$tournamentVideosHighlightRow = false;
+
+$tournamentVideosIndexUrl = '';
+
 if ($hasVideosTab) {
 
     $tournamentVideosRows = amiga_tournament_videos_for_id($id);
@@ -272,18 +286,31 @@ if ($hasVideosTab) {
             $tournamentVideosWing = 'games';
         }
         $tournamentVideosExtrasRows = amiga_tournament_videos_sort_extras($tournamentVideosExtrasRows);
+        $tournamentVideosIndexUrl = amiga_tournament_href(amiga_tournament_videos_url($id, $tournamentVideosWing));
+        $videoRequest = amiga_tournament_videos_wc_request_params();
         if ($tournamentVideosWing === 'games') {
-            $tournamentVideosSpotlight = amiga_tournament_videos_wc_default_game_spotlight($tournamentVideosGameEntries);
-            if ($tournamentVideosSpotlight !== null) {
-                $tournamentVideosSpotlightLabel = amiga_tournament_videos_wc_game_spotlight_label($tournamentVideosSpotlight);
-                $tournamentVideosSpotlightYoutube = (string) $tournamentVideosSpotlight['youtube_id'];
-            }
+            $gamesSpotlight = amiga_tournament_videos_wc_games_spotlight_state(
+                $tournamentVideosGameEntries,
+                $videoRequest['v'] !== '' ? $videoRequest['v'] : null,
+                $videoRequest['game'] > 0 ? $videoRequest['game'] : null,
+                $videoRequest['start_sec'],
+            );
+            $tournamentVideosSpotlight = $gamesSpotlight['entry'];
+            $tournamentVideosSpotlightLabel = $gamesSpotlight['label'];
+            $tournamentVideosSpotlightYoutube = $gamesSpotlight['youtube_id'];
+            $tournamentVideosSpotlightStartSec = $gamesSpotlight['start_sec'];
+            $tournamentVideosHighlightRow = $gamesSpotlight['highlight_row'];
         } else {
-            $tournamentVideosSpotlight = amiga_tournament_videos_default_extra_spotlight($tournamentVideosExtrasRows);
-            if ($tournamentVideosSpotlight !== null) {
-                $tournamentVideosSpotlightLabel = amiga_tournament_videos_extra_spotlight_label($tournamentVideosSpotlight);
-                $tournamentVideosSpotlightYoutube = (string) ($tournamentVideosSpotlight['youtube_id'] ?? '');
-            }
+            $extrasSpotlight = amiga_tournament_videos_wc_extras_spotlight_state(
+                $tournamentVideosExtrasRows,
+                $videoRequest['v'] !== '' ? $videoRequest['v'] : null,
+                $videoRequest['start_sec'],
+            );
+            $tournamentVideosSpotlight = $extrasSpotlight['row'];
+            $tournamentVideosSpotlightLabel = $extrasSpotlight['label'];
+            $tournamentVideosSpotlightYoutube = $extrasSpotlight['youtube_id'];
+            $tournamentVideosSpotlightStartSec = $extrasSpotlight['start_sec'];
+            $tournamentVideosHighlightRow = $extrasSpotlight['highlight_row'];
         }
     }
 
@@ -298,7 +325,10 @@ mysqli_close($con);
 
 
 <?php
-$k2AmigaHubTabActive = 'tournaments';
+// A single tournament is an entity page (docs/navigation-model.md NM2): the hub
+// bar is present but no pill is active. The tournament's own section nav below
+// is the wayfinding. The Tournaments hub pill is active only on tournaments.php.
+$k2AmigaHubTabActive = '';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 ?>
 

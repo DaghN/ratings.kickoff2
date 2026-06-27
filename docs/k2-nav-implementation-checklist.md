@@ -4,6 +4,8 @@
 
 Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment grammar: [`design-direction.md`](design-direction.md). Routes / sub-hubs: [`url-routes.md`](url-routes.md) section Sub-hub navigation.
 
+**Before deciding *which page gets an active pill* or *where a detail page lives*, read [`navigation-model.md`](navigation-model.md)** (NM1–NM6): hub bar is always present; active pill only on hub/sub-hub **places**; **entity pages** (a game/player/tournament/country/milestone) live at the realm root in a **singular** namespace with **no active pill**, never nested in a plural hub folder.
+
 **Do not invent a one-off nav bar or ad-hoc spacing.** Find the closest **reference include** below, read that file and its host page, then copy the pattern.
 
 ---
@@ -14,7 +16,8 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 |----------|-------------------|-------------------|---------|
 | Online hub primary tabs | `includes/hub_nav.php` | Any online hub page after `site_header.php` | `.k2-hub-bar` > `.k2-hub-tabs` |
 | Amiga hub primary tabs | `includes/amiga_hub_nav.php` | Amiga hub pages | Same; TT stamp may precede bar |
-| Amiga Countries hub (single table, no sub-nav) | `amiga/countries/index.php`, `roster.php` | Hub tab only — chapter on **index** only; roster = hero + table | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| Amiga Countries hub (index = place) | `amiga/countries/index.php` | Hub tab + chapter; active **Countries** pill | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| Amiga country (entity — Roster · Rivals) | `includes/amiga_country_page.php` + `amiga_country_nav.php`; entries `amiga/country/{roster,rivals}.php` | Entity page: hub bar **no** active pill (NM2); segment sub-nav below hero | [`navigation-model.md`](navigation-model.md), [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | Hub chapter (title + lede) | `includes/k2_hub_chapter.inc.php` | LB wing, Games/Milestones hub, WC hub | Set `$k2HubChapterTitle` / `$k2HubChapterLede` before include |
 | Online LB wing ribbon | `includes/lb_nav.php` | `leaderboards/rating.php` | Pattern **A**: wing closes; content is **sibling** |
 | LB Activity sub-nav | `includes/lb_activity_nav.php` | `leaderboards/activity/peaks.php` | Pattern **B**: wing + sub-nav **siblings**; sub-nav owns gap to table |
@@ -103,6 +106,7 @@ Adding a **new sub-nav class** to `theme.css`? Add it to the existing sub-nav bl
 
 ## Related
 
+- [`navigation-model.md`](navigation-model.md) -- NM1-NM6: hub bar always present, active pill only on places, entity pages at realm root (the *why* behind active-pill + page-placement choices)
 - [`nav-spacing-policy.md`](nav-spacing-policy.md) -- locked decisions N1-N10, patterns A/B/C
 - [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) -- shipped phases + smoke URLs
 - [`design-direction.md`](design-direction.md) -- segment track visuals, tint picker

@@ -1,19 +1,55 @@
-body.k2-site .k2-tournament-videos-wings {
-	margin-bottom: var(--k2-nav-gap);
-}
-
 body.k2-site .k2-tournament-videos--wc .k2-table-wrap {
 	margin-bottom: var(--k2-nav-gap);
 }
 
 body.k2-site .k2-tournament-videos__spotlight {
 	max-width: 52rem;
+	scroll-margin-top: 1.25rem;
+}
+
+body.k2-site .k2-tournament-videos__spotlight--empty,
+body.k2-site .k2-tournament-videos__spotlight[hidden] {
+	display: none;
+}
+
+body.k2-site .k2-tournament-videos__spotlight-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: 0 0 0.65rem;
 }
 
 body.k2-site .k2-tournament-videos__spotlight-label {
-	margin: 0 0 0.65rem;
+	margin: 0;
 	font-size: 0.95rem;
 	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-tournament-videos__back {
+	flex: 0 0 auto;
+	font-size: 0.85rem;
+	color: var(--k2-accent);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+body.k2-site .k2-tournament-videos__back:hover,
+body.k2-site .k2-tournament-videos__back:focus-visible {
+	text-decoration: underline;
+}
+
+/* Keep the 16:9 player within the viewport height (incl. high browser zoom or
+   short windows). Cap the bordered wrap so the box hugs the video — no side
+   letterboxing — and centre it within the spotlight. Scoped to this page so the
+   shared .k2-game-page__video rule (game.php) is untouched.
+   The subtraction only accounts for the chrome ABOVE the player when scrolled to
+   it (label row + scroll-margin + gap) — it does NOT reserve space for the fixed
+   jukebox FAB (that floats over content and never consumes layout), so the player
+   keeps maximum real estate. */
+body.k2-site .k2-tournament-videos__spotlight .k2-game-page__video-wrap {
+	width: min(100%, calc((100svh - 4rem) * 16 / 9));
+	margin-inline: auto;
 }
 
 body.k2-site .k2-table--tournament-videos-games tbody tr.is-active,
@@ -33,6 +69,7 @@ body.k2-site .k2-tournament-videos__play-btn {
 	color: var(--k2-accent);
 	cursor: pointer;
 	vertical-align: middle;
+	text-decoration: none;
 }
 
 body.k2-site .k2-tournament-videos__play-btn:hover,

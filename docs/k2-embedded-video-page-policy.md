@@ -1,6 +1,6 @@
 # K2 embedded video pages — URL and interaction policy
 
-**Status:** **Specced (Jun 2026)** — WC tournament Videos tab behaviour locked below; **not implemented** yet (see Phase A / B). Site uses **normal full page loads** (Turbo removed Jun 2026).
+**Status:** **Phase A live (Jun 2026)** — WC tournament Videos tab deep links shipped. **Phase B** (`t=` manifest offsets) deferred. Site uses **normal full page loads** (Turbo removed Jun 2026).
 
 **Purpose:** One expandable policy for pages that combine a **video index** (table or list) with a **shared spotlight player** (single iframe). Catalog/manifest rules stay in [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md).
 
@@ -12,7 +12,7 @@
 
 | Surface | Route (Amiga) | Section | Status |
 |---------|---------------|---------|--------|
-| **WC tournament Videos tab** | `/amiga/tournament/videos.php?id=` | [§2](#2-wc-tournament-videos-tab) | **Specced** — Phase A / B below |
+| **WC tournament Videos tab** | `/amiga/tournament/videos.php?id=` | [§2](#2-wc-tournament-videos-tab) | **Phase A shipped** · Phase B deferred |
 | Player profile **Videos** wing | TBD | [§3](#3-player-profile-videos-wing-reserved) | Reserved |
 | Online / other embed pages | TBD (e.g. `game.php`) | [§4](#4-other-surfaces-reserved) | Reserved |
 
@@ -43,7 +43,7 @@ These apply to every section in the document map unless a surface explicitly ove
 
 **Playback language is always `v=`.** `game=` disambiguates the index UI only; it does not replace `v=` for the embed.
 
-**Hash:** append `#k2-tournament-video-player` (or surface-specific player id) on shared links so cold visits land with the player in the viewport ([`k2_carry_scroll_restore.php`](../site/public_html/includes/k2_carry_scroll_restore.php) — pre-paint cloak when hash/carry pending).
+**Cold-load scroll (no `#hash` needed).** Share URLs stay **hashless** (`?id=&v=…&game=…`). On any **full load** with `v=` present, the page (`amiga_tournament_page.php`) sets `$k2ScrollTargetId = 'k2-tournament-video-player'` **before** `k2_head.php`; [`k2_carry_scroll_restore.php`](../site/public_html/includes/k2_carry_scroll_restore.php) reads it as a **server-declared pre-paint scroll target** (lowest priority after a real URL hash / pending-hash) and cloaks → scrolls → reasserts exactly like a hash landing. So copy-from-address-bar, reload, and shared links all land on the player **with no flash and no `#` clutter**. A real `#k2-tournament-video-player` hash still works (higher priority) for hand-edited links. `$k2ScrollTargetId` is a **generic** carry-scroll hook — any page can set it.
 
 ### 1.3 Progressive enhancement
 
@@ -86,59 +86,71 @@ Atmosphere clips: deep link with **`v=`** + **`wing=extras`** only (no `game=`).
 
 | URL shape | Player | Active row | Scroll |
 |-----------|--------|------------|--------|
-| `?id=` only (index) | **Default main final** for that WC | **Same final row** highlighted — user sees what is loaded | Normal (top of page) |
-| `?id=&v=…` (+ optional `game=`, `wing=`) | Embed for **`v=`** (+ `t=` if set) | If **`game=`** valid for tournament and matches `v=` in manifest → that row; else if exactly one row has `v=` → that row; else **no** row (§1.4) | Prefer `#k2-tournament-video-player` on shared links |
+| `?id=` only (index) | **Hidden** — no embed until user picks a clip or opens a deep link | **None** | Normal (top of page; table in view) |
+| `?id=&v=…` (+ optional `game=`, `wing=`) | Embed for **`v=`** (+ `t=` if set) | If **`game=`** valid for tournament and matches `v=` in manifest → that row; else if exactly one row has `v=` → that row; else **no** row (§1.4) | **Scrolls to player** via the server-declared carry-scroll target (§1.2) — hashless URLs land on the player, no flash |
 
-Invalid or unknown `v=` / `game=` → fall back to index cold behaviour (final + final row active); do not error page.
+Invalid or unknown `v=` / `game=` → fall back to **index** cold behaviour (no player, no row highlight); do not error page.
+
+**Cold-load Back seeds the index.** A shared deep link has no index entry beneath it, so on cold load `syncColdLoad` (in [`amiga-tournament-videos.js`](../site/public_html/js/amiga-tournament-videos.js)) seeds one: `replaceState(indexUrl)` then `pushState(clipUrl)`. The stack becomes `[…, index, clip]`, so **Back (and the "↑ All videos" link) returns to the list** instead of leaving the site — even when the visitor scrolled up and picked a different clip first (switching clips `replaceState`s, keeping the cap at `[index, clip]`).
+
+**Known deferred:** switching **Games ↔ Atmosphere** wing tabs after an in-session watch may land scroll at the player anchor instead of the table top (carry-scroll / hash interaction) — not in scope until wing nav + history are revisited.
 
 ### 2.3 In-session click (no reload)
 
 On ▶ click:
 
-1. Swap spotlight iframe `src` (include `?start=` when `t=` present).
+1. Show spotlight + **mount the embed by replacing the iframe node** (never reassign `src` — see ⚠️ below). Include `?start=` when `t=` present, and **`autoplay=1`** (the click is a user gesture, so unmuted autoplay is allowed). `autoplay` is an **embed-only** param — it never appears in the site URL.
 2. Set active row (Games: row for clicked `game_id`; Atmosphere: matching title row).
 3. Smooth scroll to `#k2-tournament-video-player`.
-4. Update URL:
-   - From **index** (URL has no `v=`): **`pushState`** → adds history entry (enables Back to index).
-   - Already watching (`v=` present), user picks **another** clip: **`replaceState`** → Back returns to index in **one** step, not a chain of every clip tried this session.
+4. Update URL — **stack capped at `[index, clip]`**: the **first** pick from the index `pushState`s one entry; switching clips **while already watching** (`?v=` present) `replaceState`s. So **Back always returns to the index**, never to an earlier clip. In-session history URLs are **hashless** (clean, directly shareable — cold-load scroll comes from the server target in §1.2, not a hash); clears carry-scroll pending hash when returning to index.
 
-**Games row click** — URL shape:
+**Player fit (viewport-height cap).** The 16:9 player is `width:100%; aspect-ratio:16/9` (shared `.k2-game-page__video`). On this page the bordered wrap is additionally capped to `width: min(100%, calc((100svh - 4rem) * 16 / 9))` (scoped in [`amiga-tournament-videos.css`](../site/public_html/stylesheets/amiga-tournament-videos.css)) so the player **never exceeds the viewport height** at high browser zoom or in short windows — it shrinks and stays centred instead of overflowing. The `4rem` subtraction is **only** the chrome above the player when scrolled to it (label row + scroll-margin + gap); it does **not** reserve space for the fixed jukebox FAB (which floats over content and consumes no layout), so the player keeps maximum real estate. The shared `game.php` rule is untouched.
+
+The URL drives rendering: `popstate` calls one `renderFromUrl(root)` — `?v=…` present → mount that clip; absent → hide player, show index. Clicks render the picked clip directly (so they can pass `autoplay`). There is **no** `history.state` tag or `historyBusy`/`lastCommittedWatchUrl` flag machine (those caused the Jun 2026 Back regressions); the only stored JS state is `lastWatchedState` (for the index highlight, below).
+
+> ⚠️ **YouTube iframe history trap (root cause of the Back bug).** A cross-origin YouTube iframe pushes an entry onto the **shared session history** on *every* `src` navigation. Reassigning `iframe.src` therefore silently grows `history.length`, and the browser Back button steps **inside the iframe first** — the video clears but the page URL does not change and **no `popstate` fires**, so the player shell lingers and a second Back is needed. **Fix:** swap clips by creating a fresh `<iframe>` element (its first load *replaces* its own blank entry → adds nothing) and **remove the iframe node** when returning to the index. Verified: node replacement keeps `history.length` flat; `src` reassignment increments it. Implemented in [`amiga-tournament-videos.js`](../site/public_html/js/amiga-tournament-videos.js) (`mountEmbed` / `unmountEmbed`).
+
+**Games row click** — URL shape (hashless):
 
 ```text
-/amiga/tournament/videos.php?id={tid}&v={youtube_id}&game={game_id}#k2-tournament-video-player
+/amiga/tournament/videos.php?id={tid}&v={youtube_id}&game={game_id}
 ```
 
 **Atmosphere row click:**
 
 ```text
-/amiga/tournament/videos.php?id={tid}&wing=extras&v={youtube_id}#k2-tournament-video-player
+/amiga/tournament/videos.php?id={tid}&wing=extras&v={youtube_id}
 ```
 
-### 2.4 Back button → index (in-session)
+### 2.4 Back button (in-session)
 
-When the user presses **Back** and the URL returns to **index shape** (`?id=` with no `v=` / `game=` — same wing param ok):
+Handled via **`popstate`** + URL shape:
 
-- **Do not** reset the player to the default final.
-- **Do not** clear the active row highlight.
-- **Do** scroll so the **index table** is back in view for choosing another clip.
+| URL after Back | Player | Active row | Scroll |
+|----------------|--------|------------|--------|
+| Index (`?id=` with no `v=` / `game=`) | **Hide** spotlight, **remove iframe node** | **Keep `last-watched` row highlighted** (so the visitor can find the next leg) | Scroll that row into view (`block: center`); table top if none |
+| Watch (`?v=…`) | Load that clip in spotlight | Matching row when unambiguous | Scroll to player |
 
-Index URL shape and “cold index” therefore differ in **behaviour** though the path may look the same: cold load runs server default-final logic; **Back** is handled client-side (`popstate`) and preserves last pick in player + row.
+**Behaviour (Jun 2026):** the stack is capped at `[index, clip]`, so **Back always returns to the index** — single Back, every time, even after switching clips. There is **no cycling** through earlier picks. Because clips are mounted by node replacement, every Back moves the **parent** page exactly one step (no iframe-internal Back steps).
 
-Optional in-page **“Back to list”** control: same as one Back step (for visitors who landed on a shared deep link with no prior history entry).
+**Last-watched highlight:** returning to the index keeps the row of the clip you just watched marked (`tr.is-active` + active ▶). `lastWatchedState = {v, game}` is set on every play / cold deep-link; `renderIndex` re-applies it after hiding the player. This makes locating the next clip (e.g. a semifinal’s second leg) fast.
+
+**“↑ All videos” control (shipped Jun 2026).** A right-aligned link sits in the spotlight label row (`amiga_tournament_videos_wc_render.inc.php`), so it costs **zero extra vertical space** and only shows while a clip is playing. It carries a real `href` to the index URL (no-JS fallback). JS intercepts it (`onAllVideos`) to give a clean list context — **distinct from the browser Back button**: `pushState` to the index URL, hide the player, **clear the highlight**, and **smooth-scroll the tournament hero to the top of the viewport** (`.k2-amiga-tournament-hero` `scrollIntoView({block:'start'})`; global nav scrolls above it). Browser **Back** keeps its own behaviour (popstate → `renderIndex`: keeps the last-watched row highlighted and centred so you can pick the next leg).
 
 ### 2.5 Share / copy link
 
-- From a **Games** row: prefer **`v=` + `game=`** (+ hash) — “watch this game.”
-- **Atmosphere:** **`v=`** + **`wing=extras`** (+ hash).
+- URLs are **hashless** and directly shareable. From a **Games** row: **`v=` + `game=`** — “watch this game.”
+- **Atmosphere:** **`v=`** + **`wing=extras`**.
 - **`t=`** when Phase B exists.
+- A future **“share”** button can simply copy `location.href` (or build a row’s deep link); the recipient lands on the player via the server-declared cold-load scroll (§1.2) — no hash required.
 
-Copy-from-address-bar after in-session navigation must reflect current clip (History API updates on click).
+Copy-from-address-bar after in-session navigation reflects the current clip (History API updates on click).
 
 ### 2.6 Implementation phases
 
 | Phase | Deliverable | Exit criteria |
 |-------|-------------|---------------|
-| **A — Deep links** | PHP reads `v=` / `game=` / `wing=`; ▶ as link + JS enhance; History API; hash scroll; Back behaviour §2.4 | Shared Games semi link opens correct row + embed; cold index shows final + active final row |
+| **A — Deep links** | PHP reads `v=` / `game=` / `wing=`; ▶ as link + JS enhance; History API; hash scroll; Back behaviour §2.4 | Shared Games semi link opens correct row + embed; cold index shows table only (no default clip) |
 | **B — Timestamps** | Manifest offsets; `t=`; embed `start=` | Dual-leg / stream “start at game” works for curated rows |
 
 **Out of scope for §2:** changing catalog dedupe rules; new DB tables; online realm.

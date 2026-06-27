@@ -23,6 +23,10 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 	var MAX_CLOAK_MS = 700;
 	var APPLY_EPS = 3;
 	var startTime = Date.now();
+	/* Optional server-declared pre-paint scroll target id (no URL hash needed) —
+	   e.g. a video deep link ?v=… that should land on the player. Lowest priority
+	   after a real URL hash / pending-hash. */
+	var SERVER_TARGET = <?php echo json_encode((string) ($k2ScrollTargetId ?? '')); ?>;
 
 	/* ---------- intent (read synchronously, before paint) ---------- */
 
@@ -94,6 +98,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 	}
 
 	var hashId = hashTargetId();
+	if (!hashId && SERVER_TARGET) {
+		hashId = SERVER_TARGET;
+	}
 	var payload = hashId ? null : readPayload();
 	var hasPending = !!hashId || !!payload;
 
@@ -350,6 +357,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		}
 		link = ev.target && ev.target.closest ? ev.target.closest('a[href*="#"]') : null;
 		if (!link || !link.href) {
+			return;
+		}
+		if (link.getAttribute('data-k2-tv-inpage') === '1') {
 			return;
 		}
 		try {

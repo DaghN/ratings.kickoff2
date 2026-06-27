@@ -48,6 +48,8 @@
 
 **Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode). Inbound game links use `k2_game_page_url($id)` → `/game.php?id=` + `#k2-game` so the viewport lands on the game table (hub chrome stays above the fold).
 
+**Entity vs hub naming ([`navigation-model.md`](navigation-model.md) NM3/NM4):** an **entity page** (a single game / player / tournament / country / milestone) lives at the realm root as its **own singular namespace** — leaf file if single-page (`game.php`), folder if it has tabs (`player/`, `tournament/`). It is **never** nested inside a **hub-tab folder** (the **plural** form: `tournaments.php`, `countries/`, `world-cups/`, `leaderboards/`). Entity pages show **no active hub pill** (NM2).
+
 ---
 
 ## Hub (site root)
@@ -175,7 +177,7 @@ Per-event pages use **foldered tabs** (not `?view=`). Entity id stays in query; 
 | `amiga-tournament-games` | `/amiga/tournament/games.php` | Games |
 | `amiga-tournament-videos` | `/amiga/tournament/videos.php` | Videos (when manifest has rows for `id`) |
 
-Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?scope_key=` on standings/stages. **Videos tab:** `?wing=extras` (Atmosphere). **Deep links (WC spotlight, specced not yet live):** `?v={youtube_id}`, optional `?game={amiga_game_id}`, future `?t=` seconds — see [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md). Tab appears only when `amiga_tournament_has_videos($id)`.
+Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?scope_key=` on standings/stages. **Videos tab:** `?wing=extras` (Atmosphere). **Deep links (WC spotlight, live):** `?v={youtube_id}`, optional `?game={amiga_game_id}`, future `?t=` seconds — see [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md). Tab appears only when `amiga_tournament_has_videos($id)`.
 
 **Entry redirects (302, query preserved):** `/amiga/tournament.php` (legacy `?view=`) → folder path; `/amiga/tournament/index.php` → `event-stats.php`. Nav hrefs use named files only — **not** bare `index.php` as a tab target (same habit as WC stats `participation.php`, Games `recent.php`).
 
@@ -183,12 +185,15 @@ Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?s
 
 News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · **Countries** (`/amiga/countries/index.php`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · **Countries** · Activity · Hall of Fame.
 
-| Route key | Path |
-|-----------|------|
-| `amiga-countries` | `/amiga/countries/index.php` |
-| `amiga-countries-roster` | `/amiga/countries/roster.php?country={token}` |
+A single country is an **entity page** ([`navigation-model.md`](navigation-model.md) NM3): it lives in the singular `country/` namespace with a **Roster · Rivals** segment (NM6), not inside the plural `countries/` hub folder.
 
-Policy: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
+| Route key | Path | Segment |
+|-----------|------|---------|
+| `amiga-countries` | `/amiga/countries/index.php` | Countries **hub place** (plural) — keeps active pill |
+| `amiga-country-roster` | `/amiga/country/roster.php?country={token}` | Roster (default; career roster table) |
+| `amiga-country-rivals` | `/amiga/country/rivals.php?country={token}` | Rivals (placeholder; country-vs-country H2H later) |
+
+`k2_amiga_country_roster_href()` / `k2_amiga_country_rivals_href()` build these; every flag cell ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) routes through the roster helper. Legacy `amiga-countries-roster` (`/amiga/countries/roster.php`) is now a **302** to `/amiga/country/roster.php` (preserves `country` + `as`). The **Countries** pill is active only on `countries/index.php` (NM2); country entity pages carry no active pill. Policy: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
 
 ---
 

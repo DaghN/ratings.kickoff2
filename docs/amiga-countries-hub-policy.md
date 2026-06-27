@@ -17,7 +17,7 @@ Add a **Countries** hub on the Amiga realm — a first-class answer to *“which
 | Surface | Question |
 |---------|----------|
 | **Countries index** (`/amiga/countries/index.php`) | Which nations exist on the ladder, how large are they, how active, what is their WC footprint? |
-| **Country roster** (`/amiga/countries/roster.php?country=`) | Who are the players from this country — strength, activity, WC medals, last event? |
+| **Country roster** (`/amiga/country/roster.php?country=`) | Who are the players from this country — strength, activity, WC medals, last event? |
 
 This is **career-wide** nationality browse (all tournaments), not WC-only nation stats. World Cups → **Country stats** (`/amiga/world-cups/countries/*`) remains the WC performance surface; cross-link both ways.
 
@@ -37,7 +37,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 |---|----------|------|
 | **CH1** | **Hub tab** | **Countries** is a **top-level Amiga hub tab** — present in full hub nav and in **time-travel** hub tab set (`K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS`). |
 | **CH2** | **Tab order (present)** | After **World Cups**, before **Activity**: News · Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · Tournaments · Live tournaments. |
-| **CH3** | **URL shape** | Foldered hub per [`url-routes.md`](url-routes.md): `/amiga/countries/index.php` (default) · `/amiga/countries/roster.php?country={token}`. Register routes in `k2_amiga_routes.php`. `country` query param = **country token** lookup (entity key), not hub mode. |
+| **CH3** | **URL shape** | **Hub place** = plural `countries/`: `/amiga/countries/index.php` (Countries hub tab, default). **Entity page** = singular `country/` per [`navigation-model.md`](navigation-model.md) NM3: `/amiga/country/roster.php?country={token}` (Roster, default segment) · `/amiga/country/rivals.php?country={token}` (Rivals). `country` query param = **country token** lookup (entity key), not hub mode. Register routes in `k2_amiga_routes.php`. **Shipped Jun 2026** — relocated from `countries/roster.php` (old path 302s to the new `country/roster.php`, preserving `country` + `as`). Shared shell `includes/amiga_country_page.php` + segment `includes/amiga_country_nav.php`. |
 | **CH4** | **Country token** | `TRIM(amiga_players.country)` when non-empty ([**H8**](amiga-hof-tournament-geo-policy.md)); empty/NULL → literal **`Unknown`**. |
 | **CH5** | **Index row eligibility** | One row per country token with **≥1 national** where `NumberGames > 0` at the active cutoff (present or time travel). |
 | **CH6** | **Roster eligibility** | All nationals with `NumberGames > 0` at cutoff, sorted **rating descending** (default). |
@@ -53,10 +53,12 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | **CH16** | **Time travel** | Both index and roster **must** honour `as=` from slice 1 — same cutoff tuple as leaderboards (`AmigaSnapshotContext`). |
 | **CH17** | **Host vs nationality (data only)** | Roster roll-ups and index eligibility use **player nationality**. Tournament **host** country is a separate field on events — but **both** host and nationality **flags** link to the same country roster URL for that token (**CH9**). Host/opponent **filter listboxes** on player games stay text-only. |
 | **CH18** | **Cross-links** | Roster page → WC country stats for that token when row exists. WC country index row → country roster. Optional one-line on index lede. |
-| **CH19** | **V2 — Country vs country** | Nation-pair compare page (texture similar to player H2H) — **deferred**; note in policy only; no v1 URLs or stubs. |
+| **CH19** | **Rivals (country vs country)** | Nation-pair compare (texture similar to player H2H) now lands as the **Rivals** segment under the `country/` entity (CH24), not a free-floating V2. **Placeholder page first**; H2H-style country-vs-country content later. Supersedes the earlier "no v1 URLs or stubs" stance. |
 | **CH20** | **LB country filter** | **Out of scope** for this track. |
 | **CH21** | **Stored truth v1** | **No new derived tables or finalize writers** — read-time aggregation from `amiga_player_current` (present) or latest `amiga_player_event_snapshots` row per player ≤ cutoff (time travel). ~470 players × ~21 countries is acceptable. Revisit stored country roll-ups only if perf or verify demands it. |
 | **CH22** | **k2-table stack** | Both tables use full k2-table checklist (cloak, SSR sort, mirror, column help where needed). |
+| **CH23** | **Country = entity page** | A single country (`country/roster.php`, `country/rivals.php`) is an **entity page** ([`navigation-model.md`](navigation-model.md) NM2), not a hub mode: realm hub bar present with **no active pill** (not `countries`). The **Countries** pill is active only on the `countries/index.php` hub place. |
+| **CH24** | **Country segment (Roster · Rivals)** | Singular `country/` carries an NM6 context sub-nav below the hub bar: **Roster** (default — the v1 roster table) · **Rivals**. **Rivals** = the country-vs-country surface (CH19 / §9); ships first as a **placeholder page** under the segment, H2H-style content later. Segment markup follows [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) (segment track, active state via PHP var). |
 
 ---
 
@@ -86,8 +88,8 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 
 ### 3.2 Country roster
 
-**Path:** `/amiga/countries/roster.php?country={token}`  
-**Sub-nav:** None for v1 (single table). Hero carries country name + summary; no chapter block above hero.
+**Path:** `/amiga/country/roster.php?country={token}` (entity namespace — NM3)  
+**Sub-nav:** **Roster · Rivals** segment (NM6, `includes/amiga_country_nav.php`); Roster default. Hero carries country name + summary; no chapter block above hero.
 
 **Scroll anchor:** Zero-height `#k2-country-roster` immediately above the country hero — off-page roster links append this hash so the hero lands in viewport.
 
@@ -182,21 +184,23 @@ V1 may **verify** index WC columns against WC country slice at present for parit
 | Entry | Behaviour |
 |-------|-----------|
 | **Hub tab Countries** | → `/amiga/countries/index.php` |
-| **Any country flag cell** | → `/amiga/countries/roster.php?country={token}#k2-country-roster` via `k2_amiga_country_table_cell()` (**CH9**) |
+| **Any country flag cell** | → `/amiga/country/roster.php?country={token}#k2-country-roster` via `k2_amiga_country_table_cell()` (**CH9**) |
 | **Index country name** (text link) | → same roster URL + hash |
 | **Roster hero + row flags** | → same roster URL + hash (same country; scrolls to hero) |
 | **WC podium nationality flag** | → roster for that player’s country token |
 
 All Amiga links carry `as=` via `amiga_url_with_context()` / `k2_amiga_route()` when time travel active. **Hash landing:** off-page roster links append `#k2-country-roster`; scroll timing is handled site-wide by `includes/k2_carry_scroll_restore.php` (pre-paint cloak) — see [`k2-turbo-page-init-checklist.md`](k2-turbo-page-init-checklist.md) § Hash anchor landing (do not add page-local scroll JS).
 
-**Route keys (proposed):**
+**Route keys (shipped):**
 
 | Key | Path |
 |-----|------|
-| `amiga-countries` | `amiga/countries/index.php` |
-| `amiga-countries-roster` | `amiga/countries/roster.php` |
+| `amiga-countries` | `amiga/countries/index.php` (hub place) |
+| `amiga-country-roster` | `amiga/country/roster.php` (entity — Roster) |
+| `amiga-country-rivals` | `amiga/country/rivals.php` (entity — Rivals) |
+| `amiga-countries-roster` | `amiga/countries/roster.php` — legacy, **302** → `country/roster.php` |
 
-**Helper (proposed):** `k2_amiga_country_roster_href(string $countryToken): string`
+**Helpers:** `k2_amiga_country_roster_href(string $countryToken, bool $scrollToHero = true)` · `k2_amiga_country_rivals_href(string $countryToken)`.
 
 ---
 
@@ -226,11 +230,11 @@ See [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — same cutoff
 
 ---
 
-## 9. V2 — Country vs country (deferred)
+## 9. Rivals — country vs country (placed; content deferred)
 
-**Intent:** A **nation-pair** page comparable to player H2H — e.g. Denmark vs Sweden: combined headcount, shared WC history, games between nationals, medal comparison, maybe cumulative charts at nation grain.
+**Intent:** A **nation-pair** surface comparable to player H2H — e.g. Denmark vs Sweden: combined headcount, shared WC history, games between nationals, medal comparison, maybe cumulative charts at nation grain.
 
-**Not in v1:** no routes, nav, or stubs. When scoped, likely under `/amiga/countries/compare.php?a=&b=` or similar; may require stored nation-pair facts or heavy read-time scans — separate policy/plan.
+**Placement (Jun 2026):** lands as the **Rivals** segment of the `country/` entity (CH24) — `/amiga/country/rivals.php?country={token}` — **not** a free-floating compare page. First ship is a **placeholder page** under the Roster · Rivals segment so the IA is in place; H2H-style nation-pair content (likely keyed `?country={a}` + an opponent picker, or `?a=&b=`) comes later and may require stored nation-pair facts or heavy read-time scans — separate plan.
 
 **Analogy:** Player H2H = [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md); Country vs country = same *compare two entities* product pattern at country grain.
 
@@ -251,10 +255,10 @@ See [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — same cutoff
 
 | Area | Files |
 |------|-------|
-| **Pages** | `amiga/countries/index.php`, `amiga/countries/roster.php` |
+| **Pages** | `amiga/countries/index.php` (hub) · `amiga/country/roster.php` + `amiga/country/rivals.php` (entity, thin entries) · shared shell `includes/amiga_country_page.php` · segment `includes/amiga_country_nav.php` · legacy `amiga/countries/roster.php` (302) |
 | **Load / render** | `includes/amiga_countries_index_lib.php`, `includes/amiga_countries_roster_lib.php`, `includes/amiga_countries_table.php` (or split index/roster render) |
 | **Hero** | `includes/amiga_country_hero.php` |
-| **Routes** | `k2_amiga_routes.php` — `amiga-countries`, `amiga-countries-roster` |
+| **Routes** | `k2_amiga_routes.php` — `amiga-countries`, `amiga-country-roster`, `amiga-country-rivals` (+ legacy `amiga-countries-roster` 302) |
 | **Hub nav** | `amiga_hub_nav_lib.php` — tab + TT allowlist |
 | **Flag links** | `k2_amiga_country_flag.php` — optional `link` opt + `k2_amiga_country_roster_href()` |
 | **Help** | `lb_column_help.php` — WC entries tooltips (index + roster grains) |

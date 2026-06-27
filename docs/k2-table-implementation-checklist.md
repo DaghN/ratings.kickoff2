@@ -5,6 +5,8 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 
 **Do not invent a one-off table stack.** Find the closest **reference implementation** below, read that file, then copy the pattern.
 
+**Column / header tooltips:** [`k2-tooltip-policy.md`](k2-tooltip-policy.md) — use `data-k2-help`, not native `title` on `<th>`.
+
 ---
 
 ## 1) Pick a reference (read one file first)
@@ -75,7 +77,10 @@ Exactly one editorial link column per table (`data-k2-anchor-col`). Map: [`k2-ta
 - [ ] Default sort col/dir matches SQL `ORDER BY` when using `skip-initial-sort`.
 - [ ] Navigation that reloads the page preserves `k2_sort` / `k2_dir` where sortable.
 - [ ] Hard refresh + filter/tab click: **no visible sort flash**.
-- [ ] Run `python scripts/audit_k2_table_compliance.py` — no new Tier C files.
+- [ ] Column help uses `data-k2-help` / `data-k2-tooltip-label`, not `title` on `<th>` ([`k2-tooltip-policy.md`](k2-tooltip-policy.md)).
+- [ ] Hub wings use `lb_column_help.php` helpers where shared copy exists.
+- [ ] Page loads `k2-table.js` when headers or cells expose `data-k2-help`.
+- [ ] Run `python scripts/audit_k2_table_compliance.py` — no new Tier C files or `<th title=` violations.
 - [ ] Update [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md) + `PROJECT_MEMORY.md` (Part A of [`UPDATE_DOCS.md`](UPDATE_DOCS.md)).
 
 ---

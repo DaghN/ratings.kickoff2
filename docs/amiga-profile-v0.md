@@ -7,7 +7,7 @@
 | Page | Path |
 |------|------|
 | Hub nav | News · Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · Tournaments · Live tournaments (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
-| **Countries hub** | `/amiga/countries/index.php` (index) · `/amiga/countries/roster.php?country={token}` (roster) — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| **Countries hub** | `/amiga/countries/index.php` (hub index) · `/amiga/country/roster.php?country={token}` + `/amiga/country/rivals.php?country={token}` (country entity — Roster · Rivals segment) — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
 | Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · World Cups · Tournament honours · Calendar &amp; geography · Goals · DDs &amp; CSs · Victims · Peak · Perf. rating |
 | Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events medals; WC → World Cups wing) |
@@ -72,7 +72,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 ## Files
 
 - `includes/amiga_hub_nav.php` — realm hub tabs
-- `amiga/countries/index.php`, `amiga/countries/roster.php` — Countries hub (career roster by nationality)
+- `amiga/countries/index.php` (hub) · `amiga/country/roster.php`, `amiga/country/rivals.php` (country entity) — Countries hub + per-country roster by nationality
 - `includes/amiga_countries_lib.php`, `includes/amiga_countries_index_table.php`, `includes/amiga_countries_roster_table.php`, `includes/amiga_country_hero.php`
 - `includes/k2_amiga_country_flag.php` — flag SVG map + optional roster link on nationality cells
 - `amiga/hall-of-fame.php` — HoF (generalstats + ratio leaders + WC medal panel)

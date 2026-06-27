@@ -188,7 +188,7 @@ Current supported behavior:
 - `data-k2-skip-initial-sort="1"` — trust SSR row order; JS applies sort **header chrome only** (no tbody reorder on init). Use when SQL `ORDER BY` matches default sort. When URL carries non-default `k2_sort`, omit so `applyUrlSortState` can run.
 - `data-k2-anchor-col` (0-based column index) for one permanent wing anchor styled as link-star in body cells; optional — omit on tables without an editorial hero column.
 - `data-k2-autorank="true"` for first-column rank renumbering.
-- `data-k2-help` / `data-k2-tooltip-label` for shared header help; help can exist without sorting, and the “Click to sort.” hint appears only on sortable headers. Avoid `data-k2-help` that only repeats the visible column label. Hub wing copy: `site/public_html/includes/lb_column_help.php` (May 2026).
+- `data-k2-help` / `data-k2-tooltip-label` for shared header help; help can exist without sorting, and the “Click to sort.” hint appears only on sortable headers. Avoid `data-k2-help` that only repeats the visible column label. Hub wing copy: `site/public_html/includes/lb_column_help.php` (May 2026). Agent entry: [`k2-tooltip-policy.md`](k2-tooltip-policy.md).
 - `data-k2-help-html="1"` + `data-k2-tooltip-hide-title="1"` for body-cell tooltips (Activity peaks / in-a-row).
 - `aria-sort`, keyboard Enter/Space, and sortable header help behavior.
 - Same-column toggles flip asc/desc via a full re-sort (stable tie order), not DOM reverse only.

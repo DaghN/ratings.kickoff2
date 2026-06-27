@@ -2,7 +2,7 @@
 
 **Status:** current hub/navigation contract, May 2026. Phase A hub shell and Status Phase B v1.2 are shipped in repo. This file is no longer a phase diary; use it to answer "what is the hub supposed to be?"
 
-**Related:** `docs/design-direction.md` for visual rules, `docs/STATUS_PAGE_DATA.md` for Status panel data, `docs/tint-vs-realm.md` for tint/realm separation, `docs/url-routes.md` for page paths and `k2_routes.php`, `docs/milestones-hub-ia.md` for **future** hub phases (Story / Charts migration ? not required for current v0).
+**Related:** `docs/design-direction.md` for visual rules, `docs/STATUS_PAGE_DATA.md` for Status panel data, `docs/tint-vs-realm.md` for tint/realm separation, `docs/url-routes.md` for page paths and `k2_routes.php`, `docs/milestones-hub-ia.md` for **future** hub phases (Story / Charts migration ? not required for current v0). **[`navigation-model.md`](navigation-model.md)** for the hub-vs-entity invariants (NM1–NM6: hub bar always present, active pill only on places, entity pages at realm root).
 
 ---
 
@@ -83,7 +83,7 @@ Still open with Steve / prod:
 | Wordmark | Header text is **Kick Off 2**; broader product can still be "Kick Off 2 ratings". |
 | Hub nav | Segment track + outline active cell. |
 | Leaderboard wings | Segment track; wing tabs sit above table. |
-| Player pages | Replace hub tabs with player context tabs: Profile, Opponents, Milestones, Games. |
+| Player pages | Hub bar stays present with **no active pill** (entity page, [`navigation-model.md`](navigation-model.md) NM1/NM2); a player context sub-nav (Profile, Opponents, Milestones, Games) sits **below** it (NM6). Earlier "replace hub tabs" behaviour is retired. |
 | Back links | No "Back to Results"; browser back + search/nav are enough. |
 | Tint picker | Closed by default behind **Tint** disclosure (hub + player nav). |
 | Peer pill scroll | Hub, leaderboard wing (`lb_nav`), **player wing pills** (`player_nav` / `amiga_player_nav`), and **header realm switcher** (Online · Amiga 500) use `data-k2-carry-scroll`: pill click keeps scroll on the next page (one-shot `sessionStorage`). Pill clicks store **nav anchor** (`aria-label` + viewport offset) so table/filter height changes do not nudge scroll; restore falls back to raw `y` for listbox/sort/pager. **Listbox filter forms** opt in with `data-k2-carry-scroll` on the `<form>` (`js/k2-carry-scroll.js` stores on listbox `change` before `form.submit()` and on in-form **Reset** links). **Player games** server-sort column links (`.k2-table--player-games`) carry scroll the same way. Online page chevrons and **prev/next played-day chevrons** (`.k2-player-games-day-step`) opt in via `data-k2-carry-scroll` on `.k2-player-games-status-stack` (chevron URLs omit `#day-games` so hash does not fight restore). Restore (`k2_carry_scroll_restore.php` in `<head>`) runs after DOM ready; URL hash targets win over carry restore. **Inbound player name links** (LB tables, games, search, Status, …) append `#player` so the hero lands at viewport top (tournament `#tournament` parity); wing tab URLs stay hash-free. **Mid-page hash landing under Turbo** (LB `#k2-lb-table`, country roster `#k2-country-roster`, …): [`k2-turbo-page-init-checklist.md`](k2-turbo-page-init-checklist.md) § Hash anchor landing — do not add one-off scroll scripts. After first apply only scrolls down if the page grows. Stops on success, user scroll input, or 2s. Short destinations extend `documentElement` min-height so carry is not clamped to top. Filter toggles in `lb_nav` and content deep-links load at their hash as usual. |
@@ -164,10 +164,11 @@ Do not merge these page bodies into Status unless Dagh explicitly changes the hu
 
 ## Player Context
 
-Player pages use the same global header, then player-specific context:
+Player pages are **entity pages** ([`navigation-model.md`](navigation-model.md)): the realm hub bar is present with **no active pill** (NM1/NM2), then player-specific context below it (NM6):
 
+- Realm hub bar (inert — no active tab); `player_wing_hub_nav.inc.php` / `amiga_player_wing_hub_nav.inc.php`.
 - Hero block.
-- Player nav: Profile, Opponents, Milestones, Games.
+- Player nav (NM6 sub-nav): Profile, Opponents, Milestones, Games.
 - `player/profile.php` is the warm profile feast landing.
 - `player/games.php` is the Games history tab with server-side filters/sort/500-row slices.
 - `player/opponents/{h2h,wdl,goals,dds}.php` — Opponents wing inner tabs (path per tab).
@@ -202,5 +203,6 @@ Keep this short; it prevents old chat ideas from reappearing as current plans.
 | Back to Results on player pages | Removed. |
 | Full-accent links everywhere | Use `--k2-link-star` / `--k2-link` hierarchy. |
 | Moving server1/server2/server3 bodies into hub panels | Not current plan. |
+| Player pages **replace** the hub tabs with player context tabs | Retired — hub bar always present, no active pill on entity pages ([`navigation-model.md`](navigation-model.md) NM1/NM2); player nav is a sub-nav below it (NM6). |
 
 *Last pruned: Jun 2026 — Games hub tab restored (Milestones · Games · HoF); Milestones v0 hub (not stub); Status Leagues shipped (no open track).*

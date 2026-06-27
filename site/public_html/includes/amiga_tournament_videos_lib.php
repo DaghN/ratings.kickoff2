@@ -6,9 +6,12 @@ declare(strict_types=1);
  * Read-only tournament video manifest (TV-3).
  *
  * @see docs/amiga-tournament-videos-policy.md
+ * @see docs/k2-embedded-video-page-policy.md
  */
 
 const AMIGA_TOURNAMENT_VIDEOS_MANIFEST_PATH = __DIR__ . '/../data/amiga/tournament_videos.json';
+
+const AMIGA_TOURNAMENT_VIDEOS_PLAYER_FRAGMENT = 'k2-tournament-video-player';
 
 /** @var array<string, mixed>|null */
 $GLOBALS['_amiga_tournament_videos_manifest'] = null;
@@ -155,11 +158,39 @@ function amiga_tournament_videos_grouped(array $rows): array
     return $sorted;
 }
 
-function amiga_tournament_video_embed_url(string $youtubeId): string
+function amiga_tournament_video_embed_url(string $youtubeId, int $startSec = 0): string
 {
-    $id = preg_replace('/[^A-Za-z0-9_-]/', '', $youtubeId) ?? '';
+    $id = amiga_tournament_videos_sanitize_youtube_id($youtubeId);
+    if ($id === '') {
+        return '';
+    }
+    $url = 'https://www.youtube-nocookie.com/embed/' . rawurlencode($id);
+    if ($startSec > 0) {
+        $url .= '?start=' . $startSec;
+    }
 
-    return 'https://www.youtube-nocookie.com/embed/' . rawurlencode($id);
+    return $url;
+}
+
+function amiga_tournament_videos_sanitize_youtube_id(?string $raw): string
+{
+    return preg_replace('/[^A-Za-z0-9_-]/', '', (string) $raw) ?? '';
+}
+
+/**
+ * @return array{v: string, game: int, start_sec: int}
+ */
+function amiga_tournament_videos_wc_request_params(): array
+{
+    $v = amiga_tournament_videos_sanitize_youtube_id(isset($_GET['v']) ? (string) $_GET['v'] : '');
+    $game = isset($_GET['game']) ? (int) $_GET['game'] : 0;
+    $startSec = isset($_GET['t']) ? max(0, (int) $_GET['t']) : 0;
+
+    return [
+        'v' => $v,
+        'game' => $game > 0 ? $game : 0,
+        'start_sec' => $startSec,
+    ];
 }
 
 function amiga_tournament_video_watch_url(string $youtubeId): string
@@ -464,6 +495,151 @@ function amiga_tournament_videos_default_extra_spotlight(array $rows): ?array
     return $rows[0] ?? null;
 }
 
+/**
+ * WC Games wing spotlight from cold URL (see k2-embedded-video-page-policy.md §2.2).
+ * Index shape = no player; deep link `v=` only.
+ *
+ * @param list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}> $entries
+ * @return array{
+ *   entry: array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}|null,
+ *   youtube_id: string,
+ *   label: string,
+ *   start_sec: int,
+ *   highlight_row: bool,
+ * }
+ */
+function amiga_tournament_videos_wc_games_spotlight_state(
+    array $entries,
+    ?string $requestVideoId,
+    ?int $requestGameId,
+    int $requestStartSec = 0,
+): array {
+    $startSec = max(0, $requestStartSec);
+
+    $fromEntry = static function (?array $entry) use ($startSec): array {
+        if ($entry === null) {
+            return [
+                'entry' => null,
+                'youtube_id' => '',
+                'label' => '',
+                'start_sec' => $startSec,
+                'highlight_row' => false,
+            ];
+        }
+
+        return [
+            'entry' => $entry,
+            'youtube_id' => (string) ($entry['youtube_id'] ?? ''),
+            'label' => amiga_tournament_videos_wc_game_spotlight_label($entry),
+            'start_sec' => $startSec,
+            'highlight_row' => true,
+        ];
+    };
+
+    $vid = amiga_tournament_videos_sanitize_youtube_id($requestVideoId ?? '');
+    if ($vid === '') {
+        return $fromEntry(null);
+    }
+
+    $matches = array_values(array_filter(
+        $entries,
+        static fn (array $entry): bool => (string) ($entry['youtube_id'] ?? '') === $vid,
+    ));
+
+    if ($requestGameId !== null && $requestGameId > 0) {
+        foreach ($matches as $entry) {
+            if ((int) $entry['game_id'] === $requestGameId) {
+                return $fromEntry($entry);
+            }
+        }
+
+        return $fromEntry(null);
+    }
+
+    if (count($matches) === 1) {
+        return $fromEntry($matches[0]);
+    }
+
+    if (count($matches) > 1) {
+        $video = $matches[0]['video'] ?? [];
+        $title = trim((string) ($video['title'] ?? 'Video'));
+
+        return [
+            'entry' => null,
+            'youtube_id' => $vid,
+            'label' => $title !== '' ? $title : 'Video',
+            'start_sec' => $startSec,
+            'highlight_row' => false,
+        ];
+    }
+
+    return $fromEntry(null);
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array{
+ *   row: array<string, mixed>|null,
+ *   youtube_id: string,
+ *   label: string,
+ *   start_sec: int,
+ *   highlight_row: bool,
+ * }
+ */
+function amiga_tournament_videos_wc_extras_spotlight_state(
+    array $rows,
+    ?string $requestVideoId,
+    int $requestStartSec = 0,
+): array {
+    $startSec = max(0, $requestStartSec);
+
+    $fromRow = static function (?array $row) use ($startSec): array {
+        if ($row === null) {
+            return [
+                'row' => null,
+                'youtube_id' => '',
+                'label' => '',
+                'start_sec' => $startSec,
+                'highlight_row' => false,
+            ];
+        }
+
+        return [
+            'row' => $row,
+            'youtube_id' => (string) ($row['youtube_id'] ?? ''),
+            'label' => amiga_tournament_videos_extra_spotlight_label($row),
+            'start_sec' => $startSec,
+            'highlight_row' => true,
+        ];
+    };
+
+    $vid = amiga_tournament_videos_sanitize_youtube_id($requestVideoId ?? '');
+    if ($vid === '') {
+        return $fromRow(null);
+    }
+
+    $matches = array_values(array_filter(
+        $rows,
+        static fn (array $row): bool => (string) ($row['youtube_id'] ?? '') === $vid,
+    ));
+
+    if (count($matches) === 1) {
+        return $fromRow($matches[0]);
+    }
+
+    if (count($matches) > 1) {
+        return [
+            'row' => $matches[0],
+            'youtube_id' => $vid,
+            'label' => amiga_tournament_videos_extra_spotlight_label($matches[0]),
+            'start_sec' => $startSec,
+            'highlight_row' => false,
+        ];
+    }
+
+    return $fromRow(null);
+}
+
 function amiga_tournament_videos_wc_game_spotlight_label(array $entry): string
 {
     require_once __DIR__ . '/k2_player_game_row.php';
@@ -491,23 +667,41 @@ function amiga_tournament_videos_extra_spotlight_label(array $video): string
 }
 
 function amiga_tournament_videos_play_button_html(
+    int $tournamentId,
+    string $wing,
     string $youtubeId,
     string $spotlightLabel,
     bool $isActive,
     ?int $gameId = null,
+    int $startSec = 0,
 ): string {
+    require_once __DIR__ . '/amiga_tournament_lib.php';
+
     $classes = 'k2-tournament-videos__play-btn' . ($isActive ? ' is-active' : '');
-    $attrs = ' type="button" class="' . k2_h($classes) . '"'
+    $href = amiga_tournament_href(amiga_tournament_videos_url(
+        $tournamentId,
+        $wing,
+        $youtubeId,
+        $gameId,
+        $startSec > 0 ? $startSec : null,
+        true,
+    ));
+    $attrs = ' class="' . k2_h($classes) . '"'
+        . ' href="' . k2_h($href) . '"'
+        . ' data-k2-tv-inpage="1"'
         . ' data-youtube-id="' . k2_h($youtubeId) . '"'
         . ' data-spotlight-label="' . k2_h($spotlightLabel) . '"'
         . ' aria-label="' . k2_h('Play video: ' . $spotlightLabel) . '"';
     if ($gameId !== null && $gameId > 0) {
         $attrs .= ' data-game-id="' . (int) $gameId . '"';
     }
+    if ($startSec > 0) {
+        $attrs .= ' data-start-sec="' . (int) $startSec . '"';
+    }
 
-    return '<button' . $attrs . '>'
+    return '<a' . $attrs . '>'
         .         '<span class="k2-tournament-videos__play-glyph" aria-hidden="true">'
         . '<svg width="14" height="14" viewBox="0 0 24 24" focusable="false">'
         . '<path fill="currentColor" d="M8 5v14l11-7z"/>'
-        . '</svg></span></button>';
+        . '</svg></span></a>';
 }

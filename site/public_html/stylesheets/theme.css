@@ -692,7 +692,8 @@ body.k2-site .k2-chrome-tabs.k2-amiga-player-games-scope-tabs,
 body.k2-site .k2-chrome-tabs.k2-player-wing-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs {
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs,
+body.k2-site .k2-chrome-tabs.k2-tournament-videos-wings {
 	margin-top: 0;
 	margin-bottom: var(--k2-nav-gap);
 	width: fit-content;
@@ -709,7 +710,8 @@ body.k2-site .k2-chrome-tabs.k2-amiga-player-games-scope-tabs .k2-chrome-tabs__b
 body.k2-site .k2-chrome-tabs.k2-player-wing-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs .k2-chrome-tabs__bar,
-body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs .k2-chrome-tabs__bar {
+body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-tournament-videos-wings .k2-chrome-tabs__bar {
 	width: fit-content;
 	max-width: 100%;
 }

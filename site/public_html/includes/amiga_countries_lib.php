@@ -41,12 +41,19 @@ function amiga_countries_token_sql(string $playerAlias = 'p'): string
 
 function k2_amiga_country_roster_href(string $countryToken, bool $scrollToHero = true): string
 {
-    $href = k2_amiga_route('amiga-countries-roster', ['country' => $countryToken]);
+    // Country is an entity page (docs/navigation-model.md NM3): singular `country/`
+    // namespace, not the plural `countries/` hub folder.
+    $href = k2_amiga_route('amiga-country-roster', ['country' => $countryToken]);
     if ($scrollToHero) {
         $href .= k2_amiga_country_roster_anchor_hash();
     }
 
     return $href;
+}
+
+function k2_amiga_country_rivals_href(string $countryToken): string
+{
+    return k2_amiga_route('amiga-country-rivals', ['country' => $countryToken]);
 }
 
 function amiga_countries_normalize_country_param(string $raw): string

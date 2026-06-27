@@ -97,7 +97,7 @@ Existing charts use `data-k2-chart-bound` on the widget root.
 | Chart + fetch + guard | `js/player-rating-chart.js` |
 | Form filters + listbox | `js/individual3-filters.js`, `js/k2-realm-games-filters.js` |
 | Carry-scroll + hash restore | `includes/k2_carry_scroll_restore.php` |
-| Hash href + anchor (Amiga Countries roster) | `includes/amiga_countries_lib.php`, `amiga/countries/roster.php` |
+| Hash href + anchor (Amiga country roster) | `includes/amiga_countries_lib.php`, `includes/amiga_country_page.php` |
 | Hash href + anchor (LB table) | `includes/lb_player_filters.php`, `includes/amiga_lb_nav.php` |
 
 ---
@@ -171,7 +171,7 @@ include '…/amiga_country_hero.php';
 ```php
 function k2_amiga_country_roster_href(string $countryToken, bool $scrollToHero = true): string
 {
-    $href = k2_amiga_route('amiga-countries-roster', ['country' => $countryToken]);
+    $href = k2_amiga_route('amiga-country-roster', ['country' => $countryToken]);
     return $scrollToHero ? $href . k2_amiga_country_roster_anchor_hash() : $href;
 }
 ```
@@ -184,7 +184,7 @@ function k2_amiga_country_roster_href(string $countryToken, bool $scrollToHero =
 |--------|----------|---------------|-------------|-----------|
 | Leaderboard table | `k2-lb-table` | `k2_lb_table_anchor_markup()` | `k2_lb_table_href()` | After `amiga_lb_nav.php` / online LB wing |
 | Player hero | `player` | `K2_PLAYER_PAGE_FRAGMENT` in hero include | `k2_player_profile_href()` / `k2_amiga_player_profile_href()` | Profile heroes |
-| Country roster hero | `k2-country-roster` | `k2_amiga_country_roster_anchor_markup()` | `k2_amiga_country_roster_href()` | `amiga/countries/roster.php` |
+| Country roster hero | `k2-country-roster` | `k2_amiga_country_roster_anchor_markup()` | `k2_amiga_country_roster_href()` | `amiga/country/roster.php` (shell `amiga_country_page.php`) |
 | Games highlights | `k2-games-highlights` | constant in `games_highlights_helpers.php` | `$scrollToAnchor` param on board URLs | Games hub |
 
 Policy pointers: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) §6 (navigation), [`hub-ia-agreement.md`](hub-ia-agreement.md) (peer pill scroll vs hash).

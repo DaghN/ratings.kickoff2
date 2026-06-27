@@ -55,6 +55,16 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 	color: var(--k2-text-secondary);
 }
 
+/* Tournament section nav renders as a compact segment pill, not full-width. */
+body.k2-site .k2-amiga-tournament-nav.k2-player-nav-bar {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-amiga-tournament-nav .k2-player-nav {
+	justify-content: flex-start;
+}
+
 .k2-amiga-tournament-stages-nav {
 	margin-top: -0.35rem;
 	padding-left: 0.65rem;

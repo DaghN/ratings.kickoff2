@@ -708,14 +708,36 @@ function amiga_tournament_games_url(int $id, int $playerFilter = 0): string
     return amiga_tournament_path_for_view('games') . '?' . http_build_query($params);
 }
 
-function amiga_tournament_videos_url(int $id, string $wing = 'games'): string
-{
+function amiga_tournament_videos_url(
+    int $id,
+    string $wing = 'games',
+    ?string $youtubeId = null,
+    ?int $gameId = null,
+    ?int $startSec = null,
+    bool $withPlayerHash = false,
+): string {
     $params = ['id' => $id];
     if ($wing === 'extras') {
         $params['wing'] = 'extras';
     }
+    if ($youtubeId !== null && $youtubeId !== '') {
+        $yt = preg_replace('/[^A-Za-z0-9_-]/', '', $youtubeId) ?? '';
+        if ($yt !== '') {
+            $params['v'] = $yt;
+        }
+    }
+    if ($gameId !== null && $gameId > 0) {
+        $params['game'] = $gameId;
+    }
+    if ($startSec !== null && $startSec > 0) {
+        $params['t'] = $startSec;
+    }
+    $url = amiga_tournament_path_for_view('videos') . '?' . http_build_query($params);
+    if ($withPlayerHash) {
+        $url .= '#k2-tournament-video-player';
+    }
 
-    return amiga_tournament_path_for_view('videos') . '?' . http_build_query($params);
+    return $url;
 }
 
 /** Indexed lookup on ``amiga_games.tournament_id`` (`idx_amiga_games_tournament`). */
@@ -1879,14 +1901,14 @@ function amiga_tournament_render_games_table(array $rows): void
 			<th<?php echo k2_table_sortable_th_attr($goalsACol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">A</th>
 			<th<?php echo k2_table_sortable_th_attr($goalsBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">B</th>
 			<th<?php echo k2_table_sortable_th_attr($teamBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player B</th>
-			<th<?php echo k2_table_sortable_th_attr($gdCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" title="Goal margin. A 7-4 game has GD 3.">GD</th>
-			<th<?php echo k2_table_sortable_th_attr($sumCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Total goals by both players. A 7-4 game has Sum 11.">Sum</th>
-			<th<?php echo k2_table_sortable_th_attr($tsCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Top score — most goals either player scored (e.g. 10 in 10-2).">TS</th>
-			<th<?php echo k2_table_sortable_th_attr($ratingACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" title="Player A's Elo rating before this game.">Rating A</th>
-			<th<?php echo k2_table_sortable_th_attr($ratingBCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Player B's Elo rating before this game.">Rating B</th>
-			<th<?php echo k2_table_sortable_th_attr($eloDiffCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" title="Absolute pre-game Elo rating gap between the two players.">Elo Diff</th>
-			<th<?php echo k2_table_sortable_th_attr($favEsCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-right-xs'); ?> data-k2-sort="number" title="Favorite's expected score from the rating gap: 1 / (1 + 10^(-diff/400)).">Fav ES</th>
-			<th<?php echo k2_table_sortable_th_attr($adjWinCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number" title="Rating points won/lost: 32 * (actual score - expected score).">Adjustment</th>
+			<th<?php echo k2_table_sortable_th_attr($gdCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game. A 7-4 result has GD 3.">GD</th>
+			<th<?php echo k2_table_sortable_th_attr($sumCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players. A 7-4 result has Sum 11.">Sum</th>
+			<th<?php echo k2_table_sortable_th_attr($tsCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-tooltip-label="Top score" data-k2-help="Top score — the most goals either player scored in this game (e.g. 10 in 10–2).">TS</th>
+			<th<?php echo k2_table_sortable_th_attr($ratingACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" data-k2-help="Player A's Elo rating before this game.">Rating A</th>
+			<th<?php echo k2_table_sortable_th_attr($ratingBCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Player B's Elo rating before this game.">Rating B</th>
+			<th<?php echo k2_table_sortable_th_attr($eloDiffCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Absolute pre-game Elo rating difference between the two players. Larger gaps mean a stronger favorite.">Elo Diff</th>
+			<th<?php echo k2_table_sortable_th_attr($favEsCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-right-xs'); ?> data-k2-sort="number" data-k2-tooltip-label="Favorite expected score" data-k2-help="Elo maps the rating difference to an expected score for the favorite:&#10;&#10;ES = 1 / (1 + 10^(-diff/400))&#10;&#10;Examples:&#10;&#10;0 -> 0.50&#10;100 -> 0.64&#10;200 -> 0.76&#10;300 -> 0.85&#10;400 -> 0.91&#10;&#10;The actual score will be one of win = 1, draw = 0.5, loss = 0.">Fav ES</th>
+			<th<?php echo k2_table_sortable_th_attr($adjWinCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number" data-k2-tooltip-label="Adjustment" data-k2-help="The expected score and actual score are used to calculate the rating change:&#10;&#10;Rating change = 32 * (actual score - expected score)&#10;&#10;Example:&#10;&#10;200 Elo difference -> expected score 0.76 ->&#10;&#10;A win would gain 7.7 rating points.&#10;A draw would lose 8.3 rating points.&#10;A loss would lose 24.3 rating points.&#10;&#10;A favorite's expected win gives a small rating gain; an underdog win beats expectation a lot and gains more. The two players win or lose the opposite amount.">Adjustment</th>
 			<th class="k2-table-cell--left"><span class="visually-hidden">Adjustment lost</span></th>
 		</tr>
 	</thead>
