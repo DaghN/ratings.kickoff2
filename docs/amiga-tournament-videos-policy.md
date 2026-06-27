@@ -1,10 +1,10 @@
 # Amiga tournament videos — policy
 
-**Status:** **Planning (Jun 2026)** — exploration complete; **no implementation shipped yet**. This doc locks product rules, source inventory, dedupe policy, data model, and slice plan before Slice 0 (harvest + review CSV).
+**Status:** **Catalog live (Jun 2026)** — manifest + WC Videos tab shipped (TV-3 / TV-3b). **URL / deep-link interaction** for the WC spotlight player is specced separately in [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) (not implemented yet).
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`url-routes.md`](url-routes.md) · [`design-direction.md`](design-direction.md) · [`join-play-setup.md`](join-play-setup.md)
 
-**Related:** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`self-hosted-assets.md`](self-hosted-assets.md) (YouTube embed precedent) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)
+**Related:** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) (WC Games/Atmosphere URL, Back, share links) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`self-hosted-assets.md`](self-hosted-assets.md) (YouTube embed precedent) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)
 
 **Authority:** Dagh’s exploration chats (Jun 2026). **Implementation plan:** [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) — slices TV-0–TV-6.
 
@@ -202,6 +202,7 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 ### 9.1 Tournament Videos tab
 
 - **Route:** `/amiga/tournament/videos.php?id={tournament_id}` — register in `k2_amiga_routes.php`.
+- **Interaction (WC spotlight):** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) §2 — `v=` / optional `game=` deep links, Back-to-index, share URLs (Phase A); timestamps Phase B.
 - **Nav:** insert **Videos** in `amiga_tournament_page.php` pill row when `amiga_tournament_has_videos($id)`.
 - **Sections (group by `stage` / `kind`):**
   1. Final & podium (final legs, 3rd place)

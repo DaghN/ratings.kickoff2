@@ -3335,6 +3335,12 @@ body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td:not(
 	color: var(--k2-text-secondary);
 }
 
+/* Amiga player games — +2px vertical body padding (7px vs default 5px) */
+body.k2-site[data-realm="amiga"] .k2-table--player-games tbody td {
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
 /* Amiga hero games: short event-day dates — shrink date col, drop legacy datetime gap before Team A. */
 body.k2-site[data-realm="amiga"] .k2-table--player-games .k2-amiga-player-games-date {
 	white-space: nowrap;
@@ -3345,6 +3351,13 @@ body.k2-site[data-realm="amiga"] .k2-table--player-games .k2-amiga-player-games-
 body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted {
 	color: var(--k2-text-primary);
 	font-weight: 600;
+}
+
+/* Date column — muted even when active sort (after col-sorted rules above) */
+body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-amiga-player-games-date,
+body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-amiga-player-games-date.k2-table-col-sorted {
+	color: var(--k2-text-secondary);
+	font-weight: inherit;
 }
 
 body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted .blue,
@@ -4859,10 +4872,29 @@ body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table td.k2-count
 	min-width: 4.75rem;
 }
 
-/* Chronology — extra vertical cell padding so stacked row flags are less cramped */
+/* Chronology — +2px vertical padding on body cells (7px vs default 5px) for stacked row flags */
 body.k2-site .k2-table.k2-table--world-cups-events tbody td {
-	padding-top: 8px;
-	padding-bottom: 8px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
+/* Tournament catalog index (/amiga/tournaments.php) — +2px vertical body padding */
+body.k2-site .k2-table.k2-table--tournament-index:not(.k2-table--world-cups-events) tbody td {
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
+/* Date column — muted even when default/active sort (after calm-stats col-sorted rules) */
+body.k2-site .k2-table.k2-table--world-cups-events.k2-table--calm-stats tbody td.k2-wc-events-date,
+body.k2-site .k2-table.k2-table--world-cups-events.k2-table--calm-stats tbody td.k2-wc-events-date.k2-table-col-sorted {
+	color: var(--k2-text-secondary);
+	font-weight: inherit;
+}
+
+body.k2-site .k2-table.k2-table--tournament-index:not(.k2-table--world-cups-events).k2-table--calm-stats tbody td.k2-tournament-index-date,
+body.k2-site .k2-table.k2-table--tournament-index:not(.k2-table--world-cups-events).k2-table--calm-stats tbody td.k2-tournament-index-date.k2-table-col-sorted {
+	color: var(--k2-text-secondary);
+	font-weight: inherit;
 }
 
 body.k2-site .k2-table.k2-table--world-cups-events.ranked-pages-table th.k2-wc-events-podium-pad-start,

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-06-26",
+  "updated_at": "2026-06-27",
   "videos": [
     {
       "youtube_id": "OE_wVb2JheU",
@@ -59,12 +59,12 @@
       "tournament_id": 9,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 1,
+      "score": "7-5",
       "player_a_id": 109,
       "player_b_id": 30,
       "duration_sec": 780,
-      "sort": 20,
+      "sort": 21,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -79,17 +79,17 @@
       ]
     },
     {
-      "youtube_id": "4YchXF8E5VU",
-      "title": "Kick Off 2 World Cup 2019 - Semi 2b - Thor vs Gianni",
+      "youtube_id": "I8YSVVTWK44",
+      "title": "Kick Off 2 World Cup 2019 - Semi 2a - Gianni vs Thor",
       "tournament_id": 9,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
-      "player_a_id": 444,
-      "player_b_id": 149,
-      "duration_sec": 806,
-      "sort": 20,
+      "leg": 1,
+      "score": "4-6",
+      "player_a_id": 149,
+      "player_b_id": 444,
+      "duration_sec": 737,
+      "sort": 21,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -104,17 +104,17 @@
       ]
     },
     {
-      "youtube_id": "I8YSVVTWK44",
-      "title": "Kick Off 2 World Cup 2019 - Semi 2a - Gianni vs Thor",
+      "youtube_id": "4YchXF8E5VU",
+      "title": "Kick Off 2 World Cup 2019 - Semi 2b - Thor vs Gianni",
       "tournament_id": 9,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
-      "player_a_id": 149,
-      "player_b_id": 444,
-      "duration_sec": 737,
-      "sort": 20,
+      "leg": 2,
+      "score": "7-7",
+      "player_a_id": 444,
+      "player_b_id": 149,
+      "duration_sec": 806,
+      "sort": 22,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -134,12 +134,12 @@
       "tournament_id": 9,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 2,
+      "score": "8-5",
       "player_a_id": 30,
       "player_b_id": 109,
       "duration_sec": 1073,
-      "sort": 20,
+      "sort": 22,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -150,7 +150,7 @@
       "notes": null,
       "external_url": null,
       "game_ids": [
-        25453
+        25454
       ]
     },
     {
@@ -174,6 +174,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         25457
       ]
@@ -270,14 +271,14 @@
       "youtube_id": "C9HC2w8HjY0",
       "title": "Kick Off 2 World Cup 2022 Part8 FinalA Gianni vs Lorenzo",
       "tournament_id": 14,
-      "kind": "stream",
+      "kind": "match",
       "stage": "final",
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
+      "leg": 1,
+      "score": "7-0",
+      "player_a_id": 149,
+      "player_b_id": 254,
       "duration_sec": 685,
-      "sort": 10,
+      "sort": 11,
       "source": "wc_finals_playlist",
       "source_channel": null,
       "source_playlist": "PL_BZxDPPd88YKbQHLod_1EFHPa2iJSIQY",
@@ -286,20 +287,23 @@
       "featured_final": false,
       "verified": false,
       "notes": "Also in: ko2cv_channel",
-      "external_url": null
+      "external_url": null,
+      "game_ids": [
+        25990
+      ]
     },
     {
       "youtube_id": "OgCg0JtmA_w",
       "title": "Kick Off 2 World Cup 2022 Part9 FinalB Lorenzo vs Gianni",
       "tournament_id": 14,
-      "kind": "stream",
+      "kind": "match",
       "stage": "final",
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
+      "leg": 2,
+      "score": "4-9",
+      "player_a_id": 254,
+      "player_b_id": 149,
       "duration_sec": 712,
-      "sort": 10,
+      "sort": 12,
       "source": "wc_finals_playlist",
       "source_channel": null,
       "source_playlist": "PL_BZxDPPd88YKbQHLod_1EFHPa2iJSIQY",
@@ -308,7 +312,186 @@
       "featured_final": false,
       "verified": false,
       "notes": "Also in: ko2cv_channel",
-      "external_url": null
+      "external_url": null,
+      "game_ids": [
+        25991
+      ]
+    },
+    {
+      "youtube_id": "ep8C_PjV-Ns",
+      "title": "Kick Off 2 World Cup 2022 Part4 Semi2A Chris vs Lorenzo",
+      "tournament_id": 14,
+      "kind": "match",
+      "stage": "semi",
+      "leg": 1,
+      "score": "1-2",
+      "player_a_id": 66,
+      "player_b_id": 254,
+      "duration_sec": 731,
+      "sort": 21,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": null,
+      "external_url": null,
+      "game_ids": [
+        25987
+      ]
+    },
+    {
+      "youtube_id": "kmMOfnSFj_A",
+      "title": "Kick Off 2 World Cup 2022 Part3 Semi1A Fabio vs Gianni",
+      "tournament_id": 14,
+      "kind": "match",
+      "stage": "semi",
+      "leg": 1,
+      "score": "3-4",
+      "player_a_id": 109,
+      "player_b_id": 149,
+      "duration_sec": 712,
+      "sort": 21,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": null,
+      "external_url": null,
+      "game_ids": [
+        25985
+      ]
+    },
+    {
+      "youtube_id": "MzpUQkr5Nec",
+      "title": "Kick Off 2 World Cup 2022 Part6 Semi2B Lorenzo vs Chris",
+      "tournament_id": 14,
+      "kind": "match",
+      "stage": "semi",
+      "leg": 2,
+      "score": "4-4",
+      "player_a_id": 254,
+      "player_b_id": 66,
+      "duration_sec": 796,
+      "sort": 22,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": null,
+      "external_url": null,
+      "game_ids": [
+        25988
+      ]
+    },
+    {
+      "youtube_id": "yk9t62tJ0yM",
+      "title": "Kick Off 2 World Cup 2022 Part5 Semi1B Gianni vs Fabio",
+      "tournament_id": 14,
+      "kind": "match",
+      "stage": "semi",
+      "leg": 2,
+      "score": "7-2",
+      "player_a_id": 149,
+      "player_b_id": 109,
+      "duration_sec": 592,
+      "sort": 22,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": null,
+      "external_url": null,
+      "game_ids": [
+        25986
+      ]
+    },
+    {
+      "youtube_id": "-KXN4GB62i8",
+      "title": "Kick Off 2 World Cup 2022 Part1 Bronze Cup Kostas vs Jaume",
+      "tournament_id": 14,
+      "kind": "match",
+      "stage": "bronze",
+      "leg": null,
+      "score": "3-1",
+      "player_a_id": 242,
+      "player_b_id": 193,
+      "duration_sec": 721,
+      "sort": 40,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": "Video title Bronze Cup; DB phase=29th Place Final",
+      "external_url": null,
+      "game_ids": [
+        25949
+      ]
+    },
+    {
+      "youtube_id": "o-mKEhGVUjc",
+      "title": "Kick Off 2 World Cup 2022 Part7 3rdPlace Fabio vs Chris",
+      "tournament_id": 14,
+      "kind": "match",
+      "stage": "bronze",
+      "leg": null,
+      "score": "5-4",
+      "player_a_id": 109,
+      "player_b_id": 66,
+      "duration_sec": 792,
+      "sort": 40,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": null,
+      "external_url": null,
+      "wc_video_slot": "third_place",
+      "game_ids": [
+        25989
+      ]
+    },
+    {
+      "youtube_id": "BnBOehszKcw",
+      "title": "Kick Off 2 World Cup 2022 Part2 Silver Cup Rodolfo vs Gabriele",
+      "tournament_id": 14,
+      "kind": "match",
+      "stage": "silver",
+      "leg": null,
+      "score": "1-4",
+      "player_a_id": 389,
+      "player_b_id": 132,
+      "duration_sec": 736,
+      "sort": 45,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": "Video title Silver Cup final; DB phase=17th Place Final",
+      "external_url": null,
+      "game_ids": [
+        25960
+      ]
     },
     {
       "youtube_id": "KJkK9TnRshA",
@@ -374,160 +557,6 @@
       "featured_final": false,
       "verified": true,
       "notes": "WC 2022 Athens day 2 live (~10h17m)",
-      "external_url": null
-    },
-    {
-      "youtube_id": "-KXN4GB62i8",
-      "title": "Kick Off 2 World Cup 2022 Part1 Bronze Cup Kostas vs Jaume",
-      "tournament_id": 14,
-      "kind": "stream",
-      "stage": null,
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
-      "duration_sec": 721,
-      "sort": 100,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
-      "external_url": null
-    },
-    {
-      "youtube_id": "BnBOehszKcw",
-      "title": "Kick Off 2 World Cup 2022 Part2 Silver Cup Rodolfo vs Gabriele",
-      "tournament_id": 14,
-      "kind": "stream",
-      "stage": null,
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
-      "duration_sec": 736,
-      "sort": 100,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
-      "external_url": null
-    },
-    {
-      "youtube_id": "MzpUQkr5Nec",
-      "title": "Kick Off 2 World Cup 2022 Part6 Semi2B Lorenzo vs Chris",
-      "tournament_id": 14,
-      "kind": "stream",
-      "stage": null,
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
-      "duration_sec": 796,
-      "sort": 100,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
-      "external_url": null
-    },
-    {
-      "youtube_id": "ep8C_PjV-Ns",
-      "title": "Kick Off 2 World Cup 2022 Part4 Semi2A Chris vs Lorenzo",
-      "tournament_id": 14,
-      "kind": "stream",
-      "stage": null,
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
-      "duration_sec": 731,
-      "sort": 100,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
-      "external_url": null
-    },
-    {
-      "youtube_id": "kmMOfnSFj_A",
-      "title": "Kick Off 2 World Cup 2022 Part3 Semi1A Fabio vs Gianni",
-      "tournament_id": 14,
-      "kind": "stream",
-      "stage": null,
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
-      "duration_sec": 712,
-      "sort": 100,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
-      "external_url": null
-    },
-    {
-      "youtube_id": "o-mKEhGVUjc",
-      "title": "Kick Off 2 World Cup 2022 Part7 3rdPlace Fabio vs Chris",
-      "tournament_id": 14,
-      "kind": "stream",
-      "stage": null,
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
-      "duration_sec": 792,
-      "sort": 100,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
-      "external_url": null
-    },
-    {
-      "youtube_id": "yk9t62tJ0yM",
-      "title": "Kick Off 2 World Cup 2022 Part5 Semi1B Gianni vs Fabio",
-      "tournament_id": 14,
-      "kind": "stream",
-      "stage": null,
-      "leg": null,
-      "score": null,
-      "player_a_id": null,
-      "player_b_id": null,
-      "duration_sec": 592,
-      "sort": 100,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
       "external_url": null
     },
     {
@@ -637,12 +666,12 @@
       "tournament_id": 16,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 2,
+      "score": "6-4",
       "player_a_id": 149,
       "player_b_id": 109,
       "duration_sec": 709,
-      "sort": 20,
+      "sort": 22,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -653,7 +682,7 @@
       "notes": null,
       "external_url": null,
       "game_ids": [
-        26298
+        26299
       ]
     },
     {
@@ -677,6 +706,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         26308
       ]
@@ -948,12 +978,12 @@
       "tournament_id": 20,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 2,
+      "score": "3-12",
       "player_a_id": 30,
       "player_b_id": 109,
       "duration_sec": 691,
-      "sort": 20,
+      "sort": 22,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -964,7 +994,7 @@
       "notes": null,
       "external_url": null,
       "game_ids": [
-        26873
+        26874
       ]
     },
     {
@@ -988,6 +1018,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         26877
       ]
@@ -1177,6 +1208,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         27416
       ]
@@ -2145,6 +2177,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.ko-gathering.com/media/tournaments/Groningen2003/videos/3rdPlace1-NikosvsAlkis.WMV",
+      "wc_video_slot": "third_place",
       "game_ids": [
         3620
       ]
@@ -2170,6 +2203,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.ko-gathering.com/media/tournaments/Groningen2003/videos/3rdPlace1-NikosvsAlkis.WMV",
+      "wc_video_slot": "third_place",
       "game_ids": [
         3621
       ]
@@ -2492,6 +2526,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.ko-gathering.com/media/tournaments/Milan2004/videos/WC2004_3rd4thA_SteveC_Nikos.wmv",
+      "wc_video_slot": "third_place",
       "game_ids": [
         4902
       ]
@@ -2567,6 +2602,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.ko-gathering.com/media/tournaments/Milan2004/videos/WC2004_3rd4thA_SteveC_Nikos.wmv",
+      "wc_video_slot": "third_place",
       "game_ids": [
         4903
       ]
@@ -2742,6 +2778,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.kickoffworld.net/Download/media/2005WorldCup/KOA_WC2005_3rd4th_Game1_KlausVsAlkis.wmv",
+      "wc_video_slot": "third_place",
       "game_ids": [
         6583
       ]
@@ -2792,6 +2829,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.kickoffworld.net/Download/media/2005WorldCup/KOA_WC2005_3rd4th_Game1_KlausVsAlkis.wmv",
+      "wc_video_slot": "third_place",
       "game_ids": [
         6584
       ]
@@ -3017,6 +3055,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.kickoffworld.net/Download/media/2006WorldCup/KOA%20WC2006_06%20Playoff%20Part1%20Gianni%20vs%20Marco.wmv",
+      "wc_video_slot": "third_place",
       "game_ids": [
         8441
       ]
@@ -3042,6 +3081,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.kickoffworld.net/Download/media/2006WorldCup/KOA%20WC2006_06%20Playoff%20Part1%20Gianni%20vs%20Marco.wmv",
+      "wc_video_slot": "third_place",
       "game_ids": [
         8442
       ]
@@ -3458,6 +3498,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": "http://www.kickoff2.it/tmp/video_ko2/wc2008/Athens08_07_3rdPlace_Alkis_Pana_8-3.avi",
+      "wc_video_slot": "third_place",
       "game_ids": [
         14261
       ]
@@ -4024,6 +4065,7 @@
       "verified": false,
       "notes": "Also in: alkelele_channel",
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         16401
       ]
@@ -5619,6 +5661,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         20110
       ]
@@ -5776,12 +5819,12 @@
       "tournament_id": 554,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 2,
+      "score": "0-8",
       "player_a_id": 30,
       "player_b_id": 73,
       "duration_sec": 730,
-      "sort": 20,
+      "sort": 22,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -5792,7 +5835,7 @@
       "notes": null,
       "external_url": null,
       "game_ids": [
-        21270
+        21272
       ]
     },
     {
@@ -5816,6 +5859,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         21274
       ]
@@ -6432,12 +6476,12 @@
       "tournament_id": 577,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 1,
+      "score": "7-7",
       "player_a_id": 73,
       "player_b_id": 109,
       "duration_sec": 747,
-      "sort": 20,
+      "sort": 21,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -6452,17 +6496,42 @@
       ]
     },
     {
+      "youtube_id": "z3PkxdG-hx8",
+      "title": "Kick Off 2 World Cup 2014 - Semi1 (1st leg) - Gianni vs Alkis",
+      "tournament_id": 577,
+      "kind": "match",
+      "stage": "semi",
+      "leg": 1,
+      "score": "8-1",
+      "player_a_id": 149,
+      "player_b_id": 14,
+      "duration_sec": 742,
+      "sort": 21,
+      "source": "ko2cv_channel",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": false,
+      "notes": null,
+      "external_url": null,
+      "game_ids": [
+        22461
+      ]
+    },
+    {
       "youtube_id": "Bv82HaMVQYc",
       "title": "Kick Off 2 World Cup 2014 - Semi1 (2nd leg) - Alkis vs Gianni",
       "tournament_id": 577,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 2,
+      "score": "1-5",
       "player_a_id": 14,
       "player_b_id": 149,
       "duration_sec": 712,
-      "sort": 20,
+      "sort": 22,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -6482,12 +6551,12 @@
       "tournament_id": 577,
       "kind": "match",
       "stage": "semi",
-      "leg": null,
-      "score": null,
+      "leg": 2,
+      "score": "9-9",
       "player_a_id": 109,
       "player_b_id": 73,
       "duration_sec": 1422,
-      "sort": 20,
+      "sort": 22,
       "source": "ko2cv_channel",
       "source_channel": "ko2cv",
       "source_playlist": null,
@@ -6495,36 +6564,10 @@
       "relation": null,
       "featured_final": false,
       "verified": false,
-      "notes": "dual-leg video (duration>=20min)",
+      "notes": "2nd leg only (2_AnWxbb6ho is leg 1); not dual-leg despite duration",
       "external_url": null,
       "game_ids": [
-        22463,
         22464
-      ]
-    },
-    {
-      "youtube_id": "z3PkxdG-hx8",
-      "title": "Kick Off 2 World Cup 2014 - Semi1 (1st leg) - Gianni vs Alkis",
-      "tournament_id": 577,
-      "kind": "match",
-      "stage": "semi",
-      "leg": null,
-      "score": null,
-      "player_a_id": 149,
-      "player_b_id": 14,
-      "duration_sec": 742,
-      "sort": 20,
-      "source": "ko2cv_channel",
-      "source_channel": "ko2cv",
-      "source_playlist": null,
-      "relation_group": null,
-      "relation": null,
-      "featured_final": false,
-      "verified": false,
-      "notes": null,
-      "external_url": null,
-      "game_ids": [
-        22461
       ]
     },
     {
@@ -6548,6 +6591,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         22465
       ]
@@ -6764,6 +6808,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         23049
       ]
@@ -6961,6 +7006,7 @@
       "verified": false,
       "notes": null,
       "external_url": null,
+      "wc_video_slot": "third_place",
       "game_ids": [
         23899
       ]

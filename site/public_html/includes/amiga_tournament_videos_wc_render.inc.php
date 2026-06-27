@@ -1,0 +1,212 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * WC Videos tab — games table + extras list (TV-3 spotlight slice).
+ */
+
+/** @param list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}> $entries */
+function amiga_tournament_videos_render_wc_wing_nav(int $tournamentId, string $activeWing, bool $hasExtrasWing): void
+{
+    $gamesHref = amiga_tournament_href(amiga_tournament_videos_url($tournamentId, 'games'));
+    $extrasHref = amiga_tournament_href(amiga_tournament_videos_url($tournamentId, 'extras'));
+    ?>
+<div class="k2-chrome-tabs k2-tournament-videos-wings">
+  <nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Video sections">
+    <a href="<?php echo k2_h($gamesHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeWing === 'games' ? ' is-active' : ''; ?>"<?php
+        echo $activeWing === 'games' ? ' aria-current="page"' : '';
+    ?>>Games</a>
+    <?php if ($hasExtrasWing) { ?>
+    <a href="<?php echo k2_h($extrasHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeWing === 'extras' ? ' is-active' : ''; ?>"<?php
+        echo $activeWing === 'extras' ? ' aria-current="page"' : '';
+    ?>>Atmosphere</a>
+    <?php } ?>
+  </nav>
+</div>
+    <?php
+}
+
+/**
+ * @param list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}> $entries
+ * @param array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}|null $spotlight
+ */
+function amiga_tournament_videos_render_wc_games_table(array $entries, ?array $spotlight): void
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    require_once __DIR__ . '/k2_rated_game_row.php';
+    require_once __DIR__ . '/k2_player_game_row.php';
+    require_once __DIR__ . '/amiga_rated_game_row.php';
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+
+    $showPhase = false;
+    $showFlags = false;
+    foreach ($entries as $entry) {
+        if (trim((string) ($entry['game']['phase'] ?? '')) !== '') {
+            $showPhase = true;
+        }
+        if (trim((string) ($entry['game']['country_a'] ?? '')) !== '' || trim((string) ($entry['game']['country_b'] ?? '')) !== '') {
+            $showFlags = true;
+        }
+    }
+
+    $spotlightGameId = (int) ($spotlight['game_id'] ?? 0);
+    $spotlightYoutube = (string) ($spotlight['youtube_id'] ?? '');
+    ?>
+<?php k2_table_wrap_open(true); ?>
+<table class="k2-table k2-table--tournament-games k2-table--tournament-videos-games">
+  <thead>
+    <tr>
+      <th class="k2-table-cell--left">ID</th>
+      <?php if ($showPhase) { ?><th class="k2-table-cell--left">Phase</th><?php } ?>
+      <th class="k2-table-cell--right">Player A</th>
+      <th>A</th>
+      <th class="k2-table-cell--left">B</th>
+      <th class="k2-table-cell--left">Player B</th>
+      <th class="k2-table-cell--pad-left-md" title="Player A's Elo rating before this game.">Rating A</th>
+      <th title="Player B's Elo rating before this game.">Rating B</th>
+      <th class="k2-table-cell--center"><span class="visually-hidden">Play video</span></th>
+    </tr>
+  </thead>
+  <tbody class="black">
+  <?php if ($entries === []) { ?>
+    <tr><td colspan="<?php echo $showPhase ? 9 : 8; ?>" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No game videos linked for this World Cup yet.</td></tr>
+  <?php } ?>
+  <?php foreach ($entries as $entry) {
+      $gameRow = $entry['game'];
+      $game = k2_player_game_normalize_row($gameRow);
+      $processed = k2_rated_game_is_processed($gameRow);
+      $phase = trim((string) ($gameRow['phase'] ?? ''));
+      $countryA = trim((string) ($gameRow['country_a'] ?? ''));
+      $countryB = trim((string) ($gameRow['country_b'] ?? ''));
+      $dash = k2_fmt_dash();
+      $goalsA = (int) $game['GoalsA'];
+      $goalsB = (int) $game['GoalsB'];
+      if ($processed) {
+          $aWin = k2_rated_game_is_a_win($game);
+          $bWin = k2_rated_game_is_b_win($game);
+      } else {
+          $aWin = $goalsA > $goalsB;
+          $bWin = $goalsB > $goalsA;
+      }
+      if ($processed) {
+          $ratingACell = (string) (int) round((float) $game['RatingA']);
+          $ratingBCell = (string) (int) round((float) $game['RatingB']);
+      } else {
+          $ratingACell = $dash;
+          $ratingBCell = $dash;
+      }
+      $flagA = $showFlags && $countryA !== '' ? k2_amiga_country_flag_link($countryA, ['class' => 'k2-amiga-tgame-flag']) : '';
+      $flagB = $showFlags && $countryB !== '' ? k2_amiga_country_flag_link($countryB, ['class' => 'k2-amiga-tgame-flag']) : '';
+      $teamACell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--a">' . $flagA
+          . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']) . '</span>';
+      $teamBCell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--b">'
+          . k2_amiga_player_link((int) $game['idB'], (string) $game['NameB']) . $flagB . '</span>';
+      $goalsAClass = $aWin ? 'k2-amiga-tgame-goal--win' : '';
+      $goalsBClass = 'k2-table-cell--left' . ($bWin ? ' k2-amiga-tgame-goal--win' : '');
+      $goalsACell = $aWin ? '<span class="blue">' . $goalsA . '</span>' : (string) $goalsA;
+      $goalsBCell = $bWin ? '<span class="blue">' . $goalsB . '</span>' : (string) $goalsB;
+      $spotlightLabel = amiga_tournament_videos_wc_game_spotlight_label($entry);
+      $isActive = $spotlightGameId === (int) $entry['game_id']
+          && $spotlightYoutube === (string) $entry['youtube_id'];
+      $rowClass = $isActive ? ' class="is-active"' : '';
+      ?>
+    <tr<?php echo $rowClass; ?>>
+      <td class="k2-table-cell--left"><?php echo amiga_rated_game_id_html((int) $game['id']); ?></td>
+      <?php if ($showPhase) { ?>
+      <td class="k2-table-cell--left"><?php echo $phase !== '' ? k2_h($phase) : $dash; ?></td>
+      <?php } ?>
+      <td class="k2-table-cell--right k2-amiga-tgame-team k2-amiga-tgame-team--a"><?php echo $teamACell; ?></td>
+      <td class="<?php echo k2_h($goalsAClass); ?>"><?php echo $goalsACell; ?></td>
+      <td class="<?php echo k2_h($goalsBClass); ?>"><?php echo $goalsBCell; ?></td>
+      <td class="k2-table-cell--left k2-amiga-tgame-team k2-amiga-tgame-team--b"><?php echo $teamBCell; ?></td>
+      <td class="k2-table-cell--pad-left-md"><?php echo $ratingACell; ?></td>
+      <td><?php echo $ratingBCell; ?></td>
+      <td class="k2-table-cell--center"><?php
+          echo amiga_tournament_videos_play_button_html(
+              (string) $entry['youtube_id'],
+              $spotlightLabel,
+              $isActive,
+              (int) $entry['game_id'],
+          );
+      ?></td>
+    </tr>
+  <?php } ?>
+  </tbody>
+</table>
+<?php k2_table_wrap_close(); ?>
+    <?php
+}
+
+/** @param list<array<string, mixed>> $rows */
+function amiga_tournament_videos_render_wc_extras_table(array $rows, ?array $spotlight): void
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    $spotlightYoutube = (string) ($spotlight['youtube_id'] ?? '');
+    ?>
+<?php k2_table_wrap_open(true); ?>
+<table class="k2-table k2-table--tournament-videos-extras">
+  <thead>
+    <tr>
+      <th class="k2-table-cell--left">Title</th>
+      <th class="k2-table-cell--left">Duration</th>
+      <th class="k2-table-cell--center"><span class="visually-hidden">Play video</span></th>
+    </tr>
+  </thead>
+  <tbody class="black">
+  <?php if ($rows === []) { ?>
+    <tr><td colspan="3" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No other videos for this World Cup.</td></tr>
+  <?php } ?>
+  <?php foreach ($rows as $row) {
+      $yt = (string) ($row['youtube_id'] ?? '');
+      if ($yt === '') {
+          continue;
+      }
+      $kind = (string) ($row['kind'] ?? '');
+      $isStream = $kind === 'stream' || ($kind === 'atmosphere' && (int) ($row['duration_sec'] ?? 0) > 600);
+      $duration = amiga_tournament_video_format_duration(
+          isset($row['duration_sec']) ? (int) $row['duration_sec'] : null,
+      );
+      if ($isStream && $duration !== '') {
+          $duration = 'Long coverage · ' . $duration;
+      }
+      $spotlightLabel = amiga_tournament_videos_extra_spotlight_label($row);
+      $isActive = $spotlightYoutube === $yt;
+      ?>
+    <tr<?php echo $isActive ? ' class="is-active"' : ''; ?>>
+      <td class="k2-table-cell--left"><?php echo k2_h((string) ($row['title'] ?? 'Video')); ?></td>
+      <td class="k2-table-cell--left"><?php echo $duration !== '' ? k2_h($duration) : k2_fmt_dash(); ?></td>
+      <td class="k2-table-cell--center"><?php
+          echo amiga_tournament_videos_play_button_html($yt, $spotlightLabel, $isActive);
+      ?></td>
+    </tr>
+  <?php } ?>
+  </tbody>
+</table>
+<?php k2_table_wrap_close(); ?>
+    <?php
+}
+
+function amiga_tournament_videos_render_spotlight(string $youtubeId, string $label): void
+{
+    if ($youtubeId === '') {
+        return;
+    }
+    ?>
+<div class="k2-tournament-videos__spotlight" id="k2-tournament-video-player">
+  <p class="k2-tournament-videos__spotlight-label"><?php echo k2_h($label); ?></p>
+  <div class="k2-game-page__video-wrap">
+    <div class="k2-game-page__video">
+      <iframe
+        class="k2-game-page__video-iframe k2-tournament-videos__spotlight-iframe"
+        src="<?php echo k2_h(amiga_tournament_video_embed_url($youtubeId)); ?>"
+        title="<?php echo k2_h($label); ?>"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </div>
+</div>
+    <?php
+}

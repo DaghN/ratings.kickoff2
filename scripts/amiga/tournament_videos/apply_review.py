@@ -66,6 +66,32 @@ GLOUCESTER_CUP_2002_LABEL = "Gloucester I Cup"
 SHEFFIELD_2003 = 104
 SHEFFIELD_2003_LABEL = "Sheffield"
 
+# WC Games tab — one 3rd-place decider per World Cup (manual catalog, Jun 2026).
+WC_THIRD_PLACE_YOUTUBE: frozenset[str] = frozenset(
+    {
+        "QXZG9t_THv4",  # 2019 Bremen
+        "OUK4KIBe5aQ",  # 2023 Torremolinos
+        "lV0Yk5k6njM",  # 2024 Nottingham
+        "o-mKEhGVUjc",  # 2022 Athens
+        "ZbSFc1HYg1s",  # 2025 Milan (not bronze-cup final QAvqfuA_HqA)
+        "Tyl2qK0xVg0",
+        "9L7dOlHQ3MU",  # 2003 Groningen legs
+        "vs1-bHEHIdI",
+        "xJ0j4B6_REA",  # 2004 Milano legs
+        "rlUSam_X2BI",
+        "_lhsp2abyu4",  # 2005 Cologne legs
+        "e1zwTiFc19Q",
+        "WqDriFRJyUc",  # 2006 Rickmansworth legs
+        "KAATGhA6djQ",  # 2008 Athens
+        "7mlpKVT6xHw",  # 2009 Voitsberg
+        "8zFuKgbZkwo",  # 2011 Birmingham
+        "9knHBfb6ZaA",  # 2012 Voitsberg (not 18th-place IjnX42yQcRY)
+        "6CvcdTaNB7Y",  # 2014 Copenhagen
+        "tOCX7XY0Lgg",  # 2015 Düsseldorf
+        "Jrs5BU2gZHI",  # 2016 Milan
+    }
+)
+
 EXCLUDE_NON_MATCH = frozenset(
     {
         "EPB6ZZghpEk",
@@ -371,6 +397,164 @@ ROW_PATCHES: dict[str, dict[str, str]] = {
         "verified": "Y",
         "notes": "11s highlight clip (not a full match); players for catalog only",
     },
+    # Dual-leg WC semis: resolver copied leg-A game_id onto leg-B rows.
+    "qYJoeg727ns": {
+        "leg": "2",
+        "score": "3-12",
+        "game_id_guess": "26874",
+    },
+    "ShvzfJ0oxSE": {
+        "leg": "2",
+        "score": "0-8",
+        "game_id_guess": "21272",
+    },
+    "hd4GtPhnaqs": {
+        "leg": "2",
+        "score": "6-4",
+        "game_id_guess": "26299",
+    },
+    # WC 2019 Bremen — dual-leg semis (tid=9); leg-B / swapped IDs from bulk resolver.
+    "2I4wFxf_YEY": {
+        "leg": "1",
+        "score": "7-5",
+        "game_id_guess": "25453",
+    },
+    "h37gtaFJ0g0": {
+        "leg": "2",
+        "score": "8-5",
+        "game_id_guess": "25454",
+    },
+    "I8YSVVTWK44": {
+        "leg": "1",
+        "score": "4-6",
+        "game_id_guess": "25456",
+    },
+    "4YchXF8E5VU": {
+        "leg": "2",
+        "score": "7-7",
+        "game_id_guess": "25455",
+    },
+    # WC 2014 Copenhagen — separate per-leg KO2CV uploads; 2nd leg must not dual-link when leg-1 video exists.
+    "2_AnWxbb6ho": {
+        "leg": "1",
+        "score": "7-7",
+        "game_id_guess": "22463",
+    },
+    "TIixxHSjASc": {
+        "leg": "2",
+        "score": "9-9",
+        "game_id_guess": "22464",
+        "notes": "2nd leg only (2_AnWxbb6ho is leg 1); not dual-leg despite duration",
+    },
+    "z3PkxdG-hx8": {
+        "leg": "1",
+        "score": "8-1",
+        "game_id_guess": "22461",
+    },
+    "Bv82HaMVQYc": {
+        "leg": "2",
+        "score": "1-5",
+        "game_id_guess": "22462",
+    },
+    # WC 2022 Athens — KO2CV Part clips were harvested as stream; each verified vs ko2amiga_db tid=14.
+    "kmMOfnSFj_A": {
+        "kind": "match",
+        "stage": "semi",
+        "leg": "1",
+        "player_a_guess": "Fabio F",
+        "player_a_id_guess": "109",
+        "player_b_guess": "Gianni T",
+        "player_b_id_guess": "149",
+        "score": "3-4",
+        "game_id_guess": "25985",
+    },
+    "yk9t62tJ0yM": {
+        "kind": "match",
+        "stage": "semi",
+        "leg": "2",
+        "player_a_guess": "Gianni T",
+        "player_a_id_guess": "149",
+        "player_b_guess": "Fabio F",
+        "player_b_id_guess": "109",
+        "score": "7-2",
+        "game_id_guess": "25986",
+    },
+    "ep8C_PjV-Ns": {
+        "kind": "match",
+        "stage": "semi",
+        "leg": "1",
+        "player_a_guess": "Christopher D",
+        "player_a_id_guess": "66",
+        "player_b_guess": "Lorenzo L",
+        "player_b_id_guess": "254",
+        "score": "1-2",
+        "game_id_guess": "25987",
+    },
+    "MzpUQkr5Nec": {
+        "kind": "match",
+        "stage": "semi",
+        "leg": "2",
+        "player_a_guess": "Lorenzo L",
+        "player_a_id_guess": "254",
+        "player_b_guess": "Christopher D",
+        "player_b_id_guess": "66",
+        "score": "4-4",
+        "game_id_guess": "25988",
+    },
+    "o-mKEhGVUjc": {
+        "kind": "match",
+        "stage": "bronze",
+        "player_a_guess": "Fabio F",
+        "player_a_id_guess": "109",
+        "player_b_guess": "Christopher D",
+        "player_b_id_guess": "66",
+        "score": "5-4",
+        "game_id_guess": "25989",
+    },
+    "C9HC2w8HjY0": {
+        "kind": "match",
+        "stage": "final",
+        "leg": "1",
+        "player_a_guess": "Gianni T",
+        "player_a_id_guess": "149",
+        "player_b_guess": "Lorenzo L",
+        "player_b_id_guess": "254",
+        "score": "7-0",
+        "game_id_guess": "25990",
+    },
+    "OgCg0JtmA_w": {
+        "kind": "match",
+        "stage": "final",
+        "leg": "2",
+        "player_a_guess": "Lorenzo L",
+        "player_a_id_guess": "254",
+        "player_b_guess": "Gianni T",
+        "player_b_id_guess": "149",
+        "score": "4-9",
+        "game_id_guess": "25991",
+    },
+    "-KXN4GB62i8": {
+        "kind": "match",
+        "stage": "bronze",
+        "player_a_guess": "Kostas Ka",
+        "player_a_id_guess": "242",
+        "player_b_guess": "Jaume P",
+        "player_b_id_guess": "193",
+        "score": "3-1",
+        "game_id_guess": "25949",
+        "notes": "Video title Bronze Cup; DB phase=29th Place Final",
+    },
+    "BnBOehszKcw": {
+        "kind": "match",
+        "stage": "silver",
+        "player_a_guess": "Rodolfo M",
+        "player_a_id_guess": "389",
+        "player_b_guess": "Gabriele G",
+        "player_b_id_guess": "132",
+        "score": "1-4",
+        "game_id_guess": "25960",
+        "notes": "Video title Silver Cup final; DB phase=17th Place Final",
+    },
 }
 
 RELATION_CANONICAL = {
@@ -470,6 +654,15 @@ def apply_row_corrections(rows: list[dict[str, str]]) -> None:
             row["verified"] = "Y"
 
 
+def apply_row_game_id_locks(rows: list[dict[str, str]]) -> None:
+    """Re-apply explicit game_id_guess from ROW_PATCHES after bulk_game_match."""
+    for row in rows:
+        yt = row.get("youtube_id", "")
+        patch = ROW_PATCHES.get(yt)
+        if patch and (patch.get("game_id_guess") or "").strip():
+            row["game_id_guess"] = patch["game_id_guess"]
+
+
 def apply_uk_championships(rows: list[dict[str, str]]) -> None:
     for row in rows:
         yt = row.get("youtube_id", "")
@@ -479,6 +672,14 @@ def apply_uk_championships(rows: list[dict[str, str]]) -> None:
         row["guessed_tournament_id"] = str(tid)
         row["tournament_guess_label"] = label
         row["verified"] = "Y"
+
+
+def apply_wc_third_place_slots(rows: list[dict[str, str]]) -> None:
+    """Tag the one WC 3rd-place decider per event (Games tab ordering)."""
+    for row in rows:
+        yt = row.get("youtube_id", "")
+        if yt in WC_THIRD_PLACE_YOUTUBE:
+            row["wc_video_slot"] = "third_place"
 
 
 def apply_2010_relations(rows: list[dict[str, str]]) -> None:
@@ -576,8 +777,10 @@ def apply_all() -> int:
     apply_row_corrections(rows)
     apply_core_verified(rows)
     apply_uk_championships(rows)
+    apply_wc_third_place_slots(rows)
     apply_2010_relations(rows)
     matched, failures = bulk_game_match(rows)
+    apply_row_game_id_locks(rows)
     _write_rows(rows)
 
     verified = sum(1 for r in rows if r.get("verified") == "Y")

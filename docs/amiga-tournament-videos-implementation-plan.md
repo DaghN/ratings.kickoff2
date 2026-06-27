@@ -1,6 +1,6 @@
 # Amiga tournament videos — implementation plan
 
-**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-2 manifest v1** (277 videos; pragmatic `verified` flag per row). **TV-4** discovery surfaces next (Chronology clip indicator + Has videos filter). Future: admin bulk-verify page (video + proposed game_id side-by-side).
+**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-URL** specced ([`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md), not started). **TV-4** discovery surfaces next (Chronology clip indicator + Has videos filter). Future: admin bulk-verify page (video + proposed game_id side-by-side).
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 
@@ -222,6 +222,36 @@ Browser: http://ratingskickoff.test/amiga/tournament/videos.php?id=25
 
 ```powershell
 C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l site/public_html/includes/amiga_tournament_videos_lib.php
+```
+
+---
+
+## TV-URL — WC spotlight deep links (specced, not started)
+
+**Policy:** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) §2 (Phase A + B).
+
+### Goal
+
+Shareable URLs and in-session navigation on WC **Games / Atmosphere** wings: `v=` playback, optional `game=` for row identity, Back → index without resetting player, cold index → default final + active final row.
+
+### Tasks (Phase A)
+
+- [ ] **`amiga_tournament_videos_url()`** — accept optional `v`, `game`, hash target; document in `url-routes.md`.
+- [ ] **`amiga_tournament_page.php`** — read `v` / `game` / `wing` from request; set spotlight + active row per policy §2.2.
+- [ ] **`amiga_tournament_videos_play_button_html()`** — real `href` deep links; keep button UX.
+- [ ] **`js/amiga-tournament-videos.js`** — in-page swap + `pushState` / `replaceState` + `popstate` (Back §2.4); no Turbo.
+- [ ] **`docs/url-routes.md`** — query params `v`, `game`, `wing`, future `t`.
+
+### Tasks (Phase B — deferred)
+
+- [ ] Manifest fields for in-file offsets; `t=` → embed `?start=`.
+
+### Verification
+
+```text
+Cold: videos.php?id=25 → final in player + final row active
+Share: …&v=…&game=…#k2-tournament-video-player → correct row + embed
+Back from clip → index scroll; player + row unchanged
 ```
 
 ---

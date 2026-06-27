@@ -70,6 +70,7 @@ echo match ($tournamentPageView) {
 
 <?php if ($tournamentPageView === 'videos') { ?>
 <link href="/stylesheets/amiga-tournament-videos.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament-videos.css'); ?>" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/amiga-tournament-videos.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-tournament-videos.js'); ?>" defer="defer"></script>
 <?php } ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
@@ -243,6 +244,18 @@ $tournamentVideosGrouped = [];
 
 $tournamentVideoPlayerNames = [];
 
+$tournamentVideosWing = 'games';
+
+$tournamentVideosGameEntries = [];
+
+$tournamentVideosExtrasRows = [];
+
+$tournamentVideosSpotlight = null;
+
+$tournamentVideosSpotlightLabel = '';
+
+$tournamentVideosSpotlightYoutube = '';
+
 if ($hasVideosTab) {
 
     $tournamentVideosRows = amiga_tournament_videos_for_id($id);
@@ -250,6 +263,29 @@ if ($hasVideosTab) {
     $tournamentVideosGrouped = amiga_tournament_videos_grouped($tournamentVideosRows);
 
     $tournamentVideoPlayerNames = amiga_tournament_videos_player_names($con, $tournamentVideosRows);
+
+    if ($isWorldCupEvent && $pageView === 'videos') {
+        [$tournamentVideosMatchRows, $tournamentVideosExtrasRows] = amiga_tournament_videos_partition($tournamentVideosRows);
+        $tournamentVideosGameEntries = amiga_tournament_videos_wc_game_index($con, $id, $tournamentVideosMatchRows);
+        $tournamentVideosWing = amiga_tournament_videos_wing_from_request($tournamentVideosExtrasRows !== []);
+        if ($tournamentVideosWing === 'extras' && $tournamentVideosExtrasRows === []) {
+            $tournamentVideosWing = 'games';
+        }
+        $tournamentVideosExtrasRows = amiga_tournament_videos_sort_extras($tournamentVideosExtrasRows);
+        if ($tournamentVideosWing === 'games') {
+            $tournamentVideosSpotlight = amiga_tournament_videos_wc_default_game_spotlight($tournamentVideosGameEntries);
+            if ($tournamentVideosSpotlight !== null) {
+                $tournamentVideosSpotlightLabel = amiga_tournament_videos_wc_game_spotlight_label($tournamentVideosSpotlight);
+                $tournamentVideosSpotlightYoutube = (string) $tournamentVideosSpotlight['youtube_id'];
+            }
+        } else {
+            $tournamentVideosSpotlight = amiga_tournament_videos_default_extra_spotlight($tournamentVideosExtrasRows);
+            if ($tournamentVideosSpotlight !== null) {
+                $tournamentVideosSpotlightLabel = amiga_tournament_videos_extra_spotlight_label($tournamentVideosSpotlight);
+                $tournamentVideosSpotlightYoutube = (string) ($tournamentVideosSpotlight['youtube_id'] ?? '');
+            }
+        }
+    }
 
 }
 

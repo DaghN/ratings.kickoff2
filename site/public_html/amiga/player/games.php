@@ -70,11 +70,11 @@ $filterChoices = amiga_player_games_facet_listbox_choices($con, $filterFacets, $
 $showHostCountryFilter = count($filterChoices['country']) > 1 || $countryFilter !== '';
 $showOppCountryFilter = count($filterChoices['opp_country']) > 1 || $oppCountryFilter !== '';
 $showYearFilters = count($filterChoices['year']) > 1 || $yearFilter > 0 || $sinceYearFilter > 0 || $untilYearFilter > 0;
-$sortKey = (string) ($_GET['sort'] ?? 'id');
+$sortKey = (string) ($_GET['sort'] ?? AMIGA_PLAYER_GAMES_DEFAULT_SORT);
 if ($sortKey === 'for') {
     $sortKey = 'goals_for';
 }
-$sortDirection = amiga_games_valid_direction((string) ($_GET['dir'] ?? 'desc'));
+$sortDirection = amiga_games_valid_direction((string) ($_GET['dir'] ?? AMIGA_PLAYER_GAMES_DEFAULT_DIR));
 $playerIdSql = (int) $playerId;
 
 $sortMap = [
@@ -96,7 +96,7 @@ $sortMap = [
     'adjustment' => "CASE WHEN r.idA = $playerIdSql THEN r.AdjustmentA ELSE r.AdjustmentB END",
 ];
 if (!isset($sortMap[$sortKey])) {
-    $sortKey = 'id';
+    $sortKey = AMIGA_PLAYER_GAMES_DEFAULT_SORT;
 }
 
 $fromSql = amiga_rated_games_from_sql();

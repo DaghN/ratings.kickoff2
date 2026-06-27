@@ -8,6 +8,9 @@ require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/k2_ratedresults_games_filters.php';
 
+const AMIGA_PLAYER_GAMES_DEFAULT_SORT = 'id';
+const AMIGA_PLAYER_GAMES_DEFAULT_DIR = 'desc';
+
 function amiga_games_h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');

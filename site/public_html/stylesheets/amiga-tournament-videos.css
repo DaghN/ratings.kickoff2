@@ -1,3 +1,57 @@
+body.k2-site .k2-tournament-videos-wings {
+	margin-bottom: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-tournament-videos--wc .k2-table-wrap {
+	margin-bottom: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-tournament-videos__spotlight {
+	max-width: 52rem;
+}
+
+body.k2-site .k2-tournament-videos__spotlight-label {
+	margin: 0 0 0.65rem;
+	font-size: 0.95rem;
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-table--tournament-videos-games tbody tr.is-active,
+body.k2-site .k2-table--tournament-videos-extras tbody tr.is-active {
+	background: color-mix(in srgb, var(--k2-accent) 10%, transparent);
+}
+
+body.k2-site .k2-tournament-videos__play-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	padding: 0;
+	border: 1px solid color-mix(in srgb, var(--k2-accent) 45%, var(--k2-border-subtle));
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--k2-accent) 14%, transparent);
+	color: var(--k2-accent);
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+body.k2-site .k2-tournament-videos__play-btn:hover,
+body.k2-site .k2-tournament-videos__play-btn.is-active {
+	background: color-mix(in srgb, var(--k2-accent) 28%, transparent);
+	border-color: var(--k2-accent);
+}
+
+body.k2-site .k2-tournament-videos__play-glyph {
+	display: grid;
+	line-height: 0;
+}
+
+body.k2-site .k2-tournament-videos__play-glyph svg {
+	width: 14px;
+	height: 14px;
+	margin-left: 1px;
+}
+
 body.k2-site .k2-tournament-videos__section + .k2-tournament-videos__section {
 	margin-top: 2rem;
 }

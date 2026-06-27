@@ -84,6 +84,9 @@ def csv_row_to_manifest(row: dict[str, str], *, verified_only: bool) -> dict | N
         "notes": (row.get("notes") or "").strip() or None,
         "external_url": (row.get("external_url") or "").strip() or None,
     }
+    wc_slot = (row.get("wc_video_slot") or "").strip()
+    if wc_slot:
+        entry["wc_video_slot"] = wc_slot
     game_ids = _game_ids(row.get("game_id_guess", ""))
     if game_ids:
         entry["game_ids"] = game_ids

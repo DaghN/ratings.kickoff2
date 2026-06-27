@@ -80,6 +80,7 @@ CSV_COLUMNS = [
     "verified",
     "notes",
     "external_url",
+    "wc_video_slot",
 ]
 
 PLAYLIST_OFFLINE_WC_MAX_YEAR = 2023

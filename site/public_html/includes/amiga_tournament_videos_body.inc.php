@@ -3,11 +3,17 @@
 declare(strict_types=1);
 
 /** @var int $id */
+/** @var bool $isWorldCupEvent */
 /** @var list<array<string, mixed>> $tournamentVideosRows */
 /** @var array<string, list<array<string, mixed>>> $tournamentVideosGrouped */
 /** @var array<int, string> $tournamentVideoPlayerNames */
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_videos_lib.php';
+
+if ($isWorldCupEvent) {
+    include __DIR__ . '/amiga_tournament_videos_wc_body.inc.php';
+    return;
+}
 
 $renderAlternateList = static function (array $alternates): void {
     if ($alternates === []) {

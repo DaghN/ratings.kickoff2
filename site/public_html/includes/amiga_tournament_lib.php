@@ -708,9 +708,14 @@ function amiga_tournament_games_url(int $id, int $playerFilter = 0): string
     return amiga_tournament_path_for_view('games') . '?' . http_build_query($params);
 }
 
-function amiga_tournament_videos_url(int $id): string
+function amiga_tournament_videos_url(int $id, string $wing = 'games'): string
 {
-    return amiga_tournament_path_for_view('videos') . '?' . http_build_query(['id' => $id]);
+    $params = ['id' => $id];
+    if ($wing === 'extras') {
+        $params['wing'] = 'extras';
+    }
+
+    return amiga_tournament_path_for_view('videos') . '?' . http_build_query($params);
 }
 
 /** Indexed lookup on ``amiga_games.tournament_id`` (`idx_amiga_games_tournament`). */

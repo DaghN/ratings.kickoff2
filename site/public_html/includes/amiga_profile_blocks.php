@@ -21,6 +21,17 @@ const AMIGA_PLAYER_TOURNAMENT_HISTORY_ANCHOR_COL = 1;
 const AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL = 0;
 const AMIGA_TOURNAMENT_INDEX_ANCHOR_COL = 1;
 const AMIGA_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 0;
+/** Date is default order on catalog index; sortable but never active-sort emphasis. */
+const AMIGA_TOURNAMENT_INDEX_QUIET_SORT_COL = 0;
+
+function amiga_tournament_index_sort_col_for_emphasis(int $colIndex, int $activeSortCol): int
+{
+    if ($colIndex === AMIGA_TOURNAMENT_INDEX_QUIET_SORT_COL && $activeSortCol === AMIGA_TOURNAMENT_INDEX_QUIET_SORT_COL) {
+        return -1;
+    }
+
+    return $activeSortCol;
+}
 
 /**
  * @param array<string, mixed> $pm from amiga_player_load()
@@ -535,10 +546,10 @@ function amiga_tournament_index_render_table(array $rows): void
     $skipInitialSort = $defaultSortCol === AMIGA_TOURNAMENT_INDEX_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
     ?>
 <?php k2_table_wrap_open(true); ?>
-<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>" data-k2-quiet-sort-cols="<?php echo AMIGA_TOURNAMENT_INDEX_QUIET_SORT_COL; ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
 <thead>
     <tr>
-        <th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
+        <th<?php echo k2_table_sortable_th_attr(0, amiga_tournament_index_sort_col_for_emphasis(0, $defaultSortCol), $defaultSortDir, 'k2-table-cell--right k2-tournament-index-date'); ?> data-k2-sort="number">Date</th>
         <th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
         <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Games</th>
@@ -561,7 +572,7 @@ function amiga_tournament_index_render_table(array $rows): void
     $hostCountry = (string) ($row['country'] ?? '');
     ?>
     <tr>
-        <td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
+        <td<?php echo k2_table_body_td_attr(0, $anchorCol, amiga_tournament_index_sort_col_for_emphasis(0, $defaultSortCol), 'k2-table-cell--right k2-tournament-index-date'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
             'event_date' => $row['event_date'] ?? null,
             'event_chrono' => $row['chrono'] ?? null,
         ]); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
@@ -695,9 +706,15 @@ function amiga_profile_render_rating_chart(int $playerId): void
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rating</h3>
 		<p class="k2-chart-block__hint">Calendar view: end-of-day rating after each tournament day. Tournament # view: one point per finalized event.</p>
-		<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
-			<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
-			<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By tournament #</button>
+		<div class="pm3d-chart-toolbar">
+			<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
+				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By tournament #</button>
+			</div>
+			<div class="pm3d-rating-toggle player-rating-chart__line-style" role="tablist" aria-label="Rating line style">
+				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line-style="stepped">Stepwise</button>
+				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line-style="smooth">Connected</button>
+			</div>
 		</div>
 		<p class="player-rating-chart-status pm3d-chart__status k2-chart-panel__status">Loading rating history…</p>
 		<div class="player-rating-view player-rating-view--date">

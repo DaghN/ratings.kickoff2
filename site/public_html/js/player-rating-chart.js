@@ -300,7 +300,8 @@
         };
     }
 
-    function createDateChart(canvas, chartData, peakValue, realm, timelineStart, cutoffActive) {
+    function createDateChart(canvas, chartData, peakValue, realm, timelineStart, cutoffActive, lineStyle) {
+        var stepped = lineStyle === 'stepped';
         var timeRange;
         if (realm === 'online' && DR && DR.profileCareerTimeRange) {
             timeRange = DR.profileCareerTimeRange();
@@ -319,7 +320,8 @@
                     label: 'ELO rating (at day end)',
                     data: chartData,
                     fill: true,
-                    tension: 0.1,
+                    stepped: stepped,
+                    tension: stepped ? 0 : 0.1,
                     pointRadius: 0,
                     pointHoverRadius: 4
                 }, T.lineStroke(T.amber(), 0.15))]
@@ -386,7 +388,8 @@
         }, 'line');
     }
 
-    function createGameChart(canvas, chartData, peakValue, eventMode) {
+    function createGameChart(canvas, chartData, peakValue, eventMode, lineStyle) {
+        var stepped = lineStyle === 'stepped';
         var xTitle = eventMode ? 'Tournament number' : 'Rated game number';
         var datasetLabel = eventMode ? 'ELO rating (after tournament)' : 'ELO rating (after game)';
         var xMax = chartData.length ? chartData[chartData.length - 1].x : 0;
@@ -400,7 +403,8 @@
                     label: datasetLabel,
                     data: seriesData,
                     fill: true,
-                    tension: 0.1,
+                    stepped: stepped,
+                    tension: stepped ? 0 : 0.1,
                     pointRadius: 0,
                     pointHoverRadius: 4
                 }, T.lineStroke(T.amber(), 0.15))]
@@ -519,10 +523,64 @@
         return 'game';
     }
 
+    /** Default 'smooth' when no line-style toggle is present (preserves online profile). */
+    function readInitialLineStyle(root) {
+        var toggle = root.querySelector('.player-rating-chart__line-style');
+        if (!toggle) {
+            return 'smooth';
+        }
+        var activeBtn = toggle.querySelector('.pm3d-rating-toggle__btn.is-active[data-line-style]');
+        if (activeBtn) {
+            var style = activeBtn.getAttribute('data-line-style');
+            if (style === 'stepped' || style === 'smooth') {
+                return style;
+            }
+        }
+        return 'smooth';
+    }
+
+    function setLineStyleToggle(root, style) {
+        var toggle = root.querySelector('.player-rating-chart__line-style');
+        if (!toggle) {
+            return;
+        }
+        var buttons = toggle.querySelectorAll('.pm3d-rating-toggle__btn[data-line-style]');
+        for (var i = 0; i < buttons.length; i++) {
+            var btn = buttons[i];
+            var active = btn.getAttribute('data-line-style') === style;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+    }
+
+    function rebuildChartsForLineStyle(root, state) {
+        if (state.dateChart) {
+            state.dateChart.destroy();
+            state.dateChart = null;
+        }
+        if (state.gameChart) {
+            state.gameChart.destroy();
+            state.gameChart = null;
+        }
+        var dateCanvas = root.querySelector('.player-rating-canvas--date');
+        if (dateCanvas && state.dateChartData && state.dateChartData.length) {
+            state.dateChart = createDateChart(
+                dateCanvas,
+                state.dateChartData,
+                state.peakValue,
+                state.realm,
+                state.timelineStart,
+                state.cutoffActive,
+                state.lineStyle
+            );
+        }
+        setActiveView(root, state.activeView, state);
+    }
+
     function setActiveView(root, view, state) {
         var dateView = root.querySelector('.player-rating-view--date');
         var gameView = root.querySelector('.player-rating-view--game');
-        var buttons = root.querySelectorAll('.pm3d-rating-toggle__btn');
+        var buttons = root.querySelectorAll('.pm3d-rating-toggle__btn[data-view]');
 
         for (var i = 0; i < buttons.length; i++) {
             var btn = buttons[i];
@@ -545,7 +603,8 @@
                     gameCanvas,
                     state.gameChartData,
                     state.peakValue,
-                    state.eventMode
+                    state.eventMode,
+                    state.lineStyle
                 );
             }
         }
@@ -592,21 +651,26 @@
         }
 
         var initialView = readInitialView(root);
+        var lineStyleToggle = root.querySelector('.player-rating-chart__line-style');
 
         var state = {
             dateChart: null,
             gameChart: null,
             gameChartData: [],
+            dateChartData: [],
             peakValue: null,
             timelineStart: null,
             activeView: initialView,
+            lineStyle: readInitialLineStyle(root),
+            realm: 'online',
+            cutoffActive: false,
             eventMode: false
         };
 
         if (toggle) {
             toggle.addEventListener('click', function (evt) {
-                var btn = evt.target.closest('.pm3d-rating-toggle__btn');
-                if (!btn || !root.contains(btn)) {
+                var btn = evt.target.closest('.pm3d-rating-toggle__btn[data-view]');
+                if (!btn || !toggle.contains(btn)) {
                     return;
                 }
                 var view = btn.getAttribute('data-view');
@@ -618,9 +682,26 @@
             });
         }
 
+        if (lineStyleToggle) {
+            lineStyleToggle.addEventListener('click', function (evt) {
+                var btn = evt.target.closest('.pm3d-rating-toggle__btn[data-line-style]');
+                if (!btn || !lineStyleToggle.contains(btn)) {
+                    return;
+                }
+                var style = btn.getAttribute('data-line-style');
+                if (!style || style === state.lineStyle) {
+                    return;
+                }
+                state.lineStyle = style;
+                setLineStyleToggle(root, style);
+                rebuildChartsForLineStyle(root, state);
+            });
+        }
+
         var realm = root.getAttribute('data-realm')
             || (document.documentElement && document.documentElement.getAttribute('data-realm'))
             || 'online';
+        state.realm = realm;
 
         var asParam = root.getAttribute('data-as') || '';
         if (!asParam && typeof URLSearchParams !== 'undefined') {
@@ -633,6 +714,7 @@
                 state.timelineStart = data.timelineStart || null;
                 state.eventMode = historyIsEventGranularity(data, realm);
                 var cutoffActive = !!(data.meta && data.meta.cutoffActive);
+                state.cutoffActive = cutoffActive;
 
                 var points = data.points || [];
                 if (!points.length) {
@@ -668,6 +750,7 @@
                 if (!cutoffActive && DR && DR.appendRatingThroughToday) {
                     dateChartData = DR.appendRatingThroughToday(dateChartData, currentRating);
                 }
+                state.dateChartData = dateChartData;
 
                 state.gameChartData = buildGameChartData(points);
 
@@ -711,7 +794,8 @@
                     state.peakValue,
                     realm,
                     state.timelineStart,
-                    cutoffActive
+                    cutoffActive,
+                    state.lineStyle
                 );
                 setActiveView(root, state.activeView, state);
             })

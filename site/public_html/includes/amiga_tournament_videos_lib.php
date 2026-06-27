@@ -236,3 +236,278 @@ function amiga_tournament_videos_section_label(string $key): string
         default => 'Videos',
     };
 }
+
+/** @return array{0: list<array<string, mixed>>, 1: list<array<string, mixed>>} */
+function amiga_tournament_videos_partition(array $rows): array
+{
+    $match = [];
+    $extras = [];
+    foreach ($rows as $row) {
+        if (!is_array($row)) {
+            continue;
+        }
+        if ((string) ($row['kind'] ?? '') === 'match') {
+            $match[] = $row;
+        } else {
+            $extras[] = $row;
+        }
+    }
+
+    return [$match, $extras];
+}
+
+/** WC Games tab — explicit catalog slot when set; else stage/title heuristics. */
+function amiga_tournament_videos_wc_sort_bucket(array $video): int
+{
+    $slot = strtolower(trim((string) ($video['wc_video_slot'] ?? '')));
+    if ($slot === 'third_place') {
+        return 20;
+    }
+
+    $stage = strtolower((string) ($video['stage'] ?? ''));
+    $title = strtolower((string) ($video['title'] ?? ''));
+
+    if ($stage === 'semi' || str_contains($title, 'semi final') || str_contains($title, 'semi-final')) {
+        return 30;
+    }
+    if ($stage === 'quarter' || str_contains($title, 'quarter final') || str_contains($title, 'quarter-final')) {
+        return 40;
+    }
+    if ($stage === 'silver' || str_contains($title, 'silver final') || str_contains($title, 'silver cup final')) {
+        return 50;
+    }
+    if (
+        $stage === 'final'
+        && !str_contains($title, 'silver')
+        && !str_contains($title, 'bronze')
+        && !str_contains($title, 'third')
+        && !str_contains($title, 'koa cup')
+        && !str_contains($title, '3rd')
+    ) {
+        return 10;
+    }
+
+    return 60;
+}
+
+function amiga_tournament_videos_wing_from_request(bool $hasExtrasWing): string
+{
+    $wing = isset($_GET['wing']) ? trim((string) $_GET['wing']) : 'games';
+    if ($wing === 'extras' && $hasExtrasWing) {
+        return 'extras';
+    }
+
+    return 'games';
+}
+
+/**
+ * @param list<int> $gameIds
+ * @return array<int, array<string, mixed>>
+ */
+function amiga_tournament_videos_games_by_ids(mysqli $con, int $tournamentId, array $gameIds): array
+{
+    if ($tournamentId < 1 || $gameIds === []) {
+        return [];
+    }
+    $gameIds = array_values(array_unique(array_filter(array_map('intval', $gameIds), static fn (int $id): bool => $id > 0)));
+    if ($gameIds === []) {
+        return [];
+    }
+
+    require_once __DIR__ . '/amiga_db.php';
+
+    $placeholders = implode(',', array_fill(0, count($gameIds), '?'));
+    $sql = 'SELECT r.id, r.`Date`, r.idA, r.NameA, r.idB, r.NameB, r.phase,
+                   r.GoalsA, r.GoalsB, r.RatingA, r.RatingB, r.RatingDifference,
+                   r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB,
+                   r.NewRatingA, r.NewRatingB, r.SumOfGoals, r.GoalDifference,
+                   r.country_a, r.country_b '
+        . amiga_rated_games_from_sql()
+        . ' WHERE r.tournament_id = ? AND r.id IN (' . $placeholders . ')';
+
+    $types = 'i' . str_repeat('i', count($gameIds));
+    $params = array_merge([$tournamentId], $gameIds);
+
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $byId = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $byId[(int) $row['id']] = $row;
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $byId;
+}
+
+/**
+ * One index row per linked game (dual-leg videos → two rows, same youtube_id for now).
+ *
+ * @param list<array<string, mixed>> $matchVideos
+ * @return list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}>
+ */
+function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, array $matchVideos): array
+{
+    $pending = [];
+    foreach ($matchVideos as $video) {
+        $yt = (string) ($video['youtube_id'] ?? '');
+        if ($yt === '') {
+            continue;
+        }
+        $gameIds = isset($video['game_ids']) && is_array($video['game_ids']) ? $video['game_ids'] : [];
+        if ($gameIds === []) {
+            continue;
+        }
+        $bucket = amiga_tournament_videos_wc_sort_bucket($video);
+        foreach ($gameIds as $gid) {
+            $gid = (int) $gid;
+            if ($gid < 1) {
+                continue;
+            }
+            $pending[] = [
+                'game_id' => $gid,
+                'youtube_id' => $yt,
+                'video' => $video,
+                'sort_bucket' => $bucket,
+            ];
+        }
+    }
+
+    $gamesById = amiga_tournament_videos_games_by_ids(
+        $con,
+        $tournamentId,
+        array_column($pending, 'game_id'),
+    );
+
+    $entries = [];
+    foreach ($pending as $item) {
+        $gid = $item['game_id'];
+        if (!isset($gamesById[$gid])) {
+            continue;
+        }
+        $entries[] = [
+            'game_id' => $gid,
+            'youtube_id' => $item['youtube_id'],
+            'video' => $item['video'],
+            'game' => $gamesById[$gid],
+            'sort_bucket' => $item['sort_bucket'],
+        ];
+    }
+
+    usort(
+        $entries,
+        static function (array $a, array $b): int {
+            if ($a['sort_bucket'] !== $b['sort_bucket']) {
+                return $a['sort_bucket'] <=> $b['sort_bucket'];
+            }
+
+            return $a['game_id'] <=> $b['game_id'];
+        },
+    );
+
+    return $entries;
+}
+
+/**
+ * @param list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}> $entries
+ * @return array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}|null
+ */
+function amiga_tournament_videos_wc_default_game_spotlight(array $entries): ?array
+{
+    foreach ($entries as $entry) {
+        if ($entry['sort_bucket'] === 10) {
+            return $entry;
+        }
+    }
+
+    return $entries[0] ?? null;
+}
+
+/** @param list<array<string, mixed>> $rows */
+function amiga_tournament_videos_sort_extras(array $rows): array
+{
+    $kindOrder = [
+        'ceremony' => 1,
+        'atmosphere' => 2,
+        'compilation' => 3,
+        'stream' => 4,
+        'coverage' => 5,
+    ];
+    usort(
+        $rows,
+        static function (array $a, array $b) use ($kindOrder): int {
+            $ka = $kindOrder[(string) ($a['kind'] ?? '')] ?? 9;
+            $kb = $kindOrder[(string) ($b['kind'] ?? '')] ?? 9;
+            if ($ka !== $kb) {
+                return $ka <=> $kb;
+            }
+
+            return strcmp((string) ($a['title'] ?? ''), (string) ($b['title'] ?? ''));
+        },
+    );
+
+    return $rows;
+}
+
+/** @param list<array<string, mixed>> $rows */
+function amiga_tournament_videos_default_extra_spotlight(array $rows): ?array
+{
+    $rows = amiga_tournament_videos_sort_extras($rows);
+
+    return $rows[0] ?? null;
+}
+
+function amiga_tournament_videos_wc_game_spotlight_label(array $entry): string
+{
+    require_once __DIR__ . '/k2_player_game_row.php';
+    $game = k2_player_game_normalize_row($entry['game']);
+    $phase = trim((string) ($entry['game']['phase'] ?? ''));
+    $players = (string) $game['NameA'] . ' vs ' . (string) $game['NameB'];
+    if ($phase !== '') {
+        return $phase . ' · ' . $players;
+    }
+
+    return $players;
+}
+
+function amiga_tournament_videos_extra_spotlight_label(array $video): string
+{
+    $title = trim((string) ($video['title'] ?? 'Video'));
+    $duration = amiga_tournament_video_format_duration(
+        isset($video['duration_sec']) ? (int) $video['duration_sec'] : null,
+    );
+    if ($duration === '') {
+        return $title;
+    }
+
+    return $title . ' · ' . $duration;
+}
+
+function amiga_tournament_videos_play_button_html(
+    string $youtubeId,
+    string $spotlightLabel,
+    bool $isActive,
+    ?int $gameId = null,
+): string {
+    $classes = 'k2-tournament-videos__play-btn' . ($isActive ? ' is-active' : '');
+    $attrs = ' type="button" class="' . k2_h($classes) . '"'
+        . ' data-youtube-id="' . k2_h($youtubeId) . '"'
+        . ' data-spotlight-label="' . k2_h($spotlightLabel) . '"'
+        . ' aria-label="' . k2_h('Play video: ' . $spotlightLabel) . '"';
+    if ($gameId !== null && $gameId > 0) {
+        $attrs .= ' data-game-id="' . (int) $gameId . '"';
+    }
+
+    return '<button' . $attrs . '>'
+        .         '<span class="k2-tournament-videos__play-glyph" aria-hidden="true">'
+        . '<svg width="14" height="14" viewBox="0 0 24 24" focusable="false">'
+        . '<path fill="currentColor" d="M8 5v14l11-7z"/>'
+        . '</svg></span></button>';
+}
