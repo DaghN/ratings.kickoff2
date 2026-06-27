@@ -14,7 +14,11 @@ Tier B — hub leaderboard wings (acceptable legacy within hub):
 Tier C — straggler (needs migration or documented exception):
   sortable markup missing tier A/B head/stack signals.
 
-Exit code 1 when any Tier C files remain (excluding documented exceptions).
+Tooltip — native title on table headers (Jun 2026):
+  No `<th ... title=` for column help; use data-k2-help per docs/k2-tooltip-policy.md.
+
+Exit code 1 when any Tier C files remain (excluding documented exceptions)
+or when any th-title violations remain.
 """
 from __future__ import annotations
 
@@ -54,6 +58,16 @@ DOCUMENTED_EXCEPTIONS: dict[str, str] = {
 KNOWN_BACKLOG: dict[str, str] = {
     "amiga/tournament.php": "page shell only — tables in amiga_tournament_lib / amiga_profile_blocks",
 }
+
+# rel path -> reason (allowed <th title=...> — rare)
+TH_TITLE_EXCEPTIONS: dict[str, str] = {}
+
+TH_TITLE_LINE = re.compile(r"<th\b[^>]*\btitle\s*=", re.IGNORECASE)
+TH_TITLE_PHP_LINE = re.compile(
+    r"k2_table_sortable_th_attr\s*\([^)]*\)[^>]*\btitle\s*="
+    r"|title\s*=\s*\"[^\"]*\"[^>]*>\s*[^<]+\s*</th>",
+    re.IGNORECASE,
+)
 
 
 def rel(path: Path) -> str:
@@ -149,6 +163,37 @@ def classify(path: Path, text: str) -> tuple[str, list[str]]:
     return "C", notes
 
 
+def find_th_title_violations(path: Path, text: str) -> list[str]:
+    r = rel(path)
+    if r in TH_TITLE_EXCEPTIONS:
+        return []
+
+    violations: list[str] = []
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if stripped.startswith("//") or stripped.startswith("#"):
+            continue
+        if stripped.startswith("*") and "title" not in stripped.lower():
+            continue
+        if TH_TITLE_LINE.search(line) or TH_TITLE_PHP_LINE.search(line):
+            violations.append(f"line {line_no}: native title on <th> — use data-k2-help")
+    return violations
+
+
+def audit_th_titles() -> list[tuple[str, list[str]]]:
+    rows: list[tuple[str, list[str]]] = []
+    for path in sorted(PHP_ROOT.rglob("*.php")):
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            print(f"skip {path}: {exc}", file=sys.stderr)
+            continue
+        hits = find_th_title_violations(path, text)
+        if hits:
+            rows.append((rel(path), hits))
+    return rows
+
+
 def main() -> int:
     rows: list[tuple[str, str, str, str]] = []
 
@@ -188,11 +233,25 @@ def main() -> int:
         print()
 
     tier_c = tiers.get("C", [])
+    th_title_rows = audit_th_titles()
+
+    if th_title_rows:
+        print("## Tooltip — <th title=…> violations — {0}".format(len(th_title_rows)))
+        for r, hits in th_title_rows:
+            for hit in hits:
+                print(f"  {r}: {hit}")
+        print("  Fix: docs/k2-tooltip-policy.md (data-k2-help, not title on <th>)")
+        print()
+
     if tier_c:
         print(f"FAIL: {len(tier_c)} Tier C file(s). See docs/k2-table-and-games-plan.md § Compliance backlog.")
         return 1
 
-    print("PASS: no Tier C sortable files (exceptions only).")
+    if th_title_rows:
+        print(f"FAIL: {len(th_title_rows)} file(s) with native title on <th>. See docs/k2-tooltip-policy.md.")
+        return 1
+
+    print("PASS: no Tier C sortable files; no <th title=…> violations.")
     return 0
 
 

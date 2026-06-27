@@ -246,10 +246,10 @@ Imagery:
 
 Microcopy:
 
-- Tooltips are supplemental: use them for abbreviations, formulas, unfamiliar rules, and hidden context.
+- Tooltips are supplemental: use them for abbreviations, formulas, unfamiliar rules, and hidden context. Implementation: [`k2-tooltip-policy.md`](k2-tooltip-policy.md).
 - Do not add tooltip text that only repeats a visible label; sortable headers can rely on the shared `Click to sort.` affordance when no extra explanation is useful.
 - Leaderboard hub wings (`ranked1`�`5`, `7`, `10`, league honours, ranked8 longevity): shared strings in `site/public_html/includes/lb_column_help.php`. Column help uses **you** = the player in that row (not the site visitor); see `docs/k2-table-and-games-plan.md`.
-- Avoid native `title` attributes for visible-label help; use visible labels, `aria-label`, or the shared K2 tooltip behavior as appropriate.
+- Avoid native `title` attributes for visible-label help; use visible labels, `aria-label`, or the shared K2 tooltip behavior as appropriate (see [`k2-tooltip-policy.md`](k2-tooltip-policy.md)).
 
 ---
 

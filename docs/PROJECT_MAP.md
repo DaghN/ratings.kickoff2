@@ -29,6 +29,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `site/public_html/ops/sql/migrations/` | Canonical SCH DDL (indexes, tables); see `ops-schema-migrations.md` |
 | `docs/` | Specs, coordination, agent playbooks |
 | `docs/k2-table-implementation-checklist.md` | **K2 tables** — mandatory before new/refactored sortable tables; run `scripts/audit_k2_table_compliance.py` for backlog |
+| `docs/k2-tooltip-policy.md` | **K2 tooltips** — mandatory before table header/column help, chart hovers, or control tooltips; audit flags `<th title=` |
 | `docs/k2-nav-implementation-checklist.md` | **K2 page chrome nav** — mandatory before new wing/sub-nav/hub shell; spacing in `nav-spacing-policy.md` |
 | `docs/navigation-model.md` | **Hub-vs-entity invariants (NM1–NM6)** — which pages get an active pill; where entity pages live (realm root, singular namespace, no pill). Read before active-pill / page-placement decisions |
 | `docs/k2-jukebox-popup.md` | **Gapless audio = popup window** (Turbo removed Jun 2026); FAB launcher + `BroadcastChannel`; centred window + raise/behind toggle |
