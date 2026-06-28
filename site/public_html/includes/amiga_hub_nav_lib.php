@@ -14,7 +14,7 @@ require_once __DIR__ . '/amiga_snapshot_url.php';
  *
  * @var list<string>
  */
-const K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS = ['leaderboards', 'world-cups', 'countries', 'activity', 'hall-of-fame', 'games'];
+const K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS = ['leaderboards', 'world-cups', 'countries', 'activity', 'hall-of-fame', 'tournaments', 'games'];
 
 /**
  * Editorial / live-ops paths: direct `?as=` is stripped (302 to present).

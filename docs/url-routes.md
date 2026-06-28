@@ -198,7 +198,7 @@ Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?s
 
 ### Amiga hub tabs (present order)
 
-News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · **Countries** (`/amiga/countries/index.php`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · **Countries** · Activity · Hall of Fame.
+News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · **Countries** (`/amiga/countries/index.php`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · **Tournaments** · Games (editorial present-only: News · Live).
 
 A single country is an **entity page** ([`navigation-model.md`](navigation-model.md) NM3): it lives in the singular `country/` namespace with a **Roster · Rivals** segment (NM6), not inside the plural `countries/` hub folder.
 

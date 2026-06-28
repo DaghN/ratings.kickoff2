@@ -312,7 +312,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
   - `players create --name TEXT [--country TEXT] [--dry-run]` — insert one ground-truth player row (`display=1` by default). Refuses identity/exact collisions. Does **not** create `tournament_entrants`; register entrants separately via `fixtures add-entrant` or atomically via `fixtures onboard-newcomer`.
 - Player creation for live events can be separate (`players create`) or combined with entrant registration (`fixtures onboard-newcomer`). `fixtures replace-entrant` still refuses to create players.
 
-**Tournament index (`/amiga/tournaments.php`):** read **`amiga_tournament_catalog_stats`** only — one row per tournament (`game_count`, `standing_players`, `league_scopes`, `knockout_ties`). Do **not** aggregate `amiga_games` × `amiga_tournament_standings` at page load (cartesian explosion). Populated by tournament finalize / `replay`.
+**Tournament index (`/amiga/tournaments.php`):** read **`amiga_tournament_catalog_stats`** only — one row per tournament (`game_count`, `standing_players`, `league_scopes`, `knockout_ties`). Do **not** aggregate `amiga_games` × `amiga_tournament_standings` at page load (cartesian explosion). Populated by tournament finalize / `replay`. Time travel: filter catalog with `amiga_snapshot_tournament_cutoff_and_sql()` (stats columns are event-intrinsic).
 
 ### Tournament standings rules (Track B v1)
 

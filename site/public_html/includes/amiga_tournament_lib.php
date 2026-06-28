@@ -1448,10 +1448,12 @@ function amiga_tournament_index_filters_active(
 
 function amiga_tournament_index_reset_url(): string
 {
-    return '/amiga/tournaments.php';
+    require_once __DIR__ . '/k2_amiga_routes.php';
+
+    return k2_amiga_route('amiga-tournaments');
 }
 
-/** Filter pill href for /amiga/tournaments.php (carries active k2_sort when set). */
+/** Filter pill href for /amiga/tournaments.php (carries active k2_sort and `as=` when set). */
 function amiga_tournament_index_filter_url(
     string $typeFilter = '',
     string $videosFilter = '',
@@ -1461,6 +1463,7 @@ function amiga_tournament_index_filter_url(
     string $perfectFilter = ''
 ): string {
     require_once __DIR__ . '/k2_table_helpers.php';
+    require_once __DIR__ . '/k2_amiga_routes.php';
     $params = array_merge(
         in_array($wcFilter, ['world-cup', 'not-world-cup'], true) ? ['wc' => $wcFilter] : [],
         $typeFilter !== '' ? ['type' => $typeFilter] : [],
@@ -1471,7 +1474,7 @@ function amiga_tournament_index_filter_url(
         k2_table_sort_query_params(),
     );
 
-    return $params === [] ? '/amiga/tournaments.php' : '/amiga/tournaments.php?' . http_build_query($params);
+    return k2_amiga_route('amiga-tournaments', $params);
 }
 
 /**
@@ -1679,14 +1682,24 @@ function amiga_tournament_phase_link(
  *
  * @return list<array<string, mixed>>
  */
-function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 0): array
-{
+function amiga_tournament_index_rows(
+    mysqli $con,
+    int $limit = 0,
+    int $offset = 0,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
     if ($limit < 1) {
-        $limit = amiga_tournament_index_count($con);
+        $limit = amiga_tournament_index_count($con, $ctx);
     }
     $limit = max(1, min(5000, $limit));
     $offset = max(0, $offset);
     // Read stored catalog aggregates (amiga_tournament_catalog_stats) — not live scans on amiga_games.
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
     $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.has_league, t.has_cup, t.equal_teams, t.country, t.player_count,
                    t.lifecycle_status,
                    COALESCE(c.game_count, 0) AS game_count,
@@ -1697,30 +1710,74 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 
                    COALESCE(c.has_perfect_participant, 0) AS has_perfect_participant
             FROM tournaments t
             LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
-            WHERE ' . amiga_tournament_public_visibility_where('t') . '
+            WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql . '
             ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC
             LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
-    $res = mysqli_query($con, $sql);
-    if ($res === false) {
-        return [];
+    if ($types === '') {
+        $res = mysqli_query($con, $sql);
+        if ($res === false) {
+            return [];
+        }
+    } else {
+        $stmt = mysqli_prepare($con, $sql);
+        if ($stmt === false) {
+            return [];
+        }
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        if ($res === false) {
+            mysqli_stmt_close($stmt);
+
+            return [];
+        }
     }
     $rows = [];
     while ($row = mysqli_fetch_assoc($res)) {
         $rows[] = $row;
     }
     mysqli_free_result($res);
+    if (isset($stmt)) {
+        mysqli_stmt_close($stmt);
+    }
+
     return $rows;
 }
 
-function amiga_tournament_index_count(mysqli $con): int
+function amiga_tournament_index_count(mysqli $con, ?AmigaSnapshotContext $ctx = null): int
 {
-    $res = mysqli_query($con, 'SELECT COUNT(*) AS n FROM tournaments t WHERE ' . amiga_tournament_public_visibility_where('t'));
-    if ($res === false) {
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
+    $sql = 'SELECT COUNT(*) AS n FROM tournaments t WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql;
+    if ($types === '') {
+        $res = mysqli_query($con, $sql);
+        if ($res === false) {
+            return 0;
+        }
+        $row = mysqli_fetch_assoc($res);
+        mysqli_free_result($res);
+
+        return (int) ($row['n'] ?? 0);
+    }
+
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
         return 0;
     }
-    $row = mysqli_fetch_assoc($res);
-    mysqli_free_result($res);
-    return (int) ($row['n'] ?? 0);
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : false;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $row !== false ? (int) ($row['n'] ?? 0) : 0;
 }
 
 /**

@@ -17,9 +17,11 @@ $k2AmigaHubTabActive = 'tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_videos_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_url.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $wcFilter = isset($_GET['wc']) ? (string) $_GET['wc'] : '';
@@ -49,8 +51,10 @@ if ($perfectFilter !== 'with-participant') {
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
+$ctx = amiga_lb_context($con);
+$GLOBALS['_amiga_snapshot_context'] = $ctx;
 
-$allRows = amiga_tournament_index_rows($con);
+$allRows = amiga_tournament_index_rows($con, 0, 0, $ctx);
 mysqli_close($con);
 
 $catalogCountries = array_keys(amiga_tournament_index_country_counts($allRows));
@@ -135,7 +139,9 @@ $listSummary = amiga_tournament_index_list_summary(
 <?php
 $k2HubChapterTitle = 'Tournaments';
 $k2HubChapterLede = 'Every rated tournament in the Amiga realm.';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+if (!amiga_snapshot_time_travel_active_from_request()) {
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+}
 
 $k2AmigaTournamentIndexWcFilter = $wcFilter;
 $k2AmigaTournamentIndexFilter = $typeFilter;

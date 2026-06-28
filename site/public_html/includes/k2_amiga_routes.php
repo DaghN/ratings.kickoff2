@@ -61,6 +61,7 @@ const K2_AMIGA_ROUTES = [
 	'amiga-lb-performance-rating-best' => 'amiga/leaderboards/performance-rating/best.php',
 	'amiga-lb-performance-rating-top' => 'amiga/leaderboards/performance-rating/top.php',
 	'amiga-lb-performance-rating-perfect' => 'amiga/leaderboards/performance-rating/perfect.php',
+	'amiga-tournaments' => 'amiga/tournaments.php',
 	'amiga-games' => 'amiga/games/recent.php',
 	'amiga-games-recent' => 'amiga/games/recent.php',
 	'amiga-games-highlights' => 'amiga/games/highlights.php',

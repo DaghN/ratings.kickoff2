@@ -12,6 +12,8 @@ require __DIR__ . '/../../site/public_html/includes/amiga_snapshot_url.php';
 require __DIR__ . '/../../site/public_html/includes/amiga_lb_lib.php';
 require __DIR__ . '/../../site/public_html/includes/amiga_lb_snapshot_lib.php';
 require __DIR__ . '/../../site/public_html/includes/amiga_realm_snapshot_read_lib.php';
+require __DIR__ . '/../../site/public_html/includes/amiga_tournament_lib.php';
+require __DIR__ . '/../../site/public_html/includes/amiga_hub_nav_lib.php';
 include __DIR__ . '/../../site/config/ko2amiga_config.php';
 
 $fail = static function (string $step, string $message): void {
@@ -145,5 +147,25 @@ if ($afterCount !== $presentLbCount) {
 }
 $pass('6', 'exit URL clean · present LB row count unchanged');
 
+// Step 7 — Tournaments hub catalog at cutoff; filter URLs carry as=.
+$_GET['as'] = 'year:2003';
+amiga_snapshot_context_reset();
+$ctx2003b = amiga_snapshot_context_from_request($con);
+$presentCatalog = amiga_tournament_index_count($con, AmigaSnapshotContext::present());
+$cutoffCatalog = amiga_tournament_index_count($con, $ctx2003b);
+if ($cutoffCatalog < 1 || $cutoffCatalog >= $presentCatalog) {
+    $fail('7', "expected year:2003 catalog count in (0, {$presentCatalog}), got {$cutoffCatalog}");
+}
+$GLOBALS['_amiga_snapshot_context'] = $ctx2003b;
+$filterHref = amiga_tournament_index_filter_url('', '', 'world-cup');
+if (!str_contains($filterHref, 'as=year%3A2003') && !str_contains($filterHref, 'as=year:2003')) {
+    $fail('7', "tournaments filter link lost as=: {$filterHref}");
+}
+$ttTabs = amiga_hub_tabs_for_nav(true);
+if (!isset($ttTabs['tournaments'])) {
+    $fail('7', 'tournaments tab missing from time-travel hub bar');
+}
+$pass('7', "catalog present={$presentCatalog} cutoff={$cutoffCatalog} · filter carries as= · hub tab present");
+
 $con->close();
-echo PHP_EOL . 'All six smoke steps passed (CLI). Browser spot-check on ratingskickoff.test still recommended.' . PHP_EOL;
+echo PHP_EOL . 'All seven smoke steps passed (CLI). Browser spot-check on ratingskickoff.test still recommended.' . PHP_EOL;

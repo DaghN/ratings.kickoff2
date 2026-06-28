@@ -15,6 +15,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/k2_archive_listbox.php';
 require_once __DIR__ . '/k2_table_helpers.php';
+require_once __DIR__ . '/k2_amiga_routes.php';
+require_once __DIR__ . '/amiga_snapshot_url.php';
 
 $k2AmigaTournamentIndexWcFilter = $k2AmigaTournamentIndexWcFilter ?? '';
 $k2AmigaTournamentIndexFilter = $k2AmigaTournamentIndexFilter ?? '';
@@ -53,6 +55,12 @@ $k2AmigaTournamentIndexPerfectTabs = [
 ];
 
 $k2AmigaTournamentIndexSortParams = k2_table_sort_query_params();
+$k2AmigaTournamentIndexFormAction = k2_amiga_route('amiga-tournaments');
+$k2AmigaTournamentIndexAsParam = '';
+$k2AmigaTournamentIndexCtx = amiga_snapshot_context_peek();
+if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTournamentIndexCtx->isActive()) {
+    $k2AmigaTournamentIndexAsParam = (string) ($k2AmigaTournamentIndexCtx->asParam() ?? '');
+}
 ?>
 <div class="k2-player-games-filters k2-amiga-tournament-index-filters">
 <div class="k2-chrome-tabs k2-amiga-tournament-index-tabs">
@@ -100,8 +108,11 @@ $k2AmigaTournamentIndexSortParams = k2_table_sort_query_params();
 	</nav>
 </div>
 <?php if ($k2AmigaTournamentIndexShowCountryFilter || $k2AmigaTournamentIndexShowYearFilter) { ?>
-<form class="k2-player-games-controls" method="get" action="/amiga/tournaments.php" data-k2-carry-scroll>
+<form class="k2-player-games-controls" method="get" action="<?php echo htmlspecialchars($k2AmigaTournamentIndexFormAction, ENT_QUOTES, 'UTF-8'); ?>" data-k2-carry-scroll>
 	<div class="k2-player-games-controls__meta">
+<?php if ($k2AmigaTournamentIndexAsParam !== '') { ?>
+		<input type="hidden" name="as" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexAsParam, ENT_QUOTES, 'UTF-8'); ?>" />
+<?php } ?>
 <?php if ($k2AmigaTournamentIndexWcFilter !== '') { ?>
 		<input type="hidden" name="wc" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexWcFilter, ENT_QUOTES, 'UTF-8'); ?>" />
 <?php } ?>
