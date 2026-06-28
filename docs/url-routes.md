@@ -41,6 +41,7 @@
 | Area | Folder | Modes |
 |------|--------|-------|
 | Games hub | `games/` | `recent.php`, `highlights.php`, `all.php` |
+| Amiga Games hub | `amiga/games/` | `recent.php`, `highlights.php`, `all.php` |
 | Milestones hub | `milestones/` | `recent.php`, `catalog.php` |
 | Leaderboards | `leaderboards/` | one wing per file |
 | Player opponents | `player/opponents/` | `h2h.php`, `wdl.php`, … |
@@ -156,6 +157,10 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` |
 | `amiga-lb-world-cups-dds` | `/amiga/leaderboards/world-cups/dds.php` |
 | `amiga-lb-world-cups-opponents` | `/amiga/leaderboards/world-cups/opponents.php` |
+| `amiga-games` | `/amiga/games/recent.php` (Recent default; `/amiga/games.php` 302) |
+| `amiga-games-recent` | `/amiga/games/recent.php` |
+| `amiga-games-highlights` | `/amiga/games/highlights.php` |
+| `amiga-games-all` | `/amiga/games/all.php` |
 
 **Player stats dual surface:** hub `world-cups/players/*` and LB `leaderboards/world-cups/*` share `includes/amiga_wc_players_wing_body.inc.php` — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH9.
 
@@ -163,7 +168,7 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 
 Query `?id=` required on all player tabs.
 
-**Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php` → player games; `/amiga/player-tournaments.php` → tournaments. `/amiga/games.php` is reserved for a future realm-wide match log.
+**Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php?id=` → player games; bare `/amiga/games.php` → Games hub Recent; `/amiga/player-tournaments.php` → tournaments.
 
 **Not under `player/`:** `/amiga/tournament/` (per-event detail — foldered tabs below), `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents wings: `amiga/player/opponents/*`.
 

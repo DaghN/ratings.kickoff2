@@ -110,7 +110,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 - `amiga/player/tournaments.php` — full tournament history
 - `amiga/player/games.php`
 - `includes/k2_amiga_routes.php` — canonical paths + legacy redirect helper
-- `amiga/profile.php`, `amiga/games.php`, `amiga/player-tournaments.php` — 302 redirects to `amiga/player/*`
+- `amiga/profile.php`, `amiga/games.php?id=`, `amiga/player-tournaments.php` — 302 redirects to `amiga/player/*`; bare `/amiga/games.php` → Games hub Recent
 
 ## Import: player identity
 

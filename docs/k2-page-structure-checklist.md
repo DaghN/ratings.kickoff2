@@ -38,6 +38,7 @@ Route authority: [`url-routes.md`](url-routes.md) § Sub-hub navigation · place
 | Player opponents modes | `player/opponents/h2h.php`, `wdl.php`, … | `player_opponents_page.php`, `player_opponents_nav.php` |
 | Player milestones modes | `player/milestones/garden.php`, `chronology.php` | `player_milestones_page.php`, `player_milestones_nav.php` |
 | Amiga player wings | `amiga/player/profile.php`, `games.php`, … | `amiga_player_nav.php` |
+| Amiga Games hub modes | `amiga/games/recent.php`, `highlights.php`, `all.php` | `amiga_games_hub_shell_*.inc.php`, `amiga_games_hub_nav.php` |
 | Amiga tournament entity tabs | `amiga/tournament/event-stats.php`, `games.php`, … | `amiga_tournament_page.php` |
 | Amiga tournament Videos sub-modes | `amiga/tournament/videos/games.php`, `atmosphere.php` | same shell; `amiga_tournament_videos_wc_render.inc.php` mode nav |
 | Amiga country entity segment | `amiga/country/roster.php`, `rivals.php` | `amiga_country_page.php`, `amiga_country_nav.php` |

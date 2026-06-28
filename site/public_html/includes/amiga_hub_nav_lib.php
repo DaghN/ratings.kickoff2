@@ -14,7 +14,7 @@ require_once __DIR__ . '/amiga_snapshot_url.php';
  *
  * @var list<string>
  */
-const K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS = ['leaderboards', 'world-cups', 'countries', 'activity', 'hall-of-fame'];
+const K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS = ['leaderboards', 'world-cups', 'countries', 'activity', 'hall-of-fame', 'games'];
 
 /**
  * Editorial / live-ops paths: direct `?as=` is stripped (302 to present).
@@ -46,8 +46,8 @@ function amiga_hub_all_tabs(): array
         'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
         'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
         'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
+        'games' => ['href' => '/amiga/games/recent.php', 'label' => 'Games'],
         'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live'],
-        // Future hub Games tab (highlights + vault): present-only — add `'games' => …` here; omit from TIME_TRAVEL_TAB_IDS.
     ];
 }
 

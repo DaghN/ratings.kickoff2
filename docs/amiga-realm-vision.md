@@ -51,7 +51,7 @@ Legend: **Ship** = build for Amiga · **Skip** = no Amiga surface · **Amiga-nat
 | **Milestones hub + wing** | `milestones.php`, `leaderboards/milestones.php` | `player_milestones`, `milestone_definitions` | None | No | No | **Skip** (deferred indefinitely) | Per Dagh — out of Amiga scope |
 | **Realm switcher** | Header | — | `/amiga/rating.php` | — | No | **Ship** (update target) | Point to Amiga hub landing when built |
 | **Amiga hub nav** | — | — | **`amiga_hub_nav.php`** on ladder / tournaments / HoF stub | — | No | **Shipped (v0)** | Three tabs; Leaderboards wing tab deferred — see §6 |
-| **Games / match log (hub)** | `games.php` (off-hub) | `ratedresults` | None (realm-wide) | Ground truth in `amiga_games` | No | **Skip** (v1) | Per-player `amiga/player/games.php` is enough; `/amiga/games.php` reserved for future realm log |
+| **Games / match log (hub)** | `amiga/games/recent.php` | `amiga_games` | None (realm-wide) | Ground truth in `amiga_games` | No | **Shipped (Jun 2026)** | Recent · Highlights · All games; TT-sensitive; per-player tab remains `amiga/player/games.php` |
 | **Cross-realm search** | `api/player_search.php?realm=all` | Both DBs | Shipped | `amiga_players` | No | **Already** | Profiles link correctly |
 | **Cross-realm H2H** | `api/player_head_to_head.php` (online only) | `ratedresults` / `player_matchup_summary` | None | No aggregate | Yes if built | **Skip** (v1) | Different player ID spaces; Amiga H2H only inside realm |
 

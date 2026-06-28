@@ -3,7 +3,7 @@
  * Amiga realm hub tabs — present: News · Leaderboards · World Cups · Countries · Activity · HoF · Tournaments · Live tournaments (last).
  * Time travel: Leaderboards · World Cups · Countries · Activity · Hall of Fame (T13b + WCH12).
  *
- * Set $k2AmigaHubTabActive before include: news | world-cups | countries | leaderboards | tournaments | activity | hall-of-fame | live-tournaments
+ * Set $k2AmigaHubTabActive before include: news | world-cups | countries | leaderboards | tournaments | games | activity | hall-of-fame | live-tournaments
  *
  * Leaderboards tab → rating wing under /amiga/leaderboards/ (tournament honours is a sub-wing only).
  * Wing nav on all leaderboard pages (includes/amiga_lb_nav.php). No streaks wing.

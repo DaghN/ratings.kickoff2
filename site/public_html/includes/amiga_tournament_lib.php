@@ -2144,28 +2144,13 @@ function amiga_tournament_games_show_phase_column(array $rows): bool
 }
 
 /**
- * Show player flags only when the event spans at least two countries.
- * A single-nation event (common in legacy Amiga data) would otherwise show a
- * column of identical flags — noise, not flavor.
+ * Player flags in games tables — always on when `country_a` / `country_b` are set.
  *
- * @param list<array<string, mixed>> $rows
+ * @param list<array<string, mixed>> $rows unused; kept for call-site stability
  */
 function amiga_tournament_games_show_flags(array $rows): bool
 {
-    $countries = [];
-    foreach ($rows as $row) {
-        foreach ([(string) ($row['country_a'] ?? ''), (string) ($row['country_b'] ?? '')] as $country) {
-            $country = trim($country);
-            if ($country !== '') {
-                $countries[$country] = true;
-            }
-            if (count($countries) >= 2) {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return true;
 }
 
 /**

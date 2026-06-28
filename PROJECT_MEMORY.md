@@ -38,7 +38,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga realm (Jun 2026):** **Disposition review** — register **605/605**; **44** `pending_review`; [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
+- **Amiga realm (Jun 2026):** **Games hub shipped** — `/amiga/games/{recent,highlights,all}.php`; TT-sensitive; filters on All games deferred. **Disposition review** — register **605/605**; **44** `pending_review`; [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
 - **Amiga rating history (Jun 2026):** **V1** — History hub + time-travel rating LB; News tab = blank placeholder; [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
 
@@ -410,6 +410,7 @@
 
 | When | What |
 |------|------|
+| 2026-06 | **Amiga Games hub** — `/amiga/games/{recent,highlights,all}.php`; hub tab (present + time travel); TT-sensitive counts; Recent = last 5 tournaments, **ID desc**; Highlights = four boards; All games = server sort + 250/page (filters deferred); table = tournament games + Date + Tournament (host flag); **player flags always** when country known (tournament games + hub). |
 | 2026-06-22 | **Amiga fresh prove + staging export** — full `python -m scripts.amiga prove` green (~6 min, 27 418 games); export 31 parts incl. `slice_totals` + `slice_at_event` (221 / 3050 rows); ready WinSCP + browser import. |
 | 2026-06 | **Amiga World Cups LB slice 3** — WC columns off tournament honours; Events/Wins/WCs off calendar-geo; HoF deep links retargeted; profile WC LB link. |
 | 2026-06 | **Amiga World Cups LB fix** — TT `bind_param` types; Results + Goals pages; realm WC holder bind. |
