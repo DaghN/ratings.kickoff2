@@ -18,11 +18,6 @@ const AMIGA_WC_STATS_DEFAULT_SORT_COL = 1;
 /** @var list<string> */
 const AMIGA_WC_STATS_VIEWS = ['participation', 'goals', 'dds', 'geography'];
 
-function amiga_world_cup_stats_tournament_link(int $tournamentId, string $name): string
-{
-    return k2_amiga_lb_tournament_cell($tournamentId, $name, '');
-}
-
 function amiga_world_cup_stats_peak_cell(?int $metric, ?int $gameId): string
 {
     if ($metric === null) {

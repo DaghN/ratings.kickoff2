@@ -86,7 +86,7 @@ These stay on their existing patterns:
 
 ## Migration — retire Amiga flag-only columns (E4)
 
-Replace dedicated Country / Flag columns with inline compositors. **Do not preserve** sort on removed country-only columns unless product asks.
+**Shipped (Jun 2026).** Dedicated Country / Flag columns were replaced with inline compositors; sort on the removed country-only columns was intentionally dropped. The table below is the canonical record of where each entity type now lives — keep it accurate if a new surface ships.
 
 | Surface | Include | Inline target |
 |---------|---------|---------------|
@@ -99,7 +99,7 @@ Replace dedicated Country / Flag columns with inline compositors. **Do not prese
 | WC chronology | `amiga_world_cups_events_table.php` | Tournament col → `lb_tournament_cell` |
 | WC stats (4 sub-views) | `amiga_world_cup_stats_table.php` | Tournament anchor col → `lb_tournament_cell` |
 
-After migration, **`k2_amiga_country_table_cell()`** and **`k2_lb_td_country_open()`** should have **no Amiga table callers** (roster per-row flag column may remain per CH10 until a separate decision).
+**`k2_amiga_country_table_cell()`** and **`k2_lb_th_country()`** are now caller-free `@deprecated` stubs; **`k2_lb_td_country_open()`** was removed outright. The roster page (CH10) uses the inline `k2_amiga_lb_player_cell()` pattern, so no flag-only column remains.
 
 **Already inline (reference):** Amiga hub leaderboards (Rating, Goals, …), perf-rating Event col, WC chronology podium cols, game hub rows (leaderboard flag).
 
@@ -112,10 +112,10 @@ After migration, **`k2_amiga_country_table_cell()`** and **`k2_lb_td_country_ope
 | Player + nationality inline | `amiga/leaderboards/rating.php` + `k2_amiga_lb_player_cell()` |
 | Host flag + tournament inline | `includes/amiga_lb_performance_rating_table.php` Event column |
 | Dual link pattern (flag + name) | `k2_amiga_inline_flag_and_link()` — same wrapper as above |
-| Country name link (target) | `k2_amiga_country_roster_link()` once added; until then countries index col 2 is the name-link shape to replace |
+| Country name link | `k2_amiga_country_roster_link()` — `k2-link-star` to roster |
 | Flag img link only | `k2_amiga_country_flag_link()` |
 
-If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / `k2_lb_td_country_open` in `site/public_html/includes/`.
+If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / `k2_amiga_lb_country_cell` in `site/public_html/includes/`.
 
 ---
 
