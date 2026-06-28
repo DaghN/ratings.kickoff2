@@ -155,7 +155,7 @@ function amiga_player_videos_games_by_ids(
 
 /**
  * @param list<int> $tournamentIds
- * @return array<int, array{name: string, chrono: int}>
+ * @return array<int, array{name: string, chrono: int, country: string}>
  */
 function amiga_player_videos_tournament_meta(mysqli $con, array $tournamentIds): array
 {
@@ -166,7 +166,7 @@ function amiga_player_videos_tournament_meta(mysqli $con, array $tournamentIds):
 
     $placeholders = implode(',', array_fill(0, count($tournamentIds), '?'));
     $types = str_repeat('i', count($tournamentIds));
-    $sql = 'SELECT id, name, chrono FROM tournaments WHERE id IN (' . $placeholders . ')';
+    $sql = 'SELECT id, name, chrono, country FROM tournaments WHERE id IN (' . $placeholders . ')';
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
         return [];
@@ -180,6 +180,7 @@ function amiga_player_videos_tournament_meta(mysqli $con, array $tournamentIds):
             $out[(int) $row['id']] = [
                 'name' => (string) ($row['name'] ?? ''),
                 'chrono' => (int) ($row['chrono'] ?? 0),
+                'country' => trim((string) ($row['country'] ?? '')),
             ];
         }
         mysqli_free_result($res);
@@ -284,6 +285,7 @@ function amiga_player_videos_game_index(mysqli $con, int $playerId, ?AmigaSnapsh
             'game' => $game,
             'tournament_id' => $tid,
             'tournament_name' => (string) ($tournamentMeta[$tid]['name'] ?? ''),
+            'tournament_country' => (string) ($tournamentMeta[$tid]['country'] ?? ''),
             'sort_ts' => amiga_player_videos_sort_timestamp($game, $tournamentMeta),
         ];
     }

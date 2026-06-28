@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Amiga rated game</title>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_js_enqueue(); ?>
 </head>
 <body class="k2-site">
@@ -29,21 +30,20 @@ $row = $id > 0 ? amiga_rated_game_load($con, $id) : null;
 <?php if ($row === null) { ?>
 <p>Game not found.</p>
 <?php } else { ?>
-<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--single-game', false)); ?>">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--single-game k2-table--tournament-games', false)); ?>">
 
 <thead>
 	<tr>
         <th class="k2-table-cell--left">ID</th>
         <th class="k2-table-cell--left k2-table-cell--pad-left-xs">Date</th>
+        <th class="k2-table-cell--left">Tournament</th>
+        <th class="k2-table-cell--left" data-k2-help="Bracket phase when recorded (group, final, etc.).">Phase</th>
         <th class="k2-table-cell--left">Team A</th>
         <th></th>
         <th></th>
         <th class="k2-table-cell--left">Team B</th>
-        <th class="k2-table-cell--left">Tournament</th>
-        <th class="k2-table-cell--left" data-k2-help="Bracket phase when recorded (group, final, etc.).">Phase</th>
         <th class="k2-table-cell--pad-left-md">GD</th>
         <th data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players. A 7-4 result has Sum 11.">Sum</th>
-        <th class="k2-table-cell--left k2-table-cell--pad-left-lg">Winner</th>
         <th data-k2-help="Team A's Elo rating before this game.">Rating A</th>
         <th data-k2-help="Team B's Elo rating before this game.">Rating B</th>
         <th data-k2-tooltip-label="Elo difference" data-k2-help="Absolute pre-game Elo rating difference between the two players.">Diff</th>

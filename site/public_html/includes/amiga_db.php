@@ -78,7 +78,8 @@ function amiga_rated_game_load(mysqli $con, int $gameId): ?array
 
     $sql = 'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.RatingDifference, '
         . 'r.GoalsA, r.GoalsB, r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, '
-        . 'r.SumOfGoals, r.GoalDifference, r.phase, r.tournament_id, r.tournament_name '
+        . 'r.SumOfGoals, r.GoalDifference, r.phase, r.tournament_id, r.tournament_name, '
+        . 'r.country_a, r.country_b, r.tournament_country '
         . amiga_rated_games_from_sql()
         . ' WHERE r.id = ? LIMIT 1';
     $stmt = $con->prepare($sql);

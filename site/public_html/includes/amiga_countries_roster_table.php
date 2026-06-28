@@ -13,6 +13,7 @@ require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_player_load.php';
+require_once __DIR__ . '/amiga_tournament_lib.php';
 
 /**
  * @param list<array<string, mixed>> $rows
@@ -48,6 +49,7 @@ function amiga_countries_render_roster_table(array $rows, string $countryToken):
         $lastTournamentId = $row['last_tournament_id'];
         $lastEventName = (string) ($row['last_tournament_name'] ?? '');
         $lastEventDate = $row['last_event_date'];
+        $lastTournamentCountry = (string) ($row['last_tournament_country'] ?? '');
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
@@ -61,8 +63,7 @@ function amiga_countries_render_roster_table(array $rows, string $countryToken):
         <td<?php echo k2_lb_td(8, $lbSort, 'k2-table-cell--center k2-countries-roster-medal-pad-end'); ?>><?php echo (int) $row['wc_bronze']; ?></td>
         <td<?php echo k2_lb_td(9, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($lastEventName); ?>"><?php
             if ($lastTournamentId !== null && $lastTournamentId > 0 && $lastEventName !== '') {
-                $tHref = k2_amiga_route('amiga-tournament-standings', ['id' => $lastTournamentId]);
-                echo '<a href="' . k2_h($tHref) . '">' . k2_h($lastEventName) . '</a>';
+                echo k2_amiga_lb_tournament_cell($lastTournamentId, $lastEventName, $lastTournamentCountry);
             } else {
                 echo '—';
             }

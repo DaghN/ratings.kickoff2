@@ -102,8 +102,9 @@ function amiga_player_videos_render_games_table(
       $rowClass = $isActive ? ' class="is-active"' : '';
       $tid = (int) ($entry['tournament_id'] ?? 0);
       $tName = trim((string) ($entry['tournament_name'] ?? ''));
+      $tHost = trim((string) ($entry['tournament_country'] ?? ''));
       $tournamentCell = $tid > 0 && $tName !== ''
-          ? '<a href="' . k2_h(amiga_tournament_href(amiga_tournament_url($tid))) . '">' . k2_h($tName) . '</a>'
+          ? k2_amiga_lb_tournament_cell($tid, $tName, $tHost)
           : $dash;
       ?>
     <tr<?php echo $rowClass; ?>>

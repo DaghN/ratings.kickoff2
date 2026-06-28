@@ -36,42 +36,37 @@ function amiga_rated_game_id_html(int $gameId, string $idMode = 'link'): string
 }
 
 /**
- * @param array<string, mixed> $row ratedresults-shaped Amiga row
+ * @param array<string, mixed> $game normalized ratedresults row
  */
-function amiga_rated_game_winner_html(array $row): string
+function amiga_rated_game_player_side_cell(int $playerId, string $name, string $country, string $side = 'a'): string
 {
-    $game = k2_player_game_normalize_row($row);
-
-    if (!k2_rated_game_is_processed($row)) {
-        if (k2_rated_game_is_a_win_from_goals($game)) {
-            return k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']);
-        }
-        if (k2_rated_game_is_b_win_from_goals($game)) {
-            return k2_amiga_player_link((int) $game['idB'], (string) $game['NameB']);
-        }
-
+    if ($playerId < 1 || $name === '') {
         return k2_fmt_dash();
     }
 
-    if (k2_rated_game_is_a_win($game)) {
-        return k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']);
-    }
-    if (k2_rated_game_is_b_win($game)) {
-        return k2_amiga_player_link((int) $game['idB'], (string) $game['NameB']);
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+    $flag = trim($country) !== '' ? k2_amiga_country_flag_link($country) : '';
+    $link = k2_amiga_player_link($playerId, $name);
+    if ($side === 'b') {
+        return '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--b">' . $link . $flag . '</span>';
     }
 
-    return 'Draw';
+    return '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--a">' . $flag . $link . '</span>';
 }
 
 /**
- * @param array<string, mixed> $game normalized ratedresults row
+ * @param array<string, mixed> $row ratedresults-shaped Amiga row
  */
 function amiga_rated_game_tournament_cell(array $row): string
 {
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
     $tournamentId = (int) ($row['tournament_id'] ?? 0);
     $tournamentName = trim((string) ($row['tournament_name'] ?? ''));
+    $hostCountry = trim((string) ($row['tournament_country'] ?? ''));
     if ($tournamentName !== '' && $tournamentId > 0) {
-        return amiga_tournament_link($tournamentId, $tournamentName);
+        $hostFlag = k2_amiga_country_flag_link($hostCountry);
+
+        return '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--tournament">' . $hostFlag . amiga_tournament_link($tournamentId, $tournamentName) . '</span>';
     }
 
     return $tournamentName !== '' ? k2_h($tournamentName) : k2_fmt_dash();
@@ -158,15 +153,14 @@ function amiga_rated_game_row_html(array $row, array $options = [], ?mysqli $con
     return '<tr>'
         . '<td>' . amiga_rated_game_id_html((int) $game['id'], $idMode) . '</td>'
         . '<td class="k2-table-cell--left k2-table-cell--pad-left-xs">' . amiga_player_game_date_html($game['Date']) . '</td>'
-        . '<td class="k2-table-cell--left">' . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']) . '</td>'
+        . '<td class="k2-table-cell--left k2-amiga-tgame-team">' . amiga_rated_game_tournament_cell($row) . '</td>'
+        . '<td class="k2-table-cell--left">' . amiga_rated_game_phase_cell($row, $con) . '</td>'
+        . '<td class="k2-table-cell--left k2-amiga-tgame-team k2-amiga-tgame-team--a">' . amiga_rated_game_player_side_cell((int) $game['idA'], (string) $game['NameA'], trim((string) ($row['country_a'] ?? '')), 'a') . '</td>'
         . '<td>' . $goalsACell . '</td>'
         . '<td class="k2-table-cell--left">' . $goalsBCell . '</td>'
-        . '<td class="k2-table-cell--left">' . k2_amiga_player_link((int) $game['idB'], (string) $game['NameB']) . '</td>'
-        . '<td class="k2-table-cell--left">' . amiga_rated_game_tournament_cell($row) . '</td>'
-        . '<td class="k2-table-cell--left">' . amiga_rated_game_phase_cell($row, $con) . '</td>'
+        . '<td class="k2-table-cell--left k2-amiga-tgame-team k2-amiga-tgame-team--b">' . amiga_rated_game_player_side_cell((int) $game['idB'], (string) $game['NameB'], trim((string) ($row['country_b'] ?? '')), 'b') . '</td>'
         . '<td>' . $goalDiff . '</td>'
         . '<td>' . $sumGoals . '</td>'
-        . '<td class="k2-table-cell--left k2-table-cell--pad-left-lg">' . amiga_rated_game_winner_html($row) . '</td>'
         . '<td>' . $ratingACell . '</td>'
         . '<td>' . $ratingBCell . '</td>'
         . '<td>' . $ratingDiffCell . '</td>'

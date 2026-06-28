@@ -365,10 +365,49 @@ function player_opponents_h2h_pair_record(mysqli $con, int $playerId, int $oppon
 }
 
 /**
+ * Name line for H2H poster cards — optional Amiga flag inline with name.
+ *
+ * @param array<string, mixed> $card
+ */
+function k2_h2h_poster_card_name_html(array $card, string $side): string
+{
+    unset($side);
+    $name = (string) ($card['name'] ?? '');
+    $nameHtml = k2_h($name);
+    $country = trim((string) ($card['country'] ?? ''));
+    if ($country === '') {
+        return $nameHtml;
+    }
+
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+    $meta = k2_amiga_country_flag_meta($country);
+    $flagHtml = '';
+    if ($meta !== null) {
+        $flagHtml = '<span class="k2-h2h2-card__country-flag" aria-hidden="true">'
+            . k2_amiga_country_flag_img($country, ['decorative' => true])
+            . '</span>';
+    } else {
+        $flagHtml = '<span class="k2-h2h2-card__country-text">' . k2_h($country) . '</span>';
+    }
+
+    // Subject: flag before name (avatar side).
+    return '<span class="k2-h2h2-card__name-line">' . $flagHtml . $nameHtml . '</span>';
+}
+
+/**
+ * @param non-empty-string $label
+ */
+function k2_h2h_poster_card_stat_html(string $label, string $valueHtml): string
+{
+    return '<div class="k2-h2h2-card__stat" aria-label="' . k2_h($label) . '">'
+        . '<span class="k2-h2h2-card__stat-value">' . $valueHtml . '</span></div>';
+}
+
+/**
  * One identity card: avatar ring + name + rank/rating (hero-style).
  * Whole card links to the player profile when an id is present.
  *
- * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed} $card
+ * @param array{player_id:int,name:string,display:bool,rank:?int,rating:mixed,country?:string} $card
  */
 function k2_h2h_poster_card_html(array $card, string $side): string
 {
@@ -385,19 +424,18 @@ function k2_h2h_poster_card_html(array $card, string $side): string
         $href = k2_player_profile_href($pid);
     }
 
-    $rankStat = '<div class="k2-h2h2-card__stat"><dt>Rank</dt><dd>' . k2_h($rank) . '</dd></div>';
-    $ratingStat = '<div class="k2-h2h2-card__stat"><dt>Rating</dt><dd>' . k2_h($rating) . '</dd></div>';
-    // Opponent card mirrors subject: rank on the outer (avatar) edge, rating toward the vs.
-    $stats = $side === 'opponent' ? ($ratingStat . $rankStat) : ($rankStat . $ratingStat);
+    $rankStat = k2_h2h_poster_card_stat_html('Rank', k2_h($rank));
+    $ratingStat = k2_h2h_poster_card_stat_html('Rating', k2_h($rating));
+    $stats = $rankStat . $ratingStat;
 
     $inner = '<div class="k2-h2h2-card__media">'
         . '<div class="k2-h2h2-card__avatar" aria-hidden="true">' . k2_h($initial) . '</div>'
         . '</div>'
         . '<div class="k2-h2h2-card__body">'
-        . '<p class="k2-h2h2-card__name">' . k2_h($name) . '</p>'
-        . '<dl class="k2-h2h2-card__stats">'
+        . '<p class="k2-h2h2-card__name">' . k2_h2h_poster_card_name_html($card, $side) . '</p>'
+        . '<div class="k2-h2h2-card__stats" role="group" aria-label="Player stats">'
         . $stats
-        . '</dl>'
+        . '</div>'
         . '</div>';
 
     $class = 'k2-h2h2-card k2-h2h2-card--' . k2_h($side);
@@ -952,7 +990,7 @@ function player_opponents_render_h2h_poster(
         $opponentName
     );
     ?>
-<section class="k2-h2h2-poster k2-h2h2-poster--mirrored" id="h2h-rivalry"<?php echo $hasGames ? '' : ' data-empty="1"'; ?>>
+<section class="k2-h2h2-poster" id="h2h-rivalry"<?php echo $hasGames ? '' : ' data-empty="1"'; ?>>
 	<div class="k2-h2h2-marquee">
 		<?php echo k2_h2h_poster_card_html($subjectCard, 'subject'); ?>
 		<div class="k2-h2h2-vs" aria-hidden="true">vs</div>

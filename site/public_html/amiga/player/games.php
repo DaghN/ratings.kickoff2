@@ -5,6 +5,7 @@
 <title>Amiga player games</title>
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-feast.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 <script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="/js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
@@ -85,7 +86,6 @@ $sortMap = [
     'tournament' => 'r.tournament_name',
     'phase' => 'r.phase',
     'result' => "CASE WHEN ((r.idA = $playerIdSql AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = $playerIdSql AND ABS(r.ActualScore) < 0.001)) THEN 2 WHEN ABS(r.ActualScore - 0.5) < 0.001 THEN 1 ELSE 0 END",
-    'opponent' => "CASE WHEN r.idA = $playerIdSql THEN r.NameB ELSE r.NameA END",
     'goals_for' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END",
     'against' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END",
     'diff' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END",
@@ -136,7 +136,7 @@ $games = amiga_games_query_all(
     $con,
     'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.GoalsA, r.GoalsB, '
         . 'r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference, '
-        . 'r.phase, r.tournament_id, r.tournament_name '
+        . 'r.phase, r.tournament_id, r.tournament_name, r.country_a, r.country_b, r.tournament_country '
         . $fromSql . ' WHERE ' . $whereSql
         . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC',
     $whereTypes,
@@ -311,20 +311,19 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
 
 <?php k2_table_wrap_open(true); ?>
 
-<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--player-games')); ?>" data-k2-anchor-col="0">
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class('k2-table--player-games k2-table--tournament-games')); ?>" data-k2-anchor-col="0">
 
 <thead>
 <tr>
     <?php echo amiga_games_sort_header('id', 'ID', 'left', $sortState, 'Rated game ID.'); ?>
     <?php echo amiga_games_sort_header('date', 'Date', 'left', $sortState, '', '', 'k2-table-cell--pad-left-xs k2-amiga-player-games-date'); ?>
+    <?php echo amiga_games_sort_header('tournament', 'Tournament', 'left', $sortState, 'Offline tournament or event.', 'Tournament'); ?>
+    <?php echo amiga_games_sort_header('phase', 'Phase', 'left', $sortState, 'Bracket phase when recorded (group, final, etc.).', 'Phase'); ?>
     <?php echo amiga_games_sort_header('team_a', 'Team A', 'right', $sortState, 'Player listed as Team A in the original game record.'); ?>
     <th></th>
     <th></th>
     <?php echo amiga_games_sort_header('team_b', 'Team B', 'left', $sortState, 'Player listed as Team B in the original game record.'); ?>
-    <?php echo amiga_games_sort_header('tournament', 'Tournament', 'left', $sortState, 'Offline tournament or event.', 'Tournament'); ?>
-    <?php echo amiga_games_sort_header('phase', 'Phase', 'left', $sortState, 'Bracket phase when recorded (group, final, etc.).', 'Phase'); ?>
     <?php echo amiga_games_sort_header('result', 'Result', 'left', $sortState, 'Result from this player\'s perspective: win, draw, or loss.', 'Result', 'k2-table-cell--pad-left-xl'); ?>
-    <?php echo amiga_games_sort_header('opponent', 'Opponent', 'left', $sortState, 'Opponent in this game.'); ?>
     <?php echo amiga_games_sort_header('goals_for', 'GF', 'right', $sortState, 'Goals scored by this player.', 'Goals for', 'k2-table-cell--pad-left-md'); ?>
     <?php echo amiga_games_sort_header('against', 'GA', 'right', $sortState, 'Goals conceded by this player.', 'Goals against'); ?>
     <?php echo amiga_games_sort_header('diff', 'GD', 'right', $sortState, 'Goal difference from this player\'s perspective.', 'GD'); ?>
@@ -339,11 +338,11 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
 <tbody>
     <?php if ($games === []) { ?>
     <tr>
-        <td colspan="18" class="k2-table-cell--left k2-games-day__empty">No games match these filters.</td>
+        <td colspan="17" class="k2-table-cell--left k2-games-day__empty">No games match these filters.</td>
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>
-    <?php echo amiga_player_game_row_html($game, $playerId, $sortedColIndex, $con); ?>
+    <?php echo amiga_player_game_row_html($game, $playerId, $sortedColIndex); ?>
     <?php } ?>
 </tbody>
 

@@ -1707,9 +1707,19 @@ function amiga_tournament_index_rows(
                    COALESCE(c.standing_rows, 0) AS standing_rows,
                    COALESCE(c.league_scopes, 0) AS league_scopes,
                    COALESCE(c.knockout_ties, 0) AS knockout_ties,
-                   COALESCE(c.has_perfect_participant, 0) AS has_perfect_participant
+                   COALESCE(c.has_perfect_participant, 0) AS has_perfect_participant,
+                   wp.id AS winner_player_id,
+                   wp.name AS winner_name,
+                   wp.country AS winner_country
             FROM tournaments t
             LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
+            LEFT JOIN (
+                SELECT tournament_id, MIN(player_id) AS player_id
+                FROM amiga_player_event_snapshots
+                WHERE is_winner = 1
+                GROUP BY tournament_id
+            ) win ON win.tournament_id = t.id
+            LEFT JOIN amiga_players wp ON wp.id = win.player_id
             WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql . '
             ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC
             LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
@@ -2218,6 +2228,7 @@ function amiga_tournament_games_show_flags(array $rows): bool
 function amiga_tournament_render_standings_table(array $rows, bool $isKnockoutView): void
 {
     require_once __DIR__ . '/k2_table_helpers.php';
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
     $anchorCol = AMIGA_TOURNAMENT_STANDINGS_ANCHOR_COL;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_STANDINGS_DEFAULT_SORT_COL);
     $defaultSortDir = k2_table_default_sort_dir_from_request('asc');
@@ -2260,7 +2271,11 @@ function amiga_tournament_render_standings_table(array $rows, bool $isKnockoutVi
     <tr>
         <td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol); ?>><?php echo k2_h($posLabel); ?></td>
         <td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
-            echo k2_amiga_player_link((int) $row['player_id'], (string) $row['player_name']);
+            echo k2_amiga_lb_player_cell(
+                (int) $row['player_id'],
+                (string) $row['player_name'],
+                trim((string) ($row['country'] ?? ''))
+            );
         ?></td>
         <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['games']; ?></td>
         <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo (int) $row['wins']; ?></td>

@@ -126,7 +126,7 @@ function amiga_player_opponents_h2h_pair_record(
 }
 
 /**
- * @return array{player_id: int, name: string, display: bool, rank: ?int, rating: mixed, profile_href: string}|null
+ * @return array{player_id: int, name: string, display: bool, rank: ?int, rating: mixed, profile_href: string, country: string}|null
  */
 function amiga_player_opponents_h2h_load_player_card(
     mysqli $con,
@@ -156,6 +156,7 @@ function amiga_player_opponents_h2h_load_player_card(
             'rank' => null,
             'rating' => null,
             'profile_href' => $profileHref,
+            'country' => (string) ($identity['country'] ?? ''),
         ];
     }
 
@@ -172,6 +173,7 @@ function amiga_player_opponents_h2h_load_player_card(
         'rank' => $rank,
         'rating' => ($pm['at_cutoff'] ?? true) ? ($pm['rating'] ?? null) : null,
         'profile_href' => $profileHref,
+        'country' => trim((string) ($pm['country'] ?? '')),
     ];
 }
 

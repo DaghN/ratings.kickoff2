@@ -101,6 +101,10 @@ These stay on their existing patterns:
 
 **`k2_amiga_country_table_cell()`** and **`k2_lb_th_country()`** are now caller-free `@deprecated` stubs; **`k2_lb_td_country_open()`** was removed outright. The roster page (CH10) uses the inline `k2_amiga_lb_player_cell()` pattern, so no flag-only column remains.
 
+**Follow-up (Jun 2026):** Country roster **Last event** col (`amiga_countries_roster_table.php`) and player videos **Tournament** col (`amiga_player_videos_render.inc.php`) now use `amiga_tournament_link()` — were hand-built `<a href>`. Live tournaments index stays on `amiga_live_tournament_link()` (separate URL space).
+
+**Tier A+B (Jun 2026):** Tournament **standings** Player col → `lb_player_cell`; roster Last event + player videos Tournament → `lb_tournament_cell`; **player games** + **single game** rows → flanking nationality/host flags (`amiga_rated_game_player_side_cell`, `amiga_rated_game_tournament_cell`) matching realm games hub. Adjustment cols unchanged (no flags).
+
 **Already inline (reference):** Amiga hub leaderboards (Rating, Goals, …), perf-rating Event col, WC chronology podium cols, game hub rows (leaderboard flag).
 
 ---
@@ -143,4 +147,4 @@ Global `body.k2-site .k2-table tbody td a` also styles links link-star — **do 
 
 ---
 
-*Last updated: Jun 2026 — policy locked ahead of Amiga inline-flag migration.*
+*Last updated: Jun 2026 — inline-flag migration shipped; roster Last event + player videos tournament strays fixed.*

@@ -30,10 +30,10 @@ function amiga_world_cups_events_sort_col_for_emphasis(int $colIndex, int $activ
     return $activeSortCol;
 }
 
-/** @deprecated Use amiga_wc_podium_th_markup() — kept for call sites in this file. */
+/** @deprecated Use amiga_wc_podium_metal_label_markup() — kept for call sites in this file. */
 function amiga_world_cups_events_podium_th(int $place): string
 {
-    return amiga_wc_podium_th_markup($place);
+    return amiga_wc_podium_metal_label_markup($place);
 }
 
 /**

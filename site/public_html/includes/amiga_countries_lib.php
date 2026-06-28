@@ -86,7 +86,7 @@ function amiga_countries_player_rows_present(mysqli $con): array
         . 'COALESCE(s.Rating, 0) AS rating, s.elo_rank, COALESCE(s.NumberGames, 0) AS number_games, '
         . 'COALESCE(wcs.tournaments_played, 0) AS wc_played, COALESCE(wcs.gold, 0) AS wc_gold, '
         . 'COALESCE(wcs.silver, 0) AS wc_silver, COALESCE(wcs.bronze, 0) AS wc_bronze, '
-        . 's.last_tournament_id, s.last_event_date, lt.name AS last_tournament_name '
+        . 's.last_tournament_id, s.last_event_date, lt.name AS last_tournament_name, lt.country AS last_tournament_country '
         . amiga_player_base_from_sql($con, 's') . ' '
         . 'LEFT JOIN amiga_player_slice_totals wcs ON wcs.player_id = p.id AND wcs.slice_key = ? '
         . 'LEFT JOIN tournaments lt ON lt.id = s.last_tournament_id '
@@ -130,7 +130,7 @@ function amiga_countries_player_rows_at_cutoff(mysqli $con, AmigaSnapshotContext
         . 'COALESCE(s.Rating, 0) AS rating, COALESCE(s.NumberGames, 0) AS number_games, '
         . 'COALESCE(wcs.tournaments_played, 0) AS wc_played, COALESCE(wcs.gold, 0) AS wc_gold, '
         . 'COALESCE(wcs.silver, 0) AS wc_silver, COALESCE(wcs.bronze, 0) AS wc_bronze, '
-        . 's.tournament_id AS last_tournament_id, s.event_date AS last_event_date, lt.name AS last_tournament_name '
+        . 's.tournament_id AS last_tournament_id, s.event_date AS last_event_date, lt.name AS last_tournament_name, lt.country AS last_tournament_country '
         . amiga_lb_snapshot_from_sql('s') . ' '
         . str_replace('t.player_id', 'p.id', $sliceJoin['sql']) . ' '
         . 'LEFT JOIN tournaments lt ON lt.id = s.tournament_id '
@@ -192,6 +192,7 @@ function amiga_countries_normalize_player_row(array $row): array
     $row['last_event_date'] = isset($row['last_event_date']) && $row['last_event_date'] !== null
         ? (string) $row['last_event_date'] : null;
     $row['last_tournament_name'] = trim((string) ($row['last_tournament_name'] ?? ''));
+    $row['last_tournament_country'] = trim((string) ($row['last_tournament_country'] ?? ''));
 
     return $row;
 }

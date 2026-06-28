@@ -238,7 +238,7 @@ All hub wing tables use **`ranked-pages-table`**: uniform `8px` horizontal cell 
 | Amiga player tournament history | 1 — Tournament (host flag inline) |
 | Amiga tournament catalog index | 1 — Tournament (host flag inline) |
 | Amiga live tournaments index | 0 — Tournament |
-| Amiga tournament event stats | 0 — Player (nationality flag inline) |
+| Amiga tournament event stats | 1 — Player (nationality flag inline); col 0 = `#` autorank |
 | Amiga WC chronology (events catalog) | 1 — Tournament (host flag inline) |
 | Amiga WC stats table | 0 — Tournament (host flag inline) |
 

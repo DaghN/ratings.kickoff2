@@ -1,9 +1,8 @@
 /**
  * Player Opponents — head-to-head versus poster + pair-detail race tables (Jun 2026).
  *
- * Glowing hero-style identity cards around a `vs`, mirrored so avatars face
- * inward, then W/D/L counts and lead meter on a bare stage background.
- * Pair detail continues the centred column with player-vs-player stat races.
+ * Glowing hero-style identity cards around a `vs`, then W/D/L counts and lead meter
+ * on a bare stage background. Pair detail continues the centred column with player-vs-player stat races.
  * Linked from player/opponents/h2h.php.
  */
 
@@ -12,6 +11,7 @@ body.k2-site .k2-h2h2-poster {
 	--k2-h2h2-draw: color-mix(in srgb, var(--k2-text-muted) 64%, transparent);
 	--k2-h2h2-marquee-max: 48rem;
 	--k2-h2h2-record-max: 34rem;
+	--k2-h2h2-card-width: 320px;
 	--k2-h2h2-avatar: clamp(54px, 8vw, 68px);
 	position: relative;
 	display: flex;
@@ -47,11 +47,14 @@ body.k2-site .k2-h2h2-card {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	align-items: center;
-	column-gap: clamp(12px, 2vw, 18px);
-	padding: clamp(14px, 2.2vw, 20px) clamp(16px, 2.6vw, 22px);
+	column-gap: clamp(16px, 2.4vw, 22px);
+	padding: clamp(13px, 2vw, 18px) clamp(14px, 2.34vw, 20px);
 	border: 2px solid var(--k2-h2h2-side);
 	border-radius: var(--k2-radius-lg);
 	background: var(--k2-bg-surface);
+	box-sizing: border-box;
+	width: var(--k2-h2h2-card-width, 320px);
+	max-width: 100%;
 	min-width: 0;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 	box-shadow:
@@ -88,10 +91,12 @@ body.k2-site a.k2-h2h2-card--link:focus-visible .k2-h2h2-card__name {
 
 body.k2-site .k2-h2h2-card--subject {
 	--k2-h2h2-side: var(--k2-h2h2-blue);
+	justify-self: end;
 }
 
 body.k2-site .k2-h2h2-card--opponent {
 	--k2-h2h2-side: var(--k2-h2h2-red);
+	justify-self: start;
 }
 
 body.k2-site .k2-h2h2-card__media {
@@ -125,7 +130,7 @@ body.k2-site .k2-h2h2-card__body {
 }
 
 body.k2-site .k2-h2h2-card__name {
-	margin: 0 0 8px;
+	margin: 0 0 14px;
 	font-family: var(--k2-font-display);
 	font-size: clamp(18px, 3vw, 24px);
 	font-weight: 600;
@@ -135,30 +140,34 @@ body.k2-site .k2-h2h2-card__name {
 	overflow-wrap: anywhere;
 }
 
+body.k2-site .k2-h2h2-card__name-line {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	max-width: 100%;
+}
+
+body.k2-site .k2-h2h2-card__country-text {
+	font-size: clamp(14px, 2.2vw, 18px);
+	font-weight: 500;
+	color: var(--k2-text-secondary);
+}
+
 body.k2-site .k2-h2h2-card__stats {
 	margin: 0;
 	display: flex;
-	gap: clamp(14px, 2.4vw, 22px);
+	align-items: center;
+	gap: clamp(13px, 2.2vw, 20px);
 }
 
 body.k2-site .k2-h2h2-card__stat {
 	display: flex;
 	flex-direction: column;
-	gap: 3px;
+	align-items: center;
 	min-width: 0;
 }
 
-body.k2-site .k2-h2h2-card__stat dt {
-	margin: 0;
-	font-size: 10px;
-	font-weight: 600;
-	letter-spacing: 0.09em;
-	text-transform: uppercase;
-	color: var(--k2-text-muted);
-	line-height: 1.2;
-}
-
-body.k2-site .k2-h2h2-card__stat dd {
+body.k2-site .k2-h2h2-card__stat-value {
 	margin: 0;
 	font-family: var(--k2-font-display);
 	font-size: clamp(15px, 2.4vw, 19px);
@@ -168,22 +177,21 @@ body.k2-site .k2-h2h2-card__stat dd {
 	line-height: 1.1;
 }
 
-/* mirrored: opponent avatar faces the vs */
-body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent {
-	grid-template-columns: 1fr auto;
+body.k2-site .k2-h2h2-card__country-flag {
+	display: block;
+	width: 24px;
+	height: 18px;
+	border-radius: 2px;
+	overflow: hidden;
+	line-height: 0;
+	margin-top: 2px;
 }
 
-body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__media {
-	order: 2;
-}
-
-body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__body {
-	order: 1;
-	text-align: right;
-}
-
-body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__stats {
-	justify-content: flex-end;
+body.k2-site .k2-h2h2-card__country-flag .k2-amiga-country-flag-img {
+	display: block;
+	width: 24px;
+	height: 18px;
+	border-radius: 2px;
 }
 
 body.k2-site .k2-h2h2-vs {
@@ -537,24 +545,12 @@ body.k2-site .k2-h2h2-race__lab.k2-table-helped {
 	}
 
 	body.k2-site .k2-h2h2-card {
-		padding: 14px 16px;
+		padding: 13px 14px;
 	}
 
-	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent {
-		grid-template-columns: auto 1fr;
-	}
-
-	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__media {
-		order: 0;
-	}
-
-	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__body {
-		order: 0;
-		text-align: left;
-	}
-
-	body.k2-site .k2-h2h2-poster--mirrored .k2-h2h2-card--opponent .k2-h2h2-card__stats {
-		justify-content: flex-start;
+	body.k2-site .k2-h2h2-card--subject,
+	body.k2-site .k2-h2h2-card--opponent {
+		justify-self: center;
 	}
 }
 
