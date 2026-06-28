@@ -19,9 +19,7 @@ from scripts.amiga.player_geo_year import year_period_end
 
 # Career holder value column on player row -> generalstats prefix.
 _CAREER_ROW_PREFIXES: list[tuple[str, str]] = [
-    (value_col, prefix)
-    for _prefix, value_col, prefix in _CAREER_HOLDERS
-    if prefix != "BiggestPeakRating"
+    (value_col, prefix) for _prefix, value_col, prefix in _CAREER_HOLDERS
 ]
 
 _HOLDER_DATE_FIELD: dict[str, str] = {
@@ -427,7 +425,6 @@ def _single_game_candidates_from_rows(
     best_win: tuple[int, int, int, str, str | None] | None = None
     best_draw: tuple[int, int, int, int, str, str, str | None] | None = None
     best_sum: tuple[int, int, int, int, str, str, str | None] | None = None
-    best_peak: tuple[float, int, int, str, str | None] | None = None
 
     for game in games:
         game_id = int(game["game_id"] if "game_id" in game else game["id"])
@@ -473,34 +470,6 @@ def _single_game_candidates_from_rows(
         if best_sum is None or goal_sum > best_sum[0] or (goal_sum == best_sum[0] and game_id < best_sum[1]):
             best_sum = cand
 
-        for pid, name, rating, adjustment, new_rating in (
-            (
-                id_a,
-                name_a,
-                game.get("rating_a"),
-                game.get("adjustment_a"),
-                game.get("new_rating_a"),
-            ),
-            (
-                id_b,
-                name_b,
-                game.get("rating_b"),
-                game.get("adjustment_b"),
-                game.get("new_rating_b"),
-            ),
-        ):
-            if rating is None or adjustment is None:
-                continue
-            peak = new_rating
-            if peak is None:
-                peak = float(rating) + float(adjustment)
-            peak_f = float(peak)
-            cand = (peak_f, game_id, pid, name, record_date)
-            if best_peak is None or peak_f > best_peak[0] or (
-                peak_f == best_peak[0] and game_id < best_peak[1]
-            ):
-                best_peak = cand
-
     if best_goals:
         patch.update(
             {
@@ -545,15 +514,6 @@ def _single_game_candidates_from_rows(
                 "BiggestSumOfGoalsGameID": best_sum[1],
             }
         )
-    if best_peak:
-        patch.update(
-            {
-                "BiggestPeakRating": best_peak[0],
-                "BiggestPeakRatingID": best_peak[2],
-                "BiggestPeakRatingName": best_peak[3],
-                "BiggestPeakRatingDate": best_peak[4],
-            }
-        )
     return patch
 
 
@@ -588,7 +548,6 @@ _SINGLE_GAME_PREFIXES: tuple[tuple[str, str, bool], ...] = (
     ("BiggestWinDifference", "BiggestWinDifference", True),
     ("BiggestDrawSum", "BiggestDrawSum", True),
     ("BiggestSumOfGoals", "BiggestSumOfGoals", True),
-    ("BiggestPeakRating", "BiggestPeakRating", True),
 )
 
 

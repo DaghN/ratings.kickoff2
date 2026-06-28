@@ -48,7 +48,7 @@
 
 - **Amiga per-opponent performance rating (SCH-044, Jun 2026):** **Complete** — cumulative directed pair TPR stored on `amiga_player_matchup_summary` + `amiga_player_matchup_at_event` (`performance_rating`), recomputed only for pairs played each event at finalize (Python replay = in-memory samples; PHP/live = reseed touched pairs from `amiga_game_ratings`). Surfaced as the **Perf.** column on Opponents W/D/L and read by H2H pair detail (no on-the-fly solve); time travel = latest at-event row ≤ cutoff. `verify-player-matchups` perf oracle; `replay` + verify green. [`amiga-performance-rating.md`](docs/amiga-performance-rating.md) · [`amiga-matchup-at-event-policy.md`](docs/amiga-matchup-at-event-policy.md).
 
-- **Amiga realm snapshots (Jun 2026):** **Complete (slices 0–8)** — incremental finalize + `amiga_realm_snapshots` timeline; HoF from `generalstats`; `prove` green ~5 min. Policy [`amiga-realm-snapshot-policy.md`](docs/amiga-realm-snapshot-policy.md).
+- **Amiga realm snapshots (Jun 2026):** **Complete (slices 0–8)** — incremental finalize + `amiga_realm_snapshots` timeline; HoF peak row = read-time `PeakRating` (retired `BiggestPeakRating` Jun 2026); `prove` green ~5 min. Policy [`amiga-realm-snapshot-policy.md`](docs/amiga-realm-snapshot-policy.md).
 
 - **Amiga HoF calendar-year + geography (Jun 2026):** **Complete** — eight new HoF rows + Calendar & geo LB wing; SCH-028 on snapshots/current + `generalstats`; `verify-hof-geo-year` in `prove`. Policy [`amiga-hof-tournament-geo-policy.md`](docs/amiga-hof-tournament-geo-policy.md).
 
@@ -126,6 +126,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-28 | **Amiga HoF — retire BiggestPeakRating** — dropped from `013`/`027` DDL + writers; HoF “Highest peak rating” = read-time `MAX(PeakRating)` + `peak_rating_tournament_id` date; `verify-hof-peak-rating-holder` in `prove`. |
 | 2026-06-28 | **YouTube embeds — origin param** — `k2_youtube_embed_url()` + site-wide `<meta name="referrer">`; fixes “Sign in to confirm you’re not a bot” / Error 153 on tournament Videos, join promo, game placeholder. |
 | 2026-06-28 | **Amiga HoF — LB deep-link sort indices** — fixed eight off-by-one `k2_sort` targets in `amiga_records_hof_links.php` (calendar-geo peak/host/faced/beaten, tournament honours events/gold, WC honours played). |
 | 2026-06-28 | **Amiga HoF — dual-holder flags fix** — country batch lookup now includes `*IDA`/`*IDB` holder columns (was `str_ends_with(..., 'ID')` only); fixes missing flag on second player in biggest draw / sum of goals rows. |

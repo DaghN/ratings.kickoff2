@@ -376,7 +376,6 @@ function amiga_realm_tournament_single_game_candidates(mysqli $con, int $tournam
     $bestWin = null;
     $bestDraw = null;
     $bestSum = null;
-    $bestPeak = null;
 
     foreach ($games as $game) {
         if ($eventDate === null && $game['tour_date'] !== null) {
@@ -421,19 +420,6 @@ function amiga_realm_tournament_single_game_candidates(mysqli $con, int $tournam
         if ($bestSum === null || $goalSum > $bestSum[0] || ($goalSum === $bestSum[0] && $gameId < $bestSum[1])) {
             $bestSum = [$goalSum, $gameId, $idA, $idB, $nameA, $nameB, $recordDate];
         }
-        foreach ([
-            [$idA, $nameA, $game['rating_a'], $game['adjustment_a'], $game['new_rating_a']],
-            [$idB, $nameB, $game['rating_b'], $game['adjustment_b'], $game['new_rating_b']],
-        ] as [$pid, $name, $rating, $adjustment, $newRating]) {
-            if ($rating === null || $adjustment === null) {
-                continue;
-            }
-            $peak = $newRating ?? ((float) $rating + (float) $adjustment);
-            $peakF = (float) $peak;
-            if ($bestPeak === null || $peakF > $bestPeak[0] || ($peakF === $bestPeak[0] && $gameId < $bestPeak[1])) {
-                $bestPeak = [$peakF, $gameId, $pid, $name, $recordDate];
-            }
-        }
     }
 
     if ($bestGoals !== null) {
@@ -468,12 +454,6 @@ function amiga_realm_tournament_single_game_candidates(mysqli $con, int $tournam
         $patch['BiggestSumOfGoalsDate'] = $bestSum[6];
         $patch['BiggestSumOfGoalsGameID'] = $bestSum[1];
     }
-    if ($bestPeak !== null) {
-        $patch['BiggestPeakRating'] = $bestPeak[0];
-        $patch['BiggestPeakRatingID'] = $bestPeak[2];
-        $patch['BiggestPeakRatingName'] = $bestPeak[3];
-        $patch['BiggestPeakRatingDate'] = $bestPeak[4];
-    }
 
     return $patch;
 }
@@ -489,7 +469,6 @@ function amiga_realm_merge_single_game_records(array $prior, array $candidates):
     $simple = [
         ['MostGoalsScoredInOneGame', true],
         ['BiggestWinDifference', true],
-        ['BiggestPeakRating', true],
     ];
     foreach ($simple as [$prefix, $higher]) {
         $valueKey = $prefix;

@@ -24,7 +24,6 @@ _DECIMAL_COLUMNS = frozenset(
         "DoubleDigitsRatio",
         "CleanSheetsRatio",
         "BiggestRatingAscent",
-        "BiggestPeakRating",
         "BiggestWinRatio",
         "BiggestGoalsForAverage",
         "SmallestGoalsAgainstAverage",

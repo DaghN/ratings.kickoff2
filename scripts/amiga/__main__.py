@@ -372,6 +372,10 @@ def main(argv: list[str] | None = None) -> int:
         help="Assert HoF holder projection vs independent oracles (stored-field semantics Phase B)",
     )
     sub.add_parser(
+        "verify-hof-peak-rating-holder",
+        help="Assert HoF peak row uses career PeakRating (BiggestPeakRating retired)",
+    )
+    sub.add_parser(
         "verify-stored-id-date-pairs",
         help="Assert rise/honours id-date pairing + career-best replay (stored-field semantics Phase C)",
     )
@@ -679,6 +683,11 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-hof-holder-projection":
         return verify_hof_holder_projection_main()
+
+    if args.cmd == "verify-hof-peak-rating-holder":
+        from scripts.amiga.verify_hof_peak_rating_holder import main as verify_hof_peak_rating_holder_main
+
+        return verify_hof_peak_rating_holder_main()
 
     if args.cmd == "verify-stored-id-date-pairs":
         return verify_stored_id_date_pairs_main()

@@ -26,7 +26,6 @@ from scripts.amiga.realm_incremental import (
 )
 from scripts.amiga.server_records import (
     _biggest_draw_sum_patch,
-    _biggest_peak_in_game_patch,
     _biggest_sum_goals_patch,
     _biggest_win_margin_patch,
     _load_cutoff_player_rows,
@@ -37,7 +36,6 @@ from scripts.amiga.server_records import (
 _SINGLE_GAME_PREFIXES: tuple[str, ...] = (
     "MostGoalsScoredInOneGame",
     "BiggestWinDifference",
-    "BiggestPeakRating",
 )
 
 _PAIR_GAME_PREFIXES: tuple[str, ...] = (
@@ -137,7 +135,6 @@ def _game_oracle_patch(
     patch.update(_biggest_win_margin_patch(conn, cutoff=cutoff))
     patch.update(_biggest_draw_sum_patch(conn, cutoff=cutoff))
     patch.update(_biggest_sum_goals_patch(conn, cutoff=cutoff))
-    patch.update(_biggest_peak_in_game_patch(conn, cutoff=cutoff))
     return patch
 
 
@@ -209,7 +206,7 @@ def verify_hof_holder_projection(conn: pymysql.connections.Connection) -> list[s
         )
         latest_realm = cur.fetchone()
 
-    float_holder_fields = frozenset({"BiggestPeakRating"})
+    float_holder_fields = frozenset({"BiggestRatingAscent"})
 
     for _value_col, prefix in _CAREER_ROW_PREFIXES:
         fields = (prefix, f"{prefix}ID", f"{prefix}Name", f"{prefix}Date")

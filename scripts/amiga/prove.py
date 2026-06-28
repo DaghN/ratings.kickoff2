@@ -22,6 +22,7 @@ from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_
 from scripts.amiga.verify_community_stats import main as verify_community_stats_main
 from scripts.amiga.verify_world_cup_stats import main as verify_world_cup_stats_main
 from scripts.amiga.verify_php_community_parity import main as verify_php_community_parity_main
+from scripts.amiga.verify_hof_peak_rating_holder import main as verify_hof_peak_rating_holder_main
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
 from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
@@ -45,6 +46,7 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-php-community-parity", verify_php_community_parity_main),
     ("verify-hof-geo-year", verify_hof_geo_year_main),
     ("verify-hof-holder-projection", verify_hof_holder_projection_main),
+    ("verify-hof-peak-rating-holder", verify_hof_peak_rating_holder_main),
     ("verify-stored-id-date-pairs", verify_stored_id_date_pairs_main),
     ("verify-import-manifest", verify_import_manifest_main),
     ("verify-l2-l3", lambda: verify_l2_l3_boundary_main([])),

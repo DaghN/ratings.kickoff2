@@ -435,64 +435,6 @@ function amiga_realm_biggest_sum_goals_patch(mysqli $con, array $cutoff): array
  * @param array{event_date: string, chrono: float|int, tournament_id: int} $cutoff
  * @return array<string, mixed>
  */
-function amiga_realm_biggest_peak_in_game_patch(mysqli $con, array $cutoff): array
-{
-    $dateExpr = amiga_realm_game_event_date_sql();
-    $extra = ' AND ' . amiga_realm_game_cutoff_sql('tg');
-    $sql = "
-        SELECT game_id, player_id, player_name, peak_rating, record_date
-        FROM (
-            SELECT g.id AS game_id, g.player_a_id AS player_id, pa.name AS player_name,
-                   COALESCE(r.new_rating_a, r.rating_a + r.adjustment_a) AS peak_rating,
-                   {$dateExpr} AS record_date
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            INNER JOIN amiga_players pa ON pa.id = g.player_a_id
-            LEFT JOIN tournaments t ON t.id = g.tournament_id
-            INNER JOIN tournaments tg ON tg.id = g.tournament_id
-            WHERE r.rating_a IS NOT NULL AND r.adjustment_a IS NOT NULL{$extra}
-            UNION ALL
-            SELECT g.id, g.player_b_id, pb.name,
-                   COALESCE(r.new_rating_b, r.rating_b + r.adjustment_b), {$dateExpr}
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            INNER JOIN amiga_players pb ON pb.id = g.player_b_id
-            LEFT JOIN tournaments t ON t.id = g.tournament_id
-            INNER JOIN tournaments tg ON tg.id = g.tournament_id
-            WHERE r.rating_b IS NOT NULL AND r.adjustment_b IS NOT NULL{$extra}
-        ) peaks
-        ORDER BY peak_rating DESC, game_id ASC
-        LIMIT 1
-    ";
-    $stmt = $con->prepare($sql);
-    if ($stmt === false) {
-        throw new RuntimeException('prepare peak in game: ' . $con->error);
-    }
-    $eventDate = $cutoff['event_date'];
-    $chrono = $cutoff['chrono'];
-    $tournamentId = (int) $cutoff['tournament_id'];
-    $stmt->bind_param('sdisdi', $eventDate, $chrono, $tournamentId, $eventDate, $chrono, $tournamentId);
-    if (!$stmt->execute()) {
-        throw new RuntimeException('execute peak in game: ' . $stmt->error);
-    }
-    $row = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    if ($row === null) {
-        return [];
-    }
-
-    return [
-        'BiggestPeakRating' => $row['peak_rating'],
-        'BiggestPeakRatingID' => (int) $row['player_id'],
-        'BiggestPeakRatingName' => (string) $row['player_name'],
-        'BiggestPeakRatingDate' => $row['record_date'] !== null ? (string) $row['record_date'] : null,
-    ];
-}
-
-/**
- * @param array{event_date: string, chrono: float|int, tournament_id: int} $cutoff
- * @return array<string, mixed>
- */
 function amiga_realm_ratio_leader_patch(
     mysqli $con,
     array $cutoff,
@@ -574,7 +516,6 @@ function amiga_realm_build_generalstats_payload_oracle(mysqli $con, int $tournam
         );
     }
     $patch = array_merge($patch, amiga_realm_wc_slice_holder_patch($con, $cutoff));
-    $patch = array_merge($patch, amiga_realm_biggest_peak_in_game_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_most_goals_one_game_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_biggest_win_margin_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_biggest_draw_sum_patch($con, $cutoff));

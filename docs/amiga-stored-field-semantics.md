@@ -113,7 +113,8 @@ Read: `/amiga/hall-of-fame.php` — **must not** compute record dates at read ti
 | `BiggestWinDifference` | player | same | yes | game-anchor | **yes** — same |
 | `BiggestDrawSum` | two players | same | yes | game-anchor | **yes** — same |
 | `BiggestSumOfGoals` | two players | same | yes | game-anchor | **yes** — same |
-| `BiggestPeakRating` | player | same | no | game-anchor | **yes** — same (in-game peak oracle) |
+
+**Retired Jun 2026:** `BiggestPeakRating*` on `amiga_generalstats` / `amiga_realm_snapshots` — HoF “Highest peak rating” is a **read-time** projection from per-player `PeakRating` + `peak_rating_tournament_id` (`amiga_hof_peak_rating_holder()` / `peak_rating_hof_holder_oracle()`). Online `generalstatstable.BiggestPeakRating` unchanged.
 
 ### 3.3 Ratio leaders (no dates)
 

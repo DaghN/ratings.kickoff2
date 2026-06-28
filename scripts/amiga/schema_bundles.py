@@ -132,6 +132,18 @@ _WC_HONOURS_DROP_TABLES: tuple[str, ...] = (
     "amiga_player_current",
 )
 
+_BIGGEST_PEAK_RATING_DROP_COLUMNS: tuple[str, ...] = (
+    "BiggestPeakRating",
+    "BiggestPeakRatingID",
+    "BiggestPeakRatingName",
+    "BiggestPeakRatingDate",
+)
+
+_BIGGEST_PEAK_RATING_DROP_TABLES: tuple[str, ...] = (
+    "amiga_generalstats",
+    "amiga_realm_snapshots",
+)
+
 
 def _ensure_slice_at_event_rise_columns(conn: pymysql.connections.Connection) -> None:
     """Add rise columns to slice_at_event when upgrading from slice-0 draft DDL."""
@@ -175,8 +187,33 @@ def _drop_wc_honours_columns_if_present(conn: pymysql.connections.Connection) ->
                 """,
                 (table, *_WC_HONOURS_DROP_COLUMNS),
             )
-            present = {row["COLUMN_NAME"] for row in cur.fetchall()}
+            present = {row[0] for row in cur.fetchall()}
             for col in _WC_HONOURS_DROP_COLUMNS:
+                if col not in present:
+                    continue
+                cur.execute(f"ALTER TABLE `{table}` DROP COLUMN `{col}`")
+    conn.commit()
+
+
+def _drop_biggest_peak_rating_columns_if_present(
+    conn: pymysql.connections.Connection,
+) -> None:
+    """Retire BiggestPeakRating HoF columns — idempotent on fresh DDL (no cols)."""
+    with conn.cursor() as cur:
+        for table in _BIGGEST_PEAK_RATING_DROP_TABLES:
+            placeholders = ", ".join(["%s"] * len(_BIGGEST_PEAK_RATING_DROP_COLUMNS))
+            cur.execute(
+                f"""
+                SELECT COLUMN_NAME
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = %s
+                  AND COLUMN_NAME IN ({placeholders})
+                """,
+                (table, *_BIGGEST_PEAK_RATING_DROP_COLUMNS),
+            )
+            present = {row[0] for row in cur.fetchall()}
+            for col in _BIGGEST_PEAK_RATING_DROP_COLUMNS:
                 if col not in present:
                     continue
                 cur.execute(f"ALTER TABLE `{table}` DROP COLUMN `{col}`")
@@ -242,6 +279,7 @@ def apply_schema_derived(
     _apply_sql_files(conn, DERIVED_SQL)
     _ensure_slice_at_event_rise_columns(conn)
     _drop_wc_honours_columns_if_present(conn)
+    _drop_biggest_peak_rating_columns_if_present(conn)
 
 
 def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = False) -> None:

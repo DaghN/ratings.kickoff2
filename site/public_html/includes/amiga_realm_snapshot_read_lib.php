@@ -30,7 +30,6 @@ function amiga_hof_record_column_names(): array
         'BiggestWinDifference',
         'BiggestDrawSum',
         'BiggestSumOfGoals',
-        'BiggestPeakRating',
         'MostGamesPlayedID',
         'MostWinsID',
         'MostGoalsScoredID',
@@ -46,7 +45,6 @@ function amiga_hof_record_column_names(): array
         'BiggestDrawSumIDB',
         'BiggestSumOfGoalsIDA',
         'BiggestSumOfGoalsIDB',
-        'BiggestPeakRatingID',
         'MostGamesPlayedName',
         'MostWinsName',
         'MostGoalsScoredName',
@@ -62,7 +60,6 @@ function amiga_hof_record_column_names(): array
         'BiggestDrawSumNameB',
         'BiggestSumOfGoalsNameA',
         'BiggestSumOfGoalsNameB',
-        'BiggestPeakRatingName',
         'MostGamesPlayedDate',
         'MostWinsDate',
         'MostGoalsScoredDate',
@@ -76,7 +73,6 @@ function amiga_hof_record_column_names(): array
         'BiggestWinDifferenceDate',
         'BiggestDrawSumDate',
         'BiggestSumOfGoalsDate',
-        'BiggestPeakRatingDate',
         'BiggestWinRatio',
         'BiggestWinRatioID',
         'BiggestWinRatioName',
@@ -237,4 +233,71 @@ function amiga_hof_records_load(mysqli $con, AmigaSnapshotContext $ctx): ?array
     }
 
     return amiga_generalstats_hof_row($con);
+}
+
+/**
+ * HoF "Highest peak rating" — read-time projection from per-player PeakRating.
+ *
+ * @return array{value: float|null, player_id: int, name: string, date: string|null}
+ */
+function amiga_hof_peak_rating_holder(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+    require_once __DIR__ . '/amiga_lb_lib.php';
+
+    $empty = ['value' => null, 'player_id' => 0, 'name' => '', 'date' => null];
+
+    if (!$ctx->isActive()) {
+        $sql = 'SELECT p.id AS player_id, p.name AS name, s.PeakRating AS peak_value, '
+            . "DATE_FORMAT(tpr.event_date, '%Y-%m-%d') AS peak_date "
+            . 'FROM amiga_players p '
+            . 'INNER JOIN amiga_player_current s ON s.player_id = p.id '
+            . 'LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
+            . 'WHERE ' . amiga_lb_player_where_sql() . ' AND s.PeakRating > 0 '
+            . 'ORDER BY s.PeakRating DESC, s.Rating DESC, p.id ASC LIMIT 1';
+        $result = k2_query_or_public_error($con, $sql, 'amiga hof peak rating holder');
+        $row = mysqli_fetch_assoc($result);
+        mysqli_free_result($result);
+    } else {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff === null) {
+            return $empty;
+        }
+        $sql = 'SELECT p.id AS player_id, p.name AS name, s.PeakRating AS peak_value, '
+            . "DATE_FORMAT(tpr.event_date, '%Y-%m-%d') AS peak_date "
+            . amiga_lb_snapshot_from_sql('s')
+            . ' LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
+            . 'WHERE ' . amiga_lb_player_where_sql() . ' AND s.PeakRating > 0 '
+            . 'ORDER BY s.PeakRating DESC, s.Rating DESC, p.id ASC LIMIT 1';
+        $stmt = $con->prepare($sql);
+        if ($stmt === false) {
+            throw new RuntimeException('prepare amiga hof peak rating holder: ' . $con->error);
+        }
+        $eventDate = $cutoff['event_date'];
+        $chrono = (float) $cutoff['chrono'];
+        $tournamentId = (int) $cutoff['tournament_id'];
+        $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+        if (!$stmt->execute()) {
+            $err = $stmt->error;
+            $stmt->close();
+            throw new RuntimeException('execute amiga hof peak rating holder: ' . $err);
+        }
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : false;
+        if ($res) {
+            $res->free();
+        }
+        $stmt->close();
+    }
+
+    if (!is_array($row)) {
+        return $empty;
+    }
+
+    return [
+        'value' => (float) $row['peak_value'],
+        'player_id' => (int) $row['player_id'],
+        'name' => (string) $row['name'],
+        'date' => $row['peak_date'] !== null ? (string) $row['peak_date'] : null,
+    ];
 }

@@ -36,6 +36,8 @@ if (!$records) {
     exit('Hall of Fame data is not available yet. Run python -m scripts.amiga replay.');
 }
 
+$peakHolder = amiga_hof_peak_rating_holder($con, $ctx);
+
 $hofAsOf = time();
 if ($ctx->isActive()) {
     $hofCutoff = $ctx->cutoff();
@@ -48,7 +50,11 @@ if ($ctx->isActive()) {
 }
 [$newRecordCutoff, $legendaryRecordCutoff] = amiga_records_age_cutoffs_from($hofAsOf);
 
-$hofCountryByPlayer = amiga_tournament_player_countries($con, amiga_hof_holder_ids_from_records($records));
+$hofHolderIds = amiga_hof_holder_ids_from_records($records);
+if (($peakHolder['player_id'] ?? 0) > 0) {
+    $hofHolderIds[] = (int) $peakHolder['player_id'];
+}
+$hofCountryByPlayer = amiga_tournament_player_countries($con, $hofHolderIds);
 
 mysqli_close($con);
 ?>
@@ -213,12 +219,12 @@ amiga_records_render_row(
     amiga_records_hof_lb_href('biggest_sum_goals')
 );
 amiga_records_render_spacer_row();
-$hasPeakRating = amiga_records_has_value($records['BiggestPeakRating'] ?? 0);
+$hasPeakRating = ($peakHolder['value'] ?? null) !== null && (float) $peakHolder['value'] > 0;
 amiga_records_render_row(
     'Highest peak rating',
-    $hasPeakRating ? number_format((float) $records['BiggestPeakRating'], 0, '.', '') : '-',
-    amiga_records_holder_player((int) ($records['BiggestPeakRatingID'] ?? 0), (string) ($records['BiggestPeakRatingName'] ?? ''), $hofCountryByPlayer),
-    amiga_records_date_or_dash($records['BiggestPeakRatingDate'] ?? null, $hasPeakRating, $newRecordCutoff, $legendaryRecordCutoff),
+    $hasPeakRating ? number_format((float) $peakHolder['value'], 0, '.', '') : '-',
+    amiga_records_holder_player((int) ($peakHolder['player_id'] ?? 0), (string) ($peakHolder['name'] ?? ''), $hofCountryByPlayer),
+    amiga_records_date_or_dash($peakHolder['date'] ?? null, $hasPeakRating, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('peak_rating')
 );
 amiga_records_render_spacer_row();

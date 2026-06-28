@@ -32,7 +32,6 @@ _CAREER_HOLDERS: list[tuple[str, str, str]] = [
     ("MostDoubleDigitsVictims", "DoubleDigitsVictims", "MostDoubleDigitsVictims"),
     ("MostCleanSheetsVictims", "CleanSheetsVictims", "MostCleanSheetsVictims"),
     ("BiggestRatingAscent", "BiggestRatingAscent", "BiggestRatingAscent"),
-    ("BiggestPeakRating", "PeakRating", "BiggestPeakRating"),
     ("MostGamesInOneYear", "peak_year_games", "MostGamesInOneYear"),
     ("MostTournamentsInOneYear", "peak_year_tournaments", "MostTournamentsInOneYear"),
     ("MostTournamentsPlayed", "tournaments_played", "MostTournamentsPlayed"),
@@ -395,52 +394,6 @@ def _biggest_sum_goals_patch(
     }
 
 
-def _biggest_peak_in_game_patch(
-    conn: pymysql.connections.Connection,
-    *,
-    cutoff: RealmCutoff | None = None,
-) -> dict[str, Any]:
-    date_expr = _game_event_date_sql()
-    extra, params = _game_cutoff_and_clause(cutoff)
-    sql = f"""
-        SELECT game_id, player_id, player_name, peak_rating, record_date
-        FROM (
-            SELECT g.id AS game_id, g.player_a_id AS player_id, pa.name AS player_name,
-                   COALESCE(r.new_rating_a, r.rating_a + r.adjustment_a) AS peak_rating,
-                   {date_expr} AS record_date
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            INNER JOIN amiga_players pa ON pa.id = g.player_a_id
-            LEFT JOIN tournaments t ON t.id = g.tournament_id
-            INNER JOIN tournaments tg ON tg.id = g.tournament_id
-            WHERE r.rating_a IS NOT NULL AND r.adjustment_a IS NOT NULL{extra}
-            UNION ALL
-            SELECT g.id, g.player_b_id, pb.name,
-                   COALESCE(r.new_rating_b, r.rating_b + r.adjustment_b),
-                   {date_expr}
-            FROM amiga_games g
-            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
-            INNER JOIN amiga_players pb ON pb.id = g.player_b_id
-            LEFT JOIN tournaments t ON t.id = g.tournament_id
-            INNER JOIN tournaments tg ON tg.id = g.tournament_id
-            WHERE r.rating_b IS NOT NULL AND r.adjustment_b IS NOT NULL{extra}
-        ) peaks
-        ORDER BY peak_rating DESC, game_id ASC
-        LIMIT 1
-    """
-    with conn.cursor() as cur:
-        cur.execute(sql, (*params, *params) if params else ())
-        row = cur.fetchone()
-    if not row:
-        return {}
-    return {
-        "BiggestPeakRating": row["peak_rating"],
-        "BiggestPeakRatingID": int(row["player_id"]),
-        "BiggestPeakRatingName": row["player_name"],
-        "BiggestPeakRatingDate": _fmt_date(row["record_date"]),
-    }
-
-
 def compute_record_holder_patch(
     conn: pymysql.connections.Connection,
     *,
@@ -453,11 +406,6 @@ def compute_record_holder_patch(
     )
     patch: dict[str, Any] = {}
     for _prefix, value_col, patch_prefix in _CAREER_HOLDERS:
-        if patch_prefix == "BiggestPeakRating":
-            peak_patch = _biggest_peak_in_game_patch(conn, cutoff=cutoff)
-            if peak_patch:
-                patch.update(peak_patch)
-            continue
         patch.update(
             _career_holder_patch(
                 conn,
@@ -575,7 +523,6 @@ def build_generalstats_payload(
     patch.update(_biggest_win_margin_patch(conn, cutoff=cutoff))
     patch.update(_biggest_draw_sum_patch(conn, cutoff=cutoff))
     patch.update(_biggest_sum_goals_patch(conn, cutoff=cutoff))
-    patch.update(_biggest_peak_in_game_patch(conn, cutoff=cutoff))
     return {col: patch.get(col) for col in GENERALSTATS_PAYLOAD_COLUMNS}
 
 

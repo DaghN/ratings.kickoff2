@@ -84,7 +84,7 @@ Online SQL sources verified from `site/public_html/leaderboards/*.php`. Amiga an
 | Most opponents / victims / DD victims / CS victims | `generalstatstable` | stats columns | generalstats | **Ship** |
 | Most goals in one game | `generalstatstable` + game id | `MostGoalsScored` on stats + `MostGoalsScoredGameID` | generalstats for holder date | **Ship** |
 | Biggest win margin / draw / sum of goals | `generalstatstable` + game ids | stats extremes + game ids | generalstats | **Ship** |
-| Highest peak rating (server record) | `generalstatstable.BiggestPeakRating` | scan `amiga_game_ratings.new_rating_*` or generalstats | generalstats | **Ship** |
+| Highest peak rating (server record) | read-time `PeakRating` oracle | `MAX(PeakRating)` on player snapshots | none (not stored) | **Ship** |
 | Longest win / undefeated / draw streaks | `generalstatstable` | `Longest*` on stats (non-authoritative) | — | **Skip** — same within-day order problem as streaks wing |
 | Best attack/defense avg, goal ratio, win %, DD/CS % | `records_ratio_leaders.php` → `playertable` | same columns on `amiga_player_stats` | No (read-time) | **Ship** (read-time query) |
 | **WC gold/silver/bronze** (Access) | `added_players` (reference) | Derive from `amiga_tournament_standings` + cup flags | **Tournament honours** aggregate | **Amiga-native Ship** |
