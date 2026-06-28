@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 3) . '/includes/amiga_tournament_lib.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_participation_placement.php';
+require_once dirname(__DIR__, 3) . '/includes/amiga_perfect_event.php';
 
 /**
  * Average goals per game in event (4 d.p.; NULL when games = 0).
@@ -334,6 +335,7 @@ function amiga_ops_participation_rows_for_tournament(
             'games_in_event' => (int) ($rating['games_in_event'] ?? 0),
             'finalized_at' => $rating['finalized_at'] ?? null,
             'is_winner' => amiga_participation_is_winner($tournamentName, $eventFinishPosition) ? 1 : 0,
+            'is_perfect_event' => amiga_is_perfect_event_from_rollup($games, $wins, $draws, (int) ($rollup['losses'] ?? 0)) ? 1 : 0,
         ];
     }
 

@@ -79,7 +79,7 @@
 
 - **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + roster (flag per row, WC entries tooltips, TT); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
 
-- **Amiga perfect event (Jun 2026):** **Policy locked** — `is_perfect_event` + career `perfect_events` + HoF `MostPerfectEvents` + catalog `has_perfect_participant`; WC honours Perfect = snapshot count (no slice DDL). [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md) · plan [`amiga-perfect-event-implementation-plan.md`](docs/amiga-perfect-event-implementation-plan.md). Implementation SCH-045 — slice 1 next.
+- **Amiga perfect event (Jun 2026):** **Shipped** — SCH-045 `is_perfect_event` + career `perfect_events` + HoF `MostPerfectEvents` + catalog `?perfect=with-participant`; honours LB + WC honours **Perfect** column; `verify-perfect-event` in `prove`. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md).
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 shipped** — manifest **~299** videos; unified embed UI on all events with clips. **Player Videos wing (Jun 2026):** `/amiga/player/videos.php` when manifest has linked match clips; reverse-chrono index + opponent filter + spotlight player. Human review sign-off on orphans + tournaments index. Next: **TV-4** Chronology clip indicator. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
 
@@ -128,9 +128,10 @@
 
 | When | Note |
 |------|------|
+| 2026-06-28 | **Amiga perfect event — shipped (SCH-045)** — `is_perfect_event` on snapshots; career `perfect_events` + HoF **Most perfect events**; catalog **Perfect run** filter; honours LB + WC honours **Perfect** column; `verify-perfect-event` in `prove` (183 participations; Oliver St 24). |
 | 2026-06-28 | **Player Videos — time travel index** — game index ≤ cutoff via `amiga_snapshot_rated_game_cutoff_and_sql`; opponent facets on filtered set; unwired note suppressed (`k2AmigaPlayerTabWiredAtCutoff`). |
 | 2026-06-28 | **Player Videos — time travel tab link** — `amiga_player_videos_url()` now passes query via `k2_amiga_route(..., $params)` once (was double-`?` when `as=` active → dropped `id` → blank page). |
-| 2026-06-28 | **Amiga tournament filter pages — Reset filters pill** — accent `k2-player-games-reset` on catalog index + player tournaments status row when any filter active. |
+| 2026-06-28 | **Amiga player tournaments — Perfect run filter** — chrome-tab segment (`perfect=with-participant`, `is_perfect_event`); parity with catalog index. |
 | 2026-06-28 | **Amiga tournaments index — filter summary line** — plain-language count above table (`amiga_tournament_index_list_summary()`); replaces footnote "(filtered)". |
 | 2026-06-28 | **Amiga player tournaments — segment filter layout** — Event chrome tabs + Host country/Year listboxes (catalog index parity); retired bordered `.k2-player-tournament-filters` panel. |
 | 2026-06-28 | **Amiga tournaments index — Host country + Year filters** — archive listboxes on `/amiga/tournaments.php` (faceted counts, pill URLs carry `country`/`year`/`k2_sort`); shared games filter stack. |

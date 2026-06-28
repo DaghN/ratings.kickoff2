@@ -996,7 +996,8 @@ body.k2-site .k2-amiga-organizer-results__undo:focus-visible {
 	font-weight: 700;
 }
 
-body.k2-site .k2-amiga-tournament-index-tabs--stacked {
+body.k2-site .k2-amiga-tournament-index-tabs--stacked,
+body.k2-site .k2-amiga-player-tournaments-tabs--stacked {
 	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
 }
 

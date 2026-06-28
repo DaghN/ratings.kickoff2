@@ -50,6 +50,7 @@ function amiga_ops_snapshot_participation_columns(): array
         'games_in_event',
         'is_winner',
         'best_knockout_phase',
+        'is_perfect_event',
     ];
 }
 
@@ -93,6 +94,7 @@ function amiga_ops_snapshot_honours_columns(): array
         'event_silver',
         'event_bronze',
         'event_podiums',
+        'perfect_events',
         'honours_last_event_date',
         'honours_last_tournament_id',
     ];
@@ -111,6 +113,7 @@ function amiga_ops_honours_columns_from_totals_row(array $totals): array
         'event_silver' => (int) ($totals['event_silver'] ?? 0),
         'event_bronze' => (int) ($totals['event_bronze'] ?? 0),
         'event_podiums' => (int) ($totals['event_podiums'] ?? 0),
+        'perfect_events' => (int) ($totals['perfect_events'] ?? 0),
         'honours_last_event_date' => $totals['last_event_date'] ?? null,
         'honours_last_tournament_id' => $totals['last_tournament_id'] ?? null,
     ];

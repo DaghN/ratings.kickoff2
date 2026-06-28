@@ -20,6 +20,11 @@ def _participation(
     tournament_name: str = "Athens I",
     event_finish_position: int | None = None,
     is_winner: int = 0,
+    is_perfect_event: int = 0,
+    games: int = 2,
+    wins: int = 2,
+    draws: int = 0,
+    losses: int = 0,
 ) -> dict:
     return {
         "tournament_id": tournament_id,
@@ -27,6 +32,11 @@ def _participation(
         "tournament_name": tournament_name,
         "event_finish_position": event_finish_position,
         "is_winner": is_winner,
+        "is_perfect_event": is_perfect_event,
+        "games": games,
+        "wins": wins,
+        "draws": draws,
+        "losses": losses,
     }
 
 
@@ -62,6 +72,32 @@ class HonoursRiseDatesTests(unittest.TestCase):
         self.assertEqual(totals["event_gold"], 1)
         self.assertEqual(totals["event_gold_last_rise_tournament_id"], 12)
         self.assertEqual(totals["event_gold_last_rise_event_date"], date(2021, 3, 1))
+
+    def test_perfect_events_rise_only_on_perfect_run(self) -> None:
+        totals = empty_honours_totals()
+        increment_honours_totals(
+            totals,
+            _participation(
+                tournament_id=20,
+                event_date=date(2022, 4, 1),
+                event_finish_position=2,
+                is_perfect_event=0,
+            ),
+        )
+        self.assertEqual(totals["perfect_events"], 0)
+        self.assertIsNone(totals["perfect_events_last_rise_tournament_id"])
+
+        increment_honours_totals(
+            totals,
+            _participation(
+                tournament_id=21,
+                event_date=date(2022, 5, 1),
+                is_perfect_event=1,
+            ),
+        )
+        self.assertEqual(totals["perfect_events"], 1)
+        self.assertEqual(totals["perfect_events_last_rise_tournament_id"], 21)
+        self.assertEqual(totals["perfect_events_last_rise_event_date"], date(2022, 5, 1))
 
     def test_participation_without_metric_rise_preserves_prior_rise(self) -> None:
         """Gold rise stays at win event when a later non-win participation follows."""

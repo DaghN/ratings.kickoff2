@@ -48,6 +48,7 @@ _HOF_GEO_HONOURS_PREFIXES = tuple(prefix for _v, _c, prefix in _CAREER_HOLDERS i
     "MostTournamentsInOneYear",
     "MostTournamentsPlayed",
     "MostTournamentWins",
+    "MostPerfectEvents",
     "MostWcPlayed",
     "MostCountriesPlayedIn",
     "MostOpponentCountriesFaced",
@@ -111,7 +112,7 @@ def _oracle_honours_by_player(conn: pymysql.connections.Connection) -> dict[int,
         cur.execute(
             """
             SELECT s.player_id, s.tournament_id, s.event_date, s.tournament_name,
-                   s.event_finish_position, s.is_winner
+                   s.event_finish_position, s.is_winner, s.is_perfect_event
             FROM amiga_player_event_snapshots s
             INNER JOIN tournaments t ON t.id = s.tournament_id
             WHERE t.rating_finalized = 1

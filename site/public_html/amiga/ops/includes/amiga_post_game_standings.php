@@ -501,7 +501,8 @@ function amiga_ops_catalog_stats_refresh_tournament(mysqli $con, int $tournament
     }
 
     $sql = 'INSERT INTO amiga_tournament_catalog_stats (
-                tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties
+                tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties,
+                has_perfect_participant
             )
             SELECT
                 ?,
@@ -517,18 +518,23 @@ function amiga_ops_catalog_stats_refresh_tournament(mysqli $con, int $tournament
                 COALESCE((
                     SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
                     WHERE tournament_id = ? AND scope_type = \'knockout\'
-                ), 0)
+                ), 0),
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM amiga_player_event_snapshots
+                    WHERE tournament_id = ? AND is_perfect_event = 1
+                ) THEN 1 ELSE 0 END
             ON DUPLICATE KEY UPDATE
                 game_count = VALUES(game_count),
                 standing_players = VALUES(standing_players),
                 standing_rows = VALUES(standing_rows),
                 league_scopes = VALUES(league_scopes),
-                knockout_ties = VALUES(knockout_ties)';
+                knockout_ties = VALUES(knockout_ties),
+                has_perfect_participant = VALUES(has_perfect_participant)';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         throw new RuntimeException('prepare catalog stats refresh: ' . $con->error);
     }
-    $stmt->bind_param('iiiiii', $tournamentId, $tournamentId, $tournamentId, $tournamentId, $tournamentId, $tournamentId);
+    $stmt->bind_param('iiiiiii', $tournamentId, $tournamentId, $tournamentId, $tournamentId, $tournamentId, $tournamentId, $tournamentId);
     if (!$stmt->execute()) {
         throw new RuntimeException('execute catalog stats refresh: ' . $stmt->error);
     }

@@ -40,6 +40,7 @@ RECORD_HOLDER_VALUE_COLUMNS: tuple[str, ...] = (
     "MostTournamentsInOneYear",
     "MostTournamentsPlayed",
     "MostTournamentWins",
+    "MostPerfectEvents",
     "MostWcPlayed",
     "MostCountriesPlayedIn",
     "MostOpponentCountriesFaced",
@@ -67,6 +68,7 @@ RECORD_HOLDER_ID_COLUMNS: tuple[str, ...] = (
     "MostTournamentsInOneYearID",
     "MostTournamentsPlayedID",
     "MostTournamentWinsID",
+    "MostPerfectEventsID",
     "MostWcPlayedID",
     "MostCountriesPlayedInID",
     "MostOpponentCountriesFacedID",
@@ -94,6 +96,7 @@ RECORD_HOLDER_NAME_COLUMNS: tuple[str, ...] = (
     "MostTournamentsInOneYearName",
     "MostTournamentsPlayedName",
     "MostTournamentWinsName",
+    "MostPerfectEventsName",
     "MostWcPlayedName",
     "MostCountriesPlayedInName",
     "MostOpponentCountriesFacedName",
@@ -119,6 +122,7 @@ RECORD_HOLDER_DATE_COLUMNS: tuple[str, ...] = (
     "MostTournamentsInOneYearDate",
     "MostTournamentsPlayedDate",
     "MostTournamentWinsDate",
+    "MostPerfectEventsDate",
     "MostWcPlayedDate",
     "MostCountriesPlayedInDate",
     "MostOpponentCountriesFacedDate",
@@ -141,6 +145,8 @@ HONOURS_RISE_PLAYER_COLUMNS: tuple[str, ...] = (
     "tournaments_played_last_rise_event_date",
     "event_gold_last_rise_tournament_id",
     "event_gold_last_rise_event_date",
+    "perfect_events_last_rise_tournament_id",
+    "perfect_events_last_rise_event_date",
 )
 
 from scripts.amiga.career_rise import CAREER_RISE_PLAYER_COLUMNS  # noqa: E402

@@ -1225,11 +1225,12 @@ function amiga_tournament_index_filter_rows(
     string $countryFilter = '',
     int $yearFilter = 0,
     bool $omitCountry = false,
-    bool $omitYear = false
+    bool $omitYear = false,
+    string $perfectFilter = '',
 ): array {
     return array_values(array_filter(
         $rows,
-        static function (array $row) use ($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, $omitCountry, $omitYear): bool {
+        static function (array $row) use ($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, $omitCountry, $omitYear, $perfectFilter): bool {
             if (!amiga_tournament_index_matches_wc_filter($row, $wcFilter)) {
                 return false;
             }
@@ -1237,6 +1238,9 @@ function amiga_tournament_index_filter_rows(
                 return false;
             }
             if ($videosFilter === 'with-videos' && !amiga_tournament_has_videos((int) ($row['id'] ?? 0))) {
+                return false;
+            }
+            if ($perfectFilter === 'with-participant' && (int) ($row['has_perfect_participant'] ?? 0) !== 1) {
                 return false;
             }
             if (!$omitCountry && !amiga_tournament_index_matches_country_filter($row, $countryFilter)) {
@@ -1365,6 +1369,7 @@ function amiga_tournament_index_list_summary(
     string $videosFilter = '',
     string $countryFilter = '',
     int $yearFilter = 0,
+    string $perfectFilter = '',
 ): string {
     if ($count === 0) {
         if (!$hasAnyTournaments) {
@@ -1394,6 +1399,9 @@ function amiga_tournament_index_list_summary(
     $postNoun = [];
     if ($videosFilter === 'with-videos') {
         $postNoun[] = 'with videos';
+    }
+    if ($perfectFilter === 'with-participant') {
+        $postNoun[] = 'with a perfect run';
     }
 
     $suffix = '';
@@ -1428,10 +1436,12 @@ function amiga_tournament_index_filters_active(
     string $videosFilter,
     string $countryFilter,
     int $yearFilter,
+    string $perfectFilter = '',
 ): bool {
     return $wcFilter !== ''
         || $typeFilter !== ''
         || $videosFilter !== ''
+        || $perfectFilter !== ''
         || $countryFilter !== ''
         || $yearFilter > 0;
 }
@@ -1447,13 +1457,15 @@ function amiga_tournament_index_filter_url(
     string $videosFilter = '',
     string $wcFilter = '',
     string $countryFilter = '',
-    int $yearFilter = 0
+    int $yearFilter = 0,
+    string $perfectFilter = ''
 ): string {
     require_once __DIR__ . '/k2_table_helpers.php';
     $params = array_merge(
         in_array($wcFilter, ['world-cup', 'not-world-cup'], true) ? ['wc' => $wcFilter] : [],
         $typeFilter !== '' ? ['type' => $typeFilter] : [],
         $videosFilter === 'with-videos' ? ['videos' => 'with-videos'] : [],
+        $perfectFilter === 'with-participant' ? ['perfect' => 'with-participant'] : [],
         $countryFilter !== '' ? ['country' => $countryFilter] : [],
         $yearFilter > 0 ? ['year' => (string) $yearFilter] : [],
         k2_table_sort_query_params(),
@@ -1681,7 +1693,8 @@ function amiga_tournament_index_rows(mysqli $con, int $limit = 0, int $offset = 
                    COALESCE(c.standing_players, 0) AS standing_players,
                    COALESCE(c.standing_rows, 0) AS standing_rows,
                    COALESCE(c.league_scopes, 0) AS league_scopes,
-                   COALESCE(c.knockout_ties, 0) AS knockout_ties
+                   COALESCE(c.knockout_ties, 0) AS knockout_ties,
+                   COALESCE(c.has_perfect_participant, 0) AS has_perfect_participant
             FROM tournaments t
             LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
             WHERE ' . amiga_tournament_public_visibility_where('t') . '

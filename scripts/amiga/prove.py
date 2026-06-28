@@ -28,6 +28,7 @@ from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder
 from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
 from scripts.amiga.verify_player_slice import main as verify_player_slice_main
 from scripts.amiga.verify_country_slice import main as verify_country_slice_main
+from scripts.amiga.verify_perfect_event import main as verify_perfect_event_main
 from scripts.amiga.tournament_format import main as verify_tournament_formats_main
 
 log = logging.getLogger(__name__)
@@ -45,6 +46,7 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-world-cup-stats", verify_world_cup_stats_main),
     ("verify-php-community-parity", verify_php_community_parity_main),
     ("verify-hof-geo-year", verify_hof_geo_year_main),
+    ("verify-perfect-event", verify_perfect_event_main),
     ("verify-hof-holder-projection", verify_hof_holder_projection_main),
     ("verify-hof-peak-rating-holder", verify_hof_peak_rating_holder_main),
     ("verify-stored-id-date-pairs", verify_stored_id_date_pairs_main),

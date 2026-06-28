@@ -226,7 +226,6 @@ def _persist_event_snapshots(
     player_countries: dict[int, str | None] | None = None,
 ) -> int:
     rebuild_standings_for_tournament(conn, tournament_id)
-    refresh_catalog_stats_for_tournament(conn, tournament_id)
 
     part_rows = build_participation_rows_for_tournament(
         conn,
@@ -295,6 +294,7 @@ def _persist_event_snapshots(
         geo_year=geo_year,
         player_countries=player_countries,
     )
+    refresh_catalog_stats_for_tournament(conn, tournament_id)
 
     if slice_for_event:
         with conn.cursor() as cur:

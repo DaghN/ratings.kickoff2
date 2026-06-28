@@ -711,6 +711,9 @@ function amiga_finalize_tournament(
         'event snapshots: id=' . $tournamentId . ' rows=' . $snapshotRows
     );
 
+    require_once __DIR__ . '/../includes/amiga_post_game_standings.php';
+    amiga_ops_catalog_stats_refresh_tournament($con, $tournamentId);
+
     // Per-opponent cumulative TPR: reseed touched pairs from committed ratings.
     $matchups->recomputeTouchedPerf($con, array_values($touchedMatchupPairs));
 

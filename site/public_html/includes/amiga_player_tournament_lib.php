@@ -67,6 +67,7 @@ function amiga_player_tournament_participation_rows(
                    p.rating_after,
                    p.performance_rating,
                    p.is_winner,
+                   p.is_perfect_event,
                    (SELECT COUNT(DISTINCT sk.scope_key)
                     FROM amiga_tournament_standings sk
                     WHERE sk.tournament_id = p.tournament_id
@@ -155,16 +156,17 @@ function amiga_player_tournament_participation_filter_events(
     array $rows,
     string $filter,
     string $country = '',
-    int $year = 0
+    int $year = 0,
+    string $perfectFilter = ''
 ): array {
     $country = trim($country);
-    if ($filter === 'all' && $country === '' && $year < 1) {
+    if ($filter === 'all' && $country === '' && $year < 1 && $perfectFilter === '') {
         return $rows;
     }
 
     return array_values(array_filter(
         $rows,
-        static function (array $row) use ($filter, $country, $year): bool {
+        static function (array $row) use ($filter, $country, $year, $perfectFilter): bool {
             if ($filter === 'world-cup' && !amiga_tournament_is_world_cup($row)) {
                 return false;
             }
@@ -172,6 +174,9 @@ function amiga_player_tournament_participation_filter_events(
                 return false;
             }
             if ($year > 0 && amiga_tournament_index_event_year($row) !== $year) {
+                return false;
+            }
+            if ($perfectFilter === 'with-participant' && (int) ($row['is_perfect_event'] ?? 0) !== 1) {
                 return false;
             }
 
@@ -189,6 +194,7 @@ function amiga_player_tournaments_list_summary(
     string $countryFilter,
     bool $hasAnyParticipation,
     int $yearFilter = 0,
+    string $perfectFilter = '',
 ): string {
     if ($count === 0) {
         if (!$hasAnyParticipation) {
@@ -200,22 +206,40 @@ function amiga_player_tournaments_list_summary(
 
     $word = $count === 1 ? 'event' : 'events';
     $n = number_format($count);
-    $yearSuffix = $yearFilter > 0 ? ' in ' . $yearFilter : '';
 
-    if ($eventFilter === 'world-cup' && $countryFilter !== '') {
-        return $n . ' World Cup ' . $word . ' in ' . $countryFilter . $yearSuffix . '.';
-    }
+    $preNoun = [];
     if ($eventFilter === 'world-cup') {
-        return $n . ' World Cup ' . $word . $yearSuffix . '.';
+        $preNoun[] = 'World Cup';
     }
+
+    $postNoun = [];
+    if ($perfectFilter === 'with-participant') {
+        $postNoun[] = 'with a perfect run';
+    }
+
+    $suffix = '';
     if ($countryFilter !== '') {
-        return $n . ' ' . $word . ' in ' . $countryFilter . $yearSuffix . '.';
+        $suffix .= ' in ' . $countryFilter;
     }
     if ($yearFilter > 0) {
-        return $n . ' ' . $word . ' in ' . $yearFilter . '.';
+        $suffix .= ' in ' . $yearFilter;
     }
 
-    return $n . ' ' . $word . ' in total.';
+    $hasFilters = $preNoun !== [] || $postNoun !== [] || $suffix !== '';
+    if (!$hasFilters) {
+        return $n . ' ' . $word . ' in total.';
+    }
+
+    $phrase = $n . ' ';
+    if ($preNoun !== []) {
+        $phrase .= implode(' ', $preNoun) . ' ';
+    }
+    $phrase .= $word;
+    if ($postNoun !== []) {
+        $phrase .= ' ' . implode(' ', $postNoun);
+    }
+
+    return $phrase . $suffix . '.';
 }
 
 /** True when any player tournament history filter is active. */
@@ -223,10 +247,12 @@ function amiga_player_tournaments_filters_active(
     string $eventFilter,
     string $countryFilter,
     int $yearFilter,
+    string $perfectFilter = '',
 ): bool {
     return $eventFilter !== 'all'
         || $countryFilter !== ''
-        || $yearFilter > 0;
+        || $yearFilter > 0
+        || $perfectFilter !== '';
 }
 
 function amiga_player_tournaments_reset_url(int $playerId): string
@@ -237,8 +263,13 @@ function amiga_player_tournaments_reset_url(int $playerId): string
 /**
  * Filter pills URL for player tournament history.
  */
-function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'all', string $country = '', int $year = 0): string
-{
+function amiga_player_tournaments_filter_url(
+    int $playerId,
+    string $filter = 'all',
+    string $country = '',
+    int $year = 0,
+    string $perfectFilter = ''
+): string {
     $params = ['id' => $playerId];
     if ($filter !== 'all') {
         $params['filter'] = $filter;
@@ -249,6 +280,9 @@ function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'al
     }
     if ($year > 0) {
         $params['year'] = (string) $year;
+    }
+    if ($perfectFilter === 'with-participant') {
+        $params['perfect'] = 'with-participant';
     }
 
     return k2_amiga_route('amiga-player-tournaments', array_merge($params, k2_table_sort_query_params()));
@@ -288,7 +322,8 @@ function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): ar
                    p.rating_delta,
                    p.rating_after,
                    p.performance_rating,
-                   p.is_winner
+                   p.is_winner,
+                   p.is_perfect_event
             FROM amiga_player_event_snapshots p
             INNER JOIN amiga_players pl ON pl.id = p.player_id
             INNER JOIN tournaments t ON t.id = p.tournament_id
@@ -514,7 +549,8 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
                    t.event_gold,
                    t.event_silver,
                    t.event_bronze,
-                   t.event_podiums
+                   t.event_podiums,
+                   t.perfect_events
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
             WHERE t.tournaments_played > 0

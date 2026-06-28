@@ -53,6 +53,7 @@ EVENT_LOCAL_COLUMNS: tuple[str, ...] = (
     "games_in_event",
     "is_winner",
     "best_knockout_phase",
+    "is_perfect_event",
 )
 
 # Honours cumulative on snapshots (honours_last_* avoids catalog key collision).
@@ -63,6 +64,7 @@ HONOURS_SNAPSHOT_COLUMNS: tuple[str, ...] = (
     "event_silver",
     "event_bronze",
     "event_podiums",
+    "perfect_events",
     "honours_last_event_date",
     "honours_last_tournament_id",
 )
@@ -74,6 +76,7 @@ HONOURS_CURRENT_COLUMNS: tuple[str, ...] = (
     "event_silver",
     "event_bronze",
     "event_podiums",
+    "perfect_events",
 )
 
 _AMIGA_DROP_CAREER_GAME_IDS: frozenset[str] = frozenset(
@@ -164,6 +167,7 @@ def honours_columns_from_totals_row(totals: dict[str, Any]) -> dict[str, Any]:
         "event_silver": int(totals.get("event_silver") or 0),
         "event_bronze": int(totals.get("event_bronze") or 0),
         "event_podiums": int(totals.get("event_podiums") or 0),
+        "perfect_events": int(totals.get("perfect_events") or 0),
         "honours_last_event_date": totals.get("last_event_date"),
         "honours_last_tournament_id": totals.get("last_tournament_id"),
     }

@@ -26,22 +26,30 @@ $k2AmigaTournamentIndexYearChoices = $k2AmigaTournamentIndexYearChoices ?? [['va
 $k2AmigaTournamentIndexShowCountryFilter = !empty($k2AmigaTournamentIndexShowCountryFilter);
 $k2AmigaTournamentIndexShowYearFilter = !empty($k2AmigaTournamentIndexShowYearFilter);
 
+$k2AmigaTournamentIndexPerfectFilter = $k2AmigaTournamentIndexPerfectFilter ?? '';
+$pf = $k2AmigaTournamentIndexPerfectFilter;
+
 $k2AmigaTournamentIndexWcTabs = [
-    '' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, '', $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'All'],
-    'world-cup' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, 'world-cup', $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'World Cups'],
-    'not-world-cup' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, 'not-world-cup', $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'Not World Cups'],
+    '' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, '', $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'All'],
+    'world-cup' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, 'world-cup', $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'World Cups'],
+    'not-world-cup' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, 'not-world-cup', $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'Not World Cups'],
 ];
 
 $k2AmigaTournamentIndexTabs = [
-    '' => ['href' => amiga_tournament_index_filter_url('', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'All'],
-    'league' => ['href' => amiga_tournament_index_filter_url('league', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'Leagues'],
-    'cup' => ['href' => amiga_tournament_index_filter_url('cup', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'Cups'],
-    'league-cup' => ['href' => amiga_tournament_index_filter_url('league-cup', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'League + cup'],
+    '' => ['href' => amiga_tournament_index_filter_url('', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'All'],
+    'league' => ['href' => amiga_tournament_index_filter_url('league', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'Leagues'],
+    'cup' => ['href' => amiga_tournament_index_filter_url('cup', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'Cups'],
+    'league-cup' => ['href' => amiga_tournament_index_filter_url('league-cup', $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'League + cup'],
 ];
 
 $k2AmigaTournamentIndexVideosTabs = [
-    '' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, '', $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'All'],
-    'with-videos' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, 'with-videos', $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter), 'label' => 'With videos'],
+    '' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, '', $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'All'],
+    'with-videos' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, 'with-videos', $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, $pf), 'label' => 'With videos'],
+];
+
+$k2AmigaTournamentIndexPerfectTabs = [
+    '' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, ''), 'label' => 'All'],
+    'with-participant' => ['href' => amiga_tournament_index_filter_url($k2AmigaTournamentIndexFilter, $k2AmigaTournamentIndexVideosFilter, $k2AmigaTournamentIndexWcFilter, $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexYearFilter, 'with-participant'), 'label' => 'Perfect run'],
 ];
 
 $k2AmigaTournamentIndexSortParams = k2_table_sort_query_params();
@@ -80,6 +88,17 @@ $k2AmigaTournamentIndexSortParams = k2_table_sort_query_params();
 <?php } ?>
 	</nav>
 </div>
+<div class="k2-chrome-tabs k2-amiga-tournament-index-tabs k2-amiga-tournament-index-tabs--stacked">
+	<nav class="k2-chrome-tabs__bar k2-chrome-tabs__bar--compact" data-k2-carry-scroll aria-label="Filter by perfect run">
+<?php foreach ($k2AmigaTournamentIndexPerfectTabs as $filterId => $tab) {
+    $isActive = $k2AmigaTournamentIndexPerfectFilter === $filterId;
+    ?>
+		<a href="<?php echo htmlspecialchars($tab['href'], ENT_QUOTES, 'UTF-8'); ?>"
+			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
+			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo $tab['label']; ?></a>
+<?php } ?>
+	</nav>
+</div>
 <?php if ($k2AmigaTournamentIndexShowCountryFilter || $k2AmigaTournamentIndexShowYearFilter) { ?>
 <form class="k2-player-games-controls" method="get" action="/amiga/tournaments.php" data-k2-carry-scroll>
 	<div class="k2-player-games-controls__meta">
@@ -91,6 +110,9 @@ $k2AmigaTournamentIndexSortParams = k2_table_sort_query_params();
 <?php } ?>
 <?php if ($k2AmigaTournamentIndexVideosFilter !== '') { ?>
 		<input type="hidden" name="videos" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexVideosFilter, ENT_QUOTES, 'UTF-8'); ?>" />
+<?php } ?>
+<?php if ($k2AmigaTournamentIndexPerfectFilter !== '') { ?>
+		<input type="hidden" name="perfect" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexPerfectFilter, ENT_QUOTES, 'UTF-8'); ?>" />
 <?php } ?>
 <?php if (!$k2AmigaTournamentIndexShowCountryFilter && $k2AmigaTournamentIndexCountryFilter !== '') { ?>
 		<input type="hidden" name="country" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexCountryFilter, ENT_QUOTES, 'UTF-8'); ?>" />

@@ -231,6 +231,9 @@ function amiga_profile_recent_tournament_extras(array $t): string
     if ((int) ($t['is_winner'] ?? 0) === 1) {
         $parts[] = 'Winner';
     }
+    if ((int) ($t['is_perfect_event'] ?? 0) === 1) {
+        $parts[] = 'Perfect';
+    }
     $games = (int) ($t['games'] ?? 0);
     $perf = $t['performance_rating'] ?? null;
     if ($games >= 2 && $perf !== null && $perf !== '' && !k2_db_is_null($perf)) {
@@ -416,7 +419,12 @@ function amiga_profile_event_date_sort_value(array $row): string
 
 function amiga_profile_tournament_finish_rank_label(array $row): string
 {
-    return amiga_profile_event_finish_ordinal_label($row);
+    $label = amiga_profile_event_finish_ordinal_label($row);
+    if ((int) ($row['is_perfect_event'] ?? 0) === 1) {
+        $label .= ' · Perfect';
+    }
+
+    return $label;
 }
 
 function amiga_profile_tournament_wdl_cell(int $value, string $tone): string

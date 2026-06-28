@@ -39,6 +39,7 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'most_tournaments_in_year' => ['wing' => 'calendar-geo', 'sort' => 5, 'dir' => 'desc'],
         'most_tournaments_played' => ['wing' => 'tournament-honours', 'sort' => 3, 'dir' => 'desc'],
         'most_tournament_wins' => ['wing' => 'tournament-honours', 'sort' => 4, 'dir' => 'desc'],
+        'most_perfect_events' => ['wing' => 'tournament-honours', 'sort' => 8, 'dir' => 'desc'],
         'most_wc_played' => ['wing' => 'world-cups', 'sort' => 3, 'dir' => 'desc'],
         'most_countries_played_in' => ['wing' => 'calendar-geo', 'sort' => 7, 'dir' => 'desc'],
         'most_opponent_countries_faced' => ['wing' => 'calendar-geo', 'sort' => 8, 'dir' => 'desc'],

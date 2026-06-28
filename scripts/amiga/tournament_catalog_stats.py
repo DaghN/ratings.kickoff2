@@ -14,7 +14,8 @@ log = logging.getLogger(__name__)
 
 _REBUILD_SQL = """
 INSERT INTO amiga_tournament_catalog_stats (
-    tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties
+    tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties,
+    has_perfect_participant
 )
 SELECT
     t.id,
@@ -22,7 +23,8 @@ SELECT
     COALESCE(s.standing_players, 0),
     COALESCE(s.standing_rows, 0),
     COALESCE(s.league_scopes, 0),
-    COALESCE(s.knockout_ties, 0)
+    COALESCE(s.knockout_ties, 0),
+    COALESCE(pe.has_perfect_participant, 0)
 FROM tournaments t
 LEFT JOIN (
     SELECT tournament_id, COUNT(*) AS game_count
@@ -40,12 +42,18 @@ LEFT JOIN (
     FROM amiga_tournament_standings
     GROUP BY tournament_id
 ) s ON s.tournament_id = t.id
+LEFT JOIN (
+    SELECT tournament_id, MAX(is_perfect_event) AS has_perfect_participant
+    FROM amiga_player_event_snapshots
+    GROUP BY tournament_id
+) pe ON pe.tournament_id = t.id
 ON DUPLICATE KEY UPDATE
     game_count = VALUES(game_count),
     standing_players = VALUES(standing_players),
     standing_rows = VALUES(standing_rows),
     league_scopes = VALUES(league_scopes),
-    knockout_ties = VALUES(knockout_ties)
+    knockout_ties = VALUES(knockout_ties),
+    has_perfect_participant = VALUES(has_perfect_participant)
 """
 
 
@@ -93,7 +101,8 @@ def rebuild_all_catalog_stats(conn: pymysql.connections.Connection, *, dry_run: 
 
 _CATALOG_REFRESH_ONE_SQL = """
 INSERT INTO amiga_tournament_catalog_stats (
-    tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties
+    tournament_id, game_count, standing_players, standing_rows, league_scopes, knockout_ties,
+    has_perfect_participant
 )
 SELECT
     %s,
@@ -109,13 +118,18 @@ SELECT
     COALESCE((
         SELECT COUNT(DISTINCT scope_key) FROM amiga_tournament_standings
         WHERE tournament_id = %s AND scope_type = 'knockout'
-    ), 0)
+    ), 0),
+    CASE WHEN EXISTS (
+        SELECT 1 FROM amiga_player_event_snapshots
+        WHERE tournament_id = %s AND is_perfect_event = 1
+    ) THEN 1 ELSE 0 END
 ON DUPLICATE KEY UPDATE
     game_count = VALUES(game_count),
     standing_players = VALUES(standing_players),
     standing_rows = VALUES(standing_rows),
     league_scopes = VALUES(league_scopes),
-    knockout_ties = VALUES(knockout_ties)
+    knockout_ties = VALUES(knockout_ties),
+    has_perfect_participant = VALUES(has_perfect_participant)
 """
 
 
@@ -124,7 +138,7 @@ def refresh_catalog_stats_for_tournament(
     tournament_id: int,
 ) -> None:
     """Upsert one tournament row in amiga_tournament_catalog_stats."""
-    params = (tournament_id,) * 6
+    params = (tournament_id,) * 7
     with conn.cursor() as cur:
         cur.execute(_CATALOG_REFRESH_ONE_SQL, params)
     conn.commit()

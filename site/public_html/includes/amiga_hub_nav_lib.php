@@ -46,7 +46,7 @@ function amiga_hub_all_tabs(): array
         'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
         'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
         'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
-        'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live tournaments'],
+        'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live'],
         // Future hub Games tab (highlights + vault): present-only — add `'games' => …` here; omit from TIME_TRAVEL_TAB_IDS.
     ];
 }

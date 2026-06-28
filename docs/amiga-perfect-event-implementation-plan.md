@@ -1,5 +1,7 @@
 # Amiga perfect event — implementation plan (SCH-045)
 
+**Status:** **Complete** (Jun 2026) — `prove` green including `verify-perfect-event`.
+
 **Status:** Not started (Jun 2026)  
 **Policy:** [`amiga-perfect-event-policy.md`](amiga-perfect-event-policy.md)  
 **Schema id:** **SCH-045**

@@ -42,6 +42,11 @@ if ($videosFilter !== 'with-videos') {
     $videosFilter = '';
 }
 
+$perfectFilter = isset($_GET['perfect']) ? (string) $_GET['perfect'] : '';
+if ($perfectFilter !== 'with-participant') {
+    $perfectFilter = '';
+}
+
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 
@@ -74,8 +79,9 @@ $countryFacetRows = amiga_tournament_index_filter_rows(
     $videosFilter,
     $countryFilter,
     $yearFilter,
-    true,
-    false
+    false,
+    false,
+    $perfectFilter
 );
 $yearFacetRows = amiga_tournament_index_filter_rows(
     $allRows,
@@ -85,7 +91,8 @@ $yearFacetRows = amiga_tournament_index_filter_rows(
     $countryFilter,
     $yearFilter,
     false,
-    true
+    true,
+    $perfectFilter
 );
 
 $countryCounts = amiga_tournament_index_inject_selected_country(
@@ -108,7 +115,10 @@ $rows = amiga_tournament_index_filter_rows(
     $typeFilter,
     $videosFilter,
     $countryFilter,
-    $yearFilter
+    $yearFilter,
+    false,
+    false,
+    $perfectFilter
 );
 $listSummary = amiga_tournament_index_list_summary(
     count($rows),
@@ -118,6 +128,7 @@ $listSummary = amiga_tournament_index_list_summary(
     $videosFilter,
     $countryFilter,
     $yearFilter,
+    $perfectFilter,
 );
 ?>
 
@@ -129,6 +140,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 $k2AmigaTournamentIndexWcFilter = $wcFilter;
 $k2AmigaTournamentIndexFilter = $typeFilter;
 $k2AmigaTournamentIndexVideosFilter = $videosFilter;
+$k2AmigaTournamentIndexPerfectFilter = $perfectFilter;
 $k2AmigaTournamentIndexCountryFilter = $countryFilter;
 $k2AmigaTournamentIndexYearFilter = $yearFilter;
 $k2AmigaTournamentIndexCountryChoices = $countryChoices;
@@ -140,7 +152,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_index_nav.php';
 
 <div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
-<?php if (amiga_tournament_index_filters_active($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter)) { ?>
+<?php if (amiga_tournament_index_filters_active($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, $perfectFilter)) { ?>
 	<a class="k2-player-games-reset" href="<?php echo k2_h(amiga_tournament_index_reset_url()); ?>">Reset filters</a>
 <?php } ?>
 </div>

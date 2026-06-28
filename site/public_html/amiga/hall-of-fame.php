@@ -91,6 +91,7 @@ $k2HofRecordLabels = [
     'Most tournaments in one year',
     'Most tournaments (career)',
     'Most tournament wins',
+    'Most perfect events',
     'Most World Cups played',
     'Most countries played in',
     'Most opponent countries faced',
@@ -299,6 +300,13 @@ amiga_records_render_row(
     amiga_records_holder_player((int) ($records['MostTournamentWinsID'] ?? 0), (string) ($records['MostTournamentWinsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostTournamentWinsDate'] ?? null, amiga_records_has_value($records['MostTournamentWins'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_tournament_wins')
+);
+amiga_records_render_row(
+    'Most perfect events',
+    amiga_records_value_or_dash($records['MostPerfectEvents'] ?? null),
+    amiga_records_holder_player((int) ($records['MostPerfectEventsID'] ?? 0), (string) ($records['MostPerfectEventsName'] ?? ''), $hofCountryByPlayer),
+    amiga_records_date_or_dash($records['MostPerfectEventsDate'] ?? null, amiga_records_has_value($records['MostPerfectEvents'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
+    amiga_records_hof_lb_href('most_perfect_events')
 );
 amiga_records_render_row(
     'Most World Cups played',

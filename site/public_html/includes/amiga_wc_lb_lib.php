@@ -162,12 +162,23 @@ function amiga_wc_lb_rows_for_view(mysqli $con, AmigaSnapshotContext $ctx, strin
     if ($ctx->isActive()) {
         $sliceRows = amiga_lb_wc_slice_rows_at_cutoff($con, $ctx, $view);
 
-        return amiga_wc_lb_attach_player_meta_at_cutoff($con, $ctx, $sliceRows);
+        $rows = amiga_wc_lb_attach_player_meta_at_cutoff($con, $ctx, $sliceRows);
+    } else {
+        $sliceRows = amiga_lb_wc_slice_rows_present($con, $view);
+
+        $rows = amiga_wc_lb_attach_player_meta_present($con, $sliceRows);
     }
 
-    $sliceRows = amiga_lb_wc_slice_rows_present($con, $view);
+    if ($view === 'honours' && $rows !== []) {
+        require_once __DIR__ . '/amiga_perfect_event.php';
+        $perfectByPlayer = amiga_wc_perfect_events_by_player($con, $ctx);
+        foreach ($rows as $index => $row) {
+            $pid = (int) $row['player_id'];
+            $rows[$index]['wc_perfect_events'] = $perfectByPlayer[$pid] ?? 0;
+        }
+    }
 
-    return amiga_wc_lb_attach_player_meta_present($con, $sliceRows);
+    return $rows;
 }
 
 function amiga_wc_honours_leaderboard_rows(mysqli $con, AmigaSnapshotContext $ctx): array

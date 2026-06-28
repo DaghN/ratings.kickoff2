@@ -10,6 +10,7 @@ declare(strict_types=1);
 const AMIGA_HONOURS_RISE_METRICS = [
     'tournaments_played',
     'event_gold',
+    'perfect_events',
 ];
 
 /**
@@ -65,6 +66,7 @@ function amiga_honours_empty_totals(): array
         'event_silver' => 0,
         'event_bronze' => 0,
         'event_podiums' => 0,
+        'perfect_events' => 0,
         'last_event_date' => null,
         'last_tournament_id' => null,
     ] + amiga_honours_empty_rise_fields();
@@ -83,6 +85,7 @@ function amiga_honours_increment_totals(array &$totals, array $participation): v
 {
     $priorTournamentsPlayed = (int) ($totals['tournaments_played'] ?? 0);
     $priorEventGold = (int) ($totals['event_gold'] ?? 0);
+    $priorPerfectEvents = (int) ($totals['perfect_events'] ?? 0);
 
     $totals['tournaments_played'] = $priorTournamentsPlayed + 1;
 
@@ -107,6 +110,10 @@ function amiga_honours_increment_totals(array &$totals, array $participation): v
         $totals['event_podiums'] = (int) ($totals['event_podiums'] ?? 0) + 1;
     }
 
+    if ((int) ($participation['is_perfect_event'] ?? 0) === 1) {
+        $totals['perfect_events'] = (int) ($totals['perfect_events'] ?? 0) + 1;
+    }
+
     $tournamentId = (int) $participation['tournament_id'];
     $eventDate = $participation['event_date'] ?? null;
     $totals['last_event_date'] = $eventDate;
@@ -117,6 +124,9 @@ function amiga_honours_increment_totals(array &$totals, array $participation): v
     }
     if ((int) $totals['event_gold'] > $priorEventGold) {
         amiga_honours_set_last_rise($totals, 'event_gold', $tournamentId, $eventDate);
+    }
+    if ((int) $totals['perfect_events'] > $priorPerfectEvents) {
+        amiga_honours_set_last_rise($totals, 'perfect_events', $tournamentId, $eventDate);
     }
 }
 
@@ -133,6 +143,7 @@ function amiga_honours_totals_from_snapshot_row(array $row): array
         'event_silver' => (int) ($row['event_silver'] ?? 0),
         'event_bronze' => (int) ($row['event_bronze'] ?? 0),
         'event_podiums' => (int) ($row['event_podiums'] ?? 0),
+        'perfect_events' => (int) ($row['perfect_events'] ?? 0),
         'last_event_date' => $row['honours_last_event_date'] ?? $row['last_event_date'] ?? null,
         'last_tournament_id' => $row['honours_last_tournament_id'] ?? $row['last_tournament_id'] ?? null,
     ];

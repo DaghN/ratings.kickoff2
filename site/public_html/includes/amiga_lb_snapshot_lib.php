@@ -232,7 +232,8 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
                    t.event_gold,
                    t.event_silver,
                    t.event_bronze,
-                   t.event_podiums
+                   t.event_podiums,
+                   t.perfect_events
             FROM (
                 SELECT x.* FROM (
                     SELECT snap.*,

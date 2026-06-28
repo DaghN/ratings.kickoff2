@@ -364,6 +364,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Assert community stats snapshots + facts (community-stats policy §11)",
     )
     sub.add_parser(
+        "verify-perfect-event",
+        help="Assert perfect-event flags, honours totals, catalog stats, and HoF holder",
+    )
+
+    sub.add_parser(
         "verify-hof-geo-year",
         help="Assert geo/year player scalars + HoF holders (hof-tournament-geo policy)",
     )
@@ -677,6 +682,11 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.verify_community_stats import main as verify_community_stats_main
 
         return verify_community_stats_main()
+
+    if args.cmd == "verify-perfect-event":
+        from scripts.amiga.verify_perfect_event import main as verify_perfect_event_main
+
+        return verify_perfect_event_main()
 
     if args.cmd == "verify-hof-geo-year":
         return verify_hof_geo_year_main()

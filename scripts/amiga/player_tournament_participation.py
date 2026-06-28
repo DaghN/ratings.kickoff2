@@ -10,6 +10,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.perfect_event import is_perfect_event_from_rollup
 from scripts.amiga.participation_placement import (
     derive_best_knockout_phase,
     derive_event_finish_position,
@@ -187,6 +188,11 @@ def participation_row_from_parts(
                 tournament_name=str(tournament["name"]),
                 event_finish_position=event_finish_position,
             )
+            else 0
+        ),
+        "is_perfect_event": (
+            1
+            if is_perfect_event_from_rollup(games_count, wins, draws, int(rollup.get("losses") or 0))
             else 0
         ),
     }

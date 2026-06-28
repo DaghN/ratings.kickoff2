@@ -1,6 +1,6 @@
 # Amiga perfect event — policy
 
-**Status:** **Locked** (Jun 2026) — design authority; implementation not started.  
+**Status:** **Implemented** (Jun 2026) — SCH-045 shipped; `python -m scripts.amiga prove` green including `verify-perfect-event`.  
 **Related:** [`amiga-performance-rating.md`](amiga-performance-rating.md) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md)
 
 ---

@@ -399,6 +399,16 @@ function k2_lb_help_amiga_event_podiums(): string
     return 'Top-three tournament finishes (gold + silver + bronze).';
 }
 
+function k2_lb_help_amiga_perfect_events(): string
+{
+    return 'Tournament events with at least two games and no draws or losses (all wins).';
+}
+
+function k2_lb_help_amiga_wc_perfect_events(): string
+{
+    return 'World Cup events with at least two games and no draws or losses (all wins).';
+}
+
 function k2_lb_help_amiga_wc_played(): string
 {
     return 'World Cup events you entered.';
