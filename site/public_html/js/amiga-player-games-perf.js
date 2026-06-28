@@ -63,10 +63,14 @@
 					setPerfValue(perfEl, String(data.performance_rating));
 					return;
 				}
-				setPerfValue(perfEl, '—');
+				if (data && data.reason === 'perfect_win_record') {
+					setPerfValue(perfEl, '\u221E');
+					return;
+				}
+				setPerfValue(perfEl, '-');
 			})
 			.catch(function () {
-				setPerfValue(perfEl, '—');
+				setPerfValue(perfEl, '-');
 			});
 	});
 })();

@@ -61,6 +61,9 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
     );
 
     $pairs = [];
+    $wins = 0;
+    $draws = 0;
+    $losses = 0;
     foreach ($rows as $row) {
         $idA = (int) ($row['idA'] ?? 0);
         $actualScore = (float) ($row['ActualScore'] ?? 0);
@@ -69,11 +72,20 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
                 'opponent' => (float) ($row['RatingB'] ?? 0),
                 'score' => $actualScore,
             ];
+            $playerScore = $actualScore;
         } else {
             $pairs[] = [
                 'opponent' => (float) ($row['RatingA'] ?? 0),
                 'score' => 1.0 - $actualScore,
             ];
+            $playerScore = 1.0 - $actualScore;
+        }
+        if ($playerScore >= 1.0 - 1e-9) {
+            $wins++;
+        } elseif ($playerScore <= 1e-9) {
+            $losses++;
+        } else {
+            $draws++;
         }
     }
 
@@ -83,8 +95,10 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
     $reason = null;
     if ($gameCount < AMIGA_PERFORMANCE_RATING_MIN_GAMES) {
         $reason = 'min_games';
+    } elseif ($perf === null && performance_rating_is_perfect_win_record($gameCount, $wins, $draws, $losses)) {
+        $reason = 'perfect_win_record';
     } elseif ($perf === null) {
-        $reason = 'perfect_record';
+        $reason = 'undefined_record';
     }
 
     return [

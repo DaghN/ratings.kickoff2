@@ -4,7 +4,12 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/k2_safety.php';
+
 const PERFORMANCE_RATING_MIN_GAMES = 2;
+
+/** Sort key for ∞ perf cells (above any finite rating in number columns). */
+const PERFORMANCE_RATING_INFINITY_SORT_VALUE = '9999999';
 
 function performance_rating_elo_expected(float $playerRating, float $opponentRating): float
 {
@@ -83,10 +88,37 @@ function performance_rating_from_pairs(array $pairs): ?float
     return performance_rating_solve($opponents, $scores);
 }
 
+/** Undefeated run with at least two games — no finite TPR; UI shows ∞. */
+function performance_rating_is_perfect_win_record(int $games, int $wins, int $draws, int $losses): bool
+{
+    if ($games < PERFORMANCE_RATING_MIN_GAMES) {
+        return false;
+    }
+
+    return $losses === 0 && $draws === 0 && $wins === $games;
+}
+
+function performance_rating_infinity_cell_html(): string
+{
+    return '<span aria-hidden="true">&#8734;</span><span class="visually-hidden">Perfect win record</span>';
+}
+
+function performance_rating_display_cell(mixed $rating, bool $showInfinity, string $empty = '-'): string
+{
+    if ($showInfinity && ($rating === null || $rating === '' || k2_db_is_null($rating))) {
+        return performance_rating_infinity_cell_html();
+    }
+    if ($rating === null || $rating === '' || k2_db_is_null($rating)) {
+        return $empty;
+    }
+
+    return k2_fmt_int($rating);
+}
+
 /** Tooltip for online H2H pair detail row. */
 function performance_rating_h2h_pair_help(): string
 {
     return 'Rating level implied by your results in rated games against this opponent, '
         . 'using their pre-game rating in each game. Requires at least 2 games; '
-        . 'omitted for perfect win or loss records.';
+        . 'shows ∞ for a perfect win record (all wins, at least 2 games); omitted otherwise.';
 }

@@ -234,9 +234,9 @@ function amiga_realm_games_hub_render_row(
         $eloDiffCell = $dash;
     }
 
-    $flagA = $showFlags && $countryA !== '' ? k2_amiga_country_flag_link($countryA, ['class' => 'k2-amiga-tgame-flag']) : '';
-    $flagB = $showFlags && $countryB !== '' ? k2_amiga_country_flag_link($countryB, ['class' => 'k2-amiga-tgame-flag']) : '';
-    $hostFlag = $hostCountry !== '' ? k2_amiga_country_flag_link($hostCountry, ['class' => 'k2-amiga-tgame-flag']) : '';
+    $flagA = $showFlags ? k2_amiga_country_flag_link($countryA) : '';
+    $flagB = $showFlags ? k2_amiga_country_flag_link($countryB) : '';
+    $hostFlag = k2_amiga_country_flag_link($hostCountry);
     $teamACell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--a">' . $flagA
         . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']) . '</span>';
     $teamBCell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--b">'

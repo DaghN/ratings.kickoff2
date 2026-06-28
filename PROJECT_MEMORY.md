@@ -129,6 +129,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-28 | **Amiga table flags — API tidy** — retired `k2_amiga_country_flag_linked()`; single primitive `k2_amiga_country_flag_link()` (decorative false default); caption passes tgame class + decorative true. |
 | 2026-06-28 | **Amiga Tournaments hub — time travel** — TT hub tab; catalog rows ≤ cutoff (`amiga_tournament_index_rows`); filter pills + listbox preserve `as=` via `k2_amiga_route('amiga-tournaments')`; hub chapter suppressed under TT. Policy T13b = present hub minus editorial (News · Live · future Misc). |
 | 2026-06-28 | **Amiga perf-rating LB — shipped** — Best · Top 100 · Perfect sub-wings (`performance-rating/{best,top,perfect}.php`); W-D-L columns; ∞ on Perfect (183 rows); top=100 fixed set; legacy `performance-rating.php` 302; TT on all paths. |
 | 2026-06-28 | **Amiga perf-rating LB policy** — locked Best · Top 100 · Perfect sub-wings (folder + segment nav), W-D-L columns, ∞ on Perfect, fixed top-100 set, TT reads. [`amiga-performance-rating-leaderboard-policy.md`](docs/amiga-performance-rating-leaderboard-policy.md) |

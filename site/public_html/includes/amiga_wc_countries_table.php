@@ -14,6 +14,7 @@ require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_wc_countries_lb_lib.php';
+require_once __DIR__ . '/performance_rating.php';
 
 /** @var list<string> */
 const AMIGA_WC_COUNTRIES_VIEWS = ['honours', 'results', 'goals', 'dds', 'opponents'];
@@ -124,6 +125,16 @@ function amiga_wc_countries_render_results(array $rows, int $countryCount): void
         $points = (int) $row['points'];
         $realmWcs = (int) ($row['realm_wc_tournament_count'] ?? 0);
         $ptsPerGame = amiga_wc_country_points_per_game($points, $games);
+        $wins = (int) $row['wins'];
+        $draws = (int) $row['draws'];
+        $losses = (int) $row['losses'];
+        $perfRating = isset($row['performance_rating']) && $row['performance_rating'] !== null && $row['performance_rating'] !== ''
+            ? (float) $row['performance_rating']
+            : null;
+        $perfInfinity = performance_rating_is_perfect_win_record($games, $wins, $draws, $losses);
+        $perfSortValue = $perfRating !== null
+            ? (string) (int) round($perfRating)
+            : ($perfInfinity ? PERFORMANCE_RATING_INFINITY_SORT_VALUE : '-1');
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
@@ -131,14 +142,14 @@ function amiga_wc_countries_render_results(array $rows, int $countryCount): void
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo $players; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['tournaments_with_nation']; ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo $games; ?></td>
-        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo (int) $row['wins']; ?></td>
-        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo (int) $row['draws']; ?></td>
-        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo (int) $row['losses']; ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo $wins; ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo $draws; ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo $losses; ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo $points; ?></td>
         <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo $ptsPerGame !== null ? k2_fmt_decimal($ptsPerGame, $games) : k2_fmt_dash(); ?></td>
         <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['win_rate'] ?? null, $games); ?></td>
         <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_int($row['average_opponent_rating'] ?? null); ?></td>
-        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_int($row['performance_rating'] ?? null); ?></td>
+        <td<?php echo k2_lb_td(12, $lbSort); ?> data-k2-sort-value="<?php echo k2_h($perfSortValue); ?>"><?php echo performance_rating_display_cell($perfRating, $perfInfinity, k2_fmt_dash()); ?></td>
         <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_decimal($row['points_per_realm_wc'] ?? null, $realmWcs > 0 ? $realmWcs : null); ?></td>
         <td<?php echo k2_lb_td(14, $lbSort); ?>><?php echo (int) $row['wc_participations']; ?></td>
         <td<?php echo k2_lb_td(15, $lbSort); ?>><?php echo k2_fmt_decimal($row['wc_participations_per_player'] ?? null, $players > 0 ? $players : null); ?></td>

@@ -46,7 +46,7 @@ where `E(R, R_opp) = 1 / (1 + 10^((R_opp − R) / 400))` — same logistic as la
 | **Minimum games** | `games_in_event ≥ 2` — otherwise NULL |
 | **Perfect 0% or 100%** | NULL (no finite logistic solution when every score is 0 or 1) |
 | **Not finalized** | NULL (no `amiga_game_ratings` / rating event) |
-| **Display** | Integer like entry rating; NULL → em dash + column tooltip |
+| **Display** | Integer like entry rating; **∞** only for perfect **win** records (`is_perfect_event` on events; all wins with ≥2 games on pair/filter slices); all-loss and other NULL cases → narrow dash (`-`) + column tooltip |
 | **vs entry delta** | Not surfaced in v1 |
 
 ---
@@ -85,7 +85,7 @@ Do **not** store on `amiga_tournament_standings` (phase-scoped, multiple rows pe
 | `/amiga/leaderboards/performance-rating/top.php` | Fixed top 100 imperfect event ratings (`amiga_lb_performance_rating_top_rows`) |
 | `/amiga/leaderboards/performance-rating/perfect.php` | All perfect runs at cutoff (`amiga_lb_performance_rating_perfect_rows`) — **∞** in Perf. column |
 | `/amiga/leaderboards/performance-rating.php` | 302 → `best.php` (query preserved) |
-| `/amiga/player/games.php` status line | **Read-time** over filtered games — `amiga_player_games_list_performance_rating()` via `api/amiga_player_games_perf_rating.php` (async after paint); frozen `rating_a`/`rating_b` per game; not stored |
+| `/amiga/player/games.php` status line | **Read-time** over filtered games — `amiga_player_games_list_performance_rating()` via `api/amiga_player_games_perf_rating.php` (async after paint); frozen `rating_a`/`rating_b` per game; **∞** when `reason=perfect_win_record`; not stored |
 
 When the games tab filters to a **single tournament**, the list perf should match that event’s stored `participation.performance_rating` (same game set and frozen inputs).
 

@@ -151,7 +151,7 @@ Find `R_perf` such that `Σ_g E(R_perf, R_opp_g) = Σ_g s_g` with the same logis
 | Rule | Behaviour |
 |------|-----------|
 | **Minimum games** | `games ≥ 2` else NULL |
-| **Perfect 0% or 100%** | NULL |
+| **Perfect 0% or 100%** | NULL; UI shows **∞** on Results sub-wing only for **perfect win** (all wins, ≥2 games, no draws) |
 | **Domestic games** | Included — opponent = other national’s frozen rating |
 | **Scope** | All WC games in realm history at cutoff |
 

@@ -137,7 +137,7 @@ Below the poster, a **single centred race table** (no band headers, no name repe
 
 Goals scored · Goals per game · Most scored · Biggest winning margin · Least conceded (lower wins) · Double digits · Clean sheets · Performance rating
 
-**Performance rating** — chess-style TPR per player in this pairing only: each side’s score vs the other’s **pre-game rating** in every rated game (`ratedresults`). Read-time (`player_h2h_pair_performance_ratings()` + shared `performance_rating.php`); min 2 games; `—` on perfect W/L (same rules as Amiga). Tooltip on row label.
+**Performance rating** — chess-style TPR per player in this pairing only: each side’s score vs the other’s **pre-game rating** in every rated game (`ratedresults`). Read-time (`player_h2h_pair_performance_ratings()` + shared `performance_rating.php`); min 2 games; **∞** on perfect **win** only (all wins); narrow dash (`-`) on perfect loss. Tooltip on row label.
 
 **Deferred:** wins/draws (on poster), goal ratio, highest/lowest-scoring game, highest-scoring draw, DD/CS rates — moments or later slices.
 

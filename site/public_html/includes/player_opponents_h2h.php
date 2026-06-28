@@ -588,9 +588,25 @@ function k2_h2h_perf_rating_leader(?int $subject, ?int $opponent): string
     return k2_h2h_race_leader((float) $subject, (float) $opponent, 'higher');
 }
 
-function k2_h2h_perf_rating_display(?int $rating): string
+function k2_h2h_perf_rating_display(?int $rating, int $games = 0, int $wins = 0, int $draws = 0, int $losses = 0): string
 {
-    return $rating !== null ? k2_fmt_int($rating, '—') : '—';
+    $showInfinity = performance_rating_is_perfect_win_record($games, $wins, $draws, $losses);
+
+    return performance_rating_display_cell($rating, $showInfinity, k2_fmt_dash());
+}
+
+/** H2H race row — allows ∞ markup without double escaping. */
+function k2_h2h_perf_rating_race_html(?int $rating, int $games, int $wins, int $draws, int $losses): string
+{
+    $showInfinity = performance_rating_is_perfect_win_record($games, $wins, $draws, $losses);
+    if ($showInfinity && $rating === null) {
+        return performance_rating_infinity_cell_html();
+    }
+    if ($rating !== null) {
+        return k2_h(k2_fmt_int($rating));
+    }
+
+    return k2_h(k2_fmt_dash());
 }
 
 /**
@@ -838,8 +854,20 @@ function player_opponents_render_h2h_pair_detail(array $subjectCard, array $oppo
     );
     $renderRace(
         'Performance rating',
-        k2_h(k2_h2h_perf_rating_display($subjectPerf)),
-        k2_h(k2_h2h_perf_rating_display($opponentPerf)),
+        k2_h2h_perf_rating_race_html(
+            $subjectPerf,
+            $games,
+            (int) ($detail['wins'] ?? 0),
+            (int) ($detail['draws'] ?? 0),
+            (int) ($detail['losses'] ?? 0)
+        ),
+        k2_h2h_perf_rating_race_html(
+            $opponentPerf,
+            $games,
+            (int) ($detail['losses'] ?? 0),
+            (int) ($detail['draws'] ?? 0),
+            (int) ($detail['wins'] ?? 0)
+        ),
         k2_h2h_perf_rating_leader($subjectPerf, $opponentPerf),
         performance_rating_h2h_pair_help()
     );

@@ -38,27 +38,6 @@ function amiga_world_cups_events_podium_th(int $place): string
 
 /**
  * @param array<int, string> $nameMap
- * @param array<int, string> $countryMap
- */
-function amiga_world_cups_events_podium_cell(int $playerId, array $nameMap, array $countryMap): string
-{
-    if ($playerId < 1) {
-        return k2_fmt_dash();
-    }
-
-    $name = k2_player_display_name($nameMap, $playerId);
-    $country = trim($countryMap[$playerId] ?? '');
-    $flag = $country !== '' ? k2_amiga_country_table_cell($country) : '';
-    $link = k2_amiga_player_link($playerId, $name);
-    if ($flag === '') {
-        return $link;
-    }
-
-    return '<span class="k2-amiga-wc-podium-player">' . $flag . ' ' . $link . '</span>';
-}
-
-/**
- * @param array<int, string> $nameMap
  */
 function amiga_world_cups_events_podium_sort_value(int $playerId, array $nameMap): string
 {
@@ -117,7 +96,7 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
             'event_date' => $row['event_date'] ?? null,
             'event_chrono' => $row['event_chrono'] ?? null,
         ]); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
-        <td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($hostCountry); ?>"><?php echo k2_amiga_country_table_cell_or_dash($hostCountry); ?></td>
+        <td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($hostCountry); ?>"><?php echo k2_amiga_country_table_cell($hostCountry); ?></td>
         <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
             echo amiga_world_cup_stats_tournament_link(
                 $tournamentId,
@@ -126,9 +105,9 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
         ?></td>
         <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?>><?php echo $players > 0 ? (string) $players : '—'; ?></td>
         <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?>><?php echo $games; ?></td>
-        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left k2-wc-events-podium-pad-start'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($goldId, $nameMap)); ?>"><?php echo amiga_world_cups_events_podium_cell($goldId, $nameMap, $countryMap); ?></td>
-        <td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($silverId, $nameMap)); ?>"><?php echo amiga_world_cups_events_podium_cell($silverId, $nameMap, $countryMap); ?></td>
-        <td<?php echo k2_table_body_td_attr(7, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($bronzeId, $nameMap)); ?>"><?php echo amiga_world_cups_events_podium_cell($bronzeId, $nameMap, $countryMap); ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left k2-wc-events-podium-pad-start'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($goldId, $nameMap)); ?>"><?php echo $goldId < 1 ? k2_fmt_dash() : k2_amiga_lb_player_cell($goldId, k2_player_display_name($nameMap, $goldId), trim($countryMap[$goldId] ?? '')); ?></td>
+        <td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($silverId, $nameMap)); ?>"><?php echo $silverId < 1 ? k2_fmt_dash() : k2_amiga_lb_player_cell($silverId, k2_player_display_name($nameMap, $silverId), trim($countryMap[$silverId] ?? '')); ?></td>
+        <td<?php echo k2_table_body_td_attr(7, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h(amiga_world_cups_events_podium_sort_value($bronzeId, $nameMap)); ?>"><?php echo $bronzeId < 1 ? k2_fmt_dash() : k2_amiga_lb_player_cell($bronzeId, k2_player_display_name($nameMap, $bronzeId), trim($countryMap[$bronzeId] ?? '')); ?></td>
     </tr>
 <?php } ?>
 </tbody>

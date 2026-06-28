@@ -460,6 +460,33 @@ function amiga_profile_tournament_rating_cell(mixed $rating): string
     return k2_fmt_int($rating);
 }
 
+/**
+ * Perf. rating column — finite integer, ∞ for perfect win events, dash otherwise.
+ *
+ * @param array<string, mixed> $row participation / event-stats row
+ */
+function amiga_profile_tournament_perf_rating_cell(mixed $rating, array $row): string
+{
+    $isPerfect = (int) ($row['is_perfect_event'] ?? 0) === 1;
+
+    return performance_rating_display_cell($rating, $isPerfect, k2_fmt_dash());
+}
+
+/**
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_tournament_perf_rating_sort_value(mixed $rating, array $row): string
+{
+    if ((int) ($row['is_perfect_event'] ?? 0) === 1) {
+        return PERFORMANCE_RATING_INFINITY_SORT_VALUE;
+    }
+    if ($rating === null || $rating === '' || k2_db_is_null($rating)) {
+        return '-1';
+    }
+
+    return (string) (int) round((float) $rating);
+}
+
 function amiga_profile_tournament_avg_goals_cell(mixed $avgGoals, int $games): string
 {
     return k2_fmt_decimal($avgGoals, $games > 0 ? $games : null, 2);
@@ -518,7 +545,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
                 echo amiga_tournament_link((int) $t['id'], (string) $t['name']);
             ?></td>
-			<td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($hostCountry); ?>"><?php echo k2_amiga_country_table_cell_or_dash($hostCountry); ?></td>
+			<td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($hostCountry); ?>"><?php echo k2_amiga_country_table_cell($hostCountry); ?></td>
 			<td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo k2_fmt_games_played($games); ?></td>
 			<td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
 			<td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($draws, 'draw'); ?></td>
@@ -533,7 +560,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<td<?php echo k2_table_body_td_attr(14, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr(15, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_delta_cell($t['rating_delta'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr(16, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_after'] ?? null); ?></td>
-			<td<?php echo k2_table_body_td_attr(17, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['performance_rating'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(17, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo k2_h(amiga_profile_tournament_perf_rating_sort_value($t['performance_rating'] ?? null, $t)); ?>"><?php echo amiga_profile_tournament_perf_rating_cell($t['performance_rating'] ?? null, $t); ?></td>
 		</tr>
 	<?php } ?>
 	</tbody>
@@ -593,7 +620,7 @@ function amiga_tournament_index_render_table(array $rows): void
                 echo k2_h((string) $row['name']);
             }
         ?></td>
-        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($hostCountry); ?>"><?php echo k2_amiga_country_table_cell_or_dash($hostCountry); ?></td>
+        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($hostCountry); ?>"><?php echo k2_amiga_country_table_cell($hostCountry); ?></td>
         <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo $games; ?></td>
         <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo $hasStandings ? (string) $players : '—'; ?></td>
         <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>>
@@ -665,7 +692,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
         $playerCountry = (string) ($row['player_country'] ?? '');
         ?>
 		<tr>
-			<td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($playerCountry); ?>"><?php echo k2_amiga_country_table_cell_or_dash($playerCountry); ?></td>
+			<td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($playerCountry); ?>"><?php echo k2_amiga_country_table_cell($playerCountry); ?></td>
 			<td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($playerId, (string) ($row['player_name'] ?? '')); ?></td>
 			<td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo k2_fmt_games_played($games); ?></td>
 			<td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
@@ -681,7 +708,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<td<?php echo k2_table_body_td_attr(13, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($row['rating_before'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr(14, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_delta_cell($row['rating_delta'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr(15, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($row['rating_after'] ?? null); ?></td>
-			<td<?php echo k2_table_body_td_attr(16, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($row['performance_rating'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(16, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo k2_h(amiga_profile_tournament_perf_rating_sort_value($row['performance_rating'] ?? null, $row)); ?>"><?php echo amiga_profile_tournament_perf_rating_cell($row['performance_rating'] ?? null, $row); ?></td>
 		</tr>
 	<?php } ?>
 	</tbody>

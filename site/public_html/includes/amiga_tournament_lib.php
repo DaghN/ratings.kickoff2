@@ -2397,8 +2397,8 @@ function amiga_tournament_render_games_table(array $rows): void
             $eloDiffCell = $dash;
         }
 
-        $flagA = $showFlags && $countryA !== '' ? k2_amiga_country_flag_link($countryA, ['class' => 'k2-amiga-tgame-flag']) : '';
-        $flagB = $showFlags && $countryB !== '' ? k2_amiga_country_flag_link($countryB, ['class' => 'k2-amiga-tgame-flag']) : '';
+        $flagA = $showFlags && $countryA !== '' ? k2_amiga_country_flag_link($countryA) : '';
+        $flagB = $showFlags && $countryB !== '' ? k2_amiga_country_flag_link($countryB) : '';
         $teamACell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--a">' . $flagA
             . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA']) . '</span>';
         $teamBCell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--b">'

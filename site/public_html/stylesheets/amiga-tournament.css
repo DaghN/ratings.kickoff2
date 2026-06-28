@@ -984,6 +984,7 @@ body.k2-site .k2-amiga-organizer-results__undo:focus-visible {
 }
 
 .k2-amiga-tgame-flag {
+	/* Caption-only (video spotlight scoreboard); table/game rows use k2-amiga-country-flag-img. */
 	width: 1.45em;
 	height: auto;
 	flex: 0 0 auto;

@@ -18,13 +18,13 @@ function amiga_perf_rating_column_label(): string
 function amiga_perf_rating_column_help(): string
 {
     return 'Rating level implied by your results in this event against the opponents you faced (frozen ratings). '
-        . 'Requires at least 2 games; omitted for perfect win or loss records.';
+        . 'Requires at least 2 games; shows ∞ for a perfect win record (all wins); omitted for other cases.';
 }
 
 function amiga_perf_rating_games_list_help(): string
 {
     return 'Rating level implied by your results in the games matching these filters, against each opponent\'s frozen pre-game rating. '
-        . 'Requires at least 2 games; omitted for perfect win or loss records.';
+        . 'Requires at least 2 games; shows ∞ for a perfect win record (all wins); omitted otherwise.';
 }
 
 /** Tooltip for ∞ in Perfect perf-rating sub-wing. */

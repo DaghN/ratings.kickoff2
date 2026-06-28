@@ -221,8 +221,9 @@ Imagery:
 - No repeating site-wide decorative banner.
 - Use imagery where it earns its place, e.g. Status heritage box or future Amiga photos.
 - **Amiga player hero:** country as fourth hero stat (label + flag under Rank/Rating/Games); `k2_amiga_country_flag.php` + `img/flags/amiga/`.
+- **Amiga table flags:** one leaderboard impression (`k2-amiga-country-flag-img`, 20×15) via `k2_amiga_country_flag_link()` / `k2_amiga_inline_flag_and_link()` / `k2_amiga_country_table_cell()` (em dash when no SVG). Video spotlight caption: `flag_link` with tgame class.
 - **Amiga leaderboards (player rows):** Country column after Elo (col 3) — centered flag via `k2_lb_th_country()` / `k2_lb_td_country_open()` on Rating, Calendar-geo, Tournament honours, Goals, DDs, Victims, Peak, Performance.
-- **World Cups tournament stats (wing 2):** Host Country column after Year — centered flag from `host_country` via `k2_amiga_country_table_cell_or_dash()` on Goals, DDs, Participation, Geography, Podium tables.
+- **World Cups tournament stats (wing 2):** Host Country column after Year — centered flag from `host_country` via `k2_amiga_country_table_cell()` on Goals, DDs, Participation, Geography, Podium tables.
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 - **In-page scrollbars** (`.k2-table-wrap`, archive listbox panels, heatmaps, bracket rails, etc.): thin muted thumb via `--k2-scrollbar-*` tokens in `theme.css` — not OS default gray, not tint accent. Page-level vertical scroll stays native unless we extend tokens to `html` later.

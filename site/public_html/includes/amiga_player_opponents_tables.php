@@ -11,6 +11,7 @@ require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_player_opponents_load.php';
 require_once __DIR__ . '/amiga_player_opponents_lib.php';
 require_once __DIR__ . '/k2_table_helpers.php';
+require_once __DIR__ . '/performance_rating.php';
 
 function amiga_player_opponents_dds_ratio_cell(float $ratio): string
 {
@@ -52,7 +53,7 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
         <th data-k2-sort="number" data-k2-help="Share of games won against this opponent.">Win Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games drawn against this opponent.">Draw Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games lost against this opponent.">Loss Ratio</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Performance rating" data-k2-help="The Elo level implied by the hero's results against this opponent (frozen pre-game opponent ratings). Needs at least 2 games and a non-perfect record.">Perf. rating</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Performance rating" data-k2-help="The Elo level implied by the hero's results against this opponent (frozen pre-game opponent ratings). Needs at least 2 games; shows ∞ for a perfect win record (all wins).">Perf. rating</th>
     </tr>
 </thead>
 <tbody>
@@ -69,6 +70,10 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
 	    $perfRating = isset($row['performance_rating']) && $row['performance_rating'] !== null
 	        ? (int) round((float) $row['performance_rating'])
 	        : null;
+	    $perfInfinity = performance_rating_is_perfect_win_record($games, $wins, $draws, $losses);
+	    $perfSortValue = $perfRating !== null
+	        ? (string) $perfRating
+	        : ($perfInfinity ? PERFORMANCE_RATING_INFINITY_SORT_VALUE : '-1');
 	    ?>
     <tr>
         <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
@@ -94,7 +99,7 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
         <td><?php echo number_format(100 * $drawRatio, 1);
         echo '%'; ?></td>
         <td><?php echo $losses != 0 ? number_format(100 * $lossRatio, 1) . '%' : '0%'; ?></td>
-        <td<?php echo $perfRating === null ? ' data-k2-sort-value="-1"' : ''; ?>><?php echo $perfRating !== null ? k2_fmt_int($perfRating) : '—'; ?></td>
+        <td data-k2-sort-value="<?php echo k2_h($perfSortValue); ?>"><?php echo performance_rating_display_cell($perfRating, $perfInfinity); ?></td>
     </tr>
     <?php } ?>
 </tbody>

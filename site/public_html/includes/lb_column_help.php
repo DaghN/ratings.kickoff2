@@ -603,7 +603,7 @@ function k2_lb_help_amiga_wc_country_avg_opponent_rating(): string
 function k2_lb_help_amiga_wc_country_performance_rating(): string
 {
     return 'Rating level implied by this country\'s combined World Cup results against the opponents its players faced '
-        . '(frozen pre-game ratings).';
+        . '(frozen pre-game ratings). Shows ∞ for a perfect win record (all wins, ≥2 games).';
 }
 
 function k2_lb_help_amiga_wc_country_points_per_realm_wc(): string

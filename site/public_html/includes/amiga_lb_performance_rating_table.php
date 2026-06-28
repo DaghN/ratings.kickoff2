@@ -75,7 +75,7 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?><?php echo $isPerfect ? ' data-k2-sort-value="0"' : ''; ?>><?php
             if ($isPerfect) {
-                echo '<span aria-hidden="true">&#8734;</span><span class="visually-hidden">Perfect record</span>';
+                echo performance_rating_infinity_cell_html();
             } else {
                 echo amiga_profile_tournament_rating_cell($row['performance_rating'] ?? null);
             }

@@ -2,7 +2,10 @@
 /**
  * Amiga country flags → country roster links.
  *
- * Default: k2_amiga_country_table_cell() and _or_dash() wrap flags in roster href + #k2-country-roster.
+ * Table flag: k2-amiga-country-flag-img (20×15) via k2_amiga_country_flag_link().
+ * Flag-only cells: k2_amiga_country_table_cell() (em dash when no SVG).
+ * Video spotlight caption: flag_link(..., tgame class + decorative) — caption-only.
+ *
  * @see docs/amiga-countries-hub-policy.md CH9
  */
 require_once __DIR__ . '/k2_safety.php';
@@ -61,7 +64,7 @@ function k2_amiga_country_flag_img(string $country, array $opts = []): string
     }
 
     $customClass = isset($opts['class']) ? trim((string) $opts['class']) : '';
-    $decorative = !isset($opts['decorative']) || (bool) $opts['decorative'];
+    $decorative = (bool) ($opts['decorative'] ?? false);
     $src = k2_amiga_country_flag_src($meta['code']);
     $smallFlag = $customClass === '';
     $imgClass = $smallFlag ? 'k2-amiga-country-flag-img' : $customClass;
@@ -80,9 +83,10 @@ function k2_amiga_country_flag_img(string $country, array $opts = []): string
 }
 
 /**
- * Flag image linking to country roster (#k2-country-roster).
+ * Linked country flag → roster (#k2-country-roster). Default img: k2-amiga-country-flag-img (20×15).
  *
- * @param array{class?: string, decorative?: bool} $opts passed to k2_amiga_country_flag_img()
+ * @param array{class?: string, decorative?: bool} $opts passed to k2_amiga_country_flag_img();
+ *        decorative defaults false (alt text); caption passes true + custom class.
  */
 function k2_amiga_country_flag_link(string $country, array $opts = []): string
 {
@@ -102,42 +106,30 @@ function k2_amiga_country_flag_link(string $country, array $opts = []): string
     return '<a class="k2-country-roster-link" href="' . k2_h($href) . '" aria-label="Players from ' . k2_h($label) . '">' . $flag . '</a>';
 }
 
-/** Flag image for table cells; falls back to escaped country name when unmapped. */
+/** Flag-only table cell — linked img or em dash (no text fallback). */
 function k2_amiga_country_table_cell(string $country, bool $link = true): string
 {
-    $country = trim($country);
-    $flag = k2_amiga_country_flag_img($country, ['decorative' => false]);
-    if ($flag !== '') {
-        $inner = $flag;
-    } else {
-        $inner = $country !== '' ? k2_h($country) : '';
+    if (!$link) {
+        $country = trim($country);
+        $flag = k2_amiga_country_flag_img($country);
+
+        return $flag !== '' ? $flag : '—';
     }
 
-    if ($inner === '') {
-        return '';
-    }
+    $linked = k2_amiga_country_flag_link($country);
 
-    if ($link && $country !== '') {
-        require_once __DIR__ . '/amiga_countries_lib.php';
-        $meta = k2_amiga_country_flag_meta($country);
-        $label = $meta !== null ? $meta['label'] : $country;
-        $href = k2_amiga_country_roster_href($country);
-
-        return '<a class="k2-country-roster-link" href="' . k2_h($href) . '" aria-label="Players from ' . k2_h($label) . '">' . $inner . '</a>';
-    }
-
-    return $inner;
+    return $linked !== '' ? $linked : '—';
 }
 
-/** Flag cell; em dash when country is empty (e.g. host unknown). */
-function k2_amiga_country_table_cell_or_dash(string $country, bool $link = true): string
+/** Inline table row — optional nationality flag before/after a link (omit flag when unmapped). */
+function k2_amiga_inline_flag_and_link(string $country, string $linkHtml): string
 {
-    $country = trim($country);
-    if ($country === '') {
-        return '—';
+    $flag = k2_amiga_country_flag_link($country);
+    if ($flag === '') {
+        return $linkHtml;
     }
 
-    return k2_amiga_country_table_cell($country, $link);
+    return '<span class="k2-amiga-wc-podium-player">' . $flag . $linkHtml . '</span>';
 }
 
 /** Leaderboard Player column — nationality flag + profile link (no separate Country column). */
@@ -145,17 +137,7 @@ function k2_amiga_lb_player_cell(int $playerId, string $name, string $country = 
 {
     require_once __DIR__ . '/amiga_player_load.php';
 
-    $link = k2_amiga_player_link($playerId, $name);
-    $country = trim($country);
-    if ($country === '') {
-        return $link;
-    }
-    $flag = k2_amiga_country_table_cell($country, true);
-    if ($flag === '') {
-        return $link;
-    }
-
-    return '<span class="k2-amiga-wc-podium-player">' . $flag . $link . '</span>';
+    return k2_amiga_inline_flag_and_link($country, k2_amiga_player_link($playerId, $name));
 }
 
 /** Leaderboard Event column — host-country flag + tournament link (no separate Country column). */
@@ -163,17 +145,7 @@ function k2_amiga_lb_tournament_cell(int $tournamentId, string $name, string $ho
 {
     require_once __DIR__ . '/amiga_tournament_lib.php';
 
-    $link = amiga_tournament_link($tournamentId, $name);
-    $hostCountry = trim($hostCountry);
-    if ($hostCountry === '') {
-        return $link;
-    }
-    $flag = k2_amiga_country_table_cell($hostCountry, true);
-    if ($flag === '') {
-        return $link;
-    }
-
-    return '<span class="k2-amiga-wc-podium-player">' . $flag . $link . '</span>';
+    return k2_amiga_inline_flag_and_link($hostCountry, amiga_tournament_link($tournamentId, $name));
 }
 
 /**

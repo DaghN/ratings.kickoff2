@@ -13,11 +13,6 @@ require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_countries_lib.php';
 
-function amiga_countries_index_linked_flag(string $countryToken): string
-{
-    return k2_amiga_country_table_cell($countryToken);
-}
-
 /**
  * @param list<array<string, mixed>> $rows
  */
@@ -50,7 +45,7 @@ function amiga_countries_render_index_table(array $rows, int $countryCount): voi
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo amiga_countries_index_linked_flag($countryToken); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_country_table_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><a class="k2-country-roster-link" href="<?php echo k2_h($rosterHref); ?>"><?php echo k2_h($countryToken); ?></a></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo (int) $row['games']; ?></td>

@@ -102,7 +102,7 @@ function amiga_world_cup_stats_anchor_columns(): array
             'render' => static function (array $row, array $nameMap): string {
                 unset($nameMap);
 
-                return k2_amiga_country_table_cell_or_dash((string) ($row['host_country'] ?? ''));
+                return k2_amiga_country_table_cell((string) ($row['host_country'] ?? ''));
             },
         ],
         [

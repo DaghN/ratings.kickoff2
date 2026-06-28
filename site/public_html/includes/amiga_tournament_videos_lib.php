@@ -739,8 +739,10 @@ function amiga_tournament_videos_wc_game_caption_html(array $entry): string
             . '" data-k2-tooltip-hide-title="1">' . k2_h((string) (int) round($rating)) . '</a>)</span>';
     };
 
-    $flagA = $countryA !== '' ? k2_amiga_country_flag_link($countryA, ['class' => 'k2-amiga-tgame-flag']) : '';
-    $flagB = $countryB !== '' ? k2_amiga_country_flag_link($countryB, ['class' => 'k2-amiga-tgame-flag']) : '';
+    // Caption-only: em-scaled tgame flag (not the standard table leaderboard flag).
+    $captionFlagOpts = ['class' => 'k2-amiga-tgame-flag', 'decorative' => true];
+    $flagA = $countryA !== '' ? k2_amiga_country_flag_link($countryA, $captionFlagOpts) : '';
+    $flagB = $countryB !== '' ? k2_amiga_country_flag_link($countryB, $captionFlagOpts) : '';
     $teamACell = '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--a">' . $flagA
         . k2_amiga_player_link((int) $game['idA'], (string) $game['NameA'])
         . $ratingHtml((float) $game['RatingA'], 'a') . '</span>';
